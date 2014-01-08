@@ -399,7 +399,7 @@ evaluator.comp_almostequals=function(args,modifs){
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
         return {'ctype':'boolean' ,
-            'value':Number.helper.isAlmostEqual(v0,v1)  }
+            'value':CSNumber.helper.isAlmostEqual(v0,v1)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
         return {'ctype':'boolean' ,
@@ -471,7 +471,7 @@ evaluator.numb_degree=function(args,modifs){
     var v1=evaluateAndVal(args[1]);
     
     if(v0.ctype=='number' && v1.ctype=='void' ){
-        return Number.mult(v0,Number.real(Math.PI/180));
+        return CSNumber.mult(v0,CSNumber.real(Math.PI/180));
     }
     
     return nada;
@@ -493,8 +493,8 @@ evaluator.comp_ugt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real+Number.eps)  }
+        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+            return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real+CSNumber.eps)  }
     }
     return nada;
 }
@@ -503,8 +503,8 @@ evaluator.comp_uge=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real-Number.eps)  }
+        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+            return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real-CSNumber.eps)  }
     }
     return nada;
 }
@@ -513,8 +513,8 @@ evaluator.comp_ult=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real-Number.eps)  }
+        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+            return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real-CSNumber.eps)  }
     }
     return nada;
 }
@@ -523,8 +523,8 @@ evaluator.comp_ule=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real+Number.eps)  }
+        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+            return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real+CSNumber.eps)  }
     }
     return nada;
 }
@@ -535,7 +535,7 @@ evaluator.comp_gt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
+        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
@@ -549,7 +549,7 @@ evaluator.comp_ge=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
+        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real>=v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
@@ -563,7 +563,7 @@ evaluator.comp_le=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
+        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real<=v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
@@ -576,7 +576,7 @@ evaluator.comp_lt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
+        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
@@ -682,7 +682,7 @@ evaluator.minus=function(args,modifs){
     var v1=evaluateAndVal(args[1]);
     
     if(v0.ctype == 'void'  && v1.ctype=='number' ){   //Monadisches Plus
-        return Number.neg(v1);
+        return CSNumber.neg(v1);
     }
     
     if(v0.ctype == 'void'  && v1.ctype=='list' ){   //Monadisches Plus
@@ -690,7 +690,7 @@ evaluator.minus=function(args,modifs){
     }
     
     if(v0.ctype=='number'  && v1.ctype=='number' ){
-        return Number.sub(v0,v1);
+        return CSNumber.sub(v0,v1);
     }
     if(v0.ctype=='list' && v1.ctype=='list' ){
         return List.sub(v0,v1)
@@ -722,7 +722,7 @@ evaluator.mod=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return Number.mod(v0,v1);
+        return CSNumber.mod(v0,v1);
     }
     return nada;
     
@@ -733,7 +733,7 @@ evaluator.pow=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return Number.pow(v0,v1);
+        return CSNumber.pow(v0,v1);
     }
     return nada;
     
@@ -750,7 +750,7 @@ evaluator.exp=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.exp(v0);
+        return CSNumber.exp(v0);
     }
     return nada;    
 }
@@ -759,7 +759,7 @@ evaluator.sin=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.sin(v0);
+        return CSNumber.sin(v0);
     }
     return nada;
 }
@@ -768,7 +768,7 @@ evaluator.sqrt=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.sqrt(v0);
+        return CSNumber.sqrt(v0);
     }
     return nada;
 }
@@ -778,7 +778,7 @@ evaluator.cos=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.cos(v0);
+        return CSNumber.cos(v0);
     }
     return nada;
 }
@@ -788,7 +788,7 @@ evaluator.tan=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.tan(v0);
+        return CSNumber.tan(v0);
     }
     return nada;
 }
@@ -797,7 +797,7 @@ evaluator.arccos=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.arccos(v0);
+        return CSNumber.arccos(v0);
     }
     return nada;
 }
@@ -807,7 +807,7 @@ evaluator.arcsin=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.arcsin(v0);
+        return CSNumber.arcsin(v0);
     }
     return nada;
 }
@@ -817,7 +817,7 @@ evaluator.arctan=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.arctan(v0);
+        return CSNumber.arctan(v0);
     }
     return nada;
 }
@@ -828,7 +828,7 @@ evaluator.arctan2=function(args,modifs){
         var v0=evaluateAndVal(args[0]);
         var v1=evaluateAndVal(args[1]);
         if(v0.ctype=='number' &&v1.ctype=='number'){
-            return Number.arctan2(v0,v1);
+            return CSNumber.arctan2(v0,v1);
         }
     }
     
@@ -851,7 +851,7 @@ evaluator.log=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number.log(v0);
+        return CSNumber.log(v0);
     }
     return nada;
     
@@ -864,7 +864,7 @@ evaluator.recursive=function(args,op){//OK dieses konstrukt frisst evtl ein klei
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype=='number' ){
-        return Number[op](v0);
+        return CSNumber[op](v0);
     }
     if(v0.ctype=='list' ){
         return List[op](v0);
@@ -913,13 +913,13 @@ evaluator.abs=function(args,modifs){
 
 evaluator.random=function(args,modifs){
     if(args.length==0){
-        return Number.real(Number.helper.rand());
+        return CSNumber.real(CSNumber.helper.rand());
     }
     
     if(args.length==1 ){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='number' ){
-            return Number.complex(v0.value.real*Number.helper.rand(),v0.value.imag*Number.helper.rand());
+            return CSNumber.complex(v0.value.real*CSNumber.helper.rand(),v0.value.imag*CSNumber.helper.rand());
         }
     }
     return nada;
@@ -928,13 +928,13 @@ evaluator.random=function(args,modifs){
 
 evaluator.random=function(args,modifs){
     if(args.length==0){
-        return Number.real(Number.helper.rand());
+        return CSNumber.real(CSNumber.helper.rand());
     }
     
     if(args.length==1 ){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='number' ){
-            return Number.complex(v0.value.real*Number.helper.rand(),v0.value.imag*Number.helper.rand());
+            return CSNumber.complex(v0.value.real*CSNumber.helper.rand(),v0.value.imag*CSNumber.helper.rand());
         }
     }
     return nada;
@@ -945,7 +945,7 @@ evaluator.seedrandom=function(args,modifs){
     if(args.length==1 ){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='number' ){
-            Number.helper.seedrandom(v0.value.real);
+            CSNumber.helper.seedrandom(v0.value.real);
         }
     }
     return nada;
@@ -958,7 +958,7 @@ evaluator.seedrandom=function(args,modifs){
 evaluator.randomnormal=function(args,modifs){
     
     if(args.length==0){
-        return Number.real(Number.helper.randnormal());
+        return CSNumber.real(CSNumber.helper.randnormal());
     }
     return nada;
     
@@ -973,7 +973,7 @@ evaluator.randominteger=function(args,modifs){
 evaluator.randombool=function(args,modifs){
     
     if(args.length==0){
-        if(Number.helper.rand()>0.5){
+        if(CSNumber.helper.rand()>0.5){
             return {'ctype':'boolean' ,'value':true  };
         }
         return {'ctype':'boolean' ,'value':false  };
@@ -994,7 +994,7 @@ evaluator.isreal=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='number' ){
-            if(Number.helper.isAlmostReal(v0)){
+            if(CSNumber.helper.isAlmostReal(v0)){
                 return {'ctype':'boolean' ,'value':true  };
             }
         }
@@ -1008,7 +1008,7 @@ evaluator.isinteger=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='number' ){
-            if(Number.helper.isAlmostReal(v0)&&
+            if(CSNumber.helper.isAlmostReal(v0)&&
                v0.value.real==Math.floor(v0.value.real)){
                 return {'ctype':'boolean' ,'value':true  };
             }
@@ -1024,7 +1024,7 @@ evaluator.iseven=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='number' ){
-            if(Number.helper.isAlmostReal(v0)&&
+            if(CSNumber.helper.isAlmostReal(v0)&&
                v0.value.real/2==Math.floor(v0.value.real/2)){
                 return {'ctype':'boolean' ,'value':true  };
             }
@@ -1039,7 +1039,7 @@ evaluator.isodd=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='number' ){
-            if(Number.helper.isAlmostReal(v0)&&
+            if(CSNumber.helper.isAlmostReal(v0)&&
                (v0.value.real-1)/2==Math.floor((v0.value.real-1)/2)){
                 return {'ctype':'boolean' ,'value':true  };
             }
@@ -1162,15 +1162,15 @@ evaluator.complex=function(args,modifs){
                 if(v0.value.length==2){
                     var a=v0.value[0];
                     var b=v0.value[1];
-                    return Number.complex(a.value.real-b.value.imag,b.value.real+a.value.imag);
+                    return CSNumber.complex(a.value.real-b.value.imag,b.value.real+a.value.imag);
                 }
                 if(v0.value.length==3){
                     var a=v0.value[0];
                     var b=v0.value[1];
                     var c=v0.value[2];
-                    a=Number.div(a,c);
-                    b=Number.div(b,c);
-                    return Number.complex(a.value.real-b.value.imag,b.value.real+a.value.imag);
+                    a=CSNumber.div(a,c);
+                    b=CSNumber.div(b,c);
+                    return CSNumber.complex(a.value.real-b.value.imag,b.value.real+a.value.imag);
                 }
                 
             }
@@ -1276,7 +1276,7 @@ evaluator.perp=function(args,modifs){
             
             var inf=List.realVector([0,0,1]);
             var tt=List.cross(inf,l);
-            tt.value=[tt.value[1],Number.neg(tt.value[0]),tt.value[2]];
+            tt.value=[tt.value[1],CSNumber.neg(tt.value[0]),tt.value[2]];
             var erg=List.cross(tt,p);
             erg.usage="Line";
             return erg;
@@ -1287,7 +1287,7 @@ evaluator.perp=function(args,modifs){
         var v0=evaluateAndVal(args[0]);
         
         if(List.helper.isNumberVecN(v0,2)){
-            v0.value=[Number.neg(v0.value[1]),v0.value[0]];
+            v0.value=[CSNumber.neg(v0.value[1]),v0.value[0]];
             return(v0);
         }
         
@@ -1397,9 +1397,9 @@ evaluator.area=function(args,modifs){
             var z0=v0.value[2];
             var z1=v1.value[2];
             var z2=v2.value[2];
-            if(!Number.helper.isAlmostZero(z0) 
-               && !Number.helper.isAlmostZero(z1) 
-               && !Number.helper.isAlmostZero(z2) ){
+            if(!CSNumber.helper.isAlmostZero(z0) 
+               && !CSNumber.helper.isAlmostZero(z1) 
+               && !CSNumber.helper.isAlmostZero(z2) ){
                 v0=List.scaldiv(z0,v0);
                 v1=List.scaldiv(z1,v1);
                 v2=List.scaldiv(z2,v2);
@@ -1480,7 +1480,7 @@ evaluator.length=function(args,modifs){ //ACHTUNG: evaluator darf nicht array-ar
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='list'||v0.ctype=='string'){
-            return Number.real(v0.value.length);
+            return CSNumber.real(v0.value.length);
             
         }
         

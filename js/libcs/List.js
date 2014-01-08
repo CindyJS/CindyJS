@@ -407,7 +407,7 @@ List.sub=function(a1,a2){
         var av1=a1.value[i];
         var av2=a2.value[i];
         if(av1.ctype=='number' && av2.ctype=='number' ){
-            erg[erg.length]=Number.sub(av1,av2);
+            erg[erg.length]=CSNumber.sub(av1,av2);
         } else if(av1.ctype=='list' && av2.ctype=='list' ){
             erg[erg.length]=List.sub(av1,av2);
         } else {
@@ -425,7 +425,7 @@ List.abs2=function(a1){
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
         if(av1.ctype=='number' ){
-            erg+=Number.abs2(av1).value.real;
+            erg+=CSNumber.abs2(av1).value.real;
         } else if(av1.ctype=='list' ){
             erg+=List.abs2(av1).value.real;
         } else {
@@ -438,7 +438,7 @@ List.abs2=function(a1){
 }
 
 List.abs=function(a1){
-   return Number.sqrt(List.abs2(a1))
+   return CSNumber.sqrt(List.abs2(a1))
 }
 
 
@@ -447,7 +447,7 @@ List.recursive=function(a1,op){
     for(var i=0;i<a1.value.length;i++){
         var av1=evaluateAndVal(a1.value[i]);//Will man hier evaluieren
         if(av1.ctype=='number'){
-            erg[erg.length]=Number[op](av1);
+            erg[erg.length]=CSNumber[op](av1);
         } else if(av1.ctype=='list'){
             erg[erg.length]=List[op](av1);
         } else {
@@ -588,7 +588,7 @@ List.scalproduct=function(a1,a2){
         var av1=a1.value[i];
         var av2=a2.value[i];
         if(av1.ctype=='number' && av2.ctype=='number'){
-            erg=Number.add(Number.mult(av1,av2),erg);
+            erg=CSNumber.add(CSNumber.mult(av1,av2),erg);
         } else {
             return nada;
         }
@@ -610,7 +610,7 @@ List.productMV=function(a,b){
             var av2=b.value[i];
 
             if(av1.ctype=='number' && av2.ctype=='number'){
-                erg=Number.add(Number.mult(av1,av2),erg);
+                erg=CSNumber.add(CSNumber.mult(av1,av2),erg);
             } else {
                 return nada;
             }
@@ -634,7 +634,7 @@ List.productVM=function(a,b){
             var av2=b.value[i].value[j];
 
             if(av1.ctype=='number' && av2.ctype=='number'){
-                erg=Number.add(Number.mult(av1,av2),erg);
+                erg=CSNumber.add(CSNumber.mult(av1,av2),erg);
             } else {
                 return nada;
             }
@@ -688,9 +688,9 @@ List.mult=function(a,b){
 
 
 List.cross=function(a,b){//Assumes that a,b are 3-Vectors
-    var x=Number.sub(Number.mult(a.value[1],b.value[2]),Number.mult(a.value[2],b.value[1]));
-    var y=Number.sub(Number.mult(a.value[2],b.value[0]),Number.mult(a.value[0],b.value[2]));
-    var z=Number.sub(Number.mult(a.value[0],b.value[1]),Number.mult(a.value[1],b.value[0]));
+    var x=CSNumber.sub(CSNumber.mult(a.value[1],b.value[2]),CSNumber.mult(a.value[2],b.value[1]));
+    var y=CSNumber.sub(CSNumber.mult(a.value[2],b.value[0]),CSNumber.mult(a.value[0],b.value[2]));
+    var z=CSNumber.sub(CSNumber.mult(a.value[0],b.value[1]),CSNumber.mult(a.value[1],b.value[0]));
     return List.turnIntoCSList([x,y,z]);
 }
 
@@ -748,7 +748,7 @@ List.det3=function(p,q,r){//Assumes that a,b,c are 3-Vectors
                 - p.value[1].value.real * q.value[0].value.imag * r.value[2].value.real;
 
 
-    return Number.complex(re,im);
+    return CSNumber.complex(re,im);
 }
 
 
@@ -837,7 +837,7 @@ List.inverse=function(a){
     for(var i=0;i<n;i++){
         var li=[]; 
         for(var j=0;j<n;j++){
-            li[li.length]=Number.complex(res.x[i][j],res.y[i][j]);
+            li[li.length]=CSNumber.complex(res.x[i][j],res.y[i][j]);
         }
         erg[erg.length]=List.turnIntoCSList(li);
     }

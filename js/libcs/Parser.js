@@ -76,7 +76,7 @@ var evaluateAndHomog=function(a){
     }
     
     if(List.helper.isNumberVecN(x,2)){
-        x.value[2]=Number.real(1);
+        x.value[2]=CSNumber.real(1);
         return x;
     }
     
@@ -128,7 +128,7 @@ var report=function(a,i){
         report(a.args[1],i+1);
     }
     if(a.ctype=='number'){
-        console.log(prep+"NUMBER: "+Number.niceprint(a));
+        console.log(prep+"NUMBER: "+CSNumber.niceprint(a));
     }
     if(a.ctype=='variable'){
         console.log(prep+"VARIABLE: "+a.name);
@@ -467,6 +467,23 @@ var bracket=function(code){
      f.setArguments(args);
      return f;
      }*/
+     
+     if (code[0]=="|"){
+        var f1= parseList(code.substring(1, code.length - 1));
+        var type=f1.args.length;
+        if(type==1){
+          f1.oper="abs";
+          return f1;
+                
+        }
+        if(type==2){
+          f1.oper="dist";
+          return f1;
+                
+        }
+        return nada; 
+     
+     }
     
     if (code=="()" || code=="[]") {
         var erg={};

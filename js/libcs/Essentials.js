@@ -87,7 +87,7 @@ var niceprint=function(a){
         return '_?_';
     }
     if(a.ctype=='number'){
-        return Number.niceprint(a);
+        return CSNumber.niceprint(a);
     }
     if(a.ctype=='string'){
         return a.value;
@@ -170,7 +170,7 @@ evaluator.helper.eval= function(name,args,modifs){
 
 evaluator.helper.clone=function(a){//Das ist jetzt gerade mal ätzend un-OO
    if(a.ctype=='list'){return List.clone(a);}
-   if(a.ctype=='number'){return Number.clone(a);}
+   if(a.ctype=='number'){return CSNumber.clone(a);}
    return a;//Werden die anderen sachen gecloned, in Cindy ist das nicht so???
 
 }

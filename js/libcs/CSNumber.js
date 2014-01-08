@@ -2,8 +2,8 @@
 //==========================================
 //      Complex Numbers
 //==========================================
-Number={};
-Number.niceprint= function(a){
+CSNumber={};
+CSNumber.niceprint= function(a){
     if (a.value.imag==0) {
         return ""+a.value.real;
     }
@@ -16,105 +16,105 @@ Number.niceprint= function(a){
     return "";
 }
 
-Number.complex=function(r,i){
+CSNumber.complex=function(r,i){
     return {"ctype":"number" ,  "value":{'real':r,'imag':i}}
 }
 
-Number.real=function(r){
+CSNumber.real=function(r){
     return {"ctype":"number" ,  "value":{'real':r,'imag':0}}
 }
 
 
 
-Number.clone=function(a){
+CSNumber.clone=function(a){
     return {"ctype":"number" ,  
             "value":{'real':a.value.real,'imag':a.value.imag}, 
             "usage":a.usage}
 }
 
 
-Number.max=function(a,b){
+CSNumber.max=function(a,b){
     return {"ctype":"number" ,  "value":{'real':Math.max(a.value.real,b.value.real),
         'imag':Math.max(a.value.imag,b.value.imag)}}
 }
 
 
-Number.min=function(a,b){
+CSNumber.min=function(a,b){
     return {"ctype":"number" ,  "value":{'real':Math.min(a.value.real,b.value.real),
         'imag':Math.min(a.value.imag,b.value.imag)}}
 }
 
 
-Number.add=function(a,b){
+CSNumber.add=function(a,b){
     return {"ctype":"number" ,  "value":{'real':a.value.real+b.value.real,
         'imag':a.value.imag+b.value.imag}}
 }
 
-Number.sub=function(a,b){
+CSNumber.sub=function(a,b){
     return {"ctype":"number" ,  "value":{'real':a.value.real-b.value.real,
         'imag':a.value.imag-b.value.imag}}
 }
 
-Number.neg=function(a){
+CSNumber.neg=function(a){
     return {"ctype":"number" ,
         "value":{'real':-a.value.real, 'imag':-a.value.imag}}
 }
 
 
-Number.re=function(a){
+CSNumber.re=function(a){
     return {"ctype":"number" ,
         "value":{'real':a.value.real, 'imag':0}}
 }
 
 
-Number.im=function(a){
+CSNumber.im=function(a){
     return {"ctype":"number" ,
         "value":{'real':a.value.imag, 'imag':0}}
 }
 
-Number.conjugate=function(a){
+CSNumber.conjugate=function(a){
     return {"ctype":"number" ,
         "value":{'real':a.value.real, 'imag':-a.value.imag}}
 }
 
 
 
-Number.round=function(a){
+CSNumber.round=function(a){
     return {"ctype":"number" ,
         "value":{'real':Math.round(a.value.real), 'imag':Math.round(a.value.imag)}}
 }
 
-Number.ceil=function(a){
+CSNumber.ceil=function(a){
     return {"ctype":"number" ,
         "value":{'real':Math.ceil(a.value.real), 'imag':Math.ceil(a.value.imag)}}
 }
 
-Number.floor=function(a){
+CSNumber.floor=function(a){
     return {"ctype":"number" ,
         "value":{'real':Math.floor(a.value.real), 'imag':Math.floor(a.value.imag)}}
 }
 
 
 
-Number.mult=function(a,b){
+CSNumber.mult=function(a,b){
     return {"ctype":"number" ,
         "value":{'real':a.value.real*b.value.real-a.value.imag*b.value.imag,
             'imag':a.value.real*b.value.imag+a.value.imag*b.value.real}};
 }
 
 
-Number.abs2=function(a,b){
+CSNumber.abs2=function(a,b){
     return {"ctype":"number" ,
         "value":{'real':a.value.real*a.value.real+a.value.imag*a.value.imag,
             'imag':0}};
 }
 
-Number.abs=function(a1){
-    return Number.sqrt(Number.abs2(a1))
+CSNumber.abs=function(a1){
+    return CSNumber.sqrt(CSNumber.abs2(a1))
 }
 
 
-Number.inv=function(a){
+CSNumber.inv=function(a){
     var s=a.value.real*a.value.real+a.value.imag*a.value.imag;
     return {"ctype":"number" ,
         "value":{'real':a.value.real/s,
@@ -122,34 +122,34 @@ Number.inv=function(a){
 }
 
 
-Number.div=function(a,b){
-    return Number.mult(a,Number.inv(b));
+CSNumber.div=function(a,b){
+    return CSNumber.mult(a,CSNumber.inv(b));
 }
 
 
-Number.eps=0.0000001;
+CSNumber.eps=0.0000001;
 
-Number.snap=function(a){
+CSNumber.snap=function(a){
     var r=a.value.real;
     var i=a.value.imag;
-    if(Math.floor(r+Number.eps)!=Math.floor(r-Number.eps)){
+    if(Math.floor(r+CSNumber.eps)!=Math.floor(r-CSNumber.eps)){
         r=Math.round(r);
     }
-    if(Math.floor(i+Number.eps)!=Math.floor(i-Number.eps)){
+    if(Math.floor(i+CSNumber.eps)!=Math.floor(i-CSNumber.eps)){
         i=Math.round(i);
     }
     return {"ctype":"number" ,"value":{'real':r,'imag':i}};
     
 }
 
-Number.exp=function(a){
+CSNumber.exp=function(a){
     var n = Math.exp(a.value.real);
     var r = n * Math.cos(a.value.imag);
     var i = n * Math.sin(a.value.imag);
     return {"ctype":"number" ,"value":{'real':r,'imag':i}};
 }
 
-Number.cos=function(a) {
+CSNumber.cos=function(a) {
     var rr=a.value.real;
     var ii=a.value.imag;
     var n = Math.exp(ii);
@@ -165,7 +165,7 @@ Number.cos=function(a) {
     return {"ctype":"number" ,"value":{'real':r,'imag':i}};
 }
 
-Number.sin=function(a) {
+CSNumber.sin=function(a) {
     var rr=a.value.real;
     var ii=a.value.imag;
     var n = Math.exp(ii);
@@ -181,34 +181,34 @@ Number.sin=function(a) {
     return {"ctype":"number" ,"value":{'real':r,'imag':i}};
 }
 
-Number.tan=function(a) {
-    var s=Number.sin(a);
-    var c=Number.cos(a);
-    return Number.div(s,c);
+CSNumber.tan=function(a) {
+    var s=CSNumber.sin(a);
+    var c=CSNumber.cos(a);
+    return CSNumber.div(s,c);
 }
 
-Number.arccos=function(a) {  //OK hässlich aber tuts.
-    var t2=Number.mult(a,Number.neg(a));
-    var tmp=Number.sqrt(Number.add(Number.real(1),t2));
-    var tmp1=Number.add(Number.mult(a,Number.complex(0,1)),tmp);
-    var erg=Number.add(Number.mult(Number.log(tmp1),Number.complex(0,1)),Number.real(Math.PI*0.5));
+CSNumber.arccos=function(a) {  //OK hässlich aber tuts.
+    var t2=CSNumber.mult(a,CSNumber.neg(a));
+    var tmp=CSNumber.sqrt(CSNumber.add(CSNumber.real(1),t2));
+    var tmp1=CSNumber.add(CSNumber.mult(a,CSNumber.complex(0,1)),tmp);
+    var erg=CSNumber.add(CSNumber.mult(CSNumber.log(tmp1),CSNumber.complex(0,1)),CSNumber.real(Math.PI*0.5));
     erg.usage = 'angle';
     return erg;
 }
 
-Number.arcsin=function(a) {  //OK hässlich aber tuts.
-    var t2=Number.mult(a,Number.neg(a));
-    var tmp=Number.sqrt(Number.add(Number.real(1),t2));
-    var tmp1=Number.add(Number.mult(a,Number.complex(0,1)),tmp);
-    var erg=Number.mult(Number.log(tmp1),Number.complex(0,-1));
+CSNumber.arcsin=function(a) {  //OK hässlich aber tuts.
+    var t2=CSNumber.mult(a,CSNumber.neg(a));
+    var tmp=CSNumber.sqrt(CSNumber.add(CSNumber.real(1),t2));
+    var tmp1=CSNumber.add(CSNumber.mult(a,CSNumber.complex(0,1)),tmp);
+    var erg=CSNumber.mult(CSNumber.log(tmp1),CSNumber.complex(0,-1));
     erg.usage = 'angle';
     return erg;
 }
 
-Number.arctan=function(a) {  //OK hässlich aber tuts.
-    var t1=Number.log(Number.add(Number.mult(a,Number.complex(0,-1)),Number.real(1)));
-    var t2=Number.log(Number.add(Number.mult(a,Number.complex(0,1)),Number.real(1)));
-    var erg=Number.mult(Number.sub(t1,t2),Number.complex(0,0.5));
+CSNumber.arctan=function(a) {  //OK hässlich aber tuts.
+    var t1=CSNumber.log(CSNumber.add(CSNumber.mult(a,CSNumber.complex(0,-1)),CSNumber.real(1)));
+    var t2=CSNumber.log(CSNumber.add(CSNumber.mult(a,CSNumber.complex(0,1)),CSNumber.real(1)));
+    var erg=CSNumber.mult(CSNumber.sub(t1,t2),CSNumber.complex(0,0.5));
     erg.usage = 'angle';
     return erg;
 }
@@ -217,15 +217,15 @@ Number.arctan=function(a) {  //OK hässlich aber tuts.
 //Das ist jetzt genau so wie in Cindy.
 //Da wurde das aber niemals voll auf complexe Zahlen umgestellt
 //Bei Beiden Baustellen machen!!!
-Number.arctan2=function(a,b) {  //OK
-    var erg= Number.real(Math.atan2(b.value.real,a.value.real));
+CSNumber.arctan2=function(a,b) {  //OK
+    var erg= CSNumber.real(Math.atan2(b.value.real,a.value.real));
     erg.usage = 'angle';
     return erg;
 }
 
 
 
-Number.sqrt=function(a)  {
+CSNumber.sqrt=function(a)  {
     var rr=a.value.real;
     var ii=a.value.imag;
     var n = Math.sqrt(Math.sqrt(rr * rr + ii * ii));
@@ -236,7 +236,7 @@ Number.sqrt=function(a)  {
 }
 
 
-Number.log=function(a){
+CSNumber.log=function(a){
     var re=a.value.real;
     var im=a.value.imag;
     var s = Math.sqrt(re*re+im*im);
@@ -255,32 +255,32 @@ Number.log=function(a){
     };
     var real = Math.log(s);
     
-    return Number.snap({"ctype":"number" ,"value":{'real':real,'imag':imag}});
+    return CSNumber.snap({"ctype":"number" ,"value":{'real':real,'imag':imag}});
 }
 
 
 
 
 
-Number.pow=function(a,b){
+CSNumber.pow=function(a,b){
     
     if(b.value.real==Math.round(b.value.real)&& b.value.imag==0){//TODO später mal effizienter machen
         var erg={"ctype":"number" ,"value":{'real':1,'imag':0}};
         for(var i=0;i<Math.abs(b.value.real);i++){
-            erg=Number.mult(erg,a);
+            erg=CSNumber.mult(erg,a);
         }
         if (b.value.real<0){
-            return Number.inv(erg);
+            return CSNumber.inv(erg);
         }
         return(erg);
         
     }
-    var res=Number.exp(Number.mult(Number.log(a),b));
+    var res=CSNumber.exp(CSNumber.mult(CSNumber.log(a),b));
     return res;
 }
 
 
-Number.mod=function(a,b){
+CSNumber.mod=function(a,b){
     var a1=a.value.real;
     var a2=b.value.real;
     var b1=a.value.imag;
@@ -291,84 +291,84 @@ Number.mod=function(a,b){
     if(a2==0) {r=0};
     if(b2==0) {i=0};
     
-    return Number.snap({"ctype":"number" ,"value":{'real':r,'imag':i}});
+    return CSNumber.snap({"ctype":"number" ,"value":{'real':r,'imag':i}});
 }
 
-Number.helper={};
+CSNumber.helper={};
 
-Number.helper.seed='NO';
-Number.eps=0.0000000001;
-Number.epsbig=0.000001;
+CSNumber.helper.seed='NO';
+CSNumber.eps=0.0000000001;
+CSNumber.epsbig=0.000001;
 
-Number.helper.seedrandom=function(a){
+CSNumber.helper.seedrandom=function(a){
     a=a-Math.floor(a);
     a=a*.8+.1;
-    Number.helper.seed=a;
+    CSNumber.helper.seed=a;
 }
 
-Number.helper.rand=function(){
-    if(Number.helper.seed=='NO'){
+CSNumber.helper.rand=function(){
+    if(CSNumber.helper.seed=='NO'){
         return Math.random();
     }
-    var a=Number.helper.seed;
+    var a=CSNumber.helper.seed;
     a=Math.sin(1000*a)*1000;
     a=a-Math.floor(a);
-    Number.helper.seed=a;
+    CSNumber.helper.seed=a;
     return a;
 }
 
-Number.helper.randnormal=function(){
-    var a=Number.helper.rand();
-    var b=Number.helper.rand();
+CSNumber.helper.randnormal=function(){
+    var a=CSNumber.helper.rand();
+    var b=CSNumber.helper.rand();
     return Math.sqrt(-2*Math.log(a))*Math.cos(2*Math.PI*b);
 }
 
 
-Number.helper.isEqual=function(a,b) {
+CSNumber.helper.isEqual=function(a,b) {
     return (a.value.real == b.value.real) && (a.value.imag == b.value.imag);
 }
 
-Number.helper.isLessThan=function(a,b) {
+CSNumber.helper.isLessThan=function(a,b) {
 
     return(a.value.real < b.value.real 
            || a.value.real == b.value.real && a.value.imag < b.value.imag)
 }
 
-Number.helper.compare=function(a,b) {
-    if(Number.helper.isLessThan(a,b)){return -1}
-    if(Number.helper.isEqual(a,b)){return 0}
+CSNumber.helper.compare=function(a,b) {
+    if(CSNumber.helper.isLessThan(a,b)){return -1}
+    if(CSNumber.helper.isEqual(a,b)){return 0}
     return 1;
 }
 
-Number.helper.isAlmostEqual=function(a,b) {
+CSNumber.helper.isAlmostEqual=function(a,b) {
     var r=a.value.real-b.value.real;
     var i=a.value.imag-b.value.imag;
-    return (r<Number.eps) && (r>-Number.eps)&&(i<Number.eps) && (i>-Number.eps);
+    return (r<CSNumber.eps) && (r>-CSNumber.eps)&&(i<CSNumber.eps) && (i>-CSNumber.eps);
 }
 
-Number.helper.isZero=function(a) {
+CSNumber.helper.isZero=function(a) {
     return (a.value.real == 0) && (a.value.imag == 0);
 }
 
-Number.helper.isAlmostZero=function(a) {
+CSNumber.helper.isAlmostZero=function(a) {
     var r=a.value.real;
     var i=a.value.imag;
-    return (r<Number.eps) && (r>-Number.eps)&&(i<Number.eps) && (i>-Number.eps);
+    return (r<CSNumber.eps) && (r>-CSNumber.eps)&&(i<CSNumber.eps) && (i>-CSNumber.eps);
 }
 
 
 
-Number.helper.isReal=function(a) {
+CSNumber.helper.isReal=function(a) {
     return (a.value.imag == 0) ;
 }
 
-Number.helper.isAlmostReal=function(a) {
+CSNumber.helper.isAlmostReal=function(a) {
     var i=a.value.imag;
-    return (i<Number.epsbig) && (i>-Number.epsbig);//So gemacht wie in Cindy
+    return (i<CSNumber.epsbig) && (i>-CSNumber.epsbig);//So gemacht wie in Cindy
 }
 
-Number.helper.isAlmostImag=function(a) {
+CSNumber.helper.isAlmostImag=function(a) {
     var r=a.value.real;
-    return (r<Number.epsbig) && (r>-Number.epsbig);//So gemacht wie in Cindy
+    return (r<CSNumber.epsbig) && (r>-CSNumber.epsbig);//So gemacht wie in Cindy
 }
 

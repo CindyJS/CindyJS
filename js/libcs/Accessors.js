@@ -23,7 +23,7 @@ Accessor.getField=function(geo,field){
             var yy = geo.py+m.ty;
             var x=(xx*m.d-yy*m.b)/m.det;
             var y=-(-xx*m.c+yy*m.a)/m.det;
-            var erg=List.turnIntoCSList([Number.real(x),Number.real(y)]);
+            var erg=List.turnIntoCSList([CSNumber.real(x),CSNumber.real(y)]);
             erg.usage="Point";
 
             return erg;
@@ -34,7 +34,7 @@ Accessor.getField=function(geo,field){
             var yy = geo.py+m.ty;
             var x=(xx*m.d-yy*m.b)/m.det;
             var y=-(-xx*m.c+yy*m.a)/m.det;
-            var erg=List.turnIntoCSList([Number.real(x),Number.real(y),Number.real(1)]);
+            var erg=List.turnIntoCSList([CSNumber.real(x),CSNumber.real(y),CSNumber.real(1)]);
             erg.usage="Point";
             return erg;
         };
@@ -44,14 +44,14 @@ Accessor.getField=function(geo,field){
             var xx = geo.px-m.tx;
             var yy = geo.py+m.ty;
             var x=(xx*m.d-yy*m.b)/m.det;
-            return Number.real(x);
+            return CSNumber.real(x);
         };
         
         if(field=="y") {
             var xx = geo.px-m.tx;
             var yy = geo.py+m.ty;
             var y=-(-xx*m.c+yy*m.a)/m.det; 
-            return Number.real(y);
+            return CSNumber.real(y);
         };
         
         

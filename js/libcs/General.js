@@ -38,7 +38,7 @@ General.compare=function(a,b){
         return (General.order[a.ctype]-General.order[b.ctype])
     }
     if (a.ctype=='number') {
-        return Number.helper.compare(a,b);
+        return CSNumber.helper.compare(a,b);
     }
     if (a.ctype=='list') {
         return List.helper.compare(a,b);
@@ -66,11 +66,11 @@ General.compare=function(a,b){
 
 General.add=function(v0,v1){
     if(v0.ctype == 'void'  && v1.ctype=='number' ){   //Monadisches Plus
-        return Number.clone(v1);
+        return CSNumber.clone(v1);
     }
     
     if(v0.ctype=='number'  && v1.ctype=='number' ){
-        return Number.add(v0,v1);
+        return CSNumber.add(v0,v1);
     }
     if(v0.ctype=='string' || v1.ctype=='string' ){
         return {"ctype":"string" ,  "value":niceprint(v0)+niceprint(v1)}
@@ -85,7 +85,7 @@ General.add=function(v0,v1){
 General.mult=function(v0,v1){
 
  if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return Number.mult(v0,v1);
+        return CSNumber.mult(v0,v1);
     }
     if(v0.ctype=='number' &&v1.ctype=='list' ){
         return List.scalmult(v0,v1);
@@ -103,7 +103,7 @@ General.mult=function(v0,v1){
 General.div=function(v0,v1){
 
     if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return Number.div(v0,v1);
+        return CSNumber.div(v0,v1);
     }
     if(v0.ctype=='list' &&v1.ctype=='number' ){
         return List.scaldiv(v1,v0);
@@ -116,7 +116,7 @@ General.div=function(v0,v1){
 General.max=function(v0,v1){
 
  if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return Number.max(v0,v1);
+        return CSNumber.max(v0,v1);
     }
     if(v0.ctype=='list' &&v1.ctype=='list' ){
         return List.max(v0,v1);
@@ -130,7 +130,7 @@ General.max=function(v0,v1){
 General.min=function(v0,v1){
 
  if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return Number.min(v0,v1);
+        return CSNumber.min(v0,v1);
     }
     if(v0.ctype=='list' &&v1.ctype=='list' ){
         return List.min(v0,v1);
