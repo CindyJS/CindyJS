@@ -3,8 +3,26 @@
 	<head>
 		<meta charset="utf-8">
             <title>Cindy JS</title>
-            <script type="text/javascript" src="js/Cindy.js"></script>
+            <!--script type="text/javascript" src="js/Cindy.js"></script-->
             
+            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
+            
+            <script type="text/javascript" src="js/libcs/Namespace.js"></script>
+            <script type="text/javascript" src="js/libcs/Accessors.js"></script>
+            <script type="text/javascript" src="js/libcs/CSNumber.js"></script>
+            <script type="text/javascript" src="js/libcs/List.js"></script>
+            <script type="text/javascript" src="js/libcs/Essentials.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
+            <script type="text/javascript" src="js/libcs/Operators.js"></script>
+            <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/OpImageDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/Parser.js"></script>
+            
+            <script type="text/javascript" src="js/lib/d3.js"></script>
+            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
+            <script type="text/javascript" src="js/lib/clipper.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
 
                 
@@ -29,12 +47,16 @@
             ds=seconds()-s;
             drawtext((5,5),1/(ds));
             if(!isreal(su),su=ds,su=su+ds);
-
+            
             drawtext((5,3),j/su);
+
 
         </script>
         
-        <canvas id="CSCanvas" ></canvas>
-        
+
+        <canvas  id="CSCanvas" align="left" valign = "top" width=600 height=600  style="border:2px solid #000000"></canvas>
+
+        <script type="text/javascript" src="js/rest2.js"></script>
+
 	</body>
 </html>

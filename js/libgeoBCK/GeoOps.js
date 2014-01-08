@@ -80,6 +80,13 @@ function recalcX(){
 
 
 function render(){
+    csgeo.edges.attr("x1", function(d) { return d.x1; })
+    .attr("y1", function(d) { return d.y1; })
+    .attr("x2", function(d) { return d.x2; })
+    .attr("y2", function(d) { return d.y2; });
+    
+    csgeo.nodes.attr("cx", function(d) { return d.x})
+    .attr("cy", function(d) { return d.y});
     
 };
 
