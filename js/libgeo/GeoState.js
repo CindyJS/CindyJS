@@ -114,7 +114,6 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
             -csport.drawingstate.matrix.b*csport.drawingstate.matrix.c;
         
         m.sdet=Math.sqrt(csport.drawingstate.matrix.det);
-        
     }
 
     csport.translate=function(tx,ty){
