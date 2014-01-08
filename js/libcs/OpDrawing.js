@@ -656,6 +656,171 @@ evaluator.plot=function(args,modifs){ //OK
     namespace.newvar(runv);
     var start=-10;
     var stop=10;
+    var step=2;
+    var m=csport.drawingstate.matrix;
+    var col=csport.drawingstate.linecolor
+    csctx.strokeStyle=col;
+    csctx.lineWidth = 1;
+    csctx.lineCap = 'round';
+    csctx.lineJoin = 'round';
+    var connectb=false;
+    var minstep=0.001;
+    var pxlstep=.01;//TODO Anpassen auf PortScaling
+        var count=0;
+    var stroking=false;
+    var canbedrawn=function(v){
+       return v.ctype=='number' && Number.helper.isAlmostReal(v);
+    }
+    
+    var drawstroke=function(x1,x2,v1,v2,step){
+    
+    }
+
+    var limit=function(v){
+       return v;
+    
+    }
+    
+    var drawstroke=function(x1,x2,v1,v2,step){
+    count++;
+//    console.log(niceprint(x1)+"  "+niceprint(x2));
+        var xa=+x1.value.real;
+        var ya=+v1.value.real;
+        var xb=+x2.value.real;
+        var yb=+v2.value.real;
+        
+        
+        var xx1=xa*m.a-ya*m.b+m.tx;
+        var yy1=xa*m.c-ya*m.d-m.ty;
+        
+        var xx2=xb*m.a-yb*m.b+m.tx;
+        var yy2=xb*m.c-yb*m.d-m.ty;
+        
+        
+        if(!stroking){
+            csctx.beginPath();
+            csctx.moveTo(xx1, yy1);
+            csctx.lineTo(xx2, yy2);
+            stroking=true;
+        } else {
+            csctx.lineTo(xx2, yy2);
+        }
+        
+        
+        
+    }
+
+
+    var drawrec=function(x1,x2,y1,y2,step){
+    
+        var drawable1 = canbedrawn(y1);
+        var drawable2 = canbedrawn(y2);
+
+
+        if ((step < minstep)) {//Feiner wollen wir  nicht das muss wohl ein Sprung sein
+            if (connectb)
+                drawstroke(runold, ergo, run, erg, step);
+            return;
+        }
+        if (!drawable1 && !drawable2)
+            return; //also hier gibt's nix zu malen, ist ja nix da
+
+        var mid=Number.real((x1.value.real+x2.value.real)/2);
+        namespace.setvar(runv,mid);
+        var ergmid=evaluate(v1);
+        
+        var drawablem = canbedrawn(ergmid);
+        
+        if (drawable1 && drawable2 && drawablem) { //alles ist malbar ---> Nach Steigung schauen
+            var a = limit(y1.value.real);
+            var b = limit(ergmid.value.real);
+            var c = limit(y2.value.real);
+            var dd = Math.abs(a + c - 2 * b) / (pxlstep);
+            var drawit=(dd<1) 
+            if(drawit){//Weiterer Qualitätscheck eventuell wieder rausnehmen.
+                    var mid1=Number.real((x1.value.real+mid.value.real)/2);
+                    namespace.setvar(runv,mid1);
+                    var ergmid1=evaluate(v1);
+                    
+                    var mid2=Number.real((mid.value.real+x2.value.real)/2);
+                    namespace.setvar(runv,mid2);
+                    var ergmid2=evaluate(v1);
+                    
+                    var ab = limit(ergmid1.value.real);
+                    var bc = limit(ergmid2.value.real);
+                    var dd1 = Math.abs(a + b - 2 * ab) / (pxlstep);
+                    var dd2 = Math.abs(b + c - 2 * bc) / (pxlstep);
+                    drawit=drawit && dd1<1 && dd2<1;
+                    
+            
+            }
+            if (drawit) {  // Refinement sieht gut aus ---> malen
+                drawstroke(x1, mid, y1, ergmid, step / 2);
+                drawstroke(mid, x2, ergmid, y2, step / 2);
+                
+            } else {  //Refinement zu grob weiter verfeinern
+                drawrec(x1, mid, y1, ergmid, step / 2);
+                drawrec(mid, x2, ergmid, y2, step / 2);
+            }
+            return;
+        }
+
+        //Übergange con drawable auf nicht drawable
+
+        drawrec(x1, mid, y1, ergmid, step / 2);
+
+        drawrec(mid, x2, ergmid, y2, step / 2);
+
+    
+    }
+    var xo,vo,x,v;
+    
+    var stroking=false;
+    for(var xx=start;xx<stop+step;xx=xx+step){
+
+        x=Number.real(xx)
+        namespace.setvar(runv,x);
+        v=evaluate(v1);
+    
+        if(x.value.real>start){
+            drawrec(xo,x,vo,v,step);
+        
+        }
+        xo=x;        
+        vo=v;        
+                    
+        
+    }
+    
+//    console.log(count);
+    
+ //   csctx.stroke();
+
+    namespace.removevar(runv);
+    if(stroking)
+        csctx.stroke();
+
+    return nada;
+    
+}
+
+
+
+evaluator.plotX=function(args,modifs){ //OK
+    
+
+    var v1=args[0];
+    var li=evaluator.helper.plotvars(v1);
+    var runv="#";
+    if(li.indexOf("t")!=-1) {runv="t"};
+    if(li.indexOf("z")!=-1) {runv="z"};
+    if(li.indexOf("y")!=-1) {runv="y"};
+    if(li.indexOf("x")!=-1) {runv="x"};
+
+
+    namespace.newvar(runv);
+    var start=-10;
+    var stop=10;
     var step=.01;
     var m=csport.drawingstate.matrix;
     var col=csport.drawingstate.linecolor
@@ -693,6 +858,7 @@ evaluator.plot=function(args,modifs){ //OK
     return nada;
     
 }
+
 
 evaluator.helper.plotvars=function(a){
     var merge=function(x,y){
