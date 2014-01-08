@@ -20,6 +20,9 @@ var evaluate=function(a){
     if(a.ctype=='void'){
         return a;
     }
+    if(a.ctype=='geo'){
+        return a;
+    }
     if(a.ctype=='number'){
         return a;
     }
@@ -51,6 +54,8 @@ var evaluate=function(a){
 
 
 var evaluateAndVal=function(a){
+
+
     var x=evaluate(a);
     if(x.ctype=='geo'){
         var val=x.value;

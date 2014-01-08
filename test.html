@@ -28,17 +28,26 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: DM Spiral</h1>
+        <h1>CindyJS: Complete Graph</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
-            draw(join(A,B));
-            pol=halfplane(join(A,B),C);
-            fill(pol);
-            draw(A);
-            draw(B);
-            draw(C);
-                      
+            if(!isreal(j),j=1,j=j+1);
+            s=seconds();
+            repeat(500,i,
+                   w=i*pi/180*(137.508+B.x*0.5);
+                   p=A+(cos(w),sin(w))*0.3*sqrt(i);
+                   a=i;
+                   draw(p,size->sqrt(i)*.4,color->hue(i/34));
+                   );
+            draw(A,color->(0,0,1));
+            draw(B,color->(0,0,1));
+            ds=seconds()-s;
+            drawtext((5,5),1/(ds));
+            if(!isreal(su),su=ds,su=su+ds);
+            
+            drawtext((5,3),j/su);
+            
         </script>
         
         
@@ -70,8 +79,8 @@
             var i=0;
 
 			var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:-7,sy:-3,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:-2,sy:-3,sz:1},
+                      {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
+                      {name:"B", kind:"P", type:"Free", sx:-9,sy:8,sz:1},
                       {name:"D", kind:"P", type:"Free", sx:-1,sy:0,sz:1},
                       {name:"C", kind:"P", type:"Free", sx:4,sy:3,sz:1},
                       {name:"X", kind:"P", type:"Free", sx:-8,sy:8,sz:1},

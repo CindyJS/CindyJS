@@ -193,10 +193,9 @@ evaluator.draw=function(args,modifs){
             evaluator.helper.unSetDash();
     }
     
-    var drawsegment = function(){
-        
-        var v1=evaluateAndVal(args[0]);
-        var v2=evaluateAndVal(args[1]);
+    var drawsegment = function(aa,bb){
+        var v1=evaluateAndVal(aa);
+        var v2=evaluateAndVal(bb);
         var pt1=evaluator.helper.extractPoint(v1);
         var pt2=evaluator.helper.extractPoint(v2);
         if(!pt1.ok||!pt2.ok){
@@ -272,7 +271,13 @@ y:erg2[1]/erg2[2]
         var pt=evaluator.helper.extractPoint(v1);
         
         
-        if(!pt.ok){
+        if(!pt.ok){//eventuell doch ein Segment
+            if(v1.value.length==2){
+
+               drawsegment(v1.value[0],v1.value[1]);
+               return;
+            
+            }
             return nada;
         }
         var m=csport.drawingstate.matrix;
@@ -300,7 +305,7 @@ y:erg2[1]/erg2[2]
     
     
     if(args.length==2) {
-        return drawsegment();
+        return drawsegment(args[0],args[1]);
     }
     var v1=evaluateAndVal(args[0]);
     
@@ -432,7 +437,19 @@ evaluator.helper.drawcircle=function(args,modifs,df){
     return nada;
 }
 
-
+evaluator.drawall =function(args,modifs){
+    if(args.length==1) {
+        var v1=evaluate(args[0]);
+        
+        if(v1.ctype=="list"){//TODO: Kann man optimaler implementieren (modifs nur einmal setzen)
+            for (var i=0;i<v1.value.length;i++){
+               evaluator.draw([v1.value[i]],modifs);
+            } 
+            
+        }
+    }
+    return nada;
+}
 evaluator.connect=function(args,modifs){
     evaluator.helper.drawpolygon(args,modifs,"D",0);
 }

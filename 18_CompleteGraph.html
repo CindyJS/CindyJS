@@ -6,7 +6,7 @@
             <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
-            
+
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
             <script type="text/javascript" src="js/libcs/CSNumber.js"></script>
@@ -15,10 +15,12 @@
             <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Operators.js"></script>
             <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/OpImageDrawing.js"></script>
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
             <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
+            <script type="text/javascript" src="js/lib/clipper/clipper.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
 
                 
@@ -26,22 +28,22 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: A simple sunflower</h1>
+        <h1>CindyJS: Complete Graph</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
-            repeat(500,i,
-                   
-                   w=i*pi/180*(137.508+B.x*0.5);
-                   p=A+(cos(w),sin(w))*0.3*sqrt(i);
-                   a=i;
-                   draw(p,size->sqrt(i)*.4,color->hue(i/34));
-                   );
-            draw(A,color->(0,0,1));
-            draw(B,color->(0,0,1));
-           // err(a);
-            
-            </script>
+            n=round(|(B.x+10)*5|);
+            f(x):=[sin(x),cos(x)]*6+A;
+            steps=2*pi*(1..n)/n;
+            pts=apply(steps,f(#));
+            segs=pairs(pts);
+            drawall(segs,alpha->1/n*5);
+            drawall(pts,size->4);
+            draw(A,color->(1,0,0));
+            draw(B,color->(1,0,0));
+
+                      
+        </script>
         
         
         
@@ -51,6 +53,13 @@
         
         
 		<script type="text/javascript">
+            
+
+            
+            
+            var csmouse = [100, 100];
+            var cscount = 0;
+
             
 			//Width and height
 			var csw = 500;
@@ -66,19 +75,67 @@
 
 			var gslp=[
                       {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:0,sy:9,sz:1},
+                      {name:"B", kind:"P", type:"Free", sx:-9,sy:8,sz:1},
+                      {name:"D", kind:"P", type:"Free", sx:-1,sy:0,sz:1},
+                      {name:"C", kind:"P", type:"Free", sx:4,sy:3,sz:1},
+                      {name:"X", kind:"P", type:"Free", sx:-8,sy:8,sz:1},
+                      {name:"Y", kind:"P", type:"Free", sx:-8,sy:.8,sz:1},
+                      {name:"Z", kind:"P", type:"Free", sx:-6,sy:0,sz:1}
                       ];
             
             csinit(gslp);
+            var images={};
+            
+       /*
+            images.rost = new Image();
+            images.rost.ready=false;
+            images.rost.onload = function() {
+                images.rost.ready=true;
+                recalc();
+                csctx.clearRect ( 0   , 0 , 500 , 500 );
+                csctx.save();
+                evaluate(cserg);
+                csctx.restore();
+
+                render();
+
+            };
+            images.rost.src = 'rost.png';
             
             
+            images.boe = new Image();
+            images.boe.ready=false;
+            images.boe.onload = function() {
+                images.boe.ready=true;
+
+                recalc();
+                csctx.clearRect ( 0   , 0 , 500 , 500 );
+                csctx.save();
+                evaluate(cserg);
+                csctx.restore();
+
+                render();
+
+            };
+            images.boe.src = 'boe.png';
+          */  
+            
+            /*
+            d3.timer(function() {
+                     cscount+=1;
+                     recalc();
+                     csctx.clearRect ( 0   , 0 , 500 , 500 );
+                     evaluate(cserg);
+                     render();
+            });
+*/
             
             
             </script>
         
         
         <script type="text/javascript">
-            
+                       
             var c=document.getElementById("CSCanvas");
             c.width=csw;
             c.height=csh;

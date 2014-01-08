@@ -2211,10 +2211,114 @@ evaluator.substring=function(args,modifs){
                                                      Math.floor(v2.value.real))};
         }
     }
-    
+    return nada;
 }
 
 
+evaluator.tokenize=function(args,modifs){ //TODO der ist gerade sehr uneffiktiv implementiert
+
+    if(args.length==2){
+           
+        var v0=evaluate(args[0]);
+        var v1=evaluate(args[1]);
+        if(v0.ctype=='string'&& v1.ctype=='string'){
+            var convert=true;    
+            if(modifs.autoconvert!==undefined){
+                var erg =evaluate(modifs.autoconvert);
+                if(erg.ctype=='boolean'){
+                    convert=erg.value;
+                }
+            }
+            
+            
+            var str=v0.value;
+            var split=v1.value;
+            var splitlist=str.split(split);
+            var li=[];
+            for (var i=0;i<splitlist.length;i++){
+                var val= splitlist[i];
+                if(convert){
+                    var fl=parseFloat(val);
+                    if(!isNaN(fl))
+                        val=fl;
+                }
+                li[i]={ctype:"string",value:val};
+            }
+            return List.turnIntoCSList(li);
+        }
+        if(v0.ctype=='string'&& v1.ctype=='list'){
+            if (v1.value.length==0){
+                return v0;
+            }
+
+            var token=v1.value[0];
+                 
+            tli=List.turnIntoCSList(tokens);
+            var firstiter=evaluator.tokenize([args[0],token],modifs).value;
+            
+            var li=[];
+            for(var i=0;i<firstiter.length;i++){
+                var tokens=[];
+                for(var j=1;j<v1.value.length;j++){//TODO: Das ist Notlösung weil ich das wegen 
+                    tokens[j-1]=v1.value[j];    //CbV und CbR irgendwie anders nicht hinbekomme
+                }
+                
+                tli=List.turnIntoCSList(tokens);
+                li[i]=evaluator.tokenize([firstiter[i],tli],modifs);
+            }
+            return List.turnIntoCSList(li);
+            
+        }
+    
+    }
+    return nada;
+    
+}
+
+evaluator.indexof=function(args,modifs){ 
+    if(args.length==2){
+           
+        var v0=evaluate(args[0]);
+        var v1=evaluate(args[1]);
+        if(v0.ctype=='string'&& v1.ctype=='string'){
+            var str=v0.value;
+            var code=v1.value;
+            var i=str.indexOf(code);
+            return CSNumber.real(i+1);
+        }
+    }
+    if(args.length==3){
+        
+        var v0=evaluate(args[0]);
+        var v1=evaluate(args[1]);
+        var v2=evaluate(args[2]);
+        if(v0.ctype=='string'&& v1.ctype=='string'&& v2.ctype=='number'){
+            var str=v0.value;
+            var code=v1.value;
+            var start=Math.round(v2.value.real);
+            var i=str.indexOf(code,start-1);
+            return CSNumber.real(i+1);
+        }
+    }
+    
+    return nada;
+}
+
+
+
+evaluator.parse=function(args,modifs){ 
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        
+        if(v0.ctype=='string'){
+            var code=condense(v0.value)
+            var prog=analyse(code)
+            return evaluate(prog);
+        }
+    }
+    return nada;
+    
+}
 
 ///////////////////////////////
 //     Transformations       //
