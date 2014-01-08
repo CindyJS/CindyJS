@@ -2110,7 +2110,7 @@ evaluator.replace=function(args,modifs){
 
 
 evaluator.substring=function(args,modifs){ 
-
+    
     if(args.length==3){
         var v0=evaluate(args[0]);
         var v1=evaluateAndVal(args[1]);
@@ -2121,5 +2121,158 @@ evaluator.substring=function(args,modifs){
                                                      Math.floor(v2.value.real))};
         }
     }
+    
+}
+
+
+
+///////////////////////////////
+//     Transformations       //
+///////////////////////////////
+
+evaluator.helper.basismap=function(a,b,c,d){
+    var mat= List.turnIntoCSList([a,b,c]);
+    mat=List.inverse(List.transpose(mat));
+    var vv=General.mult(mat,d);
+    mat= List.turnIntoCSList([
+        General.mult(vv.value[0],a),
+        General.mult(vv.value[1],b),
+        General.mult(vv.value[2],c)]);
+    return List.transpose(mat);
+    
+} 
+
+
+evaluator.map=function(args,modifs){ 
+    
+    if(args.length==8){
+        var w0=evaluateAndHomog(args[0]);
+        var w1=evaluateAndHomog(args[1]);
+        var w2=evaluateAndHomog(args[2]);
+        var w3=evaluateAndHomog(args[3]);
+        var v0=evaluateAndHomog(args[4]);
+        var v1=evaluateAndHomog(args[5]);
+        var v2=evaluateAndHomog(args[6]);
+        var v3=evaluateAndHomog(args[7]);
+        if(v0!=nada && v1!=nada && v2!=nada && v3!=nada && 
+           w0!=nada && w1!=nada && w2!=nada && w3!=nada){
+            var m1=evaluator.helper.basismap(v0,v1,v2,v3);
+            var m2=evaluator.helper.basismap(w0,w1,w2,w3);
+            return General.mult(m1,List.inverse(m2));
+        }
+    }
+    
+    if(args.length==6){
+        var w0=evaluateAndHomog(args[0]);
+        var w1=evaluateAndHomog(args[1]);
+        var w2=evaluateAndHomog(args[2]);
+        var inf=List.realVector([0,0,1]);
+        var cc=List.cross;
+        
+        var w3=cc(cc(w2,cc(inf,cc(w0,w1))),
+                  cc(w1,cc(inf,cc(w0,w2))));
+        
+        var v0=evaluateAndHomog(args[3]);
+        var v1=evaluateAndHomog(args[4]);
+        var v2=evaluateAndHomog(args[5]);
+        var v3=cc(cc(v2,cc(inf,cc(v0,v1))),
+                  cc(v1,cc(inf,cc(v0,v2))));
+        
+        
+        
+        if(v0!=nada && v1!=nada && v2!=nada && v3!=nada && 
+           w0!=nada && w1!=nada && w2!=nada && w3!=nada){
+            var m1=evaluator.helper.basismap(v0,v1,v2,v3);
+            var m2=evaluator.helper.basismap(w0,w1,w2,w3);
+            return General.mult(m1,List.inverse(m2));
+        }
+    }
+    
+    
+        if(args.length==4){
+        
+        var ii=List.turnIntoCSList([CSNumber.complex(1,0),
+                                    CSNumber.complex(0,1),
+                                    CSNumber.complex(0,0)]);
+        var jj=List.turnIntoCSList([CSNumber.complex(1,0),
+                                    CSNumber.complex(0,-1),
+                                    CSNumber.complex(0,0)]);
+
+        var w0=evaluateAndHomog(args[0]);
+        var w1=evaluateAndHomog(args[1]);        
+        var v0=evaluateAndHomog(args[2]);
+        var v1=evaluateAndHomog(args[3]);
+        
+        
+        if(v0!=nada && v1!=nada && 
+           w0!=nada && w1!=nada){
+            var m1=evaluator.helper.basismap(v0,v1,ii,jj);
+            var m2=evaluator.helper.basismap(w0,w1,ii,jj);
+            return General.mult(m1,List.inverse(m2));
+        }
+    }
+    
+
+       if(args.length==2){
+        
+        var ii=List.turnIntoCSList([CSNumber.complex(1,0),
+                                    CSNumber.complex(0,1),
+                                    CSNumber.complex(0,0)]);
+        var jj=List.turnIntoCSList([CSNumber.complex(1,0),
+                                    CSNumber.complex(0,-1),
+                                    CSNumber.complex(0,0)]);
+
+        var w0=evaluateAndHomog(args[0]);
+        var w1=General.add(List.realVector([1,0,0]),w0);  
+        var v0=evaluateAndHomog(args[1]);
+        var v1=General.add(List.realVector([1,0,0]),v0);        
+
+        
+        if(v0!=nada && v1!=nada && 
+           w0!=nada && w1!=nada){
+            var m1=evaluator.helper.basismap(v0,v1,ii,jj);
+            var m2=evaluator.helper.basismap(w0,w1,ii,jj);
+            return General.mult(m1,List.inverse(m2));
+        }
+    }
+    
+
+    
+    
+    return nada;
+    
+}
+
+evaluator.pointreflect=function(args,modifs){ 
+    if(args.length==1){
+        
+        var ii=List.turnIntoCSList([CSNumber.complex(1,0),
+                                    CSNumber.complex(0,1),
+                                    CSNumber.complex(0,0)]);
+        var jj=List.turnIntoCSList([CSNumber.complex(1,0),
+                                    CSNumber.complex(0,-1),
+                                    CSNumber.complex(0,0)]);
+
+        var w0=evaluateAndHomog(args[0]);
+        var w1=General.add(List.realVector([1,0,0]),w0);  
+        var v1=General.add(List.realVector([-1,0,0]),w0);  
+
+        
+        if( v1!=nada && 
+           w0!=nada && w1!=nada){
+            var m1=evaluator.helper.basismap(w0,v1,ii,jj);
+            var m2=evaluator.helper.basismap(w0,w1,ii,jj);
+            return General.mult(m1,List.inverse(m2));
+        }
+    }
+    
+
+    
+    
+    return nada;
+    
+
+
 
 }
+

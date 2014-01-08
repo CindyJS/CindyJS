@@ -740,12 +740,12 @@ evaluator.plot=function(args,modifs){ //OK
     var dashing=false;
     var connectb=false;
     var minstep=0.001;
-    var pxlstep=.002; //TODO Anpassen auf PortScaling
+    var pxlstep=.2; //TODO Anpassen auf PortScaling
     var count=0;
     var stroking=false;
     var start=-10; //TODO Anpassen auf PortScaling
     var stop=10;
-    var step=.2;
+    var step=1;
     var steps=1000;
     
     
