@@ -1137,7 +1137,6 @@ evaluator.matrixrowcolumn=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         var n=List.helper.colNumb(v0);
-        console.log(n);
         if(n!=-1){
             return List.realVector([v0.value.length,v0.value[0].value.length]);
         }
@@ -1270,8 +1269,8 @@ evaluator.perp=function(args,modifs){
             var p=w0;
             var l=w1;
             if(u0=="Line" || u1=="Point"){
-                p=v1;
-                l=v0;
+                p=w1;
+                l=w0;
             }
             
             var inf=List.realVector([0,0,1]);
@@ -1569,6 +1568,9 @@ evaluator.concat=function(args,modifs){
         if(v0.ctype=='list'&& v1.ctype=='list'){
             return List.concat(v0,v1);
         }
+        if(v0.ctype=='shape'&& v1.ctype=='shape'){
+            return evaluator.helper.shapeconcat(v0,v1);
+        }
     }
     return nada;
 }
@@ -1583,6 +1585,10 @@ evaluator.common=function(args,modifs){
         if(v0.ctype=='list'&& v1.ctype=='list'){
             return List.common(v0,v1);
         }
+        if(v0.ctype=='shape'&& v1.ctype=='shape'){
+            return evaluator.helper.shapecommon(v0,v1);
+        }
+
     }
     return nada;
 }
@@ -1597,6 +1603,10 @@ evaluator.remove=function(args,modifs){
         if(v0.ctype=='list'&& v1.ctype=='list'){
             return List.remove(v0,v1);
         }
+        if(v0.ctype=='shape'&& v1.ctype=='shape'){
+            return evaluator.helper.shaperemove(v0,v1);
+        }
+
     }
     return nada;
 }
@@ -1846,6 +1856,78 @@ evaluator.hue=function(args,modifs){
     return nada;
 }
 
+///////////////////////////////
+//      shape booleans       //
+///////////////////////////////
+
+
+
+evaluator.helper.shapeconvert=function(a){
+    if(a.type=="circle") {
+        var pt=a.value.value[0];
+        var aa=General.div(pt,pt.value[2]);
+        var mx=aa.value[0].value.real;
+        var my=aa.value[1].value.real;
+        var r=a.value.value[1].value.real;
+        var li=[];
+        var n=36;
+        var d=Math.PI*2/n;
+        for(var i=0; i<n;i++){
+            li[i]={X:(mx+Math.cos(i*d)*r),Y:(my+Math.sin(i*d)*r)};
+        }
+        
+        return [li];
+    }
+    if(a.type=="polygon") {
+        erg=[];
+        for(var i=0; i<a.value.length;i++){
+            pol=a.value[i]
+            li=[];
+            for(var j=0; j<pol.length;j++){
+                li[j]={X:pol[j].X,Y:pol[j].Y};
+            }
+            erg[i]=li;
+        }
+        return erg;
+    }
+    
+    
+}
+
+
+evaluator.helper.shapeop=function(a,b,op){
+
+    var convert
+    var aa=evaluator.helper.shapeconvert(a);
+    var bb=evaluator.helper.shapeconvert(b);
+    var scale=1000;
+    ClipperLib.JS.ScaleUpPaths(aa, scale);
+    ClipperLib.JS.ScaleUpPaths(bb, scale);
+    var cpr = new ClipperLib.Clipper();
+    cpr.AddPaths(aa, ClipperLib.PolyType.ptSubject, true);
+    cpr.AddPaths(bb, ClipperLib.PolyType.ptClip, true);
+    var subject_fillType = ClipperLib.PolyFillType.pftNonZero;
+    var clip_fillType = ClipperLib.PolyFillType.pftNonZero;
+    var clipType =  op;
+    var solution_paths= new ClipperLib.Paths();
+    cpr.Execute(clipType, solution_paths, subject_fillType, clip_fillType);
+    ClipperLib.JS.ScaleDownPaths(solution_paths, scale);
+//    console.log(JSON.stringify(solution_paths));    
+    return {ctype:"shape",type:"polygon", value:solution_paths};
+
+};
+
+evaluator.helper.shapecommon=function(a,b){
+    return evaluator.helper.shapeop(a,b,ClipperLib.ClipType.ctIntersection);
+}
+
+evaluator.helper.shaperemove=function(a,b){
+    return evaluator.helper.shapeop(a,b,ClipperLib.ClipType.ctDifference);
+}
+
+evaluator.helper.shapeconcat=function(a,b){
+    return evaluator.helper.shapeop(a,b,ClipperLib.ClipType.ctUnion);
+}
 
 
 ///////////////////////////////
@@ -1916,7 +1998,12 @@ evaluator.scale=function(args,modifs){
 
 evaluator.greset=function(args,modifs){ 
     if(args.length==0){
+        var n=csgstorage.stack.length; 
         csport.greset();
+        for(var i=0;i<n;i++){
+                csctx.restore();
+        }
+        
     }
     return nada;
 }
@@ -1925,6 +2012,7 @@ evaluator.greset=function(args,modifs){
 evaluator.gsave=function(args,modifs){ 
     if(args.length==0){
         csport.gsave();
+        csctx.save();
     }
     return nada;
 }
@@ -1933,6 +2021,8 @@ evaluator.gsave=function(args,modifs){
 evaluator.grestore=function(args,modifs){ 
     if(args.length==0){
         csport.grestore();
+        csctx.restore();
+
     }
     return nada;
 }
@@ -2265,14 +2355,207 @@ evaluator.pointreflect=function(args,modifs){
             return General.mult(m1,List.inverse(m2));
         }
     }
-    
+    return nada;
+}
 
+
+evaluator.linereflect=function(args,modifs){ 
+    if(args.length==1){
+        
+        var ii=List.turnIntoCSList([CSNumber.complex(1,0),
+                                    CSNumber.complex(0,1),
+                                    CSNumber.complex(0,0)]);
+        var jj=List.turnIntoCSList([CSNumber.complex(1,0),
+                                    CSNumber.complex(0,-1),
+                                    CSNumber.complex(0,0)]);
+
+        var w0=evaluateAndHomog(args[0]);
+        var r0=List.realVector([Math.random(),Math.random(),Math.random()]);
+        var r1=List.realVector([Math.random(),Math.random(),Math.random()]);
+        var w1=List.cross(r0,w0);  
+        var w2=List.cross(r1,w0);  
+
+        
+        if( 
+           w0!=nada && w1!=nada){
+            var m1=evaluator.helper.basismap(w1,w2,ii,jj);
+            var m2=evaluator.helper.basismap(w1,w2,jj,ii);
+            return General.mult(m1,List.inverse(m2));
+        }
+    }
+    return nada;
+}
+
+
+
+///////////////////////////////
+//         Shapes            //
+///////////////////////////////
+
+
+
+evaluator.helper.extractPointVec=function(v1){//Eventuell Homogen machen
+    var erg={};
+    erg.ok=false;
+    if(v1.ctype=='geo') {
+        var val=v1.value;
+        if(val.kind=="P"){
+            erg.x= Accessor.getField(val,"x");
+            erg.y= Accessor.getField(val,"y");
+            erg.z= CSNumber.real(1);
+            erg.ok=true;
+            return erg;
+        }
     
+    }
+    if(v1.ctype!='list'){
+        return erg;
+    }
+    
+    var pt1=v1.value;
+    var x=0;
+    var y=0;
+    var z=0;
+    if(pt1.length==2){
+        var n1=pt1[0];
+        var n2=pt1[1];
+        if(n1.ctype=='number' && n2.ctype=='number'){
+            erg.x=CSNumber.clone(n1);
+            erg.y=CSNumber.clone(n2);
+            erg.z= CSNumber.real(1);
+            erg.ok=true;
+            return erg;
+        }
+    }
+    
+    if(pt1.length==3){
+        var n1=pt1[0];
+        var n2=pt1[1];
+        var n3=pt1[2];
+        if(n1.ctype=='number' && n2.ctype=='number'&& n3.ctype=='number'){
+            erg.x=CSNumber.div(n1,n3);
+            erg.y=CSNumber.div(n2,n3);
+            erg.z= CSNumber.real(1);
+            erg.ok=true;
+            return erg;
+        }
+    }
+    
+    return erg;
+    
+}
+
+
+
+
+evaluator.polygon=function(args,modifs){ 
+    if(args.length==1) {
+        var v0=evaluate(args[0]);
+        if (v0.ctype=='list'){
+            var li=[];
+            for(var i=0;i<v0.value.length;i++){
+                var pt=evaluator.helper.extractPoint(v0.value[i]);
+                if(!pt.ok ){
+                    return nada;
+                }
+                              
+                li[li.length]={X:pt.x,Y:pt.y};
+            } 
+            return {ctype:"shape", type:"polygon", value:[li]};
+        }
+        
+    }
+    return nada;
+    
+    
+}
+
+
+evaluator.circle=function(args,modifs){ 
+    if(args.length==2) {
+        var v0=evaluateAndVal(args[0]);
+        var v1=evaluateAndVal(args[1]);
+        var pt=evaluator.helper.extractPointVec(v0);
+        
+        if(!pt.ok || v1.ctype!='number'){
+            return nada;
+        }
+        var pt2 = List.turnIntoCSList([pt.x,pt.y,pt.z]);
+        
+        return {ctype:"shape", type:"circle", value:List.turnIntoCSList([pt2,v1])}
+        
+    }
+    return nada;
+}
+
+evaluator.screen=function(args,modifs){ 
+    if(args.length==0) {
+        var m=csport.drawingstate.initialmatrix;
+        var transf=function(px,py){
+            var xx = px-m.tx;
+            var yy = py+m.ty;
+            var x=(xx*m.d-yy*m.b)/m.det;
+            var y=-(-xx*m.c+yy*m.a)/m.det;
+            var erg={X:x, Y:y};
+            
+            return erg;
+        }
+        var erg = [
+            transf(0,0),
+            transf(csw,0),
+            transf(csw,csh),
+            transf(0,csh)
+            ];
+        return {ctype:"shape", type:"polygon", value:[erg]}
+        
+    }
+            
+    return nada;
+}
+
+evaluator.halfplane=function(args,modifs){ 
+    if(args.length==2) {
+        var v0=evaluateAndVal(args[0]);
+        var v1=evaluateAndVal(args[1]);
+        var w0=evaluateAndHomog(v0);
+        var w1=evaluateAndHomog(v1);
+        if(v0!=nada && v1!=nada){
+            var u0=v0.usage;
+            var u1=v1.usage;
+            var p=w0;
+            var l=w1;
+            if(u0=="Line" || u1=="Point"){
+                p=w1;
+                l=v0;
+            }
+            //OK im Folgenden lässt sich viel optimieren
+            var inf=List.realVector([0,0,1]);
+            var tt=List.cross(inf,l);
+            tt.value=[tt.value[1],CSNumber.neg(tt.value[0]),tt.value[2]];
+            var erg=List.cross(tt,p);
+            var foot=List.cross(l,erg);
+            foot=General.div(foot,foot.value[2]);
+            p=General.div(p,p.value[2]);
+            var diff=List.sub(p,foot);
+            var nn=List.abs(diff);
+            diff=General.div(diff,nn);
+            
+            var sx=foot.value[0].value.real;
+            var sy=foot.value[1].value.real;
+            var dx=diff.value[0].value.real*1000;
+            var dy=diff.value[1].value.real*1000;
+            
+            var pp1={X:sx+dy/2,    Y:sy-dx/2};
+            var pp2={X:sx+dy/2+dx, Y:sy-dx/2+dy};
+            var pp3={X:sx-dy/2+dx, Y:sy+dx/2+dy};
+            var pp4={X:sx-dy/2,    Y:sy+dx/2};
+            return {ctype:"shape", type:"polygon", value:[[pp1,pp2,pp3,pp4]]};
+        }
+    }
     
     return nada;
     
-
-
-
+    
 }
+
 

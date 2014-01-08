@@ -8,6 +8,16 @@
 evaluator.helper.extractPoint=function(v1){
     var erg={};
     erg.ok=false;
+    if(v1.ctype=='geo') {
+        var val=v1.value;
+        if(val.kind=="P"){
+            erg.x= Accessor.getField(val,"x").value.real;
+            erg.y= Accessor.getField(val,"y").value.real;
+            erg.ok=true;
+            return erg;
+        }
+        
+    }
     if(v1.ctype!='list'){
         return erg;
     }
@@ -294,6 +304,12 @@ y:erg2[1]/erg2[2]
     }
     var v1=evaluateAndVal(args[0]);
     
+    if(v1.ctype=="shape"){
+        return evaluator.helper.drawshape(v1,modifs);
+        
+    }
+    
+    
     if(v1.usage=="Line"){
         return drawline();
         
@@ -400,6 +416,9 @@ evaluator.helper.drawcircle=function(args,modifs,df){
             csctx.fillStyle=col;
             csctx.fill();
         }
+        if(df=="C"){
+            csctx.clip();
+        }
     }
     
     
@@ -414,26 +433,31 @@ evaluator.helper.drawcircle=function(args,modifs,df){
 }
 
 
+evaluator.connect=function(args,modifs){
+    evaluator.helper.drawpolygon(args,modifs,"D",0);
+}
+
+
 evaluator.drawpoly=function(args,modifs){
-    evaluator.helper.drawpolygon(args,modifs,"D");
+    evaluator.helper.drawpolygon(args,modifs,"D",1);
 }
 
 
 evaluator.fillpoly=function(args,modifs){
-    evaluator.helper.drawpolygon(args,modifs,"F");
+    evaluator.helper.drawpolygon(args,modifs,"F",1);
 }
 
 evaluator.drawpolygon=function(args,modifs){
-    evaluator.helper.drawpolygon(args,modifs,"D");
+    evaluator.helper.drawpolygon(args,modifs,"D",1);
 }
 
 
 evaluator.fillpolygon=function(args,modifs){
-    evaluator.helper.drawpolygon(args,modifs,"F");
+    evaluator.helper.drawpolygon(args,modifs,"F",1);
 }
 
 
-evaluator.helper.drawpolygon=function(args,modifs,df){
+evaluator.helper.drawpolygon=function(args,modifs,df,cycle){
     var erg;
     var size=4;
     var col;
@@ -485,13 +509,69 @@ evaluator.helper.drawpolygon=function(args,modifs,df){
         col="rgba("+r+","+g+","+b+","+alpha+")";//TODO Performanter machen
     }
     
+    var drawpolyshape = function(){
+        
+        var m=csport.drawingstate.matrix;
+        
+        var polys=v0.value;
+        if(df!="D")
+            csctx.beginPath();
+        for(var j=0;j<polys.length;j++){
+            var pol=polys[j];
+            var li=[];
+            
+            for(var i=0;i<pol.length;i++){
+                var pt=pol[i]; 
+                var xx=pt.X*m.a-pt.Y*m.b+m.tx;
+                var yy=pt.X*m.c-pt.Y*m.d-m.ty;
+                
+                li[li.length]=[xx,yy];
+            } 
+            col=csport.drawingstate.linecolor;
+            handleModifs();
+            csctx.lineWidth = size*.3;
+            csctx.mozFillRule = 'evenodd';
+            csctx.lineJoin="round";
+            if(df=="D")
+                csctx.beginPath();
+            csctx.lineWidth = size*.4;
+            csctx.moveTo(li[0][0],li[0][1]);
+            for(var i=1;i<li.length;i++){
+                csctx.lineTo(li[i][0],li[i][1]);
+            }
+            if(df=="D"){
+                csctx.closePath();
+                csctx.strokeStyle=col;
+                csctx.stroke();
+            }
+            
+        }
+        if(df!="D")
+            csctx.closePath();
+
+        if(df=="F"){
+            csctx.fillStyle=col;
+            csctx.fill();
+        }
+        if(df=="C"){
+            csctx.clip();
+        }
+        
+        
+        
+    }
+    
+    
+    
     
     var drawpoly = function(){
+        
         var m=csport.drawingstate.matrix;
         
         var li=[];
         for(var i=0;i<v0.value.length;i++){
             var pt=evaluator.helper.extractPoint(v0.value[i]);
+            
             if(!pt.ok ){
                 return nada;
             }
@@ -511,7 +591,8 @@ evaluator.helper.drawpolygon=function(args,modifs,df){
         for(var i=1;i<li.length;i++){
             csctx.lineTo(li[i][0],li[i][1]);
         }
-        csctx.closePath();
+        if(cycle==1)
+            csctx.closePath();
         if(df=="D"){
             csctx.strokeStyle=col;
             csctx.stroke();
@@ -520,13 +601,22 @@ evaluator.helper.drawpolygon=function(args,modifs,df){
             csctx.fillStyle=col;
             csctx.fill();
         }
+        if(df=="C"){
+            csctx.clip();
+        }
     }
-    
     
     if(args.length==1) {
         var v0=evaluate(args[0]);
+        
+        
         if (v0.ctype=='list'){
             return drawpoly();
+            
+        }
+        
+        if (v0.ctype=='shape'){
+            return drawpolyshape();
             
         }
         
@@ -680,6 +770,71 @@ evaluator.drawtext=function(args,modifs){
     return nada;
     
 }
+
+evaluator.helper.drawshape=function(shape,modifs){
+    if(shape.type=="polygon") {
+        return evaluator.helper.drawpolygon([shape],modifs,"D",1);
+    }
+    if(shape.type=="circle") {
+        return evaluator.helper.drawcircle([shape.value.value[0],shape.value.value[1]],modifs,"D");
+    }
+    return nada;
+}
+
+
+evaluator.helper.fillshape=function(shape,modifs){
+    
+    if(shape.type=="polygon") {
+        return evaluator.helper.drawpolygon([shape],modifs,"F",1);
+    }
+    if(shape.type=="circle") {
+        return evaluator.helper.drawcircle([shape.value.value[0],shape.value.value[1]],modifs,"F");
+    }
+    return nada;
+}
+
+
+evaluator.helper.clipshape=function(shape,modifs){
+    if(shape.type=="polygon") {
+        return evaluator.helper.drawpolygon([shape],modifs,"C",1);
+    }
+    if(shape.type=="circle") {
+        return evaluator.helper.drawcircle([shape.value.value[0],shape.value.value[1]],modifs,"C");
+    }
+    return nada;
+}
+
+
+
+
+evaluator.fill =function(args,modifs){
+    if(args.length==1) {
+        var v1=evaluate(args[0]);
+        
+        if(v1.ctype=="shape"){
+            return evaluator.helper.fillshape(v1,modifs);
+            
+        }
+    }
+    return nada;
+}
+
+
+
+evaluator.clip =function(args,modifs){
+    if(args.length==1) {
+        var v1=evaluate(args[0]);
+        
+        if(v1.ctype=="shape"){
+            return evaluator.helper.clipshape(v1,modifs);
+            
+        }
+    }
+    return nada;
+}
+
+
+
 
 
 evaluator.helper.setDash=function(pattern,size){
@@ -867,8 +1022,8 @@ evaluator.plot=function(args,modifs){ //OK
     
     var v1=args[0];
     if(args.length==2 && args[1].ctype=='variable'){
-            runv=args[1].name;
-    
+        runv=args[1].name;
+        
     } else {
         var li=evaluator.helper.plotvars(v1);
         var runv="#";

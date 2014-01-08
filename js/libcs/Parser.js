@@ -35,6 +35,9 @@ var evaluate=function(a){
     if(a.ctype=='undefined'){
         return a;
     }
+    if(a.ctype=='shape'){
+        return a;
+    }
     if(a.ctype=='field'){        
         return Accessor.getGeoField(a.obj,a.key);
     }
@@ -141,6 +144,9 @@ var report=function(a,i){
     }
     if(a.ctype=='string'){
         console.log(prep+"STRING: "+a.value);
+    }
+    if(a.ctype=='shape'){
+        console.log(prep+"SHAPE: "+a.type);
     }
     if(a.ctype=='modifier'){
         console.log(prep+"MODIF: "+a.key);

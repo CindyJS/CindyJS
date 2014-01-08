@@ -20,7 +20,6 @@
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
             <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
-            <script type="text/javascript" src="js/lib/clipper/clipper.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
 
                 
@@ -32,13 +31,25 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            draw(join(A,B));
-            pol=halfplane(join(A,B),C);
-            fill(pol);
+            fillcircle((0,0),30,color->(0,0,0));
+
+            m=map(A,B,C,D);
+            l=[A.homog,B.homog,D.homog,C.homog,A.homog];
+            n(x):=x/|x|;
+            s=X.x;
+            mm=round(X.y*4);
+            repeat(200,i,
+                   fillpoly(l,color->hue((i-1)/mm+s),alpha->0.9);
+                   // connect(l,color->(0,0,0));
+                   l=apply(l,n(m*#));
+                   );
+            
             draw(A);
             draw(B);
             draw(C);
-                      
+            draw(D);
+            draw(X,color->(1,1,1));
+            
         </script>
         
         
@@ -73,25 +84,21 @@
                       {name:"A", kind:"P", type:"Free", sx:-7,sy:-3,sz:1},
                       {name:"B", kind:"P", type:"Free", sx:-2,sy:-3,sz:1},
                       {name:"D", kind:"P", type:"Free", sx:-1,sy:0,sz:1},
-                      {name:"C", kind:"P", type:"Free", sx:4,sy:3,sz:1},
-                      {name:"X", kind:"P", type:"Free", sx:-8,sy:8,sz:1},
-                      {name:"Y", kind:"P", type:"Free", sx:-8,sy:.8,sz:1},
-                      {name:"Z", kind:"P", type:"Free", sx:-6,sy:0,sz:1}
+                      {name:"C", kind:"P", type:"Free", sx:-5,sy:2,sz:1},
+                      {name:"X", kind:"P", type:"Free", sx:-8,sy:8,sz:1}
                       ];
             
             csinit(gslp);
             var images={};
             
-       /*
+            
             images.rost = new Image();
             images.rost.ready=false;
             images.rost.onload = function() {
                 images.rost.ready=true;
                 recalc();
                 csctx.clearRect ( 0   , 0 , 500 , 500 );
-                csctx.save();
                 evaluate(cserg);
-                csctx.restore();
 
                 render();
 
@@ -106,15 +113,12 @@
 
                 recalc();
                 csctx.clearRect ( 0   , 0 , 500 , 500 );
-                csctx.save();
                 evaluate(cserg);
-                csctx.restore();
-
                 render();
 
             };
             images.boe.src = 'boe.png';
-          */  
+            
             
             /*
             d3.timer(function() {

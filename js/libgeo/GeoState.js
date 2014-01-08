@@ -145,6 +145,8 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         csport.drawingstate =csport.clone(csgstorage.backup);
         csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
         csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
+            csgstorage.stack=[];
+
     }
 
     csport.setcolor=function(co){

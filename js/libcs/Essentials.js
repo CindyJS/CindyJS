@@ -116,6 +116,10 @@ var niceprint=function(a){
     if(a.ctype=='modifier'){
         return a.key+'->'+niceprint(a.value);
     }
+    if(a.ctype=='shape'){
+        return a.type;
+    }
+
     if(a.ctype=='error'){
         return "Error: "+a.message;
     }
