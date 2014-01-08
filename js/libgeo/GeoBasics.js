@@ -1,15 +1,24 @@
 function csinit(gslp){
     csgeo.gslp=gslp;
     
-        
     svg = d3.select("body")
         .append("svg")
         .attr("width", csw)
         .attr("height", csh)
+        .attr("onmousemove", "test (event)")
         ;
     
-         
-    csd3={};       
+    /*    svg.on("mousemove", function() {
+        // csmouse = d3.svg.mouse(this);
+        console.log(d3.event.pageX);
+    });*/
+    
+    test=function(evt){
+        var x = (-250+evt.offsetX)/25.0;
+        var y = (250-evt.offsetY)/25.0;
+        csmouse=[x,y];
+    }
+    
     csgeo.csnames={};
     for( var k=0; k<csgeo.gslp.length; k++ ) {
         csgeo.csnames[csgeo.gslp[k].name]=k;
@@ -47,10 +56,9 @@ function csinit(gslp){
         
     };
     
-    
+    recalc();
     csgeo.dataset = {
 nodes: csgeo.free,
-nodes: [{px:0,py:0}],
 edges: []
     };
     
@@ -64,30 +72,35 @@ edges: []
         .charge([0])
         .gravity([.000])
         .start();
-
-    console.log(JSON.stringify(csgeo.points));
-
-   //Create nodes as circles
+    
+    
+    //Create edges as lines
+    csgeo.edges = svg.selectAll("line")
+        .data(csgeo.lines)
+        .enter()
+        .append("line")
+        .style("stroke", "#000")
+        .style("stroke-width", 3);
+    
+    //Create nodes as circles
     csgeo.nodes = svg.selectAll("circle")
-      //  .data(csgeo.points)
-        .data(csgeo.dataset.nodes)
+        .data(csgeo.points)
         .enter()
         .append("circle")
-        .attr("r", 29)
-        .attr("cx", 300)
-        .attr("cy", 300)
-        .style("fill",  "rgba(255,0,0,.1)")
+        .attr("r", 9)
+        .style("fill", function(d,i) {
+            if (d.type=="Free") {return "rgba(1,1,1,0)";}
+            return "red";})
         // .style("stroke", "black")
         // .style("stroke-width", 2)
         .call(csgeo.eventhandler.drag);
-
+    
     csgeo.eventhandler.on("tick", function() {
         
         // csgeo.gslp[1].py=30;
-        recalc();  
-        csgeo.gslp[0].px=csgeo.dataset.nodes[0].px;
-        csgeo.gslp[0].py=csgeo.dataset.nodes[0].py;
-                                                                        
+        
+        recalc();                          
+        
         csctx.save();
         csctx.clearRect ( 0   , 0 , csw , csh );
         evaluate(cserg);
@@ -96,17 +109,9 @@ edges: []
         
     });
     
-
- 
-}
-
-
-function render(){
-
-//    csgeo.nodes.attr("cx", function(d) { return d.x})
-//    .attr("cy", function(d) { return d.y});
     
-};
-
-
-
+    
+    
+    
+    
+}

@@ -17,7 +17,7 @@ var Cindy=Cindy || {};
             var sc=sc+scripts[snames[i]]+";\n\n\n";
         }
        // eval(sc);
-       sc="(function(){"+sc+"})();"
+     //  sc="(function(){"+sc+"})();"
         
      //   console.log(sc);
         
