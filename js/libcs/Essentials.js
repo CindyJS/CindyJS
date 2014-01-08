@@ -148,7 +148,9 @@ var myfunctions= function(name,args,modifs){
         namespace.newvar(tt.arglist[i].name);
         namespace.setvar(tt.arglist[i].name,set[i]);
     }
+    namespace.pushVstack("*");
     var erg= evaluate(tt.body);
+    namespace.cleanVstack();
     for(var i=0;i<tt.arglist.length;i++){
         namespace.removevar(tt.arglist[i].name);
     }

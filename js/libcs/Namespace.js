@@ -92,6 +92,25 @@ function Namespace(){
         
     }
     
+    this.vstack=[];
+    
+    this.pushVstack=function(v){
+        this.vstack.push(v);
+    
+    }
+    this.popVstack=function(){
+        this.vstack.pop();
+    }
+    
+    this.cleanVstack=function(){
+        var st=this.vstack;
+        while(st.length>0 && st[st.length-1]!="*"){
+            this.removevar(st[st.length-1]);
+            st.pop();
+        }
+        if(st.length>0){st.pop();}
+    }
+    
     
     
     

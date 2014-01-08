@@ -150,6 +150,23 @@ evaluator.repeat=function(args,modifs){    //OK
 }
 
 
+evaluator.while=function(args,modifs){ //OK
+    
+    var prog=args[1];
+    var test=args[0];
+    var bo=evaluate(test);
+    console.log(niceprint(bo));
+    var erg=nada;
+    while(bo.ctype!='list' && bo.value) {
+        erg=evaluate(prog);
+        bo=evaluate(test)
+    }
+    
+    return erg;
+    
+}
+
+
 evaluator.apply=function(args,modifs){ //OK
     
     var v1=evaluateAndVal(args[0]);
@@ -264,6 +281,89 @@ evaluator.semicolon=function(args,modifs){ //OK
     }
     return nada;
 }
+
+
+evaluator.createvar=function(args,modifs){ //OK
+    
+
+    if(args.length==1) {
+        if(args[0].ctype=='variable'){
+            var v=args[0].name;
+            namespace.newvar(v);
+        }
+    }
+        
+    return nada;
+    
+}
+
+evaluator.local=function(args,modifs){ //OK
+    
+    for(var i=0;i<args.length;i++){
+        if(args[i].ctype=='variable'){
+            var v=args[i].name;
+            namespace.newvar(v);
+        }
+    }
+        
+    return nada;
+    
+}
+
+
+
+
+evaluator.removevar=function(args,modifs){ //OK
+    
+
+    if(args.length==1) {
+        var ret=evaluate(args[0]);
+
+        if(args[0].ctype=='variable'){
+            var v=args[0].name;
+            namespace.removevar(v);
+        }
+        return ret;
+    }
+        
+    return nada;
+    
+}
+
+
+
+evaluator.release=function(args,modifs){ //OK
+    
+    if(args.length==0) 
+        return nada;
+
+    
+    var ret=evaluate(args[args.length-1]);
+
+    for(var i=0;i<args.length;i++){
+        if(args[i].ctype=='variable'){
+            var v=args[i].name;
+            namespace.removevar(v);
+        }
+    }
+        
+    return ret;
+    
+}
+
+evaluator.regional=function(args,modifs){ //OK
+    
+    for(var i=0;i<args.length;i++){
+        if(args[i].ctype=='variable'){
+            var v=args[i].name;
+            namespace.newvar(v);
+            namespace.pushVstack(v);
+        }
+    }
+    return nada;
+    
+}
+
 
 
 evaluator.genList=function(args,modifs){

@@ -30,8 +30,17 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
+            if(!isreal(j),j=1;li=[],j=j+1);
+            
+            s=seconds();
+            drawtext((5,1),"DELTA: "+(s-os));
+            li=li++[(A.xy,s-os)];
+            
+            os=s;
+            
+            forall(li,draw(#_1,color->(1,0,0),size->min((10,#_2*100))));
+            
             repeat(500,i,
-                   
                    w=i*pi/180*(137.508+B.x*0.5);
                    p=A+(cos(w),sin(w))*0.3*sqrt(i);
                    a=i;
@@ -39,7 +48,12 @@
                    );
             draw(A,color->(0,0,1));
             draw(B,color->(0,0,1));
-           // err(a);
+            ds=seconds()-s;
+            drawtext((5,5),1/(ds));
+            if(!isreal(su),su=ds,su=su+ds);
+            
+            drawtext((5,3),j/su);
+
             
             </script>
         

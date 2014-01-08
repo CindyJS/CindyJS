@@ -102,7 +102,7 @@ edges: []
         recalc();                          
         
         csctx.save();
-        csctx.clearRect ( 0   , 0 , 500 , 500 );
+        csctx.clearRect ( 0   , 0 , csw , csh );
         evaluate(cserg);
         render();
         csctx.restore();

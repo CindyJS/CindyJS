@@ -28,15 +28,101 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: Complete Graph</h1>
+        <h1>CindyJS: Euclids Algorithm</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
-            g(x):=x+3;
-            f(x):=parse("x+3");
-            errc(f(4));
-            errc(g(4));
-       errc(parse("4+3"));
+            linecolor((0,0,0));
+            sq(a,b):=(
+                      n1=a-b;
+                      n2=(-n1_2,n1_1);
+                      pol=(a,a-n2,b-n2,b);
+                    fillpoly(pol,color->col*.2+.8*(1,1,1),alpha->1);
+                      draw(a,b,size->2);
+                      draw(a,a-n2,size->2);
+                      draw(b,b-n2,size->2);
+                      draw(a-n2,b-n2,size->2);
+                      );
+            
+            
+            i=0;
+            
+            ii=complex((0,1));
+            arrow(aa,bb):=(
+                           a1=complex(aa);
+                           b1=complex(bb);
+                           draw(gauss(a1),gauss(b1),color->(0,0,0.6));
+                           draw(gauss(b1-((b1-a1)/|b1-a1|)*exp(ii*.4) ),gauss(b1),color->(0,0,0.6));
+                           draw(gauss(b1-((b1-a1)/|b1-a1|)*exp(-ii*.4) ),gauss(b1),color->(0,0,0.6));
+                           
+                           );
+            
+
+            
+            kb(a,b,c,n):=if(n>0,
+                            col=hue(.3*n/2);
+                            if(abs(a-b)<abs(a-c),
+                               (sq(b,a);nn=perp(a-b);kb(a+nn,b+nn,c,n-1)),
+                               (sq(a,c);nn=perp(a-c);kb(a-nn,b,c-nn,n-1))
+                               ));
+            
+            nn=2.5;
+            a=round((A.x+10)*nn);
+            b=round((A.y+10)*nn);
+            if (a<0,a=0);
+            if (b<0,b=0);
+            drawtext(A+(.2,.2),"("+a+","+b+")");
+
+            gsave();
+            translate((-10,-10));
+            scale(1/nn);
+            apply(0..nn*20,
+                  draw((0,#),(nn*20,#),color->(0,0,0),alpha->0.2);
+                  draw((#,0),(#,nn*20),color->(0,0,0),alpha->0.2);
+                  
+                  );
+            kb((0,0),(0,b),(a,0),250);
+            grestore();
+            gsave();
+            translate((-10,-10));
+            scale(1/5);
+
+            translate((40,40));
+            drawtext((65,50-i*4),"Euklidischer Algorithmus:",size->20,color->(0.6,0,0));
+                     while(b>0,
+                           k=floor(a/b);
+                           r=a-k*b;
+                           drawtext((65,43-i*7),a,size->16);
+                           drawtext((70,43-i*7),"= "+k,size->16);
+                           drawtext((77,43-i*7),"* "+b,size->16);
+                           drawtext((87,43-i*7),"+ "+r,size->16);
+                           if(r==0,
+                              drawtext((87,43-i*7),"+ "+r,size->16,color->(0.6,0,0));
+                              );
+                           a=round(b);
+                           b=round(r);
+                           if (b>0,
+                               arrow((89,42.5-i*7),(83,40-i*7));
+                               arrow((78,42.5-i*7),(69,40-i*7)),
+                               arrow((78,42.5-i*7),(69,36-i*7));
+                               i=i+1;
+                               );
+                           i=i+1;
+                           
+                           );
+                     
+                     drawtext((65,43-i*7),a+" ist der ggT",size->20,color->(0.6,0,0));
+                     
+                     
+
+            
+            
+            grestore();
+            
+                             
+            
+            
+            draw(A);
             
         </script>
         
@@ -57,7 +143,7 @@
 
             
 			//Width and height
-			var csw = 500;
+			var csw = 800;
 			var csh = 500;
             csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
             csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
@@ -69,7 +155,7 @@
             var i=0;
 
 			var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
+                      {name:"A", kind:"P", type:"Free", sx:4,sy:8,sz:1},
                       {name:"B", kind:"P", type:"Free", sx:-9,sy:8,sz:1},
                       {name:"D", kind:"P", type:"Free", sx:-1,sy:0,sz:1},
                       {name:"C", kind:"P", type:"Free", sx:4,sy:3,sz:1},
