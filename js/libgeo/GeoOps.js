@@ -1,4 +1,4 @@
-var lock=true;
+var lock=false;
 
 function recalc(){
    if(!lock){

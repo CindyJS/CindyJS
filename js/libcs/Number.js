@@ -316,6 +316,18 @@ Number.helper.isEqual=function(a,b) {
     return (a.value.real == b.value.real) && (a.value.imag == b.value.imag);
 }
 
+Number.helper.isLessThan=function(a,b) {
+
+    return(a.value.real < b.value.real 
+           || a.value.real == b.value.real && a.value.imag < b.value.imag)
+}
+
+Number.helper.compare=function(a,b) {
+    if(Number.helper.isLessThan(a,b)){return -1}
+    if(Number.helper.isEqual(a,b)){return 0}
+    return 1;
+}
+
 Number.helper.isAlmostEqual=function(a,b) {
     var r=a.value.real-b.value.real;
     var i=a.value.imag-b.value.imag;

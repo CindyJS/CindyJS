@@ -366,6 +366,7 @@ evaluator.if=function(args,modifs){  //OK
 evaluator.comp_equals=function(args,modifs){  
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
+
     if(v0.ctype=='number' && v1.ctype=='number' ){
         return {'ctype':'boolean' ,
             'value':(v0.value.real==v1.value.real)&&
@@ -597,6 +598,90 @@ evaluator.sequence=function(args,modifs){  //OK
     return nada;
 }
 
+
+
+evaluator.helper.sum2=function(args,modifs){ //OK
+    
+    var v1=evaluateAndVal(args[0]);
+    if(v1.ctype!='list'){
+        return nada;
+    }
+    var argind=args.length-1;
+    
+    var lauf='#';
+    if(args.length==3) {
+        if(args[1].ctype=='variable'){
+            lauf=args[1].name;
+        }
+    }
+    
+    var li=v1.value;
+    var erg=Number.real(0);
+    namespace.newvar(lauf);
+    for(var i=0;i<li.length;i++){
+        namespace.setvar(lauf,li[i]);
+        erg=Number.add(erg,evaluate(args[argind]));
+    }
+    namespace.removevar(lauf);
+    
+    return erg;
+    
+}
+
+
+
+evaluator.sum=function(args,modifs){
+  if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='list'){
+            return List.sum1(v0);
+        }
+    }
+    return evaluator.helper.sum2(args,modifs);
+}
+
+
+evaluator.helper.product2=function(args,modifs){ //OK
+    
+    var v1=evaluateAndVal(args[0]);
+    if(v1.ctype!='list'){
+        return nada;
+    }
+    var argind=args.length-1;
+    
+    var lauf='#';
+    if(args.length==3) {
+        if(args[1].ctype=='variable'){
+            lauf=args[1].name;
+        }
+    }
+    
+    var li=v1.value;
+    var erg=Number.real(1);
+    namespace.newvar(lauf);
+    for(var i=0;i<li.length;i++){
+        namespace.setvar(lauf,li[i]);
+        erg=Number.mult(erg,evaluate(args[argind]));
+    }
+    namespace.removevar(lauf);
+    
+    return erg;
+    
+}
+
+
+
+
+
+evaluator.product=function(args,modifs){
+  if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='list'){
+            return List.product1(v0);
+        }
+    }
+    return evaluator.helper.product2(args,modifs);
+}
 
 
 
@@ -1574,4 +1659,153 @@ evaluator.contains=function(args,modifs){
     return nada;
 }
 
+
+evaluator.helper.sort2=function(args,modifs){ //OK
+    
+    var v1=evaluateAndVal(args[0]);
+    if(v1.ctype!='list'){
+        return nada;
+    }
+    var argind=args.length-1;
+    
+    var lauf='#';
+    if(args.length==3) {
+        if(args[1].ctype=='variable'){
+            lauf=args[1].name;
+        }
+    }
+    
+    var li=v1.value;
+    var erg=[];
+    namespace.newvar(lauf);
+    for(var i=0;i<li.length;i++){
+        namespace.setvar(lauf,li[i]);
+        erg[erg.length]={val:li[i] ,result:evaluate(args[argind])};
+    }
+    namespace.removevar(lauf);
+    
+    erg.sort(General.compareResults);    
+    var erg1=[];
+    for(var i=0;i<li.length;i++){
+        erg1[erg1.length]=erg[erg1.length].val;
+    }
+    
+    return {'ctype':'list','value':erg1};
+    
+}
+
+
+evaluator.sort=function(args,modifs){ 
+  if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='list'){
+            return List.sort1(v0);
+        }
+    }
+    return evaluator.helper.sort2(args,modifs);
+}
+
+
+evaluator.set=function(args,modifs){ 
+  if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='list'){
+            return List.set(v0);
+        }
+    }
+    return nada;
+}
+
+///////////////////////////////
+//         COLOR OPS         //
+///////////////////////////////
+
+evaluator.red=function(args,modifs){ 
+
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number'){
+            var c=Math.min(1,Math.max(0,v0.value.real));
+            return List.realVector([c,0,0]);
+        }
+    }
+    return nada;
+}
+
+evaluator.green=function(args,modifs){ 
+
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number'){
+            var c=Math.min(1,Math.max(0,v0.value.real));
+            return List.realVector([0,c,0]);
+        }
+    }
+    return nada;
+}
+
+evaluator.blue=function(args,modifs){ 
+
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number'){
+            var c=Math.min(1,Math.max(0,v0.value.real));
+            return List.realVector([0,0,c]);
+        }
+    }
+    return nada;
+}
+
+evaluator.grey=function(args,modifs){ 
+   return evaluator.gray(args,modifs);
+}
+
+evaluator.gray=function(args,modifs){ 
+
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number'){
+            var c=Math.min(1,Math.max(0,v0.value.real));
+            return List.realVector([c,c,c]);
+        }
+    }
+    return nada;
+}
+
+
+evaluator.helper.HSVtoRGB =function(h, s, v) {
+
+    var r, g, b, i, f, p, q, t;
+    if (h && s === undefined && v === undefined) {
+        s = h.s, v = h.v, h = h.h;
+    }
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+    return List.realVector([r,g,b]);
+}
+
+evaluator.hue=function(args,modifs){ 
+
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number'){
+            var c=v0.value.real;
+        
+            c=c-Math.floor(c );
+            return evaluator.helper.HSVtoRGB(c,1,1);
+        }
+    }
+    return nada;
+}
 

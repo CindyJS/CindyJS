@@ -11,6 +11,7 @@
             <script type="text/javascript" src="js/libcs/Number.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Operators.js"></script>
             <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
@@ -27,88 +28,12 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            A=(-5,-5);
-            off=A;
-                       
-            
-            a=(0,0);
-            b=complex(B-A);
-            c=complex(C-A);
-            b=b/abs(b);
-            c=c/abs(c);
-            z=c/b;
-            z=z/abs(z);
-            gamma=log(z)*2/(i*pi);
+ 
 
+            a=1..7;
+            errc(sum(a,i,i^2));
+            errc(product(a,i,i^2));
             
-            
-            n=20 ;
-            m=apply(1..n,apply(1..n,0));;
-            
-            m_1_1=0;
-            m_1_2=b;
-            m_2_1=c;
-            
-            forall(3..n,j,
-                   aa=m_1_(j-2);
-                   bb=m_1_(j-1);
-                   nn=j-2;
-                   m_1_j=(-2*bb^2*nn+2*bb*aa*nn+gamma*bb*aa)/(gamma*bb-2*bb*nn+2*aa*nn)
-                   )
-            ;
-            
-
-            forall(3..n,j,
-                   aa=m_(j-2)_1;
-                   bb=m_(j-1)_1;
-                   nn=j-2;
-                   m_j_1=(-2*bb^2*nn+2*bb*aa*nn+gamma*bb*aa)/(gamma*bb-2*bb*nn+2*aa*nn)
-                   );
-            
-
-            
-            
-            forall(2..n,j,
-                   forall(2..n,k,
-                          l=1/2;
-                          aa=m_(j-1)_(k-1);
-                          bb=m_(j)_(k-1);
-                          cc=m_(j-1)_(k);
-                          m_j_k=  ((aa*bb)-(bb*cc)-(aa*bb*l)+(aa*cc*l))/(aa-cc-bb*l+cc*l);
-                          )
-                   );
-            
-            
-            
-            //draw(gauss(next(a,b)))
-            
-            
-            
-            forall(1..10,k,
-                   forall(1..10,j,
-                          fillcircle(off+gauss(m_(2*k)_(2*j)),abs(gauss(m_(2*k)_(2*j))-gauss(m_(2*k-1)_(2*j))),color->(1,0,0.3),alpha->0.3);
-                          drawcircle(off+gauss(m_(2*k)_(2*j)),abs(gauss(m_(2*k)_(2*j))-gauss(m_(2*k-1)_(2*j))),color->(0,.5,0));
-                          );
-                   );
-            
-            forall(1..10,k,
-                   forall(1..10,j,
-                          fillcircle(off+gauss(m_(2*k-1)_(2*j-1)),
-                                     abs(gauss(m_(2*k-1)_(2*j-1))-gauss(m_(2*k-1)_(2*j))),color->(1,0.8,0),alpha->0.3);
-                          drawcircle(off+gauss(m_(2*k-1)_(2*j-1)),abs(gauss(m_(2*k-1)_(2*j-1))-gauss(m_(2*k-1)_(2*j))),color->(0,0,0));
-                          );
-                   );
-            
-            
-            
-            forall(1..n,k,forall(1..n,j,draw(off+gauss(m_k_j),size->1)));
-            
-
-            draw(join(A,B),color->(0,0,0));
-            draw(join(A,C),color->(0,0,0));
-            draw(A,color->(0,0,0),size->3);
-            draw(B,color->(1,0,0));
-            draw(C,color->(1,0,0));
             
             
         </script>
@@ -146,7 +71,7 @@
         
         
         <script type="text/javascript">
-            
+                       
             var c=document.getElementById("CSCanvas");
             c.width=csw;
             c.height=csh;

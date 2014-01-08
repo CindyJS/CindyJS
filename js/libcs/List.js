@@ -181,6 +181,128 @@ List.remove=function(a,b){
     return {'ctype':'list','value':erg};
 }
 
+List.helper.compare=function(a,b){
+    if(a.ctype=='number' && b.ctype=='number'){
+        return a.value.real-b.value.real
+    }
+    return -1;
+
+}
+
+List.sort1=function(a){
+  var erg=a.value.sort(General.compare);
+  return List.turnIntoCSList(erg);
+}
+
+List.helper.isEqual=function(a1,a2){
+    return List.equals(a1,a2).value;
+}
+
+List.helper.isLessThan=function(a,b){
+
+    var s1 = a.value.length;
+    var s2 = b.value.length;
+    var i = 0;
+    
+    while (!(    i >= s1 
+                 || i >= s2 
+                 || !General.isEqual(a.value[i], b.value[i])
+                 )) {i++;}
+    if (i == s1 && i < s2) {return true};
+    if (i == s2 && i < s1) {return false};
+    if (i == s1 && i == s2) {return false};
+    return General.isLessThan(a.value[i], b.value[i]);
+    
+}
+
+
+List.helper.compare=function(a,b) {
+    if(List.helper.isLessThan(a,b)){return -1}
+    if(List.helper.isEqual(a,b)){return 0}
+    return 1;
+}
+
+List.equals=function(a1,a2){
+    if(a1.value.length != a2.value.length){
+        return {'ctype':'boolean','value':false};
+    }
+    var erg=true;
+    for(var i=0;i<a1.value.length;i++){
+        var av1=a1.value[i];
+        var av2=a2.value[i];
+        
+        if(av1.ctype=='list' && av2.ctype=='list' ){
+            erg=erg && List.equals(av1,av2).value;
+        } else {
+            erg=erg && evaluator.comp_equals([av1,av2],[]).value;
+            
+        }
+    }
+    return {'ctype':'boolean','value':erg};
+}
+
+List.almostequals=function(a1,a2){
+    
+    if(a1.value.length != a2.value.length){
+        return {'ctype':'boolean','value':false};
+    }
+    var erg=true;
+    for(var i=0;i<a1.value.length;i++){
+        var av1=a1.value[i];
+        var av2=a2.value[i];
+        
+        if(av1.ctype=='list' && av2.ctype=='list' ){
+            erg=erg && List.comp_almostequals(av1,av2).value;
+        } else {
+            erg=erg && evaluator.comp_almostequals([av1,av2],[]).value;
+            
+        }
+    }
+    return {'ctype':'boolean','value':erg};
+}
+
+List.set=function(a1){
+    var erg=[];
+    var erg1=a1.value.sort(General.compare);
+
+    for(var i=0;i<erg1.length;i++){
+        if(i==0||!(evaluator.comp_equals([erg[erg.length-1],erg1[i]],[])).value){
+            erg[erg.length]=erg1[i];
+
+        }
+
+    }
+    
+    return {'ctype':'list','value':erg};
+
+}
+
+
+
+
+List.sum1=function(a){
+  var erg=Number.real(0);
+  for(var i=0;i<a.value.length;i++){
+     erg=Number.add(erg,a.value[i]); 
+  }
+  return erg;
+}
+
+
+List.product1=function(a){
+  var erg=Number.real(1);
+  for(var i=0;i<a.value.length;i++){
+     erg=Number.mult(erg,a.value[i]); 
+  }
+  return erg;
+}
+
+
+
+
+///////////////////////////
+
+
 
 
 
@@ -240,47 +362,6 @@ List.scalmult=function(a1,a2){//TODO Rekursion stimmt hier noch nicht [2,[3,4],2
     }
     return {'ctype':'list','value':erg};
 }
-
-List.equals=function(a1,a2){
-    
-    if(a1.value.length != a2.value.length){
-        return {'ctype':'boolean','value':false};
-    }
-    var erg=true;
-    for(var i=0;i<a1.value.length;i++){
-        var av1=a1.value[i];
-        var av2=a2.value[i];
-        
-        if(av1.ctype=='list' && av2.ctype=='list' ){
-            erg=erg && List.equals(av1,av2).value;
-        } else {
-            erg=erg && evaluator.comp_equals([av1,av2],[]).value;
-            
-        }
-    }
-    return {'ctype':'boolean','value':erg};
-}
-
-List.almostequals=function(a1,a2){
-    
-    if(a1.value.length != a2.value.length){
-        return {'ctype':'boolean','value':false};
-    }
-    var erg=true;
-    for(var i=0;i<a1.value.length;i++){
-        var av1=a1.value[i];
-        var av2=a2.value[i];
-        
-        if(av1.ctype=='list' && av2.ctype=='list' ){
-            erg=erg && List.comp_almostequals(av1,av2).value;
-        } else {
-            erg=erg && evaluator.comp_almostequals([av1,av2],[]).value;
-            
-        }
-    }
-    return {'ctype':'boolean','value':erg};
-}
-
 
 
 List.add=function(a1,a2){
