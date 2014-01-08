@@ -2,12 +2,7 @@
 //*******************************************************
 // and here are the definitions of the drawing operators
 //*******************************************************
-evaluator.drawingstate={};
-evaluator.drawingstate.linecolor="rgb(0,0,255)";
-evaluator.drawingstate.linecolorraw=[0,0,1];
-evaluator.drawingstate.pointcolor="rgb(255,200,0)";
-evaluator.drawingstate.pointcolorraw=[1,0,0];
-evaluator.drawingstate.alpha=1.0;
+
 
 
 evaluator.helper.extractPoint=function(v1){
@@ -72,16 +67,16 @@ evaluator.draw=function(args,modifs){
         var r=0;
         var g=0;
         var b=0;
-        var alpha=evaluator.drawingstate.alpha;
+        var alpha=csport.drawingstate.alpha;
         if(type=="P"){
-            r=evaluator.drawingstate.pointcolorraw[0]*255;
-            g=evaluator.drawingstate.pointcolorraw[1]*255;
-            b=evaluator.drawingstate.pointcolorraw[2]*255;
+            r=csport.drawingstate.pointcolorraw[0]*255;
+            g=csport.drawingstate.pointcolorraw[1]*255;
+            b=csport.drawingstate.pointcolorraw[2]*255;
         }
         if(type=="L"){
-            r=evaluator.drawingstate.linecolorraw[0]*255;
-            g=evaluator.drawingstate.linecolorraw[1]*255;
-            b=evaluator.drawingstate.linecolorraw[2]*255;
+            r=csport.drawingstate.linecolorraw[0]*255;
+            g=csport.drawingstate.linecolorraw[1]*255;
+            b=csport.drawingstate.linecolorraw[2]*255;
         }
         
         if(modifs.color!==undefined){
@@ -114,7 +109,7 @@ evaluator.draw=function(args,modifs){
         var yy1=-pt1.y*25+250;
         var xx2=pt2.x*25+250;
         var yy2=-pt2.y*25+250;
-        col=evaluator.drawingstate.linecolor
+        col=csport.drawingstate.linecolor
         
         handleModifs("L");
         
@@ -215,7 +210,7 @@ evaluator.draw=function(args,modifs){
         var xx=pt.x*25+250;
         var yy=-pt.y*25+250;
         
-        col=evaluator.drawingstate.pointcolor
+        col=csport.drawingstate.pointcolor
         handleModifs("P");
         csctx.lineWidth = size*.3;
         
@@ -283,11 +278,11 @@ evaluator.helper.drawcircle=function(args,modifs,df){
         var r=0;
         var g=0;
         var b=0;
-        var alpha=evaluator.drawingstate.alpha;
+        var alpha=csport.drawingstate.alpha;
         
-        r=evaluator.drawingstate.linecolorraw[0]*255;
-        g=evaluator.drawingstate.linecolorraw[1]*255;
-        b=evaluator.drawingstate.linecolorraw[2]*255;
+        r=csport.drawingstate.linecolorraw[0]*255;
+        g=csport.drawingstate.linecolorraw[1]*255;
+        b=csport.drawingstate.linecolorraw[2]*255;
         
         if(modifs.color!==undefined){
             erg =evaluate(modifs.color);
@@ -325,7 +320,7 @@ evaluator.helper.drawcircle=function(args,modifs,df){
         var xx=pt.x*25+250;
         var yy=-pt.y*25+250;
         
-        col=evaluator.drawingstate.linecolor;
+        col=csport.drawingstate.linecolor;
         handleModifs();
         csctx.lineWidth = size*.3;
         
@@ -398,11 +393,11 @@ evaluator.helper.drawpolygon=function(args,modifs,df){
         var r=0;
         var g=0;
         var b=0;
-        var alpha=evaluator.drawingstate.alpha;
+        var alpha=csport.drawingstate.alpha;
         
-        r=evaluator.drawingstate.linecolorraw[0]*255;
-        g=evaluator.drawingstate.linecolorraw[1]*255;
-        b=evaluator.drawingstate.linecolorraw[2]*255;
+        r=csport.drawingstate.linecolorraw[0]*255;
+        g=csport.drawingstate.linecolorraw[1]*255;
+        b=csport.drawingstate.linecolorraw[2]*255;
         
         if(modifs.color!==undefined){
             erg =evaluate(modifs.color);
@@ -439,7 +434,7 @@ evaluator.helper.drawpolygon=function(args,modifs,df){
             }
             li[li.length]=[pt.x*25+250,-pt.y*25+250];
         } 
-        col=evaluator.drawingstate.linecolor;
+        col=csport.drawingstate.linecolor;
         handleModifs();
         csctx.lineWidth = size*.3;
         csctx.mozFillRule = 'evenodd';

@@ -29,20 +29,16 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            pp=mouse()/10;
-            damp=abs(pp);
-            pp=pp/damp;
-            
-            t=0;
-            tx=seconds();
-            pt=(sin(t*pp_1),sin(t*pp_2+tx))*5;
-            al=1;
-            repeat(1500,tt=t+#*.1;
-                   pt1=(sin(tt*pp_1),sin(tt*pp_2+tx))*5*exp(-tt*.01*damp);
-                   draw(pt,pt1,alpha->al);
-                   pt=pt1;
-                   al=al*.999;
-                
+            pp=mouse();
+            pp=(0,0);
+            n=4;
+            k=140;
+            t=seconds();
+            repeat(k,i,
+                   d=sin(t*8)*.01;
+                   pol=apply(1..n,w=#*360°/n;pp+(sin(w+d*i),cos(w+d*i))*(k-i)*.2);
+                   fillpoly(pol,color->hue(i/39)*.4+gray(.3),alpha->1);
+                   drawpoly(pol,color->(0,0,0),size->1);
                    );
             
 
@@ -64,8 +60,8 @@
 
             
 			//Width and height
-			var csw = 500;
-			var csh = 500;
+			var csw = 300;
+			var csh = 300;
 			var csconsole;
             var csgeo={};
             var svg;
