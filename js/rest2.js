@@ -41,6 +41,7 @@ var cserg=analyse(cscode,false);
 
 var mouse={};
 var move;
+var lastmove;
 
 getmover = function(mouse){
     
@@ -59,6 +60,8 @@ getmover = function(mouse){
             diff={x:dx,y:dy};
         }
     }
+    lastmove={x:mov.px,y:mov.py}     
+
     return {mover:mov,offset:diff};
 }
 
@@ -77,6 +80,7 @@ function start() {
         mouse.down    = true;
         
         move=getmover(mouse);
+
         startit();
         e.preventDefault();
     };
@@ -153,7 +157,7 @@ function start() {
     //    document.body.addEventListener("mouseup", mouseUp, false);
     
     
-    updateCindy();
+    updateCindy2();
 }
 
 
@@ -192,15 +196,29 @@ var startit=function(){
     d3.timer(doit)
 }
 
+function updateCindy2(){
+        recalc();                          
+        csctx.save();
+        csctx.clearRect ( 0   , 0 , csw , csh );
+        evaluate(cserg);
+        render();
+        csctx.restore();
+        
+}
+
+
 function updateCindy(){
-    recalc();                          
-    csctx.save();
-    csctx.clearRect ( 0   , 0 , csw , csh );
-    evaluate(cserg);
-    render();
-    csctx.restore();
     
-    
+    if(move.mover.px!=lastmove.x || move.mover.py!=lastmove.y){ 
+        recalc();                          
+        csctx.save();
+        csctx.clearRect ( 0   , 0 , csw , csh );
+        evaluate(cserg);
+        render();
+        csctx.restore();
+        
+        lastmove={x:move.mover.px,y:move.mover.py}     
+    }
     
 }
 
