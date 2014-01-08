@@ -27,9 +27,16 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            repeat(15,
-                  errc(randomint(4));
-                   );
+
+            a=complex(A.xy)/5;
+            c=complex(C.xy)/10;
+
+            repeat(1000,
+                   draw(gauss(a)*5,(0,0),color->(0,0,0),size->abs(a)*10);
+                   draw(gauss(a)*5,size->abs(a)*10,
+                        color->(re(a)*2,im(a)*2,-re(a)),alpha->.3);
+                   a=a*c;
+                   )
             </script>
         
         
@@ -52,7 +59,8 @@
 
 			var gslp=[
                       {name:"A", kind:"P", type:"Free", px:250,py:250,pz:1},
-                      {name:"B", kind:"P", type:"Free", px:250,py:30,pz:1}
+                      {name:"B", kind:"P", type:"Free", px:250,py:130,pz:1},
+                      {name:"C", kind:"P", type:"Free", px:250,py:30,pz:1}
                       ];
             
             csinit(gslp);

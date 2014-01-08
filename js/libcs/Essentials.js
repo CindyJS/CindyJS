@@ -143,3 +143,5 @@ var evaluator= function(name,args,modifs){
     }
     return tt(args,modifs);
 }
+
+evaluator.helper={};

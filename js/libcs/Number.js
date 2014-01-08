@@ -280,3 +280,73 @@ Number.mod=function(a,b){
     
     return Number.snap({"ctype":"number" ,"value":{'real':r,'imag':i}});
 }
+
+Number.helper={};
+
+Number.helper.seed='NO';
+Number.eps=0.0000000001;
+Number.epsbig=0.000001;
+
+Number.helper.seedrandom=function(a){
+    a=a-Math.floor(a);
+    a=a*.8+.1;
+    Number.helper.seed=a;
+}
+
+Number.helper.rand=function(){
+    if(Number.helper.seed=='NO'){
+        return Math.random();
+    }
+    var a=Number.helper.seed;
+    a=Math.sin(1000*a)*1000;
+    a=a-Math.floor(a);
+    Number.helper.seed=a;
+    return a;
+}
+
+Number.helper.randnormal=function(){
+    var a=Number.helper.rand();
+    var b=Number.helper.rand();
+    return Math.sqrt(-2*Math.log(a))*Math.cos(2*Math.PI*b);
+}
+
+
+Number.helper.isEqual=function(a,b) {
+    return (a.value.real == b.value.real) && (a.value.imag == b.value.imag);
+}
+
+Number.helper.isAlmostEqual=function(a,b) {
+    var r=a.value.real-b.value.real;
+    var i=a.value.imag-b.value.imag;
+    return (r<Number.eps) && (r>-Number.eps)&&(i<Number.eps) && (i>-Number.eps);
+}
+
+Number.helper.isZero=function(a) {
+    return (a.value.real == 0) && (a.value.imag == 0);
+}
+
+Number.helper.isAlmostZero=function(a) {
+    var r=a.value.real;
+    var i=a.value.imag;
+    return (r<Number.eps) && (r>-Number.eps)&&(i<Number.eps) && (i>-Number.eps);
+}
+
+
+
+Number.helper.isReal=function(a) {
+    return (a.value.imag == 0) ;
+}
+
+Number.helper.isAlmostReal=function(a) {
+    
+    
+    var i=a.value.imag;
+    return (i<Number.epsbig) && (i>-Number.epsbig);//So gemacht wie in Cindy
+}
+
+Number.helper.isAlmostImag=function(a) {
+    var r=a.value.real;
+    return (r<Number.epsbig) && (r>-Number.epsbig);//So gemacht wie in Cindy
+}
+
+

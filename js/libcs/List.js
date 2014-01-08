@@ -4,6 +4,7 @@
 //      Lists
 //==========================================
 List={};
+List.helper={};
 
 List.turnIntoCSList=function(l){
     return {'ctype':'list','value':l};
@@ -220,3 +221,71 @@ List.floor=function(a){
     return List.recursive(a,"floor");
 }
 
+List.helper.colNumb=function(a){
+    if(a.ctype!='list') {
+        return -1;
+    }
+    var ind=-1;
+    for(var i=0;i<a.value.length;i++){
+        if((a.value[i]).ctype!='list') {
+            return -1;
+        }
+        if(i==0){
+            ind=(a.value[i]).value.length;
+        } else {
+            if(ind!=(a.value[i]).value.length)
+                return -1
+        }
+    }
+    return ind;
+
+}
+
+
+
+List.isNumberVector=function(a){
+    if(a.ctype!='list') {
+        return {'ctype':'boolean','value':false};
+    }
+    for(var i=0;i<a.value.length;i++){
+        if((a.value[i]).ctype!='number') {
+            return {'ctype':'boolean','value':false};
+        }
+    }
+    return {'ctype':'boolean','value':true};
+    
+}
+
+
+List.isNumberVectorN=function(a,n){
+    if(a.ctype!='list') {
+        return {'ctype':'boolean','value':false};
+    }
+    if(a.value)
+    for(var i=0;i<a.value.length;i++){
+        if((a.value[i]).ctype!='number') {
+            return {'ctype':'boolean','value':false};
+        }
+    }
+    return {'ctype':'boolean','value':true};
+    
+}
+
+
+
+
+
+
+List.isNumberMatrix=function(a){
+    if(List.helper.colNumb(a)==-1){
+        return {'ctype':'boolean','value':false};
+    }
+
+    for(var i=0;i<a.value.length;i++){
+        if(!List.isNumberVector((a.value[i])).value) {
+            return {'ctype':'boolean','value':false};
+        }
+    }
+    return {'ctype':'boolean','value':true};
+    
+}

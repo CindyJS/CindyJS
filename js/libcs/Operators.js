@@ -475,6 +475,12 @@ evaluator.pow=function(args,modifs){
 }
 
 
+///////////////////////////////
+//     UNARY MATH OPS        //
+///////////////////////////////
+
+
+
 evaluator.exp=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
@@ -636,33 +642,275 @@ evaluator.abs=function(args,modifs){
     return evaluator.recursive(args,"abs");
 }
 
+///////////////////////////////
+//        RANDOM             //
+///////////////////////////////
 
 evaluator.random=function(args,modifs){
     if(args.length==0){
-        return Number.real(Math.random());
+        return Number.real(Number.helper.rand());
     }
     
     if(args.length==1 ){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='number' ){
-            return Number.complex(v0.value.real*Math.random(),v0.value.imag*Math.random());
+            return Number.complex(v0.value.real*Number.helper.rand(),v0.value.imag*Number.helper.rand());
         }
     }
     return nada;
 
 }
 
-evaluator.randomint=function(args,modifs){
-
+evaluator.random=function(args,modifs){
+    if(args.length==0){
+        return Number.real(Number.helper.rand());
+    }
+    
     if(args.length==1 ){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='number' ){
-            return Number.floor(Number.complex(v0.value.real*Math.random(),v0.value.imag*Math.random()));
+            return Number.complex(v0.value.real*Number.helper.rand(),v0.value.imag*Number.helper.rand());
         }
     }
     return nada;
     
 }
+
+evaluator.seedrandom=function(args,modifs){
+    if(args.length==1 ){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='number' ){
+            Number.helper.seedrandom(v0.value.real);
+        }
+    }
+    return nada;
+    
+}
+
+
+
+
+evaluator.randomnormal=function(args,modifs){
+
+    if(args.length==0){
+        return Number.real(Number.helper.randnormal());
+    }
+    return nada;
+    
+}
+
+
+evaluator.randominteger=function(args,modifs){
+    return evaluator.randomint(args,modifs);
+}
+
+
+evaluator.randombool=function(args,modifs){
+    
+    if(args.length==0){
+        if(Number.helper.rand()>0.5){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+        return {'ctype':'boolean' ,'value':false  };
+
+    }
+    
+    return nada;
+
+}
+
+
+///////////////////////////////
+//        TYPECHECKS         //
+///////////////////////////////
+
+evaluator.isreal=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number' ){
+            if(Number.helper.isAlmostReal(v0)){
+                return {'ctype':'boolean' ,'value':true  };
+            }
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+evaluator.isinteger=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number' ){
+            if(Number.helper.isAlmostReal(v0)&&
+               v0.value.real==Math.floor(v0.value.real)){
+                return {'ctype':'boolean' ,'value':true  };
+            }
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+
+evaluator.iseven=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number' ){
+            if(Number.helper.isAlmostReal(v0)&&
+               v0.value.real/2==Math.floor(v0.value.real/2)){
+                return {'ctype':'boolean' ,'value':true  };
+            }
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+evaluator.isodd=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number' ){
+            if(Number.helper.isAlmostReal(v0)&&
+               (v0.value.real-1)/2==Math.floor((v0.value.real-1)/2)){
+                return {'ctype':'boolean' ,'value':true  };
+            }
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+
+
+
+evaluator.iscomplex=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='number' ){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+
+
+
+evaluator.isstring=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='string' ){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+evaluator.islist=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='list' ){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+
+evaluator.ismatrix=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if((List.helper.colNumb(v0))!=-1){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+evaluator.isnumbermatrix=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if((List.isNumberMatrix(v0)).value){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+
+
+
+evaluator.isnumbervector=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if((List.isNumberVector(v0)).value){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+        return {'ctype':'boolean' ,'value':false  };
+    }
+    return nada;
+}
+
+
+
+///////////////////////////////
+//         GEOMETRY          //
+///////////////////////////////
+
+
+evaluator.complex=function(args,modifs){
+    
+    if(args.length==1){
+        
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='list'){
+            if(List.isNumberVector(v0)) {
+                if(v0.value.length==2){
+                    var a=v0.value[0];
+                    var b=v0.value[1];
+                    return Number.complex(a.value.real-b.value.imag,b.value.real+a.value.imag);
+                }
+                if(v0.value.length==3){
+                    var a=v0.value[0];
+                    var b=v0.value[1];
+                    var c=v0.value[2];
+                    a=Number.div(a,c);
+                    b=Number.div(b,c);
+                    return Number.complex(a.value.real-b.value.imag,b.value.real+a.value.imag);
+                }
+
+            }
+        }
+    }
+    return nada;
+}
+
+evaluator.gauss=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='number' ){
+            return List.realVector([v0.value.real,v0.value.imag]);
+        }
+    }
+    return nada;
+}
+
 
 
 
