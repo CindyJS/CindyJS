@@ -74,8 +74,6 @@ evaluator.helper.extractPoint=function(v1){
 
 }
 
-
-      
 evaluator.draw=function(args,modifs){
     var erg;
     var size=4;
@@ -270,12 +268,118 @@ evaluator.draw=function(args,modifs){
 
     }
     return drawpoint();
+
+
     
+
+    
+    
+}
+
+evaluator.drawcircle=function(args,modifs){
+  evaluator.helper.drawcircle(args,modifs,"D");
+}
+
+
+evaluator.fillcircle=function(args,modifs){
+  evaluator.helper.drawcircle(args,modifs,"F");
+}
+
+evaluator.helper.drawcircle=function(args,modifs,df){
+    var erg;
+    var size=4;
+    var col;
+    var black="rgb(0,0,0)";
+    var handleModifs = function(){
+        if(modifs.size!==undefined){
+            erg =evaluate(modifs.size);
+            if(erg.ctype=='number'){
+                size=erg.value.real;
+            }
+        }
+        
+        
+        if(modifs.color===undefined &&modifs.alpha===undefined){
+            return;
+        }
+        
+        
+        var r=0;
+        var g=0;
+        var b=0;
+        var alpha=evaluator.drawingstate.alpha;
+        
+        r=evaluator.drawingstate.linecolorraw[0]*255;
+        g=evaluator.drawingstate.linecolorraw[1]*255;
+        b=evaluator.drawingstate.linecolorraw[2]*255;
+        
+        if(modifs.color!==undefined){
+            erg =evaluate(modifs.color);
+            if(List.isNumberVector(erg).value){
+                if(erg.value.length==3){
+                    r=Math.floor(erg.value[0].value.real*255);
+                    g=Math.floor(erg.value[1].value.real*255);
+                    b=Math.floor(erg.value[2].value.real*255);
+                    
+                }
+                
+            }
+        }
+
+        
+        if(modifs.alpha!==undefined){
+            erg =evaluate(modifs.alpha);
+            if(erg.ctype=="number"){
+                alpha=erg.value.real;
+            }
+        }
+        
+        col="rgba("+r+","+g+","+b+","+alpha+")";//TODO Performanter machen
+    }
+    
+    
+    var drawcirc = function(){
+    
+        var pt=evaluator.helper.extractPoint(v0);
+        
+        
+        if(!pt.ok || v1.ctype!='number'){
+            return nada;
+        }
+        var xx=pt.x*25+250;
+        var yy=-pt.y*25+250;
+        
+        col=evaluator.drawingstate.linecolor;
+        handleModifs();
+        csctx.lineWidth = size*.3;
+        
+        
+        
+        csctx.beginPath();
+        csctx.lineWidth = size*.4;
+
+        csctx.arc(xx,yy,v1.value.real*25,0,2*Math.PI);
+        if(df=="D"){
+            csctx.strokeStyle=col;
+            csctx.stroke();
+        }
+        if(df=="F"){
+            csctx.fillStyle=col;
+            csctx.fill();
+        }
+    }
+    
+    
+    if(args.length==2) {
+        var v0=evaluateAndVal(args[0]);
+        var v1=evaluateAndVal(args[1]);
+    
+        return drawcirc();
+    }
+
+    return nada;
 }
 
 
 
-
-
-     
 
