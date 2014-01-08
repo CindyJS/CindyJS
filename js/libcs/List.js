@@ -307,26 +307,7 @@ List.product1=function(a){
 
 
 
-List.scalproduct=function(a1,a2){
-    if(a1.value.length != a2.value.length){
-        return nada;
-    }
-    var erg={'ctype':'number','value':{'real':0,'imag':0}};
-    for(var i=0;i<a2.value.length;i++){
-        var av1=a1.value[i];
-        var av2=a2.value[i];
-        if(av1.ctype=='number' && av2.ctype=='number'){
-            erg=Number.add(Number.mult(av2,av2),erg);
-        } else {
-            return nada;
-        }
-    }
-    
-    return erg;
-}
-
-
-List.scaldiv=function(a1,a2){//TODO Rekursion stimmt hier noch nicht [2,[3,4],2]/2=_?_
+List.scaldiv=function(a1,a2){
     if(a1.ctype != 'number'){
         return nada;
     }
@@ -334,7 +315,7 @@ List.scaldiv=function(a1,a2){//TODO Rekursion stimmt hier noch nicht [2,[3,4],2]
     for(var i=0;i<a2.value.length;i++){
         var av2=a2.value[i];
         if(av2.ctype=='number' ){
-            erg[erg.length]=evaluator.div([av2,a1],[]);
+            erg[erg.length]=General.div(av2,a1);
         } else if(av2.ctype=='list'  ){
             erg[erg.length]=List.scaldiv(a1,av2);
         } else {
@@ -345,7 +326,7 @@ List.scaldiv=function(a1,a2){//TODO Rekursion stimmt hier noch nicht [2,[3,4],2]
 }
 
 
-List.scalmult=function(a1,a2){//TODO Rekursion stimmt hier noch nicht [2,[3,4],2]*2=_?_
+List.scalmult=function(a1,a2){
     if(a1.ctype != 'number'){
         return nada;
     }
@@ -353,7 +334,7 @@ List.scalmult=function(a1,a2){//TODO Rekursion stimmt hier noch nicht [2,[3,4],2
     for(var i=0;i<a2.value.length;i++){
         var av2=a2.value[i];
         if(av2.ctype=='number' ){
-            erg[erg.length]=evaluator.mult([av2,a1],[]);
+            erg[erg.length]=General.mult(av2,a1);
         } else if(av2.ctype=='list'  ){
             erg[erg.length]=List.scalmult(a1,av2);
         } else {
@@ -374,7 +355,7 @@ List.add=function(a1,a2){
         var av1=a1.value[i];
         var av2=a2.value[i];
         if(av1.ctype=='number' && av2.ctype=='number' ){
-            erg[erg.length]=evaluator.add([av1,av2],[]);
+            erg[erg.length]=General.add(av1,av2);
         } else if(av1.ctype=='list' && av2.ctype=='list' ){
             erg[erg.length]=List.add(av1,av2);
         } else {
@@ -564,6 +545,116 @@ List.isNumberMatrix=function(a){
     return {'ctype':'boolean','value':true};
     
 }
+
+
+
+List.scalproduct=function(a1,a2){
+    if(a1.value.length != a2.value.length){
+        return nada;
+    }
+    var erg={'ctype':'number','value':{'real':0,'imag':0}};
+    for(var i=0;i<a2.value.length;i++){
+        var av1=a1.value[i];
+        var av2=a2.value[i];
+        if(av1.ctype=='number' && av2.ctype=='number'){
+            erg=Number.add(Number.mult(av1,av2),erg);
+        } else {
+            return nada;
+        }
+    }
+    
+    return erg;
+}
+
+List.productMV=function(a,b){
+    if(a.value[1].value.length != b.value.length){
+        return nada;
+    }
+    var li=[];
+    for(var j=0;j<a.value.length;j++){
+        var erg={'ctype':'number','value':{'real':0,'imag':0}};
+        var a1=a.value[j];
+        for(var i=0;i<b.value.length;i++){
+            var av1=a1.value[i];
+            var av2=b.value[i];
+
+            if(av1.ctype=='number' && av2.ctype=='number'){
+                erg=Number.add(Number.mult(av1,av2),erg);
+            } else {
+                return nada;
+            }
+        }
+        li[li.length]=erg;
+    }    
+    return List.turnIntoCSList(li);
+
+}
+
+
+List.productVM=function(a,b){
+    if(a.value.length != b.value.length){
+        return nada;
+    }
+    var li=[];
+    for(var j=0;j<b.value[1].value.length;j++){
+        var erg={'ctype':'number','value':{'real':0,'imag':0}};
+        for(var i=0;i<a.value.length;i++){
+            var av1=a.value[i];
+            var av2=b.value[i].value[j];
+
+            if(av1.ctype=='number' && av2.ctype=='number'){
+                erg=Number.add(Number.mult(av1,av2),erg);
+            } else {
+                return nada;
+            }
+        }
+        li[li.length]=erg;
+    }    
+    return List.turnIntoCSList(li);
+
+}
+
+List.productMM=function(a,b){
+    if(a.value[1].value.length != b.value.length){
+        return nada;
+    }
+    var li=[];
+    for(var j=0;j<a.value.length;j++){
+        var aa=a.value[j];
+        var erg=List.productVM(aa,b);
+        li[li.length]=erg;
+    }    
+    return List.turnIntoCSList(li);
+}
+
+
+
+
+
+List.mult=function(a,b){
+
+   if(a.value.length==b.value.length && List.isNumberVector(a).value && List.isNumberVector(b).value){
+      return List.scalproduct(a,b);
+   } 
+
+    if(List.isNumberMatrix(a).value && b.value.length==a.value[1].value.length && List.isNumberVector(b).value){
+      return List.productMV(a,b);
+   } 
+
+    if(List.isNumberMatrix(b).value && a.value.length==b.value.length && List.isNumberVector(a).value){
+      return List.productVM(a,b);
+   } 
+
+    if(List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length==a.value[1].value.length){
+      return List.productMM(a,b);
+   } 
+
+   return nada;
+
+
+}
+
+
 
 List.cross=function(a,b){//Assumes that a,b are 3-Vectors
     var x=Number.sub(Number.mult(a.value[1],b.value[2]),Number.mult(a.value[2],b.value[1]));

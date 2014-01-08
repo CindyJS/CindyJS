@@ -688,22 +688,7 @@ evaluator.product=function(args,modifs){
 evaluator.add=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
-    
-    if(v0.ctype == 'void'  && v1.ctype=='number' ){   //Monadisches Plus
-        return Number.clone(v1);
-    }
-    
-    if(v0.ctype=='number'  && v1.ctype=='number' ){
-        return Number.add(v0,v1);
-    }
-    if(v0.ctype=='string' || v1.ctype=='string' ){
-        return {"ctype":"string" ,  "value":niceprint(v0)+niceprint(v1)}
-    }
-
-    if(v0.ctype=='list' && v1.ctype=='list' ){
-        return List.add(v0,v1)
-    }
-    return nada;
+    return General.add(v0,v1);
     
 }
 
@@ -735,33 +720,15 @@ evaluator.mult=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
-    if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return Number.mult(v0,v1);
-    }
-    if(v0.ctype=='number' &&v1.ctype=='list' ){
-        return List.scalmult(v0,v1);
-    }
-    if(v0.ctype=='list' &&v1.ctype=='number' ){
-        return List.scalmult(v1,v0);
-    }
-    if(v0.ctype=='list' &&v1.ctype=='list' ){
-        return List.scalproduct(v0,v1);
-    }
-    return nada;
+    return General.mult(v0,v1);
 }
 
 evaluator.div=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return Number.div(v0,v1);
-    }
-    if(v0.ctype=='list' &&v1.ctype=='number' ){
-        return List.scaldiv(v1,v0);
-    }
-    return nada;
-    
+    return General.div(v0,v1);
+
 }
 
 
