@@ -42,14 +42,14 @@ Accessor.getField=function(geo,field){
         
         if(field=="x") {
             var xx = geo.px-m.tx;
-            var yy = geo.py-m.ty;
+            var yy = geo.py+m.ty;
             var x=(xx*m.d-yy*m.b)/m.det;
             return Number.real(x);
         };
         
         if(field=="y") {
             var xx = geo.px-m.tx;
-            var yy = geo.py-m.ty;
+            var yy = geo.py+m.ty;
             var y=-(-xx*m.c+yy*m.a)/m.det; 
             return Number.real(y);
         };

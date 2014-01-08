@@ -3,6 +3,17 @@
 	<head>
 		<meta charset="utf-8">
             <title>Cindy JS</title>
+            
+            <script type="text/x-mathjax-config">
+                MathJax.Hub.Config({
+                                   tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+                                   });
+                </script>
+            
+            
+            <script type="text/javascript" src="js/lib/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+            
             <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
@@ -19,6 +30,8 @@
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
             <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
+
+
             <link rel="stylesheet" href="css/cindy.css">
 
                 
@@ -43,6 +56,7 @@
         
         
         <canvas id="CSCanvas" ></canvas>
+        <div class="overlay" id="CSOverlay" ></siv>
         
         
 		<script type="text/javascript">
@@ -88,7 +102,24 @@
         
         
         <script type="text/javascript">
-                       
+            
+            function creatediv(id, html, width, height, left, top) {
+                
+
+                var newdiv = document.createElement('div');
+                newdiv.setAttribute('id', id);
+                newdiv.style.position = "absolute";
+                newdiv.style.left = left+"px";
+                newdiv.style.top = top+"px";
+                if (html) { newdiv.innerHTML = html; }
+                else { newdiv.innerHTML = "nothing"; }
+                var c=document.getElementById("CSOverlay");
+
+                c.appendChild(newdiv);
+            }
+
+            
+            
             var c=document.getElementById("CSCanvas");
             c.width=csw;
             c.height=csh;
@@ -97,8 +128,8 @@
             cscode=condense(cscode);
             var cserg=analyse(cscode,false);
             
+            creatediv("P1", "$\Omega_i p_i$", 100, 30, 40, 40);
             </script>
-        
-        
+        $\Omega_i p_i$
 	</body>
 </html>

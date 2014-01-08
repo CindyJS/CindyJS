@@ -636,4 +636,136 @@ evaluator.drawtext=function(args,modifs){
 
 }
 
+///////////////////////////////////////////////
+////// FUNCTION PLOTTING    ///////////////////
+///////////////////////////////////////////////
+
+
+evaluator.plot=function(args,modifs){ //OK
+    
+
+    var v1=args[0];
+    var li=evaluator.helper.plotvars(v1);
+    var runv="#";
+    if(li.indexOf("t")!=-1) {runv="t"};
+    if(li.indexOf("z")!=-1) {runv="z"};
+    if(li.indexOf("y")!=-1) {runv="y"};
+    if(li.indexOf("x")!=-1) {runv="x"};
+
+
+    namespace.newvar(runv);
+    var start=-10;
+    var stop=10;
+    var step=.01;
+    var m=csport.drawingstate.matrix;
+    var col=csport.drawingstate.linecolor
+    csctx.fillStyle=col;
+    csctx.lineWidth = 1;
+    csctx.lineCap = 'round';
+
+    var stroking=false;
+
+    for(var x=start;x<stop;x=x+step){
+        namespace.setvar(runv,Number.real(x));
+        
+        var erg=evaluate(v1);
+        if(erg.ctype=="number"){
+            var y=+erg.value.real;
+            var xx=x*m.a-y*m.b+m.tx;
+            var yy=x*m.c-y*m.d-m.ty;
+            if(!stroking){
+                csctx.beginPath();
+                csctx.moveTo(xx, yy);
+                stroking=true;
+            } else {
+                csctx.lineTo(xx, yy);
+            }
+            
+        }
+        
+        
+    }
+    csctx.stroke();
+
+    namespace.removevar(runv);
+    
+
+    return nada;
+    
+}
+
+evaluator.helper.plotvars=function(a){
+    var merge=function(x,y){
+        var obj = {};
+        for (var i = x.length-1; i >= 0; -- i)
+            obj[x[i]] = x[i];
+        for (var i = y.length-1; i >= 0; -- i)
+            obj[y[i]] = y[i];
+        var res = []
+            for (var k in obj) {
+                if (obj.hasOwnProperty(k))  // <-- optional
+                    res.push(obj[k]);
+            }
+        return res;
+    }
+    
+    var remove=function(x,y){
+
+    for (var i = 0; i < x.length; i++) {
+        if (x[i] === y) {
+            x.splice(i, 1);
+            i--;
+        }
+    }
+    return x;
+    }
+    
+    if(a.ctype=="variable"){
+       return [a.name];
+    }
+    
+    if(a.ctype=='infix'){
+        var l1=  evaluator.helper.plotvars(a.args[0]);
+        var l2=  evaluator.helper.plotvars(a.args[1]);
+        return merge(l1,l2);
+    }
+
+    if(a.ctype=='list'){
+        var els=a.value;
+        var li=[];
+        for(var j=0;j<els.length;j++) {
+            var l1= evaluator.helper.plotvars(els[j]);
+            li=merge(li,l1);
+        }
+        return li;
+    }
+    
+    if(a.ctype=='function'){
+        var els=a.args;
+        var li=[];
+        for(var j=0;j<els.length;j++) {
+            var l1=evaluator.helper.plotvars(els[j]);
+            li=merge(li,l1);
+            
+        }
+        if((  a.oper=="apply"  //OK, das kann man eleganter machen, TODO: irgendwann
+            ||a.oper=="select"
+            ||a.oper=="forall"
+            ||a.oper=="sum"
+            ||a.oper=="product"
+            ||a.oper=="repeat"
+            ||a.oper=="min"
+            ||a.oper=="max"
+            ||a.oper=="sort"
+        ) 
+        && a.args[1].ctype=="variable"){
+            li=remove(li,a.args[1].name);
+        }
+        return li;
+    }
+
+    return [];
+
+
+}
 

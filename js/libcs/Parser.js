@@ -240,7 +240,7 @@ var definitionOp = function(code, bestbinding, oper){
         return generateInfix(oper, f1, f2);
         
     }
-    return  new Error('Function not definable');
+    return  new CError('Function not definable');
 }
 
 
@@ -539,7 +539,7 @@ var analyse=function(code,defining){
             } else if (isCloser(c) && (c != '|' || absolute)) { //Schließende Klammer
                 if (c == '|') absolute = false;
                 if (bracount == 0) {
-                    return new Error('close without open');
+                    return new CError('close without open');
                 }
                 var pair = bra[bra.length - 1] + c;
                 if (isBracketPair(pair)) { //Passt die schliesende Klammer?
@@ -549,7 +549,7 @@ var analyse=function(code,defining){
                     if (braexprcount == 2) close2 = i;
                     lastbra = c;
                 } else {
-                    return new Error('unmatched brackets');
+                    return new CError('unmatched brackets');
                 }
             }
             if (bra.length == 0) {//Wir sind auf oberster Stufe
@@ -583,7 +583,7 @@ var analyse=function(code,defining){
     
     
     if (bracount != 0) {
-        return new Error('open without close');
+        return new CError('open without close');
         
     }
     

@@ -8,7 +8,7 @@
 
 function Nada(){this.ctype='undefined'};
 function Void(){this.ctype='void'};
-function Error(msg){this.ctype='error';this.message=msg};
+function CError(msg){this.ctype='error';this.message=msg};
 nada= new Nada();
 
 function Namespace(){
