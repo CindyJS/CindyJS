@@ -4,9 +4,11 @@
 //****************************************************************
 
 var evaluate=function(a){
+
     if(typeof a==='undefined'){
         return nada;
     }
+
     if(a.ctype=='infix'){
         var ioper=infixmap[a.oper];
         return evaluator(ioper,a.args,[]);
@@ -33,9 +35,7 @@ var evaluate=function(a){
     if(a.ctype=='undefined'){
         return a;
     }
-    if(a.ctype=='field'){
-        console.log("TRY FIELD "+a.obj+"  "+a.key);
-        
+    if(a.ctype=='field'){        
         return Accessor.getGeoField(a.obj,a.key);
     }
     if(a.ctype=='function'){
@@ -360,7 +360,7 @@ var funct=function(code, firstbraind, defining){
     
     // Term t = (Term) generateFunction(oper, argsf, modifs, defining);
     // return t;
-    erg={};
+    var erg={};
     erg.ctype='function';
     erg.oper=oper;
     erg.args=argsf;
@@ -420,7 +420,7 @@ var parseList=function(code) {
     /*  var erg={};
      erg.ctype='list';
      erg.value=argsf;*/
-    erg={};
+    var erg={};
     erg.ctype='function';
     erg.oper='genList';
     erg.args=argsf;

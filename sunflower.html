@@ -28,12 +28,14 @@
         
         <script id='firstDrawing' type='cindyscript'>
             repeat(500,i,
+                   
                    w=i*pi/180*(137.508+B.x*0.5);
-                  // p=(pt1,pt2)+(cos(w),sin(w))*0.3*sqrt(i);
                    p=A+(cos(w),sin(w))*0.3*sqrt(i);
                    a=i;
                    draw(p,size->sqrt(i));
                    );
+           // err(a);
+            
             </script>
         
         
@@ -48,6 +50,7 @@
 			//Width and height
 			var csw = 500;
 			var csh = 500;
+			var csconsole;
             var csgeo={};
             var svg;
             //Create SVG element
@@ -74,7 +77,7 @@
             var csctx=c.getContext("2d");
             var cscode=document.getElementById("firstDrawing").text;
             cscode=condense(cscode);
-            var erg=analyse(cscode,false);
+            var cserg=analyse(cscode,false);
             
             </script>
         

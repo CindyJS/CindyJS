@@ -80,7 +80,7 @@ function csinit(gslp){
                           recalc();                          
 
                           csctx.clearRect ( 0   , 0 , 500 , 500 );
-                          evaluate(erg);
+                          evaluate(cserg);
                           render();
                           
                           });

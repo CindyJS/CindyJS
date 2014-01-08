@@ -12,17 +12,23 @@ evaluator.seconds=function(args,modifs){
 
 
 evaluator.err=function(args,modifs){
+    
+    if(typeof csconsole=="undefined"){
+        csconsole=window.open('','','width=200,height=100');
+    
+    }
+  
+    
     if(args[0].ctype=='variable'){
         // var s=evaluate(args[0].value[0]);
         var s=evaluate(namespace.getvar(args[0].name));
         console.log(args[0].name+" ==> "+niceprint(s));
-        document.writeln(args[0].name+" ==> "+niceprint(s)+"<br>");
+        csconsole.document.write(args[0].name+" ==> "+niceprint(s)+"<br>");
         
     } else {
-        var s=evaluate(args[0]);
-        
+        var s=evaluate(args[0]);        
         console.log(" ==> "+niceprint(s));
-        document.writeln(" ==> "+niceprint(s)+"<br>");
+        csconsole.document.writeln(" ==> "+niceprint(s)+"<br>");
         
     }
     return nada;
@@ -30,7 +36,6 @@ evaluator.err=function(args,modifs){
 
 
 evaluator.repeat=function(args,modifs){
-    
     var handleModifs = function(){
         
         if(modifs.start!==undefined){
@@ -116,6 +121,7 @@ evaluator.repeat=function(args,modifs){
         }
     
     namespace.newvar(lauf);
+    var erg;
     for(var i=0;i<n;i++){
         namespace.setvar(lauf,{'ctype':'number','value':{'real':i * step + start, 'imag':0}});
         erg=evaluate(args[argind]);

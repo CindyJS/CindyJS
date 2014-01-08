@@ -6,11 +6,11 @@
 
 
 evaluator.draw=function(args,modifs){
-    
-    var handleModifs = function(){
+    var erg;
 
+    var handleModifs = function(){
         if(modifs.size!==undefined){
-            var erg =evaluate(modifs.size);
+            erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
                 size=erg.value.real;
             }
@@ -53,11 +53,15 @@ evaluator.draw=function(args,modifs){
     handleModifs();
 
     csctx.beginPath();
-    csctx.fillStyle="#FF0000";
-    
-    csctx.arc(xx,yy,size,0,2*Math.PI);
+    csctx.arc(xx,yy,size*1.1,0,2*Math.PI);
+    csctx.fillStyle="#000000";
     csctx.fill();
-    csctx.stroke();
+    csctx.beginPath();
+
+    csctx.arc(xx,yy,size,0,2*Math.PI);
+    csctx.fillStyle="#FF0000";
+    csctx.fill();
+//    csctx.stroke();
 
     
     return erg;

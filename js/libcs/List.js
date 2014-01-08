@@ -10,6 +10,16 @@ List.turnIntoCSList=function(l){
 }
 
 
+List.realVector=function(l){
+    var erg=[];
+    for(var i=0;i<l.length;i++){
+        erg[erg.length]={"ctype":"number" ,"value":{'real':l[i],'imag':0}};
+    }
+    return {'ctype':'list','value':erg};
+}
+
+
+
 List.sequence=function(a,b){
     var erg=[];
     for(var i=Math.round(a.value.real);i<Math.round(b.value.real)+1;i++){

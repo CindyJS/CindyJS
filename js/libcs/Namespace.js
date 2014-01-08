@@ -13,7 +13,7 @@ nada= new Nada();
 
 function Namespace(){
     this.vars={
-        'pi':{'ctype':'variable','stack':[{'ctype':'number','value':{'real':3.1415926,'imag':0}}],'name':'pi'},
+        'pi':{'ctype':'variable','stack':[{'ctype':'number','value':{'real':3.14159265359,'imag':0}}],'name':'pi'},
         'i':{'ctype':'variable','stack':[{'ctype':'number','value':{'real':0,'imag':1}}],'name':'i'},
         'true':{'ctype':'variable','stack':[{'ctype':'boolean','value':true}],'name':'true'},
         'false':{'ctype':'variable','stack':[{'ctype':'boolean','value':false}],'name':'false'},
