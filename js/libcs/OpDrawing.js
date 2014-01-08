@@ -47,14 +47,27 @@ evaluator.helper.extractPoint=function(v1){
 
 evaluator.draw=function(args,modifs){
     var erg;
-    var size=4;
+    var psize=csport.drawingstate.pointsize;
+    var lsize=csport.drawingstate.linesize;
     var col;
     var black="rgb(0,0,0)";
+    if(csport.drawingstate.alpha!=1){
+        black="rgba(0,0,0,"+csport.drawingstate.alpha+")";
+    }
     var handleModifs = function(type){
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
-                size=erg.value.real;
+                if(type=="P"){
+                    psize=erg.value.real;
+                    
+                    
+                }
+                if(type=="L"){
+                    lsize=erg.value.real;
+                    
+                }
+                
             }
         }
         
@@ -99,16 +112,16 @@ evaluator.draw=function(args,modifs){
                 alpha=erg.value.real;
             }
         }
-        
         col="rgba("+r+","+g+","+b+","+alpha+")";//TODO Performanter machen
         black="rgba(0,0,0,"+alpha+")";//TODO Performanter machen
     }
     
     var drawsegcore=function(pt1,pt2){
-        var xx1=pt1.x*25+250;
-        var yy1=-pt1.y*25+250;
-        var xx2=pt2.x*25+250;
-        var yy2=-pt2.y*25+250;
+        var m=csport.drawingstate.matrix;
+        var xx1=pt1.x*m.a-pt1.y*m.b+m.tx;
+        var yy1=pt1.x*m.c-pt1.y*m.d-m.ty;
+        var xx2=pt2.x*m.a-pt2.y*m.b+m.tx;
+        var yy2=pt2.x*m.c-pt2.y*m.d-m.ty;
         col=csport.drawingstate.linecolor
         
         handleModifs("L");
@@ -116,7 +129,7 @@ evaluator.draw=function(args,modifs){
         csctx.beginPath();
         csctx.moveTo(xx1, yy1);
         csctx.lineTo(xx2, yy2);
-        csctx.lineWidth = size*.4;
+        csctx.lineWidth = lsize;
         csctx.lineCap = 'round';
         
         //        csctx.strokeStyle="#0000FF";
@@ -207,22 +220,24 @@ evaluator.draw=function(args,modifs){
         if(!pt.ok){
             return nada;
         }
-        var xx=pt.x*25+250;
-        var yy=-pt.y*25+250;
-        
+        var m=csport.drawingstate.matrix;
+
+        var xx=pt.x*m.a-pt.y*m.b+m.tx;
+        var yy=pt.x*m.c-pt.y*m.d-m.ty;
+
         col=csport.drawingstate.pointcolor
         handleModifs("P");
-        csctx.lineWidth = size*.3;
+        csctx.lineWidth = psize*.3;
         
         
         csctx.beginPath();
-        csctx.arc(xx,yy,size,0,2*Math.PI);
+        csctx.arc(xx,yy,psize,0,2*Math.PI);
         csctx.fillStyle=col;
         
         csctx.fill();
         
         csctx.beginPath();
-        csctx.arc(xx,yy,size*1.15,0,2*Math.PI);
+        csctx.arc(xx,yy,psize*1.15,0,2*Math.PI);
         csctx.fillStyle=black;
         csctx.strokeStyle=black;
         csctx.stroke();
@@ -317,9 +332,11 @@ evaluator.helper.drawcircle=function(args,modifs,df){
         if(!pt.ok || v1.ctype!='number'){
             return nada;
         }
-        var xx=pt.x*25+250;
-        var yy=-pt.y*25+250;
-        
+        var m=csport.drawingstate.matrix;
+
+        var xx=pt.x*m.a-pt.y*m.b+m.tx;
+        var yy=pt.x*m.c-pt.y*m.d-m.ty;
+       
         col=csport.drawingstate.linecolor;
         handleModifs();
         csctx.lineWidth = size*.3;
@@ -329,7 +346,7 @@ evaluator.helper.drawcircle=function(args,modifs,df){
         csctx.beginPath();
         csctx.lineWidth = size*.4;
 
-        csctx.arc(xx,yy,v1.value.real*25,0,2*Math.PI);
+        csctx.arc(xx,yy,v1.value.real*m.sdet,0,2*Math.PI);
         if(df=="D"){
             csctx.strokeStyle=col;
             csctx.stroke();
@@ -425,14 +442,18 @@ evaluator.helper.drawpolygon=function(args,modifs,df){
     
     
     var drawpoly = function(){
-    
+        var m=csport.drawingstate.matrix;
+
         var li=[];
         for(var i=0;i<v0.value.length;i++){
             var pt=evaluator.helper.extractPoint(v0.value[i]);
             if(!pt.ok ){
                 return nada;
             }
-            li[li.length]=[pt.x*25+250,-pt.y*25+250];
+            var xx=pt.x*m.a-pt.y*m.b+m.tx;
+            var yy=pt.x*m.c-pt.y*m.d-m.ty;
+
+            li[li.length]=[xx,yy];
         } 
         col=csport.drawingstate.linecolor;
         handleModifs();
@@ -471,5 +492,148 @@ evaluator.helper.drawpolygon=function(args,modifs,df){
 
 
 
+evaluator.drawtext=function(args,modifs){
+    var size=csport.drawingstate.textsize;
+    var bold="";
+    var italics="";
+    var family="Arial";
+    var align=0;
+    var ox=0;
+    var oy=0;
+    var handleModifs = function(){
+        if(modifs.size!==undefined){
+            erg =evaluate(modifs.size);
+            if(erg.ctype=='number'){
+                size=erg.value.real;
+            }
+        }
+
+        if(modifs.bold!==undefined){
+            erg =evaluate(modifs.bold);
+            if(erg.ctype=='boolean' && erg.value ){
+                bold="bold ";
+            }
+        }
+        if(modifs.italics!==undefined){
+            erg =evaluate(modifs.italics);
+            if(erg.ctype=='boolean' && erg.value ){
+                italics="italic ";
+            }
+        }
+        
+        if(modifs.family!==undefined){
+            erg =evaluate(modifs.family);
+            if(erg.ctype=='string'  ){
+                family=erg.value;
+            }
+        }
+        
+        if(modifs.align!==undefined){
+            erg =evaluate(modifs.align);
+            if(erg.ctype=='string'  ){
+                if(erg.value=="left"){align=0}; 
+                if(erg.value=="right"){align=1}; 
+                if(erg.value=="mid"){align=0.5}; 
+            }
+        }
+        
+        if(modifs.x_offset!==undefined){
+            erg =evaluate(modifs.x_offset);
+            if(erg.ctype=='number'){
+                ox=erg.value.real;
+            }
+        }
+
+        if(modifs.y_offset!==undefined){
+            erg =evaluate(modifs.y_offset);
+            if(erg.ctype=='number'){
+                oy=erg.value.real;
+            }
+        }
+
+        if(modifs.offset!==undefined){
+            erg =evaluate(modifs.offset);
+            if(erg.ctype=='list'){
+                if(erg.value.length==2 &&
+                erg.value[0].ctype=="number" &&
+                erg.value[1].ctype=="number"){
+                    ox=erg.value[0].value.real;
+                    oy=erg.value[1].value.real;
+                
+                }
+            
+            }
+        }
+
+        
+        
+        if(modifs.color===undefined &&modifs.alpha===undefined){
+            return;
+        }
+        
+        
+        var r=0;
+        var g=0;
+        var b=0;
+        var alpha=csport.drawingstate.alpha;
+        
+        r=csport.drawingstate.textcolorraw[0]*255;
+        g=csport.drawingstate.textcolorraw[1]*255;
+        b=csport.drawingstate.textcolorraw[2]*255;
+        
+        if(modifs.color!==undefined){
+            erg =evaluate(modifs.color);
+            if(List.isNumberVector(erg).value){
+                if(erg.value.length==3){
+                    r=Math.floor(erg.value[0].value.real*255);
+                    g=Math.floor(erg.value[1].value.real*255);
+                    b=Math.floor(erg.value[2].value.real*255);
+                    
+                }
+                
+            }
+        }
+
+        
+        if(modifs.alpha!==undefined){
+            erg =evaluate(modifs.alpha);
+            if(erg.ctype=="number"){
+                alpha=erg.value.real;
+            }
+        }
+        
+        col="rgba("+r+","+g+","+b+","+alpha+")";//TODO Performanter machen
+    }
+
+
+
+    if(args.length==2) {
+        var v0=evaluateAndVal(args[0]);
+        var v1=evaluate(args[1]);
+        var pt=evaluator.helper.extractPoint(v0);
+        
+        if(!pt.ok){
+            return nada;
+        }
+
+        var m=csport.drawingstate.matrix;
+
+        var xx=pt.x*m.a-pt.y*m.b+m.tx;
+        var yy=pt.x*m.c-pt.y*m.d-m.ty;
+       
+        col=csport.drawingstate.textcolor;
+        handleModifs();
+        csctx.fillStyle=col;
+
+        csctx.font=bold+italics+Math.round(size*10)/10+"px "+family;
+        var txt=niceprint(v1);
+        var width = csctx.measureText(txt).width;
+        csctx.fillText(txt,xx-width*align+ox,yy-oy);        
+           
+    }
+
+    return nada;
+
+}
 
 

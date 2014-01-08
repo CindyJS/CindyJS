@@ -3,16 +3,16 @@
 	<head>
 		<meta charset="utf-8">
             <title>Cindy JS</title>
+            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
-            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
-            
+
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
-            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Number.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Operators.js"></script>
             <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
@@ -20,35 +20,62 @@
             <script type="text/javascript" src="js/lib/d3.js"></script>
             <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
-                
+
                 
             </head>
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: Lissajous</h1>
+        <h1>CindyJS: L-System</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
-            pp=A/100;
-            damp=abs(pp);
-            pp=pp/damp;
+            draw(A);
+            list(x):=(
+                      gsave();
+                      translate((0,-7));
+                      repeat(length(x),turtle(x_#));
+                      grestore();
+                      );
             
-            t=0;
-            tx=seconds();
-            pt=(sin(t*pp_1),sin(t*pp_2+tx))*5;
-            al=1;
-            repeat(1500,tt=t+#*.1;
-                   pt1=(sin(tt*pp_1),sin(tt*pp_2+tx))*5*exp(-tt*.01*damp);
-                   draw(pt,pt1,alpha->al);
-                   pt=pt1;
-                   al=al*.999;
-                
+            turtle(x):=(
+                        (if(x=="F",foreward()));
+                        (if(x=="R",foreward()));
+                        (if(x=="L",foreward()));
+                        (if(x=="+",left()));
+                        (if(x=="-",right()));
+                        (if(x=="[",open()));
+                        (if(x=="]",close()));
+                        (if(x==">",rect()));
+                        
+                        );
+            
+            foreward():=(
+                         draw((0,0),(l,0));
+                         translate((l,0))
+                         );
+            left():=rotate(angle);
+            right():=rotate(-angle);
+            rect():=rotate(90°);
+            open():=gsave();
+            close():=grestore();
+            
+            l=.2;
+            angle=(A.x+7)/5;
+            word=">F";
+            repl=[["F","F+F--F+F"]];
+            word="L";
+            
+            repl=[["L","L+R++R-L--LL-R+"], ["R","-L+RR++R+L--L-R"]];
+            repeat(4,
+                   word=replace(word,repl);
                    );
             
-
+            list(word);
+            errc(word);
             
-            draw(A);
+            
+            
         </script>
         
         
@@ -60,6 +87,9 @@
         
 		<script type="text/javascript">
             
+
+            
+            
             var csmouse = [100, 100];
             var cscount = 0;
 
@@ -69,7 +99,7 @@
 			var csh = 500;
             csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
             csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
-            
+
 			var csconsole;
             var csgeo={};
             var svg;
@@ -77,12 +107,13 @@
             var i=0;
 
 			var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:0.2,sy:0.2,sz:1}
-                      
-                    ];
+                      {name:"A", kind:"P", type:"Free", sx:-7,sy:2,sz:1},
+                      {name:"B", kind:"P", type:"Free", sx:3,sy:4,sz:1},
+                      {name:"C", kind:"P", type:"Free", sx:6,sy:7,sz:1}
+                      ];
             
             csinit(gslp);
-            
+            /*
             d3.timer(function() {
                      cscount+=1;
                      recalc();
@@ -90,7 +121,7 @@
                      evaluate(cserg);
                      render();
             });
-
+*/
             
             
             </script>

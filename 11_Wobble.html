@@ -20,30 +20,23 @@
             <script type="text/javascript" src="js/lib/d3.js"></script>
             <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
-                
-                
             </head>
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: Lissajous</h1>
+        <h1>CindyJS: Mouse test</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
-            pp=A/100;
-            damp=abs(pp);
-            pp=pp/damp;
-            
-            t=0;
-            tx=seconds();
-            pt=(sin(t*pp_1),sin(t*pp_2+tx))*5;
-            al=1;
-            repeat(1500,tt=t+#*.1;
-                   pt1=(sin(tt*pp_1),sin(tt*pp_2+tx))*5*exp(-tt*.01*damp);
-                   draw(pt,pt1,alpha->al);
-                   pt=pt1;
-                   al=al*.999;
-                
+            pp=mouse();
+            n=4;
+            k=20;
+            t=seconds();
+            repeat(k,i,
+                   d=sin(t*8)*.05;
+                   pol=apply(1..n,w=#*360°/n;pp+(sin(w+d*i),cos(w+d*i))*(k-i)*.2);
+                   fillpoly(pol,color->hue(i/39)*.6+gray(.3),alpha->1);
+                   drawpoly(pol,color->(0,0,0),size->3);
                    );
             
 
@@ -69,7 +62,7 @@
 			var csh = 500;
             csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
             csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
-            
+
 			var csconsole;
             var csgeo={};
             var svg;
@@ -77,8 +70,9 @@
             var i=0;
 
 			var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:0.2,sy:0.2,sz:1}
-                      
+                      {name:"A", kind:"P", type:"Free", px:0,py:0,pz:1},
+                      {name:"B", kind:"P", type:"Free", px:250-4*25,py:250+5*25,pz:1},
+                      {name:"C", kind:"P", type:"Free", px:250-5*25,py:250+4*25,pz:1}
                     ];
             
             csinit(gslp);

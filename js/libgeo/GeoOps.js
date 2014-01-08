@@ -13,6 +13,7 @@ function recalc(){
 }
 
 function recalcX(){
+    csport.reset();
     var gslp=csgeo.gslp;
     for( var k=0; k<gslp.length; k++ ) {
         var el=gslp[k];
