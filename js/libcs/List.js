@@ -147,19 +147,76 @@ List.sub=function(a1,a2){
     return {'ctype':'list','value':erg};
 }
 
-List.neg=function(a1,a2){
+
+
+List.abs2=function(a1){
     
+    var erg=0;
+    for(var i=0;i<a1.value.length;i++){
+        var av1=a1.value[i];
+        if(av1.ctype=='number' ){
+            erg+=Number.abs2(av1).value.real;
+        } else if(av1.ctype=='list' ){
+            erg+=List.abs2(av1).value.real;
+        } else {
+            return nada;
+        }
+    }
+
+    return {"ctype":"number" ,
+        "value":{'real':erg, 'imag':0}};
+}
+
+List.abs=function(a1){
+   return Number.sqrt(List.abs2(a1))
+}
+
+
+List.recursive=function(a1,op){
     var erg=[];
     for(var i=0;i<a1.value.length;i++){
-        var av1=evaluateAndVal(a1.value[i]);
+        var av1=evaluateAndVal(a1.value[i]);//Will man hier evaluieren
         if(av1.ctype=='number'){
-            erg[erg.length]=Number.neg(av1);
+            erg[erg.length]=Number[op](av1);
         } else if(av1.ctype=='list'){
-            erg[erg.length]=List.neg(av1);
+            erg[erg.length]=List[op](av1);
         } else {
             erg[erg.length]=nada;
         }
     }
     return {'ctype':'list','value':erg};
+
+}
+
+List.re=function(a){
+    return List.recursive(a,"re");
+}
+
+
+List.neg=function(a){
+    return List.recursive(a,"neg");
+}
+
+List.im=function(a){
+    return List.recursive(a,"im");
+}
+
+List.conjugate=function(a){
+    return List.recursive(a,"conjugate");
+}
+
+
+List.round=function(a){
+    return List.recursive(a,"round");
+}
+
+
+List.ceil=function(a){
+    return List.recursive(a,"ceil");
+}
+
+
+List.floor=function(a){
+    return List.recursive(a,"floor");
 }
 

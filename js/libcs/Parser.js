@@ -308,11 +308,11 @@ var isBracketPair= function(c){
 
 
 var funct=function(code, firstbraind, defining){
+
     var args = [];
     var argsi = [];
     var argsf = [];
     var modifs = {};
-    
     
     var oper = code.substring(0, firstbraind);
     
@@ -336,15 +336,16 @@ var funct=function(code, firstbraind, defining){
                 var arg = code.substring(start, i);
                 args[args.length]=arg;
                 argsi[argsi.length]=start;
-                //TODO (was soll das`)
-                /*if (args.size() == 1 && bracount == -1 && args.get(0).equals("")) {//Sonderbehandlung f�r leere argumente
-                 args.clear();
-                 argsi.clear();
-                 }*/
+
+                if (args.length == 1 && bracount == -1 && !args[0].length) {//Um f() abzufangen
+                   args=[];
+                   argsi=[];
+                 }
                 start = i + 1;
             }
         }
     }
+
     for (var i = 0; i < args.length; i++) {
         var s = args[i];
         
@@ -357,7 +358,7 @@ var funct=function(code, firstbraind, defining){
             argsf[argsf.length]=f;
         }
     }
-    
+
     // Term t = (Term) generateFunction(oper, argsf, modifs, defining);
     // return t;
     var erg={};
@@ -365,6 +366,7 @@ var funct=function(code, firstbraind, defining){
     erg.oper=oper;
     erg.args=argsf;
     erg.modifs=modifs;
+
     return erg;
     
 }

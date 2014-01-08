@@ -43,15 +43,63 @@ Number.sub=function(a,b){
 }
 
 Number.neg=function(a){
-    return {"ctype":"number" ,  "value":{'real':-a.value.real,
-        'imag':-a.value.imag}}
+    return {"ctype":"number" ,
+        "value":{'real':-a.value.real, 'imag':-a.value.imag}}
 }
+
+
+Number.re=function(a){
+    return {"ctype":"number" ,
+        "value":{'real':a.value.real, 'imag':0}}
+}
+
+
+Number.im=function(a){
+    return {"ctype":"number" ,
+        "value":{'real':a.value.imag, 'imag':0}}
+}
+
+Number.conjugate=function(a){
+    return {"ctype":"number" ,
+        "value":{'real':a.value.real, 'imag':-a.value.imag}}
+}
+
+
+
+Number.round=function(a){
+    return {"ctype":"number" ,
+        "value":{'real':Math.round(a.value.real), 'imag':Math.round(a.value.imag)}}
+}
+
+Number.ceil=function(a){
+    return {"ctype":"number" ,
+        "value":{'real':Math.ceil(a.value.real), 'imag':Math.ceil(a.value.imag)}}
+}
+
+Number.floor=function(a){
+    return {"ctype":"number" ,
+        "value":{'real':Math.floor(a.value.real), 'imag':Math.floor(a.value.imag)}}
+}
+
+
 
 Number.mult=function(a,b){
     return {"ctype":"number" ,
         "value":{'real':a.value.real*b.value.real-a.value.imag*b.value.imag,
             'imag':a.value.real*b.value.imag+a.value.imag*b.value.real}};
 }
+
+
+Number.abs2=function(a,b){
+    return {"ctype":"number" ,
+        "value":{'real':a.value.real*a.value.real+a.value.imag*a.value.imag,
+            'imag':0}};
+}
+
+Number.abs=function(a1){
+    return Number.sqrt(Number.abs2(a1))
+}
+
 
 Number.inv=function(a){
     var s=a.value.real*a.value.real+a.value.imag*a.value.imag;
@@ -120,6 +168,50 @@ Number.sin=function(a) {
     return {"ctype":"number" ,"value":{'real':r,'imag':i}};
 }
 
+Number.tan=function(a) {
+    var s=Number.sin(a);
+    var c=Number.cos(a);
+    return Number.div(s,c);
+}
+
+Number.arccos=function(a) {  //OK hässlich aber tuts.
+    var t2=Number.mult(a,Number.neg(a));
+    var tmp=Number.sqrt(Number.add(Number.real(1),t2));
+    var tmp1=Number.add(Number.mult(a,Number.complex(0,1)),tmp);
+    var erg=Number.add(Number.mult(Number.log(tmp1),Number.complex(0,1)),Number.real(Math.PI*0.5));
+    erg.usage = 'angle';
+    return erg;
+}
+
+Number.arcsin=function(a) {  //OK hässlich aber tuts.
+    var t2=Number.mult(a,Number.neg(a));
+    var tmp=Number.sqrt(Number.add(Number.real(1),t2));
+    var tmp1=Number.add(Number.mult(a,Number.complex(0,1)),tmp);
+    var erg=Number.mult(Number.log(tmp1),Number.complex(0,-1));
+    erg.usage = 'angle';
+    return erg;
+}
+
+Number.arctan=function(a) {  //OK hässlich aber tuts.
+    var t1=Number.log(Number.add(Number.mult(a,Number.complex(0,-1)),Number.real(1)));
+    var t2=Number.log(Number.add(Number.mult(a,Number.complex(0,1)),Number.real(1)));
+    var erg=Number.mult(Number.sub(t1,t2),Number.complex(0,0.5));
+    erg.usage = 'angle';
+    return erg;
+}
+
+
+//Das ist jetzt genau so wie in Cindy.
+//Da wurde das aber niemals voll auf complexe Zahlen umgestellt
+//Bei Beiden Baustellen machen!!!
+Number.arctan2=function(a,b) {  //OK
+    var erg= Number.real(Math.atan2(b.value.real,a.value.real));
+    erg.usage = 'angle';
+    return erg;
+}
+
+
+
 Number.sqrt=function(a)  {
     var rr=a.value.real;
     var ii=a.value.imag;
@@ -137,8 +229,7 @@ Number.log=function(a){
     var s = Math.sqrt(re*re+im*im);
     var i = im;
     
-    console.log(re);
-    console.log(i);
+
     var imag = Math.atan2(im, re);
     if (i < 0) {
         imag += (2 * Math.PI);
@@ -153,6 +244,10 @@ Number.log=function(a){
     
     return Number.snap({"ctype":"number" ,"value":{'real':real,'imag':imag}});
 }
+
+
+
+
 
 Number.pow=function(a,b){
     
@@ -170,8 +265,6 @@ Number.pow=function(a,b){
     var res=Number.exp(Number.mult(Number.log(a),b));
     return res;
 }
-
-
 
 
 Number.mod=function(a,b){

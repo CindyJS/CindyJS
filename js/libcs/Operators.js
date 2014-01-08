@@ -5,13 +5,13 @@
 
 
 
-evaluator.seconds=function(args,modifs){
+evaluator.seconds=function(args,modifs){  //OK
     return {"ctype":"number" ,  "value":{'real':(new Date().getTime() / 1000),'imag':0}};
 }
 
 
 
-evaluator.err=function(args,modifs){
+evaluator.err=function(args,modifs){      //OK
     
     if(typeof csconsole=="undefined"){
         csconsole=window.open('','','width=200,height=100');
@@ -34,8 +34,25 @@ evaluator.err=function(args,modifs){
     return nada;
 }
 
+evaluator.errc=function(args,modifs){      //OK
+    
+    
+    if(args[0].ctype=='variable'){
+        // var s=evaluate(args[0].value[0]);
+        var s=evaluate(namespace.getvar(args[0].name));
+        console.log(args[0].name+" ==> "+niceprint(s));
 
-evaluator.repeat=function(args,modifs){
+    } else {
+        var s=evaluate(args[0]);
+        console.log(" ==> "+niceprint(s));
+        
+    }
+    return nada;
+}
+
+
+
+evaluator.repeat=function(args,modifs){    //OK
     var handleModifs = function(){
         
         if(modifs.start!==undefined){
@@ -133,7 +150,7 @@ evaluator.repeat=function(args,modifs){
 }
 
 
-evaluator.apply=function(args,modifs){
+evaluator.apply=function(args,modifs){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!='list'){
@@ -161,7 +178,7 @@ evaluator.apply=function(args,modifs){
     
 }
 
-evaluator.forall=function(args,modifs){
+evaluator.forall=function(args,modifs){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!='list'){
@@ -191,7 +208,7 @@ evaluator.forall=function(args,modifs){
     
 }
 
-evaluator.select=function(args,modifs){
+evaluator.select=function(args,modifs){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!='list'){
@@ -229,7 +246,7 @@ evaluator.select=function(args,modifs){
 
 
 
-evaluator.semicolon=function(args,modifs){
+evaluator.semicolon=function(args,modifs){ //OK
     var u0=(args[0].ctype== 'void');
     var u1=(args[1].ctype== 'void');
     
@@ -296,7 +313,7 @@ evaluator.define=function(args,modifs){
 }
 
 
-evaluator.if=function(args,modifs){
+evaluator.if=function(args,modifs){  //OK
     
     var u0=(args[0].ctype== 'undefined');
     var u1=(args[1].ctype== 'undefined');
@@ -314,7 +331,7 @@ evaluator.if=function(args,modifs){
     
 }
 
-evaluator.equals=function(args,modifs){
+evaluator.equals=function(args,modifs){  
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
@@ -337,7 +354,7 @@ evaluator.equals=function(args,modifs){
     return {'ctype':'boolean' ,'value':false  };
 }
 
-evaluator.sequence=function(args,modifs){
+evaluator.sequence=function(args,modifs){  //OK
     var v0=evaluate(args[0]);
     var v1=evaluate(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
@@ -496,6 +513,67 @@ evaluator.cos=function(args,modifs){
 }
 
 
+evaluator.tan=function(args,modifs){
+    
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype=='number' ){
+        return Number.tan(v0);
+    }
+    return nada;
+}
+
+evaluator.arccos=function(args,modifs){
+    
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype=='number' ){
+        return Number.arccos(v0);
+    }
+    return nada;
+}
+
+
+evaluator.arcsin=function(args,modifs){
+    
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype=='number' ){
+        return Number.arcsin(v0);
+    }
+    return nada;
+}
+
+
+evaluator.arctan=function(args,modifs){
+    
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype=='number' ){
+        return Number.arctan(v0);
+    }
+    return nada;
+}
+
+evaluator.arctan2=function(args,modifs){
+    
+    if(args.length==2){
+        var v0=evaluateAndVal(args[0]);
+        var v1=evaluateAndVal(args[1]);
+        if(v0.ctype=='number' &&v1.ctype=='number'){
+            return Number.arctan2(v0,v1);
+        }
+    }
+    
+    if(args.length==1){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='list' &&v0.value.length==2){
+            var tmp=v0.value;
+            if(tmp[0].ctype=='number' && tmp[1].ctype=='number') {
+                return evaluator.arctan2(tmp,modifs);
+            }
+        }
+    }
+    return nada;
+}
+
+
 
 
 evaluator.log=function(args,modifs){
@@ -507,5 +585,84 @@ evaluator.log=function(args,modifs){
     return nada;
     
 }
+
+
+
+
+evaluator.recursive=function(args,op){//OK dieses konstrukt frisst evtl ein klein wenig performance, let's try
+    
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype=='number' ){
+        return Number[op](v0);
+    }
+    if(v0.ctype=='list' ){
+        return List[op](v0);
+    }
+    return nada;
+    
+}
+
+evaluator.im=function(args,modifs){
+    return evaluator.recursive(args,"im");
+}
+
+
+evaluator.re=function(args,modifs){
+    return evaluator.recursive(args,"re");
+}
+
+
+evaluator.conjugate=function(args,modifs){
+    return evaluator.recursive(args,"conjugate");
+}
+
+
+evaluator.round=function(args,modifs){
+    return evaluator.recursive(args,"round");
+}
+
+
+evaluator.ceil=function(args,modifs){
+    return evaluator.recursive(args,"ceil");
+}
+
+
+evaluator.floor=function(args,modifs){
+    return evaluator.recursive(args,"floor");
+}
+
+
+evaluator.abs=function(args,modifs){
+    return evaluator.recursive(args,"abs");
+}
+
+
+evaluator.random=function(args,modifs){
+    if(args.length==0){
+        return Number.real(Math.random());
+    }
+    
+    if(args.length==1 ){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='number' ){
+            return Number.complex(v0.value.real*Math.random(),v0.value.imag*Math.random());
+        }
+    }
+    return nada;
+
+}
+
+evaluator.randomint=function(args,modifs){
+
+    if(args.length==1 ){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='number' ){
+            return Number.floor(Number.complex(v0.value.real*Math.random(),v0.value.imag*Math.random()));
+        }
+    }
+    return nada;
+    
+}
+
 
 
