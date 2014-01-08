@@ -8,7 +8,9 @@
             <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
-            
+            <script type="text/javascript" src="js/Setup.js"></script>
+            <script type="text/javascript" src="js/Events.js"></script>
+
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
             <script type="text/javascript" src="js/libcs/CSNumber.js"></script>
@@ -34,17 +36,9 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            if(!isreal(j),j=1;li=[],j=j+1);
-
+            if(!isreal(j),j=1,j=j+1);
             s=seconds();
-            drawtext((5,1),"DELTA: "+(s-os));
-            li=li++[(A.xy,s-os)];
-
-            os=s;
-
-            forall(li,draw(#_1,color->(1,0,0),size->min((10,#_2*100))));
-
-            repeat(1500,i,
+            repeat(500,i,
                    w=i*pi/180*(137.508+B.x*0.5);
                    p=A+(cos(w),sin(w))*0.3*sqrt(i);
                    a=i;
@@ -57,14 +51,29 @@
             if(!isreal(su),su=ds,su=su+ds);
 
             drawtext((5,3),j/su);
-            
 
         </script>
         
 
         <canvas  id="CSCanvas" align="left" valign = "top" width=600 height=600  style="border:2px solid #000000"></canvas>
 
-        <script type="text/javascript" src="js/rest2.js"></script>
+        <script>
+            
+            var gslp=[
+                      {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
+                      {name:"B", kind:"P", type:"Free", sx:-9,sy:8,sz:1}
+                      /*,
+                       {name:"D", kind:"P", type:"Free", sx:-1,sy:0,sz:1},
+                       {name:"C", kind:"P", type:"Free", sx:4,sy:3,sz:1},
+                       {name:"X", kind:"P", type:"Free", sx:-8,sy:8,sz:1},
+                       {name:"Y", kind:"P", type:"Free", sx:-8,sy:.8,sz:1},
+                       {name:"Z", kind:"P", type:"Free", sx:-6,sy:0,sz:1}*/
+                      ];
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        geometry:gslp});
+    
+        </script>
 
 	</body>
 </html>

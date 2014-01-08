@@ -3,22 +3,26 @@
 	<head>
 		<meta charset="utf-8">
             <title>Cindy JS</title>
+            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
-            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
-
+            <script type="text/javascript" src="js/Setup.js"></script>
+            <script type="text/javascript" src="js/Events.js"></script>
+            
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
-            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/CSNumber.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Operators.js"></script>
             <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/OpImageDrawing.js"></script>
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
             <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
+            <script type="text/javascript" src="js/lib/clipper.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
 
                 
@@ -47,49 +51,24 @@
         
         
         
-        <canvas id="CSCanvas" ></canvas>
+        <canvas  id="CSCanvas" align="left" valign = "top" width=600 height=600  style="border:2px solid #000000"></canvas>
         
-        
-		<script type="text/javascript">
+        <script>
             
-			//Width and height
-			var csw = 500;
-			var csh = 500;
-            
-            csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
-            csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
-            
-			var csconsole;
-            var csgeo={};
-            var svg;
-            //Create SVG element
-            var i=0;
-
-			var gslp=[
+            var gslp=[
                       {name:"A", kind:"P", type:"Free", sx:7,sy:1,sz:1},
                       {name:"C", kind:"P", type:"Free", sx:0,sy:9,sz:1},
                       ];
-            
-            csinit(gslp);
-            
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        geometry:gslp});
+        
+        
             
             
             
             </script>
         
-        
-        <script type="text/javascript">
-            
-            var c=document.getElementById("CSCanvas");
-            c.width=csw;
-            c.height=csh;
-            var csctx=c.getContext("2d");
-            var cscode=document.getElementById("firstDrawing").text;
-            cscode=condense(cscode);
-            var cserg=analyse(cscode,false);
-            
-            </script>
-        
-        
+                
 	</body>
 </html>
