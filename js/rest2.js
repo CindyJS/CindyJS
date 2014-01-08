@@ -93,6 +93,8 @@ function start() {
     };
     
     canvas.onmousemove = function (e) {
+            console.log("MOVE ");
+
         mouse.px  = mouse.x;
         mouse.py  = mouse.y;
         var rect  = canvas.getBoundingClientRect();
@@ -197,6 +199,7 @@ var startit=function(){
 }
 
 function updateCindy2(){
+
         recalc();                          
         csctx.save();
         csctx.clearRect ( 0   , 0 , csw , csh );
@@ -210,6 +213,8 @@ function updateCindy2(){
 function updateCindy(){
     
     if(move.mover.px!=lastmove.x || move.mover.py!=lastmove.y){ 
+            console.log("DRAW IT ");
+
         recalc();                          
         csctx.save();
         csctx.clearRect ( 0   , 0 , csw , csh );
