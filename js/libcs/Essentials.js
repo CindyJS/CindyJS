@@ -1,4 +1,3 @@
-console.log("Evaluator should be defined");
 
 var operators={};
 operators[':']=20;    //Colon: Feldzugriff auf Selbstdefinierte Felder
@@ -165,7 +164,6 @@ var myfunctions= function(name,args,modifs){
 var evaluator={};
 evaluator.helper={};
 
-console.log("Evaluator should be defined");
 evaluator.helper.eval= function(name,args,modifs){
     var tt=evaluator[name];
     if(tt===undefined){

@@ -1,4 +1,3 @@
-console.log("CSNumber should be defined");
 
 //==========================================
 //      Complex Numbers

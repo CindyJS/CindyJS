@@ -400,6 +400,23 @@ evaluator.helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher ob
 }
 
 
+evaluator.helper.assignlist=function(vars,vals){
+    var n=vars.length;
+    var m=vals.length;
+    if(m<n) n=m;
+
+    for(var i=0;i<n;i++){
+       var name=vars[i];
+       var val=vals[i];
+       evaluator.assign([name,val],[]);
+    
+    }
+    
+
+}
+
+
+
 evaluator.assign=function(args,modifs){
     
     var u0=(args[0].ctype== 'undefined');
@@ -416,8 +433,14 @@ evaluator.assign=function(args,modifs){
             evaluator.helper.assigntake(args[0],args[1]);
         }
     }
-    
-    
+    if(args[0].ctype=='function' &&args[0].oper=='genList' ){
+        var v1=evaluate(args[1]);
+        if(v1.ctype=="list"){
+            
+            evaluator.helper.assignlist(args[0].args,v1.value);
+        }
+        
+    }
     return args[0].value;
 }
 
