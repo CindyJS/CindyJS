@@ -5,11 +5,9 @@
             <title>Cindy JS</title>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
-            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
-            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Number.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
@@ -18,11 +16,8 @@
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
-            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
-                
 
-                
                 
             </head>
     
@@ -34,8 +29,8 @@
         <script id='firstDrawing' type='cindyscript'>
 
            
-            l1=cross(A.xy,D.xy);
-            l2=cross(C.xy,B.xy);
+            l1=cross(A,D);
+            l2=cross(C,B);
             draw(l1);
             draw(l2);
             draw(cross(l1,l2));
@@ -67,8 +62,6 @@
 			//Width and height
 			var csw = 500;
 			var csh = 500;
-            csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
-            csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
 			var csconsole;
             var csgeo={};
             var svg;
@@ -76,10 +69,10 @@
             var i=0;
 
 			var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:7,sy:1,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:0,sy:9,sz:1},
-                      {name:"C", kind:"P", type:"Free", sx:2,sy:1,sz:1},
-                      {name:"D", kind:"P", type:"Free", sx:-2,sy:7,sz:1},
+                      {name:"A", kind:"P", type:"Free", px:250,py:250,pz:1},
+                      {name:"B", kind:"P", type:"Free", px:250,py:130,pz:1},
+                      {name:"C", kind:"P", type:"Free", px:100,py:230,pz:1},
+                      {name:"D", kind:"P", type:"Free", px:100,py:30,pz:1}
                       ];
             
             csinit(gslp);

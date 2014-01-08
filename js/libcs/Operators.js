@@ -274,29 +274,32 @@ evaluator.genList=function(args,modifs){
     return {'ctype':'list','value':erg};
 }
 
-
-evaluator.helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher obs das so tut
-    var where=evaluate(data.args[0]);
+evaluator.helper.assigntake=function(data,what){
     var ind=evaluateAndVal(data.args[1]);
     
-    if(where.ctype=='list'||where.ctype=='string'){
-        var ind1=Math.floor(ind.value.real);
-        if (ind1<0){
-            ind1=where.value.length+ind1+1;
-        }
-        if(ind1>0 && ind1<where.value.length+1){ 
-            if(where.ctype=='list')  {  
-                where.value[ind1-1]=evaluate(what);
-            } else{
-                var str=where.value;
+    if(data.args[0].ctype=='variable' &&ind.ctype=='number' ){
+        var stack=namespace.vars[data.args[0].name].stack;
+        var content=stack[stack.length-1];
+        if(content.ctype=='list'||content.ctype=='string'){
+            var ind1=Math.floor(ind.value.real);
+            if (ind1<0){
+                ind1=content.value.length+ind1+1;
+            }
+            if(ind1>0 && ind1<content.value.length+1){ 
+                if(content.ctype=='list')  {  
+                    content.value[ind1-1]=evaluate(what);
+                    return;
+                }
+                var str=content.value;
                 str=str.substring(0,ind1-1)+niceprint(evaluate(what))+str.substring(ind1,str.length);
-                where.value=str;
+                content.value=str;
             }
         }
+        
+        
     }
-    
-    return nada;
-    
+   
+    return;
 }
 
 
@@ -363,10 +366,9 @@ evaluator.if=function(args,modifs){  //OK
     
 }
 
-evaluator.comp_equals=function(args,modifs){  
+evaluator.equals=function(args,modifs){  
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
-    
     if(v0.ctype=='number' && v1.ctype=='number' ){
         return {'ctype':'boolean' ,
             'value':(v0.value.real==v1.value.real)&&
@@ -387,187 +389,15 @@ evaluator.comp_equals=function(args,modifs){
     return {'ctype':'boolean' ,'value':false  };
 }
 
-evaluator.comp_notequals=function(args,modifs){  
-    var erg=evaluator.comp_equals(args,modifs);
-    erg.value=!erg.value;
-    return erg;
-}
-
-
-evaluator.comp_almostequals=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' && v1.ctype=='number' ){
-        return {'ctype':'boolean' ,
-            'value':Number.helper.isAlmostEqual(v0,v1)  }
-    }
-    if(v0.ctype=='string' && v1.ctype=='string' ){
-        return {'ctype':'boolean' ,
-            'value':(v0.value==v1.value)  }
-    }
-    if(v0.ctype=='boolean' && v1.ctype=='boolean' ){
-        return {'ctype':'boolean' ,
-            'value':(v0.value==v1.value)  }
-    }
-    if(v0.ctype=='list' && v1.ctype=='list' ){
-        var erg=List.almostequals(v0,v1);
-        return erg;
-    }
-    return {'ctype':'boolean' ,'value':false  };
-}
-
-
-evaluator.and=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    
-    if(v0.ctype=='boolean' && v1.ctype=='boolean' ){
-        return {'ctype':'boolean' , 'value':(v0.value && v1.value)  }
-    }
-    
-    return nada;
-}
-
-
-evaluator.or=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    
-    if(v0.ctype=='boolean' && v1.ctype=='boolean' ){
-        return {'ctype':'boolean' , 'value':(v0.value || v1.value)  }
-    }
-    
-    return nada;
-}
-
-
-
-evaluator.xor=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    
-    if(v0.ctype=='boolean' && v1.ctype=='boolean' ){
-        return {'ctype':'boolean' , 'value':(v0.value != v1.value)  }
-    }
-    
-    return nada;
-}
-
-
-evaluator.not=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    
-    if(v0.ctype=='void' && v1.ctype=='boolean' ){
-        return {'ctype':'boolean' , 'value':(!v1.value)  }
-    }
-    
-    return nada;
-}
-
-
-evaluator.numb_degree=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    
-    if(v0.ctype=='number' && v1.ctype=='void' ){
-        return Number.mult(v0,Number.real(Math.PI/180));
-    }
-    
-    return nada;
-}
-
-
-
-
-evaluator.comp_notalmostequals=function(args,modifs){  
-    var erg=evaluator.comp_almostequals(args,modifs);
-    erg.value=!erg.value;
-    return erg;
-}
-
-
-
-
-evaluator.comp_ugt=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real+Number.eps)  }
-    }
-    return nada;
-}
-
-evaluator.comp_uge=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real-Number.eps)  }
-    }
-    return nada;
-}
-
-evaluator.comp_ult=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real-Number.eps)  }
-    }
-    return nada;
-}
-
-evaluator.comp_ule=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real+Number.eps)  }
-    }
-    return nada;
-}
-
-
-
 evaluator.comp_gt=function(args,modifs){  
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real)  }
+       if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
+        return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
         return {'ctype':'boolean' ,'value':(v0.value>v1.value)  }
-    }
-    return nada;
-}
-
-
-evaluator.comp_ge=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real>=v1.value.real)  }
-    }
-    if(v0.ctype=='string' && v1.ctype=='string' ){
-        return {'ctype':'boolean' ,'value':(v0.value>=v1.value)  }
-    }
-    return nada;
-}
-
-
-evaluator.comp_le=function(args,modifs){  
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real<=v1.value.real)  }
-    }
-    if(v0.ctype=='string' && v1.ctype=='string' ){
-        return {'ctype':'boolean' ,'value':(v0.value<=v1.value)  }
     }
     return nada;
 }
@@ -576,8 +406,8 @@ evaluator.comp_lt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
-            return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real)  }
+       if(Number.helper.isAlmostReal(v0)&&Number.helper.isAlmostReal(v0))
+        return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
         return {'ctype':'boolean' ,'value':(v0.value<v1.value)  }
@@ -600,79 +430,31 @@ evaluator.sequence=function(args,modifs){  //OK
 
 
 
-evaluator.helper.genericListMath1=function(args,op){ //OK
-    
-    var v1=evaluateAndVal(args[0]);
-    if(v1.ctype!='list'){
-        return nada;
-    }
-    var argind=args.length-1;
-    
-    var lauf='#';
-    if(args.length==3) {
-        if(args[1].ctype=='variable'){
-            lauf=args[1].name;
-        }
-    }
-    
-    var li=v1.value;
-    
-    if(li.length==0){
-        return nada;
-    }
-    namespace.newvar(lauf);
-    namespace.setvar(lauf,li[0]);
-    var erg=evaluate(args[argind]);
-    
-    for(var i=1;i<li.length;i++){
-        namespace.setvar(lauf,li[i]);
-        erg=General[op](erg,evaluate(args[argind]));
-    }
-    namespace.removevar(lauf);
-    
-    return erg;
-    
-}
-
-
-evaluator.helper.genericListMath=function(args,op){
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='list'){
-            return erg = List.genericListMath(v0,op);
-            
-        }
-    }
-    return evaluator.helper.genericListMath1(args,op);
-}
-
-
-evaluator.product=function(args,modifs){
-    return evaluator.helper.genericListMath(args,"mult");
-}
-
-
-evaluator.sum=function(args,modifs){
-    return evaluator.helper.genericListMath(args,"add");
-}
-
-
-evaluator.max=function(args,modifs){
-    return evaluator.helper.genericListMath(args,"max");
-}
-
-
-
-evaluator.min=function(args,modifs){
-    return evaluator.helper.genericListMath(args,"min");
-}
-
-
 
 evaluator.add=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
-    return General.add(v0,v1);
+    
+    if(v0.ctype == 'void'  && v1.ctype=='number' ){   //Monadisches Plus
+        return Number.clone(v1);
+    }
+    
+    if(v0.ctype=='number'  && v1.ctype=='number' ){
+        return Number.add(v0,v1);
+    }
+    if(v0.ctype=='string' && v1.ctype=='string' ){
+        return {"ctype":"string" ,  "value":v0.value+v1.value}
+    }
+    if(v0.ctype=='number' && v1.ctype=='string' ){
+        return {"ctype":"string" ,  "value":v0.value.real+v1.value}
+    }
+    if(v0.ctype=='string' && v1.ctype=='number' ){
+        return {"ctype":"string" ,  "value":v0.value+v1.value.real}
+    }
+    if(v0.ctype=='list' && v1.ctype=='list' ){
+        return List.add(v0,v1)
+    }
+    return nada;
     
 }
 
@@ -704,14 +486,32 @@ evaluator.mult=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
-    return General.mult(v0,v1);
+    if(v0.ctype=='number' &&v1.ctype=='number' ){
+        return Number.mult(v0,v1);
+    }
+    if(v0.ctype=='number' &&v1.ctype=='list' ){
+        return List.scalmult(v0,v1);
+    }
+    if(v0.ctype=='list' &&v1.ctype=='number' ){
+        return List.scalmult(v1,v0);
+    }
+    if(v0.ctype=='list' &&v1.ctype=='list' ){
+        return List.scalproduct(v0,v1);
+    }
+    return nada;
 }
 
 evaluator.div=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
-    return General.div(v0,v1);
+    if(v0.ctype=='number' &&v1.ctype=='number' ){
+        return Number.div(v0,v1);
+    }
+    if(v0.ctype=='list' &&v1.ctype=='number' ){
+        return List.scaldiv(v1,v0);
+    }
+    return nada;
     
 }
 
@@ -1132,20 +932,6 @@ evaluator.isnumbervector=function(args,modifs){
 }
 
 
-evaluator.matrixrowcolumn=function(args,modifs){
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        var n=List.helper.colNumb(v0);
-        console.log(n);
-        if(n!=-1){
-            return List.realVector([v0.value.length,v0.value[0].value.length]);
-        }
-    }
-    return nada;
-}
-
-
 
 ///////////////////////////////
 //         GEOMETRY          //
@@ -1285,14 +1071,14 @@ evaluator.perp=function(args,modifs){
     
     if(args.length==1){
         var v0=evaluateAndVal(args[0]);
-        
+            
         if(List.helper.isNumberVecN(v0,2)){
             v0.value=[Number.neg(v0.value[1]),v0.value[0]];
             return(v0);
         }
-        
+
     }
-    
+
     return nada;
     
 }
@@ -1300,11 +1086,11 @@ evaluator.perp=function(args,modifs){
 
 
 evaluator.parallel=function(args,modifs){
-    return evaluator.para(args,modifs)
+  return evaluator.para(args,modifs)
 }
 
 evaluator.perpendicular=function(args,modifs){
-    return evaluator.perp(args,modifs)
+  return evaluator.perp(args,modifs)
 }
 
 evaluator.meet=function(args,modifs){
@@ -1398,8 +1184,8 @@ evaluator.area=function(args,modifs){
             var z1=v1.value[2];
             var z2=v2.value[2];
             if(!Number.helper.isAlmostZero(z0) 
-               && !Number.helper.isAlmostZero(z1) 
-               && !Number.helper.isAlmostZero(z2) ){
+            && !Number.helper.isAlmostZero(z1) 
+            && !Number.helper.isAlmostZero(z2) ){
                 v0=List.scaldiv(z0,v0);
                 v1=List.scaldiv(z1,v1);
                 v2=List.scaldiv(z2,v2);
@@ -1413,20 +1199,6 @@ evaluator.area=function(args,modifs){
     return nada;
 }
 
-
-evaluator.inverse=function(args,modifs){
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='list'){
-            var n=List.helper.colNumb(v0);
-            if(n!=-1&&n==v0.value.length){
-                return List.inverse(v0);
-                
-            }
-        }
-    }
-    return nada;
-}
 
 
 
@@ -1449,7 +1221,7 @@ evaluator.take=function(args,modifs){
                         return v0.value[ind-1];
                     }
                     return {"ctype":"string" ,  "value":v0.value.charAt(ind-1)}
-                    
+
                 }
                 return nada;
                 
@@ -1464,19 +1236,19 @@ evaluator.take=function(args,modifs){
                 li[i]=evaluator.take([v0,v1i],[]);
             }
             return List.turnIntoCSList(li);
-            
-        }
         
+        }
+
     }
     return nada;
-    
+
     
 }
 
 
 evaluator.length=function(args,modifs){ //ACHTUNG: evaluator darf nicht array-artig sein.
                                         //Sonst kann ich hier nicht überschreiben
-    
+
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='list'||v0.ctype=='string'){
@@ -1490,7 +1262,7 @@ evaluator.length=function(args,modifs){ //ACHTUNG: evaluator darf nicht array-ar
 
 
 evaluator.pairs=function(args,modifs){ 
-    
+
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='list'){
@@ -1503,52 +1275,20 @@ evaluator.pairs=function(args,modifs){
 }
 
 evaluator.triples=function(args,modifs){ 
-    
+
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='list'){
             return List.triples(v0);
+            
         }
-    }
-    return nada;
-}
-
-evaluator.cycle=function(args,modifs){ 
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='list'){
-            return List.cycle(v0);
-        }
-    }
-    return nada;
-}
-
-evaluator.consecutive=function(args,modifs){ 
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='list'){
-            return List.consecutive(v0);
-        }
-    }
-    return nada;
-}
-
-
-evaluator.reverse=function(args,modifs){ 
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='list'){
-            return List.reverse(v0);
-        }
+        
     }
     return nada;
 }
 
 evaluator.directproduct=function(args,modifs){ 
-    
+
     if(args.length==2){
         var v0=evaluate(args[0]);
         var v1=evaluate(args[1]);
@@ -1561,565 +1301,3 @@ evaluator.directproduct=function(args,modifs){
     return nada;
 }
 
-evaluator.concat=function(args,modifs){ 
-    
-    if(args.length==2){
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        if(v0.ctype=='list'&& v1.ctype=='list'){
-            return List.concat(v0,v1);
-        }
-    }
-    return nada;
-}
-
-
-
-evaluator.common=function(args,modifs){ 
-    
-    if(args.length==2){
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        if(v0.ctype=='list'&& v1.ctype=='list'){
-            return List.common(v0,v1);
-        }
-    }
-    return nada;
-}
-
-
-
-evaluator.remove=function(args,modifs){ 
-    
-    if(args.length==2){
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        if(v0.ctype=='list'&& v1.ctype=='list'){
-            return List.remove(v0,v1);
-        }
-    }
-    return nada;
-}
-
-
-evaluator.append=function(args,modifs){ 
-    
-    if(args.length==2){
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        if(v0.ctype=='list'){
-            return List.append(v0,v1);
-        }
-    }
-    return nada;
-}
-
-evaluator.prepend=function(args,modifs){ 
-    
-    if(args.length==2){
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        if(v1.ctype=='list'){
-            return List.prepend(v0,v1);
-        }
-    }
-    return nada;
-}
-
-evaluator.contains=function(args,modifs){ 
-    
-    if(args.length==2){
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        if(v0.ctype=='list'){
-            return List.contains(v0,v1);
-        }
-    }
-    return nada;
-}
-
-
-evaluator.helper.sort2=function(args,modifs){ //OK
-    
-    var v1=evaluateAndVal(args[0]);
-    if(v1.ctype!='list'){
-        return nada;
-    }
-    var argind=args.length-1;
-    
-    var lauf='#';
-    if(args.length==3) {
-        if(args[1].ctype=='variable'){
-            lauf=args[1].name;
-        }
-    }
-    
-    var li=v1.value;
-    var erg=[];
-    namespace.newvar(lauf);
-    for(var i=0;i<li.length;i++){
-        namespace.setvar(lauf,li[i]);
-        erg[erg.length]={val:li[i] ,result:evaluate(args[argind])};
-    }
-    namespace.removevar(lauf);
-    
-    erg.sort(General.compareResults);    
-    var erg1=[];
-    for(var i=0;i<li.length;i++){
-        erg1[erg1.length]=erg[erg1.length].val;
-    }
-    
-    return {'ctype':'list','value':erg1};
-    
-}
-
-
-evaluator.sort=function(args,modifs){ 
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='list'){
-            return List.sort1(v0);
-        }
-    }
-    return evaluator.helper.sort2(args,modifs);
-}
-
-
-evaluator.set=function(args,modifs){ 
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='list'){
-            return List.set(v0);
-        }
-    }
-    return nada;
-}
-
-
-evaluator.zeromatrix=function(args,modifs){
-    
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    if(v0.ctype=='number' &&v1.ctype=='number' ){
-        return List.zeromatrix(v0,v1);
-    }
-    return nada;
-    
-}
-
-
-
-evaluator.zerovector=function(args,modifs){
-    
-    var v0=evaluateAndVal(args[0]);
-    if(v0.ctype=='number'){
-        return List.zerovector(v0);
-    }
-    return nada;
-    
-}
-
-evaluator.transpose=function(args,modifs){
-    var v0=evaluateAndVal(args[0]);
-    
-    if(v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
-        return List.transpose(v0);
-    }
-    return nada;
-    
-}
-
-evaluator.row=function(args,modifs){
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    
-    if(v1.ctype=='number' && v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
-        return List.row(v0,v1);
-    }
-    return nada;
-    
-}
-
-evaluator.column=function(args,modifs){
-    var v0=evaluateAndVal(args[0]);
-    var v1=evaluateAndVal(args[1]);
-    
-    if(v1.ctype=='number' && v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
-        return List.column(v0,v1);
-    }
-    return nada;
-    
-}
-
-
-
-///////////////////////////////
-//         COLOR OPS         //
-///////////////////////////////
-
-evaluator.red=function(args,modifs){ 
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='number'){
-            var c=Math.min(1,Math.max(0,v0.value.real));
-            return List.realVector([c,0,0]);
-        }
-    }
-    return nada;
-}
-
-evaluator.green=function(args,modifs){ 
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='number'){
-            var c=Math.min(1,Math.max(0,v0.value.real));
-            return List.realVector([0,c,0]);
-        }
-    }
-    return nada;
-}
-
-evaluator.blue=function(args,modifs){ 
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='number'){
-            var c=Math.min(1,Math.max(0,v0.value.real));
-            return List.realVector([0,0,c]);
-        }
-    }
-    return nada;
-}
-
-evaluator.grey=function(args,modifs){ 
-    return evaluator.gray(args,modifs);
-}
-
-evaluator.gray=function(args,modifs){ 
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='number'){
-            var c=Math.min(1,Math.max(0,v0.value.real));
-            return List.realVector([c,c,c]);
-        }
-    }
-    return nada;
-}
-
-
-evaluator.helper.HSVtoRGB =function(h, s, v) {
-    
-    var r, g, b, i, f, p, q, t;
-    if (h && s === undefined && v === undefined) {
-        s = h.s, v = h.v, h = h.h;
-    }
-    i = Math.floor(h * 6);
-    f = h * 6 - i;
-    p = v * (1 - s);
-    q = v * (1 - f * s);
-    t = v * (1 - (1 - f) * s);
-    switch (i % 6) {
-        case 0: r = v, g = t, b = p; break;
-        case 1: r = q, g = v, b = p; break;
-        case 2: r = p, g = v, b = t; break;
-        case 3: r = p, g = q, b = v; break;
-        case 4: r = t, g = p, b = v; break;
-        case 5: r = v, g = p, b = q; break;
-    }
-    return List.realVector([r,g,b]);
-}
-
-evaluator.hue=function(args,modifs){ 
-    
-    if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='number'){
-            var c=v0.value.real;
-            
-            c=c-Math.floor(c );
-            return evaluator.helper.HSVtoRGB(c,1,1);
-        }
-    }
-    return nada;
-}
-
-
-
-///////////////////////////////
-//            IO             //
-///////////////////////////////
-
-evaluator.mouse=function(args,modifs){  //OK
-    if(args.length==0){
-        
-        var x = csmouse[0];
-        var y = csmouse[1];
-        return List.realVector([x,y]);
-    }
-    return nada;
-}
-
-
-
-
-///////////////////////////////
-//      Graphic State        //
-///////////////////////////////
-
-evaluator.translate=function(args,modifs){ 
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='list'){
-            if(List.isNumberVector(v0)) {
-                if(v0.value.length==2){
-                    var a=v0.value[0];
-                    var b=v0.value[1];
-                    
-                    csport.translate(a.value.real,b.value.real);
-                    return nada;
-                    
-                }
-            }
-        }
-    }
-    return nada;
-}
-
-
-
-evaluator.rotate=function(args,modifs){ 
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='number'){
-            csport.rotate(v0.value.real);
-            return nada;
-        }
-    }
-    return nada;
-}
-
-
-evaluator.scale=function(args,modifs){ 
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='number'){
-            csport.scale(v0.value.real);
-            return nada;
-        }
-    }
-    return nada;
-}
-
-
-evaluator.greset=function(args,modifs){ 
-    if(args.length==0){
-        csport.greset();
-    }
-    return nada;
-}
-
-
-evaluator.gsave=function(args,modifs){ 
-    if(args.length==0){
-        csport.gsave();
-    }
-    return nada;
-}
-
-
-evaluator.grestore=function(args,modifs){ 
-    if(args.length==0){
-        csport.grestore();
-    }
-    return nada;
-}
-
-
-evaluator.color=function(args,modifs){
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='list' && List.isNumberVector(v0).value){
-            csport.setcolor(v0);
-        }
-    }
-    return nada;
-    
-}
-
-
-evaluator.linecolor=function(args,modifs){
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='list' && List.isNumberVector(v0).value){
-            csport.setlinecolor(v0);
-        }
-    }
-    return nada;
-    
-}
-
-
-evaluator.pointcolor=function(args,modifs){
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='list' && List.isNumberVector(v0).value){
-            csport.setpointcolor(v0);
-        }
-    }
-    return nada;
-    
-}
-
-evaluator.alpha=function(args,modifs){
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='number'){
-            csport.setalpha(v0);
-        }
-    }
-    return nada;
-    
-}
-
-evaluator.pointsize=function(args,modifs){
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='number'){
-            csport.setpointsize(v0);
-        }
-    }
-    return nada;
-    
-}
-
-
-evaluator.linesize=function(args,modifs){
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='number'){
-            csport.setlinesize(v0);
-        }
-    }
-    return nada;
-    
-}
-
-
-evaluator.textsize=function(args,modifs){
-    if(args.length==1){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype=='number'){
-            csport.settextsize(v0);
-        }
-    }
-    return nada;
-    
-}
-
-
-
-///////////////////////////////
-//          String           //
-///////////////////////////////
-
-
-
-
-evaluator.replace=function(args,modifs){ 
-    if(args.length==3){
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        var v2=evaluate(args[2]);
-        if(v0.ctype=='string'&& v1.ctype=='string'&& v2.ctype=='string'){
-            var str0=v0.value;
-            var str1=v1.value;
-            var str2=v2.value;
-            var regex=new RegExp(str1,"g");
-            str0=str0.replace(regex,str2);
-            return {ctype:"string",value:str0};
-        }
-    }
-    if(args.length==2){
-        var ind;
-        var repl;
-        var keyind;
-        var from;
-        
-        /////HELPER/////
-        var getReplStr=function( str,  keys,  from) {
-            var s = "";
-            ind = -1;
-            keyind = -1;
-            for (var i = 0; i < keys.length; i++) {
-                var s1 = keys[i][0];
-                var a = str.indexOf(s1, from);
-                if (a != -1) {
-                    if (ind == -1) {
-                        s = s1;
-                        ind = a;
-                        keyind = i;
-                    } else if (a < ind) {
-                        s = s1;
-                        ind = a;
-                        keyind = i;
-                    }
-                }
-            }
-            return s;
-        }
-        
-        //////////////// 
-        
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        if(v0.ctype=='string'&& v1.ctype=='list'){
-            var s=v0.value;
-            var rules=[];
-            for (var i=0;i<v1.value.length;i++){
-                var el=v1.value[i];
-                if(el.ctype=="list" && 
-                   el.value.length==2 &&
-                   el.value[0].ctype=="string" &&
-                   el.value[1].ctype=="string") {
-                    rules[rules.length]=[el.value[0].value,el.value[1].value];
-                }
-                
-            }
-            ind = -1;
-            from = 0;
-            var srep = getReplStr(s, rules, from);
-            while (ind != -1) {
-                s = s.substring(0, ind) +
-                (rules[keyind][1]) +
-                s.substring(ind + (srep.length), s.length);
-                from = ind + rules[keyind][1].length;
-                srep = getReplStr(s, rules, from);
-            }
-            
-            
-        }
-        return {ctype:"string",value:s}        
-        
-    }
-    
-    return nada;
-}
-
-
-evaluator.substring=function(args,modifs){ 
-
-    if(args.length==3){
-        var v0=evaluate(args[0]);
-        var v1=evaluateAndVal(args[1]);
-        var v2=evaluateAndVal(args[2]);
-        if(v0.ctype=='string'&& v1.ctype=='number'&& v2.ctype=='number'){
-            var s=v0.value;
-            return {ctype:"string",value:s.substring(Math.floor(v1.value.real),
-                                                     Math.floor(v2.value.real))};
-        }
-    }
-
-}

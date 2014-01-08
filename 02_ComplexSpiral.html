@@ -5,11 +5,9 @@
             <title>Cindy JS</title>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
-            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
-
+            
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
-            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Number.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
@@ -18,7 +16,6 @@
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
-            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
 
                 
@@ -35,8 +32,9 @@
             c=complex(C.xy)/10;
 
             repeat(1000,
+                   draw(gauss(a)*5,(0,0),color->(0,0,0),size->abs(a)*10);
                    draw(gauss(a)*5,size->abs(a)*10,
-                        color->(re(a)*2,im(a)*2,-re(a)),alpha->.7);
+                        color->(re(a)*2,im(a)*2,-re(a)),alpha->.3);
                    a=a*c;
                    );
             draw(A);
@@ -55,10 +53,6 @@
 			//Width and height
 			var csw = 500;
 			var csh = 500;
-            
-            csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
-            csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
-            
 			var csconsole;
             var csgeo={};
             var svg;
@@ -66,8 +60,9 @@
             var i=0;
 
 			var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:7,sy:1,sz:1},
-                      {name:"C", kind:"P", type:"Free", sx:0,sy:9,sz:1},
+                      {name:"A", kind:"P", type:"Free", px:380,py:270,pz:1},
+                      {name:"B", kind:"P", type:"Free", px:250,py:130,pz:1},
+                      {name:"C", kind:"P", type:"Free", px:250,py:30,pz:1}
                       ];
             
             csinit(gslp);

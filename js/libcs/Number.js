@@ -27,21 +27,8 @@ Number.real=function(r){
 
 
 Number.clone=function(a){
-    return {"ctype":"number" ,  
-            "value":{'real':a.value.real,'imag':a.value.imag}, 
-            "usage":a.usage}
-}
-
-
-Number.max=function(a,b){
-    return {"ctype":"number" ,  "value":{'real':Math.max(a.value.real,b.value.real),
-        'imag':Math.max(a.value.imag,b.value.imag)}}
-}
-
-
-Number.min=function(a,b){
-    return {"ctype":"number" ,  "value":{'real':Math.min(a.value.real,b.value.real),
-        'imag':Math.min(a.value.imag,b.value.imag)}}
+    return {"ctype":"number" ,  "value":{'real':a.value.real,
+        'imag':a.value.imag}}
 }
 
 
@@ -328,18 +315,6 @@ Number.helper.isEqual=function(a,b) {
     return (a.value.real == b.value.real) && (a.value.imag == b.value.imag);
 }
 
-Number.helper.isLessThan=function(a,b) {
-
-    return(a.value.real < b.value.real 
-           || a.value.real == b.value.real && a.value.imag < b.value.imag)
-}
-
-Number.helper.compare=function(a,b) {
-    if(Number.helper.isLessThan(a,b)){return -1}
-    if(Number.helper.isEqual(a,b)){return 0}
-    return 1;
-}
-
 Number.helper.isAlmostEqual=function(a,b) {
     var r=a.value.real-b.value.real;
     var i=a.value.imag-b.value.imag;
@@ -363,6 +338,8 @@ Number.helper.isReal=function(a) {
 }
 
 Number.helper.isAlmostReal=function(a) {
+    
+    
     var i=a.value.imag;
     return (i<Number.epsbig) && (i>-Number.epsbig);//So gemacht wie in Cindy
 }

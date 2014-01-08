@@ -1,19 +1,4 @@
-var lock=false;
-
 function recalc(){
-   if(!lock){
-      lock=true;
-      recalcX();
-      lock=false;
-   } else {
-   
-      console.log("locked");
-   }
-
-}
-
-function recalcX(){
-    csport.reset();
     var gslp=csgeo.gslp;
     for( var k=0; k<gslp.length; k++ ) {
         var el=gslp[k];

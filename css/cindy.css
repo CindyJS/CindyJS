@@ -5,7 +5,9 @@ svg {
     left: 60px;
     margin: 0;
     padding: 0;
-      
+    width: 500px;
+    height: 500px;
+    
     
 }
 
@@ -16,6 +18,8 @@ canvas {
     left: 60px;
     margin: 0;
     padding: 0;
+    width: 500;
+    height: 500;
     border:2px solid #000000;
     
 }

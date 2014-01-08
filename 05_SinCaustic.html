@@ -5,11 +5,9 @@
             <title>Cindy JS</title>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
-            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
-            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Number.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
@@ -18,9 +16,7 @@
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
-            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
-                
 
                 
             </head>
@@ -76,9 +72,6 @@
 			//Width and height
 			var csw = 500;
 			var csh = 500;
-            csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
-            csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
-
 			var csconsole;
             var csgeo={};
             var svg;
@@ -86,11 +79,11 @@
             var i=0;
 
 			var gslp=[
-            
-                      {name:"A", kind:"P", type:"Free", sx:-4,sy:0,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:4,sy:0,sz:1},
-
-            ];
+                      {name:"A", kind:"P", type:"Free", px:50,py:250,pz:1},
+                      {name:"B", kind:"P", type:"Free", px:450,py:250,pz:1},
+                      {name:"C", kind:"P", type:"Free", px:100,py:230,pz:1},
+                      {name:"D", kind:"P", type:"Free", px:100,py:30,pz:1}
+                      ];
             
             csinit(gslp);
             

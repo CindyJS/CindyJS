@@ -4,21 +4,9 @@ function csinit(gslp){
     svg = d3.select("body")
     .append("svg")
     .attr("width", csw)
-    .attr("height", csh)
-    .attr("onmousemove", "test (event)")
-    ;
-        
-/*    svg.on("mousemove", function() {
-       // csmouse = d3.svg.mouse(this);
-        console.log(d3.event.pageX);
-    });*/
-
-    test=function(evt){
-        var x = (-250+evt.offsetX)/25.0;
-        var y = (250-evt.offsetY)/25.0;
-        csmouse=[x,y];
-    }
-
+    .attr("height", csh);
+    
+    
     csgeo.csnames={};
     for( var k=0; k<csgeo.gslp.length; k++ ) {
         csgeo.csnames[csgeo.gslp[k].name]=k;
@@ -30,8 +18,6 @@ function csinit(gslp){
     csgeo.ctp=0;
     csgeo.ctf=0;
     csgeo.ctl=0;
-    var m=csport.drawingstate.matrix;
-
     for( var k=0; k<csgeo.gslp.length; k++ ) {
         if(csgeo.gslp[k].kind=="P"){
             csgeo.points[csgeo.ctp]=csgeo.gslp[k];
@@ -42,14 +28,6 @@ function csinit(gslp){
             csgeo.ctl+=1;
         }
         if(csgeo.gslp[k].type=="Free"){
-            
-            var v=csport.from(csgeo.gslp[k].sx,csgeo.gslp[k].sy,csgeo.gslp[k].sz)
-
-            gslp[k].px=v[0];
-            gslp[k].py=v[1];
-            gslp[k].pz=1;
-
-            
             csgeo.free[csgeo.ctf]=csgeo.gslp[k];
             csgeo.ctf+=1;
         }

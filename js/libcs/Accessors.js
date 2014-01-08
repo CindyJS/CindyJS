@@ -16,24 +16,18 @@ Accessor.getGeoField=function(geoname,field){
 
 Accessor.getField=function(geo,field){
     
-    var m=csport.drawingstate.initialmatrix;
     if(geo.kind=="P"){
         if(field=="xy") {
-            var xx = geo.px-m.tx;
-            var yy = geo.py+m.ty;
-            var x=(xx*m.d-yy*m.b)/m.det;
-            var y=-(-xx*m.c+yy*m.a)/m.det;
+            var x = (-250+geo.px)/25.0;
+            var y = (250-geo.py)/25.0;
             var erg=List.turnIntoCSList([Number.real(x),Number.real(y)]);
             erg.usage="Point";
-
             return erg;
         };
         
         if(field=="homog") {
-            var xx = geo.px-m.tx;
-            var yy = geo.py+m.ty;
-            var x=(xx*m.d-yy*m.b)/m.det;
-            var y=-(-xx*m.c+yy*m.a)/m.det;
+            var x = (-250+geo.px)/25.0;
+            var y = (250-geo.py)/25.0;
             var erg=List.turnIntoCSList([Number.real(x),Number.real(y),Number.real(1)]);
             erg.usage="Point";
             return erg;
@@ -41,16 +35,12 @@ Accessor.getField=function(geo,field){
 
         
         if(field=="x") {
-            var xx = geo.px-m.tx;
-            var yy = geo.py-m.ty;
-            var x=(xx*m.d-yy*m.b)/m.det;
+            var x = (-250+geo.px)/25.0;
             return Number.real(x);
         };
         
         if(field=="y") {
-            var xx = geo.px-m.tx;
-            var yy = geo.py-m.ty;
-            var y=-(-xx*m.c+yy*m.a)/m.det; 
+            var y = (250-geo.py)/25.0;
             return Number.real(y);
         };
         
