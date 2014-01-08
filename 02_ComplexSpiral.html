@@ -3,16 +3,16 @@
 	<head>
 		<meta charset="utf-8">
             <title>Cindy JS</title>
-            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
 
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Number.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
-            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Operators.js"></script>
             <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
@@ -26,20 +26,22 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: Complex power grid</h1>
+        <h1>CindyJS: Complex Spiral</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
-            a="A=";
+
+            a=complex(A.xy)/5;
+            c=complex(C.xy)/10;
+
+            repeat(1000,
+                   draw(gauss(a)*5,size->abs(a)*10,
+                        color->(re(a)*2,im(a)*2,-re(a)),alpha->.7);
+                   a=a*c;
+                   );
             draw(A);
-            p=A.xy;
-            textsize((A.xy)_1*10);
-            
-            drawtext(A,size->abs(p_1)*10,offset->(10,10),family->"Futura",align->"left",a+A.xy);
-            
-            
-            
-        </script>
+            draw(C);
+            </script>
         
         
         
@@ -50,19 +52,13 @@
         
 		<script type="text/javascript">
             
-
-            
-            
-            var csmouse = [100, 100];
-            var cscount = 0;
-
-            
 			//Width and height
 			var csw = 500;
 			var csh = 500;
+            
             csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
             csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
-
+            
 			var csconsole;
             var csgeo={};
             var svg;
@@ -70,28 +66,20 @@
             var i=0;
 
 			var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:2,sy:2,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:3,sy:4,sz:1},
-                      {name:"C", kind:"P", type:"Free", sx:6,sy:7,sz:1}
+                      {name:"A", kind:"P", type:"Free", sx:7,sy:1,sz:1},
+                      {name:"C", kind:"P", type:"Free", sx:0,sy:9,sz:1},
                       ];
             
             csinit(gslp);
-            /*
-            d3.timer(function() {
-                     cscount+=1;
-                     recalc();
-                     csctx.clearRect ( 0   , 0 , 500 , 500 );
-                     evaluate(cserg);
-                     render();
-            });
-*/
+            
+            
             
             
             </script>
         
         
         <script type="text/javascript">
-                       
+            
             var c=document.getElementById("CSCanvas");
             c.width=csw;
             c.height=csh;

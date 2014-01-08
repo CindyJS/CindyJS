@@ -30,14 +30,18 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            a="A=";
+            
             draw(A);
-            p=A.xy;
-            textsize((A.xy)_1*10);
-            
-            drawtext(A,size->abs(p_1)*10,offset->(10,10),family->"Futura",align->"left",a+A.xy);
-            
-            
+            draw(B);
+            repeat(150,
+                   rotate(10°);
+                   scale(.95);
+                   rotate(-30°);
+                   translate((.5,.2));
+                   fillcircle(A,2,color->(0,0,1),alpha->0.3);
+                   drawcircle(A,2,color->(1,0,0));
+                   draw(A,B);
+                   )
             
         </script>
         
@@ -49,9 +53,6 @@
         
         
 		<script type="text/javascript">
-            
-
-            
             
             var csmouse = [100, 100];
             var cscount = 0;

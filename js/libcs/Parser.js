@@ -11,7 +11,7 @@ var evaluate=function(a){
 
     if(a.ctype=='infix'){
         var ioper=infixmap[a.oper];
-        return evaluator(ioper,a.args,[]);
+        return evaluator.helper.eval(ioper,a.args,[]);
     }
     if(a.ctype=='variable'){
         return namespace.getvar(a.name);
@@ -40,7 +40,7 @@ var evaluate=function(a){
     }
     if(a.ctype=='function'){
         var eargs=[];
-        return evaluator(a.oper,a.args,a.modifs);
+        return evaluator.helper.eval(a.oper,a.args,a.modifs);
     }
     return nada;
     
@@ -54,8 +54,33 @@ var evaluateAndVal=function(a){
         if(val.kind=="P"){
             return Accessor.getField(val,"xy");
         }
+
     }
     return x;//TODO Implement this
+}
+
+var evaluateAndHomog=function(a){
+    var x=evaluate(a);
+    if(x.ctype=='geo'){
+        var val=x.value;
+        if(val.kind=="P"){
+            return Accessor.getField(val,"homog");
+        }
+        if(val.kind=="L"){
+            return x;//TODO implement
+        }
+        
+    }
+    if(List.helper.isNumberVecN(x,3)){
+        return x;
+    }
+    
+    if(List.helper.isNumberVecN(x,2)){
+        x.value[2]=Number.real(1);
+        return x;
+    }
+    
+    return nada;
 }
 
 

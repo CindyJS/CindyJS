@@ -47,11 +47,32 @@ infixmap['-']='minus';
 infixmap['*']='mult';
 infixmap['/']='div';
 infixmap['^']='pow';
+infixmap['°']='numb_degree';
 infixmap[';']='semicolon';
 infixmap['=']='assign';
 infixmap['..']='sequence';
 infixmap[':=']='define';
-infixmap['==']='equals';
+infixmap['==']='comp_equals';
+infixmap['!=']='comp_notequals';
+infixmap['~=']='comp_almostequals';
+infixmap['~!=']='comp_notalmostequals';
+infixmap['>']='comp_gt';
+infixmap['<']='comp_lt';
+infixmap['>=']='comp_ge';
+infixmap['<=']='comp_le';
+infixmap['~>']='comp_ugt';
+infixmap['~<']='comp_ult';
+infixmap['~>=']='comp_uge';
+infixmap['~<=']='comp_ule';
+infixmap['&']='and';
+infixmap['%']='or';
+infixmap['!']='not';
+infixmap['_']='take';
+infixmap['++']='concat';
+infixmap['~~']='common';
+infixmap['--']='remove';
+infixmap[':>']='append';
+infixmap['<:']='prepend';
 
 
 //****************************************************************
@@ -134,8 +155,9 @@ var myfunctions= function(name,args,modifs){
 //*******************************************************
 //this function evaluates a concrete function
 //*******************************************************
-
-var evaluator= function(name,args,modifs){
+var evaluator={};
+evaluator.helper={};
+evaluator.helper.eval= function(name,args,modifs){
     var tt=evaluator[name];
     if(tt===undefined){
         return myfunctions(name+args.length,args,modifs); //Ich habe  überdefinieren von fkts rausgenommen
@@ -144,4 +166,32 @@ var evaluator= function(name,args,modifs){
     return tt(args,modifs);
 }
 
-evaluator.helper={};
+
+
+evaluator.helper.clone=function(a){//Das ist jetzt gerade mal ätzend un-OO
+   if(a.ctype=='list'){return List.clone(a);}
+   if(a.ctype=='number'){return Number.clone(a);}
+   return a;//Werden die anderen sachen gecloned, in Cindy ist das nicht so???
+
+}
+
+evaluator.helper.equals=function(v0,v1){//Und nochmals un-OO
+    if(v0.ctype=='number' && v1.ctype=='number' ){
+        return {'ctype':'boolean' ,
+            'value':(v0.value.real==v1.value.real)&&
+            (v0.value.imag==v1.value.imag)  }
+    }
+    if(v0.ctype=='string' && v1.ctype=='string' ){
+        return {'ctype':'boolean' ,
+            'value':(v0.value==v1.value)  }
+    }
+    if(v0.ctype=='boolean' && v1.ctype=='boolean' ){
+        return {'ctype':'boolean' ,
+            'value':(v0.value==v1.value)  }
+    }
+    if(v0.ctype=='list' && v1.ctype=='list' ){
+        var erg=List.equals(v0,v1);
+        return erg;
+    }
+    return {'ctype':'boolean' ,'value':false  };
+}

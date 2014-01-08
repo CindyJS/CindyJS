@@ -5,9 +5,11 @@
             <title>Cindy JS</title>
             <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
             
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
             <script type="text/javascript" src="js/libcs/Accessors.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
             <script type="text/javascript" src="js/libcs/Number.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
@@ -16,27 +18,38 @@
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
+            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
-
+                
                 
             </head>
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: A simple sunflower</h1>
+        <h1>CindyJS: Lissajous</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
-            repeat(500,i,
-                   
-                   w=i*pi/180*(137.508+B.x*0.5);
-                   p=A+(cos(w),sin(w))*0.3*sqrt(i);
-                   a=i;
-                   draw(p,size->sqrt(i));
-                   );
-           // err(a);
+            pp=A/100;
+            damp=abs(pp);
+            pp=pp/damp;
             
-            </script>
+            t=0;
+            tx=seconds();
+            pt=(sin(t*pp_1),sin(t*pp_2+tx))*5;
+            al=1;
+            repeat(1500,tt=t+#*.1;
+                   pt1=(sin(tt*pp_1),sin(tt*pp_2+tx))*5*exp(-tt*.01*damp);
+                   draw(pt,pt1,alpha->al);
+                   pt=pt1;
+                   al=al*.999;
+                
+                   );
+            
+
+            
+            draw(A);
+        </script>
         
         
         
@@ -47,9 +60,16 @@
         
 		<script type="text/javascript">
             
+            var csmouse = [100, 100];
+            var cscount = 0;
+
+            
 			//Width and height
 			var csw = 500;
 			var csh = 500;
+            csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
+            csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
+            
 			var csconsole;
             var csgeo={};
             var svg;
@@ -57,20 +77,27 @@
             var i=0;
 
 			var gslp=[
-                      {name:"A", kind:"P", type:"Free", px:250,py:250,pz:1},
-                      {name:"B", kind:"P", type:"Free", px:250,py:30,pz:1}
-                      ];
+                      {name:"A", kind:"P", type:"Free", sx:0.2,sy:0.2,sz:1}
+                      
+                    ];
             
             csinit(gslp);
             
-            
+            d3.timer(function() {
+                     cscount+=1;
+                     recalc();
+                     csctx.clearRect ( 0   , 0 , 500 , 500 );
+                     evaluate(cserg);
+                     render();
+            });
+
             
             
             </script>
         
         
         <script type="text/javascript">
-            
+                       
             var c=document.getElementById("CSCanvas");
             c.width=csw;
             c.height=csh;
