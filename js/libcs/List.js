@@ -51,6 +51,49 @@ List.triples=function(a){
     return {'ctype':'list','value':erg};
 }
 
+List.triples=function(a){
+    var erg=[];
+    for(var i=0;i<a.value.length-2;i++){
+        for(var j=i+1;j<a.value.length-1;j++){
+            for(var k=j+1;k<a.value.length;k++){
+                erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[j],a.value[k]]};
+            }
+        }
+    }
+    return {'ctype':'list','value':erg};
+}
+
+
+List.cycle=function(a){
+    var erg=[];
+    for(var i=0;i<a.value.length-1;i++){
+        erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[i+1]]};
+    }
+    erg[erg.length]={'ctype':'list','value':[a.value[a.value.length-1],a.value[0]]};
+
+    return {'ctype':'list','value':erg};
+}
+
+List.consecutive=function(a){
+    var erg=[];
+    for(var i=0;i<a.value.length-1;i++){
+        erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[i+1]]};
+    }
+
+    return {'ctype':'list','value':erg};
+}
+
+List.reverse=function(a){
+    var erg=[];
+    for(var i=a.value.length-1;i>=0;i--){
+        erg[erg.length]=a.value[i];
+    }
+
+    return {'ctype':'list','value':erg};
+}
+
+
+
 List.directproduct=function(a,b){
     var erg=[];
     for(var i=0;i<a.value.length;i++){
@@ -60,6 +103,86 @@ List.directproduct=function(a,b){
     }
     return {'ctype':'list','value':erg};
 }
+
+
+List.concat=function(a,b){
+    var erg=[];
+    for(var i=0;i<a.value.length;i++){
+        erg[erg.length]=a.value[i];
+    }
+    for(var j=0;j<b.value.length;j++){
+        erg[erg.length]=b.value[j];
+    }
+    return {'ctype':'list','value':erg};
+}
+
+
+List.prepend=function(b,a){
+    var erg=[];
+    erg[erg.length]=b;
+
+    for(var i=0;i<a.value.length;i++){
+        erg[erg.length]=a.value[i];
+    }
+    return {'ctype':'list','value':erg};
+}
+
+List.append=function(a,b){
+    var erg=[];
+    for(var i=0;i<a.value.length;i++){
+        erg[erg.length]=a.value[i];
+    }
+    erg[erg.length]=b;
+    return {'ctype':'list','value':erg};
+}
+
+
+List.contains=function(a,b){
+    var erg=[];
+    var bb=false; 
+    for(var i=0;i<a.value.length;i++){
+        var cc=a.value[i];
+        if((evaluator.helper.equals(cc,b)).value){
+            return {'ctype':'boolean','value':true};
+
+        };
+    }
+    return {'ctype':'boolean','value':false};
+}
+
+
+List.common=function(a,b){
+    var erg=[];
+    for(var i=0;i<a.value.length;i++){
+        var bb=false; 
+        var cc=a.value[i];
+        for(var j=0;j<b.value.length;j++){
+            bb=bb||(evaluator.helper.equals(cc,b.value[j])).value;
+        }
+        if(bb){
+            erg[erg.length]=a.value[i];
+        }
+    }
+    return {'ctype':'list','value':erg};
+}
+
+List.remove=function(a,b){
+    var erg=[];
+    for(var i=0;i<a.value.length;i++){
+        var bb=false; 
+        var cc=a.value[i];
+        for(var j=0;j<b.value.length;j++){
+            bb=bb||(evaluator.helper.equals(cc,b.value[j])).value;
+        }
+        if(!bb){
+            erg[erg.length]=a.value[i];
+        }
+    }
+    return {'ctype':'list','value':erg};
+}
+
+
+
 
 
 List.scalproduct=function(a1,a2){
@@ -131,12 +254,33 @@ List.equals=function(a1,a2){
         if(av1.ctype=='list' && av2.ctype=='list' ){
             erg=erg && List.equals(av1,av2).value;
         } else {
-            erg=erg && evaluator.equals([av1,av2],[]).value;
+            erg=erg && evaluator.comp_equals([av1,av2],[]).value;
             
         }
     }
     return {'ctype':'boolean','value':erg};
 }
+
+List.almostequals=function(a1,a2){
+    
+    if(a1.value.length != a2.value.length){
+        return {'ctype':'boolean','value':false};
+    }
+    var erg=true;
+    for(var i=0;i<a1.value.length;i++){
+        var av1=a1.value[i];
+        var av2=a2.value[i];
+        
+        if(av1.ctype=='list' && av2.ctype=='list' ){
+            erg=erg && List.comp_almostequals(av1,av2).value;
+        } else {
+            erg=erg && evaluator.comp_almostequals([av1,av2],[]).value;
+            
+        }
+    }
+    return {'ctype':'boolean','value':erg};
+}
+
 
 
 List.add=function(a1,a2){
@@ -402,6 +546,15 @@ List.det3=function(p,q,r){//Assumes that a,b,c are 3-Vectors
 
 
     return Number.complex(re,im);
+}
+
+
+List.clone=function(a){
+    var erg=[];
+    for(var i=0;i<a.value.length;i++){
+        erg[erg.length]=evaluator.helper.clone(a.value[i]);
+    }
+    return {"ctype":"list" ,  "value":erg,"usage":a.usage}
 }
 
 

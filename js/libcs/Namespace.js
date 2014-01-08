@@ -55,8 +55,19 @@ function Namespace(){
     
     this.setvar= function(code,val) {
         var stack=this.vars[code].stack;
+        if(val.ctype=='undefined'){
+            stack[stack.length-1]=val;
+            return;
+        }
+        var erg=evaluator.helper.clone(val);
+        stack[stack.length-1]=erg;
+    }
+    
+    this.setvarnocopy= function(code,val) {
+        var stack=this.vars[code].stack;
         stack[stack.length-1]=val;
     }
+    
     
     this.getvar= function(code) {
 

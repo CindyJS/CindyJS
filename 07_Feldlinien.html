@@ -23,14 +23,32 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: A simple sunflower</h1>
+        <h1>CindyJS: Two charges</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
 
-        a=[[1,2,3],[1,2,3],[1,2,3]];
-        a_1_1=6;
-        errc(a);
+            n=10;
+            forall((-n)..n,x,
+                forall((-n)..n,y,
+                       p=(x,y)*1;
+                       f1=(p-A)/abs(p-A)^3;
+                       f2=(p-B)/abs(p-B)^3;
+                       f=f1-f2;
+                       c1=abs(f1)/abs(f);
+                       c2=abs(f2)/abs(f);
+                       f=f/abs(f)*.35;
+                       nn=(-f_2,f_1)*.6;
+                       col=(c1,c2,0);
+                       col=col/abs(col)*.7;
+                       draw(p-f*1.5,p+f*.5,color->(0,0,1),alpha->0.9,color->col);
+                       draw(p+f*.5,p+nn*.8,color->(0,0,1),alpha->0.9,color->col);
+                       draw(p+f*.5,p-nn*.8,color->(0,0,1),alpha->0.9,color->col);
+                       )
+                   
+                   );
+            draw(A,color->(1,0,0),size->7);
+            draw(B,color->(0,1,0),size->7);
             
             
         </script>

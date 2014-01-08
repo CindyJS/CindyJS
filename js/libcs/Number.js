@@ -27,8 +27,9 @@ Number.real=function(r){
 
 
 Number.clone=function(a){
-    return {"ctype":"number" ,  "value":{'real':a.value.real,
-        'imag':a.value.imag}}
+    return {"ctype":"number" ,  
+            "value":{'real':a.value.real,'imag':a.value.imag}, 
+            "usage":a.usage}
 }
 
 
@@ -338,8 +339,6 @@ Number.helper.isReal=function(a) {
 }
 
 Number.helper.isAlmostReal=function(a) {
-    
-    
     var i=a.value.imag;
     return (i<Number.epsbig) && (i>-Number.epsbig);//So gemacht wie in Cindy
 }
