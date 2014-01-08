@@ -4,9 +4,21 @@ function csinit(gslp){
     svg = d3.select("body")
     .append("svg")
     .attr("width", csw)
-    .attr("height", csh);
-    
-    
+    .attr("height", csh)
+    .attr("onmousemove", "test (event)")
+    ;
+        
+/*    svg.on("mousemove", function() {
+       // csmouse = d3.svg.mouse(this);
+        console.log(d3.event.pageX);
+    });*/
+
+    test=function(evt){
+        var x = (-250+evt.offsetX)/25.0;
+        var y = (250-evt.offsetY)/25.0;
+        csmouse=[x,y];
+    }
+
     csgeo.csnames={};
     for( var k=0; k<csgeo.gslp.length; k++ ) {
         csgeo.csnames[csgeo.gslp[k].name]=k;

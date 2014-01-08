@@ -1846,3 +1846,20 @@ evaluator.hue=function(args,modifs){
     return nada;
 }
 
+
+
+///////////////////////////////
+//            IO             //
+///////////////////////////////
+
+evaluator.mouse=function(args,modifs){  //OK
+    if(args.length==0){
+        
+        var x = csmouse[0];
+        var y = csmouse[1];
+        return List.realVector([x,y]);
+    }
+    return nada;
+}
+
+

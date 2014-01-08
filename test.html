@@ -29,13 +29,25 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
- 
-            a=apply(1..5, w=#*72°*2;
-                  (sin(w),cos(w))*3;
-                    );
-            fillpoly(a,alpha->0.4);
-            drawpoly(a,color->(0,0,0));
+            pp=mouse()/10;
+            damp=abs(pp);
+            pp=pp/damp;
             
+            t=0;
+            tx=seconds();
+            pt=(sin(t*pp_1),sin(t*pp_2+tx))*5;
+            al=1;
+            repeat(1500,tt=t+#*.1;
+                   pt1=(sin(tt*pp_1),sin(tt*pp_2+tx))*5*exp(-tt*.01*damp);
+                   draw(pt,pt1,alpha->al);
+                   pt=pt1;
+                   al=al*.999;
+                
+                   );
+            
+
+            
+            draw(A);
         </script>
         
         
@@ -46,6 +58,10 @@
         
         
 		<script type="text/javascript">
+            
+            var csmouse = [100, 100];
+            var cscount = 0;
+
             
 			//Width and height
 			var csw = 500;
@@ -64,7 +80,14 @@
             
             csinit(gslp);
             
-            
+            d3.timer(function() {
+                     cscount+=1;
+                     recalc();
+                     csctx.clearRect ( 0   , 0 , 500 , 500 );
+                     evaluate(cserg);
+                     render();
+            });
+
             
             
             </script>
