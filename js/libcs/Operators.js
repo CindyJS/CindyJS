@@ -600,7 +600,7 @@ evaluator.sequence=function(args,modifs){  //OK
 
 
 
-evaluator.helper.sum2=function(args,modifs){ //OK
+evaluator.helper.genericListMath1=function(args,op){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!='list'){
@@ -616,11 +616,17 @@ evaluator.helper.sum2=function(args,modifs){ //OK
     }
     
     var li=v1.value;
-    var erg=Number.real(0);
+    
+    if(li.length==0){
+        return nada;
+    }
     namespace.newvar(lauf);
-    for(var i=0;i<li.length;i++){
+    namespace.setvar(lauf,li[0]);
+    var erg=evaluate(args[argind]);
+
+    for(var i=1;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
-        erg=Number.add(erg,evaluate(args[argind]));
+        erg=General[op](erg,evaluate(args[argind]));
     }
     namespace.removevar(lauf);
     
@@ -629,58 +635,36 @@ evaluator.helper.sum2=function(args,modifs){ //OK
 }
 
 
-
-evaluator.sum=function(args,modifs){
+evaluator.helper.genericListMath=function(args,op){
   if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='list'){
-            return List.sum1(v0);
+            return erg = List.genericListMath(v0,op);
+
         }
     }
-    return evaluator.helper.sum2(args,modifs);
+    return evaluator.helper.genericListMath1(args,op);
 }
-
-
-evaluator.helper.product2=function(args,modifs){ //OK
-    
-    var v1=evaluateAndVal(args[0]);
-    if(v1.ctype!='list'){
-        return nada;
-    }
-    var argind=args.length-1;
-    
-    var lauf='#';
-    if(args.length==3) {
-        if(args[1].ctype=='variable'){
-            lauf=args[1].name;
-        }
-    }
-    
-    var li=v1.value;
-    var erg=Number.real(1);
-    namespace.newvar(lauf);
-    for(var i=0;i<li.length;i++){
-        namespace.setvar(lauf,li[i]);
-        erg=Number.mult(erg,evaluate(args[argind]));
-    }
-    namespace.removevar(lauf);
-    
-    return erg;
-    
-}
-
-
-
 
 
 evaluator.product=function(args,modifs){
-  if(args.length==1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype=='list'){
-            return List.product1(v0);
-        }
-    }
-    return evaluator.helper.product2(args,modifs);
+  return evaluator.helper.genericListMath(args,"mult");
+}
+
+
+evaluator.sum=function(args,modifs){
+  return evaluator.helper.genericListMath(args,"add");
+}
+
+
+evaluator.max=function(args,modifs){
+  return evaluator.helper.genericListMath(args,"max");
+}
+
+
+
+evaluator.min=function(args,modifs){
+  return evaluator.helper.genericListMath(args,"min");
 }
 
 
@@ -1148,6 +1132,20 @@ evaluator.isnumbervector=function(args,modifs){
 }
 
 
+evaluator.matrixrowcolumn=function(args,modifs){
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        var n=List.helper.colNumb(v0);
+        console.log(n);
+        if(n!=-1){
+            return List.realVector([v0.value.length,v0.value[0].value.length]);
+        }
+    }
+    return nada;
+}
+
+
 
 ///////////////////////////////
 //         GEOMETRY          //
@@ -1416,6 +1414,20 @@ evaluator.area=function(args,modifs){
 }
 
 
+evaluator.inverse=function(args,modifs){
+    if(args.length==1){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='list'){
+           var n=List.helper.colNumb(v0);
+           if(n!=-1&&n==v0.value.length){
+                return List.inverse(v0);
+           
+           }
+        }
+    }
+    return nada;
+}
+
 
 
 ///////////////////////////////
@@ -1682,6 +1694,64 @@ evaluator.set=function(args,modifs){
     }
     return nada;
 }
+
+
+evaluator.zeromatrix=function(args,modifs){
+    
+    var v0=evaluateAndVal(args[0]);
+    var v1=evaluateAndVal(args[1]);
+    if(v0.ctype=='number' &&v1.ctype=='number' ){
+        return List.zeromatrix(v0,v1);
+    }
+    return nada;
+    
+}
+
+
+
+evaluator.zerovector=function(args,modifs){
+    
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype=='number'){
+        return List.zerovector(v0);
+    }
+    return nada;
+    
+}
+
+evaluator.transpose=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+
+    if(v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
+        return List.transpose(v0);
+    }
+    return nada;
+    
+}
+
+evaluator.row=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+    var v1=evaluateAndVal(args[1]);
+
+    if(v1.ctype=='number' && v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
+        return List.row(v0,v1);
+    }
+    return nada;
+    
+}
+
+evaluator.column=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+    var v1=evaluateAndVal(args[1]);
+
+    if(v1.ctype=='number' && v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
+        return List.column(v0,v1);
+    }
+    return nada;
+    
+}
+
+
 
 ///////////////////////////////
 //         COLOR OPS         //

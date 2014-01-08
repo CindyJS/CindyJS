@@ -280,19 +280,15 @@ List.set=function(a1){
 
 
 
-List.sum1=function(a){
-  var erg=Number.real(0);
-  for(var i=0;i<a.value.length;i++){
-     erg=Number.add(erg,a.value[i]); 
-  }
-  return erg;
-}
 
+List.genericListMath=function(a,op){
 
-List.product1=function(a){
-  var erg=Number.real(1);
-  for(var i=0;i<a.value.length;i++){
-     erg=Number.mult(erg,a.value[i]); 
+  if(a.value.length==0){
+        return nada
+    };
+  var erg=a.value[0];
+  for(var i=1;i<a.value.length;i++){
+     erg=General[op](erg,a.value[i]); 
   }
   return erg;
 }
@@ -301,6 +297,41 @@ List.product1=function(a){
 
 
 ///////////////////////////
+
+
+
+
+List.max=function(a1,a2){
+    
+    if(a1.value.length != a2.value.length){
+        return nada;
+    }
+    var erg=[];
+    for(var i=0;i<a1.value.length;i++){
+        var av1=a1.value[i];
+        var av2=a2.value[i];
+        erg[erg.length]=General.max(av1,av2);
+    }
+    return {'ctype':'list','value':erg};
+}
+
+
+
+
+
+List.min=function(a1,a2){
+    
+    if(a1.value.length != a2.value.length){
+        return nada;
+    }
+    var erg=[];
+    for(var i=0;i<a1.value.length;i++){
+        var av1=a1.value[i];
+        var av2=a2.value[i];
+        erg[erg.length]=General.min(av1,av2);
+    }
+    return {'ctype':'list','value':erg};
+}
 
 
 
@@ -728,5 +759,90 @@ List.clone=function(a){
     }
     return {"ctype":"list" ,  "value":erg,"usage":a.usage}
 }
+
+
+List.zerovector=function(a){
+    var erg=[];
+    for(var i=0;i<Math.floor(a.value.real);i++){
+        erg[erg.length]=0;
+    }
+    return List.realVector(erg);
+}
+
+
+List.zeromatrix=function(a,b){
+    var erg=[];
+    for(var i=0;i<Math.floor(a.value.real);i++){
+        erg[erg.length]=List.zerovector(b);
+    }
+    return List.turnIntoCSList(erg);
+}
+
+
+List.transpose=function(a){
+    var erg=[];
+    var n=a.value[1].value.length;
+    var m=a.value.length;
+    for(var i=0;i<n;i++){
+        var li=[]; 
+        for(var j=0;j<m;j++){
+            li[li.length]=a.value[j].value[i];
+        }
+        erg[erg.length]=List.turnIntoCSList(li)
+    }
+    return List.turnIntoCSList(erg);
+}
+
+
+List.column=function(a,b){
+    var erg=[];
+    var n=a.value.length;
+    var i=Math.floor(b.value.real-1);
+    for(var j=0;j<n;j++){
+        erg[erg.length]=a.value[j].value[i];
+    }
+    
+    return List.turnIntoCSList(erg);
+}
+
+
+List.row=function(a,b){
+    var erg=[];
+    var n=a.value[1].value.length;
+    var i=Math.floor(b.value.real-1);
+    for(var j=0;j<n;j++){
+        erg[erg.length]=a.value[i].value[j];
+    }
+    
+    return List.turnIntoCSList(erg);
+}
+
+List.inverse=function(a){
+    var x=[];
+    var y=[];
+    var n=a.value.length;
+    for(var i=0;i<n;i++){
+        var lix=[]; 
+        var liy=[]; 
+        for(var j=0;j<n;j++){
+            lix[lix.length]=a.value[i].value[j].value.real;
+            liy[liy.length]=a.value[i].value[j].value.imag;
+        }
+        x[x.length]=lix;
+        y[y.length]=liy;
+    }
+    var z=new numeric.T(x,y);
+    var res=z.inv(z);
+    var erg=[];
+    for(var i=0;i<n;i++){
+        var li=[]; 
+        for(var j=0;j<n;j++){
+            li[li.length]=Number.complex(res.x[i][j],res.y[i][j]);
+        }
+        erg[erg.length]=List.turnIntoCSList(li);
+    }
+    return List.turnIntoCSList(erg);
+}
+
 
 

@@ -110,3 +110,33 @@ General.div=function(v0,v1){
     }
     return nada;
 }
+
+
+
+General.max=function(v0,v1){
+
+ if(v0.ctype=='number' &&v1.ctype=='number' ){
+        return Number.max(v0,v1);
+    }
+    if(v0.ctype=='list' &&v1.ctype=='list' ){
+        return List.max(v0,v1);
+    }
+    return nada;
+
+}
+
+
+
+General.min=function(v0,v1){
+
+ if(v0.ctype=='number' &&v1.ctype=='number' ){
+        return Number.min(v0,v1);
+    }
+    if(v0.ctype=='list' &&v1.ctype=='list' ){
+        return List.min(v0,v1);
+    }
+    return nada;
+
+}
+
+

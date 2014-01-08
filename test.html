@@ -17,6 +17,7 @@
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
             <script type="text/javascript" src="js/lib/d3.js"></script>
+            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
 
                 
@@ -29,14 +30,11 @@
         
         <script id='firstDrawing' type='cindyscript'>
  
-
-            a=[[1,2,4],[4,3,2]];
-            b=[3,5,3];
-            c=[3,5];
-            d=[[1,2,3],[1,5,3],[2,3,3]];
-
-            errc(a*d);
-            
+            a=apply(1..5, w=#*72°*2;
+                  (sin(w),cos(w))*3;
+                    );
+            fillpoly(a,alpha->0.4);
+            drawpoly(a,color->(0,0,0));
             
         </script>
         

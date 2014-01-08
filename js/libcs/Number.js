@@ -33,6 +33,18 @@ Number.clone=function(a){
 }
 
 
+Number.max=function(a,b){
+    return {"ctype":"number" ,  "value":{'real':Math.max(a.value.real,b.value.real),
+        'imag':Math.max(a.value.imag,b.value.imag)}}
+}
+
+
+Number.min=function(a,b){
+    return {"ctype":"number" ,  "value":{'real':Math.min(a.value.real,b.value.real),
+        'imag':Math.min(a.value.imag,b.value.imag)}}
+}
+
+
 Number.add=function(a,b){
     return {"ctype":"number" ,  "value":{'real':a.value.real+b.value.real,
         'imag':a.value.imag+b.value.imag}}

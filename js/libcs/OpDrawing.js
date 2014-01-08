@@ -357,5 +357,124 @@ evaluator.helper.drawcircle=function(args,modifs,df){
 }
 
 
+evaluator.drawpoly=function(args,modifs){
+  evaluator.helper.drawpolygon(args,modifs,"D");
+}
+
+
+evaluator.fillpoly=function(args,modifs){
+  evaluator.helper.drawpolygon(args,modifs,"F");
+}
+
+evaluator.drawpolygon=function(args,modifs){
+  evaluator.helper.drawpolygon(args,modifs,"D");
+}
+
+
+evaluator.fillpolygon=function(args,modifs){
+  evaluator.helper.drawpolygon(args,modifs,"F");
+}
+
+
+evaluator.helper.drawpolygon=function(args,modifs,df){
+    var erg;
+    var size=4;
+    var col;
+    var black="rgb(0,0,0)";
+    var handleModifs = function(){
+        if(modifs.size!==undefined){
+            erg =evaluate(modifs.size);
+            if(erg.ctype=='number'){
+                size=erg.value.real;
+            }
+        }
+        
+        
+        if(modifs.color===undefined &&modifs.alpha===undefined){
+            return;
+        }
+        
+        
+        var r=0;
+        var g=0;
+        var b=0;
+        var alpha=evaluator.drawingstate.alpha;
+        
+        r=evaluator.drawingstate.linecolorraw[0]*255;
+        g=evaluator.drawingstate.linecolorraw[1]*255;
+        b=evaluator.drawingstate.linecolorraw[2]*255;
+        
+        if(modifs.color!==undefined){
+            erg =evaluate(modifs.color);
+            if(List.isNumberVector(erg).value){
+                if(erg.value.length==3){
+                    r=Math.floor(erg.value[0].value.real*255);
+                    g=Math.floor(erg.value[1].value.real*255);
+                    b=Math.floor(erg.value[2].value.real*255);
+                    
+                }
+                
+            }
+        }
+
+        
+        if(modifs.alpha!==undefined){
+            erg =evaluate(modifs.alpha);
+            if(erg.ctype=="number"){
+                alpha=erg.value.real;
+            }
+        }
+        
+        col="rgba("+r+","+g+","+b+","+alpha+")";//TODO Performanter machen
+    }
+    
+    
+    var drawpoly = function(){
+    
+        var li=[];
+        for(var i=0;i<v0.value.length;i++){
+            var pt=evaluator.helper.extractPoint(v0.value[i]);
+            if(!pt.ok ){
+                return nada;
+            }
+            li[li.length]=[pt.x*25+250,-pt.y*25+250];
+        } 
+        col=evaluator.drawingstate.linecolor;
+        handleModifs();
+        csctx.lineWidth = size*.3;
+        csctx.mozFillRule = 'evenodd';
+
+        csctx.beginPath();
+        csctx.lineWidth = size*.4;
+        csctx.moveTo(li[0][0],li[0][1]);
+        for(var i=1;i<li.length;i++){
+            csctx.lineTo(li[i][0],li[i][1]);
+        }
+        csctx.closePath();
+        if(df=="D"){
+            csctx.strokeStyle=col;
+            csctx.stroke();
+        }
+        if(df=="F"){
+            csctx.fillStyle=col;
+            csctx.fill();
+        }
+    }
+    
+    
+    if(args.length==1) {
+        var v0=evaluate(args[0]);
+        if (v0.ctype=='list'){
+            return drawpoly();
+        
+        }
+    
+    }
+
+    return nada;
+}
+
+
+
 
 
