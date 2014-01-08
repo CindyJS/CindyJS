@@ -74,6 +74,8 @@ evaluator.helper.extractPoint=function(v1){
 
 }
 
+
+      
 evaluator.draw=function(args,modifs){
     var erg;
     var size=4;
@@ -268,13 +270,12 @@ evaluator.draw=function(args,modifs){
 
     }
     return drawpoint();
-
-
-    
-
-    
     
 }
 
 
+
+
+
+     
 

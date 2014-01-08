@@ -274,34 +274,29 @@ evaluator.genList=function(args,modifs){
     return {'ctype':'list','value':erg};
 }
 
-evaluator.helper.assigntake=function(data,what){
-console.log("*** "+niceprint(data.args[0]));
-report(data.args[0],0);
+
+evaluator.helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher obs das so tut
+    var where=evaluate(data.args[0]);
     var ind=evaluateAndVal(data.args[1]);
-    
-    if(data.args[0].ctype=='variable' &&ind.ctype=='number' ){
-        var stack=namespace.vars[data.args[0].name].stack;
-        var content=stack[stack.length-1];
-        if(content.ctype=='list'||content.ctype=='string'){
-            var ind1=Math.floor(ind.value.real);
-            if (ind1<0){
-                ind1=content.value.length+ind1+1;
-            }
-            if(ind1>0 && ind1<content.value.length+1){ 
-                if(content.ctype=='list')  {  
-                    content.value[ind1-1]=evaluate(what);
-                    return;
-                }
-                var str=content.value;
+
+    if(where.ctype=='list'||where.ctype=='string'){
+        var ind1=Math.floor(ind.value.real);
+        if (ind1<0){
+            ind1=where.value.length+ind1+1;
+        }
+        if(ind1>0 && ind1<where.value.length+1){ 
+            if(where.ctype=='list')  {  
+                where.value[ind1-1]=evaluate(what);
+            } else{
+                var str=where.value;
                 str=str.substring(0,ind1-1)+niceprint(evaluate(what))+str.substring(ind1,str.length);
-                content.value=str;
+                where.value=str;
             }
         }
-        
-        
     }
-   
-    return;
+
+    return nada;
+
 }
 
 
