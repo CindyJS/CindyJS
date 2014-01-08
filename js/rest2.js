@@ -77,13 +77,13 @@ function start() {
         mouse.down    = true;
         
         move=getmover(mouse);
-        update();
+        startit();
         e.preventDefault();
     };
     
     canvas.onmouseup = function (e) {
         mouse.down = false;
-        update();
+        updateCindy();
         
         e.preventDefault();
     };
@@ -97,6 +97,8 @@ function start() {
         if(mouse.down){
             movepoint(move);
         }
+        
+
         e.preventDefault();
     };
     
@@ -113,7 +115,9 @@ function start() {
         mouse.y = e.targetTouches[0].pageY - canvas.offsetTop;
         if(mouse.down){
             movepoint(move);
+
         }
+
         e.preventDefault();
         
     }
@@ -129,15 +133,14 @@ function start() {
         mouse.y = e.targetTouches[0].pageY - canvas.offsetTop;
         mouse.down = true;
         move=getmover(mouse);
-        update();
-        
+        startit();
         e.preventDefault();
         
     }
     
     function touchUp(e) {
         mouse.down = false;
-        update();
+        updateCindy();
         
         e.preventDefault();
         
@@ -150,7 +153,7 @@ function start() {
     //    document.body.addEventListener("mouseup", mouseUp, false);
     
     
-    update();
+    updateCindy();
 }
 
 
@@ -178,6 +181,16 @@ function drawupdate() {
     
 }
 
+var ct=0;
+var doit=function(){
+  updateCindy();
+  return !mouse.down;
+
+}
+
+var startit=function(){
+    d3.timer(doit)
+}
 
 function updateCindy(){
     recalc();                          
@@ -224,6 +237,7 @@ window.onload = function () {
     
     
     start();
+//    startit();
 };
 
 
