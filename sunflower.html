@@ -51,12 +51,11 @@
             //  draw((0,0));
             
             
-            repeat(
-                   500,i,
+            repeat(500,i,
                    w=i*pi/180*(137.508+off*0.02);
                    p=(pt1,pt2)+(cos(w),sin(w))*0.3*sqrt(i);
                    a=i;
-                   draw(p);
+                   draw(p,size->sqrt(i));
                    );
             // err(a);
             //   err(seconds()-s);
@@ -77,7 +76,7 @@
 			//Width and height
 			var w = 500;
 			var h = 500;
-            
+            var csnames;
             
             
 			var gslp=[
@@ -85,9 +84,9 @@
                       {name:"B", kind:"P", type:"Free", px:250,py:30,pz:1}
                       ];
             
-			var names={};
+            csnames={};
 			for( var k=0; k<gslp.length; k++ ) {
-				names[gslp[k].name]=k;
+				csnames[gslp[k].name]=k;
 			};
             
 			var points=[];
@@ -123,7 +122,7 @@
 			};
             
 			//Initialize a default force layout, using the nodes and edges in dataset
-			var force = d3.layout.force()
+			var eventhandler = d3.layout.force()
             .nodes(dataset.nodes)
             .links(dataset.edges)
             .size([w, h])
@@ -160,7 +159,7 @@
                    return "red";})
             .style("stroke", "black")
             .style("stroke-width", 2)
-            .call(force.drag);
+            .call(eventhandler.drag);
 			
             
             
@@ -170,7 +169,7 @@
 			
             
 			//Every time the simulation "ticks", this will be called
-			force.on("tick", function() {
+			eventhandler.on("tick", function() {
                      
                      gslp[1].py=30;
                      
