@@ -1,0 +1,10 @@
+CS Erweiterungen
+
+* JSON Objekte
+* Laufindex in Schleifen
+	apply(list,element,index,prog);
+* Zuweisung von Variablenlisten
+	[x,y,z]=[2,3,4];
+
+* mit "return" schleifen abbrechen können
+* "var"???

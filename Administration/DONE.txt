@@ -1,0 +1,29 @@
+DONE
+
+..		(sequence)
+=		(assign)
+==		(equals)
+:=		(define)
+*   		(mult)			(partiell, Matrizen fehlen noch)
+/		(div)
++		(add)
+-		(minus)
+^		(pow);
+;		(semicolon)
+[......]	(genlist)
+->
+,
+
+
+mod
+select
+repeat
+apply
+forall
+if
+err
+exp
+log
+sin
+cos
+sqrt
