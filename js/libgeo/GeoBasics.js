@@ -77,23 +77,11 @@ function csinit(gslp){
                           
                           csgeo.gslp[1].py=30;
                           
-                          recalc();
-                          namespace.vars.pt1={'ctype':'variable',
-                          'stack':[{'ctype':'number','value':{'real':(-250+csgeo.gslp[0].px)/25.0,'imag':0}}],
-                          'name':'pt1'
-                          };
-                          namespace.vars.pt2={'ctype':'variable',
-                          'stack':[{'ctype':'number','value':{'real':(250-csgeo.gslp[0].py)/25.0,'imag':0}}],
-                          'name':'pt1'
-                          };
-                          
-                          namespace.vars.off={'ctype':'variable',
-                          'stack':[{'ctype':'number','value':{'real':(-250+csgeo.gslp[1].px)/25.0,'imag':0}}],
-                          'name':'off'
-                          };
-                          render();
+                          recalc();                          
+
                           csctx.clearRect ( 0   , 0 , 500 , 500 );
                           evaluate(erg);
+                          render();
                           
                           });
     

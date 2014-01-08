@@ -33,6 +33,11 @@ var evaluate=function(a){
     if(a.ctype=='undefined'){
         return a;
     }
+    if(a.ctype=='field'){
+        console.log("TRY FIELD "+a.obj+"  "+a.key);
+        
+        return Accessor.getGeoField(a.obj,a.key);
+    }
     if(a.ctype=='function'){
         var eargs=[];
         return evaluator(a.oper,a.args,a.modifs);
@@ -44,6 +49,12 @@ var evaluate=function(a){
 
 var evaluateAndVal=function(a){
     var x=evaluate(a);
+    if(x.ctype=='geo'){
+        var val=x.value;
+        if(val.kind=="P"){
+            return Accessor.getField(val,"xy");
+        }
+    }
     return x;//TODO Implement this
 }
 
@@ -164,8 +175,7 @@ var definitionDot = function(code, bestbinding, oper){
     }
     var s1 = code.substring(0, bestbinding);
     var s2 = code.substring(bestbinding + oper.length);
-    //TODO implement feldzugriff
-    return nada;
+    return {'ctype':'field','obj':s1,'key':s2};
 }
 
 

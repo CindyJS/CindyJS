@@ -45,7 +45,6 @@ function Namespace(){
             return this.create(code);
         }
         this.vars[code].stack.push(nada);
-        
         return this.vars[code];
     }
     
@@ -56,13 +55,19 @@ function Namespace(){
     
     this.setvar= function(code,val) {
         var stack=this.vars[code].stack;
-        //   console.log("Set "+code+" to "+niceprint(val));
         stack[stack.length-1]=val;
     }
     
     this.getvar= function(code) {
+
         var stack=this.vars[code].stack;
-        return stack[stack.length-1];
+        var erg=stack[stack.length-1];
+        if(stack.length==0 && stack[stack.length-1]==nada){//Achtung das erforder das der GeoTeil da ist.
+            if(typeof csgeo.csnames[code] !== 'undefined'){
+                return {'ctype':'geo','value':gslp[csgeo.csnames[code]]}
+            }
+        }
+        return erg;
     }
     
     this.dump= function(code) {

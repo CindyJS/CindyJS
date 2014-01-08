@@ -5634,7 +5634,8 @@ d3 = function() {
       };
     }
     force.tick = function() {
-      if ((alpha *= .99) < .000) {  //EDITED  was  < .005
+                                     //Das erzeugt genau einen Tick
+      if ((alpha *= .99) < .099) {  //EDITED  was  < .005
         event.end({
           type: "end",
           alpha: alpha = 0

@@ -7,6 +7,7 @@
             <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
             
             <script type="text/javascript" src="js/libcs/Namespace.js"></script>
+            <script type="text/javascript" src="js/libcs/Accessors.js"></script>
             <script type="text/javascript" src="js/libcs/Number.js"></script>
             <script type="text/javascript" src="js/libcs/List.js"></script>
             <script type="text/javascript" src="js/libcs/Essentials.js"></script>
@@ -14,7 +15,7 @@
             <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
-            <script type="text/javascript" src="js/lib/d3.min.js"></script>
+            <script type="text/javascript" src="js/lib/d3.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
 
                 
@@ -27,8 +28,9 @@
         
         <script id='firstDrawing' type='cindyscript'>
             repeat(500,i,
-                   w=i*pi/180*(137.508+off*0.5);
-                   p=(pt1,pt2)+(cos(w),sin(w))*0.3*sqrt(i);
+                   w=i*pi/180*(137.508+B.x*0.5);
+                  // p=(pt1,pt2)+(cos(w),sin(w))*0.3*sqrt(i);
+                   p=A+(cos(w),sin(w))*0.3*sqrt(i);
                    a=i;
                    draw(p,size->sqrt(i));
                    );
@@ -49,7 +51,8 @@
             var csgeo={};
             var svg;
             //Create SVG element
-            
+            var i=0;
+
 			var gslp=[
                       {name:"A", kind:"P", type:"Free", px:250,py:250,pz:1},
                       {name:"B", kind:"P", type:"Free", px:250,py:30,pz:1}

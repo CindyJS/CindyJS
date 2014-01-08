@@ -15,6 +15,17 @@ Number.niceprint= function(a){
     }
     return "";
 }
+
+Number.complex=function(r,i){
+    return {"ctype":"number" ,  "value":{'real':r,'imag':i}}
+}
+
+Number.real=function(r){
+    return {"ctype":"number" ,  "value":{'real':r,'imag':0}}
+}
+
+
+
 Number.clone=function(a){
     return {"ctype":"number" ,  "value":{'real':a.value.real,
         'imag':a.value.imag}}

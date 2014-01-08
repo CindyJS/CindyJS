@@ -5,14 +5,19 @@
 //==========================================
 List={};
 
+List.turnIntoCSList=function(l){
+    return {'ctype':'list','value':l};
+}
+
+
 List.sequence=function(a,b){
     var erg=[];
     for(var i=Math.round(a.value.real);i<Math.round(b.value.real)+1;i++){
         erg[erg.length]={"ctype":"number" ,"value":{'real':i,'imag':0}};
     }
     return {'ctype':'list','value':erg};
-    
 }
+
 
 List.scalproduct=function(a1,a2){
     if(a1.value.length != a2.value.length){
