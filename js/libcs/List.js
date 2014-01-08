@@ -3,7 +3,7 @@
 //==========================================
 //      Lists
 //==========================================
-List={};
+var List={};
 List.helper={};
 
 List.turnIntoCSList=function(l){

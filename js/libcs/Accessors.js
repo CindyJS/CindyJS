@@ -3,7 +3,7 @@
 // and here are the accessors for properties
 //*******************************************************
 
-Accessor={};
+var Accessor={};
 
 Accessor.getGeoField=function(geoname,field){
     if(typeof csgeo.csnames[geoname] !== 'undefined'){

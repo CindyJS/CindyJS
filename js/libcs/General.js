@@ -2,7 +2,7 @@
 //==========================================
 //      Things that apply to several types
 //==========================================
-General={};
+var General={};
 General.helper={};
 
 General.order={

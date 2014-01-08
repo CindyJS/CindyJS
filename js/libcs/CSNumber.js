@@ -1,8 +1,9 @@
+console.log("CSNumber should be defined");
 
 //==========================================
 //      Complex Numbers
 //==========================================
-CSNumber={};
+var CSNumber={};
 CSNumber.niceprint= function(a){
     if (a.value.imag==0) {
         return ""+a.value.real;

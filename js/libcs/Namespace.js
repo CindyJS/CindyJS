@@ -9,7 +9,7 @@
 function Nada(){this.ctype='undefined'};
 function Void(){this.ctype='void'};
 function CError(msg){this.ctype='error';this.message=msg};
-nada= new Nada();
+var nada= new Nada();
 
 function Namespace(){
     this.vars={
@@ -116,4 +116,4 @@ function Namespace(){
     
 }
 
-namespace =new Namespace();
+var namespace =new Namespace();
