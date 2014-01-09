@@ -22,6 +22,7 @@
             <script type="text/javascript" src="js/libcs/OpImageDrawing.js"></script>
             <script type="text/javascript" src="js/libcs/Parser.js"></script>
             
+            
             <script type="text/javascript" src="js/lib/d3.js"></script>
             <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
             <script type="text/javascript" src="js/lib/clipper.js"></script>
@@ -36,22 +37,35 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            [x,y,[z,w]]=[1,2,[1,2]*9];
-            errc(x);
-            errc(y);
-            errc(z);
-            errc(w);
+
             
         </script>
         
 
-        <canvas  id="CSCanvas" align="left" valign = "top" width=600 height=600  style="border:2px solid #000000"></canvas>
+        <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
 
         <script>
             
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:-9,sy:8,sz:1}
+
+                      {name:"A", type:"Free", pos:[-5,6]},
+                      {name:"B", type:"Free", pos:[6,5]},
+                      {name:"C", type:"Free", pos:[-5,-5]},
+                      {name:"D", type:"Free", pos:[5,-7]},
+                      {name:"a", type:"Join", args:["A","B"]},
+                      {name:"b", type:"Join", args:["C","D"]},
+                      {name:"E", type:"Free", pos:[2,0]},
+                      {name:"c", type:"Join", args:["B", "E"]},
+                      {name:"d", type:"Join", args:["D", "E"]},
+                      {name:"F", type:"Meet", args:["b", "c"]},
+                      {name:"G", type:"Meet", args:["a", "d"]},
+                      {name:"e", type:"Join", args:["G", "C"]},
+                      {name:"f", type:"Join", args:["F", "A"]},
+                      {name:"H", type:"Meet", args:["f", "e"]},
+                      {name:"g", type:"Join", args:["A", "D"]},
+                      {name:"h", type:"Join", args:["C", "B"]},
+                      {name:"i", type:"Join", args:["H", "E"]}
+                      
                       /*,
                        {name:"D", kind:"P", type:"Free", sx:-1,sy:0,sz:1},
                        {name:"C", kind:"P", type:"Free", sx:4,sy:3,sz:1},

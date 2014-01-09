@@ -4,10 +4,12 @@ var mouse={};
 var move;
 
 movepoint=function (move){
-    
-    move.mover.px=mouse.x+move.offset.x;
-    move.mover.py=mouse.y+move.offset.y;
-    
+    m=move.mover;
+    m.sx=mouse.x+move.offset.x;
+    m.sy=mouse.y+move.offset.y;
+    m.sz=1;
+    m.homog=List.realVector([m.sx,m.sy,m.sz]);
+
 }
 
 
@@ -17,10 +19,9 @@ getmover = function(mouse){
     var diff;
     for (var i=0;i<csgeo.free.length;i++){
         var pt=csgeo.free[i];
-        var dx=pt.px-mouse.x;
-        var dy=pt.py-mouse.y;
+        var dx=pt.sx-mouse.x;
+        var dy=pt.sy-mouse.y;
         var dist=Math.sqrt(dx*dx+dy*dy);
-        console.log(dist);
         if(dist<adist){
             adist=dist;
             mov=pt;
@@ -33,20 +34,24 @@ getmover = function(mouse){
 
 setuplisteners =function(canvas) {
     
+    updatePostition= function(x,y){
+        var pos=csport.to(x,y);
+        mouse.prevx      = mouse.x;
+        mouse.prevy      = mouse.y;
+        mouse.x       = pos[0];
+        mouse.y       = pos[1];
+        
+    }
+    
     canvas.onmousedown = function (e) {
-        console.log("DOWN ");
-        
         mouse.button  = e.which;
-        mouse.px      = mouse.x;
-        mouse.py      = mouse.y;
         var rect      = canvas.getBoundingClientRect();
-        mouse.x       = e.clientX - rect.left;
-        mouse.y       = e.clientY - rect.top;
-        mouse.down    = true;
-        
+        updatePostition(e.clientX - rect.left,e.clientY - rect.top);
         move=getmover(mouse);
         startit();//starts d3-timer
-        e.preventDefault();
+            
+            mouse.down    = true;
+            e.preventDefault();
     };
     
     canvas.onmouseup = function (e) {
@@ -57,16 +62,11 @@ setuplisteners =function(canvas) {
     };
     
     canvas.onmousemove = function (e) {
-        mouse.px  = mouse.x;
-        mouse.py  = mouse.y;
         var rect  = canvas.getBoundingClientRect();
-        mouse.x   = e.clientX - rect.left;
-        mouse.y   = e.clientY - rect.top;
+        updatePostition(e.clientX - rect.left,e.clientY - rect.top);
         if(mouse.down){
             movepoint(move);
         }
-        
-
         e.preventDefault();
     };
     
@@ -75,30 +75,25 @@ setuplisteners =function(canvas) {
     function touchMove(e) {
         if (!e)
             var e = event;
-        mouse.px  = mouse.x;
-        mouse.py  = mouse.y;
-        var rect  = canvas.getBoundingClientRect();
         
-        mouse.x = e.targetTouches[0].pageX - canvas.offsetLeft;
-        mouse.y = e.targetTouches[0].pageY - canvas.offsetTop;
+        updatePostition(e.targetTouches[0].pageX - canvas.offsetLeft,
+                        e.targetTouches[0].pageY - canvas.offsetTop);
         if(mouse.down){
             movepoint(move);
-
+            
         }
-
+        
         e.preventDefault();
         
     }
     
     function touchDown(e) {
-           if (!e)
+        if (!e)
             var e = event;
-        mouse.px  = mouse.x;
-        mouse.py  = mouse.y;
-        var rect  = canvas.getBoundingClientRect();
         
-        mouse.x = e.targetTouches[0].pageX - canvas.offsetLeft;
-        mouse.y = e.targetTouches[0].pageY - canvas.offsetTop;
+        updatePostition(e.targetTouches[0].pageX - canvas.offsetLeft,
+                        e.targetTouches[0].pageY - canvas.offsetTop);
+        
         mouse.down = true;
         move=getmover(mouse);
         startit();
@@ -137,9 +132,9 @@ function (callback) {
 };
 
 var doit=function(){//Callback for d3-timer
-  updateCindy();
-  return !mouse.down;
-
+    updateCindy();
+    return !mouse.down;
+    
 }
 
 var startit=function(){

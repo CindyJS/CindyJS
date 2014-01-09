@@ -270,7 +270,6 @@ y:erg2[1]/erg2[2]
     var drawpoint = function(){
         var pt=evaluator.helper.extractPoint(v1);
         
-        
         if(!pt.ok){//eventuell doch ein Segment
             if(v1.value.length==2){
 

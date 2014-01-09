@@ -68,7 +68,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         csport.drawingstate.matrix.sdet=csport.drawingstate.initialmatrix.sdet;
     }
 
-    csport.from=function(x,y,z){
+    csport.from=function(x,y,z){//Rechnet Homogene Koordinaten in Pixelkoordinaten um
         var xx=x/z;
         var yy=y/z;
         var m=csport.drawingstate.matrix;
@@ -77,6 +77,14 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         return [xxx,yyy];
     }
 
+    csport.to=function(px,py){//Rechnet Pixelkoordinaten in Homogene Koordinaten um
+            var m=csport.drawingstate.matrix;
+            var xx = px-m.tx;
+            var yy = py+m.ty;
+            var x=(xx*m.d-yy*m.b)/m.det;
+            var y=-(-xx*m.c+yy*m.a)/m.det;
+            return [x,y,1];
+    };
 
     csport.dumpTrafo=function(){
         

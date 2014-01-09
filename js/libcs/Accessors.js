@@ -19,39 +19,29 @@ Accessor.getField=function(geo,field){
     var m=csport.drawingstate.initialmatrix;
     if(geo.kind=="P"){
         if(field=="xy") {
-            var xx = geo.px-m.tx;
-            var yy = geo.py+m.ty;
-            var x=(xx*m.d-yy*m.b)/m.det;
-            var y=-(-xx*m.c+yy*m.a)/m.det;
-            var erg=List.turnIntoCSList([CSNumber.real(x),CSNumber.real(y)]);
+            var xx=CSNumber.div(geo.homog.value[0],geo.homog.value[2]);
+            var yy=CSNumber.div(geo.homog.value[1],geo.homog.value[2]);
+            var erg=List.turnIntoCSList([xx,yy]);
             erg.usage="Point";
 
             return erg;
         };
         
         if(field=="homog") {
-            var xx = geo.px-m.tx;
-            var yy = geo.py+m.ty;
-            var x=(xx*m.d-yy*m.b)/m.det;
-            var y=-(-xx*m.c+yy*m.a)/m.det;
-            var erg=List.turnIntoCSList([CSNumber.real(x),CSNumber.real(y),CSNumber.real(1)]);
+            var erg=geo.homog;//TODO will man hier clonen?
             erg.usage="Point";
             return erg;
         };
 
         
         if(field=="x") {
-            var xx = geo.px-m.tx;
-            var yy = geo.py+m.ty;
-            var x=(xx*m.d-yy*m.b)/m.det;
-            return CSNumber.real(x);
+            var x=CSNumber.div(geo.homog.value[0],geo.homog.value[2]);
+            return x;
         };
         
         if(field=="y") {
-            var xx = geo.px-m.tx;
-            var yy = geo.py+m.ty;
-            var y=-(-xx*m.c+yy*m.a)/m.det; 
-            return CSNumber.real(y);
+            var y=CSNumber.div(geo.homog.value[1],geo.homog.value[2]);
+            return y;
         };
         
         
