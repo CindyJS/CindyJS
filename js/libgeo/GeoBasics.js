@@ -28,7 +28,8 @@ function csinit(gslp){
     //clip
     //visible       zum ein und ausblenden
     //isshowing     das wird durch den Konstruktionsbaum vererbt
-    
+    //ismovable     
+
 
 
     // Setzen der Default appearance
@@ -73,6 +74,7 @@ function csinit(gslp){
         csgeo.gslp[k].kind=geoOpMap[csgeo.gslp[k].type];
         csgeo.gslp[k].incidences=[];
         csgeo.gslp[k].isshowing=true;
+        csgeo.gslp[k].movable=false;
     };
     
     csgeo.points=[];
@@ -103,7 +105,10 @@ function csinit(gslp){
             csgeo.ctl+=1;
         }
         
-        if(csgeo.gslp[k].type=="Free"){
+        var ty=csgeo.gslp[k].type;
+        if(ty=="Free" 
+        || ty=="PointOnLine" 
+        || ty=="PointOnSegment"){//TODO generisch nach geoops ziehen
             var f=csgeo.gslp[k];
             if(f.pos) {
                if(f.pos.length==2){
@@ -120,7 +125,7 @@ function csinit(gslp){
             }
             f.homog=List.realVector([gslp[k].sx,gslp[k].sy,gslp[k].sz]);
             f.isfinite=(f.sz!=0);
-            
+            f.ismovable=true;
                      
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;

@@ -115,9 +115,7 @@
 
             draw(join(A,B),color->(0,0,0));
             draw(join(A,C),color->(0,0,0));
-            draw(A,color->(0,0,0),size->3);
-            draw(B,color->(1,0,0));
-            draw(C,color->(1,0,0));
+           
             
             
         </script>
@@ -128,9 +126,9 @@
         <script>
             
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:-5,sy:-5,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:-5+1,sy:-5,sz:1},
-                      {name:"C", kind:"P", type:"Free", sx:-5,sy:-5+1,sz:1}
+                      {name:"A",  type:"Free", pos:[-5,-5], size:3, color:[0,0,0]},
+                      {name:"B",  type:"Free", pos:[-5+1,-5], size:4},
+                      {name:"C",  type:"Free", pos:[-5,-5+1],size:4 }
                       ];
             
             createCindy({canvasname:"CSCanvas",

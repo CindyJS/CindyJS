@@ -22,7 +22,7 @@ getmover = function(mouse){
         var dx=pt.sx-mouse.x;
         var dy=pt.sy-mouse.y;
         var dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<adist){
+        if(dist<adist+.2){
             adist=dist;
             mov=pt;
             diff={x:dx,y:dy};

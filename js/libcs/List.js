@@ -455,6 +455,20 @@ List.abs=function(a1){
 }
 
 
+List.normalizeMax=function(a){//Assumes that list is a number Vector
+    var maxv=-10000;
+    var nn=CSNumber.real(1);
+    for(var i=0;i<a.value.length;i++){
+       var v=CSNumber.abs(a.value[i]);
+       if(v.value.real>maxv){
+           nn=a.value[i];
+           maxv=v.value.real; 
+       }
+    }
+    return List.scaldiv(nn,a);
+
+}
+
 
 
 List.recursive=function(a1,op){

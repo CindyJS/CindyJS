@@ -58,9 +58,7 @@
                           )
                    
                    );
-            draw(A,color->(1,0,0),size->7);
-            draw(B,color->(0,1,0),size->7);
-            
+                       
             
             </script>
         
@@ -69,8 +67,8 @@
         <script>
             
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:-4,sy:-2,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:6,sy:4,sz:1}
+                      {name:"A",  type:"Free", pos:[-4,-2],color:[1,0,0],size:7},
+                      {name:"B", type:"Free", pos:[6,4],color:[0,1,0],size:7}
                       ];
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",

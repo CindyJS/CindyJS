@@ -1,7 +1,7 @@
 geoOps={};
 
 var geoOpMap={};
- 
+
 
 geoOps.Join =function(el){
     var el1=csgeo.csnames[(el.args[0])];
@@ -102,3 +102,92 @@ geoOps.Free =function(el){
     
 }
 geoOpMap.Free="P";
+
+geoOps.PointOnLine =function(el){
+    var l=csgeo.csnames[(el.args[0])].homog;
+    var p=el.homog;
+    var inf=List.linfty;
+    var tt=List.cross(inf,l);
+    tt.value=[tt.value[1],CSNumber.neg(tt.value[0]),tt.value[2]];
+    var perp=List.cross(tt,p);
+    el.homog=List.cross(perp,l);
+    el.homog=List.normalizeMax(el.homog);
+    el.homog.usage="Point";
+    //TODO: Handle complex and infinite Points
+    var x=CSNumber.div(el.homog.value[0],el.homog.value[2]);
+    var y=CSNumber.div(el.homog.value[1],el.homog.value[2]);
+    el.sx=x.value.real;
+    el.sy=y.value.real;
+    el.sz=1;
+}
+geoOpMap.PointOnLine="P";
+
+
+geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil bei tracen bleibt
+    
+    var l=csgeo.csnames[(el.args[0])].homog;
+    var el1=csgeo.csnames[csgeo.csnames[(el.args[0])].args[0]].homog;
+    var el2=csgeo.csnames[csgeo.csnames[(el.args[0])].args[1]].homog;
+    var elm=el.homog;
+    
+    var xx1=CSNumber.div(el1.value[0],el1.value[2]);
+    var yy1=CSNumber.div(el1.value[1],el1.value[2]);
+    var xx2=CSNumber.div(el2.value[0],el2.value[2]);
+    var yy2=CSNumber.div(el2.value[1],el2.value[2]);
+    var xxm=CSNumber.div(elm.value[0],elm.value[2]);
+    var yym=CSNumber.div(elm.value[1],elm.value[2]);
+    if(!move || move.mover==el){
+        
+        var p=el.homog;
+        var inf=List.linfty;
+        var tt=List.cross(inf,l);
+        tt.value=[tt.value[1],CSNumber.neg(tt.value[0]),tt.value[2]];
+        var perp=List.cross(tt,p);
+        el.homog=List.cross(perp,l);
+        el.homog=List.normalizeMax(el.homog);
+        el.homog.usage="Point";
+        
+        
+        
+        
+        var x1=xx1.value.real;
+        var y1=yy1.value.real;
+        var x2=xx2.value.real;
+        var y2=yy2.value.real;
+        var xm=xxm.value.real;
+        var ym=yym.value.real;
+        var d12=Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+        var d1m=Math.sqrt((x1-xm)*(x1-xm)+(y1-ym)*(y1-ym));
+        var d2m=Math.sqrt((x2-xm)*(x2-xm)+(y2-ym)*(y2-ym));
+        var dd=d12-d1m-d2m;
+        var par=d1m/d12;
+        if (d1m>d12) par=1;
+        if (d2m>d12) par=0;
+        el.param=CSNumber.real(par);
+        
+    }
+    
+    par=el.param;
+    
+    var diffx=CSNumber.sub(xx2,xx1);
+    var ergx=CSNumber.add(xx1,CSNumber.mult(el.param,diffx));
+    var diffy=CSNumber.sub(yy2,yy1);
+    var ergy=CSNumber.add(yy1,CSNumber.mult(el.param,diffy));
+    var ergz=CSNumber.real(1);
+    el.homog=List.turnIntoCSList([ergx,ergy,ergz]);
+    
+    
+    
+    //TODO: Handle complex and infinite Points
+    var x=CSNumber.div(el.homog.value[0],el.homog.value[2]);
+    var y=CSNumber.div(el.homog.value[1],el.homog.value[2]);
+    
+    el.sx=x.value.real;
+    el.sy=y.value.real;
+    el.sz=1;
+}
+geoOpMap.PointOnSegment="P";
+
+
+
+

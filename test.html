@@ -52,9 +52,14 @@
                       {name:"B", type:"Free", pos:[6,3],color:[1,1,1]},
                       {name:"C", type:"Free", pos:[-5,-5],color:[1,1,1]},
                       {name:"D", type:"Free", pos:[5,-5],color:[1,1,1]},
-                      {name:"E", type:"Free", pos:[0,-5],color:[1,1,1]},
+                      {name:"E", type:"Free", pos:[1,-6],color:[1,1,1]},
                       {name:"a", type:"Join", args:["A","B"],color:[0,0,0],size:2},
+                      {name:"F", type:"PointOnLine", pos:[0,4],args:["a"],color:[0,1,1]},
+
                       {name:"b", type:"Segment", args:["C","D"],color:[0,0,0],size:2},
+                      {name:"G", type:"PointOnSegment", pos:[0,-5],args:["b"],color:[0,1,1]},
+
+                      
                       {name:"c", type:"Segment", args:["A","D"],color:[0,0,0],size:2},
                       {name:"d", type:"Segment", args:["C","B"],color:[0,0,0],size:2},
                      
