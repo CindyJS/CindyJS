@@ -4,6 +4,11 @@ dump=function(a){
   console.log(JSON.stringify(a));
   };
 
+dumpcs=function(a){
+  console.log(niceprint(a));
+  };
+
+
 createCindy = function(data){ 
     csmouse = [100, 100];
     cscount = 0;

@@ -20,6 +20,19 @@ List.realVector=function(l){
 }
 
 
+List.linfty=List.realVector([0,0,1]);
+List.ex=List.realVector([1,0,0]);
+List.ey=List.realVector([0,1,0]);
+List.ez=List.realVector([0,0,1]);
+
+List.ii=List.turnIntoCSList([CSNumber.complex(1,0),
+                             CSNumber.complex(0,1),
+                             CSNumber.complex(0,0)]);
+
+List.jj=List.turnIntoCSList([CSNumber.complex(1,0),
+                             CSNumber.complex(0,-1),
+                             CSNumber.complex(0,0)]);
+
 
 List.sequence=function(a,b){
     var erg=[];

@@ -33,7 +33,7 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: Euler-Line</h1>
+        <h1>CindyJS: Pappos's Theorem</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
@@ -47,29 +47,25 @@
         <script>
             
             var gslp=[
+                      {name:"A", type:"Free", pos:[-5,6]},
+                      {name:"B", type:"Free", pos:[6,5]},
+                      {name:"C", type:"Free", pos:[-5,-5]},
+                      {name:"D", type:"Free", pos:[5,-7]},
+                      {name:"a", type:"Join", args:["A","B"]},
+                      {name:"b", type:"Join", args:["C","D"]},
+                      {name:"E", type:"Free", pos:[2,0]},
+                      {name:"c", type:"Join", args:["B", "E"]},
+                      {name:"d", type:"Join", args:["D", "E"]},
+                      {name:"F", type:"Meet", args:["b", "c"]},
+                      {name:"G", type:"Meet", args:["a", "d"]},
+                      {name:"e", type:"Join", args:["G", "C"]},
+                      {name:"f", type:"Join", args:["F", "A"]},
+                      {name:"H", type:"Meet", args:["f", "e"]},
+                      {name:"g", type:"Join", args:["A", "D"]},
+                      {name:"h", type:"Join", args:["C", "B"]},
+                      {name:"i", type:"Join", args:["H", "E"]},
+                      {name:"I", type:"Meet", args:["i", "h"]}
 
-                      {name:"A", type:"Free", pos:[-3,6],color:[1,1,1]},
-                      {name:"B", type:"Free", pos:[6,3],color:[1,1,1]},
-                      {name:"C", type:"Free", pos:[-5,-5],color:[1,1,1]},
-                      {name:"D", type:"Free", pos:[5,-5],color:[1,1,1]},
-                      {name:"E", type:"Free", pos:[0,-5],color:[1,1,1]},
-                      {name:"a", type:"Join", args:["A","B"],color:[0,0,0],size:2},
-                      {name:"b", type:"Segment", args:["C","D"],color:[0,0,0],size:2},
-                      {name:"c", type:"Segment", args:["A","D"],color:[0,0,0],size:2},
-                      {name:"d", type:"Segment", args:["C","B"],color:[0,0,0],size:2},
-                     
-                      {name:"X", type:"Meet", args:["c","d"]},
-                      {name:"x", type:"Join", args:["X","E"],color:[0,0,0],size:2},
-
-
-                      
-                      
-                      /*,
-                       {name:"D", kind:"P", type:"Free", sx:-1,sy:0,sz:1},
-                       {name:"C", kind:"P", type:"Free", sx:4,sy:3,sz:1},
-                       {name:"X", kind:"P", type:"Free", sx:-8,sy:8,sz:1},
-                       {name:"Y", kind:"P", type:"Free", sx:-8,sy:.8,sz:1},
-                       {name:"Z", kind:"P", type:"Free", sx:-6,sy:0,sz:1}*/
                       ];
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",

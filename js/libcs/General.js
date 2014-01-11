@@ -17,6 +17,14 @@ General.order={
     list:8
 } 
 
+General.string=function(s){
+   return {ctype:"string",value:s}
+}
+
+General.bool=function(b){
+   return {ctype:"boolean",value:b}
+}
+
 General.isLessThan=function(a,b){
    return General.compare(a,b)==-1;
 

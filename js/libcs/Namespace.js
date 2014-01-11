@@ -75,7 +75,7 @@ function Namespace(){
         var erg=stack[stack.length-1];
         if(stack.length==0 && stack[stack.length-1]==nada){//Achtung das erforder das der GeoTeil da ist.
             if(typeof csgeo.csnames[code] !== 'undefined'){
-                return {'ctype':'geo','value':gslp[csgeo.csnames[code]]}
+                return {'ctype':'geo','value':csgeo.csnames[code]}
             }
         }
         return erg;

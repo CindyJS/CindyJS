@@ -59,6 +59,7 @@ evaluator.draw=function(args,modifs){
     var erg;
     var psize=csport.drawingstate.pointsize;
     var lsize=csport.drawingstate.linesize;
+    var overhang=1;//TODO Eventuell dfault setzen
     var dashing=false;
     var col;
     var black="rgb(0,0,0)";
@@ -118,6 +119,13 @@ evaluator.draw=function(args,modifs){
                     
                 }
             }
+            if(modifs.overhang!==undefined){
+                erg =evaluate(modifs.overhang);
+                if(erg.ctype=='number'){
+                     overhang=(erg.value.real);
+                                        
+                }
+            }
             
         }
         
@@ -174,13 +182,18 @@ evaluator.draw=function(args,modifs){
         var yy1=pt1.x*m.c-pt1.y*m.d-m.ty;
         var xx2=pt2.x*m.a-pt2.y*m.b+m.tx;
         var yy2=pt2.x*m.c-pt2.y*m.d-m.ty;
-        col=csport.drawingstate.linecolor
-            
-            handleModifs("L");
         
+
+        col=csport.drawingstate.linecolor;
+            
+        handleModifs("L");
+        var xxx1=overhang*xx1+(1-overhang)*xx2;
+        var yyy1=overhang*yy1+(1-overhang)*yy2;
+        var xxx2=overhang*xx2+(1-overhang)*xx1;
+        var yyy2=overhang*yy2+(1-overhang)*yy1;
         csctx.beginPath();
-        csctx.moveTo(xx1, yy1);
-        csctx.lineTo(xx2, yy2);
+        csctx.moveTo(xxx1, yyy1);
+        csctx.lineTo(xxx2, yyy2);
         csctx.lineWidth = lsize;
         csctx.lineCap = 'round';
         

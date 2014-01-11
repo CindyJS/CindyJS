@@ -1368,7 +1368,7 @@ evaluator.para=function(args,modifs){
                 l=v0;
             }
             
-            var inf=List.realVector([0,0,1]);
+            var inf=List.linfty;
             var erg=List.cross(List.cross(inf,l),p);
             erg.usage="Line";
             return erg;
@@ -1396,7 +1396,7 @@ evaluator.perp=function(args,modifs){
                 l=w0;
             }
             
-            var inf=List.realVector([0,0,1]);
+            var inf=List.linfty;
             var tt=List.cross(inf,l);
             tt.value=[tt.value[1],CSNumber.neg(tt.value[0]),tt.value[2]];
             var erg=List.cross(tt,p);
@@ -2508,12 +2508,8 @@ evaluator.map=function(args,modifs){
     
         if(args.length==4){
         
-        var ii=List.turnIntoCSList([CSNumber.complex(1,0),
-                                    CSNumber.complex(0,1),
-                                    CSNumber.complex(0,0)]);
-        var jj=List.turnIntoCSList([CSNumber.complex(1,0),
-                                    CSNumber.complex(0,-1),
-                                    CSNumber.complex(0,0)]);
+        var ii=List.ii;
+        var jj=List.jj;
 
         var w0=evaluateAndHomog(args[0]);
         var w1=evaluateAndHomog(args[1]);        
@@ -2532,13 +2528,8 @@ evaluator.map=function(args,modifs){
 
        if(args.length==2){
         
-        var ii=List.turnIntoCSList([CSNumber.complex(1,0),
-                                    CSNumber.complex(0,1),
-                                    CSNumber.complex(0,0)]);
-        var jj=List.turnIntoCSList([CSNumber.complex(1,0),
-                                    CSNumber.complex(0,-1),
-                                    CSNumber.complex(0,0)]);
-
+        var ii=List.ii;
+        var jj=List.jj;
         var w0=evaluateAndHomog(args[0]);
         var w1=General.add(List.realVector([1,0,0]),w0);  
         var v0=evaluateAndHomog(args[1]);
@@ -2563,13 +2554,9 @@ evaluator.map=function(args,modifs){
 evaluator.pointreflect=function(args,modifs){ 
     if(args.length==1){
         
-        var ii=List.turnIntoCSList([CSNumber.complex(1,0),
-                                    CSNumber.complex(0,1),
-                                    CSNumber.complex(0,0)]);
-        var jj=List.turnIntoCSList([CSNumber.complex(1,0),
-                                    CSNumber.complex(0,-1),
-                                    CSNumber.complex(0,0)]);
-
+        var ii=List.ii;
+        var jj=List.jj;
+        
         var w0=evaluateAndHomog(args[0]);
         var w1=General.add(List.realVector([1,0,0]),w0);  
         var v1=General.add(List.realVector([-1,0,0]),w0);  
@@ -2589,12 +2576,8 @@ evaluator.pointreflect=function(args,modifs){
 evaluator.linereflect=function(args,modifs){ 
     if(args.length==1){
         
-        var ii=List.turnIntoCSList([CSNumber.complex(1,0),
-                                    CSNumber.complex(0,1),
-                                    CSNumber.complex(0,0)]);
-        var jj=List.turnIntoCSList([CSNumber.complex(1,0),
-                                    CSNumber.complex(0,-1),
-                                    CSNumber.complex(0,0)]);
+        var ii=List.ii;
+        var jj=List.jj;
 
         var w0=evaluateAndHomog(args[0]);
         var r0=List.realVector([Math.random(),Math.random(),Math.random()]);

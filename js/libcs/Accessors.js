@@ -7,7 +7,7 @@ var Accessor={};
 
 Accessor.getGeoField=function(geoname,field){
     if(typeof csgeo.csnames[geoname] !== 'undefined'){
-        return Accessor.getField(gslp[csgeo.csnames[geoname]],field);
+        return Accessor.getField(csgeo.csnames[geoname],field);
     }
     return nada;
 }
