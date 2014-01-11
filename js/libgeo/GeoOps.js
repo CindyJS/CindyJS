@@ -190,4 +190,23 @@ geoOpMap.PointOnSegment="P";
 
 
 
+geoOps.CircleMP =function(el){//TODO Performance Checken. Das ist jetzt der volle CK-ansatz
+                                //Weniger Allgemein geht das viiiiel schneller
+    var m=csgeo.csnames[(el.args[0])].homog;
+    var p=csgeo.csnames[(el.args[1])].homog;
+    var l1=List.crossOperator(m);
+    var l2=List.transpose(l1);
+    
+    
+    var tang=General.mult(l2,General.mult(List.fundDual,l1));
+    var mu=General.mult(General.mult(p,tang),p);
+    var la=General.mult(General.mult(p,List.fund),p);
+    var m1=General.mult(mu,List.fund);
+    var m2=General.mult(la,tang);
+    var erg=List.sub(m1,m2);
+    el.matrix=erg;
+    el.usage="Circle";
+    
+}
+geoOpMap.CircleMP="C";
 

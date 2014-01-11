@@ -19,11 +19,22 @@ List.realVector=function(l){
     return {'ctype':'list','value':erg};
 }
 
+List.realMatrix=function(l){
+    var erg=[];
+    for(var i=0;i<l.length;i++){
+            erg[erg.length]=List.realVector(l[i]);
+    }
+    return List.turnIntoCSList(erg);
+}
 
-List.linfty=List.realVector([0,0,1]);
 List.ex=List.realVector([1,0,0]);
 List.ey=List.realVector([0,1,0]);
 List.ez=List.realVector([0,0,1]);
+
+
+
+
+List.linfty=List.realVector([0,0,1]);
 
 List.ii=List.turnIntoCSList([CSNumber.complex(1,0),
                              CSNumber.complex(0,1),
@@ -32,6 +43,10 @@ List.ii=List.turnIntoCSList([CSNumber.complex(1,0),
 List.jj=List.turnIntoCSList([CSNumber.complex(1,0),
                              CSNumber.complex(0,-1),
                              CSNumber.complex(0,0)]);
+
+
+List.fundDual=List.realMatrix([[1,0,0],[0,1,0],[0,0,0]]);
+List.fund=List.realMatrix([[0,0,0],[0,0,0],[0,0,1]]);
 
 
 List.sequence=function(a,b){
@@ -714,7 +729,19 @@ List.mult=function(a,b){
 
 }
 
-
+List.crossOperator=function(a){
+    
+    var x=CSNumber.clone(a.value[0]);
+    var y=CSNumber.clone(a.value[1]);
+    var z=CSNumber.clone(a.value[2]);
+    return List.turnIntoCSList([
+        List.turnIntoCSList([CSNumber.real(0),CSNumber.neg(z),y]),
+        List.turnIntoCSList([z,CSNumber.real(0),CSNumber.neg(x)]),
+        List.turnIntoCSList([CSNumber.neg(y),x,CSNumber.real(0)])
+        ]
+                               );
+        
+}
 
 List.cross=function(a,b){//Assumes that a,b are 3-Vectors
     var x=CSNumber.sub(CSNumber.mult(a.value[1],b.value[2]),CSNumber.mult(a.value[2],b.value[1]));
@@ -722,6 +749,10 @@ List.cross=function(a,b){//Assumes that a,b are 3-Vectors
     var z=CSNumber.sub(CSNumber.mult(a.value[0],b.value[1]),CSNumber.mult(a.value[1],b.value[0]));
     return List.turnIntoCSList([x,y,z]);
 }
+
+
+
+
 
 List.det3=function(p,q,r){//Assumes that a,b,c are 3-Vectors
                           //Keine Ahnung ob man das so inlinen will (hab das grad mal so übernommen)

@@ -79,10 +79,12 @@ function csinit(gslp){
     
     csgeo.points=[];
     csgeo.lines=[];
+    csgeo.conics=[];
     csgeo.free=[];
     csgeo.ctp=0;
     csgeo.ctf=0;
     csgeo.ctl=0;
+    csgeo.ctc=0;
     var m=csport.drawingstate.matrix;
     
     for( var k=0; k<csgeo.gslp.length; k++ ) {
@@ -97,6 +99,12 @@ function csinit(gslp){
             csgeo.lines[csgeo.ctl]=l;
             lineDefault(l)
             csgeo.ctl+=1;
+        }
+        if(csgeo.gslp[k].kind=="C"){
+            var l=csgeo.gslp[k];
+            csgeo.conics[csgeo.ctl]=l;
+            lineDefault(l)
+            csgeo.ctc+=1;
         }
         if(csgeo.gslp[k].kind=="S"){
             var l=csgeo.gslp[k];
@@ -231,9 +239,44 @@ function render(){
         
     }
 
+
+    var drawgeoconic= function(el){
+        if(!el.isshowing)
+            return;
+        var cc=el.matrix;
+        var cxr = cc.value[2].value[0].value.real 
+        var axr = cc.value[0].value[0].value.real;
+        var cyr = cc.value[2].value[1].value.real 
+        var byr = cc.value[1].value[1].value.real;
+        var czr = cc.value[2].value[2].value.real;
+        var x = -cxr / axr;
+        var y = -cyr / byr;
+        var r2 = (axr * (x * x + y * y) + 2 * cxr * x + 2 * cyr * y + czr) / axr;
+        var rad = Math.sqrt(r2 > 0 ? r2 : -r2);
+        var imaginary = r2 > 0;
+        evaluator.drawcircle([List.realVector([x,y]),CSNumber.real(rad)],
+                           {size:el.size,color:el.color,alpha:el.alpha});
+
+        /*
+        
+        double x = -cc.cxr / cc.axr;
+        double y = -cc.cyr / cc.byr;
+        double r2 = (cc.axr * (x * x + y * y) + 2 * cc.cxr * x + 2 * cc.cyr * y + cc.czr) / cc.axr;
+        rad = Math.sqrt(r2 > 0 ? r2 : -r2);
+        imaginary = r2 > 0;
+        radp.setLocation(rad, 0);
+        rad *= ((EuclideanCoordinateTransformation) viewport.trans).scale;
+        mid.assign(x, y, 1);
+        (viewport).toPoint(mid, midp);
+        
+        */
+        
+    }
+    
     var drawgeoline= function(el){
         if(!el.isshowing)
             return;
+
         if(el.clip.value=="none"){
             evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
         }
@@ -295,11 +338,17 @@ function render(){
         
 
     }
-   for( var i=0; i<csgeo.lines.length; i++ ) {
+    
+    for( var i=0; i<csgeo.conics.length; i++ ) {
+        drawgeoconic(csgeo.conics[i]);
+    }
+    
+    
+    for( var i=0; i<csgeo.lines.length; i++ ) {
         drawgeoline(csgeo.lines[i]);
     }
-
-
+    
+    
     for( var i=0; i<csgeo.points.length; i++ ) {
         drawgeopoint(csgeo.points[i]);
     }
