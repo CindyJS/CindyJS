@@ -327,7 +327,25 @@ List.genericListMath=function(a,op){
 ///////////////////////////
 
 
+List.maxval=function(a){//Only for Lists or Lists of Lists that contain numbers
+                        //Used for Normalize max
+    var erg=CSNumber.real(0);
+    for(var i=0;i<a.value.length;i++){
+        var v=a.value[i];
+        if(v.ctype=="number"){
+            erg=CSNumber.argmax(erg,v);
+        }
+        if(v.ctype=="list"){
+            erg=CSNumber.argmax(erg,List.maxval(v));
+        }
+    }
+    return CSNumber.clone(erg);
+}
 
+List.normalizeMax=function(a) {
+    var s=CSNumber.inv(List.maxval(a));
+    return List.scalmult(s,a);
+}
 
 List.max=function(a1,a2){
     
@@ -470,7 +488,7 @@ List.abs=function(a1){
 }
 
 
-List.normalizeMax=function(a){//Assumes that list is a number Vector
+List.normalizeMaxXX=function(a){//Assumes that list is a number Vector
     var maxv=-10000;
     var nn=CSNumber.real(1);
     for(var i=0;i<a.value.length;i++){
@@ -642,7 +660,7 @@ List.scalproduct=function(a1,a2){
 }
 
 List.productMV=function(a,b){
-    if(a.value[1].value.length != b.value.length){
+    if(a.value[0].value.length != b.value.length){
         return nada;
     }
     var li=[];
@@ -671,7 +689,7 @@ List.productVM=function(a,b){
         return nada;
     }
     var li=[];
-    for(var j=0;j<b.value[1].value.length;j++){
+    for(var j=0;j<b.value[0].value.length;j++){
         var erg={'ctype':'number','value':{'real':0,'imag':0}};
         for(var i=0;i<a.value.length;i++){
             var av1=a.value[i];
@@ -690,7 +708,7 @@ List.productVM=function(a,b){
 }
 
 List.productMM=function(a,b){
-    if(a.value[1].value.length != b.value.length){
+    if(a.value[0].value.length != b.value.length){
         return nada;
     }
     var li=[];
@@ -712,7 +730,7 @@ List.mult=function(a,b){
       return List.scalproduct(a,b);
    } 
 
-    if(List.isNumberMatrix(a).value && b.value.length==a.value[1].value.length && List.isNumberVector(b).value){
+    if(List.isNumberMatrix(a).value && b.value.length==a.value[0].value.length && List.isNumberVector(b).value){
       return List.productMV(a,b);
    } 
 
@@ -720,13 +738,32 @@ List.mult=function(a,b){
       return List.productVM(a,b);
    } 
 
-    if(List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length==a.value[1].value.length){
+    if(List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length==a.value[0].value.length){
       return List.productMM(a,b);
    } 
 
    return nada;
 
 
+}
+
+List.projectiveDistMinScal=function(a,b){
+    var sa=List.abs(a);
+    var sb=List.abs(b);
+
+    if(sa.value.real==0||sb.value.real==0)
+        return 0;
+    var cb=List.conjugate(b);
+    var p=List.scalproduct(a,cb);
+
+    var np=CSNumber.div(p,CSNumber.abs(p));
+    var na=List.scaldiv(sa,a); 
+    var nb=List.scaldiv(sb,b);
+    na=List.scalmult(np,na);
+
+    var d1=List.abs(List.add(na,nb));
+    var d2=List.abs(List.sub(na,nb));
+    return Math.min(d1.value.real,d2.value.real);
 }
 
 List.crossOperator=function(a){
@@ -743,14 +780,41 @@ List.crossOperator=function(a){
         
 }
 
-List.cross=function(a,b){//Assumes that a,b are 3-Vectors
+List.cross=function(a,b){//Assumes that a is 3-Vector
     var x=CSNumber.sub(CSNumber.mult(a.value[1],b.value[2]),CSNumber.mult(a.value[2],b.value[1]));
     var y=CSNumber.sub(CSNumber.mult(a.value[2],b.value[0]),CSNumber.mult(a.value[0],b.value[2]));
     var z=CSNumber.sub(CSNumber.mult(a.value[0],b.value[1]),CSNumber.mult(a.value[1],b.value[0]));
     return List.turnIntoCSList([x,y,z]);
 }
 
+List.veronese=function(a){//Assumes that a is 3-Vector
+    var xx=CSNumber.mult(a.value[0],a.value[0]);
+    var yy=CSNumber.mult(a.value[1],a.value[1]);
+    var zz=CSNumber.mult(a.value[2],a.value[2]);
+    var xy=CSNumber.mult(a.value[0],a.value[1]);
+    var xz=CSNumber.mult(a.value[0],a.value[2]);
+    var yz=CSNumber.mult(a.value[1],a.value[2]);
+    return List.turnIntoSCList([xx,yy,zz,xy,xz,yz]);
+}
 
+List.matrixFromVeronese=function(a){//Assumes that a is 6-Vector
+    //Wie Wichtig ist hier das Clonen???
+    var xx=CSNumber.clone(a.value[0]);
+    var yy=CSNumber.clone(a.value[1]);
+    var zz=CSNumber.clone(a.value[2]);
+    var xy=CSNumber.div(a.value[3],CSNumber.real(2));
+    var xz=CSNumber.div(a.value[4],CSNumber.real(2));
+    var yz=CSNumber.div(a.value[5],CSNumber.real(2));
+    var yx=CSNumber.clone(xy);
+    var zx=CSNumber.clone(xz);
+    var zy=CSNumber.clone(yz);
+    return List.turnIntoCSList([
+        List.turnIntoCSList([xx,xy,xz]),
+        List.turnIntoCSList([yx,yy,yz]),
+        List.turnIntoCSList([zx,zy,zz])
+        ])
+
+}
 
 
 
@@ -841,7 +905,7 @@ List.zeromatrix=function(a,b){
 
 List.transpose=function(a){
     var erg=[];
-    var n=a.value[1].value.length;
+    var n=a.value[0].value.length;
     var m=a.value.length;
     for(var i=0;i<n;i++){
         var li=[]; 
@@ -868,7 +932,7 @@ List.column=function(a,b){
 
 List.row=function(a,b){
     var erg=[];
-    var n=a.value[1].value.length;
+    var n=a.value[0].value.length;
     var i=Math.floor(b.value.real-1);
     for(var j=0;j<n;j++){
         erg[erg.length]=a.value[i].value[j];
@@ -903,6 +967,15 @@ List.inverse=function(a){
     }
     return List.turnIntoCSList(erg);
 }
+
+List.det=function(a){
+
+
+
+    return CSNumber.real(0);
+
+}
+
 
 
 

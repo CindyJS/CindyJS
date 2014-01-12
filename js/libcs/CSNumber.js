@@ -33,6 +33,16 @@ CSNumber.clone=function(a){
 }
 
 
+CSNumber.argmax=function(a,b){//Achtung: Gibt referenzen zurück, da 
+                            //nur für NormalizeMax verwendet
+    
+    var n1=a.value.real*a.value.real+a.value.imag*a.value.imag;
+    var n2=b.value.real*b.value.real+b.value.imag*b.value.imag;
+    return (n1<n2 ? b : a );
+    
+}
+
+
 CSNumber.max=function(a,b){
     return {"ctype":"number" ,  "value":{'real':Math.max(a.value.real,b.value.real),
         'imag':Math.max(a.value.imag,b.value.imag)}}

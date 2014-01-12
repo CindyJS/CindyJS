@@ -1550,6 +1550,20 @@ evaluator.inverse=function(args,modifs){
     return nada;
 }
 
+evaluator.det=function(args,modifs){
+    if(args.length==1){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='list'){
+            var n=List.helper.colNumb(v0);
+            if(n!=-1&&n==v0.value.length){
+                return List.det(v0);
+                
+            }
+        }
+    }
+    return nada;
+}
+
 
 
 ///////////////////////////////

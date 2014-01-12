@@ -402,8 +402,27 @@ evaluator.helper.drawcircle=function(args,modifs,df){
     }
     
     
+    
     var drawcirc = function(){
         
+        function magic_circle(ctx, x, y, r){
+            m = 0.551784
+            
+            ctx.save()
+            ctx.translate(x, y)
+            ctx.scale(r, r)
+            
+            ctx.beginPath()
+            ctx.moveTo(1, 0)
+            ctx.bezierCurveTo(1,  -m,  m, -1,  0, -1)
+            ctx.bezierCurveTo(-m, -1, -1, -m, -1,  0)
+            ctx.bezierCurveTo(-1,  m, -m,  1,  0,  1)
+            ctx.bezierCurveTo( m,  1,  1,  m,  1,  0)
+            ctx.closePath()
+            ctx.restore()
+        }
+        
+                    
         var pt=evaluator.helper.extractPoint(v0);
         
         
@@ -425,6 +444,9 @@ evaluator.helper.drawcircle=function(args,modifs,df){
         csctx.lineWidth = size*.4;
         
         csctx.arc(xx,yy,v1.value.real*m.sdet,0,2*Math.PI);
+      //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
+        
+        
         if(df=="D"){
             csctx.strokeStyle=col;
             csctx.stroke();

@@ -75,6 +75,7 @@ function csinit(gslp){
         csgeo.gslp[k].incidences=[];
         csgeo.gslp[k].isshowing=true;
         csgeo.gslp[k].movable=false;
+        csgeo.gslp[k].inited=false;
     };
     
     csgeo.points=[];
@@ -137,8 +138,7 @@ function csinit(gslp){
                      
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
-        }
-        
+        }        
     };
     guessIncidences();
 };
@@ -211,6 +211,7 @@ function recalc(){
 
 
 function guessIncidences(){
+
     var gslp=csgeo.gslp;
     recalc();
     for( var i=0; i<csgeo.lines.length; i++ ) {
@@ -228,10 +229,13 @@ function guessIncidences(){
 
         }
     }
+
+
 }
 
 
 function render(){
+
     var drawgeopoint= function(el){
         if(!el.isshowing)
             return;
@@ -338,7 +342,6 @@ function render(){
         
 
     }
-    
     for( var i=0; i<csgeo.conics.length; i++ ) {
         drawgeoconic(csgeo.conics[i]);
     }
