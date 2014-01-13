@@ -289,6 +289,36 @@ List.almostequals=function(a1,a2){
     return {'ctype':'boolean','value':erg};
 }
 
+List.helper.isAlmostReal=function(a1){
+    var erg=true;
+    for(var i=0;i<a1.value.length;i++){
+        var av1=a1.value[i];
+
+        if(av1.ctype=='list' ){
+            erg=erg && List.helper.isAlmostReal(av1);
+        } else {
+            erg=erg && CSNumber.helper.isAlmostReal(av1);            
+        }
+    }
+    return erg;
+}
+
+List.helper.isNaN=function(a1){
+    var erg=false;
+    for(var i=0;i<a1.value.length;i++){
+        var av1=a1.value[i];
+
+        if(av1.ctype=='list' ){
+            erg=erg || List.helper.isNaN(av1);
+        } else {
+            erg=erg || CSNumber.helper.isNaN(av1);            
+        }
+    }
+    return erg;
+}
+
+
+
 List.set=function(a1){
     var erg=[];
     var erg1=a1.value.sort(General.compare);
@@ -552,6 +582,8 @@ List.floor=function(a){
     return List.recursive(a,"floor");
 }
 
+
+
 List.helper.colNumb=function(a){
     if(a.ctype!='list') {
         return -1;
@@ -764,6 +796,7 @@ List.projectiveDistMinScal=function(a,b){
     var d1=List.abs(List.add(na,nb));
     var d2=List.abs(List.sub(na,nb));
     return Math.min(d1.value.real,d2.value.real);
+
 }
 
 List.crossOperator=function(a){

@@ -103,7 +103,7 @@ function csinit(gslp){
         }
         if(csgeo.gslp[k].kind=="C"){
             var l=csgeo.gslp[k];
-            csgeo.conics[csgeo.ctl]=l;
+            csgeo.conics[csgeo.ctc]=l;
             lineDefault(l)
             csgeo.ctc+=1;
         }
@@ -190,6 +190,13 @@ function isShowing(el,op){
             }
         }
     }
+    if (el.kind=="P" ||el.kind=="L"){
+    
+        if(!List.helper.isAlmostReal(el.homog)){
+            el.isshowing=false;
+            return;
+        }
+    }
     //TODO Test auf Complex einbauen
     if(op.visiblecheck){
         op.visiblecheck(el);
@@ -198,6 +205,7 @@ function isShowing(el,op){
 }
 
 function recalc(){
+
     csport.reset();
     var gslp=csgeo.gslp;
     for( var k=0; k<gslp.length; k++ ) {

@@ -126,6 +126,11 @@ CSNumber.abs=function(a1){
 
 CSNumber.inv=function(a){
     var s=a.value.real*a.value.real+a.value.imag*a.value.imag;
+    if(s==0) {
+        console.log("DIVISION BY ZERO");
+        halt=immediately;
+    
+    }
     return {"ctype":"number" ,
         "value":{'real':a.value.real/s,
             'imag':-a.value.imag/s}}
@@ -376,6 +381,11 @@ CSNumber.helper.isAlmostReal=function(a) {
     var i=a.value.imag;
     return (i<CSNumber.epsbig) && (i>-CSNumber.epsbig);//So gemacht wie in Cindy
 }
+
+CSNumber.helper.isNaN=function(a) {
+    return (isNaN(a.value.real)) || (isNaN(a.value.imag));
+}
+
 
 CSNumber.helper.isAlmostImag=function(a) {
     var r=a.value.real;
