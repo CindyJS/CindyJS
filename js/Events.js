@@ -16,19 +16,34 @@ movepoint=function (move){
 getmover = function(mouse){
     var mov;
     var adist=1000000;
-    var diff;
+    var diff,orad;
     for (var i=0;i<csgeo.free.length;i++){
-        var pt=csgeo.free[i];
-        var dx=pt.sx-mouse.x;
-        var dy=pt.sy-mouse.y;
-        var dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<adist+.2){
+        var el=csgeo.free[i];
+        var dx,dy;
+        if(el.kind=="P"){
+            dx=el.sx-mouse.x;
+            dy=el.sy-mouse.y;
+            var dist=Math.sqrt(dx*dx+dy*dy);
+        }
+        if(el.kind=="C"){//Must be Circle by Rad
+            var mid=csgeo.csnames[el.args[0]];
+            var rad=el.radius;
+            dx=mid.sx-mouse.x;
+            dy=mid.sy-mouse.y;
+            var ref=Math.sqrt(dx*dx+dy*dy);
+            var dist=ref-rad.value.real;
+            orad=-dist;
+            dx=0;dy=0;
+            if(dist<0){dist=-dist;}
+            dist=dist+1;
+        }
+        if(dist<adist+.2){//A bit a dirty hack, prefers new points
             adist=dist;
-            mov=pt;
+            mov=el;
             diff={x:dx,y:dy};
         }
     }
-    return {mover:mov,offset:diff};
+    return {mover:mov,offset:diff,offsetrad:orad};
 }
 
 

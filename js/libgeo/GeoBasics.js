@@ -138,7 +138,14 @@ function csinit(gslp){
                      
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
-        }        
+        } 
+        if(ty=="CircleMr" || ty=="CircleMFixedr"){
+            var f=csgeo.gslp[k];
+            f.radius=CSNumber.real(f.radius);
+            csgeo.free[csgeo.ctf]=f;
+            csgeo.ctf+=1;
+        } 
+       
     };
     guessIncidences();
 };
@@ -190,14 +197,14 @@ function isShowing(el,op){
             }
         }
     }
-    if (el.kind=="P" ||el.kind=="L"){
+/*    if (el.kind=="P" ||el.kind=="L"){
     
         if(!List.helper.isAlmostReal(el.homog)){
             el.isshowing=false;
             return;
         }
-    }
-    //TODO Test auf Complex einbauen
+    }*/
+    
     if(op.visiblecheck){
         op.visiblecheck(el);
     }
@@ -245,7 +252,7 @@ function guessIncidences(){
 function render(){
 
     var drawgeopoint= function(el){
-        if(!el.isshowing)
+        if(!el.isshowing||!List.helper.isAlmostReal(el.homog))
             return;
         evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
         
@@ -286,7 +293,7 @@ function render(){
     }
     
     var drawgeoline= function(el){
-        if(!el.isshowing)
+        if(!el.isshowing || !List.helper.isAlmostReal(el.homog) )
             return;
 
         if(el.clip.value=="none"){

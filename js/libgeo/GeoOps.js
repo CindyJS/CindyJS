@@ -186,8 +186,8 @@ geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil 
     var ergz=CSNumber.real(1);
     el.homog=List.turnIntoCSList([ergx,ergy,ergz]);
     el.homog=List.normalizeMax(el.homog);
+    el.homog.usage="Point";
 
-    
     
     //TODO: Handle complex and infinite Points
     var x=CSNumber.div(el.homog.value[0],el.homog.value[2]);
@@ -200,11 +200,35 @@ geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil 
 geoOpMap.PointOnSegment="P";
 
 
+geoOps.PointOnCircle =function(el){
+    var l=csgeo.csnames[(el.args[0])].matrix;
+   
+    }
+geoOpMap.PointOnCircle="P";
 
-geoOps.CircleMP =function(el){//TODO Performance Checken. Das ist jetzt der volle CK-ansatz
-                                //Weniger Allgemein geht das viiiiel schneller
-    var m=csgeo.csnames[(el.args[0])].homog;
-    var p=csgeo.csnames[(el.args[1])].homog;
+
+geoOps.helper.CenterOfConic =function(c){
+        var pts=geoOps.helper.IntersectLC(List.linfty,c);
+        var ln1=General.mult(c,pts[0]);
+        var ln2=General.mult(c,pts[1]);
+
+        var erg=List.cross(ln1,ln2);
+
+        return erg;
+}
+
+geoOps.CenterOfConic =function(el){
+    var c=csgeo.csnames[(el.args[0])].matrix;
+    var erg=geoOps.helper.CenterOfConic(c);
+    el.homog=erg;
+    el.homog=List.normalizeMax(el.homog);
+    el.homog.usage="Point";
+
+
+}
+geoOpMap.CenterOfConic="P";
+
+geoOps.helper.CircleMP=function(m,p){
     var l1=List.crossOperator(m);
     var l2=List.transpose(l1);
     
@@ -215,12 +239,61 @@ geoOps.CircleMP =function(el){//TODO Performance Checken. Das ist jetzt der voll
     var m1=General.mult(mu,List.fund);
     var m2=General.mult(la,tang);
     var erg=List.sub(m1,m2);
-    el.matrix=erg;
+    return erg;
+}
+
+geoOps.CircleMP =function(el){//TODO Performance Checken. Das ist jetzt der volle CK-ansatz
+                                //Weniger Allgemein geht das viiiiel schneller
+    var m=csgeo.csnames[(el.args[0])].homog;
+    var p=csgeo.csnames[(el.args[1])].homog;
+    el.matrix=geoOps.helper.CircleMP(m,p);
     el.matrix=List.normalizeMax(el.matrix);
-    el.usage="Circle";
+    el.matrix.usage="Circle";
     
 }
 geoOpMap.CircleMP="C";
+
+
+geoOps.CircleMr =function(el){
+    var m=csgeo.csnames[(el.args[0])].homog;
+    var mid=List.scaldiv(m.value[2],m);
+
+
+    if(move && move.mover==el){
+        var xx=mid.value[0].value.real-mouse.x;
+        var yy=mid.value[1].value.real-mouse.y;
+        rad=Math.sqrt(xx*xx+yy*yy);//+move.offsetrad;
+        el.radius=CSNumber.real(rad+move.offsetrad);
+    }
+    var r=el.radius;
+    var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
+    p=List.add(p,mid);
+    
+    el.matrix=geoOps.helper.CircleMP(mid,p);
+    el.matrix=List.normalizeMax(el.matrix);
+    el.matrix.usage="Circle";
+    
+}
+geoOpMap.CircleMr="C";
+
+
+
+geoOps.CircleMFixedr =function(el){
+    var m=csgeo.csnames[(el.args[0])].homog;
+    var mid=List.scaldiv(m.value[2],m);
+
+    var r=el.radius;
+    var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
+    p=List.add(p,mid);
+    
+    el.matrix=geoOps.helper.CircleMP(mid,p);
+    el.matrix=List.normalizeMax(el.matrix);
+    el.matrix.usage="Circle";
+    
+}
+geoOpMap.CircleMFixedr="C";
+
+
 
 geoOps.helper.ConicBy5 =function(el,a,b,c,d,p){
 
@@ -252,7 +325,7 @@ geoOps.ConicBy5 =function(el){
     var erg=geoOps.helper.ConicBy5(el,a,b,c,d,p);
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
-    el.usage="Conic";
+    el.matrix.usage="Conic";
 }
 geoOpMap.ConicBy5="C";
 
@@ -264,7 +337,7 @@ geoOps.CircleBy3 =function(el){
     var p=csgeo.csnames[(el.args[2])].homog;
     var erg=geoOps.helper.ConicBy5(el,a,b,c,d,p);
     el.matrix=List.normalizeMax(erg);
-    el.usage="Circle";
+    el.matrix.usage="Circle";
 
 }
 geoOpMap.CircleBy3="C";
