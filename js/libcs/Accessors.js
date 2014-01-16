@@ -1,7 +1,7 @@
 
-//*******************************************************
-// and here are the accessors for properties
-//*******************************************************
+//*************************************************************
+// and here are the accessors for properties and elements
+//*************************************************************
 
 var Accessor={};
 
@@ -23,16 +23,16 @@ Accessor.getField=function(geo,field){
             var yy=CSNumber.div(geo.homog.value[1],geo.homog.value[2]);
             var erg=List.turnIntoCSList([xx,yy]);
             erg.usage="Point";
-
+            
             return erg;
         };
         
         if(field=="homog") {
-            var erg=geo.homog;//TODO will man hier clonen?
+            var erg=List.clone(geo.homog);//TODO will man hier clonen?
             erg.usage="Point";
             return erg;
         };
-
+        
         
         if(field=="x") {
             var x=CSNumber.div(geo.homog.value[0],geo.homog.value[2]);
@@ -45,11 +45,21 @@ Accessor.getField=function(geo,field){
         };
         
         
-    
-    } if(geo.kind=="L"){
-              
         
-    }
+    } if(geo.kind=="L"){
+        if(field=="homog") {
+            var erg=List.clone(geo.homog);//TODO will man hier clonen?
+            erg.usage="Line";
+            return erg;
+        }
+    };
+    if(field=="color") {
+        var erg=List.clone(geo.color);  
+        return erg;
+    }   
     
-
+    
 }
+
+
+

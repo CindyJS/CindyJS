@@ -84,8 +84,9 @@ var evaluateAndHomog=function(a){
     }
     
     if(List.helper.isNumberVecN(x,2)){
-        x.value[2]=CSNumber.real(1);
-        return x;
+        var y=General.add(x,List.realVector([0,0])); //HACK
+        y.value[2]=CSNumber.real(1);
+        return y;
     }
     
     return nada;

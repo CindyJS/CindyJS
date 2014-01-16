@@ -400,6 +400,21 @@ evaluator.helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher ob
 }
 
 
+evaluator.helper.assigndot=function(data,what){
+    var where=evaluate(data.args[0]);
+    var field=evaluate(data.args[1]);
+    
+    if(where.ctype=='geo'||field.ctype=="string"){
+        var val=evaluate(what);
+       
+    }
+    
+    return nada;
+    
+}
+
+
+
 evaluator.helper.assignlist=function(vars,vals){
     var n=vars.length;
     var m=vals.length;
@@ -433,6 +448,12 @@ evaluator.assign=function(args,modifs){
             evaluator.helper.assigntake(args[0],args[1]);
         }
     }
+    if(args[0].ctype=='infix' ){
+        if(args[0].oper=='.'){
+            evaluator.helper.assigndot(args[0],args[1]);
+        }
+    }
+
     if(args[0].ctype=='function' &&args[0].oper=='genList' ){
         var v1=evaluate(args[1]);
         if(v1.ctype=="list"){
@@ -746,14 +767,13 @@ evaluator.helper.genericListMath1=function(args,op){ //OK
     namespace.newvar(lauf);
     namespace.setvar(lauf,li[0]);
     var erg=evaluate(args[argind]);
-    
     for(var i=1;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
-        erg=General[op](erg,evaluate(args[argind]));
+        var b=evaluate(args[argind]);
+        erg=General[op](erg,b);
     }
     namespace.removevar(lauf);
-    
-    return erg;
+     return erg;
     
 }
 
@@ -2489,7 +2509,8 @@ evaluator.map=function(args,modifs){
            w0!=nada && w1!=nada && w2!=nada && w3!=nada){
             var m1=evaluator.helper.basismap(v0,v1,v2,v3);
             var m2=evaluator.helper.basismap(w0,w1,w2,w3);
-            return General.mult(m1,List.inverse(m2));
+            erg=General.mult(m1,List.inverse(m2));
+            return List.normalizeMax(erg);
         }
     }
     
@@ -2515,7 +2536,8 @@ evaluator.map=function(args,modifs){
            w0!=nada && w1!=nada && w2!=nada && w3!=nada){
             var m1=evaluator.helper.basismap(v0,v1,v2,v3);
             var m2=evaluator.helper.basismap(w0,w1,w2,w3);
-            return General.mult(m1,List.inverse(m2));
+            erg=General.mult(m1,List.inverse(m2));
+            return List.normalizeMax(erg);
         }
     }
     
@@ -2535,7 +2557,8 @@ evaluator.map=function(args,modifs){
            w0!=nada && w1!=nada){
             var m1=evaluator.helper.basismap(v0,v1,ii,jj);
             var m2=evaluator.helper.basismap(w0,w1,ii,jj);
-            return General.mult(m1,List.inverse(m2));
+            erg=General.mult(m1,List.inverse(m2));
+            return List.normalizeMax(erg);
         }
     }
     
@@ -2554,7 +2577,8 @@ evaluator.map=function(args,modifs){
            w0!=nada && w1!=nada){
             var m1=evaluator.helper.basismap(v0,v1,ii,jj);
             var m2=evaluator.helper.basismap(w0,w1,ii,jj);
-            return General.mult(m1,List.inverse(m2));
+            erg=General.mult(m1,List.inverse(m2));
+            return List.normalizeMax(erg);
         }
     }
     
@@ -2580,7 +2604,9 @@ evaluator.pointreflect=function(args,modifs){
            w0!=nada && w1!=nada){
             var m1=evaluator.helper.basismap(w0,v1,ii,jj);
             var m2=evaluator.helper.basismap(w0,w1,ii,jj);
-            return General.mult(m1,List.inverse(m2));
+            erg=General.mult(m1,List.inverse(m2));
+            return List.normalizeMax(erg);
+
         }
     }
     return nada;
@@ -2604,7 +2630,8 @@ evaluator.linereflect=function(args,modifs){
            w0!=nada && w1!=nada){
             var m1=evaluator.helper.basismap(w1,w2,ii,jj);
             var m2=evaluator.helper.basismap(w1,w2,jj,ii);
-            return General.mult(m1,List.inverse(m2));
+            var erg=General.mult(m1,List.inverse(m2));
+            return List.normalizeMax(erg);
         }
     }
     return nada;
