@@ -2762,6 +2762,20 @@ evaluator.screen=function(args,modifs){
     return nada;
 }
 
+evaluator.allpoints=function(args,modifs){
+	console.log("allpoints");
+	if (args.length==0) {
+		console.log("no argument")
+		erg=[];
+		for (var i=0; i< csgeo.points.length; i++) {
+			erg[i]={ctype:"geo",value:csgeo.points[i],type:"P"};
+		}
+		dump(erg);
+		return {ctype:"list", value:erg};
+	}
+	return nada;
+}
+
 evaluator.halfplane=function(args,modifs){ 
     if(args.length==2) {
         var v0=evaluateAndVal(args[0]);
