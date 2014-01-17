@@ -8,6 +8,12 @@ dumpcs=function(a){
   console.log(niceprint(a));
   };
 
+evalcs=function(a){
+    var prog=evaluator.parse([General.wrap(a)],[]);
+    var erg=evaluate(prog);
+    dumpcs(erg);
+
+}
 
 createCindy = function(data){ 
     csmouse = [100, 100];

@@ -33,77 +33,28 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: 2D Lagrange Interpolation</h1>
+        <h1>CindyJS: Angle Bisector</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
+        //    B.color=(10,B.x,B.y)/10;
+        //    B.size=|B.xy|;
+        //    a.size=|B.xy|^2*.1;
+        //    A.xy=round(A.xy);
+        //    errc(apply(allpoints(),draw(#,size->10);#.xy));
+        //    f(A):=A+1;
+           // errc(A.xy);
+            errc((allpoints()_2).xy);
+          //  A=2;
+          //  errc(A*3);
             errc(A.color);
-            drawimage(D,E,G,"bild",alpha->.2);
-            A=A.xy;
-            B=B.xy;
-            aa=complex(A);
-            bb=complex(B);
-            dd=bb-aa;
-            ff=3/4*dd-1/4*sqrt(3)*dd*i+aa;
-            draw(gauss(aa),size->7);
-            draw(gauss(ff),size->7);
-            F=gauss(ff);
-            l1=join(A,F);
-            l2=join(A,B);
-            l3=join(B,F);
-
-            path=(A.xy,B.xy,F);
-            t1=linereflect(l1);
-            t2=linereflect(l2);
-            t3=linereflect(l3);
-            
-            f(p,m):=m*(p++[1]);
-            id=((1,0,0),(0,1,0),(0,0,1));
+            B=A;
+            errc(B.color);
+            B.size=10;
+            A.color=(1,0,0);
+            A.xy=round(A);
             
             
-            drawme(m):=(
-                        gsave();
-                        clip(polygon((f(A,m),f(B,m),f(F,m))));
-                        drawimage(f(D.xy,m),f(E.xy,m),f(G.xy,m),"bild",alpha->1);
-                        grestore();
-                        draw(f(A,m),f(B,m),size->3,color->(0,0,0));
-                        draw(f(B,m),f(F,m),size->3,color->(0,0,0));
-                        draw(f(A,m),f(F,m),size->3,color->(0,0,0));
-                        );
-            
-            
-            
-            list=(
-                  id,
-                  t1,
-                  t2,
-                  t1*t2,
-                  t1*t2*t1,
-                  t1*t2*t1*t2,
-                  t1*t2*t1*t2*t1,
-                  t1*t2*t1*t2*t1*t2,
-                  t1*t2*t1*t2*t1*t2*t1,
-                  t1*t2*t1*t2*t1*t2*t1*t2,
-                  t1*t2*t1*t2*t1*t2*t1*t2*t1,
-                  t1*t2*t1*t2*t1*t2*t1*t2*t1*t2,
-                  
-                  t3,
-                  t1*t3,
-                  t2*t3,
-                  t1*t2*t3,
-                  t1*t2*t1*t3,
-                  t1*t2*t1*t2*t3,
-                  t1*t2*t1*t2*t1*t3,
-                  t1*t2*t1*t2*t1*t2*t3,
-                  t1*t2*t1*t2*t1*t2*t1*t3,
-                  t1*t2*t1*t2*t1*t2*t1*t2*t3,
-                  t1*t2*t1*t2*t1*t2*t1*t2*t1*t3,
-                  t1*t2*t1*t2*t1*t2*t1*t2*t1*t2*t3
-                  
-                  
-                  );
-            forall(list,m,   drawme(m);  );
-
         </script>
         
 
@@ -113,17 +64,16 @@
             
             var gslp=[
 
-                      {name:"A", type:"Free", pos:[0,-2],color:[1,1,1]},
-                      {name:"B", type:"Free", pos:[3,3],color:[1,1,1]},
-                      {name:"D", type:"Free", pos:[-6,-6],color:[1,1,1]},
-                      {name:"E", type:"Free", pos:[-5,7.5],color:[1,1,1]},
-                      {name:"G", type:"Free", pos:[7,-4],color:[1,1,1]},
-                                           ];
+                      {name:"A", type:"Free", pos:[2.2,0],color:[0,0,0]},
+                      {name:"B", type:"Free", pos:[6,-2],color:[1,1,1]},
+                      {name:"C", type:"Free", pos:[6,4],color:[1,1,1]},
+                      {name:"a", type:"Join", args:["A","B"],color:[0,0,1]},
+                      {name:"b", type:"Join", args:["A","C"],color:[0,0,1]},
+ 
+                      ];
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
-                        geometry:gslp,
-                        images:{bild:"bild.png"}}
-);
+                        geometry:gslp});
     
         </script>
 

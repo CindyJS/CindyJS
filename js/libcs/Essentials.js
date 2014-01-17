@@ -123,6 +123,16 @@ var niceprint=function(a){
     if(a.ctype=='error'){
         return "Error: "+a.message;
     }
+    if(a.ctype=='variable'){
+    console.log("HALLO");
+        return niceprint(a.stack[length.stack]);
+    }
+
+    if(a.ctype=='geo'){
+        return a.value.name;
+    }
+
+
     return "__";
     
 }

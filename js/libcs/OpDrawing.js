@@ -59,6 +59,8 @@ evaluator.draw=function(args,modifs){
     var erg;
     var psize=csport.drawingstate.pointsize;
     var lsize=csport.drawingstate.linesize;
+    if(psize<0) psize=0;
+    if(lsize<0) lsize=0;
     var overhang=1;//TODO Eventuell dfault setzen
     var dashing=false;
     var col;
@@ -71,13 +73,14 @@ evaluator.draw=function(args,modifs){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
                 if(type=="P"){
-                    psize=erg.value.real;
-                    
+                    psize=erg.value.real;                       
+                    if(psize<0) psize=0;
                     
                 }
                 if(type=="L"){
                     lsize=erg.value.real;
-                    
+                    if(lsize<0) lsize=0;
+
                 }
                 
             }
@@ -359,6 +362,8 @@ evaluator.helper.drawcircle=function(args,modifs,df){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
                 size=erg.value.real;
+                if(size<0) size=0;
+
             }
         }
         
@@ -518,6 +523,8 @@ evaluator.helper.drawpolygon=function(args,modifs,df,cycle){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
                 size=erg.value.real;
+                if(size<0) size=0;
+
             }
         }
         
@@ -680,6 +687,8 @@ evaluator.helper.drawpolygon=function(args,modifs,df,cycle){
 
 evaluator.drawtext=function(args,modifs){
     var size=csport.drawingstate.textsize;
+    if(size<0) size=0;
+
     var bold="";
     var italics="";
     var family="Arial";
@@ -691,6 +700,7 @@ evaluator.drawtext=function(args,modifs){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
                 size=erg.value.real;
+                if(size<0) size=0;
             }
         }
         
@@ -960,6 +970,7 @@ evaluator.plot=function(args,modifs){ //OK
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
                 lsize=erg.value.real;
+                if(lsize<0) lsize=0;
             }
             
         }

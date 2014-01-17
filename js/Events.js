@@ -7,8 +7,22 @@ movepoint=function (move){
     m=move.mover;
     m.sx=mouse.x+move.offset.x;
     m.sy=mouse.y+move.offset.y;
+    //experimental stuff by Ulli
+    //move.offset.x *= 0.95;
+    //move.offset.y = (move.offset.y-1.45)*0.95+1.45;
+    //dump(move.offset);
+    //end
     m.sz=1;
     m.homog=List.realVector([m.sx,m.sy,m.sz]);
+
+}
+
+movepointscr=function (mover,pos){
+    m=mover;
+ /*   m.sx=pos.x;
+    m.sy=pos.y;
+    m.sz=1;*/
+    m.homog=pos;
 
 }
 

@@ -44,8 +44,6 @@
             bb=complex(B);
             dd=bb-aa;
             ff=3/4*dd-1/4*sqrt(3)*dd*i+aa;
-            draw(gauss(aa),size->7);
-            draw(gauss(ff),size->7);
             F=gauss(ff);
             l1=join(A,F);
             l2=join(A,B);
@@ -102,6 +100,9 @@
                   
                   );
             forall(list,m,   drawme(m);  );
+            draw(A,B,color->(1,1,1),size->2 );
+            draw(A,F,color->(1,1,1),size->2);
+            draw(F,B,color->(1,1,1),size->2);
 
         </script>
         
@@ -112,11 +113,11 @@
             
             var gslp=[
 
-                      {name:"A", type:"Free", pos:[0,-2],color:[1,1,1]},
-                      {name:"B", type:"Free", pos:[3,3],color:[1,1,1]},
-                      {name:"D", type:"Free", pos:[-6,-6],color:[1,1,1]},
-                      {name:"E", type:"Free", pos:[-5,7.5],color:[1,1,1]},
-                      {name:"G", type:"Free", pos:[7,-4],color:[1,1,1]},
+                      {name:"A", type:"Free", pos:[1.9,.5],color:[1,1,1]},
+                      {name:"B", type:"Free", pos:[-3.6,1],color:[1,1,1]},
+                      {name:"D", type:"Free", pos:[-6.5,-7],color:[1,1,1],color:[1,.7,0],size:3},
+                      {name:"E", type:"Free", pos:[-5,7.5],color:[1,1,1],color:[1,.7,0],size:3},
+                      {name:"G", type:"Free", pos:[7.5,-7.5],color:[1,1,1],color:[1,.7,0],size:3},
                                            ];
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",

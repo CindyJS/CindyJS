@@ -41,9 +41,17 @@ var evaluate=function(a){
     if(a.ctype=='shape'){
         return a;
     }
-    if(a.ctype=='field'){        
-        return Accessor.getGeoField(a.obj,a.key);
+    
+    if(a.ctype=='field'){ 
+        
+        var obj=evaluate(a.obj);
+
+        if(obj.ctype=="geo"){
+            return Accessor.getField(obj.value,a.key);
+        }
+        return nada;
     }
+
     if(a.ctype=='function'){
         var eargs=[];
         return evaluator.helper.eval(a.oper,a.args,a.modifs);
@@ -84,7 +92,7 @@ var evaluateAndHomog=function(a){
     }
     
     if(List.helper.isNumberVecN(x,2)){
-        var y=General.add(x,List.realVector([0,0])); //HACK
+        var y=General.clone(x);
         y.value[2]=CSNumber.real(1);
         return y;
     }
@@ -209,7 +217,7 @@ var definitionDot = function(code, bestbinding, oper){
         erg.ctype='number';
         return erg;
     }
-    var s1 = code.substring(0, bestbinding);
+    var s1 = analyse(code.substring(0, bestbinding),false);
     var s2 = code.substring(bestbinding + oper.length);
     return {'ctype':'field','obj':s1,'key':s2};
 }

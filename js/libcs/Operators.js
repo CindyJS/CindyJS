@@ -50,6 +50,12 @@ evaluator.errc=function(args,modifs){      //OK
     return nada;
 }
 
+evaluator.dump=function(args,modifs){      
+    
+    dump(args[0]);
+    return nada;
+}
+
 
 
 evaluator.repeat=function(args,modifs){    //OK
@@ -401,12 +407,10 @@ evaluator.helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher ob
 
 
 evaluator.helper.assigndot=function(data,what){
-    var where=evaluate(data.args[0]);
-    var field=evaluate(data.args[1]);
-    
-    if(where.ctype=='geo'||field.ctype=="string"){
-        var val=evaluate(what);
-       
+    var where=evaluate(data.obj);
+    var field=data.key;
+    if(where && field){
+        Accessor.setField(where.value,field,evaluate(what));       
     }
     
     return nada;
@@ -436,7 +440,6 @@ evaluator.assign=function(args,modifs){
     
     var u0=(args[0].ctype== 'undefined');
     var u1=(args[1].ctype== 'undefined');
-    
     if(u0 || u1 ){
         return nada;
     }
@@ -448,10 +451,8 @@ evaluator.assign=function(args,modifs){
             evaluator.helper.assigntake(args[0],args[1]);
         }
     }
-    if(args[0].ctype=='infix' ){
-        if(args[0].oper=='.'){
-            evaluator.helper.assigndot(args[0],args[1]);
-        }
+    if(args[0].ctype=='field' ){
+        evaluator.helper.assigndot(args[0],args[1]);
     }
 
     if(args[0].ctype=='function' &&args[0].oper=='genList' ){
@@ -2763,14 +2764,11 @@ evaluator.screen=function(args,modifs){
 }
 
 evaluator.allpoints=function(args,modifs){
-	console.log("allpoints");
 	if (args.length==0) {
-		console.log("no argument")
 		erg=[];
 		for (var i=0; i< csgeo.points.length; i++) {
 			erg[i]={ctype:"geo",value:csgeo.points[i],type:"P"};
 		}
-		dump(erg);
 		return {ctype:"list", value:erg};
 	}
 	return nada;
