@@ -35,14 +35,18 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            n=round(|(B.x+10)*5|);
+errc("AAA");
+draw(A,B);
+n=round(|(B.x+10)*5|);
             f(x):=[sin(x),cos(x)]*6+A;
             steps=2*pi*(1..n)/n;
             pts=apply(steps,f(#));
             segs=pairs(pts);
             drawall(segs,alpha->1/n*5);
             drawall(pts,size->4);
-            
+l=allpoints();
+errc(l);
+forall(l, draw(#,size->20));
 
                       
         </script>
