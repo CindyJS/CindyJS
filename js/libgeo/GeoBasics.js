@@ -164,12 +164,12 @@ function onSegment(p,s){//TODO was ist mit Fernpunkten
     var xm=CSNumber.div(elm.value[0],elm.value[2]);
     var ym=CSNumber.div(elm.value[1],elm.value[2]);
 
-    if(CSNumber.helper.isAlmostReal(x1)&&
-       CSNumber.helper.isAlmostReal(y1)&&
-       CSNumber.helper.isAlmostReal(x2)&&
-       CSNumber.helper.isAlmostReal(y2)&&
-       CSNumber.helper.isAlmostReal(xm)&&
-       CSNumber.helper.isAlmostReal(ym)){
+    if(CSNumber._helper.isAlmostReal(x1)&&
+       CSNumber._helper.isAlmostReal(y1)&&
+       CSNumber._helper.isAlmostReal(x2)&&
+       CSNumber._helper.isAlmostReal(y2)&&
+       CSNumber._helper.isAlmostReal(xm)&&
+       CSNumber._helper.isAlmostReal(ym)){
             x1=x1.value.real;
             y1=y1.value.real;
             x2=x2.value.real;
@@ -252,7 +252,7 @@ function guessIncidences(){
 function render(){
 
     var drawgeopoint= function(el){
-        if(!el.isshowing||!List.helper.isAlmostReal(el.homog))
+        if(!el.isshowing||!List._helper.isAlmostReal(el.homog))
             return;
         evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
         
@@ -293,7 +293,7 @@ function render(){
     }
     
     var drawgeoline= function(el){
-        if(!el.isshowing || !List.helper.isAlmostReal(el.homog) )
+        if(!el.isshowing || !List._helper.isAlmostReal(el.homog) )
             return;
 
         if(el.clip.value=="none"){
@@ -317,10 +317,10 @@ function render(){
                 var y=pt.value[1];
                 var z=pt.value[2];
 
-                if(!CSNumber.helper.isAlmostZero(z)){
+                if(!CSNumber._helper.isAlmostZero(z)){
                     x=CSNumber.div(x,z);
                     y=CSNumber.div(y,z);
-                    if(CSNumber.helper.isAlmostReal(x)&&CSNumber.helper.isAlmostReal(y)){
+                    if(CSNumber._helper.isAlmostReal(x)&&CSNumber._helper.isAlmostReal(y)){
                         if(x.value.real<xmin[0]){
                             xmin=[x.value.real,pt];
                         }

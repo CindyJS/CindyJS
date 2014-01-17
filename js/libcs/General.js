@@ -3,7 +3,7 @@
 //      Things that apply to several types
 //==========================================
 var General={};
-General.helper={};
+General._helper={};
 
 General.order={
 undefined:0,
@@ -46,10 +46,10 @@ General.compare=function(a,b){
         return (General.order[a.ctype]-General.order[b.ctype])
     }
     if (a.ctype=='number') {
-        return CSNumber.helper.compare(a,b);
+        return CSNumber._helper.compare(a,b);
     }
     if (a.ctype=='list') {
-        return List.helper.compare(a,b);
+        return List._helper.compare(a,b);
     }
     if (a.ctype=='string') {
         if(a.value==b.value) {

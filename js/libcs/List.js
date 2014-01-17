@@ -4,7 +4,7 @@
 //      Lists
 //==========================================
 var List={};
-List.helper={};
+List._helper={};
 
 List.turnIntoCSList=function(l){
     return {'ctype':'list','value':l};
@@ -170,7 +170,7 @@ List.contains=function(a,b){
     var bb=false; 
     for(var i=0;i<a.value.length;i++){
         var cc=a.value[i];
-        if((evaluator.helper.equals(cc,b)).value){
+        if((evaluator._helper.equals(cc,b)).value){
             return {'ctype':'boolean','value':true};
 
         };
@@ -185,7 +185,7 @@ List.common=function(a,b){
         var bb=false; 
         var cc=a.value[i];
         for(var j=0;j<b.value.length;j++){
-            bb=bb||(evaluator.helper.equals(cc,b.value[j])).value;
+            bb=bb||(evaluator._helper.equals(cc,b.value[j])).value;
         }
         if(bb){
             erg[erg.length]=a.value[i];
@@ -200,7 +200,7 @@ List.remove=function(a,b){
         var bb=false; 
         var cc=a.value[i];
         for(var j=0;j<b.value.length;j++){
-            bb=bb||(evaluator.helper.equals(cc,b.value[j])).value;
+            bb=bb||(evaluator._helper.equals(cc,b.value[j])).value;
         }
         if(!bb){
             erg[erg.length]=a.value[i];
@@ -209,7 +209,7 @@ List.remove=function(a,b){
     return {'ctype':'list','value':erg};
 }
 
-List.helper.compare=function(a,b){
+List._helper.compare=function(a,b){
     if(a.ctype=='number' && b.ctype=='number'){
         return a.value.real-b.value.real
     }
@@ -222,11 +222,11 @@ List.sort1=function(a){
   return List.turnIntoCSList(erg);
 }
 
-List.helper.isEqual=function(a1,a2){
+List._helper.isEqual=function(a1,a2){
     return List.equals(a1,a2).value;
 }
 
-List.helper.isLessThan=function(a,b){
+List._helper.isLessThan=function(a,b){
 
     var s1 = a.value.length;
     var s2 = b.value.length;
@@ -244,9 +244,9 @@ List.helper.isLessThan=function(a,b){
 }
 
 
-List.helper.compare=function(a,b) {
-    if(List.helper.isLessThan(a,b)){return -1}
-    if(List.helper.isEqual(a,b)){return 0}
+List._helper.compare=function(a,b) {
+    if(List._helper.isLessThan(a,b)){return -1}
+    if(List._helper.isEqual(a,b)){return 0}
     return 1;
 }
 
@@ -289,29 +289,29 @@ List.almostequals=function(a1,a2){
     return {'ctype':'boolean','value':erg};
 }
 
-List.helper.isAlmostReal=function(a1){
+List._helper.isAlmostReal=function(a1){
     var erg=true;
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
 
         if(av1.ctype=='list' ){
-            erg=erg && List.helper.isAlmostReal(av1);
+            erg=erg && List._helper.isAlmostReal(av1);
         } else {
-            erg=erg && CSNumber.helper.isAlmostReal(av1);            
+            erg=erg && CSNumber._helper.isAlmostReal(av1);
         }
     }
     return erg;
 }
 
-List.helper.isNaN=function(a1){
+List._helper.isNaN=function(a1){
     var erg=false;
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
 
         if(av1.ctype=='list' ){
-            erg=erg || List.helper.isNaN(av1);
+            erg=erg || List._helper.isNaN(av1);
         } else {
-            erg=erg || CSNumber.helper.isNaN(av1);            
+            erg=erg || CSNumber._helper.isNaN(av1);
         }
     }
     return erg;
@@ -584,7 +584,7 @@ List.floor=function(a){
 
 
 
-List.helper.colNumb=function(a){
+List._helper.colNumb=function(a){
     if(a.ctype!='list') {
         return -1;
     }
@@ -604,7 +604,7 @@ List.helper.colNumb=function(a){
 
 }
 
-List.helper.isNumberVecN=function(a,n){
+List._helper.isNumberVecN=function(a,n){
     
     if(a.ctype!='list') {
         return false;
@@ -658,7 +658,7 @@ List.isNumberVectorN=function(a,n){
 
 
 List.isNumberMatrix=function(a){
-    if(List.helper.colNumb(a)==-1){
+    if(List._helper.colNumb(a)==-1){
         return {'ctype':'boolean','value':false};
     }
 
@@ -912,7 +912,7 @@ List.det3=function(p,q,r){//Assumes that a,b,c are 3-Vectors
 List.clone=function(a){
     var erg=[];
     for(var i=0;i<a.value.length;i++){
-        erg[erg.length]=evaluator.helper.clone(a.value[i]);
+        erg[erg.length]=evaluator._helper.clone(a.value[i]);
     }
     return {"ctype":"list" ,  "value":erg,"usage":a.usage}
 }

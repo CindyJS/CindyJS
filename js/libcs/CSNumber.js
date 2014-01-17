@@ -309,63 +309,63 @@ CSNumber.mod=function(a,b){
     return CSNumber.snap({"ctype":"number" ,"value":{'real':r,'imag':i}});
 }
 
-CSNumber.helper={};
+CSNumber._helper={};
 
-CSNumber.helper.seed='NO';
+CSNumber._helper.seed='NO';
 CSNumber.eps=0.0000000001;
 CSNumber.epsbig=0.000001;
 
-CSNumber.helper.seedrandom=function(a){
+CSNumber._helper.seedrandom=function(a){
     a=a-Math.floor(a);
     a=a*.8+.1;
-    CSNumber.helper.seed=a;
+    CSNumber._helper.seed=a;
 }
 
-CSNumber.helper.rand=function(){
-    if(CSNumber.helper.seed=='NO'){
+CSNumber._helper.rand=function(){
+    if(CSNumber._helper.seed=='NO'){
         return Math.random();
     }
-    var a=CSNumber.helper.seed;
+    var a=CSNumber._helper.seed;
     a=Math.sin(1000*a)*1000;
     a=a-Math.floor(a);
-    CSNumber.helper.seed=a;
+    CSNumber._helper.seed=a;
     return a;
 }
 
-CSNumber.helper.randnormal=function(){
-    var a=CSNumber.helper.rand();
-    var b=CSNumber.helper.rand();
+CSNumber._helper.randnormal=function(){
+    var a=CSNumber._helper.rand();
+    var b=CSNumber._helper.rand();
     return Math.sqrt(-2*Math.log(a))*Math.cos(2*Math.PI*b);
 }
 
 
-CSNumber.helper.isEqual=function(a,b) {
+CSNumber._helper.isEqual=function(a,b) {
     return (a.value.real == b.value.real) && (a.value.imag == b.value.imag);
 }
 
-CSNumber.helper.isLessThan=function(a,b) {
+CSNumber._helper.isLessThan=function(a,b) {
 
     return(a.value.real < b.value.real 
            || a.value.real == b.value.real && a.value.imag < b.value.imag)
 }
 
-CSNumber.helper.compare=function(a,b) {
-    if(CSNumber.helper.isLessThan(a,b)){return -1}
-    if(CSNumber.helper.isEqual(a,b)){return 0}
+CSNumber._helper.compare=function(a,b) {
+    if(CSNumber._helper.isLessThan(a,b)){return -1}
+    if(CSNumber._helper.isEqual(a,b)){return 0}
     return 1;
 }
 
-CSNumber.helper.isAlmostEqual=function(a,b) {
+CSNumber._helper.isAlmostEqual=function(a,b) {
     var r=a.value.real-b.value.real;
     var i=a.value.imag-b.value.imag;
     return (r<CSNumber.eps) && (r>-CSNumber.eps)&&(i<CSNumber.eps) && (i>-CSNumber.eps);
 }
 
-CSNumber.helper.isZero=function(a) {
+CSNumber._helper.isZero=function(a) {
     return (a.value.real == 0) && (a.value.imag == 0);
 }
 
-CSNumber.helper.isAlmostZero=function(a) {
+CSNumber._helper.isAlmostZero=function(a) {
     var r=a.value.real;
     var i=a.value.imag;
     return (r<CSNumber.eps) && (r>-CSNumber.eps)&&(i<CSNumber.eps) && (i>-CSNumber.eps);
@@ -373,21 +373,21 @@ CSNumber.helper.isAlmostZero=function(a) {
 
 
 
-CSNumber.helper.isReal=function(a) {
+CSNumber._helper.isReal=function(a) {
     return (a.value.imag == 0) ;
 }
 
-CSNumber.helper.isAlmostReal=function(a) {
+CSNumber._helper.isAlmostReal=function(a) {
     var i=a.value.imag;
     return (i<CSNumber.epsbig) && (i>-CSNumber.epsbig);//So gemacht wie in Cindy
 }
 
-CSNumber.helper.isNaN=function(a) {
+CSNumber._helper.isNaN=function(a) {
     return (isNaN(a.value.real)) || (isNaN(a.value.imag));
 }
 
 
-CSNumber.helper.isAlmostImag=function(a) {
+CSNumber._helper.isAlmostImag=function(a) {
     var r=a.value.real;
     return (r<CSNumber.epsbig) && (r>-CSNumber.epsbig);//So gemacht wie in Cindy
 }

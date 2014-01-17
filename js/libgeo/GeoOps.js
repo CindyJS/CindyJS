@@ -1,5 +1,5 @@
 geoOps={};
-geoOps.helper={};
+geoOps._helper={};
 
 var geoOpMap={};
 
@@ -207,8 +207,8 @@ geoOps.PointOnCircle =function(el){
 geoOpMap.PointOnCircle="P";
 
 
-geoOps.helper.CenterOfConic =function(c){
-        var pts=geoOps.helper.IntersectLC(List.linfty,c);
+geoOps._helper.CenterOfConic =function(c){
+        var pts=geoOps._helper.IntersectLC(List.linfty,c);
         var ln1=General.mult(c,pts[0]);
         var ln2=General.mult(c,pts[1]);
 
@@ -219,7 +219,7 @@ geoOps.helper.CenterOfConic =function(c){
 
 geoOps.CenterOfConic =function(el){
     var c=csgeo.csnames[(el.args[0])].matrix;
-    var erg=geoOps.helper.CenterOfConic(c);
+    var erg=geoOps._helper.CenterOfConic(c);
     el.homog=erg;
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Point";
@@ -228,7 +228,7 @@ geoOps.CenterOfConic =function(el){
 }
 geoOpMap.CenterOfConic="P";
 
-geoOps.helper.CircleMP=function(m,p){
+geoOps._helper.CircleMP=function(m,p){
     var l1=List.crossOperator(m);
     var l2=List.transpose(l1);
     
@@ -246,7 +246,7 @@ geoOps.CircleMP =function(el){//TODO Performance Checken. Das ist jetzt der voll
                                 //Weniger Allgemein geht das viiiiel schneller
     var m=csgeo.csnames[(el.args[0])].homog;
     var p=csgeo.csnames[(el.args[1])].homog;
-    el.matrix=geoOps.helper.CircleMP(m,p);
+    el.matrix=geoOps._helper.CircleMP(m,p);
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Circle";
     
@@ -269,7 +269,7 @@ geoOps.CircleMr =function(el){
     var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
     p=List.add(p,mid);
     
-    el.matrix=geoOps.helper.CircleMP(mid,p);
+    el.matrix=geoOps._helper.CircleMP(mid,p);
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Circle";
     
@@ -286,7 +286,7 @@ geoOps.CircleMFixedr =function(el){
     var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
     p=List.add(p,mid);
     
-    el.matrix=geoOps.helper.CircleMP(mid,p);
+    el.matrix=geoOps._helper.CircleMP(mid,p);
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Circle";
     
@@ -295,7 +295,7 @@ geoOpMap.CircleMFixedr="C";
 
 
 
-geoOps.helper.ConicBy5 =function(el,a,b,c,d,p){
+geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
     var v23=List.turnIntoCSList([List.cross(b, c)]);
     var v14=List.turnIntoCSList([List.cross(a, d)]);
@@ -322,7 +322,7 @@ geoOps.ConicBy5 =function(el){
     var c=csgeo.csnames[(el.args[2])].homog;
     var d=csgeo.csnames[(el.args[3])].homog;
     var p=csgeo.csnames[(el.args[4])].homog;
-    var erg=geoOps.helper.ConicBy5(el,a,b,c,d,p);
+    var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
@@ -335,7 +335,7 @@ geoOps.CircleBy3 =function(el){
     var c=List.ii;
     var d=List.jj;
     var p=csgeo.csnames[(el.args[2])].homog;
-    var erg=geoOps.helper.ConicBy5(el,a,b,c,d,p);
+    var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
     el.matrix=List.normalizeMax(erg);
     el.matrix.usage="Circle";
 
@@ -343,7 +343,7 @@ geoOps.CircleBy3 =function(el){
 geoOpMap.CircleBy3="C";
 
 
-geoOps.helper.tracing2=function(n1,n2,c1,c2,el){//Billigtracing
+geoOps._helper.tracing2=function(n1,n2,c1,c2,el){//Billigtracing
     var OK=0;
     var DECREASE_STEP=1;
     var INVALID=2;
@@ -366,7 +366,7 @@ geoOps.helper.tracing2=function(n1,n2,c1,c2,el){//Billigtracing
     
 }
 
-geoOps.helper.tracing2X=function(n1,n2,c1,c2,el){
+geoOps._helper.tracing2X=function(n1,n2,c1,c2,el){
     var OK=0;
     var DECREASE_STEP=1;
     var INVALID=2;
@@ -419,7 +419,7 @@ geoOps.helper.tracing2X=function(n1,n2,c1,c2,el){
     
 }
 
-geoOps.helper.IntersectLC=function(l,c){
+geoOps._helper.IntersectLC=function(l,c){
 
     var N=CSNumber;
     var l1=List.crossOperator(l);
@@ -472,7 +472,7 @@ geoOps.IntersectLC =function(el){
     var l=csgeo.csnames[(el.args[0])].homog;
     var c=csgeo.csnames[(el.args[1])].matrix;
     
-    var erg=geoOps.helper.IntersectLC(l,c);
+    var erg=geoOps._helper.IntersectLC(l,c);
     var erg1=erg[0];
     var erg2=erg[1];
                            
@@ -483,8 +483,8 @@ geoOps.IntersectLC =function(el){
         el.results=List.turnIntoCSList([erg1,erg2]);
         
     } else {
-        var action=geoOps.helper.tracing2(erg1,erg2,el.check1,el.check2,el);
-        if(!List.helper.isNaN(el.results.value[0]) &&!List.helper.isNaN(el.results.value[1])){
+        var action=geoOps._helper.tracing2(erg1,erg2,el.check1,el.check2,el);
+        if(!List._helper.isNaN(el.results.value[0]) &&!List._helper.isNaN(el.results.value[1])){
             el.check1=el.results.value[0];
             el.check2=el.results.value[1];
         }
@@ -506,7 +506,7 @@ geoOps.IntersectCirCir =function(el){
 
     
     
-    var erg=geoOps.helper.IntersectLC(ll,c1);
+    var erg=geoOps._helper.IntersectLC(ll,c1);
     var erg1=erg[0];
     var erg2=erg[1];
                            
@@ -517,7 +517,7 @@ geoOps.IntersectCirCir =function(el){
         el.results=List.turnIntoCSList([erg1,erg2]);
         
     } else {
-        var action=geoOps.helper.tracing2(erg1,erg2,el.check1,el.check2,el);
+        var action=geoOps._helper.tracing2(erg1,erg2,el.check1,el.check2,el);
         el.check1=el.results.value[0];
         el.check2=el.results.value[1];
     }

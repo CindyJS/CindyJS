@@ -59,7 +59,7 @@ function Namespace(){
             stack[stack.length-1]=val;
             return;
         }
-        var erg=evaluator.helper.clone(val);
+        var erg=evaluator._helper.clone(val);
         stack[stack.length-1]=erg;
     }
     
