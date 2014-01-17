@@ -804,8 +804,6 @@ evaluator.max=function(args,modifs){
     return evaluator.helper.genericListMath(args,"max");
 }
 
-
-
 evaluator.min=function(args,modifs){
     return evaluator.helper.genericListMath(args,"min");
 }
