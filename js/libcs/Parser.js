@@ -11,7 +11,7 @@ var evaluate=function(a){
 
     if(a.ctype=='infix'){
         var ioper=infixmap[a.oper];
-        return evaluator.helper.eval(ioper,a.args,[]);
+        return evaluator._helper.eval(ioper,a.args,[]);
     }
     if(a.ctype=='variable'){
         return namespace.getvar(a.name);
@@ -46,7 +46,7 @@ var evaluate=function(a){
     }
     if(a.ctype=='function'){
         var eargs=[];
-        return evaluator.helper.eval(a.oper,a.args,a.modifs);
+        return evaluator._helper.eval(a.oper,a.args,a.modifs);
     }
     return nada;
     
@@ -79,11 +79,11 @@ var evaluateAndHomog=function(a){
         }
         
     }
-    if(List.helper.isNumberVecN(x,3)){
+    if(List._helper.isNumberVecN(x,3)){
         return x;
     }
     
-    if(List.helper.isNumberVecN(x,2)){
+    if(List._helper.isNumberVecN(x,2)){
         var y=General.add(x,List.realVector([0,0])); //HACK
         y.value[2]=CSNumber.real(1);
         return y;

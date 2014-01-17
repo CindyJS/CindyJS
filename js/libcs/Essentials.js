@@ -162,9 +162,9 @@ var myfunctions= function(name,args,modifs){
 //this function evaluates a concrete function
 //*******************************************************
 var evaluator={};
-evaluator.helper={};
+evaluator._helper={};
 
-evaluator.helper.eval= function(name,args,modifs){
+evaluator._helper.eval= function(name,args,modifs){
     var tt=evaluator[name];
     if(tt===undefined){
         return myfunctions(name+args.length,args,modifs); //Ich habe  überdefinieren von fkts rausgenommen
@@ -175,14 +175,14 @@ evaluator.helper.eval= function(name,args,modifs){
 
 
 
-evaluator.helper.clone=function(a){//Das ist jetzt gerade mal ätzend un-OO
+evaluator._helper.clone=function(a){//Das ist jetzt gerade mal ätzend un-OO
    if(a.ctype=='list'){return List.clone(a);}
    if(a.ctype=='number'){return CSNumber.clone(a);}
    return a;//Werden die anderen sachen gecloned, in Cindy ist das nicht so???
 
 }
 
-evaluator.helper.equals=function(v0,v1){//Und nochmals un-OO
+evaluator._helper.equals=function(v0,v1){//Und nochmals un-OO
     if(v0.ctype=='number' && v1.ctype=='number' ){
         return {'ctype':'boolean' ,
             'value':(v0.value.real==v1.value.real)&&
