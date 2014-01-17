@@ -113,8 +113,7 @@ var condense=function(code){
                 commentmode=true;
         if(c=='\n')
             commentmode=false;
-        
-        if((c!=' ' && c!='\n' && !commentmode) || literalmode)
+        if ( !(c === '\u0020' || c === '\u0009' || c === '\u000A' ||  c === '\u000C' || c === '\u000D' || commentmode) || literalmode)
             erg=erg+c;
     }
     return erg;
