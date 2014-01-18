@@ -127,16 +127,12 @@ var condense = function(code) {
 	return erg;
 }
 
-
-var dots='....................................................';
-
-
 //*******************************************************
 // this function shows an expression tree on the console
 //*******************************************************
 
 var report=function(a,i){
-    var prep=dots.substring(0,i);
+    var prep= new Array(i + 1).join('.');
     if(a.ctype=='infix'){
         console.log(prep+"INFIX: "+a.oper);
         console.log(prep+"ARG 1 ");
