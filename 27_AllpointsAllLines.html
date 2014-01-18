@@ -33,11 +33,12 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>CindyJS: Euler-Line</h1>
+        <h1>CindyJS: Allpoints Alllines</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
-
+		forall(allpoints(),draw(#.homog,size->10));
+		forall(alllines(),draw(#.homog,size->1,dashing->2));
             
         </script>
         
