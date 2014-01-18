@@ -381,7 +381,7 @@ evaluator.genList=function(args,modifs){
 }
 
 
-evaluator.helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher obs das so tut
+evaluator._helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher obs das so tut
     var where=evaluate(data.args[0]);
     var ind=evaluateAndVal(data.args[1]);
     
@@ -406,7 +406,7 @@ evaluator.helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher ob
 }
 
 
-evaluator.helper.assigndot=function(data,what){
+evaluator._helper.assigndot=function(data,what){
     var where=evaluate(data.obj);
     var field=data.key;
     if(where && field){
@@ -419,7 +419,7 @@ evaluator.helper.assigndot=function(data,what){
 
 
 
-evaluator.helper.assignlist=function(vars,vals){
+evaluator._helper.assignlist=function(vars,vals){
     var n=vars.length;
     var m=vals.length;
     if(m<n) n=m;
@@ -448,18 +448,18 @@ evaluator.assign=function(args,modifs){
     }
     if(args[0].ctype=='infix' ){
         if(args[0].oper=='_'){
-            evaluator.helper.assigntake(args[0],args[1]);
+            evaluator._helper.assigntake(args[0],args[1]);
         }
     }
     if(args[0].ctype=='field' ){
-        evaluator.helper.assigndot(args[0],args[1]);
+        evaluator._helper.assigndot(args[0],args[1]);
     }
 
     if(args[0].ctype=='function' &&args[0].oper=='genList' ){
         var v1=evaluate(args[1]);
         if(v1.ctype=="list"){
             
-            evaluator.helper.assignlist(args[0].args,v1.value);
+            evaluator._helper.assignlist(args[0].args,v1.value);
         }
         
     }
@@ -544,7 +544,7 @@ evaluator.comp_almostequals=function(args,modifs){
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
         return {'ctype':'boolean' ,
-            'value':CSNumber.helper.isAlmostEqual(v0,v1)  }
+            'value':CSNumber._helper.isAlmostEqual(v0,v1)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
         return {'ctype':'boolean' ,
@@ -638,7 +638,7 @@ evaluator.comp_ugt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real+CSNumber.eps)  }
     }
     return nada;
@@ -648,7 +648,7 @@ evaluator.comp_uge=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real-CSNumber.eps)  }
     }
     return nada;
@@ -658,7 +658,7 @@ evaluator.comp_ult=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real-CSNumber.eps)  }
     }
     return nada;
@@ -668,7 +668,7 @@ evaluator.comp_ule=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real+CSNumber.eps)  }
     }
     return nada;
@@ -680,7 +680,7 @@ evaluator.comp_gt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
@@ -694,7 +694,7 @@ evaluator.comp_ge=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real>=v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
@@ -708,7 +708,7 @@ evaluator.comp_le=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real<=v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
@@ -721,7 +721,7 @@ evaluator.comp_lt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype=='number' && v1.ctype=='number' ){
-        if(CSNumber.helper.isAlmostReal(v0)&&CSNumber.helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
             return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real)  }
     }
     if(v0.ctype=='string' && v1.ctype=='string' ){
@@ -745,7 +745,7 @@ evaluator.sequence=function(args,modifs){  //OK
 
 
 
-evaluator.helper.genericListMath1=function(args,op){ //OK
+evaluator._helper.genericListMath1=function(args,op){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!='list'){
@@ -779,7 +779,7 @@ evaluator.helper.genericListMath1=function(args,op){ //OK
 }
 
 
-evaluator.helper.genericListMath=function(args,op){
+evaluator._helper.genericListMath=function(args,op){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='list'){
@@ -787,26 +787,26 @@ evaluator.helper.genericListMath=function(args,op){
             
         }
     }
-    return evaluator.helper.genericListMath1(args,op);
+    return evaluator._helper.genericListMath1(args,op);
 }
 
 
 evaluator.product=function(args,modifs){
-    return evaluator.helper.genericListMath(args,"mult");
+    return evaluator._helper.genericListMath(args,"mult");
 }
 
 
 evaluator.sum=function(args,modifs){
-    return evaluator.helper.genericListMath(args,"add");
+    return evaluator._helper.genericListMath(args,"add");
 }
 
 
 evaluator.max=function(args,modifs){
-    return evaluator.helper.genericListMath(args,"max");
+    return evaluator._helper.genericListMath(args,"max");
 }
 
 evaluator.min=function(args,modifs){
-    return evaluator.helper.genericListMath(args,"min");
+    return evaluator._helper.genericListMath(args,"min");
 }
 
 
@@ -1055,13 +1055,13 @@ evaluator.abs=function(args,modifs){
 
 evaluator.random=function(args,modifs){
     if(args.length==0){
-        return CSNumber.real(CSNumber.helper.rand());
+        return CSNumber.real(CSNumber._helper.rand());
     }
     
     if(args.length==1 ){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='number' ){
-            return CSNumber.complex(v0.value.real*CSNumber.helper.rand(),v0.value.imag*CSNumber.helper.rand());
+            return CSNumber.complex(v0.value.real*CSNumber._helper.rand(),v0.value.imag*CSNumber._helper.rand());
         }
     }
     return nada;
@@ -1070,13 +1070,13 @@ evaluator.random=function(args,modifs){
 
 evaluator.random=function(args,modifs){
     if(args.length==0){
-        return CSNumber.real(CSNumber.helper.rand());
+        return CSNumber.real(CSNumber._helper.rand());
     }
     
     if(args.length==1 ){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='number' ){
-            return CSNumber.complex(v0.value.real*CSNumber.helper.rand(),v0.value.imag*CSNumber.helper.rand());
+            return CSNumber.complex(v0.value.real*CSNumber._helper.rand(),v0.value.imag*CSNumber._helper.rand());
         }
     }
     return nada;
@@ -1087,7 +1087,7 @@ evaluator.seedrandom=function(args,modifs){
     if(args.length==1 ){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='number' ){
-            CSNumber.helper.seedrandom(v0.value.real);
+            CSNumber._helper.seedrandom(v0.value.real);
         }
     }
     return nada;
@@ -1100,7 +1100,7 @@ evaluator.seedrandom=function(args,modifs){
 evaluator.randomnormal=function(args,modifs){
     
     if(args.length==0){
-        return CSNumber.real(CSNumber.helper.randnormal());
+        return CSNumber.real(CSNumber._helper.randnormal());
     }
     return nada;
     
@@ -1115,7 +1115,7 @@ evaluator.randominteger=function(args,modifs){
 evaluator.randombool=function(args,modifs){
     
     if(args.length==0){
-        if(CSNumber.helper.rand()>0.5){
+        if(CSNumber._helper.rand()>0.5){
             return {'ctype':'boolean' ,'value':true  };
         }
         return {'ctype':'boolean' ,'value':false  };
@@ -1136,7 +1136,7 @@ evaluator.isreal=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='number' ){
-            if(CSNumber.helper.isAlmostReal(v0)){
+            if(CSNumber._helper.isAlmostReal(v0)){
                 return {'ctype':'boolean' ,'value':true  };
             }
         }
@@ -1150,7 +1150,7 @@ evaluator.isinteger=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='number' ){
-            if(CSNumber.helper.isAlmostReal(v0)&&
+            if(CSNumber._helper.isAlmostReal(v0)&&
                v0.value.real==Math.floor(v0.value.real)){
                 return {'ctype':'boolean' ,'value':true  };
             }
@@ -1166,7 +1166,7 @@ evaluator.iseven=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='number' ){
-            if(CSNumber.helper.isAlmostReal(v0)&&
+            if(CSNumber._helper.isAlmostReal(v0)&&
                v0.value.real/2==Math.floor(v0.value.real/2)){
                 return {'ctype':'boolean' ,'value':true  };
             }
@@ -1181,7 +1181,7 @@ evaluator.isodd=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
         if(v0.ctype=='number' ){
-            if(CSNumber.helper.isAlmostReal(v0)&&
+            if(CSNumber._helper.isAlmostReal(v0)&&
                (v0.value.real-1)/2==Math.floor((v0.value.real-1)/2)){
                 return {'ctype':'boolean' ,'value':true  };
             }
@@ -1238,7 +1238,7 @@ evaluator.ismatrix=function(args,modifs){
     
     if(args.length==1){
         var v0=evaluate(args[0]);
-        if((List.helper.colNumb(v0))!=-1){
+        if((List._helper.colNumb(v0))!=-1){
             return {'ctype':'boolean' ,'value':true  };
         }
         return {'ctype':'boolean' ,'value':false  };
@@ -1278,7 +1278,7 @@ evaluator.matrixrowcolumn=function(args,modifs){
     
     if(args.length==1){
         var v0=evaluate(args[0]);
-        var n=List.helper.colNumb(v0);
+        var n=List._helper.colNumb(v0);
         if(n!=-1){
             return List.realVector([v0.value.length,v0.value[0].value.length]);
         }
@@ -1427,7 +1427,7 @@ evaluator.perp=function(args,modifs){
     if(args.length==1){
         var v0=evaluateAndVal(args[0]);
         
-        if(List.helper.isNumberVecN(v0,2)){
+        if(List._helper.isNumberVecN(v0,2)){
             v0.value=[CSNumber.neg(v0.value[1]),v0.value[0]];
             return(v0);
         }
@@ -1495,7 +1495,7 @@ evaluator.dist=function(args,modifs){
 evaluator.point=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
-        if(List.helper.isNumberVecN(v0,3) || List.helper.isNumberVecN(v0,2)){
+        if(List._helper.isNumberVecN(v0,3) || List._helper.isNumberVecN(v0,2)){
             v0.usage="Point";
         }
     }
@@ -1506,7 +1506,7 @@ evaluator.point=function(args,modifs){
 evaluator.line=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
-        if(List.helper.isNumberVecN(v0,3) || List.helper.isNumberVecN(v0,2)){
+        if(List._helper.isNumberVecN(v0,3) || List._helper.isNumberVecN(v0,2)){
             v0.usage="Line";
         }
     }
@@ -1538,9 +1538,9 @@ evaluator.area=function(args,modifs){
             var z0=v0.value[2];
             var z1=v1.value[2];
             var z2=v2.value[2];
-            if(!CSNumber.helper.isAlmostZero(z0) 
-               && !CSNumber.helper.isAlmostZero(z1) 
-               && !CSNumber.helper.isAlmostZero(z2) ){
+            if(!CSNumber._helper.isAlmostZero(z0) 
+               && !CSNumber._helper.isAlmostZero(z1) 
+               && !CSNumber._helper.isAlmostZero(z2) ){
                 v0=List.scaldiv(z0,v0);
                 v1=List.scaldiv(z1,v1);
                 v2=List.scaldiv(z2,v2);
@@ -1559,7 +1559,7 @@ evaluator.inverse=function(args,modifs){
     if(args.length==1){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='list'){
-            var n=List.helper.colNumb(v0);
+            var n=List._helper.colNumb(v0);
             if(n!=-1&&n==v0.value.length){
                 return List.inverse(v0);
                 
@@ -1573,7 +1573,7 @@ evaluator.det=function(args,modifs){
     if(args.length==1){
         var v0=evaluateAndVal(args[0]);
         if(v0.ctype=='list'){
-            var n=List.helper.colNumb(v0);
+            var n=List._helper.colNumb(v0);
             if(n!=-1&&n==v0.value.length){
                 return List.det(v0);
                 
@@ -1725,7 +1725,7 @@ evaluator.concat=function(args,modifs){
             return List.concat(v0,v1);
         }
         if(v0.ctype=='shape'&& v1.ctype=='shape'){
-            return evaluator.helper.shapeconcat(v0,v1);
+            return evaluator._helper.shapeconcat(v0,v1);
         }
     }
     return nada;
@@ -1742,7 +1742,7 @@ evaluator.common=function(args,modifs){
             return List.common(v0,v1);
         }
         if(v0.ctype=='shape'&& v1.ctype=='shape'){
-            return evaluator.helper.shapecommon(v0,v1);
+            return evaluator._helper.shapecommon(v0,v1);
         }
 
     }
@@ -1760,7 +1760,7 @@ evaluator.remove=function(args,modifs){
             return List.remove(v0,v1);
         }
         if(v0.ctype=='shape'&& v1.ctype=='shape'){
-            return evaluator.helper.shaperemove(v0,v1);
+            return evaluator._helper.shaperemove(v0,v1);
         }
 
     }
@@ -1805,7 +1805,7 @@ evaluator.contains=function(args,modifs){
 }
 
 
-evaluator.helper.sort2=function(args,modifs){ //OK
+evaluator._helper.sort2=function(args,modifs){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!='list'){
@@ -1847,7 +1847,7 @@ evaluator.sort=function(args,modifs){
             return List.sort1(v0);
         }
     }
-    return evaluator.helper.sort2(args,modifs);
+    return evaluator._helper.sort2(args,modifs);
 }
 
 
@@ -1888,7 +1888,7 @@ evaluator.zerovector=function(args,modifs){
 evaluator.transpose=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     
-    if(v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
+    if(v0.ctype=='list' &&  List._helper.colNumb(v0)!=-1){
         return List.transpose(v0);
     }
     return nada;
@@ -1899,7 +1899,7 @@ evaluator.row=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
-    if(v1.ctype=='number' && v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
+    if(v1.ctype=='number' && v0.ctype=='list' &&  List._helper.colNumb(v0)!=-1){
         return List.row(v0,v1);
     }
     return nada;
@@ -1910,7 +1910,7 @@ evaluator.column=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
-    if(v1.ctype=='number' && v0.ctype=='list' &&  List.helper.colNumb(v0)!=-1){
+    if(v1.ctype=='number' && v0.ctype=='list' &&  List._helper.colNumb(v0)!=-1){
         return List.column(v0,v1);
     }
     return nada;
@@ -1976,7 +1976,7 @@ evaluator.gray=function(args,modifs){
 }
 
 
-evaluator.helper.HSVtoRGB =function(h, s, v) {
+evaluator._helper.HSVtoRGB =function(h, s, v) {
     
     var r, g, b, i, f, p, q, t;
     if (h && s === undefined && v === undefined) {
@@ -2006,7 +2006,7 @@ evaluator.hue=function(args,modifs){
             var c=v0.value.real;
             
             c=c-Math.floor(c );
-            return evaluator.helper.HSVtoRGB(c,1,1);
+            return evaluator._helper.HSVtoRGB(c,1,1);
         }
     }
     return nada;
@@ -2018,7 +2018,7 @@ evaluator.hue=function(args,modifs){
 
 
 
-evaluator.helper.shapeconvert=function(a){
+evaluator._helper.shapeconvert=function(a){
     if(a.type=="circle") {
         var pt=a.value.value[0];
         var aa=General.div(pt,pt.value[2]);
@@ -2051,11 +2051,11 @@ evaluator.helper.shapeconvert=function(a){
 }
 
 
-evaluator.helper.shapeop=function(a,b,op){
+evaluator._helper.shapeop=function(a,b,op){
 
     var convert
-    var aa=evaluator.helper.shapeconvert(a);
-    var bb=evaluator.helper.shapeconvert(b);
+    var aa=evaluator._helper.shapeconvert(a);
+    var bb=evaluator._helper.shapeconvert(b);
     var scale=1000;
     ClipperLib.JS.ScaleUpPaths(aa, scale);
     ClipperLib.JS.ScaleUpPaths(bb, scale);
@@ -2073,16 +2073,16 @@ evaluator.helper.shapeop=function(a,b,op){
 
 };
 
-evaluator.helper.shapecommon=function(a,b){
-    return evaluator.helper.shapeop(a,b,ClipperLib.ClipType.ctIntersection);
+evaluator._helper.shapecommon=function(a,b){
+    return evaluator._helper.shapeop(a,b,ClipperLib.ClipType.ctIntersection);
 }
 
-evaluator.helper.shaperemove=function(a,b){
-    return evaluator.helper.shapeop(a,b,ClipperLib.ClipType.ctDifference);
+evaluator._helper.shaperemove=function(a,b){
+    return evaluator._helper.shapeop(a,b,ClipperLib.ClipType.ctDifference);
 }
 
-evaluator.helper.shapeconcat=function(a,b){
-    return evaluator.helper.shapeop(a,b,ClipperLib.ClipType.ctUnion);
+evaluator._helper.shapeconcat=function(a,b){
+    return evaluator._helper.shapeop(a,b,ClipperLib.ClipType.ctUnion);
 }
 
 
@@ -2480,7 +2480,7 @@ evaluator.parse=function(args,modifs){
 //     Transformations       //
 ///////////////////////////////
 
-evaluator.helper.basismap=function(a,b,c,d){
+evaluator._helper.basismap=function(a,b,c,d){
     var mat= List.turnIntoCSList([a,b,c]);
     mat=List.inverse(List.transpose(mat));
     var vv=General.mult(mat,d);
@@ -2506,8 +2506,8 @@ evaluator.map=function(args,modifs){
         var v3=evaluateAndHomog(args[7]);
         if(v0!=nada && v1!=nada && v2!=nada && v3!=nada && 
            w0!=nada && w1!=nada && w2!=nada && w3!=nada){
-            var m1=evaluator.helper.basismap(v0,v1,v2,v3);
-            var m2=evaluator.helper.basismap(w0,w1,w2,w3);
+            var m1=evaluator._helper.basismap(v0,v1,v2,v3);
+            var m2=evaluator._helper.basismap(w0,w1,w2,w3);
             erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
@@ -2533,8 +2533,8 @@ evaluator.map=function(args,modifs){
         
         if(v0!=nada && v1!=nada && v2!=nada && v3!=nada && 
            w0!=nada && w1!=nada && w2!=nada && w3!=nada){
-            var m1=evaluator.helper.basismap(v0,v1,v2,v3);
-            var m2=evaluator.helper.basismap(w0,w1,w2,w3);
+            var m1=evaluator._helper.basismap(v0,v1,v2,v3);
+            var m2=evaluator._helper.basismap(w0,w1,w2,w3);
             erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
@@ -2554,8 +2554,8 @@ evaluator.map=function(args,modifs){
         
         if(v0!=nada && v1!=nada && 
            w0!=nada && w1!=nada){
-            var m1=evaluator.helper.basismap(v0,v1,ii,jj);
-            var m2=evaluator.helper.basismap(w0,w1,ii,jj);
+            var m1=evaluator._helper.basismap(v0,v1,ii,jj);
+            var m2=evaluator._helper.basismap(w0,w1,ii,jj);
             erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
@@ -2574,8 +2574,8 @@ evaluator.map=function(args,modifs){
         
         if(v0!=nada && v1!=nada && 
            w0!=nada && w1!=nada){
-            var m1=evaluator.helper.basismap(v0,v1,ii,jj);
-            var m2=evaluator.helper.basismap(w0,w1,ii,jj);
+            var m1=evaluator._helper.basismap(v0,v1,ii,jj);
+            var m2=evaluator._helper.basismap(w0,w1,ii,jj);
             erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
@@ -2601,8 +2601,8 @@ evaluator.pointreflect=function(args,modifs){
         
         if( v1!=nada && 
            w0!=nada && w1!=nada){
-            var m1=evaluator.helper.basismap(w0,v1,ii,jj);
-            var m2=evaluator.helper.basismap(w0,w1,ii,jj);
+            var m1=evaluator._helper.basismap(w0,v1,ii,jj);
+            var m2=evaluator._helper.basismap(w0,w1,ii,jj);
             erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
 
@@ -2627,8 +2627,8 @@ evaluator.linereflect=function(args,modifs){
         
         if( 
            w0!=nada && w1!=nada){
-            var m1=evaluator.helper.basismap(w1,w2,ii,jj);
-            var m2=evaluator.helper.basismap(w1,w2,jj,ii);
+            var m1=evaluator._helper.basismap(w1,w2,ii,jj);
+            var m2=evaluator._helper.basismap(w1,w2,jj,ii);
             var erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
@@ -2644,7 +2644,7 @@ evaluator.linereflect=function(args,modifs){
 
 
 
-evaluator.helper.extractPointVec=function(v1){//Eventuell Homogen machen
+evaluator._helper.extractPointVec=function(v1){//Eventuell Homogen machen
     var erg={};
     erg.ok=false;
     if(v1.ctype=='geo') {
@@ -2704,7 +2704,7 @@ evaluator.polygon=function(args,modifs){
         if (v0.ctype=='list'){
             var li=[];
             for(var i=0;i<v0.value.length;i++){
-                var pt=evaluator.helper.extractPoint(v0.value[i]);
+                var pt=evaluator._helper.extractPoint(v0.value[i]);
                 if(!pt.ok ){
                     return nada;
                 }
@@ -2725,7 +2725,7 @@ evaluator.circle=function(args,modifs){
     if(args.length==2) {
         var v0=evaluateAndVal(args[0]);
         var v1=evaluateAndVal(args[1]);
-        var pt=evaluator.helper.extractPointVec(v0);
+        var pt=evaluator._helper.extractPointVec(v0);
         
         if(!pt.ok || v1.ctype!='number'){
             return nada;

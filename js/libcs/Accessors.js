@@ -91,12 +91,12 @@ Accessor.setField=function(geo,field,value){
     if(field=="size") {
         geo.size=General.clone(value);
     }
-    if(field=="xy" && geo.kind=="P"&&geo.ismovable && List.helper.isNumberVecN(value,2)) {
+    if(field=="xy" && geo.kind=="P"&&geo.ismovable && List._helper.isNumberVecN(value,2)) {
         movepointscr(geo,List.turnIntoCSList([value.value[0],value.value[1],CSNumber.real(1)]));
         recalc();
     }
 
-    if(field=="homog" && geo.kind=="P"&&geo.ismovable && List.helper.isNumberVecN(value,2)) {
+    if(field=="homog" && geo.kind=="P"&&geo.ismovable && List._helper.isNumberVecN(value,2)) {
         movepointscr(geo,General.clone(value));
         recalc();
     }
