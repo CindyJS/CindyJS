@@ -70,6 +70,12 @@ Accessor.getField=function(geo,field){
             erg.usage="Line";
             return erg;
         }
+            if(field=="angle") {
+            var erg=List.eucangle(List.ey,geo.homog);
+            erg.usage="Angle";
+            return erg;
+        }
+
     };
     if(Accessor.generalFields[field]) {//must be defined an an actual string
         var erg=geo[Accessor.generalFields[field]];
@@ -98,6 +104,16 @@ Accessor.setField=function(geo,field,value){
 
     if(field=="homog" && geo.kind=="P"&&geo.ismovable && List._helper.isNumberVecN(value,2)) {
         movepointscr(geo,General.clone(value));
+        recalc();
+    }
+
+    if(field=="angle" && geo.kind=="L") {
+        var cc=CSNumber.cos(value);
+        var ss=CSNumber.sin(value);
+        var dir=List.turnIntoCSList([cc,ss,CSNumber.real(0)]);
+        geo.dir=dir;
+        
+    //    movepointscr(geo,General.clone(value));
         recalc();
     }
 

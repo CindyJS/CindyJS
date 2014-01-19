@@ -108,6 +108,22 @@ geoOps.Vertical =function(el){
 geoOpMap.Vertical="L";
 
 
+geoOps.Through =function(el){
+    var el1=List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
+    
+    if(move && move.mover==el){
+        var xx=el1.value[0].value.real-mouse.x+move.offset.x;
+        var yy=el1.value[1].value.real-mouse.y+move.offset.y;
+        el.dir=List.realVector([xx,yy,0]);
+    }
+
+    el.homog=List.cross(el.dir,el1);
+    el.homog=List.normalizeMax(el.homog);
+    el.homog.usage="Line";  
+}
+geoOpMap.Through="L";
+
+
 geoOps.Free =function(el){
     
 }

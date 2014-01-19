@@ -37,29 +37,9 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-        //    B.color=(10,B.x,B.y)/10;
-        //    B.size=|B.xy|;
-        //    a.size=|B.xy|^2*.1;
-        //    A.xy=round(A.xy);
-        //    errc(apply(allpoints(),draw(#,size->10);#.xy));
-        //    f(A):=A+1;
-           // errc(A.xy);
-          //  A=2;
-          //  errc(A*3);
-
-            a=point((1,2,3));
-            errc(a.x);
-            errc(a.y);
-
-            errc(a.xy);
-            errc(a.homog);
-            a=(1,2);
-            errc(a.x);
-            errc(a.y);
-           errc(a.xy);
-            errc(a.homog);
-            
-        </script>
+          //  errc(b.angle);
+          //  a.angle=b.angle+90°;
+            </script>
         
 
         <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
@@ -69,10 +49,12 @@
             var gslp=[
 
                       {name:"A", type:"Free", pos:[2.2,0],color:[0,0,0]},
-                      {name:"B", type:"Free", pos:[6,-2],color:[1,1,1]},
-                      {name:"C", type:"Free", pos:[6,4],color:[1,1,1]},
-                      {name:"a", type:"Join", args:["A","B"],color:[0,0,1]},
-                      {name:"b", type:"Join", args:["A","C"],color:[0,0,1]},
+                      {name:"B", type:"Free", pos:[-1,3],color:[0,0,0]},
+                      {name:"C", type:"Free", pos:[2,-3],color:[0,0,0]},
+                      {name:"a", type:"Through", args:["A"],dir:[1,2,0],color:[0,0,1]},
+                      {name:"b", type:"Join", args:["B","C"],color:[0,0,1]},
+                      {name:"D", type:"Meet", args:["a","b"],color:[0,0,1]},
+                      {name:"c", type:"CircleMr", args:["D"],radius:3,color:[0,0,1]},
  
                       ];
             createCindy({canvasname:"CSCanvas",

@@ -42,8 +42,10 @@ getmover = function(mouse){
         if(el.kind=="C"){//Must be Circle by Rad
             var mid=csgeo.csnames[el.args[0]];
             var rad=el.radius;
-            dx=mid.sx-mouse.x;
-            dy=mid.sy-mouse.y;
+            var xx=CSNumber.div(mid.homog.value[0],mid.homog.value[2]).value.real;
+            var yy=CSNumber.div(mid.homog.value[1],mid.homog.value[2]).value.real;
+            dx=xx-mouse.x;
+            dy=yy-mouse.y;
             var ref=Math.sqrt(dx*dx+dy*dy);
             var dist=ref-rad.value.real;
             orad=-dist;
@@ -51,6 +53,20 @@ getmover = function(mouse){
             if(dist<0){dist=-dist;}
             dist=dist+1;
         }
+        if(el.kind=="L"){//Must be ThroughPoint(Horizontal/Vertical not treated yet)
+            var l=List.normalizeZ(el.homog);
+            var N=CSNumber;
+            var nn=N.add(N.mult(l.value[0],N.conjugate(l.value[0])),
+                         N.mult(l.value[1],N.conjugate(l.value[1])));
+            var ln=List.scaldiv(N.sqrt(nn),l);
+            var dist=ln.value[0].value.real*mouse.x+ln.value[1].value.real*mouse.y+ln.value[2].value.real;
+            dx=ln.value[0].value.real*dist;
+            dy=ln.value[1].value.real*dist;
+            
+            if(dist<0){dist=-dist;}
+            dist=dist+1;
+        }
+        
         if(dist<adist+.2){//A bit a dirty hack, prefers new points
             adist=dist;
             mov=el;

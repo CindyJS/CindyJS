@@ -145,6 +145,13 @@ function csinit(gslp){
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
         } 
+        if(ty=="Through"){
+            var f=csgeo.gslp[k];
+            f.dir=General.wrap(f.dir);
+            csgeo.free[csgeo.ctf]=f;
+            csgeo.ctf+=1;
+        } 
+
        
     };
     guessIncidences();

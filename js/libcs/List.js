@@ -374,6 +374,10 @@ List.normalizeMax=function(a) {
     var s=CSNumber.inv(List.maxval(a));
     return List.scalmult(s,a);
 }
+List.normalizeZ=function(a) {
+    var s=CSNumber.inv(a.value[2]);
+    return List.scalmult(s,a);
+}
 
 List.max=function(a1,a2){
     
@@ -904,6 +908,19 @@ List.det3=function(p,q,r){//Assumes that a,b,c are 3-Vectors
     
     
     return CSNumber.complex(re,im);
+}
+
+List.eucangle=function(a,b){
+       var tmp1=List.cross(a, List.linfty);
+       var tmp2=List.cross(b, List.linfty);
+       var ca=List.det3(List.ez,tmp1,List.ii);
+       var cb=List.det3(List.ez,tmp1,List.jj);
+       var cc=List.det3(List.ez,tmp2,List.ii);
+       var cd=List.det3(List.ez,tmp2,List.jj);
+       var dv=CSNumber.div(CSNumber.mult(ca,cd),CSNumber.mult(cc,cb));
+       var ang=CSNumber.log(dv);
+       ang=CSNumber.mult(ang,CSNumber.complex(0,0.5)); 
+       return ang;
 }
 
 
