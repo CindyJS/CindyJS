@@ -890,6 +890,12 @@ evaluator.clip =function(args,modifs){
             return evaluator._helper.clipshape(v1,modifs);
             
         }
+        if(v1.ctype=="list"){
+            erg=evaluator.polygon(args,[]);
+            
+            return evaluator.clip([erg],[]);
+            
+        }
     }
     return nada;
 }

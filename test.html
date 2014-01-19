@@ -44,16 +44,20 @@
         //    errc(apply(allpoints(),draw(#,size->10);#.xy));
         //    f(A):=A+1;
            // errc(A.xy);
-            errc((allpoints()_2).xy);
           //  A=2;
           //  errc(A*3);
-            errc(A.color);
-            B=A;
-            errc(B.color);
-            B.size=10;
-            A.color=(1,0,0);
-            A.xy=round(A);
-            
+
+            a=point((1,2,3));
+            errc(a.x);
+            errc(a.y);
+
+            errc(a.xy);
+            errc(a.homog);
+            a=(1,2);
+            errc(a.x);
+            errc(a.y);
+           errc(a.xy);
+            errc(a.homog);
             
         </script>
         

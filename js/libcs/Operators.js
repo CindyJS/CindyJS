@@ -1506,7 +1506,7 @@ evaluator.point=function(args,modifs){
 evaluator.line=function(args,modifs){
     if(args.length==1){
         var v0=evaluate(args[0]);
-        if(List._helper.isNumberVecN(v0,3) || List._helper.isNumberVecN(v0,2)){
+        if(List._helper.isNumberVecN(v0,3) ){
             v0.usage="Line";
         }
     }

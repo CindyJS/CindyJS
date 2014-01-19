@@ -22,7 +22,7 @@ List.realVector=function(l){
 List.realMatrix=function(l){
     var erg=[];
     for(var i=0;i<l.length;i++){
-            erg[erg.length]=List.realVector(l[i]);
+        erg[erg.length]=List.realVector(l[i]);
     }
     return List.turnIntoCSList(erg);
 }
@@ -37,12 +37,12 @@ List.ez=List.realVector([0,0,1]);
 List.linfty=List.realVector([0,0,1]);
 
 List.ii=List.turnIntoCSList([CSNumber.complex(1,0),
-                             CSNumber.complex(0,1),
-                             CSNumber.complex(0,0)]);
+    CSNumber.complex(0,1),
+    CSNumber.complex(0,0)]);
 
 List.jj=List.turnIntoCSList([CSNumber.complex(1,0),
-                             CSNumber.complex(0,-1),
-                             CSNumber.complex(0,0)]);
+    CSNumber.complex(0,-1),
+    CSNumber.complex(0,0)]);
 
 
 List.fundDual=List.realMatrix([[1,0,0],[0,1,0],[0,0,0]]);
@@ -98,7 +98,7 @@ List.cycle=function(a){
         erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[i+1]]};
     }
     erg[erg.length]={'ctype':'list','value':[a.value[a.value.length-1],a.value[0]]};
-
+    
     return {'ctype':'list','value':erg};
 }
 
@@ -107,7 +107,7 @@ List.consecutive=function(a){
     for(var i=0;i<a.value.length-1;i++){
         erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[i+1]]};
     }
-
+    
     return {'ctype':'list','value':erg};
 }
 
@@ -116,7 +116,7 @@ List.reverse=function(a){
     for(var i=a.value.length-1;i>=0;i--){
         erg[erg.length]=a.value[i];
     }
-
+    
     return {'ctype':'list','value':erg};
 }
 
@@ -148,7 +148,7 @@ List.concat=function(a,b){
 List.prepend=function(b,a){
     var erg=[];
     erg[erg.length]=b;
-
+    
     for(var i=0;i<a.value.length;i++){
         erg[erg.length]=a.value[i];
     }
@@ -172,7 +172,7 @@ List.contains=function(a,b){
         var cc=a.value[i];
         if((evaluator._helper.equals(cc,b)).value){
             return {'ctype':'boolean','value':true};
-
+            
         };
     }
     return {'ctype':'boolean','value':false};
@@ -214,12 +214,12 @@ List._helper.compare=function(a,b){
         return a.value.real-b.value.real
     }
     return -1;
-
+    
 }
 
 List.sort1=function(a){
-  var erg=a.value.sort(General.compare);
-  return List.turnIntoCSList(erg);
+    var erg=a.value.sort(General.compare);
+    return List.turnIntoCSList(erg);
 }
 
 List._helper.isEqual=function(a1,a2){
@@ -227,7 +227,7 @@ List._helper.isEqual=function(a1,a2){
 }
 
 List._helper.isLessThan=function(a,b){
-
+    
     var s1 = a.value.length;
     var s2 = b.value.length;
     var i = 0;
@@ -293,7 +293,7 @@ List._helper.isAlmostReal=function(a1){
     var erg=true;
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
-
+        
         if(av1.ctype=='list' ){
             erg=erg && List._helper.isAlmostReal(av1);
         } else {
@@ -307,7 +307,7 @@ List._helper.isNaN=function(a1){
     var erg=false;
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
-
+        
         if(av1.ctype=='list' ){
             erg=erg || List._helper.isNaN(av1);
         } else {
@@ -322,17 +322,17 @@ List._helper.isNaN=function(a1){
 List.set=function(a1){
     var erg=[];
     var erg1=a1.value.sort(General.compare);
-
+    
     for(var i=0;i<erg1.length;i++){
         if(i==0||!(evaluator.comp_equals([erg[erg.length-1],erg1[i]],[])).value){
             erg[erg.length]=erg1[i];
-
+            
         }
-
+        
     }
     
     return {'ctype':'list','value':erg};
-
+    
 }
 
 
@@ -340,15 +340,15 @@ List.set=function(a1){
 
 
 List.genericListMath=function(a,op){
-
-  if(a.value.length==0){
+    
+    if(a.value.length==0){
         return nada
     };
-  var erg=a.value[0];
-  for(var i=1;i<a.value.length;i++){
-     erg=General[op](erg,a.value[i]); 
-  }
-  return erg;
+    var erg=a.value[0];
+    for(var i=1;i<a.value.length;i++){
+        erg=General[op](erg,a.value[i]); 
+    }
+    return erg;
 }
 
 
@@ -508,13 +508,13 @@ List.abs2=function(a1){
             return nada;
         }
     }
-
+    
     return {"ctype":"number" ,
         "value":{'real':erg, 'imag':0}};
 }
 
 List.abs=function(a1){
-   return CSNumber.sqrt(List.abs2(a1))
+    return CSNumber.sqrt(List.abs2(a1))
 }
 
 
@@ -522,14 +522,14 @@ List.normalizeMaxXX=function(a){//Assumes that list is a number Vector
     var maxv=-10000;
     var nn=CSNumber.real(1);
     for(var i=0;i<a.value.length;i++){
-       var v=CSNumber.abs(a.value[i]);
-       if(v.value.real>maxv){
-           nn=a.value[i];
-           maxv=v.value.real; 
-       }
+        var v=CSNumber.abs(a.value[i]);
+        if(v.value.real>maxv){
+            nn=a.value[i];
+            maxv=v.value.real; 
+        }
     }
     return List.scaldiv(nn,a);
-
+    
 }
 
 
@@ -547,7 +547,7 @@ List.recursive=function(a1,op){
         }
     }
     return {'ctype':'list','value':erg};
-
+    
 }
 
 List.re=function(a){
@@ -600,8 +600,8 @@ List._helper.colNumb=function(a){
                 return -1
         }
     }
-    return ind;
-
+        return ind;
+        
 }
 
 List._helper.isNumberVecN=function(a,n){
@@ -612,14 +612,14 @@ List._helper.isNumberVecN=function(a,n){
     if(a.value.length!=n) {
         return false;
     }
-
+    
     for(var i=0;i<a.value.length;i++){
         if((a.value[i]).ctype!='number') {
             return false;
         }
     }
     return true;
-        
+    
 }
 
 
@@ -643,12 +643,12 @@ List.isNumberVectorN=function(a,n){
         return {'ctype':'boolean','value':false};
     }
     if(a.value)
-    for(var i=0;i<a.value.length;i++){
-        if((a.value[i]).ctype!='number') {
-            return {'ctype':'boolean','value':false};
+        for(var i=0;i<a.value.length;i++){
+            if((a.value[i]).ctype!='number') {
+                return {'ctype':'boolean','value':false};
+            }
         }
-    }
-    return {'ctype':'boolean','value':true};
+            return {'ctype':'boolean','value':true};
     
 }
 
@@ -661,7 +661,7 @@ List.isNumberMatrix=function(a){
     if(List._helper.colNumb(a)==-1){
         return {'ctype':'boolean','value':false};
     }
-
+    
     for(var i=0;i<a.value.length;i++){
         if(!List.isNumberVector((a.value[i])).value) {
             return {'ctype':'boolean','value':false};
@@ -702,7 +702,7 @@ List.productMV=function(a,b){
         for(var i=0;i<b.value.length;i++){
             var av1=a1.value[i];
             var av2=b.value[i];
-
+            
             if(av1.ctype=='number' && av2.ctype=='number'){
                 erg=CSNumber.add(CSNumber.mult(av1,av2),erg);
             } else {
@@ -712,7 +712,7 @@ List.productMV=function(a,b){
         li[li.length]=erg;
     }    
     return List.turnIntoCSList(li);
-
+    
 }
 
 
@@ -726,7 +726,7 @@ List.productVM=function(a,b){
         for(var i=0;i<a.value.length;i++){
             var av1=a.value[i];
             var av2=b.value[i].value[j];
-
+            
             if(av1.ctype=='number' && av2.ctype=='number'){
                 erg=CSNumber.add(CSNumber.mult(av1,av2),erg);
             } else {
@@ -736,7 +736,7 @@ List.productVM=function(a,b){
         li[li.length]=erg;
     }    
     return List.turnIntoCSList(li);
-
+    
 }
 
 List.productMM=function(a,b){
@@ -757,46 +757,46 @@ List.productMM=function(a,b){
 
 
 List.mult=function(a,b){
-
-   if(a.value.length==b.value.length && List.isNumberVector(a).value && List.isNumberVector(b).value){
-      return List.scalproduct(a,b);
-   } 
-
+    
+    if(a.value.length==b.value.length && List.isNumberVector(a).value && List.isNumberVector(b).value){
+        return List.scalproduct(a,b);
+    } 
+    
     if(List.isNumberMatrix(a).value && b.value.length==a.value[0].value.length && List.isNumberVector(b).value){
-      return List.productMV(a,b);
-   } 
-
+        return List.productMV(a,b);
+    } 
+    
     if(List.isNumberMatrix(b).value && a.value.length==b.value.length && List.isNumberVector(a).value){
-      return List.productVM(a,b);
-   } 
-
+        return List.productVM(a,b);
+    } 
+    
     if(List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length==a.value[0].value.length){
-      return List.productMM(a,b);
-   } 
-
-   return nada;
-
-
+        return List.productMM(a,b);
+    } 
+    
+    return nada;
+    
+    
 }
 
 List.projectiveDistMinScal=function(a,b){
     var sa=List.abs(a);
     var sb=List.abs(b);
-
+    
     if(sa.value.real==0||sb.value.real==0)
         return 0;
     var cb=List.conjugate(b);
     var p=List.scalproduct(a,cb);
-
+    
     var np=CSNumber.div(p,CSNumber.abs(p));
     var na=List.scaldiv(sa,a); 
     var nb=List.scaldiv(sb,b);
     na=List.scalmult(np,na);
-
+    
     var d1=List.abs(List.add(na,nb));
     var d2=List.abs(List.sub(na,nb));
     return Math.min(d1.value.real,d2.value.real);
-
+    
 }
 
 List.crossOperator=function(a){
@@ -810,7 +810,7 @@ List.crossOperator=function(a){
         List.turnIntoCSList([CSNumber.neg(y),x,CSNumber.real(0)])
         ]
                                );
-        
+    
 }
 
 List.cross=function(a,b){//Assumes that a is 3-Vector
@@ -831,7 +831,7 @@ List.veronese=function(a){//Assumes that a is 3-Vector
 }
 
 List.matrixFromVeronese=function(a){//Assumes that a is 6-Vector
-    //Wie Wichtig ist hier das Clonen???
+                                    //Wie Wichtig ist hier das Clonen???
     var xx=CSNumber.clone(a.value[0]);
     var yy=CSNumber.clone(a.value[1]);
     var zz=CSNumber.clone(a.value[2]);
@@ -846,65 +846,65 @@ List.matrixFromVeronese=function(a){//Assumes that a is 6-Vector
         List.turnIntoCSList([yx,yy,yz]),
         List.turnIntoCSList([zx,zy,zz])
         ])
-
+        
 }
 
 
 
 List.det3=function(p,q,r){//Assumes that a,b,c are 3-Vectors
                           //Keine Ahnung ob man das so inlinen will (hab das grad mal so übernommen)
-
-        var re=   p.value[0].value.real * q.value[1].value.real * r.value[2].value.real 
-                - p.value[0].value.imag * q.value[1].value.imag * r.value[2].value.real 
-                - p.value[0].value.imag * q.value[1].value.real * r.value[2].value.imag 
-                - p.value[0].value.real * q.value[1].value.imag * r.value[2].value.imag 
-                + p.value[2].value.real * q.value[0].value.real * r.value[1].value.real 
-                - p.value[2].value.imag * q.value[0].value.imag * r.value[1].value.real 
-                - p.value[2].value.imag * q.value[0].value.real * r.value[1].value.imag 
-                - p.value[2].value.real * q.value[0].value.imag * r.value[1].value.imag 
-                + p.value[1].value.real * q.value[2].value.real * r.value[0].value.real 
-                - p.value[1].value.imag * q.value[2].value.imag * r.value[0].value.real 
-                - p.value[1].value.imag * q.value[2].value.real * r.value[0].value.imag 
-                - p.value[1].value.real * q.value[2].value.imag * r.value[0].value.imag
-                - p.value[0].value.real * q.value[2].value.real * r.value[1].value.real 
-                + p.value[0].value.imag * q.value[2].value.imag * r.value[1].value.real 
-                + p.value[0].value.imag * q.value[2].value.real * r.value[1].value.imag 
-                + p.value[0].value.real * q.value[2].value.imag * r.value[1].value.imag 
-                - p.value[2].value.real * q.value[1].value.real * r.value[0].value.real 
-                + p.value[2].value.imag * q.value[1].value.imag * r.value[0].value.real 
-                + p.value[2].value.imag * q.value[1].value.real * r.value[0].value.imag 
-                + p.value[2].value.real * q.value[1].value.imag * r.value[0].value.imag 
-                - p.value[1].value.real * q.value[0].value.real * r.value[2].value.real 
-                + p.value[1].value.imag * q.value[0].value.imag * r.value[2].value.real 
-                + p.value[1].value.imag * q.value[0].value.real * r.value[2].value.imag 
-                + p.value[1].value.real * q.value[0].value.imag * r.value[2].value.imag;
-
-        var im= - p.value[0].value.imag * q.value[1].value.imag * r.value[2].value.imag 
-                + p.value[0].value.imag * q.value[1].value.real * r.value[2].value.real 
-                + p.value[0].value.real * q.value[1].value.real * r.value[2].value.imag 
-                + p.value[0].value.real * q.value[1].value.imag * r.value[2].value.real 
-                - p.value[2].value.imag * q.value[0].value.imag * r.value[1].value.imag 
-                + p.value[2].value.imag * q.value[0].value.real * r.value[1].value.real 
-                + p.value[2].value.real * q.value[0].value.real * r.value[1].value.imag 
-                + p.value[2].value.real * q.value[0].value.imag * r.value[1].value.real 
-                - p.value[1].value.imag * q.value[2].value.imag * r.value[0].value.imag 
-                + p.value[1].value.imag * q.value[2].value.real * r.value[0].value.real 
-                + p.value[1].value.real * q.value[2].value.real * r.value[0].value.imag 
-                + p.value[1].value.real * q.value[2].value.imag * r.value[0].value.real
-                + p.value[0].value.imag * q.value[2].value.imag * r.value[1].value.imag
-                - p.value[0].value.imag * q.value[2].value.real * r.value[1].value.real 
-                - p.value[0].value.real * q.value[2].value.real * r.value[1].value.imag
-                - p.value[0].value.real * q.value[2].value.imag * r.value[1].value.real
-                + p.value[2].value.imag * q.value[1].value.imag * r.value[0].value.imag
-                - p.value[2].value.imag * q.value[1].value.real * r.value[0].value.real 
-                - p.value[2].value.real * q.value[1].value.real * r.value[0].value.imag 
-                - p.value[2].value.real * q.value[1].value.imag * r.value[0].value.real 
-                + p.value[1].value.imag * q.value[0].value.imag * r.value[2].value.imag 
-                - p.value[1].value.imag * q.value[0].value.real * r.value[2].value.real 
-                - p.value[1].value.real * q.value[0].value.real * r.value[2].value.imag 
-                - p.value[1].value.real * q.value[0].value.imag * r.value[2].value.real;
-
-
+    
+    var re=   p.value[0].value.real * q.value[1].value.real * r.value[2].value.real 
+    - p.value[0].value.imag * q.value[1].value.imag * r.value[2].value.real 
+    - p.value[0].value.imag * q.value[1].value.real * r.value[2].value.imag 
+    - p.value[0].value.real * q.value[1].value.imag * r.value[2].value.imag 
+    + p.value[2].value.real * q.value[0].value.real * r.value[1].value.real 
+    - p.value[2].value.imag * q.value[0].value.imag * r.value[1].value.real 
+    - p.value[2].value.imag * q.value[0].value.real * r.value[1].value.imag 
+    - p.value[2].value.real * q.value[0].value.imag * r.value[1].value.imag 
+    + p.value[1].value.real * q.value[2].value.real * r.value[0].value.real 
+    - p.value[1].value.imag * q.value[2].value.imag * r.value[0].value.real 
+    - p.value[1].value.imag * q.value[2].value.real * r.value[0].value.imag 
+    - p.value[1].value.real * q.value[2].value.imag * r.value[0].value.imag
+    - p.value[0].value.real * q.value[2].value.real * r.value[1].value.real 
+    + p.value[0].value.imag * q.value[2].value.imag * r.value[1].value.real 
+    + p.value[0].value.imag * q.value[2].value.real * r.value[1].value.imag 
+    + p.value[0].value.real * q.value[2].value.imag * r.value[1].value.imag 
+    - p.value[2].value.real * q.value[1].value.real * r.value[0].value.real 
+    + p.value[2].value.imag * q.value[1].value.imag * r.value[0].value.real 
+    + p.value[2].value.imag * q.value[1].value.real * r.value[0].value.imag 
+    + p.value[2].value.real * q.value[1].value.imag * r.value[0].value.imag 
+    - p.value[1].value.real * q.value[0].value.real * r.value[2].value.real 
+    + p.value[1].value.imag * q.value[0].value.imag * r.value[2].value.real 
+    + p.value[1].value.imag * q.value[0].value.real * r.value[2].value.imag 
+    + p.value[1].value.real * q.value[0].value.imag * r.value[2].value.imag;
+    
+    var im= - p.value[0].value.imag * q.value[1].value.imag * r.value[2].value.imag 
+        + p.value[0].value.imag * q.value[1].value.real * r.value[2].value.real 
+        + p.value[0].value.real * q.value[1].value.real * r.value[2].value.imag 
+        + p.value[0].value.real * q.value[1].value.imag * r.value[2].value.real 
+        - p.value[2].value.imag * q.value[0].value.imag * r.value[1].value.imag 
+        + p.value[2].value.imag * q.value[0].value.real * r.value[1].value.real 
+        + p.value[2].value.real * q.value[0].value.real * r.value[1].value.imag 
+        + p.value[2].value.real * q.value[0].value.imag * r.value[1].value.real 
+        - p.value[1].value.imag * q.value[2].value.imag * r.value[0].value.imag 
+        + p.value[1].value.imag * q.value[2].value.real * r.value[0].value.real 
+        + p.value[1].value.real * q.value[2].value.real * r.value[0].value.imag 
+        + p.value[1].value.real * q.value[2].value.imag * r.value[0].value.real
+        + p.value[0].value.imag * q.value[2].value.imag * r.value[1].value.imag
+        - p.value[0].value.imag * q.value[2].value.real * r.value[1].value.real 
+        - p.value[0].value.real * q.value[2].value.real * r.value[1].value.imag
+        - p.value[0].value.real * q.value[2].value.imag * r.value[1].value.real
+        + p.value[2].value.imag * q.value[1].value.imag * r.value[0].value.imag
+        - p.value[2].value.imag * q.value[1].value.real * r.value[0].value.real 
+        - p.value[2].value.real * q.value[1].value.real * r.value[0].value.imag 
+        - p.value[2].value.real * q.value[1].value.imag * r.value[0].value.real 
+        + p.value[1].value.imag * q.value[0].value.imag * r.value[2].value.imag 
+        - p.value[1].value.imag * q.value[0].value.real * r.value[2].value.real 
+        - p.value[1].value.real * q.value[0].value.real * r.value[2].value.imag 
+        - p.value[1].value.real * q.value[0].value.imag * r.value[2].value.real;
+    
+    
     return CSNumber.complex(re,im);
 }
 
@@ -1002,13 +1002,98 @@ List.inverse=function(a){
 }
 
 List.det=function(a){
-
-
-
+    
+    
+    
     return CSNumber.real(0);
-
+    
 }
 
 
+///Feldzugriff
+///TODO Will man das in list haben??
+
+List.getField=function(li,key){
+    
+    if(key=="homog"){
+        if(List._helper.isNumberVecN(li,3)){
+            return li;
+        }
+        if(List._helper.isNumberVecN(li,2)){
+            var li2=General.clone(li);
+            li2.value[2]=CSNumber.real(1);
+            return li2;
+        }
+        return nada;
+    }
+    
+    if(key=="xy"){
+        if(List._helper.isNumberVecN(li,2)){
+            return li;
+        }
+        if(List._helper.isNumberVecN(li,3)){
+            var erg=General.clone(li);
+            erg.value.pop();
+            return List.scaldiv(li.value[2],erg);
+        }
+        return nada;
+        
+    }
+    
+    if(key=="x"){
+        if(List.isNumberVector(li)){
+            var n=li.value.length;
+            if(n>0 && n!=3){
+                return CSNumber.clone(li.value[0]);
+            }
+            if(n==3){
+                if(li.usage=="Point"){
+                    return CSNumber.div(li.value[0],li.value[2]);
+                } else {
+                    return CSNumber.clone(li.value[0]);
+                }
+            }
+            
+        }
+        return nada;
+        
+    }
+    
+    if(key=="y"){
+        if(List.isNumberVector(li)){
+            var n=li.value.length;
+            if(n>1 && n!=3){
+                return CSNumber.clone(li.value[1]);
+            }
+            if(n==3){
+                if(li.usage=="Point"){
+                    return CSNumber.div(li.value[1],li.value[2]);
+                } else {
+                    return CSNumber.clone(li.value[1]);
+                }
+            }
+            
+        }
+        return nada;
+    }
+    
+    if(key=="z"){
+        if(List.isNumberVector(li)){
+            var n=li.value.length;
+            if(n>2){
+                return CSNumber.clone(li.value[2]);
+            }
+        }
+        
+        return nada;
+    }
+    
+ 
+        
+    return nada;
+    
+    
+    
+}
 
 

@@ -49,6 +49,9 @@ var evaluate=function(a){
         if(obj.ctype=="geo"){
             return Accessor.getField(obj.value,a.key);
         }
+        if(obj.ctype=="list"){
+            return List.getField(obj,a.key);
+        }
         return nada;
     }
 
