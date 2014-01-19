@@ -2774,6 +2774,17 @@ evaluator.allpoints=function(args,modifs){
 	return nada;
 }
 
+evaluator.alllines=function(args,modifs){
+	if (args.length==0) {
+		erg=[];
+		for (var i=0; i< csgeo.lines.length; i++) {
+			erg[i]={ctype:"geo",value:csgeo.lines[i],type:"L"};
+		}
+		return {ctype:"list", value:erg};
+	}
+	return nada;
+}
+
 evaluator.halfplane=function(args,modifs){ 
     if(args.length==2) {
         var v0=evaluateAndVal(args[0]);

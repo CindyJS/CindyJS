@@ -109,36 +109,33 @@ var evaluateAndHomog=function(a){
 // this function removes all comments spaces and newlines
 //*******************************************************
 
-var condense=function(code){
-    var literalmode=false;
-    var commentmode=false;
-    var erg='';
-    for(var i=0;i<code.length;i++){
-        var closetoend=(i==code.length-1);
-        var c=code[i];
-        if(c=='\"'&&!commentmode)
-            literalmode=!literalmode;
-        
-        if(c=='/' && (i!=code.length-1))
-            if(code[i+1]=='/')
-                commentmode=true;
-        if(c=='\n')
-            commentmode=false;
-        if ( !(c === '\u0020' || c === '\u0009' || c === '\u000A' ||  c === '\u000C' || c === '\u000D' || commentmode) || literalmode)
-            erg=erg+c;
-    }
-    return erg;
+var condense = function(code) {
+	var literalmode = false;
+	var commentmode = false;
+	var erg = '';
+	for (var i = 0; i < code.length; i++) {
+		var closetoend = (i == code.length - 1);
+		var c = code[i];
+		if (c == '\"' && !commentmode)
+			literalmode = !literalmode;
+
+		if (c == '/' && (i != code.length - 1))
+			if (code[i + 1] == '/')
+				commentmode = true;
+		if (c == '\n')
+			commentmode = false;
+		if (!(c === '\u0020' || c === '\u0009' || c === '\u000A' || c === '\u000C' || c === '\u000D' || commentmode) || literalmode)
+			erg = erg + c;
+	}
+	return erg;
 }
-
-var dots='....................................................';
-
 
 //*******************************************************
 // this function shows an expression tree on the console
 //*******************************************************
 
 var report=function(a,i){
-    var prep=dots.substring(0,i);
+    var prep= new Array(i + 1).join('.');
     if(a.ctype=='infix'){
         console.log(prep+"INFIX: "+a.oper);
         console.log(prep+"ARG 1 ");
