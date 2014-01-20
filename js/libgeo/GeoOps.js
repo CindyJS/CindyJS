@@ -149,6 +149,56 @@ geoOps.PointOnLine =function(el){
 geoOpMap.PointOnLine="P";
 
 
+
+geoOps.PointOnCircle =function(el){//TODO was ist hier zu tun damit das stabil bei tracen bleibt
+
+    var c=csgeo.csnames[(el.args[0])];
+    var pts=geoOps._helper.IntersectLC(List.linfty,c.matrix);
+    var ln1=General.mult(c.matrix,pts[0]);
+    var ln2=General.mult(c.matrix,pts[1]);
+    var mid=List.normalizeZ(List.cross(ln1,ln2));
+ 
+    if(move && move.mover==el){
+        var xx=mid.value[0].value.real-mouse.x-move.offset.x;
+        var yy=mid.value[1].value.real-mouse.y-move.offset.y;
+        el.angle=CSNumber.real(Math.atan2(-yy,-xx));
+ 
+    }
+    
+    var angle=el.angle;
+
+    var pt=List.turnIntoCSList([CSNumber.cos(angle),CSNumber.sin(angle),CSNumber.real(0)]);
+    pt=List.scalmult(CSNumber.real(10),pt);
+    pt=List.add(mid,pt);
+
+    ln=List.cross(pt,mid);
+    var ints=geoOps._helper.IntersectLC(ln,c.matrix);//TODO richtiges Tracing einbauen!!!
+    var int1=List.normalizeZ(ints[0]);
+    var int2=List.normalizeZ(ints[1]);
+    var d1=List.abs2(List.sub(pt,int1));
+    var d2=List.abs2(List.sub(pt,int2));
+   
+    var erg=ints[0];
+    if(d1.value.real>d2.value.real){erg=ints[1];}
+
+
+    el.homog=erg;
+    el.homog=List.normalizeMax(el.homog);
+    el.homog.usage="Point";
+
+    
+    //TODO: Handle complex and infinite Points
+    var x=CSNumber.div(el.homog.value[0],el.homog.value[2]);
+    var y=CSNumber.div(el.homog.value[1],el.homog.value[2]);
+    
+    el.sx=x.value.real;
+    el.sy=y.value.real;
+    el.sz=1;
+}
+geoOpMap.PointOnCircle="P";
+
+
+
 geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil bei tracen bleibt
     
     var l=csgeo.csnames[(el.args[0])].homog;
@@ -215,12 +265,6 @@ geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil 
 }
 geoOpMap.PointOnSegment="P";
 
-
-geoOps.PointOnCircle =function(el){
-    var l=csgeo.csnames[(el.args[0])].matrix;
-   
-    }
-geoOpMap.PointOnCircle="P";
 
 
 geoOps._helper.CenterOfConic =function(c){

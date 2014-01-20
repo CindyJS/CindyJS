@@ -117,6 +117,7 @@ function csinit(gslp){
         var ty=csgeo.gslp[k].type;
         if(ty=="Free" 
         || ty=="PointOnLine" 
+        || ty=="PointOnCircle" 
         || ty=="PointOnSegment"){//TODO generisch nach geoops ziehen
             var f=csgeo.gslp[k];
             if(f.pos) {
@@ -135,7 +136,10 @@ function csinit(gslp){
             f.homog=List.realVector([gslp[k].sx,gslp[k].sy,gslp[k].sz]);
             f.isfinite=(f.sz!=0);
             f.ismovable=true;
-                     
+            if(ty=="PointOnCircle"){
+                f.angle=CSNumber.real(f.angle);
+                
+            }   
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
         } 
