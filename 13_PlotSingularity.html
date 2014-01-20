@@ -34,7 +34,7 @@
         <h1>CindyJS: Function Plotting</h1>
         
         
-        <script id='firstDrawing' type='cindyscript'>
+        <script id='firstDrawing' type='text/cindyscript'>
             draw(A);
             //plot(sin(x/A.x/2*pi)*A.y);
            // plot(sqrt(4-x^2));
@@ -46,9 +46,9 @@
         </script>
         
         
-        <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
         
-        <script>
+        <script type="text/javascript">
             
             var gslp=[
                       {name:"A", kind:"P", type:"Free", sx:2,sy:2,sz:1}
