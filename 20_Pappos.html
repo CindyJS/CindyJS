@@ -36,19 +36,16 @@
         <h1>CindyJS: Pappos's Theorem</h1>
         
         
-        <script id='firstDrawing' type='text/cindyscript'>
-l=allpoints();
-errc(l);
-forall(l, draw(#,size->10));
-draw((0,0));
+        <script id='firstDrawing' type='cindyscript'>
             
         </script>
         
 
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
 
-        <script type="text/javascript">
-            
+        <script>
+            defaultAppearance.dimDependent=.7;
+
             var gslp=[
                       {name:"A", type:"Free", pos:[-5,6]},
                       {name:"B", type:"Free", pos:[6,5]},

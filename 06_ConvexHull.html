@@ -32,7 +32,7 @@
         <h1>CindyJS: Convex Hull</h1>
         
         
-        <script id='firstDrawing' type='text/cindyscript'>
+        <script id='firstDrawing' type='cindyscript'>
             pts=[A.xy,B.xy,C.xy,D.xy,E.xy,F.xy,G.xy,H.xy,I.xy,J.xy,K.xy,L.xy,M.xy,N.xy];
             pairs=pairs(pts);
             hull=select(pairs,s,
@@ -44,9 +44,9 @@
             </script>
         
         
-        <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
+        <canvas  id="CSCanvas" align="left" valign = "top" width=600 height=600  style="border:2px solid #000000"></canvas>
         
-        <script type="text/javascript">
+        <script>
             
             var gslp=[
                       {name:"A", kind:"P", type:"Free", sx:Math.random()*8-4,sy:Math.random()*8-4,sz:1},

@@ -33,35 +33,28 @@
         <h1>CindyJS: Two charges</h1>
         
         
-        <script id='firstDrawing' type='text/cindyscript'>
+        <script id='firstDrawing' type='cindyscript'>
             
             n=10;
             linesize(2);
             forall((-n)..n,x,
                    forall((-n)..n,y,
                           p=(x,y)*1;
-                          absa=abs(p-A);
-                          absb=abs(p-B);
-                          if(absa!=0&absb>.001,
-                             f1=(p-A)/abs(p-A)^3;
-                             f2=(p-B)/abs(p-B)^3;
-                             f=f1-f2;
-                             s=abs(f);
-                             if(s>7,s=7);
-                             if(s<.00001,s=0.1);
-                             c1=abs(f1)/abs(f);
-                             c2=abs(f2)/abs(f);
-                             f=f/abs(f)*.35;
-                             nn=(-f_2,f_1)*.6;
-                             col=(c1,c2,0);
-                             col=col/abs(col)*.7;
-                             linesize(sqrt(s)*3);
-                             draw(p-f*1.5,p+f*.5,color->(0,0,1),alpha->0.9,color->col);
-                             draw(p+f*.5,p+nn*.8,color->(0,0,1),alpha->0.9,color->col);
-                             draw(p+f*.5,p-nn*.8,color->(0,0,1),alpha->0.9,color->col);
-                             
-                             );
-
+                          f1=(p-A)/abs(p-A)^3;
+                          f2=(p-B)/abs(p-B)^3;
+                          f=f1-f2;
+                          s=abs(f);
+                          if(s>7,s=7);
+                          c1=abs(f1)/abs(f);
+                          c2=abs(f2)/abs(f);
+                          f=f/abs(f)*.35;
+                          nn=(-f_2,f_1)*.6;
+                          col=(c1,c2,0);
+                          col=col/abs(col)*.7;
+                          linesize(sqrt(s)*3);
+                          draw(p-f*1.5,p+f*.5,color->(0,0,1),alpha->0.9,color->col);
+                          draw(p+f*.5,p+nn*.8,color->(0,0,1),alpha->0.9,color->col);
+                          draw(p+f*.5,p-nn*.8,color->(0,0,1),alpha->0.9,color->col);
                           )
                    
                    );
@@ -69,9 +62,9 @@
             
             </script>
         
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
         
-        <script type="text/javascript">
+        <script>
             
             var gslp=[
                       {name:"A",  type:"Free", pos:[-4,-2],color:[1,0,0],size:7},
