@@ -43,11 +43,7 @@
             draw(l2);
             draw(l3);
             
-            draw(A,size->6,color->(.9,0,0));
-            draw(B,size->6,color->(.9,0,0));
-            draw(C,size->6,color->(.9,0,0));
-            draw(D,size->6,color->(.9,0,0));
-            
+                     
             </script>
         
         
@@ -57,10 +53,10 @@
         <script type="text/javascript">
             
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:7,sy:1,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:0,sy:9,sz:1},
-                      {name:"C", kind:"P", type:"Free", sx:2,sy:1,sz:1},
-                      {name:"D", kind:"P", type:"Free", sx:-2,sy:7,sz:1},
+                      {name:"A", type:"Free", pos:[7,1]},
+                      {name:"B", type:"Free", pos:[0,9]},
+                      {name:"C", type:"Free", pos:[2,1]},
+                      {name:"D", type:"Free", pos:[-2,7]},
                       ];
             
             createCindy({canvasname:"CSCanvas",

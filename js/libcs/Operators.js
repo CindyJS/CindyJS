@@ -1375,7 +1375,8 @@ evaluator.para=function(args,modifs){
         var v1=evaluateAndVal(args[1]);
         var w0=evaluateAndHomog(v0);
         var w1=evaluateAndHomog(v1);
-        if(v0!=nada && v1!=nada){
+        
+               if(v0!=nada && v1!=nada){
             
             
             var u0=v0.usage;
@@ -1383,11 +1384,12 @@ evaluator.para=function(args,modifs){
             var p=w0;
             var l=w1;
             if(u0=="Line" || u1=="Point"){
-                p=v1;
-                l=v0;
+                p=w1;
+                l=w0;
             }
             
             var inf=List.linfty;
+           
             var erg=List.cross(List.cross(inf,l),p);
             erg.usage="Line";
             return erg;
