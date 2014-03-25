@@ -19,9 +19,9 @@ movepoint=function (move){
 
 movepointscr=function (mover,pos){
     m=mover;
- /*   m.sx=pos.x;
-    m.sy=pos.y;
-    m.sz=1;*/
+    m.sx=pos.value[0].value.real;
+    m.sy=pos.value[1].value.real;
+    m.sz=1;
     m.homog=pos;
 
 }

@@ -300,6 +300,7 @@ CSNumber.mod=function(a,b){
     var a2=b.value.real;
     var b1=a.value.imag;
     var b2=b.value.imag;
+
     
     var r = a1 - Math.floor(a1 / a2) * a2;
     var i = b1 - Math.floor(b1 / b2) * b2;
