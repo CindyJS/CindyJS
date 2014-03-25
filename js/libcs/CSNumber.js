@@ -128,7 +128,7 @@ CSNumber.inv=function(a){
     var s=a.value.real*a.value.real+a.value.imag*a.value.imag;
     if(s==0) {
         console.log("DIVISION BY ZERO");
-        halt=immediately;
+//        halt=immediately;
     
     }
     return {"ctype":"number" ,

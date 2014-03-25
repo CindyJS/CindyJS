@@ -36,16 +36,16 @@
         <h1>CindyJS: Allpoints Alllines</h1>
         
         
-        <script id='firstDrawing' type='cindyscript'>
+        <script id='firstDrawing' type='text/cindyscript'>
 		forall(allpoints(),draw(#.homog,size->10));
             forall(alllines(),draw(#.homog,size->1,dashing->2));
             
         </script>
         
 
-        <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
-        <script>
+        <script type="text/javascript">
             defaultAppearance.clip="inci";
             defaultAppearance.overhangLine=1.2;
 

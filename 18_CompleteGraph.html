@@ -35,8 +35,6 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-errc("AAA");
-draw(A,B);
 n=round(|(B.x+10)*5|);
             f(x):=[sin(x),cos(x)]*6+A;
             steps=2*pi*(1..n)/n;
@@ -44,18 +42,15 @@ n=round(|(B.x+10)*5|);
             segs=pairs(pts);
             drawall(segs,alpha->1/n*5);
 			drawall(pts,size->4);
-l=allpoints();
-errc(l);
-forall(l, draw(#,size->20));
-                      
+            
         </script>
         
         
-        <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
         
         
         
-        <script>
+        <script type="text/javascript">
             
            	var gslp=[
                       {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
