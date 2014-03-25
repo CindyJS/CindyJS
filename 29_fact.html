@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <!--script type="text/javascript" src="js/Cindy.js"></script-->
+            
+            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
+            <script type="text/javascript" src="js/Setup.js"></script>
+            <script type="text/javascript" src="js/Events.js"></script>
+
+            <script type="text/javascript" src="js/libcs/Namespace.js"></script>
+            <script type="text/javascript" src="js/libcs/Accessors.js"></script>
+            <script type="text/javascript" src="js/libcs/CSNumber.js"></script>
+            <script type="text/javascript" src="js/libcs/List.js"></script>
+            <script type="text/javascript" src="js/libcs/Essentials.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
+            <script type="text/javascript" src="js/libcs/Operators.js"></script>
+            <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/OpImageDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/Parser.js"></script>
+            
+            
+            <script type="text/javascript" src="js/lib/d3.js"></script>
+            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
+            <script type="text/javascript" src="js/lib/clipper.js"></script>
+            <link rel="stylesheet" href="css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>CindyJS: Factorization Diagram</h1>
+        
+        
+        <script id='firstDrawing' type='cindyscript'>
+            p=C.xy;
+            p=(C.x,-9);
+            if(C.x<-8,p=(-8,-9));
+            if(C.x>8,p=(8,-9));
+            C.xy=p;
+            A.xy=(-8,-9);
+            B.xy=(8,-9);
+            draw(A,B);
+            
+            smallest(n):=(
+                          regional(i);
+                          i=2;
+//                          while(mod(n,i)!=0&i<200,errc(i);i=round(i+1));
+                            while(|(n/i-round(n/i))|>0.00001,errc(i);i=round(i+1));
+                          i;
+                        );
+            factor(n):=(
+                        regional(i,k);
+                        i=smallest(n);
+                        k=n/i;
+                        if(k==1,[i],[i]++factor(k));
+                    );
+                        
+            drawlist(l,p,r,wi):=(
+                                 
+                regional(k,li,w,ww,rr2);
+                if(l==[]%l==[1],
+                    fillcircle(p,r,color->(0,0,0))
+                  ,
+                    k=l_(-1);
+                    li=l_(1..(length(l)-1));
+                    rr2=.7; 
+                    apply(1..k,i,
+                        w=360°/k*i+wi;
+                        ww=0;rr=1.5;
+                            if(mod(li_(-1),2)==0,ww=w);
+
+                            if(k==2,rr=1;rr2=.55); 
+                            if(k==4,rr=1.3;rr2=.55);
+                            if(k==3,rr=1.2;rr2=.65);
+
+
+                        drawlist(li,p+rr2*r*(sin(w+if(k==4,45°,0)),cos(w+if(k==4,45°,0))),r/k*rr,ww);
+                    )
+                )
+            );
+            n=round(|A,C|*6)+1;
+            pfz=if(n==1,[1],factor(n));
+            str=""+pfz_1;
+            apply(2..length(pfz),str=str+"×"+pfz_#);
+            if(length(pfz)==1,str="prime");
+            if(pfz==[1],str="the unit");
+            drawtext((-9,9),n+"="+str);
+
+            compress(li):=if(length(li)<1,false,li_[1,2]==[2,2]);
+            app=[];
+            while(compress(pfz),
+                  pfz=apply(3..length(pfz),pfz_#);
+                  app=app++[4];
+                );
+                
+            pfz=app++pfz;
+            
+            //    errc(pfz);
+           
+            drawlist(pfz,(0,0),7,0);
+            
+            
+            
+            </script>
+        
+
+        <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
+
+        <script>
+            
+            var gslp=[
+
+                      {name:"A", type:"Free", pos:[-8,-9],color:[0,0,0],size:3},
+                      {name:"B", type:"Free", pos:[8,-9],color:[0,0,0],size:3},
+                      {name:"C", type:"Free", pos:[1,-9],color:[1,1,1]},
+                      
+                      ];
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        geometry:gslp});
+    
+        </script>
+
+	</body>
+</html>
