@@ -3,7 +3,11 @@
 var mouse={};
 var move;
 
+var cskey="";
+var cskeycode=0;
+
 movepoint=function (move){
+    if(move.mover==undefined) return;
     m=move.mover;
     m.sx=mouse.x+move.offset.x;
     m.sy=mouse.y+move.offset.y;
@@ -85,13 +89,23 @@ setuplisteners =function(canvas) {
         mouse.prevy      = mouse.y;
         mouse.x       = pos[0];
         mouse.y       = pos[1];
+        csmouse[0]=mouse.x;
+        csmouse[1]=mouse.y;
         
     }
+    
+    
+    document.onkeydown=function(e){
+       cs_keypressed(e);
+       return false;
+    };
+
     
     canvas.onmousedown = function (e) {
         mouse.button  = e.which;
         var rect      = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left,e.clientY - rect.top);
+        cs_mousedown();
         move=getmover(mouse);
         startit();//starts d3-timer
             
@@ -101,6 +115,9 @@ setuplisteners =function(canvas) {
     
     canvas.onmouseup = function (e) {
         mouse.down = false;
+        
+        cs_mouseup();
+
         updateCindy();
         
         e.preventDefault();
@@ -111,6 +128,9 @@ setuplisteners =function(canvas) {
         updatePostition(e.clientX - rect.left,e.clientY - rect.top);
         if(mouse.down){
             movepoint(move);
+            cs_mousedrag();
+        } else {
+            cs_mousemove();
         }
         e.preventDefault();
     };
@@ -138,7 +158,8 @@ setuplisteners =function(canvas) {
         
         updatePostition(e.targetTouches[0].pageX - canvas.offsetLeft,
                         e.targetTouches[0].pageY - canvas.offsetTop);
-        
+        cs_mousedown();
+
         mouse.down = true;
         move=getmover(mouse);
         startit();
@@ -177,20 +198,27 @@ function (callback) {
 };
 
 var doit=function(){//Callback for d3-timer
+    if(csanimating){
+        cs_tick();
+    }
     updateCindy();
-    return !mouse.down;
+    csticking=csanimating || mouse.down;
+    return !csticking;
     
 }
 
 var startit=function(){
-    d3.timer(doit)
+    if(!csticking) {
+        csticking=true;
+        d3.timer(doit)
+    }
 }
 
 function updateCindy(){
     recalc();                          
     csctx.save();
     csctx.clearRect ( 0   , 0 , csw , csh );
-    evaluate(cserg);
+    evaluate(cscompiled.move);
     render();
     csctx.restore();
     
@@ -204,4 +232,53 @@ function update() {
     if(mouse.down)
         requestAnimFrame(update);
 }
+
+
+var cs_keypressed=function(e){
+    var evtobj=window.event? event : e;
+    var unicode=evtobj.charCode? evtobj.charCode : evtobj.keyCode;
+    var actualkey=String.fromCharCode(unicode);
+    cskey=actualkey;
+    cskeycode=unicode;
+
+
+    evaluate(cscompiled.keydown);
+    updateCindy();
+
+}
+
+var cs_mousedown=function(e){
+    evaluate(cscompiled.mousedown);
+
+}
+
+var cs_mouseup=function(e){
+    evaluate(cscompiled.mouseup);
+
+}
+
+
+var cs_mousedrag=function(e){
+    evaluate(cscompiled.mousedrag);
+
+}
+
+
+var cs_mousemove=function(e){
+    evaluate(cscompiled.mousemove);
+
+}
+
+var cs_tick=function(e){
+    if(true) {//TODO: Check here if physics is required
+       lab.tick();
+    }
+    if(csanimating) {
+       evaluate(cscompiled.tick);
+    }
+
+}
+
+
+
 

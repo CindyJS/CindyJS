@@ -265,7 +265,11 @@ function render(){
     var drawgeopoint= function(el){
         if(!el.isshowing||!List._helper.isAlmostReal(el.homog))
             return;
-        evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
+        var col=    el.color;
+        if(el.behavior) {
+           // col=List.realVector([0,0,1]);
+        }    
+        evaluator.draw([el.homog],{size:el.size,color:col,alpha:el.alpha});
         
     }
 

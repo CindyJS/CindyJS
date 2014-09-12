@@ -1437,3 +1437,20 @@ evaluator._helper.plotvars=function(a){
     
 }
 
+
+evaluator.clrscr=function(args,modifs){
+    if(args.length==0) {
+        if(typeof csw != 'undefined' && typeof csh != 'undefined') {
+            csctx.clearRect ( 0   , 0 , csw , csh );
+        }
+    }
+    return nada;
+}
+
+evaluator.repaint=function(args,modifs){
+    if(args.length==0) {
+        updateCindy();
+    }
+    return nada;
+}
+

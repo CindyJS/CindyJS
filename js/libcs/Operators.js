@@ -406,6 +406,8 @@ evaluator._helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher o
 
 
 evaluator._helper.assigndot=function(data,what){
+console.log(data);
+console.log(what);
     var where=evaluate(data.obj);
     var field=data.key;
     if(where && field){
@@ -2090,6 +2092,25 @@ evaluator._helper.shapeconcat=function(a,b){
 ///////////////////////////////
 //            IO             //
 ///////////////////////////////
+
+evaluator.key=function(args,modifs){  //OK
+    if(args.length==0){
+        return {ctype:"string",value:cskey};
+    }
+    return nada;
+}
+
+
+evaluator.keycode=function(args,modifs){  //OK
+    if(args.length==0){
+
+        return CSNumber.real(cskeycode);
+
+    }
+    return nada;
+}
+
+
 
 evaluator.mouse=function(args,modifs){  //OK
     if(args.length==0){
