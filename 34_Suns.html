@@ -69,7 +69,8 @@
                       
                     ];
             var physics=[
-                       {name:"A", behavior:{type:"Mass", vy:.2}},
+                       {behavior:{type:"Environment",deltat:.2,accuracy:10}},
+                       {name:"A", behavior:{type:"Mass", vy:.7}},
                        {name:"B", behavior:{type:"Sun"}}
                        ];
             createCindy({canvasname:"CSCanvas",
