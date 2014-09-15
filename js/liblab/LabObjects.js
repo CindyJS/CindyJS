@@ -11,14 +11,13 @@ init:function(beh,elem){
 
         
         beh.el=elem;
-        beh.mass=beh.mass || 1;
-        beh.charge=beh.charge || 0;
-        beh.friction=beh.friction || 0;
+        if(typeof(beh.mass) === 'undefined')  beh.mass= 1;
+        if(typeof(beh.charge) === 'undefined') beh.charge= 0;
+        if(typeof(beh.friction) === 'undefined') beh.friction= 0;
         beh.lnfrict=0;
-        beh.limitspeed=false;   
-        beh.fixed=false;
-        beh.radius=beh.radius || 1;
-        
+        if(typeof(beh.limitspeed) === 'undefined') beh.limitspeed=false;   
+        if(typeof(beh.fixed) === 'undefined') beh.fixed=false;
+        if(typeof(beh.radius) === 'undefined') beh.radius= 1;
         beh.internalmove=false;
         
         beh.fx=0;
@@ -100,7 +99,6 @@ initRK:function(beh,dt){
     beh.fy=0;
     beh.fz=0;
 
-   // console.log(beh);
     /* TODO Implement this
         if (type == TYPE_POINTONCIRCLE) {
             Vec mid = ((PointOnCircle) associatedPoint.algorithm).getCenter();
@@ -374,7 +372,9 @@ recallPosition:function(beh){
         beh.vy = beh.mvy;
         beh.vz = beh.mvz;
     }
-}
+},
+
+doCollisions:function(beh) {}
 
 
 
@@ -390,7 +390,9 @@ init:function(beh,elem){
     beh.pos=[0,0,0,0];//Position (homogen) 
         
     beh.el=elem;
-    beh.mass=1;
+    if(typeof(beh.mass) === 'undefined')  beh.mass=10;
+    if(typeof(beh.friction) === 'undefined') beh.friction= 0;
+
     beh.charge=0;
     beh.x=0;
     beh.y=0;
@@ -478,7 +480,9 @@ kineticEnergy:function(beh){},
 
 storePosition:function(beh){},
 
-recallPosition:function(beh){}
+recallPosition:function(beh){},
+
+doCollisions:function(beh) {}
 
 
 
@@ -491,13 +495,14 @@ labObjects.Spring={
 init:function(beh,elem){
       
         beh.el=elem;
-        beh.strength=beh.strength || 1;
-        beh.amplitude=beh.amplitude || 0;
-        beh.phase=beh.phase || 0;
-        beh.speed=beh.speed || 1;
-        beh.l0=beh.l0 || 0;
-        beh.stype=beh.stype || 1;  //0=HOOK, 1=RUBBER, 2=NEWTON, 3=ELECTRO
-        beh.readOnInit=beh.readOnInit || false;
+        if(typeof(beh.strength) === 'undefined') beh.strength= 1;
+        if(typeof(beh.amplitude) === 'undefined') beh.amplitude= 0;
+        if(typeof(beh.phase) === 'undefined') beh.phase= 0;
+        if(typeof(beh.speed) === 'undefined') beh.speed= 1;
+        if(typeof(beh.l0) === 'undefined') beh.l0= 0;
+        //0=HOOK, 1=RUBBER, 2=NEWTON, 3=ELECTRO
+        if(typeof(beh.stype) === 'undefined') beh.stype=1;  
+        if(typeof(beh.readOnInit) === 'undefined') beh.readOnInit= false;
      
         beh.namea=elem.args[0];
         beh.nameb=elem.args[1];
@@ -506,9 +511,9 @@ init:function(beh,elem){
         var pta=evaluator._helper.extractPoint(beh.ma.homog);
         var ptb=evaluator._helper.extractPoint(beh.mb.homog);
         if(true){
-           beh.l0 = (Math.sqrt((pta.x - ptb.x) * (pta.x - ptb.x) + (pta.y - ptb.y) * (pta.y - ptb.y)));
+           beh.l0 = (Math.sqrt((pta.x - ptb.x) * (pta.x - ptb.x) 
+                    + (pta.y - ptb.y) * (pta.y - ptb.y)));
         }
-        console.log(beh.l0);
         beh.env=labObjects.env; //TODO Environment
 
 
@@ -604,19 +609,199 @@ kineticEnergy:function(beh){},
 
 storePosition:function(beh){},
 
-recallPosition:function(beh){}
+recallPosition:function(beh){},
+
+doCollisions:function(beh) {}
 
 
 }
+
+
+
+
+
+
+
+/*-------------------------Bouncer-----------------------*/
+labObjects.det=function (x1, y1, x2,  y2, x3, y3) {
+    return x2 * y3 - x3 * y2
+    + x3 * y1 - x1 * y3
+    + x1 * y2 - x2 * y1;
+}
+
+
+labObjects.Bouncer={
+    
+    
+init:function(beh,elem){
+      
+        beh.el=elem;
+        if(typeof(beh.xdamp) === 'undefined') beh.xdamp= 0;
+        if(typeof(beh.ydamp) === 'undefined') beh.ydamp= 0;
+        if(typeof(beh.motorchanger) === 'undefined') beh.motorchanger= true;
+
+        beh.namea=elem.args[0];
+        beh.nameb=elem.args[1];
+        beh.ma=csgeo.csnames[beh.namea];
+        beh.mb=csgeo.csnames[beh.nameb];
+        var pta=evaluator._helper.extractPoint(beh.ma.homog);
+        var ptb=evaluator._helper.extractPoint(beh.mb.homog);
+        beh.x1o=pta.x;
+        beh.y1o=pta.y;
+        beh.x2o=ptb.x;
+        beh.y2o=ptb.y;
+        
+        beh.env=labObjects.env; //TODO Environment
+
+
+},
+
+resetForces:function(beh){},
+
+getBlock:false,
+
+setToTimestep:function(beh,j,a){},
+
+initRK:function(beh,dt){
+       beh.deltat = dt;
+},
+
+setVelocity:function(beh,vx,vy,vz){},
+
+move:function(beh){},
+
+proceedMotion:function(beh,dt,i,a){},
+
+calculateForces:function(beh){ },
+
+calculateDelta:function(beh,i){ },
+
+savePos:function(beh,i){},
+
+restorePos:function(beh,i){},
+
+sqDist:function(beh,i,j){},
+
+kineticEnergy:function(beh){},
+
+storePosition:function(beh){},
+
+recallPosition:function(beh){},
+
+doCollisions:function(beh) {
+
+        
+        var pta=evaluator._helper.extractPoint(beh.ma.homog);
+        var ptb=evaluator._helper.extractPoint(beh.mb.homog);
+        var x1=pta.x;
+        var y1=pta.y;
+        var x2=ptb.x;
+        var y2=ptb.y;
+        
+        var x1o=beh.x1o;
+        var y1o=beh.y1o;
+        var x2o=beh.x2o;
+        var y2o=beh.y2o;
+        
+        var n = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        var nx = (x1 - x2) / n;
+        var ny = (y1 - y2) / n;
+
+
+        for (var i = 0; i < masses.length; i++) {
+
+            var mass = masses[i];
+
+            //a1=x1o+i*y1o
+            //b1=x2o+i*y2o
+            //c1=mass.xo+i*mass.yo
+            //a2=x1+i*y1
+            //b2=x2+i*y2
+            //Nun berechne (a1*b2-b1*a2+c1*a2-c1*b2)/(a1-b1);
+            //Dass ist eine abgefahrene aber effektive Art eine Ähnlichkeitstransformation zu bestimmen
+
+/*          aa.assign(x1o, y1o).mul(x2, y2);
+            bb.assign(x2o, y2o).mul(x1, y1);
+            aa.sub(bb);
+            bb.assign(mass.xo, mass.yo).mul(x1, y1);
+            aa.add(bb);
+            bb.assign(mass.xo, mass.yo).mul(x2, y2);
+            aa.sub(bb);
+            bb.assign(x1o, y1o).sub(x2o, y2o);
+            aa.div(bb);
+*/
+
+
+            var mxo=mass.behavior.xo;
+            var myo=mass.behavior.yo;
+            var mx=mass.behavior.x;
+            var my=mass.behavior.y;
+            
+            var aa=CSNumber.mult(CSNumber.complex(x1o, y1o),CSNumber.complex(x2, y2));
+            var bb=CSNumber.mult(CSNumber.complex(x2o, y2o),CSNumber.complex(x1, y1));
+
+            aa=CSNumber.sub(aa,bb);
+            bb=CSNumber.mult(CSNumber.complex(mxo, myo),CSNumber.complex(x1, y1));
+            aa=CSNumber.add(aa,bb);
+            bb=CSNumber.mult(CSNumber.complex(mxo, myo),CSNumber.complex(x2, y2));
+            aa=CSNumber.sub(aa,bb);
+            bb=CSNumber.sub(CSNumber.complex(x1o, y1o),CSNumber.complex(x2o, y2o));
+            aa=CSNumber.div(aa,bb);
+
+            if (labObjects.det(x1, y1, x2, y2, mx, my)
+                * labObjects.det(x1, y1, x2, y2, aa.value.real, aa.value.imag) < 0 &&
+                labObjects.det(x1, y1, mx, my, aa.value.real, aa.value.imag)
+                * labObjects.det(x2, y2, mx, my, aa.value.real, aa.value.imag) < 0) {
+               
+ 
+                // doHitScript(mass);//TODO
+
+
+//TODO                if (motorChanger)
+//                    kernel.simulation.motor.dir *= -1;
+
+                var vvx = mass.behavior.mvx + beh.deltat * (-aa.value.real + mass.behavior.xo);
+                var vvy = mass.behavior.mvy + beh.deltat * (-aa.value.imag + mass.behavior.yo);
+
+                var ss1 = nx * vvx + ny * vvy;
+                var ss2 = ny * vvx - nx * vvy;
+                //TODO Nächsten zwei zeilen sind gepfuscht, erhalten aber die Energie
+
+                mass.behavior.x = aa.value.real;
+                mass.behavior.y = aa.value.imag;
+                mass.behavior.vx  =  nx * ss1 * (1.0 - beh.xdamp);
+                mass.behavior.vy  =  ny * ss1 * (1.0 - beh.xdamp);
+                mass.behavior.vx += -ny * ss2 * (1.0 - beh.ydamp);
+                mass.behavior.vy +=  nx * ss2 * (1.0 - beh.ydamp);
+
+            }
+        }
+        beh.x1o = x1;
+        beh.y1o = y1;
+        beh.x2o = x2;
+        beh.y2o = y2;
+    }
+
+
+}
+
+
+
+
 
 /*-------------------------ENVIRONMENT-----------------------*/
 labObjects.Environment={
     
 init:function(beh){
-      console.log("INIT ENV");
-        beh.gravity=beh.gravity || 0;
-        beh.friction=beh.friction || 0;
-        beh.springstrength=beh.springstrength || 1;
+        if(typeof(beh.gravity) === 'undefined') beh.gravity= 0;
+        if(typeof(beh.friction) === 'undefined') beh.friction= 0;
+        if(typeof(beh.springstrength) === 'undefined') beh.springstrength= 1;
+        if(typeof(beh.accuracy) === 'undefined') beh.accuracy= 10;
+        if(typeof(beh.deltat) === 'undefined') beh.deltat= .3;
+        if(typeof(beh.charges) === 'undefined') beh.charges= false;
+        if(typeof(beh.balls) === 'undefined') beh.balls= false;
+        if(typeof(beh.newton) === 'undefined') beh.newton= false;
+        if(typeof(beh.ballInteractionBoosting) === 'undefined') beh.ballInteractionBoosting= 0;
         labObjects.env=beh;
 
 },
@@ -637,16 +822,106 @@ proceedMotion:function(beh,dt,i,a){},
 
 calculateForces:function(beh){
  
-
-        for (var i = 0; i < masses.length; i++) {
-           var m=masses[i];
-
-           m.behavior.fx+=0;
-           m.behavior.fy+=beh.gravity;
-           m.behavior.fz+=0;
-
+    if (beh.newton) {
+        for (var i = 0; i < masses.length - 1; i++) {
+            var m1 = masses[i];
+            var x1 = m1.behavior.x;
+            var y1 = m1.behavior.y;
+            for (var j = i + 1; j < masses.length; j++) {
+                
+                var m2 = masses[j];
+                var x2 = m2.behavior.x;
+                var y2 = m2.behavior.y;
+                var l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+                var fx = (x1 - x2) * m1.behavior.mass * m2.behavior.mass / (l * l * l);
+                var fy = (y1 - y2) * m1.behavior.mass * m2.behavior.mass / (l * l * l);
+                
+                m1.behavior.fx -= fx;
+                m1.behavior.fy -= fy;
+                m2.behavior.fx += fx;
+                m2.behavior.fy += fy;
+            }
+        }
+    }
+    
+       if (beh.charges) {
+        for (var i = 0; i < masses.length - 1; i++) {
+            var m1 = masses[i];
+            var x1 = m1.behavior.x;
+            var y1 = m1.behavior.y;
+            for (var j = i + 1; j < masses.length; j++) {
+                
+                var m2 = masses[j];
+                var x2 = m2.behavior.x;
+                var y2 = m2.behavior.y;
+                var l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+                var fx = (x1 - x2) * m1.behavior.charge * m2.behavior.charge / (l * l * l);
+                var fy = (y1 - y2) * m1.behavior.charge * m2.behavior.charge / (l * l * l);
+                
+                m1.behavior.fx += fx;
+                m1.behavior.fy += fy;
+                m2.behavior.fx -= fx;
+                m2.behavior.fy -= fy;
+            }
+        }
+    }
+ 
+    if (beh.balls) {
         
-        }       
+        for (var i = 0; i < masses.length - 1; i++) {
+            var m1 = masses[i];
+            if(m1.behavior.radius!=0){
+                var x1 = m1.behavior.x;
+                var y1 = m1.behavior.y;
+                for (var j = i + 1; j < masses.length; j++) {
+                    
+                    var m2 = masses[j];
+                    if(m2.behavior.radius!=0){
+                        
+                        var x2 = m2.behavior.x;
+                        var y2 = m2.behavior.y;
+                        
+                        var r = m1.behavior.radius + m2.behavior.radius;
+                        var l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+                        var fx = 0;
+                        var fy = 0;
+                        
+                        if (beh.ballInteractionBoosting == 0) {
+                            fx = (x1 - x2) / (l * l * l) * (l > r ? 0 : (l - r) * (l - r));
+                            fy = (y1 - y2) / (l * l * l) * (l > r ? 0 : (l - r) * (l - r));
+                        } else {
+                            if (ballInteractionBoosting == 1) {
+                                
+                                fx = (x1 - x2) / (l * l * l * l) * (l > r ? 0 : (l - r) * (l - r));
+                                fy = (y1 - y2) / (l * l * l * l) * (l > r ? 0 : (l - r) * (l - r));
+                            } else {
+                                fx = (x1 - x2) / (l * l * l * l * l) * (l > r ? 0 : (l - r) * (l - r));
+                                fy = (y1 - y2) / (l * l * l * l * l) * (l > r ? 0 : (l - r) * (l - r));
+                            }
+                        }
+                        
+                        
+                        m1.behavior.fx += fx;
+                        m1.behavior.fy += fy;
+                        m2.behavior.fx -= fx;
+                        m2.behavior.fy -= fy;
+                    }
+                }
+            }
+        }
+    }
+
+
+    
+    for (var i = 0; i < masses.length; i++) {
+        var m=masses[i];
+        
+        m.behavior.fx+=0;
+        m.behavior.fy+=beh.gravity;
+        m.behavior.fz+=0;
+        
+        
+    }       
 },
 
 calculateDelta:function(beh,i){ },
@@ -661,7 +936,9 @@ kineticEnergy:function(beh){},
 
 storePosition:function(beh){},
 
-recallPosition:function(beh){}
+recallPosition:function(beh){},
+
+doCollisions:function(beh) {}
 
 
 }

@@ -406,8 +406,6 @@ evaluator._helper.assigntake=function(data,what){//TODO: Bin nicht ganz sicher o
 
 
 evaluator._helper.assigndot=function(data,what){
-console.log(data);
-console.log(what);
     var where=evaluate(data.obj);
     var field=data.key;
     if(where && field){
@@ -2804,6 +2802,19 @@ evaluator.allpoints=function(args,modifs){
 	}
 	return nada;
 }
+
+
+evaluator.allmasses=function(args,modifs){
+	if (args.length==0) {
+		erg=[];
+		for (var i=0; i< masses.length; i++) {
+                erg[i]={ctype:"geo",value:masses[i],type:"P"};
+		}
+		return {ctype:"list", value:erg};
+	}
+	return nada;
+}
+
 
 evaluator.alllines=function(args,modifs){
 	if (args.length==0) {

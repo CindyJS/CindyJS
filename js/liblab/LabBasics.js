@@ -47,13 +47,12 @@ function csinitphys(behavs){
         
 }
 
-var deltat=0.5;
 
-var accuracy=1;
+
 
 lab.tick=function(){
-    for(var i=0;i<accuracy;i++) {
-        lab.tick1(deltat/accuracy);
+    for(var i=0;i<labObjects.env.accuracy;i++) {
+        lab.tick1(labObjects.env.deltat/labObjects.env.accuracy);
     }
 }
 
@@ -74,7 +73,7 @@ lab.tick1=function(deltat) {
         mydeltat = Math.min(actualdelta * 2, deltat - proceeded);
         mydeltat = Math.max(mydeltat, 0.0000000000000001);
         lab.restorePosition();
-        //   doCollisions();//TODO implement
+        lab.doCollisions();
         lab.calculateForces();
         lab.moveToFinalPos();
     }
@@ -91,6 +90,14 @@ lab.restorePosition=function() {
     //        beh.restorePos(rk.getSize() + 2);
     //    }
     //}
+}
+
+lab.doCollisions=function() {
+    behaviors.forEach( function(b) {
+        beh=b.behavior;
+        labObjects[beh.type].doCollisions(beh);
+    } );
+
 }
 
 lab.calculateForces=function() {

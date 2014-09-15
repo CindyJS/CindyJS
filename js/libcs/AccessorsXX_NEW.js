@@ -4,6 +4,7 @@
 //*************************************************************
 
 var Accessor={};
+var AccessorX={};
 
 Accessor.generalFields={//Übersetungstafel der Feldnamen 
     color:"color",
@@ -35,9 +36,74 @@ Accessor.setGeoField=function(geoname,field,value){
 }
 
 
-
-
 Accessor.getField=function(geo,field){
+   if(Accessor.helper[field]){
+      Accessor.helper[field](geo);
+   }
+}
+
+Accessor.helper={
+    
+xy:function(geo){
+    if(geo.kind=="P"){
+        var xx=CSNumber.div(geo.homog.value[0],geo.homog.value[2]);
+        var yy=CSNumber.div(geo.homog.value[1],geo.homog.value[2]);
+        var erg=List.turnIntoCSList([xx,yy]);
+        erg.usage="Point";
+        return erg;
+    };
+    return nada;
+},
+
+homog:function(geo){
+    if(geo.kind=="P"){
+      var erg=List.clone(geo.homog);//TODO will man hier clonen?
+        erg.usage="Point";
+        return erg;
+    };
+    if(geo.kind=="L"){
+        var erg=List.clone(geo.homog);//TODO will man hier clonen?
+        erg.usage="Line";
+        return erg;
+    }
+    return nada;
+},
+
+x:function(geo){
+    
+    if(geo.kind=="P"){
+        var x=CSNumber.div(geo.homog.value[0],geo.homog.value[2]);
+        return x;
+
+    };
+    return nada;
+},
+
+y:function(geo){
+    
+    if(geo.kind=="P"){
+        var y=CSNumber.div(geo.homog.value[1],geo.homog.value[2]);
+        return y;
+
+    };
+    return nada;
+},
+
+
+angle:function(geo){
+    
+    if(geo.kind=="L"){
+        var erg=List.eucangle(List.ey,geo.homog);
+        erg.usage="Angle";
+        return erg;
+    };
+    return nada;
+}
+
+}
+
+
+AccessorX.getField=function(geo,field){
     if(geo.kind=="P"){
         if(field=="xy") {
             var xx=CSNumber.div(geo.homog.value[0],geo.homog.value[2]);
@@ -123,6 +189,11 @@ Accessor.getField=function(geo,field){
     
     
 }
+
+
+
+
+
 
 Accessor.setField=function(geo,field,value){
     if(field=="color") {

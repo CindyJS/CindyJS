@@ -99,22 +99,75 @@ createCindy = function(data){
 
 }
 
+
+
+backup=[];
+var backupGeo=function(){
+
+    backup=[];
+
+    for( var i=0; i<csgeo.points.length; i++ ) {
+         var el=csgeo.points[i];
+         var data={
+             name:JSON.stringify(el.name),
+             homog:JSON.stringify(el.homog),
+             sx:JSON.stringify(el.sx),
+             sy:JSON.stringify(el.sy),
+             sz:JSON.stringify(el.sz)
+         };       
+         if(typeof(el.behavior)!=='undefined'){
+             data.vx=JSON.stringify(el.behavior.vx);
+             data.vy=JSON.stringify(el.behavior.vy);
+             data.vz=JSON.stringify(el.behavior.vz);
+         } 
+         
+         backup.push(data);   
+              
+    }
+
+};
+
+
+var restoreGeo=function(){
+
+
+    for( var i=0; i<backup.length; i++ ) {
+         name=JSON.parse(backup[i].name);
+         
+         var el=csgeo.csnames[name];
+         el.homog=JSON.parse(backup[i].homog);
+         el.sx=JSON.parse(backup[i].sx);
+         el.sy=JSON.parse(backup[i].sy);
+         el.sz=JSON.parse(backup[i].sz);
+         if(typeof(el.behavior)!=='undefined'){//TODO Diese Physics Reset ist FALSCH
+           el.behavior.vx=JSON.parse(backup[i].vx);
+           el.behavior.vy=JSON.parse(backup[i].vy);
+           el.behavior.vz=JSON.parse(backup[i].vz);
+           el.behavior.fx=0;
+           el.behavior.fy=0;
+           el.behavior.fz=0;
+         };              
+    }
+
+};
+
+
+
 var csplay=function(){
   csanimating=true;
-console.log("START");
+  backupGeo();
   startit();
 }
 
 var cspause=function(){
-console.log("PAUSE");
 
   csanimating=false;
 }
 
 var csstop=function(){
-console.log("STOP");
 
   csanimating=false;
+  restoreGeo();
 }
 
 
