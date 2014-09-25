@@ -1448,6 +1448,7 @@ evaluator.clrscr=function(args,modifs){
 }
 
 evaluator.repaint=function(args,modifs){
+console.log("REPAINT");
     if(args.length==0) {
         updateCindy();
     }

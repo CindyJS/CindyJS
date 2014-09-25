@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <!--script type="text/javascript" src="js/Cindy.js"></script-->
+            
+            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
+            <script type="text/javascript" src="js/Setup.js"></script>
+            <script type="text/javascript" src="js/Events.js"></script>
+
+            <script type="text/javascript" src="js/libcs/Namespace.js"></script>
+            <script type="text/javascript" src="js/libcs/Accessors.js"></script>
+            <script type="text/javascript" src="js/libcs/CSNumber.js"></script>
+            <script type="text/javascript" src="js/libcs/List.js"></script>
+            <script type="text/javascript" src="js/libcs/Essentials.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
+            <script type="text/javascript" src="js/libcs/Operators.js"></script>
+            <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/OpImageDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/Parser.js"></script>
+            
+            
+            <script type="text/javascript" src="js/lib/d3.js"></script>
+            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
+            <script type="text/javascript" src="js/lib/clipper.js"></script>
+            <link rel="stylesheet" href="css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>CindyJS: Schleppkurve</h1>
+        
+                <script id='draw' type='cindyscript'>
+
+        pts=allpoints();
+
+m=mover();
+start=B.xy;
+start=m.xy;
+
+//sp=split(pts,oldpts,m);
+//l=sp_1;
+//r=sp_2;
+//ol=sp_3;
+//or=sp_4;
+
+l=pts;
+r=[];
+ol=oldpts;
+or=[];
+
+newptsl=transf(ol,start);
+newptsr=transf(or,start);
+   
+forall(1..length(l),(l_#).xy=newptsl_#);
+forall(1..length(r),(r_#).xy=newptsr_#);
+
+oldpts=apply(pts,#.xy);
+  
+
+connect(pts,color->(1,1,1),size->3);
+                </script>
+
+        
+        <script id='init' type='cindyscript'>
+
+old=allpoints();
+oldpts=apply(old,#.xy);
+
+
+
+split(pts,oldpts,m):=(
+errc(pts);
+errc(m);
+  //if(contains(pts,m),(
+  if(true,(
+    i=1;
+    while(pts_i.xy!=m.xy,i=i+1);
+    errc(i);
+    l=apply[1..i,pts_(i-#+1)];
+    r=apply[i..length[pts],pts_#];
+    ol=apply[1..i,oldpts_(i-#+1)];
+    or=apply[i..length[oldpts],oldpts_#];
+    [l,r,ol,or];
+  )
+ );
+);
+
+antiprismc(a,b,c):=(
+  xx=|a-b|^2;
+  yy=|a-c|^2;
+  xx=|a-b|^2;
+  yy=|a-c|^2;
+  if(yy==0,
+     d=b,
+     d=((a*b*xx)-(b*c*xx)-(a*c*yy)+(b*c*yy))/(a*xx-c*xx-a*yy+b*yy)
+  );
+);
+
+tractrix(a,b,c):=(
+  bb=a+(b-a)*2;
+  dd=antiprismc(a,bb,c);
+  (c+dd)/2;
+);
+
+
+
+
+
+
+
+transf(pts,pt):=(
+  newpts=pts;
+  newpts_1=pt;
+  forall(1..(length(pts)-1),
+       newpts_(#+1)=gauss(tractrix(complex(pts_#),complex(pts_(#+1)),complex(newpts_#)));
+  );
+  newpts;
+);
+   
+
+
+
+
+        </script>
+        
+
+        <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
+
+        <script>
+            defaultAppearance.clip="inci";
+            defaultAppearance.overhangLine=1.2;
+
+            var gslp=[
+
+                      {name:"A", type:"Free", pos:[-4,0],color:[1,1,1]},
+                      {name:"B", type:"Free", pos:[-3.5,0],color:[1,1,1]},
+                      {name:"C", type:"Free", pos:[-3,0],color:[1,1,1]},
+                      {name:"D", type:"Free", pos:[-2.5,0],color:[1,1,1]},
+                      {name:"E", type:"Free", pos:[-2,0],color:[1,1,1]},
+                      {name:"F", type:"Free", pos:[-1.5,0],color:[1,1,1]},
+                      {name:"G", type:"Free", pos:[-1,0],color:[1,1,1]},
+                      {name:"H", type:"Free", pos:[-0.5,0],color:[1,1,1]},
+                      {name:"I", type:"Free", pos:[0,0],color:[1,1,1]},
+                      {name:"J", type:"Free", pos:[0.5,0],color:[1,1,1]},
+                      {name:"K", type:"Free", pos:[1,0],color:[1,1,1]},
+                      {name:"L", type:"Free", pos:[1.5,0],color:[1,1,1]},
+                      {name:"M", type:"Free", pos:[2,0],color:[1,1,1]},
+                      {name:"N", type:"Free", pos:[2.5,0],color:[1,1,1]},
+                      {name:"O", type:"Free", pos:[3,0],color:[1,1,1]},
+                      {name:"P", type:"Free", pos:[3.5,0],color:[1,1,1]},
+                      {name:"Q", type:"Free", pos:[4,0],color:[1,1,1]},
+                      {name:"R", type:"Free", pos:[4.5,0],color:[1,1,1]},
+                      {name:"S", type:"Free", pos:[5,0],color:[1,1,1]},
+                      {name:"T", type:"Free", pos:[5.5,0],color:[1,1,1]},
+                      {name:"U", type:"Free", pos:[6,0],color:[1,1,1]},
+                      {name:"W", type:"Free", pos:[6.5,0],color:[1,1,1]},
+                      {name:"X", type:"Free", pos:[7,0],color:[1,1,1]},
+                      {name:"Y", type:"Free", pos:[7.5,0],color:[1,1,1]},
+                      {name:"Z", type:"Free", pos:[8,0],color:[1,1,1]},
+
+                      
+                     
+                      ];
+            createCindy({canvasname:"CSCanvas",
+                        initscript:"init",
+                        movescript:"draw",
+                        geometry:gslp});
+    
+        </script>
+
+	</body>
+</html>

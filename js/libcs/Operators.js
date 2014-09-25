@@ -2872,4 +2872,47 @@ evaluator.halfplane=function(args,modifs){
     
 }
 
+evaluator.convexhull3d=function(args,modifs){ 
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+        if(v0.ctype=='list'){
+            var vals=v0.value;
+            var pts=[];
+            for(var i=0;i< vals.length;i++){
+               if(List._helper.isNumberVecN(vals[i],3)){
+                    for(var j=0;j< 3;j++){
+                        var a=vals[i].value[j].value.real;
+                        pts.push(a);
+                    
+                    }
+
+               }
+            
+            }
+            var ch=convexhull(pts);
+            var chp=ch[0];
+            var ergp=[];
+            for(var i=0;i<chp.length;i+=3){
+               ergp.push(List.realVector([chp[i],chp[i+1],chp[i+2]]));
+            }
+            var outp=List.turnIntoCSList(ergp);
+            var chf=ch[1];
+            var ergf=[];
+            for(var i=0;i<chf.length;i++){
+               for(var j=0;j<chf[i].length;j++){
+                 chf[i][j]++;
+               }
+               ergf.push(List.realVector(chf[i]));
+            }
+            var outf=List.turnIntoCSList(ergf);
+            return(List.turnIntoCSList([outp,outf]));
+            
+        }
+    }
+    return nada;
+}
+
+
+
 

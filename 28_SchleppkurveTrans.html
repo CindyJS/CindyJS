@@ -39,6 +39,8 @@
              <script id='keyup' type='cindyscript'>
 forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
 old=allpoints();
+ old=apply(2..length(old),old_#);
+
 oldpts=apply(old,#.xy);
 </script>
      
@@ -49,11 +51,15 @@ oldpts=apply(old,#.xy);
 
  old=allpoints();
  pts=allpoints();
+ old=apply(2..length(old),old_#);
+ pts=apply(2..length(pts),pts_#);
         oldpts=apply(old,#.xy);
 </script>
 
 <script id='init' type='cindyscript'>
  old=allpoints();
+  old=apply(2..length(old),old_#);
+
         oldpts=apply(old,#.xy);
         
         
@@ -113,6 +119,8 @@ oldpts=apply(old,#.xy);
 </script>
         <script id='firstDrawing' type='cindyscript'>
             pts=allpoints();
+             pts=apply(2..length(pts),pts_#);
+
             apply(pts,#.size=3;#.color=(1,0,0));
     i=0;
     mover=mover();
@@ -120,7 +128,7 @@ oldpts=apply(old,#.xy);
         
      
                      
-               if(isreal(mover.x)&finished,
+               if(mover!=A & isreal(mover.x)&finished,
                   finished=false;
                   errc("MOVE");
                m=mover;
@@ -145,8 +153,11 @@ oldpts=apply(old,#.xy);
                   );
                
                connect(pts,color->(1,1,1)*0,size->3);
+apply(1..length(tr),draw(pts_#,tr_#,alpha->0.3));
 
-
+tr=transf(oldpts,A.xy);
+               connect(tr,color->(1,1,1)*0,size->4);
+               drawall(tr,color->(1,.7,0),size->4);
 
         </script>
         
@@ -158,6 +169,7 @@ oldpts=apply(old,#.xy);
             defaultAppearance.overhangLine=1.2;
 
             var gslp=[];
+            gslp.push({name:"A", type:"Free", pos:[-2,1],color:[1,.7,0],size:8});
 
             for(var i=0;i<30;i++){
 
