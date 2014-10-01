@@ -989,7 +989,7 @@ List.row=function(a,b){
     return List.turnIntoCSList(erg);
 }
 
-List.inverse=function(a){
+List.inverse=function(a){//Das ist nur Reell und greift auf numeric zurück
     var x=[];
     var y=[];
     var n=a.value.length;
@@ -1016,11 +1016,24 @@ List.inverse=function(a){
     return List.turnIntoCSList(erg);
 }
 
-List.det=function(a){
-    
-    
-    
-    return CSNumber.real(0);
+List.det=function(a){//Das ist nur Reell und greift auf numeric zurück
+    var x=[];
+    var y=[];
+    var n=a.value.length;
+    for(var i=0;i<n;i++){
+        var lix=[]; 
+        var liy=[]; 
+        for(var j=0;j<n;j++){
+            lix[lix.length]=a.value[i].value[j].value.real;
+            liy[liy.length]=a.value[i].value[j].value.imag;
+        }
+        x[x.length]=lix;
+        y[y.length]=liy;
+    }
+    var z=new numeric.T(x,y);
+    var res=numeric.det(x);
+        
+    return CSNumber.real(res);
     
 }
 

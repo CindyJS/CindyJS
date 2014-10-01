@@ -62,6 +62,31 @@ forall(pairs,s,
         </script>
 
 
+<script id='timer' type='cindyscript'>
+
+wx=wx*0.998;
+ wy=wy*0.998;
+
+sp=0.8;
+mmmx=[
+  [1,0,0],
+  [0,cos(wx*sp),sin(wx*sp)],
+  [0,-sin(wx*sp),cos(wx*sp)]
+
+];
+
+
+mmmy=[
+  [cos(wy*sp),0,-sin(wy*sp)],
+  [0,1,0],
+  [sin(wy*sp),0,cos(wy*sp)]
+];
+
+
+mat=mmmx*mmmy*mat;
+        </script>
+
+
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
 
@@ -128,6 +153,7 @@ forall(pairs,s,
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
                         initscript:"init",
+                        timer:"timer",
                         geometry:gslp,
                         behavior:physics}
                         );

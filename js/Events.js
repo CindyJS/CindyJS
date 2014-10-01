@@ -145,9 +145,10 @@ setuplisteners =function(canvas) {
                         e.targetTouches[0].pageY - canvas.offsetTop);
         if(mouse.down){
             movepoint(move);
-            
+            cs_mousedrag();
+        } else {
+            cs_mousemove();
         }
-        
         e.preventDefault();
         
     }
@@ -170,7 +171,8 @@ setuplisteners =function(canvas) {
     function touchUp(e) {
         mouse.down = false;
         updateCindy();
-        
+        cs_mouseup();
+
         e.preventDefault();
         
     }
@@ -271,7 +273,9 @@ var cs_mousemove=function(e){
 
 var cs_tick=function(e){
     if(true) {//TODO: Check here if physics is required
+    if(typeof(lab)!=='undefined') {
        lab.tick();
+       }
     }
     if(csanimating) {
        evaluate(cscompiled.tick);

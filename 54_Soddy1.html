@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <!--script type="text/javascript" src="js/Cindy.js"></script-->
+            
+            <script type="text/javascript" src="js/libgeo/GeoState.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoBasics.js"></script>
+            <script type="text/javascript" src="js/libgeo/GeoOps.js"></script>
+            <script type="text/javascript" src="js/Setup.js"></script>
+            <script type="text/javascript" src="js/Events.js"></script>
+
+            <script type="text/javascript" src="js/libcs/Namespace.js"></script>
+            <script type="text/javascript" src="js/libcs/Accessors.js"></script>
+            <script type="text/javascript" src="js/libcs/CSNumber.js"></script>
+            <script type="text/javascript" src="js/libcs/List.js"></script>
+            <script type="text/javascript" src="js/libcs/Essentials.js"></script>
+            <script type="text/javascript" src="js/libcs/General.js"></script>
+            <script type="text/javascript" src="js/libcs/Operators.js"></script>
+            <script type="text/javascript" src="js/libcs/OpDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/OpImageDrawing.js"></script>
+            <script type="text/javascript" src="js/libcs/Parser.js"></script>
+            
+            
+            <script type="text/javascript" src="js/lib/d3.js"></script>
+            <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
+            <script type="text/javascript" src="js/lib/clipper.js"></script>
+            <link rel="stylesheet" href="css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>CindyJS: Euler-Line</h1>
+        <script id='init' type='cindyscript'>
+        
+g(x,y):=(-x_1*y_1+x_2*y_2+x_3*y_3+x_4*y_4-x_5*y_5);
+lip(x,y):=((1+|(x,y)|^2)/2,(1-|(x,y)|^2)/2,x,y,0);
+lic(x,y,r):=[(1+|[x,y]|^2-r^2)/2,(1-|[x,y]|^2+r^2)/2,x,y,r];
+lig(x,y,z):=(
+  pp=(x,y,z)/|(x,y)|;
+  (-pp_3,pp_3,pp_1,pp_2,1);
+);
+
+rev(p):=(p_1,p_2,p_3,p_4,-p_5);
+
+liec(x,y,r):=(
+  erg=lic(x,y,r);
+  erg=erg/|erg|;
+  erg;
+);
+
+drawliepoint(p,col,size):=(
+  draw((p_3,p_4),size->size*2+2,color->col);
+);
+
+drawliecircle(p,col,size):=(
+  drawcircle((p_3,p_4),|p_5|,size->size,color->col);
+);
+
+drawlieline(p,col,size):=(
+  draw(line((p_3,p_4,-p_1)),size->size,color->col);
+);
+
+
+drawlie(p,col,siz):=(
+  if(p_5~=0 & p_1~=-p_2, ,
+   if(p_5~=0, drawliepoint(p/(p_1+p_2),col,siz),
+    if(p_1~=-p_2, drawlieline(p/p_5,col,siz),
+      drawliecircle(p/(p_1+p_2),col,siz))))
+);
+
+inf=(1,-1,0,0,0);
+ee=(0,0,0,0,1);
+xx=apply(1..5,random(100))/100;
+yy=apply(1..5,random(100))/100;
+orth(a,b,c,d):=(
+   m=transpose([a,b,c,d]);
+   [
+      det([m_2,m_3,m_4,m_5]),
+     -det([m_1,m_3,m_4,m_5]),
+      det([m_1,m_2,m_4,m_5]),
+     -det([m_1,m_2,m_3,m_5]),
+      det([m_1,m_2,m_3,m_4])
+   ]
+);
+liequad=[[-1,0,0,0,0],[0,1,0,0,0],[0,0,1,0,0],[0,0,0,1,0],[0,0,0,0,-1]];
+
+roots(c,b,a):=(
+p=b/a;
+q=c/a;
+d=sqrt(p^2/4-q);
+[-p/2+d,-p/2-d];
+);
+
+findlie(a,b,c):=(
+   aa=orth(liequad*a,liequad*b,liequad*c,xx);   
+   bb=orth(liequad*a,liequad*b,liequad*c,yy);   
+   r1=aa*liequad*aa;
+   r2=2*bb*liequad*aa;
+   r3=bb*liequad*bb;
+   roo=roots(r1,r2,r3);
+   ergs=if(isreal(roo_1),
+     [aa+roo_1*bb,aa+roo_2*bb],
+     [inf,inf]);
+   ergs
+);
+
+mid(c):=((c_3,c_4)/(c_1+c_2));
+rad(c):=(c_5/(c_1+c_2));
+
+
+theother(a,b,c,dd):=(
+//TODO:wenn ich dd ald d benenne wird der überschrieben. Das darf nicht sein!!!!!
+  circs=findlie(rev(a),rev(b),rev(c));
+  out=if(|g(circs_1,dd)|<0.00000001,circs_2,circs_1);
+  out=out/|out|;
+  out;
+);
+
+        
+        
+        </script>
+
+        
+        <script id='firstDrawing' type='cindyscript'>
+
+            
+d1=|A,B|;
+d2=|B,C|;
+d3=|C,A|;
+c3r=(-d1+d2+d3)/2;
+c1r=(+d1-d2+d3)/2;
+c2r=(+d1+d2-d3)/2;
+
+drawcircle(C,c3r);
+drawcircle(B,c2r);
+drawcircle(A,c1r);
+
+
+
+ca=liec(A.x,A.y,c1r);
+cb=liec(B.x,B.y,c2r);
+cc=liec(C.x,C.y,c3r);
+
+cd=rev(findlie(ca,cb,cc)_1);
+drawlie(cd,(0,0,0),3);
+
+ce=theother(ca,cb,cc,cd);
+drawlie(ce,(0,0,0),3);
+
+
+        </script>
+        
+
+        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+
+        <script type="text/javascript">
+            defaultAppearance.clip="inci";
+            defaultAppearance.overhangLine=1.2;
+
+            var gslp=[
+
+                      {name:"A", type:"Free", pos:[-3,6],color:[1,1,1]},
+                      {name:"B", type:"Free", pos:[6,3],color:[1,1,1]},
+                      {name:"C", type:"Free", pos:[-5,-5],color:[1,1,1]}
+                   
+                      ];
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        initscript:"init",
+                        geometry:gslp});
+    
+        </script>
+
+	</body>
+</html>
