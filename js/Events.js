@@ -9,6 +9,7 @@ var cskeycode=0;
 movepoint=function (move){
     if(move.mover==undefined) return;
     m=move.mover;
+    if(m.pinned) return;
     m.sx=mouse.x+move.offset.x;
     m.sy=mouse.y+move.offset.y;
     //experimental stuff by Ulli
