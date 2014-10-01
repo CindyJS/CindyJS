@@ -47,7 +47,6 @@
 loc=Pos.xy;
         
 off=(4,4);
-off=(0,0);
 g(x,y):=(-x_1*y_1+x_2*y_2+x_3*y_3+x_4*y_4-x_5*y_5);
 lip(x,y):=((1+|(x,y)|^2)/2,(1-|(x,y)|^2)/2,x,y,0);
 lic(x,y,r):=[(1+|[x,y]|^2-r^2)/2,(1-|[x,y]|^2+r^2)/2,x,y,r];
@@ -78,11 +77,6 @@ lieg(x,y,z):=(
 lieg(v):=(
   erg=lig(v_1,v_2,v_3);
   erg=erg/|erg|;
-  erg;
-);
-
-lig(v):=(
-  erg=lig(v_1,v_2,v_3);
   erg;
 );
 
@@ -198,9 +192,6 @@ repeat(n,i,
   ;
 );
 
-translate(off+Pos.xy-loc);
-
-
 if(k1*k2*k3!=0,
 
  //Mittelpunktspositionen
@@ -235,22 +226,11 @@ if(k1*k2*k3~=0,
     s=if(kk2<kk3,1,-1);
     rsum=1/kk2+1/kk3;
     rdiff=1/kk2-1/kk3;
-
     offx=sqrt(rsum^2-rdiff^2)/2;
     offy=|rdiff|/2;
-
     ca=liec((offx,s*offy),1/kk2);
-    
     cb=liec((-offx,-offy*s),1/kk3);
-drawcircle((offx,offy*s),1/kk2*zoom,size->5);
-drawcircle((-offx,-offy*s),1/kk3*zoom,size->5);
-    mi=if(1/kk2<1/kk3,1/kk2,1/kk3);
-linep1=(-offx,-offy-mi,1);
-linep2=(-offx,-offy-mi,1);
-
-    vv=(cross((-offx,-offy-mi,1),(+offx,-offy-mi,1)));
-    draw(line(vv),color->(1,0,0));
-    cc=rev(lig(vv));
+    cc=rev(lieg(cross((-offx,-offy-min(1/kk2,1/kk3),1),(+offx,-offy-min(1/kk2,1/kk3),1))));
   );
 
 );
@@ -312,6 +292,8 @@ dc2(cir):=(
   if(kr<0,
     ra=rad(cir);
     mi=mid(cir)*zoom;
+  errc(kr);
+
     tsiz=-ra*zoom*6;
     drawtext(mi+(ra,ra)*zoom,round(1/ra),size->tsiz) 
   );
@@ -341,6 +323,7 @@ doit(a,b,c,d,n):=(
   );
 );
 
+translate(off+Pos.xy-loc);
 drawlie(ca,(0,0,0),4);
 drawlie(cb,(0,0,0),4);
 drawlie(cc,(0,0,0),4);
