@@ -47,6 +47,7 @@
 loc=Pos.xy;
         
 off=(4,4);
+off=(0,0);
 g(x,y):=(-x_1*y_1+x_2*y_2+x_3*y_3+x_4*y_4-x_5*y_5);
 lip(x,y):=((1+|(x,y)|^2)/2,(1-|(x,y)|^2)/2,x,y,0);
 lic(x,y,r):=[(1+|[x,y]|^2-r^2)/2,(1-|[x,y]|^2+r^2)/2,x,y,r];
@@ -80,6 +81,11 @@ lieg(v):=(
   erg;
 );
 
+lig(v):=(
+  erg=lig(v_1,v_2,v_3);
+  erg;
+);
+
 
 drawliepoint(p,col,size):=(
   draw((p_3,p_4),size->size*2+2,color->col);
@@ -92,7 +98,7 @@ drawliecircle(p,col,size):=(
 );
 
 drawlieline(p,col,size):=(
-  draw(line((p_3,p_4,-p_1)),size->size,color->col);
+ // draw(line((p_3,p_4,-p_1)),size->size,color->col);
 );
 
 
@@ -146,7 +152,7 @@ k(c):=(c_1+c_2)/c_5;
 theother(a,b,c,dd):=(
 //TODO:wenn ich dd ald d benenne wird der überschrieben. Das darf nicht sein!!!!!
   circs=findlie(rev(a),rev(b),rev(c));
-  out=if(|g(circs_1,dd)|<0.00000000000001,circs_2,circs_1);
+  out=if(|g(circs_1,dd)|<0.000000000001,circs_2,circs_1);
   out=out/|out|;
   out;
 );
@@ -160,22 +166,10 @@ theother(a,b,c,dd):=(
 n=50;
         zoom=(Z.y-Z1.y)*10;
 
-A1.xy=(-8,-6);
-A2.xy=(20,-6);
 
-B1.xy=(-8,-7);
-B2.xy=(20,-7);
-
-C1.xy=(-8,-8);
-C2.xy=(20,-8);
-
-RA.xy=(round(n*(RA.x-A1.x)/|A1.x-A2.x|)/n*|A1.x-A2.x|+A1.x,RA.y);
-RB.xy=(round(n*(RB.x-B1.x)/|B1.x-B2.x|)/n*|B1.x-B2.x|+B1.x,RB.y);
-RC.xy=(round(n*(RC.x-C1.x)/|C1.x-C2.x|)/n*|C1.x-C2.x|+C1.x,RC.y);
-
-k1=round(n*(RA.x-A1.x)/|A1.x-A2.x|);
-k2=round(n*(RB.x-B1.x)/|B1.x-B2.x|);
-k3=round(n*(RC.x-C1.x)/|C1.x-C2.x|);
+k1=0;
+k2=1;
+k3=1;
 
 
 isgood(a,b,c):=(
@@ -184,13 +178,10 @@ isgood(a,b,c):=(
 );
 
 dd=|C1.x-C2.x|/n;
-repeat(n,i,
-  kk=i;
-  draw(A1+(i*dd,0.0),size->if(isgood(kk,k2,k3),2,1.2),color->(0,0,0));
-  draw(B1+(i*dd,0.0),size->if(isgood(kk,k1,k3),2,1.2),color->(0,0,0));
-  draw(C1+(i*dd,0.0),size->if(isgood(kk,k1,k2),2,1.2),color->(0,0,0));
-  ;
-);
+
+
+translate(off+Pos.xy-loc);
+
 
 if(k1*k2*k3!=0,
 
@@ -226,11 +217,22 @@ if(k1*k2*k3~=0,
     s=if(kk2<kk3,1,-1);
     rsum=1/kk2+1/kk3;
     rdiff=1/kk2-1/kk3;
+
     offx=sqrt(rsum^2-rdiff^2)/2;
     offy=|rdiff|/2;
+
     ca=liec((offx,s*offy),1/kk2);
+    
     cb=liec((-offx,-offy*s),1/kk3);
-    cc=rev(lieg(cross((-offx,-offy-min(1/kk2,1/kk3),1),(+offx,-offy-min(1/kk2,1/kk3),1))));
+//drawcircle((offx,offy*s),1/kk2*zoom,size->5);
+//drawcircle((-offx,-offy*s),1/kk3*zoom,size->5);
+    mi=if(1/kk2<1/kk3,1/kk2,1/kk3);
+linep1=(-offx,-offy-mi,1);
+linep2=(-offx,-offy-mi,1);
+
+    vv=(cross((-offx,-offy-mi,1),(+offx,-offy-mi,1)));
+    draw(line(vv),color->(1,0,0));
+    cc=rev(lig(vv));
   );
 
 );
@@ -269,6 +271,7 @@ deeper(cir):=(
       true,false
     );
   );
+  true;
 );
 
 dc(cir):=(
@@ -292,8 +295,6 @@ dc2(cir):=(
   if(kr<0,
     ra=rad(cir);
     mi=mid(cir)*zoom;
-  errc(kr);
-
     tsiz=-ra*zoom*6;
     drawtext(mi+(ra,ra)*zoom,round(1/ra),size->tsiz) 
   );
@@ -316,14 +317,13 @@ doit(a,b,c,d,n):=(
    new=theother(a,b,c,d);
    dc(new);
    if(deeper(new),
-    doit(a,b,new,c,n-1);
-    doit(a,c,new,b,n-1);
-    doit(b,c,new,a,n-1);
+  //  doit(a,b,new,c,n-1);
+  doit(new,a,c,b,n-1);
+    doit(new,b,c,a,n-1);
    );
   );
 );
 
-translate(off+Pos.xy-loc);
 drawlie(ca,(0,0,0),4);
 drawlie(cb,(0,0,0),4);
 drawlie(cc,(0,0,0),4);
@@ -333,9 +333,9 @@ drawlie(ce,(0,0.6,0),4);
 
 tiefe=round(|T.y-T1.y|);
 doit(ca,cb,cc,ce,tiefe);
-doit(ce,ca,cb,cc,tiefe);
-doit(cc,ce,ca,cb,tiefe);
-doit(cb,cc,ce,ca,tiefe);
+//doit(ce,ca,cb,cc,tiefe);
+//doit(cc,ce,ca,cb,tiefe);
+//doit(cb,cc,ce,ca,tiefe);
 if(isgood(k1,k2,k3),
   dc2(ca);
   dc2(cb);
@@ -359,15 +359,7 @@ translate(-(off+Pos.xy-loc));
             var gslp=[
 
         
-                      {name:"A1", type:"Free", pos:[-8,-6],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"A2", type:"Free", pos:[20,-6],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"a", type:"Segment", args:["A1","A2"],color:[0,0,0]},
-                      {name:"B1", type:"Free", pos:[-8,-7],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"B2", type:"Free", pos:[20,-7],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"b", type:"Segment", args:["B1","B2"],color:[0,0,0]},
-                      {name:"C1", type:"Free", pos:[-8,-8],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"C2", type:"Free", pos:[20,-8],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"c", type:"Segment", args:["C1","C2"],color:[0,0,0]},
+              
                       {name:"Z1", type:"Free", pos:[18,-3],color:[1,1,1],size:0.1,pinned:true},
                       {name:"Z2", type:"Free", pos:[18,10],color:[1,1,1],size:0.1,pinned:true},
                       {name:"z", type:"Segment", args:["Z1","Z2"],color:[0,0,0]},
@@ -376,9 +368,6 @@ translate(-(off+Pos.xy-loc));
                       {name:"t", type:"Segment", args:["T1","T2"],color:[0,0,0]},
                       {name:"A1", type:"Free", pos:[-8,-6],color:[1,1,1],size:0.1},
 
-                      {name:"RA", type:"PointOnSegment", args:["a"], pos:[0,-6],color:[1,1,1],size:4},
-                      {name:"RB", type:"PointOnSegment", args:["b"], pos:[13,-7],color:[1,1,1],size:4},
-                      {name:"RC", type:"PointOnSegment", args:["c"], pos:[7,-8],color:[1,1,1],size:4},
                       {name:"Z", type:"PointOnSegment", args:["z"], pos:[18,0],color:[1,1,1],size:4},
                       {name:"T", type:"PointOnSegment", args:["t"], pos:[16,-3],color:[1,1,1],size:4},
                      

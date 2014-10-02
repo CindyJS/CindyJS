@@ -64,7 +64,7 @@ General.compare=function(a,b){
         if(a.value==b.value) {
             return 0;
         }
-        if(a.value=false) {
+        if(a.value==false) {
             return -1
         }
         return 1;

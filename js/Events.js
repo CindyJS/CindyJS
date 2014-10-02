@@ -45,6 +45,8 @@ getmover = function(mouse){
                 dx=el.sx-mouse.x;
                 dy=el.sy-mouse.y;
                 var dist=Math.sqrt(dx*dx+dy*dy);
+                var sc=csport.drawingstate.matrix.sdet;
+                if(el.narrow & dist>20/sc) dist=10000;
             }
             if(el.kind=="C"){//Must be Circle by Rad
                 var mid=csgeo.csnames[el.args[0]];
