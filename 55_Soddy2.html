@@ -9,7 +9,7 @@
             <script type="text/javascript" src="js/Cindy.js"></script> 
             <script type="text/javascript" src="js/Timer.js"></script>
             <script type="text/javascript" src="js/lib/numeric-1.2.6.js"></script>
-            <link rel="stylesheet" href="css/cindy.css">
+            <!--link rel="stylesheet" href="css/cindy.css"-->
 
                 
             </head>
@@ -135,7 +135,8 @@ k(c):=(c_1+c_2)/c_5;
 theother(a,b,c,dd):=(
 //TODO:wenn ich dd ald d benenne wird der überschrieben. Das darf nicht sein!!!!!
   circs=findlie(rev(a),rev(b),rev(c));
-  out=if(|g(circs_1,dd)|<0.00000000000001,circs_2,circs_1);
+ // out=if(|g(circs_1,dd)|<0.00000000000001,circs_2,circs_1);
+  out=if(|g(circs_1,dd)|<|g(circs_2,dd)|,circs_2,circs_1);
   out=out/|out|;
   out;
 );
