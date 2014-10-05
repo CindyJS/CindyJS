@@ -5,6 +5,7 @@ var cscompiled={};
 
 var csanimating=false;
 var csticking=false;
+var csscale=0;
 var csgridsize=0;
 var csgridscript;
 var cssnap=false;
@@ -41,6 +42,7 @@ var initialTransformation = function(data) {
            var trafo=trafos[i];
            var trname=Object.keys(trafo)[0]; 
            if(trname=="scale"){
+               csscale=trafo.scale;
                csport[trname](trafo.scale)
            }
            if(trname=="translate"){

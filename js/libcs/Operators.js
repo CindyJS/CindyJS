@@ -1527,6 +1527,16 @@ evaluator.det=function(args,modifs){
             return erg;
         }
     }
+    if(args.length==1){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype=='list'){
+            var n=List._helper.colNumb(v0);
+            if(n!=-1&&n==v0.value.length){
+                return List.det(v0);
+                
+            }
+        }
+    }
     return nada;
 }
 
@@ -1570,19 +1580,22 @@ evaluator.inverse=function(args,modifs){
     return nada;
 }
 
-evaluator.det=function(args,modifs){
-    if(args.length==1){
+
+evaluator.linearsolve=function(args,modifs){
+    if(args.length==2){
         var v0=evaluateAndVal(args[0]);
+        var v1=evaluateAndVal(args[1]);
         if(v0.ctype=='list'){
             var n=List._helper.colNumb(v0);
-            if(n!=-1&&n==v0.value.length){
-                return List.det(v0);
+            if(n!=-1&&n==v0.value.length && List._helper.isNumberVecN(v1,n)){
+                return List.linearsolve(v0,v1);
                 
             }
         }
     }
     return nada;
 }
+
 
 
 
@@ -2913,6 +2926,21 @@ evaluator.convexhull3d=function(args,modifs){
     return nada;
 }
 
+
+
+evaluator.javascript=function(args,modifs){ 
+    
+    if(args.length==1){
+        var v0=evaluate(args[0]);
+       
+        if(v0.ctype=='string'){
+            var s=v0.value;
+            eval(s);
+            
+        }
+    }
+    return nada;
+}
 
 
 

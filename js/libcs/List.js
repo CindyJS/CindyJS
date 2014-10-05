@@ -1016,6 +1016,31 @@ List.inverse=function(a){//Das ist nur Reell und greift auf numeric zurück
     return List.turnIntoCSList(erg);
 }
 
+
+List.linearsolve=function(a,bb){//Das ist nur Reell und greift auf numeric zurück
+    var x=[];
+    var y=[];
+    var b=[]; 
+
+    var n=a.value.length;
+    for(var i=0;i<n;i++){
+        var lix=[]; 
+        var liy=[]; 
+        for(var j=0;j<n;j++){
+            lix[lix.length]=a.value[i].value[j].value.real;
+            liy[liy.length]=a.value[i].value[j].value.imag;
+        }
+        x[x.length]=lix;
+        y[y.length]=liy;
+        b[b.length]=bb.value[i].value.real;
+    }
+    var res=numeric.solve(x,b);
+        
+    return List.realVector(res);
+}
+
+
+
 List.det=function(a){//Das ist nur Reell und greift auf numeric zurück
     var x=[];
     var y=[];
