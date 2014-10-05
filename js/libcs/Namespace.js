@@ -17,7 +17,7 @@ function Namespace(){
         'i':{'ctype':'variable','stack':[{'ctype':'number','value':{'real':0,'imag':1}}],'name':'i'},
         'true':{'ctype':'variable','stack':[{'ctype':'boolean','value':true}],'name':'true'},
         'false':{'ctype':'variable','stack':[{'ctype':'boolean','value':false}],'name':'false'},
-        '#':{'ctype':'variable','stack':[nada],'name':'#'},
+        '#':{'ctype':'variable','stack':[nada],'name':'#'}
     }
     this.isVariable= function(a){
         return this.vars[a]!== undefined;

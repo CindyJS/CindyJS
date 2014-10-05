@@ -9,7 +9,7 @@
                 
             </head>
     
-	<body style="font-family:Arial;">
+	<body style="font-family:Arial;"  >
         
         <h1>CindyJS: Euler-Line</h1>
         
@@ -24,7 +24,8 @@
         <script id='init' type='cindyscript'>
 loc=Pos.xy;
         
-off=(4,4);
+off=(4,8);
+off=(3,3);
 g(x,y):=(-x_1*y_1+x_2*y_2+x_3*y_3+x_4*y_4-x_5*y_5);
 lip(x,y):=((1+|(x,y)|^2)/2,(1-|(x,y)|^2)/2,x,y,0);
 lic(x,y,r):=[(1+|[x,y]|^2-r^2)/2,(1-|[x,y]|^2+r^2)/2,x,y,r];
@@ -58,19 +59,24 @@ lieg(v):=(
   erg;
 );
 
+lig(v):=(
+  erg=lig(v_1,v_2,v_3);
+  erg;
+);
+
 
 drawliepoint(p,col,size):=(
   draw((p_3,p_4),size->size*2+2,color->col);
 );
 
 drawliecircle(p,col,size):=(
-//  fillcircle(((p_3,p_4)*zoom),|p_5|*zoom,size->size,color->col,alpha->.1);
-  drawcircle(((p_3,p_4)*zoom),|p_5|*zoom,size->size,color->col);
+  fillcircle(((p_3,p_4)),|p_5|,size->size,color->col,alpha->.1);
+//drawcircle(((p_3,p_4)),|p_5|,size->size,color->col);
 
 );
 
 drawlieline(p,col,size):=(
-  draw(line((p_3,p_4,-p_1)),size->size,color->col);
+  draw(line((p_3,p_4,-p_1)),size->size*.3,color->col);
 );
 
 
@@ -124,7 +130,8 @@ k(c):=(c_1+c_2)/c_5;
 theother(a,b,c,dd):=(
 //TODO:wenn ich dd ald d benenne wird der überschrieben. Das darf nicht sein!!!!!
   circs=findlie(rev(a),rev(b),rev(c));
-  out=if(|g(circs_1,dd)|<0.00000000000001,circs_2,circs_1);
+//  out=if(|g(circs_1,dd)|<0.000000000001,circs_2,circs_1);
+  out=if(|g(circs_1,dd)|<|g(circs_2,dd)|,circs_2,circs_1);
   out=out/|out|;
   out;
 );
@@ -136,24 +143,12 @@ theother(a,b,c,dd):=(
         
         <script id='firstDrawing' type='cindyscript'>
 n=50;
-        zoom=(Z.y-Z1.y)*10;
+        zoom=((Z.y-Z1.y)*2.8)^2+.1;
 
-A1.xy=(-8,-6);
-A2.xy=(20,-6);
+k1=0;
+k2=1;
+k3=1;
 
-B1.xy=(-8,-7);
-B2.xy=(20,-7);
-
-C1.xy=(-8,-8);
-C2.xy=(20,-8);
-
-RA.xy=(round(n*(RA.x-A1.x)/|A1.x-A2.x|)/n*|A1.x-A2.x|+A1.x,RA.y);
-RB.xy=(round(n*(RB.x-B1.x)/|B1.x-B2.x|)/n*|B1.x-B2.x|+B1.x,RB.y);
-RC.xy=(round(n*(RC.x-C1.x)/|C1.x-C2.x|)/n*|C1.x-C2.x|+C1.x,RC.y);
-
-k1=round(n*(RA.x-A1.x)/|A1.x-A2.x|);
-k2=round(n*(RB.x-B1.x)/|B1.x-B2.x|);
-k3=round(n*(RC.x-C1.x)/|C1.x-C2.x|);
 
 
 isgood(a,b,c):=(
@@ -162,13 +157,9 @@ isgood(a,b,c):=(
 );
 
 dd=|C1.x-C2.x|/n;
-repeat(n,i,
-  kk=i;
-  draw(A1+(i*dd,0.0),size->if(isgood(kk,k2,k3),2,1.2),color->(0,0,0));
-  draw(B1+(i*dd,0.0),size->if(isgood(kk,k1,k3),2,1.2),color->(0,0,0));
-  draw(C1+(i*dd,0.0),size->if(isgood(kk,k1,k2),2,1.2),color->(0,0,0));
-  ;
-);
+translate(off+Pos.xy-loc);
+scale(zoom);
+
 
 if(k1*k2*k3!=0,
 
@@ -204,11 +195,19 @@ if(k1*k2*k3~=0,
     s=if(kk2<kk3,1,-1);
     rsum=1/kk2+1/kk3;
     rdiff=1/kk2-1/kk3;
+
     offx=sqrt(rsum^2-rdiff^2)/2;
-    offy=|rdiff|/2;
+    offy=-rsum/2;
+
     ca=liec((offx,s*offy),1/kk2);
-    cb=liec((-offx,-offy*s),1/kk3);
-    cc=rev(lieg(cross((-offx,-offy-min(1/kk2,1/kk3),1),(+offx,-offy-min(1/kk2,1/kk3),1))));
+    
+    cb=liec((-offx,offy*s),1/kk3);
+
+    mi=if(1/kk2<1/kk3,1/kk2,1/kk3);
+    
+
+    vv=(cross((-offx,-offy-mi,1),(+offx,-offy-mi,1)));
+    cc=rev(lig(vv));
   );
 
 );
@@ -244,7 +243,7 @@ deeper(cir):=(
   rad=rad(cir); 
   if(|rad|<eps,false,
     if((|mid(cir)*zoom|-|rad|*zoom)<18,
-      true,false
+      true,true
     );
   );
 );
@@ -260,20 +259,18 @@ dc2(cir):=(
   kr=k(cir);
   if(kr>0,
     ra=rad(cir);
-    mi=mid(cir)*zoom;
+    mi=mid(cir);
     tsiz=(ra*zoom/12)^(1.05)*300;
-    toff=(-.005,0);
-    if(kr>9,toff=(-tsiz*.007,0.01));
-    if(kr>99,toff=(-tsiz*.012,0.01));
+    toff=(-.005,0)/zoom;
+    if(kr>9,toff=(-tsiz*.007,0.01)/zoom);
+    if(kr>99,toff=(-tsiz*.012,0.01)/zoom);
     drawtext(mi+toff,offset->(1-tsiz/2.5,-tsiz/2.5-1),round(1/ra),size->tsiz) 
   );
   if(kr<0,
     ra=rad(cir);
-    mi=mid(cir)*zoom;
-  errc(kr);
-
+    mi=mid(cir);
     tsiz=-ra*zoom*6;
-    drawtext(mi+(ra,ra)*zoom,round(1/ra),size->tsiz) 
+    drawtext(mi+(ra,ra),round(1/ra),size->tsiz) 
   );
 
   if(kr~=0,
@@ -283,7 +280,7 @@ dc2(cir):=(
     if(pt.y>0,pt=pt+(0,0.5));
     tsiz=30;
 
-    drawtext(pt.xy,0,size->tsiz) 
+  //  drawtext(pt.xy,0,size->tsiz) 
   )
 );
 
@@ -294,14 +291,13 @@ doit(a,b,c,d,n):=(
    new=theother(a,b,c,d);
    dc(new);
    if(deeper(new),
-    doit(a,b,new,c,n-1);
-    doit(a,c,new,b,n-1);
-    doit(b,c,new,a,n-1);
+  //  doit(a,b,new,c,n-1);
+  doit(new,a,c,b,n-1);
+    doit(new,b,c,a,n-1);
    );
   );
 );
 
-translate(off+Pos.xy-loc);
 drawlie(ca,(0,0,0),4);
 drawlie(cb,(0,0,0),4);
 drawlie(cc,(0,0,0),4);
@@ -309,11 +305,8 @@ drawlie(cd,(0.8,0,0),4);
 drawlie(ce,(0,0.6,0),4);
 
 
-tiefe=round(|T.y-T1.y|);
+tiefe=round(|T.x-T1.x|*.7);
 doit(ca,cb,cc,ce,tiefe);
-doit(ce,ca,cb,cc,tiefe);
-doit(cc,ce,ca,cb,tiefe);
-doit(cb,cc,ce,ca,tiefe);
 if(isgood(k1,k2,k3),
   dc2(ca);
   dc2(cb);
@@ -322,13 +315,49 @@ if(isgood(k1,k2,k3),
   dc2(ce);
 );
 errc(count);
+
+
+numbguess(x,t):=(
+
+ if(x~=round(x)%t<1,
+    [round(x),1],
+    p=1/(x-floor(x));
+    v=numbguess(p,t-1);
+    [v_2+floor(x)*v_1,v_1];
+  );
+);
+
+scale(1/zoom);
 translate(-(off+Pos.xy-loc));
+
+
+nn=round(|F,F1|)+1;
+//if(nn>tiefe,nn=tiefe+1);
+seq=[0];
+apply(1..nn,ii,apply(ii..nn,jj,seq=seq++[ii/jj]));
+seq=set(seq);
+apply(seq,f,ff=f*zoom*2;
+     draw((ff-zoom,0)+(off+Pos.xy-loc),(ff-zoom,-.5)+(off+Pos.xy-loc),color->(0,0,0));
+     v=numbguess(f,9);
+ //    text="$"+replace(guess(f),"/","\over ")+"$";
+
+    o1=if(v_1>9,-0.15,0);
+    o2=if(v_2>9,-0.15,0);
+     drawtext((ff-zoom+.05-.2+o1,-1.2)+(off+Pos.xy-loc),v_1,size->12,align->"center");
+     drawtext((ff-zoom+.05-.2+o2,-1.7)+(off+Pos.xy-loc),v_2,size->12,align->"center");
+     draw((ff-zoom+.05-.3,-1.3)+(off+Pos.xy-loc),(ff-zoom+.05+.1,-1.3)+(off+Pos.xy-loc),color->(0,0,0));
+);
+
+
 
 
         </script>
         
 
         <canvas  id="CSCanvas" width=800 height=600  style="border:2px solid #000000"></canvas>
+        <br>
+        <br>
+        <br>
 
         <script type="text/javascript">
             defaultAppearance.clip="inci";
@@ -337,28 +366,20 @@ translate(-(off+Pos.xy-loc));
             var gslp=[
 
         
-                      {name:"A1", type:"Free", pos:[-8,-6],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"A2", type:"Free", pos:[20,-6],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"a", type:"Segment", args:["A1","A2"],color:[0,0,0]},
-                      {name:"B1", type:"Free", pos:[-8,-7],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"B2", type:"Free", pos:[20,-7],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"b", type:"Segment", args:["B1","B2"],color:[0,0,0]},
-                      {name:"C1", type:"Free", pos:[-8,-8],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"C2", type:"Free", pos:[20,-8],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"c", type:"Segment", args:["C1","C2"],color:[0,0,0]},
-                      {name:"Z1", type:"Free", pos:[18,-3],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"Z2", type:"Free", pos:[18,10],color:[1,1,1],size:0.1,pinned:true},
+                      {name:"Z1", type:"Free", pos:[20,-7],color:[1,1,1],size:0.1,pinned:true},
+                      {name:"Z2", type:"Free", pos:[20,-1],color:[1,1,1],size:0.1,pinned:true},
                       {name:"z", type:"Segment", args:["Z1","Z2"],color:[0,0,0]},
-                      {name:"T1", type:"Free", pos:[16,-3],color:[1,1,1],size:0.1,pinned:true},
-                      {name:"T2", type:"Free", pos:[16,10],color:[1,1,1],size:0.1,pinned:true},
+                      {name:"T1", type:"Free", pos:[-5,-2],color:[1,1,1],size:0.1,pinned:true},
+                      {name:"T2", type:"Free", pos:[18,-2],color:[1,1,1],size:0.1,pinned:true},
                       {name:"t", type:"Segment", args:["T1","T2"],color:[0,0,0]},
+                      {name:"F1", type:"Free", pos:[-5,-4],color:[1,1,1],size:0.1,pinned:true},
+                      {name:"F2", type:"Free", pos:[18,-4],color:[1,1,1],size:0.1,pinned:true},
+                      {name:"f", type:"Segment", args:["F1","F2"],color:[0,0,0]},
                       {name:"A1", type:"Free", pos:[-8,-6],color:[1,1,1],size:0.1},
 
-                      {name:"RA", type:"PointOnSegment", args:["a"], pos:[0,-6],color:[1,1,1],size:4},
-                      {name:"RB", type:"PointOnSegment", args:["b"], pos:[13,-7],color:[1,1,1],size:4},
-                      {name:"RC", type:"PointOnSegment", args:["c"], pos:[7,-8],color:[1,1,1],size:4},
-                      {name:"Z", type:"PointOnSegment", args:["z"], pos:[18,0],color:[1,1,1],size:4},
-                      {name:"T", type:"PointOnSegment", args:["t"], pos:[16,-3],color:[1,1,1],size:4},
+                      {name:"Z", type:"PointOnSegment", args:["z"], pos:[20,-6],color:[1,1,1],size:4,narrow:true},
+                      {name:"T", type:"PointOnSegment", args:["t"], pos:[-5,-2],color:[1,1,1],size:4,narrow:true},
+                      {name:"F", type:"PointOnSegment", args:["f"], pos:[-5,-4],color:[1,1,1],size:4,narrow:true},
                      
                       {name:"Pos", type:"Free", pos:[0,0],color:[1,1,0],size:.001,alpha:0}
 

@@ -16,7 +16,7 @@ Accessor.generalFields={//Übersetungstafel der Feldnamen
     caption:"caption",
     trace:"trace",
     tracelength:"",
-    selected:"",
+    selected:""
 }
 
 Accessor.getGeoField=function(geoname,field){

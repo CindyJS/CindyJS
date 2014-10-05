@@ -13,7 +13,6 @@ CSNumber.niceprint= function(a){
     } else {
         return ""+a.value.real+" - i*"+(-a.value.imag);
     }
-    return "";
 }
 
 CSNumber.complex=function(r,i){

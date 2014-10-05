@@ -267,6 +267,7 @@ function render(){
             return;
         var col=    el.color;
         if(el.behavior) {
+            col=    el.color;//TODO Anpassen
            // col=List.realVector([0,0,1]);
         }    
         evaluator.draw([el.homog],{size:el.size,color:col,alpha:el.alpha});

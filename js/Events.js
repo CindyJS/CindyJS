@@ -6,6 +6,7 @@ var move;
 var cskey="";
 var cskeycode=0;
 
+
 movepoint=function (move){
     if(move.mover==undefined) return;
     m=move.mover;
@@ -17,6 +18,15 @@ movepoint=function (move){
     //move.offset.y = (move.offset.y-1.45)*0.95+1.45;
     //dump(move.offset);
     //end
+    if(cssnap && csgridsize!=0){
+       var rx=Math.round(m.sx/csgridsize)*csgridsize;
+       var ry=Math.round(m.sy/csgridsize)*csgridsize;
+       if(Math.abs(rx-m.sx)<.2 && Math.abs(ry-m.sy)<.2){
+          m.sx=rx;
+          m.sy=ry;
+       };
+    
+    }
     m.sz=1;
     m.homog=List.realVector([m.sx,m.sy,m.sz]);
 
@@ -45,6 +55,8 @@ getmover = function(mouse){
                 dx=el.sx-mouse.x;
                 dy=el.sy-mouse.y;
                 var dist=Math.sqrt(dx*dx+dy*dy);
+                var sc=csport.drawingstate.matrix.sdet;
+                if(el.narrow & dist>20/sc) dist=10000;
             }
             if(el.kind=="C"){//Must be Circle by Rad
                 var mid=csgeo.csnames[el.args[0]];
@@ -224,7 +236,10 @@ function updateCindy(){
     recalc();                          
     csctx.save();
     csctx.clearRect ( 0   , 0 , csw , csh );
+    if(csgridsize!=0){evaluate(csgridscript)}
+  //  drawgrid();
     evaluate(cscompiled.move);
+    csport.greset();
     render();
     csctx.restore();
     

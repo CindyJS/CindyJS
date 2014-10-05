@@ -286,7 +286,7 @@ y:erg2[1]/erg2[2]
     var drawpoint = function(){
         var pt=evaluator._helper.extractPoint(v1);
         
-        if(!pt.ok){//eventuell doch ein Segment
+        if(!pt.ok && typeof(v1.value)!=="undefined"){//eventuell doch ein Segment
             if(v1.value.length==2){
 
                drawsegment(v1.value[0],v1.value[1]);
@@ -962,7 +962,7 @@ evaluator.plot=function(args,modifs){ //OK
     var dashing=false;
     var connectb=false;
     var minstep=0.001;
-    var pxlstep=.2; //TODO Anpassen auf PortScaling
+    var pxlstep=.2/csscale; //TODO Anpassen auf PortScaling
     var count=0;
     var stroking=false;
     var start=-10; //TODO Anpassen auf PortScaling
@@ -1455,3 +1455,20 @@ console.log("REPAINT");
     return nada;
 }
 
+
+evaluator.screenbounds=function(args,modifs){
+    if(args.length==0) {
+        var pt1=List.realVector(csport.to(0,0));
+        pt1.usage="Point";
+        var pt2=List.realVector(csport.to(csw,0));
+        pt2.usage="Point";
+        var pt3=List.realVector(csport.to(csw , csh ));
+        pt3.usage="Point";
+        var pt4=List.realVector(csport.to(0 , csh ));
+        pt4.usage="Point";
+        return(List.turnIntoCSList([pt1,pt2,pt3,pt4]));
+    
+    }
+    return nada;
+
+}

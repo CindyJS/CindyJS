@@ -5,8 +5,6 @@
             <title>Cindy JS</title>
             <script type="text/javascript" src="js/Cindy.js"></script>
             <link rel="stylesheet" href="css/cindy.css">
-
-                
             </head>
     
 	<body style="font-family:Arial;">
@@ -70,13 +68,13 @@ drawliepoint(p,col,size):=(
 );
 
 drawliecircle(p,col,size):=(
-//  fillcircle(((p_3,p_4)*zoom),|p_5|*zoom,size->size,color->col,alpha->.1);
-  drawcircle(((p_3,p_4)*zoom),|p_5|*zoom,size->size,color->col);
+//  fillcircle(((p_3,p_4)),|p_5|,size->size,color->col,alpha->.1);
+  drawcircle(((p_3,p_4)),|p_5|,size->size,color->col);
 
 );
 
 drawlieline(p,col,size):=(
-  draw(line((p_3,p_4,-p_1)),size->size,color->col);
+  draw(line((p_3,p_4,-p_1)),size->size*.3,color->col);
 );
 
 
@@ -130,7 +128,8 @@ k(c):=(c_1+c_2)/c_5;
 theother(a,b,c,dd):=(
 //TODO:wenn ich dd ald d benenne wird der überschrieben. Das darf nicht sein!!!!!
   circs=findlie(rev(a),rev(b),rev(c));
-  out=if(|g(circs_1,dd)|<0.00000000000001,circs_2,circs_1);
+ // out=if(|g(circs_1,dd)|<0.00000000000001,circs_2,circs_1);
+  out=if(|g(circs_1,dd)|<|g(circs_2,dd)|,circs_2,circs_1);
   out=out/|out|;
   out;
 );
@@ -142,7 +141,7 @@ theother(a,b,c,dd):=(
         
         <script id='firstDrawing' type='cindyscript'>
 n=50;
-        zoom=(Z.y-Z1.y)*10;
+        zoom=(Z.y-Z1.y)*10+.01;
 
 A1.xy=(-8,-6);
 A2.xy=(20,-6);
@@ -177,6 +176,7 @@ repeat(n,i,
 );
 
 translate(off+Pos.xy-loc);
+scale(zoom);
 
 
 if(k1*k2*k3!=0,
@@ -220,14 +220,11 @@ if(k1*k2*k3~=0,
     ca=liec((offx,s*offy),1/kk2);
     
     cb=liec((-offx,-offy*s),1/kk3);
-drawcircle((offx,offy*s),1/kk2*zoom,size->5);
-drawcircle((-offx,-offy*s),1/kk3*zoom,size->5);
+
     mi=if(1/kk2<1/kk3,1/kk2,1/kk3);
-linep1=(-offx,-offy-mi,1);
-linep2=(-offx,-offy-mi,1);
+    
 
     vv=(cross((-offx,-offy-mi,1),(+offx,-offy-mi,1)));
-    draw(line(vv),color->(1,0,0));
     cc=rev(lig(vv));
   );
 
@@ -280,18 +277,18 @@ dc2(cir):=(
   kr=k(cir);
   if(kr>0,
     ra=rad(cir);
-    mi=mid(cir)*zoom;
+    mi=mid(cir);
     tsiz=(ra*zoom/12)^(1.05)*300;
-    toff=(-.005,0);
-    if(kr>9,toff=(-tsiz*.007,0.01));
-    if(kr>99,toff=(-tsiz*.012,0.01));
+    toff=(-.005,0)/zoom;
+    if(kr>9,toff=(-tsiz*.007,0.01)/zoom);
+    if(kr>99,toff=(-tsiz*.012,0.01)/zoom);
     drawtext(mi+toff,offset->(1-tsiz/2.5,-tsiz/2.5-1),round(1/ra),size->tsiz) 
   );
   if(kr<0,
     ra=rad(cir);
-    mi=mid(cir)*zoom;
+    mi=mid(cir);
     tsiz=-ra*zoom*6;
-    drawtext(mi+(ra,ra)*zoom,round(1/ra),size->tsiz) 
+    drawtext(mi+(ra,ra),round(1/ra),size->tsiz) 
   );
 
   if(kr~=0,
@@ -339,6 +336,7 @@ if(isgood(k1,k2,k3),
   dc2(ce);
 );
 errc(count);
+scale(1/zoom);
 translate(-(off+Pos.xy-loc));
 
 
@@ -371,11 +369,11 @@ translate(-(off+Pos.xy-loc));
                       {name:"t", type:"Segment", args:["T1","T2"],color:[0,0,0]},
                       {name:"A1", type:"Free", pos:[-8,-6],color:[1,1,1],size:0.1},
 
-                      {name:"RA", type:"PointOnSegment", args:["a"], pos:[0,-6],color:[1,1,1],size:4},
-                      {name:"RB", type:"PointOnSegment", args:["b"], pos:[13,-7],color:[1,1,1],size:4},
-                      {name:"RC", type:"PointOnSegment", args:["c"], pos:[7,-8],color:[1,1,1],size:4},
-                      {name:"Z", type:"PointOnSegment", args:["z"], pos:[18,0],color:[1,1,1],size:4},
-                      {name:"T", type:"PointOnSegment", args:["t"], pos:[16,-3],color:[1,1,1],size:4},
+                      {name:"RA", type:"PointOnSegment", args:["a"], pos:[0,-6],color:[1,1,1],size:4,narrow:true},
+                      {name:"RB", type:"PointOnSegment", args:["b"], pos:[13,-7],color:[1,1,1],size:4,narrow:true},
+                      {name:"RC", type:"PointOnSegment", args:["c"], pos:[7,-8],color:[1,1,1],size:4,narrow:true},
+                      {name:"Z", type:"PointOnSegment", args:["z"], pos:[18,0],color:[1,1,1],size:4,narrow:true},
+                      {name:"T", type:"PointOnSegment", args:["t"], pos:[16,-3],color:[1,1,1],size:4,narrow:true},
                      
                       {name:"Pos", type:"Free", pos:[0,0],color:[1,1,0],size:.001,alpha:0}
 

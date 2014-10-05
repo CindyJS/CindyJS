@@ -5,6 +5,10 @@ var cscompiled={};
 
 var csanimating=false;
 var csticking=false;
+var csscale=0;
+var csgridsize=0;
+var csgridscript;
+var cssnap=false;
 
 dump=function(a){
   console.log(JSON.stringify(a));
@@ -31,13 +35,36 @@ evokeCS = function(code){
 }
 
 
+var initialTransformation = function(data) {
+    if(data.transform) {
+        var trafos=data.transform;
+        for(var i=0;i<trafos.length;i++){
+           var trafo=trafos[i];
+           var trname=Object.keys(trafo)[0]; 
+           if(trname=="scale"){
+               csscale=trafo.scale;
+               csport[trname](trafo.scale)
+           }
+           if(trname=="translate"){
+               csport[trname](trafo.translate[0],trafo.translate[1])
+           }
+        }
+        csport.createnewbackup();
+    }
+}
+
+
 createCindy = function(data){ 
     csmouse = [100, 100];
     cscount = 0;
     var cscode;
     var c=document.getElementById(data.canvasname);
     csctx=c.getContext("2d");
-    
+    //Run initialscript
+          cscode=condense(initialscript);
+          var iscr=analyse(cscode,false);
+    evaluate(iscr);
+
     
     //Setup the scripts
     var scripts=["move","keydown","mousedown","mouseup","mousedrag","init","tick"];
@@ -52,12 +79,18 @@ createCindy = function(data){
     });
 
     //Setup canvasstuff
+    if(data.grid &&data.grid!=0){
+      csgridsize=data.grid; 
+      csgridscript=analyse('#drawgrid('+csgridsize+')',false);
+    };
+    if(data.snap){cssnap=data.snap};
+    initialTransformation(data);
 
     csw=c.width;
     csh=c.height;
     csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
     csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
-    
+
     csgeo={};
     
     var i=0;
@@ -96,6 +129,8 @@ createCindy = function(data){
 
     
     setuplisteners(document.getElementById(data.canvasname));
+    
+
 
 }
 
@@ -169,5 +204,27 @@ var csstop=function(){
   csanimating=false;
   restoreGeo();
 }
+
+var initialscript=
+'           #drawgrid(s):=('+
+'              regional(b,xmin,xmax,ymin,ymax,nx,ny);'+
+'              b=screenbounds();'+
+'              xmin=b_4_1-s;'+
+'              xmax=b_2_1+s;'+
+'              ymin=b_4_2-s;'+
+'              ymax=b_2_2+s;'+
+'              nx=round((xmax-xmin)/s);'+
+'              ny=round((ymax-ymin)/s);'+
+'              xmin=floor(xmin/s)*s;'+
+'              ymin=floor(ymin/s)*s;'+
+'              repeat(nx,x,'+
+'                 draw((xmin+x*s,ymin),(xmin+x*s,ymax),color->(1,1,1)*.9,size->1);'+
+'              );'+
+'              repeat(ny,y,'+
+'                 draw((xmin,ymin+y*s),(xmax,ymin+y*s),color->(1,1,1)*.9,size->1);'+
+'              ) '+
+'           );'
+
+
 
 

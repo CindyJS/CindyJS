@@ -56,8 +56,6 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
 
 
     csport.reset=function(){
-        
-        
         csport.drawingstate.matrix.a=csport.drawingstate.initialmatrix.a;
         csport.drawingstate.matrix.b=csport.drawingstate.initialmatrix.b;
         csport.drawingstate.matrix.c=csport.drawingstate.initialmatrix.c;
@@ -156,6 +154,21 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
             csgstorage.stack=[];
 
     }
+    
+    csport.createnewbackup=function(){
+        csport.drawingstate.initialmatrix.a=csport.drawingstate.matrix.a;
+        csport.drawingstate.initialmatrix.b=csport.drawingstate.matrix.b;
+        csport.drawingstate.initialmatrix.c=csport.drawingstate.matrix.c;
+        csport.drawingstate.initialmatrix.d=csport.drawingstate.matrix.d;
+        csport.drawingstate.initialmatrix.tx=csport.drawingstate.matrix.tx;
+        csport.drawingstate.initialmatrix.ty=csport.drawingstate.matrix.ty;
+        csport.drawingstate.initialmatrix.det=csport.drawingstate.matrix.det;
+        csport.drawingstate.initialmatrix.sdet=csport.drawingstate.matrix.sdet;
+        csgstorage.backup=csport.clone(csport.drawingstate);
+        
+    }
+
+    
 
     csport.setcolor=function(co){
         var r=co.value[0].value.real; 
