@@ -86,20 +86,20 @@ oa=0;ob=0;oc=0;
             drawtext((6,1),"x3="+xx3_1+"/"+xx3_2);
           );
         //  subs(A+(.1,-.1),"p","1",20);
-          javascript("document.getElementById('q1').style.top='"+(-A.y*3.132*25+510)+"px';");
-          javascript("document.getElementById('q1').style.left='"+(A.x*3.132*25+80)+"px';");
-          javascript("document.getElementById('q2').style.top='"+(-C.y*3.132*25+510)+"px';");
-          javascript("document.getElementById('q2').style.left='"+(C.x*3.132*25+80)+"px';");
-          javascript("document.getElementById('q3').style.top='"+(-B.y*3.132*25+510)+"px';");
-          javascript("document.getElementById('q3').style.left='"+(B.x*3.132*25+80)+"px';");
-          javascript("document.getElementById('q4').style.top='"+(-D.y*3.132*25+510)+"px';");
-          javascript("document.getElementById('q4').style.left='"+(D.x*3.132*25+80)+"px';");
-          javascript("document.getElementById('p1').style.top='"+(-G.y*3.132*25+510)+"px';");
-          javascript("document.getElementById('p1').style.left='"+(G.x*3.132*25+80)+"px';");
-          javascript("document.getElementById('p2').style.top='"+(-E.y*3.132*25+510)+"px';");
-          javascript("document.getElementById('p2').style.left='"+(E.x*3.132*25+80)+"px';");
-          javascript("document.getElementById('p3').style.top='"+(-F.y*3.132*25+510)+"px';");
-          javascript("document.getElementById('p3').style.left='"+(F.x*3.132*25+80)+"px';");
+          javascript("document.getElementById('q1').style.top='"+(-A.y*3.132*25+450)+"px';");
+          javascript("document.getElementById('q1').style.left='"+(A.x*3.132*25+60)+"px';");
+          javascript("document.getElementById('q2').style.top='"+(-C.y*3.132*25+450)+"px';");
+          javascript("document.getElementById('q2').style.left='"+(C.x*3.132*25+60)+"px';");
+          javascript("document.getElementById('q3').style.top='"+(-B.y*3.132*25+450)+"px';");
+          javascript("document.getElementById('q3').style.left='"+(B.x*3.132*25+60)+"px';");
+          javascript("document.getElementById('q4').style.top='"+(-D.y*3.132*25+450)+"px';");
+          javascript("document.getElementById('q4').style.left='"+(D.x*3.132*25+60)+"px';");
+          javascript("document.getElementById('p1').style.top='"+(-G.y*3.132*25+450)+"px';");
+          javascript("document.getElementById('p1').style.left='"+(G.x*3.132*25+60)+"px';");
+          javascript("document.getElementById('p2').style.top='"+(-E.y*3.132*25+450)+"px';");
+          javascript("document.getElementById('p2').style.left='"+(E.x*3.132*25+60)+"px';");
+          javascript("document.getElementById('p3').style.top='"+(-F.y*3.132*25+450)+"px';");
+          javascript("document.getElementById('p3').style.left='"+(F.x*3.132*25+60)+"px';");
 
  
  //                    javascript("document.getElementById('tex').innerHTML='$P_i="+G.x+"$';"+
@@ -141,8 +141,8 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
 
         }
         </script>
-        <div>
-        <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000"></canvas>
+        <div style="position:relative">
+        <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000;position:absolute; top:0px; left:0px;"></canvas>
 <div style="position:absolute; top:150px; left:450px; display:inline;z-index:4">
          <div id="tex" style="font-size: 110%;" ></div>
 </div>
