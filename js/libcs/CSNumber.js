@@ -75,7 +75,8 @@ CSNumber.re=function(a){
         "value":{'real':a.value.real, 'imag':0}}
 }
 
-
+// BUG?
+// do we intentinally give back the imag value as the real value?
 CSNumber.im=function(a){
     return {"ctype":"number" ,
         "value":{'real':a.value.imag, 'imag':0}}
@@ -85,7 +86,6 @@ CSNumber.conjugate=function(a){
     return {"ctype":"number" ,
         "value":{'real':a.value.real, 'imag':-a.value.imag}}
 }
-
 
 
 CSNumber.round=function(a){
@@ -111,7 +111,8 @@ CSNumber.mult=function(a,b){
             'imag':a.value.real*b.value.imag+a.value.imag*b.value.real}};
 }
 
-
+// BUG?
+// why do we have two argument but throw away the second argument?
 CSNumber.abs2=function(a,b){
     return {"ctype":"number" ,
         "value":{'real':a.value.real*a.value.real+a.value.imag*a.value.imag,
@@ -125,6 +126,9 @@ CSNumber.abs=function(a1){
 
 CSNumber.inv=function(a){
     var s=a.value.real*a.value.real+a.value.imag*a.value.imag;
+    // BUG?
+    // perhaps we should not only check for 0
+    // if(Math.abs(s) < 1e32) {
     if(s==0) {
         console.log("DIVISION BY ZERO");
 //        halt=immediately;
@@ -294,6 +298,8 @@ CSNumber.pow=function(a,b){
 }
 
 
+// BUG?
+// interesting what your are doing :)
 CSNumber.mod=function(a,b){
     var a1=a.value.real;
     var a2=b.value.real;
@@ -355,7 +361,10 @@ CSNumber._helper.compare=function(a,b) {
     return 1;
 }
 
-CSNumber._helper.isAlmostEqual=function(a,b) {
+CSNumber._helper.isAlmostEqual=function(a,b,preci) {
+    if(preci == 'undefined'){
+	    preci = eps;
+    }
     var r=a.value.real-b.value.real;
     var i=a.value.imag-b.value.imag;
     return (r<CSNumber.eps) && (r>-CSNumber.eps)&&(i<CSNumber.eps) && (i>-CSNumber.eps);
