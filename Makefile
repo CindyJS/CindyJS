@@ -8,5 +8,5 @@ liblab := js/liblab/LabBasics.js js/liblab/LabObjects.js
 
 lib := js/lib/numeric-1.2.6.js js/lib/clipper.js
 
-js/Cindy.js: $(libgeo) js/Setup.js js/Events.js js/Timer.js $(libcs) $(liblab) $(lib)
-	java -jar compiler.jar --language_in ECMASCRIPT5 --js_output_file $@ --js $^
+js/Cindy.js js/Cindy.js.map: $(libgeo) js/Setup.js js/Events.js js/Timer.js $(libcs) $(liblab) $(lib)
+	java -jar compiler.jar --language_in ECMASCRIPT5 --create_source_map $@.map --source_map_format V3 --source_map_location_mapping "js/|" --output_wrapper_file js/Cindy.js.wrapper --js_output_file $@ --js $^
