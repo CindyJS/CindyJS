@@ -362,12 +362,13 @@ CSNumber._helper.compare=function(a,b) {
 }
 
 CSNumber._helper.isAlmostEqual=function(a,b,preci) {
-    if(preci !== 'undefined'){
-	    var eps = preci;
+    var eps = CSNumber.eps;
+    if(typeof(preci) !== 'undefined'){
+	    eps = preci;
     }
     var r=a.value.real-b.value.real;
     var i=a.value.imag-b.value.imag;
-    return (r<CSNumber.eps) && (r>-CSNumber.eps)&&(i<CSNumber.eps) && (i>-CSNumber.eps);
+    return (r<eps) && (r>-eps)&&(i<eps) && (i>-eps);
 }
 
 CSNumber._helper.isZero=function(a) {
