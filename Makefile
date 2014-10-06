@@ -29,10 +29,9 @@ endif
 ifeq ($(js_compiler), closure)
 build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(liblab) $(lib)
 	mkdir -p $(@D)
-	java -jar compiler.jar --compilation_level $(optflags) --language_in ECMASCRIPT5 --js_output_file $@ --js $^
+	java -jar compiler.jar --language_in ECMASCRIPT5 --create_source_map $@.map --source_map_format V3 --source_map_location_mapping "js/|" --output_wrapper_file js/Cindy.js.wrapper --js_output_file $@ --js $^
 else
 build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(liblab) $(lib)
 	mkdir -p $(@D)
 	cat $^ > $@
 endif
-
