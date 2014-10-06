@@ -363,7 +363,7 @@ CSNumber._helper.compare=function(a,b) {
 
 CSNumber._helper.isAlmostEqual=function(a,b,preci) {
     if(preci == 'undefined'){
-	    preci = eps;
+	    var preci = eps;
     }
     var r=a.value.real-b.value.real;
     var i=a.value.imag-b.value.imag;
