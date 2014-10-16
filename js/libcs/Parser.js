@@ -86,7 +86,7 @@ var evaluateAndHomog=function(a){
             return Accessor.getField(val,"homog");
         }
         if(val.kind=="L"){
-            return x;//TODO implement
+            return Accessor.getField(val,"homog");
         }
         
     }

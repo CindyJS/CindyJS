@@ -18,19 +18,18 @@ evaluator.err=function(args,modifs){      //OK
         
     }
     
-    
+    var varname = '', s;
     if(args[0].ctype=='variable'){
-        // var s=evaluate(args[0].value[0]);
-        var s=evaluate(namespace.getvar(args[0].name));
-        console.log(args[0].name+" ==> "+niceprint(s));
-        csconsole.document.write(args[0].name+" ==> "+niceprint(s)+"<br>");
-        
+        varname = args[0].name;
+        s = namespace.getvar(args[0].name);
     } else {
-        var s=evaluate(args[0]);        
-        console.log(" ==> "+niceprint(s));
-        csconsole.document.writeln(" ==> "+niceprint(s)+"<br>");
-        
+        s = args[0];
     }
+    s = varname + " ==> " + niceprint(evaluate(s));
+    if (console && console.log)
+        console.log(s);
+    if (csconsole)
+        csconsole.document.write(s + "<br>");
     return nada;
 }
 
