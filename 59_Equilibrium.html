@@ -42,22 +42,30 @@ inpc=round(inpc*1000)/1000;
 if(oa~!=inpa % ob~!=inpb % oc~!=inpc, 
             javascript("renderEq("+inpa+","+inpb+","+inpc+")"));
 oa=0;ob=0;oc=0;
+toggle=false;
+togglebr():=(
+errc("HALLO");
+   toggle=!toggle;
+
+);
         </script>
         
         <script id='firstDrawing' type='cindyscript'>
         
+        if(toggle,errc("br"));
+        if(!toggle,errc("!!br"));
           xx1=numbguess(E.x,10);
           xx2=numbguess(F.x,10);
           xx3=numbguess(G.x,10);
-          if(xx1_2>100,
+          if(xx1_2>100 % !toggle,
             drawtext((6,2),"x1="+E.x),
             drawtext((6,2),"x1="+xx1_1+"/"+xx1_2);
           );
-         if(xx2_2>100,
+         if(xx2_2>100 % !toggle,
             drawtext((6,1.5),"x2="+F.x),
             drawtext((6,1.5),"x2="+xx2_1+"/"+xx2_2);
           );
-         if(xx3_2>100,
+         if(xx3_2>100 % !toggle,
             drawtext((6,1),"x3="+G.x),
             drawtext((6,1),"x3="+xx3_1+"/"+xx3_2);
           );
@@ -119,7 +127,7 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
         </script>
         <div style="position:relative">
         <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000;position:absolute; top:0px; left:0px;"></canvas>
-<div style="position:absolute; top:150px; left:450px; display:inline;z-index:4">
+<div style="position:absolute; top:80px; left:450px; display:inline;z-index:4">
          <div id="tex" style="font-size: 110%;" ></div>
 </div>
 <div id="q1" style="position:absolute; top:400px; left:60px;z-index:4;font-size: 110%;">$q_1$</div>
@@ -181,9 +189,11 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
                         );
     
         </script>
-        
-               <button onclick="csplay()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
-        <button onclick="cspause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
-        <button onclick="csstop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>
+       <div style="position:absolute; top:630px;left:10px">
+        <button onclick="csplay()" type="button" >Play</button>
+        <button onclick="cspause()" type="button" >Pause</button>
+        <button onclick="csstop()" type="button">Stop</button>&nbsp;&nbsp;&nbsp;
+        <input onclick="evokeCS('togglebr()')" type="checkbox" >Brüche Raten<br>
+        </div>
 	</body>
 </html>

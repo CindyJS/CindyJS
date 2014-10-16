@@ -2942,5 +2942,22 @@ evaluator.javascript=function(args,modifs){
     return nada;
 }
 
-
+evaluator.format=function(args,modifs){//TODO Complex,Angels etc
+    
+    var v0=evaluateAndVal(args[0]);
+    var v1=evaluateAndVal(args[1]);
+    if(v0.ctype=='number' &&v1.ctype=='number' ){
+        var val=v0.value.real;
+        var dec=Math.round(v1.value.real);
+        var erg=val.toFixed(dec);
+        do {
+          var erg1=erg;
+          erg=erg.substring(0,erg.length-1);
+       } while (erg!=""&& erg!="-"&& eval(erg)==eval(erg1));       
+        
+        return {"ctype":"string" ,  "value":""+erg1}
+    }
+    return nada;
+    
+}
 
