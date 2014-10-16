@@ -1429,8 +1429,8 @@ evaluator.perp=function(args,modifs){
         var v0=evaluateAndVal(args[0]);
         
         if(List._helper.isNumberVecN(v0,2)){
-            v0.value=[CSNumber.neg(v0.value[1]),v0.value[0]];
-            return(v0);
+            erg = List.turnIntoCSList([CSNumber.neg(v0.value[1]),v0.value[0]]);
+            return erg;
         }
         
     }
