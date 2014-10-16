@@ -482,6 +482,8 @@ evaluator.define=function(args,modifs){
             'body':body,
             'arglist':ar
         };
+        if (evaluator[fname] !== undefined)
+            console.log("Warning: cannot redefine built-in function " + fname);
     }
     
     return nada;
