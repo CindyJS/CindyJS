@@ -239,6 +239,7 @@ function updateCindy(){
     if(csgridsize!=0){evaluate(csgridscript)}
   //  drawgrid();
     evaluate(cscompiled.move);
+    evaluate(cscompiled.draw);
     csport.greset();
     render();
     csctx.restore();

@@ -31,7 +31,7 @@ evokeCS = function(code){
     var parsed = analyse(cscode,false);
     console.log(parsed);
     evaluate(parsed);
-    evaluate(cscompiled.draw);
+    updateCindy();
 }
 
 
@@ -67,7 +67,7 @@ createCindy = function(data){
 
     
     //Setup the scripts
-    var scripts=["move","keydown","mousedown","mouseup","mousedrag","init","tick"];
+    var scripts=["move","keydown","mousedown","mouseup","mousedrag","init","tick","draw"];
     
     scripts.forEach(function(s){
         var sname=s+"script";
