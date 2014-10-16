@@ -67,15 +67,22 @@ function Namespace(){
         var stack=this.vars[code].stack;
         stack[stack.length-1]=val;
     }
-    
-    
+
+    this.undefinedWarning = new Object();
+
     this.getvar= function(code) {
 
         var stack=this.vars[code].stack;
         var erg=stack[stack.length-1];
-        if(stack.length==0 && stack[stack.length-1]==nada){//Achtung das erforder das der GeoTeil da ist.
+        if(stack.length==0 && stack[stack.length-1]==nada){//Achtung das erfordert dass der GeoTeil da ist.
             if(typeof csgeo.csnames[code] !== 'undefined'){
                 return {'ctype':'geo','value':csgeo.csnames[code]}
+            }
+            else {
+                if (console && console.log && typeof (this.undefinedWarning[code]) === 'undefined') {
+                    this.undefinedWarning[code] = true;
+                    console.log("Warning: Accessing undefined variable: " + code);
+                }
             }
         }
         return erg;
