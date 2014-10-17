@@ -152,7 +152,7 @@ var myfunctions= function(name,args,modifs){
     var set=[];
     
     for(var i=0;i<tt.arglist.length;i++){
-        set[set.length]=evaluate(args[i]);
+        set[i]=evaluate(args[i]);
     }
     for(var i=0;i<tt.arglist.length;i++){
         namespace.newvar(tt.arglist[i].name);

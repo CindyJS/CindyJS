@@ -191,7 +191,7 @@ evaluator.apply=function(args,modifs){ //OK
     namespace.newvar(lauf);
     for(var i=0;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
-        erg[erg.length]=evaluate(args[argind]);
+        erg[i]=evaluate(args[argind]);
     }
     namespace.removevar(lauf);
     
@@ -247,12 +247,14 @@ evaluator.select=function(args,modifs){ //OK
     var li=v1.value;
     var erg=[];
     namespace.newvar(lauf);
+    var ct=0;
     for(var i=0;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
         var res=evaluate(args[argind]);
         if(res.ctype=='boolean'){
             if(res.value==true){
-                erg[erg.length]=li[i];
+                erg[ct]=li[i];
+                ct++;
             }
         }
     }
@@ -373,7 +375,7 @@ evaluator.regional=function(args,modifs){ //OK
 evaluator.genList=function(args,modifs){
     var erg=[];
     for(var i=0;i<args.length;i++){
-        erg[erg.length]=evaluate(args[i]);
+        erg[i]=evaluate(args[i]);
     }
     return {'ctype':'list','value':erg};
 }
@@ -1840,14 +1842,14 @@ evaluator._helper.sort2=function(args,modifs){ //OK
     namespace.newvar(lauf);
     for(var i=0;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
-        erg[erg.length]={val:li[i] ,result:evaluate(args[argind])};
+        erg[i]={val:li[i] ,result:evaluate(args[argind])};
     }
     namespace.removevar(lauf);
     
     erg.sort(General.compareResults);    
     var erg1=[];
     for(var i=0;i<li.length;i++){
-        erg1[erg1.length]=erg[erg1.length].val;
+        erg1[i]=erg[i].val;
     }
     
     return {'ctype':'list','value':erg1};
@@ -2752,7 +2754,7 @@ evaluator.polygon=function(args,modifs){
                     return nada;
                 }
                               
-                li[li.length]={X:pt.x,Y:pt.y};
+                li[i]={X:pt.x,Y:pt.y};
             } 
             return {ctype:"shape", type:"polygon", value:[li]};
         }

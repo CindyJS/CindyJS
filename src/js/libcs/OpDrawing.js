@@ -583,7 +583,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
                 var xx=pt.X*m.a-pt.Y*m.b+m.tx;
                 var yy=pt.X*m.c-pt.Y*m.d-m.ty;
                 
-                li[li.length]=[xx,yy];
+                li[i]=[xx,yy];
             } 
             col=csport.drawingstate.linecolor;
             handleModifs();
@@ -636,7 +636,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
             var xx=pt.x*m.a-pt.y*m.b+m.tx;
             var yy=pt.x*m.c-pt.y*m.d-m.ty;
             
-            li[li.length]=[xx,yy];
+            li[i]=[xx,yy];
         } 
         col=csport.drawingstate.linecolor;
         handleModifs();

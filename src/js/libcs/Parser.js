@@ -375,8 +375,8 @@ var funct=function(code, firstbraind, defining){
             }
             if (c == ',' && bracount == 0 || bracount == -1) {
                 var arg = code.substring(start, i);
-                args[args.length]=arg;
-                argsi[argsi.length]=start;
+                args.push(arg);
+                argsi.push(start);
 
                 if (args.length == 1 && bracount == -1 && !args[0].length) {//Um f() abzufangen
                    args=[];
@@ -396,7 +396,7 @@ var funct=function(code, firstbraind, defining){
             modifs[f.key]=f.value;
             //                           modifs[modifs.length]=f;
         } else {
-            argsf[argsf.length]=f;
+            argsf.push(f);
         }
     }
 
@@ -442,8 +442,8 @@ var parseList=function(code) {
             if (c == ',' && bracount == 0 || bracount == -1) {
                 
                 var arg = code1.substring(start, i);
-                args[args.length]=arg;
-                argsi[argsi.length]=start;
+                args.push(arg);
+                argsi.push(start);
                 start = i + 1;
                 
             }
@@ -452,12 +452,12 @@ var parseList=function(code) {
     for (var i = 0; i < args.length; i++) {
         var s = args[i];
         if (""==s) {
-            argsf[argsf.length]='nil';
+            argsf.push('nil');
         } else {
             var f = analyse(s, false);
             if(f.ctype=='error') return f;
             
-            argsf[argsf.length]=f;
+            argsf.push(f);
         }
     }
     /*  var erg={};
