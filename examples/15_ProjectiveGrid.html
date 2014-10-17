@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            <link rel="stylesheet" href="css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>CindyJS: Projective Grid</h1>
+        
+        
+        <script id='firstDrawing' type='cindyscript'>
+            apply(-10..10,i,
+                  apply(-10..10,j,draw((i,j),size->1);
+                        )
+                  );
+            m=map((0,0),(1,0),(1,1),(0,1),A,B,C,D);
+ 
+            n=10;
+            apply(0..n,i,
+                  p1=(0,i/n,1);
+                  p2=(1,i/n,1);
+                  draw(m*p1,m*p2);
+                  p1=(i/n,0,1);
+                  p2=(i/n,1,1);
+                  draw(m*p1,m*p2);
+            );
+            
+           
+            
+        </script>
+        
+        
+        
+        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        
+        <script type="text/javascript">
+            
+            var gslp=[
+                      {name:"A", kind:"P", type:"Free", sx:2,sy:3,sz:1,size:4},
+                      {name:"B", kind:"P", type:"Free", sx:4,sy:3,sz:1,size:4},
+                      {name:"C", kind:"P", type:"Free", sx:5,sy:7,sz:1,size:4},
+                      {name:"D", kind:"P", type:"Free", sx:2,sy:6,sz:1,size:4},
+                    //  {name:"X", kind:"P", type:"Free", sx:0,sy:0,sz:1}
+                      ];
+
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        geometry:gslp});
+            
+            
+            
+            
+            
+            </script>
+
+        
+        
+        
+	</body>
+</html>

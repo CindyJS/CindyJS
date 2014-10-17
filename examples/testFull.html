@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../src/js/lib/d3.js"></script>
+            <script type="text/javascript" src="../src/js/lib/numeric-1.2.6.js"></script>
+            <script type="text/javascript" src="../src/js/lib/clipper/clipper.js"></script>
+            
+            <link rel="stylesheet" href="css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>CindyJS: Euclids Algorithm</h1>
+        <canvas id="CSCanvas" ></canvas>
+
+        
+        <script id='firstDrawing' type='text/cindyscript'>
+            if(!isreal(j),j=1,j=j+1);
+            s=seconds();
+            repeat(500,i,
+                   w=i*pi/180*(137.508+B.x*0.5);
+                   p=A+(cos(w),sin(w))*0.3*sqrt(i);
+                   a=i;
+                   draw(p,size->sqrt(i)*.4,color->hue(i/34));
+                   );
+            draw(A,color->(0,0,1));
+            draw(B,color->(0,0,1));
+            ds=seconds()-s;
+            drawtext((5,5),1/(ds));
+            if(!isreal(su),su=ds,su=su+ds);
+            
+            drawtext((5,3),j/su);
+
+        </script>
+        
+        <script type="text/javascript" src="../src/js/CindyFull.js"></script>
+
+        
+        
+        
+	</body>
+</html>
