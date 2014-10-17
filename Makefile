@@ -1,12 +1,18 @@
-all: js/Cindy.js
+all: build/js/Cindy.js
 
-libcs := js/libcs/Namespace.js js/libcs/Accessors.js js/libcs/CSNumber.js js/libcs/List.js js/libcs/Essentials.js js/libcs/General.js js/libcs/Operators.js js/libcs/OpDrawing.js js/libcs/OpImageDrawing.js js/libcs/Parser.js js/libcs/OpSound.js
+clean:
+	$(RM) -r build
 
-libgeo := js/libgeo/GeoState.js js/libgeo/GeoBasics.js js/libgeo/GeoOps.js js/libgeo/GeoScripts.js
+.PHONY: all clean
 
-liblab := js/liblab/LabBasics.js js/liblab/LabObjects.js
+libcs := src/js/libcs/Namespace.js src/js/libcs/Accessors.js src/js/libcs/CSNumber.js src/js/libcs/List.js src/js/libcs/Essentials.js src/js/libcs/General.js src/js/libcs/Operators.js src/js/libcs/OpDrawing.js src/js/libcs/OpImageDrawing.js src/js/libcs/Parser.js src/js/libcs/OpSound.js
 
-lib := js/lib/numeric-1.2.6.js js/lib/clipper.js
+libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
 
-js/Cindy.js: $(libgeo) js/Setup.js js/Events.js js/Timer.js $(libcs) $(liblab) $(lib)
+liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
+
+lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
+
+build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(liblab) $(lib)
+	mkdir -p $(@D)
 	java -jar compiler.jar --language_in ECMASCRIPT5 --js_output_file $@ --js $^
