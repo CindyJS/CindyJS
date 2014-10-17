@@ -68,14 +68,24 @@ createCindy = function(data){
     
     //Setup the scripts
     var scripts=["move","keydown","mousedown","mouseup","mousedrag","init","tick","draw"];
-    
+    var scriptpat=data["scripts"];
+    if (!(scriptpat !== undefined && scriptpat.search(/\*/)))
+        scriptpat = null;
+
     scripts.forEach(function(s){
         var sname=s+"script";
         if(data[sname]){
-          cscode=document.getElementById(data[sname]).text;
-          cscode=condense(cscode);
-          cscompiled[s]=analyse(cscode,false);
-      }
+            cscode=document.getElementById(data[sname]);
+        } else if (scriptpat) {
+            cscode=document.getElementById(scriptpat.replace(/\*/, s));
+            if (!cscode)
+                return;
+        } else {
+            return;
+        }
+        cscode=cscode.text;
+        cscode=condense(cscode);
+        cscompiled[s]=analyse(cscode,false);
     });
 
     //Setup canvasstuff
