@@ -36,21 +36,15 @@ function Namespace(){
         return b0 && b1;
     }
 
-    /* // Apparently unused
     this.create =function(code){
-        this.vars[code]={'ctype':'variable','stack':[],'name':code};
-        return this.vars[code];
+        var v = {'ctype':'variable','stack':[unset],'name':code};
+        this.vars[code] = v;
+        return v;
     }
-    */
     
     this.newvar =function(code){
         var v = this.vars[code];
-        if(v === undefined){
-            v = this.vars[code] = {'ctype':'variable','stack':[unset],'name':code};
-        }
-        else {
-            v.stack.push(nada); // nada not unset for deeper levels
-        }
+        v.stack.push(nada); // nada not unset for deeper levels
         return v;
     }
     

@@ -310,7 +310,7 @@ var somethingelse= function(code){
         return namespace.vars[code];
     }
     if (namespace.isVariableName(code)){
-        var variable=namespace.newvar(code);
+        var variable=namespace.create(code);
         return variable;
     }
     
