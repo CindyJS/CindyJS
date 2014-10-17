@@ -9,7 +9,8 @@
 function Nada(){this.ctype='undefined'};
 function Void(){this.ctype='void'};
 function CError(msg){this.ctype='error';this.message=msg};
-var nada= new Nada();
+var nada = new Nada();
+var unset = new Nada(); // to distinguish variables set to nada from those which were never set
 
 function Namespace(){
     this.vars={
@@ -34,52 +35,60 @@ function Namespace(){
         var b1 =  /^[0-9,a-z,A-Z]+$/.test(a);
         return b0 && b1;
     }
-    
+
     this.create =function(code){
-        this.vars[code]={'ctype':'variable','stack':[],'name':code};
-        return this.vars[code];
+        var v = {'ctype':'variable','stack':[unset],'name':code};
+        this.vars[code] = v;
+        return v;
     }
     
     this.newvar =function(code){
-        if(this.vars[code]===undefined){
-            return this.create(code);
-        }
-        this.vars[code].stack.push(nada);
-        return this.vars[code];
+        var v = this.vars[code];
+        v.stack.push(nada); // nada not unset for deeper levels
+        return v;
     }
     
     this.removevar=function(code){
-        this.vars[code].stack.pop();
+        var stack = this.vars[code].stack;
+        if (stack.length == 0) console.error("Removing non-existing " + code);
+        stack.pop();
+        if (stack.length == 0) console.warn("Removing last " + code);
     }
     
     
     this.setvar= function(code,val) {
         var stack=this.vars[code].stack;
+        if (stack.length == 0) console.error("Setting non-existing variable " + code);
         if(val.ctype=='undefined'){
             stack[stack.length-1]=val;
             return;
         }
         var erg=evaluator._helper.clone(val);
+        if (erg === unset) erg = nada; // explicite setting does lift unset state
         stack[stack.length-1]=erg;
     }
-    
+
+    /* // Apparently unused
     this.setvarnocopy= function(code,val) {
         var stack=this.vars[code].stack;
+        if (stack.length == 0) console.error("Setting non-existing variable " + code);
         stack[stack.length-1]=val;
     }
+    */
 
     this.undefinedWarning = new Object();
 
     this.getvar= function(code) {
 
         var stack=this.vars[code].stack;
+        if (stack.length == 0) console.error("Getting non-existing variable " + code);
         var erg=stack[stack.length-1];
-        if(stack.length==0 && stack[stack.length-1]==nada){//Achtung das erfordert dass der GeoTeil da ist.
-            if(typeof csgeo.csnames[code] !== 'undefined'){
+        if(erg === unset){
+            if(csgeo.csnames[code] !== undefined){
                 return {'ctype':'geo','value':csgeo.csnames[code]}
             }
             else {
-                if (console && console.log && typeof (this.undefinedWarning[code]) === 'undefined') {
+                if (console && console.log && this.undefinedWarning[code] === undefined) {
                     this.undefinedWarning[code] = true;
                     console.log("Warning: Accessing undefined variable: " + code);
                 }
