@@ -1408,8 +1408,8 @@ evaluator.perp=function(args,modifs){
         if(v0!=nada && v1!=nada){
             
             
-            var u0=v0.usage;
-            var u1=v1.usage;
+            var u0=v0.usage || w0.usage;
+            var u1=v1.usage || w1.usage;
             var p=w0;
             var l=w1;
             if(u0=="Line" || u1=="Point"){
