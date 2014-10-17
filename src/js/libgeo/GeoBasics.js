@@ -70,12 +70,13 @@ function csinit(gslp){
     
     // Das ist für alle gleich
     for( var k=0; k<csgeo.gslp.length; k++ ) {
-        csgeo.csnames[csgeo.gslp[k].name]=csgeo.gslp[k];
-        csgeo.gslp[k].kind=geoOpMap[csgeo.gslp[k].type];
-        csgeo.gslp[k].incidences=[];
-        csgeo.gslp[k].isshowing=true;
-        csgeo.gslp[k].movable=false;
-        csgeo.gslp[k].inited=false;
+        var g = csgeo.gslp[k];
+        csgeo.csnames[g.name]=g;
+        g.kind=geoOpMap[g.type];
+        g.incidences=[];
+        g.isshowing=true;
+        g.movable=false;
+        g.inited=false;
     };
     
     csgeo.points=[];
@@ -263,7 +264,7 @@ function guessIncidences(){
 function render(){
 
     var drawgeopoint= function(el){
-        if(!el.isshowing||!List._helper.isAlmostReal(el.homog))
+        if(!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
         var col=    el.color;
         if(el.behavior) {
@@ -276,7 +277,7 @@ function render(){
 
 
     var drawgeoconic= function(el){
-        if(!el.isshowing)
+        if(!el.isshowing || el.visible === false)
             return;
         var cc=el.matrix;
         var cxr = cc.value[2].value[0].value.real 
@@ -309,7 +310,7 @@ function render(){
     }
     
     var drawgeoline= function(el){
-        if(!el.isshowing || !List._helper.isAlmostReal(el.homog) )
+        if(!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
 
         if(el.clip.value=="none"){
