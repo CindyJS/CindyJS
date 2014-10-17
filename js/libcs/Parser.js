@@ -310,10 +310,7 @@ var somethingelse= function(code){
         return namespace.vars[code];
     }
     if (namespace.isVariableName(code)){
-        var variable=namespace.create(code);
-        namespace.setvar(code,nada);
-        //                        var variable={'ctype':'variable','value':nada,'name':code};
-        //                        namespace.vars[code]=variable;
+        var variable=namespace.newvar(code);
         return variable;
     }
     
