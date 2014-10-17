@@ -221,7 +221,7 @@ evaluator.forall=function(args,modifs){ //OK
     for(var i=0;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
         res=evaluate(args[argind]);
-        erg[erg.length]=res;
+        erg[i]=res;
     }
     namespace.removevar(lauf);
     

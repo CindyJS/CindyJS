@@ -12,7 +12,7 @@ List.turnIntoCSList=function(l){
 List.realVector=function(l){
     var erg=[];
     for(var i=0;i<l.length;i++){
-        erg[erg.length]={"ctype":"number" ,"value":{'real':l[i],'imag':0}};
+        erg[i]={"ctype":"number" ,"value":{'real':l[i],'imag':0}};
     }
     return {'ctype':'list','value':erg};
 }
@@ -20,7 +20,7 @@ List.realVector=function(l){
 List.realMatrix=function(l){
     var erg=[];
     for(var i=0;i<l.length;i++){
-        erg[erg.length]=List.realVector(l[i]);
+        erg[i]=List.realVector(l[i]);
     }
     return List.turnIntoCSList(erg);
 }
@@ -49,8 +49,10 @@ List.fund=List.realMatrix([[0,0,0],[0,0,0],[0,0,1]]);
 
 List.sequence=function(a,b){
     var erg=[];
+    var ct=0;
     for(var i=Math.round(a.value.real);i<Math.round(b.value.real)+1;i++){
-        erg[erg.length]={"ctype":"number" ,"value":{'real':i,'imag':0}};
+        erg[ct]={"ctype":"number" ,"value":{'real':i,'imag':0}};
+        ct++;
     }
     return {'ctype':'list','value':erg};
 }
@@ -59,7 +61,7 @@ List.pairs=function(a){
     var erg=[];
     for(var i=0;i<a.value.length-1;i++){
         for(var j=i+1;j<a.value.length;j++){
-            erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[j]]};
+            erg.push({'ctype':'list','value':[a.value[i],a.value[j]]});
         }
     }
     return {'ctype':'list','value':erg};
@@ -70,7 +72,7 @@ List.triples=function(a){
     for(var i=0;i<a.value.length-2;i++){
         for(var j=i+1;j<a.value.length-1;j++){
             for(var k=j+1;k<a.value.length;k++){
-                erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[j],a.value[k]]};
+                erg.push({'ctype':'list','value':[a.value[i],a.value[j],a.value[k]]});
             }
         }
     }
@@ -82,7 +84,7 @@ List.triples=function(a){
     for(var i=0;i<a.value.length-2;i++){
         for(var j=i+1;j<a.value.length-1;j++){
             for(var k=j+1;k<a.value.length;k++){
-                erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[j],a.value[k]]};
+                erg.push({'ctype':'list','value':[a.value[i],a.value[j],a.value[k]]});
             }
         }
     }
@@ -93,9 +95,9 @@ List.triples=function(a){
 List.cycle=function(a){
     var erg=[];
     for(var i=0;i<a.value.length-1;i++){
-        erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[i+1]]};
+        erg[i]={'ctype':'list','value':[a.value[i],a.value[i+1]]};
     }
-    erg[erg.length]={'ctype':'list','value':[a.value[a.value.length-1],a.value[0]]};
+    erg.push({'ctype':'list','value':[a.value[a.value.length-1],a.value[0]]});
     
     return {'ctype':'list','value':erg};
 }
@@ -103,7 +105,7 @@ List.cycle=function(a){
 List.consecutive=function(a){
     var erg=[];
     for(var i=0;i<a.value.length-1;i++){
-        erg[erg.length]={'ctype':'list','value':[a.value[i],a.value[i+1]]};
+        erg[i]={'ctype':'list','value':[a.value[i],a.value[i+1]]};
     }
     
     return {'ctype':'list','value':erg};
@@ -112,7 +114,7 @@ List.consecutive=function(a){
 List.reverse=function(a){
     var erg=[];
     for(var i=a.value.length-1;i>=0;i--){
-        erg[erg.length]=a.value[i];
+        erg.push(a.value[i]);
     }
     
     return {'ctype':'list','value':erg};
@@ -124,7 +126,7 @@ List.directproduct=function(a,b){
     var erg=[];
     for(var i=0;i<a.value.length;i++){
         for(var j=0;j<b.value.length;j++){
-            erg[erg.length]={'ctype':'list','value':[a.value[i],b.value[j]]};
+            erg.push({'ctype':'list','value':[a.value[i],b.value[j]]});
         }
     }
     return {'ctype':'list','value':erg};
@@ -134,10 +136,10 @@ List.directproduct=function(a,b){
 List.concat=function(a,b){
     var erg=[];
     for(var i=0;i<a.value.length;i++){
-        erg[erg.length]=a.value[i];
+        erg.push(a.value[i]);
     }
     for(var j=0;j<b.value.length;j++){
-        erg[erg.length]=b.value[j];
+        erg.push(b.value[j]);
     }
     return {'ctype':'list','value':erg};
 }
@@ -145,10 +147,10 @@ List.concat=function(a,b){
 
 List.prepend=function(b,a){
     var erg=[];
-    erg[erg.length]=b;
+    erg[0]=b;
     
     for(var i=0;i<a.value.length;i++){
-        erg[erg.length]=a.value[i];
+        erg[i+1]=a.value[i];
     }
     return {'ctype':'list','value':erg};
 }
@@ -156,9 +158,9 @@ List.prepend=function(b,a){
 List.append=function(a,b){
     var erg=[];
     for(var i=0;i<a.value.length;i++){
-        erg[erg.length]=a.value[i];
+        erg[i]=a.value[i];
     }
-    erg[erg.length]=b;
+    erg.push(b);
     return {'ctype':'list','value':erg};
 }
 
@@ -179,6 +181,7 @@ List.contains=function(a,b){
 
 List.common=function(a,b){
     var erg=[];
+    var ct=0;
     for(var i=0;i<a.value.length;i++){
         var bb=false; 
         var cc=a.value[i];
@@ -186,7 +189,8 @@ List.common=function(a,b){
             bb=bb||(evaluator._helper.equals(cc,b.value[j])).value;
         }
         if(bb){
-            erg[erg.length]=a.value[i];
+            erg[ct]=a.value[i];
+            ct++
         }
     }
     return {'ctype':'list','value':erg};
@@ -194,6 +198,7 @@ List.common=function(a,b){
 
 List.remove=function(a,b){
     var erg=[];
+    var ct=0;
     for(var i=0;i<a.value.length;i++){
         var bb=false; 
         var cc=a.value[i];
@@ -201,7 +206,8 @@ List.remove=function(a,b){
             bb=bb||(evaluator._helper.equals(cc,b.value[j])).value;
         }
         if(!bb){
-            erg[erg.length]=a.value[i];
+            erg[ct]=a.value[i];
+            ct++;
         }
     }
     return {'ctype':'list','value':erg};
@@ -319,11 +325,14 @@ List._helper.isNaN=function(a1){
 
 List.set=function(a1){
     var erg=[];
+    var ct=0;
+
     var erg1=a1.value.sort(General.compare);
     
     for(var i=0;i<erg1.length;i++){
         if(i==0||!(evaluator.comp_equals([erg[erg.length-1],erg1[i]],[])).value){
-            erg[erg.length]=erg1[i];
+            erg[ct]=erg1[i];
+            ct++;
             
         }
         
@@ -388,7 +397,7 @@ List.max=function(a1,a2){
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
         var av2=a2.value[i];
-        erg[erg.length]=General.max(av1,av2);
+        erg[i]=General.max(av1,av2);
     }
     return {'ctype':'list','value':erg};
 }
@@ -406,7 +415,7 @@ List.min=function(a1,a2){
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
         var av2=a2.value[i];
-        erg[erg.length]=General.min(av1,av2);
+        erg[i]=General.min(av1,av2);
     }
     return {'ctype':'list','value':erg};
 }
@@ -424,11 +433,11 @@ List.scaldiv=function(a1,a2){
     for(var i=0;i<a2.value.length;i++){
         var av2=a2.value[i];
         if(av2.ctype=='number' ){
-            erg[erg.length]=General.div(av2,a1);
+            erg[i]=General.div(av2,a1);
         } else if(av2.ctype=='list'  ){
-            erg[erg.length]=List.scaldiv(a1,av2);
+            erg[i]=List.scaldiv(a1,av2);
         } else {
-            erg[erg.length]=nada;
+            erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
@@ -443,11 +452,11 @@ List.scalmult=function(a1,a2){
     for(var i=0;i<a2.value.length;i++){
         var av2=a2.value[i];
         if(av2.ctype=='number' ){
-            erg[erg.length]=General.mult(av2,a1);
+            erg[i]=General.mult(av2,a1);
         } else if(av2.ctype=='list'  ){
-            erg[erg.length]=List.scalmult(a1,av2);
+            erg[i]=List.scalmult(a1,av2);
         } else {
-            erg[erg.length]=nada;
+            erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
@@ -464,11 +473,11 @@ List.add=function(a1,a2){
         var av1=a1.value[i];
         var av2=a2.value[i];
         if(av1.ctype=='number' && av2.ctype=='number' ){
-            erg[erg.length]=General.add(av1,av2);
+            erg[i]=General.add(av1,av2);
         } else if(av1.ctype=='list' && av2.ctype=='list' ){
-            erg[erg.length]=List.add(av1,av2);
+            erg[i]=List.add(av1,av2);
         } else {
-            erg[erg.length]=nada;
+            erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
@@ -485,11 +494,11 @@ List.sub=function(a1,a2){
         var av1=a1.value[i];
         var av2=a2.value[i];
         if(av1.ctype=='number' && av2.ctype=='number' ){
-            erg[erg.length]=CSNumber.sub(av1,av2);
+            erg[i]=CSNumber.sub(av1,av2);
         } else if(av1.ctype=='list' && av2.ctype=='list' ){
-            erg[erg.length]=List.sub(av1,av2);
+            erg[i]=List.sub(av1,av2);
         } else {
-            erg[erg.length]=nada;
+            erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
@@ -541,11 +550,11 @@ List.recursive=function(a1,op){
     for(var i=0;i<a1.value.length;i++){
         var av1=evaluateAndVal(a1.value[i]);//Will man hier evaluieren
         if(av1.ctype=='number'){
-            erg[erg.length]=CSNumber[op](av1);
+            erg[i]=CSNumber[op](av1);
         } else if(av1.ctype=='list'){
-            erg[erg.length]=List[op](av1);
+            erg[i]=List[op](av1);
         } else {
-            erg[erg.length]=nada;
+            erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
@@ -711,7 +720,7 @@ List.productMV=function(a,b){
                 return nada;
             }
         }
-        li[li.length]=erg;
+        li[j]=erg;
     }    
     return List.turnIntoCSList(li);
     
@@ -735,7 +744,7 @@ List.productVM=function(a,b){
                 return nada;
             }
         }
-        li[li.length]=erg;
+        li[j]=erg;
     }    
     return List.turnIntoCSList(li);
     
@@ -749,7 +758,7 @@ List.productMM=function(a,b){
     for(var j=0;j<a.value.length;j++){
         var aa=a.value[j];
         var erg=List.productVM(aa,b);
-        li[li.length]=erg;
+        li[j]=erg;
     }    
     return List.turnIntoCSList(li);
 }
@@ -927,7 +936,7 @@ List.eucangle=function(a,b){
 List.clone=function(a){
     var erg=[];
     for(var i=0;i<a.value.length;i++){
-        erg[erg.length]=evaluator._helper.clone(a.value[i]);
+        erg[i]=evaluator._helper.clone(a.value[i]);
     }
     return {"ctype":"list" ,  "value":erg,"usage":a.usage}
 }
@@ -936,7 +945,7 @@ List.clone=function(a){
 List.zerovector=function(a){
     var erg=[];
     for(var i=0;i<Math.floor(a.value.real);i++){
-        erg[erg.length]=0;
+        erg[i]=0;
     }
     return List.realVector(erg);
 }
@@ -945,7 +954,7 @@ List.zerovector=function(a){
 List.zeromatrix=function(a,b){
     var erg=[];
     for(var i=0;i<Math.floor(a.value.real);i++){
-        erg[erg.length]=List.zerovector(b);
+        erg[i]=List.zerovector(b);
     }
     return List.turnIntoCSList(erg);
 }
@@ -958,9 +967,9 @@ List.transpose=function(a){
     for(var i=0;i<n;i++){
         var li=[]; 
         for(var j=0;j<m;j++){
-            li[li.length]=a.value[j].value[i];
+            li[j]=a.value[j].value[i];
         }
-        erg[erg.length]=List.turnIntoCSList(li)
+        erg[i]=List.turnIntoCSList(li)
     }
     return List.turnIntoCSList(erg);
 }
@@ -971,7 +980,7 @@ List.column=function(a,b){
     var n=a.value.length;
     var i=Math.floor(b.value.real-1);
     for(var j=0;j<n;j++){
-        erg[erg.length]=a.value[j].value[i];
+        erg[j]=a.value[j].value[i];
     }
     
     return List.turnIntoCSList(erg);
@@ -983,7 +992,7 @@ List.row=function(a,b){
     var n=a.value[0].value.length;
     var i=Math.floor(b.value.real-1);
     for(var j=0;j<n;j++){
-        erg[erg.length]=a.value[i].value[j];
+        erg[j]=a.value[i].value[j];
     }
     
     return List.turnIntoCSList(erg);
@@ -997,11 +1006,11 @@ List.inverse=function(a){//Das ist nur Reell und greift auf numeric zurück
         var lix=[]; 
         var liy=[]; 
         for(var j=0;j<n;j++){
-            lix[lix.length]=a.value[i].value[j].value.real;
-            liy[liy.length]=a.value[i].value[j].value.imag;
+            lix[j]=a.value[i].value[j].value.real;
+            liy[j]=a.value[i].value[j].value.imag;
         }
-        x[x.length]=lix;
-        y[y.length]=liy;
+        x[i]=lix;
+        y[i]=liy;
     }
     var z=new numeric.T(x,y);
     var res=z.inv(z);
@@ -1009,9 +1018,9 @@ List.inverse=function(a){//Das ist nur Reell und greift auf numeric zurück
     for(var i=0;i<n;i++){
         var li=[]; 
         for(var j=0;j<n;j++){
-            li[li.length]=CSNumber.complex(res.x[i][j],res.y[i][j]);
+            li[j]=CSNumber.complex(res.x[i][j],res.y[i][j]);
         }
-        erg[erg.length]=List.turnIntoCSList(li);
+        erg[i]=List.turnIntoCSList(li);
     }
     return List.turnIntoCSList(erg);
 }
@@ -1027,12 +1036,12 @@ List.linearsolve=function(a,bb){//Das ist nur Reell und greift auf numeric zurü
         var lix=[]; 
         var liy=[]; 
         for(var j=0;j<n;j++){
-            lix[lix.length]=a.value[i].value[j].value.real;
-            liy[liy.length]=a.value[i].value[j].value.imag;
+            lix[j]=a.value[i].value[j].value.real;
+            liy[j]=a.value[i].value[j].value.imag;
         }
-        x[x.length]=lix;
-        y[y.length]=liy;
-        b[b.length]=bb.value[i].value.real;
+        x[i]=lix;
+        y[i]=liy;
+        b[i]=bb.value[i].value.real;
     }
     var res=numeric.solve(x,b);
         
@@ -1049,11 +1058,11 @@ List.det=function(a){//Das ist nur Reell und greift auf numeric zurück
         var lix=[]; 
         var liy=[]; 
         for(var j=0;j<n;j++){
-            lix[lix.length]=a.value[i].value[j].value.real;
-            liy[liy.length]=a.value[i].value[j].value.imag;
+            lix[j]=a.value[i].value[j].value.real;
+            liy[j]=a.value[i].value[j].value.imag;
         }
-        x[x.length]=lix;
-        y[y.length]=liy;
+        x[i]=lix;
+        y[i]=liy;
     }
     var z=new numeric.T(x,y);
     var res=numeric.det(x);
