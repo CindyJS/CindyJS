@@ -5,7 +5,7 @@ var cscompiled={};
 
 var csanimating=false;
 var csticking=false;
-var csscale=0;
+var csscale=1;
 var csgridsize=0;
 var csgridscript;
 var cssnap=false;

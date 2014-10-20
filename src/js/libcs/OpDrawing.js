@@ -958,7 +958,6 @@ evaluator._helper.setDashType=function(type,s){
 // TODO: Dynamic Color and Alpha
 
 evaluator.plot=function(args,modifs){ //OK
-    
     var dashing=false;
     var connectb=false;
     var minstep=0.001;
