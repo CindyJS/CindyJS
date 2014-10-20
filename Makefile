@@ -13,6 +13,26 @@ liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
 lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
+# by defaul compile with SIMPLE flag
+optflags = SIMPLE
+ifeq ($(O),2)
+	ifeqoptflags = ADVANCED
+endif
+
+#by default use closure compiler
+js_compiler = closure
+
+ifeq ($(plain),1)
+	js_compiler = plain 
+endif
+
+ifeq ($(js_compiler), closure)
 build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(liblab) $(lib)
 	mkdir -p $(@D)
-	java -jar compiler.jar --language_in ECMASCRIPT5 --js_output_file $@ --js $^
+	java -jar compiler.jar --compilation_level $(optflags) --language_in ECMASCRIPT5 --js_output_file $@ --js $^
+else
+build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(liblab) $(lib)
+	mkdir -p $(@D)
+	cat $^ > $@
+endif
+
