@@ -96,7 +96,7 @@ inpa=round(inpa*100)/100;
 inpb=round(inpb*100)/100;
 inpc=round(inpc*100)/100;
 if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) , 
-            javascript("renderEq("+substring(""+inpa,1,6)+","+inpb+","+inpc+")"));
+            javascript("renderEq("+substring(""+inpa,0,6)+","+inpb+","+inpc+")"));
             
             oa=inpa;
             ob=inpb;
