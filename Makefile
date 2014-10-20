@@ -15,8 +15,8 @@ lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
 # by defaul compile with SIMPLE flag
 optflags = SIMPLE
-ifeq ($(O),2)
-	ifeqoptflags = ADVANCED
+ifeq ($(O),1)
+	optflags = ADVANCED
 endif
 
 #by default use closure compiler
