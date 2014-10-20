@@ -1,18 +1,18 @@
-all: js/Cindy.js
+all: build/js/Cindy.js
 
-libcs := js/libcs/Namespace.js js/libcs/Accessors.js js/libcs/CSNumber.js js/libcs/List.js js/libcs/Essentials.js js/libcs/General.js js/libcs/Operators.js js/libcs/OpDrawing.js js/libcs/OpImageDrawing.js js/libcs/Parser.js js/libcs/OpSound.js
+clean:
+	$(RM) -r build
 
-libgeo := js/libgeo/GeoState.js js/libgeo/GeoBasics.js js/libgeo/GeoOps.js js/libgeo/GeoScripts.js
+.PHONY: all clean
 
-liblab := js/liblab/LabBasics.js js/liblab/LabObjects.js
+libcs := src/js/libcs/Namespace.js src/js/libcs/Accessors.js src/js/libcs/CSNumber.js src/js/libcs/List.js src/js/libcs/Essentials.js src/js/libcs/General.js src/js/libcs/Operators.js src/js/libcs/OpDrawing.js src/js/libcs/OpImageDrawing.js src/js/libcs/Parser.js src/js/libcs/OpSound.js
 
-lib := js/lib/numeric-1.2.6.js js/lib/clipper.js
+libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
 
-# by default compile with SIMPLE flag
-optflags = SIMPLE
-ifeq ($(O),1)
-	optflags = ADVANCED
-endif
+liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
-js/Cindy.js js/Cindy.js.map: $(libgeo) js/Setup.js js/Events.js js/Timer.js $(libcs) $(liblab) $(lib)
-	java -jar compiler.jar --compilation_level $(optflags) --language_in ECMASCRIPT5 --create_source_map $@.map --source_map_format V3 --source_map_location_mapping "js/|" --output_wrapper_file js/Cindy.js.wrapper --js_output_file $@ --js $^
+lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
+
+build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(liblab) $(lib)
+	mkdir -p $(@D)
+	java -jar compiler.jar --language_in ECMASCRIPT5 --js_output_file $@ --js $^
