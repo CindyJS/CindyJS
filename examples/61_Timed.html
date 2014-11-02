@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>               
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>CindyJS: First Physics</h1>
+
+    
+
+        
+        <script id='init' type='cindyscript'>
+        w=0;
+rot():=(
+errc("CLICK");
+  repeat(90,
+     w=#°;
+     repeat(100000,i);
+     repaint(); 
+    
+  )
+
+)
+        </script>
+        
+           <script id='click' type='cindyscript'>
+rot();
+        </script>
+        <script id='timer' type='cindyscript'>
+//w=w+0.1;
+        </script>
+        
+        <script id='firstDrawing' type='cindyscript'>
+        draw(O+(sin(w),cos(w))*3);
+
+
+        </script>
+
+
+
+        <div style="position:relative">
+        <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000;position:absolute; top:0px; left:0px;"></canvas>
+<div style="position:absolute; top:400px; left:30px; display:inline;z-index:4">
+         <div id="tex" style="font-size: 110%;" >$p_1$</div>
+</div>
+</div>
+
+        <script type="text/javascript">
+            defaultAppearance.dimDependent=.7;
+            
+            var gslp=[
+                      {name:"O", type:"Free", pos:[0,0],color:[0,0,0],pinned:true,size:3},
+                                                                 
+                      
+                    ];
+                    
+                    var physics=[
+                       {behavior:{type:"Environment",deltat:.2,accuracy:10}}
+                       ];
+
+                     createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        initscript:"init",
+                        mousedownscript:"click",
+                        tickscript:"timer",
+                        geometry:gslp,
+                        transform:[{scale:1},{translate:[0,-.3]}],
+                        behavior:physics
+}
+                        );
+    
+        </script>
+       <button onclick="csplay()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
+        <button onclick="cspause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
+        <button onclick="csstop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>
+
+	</body>
+</html>

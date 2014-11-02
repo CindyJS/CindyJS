@@ -225,6 +225,8 @@ var doit=function(){//Callback for d3-timer
     
 }
 
+
+
 var startit=function(){
     if(!csticking) {
         csticking=true;
@@ -237,6 +239,7 @@ function updateCindy(){
     csctx.save();
     csctx.clearRect ( 0   , 0 , csw , csh );
     if(csgridsize!=0){evaluate(csgridscript)}
+ //   console.log("NOW UPDATING");
   //  drawgrid();
     evaluate(cscompiled.move);
     evaluate(cscompiled.draw);
