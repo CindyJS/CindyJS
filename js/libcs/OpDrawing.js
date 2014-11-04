@@ -75,14 +75,13 @@ evaluator.draw=function(args,modifs){
                 if(type=="P"){
                     psize=erg.value.real;                       
                     if(psize<0) psize=0;
-                    
+                    if(psize>1000) psize=1000;
                 }
                 if(type=="L"){
                     lsize=erg.value.real;
                     if(lsize<0) lsize=0;
-
+                    if(lsize>1000) lsize=1000;
                 }
-                
             }
         }
         
