@@ -86,7 +86,7 @@ getmover = function(mouse){
                 dist=dist+1;
             }
             
-            if(dist<adist+.2){//A bit a dirty hack, prefers new points
+            if(dist<adist+.2/sc){//A bit a dirty hack, prefers new points
                 adist=dist;
                 mov=el;
                 diff={x:dx,y:dy};
@@ -295,10 +295,10 @@ var cs_mousemove=function(e){
 }
 
 var cs_tick=function(e){
-    if(true) {//TODO: Check here if physics is required
-    if(typeof(lab)!=='undefined') {
-       lab.tick();
-       }
+    if(csPhysicsInited) {//TODO: Check here if physics is required
+        if(typeof(lab)!=='undefined') {
+            lab.tick();
+        }
     }
     if(csanimating) {
        evaluate(cscompiled.tick);

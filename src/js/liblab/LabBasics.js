@@ -20,7 +20,10 @@ doPri45.size = 7;//is this 5, 6 or 7
 var rk=doPri45;
 var behaviors;
 var masses=[];
+var csPhysicsInited=false;
 function csinitphys(behavs){
+    csPhysicsInited=(behavs==[]);
+
     behaviors=behavs;
     masses=[];
     
