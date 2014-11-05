@@ -356,6 +356,8 @@ public class QuickHull3D
 	    }
  	 }
 
+	/* Disabled for GWT
+
 	private void printQhullErrors (Process proc)
 	   throws IOException
 	 {
@@ -435,6 +437,8 @@ public class QuickHull3D
 	      System.exit(1); 
 	    }
 	 }
+
+	*/
 
 	private void printPoints (PrintStream ps)
 	 {
