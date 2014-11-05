@@ -1,4 +1,4 @@
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 /**
  * Maintains a double-linked list of vertices for use by QuickHull3D

@@ -1,9 +1,9 @@
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 /**
  * Simple example usage of QuickHull3D. Run as the command
  * <pre>
- *   java quickhull3d.SimpleExample
+ *   java cindyjs.quickhull3d.SimpleExample
  * </pre>
  */
 public class SimpleExample

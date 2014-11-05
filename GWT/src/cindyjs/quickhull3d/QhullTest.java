@@ -1,4 +1,4 @@
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 class QhullTest
 {

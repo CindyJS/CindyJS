@@ -1,4 +1,4 @@
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 /**
  * Represents vertices of the hull, as well as the points from

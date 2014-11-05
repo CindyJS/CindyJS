@@ -11,7 +11,7 @@
   * software.
   */
 
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 import java.util.Random;
 

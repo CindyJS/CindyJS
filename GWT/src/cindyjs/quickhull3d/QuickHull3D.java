@@ -10,7 +10,7 @@
   * whatsoever, arising out of or in connection with the use of this
   * software.
   */
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 import java.util.*;
 import java.io.*;

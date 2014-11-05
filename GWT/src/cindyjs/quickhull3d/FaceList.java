@@ -1,4 +1,4 @@
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 /**
  * Maintains a single-linked list of faces for use by QuickHull3D

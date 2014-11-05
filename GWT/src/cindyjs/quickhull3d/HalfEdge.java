@@ -12,7 +12,7 @@
   * software.
   */
 
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 /**
  * Represents the half-edges that surround each

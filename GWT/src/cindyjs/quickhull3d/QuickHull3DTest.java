@@ -10,7 +10,7 @@
   * whatsoever, arising out of or in connection with the use of this
   * software.
   */
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 import java.util.*;
 import java.io.*;
@@ -18,7 +18,7 @@ import java.io.*;
 /**
  * Testing class for QuickHull3D. Running the command
  * <pre>
- *   java quickhull3d.QuickHull3DTest
+ *   java cindyjs.quickhull3d.QuickHull3DTest
  * </pre>
  * will cause QuickHull3D to be tested on a number of randomly
  * choosen input sets, with degenerate points added near
@@ -26,7 +26,7 @@ import java.io.*;
  *
  * <p>The command
  * <pre>
- *   java quickhull3d.QuickHull3DTest -timing
+ *   java cindyjs.quickhull3d.QuickHull3DTest -timing
  * </pre>
  * will cause timing information to be produced instead.
  *
@@ -683,7 +683,7 @@ public class QuickHull3DTest
 	       }
 	      else
 	       { System.out.println (
-"Usage: java quickhull3d.QuickHull3DTest [-timing]");
+"Usage: java cindyjs.quickhull3d.QuickHull3DTest [-timing]");
 		 System.exit(1);
 	       }
 	    }

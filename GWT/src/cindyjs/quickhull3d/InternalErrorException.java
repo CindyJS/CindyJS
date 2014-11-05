@@ -1,4 +1,4 @@
-package quickhull3d;
+package cindyjs.quickhull3d;
 
 /**
  * Exception thrown when QuickHull3D encounters an internal error.
