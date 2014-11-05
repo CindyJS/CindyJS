@@ -9,7 +9,7 @@
 
   <property name="dl.dir.arch" value="download/arch"/>
   <property name="cjs.gwt.dir" value="download/gwt"/>
-  <property name="cjs.gwt.dir" value="ignore"/>
+  <property name="cjs.src.dir" value="../src/java"/>
 
   <target name="get.check" unless="get.force">
     <available property="get.unneeded" file="${cjs.gwt.dir}/gwt-user.jar"/>
@@ -60,7 +60,7 @@
 
   <target name="javac" depends="init,libs" description="Compile java source to bytecode">
     <mkdir dir="war/WEB-INF/classes"/>
-    <javac srcdir="src" includes="**" encoding="utf-8"
+    <javac srcdir="${cjs.src.dir}" includes="**" encoding="utf-8"
         destdir="war/WEB-INF/classes"
         source="1.5" target="1.5" nowarn="true"
         includeantruntime="false"
@@ -68,14 +68,14 @@
       <classpath refid="project.class.path"/>
     </javac>
     <copy todir="war/WEB-INF/classes">
-      <fileset dir="src" excludes="**/*.java"/>
+      <fileset dir="${cjs.src.dir}" excludes="**/*.java"/>
     </copy>
   </target>
 
   <target name="gwtc" depends="javac" description="GWT compile to JavaScript (production mode)">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
       <classpath>
-        <pathelement location="src"/>
+        <pathelement location="${cjs.src.dir}"/>
         <path refid="project.class.path"/>
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
@@ -93,7 +93,7 @@
   <target name="devmode" depends="javac" description="Run development mode">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
       <classpath>
-        <pathelement location="src"/>
+        <pathelement location="${cjs.src.dir}"/>
         <path refid="project.class.path"/>
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
@@ -112,7 +112,7 @@
   <target name="superdevmode" depends="javac" description="Run Super Dev Mode">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.codeserver.CodeServer">
       <classpath>
-        <pathelement location="src"/>
+        <pathelement location="${cjs.src.dir}"/>
         <pathelement location="${gwt.sdk}/gwt-codeserver.jar" />
         <path refid="project.class.path"/>
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
@@ -143,7 +143,7 @@ Test targets suppressed because -junit argument was not specified when running w
       <sysproperty key="gwt.args" value="-standardsMode -logLevel WARN" />
       <sysproperty key="java.awt.headless" value="true" />
       <classpath>
-        <pathelement location="src" />
+        <pathelement location="${cjs.src.dir}" />
         <pathelement location="test" />
         <path refid="project.class.path" />
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
@@ -167,7 +167,7 @@ Test targets suppressed because -junit argument was not specified when running w
       <sysproperty key="gwt.args" value="-prod -standardsMode -logLevel WARN -standardsMode -war www-test" />
       <sysproperty key="java.awt.headless" value="true" />
       <classpath>
-        <pathelement location="src" />
+        <pathelement location="${cjs.src.dir}" />
         <pathelement location="test" />
         <path refid="project.class.path" />
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
