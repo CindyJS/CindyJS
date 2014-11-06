@@ -2,6 +2,7 @@ all: build/js/Cindy.js
 
 clean:
 	$(RM) -r build
+	cd GWT && ant clean
 
 .PHONY: all clean
 
@@ -35,3 +36,12 @@ build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(
 	mkdir -p $(@D)
 	cat $^ > $@
 endif
+
+GWT/war/quickhull3d/quickhull3d.nocache.js: src/java/cindyjs/quickhull3d.gwt.xml $(wildcard src/java/cindyjs/quickhull3d/*.java)
+	cd GWT && ant -Dcjs.module=quickhull3d
+
+build/js/quickhull3d/quickhull3d.nocache.js: GWT/war/quickhull3d/quickhull3d.nocache.js
+	rm -rf build/js/quickhull3d
+	cp -r GWT/war/quickhull3d build/js/
+
+all: build/js/quickhull3d/quickhull3d.nocache.js
