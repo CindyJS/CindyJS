@@ -72,7 +72,18 @@
     </copy>
   </target>
 
-  <target name="gwtc" depends="javac" description="GWT compile to JavaScript (production mode)">
+  <target name="comparedate" depends="javac" unless="gwtc.forcerun">
+    <condition property="isuptodate">
+      <and>
+        <uptodate targetfile="war/quickhull3d/quickhull3d.nocache.js">
+          <srcfiles dir="war/WEB-INF/classes/cindyjs/quickhull3d"/>
+        </uptodate>
+      </and>
+    </condition>
+  </target>
+
+  <target name="gwtc" depends="comparedate" unless="isuptodate"
+          description="GWT compile to JavaScript (production mode)">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
       <classpath>
         <pathelement location="${cjs.src.dir}"/>
