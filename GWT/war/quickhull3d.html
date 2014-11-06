@@ -1,0 +1,99 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the     -->
+<!-- browser's rendering engine into                -->
+<!-- "Standards Mode". Replacing this declaration   -->
+<!-- with a "Quirks Mode" doctype is not supported. -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <!--                                                               -->
+    <!-- Consider inlining CSS to reduce the number of requested files -->
+    <!--                                                               -->
+    <!-- link type="text/css" rel="stylesheet" href="convexhull3d.css" -->
+
+    <!--                                           -->
+    <!-- Any title is fine                         -->
+    <!--                                           -->
+    <title>Convex Hull Demo Page</title>
+    
+    <!--                                           -->
+    <!-- We run custom code once the module has    -->
+    <!-- reported the end of its startup.          -->
+    <!--                                           -->
+    <script type="text/javascript" language="javascript">
+      function testConvexhull() {
+        var hull, vertices, faces, vl, fl, x, y, z, i, j, li;
+        hull = convexhull([
+          1, 5, 2,
+          7, 8, 4,
+          3, 6, 5,
+          2, 4, 6,
+          8, 7, 5,
+          3, 4, 6,
+          2, 5, 6,
+          8, 3, 5]);
+        console.log(hull);
+        vertices = hull[0];
+        faces = hull[1];
+        vl = document.getElementById("vl");
+        fl = document.getElementById("fl");
+        for (i = 0; i < vertices.length; i += 3) {
+          x = vertices[i]; y = vertices[i + 1]; z = vertices[i + 2];
+          li = document.createElement("li");
+          li.textContent = (i/3) + ": (" + x + ", " + y + ", " + z + ")";
+          vl.appendChild(li);
+        }
+        for (i = 0; i < faces.length; ++i) {
+          x = faces[i];
+          y = "";
+          for (j = 0; j < x.length; ++j)
+            y += ", " + x[j];
+          li = document.createElement("li");
+          li.textContent = i + ": [" + y.substring(2) + "]";
+          fl.appendChild(li);
+        }
+      };
+      window.__gwtStatsEvent = function(evt) {
+        if (evt.moduleName == "quickhull3d" &&
+            evt.evtGroup == "moduleStartup" &&
+            evt.type == "end")
+          testConvexhull();
+      };
+    </script>
+
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->
+    <!--                                           -->
+    <script type="text/javascript" language="javascript" src="quickhull3d/quickhull3d.nocache.js"></script>
+
+  </head>
+
+  <!--                                           -->
+  <!-- The body can have arbitrary html, or      -->
+  <!-- you can leave the body empty if you want  -->
+  <!-- to create a completely dynamic UI.        -->
+  <!--                                           -->
+  <body>
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+    
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+      <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+
+    <h1>Convex Hull Demo Page</h1>
+    <h2>Vertices</h2>
+    <ul id="vl"></ul>
+    <h2>Faces</h2>
+    <ul id="fl"></ul>
+  </body>
+</html>

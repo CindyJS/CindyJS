@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
             <title>Cindy JS</title>
             
-            <script type="text/javascript" src="../src/js/lib/martin/qh/test1.nocache.js"></script>
+            <script type="text/javascript" src="../build/js/quickhull3d/quickhull3d.nocache.js"></script>
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
             </head>
@@ -419,14 +419,7 @@ definebody(zell):=(
   rf4=zell_6;
 );
 
-
-
-
-
-
-
-
-
+calc();
         </script>
 
         
@@ -604,11 +597,6 @@ mat=mmmx*mmmy*mat;
                       
                                            ];
             
-                          console.log("*****************");
-
-  setTimeout(function(){
-  evokeCS('calc();repaint()');
-    }, 3000);
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
                         initscript:"init",

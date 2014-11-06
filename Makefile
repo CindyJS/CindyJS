@@ -4,6 +4,7 @@ all: build/js/Cindy.js
 
 clean:
 	$(RM) -r build
+	cd GWT && ant clean
 
 .PHONY: all clean
 
@@ -51,3 +52,20 @@ build/js/Cindy.js:
 	cat $(filter %.js,$^) >> $@
 	awk '/%output%/{i=1;getline}{if(i)print}' $(filter %.wrapper,$^) >> $@
 endif
+
+GWT_modules = $(patsubst src/java/cindyjs/%.gwt.xml,%,$(wildcard src/java/cindyjs/*.gwt.xml))
+
+define GWT_template =
+
+GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $(wildcard src/java/cindyjs/$(1)/*.java)
+	cd GWT && ant -Dcjs.module=$(1)
+
+build/js/$(1)/$(1).nocache.js: GWT/war/$(1)/$(1).nocache.js
+	rm -rf build/js/$(1)
+	cp -r GWT/war/$(1) build/js/
+
+all: build/js/$(1)/$(1).nocache.js
+
+endef
+
+$(foreach mod,$(GWT_modules),$(eval $(call GWT_template,$(mod))))
