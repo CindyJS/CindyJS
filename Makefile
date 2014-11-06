@@ -1,3 +1,5 @@
+JAVA=java
+
 all: build/js/Cindy.js
 
 clean:
@@ -13,6 +15,15 @@ liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
 lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
+closure_args = \
+	--language_in ECMASCRIPT5 \
+	--create_source_map $@.map \
+	--source_map_format V3 \
+	--source_map_location_mapping "src/js/|../../src/js/" \
+	--output_wrapper_file $(filter %.wrapper,$^) \
+	--js_output_file $@ \
+	--js $(filter %.js,$^)
+
 # by defaul compile with SIMPLE flag
 optflags = SIMPLE
 ifeq ($(O),1)
@@ -26,12 +37,17 @@ ifeq ($(plain),1)
 	js_compiler = plain 
 endif
 
+build/js/Cindy.js: src/js/Setup.js src/js/Events.js src/js/Timer.js
+build/js/Cindy.js: $(libcs) $(libgeo) $(liblab) $(lib) src/js/Cindy.js.wrapper
+
 ifeq ($(js_compiler), closure)
-build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(liblab) $(lib)
+build/js/Cindy.js: compiler.jar
 	mkdir -p $(@D)
-	java -jar compiler.jar --language_in ECMASCRIPT5 --create_source_map $@.map --source_map_format V3 --source_map_location_mapping "src/js/|../../src/js/" --output_wrapper_file src/js/Cindy.js.wrapper --js_output_file $@ --js $^
+	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
 else
-build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(liblab) $(lib)
+build/js/Cindy.js:
 	mkdir -p $(@D)
-	cat $^ > $@
+	awk '/%output%/{exit}{print}' $(filter %.wrapper,$^) > $@
+	cat $(filter %.js,$^) >> $@
+	awk '/%output%/{i=1;getline}{if(i)print}' $(filter %.wrapper,$^) >> $@
 endif
