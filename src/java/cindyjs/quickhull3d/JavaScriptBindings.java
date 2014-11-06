@@ -18,16 +18,17 @@ public class JavaScriptBindings implements EntryPoint {
 
     private native void publish() /*-{
         $wnd.convexhull =
-          $entry(@cindyjs.quickhull3d.JavaScriptBindings::convexhull([D));
+          $entry(@cindyjs.quickhull3d.JavaScriptBindings::convexhull(Lcom/google/gwt/core/client/JsArrayNumber;));
     }-*/;
 
-    public static JsArrayMixed convexhull(double[] coords) {
-        if (coords.length % 3 != 0)
+    public static JsArrayMixed convexhull(JsArrayNumber coords) {
+        if (coords.length() % 3 != 0)
             return null;
-        Point3d[] points = new Point3d[coords.length/3];
+        Point3d[] points = new Point3d[coords.length()/3];
         int j = 0;
-        for (int i = 0; i <= coords.length - 3; i += 3) {
-            points[j++] = new Point3d(coords[i], coords[i+1], coords[i+2]);
+        for (int i = 0; i <= coords.length() - 3; i += 3) {
+            points[j++] =
+                new Point3d(coords.get(i), coords.get(i+1), coords.get(i+2));
         }
         QuickHull3D hull = new QuickHull3D();
         hull.build(points);
