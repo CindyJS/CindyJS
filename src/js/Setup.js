@@ -54,7 +54,7 @@ var initialTransformation = function(data) {
 }
 
 
-createCindy = function(data){ 
+var createCindyNow = function(data){
     csmouse = [100, 100];
     cscount = 0;
     var cscode;
@@ -143,8 +143,6 @@ createCindy = function(data){
 
 
 }
-
-
 
 backup=[];
 var backupGeo=function(){
@@ -235,6 +233,52 @@ var initialscript=
 '              ) '+
 '           );'
 
-
-
-
+var waitCount = -1;
+window.cjsInit = function() {
+}
+window.cjsWaitFor = function(name) {
+  if (waitCount == 0) {
+    console.error("Waiting for " + name + " after we finished waiting.");
+    return function() { }
+  }
+  if (waitCount < 0)
+    waitCount = 0;
+  console.log("Start waiting for " + name);
+  ++waitCount;
+  return function() {
+    console.log("Done waiting for " + name);
+    --waitCount;
+    if (waitCount < 0) {
+      console.error("Wait count mismatch: " + name);
+    }
+    if (waitCount == 0) {
+      window.cjsInit();
+    }
+  }
+}
+document.addEventListener("DOMContentLoaded", cjsWaitFor("DOMContentLoaded"));
+var createCindy = function(data) {
+  if (waitCount == 0) {
+    console.log("creating Cindy immediately.");
+    createCindyNow(data);
+  } else {
+    console.log("creating Cindy later.");
+    var prevInit = window.cjsInit;
+    window.cjsInit = function() {
+      prevInit();
+      console.log("creating Cindy now.");
+      createCindyNow(data);
+    };
+  }
+}
+if (window.__gwt_activeModules !== undefined) {
+  Object.keys(window.__gwt_activeModules).forEach(function(key) {
+    var m = window.__gwt_activeModules[key];
+    m.cjsDoneWaiting = cjsWaitFor(m.moduleName);
+  });
+  window.__gwtStatsEvent = function(evt) {
+    if (evt.evtGroup == "moduleStartup" && evt.type == "end") {
+      window.__gwt_activeModules[evt.moduleName].cjsDoneWaiting();
+    }
+  }
+};
