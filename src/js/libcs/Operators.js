@@ -2964,3 +2964,47 @@ evaluator.format=function(args,modifs){//TODO Complex,Angels etc
     
 }
 
+/***********************************/
+/**********    WEBGL     ***********/
+/***********************************/
+
+evaluator._helper.formatForWebGL=function(x){
+   return x.toFixed(10);
+}
+
+evaluator.compileToWebGL=function(args,modifs){
+    if(args.length==1) {
+
+       var f=evaluator._helper.formatForWebGL;
+       var expr=args[0];
+    //   dump(expr);
+       if(expr.ctype=="number") {
+          return {"ctype":"string" ,  "value":"vec2("+f(expr.value.real)+","+f(expr.value.imag)+")"}  
+       }
+       if(expr.ctype=="variable") {
+          return {"ctype":"string" ,  "value":expr.name}  
+       }
+       if(expr.ctype=="string") {
+          return expr;  
+       }
+       if(expr.ctype=="infix"||expr.ctype=="function") {
+           var a= evaluator.compileToWebGL([expr.args[0]],{});
+           var b= evaluator.compileToWebGL([expr.args[1]],{});
+           if(expr.oper=="+"||expr.oper=="add") {
+               return {"ctype":"string" ,  "value":"addc("+a.value+","+b.value+")"}  
+           }
+           if(expr.oper=="*"||expr.oper=="mult") {
+               
+               return {"ctype":"string" ,  "value":"multc("+a.value+","+b.value+")"}  
+           }
+           if(expr.oper=="-"||expr.oper=="sub") {
+               return {"ctype":"string" ,  "value":"subc("+a.value+","+b.value+")"}  
+           }
+       }
+    }
+    
+    return nada;
+
+
+}
+
