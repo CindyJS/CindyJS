@@ -2894,6 +2894,10 @@ evaluator.convexhull3d=function(args,modifs){
         var v0=evaluate(args[0]);
         if(v0.ctype=='list'){
             var vals=v0.value;
+            if (vals.length < 4) {
+                console.error("Less than four input points specified");
+                return nada;
+            }
             var pts=[];
             for(var i=0;i< vals.length;i++){
                if(List._helper.isNumberVecN(vals[i],3)){
