@@ -10,6 +10,7 @@
   <property name="dl.dir.arch" value="download/arch"/>
   <property name="cjs.gwt.dir" value="download/gwt"/>
   <property name="cjs.src.dir" value="../src/java"/>
+  <property name="cjs.module" value="quickhull3d"/>
 
   <target name="get.check" unless="get.force">
     <available property="get.unneeded" file="${cjs.gwt.dir}/gwt-user.jar"/>
@@ -75,8 +76,8 @@
   <target name="comparedate" depends="javac" unless="gwtc.forcerun">
     <condition property="isuptodate">
       <and>
-        <uptodate targetfile="war/quickhull3d/quickhull3d.nocache.js">
-          <srcfiles dir="war/WEB-INF/classes/cindyjs/quickhull3d"/>
+        <uptodate targetfile="war/${cjs.module}/${cjs.module}.nocache.js">
+          <srcfiles dir="war/WEB-INF/classes/cindyjs/${cjs.module}"/>
         </uptodate>
       </and>
     </condition>
@@ -97,7 +98,7 @@
       <arg value="war"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg line="${gwt.args}"/>
-      <arg value="cindyjs.quickhull3d"/>
+      <arg value="cindyjs.${cjs.module}"/>
     </java>
   </target>
 
@@ -111,12 +112,12 @@
       </classpath>
       <jvmarg value="-Xmx256M"/>
       <arg value="-startupUrl"/>
-      <arg value="quickhull3d.html"/>
+      <arg value="${cjs.module}.html"/>
       <arg line="-war"/>
       <arg value="war"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg line="${gwt.args}"/>
-      <arg value="cindyjs.quickhull3d"/>
+      <arg value="cindyjs.${cjs.module}"/>
     </java>
   </target>
 
@@ -130,7 +131,7 @@
         <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
       </classpath>
       <jvmarg value="-Xmx256M"/>
-      <arg value="cindyjs.quickhull3d"/>
+      <arg value="cindyjs.${cjs.module}"/>
     </java>
   </target>
 
@@ -210,8 +211,12 @@ Test targets suppressed because -junit argument was not specified when running w
   </target>
 
   <target name="clean" description="Cleans this project">
-    <delete dir="war/WEB-INF/classes" failonerror="false" />
-    <delete dir="war/quickhull3d" failonerror="false" />
+    <delete>
+      <fileset dir="war">
+        <exclude name="*.html"/>
+      </fileset>
+      <dirset dir="war"/>
+    </delete>
   </target>
 
 </project>

@@ -37,11 +37,19 @@ build/js/Cindy.js: $(libgeo) src/js/Setup.js src/js/Events.js src/js/Timer.js $(
 	cat $^ > $@
 endif
 
-GWT/war/quickhull3d/quickhull3d.nocache.js: src/java/cindyjs/quickhull3d.gwt.xml $(wildcard src/java/cindyjs/quickhull3d/*.java)
-	cd GWT && ant -Dcjs.module=quickhull3d
+GWT_modules = $(patsubst src/java/cindyjs/%.gwt.xml,%,$(wildcard src/java/cindyjs/*.gwt.xml))
 
-build/js/quickhull3d/quickhull3d.nocache.js: GWT/war/quickhull3d/quickhull3d.nocache.js
-	rm -rf build/js/quickhull3d
-	cp -r GWT/war/quickhull3d build/js/
+define GWT_template =
 
-all: build/js/quickhull3d/quickhull3d.nocache.js
+GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $(wildcard src/java/cindyjs/$(1)/*.java)
+	cd GWT && ant -Dcjs.module=$(1)
+
+build/js/$(1)/$(1).nocache.js: GWT/war/$(1)/$(1).nocache.js
+	rm -rf build/js/$(1)
+	cp -r GWT/war/$(1) build/js/
+
+all: build/js/$(1)/$(1).nocache.js
+
+endef
+
+$(foreach mod,$(GWT_modules),$(eval $(call GWT_template,$(mod))))
