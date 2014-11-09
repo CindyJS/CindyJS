@@ -22,8 +22,9 @@
         <script id='firstDrawing' type='cindyscript'>
         
         errc(i);
-        i=i+1;
+        i=i+.1;
         fillcircle((0,0),100,color->(0,0,.4));
+        draw((sin(i),cos(i)));
         l=l++[A.xy];
         if(length(l)>80,l=apply(2..length(l),l_#));
         damp=.96;

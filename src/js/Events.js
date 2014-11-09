@@ -152,13 +152,37 @@ setuplisteners =function(canvas) {
     };
     
     
+    function getOffsetLeft( elem )
+        {
+        var offsetLeft = 0;
+        do {
+            if ( !isNaN( elem.offsetLeft ) )
+                {
+                offsetLeft += elem.offsetLeft;
+                }
+        } while( elem = elem.offsetParent );
+        return offsetLeft;
+        }
+
+    function getOffsetTop( elem )
+        {
+        var offsetTop = 0;
+        do {
+            if ( !isNaN( elem.offsetTop ) )
+                {
+                offsetTop += elem.offsetTop;
+                }
+        } while( elem = elem.offsetParent );
+        return offsetTop;
+        }
+
     
     function touchMove(e) {
         if (!e)
             var e = event;
         
-        updatePostition(e.targetTouches[0].pageX - canvas.offsetLeft,
-                        e.targetTouches[0].pageY - canvas.offsetTop);
+        updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
+                        e.targetTouches[0].pageY - getOffsetTop(canvas));
         if(mouse.down){
             movepoint(move);
             cs_mousedrag();
@@ -173,8 +197,8 @@ setuplisteners =function(canvas) {
         if (!e)
             var e = event;
         
-        updatePostition(e.targetTouches[0].pageX - canvas.offsetLeft,
-                        e.targetTouches[0].pageY - canvas.offsetTop);
+        updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
+                        e.targetTouches[0].pageY - getOffsetTop(canvas));
         cs_mousedown();
 
         mouse.down = true;
