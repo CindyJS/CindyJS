@@ -90,7 +90,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
             return Math.round(x*1000)/1000;
             
         }
-        m=csport.drawingstate.matrix;
+        var m=csport.drawingstate.matrix;
         
         console.log("a:"+r(m.a)+" "+
                     "b:"+r(m.b)+" "+
@@ -102,24 +102,34 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
             
     }
 
+    csport.setMat=function(a,b,c,d,tx,ty){
+        var m=csport.drawingstate.matrix;
+        m.a = a;
+        m.b = b;
+        m.c = c;
+        m.d = d;
+        m.tx = tx;
+        m.ty = ty;
+        m.det = a*d - b*c;
+        m.sdet = Math.sqrt(m.det);
+    }
+
+    csport.scaleAndOrigin=function(scale, originX, originY){
+        csport.setMat(scale,0,0,scale,originX,originY);
+    }
+
+    // TODO: This function looks broken. It seems as if the linear
+    // portion of the matrix is multiplied from the left, but the
+    // translation is multiplied from the right. Very confusing!
     csport.applyMat=function(a,b,c,d,tx,ty){
-        m=csport.drawingstate.matrix;
-        var ra=  m.a*a+m.c*b;
-        var rb=  m.b*a+m.d*b;
-        var rc=  m.a*c+m.c*d;
-        var rd=  m.b*c+m.d*d;
-        var rtx= m.a*tx+m.c*ty+m.tx;
-        var rty= m.b*tx+m.d*ty+m.ty;
-        m.a=ra;
-        m.b=rb;
-        m.c=rc;
-        m.d=rd;
-        m.tx=rtx;
-        m.ty=rty;
-        m.det= csport.drawingstate.matrix.a*csport.drawingstate.matrix.d
-            -csport.drawingstate.matrix.b*csport.drawingstate.matrix.c;
-        
-        m.sdet=Math.sqrt(csport.drawingstate.matrix.det);
+        var m=csport.drawingstate.matrix;
+        csport.setMat(
+          m.a*a+m.c*b,
+          m.b*a+m.d*b,
+          m.a*c+m.c*d,
+          m.b*c+m.d*d,
+          m.a*tx+m.c*ty+m.tx,
+          m.b*tx+m.d*ty+m.ty);
     }
 
     csport.translate=function(tx,ty){

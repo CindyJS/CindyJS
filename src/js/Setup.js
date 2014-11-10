@@ -48,6 +48,10 @@ var initialTransformation = function(data) {
            if(trname=="translate"){
                csport[trname](trafo.translate[0],trafo.translate[1])
            }
+           if(trname=="scaleAndOrigin"){
+               csscale=trafo[trname][0]/25;
+               csport[trname].apply(this,trafo[trname]);
+           }
         }
         csport.createnewbackup();
     }
