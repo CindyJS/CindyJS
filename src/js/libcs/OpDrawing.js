@@ -63,6 +63,7 @@ evaluator.draw=function(args,modifs){
     if(lsize<0) lsize=0;
     var overhang=1;//TODO Eventuell dfault setzen
     var dashing=false;
+    var isArrow=false;
     var col;
     var black="rgb(0,0,0)";
     if(csport.drawingstate.alpha!=1){
@@ -86,7 +87,6 @@ evaluator.draw=function(args,modifs){
         }
         
         if(type=="L"){
-            
             if(modifs.dashpattern!==undefined){
                 erg =evaluate(modifs.dashpattern);
                 if(erg.ctype=='list'){
@@ -128,6 +128,13 @@ evaluator.draw=function(args,modifs){
                                         
                 }
             }
+            if(modifs.arrow!==undefined){
+		    erg = evaluate(modifs.arrow);
+
+		    if(erg.ctype == 'boolean'){
+                    isArrow = erg.value; 
+		    }
+                }
             
         }
         
@@ -198,6 +205,15 @@ evaluator.draw=function(args,modifs){
         csctx.lineTo(xxx2, yyy2);
         csctx.lineWidth = lsize;
         csctx.lineCap = 'round';
+
+	if(isArrow){
+		var headlen = 10; // perhaps set this relative to canvas size
+		console.log(headlen);
+		var angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		csctx.lineTo(xxx2 - headlen*Math.cos(angle - Math.PI/6),yyy2 - headlen*Math.sin(angle - Math.PI/6));
+        	csctx.moveTo(xxx2, yyy2);
+		csctx.lineTo(xxx2 - headlen*Math.cos(angle + Math.PI/6),yyy2 - headlen*Math.sin(angle + Math.PI/6));
+	}
         
         //        csctx.strokeStyle="#0000FF";
         //        csctx.strokeStyle="rgba(0,0,255,0.2)";
