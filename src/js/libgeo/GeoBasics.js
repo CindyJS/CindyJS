@@ -229,7 +229,11 @@ function recalc(){
     var gslp=csgeo.gslp;
     for( var k=0; k<gslp.length; k++ ) {
         var el=gslp[k];
-        var op= geoOps[el.type];       
+        var op= geoOps[el.type];
+        if (!op) {
+            console.error(el);
+            console.error("Operation " + el.type + " not implemented yet");
+        }
         op(el);
         isShowing(el,op);
                      
