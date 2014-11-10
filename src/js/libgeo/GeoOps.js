@@ -595,3 +595,34 @@ geoOps.SelectP =function(el){
 }
 geoOpMap.SelectP="P";
 
+// Define a projective transformation given four points and their images
+geoOps.TrProjection = function(el){
+    function oneStep(offset){
+        var tmp,
+            a = csgeo.csnames[el.args[0+offset]].homog,
+            b = csgeo.csnames[el.args[2+offset]].homog,
+            c = csgeo.csnames[el.args[4+offset]].homog,
+            d = csgeo.csnames[el.args[6+offset]].homog;
+        // Note: this duplicates functionality from evaluator._helper.basismap
+        tmp = List.adjoint3(List.turnIntoCSList([a,b,c]));
+        tmp = List.productVM(d,tmp).value;
+        tmp = List.transpose(List.turnIntoCSList([
+            List.scalmult(tmp[0], a),
+            List.scalmult(tmp[1], b),
+            List.scalmult(tmp[2], c)]));
+        return tmp;
+    }
+    var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
+    m = List.normalizeMax(m);
+    el.matrix = m;
+}
+geoOpMap.TrProjection="Tr";
+
+// Apply a projective transformation to a point
+geoOps.TransformP = function(el){
+    var m=csgeo.csnames[(el.args[0])].matrix;
+    var p=csgeo.csnames[(el.args[1])].homog;
+    el.homog=List.normalizeMax(List.productMV(m, p));
+    el.homog.usage="Point";      
+}
+geoOpMap.TransformP="P";    
