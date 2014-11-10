@@ -50,7 +50,8 @@ build/js/Cindy.js:
 	mkdir -p $(@D)
 	awk '/%output%/{exit}{print}' $(filter %.wrapper,$^) > $@
 	cat $(filter %.js,$^) >> $@
-	awk '/%output%/{i=1;getline}{if(i)print}' $(filter %.wrapper,$^) >> $@
+	awk '/%output%/{i=1;getline}{if(i)print}' $(filter %.wrapper,$^) \
+	| sed 's://#.*::' >> $@
 endif
 
 
