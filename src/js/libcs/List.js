@@ -998,6 +998,51 @@ List.row=function(a,b){
     return List.turnIntoCSList(erg);
 }
 
+List.adjoint3=function(a){
+    var row, elt,
+        r11, i11, r12, i12, r13, i13,
+        r21, i21, r22, i22, r23, i23,
+        r31, i31, r32, i32, r33, i33;
+    row = a.value[0].value;
+    elt = row[0].value; r11 = elt.real; i11 = elt.imag;
+    elt = row[1].value; r12 = elt.real; i12 = elt.imag;
+    elt = row[2].value; r13 = elt.real; i13 = elt.imag;
+    row = a.value[1].value;
+    elt = row[0].value; r21 = elt.real; i21 = elt.imag;
+    elt = row[1].value; r22 = elt.real; i22 = elt.imag;
+    elt = row[2].value; r23 = elt.real; i23 = elt.imag;
+    row = a.value[2].value;
+    elt = row[0].value; r31 = elt.real; i31 = elt.imag;
+    elt = row[1].value; r32 = elt.real; i32 = elt.imag;
+    elt = row[2].value; r33 = elt.real; i33 = elt.imag;
+    return {'ctype':'list','value':[
+        {'ctype':'list','value':[
+            {'ctype':'number','value':{'real':r22*r33 - r23*r32 - i22*i33 + i23*i32,
+                                       'imag':r22*i33 - r23*i32 - r32*i23 + r33*i22}},
+            {'ctype':'number','value':{'real':-r12*r33 + r13*r32 + i12*i33 - i13*i32,
+                                       'imag':-r12*i33 + r13*i32 + r32*i13 - r33*i12}},
+            {'ctype':'number','value':{'real':r12*r23 - r13*r22 - i12*i23 + i13*i22,
+                                       'imag':r12*i23 - r13*i22 - r22*i13 + r23*i12}}
+        ]},
+        {'ctype':'list','value':[
+            {'ctype':'number','value':{'real':-r21*r33 + r23*r31 + i21*i33 - i23*i31,
+                                       'imag':-r21*i33 + r23*i31 + r31*i23 - r33*i21}},
+            {'ctype':'number','value':{'real':r11*r33 - r13*r31 - i11*i33 + i13*i31,
+                                       'imag':r11*i33 - r13*i31 - r31*i13 + r33*i11}},
+            {'ctype':'number','value':{'real':-r11*r23 + r13*r21 + i11*i23 - i13*i21,
+                                       'imag':-r11*i23 + r13*i21 + r21*i13 - r23*i11}}
+        ]},
+        {'ctype':'list','value':[
+            {'ctype':'number','value':{'real':r21*r32 - r22*r31 - i21*i32 + i22*i31,
+                                       'imag':r21*i32 - r22*i31 - r31*i22 + r32*i21}},
+            {'ctype':'number','value':{'real':-r11*r32 + r12*r31 + i11*i32 - i12*i31,
+                                       'imag':-r11*i32 + r12*i31 + r31*i12 - r32*i11}},
+            {'ctype':'number','value':{'real':r11*r22 - r12*r21 - i11*i22 + i12*i21,
+                                       'imag':r11*i22 - r12*i21 - r21*i12 + r22*i11}}
+        ]}
+    ]};
+}
+
 List.inverse=function(a){//Das ist nur Reell und greift auf numeric zurück
     var x=[];
     var y=[];

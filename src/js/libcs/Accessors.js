@@ -77,6 +77,12 @@ Accessor.getField=function(geo,field){
         }
 
     };
+    if(geo.kind=="Tr"){
+        if(field=="matrix") {
+            var erg=List.clone(geo.matrix);
+            return erg;
+        }
+    };
     if(Accessor.generalFields[field]) {//must be defined an an actual string
         var erg=geo[Accessor.generalFields[field]];
         if(erg) {
