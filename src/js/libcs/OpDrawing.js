@@ -128,11 +128,14 @@ evaluator.draw=function(args,modifs){
                                         
                 }
             }
-            if(modifs.arrow!==undefined){
+            if(modifs.arrow !== undefined){
 		    erg = evaluate(modifs.arrow);
 
 		    if(erg.ctype == 'boolean'){
                     isArrow = erg.value; 
+		    }
+		    else{
+			    console.error("arrow needs to be of type boolean");
 		    }
                 }
             
