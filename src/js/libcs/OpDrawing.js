@@ -63,7 +63,8 @@ evaluator.draw=function(args,modifs){
     if(lsize<0) lsize=0;
     var overhang=1;//TODO Eventuell dfault setzen
     var dashing=false;
-    var isArrow=false;
+    var isArrow = false;
+    var arrowType = "default";
     var col;
     var black="rgb(0,0,0)";
     if(csport.drawingstate.alpha!=1){
@@ -138,7 +139,16 @@ evaluator.draw=function(args,modifs){
 			    console.error("arrow needs to be of type boolean");
 		    }
                 }
-            
+            if(modifs.arrowtype !== undefined){
+		    erg = evaluate(modifs.arrowtype);
+
+		    if(erg.ctype == 'string'){
+                    arrowType = erg.value; 
+		    }
+		    else{
+			    console.error("arrowtype needs to be of type string");
+		    }
+                }
         }
         
         
@@ -208,19 +218,47 @@ evaluator.draw=function(args,modifs){
         csctx.lineTo(xxx2, yyy2);
         csctx.lineWidth = lsize;
         csctx.lineCap = 'round';
+        csctx.strokeStyle=col;
+	csctx.stroke();
+
 
 	if(isArrow){
 		var headlen = 10; // perhaps set this relative to canvas size
-		console.log(headlen);
 		var angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
-		csctx.lineTo(xxx2 - headlen*Math.cos(angle - Math.PI/6),yyy2 - headlen*Math.sin(angle - Math.PI/6));
+		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
+		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
+		csctx.beginPath();
+		csctx.moveTo(xxx2, yyy2);
+		csctx.lineTo(rx ,ry);
         	csctx.moveTo(xxx2, yyy2);
-		csctx.lineTo(xxx2 - headlen*Math.cos(angle + Math.PI/6),yyy2 - headlen*Math.sin(angle + Math.PI/6));
+		var lx = xxx2 - headlen*Math.cos(angle + Math.PI/6);
+		var ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
+		csctx.lineTo(lx, ly);
+
+		if(arrowType !== 'undefined'){
+		
+		if(arrowType == 'default'){
+		 // if we are default don't do anything since we are done - perhaps change this later for more fancy arrows
+		}
+		else if(arrowType == "full"){
+		csctx.moveTo(rx, ry);
+		csctx.lineTo(lx, ly);
+		csctx.lineTo(xxx2, yyy2);
+		csctx.closePath();
+		csctx.fillStyle = col;
+		csctx.fill();
+		csctx.stroke();
+		}
+
+		else{
+			console.error("arrowtype is unknown");
+		}
+
+		} 
 	}
         
         //        csctx.strokeStyle="#0000FF";
         //        csctx.strokeStyle="rgba(0,0,255,0.2)";
-        csctx.strokeStyle=col;
         csctx.stroke();
         
         if(dashing)
