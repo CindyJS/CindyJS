@@ -339,13 +339,13 @@ function render(){
         if(el.clip.value=="none"){
             evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
         }
-        if(el.clip.value=="end"){
+        else if(el.clip.value=="end"){
             var pt1=csgeo.csnames[el.args[0]];
             var pt2=csgeo.csnames[el.args[1]];
             evaluator.draw([pt1.homog,pt2.homog],
                            {size:el.size,color:el.color,alpha:el.alpha});
         }
-        if(el.clip.value=="inci"){
+        else if(el.clip.value=="inci"){
             var li=[];
             var xmin=[+1000000,0];
             var xmax=[-1000000,0];
@@ -394,7 +394,9 @@ function render(){
             
             }
         }
-        
+        else {
+            console.error(["Bad clip: ", el.clip])
+        }
 
     }
     for( var i=0; i<csgeo.conics.length; i++ ) {
