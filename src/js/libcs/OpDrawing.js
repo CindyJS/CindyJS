@@ -144,6 +144,10 @@ evaluator.draw=function(args,modifs){
 
 		    if(erg.ctype == 'string'){
                     arrowType = erg.value; 
+		    if(!isArrow){ 
+			    console.log("warning: implicitly activated modifier arrow by using arrowtype"); 
+		    }
+		    isArrow = true;
 		    }
 		    else{
 			    console.error("arrowtype needs to be of type string");
@@ -250,7 +254,7 @@ evaluator.draw=function(args,modifs){
 		csctx.stroke();
 		}
 
-		else{
+		else{ // this is failsafe - if type is unknow we will draw std arrows
 			console.error("arrowtype is unknown");
 		}
 
