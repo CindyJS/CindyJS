@@ -276,7 +276,26 @@ function render(){
            // col=List.realVector([0,0,1]);
         }    
         evaluator.draw([el.homog],{size:el.size,color:col,alpha:el.alpha});
-        
+        if(el.labeled) {
+            var lbl = el.printname || el.name || "P";
+            var lpos = el.labelpos || {'x':3, 'y':3};
+            var textsize = el.textsize || 12;
+            var bold = (el.textbold === true);
+            var italics = (el.textitalics === true);
+            var family = el.text_fontfamily || "Sans Serif";
+            var dist = lpos.x*lpos.x + lpos.y*lpos.y
+            var factor = 1.0;
+            if (dist > 0) {
+                factor = 1.0 + el.size.value.real / Math.sqrt(dist);
+            }
+            evaluator.drawtext([el.homog, General.wrap(lbl)],
+                               {'x_offset':General.wrap(factor*lpos.x),
+                                'y_offset':General.wrap(factor*lpos.y),
+                                'size':General.wrap(textsize),
+                                'bold':General.wrap(bold),
+                                'italics':General.wrap(italics),
+                                'family':General.wrap(family)});
+        }
     }
 
 
