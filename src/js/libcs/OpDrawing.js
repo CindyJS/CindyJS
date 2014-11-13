@@ -64,6 +64,8 @@ evaluator.draw=function(args,modifs){
     var overhang=1;//TODO Eventuell dfault setzen
     var dashing=false;
     var isArrow = false;
+    var angle;
+    var headlen = 10; // perhaps set this relative to canvas size
     var arrowType = "default";
     var col;
     var black="rgb(0,0,0)";
@@ -219,7 +221,16 @@ evaluator.draw=function(args,modifs){
         var yyy2=overhang*yy2+(1-overhang)*yy1;
         csctx.beginPath();
         csctx.moveTo(xxx1, yyy1);
+	// shorten arrow for full arrow
+	if(arrowType == "full"){
+		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		var t1 = xxx2 - headlen*Math.cos(angle);
+		var t2 = yyy2 - headlen*Math.sin(angle);
+        	csctx.lineTo(t1, t2);
+	}
+	else{
         csctx.lineTo(xxx2, yyy2);
+	}
         csctx.lineWidth = lsize;
         csctx.lineCap = 'round';
         csctx.strokeStyle=col;
@@ -229,12 +240,15 @@ evaluator.draw=function(args,modifs){
 	if(isArrow){
 		var draw_arrowhead = function(xxx1, xxx2, yyy1, yyy2, anglemodifier){
 
-		var headlen = 10; // perhaps set this relative to canvas size
-		var angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
 		if(anglemodifier !== 'undefined'){ angle = angle + anglemodifier; } // for arrow rotation
 		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
+
 		csctx.beginPath();
+		csctx.lineWidth = lsize;
+       		csctx.lineCap = 'round';
+	        csctx.strokeStyle=col;
 		csctx.moveTo(xxx2, yyy2);
 		csctx.lineTo(rx ,ry);
         	csctx.moveTo(xxx2, yyy2);
@@ -248,13 +262,15 @@ evaluator.draw=function(args,modifs){
 		 // if we are default don't do anything since we are done - perhaps change this later for more fancy arrows
 		}
 		else if(arrowType == "full"){
+		csctx.beginPath();
+        	csctx.strokeStyle=col;
 		csctx.moveTo(rx, ry);
 		csctx.lineTo(lx, ly);
 		csctx.lineTo(xxx2, yyy2);
 		csctx.closePath();
 		csctx.fillStyle = col;
 		csctx.fill();
-		csctx.stroke();
+		//csctx.stroke();
 		}
 
 		else{ // this is failsafe - if type is unknow we will draw std arrows
@@ -262,7 +278,7 @@ evaluator.draw=function(args,modifs){
 		}
 
 		} 
-		csctx.stroke();
+		//csctx.stroke();
 		} // end draw_arrowhead
 		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, 0);
 		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, 0);
@@ -270,7 +286,7 @@ evaluator.draw=function(args,modifs){
         
         //        csctx.strokeStyle="#0000FF";
         //        csctx.strokeStyle="rgba(0,0,255,0.2)";
-//        csctx.stroke();
+        csctx.stroke();
         
         if(dashing)
             evaluator._helper.unSetDash();
