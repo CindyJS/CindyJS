@@ -64,7 +64,10 @@ evaluator.draw=function(args,modifs){
     var overhang=1;//TODO Eventuell dfault setzen
     var dashing=false;
     var isArrow = false;
-    var arrowType = "default";
+    var angle;
+    var arrowSides = '==>';
+    var headlen = 10; // perhaps set this relative to canvas size
+    var arrowShape = 'default';
     var col;
     var black="rgb(0,0,0)";
     if(csport.drawingstate.alpha!=1){
@@ -129,9 +132,8 @@ evaluator.draw=function(args,modifs){
                                         
                 }
             }
-            if(modifs.arrow !== undefined){
-		    erg = evaluate(modifs.arrow);
-
+            if(modifs.arrow !== undefined){ 
+		    erg = evaluate(modifs.arrow); 
 		    if(erg.ctype == 'boolean'){
                     isArrow = erg.value; 
 		    }
@@ -139,21 +141,40 @@ evaluator.draw=function(args,modifs){
 			    console.error("arrow needs to be of type boolean");
 		    }
                 }
-            if(modifs.arrowtype !== undefined){
-		    erg = evaluate(modifs.arrowtype);
+            if(modifs.arrowshape !== undefined){
+		    erg = evaluate(modifs.arrowshape);
 
+		    erg = evaluate(modifs.arrowshape);
 		    if(erg.ctype == 'string'){
-                    arrowType = erg.value; 
+                    arrowShape = erg.value; 
 		    if(!isArrow){ 
-			    console.log("warning: implicitly activated modifier arrow by using arrowtype"); 
+			    console.log("warning: implicitly activated modifier arrow by using arrowShape"); 
 		    }
 		    isArrow = true;
 		    }
 		    else{
-			    console.error("arrowtype needs to be of type string");
+			    console.error("arrowshape needs to be of type string");
 		    }
-                }
-        }
+	    } 
+
+	    if(modifs.arrowsides !== undefined){
+		    erg = evaluate(modifs.arrowsides);
+		    if(!isArrow){ 
+			    console.log("warning: implicitly activated modifier arrow by using arrowsides"); 
+		    }
+		    isArrow = true;
+		    if(erg.ctype !== 'string'){
+			    console.error('arrowsides is not of type string');
+		    }
+
+		    if(!(erg.value == '==>' || erg.value == '<==>' || erg.value == '<==')){
+			    console.error("arrowsides is unknows");
+		    }
+		    else{
+			    arrowSides = erg.value;
+		    }
+	    }
+    } // end handleModifs
         
         
         
@@ -219,7 +240,26 @@ evaluator.draw=function(args,modifs){
         var yyy2=overhang*yy2+(1-overhang)*yy1;
         csctx.beginPath();
         csctx.moveTo(xxx1, yyy1);
+	// shorten arrow for full arrow
+	// Math.abs() for preventing bugs if points are the same
+	if(arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
+		var t1 = xxx2;
+                var t2 = yyy2;
+		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		if(arrowSides == '==>' || arrowSides == '<==>'){
+		t1 = xxx2 - headlen*Math.cos(angle);
+		t2 = yyy2 - headlen*Math.sin(angle);
+		}
+		if(arrowSides == "<==>" || arrowSides == "<=="){
+		var s1 = xxx1 + headlen*Math.cos(angle);
+                var s2 = yyy1 + headlen*Math.sin(angle);
+		csctx.moveTo(s1, s2);
+		}
+        	csctx.lineTo(t1, t2);
+	}
+	else{
         csctx.lineTo(xxx2, yyy2);
+	}
         csctx.lineWidth = lsize;
         csctx.lineCap = 'round';
         csctx.strokeStyle=col;
@@ -227,43 +267,58 @@ evaluator.draw=function(args,modifs){
 
 
 	if(isArrow){
-		var headlen = 10; // perhaps set this relative to canvas size
-		var angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		var draw_arrowhead = function(xxx1, xxx2, yyy1, yyy2, anglemodifier){
+
+		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		if(anglemodifier !== undefined){ angle = angle + anglemodifier; } // for arrow rotation
 		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
+
 		csctx.beginPath();
+		if(arrowShape == "full"){csctx.lineWidth = 1;}
+		else{ csctx.lineWidth = 2;}
+       		//csctx.lineCap = 'round';
+	        csctx.strokeStyle=col;
+		//csctx.moveTo(xxx2 - lll*Math.cos(angle - Math.PI/6), yyy2 - lll*Math.sin(angle - Math.PI/6));
 		csctx.moveTo(xxx2, yyy2);
 		csctx.lineTo(rx ,ry);
+        	//csctx.moveTo(xxx2 - lll*Math.cos(angle + Math.PI/6), yyy2 - lll*Math.sin(angle + Math.PI/6));
         	csctx.moveTo(xxx2, yyy2);
 		var lx = xxx2 - headlen*Math.cos(angle + Math.PI/6);
 		var ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
 		csctx.lineTo(lx, ly);
 
-		if(arrowType !== 'undefined'){
 		
-		if(arrowType == 'default'){
+		if(arrowShape== 'default'){
 		 // if we are default don't do anything since we are done - perhaps change this later for more fancy arrows
 		}
-		else if(arrowType == "full"){
+		else if(arrowShape == "full"){
 		csctx.moveTo(rx, ry);
 		csctx.lineTo(lx, ly);
 		csctx.lineTo(xxx2, yyy2);
 		csctx.closePath();
 		csctx.fillStyle = col;
 		csctx.fill();
-		csctx.stroke();
 		}
 
 		else{ // this is failsafe - if type is unknow we will draw std arrows
-			console.error("arrowtype is unknown");
+			console.error("arrowshape is unknown");
 		}
 
-		} 
-	}
+		csctx.stroke();
+		} // end draw_arrowhead
+
+		if(arrowSides == '==>' || arrowSides == '<==>'){
+		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, 0);
+		}
+		if(arrowSides == '<==' || arrowSides == '<==>'){
+		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, 0);
+		}
+
+	} // end isArrow
         
         //        csctx.strokeStyle="#0000FF";
         //        csctx.strokeStyle="rgba(0,0,255,0.2)";
-        csctx.stroke();
         
         if(dashing)
             evaluator._helper.unSetDash();
