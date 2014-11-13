@@ -224,7 +224,8 @@ evaluator.draw=function(args,modifs){
         csctx.moveTo(xxx1, yyy1);
 	// shorten arrow for full arrow
 	sides = "<==>";
-	if(arrowType == "full"){
+	// Math.abs() for preventing bugs if points are the same
+	if(arrowType == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
 		var t1 = xxx2;
                 var t2 = yyy2;
 		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
@@ -257,8 +258,9 @@ evaluator.draw=function(args,modifs){
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
 
 		csctx.beginPath();
-		csctx.lineWidth = 1;
-       		csctx.lineCap = 'round';
+		if(arrowType == "full"){csctx.lineWidth = 1;}
+		else{ csctx.lineWidth = 2;}
+       		//csctx.lineCap = 'round';
 	        csctx.strokeStyle=col;
 		csctx.moveTo(xxx2, yyy2);
 		csctx.lineTo(rx ,ry);
@@ -295,6 +297,7 @@ evaluator.draw=function(args,modifs){
 		if(sides == '<==' || sides == '<==>'){
 		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, 0);
 		}
+
 	} // end isArrow
         
         //        csctx.strokeStyle="#0000FF";
