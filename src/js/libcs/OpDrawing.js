@@ -65,6 +65,7 @@ evaluator.draw=function(args,modifs){
     var dashing=false;
     var isArrow = false;
     var angle;
+    var sides;
     var headlen = 10; // perhaps set this relative to canvas size
     var arrowType = "default";
     var col;
@@ -222,10 +223,20 @@ evaluator.draw=function(args,modifs){
         csctx.beginPath();
         csctx.moveTo(xxx1, yyy1);
 	// shorten arrow for full arrow
+	sides = "<==>";
 	if(arrowType == "full"){
+		var t1 = xxx2;
+                var t2 = yyy2;
 		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
-		var t1 = xxx2 - headlen*Math.cos(angle);
-		var t2 = yyy2 - headlen*Math.sin(angle);
+		if(sides == '==>' || sides == '<==>'){
+		t1 = xxx2 - headlen*Math.cos(angle);
+		t2 = yyy2 - headlen*Math.sin(angle);
+		}
+		if(sides == "<==>" || sides == "<=="){
+		var s1 = xxx1 + headlen*Math.cos(angle);
+                var s2 = yyy1 + headlen*Math.sin(angle);
+		csctx.moveTo(s1, s2);
+		}
         	csctx.lineTo(t1, t2);
 	}
 	else{
@@ -246,7 +257,7 @@ evaluator.draw=function(args,modifs){
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
 
 		csctx.beginPath();
-		csctx.lineWidth = lsize;
+		csctx.lineWidth = 1;
        		csctx.lineCap = 'round';
 	        csctx.strokeStyle=col;
 		csctx.moveTo(xxx2, yyy2);
@@ -262,15 +273,12 @@ evaluator.draw=function(args,modifs){
 		 // if we are default don't do anything since we are done - perhaps change this later for more fancy arrows
 		}
 		else if(arrowType == "full"){
-		csctx.beginPath();
-        	csctx.strokeStyle=col;
 		csctx.moveTo(rx, ry);
 		csctx.lineTo(lx, ly);
 		csctx.lineTo(xxx2, yyy2);
 		csctx.closePath();
 		csctx.fillStyle = col;
 		csctx.fill();
-		//csctx.stroke();
 		}
 
 		else{ // this is failsafe - if type is unknow we will draw std arrows
@@ -278,15 +286,19 @@ evaluator.draw=function(args,modifs){
 		}
 
 		} 
-		//csctx.stroke();
+		csctx.stroke();
 		} // end draw_arrowhead
+
+		if(sides == '==>' || sides == '<==>'){
 		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, 0);
+		}
+		if(sides == '<==' || sides == '<==>'){
 		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, 0);
+		}
 	} // end isArrow
         
         //        csctx.strokeStyle="#0000FF";
         //        csctx.strokeStyle="rgba(0,0,255,0.2)";
-        csctx.stroke();
         
         if(dashing)
             evaluator._helper.unSetDash();
