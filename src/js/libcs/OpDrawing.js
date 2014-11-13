@@ -227,8 +227,11 @@ evaluator.draw=function(args,modifs){
 
 
 	if(isArrow){
+		var draw_arrowhead = function(xxx1, xxx2, yyy1, yyy2, anglemodifier){
+
 		var headlen = 10; // perhaps set this relative to canvas size
 		var angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		if(anglemodifier !== 'undefined'){ angle = angle + anglemodifier; } // for arrow rotation
 		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
 		csctx.beginPath();
@@ -259,11 +262,15 @@ evaluator.draw=function(args,modifs){
 		}
 
 		} 
-	}
+		csctx.stroke();
+		} // end draw_arrowhead
+		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, 0);
+		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, 0);
+	} // end isArrow
         
         //        csctx.strokeStyle="#0000FF";
         //        csctx.strokeStyle="rgba(0,0,255,0.2)";
-        csctx.stroke();
+//        csctx.stroke();
         
         if(dashing)
             evaluator._helper.unSetDash();
