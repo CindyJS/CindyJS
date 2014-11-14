@@ -1,0 +1,276 @@
+@font-face {
+  font-family: 'Monospaced';
+  src: url('Anonymous-Pro-B.ttf');
+}
+
+@font-face {
+  font-family: 'Schrift';
+  src: url('Aspire-DemiBold.ttf');
+}
+
+
+body {
+	margin:0;
+	padding:0;
+	border:0;			/* This removes the border around the viewport in old versions of IE */
+	width:100%;
+	background:#fff;
+/*	min-width:920px;*/		/* Minimum width of layout - remove line if not required */
+					/* The min-width property does not work in old versions of Internet Explorer */
+width=1024px;
+	font-size:90%;
+}
+
+a {
+	color:#000;
+    	text-decoration:none;
+
+}
+
+a.normal {
+	color:#D00;
+
+}
+
+
+h2 {
+font-family: "Avenir-Medium",Arial;
+font-size:2.4em;
+color:#000;
+}
+h3 {
+font-family: "Avenir-Medium",Arial;
+font-size:1.8em;
+color:#000;
+
+
+}
+h4 {
+font-family: "Avenir-Medium",Arial;
+font-size:1.4em;
+color:#000;
+
+
+}
+
+p {
+font-family: "Avenir-Medium",Arial;
+font-size:1.2em;
+color:#222;
+
+
+}
+
+
+/* Header styles */
+#header {
+position:absolute;
+top:0px;
+	clear:both;
+	float:left;
+	width:1070px;
+	height:170px;
+ background: -webkit-linear-gradient(rgba(0,0,94,1),rgba(21,36,88,1)); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(rgba(0,0,94,1),rgba(21,36,88,1)); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(rgba(0,0,94,1),rgba(21,36,88,1)); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(rgba(0,0,94,1),rgba(21,36,88,1)); /* Standard syntax */
+}
+#header {
+	border-bottom:2px solid #fff;
+}
+#header p{
+	padding:.1em 5px 0 5px;
+	margin:0;
+}
+/* 'widths' sub menu */
+
+/* column container */
+
+/* Footer styles */
+#footer {
+	clear:both;
+	float:left;
+	width:100%;
+	border-top:1px solid #000;
+}
+#footer p {
+	padding:10px;
+	margin:0;
+}
+
+.rotate5 {
+
+-webkit-transform: rotate(-5deg);
+-moz-transform: rotate(-5deg);
+-ms-transform: rotate(-5deg);
+-o-transform: rotate(-5deg);
+
+}
+
+.rotate10 {
+
+-webkit-transform: rotate(-10deg);
+-moz-transform: rotate(-10deg);
+-ms-transform: rotate(-10deg);
+-o-transform: rotate(-10deg);
+
+}
+
+.rotate15 {
+
+-webkit-transform: rotate(-15deg);
+-moz-transform: rotate(-15deg);
+-ms-transform: rotate(-15deg);
+-o-transform: rotate(-15deg);
+
+}
+
+.rotatem15 {
+
+-webkit-transform: rotate(15deg);
+-moz-transform: rotate(15deg);
+-ms-transform: rotate(15deg);
+-o-transform: rotate(15deg);
+
+}
+
+.rotatem10 {
+
+-webkit-transform: rotate(10deg);
+-moz-transform: rotate(10deg);
+-ms-transform: rotate(10deg);
+-o-transform: rotate(10deg);
+
+}
+
+.rotatem5 {
+
+-webkit-transform: rotate(5deg);
+-moz-transform: rotate(5deg);
+-ms-transform: rotate(5deg);
+-o-transform: rotate(5deg);
+
+}
+
+
+
+
+
+		#slideshow { 
+		    position: absolute;
+left:55px; 
+top:30px; 
+		    width: 400px; 
+		    height: 300px; 
+		    padding: 10px; 
+		}
+		
+		#slideshow > div { 
+		    position: absolute; 
+		    top: 0px; 
+		    left: 0px; 
+		    right: 0px; 
+		    bottom: 0px; 
+		}
+
+		#ipad { 
+		    position: relative;
+left:0px; 
+top:10px; 
+		
+		}
+
+
+		#text { 
+		    position: relative;
+left:0px; 
+top:20px; 		
+width:90%;
+font-family: "Avenir-Medium",Arial;
+font-size:1.4em;
+
+		}
+
+		#slogan { 
+		    position: absolute;
+left:600px; 
+top:30px; 		
+font-family: "Schrift",Arial;
+font-size:2.4em;
+color:#dddddd;
+}
+
+		#mtg { 
+		    position: absolute;
+left:200px; 
+top:50px; 		
+width:90%;
+font-family: "Courier";
+font-size:6em;
+color:#FFFFFF
+}
+
+		#main { 
+position:absolute;
+left:250px; 
+top:210px; 		
+width:580px;
+}
+
+
+#navileft { 
+		    position: absolute;
+left:0px; 
+top:220px; 		
+width:170px;
+height:600px;
+padding:20px;
+background:rgba(204,217,238,1);
+/*background:rgba(229,213,209,1);*/
+font-family: "Monospaced",Arial;
+font-size:2.3em;
+color:#222222
+
+}
+
+
+#naviright { 
+		    position: absolute;
+left:860px; 
+top:220px; 		
+width:170px;
+height:600px;
+padding:20px;
+background:rgba(204,217,238,1);
+/*background:rgba(229,213,209,1);*/
+font-family: "Monospaced",Arial;
+font-size:2.3em;
+color:#222222
+
+}
+
+
+.navs .replies { display: none; }
+.navs .comment { display: inline; text-shadow: 2px 2px 4px #fff; }
+
+
+
+.nav .comment { display: none; }
+.nav:hover .replies { display: none;}
+.nav:hover .comment { display: inline; text-shadow: 2px 2px 4px #000; }
+
+@media only screen and (max-width: 1024px) {
+.nav:hover .replies {}
+.nav:hover .comment { }
+
+}
+
+
+
+.list {
+font-size:0.9em;
+
+
+}
+
+

@@ -22,7 +22,8 @@ var behaviors;
 var masses=[];
 var csPhysicsInited=false;
 function csinitphys(behavs){
-    csPhysicsInited=(behavs!=[]);
+    csPhysicsInited=(behavs.length!=0);
+    console.log(csPhysicsInited);
 
     behaviors=behavs;
     masses=[];
