@@ -1,2 +1,5 @@
 /build/
 /Selenium/
+.project
+.settings
+*.swp
