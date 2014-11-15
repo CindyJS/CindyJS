@@ -175,6 +175,42 @@ evaluator.draw=function(args,modifs){
 			    arrowSides = erg.value;
 		    }
 	    }
+
+	    if(modifs.arrowposition !== undefined){
+		    erg = evaluate(modifs.arrowposition);
+		    if(!isArrow){ 
+			    console.log("warning: implicitly activated modifier arrow by using arrowposition"); 
+		    	    isArrow = true;
+		    }
+		    if(erg.ctype !== "number"){
+			    console.error('arrowposition is not of type number');
+		    }
+
+		    if(erg.value.real < 0.0){
+			    console.error("arrowposition has to be positive");
+		    }
+		    else{
+			    arrowScaling = erg.value.real;
+		    }
+	    }
+
+	    if(modifs.arrowsize !== undefined){
+		    erg = evaluate(modifs.arrowsize);
+		    if(!isArrow){ 
+			    console.log("warning: implicitly activated modifier arrow by using arrowposition"); 
+		    	    isArrow = true;
+		    }
+		    if(erg.ctype !== "number"){
+			    console.error('arrowsize is not of type number');
+		    }
+
+		    if(erg.value.real < 0.0){
+			    console.error("arrowposition has to be positive");
+		    }
+		    else{
+			    headlen = headlen * erg.value.real;
+		    }
+	    }
     } // end handleModifs
         
         
@@ -239,14 +275,11 @@ evaluator.draw=function(args,modifs){
         var yyy1=overhang*yy1+(1-overhang)*yy2;
         var xxx2=overhang*xx2+(1-overhang)*xx1;
         var yyy2=overhang*yy2+(1-overhang)*yy1;
-	
 
         csctx.beginPath();
-
-	arrowScaling = 1.5;
-//	arrowScaling = 0.8;
-	headlen = 3.5 * headlen;
-
+        csctx.lineWidth = lsize;
+        csctx.lineCap = 'round';
+        csctx.strokeStyle=col;
 	// save original x/y values
 	var or_x1 = xxx1;
 	var or_x2 = xxx2;
@@ -273,7 +306,7 @@ evaluator.draw=function(args,modifs){
         	csctx.moveTo(xxx1, yyy1);
 	// shorten arrow for full arrow
 	// Math.abs() for preventing bugs if points are the same
-	if(arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
+	if(isArrow && arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
 		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
 		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
@@ -300,9 +333,7 @@ evaluator.draw=function(args,modifs){
 	else{
         csctx.lineTo(xxx2, yyy2);
 	}
-        csctx.lineWidth = lsize;
-        csctx.lineCap = 'round';
-        csctx.strokeStyle=col;
+
 	csctx.stroke();
 
 
