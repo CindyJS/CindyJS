@@ -280,16 +280,19 @@ evaluator.draw=function(args,modifs){
         csctx.lineWidth = lsize;
         csctx.lineCap = 'round';
         csctx.strokeStyle=col;
+
+
 	// save original x/y values
 	var or_x1 = xxx1;
 	var or_x2 = xxx2;
 	var or_y1 = yyy1;
 	var or_y2 = yyy2;
-	if(isArrow && arrowScaling != 1.0){
+	if(isArrow){
 		var sc_x1, sc_x2, sc_y1, sc_y2;
 		var norm = Math.pow(xxx1 - xxx2, 2) + Math.pow(yyy1 - yyy2, 2);
 		norm = Math.sqrt(norm);
 
+		// nasty workaround
 		var sc_fac = norm * (1-arrowScaling);
 		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
 		sc_x1 = xxx1 + sc_fac * Math.cos(angle);
@@ -306,12 +309,22 @@ evaluator.draw=function(args,modifs){
         	csctx.moveTo(xxx1, yyy1);
 	// shorten arrow for full arrow
 	// Math.abs() for preventing bugs if points are the same
+	//if(isArrow && arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
 	if(isArrow && arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
-		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+
+		angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
+		if(arrowScaling <= 0.5){
+		var rx = xxx2 + headlen*Math.cos(angle - Math.PI/6);
+		var ry = yyy2 + headlen*Math.sin(angle - Math.PI/6);
+		var lx = xxx2 + headlen*Math.cos(angle + Math.PI/6);
+		var ly = yyy2 + headlen*Math.sin(angle + Math.PI/6);
+		}
+		else{
 		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
 		var lx = xxx2 - headlen*Math.cos(angle + Math.PI/6);
 		var ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
+		}
 
 		var t1 = xxx2;
                 var t2 = yyy2;
@@ -320,15 +333,29 @@ evaluator.draw=function(args,modifs){
 		t2 = (ry + ly) / 2;
 		}
 		if(arrowSides == "<==>" || arrowSides == "<=="){
-		var rx = xxx1 + headlen*Math.cos(angle - Math.PI/6);
-		var ry = yyy1 + headlen*Math.sin(angle - Math.PI/6);
-		var lx = xxx1 + headlen*Math.cos(angle + Math.PI/6);
-		var ly = yyy1 + headlen*Math.sin(angle + Math.PI/6);
+
+		if(arrowScaling <= 0.5){
+		rx = xxx1 - headlen*Math.cos(angle - Math.PI/6);
+		ry = yyy1 - headlen*Math.sin(angle - Math.PI/6);
+		lx = xxx1 - headlen*Math.cos(angle + Math.PI/6);
+		ly = yyy1 - headlen*Math.sin(angle + Math.PI/6);
+		}
+		else{
+		rx = xxx1 + headlen*Math.cos(angle - Math.PI/6);
+		ry = yyy1 + headlen*Math.sin(angle - Math.PI/6);
+		lx = xxx1 + headlen*Math.cos(angle + Math.PI/6);
+		ly = yyy1 + headlen*Math.sin(angle + Math.PI/6);
+		}
+
 		s1 = (rx + lx) / 2;
 		s2 = (ry + ly) / 2;
-		csctx.moveTo(s1, s2);
+		csctx.moveTo(t1, t2);
+		csctx.lineTo(s1, s2);
 		}
+		else{
         	csctx.lineTo(t1, t2);
+		}
+
 	}
 	else{
         csctx.lineTo(xxx2, yyy2);
@@ -397,8 +424,15 @@ evaluator.draw=function(args,modifs){
 				csctx.stroke();
 			}
 			
-			fixpaths(xxx1, yyy1, or_x1, or_y1);
-			fixpaths(xxx2, yyy2, or_x2, or_y2);
+			if(arrowScaling > 0.5){
+				fixpaths(xxx1, yyy1, or_x1, or_y1);
+				fixpaths(xxx2, yyy2, or_x2, or_y2);
+			}
+			else{
+				fixpaths(xxx1, yyy1, or_x2, or_y2);
+				fixpaths(xxx2, yyy2, or_x1, or_y1);
+			}
+
 		}
 
 	} // end isArrow
