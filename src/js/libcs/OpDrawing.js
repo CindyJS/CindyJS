@@ -326,17 +326,15 @@ evaluator.draw=function(args,modifs){
         	csctx.moveTo(xxx2, yyy2);
 		var lx = xxx2 - headlen*Math.cos(angle + Math.PI/6);
 		var ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
-		csctx.lineTo(lx, ly);
 
 		
 		if(arrowShape== 'default'){
-		 // if we are default don't do anything since we are done - perhaps change this later for more fancy arrows
+		csctx.lineTo(lx, ly);
 		}
 		else if(arrowShape == "full"){
 		csctx.moveTo(rx, ry);
 		csctx.lineTo(lx, ly);
 		csctx.lineTo(xxx2, yyy2);
-		csctx.closePath();
 		csctx.fillStyle = col;
 		csctx.fill();
 		}
@@ -348,12 +346,7 @@ evaluator.draw=function(args,modifs){
 		csctx.stroke();
 		} // end draw_arrowhead
 
-	//	if(arrowScaling != 1.0){
-	//		xxx1 = sc_x1;
-	//		xxx2 = sc_x2;
-	//		yyy1 = sc_y1;
-	//		yyy2 = sc_y2;
-	//	}
+		// draw arrow heads at desired positions
 		if(arrowSides == '==>' || arrowSides == '<==>'){
 		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, 0);
 		}
