@@ -281,6 +281,8 @@ evaluator.draw=function(args,modifs){
         csctx.lineCap = 'round';
         csctx.strokeStyle=col;
 
+	// nasty workaround - could not get rid of this case easily - works at the moment
+	if(arrowScaling == 0.5){arrowScaling = 0.500001;}
 
 	// save original x/y values
 	var or_x1 = xxx1;
@@ -292,9 +294,9 @@ evaluator.draw=function(args,modifs){
 		var norm = Math.pow(xxx1 - xxx2, 2) + Math.pow(yyy1 - yyy2, 2);
 		norm = Math.sqrt(norm);
 
-		// nasty workaround
 		var sc_fac = norm * (1-arrowScaling);
-		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		//angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
 		sc_x1 = xxx1 + sc_fac * Math.cos(angle);
 		sc_x2 = xxx2 - sc_fac * Math.cos(angle);
 		sc_y1 = yyy1 + sc_fac * Math.sin(angle);
@@ -367,7 +369,12 @@ evaluator.draw=function(args,modifs){
 	if(isArrow){
 		var draw_arrowhead = function(xxx1, xxx2, yyy1, yyy2, anglemodifier){
 
+		if(arrowScaling == 0.5){
+		angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
+		}
+		else{
 		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		}
 		if(anglemodifier !== undefined){ angle = angle + anglemodifier; } // for arrow rotation
 		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
