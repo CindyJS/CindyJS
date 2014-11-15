@@ -318,7 +318,7 @@ evaluator.draw=function(args,modifs){
 		if(arrowShape == "full"){csctx.lineWidth = 1;}
 		else{ csctx.lineWidth = 2;}
        		csctx.lineCap = 'round';
-	        //csctx.strokeStyle=col;
+	        csctx.strokeStyle=col;
 		//csctx.moveTo(xxx2 - lll*Math.cos(angle - Math.PI/6), yyy2 - lll*Math.sin(angle - Math.PI/6));
 		csctx.moveTo(xxx2, yyy2);
 		csctx.lineTo(rx ,ry);
