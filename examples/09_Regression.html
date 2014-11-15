@@ -16,7 +16,8 @@
         
         
         <script id='firstDrawing' type='cindyscript'>
-            pts=[A.xy,B.xy,C.xy,D.xy,E.xy,F.xy,G.xy,H.xy,I.xy,J.xy,K.xy,L.xy,M.xy,N.xy];
+            pts=apply(allpoints(),#.xy);
+            
             m=apply(pts,(1,#_1));
             y=apply(pts,#_2);
             ma=transpose(m)*m;
