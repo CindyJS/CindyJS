@@ -243,8 +243,8 @@ evaluator.draw=function(args,modifs){
 
         csctx.beginPath();
 
-//	arrowScaling = 1.2;
-	arrowScaling = 0.8;
+	arrowScaling = 1.5;
+//	arrowScaling = 0.8;
 	headlen = 3.5 * headlen;
 
 	// save original x/y values
@@ -259,13 +259,12 @@ evaluator.draw=function(args,modifs){
 
 		var sc_fac = norm * (1-arrowScaling);
 		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
-
 		sc_x1 = xxx1 + sc_fac * Math.cos(angle);
 		sc_x2 = xxx2 - sc_fac * Math.cos(angle);
 		sc_y1 = yyy1 + sc_fac * Math.sin(angle);
 		sc_y2 = yyy2 - sc_fac * Math.sin(angle);
 
-		// does this have sideeffects?
+		// does this have nasty sideeffects? Currently none
 		xxx1 = sc_x1;
 		xxx2 = sc_x2;
 		yyy1 = sc_y1;
@@ -274,8 +273,7 @@ evaluator.draw=function(args,modifs){
         	csctx.moveTo(xxx1, yyy1);
 	// shorten arrow for full arrow
 	// Math.abs() for preventing bugs if points are the same
-	// BUG - t1/t2, s1/s2 calculation is actually wrong
-	if(arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2) && arrowScaling != 1.0)){
+	if(arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
 		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
 		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
@@ -289,12 +287,10 @@ evaluator.draw=function(args,modifs){
 		t2 = (ry + ly) / 2;
 		}
 		if(arrowSides == "<==>" || arrowSides == "<=="){
-		var rx = xxx1 - headlen*Math.cos(angle - Math.PI/6);
-		var ry = yyy1 - headlen*Math.sin(angle - Math.PI/6);
-		var lx = xxx1 - headlen*Math.cos(angle + Math.PI/6);
-		var ly = yyy1 - headlen*Math.sin(angle + Math.PI/6);
-//		var s1 = xxx1 + headlen*Math.cos(angle);
- //               var s2 = yyy1 + headlen*Math.sin(angle);
+		var rx = xxx1 + headlen*Math.cos(angle - Math.PI/6);
+		var ry = yyy1 + headlen*Math.sin(angle - Math.PI/6);
+		var lx = xxx1 + headlen*Math.cos(angle + Math.PI/6);
+		var ly = yyy1 + headlen*Math.sin(angle + Math.PI/6);
 		s1 = (rx + lx) / 2;
 		s2 = (ry + ly) / 2;
 		csctx.moveTo(s1, s2);
