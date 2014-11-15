@@ -290,6 +290,7 @@ evaluator.draw=function(args,modifs){
 	var or_y1 = yyy1;
 	var or_y2 = yyy2;
 	if(isArrow){
+
 		var sc_x1, sc_x2, sc_y1, sc_y2;
 		var norm = Math.pow(xxx1 - xxx2, 2) + Math.pow(yyy1 - yyy2, 2);
 		norm = Math.sqrt(norm);
@@ -307,6 +308,7 @@ evaluator.draw=function(args,modifs){
 		xxx2 = sc_x2;
 		yyy1 = sc_y1;
 		yyy2 = sc_y2;
+
 	}
         	csctx.moveTo(xxx1, yyy1);
 	// shorten arrow for full arrow
@@ -315,7 +317,7 @@ evaluator.draw=function(args,modifs){
 	if(isArrow && arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
 
 		angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
-		if(arrowScaling <= 0.5){
+		if(arrowScaling <= 0.5 && arrowScaling >= 0.5){
 		var rx = xxx2 + headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 + headlen*Math.sin(angle - Math.PI/6);
 		var lx = xxx2 + headlen*Math.cos(angle + Math.PI/6);
@@ -336,7 +338,7 @@ evaluator.draw=function(args,modifs){
 		}
 		if(arrowSides == "<==>" || arrowSides == "<=="){
 
-		if(arrowScaling <= 0.5){
+		if(arrowScaling <= 0.5 && arrowScaling >= 0.5){
 		rx = xxx1 - headlen*Math.cos(angle - Math.PI/6);
 		ry = yyy1 - headlen*Math.sin(angle - Math.PI/6);
 		lx = xxx1 - headlen*Math.cos(angle + Math.PI/6);
@@ -368,13 +370,8 @@ evaluator.draw=function(args,modifs){
 
 	if(isArrow){
 		var draw_arrowhead = function(xxx1, xxx2, yyy1, yyy2, anglemodifier){
-
-		if(arrowScaling == 0.5){
-		angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
-		}
-		else{
 		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
-		}
+
 		if(anglemodifier !== undefined){ angle = angle + anglemodifier; } // for arrow rotation
 		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
@@ -412,11 +409,13 @@ evaluator.draw=function(args,modifs){
 		} // end draw_arrowhead
 
 		// draw arrow heads at desired positions
+		var amodif = 0;
+		if(arrowScaling < 0.5){ amodif = Math.PI; console.log("set modif"); }
 		if(arrowSides == '==>' || arrowSides == '<==>'){
-		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, 0);
+		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, amodif);
 		}
 		if(arrowSides == '<==' || arrowSides == '<==>'){
-		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, 0);
+		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, amodif);
 		}
 
 		// fix missing paths if we scale down arrows
