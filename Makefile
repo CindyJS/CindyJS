@@ -20,6 +20,7 @@ closure_args = \
 	--language_in ECMASCRIPT5 \
 	--create_source_map $@.map \
 	--source_map_format V3 \
+	--source_map_location_mapping "build/js/|" \
 	--source_map_location_mapping "src/js/|../../src/js/" \
 	--output_wrapper_file $(filter %.wrapper,$^) \
 	--js_output_file $@ \
