@@ -69,6 +69,8 @@ evaluator.draw=function(args,modifs){
         black="rgba(0,0,0,"+csport.drawingstate.alpha+")";
     }
     function handleModifs(type){
+        var erg;
+
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -357,6 +359,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
     var col;
     var black="rgb(0,0,0)";
     function handleModifs(){
+        var erg;
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -518,6 +521,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
     var col;
     var black="rgb(0,0,0)";
     function handleModifs(){
+        var erg;
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -695,6 +699,8 @@ evaluator.drawtext=function(args,modifs){
     var ox=0;
     var oy=0;
     function handleModifs(){
+        var erg;
+
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -816,7 +822,7 @@ evaluator.drawtext=function(args,modifs){
         var xx=pt.x*m.a-pt.y*m.b+m.tx;
         var yy=pt.x*m.c-pt.y*m.d-m.ty;
         
-        col=csport.drawingstate.textcolor;
+        var col=csport.drawingstate.textcolor;
         handleModifs();
         csctx.fillStyle=col;
         
@@ -970,6 +976,8 @@ evaluator.plot=function(args,modifs){ //OK
     
     
     function handleModifs(type){
+        var erg;
+
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){

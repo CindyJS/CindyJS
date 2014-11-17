@@ -9,7 +9,7 @@ var cskeycode=0;
 
 function movepoint(move){
     if(move.mover==undefined) return;
-    m=move.mover;
+    var m=move.mover;
     if(m.pinned) return;
     m.sx=mouse.x+move.offset.x;
     m.sy=mouse.y+move.offset.y;
@@ -33,7 +33,7 @@ function movepoint(move){
 }
 
 function movepointscr(mover,pos){
-    m=mover;
+    var m=mover;
     m.sx=pos.value[0].value.real;
     m.sy=pos.value[1].value.real;
     m.sz=1;

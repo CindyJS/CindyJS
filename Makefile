@@ -16,9 +16,13 @@ liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
 lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
+closure_level = SIMPLE
+closure_language = ECMASCRIPT5_STRICT
 closure_args = \
 	--language_in ECMASCRIPT5 \
 	--create_source_map $@.map \
+	--language_in $(closure_language) \
+	--compilation_level $(closure_level) \
 	--source_map_format V3 \
 	--source_map_location_mapping "build/js/|" \
 	--source_map_location_mapping "src/js/|../../src/js/" \
@@ -40,14 +44,14 @@ ifeq ($(plain),1)
 endif
 
 build/js/Cindy.js: src/js/Setup.js src/js/Events.js src/js/Timer.js
-build/js/Cindy.js: $(libcs) $(libgeo) $(liblab) $(lib) src/js/Cindy.js.wrapper
+build/js/Cindy.js: $(libcs) $(libgeo) $(liblab) $(lib)
 
 ifeq ($(js_compiler), closure)
-build/js/Cindy.js: compiler.jar
+build/js/Cindy.js: compiler.jar src/js/Cindy.js.wrapper
 	mkdir -p $(@D)
 	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
 else
-build/js/Cindy.js:
+build/js/Cindy.js: src/js/Cindy.plain.js.wrapper
 	mkdir -p $(@D)
 	awk '/%output%/{exit}{print}' $(filter %.wrapper,$^) > $@
 	cat $(filter %.js,$^) >> $@

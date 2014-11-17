@@ -59,23 +59,24 @@ evaluator.dump=function(args,modifs){
 
 evaluator.repeat=function(args,modifs){    //OK
     function handleModifs(){
+        var erg;
         
         if(modifs.start!==undefined){
-            var erg =evaluate(modifs.start);
+            erg =evaluate(modifs.start);
             if(erg.ctype=='number'){
                 startb=true;
                 start=erg.value.real;
             }
         }
         if(modifs.step!==undefined){
-            var erg =evaluate(modifs.step);
+            erg =evaluate(modifs.step);
             if(erg.ctype=='number'){
                 stepb=true;
                 step=erg.value.real;
             }
         }
         if(modifs.stop!==undefined){
-            var erg =evaluate(modifs.stop);
+            erg =evaluate(modifs.stop);
             if(erg.ctype=='number'){
                 stopb=true;
                 stop=erg.value.real;
@@ -2052,10 +2053,10 @@ evaluator._helper.shapeconvert=function(a){
         return [li];
     }
     if(a.type=="polygon") {
-        erg=[];
+        var erg=[];
         for(var i=0; i<a.value.length;i++){
-            pol=a.value[i]
-            li=[];
+            var pol=a.value[i]
+            var li=[];
             for(var j=0; j<pol.length;j++){
                 li[j]={X:pol[j].X,Y:pol[j].Y};
             }
@@ -2340,7 +2341,7 @@ evaluator.replace=function(args,modifs){
         var from;
         
         /////HELPER/////
-        function getReplStr( str,  keys,  from) {
+        var getReplStr = function( str,  keys,  from) {
             var s = "";
             ind = -1;
             keyind = -1;
@@ -2553,7 +2554,7 @@ evaluator.map=function(args,modifs){
            w0!=nada && w1!=nada && w2!=nada && w3!=nada){
             var m1=evaluator._helper.basismap(v0,v1,v2,v3);
             var m2=evaluator._helper.basismap(w0,w1,w2,w3);
-            erg=General.mult(m1,List.inverse(m2));
+            var erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
     }
@@ -2580,13 +2581,13 @@ evaluator.map=function(args,modifs){
            w0!=nada && w1!=nada && w2!=nada && w3!=nada){
             var m1=evaluator._helper.basismap(v0,v1,v2,v3);
             var m2=evaluator._helper.basismap(w0,w1,w2,w3);
-            erg=General.mult(m1,List.inverse(m2));
+            var erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
     }
     
     
-        if(args.length==4){
+    if(args.length==4){
         
         var ii=List.ii;
         var jj=List.jj;
@@ -2601,7 +2602,7 @@ evaluator.map=function(args,modifs){
            w0!=nada && w1!=nada){
             var m1=evaluator._helper.basismap(v0,v1,ii,jj);
             var m2=evaluator._helper.basismap(w0,w1,ii,jj);
-            erg=General.mult(m1,List.inverse(m2));
+            var erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
     }
@@ -2621,7 +2622,7 @@ evaluator.map=function(args,modifs){
            w0!=nada && w1!=nada){
             var m1=evaluator._helper.basismap(v0,v1,ii,jj);
             var m2=evaluator._helper.basismap(w0,w1,ii,jj);
-            erg=General.mult(m1,List.inverse(m2));
+            var erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
     }
@@ -2786,7 +2787,7 @@ evaluator.circle=function(args,modifs){
 evaluator.screen=function(args,modifs){ 
     if(args.length==0) {
         var m=csport.drawingstate.initialmatrix;
-        function transf(px,py){
+        var transf = function(px,py){
             var xx = px-m.tx;
             var yy = py+m.ty;
             var x=(xx*m.d-yy*m.b)/m.det;
@@ -2810,9 +2811,9 @@ evaluator.screen=function(args,modifs){
 
 evaluator.allpoints=function(args,modifs){
 	if (args.length==0) {
-		erg=[];
+		var erg=[];
 		for (var i=0; i< csgeo.points.length; i++) {
-			erg[i]={ctype:"geo",value:csgeo.points[i],type:"P"};
+		        erg[i]={ctype:"geo",value:csgeo.points[i],type:"P"};
 		}
 		return {ctype:"list", value:erg};
 	}
@@ -2822,9 +2823,9 @@ evaluator.allpoints=function(args,modifs){
 
 evaluator.allmasses=function(args,modifs){
 	if (args.length==0) {
-		erg=[];
+		var erg=[];
 		for (var i=0; i< masses.length; i++) {
-                erg[i]={ctype:"geo",value:masses[i],type:"P"};
+                        erg[i]={ctype:"geo",value:masses[i],type:"P"};
 		}
 		return {ctype:"list", value:erg};
 	}
@@ -2834,7 +2835,7 @@ evaluator.allmasses=function(args,modifs){
 
 evaluator.alllines=function(args,modifs){
 	if (args.length==0) {
-		erg=[];
+		var erg=[];
 		for (var i=0; i< csgeo.lines.length; i++) {
 			erg[i]={ctype:"geo",value:csgeo.lines[i],type:"L"};
 		}

@@ -162,7 +162,8 @@ evaluator.drawimage = function(args,modifs){
         var aspect=1;
         
         function handleModifs(){
-            
+            var erg;
+
             if(modifs.alpha!==undefined){
                 erg =evaluate(modifs.alpha);
                 if(erg.ctype=='number'){
@@ -170,14 +171,15 @@ evaluator.drawimage = function(args,modifs){
                 }
                 
             }
-              if(modifs.aspect!==undefined){
+
+            if(modifs.aspect!==undefined){
                 erg =evaluate(modifs.aspect);
                 if(erg.ctype=='number'){
                     aspect=erg.value.real;
                 }
                 
             }
-            
+
             if(modifs.flipx!==undefined){
                 erg =evaluate(modifs.flipx);
                 if(erg.ctype=='boolean'){

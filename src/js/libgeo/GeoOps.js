@@ -1,7 +1,9 @@
 geoOps={};
 geoOps._helper={};
 
-var geoOpMap={};
+var geoOps = {};
+geoOps._helper = {};
+var geoOpMap = {};
 
 
 geoOps.Join =function(el){

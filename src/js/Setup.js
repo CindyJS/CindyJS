@@ -1,3 +1,10 @@
+var global = this;
+var console = global.console || {
+  'log': function() { },
+  'warn': function() { },
+  'error': function() { }
+};
+
 var csconsole;
 var cslib;
 
@@ -57,10 +64,10 @@ function initialTransformation(data) {
     }
 }
 
+var csmouse, csctx, csw, csh, csgeo, images;
 
 function createCindyNow(data){
     csmouse = [100, 100];
-    cscount = 0;
     var cscode;
     var c=document.getElementById(data.canvasname);
     csctx=c.getContext("2d");
@@ -148,7 +155,7 @@ function createCindyNow(data){
 
 }
 
-backup=[];
+var backup=[];
 function backupGeo(){
 
     backup=[];
