@@ -16,11 +16,18 @@ liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
 lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
+srcs = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab) $(lib)
+
+# by defaul compile with SIMPLE flag
 closure_level = SIMPLE
+ifeq ($(O),1)
+	closure_level = ADVANCED
+endif
+
 closure_language = ECMASCRIPT5_STRICT
 closure_args = \
 	--language_in ECMASCRIPT5 \
-	--create_source_map $@.map \
+	--create_source_map build/js/Cindy.js.map \
 	--language_in $(closure_language) \
 	--compilation_level $(closure_level) \
 	--source_map_format V3 \
@@ -30,12 +37,6 @@ closure_args = \
 	--js_output_file $@ \
 	--js $(filter %.js,$^)
 
-# by defaul compile with SIMPLE flag
-optflags = SIMPLE
-ifeq ($(O),1)
-	optflags = ADVANCED
-endif
-
 #by default use closure compiler
 js_compiler = closure
 
@@ -43,22 +44,30 @@ ifeq ($(plain),1)
 	js_compiler = plain 
 endif
 
-build/js/Cindy.js: src/js/Setup.js src/js/Events.js src/js/Timer.js
-build/js/Cindy.js: $(libcs) $(libgeo) $(liblab) $(lib)
 
-ifeq ($(js_compiler), closure)
-build/js/Cindy.js: compiler.jar src/js/Cindy.js.wrapper
+build/js/Cindy.closure.js: compiler.jar src/js/Cindy.js.wrapper $(srcs)
 	mkdir -p $(@D)
 	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
-else
-build/js/Cindy.js: src/js/Cindy.plain.js.wrapper
+
+build/js/Cindy.plain.js: src/js/Cindy.plain.js.wrapper $(srcs)
 	mkdir -p $(@D)
 	awk '/%output%/{exit}{print}' $(filter %.wrapper,$^) > $@
 	cat $(filter %.js,$^) >> $@
 	awk '/%output%/{i=1;getline}{if(i)print}' $(filter %.wrapper,$^) \
 	| sed 's://#.*::' >> $@
-endif
 
+build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
+	cp $< $@
+
+NPM = npm
+
+node_modules/jshint/bin/jshint:
+	$(NPM) install jshint
+
+jshint: node_modules/jshint/bin/jshint build/js/Cindy.plain.js
+	$< -c Administration/jshint.conf --verbose $(filter %.js,$^)
+
+.PHONY: jshint
 
 ANT_VERSION=1.9.4
 ANT_MIRROR=http://apache.openmirror.de
