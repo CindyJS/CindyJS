@@ -58,7 +58,7 @@ evaluator.dump=function(args,modifs){
 
 
 evaluator.repeat=function(args,modifs){    //OK
-    var handleModifs = function(){
+    function handleModifs(){
         
         if(modifs.start!==undefined){
             var erg =evaluate(modifs.start);
@@ -2340,7 +2340,7 @@ evaluator.replace=function(args,modifs){
         var from;
         
         /////HELPER/////
-        var getReplStr=function( str,  keys,  from) {
+        function getReplStr( str,  keys,  from) {
             var s = "";
             ind = -1;
             keyind = -1;
@@ -2786,7 +2786,7 @@ evaluator.circle=function(args,modifs){
 evaluator.screen=function(args,modifs){ 
     if(args.length==0) {
         var m=csport.drawingstate.initialmatrix;
-        var transf=function(px,py){
+        function transf(px,py){
             var xx = px-m.tx;
             var yy = py+m.ty;
             var x=(xx*m.d-yy*m.b)/m.det;

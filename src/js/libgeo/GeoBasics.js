@@ -267,7 +267,7 @@ function guessIncidences(){
 
 function render(){
 
-    var drawgeopoint= function(el){
+    function drawgeopoint(el){
         if(!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
         var col=    el.color;
@@ -299,7 +299,7 @@ function render(){
     }
 
 
-    var drawgeoconic= function(el){
+    function drawgeoconic(el){
         if(!el.isshowing || el.visible === false)
             return;
         var cc=el.matrix;
@@ -332,7 +332,7 @@ function render(){
         
     }
     
-    var drawgeoline= function(el){
+    function drawgeoline(el){
         if(!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
 

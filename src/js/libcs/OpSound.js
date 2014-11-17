@@ -8,7 +8,7 @@ evaluator.sound.lines=[0,0,0,0,0,0,0,0,0,0,0,0];
 
 evaluator.playsin= function(args,modifs){
 
-    var handleModifs = function(){
+    function handleModifs(){
 
         if(modifs.line!==undefined){
 

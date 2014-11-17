@@ -7,7 +7,7 @@ var cskey="";
 var cskeycode=0;
 
 
-movepoint=function (move){
+function movepoint(move){
     if(move.mover==undefined) return;
     m=move.mover;
     if(m.pinned) return;
@@ -32,7 +32,7 @@ movepoint=function (move){
 
 }
 
-movepointscr=function (mover,pos){
+function movepointscr(mover,pos){
     m=mover;
     m.sx=pos.value[0].value.real;
     m.sy=pos.value[1].value.real;
@@ -42,7 +42,7 @@ movepointscr=function (mover,pos){
 }
 
 
-getmover = function(mouse){
+function getmover(mouse){
     var mov;
     var adist=1000000;
     var diff,orad;
@@ -97,9 +97,9 @@ getmover = function(mouse){
 }
 
 
-setuplisteners =function(canvas) {
+function setuplisteners(canvas) {
     
-    updatePostition= function(x,y){
+    function updatePostition(x,y){
         var pos=csport.to(x,y);
         mouse.prevx      = mouse.x;
         mouse.prevy      = mouse.y;
@@ -215,7 +215,7 @@ function (callback) {
     window.setTimeout(callback, 0);
 };
 
-var doit=function(){//Callback for d3-timer
+function doit(){//Callback for d3-timer
     if(csanimating){
         cs_tick();
     }
@@ -227,7 +227,7 @@ var doit=function(){//Callback for d3-timer
 
 
 
-var startit=function(){
+function startit(){
     if(!csticking) {
         csticking=true;
         d3.timer(doit)

@@ -10,22 +10,22 @@ var csgridsize=0;
 var csgridscript;
 var cssnap=false;
 
-dump=function(a){
+function dump(a){
   console.log(JSON.stringify(a));
   };
 
-dumpcs=function(a){
+function dumpcs(a){
   console.log(niceprint(a));
   };
 
-evalcs=function(a){
+function evalcs(a){
     var prog=evaluator.parse([General.wrap(a)],[]);
     var erg=evaluate(prog);
     dumpcs(erg);
 }
 
 
-evokeCS = function(code){
+function evokeCS(code){
     var cscode=condense(code);
 
     var parsed = analyse(cscode,false);
@@ -35,7 +35,7 @@ evokeCS = function(code){
 }
 
 
-var initialTransformation = function(data) {
+function initialTransformation(data) {
     if(data.transform) {
         var trafos=data.transform;
         for(var i=0;i<trafos.length;i++){
@@ -58,7 +58,7 @@ var initialTransformation = function(data) {
 }
 
 
-var createCindyNow = function(data){
+function createCindyNow(data){
     csmouse = [100, 100];
     cscount = 0;
     var cscode;
@@ -149,7 +149,7 @@ var createCindyNow = function(data){
 }
 
 backup=[];
-var backupGeo=function(){
+function backupGeo(){
 
     backup=[];
 
@@ -175,7 +175,7 @@ var backupGeo=function(){
 };
 
 
-var restoreGeo=function(){
+function restoreGeo(){
 
 
     for( var i=0; i<backup.length; i++ ) {
@@ -200,18 +200,18 @@ var restoreGeo=function(){
 
 
 
-var csplay=function(){
+function csplay(){
   csanimating=true;
   backupGeo();
   startit();
 }
 
-var cspause=function(){
+function cspause(){
 
   csanimating=false;
 }
 
-var csstop=function(){
+function csstop(){
 
   csanimating=false;
   restoreGeo();
@@ -261,7 +261,7 @@ window.cjsWaitFor = function(name) {
   }
 }
 document.addEventListener("DOMContentLoaded", cjsWaitFor("DOMContentLoaded"));
-var createCindy = function(data) {
+function createCindy(data) {
   if (waitCount == 0) {
     console.log("creating Cindy immediately.");
     createCindyNow(data);

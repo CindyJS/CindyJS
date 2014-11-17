@@ -79,7 +79,7 @@ infixmap['<:']='prepend';
 // this function is responsible for evaluation an expression tree
 //****************************************************************
 
-var niceprint=function(a){
+function niceprint(a){
     if(typeof a==='undefined'){
         return '_??_';
     }
@@ -143,7 +143,7 @@ var niceprint=function(a){
 //this is the container for self-defined functions
 //Distinct form evaluator for code clearness :-)
 //*******************************************************
-var myfunctions= function(name,args,modifs){
+function myfunctions(name,args,modifs){
     var tt=myfunctions[name];
     if(tt===undefined){
         return nada;

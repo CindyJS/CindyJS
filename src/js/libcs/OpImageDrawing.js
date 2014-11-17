@@ -13,10 +13,10 @@ evaluator._helper.extractReferenceX=function(w,pos){
 
 evaluator.drawimage = function(args,modifs){
     
-    var drawimg1 = function(){
+    function drawimg1(){
         
         
-        var handleModifs = function(){
+        function handleModifs(){
             if(modifs.angle!==undefined){
                 erg =evaluate(modifs.angle);
                 if(erg.ctype=='number'){
@@ -155,13 +155,13 @@ evaluator.drawimage = function(args,modifs){
     
 
     
-    var drawimg3 = function(){
+    function drawimg3(){
         var alpha=1;
         var flipx=1;
         var flipy=1;
         var aspect=1;
         
-        var handleModifs = function(){
+        function handleModifs(){
             
             if(modifs.alpha!==undefined){
                 erg =evaluate(modifs.alpha);

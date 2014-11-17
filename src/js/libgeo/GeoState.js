@@ -86,7 +86,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
 
     csport.dumpTrafo=function(){
         
-        var r=function(x){
+        function r(x){
             return Math.round(x*1000)/1000;
             
         }

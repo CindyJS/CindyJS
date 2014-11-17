@@ -68,7 +68,7 @@ evaluator.draw=function(args,modifs){
     if(csport.drawingstate.alpha!=1){
         black="rgba(0,0,0,"+csport.drawingstate.alpha+")";
     }
-    var handleModifs = function(type){
+    function handleModifs(type){
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -178,7 +178,7 @@ evaluator.draw=function(args,modifs){
             black="rgba(0,0,0,"+alpha+")";//TODO Performanter machen
     }
     
-    var drawsegcore=function(pt1,pt2){
+    function drawsegcore(pt1,pt2){
         var m=csport.drawingstate.matrix;
         var xx1=pt1.x*m.a-pt1.y*m.b+m.tx;
         var yy1=pt1.x*m.c-pt1.y*m.d-m.ty;
@@ -208,7 +208,7 @@ evaluator.draw=function(args,modifs){
             evaluator._helper.unSetDash();
     }
     
-    var drawsegment = function(aa,bb){
+    function drawsegment(aa,bb){
         var v1=evaluateAndVal(aa);
         var v2=evaluateAndVal(bb);
         var pt1=evaluator._helper.extractPoint(v1);
@@ -222,7 +222,7 @@ evaluator.draw=function(args,modifs){
         return nada;
     }
     
-    var drawline = function(){
+    function drawline(){
         var na=CSNumber.abs(v1.value[0]).value.real;
         var nb=CSNumber.abs(v1.value[1]).value.real;
         var nc=CSNumber.abs(v1.value[2]).value.real;
@@ -282,7 +282,7 @@ y:erg2[1]/erg2[2]
     }
     
     
-    var drawpoint = function(){
+    function drawpoint(){
         var pt=evaluator._helper.extractPoint(v1);
         
         if(!pt.ok && typeof(v1.value)!=="undefined"){//eventuell doch ein Segment
@@ -356,7 +356,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
     var size=4;
     var col;
     var black="rgb(0,0,0)";
-    var handleModifs = function(){
+    function handleModifs(){
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -407,7 +407,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
     
     
     
-    var drawcirc = function(){
+    function drawcirc(){
         
         function magic_circle(ctx, x, y, r){
             m = 0.551784
@@ -517,7 +517,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
     var size=4;
     var col;
     var black="rgb(0,0,0)";
-    var handleModifs = function(){
+    function handleModifs(){
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -566,7 +566,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         col="rgba("+r+","+g+","+b+","+alpha+")";//TODO Performanter machen
     }
     
-    var drawpolyshape = function(){
+    function drawpolyshape(){
         
         var m=csport.drawingstate.matrix;
         
@@ -621,7 +621,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
     
     
     
-    var drawpoly = function(){
+    function drawpoly(){
         
         var m=csport.drawingstate.matrix;
         
@@ -694,7 +694,7 @@ evaluator.drawtext=function(args,modifs){
     var align=0;
     var ox=0;
     var oy=0;
-    var handleModifs = function(){
+    function handleModifs(){
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -969,7 +969,7 @@ evaluator.plot=function(args,modifs){ //OK
     var steps=1000;
     
     
-    var handleModifs = function(type){
+    function handleModifs(type){
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
             if(erg.ctype=='number'){
@@ -1117,20 +1117,20 @@ evaluator.plot=function(args,modifs){ //OK
     
     
     
-    var canbedrawn=function(v){
+    function canbedrawn(v){
         return v.ctype=='number' && CSNumber._helper.isAlmostReal(v);
     }
     
-    var drawstroke=function(x1,x2,v1,v2,step){
+    function drawstroke(x1,x2,v1,v2,step){
         
     }
     
-    var limit=function(v){ //TODO: Die  muss noch geschreoben werden
+    function limit(v){ //TODO: Die  muss noch geschreoben werden
         return v;
         
     }
     
-    var drawstroke=function(x1,x2,v1,v2,step){
+    function drawstroke(x1,x2,v1,v2,step){
         count++;
         //console.log(niceprint(x1)+"  "+niceprint(x2));
         //console.log(step);
@@ -1159,7 +1159,7 @@ evaluator.plot=function(args,modifs){ //OK
     }
     
     
-    var drawrec=function(x1,x2,y1,y2,step){
+    function drawrec(x1,x2,y1,y2,step){
         
         var drawable1 = canbedrawn(y1);
         var drawable2 = canbedrawn(y2);
@@ -1361,7 +1361,7 @@ evaluator.plotX=function(args,modifs){ //OK
 
 
 evaluator._helper.plotvars=function(a){
-    var merge=function(x,y){
+    function merge(x,y){
         var obj = {};
         for (var i = x.length-1; i >= 0; -- i)
             obj[x[i]] = x[i];
@@ -1375,7 +1375,7 @@ evaluator._helper.plotvars=function(a){
         return res;
     }
     
-    var remove=function(x,y){
+    function remove(x,y){
         
         for (var i = 0; i < x.length; i++) {
             if (x[i] === y) {

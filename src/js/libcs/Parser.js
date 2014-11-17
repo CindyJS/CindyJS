@@ -3,7 +3,7 @@
 // this function is responsible for evaluation an expression tree
 //****************************************************************
 
-var evaluate=function(a){
+function evaluate(a){
 
     if(typeof a==='undefined'){
         return nada;
@@ -64,7 +64,7 @@ var evaluate=function(a){
 }
 
 
-var evaluateAndVal=function(a){
+function evaluateAndVal(a){
 
 
     var x=evaluate(a);
@@ -78,7 +78,7 @@ var evaluateAndVal=function(a){
     return x;//TODO Implement this
 }
 
-var evaluateAndHomog=function(a){
+function evaluateAndHomog(a){
     var x=evaluate(a);
     if(x.ctype=='geo'){
         var val=x.value;
@@ -109,7 +109,7 @@ var evaluateAndHomog=function(a){
 // this function removes all comments spaces and newlines
 //*******************************************************
 
-var condense = function(code) {
+function condense(code) {
 	var literalmode = false;
 	var commentmode = false;
 	var erg = '';
@@ -134,7 +134,7 @@ var condense = function(code) {
 // this function shows an expression tree on the console
 //*******************************************************
 
-var report=function(a,i){
+function report(a,i){
     var prep= new Array(i + 1).join('.');
     if(a.ctype=='infix'){
         console.log(prep+"INFIX: "+a.oper);
@@ -192,7 +192,7 @@ var report=function(a,i){
 }
 
 
-var generateInfix=function(oper, f1, f2){
+function generateInfix(oper, f1, f2){
     var erg={};
     erg.ctype='infix';
     erg.oper=oper;
@@ -201,7 +201,7 @@ var generateInfix=function(oper, f1, f2){
 }
 
 
-var modifierOp = function(code, bestbinding, oper){
+function modifierOp(code, bestbinding, oper){
     var s = code.substring(0, bestbinding);
     var f1 = analyse(code.substring(bestbinding + oper.length),false);
     if(f1.ctype=='error') return f1;
@@ -210,7 +210,7 @@ var modifierOp = function(code, bestbinding, oper){
 
 
 
-var definitionDot = function(code, bestbinding, oper){
+function definitionDot(code, bestbinding, oper){
     if(isNumber(code)) {
         var erg={}
         erg.value={'real':parseFloat(code),'imag':0};
@@ -223,7 +223,7 @@ var definitionDot = function(code, bestbinding, oper){
 }
 
 
-var validDefinabaleFunction = function(f){//TODO Eventuell echte fehlermelungen zurückgeben
+function validDefinabaleFunction(f){//TODO Eventuell echte fehlermelungen zurückgeben
     if(f.ctype!='function'){
         return false;               //Invalid Function Name
     }
@@ -245,7 +245,7 @@ var validDefinabaleFunction = function(f){//TODO Eventuell echte fehlermelungen 
     return true;
 }
 
-var definitionOp = function(code, bestbinding, oper){
+function definitionOp(code, bestbinding, oper){
     
     var s1 = code.substring(0, bestbinding);
     var f1 = analyse(s1,true);
@@ -265,7 +265,7 @@ var definitionOp = function(code, bestbinding, oper){
 
 
 
-var infixOp=function(code, bestbinding, oper){
+function infixOp(code, bestbinding, oper){
     var f1 = analyse(code.substring(0, bestbinding), false);
     var f2 = analyse(code.substring(bestbinding + oper.length), false);
     if(f1.ctype=='error') return f1;
@@ -275,12 +275,12 @@ var infixOp=function(code, bestbinding, oper){
     
 }
 
-var isPureNumber= function(code) {
+function isPureNumber(code) {
     return code!="" && !isNaN(code);
 }
 
 
-var isNumber=function(code) {
+function isNumber(code) {
     
     var a = code.indexOf('.');
     var b = code.lastIndexOf('.');
@@ -294,7 +294,7 @@ var isNumber=function(code) {
 
 
 
-var somethingelse= function(code){
+function somethingelse(code){
     
     if(code=='') {
         return new Void();
@@ -337,18 +337,18 @@ var somethingelse= function(code){
 }
 
 
-var isOpener= function(c){
+function isOpener(c){
     return c=='[' || c=='(' || c=='{' || c=='|';
 }
-var isCloser= function(c){
+function isCloser(c){
     return c==']' || c==')' || c=='}' || c=='|';
 }
-var isBracketPair= function(c){
+function isBracketPair(c){
     return c=='[]' || c=='()' || c=='{}' || c=='||';
 }
 
 
-var funct=function(code, firstbraind, defining){
+function funct(code, firstbraind, defining){
 
     var args = [];
     var argsi = [];
@@ -415,7 +415,7 @@ var funct=function(code, firstbraind, defining){
 
 
 
-var parseList=function(code) {
+function parseList(code) {
     var code1 = code;
     
     var args=[];        //das sind die argument exprs
@@ -473,7 +473,7 @@ var parseList=function(code) {
 
 
 
-var bracket=function(code){
+function bracket(code){
     //TODO: ABS
     /*      if (code.charAt(0) == '|') {
      Formula f1 = parseList(expr.substring(1, expr.length() - 1), csc);
@@ -527,7 +527,7 @@ var bracket=function(code){
 }
 
 
-var analyse=function(code,defining){
+function analyse(code,defining){
     var literalmode=false;
     var erg={};
     var bra='';
