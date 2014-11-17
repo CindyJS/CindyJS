@@ -13,7 +13,7 @@
         
         <h1>CindyJS: Schleppkurve</h1>
         
-                <script id='draw' type='cindyscript'>
+                <script id='drag' type='cindyscript'>
 
         pts=allpoints();
 
@@ -21,16 +21,17 @@ m=mover();
 start=B.xy;
 start=m.xy;
 
-//sp=split(pts,oldpts,m);
-//l=sp_1;
-//r=sp_2;
-//ol=sp_3;
-//or=sp_4;
+sp=split(pts,oldpts,m);
+errc(sp);
+l=sp_1;
+r=sp_2;
+ol=sp_3;
+or=sp_4;
 
-l=pts;
-r=[];
-ol=oldpts;
-or=[];
+//l=pts;
+//r=[];
+//ol=oldpts;
+//or=[];
 
 newptsl=transf(ol,start);
 newptsr=transf(or,start);
@@ -58,7 +59,7 @@ errc(m);
   //if(contains(pts,m),(
   if(true,(
     i=1;
-    while(pts_i.xy!=m.xy,i=i+1);
+    while((pts_i).xy!=m.xy & i<50,i=i+1);
     errc(i);
     l=apply[1..i,pts_(i-#+1)];
     r=apply[i..length[pts],pts_#];
@@ -141,13 +142,11 @@ transf(pts,pt):=(
                       {name:"X", type:"Free", pos:[7,0],color:[1,1,1]},
                       {name:"Y", type:"Free", pos:[7.5,0],color:[1,1,1]},
                       {name:"Z", type:"Free", pos:[8,0],color:[1,1,1]},
-
-                      
                      
                       ];
             createCindy({canvasname:"CSCanvas",
                         initscript:"init",
-                        movescript:"draw",
+                        mousedragscript:"drag",
                         geometry:gslp});
     
         </script>

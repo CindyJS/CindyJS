@@ -59,6 +59,10 @@ function Namespace(){
     this.setvar= function(code,val) {
         var stack=this.vars[code].stack;
         if (stack.length == 0) console.error("Setting non-existing variable " + code);
+        if (val===undefined) {
+            console.error("Setting variable " + code + " to undefined value");
+            val = nada;
+        }
         if(val.ctype=='undefined'){
             stack[stack.length-1]=val;
             return;
