@@ -93,6 +93,7 @@ function Namespace(){
                     console.log("Warning: Accessing undefined variable: " + code);
                 }
             }
+            return nada;
         }
         return erg;
     };
