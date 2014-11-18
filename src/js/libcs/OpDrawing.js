@@ -303,7 +303,7 @@ y:erg2[1]/erg2[2]
         
         col=csport.drawingstate.pointcolor;
             handleModifs("P");
-        csctx.lineWidth = psize*.3;
+        csctx.lineWidth = psize*0.3;
         
         
         csctx.beginPath();
@@ -443,12 +443,12 @@ evaluator._helper.drawcircle=function(args,modifs,df){
         
         col=csport.drawingstate.linecolor;
         handleModifs();
-        csctx.lineWidth = size*.3;
+        csctx.lineWidth = size*0.3;
         
         
         
         csctx.beginPath();
-        csctx.lineWidth = size*.4;
+        csctx.lineWidth = size*0.4;
         
         csctx.arc(xx,yy,v1.value.real*m.sdet,0,2*Math.PI);
       //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
@@ -590,12 +590,12 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
             } 
             col=csport.drawingstate.linecolor;
             handleModifs();
-            csctx.lineWidth = size*.3;
+            csctx.lineWidth = size*0.3;
             csctx.mozFillRule = 'evenodd';
             csctx.lineJoin="round";
             if(df==="D")
                 csctx.beginPath();
-            csctx.lineWidth = size*.4;
+            csctx.lineWidth = size*0.4;
             csctx.moveTo(li[0][0],li[0][1]);
             for(var i=1;i<li.length;i++){
                 csctx.lineTo(li[i][0],li[i][1]);
@@ -643,11 +643,11 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         } 
         col=csport.drawingstate.linecolor;
         handleModifs();
-        csctx.lineWidth = size*.3;
+        csctx.lineWidth = size*0.3;
         csctx.mozFillRule = 'evenodd';
         
         csctx.beginPath();
-        csctx.lineWidth = size*.4;
+        csctx.lineWidth = size*0.4;
         csctx.moveTo(li[0][0],li[0][1]);
         for(var i=1;i<li.length;i++){
             csctx.lineTo(li[i][0],li[i][1]);
@@ -966,7 +966,7 @@ evaluator.plot=function(args,modifs){ //OK
     var dashing=false;
     var connectb=false;
     var minstep=0.001;
-    var pxlstep=.2/csscale; //TODO Anpassen auf PortScaling
+    var pxlstep=0.2/csscale; //TODO Anpassen auf PortScaling
     var count=0;
     var stroking=false;
     var start=-10; //TODO Anpassen auf PortScaling
@@ -1329,7 +1329,7 @@ evaluator.plotX=function(args,modifs){ //OK
     namespace.newvar(runv);
     var start=-10;
     var stop=10;
-    var step=.01;
+    var step=0.01;
     var m=csport.drawingstate.matrix;
     var col=csport.drawingstate.linecolor;
         csctx.fillStyle=col;

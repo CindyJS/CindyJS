@@ -270,7 +270,7 @@ proceedMotion:function(beh,dt,i,a){
 
 calculateForces:function(beh){
     var bv = Math.sqrt(beh.vx * beh.vx + beh.vy * beh.vy+ beh.vz * beh.vz);
-    var bvv = (bv > .1 && beh.limitSpeed) ? .1 / bv : 1;
+    var bvv = (bv > 0.1 && beh.limitSpeed) ? 0.1 / bv : 1;
     var fri = (1 - beh.env.friction) * bvv;
     beh.lnfrict = -Math.log((1 - beh.friction) * fri);
 
@@ -798,7 +798,7 @@ init:function(beh){
         if(typeof(beh.friction) === 'undefined') beh.friction= 0;
         if(typeof(beh.springstrength) === 'undefined') beh.springstrength= 1;
         if(typeof(beh.accuracy) === 'undefined') beh.accuracy= 10;
-        if(typeof(beh.deltat) === 'undefined') beh.deltat= .3;
+        if(typeof(beh.deltat) === 'undefined') beh.deltat= 0.3;
         if(typeof(beh.charges) === 'undefined') beh.charges= false;
         if(typeof(beh.balls) === 'undefined') beh.balls= false;
         if(typeof(beh.newton) === 'undefined') beh.newton= false;

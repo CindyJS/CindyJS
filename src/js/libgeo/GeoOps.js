@@ -444,7 +444,7 @@ geoOps._helper.tracing2X=function(n1,n2,c1,c2,el){
 
     //Das Kommt jetzt eins zu eins aus Cindy
     
-    var care = (do1o2 > .000001);
+    var care = (do1o2 > 0.000001);
     
     // First we try to assign the points
     
