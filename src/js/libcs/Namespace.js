@@ -5,13 +5,13 @@
 //==========================================
 
 
-
-function Nada(){this.ctype='undefined';}
-function Void(){this.ctype='void';}
-function CError(msg){this.ctype='error';this.message=msg;}
+/** @constructor */ function Nada(){this.ctype='undefined';}
+/** @constructor */ function Void(){this.ctype='void';}
+/** @constructor */ function CError(msg){this.ctype='error';this.message=msg;}
 var nada = new Nada();
 var unset = new Nada(); // to distinguish variables set to nada from those which were never set
 
+/** @constructor */
 function Namespace(){
     this.vars={
         'pi':{'ctype':'variable','stack':[{'ctype':'number','value':{'real':Math.PI,'imag':0}}],'name':'pi'},
