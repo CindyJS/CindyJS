@@ -350,7 +350,7 @@ sqDist:function(beh,i,j){
 },
 
 kineticEnergy:function(beh){
-    var vsq = beh.vx[i]*beh.vx[i]+beh.vy[i]*beh.vy[i]+beh.vz[i]*beh.vz[i];
+    var vsq = beh.vx*beh.vx+beh.vy*beh.vy+beh.vz*beh.vz;
     return 0.5*beh.mass*vsq;
 },
 
@@ -570,11 +570,12 @@ calculateForces:function(beh){
         }
         
         if(mytype==2) factor=-factor;//NEWTON
-        
+
+        var fx, fy;
         if (l != 0.0 && (mytype == 0 || mytype == 1)) {
             fx = -(xa - xb) * beh.strength * (l - lact) / l * beh.env.springstrength;
             fy = -(ya - yb) * beh.strength * (l - lact) / l * beh.env.springstrength;
-        } else if (a != null && b != null && l != 0.0) {
+        } else if (beh.ma.behavior && beh.mb.behavior && l != 0.0) {
             var l3 = (l * l * l);
             if (mytype == 2 || mytype == 3) {//NEWTON //ELECTRO
                 fx = (xa - xb) * factor / l3;
@@ -890,7 +891,7 @@ calculateForces:function(beh){
                             fx = (x1 - x2) / (l * l * l) * (l > r ? 0 : (l - r) * (l - r));
                             fy = (y1 - y2) / (l * l * l) * (l > r ? 0 : (l - r) * (l - r));
                         } else {
-                            if (ballInteractionBoosting == 1) {
+                            if (beh.ballInteractionBoosting == 1) {
                                 
                                 fx = (x1 - x2) / (l * l * l * l) * (l > r ? 0 : (l - r) * (l - r));
                                 fy = (y1 - y2) / (l * l * l * l) * (l > r ? 0 : (l - r) * (l - r));

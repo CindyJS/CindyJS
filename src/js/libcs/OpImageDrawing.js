@@ -17,6 +17,7 @@ evaluator.drawimage = function(args,modifs){
         
         
         function handleModifs(){
+            var erg;
             if(modifs.angle!==undefined){
                 erg =evaluate(modifs.angle);
                 if(erg.ctype=='number'){

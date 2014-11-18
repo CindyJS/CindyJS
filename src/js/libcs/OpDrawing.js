@@ -896,7 +896,7 @@ evaluator.clip =function(args,modifs){
             
         }
         if(v1.ctype=="list"){
-            erg=evaluator.polygon(args,[]);
+            var erg=evaluator.polygon(args,[]);
             
             return evaluator.clip([erg],[]);
             

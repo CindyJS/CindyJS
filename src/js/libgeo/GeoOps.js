@@ -173,7 +173,7 @@ geoOps.PointOnCircle =function(el){//TODO was ist hier zu tun damit das stabil b
     pt=List.scalmult(CSNumber.real(10),pt);
     pt=List.add(mid,pt);
 
-    ln=List.cross(pt,mid);
+    var ln=List.cross(pt,mid);
     var ints=geoOps._helper.IntersectLC(ln,c.matrix);//TODO richtiges Tracing einbauen!!!
     var int1=List.normalizeZ(ints[0]);
     var int2=List.normalizeZ(ints[1]);
@@ -324,7 +324,7 @@ geoOps.CircleMr =function(el){
     if(move && move.mover==el){
         var xx=mid.value[0].value.real-mouse.x;
         var yy=mid.value[1].value.real-mouse.y;
-        rad=Math.sqrt(xx*xx+yy*yy);//+move.offsetrad;
+        var rad=Math.sqrt(xx*xx+yy*yy);//+move.offsetrad;
         el.radius=CSNumber.real(rad+move.offsetrad);
     }
     var r=el.radius;

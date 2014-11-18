@@ -248,9 +248,9 @@ var initialscript=
 ;
 
 var waitCount = -1;
-window.cjsInit = function() {
+var cjsInit = function() {
 };
-window.cjsWaitFor = function(name) {
+function waitFor(name) {
   if (waitCount === 0) {
     console.error("Waiting for " + name + " after we finished waiting.");
     return function() { };
@@ -266,19 +266,20 @@ window.cjsWaitFor = function(name) {
       console.error("Wait count mismatch: " + name);
     }
     if (waitCount === 0) {
-      window.cjsInit();
+      cjsInit();
     }
   };
 };
-document.addEventListener("DOMContentLoaded", cjsWaitFor("DOMContentLoaded"));
+global['cjsWaitFor'] = waitFor;
+document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
 function createCindy(data) {
   if (waitCount === 0) {
     console.log("creating Cindy immediately.");
     createCindyNow(data);
   } else {
     console.log("creating Cindy later.");
-    var prevInit = window.cjsInit;
-    window.cjsInit = function() {
+    var prevInit = cjsInit;
+    cjsInit = function() {
       prevInit();
       console.log("creating Cindy now.");
       createCindyNow(data);
@@ -288,7 +289,7 @@ function createCindy(data) {
 if (window.__gwt_activeModules !== undefined) {
   Object.keys(window.__gwt_activeModules).forEach(function(key) {
     var m = window.__gwt_activeModules[key];
-    m.cjsDoneWaiting = cjsWaitFor(m.moduleName);
+    m.cjsDoneWaiting = waitFor(m.moduleName);
   });
   window.__gwtStatsEvent = function(evt) {
     if (evt.evtGroup === "moduleStartup" && evt.type === "end") {

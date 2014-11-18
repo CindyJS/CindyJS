@@ -2460,7 +2460,7 @@ evaluator.tokenize=function(args,modifs){ //TODO der ist gerade sehr uneffiktiv 
 
             var token=v1.value[0];
                  
-            tli=List.turnIntoCSList(tokens);
+            var tli=List.turnIntoCSList(tokens);
             var firstiter=evaluator.tokenize([args[0],token],modifs).value;
             
             var li=[];
@@ -2654,7 +2654,7 @@ evaluator.pointreflect=function(args,modifs){
            w0!==nada && w1!==nada){
             var m1=evaluator._helper.basismap(w0,v1,ii,jj);
             var m2=evaluator._helper.basismap(w0,w1,ii,jj);
-            erg=General.mult(m1,List.inverse(m2));
+            var erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
 
         }

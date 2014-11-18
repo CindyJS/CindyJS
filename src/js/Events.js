@@ -204,7 +204,7 @@ function setuplisteners(canvas) {
 }
 
 
-window.requestAnimFrame =
+var requestAnimFrame =
 window.requestAnimationFrame ||
 window.webkitRequestAnimationFrame ||
 window.mozRequestAnimationFrame ||
