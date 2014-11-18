@@ -24,6 +24,7 @@ numeric.bench = function bench (f,interval) {
     return 1000*(3*n-1)/(t2-t1);
 };
 
+/** @this {Array} */
 numeric._myIndexOf = (function _myIndexOf(w) {
     var n = this.length,k;
     for(k=0;k<n;++k) if(this[k]===w) return k;
@@ -1018,6 +1019,7 @@ numeric.tensor = function tensor(x,y) {
 };
 
 // 3. The Tensor type T
+/** @constructor */
 numeric.T = function T(x,y) { this.x = x; this.y = y; };
 numeric.t = function t(x,y) { return new numeric.T(x,y); };
 
@@ -1633,6 +1635,7 @@ numeric.ccsTSolve = function ccsTSolve(A,b,x,bj,xj) {
     }
     return x;
 };
+/** @constructor */
 numeric.ccsDFS = function ccsDFS(n) {
     this.k = Array(n);
     this.k1 = Array(n);
@@ -1738,6 +1741,7 @@ numeric.ccsLUP1 = function ccsLUP1(A,threshold) {
     for(j=Lj.length-1;j!==-1;--j) { Lj[j] = Pinv[Lj[j]]; }
     return {L:L, U:U, P:P, Pinv:Pinv};
 };
+/** @constructor */
 numeric.ccsDFS0 = function ccsDFS0(n) {
     this.k = Array(n);
     this.k1 = Array(n);
@@ -2389,6 +2393,7 @@ numeric.cdotMV = function dotMV(A,x) {
 
 // 7. Splines
 
+/** @constructor */
 numeric.Spline = function Spline(x,yl,yr,kl,kr) { this.x = x; this.yl = yl; this.yr = yr; this.kl = kl; this.kr = kr; };
 numeric.Spline.prototype._at = function _at(x1,p) {
     var x = this.x;
@@ -2824,6 +2829,7 @@ numeric.uncmin = function uncmin(f,x0,tol,gradient,maxit,callback,options) {
 };
 
 // 10. Ode solver (Dormand-Prince)
+/** @constructor */
 numeric.Dopri = function Dopri(x,y,f,ymid,iterations,msg,events) {
     this.x = x;
     this.y = y;
