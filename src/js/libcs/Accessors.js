@@ -17,14 +17,14 @@ Accessor.generalFields={//Übersetungstafel der Feldnamen
     trace:"trace",
     tracelength:"",
     selected:""
-}
+};
 
 Accessor.getGeoField=function(geoname,field){
     if(typeof csgeo.csnames[geoname] !== 'undefined'){
         return Accessor.getField(csgeo.csnames[geoname],field);
     }
     return nada;
-}
+};
 
 
 Accessor.setGeoField=function(geoname,field,value){
@@ -32,59 +32,60 @@ Accessor.setGeoField=function(geoname,field,value){
         return Accessor.setField(csgeo.csnames[geoname],field,value);
     }
     return nada;
-}
+};
 
 
 
 
 Accessor.getField=function(geo,field){
-    if(geo.kind=="P"){
-        if(field=="xy") {
+    var erg;
+    if(geo.kind==="P"){
+        if(field==="xy") {
             var xx=CSNumber.div(geo.homog.value[0],geo.homog.value[2]);
             var yy=CSNumber.div(geo.homog.value[1],geo.homog.value[2]);
-            var erg=List.turnIntoCSList([xx,yy]);
+            erg=List.turnIntoCSList([xx,yy]);
             erg.usage="Point";
             
             return erg;
-        };
+        }
         
-        if(field=="homog") {
-            var erg=List.clone(geo.homog);//TODO will man hier clonen?
+        if(field==="homog") {
+            erg=List.clone(geo.homog);//TODO will man hier clonen?
             erg.usage="Point";
             return erg;
-        };
+        }
         
         
-        if(field=="x") {
+        if(field==="x") {
             var x=CSNumber.div(geo.homog.value[0],geo.homog.value[2]);
             return x;
-        };
+        }
         
-        if(field=="y") {
+        if(field==="y") {
             var y=CSNumber.div(geo.homog.value[1],geo.homog.value[2]);
             return y;
-        };
-    } if(geo.kind=="L"){
-        if(field=="homog") {
-            var erg=List.clone(geo.homog);//TODO will man hier clonen?
+        }
+    } if(geo.kind==="L"){
+        if(field==="homog") {
+            erg=List.clone(geo.homog);//TODO will man hier clonen?
             erg.usage="Line";
             return erg;
         }
-            if(field=="angle") {
-            var erg=List.eucangle(List.ey,geo.homog);
+        if(field==="angle") {
+            erg=List.eucangle(List.ey,geo.homog);
             erg.usage="Angle";
             return erg;
         }
 
-    };
-    if(geo.kind=="Tr"){
-        if(field=="matrix") {
-            var erg=List.clone(geo.matrix);
+    }
+    if(geo.kind==="Tr"){
+        if(field==="matrix") {
+            erg=List.clone(geo.matrix);
             return erg;
         }
-    };
+    }
     if(Accessor.generalFields[field]) {//must be defined an an actual string
-        var erg=geo[Accessor.generalFields[field]];
+        erg=geo[Accessor.generalFields[field]];
         if(erg) {
             erg=General.clone(erg);  
             return erg;
@@ -93,34 +94,34 @@ Accessor.getField=function(geo,field){
     }   
     //Accessors for masses
     if(geo.behavior) {
-        if(field=="mass" && geo.behavior.type=="Mass") {
+        if(field==="mass" && geo.behavior.type==="Mass") {
            return CSNumber.real(geo.behavior.mass);
         }
-        if(field=="radius" && geo.behavior.type=="Mass") {
+        if(field==="radius" && geo.behavior.type==="Mass") {
            return CSNumber.real(geo.behavior.radius);
         }
-        if(field=="charge" && geo.behavior.type=="Mass") {
+        if(field==="charge" && geo.behavior.type==="Mass") {
            return CSNumber.real(geo.behavior.charge);
         }
-        if(field=="friction" && geo.behavior.type=="Mass") {
+        if(field==="friction" && geo.behavior.type==="Mass") {
            return CSNumber.real(geo.behavior.friction);
         }
-        if(field=="vx" && geo.behavior.type=="Mass") {
+        if(field==="vx" && geo.behavior.type==="Mass") {
            return CSNumber.real(geo.behavior.vx);
         }
-        if(field=="vy" && geo.behavior.type=="Mass") {
+        if(field==="vy" && geo.behavior.type==="Mass") {
            return CSNumber.real(geo.behavior.vy);
         }
-        if(field=="v" && geo.behavior.type=="Mass") {
+        if(field==="v" && geo.behavior.type==="Mass") {
            return List.realVector([geo.behavior.vx,geo.behavior.vy]);
         }
-        if(field=="fx" && geo.behavior.type=="Mass") {
+        if(field==="fx" && geo.behavior.type==="Mass") {
            return CSNumber.real(geo.behavior.fx);
         }
-        if(field=="fy" && geo.behavior.type=="Mass") {
+        if(field==="fy" && geo.behavior.type==="Mass") {
            return CSNumber.real(geo.behavior.fy);
         }
-        if(field=="f" && geo.behavior.type=="Mass") {
+        if(field==="f" && geo.behavior.type==="Mass") {
            return List.realVector([geo.behavior.fx,geo.behavior.fy]);
         }
     
@@ -128,26 +129,26 @@ Accessor.getField=function(geo,field){
     return nada;
     
     
-}
+};
 
 Accessor.setField=function(geo,field,value){
-    if(field=="color") {
+    if(field==="color") {
         geo.color=List.clone(value);
     }
-    if(field=="size") {
+    if(field==="size") {
         geo.size=General.clone(value);
     }
-    if(field=="xy" && geo.kind=="P"&&geo.ismovable && List._helper.isNumberVecN(value,2)) {
+    if(field==="xy" && geo.kind==="P"&&geo.ismovable && List._helper.isNumberVecN(value,2)) {
         movepointscr(geo,List.turnIntoCSList([value.value[0],value.value[1],CSNumber.real(1)]));
         recalc();
     }
 
-    if(field=="homog" && geo.kind=="P"&&geo.ismovable && List._helper.isNumberVecN(value,2)) {
+    if(field==="homog" && geo.kind==="P"&&geo.ismovable && List._helper.isNumberVecN(value,2)) {
         movepointscr(geo,General.clone(value));
         recalc();
     }
 
-    if(field=="angle" && geo.kind=="L") {
+    if(field==="angle" && geo.kind==="L") {
         var cc=CSNumber.cos(value);
         var ss=CSNumber.sin(value);
         var dir=List.turnIntoCSList([cc,ss,CSNumber.real(0)]);
@@ -157,31 +158,31 @@ Accessor.setField=function(geo,field,value){
         recalc();
     }
     if(geo.behavior) {
-        if(field=="mass" && geo.behavior.type=="Mass" && value.ctype=="number") {
+        if(field==="mass" && geo.behavior.type==="Mass" && value.ctype==="number") {
             geo.behavior.mass=value.value.real;
         }
-        if(field=="friction" && geo.behavior.type=="Mass" && value.ctype=="number") {
+        if(field==="friction" && geo.behavior.type==="Mass" && value.ctype==="number") {
             geo.behavior.friction=value.value.real;
         }
-        if(field=="charge" && geo.behavior.type=="Mass" && value.ctype=="number") {
+        if(field==="charge" && geo.behavior.type==="Mass" && value.ctype==="number") {
             geo.behavior.charge=value.value.real;
         }
-        if(field=="radius" && geo.behavior.type=="Mass" && value.ctype=="number") {
+        if(field==="radius" && geo.behavior.type==="Mass" && value.ctype==="number") {
             geo.behavior.radius=value.value.real;
         }
-        if(field=="vx" && geo.behavior.type=="Mass" && value.ctype=="number") {
+        if(field==="vx" && geo.behavior.type==="Mass" && value.ctype==="number") {
             geo.behavior.vx=value.value.real;
         }
-        if(field=="vy" && geo.behavior.type=="Mass" && value.ctype=="number") {
+        if(field==="vy" && geo.behavior.type==="Mass" && value.ctype==="number") {
             geo.behavior.vy=value.value.real;
         }
-        if(field=="v" && geo.behavior.type=="Mass" && List._helper.isNumberVecN(value,2)) {
+        if(field==="v" && geo.behavior.type==="Mass" && List._helper.isNumberVecN(value,2)) {
             geo.behavior.vx=value.value[0].value.real;
             geo.behavior.vy=value.value[1].value.real;
         }
     }
     
 
-}
+};
 
 

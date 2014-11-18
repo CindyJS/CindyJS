@@ -11,7 +11,7 @@ function evaluate(a){
 
     if(a.ctype=='infix'){
         var ioper=infixmap[a.oper];
-        return evaluator._helper.eval(ioper,a.args,[]);
+        return evaluator._helper.evaluate(ioper,a.args,[]);
     }
     if(a.ctype=='variable'){
         return namespace.getvar(a.name);
@@ -57,7 +57,7 @@ function evaluate(a){
 
     if(a.ctype=='function'){
         var eargs=[];
-        return evaluator._helper.eval(a.oper,a.args,a.modifs);
+        return evaluator._helper.evaluate(a.oper,a.args,a.modifs);
     }
     return nada;
     

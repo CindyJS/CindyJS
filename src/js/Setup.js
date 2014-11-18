@@ -1,4 +1,4 @@
-var global = this;
+var global = this; // jshint ignore:line
 var console = global.console || {
   'log': function() { },
   'warn': function() { },
@@ -19,11 +19,11 @@ var cssnap=false;
 
 function dump(a){
   console.log(JSON.stringify(a));
-  };
+}
 
 function dumpcs(a){
   console.log(niceprint(a));
-  };
+}
 
 function evalcs(a){
     var prog=evaluator.parse([General.wrap(a)],[]);
@@ -48,16 +48,16 @@ function initialTransformation(data) {
         for(var i=0;i<trafos.length;i++){
            var trafo=trafos[i];
            var trname=Object.keys(trafo)[0]; 
-           if(trname=="scale"){
+           if(trname==="scale"){
                csscale=trafo.scale;
-               csport[trname](trafo.scale)
+               csport[trname](trafo.scale);
            }
-           if(trname=="translate"){
-               csport[trname](trafo.translate[0],trafo.translate[1])
+           if(trname==="translate"){
+               csport[trname](trafo.translate[0],trafo.translate[1]);
            }
-           if(trname=="scaleAndOrigin"){
+           if(trname==="scaleAndOrigin"){
                csscale=trafo[trname][0]/25;
-               csport[trname].apply(this,trafo[trname]);
+               csport[trname].apply(null,trafo[trname]);
            }
         }
         csport.createnewbackup();
@@ -79,7 +79,7 @@ function createCindyNow(data){
     
     //Setup the scripts
     var scripts=["move","keydown","mousedown","mouseup","mousedrag","init","tick","draw"];
-    var scriptpat=data["scripts"];
+    var scriptpat=data.scripts;
     if (!(scriptpat !== undefined && scriptpat.search(/\*/)))
         scriptpat = null;
 
@@ -100,11 +100,11 @@ function createCindyNow(data){
     });
 
     //Setup canvasstuff
-    if(data.grid &&data.grid!=0){
+    if(data.grid &&data.grid!==0){
       csgridsize=data.grid; 
       csgridscript=analyse('#drawgrid('+csgridsize+')',false);
-    };
-    if(data.snap){cssnap=data.snap};
+    }
+    if(data.snap) cssnap=data.snap;
     initialTransformation(data);
 
     csw=c.width;
@@ -127,7 +127,7 @@ function createCindyNow(data){
     if(!data.behavior) {
         data.behavior=[];
     }
-    if(typeof csinitphys == 'function')
+    if(typeof csinitphys === 'function')
         csinitphys(data.behavior);
     
     //Read images: TODO ordentlich machen
@@ -136,12 +136,14 @@ function createCindyNow(data){
         var name=data.images[k];
         images[k] = new Image();
         images[k].ready=false;
+        /*jshint -W083 */
         images[k].onload = function() {
             images[k].ready=true;
             updateCindy();
 
             
         };
+        /*jshint +W083 */
         images[k].src = name;
     }
     //Evaluate Init script
@@ -179,14 +181,14 @@ function backupGeo(){
               
     }
 
-};
+}
 
 
 function restoreGeo(){
 
 
     for( var i=0; i<backup.length; i++ ) {
-         name=JSON.parse(backup[i].name);
+         var name=JSON.parse(backup[i].name);
          
          var el=csgeo.csnames[name];
          el.homog=JSON.parse(backup[i].homog);
@@ -200,10 +202,10 @@ function restoreGeo(){
            el.behavior.fx=0;
            el.behavior.fy=0;
            el.behavior.fz=0;
-         };              
+         }
     }
 
-};
+}
 
 
 
@@ -243,14 +245,15 @@ var initialscript=
 '                 draw((xmin,ymin+y*s),(xmax,ymin+y*s),color->(1,1,1)*.9,size->1);'+
 '              ) '+
 '           );'
+;
 
 var waitCount = -1;
 window.cjsInit = function() {
-}
+};
 window.cjsWaitFor = function(name) {
-  if (waitCount == 0) {
+  if (waitCount === 0) {
     console.error("Waiting for " + name + " after we finished waiting.");
-    return function() { }
+    return function() { };
   }
   if (waitCount < 0)
     waitCount = 0;
@@ -262,14 +265,14 @@ window.cjsWaitFor = function(name) {
     if (waitCount < 0) {
       console.error("Wait count mismatch: " + name);
     }
-    if (waitCount == 0) {
+    if (waitCount === 0) {
       window.cjsInit();
     }
-  }
-}
+  };
+};
 document.addEventListener("DOMContentLoaded", cjsWaitFor("DOMContentLoaded"));
 function createCindy(data) {
-  if (waitCount == 0) {
+  if (waitCount === 0) {
     console.log("creating Cindy immediately.");
     createCindyNow(data);
   } else {
@@ -288,8 +291,8 @@ if (window.__gwt_activeModules !== undefined) {
     m.cjsDoneWaiting = cjsWaitFor(m.moduleName);
   });
   window.__gwtStatsEvent = function(evt) {
-    if (evt.evtGroup == "moduleStartup" && evt.type == "end") {
+    if (evt.evtGroup === "moduleStartup" && evt.type === "end") {
       window.__gwt_activeModules[evt.moduleName].cjsDoneWaiting();
     }
-  }
-};
+  };
+}
