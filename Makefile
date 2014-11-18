@@ -14,9 +14,11 @@ libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/Geo
 
 liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
-lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
+lib := src/js/extlibhdr.js src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
-srcs = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab) $(lib)
+ours = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab)
+
+srcs = $(ours) $(lib)
 
 # by defaul compile with SIMPLE flag
 closure_level = SIMPLE
@@ -49,7 +51,11 @@ build/js/Cindy.closure.js: compiler.jar src/js/Cindy.js.wrapper $(srcs)
 	mkdir -p $(@D)
 	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
 
-build/js/Cindy.plain.js: src/js/Cindy.plain.js.wrapper $(srcs)
+build/js/Cindy.plain.js: $(srcs)
+
+build/js/ours.js: $(ours)
+
+build/js/Cindy.plain.js build/js/ours.js: src/js/Cindy.plain.js.wrapper
 	mkdir -p $(@D)
 	awk '/%output%/{exit}{print}' $(filter %.wrapper,$^) > $@
 	cat $(filter %.js,$^) >> $@
@@ -64,7 +70,7 @@ NPM = npm
 node_modules/jshint/bin/jshint:
 	$(NPM) install jshint
 
-jshint: node_modules/jshint/bin/jshint build/js/Cindy.plain.js
+jshint: node_modules/jshint/bin/jshint build/js/ours.js
 	$< -c Administration/jshint.conf --verbose $(filter %.js,$^)
 
 .PHONY: jshint
