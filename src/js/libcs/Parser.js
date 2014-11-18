@@ -643,7 +643,7 @@ function analyse(code,defining){
     } else if (bracount === 0 && braexprcount === 1 && lastbraind === code.length - 1) {//Klammer oder Funktion
         
         if (firstbraind === 0) {//Einfach eine Klammer (evtl Vector))
-            return bracket(code, this);
+            return bracket(code);
         } else {
             return funct(code, firstbraind, defining);
         }
