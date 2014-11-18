@@ -8,9 +8,9 @@
 evaluator._helper.extractPoint=function(v1){
     var erg={};
     erg.ok=false;
-    if(v1.ctype=='geo') {
+    if(v1.ctype==='geo') {
         var val=v1.value;
-        if(val.kind=="P"){
+        if(val.kind==="P"){
             erg.x= Accessor.getField(val,"x").value.real;
             erg.y= Accessor.getField(val,"y").value.real;
             erg.ok=true;
@@ -18,7 +18,7 @@ evaluator._helper.extractPoint=function(v1){
         }
         
     }
-    if(v1.ctype!='list'){
+    if(v1.ctype!=='list'){
         return erg;
     }
     
@@ -26,10 +26,10 @@ evaluator._helper.extractPoint=function(v1){
     var x=0;
     var y=0;
     var z=0;
-    if(pt1.length==2){
+    if(pt1.length===2){
         var n1=pt1[0];
         var n2=pt1[1];
-        if(n1.ctype=='number' && n2.ctype=='number'){
+        if(n1.ctype==='number' && n2.ctype==='number'){
             erg.x=n1.value.real;
             erg.y=n2.value.real;
             erg.ok=true;
@@ -37,11 +37,11 @@ evaluator._helper.extractPoint=function(v1){
         }
     }
     
-    if(pt1.length==3){
+    if(pt1.length===3){
         var n1=pt1[0];
         var n2=pt1[1];
         var n3=pt1[2];
-        if(n1.ctype=='number' && n2.ctype=='number'&& n3.ctype=='number'){
+        if(n1.ctype==='number' && n2.ctype==='number'&& n3.ctype==='number'){
             n1=CSNumber.div(n1,n3);
             n2=CSNumber.div(n2,n3);
             erg.x=n1.value.real;
@@ -65,7 +65,7 @@ evaluator.draw=function(args,modifs){
     var dashing=false;
     var col;
     var black="rgb(0,0,0)";
-    if(csport.drawingstate.alpha!=1){
+    if(csport.drawingstate.alpha!==1){
         black="rgba(0,0,0,"+csport.drawingstate.alpha+")";
     }
     function handleModifs(type){
@@ -73,13 +73,13 @@ evaluator.draw=function(args,modifs){
 
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
-            if(erg.ctype=='number'){
-                if(type=="P"){
+            if(erg.ctype==='number'){
+                if(type==="P"){
                     psize=erg.value.real;                       
                     if(psize<0) psize=0;
                     if(psize>1000) psize=1000;
                 }
-                if(type=="L"){
+                if(type==="L"){
                     lsize=erg.value.real;
                     if(lsize<0) lsize=0;
                     if(lsize>1000) lsize=1000;
@@ -87,11 +87,11 @@ evaluator.draw=function(args,modifs){
             }
         }
         
-        if(type=="L"){
+        if(type==="L"){
             
             if(modifs.dashpattern!==undefined){
                 erg =evaluate(modifs.dashpattern);
-                if(erg.ctype=='list'){
+                if(erg.ctype==='list'){
                     var pat=[]; 
                     for(var i=0; i<erg.value.length;i++){
                         pat[i]=erg.value[i].value.real;
@@ -104,7 +104,7 @@ evaluator.draw=function(args,modifs){
             
             if(modifs.dashtype!==undefined){
                 erg =evaluate(modifs.dashtype);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     var type=Math.floor(erg.value.real);
                     evaluator._helper.setDashType(type,lsize);
                     dashing=true;
@@ -115,7 +115,7 @@ evaluator.draw=function(args,modifs){
             
             if(modifs.dashing!==undefined){
                 erg =evaluate(modifs.dashing);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     var si=Math.floor(erg.value.real);
                     evaluator._helper.setDash([si*2,si],lsize);
                     dashing=true;
@@ -125,7 +125,7 @@ evaluator.draw=function(args,modifs){
             }
             if(modifs.overhang!==undefined){
                 erg =evaluate(modifs.overhang);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                      overhang=(erg.value.real);
                                         
                 }
@@ -145,12 +145,12 @@ evaluator.draw=function(args,modifs){
         var g=0;
         var b=0;
         var alpha=csport.drawingstate.alpha;
-        if(type=="P"){
+        if(type==="P"){
             r=csport.drawingstate.pointcolorraw[0]*255;
             g=csport.drawingstate.pointcolorraw[1]*255;
             b=csport.drawingstate.pointcolorraw[2]*255;
         }
-        if(type=="L"){
+        if(type==="L"){
             r=csport.drawingstate.linecolorraw[0]*255;
             g=csport.drawingstate.linecolorraw[1]*255;
             b=csport.drawingstate.linecolorraw[2]*255;
@@ -159,7 +159,7 @@ evaluator.draw=function(args,modifs){
         if(modifs.color!==undefined){
             erg =evaluate(modifs.color);
             if(List.isNumberVector(erg).value){
-                if(erg.value.length==3){
+                if(erg.value.length===3){
                     r=Math.floor(erg.value[0].value.real*255);
                     g=Math.floor(erg.value[1].value.real*255);
                     b=Math.floor(erg.value[2].value.real*255);
@@ -172,7 +172,7 @@ evaluator.draw=function(args,modifs){
         
         if(modifs.alpha!==undefined){
             erg =evaluate(modifs.alpha);
-            if(erg.ctype=="number"){
+            if(erg.ctype==="number"){
                 alpha=erg.value.real;
             }
         }
@@ -288,7 +288,7 @@ y:erg2[1]/erg2[2]
         var pt=evaluator._helper.extractPoint(v1);
         
         if(!pt.ok && typeof(v1.value)!=="undefined"){//eventuell doch ein Segment
-            if(v1.value.length==2){
+            if(v1.value.length===2){
 
                drawsegment(v1.value[0],v1.value[1]);
                return;
@@ -320,18 +320,18 @@ y:erg2[1]/erg2[2]
     }
     
     
-    if(args.length==2) {
+    if(args.length===2) {
         return drawsegment(args[0],args[1]);
     }
     var v1=evaluateAndVal(args[0]);
     
-    if(v1.ctype=="shape"){
+    if(v1.ctype==="shape"){
         return evaluator._helper.drawshape(v1,modifs);
         
     }
     
     
-    if(v1.usage=="Line"){
+    if(v1.usage==="Line"){
         return drawline();
         
     }
@@ -362,7 +362,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
         var erg;
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 size=erg.value.real;
                 if(size<0) size=0;
 
@@ -387,7 +387,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
         if(modifs.color!==undefined){
             erg =evaluate(modifs.color);
             if(List.isNumberVector(erg).value){
-                if(erg.value.length==3){
+                if(erg.value.length===3){
                     r=Math.floor(erg.value[0].value.real*255);
                     g=Math.floor(erg.value[1].value.real*255);
                     b=Math.floor(erg.value[2].value.real*255);
@@ -400,7 +400,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
         
         if(modifs.alpha!==undefined){
             erg =evaluate(modifs.alpha);
-            if(erg.ctype=="number"){
+            if(erg.ctype==="number"){
                 alpha=erg.value.real;
             }
         }
@@ -433,7 +433,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
         var pt=evaluator._helper.extractPoint(v0);
         
         
-        if(!pt.ok || v1.ctype!='number'){
+        if(!pt.ok || v1.ctype!=='number'){
             return nada;
         }
         var m=csport.drawingstate.matrix;
@@ -454,21 +454,21 @@ evaluator._helper.drawcircle=function(args,modifs,df){
       //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
         
         
-        if(df=="D"){
+        if(df==="D"){
             csctx.strokeStyle=col;
             csctx.stroke();
         }
-        if(df=="F"){
+        if(df==="F"){
             csctx.fillStyle=col;
             csctx.fill();
         }
-        if(df=="C"){
+        if(df==="C"){
             csctx.clip();
         }
     }
     
     
-    if(args.length==2) {
+    if(args.length===2) {
         var v0=evaluateAndVal(args[0]);
         var v1=evaluateAndVal(args[1]);
         
@@ -479,10 +479,10 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 };
 
 evaluator.drawall =function(args,modifs){
-    if(args.length==1) {
+    if(args.length===1) {
         var v1=evaluate(args[0]);
         
-        if(v1.ctype=="list"){//TODO: Kann man optimaler implementieren (modifs nur einmal setzen)
+        if(v1.ctype==="list"){//TODO: Kann man optimaler implementieren (modifs nur einmal setzen)
             for (var i=0;i<v1.value.length;i++){
                evaluator.draw([v1.value[i]],modifs);
             } 
@@ -524,7 +524,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         var erg;
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 size=erg.value.real;
                 if(size<0) size=0;
 
@@ -549,7 +549,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         if(modifs.color!==undefined){
             erg =evaluate(modifs.color);
             if(List.isNumberVector(erg).value){
-                if(erg.value.length==3){
+                if(erg.value.length===3){
                     r=Math.floor(erg.value[0].value.real*255);
                     g=Math.floor(erg.value[1].value.real*255);
                     b=Math.floor(erg.value[2].value.real*255);
@@ -562,7 +562,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         
         if(modifs.alpha!==undefined){
             erg =evaluate(modifs.alpha);
-            if(erg.ctype=="number"){
+            if(erg.ctype==="number"){
                 alpha=erg.value.real;
             }
         }
@@ -575,7 +575,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         var m=csport.drawingstate.matrix;
         
         var polys=v0.value;
-        if(df!="D")
+        if(df!=="D")
             csctx.beginPath();
         for(var j=0;j<polys.length;j++){
             var pol=polys[j];
@@ -593,28 +593,28 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
             csctx.lineWidth = size*.3;
             csctx.mozFillRule = 'evenodd';
             csctx.lineJoin="round";
-            if(df=="D")
+            if(df==="D")
                 csctx.beginPath();
             csctx.lineWidth = size*.4;
             csctx.moveTo(li[0][0],li[0][1]);
             for(var i=1;i<li.length;i++){
                 csctx.lineTo(li[i][0],li[i][1]);
             }
-            if(df=="D"){
+            if(df==="D"){
                 csctx.closePath();
                 csctx.strokeStyle=col;
                 csctx.stroke();
             }
             
         }
-        if(df!="D")
+        if(df!=="D")
             csctx.closePath();
 
-        if(df=="F"){
+        if(df==="F"){
             csctx.fillStyle=col;
             csctx.fill();
         }
-        if(df=="C"){
+        if(df==="C"){
             csctx.clip();
         }
         
@@ -652,31 +652,31 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         for(var i=1;i<li.length;i++){
             csctx.lineTo(li[i][0],li[i][1]);
         }
-        if(cycle==1)
+        if(cycle===1)
             csctx.closePath();
-        if(df=="D"){
+        if(df==="D"){
             csctx.strokeStyle=col;
             csctx.stroke();
         }
-        if(df=="F"){
+        if(df==="F"){
             csctx.fillStyle=col;
             csctx.fill();
         }
-        if(df=="C"){
+        if(df==="C"){
             csctx.clip();
         }
     }
     
-    if(args.length==1) {
+    if(args.length===1) {
         var v0=evaluate(args[0]);
         
         
-        if (v0.ctype=='list'){
+        if (v0.ctype==='list'){
             return drawpoly();
             
         }
         
-        if (v0.ctype=='shape'){
+        if (v0.ctype==='shape'){
             return drawpolyshape();
             
         }
@@ -703,7 +703,7 @@ evaluator.drawtext=function(args,modifs){
 
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 size=erg.value.real;
                 if(size<0) size=0;
             }
@@ -711,53 +711,53 @@ evaluator.drawtext=function(args,modifs){
         
         if(modifs.bold!==undefined){
             erg =evaluate(modifs.bold);
-            if(erg.ctype=='boolean' && erg.value ){
+            if(erg.ctype==='boolean' && erg.value ){
                 bold="bold ";
             }
         }
         if(modifs.italics!==undefined){
             erg =evaluate(modifs.italics);
-            if(erg.ctype=='boolean' && erg.value ){
+            if(erg.ctype==='boolean' && erg.value ){
                 italics="italic ";
             }
         }
         
         if(modifs.family!==undefined){
             erg =evaluate(modifs.family);
-            if(erg.ctype=='string'  ){
+            if(erg.ctype==='string'  ){
                 family=erg.value;
             }
         }
         
         if(modifs.align!==undefined){
             erg =evaluate(modifs.align);
-            if(erg.ctype=='string'  ){
-                if(erg.value=="left"){align=0;}
-                if(erg.value=="right"){align=1;}
-                if(erg.value=="mid"){align=0.5;}
+            if(erg.ctype==='string'  ){
+                if(erg.value==="left"){align=0;}
+                if(erg.value==="right"){align=1;}
+                if(erg.value==="mid"){align=0.5;}
             }
         }
         
         if(modifs.x_offset!==undefined){
             erg =evaluate(modifs.x_offset);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 ox=erg.value.real;
             }
         }
         
         if(modifs.y_offset!==undefined){
             erg =evaluate(modifs.y_offset);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 oy=erg.value.real;
             }
         }
         
         if(modifs.offset!==undefined){
             erg =evaluate(modifs.offset);
-            if(erg.ctype=='list'){
-                if(erg.value.length==2 &&
-                   erg.value[0].ctype=="number" &&
-                   erg.value[1].ctype=="number"){
+            if(erg.ctype==='list'){
+                if(erg.value.length===2 &&
+                   erg.value[0].ctype==="number" &&
+                   erg.value[1].ctype==="number"){
                     ox=erg.value[0].value.real;
                     oy=erg.value[1].value.real;
                     
@@ -785,7 +785,7 @@ evaluator.drawtext=function(args,modifs){
         if(modifs.color!==undefined){
             erg =evaluate(modifs.color);
             if(List.isNumberVector(erg).value){
-                if(erg.value.length==3){
+                if(erg.value.length===3){
                     r=Math.floor(erg.value[0].value.real*255);
                     g=Math.floor(erg.value[1].value.real*255);
                     b=Math.floor(erg.value[2].value.real*255);
@@ -798,7 +798,7 @@ evaluator.drawtext=function(args,modifs){
         
         if(modifs.alpha!==undefined){
             erg =evaluate(modifs.alpha);
-            if(erg.ctype=="number"){
+            if(erg.ctype==="number"){
                 alpha=erg.value.real;
             }
         }
@@ -808,7 +808,7 @@ evaluator.drawtext=function(args,modifs){
     
     
     
-    if(args.length==2) {
+    if(args.length===2) {
         var v0=evaluateAndVal(args[0]);
         var v1=evaluate(args[1]);
         var pt=evaluator._helper.extractPoint(v0);
@@ -838,10 +838,10 @@ evaluator.drawtext=function(args,modifs){
 };
 
 evaluator._helper.drawshape=function(shape,modifs){
-    if(shape.type=="polygon") {
+    if(shape.type==="polygon") {
         return evaluator._helper.drawpolygon([shape],modifs,"D",1);
     }
-    if(shape.type=="circle") {
+    if(shape.type==="circle") {
         return evaluator._helper.drawcircle([shape.value.value[0],shape.value.value[1]],modifs,"D");
     }
     return nada;
@@ -850,10 +850,10 @@ evaluator._helper.drawshape=function(shape,modifs){
 
 evaluator._helper.fillshape=function(shape,modifs){
     
-    if(shape.type=="polygon") {
+    if(shape.type==="polygon") {
         return evaluator._helper.drawpolygon([shape],modifs,"F",1);
     }
-    if(shape.type=="circle") {
+    if(shape.type==="circle") {
         return evaluator._helper.drawcircle([shape.value.value[0],shape.value.value[1]],modifs,"F");
     }
     return nada;
@@ -861,10 +861,10 @@ evaluator._helper.fillshape=function(shape,modifs){
 
 
 evaluator._helper.clipshape=function(shape,modifs){
-    if(shape.type=="polygon") {
+    if(shape.type==="polygon") {
         return evaluator._helper.drawpolygon([shape],modifs,"C",1);
     }
-    if(shape.type=="circle") {
+    if(shape.type==="circle") {
         return evaluator._helper.drawcircle([shape.value.value[0],shape.value.value[1]],modifs,"C");
     }
     return nada;
@@ -874,10 +874,10 @@ evaluator._helper.clipshape=function(shape,modifs){
 
 
 evaluator.fill =function(args,modifs){
-    if(args.length==1) {
+    if(args.length===1) {
         var v1=evaluate(args[0]);
         
-        if(v1.ctype=="shape"){
+        if(v1.ctype==="shape"){
             return evaluator._helper.fillshape(v1,modifs);
             
         }
@@ -888,14 +888,14 @@ evaluator.fill =function(args,modifs){
 
 
 evaluator.clip =function(args,modifs){
-    if(args.length==1) {
+    if(args.length===1) {
         var v1=evaluate(args[0]);
         
-        if(v1.ctype=="shape"){
+        if(v1.ctype==="shape"){
             return evaluator._helper.clipshape(v1,modifs);
             
         }
-        if(v1.ctype=="list"){
+        if(v1.ctype==="list"){
             var erg=evaluator.polygon(args,[]);
             
             return evaluator.clip([erg],[]);
@@ -936,19 +936,19 @@ evaluator._helper.unSetDash=function(){
 
 evaluator._helper.setDashType=function(type,s){
     
-    if(type==0){
+    if(type===0){
         evaluator._helper.setDash([]);
     }
-    if(type==1){
+    if(type===1){
         evaluator._helper.setDash([10,10],s);
     }
-    if(type==2){
+    if(type===2){
         evaluator._helper.setDash([10,4],s);
     }
-    if(type==3){
+    if(type===3){
         evaluator._helper.setDash([1,3],s);
     }
-    if(type==4){
+    if(type===4){
         evaluator._helper.setDash([10,5,1,5],s);
     }
     
@@ -980,7 +980,7 @@ evaluator.plot=function(args,modifs){ //OK
 
         if(modifs.size!==undefined){
             erg =evaluate(modifs.size);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 lsize=erg.value.real;
                 if(lsize<0) lsize=0;
             }
@@ -990,7 +990,7 @@ evaluator.plot=function(args,modifs){ //OK
         
         if(modifs.dashpattern!==undefined){
             erg =evaluate(modifs.dashpattern);
-            if(erg.ctype=='list'){
+            if(erg.ctype==='list'){
                 var pat=[]; 
                 for(var i=0; i<erg.value.length;i++){
                     pat[i]=erg.value[i].value.real;
@@ -1003,7 +1003,7 @@ evaluator.plot=function(args,modifs){ //OK
         
         if(modifs.dashtype!==undefined){
             erg =evaluate(modifs.dashtype);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 var type=Math.floor(erg.value.real);
                 evaluator._helper.setDashType(type,lsize);
                 dashing=true;
@@ -1014,7 +1014,7 @@ evaluator.plot=function(args,modifs){ //OK
         
         if(modifs.dashing!==undefined){
             erg =evaluate(modifs.dashing);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 var si=Math.floor(erg.value.real);
                 evaluator._helper.setDash([si*2,si],lsize);
                 dashing=true;
@@ -1026,28 +1026,28 @@ evaluator.plot=function(args,modifs){ //OK
         
         if(modifs.connect!==undefined){
             erg =evaluate(modifs.connect);
-            if(erg.ctype=='boolean'){
+            if(erg.ctype==='boolean'){
                 connectb=erg.value;               
             }
         }
         
         if(modifs.start!==undefined){
             erg =evaluate(modifs.start);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 start=erg.value.real;               
             }
         }
         
         if(modifs.stop!==undefined){
             erg =evaluate(modifs.stop);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 stop=erg.value.real;               
             }
         }
         
         if(modifs.steps!==undefined){
             erg =evaluate(modifs.steps);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 steps=erg.value.real;               
             }
         }
@@ -1072,7 +1072,7 @@ evaluator.plot=function(args,modifs){ //OK
         if(modifs.color!==undefined){
             erg =evaluate(modifs.color);
             if(List.isNumberVector(erg).value){
-                if(erg.value.length==3){
+                if(erg.value.length===3){
                     r=Math.floor(erg.value[0].value.real*255);
                     g=Math.floor(erg.value[1].value.real*255);
                     b=Math.floor(erg.value[2].value.real*255);
@@ -1085,7 +1085,7 @@ evaluator.plot=function(args,modifs){ //OK
         
         if(modifs.alpha!==undefined){
             erg =evaluate(modifs.alpha);
-            if(erg.ctype=="number"){
+            if(erg.ctype==="number"){
                 alpha=erg.value.real;
             }
         }
@@ -1095,16 +1095,16 @@ evaluator.plot=function(args,modifs){ //OK
     
     
     var v1=args[0];
-    if(args.length==2 && args[1].ctype=='variable'){
+    if(args.length===2 && args[1].ctype==='variable'){
         runv=args[1].name;
         
     } else {
         var li=evaluator._helper.plotvars(v1);
         var runv="#";
-        if(li.indexOf("t")!=-1) {runv="t";}
-        if(li.indexOf("z")!=-1) {runv="z";}
-        if(li.indexOf("y")!=-1) {runv="y";}
-        if(li.indexOf("x")!=-1) {runv="x";}
+        if(li.indexOf("t")!==-1) {runv="t";}
+        if(li.indexOf("z")!==-1) {runv="z";}
+        if(li.indexOf("y")!==-1) {runv="y";}
+        if(li.indexOf("x")!==-1) {runv="x";}
     }
     
     namespace.newvar(runv);
@@ -1126,7 +1126,7 @@ evaluator.plot=function(args,modifs){ //OK
     
     
     function canbedrawn(v){
-        return v.ctype=='number' && CSNumber._helper.isAlmostReal(v);
+        return v.ctype==='number' && CSNumber._helper.isAlmostReal(v);
     }
     
     function drawstroke(x1,x2,v1,v2,step){
@@ -1244,15 +1244,15 @@ evaluator.plot=function(args,modifs){ //OK
     x=CSNumber.real(14.32);
         namespace.setvar(runv,x);
     v=evaluate(v1);
-    if(v.ctype!="number") {
+    if(v.ctype!=="number") {
         if(List.isNumberVector(v).value){
-            if(v.value.length==2){  //Parametric Plot
+            if(v.value.length===2){  //Parametric Plot
                 var stroking=false;
                 step=(stop-start)/steps;
                 for(var x=start;x<stop;x=x+step){
                     namespace.setvar(runv,CSNumber.real(x));
                     var erg=evaluate(v1);
-                    if(List.isNumberVector(erg).value && erg.value.length==2){
+                    if(List.isNumberVector(erg).value && erg.value.length===2){
                         var x1=+erg.value[0].value.real;
                         var y=+erg.value[1].value.real;
                         var xx=x1*m.a-y*m.b+m.tx;
@@ -1320,10 +1320,10 @@ evaluator.plotX=function(args,modifs){ //OK
     var v1=args[0];
     var li=evaluator._helper.plotvars(v1);
     var runv="#";
-    if(li.indexOf("t")!=-1) {runv="t";}
-    if(li.indexOf("z")!=-1) {runv="z";}
-    if(li.indexOf("y")!=-1) {runv="y";}
-    if(li.indexOf("x")!=-1) {runv="x";}
+    if(li.indexOf("t")!==-1) {runv="t";}
+    if(li.indexOf("z")!==-1) {runv="z";}
+    if(li.indexOf("y")!==-1) {runv="y";}
+    if(li.indexOf("x")!==-1) {runv="x";}
     
     
     namespace.newvar(runv);
@@ -1342,7 +1342,7 @@ evaluator.plotX=function(args,modifs){ //OK
         namespace.setvar(runv,CSNumber.real(x));
         
         var erg=evaluate(v1);
-        if(erg.ctype=="number"){
+        if(erg.ctype==="number"){
             var y=+erg.value.real;
             var xx=x*m.a-y*m.b+m.tx;
             var yy=x*m.c-y*m.d-m.ty;
@@ -1394,17 +1394,17 @@ evaluator._helper.plotvars=function(a){
         return x;
     }
     
-    if(a.ctype=="variable"){
+    if(a.ctype==="variable"){
         return [a.name];
     }
     
-    if(a.ctype=='infix'){
+    if(a.ctype==='infix'){
         var l1=  evaluator._helper.plotvars(a.args[0]);
         var l2=  evaluator._helper.plotvars(a.args[1]);
         return merge(l1,l2);
     }
     
-    if(a.ctype=='list'){
+    if(a.ctype==='list'){
         var els=a.value;
         var li=[];
         for(var j=0;j<els.length;j++) {
@@ -1414,7 +1414,7 @@ evaluator._helper.plotvars=function(a){
         return li;
     }
     
-    if(a.ctype=='function'){
+    if(a.ctype==='function'){
         var els=a.args;
         var li=[];
         for(var j=0;j<els.length;j++) {
@@ -1422,17 +1422,17 @@ evaluator._helper.plotvars=function(a){
             li=merge(li,l1);
             
         }
-        if((  a.oper=="apply"  //OK, das kann man eleganter machen, TODO: irgendwann
-              ||a.oper=="select"
-              ||a.oper=="forall"
-              ||a.oper=="sum"
-              ||a.oper=="product"
-              ||a.oper=="repeat"
-              ||a.oper=="min"
-              ||a.oper=="max"
-              ||a.oper=="sort"
+        if((  a.oper==="apply"  //OK, das kann man eleganter machen, TODO: irgendwann
+              ||a.oper==="select"
+              ||a.oper==="forall"
+              ||a.oper==="sum"
+              ||a.oper==="product"
+              ||a.oper==="repeat"
+              ||a.oper==="min"
+              ||a.oper==="max"
+              ||a.oper==="sort"
               ) 
-           && a.args[1].ctype=="variable"){
+           && a.args[1].ctype==="variable"){
             li=remove(li,a.args[1].name);
         }
         return li;
@@ -1445,8 +1445,8 @@ evaluator._helper.plotvars=function(a){
 
 
 evaluator.clrscr=function(args,modifs){
-    if(args.length==0) {
-        if(typeof csw != 'undefined' && typeof csh != 'undefined') {
+    if(args.length===0) {
+        if(typeof csw !== 'undefined' && typeof csh !== 'undefined') {
             csctx.clearRect ( 0   , 0 , csw , csh );
         }
     }
@@ -1454,7 +1454,7 @@ evaluator.clrscr=function(args,modifs){
 };
 
 evaluator.repaint=function(args,modifs){
-    if(args.length==0) {
+    if(args.length===0) {
         updateCindy();
         
     }
@@ -1463,7 +1463,7 @@ evaluator.repaint=function(args,modifs){
 
 
 evaluator.screenbounds=function(args,modifs){
-    if(args.length==0) {
+    if(args.length===0) {
         var pt1=List.realVector(csport.to(0,0));
         pt1.usage="Point";
         var pt2=List.realVector(csport.to(csw,0));

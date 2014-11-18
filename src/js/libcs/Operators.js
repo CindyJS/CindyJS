@@ -25,7 +25,7 @@ evaluator.err=function(args,modifs){      //OK
     } else {
         s = args[0];
     }
-    s = varname + " ==> " + niceprint(evaluate(s));
+    s = varname + " ===> " + niceprint(evaluate(s));
     if (console && console.log)
         console.log(s);
     if (csconsole)
@@ -38,11 +38,11 @@ evaluator.errc=function(args,modifs){      //OK
     if(args[0].ctype==='variable'){
         // var s=evaluate(args[0].value[0]);
         s=evaluate(namespace.getvar(args[0].name));
-        console.log(args[0].name+" ==> "+niceprint(s));
+        console.log(args[0].name+" ===> "+niceprint(s));
         
     } else {
         s=evaluate(args[0]);
-        console.log(" ==> "+niceprint(s));
+        console.log(" ===> "+niceprint(s));
         
     }
     return nada;

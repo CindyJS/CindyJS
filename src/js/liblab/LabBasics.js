@@ -22,7 +22,7 @@ var behaviors;
 var masses=[];
 var csPhysicsInited=false;
 function csinitphys(behavs){
-    csPhysicsInited=(behavs==[]);
+    csPhysicsInited=(behavs===[]);
 
     behaviors=behavs;
     masses=[];
@@ -34,7 +34,7 @@ function csinitphys(behavs){
             if(csgeo.csnames[geoname]){
                 csgeo.csnames[geoname].behavior=beh.behavior;
                 labObjects[beh.behavior.type].init(beh.behavior,csgeo.csnames[geoname]);
-                if(beh.behavior.type=="Mass"){
+                if(beh.behavior.type==="Mass"){
                     masses.push(csgeo.csnames[geoname]);    
                 }
                 

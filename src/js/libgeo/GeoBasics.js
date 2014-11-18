@@ -37,7 +37,7 @@ function csinit(gslp){
     function pointDefault(el){
         
         el.size=CSNumber.real(el.size || defaultAppearance.pointSize);
-        if(el.type!="Free"){
+        if(el.type!=="Free"){
             el.color=List.realVector(el.color || defaultAppearance.pointColor);
             el.color=List.scalmult(CSNumber.real(defaultAppearance.dimDependent),el.color);
         } else {
@@ -90,25 +90,25 @@ function csinit(gslp){
     var m=csport.drawingstate.matrix;
     
     for( var k=0; k<csgeo.gslp.length; k++ ) {
-        if(csgeo.gslp[k].kind=="P"){
+        if(csgeo.gslp[k].kind==="P"){
             var p=csgeo.gslp[k];
             csgeo.points[csgeo.ctp]=p;
             pointDefault(p );
             csgeo.ctp+=1;
         }
-        if(csgeo.gslp[k].kind=="L"){
+        if(csgeo.gslp[k].kind==="L"){
             var l=csgeo.gslp[k];
             csgeo.lines[csgeo.ctl]=l;
             lineDefault(l);
             csgeo.ctl+=1;
         }
-        if(csgeo.gslp[k].kind=="C"){
+        if(csgeo.gslp[k].kind==="C"){
             var l=csgeo.gslp[k];
             csgeo.conics[csgeo.ctc]=l;
             lineDefault(l);
             csgeo.ctc+=1;
         }
-        if(csgeo.gslp[k].kind=="S"){
+        if(csgeo.gslp[k].kind==="S"){
             var l=csgeo.gslp[k];
             csgeo.lines[csgeo.ctl]=l;
             segmentDefault(l);
@@ -116,18 +116,18 @@ function csinit(gslp){
         }
         
         var ty=csgeo.gslp[k].type;
-        if(ty=="Free" 
-        || ty=="PointOnLine" 
-        || ty=="PointOnCircle" 
-        || ty=="PointOnSegment"){//TODO generisch nach geoops ziehen
+        if(ty==="Free" 
+        || ty==="PointOnLine" 
+        || ty==="PointOnCircle" 
+        || ty==="PointOnSegment"){//TODO generisch nach geoops ziehen
             var f=csgeo.gslp[k];
             if(f.pos) {
-               if(f.pos.length==2){
+               if(f.pos.length===2){
                   f.sx=f.pos[0];
                   f.sy=f.pos[1];
                   f.sz=1;
                }
-               if(f.pos.length==3){
+               if(f.pos.length===3){
                   f.sx=f.pos[0];
                   f.sy=f.pos[1];
                   f.sz=f.pos[2];
@@ -135,22 +135,22 @@ function csinit(gslp){
             
             }
             f.homog=List.realVector([gslp[k].sx,gslp[k].sy,gslp[k].sz]);
-            f.isfinite=(f.sz!=0);
+            f.isfinite=(f.sz!==0);
             f.ismovable=true;
-            if(ty=="PointOnCircle"){
+            if(ty==="PointOnCircle"){
                 f.angle=CSNumber.real(f.angle);
                 
             }   
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
         } 
-        if(ty=="CircleMr" || ty=="CircleMFixedr"){
+        if(ty==="CircleMr" || ty==="CircleMFixedr"){
             var f=csgeo.gslp[k];
             f.radius=CSNumber.real(f.radius);
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
         } 
-        if(ty=="Through"){
+        if(ty==="Through"){
             var f=csgeo.gslp[k];
             f.dir=General.wrap(f.dir);
             csgeo.free[csgeo.ctf]=f;
@@ -209,7 +209,7 @@ function isShowing(el,op){
             }
         }
     }
-/*    if (el.kind=="P" ||el.kind=="L"){
+/*    if (el.kind==="P" ||el.kind==="L"){
     
         if(!List.helper.isAlmostReal(el.homog)){
             el.isshowing=false;
@@ -336,16 +336,16 @@ function render(){
         if(!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
 
-        if(el.clip.value=="none"){
+        if(el.clip.value==="none"){
             evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
         }
-        else if(el.clip.value=="end"){
+        else if(el.clip.value==="end"){
             var pt1=csgeo.csnames[el.args[0]];
             var pt2=csgeo.csnames[el.args[1]];
             evaluator.draw([pt1.homog,pt2.homog],
                            {size:el.size,color:el.color,alpha:el.alpha});
         }
-        else if(el.clip.value=="inci"){
+        else if(el.clip.value==="inci"){
             var li=[];
             var xmin=[+1000000,0];
             var xmax=[-1000000,0];
@@ -385,7 +385,7 @@ function render(){
                 pt2=ymax[1];
            
             }
-            if(pt1!=pt2){
+            if(pt1!==pt2){
                 evaluator.draw([pt1,pt2],
                 {size:el.size,color:el.color,alpha:el.alpha,overhang:el.overhang});
             } else {

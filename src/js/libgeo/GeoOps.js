@@ -40,10 +40,10 @@ geoOps.Meet.visiblecheck=function(el){
     var el1=csgeo.csnames[(el.args[0])];
     var el2=csgeo.csnames[(el.args[1])];
     
-    if(el1.type=="Segment") {
+    if(el1.type==="Segment") {
         visible=onSegment(el,el1);
     } 
-    if(visible && el1.type=="Segment") {
+    if(visible && el1.type==="Segment") {
         visible=onSegment(el,el2);
     }
     el.isshowing=visible;
@@ -113,7 +113,7 @@ geoOpMap.Vertical="L";
 geoOps.Through =function(el){
     var el1=List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
     
-    if(move && move.mover==el){
+    if(move && move.mover===el){
         var xx=el1.value[0].value.real-mouse.x+move.offset.x;
         var yy=el1.value[1].value.real-mouse.y+move.offset.y;
         el.dir=List.realVector([xx,yy,0]);
@@ -160,7 +160,7 @@ geoOps.PointOnCircle =function(el){//TODO was ist hier zu tun damit das stabil b
     var ln2=General.mult(c.matrix,pts[1]);
     var mid=List.normalizeZ(List.cross(ln1,ln2));
  
-    if(move && move.mover==el){
+    if(move && move.mover===el){
         var xx=mid.value[0].value.real-mouse.x-move.offset.x;
         var yy=mid.value[1].value.real-mouse.y-move.offset.y;
         el.angle=CSNumber.real(Math.atan2(-yy,-xx));
@@ -214,7 +214,7 @@ geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil 
     var yy2=CSNumber.div(el2.value[1],el2.value[2]);
     var xxm=CSNumber.div(elm.value[0],elm.value[2]);
     var yym=CSNumber.div(elm.value[1],elm.value[2]);
-    if(!move || move.mover==el){
+    if(!move || move.mover===el){
         
         var p=el.homog;
         var inf=List.linfty;
@@ -321,7 +321,7 @@ geoOps.CircleMr =function(el){
     var mid=List.scaldiv(m.value[2],m);
 
 
-    if(move && move.mover==el){
+    if(move && move.mover===el){
         var xx=mid.value[0].value.real-mouse.x;
         var yy=mid.value[1].value.real-mouse.y;
         var rad=Math.sqrt(xx*xx+yy*yy);//+move.offsetrad;
@@ -473,7 +473,7 @@ geoOps._helper.tracing2X=function(n1,n2,c1,c2,el){
     }
     
     // They are far apart. We care now.
-    if (!care || tooClose == INVALID) {
+    if (!care || tooClose === INVALID) {
         el.results=List.turnIntoCSList([n1,n2]);//Das ist "sort Output"
         return OK + tooClose;
     }

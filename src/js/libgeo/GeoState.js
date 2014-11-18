@@ -38,7 +38,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
     csport.drawingstate.initialmatrix.sdet=csport.drawingstate.matrix.sdet;
 
     csport.clone=function (obj){
-        if(obj == null || typeof(obj) != 'object')
+        if(obj === null || typeof(obj) !== 'object')
             return obj;
         
         var temp = obj.constructor(); // changed
@@ -152,7 +152,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
     };
 
     csport.grestore=function(){
-        if(csgstorage.stack.length!=0){
+        if(csgstorage.stack.length!==0){
             csport.drawingstate=csgstorage.stack.pop();
         }
     };
@@ -184,7 +184,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         var r=co.value[0].value.real; 
         var g=co.value[1].value.real; 
         var b=co.value[2].value.real; 
-        if(csport.drawingstate.alpha==1){
+        if(csport.drawingstate.alpha===1){
             
             csport.drawingstate.linecolor="rgb("+Math.floor(r*255)+","
             +Math.floor(g*255)+","
@@ -213,7 +213,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         var r=co.value[0].value.real; 
         var g=co.value[1].value.real; 
         var b=co.value[2].value.real; 
-        if(csport.drawingstate.alpha==1){
+        if(csport.drawingstate.alpha===1){
             csport.drawingstate.linecolor=
             "rgb("+Math.floor(r*255)+","
             +Math.floor(g*255)+","
@@ -231,7 +231,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         var r=co.value[0].value.real; 
         var g=co.value[1].value.real; 
         var b=co.value[2].value.real; 
-        if(csport.drawingstate.alpha==1){
+        if(csport.drawingstate.alpha===1){
             csport.drawingstate.textcolor=
             "rgb("+Math.floor(r*255)+","
             +Math.floor(g*255)+","
@@ -252,7 +252,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         var g=co.value[1].value.real; 
         var b=co.value[2].value.real; 
         
-        if(csport.drawingstate.alpha==1){
+        if(csport.drawingstate.alpha===1){
             csport.drawingstate.linecolor=
             "rgb("+Math.floor(r*255)+","
             +Math.floor(g*255)+","

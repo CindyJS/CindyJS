@@ -100,13 +100,13 @@ initRK:function(beh,dt){
     beh.fz=0;
 
     /* TODO Implement this
-        if (type == TYPE_POINTONCIRCLE) {
+        if (type === TYPE_POINTONCIRCLE) {
             Vec mid = ((PointOnCircle) associatedPoint.algorithm).getCenter();
             midx = mid.xr / mid.zr;
             midy = mid.yr / mid.zr;
             
         }
-    if (type == TYPE_POINTONLINE) {
+    if (type === TYPE_POINTONLINE) {
         Vec line = ((PointOnLine) associatedPoint.algorithm).getLine().coord;
         lx = line.yr;
         ly = -line.xr;
@@ -119,7 +119,7 @@ initRK:function(beh,dt){
 
 setVelocity:function(beh,vx,vy,vz){
     if(!vz) vz=0;
-    //if (type == TYPE_FREE) {
+    //if (type === TYPE_FREE) {
     if (true) {
         beh.vx = vx;
         beh.vy = vy;
@@ -127,7 +127,7 @@ setVelocity:function(beh,vx,vy,vz){
     }
     
     /* TODO Implement
-        if (type == TYPE_POINTONCIRCLE) {
+        if (type === TYPE_POINTONCIRCLE) {
             double x = associatedPoint.coord.xr / associatedPoint.coord.zr;
             double y = associatedPoint.coord.yr / associatedPoint.coord.zr;
             Vec mid = ((PointOnCircle) associatedPoint.algorithm).getCenter();
@@ -143,7 +143,7 @@ setVelocity:function(beh,vx,vy,vz){
                 this.vx = dix * scal;
                 this.vy = diy * scal;
         }
-    if (type == TYPE_POINTONLINE) {
+    if (type === TYPE_POINTONLINE) {
         Vec line = ((PointOnLine) associatedPoint.algorithm).getLine().coord;
         double lx = line.yr;
         double ly = -line.xr;
@@ -161,11 +161,11 @@ setVelocity:function(beh,vx,vy,vz){
 
 
 move:function(beh){
-    // if (type == TYPE_FREE) {
+    // if (type === TYPE_FREE) {
     if (true) {
         beh.pos=[beh.x, beh.y, 1.0];
         beh.internalmove = true;
-        if(!move || !mouse.down||beh.el!=move.mover )
+        if(!move || !mouse.down||beh.el!==move.mover )
             (beh.el).homog=List.realVector(beh.pos);
             (beh.el).sx=beh.x;
             (beh.el).sy=beh.y;
@@ -195,13 +195,13 @@ move:function(beh){
          vy = (y - voldy4) / 2.0;
          return;
      }
-     if (type == TYPE_FREE) {
+     if (type === TYPE_FREE) {
          pos.assign(x, y, 1.0);
          internalmove = true;
          kernel.construction.simulateMoveUnlessFixedByMouse(associatedPoint, pos);
          internalmove = false;
      }
-     if (type == TYPE_POINTONCIRCLE) {
+     if (type === TYPE_POINTONCIRCLE) {
          double dix = y - midy;  //Steht senkrecht auf radius
          double diy = -x + midx;
          double n = Math.sqrt(dix * dix + diy * diy);
@@ -223,7 +223,7 @@ move:function(beh){
          kernel.construction.simulateMoveUnlessFixedByMouse(associatedPoint, pos);
          internalmove = false;
      }
-     if (type == TYPE_POINTONLINE) {
+     if (type === TYPE_POINTONLINE) {
          
          double scal = lx * vx + ly * vy;
          vx = scal * lx;
@@ -283,7 +283,7 @@ calculateForces:function(beh){
 
 calculateDelta:function(beh,i){
     
-    //  if (type == TYPE_FREE) {
+    //  if (type === TYPE_FREE) {
     if (true) {
         beh.dx[i] = beh.vx;             //x'=v
         beh.dy[i] = beh.vy;
@@ -293,7 +293,7 @@ calculateDelta:function(beh,i){
         beh.dvz[i] = beh.fz / beh.mass;
     }
     /* TODO Implement
-    if (type == TYPE_POINTONCIRCLE) {
+    if (type === TYPE_POINTONCIRCLE) {
         double dix = y - midy;  //Steht senkrecht auf Radius
         double diy = -x + midx;
         double n = Math.sqrt(dix * dix + diy * diy);
@@ -305,7 +305,7 @@ calculateDelta:function(beh,i){
             dvx[i] = dix * scal / mass;       //v'=F/m
             dvy[i] = diy * scal / mass;
     }
-    if (type == TYPE_POINTONLINE) {
+    if (type === TYPE_POINTONLINE) {
         double scal = lx * fx + ly * fy;//Es wird nur die wirsame kraftmomponente berücksichtigt
         dx[i] = vx;             //x'=v
         dy[i] = vy;
@@ -535,7 +535,7 @@ proceedMotion:function(beh,dt,i,a){},
 
 calculateForces:function(beh){
         var xa,xb,ya,yb;
-        if(beh.ma.behavior && (!move || !mouse.down||beh.ma!=move.mover )) {
+        if(beh.ma.behavior && (!move || !mouse.down||beh.ma!==move.mover )) {
            xa=beh.ma.behavior.x;
            ya=beh.ma.behavior.y;
         } else {
@@ -543,7 +543,7 @@ calculateForces:function(beh){
             xa=pta.x;
             ya=pta.y;
         }
-        if(beh.mb.behavior && (!move || !mouse.down||beh.mb!=move.mover )) {
+        if(beh.mb.behavior && (!move || !mouse.down||beh.mb!==move.mover )) {
            xb=beh.mb.behavior.x;
            yb=beh.mb.behavior.y;
         } else {
@@ -559,25 +559,25 @@ calculateForces:function(beh){
         var lact = beh.l0; //TODO Motor
         var mytype=beh.stype;
 
-        if(mytype==1) {
+        if(mytype===1) {
            lact=0;
         }
 
         var factor=0;
         
-        if (mytype == 2 || mytype == 3){
+        if (mytype === 2 || mytype === 3){
             factor=beh.ma.behavior.mass*beh.mb.behavior.mass*beh.strength;
         }
         
-        if(mytype==2) factor=-factor;//NEWTON
+        if(mytype===2) factor=-factor;//NEWTON
 
         var fx, fy;
-        if (l != 0.0 && (mytype == 0 || mytype == 1)) {
+        if (l !== 0.0 && (mytype === 0 || mytype === 1)) {
             fx = -(xa - xb) * beh.strength * (l - lact) / l * beh.env.springstrength;
             fy = -(ya - yb) * beh.strength * (l - lact) / l * beh.env.springstrength;
-        } else if (beh.ma.behavior && beh.mb.behavior && l != 0.0) {
+        } else if (beh.ma.behavior && beh.mb.behavior && l !== 0.0) {
             var l3 = (l * l * l);
-            if (mytype == 2 || mytype == 3) {//NEWTON //ELECTRO
+            if (mytype === 2 || mytype === 3) {//NEWTON //ELECTRO
                 fx = (xa - xb) * factor / l3;
                 fy = (ya - yb) * factor / l3;
             } 
@@ -585,12 +585,12 @@ calculateForces:function(beh){
             fx = fy = 0.0;
         }
         
-        //if (a != null) {
+        //if (a !== null) {
         if (beh.ma.behavior) {
             beh.ma.behavior.fx+=fx;
             beh.ma.behavior.fy+=fy;
         }
-        //if (b != null) {
+        //if (b !== null) {
         if (beh.mb.behavior) {
             beh.mb.behavior.fx-=fx;
             beh.mb.behavior.fy-=fy;
@@ -871,13 +871,13 @@ calculateForces:function(beh){
         
         for (var i = 0; i < masses.length - 1; i++) {
             var m1 = masses[i];
-            if(m1.behavior.radius!=0){
+            if(m1.behavior.radius!==0){
                 var x1 = m1.behavior.x;
                 var y1 = m1.behavior.y;
                 for (var j = i + 1; j < masses.length; j++) {
                     
                     var m2 = masses[j];
-                    if(m2.behavior.radius!=0){
+                    if(m2.behavior.radius!==0){
                         
                         var x2 = m2.behavior.x;
                         var y2 = m2.behavior.y;
@@ -887,11 +887,11 @@ calculateForces:function(beh){
                         var fx = 0;
                         var fy = 0;
                         
-                        if (beh.ballInteractionBoosting == 0) {
+                        if (beh.ballInteractionBoosting === 0) {
                             fx = (x1 - x2) / (l * l * l) * (l > r ? 0 : (l - r) * (l - r));
                             fy = (y1 - y2) / (l * l * l) * (l > r ? 0 : (l - r) * (l - r));
                         } else {
-                            if (beh.ballInteractionBoosting == 1) {
+                            if (beh.ballInteractionBoosting === 1) {
                                 
                                 fx = (x1 - x2) / (l * l * l * l) * (l > r ? 0 : (l - r) * (l - r));
                                 fy = (y1 - y2) / (l * l * l * l) * (l > r ? 0 : (l - r) * (l - r));
