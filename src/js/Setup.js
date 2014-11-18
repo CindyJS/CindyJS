@@ -269,8 +269,7 @@ function waitFor(name) {
       cjsInit();
     }
   };
-};
-global['cjsWaitFor'] = waitFor;
+}
 document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
 function createCindy(data) {
   if (waitCount === 0) {

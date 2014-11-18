@@ -77,7 +77,7 @@ function csinit(gslp){
         g.isshowing=true;
         g.movable=false;
         g.inited=false;
-    };
+    }
     
     csgeo.points=[];
     csgeo.lines=[];
@@ -158,9 +158,9 @@ function csinit(gslp){
         } 
 
        
-    };
+    }
     guessIncidences();
-};
+}
 
 function onSegment(p,s){//TODO was ist mit Fernpunkten
                         // TODO das ist eine sehr teure implementiereung
@@ -238,7 +238,7 @@ function recalc(){
         isShowing(el,op);
                      
     }
-};
+}
 
 
 function guessIncidences(){
@@ -414,7 +414,7 @@ function render(){
     }
 
      
-};
+}
 
 
 
