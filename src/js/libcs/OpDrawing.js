@@ -1095,12 +1095,13 @@ evaluator.plot=function(args,modifs){ //OK
     
     
     var v1=args[0];
+    var runv;
     if(args.length===2 && args[1].ctype==='variable'){
         runv=args[1].name;
         
     } else {
         var li=evaluator._helper.plotvars(v1);
-        var runv="#";
+        runv="#";
         if(li.indexOf("t")!==-1) {runv="t";}
         if(li.indexOf("z")!==-1) {runv="z";}
         if(li.indexOf("y")!==-1) {runv="y";}

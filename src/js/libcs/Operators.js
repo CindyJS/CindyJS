@@ -2396,9 +2396,8 @@ evaluator.replace=function(args,modifs){
                 srep = getReplStr(s, rules, from);
             }
             
-            
+            return {ctype:"string",value:s};
         }
-        return {ctype:"string",value:s};
         
     }
     
@@ -2962,9 +2961,9 @@ evaluator.format=function(args,modifs){//TODO Complex,Angels etc
     if(v0.ctype==='number' &&v1.ctype==='number' ){
         var val=v0.value.real;
         var dec=Math.round(v1.value.real);
-        var erg=val.toFixed(dec);
+        var erg=val.toFixed(dec), erg1;
         do {
-          var erg1=erg;
+          erg1=erg;
           erg=erg.substring(0,erg.length-1);
        } while (erg!==""&& erg!=="-"&& +erg === +erg1);
         

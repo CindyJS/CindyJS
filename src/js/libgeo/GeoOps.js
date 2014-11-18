@@ -214,6 +214,7 @@ geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil 
     var yy2=CSNumber.div(el2.value[1],el2.value[2]);
     var xxm=CSNumber.div(elm.value[0],elm.value[2]);
     var yym=CSNumber.div(elm.value[1],elm.value[2]);
+    var par;
     if(!move || move.mover===el){
         
         var p=el.homog;
@@ -238,7 +239,7 @@ geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil 
         var d1m=Math.sqrt((x1-xm)*(x1-xm)+(y1-ym)*(y1-ym));
         var d2m=Math.sqrt((x2-xm)*(x2-xm)+(y2-ym)*(y2-ym));
         var dd=d12-d1m-d2m;
-        var par=d1m/d12;
+        par=d1m/d12;
         if (d1m>d12) par=1;
         if (d2m>d12) par=0;
         el.param=CSNumber.real(par);
