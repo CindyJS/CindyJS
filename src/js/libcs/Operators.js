@@ -2948,7 +2948,7 @@ evaluator.javascript=function(args,modifs){
        
         if(v0.ctype==='string'){
             var s=v0.value;
-            eval(s);
+            eval(s); // jshint ignore:line
             
         }
     }
@@ -2966,7 +2966,7 @@ evaluator.format=function(args,modifs){//TODO Complex,Angels etc
         do {
           var erg1=erg;
           erg=erg.substring(0,erg.length-1);
-       } while (erg!==""&& erg!=="-"&& eval(erg)===eval(erg1));       
+       } while (erg!==""&& erg!=="-"&& +erg === +erg1);
         
         return {"ctype":"string" ,  "value":""+erg1};
     }
