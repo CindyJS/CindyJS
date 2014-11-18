@@ -377,10 +377,8 @@ evaluator.draw=function(args,modifs){
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
 
 		csctx.beginPath();
-		if(arrowShape == "full"){csctx.lineWidth = 1;}
-		else{ csctx.lineWidth = 2;}
-       		csctx.lineCap = 'round';
-	        csctx.strokeStyle=col;
+		if(arrowShape == "full"){csctx.lineWidth = lsize/2;}
+		//else{ csctx.lineWidth = lsize;}
 		//csctx.moveTo(xxx2 - lll*Math.cos(angle - Math.PI/6), yyy2 - lll*Math.sin(angle - Math.PI/6));
 		csctx.moveTo(xxx2, yyy2);
 		csctx.lineTo(rx ,ry);
@@ -410,7 +408,7 @@ evaluator.draw=function(args,modifs){
 
 		// draw arrow heads at desired positions
 		var amodif = 0;
-		if(arrowScaling < 0.5){ amodif = Math.PI; console.log("set modif"); }
+		if(arrowScaling < 0.5){ amodif = Math.PI}
 		if(arrowSides == '==>' || arrowSides == '<==>'){
 		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, amodif);
 		}

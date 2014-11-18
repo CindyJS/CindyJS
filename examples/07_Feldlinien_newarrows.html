@@ -29,12 +29,12 @@
                           c1=abs(f1)/abs(f);
                           c2=abs(f2)/abs(f);
                           f=f/abs(f)*.35;
-                          nn=(-f_2,f_1)*.6;
+//                          nn=(-f_2,f_1)*.6;
                           col=(c1,c2,0);
                           col=col/abs(col)*.7;
                           linesize(sqrt(s)*3);
-			  draw(p-f*1.5,p+f*.5, arrow->true, arrowshape->"full", arrowsides->"==>", arrowsize->0.7, color->(0,0,1),alpha->0.9,color->col);
-                          //draw(p-f*1.5,p+f*.5,color->(0,0,1),alpha->0.9,color->col);
+			  //draw(p-f*1.5,p+f*.5, arrow->true, arrowshape->"default", arrowsides->"==>", arrowsize->0.7, color->(0,0,1),color->col);
+			  draw(p-f*1.5,p+f*.5,arrow->true, arrowshape->"default" ,color->col);
                           //draw(p+f*.5,p+nn*.8,color->(0,0,1),alpha->0.9,color->col);
                           //draw(p+f*.5,p-nn*.8,color->(0,0,1),alpha->0.9,color->col);
                           )
