@@ -14,7 +14,7 @@ libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/Geo
 
 liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
-lib := src/js/extlibhdr.js src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
+lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
 ours = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab)
 
@@ -28,9 +28,8 @@ endif
 
 closure_language = ECMASCRIPT5_STRICT
 closure_args = \
-	--language_in ECMASCRIPT5 \
-	--create_source_map build/js/Cindy.js.map \
 	--language_in $(closure_language) \
+	--create_source_map build/js/Cindy.js.map \
 	--compilation_level $(closure_level) \
 	--source_map_format V3 \
 	--source_map_location_mapping "build/js/|" \
