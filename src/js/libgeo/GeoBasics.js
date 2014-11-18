@@ -99,19 +99,19 @@ function csinit(gslp){
         if(csgeo.gslp[k].kind=="L"){
             var l=csgeo.gslp[k];
             csgeo.lines[csgeo.ctl]=l;
-            lineDefault(l)
+            lineDefault(l);
             csgeo.ctl+=1;
         }
         if(csgeo.gslp[k].kind=="C"){
             var l=csgeo.gslp[k];
             csgeo.conics[csgeo.ctc]=l;
-            lineDefault(l)
+            lineDefault(l);
             csgeo.ctc+=1;
         }
         if(csgeo.gslp[k].kind=="S"){
             var l=csgeo.gslp[k];
             csgeo.lines[csgeo.ctl]=l;
-            segmentDefault(l)
+            segmentDefault(l);
             csgeo.ctl+=1;
         }
         
@@ -283,7 +283,7 @@ function render(){
             var bold = (el.textbold === true);
             var italics = (el.textitalics === true);
             var family = el.text_fontfamily || "Sans Serif";
-            var dist = lpos.x*lpos.x + lpos.y*lpos.y
+            var dist = lpos.x*lpos.x + lpos.y*lpos.y;
             var factor = 1.0;
             if (dist > 0) {
                 factor = 1.0 + el.size.value.real / Math.sqrt(dist);
@@ -303,9 +303,9 @@ function render(){
         if(!el.isshowing || el.visible === false)
             return;
         var cc=el.matrix;
-        var cxr = cc.value[2].value[0].value.real 
+        var cxr = cc.value[2].value[0].value.real;
         var axr = cc.value[0].value[0].value.real;
-        var cyr = cc.value[2].value[1].value.real 
+        var cyr = cc.value[2].value[1].value.real;
         var byr = cc.value[1].value[1].value.real;
         var czr = cc.value[2].value[2].value.real;
         var x = -cxr / axr;
@@ -395,7 +395,7 @@ function render(){
             }
         }
         else {
-            console.error(["Bad clip: ", el.clip])
+            console.error(["Bad clip: ", el.clip]);
         }
 
     }

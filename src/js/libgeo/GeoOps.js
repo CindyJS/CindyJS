@@ -12,7 +12,7 @@ geoOps.Join =function(el){
     el.homog=List.cross(el1.homog,el2.homog);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Line";  
-}
+};
 geoOpMap.Join="L";
 
 
@@ -22,7 +22,7 @@ geoOps.Segment =function(el){
     el.homog=List.cross(el1.homog,el2.homog);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Line";  
-}
+};
 geoOpMap.Segment="S";
 
 
@@ -33,7 +33,7 @@ geoOps.Meet =function(el){
     el.homog=List.cross(el1.homog,el2.homog);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Point";  
-}
+};
 
 geoOps.Meet.visiblecheck=function(el){
     var visible=true;  
@@ -41,13 +41,13 @@ geoOps.Meet.visiblecheck=function(el){
     var el2=csgeo.csnames[(el.args[1])];
     
     if(el1.type=="Segment") {
-        visible=onSegment(el,el1)
+        visible=onSegment(el,el1);
     } 
     if(visible && el1.type=="Segment") {
-        visible=onSegment(el,el2)
+        visible=onSegment(el,el2);
     }
     el.isshowing=visible;
-}
+};
 
 geoOpMap.Meet="P";
 
@@ -66,7 +66,7 @@ geoOps.Mid =function(el){
     el.homog=List.add(z1,z2);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Point";      
-}
+};
 geoOpMap.Mid="P";
 
 
@@ -79,7 +79,7 @@ geoOps.Perp =function(el){
     el.homog=List.cross(tt,p);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Line";
-}
+};
 geoOpMap.Perp="L";
 
 
@@ -90,7 +90,7 @@ geoOps.Para =function(el){
     el.homog=List.cross(List.cross(inf,l),p);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Line";
-}
+};
 geoOpMap.Para="L";
 
 geoOps.Horizontal =function(el){
@@ -98,7 +98,7 @@ geoOps.Horizontal =function(el){
     el.homog=List.cross(List.ex,el1.homog);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Line";  
-}
+};
 geoOpMap.Horizontal="L";
 
 geoOps.Vertical =function(el){
@@ -106,7 +106,7 @@ geoOps.Vertical =function(el){
     el.homog=List.cross(List.ey,el1.homog);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Line";  
-}
+};
 geoOpMap.Vertical="L";
 
 
@@ -122,13 +122,13 @@ geoOps.Through =function(el){
     el.homog=List.cross(el.dir,el1);
     el.homog=List.normalizeMax(el.homog);
     el.homog.usage="Line";  
-}
+};
 geoOpMap.Through="L";
 
 
 geoOps.Free =function(el){
     
-}
+};
 geoOpMap.Free="P";
 
 geoOps.PointOnLine =function(el){
@@ -147,7 +147,7 @@ geoOps.PointOnLine =function(el){
     el.sx=x.value.real;
     el.sy=y.value.real;
     el.sz=1;
-}
+};
 geoOpMap.PointOnLine="P";
 
 
@@ -196,7 +196,7 @@ geoOps.PointOnCircle =function(el){//TODO was ist hier zu tun damit das stabil b
     el.sx=x.value.real;
     el.sy=y.value.real;
     el.sz=1;
-}
+};
 geoOpMap.PointOnCircle="P";
 
 
@@ -264,7 +264,7 @@ geoOps.PointOnSegment =function(el){//TODO was ist hier zu tun damit das stabil 
     el.sx=x.value.real;
     el.sy=y.value.real;
     el.sz=1;
-}
+};
 geoOpMap.PointOnSegment="P";
 
 
@@ -277,7 +277,7 @@ geoOps._helper.CenterOfConic =function(c){
         var erg=List.cross(ln1,ln2);
 
         return erg;
-}
+};
 
 geoOps.CenterOfConic =function(el){
     var c=csgeo.csnames[(el.args[0])].matrix;
@@ -287,7 +287,7 @@ geoOps.CenterOfConic =function(el){
     el.homog.usage="Point";
 
 
-}
+};
 geoOpMap.CenterOfConic="P";
 
 geoOps._helper.CircleMP=function(m,p){
@@ -302,7 +302,7 @@ geoOps._helper.CircleMP=function(m,p){
     var m2=General.mult(la,tang);
     var erg=List.sub(m1,m2);
     return erg;
-}
+};
 
 geoOps.CircleMP =function(el){//TODO Performance Checken. Das ist jetzt der volle CK-ansatz
                                 //Weniger Allgemein geht das viiiiel schneller
@@ -312,7 +312,7 @@ geoOps.CircleMP =function(el){//TODO Performance Checken. Das ist jetzt der voll
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Circle";
     
-}
+};
 geoOpMap.CircleMP="C";
 
 
@@ -335,7 +335,7 @@ geoOps.CircleMr =function(el){
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Circle";
     
-}
+};
 geoOpMap.CircleMr="C";
 
 
@@ -352,7 +352,7 @@ geoOps.CircleMFixedr =function(el){
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Circle";
     
-}
+};
 geoOpMap.CircleMFixedr="C";
 
 
@@ -375,7 +375,7 @@ geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
     var erg=List.sub(m1,m2);
     return erg;
-}
+};
 
 
 geoOps.ConicBy5 =function(el){
@@ -388,7 +388,7 @@ geoOps.ConicBy5 =function(el){
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
-}
+};
 geoOpMap.ConicBy5="C";
 
 geoOps.CircleBy3 =function(el){
@@ -401,7 +401,7 @@ geoOps.CircleBy3 =function(el){
     el.matrix=List.normalizeMax(erg);
     el.matrix.usage="Circle";
 
-}
+};
 geoOpMap.CircleBy3="C";
 
 
@@ -426,7 +426,7 @@ geoOps._helper.tracing2=function(n1,n2,c1,c2,el){//Billigtracing
 
     }
     
-}
+};
 
 geoOps._helper.tracing2X=function(n1,n2,c1,c2,el){
     var OK=0;
@@ -479,7 +479,7 @@ geoOps._helper.tracing2X=function(n1,n2,c1,c2,el){
     }
     return DECREASE_STEP + tooClose;        
     
-}
+};
 
 geoOps._helper.IntersectLC=function(l,c){
 
@@ -528,7 +528,7 @@ geoOps._helper.IntersectLC=function(l,c){
     erg2.usage="Point";  
     return[erg1,erg2];
 
-}
+};
 
 geoOps.IntersectLC =function(el){
     var l=csgeo.csnames[(el.args[0])].homog;
@@ -551,7 +551,7 @@ geoOps.IntersectLC =function(el){
             el.check2=el.results.value[1];
         }
     }
-}
+};
 geoOpMap.IntersectLC="T";
 
 geoOps.IntersectCirCir =function(el){
@@ -584,7 +584,7 @@ geoOps.IntersectCirCir =function(el){
         el.check2=el.results.value[1];
     }
 
-}
+};
 geoOpMap.IntersectCirCir="T";
 
 
@@ -594,7 +594,7 @@ geoOps.SelectP =function(el){
         el.inited=true;
     }
     el.homog=set.results.value[el.index-1];
-}
+};
 geoOpMap.SelectP="P";
 
 // Define a projective transformation given four points and their images
@@ -617,7 +617,7 @@ geoOps.TrProjection = function(el){
     var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
     m = List.normalizeMax(m);
     el.matrix = m;
-}
+};
 geoOpMap.TrProjection="Tr";
 
 // Apply a projective transformation to a point
@@ -626,5 +626,5 @@ geoOps.TransformP = function(el){
     var p=csgeo.csnames[(el.args[1])].homog;
     el.homog=List.normalizeMax(List.productMV(m, p));
     el.homog.usage="Point";      
-}
+};
 geoOpMap.TransformP="P";    

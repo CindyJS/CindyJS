@@ -2398,7 +2398,7 @@ evaluator.replace=function(args,modifs){
             
             
         }
-        return {ctype:"string",value:s}        
+        return {ctype:"string",value:s};
         
     }
     
@@ -2518,8 +2518,8 @@ evaluator.parse=function(args,modifs){
         var v0=evaluate(args[0]);
         
         if(v0.ctype==='string'){
-            var code=condense(v0.value)
-            var prog=analyse(code)
+            var code=condense(v0.value);
+            var prog=analyse(code);
             return evaluate(prog);
         }
     }
@@ -2541,7 +2541,7 @@ evaluator._helper.basismap=function(a,b,c,d){
         General.mult(vv.value[2],c)]);
     return List.transpose(mat);
     
-} 
+};
 
 
 evaluator.map=function(args,modifs){ 
@@ -2783,7 +2783,7 @@ evaluator.circle=function(args,modifs){
         }
         var pt2 = List.turnIntoCSList([pt.x,pt.y,pt.z]);
         
-        return {ctype:"shape", type:"circle", value:List.turnIntoCSList([pt2,v1])}
+        return {ctype:"shape", type:"circle", value:List.turnIntoCSList([pt2,v1])};
         
     }
     return nada;
@@ -2800,14 +2800,14 @@ evaluator.screen=function(args,modifs){
             var erg={X:x, Y:y};
             
             return erg;
-        }
+        };
         var erg = [
             transf(0,0),
             transf(csw,0),
             transf(csw,csh),
             transf(0,csh)
             ];
-        return {ctype:"shape", type:"polygon", value:[erg]}
+        return {ctype:"shape", type:"polygon", value:[erg]};
         
     }
             
@@ -2968,7 +2968,7 @@ evaluator.format=function(args,modifs){//TODO Complex,Angels etc
           erg=erg.substring(0,erg.length-1);
        } while (erg!==""&& erg!=="-"&& eval(erg)===eval(erg1));       
         
-        return {"ctype":"string" ,  "value":""+erg1}
+        return {"ctype":"string" ,  "value":""+erg1};
     }
     return nada;
     
@@ -2989,10 +2989,10 @@ evaluator.compileToWebGL=function(args,modifs){
        var expr=args[0];
     //   dump(expr);
        if(expr.ctype==="number") {
-          return {"ctype":"string" ,  "value":"vec2("+f(expr.value.real)+","+f(expr.value.imag)+")"}  
+          return {"ctype":"string" ,  "value":"vec2("+f(expr.value.real)+","+f(expr.value.imag)+")"};
        }
        if(expr.ctype==="variable") {
-          return {"ctype":"string" ,  "value":expr.name}  
+          return {"ctype":"string" ,  "value":expr.name};
        }
        if(expr.ctype==="string") {
           return expr;  
@@ -3001,14 +3001,14 @@ evaluator.compileToWebGL=function(args,modifs){
            var a= evaluator.compileToWebGL([expr.args[0]],{});
            var b= evaluator.compileToWebGL([expr.args[1]],{});
            if(expr.oper==="+"||expr.oper==="add") {
-               return {"ctype":"string" ,  "value":"addc("+a.value+","+b.value+")"}  
+               return {"ctype":"string" ,  "value":"addc("+a.value+","+b.value+")"};
            }
            if(expr.oper==="*"||expr.oper==="mult") {
                
-               return {"ctype":"string" ,  "value":"multc("+a.value+","+b.value+")"}  
+               return {"ctype":"string" ,  "value":"multc("+a.value+","+b.value+")"};
            }
            if(expr.oper==="-"||expr.oper==="sub") {
-               return {"ctype":"string" ,  "value":"subc("+a.value+","+b.value+")"}  
+               return {"ctype":"string" ,  "value":"subc("+a.value+","+b.value+")"};
            }
        }
     }

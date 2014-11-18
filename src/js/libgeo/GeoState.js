@@ -46,7 +46,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         for(var key in obj)
             temp[key] = csport.clone(obj[key]);
         return temp;
-    }
+    };
 
     csgstorage.backup=csport.clone(csport.drawingstate);
     csgstorage.stack=[];
@@ -64,7 +64,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         csport.drawingstate.matrix.ty=csport.drawingstate.initialmatrix.ty;
         csport.drawingstate.matrix.det=csport.drawingstate.initialmatrix.det;
         csport.drawingstate.matrix.sdet=csport.drawingstate.initialmatrix.sdet;
-    }
+    };
 
     csport.from=function(x,y,z){//Rechnet Homogene Koordinaten in Pixelkoordinaten um
         var xx=x/z;
@@ -73,7 +73,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         var xxx=xx*m.a-yy*m.b+m.tx;
         var yyy=xx*m.c-yy*m.d-m.ty;
         return [xxx,yyy];
-    }
+    };
 
     csport.to=function(px,py){//Rechnet Pixelkoordinaten in Homogene Koordinaten um
             var m=csport.drawingstate.matrix;
@@ -98,9 +98,9 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
                     "d:"+r(m.d)+" "+
                     "tx:"+r(m.ty)+" "+
                     "ty:"+r(m.tx)
-                    )
+                    );
             
-    }
+    };
 
     csport.setMat=function(a,b,c,d,tx,ty){
         var m=csport.drawingstate.matrix;
@@ -112,11 +112,11 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         m.ty = ty;
         m.det = a*d - b*c;
         m.sdet = Math.sqrt(m.det);
-    }
+    };
 
     csport.scaleAndOrigin=function(scale, originX, originY){
         csport.setMat(scale,0,0,scale,originX,originY);
-    }
+    };
 
     // TODO: This function looks broken. It seems as if the linear
     // portion of the matrix is multiplied from the left, but the
@@ -130,32 +130,32 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
           m.b*c+m.d*d,
           m.a*tx+m.c*ty+m.tx,
           m.b*tx+m.d*ty+m.ty);
-    }
+    };
 
     csport.translate=function(tx,ty){
         csport.applyMat(1,0,0,1,tx,ty);
-    }
+    };
 
     csport.rotate=function(w){
         var c=Math.cos(w);
         var s=Math.sin(w);
         csport.applyMat(c,s,-s,c,0,0);
-    }
+    };
 
     csport.scale=function(s){
         csport.applyMat(s,0,0,s,0,0);
-    }
+    };
 
     csport.gsave=function(){
         csgstorage.stack.push(csport.clone(csport.drawingstate));
         
-    }
+    };
 
     csport.grestore=function(){
         if(csgstorage.stack.length!=0){
             csport.drawingstate=csgstorage.stack.pop();
         }
-    }
+    };
 
     csport.greset=function(){
         csport.drawingstate =csport.clone(csgstorage.backup);
@@ -163,7 +163,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
             csgstorage.stack=[];
 
-    }
+    };
     
     csport.createnewbackup=function(){
         csport.drawingstate.initialmatrix.a=csport.drawingstate.matrix.a;
@@ -176,7 +176,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         csport.drawingstate.initialmatrix.sdet=csport.drawingstate.matrix.sdet;
         csgstorage.backup=csport.clone(csport.drawingstate);
         
-    }
+    };
 
     
 
@@ -207,7 +207,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         }
         csport.drawingstate.pointcolorraw=[r,g,b];
         
-    }
+    };
 
     csport.setlinecolor=function(co){
         var r=co.value[0].value.real; 
@@ -225,7 +225,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
             +Math.floor(b*255)+","+csport.drawingstate.alpha+")";
         }
         csport.drawingstate.linecolorraw=[r,g,b];
-    }
+    };
     
     csport.settextcolor=function(co){
         var r=co.value[0].value.real; 
@@ -243,7 +243,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
             +Math.floor(b*255)+","+csport.drawingstate.alpha+")";
         }
         csport.drawingstate.textcolorraw=[r,g,b];
-    }
+    };
 
     
 
@@ -266,7 +266,7 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
         
         csport.drawingstate.pointcolorraw=[r,g,b];
         
-    }
+    };
 
     csport.setalpha=function(al){
         var alpha=al.value.real;
@@ -295,19 +295,19 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
                       
         csport.drawingstate.alpha=alpha;
         
-    }
+    };
 
     csport.setpointsize=function(si){
         csport.drawingstate.pointsize=si.value.real;
-    }
+    };
 
 
 
     csport.setlinesize=function(si){
         csport.drawingstate.linesize=si.value.real;
-    }
+    };
 
    csport.settextsize=function(si){
         csport.drawingstate.textsize=si.value.real;
-    }
+    };
 

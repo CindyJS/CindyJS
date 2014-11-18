@@ -27,7 +27,7 @@ init:function(beh,elem){
         beh.vy=beh.vy || 0;
         beh.vz=beh.vz || 0;
         
-        beh.mtype=0 // TODO: Free, Online, OnCircle
+        beh.mtype=0; // TODO: Free, Online, OnCircle
             
         var x=0;
         var y=0;
@@ -378,7 +378,7 @@ doCollisions:function(beh) {}
 
 
 
-}
+};
 
 /*----------------------------SUN--------------------------*/
 
@@ -486,7 +486,7 @@ doCollisions:function(beh) {}
 
 
 
-}
+};
 
 
 /*-------------------------SPRING-----------------------*/
@@ -615,7 +615,7 @@ recallPosition:function(beh){},
 doCollisions:function(beh) {}
 
 
-}
+};
 
 
 
@@ -628,7 +628,7 @@ labObjects.det=function (x1, y1, x2,  y2, x3, y3) {
     return x2 * y3 - x3 * y2
     + x3 * y1 - x1 * y3
     + x1 * y2 - x2 * y1;
-}
+};
 
 
 labObjects.Bouncer={
@@ -784,7 +784,7 @@ doCollisions:function(beh) {
     }
 
 
-}
+};
 
 
 
@@ -942,7 +942,7 @@ recallPosition:function(beh){},
 doCollisions:function(beh) {}
 
 
-}
+};
 
 
 

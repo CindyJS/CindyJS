@@ -212,7 +212,7 @@ function modifierOp(code, bestbinding, oper){
 
 function definitionDot(code, bestbinding, oper){
     if(isNumber(code)) {
-        var erg={}
+        var erg={};
         erg.value={'real':parseFloat(code),'imag':0};
         erg.ctype='number';
         return erg;
@@ -639,7 +639,7 @@ function analyse(code,defining){
             return definitionDot(code, bestbinding, bestoper);
         if (bestoper==':=') //Specialbehandlung von definitionen
             return definitionOp(code, bestbinding, bestoper);
-        return infixOp(code, bestbinding, bestoper)
+        return infixOp(code, bestbinding, bestoper);
     } else if (bracount == 0 && braexprcount == 1 && lastbraind == code.length - 1) {//Klammer oder Funktion
         
         if (firstbraind == 0) {//Einfach eine Klammer (evtl Vector))

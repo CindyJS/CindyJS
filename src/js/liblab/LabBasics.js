@@ -46,7 +46,7 @@ function csinitphys(behavs){
     }
                       
                       
-                      )
+                      );
         
 }
 
@@ -57,7 +57,7 @@ lab.tick=function(){
     for(var i=0;i<labObjects.env.accuracy;i++) {
         lab.tick1(labObjects.env.deltat/labObjects.env.accuracy);
     }
-}
+};
 
 lab.tick1=function(deltat) {
     var mydeltat = deltat;
@@ -81,7 +81,7 @@ lab.tick1=function(deltat) {
         lab.moveToFinalPos();
     }
     return true;
-}
+};
 
 lab.restorePosition=function() {
     behaviors.forEach( function(b) {
@@ -93,7 +93,7 @@ lab.restorePosition=function() {
     //        beh.restorePos(rk.getSize() + 2);
     //    }
     //}
-}
+};
 
 lab.doCollisions=function() {
     behaviors.forEach( function(b) {
@@ -101,7 +101,7 @@ lab.doCollisions=function() {
         labObjects[beh.type].doCollisions(beh);
     } );
 
-}
+};
 
 lab.calculateForces=function() {
     behaviors.forEach( function(b) {
@@ -114,7 +114,7 @@ lab.calculateForces=function() {
     //        anAll.calculateForces();
     //    }
     //}
-}
+};
 lab.moveToFinalPos=function() {
     behaviors.forEach( function(b) {
         var beh=b.behavior;
@@ -125,7 +125,7 @@ lab.moveToFinalPos=function() {
     //        beh.move();
     //    }
     //}
-}
+};
 
 
 
@@ -146,7 +146,7 @@ lab.oneRKStep=function(mydeltat) {
         //        anAll.storePosition();
         //    }
         //}
-    }
+    };
 
 var setToTimestep=function(j) {
     behaviors.forEach( function(b) {
@@ -158,7 +158,7 @@ var setToTimestep=function(j) {
     //       anAll.setToTimestep(rk.getDt(j));
     //   }
     //}
-}
+};
 
 var proceedMotion=function(j) {
     behaviors.forEach( function(b) {
@@ -171,7 +171,7 @@ var proceedMotion=function(j) {
     //    }
     //}
     
-}
+};
 
 var resetForces=function() {
     behaviors.forEach( function(b) {
@@ -183,7 +183,7 @@ var resetForces=function() {
     //        anAll.resetForces();
     //    }
     //}
-}
+};
 
 var calculateDelta=function(j) {
     behaviors.forEach( function(b) {
@@ -195,7 +195,7 @@ var calculateDelta=function(j) {
     //        anAll.calculateDelta(j);
     //    }
     //}
-}
+};
 
 
 var calculateError=function(j) {
@@ -226,7 +226,7 @@ var calculateError=function(j) {
     //}
     //error = Math.sqrt(error) / mydeltat;
     //return error;
-}
+};
 
 var recallInitialPosition=function(j) {
     behaviors.forEach( function(b) {
@@ -239,7 +239,7 @@ var recallInitialPosition=function(j) {
     //        beh.recallPosition();
     //    }
     //}
-}
+};
 
 
 var rksize = rk.size;
@@ -269,6 +269,6 @@ while (!madeIt) {
 
 
 return mydeltat;
-}
+};
 
 

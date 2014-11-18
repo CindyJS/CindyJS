@@ -9,7 +9,7 @@ evaluator._helper.extractReferenceX=function(w,pos){
     
     
     
-}
+};
 
 evaluator.drawimage = function(args,modifs){
     
@@ -62,14 +62,14 @@ evaluator.drawimage = function(args,modifs){
             if(modifs.flipx!==undefined){
                 erg =evaluate(modifs.flipx);
                 if(erg.ctype=='boolean'){
-                    if(erg.value){flipx=-1};
+                    if(erg.value){flipx=-1;}
                 }
             }
             
             if(modifs.flipy!==undefined){
                 erg =evaluate(modifs.flipy);
                 if(erg.ctype=='boolean'){
-                    if(erg.value){flipy=-1};
+                    if(erg.value){flipy=-1;}
                 }
             }
             
@@ -184,14 +184,14 @@ evaluator.drawimage = function(args,modifs){
             if(modifs.flipx!==undefined){
                 erg =evaluate(modifs.flipx);
                 if(erg.ctype=='boolean'){
-                    if(erg.value){flipx=-1};
+                    if(erg.value){flipx=-1;}
                 }
             }
             
             if(modifs.flipy!==undefined){
                 erg =evaluate(modifs.flipy);
                 if(erg.ctype=='boolean'){
-                    if(erg.value){flipy=-1};
+                    if(erg.value){flipy=-1;}
                 }
             }
             
@@ -299,6 +299,6 @@ evaluator.drawimage = function(args,modifs){
     }
     
     return nada;
-}
+};
 
 
