@@ -66,10 +66,10 @@ function csinit(gslp){
     csgeo.csnames={}; //Lookup für elemente mit über Namen
     
     
-    
+    var k, l, f;
     
     // Das ist für alle gleich
-    for( var k=0; k<csgeo.gslp.length; k++ ) {
+    for(k=0; k<csgeo.gslp.length; k++ ) {
         var g = csgeo.gslp[k];
         csgeo.csnames[g.name]=g;
         g.kind=geoOpMap[g.type];
@@ -89,7 +89,7 @@ function csinit(gslp){
     csgeo.ctc=0;
     var m=csport.drawingstate.matrix;
     
-    for( var k=0; k<csgeo.gslp.length; k++ ) {
+    for(k=0; k<csgeo.gslp.length; k++ ) {
         if(csgeo.gslp[k].kind==="P"){
             var p=csgeo.gslp[k];
             csgeo.points[csgeo.ctp]=p;
@@ -97,19 +97,19 @@ function csinit(gslp){
             csgeo.ctp+=1;
         }
         if(csgeo.gslp[k].kind==="L"){
-            var l=csgeo.gslp[k];
+            l=csgeo.gslp[k];
             csgeo.lines[csgeo.ctl]=l;
             lineDefault(l);
             csgeo.ctl+=1;
         }
         if(csgeo.gslp[k].kind==="C"){
-            var l=csgeo.gslp[k];
+            l=csgeo.gslp[k];
             csgeo.conics[csgeo.ctc]=l;
             lineDefault(l);
             csgeo.ctc+=1;
         }
         if(csgeo.gslp[k].kind==="S"){
-            var l=csgeo.gslp[k];
+            l=csgeo.gslp[k];
             csgeo.lines[csgeo.ctl]=l;
             segmentDefault(l);
             csgeo.ctl+=1;
@@ -120,7 +120,7 @@ function csinit(gslp){
         || ty==="PointOnLine" 
         || ty==="PointOnCircle" 
         || ty==="PointOnSegment"){//TODO generisch nach geoops ziehen
-            var f=csgeo.gslp[k];
+            f=csgeo.gslp[k];
             if(f.pos) {
                if(f.pos.length===2){
                   f.sx=f.pos[0];
@@ -145,13 +145,13 @@ function csinit(gslp){
             csgeo.ctf+=1;
         } 
         if(ty==="CircleMr" || ty==="CircleMFixedr"){
-            var f=csgeo.gslp[k];
+            f=csgeo.gslp[k];
             f.radius=CSNumber.real(f.radius);
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
         } 
         if(ty==="Through"){
-            var f=csgeo.gslp[k];
+            f=csgeo.gslp[k];
             f.dir=General.wrap(f.dir);
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
@@ -333,6 +333,7 @@ function render(){
     }
     
     function drawgeoline(el){
+        var pt1, pt2;
         if(!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
 
@@ -340,8 +341,8 @@ function render(){
             evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
         }
         else if(el.clip.value==="end"){
-            var pt1=csgeo.csnames[el.args[0]];
-            var pt2=csgeo.csnames[el.args[1]];
+            pt1=csgeo.csnames[el.args[0]];
+            pt2=csgeo.csnames[el.args[1]];
             evaluator.draw([pt1.homog,pt2.homog],
                            {size:el.size,color:el.color,alpha:el.alpha});
         }
@@ -376,7 +377,6 @@ function render(){
                     }
                 }
             }
-            var pt1, pt2;
             if((xmax[0]-xmin[0])>(ymax[0]-ymin[0])) {
                 pt1=xmin[1];
                 pt2=xmax[1];
@@ -399,17 +399,20 @@ function render(){
         }
 
     }
-    for( var i=0; i<csgeo.conics.length; i++ ) {
+
+    var i;
+
+    for(i=0; i<csgeo.conics.length; i++ ) {
         drawgeoconic(csgeo.conics[i]);
     }
     
     
-    for( var i=0; i<csgeo.lines.length; i++ ) {
+    for(i=0; i<csgeo.lines.length; i++ ) {
         drawgeoline(csgeo.lines[i]);
     }
     
     
-    for( var i=0; i<csgeo.points.length; i++ ) {
+    for(i=0; i<csgeo.points.length; i++ ) {
         drawgeopoint(csgeo.points[i]);
     }
 

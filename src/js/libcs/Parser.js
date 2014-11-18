@@ -135,7 +135,7 @@ function condense(code) {
 //*******************************************************
 
 function report(a,i){
-    var prep= new Array(i + 1).join('.');
+    var prep= new Array(i + 1).join('.'), els, j;
     if(a.ctype==='infix'){
         console.log(prep+"INFIX: "+a.oper);
         console.log(prep+"ARG 1 ");
@@ -166,16 +166,16 @@ function report(a,i){
     }
     if(a.ctype==='list'){
         console.log(prep+"LIST ");
-        var els=a.value;
-        for(var j=0;j<els.length;j++) {
+        els=a.value;
+        for(j=0;j<els.length;j++) {
             console.log(prep+"EL"+ j);
             report(els[j],i+1);
         }
     }
     if(a.ctype==='function'){
         console.log(prep+"FUNCTION: "+a.oper);
-        var els=a.args;
-        for(var j=0;j<els.length;j++) {
+        els=a.args;
+        for(j=0;j<els.length;j++) {
             console.log(prep+"ARG"+ j);
             report(els[j],i+1);
         }
@@ -224,16 +224,17 @@ function definitionDot(code, bestbinding, oper){
 
 
 function validDefinabaleFunction(f){//TODO Eventuell echte fehlermelungen zurückgeben
+    var i, j;
     if(f.ctype!=='function'){
         return false;               //Invalid Function Name
     }
-    for(var i=0; i<f.args.length;i++){
+    for(i=0; i<f.args.length;i++){
         if(f.args[i].ctype!=='variable'){
             return false;               //Arg not a variable
         }
     }
-    for(var i=0; i<f.args.length-1;i++){
-        for(var j=i+1; j<f.args.length;j++){
+    for(i=0; i<f.args.length-1;i++){
+        for(j=i+1; j<f.args.length;j++){
             if(f.args[i].name===f.args[j].name){
                 return false;       //Varname used twice
             }
@@ -362,7 +363,8 @@ function funct(code, firstbraind, defining){
     var start = firstbraind + 1;
     var literalmode = false;
     var absolute = false;
-    for (var i = start; i < length; i++) {
+    var i;
+    for (i = start; i < length; i++) {
         var c = code[i];
         if (c === '"') literalmode = !literalmode;
         if (!literalmode) {
@@ -387,7 +389,7 @@ function funct(code, firstbraind, defining){
         }
     }
 
-    for (var i = 0; i < args.length; i++) {
+    for (i = 0; i < args.length; i++) {
         var s = args[i];
         
         var f = analyse(s, false);
@@ -427,7 +429,8 @@ function parseList(code) {
     var start = 0;
     var absolute = false;
     var literalmode = false;
-    for (var i = start; i < length; i++) {
+    var i;
+    for (i = start; i < length; i++) {
         var c;
         c = code1[i];
         if (c === '"') literalmode = !literalmode;
@@ -449,7 +452,7 @@ function parseList(code) {
             }
         }
     }
-    for (var i = 0; i < args.length; i++) {
+    for (i = 0; i < args.length; i++) {
         var s = args[i];
         if (""===s) {
             argsf.push('nil');
@@ -483,7 +486,9 @@ function bracket(code){
      f.setArguments(args);
      return f;
      }*/
-     
+
+     var erg;
+
      if (code[0]==="|"){
         var f1= parseList(code.substring(1, code.length - 1));
         var type=f1.args.length;
@@ -502,7 +507,7 @@ function bracket(code){
      }
     
     if (code==="()" || code==="[]") {
-        var erg={};
+        erg={};
         erg.ctype='list';
         erg.value=[];
         return erg;
@@ -512,14 +517,14 @@ function bracket(code){
         return parseList(code.substring(1, code.length - 1));
     }
     if (code[0] === '(') {
-        var erg=parseList(code.substring(1, code.length - 1));
+        erg=parseList(code.substring(1, code.length - 1));
         if(erg.args.length>1){
             return erg;
         }
         
     }
     
-    var erg = analyse(code.substring(1, code.length - 1), false);
+    erg = analyse(code.substring(1, code.length - 1), false);
     
     
     return erg;

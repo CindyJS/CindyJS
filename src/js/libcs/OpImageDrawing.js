@@ -223,7 +223,7 @@ evaluator.drawimage = function(args,modifs){
           aspect=h/w;
         
         } else {
-            var pt3=evaluator._helper.extractPoint(v2);
+            pt3=evaluator._helper.extractPoint(v2);
             if(!pt1.ok) return nada;
         }
 
@@ -270,30 +270,30 @@ evaluator.drawimage = function(args,modifs){
     
     
     
-    
+    var v0, v1, v2, img;
     
     if(args.length===2) {
-        var v0=evaluateAndVal(args[0]);
-        var img=evaluateAndVal(args[1]);
+        v0=evaluateAndVal(args[0]);
+        img=evaluateAndVal(args[1]);
         
         return drawimg1();
     }
     
     if(args.length===3) {
-        var v0=evaluateAndVal(args[0]);
-        var v1=evaluateAndVal(args[1]);
-        var v2=0;
-        var img=evaluateAndVal(args[2]);
+        v0=evaluateAndVal(args[0]);
+        v1=evaluateAndVal(args[1]);
+        v2=0;
+        img=evaluateAndVal(args[2]);
         
         return drawimg3();
     }
 
     
     if(args.length===4) {
-        var v0=evaluateAndVal(args[0]);
-        var v1=evaluateAndVal(args[1]);
-        var v2=evaluateAndVal(args[2]);
-        var img=evaluateAndVal(args[3]);
+        v0=evaluateAndVal(args[0]);
+        v1=evaluateAndVal(args[1]);
+        v2=evaluateAndVal(args[2]);
+        img=evaluateAndVal(args[3]);
         
         return drawimg3();
     }

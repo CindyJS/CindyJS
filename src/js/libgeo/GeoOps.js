@@ -412,7 +412,6 @@ geoOps._helper.tracing2=function(n1,n2,c1,c2,el){//Billigtracing
     var INVALID=2;
     var tooClose=OK;
     var security = 3;
-    var security = 3;
 
     var do1n1=List.projectiveDistMinScal(c1,n1);
     var do1n2=List.projectiveDistMinScal(c1,n2);

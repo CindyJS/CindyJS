@@ -822,20 +822,20 @@ move:function(beh){},
 proceedMotion:function(beh,dt,i,a){},
 
 calculateForces:function(beh){
- 
+    var i, m1, x1, y1, j, m2, x2, y2, k, fx, fy, r, l;
     if (beh.newton) {
-        for (var i = 0; i < masses.length - 1; i++) {
-            var m1 = masses[i];
-            var x1 = m1.behavior.x;
-            var y1 = m1.behavior.y;
-            for (var j = i + 1; j < masses.length; j++) {
+        for (i = 0; i < masses.length - 1; i++) {
+            m1 = masses[i];
+            x1 = m1.behavior.x;
+            y1 = m1.behavior.y;
+            for (j = i + 1; j < masses.length; j++) {
                 
-                var m2 = masses[j];
-                var x2 = m2.behavior.x;
-                var y2 = m2.behavior.y;
-                var l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-                var fx = (x1 - x2) * m1.behavior.mass * m2.behavior.mass / (l * l * l);
-                var fy = (y1 - y2) * m1.behavior.mass * m2.behavior.mass / (l * l * l);
+                m2 = masses[j];
+                x2 = m2.behavior.x;
+                y2 = m2.behavior.y;
+                l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+                fx = (x1 - x2) * m1.behavior.mass * m2.behavior.mass / (l * l * l);
+                fy = (y1 - y2) * m1.behavior.mass * m2.behavior.mass / (l * l * l);
                 
                 m1.behavior.fx -= fx;
                 m1.behavior.fy -= fy;
@@ -846,18 +846,18 @@ calculateForces:function(beh){
     }
     
        if (beh.charges) {
-        for (var i = 0; i < masses.length - 1; i++) {
-            var m1 = masses[i];
-            var x1 = m1.behavior.x;
-            var y1 = m1.behavior.y;
-            for (var j = i + 1; j < masses.length; j++) {
+        for (i = 0; i < masses.length - 1; i++) {
+            m1 = masses[i];
+            x1 = m1.behavior.x;
+            y1 = m1.behavior.y;
+            for (j = i + 1; j < masses.length; j++) {
                 
-                var m2 = masses[j];
-                var x2 = m2.behavior.x;
-                var y2 = m2.behavior.y;
-                var l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-                var fx = (x1 - x2) * m1.behavior.charge * m2.behavior.charge / (l * l * l);
-                var fy = (y1 - y2) * m1.behavior.charge * m2.behavior.charge / (l * l * l);
+                m2 = masses[j];
+                x2 = m2.behavior.x;
+                y2 = m2.behavior.y;
+                l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+                fx = (x1 - x2) * m1.behavior.charge * m2.behavior.charge / (l * l * l);
+                fy = (y1 - y2) * m1.behavior.charge * m2.behavior.charge / (l * l * l);
                 
                 m1.behavior.fx += fx;
                 m1.behavior.fy += fy;
@@ -869,23 +869,23 @@ calculateForces:function(beh){
  
     if (beh.balls) {
         
-        for (var i = 0; i < masses.length - 1; i++) {
-            var m1 = masses[i];
+        for (i = 0; i < masses.length - 1; i++) {
+            m1 = masses[i];
             if(m1.behavior.radius!==0){
-                var x1 = m1.behavior.x;
-                var y1 = m1.behavior.y;
-                for (var j = i + 1; j < masses.length; j++) {
+                x1 = m1.behavior.x;
+                y1 = m1.behavior.y;
+                for (j = i + 1; j < masses.length; j++) {
                     
-                    var m2 = masses[j];
+                    m2 = masses[j];
                     if(m2.behavior.radius!==0){
                         
-                        var x2 = m2.behavior.x;
-                        var y2 = m2.behavior.y;
+                        x2 = m2.behavior.x;
+                        y2 = m2.behavior.y;
                         
-                        var r = m1.behavior.radius + m2.behavior.radius;
-                        var l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-                        var fx = 0;
-                        var fy = 0;
+                        r = m1.behavior.radius + m2.behavior.radius;
+                        l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+                        fx = 0;
+                        fy = 0;
                         
                         if (beh.ballInteractionBoosting === 0) {
                             fx = (x1 - x2) / (l * l * l) * (l > r ? 0 : (l - r) * (l - r));
@@ -914,7 +914,7 @@ calculateForces:function(beh){
 
 
     
-    for (var i = 0; i < masses.length; i++) {
+    for (i = 0; i < masses.length; i++) {
         var m=masses[i];
         
         m.behavior.fx+=0;

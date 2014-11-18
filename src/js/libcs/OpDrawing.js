@@ -25,10 +25,10 @@ evaluator._helper.extractPoint=function(v1){
     var pt1=v1.value;
     var x=0;
     var y=0;
-    var z=0;
+    var z=0, n1, n2, n3;
     if(pt1.length===2){
-        var n1=pt1[0];
-        var n2=pt1[1];
+        n1=pt1[0];
+        n2=pt1[1];
         if(n1.ctype==='number' && n2.ctype==='number'){
             erg.x=n1.value.real;
             erg.y=n2.value.real;
@@ -38,9 +38,9 @@ evaluator._helper.extractPoint=function(v1){
     }
     
     if(pt1.length===3){
-        var n1=pt1[0];
-        var n2=pt1[1];
-        var n3=pt1[2];
+        n1=pt1[0];
+        n2=pt1[1];
+        n3=pt1[2];
         if(n1.ctype==='number' && n2.ctype==='number'&& n3.ctype==='number'){
             n1=CSNumber.div(n1,n3);
             n2=CSNumber.div(n2,n3);
@@ -105,8 +105,8 @@ evaluator.draw=function(args,modifs){
             if(modifs.dashtype!==undefined){
                 erg =evaluate(modifs.dashtype);
                 if(erg.ctype==='number'){
-                    var type=Math.floor(erg.value.real);
-                    evaluator._helper.setDashType(type,lsize);
+                    var type2=Math.floor(erg.value.real);
+                    evaluator._helper.setDashType(type2,lsize);
                     dashing=true;
                     
                     
@@ -579,9 +579,9 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
             csctx.beginPath();
         for(var j=0;j<polys.length;j++){
             var pol=polys[j];
-            var li=[];
+            var li=[], i;
             
-            for(var i=0;i<pol.length;i++){
+            for(i=0;i<pol.length;i++){
                 var pt=pol[i]; 
                 var xx=pt.X*m.a-pt.Y*m.b+m.tx;
                 var yy=pt.X*m.c-pt.Y*m.d-m.ty;
@@ -597,7 +597,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
                 csctx.beginPath();
             csctx.lineWidth = size*0.4;
             csctx.moveTo(li[0][0],li[0][1]);
-            for(var i=1;i<li.length;i++){
+            for(i=1;i<li.length;i++){
                 csctx.lineTo(li[i][0],li[i][1]);
             }
             if(df==="D"){
@@ -629,8 +629,8 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         
         var m=csport.drawingstate.matrix;
         
-        var li=[];
-        for(var i=0;i<v0.value.length;i++){
+        var li=[], i;
+        for(i=0;i<v0.value.length;i++){
             var pt=evaluator._helper.extractPoint(v0.value[i]);
             
             if(!pt.ok ){
@@ -649,7 +649,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         csctx.beginPath();
         csctx.lineWidth = size*0.4;
         csctx.moveTo(li[0][0],li[0][1]);
-        for(var i=1;i<li.length;i++){
+        for(i=1;i<li.length;i++){
             csctx.lineTo(li[i][0],li[i][1]);
         }
         if(cycle===1)
@@ -1004,8 +1004,8 @@ evaluator.plot=function(args,modifs){ //OK
         if(modifs.dashtype!==undefined){
             erg =evaluate(modifs.dashtype);
             if(erg.ctype==='number'){
-                var type=Math.floor(erg.value.real);
-                evaluator._helper.setDashType(type,lsize);
+                var type2=Math.floor(erg.value.real);
+                evaluator._helper.setDashType(type2,lsize);
                 dashing=true;
                 
                 
@@ -1130,10 +1130,6 @@ evaluator.plot=function(args,modifs){ //OK
         return v.ctype==='number' && CSNumber._helper.isAlmostReal(v);
     }
     
-    function drawstroke(x1,x2,v1,v2,step){
-        
-    }
-    
     function limit(v){ //TODO: Die  muss noch geschreoben werden
         return v;
         
@@ -1238,9 +1234,9 @@ evaluator.plot=function(args,modifs){ //OK
     }
     
     //Hier beginnt der Hauptteil
-    var xo,vo,x,v;
+    var xo,vo,x,v,xx,yy;
     
-    var stroking=false;
+    stroking=false;
     
     x=CSNumber.real(14.32);
         namespace.setvar(runv,x);
@@ -1248,16 +1244,16 @@ evaluator.plot=function(args,modifs){ //OK
     if(v.ctype!=="number") {
         if(List.isNumberVector(v).value){
             if(v.value.length===2){  //Parametric Plot
-                var stroking=false;
+                stroking=false;
                 step=(stop-start)/steps;
-                for(var x=start;x<stop;x=x+step){
+                for(x=start;x<stop;x=x+step){
                     namespace.setvar(runv,CSNumber.real(x));
                     var erg=evaluate(v1);
                     if(List.isNumberVector(erg).value && erg.value.length===2){
                         var x1=+erg.value[0].value.real;
                         var y=+erg.value[1].value.real;
-                        var xx=x1*m.a-y*m.b+m.tx;
-                        var yy=x1*m.c-y*m.d-m.ty;
+                        xx=x1*m.a-y*m.b+m.tx;
+                        yy=x1*m.c-y*m.d-m.ty;
                         
                         if(!stroking){
                             csctx.beginPath();
@@ -1283,7 +1279,7 @@ evaluator.plot=function(args,modifs){ //OK
     }
     
     
-    for(var xx=start;xx<stop+step;xx=xx+step){
+    for(xx=start;xx<stop+step;xx=xx+step){
         
         x=CSNumber.real(xx);
         namespace.setvar(runv,x);
@@ -1371,10 +1367,10 @@ evaluator.plotX=function(args,modifs){ //OK
 
 evaluator._helper.plotvars=function(a){
     function merge(x,y){
-        var obj = {};
-        for (var i = x.length-1; i >= 0; -- i)
+        var obj = {}, i;
+        for (i = x.length-1; i >= 0; -- i)
             obj[x[i]] = x[i];
-        for (var i = y.length-1; i >= 0; -- i)
+        for (i = y.length-1; i >= 0; -- i)
             obj[y[i]] = y[i];
         var res = [];
             for (var k in obj) {
@@ -1394,32 +1390,34 @@ evaluator._helper.plotvars=function(a){
         }
         return x;
     }
-    
+
+    var l1, l2, li, els, j;
+
     if(a.ctype==="variable"){
         return [a.name];
     }
     
     if(a.ctype==='infix'){
-        var l1=  evaluator._helper.plotvars(a.args[0]);
-        var l2=  evaluator._helper.plotvars(a.args[1]);
+        l1=  evaluator._helper.plotvars(a.args[0]);
+        l2=  evaluator._helper.plotvars(a.args[1]);
         return merge(l1,l2);
     }
     
     if(a.ctype==='list'){
-        var els=a.value;
-        var li=[];
-        for(var j=0;j<els.length;j++) {
-            var l1= evaluator._helper.plotvars(els[j]);
+        els=a.value;
+        li=[];
+        for(j=0;j<els.length;j++) {
+            l1= evaluator._helper.plotvars(els[j]);
             li=merge(li,l1);
         }
         return li;
     }
     
     if(a.ctype==='function'){
-        var els=a.args;
-        var li=[];
-        for(var j=0;j<els.length;j++) {
-            var l1=evaluator._helper.plotvars(els[j]);
+        els=a.args;
+        li=[];
+        for(j=0;j<els.length;j++) {
+            l1=evaluator._helper.plotvars(els[j]);
             li=merge(li,l1);
             
         }

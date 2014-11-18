@@ -269,25 +269,25 @@ csport.drawingstate.matrix.det= csport.drawingstate.matrix.a*csport.drawingstate
     };
 
     csport.setalpha=function(al){
-        var alpha=al.value.real;
-        var r=csport.drawingstate.linecolorraw[0]; 
-        var g=csport.drawingstate.linecolorraw[1]; 
-        var b=csport.drawingstate.linecolorraw[2]; 
+        var alpha=al.value.real, r, g, b;
+        r=csport.drawingstate.linecolorraw[0]; 
+        g=csport.drawingstate.linecolorraw[1]; 
+        b=csport.drawingstate.linecolorraw[2]; 
         
         csport.drawingstate.linecolor="rgba("+Math.floor(r*255)+","
             +Math.floor(g*255)+","
             +Math.floor(b*255)+","+alpha+")";
         
-        var r=csport.drawingstate.pointcolorraw[0]; 
-        var g=csport.drawingstate.pointcolorraw[1]; 
-        var b=csport.drawingstate.pointcolorraw[2];                        
+        r=csport.drawingstate.pointcolorraw[0]; 
+        g=csport.drawingstate.pointcolorraw[1]; 
+        b=csport.drawingstate.pointcolorraw[2];                        
         csport.drawingstate.pointcolor="rgba("+Math.floor(r*255)+","
             +Math.floor(g*255)+","
             +Math.floor(b*255)+","+alpha+")";
  
-        var r=csport.drawingstate.textcolorraw[0]; 
-        var g=csport.drawingstate.textcolorraw[1]; 
-        var b=csport.drawingstate.textcolorraw[2];                        
+        r=csport.drawingstate.textcolorraw[0]; 
+        g=csport.drawingstate.textcolorraw[1]; 
+        b=csport.drawingstate.textcolorraw[2];                        
         csport.drawingstate.textcolor="rgba("+Math.floor(r*255)+","
             +Math.floor(g*255)+","
             +Math.floor(b*255)+","+alpha+")";

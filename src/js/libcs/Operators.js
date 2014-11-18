@@ -2422,7 +2422,7 @@ evaluator.substring=function(args,modifs){
 
 
 evaluator.tokenize=function(args,modifs){ //TODO der ist gerade sehr uneffiktiv implementiert
-
+    var li, i;
     if(args.length===2){
            
         var v0=evaluate(args[0]);
@@ -2440,8 +2440,8 @@ evaluator.tokenize=function(args,modifs){ //TODO der ist gerade sehr uneffiktiv 
             var str=v0.value;
             var split=v1.value;
             var splitlist=str.split(split);
-            var li=[];
-            for (var i=0;i<splitlist.length;i++){
+            li=[];
+            for (i=0;i<splitlist.length;i++){
                 var val= splitlist[i];
                 if(convert){
                     var fl=parseFloat(val);
@@ -2462,8 +2462,8 @@ evaluator.tokenize=function(args,modifs){ //TODO der ist gerade sehr uneffiktiv 
             var tli=List.turnIntoCSList(tokens);
             var firstiter=evaluator.tokenize([args[0],token],modifs).value;
             
-            var li=[];
-            for(var i=0;i<firstiter.length;i++){
+            li=[];
+            for(i=0;i<firstiter.length;i++){
                 var tokens=[];
                 for(var j=1;j<v1.value.length;j++){//TODO: Das ist Notlösung weil ich das wegen 
                     tokens[j-1]=v1.value[j];    //CbV und CbR irgendwie anders nicht hinbekomme
@@ -2481,28 +2481,29 @@ evaluator.tokenize=function(args,modifs){ //TODO der ist gerade sehr uneffiktiv 
     
 };
 
-evaluator.indexof=function(args,modifs){ 
+evaluator.indexof=function(args,modifs){
+    var v0, v1, v2, str, code, start, i;
     if(args.length===2){
            
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
+        v0=evaluate(args[0]);
+        v1=evaluate(args[1]);
         if(v0.ctype==='string'&& v1.ctype==='string'){
-            var str=v0.value;
-            var code=v1.value;
-            var i=str.indexOf(code);
+            str=v0.value;
+            code=v1.value;
+            i=str.indexOf(code);
             return CSNumber.real(i+1);
         }
     }
     if(args.length===3){
         
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        var v2=evaluate(args[2]);
+        v0=evaluate(args[0]);
+        v1=evaluate(args[1]);
+        v2=evaluate(args[2]);
         if(v0.ctype==='string'&& v1.ctype==='string'&& v2.ctype==='number'){
-            var str=v0.value;
-            var code=v1.value;
-            var start=Math.round(v2.value.real);
-            var i=str.indexOf(code,start-1);
+            str=v0.value;
+            code=v1.value;
+            start=Math.round(v2.value.real);
+            i=str.indexOf(code,start-1);
             return CSNumber.real(i+1);
         }
     }
@@ -2544,48 +2545,49 @@ evaluator._helper.basismap=function(a,b,c,d){
 
 
 evaluator.map=function(args,modifs){ 
-    
+    var v0, v1, v2, v3, w0, w1, w2, w3, m1, m2, erg, ii, jj;
+
     if(args.length===8){
-        var w0=evaluateAndHomog(args[0]);
-        var w1=evaluateAndHomog(args[1]);
-        var w2=evaluateAndHomog(args[2]);
-        var w3=evaluateAndHomog(args[3]);
-        var v0=evaluateAndHomog(args[4]);
-        var v1=evaluateAndHomog(args[5]);
-        var v2=evaluateAndHomog(args[6]);
-        var v3=evaluateAndHomog(args[7]);
+        w0=evaluateAndHomog(args[0]);
+        w1=evaluateAndHomog(args[1]);
+        w2=evaluateAndHomog(args[2]);
+        w3=evaluateAndHomog(args[3]);
+        v0=evaluateAndHomog(args[4]);
+        v1=evaluateAndHomog(args[5]);
+        v2=evaluateAndHomog(args[6]);
+        v3=evaluateAndHomog(args[7]);
         if(v0!==nada && v1!==nada && v2!==nada && v3!==nada && 
            w0!==nada && w1!==nada && w2!==nada && w3!==nada){
-            var m1=evaluator._helper.basismap(v0,v1,v2,v3);
-            var m2=evaluator._helper.basismap(w0,w1,w2,w3);
-            var erg=General.mult(m1,List.inverse(m2));
+            m1=evaluator._helper.basismap(v0,v1,v2,v3);
+            m2=evaluator._helper.basismap(w0,w1,w2,w3);
+            erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
     }
     
     if(args.length===6){
-        var w0=evaluateAndHomog(args[0]);
-        var w1=evaluateAndHomog(args[1]);
-        var w2=evaluateAndHomog(args[2]);
+        w0=evaluateAndHomog(args[0]);
+        w1=evaluateAndHomog(args[1]);
+        w2=evaluateAndHomog(args[2]);
         var inf=List.realVector([0,0,1]);
         var cc=List.cross;
         
-        var w3=cc(cc(w2,cc(inf,cc(w0,w1))),
-                  cc(w1,cc(inf,cc(w0,w2))));
+        w3=cc(cc(w2,cc(inf,cc(w0,w1))),
+              cc(w1,cc(inf,cc(w0,w2))));
         
-        var v0=evaluateAndHomog(args[3]);
-        var v1=evaluateAndHomog(args[4]);
-        var v2=evaluateAndHomog(args[5]);
-        var v3=cc(cc(v2,cc(inf,cc(v0,v1))),
-                  cc(v1,cc(inf,cc(v0,v2))));
+        v0=evaluateAndHomog(args[3]);
+        v1=evaluateAndHomog(args[4]);
+        v2=evaluateAndHomog(args[5]);
+        v3=cc(cc(v2,cc(inf,cc(v0,v1))),
+              cc(v1,cc(inf,cc(v0,v2))));
         
         
         
         if(v0!==nada && v1!==nada && v2!==nada && v3!==nada && 
            w0!==nada && w1!==nada && w2!==nada && w3!==nada){
-            var m1=evaluator._helper.basismap(v0,v1,v2,v3);
-            var m2=evaluator._helper.basismap(w0,w1,w2,w3);
-            var erg=General.mult(m1,List.inverse(m2));
+            m1=evaluator._helper.basismap(v0,v1,v2,v3);
+            m2=evaluator._helper.basismap(w0,w1,w2,w3);
+            erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
     }
@@ -2593,20 +2595,20 @@ evaluator.map=function(args,modifs){
     
     if(args.length===4){
         
-        var ii=List.ii;
-        var jj=List.jj;
+        ii=List.ii;
+        jj=List.jj;
 
-        var w0=evaluateAndHomog(args[0]);
-        var w1=evaluateAndHomog(args[1]);        
-        var v0=evaluateAndHomog(args[2]);
-        var v1=evaluateAndHomog(args[3]);
+        w0=evaluateAndHomog(args[0]);
+        w1=evaluateAndHomog(args[1]);        
+        v0=evaluateAndHomog(args[2]);
+        v1=evaluateAndHomog(args[3]);
         
         
         if(v0!==nada && v1!==nada && 
            w0!==nada && w1!==nada){
-            var m1=evaluator._helper.basismap(v0,v1,ii,jj);
-            var m2=evaluator._helper.basismap(w0,w1,ii,jj);
-            var erg=General.mult(m1,List.inverse(m2));
+            m1=evaluator._helper.basismap(v0,v1,ii,jj);
+            m2=evaluator._helper.basismap(w0,w1,ii,jj);
+            erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
     }
@@ -2614,19 +2616,19 @@ evaluator.map=function(args,modifs){
 
        if(args.length===2){
         
-        var ii=List.ii;
-        var jj=List.jj;
-        var w0=evaluateAndHomog(args[0]);
-        var w1=General.add(List.realVector([1,0,0]),w0);  
-        var v0=evaluateAndHomog(args[1]);
-        var v1=General.add(List.realVector([1,0,0]),v0);        
+        ii=List.ii;
+        jj=List.jj;
+        w0=evaluateAndHomog(args[0]);
+        w1=General.add(List.realVector([1,0,0]),w0);  
+        v0=evaluateAndHomog(args[1]);
+        v1=General.add(List.realVector([1,0,0]),v0);        
 
         
         if(v0!==nada && v1!==nada && 
            w0!==nada && w1!==nada){
-            var m1=evaluator._helper.basismap(v0,v1,ii,jj);
-            var m2=evaluator._helper.basismap(w0,w1,ii,jj);
-            var erg=General.mult(m1,List.inverse(m2));
+            m1=evaluator._helper.basismap(v0,v1,ii,jj);
+            m2=evaluator._helper.basismap(w0,w1,ii,jj);
+            erg=General.mult(m1,List.inverse(m2));
             return List.normalizeMax(erg);
         }
     }
@@ -2716,9 +2718,10 @@ evaluator._helper.extractPointVec=function(v1){//Eventuell Homogen machen
     var x=0;
     var y=0;
     var z=0;
+    var n1, n2, n3;
     if(pt1.length===2){
-        var n1=pt1[0];
-        var n2=pt1[1];
+        n1=pt1[0];
+        n2=pt1[1];
         if(n1.ctype==='number' && n2.ctype==='number'){
             erg.x=CSNumber.clone(n1);
             erg.y=CSNumber.clone(n2);
@@ -2729,9 +2732,9 @@ evaluator._helper.extractPointVec=function(v1){//Eventuell Homogen machen
     }
     
     if(pt1.length===3){
-        var n1=pt1[0];
-        var n2=pt1[1];
-        var n3=pt1[2];
+        n1=pt1[0];
+        n2=pt1[1];
+        n3=pt1[2];
         if(n1.ctype==='number' && n2.ctype==='number'&& n3.ctype==='number'){
             erg.x=CSNumber.div(n1,n3);
             erg.y=CSNumber.div(n2,n3);
@@ -2903,10 +2906,10 @@ evaluator.convexhull3d=function(args,modifs){
                 console.error("Less than four input points specified");
                 return nada;
             }
-            var pts=[];
-            for(var i=0;i< vals.length;i++){
+            var pts=[], i, j;
+            for(i=0;i< vals.length;i++){
                if(List._helper.isNumberVecN(vals[i],3)){
-                    for(var j=0;j< 3;j++){
+                    for(j=0;j< 3;j++){
                         var a=vals[i].value[j].value.real;
                         pts.push(a);
                     
@@ -2918,14 +2921,14 @@ evaluator.convexhull3d=function(args,modifs){
             var ch=convexhull(pts);
             var chp=ch[0];
             var ergp=[];
-            for(var i=0;i<chp.length;i+=3){
+            for(i=0;i<chp.length;i+=3){
                ergp.push(List.realVector([chp[i],chp[i+1],chp[i+2]]));
             }
             var outp=List.turnIntoCSList(ergp);
             var chf=ch[1];
             var ergf=[];
-            for(var i=0;i<chf.length;i++){
-               for(var j=0;j<chf[i].length;j++){
+            for(i=0;i<chf.length;i++){
+               for(j=0;j<chf[i].length;j++){
                  chf[i][j]++;
                }
                ergf.push(List.realVector(chf[i]));
