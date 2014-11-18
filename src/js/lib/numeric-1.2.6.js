@@ -1338,10 +1338,12 @@ numeric.T.diag = function diag(d) {
     if(y) return new numeric.T(diag(x),diag(y));
     return new numeric.T(diag(x));
 };
+/* // See https://github.com/sloisel/numeric/issues/61
 numeric.T.eig = function eig() {
     if(this.y) { throw new Error('eig: not implemented for complex matrices.'); }
     return numeric.eig(this.x);
 };
+*/
 numeric.T.identity = function identity(n) { return new numeric.T(numeric.identity(n)); };
 numeric.T.prototype.getDiag = function getDiag() {
     var n = numeric;
