@@ -71,6 +71,16 @@ build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
 	cp $< $@
 
 ######################################################################
+## Download stuff either using curl or wget
+######################################################################
+
+CURL=curl
+WGET=wget
+CURL_CMD=$(shell $(CURL) --version > /dev/null 2>&1 && echo $(CURL) -o)
+WGET_CMD=$(shell $(WGET) --version > /dev/null 2>&1 && echo $(WGET) -O)
+DOWNLOAD=$(if $(CURL_CMD),$(CURL_CMD),$(if $(WGET_CMD),$(WGET_CMD),$(error curl or wget is required to automatically download required tools)))
+
+######################################################################
 ## Download Node.js with npm to run ECMAScript tools
 ######################################################################
 
@@ -87,7 +97,7 @@ NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 
 download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
-	curl -o $@ $(NODE_URL)
+	$(DOWNLOAD) $@ $(NODE_URL)
 
 download/node/bin/npm: download/arch/$(NODE_TAR)
 	rm -rf download/node*
@@ -119,7 +129,7 @@ ANT_URL=$(ANT_MIRROR)/$(ANT_PATH)/$(ANT_ZIP)
 
 download/arch/$(ANT_ZIP):
 	mkdir -p $(@D)
-	curl -o $@ $(ANT_URL)
+	$(DOWNLOAD) $@ $(ANT_URL)
 
 download/ant/bin/ant: download/arch/$(ANT_ZIP)
 	rm -rf download/ant download/apache-ant-*
