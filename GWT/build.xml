@@ -7,8 +7,8 @@
 
   <property name="cjs.gwt.version" value="2.6.1"/>
 
-  <property name="dl.dir.arch" value="download/arch"/>
-  <property name="cjs.gwt.dir" value="download/gwt"/>
+  <property name="dl.dir.arch" value="../download/arch"/>
+  <property name="cjs.gwt.dir" value="../download/gwt"/>
   <property name="cjs.src.dir" value="../src/java"/>
   <property name="cjs.module" value="quickhull3d"/>
 
