@@ -48,8 +48,8 @@ getmover = function(mouse){
     var diff,orad;
     for (var i=0;i<csgeo.free.length;i++){
         var el=csgeo.free[i];
-
         if(!el.pinned){
+
             var dx,dy;
             if(el.kind=="P"){
                 dx=el.sx-mouse.x;
@@ -70,7 +70,9 @@ getmover = function(mouse){
                 orad=-dist;
                 dx=0;dy=0;
                 if(dist<0){dist=-dist;}
-                dist=dist+1;
+                var sc=csport.drawingstate.matrix.sdet;
+                dist=dist+30/sc;
+
             }
             if(el.kind=="L"){//Must be ThroughPoint(Horizontal/Vertical not treated yet)
                 var l=List.normalizeZ(el.homog);
