@@ -715,6 +715,240 @@ evaluator._helper.drawcircle=function(args,modifs,df){
     return nada;
 }
 
+evaluator.drawconic = function(args, modifs){
+var w = 500; // c.width;
+var h = 500; //c.height;
+var m=csport.drawingstate.matrix;
+console.log(m);
+h = h*m.d-m.ty;
+
+var sc = w/10;
+//console.log("reached eval drawconic");
+var Conic = args.Cparameters;
+//console.log(Conic);
+
+var norm = function(x0, y0, x1, y1){
+	var norm = Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2);
+	return Math.sqrt(norm);
+};
+
+// arrays to save points on conic
+var arr_x1 = [];
+var arr_x2 = [];
+var arr_y1 = [];
+var arr_y2 = [];
+var arr_xg = [];
+var arr_yg = [];
+
+var resetArrays = function(){
+      arr_x1 = [];
+      arr_x2 = [];
+      arr_y1 = [];
+      arr_y2 = [];
+      arr_xg = [];
+      arr_yg = [];
+};
+
+var drawArray = function(x, y, col){
+	console.log(x.length);
+	if(col !== 'undefined'){
+		csctx.strokeStyle = col;
+	}
+	csctx.beginPath();
+	var xx0, yy0, xx1, yy1;
+	for(var i = 1; i < x.length; i++){
+//		y0 = y[i-1];
+//		y1 = y[i];
+//                var xx=pt.X*m.a-pt.Y*m.b+m.tx;
+//                var yy=pt.X*m.c-pt.Y*m.d-m.ty;
+                xx0 = x[i-1]*m.a-y[i-1]*m.b+m.tx;
+                yy0 = x[i-1]*m.c-y[i-1]*m.d-m.ty;
+
+                xx1 = x[i]*m.a-y[i]*m.b+m.tx;
+                yy1 = x[i]*m.c-y[i]*m.d-m.ty;
+		csctx.moveTo(xx0, yy0);
+		csctx.lineTo(xx1, yy1);
+//		csctx.moveTo(x[i-1], y0);
+//		csctx.lineTo(x[i], y1);
+	}
+	csctx.stroke();
+}; // end drawArray
+
+var get_concic_type = function(C){
+	var eps = Math.pow(10, -8);
+
+	if(C == 'undefined' || C.length != 6){
+	   console.error("this does not define a Conic");
+	}
+
+	   var det = C[0]*C[2] - C[1]*C[1];
+
+	   if(Math.abs(det) < eps){
+		   return "parabola";
+	   }
+	   else if(det > eps){
+		   return "ellipsoid";
+	   }
+	   else{
+		   return "hyperbola";
+	   }
+
+}; // end get_concic_type
+
+var eval_conic_x = function(C,ymin, ymax){
+var x1, x2;
+var type = get_concic_type(C);
+
+if(C.length !== 6)
+{
+  console.error("Conic needs 6 Parameters");
+  return;
+}
+
+var a = C[0];
+var b = C[1];
+var c = C[2];
+var d = C[3];
+var e = C[4];
+var f = C[5];
+
+for(var y = ymin; y < ymax; y+=1/sc){
+// TODO check for division by zero
+var inner = -a*c* Math.pow(y, 2) - 2*a*e*y - a*f + Math.pow(b, 2) * Math.pow(y, 2) + 2*b*d*y  + Math.pow(d, 2);
+inner = Math.sqrt(inner);
+
+x1 = 1/a * (-b*y - d + inner);
+x2 = -1/a * (b*y + d + inner);
+
+	// for ellipsoids we go out of canvas
+    if(!isNaN(x1) && type == "ellipsoid"){
+    arr_x1.push(x1);
+    arr_y1.push(y);
+    }
+    else if(!isNaN(x1) && x1*sc < w - m.tx/sc && x1 > m.tx/sc){
+    arr_x1.push(x1);
+    arr_y1.push(y);
+    }
+
+    if(!isNaN(x2) && type == "ellipsoid"){
+    arr_x2.push(x2);
+    arr_y2.push(y);
+    }
+    else if(!isNaN(x2) && x2*sc < w - m.tx/sc && x2 > m.tx/sc){
+    arr_x2.push(x2);
+    arr_y2.push(y);
+    }
+
+}
+}; // end eval_conic_x
+
+// calc and draw conic
+var calc_draw = function(C){
+var ymin, ymax, y0, y1;
+
+var type = get_concic_type(C);
+
+
+if(C.length !== 6)
+{
+  console.error("Conic needs 6 Parameters");
+  return;
+}
+
+var a = C[0];
+var b = C[1];
+var c = C[2];
+var d = C[3];
+var e = C[4];
+var f = C[5];
+
+
+if(type == "parabola" || type == "hyperbola"){
+// TODO check for division by zero
+y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
+y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
+
+
+// transform y
+y0 = y0+m.ty/sc;
+y1 = y1+m.ty/sc;
+
+if(isNaN(y1)){
+//	 y1 = h
+    y1 = h-m.ty/sc;
+}
+
+if(isNaN(y0)){
+//    y0 = 0.0;
+   y0 = m.ty/sc;
+}
+//console.log(y1, y0);
+
+// out of bound checks
+y0 < m.ty/sc ? y0 = m.ty/sc : y0 = y0;
+y1 < m.ty/sc ? y1 = m.ty/sc : y1 = y1;
+
+y0 > h - m.ty/sc ? y0 = h - m.ty/sc : y0 = y0;
+y1 > h - m.ty/sc ? y1 = h - m.ty/sc : y1 = y1;
+
+y0 < y1 ? ymin = y0 : ymin = y1;
+y0 > y1 ? ymax = y0 : ymax = y1;
+
+csctx.beginPath();
+csctx.moveTo(w - m.tx/sc, h - m.ty/sc);
+csctx.lineTo(-m.tx/sc, h - m.ty/sc);
+csctx.stroke();
+
+eval_conic_x(C, m.ty/sc, ymin);
+arr_xg = arr_x1.concat(arr_x2.reverse());
+arr_yg = arr_y1.concat(arr_y2.reverse());
+drawArray(arr_xg, arr_yg, "gold");
+
+resetArrays();
+
+
+eval_conic_x(C, ymax, h-m.ty/sc);
+drawArray(arr_x1, arr_y1, "purple");
+drawArray(arr_x2, arr_y2, "purple");
+// i don't get it why this does not paint correctly with arr_xg / arr_yg
+//arr_xg = arr_x1.concat(arr_x2.reverse());
+//arr_yg = arr_y1.concat(arr_y2.reverse());
+//drawArray(arr_xg, arr_yg, "purple");
+
+
+resetArrays();
+eval_conic_x(C, ymin, ymax);
+drawArray(arr_x1, arr_y1, "red");
+drawArray(arr_x2, arr_y2, "green");
+resetArrays();
+}
+
+if(type == "ellipsoid"){ 
+resetArrays();
+eval_conic_x(C, m.ty/sc, h-m.ty/sc);
+arr_xg = arr_x1.concat(arr_x2.reverse());
+arr_yg = arr_y1.concat(arr_y2.reverse());
+// close gap
+var x0 = arr_x1[0];
+var y0 = arr_y1[0];
+var x1 = arr_xg[arr_xg.length - 1];
+var y1 = arr_yg[arr_yg.length - 1];
+//if(norm(x0, y0, x1, y1) < 10){
+arr_xg.push(arr_x1[0]);
+arr_yg.push(arr_y1[0]);
+//}
+drawArray(arr_xg, arr_yg, "green");
+} // end if ellipsoid
+
+resetArrays();
+}; // end calc_draw
+
+
+// actually start drawing
+calc_draw(Conic);
+
+} // end evaluator.drawconic
+
 evaluator.drawall =function(args,modifs){
     if(args.length==1) {
         var v1=evaluate(args[0]);
