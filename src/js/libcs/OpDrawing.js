@@ -716,11 +716,11 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 }
 
 evaluator.drawconic = function(args, modifs){
-var w = 500; // c.width;
-var h = 500; //c.height;
+var w = 1000; // c.width;
+var h = 1000; //c.height;
 var m=csport.drawingstate.matrix;
 console.log(m);
-h = h*m.d-m.ty;
+//h = h*m.d-m.ty;
 
 var sc = w/10;
 //console.log("reached eval drawconic");
@@ -750,7 +750,7 @@ var resetArrays = function(){
 };
 
 var drawArray = function(x, y, col){
-	console.log(x.length);
+	//console.log(x.length);
 	if(col !== 'undefined'){
 		csctx.strokeStyle = col;
 	}
@@ -764,8 +764,10 @@ var drawArray = function(x, y, col){
                 xx0 = x[i-1]*m.a-y[i-1]*m.b+m.tx;
                 yy0 = x[i-1]*m.c-y[i-1]*m.d-m.ty;
 
+		console.log(x[i-1], y);
                 xx1 = x[i]*m.a-y[i]*m.b+m.tx;
                 yy1 = x[i]*m.c-y[i]*m.d-m.ty;
+		console.log(xx1, yy1);
 		csctx.moveTo(xx0, yy0);
 		csctx.lineTo(xx1, yy1);
 //		csctx.moveTo(x[i-1], y0);
@@ -820,12 +822,21 @@ inner = Math.sqrt(inner);
 x1 = 1/a * (-b*y - d + inner);
 x2 = -1/a * (b*y + d + inner);
 
+//var xx=pt.X*m.a-pt.Y*m.b+m.tx;
+//var yy=pt.X*m.c-pt.Y*m.d-m.ty;
+
+var top = (h + m.ty)/sc;
+var bottom = m.ty/sc;
+
+
+var right = (w + m.tx)/sc;
+var left = m.tx/sc;
 	// for ellipsoids we go out of canvas
     if(!isNaN(x1) && type == "ellipsoid"){
     arr_x1.push(x1);
     arr_y1.push(y);
     }
-    else if(!isNaN(x1) && x1*sc < w - m.tx/sc && x1 > m.tx/sc){
+    else if(!isNaN(x1) && x1 > bottom && x1 < top){
     arr_x1.push(x1);
     arr_y1.push(y);
     }
@@ -834,7 +845,7 @@ x2 = -1/a * (b*y + d + inner);
     arr_x2.push(x2);
     arr_y2.push(y);
     }
-    else if(!isNaN(x2) && x2*sc < w - m.tx/sc && x2 > m.tx/sc){
+    else if(!isNaN(x2) && x2 > bottom && x2 < top){
     arr_x2.push(x2);
     arr_y2.push(y);
     }
@@ -868,38 +879,50 @@ if(type == "parabola" || type == "hyperbola"){
 y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 
+// TODO this is redundant
+console.log(h/sc)
+console.log(m.ty/sc)
+var top = (h + m.ty)/sc;
+var bottom = m.ty/sc;
 
+var right = (w + m.tx)/sc;
+var left = m.tx/sc;
 // transform y
 y0 = y0+m.ty/sc;
 y1 = y1+m.ty/sc;
 
+
 if(isNaN(y1)){
-//	 y1 = h
-    y1 = h-m.ty/sc;
+	 y1 = top;
+   // y1 = h-m.ty/sc;
 }
 
 if(isNaN(y0)){
+	y0 = bottom;
 //    y0 = 0.0;
-   y0 = m.ty/sc;
+//   y0 = m.ty/sc;
 }
 //console.log(y1, y0);
 
 // out of bound checks
-y0 < m.ty/sc ? y0 = m.ty/sc : y0 = y0;
-y1 < m.ty/sc ? y1 = m.ty/sc : y1 = y1;
+y0 < bottom ? y0 = bottom : y0 = y0;
+y1 < bottom ? y1 = bottom : y1 = y1;
 
-y0 > h - m.ty/sc ? y0 = h - m.ty/sc : y0 = y0;
-y1 > h - m.ty/sc ? y1 = h - m.ty/sc : y1 = y1;
+y0 > top ? y0 = top : y0 = y0;
+y1 > top ? y1 = top : y1 = y1;
 
 y0 < y1 ? ymin = y0 : ymin = y1;
 y0 > y1 ? ymax = y0 : ymax = y1;
 
+
+console.log("debug", top, left, bottom, right, ymin, ymax);
 csctx.beginPath();
-csctx.moveTo(w - m.tx/sc, h - m.ty/sc);
-csctx.lineTo(-m.tx/sc, h - m.ty/sc);
+csctx.lineWidth=5;
+csctx.moveTo(top, left);
+csctx.lineTo(bottom, right);
 csctx.stroke();
 
-eval_conic_x(C, m.ty/sc, ymin);
+eval_conic_x(C, bottom, ymin);
 arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
 drawArray(arr_xg, arr_yg, "gold");
@@ -907,7 +930,7 @@ drawArray(arr_xg, arr_yg, "gold");
 resetArrays();
 
 
-eval_conic_x(C, ymax, h-m.ty/sc);
+eval_conic_x(C, ymax, top);
 drawArray(arr_x1, arr_y1, "purple");
 drawArray(arr_x2, arr_y2, "purple");
 // i don't get it why this does not paint correctly with arr_xg / arr_yg
@@ -923,7 +946,8 @@ drawArray(arr_x2, arr_y2, "green");
 resetArrays();
 }
 
-if(type == "ellipsoid"){ 
+if(type == "ellipsoid"){  // remove hyperbola
+console.log(m.ty/sc, h/sc+m.ty/sc);
 resetArrays();
 eval_conic_x(C, m.ty/sc, h-m.ty/sc);
 arr_xg = arr_x1.concat(arr_x2.reverse());
