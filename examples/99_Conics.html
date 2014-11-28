@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            <link rel="stylesheet" href="../css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>Conics</h1>
+        
+        
+        <script id='firstDrawing' type='cindyscript'>
+        </script>
+        
+
+        <canvas  id="CSCanvas" width=1000 height=1000 style="border:2px solid #000000"></canvas>
+
+
+        <script type="text/javascript">
+            
+            var gslp=[
+                      {name:"A", type:"Free", pos:[-4,6]},
+                      {name:"B", type:"Free", pos:[6,5]},
+                      {name:"C", type:"Free", pos:[-4,-5]},
+                      {name:"D", type:"Free", pos:[5,-2]},
+                      {name:"E", type:"Free", pos:[-6,0]},
+                      {name:"F", type:"Free", pos:[30,30]},
+                      {name:"G", type:"Free", pos:[-10,-10]},
+		      {name:"Co", type:"ConicBy5", args:["A","B","C","D","E"]},
+                      ];
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        geometry:gslp});
+    
+        </script>
+
+	</body>
+</html>
