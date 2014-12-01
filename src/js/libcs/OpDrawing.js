@@ -857,8 +857,6 @@ var ttemp;
 
 var eps = 10e-5;
 
-//var lleft = csport.to(0,csh);
-//var uright = csport.to(csw, 0);
 var lleft = [0, csh];
 var uright = [csw, 0];
 
@@ -884,7 +882,7 @@ var f = C[5];
 //var degen = Math.abs(det) < eps ? true : false;
 //if(degen) console.log("degenerate");
 
-if(type == "parabola" || type == "hyperbola"){
+if(type == "parabola" || type == "hyperbola" || true){
 // TODO check for division by zero
 y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
@@ -897,23 +895,17 @@ if(!isNaN(y0)){
 	ttemp = csport.from(0, y0, 1);
 	y0 = ttemp[1];
 }
+else{
+	y0 = lleft[1];
+}
 
 if(!isNaN(y1)){
 	ttemp = csport.from(0, y1, 1);
 	y1 = ttemp[1];
 }
-
-if(isNaN(y1)){
+else{
 	 y1 = uright[1];
-   // y1 = h-m.ty/sc;
 }
-
-if(isNaN(y0)){
-	y0 = lleft[1];
-}
-
-//console.log("y0 and y1 ", y0, y1);
-
 // out of bound checks
 y0 < uright[1] ? y0 = uright[1] : y0 = y0;
 y1 < uright[1] ? y1 = uright[1] : y1 = y1;
@@ -954,6 +946,10 @@ eval_conic_x(C, ymax, csh);
 //arr_x1.push(arr_x2[arr_x2.length-1]);
 //arr_y1.push(arr_y2[arr_y2.length-1]);
 //drawArray(arr_x1, arr_y1, "purple");
+csctx.beginPath();
+csctx.rect(arr_x1[0], arr_y1[0], 10, 10);
+csctx.rect(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1], 10, 10);
+csctx.stroke();
 drawArray(arr_x1, arr_y1);
 // Bridge branches
 csctx.beginPath();
@@ -977,11 +973,18 @@ eval_conic_x(C, ymin, ymax);
 //drawArray(arr_x1, arr_y1, "red");
 //drawArray(arr_x2, arr_y2, "green");
 drawArray(arr_x1, arr_y1);
+// close gap
+csctx.beginPath();
+if(arr_y1[0] > 0 && arr_y1[0] < csh && arr_y2[0] > 0 && arr_x2[0] < csh && type == 'ellipsoid'){
+csctx.moveTo(arr_x1[0], arr_y1[0]);
+csctx.lineTo(arr_x2[0], arr_y2[0]);
+csctx.stroke();
+}
 drawArray(arr_x2, arr_y2);
 resetArrays();
 
 } // end if type parabola ellipsoid
-if(type == "ellipsoid"){  // remove hyperbola
+if(type == "ellipsoid" && false){  // remove
 resetArrays();
 eval_conic_x(C, 0, csh);
 arr_xg = arr_x1.concat(arr_x2.reverse());
