@@ -716,9 +716,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 }
 
 evaluator.drawconic = function(args, modifs){
-//console.log("reached eval drawconic");
 var Conic = args.Cparameters;
-//console.log(Conic);
 
 var norm = function(x0, y0, x1, y1){
 	var norm = Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2);
@@ -743,6 +741,8 @@ var resetArrays = function(){
 };
 
 var drawArray = function(x, y, col){
+	csctx.strokeStyle= 'blue';
+	csctx.lineWidth = 2;
 	if(col !== 'undefined'){
 		csctx.strokeStyle = col;
 	}
@@ -754,18 +754,6 @@ var drawArray = function(x, y, col){
 		x1 = x[i];
 		y0 = y[i-1];
 		y1 = y[i];
-
-	//	temp = csport.from(x0, y0, 1);
-	//	xx0 = temp[0];
-	//	yy0 = temp[1];
-	//	temp = csport.from(x1, y1, 1);
-	//	xx1 = temp[0];
-	//	yy1 = temp[1];
-
-//		csctx.moveTo(xx0, yy0);
-//		csctx.lineTo(xx1, yy1);
-//		csctx.moveTo(x[i-1], y0);
-//		csctx.lineTo(x[i], y1);
 
 		csctx.moveTo(x0, y0);
 		csctx.lineTo(x1, y1);
@@ -813,24 +801,14 @@ var d = C[3];
 var e = C[4];
 var f = C[5];
 
-var ttemp; // trafo temp
-//var count = 0;
-for(var y = ymin; y < ymax; y+=1/10){
-// TODO check for division by zero
-//count++;
-//if(count > 10000){
-//	console.log("reached count");
-//	return;
-//}
 
-//console.log("ymin, ymax", ymin, ymax);
-// convert y to normal coordiantes
+var ttemp; // trafo temp
+for(var y = ymin; y < ymax; y+=1/5){
 var yback = y;
 ttemp = csport.to(0, y);
 y = ttemp[1];
 var inner = -a*c* Math.pow(y, 2) - 2*a*e*y - a*f + Math.pow(b, 2) * Math.pow(y, 2) + 2*b*d*y  + Math.pow(d, 2);
 inner = Math.sqrt(inner);
-//console.log("y yback", y, yback);
 
 x1 = 1/a * (-b*y - d + inner);
 x2 = -1/a * (b*y + d + inner);
@@ -877,13 +855,13 @@ var calc_draw = function(C){
 var ymin, ymax, y0, y1;
 var ttemp;
 
-var lleft = csport.to(0,csh);
-var uright = csport.to(csw, 0);
-// TODO FIX THIS
-lleft = [0, csh];
-uright = [csw, 0];
+var eps = 10e-5;
 
-//console.log("lleft uright", lleft, uright);
+//var lleft = csport.to(0,csh);
+//var uright = csport.to(csw, 0);
+var lleft = [0, csh];
+var uright = [csw, 0];
+
 
 var type = get_concic_type(C);
 
@@ -901,6 +879,10 @@ var d = C[3];
 var e = C[4];
 var f = C[5];
 
+// get DET 
+//var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+//var degen = Math.abs(det) < eps ? true : false;
+//if(degen) console.log("degenerate");
 
 if(type == "parabola" || type == "hyperbola"){
 // TODO check for division by zero
@@ -961,7 +943,8 @@ y0 > y1 ? ymax = y0 : ymax = y1;
 eval_conic_x(C, 0, ymin); //(, ymin); // TODO
 arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
-drawArray(arr_xg, arr_yg, "gold");
+//drawArray(arr_xg, arr_yg, "gold");
+drawArray(arr_xg, arr_yg);
 
 resetArrays();
 
@@ -970,7 +953,8 @@ resetArrays();
 eval_conic_x(C, ymax, csh);
 //arr_x1.push(arr_x2[arr_x2.length-1]);
 //arr_y1.push(arr_y2[arr_y2.length-1]);
-drawArray(arr_x1, arr_y1, "purple");
+//drawArray(arr_x1, arr_y1, "purple");
+drawArray(arr_x1, arr_y1);
 // Bridge branches
 csctx.beginPath();
 csctx.moveTo(arr_x1[0], arr_y1[0]);
@@ -980,7 +964,8 @@ csctx.stroke();
 //csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
 //csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke();
-drawArray(arr_x2, arr_y2, "black");
+//drawArray(arr_x2, arr_y2, "black");
+drawArray(arr_x2, arr_y2);
 // i don't get it why this does not paint correctly with arr_xg / arr_yg
 //arr_xg = arr_x1.concat(arr_x2.reverse());
 //arr_yg = arr_y1.concat(arr_y2.reverse());
@@ -989,12 +974,13 @@ drawArray(arr_x2, arr_y2, "black");
 
 resetArrays();
 eval_conic_x(C, ymin, ymax);
-drawArray(arr_x1, arr_y1, "red");
-drawArray(arr_x2, arr_y2, "green");
+//drawArray(arr_x1, arr_y1, "red");
+//drawArray(arr_x2, arr_y2, "green");
+drawArray(arr_x1, arr_y1);
+drawArray(arr_x2, arr_y2);
 resetArrays();
 
-}
-// HACK HACK
+} // end if type parabola ellipsoid
 if(type == "ellipsoid"){  // remove hyperbola
 resetArrays();
 eval_conic_x(C, 0, csh);
@@ -1009,8 +995,65 @@ arr_yg = arr_y1.concat(arr_y2.reverse());
 arr_xg.push(arr_x1[0]);
 arr_yg.push(arr_y1[0]);
 //}
-drawArray(arr_xg, arr_yg, "green");
+//drawArray(arr_xg, arr_yg, "green");
+drawArray(arr_xg, arr_yg);
 } // end if ellipsoid
+
+//var degen;
+//if(degen && false){ // TODO Code Stillgelegt
+//
+//var points = [];
+//for(var i = 0; i < args.Cpoints.length; i++){
+//var pt = args.Cpoints[i];
+//points[i] = [pt.value[0].value.real, pt.value[1].value.real];
+//}
+//
+////console.log(points);
+//
+//var comb = [ // all point combinations
+//[0, 1, 2], 
+//[0, 1, 3],
+//[0, 1, 4],
+//[0, 2, 3],
+//[0, 2, 4],
+//[0, 3, 4],
+//[1, 2, 3],
+//[1, 2, 4],
+//[1, 3, 4],
+//[2, 3, 4]
+//];
+//
+//var test_combination = function(A, B, C){
+//
+//var M = [
+//[A[0], A[1], 1],
+//[B[0], B[1], 1],
+//[C[0], C[1], 1]
+//]
+//var det = numeric.det(M);
+//return Math.abs(det) < 0.5;
+//} // end test_combination
+//
+//var tested_combinations = [];
+//
+//for(var i = 0; i < comb.length; i++){
+//var k, l, m;
+//k = comb[i][0];
+//l = comb[i][1];
+//m = comb[i][2];
+//tested_combinations[i] = test_combination(points[k], points[l], points[m]);
+//if(tested_combinations[i]){
+////var ttemp = csport.from(points[k][0], points[k][1], 1);
+////csctx.beginPath();
+////csctx.moveTo(ttemp[0], ttemp[1]);
+////ttemp = csport.from(points[l][0], points[l][1], 1);
+////csctx.lineTo(ttemp[0], ttemp[1]);
+////csctx.stroke();
+//}
+//} // end loop
+//
+//
+//} // end if degen
 
 resetArrays();
 }; // end calc_draw

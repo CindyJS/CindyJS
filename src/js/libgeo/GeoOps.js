@@ -383,6 +383,7 @@ geoOps.ConicBy5 =function(el){
     var d=csgeo.csnames[(el.args[3])].homog;
     var p=csgeo.csnames[(el.args[4])].homog;
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
+    el.points = [a, b, c, d, p]; // add points for degenerate case
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";

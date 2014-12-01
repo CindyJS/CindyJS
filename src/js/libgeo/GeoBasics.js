@@ -294,6 +294,7 @@ function render(){
 	var args = {};
 	var modifs = {};
 	args.Cparameters = [a, b, c, d, e, f];
+	args.Cpoints = el.points;
 
 	evaluator.drawconic(args, modifs);
 
