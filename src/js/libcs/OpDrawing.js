@@ -743,9 +743,6 @@ var resetArrays = function(){
 };
 
 var drawArray = function(x, y, col){
-//	console.log(x);
-//	console.log(y);
-console.log("reached drawArray");
 	if(col !== 'undefined'){
 		csctx.strokeStyle = col;
 	}
@@ -818,7 +815,7 @@ var f = C[5];
 
 var ttemp; // trafo temp
 //var count = 0;
-for(var y = ymin; y < ymax; y+=1){
+for(var y = ymin; y < ymax; y+=1/10){
 // TODO check for division by zero
 //count++;
 //if(count > 10000){
@@ -826,7 +823,7 @@ for(var y = ymin; y < ymax; y+=1){
 //	return;
 //}
 
-console.log("ymin, ymax", ymin, ymax);
+//console.log("ymin, ymax", ymin, ymax);
 // convert y to normal coordiantes
 var yback = y;
 ttemp = csport.to(0, y);
@@ -858,7 +855,7 @@ x2 = ttemp[0];
     arr_x1.push(x1);
     arr_y1.push(y);
     }
-    else if(!isNaN(x1) && x1 > lleft[0] && x1 < uright[0]){
+    else if(!isNaN(x1) && x1 > 0 && x1 < csh){
     arr_x1.push(x1);
     arr_y1.push(y);
     }
@@ -867,7 +864,7 @@ x2 = ttemp[0];
     arr_x2.push(x2);
     arr_y2.push(y);
     }
-    else if(!isNaN(x2) && x2 > lleft[0] && x2 < uright[0]){
+    else if(!isNaN(x2) && x2 > 0 && x2 < csh){
     arr_x2.push(x2);
     arr_y2.push(y);
     }
@@ -910,7 +907,7 @@ if(type == "parabola" || type == "hyperbola"){
 y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 
-console.log("y0, y1", y0, y1);
+//console.log("y0, y1", y0, y1);
 //console.log("y0, y1", y0, y1);
 // tranform y0/y1 to canvas coordiantes
 //console.log("llft uright", lleft, uright);
@@ -933,24 +930,35 @@ if(isNaN(y0)){
 	y0 = lleft[1];
 }
 
-// out of bound checks
-y0 < lleft[1] ? y0 = lleft[1] : y0 = y0;
-y1 < lleft[1] ? y1 = lleft[1] : y1 = y1;
+//console.log("y0 and y1 ", y0, y1);
 
-y0 > uright[1] ? y0 = uright[1] : y0 = y0;
-y1 > uright[1] ? y1 = uright[1] : y1 = y1;
+// out of bound checks
+y0 < uright[1] ? y0 = uright[1] : y0 = y0;
+y1 < uright[1] ? y1 = uright[1] : y1 = y1;
+
+y0 > lleft[1] ? y0 = lleft[1] : y0 = y0;
+y1 > lleft[1] ? y1 = lleft[1] : y1 = y1;
 
 y0 < y1 ? ymin = y0 : ymin = y1;
 y0 > y1 ? ymax = y0 : ymax = y1;
 
+//console.log("ymin/ max bt:", ymin, ymax);
+// translate ymin / ymax
+//ttemp = csport.from(0, ymin, 1);
+//ymin = ttemp[1];
+//ttemp = csport.from(0, ymax, 1);
+//ymax = ttemp[1];
+
 //console.log("ymin/ max:", ymin, ymax);
 
 
-csctx.beginPath();
-csctx.lineWidth=5;
-csctx.stroke();
 
-eval_conic_x(C, lleft[1], ymin);
+//csctx.beginPath();
+//csctx.lineWidth=5;
+//csctx.stroke();
+
+//eval_conic_x(C, lleft[1], ymin);
+eval_conic_x(C, 0, ymin); //(, ymin); // TODO
 arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
 drawArray(arr_xg, arr_yg, "gold");
@@ -958,9 +966,21 @@ drawArray(arr_xg, arr_yg, "gold");
 resetArrays();
 
 
-eval_conic_x(C, ymax, uright[1]);
+//eval_conic_x(C, ymax, uright[1]); // TODO
+eval_conic_x(C, ymax, csh);
+//arr_x1.push(arr_x2[arr_x2.length-1]);
+//arr_y1.push(arr_y2[arr_y2.length-1]);
 drawArray(arr_x1, arr_y1, "purple");
-drawArray(arr_x2, arr_y2, "purple");
+// Bridge branches
+csctx.beginPath();
+csctx.moveTo(arr_x1[0], arr_y1[0]);
+csctx.lineTo(arr_x2[0], arr_y2[0]);
+csctx.stroke();
+//csctx.moveTo(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length-1]);
+//csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
+//csctx.lineTo(arr_x2[0], arr_y2[0]);
+csctx.stroke();
+drawArray(arr_x2, arr_y2, "black");
 // i don't get it why this does not paint correctly with arr_xg / arr_yg
 //arr_xg = arr_x1.concat(arr_x2.reverse());
 //arr_yg = arr_y1.concat(arr_y2.reverse());
@@ -972,18 +992,19 @@ eval_conic_x(C, ymin, ymax);
 drawArray(arr_x1, arr_y1, "red");
 drawArray(arr_x2, arr_y2, "green");
 resetArrays();
-}
 
+}
+// HACK HACK
 if(type == "ellipsoid"){  // remove hyperbola
 resetArrays();
 eval_conic_x(C, 0, csh);
 arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
 // close gap
-var x0 = arr_x1[0];
-var y0 = arr_y1[0];
-var x1 = arr_xg[arr_xg.length - 1];
-var y1 = arr_yg[arr_yg.length - 1];
+//var x0 = arr_x1[0];
+//var y0 = arr_y1[0];
+//var x1 = arr_xg[arr_xg.length - 1];
+//var y1 = arr_yg[arr_yg.length - 1];
 //if(norm(x0, y0, x1, y1) < 10){
 arr_xg.push(arr_x1[0]);
 arr_yg.push(arr_y1[0]);
