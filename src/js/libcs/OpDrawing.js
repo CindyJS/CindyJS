@@ -907,11 +907,13 @@ else{
 	 y1 = uright[1];
 }
 // out of bound checks
+if(!(type == 'ellipsoid')){
 y0 < uright[1] ? y0 = uright[1] : y0 = y0;
 y1 < uright[1] ? y1 = uright[1] : y1 = y1;
 
 y0 > lleft[1] ? y0 = lleft[1] : y0 = y0;
 y1 > lleft[1] ? y1 = lleft[1] : y1 = y1;
+}
 
 y0 < y1 ? ymin = y0 : ymin = y1;
 y0 > y1 ? ymax = y0 : ymax = y1;
@@ -946,10 +948,10 @@ eval_conic_x(C, ymax, csh);
 //arr_x1.push(arr_x2[arr_x2.length-1]);
 //arr_y1.push(arr_y2[arr_y2.length-1]);
 //drawArray(arr_x1, arr_y1, "purple");
-csctx.beginPath();
-csctx.rect(arr_x1[0], arr_y1[0], 10, 10);
-csctx.rect(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1], 10, 10);
-csctx.stroke();
+//csctx.beginPath();
+//csctx.rect(arr_x1[0], arr_y1[0], 10, 10);
+//csctx.rect(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1], 10, 10);
+//csctx.stroke();
 drawArray(arr_x1, arr_y1);
 // Bridge branches
 csctx.beginPath();
@@ -967,6 +969,9 @@ drawArray(arr_x2, arr_y2);
 //arr_yg = arr_y1.concat(arr_y2.reverse());
 //drawArray(arr_xg, arr_yg, "purple");
 
+var is_inside = function(x, y){
+	return (x > 0 && x < csw && y > 0 && y < csh);
+}
 
 resetArrays();
 eval_conic_x(C, ymin, ymax);
@@ -974,15 +979,22 @@ eval_conic_x(C, ymin, ymax);
 //drawArray(arr_x2, arr_y2, "green");
 drawArray(arr_x1, arr_y1);
 // close gap
+//if(arr_y1[0] > 0 && arr_y1[0] < csh && arr_y2[0] > 0 && arr_x2[0] < csh && type == 'ellipsoid'){
+if(is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0]) && type == 'ellipsoid'){
 csctx.beginPath();
-if(arr_y1[0] > 0 && arr_y1[0] < csh && arr_y2[0] > 0 && arr_x2[0] < csh && type == 'ellipsoid'){
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
+csctx.stroke()
+}
+if(is_inside(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length -1]) && is_inside(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length -1]) && type == 'ellipsoid'){
+csctx.beginPath();
+csctx.moveTo(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length-1]);
+csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
 csctx.stroke();
 }
+
 drawArray(arr_x2, arr_y2);
 resetArrays();
-
 } // end if type parabola ellipsoid
 if(type == "ellipsoid" && false){  // remove
 resetArrays();
