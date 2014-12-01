@@ -882,7 +882,7 @@ var f = C[5];
 //var degen = Math.abs(det) < eps ? true : false;
 //if(degen) console.log("degenerate");
 
-if(type == "parabola" || type == "hyperbola" || true){
+//if(type == "parabola" || type == "hyperbola" || true){
 // TODO check for division by zero
 y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
@@ -995,24 +995,24 @@ csctx.stroke();
 
 drawArray(arr_x2, arr_y2);
 resetArrays();
-} // end if type parabola ellipsoid
-if(type == "ellipsoid" && false){  // remove
-resetArrays();
-eval_conic_x(C, 0, csh);
-arr_xg = arr_x1.concat(arr_x2.reverse());
-arr_yg = arr_y1.concat(arr_y2.reverse());
-// close gap
-//var x0 = arr_x1[0];
-//var y0 = arr_y1[0];
-//var x1 = arr_xg[arr_xg.length - 1];
-//var y1 = arr_yg[arr_yg.length - 1];
-//if(norm(x0, y0, x1, y1) < 10){
-arr_xg.push(arr_x1[0]);
-arr_yg.push(arr_y1[0]);
-//}
-//drawArray(arr_xg, arr_yg, "green");
-drawArray(arr_xg, arr_yg);
-} // end if ellipsoid
+//} // end if type parabola ellipsoid
+//if(type == "ellipsoid" && false){  // remove
+//resetArrays();
+//eval_conic_x(C, 0, csh);
+//arr_xg = arr_x1.concat(arr_x2.reverse());
+//arr_yg = arr_y1.concat(arr_y2.reverse());
+//// close gap
+////var x0 = arr_x1[0];
+////var y0 = arr_y1[0];
+////var x1 = arr_xg[arr_xg.length - 1];
+////var y1 = arr_yg[arr_yg.length - 1];
+////if(norm(x0, y0, x1, y1) < 10){
+//arr_xg.push(arr_x1[0]);
+//arr_yg.push(arr_y1[0]);
+////}
+////drawArray(arr_xg, arr_yg, "green");
+//drawArray(arr_xg, arr_yg);
+//} // end if ellipsoid
 
 //var degen;
 //if(degen && false){ // TODO Code Stillgelegt
