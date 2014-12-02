@@ -801,9 +801,19 @@ var d = C[3];
 var e = C[4];
 var f = C[5];
 
+// get DET 
+var eps = 10e-6;
+var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+var degen = Math.abs(det) < eps ? true : false;
+if(degen) console.log("degenerate");
+
+var step = 1/5;
+if(degen){
+	step = 1/10;
+}
 
 var ttemp; // trafo temp
-for(var y = ymin; y < ymax; y+=1/5){
+for(var y = ymin; y < ymax; y+=step){
 var yback = y;
 ttemp = csport.to(0, y);
 y = ttemp[1];
@@ -878,19 +888,15 @@ var e = C[4];
 var f = C[5];
 
 // get DET 
-//var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
-//var degen = Math.abs(det) < eps ? true : false;
+eps = 10e-5;
+var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+var degen = Math.abs(det) < eps ? true : false;
 //if(degen) console.log("degenerate");
 
 //if(type == "parabola" || type == "hyperbola" || true){
-// TODO check for division by zero
 y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 
-//console.log("y0, y1", y0, y1);
-//console.log("y0, y1", y0, y1);
-// tranform y0/y1 to canvas coordiantes
-//console.log("llft uright", lleft, uright);
 if(!isNaN(y0)){
 	ttemp = csport.from(0, y0, 1);
 	y0 = ttemp[1];
@@ -918,52 +924,24 @@ y1 > lleft[1] ? y1 = lleft[1] : y1 = y1;
 y0 < y1 ? ymin = y0 : ymin = y1;
 y0 > y1 ? ymax = y0 : ymax = y1;
 
-//console.log("ymin/ max bt:", ymin, ymax);
-// translate ymin / ymax
-//ttemp = csport.from(0, ymin, 1);
-//ymin = ttemp[1];
-//ttemp = csport.from(0, ymax, 1);
-//ymax = ttemp[1];
-
-//console.log("ymin/ max:", ymin, ymax);
-
-
-
-//csctx.beginPath();
-//csctx.lineWidth=5;
-//csctx.stroke();
-
-//eval_conic_x(C, lleft[1], ymin);
 eval_conic_x(C, 0, ymin); //(, ymin); // TODO
 arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
-//drawArray(arr_xg, arr_yg, "gold");
-drawArray(arr_xg, arr_yg);
+drawArray(arr_xg, arr_yg, "gold");
+//drawArray(arr_xg, arr_yg);
 
 resetArrays();
 
 
-//eval_conic_x(C, ymax, uright[1]); // TODO
 eval_conic_x(C, ymax, csh);
-//arr_x1.push(arr_x2[arr_x2.length-1]);
-//arr_y1.push(arr_y2[arr_y2.length-1]);
-//drawArray(arr_x1, arr_y1, "purple");
-//csctx.beginPath();
-//csctx.rect(arr_x1[0], arr_y1[0], 10, 10);
-//csctx.rect(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1], 10, 10);
-//csctx.stroke();
 drawArray(arr_x1, arr_y1);
 // Bridge branches
 csctx.beginPath();
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke();
-//csctx.moveTo(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length-1]);
-//csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
-//csctx.lineTo(arr_x2[0], arr_y2[0]);
-csctx.stroke();
-//drawArray(arr_x2, arr_y2, "black");
-drawArray(arr_x2, arr_y2);
+drawArray(arr_x2, arr_y2, "black");
+//drawArray(arr_x2, arr_y2);
 // i don't get it why this does not paint correctly with arr_xg / arr_yg
 //arr_xg = arr_x1.concat(arr_x2.reverse());
 //arr_yg = arr_y1.concat(arr_y2.reverse());
@@ -975,25 +953,25 @@ var is_inside = function(x, y){
 
 resetArrays();
 eval_conic_x(C, ymin, ymax);
-//drawArray(arr_x1, arr_y1, "red");
+drawArray(arr_x1, arr_y1, "red");
 //drawArray(arr_x2, arr_y2, "green");
-drawArray(arr_x1, arr_y1);
+//drawArray(arr_x1, arr_y1);
 // close gap
 //if(arr_y1[0] > 0 && arr_y1[0] < csh && arr_y2[0] > 0 && arr_x2[0] < csh && type == 'ellipsoid'){
-if(is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0]) && type == 'ellipsoid'){
+if(!degen && is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0]) && type == 'ellipsoid'){
 csctx.beginPath();
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke()
 }
-if(is_inside(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length -1]) && is_inside(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length -1]) && type == 'ellipsoid'){
+if(!degen && is_inside(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length -1]) && is_inside(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]) && type == 'ellipsoid'){
 csctx.beginPath();
 csctx.moveTo(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length-1]);
 csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
 csctx.stroke();
 }
 
-drawArray(arr_x2, arr_y2);
+drawArray(arr_x2, arr_y2, "green");
 resetArrays();
 //} // end if type parabola ellipsoid
 //if(type == "ellipsoid" && false){  // remove
