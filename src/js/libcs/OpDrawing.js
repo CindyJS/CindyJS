@@ -716,7 +716,55 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 }
 
 evaluator.drawconic = function(args, modifs){
-var Conic = args.Cparameters;
+var useRot = true; // use Ratation for better rendering
+var useRotBack = true;
+var angle;
+if(useRot) angle = 2*Math.PI*Math.random();
+//angle = 0.1;
+var mat = args.matrix;
+
+var a = mat.value[0].value[0].value.real;
+var b = mat.value[1].value[0].value.real;
+var c = mat.value[1].value[1].value.real;
+var d = mat.value[2].value[0].value.real;
+var e = mat.value[2].value[1].value.real;
+var f = mat.value[2].value[2].value.real;
+
+//console.log([a, b, c, d, e, f]);
+
+if(useRot){
+	var get_rMat = function(angle){
+	return [[Math.cos(angle), -Math.sin(angle), 0],
+		    [Math.sin(angle), Math.cos(angle), 0],
+		    [0, 0, 1]];
+//	return [[1, 0, 0],
+//		    [0, Math.cos(angle), -Math.sin(angle)],
+//		    [0, Math.sin(angle), Math.cos(angle)]];
+	};
+
+	var myMat = [[a,b,d],
+		     [b,c,e],
+		     [d,e,f]];
+
+	var rMat = get_rMat(angle);
+	var TrMat = numeric.transpose(rMat);
+	var tmp = numeric.dot(myMat, rMat);
+	tmp = numeric.dot(TrMat, tmp);
+	a = tmp[0][0];
+	b = tmp[1][0];
+	c = tmp[1][1];
+	d = tmp[2][0];
+	e = tmp[2][1];
+	f = tmp[2][2];
+
+}
+
+var Conic = [a, b, c, d, e, f];
+//console.log(Conic);
+
+
+
+//var Conic = args.Cparameters;
 
 var norm = function(x0, y0, x1, y1){
 	var norm = Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2);
@@ -808,7 +856,7 @@ var degen = Math.abs(det) < eps ? true : false;
 if(degen) console.log("degenerate");
 
 var step = 1/5;
-if(degen){
+if(degen && false){
 	step = 1/10;
 }
 
@@ -823,11 +871,33 @@ inner = Math.sqrt(inner);
 x1 = 1/a * (-b*y - d + inner);
 x2 = -1/a * (b*y + d + inner);
 
-y = yback; // convert y back
 
 var lleft = csport.to(0,0);
 var uright = csport.to(csw, csh);
 
+if(useRotBack ){
+//	var yy = y;
+//	var xx1 = x1;
+//	var nangle = Math.PI*angle;
+//	x1 = x1*Math.cos(nangle) - y*Math.sin(nangle);
+//	x2 = x2*Math.cos(nangle) - y*Math.sin(nangle);
+//	y = x1*Math.sin(nangle) + y*Math.cos(nangle);
+
+	var r1 = [x1, y, 1];
+	var r2 = [x2, y, 1];
+	//console.log(rMat);
+	rMat = get_rMat(2*angle);
+	r1 = numeric.dot(rMat, r1);
+	r2 = numeric.dot(rMat, r2);
+	//r1 = numeric.dot(r1, rMat);
+	//r2 = numeric.dot(r2, rMat);
+	//console.log(r1,r2);
+	x1 = r1[0];
+	x2 = r2[0];
+	y =  r1[1];
+}
+
+y = yback; // convert y back
 // transform to canvas coordiantes
 if(!isNaN(x1)){
 ttemp = csport.from(x1, 0, 1);
@@ -837,6 +907,7 @@ if(!isNaN(x2)){
 ttemp = csport.from(x2, 0, 1);
 x2 = ttemp[0];
 }
+
 
 	// for ellipsoids we go out of canvas
     if(!isNaN(x1) && type == "ellipsoid"){

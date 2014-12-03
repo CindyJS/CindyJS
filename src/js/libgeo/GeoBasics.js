@@ -283,18 +283,19 @@ function render(){
    //		[a, d, e]
    //		[d, b, f]
    //		[e, f, c]
-    	var mat = el.matrix;
-	var a = mat.value[0].value[0].value.real;
-	var b = mat.value[1].value[0].value.real;
-	var c = mat.value[1].value[1].value.real;
-	var d = mat.value[2].value[0].value.real;
-	var e = mat.value[2].value[1].value.real;
-	var f = mat.value[2].value[2].value.real;
+//    	var mat = el.matrix;
+//	var a = mat.value[0].value[0].value.real;
+//	var b = mat.value[1].value[0].value.real;
+//	var c = mat.value[1].value[1].value.real;
+//	var d = mat.value[2].value[0].value.real;
+//	var e = mat.value[2].value[1].value.real;
+//	var f = mat.value[2].value[2].value.real;
 
 	var args = {};
 	var modifs = {};
-	args.Cparameters = [a, b, c, d, e, f];
-	args.Cpoints = el.points;
+//	args.Cparameters = [a, b, c, d, e, f];
+	args.matrix = el.matrix;
+	//args.Cpoints = el.points;
 
 	evaluator.drawconic(args, modifs);
 
