@@ -716,8 +716,8 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 }
 
 evaluator.drawconic = function(args, modifs){
-var useRot = true; // use Ratation for better rendering
-var useRotBack = true;
+var useRot = 0; // use Ratation for better rendering
+var useRotBack = 0;
 var angle;
 if(useRot) angle = 2*Math.PI*Math.random();
 //angle = 0.1;
@@ -730,7 +730,7 @@ var d = mat.value[2].value[0].value.real;
 var e = mat.value[2].value[1].value.real;
 var f = mat.value[2].value[2].value.real;
 
-//console.log([a, b, c, d, e, f]);
+console.log([a, b, c, d, e, f]);
 
 if(useRot){
 	var get_rMat = function(angle){
@@ -856,20 +856,29 @@ var degen = Math.abs(det) < eps ? true : false;
 if(degen) console.log("degenerate");
 
 var step = 1/5;
-if(degen && false){
-	step = 1/10;
-}
+//if(degen && false){
+//	step = 1/10;
+//}
 
 var ttemp; // trafo temp
 for(var y = ymin; y < ymax; y+=step){
 var yback = y;
 ttemp = csport.to(0, y);
 y = ttemp[1];
+
+if(Math.abs(a) > 0.001){
 var inner = -a*c* Math.pow(y, 2) - 2*a*e*y - a*f + Math.pow(b, 2) * Math.pow(y, 2) + 2*b*d*y  + Math.pow(d, 2);
 inner = Math.sqrt(inner);
 
+//if(Math.abs(a) < 0.001) a = 0.001; // TODO Fix this!
+
 x1 = 1/a * (-b*y - d + inner);
 x2 = -1/a * (b*y + d + inner);
+}
+else{
+	x1 = -(c*y*y/2 + e*y + f/2)/(b*y + d);
+	x2 = NaN;
+}
 
 
 var lleft = csport.to(0,0);
@@ -968,6 +977,9 @@ var degen = Math.abs(det) < eps ? true : false;
 y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 
+
+console.log(y0, y1);
+console.log(csh);
 if(!isNaN(y0)){
 	ttemp = csport.from(0, y0, 1);
 	y0 = ttemp[1];
@@ -984,7 +996,7 @@ else{
 	 y1 = uright[1];
 }
 // out of bound checks
-if(!(type == 'ellipsoid')){
+if(false && !(type == 'ellipsoid')){
 y0 < uright[1] ? y0 = uright[1] : y0 = y0;
 y1 < uright[1] ? y1 = uright[1] : y1 = y1;
 
@@ -994,6 +1006,8 @@ y1 > lleft[1] ? y1 = lleft[1] : y1 = y1;
 
 y0 < y1 ? ymin = y0 : ymin = y1;
 y0 > y1 ? ymax = y0 : ymax = y1;
+
+console.log(ymin, ymax);
 
 eval_conic_x(C, 0, ymin); //(, ymin); // TODO
 arr_xg = arr_x1.concat(arr_x2.reverse());
