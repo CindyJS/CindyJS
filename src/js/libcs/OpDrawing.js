@@ -716,11 +716,10 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 }
 
 evaluator.drawconic = function(args, modifs){
-var useRot = 0; // use Ratation for better rendering
-var useRotBack = 0;
+var useRot = 1; // use Ratation for better rendering
 var angle;
-if(useRot) angle = 2*Math.PI*Math.random();
-//angle = 0.1;
+if(useRot) angle = 0.01*(Math.random()-0.5);
+if(Math.abs(angle) < 0.01) angle = 0.01;
 var mat = args.matrix;
 
 var a = mat.value[0].value[0].value.real;
@@ -730,7 +729,7 @@ var d = mat.value[2].value[0].value.real;
 var e = mat.value[2].value[1].value.real;
 var f = mat.value[2].value[2].value.real;
 
-console.log([a, b, c, d, e, f]);
+//console.log("a="+ a, "b=" + b, "c=" + c, "d=" + d, "e=" + e, "f=" + f);
 
 if(useRot){
 	var get_rMat = function(angle){
@@ -860,31 +859,37 @@ var step = 1/5;
 //	step = 1/10;
 //}
 
+function sign(x) {
+    return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
+} 
 var ttemp; // trafo temp
 for(var y = ymin; y < ymax; y+=step){
 var yback = y;
 ttemp = csport.to(0, y);
 y = ttemp[1];
 
-if(Math.abs(a) > 0.001){
+
+//if(Math.abs(a) < 0.0001) a = a <= 0 ? 0.0001 : -0.0001; // TODO Fix this!
+
+//if(Math.abs(a) > 0.001){
 var inner = -a*c* Math.pow(y, 2) - 2*a*e*y - a*f + Math.pow(b, 2) * Math.pow(y, 2) + 2*b*d*y  + Math.pow(d, 2);
 inner = Math.sqrt(inner);
 
-//if(Math.abs(a) < 0.001) a = 0.001; // TODO Fix this!
 
 x1 = 1/a * (-b*y - d + inner);
 x2 = -1/a * (b*y + d + inner);
-}
-else{
-	x1 = -(c*y*y/2 + e*y + f/2)/(b*y + d);
-	x2 = NaN;
-}
+//}
+//else{
+//	x1 = -(c*y*y/2 + e*y + f/2)/(b*y + d);
+//	x2 = NaN;
+//}
 
 
-var lleft = csport.to(0,0);
-var uright = csport.to(csw, csh);
+//var lleft = csport.to(0,0);
+//var uright = csport.to(csw, csh);
 
-if(useRotBack ){
+var y1, y2;
+if(useRot){
 //	var yy = y;
 //	var xx1 = x1;
 //	var nangle = Math.PI*angle;
@@ -895,48 +900,67 @@ if(useRotBack ){
 	var r1 = [x1, y, 1];
 	var r2 = [x2, y, 1];
 	//console.log(rMat);
-	rMat = get_rMat(2*angle);
+	rMat = get_rMat(angle);
+	//TrMat = get_rMat(angle);
 	r1 = numeric.dot(rMat, r1);
 	r2 = numeric.dot(rMat, r2);
-	//r1 = numeric.dot(r1, rMat);
-	//r2 = numeric.dot(r2, rMat);
+//	r1 = numeric.dot(r1, TrMat);
+//	r2 = numeric.dot(r2, TrMat);
 	//console.log(r1,r2);
 	x1 = r1[0];
 	x2 = r2[0];
-	y =  r1[1];
+	y1 =  r1[1];
+	y2 =  r2[1];
 }
 
-y = yback; // convert y back
 // transform to canvas coordiantes
 if(!isNaN(x1)){
-ttemp = csport.from(x1, 0, 1);
+ttemp = csport.from(x1, y1, 1);
 x1 = ttemp[0];
+y1 = ttemp[1];
 }
 if(!isNaN(x2)){
-ttemp = csport.from(x2, 0, 1);
+ttemp = csport.from(x2, y2, 1);
 x2 = ttemp[0];
+y2 = ttemp[1];
 }
+
+
+var x_zero = 0;
+var x_max = csw;
+// if we use rotation we could rotate 0 and csh
+if(false && useRot){
+//x_zero = csport.from(0, 0, 1)[0];
+//x_max = csport.from(csw, 0, 1)[0];
+
+r1 = [x_zero, 0, 1];
+r1 = numeric.dot(rMat, r1);
+x_zero = r1[0];
+r1 = [x_max, 0, 1];
+r1 = numeric.dot(rMat, r1);
+x_max= r1[0];
+}        
 
 
 	// for ellipsoids we go out of canvas
     if(!isNaN(x1) && type == "ellipsoid"){
     arr_x1.push(x1);
-    arr_y1.push(y);
+    arr_y1.push(y1);
     }
-    else if(!isNaN(x1) && x1 > 0 && x1 < csh){
+    else if(!isNaN(x1) && x1 > x_zero && x1 < x_max){
     arr_x1.push(x1);
-    arr_y1.push(y);
+    arr_y1.push(y1);
     }
 
     if(!isNaN(x2) && type == "ellipsoid"){
     arr_x2.push(x2);
-    arr_y2.push(y);
+    arr_y2.push(y2);
     }
-    else if(!isNaN(x2) && x2 > 0 && x2 < csh){
+    else if(!isNaN(x2) && x2 > x_zero && x2 < x_max){
     arr_x2.push(x2);
-    arr_y2.push(y);
+    arr_y2.push(y2);
     }
-
+y = yback; // convert y back
 }
 }; // end eval_conic_x
 
@@ -949,6 +973,17 @@ var eps = 10e-5;
 
 var lleft = [0, csh];
 var uright = [csw, 0];
+
+if(false && useRot){
+var rl, ru; 
+var rMat = get_rMat(angle);
+rl = [0, csh, 1];
+rl = numeric.dot(rMat, rl);
+lleft = rl;
+ru = [csw, 0, 1];
+ru = numeric.dot(rMat, ru);
+uright = ru;
+}    
 
 
 var type = get_concic_type(C);
@@ -978,8 +1013,8 @@ y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 
 
-console.log(y0, y1);
-console.log(csh);
+//console.log(y0, y1);
+//console.log(csh);
 if(!isNaN(y0)){
 	ttemp = csport.from(0, y0, 1);
 	y0 = ttemp[1];
@@ -996,7 +1031,7 @@ else{
 	 y1 = uright[1];
 }
 // out of bound checks
-if(false && !(type == 'ellipsoid')){
+if(false && !(type == 'ellipsoid')){ // TODO !!
 y0 < uright[1] ? y0 = uright[1] : y0 = y0;
 y1 < uright[1] ? y1 = uright[1] : y1 = y1;
 
@@ -1007,13 +1042,15 @@ y1 > lleft[1] ? y1 = lleft[1] : y1 = y1;
 y0 < y1 ? ymin = y0 : ymin = y1;
 y0 > y1 ? ymax = y0 : ymax = y1;
 
-console.log(ymin, ymax);
+//console.log(ymin, ymax);
 
 eval_conic_x(C, 0, ymin); //(, ymin); // TODO
+//eval_conic_x(C, lleft[1], ymin); //(, ymin); // TODO
 arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
+//drawArray(arr_x1, arr_y1, "gold");
+//drawArray(arr_x2, arr_y2, "firebrick");
 drawArray(arr_xg, arr_yg, "gold");
-//drawArray(arr_xg, arr_yg);
 
 resetArrays();
 
