@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            <link rel="stylesheet" href="../css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>Conics</h1>
+        
+        
+        <script id='firstDrawing' type='cindyscript'>
+        </script>
+        
+
+        <canvas  id="CSCanvas" width=1000 height=1000 style="border:2px solid #000000"></canvas>
+
+
+        <script type="text/javascript">
+            
+            var gslp=[
+                      {name:"A", type:"Free", pos:[3,4]},
+                      {name:"B", type:"Free", pos:[3,3]},
+                      {name:"C", type:"Free", pos:[3,2]},
+                      {name:"D", type:"Free", pos:[5,0]},
+                      {name:"E", type:"Free", pos:[-6,0]},
+                      {name:"F", type:"Free", pos:[-4,8]},
+		      {name:"Co", type:"ConicBy5", args:["A","B","C","D","E"]},
+		      {name:"Co2", type:"ConicBy5", args:["A","B","C","D","F"]},
+		      {name:"Co3", type:"ConicBy5", args:["A","E","C","D","F"]},
+		      {name:"Co4", type:"ConicBy5", args:["A","B","E","D","F"]},
+		      {name:"Co5", type:"ConicBy5", args:["A","B","C","E","F"]},
+		     //{name:"l", type:"Join", args:["A", "B"]}
+                      ];
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        geometry:gslp});
+    
+        </script>
+
+	</body>
+</html>
