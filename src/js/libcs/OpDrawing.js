@@ -718,7 +718,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 evaluator.drawconic = function(args, modifs){
 var useRot = 1; // use Ratation for better rendering
 var angle;
-if(useRot) angle = 0.01*(Math.random()-0.5);
+if(useRot) angle = 0.1*(Math.random()-0.5);
 if(Math.abs(angle) < 0.01) angle = 0.01;
 var mat = args.matrix;
 
@@ -854,10 +854,10 @@ var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
 var degen = Math.abs(det) < eps ? true : false;
 if(degen) console.log("degenerate");
 
-var step = 1/5;
-//if(degen && false){
-//	step = 1/10;
-//}
+var step = 1/2;
+if(degen && false){
+	step = 1/4;
+}
 
 function sign(x) {
     return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
