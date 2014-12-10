@@ -849,7 +849,7 @@ var resetArrays = function(){
 };
 
 var drawArray = function(x, y, col){
-	csctx.strokeStyle= 'gray';
+	csctx.strokeStyle= 'blue';
 	csctx.lineWidth = 2;
 	if(col !== 'undefined'){
 		csctx.strokeStyle = col;
@@ -898,7 +898,7 @@ var f = C[5];
 //var degen = Math.abs(det) < eps ? true : false;
 //if(degen) console.log("degenerate");
 
-var step = 1/2;
+var step = 1;
 
 function sign(x) {
     return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
@@ -908,7 +908,7 @@ var ttemp; // trafo temp
 //drawRect(csw-20, ymax, 'yellow');
 //drawRect(csw/2, 0, 'orange');
 //drawRect(csw/2, csh, 'black');
-for(var y = ymin; y < ymax; y+=step){
+for(var y = ymin; y <= ymax; y+=step){
 var yback = y;
 ttemp = csport.to(0, y);
 y = ttemp[1];
@@ -1099,22 +1099,26 @@ arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
 //drawArray(arr_x1, arr_y1, "gold");
 //drawArray(arr_x2, arr_y2, "firebrick");
-drawArray(arr_xg, arr_yg, "gold");
+
+//drawArray(arr_xg, arr_yg, "gold");
+drawArray(arr_xg, arr_yg);
 
 resetArrays();
 
 
 eval_conic_x(C, ymax, y_h);
-drawArray(arr_x1, arr_y1, "orange");
+drawArray(arr_x1, arr_y1);
+//drawArray(arr_x1, arr_y1, "orange");
 // Bridge branches
 if(is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0])){ // here is a bug!
 csctx.beginPath();
-csctx.strokeStyle = "pink";
+//csctx.strokeStyle = "pink";
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke();
 }
-drawArray(arr_x2, arr_y2, "black");
+drawArray(arr_x2, arr_y2);
+//drawArray(arr_x2, arr_y2, "black");
 //drawArray(arr_x2, arr_y2);
 // i don't get it why this does not paint correctly with arr_xg / arr_yg
 //arr_xg = arr_x1.concat(arr_x2.reverse());
@@ -1124,7 +1128,8 @@ drawArray(arr_x2, arr_y2, "black");
 
 resetArrays();
 eval_conic_x(C, ymin, ymax);
-drawArray(arr_x1, arr_y1, "red");
+//drawArray(arr_x1, arr_y1, "red");
+drawArray(arr_x1, arr_y1);
 //drawArray(arr_x2, arr_y2, "green");
 //drawArray(arr_x1, arr_y1);
 // close gap
@@ -1142,7 +1147,8 @@ csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
 csctx.stroke();
 }
 
-drawArray(arr_x2, arr_y2, "green");
+//drawArray(arr_x2, arr_y2, "green");
+drawArray(arr_x2, arr_y2);
 resetArrays();
 //} // end if type parabola ellipsoid
 //if(type == "ellipsoid" && false){  // remove
