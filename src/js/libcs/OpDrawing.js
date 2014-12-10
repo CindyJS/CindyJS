@@ -716,10 +716,6 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 }
 
 evaluator.drawconic = function(args, modifs){
-var useRot = 1; // use Ratation for better rendering
-var angle;
-if(useRot) angle = 0.1*(Math.random()-0.5);
-if(Math.abs(angle) < 0.01) angle = 0.01;
 var mat = args.matrix;
 
 var a = mat.value[0].value[0].value.real;
@@ -729,9 +725,20 @@ var d = mat.value[2].value[0].value.real;
 var e = mat.value[2].value[1].value.real;
 var f = mat.value[2].value[2].value.real;
 
-//console.log("a="+ a, "b=" + b, "c=" + c, "d=" + d, "e=" + e, "f=" + f);
+var eps = 10e-6;
+var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+var degen = Math.abs(det) < eps ? true : false;
+
+var useRot = 1;
+if(degen){
+      	console.log("degenerate");
+	useRot = 1;
+}
+
 
 if(useRot){
+var angle = 0.1*(Math.random()-0.5);
+if(Math.abs(angle) < 0.01) angle = 0.01;
 	var get_rMat = function(angle){
 	return [[Math.cos(angle), -Math.sin(angle), 0],
 		    [Math.sin(angle), Math.cos(angle), 0],
@@ -763,53 +770,8 @@ var Conic = [a, b, c, d, e, f];
 
 
 
+
 //var Conic = args.Cparameters;
-
-var norm = function(x0, y0, x1, y1){
-	var norm = Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2);
-	return Math.sqrt(norm);
-};
-
-// arrays to save points on conic
-var arr_x1 = [];
-var arr_x2 = [];
-var arr_y1 = [];
-var arr_y2 = [];
-var arr_xg = [];
-var arr_yg = [];
-
-var resetArrays = function(){
-      arr_x1 = [];
-      arr_x2 = [];
-      arr_y1 = [];
-      arr_y2 = [];
-      arr_xg = [];
-      arr_yg = [];
-};
-
-var drawArray = function(x, y, col){
-	csctx.strokeStyle= 'blue';
-	csctx.lineWidth = 2;
-	if(col !== 'undefined'){
-		csctx.strokeStyle = col;
-	}
-	csctx.beginPath();
-	var xx0, yy0, xx1, yy1;
-	var temp, x0, x1, y0, y1;
-	for(var i = 1; i < x.length; i++){
-		x0 = x[i-1];
-		x1 = x[i];
-		y0 = y[i-1];
-		y1 = y[i];
-
-		csctx.moveTo(x0, y0);
-		csctx.lineTo(x1, y1);
-		csctx.moveTo(x[i-1], y0);
-		csctx.lineTo(x[i], y1);
-	}
-	csctx.stroke();
-}; // end drawArray
-
 var get_concic_type = function(C){
 	var eps = Math.pow(10, -8);
 
@@ -831,6 +793,68 @@ var get_concic_type = function(C){
 
 }; // end get_concic_type
 
+var type = get_concic_type(Conic);
+
+var norm = function(x0, y0, x1, y1){
+	var norm = Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2);
+	return Math.sqrt(norm);
+};
+
+var is_inside = function(x, y){
+	return (x > 0 && x < csw && y > 0 && y < csh);
+}
+
+var drawRect = function(x,y, col){
+	csctx.strokeStyle = 'navy';
+	if(col !== 'undefined') csctx.strokeStyle = col;
+	csctx.beginPath();
+	csctx.rect(x,y, 20, 20);
+	csctx.stroke();
+}
+// arrays to save points on conic
+var arr_x1 = [];
+var arr_x2 = [];
+var arr_y1 = [];
+var arr_y2 = [];
+var arr_xg = [];
+var arr_yg = [];
+
+var resetArrays = function(){
+      arr_x1 = [];
+      arr_x2 = [];
+      arr_y1 = [];
+      arr_y2 = [];
+      arr_xg = [];
+      arr_yg = [];
+};
+
+var drawArray = function(x, y, col){
+	csctx.strokeStyle= 'gray';
+	csctx.lineWidth = 2;
+	if(col !== 'undefined'){
+		csctx.strokeStyle = col;
+	}
+	csctx.beginPath();
+	var xx0, yy0, xx1, yy1;
+	var temp, x0, x1, y0, y1;
+	for(var i = 1; i < x.length; i++){
+		x0 = x[i-1];
+		x1 = x[i];
+		y0 = y[i-1];
+		y1 = y[i];
+
+		if(!is_inside(x1, y1) || !is_inside(x0, y0)) continue;
+
+		csctx.moveTo(x0, y0);
+		csctx.lineTo(x1, y1);
+		csctx.moveTo(x[i-1], y0);
+		csctx.lineTo(x[i], y1);
+	}
+	csctx.stroke();
+}; // end drawArray
+
+
+
 var eval_conic_x = function(C,ymin, ymax){
 var x1, x2;
 var type = get_concic_type(C);
@@ -849,10 +873,10 @@ var e = C[4];
 var f = C[5];
 
 // get DET 
-var eps = 10e-6;
-var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
-var degen = Math.abs(det) < eps ? true : false;
-if(degen) console.log("degenerate");
+//var eps = 10e-6;
+//var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+//var degen = Math.abs(det) < eps ? true : false;
+//if(degen) console.log("degenerate");
 
 var step = 1/2;
 if(degen && false){
@@ -863,6 +887,10 @@ function sign(x) {
     return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
 } 
 var ttemp; // trafo temp
+drawRect(csw-20, ymin, 'aqua');
+drawRect(csw-20, ymax, 'yellow');
+drawRect(csw/2, 0, 'orange');
+drawRect(csw/2, csh, 'black');
 for(var y = ymin; y < ymax; y+=step){
 var yback = y;
 ttemp = csport.to(0, y);
@@ -878,67 +906,52 @@ inner = Math.sqrt(inner);
 
 x1 = 1/a * (-b*y - d + inner);
 x2 = -1/a * (b*y + d + inner);
-//}
-//else{
-//	x1 = -(c*y*y/2 + e*y + f/2)/(b*y + d);
-//	x2 = NaN;
-//}
-
 
 //var lleft = csport.to(0,0);
 //var uright = csport.to(csw, csh);
 
-var y1, y2;
+var ya, yb, y1, y2;
 if(useRot){
-//	var yy = y;
-//	var xx1 = x1;
-//	var nangle = Math.PI*angle;
-//	x1 = x1*Math.cos(nangle) - y*Math.sin(nangle);
-//	x2 = x2*Math.cos(nangle) - y*Math.sin(nangle);
-//	y = x1*Math.sin(nangle) + y*Math.cos(nangle);
-
 	var r1 = [x1, y, 1];
 	var r2 = [x2, y, 1];
-	//console.log(rMat);
-	rMat = get_rMat(angle);
-	//TrMat = get_rMat(angle);
+	var rMat = get_rMat(angle);
 	r1 = numeric.dot(rMat, r1);
 	r2 = numeric.dot(rMat, r2);
-//	r1 = numeric.dot(r1, TrMat);
-//	r2 = numeric.dot(r2, TrMat);
-	//console.log(r1,r2);
 	x1 = r1[0];
 	x2 = r2[0];
-	y1 =  r1[1];
-	y2 =  r2[1];
+	ya =  r1[1];
+	yb =  r2[1];
+}
+else{
+	ya = y;
+	yb = y;
 }
 
 // transform to canvas coordiantes
 if(!isNaN(x1)){
-ttemp = csport.from(x1, y1, 1);
+ttemp = csport.from(x1, ya, 1);
 x1 = ttemp[0];
 y1 = ttemp[1];
 }
 if(!isNaN(x2)){
-ttemp = csport.from(x2, y2, 1);
+ttemp = csport.from(x2, yb, 1);
 x2 = ttemp[0];
 y2 = ttemp[1];
 }
 
 
 var x_zero = 0;
-var x_max = csw;
+var x_w = csw;
+var y_zero = 0;
+var y_h
 // if we use rotation we could rotate 0 and csh
 if(false && useRot){
-//x_zero = csport.from(0, 0, 1)[0];
-//x_max = csport.from(csw, 0, 1)[0];
-
 r1 = [x_zero, 0, 1];
 r1 = numeric.dot(rMat, r1);
 x_zero = r1[0];
-r1 = [x_max, 0, 1];
+r1 = [x_h, 0, 1];
 r1 = numeric.dot(rMat, r1);
-x_max= r1[0];
+x_w = r1[0];
 }        
 
 
@@ -947,7 +960,7 @@ x_max= r1[0];
     arr_x1.push(x1);
     arr_y1.push(y1);
     }
-    else if(!isNaN(x1) && x1 > x_zero && x1 < x_max){
+    else if(!isNaN(x1) && x1 > -x_w && x1 < 2*x_w){ // hack o mat
     arr_x1.push(x1);
     arr_y1.push(y1);
     }
@@ -956,7 +969,7 @@ x_max= r1[0];
     arr_x2.push(x2);
     arr_y2.push(y2);
     }
-    else if(!isNaN(x2) && x2 > x_zero && x2 < x_max){
+    else if(!isNaN(x2) && x2 > -x_w && x2 < 2*x_w){ // hack o mat
     arr_x2.push(x2);
     arr_y2.push(y2);
     }
@@ -974,18 +987,27 @@ var eps = 10e-5;
 var lleft = [0, csh];
 var uright = [csw, 0];
 
-if(false && useRot){
+var csHW = [csw, csh];
+
+if(useRot){ // here!!! ymin max false set!
 var rl, ru; 
 var rMat = get_rMat(angle);
 rl = [0, csh, 1];
 rl = numeric.dot(rMat, rl);
-lleft = rl;
+console.log("rl", rl);
+lleft = [rl[0],rl[1]];
 ru = [csw, 0, 1];
 ru = numeric.dot(rMat, ru);
-uright = ru;
+uright = [ru[0], ru[1]];
+console.log("ru",ru);
+
+var rHW = [csw, csh, 1];
+rHW = numeric.dot(rMat, rHW);
+console.log("rhw", rHW);
 }    
 
 
+console.log("angle: ", angle);
 var type = get_concic_type(C);
 
 
@@ -1003,9 +1025,9 @@ var e = C[4];
 var f = C[5];
 
 // get DET 
-eps = 10e-5;
-var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
-var degen = Math.abs(det) < eps ? true : false;
+//eps = 10e-5;
+//var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+//var degen = Math.abs(det) < eps ? true : false;
 //if(degen) console.log("degenerate");
 
 //if(type == "parabola" || type == "hyperbola" || true){
@@ -1013,14 +1035,14 @@ y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 
 
-//console.log(y0, y1);
+console.log("y0  / y1", y0, y1);
 //console.log(csh);
 if(!isNaN(y0)){
 	ttemp = csport.from(0, y0, 1);
 	y0 = ttemp[1];
 }
 else{
-	y0 = lleft[1];
+	y0 = uright[1] < 0 ? uright[1] : 0;
 }
 
 if(!isNaN(y1)){
@@ -1028,21 +1050,30 @@ if(!isNaN(y1)){
 	y1 = ttemp[1];
 }
 else{
-	 y1 = uright[1];
+	 //y1 = uright[1];
+	 y1 = rHW[0] > csh? rHW[0] : csh;
 }
 // out of bound checks
-if(false && !(type == 'ellipsoid')){ // TODO !!
-y0 < uright[1] ? y0 = uright[1] : y0 = y0;
-y1 < uright[1] ? y1 = uright[1] : y1 = y1;
+console.log("y0 / y1", y0, y1);
+console.log(type);
+//if(!(type == 'ellipsoid')){ // TODO !!
+//y0 < uright[1] ? y0 = uright[1] : y0 = y0;
+//y1 < uright[1] ? y1 = uright[1] : y1 = y1;
+//
+//y0 > lleft[1] ? y0 = lleft[1] : y0 = y0;
+//y1 > lleft[1] ? y1 = lleft[1] : y1 = y1;
+//y0 < 0 ? y0 = 0 : y0 = y0;
+//y1 < 0 ? y1 = 0 : y1 = y1;
 
-y0 > lleft[1] ? y0 = lleft[1] : y0 = y0;
-y1 > lleft[1] ? y1 = lleft[1] : y1 = y1;
-}
+//y0 > csh  ? y0 = csh : y0 = y0;
+//y1 > csh  ? y1 = csh : y1 = y1;
+//}
 
 y0 < y1 ? ymin = y0 : ymin = y1;
 y0 > y1 ? ymax = y0 : ymax = y1;
 
-//console.log(ymin, ymax);
+console.log("ymin/ymax", ymin, ymax);
+console.log("lleft / uright", lleft, uright);
 
 eval_conic_x(C, 0, ymin); //(, ymin); // TODO
 //eval_conic_x(C, lleft[1], ymin); //(, ymin); // TODO
@@ -1069,9 +1100,6 @@ drawArray(arr_x2, arr_y2, "black");
 //arr_yg = arr_y1.concat(arr_y2.reverse());
 //drawArray(arr_xg, arr_yg, "purple");
 
-var is_inside = function(x, y){
-	return (x > 0 && x < csw && y > 0 && y < csh);
-}
 
 resetArrays();
 eval_conic_x(C, ymin, ymax);
@@ -1177,7 +1205,7 @@ resetArrays();
 // actually start drawing
 calc_draw(Conic);
 
-} // end evaluator.drawconic
+}; // end evaluator.drawconic
 
 evaluator.drawall =function(args,modifs){
     if(args.length==1) {
