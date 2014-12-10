@@ -750,7 +750,12 @@ if(useRot){
 var C = [a, b, c, d, e, f];
  var A = [[C[0], C[1]], [C[1], C[2]]];
 	   var eigens  = numeric.eig(A);
+	   if(numeric.norm(eigens.E.x[0]) > 0.5){
+	   c_eig = eigens.E.x[0];
+	   }
+	   else{
 	   c_eig = eigens.E.x[1];
+	   }
 
 	   var ang = numeric.dot([1,0],c_eig);
 	   var angle = Math.acos(ang);
