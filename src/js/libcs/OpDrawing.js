@@ -745,7 +745,7 @@ if(degen){
 
 
 if(useRot){
-var angle = 0.5*(Math.random()-0.5);
+var angle = 0.1*(Math.random()-0.5);
 if(Math.abs(angle) < 0.01) angle = 0.01;
 	var get_rMat = function(angle){
 	return [[Math.cos(angle), -Math.sin(angle), 0],
