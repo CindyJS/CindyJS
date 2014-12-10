@@ -729,6 +729,14 @@ var eps = 10e-6;
 var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
 var degen = Math.abs(det) < eps ? true : false;
 
+
+var cswh_max = csw > csh ? csw : csh;
+
+var x_zero = -cswh_max;
+var x_w = 2*cswh_max;
+var y_zero = -cswh_max;
+var y_h = 2*cswh_max;
+
 var useRot = 1;
 if(degen){
       	console.log("degenerate");
@@ -737,7 +745,7 @@ if(degen){
 
 
 if(useRot){
-var angle = 0.1*(Math.random()-0.5);
+var angle = 0.5*(Math.random()-0.5);
 if(Math.abs(angle) < 0.01) angle = 0.01;
 	var get_rMat = function(angle){
 	return [[Math.cos(angle), -Math.sin(angle), 0],
@@ -879,18 +887,15 @@ var f = C[5];
 //if(degen) console.log("degenerate");
 
 var step = 1/2;
-if(degen && false){
-	step = 1/4;
-}
 
 function sign(x) {
     return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
 } 
 var ttemp; // trafo temp
-drawRect(csw-20, ymin, 'aqua');
-drawRect(csw-20, ymax, 'yellow');
-drawRect(csw/2, 0, 'orange');
-drawRect(csw/2, csh, 'black');
+//drawRect(csw-20, ymin, 'aqua');
+//drawRect(csw-20, ymax, 'yellow');
+//drawRect(csw/2, 0, 'orange');
+//drawRect(csw/2, csh, 'black');
 for(var y = ymin; y < ymax; y+=step){
 var yback = y;
 ttemp = csport.to(0, y);
@@ -940,10 +945,10 @@ y2 = ttemp[1];
 }
 
 
-var x_zero = 0;
-var x_w = csw;
-var y_zero = 0;
-var y_h
+//var x_zero = -cswh_max;
+//var x_w = 2*cswh_max;
+//var y_zero = -cswh_max;
+//var y_h = 2*cswh_max;
 // if we use rotation we could rotate 0 and csh
 if(false && useRot){
 r1 = [x_zero, 0, 1];
@@ -960,7 +965,7 @@ x_w = r1[0];
     arr_x1.push(x1);
     arr_y1.push(y1);
     }
-    else if(!isNaN(x1) && x1 > -x_w && x1 < 2*x_w){ // hack o mat
+    else if(!isNaN(x1) && x1 >= x_zero && x1 <= x_w){ // hack o mat
     arr_x1.push(x1);
     arr_y1.push(y1);
     }
@@ -969,7 +974,7 @@ x_w = r1[0];
     arr_x2.push(x2);
     arr_y2.push(y2);
     }
-    else if(!isNaN(x2) && x2 > -x_w && x2 < 2*x_w){ // hack o mat
+    else if(!isNaN(x2) && x2 >= x_zero && x2 <= x_w){ // hack o mat
     arr_x2.push(x2);
     arr_y2.push(y2);
     }
@@ -984,30 +989,30 @@ var ttemp;
 
 var eps = 10e-5;
 
-var lleft = [0, csh];
-var uright = [csw, 0];
+//var lleft = [0, csh];
+//var uright = [csw, 0];
 
-var csHW = [csw, csh];
+//var csHW = [csw, csh];
 
-if(useRot){ // here!!! ymin max false set!
-var rl, ru; 
-var rMat = get_rMat(angle);
-rl = [0, csh, 1];
-rl = numeric.dot(rMat, rl);
-console.log("rl", rl);
-lleft = [rl[0],rl[1]];
-ru = [csw, 0, 1];
-ru = numeric.dot(rMat, ru);
-uright = [ru[0], ru[1]];
-console.log("ru",ru);
+//if(useRot){ // here!!! ymin max false set!
+//var rl, ru; 
+//var rMat = get_rMat(angle);
+//rl = [0, csh, 1];
+//rl = numeric.dot(rMat, rl);
+//console.log("rl", rl);
+//lleft = [rl[0],rl[1]];
+//ru = [csw, 0, 1];
+//ru = numeric.dot(rMat, ru);
+//uright = [ru[0], ru[1]];
+//console.log("ru",ru);
+//
+//var rHW = [csw, csh, 1];
+//rHW = numeric.dot(rMat, rHW);
+//console.log("rhw", rHW);
+//}    
 
-var rHW = [csw, csh, 1];
-rHW = numeric.dot(rMat, rHW);
-console.log("rhw", rHW);
-}    
 
-
-console.log("angle: ", angle);
+//console.log("angle: ", angle);
 var type = get_concic_type(C);
 
 
@@ -1035,14 +1040,14 @@ y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2
 y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
 
 
-console.log("y0  / y1", y0, y1);
+//console.log("y0  / y1", y0, y1);
 //console.log(csh);
 if(!isNaN(y0)){
 	ttemp = csport.from(0, y0, 1);
 	y0 = ttemp[1];
 }
 else{
-	y0 = uright[1] < 0 ? uright[1] : 0;
+	y0 = y_zero;
 }
 
 if(!isNaN(y1)){
@@ -1051,11 +1056,12 @@ if(!isNaN(y1)){
 }
 else{
 	 //y1 = uright[1];
-	 y1 = rHW[0] > csh? rHW[0] : csh;
+//	 y1 = rHW[0] > csh? rHW[0] : csh;
+	y1 = y_zero;
 }
 // out of bound checks
-console.log("y0 / y1", y0, y1);
-console.log(type);
+//console.log("y0 / y1", y0, y1);
+//console.log(type);
 //if(!(type == 'ellipsoid')){ // TODO !!
 //y0 < uright[1] ? y0 = uright[1] : y0 = y0;
 //y1 < uright[1] ? y1 = uright[1] : y1 = y1;
@@ -1072,10 +1078,10 @@ console.log(type);
 y0 < y1 ? ymin = y0 : ymin = y1;
 y0 > y1 ? ymax = y0 : ymax = y1;
 
-console.log("ymin/ymax", ymin, ymax);
-console.log("lleft / uright", lleft, uright);
+//console.log("ymin/ymax", ymin, ymax);
+//console.log("lleft / uright", lleft, uright);
 
-eval_conic_x(C, 0, ymin); //(, ymin); // TODO
+eval_conic_x(C, y_zero, ymin); //(, ymin); // TODO
 //eval_conic_x(C, lleft[1], ymin); //(, ymin); // TODO
 arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
@@ -1086,13 +1092,16 @@ drawArray(arr_xg, arr_yg, "gold");
 resetArrays();
 
 
-eval_conic_x(C, ymax, csh);
-drawArray(arr_x1, arr_y1);
+eval_conic_x(C, ymax, y_h);
+drawArray(arr_x1, arr_y1, "orange");
 // Bridge branches
+if(is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0])){ // here is a bug!
 csctx.beginPath();
+csctx.strokeStyle = "pink";
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke();
+}
 drawArray(arr_x2, arr_y2, "black");
 //drawArray(arr_x2, arr_y2);
 // i don't get it why this does not paint correctly with arr_xg / arr_yg
