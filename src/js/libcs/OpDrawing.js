@@ -725,8 +725,9 @@ var d = mat.value[2].value[0].value.real;
 var e = mat.value[2].value[1].value.real;
 var f = mat.value[2].value[2].value.real;
 
-var eps = 10e-6;
+var eps = 10e-8;
 var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+console.log(det);
 var degen = Math.abs(det) < eps ? true : false;
 
 
@@ -750,6 +751,7 @@ if(useRot){
 var C = [a, b, c, d, e, f];
  var A = [[C[0], C[1]], [C[1], C[2]]];
 	   var eigens  = numeric.eig(A);
+	   console.log(eigens);
 	   if(numeric.norm2(eigens.E.x[1]) > 0.5){
 	   c_eig = eigens.E.x[1];
 	   }
@@ -757,8 +759,10 @@ var C = [a, b, c, d, e, f];
 	   c_eig = eigens.E.x[0];
 	   }
 
+
 	   var ang = numeric.dot([1,0],c_eig);
 	   var angle = Math.acos(ang);
+	   console.log(angle);
 	var get_rMat = function(angle){
 	return [[Math.cos(angle), -Math.sin(angle), 0],
 		    [Math.sin(angle), Math.cos(angle), 0],
@@ -898,11 +902,11 @@ var f = C[5];
 //var degen = Math.abs(det) < eps ? true : false;
 //if(degen) console.log("degenerate");
 
-var step = 1;
+var step = 1/2;
 
-function sign(x) {
-    return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
-} 
+//function sign(x) {
+//    return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
+//} 
 var ttemp; // trafo temp
 //drawRect(csw-20, ymin, 'aqua');
 //drawRect(csw-20, ymax, 'yellow');
