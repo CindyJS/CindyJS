@@ -717,6 +717,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 
 evaluator.drawconic = function(args, modifs){
 var mat = args.matrix;
+var adj_mat = List.adjoint3(mat);
 
 var a = mat.value[0].value[0].value.real;
 var b = mat.value[1].value[0].value.real;
@@ -727,7 +728,7 @@ var f = mat.value[2].value[2].value.real;
 
 var eps = 10e-8;
 var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
-console.log(det);
+//console.log(det);
 var degen = Math.abs(det) < eps ? true : false;
 
 
@@ -741,17 +742,15 @@ var y_h = 2*cswh_max;
 var useRot = 1;
 if(degen){
       	console.log("degenerate");
-	useRot = 1;
+	useRot = 0;
 }
 
 
 if(useRot){
-//var angle = 0.1*(Math.random()-0.5);
-//if(Math.abs(angle) < 0.01) angle = 0.01;
 var C = [a, b, c, d, e, f];
- var A = [[C[0], C[1]], [C[1], C[2]]];
+var A = [[C[0], C[1]], [C[1], C[2]]];
 	   var eigens  = numeric.eig(A);
-	   console.log(eigens);
+	   //console.log(eigens);
 	   if(numeric.norm2(eigens.E.x[1]) > 0.5){
 	   c_eig = eigens.E.x[1];
 	   }
@@ -762,14 +761,11 @@ var C = [a, b, c, d, e, f];
 
 	   var ang = numeric.dot([1,0],c_eig);
 	   var angle = Math.acos(ang);
-	   console.log(angle);
+	   //console.log(angle);
 	var get_rMat = function(angle){
 	return [[Math.cos(angle), -Math.sin(angle), 0],
 		    [Math.sin(angle), Math.cos(angle), 0],
 		    [0, 0, 1]];
-//	return [[1, 0, 0],
-//		    [0, Math.cos(angle), -Math.sin(angle)],
-//		    [0, Math.sin(angle), Math.cos(angle)]];
 	};
 
 	var myMat = [[a,b,d],
@@ -792,7 +788,104 @@ var C = [a, b, c, d, e, f];
 var Conic = [a, b, c, d, e, f];
 //console.log(Conic);
 
+var split_degen = function(){
 
+var a00 = adj_mat.value[0].value[0].value.real;
+var a01 = adj_mat.value[0].value[1].value.real;
+var a02 = adj_mat.value[0].value[2].value.real;
+
+var a10 = adj_mat.value[1].value[0].value.real;
+var a11 = adj_mat.value[1].value[1].value.real;
+var a12 = adj_mat.value[1].value[2].value.real;
+
+var a20 = adj_mat.value[2].value[0].value.real;
+var a21 = adj_mat.value[2].value[1].value.real;
+var a22 = adj_mat.value[2].value[2].value.real;
+
+var myMat = [[a,b,d],
+	     [b,c,e],
+	     [d,e,f]];
+
+var myAdj = [[a00,a01,a02],
+	     [a10,a11,a12],
+	     [a20,a21,a22]];
+
+var idx = 0;
+var max = Math.abs(myAdj[0][0]);
+for(var k = 1; k < 3; k++){
+	if(Math.abs(myAdj[k][k]) > max){
+		idx = k;
+		max = Math.abs(myAdj[k][k]);
+	}
+}
+
+
+var beta = Math.sqrt(Math.abs(myAdj[idx][idx])); // abs is a hack?
+var p = numeric.transpose(myAdj)[idx];
+p = numeric.div(p, beta);
+
+
+var lam = p[0], mu = p[1], tau = p[2];
+var M = [[0, tau, -mu],[-tau, 0, lam], [mu, -lam, 0]];
+var C = numeric.add(myMat, M);
+
+// get nonzero index
+var ii, jj;
+var max = 0;
+for(var k = 0; k < 3; k++)
+for(var l = 0; l < 3; l++){
+	if(Math.abs(C[k][l]) > max){
+		ii = k;
+		jj = l;
+		max = Math.abs(C[k][l]);
+	}
+}
+
+var g = C[ii];
+//var h = numeric.transpose(C)[jj];
+var h = [C[0][jj], C[1][jj], C[2][jj]];
+
+//var modifs = {};
+modifs.lineWidth = 2;
+var lg = List.realVector(g);
+lg.usage = "Line";
+var lh = List.realVector(h);
+lh.usage = "Line";
+
+var arg = new Array();
+arg[0] = lg;
+evaluator.draw(arg, modifs);
+arg[0] = lh;
+evaluator.draw(arg, modifs);
+
+} // end split degen
+//if(degen)
+//split_degen();
+// adjugate matrix
+//var get_adjugate = function(A){
+//	var M11, M12, M13, M21, M22, M23, M31, M32, M33;
+//
+//	M11 = [[A[1,1], A[1,2]], 
+//	       [A[2,1], A[2,2]]];
+//
+//	M12 = [[A[1,0], A[1,2]], 
+//	       [A[2,0], A[2,2]]];
+//
+//	M13 = [[A[1,0], A[1,1]], 
+//	       [A[2,0], A[2,1]]];
+//	
+//	M21 = [[A[0,1], A[0,2]], 
+//	       [A[2,1], A[2,2]]];
+//
+//	M22 = [[A[0,0], A[0,2]], 
+//	       [A[2,0], A[2,2]]];
+//
+//	M23 = [[A[0,0], A[0,1]], 
+//	       [A[2,0], A[2,1]]];
+//
+//	M = [[A[0,0], A[0,1]], 
+//	       [A[2,0], A[2,1]]];
+//}
 
 
 //var Conic = args.Cparameters;
@@ -832,7 +925,7 @@ var drawRect = function(x,y, col){
 	csctx.strokeStyle = 'navy';
 	if(col !== 'undefined') csctx.strokeStyle = col;
 	csctx.beginPath();
-	csctx.rect(x,y, 20, 20);
+	csctx.rect(x,y, 10, 10);
 	csctx.stroke();
 }
 // arrays to save points on conic
@@ -854,7 +947,7 @@ var resetArrays = function(){
 
 var drawArray = function(x, y, col){
 	csctx.strokeStyle= 'blue';
-	csctx.lineWidth = 2;
+//	csctx.lineWidth = 2;
 	if(col !== 'undefined'){
 		csctx.strokeStyle = col;
 	}
@@ -866,8 +959,6 @@ var drawArray = function(x, y, col){
 		x1 = x[i];
 		y0 = y[i-1];
 		y1 = y[i];
-
-		if(!is_inside(x1, y1) || !is_inside(x0, y0)) continue;
 
 		csctx.moveTo(x0, y0);
 		csctx.lineTo(x1, y1);
@@ -902,7 +993,7 @@ var f = C[5];
 //var degen = Math.abs(det) < eps ? true : false;
 //if(degen) console.log("degenerate");
 
-var step = 1/2;
+var step = 1;
 
 //function sign(x) {
 //    return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
@@ -1104,15 +1195,16 @@ arr_yg = arr_y1.concat(arr_y2.reverse());
 //drawArray(arr_x1, arr_y1, "gold");
 //drawArray(arr_x2, arr_y2, "firebrick");
 
-//drawArray(arr_xg, arr_yg, "gold");
-drawArray(arr_xg, arr_yg);
+
+drawArray(arr_xg, arr_yg, "gold");
+//drawArray(arr_xg, arr_yg);
 
 resetArrays();
 
 
 eval_conic_x(C, ymax, y_h);
-drawArray(arr_x1, arr_y1);
-//drawArray(arr_x1, arr_y1, "orange");
+//drawArray(arr_x1, arr_y1);
+drawArray(arr_x1, arr_y1, "orange");
 // Bridge branches
 if(is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0])){ // here is a bug!
 csctx.beginPath();
@@ -1121,8 +1213,8 @@ csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke();
 }
-drawArray(arr_x2, arr_y2);
-//drawArray(arr_x2, arr_y2, "black");
+//drawArray(arr_x2, arr_y2);
+drawArray(arr_x2, arr_y2, "black");
 //drawArray(arr_x2, arr_y2);
 // i don't get it why this does not paint correctly with arr_xg / arr_yg
 //arr_xg = arr_x1.concat(arr_x2.reverse());
@@ -1132,8 +1224,8 @@ drawArray(arr_x2, arr_y2);
 
 resetArrays();
 eval_conic_x(C, ymin, ymax);
-//drawArray(arr_x1, arr_y1, "red");
-drawArray(arr_x1, arr_y1);
+drawArray(arr_x1, arr_y1, "red");
+//drawArray(arr_x1, arr_y1);
 //drawArray(arr_x2, arr_y2, "green");
 //drawArray(arr_x1, arr_y1);
 // close gap
@@ -1151,8 +1243,8 @@ csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
 csctx.stroke();
 }
 
-//drawArray(arr_x2, arr_y2, "green");
-drawArray(arr_x2, arr_y2);
+drawArray(arr_x2, arr_y2, "green");
+//drawArray(arr_x2, arr_y2);
 resetArrays();
 //} // end if type parabola ellipsoid
 //if(type == "ellipsoid" && false){  // remove
@@ -1234,7 +1326,12 @@ resetArrays();
 
 
 // actually start drawing
+if(!degen){
 calc_draw(Conic);
+}
+else{
+	split_degen();
+}
 
 }; // end evaluator.drawconic
 
