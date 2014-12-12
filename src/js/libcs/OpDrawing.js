@@ -993,7 +993,7 @@ var f = C[5];
 //var degen = Math.abs(det) < eps ? true : false;
 //if(degen) console.log("degenerate");
 
-var step = 1;
+var step = 1/2;
 
 //function sign(x) {
 //    return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
