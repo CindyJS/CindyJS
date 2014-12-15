@@ -1206,9 +1206,12 @@ eval_conic_x(C, ymax, y_h);
 //drawArray(arr_x1, arr_y1);
 drawArray(arr_x1, arr_y1, "orange");
 // Bridge branches
-if(is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0])){ // here is a bug!
+//if(is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0])){ // here is a bug!
+console.log(type);
+//if(norm(arr_x1[0], arr_y1[0], arr_x2[0], arr_y2[0]) < (csw+csh)/10){
+if(is_inside(arr_x1[0], arr_y1[1]) && is_inside(arr_x2[0], arr_y2[0])){ // drawing bug fix
 csctx.beginPath();
-//csctx.strokeStyle = "pink";
+csctx.strokeStyle = "pink";
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke();
@@ -1230,19 +1233,20 @@ drawArray(arr_x1, arr_y1, "red");
 //drawArray(arr_x1, arr_y1);
 // close gap
 //if(arr_y1[0] > 0 && arr_y1[0] < csh && arr_y2[0] > 0 && arr_x2[0] < csh && type == 'ellipsoid'){
-if(!degen && is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0]) && type == 'ellipsoid'){
+//if(!degen && is_inside(arr_x1[0], arr_y1[0]) && is_inside(arr_x2[0], arr_y2[0]) && type == 'ellipsoid'){
+if(type == "ellipsoid"){
 csctx.beginPath();
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke()
-}
-if(!degen && is_inside(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length -1]) && is_inside(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]) && type == 'ellipsoid'){
+//}
+//if(!degen && is_inside(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length -1]) && is_inside(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]) && type == 'ellipsoid'){
 csctx.beginPath();
 csctx.moveTo(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length-1]);
 csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
 csctx.stroke();
+//}
 }
-
 drawArray(arr_x2, arr_y2, "green");
 //drawArray(arr_x2, arr_y2);
 resetArrays();
