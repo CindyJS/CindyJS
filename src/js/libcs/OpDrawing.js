@@ -911,18 +911,9 @@ var drawArray = function(x, y, col){
 		csctx.strokeStyle = col;
 	}
 	csctx.beginPath();
-	var xx0, yy0, xx1, yy1;
-	var temp, x0, x1, y0, y1;
 	for(var i = 1; i < x.length; i++){
-		x0 = x[i-1];
-		x1 = x[i];
-		y0 = y[i-1];
-		y1 = y[i];
-
-		csctx.moveTo(x0, y0);
-		csctx.lineTo(x1, y1);
-		csctx.moveTo(x[i-1], y0);
-		csctx.lineTo(x[i], y1);
+		csctx.moveTo(x[i-1], y[i-1]);
+		csctx.lineTo(x[i], y[i]);
 	}
 	csctx.stroke();
 }; // end drawArray
