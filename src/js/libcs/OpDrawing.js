@@ -1068,7 +1068,7 @@ eval_conic_x(C, ymax, y_h);
 //drawArray(arr_x1, arr_y1, "orange");
 drawArray(arr_x1, arr_y1);
 // bridge branches
-if(is_inside(arr_x1[0], arr_y1[1]) && is_inside(arr_x2[0], arr_y2[0])){ // drawing bug fix
+if(is_inside(arr_x1[0], arr_y1[1]) || is_inside(arr_x2[0], arr_y2[0])){ // drawing bug fix
 csctx.beginPath();
 //csctx.strokeStyle = "pink";
 csctx.moveTo(arr_x1[0], arr_y1[0]);
