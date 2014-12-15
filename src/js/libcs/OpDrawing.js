@@ -726,7 +726,7 @@ var d = mat.value[2].value[0].value.real;
 var e = mat.value[2].value[1].value.real;
 var f = mat.value[2].value[2].value.real;
 
-var eps = 10e-8;
+var eps = 10e-9;
 var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
 //console.log(det);
 var degen = Math.abs(det) < eps ? true : false;
@@ -749,19 +749,26 @@ if(degen){
 if(useRot){
 var C = [a, b, c, d, e, f];
 var A = [[C[0], C[1]], [C[1], C[2]]];
-	   var eigens  = numeric.eig(A);
+	   //var eigens  = numeric.eig(A);
 	   //console.log(eigens);
-	   if(numeric.norm2(eigens.E.x[1]) > 0.5){
-	   c_eig = eigens.E.x[1];
-	   }
-	   else{
-	   c_eig = eigens.E.x[0];
-	   }
+	  // if(numeric.norm2(eigens.E.x[1]) > 0.5){
+	  // c_eig = eigens.E.x[1];
+	  // }
+	  // else{
+	  // c_eig = eigens.E.x[0];
+	  // }
 
 
-	   var ang = numeric.dot([1,0],c_eig);
-	   var angle = Math.acos(ang);
+	  // var ang = numeric.dot([1,0],c_eig);
+	   //var angle = Math.acos(ang);
 	   //console.log(angle);
+	var angle = 0;
+	if(Math.abs(a-b) > eps){
+		angle = Math.atan(b/a-c)/2;
+	}
+	else{
+		angle = Math.PI/4;
+	}
 	var get_rMat = function(angle){
 	return [[Math.cos(angle), -Math.sin(angle), 0],
 		    [Math.sin(angle), Math.cos(angle), 0],
@@ -890,7 +897,7 @@ evaluator.draw(arg, modifs);
 
 //var Conic = args.Cparameters;
 var get_concic_type = function(C){
-	var eps = Math.pow(10, -8);
+//	var eps = Math.pow(10, -8);
 
 	if(C == 'undefined' || C.length != 6){
 	   console.error("this does not define a Conic");
@@ -1094,7 +1101,7 @@ var calc_draw = function(C){
 var ymin, ymax, y0, y1;
 var ttemp;
 
-var eps = 10e-5;
+//var eps = 10e-5;
 
 //var lleft = [0, csh];
 //var uright = [csw, 0];
