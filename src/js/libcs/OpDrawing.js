@@ -782,6 +782,7 @@ var A = [[C[0], C[1]], [C[1], C[2]]];
 
 var Conic = [a, b, c, d, e, f];
 
+// split degenerate conic into 1 or 2 lines
 var split_degen = function(){
 
 var a00 = adj_mat.value[0].value[0].value.real;
@@ -834,7 +835,7 @@ for(var l = 0; l < 3; l++){
 var g = C[ii];
 var h = [C[0][jj], C[1][jj], C[2][jj]];
 
-modifs.lineWidth = 2;
+modifs.size= CSNumber.real(2); // hack o hack TODO fix this
 var lg = List.realVector(g);
 lg.usage = "Line";
 var lh = List.realVector(h);
@@ -905,6 +906,7 @@ var resetArrays = function(){
 
 var drawArray = function(x, y, col){
 	csctx.strokeStyle= 'blue';
+	csctx.lineWidth = 2;
 	if(col !== 'undefined'){
 		csctx.strokeStyle = col;
 	}
@@ -1057,26 +1059,30 @@ y0 > y1 ? ymax = y0 : ymax = y1;
 eval_conic_x(C, y_zero, ymin); 
 arr_xg = arr_x1.concat(arr_x2.reverse());
 arr_yg = arr_y1.concat(arr_y2.reverse());
-drawArray(arr_xg, arr_yg, "gold");
+//drawArray(arr_xg, arr_yg, "gold");
+drawArray(arr_xg, arr_yg);
 resetArrays();
 
 
 eval_conic_x(C, ymax, y_h);
-drawArray(arr_x1, arr_y1, "orange");
+//drawArray(arr_x1, arr_y1, "orange");
+drawArray(arr_x1, arr_y1);
 // bridge branches
 if(is_inside(arr_x1[0], arr_y1[1]) && is_inside(arr_x2[0], arr_y2[0])){ // drawing bug fix
 csctx.beginPath();
-csctx.strokeStyle = "pink";
+//csctx.strokeStyle = "pink";
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
 csctx.stroke();
 }
-drawArray(arr_x2, arr_y2, "black");
+//drawArray(arr_x2, arr_y2, "black");
+drawArray(arr_x2, arr_y2);
 resetArrays();
 
 
 eval_conic_x(C, ymin, ymax);
-drawArray(arr_x1, arr_y1, "red");
+//drawArray(arr_x1, arr_y1, "red");
+drawArray(arr_x1, arr_y1);
 // bridge branches
 if(type == "ellipsoid"){
 csctx.beginPath();
@@ -1089,7 +1095,8 @@ csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
 csctx.stroke();
 //}
 }
-drawArray(arr_x2, arr_y2, "green");
+//drawArray(arr_x2, arr_y2, "green");
+drawArray(arr_x2, arr_y2);
 resetArrays();
 }; // end calc_draw
 
