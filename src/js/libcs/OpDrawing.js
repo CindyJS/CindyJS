@@ -946,7 +946,7 @@ var d = C[3];
 var e = C[4];
 var f = C[5];
 
-var step = 1;
+var step = 1/2;
 
 var ttemp; // trafo temp
 for(var y = ymin; y <= ymax; y+=step){
