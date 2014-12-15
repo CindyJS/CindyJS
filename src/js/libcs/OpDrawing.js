@@ -937,9 +937,9 @@ var d = C[3];
 var e = C[4];
 var f = C[5];
 
-var step = 1;
+var step = 0.75;
 if(!mouse.down){
-	step = 1/5;
+	step = 1/10;
 }
 
 var ttemp; // trafo temp
