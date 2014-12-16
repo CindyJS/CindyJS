@@ -16,7 +16,7 @@
         
         <script id='firstDrawing' type='cindyscript'>
             
-            n=10;
+            n=20;
             linesize(2);
             forall((-n)..n,x,
                    forall((-n)..n,y,
@@ -53,6 +53,8 @@
                       ];
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
+                        transform:[{scale:.5},{translate:[0,0]}],
+
                         geometry:gslp});
             
             

@@ -332,6 +332,10 @@ var cs_tick=function(e){
 
 }
 
+cindy_cancelmove=function(){
+    move=undefined;
+
+}
 
 
 

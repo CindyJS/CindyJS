@@ -755,6 +755,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         } 
         col=csport.drawingstate.linecolor;
         handleModifs();
+
         csctx.lineWidth = size*.3;
         csctx.mozFillRule = 'evenodd';
         

@@ -317,18 +317,15 @@ geoOpMap.CircleMP="C";
 geoOps.CircleMr =function(el){
     var m=csgeo.csnames[(el.args[0])].homog;
     var mid=List.scaldiv(m.value[2],m);
-
-
     if(move && move.mover==el){
         var xx=mid.value[0].value.real-mouse.x;
         var yy=mid.value[1].value.real-mouse.y;
-        rad=Math.sqrt(xx*xx+yy*yy);//+move.offsetrad;
+        var rad=Math.sqrt(xx*xx+yy*yy);//+move.offsetrad;
         el.radius=CSNumber.real(rad+move.offsetrad);
     }
     var r=el.radius;
     var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
-    p=List.add(p,mid);
-    
+    p=List.add(p,mid);   
     el.matrix=geoOps._helper.CircleMP(mid,p);
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Circle";
