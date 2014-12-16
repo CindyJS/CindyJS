@@ -913,6 +913,7 @@ var drawArray = function(x, y, col){
 	csctx.beginPath();
 	for(var i = 1; i < x.length; i++){
 		csctx.moveTo(x[i-1], y[i-1]);
+	//	csctx.fillRect(x[i],y[i],5,5);
 		csctx.lineTo(x[i], y[i]);
 	}
 	csctx.stroke();
@@ -945,14 +946,15 @@ var f = C[5];
 var step;
 var ttemp; // trafo temp
 var perc = 0.03;
-var ssmall = perc*(ymax-ymin)+ymin;
-var slarge = (1-perc)*ymax;
+var diff = ymax - ymin;
+var ssmall = perc*diff+ymin;
+var slarge = ymax-perc*diff;
 for(var y = ymin; y <= ymax; y+=step){
 if(y < ssmall || y > slarge){
-	step = 1/5;
+	step = 1/10;
 }
 else{
-	step = 3;
+	step = 2;
 }
 var yback = y;
 ttemp = csport.to(0, y);
