@@ -1039,8 +1039,16 @@ var d = C[3];
 var e = C[4];
 var f = C[5];
 
-y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
-y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
+// these are the actual formulas - we use variables to speed up
+//y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
+//y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
+
+var aebd =  -a*e + b*d;
+var largeSqrt =  Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2)));
+var deNom = a*c - Math.pow(b, 2);
+
+y0 = (aebd - largeSqrt) / deNom;
+y1 = (aebd + largeSqrt) / deNom;
 
 if(!isNaN(y0)){
 	ttemp = csport.from(0, y0, 1);
