@@ -36,7 +36,7 @@ endif
 closure_language = ECMASCRIPT5_STRICT
 closure_args = \
 	--language_in $(closure_language) \
-	--create_source_map build/js/Cindy.js.map \
+	--create_source_map $@.map \
 	--compilation_level $(closure_level) \
 	--source_map_format V3 \
 	--source_map_location_mapping "build/js/|" \
@@ -55,6 +55,7 @@ endif
 build/js/Cindy.closure.js: compiler.jar src/js/Cindy.js.wrapper $(srcs)
 	mkdir -p $(@D)
 	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
+	sed 's:$(@F):Cindy.js:g' $@.map > $(@:%.closure.js=%.js.map)
 
 build/js/Cindy.plain.js: $(srcs)
 
