@@ -2986,17 +2986,17 @@ evaluator._helper.formatForWebGL=function(x){
 
 evaluator.compileToWebGL=function(args,modifs){
     if(args.length===1) {
-
+       var a, b;
        var f=evaluator._helper.formatForWebGL;
        var expr=args[0];
        var li=evaluator._helper.plotvars(expr);
 
-       if(li.indexOf("a")==-1 
-       && li.indexOf("b")==-1
-       && li.indexOf("c")==-1
-       && li.indexOf("d")==-1
-       && li.indexOf("e")==-1
-       && li.indexOf("f")==-1
+       if(li.indexOf("a")===-1 
+       && li.indexOf("b")===-1
+       && li.indexOf("c")===-1
+       && li.indexOf("d")===-1
+       && li.indexOf("e")===-1
+       && li.indexOf("f")===-1
        ){
           var erg=evaluateAndVal(expr);
           expr=erg;
@@ -3016,8 +3016,8 @@ evaluator.compileToWebGL=function(args,modifs){
        }
        if(expr.args.length===2){
            if(expr.ctype==="infix"||expr.ctype==="function" ) {
-               var a= evaluator.compileToWebGL([expr.args[0]],{});
-               var b= evaluator.compileToWebGL([expr.args[1]],{});
+               a= evaluator.compileToWebGL([expr.args[0]],{});
+               b= evaluator.compileToWebGL([expr.args[1]],{});
                if(expr.oper==="+"||expr.oper==="add") {
                    if(a.value===undefined || a.ctype==="void"){
                        return {"ctype":"string" ,  "value":b.value};  
@@ -3047,7 +3047,7 @@ evaluator.compileToWebGL=function(args,modifs){
            }
        }
        if((expr.ctype==="function" )&&(expr.args.length===1)) {
-           var a= evaluator.compileToWebGL([expr.args[0]],{});
+           a= evaluator.compileToWebGL([expr.args[0]],{});
            
            if(expr.oper==="sin") {
                return {"ctype":"string" ,  "value":"sinc("+a.value+")"};

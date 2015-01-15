@@ -70,7 +70,6 @@ function getmover(mouse){
                 orad=-dist;
                 dx=0;dy=0;
                 if(dist<0){dist=-dist;}
-                var sc=csport.drawingstate.matrix.sdet;
                 dist=dist+30/sc;
 
             }
@@ -154,30 +153,27 @@ function setuplisteners(canvas) {
     };
     
     
-    function getOffsetLeft( elem )
-        {
+    function getOffsetLeft(elem) {
         var offsetLeft = 0;
         do {
             if ( !isNaN( elem.offsetLeft ) )
                 {
                 offsetLeft += elem.offsetLeft;
                 }
-        } while( elem = elem.offsetParent );
+        } while((elem = elem.offsetParent));
         return offsetLeft;
-        }
+    }
 
-    function getOffsetTop( elem )
-        {
+    function getOffsetTop(elem) {
         var offsetTop = 0;
         do {
             if ( !isNaN( elem.offsetTop ) )
                 {
                 offsetTop += elem.offsetTop;
                 }
-        } while( elem = elem.offsetParent );
+        } while((elem = elem.offsetParent));
         return offsetTop;
-        }
-
+    }
     
     function touchMove(e) {
         if (!e)
@@ -333,6 +329,6 @@ function cs_tick(e){
 
 }
 
-cindy_cancelmove=function(){
+function cindy_cancelmove(){
     move=undefined;
 }

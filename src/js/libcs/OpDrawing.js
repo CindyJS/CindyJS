@@ -137,7 +137,7 @@ evaluator.draw=function(args,modifs){
             }
             if(modifs.arrow !== undefined){ 
 		    erg = evaluate(modifs.arrow); 
-		    if(erg.ctype == 'boolean'){
+		    if(erg.ctype === 'boolean'){
                     isArrow = erg.value; 
 		    }
 		    else{
@@ -148,7 +148,7 @@ evaluator.draw=function(args,modifs){
 		    erg = evaluate(modifs.arrowshape);
 
 		    erg = evaluate(modifs.arrowshape);
-		    if(erg.ctype == 'string'){
+		    if(erg.ctype === 'string'){
                     arrowShape = erg.value; 
 		    if(!isArrow){ 
 			    console.log("warning: implicitly activated modifier arrow by using arrowShape"); 
@@ -170,7 +170,7 @@ evaluator.draw=function(args,modifs){
 			    console.error('arrowsides is not of type string');
 		    }
 
-		    if(!(erg.value == '==>' || erg.value == '<==>' || erg.value == '<==')){
+		    if(!(erg.value === '==>' || erg.value === '<==>' || erg.value === '<==')){
 			    console.error("arrowsides is unknows");
 		    }
 		    else{
@@ -284,7 +284,7 @@ evaluator.draw=function(args,modifs){
         csctx.strokeStyle=col;
 
 	// nasty workaround - could not get rid of this case easily - works at the moment
-	if(arrowScaling == 0.5){arrowScaling = 0.500001;}
+	if(arrowScaling === 0.5){arrowScaling = 0.500001;}
 
 	// save original x/y values
 	var or_x1 = xxx1;
@@ -315,30 +315,31 @@ evaluator.draw=function(args,modifs){
         	csctx.moveTo(xxx1, yyy1);
 	// shorten arrow for full arrow
 	// Math.abs() for preventing bugs if points are the same
-	//if(isArrow && arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
-	if(isArrow && arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
+	//if(isArrow && arrowShape === "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
+	if(isArrow && arrowShape === "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
 
 		angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
+                var rx, ry, lx, ly;
 		if(arrowScaling <= 0.5 && arrowScaling >= 0.5){
-		var rx = xxx2 + headlen*Math.cos(angle - Math.PI/6);
-		var ry = yyy2 + headlen*Math.sin(angle - Math.PI/6);
-		var lx = xxx2 + headlen*Math.cos(angle + Math.PI/6);
-		var ly = yyy2 + headlen*Math.sin(angle + Math.PI/6);
+		rx = xxx2 + headlen*Math.cos(angle - Math.PI/6);
+		ry = yyy2 + headlen*Math.sin(angle - Math.PI/6);
+		lx = xxx2 + headlen*Math.cos(angle + Math.PI/6);
+		ly = yyy2 + headlen*Math.sin(angle + Math.PI/6);
 		}
 		else{
-		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
-		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
-		var lx = xxx2 - headlen*Math.cos(angle + Math.PI/6);
-		var ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
+		rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
+		ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
+		lx = xxx2 - headlen*Math.cos(angle + Math.PI/6);
+		ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
 		}
 
 		var t1 = xxx2;
                 var t2 = yyy2;
-		if(arrowSides == '==>' || arrowSides == '<==>'){
+		if(arrowSides === '==>' || arrowSides === '<==>'){
 		t1 = (rx + lx) / 2;
 		t2 = (ry + ly) / 2;
 		}
-		if(arrowSides == "<==>" || arrowSides == "<=="){
+		if(arrowSides === "<==>" || arrowSides === "<=="){
 
 		if(arrowScaling <= 0.5 && arrowScaling >= 0.5){
 		rx = xxx1 - headlen*Math.cos(angle - Math.PI/6);
@@ -353,8 +354,8 @@ evaluator.draw=function(args,modifs){
 		ly = yyy1 + headlen*Math.sin(angle + Math.PI/6);
 		}
 
-		s1 = (rx + lx) / 2;
-		s2 = (ry + ly) / 2;
+		var s1 = (rx + lx) / 2;
+		var s2 = (ry + ly) / 2;
 		csctx.moveTo(t1, t2);
 		csctx.lineTo(s1, s2);
 		}
@@ -379,7 +380,7 @@ evaluator.draw=function(args,modifs){
 		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
 
 		csctx.beginPath();
-		if(arrowShape == "full"){csctx.lineWidth = lsize/2;}
+		if(arrowShape === "full"){csctx.lineWidth = lsize/2;}
 		//else{ csctx.lineWidth = lsize;}
 		//csctx.moveTo(xxx2 - lll*Math.cos(angle - Math.PI/6), yyy2 - lll*Math.sin(angle - Math.PI/6));
 		csctx.moveTo(xxx2, yyy2);
@@ -390,10 +391,10 @@ evaluator.draw=function(args,modifs){
 		var ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
 
 		
-		if(arrowShape== 'default'){
+		if(arrowShape === 'default'){
 		csctx.lineTo(lx, ly);
 		}
-		else if(arrowShape == "full"){
+		else if(arrowShape === "full"){
 		csctx.moveTo(rx, ry);
 		csctx.lineTo(lx, ly);
 		csctx.lineTo(xxx2, yyy2);
@@ -406,15 +407,15 @@ evaluator.draw=function(args,modifs){
 		}
 
 		csctx.stroke();
-		} // end draw_arrowhead
+		}; // end draw_arrowhead
 
 		// draw arrow heads at desired positions
 		var amodif = 0;
-		if(arrowScaling < 0.5){ amodif = Math.PI}
-		if(arrowSides == '==>' || arrowSides == '<==>'){
+		if(arrowScaling < 0.5){ amodif = Math.PI; }
+		if(arrowSides === '==>' || arrowSides === '<==>'){
 		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, amodif);
 		}
-		if(arrowSides == '<==' || arrowSides == '<==>'){
+		if(arrowSides === '<==' || arrowSides === '<==>'){
 		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, amodif);
 		}
 
@@ -428,7 +429,7 @@ evaluator.draw=function(args,modifs){
 				csctx.moveTo(x1, y1);
 				csctx.lineTo(x2, y2);
 				csctx.stroke();
-			}
+			};
 			
 			if(arrowScaling > 0.5){
 				fixpaths(xxx1, yyy1, or_x1, or_y1);
@@ -804,9 +805,9 @@ var myAdj = [[a00,a01,a02],
 	     [a10,a11,a12],
 	     [a20,a21,a22]];
 
-var idx = 0;
+var idx = 0, k, l;
 var max = Math.abs(myAdj[0][0]);
-for(var k = 1; k < 3; k++){
+for(k = 1; k < 3; k++){
 	if(Math.abs(myAdj[k][k]) > max){
 		idx = k;
 		max = Math.abs(myAdj[k][k]);
@@ -825,9 +826,9 @@ var C = numeric.add(myMat, M);
 
 // get nonzero index
 var ii, jj;
-var max = 0;
-for(var k = 0; k < 3; k++)
-for(var l = 0; l < 3; l++){
+max = 0;
+for(k = 0; k < 3; k++)
+for(l = 0; l < 3; l++){
 	if(Math.abs(C[k][l]) > max){
 		ii = k;
 		jj = l;
@@ -844,15 +845,14 @@ lg.usage = "Line";
 var lh = List.realVector(h);
 lh.usage = "Line";
 
-var arg = new Array();
-arg[0] = lg;
+var arg = [lg];
 evaluator.draw(arg, modifs);
 arg[0] = lh;
 evaluator.draw(arg, modifs);
 
-} 
+};
 var get_concic_type = function(C){
-	if(C == 'undefined' || C.length != 6){
+	if(C === 'undefined' || C.length !== 6){
 	   console.error("this does not define a Conic");
 	}
 
@@ -881,7 +881,7 @@ var norm = function(x0, y0, x1, y1){
 
 var is_inside = function(x, y){
 	return (x > 0 && x < csw && y > 0 && y < csh);
-}
+};
 
 var drawRect = function(x,y, col){
 	csctx.strokeStyle = 'navy';
@@ -889,7 +889,7 @@ var drawRect = function(x,y, col){
 	csctx.beginPath();
 	csctx.rect(x,y, 10, 10);
 	csctx.stroke();
-}
+};
 // arrays to save points on conic
 var arr_x1 = [];
 var arr_x2 = [];
@@ -1000,7 +1000,7 @@ y2 = ttemp[1];
 }
 
 	// for ellipsoids we go out of canvas
-    if(!isNaN(x1) && type == "ellipsoid"){
+    if(!isNaN(x1) && type === "ellipsoid"){
     arr_x1.push(x1);
     arr_y1.push(y1);
     }
@@ -1009,7 +1009,7 @@ y2 = ttemp[1];
     arr_y1.push(y1);
     }
 
-    if(!isNaN(x2) && type == "ellipsoid"){
+    if(!isNaN(x2) && type === "ellipsoid"){
     arr_x2.push(x2);
     arr_y2.push(y2);
     }
@@ -1061,8 +1061,8 @@ else{
 	y1 = y_zero;
 }
 
-y0 < y1 ? ymin = y0 : ymin = y1;
-y0 > y1 ? ymax = y0 : ymax = y1;
+ymin = (y0 < y1 ? y0 : y1);
+ymax = (y0 > y1 ? y0 : y1);
 
 
 eval_conic_x(C, y_zero, ymin); 
@@ -1093,11 +1093,11 @@ eval_conic_x(C, ymin, ymax);
 //drawArray(arr_x1, arr_y1, "red");
 drawArray(arr_x1, arr_y1);
 // bridge branches
-if(type == "ellipsoid"){
+if(type === "ellipsoid"){
 csctx.beginPath();
 csctx.moveTo(arr_x1[0], arr_y1[0]);
 csctx.lineTo(arr_x2[0], arr_y2[0]);
-csctx.stroke()
+csctx.stroke();
 csctx.beginPath();
 csctx.moveTo(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length-1]);
 csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);

@@ -93,14 +93,14 @@ Accessor.getField=function(geo,field){
             var cz=s.value[2].value[2];
             
             
-            var n = CSNumber.mult(ax,ax)
-                var aa=CSNumber.div(az,ax);
+            var n = CSNumber.mult(ax,ax);
+            var aa=CSNumber.div(az,ax);
             var bb=CSNumber.div(bz,ax);
             var cc=CSNumber.div(cz,ax);
-            var erg=CSNumber.sqrt(CSNumber.sub(CSNumber.add(CSNumber.mult(aa,aa),
-                                                            CSNumber.mult(bb,bb)),
-                                               cc));
-            
+            erg=CSNumber.sqrt(CSNumber.sub(CSNumber.add(CSNumber.mult(aa,aa),
+                                                        CSNumber.mult(bb,bb)),
+                                           cc));
+
             return erg;
         }
     }

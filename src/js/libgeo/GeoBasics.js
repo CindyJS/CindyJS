@@ -356,7 +356,7 @@ function render(){
         */
         
 
-};
+}
     
     function drawgeoline(el){
         var pt1, pt2;

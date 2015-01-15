@@ -647,10 +647,10 @@ init:function(beh,elem){
         beh.mb=csgeo.csnames[beh.nameb];
         var pta=evaluator._helper.extractPoint(beh.ma.homog);
         var ptb=evaluator._helper.extractPoint(beh.mb.homog);
-        beh.x1o=pta.x*1.01-ptb.x*.01;
-        beh.y1o=pta.y*1.01-ptb.y*.01;
-        beh.x2o=ptb.x*1.01-pta.x*.01;
-        beh.y2o=ptb.y*1.01-pta.y*.01;
+        beh.x1o=pta.x*1.01-ptb.x*0.01;
+        beh.y1o=pta.y*1.01-ptb.y*0.01;
+        beh.x2o=ptb.x*1.01-pta.x*0.01;
+        beh.y2o=ptb.y*1.01-pta.y*0.01;
         
         beh.env=labObjects.env; //TODO Environment
 
