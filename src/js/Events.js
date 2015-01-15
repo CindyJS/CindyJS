@@ -48,8 +48,8 @@ function getmover(mouse){
     var diff,orad;
     for (var i=0;i<csgeo.free.length;i++){
         var el=csgeo.free[i];
-
         if(!el.pinned){
+
             var dx,dy,dist;
             var sc=csport.drawingstate.matrix.sdet;
             if(el.kind==="P"){
@@ -70,7 +70,9 @@ function getmover(mouse){
                 orad=-dist;
                 dx=0;dy=0;
                 if(dist<0){dist=-dist;}
-                dist=dist+1;
+                var sc=csport.drawingstate.matrix.sdet;
+                dist=dist+30/sc;
+
             }
             if(el.kind==="L"){//Must be ThroughPoint(Horizontal/Vertical not treated yet)
                 var l=List.normalizeZ(el.homog);
@@ -152,13 +154,37 @@ function setuplisteners(canvas) {
     };
     
     
+    function getOffsetLeft( elem )
+        {
+        var offsetLeft = 0;
+        do {
+            if ( !isNaN( elem.offsetLeft ) )
+                {
+                offsetLeft += elem.offsetLeft;
+                }
+        } while( elem = elem.offsetParent );
+        return offsetLeft;
+        }
+
+    function getOffsetTop( elem )
+        {
+        var offsetTop = 0;
+        do {
+            if ( !isNaN( elem.offsetTop ) )
+                {
+                offsetTop += elem.offsetTop;
+                }
+        } while( elem = elem.offsetParent );
+        return offsetTop;
+        }
+
     
     function touchMove(e) {
         if (!e)
             e = event;
         
-        updatePostition(e.targetTouches[0].pageX - canvas.offsetLeft,
-                        e.targetTouches[0].pageY - canvas.offsetTop);
+        updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
+                        e.targetTouches[0].pageY - getOffsetTop(canvas));
         if(mouse.down){
             movepoint(move);
             cs_mousedrag();
@@ -173,8 +199,8 @@ function setuplisteners(canvas) {
         if (!e)
             e = event;
         
-        updatePostition(e.targetTouches[0].pageX - canvas.offsetLeft,
-                        e.targetTouches[0].pageY - canvas.offsetTop);
+        updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
+                        e.targetTouches[0].pageY - getOffsetTop(canvas));
         cs_mousedown();
 
         mouse.down = true;
@@ -305,4 +331,8 @@ function cs_tick(e){
        evaluate(cscompiled.tick);
     }
 
+}
+
+cindy_cancelmove=function(){
+    move=undefined;
 }

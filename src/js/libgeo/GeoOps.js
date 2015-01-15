@@ -320,8 +320,6 @@ geoOpMap.CircleMP="C";
 geoOps.CircleMr =function(el){
     var m=csgeo.csnames[(el.args[0])].homog;
     var mid=List.scaldiv(m.value[2],m);
-
-
     if(move && move.mover===el){
         var xx=mid.value[0].value.real-mouse.x;
         var yy=mid.value[1].value.real-mouse.y;
@@ -330,8 +328,7 @@ geoOps.CircleMr =function(el){
     }
     var r=el.radius;
     var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
-    p=List.add(p,mid);
-    
+    p=List.add(p,mid);   
     el.matrix=geoOps._helper.CircleMP(mid,p);
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Circle";
@@ -386,6 +383,7 @@ geoOps.ConicBy5 =function(el){
     var d=csgeo.csnames[(el.args[3])].homog;
     var p=csgeo.csnames[(el.args[4])].homog;
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
+    el.points = [a, b, c, d, p]; // add points for degenerate case
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";

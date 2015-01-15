@@ -22,7 +22,8 @@ var behaviors;
 var masses=[];
 var csPhysicsInited=false;
 function csinitphys(behavs){
-    csPhysicsInited=(behavs===[]);
+    csPhysicsInited=(behavs.length!==0);
+    console.log(csPhysicsInited);
 
     behaviors=behavs;
     masses=[];
@@ -54,12 +55,14 @@ function csinitphys(behavs){
 
 
 lab.tick=function(){
+
     for(var i=0;i<labObjects.env.accuracy;i++) {
         lab.tick1(labObjects.env.deltat/labObjects.env.accuracy);
     }
 };
 
 lab.tick1=function(deltat) {
+
     var mydeltat = deltat;
     
     

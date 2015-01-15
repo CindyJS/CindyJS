@@ -63,6 +63,12 @@ evaluator.draw=function(args,modifs){
     if(lsize<0) lsize=0;
     var overhang=1;//TODO Eventuell dfault setzen
     var dashing=false;
+    var isArrow = false;
+    var angle;
+    var arrowSides = '==>';
+    var arrowScaling = 1.0; // scale arrow length
+    var headlen = 10; // arrow head length - perhaps set this relative to canvas size
+    var arrowShape = 'default';
     var col;
     var black="rgb(0,0,0)";
     if(csport.drawingstate.alpha!==1){
@@ -88,7 +94,6 @@ evaluator.draw=function(args,modifs){
         }
         
         if(type==="L"){
-            
             if(modifs.dashpattern!==undefined){
                 erg =evaluate(modifs.dashpattern);
                 if(erg.ctype==='list'){
@@ -130,8 +135,85 @@ evaluator.draw=function(args,modifs){
                                         
                 }
             }
-            
-        }
+            if(modifs.arrow !== undefined){ 
+		    erg = evaluate(modifs.arrow); 
+		    if(erg.ctype == 'boolean'){
+                    isArrow = erg.value; 
+		    }
+		    else{
+			    console.error("arrow needs to be of type boolean");
+		    }
+                }
+            if(modifs.arrowshape !== undefined){
+		    erg = evaluate(modifs.arrowshape);
+
+		    erg = evaluate(modifs.arrowshape);
+		    if(erg.ctype == 'string'){
+                    arrowShape = erg.value; 
+		    if(!isArrow){ 
+			    console.log("warning: implicitly activated modifier arrow by using arrowShape"); 
+		    }
+		    isArrow = true;
+		    }
+		    else{
+			    console.error("arrowshape needs to be of type string");
+		    }
+	    } 
+
+	    if(modifs.arrowsides !== undefined){
+		    erg = evaluate(modifs.arrowsides);
+		    if(!isArrow){ 
+			    console.log("warning: implicitly activated modifier arrow by using arrowsides"); 
+		    }
+		    isArrow = true;
+		    if(erg.ctype !== 'string'){
+			    console.error('arrowsides is not of type string');
+		    }
+
+		    if(!(erg.value == '==>' || erg.value == '<==>' || erg.value == '<==')){
+			    console.error("arrowsides is unknows");
+		    }
+		    else{
+			    arrowSides = erg.value;
+		    }
+	    }
+
+	    if(modifs.arrowposition !== undefined){
+		    erg = evaluate(modifs.arrowposition);
+		    if(!isArrow){ 
+			    console.log("warning: implicitly activated modifier arrow by using arrowposition"); 
+		    	    isArrow = true;
+		    }
+		    if(erg.ctype !== "number"){
+			    console.error('arrowposition is not of type number');
+		    }
+
+		    if(erg.value.real < 0.0){
+			    console.error("arrowposition has to be positive");
+		    }
+		    else{
+			    arrowScaling = erg.value.real;
+		    }
+	    }
+
+	    if(modifs.arrowsize !== undefined){
+		    erg = evaluate(modifs.arrowsize);
+		    if(!isArrow){ 
+			    console.log("warning: implicitly activated modifier arrow by using arrowposition"); 
+		    	    isArrow = true;
+		    }
+		    if(erg.ctype !== "number"){
+			    console.error('arrowsize is not of type number');
+		    }
+
+		    if(erg.value.real < 0.0){
+			    console.error("arrowposition has to be positive");
+		    }
+		    else{
+			    headlen = headlen * erg.value.real;
+		    }
+	    }
+    } // end handleModifs
         
         
         
@@ -195,16 +277,174 @@ evaluator.draw=function(args,modifs){
         var yyy1=overhang*yy1+(1-overhang)*yy2;
         var xxx2=overhang*xx2+(1-overhang)*xx1;
         var yyy2=overhang*yy2+(1-overhang)*yy1;
+
         csctx.beginPath();
-        csctx.moveTo(xxx1, yyy1);
-        csctx.lineTo(xxx2, yyy2);
         csctx.lineWidth = lsize;
         csctx.lineCap = 'round';
+        csctx.strokeStyle=col;
+
+	// nasty workaround - could not get rid of this case easily - works at the moment
+	if(arrowScaling == 0.5){arrowScaling = 0.500001;}
+
+	// save original x/y values
+	var or_x1 = xxx1;
+	var or_x2 = xxx2;
+	var or_y1 = yyy1;
+	var or_y2 = yyy2;
+	if(isArrow){
+
+		var sc_x1, sc_x2, sc_y1, sc_y2;
+		var norm = Math.pow(xxx1 - xxx2, 2) + Math.pow(yyy1 - yyy2, 2);
+		norm = Math.sqrt(norm);
+
+		var sc_fac = norm * (1-arrowScaling);
+		//angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+		angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
+		sc_x1 = xxx1 + sc_fac * Math.cos(angle);
+		sc_x2 = xxx2 - sc_fac * Math.cos(angle);
+		sc_y1 = yyy1 + sc_fac * Math.sin(angle);
+		sc_y2 = yyy2 - sc_fac * Math.sin(angle);
+
+		// does this have nasty sideeffects? Currently none
+		xxx1 = sc_x1;
+		xxx2 = sc_x2;
+		yyy1 = sc_y1;
+		yyy2 = sc_y2;
+
+	}
+        	csctx.moveTo(xxx1, yyy1);
+	// shorten arrow for full arrow
+	// Math.abs() for preventing bugs if points are the same
+	//if(isArrow && arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
+	if(isArrow && arrowShape == "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
+
+		angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
+		if(arrowScaling <= 0.5 && arrowScaling >= 0.5){
+		var rx = xxx2 + headlen*Math.cos(angle - Math.PI/6);
+		var ry = yyy2 + headlen*Math.sin(angle - Math.PI/6);
+		var lx = xxx2 + headlen*Math.cos(angle + Math.PI/6);
+		var ly = yyy2 + headlen*Math.sin(angle + Math.PI/6);
+		}
+		else{
+		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
+		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
+		var lx = xxx2 - headlen*Math.cos(angle + Math.PI/6);
+		var ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
+		}
+
+		var t1 = xxx2;
+                var t2 = yyy2;
+		if(arrowSides == '==>' || arrowSides == '<==>'){
+		t1 = (rx + lx) / 2;
+		t2 = (ry + ly) / 2;
+		}
+		if(arrowSides == "<==>" || arrowSides == "<=="){
+
+		if(arrowScaling <= 0.5 && arrowScaling >= 0.5){
+		rx = xxx1 - headlen*Math.cos(angle - Math.PI/6);
+		ry = yyy1 - headlen*Math.sin(angle - Math.PI/6);
+		lx = xxx1 - headlen*Math.cos(angle + Math.PI/6);
+		ly = yyy1 - headlen*Math.sin(angle + Math.PI/6);
+		}
+		else{
+		rx = xxx1 + headlen*Math.cos(angle - Math.PI/6);
+		ry = yyy1 + headlen*Math.sin(angle - Math.PI/6);
+		lx = xxx1 + headlen*Math.cos(angle + Math.PI/6);
+		ly = yyy1 + headlen*Math.sin(angle + Math.PI/6);
+		}
+
+		s1 = (rx + lx) / 2;
+		s2 = (ry + ly) / 2;
+		csctx.moveTo(t1, t2);
+		csctx.lineTo(s1, s2);
+		}
+		else{
+        	csctx.lineTo(t1, t2);
+		}
+
+	}
+	else{
+        csctx.lineTo(xxx2, yyy2);
+	}
+
+	csctx.stroke();
+
+
+	if(isArrow){
+		var draw_arrowhead = function(xxx1, xxx2, yyy1, yyy2, anglemodifier){
+		angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
+
+		if(anglemodifier !== undefined){ angle = angle + anglemodifier; } // for arrow rotation
+		var rx = xxx2 - headlen*Math.cos(angle - Math.PI/6);
+		var ry = yyy2 - headlen*Math.sin(angle - Math.PI/6);
+
+		csctx.beginPath();
+		if(arrowShape == "full"){csctx.lineWidth = lsize/2;}
+		//else{ csctx.lineWidth = lsize;}
+		//csctx.moveTo(xxx2 - lll*Math.cos(angle - Math.PI/6), yyy2 - lll*Math.sin(angle - Math.PI/6));
+		csctx.moveTo(xxx2, yyy2);
+		csctx.lineTo(rx ,ry);
+        	//csctx.moveTo(xxx2 - lll*Math.cos(angle + Math.PI/6), yyy2 - lll*Math.sin(angle + Math.PI/6));
+        	csctx.moveTo(xxx2, yyy2);
+		var lx = xxx2 - headlen*Math.cos(angle + Math.PI/6);
+		var ly = yyy2 - headlen*Math.sin(angle + Math.PI/6);
+
+		
+		if(arrowShape== 'default'){
+		csctx.lineTo(lx, ly);
+		}
+		else if(arrowShape == "full"){
+		csctx.moveTo(rx, ry);
+		csctx.lineTo(lx, ly);
+		csctx.lineTo(xxx2, yyy2);
+		csctx.fillStyle = col;
+		csctx.fill();
+		}
+
+		else{ // this is failsafe - if type is unknow we will draw std arrows
+			console.error("arrowshape is unknown");
+		}
+
+		csctx.stroke();
+		} // end draw_arrowhead
+
+		// draw arrow heads at desired positions
+		var amodif = 0;
+		if(arrowScaling < 0.5){ amodif = Math.PI}
+		if(arrowSides == '==>' || arrowSides == '<==>'){
+		draw_arrowhead(xxx1, xxx2, yyy1, yyy2, amodif);
+		}
+		if(arrowSides == '<==' || arrowSides == '<==>'){
+		draw_arrowhead(xxx2, xxx1, yyy2, yyy1, amodif);
+		}
+
+		// fix missing paths if we scale down arrows
+		if(arrowScaling < 1.0){
+			var fixpaths = function(x1, y1, x2, y2){
+				csctx.beginPath();
+				csctx.strokeStyle = col;
+				csctx.lineWidth = lsize;
+       				csctx.lineCap = 'round';
+				csctx.moveTo(x1, y1);
+				csctx.lineTo(x2, y2);
+				csctx.stroke();
+			}
+			
+			if(arrowScaling > 0.5){
+				fixpaths(xxx1, yyy1, or_x1, or_y1);
+				fixpaths(xxx2, yyy2, or_x2, or_y2);
+			}
+			else{
+				fixpaths(xxx1, yyy1, or_x2, or_y2);
+				fixpaths(xxx2, yyy2, or_x1, or_y1);
+			}
+
+		}
+
+	} // end isArrow
         
         //        csctx.strokeStyle="#0000FF";
         //        csctx.strokeStyle="rgba(0,0,255,0.2)";
-        csctx.strokeStyle=col;
-        csctx.stroke();
         
         if(dashing)
             evaluator._helper.unSetDash();
@@ -478,6 +718,408 @@ evaluator._helper.drawcircle=function(args,modifs,df){
     return nada;
 };
 
+evaluator.drawconic = function(args, modifs){
+var mat = args.matrix;
+var adj_mat = List.adjoint3(mat);
+
+var a = mat.value[0].value[0].value.real;
+var b = mat.value[1].value[0].value.real;
+var c = mat.value[1].value[1].value.real;
+var d = mat.value[2].value[0].value.real;
+var e = mat.value[2].value[1].value.real;
+var f = mat.value[2].value[2].value.real;
+
+var myMat = [[a,b,d],
+	     [b,c,e],
+	     [d,e,f]];
+
+var eps = 10e-9;
+var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+var degen = Math.abs(det) < eps ? true : false;
+
+
+var cswh_max = csw > csh ? csw : csh;
+
+var x_zero = -cswh_max;
+var x_w = 2*cswh_max;
+var y_zero = -cswh_max;
+var y_h = 2*cswh_max;
+
+var useRot = 1;
+if(degen){ // since we split then - rotation unnecessary
+//      	console.log("degenerate");
+	useRot = 0;
+}
+
+
+if(useRot){
+var C = [a, b, c, d, e, f];
+var A = [[C[0], C[1]], [C[1], C[2]]];
+	var angle = 0;
+	if(Math.abs(a-b) > eps){
+		angle = Math.atan(b/a-c)/2;
+	}
+	else{
+		angle = Math.PI/4;
+	}
+	var get_rMat = function(angle){
+	return [[Math.cos(angle), -Math.sin(angle), 0],
+		    [Math.sin(angle), Math.cos(angle), 0],
+		    [0, 0, 1]];
+	};
+
+
+
+	var rMat = get_rMat(angle);
+	var TrMat = numeric.transpose(rMat);
+	var tmp = numeric.dot(myMat, rMat);
+	tmp = numeric.dot(TrMat, tmp);
+	a = tmp[0][0];
+	b = tmp[1][0];
+	c = tmp[1][1];
+	d = tmp[2][0];
+	e = tmp[2][1];
+	f = tmp[2][2];
+
+}
+
+var Conic = [a, b, c, d, e, f];
+
+// split degenerate conic into 1 or 2 lines
+var split_degen = function(){
+
+var a00 = adj_mat.value[0].value[0].value.real;
+var a01 = adj_mat.value[0].value[1].value.real;
+var a02 = adj_mat.value[0].value[2].value.real;
+
+var a10 = adj_mat.value[1].value[0].value.real;
+var a11 = adj_mat.value[1].value[1].value.real;
+var a12 = adj_mat.value[1].value[2].value.real;
+
+var a20 = adj_mat.value[2].value[0].value.real;
+var a21 = adj_mat.value[2].value[1].value.real;
+var a22 = adj_mat.value[2].value[2].value.real;
+
+var myAdj = [[a00,a01,a02],
+	     [a10,a11,a12],
+	     [a20,a21,a22]];
+
+var idx = 0;
+var max = Math.abs(myAdj[0][0]);
+for(var k = 1; k < 3; k++){
+	if(Math.abs(myAdj[k][k]) > max){
+		idx = k;
+		max = Math.abs(myAdj[k][k]);
+	}
+}
+
+
+var beta = Math.sqrt(Math.abs(myAdj[idx][idx])); // abs is a hack?
+var p = numeric.transpose(myAdj)[idx];
+p = numeric.div(p, beta);
+
+
+var lam = p[0], mu = p[1], tau = p[2];
+var M = [[0, tau, -mu],[-tau, 0, lam], [mu, -lam, 0]];
+var C = numeric.add(myMat, M);
+
+// get nonzero index
+var ii, jj;
+var max = 0;
+for(var k = 0; k < 3; k++)
+for(var l = 0; l < 3; l++){
+	if(Math.abs(C[k][l]) > max){
+		ii = k;
+		jj = l;
+		max = Math.abs(C[k][l]);
+	}
+}
+
+var g = C[ii];
+var h = [C[0][jj], C[1][jj], C[2][jj]];
+
+modifs.size= CSNumber.real(2); // hack o hack TODO fix this
+var lg = List.realVector(g);
+lg.usage = "Line";
+var lh = List.realVector(h);
+lh.usage = "Line";
+
+var arg = new Array();
+arg[0] = lg;
+evaluator.draw(arg, modifs);
+arg[0] = lh;
+evaluator.draw(arg, modifs);
+
+} 
+var get_concic_type = function(C){
+	if(C == 'undefined' || C.length != 6){
+	   console.error("this does not define a Conic");
+	}
+
+	   if(degen) return "degenerate";
+
+	   var det = C[0]*C[2] - C[1]*C[1];
+
+	   if(Math.abs(det) < eps){
+		   return "parabola";
+	   }
+	   else if(det > eps){
+		   return "ellipsoid";
+	   }
+	   else{
+		   return "hyperbola";
+	   }
+
+}; // end get_concic_type
+
+var type = get_concic_type(Conic);
+
+var norm = function(x0, y0, x1, y1){
+	var norm = Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2);
+	return Math.sqrt(norm);
+};
+
+var is_inside = function(x, y){
+	return (x > 0 && x < csw && y > 0 && y < csh);
+}
+
+var drawRect = function(x,y, col){
+	csctx.strokeStyle = 'navy';
+	if(col !== 'undefined') csctx.strokeStyle = col;
+	csctx.beginPath();
+	csctx.rect(x,y, 10, 10);
+	csctx.stroke();
+}
+// arrays to save points on conic
+var arr_x1 = [];
+var arr_x2 = [];
+var arr_y1 = [];
+var arr_y2 = [];
+var arr_xg = [];
+var arr_yg = [];
+
+var resetArrays = function(){
+      arr_x1 = [];
+      arr_x2 = [];
+      arr_y1 = [];
+      arr_y2 = [];
+      arr_xg = [];
+      arr_yg = [];
+};
+
+var drawArray = function(x, y, col){
+	csctx.strokeStyle= 'blue';
+	csctx.lineWidth = 2;
+	if(col !== 'undefined'){
+		csctx.strokeStyle = col;
+	}
+	csctx.beginPath();
+	for(var i = 1; i < x.length; i++){
+		csctx.moveTo(x[i-1], y[i-1]);
+	//	csctx.fillRect(x[i],y[i],5,5);
+		csctx.lineTo(x[i], y[i]);
+	}
+	csctx.stroke();
+}; // end drawArray
+
+
+
+var eval_conic_x = function(C,ymin, ymax){
+var x1, x2;
+var type = get_concic_type(C);
+
+if(C.length !== 6)
+{
+  console.error("Conic needs 6 Parameters");
+  return;
+}
+
+var a = C[0];
+var b = C[1];
+var c = C[2];
+var d = C[3];
+var e = C[4];
+var f = C[5];
+
+//var step = 0.75;
+//if(!mouse.down){
+//	step = 1/5;
+//}
+
+var step;
+var ttemp; // trafo temp
+var perc = 0.03;
+var diff = ymax - ymin;
+var ssmall = perc*diff+ymin;
+var slarge = ymax-perc*diff;
+for(var y = ymin; y <= ymax; y+=step){
+if(y < ssmall || y > slarge){
+	step = 1/10;
+}
+else{
+	step = 2;
+}
+var yback = y;
+ttemp = csport.to(0, y);
+y = ttemp[1];
+
+var inner = -a*c* Math.pow(y, 2) - 2*a*e*y - a*f + Math.pow(b, 2) * Math.pow(y, 2) + 2*b*d*y  + Math.pow(d, 2);
+inner = Math.sqrt(inner);
+
+
+x1 = 1/a * (-b*y - d + inner);
+x2 = -1/a * (b*y + d + inner);
+
+
+var ya, yb, y1, y2;
+if(useRot){
+	var r1 = [x1, y, 1];
+	var r2 = [x2, y, 1];
+	r1 = numeric.dot(rMat, r1);
+	r2 = numeric.dot(rMat, r2);
+	x1 = r1[0];
+	x2 = r2[0];
+	ya =  r1[1];
+	yb =  r2[1];
+}
+else{
+	ya = y;
+	yb = y;
+}
+
+// transform to canvas coordiantes
+if(!isNaN(x1)){
+ttemp = csport.from(x1, ya, 1);
+x1 = ttemp[0];
+y1 = ttemp[1];
+}
+if(!isNaN(x2)){
+ttemp = csport.from(x2, yb, 1);
+x2 = ttemp[0];
+y2 = ttemp[1];
+}
+
+	// for ellipsoids we go out of canvas
+    if(!isNaN(x1) && type == "ellipsoid"){
+    arr_x1.push(x1);
+    arr_y1.push(y1);
+    }
+    else if(!isNaN(x1) && x1 >= x_zero && x1 <= x_w){ 
+    arr_x1.push(x1);
+    arr_y1.push(y1);
+    }
+
+    if(!isNaN(x2) && type == "ellipsoid"){
+    arr_x2.push(x2);
+    arr_y2.push(y2);
+    }
+    else if(!isNaN(x2) && x2 >= x_zero && x2 <= x_w){ 
+    arr_x2.push(x2);
+    arr_y2.push(y2);
+    }
+y = yback; // convert y back
+}
+}; // end eval_conic_x
+
+// calc and draw conic
+var calc_draw = function(C){
+var ymin, ymax, y0, y1;
+var ttemp;
+
+var type = get_concic_type(C);
+
+
+if(C.length !== 6)
+{
+  console.error("Conic needs 6 Parameters");
+  return;
+}
+
+var a = C[0];
+var b = C[1];
+var c = C[2];
+var d = C[3];
+var e = C[4];
+var f = C[5];
+
+y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
+y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
+
+if(!isNaN(y0)){
+	ttemp = csport.from(0, y0, 1);
+	y0 = ttemp[1];
+}
+else{
+	y0 = y_zero;
+}
+
+if(!isNaN(y1)){
+	ttemp = csport.from(0, y1, 1);
+	y1 = ttemp[1];
+}
+else{
+	y1 = y_zero;
+}
+
+y0 < y1 ? ymin = y0 : ymin = y1;
+y0 > y1 ? ymax = y0 : ymax = y1;
+
+
+eval_conic_x(C, y_zero, ymin); 
+arr_xg = arr_x1.concat(arr_x2.reverse());
+arr_yg = arr_y1.concat(arr_y2.reverse());
+//drawArray(arr_xg, arr_yg, "gold");
+drawArray(arr_xg, arr_yg);
+resetArrays();
+
+
+eval_conic_x(C, ymax, y_h);
+//drawArray(arr_x1, arr_y1, "orange");
+drawArray(arr_x1, arr_y1);
+// bridge branches
+if(is_inside(arr_x1[0], arr_y1[1]) || is_inside(arr_x2[0], arr_y2[0])){ // drawing bug fix
+csctx.beginPath();
+//csctx.strokeStyle = "pink";
+csctx.moveTo(arr_x1[0], arr_y1[0]);
+csctx.lineTo(arr_x2[0], arr_y2[0]);
+csctx.stroke();
+}
+//drawArray(arr_x2, arr_y2, "black");
+drawArray(arr_x2, arr_y2);
+resetArrays();
+
+
+eval_conic_x(C, ymin, ymax);
+//drawArray(arr_x1, arr_y1, "red");
+drawArray(arr_x1, arr_y1);
+// bridge branches
+if(type == "ellipsoid"){
+csctx.beginPath();
+csctx.moveTo(arr_x1[0], arr_y1[0]);
+csctx.lineTo(arr_x2[0], arr_y2[0]);
+csctx.stroke()
+csctx.beginPath();
+csctx.moveTo(arr_x1[arr_x1.length-1], arr_y1[arr_y1.length-1]);
+csctx.lineTo(arr_x2[arr_x2.length-1], arr_y2[arr_y2.length-1]);
+csctx.stroke();
+//}
+}
+//drawArray(arr_x2, arr_y2, "green");
+drawArray(arr_x2, arr_y2);
+resetArrays();
+}; // end calc_draw
+
+
+// actually start drawing
+if(!degen){
+	calc_draw(Conic);
+}
+else{
+	split_degen();
+}
+
+}; // end evaluator.drawconic
+
 evaluator.drawall =function(args,modifs){
     if(args.length===1) {
         var v1=evaluate(args[0]);
@@ -643,6 +1285,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         } 
         col=csport.drawingstate.linecolor;
         handleModifs();
+
         csctx.lineWidth = size*0.3;
         csctx.mozFillRule = 'evenodd';
         

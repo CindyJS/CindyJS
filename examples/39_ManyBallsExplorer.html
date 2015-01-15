@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            <link rel="stylesheet" href="../css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>Molekule explorer</h1>
+        
+        
+               <script id='init' type='cindyscript'>
+        l=[];
+        ch1o=0;
+        ch2o=0;
+        blobs=false;
+        bondings=true;
+        black=true;
+            
+        </script>
+        
+<script id='firstDrawing' type='cindyscript'>
+bondcolor=(0,0,0);
+if(black,
+  fillpolygon([B,C,D,E],color->(0,0,0));
+  bondcolor=(1,1,1);
+  );
+
+          x=V.x;
+          if(x<V1.x,x=V1.x);
+          if(x>V2.x,x=V2.x);
+          V.xy=(x,V1.y);
+          friction=|V,V1|/|V1,V2|*.7+.01;
+
+
+          x=W.x;
+          if(x<W1.x,x=W1.x);
+          if(x>W2.x,x=W2.x);
+          W.xy=(x,W1.y);
+          temp=|W,W1|/|W1,W2|*1;
+
+
+          x=S.x;
+          if(x<S1.x,x=S1.x);
+          if(x>S2.x,x=S2.x);
+          S.xy=(x,S1.y);
+          
+          x=R.x;
+          if(x<R1.x,x=R1.x);
+          if(x>R2.x,x=R2.x);
+          x=round(x*4/|R1,R2|)/4*|R1,R2|;
+          R.xy=(x,R1.y);
+          char1=round(|R,R1|/|R1,R2|*4);
+          
+          x=T.x;
+          if(x<T1.x,x=T1.x);
+          if(x>T2.x,x=T2.x);
+          T.xy=(x,T1.y);
+       
+          x=U.x;
+          if(x<U1.x,x=U1.x);
+          if(x>U2.x,x=U2.x);
+          x=round(x*4/|U1,U2|)/4*|U1,U2|;
+          char2=|U,U1|/|U1,U2|*4;
+          U.xy=(x,U1.y);
+          char2=round(|U,U1|/|U1,U2|*4);
+
+       r1=|S,S1|/|S1,S2|*1.8+.2;
+       r2=|T,T1|/|T1,T2|*1.8+.2;
+       S.size=r1*5+2;
+       T.size=r2*5+2;
+
+      sat=[.9999,.7,.6,.5,.0];
+ms=allmasses();
+if(or(ch1o!=char1,ch2o!=char2),
+n=length(ms);
+apply(1..n,
+  (ms_#).color=if(#/n>char1/(char1+char2),(1,0,0),(0,0,1))
+);
+);
+
+apply(ms,#.friction=friction);
+
+ch1o=char1;
+ch2o=char2;
+
+reds=select(ms,m,(m.color)_1>(m.color)_3);
+
+blues=select(ms,m,(m.color)_1<(m.color)_3);
+
+col1=(1,sat_(char1+1),sat_(char1+1));
+col2=(sat_(char2+1),sat_(char2+1),1);
+
+apply(reds,m,m.color=col1);
+apply(blues,m,m.color=col2);
+repeat(char1,r,
+  drawcircle(R,.2+r*.1,color->col1,size->1);
+);
+repeat(char2,r,
+  drawcircle(U,.2+r*.1,color->col2,size->1);
+);
+S.color=col1;
+R.color=col1;
+T.color=col2;
+U.color=col2;
+
+//apply(reds,m,m.color=(1,0,0));
+//apply(blues,m,m.color=(0,0,1));
+
+
+drawtext(S2+(.5,-.2),"radius",size->16);
+drawtext(S+(0,.7),format(r1,1),size->14);
+
+drawtext(T2+(.5,-.2),"radius",size->16);
+drawtext(T+(0,.7),format(r2,1),size->14);
+
+drawtext(R2+(.5,-.2),"charge",size->16);
+drawtext(R+(0,.7),format(char1,0),size->14);
+
+drawtext(U2+(.5,-.2),"charge",size->16);
+drawtext(U+(0,.7),format(char2,0),size->14);
+
+drawtext(V2+(.5,-.2),"friction",size->16);
+drawtext(W2+(.5,-.2),"temperature",size->16);
+
+
+forall(ms,m,
+  if((m.color)_1>(m.color)_3, 
+     m.size=r1*5+2;
+     m.radius=r1;
+     m.charge=char1;
+  );
+  if((m.color)_1<(m.color)_3, 
+    m.size=r2*5+2;
+    m.radius=r2;
+    m.charge=-char2
+  );
+  if(|m.v|>10,m.v=10*m.v/|m.v|);
+  m.v=m.v+((random(),random())*2-(1,1))*temp*.2;
+);
+pairs=pairs(allmasses());
+rad=r1;rad1=r2;
+if(blobs,
+repeat(12,i,
+  r=i/12;
+  apply(ms,
+     #.size=2;
+     rr=#.radius; 
+     fillcircle(#,(1-r)*rr,color->#.color*2-(1,1,1),alpha->r*.4)
+     
+  );
+);
+);
+if(bondings,
+forall(pairs,s,
+       if(|s_1,s_2|<(rad+rad1)*.9 & ((s_1).color!=(s_2).color),
+          
+          al=(|s_1,s_2|-(rad+rad1)*.3)/((rad+rad1)*.6);
+          if(al<0,al=0);
+          if(al>1,al=1);
+          al=1-al;
+          draw(s_1,s_2,size->2,alpha->al*2,color->bondcolor);
+          )
+       );
+);
+
+        </script>
+
+
+        <canvas  id="CSCanvas" width=870 height=500  style="border:2px solid #000000"></canvas>
+
+
+        <script type="text/javascript">
+            defaultAppearance.dimDependent=.7;
+            nn=90;
+            b=9.5;
+            f=2;
+
+            var gslp=[
+                      {name:"B", type:"Free", pos:[-b,b],color:[0,0,0],size:1},
+                      {name:"C", type:"Free", pos:[-b,-b],color:[0,0,0],size:1},
+                      {name:"D", type:"Free", pos:[b,-b],color:[0,0,0],size:1},
+                      {name:"E", type:"Free", pos:[b,b],color:[0,0,0],size:1},
+   {name:"S1", type:"Free", pos:[12,6],color:[0,0,0],pinned:true,size:2},
+    {name:"S2", type:"Free", pos:[20,6],color:[0,0,0],pinned:true,size:2},
+    {name:"S", type:"Free", pos:[15.5,6],color:[1,0.5,0.5],pinned:false,size:4},
+    {name:"l", type:"Segment", args:["S1","S2"],color:[0,0,0],pinned:false,size:2},
+   {name:"R1", type:"Free", pos:[12,4],color:[0,0,0],pinned:true,size:2},
+    {name:"R2", type:"Free", pos:[20,4],color:[0,0,0],pinned:true,size:2},
+    {name:"R", type:"Free", pos:[14,4],color:[1,1,1],pinned:false,size:4},
+    {name:"m", type:"Segment", args:["R1","R2"],color:[0,0,0],pinned:false,size:2},
+   {name:"T1", type:"Free", pos:[12,0],color:[0,0,0],pinned:true,size:2},
+    {name:"T2", type:"Free", pos:[20,0],color:[0,0,0],pinned:true,size:2},
+    {name:"T", type:"Free", pos:[15.5,0],color:[0.5,0.5,1],pinned:false,size:4},
+    {name:"o", type:"Segment", args:["T1","T2"],color:[0,0,0],pinned:false,size:2},
+   {name:"U1", type:"Free", pos:[12,-2],color:[0,0,0],pinned:true,size:2},
+    {name:"U2", type:"Free", pos:[20,-2],color:[0,0,0],pinned:true,size:2},
+    {name:"U", type:"Free", pos:[14,-2],color:[1,1,1],pinned:false,size:4},
+    {name:"p", type:"Segment", args:["U1","U2"],color:[0,0,0],pinned:false,size:2},
+
+   {name:"V1", type:"Free", pos:[12,-6],color:[0,0,0],pinned:true,size:2},
+    {name:"V2", type:"Free", pos:[20,-6],color:[0,0,0],pinned:true,size:2},
+    {name:"V", type:"Free", pos:[14,-6],color:[1,1,1],pinned:false,size:4},
+    {name:"r", type:"Segment", args:["V1","V2"],color:[0,0,0],pinned:false,size:2},
+
+   {name:"W1", type:"Free", pos:[12,-8],color:[0,0,0],pinned:true,size:2},
+    {name:"W2", type:"Free", pos:[20,-8],color:[0,0,0],pinned:true,size:2},
+    {name:"W", type:"Free", pos:[12,-8],color:[1,1,1],pinned:false,size:4},
+    {name:"s", type:"Segment", args:["W1","W2"],color:[0,0,0],pinned:false,size:2},
+
+   
+                    //  {name:"F", type:"Free", pos:[7,2.5],color:[1,.5,.5]},
+                    //  {name:"X", type:"Free", pos:[-9,-7],color:[0,0,0]},
+                    //  {name:"Y", type:"Free", pos:[9,-7],color:[0,0,0]},
+
+                      {name:"a", type:"Segment", args:["B","C"],color:[0,0,0],size:1 },
+                      {name:"b", type:"Segment", args:["C","D"],color:[0,0,0],size:1 },
+                      {name:"c", type:"Segment", args:["D","E"],color:[0,0,0],size:1 },
+                      {name:"d", type:"Segment", args:["E","B"],color:[0,0,0],size:1 }
+                    
+
+                      
+                    ];
+                    
+    for(var i=0;i<nn;i++){
+    gslp.push(
+              {name:"A"+i, type:"Free", 
+              pos:[(Math.random()-.5)*b*1.8,(Math.random()-.5)*b*1.8],
+              color:i>nn/f?[1,.5,.5]:[.5,.5,1],
+              size:i>nn/f?5:5}
+              )
+    
+};
+            var physics=[
+                       {behavior:{type:"Environment",gravity:0,
+                       accuracy:10,deltat:0.1,
+                       balls:true,charges:true,friction:.00}},
+                       
+                       {name:"a", behavior:{type:"Bouncer"}},
+                       {name:"b", behavior:{type:"Bouncer"}},
+                       {name:"c", behavior:{type:"Bouncer"}},
+                       {name:"d", behavior:{type:"Bouncer"}}
+                       
+                       
+                       ];
+                       
+                       
+                           for(var i=0;i<nn;i++){
+    physics.push(
+              {name:"A"+i, behavior:{
+              type:"Mass",
+              radius:i>nn/f?1:+1,
+              vx:(Math.random()-.5)*.1,
+              vy:(Math.random()-.5)*.1,
+              charge:(i>nn/f?-1:1)*1},
+              } 
+              )
+    
+};
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        initscript:"init",
+                        geometry:gslp,
+                        behavior:physics}
+                        );
+    
+        </script>
+        
+        <button onclick="csplay()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
+        <button onclick="cspause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
+        <button onclick="csstop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>
+        <button onclick="evokeCS('blobs=!blobs')" type="button" style="position:absolute; top:610px;left:270px" >Blobs</button>
+        <button onclick="evokeCS('bondings=!bondings')" type="button" style="position:absolute; top:610px;left:370px" >Bondings</button>
+        <button onclick="evokeCS('black=!black')" type="button" style="position:absolute; top:610px;left:470px" >Black/White</button>
+
+	</body>
+</html>

@@ -1,26 +1,26 @@
 
 
-var defaultAppearance={};
-defaultAppearance.clip="none";
-defaultAppearance.pointColor=[1,0,0];
-defaultAppearance.lineColor=[0,0,1];
-defaultAppearance.pointSize=5;
-defaultAppearance.lineSize=2;
-defaultAppearance.alpha=1;
-defaultAppearance.overhangLine=1.1;
-defaultAppearance.overhangSeg=1;
-defaultAppearance.dimDependent=1;
+	var defaultAppearance={};
+	defaultAppearance.clip="none";
+	defaultAppearance.pointColor=[1,0,0];
+	defaultAppearance.lineColor=[0,0,1];
+	defaultAppearance.pointSize=5;
+	defaultAppearance.lineSize=2;
+	defaultAppearance.alpha=1;
+	defaultAppearance.overhangLine=1.1;
+	defaultAppearance.overhangSeg=1;
+	defaultAppearance.dimDependent=1;
 
 
 
-function csinit(gslp){
+	function csinit(gslp){
 
-    //Main Data:
-    //args          The arguments of the operator
-    //type          The operator
-    //kind          L,P,C, wird automatisch zugeordnet
+	    //Main Data:
+	    //args          The arguments of the operator
+	    //type          The operator
+	    //kind          L,P,C, wird automatisch zugeordnet
 
-    //Relevant fields for appearance:
+	    //Relevant fields for appearance:
     //color
     //size
     //alpha
@@ -302,6 +302,29 @@ function render(){
     function drawgeoconic(el){
         if(!el.isshowing || el.visible === false)
             return;
+
+   //		[a, d, e]
+   //		[d, b, f]
+   //		[e, f, c]
+//    	var mat = el.matrix;
+//	var a = mat.value[0].value[0].value.real;
+//	var b = mat.value[1].value[0].value.real;
+//	var c = mat.value[1].value[1].value.real;
+//	var d = mat.value[2].value[0].value.real;
+//	var e = mat.value[2].value[1].value.real;
+//	var f = mat.value[2].value[2].value.real;
+
+	var args = {};
+	var modifs = {};
+//	args.Cparameters = [a, b, c, d, e, f];
+	args.matrix = el.matrix;
+	//args.Cpoints = el.points;
+
+	evaluator.drawconic(args, modifs);
+
+ //   }
+
+    /*
         var cc=el.matrix;
         var cxr = cc.value[2].value[0].value.real;
         var axr = cc.value[0].value[0].value.real;
@@ -315,6 +338,8 @@ function render(){
         var imaginary = r2 > 0;
         evaluator.drawcircle([List.realVector([x,y]),CSNumber.real(rad)],
                            {size:el.size,color:el.color,alpha:el.alpha});
+
+ 	*/
 
         /*
         
@@ -330,7 +355,8 @@ function render(){
         
         */
         
-    }
+
+};
     
     function drawgeoline(el){
         var pt1, pt2;

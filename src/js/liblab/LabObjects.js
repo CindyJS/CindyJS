@@ -647,10 +647,10 @@ init:function(beh,elem){
         beh.mb=csgeo.csnames[beh.nameb];
         var pta=evaluator._helper.extractPoint(beh.ma.homog);
         var ptb=evaluator._helper.extractPoint(beh.mb.homog);
-        beh.x1o=pta.x;
-        beh.y1o=pta.y;
-        beh.x2o=ptb.x;
-        beh.y2o=ptb.y;
+        beh.x1o=pta.x*1.01-ptb.x*.01;
+        beh.y1o=pta.y*1.01-ptb.y*.01;
+        beh.x2o=ptb.x*1.01-pta.x*.01;
+        beh.y2o=ptb.y*1.01-pta.y*.01;
         
         beh.env=labObjects.env; //TODO Environment
 
@@ -802,7 +802,7 @@ init:function(beh){
         if(typeof(beh.charges) === 'undefined') beh.charges= false;
         if(typeof(beh.balls) === 'undefined') beh.balls= false;
         if(typeof(beh.newton) === 'undefined') beh.newton= false;
-        if(typeof(beh.ballInteractionBoosting) === 'undefined') beh.ballInteractionBoosting= 0;
+        if(typeof(beh.ballInteractionBoosting) === 'undefined') beh.ballInteractionBoosting= 1;
         labObjects.env=beh;
 
 },

@@ -84,6 +84,27 @@ Accessor.getField=function(geo,field){
             return erg;
         }
     }
+    if(geo.kind==="C"){
+        if(field==="radius") {//Assumes that we have a circle
+            var s=geo.matrix;
+            var ax=s.value[0].value[0];
+            var az=s.value[0].value[2];
+            var bz=s.value[1].value[2];
+            var cz=s.value[2].value[2];
+            
+            
+            var n = CSNumber.mult(ax,ax)
+                var aa=CSNumber.div(az,ax);
+            var bb=CSNumber.div(bz,ax);
+            var cc=CSNumber.div(cz,ax);
+            var erg=CSNumber.sqrt(CSNumber.sub(CSNumber.add(CSNumber.mult(aa,aa),
+                                                            CSNumber.mult(bb,bb)),
+                                               cc));
+            
+            return erg;
+        }
+    }
+    
     if(Accessor.generalFields[field]) {//must be defined an an actual string
         erg=geo[Accessor.generalFields[field]];
         if(erg) {
@@ -91,7 +112,7 @@ Accessor.getField=function(geo,field){
             return erg;
         } else 
             return nada;
-    }   
+    }
     //Accessors for masses
     if(geo.behavior) {
         if(field==="mass" && geo.behavior.type==="Mass") {
