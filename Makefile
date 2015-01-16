@@ -95,6 +95,7 @@ NPM:=npm
 NPM_DEP:=$(shell $(NPM) -version > /dev/null 2>&1 || echo download/node/bin/npm)
 NODE_PATH:=$(if $(NPM_DEP),PATH=$(dir $(NPM_DEP)):$$PATH,)
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
+NODE:=$(NODE_PATH) node
 
 download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
@@ -117,6 +118,24 @@ jshint: node_modules/.bin/jshint build/js/ours.js
 	$(NODE_PATH) $< -c Administration/jshint.conf --verbose $(filter %.js,$^)
 
 .PHONY: jshint
+
+######################################################################
+## Format reference manual using markdown
+######################################################################
+
+node_modules/marked/package.json: $(NPM_DEP)
+	$(NPM_CMD) install marked
+
+refmd:=$(wildcard ref/*.md)
+refhtml:=$(refmd:ref/%.md=build/ref/%.html)
+
+$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2html.js
+	@mkdir -p $(@D)
+	$(NODE) ref/md2html.js $< $@
+
+ref: $(refhtml)
+
+.PHONY: ref
 
 ######################################################################
 ## Download Apache Ant to build java-like projects
