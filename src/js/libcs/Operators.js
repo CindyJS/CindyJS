@@ -48,6 +48,10 @@ evaluator.errc=function(args,modifs){      //OK
     return nada;
 };
 
+evaluator.println=function(args,modifs){
+    console.log(niceprint(evaluate(args[0])));
+}
+
 evaluator.dump=function(args,modifs){      
     
     dump(args[0]);
