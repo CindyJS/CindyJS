@@ -9,7 +9,7 @@ var d3_document = document,
 
 // Redefine d3_array if the browser doesn’t support slice-based conversion.
 try {
-  d3_array(d3_documentElement.childNodes)[0].nodeType;
+  d3_array(d3_documentElement.childNodes)[0].nodeType; // jshint ignore:line
 } catch(e) {
   d3_array = function(list) {
     var i = list.length, array = new Array(i);

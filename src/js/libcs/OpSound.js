@@ -8,15 +8,15 @@ evaluator.sound.lines=[0,0,0,0,0,0,0,0,0,0,0,0];
 
 evaluator.playsin= function(args,modifs){
 
-    var handleModifs = function(){
-
+    function handleModifs(){
+        var erg;
         if(modifs.line!==undefined){
 
             erg =evaluate(modifs.line);
-            if(erg.ctype=='number'){
+            if(erg.ctype==='number'){
                 linenumber=Math.floor(erg.value.real);
                 if(linenumber<0){linenumber=0;}
-                if(linenumber>10){inenumber=10;}
+                if(linenumber>10){linenumber=10;}
             }
         }
     }  
@@ -24,12 +24,13 @@ evaluator.playsin= function(args,modifs){
 
     var v0=evaluateAndVal(args[0]);
     var linenumber=0;
-    if(v0.ctype=='number' ){
+    if(v0.ctype==='number' ){
         handleModifs();
         var lines=evaluator.sound.lines;
         var f=v0.value.real;
-        if (lines[linenumber]==0){
-            lines[linenumber]=T("sin", {freq:f,mul:0.6}).play();
+        if (lines[linenumber]===0){
+            // Was bitte sollte die Funktion T an dieser Stelle sein?
+            // lines[linenumber]=T("sin", {freq:f,mul:0.6}).play();
 
 
         } else {
@@ -39,4 +40,4 @@ evaluator.playsin= function(args,modifs){
     }
     return nada;    
 
-}
+};

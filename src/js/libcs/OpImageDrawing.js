@@ -9,35 +9,36 @@ evaluator._helper.extractReferenceX=function(w,pos){
     
     
     
-}
+};
 
 evaluator.drawimage = function(args,modifs){
     
-    var drawimg1 = function(){
+    function drawimg1(){
         
         
-        var handleModifs = function(){
+        function handleModifs(){
+            var erg;
             if(modifs.angle!==undefined){
                 erg =evaluate(modifs.angle);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     rot=erg.value.real;
                 }
             }
             
             if(modifs.rotation!==undefined){
                 erg =evaluate(modifs.rotation);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     rot=erg.value.real;
                 }
             }
             
             if(modifs.scale!==undefined){
                 erg =evaluateAndVal(modifs.scale);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     scax=erg.value.real;
                     scay=erg.value.real;
                 }
-                if(List.isNumberVector(erg).value && (erg.value.length==2)){
+                if(List.isNumberVector(erg).value && (erg.value.length===2)){
                     scax=erg.value[0].value.real;
                     scay=erg.value[1].value.real;
                 }
@@ -46,36 +47,36 @@ evaluator.drawimage = function(args,modifs){
             
             if(modifs.scalex!==undefined){
                 erg =evaluate(modifs.scalex);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     scax=erg.value.real;
                 }
             }
             
             if(modifs.scaley!==undefined){
                 erg =evaluate(modifs.scaley);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     scay=erg.value.real;
                 }
             }
             
             if(modifs.flipx!==undefined){
                 erg =evaluate(modifs.flipx);
-                if(erg.ctype=='boolean'){
-                    if(erg.value){flipx=-1};
+                if(erg.ctype==='boolean'){
+                    if(erg.value){flipx=-1;}
                 }
             }
             
             if(modifs.flipy!==undefined){
                 erg =evaluate(modifs.flipy);
-                if(erg.ctype=='boolean'){
-                    if(erg.value){flipy=-1};
+                if(erg.ctype==='boolean'){
+                    if(erg.value){flipy=-1;}
                 }
             }
             
             
             if(modifs.alpha!==undefined){
                 erg =evaluate(modifs.alpha);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     alpha=erg.value.real;
                 }
                 
@@ -96,7 +97,7 @@ evaluator.drawimage = function(args,modifs){
         var alpha=1;
         
         var pt=evaluator._helper.extractPoint(v0);
-        if(!pt.ok || img.ctype!='string'){
+        if(!pt.ok || img.ctype!=='string'){
             return nada;
         }
         
@@ -131,7 +132,7 @@ evaluator.drawimage = function(args,modifs){
         
         
         
-        if(alpha!=1)
+        if(alpha!==1)
             csctx.globalAlpha = alpha;
         
         csctx.translate(xx,yy);
@@ -155,40 +156,42 @@ evaluator.drawimage = function(args,modifs){
     
 
     
-    var drawimg3 = function(){
+    function drawimg3(){
         var alpha=1;
         var flipx=1;
         var flipy=1;
         var aspect=1;
         
-        var handleModifs = function(){
-            
+        function handleModifs(){
+            var erg;
+
             if(modifs.alpha!==undefined){
                 erg =evaluate(modifs.alpha);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     alpha=erg.value.real;
                 }
                 
             }
-              if(modifs.aspect!==undefined){
+
+            if(modifs.aspect!==undefined){
                 erg =evaluate(modifs.aspect);
-                if(erg.ctype=='number'){
+                if(erg.ctype==='number'){
                     aspect=erg.value.real;
                 }
                 
             }
-            
+
             if(modifs.flipx!==undefined){
                 erg =evaluate(modifs.flipx);
-                if(erg.ctype=='boolean'){
-                    if(erg.value){flipx=-1};
+                if(erg.ctype==='boolean'){
+                    if(erg.value){flipx=-1;}
                 }
             }
             
             if(modifs.flipy!==undefined){
                 erg =evaluate(modifs.flipy);
-                if(erg.ctype=='boolean'){
-                    if(erg.value){flipy=-1};
+                if(erg.ctype==='boolean'){
+                    if(erg.value){flipy=-1;}
                 }
             }
             
@@ -201,18 +204,18 @@ evaluator.drawimage = function(args,modifs){
         var pt3;
         
         
-        if(!pt1.ok ||!pt2.ok  || img.ctype!='string'){
+        if(!pt1.ok ||!pt2.ok  || img.ctype!=='string'){
             return nada;
         }
        // console.lof(JSON.stringify(images));
-        if(images===undefined || images[img.value]=='undefined')
+        if(images===undefined || images[img.value]==='undefined')
             return;
         var w=images[img.value].width;
         var h=images[img.value].height;
         
 
         
-        if(v2==0){
+        if(v2===0){
         
           pt3={};
           pt3.x=pt1.x-(pt2.y-pt1.y);
@@ -220,7 +223,7 @@ evaluator.drawimage = function(args,modifs){
           aspect=h/w;
         
         } else {
-            var pt3=evaluator._helper.extractPoint(v2);
+            pt3=evaluator._helper.extractPoint(v2);
             if(!pt1.ok) return nada;
         }
 
@@ -234,7 +237,7 @@ evaluator.drawimage = function(args,modifs){
         
               
         
-        if(alpha!=1)
+        if(alpha!==1)
             csctx.globalAlpha = alpha;
         
         var xx1=pt1.x*m.a-pt1.y*m.b+m.tx;
@@ -267,35 +270,35 @@ evaluator.drawimage = function(args,modifs){
     
     
     
+    var v0, v1, v2, img;
     
-    
-    if(args.length==2) {
-        var v0=evaluateAndVal(args[0]);
-        var img=evaluateAndVal(args[1]);
+    if(args.length===2) {
+        v0=evaluateAndVal(args[0]);
+        img=evaluateAndVal(args[1]);
         
         return drawimg1();
     }
     
-    if(args.length==3) {
-        var v0=evaluateAndVal(args[0]);
-        var v1=evaluateAndVal(args[1]);
-        var v2=0;
-        var img=evaluateAndVal(args[2]);
+    if(args.length===3) {
+        v0=evaluateAndVal(args[0]);
+        v1=evaluateAndVal(args[1]);
+        v2=0;
+        img=evaluateAndVal(args[2]);
         
         return drawimg3();
     }
 
     
-    if(args.length==4) {
-        var v0=evaluateAndVal(args[0]);
-        var v1=evaluateAndVal(args[1]);
-        var v2=evaluateAndVal(args[2]);
-        var img=evaluateAndVal(args[3]);
+    if(args.length===4) {
+        v0=evaluateAndVal(args[0]);
+        v1=evaluateAndVal(args[1]);
+        v2=evaluateAndVal(args[2]);
+        img=evaluateAndVal(args[3]);
         
         return drawimg3();
     }
     
     return nada;
-}
+};
 
 

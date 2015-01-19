@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Cindy JS</title>
+<link rel="stylesheet" href="../css/cindy.css">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+<script type="text/javascript">
+var gslp = [
+  {"name": "A", "type": "Free", "pos": [4.0, -4.0, -0.8], "color": [255, 0, 0], "size": 5.0, "labeled": true, "labelpos": {"x": 3, "y": 3}},
+  {"name": "B", "type": "Free", "pos": [2.4, -4.0, -0.8], "color": [255, 0, 0], "size": 5.0, "labeled": true, "labelpos": {"x": -9, "y": 7}},
+  {"name": "C", "type": "Free", "pos": [0.8, -4.0, -0.8], "color": [255, 0, 0], "size": 5.0, "labeled": true, "labelpos": {"x": 3, "y": 3}, "textbold": true},
+  {"name": "D", "type": "Free", "pos": [-0.8, -4.0, -0.8], "color": [255, 0, 0], "size": 5.0, "labeled": true, "labelpos": {"x": 3, "y": 3}, "textitalics": true},
+  {"name": "E", "type": "Free", "pos": [-2.4, -4.0, -0.8], "color": [255, 0, 0], "size": 5.0, "labeled": true, "labelpos": {"x": 3, "y": 3}, "textsize": 24.0},
+  {"name": "F", "type": "Free", "pos": [4.0, 4.0, 0.8], "color": [255, 0, 0], "size": 5.0, "labeled": true, "labelpos": {"x": 3, "y": 3}, "text_fontfamily": "Serif", "textsize": 24.0}
+];
+createCindy({
+  "canvasname":"CSCanvas",
+  "scripts":"cs*",
+  "geometry":gslp,
+  "transform":[{"scaleAndOrigin":[25.0,200.0,-87.0]}]
+});
+</script>
+<body>
+<canvas id="CSCanvas" width="482" height="133" style="border:2px solid black; background: #a8b0c0"></canvas>
+</body>
+</html>
