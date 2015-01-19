@@ -73,8 +73,11 @@ Observe that the operator generates an implicit typing of the return values, so 
     > hb=perpendicular(B,b);
     > hc=perpendicular(C,c);
     > X=meet(ha,hb);
+    > X.xy
+    < [2.3043478260869565, 3.1739130434782608]
+
+    - skip test: can't do drawing in the test suite.
     > drawall([a,b,c,d,ha,hb,hc,X,A,B,C]);
-    >
 
 <table align="center" cellspacing="0">
 <tbody>
@@ -223,9 +226,9 @@ Returns a matrix that represents a reflection in the line `‹line›`.
 The following code takes the line *a*, creates the reflecting transformation, and maps point *C* by multiplying its homogeneous coordinates by the matrix.
 The result is the green point in the figure.
 
+    - skip test: can't do drawing in the test suite.
     > m=linereflect(a);
     > draw(m*C.homog);
-    >
 
 <table align="center" cellspacing="0">
 <tbody>

@@ -301,8 +301,7 @@ The elements may be numbers, or themselves lists (or vectors or matrices), or ev
 
 One can, for instance, use the sum operator to define an arithmetic mean function by the following code fragment:
 
-    > average(x) := sum(x)/length(x)
-    >
+    > average(x) := sum(x)/length(x);
 
 This function works for a list of numbers as well as for the average of a list of vectors or matrices.
 
@@ -458,8 +457,7 @@ The elements are expected to be numbers.
 
 One can, for instance, use the product operator to define the factorial function by the following code fragment:
 
-    > fac(x) := product(1..x)
-    >
+    > fac(x) := product(1..x);
 
 ------
 
@@ -929,16 +927,16 @@ In particular, `hermiteanproduct(a,a)` is always nonnegative.
 
 The following code fragment shows the difference between the dot product and the scalar product.
 
+    - skip test: "hermiteanproduct" not implemented yet.
     > a=[2+3*i,1-i];
     > println(hermiteanproduct(a,a));
     > println(a*a);
-    >
 
 produces the output:
 
-    > 15
-    > -5 + i*10
-    >
+    - skip test: "hermiteanproduct" not implemented yet.
+    * 15
+    * -5 + i*10
 
 ------
 
@@ -973,17 +971,17 @@ So also complex eigenvalues are listed.
 
 **Example:**
 
+    - skip test: "eigenvalues" not implemented yet.
     > m1=[[1,1,0],[0,1,0],[0,0,.5]];
     > println(eigenvalues(m1));
     > m2=[[1,1,0],[-1,1,0],[0,0,.5]];
     > println(eigenvalues(m2));
-    >
 
 produces the output:
 
-    > [1,1,0.5]
-    > [1 + i*1,1 - i*1,0.5]
-    >
+    - skip test: "eigenvalues" not implemented yet.
+    * [1,1,0.5]
+    * [1 + i*1,1 - i*1,0.5]
 
 ------
 
@@ -1015,13 +1013,11 @@ If either *A* is not invertible or the dimension constraints are not met an unde
     > x=linearsolve(m,[2,3,4]);
     > println(x);
     > println(m*x);
-    >
 
 produces the output:
 
-    > [-1,3,1]
-    > [2,3,4]
-    >
+    * [-1, 3, 1]
+    * [2, 3, 4]
 
 ------
 
@@ -1041,18 +1037,20 @@ Each facet is given as the indices of the vertices of the first list.
 **Example:**
 The following list of points describes a three dimensional cube with an additional point in its center.
 
-    >  [[1,1,1],[1,1,-1],[1,-1,1],[1,-1,-1],
-    >   [-1,1,1],[-1,1,-1],[-1,-1,1],[-1,-1,-1],[0,0,0]]
-    >
+    > cube = [[1,1,1],[1,1,-1],[1,-1,1],[1,-1,-1],
+    >         [-1,1,1],[-1,1,-1],[-1,-1,1],[-1,-1,-1],[0,0,0]];
 
 Applying the convex hull operator to this list produces the following output:
 
+    - skip test: convexhull module not linked in for unit tests.
+    > expected =
     > [
     >  [[1,1,1],[1,1,-1],[1,-1,1],[1,-1,-1],
     >   [-1,1,1],[-1,1,-1],[-1,-1,1],[-1,-1,-1]],
     >  [[6,5,1,2],[3,1,5,7],[3,4,2,1],[8,7,5,6],[8,6,2,4],[8,4,3,7]]
-    > ]
-    >
+    > ];
+    > convexhull3d(cube) == expected
+    < true
 
 Observe that the interior point has been properly removed, and that the convex hull operator can nicely handle coplanarities.
 

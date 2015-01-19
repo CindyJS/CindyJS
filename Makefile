@@ -123,6 +123,17 @@ jshint: node_modules/.bin/jshint build/js/ours.js
 ## Format reference manual using markdown
 ######################################################################
 
+nodetest: build/js/Cindy.plain.js $(NPM_DEP)
+	$(NODE) ref/runtests.js
+
+tests: nodetest
+
+.PHONY: tests nodetest
+
+######################################################################
+## Format reference manual using markdown
+######################################################################
+
 node_modules/marked/package.json: $(NPM_DEP)
 	$(NPM_CMD) install marked
 

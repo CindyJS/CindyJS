@@ -14,11 +14,13 @@ No explicit typing of arguments or function values is required.
 In what follows, we provide some examples of simple functions.
 For example, function `f` defined by
 
-    > f(n):=sum(1..n,i,i^2)
-    >
+    > f(n):=sum(1..n,i,i^2);
 
 calculates the sum of the first `n` squares.
-For instance, after this definition, `f(4)` evaluates to `30`.
+For instance, after this definition, `f(4)` evaluates to `30`:
+
+    > f(4)
+    < 30
 
 Functions with more than one argument can be defined similarly.
 The following function assumes that `a` and `b` are two-dimensional vectors and draws a square whose edge is defined by these two vectors:
@@ -30,13 +32,12 @@ The following function assumes that `a` and `b` are two-dimensional vectors and 
     >   draw(a,a-n2);
     >   draw(b,b-n2);
     >   draw(a-n2,b-n2);
-    > )
-    >
+    > );
 
 In this code a few interesting things happen.
 First of all, the code is in principle procedural.
 The body of the function has the form `(statement_1;…;statement_k)`.
-Furthermore, the function uses the variables `n` and `n1`.
+Furthermore, the function uses the variables `n` and `n2`.
 These variables are created when the function is first called.
 However, they are (by default) not local.
 Their values are visible also after the function has been called.
@@ -47,8 +48,7 @@ Thus the following function calculates the arithmetic mean of three entries.
     > mean(a,b,c):=(
     >   sum=a+b+c;
     >   sum/3;
-    > )
-    >
+    > );
 
 Since functions are not explicitly typed, it is also possible to pass more complex objects as a function's arguments.
 The function is automatically as polymorphic as possible, restricted only by the generality of the operations used in the function.
@@ -61,7 +61,6 @@ Then a new instance of every function parameter is created for each level of rec
 The following code calculates the factorial of a number:
 
     > fac(n):=if(n==0,1,n*fac(n-1));
-    >
 
 The following more complicated code calculates the greatest common divisor of two positive numbers:
 
@@ -72,7 +71,6 @@ The following more complicated code calculates the greatest common divisor of tw
     >                  gcd(b,mod(a,b))  //Recursion
     >                  )
     >              );
-    >
 
 ### Defining Variables
 
@@ -84,9 +82,16 @@ The program
     > x=3;
     > b=[x^2,x^3];
     > c=2*b;
-    >
 
-assigns to `x` the value `4`, to `b` the value `[9,27]`, and to `c` the value `[18,54]`.
+assigns to `x` the value `3`, to `b` the value `[9, 27]`, and to `c` the value `[18, 54]`:
+
+    > x
+    < 3
+    > b
+    < [9, 27]
+    > c
+    < [18, 54]
+
 A variable defined in a function remains visible also outside the scope of the function.
 Exceptions to this rule are the parameters of the function and variables explicitly defined local.
 The following program exemplifies the scope of variables:
@@ -101,14 +106,12 @@ The following program exemplifies the scope of variables:
     > println(x+y);
     > f(x);
     > println(x+y);
-    >
 
 It produces the output
 
-    > Hello World
-    > Hello Hello
-    > Hello User
-    >
+    * Hello World
+    * Hello Hello 
+    * Hello User
 
 Local variables in a function may be defined explicitly using the `regional(…)` operator.
 They are automatically removed when the function terminates.
@@ -125,14 +128,12 @@ In the following code snippet, as a slight variation of the above program, `y` i
     > println(x+y);
     > f(x);
     > println(x+y);
-    >
 
 The program produces the output
 
-    > Hello World
-    > Hello Hello
-    > Hello World
-    >
+    * Hello World
+    * Hello Hello 
+    * Hello World
 
 Run variables in loops are also treated as local variables.
 
@@ -150,13 +151,11 @@ For instance, the following piece of code
     > println(timesa(2));
     > a=5;
     > println(timesa(2));
-    >
 
 produces the output
 
-    > 6
-    > 10
-    >
+    * 6
+    * 10
 
 The return value of `timesa(2)` depends on the actual value of the (global) variable `a` at the moment the function is evaluated.
 So after redefining `a` the behavior of the function `timesa` changes.
@@ -166,18 +165,18 @@ This can be achieved by using the operator `::=` to define the function.
 This operator copies the entire variable assignments and binds them to the function.
 Therefore, the program
 
+    - skip test: "::=" not implemented yet.
     > a=3;
     > timesa(x)::= x*a;
     > println(timesa(2));
     > a=5;
     > println(timesa(2));
-    >
 
 produces the output
 
-    > 6
-    > 6
-    >
+    - skip test: "::=" not implemented yet.
+    * 6
+    * 6
 
 Every time the function is called, the original value of `a` is restored.
 This binding process does not only extend to all variables used in the function itself.
@@ -186,17 +185,17 @@ It extends to all variables that may be relevant to the execution of the functio
 There is one way to intentionally circumvent this binding: The value of `a` can be set explicitly using a modifier.
 An example thereof can be seen in the following piece of code:
 
+    - skip test: "::=" not implemented yet.
     > a=3;
     > timesa(x)::= x*a;
     > println(timesa(2));
     > println(timesa(2,a->10));
-    >
 
 This program fragment produces the following output
 
-    > 6
-    > 20
-    >
+    - skip test: "::=" not implemented yet.
+    * 6
+    * 20
 
 ### Predefined Constants
 
@@ -210,17 +209,15 @@ The following program illustrates this feature:
     > println(i);
     > repeat(4,i,println(i));
     > println(i);
-    >
 
 It produces the following output:
 
-    > 0 + i*1
-    > 1
-    > 2
-    > 3
-    > 4
-    > 0 + i*1
-    >
+    * 0 + i*1
+    * 1
+    * 2
+    * 3
+    * 4
+    * 0 + i*1
 
 If, for instance, the complex unit is needed but the variable `i` is overwritten, then it is still possible to access the complex unit using the function `complex([0,1])`.
 Other predefined variables are `true` and `false` for the logical constants, as well as the empty list, `nil`.
@@ -242,48 +239,48 @@ The usage of this operator is best explained by a examples.
 Assume that *A* ad *B* are geometric objects.
 The following code associates some data to them:
 
+    - skip test: keys not implemented.
     > A:"age"=17;
     > B:"age"=34;
     > A:"haircolor"="brown";
     > B:"haircolor"="blonde";
-    >
 
 The data may be accessed by the same key.
 So the following code
 
+    - skip test: keys not implemented.
     >   forall(allpoints(),p,
     >     println(p:"age");
     >     println(p:"haircolor");
     > )
-    >
 
 will produce the output
 
-    > 17
-    > brown
-    > 34
-    > blonde
-    >
+    - skip test: keys not implemented.
+    * 17
+    * brown
+    * 34
+    * blonde
 
 A list of all keys of a geometric object may be accessed via the `keys(...)` operator.
 So in the above example the code
 
+    - skip test: keys not implemented.
     > print(keys(A));
-    >
 
 will produce the following output:
 
-    > ["age","haircolor"];
-    >
+    - skip test: keys not implemented.
+    * ["age","haircolor"];
 
 It is also possible to attach key information to lists.
 By this one can also create custom data that is passed by variables.
 The following code exemplifies this behavior.
 
-    >   a=[];
-    >   a:"data"=18
-    >   print(a:"data")
-    >
+    - skip test: keys not implemented.
+    > a=[];
+    > a:"data"=18
+    > print(a:"data")
 
 **Caution:**
 The functionality of attaching key data is still subject to change.

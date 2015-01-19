@@ -483,7 +483,6 @@ The code fragment
 
     > text="sin(x)+cos(x)";
     > f(x):=parse(text);
-    >
 
 defines the function `f(x)` to be `sin(x)+cos(x)`.
 
@@ -762,6 +761,5 @@ After evaluating the code fragement
 
     > a="CindyScript";
     > a_5="erella";
-    >
 
 the variable `a` contains the string `"CinderellaScript"`.

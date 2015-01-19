@@ -22,39 +22,39 @@ It is the logical negation of `‹expr1› == ‹expr2›`.
 
 ------
 
-#### Greater than: `‹expr1› › ‹expr2›`
+#### Greater than: `‹expr1› > ‹expr2›`
 
 **Description:**
 This operator tests whether the expression `‹expr1›` is **greater than** the expression `‹expr2›`.
 It returns a `‹bool›` value.
 The comparison is available only for two situations: If both expressions are **real numbers**, then the order of size is the usual ordering of real numbers.
 If both expressions are **strings**, then the order is the lexicographic (dictionary) order.
-In all other cases (if the values are not comparable) the value `____` is returned.
+In all other cases (if the values are not comparable) the value `_?_` is returned.
 
 ------
 
-#### Less than: `‹expr1› ‹ ‹expr2›`
+#### Less than: `‹expr1› < ‹expr2›`
 
 **Description:**
 This operator is similar to **&gt;** but tests for **less than**.
 
 ------
 
-#### Greater than or equal: `‹expr1› ›= ‹expr2›`
+#### Greater than or equal: `‹expr1› >= ‹expr2›`
 
 **Description:**
 This operator is similar to **&gt;** but tests for **greater than or equal to**.
 
 ------
 
-#### Less than or equal: `‹expr1› ‹= ‹expr2›`
+#### Less than or equal: `‹expr1› <= ‹expr2›`
 
 **Description:**
 This operator is similar to **&gt;** but tests for **less than or equal to**.
 
 ------
 
-#####  Fuzzy comparisons: `~=`, `~!=`, `~‹`, `~›`, `~›=`, `~‹=`
+#####  Fuzzy comparisons: `~=`, `~!=`, `~<`, `~>`, `~>=`, `~<=`
 
 **Description:**
 CindyScript provides a *fuzzy* variant for each comparison operator.
@@ -187,7 +187,7 @@ Logical **and** of two Boolean values defined by the following truth table:
 </tbody>
 </table>
 
-If one of the two arguments is not a Boolean expression, the operator returns `___`.
+If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
 
 ------
 
@@ -292,7 +292,7 @@ Logical **or** of two Boolean values defined by the following truth table:
 </tbody>
 </table>
 
-If one of the two arguments is not a Boolean expression, the operator returns `___`.
+If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
 
 ------
 
@@ -346,7 +346,7 @@ Logical **not** of one Boolean value defined by the following truth table:
 </tbody>
 </table>
 
-If the argument is not a Boolean expression, the operator returns `____`.
+If the argument is not a Boolean expression, the operator returns `_?__`.
 
 ------
 
@@ -476,7 +476,7 @@ Logical **exclusive or** of two Boolean values defined by the following truth ta
 </tbody>
 </table>
 
-If one of the two arguments is not a Boolean expression, the operator returns `___`.
+If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
 
 ------
 
@@ -631,4 +631,4 @@ This operator tests whether the expression `‹expr›` represents a [CindyLab](
 #### Is undefined: `isundefined(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` returns an undefined element (`___`).
+This operator tests whether the expression `‹expr›` returns an undefined element (`_?_`).

@@ -11,39 +11,57 @@ They are described in the section [Elementary List Operations](Elementary_List_O
 #### The conditional operator: `if(‹bool›,‹expr›)`
 
 **Description:**
-The expression `‹expr›` is evaluated, if the Boolean condition `‹bool›` evaluates to `true`.
-In this case the return value of the `if`-function is &lt;expr&gt;.
-Otherwise, `___` is returned.
+If the Boolean condition `‹bool›` evaluates to `true`,
+then the expression `‹expr›` is evaluated.
 A typical use of the `if`-operator is the conditional evaluation of side effects.
 
 **Example:**
 This code fragment prints a message on the console, if `x` has a negative value.
 
-    > if(x<0,println("x is now negative"))
-    >
+    > x = 5;
+    > if(x<0,println("x is now negative"));
+    > x = -3;
+    > if(x<0,println("x is now negative"));
+    * x is now negative
+
+**Return value:**
+In this case the return value of the `if`-function is &lt;expr&gt;.
+Otherwise, `_?_` is returned.
+
+    > x = 5; if(x<0, -1);
+    < _?_
+    > x = -3; if(x<0, -1);
+    < -1
 
 ------
 
 #### The conditional branch operator: `if(‹bool›,‹expr1›,‹expr2›)`
 
 **Description:**
-The expression `‹expr1›` is evaluated, if the Boolean condition `‹bool›` evaluates to `true`.
+If the Boolean condition `‹bool›` evaluates to `true`,
+then the expression `‹expr1›` is evaluated.
 If `‹bool›` evaluates to `false`, then `‹expr2›` is evaluated.
-In any case, the value of the evaluated expression is returned.
+In either case, the value of the evaluated expression is returned.
 Thus this ternary version of the `if`-operator encodes an if/then/else functionality.
 There are two typical uses of this version of the `if`-operator: Firstly, the `if`-operator is used to force the conditional evaluation of program parts (which usually causes side effects).
 
 **Example:**
 This code fragment prints a message on the console that shows whether `x` is positive, negative, or zero.
 
-    > if(x<0,
-    >    println("x is now negative"),
-    >    if (x>0,
-    >       println("x is now positive"),
-    >       println("x is zero")
-    >    )
-    >  )
-    >
+    > describe(x) :=
+    >   if(x<0,
+    >      println("x is now negative"),
+    >      if (x>0,
+    >         println("x is now positive"),
+    >         println("x is zero")
+    >      )
+    >    );
+    > describe(5);
+    * x is now positive
+    > describe(0);
+    * x is zero
+    > describe(-7);
+    * x is now negative
 
 A second use of the `if`-operator is to return a certain value depending on the condition encoded by `‹bool›`.
 This is particularly useful in the definition of functions.
@@ -51,14 +69,17 @@ This is particularly useful in the definition of functions.
 **Example:**
 This code fragment defines the function `f(x)` to be the absolute value function (for real values of `x`).
 
-    > f(x):=if(x>0,x,-x)
-    >
+    > f(x):=if(x>0,x,-x);
+    > f(5)
+    < 5
+    > f(-7)
+    < 7
 
 **Example:**
 This code fragment takes a geometric element *A* (most probably a point) and sets its color to red or blue depending on the value of its *x*-coordinate.
 
+    - skip test: we can't have geometric elements in tests yet.
     > A.color=if(A.x>0,(1,0,0),(0,0,1))
-    >
 
 ------
 
@@ -75,9 +96,9 @@ The following code fragment demonstrates this behavior.
 **Example:**
 This code fragment will print a message whenever point `A` crosses the *y*-axis.
 
+    - skip test: operator "trigger" not implemented yet.
     > trigger(A.x<0,println("A now entered the x-negative half-plane"))
     > trigger(A.x>0,println("A now entered the x-positive half-plane"))
-    >
 
 ------
 
@@ -97,17 +118,18 @@ The result of the very last evaluation is returned as the function's value.
     >          println(x+"  -->  "+sum);
     >          sum
     >       );
-    > println(erg);
-    >
 
 This code fragment produces the output
 
-    > 1  -->  1
-    > 2  -->  3
-    > 3  -->  6
-    > 4  -->  10
-    > 10
-    >
+    * 1  -->  1
+    * 2  -->  3
+    * 3  -->  6
+    * 4  -->  10
+
+The result of the evaluation is
+
+    > erg
+    < 10
 
 After its evaluation, the value of variable `erg` is `10`.
 A word of caution: one should be aware of the fact that `while` operations may easily create infinite loops, if the conditional is never satisfied.
@@ -122,12 +144,14 @@ The result of the last evaluation is returned.
 During the evaluation of `‹expr›` the special variable `#` contains the run variable of the loop.
 
 **Example:**
-This code produces a list of the first 100 integers together with their squares.
+This code produces a list of the first 5 integers together with their squares.
 
-    > repeat(100,
-    >     println(#+" squared is "+#^2)
-    > )
-    >
+    > repeat(5, println(#+" squared is "+#^2))
+    * 1 squared is 1
+    * 2 squared is 4
+    * 3 squared is 9
+    * 4 squared is 16
+    * 5 squared is 25
 
 **Modifiers:**
 The `repeat` loop supports a variety of modifiers.
@@ -276,12 +300,12 @@ This allows for the use of nested loops with different run variables.
 **Example:**
 This code fragment will draw a 10 × 10 array of points.
 
+    - skip test: we can't use drawing commands in test suite.
     > repeat(10,i,
     >    repeat(10,j,
     >       draw((i,j))
     >    )
     > )
-    >
 
 ------
 
@@ -296,15 +320,13 @@ In every iteration, the run variable `#` takes the value of the corresponding li
 
     > a=["this","is","a","list"];
     > forall(a,println(#))
-    >
 
 This code fragment produces the output
 
-    > this
-    > is
-    > a
-    > list
-    >
+    * this
+    * is
+    * a
+    * list
 
 ------
 
@@ -326,8 +348,9 @@ Afterwards, the variables are set to the values they had before the evaluation.
 **Example:**
 This code fragment evaluates to `7`.
 
+    - skip test: "eval" not implemented yet.
     > eval(x+y,x->2,y->5)
-    >
+    < 7
 
 ------
 
@@ -361,14 +384,12 @@ The `createvar` and `removevar` operators should only be used if one wants to re
     > println("x is now "+x);
     > removevar(x);
     > println("x is now "+x);
-    >
 
 This code fragment produces the output
 
-    > x is now 10
-    > x is now 5
-    > x is now 10
-    >
+    * x is now 10
+    * x is now 5
+    * x is now 10
 
 ------
 
@@ -411,20 +432,20 @@ Gives a list of all keys associated to an object via a ` ‹object›:‹key›=
 It is possible to associate a value under a freely chosen key to an object.
 This can be done by code similar to the following one:
 
+    - skip test: keys not supported yet.
     > A:"age"=34;
     > A:"haircolor"="brown";
-    >
 
 These assignments may be accessed also by a similar syntax like:
 
+    - skip test: keys not supported yet.
     > println(A:"age");
     > println(A:"haircolor");
-    >
 
 The operator `keys` returns a list of all associated keys of an object.
 So in this example
 
+    - skip test: keys not supported yet.
     > println(keys(A));
-    >
 
 will return the list `["age","haircolor"]`.

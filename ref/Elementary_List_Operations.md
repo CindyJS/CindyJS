@@ -123,10 +123,14 @@ This operator returns an integer that is equal to the number of elements in the 
 
 Combining the `length` and the `repeat` operator allows one to list all elements of a list easily.
 
+    > list = [2,3,5,7];
     > repeat(length(list),
     >    println(list_#);
     > )
-    >
+    * 2
+    * 3
+    * 5
+    * 7
 
 One word of caution here: CindyScript is designed in such a way that it is seldom useful to traverse all the elements of a list using the `repeat` operator.
 There are more elegant ways.
@@ -445,15 +449,13 @@ For each run, the run variable `#` takes the value of the corresponding list ent
 
     > a=["this","is","a","list"];
     > forall(a,println(#))
-    >
 
 This code fragment produces the output
 
-    > this
-    > is
-    > a
-    > list
-    >
+    * this
+    * is
+    * a
+    * list
 
 ------
 
@@ -585,13 +587,11 @@ A high-level application of the `select` operator is given by the following exam
 
     > divisors(x):=select(1..x,mod(x,#)==0);
     > primes(n):=select(1..n,length(divisors(#))==2);
-    > println(primes(100))
-    >
+    > println(primes(20))
 
 It produces the output
 
-    > [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97]
-    >
+    * [2, 3, 5, 7, 11, 13, 17, 19]
 
 In this example, first a function `divisors(x)` is defined by selecting those numbers that divide `x` without any remainder.
 Then a function `primes(n)` is defined that selects all numbers between `1` and `n` that have exactly two divisors.

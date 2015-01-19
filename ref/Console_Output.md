@@ -51,8 +51,8 @@ It can be used to test wheter a condition is met and otherwise generate an error
 **Example:**
 A typical usage of this operator is the following:
 
+    - skip test: "assert" is not implemented yet.
     > assert(isinteger(k),"k is not an integer");
-    >
 
 ------
 
