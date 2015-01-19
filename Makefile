@@ -139,12 +139,16 @@ node_modules/marked/package.json: $(NPM_DEP)
 
 refmd:=$(wildcard ref/*.md)
 refhtml:=$(refmd:ref/%.md=build/ref/%.html)
+refres:=ref.css
 
-$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2html.js
+$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2html.js ref/template.html
 	@mkdir -p $(@D)
 	$(NODE) ref/md2html.js $< $@
 
-ref: $(refhtml)
+$(refres:%=build/ref/%): build/ref/%: ref/%
+	cp $< $@
+
+ref: $(refhtml) $(refres:%=build/ref/%)
 
 .PHONY: ref
 

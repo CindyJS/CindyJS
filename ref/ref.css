@@ -1,0 +1,8 @@
+div.codeblock { border: 1px solid #66cc66; padding: 3px; margin: 0ex 3em; background: #ddddff; }
+pre { margin: 0px; padding: 2px; }
+pre.code { color: #000066; margin-top: 1em; padding: 0px; }
+pre.code.fst { margin-top: 0px; }
+pre.result { color: #006600; background: #ddffdd; }
+pre.output { color: #993333; background: #dddddd; }
+pre.pragma { color: #996600; background: #ffffcc; }
+code { background: #ddddff; }
