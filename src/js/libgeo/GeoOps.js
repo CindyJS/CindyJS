@@ -390,6 +390,56 @@ geoOps.ConicBy5 =function(el){
 };
 geoOpMap.ConicBy5="C";
 
+// for internal calls
+geoOps.ConicBy5direct = function(el,a,b,c,d,p){
+    var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
+    el.points = [a, b, c, d, p]; // add points for degenerate case
+    el.matrix=erg;
+    el.matrix=List.normalizeMax(el.matrix);
+    el.matrix.usage="Conic";
+};
+geoOpMap.ConicBy5direct="C";
+
+// conic by 4 Points and 1 line
+geoOps.ConicBy4p1l =function(el){
+    var a=csgeo.csnames[(el.args[0])].homog;
+    var b=csgeo.csnames[(el.args[1])].homog;
+    var c=csgeo.csnames[(el.args[2])].homog;
+    var d=csgeo.csnames[(el.args[3])].homog;
+
+    var l=csgeo.csnames[(el.args[4])].homog;
+
+    var a1 = List.cross(List.cross(a,c),l);
+    var a2 = List.cross(List.cross(b,d),l);
+    var b1 = List.cross(List.cross(a,b),l);
+    var b2 = List.cross(List.cross(c,d),l);
+
+
+    var o = List.realVector(csport.to(10,10)); // hack
+
+
+    // for point x
+    var r1 = (List.det3(o,a2,b1).value.real*List.det3(o,a2,b2).value.real);
+    r1 = Math.sqrt(Math.abs(r1)); // is this right?
+    r1 = CSNumber.real(r1);
+    var r2 = (List.det3(o,a1,b1).value.real*List.det3(o,a1,b2).value.real);
+    r2 = Math.sqrt(Math.abs(r2));
+    r2 = CSNumber.real(r2);
+
+    var k1 = List.scalmult(r1,a1);
+    var k2 = List.scalmult(r2,a2);
+    var x = List.add(k1, k2);
+
+    //geoOps.ConicBy5direct(el,a,b,c,d,x); 
+
+
+    // for point y
+     var y = List.sub(k1, k2);
+    geoOps.ConicBy5direct(el,a,b,c,d,y); 
+
+};
+geoOpMap.ConicBy4p1l="C";
+
 geoOps.CircleBy3 =function(el){
     var a=csgeo.csnames[(el.args[0])].homog;
     var b=csgeo.csnames[(el.args[1])].homog;
