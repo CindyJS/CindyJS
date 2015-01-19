@@ -2976,6 +2976,126 @@ evaluator._helper.formatForWebGL=function(x){
    return x.toFixed(10);
 }
 
+evaluator.generateWebGL=function(args,modifs){
+
+    if(args.length==2) {
+
+       var f=evaluator._helper.formatForWebGL;
+       var expr=args[0];
+       var vars=evaluate(args[1]);
+       console.log(vars);
+       if(vars.ctype!="list") {
+           return nada;
+       }
+        
+       var varlist=[];
+       for (var i=0;i<vars.value.length;i++){
+          if(vars.value[i].ctype=="string"){
+            varlist.push(vars.value[i].value);
+          
+          }
+       }
+       console.log("***********");
+       console.log(varlist);
+       var li=evaluator._helper.plotvars(expr);
+       console.log(li);
+
+       if(li.indexOf("a")==-1 
+       && li.indexOf("b")==-1
+       && li.indexOf("c")==-1
+       && li.indexOf("d")==-1
+       && li.indexOf("e")==-1
+       && li.indexOf("f")==-1
+       ){
+          var erg=evaluateAndVal(expr);
+          expr=erg;
+       
+       }
+
+    //   dump(expr);
+       if(expr.ctype=="number") {
+          return {"ctype":"string" ,  "value":"vec2("+f(expr.value.real)+","+f(expr.value.imag)+")"}  
+       }
+       if(expr.ctype=="variable") {
+            
+           return {"ctype":"string" ,  "value":expr.name}  
+       }
+       if(expr.ctype=="string"||expr.ctype=="void") {
+           return expr;  
+       }
+       if(expr.args.length==2){
+           if(expr.ctype=="infix"||expr.ctype=="function" ) {
+               var a= evaluator.compileToWebGL([expr.args[0]],{});
+               var b= evaluator.compileToWebGL([expr.args[1]],{});
+               if(expr.oper=="+"||expr.oper=="add") {
+                   if(a.value==undefined || a.ctype=="void"){
+                       return {"ctype":"string" ,  "value":b.value}  
+                       
+                   } else {
+                       return {"ctype":"string" ,  "value":"addc("+a.value+","+b.value+")"}  
+                   }
+                   
+               }
+               if(expr.oper=="*"||expr.oper=="mult") {
+                   return {"ctype":"string" ,  "value":"multc("+a.value+","+b.value+")"}  
+               }
+               if(expr.oper=="/"||expr.oper=="div") {
+                   return {"ctype":"string" ,  "value":"divc("+a.value+","+b.value+")"}  
+               }
+               if(expr.oper=="-"||expr.oper=="sub") {
+                   if(a.value==undefined || a.ctype=="void"){
+                       return {"ctype":"string" ,  "value":"negc("+b.value+")"}  
+                       
+                   } else {
+                       return {"ctype":"string" ,  "value":"subc("+a.value+","+b.value+")"}  
+                   }
+               }
+               if(expr.oper=="^"||expr.oper=="pow") {
+                   return {"ctype":"string" ,  "value":"powc("+a.value+","+b.value+")"}  
+               } 
+           }
+       }
+       if((expr.ctype=="function" )&&(expr.args.length==1)) {
+           var a= evaluator.compileToWebGL([expr.args[0]],{});
+           
+           if(expr.oper=="sin") {
+               return {"ctype":"string" ,  "value":"sinc("+a.value+")"}  
+           }
+           if(expr.oper=="cos") {
+               return {"ctype":"string" ,  "value":"cosc("+a.value+")"}  
+           }
+           if(expr.oper=="tan") {
+               return {"ctype":"string" ,  "value":"tanc("+a.value+")"}  
+           }
+           if(expr.oper=="exp") {
+               return {"ctype":"string" ,  "value":"expc("+a.value+")"}  
+           }
+           if(expr.oper=="log") {
+               return {"ctype":"string" ,  "value":"logc("+a.value+")"}  
+           }
+           if(expr.oper=="arctan") {
+               return {"ctype":"string" ,  "value":"arctanc("+a.value+")"}  
+           }
+           if(expr.oper=="arcsin") {
+               return {"ctype":"string" ,  "value":"arcsinc("+a.value+")"}  
+           }
+           if(expr.oper=="arccos") {
+               return {"ctype":"string" ,  "value":"arccosc("+a.value+")"}  
+           }
+           if(expr.oper=="sqrt") {
+               return {"ctype":"string" ,  "value":"sqrtc("+a.value+")"}  
+           }
+       }
+       
+    }
+    
+    return nada;
+
+
+}
+
+
+
 evaluator.compileToWebGL=function(args,modifs){
     if(args.length==1) {
 
