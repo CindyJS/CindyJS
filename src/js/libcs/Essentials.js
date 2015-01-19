@@ -1,4 +1,6 @@
 
+/*jshint -W069 */
+
 var operators={};
 operators[':']=20;    //Colon: Feldzugriff auf Selbstdefinierte Felder
 operators['.']=25;   //Dot: Feldzugriff
@@ -74,61 +76,63 @@ infixmap['--']='remove';
 infixmap[':>']='append';
 infixmap['<:']='prepend';
 
+/*jshint +W069 */
+
 
 //****************************************************************
 // this function is responsible for evaluation an expression tree
 //****************************************************************
 
-var niceprint=function(a){
+function niceprint(a){
     if(typeof a==='undefined'){
         return '_??_';
     }
-    if(a.ctype=='undefined'){
+    if(a.ctype==='undefined'){
         return '_?_';
     }
-    if(a.ctype=='number'){
+    if(a.ctype==='number'){
         return CSNumber.niceprint(a);
     }
-    if(a.ctype=='string'){
+    if(a.ctype==='string'){
         return a.value;
     }
-    if(a.ctype=='boolean'){
+    if(a.ctype==='boolean'){
         return a.value;
     }
-    if(a.ctype=='list'){
+    if(a.ctype==='list'){
         var erg="[";
         for(var i=0;i<a.value.length;i++){
             erg=erg+niceprint(evaluate(a.value[i]));
-            if(i!=a.value.length-1){
+            if(i!==a.value.length-1){
                 erg=erg+', ';
             }
             
         }
         return erg+"]";
     }
-    if(a.ctype=='function'){
+    if(a.ctype==='function'){
         return 'FUNCTION';
         
     }
-    if(a.ctype=='infix'){
+    if(a.ctype==='infix'){
         return 'INFIX';
     }
-    if(a.ctype=='modifier'){
+    if(a.ctype==='modifier'){
         return a.key+'->'+niceprint(a.value);
     }
-    if(a.ctype=='shape'){
+    if(a.ctype==='shape'){
         return a.type;
     }
 
-    if(a.ctype=='error'){
+    if(a.ctype==='error'){
         return "Error: "+a.message;
     }
-    if(a.ctype=='variable'){
+    if(a.ctype==='variable'){
     console.log("HALLO");
         return niceprint(a.stack[length.stack]);
     }
 
-    if(a.ctype=='geo'){
+    if(a.ctype==='geo'){
         return a.value.name;
     }
 
@@ -143,25 +147,25 @@ var niceprint=function(a){
 //this is the container for self-defined functions
 //Distinct form evaluator for code clearness :-)
 //*******************************************************
-var myfunctions= function(name,args,modifs){
+function myfunctions(name,args,modifs){
     var tt=myfunctions[name];
     if(tt===undefined){
         return nada;
     }
     
-    var set=[];
+    var set=[], i;
     
-    for(var i=0;i<tt.arglist.length;i++){
+    for(i=0;i<tt.arglist.length;i++){
         set[i]=evaluate(args[i]);
     }
-    for(var i=0;i<tt.arglist.length;i++){
+    for(i=0;i<tt.arglist.length;i++){
         namespace.newvar(tt.arglist[i].name);
         namespace.setvar(tt.arglist[i].name,set[i]);
     }
     namespace.pushVstack("*");
     var erg= evaluate(tt.body);
     namespace.cleanVstack();
-    for(var i=0;i<tt.arglist.length;i++){
+    for(i=0;i<tt.arglist.length;i++){
         namespace.removevar(tt.arglist[i].name);
     }
     return erg;
@@ -174,41 +178,41 @@ var myfunctions= function(name,args,modifs){
 var evaluator={};
 evaluator._helper={};
 
-evaluator._helper.eval= function(name,args,modifs){
+evaluator._helper.evaluate= function(name,args,modifs){
     var tt=evaluator[name];
     if(tt===undefined){
         return myfunctions(name+args.length,args,modifs); //Ich habe  überdefinieren von fkts rausgenommen
         //Das muss man sich auch insbesomndere mit Arity nochmal anschauen
     }
     return tt(args,modifs);
-}
+};
 
 
 
 evaluator._helper.clone=function(a){//Das ist jetzt gerade mal ätzend un-OO
-   if(a.ctype=='list'){return List.clone(a);}
-   if(a.ctype=='number'){return CSNumber.clone(a);}
+   if(a.ctype==='list'){return List.clone(a);}
+   if(a.ctype==='number'){return CSNumber.clone(a);}
    return a;//Werden die anderen sachen gecloned, in Cindy ist das nicht so???
 
-}
+};
 
 evaluator._helper.equals=function(v0,v1){//Und nochmals un-OO
-    if(v0.ctype=='number' && v1.ctype=='number' ){
+    if(v0.ctype==='number' && v1.ctype==='number' ){
         return {'ctype':'boolean' ,
-            'value':(v0.value.real==v1.value.real)&&
-            (v0.value.imag==v1.value.imag)  }
+            'value':(v0.value.real===v1.value.real)&&
+            (v0.value.imag===v1.value.imag)  };
     }
-    if(v0.ctype=='string' && v1.ctype=='string' ){
+    if(v0.ctype==='string' && v1.ctype==='string' ){
         return {'ctype':'boolean' ,
-            'value':(v0.value==v1.value)  }
+            'value':(v0.value===v1.value)  };
     }
-    if(v0.ctype=='boolean' && v1.ctype=='boolean' ){
+    if(v0.ctype==='boolean' && v1.ctype==='boolean' ){
         return {'ctype':'boolean' ,
-            'value':(v0.value==v1.value)  }
+            'value':(v0.value===v1.value)  };
     }
-    if(v0.ctype=='list' && v1.ctype=='list' ){
+    if(v0.ctype==='list' && v1.ctype==='list' ){
         var erg=List.equals(v0,v1);
         return erg;
     }
     return {'ctype':'boolean' ,'value':false  };
-}
+};

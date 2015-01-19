@@ -37,7 +37,7 @@
     function pointDefault(el){
         
         el.size=CSNumber.real(el.size || defaultAppearance.pointSize);
-        if(el.type!="Free"){
+        if(el.type!=="Free"){
             el.color=List.realVector(el.color || defaultAppearance.pointColor);
             el.color=List.scalmult(CSNumber.real(defaultAppearance.dimDependent),el.color);
         } else {
@@ -66,10 +66,10 @@
     csgeo.csnames={}; //Lookup für elemente mit über Namen
     
     
-    
+    var k, l, f;
     
     // Das ist für alle gleich
-    for( var k=0; k<csgeo.gslp.length; k++ ) {
+    for(k=0; k<csgeo.gslp.length; k++ ) {
         var g = csgeo.gslp[k];
         csgeo.csnames[g.name]=g;
         g.kind=geoOpMap[g.type];
@@ -77,7 +77,7 @@
         g.isshowing=true;
         g.movable=false;
         g.inited=false;
-    };
+    }
     
     csgeo.points=[];
     csgeo.lines=[];
@@ -89,45 +89,45 @@
     csgeo.ctc=0;
     var m=csport.drawingstate.matrix;
     
-    for( var k=0; k<csgeo.gslp.length; k++ ) {
-        if(csgeo.gslp[k].kind=="P"){
+    for(k=0; k<csgeo.gslp.length; k++ ) {
+        if(csgeo.gslp[k].kind==="P"){
             var p=csgeo.gslp[k];
             csgeo.points[csgeo.ctp]=p;
             pointDefault(p );
             csgeo.ctp+=1;
         }
-        if(csgeo.gslp[k].kind=="L"){
-            var l=csgeo.gslp[k];
+        if(csgeo.gslp[k].kind==="L"){
+            l=csgeo.gslp[k];
             csgeo.lines[csgeo.ctl]=l;
-            lineDefault(l)
+            lineDefault(l);
             csgeo.ctl+=1;
         }
-        if(csgeo.gslp[k].kind=="C"){
-            var l=csgeo.gslp[k];
+        if(csgeo.gslp[k].kind==="C"){
+            l=csgeo.gslp[k];
             csgeo.conics[csgeo.ctc]=l;
-            lineDefault(l)
+            lineDefault(l);
             csgeo.ctc+=1;
         }
-        if(csgeo.gslp[k].kind=="S"){
-            var l=csgeo.gslp[k];
+        if(csgeo.gslp[k].kind==="S"){
+            l=csgeo.gslp[k];
             csgeo.lines[csgeo.ctl]=l;
-            segmentDefault(l)
+            segmentDefault(l);
             csgeo.ctl+=1;
         }
         
         var ty=csgeo.gslp[k].type;
-        if(ty=="Free" 
-        || ty=="PointOnLine" 
-        || ty=="PointOnCircle" 
-        || ty=="PointOnSegment"){//TODO generisch nach geoops ziehen
-            var f=csgeo.gslp[k];
+        if(ty==="Free" 
+        || ty==="PointOnLine" 
+        || ty==="PointOnCircle" 
+        || ty==="PointOnSegment"){//TODO generisch nach geoops ziehen
+            f=csgeo.gslp[k];
             if(f.pos) {
-               if(f.pos.length==2){
+               if(f.pos.length===2){
                   f.sx=f.pos[0];
                   f.sy=f.pos[1];
                   f.sz=1;
                }
-               if(f.pos.length==3){
+               if(f.pos.length===3){
                   f.sx=f.pos[0];
                   f.sy=f.pos[1];
                   f.sz=f.pos[2];
@@ -135,32 +135,32 @@
             
             }
             f.homog=List.realVector([gslp[k].sx,gslp[k].sy,gslp[k].sz]);
-            f.isfinite=(f.sz!=0);
+            f.isfinite=(f.sz!==0);
             f.ismovable=true;
-            if(ty=="PointOnCircle"){
+            if(ty==="PointOnCircle"){
                 f.angle=CSNumber.real(f.angle);
                 
             }   
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
         } 
-        if(ty=="CircleMr" || ty=="CircleMFixedr"){
-            var f=csgeo.gslp[k];
+        if(ty==="CircleMr" || ty==="CircleMFixedr"){
+            f=csgeo.gslp[k];
             f.radius=CSNumber.real(f.radius);
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
         } 
-        if(ty=="Through"){
-            var f=csgeo.gslp[k];
+        if(ty==="Through"){
+            f=csgeo.gslp[k];
             f.dir=General.wrap(f.dir);
             csgeo.free[csgeo.ctf]=f;
             csgeo.ctf+=1;
         } 
 
        
-    };
+    }
     guessIncidences();
-};
+}
 
 function onSegment(p,s){//TODO was ist mit Fernpunkten
                         // TODO das ist eine sehr teure implementiereung
@@ -209,7 +209,7 @@ function isShowing(el,op){
             }
         }
     }
-/*    if (el.kind=="P" ||el.kind=="L"){
+/*    if (el.kind==="P" ||el.kind==="L"){
     
         if(!List.helper.isAlmostReal(el.homog)){
             el.isshowing=false;
@@ -229,12 +229,16 @@ function recalc(){
     var gslp=csgeo.gslp;
     for( var k=0; k<gslp.length; k++ ) {
         var el=gslp[k];
-        var op= geoOps[el.type];       
+        var op= geoOps[el.type];
+        if (!op) {
+            console.error(el);
+            console.error("Operation " + el.type + " not implemented yet");
+        }
         op(el);
         isShowing(el,op);
                      
     }
-};
+}
 
 
 function guessIncidences(){
@@ -263,7 +267,7 @@ function guessIncidences(){
 
 function render(){
 
-    var drawgeopoint= function(el){
+    function drawgeopoint(el){
         if(!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
         var col=    el.color;
@@ -272,11 +276,30 @@ function render(){
            // col=List.realVector([0,0,1]);
         }    
         evaluator.draw([el.homog],{size:el.size,color:col,alpha:el.alpha});
-        
+        if(el.labeled) {
+            var lbl = el.printname || el.name || "P";
+            var lpos = el.labelpos || {'x':3, 'y':3};
+            var textsize = el.textsize || 12;
+            var bold = (el.textbold === true);
+            var italics = (el.textitalics === true);
+            var family = el.text_fontfamily || "Sans Serif";
+            var dist = lpos.x*lpos.x + lpos.y*lpos.y;
+            var factor = 1.0;
+            if (dist > 0) {
+                factor = 1.0 + el.size.value.real / Math.sqrt(dist);
+            }
+            evaluator.drawtext([el.homog, General.wrap(lbl)],
+                               {'x_offset':General.wrap(factor*lpos.x),
+                                'y_offset':General.wrap(factor*lpos.y),
+                                'size':General.wrap(textsize),
+                                'bold':General.wrap(bold),
+                                'italics':General.wrap(italics),
+                                'family':General.wrap(family)});
+        }
     }
 
 
-    var drawgeoconic= function(el){
+    function drawgeoconic(el){
         if(!el.isshowing || el.visible === false)
             return;
 
@@ -303,9 +326,9 @@ function render(){
 
     /*
         var cc=el.matrix;
-        var cxr = cc.value[2].value[0].value.real 
+        var cxr = cc.value[2].value[0].value.real;
         var axr = cc.value[0].value[0].value.real;
-        var cyr = cc.value[2].value[1].value.real 
+        var cyr = cc.value[2].value[1].value.real;
         var byr = cc.value[1].value[1].value.real;
         var czr = cc.value[2].value[2].value.real;
         var x = -cxr / axr;
@@ -333,22 +356,23 @@ function render(){
         */
         
 
-};
+}
     
-    var drawgeoline= function(el){
+    function drawgeoline(el){
+        var pt1, pt2;
         if(!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
 
-        if(el.clip.value=="none"){
+        if(el.clip.value==="none"){
             evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
         }
-        if(el.clip.value=="end"){
-            var pt1=csgeo.csnames[el.args[0]];
-            var pt2=csgeo.csnames[el.args[1]];
+        else if(el.clip.value==="end"){
+            pt1=csgeo.csnames[el.args[0]];
+            pt2=csgeo.csnames[el.args[1]];
             evaluator.draw([pt1.homog,pt2.homog],
                            {size:el.size,color:el.color,alpha:el.alpha});
         }
-        if(el.clip.value=="inci"){
+        else if(el.clip.value==="inci"){
             var li=[];
             var xmin=[+1000000,0];
             var xmax=[-1000000,0];
@@ -379,7 +403,6 @@ function render(){
                     }
                 }
             }
-            var pt1, pt2;
             if((xmax[0]-xmin[0])>(ymax[0]-ymin[0])) {
                 pt1=xmin[1];
                 pt2=xmax[1];
@@ -388,7 +411,7 @@ function render(){
                 pt2=ymax[1];
            
             }
-            if(pt1!=pt2){
+            if(pt1!==pt2){
                 evaluator.draw([pt1,pt2],
                 {size:el.size,color:el.color,alpha:el.alpha,overhang:el.overhang});
             } else {
@@ -397,25 +420,30 @@ function render(){
             
             }
         }
-        
+        else {
+            console.error(["Bad clip: ", el.clip]);
+        }
 
     }
-    for( var i=0; i<csgeo.conics.length; i++ ) {
+
+    var i;
+
+    for(i=0; i<csgeo.conics.length; i++ ) {
         drawgeoconic(csgeo.conics[i]);
     }
     
     
-    for( var i=0; i<csgeo.lines.length; i++ ) {
+    for(i=0; i<csgeo.lines.length; i++ ) {
         drawgeoline(csgeo.lines[i]);
     }
     
     
-    for( var i=0; i<csgeo.points.length; i++ ) {
+    for(i=0; i<csgeo.points.length; i++ ) {
         drawgeopoint(csgeo.points[i]);
     }
 
      
-};
+}
 
 
 

@@ -6,7 +6,7 @@ List._helper={};
 
 List.turnIntoCSList=function(l){
     return {'ctype':'list','value':l};
-}
+};
 
 
 List.realVector=function(l){
@@ -15,7 +15,7 @@ List.realVector=function(l){
         erg[i]={"ctype":"number" ,"value":{'real':l[i],'imag':0}};
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 List.realMatrix=function(l){
     var erg=[];
@@ -23,7 +23,7 @@ List.realMatrix=function(l){
         erg[i]=List.realVector(l[i]);
     }
     return List.turnIntoCSList(erg);
-}
+};
 
 List.ex=List.realVector([1,0,0]);
 List.ey=List.realVector([0,1,0]);
@@ -55,7 +55,7 @@ List.sequence=function(a,b){
         ct++;
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 List.pairs=function(a){
     var erg=[];
@@ -65,7 +65,7 @@ List.pairs=function(a){
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 List.triples=function(a){
     var erg=[];
@@ -77,7 +77,7 @@ List.triples=function(a){
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 List.triples=function(a){
     var erg=[];
@@ -89,7 +89,7 @@ List.triples=function(a){
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 List.cycle=function(a){
@@ -100,7 +100,7 @@ List.cycle=function(a){
     erg.push({'ctype':'list','value':[a.value[a.value.length-1],a.value[0]]});
     
     return {'ctype':'list','value':erg};
-}
+};
 
 List.consecutive=function(a){
     var erg=[];
@@ -109,7 +109,7 @@ List.consecutive=function(a){
     }
     
     return {'ctype':'list','value':erg};
-}
+};
 
 List.reverse=function(a){
     var erg=[];
@@ -118,7 +118,7 @@ List.reverse=function(a){
     }
     
     return {'ctype':'list','value':erg};
-}
+};
 
 
 
@@ -130,7 +130,7 @@ List.directproduct=function(a,b){
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 List.concat=function(a,b){
@@ -142,7 +142,7 @@ List.concat=function(a,b){
         erg.push(b.value[j]);
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 List.prepend=function(b,a){
@@ -153,7 +153,7 @@ List.prepend=function(b,a){
         erg[i+1]=a.value[i];
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 List.append=function(a,b){
     var erg=[];
@@ -162,7 +162,7 @@ List.append=function(a,b){
     }
     erg.push(b);
     return {'ctype':'list','value':erg};
-}
+};
 
 
 List.contains=function(a,b){
@@ -173,10 +173,10 @@ List.contains=function(a,b){
         if((evaluator._helper.equals(cc,b)).value){
             return {'ctype':'boolean','value':true};
             
-        };
+        }
     }
     return {'ctype':'boolean','value':false};
-}
+};
 
 
 List.common=function(a,b){
@@ -190,11 +190,11 @@ List.common=function(a,b){
         }
         if(bb){
             erg[ct]=a.value[i];
-            ct++
+            ct++;
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 List.remove=function(a,b){
     var erg=[];
@@ -211,24 +211,24 @@ List.remove=function(a,b){
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 List._helper.compare=function(a,b){
-    if(a.ctype=='number' && b.ctype=='number'){
-        return a.value.real-b.value.real
+    if(a.ctype==='number' && b.ctype==='number'){
+        return a.value.real-b.value.real;
     }
     return -1;
     
-}
+};
 
 List.sort1=function(a){
     var erg=a.value.sort(General.compare);
     return List.turnIntoCSList(erg);
-}
+};
 
 List._helper.isEqual=function(a1,a2){
     return List.equals(a1,a2).value;
-}
+};
 
 List._helper.isLessThan=function(a,b){
     
@@ -240,22 +240,22 @@ List._helper.isLessThan=function(a,b){
                  || i >= s2 
                  || !General.isEqual(a.value[i], b.value[i])
                  )) {i++;}
-    if (i == s1 && i < s2) {return true};
-    if (i == s2 && i < s1) {return false};
-    if (i == s1 && i == s2) {return false};
+    if (i === s1 && i < s2) return true;
+    if (i === s2 && i < s1) return false;
+    if (i === s1 && i === s2) return false;
     return General.isLessThan(a.value[i], b.value[i]);
     
-}
+};
 
 
 List._helper.compare=function(a,b) {
-    if(List._helper.isLessThan(a,b)){return -1}
-    if(List._helper.isEqual(a,b)){return 0}
+    if(List._helper.isLessThan(a,b)) return -1;
+    if(List._helper.isEqual(a,b)) return 0;
     return 1;
-}
+};
 
 List.equals=function(a1,a2){
-    if(a1.value.length != a2.value.length){
+    if(a1.value.length !== a2.value.length){
         return {'ctype':'boolean','value':false};
     }
     var erg=true;
@@ -263,7 +263,7 @@ List.equals=function(a1,a2){
         var av1=a1.value[i];
         var av2=a2.value[i];
         
-        if(av1.ctype=='list' && av2.ctype=='list' ){
+        if(av1.ctype==='list' && av2.ctype==='list' ){
             erg=erg && List.equals(av1,av2).value;
         } else {
             erg=erg && evaluator.comp_equals([av1,av2],[]).value;
@@ -271,11 +271,11 @@ List.equals=function(a1,a2){
         }
     }
     return {'ctype':'boolean','value':erg};
-}
+};
 
 List.almostequals=function(a1,a2){
     
-    if(a1.value.length != a2.value.length){
+    if(a1.value.length !== a2.value.length){
         return {'ctype':'boolean','value':false};
     }
     var erg=true;
@@ -283,7 +283,7 @@ List.almostequals=function(a1,a2){
         var av1=a1.value[i];
         var av2=a2.value[i];
         
-        if(av1.ctype=='list' && av2.ctype=='list' ){
+        if(av1.ctype==='list' && av2.ctype==='list' ){
             erg=erg && List.comp_almostequals(av1,av2).value;
         } else {
             erg=erg && evaluator.comp_almostequals([av1,av2],[]).value;
@@ -291,35 +291,35 @@ List.almostequals=function(a1,a2){
         }
     }
     return {'ctype':'boolean','value':erg};
-}
+};
 
 List._helper.isAlmostReal=function(a1){
     var erg=true;
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
         
-        if(av1.ctype=='list' ){
+        if(av1.ctype==='list' ){
             erg=erg && List._helper.isAlmostReal(av1);
         } else {
             erg=erg && CSNumber._helper.isAlmostReal(av1);
         }
     }
     return erg;
-}
+};
 
 List._helper.isNaN=function(a1){
     var erg=false;
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
         
-        if(av1.ctype=='list' ){
+        if(av1.ctype==='list' ){
             erg=erg || List._helper.isNaN(av1);
         } else {
             erg=erg || CSNumber._helper.isNaN(av1);
         }
     }
     return erg;
-}
+};
 
 
 
@@ -330,7 +330,7 @@ List.set=function(a1){
     var erg1=a1.value.sort(General.compare);
     
     for(var i=0;i<erg1.length;i++){
-        if(i==0||!(evaluator.comp_equals([erg[erg.length-1],erg1[i]],[])).value){
+        if(i===0||!(evaluator.comp_equals([erg[erg.length-1],erg1[i]],[])).value){
             erg[ct]=erg1[i];
             ct++;
             
@@ -340,7 +340,7 @@ List.set=function(a1){
     
     return {'ctype':'list','value':erg};
     
-}
+};
 
 
 
@@ -348,15 +348,15 @@ List.set=function(a1){
 
 List.genericListMath=function(a,op){
     
-    if(a.value.length==0){
-        return nada
-    };
+    if(a.value.length===0){
+        return nada;
+    }
     var erg=a.value[0];
     for(var i=1;i<a.value.length;i++){
         erg=General[op](erg,a.value[i]); 
     }
     return erg;
-}
+};
 
 
 
@@ -369,28 +369,28 @@ List.maxval=function(a){//Only for Lists or Lists of Lists that contain numbers
     var erg=CSNumber.real(0);
     for(var i=0;i<a.value.length;i++){
         var v=a.value[i];
-        if(v.ctype=="number"){
+        if(v.ctype==="number"){
             erg=CSNumber.argmax(erg,v);
         }
-        if(v.ctype=="list"){
+        if(v.ctype==="list"){
             erg=CSNumber.argmax(erg,List.maxval(v));
         }
     }
     return CSNumber.clone(erg);
-}
+};
 
 List.normalizeMax=function(a) {
     var s=CSNumber.inv(List.maxval(a));
     return List.scalmult(s,a);
-}
+};
 List.normalizeZ=function(a) {
     var s=CSNumber.inv(a.value[2]);
     return List.scalmult(s,a);
-}
+};
 
 List.max=function(a1,a2){
     
-    if(a1.value.length != a2.value.length){
+    if(a1.value.length !== a2.value.length){
         return nada;
     }
     var erg=[];
@@ -400,7 +400,7 @@ List.max=function(a1,a2){
         erg[i]=General.max(av1,av2);
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 
@@ -408,7 +408,7 @@ List.max=function(a1,a2){
 
 List.min=function(a1,a2){
     
-    if(a1.value.length != a2.value.length){
+    if(a1.value.length !== a2.value.length){
         return nada;
     }
     var erg=[];
@@ -418,7 +418,7 @@ List.min=function(a1,a2){
         erg[i]=General.min(av1,av2);
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 
@@ -426,83 +426,83 @@ List.min=function(a1,a2){
 
 
 List.scaldiv=function(a1,a2){
-    if(a1.ctype != 'number'){
+    if(a1.ctype !== 'number'){
         return nada;
     }
     var erg=[];
     for(var i=0;i<a2.value.length;i++){
         var av2=a2.value[i];
-        if(av2.ctype=='number' ){
+        if(av2.ctype==='number' ){
             erg[i]=General.div(av2,a1);
-        } else if(av2.ctype=='list'  ){
+        } else if(av2.ctype==='list'  ){
             erg[i]=List.scaldiv(a1,av2);
         } else {
             erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 List.scalmult=function(a1,a2){
-    if(a1.ctype != 'number'){
+    if(a1.ctype !== 'number'){
         return nada;
     }
     var erg=[];
     for(var i=0;i<a2.value.length;i++){
         var av2=a2.value[i];
-        if(av2.ctype=='number' ){
+        if(av2.ctype==='number' ){
             erg[i]=General.mult(av2,a1);
-        } else if(av2.ctype=='list'  ){
+        } else if(av2.ctype==='list'  ){
             erg[i]=List.scalmult(a1,av2);
         } else {
             erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 List.add=function(a1,a2){
     
-    if(a1.value.length != a2.value.length){
+    if(a1.value.length !== a2.value.length){
         return nada;
     }
     var erg=[];
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
         var av2=a2.value[i];
-        if(av1.ctype=='number' && av2.ctype=='number' ){
+        if(av1.ctype==='number' && av2.ctype==='number' ){
             erg[i]=General.add(av1,av2);
-        } else if(av1.ctype=='list' && av2.ctype=='list' ){
+        } else if(av1.ctype==='list' && av2.ctype==='list' ){
             erg[i]=List.add(av1,av2);
         } else {
             erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 List.sub=function(a1,a2){
     
-    if(a1.value.length != a2.value.length){
+    if(a1.value.length !== a2.value.length){
         return nada;
     }
     var erg=[];
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
         var av2=a2.value[i];
-        if(av1.ctype=='number' && av2.ctype=='number' ){
+        if(av1.ctype==='number' && av2.ctype==='number' ){
             erg[i]=CSNumber.sub(av1,av2);
-        } else if(av1.ctype=='list' && av2.ctype=='list' ){
+        } else if(av1.ctype==='list' && av2.ctype==='list' ){
             erg[i]=List.sub(av1,av2);
         } else {
             erg[i]=nada;
         }
     }
     return {'ctype':'list','value':erg};
-}
+};
 
 
 
@@ -511,9 +511,9 @@ List.abs2=function(a1){
     var erg=0;
     for(var i=0;i<a1.value.length;i++){
         var av1=a1.value[i];
-        if(av1.ctype=='number' ){
+        if(av1.ctype==='number' ){
             erg+=CSNumber.abs2(av1).value.real;
-        } else if(av1.ctype=='list' ){
+        } else if(av1.ctype==='list' ){
             erg+=List.abs2(av1).value.real;
         } else {
             return nada;
@@ -522,11 +522,11 @@ List.abs2=function(a1){
     
     return {"ctype":"number" ,
         "value":{'real':erg, 'imag':0}};
-}
+};
 
 List.abs=function(a1){
-    return CSNumber.sqrt(List.abs2(a1))
-}
+    return CSNumber.sqrt(List.abs2(a1));
+};
 
 
 List.normalizeMaxXX=function(a){//Assumes that list is a number Vector
@@ -541,7 +541,7 @@ List.normalizeMaxXX=function(a){//Assumes that list is a number Vector
     }
     return List.scaldiv(nn,a);
     
-}
+};
 
 
 
@@ -549,9 +549,9 @@ List.recursive=function(a1,op){
     var erg=[];
     for(var i=0;i<a1.value.length;i++){
         var av1=evaluateAndVal(a1.value[i]);//Will man hier evaluieren
-        if(av1.ctype=='number'){
+        if(av1.ctype==='number'){
             erg[i]=CSNumber[op](av1);
-        } else if(av1.ctype=='list'){
+        } else if(av1.ctype==='list'){
             erg[i]=List[op](av1);
         } else {
             erg[i]=nada;
@@ -559,109 +559,108 @@ List.recursive=function(a1,op){
     }
     return {'ctype':'list','value':erg};
     
-}
+};
 
 List.re=function(a){
     return List.recursive(a,"re");
-}
+};
 
 
 List.neg=function(a){
     return List.recursive(a,"neg");
-}
+};
 
 List.im=function(a){
     return List.recursive(a,"im");
-}
+};
 
 List.conjugate=function(a){
     return List.recursive(a,"conjugate");
-}
+};
 
 
 List.round=function(a){
     return List.recursive(a,"round");
-}
+};
 
 
 List.ceil=function(a){
     return List.recursive(a,"ceil");
-}
+};
 
 
 List.floor=function(a){
     return List.recursive(a,"floor");
-}
+};
 
 
 
 List._helper.colNumb=function(a){
-    if(a.ctype!='list') {
+    if(a.ctype!=='list') {
         return -1;
     }
     var ind=-1;
     for(var i=0;i<a.value.length;i++){
-        if((a.value[i]).ctype!='list') {
+        if((a.value[i]).ctype!=='list') {
             return -1;
         }
-        if(i==0){
+        if(i===0){
             ind=(a.value[i]).value.length;
         } else {
-            if(ind!=(a.value[i]).value.length)
-                return -1
+            if(ind!==(a.value[i]).value.length)
+                return -1;
         }
     }
-        return ind;
-        
-}
+    return ind;
+};
 
 List._helper.isNumberVecN=function(a,n){
     
-    if(a.ctype!='list') {
+    if(a.ctype!=='list') {
         return false;
     }
-    if(a.value.length!=n) {
+    if(a.value.length!==n) {
         return false;
     }
     
     for(var i=0;i<a.value.length;i++){
-        if((a.value[i]).ctype!='number') {
+        if((a.value[i]).ctype!=='number') {
             return false;
         }
     }
     return true;
     
-}
+};
 
 
 
 List.isNumberVector=function(a){
-    if(a.ctype!='list') {
+    if(a.ctype!=='list') {
         return {'ctype':'boolean','value':false};
     }
     for(var i=0;i<a.value.length;i++){
-        if((a.value[i]).ctype!='number') {
+        if((a.value[i]).ctype!=='number') {
             return {'ctype':'boolean','value':false};
         }
     }
     return {'ctype':'boolean','value':true};
     
-}
+};
 
 
 List.isNumberVectorN=function(a,n){
-    if(a.ctype!='list') {
+    if(a.ctype!=='list') {
         return {'ctype':'boolean','value':false};
     }
     if(a.value)
         for(var i=0;i<a.value.length;i++){
-            if((a.value[i]).ctype!='number') {
+            if((a.value[i]).ctype!=='number') {
                 return {'ctype':'boolean','value':false};
             }
         }
             return {'ctype':'boolean','value':true};
     
-}
+};
 
 
 
@@ -669,7 +668,7 @@ List.isNumberVectorN=function(a,n){
 
 
 List.isNumberMatrix=function(a){
-    if(List._helper.colNumb(a)==-1){
+    if(List._helper.colNumb(a)===-1){
         return {'ctype':'boolean','value':false};
     }
     
@@ -680,19 +679,19 @@ List.isNumberMatrix=function(a){
     }
     return {'ctype':'boolean','value':true};
     
-}
+};
 
 
 
 List.scalproduct=function(a1,a2){
-    if(a1.value.length != a2.value.length){
+    if(a1.value.length !== a2.value.length){
         return nada;
     }
     var erg={'ctype':'number','value':{'real':0,'imag':0}};
     for(var i=0;i<a2.value.length;i++){
         var av1=a1.value[i];
         var av2=a2.value[i];
-        if(av1.ctype=='number' && av2.ctype=='number'){
+        if(av1.ctype==='number' && av2.ctype==='number'){
             erg=CSNumber.add(CSNumber.mult(av1,av2),erg);
         } else {
             return nada;
@@ -700,10 +699,10 @@ List.scalproduct=function(a1,a2){
     }
     
     return erg;
-}
+};
 
 List.productMV=function(a,b){
-    if(a.value[0].value.length != b.value.length){
+    if(a.value[0].value.length !== b.value.length){
         return nada;
     }
     var li=[];
@@ -714,7 +713,7 @@ List.productMV=function(a,b){
             var av1=a1.value[i];
             var av2=b.value[i];
             
-            if(av1.ctype=='number' && av2.ctype=='number'){
+            if(av1.ctype==='number' && av2.ctype==='number'){
                 erg=CSNumber.add(CSNumber.mult(av1,av2),erg);
             } else {
                 return nada;
@@ -724,11 +723,11 @@ List.productMV=function(a,b){
     }    
     return List.turnIntoCSList(li);
     
-}
+};
 
 
 List.productVM=function(a,b){
-    if(a.value.length != b.value.length){
+    if(a.value.length !== b.value.length){
         return nada;
     }
     var li=[];
@@ -738,7 +737,7 @@ List.productVM=function(a,b){
             var av1=a.value[i];
             var av2=b.value[i].value[j];
             
-            if(av1.ctype=='number' && av2.ctype=='number'){
+            if(av1.ctype==='number' && av2.ctype==='number'){
                 erg=CSNumber.add(CSNumber.mult(av1,av2),erg);
             } else {
                 return nada;
@@ -748,10 +747,10 @@ List.productVM=function(a,b){
     }    
     return List.turnIntoCSList(li);
     
-}
+};
 
 List.productMM=function(a,b){
-    if(a.value[0].value.length != b.value.length){
+    if(a.value[0].value.length !== b.value.length){
         return nada;
     }
     var li=[];
@@ -761,7 +760,7 @@ List.productMM=function(a,b){
         li[j]=erg;
     }    
     return List.turnIntoCSList(li);
-}
+};
 
 
 
@@ -769,32 +768,32 @@ List.productMM=function(a,b){
 
 List.mult=function(a,b){
     
-    if(a.value.length==b.value.length && List.isNumberVector(a).value && List.isNumberVector(b).value){
+    if(a.value.length===b.value.length && List.isNumberVector(a).value && List.isNumberVector(b).value){
         return List.scalproduct(a,b);
     } 
     
-    if(List.isNumberMatrix(a).value && b.value.length==a.value[0].value.length && List.isNumberVector(b).value){
+    if(List.isNumberMatrix(a).value && b.value.length===a.value[0].value.length && List.isNumberVector(b).value){
         return List.productMV(a,b);
     } 
     
-    if(List.isNumberMatrix(b).value && a.value.length==b.value.length && List.isNumberVector(a).value){
+    if(List.isNumberMatrix(b).value && a.value.length===b.value.length && List.isNumberVector(a).value){
         return List.productVM(a,b);
     } 
     
-    if(List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length==a.value[0].value.length){
+    if(List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length===a.value[0].value.length){
         return List.productMM(a,b);
     } 
     
     return nada;
     
     
-}
+};
 
 List.projectiveDistMinScal=function(a,b){
     var sa=List.abs(a);
     var sb=List.abs(b);
     
-    if(sa.value.real==0||sb.value.real==0)
+    if(sa.value.real===0||sb.value.real===0)
         return 0;
     var cb=List.conjugate(b);
     var p=List.scalproduct(a,cb);
@@ -808,7 +807,7 @@ List.projectiveDistMinScal=function(a,b){
     var d2=List.abs(List.sub(na,nb));
     return Math.min(d1.value.real,d2.value.real);
     
-}
+};
 
 List.crossOperator=function(a){
     
@@ -822,14 +821,14 @@ List.crossOperator=function(a){
         ]
                                );
     
-}
+};
 
 List.cross=function(a,b){//Assumes that a is 3-Vector
     var x=CSNumber.sub(CSNumber.mult(a.value[1],b.value[2]),CSNumber.mult(a.value[2],b.value[1]));
     var y=CSNumber.sub(CSNumber.mult(a.value[2],b.value[0]),CSNumber.mult(a.value[0],b.value[2]));
     var z=CSNumber.sub(CSNumber.mult(a.value[0],b.value[1]),CSNumber.mult(a.value[1],b.value[0]));
     return List.turnIntoCSList([x,y,z]);
-}
+};
 
 List.veronese=function(a){//Assumes that a is 3-Vector
     var xx=CSNumber.mult(a.value[0],a.value[0]);
@@ -839,7 +838,7 @@ List.veronese=function(a){//Assumes that a is 3-Vector
     var xz=CSNumber.mult(a.value[0],a.value[2]);
     var yz=CSNumber.mult(a.value[1],a.value[2]);
     return List.turnIntoSCList([xx,yy,zz,xy,xz,yz]);
-}
+};
 
 List.matrixFromVeronese=function(a){//Assumes that a is 6-Vector
                                     //Wie Wichtig ist hier das Clonen???
@@ -856,9 +855,9 @@ List.matrixFromVeronese=function(a){//Assumes that a is 6-Vector
         List.turnIntoCSList([xx,xy,xz]),
         List.turnIntoCSList([yx,yy,yz]),
         List.turnIntoCSList([zx,zy,zz])
-        ])
+        ]);
         
-}
+};
 
 
 
@@ -917,7 +916,7 @@ List.det3=function(p,q,r){//Assumes that a,b,c are 3-Vectors
     
     
     return CSNumber.complex(re,im);
-}
+};
 
 List.eucangle=function(a,b){
        var tmp1=List.cross(a, List.linfty);
@@ -930,7 +929,7 @@ List.eucangle=function(a,b){
        var ang=CSNumber.log(dv);
        ang=CSNumber.mult(ang,CSNumber.complex(0,0.5)); 
        return ang;
-}
+};
 
 
 List.clone=function(a){
@@ -938,8 +937,8 @@ List.clone=function(a){
     for(var i=0;i<a.value.length;i++){
         erg[i]=evaluator._helper.clone(a.value[i]);
     }
-    return {"ctype":"list" ,  "value":erg,"usage":a.usage}
-}
+    return {"ctype":"list" ,  "value":erg,"usage":a.usage};
+};
 
 
 List.zerovector=function(a){
@@ -948,7 +947,7 @@ List.zerovector=function(a){
         erg[i]=0;
     }
     return List.realVector(erg);
-}
+};
 
 
 List.zeromatrix=function(a,b){
@@ -957,7 +956,7 @@ List.zeromatrix=function(a,b){
         erg[i]=List.zerovector(b);
     }
     return List.turnIntoCSList(erg);
-}
+};
 
 
 List.transpose=function(a){
@@ -969,10 +968,10 @@ List.transpose=function(a){
         for(var j=0;j<m;j++){
             li[j]=a.value[j].value[i];
         }
-        erg[i]=List.turnIntoCSList(li)
+        erg[i]=List.turnIntoCSList(li);
     }
     return List.turnIntoCSList(erg);
-}
+};
 
 
 List.column=function(a,b){
@@ -984,7 +983,7 @@ List.column=function(a,b){
     }
     
     return List.turnIntoCSList(erg);
-}
+};
 
 
 List.row=function(a,b){
@@ -996,7 +995,7 @@ List.row=function(a,b){
     }
     
     return List.turnIntoCSList(erg);
-}
+};
 
 List.adjoint3=function(a){
     var row, elt,
@@ -1041,16 +1040,17 @@ List.adjoint3=function(a){
                                        'imag':r11*i22 - r12*i21 - r21*i12 + r22*i11}}
         ]}
     ]};
-}
+};
 
 List.inverse=function(a){//Das ist nur Reell und greift auf numeric zurück
+    var i, j;
     var x=[];
     var y=[];
     var n=a.value.length;
-    for(var i=0;i<n;i++){
+    for(i=0;i<n;i++){
         var lix=[]; 
         var liy=[]; 
-        for(var j=0;j<n;j++){
+        for(j=0;j<n;j++){
             lix[j]=a.value[i].value[j].value.real;
             liy[j]=a.value[i].value[j].value.imag;
         }
@@ -1060,15 +1060,15 @@ List.inverse=function(a){//Das ist nur Reell und greift auf numeric zurück
     var z=new numeric.T(x,y);
     var res=z.inv(z);
     var erg=[];
-    for(var i=0;i<n;i++){
+    for(i=0;i<n;i++){
         var li=[]; 
-        for(var j=0;j<n;j++){
+        for(j=0;j<n;j++){
             li[j]=CSNumber.complex(res.x[i][j],res.y[i][j]);
         }
         erg[i]=List.turnIntoCSList(li);
     }
     return List.turnIntoCSList(erg);
-}
+};
 
 
 List.linearsolve=function(a,bb){//Das ist nur Reell und greift auf numeric zurück
@@ -1091,7 +1091,7 @@ List.linearsolve=function(a,bb){//Das ist nur Reell und greift auf numeric zurü
     var res=numeric.solve(x,b);
         
     return List.realVector(res);
-}
+};
 
 
 
@@ -1114,15 +1114,16 @@ List.det=function(a){//Das ist nur Reell und greift auf numeric zurück
         
     return CSNumber.real(res);
     
-}
+};
 
 
 ///Feldzugriff
 ///TODO Will man das in list haben??
 
 List.getField=function(li,key){
-    
-    if(key=="homog"){
+    var n;
+
+    if(key==="homog"){
         if(List._helper.isNumberVecN(li,3)){
             return li;
         }
@@ -1134,7 +1135,7 @@ List.getField=function(li,key){
         return nada;
     }
     
-    if(key=="xy"){
+    if(key==="xy"){
         if(List._helper.isNumberVecN(li,2)){
             return li;
         }
@@ -1147,14 +1148,14 @@ List.getField=function(li,key){
         
     }
     
-    if(key=="x"){
+    if(key==="x"){
         if(List.isNumberVector(li)){
-            var n=li.value.length;
-            if(n>0 && n!=3){
+            n=li.value.length;
+            if(n>0 && n!==3){
                 return CSNumber.clone(li.value[0]);
             }
-            if(n==3){
-                if(li.usage=="Point"){
+            if(n===3){
+                if(li.usage==="Point"){
                     return CSNumber.div(li.value[0],li.value[2]);
                 } else {
                     return CSNumber.clone(li.value[0]);
@@ -1166,14 +1167,14 @@ List.getField=function(li,key){
         
     }
     
-    if(key=="y"){
+    if(key==="y"){
         if(List.isNumberVector(li)){
-            var n=li.value.length;
-            if(n>1 && n!=3){
+            n=li.value.length;
+            if(n>1 && n!==3){
                 return CSNumber.clone(li.value[1]);
             }
-            if(n==3){
-                if(li.usage=="Point"){
+            if(n===3){
+                if(li.usage==="Point"){
                     return CSNumber.div(li.value[1],li.value[2]);
                 } else {
                     return CSNumber.clone(li.value[1]);
@@ -1184,9 +1185,9 @@ List.getField=function(li,key){
         return nada;
     }
     
-    if(key=="z"){
+    if(key==="z"){
         if(List.isNumberVector(li)){
-            var n=li.value.length;
+            n=li.value.length;
             if(n>2){
                 return CSNumber.clone(li.value[2]);
             }
@@ -1201,6 +1202,6 @@ List.getField=function(li,key){
     
     
     
-}
+};
 
 

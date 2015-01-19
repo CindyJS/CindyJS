@@ -22,7 +22,7 @@ var behaviors;
 var masses=[];
 var csPhysicsInited=false;
 function csinitphys(behavs){
-    csPhysicsInited=(behavs.length!=0);
+    csPhysicsInited=(behavs.length!==0);
     console.log(csPhysicsInited);
 
     behaviors=behavs;
@@ -35,7 +35,7 @@ function csinitphys(behavs){
             if(csgeo.csnames[geoname]){
                 csgeo.csnames[geoname].behavior=beh.behavior;
                 labObjects[beh.behavior.type].init(beh.behavior,csgeo.csnames[geoname]);
-                if(beh.behavior.type=="Mass"){
+                if(beh.behavior.type==="Mass"){
                     masses.push(csgeo.csnames[geoname]);    
                 }
                 
@@ -47,7 +47,7 @@ function csinitphys(behavs){
     }
                       
                       
-                      )
+                      );
         
 }
 
@@ -59,7 +59,7 @@ lab.tick=function(){
     for(var i=0;i<labObjects.env.accuracy;i++) {
         lab.tick1(labObjects.env.deltat/labObjects.env.accuracy);
     }
-}
+};
 
 lab.tick1=function(deltat) {
 
@@ -84,11 +84,11 @@ lab.tick1=function(deltat) {
         lab.moveToFinalPos();
     }
     return true;
-}
+};
 
 lab.restorePosition=function() {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].restorePos(beh,rk.size+2);
     } );
     //for (Behavior beh : all) {
@@ -96,19 +96,19 @@ lab.restorePosition=function() {
     //        beh.restorePos(rk.getSize() + 2);
     //    }
     //}
-}
+};
 
 lab.doCollisions=function() {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].doCollisions(beh);
     } );
 
-}
+};
 
 lab.calculateForces=function() {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].calculateForces(beh);
     } );
     //dispatcher.callScriptsForOccasion(Assignments.OCCASION_STEP);
@@ -117,10 +117,10 @@ lab.calculateForces=function() {
     //        anAll.calculateForces();
     //    }
     //}
-}
+};
 lab.moveToFinalPos=function() {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].move(beh);
     } );
     //for (Behavior beh : all) {
@@ -128,7 +128,7 @@ lab.moveToFinalPos=function() {
     //        beh.move();
     //    }
     //}
-}
+};
 
 
 
@@ -139,7 +139,7 @@ lab.oneRKStep=function(mydeltat) {
     var initRKTimeStep=function(deltat) {
         
         behaviors.forEach( function(b) {
-            beh=b.behavior;
+            var beh=b.behavior;
             labObjects[beh.type].initRK(beh,deltat);
             labObjects[beh.type].storePosition(beh);
         } );
@@ -149,11 +149,11 @@ lab.oneRKStep=function(mydeltat) {
         //        anAll.storePosition();
         //    }
         //}
-    }
+    };
 
 var setToTimestep=function(j) {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].setToTimestep(beh,rk.dt[j]);
     } );
     //   for (Behavior anAll : all) {
@@ -161,11 +161,11 @@ var setToTimestep=function(j) {
     //       anAll.setToTimestep(rk.getDt(j));
     //   }
     //}
-}
+};
 
 var proceedMotion=function(j) {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].proceedMotion(beh,rk.dt[j],j,rk.a[j]);
     } );
     //for (Behavior anAll : all) {
@@ -174,11 +174,11 @@ var proceedMotion=function(j) {
     //    }
     //}
     
-}
+};
 
 var resetForces=function() {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].resetForces(beh);
     } );
     //for (Behavior anAll : all) {
@@ -186,11 +186,11 @@ var resetForces=function() {
     //        anAll.resetForces();
     //    }
     //}
-}
+};
 
 var calculateDelta=function(j) {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].calculateDelta(beh,j);
     } );
     //for (Behavior anAll : all) {
@@ -198,13 +198,13 @@ var calculateDelta=function(j) {
     //        anAll.calculateDelta(j);
     //    }
     //}
-}
+};
 
 
 var calculateError=function(j) {
     var error = 0;
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         var j=rk.size;
         labObjects[beh.type].proceedMotion(beh,rk.dt[j-1],j,rk.b1);
         labObjects[beh.type].savePos(beh,j+1);
@@ -229,11 +229,11 @@ var calculateError=function(j) {
     //}
     //error = Math.sqrt(error) / mydeltat;
     //return error;
-}
+};
 
 var recallInitialPosition=function(j) {
     behaviors.forEach( function(b) {
-        beh=b.behavior;
+        var beh=b.behavior;
         labObjects[beh.type].recallPosition(beh);
     } );
     
@@ -242,7 +242,7 @@ var recallInitialPosition=function(j) {
     //        beh.recallPosition();
     //    }
     //}
-}
+};
 
 
 var rksize = rk.size;
@@ -272,6 +272,6 @@ while (!madeIt) {
 
 
 return mydeltat;
-}
+};
 
 

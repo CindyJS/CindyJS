@@ -1,4 +1,6 @@
 /build/
+/download/
+/node_modules/
 .project
 .settings
 *.swp

@@ -3,74 +3,74 @@
 // this function is responsible for evaluation an expression tree
 //****************************************************************
 
-var evaluate=function(a){
+function evaluate(a){
 
     if(typeof a==='undefined'){
         return nada;
     }
 
-    if(a.ctype=='infix'){
+    if(a.ctype==='infix'){
         var ioper=infixmap[a.oper];
-        return evaluator._helper.eval(ioper,a.args,[]);
+        return evaluator._helper.evaluate(ioper,a.args,[]);
     }
-    if(a.ctype=='variable'){
+    if(a.ctype==='variable'){
         return namespace.getvar(a.name);
       //  return a.value[0];
     }
-    if(a.ctype=='void'){
+    if(a.ctype==='void'){
         return a;
     }
-    if(a.ctype=='geo'){
+    if(a.ctype==='geo'){
         return a;
     }
-    if(a.ctype=='number'){
+    if(a.ctype==='number'){
         return a;
     }
-    if(a.ctype=='boolean'){
+    if(a.ctype==='boolean'){
         return a;
     }
-    if(a.ctype=='string'){
+    if(a.ctype==='string'){
         return a;
     }
-    if(a.ctype=='list'){
+    if(a.ctype==='list'){
         return a;
     }
-    if(a.ctype=='undefined'){
+    if(a.ctype==='undefined'){
         return a;
     }
-    if(a.ctype=='shape'){
+    if(a.ctype==='shape'){
         return a;
     }
     
-    if(a.ctype=='field'){ 
+    if(a.ctype==='field'){ 
         
         var obj=evaluate(a.obj);
 
-        if(obj.ctype=="geo"){
+        if(obj.ctype==="geo"){
             return Accessor.getField(obj.value,a.key);
         }
-        if(obj.ctype=="list"){
+        if(obj.ctype==="list"){
             return List.getField(obj,a.key);
         }
         return nada;
     }
 
-    if(a.ctype=='function'){
+    if(a.ctype==='function'){
         var eargs=[];
-        return evaluator._helper.eval(a.oper,a.args,a.modifs);
+        return evaluator._helper.evaluate(a.oper,a.args,a.modifs);
     }
     return nada;
     
 }
 
 
-var evaluateAndVal=function(a){
+function evaluateAndVal(a){
 
 
     var x=evaluate(a);
-    if(x.ctype=='geo'){
+    if(x.ctype==='geo'){
         var val=x.value;
-        if(val.kind=="P"){
+        if(val.kind==="P"){
             return Accessor.getField(val,"xy");
         }
 
@@ -78,14 +78,14 @@ var evaluateAndVal=function(a){
     return x;//TODO Implement this
 }
 
-var evaluateAndHomog=function(a){
+function evaluateAndHomog(a){
     var x=evaluate(a);
-    if(x.ctype=='geo'){
+    if(x.ctype==='geo'){
         var val=x.value;
-        if(val.kind=="P"){
+        if(val.kind==="P"){
             return Accessor.getField(val,"homog");
         }
-        if(val.kind=="L"){
+        if(val.kind==="L"){
             return Accessor.getField(val,"homog");
         }
         
@@ -109,20 +109,20 @@ var evaluateAndHomog=function(a){
 // this function removes all comments spaces and newlines
 //*******************************************************
 
-var condense = function(code) {
+function condense(code) {
 	var literalmode = false;
 	var commentmode = false;
 	var erg = '';
 	for (var i = 0; i < code.length; i++) {
-		var closetoend = (i == code.length - 1);
+		var closetoend = (i === code.length - 1);
 		var c = code[i];
-		if (c == '\"' && !commentmode)
+		if (c === '\"' && !commentmode)
 			literalmode = !literalmode;
 
-		if (c == '/' && (i != code.length - 1))
-			if (code[i + 1] == '/')
+		if (c === '/' && (i !== code.length - 1))
+			if (code[i + 1] === '/')
 				commentmode = true;
-		if (c == '\n')
+		if (c === '\n')
 			commentmode = false;
 		if (!(c === '\u0020' || c === '\u0009' || c === '\u000A' || c === '\u000C' || c === '\u000D' || commentmode) || literalmode)
 			erg = erg + c;
@@ -134,48 +134,48 @@ var condense = function(code) {
 // this function shows an expression tree on the console
 //*******************************************************
 
-var report=function(a,i){
-    var prep= new Array(i + 1).join('.');
-    if(a.ctype=='infix'){
+function report(a,i){
+    var prep= new Array(i + 1).join('.'), els, j;
+    if(a.ctype==='infix'){
         console.log(prep+"INFIX: "+a.oper);
         console.log(prep+"ARG 1 ");
         report(a.args[0],i+1);
         console.log(prep+"ARG 2 ");
         report(a.args[1],i+1);
     }
-    if(a.ctype=='number'){
+    if(a.ctype==='number'){
         console.log(prep+"NUMBER: "+CSNumber.niceprint(a));
     }
-    if(a.ctype=='variable'){
+    if(a.ctype==='variable'){
         console.log(prep+"VARIABLE: "+a.name);
     }
-    if(a.ctype=='undefined'){
+    if(a.ctype==='undefined'){
         console.log(prep+"UNDEF");
     }
-    if(a.ctype=='void'){
+    if(a.ctype==='void'){
         console.log(prep+"VOID");
     }
-    if(a.ctype=='string'){
+    if(a.ctype==='string'){
         console.log(prep+"STRING: "+a.value);
     }
-    if(a.ctype=='shape'){
+    if(a.ctype==='shape'){
         console.log(prep+"SHAPE: "+a.type);
     }
-    if(a.ctype=='modifier'){
+    if(a.ctype==='modifier'){
         console.log(prep+"MODIF: "+a.key);
     }
-    if(a.ctype=='list'){
+    if(a.ctype==='list'){
         console.log(prep+"LIST ");
-        var els=a.value;
-        for(var j=0;j<els.length;j++) {
+        els=a.value;
+        for(j=0;j<els.length;j++) {
             console.log(prep+"EL"+ j);
             report(els[j],i+1);
         }
     }
-    if(a.ctype=='function'){
+    if(a.ctype==='function'){
         console.log(prep+"FUNCTION: "+a.oper);
-        var els=a.args;
-        for(var j=0;j<els.length;j++) {
+        els=a.args;
+        for(j=0;j<els.length;j++) {
             console.log(prep+"ARG"+ j);
             report(els[j],i+1);
         }
@@ -185,14 +185,14 @@ var report=function(a,i){
             report(els[name],i+1);
         }
     }
-    if(a.ctype=='error'){
+    if(a.ctype==='error'){
         console.log(prep+"ERROR: "+a.message);
     }
     
 }
 
 
-var generateInfix=function(oper, f1, f2){
+function generateInfix(oper, f1, f2){
     var erg={};
     erg.ctype='infix';
     erg.oper=oper;
@@ -201,18 +201,18 @@ var generateInfix=function(oper, f1, f2){
 }
 
 
-var modifierOp = function(code, bestbinding, oper){
+function modifierOp(code, bestbinding, oper){
     var s = code.substring(0, bestbinding);
     var f1 = analyse(code.substring(bestbinding + oper.length),false);
-    if(f1.ctype=='error') return f1;
+    if(f1.ctype==='error') return f1;
     return {'ctype':'modifier','key':s,'value':f1};
 }
 
 
 
-var definitionDot = function(code, bestbinding, oper){
+function definitionDot(code, bestbinding, oper){
     if(isNumber(code)) {
-        var erg={}
+        var erg={};
         erg.value={'real':parseFloat(code),'imag':0};
         erg.ctype='number';
         return erg;
@@ -223,18 +223,19 @@ var definitionDot = function(code, bestbinding, oper){
 }
 
 
-var validDefinabaleFunction = function(f){//TODO Eventuell echte fehlermelungen zurückgeben
-    if(f.ctype!='function'){
+function validDefinabaleFunction(f){//TODO Eventuell echte fehlermelungen zurückgeben
+    var i, j;
+    if(f.ctype!=='function'){
         return false;               //Invalid Function Name
     }
-    for(var i=0; i<f.args.length;i++){
-        if(f.args[i].ctype!='variable'){
+    for(i=0; i<f.args.length;i++){
+        if(f.args[i].ctype!=='variable'){
             return false;               //Arg not a variable
         }
     }
-    for(var i=0; i<f.args.length-1;i++){
-        for(var j=i+1; j<f.args.length;j++){
-            if(f.args[i].name==f.args[j].name){
+    for(i=0; i<f.args.length-1;i++){
+        for(j=i+1; j<f.args.length;j++){
+            if(f.args[i].name===f.args[j].name){
                 return false;       //Varname used twice
             }
             
@@ -245,16 +246,16 @@ var validDefinabaleFunction = function(f){//TODO Eventuell echte fehlermelungen 
     return true;
 }
 
-var definitionOp = function(code, bestbinding, oper){
+function definitionOp(code, bestbinding, oper){
     
     var s1 = code.substring(0, bestbinding);
     var f1 = analyse(s1,true);
-    if(f1.ctype=='error') return f1;
-    if(f1.cstring=='variable' || validDefinabaleFunction(f1)){
+    if(f1.ctype==='error') return f1;
+    if(f1.cstring==='variable' || validDefinabaleFunction(f1)){
         
         var s2 = code.substring(bestbinding + oper.length);
         var f2 = analyse(s2,false);
-        if(f2.ctype=='error') return f2;
+        if(f2.ctype==='error') return f2;
         
         return generateInfix(oper, f1, f2);
         
@@ -265,27 +266,27 @@ var definitionOp = function(code, bestbinding, oper){
 
 
 
-var infixOp=function(code, bestbinding, oper){
+function infixOp(code, bestbinding, oper){
     var f1 = analyse(code.substring(0, bestbinding), false);
     var f2 = analyse(code.substring(bestbinding + oper.length), false);
-    if(f1.ctype=='error') return f1;
-    if(f2.ctype=='error') return f2;
+    if(f1.ctype==='error') return f1;
+    if(f2.ctype==='error') return f2;
     
     return generateInfix(oper, f1, f2);
     
 }
 
-var isPureNumber= function(code) {
-    return code!="" && !isNaN(code);
+function isPureNumber(code) {
+    return code!=="" && !isNaN(code);
 }
 
 
-var isNumber=function(code) {
+function isNumber(code) {
     
     var a = code.indexOf('.');
     var b = code.lastIndexOf('.');
-    if (a != b) return false;
-    if (a == -1) {
+    if (a !== b) return false;
+    if (a === -1) {
         return isPureNumber(code);
     } else {
         return isPureNumber(code.substring(0, a)) || isPureNumber(code.substring(a + 1));
@@ -294,12 +295,12 @@ var isNumber=function(code) {
 
 
 
-var somethingelse= function(code){
+function somethingelse(code){
     
-    if(code=='') {
+    if(code==='') {
         return new Void();
     }
-    if (code.charAt(0) == '"' && code.charAt(code.length - 1) == '"') {
+    if (code.charAt(0) === '"' && code.charAt(code.length - 1) === '"') {
         return {'ctype':'string','value':code.substring(1, code.length - 1)};
     }
     
@@ -318,7 +319,7 @@ var somethingelse= function(code){
     /*                        if (isVariable(expr)) {
      if (cat.isDebugEnabled()) cat.debug("Variable: " + expr);
      Assignments ass = getAssignments();
-     if (ass != null) {
+     if (ass !== null) {
      FormulaValue elem = dispatcher.namespace.getVariable(expr);
      if (!elem.isNull()) {
      fout = (Formula) elem;
@@ -329,7 +330,7 @@ var somethingelse= function(code){
      Variable f = new Variable(this);
      f.setCode(expr);
      Assignments ass = getAssignments();
-     if (ass != null) dispatcher.namespace.putVariable(expr, f);
+     if (ass !== null) dispatcher.namespace.putVariable(expr, f);
      fout = f;
      }*/
     //                      if (!fout.isNull()) return fout;
@@ -337,18 +338,18 @@ var somethingelse= function(code){
 }
 
 
-var isOpener= function(c){
-    return c=='[' || c=='(' || c=='{' || c=='|';
+function isOpener(c){
+    return c==='[' || c==='(' || c==='{' || c==='|';
 }
-var isCloser= function(c){
-    return c==']' || c==')' || c=='}' || c=='|';
+function isCloser(c){
+    return c===']' || c===')' || c==='}' || c==='|';
 }
-var isBracketPair= function(c){
-    return c=='[]' || c=='()' || c=='{}' || c=='||';
+function isBracketPair(c){
+    return c==='[]' || c==='()' || c==='{}' || c==='||';
 }
 
 
-var funct=function(code, firstbraind, defining){
+function funct(code, firstbraind, defining){
 
     var args = [];
     var argsi = [];
@@ -362,23 +363,24 @@ var funct=function(code, firstbraind, defining){
     var start = firstbraind + 1;
     var literalmode = false;
     var absolute = false;
-    for (var i = start; i < length; i++) {
+    var i;
+    for (i = start; i < length; i++) {
         var c = code[i];
-        if (c == '"') literalmode = !literalmode;
+        if (c === '"') literalmode = !literalmode;
         if (!literalmode) {
-            if (isOpener(c)  && (c != '|' || !absolute)) {
+            if (isOpener(c)  && (c !== '|' || !absolute)) {
                 bracount++;
-                if (c == '|') absolute = true;
-            } else if (isCloser(c) && (c != '|' || absolute)) {
+                if (c === '|') absolute = true;
+            } else if (isCloser(c) && (c !== '|' || absolute)) {
                 bracount--;
-                if (c == '|') absolute = false;
+                if (c === '|') absolute = false;
             }
-            if (c == ',' && bracount == 0 || bracount == -1) {
+            if (c === ',' && bracount === 0 || bracount === -1) {
                 var arg = code.substring(start, i);
                 args.push(arg);
                 argsi.push(start);
 
-                if (args.length == 1 && bracount == -1 && !args[0].length) {//Um f() abzufangen
+                if (args.length === 1 && bracount === -1 && !args[0].length) {//Um f() abzufangen
                    args=[];
                    argsi=[];
                  }
@@ -387,12 +389,12 @@ var funct=function(code, firstbraind, defining){
         }
     }
 
-    for (var i = 0; i < args.length; i++) {
+    for (i = 0; i < args.length; i++) {
         var s = args[i];
         
         var f = analyse(s, false);
-        if(f.ctype=='error') return f;
-        if(f.ctype=='modifier'){
+        if(f.ctype==='error') return f;
+        if(f.ctype==='modifier'){
             modifs[f.key]=f.value;
             //                           modifs[modifs.length]=f;
         } else {
@@ -415,7 +417,7 @@ var funct=function(code, firstbraind, defining){
 
 
 
-var parseList=function(code) {
+function parseList(code) {
     var code1 = code;
     
     var args=[];        //das sind die argument exprs
@@ -427,19 +429,20 @@ var parseList=function(code) {
     var start = 0;
     var absolute = false;
     var literalmode = false;
-    for (var i = start; i < length; i++) {
+    var i;
+    for (i = start; i < length; i++) {
         var c;
         c = code1[i];
-        if (c == '"') literalmode = !literalmode;
+        if (c === '"') literalmode = !literalmode;
         if (!literalmode) {
-            if (isOpener(c) && (c != '|' || !absolute)) {
+            if (isOpener(c) && (c !== '|' || !absolute)) {
                 bracount++;
-                if (c == '|') absolute = true;
-            } else if (isCloser(c) && (c != '|' || absolute)) {
+                if (c === '|') absolute = true;
+            } else if (isCloser(c) && (c !== '|' || absolute)) {
                 bracount--;
-                if (c == '|') absolute = false;
+                if (c === '|') absolute = false;
             }
-            if (c == ',' && bracount == 0 || bracount == -1) {
+            if (c === ',' && bracount === 0 || bracount === -1) {
                 
                 var arg = code1.substring(start, i);
                 args.push(arg);
@@ -449,13 +452,13 @@ var parseList=function(code) {
             }
         }
     }
-    for (var i = 0; i < args.length; i++) {
+    for (i = 0; i < args.length; i++) {
         var s = args[i];
-        if (""==s) {
+        if (""===s) {
             argsf.push('nil');
         } else {
             var f = analyse(s, false);
-            if(f.ctype=='error') return f;
+            if(f.ctype==='error') return f;
             
             argsf.push(f);
         }
@@ -473,9 +476,9 @@ var parseList=function(code) {
 
 
 
-var bracket=function(code){
+function bracket(code){
     //TODO: ABS
-    /*      if (code.charAt(0) == '|') {
+    /*      if (code.charAt(0) === '|') {
      Formula f1 = parseList(expr.substring(1, expr.length() - 1), csc);
      OpAbsArea f = new OpAbsArea(csc);
      ArrayList<Formula> args = new ArrayList<Formula>();
@@ -483,16 +486,18 @@ var bracket=function(code){
      f.setArguments(args);
      return f;
      }*/
-     
-     if (code[0]=="|"){
+
+     var erg;
+
+     if (code[0]==="|"){
         var f1= parseList(code.substring(1, code.length - 1));
         var type=f1.args.length;
-        if(type==1){
+        if(type===1){
           f1.oper="abs";
           return f1;
                 
         }
-        if(type==2){
+        if(type===2){
           f1.oper="dist";
           return f1;
                 
@@ -501,25 +506,25 @@ var bracket=function(code){
      
      }
     
-    if (code=="()" || code=="[]") {
-        var erg={};
+    if (code==="()" || code==="[]") {
+        erg={};
         erg.ctype='list';
         erg.value=[];
         return erg;
     }
     
-    if (code[0] == '[') {
+    if (code[0] === '[') {
         return parseList(code.substring(1, code.length - 1));
     }
-    if (code[0] == '(') {
-        var erg=parseList(code.substring(1, code.length - 1));
+    if (code[0] === '(') {
+        erg=parseList(code.substring(1, code.length - 1));
         if(erg.args.length>1){
             return erg;
         }
         
     }
     
-    var erg = analyse(code.substring(1, code.length - 1), false);
+    erg = analyse(code.substring(1, code.length - 1), false);
     
     
     return erg;
@@ -527,7 +532,7 @@ var bracket=function(code){
 }
 
 
-var analyse=function(code,defining){
+function analyse(code,defining){
     var literalmode=false;
     var erg={};
     var bra='';
@@ -555,50 +560,50 @@ var analyse=function(code,defining){
         if (i + 1 < length) c1 = code[i + 1];//die werden fuer lange operatoren gebraucht
         if (i + 2 < length) c2 = code[i + 2];
         
-        if (c == '\"') { //Anführungszeichen schalten alles aus
+        if (c === '\"') { //Anführungszeichen schalten alles aus
             literalmode = !literalmode;
         }
         if (!literalmode) {
-            if (isOpener(c) && (c != '|' || !absolute)) { //Klammer geht auf
-                if (c == '|') absolute = true;
+            if (isOpener(c) && (c !== '|' || !absolute)) { //Klammer geht auf
+                if (c === '|') absolute = true;
                 bra = bra + c;
                 bracount++;
-                if (bracount == 1) {
+                if (bracount === 1) {
                     braexprcount++;
-                    if (braexprcount == 1) open1 = i;
-                    if (braexprcount == 2) open2 = i;
+                    if (braexprcount === 1) open1 = i;
+                    if (braexprcount === 2) open2 = i;
                 }
-                if (firstbra == ' ') firstbra = c;
-            } else if (isCloser(c) && (c != '|' || absolute)) { //Schließende Klammer
-                if (c == '|') absolute = false;
-                if (bracount == 0) {
+                if (firstbra === ' ') firstbra = c;
+            } else if (isCloser(c) && (c !== '|' || absolute)) { //Schließende Klammer
+                if (c === '|') absolute = false;
+                if (bracount === 0) {
                     return new CError('close without open');
                 }
                 var pair = bra[bra.length - 1] + c;
                 if (isBracketPair(pair)) { //Passt die schliesende Klammer?
                     bracount--;
                     bra = bra.substring(0, bra.length - 1);
-                    if (braexprcount == 1) close1 = i;
-                    if (braexprcount == 2) close2 = i;
+                    if (braexprcount === 1) close1 = i;
+                    if (braexprcount === 2) close2 = i;
                     lastbra = c;
                 } else {
                     return new CError('unmatched brackets');
                 }
             }
-            if (bra.length == 0) {//Wir sind auf oberster Stufe
+            if (bra.length === 0) {//Wir sind auf oberster Stufe
                 var prior = -1;
                 var oper = "";
-                if ((typeof operators[c + c1 + c2] !='undefined') && offset == 0) {
+                if ((typeof operators[c + c1 + c2] !=='undefined') && offset === 0) {
                     oper = c + c1 + c2;
                     offset = 3;
-                } else if ((typeof operators[c + c1 ] !='undefined') && offset == 0) {
+                } else if ((typeof operators[c + c1 ] !=='undefined') && offset === 0) {
                     oper = "" + c + c1;
                     offset = 2;
-                } else if ((typeof operators[c] !='undefined') && offset == 0) {
+                } else if ((typeof operators[c] !=='undefined') && offset === 0) {
                     oper = "" + c;
                     offset = 1;
                 }
-                if (oper!='') {
+                if (oper!=='') {
                     prior = operators[oper];
                 }
                 
@@ -615,7 +620,7 @@ var analyse=function(code,defining){
     
     
     
-    if (bracount != 0) {
+    if (bracount !== 0) {
         return new CError('open without close');
         
     }
@@ -625,7 +630,7 @@ var analyse=function(code,defining){
     var firstbraind = code.indexOf(firstbra);
     var lastbraind = code.lastIndexOf(lastbra);
     
-    if (bracount == 0 && yourthetop > -1) { //infix Operator gefunden
+    if (bracount === 0 && yourthetop > -1) { //infix Operator gefunden
         //   if (bestoper.equals("->")) //Specialbehandlung von modyfiern
         //   return modifierOp(expr, bestbinding, bestoper);
         //   else if (bestoper.equals(":=")) //Specialbehandlung von definitionen
@@ -633,17 +638,17 @@ var analyse=function(code,defining){
         //   else if (bestoper.equals(".")) //Specialbehandlung von Feldzugriff
         //   return definitionDot(expr, bestbinding, bestoper);
         //   else return infixOp(expr, bestbinding, bestoper);
-        if (bestoper=='->') //Specialbehandlung von modifyern
+        if (bestoper==='->') //Specialbehandlung von modifyern
             return modifierOp(code, bestbinding, bestoper);
-        if (bestoper=='.') //Specialbehandlung von Feldzugriff
+        if (bestoper==='.') //Specialbehandlung von Feldzugriff
             return definitionDot(code, bestbinding, bestoper);
-        if (bestoper==':=') //Specialbehandlung von definitionen
+        if (bestoper===':=') //Specialbehandlung von definitionen
             return definitionOp(code, bestbinding, bestoper);
-        return infixOp(code, bestbinding, bestoper)
-    } else if (bracount == 0 && braexprcount == 1 && lastbraind == code.length - 1) {//Klammer oder Funktion
+        return infixOp(code, bestbinding, bestoper);
+    } else if (bracount === 0 && braexprcount === 1 && lastbraind === code.length - 1) {//Klammer oder Funktion
         
-        if (firstbraind == 0) {//Einfach eine Klammer (evtl Vector))
-            return bracket(code, this);
+        if (firstbraind === 0) {//Einfach eine Klammer (evtl Vector))
+            return bracket(code);
         } else {
             return funct(code, firstbraind, defining);
         }
