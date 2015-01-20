@@ -377,11 +377,21 @@ geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
 
 geoOps.ConicBy5 =function(el){
-    var a=csgeo.csnames[(el.args[0])].homog;
-    var b=csgeo.csnames[(el.args[1])].homog;
-    var c=csgeo.csnames[(el.args[2])].homog;
-    var d=csgeo.csnames[(el.args[3])].homog;
-    var p=csgeo.csnames[(el.args[4])].homog;
+    var a,b,c,d,p;
+    if(el.areHomog == 'undefined'){
+    a=csgeo.csnames[(el.args[0])].homog;
+    b=csgeo.csnames[(el.args[1])].homog;
+    c=csgeo.csnames[(el.args[2])].homog;
+    d=csgeo.csnames[(el.args[3])].homog;
+    p=csgeo.csnames[(el.args[4])].homog;
+    }
+    else{
+    a=el.matrix[0];
+    b=el.matrix[1];
+    c=el.matrix[2];
+    d=el.matrix[3];
+    p=el.matrix[4];
+    }
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
@@ -389,14 +399,15 @@ geoOps.ConicBy5 =function(el){
 };
 geoOpMap.ConicBy5="C";
 
-// for internal calls
-//geoOps.ConicBy5direct = function(el,a,b,c,d,p){
-//    var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
-//    el.matrix=erg;
-//    el.matrix=List.normalizeMax(el.matrix);
-//    el.matrix.usage="Conic";
-//};
-//geoOpMap.ConicBy5direct="C";
+geoOps.SelectConic =function(el){
+    var set=csgeo.csnames[(el.args[0])];
+    if(!el.inited){
+        el.inited=true;
+    }
+    el.matrix=set.results[el.index-1];
+    geoOps.ConicBy5(el);
+};
+geoOpMap.SelectConic="C";
 
 // conic by 4 Points and 1 line
 geoOps.ConicBy4p1l =function(el){
@@ -429,7 +440,10 @@ geoOps.ConicBy4p1l =function(el){
     var x = List.add(k1, k2);
     var y = List.sub(k1, k2);
 
-    el.results = List.turnIntoCSList([x,y]);
+    var erg1 = [a,b,c,d,x];
+    var erg2 = [a,b,c,d,y];
+
+    el.results= [erg1,erg2];
 
 };
 geoOpMap.ConicBy4p1l="T";
@@ -638,6 +652,8 @@ geoOps.SelectP =function(el){
     el.homog=set.results.value[el.index-1];
 };
 geoOpMap.SelectP="P";
+
+
 
 // Define a projective transformation given four points and their images
 geoOps.TrProjection = function(el){
