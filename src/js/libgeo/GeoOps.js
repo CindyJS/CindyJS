@@ -383,7 +383,6 @@ geoOps.ConicBy5 =function(el){
     var d=csgeo.csnames[(el.args[3])].homog;
     var p=csgeo.csnames[(el.args[4])].homog;
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
-    el.points = [a, b, c, d, p]; // add points for degenerate case
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
@@ -393,7 +392,6 @@ geoOpMap.ConicBy5="C";
 // for internal calls
 geoOps.ConicBy5direct = function(el,a,b,c,d,p){
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
-    el.points = [a, b, c, d, p]; // add points for degenerate case
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
@@ -415,7 +413,7 @@ geoOps.ConicBy4p1l =function(el){
     var b2 = List.cross(List.cross(c,d),l);
 
 
-    var o = List.realVector(csport.to(10,10)); // hack
+    var o = List.realVector(csport.to(100*Math.random(),100*Math.random())); // hack
 
 
     // for point x
@@ -429,12 +427,11 @@ geoOps.ConicBy4p1l =function(el){
     var k1 = List.scalmult(r1,a1);
     var k2 = List.scalmult(r2,a2);
     var x = List.add(k1, k2);
+    var y = List.sub(k1, k2);
 
-    //geoOps.ConicBy5direct(el,a,b,c,d,x); 
+    geoOps.ConicBy5direct(el,a,b,c,d,x); 
 
 
-    // for point y
-     var y = List.sub(k1, k2);
     geoOps.ConicBy5direct(el,a,b,c,d,y); 
 
 };
