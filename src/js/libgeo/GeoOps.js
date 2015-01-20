@@ -390,13 +390,13 @@ geoOps.ConicBy5 =function(el){
 geoOpMap.ConicBy5="C";
 
 // for internal calls
-geoOps.ConicBy5direct = function(el,a,b,c,d,p){
-    var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
-    el.matrix=erg;
-    el.matrix=List.normalizeMax(el.matrix);
-    el.matrix.usage="Conic";
-};
-geoOpMap.ConicBy5direct="C";
+//geoOps.ConicBy5direct = function(el,a,b,c,d,p){
+//    var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
+//    el.matrix=erg;
+//    el.matrix=List.normalizeMax(el.matrix);
+//    el.matrix.usage="Conic";
+//};
+//geoOpMap.ConicBy5direct="C";
 
 // conic by 4 Points and 1 line
 geoOps.ConicBy4p1l =function(el){
@@ -429,13 +429,10 @@ geoOps.ConicBy4p1l =function(el){
     var x = List.add(k1, k2);
     var y = List.sub(k1, k2);
 
-    geoOps.ConicBy5direct(el,a,b,c,d,x); 
-
-
-    geoOps.ConicBy5direct(el,a,b,c,d,y); 
+    el.results = List.turnIntoCSList([x,y]);
 
 };
-geoOpMap.ConicBy4p1l="C";
+geoOpMap.ConicBy4p1l="T";
 
 geoOps.CircleBy3 =function(el){
     var a=csgeo.csnames[(el.args[0])].homog;
