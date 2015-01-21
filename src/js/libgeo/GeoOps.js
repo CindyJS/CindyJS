@@ -378,7 +378,7 @@ geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
 geoOps.ConicBy5 =function(el){
     var a,b,c,d,p;
-    if(el.areHomog == 'undefined'){
+    if(!el.areHomog === 'undefined'){
     a=csgeo.csnames[(el.args[0])].homog;
     b=csgeo.csnames[(el.args[1])].homog;
     c=csgeo.csnames[(el.args[2])].homog;
@@ -410,24 +410,12 @@ geoOps.SelectConic =function(el){
 geoOpMap.SelectConic="C";
 
 // conic by 4 Points and 1 line
-geoOps.ConicBy4p1l =function(el){
-    var a=csgeo.csnames[(el.args[0])].homog;
-    var b=csgeo.csnames[(el.args[1])].homog;
-    var c=csgeo.csnames[(el.args[2])].homog;
-    var d=csgeo.csnames[(el.args[3])].homog;
-
-    var l=csgeo.csnames[(el.args[4])].homog;
-
+geoOps._helper.ConicBy4p1l =function(el,a,b,c,d,l){
     var a1 = List.cross(List.cross(a,c),l);
     var a2 = List.cross(List.cross(b,d),l);
     var b1 = List.cross(List.cross(a,b),l);
     var b2 = List.cross(List.cross(c,d),l);
-
-
     var o = List.realVector(csport.to(100*Math.random(),100*Math.random())); // hack
-
-
-    // for point x
     var r1 = (List.det3(o,a2,b1).value.real*List.det3(o,a2,b2).value.real);
     r1 = Math.sqrt(Math.abs(r1)); // is this right?
     r1 = CSNumber.real(r1);
@@ -437,13 +425,27 @@ geoOps.ConicBy4p1l =function(el){
 
     var k1 = List.scalmult(r1,a1);
     var k2 = List.scalmult(r2,a2);
+
     var x = List.add(k1, k2);
     var y = List.sub(k1, k2);
 
     var erg1 = [a,b,c,d,x];
     var erg2 = [a,b,c,d,y];
 
-    el.results= [erg1,erg2];
+    return [erg1,erg2];
+};
+
+geoOps.ConicBy4p1l =function(el){
+    var a=csgeo.csnames[(el.args[0])].homog;
+    var b=csgeo.csnames[(el.args[1])].homog;
+    var c=csgeo.csnames[(el.args[2])].homog;
+    var d=csgeo.csnames[(el.args[3])].homog;
+
+    var l=csgeo.csnames[(el.args[4])].homog;
+
+    var erg = geoOps._helper.ConicBy4p1l(el,a,b,c,d,l);
+
+    el.results= erg;
 
 };
 geoOpMap.ConicBy4p1l="T";
