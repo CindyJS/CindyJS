@@ -378,7 +378,7 @@ geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
 geoOps.ConicBy5 =function(el){
     var a,b,c,d,p;
-    if(!el.areHomog === 'undefined'){
+    if(!(el.areHomog === 'undefined')){
     a=csgeo.csnames[(el.args[0])].homog;
     b=csgeo.csnames[(el.args[1])].homog;
     c=csgeo.csnames[(el.args[2])].homog;
