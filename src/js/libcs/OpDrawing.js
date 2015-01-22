@@ -720,7 +720,7 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 };
 
 evaluator.drawconic = function(args, modifs){
-    var eps = 10e-9;
+    var eps = 10e-16;
     var mat = args.matrix;
     var adj_mat = List.adjoint3(mat);
 
@@ -743,7 +743,6 @@ evaluator.drawconic = function(args, modifs){
     
     var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
     var degen = Math.abs(det) < eps ? true : false;
-    
     
     var cswh_max = csw > csh ? csw : csh;
     
