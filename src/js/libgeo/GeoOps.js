@@ -449,6 +449,22 @@ geoOps.ConicBy4p1l =function(el){
 };
 geoOpMap.ConicBy4p1l="T";
 
+
+geoOps.ConicBy5lines =function(el){
+    var a=csgeo.csnames[(el.args[0])].homog;
+    var b=csgeo.csnames[(el.args[1])].homog;
+    var c=csgeo.csnames[(el.args[2])].homog;
+    var d=csgeo.csnames[(el.args[3])].homog;
+    var p=csgeo.csnames[(el.args[4])].homog;
+
+    var erg_temp=geoOps._helper.ConicBy5(el,a,b,c,d,p);
+    var erg = List.adjoint3(erg_temp);
+    el.matrix=erg;
+    el.matrix=List.normalizeMax(el.matrix);
+    el.matrix.usage="Conic";
+};
+geoOpMap.ConicBy5lines="C";
+
 geoOps.CircleBy3 =function(el){
     var a=csgeo.csnames[(el.args[0])].homog;
     var b=csgeo.csnames[(el.args[1])].homog;
