@@ -416,12 +416,11 @@ geoOps._helper.ConicBy4p1l =function(el,a,b,c,d,l){
     var b1 = List.cross(List.cross(a,b),l);
     var b2 = List.cross(List.cross(c,d),l);
     var o = List.realVector(csport.to(100*Math.random(),100*Math.random())); // hack
-    var r1 = (List.det3(o,a2,b1).value.real*List.det3(o,a2,b2).value.real);
-    r1 = Math.sqrt(Math.abs(r1)); // is this right?
-    r1 = CSNumber.real(r1);
-    var r2 = (List.det3(o,a1,b1).value.real*List.det3(o,a1,b2).value.real);
-    r2 = Math.sqrt(Math.abs(r2));
-    r2 = CSNumber.real(r2);
+
+    var r1 = CSNumber.mult(List.det3(o,a2,b1),List.det3(o,a2,b2));
+    r1 = CSNumber.sqrt(r1); 
+    var r2 = CSNumber.mult(List.det3(o,a1,b1),List.det3(o,a1,b2));
+    r2 = CSNumber.sqrt(r2); 
 
     var k1 = List.scalmult(r1,a1);
     var k2 = List.scalmult(r2,a2);

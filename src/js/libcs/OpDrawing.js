@@ -720,8 +720,15 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 };
 
 evaluator.drawconic = function(args, modifs){
+    var eps = 10e-9;
     var mat = args.matrix;
     var adj_mat = List.adjoint3(mat);
+
+    // check for complex values
+    for(var i = 0; i < 2; i++)
+    for(var j = 0; j < 2; j++){
+        if(Math.abs(mat.value[i].value[j].value.imag) > eps) return;
+    }
     
     var a = mat.value[0].value[0].value.real;
     var b = mat.value[1].value[0].value.real;
@@ -734,7 +741,6 @@ evaluator.drawconic = function(args, modifs){
     	     [b,c,e],
     	     [d,e,f]];
     
-    var eps = 10e-9;
     var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
     var degen = Math.abs(det) < eps ? true : false;
     
