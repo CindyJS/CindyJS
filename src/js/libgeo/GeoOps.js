@@ -393,6 +393,8 @@ geoOps.ConicBy5 =function(el){
     p=el.matrix[4];
     }
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
+    // dualize if necessary
+    if(el.areDual){erg=List.adjoint3(erg)};
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
@@ -406,6 +408,7 @@ geoOps.SelectConic =function(el){
     }
     el.matrix=set.results[el.index-1];
     if(set.areHomog){el.areHomog = true;}
+    if(set.areDual){el.areDual = true;}
     geoOps.ConicBy5(el);
 };
 geoOpMap.SelectConic="C";
@@ -450,6 +453,24 @@ geoOps.ConicBy4p1l =function(el){
 
 };
 geoOpMap.ConicBy4p1l="T";
+
+geoOps.ConicBy1p4l =function(el){
+    var l1=csgeo.csnames[(el.args[0])].homog;
+    var l2=csgeo.csnames[(el.args[1])].homog;
+    var l3=csgeo.csnames[(el.args[2])].homog;
+    var l4=csgeo.csnames[(el.args[3])].homog;
+
+    var p=csgeo.csnames[(el.args[4])].homog;
+
+    var erg = geoOps._helper.ConicBy4p1l(el,l1,l2,l3,l4,p);
+    // mark that we already have homog coordinated
+    el.areHomog = true;
+    // mark that we have a dual conic
+    el.areDual = true;
+    el.results= erg;
+
+};
+geoOpMap.ConicBy1p4l="T";
 
 
 geoOps.ConicBy5lines =function(el){
