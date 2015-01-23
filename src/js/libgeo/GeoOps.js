@@ -378,7 +378,7 @@ geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
 geoOps.ConicBy5 =function(el){
     var a,b,c,d,p;
-    if(!(el.areHomog === 'undefined')){
+    if(el.areHomog == undefined){
     a=csgeo.csnames[(el.args[0])].homog;
     b=csgeo.csnames[(el.args[1])].homog;
     c=csgeo.csnames[(el.args[2])].homog;
@@ -405,6 +405,7 @@ geoOps.SelectConic =function(el){
         el.inited=true;
     }
     el.matrix=set.results[el.index-1];
+    if(set.areHomog){el.areHomog = true;}
     geoOps.ConicBy5(el);
 };
 geoOpMap.SelectConic="C";
@@ -444,6 +445,7 @@ geoOps.ConicBy4p1l =function(el){
 
     var erg = geoOps._helper.ConicBy4p1l(el,a,b,c,d,l);
 
+    el.areHomog = true;
     el.results= erg;
 
 };
