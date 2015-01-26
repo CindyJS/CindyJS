@@ -401,6 +401,79 @@ geoOps.ConicBy5 =function(el){
 };
 geoOpMap.ConicBy5="C";
 
+geoOps._helper.splitDegenConic = function(mat, adj_mat){
+    // primal mat
+    var a = mat.value[0].value[0].value.real;
+    var b = mat.value[1].value[0].value.real;
+    var c = mat.value[1].value[1].value.real;
+    var d = mat.value[2].value[0].value.real;
+    var e = mat.value[2].value[1].value.real;
+    var f = mat.value[2].value[2].value.real;
+    
+    var myMat = [[a,b,d],
+    	         [b,c,e],
+    	         [d,e,f]];
+
+
+    // dual mat
+    var a00 = adj_mat.value[0].value[0].value.real;
+    var a01 = adj_mat.value[0].value[1].value.real;
+    var a02 = adj_mat.value[0].value[2].value.real;
+    
+    var a10 = adj_mat.value[1].value[0].value.real;
+    var a11 = adj_mat.value[1].value[1].value.real;
+    var a12 = adj_mat.value[1].value[2].value.real;
+    
+    var a20 = adj_mat.value[2].value[0].value.real;
+    var a21 = adj_mat.value[2].value[1].value.real;
+    var a22 = adj_mat.value[2].value[2].value.real;
+    
+    var myAdj = [[a00,a01,a02],
+    	     [a10,a11,a12],
+    	     [a20,a21,a22]];
+    
+    var idx = 0, k, l;
+    var max = Math.abs(myAdj[0][0]);
+    for(k = 1; k < 3; k++){
+    	if(Math.abs(myAdj[k][k]) > max){
+    		idx = k;
+    		max = Math.abs(myAdj[k][k]);
+    	}
+    }
+    
+    
+    var beta = Math.sqrt(Math.abs(myAdj[idx][idx])); // abs is a hack?
+    var p = numeric.transpose(myAdj)[idx];
+    p = numeric.div(p, beta);
+    
+    
+    var lam = p[0], mu = p[1], tau = p[2];
+    var M = [[0, tau, -mu],[-tau, 0, lam], [mu, -lam, 0]];
+    var C = numeric.add(myMat, M);
+    
+    // get nonzero index
+    var ii, jj;
+    max = 0;
+    for(k = 0; k < 3; k++)
+    for(l = 0; l < 3; l++){
+    	if(Math.abs(C[k][l]) > max){
+    		ii = k;
+    		jj = l;
+    		max = Math.abs(C[k][l]);
+    	}
+    }
+    
+    var g = C[ii];
+    var h = [C[0][jj], C[1][jj], C[2][jj]];
+
+    var lg = List.realVector(g);
+    lg.usage = "Line";
+    var lh = List.realVector(h);
+    lh.usage = "Line";
+
+    return [lg, lh];
+};
+
 geoOps.SelectConic =function(el){
     var set=csgeo.csnames[(el.args[0])];
     if(!el.inited){
@@ -419,7 +492,7 @@ geoOps._helper.ConicBy4p1l =function(el,a,b,c,d,l){
     var a2 = List.cross(List.cross(b,d),l);
     var b1 = List.cross(List.cross(a,b),l);
     var b2 = List.cross(List.cross(c,d),l);
-    var o = List.realVector(csport.to(100*Math.random(),100*Math.random())); // hack
+    var o = List.realVector(csport.to(100*Math.random(),100*Math.random())); 
 
     var r1 = CSNumber.mult(List.det3(o,a2,b1),List.det3(o,a2,b2));
     r1 = CSNumber.sqrt(r1); 

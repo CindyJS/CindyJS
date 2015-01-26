@@ -793,63 +793,12 @@ evaluator.drawconic = function(args, modifs){
     
     // split degenerate conic into 1 or 2 lines
     var split_degen = function(){
-    
-    var a00 = adj_mat.value[0].value[0].value.real;
-    var a01 = adj_mat.value[0].value[1].value.real;
-    var a02 = adj_mat.value[0].value[2].value.real;
-    
-    var a10 = adj_mat.value[1].value[0].value.real;
-    var a11 = adj_mat.value[1].value[1].value.real;
-    var a12 = adj_mat.value[1].value[2].value.real;
-    
-    var a20 = adj_mat.value[2].value[0].value.real;
-    var a21 = adj_mat.value[2].value[1].value.real;
-    var a22 = adj_mat.value[2].value[2].value.real;
-    
-    var myAdj = [[a00,a01,a02],
-    	     [a10,a11,a12],
-    	     [a20,a21,a22]];
-    
-    var idx = 0, k, l;
-    var max = Math.abs(myAdj[0][0]);
-    for(k = 1; k < 3; k++){
-    	if(Math.abs(myAdj[k][k]) > max){
-    		idx = k;
-    		max = Math.abs(myAdj[k][k]);
-    	}
-    }
-    
-    
-    var beta = Math.sqrt(Math.abs(myAdj[idx][idx])); // abs is a hack?
-    var p = numeric.transpose(myAdj)[idx];
-    p = numeric.div(p, beta);
-    
-    
-    var lam = p[0], mu = p[1], tau = p[2];
-    var M = [[0, tau, -mu],[-tau, 0, lam], [mu, -lam, 0]];
-    var C = numeric.add(myMat, M);
-    
-    // get nonzero index
-    var ii, jj;
-    max = 0;
-    for(k = 0; k < 3; k++)
-    for(l = 0; l < 3; l++){
-    	if(Math.abs(C[k][l]) > max){
-    		ii = k;
-    		jj = l;
-    		max = Math.abs(C[k][l]);
-    	}
-    }
-    
-    var g = C[ii];
-    var h = [C[0][jj], C[1][jj], C[2][jj]];
-    
-    modifs.size= CSNumber.real(2); // hack o hack TODO fix this
-    var lg = List.realVector(g);
-    lg.usage = "Line";
-    var lh = List.realVector(h);
-    lh.usage = "Line";
-    
+
+    modifs.size= CSNumber.real(2); // TODO fix this
+    var erg = geoOps._helper.splitDegenConic(mat, adj_mat);
+    var lg = erg[0];
+    var lh = erg[1];
+
     var arg = [lg];
     evaluator.draw(arg, modifs);
     arg[0] = lh;
