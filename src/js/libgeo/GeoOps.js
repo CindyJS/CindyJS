@@ -401,7 +401,7 @@ geoOps.ConicBy5 =function(el){
 };
 geoOpMap.ConicBy5="C";
 
-geoOps._helper.splitDegenConic = function(mat, adj_mat){
+geoOps._helper.splitDegenConic = function(mat){
     // primal mat
     var a = mat.value[0].value[0].value.real;
     var b = mat.value[1].value[0].value.real;
@@ -416,6 +416,7 @@ geoOps._helper.splitDegenConic = function(mat, adj_mat){
 
 
     // dual mat
+    var adj_mat = List.adjoint3(mat);
     var a00 = adj_mat.value[0].value[0].value.real;
     var a01 = adj_mat.value[0].value[1].value.real;
     var a02 = adj_mat.value[0].value[2].value.real;

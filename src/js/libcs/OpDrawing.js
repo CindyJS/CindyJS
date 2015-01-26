@@ -795,7 +795,7 @@ evaluator.drawconic = function(args, modifs){
     var split_degen = function(){
 
     modifs.size= CSNumber.real(2); // TODO fix this
-    var erg = geoOps._helper.splitDegenConic(mat, adj_mat);
+    var erg = geoOps._helper.splitDegenConic(mat);
     var lg = erg[0];
     var lh = erg[1];
 
