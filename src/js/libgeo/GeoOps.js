@@ -405,7 +405,7 @@ geoOps._helper.splitDegenConic = function(mat){
 
     var idx = 0, k, l;
     var max = CSNumber.abs(adj_mat.value[0].value[0]).value.real;
-    for(k = 0; k < 3; k++){
+    for(k = 1; k < 3; k++){
     	if(CSNumber.abs(adj_mat.value[k].value[k]).value.real > max){
     		idx = k;
     		max = CSNumber.abs(adj_mat.value[k].value[k]).value.real;
@@ -413,8 +413,11 @@ geoOps._helper.splitDegenConic = function(mat){
     }
     
     var beta = CSNumber.sqrt(adj_mat.value[idx].value[idx]);
-    var p = adj_mat.value[idx];
+//    var p = adj_mat.value[idx];
+    idx = CSNumber.real(idx+1);
+    var p = List.column(adj_mat,idx);
     p = List.scaldiv(beta,p);
+
     
     var lam = p.value[0], mu = p.value[1], tau = p.value[2];
     var M = List.turnIntoCSList([
@@ -422,10 +425,11 @@ geoOps._helper.splitDegenConic = function(mat){
 	    List.turnIntoCSList([CSNumber.mult(CSNumber.real(-1),tau), CSNumber.real(0), lam]),
 	    List.turnIntoCSList([mu, CSNumber.mult(CSNumber.real(-1),lam), CSNumber.real(0)])]);
 
+
     var C = List.add(mat,M);
     
     // get nonzero index
-    var ii, jj;
+    var ii = 0, jj = 0;
     max = 0;
     for(k = 0; k < 3; k++)
     for(l = 0; l < 3; l++){
@@ -435,9 +439,20 @@ geoOps._helper.splitDegenConic = function(mat){
 		max = CSNumber.abs(C.value[k].value[l]).value.real;
     	}
     }
-    
+
+    var aaa =List.turnIntoCSList([1,2,3]);
+    var bbb =List.turnIntoCSList([4,5,6]);
+    var ddd =List.turnIntoCSList([7,8,9]);
+    var myM = List.turnIntoCSList(aaa,bbb,ddd);
+    console.log("mym", myM);
+
+   // var i = CSNumber.real(ii+1);
+//    var j = CSNumber.real(jj+1);
+
+ //   var lg = List.row(C,i);
     var lg = C.value[ii];
     C = List.transpose(C);
+//    var lh = List.column(C,j);
     var lh = C.value[jj];
 
     lg.usage = "Line";
