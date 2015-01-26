@@ -344,7 +344,6 @@ geoOps.CircleMFixedr =function(el){
 
     var r=el.radius;
     var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
-    p=List.add(p,mid);
     
     el.matrix=geoOps._helper.CircleMP(mid,p);
     el.matrix=List.normalizeMax(el.matrix);
@@ -402,74 +401,46 @@ geoOps.ConicBy5 =function(el){
 geoOpMap.ConicBy5="C";
 
 geoOps._helper.splitDegenConic = function(mat){
-    // primal mat
-    var a = mat.value[0].value[0].value.real;
-    var b = mat.value[1].value[0].value.real;
-    var c = mat.value[1].value[1].value.real;
-    var d = mat.value[2].value[0].value.real;
-    var e = mat.value[2].value[1].value.real;
-    var f = mat.value[2].value[2].value.real;
-    
-    var myMat = [[a,b,d],
-    	         [b,c,e],
-    	         [d,e,f]];
-
-
-    // dual mat
     var adj_mat = List.adjoint3(mat);
-    var a00 = adj_mat.value[0].value[0].value.real;
-    var a01 = adj_mat.value[0].value[1].value.real;
-    var a02 = adj_mat.value[0].value[2].value.real;
-    
-    var a10 = adj_mat.value[1].value[0].value.real;
-    var a11 = adj_mat.value[1].value[1].value.real;
-    var a12 = adj_mat.value[1].value[2].value.real;
-    
-    var a20 = adj_mat.value[2].value[0].value.real;
-    var a21 = adj_mat.value[2].value[1].value.real;
-    var a22 = adj_mat.value[2].value[2].value.real;
-    
-    var myAdj = [[a00,a01,a02],
-    	     [a10,a11,a12],
-    	     [a20,a21,a22]];
-    
+
     var idx = 0, k, l;
-    var max = Math.abs(myAdj[0][0]);
-    for(k = 1; k < 3; k++){
-    	if(Math.abs(myAdj[k][k]) > max){
+    var max = CSNumber.abs(adj_mat.value[0].value[0]).value.real;
+    for(k = 0; k < 3; k++){
+    	if(CSNumber.abs(adj_mat.value[k].value[k]).value.real > max){
     		idx = k;
-    		max = Math.abs(myAdj[k][k]);
+    		max = CSNumber.abs(adj_mat.value[k].value[k]).value.real;
     	}
     }
     
+    var beta = CSNumber.sqrt(adj_mat.value[idx].value[idx]);
+    var p = adj_mat.value[idx];
+    p = List.scaldiv(beta,p);
     
-    var beta = Math.sqrt(Math.abs(myAdj[idx][idx])); // abs is a hack?
-    var p = numeric.transpose(myAdj)[idx];
-    p = numeric.div(p, beta);
-    
-    
-    var lam = p[0], mu = p[1], tau = p[2];
-    var M = [[0, tau, -mu],[-tau, 0, lam], [mu, -lam, 0]];
-    var C = numeric.add(myMat, M);
+    var lam = p.value[0], mu = p.value[1], tau = p.value[2];
+    var M = List.turnIntoCSList([
+	    List.turnIntoCSList([CSNumber.real(0), tau, CSNumber.mult(CSNumber.real(-1),mu)]),
+	    List.turnIntoCSList([CSNumber.mult(CSNumber.real(-1),tau), CSNumber.real(0), lam]),
+	    List.turnIntoCSList([mu, CSNumber.mult(CSNumber.real(-1),lam), CSNumber.real(0)])]);
+
+    var C = List.add(mat,M);
     
     // get nonzero index
     var ii, jj;
     max = 0;
     for(k = 0; k < 3; k++)
     for(l = 0; l < 3; l++){
-    	if(Math.abs(C[k][l]) > max){
+    	if(CSNumber.abs(C.value[k].value[l]).value.real > max){
     		ii = k;
     		jj = l;
-    		max = Math.abs(C[k][l]);
+		max = CSNumber.abs(C.value[k].value[l]).value.real;
     	}
     }
     
-    var g = C[ii];
-    var h = [C[0][jj], C[1][jj], C[2][jj]];
+    var lg = C.value[ii];
+    C = List.transpose(C);
+    var lh = C.value[jj];
 
-    var lg = List.realVector(g);
     lg.usage = "Line";
-    var lh = List.realVector(h);
     lh.usage = "Line";
 
     return [lg, lh];

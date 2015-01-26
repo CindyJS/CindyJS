@@ -722,7 +722,6 @@ evaluator._helper.drawcircle=function(args,modifs,df){
 evaluator.drawconic = function(args, modifs){
     var eps = 10e-16;
     var mat = args.matrix;
-    var adj_mat = List.adjoint3(mat);
 
     // check for complex values
     for(var i = 0; i < 2; i++)
@@ -738,8 +737,8 @@ evaluator.drawconic = function(args, modifs){
     var f = mat.value[2].value[2].value.real;
     
     var myMat = [[a,b,d],
-    	     [b,c,e],
-    	     [d,e,f]];
+    	         [b,c,e],
+    	         [d,e,f]];
     
     var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
     var degen = Math.abs(det) < eps ? true : false;
@@ -753,7 +752,6 @@ evaluator.drawconic = function(args, modifs){
     
     var useRot = 1;
     if(degen){ // since we split then - rotation unnecessary
-    //      	console.log("degenerate");
     	useRot = 0;
     }
     
@@ -895,10 +893,6 @@ evaluator.drawconic = function(args, modifs){
     var e = C[4];
     var f = C[5];
     
-    //var step = 0.75;
-    //if(!mouse.down){
-    //	step = 1/5;
-    //}
     
     var step;
     var ttemp; // trafo temp
