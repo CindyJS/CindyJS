@@ -400,61 +400,6 @@ geoOps.ConicBy5 =function(el){
 };
 geoOpMap.ConicBy5="C";
 
-geoOps._helper.TESTsplitdegen = function(mat){
-
-    var adj_mat = List.adjoint3(mat);
-    var a00 = adj_mat.value[0].value[0].value.real;
-    var a01 = adj_mat.value[0].value[1].value.real;
-    var a02 = adj_mat.value[0].value[2].value.real;
-    
-    var a10 = adj_mat.value[1].value[0].value.real;
-    var a11 = adj_mat.value[1].value[1].value.real;
-    var a12 = adj_mat.value[1].value[2].value.real;
-    
-    var a20 = adj_mat.value[2].value[0].value.real;
-    var a21 = adj_mat.value[2].value[1].value.real;
-    var a22 = adj_mat.value[2].value[2].value.real;
-    
-    var myAdj = [[a00,a01,a02],
-    	     [a10,a11,a12],
-    	     [a20,a21,a22]];
-    
-    var idx = 0, k, l;
-    var max = Math.abs(myAdj[0][0]);
-    for(k = 1; k < 3; k++){
-    	if(Math.abs(myAdj[k][k]) > max){
-    		idx = k;
-    		max = Math.abs(myAdj[k][k]);
-    	}
-    }
-    
-    
-    var beta = Math.sqrt(Math.abs(myAdj[idx][idx])); // abs is a hack?
-    var p = numeric.transpose(myAdj)[idx];
-    p = numeric.div(p, beta);
-    
-    
-    var lam = p[0], mu = p[1], tau = p[2];
-    var M = [[0, tau, -mu],[-tau, 0, lam], [mu, -lam, 0]];
-    var C = numeric.add(myMat, M);
-    
-    // get nonzero index
-    var ii, jj;
-    max = 0;
-    for(k = 0; k < 3; k++)
-    for(l = 0; l < 3; l++){
-    	if(Math.abs(C[k][l]) > max){
-    		ii = k;
-    		jj = l;
-    		max = Math.abs(C[k][l]);
-    	}
-    }
-    
-    var g = C[ii];
-    var h = [C[0][jj], C[1][jj], C[2][jj]];
-
-
-};
 geoOps._helper.splitDegenConic = function(mat){
     var adj_mat = List.adjoint3(mat);
 
@@ -467,10 +412,12 @@ geoOps._helper.splitDegenConic = function(mat){
     	}
     }
     
-    var beta = CSNumber.sqrt(adj_mat.value[idx].value[idx]);
-//    var p = adj_mat.value[idx];
+    var beta = CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1),adj_mat.value[idx].value[idx]));
     idx = CSNumber.real(idx+1);
     var p = List.column(adj_mat,idx);
+    if(CSNumber.abs(beta).value.real < 10e-8){
+	    console.log("div by zero - return nada"); return nada;
+    };
     p = List.scaldiv(beta,p);
 
     
@@ -495,19 +442,9 @@ geoOps._helper.splitDegenConic = function(mat){
     	}
     }
 
-    var aaa =List.turnIntoCSList([1,2,3]);
-    var bbb =List.turnIntoCSList([4,5,6]);
-    var ddd =List.turnIntoCSList([7,8,9]);
-    var myM = List.turnIntoCSList(aaa,bbb,ddd);
-    console.log("mym", myM);
-
-   // var i = CSNumber.real(ii+1);
-//    var j = CSNumber.real(jj+1);
-
- //   var lg = List.row(C,i);
+    
     var lg = C.value[ii];
     C = List.transpose(C);
-//    var lh = List.column(C,j);
     var lh = C.value[jj];
 
     lg.usage = "Line";
