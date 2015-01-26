@@ -344,7 +344,6 @@ geoOps.CircleMFixedr =function(el){
 
     var r=el.radius;
     var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
-    p=List.add(p,mid);
     
     el.matrix=geoOps._helper.CircleMP(mid,p);
     el.matrix=List.normalizeMax(el.matrix);
@@ -401,6 +400,59 @@ geoOps.ConicBy5 =function(el){
 };
 geoOpMap.ConicBy5="C";
 
+geoOps._helper.splitDegenConic = function(mat){
+    var adj_mat = List.adjoint3(mat);
+
+    var idx = 0, k, l;
+    var max = CSNumber.abs(adj_mat.value[0].value[0]).value.real;
+    for(k = 1; k < 3; k++){
+    	if(CSNumber.abs(adj_mat.value[k].value[k]).value.real > max){
+    		idx = k;
+    		max = CSNumber.abs(adj_mat.value[k].value[k]).value.real;
+    	}
+    }
+    
+    var beta = CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1),adj_mat.value[idx].value[idx]));
+    idx = CSNumber.real(idx+1);
+    var p = List.column(adj_mat,idx);
+    if(CSNumber.abs(beta).value.real < 10e-8){
+	    console.log("div by zero - return nada"); return nada;
+    };
+    p = List.scaldiv(beta,p);
+
+    
+    var lam = p.value[0], mu = p.value[1], tau = p.value[2];
+    var M = List.turnIntoCSList([
+	    List.turnIntoCSList([CSNumber.real(0), tau, CSNumber.mult(CSNumber.real(-1),mu)]),
+	    List.turnIntoCSList([CSNumber.mult(CSNumber.real(-1),tau), CSNumber.real(0), lam]),
+	    List.turnIntoCSList([mu, CSNumber.mult(CSNumber.real(-1),lam), CSNumber.real(0)])]);
+
+
+    var C = List.add(mat,M);
+    
+    // get nonzero index
+    var ii = 0, jj = 0;
+    max = 0;
+    for(k = 0; k < 3; k++)
+    for(l = 0; l < 3; l++){
+    	if(CSNumber.abs(C.value[k].value[l]).value.real > max){
+    		ii = k;
+    		jj = l;
+		max = CSNumber.abs(C.value[k].value[l]).value.real;
+    	}
+    }
+
+    
+    var lg = C.value[ii];
+    C = List.transpose(C);
+    var lh = C.value[jj];
+
+    lg.usage = "Line";
+    lh.usage = "Line";
+
+    return [lg, lh];
+};
+
 geoOps.SelectConic =function(el){
     var set=csgeo.csnames[(el.args[0])];
     if(!el.inited){
@@ -419,7 +471,7 @@ geoOps._helper.ConicBy4p1l =function(el,a,b,c,d,l){
     var a2 = List.cross(List.cross(b,d),l);
     var b1 = List.cross(List.cross(a,b),l);
     var b2 = List.cross(List.cross(c,d),l);
-    var o = List.realVector(csport.to(100*Math.random(),100*Math.random())); // hack
+    var o = List.realVector(csport.to(100*Math.random(),100*Math.random())); 
 
     var r1 = CSNumber.mult(List.det3(o,a2,b1),List.det3(o,a2,b2));
     r1 = CSNumber.sqrt(r1); 
