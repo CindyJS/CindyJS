@@ -376,24 +376,14 @@ geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
 
 geoOps.ConicBy5 =function(el){
-    var a,b,c,d,p;
-//    if(el.areHomog === undefined){
-    a=csgeo.csnames[(el.args[0])].homog;
-    b=csgeo.csnames[(el.args[1])].homog;
-    c=csgeo.csnames[(el.args[2])].homog;
-    d=csgeo.csnames[(el.args[3])].homog;
-    p=csgeo.csnames[(el.args[4])].homog;
-//    }
-//    else{
-//    a=el.matrix[0];
-//    b=el.matrix[1];
-//    c=el.matrix[2];
-//    d=el.matrix[3];
-//    p=el.matrix[4];
-//    }
+    var a=csgeo.csnames[(el.args[0])].homog;
+    var b=csgeo.csnames[(el.args[1])].homog;
+    var c=csgeo.csnames[(el.args[2])].homog;
+    var d=csgeo.csnames[(el.args[3])].homog;
+    var p=csgeo.csnames[(el.args[4])].homog;
+
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
-    // dualize if necessary
- //   if(el.areDual){erg=List.adjoint3(erg);}
+
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
@@ -478,9 +468,6 @@ geoOps.SelectConic =function(el){
     el.matrix=set.results[el.index-1];
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
-   // if(set.areHomog){el.areHomog = true;}
-    //if(set.areDual){el.areDual = true;}
-    //geoOps.ConicBy5(el);
 };
 geoOpMap.SelectConic="C";
 
