@@ -377,28 +377,44 @@ geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
 geoOps.ConicBy5 =function(el){
     var a,b,c,d,p;
-    if(el.areHomog === undefined){
+//    if(el.areHomog === undefined){
     a=csgeo.csnames[(el.args[0])].homog;
     b=csgeo.csnames[(el.args[1])].homog;
     c=csgeo.csnames[(el.args[2])].homog;
     d=csgeo.csnames[(el.args[3])].homog;
     p=csgeo.csnames[(el.args[4])].homog;
-    }
-    else{
-    a=el.matrix[0];
-    b=el.matrix[1];
-    c=el.matrix[2];
-    d=el.matrix[3];
-    p=el.matrix[4];
-    }
+//    }
+//    else{
+//    a=el.matrix[0];
+//    b=el.matrix[1];
+//    c=el.matrix[2];
+//    d=el.matrix[3];
+//    p=el.matrix[4];
+//    }
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
     // dualize if necessary
-    if(el.areDual){erg=List.adjoint3(erg)};
+ //   if(el.areDual){erg=List.adjoint3(erg);}
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
 };
 geoOpMap.ConicBy5="C";
+
+geoOps._helper.buildConicMatrix = function(arr){
+    var a = arr[0];
+    var b = arr[1];
+    var c = arr[2];
+    var d = arr[3];
+    var e = arr[4];
+    var f = arr[5];
+
+    var M = List.turnIntoCSList([
+	        List.turnIntoCSList([a,b,d]),
+	        List.turnIntoCSList([b,c,e]),
+	        List.turnIntoCSList([d,e,f])
+    		]);
+    return M;
+};
 
 geoOps._helper.splitDegenConic = function(mat){
     var adj_mat = List.adjoint3(mat);
@@ -416,8 +432,9 @@ geoOps._helper.splitDegenConic = function(mat){
     idx = CSNumber.real(idx+1);
     var p = List.column(adj_mat,idx);
     if(CSNumber.abs(beta).value.real < 10e-8){
-	    console.log("div by zero - return nada"); return nada;
-    };
+	    return nada;
+    }
+
     p = List.scaldiv(beta,p);
 
     
@@ -459,9 +476,11 @@ geoOps.SelectConic =function(el){
         el.inited=true;
     }
     el.matrix=set.results[el.index-1];
-    if(set.areHomog){el.areHomog = true;}
-    if(set.areDual){el.areDual = true;}
-    geoOps.ConicBy5(el);
+    el.matrix=List.normalizeMax(el.matrix);
+    el.matrix.usage="Conic";
+   // if(set.areHomog){el.areHomog = true;}
+    //if(set.areDual){el.areDual = true;}
+    //geoOps.ConicBy5(el);
 };
 geoOpMap.SelectConic="C";
 
@@ -484,10 +503,10 @@ geoOps._helper.ConicBy4p1l =function(el,a,b,c,d,l){
     var x = List.add(k1, k2);
     var y = List.sub(k1, k2);
 
-    var erg1 = [a,b,c,d,x];
-    var erg2 = [a,b,c,d,y];
+    var t1 = geoOps._helper.ConicBy5(el,a,b,c,d,x);
+    var t2 = geoOps._helper.ConicBy5(el,a,b,c,d,y);
 
-    return [erg1,erg2];
+    return [t1,t2];
 };
 
 geoOps.ConicBy4p1l =function(el){
@@ -500,7 +519,6 @@ geoOps.ConicBy4p1l =function(el){
 
     var erg = geoOps._helper.ConicBy4p1l(el,a,b,c,d,l);
 
-    el.areHomog = true;
     el.results= erg;
 
 };
@@ -515,10 +533,12 @@ geoOps.ConicBy1p4l =function(el){
     var p=csgeo.csnames[(el.args[4])].homog;
 
     var erg = geoOps._helper.ConicBy4p1l(el,l1,l2,l3,l4,p);
-    // mark that we already have homog coordinated
-    el.areHomog = true;
-    // mark that we have a dual conic
-    el.areDual = true;
+    var t1 = erg[0];
+    var t2 = erg[1];
+    t1 = List.adjoint3(t1);
+    t2 = List.adjoint3(t2);
+    
+    erg = [t1,t2];
     el.results= erg;
 
 };
