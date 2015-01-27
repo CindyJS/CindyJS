@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-            <title>Cindy JS</title>
+            <title>Conic by 4 points and 1 line</title>
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
@@ -11,7 +11,7 @@
     
 	<body style="font-family:Arial;">
         
-        <h1>Conics</h1>
+        <h1>Conic by 4 points and 1 line</h1>
         
         
         <script id='firstDrawing' type='cindyscript'>
@@ -24,21 +24,22 @@
         <script type="text/javascript">
             
             var gslp=[
-                      {name:"A", type:"Free", pos:[3,4]},
+                      {name:"A", type:"Free", pos:[4,4]},
                       {name:"B", type:"Free", pos:[3,3]},
                       {name:"C", type:"Free", pos:[3,2]},
-                      {name:"D", type:"Free", pos:[5,0]},
-                      {name:"E", type:"Free", pos:[-6,0]},
-		      {name:"Co", type:"ConicBy5", args:["A","B","C","D","E"]},
-//		     {name:"l", type:"Join", args:["A", "D"]}
+                      {name:"D", type:"Free", pos:[5,1]},
+                      {name:"X", type:"Free", pos:[6,5]},
+                      {name:"Y", type:"Free", pos:[6,0]},
+		      {name:"l", type:"Join", args:["X", "Y"] },
+		      {name:"CoT", type:"ConicBy4p1l", args:["A","B","C","D","l"]},
+		      {name:"Co1", type:"SelectConic", args:["CoT"], index:1},
+		      {name:"Co2", type:"SelectConic", args:["CoT"], index:2},
                       ];
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
-                        snap:true,
                         geometry:gslp});
     
         </script>
-
 
 	</body>
 </html>
