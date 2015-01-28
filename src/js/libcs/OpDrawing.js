@@ -953,13 +953,13 @@ evaluator.drawconic = function(args, modifs){
     
     var step;
     var ttemp; // trafo temp
-    var perc = 0.03;
+    var perc = 0.05;
     var diff = ymax - ymin;
     var ssmall = perc*diff+ymin;
     var slarge = ymax-perc*diff;
     for(var y = ymin; y <= ymax; y+=step){
     if(y < ssmall || y > slarge){
-    	step = 1/5;
+    	step = 1/3;
     }
     else{
     	step = 2;
