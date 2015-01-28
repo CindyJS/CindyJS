@@ -959,7 +959,7 @@ evaluator.drawconic = function(args, modifs){
     var slarge = ymax-perc*diff;
     for(var y = ymin; y <= ymax; y+=step){
     if(y < ssmall || y > slarge){
-    	step = 1/4;
+    	step = 1/3;
     }
     else{
     	step = 2;
