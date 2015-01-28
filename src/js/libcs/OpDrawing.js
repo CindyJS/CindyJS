@@ -925,7 +925,7 @@ evaluator.drawconic = function(args, modifs){
      	csctx.beginPath();
     	for(var i = 1; i < x.length; i++){
     		csctx.moveTo(x[i-1], y[i-1]);
-    	//	csctx.fillRect(x[i],y[i],5,5);
+    		//csctx.fillRect(x[i],y[i],5,5);
     		csctx.lineTo(x[i], y[i]);
     	}
     	csctx.stroke();
@@ -953,13 +953,13 @@ evaluator.drawconic = function(args, modifs){
     
     var step;
     var ttemp; // trafo temp
-    var perc = 0.05;
+    var perc = 0.025;
     var diff = ymax - ymin;
     var ssmall = perc*diff+ymin;
     var slarge = ymax-perc*diff;
     for(var y = ymin; y <= ymax; y+=step){
     if(y < ssmall || y > slarge){
-    	step = 1/3;
+    	step = 1/4;
     }
     else{
     	step = 2;
