@@ -917,6 +917,81 @@ evaluator.sqrt=function(args,modifs){
     return nada;
 };
 
+evaluator._helper.laguerre = function(cs, x, maxiter)
+{
+    if(cs.ctype!=='list')
+        return nada;
+    var n = cs.value.length - 1;
+    for(var i = 0; i <= n; i++)
+        if(cs.value[i].ctype!=='number')
+            return nada;
+    if(x.ctype!=='number')
+        return nada;
+    var rand = [1.0, 0.3141, 0.5926, 0.5358, 0.9793, 0.2385, 0.6264, 0.3383, 0.2795, 0.0288];
+    var a, p, q, s, g, g2, h, r, d1, d2;
+    var tol = 1e-16;
+    for (var iter = 1; iter <= maxiter; iter++)
+    {
+        s = CSNumber.real(0.0);
+        q = CSNumber.real(0.0);
+        p = cs.value[n];
+
+        for (var i = n - 1; i >= 0; i--)
+        {
+            s = CSNumber.add(q, CSNumber.mult(s, x));
+            q = CSNumber.add(p, CSNumber.mult(q, x));
+            p = CSNumber.add(cs.value[i], CSNumber.mult(p, x));
+        }
+
+        if (CSNumber._helper.isLessThan(CSNumber.abs(p), CSNumber.real(tol)))
+            return x;
+
+        g = CSNumber.div(q, p);
+        g2 = CSNumber.mult(g, g);
+        h = CSNumber.sub(g2, CSNumber.div(CSNumber.mult(CSNumber.real(2.0), s), p));
+        r = CSNumber.sqrt(CSNumber.mult(CSNumber.real(n - 1), CSNumber.sub(CSNumber.mult(CSNumber.real(n), h), g2)));
+        d1 = CSNumber.add(g, r);
+        d2 = CSNumber.sub(g, r);
+        if (CSNumber._helper.isLessThan(CSNumber.abs(d1), CSNumber.abs(d2)))
+            d1 = d2;
+        if (CSNumber._helper.isLessThan(CSNumber.real(tol), CSNumber.abs(d1)))
+            a = CSNumber.div(CSNumber.real(n), d1);
+        else
+            a = CSNumber.mult(CSNumber.add(CSNumber.abs(x), CSNumber.real(1.0)), CSNumber.complex(Math.cos(iter), Math.sin(iter)));
+        if (CSNumber._helper.isLessThan(CSNumber.abs(a), CSNumber.real(tol)))
+            return x;
+        if (iter % 20 == 0)
+            a = CSNumber.mult(a, CSNumber.real(rand[iter / 20]));
+        x = CSNumber.sub(x, a);
+    }
+    return x;
+};
+
+evaluator.roots=function(args,modifs){
+    var cs=evaluateAndVal(args[0]);
+    if(cs.ctype==='list'){
+        for(var i = 0; i < cs.value.length; i++)
+            if(cs.value[i].ctype!=='number')
+                return nada;
+        
+        var roots = [];
+        var cs_orig = List.clone(cs);
+        var n = cs.value.length - 1;
+        for(var i = 0; i < n; i++)
+        {
+            roots[i] = evaluator._helper.laguerre(cs, CSNumber.real(0.0), 200);
+            roots[i] = evaluator._helper.laguerre(cs_orig, roots[i], 1);
+            var fx = [];
+            fx[n-i] = CSNumber.clone(cs.value[n-i]);
+            for (var j = n - i; j > 0; j--)
+                fx[j-1] = CSNumber.add(cs.value[j-1], CSNumber.mult(fx[j], roots[i]));
+            fx.shift();
+            cs = List.turnIntoCSList(fx);
+        }
+        return List.sort1(List.turnIntoCSList(roots));
+    }
+    return nada;
+};
 
 evaluator.cos=function(args,modifs){
     
