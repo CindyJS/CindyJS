@@ -582,7 +582,6 @@ y:erg2[1]/erg2[2]
     
     
     
-    
 };
 
 evaluator.drawcircle=function(args,modifs){
@@ -719,7 +718,65 @@ evaluator._helper.drawcircle=function(args,modifs,df){
     return nada;
 };
 
+
 evaluator.drawconic = function(args, modifs){
+    var col; 
+    var size;
+
+    var handleModifs = function(){
+    var erg;
+    if(modifs.size!==undefined){
+        erg =evaluate(modifs.size);
+        if(erg.ctype==='number'){
+            size=erg.value.real;
+            if(size<0) size=0;
+
+        }
+    }
+    
+    
+    if(modifs.color===undefined &&modifs.alpha===undefined){
+        return "rgba(0,0,255,1)";
+    }
+    
+    
+    var r=0;
+    var g=0;
+    var b=0;
+    var alpha=csport.drawingstate.alpha;
+    
+    r=csport.drawingstate.linecolorraw[0]*255;
+    g=csport.drawingstate.linecolorraw[1]*255;
+    b=csport.drawingstate.linecolorraw[2]*255;
+    
+    if(modifs.color!==undefined){
+        erg =evaluate(modifs.color);
+        if(List.isNumberVector(erg).value){
+            if(erg.value.length===3){
+                r=Math.floor(erg.value[0].value.real*255);
+                g=Math.floor(erg.value[1].value.real*255);
+                b=Math.floor(erg.value[2].value.real*255);
+                
+            }
+            
+        }
+    }
+    
+    
+    if(modifs.alpha!==undefined){
+        erg =evaluate(modifs.alpha);
+        if(erg.ctype==="number"){
+            alpha=erg.value.real;
+        }
+    }
+    
+    col="rgba("+r+","+g+","+b+","+alpha+")";//TODO Performanter machen
+
+    }; // end handleModifs
+
+
+    handleModifs();
+
     var eps = 10e-16;
     var mat = args.matrix;
 
@@ -792,7 +849,7 @@ evaluator.drawconic = function(args, modifs){
     // split degenerate conic into 1 or 2 lines
     var split_degen = function(){
 
-    modifs.size= CSNumber.real(2); // TODO fix this
+    //modifs.size= CSNumber.real(2); // TODO fix this
     var erg = geoOps._helper.splitDegenConic(mat);
     if(erg === nada) return;
     var lg = erg[0];
@@ -804,6 +861,7 @@ evaluator.drawconic = function(args, modifs){
     evaluator.draw(arg, modifs);
     
     };
+
     var get_concic_type = function(C){
     	if(C === 'undefined' || C.length !== 6){
     	   console.error("this does not define a Conic");
@@ -836,13 +894,13 @@ evaluator.drawconic = function(args, modifs){
     	return (x > 0 && x < csw && y > 0 && y < csh);
     };
     
-    var drawRect = function(x,y, col){
-    	csctx.strokeStyle = 'navy';
-    	if(col !== 'undefined') csctx.strokeStyle = col;
-    	csctx.beginPath();
-    	csctx.rect(x,y, 10, 10);
-    	csctx.stroke();
-    };
+//    var drawRect = function(x,y, col){
+//    	csctx.strokeStyle = 'navy';
+//    	if(col !== 'undefined') csctx.strokeStyle = col;
+//    	csctx.beginPath();
+//    	csctx.rect(x,y, 10, 10);
+//    	csctx.stroke();
+//    };
     // arrays to save points on conic
     var arr_x1 = [];
     var arr_x2 = [];
@@ -860,16 +918,14 @@ evaluator.drawconic = function(args, modifs){
           arr_yg = [];
     };
     
-    var drawArray = function(x, y, col){
-    	csctx.strokeStyle= 'blue';
-    	csctx.lineWidth = 2;
-    	if(col !== 'undefined'){
-    		csctx.strokeStyle = col;
-    	}
-    	csctx.beginPath();
+    var drawArray = function(x, y){
+    	csctx.strokeStyle = col;
+        csctx.lineWidth = size;
+
+     	csctx.beginPath();
     	for(var i = 1; i < x.length; i++){
     		csctx.moveTo(x[i-1], y[i-1]);
-    	//	csctx.fillRect(x[i],y[i],5,5);
+    		//csctx.fillRect(x[i],y[i],5,5);
     		csctx.lineTo(x[i], y[i]);
     	}
     	csctx.stroke();
@@ -897,13 +953,13 @@ evaluator.drawconic = function(args, modifs){
     
     var step;
     var ttemp; // trafo temp
-    var perc = 0.03;
+    var perc = 0.025;
     var diff = ymax - ymin;
     var ssmall = perc*diff+ymin;
     var slarge = ymax-perc*diff;
     for(var y = ymin; y <= ymax; y+=step){
     if(y < ssmall || y > slarge){
-    	step = 1/10;
+    	step = 1/3;
     }
     else{
     	step = 2;
@@ -1066,6 +1122,8 @@ evaluator.drawconic = function(args, modifs){
     resetArrays();
     }; // end calc_draw
     
+
+
     
     // actually start drawing
     if(!degen){
