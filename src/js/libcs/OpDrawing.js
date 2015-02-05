@@ -953,7 +953,7 @@ evaluator.drawconic = function(args, modifs){
     
     var step;
     var ttemp; // trafo temp
-    var perc = 0.025;
+    var perc = 0.05;
     var diff = ymax - ymin;
     var ssmall = perc*diff+ymin;
     var slarge = ymax-perc*diff;
