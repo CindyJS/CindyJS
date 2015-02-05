@@ -159,6 +159,7 @@ Viewer.prototype.renderPrimitives = function(opaque) {
  */
 Viewer.prototype.setUniforms = function(u) {
   u["uProjectionMatrix"](this.camera.projectionMatrix);
+  u["uModelViewMatrix"](transpose4(this.camera.mvMatrix));
   u["materialShininess"]([60]);
   u["materialAmbient"]([0.2, 0.2, 0.2, 0.2]);
   u["materialSpecular"]([0.5, 0.5, 0.5, 0.5]);

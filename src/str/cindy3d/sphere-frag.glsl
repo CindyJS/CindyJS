@@ -1,25 +1,25 @@
 uniform mat4 uProjectionMatrix;
 
-// Sphere center in view space
-uniform vec3 sphereCenter;
-// Sphere radius
-uniform float sphereRadius;
 // Sphere mode
 uniform float sphereMode;
 
 // Surface position in view space
-varying vec3 viewSpacePosition;
+varying vec3 vViewSpacePos;
+
+varying vec3 vViewSpaceCenter;
+
+varying float vRadius;
 
 // ----------------------------------------------------------------------------
 // Fragment shader for sphere rendering
 // ----------------------------------------------------------------------------
 void main() {
   // Vector from eye point to surface position
-  vec3 dir = normalize(viewSpacePosition);
+  vec3 dir = normalize(vViewSpacePos);
 
   // Compute intersection with sphere
-  float b = dot(sphereCenter, dir);
-  float c = dot(sphereCenter, sphereCenter) - sphereRadius*sphereRadius;
+  float b = dot(vViewSpaceCenter, dir);
+  float c = dot(vViewSpaceCenter, vViewSpaceCenter) - vRadius*vRadius;
   float d = b*b - c;
   float lambda = 0.0;
   float hit = 0.0;
@@ -52,7 +52,7 @@ void main() {
   // Compute point on sphere
   vec3 pointOnSphere = lambda * dir;
   // Compute normal
-  vec3 normal = normalize(pointOnSphere - sphereCenter);
+  vec3 normal = normalize(pointOnSphere - vViewSpaceCenter);
   
   // Shade surface position
   shade(pointOnSphere, normal);

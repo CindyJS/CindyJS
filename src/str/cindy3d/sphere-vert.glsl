@@ -1,28 +1,41 @@
-attribute vec2 aVertex;
-  
 uniform mat4 uProjectionMatrix;
 
-// Sphere center in view space
-uniform vec3 sphereCenter;
-// Sphere radius
-uniform float sphereRadius;
+uniform mat4 uModelViewMatrix;
 
-// Surface point in view space
-varying vec3 viewSpacePosition;
+attribute vec4 aCenter;
+
+attribute vec4 aColor;
+
+attribute vec3 aRelative;
+
+attribute float aRadius;
+
+varying vec3 vViewSpacePos;
+
+varying vec3 vViewSpaceCenter;
+
+varying vec4 vColor;
+
+varying float vRadius;
 
 // ----------------------------------------------------------------------------
 // Vertex shader for sphere rendering
 // ----------------------------------------------------------------------------
 void main() {
   // Compute screen aligned coordinate system
-  vec3 dir = normalize(-sphereCenter);
+  vec4 viewPosHom = uModelViewMatrix*aCenter;
+  vViewSpaceCenter = viewPosHom.xyz / viewPosHom.w;
+  vec3 dir = normalize(-vViewSpaceCenter);
   vec3 right = normalize(cross(dir, vec3(0, 1, 0)));
   vec3 up = normalize(cross(right, dir));
 
   // Shift vertices of fullscreen quad
-  viewSpacePosition = sphereCenter +
-	sphereRadius*(right * aVertex.x + up * aVertex.y + dir);
+  vViewSpacePos = vViewSpaceCenter +
+	aRadius*(right * aRelative.x + up * aRelative.y + dir);
+
+  vColor = aColor;
+  vRadius = aRadius;
 
   // Transform position into screen space
-  gl_Position = uProjectionMatrix * vec4(viewSpacePosition, 1);
+  gl_Position = uProjectionMatrix * vec4(vViewSpacePos, 1);
 }

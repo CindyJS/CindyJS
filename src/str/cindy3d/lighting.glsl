@@ -1,6 +1,7 @@
 uniform vec4 materialEmission;
 uniform vec4 materialAmbient;
-uniform vec4 materialDiffuse;
+// uniform vec4 materialDiffuse;
+varying vec4 vColor;
 uniform vec4 materialSpecular;
 uniform float materialShininess;
 // uniform float materialAlpha;
@@ -97,9 +98,9 @@ void shade(in vec3 position, in vec3 normal) {
 
   vec4 color =
     Ambient  * materialAmbient +
-    Diffuse  * materialDiffuse +
+    Diffuse  * vColor +
     Specular * materialSpecular;
 
   color = clamp(color, 0.0, 1.0);
-  gl_FragColor = vec4(color.xyz, materialDiffuse.w);
+  gl_FragColor = vec4(color.xyz, vColor.w);
 }
