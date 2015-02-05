@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+begin3d();
+background3d([0,0,0]);
+n=600;
+r1=1;
+r2=.3;
+k=5;
+l=3;
+f(w):=(sin(l*w),cos(l*w),0)*(r1+r2*cos(k*w))+(0,0,r2*sin(k*w));
+repeat(n,i,
+ w1=i/n*360°;
+ drawsphere3d(f(w1), 1/6, color->hue(i/n));
+);
+end3d()
+</script>
+<script type="text/javascript">
+createCindy({canvasname:"CSCanvas",scripts:"cs*"});
+</script>
+</head>
+
+<body>
+  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+  <canvas id="CSCanvas" width="50" height="50" style="border:none"></canvas>
+</body>
+
+</html>
