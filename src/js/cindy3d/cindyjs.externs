@@ -1,0 +1,23 @@
+//////////////////////////////////////////////////////////////////////
+// Externs for CindyJS bindings
+
+var cjsType = {};
+
+/** @typedef {{ctype:string}} */
+cjsType.anyval;
+
+/** @typedef {function(Array.<cjsType.anyval>, Object): cjsType.anyval} */
+cjsType.op;
+
+// At the moment, the following are global objects.
+// Once cindyscript instances are encapsulated,
+// they might become members of an instance object instead.
+
+/** @type {cjsType.anyval} */
+var nada;
+
+/** @type {function(cjsType.anyval):cjsType.anyval} */
+var evaluate;
+
+/** @type {Object} */
+var evaluator;
