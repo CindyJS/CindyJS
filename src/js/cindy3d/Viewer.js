@@ -143,6 +143,7 @@ Viewer.prototype.render = function() {
   */
   this.renderPrimitives(false);
   gl.disable(gl.BLEND);
+  gl.flush();
 };
 
 /**

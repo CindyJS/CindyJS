@@ -9,11 +9,11 @@ function Spheres(viewer) {
       c3d_resources.sphere_frag;
   if (viewer.glExtFragDepth)
     fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
-  this.init(viewer.gl, vs, fs);
+  this.init(viewer.gl.TRIANGLES, viewer.gl, vs, fs);
 }
 
 Spheres.prototype = new PrimitiveRenderer(
-  ["aCenter", "aColor", "aRelativeRadius"], 6);
+  ["aCenter", "aColor", "aRelativeRadius"], [0, 1, 2, 2, 1, 3]);
 
 Spheres.prototype.add = function(pos, radius, color) {
   var x = pos[0], y = pos[1], z = pos[2], w = pos[3];
@@ -22,8 +22,6 @@ Spheres.prototype.add = function(pos, radius, color) {
     x, y, z, w, r, g, b, a,  1.0,  1.0, 0.0, radius,
     x, y, z, w, r, g, b, a, -1.0,  1.0, 0.0, radius,
     x, y, z, w, r, g, b, a,  1.0, -1.0, 0.0, radius,
-    x, y, z, w, r, g, b, a,  1.0, -1.0, 0.0, radius,
-    x, y, z, w, r, g, b, a, -1.0,  1.0, 0.0, radius,
     x, y, z, w, r, g, b, a, -1.0, -1.0, 0.0, radius
   ]);
 };
