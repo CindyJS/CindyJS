@@ -18,6 +18,8 @@ Spheres.prototype = new PrimitiveRenderer(
 Spheres.prototype.add = function(pos, radius, color) {
   let x = pos[0], y = pos[1], z = pos[2], w = pos[3];
   let r = color[0], g = color[1], b = color[2], a = color[3];
+  if (a < 1.0)
+    this.opaque = false;
   this.addPrimitive([
     x, y, z, w, r, g, b, a,  1.0,  1.0, 0.0, radius,
     x, y, z, w, r, g, b, a, -1.0,  1.0, 0.0, radius,

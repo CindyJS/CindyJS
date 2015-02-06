@@ -101,6 +101,7 @@ PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
   let c = this.initialCapacity, d;
   this.mode = mode;
   this.count = 0;
+  this.opaque = true;
   this.capacity = c;
   this.data = new ArrayBuffer(c * this.itemTotalByteCount);
   this.dataAttribs = new Float32Array(this.data, 0, c * this.itemLength);
@@ -230,4 +231,5 @@ PrimitiveRenderer.prototype.renderPrimitives = function(gl, setUniforms) {
 
 PrimitiveRenderer.prototype.clear = function() {
   this.count = 0;
+  this.opaque = true;
 };

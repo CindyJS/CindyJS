@@ -128,21 +128,24 @@ Viewer.prototype.render = function() {
   gl.viewport(0, 0, this.width, this.height);
   gl.clearColor.apply(gl, this.backgroundColor);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  //gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-  //gl.vertexAttribPointer(shaderProgram.attrib["aVertex"].location, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-  //setUniforms();
-  gl.enable(gl.BLEND);
-  gl.depthMask(false);
-  this.renderPrimitives(false);
-  this.renderPrimitives(false);
-  gl.depthMask(true);
-  /*
-  gl.disable(gl.BLEND);
-  this.renderPrimitives(true);
-  gl.enable(gl.BLEND);
-  */
-  this.renderPrimitives(false);
-  gl.disable(gl.BLEND);
+  if (this.spheres.opaque) {
+    gl.disable(gl.BLEND);
+    gl.depthMask(true);
+    this.renderPrimitives(true);
+  }
+  else {
+    gl.enable(gl.BLEND);
+    gl.depthMask(false);
+    this.renderPrimitives(false);
+    this.renderPrimitives(false);
+    gl.depthMask(true);
+    /*
+    gl.disable(gl.BLEND);
+    this.renderPrimitives(true);
+    gl.enable(gl.BLEND);
+    */
+    this.renderPrimitives(false);
+  }
   gl.flush();
 };
 
