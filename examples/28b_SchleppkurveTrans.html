@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Cindy JS</title>
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<link rel="stylesheet" href="../css/cindy.css">
+<!--link rel="stylesheet" href="../css/cindy.css"-->
 
 
 </head>
@@ -14,27 +14,18 @@
 <h1>CindyJS: Schleppkurve</h1>
 
 
-<script id='keyup' type='cindyscript'>
+
+<script id='init' type='cindyscript'>
+
+reset():=(
 forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
 old=allpoints();
 old=apply(2..length(old),old_#);
 
 oldpts=apply(old,#.xy);
-</script>
 
-<script id='up' type='cindyscript'>
-//forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
-//old=allpoints();
-//oldpts=apply(old,#.xy);
+);
 
-old=allpoints();
-pts=allpoints();
-old=apply(2..length(old),old_#);
-pts=apply(2..length(pts),pts_#);
-oldpts=apply(old,#.xy);
-</script>
-
-<script id='init' type='cindyscript'>
 old=allpoints();
 old=apply(2..length(old),old_#);
 
@@ -97,6 +88,8 @@ finished=true;
 
 </script>
 <script id='firstDrawing' type='cindyscript'>
+javascript("document.onkeydown={}");
+
 pts=allpoints();
 pts=apply(2..length(pts),pts_#);
 
@@ -126,7 +119,7 @@ if(mover!=A & isreal(mover.x)&finished,
       forall(1..length(r),(r_#).xy=newptsr_#);
       
       oldpts=apply(pts,#.xy);
-      draw(mover.xy,size->5);
+   //   draw(mover.xy,size->5);
       );
    finished=true;
    );
@@ -143,7 +136,7 @@ drawall(tr,color->(1,.7,0),size->4);
 </script>
 
 
-<canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
+<canvas  id="CSCanvas"  width=500 height=500  style="border:2px solid #000000"></canvas>
 
 <script>
 defaultAppearance.clip="inci";
@@ -158,12 +151,11 @@ for(var i=0;i<30;i++){
 }
 createCindy({canvasname:"CSCanvas",
 movescript:"firstDrawing",
-mouseupscript:"up",
-keydownscript:"keyup",
 initscript:"init",
 geometry:gslp});
 
 </script>
-
+<br>
+<button style="width:100px;" onclick='evokeCS("reset()");' type="button" >Reset</button>
 </body>
 </html>
