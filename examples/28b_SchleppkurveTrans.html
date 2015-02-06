@@ -83,10 +83,28 @@ transf(pts,pt):=(
 
 finished=true;
 
+resetting=false;
 
 
 
 </script>
+<script id='down' type='cindyscript'>
+
+if(mouse().y<-8.5 & mouse().x<-7,
+reset();
+resetting=true;
+
+);
+</script>
+
+<script id='up' type='cindyscript'>
+
+resetting=false;
+
+
+</script>
+
+
 <script id='firstDrawing' type='cindyscript'>
 javascript("document.onkeydown={}");
 
@@ -97,8 +115,7 @@ apply(pts,#.size=3;#.color=(1,0,0));
 i=0;
 mover=mover();
 
-
-
+if(!resetting,
 
 if(mover!=A & isreal(mover.x)&finished,
    finished=false;
@@ -123,7 +140,7 @@ if(mover!=A & isreal(mover.x)&finished,
       );
    finished=true;
    );
-
+);
 connect(pts,color->(1,1,1)*0,size->3);
 
 tr=transf(oldpts,A.xy);
@@ -132,6 +149,9 @@ apply(1..length(tr),draw((pts_#+tr_#)/2,alpha->.5,color->(0,0,0),size->2));
 
 connect(tr,color->(1,1,1)*0,size->4);
 drawall(tr,color->(1,.7,0),size->4);
+fillpolygon([(-6.5,-8),(-6.5,-9.5),(-9.5,-9.5),(-9.5,-8)],color->(.6,.6,1));
+drawpolygon([(-6.5,-8),(-6.5,-9.5),(-9.5,-9.5),(-9.5,-8)],color->(0,0,0));
+drawtext((-9,-9),"Reset");
 
 </script>
 
@@ -152,10 +172,11 @@ for(var i=0;i<30;i++){
 createCindy({canvasname:"CSCanvas",
 movescript:"firstDrawing",
 initscript:"init",
+mousedownscript:"down",
+mouseupscript:"up",
 geometry:gslp});
 
 </script>
-<br>
-<button style="width:100px;" onclick='evokeCS("reset()");' type="button" >Reset</button>
+
 </body>
 </html>
