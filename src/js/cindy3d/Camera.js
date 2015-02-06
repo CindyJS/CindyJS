@@ -3,7 +3,7 @@
  * @return {number}
  */
 function norm3(v) {
-  var x = v[0], y = v[1], z = v[2];
+  let x = v[0], y = v[1], z = v[2];
   return Math.sqrt(x*x + y*y + z*z);
 }
 
@@ -12,8 +12,8 @@ function norm3(v) {
  * @return {Array.<number>}
  */
 function normalized3(v) {
-  var x = v[0], y = v[1], z = v[2];
-  var f = 1/Math.sqrt(x*x + y*y + z*z);
+  let x = v[0], y = v[1], z = v[2];
+  let f = 1/Math.sqrt(x*x + y*y + z*z);
   return [f*x, f*y, f*z];
 }
 
@@ -117,10 +117,10 @@ function mul3mv(m, v) {
  * @return {Array.<number>}
  */
 function transform4to3(m, v) {
-  var x = m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3]*v[3];
-  var y = m[4]*v[0] + m[5]*v[1] + m[6]*v[2] + m[7]*v[3];
-  var z = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11]*v[3];
-  var f = 1/(m[12]*v[0] + m[13]*v[1] + m[14]*v[2] + m[15]*v[3]);
+  let x = m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3]*v[3];
+  let y = m[4]*v[0] + m[5]*v[1] + m[6]*v[2] + m[7]*v[3];
+  let z = m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11]*v[3];
+  let f = 1/(m[12]*v[0] + m[13]*v[1] + m[14]*v[2] + m[15]*v[3]);
   return [x*f, y*f, z*f];
 }
 
@@ -157,8 +157,8 @@ Camera.prototype.mvMatrix;
  */
 Camera.prototype.setPerspective = function
 (fieldOfView, width, height, zNear, zFar) {
-  var f = 1.0/Math.tan(fieldOfView * (Math.PI / 360.));
-  var nearMinusFar = zNear - zFar;
+  let f = 1.0/Math.tan(fieldOfView * (Math.PI / 360.));
+  let nearMinusFar = zNear - zFar;
   this.projectionMatrix = [
     f*height/width, 0, 0, 0,
     0, f, 0, 0,
@@ -173,18 +173,18 @@ Camera.prototype.setPerspective = function
  * @param {Array.<number>} up
  */
 Camera.prototype.setCamera = function(position, lookAt, up) {
-  var viewDir = sub3(position, lookAt);
+  let viewDir = sub3(position, lookAt);
   this.viewDist = norm3(viewDir);
-  var z2 = normalized3(viewDir);
-  var y2 = normalized3(up);
-  var x2 = cross3(y2, z2);
-  var m1 = [
+  let z2 = normalized3(viewDir);
+  let y2 = normalized3(up);
+  let x2 = cross3(y2, z2);
+  let m1 = [
     x2[0], y2[0], z2[0],
     x2[1], y2[1], z2[1],
     x2[2], y2[2], z2[2]
   ];
-  var m2 = adj3(m1);
-  var t = mul3mv(m2, position);
+  let m2 = adj3(m1);
+  let t = mul3mv(m2, position);
   this.mvMatrix = [
     m2[0], m2[1], m2[2], -t[0],
     m2[3], m2[4], m2[5], -t[1],
@@ -198,25 +198,25 @@ Camera.prototype.setCamera = function(position, lookAt, up) {
 Camera.ROTATE_SENSITIVITY = 0.01;
 
 Camera.prototype.mouseRotate = function(dx, dy) {
-  var ax = Camera.ROTATE_SENSITIVITY*dx, ay = Camera.ROTATE_SENSITIVITY*dy;
-  var cx = Math.cos(ax), cy = Math.cos(ay);
-  var sx = Math.sin(ax), sy = Math.sin(ay);
-  var mx = [
+  let ax = Camera.ROTATE_SENSITIVITY*dx, ay = Camera.ROTATE_SENSITIVITY*dy;
+  let cx = Math.cos(ax), cy = Math.cos(ay);
+  let sx = Math.sin(ax), sy = Math.sin(ay);
+  let mx = [
     cx, 0, sx, 0,
     0, 1, 0, 0,
     -sx, 0, cx, 0,
     0, 0, 0, 1];
-  var my = [
+  let my = [
     1, 0, 0, 0,
     0, cy, -sy, 0,
     0, sy, cy, 0,
     0, 0, 0, 1];
-  var mz1 = [
+  let mz1 = [
     1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, this.viewDist,
     0, 0, 0, 1];
-  var mz2 = [
+  let mz2 = [
     1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, -this.viewDist,

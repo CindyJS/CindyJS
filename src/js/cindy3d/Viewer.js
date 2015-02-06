@@ -5,10 +5,10 @@
  */
 function Viewer(name) {
   /** @type {HTMLCanvasElement} */
-  var canvas = /** @type {HTMLCanvasElement} */(document.getElementById(name));
+  let canvas = /** @type {HTMLCanvasElement} */(document.getElementById(name));
   if (!canvas)
     throw new GlError("No canvas element with id " + name);
-  var errorInfo = "Unknown";
+  let errorInfo = "Unknown";
   function onContextCreationError(e) {
     canvas.removeEventListener(
       "webglcontextcreationerror",
@@ -20,7 +20,7 @@ function Viewer(name) {
     "webglcontextcreationerror",
     onContextCreationError, false);
   /** @type {WebGLRenderingContext} */
-  var gl = /** @type {WebGLRenderingContext} */(canvas.getContext("webgl"));
+  let gl = /** @type {WebGLRenderingContext} */(canvas.getContext("webgl"));
   if (!gl)
     gl = /** @type {WebGLRenderingContext} */(canvas.getContext("experimental-webgl"));
   if (!gl)
@@ -85,8 +85,8 @@ Viewer.prototype.surfaceAppearance;
 Viewer.prototype.backgroundColor;
 
 Viewer.prototype.setupListeners = function() {
-  var canvas = this.canvas, mx = Number.NaN, my = Number.NaN, mdown = false;
-  var camera = this.camera, render = this.render.bind(this);
+  let canvas = this.canvas, mx = Number.NaN, my = Number.NaN, mdown = false;
+  let camera = this.camera, render = this.render.bind(this);
   canvas.addEventListener("mousedown", function(/** MouseEvent */ evnt) {
     if (evnt.button === 0) {
       mdown = true;
@@ -124,7 +124,7 @@ Viewer.prototype.clear = function() {
 };
 
 Viewer.prototype.render = function() {
-  var gl = this.gl;
+  let gl = this.gl;
   gl.viewport(0, 0, this.width, this.height);
   gl.clearColor.apply(gl, this.backgroundColor);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

@@ -2,7 +2,7 @@
 // Now come the operators
 
 defOp("begin3d", 0, function(args, modifs) {
-  var name = "Cindy3D";
+  let name = "Cindy3D";
   handleModifs(modifs, {
     "name": (a => name = /** @type {string} */(coerce.toString(a, name)))
   });
@@ -20,17 +20,17 @@ defOp("end3d", 0, function(args, modifs) {
 });
 
 defOp("drawsphere3d", 2, function(args, modifs) {
-  var pos = coerce.toHomog(evaluate(args[0]));
-  var radius = coerce.toReal(evaluate(args[1]));
-  var appearanceStack = currentInstance.surfaceAppearance;
-  var appearance = handleModifsAppearance(appearanceStack, modifs);
+  let pos = coerce.toHomog(evaluate(args[0]));
+  let radius = coerce.toReal(evaluate(args[1]));
+  let appearanceStack = currentInstance.surfaceAppearance;
+  let appearance = handleModifsAppearance(appearanceStack, modifs);
   currentInstance.spheres.add(pos, radius,
                               Appearance.colorWithAlpha(appearance));
   return nada;
 });
 
 defOp("background3d", 1, function(args, modifs) {
-  var color = coerce.toColor(evaluate(args[0]), null);
+  let color = coerce.toColor(evaluate(args[0]), null);
   if (color) {
     color.push(1);
     currentInstance.backgroundColor = color;

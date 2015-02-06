@@ -54,7 +54,7 @@ ShaderProgram.prototype.attrib;
  * @return {WebGLShader}
  */
 ShaderProgram.prototype.createShader = function(gl, kind, code) {
-  var shader = gl.createShader(kind);
+  let shader = gl.createShader(kind);
   gl.shaderSource(shader, code);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
@@ -77,7 +77,7 @@ ShaderProgram.prototype.use = function(gl) {
  * @param {WebGLRenderingContext} gl
  */
 ShaderProgram.prototype.link = function(gl) {
-  var handle = this.handle;
+  let handle = this.handle;
   gl.linkProgram(handle);
   if (!gl.getProgramParameter(handle, gl.LINK_STATUS))
     throw new GlError("Error linking shader:\n" +
@@ -107,9 +107,9 @@ ShaderProgram.prototype.detectAttributes = function(gl) {
  * @param {boolean} uniform
  */
 ShaderProgram.prototype.detectImpl = function(gl, uniform) {
-  var i, n, handle = this.handle, info;
-  var name, match, root = {}, node, base, idx, leaf;
-  var size, j, arr, name2;
+  let i, n, handle = this.handle, info;
+  let name, match, root = {}, node, base, idx, leaf;
+  let size, j, arr, name2;
   if (uniform)
     n = /** @type {number} */
       (gl.getProgramParameter(handle, gl.ACTIVE_UNIFORMS));
@@ -162,7 +162,7 @@ ShaderProgram.prototype.detectImpl = function(gl, uniform) {
  * @param {WebGLActiveInfo} info
  */
 ShaderProgram.prototype.uniformSetter = function(gl, name, info) {
-  var handle = this.handle, loc;
+  let handle = this.handle, loc;
   loc = gl.getUniformLocation(handle, name);
   switch(info.type) {
   case gl.FLOAT:
@@ -204,7 +204,7 @@ ShaderProgram.prototype.uniformSetter = function(gl, name, info) {
  * @param {WebGLActiveInfo} info
  */
 ShaderProgram.prototype.attribFactory = function(gl, name, info) {
-  var handle = this.handle, loc;
+  let handle = this.handle, loc;
   loc = gl.getAttribLocation(handle, name);
   switch(info.type) {
   case gl.FLOAT:

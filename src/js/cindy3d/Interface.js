@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 // Global variables
 
-var instances = {};
-var currentInstance;
+let instances = {};
+let currentInstance;
 
 //////////////////////////////////////////////////////////////////////
 // Defining operators
@@ -13,8 +13,11 @@ var currentInstance;
  * @param {cjsType.op} impl
  */
 function defOp(name, arity, impl) {
-  /** @type {?cjsType.op} */ var old = evaluator[name];
-  /** @type {cjsType.op}  */ var chain = function(args, modifs) {
+  /** @type {?cjsType.op} */
+  let old = evaluator[name];
+
+  /** @type {cjsType.op}  */
+  let chain = function(args, modifs) {
     if (args.length === arity)
       return impl(args, modifs);
     else if (old)
@@ -22,13 +25,14 @@ function defOp(name, arity, impl) {
     else
       throw "No implementation for " + name + "(" + arity + ")";
   };
+
   evaluator[name] = chain;
 }
 
 //////////////////////////////////////////////////////////////////////
 // Type coercion
 
-var coerce = {};
+let coerce = {};
 
 /**
  * @param {cjsType.anyval} arg
@@ -40,8 +44,8 @@ coerce.toHomog = function(arg, def=[0,0,0,0]) {
     console.log("argument is not a list");
     return def;
   }
-  var lst1 = /** @type {Array.<cjsType.anyval>} */(arg["value"]);
-  var lst = lst1.map(coerce.toReal);
+  let lst1 = /** @type {Array.<cjsType.anyval>} */(arg["value"]);
+  let lst = lst1.map(coerce.toReal);
   if (lst.length > 4) {
     console.log("Coordinate vector too long.");
     lst = lst.slice(0, 4);
@@ -63,7 +67,7 @@ coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
     console.log("argument is not a list");
     return def;
   }
-  var lst = /** @type {Array.<cjsType.anyval>} */(arg["value"]);
+  let lst = /** @type {Array.<cjsType.anyval>} */(arg["value"]);
   if (lst.length != 3) {
     console.log("Not an RGB color vector");
     return def;
@@ -81,7 +85,7 @@ coerce.toReal = function(arg, def=Number.NaN) {
     console.log("argument is not a number");
     return def;
   }
-  var val = arg["value"], r = val["real"], i = val["imag"];
+  let val = arg["value"], r = val["real"], i = val["imag"];
   if (i !== 0)
     console.log("complex number is not real");
   return r;
@@ -128,7 +132,7 @@ coerce.toString = function(arg, def=null) {
  * @param {Object} handlers
  */
 function handleModifs(modifs, handlers) {
-  var key, handler;
+  let key, handler;
   for (key in modifs) {
     handler = handlers[key];
     if (handler)
@@ -145,17 +149,17 @@ function handleModifs(modifs, handlers) {
  * @return {Appearance}
  */
 function handleModifsAppearance(appearance, modifs, handlers = null) {
-  var color = appearance.color;
-  var alpha = appearance.alpha;
-  var shininess = appearance.shininess;
-  var size = appearance.size;
-  var combined = {
+  let color = appearance.color;
+  let alpha = appearance.alpha;
+  let shininess = appearance.shininess;
+  let size = appearance.size;
+  let combined = {
     "color": (a => color = coerce.toColor(a)),
     "alpha": (a => alpha = coerce.toInterval(0, 1, a)),
     "shininess": (a => shininess = coerce.toInterval(0, 128, a)),
     "size": (a => size = coerce.toReal(a)),
   };
-  var key;
+  let key;
   if (handlers)
     for (key in handlers)
       combined[key] = handlers[key];

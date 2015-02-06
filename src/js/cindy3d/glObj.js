@@ -41,7 +41,7 @@
   };
 
   ShaderObject.prototype.compile = function() {
-    var gl = this.gl, handle = this.handle;
+    let gl = this.gl, handle = this.handle;
     gl.compileShader(handle);
     if (!gl.getShaderParameter(handle, gl.COMPILE_STATUS))
       throw new GlError("Error compiling shader:\n" +
@@ -54,7 +54,7 @@
   // ShaderProgram - encapsulate WebGLProgram
 
   function ShaderProgram(gl_or_objs) {
-    var n, i, o;
+    let n, i, o;
     if (gl_or_objs.length && gl_or_objs[0] && gl_or_objs[0].handle) {
       this.gl = o = gl_or_objs[0].gl;
       this.handle = o.createProgram();
@@ -97,7 +97,7 @@
   };
 
   ShaderProgram.prototype.link = function() {
-    var gl = this.gl, handle = this.handle;
+    let gl = this.gl, handle = this.handle;
     gl.linkProgram(handle);
     if (!gl.getProgramParameter(handle, gl.LINK_STATUS))
       throw new GlError("Error linking shader:\n" +
@@ -118,9 +118,9 @@
   };
 
   ShaderProgram.prototype.detectImpl = function(uniform) {
-    var i, n, gl = this.gl, handle = this.handle, info;
-    var name, match, root = {}, node, base, idx, leaf;
-    var size, j, arr, name2;
+    let i, n, gl = this.gl, handle = this.handle, info;
+    let name, match, root = {}, node, base, idx, leaf;
+    let size, j, arr, name2;
     if (uniform)
       n = gl.getProgramParameter(handle, gl.ACTIVE_UNIFORMS);
     else
@@ -166,7 +166,7 @@
   };
 
   ShaderProgram.prototype.uniformSetter = function(name, info) {
-    var gl = this.gl, handle = this.handle, loc;
+    let gl = this.gl, handle = this.handle, loc;
     loc = gl.getUniformLocation(handle, name);
     switch(info.type) {
     case gl.FLOAT:
@@ -203,7 +203,7 @@
   };
 
   ShaderProgram.prototype.attribFactory = function(name, info) {
-    var gl = this.gl, handle = this.handle, loc;
+    let gl = this.gl, handle = this.handle, loc;
     loc = gl.getAttribLocation(handle, name);
     switch(info.type) {
     case gl.FLOAT:

@@ -1,11 +1,11 @@
 /** @constant @type {number} */
-var vec4Length = 4;
+let vec4Length = 4;
 
 /** @constant @type {number} */
-var float32ByteCount = 4;
+let float32ByteCount = 4;
 
 /** @constant @type {number} */
-var indexByteCount = 2;
+let indexByteCount = 2;
 
 /**
  * @param {Array.<string>} attributes  names of vec4-typed attributes
@@ -13,8 +13,8 @@ var indexByteCount = 2;
  * @constructor
  */
 function PrimitiveRenderer(attributes, elements) {
-  var numAttributes = attributes.length, numElements = elements.length;
-  var numVertices = Math.max.apply(null, elements) + 1, tmp;
+  let numAttributes = attributes.length, numElements = elements.length;
+  let numVertices = Math.max.apply(null, elements) + 1, tmp;
   this.attributes = attributes;
   this.numAttributes = numAttributes;
   this.numVertices = numVertices;
@@ -98,7 +98,7 @@ PrimitiveRenderer.prototype.itemTotalByteCount;
  * @param {string} fs
  */
 PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
-  var c = this.initialCapacity, d;
+  let c = this.initialCapacity, d;
   this.mode = mode;
   this.count = 0;
   this.capacity = c;
@@ -106,7 +106,7 @@ PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
   this.dataAttribs = new Float32Array(this.data, 0, c * this.itemLength);
   d = new Uint16Array(this.data, c * this.itemAttribByteCount);
   this.dataIndices = d;
-  var i, j, k = 0, o, e = this.elements;
+  let i, j, k = 0, o, e = this.elements;
   for (i = 0; i < c; ++i) {
     o = i * this.numVertices;
     for (j = 0; j < e.length; ++j)
@@ -117,9 +117,9 @@ PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
   this.bufferIndices = gl.createBuffer();
   this.bufferCapacity = -1;
   this.shaderProgram = new ShaderProgram(gl, vs, fs);
-  var sp = this.shaderProgram.handle;
+  let sp = this.shaderProgram.handle;
   this.attribLocations = this.attributes.map(a => {
-    var l = gl.getAttribLocation(sp, a);
+    let l = gl.getAttribLocation(sp, a);
     gl.enableVertexAttribArray(l);
     return l;
   });
@@ -183,7 +183,7 @@ PrimitiveRenderer.prototype.addPrimitive = function(attributes) {
   if (attributes.length !== this.itemLength)
     throw new GlError("Wrong number of attributes given");
   if (this.count == this.capacity) {
-    var c = this.capacity*2, nd, nda, ndi, i, j, k, o, e = this.elements;
+    let c = this.capacity*2, nd, nda, ndi, i, j, k, o, e = this.elements;
     nd = new ArrayBuffer(c * this.itemTotalByteCount);
     nda = new Float32Array(nd, 0, c * this.itemLength);
     ndi = new Uint16Array(nd, c * this.itemAttribByteCount);
@@ -206,7 +206,7 @@ PrimitiveRenderer.prototype.addPrimitive = function(attributes) {
 PrimitiveRenderer.prototype.renderPrimitives = function(gl, setUniforms) {
   if (this.count === 0)
     return;
-  var shaderProgram = this.shaderProgram, u = shaderProgram.uniform;
+  let shaderProgram = this.shaderProgram, u = shaderProgram.uniform;
   shaderProgram.use(gl);
   setUniforms(u);
   gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferAttribs);
@@ -220,7 +220,7 @@ PrimitiveRenderer.prototype.renderPrimitives = function(gl, setUniforms) {
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array
                      (this.data, 0, this.count * this.itemLength));
   }
-  var i;
+  let i;
   for (i = 0; i < this.numAttributes; ++i)
     gl.vertexAttribPointer(this.attribLocations[i],
                            4, gl.FLOAT, false, this.vertexByteCount, 4*4*i);

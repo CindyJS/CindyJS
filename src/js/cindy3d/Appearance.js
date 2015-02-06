@@ -1,5 +1,5 @@
 /** @typedef {{color:Array.<number>, alpha:number, shininess:number, size:number}} */
-var Appearance = {};
+let Appearance = {};
 
 /** @typedef {Array.<Appearance>} */
 Appearance.Stack;
@@ -60,6 +60,6 @@ Appearance.withSize = function(old, size) {
  * @return {Array.<number>}
  */
 Appearance.colorWithAlpha = function(appearance) {
-  var color = appearance.color;
+  let color = appearance.color;
   return [color[0], color[1], color[2], appearance.alpha];
 };
