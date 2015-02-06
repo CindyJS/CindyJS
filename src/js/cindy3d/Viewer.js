@@ -150,8 +150,8 @@ Viewer.prototype.render = function() {
  */
 Viewer.prototype.renderPrimitives = function(opaque) {
   if (!opaque)
-    this.spheres.render(this, 0);
-  this.spheres.render(this, 1);
+    this.spheres.render(this, +1); // back
+  this.spheres.render(this, -1); // front
 };
 
 /**

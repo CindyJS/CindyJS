@@ -6,9 +6,7 @@ attribute vec4 aCenter;
 
 attribute vec4 aColor;
 
-attribute vec3 aRelative;
-
-attribute float aRadius;
+attribute vec4 aRelativeRadius;
 
 varying vec3 vViewSpacePos;
 
@@ -29,12 +27,12 @@ void main() {
   vec3 right = normalize(cross(dir, vec3(0, 1, 0)));
   vec3 up = normalize(cross(right, dir));
 
+  vColor = aColor;
+  vRadius = aRelativeRadius.w;
+
   // Shift vertices of fullscreen quad
   vViewSpacePos = vViewSpaceCenter +
-	aRadius*(right * aRelative.x + up * aRelative.y + dir);
-
-  vColor = aColor;
-  vRadius = aRadius;
+	vRadius*(right * aRelativeRadius.x + up * aRelativeRadius.y + dir);
 
   // Transform position into screen space
   gl_Position = uProjectionMatrix * vec4(vViewSpacePos, 1);

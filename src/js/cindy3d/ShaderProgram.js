@@ -29,7 +29,7 @@ function ShaderProgram(gl, vertexShaderCode, fragmentShaderCode) {
   this.fs = this.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderCode);
   this.link(gl);
   this.detectUniforms(gl);
-  this.detectAttributes(gl);
+  // this.detectAttributes(gl);
 };
 
 /** @type {WebGLProgram} */

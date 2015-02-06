@@ -149,7 +149,8 @@ c3d_closure_args = \
 	--externs $(filter %.externs,$^) \
 	$(c3d_extra_args) \
 	--js $(filter %.js,$^)
-c3d_mods = ShaderProgram Camera Appearance Viewer Sphere Interface Ops3D
+c3d_mods = ShaderProgram Camera Appearance Viewer PrimitiveRenderer \
+	Sphere Interface Ops3D
 c3d_srcs = build/js/c3dres.js $(c3d_mods:%=src/js/cindy3d/%.js) \
 	src/js/cindy3d/cindyjs.externs src/js/cindy3d/Cindy3D.js.wrapper
 
