@@ -119,11 +119,7 @@ PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
   this.bufferCapacity = -1;
   this.shaderProgram = new ShaderProgram(gl, vs, fs);
   let sp = this.shaderProgram.handle;
-  this.attribLocations = this.attributes.map(a => {
-    let l = gl.getAttribLocation(sp, a);
-    gl.enableVertexAttribArray(l);
-    return l;
-  });
+  this.attribLocations = this.attributes.map(a => gl.getAttribLocation(sp, a));
 }
 
 /**
@@ -222,11 +218,18 @@ PrimitiveRenderer.prototype.renderPrimitives = function(gl, setUniforms) {
                      (this.data, 0, this.count * this.itemLength));
   }
   let i;
-  for (i = 0; i < this.numAttributes; ++i)
-    gl.vertexAttribPointer(this.attribLocations[i],
-                           4, gl.FLOAT, false, this.vertexByteCount, 4*4*i);
+  for (i = 0; i < this.numAttributes; ++i) {
+    let loc = this.attribLocations[i];
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(
+      loc, vec4Length, gl.FLOAT, /* normalized */ false,
+      this.vertexByteCount, vec4Length*float32ByteCount*i);
+  }
   gl.drawElements(this.mode, this.numElements * this.count,
                   gl.UNSIGNED_SHORT, 0);
+  for (i = 0; i < this.numAttributes; ++i) {
+    gl.disableVertexAttribArray(this.attribLocations[i]);
+  }
 };
 
 PrimitiveRenderer.prototype.clear = function() {

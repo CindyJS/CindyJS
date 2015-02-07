@@ -44,6 +44,7 @@ function Viewer(name) {
   }
   this.camera = new Camera(this.width, this.height);
   this.spheres = new Spheres(this);
+  this.cylinders = new Cylinders(this);
   this.pointAppearance   = Appearance.create([1, 0, 0], 1, 60, 1);
   this.lineAppearance    = Appearance.create([0, 0, 1], 1, 60, 1);
   this.surfaceAppearance = Appearance.create([0, 1, 0], 1, 60, 1);
@@ -53,6 +54,9 @@ function Viewer(name) {
 
 /** @type {Spheres} */
 Viewer.prototype.spheres;
+
+/** @type {Cylinders} */
+Viewer.prototype.cylinders;
 
 /** @type {HTMLCanvasElement} */
 Viewer.prototype.canvas;
@@ -128,7 +132,7 @@ Viewer.prototype.render = function() {
   gl.viewport(0, 0, this.width, this.height);
   gl.clearColor.apply(gl, this.backgroundColor);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  if (this.spheres.opaque) {
+  if (this.spheres.opaque && this.cylinders.opaque) {
     gl.disable(gl.BLEND);
     gl.depthMask(true);
     this.renderPrimitives(true);
@@ -155,6 +159,7 @@ Viewer.prototype.render = function() {
 Viewer.prototype.renderPrimitives = function(opaque) {
   if (!opaque)
     this.spheres.render(this, +1); // back
+  this.cylinders.render(this);
   this.spheres.render(this, -1); // front
 };
 
@@ -164,6 +169,7 @@ Viewer.prototype.renderPrimitives = function(opaque) {
 Viewer.prototype.setUniforms = function(u) {
   u["uProjectionMatrix"](this.camera.projectionMatrix);
   u["uModelViewMatrix"](transpose4(this.camera.mvMatrix));
+  if(!u["materialShininess"]) return;
   u["materialShininess"]([60]);
   u["materialAmbient"]([0.2, 0.2, 0.2, 0.2]);
   u["materialSpecular"]([0.5, 0.5, 0.5, 0.5]);

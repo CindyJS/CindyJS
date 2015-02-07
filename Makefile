@@ -123,8 +123,9 @@ jshint: node_modules/.bin/jshint build/js/ours.js
 ## Build JavaScript version of Cindy3D
 ######################################################################
 
-c3d_primitives = sphere
-c3d_shaders = $(c3d_primitives:%=%-vert.glsl) $(c3d_primitives:%=%-frag.glsl) lighting.glsl
+c3d_primitives = sphere cylinder
+c3d_shaders = $(c3d_primitives:%=%-vert.glsl) $(c3d_primitives:%=%-frag.glsl) \
+	lighting.glsl common-frag.glsl
 c3d_str_res = $(c3d_shaders:%=src/str/cindy3d/%)
 
 build/js/c3dres.js: $(c3d_str_res) tools/files2json.js $(NPM_DEP)
@@ -150,7 +151,7 @@ c3d_closure_args = \
 	$(c3d_extra_args) \
 	--js $(filter %.js,$^)
 c3d_mods = ShaderProgram Camera Appearance Viewer PrimitiveRenderer \
-	Spheres Interface Ops3D
+	Spheres Cylinders Interface Ops3D
 c3d_srcs = build/js/c3dres.js $(c3d_mods:%=src/js/cindy3d/%.js) \
 	src/js/cindy3d/cindyjs.externs src/js/cindy3d/Cindy3D.js.wrapper
 

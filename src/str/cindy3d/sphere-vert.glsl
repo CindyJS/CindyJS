@@ -27,10 +27,11 @@ void main() {
   vec3 right = normalize(cross(dir, vec3(0, 1, 0)));
   vec3 up = normalize(cross(right, dir));
 
+  // Copy attributes to varyings for use in the fragment shader
   vColor = aColor;
   vRadius = aRelativeRadius.w;
 
-  // Shift vertices of fullscreen quad
+  // Cover sphere by quad in front of the real sphere
   vViewSpacePos = vViewSpaceCenter +
 	vRadius*(right * aRelativeRadius.x + up * aRelativeRadius.y + dir);
 

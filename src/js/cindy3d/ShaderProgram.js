@@ -57,9 +57,11 @@ ShaderProgram.prototype.createShader = function(gl, kind, code) {
   let shader = gl.createShader(kind);
   gl.shaderSource(shader, code);
   gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.warn(code.split("\n"));
     throw new GlError("Error compiling shader:\n" +
                       gl.getShaderInfoLog(shader));
+  }
   gl.attachShader(this.handle, shader);
   return shader;
 };

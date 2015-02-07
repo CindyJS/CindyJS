@@ -63,3 +63,10 @@ Appearance.colorWithAlpha = function(appearance) {
   let color = appearance.color;
   return [color[0], color[1], color[2], appearance.alpha];
 };
+
+/**
+ * Conversion factor from object size to world coordinates.
+ * @const
+ * @type {number}
+ */
+const POINT_SCALE = 0.05;
