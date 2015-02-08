@@ -55,7 +55,7 @@ Cylinders.prototype.render = function(viewer) {
   if (this.count === 0)
     return;
   let gl = viewer.gl;
-  //gl.enable(gl.CULL_FACE);
+  gl.enable(gl.CULL_FACE);
   gl.cullFace(gl.BACK);
   this.renderPrimitives(gl, viewer.setUniforms.bind(viewer));
   gl.disable(gl.CULL_FACE);
