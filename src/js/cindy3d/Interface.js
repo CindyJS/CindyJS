@@ -36,15 +36,26 @@ let coerce = {};
 
 /**
  * @param {cjsType.anyval} arg
- * @param {Array.<number>=} def
- * @return {Array.<number>}
+ * @param {Array.<cjsType.anyval>=} def
+ * @return {Array.<cjsType.anyval>}
  */
-coerce.toHomog = function(arg, def=[0,0,0,0]) {
+coerce.toList = function(arg, def=null) {
   if (arg["ctype"] !== "list") {
     console.log("argument is not a list");
     return def;
   }
-  let lst1 = /** @type {Array.<cjsType.anyval>} */(arg["value"]);
+  return /** @type {Array.<cjsType.anyval>} */(arg["value"]);
+};
+
+/**
+ * @param {cjsType.anyval} arg
+ * @param {Array.<number>=} def
+ * @return {Array.<number>}
+ */
+coerce.toHomog = function(arg, def=[0,0,0,0]) {
+  let lst1 = coerce.toList(arg);
+  if (lst1 === null)
+    return def;
   let lst = lst1.map(coerce.toReal);
   if (lst.length > 4) {
     console.log("Coordinate vector too long.");
@@ -62,12 +73,29 @@ coerce.toHomog = function(arg, def=[0,0,0,0]) {
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
-coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
-  if (arg["ctype"] !== "list") {
-    console.log("argument is not a list");
+coerce.toDirection = function(arg, def=[0,0,0]) {
+  let lst1 = coerce.toList(arg);
+  if (lst1 === null)
     return def;
+  let lst = lst1.map(coerce.toReal);
+  if (lst.length > 3) {
+    console.log("Coordinate vector too long.");
+    lst = lst.slice(0, 3);
   }
-  let lst = /** @type {Array.<cjsType.anyval>} */(arg["value"]);
+  while (lst.length < 3)
+    lst.push(0);
+  return lst;
+};
+
+/**
+ * @param {cjsType.anyval} arg
+ * @param {Array.<number>=} def
+ * @return {Array.<number>}
+ */
+coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
+  let lst = coerce.toList(arg);
+  if (lst === null)
+    return def;
   if (lst.length != 3) {
     console.log("Not an RGB color vector");
     return def;

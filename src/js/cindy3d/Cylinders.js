@@ -27,13 +27,13 @@ Cylinders.prototype = new PrimitiveRenderer(
 /**
  * @param {Array.<number>} pos1
  * @param {Array.<number>} pos2
- * @param {number} radius
- * @param {Array.<number>} color
+ * @param {Appearance} appearance
  */
-Cylinders.prototype.add = function(pos1, pos2, radius, color) {
+Cylinders.prototype.add = function(pos1, pos2, appearance) {
   let x1 = pos1[0], y1 = pos1[1], z1 = pos1[2], w1 = pos1[3];
   let x2 = pos2[0], y2 = pos2[1], z2 = pos2[2], w2 = pos2[3];
-  let r = color[0], g = color[1], b = color[2], a = color[3];
+  let color = appearance.color, radius = appearance.size;
+  let r = color[0], g = color[1], b = color[2], a = appearance.alpha;
   if (a < 1.0)
     this.opaque = false;
   this.addPrimitive([

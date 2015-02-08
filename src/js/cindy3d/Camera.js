@@ -18,6 +18,15 @@ function normalized3(v) {
 }
 
 /**
+ * @param {Array.<number>} v
+ * @return {Array.<number>}
+ */
+function dehom3(v) {
+  let f = 1/v[3];
+  return [f*v[0], f*v[1], f*v[2]];
+}
+
+/**
  * @param {Array.<number>} m
  * @return {Array.<number>}
  */
@@ -135,9 +144,27 @@ function transform4to3(m, v) {
 function Camera(width, height) {
   this.width = width;
   this.height = height;
-  this.setPerspective(45, width, height, 0.1, 100);
+  this.fieldOfView = 45;
+  this.zNear = 0.1;
+  this.zFar = 100;
+  this.updatePerspective();
   this.setCamera([0,0,5], [0,0,0], [0,1,0]);
 }
+
+/** @type {number} */
+Camera.prototype.width;
+
+/** @type {number} */
+Camera.prototype.height;
+
+/** @type {number} */
+Camera.prototype.fieldOfView;
+
+/** @type {number} */
+Camera.prototype.zNear;
+
+/** @type {number} */
+Camera.prototype.zFar;
 
 /** @type {number} */
 Camera.prototype.viewDist;
@@ -148,22 +175,14 @@ Camera.prototype.projectionMatrix;
 /** @type {Array.<number>} */
 Camera.prototype.mvMatrix;
 
-/**
- * @param {number} fieldOfView
- * @param {number} width
- * @param {number} height
- * @param {number} zNear
- * @param {number} zFar
- */
-Camera.prototype.setPerspective = function
-(fieldOfView, width, height, zNear, zFar) {
-  let f = 1.0/Math.tan(fieldOfView * (Math.PI / 360.));
-  let nearMinusFar = zNear - zFar;
+Camera.prototype.updatePerspective = function() {
+  let f = 1.0/Math.tan(this.fieldOfView * (Math.PI / 360.));
+  let nearMinusFar = this.zNear - this.zFar;
   this.projectionMatrix = [
-    f*height/width, 0, 0, 0,
+    f*this.height/this.width, 0, 0, 0,
     0, f, 0, 0,
-    0, 0, (zFar + zNear)/nearMinusFar, -1,
-    0, 0, 2*zFar*zNear/nearMinusFar, 0
+    0, 0, (this.zFar + this.zNear)/nearMinusFar, -1,
+    0, 0, 2*this.zFar*this.zNear/nearMinusFar, 0
   ];
 };
 

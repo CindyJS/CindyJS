@@ -131,11 +131,50 @@ defOp("draw3d", 1, function(args, modifs) {
 defOp("draw3d", 2, function(args, modifs) {
   let pos1 = coerce.toHomog(evaluate(args[0]));
   let pos2 = coerce.toHomog(evaluate(args[1]));
+  // TODO: handle "type" modifier
   let appearance = handleModifsAppearance(
     currentInstance.lineAppearance, modifs);
-  currentInstance.cylinders.add(
-    pos1, pos2, appearance.size,
-    Appearance.colorWithAlpha(appearance));
+  currentInstance.cylinders.add(pos1, pos2, appearance);
+  return nada;
+});
+
+defOp("connect3d", 1, function(args, modifs) {
+  let lst = coerce.toList(evaluate(args[0]));
+  let appearance = handleModifsAppearance(
+    currentInstance.lineAppearance, modifs);
+  if (lst.length < 2) return nada;
+  let pos1 = coerce.toHomog(lst[0]);
+  for (let i = 1; i < lst.length; ++i) {
+    let pos2 = coerce.toHomog(lst[i]);
+    currentInstance.cylinders.add(pos1, pos2, appearance);
+    pos1 = pos2;
+  }
+  return nada;
+});
+
+defOp("drawpoly3d", 1, function(args, modifs) {
+  let lst = coerce.toList(evaluate(args[0]));
+  let appearance = handleModifsAppearance(
+    currentInstance.lineAppearance, modifs);
+  if (lst.length < 2) return nada;
+  let pos1 = coerce.toHomog(lst[lst.length - 1]);
+  for (let i = 0; i < lst.length; ++i) {
+    let pos2 = coerce.toHomog(lst[i]);
+    currentInstance.cylinders.add(pos1, pos2, appearance);
+    pos1 = pos2;
+  }
+  return nada;
+});
+
+defOp("fillpoly3d", 1, function(args, modifs) {
+  return nada;
+});
+
+defOp("fillpoly3d", 2, function(args, modifs) {
+  return nada;
+});
+
+defOp("fillcircle3d", 3, function(args, modifs) {
   return nada;
 });
 
@@ -149,6 +188,14 @@ defOp("drawsphere3d", 2, function(args, modifs) {
   return nada;
 });
 
+defOp("mesh3d", 3, function(args, modifs) {
+  return nada;
+});
+
+defOp("mesh3d", 4, function(args, modifs) {
+  return nada;
+});
+
 //////////////////////////////////////////////////////////////////////
 // Lighting and scene appearance
 
@@ -158,5 +205,55 @@ defOp("background3d", 1, function(args, modifs) {
     color.push(1);
     currentInstance.backgroundColor = color;
   }
+  return nada;
+});
+
+defOp("lookat3d", 3, function(args, modifs) {
+  let position = coerce.toHomog(evaluate(args[0]), null);
+  let lookAt = coerce.toHomog(evaluate(args[1]), null);
+  let up = coerce.toDirection(evaluate(args[2]), null);
+  if (position && lookAt && up) {
+    currentInstance.camera.setCamera(dehom3(position), dehom3(lookAt), up);
+  }
+  return nada;
+});
+
+defOp("fieldofview3d", 1, function(args, modifs) {
+  let fov = coerce.toInterval(1, 179, evaluate(args[0]), 0);
+  if (fov > 0) {
+    currentInstance.camera.fieldOfView = fov;
+    currentInstance.camera.updatePerspective();
+  }
+  return nada;
+});
+
+defOp("depthrange3d", 2, function(args, modifs) {
+  let near = coerce.toReal(evaluate(args[0]), -1);
+  let far = coerce.toReal(evaluate(args[1]), -1);
+  if (near >= 0 && far > near) {
+    currentInstance.camera.zNear = near;
+    currentInstance.camera.zFar = far;
+    currentInstance.camera.updatePerspective();
+  }
+  return nada;
+});
+
+defOp("renderhints3d", 0, function(args, modifs) {
+  return nada;
+});
+
+defOp("pointlight3d", 1, function(args, modifs) {
+  return nada;
+});
+
+defOp("directionallight3d", 1, function(args, modifs) {
+  return nada;
+});
+
+defOp("spotlight3d", 1, function(args, modifs) {
+  return nada;
+});
+
+defOp("disablelight3d", 1, function(args, modifs) {
   return nada;
 });
