@@ -45,12 +45,20 @@ function Viewer(name) {
   this.camera = new Camera(this.width, this.height);
   this.spheres = new Spheres(this);
   this.cylinders = new Cylinders(this);
-  this.pointAppearance   = Appearance.create([1, 0, 0], 1, 60, 1);
-  this.lineAppearance    = Appearance.create([0, 0, 1], 1, 60, 1);
-  this.surfaceAppearance = Appearance.create([0, 1, 0], 1, 60, 1);
+  this.pointAppearance   = Appearance.clone(Viewer.defaultAppearances.point);
+  this.lineAppearance    = Appearance.clone(Viewer.defaultAppearances.line);
+  this.surfaceAppearance = Appearance.clone(Viewer.defaultAppearances.surface);
+  this.appearanceStack = [];
   this.backgroundColor = [1, 1, 1, 1];
   this.setupListeners();
 }
+
+/** @const @type {Appearance.Triple} */
+Viewer.defaultAppearances =
+  Appearance.mkTriple(
+    Appearance.createScaled([1, 0, 0], 1, 60, 1),
+    Appearance.createScaled([0, 0, 1], 1, 60, 1),
+    Appearance.createScaled([0, 1, 0], 1, 60, 1));
 
 /** @type {Spheres} */
 Viewer.prototype.spheres;
@@ -84,6 +92,9 @@ Viewer.prototype.lineAppearance;
 
 /** @type {Appearance} */
 Viewer.prototype.surfaceAppearance;
+
+/** @type {Appearance.Stack} */
+Viewer.prototype.appearanceStack;
 
 /** @type {Array.<number>} */
 Viewer.prototype.backgroundColor;

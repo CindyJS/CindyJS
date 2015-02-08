@@ -157,12 +157,12 @@ function handleModifsAppearance(appearance, modifs, handlers = null) {
     "color": (a => color = coerce.toColor(a)),
     "alpha": (a => alpha = coerce.toInterval(0, 1, a)),
     "shininess": (a => shininess = coerce.toInterval(0, 128, a)),
-    "size": (a => size = coerce.toReal(a)),
+    "size": (a => size = coerce.toReal(a) * Appearance.POINT_SCALE),
   };
   let key;
   if (handlers)
     for (key in handlers)
       combined[key] = handlers[key];
   handleModifs(modifs, combined);
-  return Appearance.create(color, alpha, shininess, size);
+  return Appearance.createReal(color, alpha, shininess, size);
 }

@@ -1,8 +1,18 @@
 /** @typedef {{color:Array.<number>, alpha:number, shininess:number, size:number}} */
 let Appearance = {};
 
-/** @typedef {Array.<Appearance>} */
+/** @typedef {{point:Appearance, line:Appearance, surface:Appearance}} */
+Appearance.Triple;
+
+/** @typedef {Array.<Appearance.Triple>} */
 Appearance.Stack;
+
+/**
+ * Conversion factor from object size to world coordinates.
+ * @const
+ * @type {number}
+ */
+Appearance.POINT_SCALE = 0.05;
 
 /**
  * @param {Array.<number>} color
@@ -11,48 +21,20 @@ Appearance.Stack;
  * @param {number} size
  * @return {Appearance}
  */
-Appearance.create = function(color, alpha, shininess, size) {
+Appearance.createReal = function(color, alpha, shininess, size) {
   return {color: color, alpha: alpha, shininess: shininess, size: size};
 };
 
 /**
- * @param {Appearance} old
  * @param {Array.<number>} color
- * @return {Appearance}
- */
-Appearance.withColor = function(old, color) {
-  return {color: color, alpha: old.alpha,
-          shininess: old.shininess, size: old.size};
-};
-
-/**
- * @param {Appearance} old
  * @param {number} alpha
- * @return {Appearance}
- */
-Appearance.withAlpha = function(old, alpha) {
-  return {color: old.color, alpha: alpha,
-          shininess: old.shininess, size: old.size};
-};
-
-/**
- * @param {Appearance} old
  * @param {number} shininess
- * @return {Appearance}
- */
-Appearance.withShininess = function(old, shininess) {
-  return {color: old.color, alpha: old.alpha,
-          shininess: shininess, size: old.size};
-};
-
-/**
- * @param {Appearance} old
  * @param {number} size
  * @return {Appearance}
  */
-Appearance.withSize = function(old, size) {
-  return {color: old.color, alpha: old.alpha,
-          shininess: old.shininess, size: size};
+Appearance.createScaled = function(color, alpha, shininess, size) {
+  return {color: color, alpha: alpha, shininess: shininess,
+          size: size * Appearance.POINT_SCALE};
 };
 
 /**
@@ -65,8 +47,23 @@ Appearance.colorWithAlpha = function(appearance) {
 };
 
 /**
- * Conversion factor from object size to world coordinates.
- * @const
- * @type {number}
+ * @param {Appearance} a
+ * @return {Appearance}
  */
-const POINT_SCALE = 0.05;
+Appearance.clone = function(a) {
+  return Appearance.createReal(a.color, a.alpha, a.shininess, a.size);
+};
+
+/**
+ * @param {Appearance} p
+ * @param {Appearance} l
+ * @param {Appearance} s
+ * @return {Appearance.Triple}
+ */
+Appearance.mkTriple = function(p, l, s) {
+  return {
+    point: Appearance.clone(p),
+    line: Appearance.clone(l),
+    surface: Appearance.clone(s)
+  };
+};
