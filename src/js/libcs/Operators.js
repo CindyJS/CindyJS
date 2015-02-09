@@ -921,8 +921,8 @@ evaluator._helper.laguerre = function(cs, x, maxiter)
 {
     if(cs.ctype!=='list')
         return nada;
-    var n = cs.value.length - 1;
-    for(var i = 0; i <= n; i++)
+    var n = cs.value.length - 1, i;
+    for(i = 0; i <= n; i++)
         if(cs.value[i].ctype!=='number')
             return nada;
     if(x.ctype!=='number')
@@ -936,7 +936,7 @@ evaluator._helper.laguerre = function(cs, x, maxiter)
         q = CSNumber.real(0.0);
         p = cs.value[n];
 
-        for (var i = n - 1; i >= 0; i--)
+        for (i = n - 1; i >= 0; i--)
         {
             s = CSNumber.add(q, CSNumber.mult(s, x));
             q = CSNumber.add(p, CSNumber.mult(q, x));
@@ -960,7 +960,7 @@ evaluator._helper.laguerre = function(cs, x, maxiter)
             a = CSNumber.mult(CSNumber.add(CSNumber.abs(x), CSNumber.real(1.0)), CSNumber.complex(Math.cos(iter), Math.sin(iter)));
         if (CSNumber._helper.isLessThan(CSNumber.abs(a), CSNumber.real(tol)))
             return x;
-        if (iter % 20 == 0)
+        if (iter % 20 === 0)
             a = CSNumber.mult(a, CSNumber.real(rand[iter / 20]));
         x = CSNumber.sub(x, a);
     }
@@ -970,14 +970,15 @@ evaluator._helper.laguerre = function(cs, x, maxiter)
 evaluator.roots=function(args,modifs){
     var cs=evaluateAndVal(args[0]);
     if(cs.ctype==='list'){
-        for(var i = 0; i < cs.value.length; i++)
+        var i;
+        for(i = 0; i < cs.value.length; i++)
             if(cs.value[i].ctype!=='number')
                 return nada;
         
         var roots = [];
         var cs_orig = List.clone(cs);
         var n = cs.value.length - 1;
-        for(var i = 0; i < n; i++)
+        for(i = 0; i < n; i++)
         {
             roots[i] = evaluator._helper.laguerre(cs, CSNumber.real(0.0), 200);
             roots[i] = evaluator._helper.laguerre(cs_orig, roots[i], 1);
