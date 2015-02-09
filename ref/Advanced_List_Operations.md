@@ -14,9 +14,8 @@ This operator produces a list that contains all two-element sublists of a list.
 These are all pairs of elements of `‹list›`.
 This operator is particularly useful for creating all segments determined a set of points.
 
-| Code                  | Result                                             |
-| --------------------- | -------------------------------------------------- |
-| `pairs([1, 2, 3, 4])` | `[[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]` |
+    > pairs([1, 2, 3, 4])
+    < [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
 
 ------
 
@@ -25,9 +24,8 @@ This operator is particularly useful for creating all segments determined a set 
 **Description:**
 This operator produces a list that contains all pairs of elements of consecutive elements of the argument `‹list›`.
 
-| Code                           | Result                             |
-| ------------------------------ | ---------------------------------- |
-| `consecutive([1, 2, 3, 4, 5])` | `[[1, 2], [2, 3], [3, 4], [4, 5]]` |
+    > consecutive([1, 2, 3, 4, 5])
+    < [[1, 2], [2, 3], [3, 4], [4, 5]]
 
 ------
 
@@ -37,9 +35,8 @@ This operator produces a list that contains all pairs of elements of consecutive
 This operator produces a list that contains all pairs of consecutive elements of the argument `‹list›`.
 Furthermore, the pair consisting of the last and the first elements is added.
 
-| Code                     | Result                                     |
-| ------------------------ | ------------------------------------------ |
-| `cycle([1, 2, 3, 4, 5])` | `[[1, 2], [2, 3], [3, 4], [4, 5], [5, 1]]` |
+    > cycle([1, 2, 3, 4, 5])
+    < [[1, 2], [2, 3], [3, 4], [4, 5], [5, 1]]
 
 ------
 
@@ -49,9 +46,8 @@ Furthermore, the pair consisting of the last and the first elements is added.
 This operator produces a list that contains all three-element sublists of a list.
 These are all the triples of elements of `‹list›`.
 
-| Code                    | Result                                 |
-| ----------------------- | -------------------------------------- |
-| `triples([1, 2, 3, 4])` | `[[1,2,3], [1,2,4], [1,3,4], [2,3,4]]` |
+    > triples([1, 2, 3, 4])
+    < [[1, 2, 3], [1, 2, 4], [1, 3, 4], [2, 3, 4]]
 
 ------
 
@@ -61,9 +57,8 @@ These are all the triples of elements of `‹list›`.
 This operator produces a list that resembles the direct product of two given lists.
 The direct products consists of all pairs whose first element is taken from `‹list1›` and whose second element is taken from `‹list2›`.
 
-| Code                                 | Result                                                   |
-| ------------------------------------ | -------------------------------------------------------- |
-| `directproduct([1,2,3], ["A", "B"])` | `[[1,"A"], [1,"B"], [2,"A"], [2,"B"], [3,"A"], [3,"B"]]` |
+    > directproduct([1,2,3], ["A", "B"])
+    < [[1, "A"], [1, "B"], [2, "A"], [2, "B"], [3, "A"], [3, "B"]]
 
 ------
 
@@ -91,14 +86,18 @@ Let us assume that we set
 
 then we get the following responses to various calls of flattening:
 
-| Code                          | Result                          |
-| ----------------------------- | ------------------------------- |
-| `flatten(list)`               | `[1,2,3,[4,5],[6,[7,8]],6]`     |
-| `flatten(list,levels->0)`     | `[[1,2],[3,[4,5],[6,[7,8]]],6]` |
-| `flatten(list,levels->1)`     | `[1,2,3,[4,5],[6,[7,8]],6]`     |
-| `flatten(list,levels->2)`     | `[1,2,3,4,5,6,[7,8],6]`         |
-| `flatten(list,levels->3)`     | `[1,2,3,4,5,6,7,8,6] `          |
-| `flatten(list,levels->"all")` | `[1,2,3,4,5,6,7,8,6] `          |
+    > flatten(list)
+    < [1,2,3,[4,5],[6,[7,8]],6]
+    > flatten(list,levels->0)
+    < [[1,2],[3,[4,5],[6,[7,8]]],6]
+    > flatten(list,levels->1)
+    < [1,2,3,[4,5],[6,[7,8]],6]
+    > flatten(list,levels->2)
+    < [1,2,3,4,5,6,[7,8],6]
+    > flatten(list,levels->3)
+    < [1,2,3,4,5,6,7,8,6] 
+    > flatten(list,levels->"all")
+    < [1,2,3,4,5,6,7,8,6] 
 
 ------
 
@@ -111,9 +110,8 @@ The following operators change the order of the elements within a list.
 **Description:**
 This operator reverses the order of the elements in `‹list›`.
 
-| Code                    | Result         |
-| ----------------------- | -------------- |
-| `reverse([1, 2, 3, 4])` | `[4, 3, 2, 1]` |
+    > reverse([1, 2, 3, 4])
+    < [4, 3, 2, 1]
 
 ------
 
@@ -131,10 +129,10 @@ Furthermore, by convention Cinderella uses the order
 
 booleans &lt; numbers &lt; strings &lt; lists
 
-| Code                                            | Result                                |
-| ----------------------------------------------- | ------------------------------------- |
-| `sort([4.5, 1.3, 6.7, 0.2])`                    | `[0.2, 1.3, 4.5, 6.7]`                |
-| `sort(["one", "two", "three", "four", "five"])` | `["five","four","one","three","two"]` |
+    > sort([4.5, 1.3, 6.7, 0.2])
+    < [0.2, 1.3, 4.5, 6.7]
+    > sort(["one", "two", "three", "four", "five"])
+    < ["five","four","one","three","two"]
 
 ------
 
@@ -144,10 +142,10 @@ booleans &lt; numbers &lt; strings &lt; lists
 This operator takes each element of the list and evaluates a function expressed by `‹expr›` applied to it.
 All elements of the list are sorted with respect to the result of these evaluations.
 
-| Code                                                      | Result                                |
-| --------------------------------------------------------- | ------------------------------------- |
-| `sort([-4.5, 1.3, -6.7, 0.2], abs(#))`                    | `[0.2, 1.3, -4.5, -6.7]`              |
-| `sort(["one", "two", "three", "four", "five"],length(#))` | `["one","two","four","five","three"]` |
+    > sort([-4.5, 1.3, -6.7, 0.2], abs(#))
+    < [0.2, 1.3, -4.5, -6.7]
+    > sort(["one", "two", "three", "four", "five"],length(#))
+    < ["one","two","four","five","three"]
 
 ------
 
@@ -165,8 +163,9 @@ This operator sorts all elements of a list and removes occurrences of identical 
 Thus a unique representation of the list is computed if the list is considered as a *set* of objects.
 Together with the operators `concat`, `remove`, and `common`, this can be used as an implementation of set functionality.
 
-| Code                         | Result            |
-| ---------------------------- | ----------------- |
-| `set([3, 5, 2, 4, 3, 5, 7])` | `[2, 3, 4, 5, 7]` |
-| `set([3, 5, 2]++[4, 5, 2])`  | `[2, 3, 4, 5]`    |
-| `set([3, 5, 2]~~[4, 5, 2])`  | `[2, 5]`          |
+    > set([3, 5, 2, 4, 3, 5, 7])
+    < [2, 3, 4, 5, 7]
+    > set([3, 5, 2]++[4, 5, 2])
+    < [2, 3, 4, 5]
+    > set([3, 5, 2]~~[4, 5, 2])
+    < [2, 5]

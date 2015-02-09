@@ -19,12 +19,14 @@ Usually all these operators apply to real numbers as well as to complex numbers.
 Numbers (integers, real, complex) can be added with the **+** operator.
 Lists having the same structure can also be added; then the addition is carried out component wise.
 
-| Code                        | Result        |
-| --------------------------- | ------------- |
-| `7 + 8`                     | `15`          |
-| `2.3 + 5.9`                 | `8.2`         |
-| `[2,3,4] + [3,4,6]`         | `[5,7,10]`    |
-| `[2,3,[1,2]] + [3,4,[1,3]]` | `[5,7,[2,4]]` |
+    > 7 + 8
+    < 15
+    > 2.3 + 5.9
+    < 8.2
+    > [2,3,4] + [3,4,6]
+    < [5,7,10]
+    > [2,3,[1,2]] + [3,4,[1,3]]
+    < [5,7,[2,4]]
 
 **See also:**
 [String Operators](String_Operators)
@@ -41,10 +43,14 @@ Furthermore, the `-` operator can be used as a unary minus.
 
 | Code                        | Result          |
 | --------------------------- | --------------- |
-| `7 - 8`                     | `-1`            |
-| `8.3 - 5.9`                 | `2.4`           |
-| `[2,6,4] - [3,4,6]`         | `[-1,2,-2]`     |
-| `[5,3,[1,2]] - [3,4,[1,3]]` | `[2,-1,[0,-1]]` |
+    > 7 - 8
+    < -1
+    > 8.3 - 5.9
+    < 2.4
+    > [2,6,4] - [3,4,6]
+    < [-1,2,-2]
+    > [5,3,[1,2]] - [3,4,[1,3]]
+    < [2,-1,[0,-1]]
 
 **See also:**
 [String Operators](String_Operators)
@@ -58,16 +64,22 @@ Numbers (integers, real, complex) can be multiplied with the `*` operator.
 Lists that represent numerical vectors or numerical matrices can also be multiplied if the dimensions admit a reasonable mathematical operation.
 See the examples for further description.
 
-| Code                            | Result                                                                                     |
-| ------------------------------- | ------------------------------------------------------------------------------------------ |
-| `7 * 8`                         | `56` (integer multiplication)                                                              |
-| `(1+i) * (2+i)`                 | `1+3*i` (multiplication of complex numbers)                                                |
-| `2 * [5,3,2]`                   | `[10,2,4]` (scalar multiplication of number and vector)                                    |
-| `[5,3,2] * 2`                   | `[10,2,4]` (scalar multiplication of number and vector)                                    |
-| `[2,2,3] * [3,4,6]`             | `32` (scalar product of two vectors) (x_1,x_2,…,x_n)*(y_1,y_2, …,y_n)=(x_1*y_1+…+x_n*y_n)) |
-| `[[1,2],[3,4]] * [1,2]`         | `[5,11]` (matrix times vector)                                                             |
-| `[1,2] * [[1,2],[3,4]]`         | `[7,10]` (vector times matrix)                                                             |
-| `[[1,2],[3,4]] * [[1,2],[3,4]]` | `[[7,10],[15,22]]` (product of two matrices)                                               |
+    > 7 * 8
+    < 56
+    > (1+i) * (2+i)
+    < 1+3*i
+    > 2 * [5,3,2]
+    < [10,2,4]
+    > [5,3,2] * 2
+    < [10,2,4]
+    > [2,2,3] * [3,4,6]
+    < 32
+    > [[1,2],[3,4]] * [1,2]
+    < [5,11]
+    > [1,2] * [[1,2],[3,4]]
+    < [7,10]
+    > [[1,2],[3,4]] * [[1,2],[3,4]]
+    < [[7,10],[15,22]]
 
 **See also:**
 [Vectors and Matrices](Vectors_and_Matrices)
@@ -80,10 +92,10 @@ See the examples for further description.
 Numbers (integers, real, complex) can be divided with the `/` operator.
 Also, a vector can be divided by a number.
 
-| Code          | Result    |
-| ------------- | --------- |
-| `56 / 8`      | `7`       |
-| `[6,8,4] / 2` | `[3,4,2]` |
+    > 56 / 8
+    < 7
+    > [6,8,4] / 2
+    < [3,4,2]
 
 ------
 
@@ -100,9 +112,12 @@ For noninteger values of `b` only one principal value of `aˆb` will be returned
 
 | Code      | Result    |
 | --------- | --------- |
-| `5ˆ2`     | `25`      |
-| `5ˆ(-1)`  | `0.2`     |
-| `2ˆ(1/2)` | `1.4142…` |
+    > 5ˆ2
+    < 25
+    > 5ˆ(-1)
+    < 0.2
+    > 2ˆ(1/2)
+    < 1.4142…
 
 ------
 
@@ -111,10 +126,10 @@ For noninteger values of `b` only one principal value of `aˆb` will be returned
 This operator multiplies any number by the constant `pi/180` .
 This makes possible angle conversion from degrees to radians.
 
-| Code        | Result    |
-| ----------- | --------- |
-| `180°`      | `3.1415…` |
-| `cos(180°)` | `-1`      |
+    > 180°
+    < 3.1415…
+    > cos(180°)
+    < -1
 
 ------
 
@@ -128,9 +143,12 @@ It is not allowed to use the `|...|` operator in a nested way, since such expres
 
 | Code      | Result    |
 | --------- | --------- |
-| `|-5|`    | `5`       |
-| `|(3,4)|` | `5`       |
-| `|1+i|`   | `1.4142`… |
+    > |-5|
+    < 5
+    > |(3,4)|
+    < 5
+    > |1+i|
+    < 1.4142
 
 ------
 
@@ -143,10 +161,10 @@ However, they must be of the same type.
 
 It is not allowed to use the `|...,...|` operator in a nested way, since such expressions can be syntactically ambiguous.
 
-| Code            | Result |
-| --------------- | ------ |
-| `|-5,8|`        | `3`    |
-| `|(1,1),(4,5)|` | `5`    |
+    > |-5,8|
+    < 3
+    > |(1,1),(4,5)|
+    < 5
 
 ------
 
@@ -174,12 +192,18 @@ These operators are binary functions equivalent to the operators like `+`, `-`, 
 
 | Code                | Result  |
 | ------------------- | ------- |
-| `add(5,6)`          | `11`    |
-| `pow(6,2)`          | `36`    |
-| `mod(23,4)`         | `3`     |
-| `add([1,2],[3,4])`  | `(4,6)` |
-| `mult(2,[3,4])`     | `(6,8)` |
-| `mult([4,5],[3,4])` | `32`    |
+    > add(5,6)
+    < 11
+    > pow(6,2)
+    < 36
+    > mod(23,4)
+    < 3
+    > add([1,2],[3,4])
+    < (4,6)
+    > mult(2,[3,4])
+    < (6,8)
+    > mult([4,5],[3,4])
+    < 32
 
 ------
 
@@ -227,12 +251,14 @@ The standard trigonometric functions are available through the following operato
 The `arc` operators are in principle multivalued.
 However, the operator returns only one principal value, for which the real value is between `+pi` and `-pi`.
 
-| Code             | Result    |
-| ---------------- | --------- |
-| `sin(pi)`        | `0`       |
-| `arccos(-1)`     | `3.1415`… |
-| `arctan2(1,1)`   | `45°`     |
-| `arctan2(-1,-1)` | `-135°`   |
+    > sin(pi)
+    < 0
+    > arccos(-1)
+    < 3.1415
+    > arctan2(1,1)
+    < 45°
+    > arctan2(-1,-1)
+    < -135°
 
 ------
 
@@ -260,10 +286,14 @@ All other functions can also be applied to lists, in which case they are applied
 
 | Code                         | Result        |
 | ---------------------------- | ------------- |
-| `round(4.3)`                 | `4`           |
-| `round([3.2,7.8,3.1+i*6.9])` | `[3,8,3+i*7]` |
-| `abs([1,3,1,2,1])`           | `4`           |
-| `floor(4.8)`                 | `4`           |
+    > round(4.3)
+    < 4
+    > round([3.2,7.8,3.1+i*6.9])
+    < [3,8,3+i*7]
+    > abs([1,3,1,2,1])
+    < 4
+    > floor(4.8)
+    < 4
 
 ------
 

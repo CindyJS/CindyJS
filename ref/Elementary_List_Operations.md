@@ -8,11 +8,12 @@
 The expression `‹int1›..‹int2›` creates a list of consecutive integers starting with `‹int1›` and ending with `‹int2›`.
 If `‹int1›` is larger than `‹int2›`, then the empty list is returned.
 
-| Code   | Result               |
-| ------ | -------------------- |
-| `4..9` | `[4, 5, 6, 7, 8, 9]` |
-| `2..2` | `[-2, -1, 0, 1, 2]`  |
-| `4..1` | `[]`                 |
+    > 4..9
+    < [4, 5, 6, 7, 8, 9]
+    > 2..2
+    < [-2, -1, 0, 1, 2]
+    > 4..1
+    < []
 
 ------
 
@@ -23,9 +24,12 @@ This operator returns an integer that is equal to the number of elements in the 
 
 | Code                             | Result |
 | -------------------------------- | ------ |
-| `length([2 ,5 ,7 ,3])`           | `4`    |
-| `length([2 ,[5, 4, 5] ,7 ,3]_2)` | `3`    |
-| `length(1..1000)`                | `1000` |
+    > length([2 ,5 ,7 ,3])
+    < 4
+    > length([2 ,[5, 4, 5] ,7 ,3]_2)
+    < 3
+    > length(1..1000)
+    < 1000
 
 Combining the `length` and the `repeat` operator allows one to list all elements of a list easily.
 
@@ -48,11 +52,12 @@ There are more elegant ways.
 **Description:**
 This operator returns either `true` or `false` depending on whether `‹list›` contains the element &lt;expr&gt;.
 
-| Code                      | Result  |
-| ------------------------- | ------- |
-| `contains([1,3,4,5],4)`   | `true`  |
-| `contains([1,3,4,5],7)`   | `false` |
-| `contains([1,3,4,5],2*2)` | `true`  |
+    > contains([1,3,4,5],4)
+    < true
+    > contains([1,3,4,5],7)
+    < false
+    > contains([1,3,4,5],2*2)
+    < true
 
 ------
 
@@ -66,9 +71,8 @@ This operator returns either `true` or `false` depending on whether `‹list›`
 This operator creates a list by concatenation of two other lists.
 This operator can equivalently be written as `‹list1›++‹list2›`.
 
-| Code                             | Result                 |
-| -------------------------------- | ---------------------- |
-| `concat(["a", "b"], ["c", "d"])` | `["a", "b", "c", "d"]` |
+    > concat(["a", "b"], ["c", "d"])
+    < ["a", "b", "c", "d"]
 
 ------
 
@@ -78,10 +82,10 @@ This operator can equivalently be written as `‹list1›++‹list2›`.
 This operator creates a list by removing all elements that occur in `‹list2›` from `‹list1›`.
 This operator can equivalently be written as `‹list1› -- ‹list2›`.
 
-| Code                               | Result      |
-| ---------------------------------- | ----------- |
-| `remove([1,3,4,5,1,5,6], [1,3,7])` | `[4,5,5,6]` |
-| `[1,3,4,5,1,5,6]--[1,3,7]`         | `[4,5,5,6]` |
+    > remove([1,3,4,5,1,5,6], [1,3,7])
+    < [4,5,5,6]
+    > [1,3,4,5,1,5,6]--[1,3,7]
+    < [4,5,5,6]
 
 ------
 
@@ -92,10 +96,10 @@ This operator creates a list collecting all elements that are in both `‹list1�
 In the returned list the elements are sorted and each element occurs at most once.
 This operator can equivalently be written as `‹list1›~~‹list2›`.
 
-| Code                               | Result  |
-| ---------------------------------- | ------- |
-| `common([1,3,4,5,1,5,6], [1,3,7])` | `[1,3]` |
-| `[1,3,4,5,1,5,6]~~[1,3,7]`         | `[1,3]` |
+    > common([1,3,4,5,1,5,6], [1,3,7])
+    < [1,3]
+    > [1,3,4,5,1,5,6]~~[1,3,7]
+    < [1,3]
 
 ------
 
@@ -103,12 +107,12 @@ This operator can equivalently be written as `‹list1›~~‹list2›`.
 
 **Description:**
 This operator returns a list that is created by appending `‹expr›` to the list `‹list›` as its last element.
-` This operator can equivalently be written as `‹list›:›‹expr›`.`
+` This operator can equivalently be written as `‹list›:>‹expr›`.`
 
-| Code                           | Result                |
-| ------------------------------ | --------------------- |
-| `append(["a", "b", "c"], "d")` | `["a", "b", "c","d"]` |
-| `["a", "b", "c"]:›"d"`         | `["a", "b", "c","d"]` |
+    > append(["a", "b", "c"], "d")
+    < ["a", "b", "c","d"]
+    > ["a", "b", "c"]:>"d"
+    < ["a", "b", "c","d"]
 
 ------
 
@@ -118,10 +122,10 @@ This operator returns a list that is created by appending `‹expr›` to the li
 This operator returns a list that is created by prepending `‹expr›` to the list `‹list›` as its first element.
 ` This operator can equivalently be written as `‹expr›‹:‹list›`.`
 
-| Code                           | Result                |
-| ------------------------------ | --------------------- |
-| `prepend("d",["a", "b", "c"])` | `["d","a", "b", "c"]` |
-| `"d"‹:["a", "b", "c"~34`       | `["d","a", "b", "c"]` |
+    > prepend("d",["a", "b", "c"])
+    < ["d","a", "b", "c"]
+    > "d"‹:["a", "b", "c"~34
+    < ["d","a", "b", "c"]
 
 ------
 
@@ -162,11 +166,12 @@ Similar to `forall(‹list›,‹expr›)`, but the run variable is now named `�
 This operator generates a new list by applying the operation `‹expr›` to all elements of a list and collecting the results.
 As usual, `#` is the run variable, which successively takes the value of each element in the list.
 
-| Code                         | Result                                       |
-| ---------------------------- | -------------------------------------------- |
-| `apply([1, 2, 3, 4, 5],#^2)` | `[1, 4, 9, 16, 25]`                          |
-| `apply([1, 2, 3, 4, 5],#+5)` | `[6, 7, 8, 9, 10]`                           |
-| `apply(1..5, [#,#ˆ2])`       | `[[1, 1], [2, 4], [3, 9], [4, 16], [5, 25]]` |
+    > apply([1, 2, 3, 4, 5],#^2)
+    < [1, 4, 9, 16, 25]
+    > apply([1, 2, 3, 4, 5],#+5)
+    < [6, 7, 8, 9, 10]
+    > apply(1..5, [#,#ˆ2])
+    < [[1, 1], [2, 4], [3, 9], [4, 16], [5, 25]]
 
 ------
 
@@ -185,10 +190,10 @@ The condition is supposed to be encoded by `‹boolexpr›`.
 This expression is assumed to return a `‹bool›` value.
 As usual, `#` is the run variable, which successively take the value of all elements in the list.
 
-| Code                        | Result            |
-| --------------------------- | ----------------- |
-| `select(1..10, isodd(#))`   | `[1, 3, 5, 7, 9]` |
-| `select(0..10, #+# == #ˆ2)` | `[0,2]`           |
+    > select(1..10, isodd(#))
+    < [1, 3, 5, 7, 9]
+    > select(0..10, #+# == #ˆ2)
+    < [0,2]
 
 A high-level application of the `select` operator is given by the following example:
 

@@ -164,17 +164,24 @@ As long as not all three modifiers are set, the loop will always be executed `â€
 Only real values are allowed for the modifiers.
 The table below demonstrates different uses of the modifiers.
 
-| Code                                                     | Result                      |
-| -------------------------------------------------------- | --------------------------- |
-| `repeat(6, println(#+" "))`                              | `1 2 3 4 5 6`               |
-| `repeat(6, start->4, println(#+" "))`                    | `4 5 6 7 8 9`               |
-| `repeat(6, stop->2, println(#+" "))`                     | `-3 -2 -1 0 1 2`            |
-| `repeat(6, step->3, println(#+" "))`                     | `1 4 7 10 13 16`            |
-| `repeat(6, stop->12, step->4, println(#+" "))`           | `-8 -4 0 4 8 12`            |
-| `repeat(6, start->3, step->2, println(#+" "))`           | `3 5 7 9 11 13`             |
-| `repeat(6, start->3, stop->4, println(#+" "))`           | `3 3.2 3.4 3.6 3.8 4`       |
-| `repeat(6, start->0, stop->-3, println(#+" "))`          | `0 -0.6 -1.2 -1.8 -2.4 -3 ` |
-| `repeat(6, start->3, stop->4, step->0.4,println(#+" "))` | `3 3.4 3.8 4.2`             |
+    > repeat(6, println(#+" "))
+    * 1 2 3 4 5 6
+    > repeat(6, start->4, println(#+" "))
+    * 4 5 6 7 8 9
+    > repeat(6, stop->2, println(#+" "))
+    * -3 -2 -1 0 1 2
+    > repeat(6, step->3, println(#+" "))
+    * 1 4 7 10 13 16
+    > repeat(6, stop->12, step->4, println(#+" "))
+    * -8 -4 0 4 8 12
+    > repeat(6, start->3, step->2, println(#+" "))
+    * 3 5 7 9 11 13
+    > repeat(6, start->3, stop->4, println(#+" "))
+    * 3 3.2 3.4 3.6 3.8 4
+    > repeat(6, start->0, stop->-3, println(#+" "))
+    * 0 -0.6 -1.2 -1.8 -2.4 -3 
+    > repeat(6, start->3, stop->4, step->0.4,println(#+" "))
+    * 3 3.4 3.8 4.2
 
 ------
 

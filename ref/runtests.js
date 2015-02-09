@@ -105,6 +105,14 @@ TestCase.prototype.expectException = function(str) {
   else this.exception += "\n" + str;
 };
 
+function myniceprint(val) {
+  if (val.ctype === "string")
+    return JSON.stringify(val.value);
+  if (val.ctype === "list")
+    return "[" + val.value.map(myniceprint).join(", ") + "]";
+  return cjs.niceprint(val).toString();
+};
+
 TestCase.prototype.run = function() {
   var val, actual, expected, conlog, clog = [];
   conlog = console.log;
@@ -146,7 +154,7 @@ TestCase.prototype.run = function() {
   }
   if (this.expected !== null) {
     expected = this.expected;
-    actual = cjs.niceprint(val).toString();
+    actual = myniceprint(val);
     if (expected !== actual) {
       println("Location:  " + this.filename + ":" + this.lineno);
       println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));

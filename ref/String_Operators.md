@@ -12,11 +12,12 @@ The `+` operator can also be used to append one string to another.
 The result of such an operation is again a string.
 If in an addition operation at least one of the arguments is a string, then the other argument will be automatically converted to a string representation of its value.
 
-| Code                          | Result                   |
-| ----------------------------- | ------------------------ |
-| `"Cindy"+"Script"`            | `"CindyScript"`          |
-| `"Four plus three is "+(4+3)` | `"Four plus three is 7"` |
-| `""+(4+3)`                    | `"7".`                   |
+    > "Cindy"+"Script"
+    < "CindyScript"
+    > "Four plus three is "+(4+3)
+    < "Four plus three is 7"
+    > ""+(4+3)
+    < "7"
 
 **See also:**
 The `+` operator is also used for the addition of usual numerical values.
@@ -61,11 +62,12 @@ This operator searches for the first occurrence of `‹string2›` in `‹string
 The index of this first occurrence is returned.
 If `‹string2›` is not a substring of `‹string1›`, then the value `0` is returned.
 
-| Code                         | Result |
-| ---------------------------- | ------ |
-| `indexof("CindyScript","i")` | `2`    |
-| `indexof("CindyScript","y")` | `5`    |
-| `indexof("CindyScript","z")` | `0`    |
+    > indexof("CindyScript","i")
+    < 2
+    > indexof("CindyScript","y")
+    < 5
+    > indexof("CindyScript","z")
+    < 0
 
 ------
 
@@ -78,9 +80,12 @@ If `‹string2›` does not occur in `‹string1›` after index `i`., then the 
 
 | Code                            | Result |
 | ------------------------------- | ------ |
-| `indexof("CindyScript","i",1)`  | `2`    |
-| `indexof("CindyScript","i",3)`  | `9`    |
-| `indexof("CindyScript","i",10)` | `0`    |
+    > indexof("CindyScript","i",1)
+    < 2
+    > indexof("CindyScript","i",3)
+    < 9
+    > indexof("CindyScript","i",10)
+    < 0
 
 ------
 
@@ -101,15 +106,20 @@ If &lt;expr&gt; is a list of strings, then a hierarchical list is generated that
 This can lead to information loss.
 To turn off this behavior, use the `autoconvert` modifier and set it to `false`.
 
-| Code                                                    | Result                                    |
-| ------------------------------------------------------- | ----------------------------------------- |
-| `tokenize( "one:two..three:four", ":")`                 | `["one", "two..three", "four"]`           |
-| `tokenize( "one:two..three:four", ".")`                 | `["one:two", "", "three:four"]`           |
-| `tokenize( "one:two..three:four", "..")`                | `["one:two", "three:four"]`               |
-| `tokenize( "one:two..three:four", [".",":"])`           | `[["one", "two"], [], ["three", "four"]]` |
-| `tokenize( "one:two..three:four", ["..",":"])`          | `[["one", "two"], ["three", "four"]]`     |
-| `tokenize( "77777777777777777",":")`                    | `[77777777777777776]`                     |
-| `tokenize( "77777777777777777",":",autoconvert->false)` | `[77777777777777777]`                     |
+    > tokenize( "one:two..three:four", ":")
+    < ["one", "two..three", "four"]
+    > tokenize( "one:two..three:four", ".")
+    < ["one:two", "", "three:four"]
+    > tokenize( "one:two..three:four", "..")
+    < ["one:two", "three:four"]
+    > tokenize( "one:two..three:four", [".",":"])
+    < [["one", "two"], [], ["three", "four"]]
+    > tokenize( "one:two..three:four", ["..",":"])
+    < [["one", "two"], ["three", "four"]]
+    > tokenize( "77777777777777777",":")
+    < [77777777777777776]
+    > tokenize( "77777777777777777",":",autoconvert->false)
+    < [77777777777777777]
 
 ------
 
@@ -120,11 +130,12 @@ This operator replaces all (!) occurrences of &lt;string2&gt; in &lt;string1&gt;
 
 This operator is extremely useful for creating text replacement systems of the kind they are used in so called Lindenmeyer Systems.
 
-| Code                                          | Result                        |
-| --------------------------------------------- | ----------------------------- |
-| `replace( "one:two..three:four", "o", "XXX")` | `"XXXne:twXXX..three:fXXXur"` |
-| `replace("F", "F", "F+F")`                    | `"F+F"`                       |
-| `replace("F+F", "F", "F+F")`                  | `"F+F+F+F"`                   |
+    > replace( "one:two..three:four", "o", "XXX")
+    < "XXXne:twXXX..three:fXXXur"
+    > replace("F", "F", "F+F")
+    < "F+F"
+    > replace("F+F", "F", "F+F")
+    < "F+F+F+F"
 
 ------
 
@@ -134,9 +145,8 @@ This operator is extremely useful for creating text replacement systems of the k
 This operator is very similar to the previous one.
 `‹list›` contains a list of replacement pairs, and all such replacements are applied simultaneously to `‹string›`.
 
-| Code                                         | Result        |
-| -------------------------------------------- | ------------- |
-| `replace("XYX", [["X","one"], ["Y","two"]])` | `"onetwoone"` |
+    > replace("XYX", [["X","one"], ["Y","two"]])
+    < "onetwoone"
 
 ------
 
@@ -146,9 +156,8 @@ This operator is very similar to the previous one.
 This operator parses a string to an expression and evaluates this expression.
 This operator is particularly useful in processing user input that comes from text fields in a construction.
 
-| Code           | Result |
-| -------------- | ------ |
-| `parse("3+7")` | `10`   |
+    > parse("3+7")
+    < 10
 
 The code fragment
 
@@ -168,8 +177,10 @@ This expression is then represented as a string.
 
 | Code                       | Result        |
 | -------------------------- | ------------- |
-| `guess(8.125)`             | `"65/8"`      |
-| `guess(0.774596669241483)` | `"sqrt(3/5)"` |
+    > guess(8.125)
+    < "65/8"
+    > guess(0.774596669241483)
+    < "sqrt(3/5)"
 
 **See also:**
 [Calculus](Calculus)
@@ -184,20 +195,20 @@ A string is generated that corresponds to the number up to the specified precisi
 Up to 14 digits are possible.
 If the argument of format is a list of objects the format statement is applied to each of the objects recursively.
 
-| Code                            | Result               |
-| ------------------------------- | -------------------- |
-| `format(sqrt(2),4)`             | `"1.4142"`           |
-| `format(pi,14)`                 | `"3.14159265358979"` |
-| `format([sin(30°),cos(30°)],3)` | `[0.5,0.866]`        |
+    > format(sqrt(2),4)
+    < "1.4142"
+    > format(pi,14)
+    < "3.14159265358979"
+    > format([sin(30°),cos(30°)],3)
+    < [0.5,0.866]
 
 **Warning:**
 The format statement should only produced to create formatted output elements.
 The formatted values will always be *strings* and hence usually not valid objects for arithmetic operations.
 The following example illsustrates this:
 
-| Code                                   | Result           |
-| -------------------------------------- | ---------------- |
-| `format(sqrt(2),4)+ format(sqrt(2),4)` | `"1.41421.4142"` |
+    > format(sqrt(2),4)+ format(sqrt(2),4)
+    < "1.41421.4142"
 
 ------
 
@@ -225,10 +236,10 @@ The various versions of the `sort`-operator can be used to sort lists that conta
 The sorting order is usually taken to be the lexicographic order of the words.
 Alternatively, one can specify a user-defined sorting function such as the lengths of the strings.
 
-| Code                                                      | Result                                |
-| --------------------------------------------------------- | ------------------------------------- |
-| `sort(["one", "two", "three", "four", "five"])`           | `["five","four","one","three","two"]` |
-| `sort(["one", "two", "three", "four", "five"],length(#))` | `["one","two","four","five","three"]` |
+    > sort(["one", "two", "three", "four", "five"])
+    < ["five","four","one","three","two"]
+    > sort(["one", "two", "three", "four", "five"],length(#))
+    < ["one","two","four","five","three"]
 
 **See also:**
 [Lists and Linear Algebra](Lists_and_Linear_Algebra)
@@ -245,14 +256,7 @@ Alternatively, one can specify a user-defined sorting function such as the lengt
 The infix operator `_`, which accesses the fields of a list, can be also used to access a character at a specific position in a string.
 Characters can be returned and set with this operator.
 
-| Code               | Result    |
-| ------------------ | --------- |
-| `"CindyScript"_5`  | `"y"`     |
-| `"CindyScript"_12` | undefined |
-
-After evaluating the code fragement
-
-    > a="CindyScript";
-    > a_5="erella";
-
-the variable `a` contains the string `"CinderellaScript"`.
+    > "CindyScript"_5
+    < "y"
+    > "CindyScript"_12
+    < a

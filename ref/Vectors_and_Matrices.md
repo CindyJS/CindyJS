@@ -56,10 +56,14 @@ The elements may be numbers, or themselves lists (or vectors or matrices), or ev
 
 | Code                              | Result     |
 | --------------------------------- | ---------- |
-| `sum(1..10)`                      | `55`       |
-| `sum([4,6,2,6])`                  | `18`       |
-| `sum([ [3, 5], [2, 5], [5, 6] ])` | `[10, 16]` |
-| `sum(["h","e","ll","o"])`         | `"hello"`  |
+    > sum(1..10)
+    < 55
+    > sum([4,6,2,6])
+    < 18
+    > sum([ [3, 5], [2, 5], [5, 6] ])
+    < [10, 16]
+    > sum(["h","e","ll","o"])
+    < "hello"
 
 One can, for instance, use the sum operator to define an arithmetic mean function by the following code fragment:
 
@@ -77,18 +81,21 @@ The running variable is as usual `#`.
 
 We can calculate the sum of all squares of the first hundred integers by the following expression:
 
-| Code              | Result   |
-| ----------------- | -------- |
-| `sum(1..100,#ˆ2)` | `338350` |
+    > sum(1..100,#ˆ2)
+    < 338350
 
 It is time for a little mathematical mystery:
 
 | Code                | Result         |
 | ------------------- | -------------- |
-| `sum(1..10,#ˆ2)`    | `385`          |
-| `sum(1..100,#ˆ2)`   | `338350`       |
-| `sum(1..1000,#ˆ2)`  | `333833500`    |
-| `sum(1..10000,#ˆ2)` | `333383335000` |
+    > sum(1..10,#ˆ2)
+    < 385
+    > sum(1..100,#ˆ2)
+    < 338350
+    > sum(1..1000,#ˆ2)
+    < 333833500
+    > sum(1..10000,#ˆ2)
+    < 333383335000
 
 ------
 
@@ -105,9 +112,8 @@ This operator is similar to the last one, except that the running variable is lo
 This operator multiplies together all elements of a list.
 The elements are expected to be numbers.
 
-| Code            | Result |
-| --------------- | ------ |
-| `product(1..5)` | `120`  |
+    > product(1..5)
+    < 120
 
 One can, for instance, use the product operator to define the factorial function by the following code fragment:
 
@@ -137,7 +143,8 @@ This operator finds the maximum value in a list of entries.
 
 | Code               | Result |
 | ------------------ | ------ |
-| `max([4,2,6,3,5])` | `6`    |
+    > max([4,2,6,3,5])
+    < 6
 
 ------
 
@@ -161,9 +168,8 @@ This operator is similar to the last one, except that the running variable is lo
 **Description:**
 This operator finds the minimum of a list of entries.
 
-| Code               | Result |
-| ------------------ | ------ |
-| `min([4,2,6,3,5])` | `2`    |
+    > min([4,2,6,3,5])
+    < 2
 
 ------
 
@@ -192,9 +198,8 @@ Besides addition and multiplication, as described earlier in this section, there
 **Description:**
 If the argument is a matrix, this operator returns the number of columns and the number of rows of the matrix, encoded as a two-element list.
 
-| Code                                         | Result  |
-| -------------------------------------------- | ------- |
-| `matrixrowcolumn([[1,2],[3,2],[1,3],[5,4]])` | `[2,4]` |
+    > matrixrowcolumn([[1,2],[3,2],[1,3],[5,4]])
+    < [2,4]
 
 ------
 
@@ -204,11 +209,12 @@ If the argument is a matrix, this operator returns the number of columns and the
 If the argument is a matrix, this operator returns the transpose of the matrix.
 In the transpose, the rows and columns are interchanged.
 
-| Code                                    | Result                  |
-| --------------------------------------- | ----------------------- |
-| `transpose([[1,2],[3,2],[1,3], [5,4]])` | `[[1,3,1,5],[2,2,3,4]]` |
-| `transpose([[1],[3],[1],[5]])`          | `[[1,3,1,5]]`           |
-| `transpose([[1,3,1,5]])`                | `[[1],[3],[1],[5]]`     |
+    > transpose([[1,2],[3,2],[1,3], [5,4]])
+    < [[1,3,1,5],[2,2,3,4]]
+    > transpose([[1],[3],[1],[5]])
+    < [[1,3,1,5]]
+    > transpose([[1,3,1,5]])
+    < [[1],[3],[1],[5]]
 
 ------
 
@@ -217,9 +223,8 @@ In the transpose, the rows and columns are interchanged.
 **Description:**
 If the first argument is a matrix, this operator returns the row with index `‹int›` as a vector.
 
-| Code                                | Result  |
-| ----------------------------------- | ------- |
-| `row([[1,2],[3,2],[1,3], [5,4]],2)` | `[3,2]` |
+    > row([[1,2],[3,2],[1,3], [5,4]],2)
+    < [3,2]
 
 ------
 
@@ -228,9 +233,8 @@ If the first argument is a matrix, this operator returns the row with index `‹
 **Description:**
 If the first argument is a matrix, this operator returns the column with index `‹int›` as a vector.
 
-| Code                                   | Result      |
-| -------------------------------------- | ----------- |
-| `column([[1,2],[3,2],[1,3], [5,4]],2)` | `[2,2,3,4]` |
+    > column([[1,2],[3,2],[1,3], [5,4]],2)
+    < [2,2,3,4]
 
 ------
 
@@ -239,9 +243,8 @@ If the first argument is a matrix, this operator returns the column with index `
 **Description:**
 If the first argument is a matrix, this operator returns the submatrix obtained by deleting the column with index `‹int1›` and the row with index `‹int2›`.
 
-| Code                                                | Result                |
-| --------------------------------------------------- | --------------------- |
-| `submatrix([[1,2,4],[3,2,3], [1,3,6],[5,4,7]],2,3)` | `[[1,4],[3,3],[5,7]]` |
+    > submatrix([[1,2,4],[3,2,3], [1,3,6],[5,4,7]],2,3)
+    < [[1,4],[3,3],[5,7]]
 
 ------
 
@@ -250,9 +253,8 @@ If the first argument is a matrix, this operator returns the submatrix obtained 
 **Description:**
 If the first argument is a vector, this operator returns the matrix with a single row consisting of this vector.
 
-| Code                   | Result        |
-| ---------------------- | ------------- |
-| `rowmatrix([1,2,3,4])` | `[[1,2,3,4]]` |
+    > rowmatrix([1,2,3,4])
+    < [[1,2,3,4]]
 
 ------
 
@@ -263,7 +265,8 @@ If the first argument is a vector, this operator returns the matrix with a singl
 
 | Code                      | Result              |
 | ------------------------- | ------------------- |
-| `columnmatrix([1,2,3,4])` | `[[1],[2],[3],[4]]` |
+    > columnmatrix([1,2,3,4])
+    < [[1],[2],[3],[4]]
 
 ------
 
@@ -465,6 +468,4 @@ The convex hull operator is remarkably robust to degenerate situations.
 The following image has been computed under usage of the `convexhull3d(...)` operator.
 It shows the section of a 4-dimensional polytope (a 600-cell) with a 3-dimensional space.
 
-| ![Image](img/ConvexHullX.png)                           |
-| ------------------------------------------------------- |
-| **A section of a 600-cell rendered with CindyScript. ** |
+![A section of a 600-cell rendered with CindyScript](img/ConvexHullX.png)

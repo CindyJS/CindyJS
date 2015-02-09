@@ -79,7 +79,7 @@ Observe that the operator generates an implicit typing of the return values, so 
     - skip test: can't do drawing in the test suite.
     > drawall([a,b,c,d,ha,hb,hc,X,A,B,C]);
 
-| ![Image](img/MeetJoinX.png) |
+![Resulting construction](img/MeetJoinX.png)
 | --------------------------- |
 | ****                        |
 
@@ -216,9 +216,7 @@ The result is the green point in the figure.
     > m=linereflect(a);
     > draw(m*C.homog);
 
-| ![Image](img/LineReflectX.png) |
-| ------------------------------ |
-| ****                           |
+![Drawn reflection](img/LineReflectX.png)
 
 ------
 
