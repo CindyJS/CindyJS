@@ -228,7 +228,7 @@ function setuplisteners(canvas) {
 
 var requestAnimFrame;
 if (isNode) {
-    requestAnimFrame = process.nextTick;
+    requestAnimFrame = process.nextTick; // jshint ignore:line
 }
 else {
     requestAnimFrame =

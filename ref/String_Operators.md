@@ -209,8 +209,20 @@ If the argument of format is a list of objects the format statement is applied t
     < "1.4142"
     > format(pi,14)
     < "3.14159265358979"
+    > format(1.23456 + 98.765432*i, 2)
+    < "1.23 + i*98.77"
     > format([sin(30°),cos(30°)],3)
-    < [0.5,0.866]
+    < ["0.5", "0.866"]
+
+If the first argument is neither a number nor a list, then the result is `_?_`.
+If, however, it is a list, and somewhere nested inside that list is a value which is neither a number nor a list, then that value will be turned into a string representation of itself.
+
+    > format("foo",4)
+    < _?_
+    > format(1 < 2,4)
+    < _?_
+    > format([2.339, "foo", [5.678, 1 < 2]], 2)
+    < ["2.34", "foo", ["5.68", "true"]]
 
 **Warning:**
 The format statement should only produced to create formatted output elements.

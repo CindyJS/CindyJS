@@ -50,7 +50,7 @@ evaluator.errc=function(args,modifs){      //OK
 
 evaluator.println=function(args,modifs){
     console.log(niceprint(evaluate(args[0])));
-}
+};
 
 evaluator.dump=function(args,modifs){      
     
@@ -3059,23 +3059,41 @@ evaluator.javascript=function(args,modifs){
     return nada;
 };
 
-evaluator.format=function(args,modifs){//TODO Complex,Angels etc
-    
+evaluator.format=function(args,modifs){//TODO Angles
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
-    if(v0.ctype==='number' &&v1.ctype==='number' ){
-        var val=v0.value.real;
-        var dec=Math.round(v1.value.real);
-        var erg=val.toFixed(dec), erg1;
+    var dec;
+    function fmtNumber(n) {
+        var erg = n.toFixed(dec), erg1;
         do {
-          erg1=erg;
-          erg=erg.substring(0,erg.length-1);
-       } while (erg!==""&& erg!=="-"&& +erg === +erg1);
-        
-        return {"ctype":"string" ,  "value":""+erg1};
+            erg1=erg;
+            erg=erg.substring(0,erg.length-1);
+        } while (erg!==""&& erg!=="-"&& +erg === +erg1);
+        return ""+erg1;
+    }
+    function fmt(v) {
+        var r, i, erg;
+        if (v.ctype==='number') {
+            r = fmtNumber(v.value.real);
+            i = fmtNumber(v.value.imag);
+            if (i === "0")
+                erg = r;
+            else if (i.substring(0,1) === "-")
+                erg = r + " - i*" + i.substring(1);
+            else
+                erg = r + " + i*" + i;
+            return {"ctype":"string", "value":erg};
+        }
+        if (v.ctype==='list') {
+            return {"ctype":"list", "value":v.value.map(fmt)};
+        }
+        return {"ctype":"string", "value":niceprint(v).toString()};
+    }
+    if ((v0.ctype==='number' || v0.ctype==='list') && v1.ctype==='number') {
+        dec=Math.round(v1.value.real);
+        return fmt(v0);
     }
     return nada;
-    
 };
 
 /***********************************/

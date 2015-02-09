@@ -241,7 +241,7 @@ var initialscript=
 '           );'
 ;
 
-var isNode = (typeof module !== 'undefined' && this.module !== module);
+var isNode = (typeof module !== 'undefined' && this.module !== module); // jshint ignore:line
 var waitCount = -1;
 var cjsInit = function() {
 };
