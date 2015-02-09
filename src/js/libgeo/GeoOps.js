@@ -344,7 +344,6 @@ geoOps.CircleMFixedr =function(el){
 
     var r=el.radius;
     var p=List.turnIntoCSList([r,CSNumber.real(0),CSNumber.real(0)]);
-    p=List.add(p,mid);
     
     el.matrix=geoOps._helper.CircleMP(mid,p);
     el.matrix=List.normalizeMax(el.matrix);
@@ -382,13 +381,171 @@ geoOps.ConicBy5 =function(el){
     var c=csgeo.csnames[(el.args[2])].homog;
     var d=csgeo.csnames[(el.args[3])].homog;
     var p=csgeo.csnames[(el.args[4])].homog;
+
     var erg=geoOps._helper.ConicBy5(el,a,b,c,d,p);
-    el.points = [a, b, c, d, p]; // add points for degenerate case
+
     el.matrix=erg;
     el.matrix=List.normalizeMax(el.matrix);
     el.matrix.usage="Conic";
 };
 geoOpMap.ConicBy5="C";
+
+geoOps._helper.buildConicMatrix = function(arr){
+    var a = arr[0];
+    var b = arr[1];
+    var c = arr[2];
+    var d = arr[3];
+    var e = arr[4];
+    var f = arr[5];
+
+    var M = List.turnIntoCSList([
+	        List.turnIntoCSList([a,b,d]),
+	        List.turnIntoCSList([b,c,e]),
+	        List.turnIntoCSList([d,e,f])
+    		]);
+    return M;
+};
+
+geoOps._helper.splitDegenConic = function(mat){
+    var adj_mat = List.adjoint3(mat);
+
+    var idx = 0, k, l;
+    var max = CSNumber.abs(adj_mat.value[0].value[0]).value.real;
+    for(k = 1; k < 3; k++){
+    	if(CSNumber.abs(adj_mat.value[k].value[k]).value.real > max){
+    		idx = k;
+    		max = CSNumber.abs(adj_mat.value[k].value[k]).value.real;
+    	}
+    }
+    
+    var beta = CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1),adj_mat.value[idx].value[idx]));
+    idx = CSNumber.real(idx+1);
+    var p = List.column(adj_mat,idx);
+    if(CSNumber.abs(beta).value.real < 10e-8){
+	    return nada;
+    }
+
+    p = List.scaldiv(beta,p);
+
+    
+    var lam = p.value[0], mu = p.value[1], tau = p.value[2];
+    var M = List.turnIntoCSList([
+	    List.turnIntoCSList([CSNumber.real(0), tau, CSNumber.mult(CSNumber.real(-1),mu)]),
+	    List.turnIntoCSList([CSNumber.mult(CSNumber.real(-1),tau), CSNumber.real(0), lam]),
+	    List.turnIntoCSList([mu, CSNumber.mult(CSNumber.real(-1),lam), CSNumber.real(0)])]);
+
+
+    var C = List.add(mat,M);
+    
+    // get nonzero index
+    var ii = 0, jj = 0;
+    max = 0;
+    for(k = 0; k < 3; k++)
+    for(l = 0; l < 3; l++){
+    	if(CSNumber.abs(C.value[k].value[l]).value.real > max){
+    		ii = k;
+    		jj = l;
+		max = CSNumber.abs(C.value[k].value[l]).value.real;
+    	}
+    }
+
+    
+    var lg = C.value[ii];
+    C = List.transpose(C);
+    var lh = C.value[jj];
+
+    lg.usage = "Line";
+    lh.usage = "Line";
+
+    return [lg, lh];
+};
+
+geoOps.SelectConic =function(el){
+    var set=csgeo.csnames[(el.args[0])];
+    if(!el.inited){
+        el.inited=true;
+    }
+    el.matrix=set.results[el.index-1];
+    el.matrix=List.normalizeMax(el.matrix);
+    el.matrix.usage="Conic";
+};
+geoOpMap.SelectConic="C";
+
+// conic by 4 Points and 1 line
+geoOps._helper.ConicBy4p1l =function(el,a,b,c,d,l){
+    var a1 = List.cross(List.cross(a,c),l);
+    var a2 = List.cross(List.cross(b,d),l);
+    var b1 = List.cross(List.cross(a,b),l);
+    var b2 = List.cross(List.cross(c,d),l);
+    var o = List.realVector(csport.to(100*Math.random(),100*Math.random())); 
+
+    var r1 = CSNumber.mult(List.det3(o,a2,b1),List.det3(o,a2,b2));
+    r1 = CSNumber.sqrt(r1); 
+    var r2 = CSNumber.mult(List.det3(o,a1,b1),List.det3(o,a1,b2));
+    r2 = CSNumber.sqrt(r2); 
+
+    var k1 = List.scalmult(r1,a1);
+    var k2 = List.scalmult(r2,a2);
+
+    var x = List.add(k1, k2);
+    var y = List.sub(k1, k2);
+
+    var t1 = geoOps._helper.ConicBy5(el,a,b,c,d,x);
+    var t2 = geoOps._helper.ConicBy5(el,a,b,c,d,y);
+
+    return [t1,t2];
+};
+
+geoOps.ConicBy4p1l =function(el){
+    var a=csgeo.csnames[(el.args[0])].homog;
+    var b=csgeo.csnames[(el.args[1])].homog;
+    var c=csgeo.csnames[(el.args[2])].homog;
+    var d=csgeo.csnames[(el.args[3])].homog;
+
+    var l=csgeo.csnames[(el.args[4])].homog;
+
+    var erg = geoOps._helper.ConicBy4p1l(el,a,b,c,d,l);
+
+    el.results= erg;
+
+};
+geoOpMap.ConicBy4p1l="T";
+
+geoOps.ConicBy1p4l =function(el){
+    var l1=csgeo.csnames[(el.args[0])].homog;
+    var l2=csgeo.csnames[(el.args[1])].homog;
+    var l3=csgeo.csnames[(el.args[2])].homog;
+    var l4=csgeo.csnames[(el.args[3])].homog;
+
+    var p=csgeo.csnames[(el.args[4])].homog;
+
+    var erg = geoOps._helper.ConicBy4p1l(el,l1,l2,l3,l4,p);
+    var t1 = erg[0];
+    var t2 = erg[1];
+    t1 = List.adjoint3(t1);
+    t2 = List.adjoint3(t2);
+    
+    erg = [t1,t2];
+    el.results= erg;
+
+};
+geoOpMap.ConicBy1p4l="T";
+
+
+geoOps.ConicBy5lines =function(el){
+    var a=csgeo.csnames[(el.args[0])].homog;
+    var b=csgeo.csnames[(el.args[1])].homog;
+    var c=csgeo.csnames[(el.args[2])].homog;
+    var d=csgeo.csnames[(el.args[3])].homog;
+    var p=csgeo.csnames[(el.args[4])].homog;
+
+    var erg_temp=geoOps._helper.ConicBy5(el,a,b,c,d,p);
+    var erg = List.adjoint3(erg_temp);
+    el.matrix=erg;
+    el.matrix=List.normalizeMax(el.matrix);
+    el.matrix.usage="Conic";
+};
+geoOpMap.ConicBy5lines="C";
 
 geoOps.CircleBy3 =function(el){
     var a=csgeo.csnames[(el.args[0])].homog;
@@ -594,6 +751,8 @@ geoOps.SelectP =function(el){
     el.homog=set.results.value[el.index-1];
 };
 geoOpMap.SelectP="P";
+
+
 
 // Define a projective transformation given four points and their images
 geoOps.TrProjection = function(el){

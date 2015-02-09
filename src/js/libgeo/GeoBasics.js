@@ -303,60 +303,16 @@ function render(){
         if(!el.isshowing || el.visible === false)
             return;
 
-   //		[a, d, e]
-   //		[d, b, f]
-   //		[e, f, c]
-//    	var mat = el.matrix;
-//	var a = mat.value[0].value[0].value.real;
-//	var b = mat.value[1].value[0].value.real;
-//	var c = mat.value[1].value[1].value.real;
-//	var d = mat.value[2].value[0].value.real;
-//	var e = mat.value[2].value[1].value.real;
-//	var f = mat.value[2].value[2].value.real;
+        var modifs = {};
+        modifs.color = el.color;
+        modifs.alpha = el.alpha;
+        modifs.size = el.size;
 
-	var args = {};
-	var modifs = {};
-//	args.Cparameters = [a, b, c, d, e, f];
-	args.matrix = el.matrix;
-	//args.Cpoints = el.points;
+        var args = el;
+    	evaluator.drawconic(args, modifs);
 
-	evaluator.drawconic(args, modifs);
-
- //   }
-
-    /*
-        var cc=el.matrix;
-        var cxr = cc.value[2].value[0].value.real;
-        var axr = cc.value[0].value[0].value.real;
-        var cyr = cc.value[2].value[1].value.real;
-        var byr = cc.value[1].value[1].value.real;
-        var czr = cc.value[2].value[2].value.real;
-        var x = -cxr / axr;
-        var y = -cyr / byr;
-        var r2 = (axr * (x * x + y * y) + 2 * cxr * x + 2 * cyr * y + czr) / axr;
-        var rad = Math.sqrt(r2 > 0 ? r2 : -r2);
-        var imaginary = r2 > 0;
-        evaluator.drawcircle([List.realVector([x,y]),CSNumber.real(rad)],
-                           {size:el.size,color:el.color,alpha:el.alpha});
-
- 	*/
-
-        /*
-        
-        double x = -cc.cxr / cc.axr;
-        double y = -cc.cyr / cc.byr;
-        double r2 = (cc.axr * (x * x + y * y) + 2 * cc.cxr * x + 2 * cc.cyr * y + cc.czr) / cc.axr;
-        rad = Math.sqrt(r2 > 0 ? r2 : -r2);
-        imaginary = r2 > 0;
-        radp.setLocation(rad, 0);
-        rad *= ((EuclideanCoordinateTransformation) viewport.trans).scale;
-        mid.assign(x, y, 1);
-        (viewport).toPoint(mid, midp);
-        
-        */
-        
-
-}
+ 
+    }
     
     function drawgeoline(el){
         var pt1, pt2;

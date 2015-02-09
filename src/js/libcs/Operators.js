@@ -265,8 +265,28 @@ evaluator.select=function(args,modifs){ //OK
 };
 
 
-
-
+evaluator.flatten=function(args,modifs){
+    function recurse(lst, level) {
+        if (level === -1 || lst.ctype !== "list")
+            return lst;
+        return [].concat.apply([],lst.value.map(function(elt) {
+            return recurse(elt, level - 1);
+        }));
+    }
+    var lst = evaluateAndVal(args[0]);
+    if (lst.ctype !== "list")
+        return lst;
+    var levels = modifs.levels;
+    if (levels === undefined) {
+        levels = -2;
+    } else  {
+        levels = evaluate(levels);
+        if (levels.ctype === "number")
+            levels = levels.value.real;
+        else levels = -2;
+    }
+    return {'ctype':'list','value':recurse(lst, levels)};
+};
 
 
 evaluator.semicolon=function(args,modifs){ //OK
@@ -917,6 +937,81 @@ evaluator.sqrt=function(args,modifs){
     return nada;
 };
 
+evaluator._helper.laguerre = function(cs, x, maxiter)
+{
+    if(cs.ctype!=='list')
+        return nada;
+    var n = cs.value.length - 1;
+    for(var i = 0; i <= n; i++)
+        if(cs.value[i].ctype!=='number')
+            return nada;
+    if(x.ctype!=='number')
+        return nada;
+    var rand = [1.0, 0.3141, 0.5926, 0.5358, 0.9793, 0.2385, 0.6264, 0.3383, 0.2795, 0.0288];
+    var a, p, q, s, g, g2, h, r, d1, d2;
+    var tol = 1e-16;
+    for (var iter = 1; iter <= maxiter; iter++)
+    {
+        s = CSNumber.real(0.0);
+        q = CSNumber.real(0.0);
+        p = cs.value[n];
+
+        for (var i = n - 1; i >= 0; i--)
+        {
+            s = CSNumber.add(q, CSNumber.mult(s, x));
+            q = CSNumber.add(p, CSNumber.mult(q, x));
+            p = CSNumber.add(cs.value[i], CSNumber.mult(p, x));
+        }
+
+        if (CSNumber._helper.isLessThan(CSNumber.abs(p), CSNumber.real(tol)))
+            return x;
+
+        g = CSNumber.div(q, p);
+        g2 = CSNumber.mult(g, g);
+        h = CSNumber.sub(g2, CSNumber.div(CSNumber.mult(CSNumber.real(2.0), s), p));
+        r = CSNumber.sqrt(CSNumber.mult(CSNumber.real(n - 1), CSNumber.sub(CSNumber.mult(CSNumber.real(n), h), g2)));
+        d1 = CSNumber.add(g, r);
+        d2 = CSNumber.sub(g, r);
+        if (CSNumber._helper.isLessThan(CSNumber.abs(d1), CSNumber.abs(d2)))
+            d1 = d2;
+        if (CSNumber._helper.isLessThan(CSNumber.real(tol), CSNumber.abs(d1)))
+            a = CSNumber.div(CSNumber.real(n), d1);
+        else
+            a = CSNumber.mult(CSNumber.add(CSNumber.abs(x), CSNumber.real(1.0)), CSNumber.complex(Math.cos(iter), Math.sin(iter)));
+        if (CSNumber._helper.isLessThan(CSNumber.abs(a), CSNumber.real(tol)))
+            return x;
+        if (iter % 20 == 0)
+            a = CSNumber.mult(a, CSNumber.real(rand[iter / 20]));
+        x = CSNumber.sub(x, a);
+    }
+    return x;
+};
+
+evaluator.roots=function(args,modifs){
+    var cs=evaluateAndVal(args[0]);
+    if(cs.ctype==='list'){
+        for(var i = 0; i < cs.value.length; i++)
+            if(cs.value[i].ctype!=='number')
+                return nada;
+        
+        var roots = [];
+        var cs_orig = List.clone(cs);
+        var n = cs.value.length - 1;
+        for(var i = 0; i < n; i++)
+        {
+            roots[i] = evaluator._helper.laguerre(cs, CSNumber.real(0.0), 200);
+            roots[i] = evaluator._helper.laguerre(cs_orig, roots[i], 1);
+            var fx = [];
+            fx[n-i] = CSNumber.clone(cs.value[n-i]);
+            for (var j = n - i; j > 0; j--)
+                fx[j-1] = CSNumber.add(cs.value[j-1], CSNumber.mult(fx[j], roots[i]));
+            fx.shift();
+            cs = List.turnIntoCSList(fx);
+        }
+        return List.sort1(List.turnIntoCSList(roots));
+    }
+    return nada;
+};
 
 evaluator.cos=function(args,modifs){
     
@@ -2986,19 +3081,19 @@ evaluator._helper.formatForWebGL=function(x){
 
 evaluator.generateWebGL=function(args,modifs){
 
-    if(args.length==2) {
+    if(args.length===2) {
 
        var f=evaluator._helper.formatForWebGL;
        var expr=args[0];
        var vars=evaluate(args[1]);
        console.log(vars);
-       if(vars.ctype!="list") {
+       if(vars.ctype!=="list") {
            return nada;
        }
         
        var varlist=[];
        for (var i=0;i<vars.value.length;i++){
-          if(vars.value[i].ctype=="string"){
+          if(vars.value[i].ctype==="string"){
             varlist.push(vars.value[i].value);
           
           }
@@ -3008,12 +3103,12 @@ evaluator.generateWebGL=function(args,modifs){
        var li=evaluator._helper.plotvars(expr);
        console.log(li);
 
-       if(li.indexOf("a")==-1 
-       && li.indexOf("b")==-1
-       && li.indexOf("c")==-1
-       && li.indexOf("d")==-1
-       && li.indexOf("e")==-1
-       && li.indexOf("f")==-1
+       if(li.indexOf("a")===-1 
+       && li.indexOf("b")===-1
+       && li.indexOf("c")===-1
+       && li.indexOf("d")===-1
+       && li.indexOf("e")===-1
+       && li.indexOf("f")===-1
        ){
           var erg=evaluateAndVal(expr);
           expr=erg;
@@ -3021,77 +3116,78 @@ evaluator.generateWebGL=function(args,modifs){
        }
 
     //   dump(expr);
-       if(expr.ctype=="number") {
-          return {"ctype":"string" ,  "value":"vec2("+f(expr.value.real)+","+f(expr.value.imag)+")"}  
+       if(expr.ctype==="number") {
+           return {"ctype":"string" ,  "value":"vec2("+f(expr.value.real)+","+f(expr.value.imag)+")"};
        }
-       if(expr.ctype=="variable") {
+       if(expr.ctype==="variable") {
             
-           return {"ctype":"string" ,  "value":expr.name}  
+           return {"ctype":"string" ,  "value":expr.name};
        }
-       if(expr.ctype=="string"||expr.ctype=="void") {
+       if(expr.ctype==="string"||expr.ctype==="void") {
            return expr;  
        }
-       if(expr.args.length==2){
-           if(expr.ctype=="infix"||expr.ctype=="function" ) {
-               var a= evaluator.compileToWebGL([expr.args[0]],{});
-               var b= evaluator.compileToWebGL([expr.args[1]],{});
-               if(expr.oper=="+"||expr.oper=="add") {
-                   if(a.value==undefined || a.ctype=="void"){
-                       return {"ctype":"string" ,  "value":b.value}  
+       var a, b;
+       if(expr.args.length===2){
+           if(expr.ctype==="infix"||expr.ctype==="function" ) {
+               a= evaluator.compileToWebGL([expr.args[0]],{});
+               b= evaluator.compileToWebGL([expr.args[1]],{});
+               if(expr.oper==="+"||expr.oper==="add") {
+                   if(a.value===undefined || a.ctype==="void"){
+                       return {"ctype":"string" ,  "value":b.value};
                        
                    } else {
-                       return {"ctype":"string" ,  "value":"addc("+a.value+","+b.value+")"}  
+                       return {"ctype":"string" ,  "value":"addc("+a.value+","+b.value+")"};
                    }
                    
                }
-               if(expr.oper=="*"||expr.oper=="mult") {
-                   return {"ctype":"string" ,  "value":"multc("+a.value+","+b.value+")"}  
+               if(expr.oper==="*"||expr.oper==="mult") {
+                   return {"ctype":"string" ,  "value":"multc("+a.value+","+b.value+")"};
                }
-               if(expr.oper=="/"||expr.oper=="div") {
-                   return {"ctype":"string" ,  "value":"divc("+a.value+","+b.value+")"}  
+               if(expr.oper==="/"||expr.oper==="div") {
+                   return {"ctype":"string" ,  "value":"divc("+a.value+","+b.value+")"};
                }
-               if(expr.oper=="-"||expr.oper=="sub") {
-                   if(a.value==undefined || a.ctype=="void"){
-                       return {"ctype":"string" ,  "value":"negc("+b.value+")"}  
+               if(expr.oper==="-"||expr.oper==="sub") {
+                   if(a.value===undefined || a.ctype==="void"){
+                       return {"ctype":"string" ,  "value":"negc("+b.value+")"};
                        
                    } else {
-                       return {"ctype":"string" ,  "value":"subc("+a.value+","+b.value+")"}  
+                       return {"ctype":"string" ,  "value":"subc("+a.value+","+b.value+")"};
                    }
                }
-               if(expr.oper=="^"||expr.oper=="pow") {
-                   return {"ctype":"string" ,  "value":"powc("+a.value+","+b.value+")"}  
+               if(expr.oper==="^"||expr.oper==="pow") {
+                   return {"ctype":"string" ,  "value":"powc("+a.value+","+b.value+")"};
                } 
            }
        }
-       if((expr.ctype=="function" )&&(expr.args.length==1)) {
-           var a= evaluator.compileToWebGL([expr.args[0]],{});
+       if((expr.ctype==="function" )&&(expr.args.length===1)) {
+           a= evaluator.compileToWebGL([expr.args[0]],{});
            
-           if(expr.oper=="sin") {
-               return {"ctype":"string" ,  "value":"sinc("+a.value+")"}  
+           if(expr.oper==="sin") {
+               return {"ctype":"string" ,  "value":"sinc("+a.value+")"};
            }
-           if(expr.oper=="cos") {
-               return {"ctype":"string" ,  "value":"cosc("+a.value+")"}  
+           if(expr.oper==="cos") {
+               return {"ctype":"string" ,  "value":"cosc("+a.value+")"};
            }
-           if(expr.oper=="tan") {
-               return {"ctype":"string" ,  "value":"tanc("+a.value+")"}  
+           if(expr.oper==="tan") {
+               return {"ctype":"string" ,  "value":"tanc("+a.value+")"};
            }
-           if(expr.oper=="exp") {
-               return {"ctype":"string" ,  "value":"expc("+a.value+")"}  
+           if(expr.oper==="exp") {
+               return {"ctype":"string" ,  "value":"expc("+a.value+")"};
            }
-           if(expr.oper=="log") {
-               return {"ctype":"string" ,  "value":"logc("+a.value+")"}  
+           if(expr.oper==="log") {
+               return {"ctype":"string" ,  "value":"logc("+a.value+")"};
            }
-           if(expr.oper=="arctan") {
-               return {"ctype":"string" ,  "value":"arctanc("+a.value+")"}  
+           if(expr.oper==="arctan") {
+               return {"ctype":"string" ,  "value":"arctanc("+a.value+")"};
            }
-           if(expr.oper=="arcsin") {
-               return {"ctype":"string" ,  "value":"arcsinc("+a.value+")"}  
+           if(expr.oper==="arcsin") {
+               return {"ctype":"string" ,  "value":"arcsinc("+a.value+")"};
            }
-           if(expr.oper=="arccos") {
-               return {"ctype":"string" ,  "value":"arccosc("+a.value+")"}  
+           if(expr.oper==="arccos") {
+               return {"ctype":"string" ,  "value":"arccosc("+a.value+")"};
            }
-           if(expr.oper=="sqrt") {
-               return {"ctype":"string" ,  "value":"sqrtc("+a.value+")"}  
+           if(expr.oper==="sqrt") {
+               return {"ctype":"string" ,  "value":"sqrtc("+a.value+")"};
            }
        }
        
@@ -3099,9 +3195,7 @@ evaluator.generateWebGL=function(args,modifs){
     
     return nada;
 
-
-}
-
+};
 
 
 evaluator.compileToWebGL=function(args,modifs){
