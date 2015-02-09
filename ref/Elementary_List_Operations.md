@@ -155,6 +155,15 @@ This code fragment produces the output
 
 **Description:**
 Similar to `forall(‹list›,‹expr›)`, but the run variable is now named `‹var›`.
+The variable is local to the expression.
+
+    > v=994;
+    > forall([1,2,3],v,println(v))
+    * 1
+    * 2
+    * 3
+    > v
+    < 994
 
 ------
 
@@ -177,6 +186,13 @@ As usual, `#` is the run variable, which successively takes the value of each el
 
 **Description:**
 Similar to `apply(‹list›,‹expr›)`, but the run variable is now named `‹var›`.
+The variable is local to the expression.
+
+    > v=995;
+    > apply([1, 2, 3, 4, 5], v, v^2)
+    < [1, 4, 9, 16, 25]
+    > v
+    < 995
 
 ------
 
@@ -213,3 +229,12 @@ These numbers are the primes.
 
 **Description:**
 Similar to `select(‹list›,‹boolexpr›)`, but the run variable is now named &lt;var&gt;.
+The variable is local to the expression.
+
+    > v = 996;
+    > select(0..10, v, v+v == v^2)
+    < [0, 2]
+    > v
+    < 996
+
+<!-- end of code block. -->

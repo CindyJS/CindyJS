@@ -201,6 +201,15 @@ This code fragment will draw a 10 × 10 array of points.
     >    )
     > )
 
+The variable is restricted to the local scope:
+
+    > v = 992; a = [];
+    > repeat(6, v, a = a ++ [v]);
+    > a
+    < [1, 2, 3, 4, 5, 6]
+    > v
+    < 992
+
 ------
 
 #### The forall loop: `forall(‹list›,‹expr›)`
@@ -228,6 +237,14 @@ This code fragment produces the output
 
 **Description:**
 Similar to `forall(‹list›,‹expr›)`, but the run variable is now named `‹var›`.
+Again the variable is local to the expression.
+
+    > v=993; forall([1,2,3],v,println(v))
+    * 1
+    * 2
+    * 3
+    > v
+    < 993
 
 ------
 

@@ -153,6 +153,14 @@ All elements of the list are sorted with respect to the result of these evaluati
 
 **Description:**
 Similar to `sort(‹list›, ‹expr›)` but with `‹var›` as the run variable.
+The variable is local to the expression.
+
+    > v = 991;
+    > a = [3, -7, 15, -2];
+    > sort(a, v, |v|)
+    < [-2, 3, -7, 15]
+    > v
+    < 991
 
 ------
 
