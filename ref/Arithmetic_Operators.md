@@ -5,7 +5,7 @@ There are also many other mathematical operations, and these can be found in the
 
 ### Infix Operators
 
-The elementary mathematical operators **+**, **-**, *****, **/**, **ˆ** are accessible in a straightforward manner.
+The elementary mathematical operators **+**, **-**, *****, **/**, **^** are accessible in a straightforward manner.
 They can be applied to numbers and lists.
 Their particular meaning depends on the type of objects to which they are applied.
 For example, `5+7` evaluates to `12`, while `[2,3,4]+[3,-1,5]` evaluates to `[5,2,9]`.
@@ -24,9 +24,9 @@ Lists having the same structure can also be added; then the addition is carried 
     > 2.3 + 5.9
     < 8.2
     > [2,3,4] + [3,4,6]
-    < [5,7,10]
+    < [5, 7, 10]
     > [2,3,[1,2]] + [3,4,[1,3]]
-    < [5,7,[2,4]]
+    < [5, 7, [2, 5]]
 
 **See also:**
 [String Operators](String_Operators)
@@ -41,16 +41,14 @@ Lists of the same shape can also be subtracted.
 The subtraction is then performed componentwise.
 Furthermore, the `-` operator can be used as a unary minus.
 
-| Code                        | Result          |
-| --------------------------- | --------------- |
     > 7 - 8
     < -1
-    > 8.3 - 5.9
-    < 2.4
+    > 8.3125 - 5.875
+    < 2.4375
     > [2,6,4] - [3,4,6]
-    < [-1,2,-2]
+    < [-1, 2, -2]
     > [5,3,[1,2]] - [3,4,[1,3]]
-    < [2,-1,[0,-1]]
+    < [2, -1, [0, -1]]
 
 **See also:**
 [String Operators](String_Operators)
@@ -64,22 +62,22 @@ Numbers (integers, real, complex) can be multiplied with the `*` operator.
 Lists that represent numerical vectors or numerical matrices can also be multiplied if the dimensions admit a reasonable mathematical operation.
 See the examples for further description.
 
-    > 7 * 8
+    > 7 * 8             // integer multiplication
     < 56
-    > (1+i) * (2+i)
-    < 1+3*i
-    > 2 * [5,3,2]
-    < [10,2,4]
-    > [5,3,2] * 2
-    < [10,2,4]
-    > [2,2,3] * [3,4,6]
+    > (1+i) * (2+i)     // multiplication of complex numbers
+    < 1 + i*3
+    > 2 * [5,3,2]       // scalar multiplication of number and vector
+    < [10, 6, 4]
+    > [5,3,2] * 2       // scalar multiplication of number and vector
+    < [10, 6, 4]
+    > [2,2,3] * [3,4,6] // scalar product (dot product) of two vectors
     < 32
-    > [[1,2],[3,4]] * [1,2]
-    < [5,11]
-    > [1,2] * [[1,2],[3,4]]
-    < [7,10]
-    > [[1,2],[3,4]] * [[1,2],[3,4]]
-    < [[7,10],[15,22]]
+    > [[1,2],[3,4]] * [1,2]         // matrix times vector
+    < [5, 11]
+    > [1,2] * [[1,2],[3,4]]         // vector times matrix
+    < [7, 10]
+    > [[1,2],[3,4]] * [[1,2],[3,4]] // product of two matrices
+    < [[7, 10], [15, 22]]
 
 **See also:**
 [Vectors and Matrices](Vectors_and_Matrices)
@@ -94,30 +92,28 @@ Also, a vector can be divided by a number.
 
     > 56 / 8
     < 7
-    > [6,8,4] / 2
-    < [3,4,2]
+    > [6, 8, 4] / 2
+    < [3, 4, 2]
 
 ------
 
-#### The power operator: `‹expr›ˆ‹expr›`
+#### The power operator: `‹expr›^‹expr›`
 
 **Description:**
 A number (integer, real, complex) can be taken to the power of another number (integer, real, complex).
 Note that not only integer powers are allowed.
-In `aˆb` the exponent `b` can
+In `a^b` the exponent `b` can
 be an arbitrary real or complex number.
 Formally, the expression `exp(b*ln(a))` is calculated.
-Since `ln(…)` is defined only up to a period of `2*pi`, the expression `aˆb` is in general multivalued.
-For noninteger values of `b` only one principal value of `aˆb` will be returned.
+Since `ln(…)` is defined only up to a period of `2*pi`, the expression `a^b` is in general multivalued.
+For noninteger values of `b` only one principal value of `a^b` will be returned.
 
-| Code      | Result    |
-| --------- | --------- |
-    > 5ˆ2
+    > 5^2
     < 25
-    > 5ˆ(-1)
+    > 5^(-1)
     < 0.2
-    > 2ˆ(1/2)
-    < 1.4142…
+    > 2^(1/2)
+    < 1.4142135623730951
 
 ------
 
@@ -127,7 +123,7 @@ This operator multiplies any number by the constant `pi/180` .
 This makes possible angle conversion from degrees to radians.
 
     > 180°
-    < 3.1415…
+    < 3.141592653589793
     > cos(180°)
     < -1
 
@@ -141,14 +137,12 @@ The object may be a simple number, a complex number, or a vector.
 
 It is not allowed to use the `|...|` operator in a nested way, since such expressions can be syntactically ambiguous.
 
-| Code      | Result    |
-| --------- | --------- |
     > |-5|
     < 5
     > |(3,4)|
     < 5
     > |1+i|
-    < 1.4142
+    < 1.4142135623730951
 
 ------
 
@@ -162,7 +156,7 @@ However, they must be of the same type.
 It is not allowed to use the `|...,...|` operator in a nested way, since such expressions can be syntactically ambiguous.
 
     > |-5,8|
-    < 3
+    < 13
     > |(1,1),(4,5)|
     < 5
 
@@ -188,10 +182,8 @@ Some of them can also be applied to vectors.
 #### Exponentiation: `pow(‹expr1›,‹expr2›)`
 
 **Description:**
-These operators are binary functions equivalent to the operators like `+`, `-`, `*`, `/`, and `ˆ`.
+These operators are binary functions equivalent to the operators like `+`, `-`, `*`, `/`, and `^`.
 
-| Code                | Result  |
-| ------------------- | ------- |
     > add(5,6)
     < 11
     > pow(6,2)
@@ -199,9 +191,9 @@ These operators are binary functions equivalent to the operators like `+`, `-`, 
     > mod(23,4)
     < 3
     > add([1,2],[3,4])
-    < (4,6)
+    < [4, 6]
     > mult(2,[3,4])
-    < (6,8)
+    < [6, 8]
     > mult([4,5],[3,4])
     < 32
 
@@ -251,10 +243,16 @@ The standard trigonometric functions are available through the following operato
 The `arc` operators are in principle multivalued.
 However, the operator returns only one principal value, for which the real value is between `+pi` and `-pi`.
 
-    > sin(pi)
-    < 0
+    > format(sin(pi), 15) // suppress numeric noise
+    < "0"
     > arccos(-1)
-    < 3.1415
+    < 3.141592653589793
+    > arctan2(1,1) ~= 45°
+    < true
+    > arctan2(-1,-1) ~= -135°
+    < true
+
+    - skip test: printing of angles in degrees not implemented.
     > arctan2(1,1)
     < 45°
     > arctan2(-1,-1)
@@ -284,12 +282,10 @@ For complex numbers the operators `round`, `floor`, and `ceil` are applied to th
 The function `abs` calculates the norms of numbers, complex numbers, vectors, etc.
 All other functions can also be applied to lists, in which case they are applied component wise.
 
-| Code                         | Result        |
-| ---------------------------- | ------------- |
     > round(4.3)
     < 4
     > round([3.2,7.8,3.1+i*6.9])
-    < [3,8,3+i*7]
+    < [3, 8, 3 + i*7]
     > abs([1,3,1,2,1])
     < 4
     > floor(4.8)

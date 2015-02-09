@@ -54,8 +54,6 @@ The following table summarizes the different admissible uses of the multiplicati
 This operator adds all elements of a list.
 The elements may be numbers, or themselves lists (or vectors or matrices), or even strings.
 
-| Code                              | Result     |
-| --------------------------------- | ---------- |
     > sum(1..10)
     < 55
     > sum([4,6,2,6])
@@ -71,6 +69,11 @@ One can, for instance, use the sum operator to define an arithmetic mean functio
 
 This function works for a list of numbers as well as for the average of a list of vectors or matrices.
 
+    > average([2, 15, 3, -7])
+    < 3.25
+    > average([[2, 9], [4, 5]])
+    < [3, 7]
+
 ------
 
 #### The summation operator: `sum(‹list›,‹expr›)`
@@ -81,20 +84,18 @@ The running variable is as usual `#`.
 
 We can calculate the sum of all squares of the first hundred integers by the following expression:
 
-    > sum(1..100,#ˆ2)
+    > sum(1..100,#^2)
     < 338350
 
 It is time for a little mathematical mystery:
 
-| Code                | Result         |
-| ------------------- | -------------- |
-    > sum(1..10,#ˆ2)
+    > sum(1..10,#^2)
     < 385
-    > sum(1..100,#ˆ2)
+    > sum(1..100,#^2)
     < 338350
-    > sum(1..1000,#ˆ2)
+    > sum(1..1000,#^2)
     < 333833500
-    > sum(1..10000,#ˆ2)
+    > sum(1..10000,#^2)
     < 333383335000
 
 ------
@@ -141,8 +142,6 @@ This operator is similar to the last one, except that the running variable is lo
 **Description:**
 This operator finds the maximum value in a list of entries.
 
-| Code               | Result |
-| ------------------ | ------ |
     > max([4,2,6,3,5])
     < 6
 
@@ -196,10 +195,10 @@ Besides addition and multiplication, as described earlier in this section, there
 #### Dimensions of a matrix: `matrixrowcolum(‹matrix›)`
 
 **Description:**
-If the argument is a matrix, this operator returns the number of columns and the number of rows of the matrix, encoded as a two-element list.
+If the argument is a matrix, this operator returns the number of rows and the number of columns of the matrix, encoded as a two-element list.
 
     > matrixrowcolumn([[1,2],[3,2],[1,3],[5,4]])
-    < [2,4]
+    < [4, 2]
 
 ------
 
@@ -210,11 +209,11 @@ If the argument is a matrix, this operator returns the transpose of the matrix.
 In the transpose, the rows and columns are interchanged.
 
     > transpose([[1,2],[3,2],[1,3], [5,4]])
-    < [[1,3,1,5],[2,2,3,4]]
+    < [[1, 3, 1, 5], [2, 2, 3, 4]]
     > transpose([[1],[3],[1],[5]])
-    < [[1,3,1,5]]
+    < [[1, 3, 1, 5]]
     > transpose([[1,3,1,5]])
-    < [[1],[3],[1],[5]]
+    < [[1], [3], [1], [5]]
 
 ------
 
@@ -224,7 +223,7 @@ In the transpose, the rows and columns are interchanged.
 If the first argument is a matrix, this operator returns the row with index `‹int›` as a vector.
 
     > row([[1,2],[3,2],[1,3], [5,4]],2)
-    < [3,2]
+    < [3, 2]
 
 ------
 
@@ -234,7 +233,7 @@ If the first argument is a matrix, this operator returns the row with index `‹
 If the first argument is a matrix, this operator returns the column with index `‹int›` as a vector.
 
     > column([[1,2],[3,2],[1,3], [5,4]],2)
-    < [2,2,3,4]
+    < [2, 2, 3, 4]
 
 ------
 
@@ -244,7 +243,7 @@ If the first argument is a matrix, this operator returns the column with index `
 If the first argument is a matrix, this operator returns the submatrix obtained by deleting the column with index `‹int1›` and the row with index `‹int2›`.
 
     > submatrix([[1,2,4],[3,2,3], [1,3,6],[5,4,7]],2,3)
-    < [[1,4],[3,3],[5,7]]
+    < [[1, 4], [3, 3], [5, 7]]
 
 ------
 
@@ -254,7 +253,7 @@ If the first argument is a matrix, this operator returns the submatrix obtained 
 If the first argument is a vector, this operator returns the matrix with a single row consisting of this vector.
 
     > rowmatrix([1,2,3,4])
-    < [[1,2,3,4]]
+    < [[1, 2, 3, 4]]
 
 ------
 
@@ -263,10 +262,8 @@ If the first argument is a vector, this operator returns the matrix with a singl
 **Description:**
 If the first argument is a vector, this operator returns the matrix with a single column consisting of this vector.
 
-| Code                      | Result              |
-| ------------------------- | ------------------- |
     > columnmatrix([1,2,3,4])
-    < [[1],[2],[3],[4]]
+    < [[1], [2], [3], [4]]
 
 ------
 

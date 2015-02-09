@@ -82,22 +82,22 @@ The statement `flatten(...,levels->1)` is equivalent to `flatten(...)`.
 **Example:**
 Let us assume that we set
 
-`list=[[1,2],[3,[4,5],[6,[7,8]]],6];`
+    > list=[[1,2],[3,[4,5],[6,[7,8]]],6];
 
 then we get the following responses to various calls of flattening:
 
     > flatten(list)
-    < [1,2,3,[4,5],[6,[7,8]],6]
-    > flatten(list,levels->0)
-    < [[1,2],[3,[4,5],[6,[7,8]]],6]
-    > flatten(list,levels->1)
-    < [1,2,3,[4,5],[6,[7,8]],6]
-    > flatten(list,levels->2)
-    < [1,2,3,4,5,6,[7,8],6]
-    > flatten(list,levels->3)
-    < [1,2,3,4,5,6,7,8,6] 
-    > flatten(list,levels->"all")
-    < [1,2,3,4,5,6,7,8,6] 
+    < [1, 2, 3, [4, 5], [6, [7, 8]], 6]
+    > flatten(list, levels->0)
+    < [[1, 2], [3, [4, 5], [6, [7, 8]]], 6]
+    > flatten(list, levels->1)
+    < [1, 2, 3, [4, 5], [6, [7, 8]], 6]
+    > flatten(list, levels->2)
+    < [1, 2, 3, 4, 5, 6, [7, 8], 6]
+    > flatten(list, levels->3)
+    < [1, 2, 3, 4, 5, 6, 7, 8, 6]
+    > flatten(list, levels->"all")
+    < [1, 2, 3, 4, 5, 6, 7, 8, 6]
 
 ------
 
@@ -132,7 +132,7 @@ booleans &lt; numbers &lt; strings &lt; lists
     > sort([4.5, 1.3, 6.7, 0.2])
     < [0.2, 1.3, 4.5, 6.7]
     > sort(["one", "two", "three", "four", "five"])
-    < ["five","four","one","three","two"]
+    < ["five", "four", "one", "three", "two"]
 
 ------
 
@@ -145,7 +145,7 @@ All elements of the list are sorted with respect to the result of these evaluati
     > sort([-4.5, 1.3, -6.7, 0.2], abs(#))
     < [0.2, 1.3, -4.5, -6.7]
     > sort(["one", "two", "three", "four", "five"],length(#))
-    < ["one","two","four","five","three"]
+    < ["one", "two", "four", "five", "three"]
 
 ------
 

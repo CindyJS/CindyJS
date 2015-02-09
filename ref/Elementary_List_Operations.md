@@ -10,7 +10,7 @@ If `‹int1›` is larger than `‹int2›`, then the empty list is returned.
 
     > 4..9
     < [4, 5, 6, 7, 8, 9]
-    > 2..2
+    > -2..2
     < [-2, -1, 0, 1, 2]
     > 4..1
     < []
@@ -22,8 +22,6 @@ If `‹int1›` is larger than `‹int2›`, then the empty list is returned.
 **Description:**
 This operator returns an integer that is equal to the number of elements in the `‹list›`.
 
-| Code                             | Result |
-| -------------------------------- | ------ |
     > length([2 ,5 ,7 ,3])
     < 4
     > length([2 ,[5, 4, 5] ,7 ,3]_2)
@@ -83,9 +81,9 @@ This operator creates a list by removing all elements that occur in `‹list2›
 This operator can equivalently be written as `‹list1› -- ‹list2›`.
 
     > remove([1,3,4,5,1,5,6], [1,3,7])
-    < [4,5,5,6]
+    < [4, 5, 5, 6]
     > [1,3,4,5,1,5,6]--[1,3,7]
-    < [4,5,5,6]
+    < [4, 5, 5, 6]
 
 ------
 
@@ -97,9 +95,9 @@ In the returned list the elements are sorted and each element occurs at most onc
 This operator can equivalently be written as `‹list1›~~‹list2›`.
 
     > common([1,3,4,5,1,5,6], [1,3,7])
-    < [1,3]
+    < [1, 3]
     > [1,3,4,5,1,5,6]~~[1,3,7]
-    < [1,3]
+    < [1, 3]
 
 ------
 
@@ -110,9 +108,9 @@ This operator returns a list that is created by appending `‹expr›` to the li
 ` This operator can equivalently be written as `‹list›:>‹expr›`.`
 
     > append(["a", "b", "c"], "d")
-    < ["a", "b", "c","d"]
+    < ["a", "b", "c", "d"]
     > ["a", "b", "c"]:>"d"
-    < ["a", "b", "c","d"]
+    < ["a", "b", "c", "d"]
 
 ------
 
@@ -120,12 +118,12 @@ This operator returns a list that is created by appending `‹expr›` to the li
 
 **Description:**
 This operator returns a list that is created by prepending `‹expr›` to the list `‹list›` as its first element.
-` This operator can equivalently be written as `‹expr›‹:‹list›`.`
+` This operator can equivalently be written as `‹expr›<:‹list›`.`
 
     > prepend("d",["a", "b", "c"])
-    < ["d","a", "b", "c"]
-    > "d"‹:["a", "b", "c"~34
-    < ["d","a", "b", "c"]
+    < ["d", "a", "b", "c"]
+    > "d"<:["a", "b", "c"]
+    < ["d", "a", "b", "c"]
 
 ------
 
@@ -170,7 +168,7 @@ As usual, `#` is the run variable, which successively takes the value of each el
     < [1, 4, 9, 16, 25]
     > apply([1, 2, 3, 4, 5],#+5)
     < [6, 7, 8, 9, 10]
-    > apply(1..5, [#,#ˆ2])
+    > apply(1..5, [#,#^2])
     < [[1, 1], [2, 4], [3, 9], [4, 16], [5, 25]]
 
 ------
@@ -192,8 +190,8 @@ As usual, `#` is the run variable, which successively take the value of all elem
 
     > select(1..10, isodd(#))
     < [1, 3, 5, 7, 9]
-    > select(0..10, #+# == #ˆ2)
-    < [0,2]
+    > select(0..10, #+# == #^2)
+    < [0, 2]
 
 A high-level application of the `select` operator is given by the following example:
 

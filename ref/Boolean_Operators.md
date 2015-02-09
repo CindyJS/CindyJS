@@ -186,7 +186,7 @@ This operator is similar to **&gt;** but tests for **less than or equal to**.
 **Description:**
 CindyScript provides a *fuzzy* variant for each comparison operator.
 This version tests whether the condition is satisfied up to an epsilon bound.
-Thus the test `a~==0` tests whether is the variable `a` lies between `+epsilon` and `-epsilon`.
+Thus the test `a~=0` tests whether is the variable `a` lies between `+epsilon` and `-epsilon`.
 The small value epsilon is set to `0.0000000001`.
 This operator is sometimes very useful to circumvent inaccuracies which are unavoidable in purely numerical calculations.
 

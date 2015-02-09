@@ -78,8 +78,6 @@ This operator searches for the first occurrence of `‹string2›` in `‹string
 The index of this first such occurrence is returned.
 If `‹string2›` does not occur in `‹string1›` after index `i`., then the value `0` is returned.
 
-| Code                            | Result |
-| ------------------------------- | ------ |
     > indexof("CindyScript","i",1)
     < 2
     > indexof("CindyScript","i",3)
@@ -102,24 +100,34 @@ These occurrences serve as markers for breaking up &lt;string&gt; into a list of
 
 If &lt;expr&gt; is a list of strings, then a hierarchical list is generated that represents the subdivision of `‹string›` recursively by the tokens in the list.
 
+    > tokenize("one:two..three:four", ":")
+    < ["one", "two..three", "four"]
+    > tokenize("one:two..three:four", ".")
+    < ["one:two", "", "three:four"]
+    > tokenize("one:two..three:four", "..")
+    < ["one:two", "three:four"]
+    > tokenize("one:two..three:four", [".",":"])
+    < [["one", "two"], [""], ["three", "four"]]
+    > tokenize("one:two..three:four", ["..",":"])
+    < [["one", "two"], ["three", "four"]]
+
 `tokenize` usually converts string representations of numbers to number objects.
 This can lead to information loss.
+In the Java version, the conversion looks like this:
+
+    - skip test: this is only for comparison with the Java version
+    > tokenize("77777777777777777",":")
+    < [77777777777777776]
+
+In JavaScript, however, the [rounding rules of ECMAScript](http://www.ecma-international.org/ecma-262/5.1/#sec-9.3.1) force trailing zeros instead:
+
+    > tokenize("77777777777777777",":")
+    < [77777777777777780]
+
 To turn off this behavior, use the `autoconvert` modifier and set it to `false`.
 
-    > tokenize( "one:two..three:four", ":")
-    < ["one", "two..three", "four"]
-    > tokenize( "one:two..three:four", ".")
-    < ["one:two", "", "three:four"]
-    > tokenize( "one:two..three:four", "..")
-    < ["one:two", "three:four"]
-    > tokenize( "one:two..three:four", [".",":"])
-    < [["one", "two"], [], ["three", "four"]]
-    > tokenize( "one:two..three:four", ["..",":"])
-    < [["one", "two"], ["three", "four"]]
-    > tokenize( "77777777777777777",":")
-    < [77777777777777776]
-    > tokenize( "77777777777777777",":",autoconvert->false)
-    < [77777777777777777]
+    > tokenize("77777777777777777",":",autoconvert->false)
+    < ["77777777777777777"]
 
 ------
 
@@ -166,6 +174,9 @@ The code fragment
 
 defines the function `f(x)` to be `sin(x)+cos(x)`.
 
+    > f(90°)
+    < 1
+
 ------
 
 #### Guessing a good representation of a number: `guess(‹number›)`
@@ -175,8 +186,7 @@ This very powerful operator is described in detail in the section [Calculus](Cal
 It takes a numerical expression in floating-point representation and attempts to convert it to a mathematical expression that generates that floating-point number with high precision.
 This expression is then represented as a string.
 
-| Code                       | Result        |
-| -------------------------- | ------------- |
+    - skip test: guess not implemented yet
     > guess(8.125)
     < "65/8"
     > guess(0.774596669241483)
@@ -237,9 +247,9 @@ The sorting order is usually taken to be the lexicographic order of the words.
 Alternatively, one can specify a user-defined sorting function such as the lengths of the strings.
 
     > sort(["one", "two", "three", "four", "five"])
-    < ["five","four","one","three","two"]
+    < ["five", "four", "one", "three", "two"]
     > sort(["one", "two", "three", "four", "five"],length(#))
-    < ["one","two","four","five","three"]
+    < ["one", "two", "four", "five", "three"]
 
 **See also:**
 [Lists and Linear Algebra](Lists_and_Linear_Algebra)
@@ -259,4 +269,8 @@ Characters can be returned and set with this operator.
     > "CindyScript"_5
     < "y"
     > "CindyScript"_12
-    < a
+    < _?_
+    > a="CindyScript";
+    > a_5="erella";
+    > a
+    < "CinderellaScript"
