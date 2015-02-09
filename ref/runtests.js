@@ -146,7 +146,7 @@ TestCase.prototype.run = function() {
   }
   if (this.expected !== null) {
     expected = this.expected;
-    actual = cjs.niceprint(val);
+    actual = cjs.niceprint(val).toString();
     if (expected !== actual) {
       println("Location:  " + this.filename + ":" + this.lineno);
       println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));

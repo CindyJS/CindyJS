@@ -120,7 +120,7 @@ jshint: node_modules/.bin/jshint build/js/ours.js
 .PHONY: jshint
 
 ######################################################################
-## Format reference manual using markdown
+## Run test suite from reference manual using node
 ######################################################################
 
 nodetest: build/js/Cindy.plain.js $(NPM_DEP)
@@ -138,6 +138,7 @@ node_modules/marked/package.json: $(NPM_DEP)
 	$(NPM_CMD) install marked
 
 refmd:=$(wildcard ref/*.md)
+refimg:=$(wildcard ref/img/*.png)
 refhtml:=$(refmd:ref/%.md=build/ref/%.html)
 refres:=ref.css
 
@@ -148,7 +149,11 @@ $(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2h
 $(refres:%=build/ref/%): build/ref/%: ref/%
 	cp $< $@
 
-ref: $(refhtml) $(refres:%=build/ref/%)
+$(refimg:%=build/%): build/%: %
+	@mkdir -p $(@D)
+	cp $< $@
+
+ref: $(refhtml) $(refres:%=build/ref/%) $(refimg:%=build/%)
 
 .PHONY: ref
 

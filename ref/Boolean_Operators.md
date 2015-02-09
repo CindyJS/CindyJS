@@ -11,6 +11,30 @@ in this section we describe all such types of queries as well as the different w
 This operator tests whether two expressions evaluate to the same value.
 The result of this operator is either `true` or `false`.
 
+    > 1 == 2
+    < false
+    > 1.0 == 1 + 0*i
+    < true
+    > -3*0 == 2*0
+    < true
+    > 3 == 3 + i
+    < false
+
+Note that `NaN` (Not a Number) compares not equal even to itself:
+
+    > a = 0/0
+    * DIVISION BY ZERO
+    > a == a
+    < false
+
+Objects other than numbers may be compared as well.
+To be compared equal, two objects have to be of the same type.
+
+    > 0 == "0"
+    < false
+    > "true" == true
+    < false
+
 ------
 
 #### Testing inequality: `‹expr1› != ‹expr2›`
@@ -20,6 +44,29 @@ This operator tests whether two expressions do not evaluate to the same value.
 The result of this operator is either `true` or `false`.
 It is the logical negation of `‹expr1› == ‹expr2›`.
 
+    > 1 != 2
+    < true
+    > 1.0 != 1 + 0*i
+    < false
+    > -3*0 != 2*0
+    < false
+    > 3 != 3 + i
+    < true
+
+Note that `NaN` (Not a Number) compares different from itself:
+
+    > a = 0/0
+    * DIVISION BY ZERO
+    > a != a
+    < true
+
+Objects of different types are always different from one another.
+
+    > 0 != "0"
+    < true
+    > "true" != true
+    < true
+
 ------
 
 #### Greater than: `‹expr1› > ‹expr2›`
@@ -28,8 +75,31 @@ It is the logical negation of `‹expr1› == ‹expr2›`.
 This operator tests whether the expression `‹expr1›` is **greater than** the expression `‹expr2›`.
 It returns a `‹bool›` value.
 The comparison is available only for two situations: If both expressions are **real numbers**, then the order of size is the usual ordering of real numbers.
+
+    > 1 > 2
+    < false
+    > 2 > 1
+    < true
+    > 1*0 > -1*0
+    < false
+
 If both expressions are **strings**, then the order is the lexicographic (dictionary) order.
+
+    > "a" > "b"
+    < false
+    > "ab" > "a"
+    < true
+    > "ab" > "b"
+    < false
+    > "aa" > "a" + "a"
+    < false
+
 In all other cases (if the values are not comparable) the value `_?_` is returned.
+
+    > 1 > 1 + i
+    < _?_
+    > "2" > 1
+    < _?_
 
 ------
 
@@ -38,12 +108,50 @@ In all other cases (if the values are not comparable) the value `_?_` is returne
 **Description:**
 This operator is similar to **&gt;** but tests for **less than**.
 
+    > 1 < 2
+    < true
+    > 2 < 1
+    < false
+    > 1*0 < -1*0
+    < false
+    > "a" < "b"
+    < true
+    > "ab" < "a"
+    < false
+    > "ab" < "b"
+    < true
+    > "aa" < "a" + "a"
+    < false
+    > 1 < 1 + i
+    < _?_
+    > "2" < 1
+    < _?_
+
 ------
 
 #### Greater than or equal: `‹expr1› >= ‹expr2›`
 
 **Description:**
 This operator is similar to **&gt;** but tests for **greater than or equal to**.
+
+    > 1 >= 2
+    < false
+    > 2 >= 1
+    < true
+    > 1*0 >= -1*0
+    < true
+    > "a" >= "b"
+    < false
+    > "ab" >= "a"
+    < true
+    > "ab" >= "b"
+    < false
+    > "aa" >= "a" + "a"
+    < true
+    > 1 >= 1 + i
+    < _?_
+    > "2" >= 1
+    < _?_
 
 ------
 
@@ -52,13 +160,32 @@ This operator is similar to **&gt;** but tests for **greater than or equal to**.
 **Description:**
 This operator is similar to **&gt;** but tests for **less than or equal to**.
 
+    > 1 <= 2
+    < true
+    > 2 <= 1
+    < false
+    > 1*0 <= -1*0
+    < true
+    > "a" <= "b"
+    < true
+    > "ab" <= "a"
+    < false
+    > "ab" <= "b"
+    < true
+    > "aa" <= "a" + "a"
+    < true
+    > 1 <= 1 + i
+    < _?_
+    > "2" <= 1
+    < _?_
+
 ------
 
 #####  Fuzzy comparisons: `~=`, `~!=`, `~<`, `~>`, `~>=`, `~<=`
 
 **Description:**
 CindyScript provides a *fuzzy* variant for each comparison operator.
-This Version tests whether the condition is satisfied up to an epsilon bound.
+This version tests whether the condition is satisfied up to an epsilon bound.
 Thus the test `a~==0` tests whether is the variable `a` lies between `+epsilon` and `-epsilon`.
 The small value epsilon is set to `0.0000000001`.
 This operator is sometimes very useful to circumvent inaccuracies which are unavoidable in purely numerical calculations.
@@ -66,9 +193,7 @@ This operator is sometimes very useful to circumvent inaccuracies which are unav
 The exact semantics of the exact and the fuzzy operators can be read off from the following diagram.
 Here for each operator the picture shows for which region of `b` (marked in red) the operator evaluates to true.
 
-| ![Image](http://www.cinderella.de/~juergen/CindyDocu/CindyScript/Comparisons.png) |
-| --------------------------------------------------------------------------------- |
-| ****                                                                              |
+![Illustration of fuzzy comparisons](img/Comparisons.png)
 
 ------
 
@@ -114,7 +239,7 @@ Logical **not** of one Boolean value defined by the following truth table:
 | `false` | `true`  |
 | `true`  | `false` |
 
-If the argument is not a Boolean expression, the operator returns `_?__`.
+If the argument is not a Boolean expression, the operator returns `_?_`.
 
 ------
 

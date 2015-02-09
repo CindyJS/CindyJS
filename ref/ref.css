@@ -6,3 +6,6 @@ pre.result { color: #006600; background: #ddffdd; }
 pre.output { color: #993333; background: #dddddd; }
 pre.pragma { color: #996600; background: #ffffcc; }
 code { background: #ddddff; }
+table { border-collapse:collapse; }
+table td, table th { padding: 0.5ex 1em;  border: 1px solid black; }
+table td, table th, table code { background: #ffffff; }
