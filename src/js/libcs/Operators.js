@@ -644,7 +644,7 @@ evaluator.comp_ugt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
-        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v1))
             return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real+CSNumber.eps)  };
     }
     return nada;
@@ -654,7 +654,7 @@ evaluator.comp_uge=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
-        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v1))
             return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real-CSNumber.eps)  };
     }
     return nada;
@@ -664,7 +664,7 @@ evaluator.comp_ult=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
-        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v1))
             return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real-CSNumber.eps)  };
     }
     return nada;
@@ -674,7 +674,7 @@ evaluator.comp_ule=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
-        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v1))
             return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real+CSNumber.eps)  };
     }
     return nada;
@@ -686,7 +686,7 @@ evaluator.comp_gt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
-        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v1))
             return {'ctype':'boolean' , 'value':(v0.value.real>v1.value.real)  };
     }
     if(v0.ctype==='string' && v1.ctype==='string' ){
@@ -700,7 +700,7 @@ evaluator.comp_ge=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
-        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v1))
             return {'ctype':'boolean' , 'value':(v0.value.real>=v1.value.real)  };
     }
     if(v0.ctype==='string' && v1.ctype==='string' ){
@@ -714,7 +714,7 @@ evaluator.comp_le=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
-        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v1))
             return {'ctype':'boolean' , 'value':(v0.value.real<=v1.value.real)  };
     }
     if(v0.ctype==='string' && v1.ctype==='string' ){
@@ -727,7 +727,7 @@ evaluator.comp_lt=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
-        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v0))
+        if(CSNumber._helper.isAlmostReal(v0)&&CSNumber._helper.isAlmostReal(v1))
             return {'ctype':'boolean' , 'value':(v0.value.real<v1.value.real)  };
     }
     if(v0.ctype==='string' && v1.ctype==='string' ){
