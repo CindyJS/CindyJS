@@ -1862,7 +1862,7 @@ evaluator.common=function(args,modifs){
         var v0=evaluate(args[0]);
         var v1=evaluate(args[1]);
         if(v0.ctype==='list'&& v1.ctype==='list'){
-            return List.common(v0,v1);
+            return List.set(List.common(v0,v1));
         }
         if(v0.ctype==='shape'&& v1.ctype==='shape'){
             return evaluator._helper.shapecommon(v0,v1);
