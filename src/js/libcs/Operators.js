@@ -265,8 +265,28 @@ evaluator.select=function(args,modifs){ //OK
 };
 
 
-
-
+evaluator.flatten=function(args,modifs){
+    function recurse(lst, level) {
+        if (level === -1 || lst.ctype !== "list")
+            return lst;
+        return [].concat.apply([],lst.value.map(function(elt) {
+            return recurse(elt, level - 1);
+        }));
+    }
+    var lst = evaluateAndVal(args[0]);
+    if (lst.ctype !== "list")
+        return lst;
+    var levels = modifs.levels;
+    if (levels === undefined) {
+        levels = -2;
+    } else  {
+        levels = evaluate(levels);
+        if (levels.ctype === "number")
+            levels = levels.value.real;
+        else levels = -2;
+    }
+    return {'ctype':'list','value':recurse(lst, levels)};
+};
 
 
 evaluator.semicolon=function(args,modifs){ //OK
