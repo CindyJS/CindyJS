@@ -245,6 +245,9 @@ If the first argument is a matrix, this operator returns the submatrix obtained 
     > submatrix([[1,2,4],[3,2,3], [1,3,6],[5,4,7]],2,3)
     < [[1, 4], [3, 3], [5, 7]]
 
+**Warning:**
+The order of indices, i.e. column first then row, is contrary to most conventions.
+
 ------
 
 #### Converting a vector to a row matrix: `rowmatrix(‹vector›)`
@@ -254,6 +257,16 @@ If the first argument is a vector, this operator returns the matrix with a singl
 
     > rowmatrix([1,2,3,4])
     < [[1, 2, 3, 4]]
+
+The resulting matrix is independent from the input vector.
+
+    > v = [1, 2, 3];
+    > m = rowmatrix(v);
+    > v_2 = 7;
+    > v
+    < [1, 7, 3]
+    > m
+    < [[1, 2, 3]]
 
 ------
 

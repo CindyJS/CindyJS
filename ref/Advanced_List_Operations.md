@@ -169,3 +169,5 @@ Together with the operators `concat`, `remove`, and `common`, this can be used a
     < [2, 3, 4, 5]
     > set([3, 5, 2]~~[4, 5, 2])
     < [2, 5]
+
+Note that set operations have linear time complexity.

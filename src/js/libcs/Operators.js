@@ -1392,6 +1392,55 @@ evaluator.matrixrowcolumn=function(args,modifs){
     return nada;
 };
 
+evaluator.rowmatrix=function(args,modifs){
+    if(args.length===1){
+        var v0=evaluate(args[0]);
+        if (v0.ctype==="list")
+            return List.turnIntoCSList([v0]);
+    }
+    return nada;
+};
+
+evaluator.columnmatrix=function(args,modifs){
+    if(args.length===1){
+        var v0=evaluate(args[0]);
+        if (v0.ctype==="list")
+            return List.turnIntoCSList(v0.value.map(function(elt){
+                return List.turnIntoCSList([elt]);
+            }));
+    }
+    return nada;
+};
+
+evaluator.submatrix=function(args,modifs){
+    if(args.length===3){
+        var v0=evaluate(args[0]);
+        var v1=evaluate(args[1]);
+        var v2=evaluate(args[2]);
+        if (v0.ctype==="list" && v1.ctype==="number" && v2.ctype==="number") {
+            var col = Math.round(v1.value.real);
+            var row = Math.round(v2.value.real);
+            var mat = v0.value.slice();
+            if (row > 0 && row <= mat.length)
+                mat.splice(row - 1, 1);
+            var sane = true;
+            var erg = mat.map(function(row1) {
+                if (row1.ctype!=="list") {
+                    sane = false;
+                    return;
+                }
+                var row2 = row1.value.slice();
+                if (col > 0 && col <= row2.length)
+                    row2.splice(col - 1, 1);
+                return List.turnIntoCSList(row2);
+            });
+            if (!sane)
+                return nada;
+            return List.turnIntoCSList(erg);
+        }
+    }
+    return nada;
+};
 
 
 ///////////////////////////////

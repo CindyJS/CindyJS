@@ -286,3 +286,5 @@ Characters can be returned and set with this operator.
     > a_5="erella";
     > a
     < "CinderellaScript"
+
+In this example, a single letter has been replaced by a longer string.
