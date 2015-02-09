@@ -111,6 +111,19 @@ CSNumber.mult=function(a,b){
             'imag':a.value.real*b.value.imag+a.value.imag*b.value.real}};
 };
 
+CSNumber.multiMult = function(arr){
+    var erg = arr[0];
+    if(erg.ctype !== "number") return nada;
+    for(var i = 1; i < arr.length; i++){
+        if(arr[i].ctype !== "number"){
+            return nada;
+        }
+        erg = CSNumber.mult(erg,arr[i]);
+    }
+
+    return erg;
+};
+
 // BUG?
 // why do we have two argument but throw away the second argument?
 CSNumber.abs2=function(a,b){
@@ -253,6 +266,15 @@ CSNumber.sqrt=function(a)  {
     return {"ctype":"number" ,"value":{'real':r,'imag':i}};
 };
 
+CSNumber.pow2 = function(a,b){
+    var rr=a.value.real;
+    var ii=a.value.imag;
+    var n = Math.pow(Math.sqrt(rr * rr + ii * ii), b);
+    var w = Math.atan2(ii, rr);
+    var i = n * Math.sin(w * b);
+    var r = n * Math.cos(w * b);
+    return {"ctype":"number" ,"value":{'real':r,'imag':i}};
+};
 
 CSNumber.log=function(a){
     var re=a.value.real;
