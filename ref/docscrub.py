@@ -145,6 +145,50 @@ class SoupToMarkdown:
             print("   src='{}'".format(src))
         self._output.append(src)
         self._output.append(")\n\n")
+    def do_table(self, node):
+        table = []
+        colwidths = []
+        save = self._output
+        for i, tr in enumerate(node.find_all("tr")):
+            row = []
+            table.append(row)
+            for j, elt in enumerate(tr.find_all(["td","th"])):
+                self._output = []
+                if i == 0:
+                    b = None
+                    for c in elt.children:
+                        if isinstance(c, bs4.element.Comment):
+                            continue
+                        if isinstance(c, str):
+                            if self._reWS.sub(c, ""):
+                                break
+                            continue
+                        if c.name.lower() == "b" and b is None:
+                            b = c
+                            continue
+                        break
+                    else:
+                        if b:
+                            elt = b
+                self.recurse(elt)
+                txt = self._reWS.sub(" ", self.result())
+                txt = txt.rstrip(" ");
+                row.append(txt)
+                if j == len(colwidths):
+                    colwidths.append(len(txt))
+                elif colwidths[j] < len(txt):
+                    colwidths[j] = len(txt)
+        self._output = save
+        for i, row in enumerate(table):
+            for j, elt in enumerate(row):
+                w = colwidths[j]
+                t = elt + " "*(w - len(elt))
+                self._output.append("| {} ".format(t))
+            self._output.append("|\n")
+            if i == 0:
+                for w in colwidths:
+                    self._output.append("| {} ".format("-"*w))
+                self._output.append("|\n")
 
 def scrub(name):
     dir = os.path.dirname(__file__)

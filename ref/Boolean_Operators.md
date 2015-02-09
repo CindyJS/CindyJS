@@ -66,23 +66,9 @@ This operator is sometimes very useful to circumvent inaccuracies which are unav
 The exact semantics of the exact and the fuzzy operators can be read off from the following diagram.
 Here for each operator the picture shows for which region of `b` (marked in red) the operator evaluates to true.
 
-<table align="center" cellspacing="0">
-<tbody>
-  <tr>
-   <td>
-    <span class="img">
-     <img alt="" border="0" src="http://www.cinderella.de/~juergen/CindyDocu/CindyScript/Comparisons.png" width="250"/>
-    </span>
-   </td>
-  </tr>
-  <tr>
-   <td class="caption">
-    <b>
-    </b>
-   </td>
-  </tr>
-</tbody>
-</table>
+| ![Image](http://www.cinderella.de/~juergen/CindyDocu/CindyScript/Comparisons.png) |
+| --------------------------------------------------------------------------------- |
+| ****                                                                              |
 
 ------
 
@@ -91,101 +77,12 @@ Here for each operator the picture shows for which region of `b` (marked in red)
 **Description:**
 Logical **and** of two Boolean values defined by the following truth table:
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     <code>
-      A
-     </code>
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     <code>
-      B
-     </code>
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     <code>
-      A &amp; B
-     </code>
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| `A`     | `B`     | `A & B` |
+| ------- | ------- | ------- |
+| `false` | `false` | `false` |
+| `false` | `true`  | `false` |
+| `true`  | `false` | `false` |
+| `true`  | `true`  | `true`  |
 
 If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
@@ -196,101 +93,12 @@ If one of the two arguments is not a Boolean expression, the operator returns `_
 **Description:**
 Logical **or** of two Boolean values defined by the following truth table:
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     <code>
-      A
-     </code>
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     <code>
-      B
-     </code>
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     <code>
-      A % B
-     </code>
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| `A`     | `B`     | `A % B` |
+| ------- | ------- | ------- |
+| `false` | `false` | `false` |
+| `false` | `true`  | `true`  |
+| `true`  | `false` | `true`  |
+| `true`  | `true`  | `true`  |
 
 If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
@@ -301,50 +109,10 @@ If one of the two arguments is not a Boolean expression, the operator returns `_
 **Description:**
 Logical **not** of one Boolean value defined by the following truth table:
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     <code>
-      A
-     </code>
-    </b>
-   </td>
-   <td class="wikicell" colspan="2">
-    <b>
-     <code>
-      !A
-     </code>
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell" colspan="2">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell" colspan="2">
-    <code>
-     false
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| `A`     | `!A`    |
+| ------- | ------- |
+| `false` | `true`  |
+| `true`  | `false` |
 
 If the argument is not a Boolean expression, the operator returns `____`.
 
@@ -380,101 +148,12 @@ If the argument is not a Boolean expression, the operator returns `____`.
 **Description:**
 Logical **exclusive or** of two Boolean values defined by the following truth table:
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     <code>
-      A
-     </code>
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     <code>
-      B
-     </code>
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     <code>
-      xor(A,B)
-     </code>
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| `A`     | `B`     | `xor(A,B)` |
+| ------- | ------- | ---------- |
+| `false` | `false` | `false`    |
+| `false` | `true`  | `true`     |
+| `true`  | `false` | `true`     |
+| `true`  | `true`  | `false`    |
 
 If one of the two arguments is not a Boolean expression, the operator returns `___`.
 

@@ -76,23 +76,9 @@ Observe that the operator generates an implicit typing of the return values, so 
     > drawall([a,b,c,d,ha,hb,hc,X,A,B,C]);
     >
 
-<table align="center" cellspacing="0">
-<tbody>
-  <tr>
-   <td>
-    <span class="img">
-     <img alt="" border="0" src="img/wiki_up/MeetJoinX.png"/>
-    </span>
-   </td>
-  </tr>
-  <tr>
-   <td class="caption">
-    <b>
-    </b>
-   </td>
-  </tr>
-</tbody>
-</table>
+| ![Image](img/MeetJoinX.png) |
+| --------------------------- |
+| ****                        |
 
 ------
 
@@ -227,23 +213,9 @@ The result is the green point in the figure.
     > draw(m*C.homog);
     >
 
-<table align="center" cellspacing="0">
-<tbody>
-  <tr>
-   <td>
-    <span class="img">
-     <img alt="" border="0" src="img/wiki_up/LineReflectX.png"/>
-    </span>
-   </td>
-  </tr>
-  <tr>
-   <td class="caption">
-    <b>
-    </b>
-   </td>
-  </tr>
-</tbody>
-</table>
+| ![Image](img/LineReflectX.png) |
+| ------------------------------ |
+| ****                           |
 
 ------
 
