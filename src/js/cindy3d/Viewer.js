@@ -45,6 +45,7 @@ function Viewer(name) {
   this.camera = new Camera(this.width, this.height);
   this.spheres = new Spheres(this);
   this.cylinders = new Cylinders(this);
+  this.triangles = new Triangles(this);
   this.pointAppearance   = Appearance.clone(Viewer.defaultAppearances.point);
   this.lineAppearance    = Appearance.clone(Viewer.defaultAppearances.line);
   this.surfaceAppearance = Appearance.clone(Viewer.defaultAppearances.surface);
@@ -65,6 +66,9 @@ Viewer.prototype.spheres;
 
 /** @type {Cylinders} */
 Viewer.prototype.cylinders;
+
+/** @type {Triangles} */
+Viewer.prototype.triangles;
 
 /** @type {HTMLCanvasElement} */
 Viewer.prototype.canvas;
@@ -143,7 +147,7 @@ Viewer.prototype.render = function() {
   gl.viewport(0, 0, this.width, this.height);
   gl.clearColor.apply(gl, this.backgroundColor);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  if (this.spheres.opaque && this.cylinders.opaque) {
+  if (this.spheres.opaque && this.cylinders.opaque && this.triangles.opaque) {
     gl.disable(gl.BLEND);
     gl.depthMask(true);
     this.renderPrimitives(true);
@@ -170,6 +174,7 @@ Viewer.prototype.render = function() {
 Viewer.prototype.renderPrimitives = function(opaque) {
   if (!opaque)
     this.spheres.render(this, +1); // back
+  this.triangles.render(this);
   this.cylinders.render(this);
   this.spheres.render(this, -1); // front
 };

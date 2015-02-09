@@ -189,6 +189,23 @@ defOp("drawsphere3d", 2, function(args, modifs) {
 });
 
 defOp("mesh3d", 3, function(args, modifs) {
+  let m = coerce.toInt(evaluate(args[0]));
+  let n = coerce.toInt(evaluate(args[1]));
+  let pos = coerce.toList(evaluate(args[2])).map(elt => coerce.toHomog(elt));
+  let appearance = handleModifsAppearance(
+    currentInstance.surfaceAppearance, modifs);
+  // TODO: handle modifiers, per-vertex normals in particular.
+  let k = 0;
+  for (let i = 1; i < m; ++i) {
+    for (let j = 1; j < n; ++j) {
+      currentInstance.triangles.add(
+        pos[k], pos[k + 1], pos[k + n], appearance);
+      currentInstance.triangles.add(
+        pos[k + n], pos[k + 1], pos[k + n + 1], appearance);
+      ++k;
+    }
+    ++k;
+  }
   return nada;
 });
 

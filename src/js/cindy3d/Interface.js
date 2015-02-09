@@ -120,6 +120,25 @@ coerce.toReal = function(arg, def=Number.NaN) {
 };
 
 /**
+ * @param {cjsType.anyval} arg
+ * @param {number=} def
+ * @return {number}
+ */
+coerce.toInt = function(arg, def=Number.NaN) {
+  if (arg["ctype"] !== "number") {
+    console.log("argument is not a number");
+    return def;
+  }
+  let val = arg["value"], r = val["real"], i = val["imag"];
+  if (i !== 0)
+    console.log("complex number is not real");
+  i = Math.round(r);
+  if (i !== r)
+    console.log("number is not an integer");
+  return i;
+};
+
+/**
  * @param {number} min
  * @param {number} max
  * @param {number} arg
