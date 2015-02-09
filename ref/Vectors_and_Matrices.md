@@ -32,195 +32,15 @@ This means that the lists have the same length, and if some of the entries are l
 Multiplication with lists is allowed whenever this performs a mathematically meaningful operation.
 The following table summarizes the different admissible uses of the multiplication operator.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     factor 1
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     factor 2
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     result
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     meaning
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    number
-   </td>
-   <td class="wikicell">
-    number
-   </td>
-   <td class="wikicell">
-    number
-   </td>
-   <td class="wikicell">
-    usual multiplication
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    number
-   </td>
-   <td class="wikicell">
-    vector of length
-    <i>
-     r
-    </i>
-   </td>
-   <td class="wikicell">
-    vector of length
-    <i>
-     r
-    </i>
-   </td>
-   <td class="wikicell">
-    scalar vector multiplication
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    vector of length
-    <i>
-     r
-    </i>
-   </td>
-   <td class="wikicell">
-    number
-   </td>
-   <td class="wikicell">
-    vector of length
-    <i>
-     r
-    </i>
-   </td>
-   <td class="wikicell">
-    scalar vector multiplication
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    vector of length
-    <i>
-     r
-    </i>
-   </td>
-   <td class="wikicell">
-    vector of length
-    <i>
-     r
-    </i>
-   </td>
-   <td class="wikicell">
-    number
-   </td>
-   <td class="wikicell">
-    scalar product of two vectors
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <i>
-     n
-    </i>
-    ×
-    <i>
-     r
-    </i>
-    matrix
-   </td>
-   <td class="wikicell">
-    vector of length
-    <i>
-     r
-    </i>
-   </td>
-   <td class="wikicell">
-    vector of length
-    <i>
-     n
-    </i>
-   </td>
-   <td class="wikicell">
-    matrix × vector
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    vector of length
-    <i>
-     n
-    </i>
-   </td>
-   <td class="wikicell">
-    <i>
-     n
-    </i>
-    ×
-    <i>
-     r
-    </i>
-    matrix
-   </td>
-   <td class="wikicell">
-    vector of length
-    <i>
-     r
-    </i>
-   </td>
-   <td class="wikicell">
-    vector × matrix
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <i>
-     n
-    </i>
-    ×
-    <i>
-     r
-    </i>
-    matrix
-   </td>
-   <td class="wikicell">
-    <i>
-     r
-    </i>
-    ×
-    <i>
-     m
-    </i>
-    matrix
-   </td>
-   <td class="wikicell">
-    <i>
-     n
-    </i>
-    ×
-    <i>
-     m
-    </i>
-    matrix
-   </td>
-   <td class="wikicell">
-    matrix multiplication
-   </td>
-  </tr>
-</tbody>
-</table>
+| factor 1             | factor 2             | result               | meaning                       |
+| -------------------- | -------------------- | -------------------- | ----------------------------- |
+| number               | number               | number               | usual multiplication          |
+| number               | vector of length *r* | vector of length *r* | scalar vector multiplication  |
+| vector of length *r* | number               | vector of length *r* | scalar vector multiplication  |
+| vector of length *r* | vector of length *r* | number               | scalar product of two vectors |
+| *n* × *r* matrix     | vector of length *r* | vector of length *n* | matrix × vector               |
+| vector of length *n* | *n* × *r* matrix     | vector of length *r* | vector × matrix               |
+| *n* × *r* matrix     | *r*× *m* matrix      | *n* × *m* matrix     | matrix multiplication         |
 
 ------
 
@@ -234,70 +54,12 @@ The following table summarizes the different admissible uses of the multiplicati
 This operator adds all elements of a list.
 The elements may be numbers, or themselves lists (or vectors or matrices), or even strings.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum(1..10)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     55
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum([4,6,2,6])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     18
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum([ [3, 5], [2, 5], [5, 6] ])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [10, 16]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum(["h","e","ll","o"])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     "hello"
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                              | Result     |
+| --------------------------------- | ---------- |
+| `sum(1..10)`                      | `55`       |
+| `sum([4,6,2,6])`                  | `18`       |
+| `sum([ [3, 5], [2, 5], [5, 6] ])` | `[10, 16]` |
+| `sum(["h","e","ll","o"])`         | `"hello"`  |
 
 One can, for instance, use the sum operator to define an arithmetic mean function by the following code fragment:
 
@@ -315,101 +77,18 @@ The running variable is as usual `#`.
 
 We can calculate the sum of all squares of the first hundred integers by the following expression:
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum(1..100,#ˆ2)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     338350
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code              | Result   |
+| ----------------- | -------- |
+| `sum(1..100,#ˆ2)` | `338350` |
 
 It is time for a little mathematical mystery:
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum(1..10,#ˆ2)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     385
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum(1..100,#ˆ2)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     338350
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum(1..1000,#ˆ2)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     333833500
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     sum(1..10000,#ˆ2)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     333383335000
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                | Result         |
+| ------------------- | -------------- |
+| `sum(1..10,#ˆ2)`    | `385`          |
+| `sum(1..100,#ˆ2)`   | `338350`       |
+| `sum(1..1000,#ˆ2)`  | `333833500`    |
+| `sum(1..10000,#ˆ2)` | `333383335000` |
 
 ------
 
@@ -426,34 +105,9 @@ This operator is similar to the last one, except that the running variable is lo
 This operator multiplies together all elements of a list.
 The elements are expected to be numbers.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     product(1..5)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     120
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code            | Result |
+| --------------- | ------ |
+| `product(1..5)` | `120`  |
 
 One can, for instance, use the product operator to define the factorial function by the following code fragment:
 
@@ -481,34 +135,9 @@ This operator is similar to the last one, except that the running variable is lo
 **Description:**
 This operator finds the maximum value in a list of entries.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     max([4,2,6,3,5])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     6
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code               | Result |
+| ------------------ | ------ |
+| `max([4,2,6,3,5])` | `6`    |
 
 ------
 
@@ -532,34 +161,9 @@ This operator is similar to the last one, except that the running variable is lo
 **Description:**
 This operator finds the minimum of a list of entries.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     min([4,2,6,3,5])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     2
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code               | Result |
+| ------------------ | ------ |
+| `min([4,2,6,3,5])` | `2`    |
 
 ------
 
@@ -588,34 +192,9 @@ Besides addition and multiplication, as described earlier in this section, there
 **Description:**
 If the argument is a matrix, this operator returns the number of columns and the number of rows of the matrix, encoded as a two-element list.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     matrixrowcolumn([[1,2],[3,2],[1,3],[5,4]])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [2,4]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                                         | Result  |
+| -------------------------------------------- | ------- |
+| `matrixrowcolumn([[1,2],[3,2],[1,3],[5,4]])` | `[2,4]` |
 
 ------
 
@@ -625,58 +204,11 @@ If the argument is a matrix, this operator returns the number of columns and the
 If the argument is a matrix, this operator returns the transpose of the matrix.
 In the transpose, the rows and columns are interchanged.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     transpose([[1,2],[3,2],[1,3], [5,4]])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [[1,3,1,5],[2,2,3,4]]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     transpose([[1],[3],[1],[5]])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [[1,3,1,5]]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     transpose([[1,3,1,5]])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [[1],[3],[1],[5]]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                                    | Result                  |
+| --------------------------------------- | ----------------------- |
+| `transpose([[1,2],[3,2],[1,3], [5,4]])` | `[[1,3,1,5],[2,2,3,4]]` |
+| `transpose([[1],[3],[1],[5]])`          | `[[1,3,1,5]]`           |
+| `transpose([[1,3,1,5]])`                | `[[1],[3],[1],[5]]`     |
 
 ------
 
@@ -685,34 +217,9 @@ In the transpose, the rows and columns are interchanged.
 **Description:**
 If the first argument is a matrix, this operator returns the row with index `‹int›` as a vector.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     row([[1,2],[3,2],[1,3], [5,4]],2)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [3,2]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                                | Result  |
+| ----------------------------------- | ------- |
+| `row([[1,2],[3,2],[1,3], [5,4]],2)` | `[3,2]` |
 
 ------
 
@@ -721,34 +228,9 @@ If the first argument is a matrix, this operator returns the row with index `‹
 **Description:**
 If the first argument is a matrix, this operator returns the column with index `‹int›` as a vector.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     column([[1,2],[3,2],[1,3], [5,4]],2)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [2,2,3,4]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                                   | Result      |
+| -------------------------------------- | ----------- |
+| `column([[1,2],[3,2],[1,3], [5,4]],2)` | `[2,2,3,4]` |
 
 ------
 
@@ -757,34 +239,9 @@ If the first argument is a matrix, this operator returns the column with index `
 **Description:**
 If the first argument is a matrix, this operator returns the submatrix obtained by deleting the column with index `‹int1›` and the row with index `‹int2›`.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     submatrix([[1,2,4],[3,2,3], [1,3,6],[5,4,7]],2,3)
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [[1,4],[3,3],[5,7]]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                                                | Result                |
+| --------------------------------------------------- | --------------------- |
+| `submatrix([[1,2,4],[3,2,3], [1,3,6],[5,4,7]],2,3)` | `[[1,4],[3,3],[5,7]]` |
 
 ------
 
@@ -793,34 +250,9 @@ If the first argument is a matrix, this operator returns the submatrix obtained 
 **Description:**
 If the first argument is a vector, this operator returns the matrix with a single row consisting of this vector.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     rowmatrix([1,2,3,4])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [[1,2,3,4]]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                   | Result        |
+| ---------------------- | ------------- |
+| `rowmatrix([1,2,3,4])` | `[[1,2,3,4]]` |
 
 ------
 
@@ -829,34 +261,9 @@ If the first argument is a vector, this operator returns the matrix with a singl
 **Description:**
 If the first argument is a vector, this operator returns the matrix with a single column consisting of this vector.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell" colspan="3">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     columnmatrix([1,2,3,4])
-    </code>
-   </td>
-   <td class="wikicell" colspan="3">
-    <code>
-     [[1],[2],[3],[4]]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                      | Result              |
+| ------------------------- | ------------------- |
+| `columnmatrix([1,2,3,4])` | `[[1],[2],[3],[4]]` |
 
 ------
 
@@ -1058,21 +465,6 @@ The convex hull operator is remarkably robust to degenerate situations.
 The following image has been computed under usage of the `convexhull3d(...)` operator.
 It shows the section of a 4-dimensional polytope (a 600-cell) with a 3-dimensional space.
 
-<table align="center" cellspacing="0">
-<tbody>
-  <tr>
-   <td>
-    <span class="img">
-     <img alt="" border="0" src="img/wiki_up/ConvexHullX.png"/>
-    </span>
-   </td>
-  </tr>
-  <tr>
-   <td class="caption">
-    <b>
-     A section of a 600-cell rendered with CindyScript.
-    </b>
-   </td>
-  </tr>
-</tbody>
-</table>
+| ![Image](img/ConvexHullX.png)                           |
+| ------------------------------------------------------- |
+| **A section of a 600-cell rendered with CindyScript. ** |

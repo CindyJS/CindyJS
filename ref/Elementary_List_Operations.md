@@ -8,58 +8,11 @@
 The expression `‹int1›..‹int2›` creates a list of consecutive integers starting with `‹int1›` and ending with `‹int2›`.
 If `‹int1›` is larger than `‹int2›`, then the empty list is returned.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     4..9
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [4, 5, 6, 7, 8, 9]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     2..2
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [-2, -1, 0, 1, 2]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     4..1
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     []
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code   | Result               |
+| ------ | -------------------- |
+| `4..9` | `[4, 5, 6, 7, 8, 9]` |
+| `2..2` | `[-2, -1, 0, 1, 2]`  |
+| `4..1` | `[]`                 |
 
 ------
 
@@ -68,58 +21,11 @@ If `‹int1›` is larger than `‹int2›`, then the empty list is returned.
 **Description:**
 This operator returns an integer that is equal to the number of elements in the `‹list›`.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     length([2 ,5 ,7 ,3])
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     4
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     length([2 ,[5, 4, 5] ,7 ,3]_2)
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     3
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     length(1..1000)
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     1000
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                             | Result |
+| -------------------------------- | ------ |
+| `length([2 ,5 ,7 ,3])`           | `4`    |
+| `length([2 ,[5, 4, 5] ,7 ,3]_2)` | `3`    |
+| `length(1..1000)`                | `1000` |
 
 Combining the `length` and the `repeat` operator allows one to list all elements of a list easily.
 
@@ -142,58 +48,11 @@ There are more elegant ways.
 **Description:**
 This operator returns either `true` or `false` depending on whether `‹list›` contains the element &lt;expr&gt;.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     contains([1,3,4,5],4)
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     contains([1,3,4,5],7)
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     false
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     contains([1,3,4,5],2*2)
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     true
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                      | Result  |
+| ------------------------- | ------- |
+| `contains([1,3,4,5],4)`   | `true`  |
+| `contains([1,3,4,5],7)`   | `false` |
+| `contains([1,3,4,5],2*2)` | `true`  |
 
 ------
 
@@ -207,34 +66,9 @@ This operator returns either `true` or `false` depending on whether `‹list›`
 This operator creates a list by concatenation of two other lists.
 This operator can equivalently be written as `‹list1›++‹list2›`.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     concat(["a", "b"], ["c", "d"])
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     ["a", "b", "c", "d"]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                             | Result                 |
+| -------------------------------- | ---------------------- |
+| `concat(["a", "b"], ["c", "d"])` | `["a", "b", "c", "d"]` |
 
 ------
 
@@ -244,46 +78,10 @@ This operator can equivalently be written as `‹list1›++‹list2›`.
 This operator creates a list by removing all elements that occur in `‹list2›` from `‹list1›`.
 This operator can equivalently be written as `‹list1› -- ‹list2›`.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     remove([1,3,4,5,1,5,6], [1,3,7])
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [4,5,5,6]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     [1,3,4,5,1,5,6]--[1,3,7]
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [4,5,5,6]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                               | Result      |
+| ---------------------------------- | ----------- |
+| `remove([1,3,4,5,1,5,6], [1,3,7])` | `[4,5,5,6]` |
+| `[1,3,4,5,1,5,6]--[1,3,7]`         | `[4,5,5,6]` |
 
 ------
 
@@ -294,46 +92,10 @@ This operator creates a list collecting all elements that are in both `‹list1�
 In the returned list the elements are sorted and each element occurs at most once.
 This operator can equivalently be written as `‹list1›~~‹list2›`.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     common([1,3,4,5,1,5,6], [1,3,7])
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [1,3]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     [1,3,4,5,1,5,6]~~[1,3,7]
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [1,3]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                               | Result  |
+| ---------------------------------- | ------- |
+| `common([1,3,4,5,1,5,6], [1,3,7])` | `[1,3]` |
+| `[1,3,4,5,1,5,6]~~[1,3,7]`         | `[1,3]` |
 
 ------
 
@@ -343,46 +105,10 @@ This operator can equivalently be written as `‹list1›~~‹list2›`.
 This operator returns a list that is created by appending `‹expr›` to the list `‹list›` as its last element.
 ` This operator can equivalently be written as `‹list›:›‹expr›`.`
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     append(["a", "b", "c"], "d")
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     ["a", "b", "c","d"]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     ["a", "b", "c"]:&gt;"d"
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     ["a", "b", "c","d"]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                           | Result                |
+| ------------------------------ | --------------------- |
+| `append(["a", "b", "c"], "d")` | `["a", "b", "c","d"]` |
+| `["a", "b", "c"]:›"d"`         | `["a", "b", "c","d"]` |
 
 ------
 
@@ -392,46 +118,10 @@ This operator returns a list that is created by appending `‹expr›` to the li
 This operator returns a list that is created by prepending `‹expr›` to the list `‹list›` as its first element.
 ` This operator can equivalently be written as `‹expr›‹:‹list›`.`
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     prepend("d",["a", "b", "c"])
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     ["d","a", "b", "c"]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     "d"&lt;:["a", "b", "c"~34
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     ["d","a", "b", "c"]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                           | Result                |
+| ------------------------------ | --------------------- |
+| `prepend("d",["a", "b", "c"])` | `["d","a", "b", "c"]` |
+| `"d"‹:["a", "b", "c"~34`       | `["d","a", "b", "c"]` |
 
 ------
 
@@ -472,58 +162,11 @@ Similar to `forall(‹list›,‹expr›)`, but the run variable is now named `�
 This operator generates a new list by applying the operation `‹expr›` to all elements of a list and collecting the results.
 As usual, `#` is the run variable, which successively takes the value of each element in the list.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     apply([1, 2, 3, 4, 5],#^2)
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [1, 4, 9, 16, 25]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     apply([1, 2, 3, 4, 5],#+5)
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [6, 7, 8, 9, 10]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     apply(1..5, [#,#ˆ2])
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [[1, 1], [2, 4], [3, 9], [4, 16], [5, 25]]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                         | Result                                       |
+| ---------------------------- | -------------------------------------------- |
+| `apply([1, 2, 3, 4, 5],#^2)` | `[1, 4, 9, 16, 25]`                          |
+| `apply([1, 2, 3, 4, 5],#+5)` | `[6, 7, 8, 9, 10]`                           |
+| `apply(1..5, [#,#ˆ2])`       | `[[1, 1], [2, 4], [3, 9], [4, 16], [5, 25]]` |
 
 ------
 
@@ -542,46 +185,10 @@ The condition is supposed to be encoded by `‹boolexpr›`.
 This expression is assumed to return a `‹bool›` value.
 As usual, `#` is the run variable, which successively take the value of all elements in the list.
 
-<table class="wikitable">
-<tbody>
-  <tr>
-   <td class="wikicell">
-    <b>
-     Code
-    </b>
-   </td>
-   <td class="wikicell">
-    <b>
-     Result
-    </b>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     select(1..10, isodd(#))
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [1, 3, 5, 7, 9]
-    </code>
-   </td>
-  </tr>
-  <tr>
-   <td class="wikicell">
-    <code>
-     select(0..10, #+# == #ˆ2)
-    </code>
-   </td>
-   <td class="wikicell">
-    <code>
-     [0,2]
-    </code>
-   </td>
-  </tr>
-</tbody>
-</table>
+| Code                        | Result            |
+| --------------------------- | ----------------- |
+| `select(1..10, isodd(#))`   | `[1, 3, 5, 7, 9]` |
+| `select(0..10, #+# == #ˆ2)` | `[0,2]`           |
 
 A high-level application of the `select` operator is given by the following example:
 
