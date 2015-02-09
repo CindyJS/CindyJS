@@ -278,12 +278,15 @@ evaluator.flatten=function(args,modifs){
         return lst;
     var levels = modifs.levels;
     if (levels === undefined) {
-        levels = -2;
+        levels = 1;
     } else  {
         levels = evaluate(levels);
         if (levels.ctype === "number")
             levels = levels.value.real;
-        else levels = -2;
+        else if (levels.ctype === "string" && levels.value === "all")
+            levels = -2;
+        else
+            levels = 1;
     }
     return {'ctype':'list','value':recurse(lst, levels)};
 };
