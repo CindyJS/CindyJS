@@ -5,13 +5,13 @@
 
 
 
-evaluator.seconds=function(args,modifs){  //OK
+evaluator.seconds$0=function(args,modifs){  //OK
     return {"ctype":"number" ,  "value":{'real':(new Date().getTime() / 1000),'imag':0}};
 };
 
 
 
-evaluator.err=function(args,modifs){      //OK
+evaluator.err$1=function(args,modifs){      //OK
     
     if(typeof csconsole==="undefined"){
         csconsole=window.open('','','width=200,height=100');
@@ -33,7 +33,7 @@ evaluator.err=function(args,modifs){      //OK
     return nada;
 };
 
-evaluator.errc=function(args,modifs){      //OK
+evaluator.errc$1=function(args,modifs){      //OK
     var s;
     if(args[0].ctype==='variable'){
         // var s=evaluate(args[0].value[0]);
@@ -48,11 +48,11 @@ evaluator.errc=function(args,modifs){      //OK
     return nada;
 };
 
-evaluator.println=function(args,modifs){
+evaluator.println$1=function(args,modifs){
     console.log(niceprint(evaluate(args[0])));
 };
 
-evaluator.dump=function(args,modifs){      
+evaluator.dump$1=function(args,modifs){
     
     dump(args[0]);
     return nada;
@@ -60,7 +60,11 @@ evaluator.dump=function(args,modifs){
 
 
 
-evaluator.repeat=function(args,modifs){    //OK
+evaluator.repeat$2=function(args,modifs){    //OK
+    return evaluator.repeat$3([args[0], null, args[1]], modifs);
+};
+
+evaluator.repeat$3=function(args,modifs){    //OK
     function handleModifs(){
         var erg;
         
@@ -121,13 +125,11 @@ evaluator.repeat=function(args,modifs){    //OK
     
     
     var v1=evaluateAndVal(args[0]);
-    var argind=args.length-1;
     
     var lauf='#';
-    if(args.length===3) {
+    if(args[1]!==null) {
         if(args[1].ctype==='variable'){
             lauf=args[1].name;
-            
         }
     }
     if(v1.ctype!=='number'){
@@ -150,7 +152,7 @@ evaluator.repeat=function(args,modifs){    //OK
         var erg;
         for(var i=0;i<n;i++){
             namespace.setvar(lauf,{'ctype':'number','value':{'real':i * step + start, 'imag':0}});
-            erg=evaluate(args[argind]);
+            erg=evaluate(args[2]);
         }
         namespace.removevar(lauf);
         
@@ -159,7 +161,7 @@ evaluator.repeat=function(args,modifs){    //OK
 };
 
 
-evaluator.while=function(args,modifs){ //OK
+evaluator.while$2=function(args,modifs){ //OK
     
     var prog=args[1];
     var test=args[0];
@@ -175,16 +177,19 @@ evaluator.while=function(args,modifs){ //OK
 };
 
 
-evaluator.apply=function(args,modifs){ //OK
+evaluator.apply$2=function(args,modifs){ //OK
+    return evaluator.apply$3([args[0], null, args[1]], modifs);
+};
+
+evaluator.apply$3=function(args,modifs){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!=='list'){
         return nada;
     }
-    var argind=args.length-1;
     
     var lauf='#';
-    if(args.length===3) {
+    if(args[1]!==null) {
         if(args[1].ctype==='variable'){
             lauf=args[1].name;
         }
@@ -195,7 +200,7 @@ evaluator.apply=function(args,modifs){ //OK
     namespace.newvar(lauf);
     for(var i=0;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
-        erg[i]=evaluate(args[argind]);
+        erg[i]=evaluate(args[2]);
     }
     namespace.removevar(lauf);
     
@@ -203,16 +208,19 @@ evaluator.apply=function(args,modifs){ //OK
     
 };
 
-evaluator.forall=function(args,modifs){ //OK
+evaluator.forall$2=function(args,modifs){ //OK
+    return evaluator.forall$3([args[0], null, args[1]], modifs);
+};
+
+evaluator.forall$3=function(args,modifs){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!=='list'){
         return nada;
     }
-    var argind=args.length-1;
     
     var lauf='#';
-    if(args.length===3) {
+    if(args[1]!==null) {
         if(args[1].ctype==='variable'){
             lauf=args[1].name;
         }
@@ -224,7 +232,7 @@ evaluator.forall=function(args,modifs){ //OK
     var res;
     for(var i=0;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
-        res=evaluate(args[argind]);
+        res=evaluate(args[2]);
         erg[i]=res;
     }
     namespace.removevar(lauf);
@@ -233,16 +241,19 @@ evaluator.forall=function(args,modifs){ //OK
     
 };
 
-evaluator.select=function(args,modifs){ //OK
+evaluator.select$2=function(args,modifs){ //OK
+    return evaluator.select$3([args[0], null, args[1]], modifs);
+};
+
+evaluator.select$3=function(args,modifs){ //OK
     
     var v1=evaluateAndVal(args[0]);
     if(v1.ctype!=='list'){
         return nada;
     }
-    var argind=args.length-1;
     
     var lauf='#';
-    if(args.length===3) {
+    if(args[1]!==null) {
         if(args[1].ctype==='variable'){
             lauf=args[1].name;
         }
@@ -254,7 +265,7 @@ evaluator.select=function(args,modifs){ //OK
     var ct=0;
     for(var i=0;i<li.length;i++){
         namespace.setvar(lauf,li[i]);
-        var res=evaluate(args[argind]);
+        var res=evaluate(args[2]);
         if(res.ctype==='boolean'){
             if(res.value===true){
                 erg[ct]=li[i];
@@ -269,7 +280,7 @@ evaluator.select=function(args,modifs){ //OK
 };
 
 
-evaluator.flatten=function(args,modifs){
+evaluator.flatten$1=function(args,modifs){
     function recurse(lst, level) {
         if (level === -1 || lst.ctype !== "list")
             return lst;
@@ -296,7 +307,7 @@ evaluator.flatten=function(args,modifs){
 };
 
 
-evaluator.semicolon=function(args,modifs){ //OK
+evaluator.semicolon$2=function(args,modifs){ //OK
     var u0=(args[0].ctype=== 'void');
     var u1=(args[1].ctype=== 'void');
     
@@ -316,22 +327,16 @@ evaluator.semicolon=function(args,modifs){ //OK
 };
 
 
-evaluator.createvar=function(args,modifs){ //OK
-    
-
-    if(args.length===1) {
-        if(args[0].ctype==='variable'){
-            var v=args[0].name;
-            namespace.newvar(v);
-        }
+evaluator.createvar$1=function(args,modifs){ //OK
+    if(args[0].ctype==='variable'){
+        var v=args[0].name;
+        namespace.newvar(v);
     }
-        
     return nada;
-    
 };
 
-evaluator.local=function(args,modifs){ //OK
-    
+evaluator.local=function(args,modifs){ //VARIADIC!
+
     for(var i=0;i<args.length;i++){
         if(args[i].ctype==='variable'){
             var v=args[i].name;
@@ -346,26 +351,18 @@ evaluator.local=function(args,modifs){ //OK
 
 
 
-evaluator.removevar=function(args,modifs){ //OK
-    
-
-    if(args.length===1) {
-        var ret=evaluate(args[0]);
-
-        if(args[0].ctype==='variable'){
-            var v=args[0].name;
-            namespace.removevar(v);
-        }
-        return ret;
+evaluator.removevar$1=function(args,modifs){ //OK
+    var ret=evaluate(args[0]);
+    if(args[0].ctype==='variable'){
+        var v=args[0].name;
+        namespace.removevar(v);
     }
-        
-    return nada;
-    
+    return ret;
 };
 
 
 
-evaluator.release=function(args,modifs){ //OK
+evaluator.release=function(args,modifs){ //VARIADIC!
     
     if(args.length===0) 
         return nada;
@@ -384,7 +381,7 @@ evaluator.release=function(args,modifs){ //OK
     
 };
 
-evaluator.regional=function(args,modifs){ //OK
+evaluator.regional=function(args,modifs){ //VARIADIC!
     
     for(var i=0;i<args.length;i++){
         if(args[i].ctype==='variable'){
@@ -399,7 +396,7 @@ evaluator.regional=function(args,modifs){ //OK
 
 
 
-evaluator.genList=function(args,modifs){
+evaluator.genList=function(args,modifs){ //VARIADIC!
     var erg=[];
     for(var i=0;i<args.length;i++){
         erg[i]=evaluate(args[i]);
@@ -463,7 +460,7 @@ evaluator._helper.assignlist=function(vars,vals){
 
 
 
-evaluator.assign=function(args,modifs){
+evaluator.assign$2=function(args,modifs){
     
     var u0=(args[0].ctype=== 'undefined');
     var u1=(args[1].ctype=== 'undefined');
@@ -494,7 +491,7 @@ evaluator.assign=function(args,modifs){
 };
 
 
-evaluator.define=function(args,modifs){
+evaluator.define$2=function(args,modifs){
     
     var u0=(args[0].ctype=== 'undefined');
     var u1=(args[1].ctype=== 'undefined');
@@ -517,7 +514,11 @@ evaluator.define=function(args,modifs){
 };
 
 
-evaluator.if=function(args,modifs){  //OK
+evaluator.if$2=function(args,modifs){  //OK
+    return evaluator.if$3(args,modifs);
+};
+
+evaluator.if$3=function(args,modifs){  //OK
     
     var u0=(args[0].ctype=== 'undefined');
     var u1=(args[1].ctype=== 'undefined');
@@ -589,7 +590,7 @@ evaluator.comp_almostequals=function(args,modifs){
 };
 
 
-evaluator.and=function(args,modifs){  
+evaluator.and$2=function(args,modifs){  
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
@@ -601,7 +602,7 @@ evaluator.and=function(args,modifs){
 };
 
 
-evaluator.or=function(args,modifs){  
+evaluator.or$2=function(args,modifs){  
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
@@ -614,7 +615,7 @@ evaluator.or=function(args,modifs){
 
 
 
-evaluator.xor=function(args,modifs){  
+evaluator.xor$2=function(args,modifs){  
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
@@ -626,7 +627,7 @@ evaluator.xor=function(args,modifs){
 };
 
 
-evaluator.not=function(args,modifs){  
+evaluator.not=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
@@ -638,7 +639,7 @@ evaluator.not=function(args,modifs){
 };
 
 
-evaluator.numb_degree=function(args,modifs){  
+evaluator.numb_degree=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
@@ -761,7 +762,7 @@ evaluator.comp_lt=function(args,modifs){
 
 
 
-evaluator.sequence=function(args,modifs){  //OK
+evaluator.sequence$2=function(args,modifs){  //OK
     var v0=evaluate(args[0]);
     var v1=evaluate(args[1]);
     if(v0.ctype==='number' && v1.ctype==='number' ){
@@ -770,75 +771,54 @@ evaluator.sequence=function(args,modifs){  //OK
     return nada;
 };
 
-
-
-evaluator._helper.genericListMath1=function(args,op){ //OK
-    
-    var v1=evaluateAndVal(args[0]);
-    if(v1.ctype!=='list'){
-        return nada;
-    }
-    var argind=args.length-1;
-    
-    var lauf='#';
-    if(args.length===3) {
-        if(args[1].ctype==='variable'){
-            lauf=args[1].name;
-        }
-    }
-    
-    var li=v1.value;
-    
-    if(li.length===0){
-        return nada;
-    }
-    namespace.newvar(lauf);
-    namespace.setvar(lauf,li[0]);
-    var erg=evaluate(args[argind]);
-    for(var i=1;i<li.length;i++){
-        namespace.setvar(lauf,li[i]);
-        var b=evaluate(args[argind]);
-        erg=General[op](erg,b);
-    }
-    namespace.removevar(lauf);
-     return erg;
-    
-};
-
-
-evaluator._helper.genericListMath=function(args,op){
-    if(args.length===1){
+evaluator._helper.genericListMathGen = function(name, op) {
+    evaluator[name+"$1"] = function(args,modifs){
         var v0=evaluate(args[0]);
-        if(v0.ctype==='list'){
+        if(v0.ctype==='list')
             return List.genericListMath(v0,op);
-            
+        return nada;
+    };
+    var name$3 = name+"$3";
+    evaluator[name + "$2"] = function(args,modifs){
+        return evaluator[name$3]([args[0], null, args[1]]);
+    };
+    evaluator[name$3] = function(args,modifs){
+        var v1=evaluateAndVal(args[0]);
+        if(v1.ctype!=='list'){
+            return nada;
         }
-    }
-    return evaluator._helper.genericListMath1(args,op);
+        
+        var lauf='#';
+        if(args[1]!==null) {
+            if(args[1].ctype==='variable'){
+                lauf=args[1].name;
+            }
+        }
+        
+        var li=v1.value;
+        
+        if(li.length===0){
+            return nada;
+        }
+        namespace.newvar(lauf);
+        namespace.setvar(lauf,li[0]);
+        var erg=evaluate(args[2]);
+        for(var i=1;i<li.length;i++){
+            namespace.setvar(lauf,li[i]);
+            var b=evaluate(args[2]);
+            erg=General[op](erg,b);
+        }
+        namespace.removevar(lauf);
+        return erg;
+    };
 };
 
+evaluator._helper.genericListMathGen("product","mult");
+evaluator._helper.genericListMathGen("sum","add");
+evaluator._helper.genericListMathGen("max","max");
+evaluator._helper.genericListMathGen("min","min");
 
-evaluator.product=function(args,modifs){
-    return evaluator._helper.genericListMath(args,"mult");
-};
-
-
-evaluator.sum=function(args,modifs){
-    return evaluator._helper.genericListMath(args,"add");
-};
-
-
-evaluator.max=function(args,modifs){
-    return evaluator._helper.genericListMath(args,"max");
-};
-
-evaluator.min=function(args,modifs){
-    return evaluator._helper.genericListMath(args,"min");
-};
-
-
-
-evaluator.add=function(args,modifs){
+evaluator.add$2=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     return General.add(v0,v1);
@@ -846,7 +826,7 @@ evaluator.add=function(args,modifs){
 };
 
 
-evaluator.minus=function(args,modifs){
+evaluator.minus$2=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
     
@@ -868,7 +848,7 @@ evaluator.minus=function(args,modifs){
     
 };
 
-evaluator.mult=function(args,modifs){
+evaluator.mult$2=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
@@ -876,7 +856,7 @@ evaluator.mult=function(args,modifs){
     return General.mult(v0,v1);
 };
 
-evaluator.div=function(args,modifs){
+evaluator.div$2=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
@@ -886,7 +866,7 @@ evaluator.div=function(args,modifs){
 
 
 
-evaluator.mod=function(args,modifs){
+evaluator.mod$2=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
@@ -897,7 +877,7 @@ evaluator.mod=function(args,modifs){
     
 };
 
-evaluator.pow=function(args,modifs){
+evaluator.pow$2=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
@@ -915,7 +895,7 @@ evaluator.pow=function(args,modifs){
 
 
 
-evaluator.exp=function(args,modifs){
+evaluator.exp$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -924,7 +904,7 @@ evaluator.exp=function(args,modifs){
     return nada;    
 };
 
-evaluator.sin=function(args,modifs){
+evaluator.sin$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -933,7 +913,7 @@ evaluator.sin=function(args,modifs){
     return nada;
 };
 
-evaluator.sqrt=function(args,modifs){
+evaluator.sqrt$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -992,7 +972,7 @@ evaluator._helper.laguerre = function(cs, x, maxiter)
     return x;
 };
 
-evaluator.roots=function(args,modifs){
+evaluator.roots$1=function(args,modifs){
     var cs=evaluateAndVal(args[0]);
     if(cs.ctype==='list'){
         var i;
@@ -1019,7 +999,7 @@ evaluator.roots=function(args,modifs){
     return nada;
 };
 
-evaluator.cos=function(args,modifs){
+evaluator.cos$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -1029,7 +1009,7 @@ evaluator.cos=function(args,modifs){
 };
 
 
-evaluator.tan=function(args,modifs){
+evaluator.tan$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -1038,7 +1018,7 @@ evaluator.tan=function(args,modifs){
     return nada;
 };
 
-evaluator.arccos=function(args,modifs){
+evaluator.arccos$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -1048,7 +1028,7 @@ evaluator.arccos=function(args,modifs){
 };
 
 
-evaluator.arcsin=function(args,modifs){
+evaluator.arcsin$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -1058,7 +1038,7 @@ evaluator.arcsin=function(args,modifs){
 };
 
 
-evaluator.arctan=function(args,modifs){
+evaluator.arctan$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -1067,24 +1047,21 @@ evaluator.arctan=function(args,modifs){
     return nada;
 };
 
-evaluator.arctan2=function(args,modifs){
-    var v0, v1;
-
-    if(args.length===2){
-        v0=evaluateAndVal(args[0]);
-        v1=evaluateAndVal(args[1]);
-        if(v0.ctype==='number' &&v1.ctype==='number'){
-            return CSNumber.arctan2(v0,v1);
-        }
+evaluator.arctan2$2=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+    var v1=evaluateAndVal(args[1]);
+    if(v0.ctype==='number' &&v1.ctype==='number'){
+        return CSNumber.arctan2(v0,v1);
     }
-    
-    if(args.length===1){
-        v0=evaluateAndVal(args[0]);
-        if(v0.ctype==='list' &&v0.value.length===2){
-            var tmp=v0.value;
-            if(tmp[0].ctype==='number' && tmp[1].ctype==='number') {
-                return evaluator.arctan2(tmp,modifs);
-            }
+    return nada;
+};
+
+evaluator.arctan2$1=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype==='list' &&v0.value.length===2){
+        var tmp=v0.value;
+        if(tmp[0].ctype==='number' && tmp[1].ctype==='number') {
+            return evaluator.arctan2(tmp,modifs);
         }
     }
     return nada;
@@ -1093,7 +1070,7 @@ evaluator.arctan2=function(args,modifs){
 
 
 
-evaluator.log=function(args,modifs){
+evaluator.log$1=function(args,modifs){
     
     var v0=evaluateAndVal(args[0]);
     if(v0.ctype==='number' ){
@@ -1106,128 +1083,76 @@ evaluator.log=function(args,modifs){
 
 
 
-evaluator.recursive=function(args,op){//OK dieses konstrukt frisst evtl ein klein wenig performance, let's try
-    
-    var v0=evaluateAndVal(args[0]);
-    if(v0.ctype==='number' ){
-        return CSNumber[op](v0);
-    }
-    if(v0.ctype==='list' ){
-        return List[op](v0);
-    }
-    return nada;
-    
+evaluator._helper.recursiveGen=function(op){
+    var numOp = CSNumber[op], listOp = List[op];
+    evaluator[op+"$1"] = function(args,modifs){
+        var v0=evaluateAndVal(args[0]);
+        if(v0.ctype==='number'){
+            return numOp(v0);
+        }
+        if(v0.ctype==='list'){
+            return listOp(v0);
+        }
+        return nada;
+    };
 };
 
-evaluator.im=function(args,modifs){
-    return evaluator.recursive(args,"im");
-};
-
-
-evaluator.re=function(args,modifs){
-    return evaluator.recursive(args,"re");
-};
-
-
-evaluator.conjugate=function(args,modifs){
-    return evaluator.recursive(args,"conjugate");
-};
-
-
-evaluator.round=function(args,modifs){
-    return evaluator.recursive(args,"round");
-};
-
-
-evaluator.ceil=function(args,modifs){
-    return evaluator.recursive(args,"ceil");
-};
-
-
-evaluator.floor=function(args,modifs){
-    return evaluator.recursive(args,"floor");
-};
-
-
-evaluator.abs=function(args,modifs){
-    return evaluator.recursive(args,"abs");
-};
+evaluator._helper.recursiveGen("im");
+evaluator._helper.recursiveGen("re");
+evaluator._helper.recursiveGen("conjugate");
+evaluator._helper.recursiveGen("round");
+evaluator._helper.recursiveGen("ceil");
+evaluator._helper.recursiveGen("floor");
+evaluator._helper.recursiveGen("abs");
+evaluator.abs_infix = evaluator.abs$1;
 
 ///////////////////////////////
 //        RANDOM             //
 ///////////////////////////////
 
-evaluator.random=function(args,modifs){
-    if(args.length===0){
-        return CSNumber.real(CSNumber._helper.rand());
+evaluator.random$0=function(args,modifs){
+    return CSNumber.real(CSNumber._helper.rand());
+};
+
+evaluator.random$1=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype==='number' ){
+        return CSNumber.complex(v0.value.real*CSNumber._helper.rand(),v0.value.imag*CSNumber._helper.rand());
     }
-    
-    if(args.length===1 ){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype==='number' ){
-            return CSNumber.complex(v0.value.real*CSNumber._helper.rand(),v0.value.imag*CSNumber._helper.rand());
-        }
+    return nada;
+};
+
+evaluator.seedrandom$1=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype==='number' ){
+        CSNumber._helper.seedrandom(v0.value.real);
     }
     return nada;
     
 };
 
-evaluator.random=function(args,modifs){
-    if(args.length===0){
-        return CSNumber.real(CSNumber._helper.rand());
-    }
-    
-    if(args.length===1 ){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype==='number' ){
-            return CSNumber.complex(v0.value.real*CSNumber._helper.rand(),v0.value.imag*CSNumber._helper.rand());
-        }
-    }
-    return nada;
-    
+evaluator.randomnormal$0=function(args,modifs){
+    return CSNumber.real(CSNumber._helper.randnormal());
 };
 
-evaluator.seedrandom=function(args,modifs){
-    if(args.length===1 ){
-        var v0=evaluateAndVal(args[0]);
-        if(v0.ctype==='number' ){
-            CSNumber._helper.seedrandom(v0.value.real);
-        }
+evaluator.randominteger$1=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+    if(v0.ctype==='number') {
+        var r = v0.value.real|0, i = v0.value.imag|0;
+        r = (r*CSNumber._helper.rand())|0;
+        i = (i*CSNumber._helper.rand())|0;
+        return CSNumber.complex(r, i);
     }
     return nada;
-    
 };
 
+evaluator.randomint$1=evaluator.randominteger$1;
 
-
-
-evaluator.randomnormal=function(args,modifs){
-    
-    if(args.length===0){
-        return CSNumber.real(CSNumber._helper.randnormal());
+evaluator.randombool$0=function(args,modifs){
+    if(CSNumber._helper.rand()>0.5){
+        return {'ctype':'boolean' ,'value':true  };
     }
-    return nada;
-    
-};
-
-
-evaluator.randominteger=function(args,modifs){
-    return evaluator.randomint(args,modifs);
-};
-
-
-evaluator.randombool=function(args,modifs){
-    
-    if(args.length===0){
-        if(CSNumber._helper.rand()>0.5){
-            return {'ctype':'boolean' ,'value':true  };
-        }
-        return {'ctype':'boolean' ,'value':false  };
-        
-    }
-    
-    return nada;
-    
+    return {'ctype':'boolean' ,'value':false  };
 };
 
 
@@ -1235,207 +1160,146 @@ evaluator.randombool=function(args,modifs){
 //        TYPECHECKS         //
 ///////////////////////////////
 
-evaluator.isreal=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype==='number' ){
-            if(CSNumber._helper.isAlmostReal(v0)){
-                return {'ctype':'boolean' ,'value':true  };
+evaluator.isreal$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if(v0.ctype==='number' ){
+        if(CSNumber._helper.isAlmostReal(v0)){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.isinteger$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if(v0.ctype==='number' ){
+        if(CSNumber._helper.isAlmostReal(v0)&&
+           v0.value.real===Math.floor(v0.value.real)){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.iseven$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if(v0.ctype==='number' ){
+        if(CSNumber._helper.isAlmostReal(v0)&&
+           v0.value.real/2===Math.floor(v0.value.real/2)){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.isodd$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if(v0.ctype==='number' ){
+        if(CSNumber._helper.isAlmostReal(v0)&&
+           (v0.value.real-1)/2===Math.floor((v0.value.real-1)/2)){
+            return {'ctype':'boolean' ,'value':true  };
+        }
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.iscomplex$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if(v0.ctype==='number' ){
+        return {'ctype':'boolean' ,'value':true  };
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.isstring$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if(v0.ctype==='string' ){
+        return {'ctype':'boolean' ,'value':true  };
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.islist$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if(v0.ctype==='list' ){
+        return {'ctype':'boolean' ,'value':true  };
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.ismatrix$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if((List._helper.colNumb(v0))!==-1){
+        return {'ctype':'boolean' ,'value':true  };
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.isnumbermatrix$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if((List.isNumberMatrix(v0)).value){
+        return {'ctype':'boolean' ,'value':true  };
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.isnumbervector$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if((List.isNumberVector(v0)).value){
+        return {'ctype':'boolean' ,'value':true  };
+    }
+    return {'ctype':'boolean' ,'value':false  };
+};
+
+evaluator.matrixrowcolumn$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    var n=List._helper.colNumb(v0);
+    if(n!==-1){
+        return List.realVector([v0.value.length,v0.value[0].value.length]);
+    }
+    return nada;
+};
+
+evaluator.rowmatrix$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if (v0.ctype==="list")
+        return List.turnIntoCSList([v0]);
+    return nada;
+};
+
+evaluator.columnmatrix$1=function(args,modifs){
+    var v0=evaluate(args[0]);
+    if (v0.ctype==="list")
+        return List.turnIntoCSList(v0.value.map(function(elt){
+            return List.turnIntoCSList([elt]);
+        }));
+    return nada;
+};
+
+evaluator.submatrix$3=function(args,modifs){
+    var v0=evaluate(args[0]);
+    var v1=evaluate(args[1]);
+    var v2=evaluate(args[2]);
+    if (v0.ctype==="list" && v1.ctype==="number" && v2.ctype==="number") {
+        var col = Math.round(v1.value.real);
+        var row = Math.round(v2.value.real);
+        var mat = v0.value.slice();
+        if (row > 0 && row <= mat.length)
+            mat.splice(row - 1, 1);
+        var sane = true;
+        var erg = mat.map(function(row1) {
+            if (row1.ctype!=="list") {
+                sane = false;
+                return;
             }
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-evaluator.isinteger=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype==='number' ){
-            if(CSNumber._helper.isAlmostReal(v0)&&
-               v0.value.real===Math.floor(v0.value.real)){
-                return {'ctype':'boolean' ,'value':true  };
-            }
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-
-evaluator.iseven=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype==='number' ){
-            if(CSNumber._helper.isAlmostReal(v0)&&
-               v0.value.real/2===Math.floor(v0.value.real/2)){
-                return {'ctype':'boolean' ,'value':true  };
-            }
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-evaluator.isodd=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype==='number' ){
-            if(CSNumber._helper.isAlmostReal(v0)&&
-               (v0.value.real-1)/2===Math.floor((v0.value.real-1)/2)){
-                return {'ctype':'boolean' ,'value':true  };
-            }
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-
-
-
-evaluator.iscomplex=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype==='number' ){
-            return {'ctype':'boolean' ,'value':true  };
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-
-
-
-evaluator.isstring=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype==='string' ){
-            return {'ctype':'boolean' ,'value':true  };
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-evaluator.islist=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if(v0.ctype==='list' ){
-            return {'ctype':'boolean' ,'value':true  };
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-
-evaluator.ismatrix=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if((List._helper.colNumb(v0))!==-1){
-            return {'ctype':'boolean' ,'value':true  };
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-evaluator.isnumbermatrix=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if((List.isNumberMatrix(v0)).value){
-            return {'ctype':'boolean' ,'value':true  };
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-
-
-
-evaluator.isnumbervector=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if((List.isNumberVector(v0)).value){
-            return {'ctype':'boolean' ,'value':true  };
-        }
-        return {'ctype':'boolean' ,'value':false  };
-    }
-    return nada;
-};
-
-
-evaluator.matrixrowcolumn=function(args,modifs){
-    
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        var n=List._helper.colNumb(v0);
-        if(n!==-1){
-            return List.realVector([v0.value.length,v0.value[0].value.length]);
-        }
-    }
-    return nada;
-};
-
-evaluator.rowmatrix=function(args,modifs){
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if (v0.ctype==="list")
-            return List.turnIntoCSList([v0]);
-    }
-    return nada;
-};
-
-evaluator.columnmatrix=function(args,modifs){
-    if(args.length===1){
-        var v0=evaluate(args[0]);
-        if (v0.ctype==="list")
-            return List.turnIntoCSList(v0.value.map(function(elt){
-                return List.turnIntoCSList([elt]);
-            }));
-    }
-    return nada;
-};
-
-evaluator.submatrix=function(args,modifs){
-    if(args.length===3){
-        var v0=evaluate(args[0]);
-        var v1=evaluate(args[1]);
-        var v2=evaluate(args[2]);
-        if (v0.ctype==="list" && v1.ctype==="number" && v2.ctype==="number") {
-            var col = Math.round(v1.value.real);
-            var row = Math.round(v2.value.real);
-            var mat = v0.value.slice();
-            if (row > 0 && row <= mat.length)
-                mat.splice(row - 1, 1);
-            var sane = true;
-            var erg = mat.map(function(row1) {
-                if (row1.ctype!=="list") {
-                    sane = false;
-                    return;
-                }
-                var row2 = row1.value.slice();
-                if (col > 0 && col <= row2.length)
-                    row2.splice(col - 1, 1);
-                return List.turnIntoCSList(row2);
-            });
-            if (!sane)
-                return nada;
-            return List.turnIntoCSList(erg);
-        }
+            var row2 = row1.value.slice();
+            if (col > 0 && col <= row2.length)
+                row2.splice(col - 1, 1);
+            return List.turnIntoCSList(row2);
+        });
+        if (!sane)
+            return nada;
+        return List.turnIntoCSList(erg);
     }
     return nada;
 };
@@ -1635,17 +1499,14 @@ evaluator.join=function(args,modifs){
 
 
 
-evaluator.dist=function(args,modifs){
-    if(args.length===2){
-        var v0=evaluateAndVal(args[0]);
-        var v1=evaluateAndVal(args[1]);
-        var diff=evaluator.minus([v0,v1],[]);
-        return evaluator.abs([diff],[]);
-    }
-    return nada;
-    
+evaluator.dist$2=function(args,modifs){
+    var v0=evaluateAndVal(args[0]);
+    var v1=evaluateAndVal(args[1]);
+    var diff=evaluator.minus$2([v0,v1],[]);
+    return evaluator.abs$1([diff],[]);
 };
 
+evaluator.dist_infix = evaluator.dist$2;
 
 
 evaluator.point=function(args,modifs){

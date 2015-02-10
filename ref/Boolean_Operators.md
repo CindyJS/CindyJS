@@ -241,6 +241,13 @@ Logical **not** of one Boolean value defined by the following truth table:
 
 If the argument is not a Boolean expression, the operator returns `_?_`.
 
+    > !(1 < 0)
+    < true
+    > !(1 > 0)
+    < false
+    > !1
+    < _?_
+
 ------
 
 ------

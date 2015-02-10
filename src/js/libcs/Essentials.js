@@ -44,16 +44,16 @@ operators[';']=500;  //Befehlsseparator
 
 
 var infixmap={};
-infixmap['+']='add';
-infixmap['-']='minus';
-infixmap['*']='mult';
-infixmap['/']='div';
-infixmap['^']='pow';
+infixmap['+']='add$2';
+infixmap['-']='minus$2';
+infixmap['*']='mult$2';
+infixmap['/']='div$2';
+infixmap['^']='pow$2';
 infixmap['°']='numb_degree';
-infixmap[';']='semicolon';
-infixmap['=']='assign';
-infixmap['..']='sequence';
-infixmap[':=']='define';
+infixmap[';']='semicolon$2';
+infixmap['=']='assign$2';
+infixmap['..']='sequence$2';
+infixmap[':=']='define$2';
 infixmap['==']='comp_equals';
 infixmap['!=']='comp_notequals';
 infixmap['~=']='comp_almostequals';
@@ -66,8 +66,8 @@ infixmap['~>']='comp_ugt';
 infixmap['~<']='comp_ult';
 infixmap['~>=']='comp_uge';
 infixmap['~<=']='comp_ule';
-infixmap['&']='and';
-infixmap['%']='or';
+infixmap['&']='and$2';
+infixmap['%']='or$2';
 infixmap['!']='not';
 infixmap['_']='take';
 infixmap['++']='concat';

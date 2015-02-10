@@ -497,12 +497,12 @@ function bracket(code){
         var f1= parseList(code.substring(1, code.length - 1));
         var type=f1.args.length;
         if(type===1){
-          f1.oper="abs";
+          f1.oper="abs_infix";
           return f1;
                 
         }
         if(type===2){
-          f1.oper="dist";
+          f1.oper="dist_infix";
           return f1;
                 
         }
