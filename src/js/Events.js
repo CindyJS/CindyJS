@@ -98,7 +98,7 @@ function getmover(mouse){
 }
 
 
-function setuplisteners(canvas) {
+function setuplisteners(canvas, data) {
     
     function updatePostition(x,y){
         var pos=csport.to(x,y);
@@ -111,13 +111,13 @@ function setuplisteners(canvas) {
         
     }
     
-    
-    document.onkeydown=function(e){
-       cs_keypressed(e);
-       return false;
-    };
+    if (data.keylistener) {
+        document.onkeydown=function(e){
+            cs_keypressed(e);
+            return false;
+        };
+    }
 
-    
     canvas.onmousedown = function (e) {
         mouse.button  = e.which;
         var rect      = canvas.getBoundingClientRect();
@@ -227,7 +227,7 @@ function setuplisteners(canvas) {
 
 
 var requestAnimFrame;
-if (isNode) {
+if (instanceInvocationArguments.isNode) {
     requestAnimFrame = process.nextTick; // jshint ignore:line
 }
 else {

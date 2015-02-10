@@ -1,2 +1,15 @@
+function createCindy(instanceInvocationArguments) {
 %output%
+return createCindyIntern(instanceInvocationArguments);}
+var defaultAppearance = {
+    clip: "none",
+    pointColor: [1,0,0],
+    lineColor: [0,0,1],
+    pointSize: 5,
+    lineSize: 2,
+    alpha: 1,
+    overhangLine: 1.1,
+    overhangSeg: 1,
+    dimDependent: 1
+};
 //# sourceMappingURL=Cindy.js.map

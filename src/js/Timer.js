@@ -2,7 +2,7 @@ var d3_arraySlice = [].slice,
     d3_array = function(list) { return d3_arraySlice.call(list); }; 
     
     
-if (!isNode) {
+if (!instanceInvocationArguments.isNode) {
 var d3_document = document,
     d3_documentElement = d3_document.documentElement,
     d3_window = window;
@@ -38,7 +38,7 @@ var d3_timer_queueHead,
     d3_timer_interval, // is an interval (or frame) active?
     d3_timer_timeout, // is a timeout active?
     d3_timer_active, // active timer object
-    d3_timer_frame = (!isNode && d3_window[d3_vendorSymbol(d3_window, "requestAnimationFrame")]) || function(callback) { setTimeout(callback, 17); };
+    d3_timer_frame = (!instanceInvocationArguments.isNode && d3_window[d3_vendorSymbol(d3_window, "requestAnimationFrame")]) || function(callback) { setTimeout(callback, 17); };
 
 // The timer will continue to fire until callback returns true.
 d3.timer = function(callback, delay, then) {

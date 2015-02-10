@@ -1,14 +1,19 @@
-"use strict";
+function createCindy(instanceInvocationArguments) { "use strict";
 %output%
+return createCindyIntern(instanceInvocationArguments);}
 // End of concatenated sources.
 
-if (isNode) {
-    csconsole = null;
-    // Export stuff for test suite
-    module.exports = {
-        evalcs: function(code) {
-            return evaluate(analyse(condense(code), false));
-        },
-        niceprint: niceprint
-    };
+var defaultAppearance = {
+    clip: "none",
+    pointColor: [1,0,0],
+    lineColor: [0,0,1],
+    pointSize: 5,
+    lineSize: 2,
+    alpha: 1,
+    overhangLine: 1.1,
+    overhangSeg: 1,
+    dimDependent: 1
+};
+if (typeof module !== 'undefined' && this.module !== module) { // jshint ignore:line
+    module.exports = createCindy;
 }

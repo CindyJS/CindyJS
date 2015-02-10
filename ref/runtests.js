@@ -1,11 +1,15 @@
 "use strict";
 
 var fs = require("fs"), path = require("path");
-var cjs = require("../build/js/Cindy.plain.js");
+var createCindy = require("../build/js/Cindy.plain.js");
 var println = console.log;
 
 var reTestLine = /^    ([<>!.] )?(.*)/mg;
 var failures = 0, numtests = 0;
+var cjs = createCindy({
+  "isNode": true,
+  "csconsole": null,
+});
 
 function runAllTests() {
   var files = process.argv.slice(2);

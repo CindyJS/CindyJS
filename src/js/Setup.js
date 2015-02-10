@@ -61,6 +61,8 @@ function initialTransformation(data) {
 var csmouse, csctx, csw, csh, csgeo, images;
 
 function createCindyNow(data){
+    if (data.csconsole !== undefined)
+        csconsole = data.csconsole;
     csmouse = [100, 100];
     var cscode;
     var c=document.getElementById(data.canvasname);
@@ -145,10 +147,10 @@ function createCindyNow(data){
 
 
     
-    setuplisteners(document.getElementById(data.canvasname));
+    setuplisteners(document.getElementById(data.canvasname), data);
     
-
-
+    if (data.oninit)
+        data.oninit(globalInstance);
 }
 
 var backup=[];
@@ -241,7 +243,6 @@ var initialscript=
 '           );'
 ;
 
-var isNode = (typeof module !== 'undefined' && this.module !== module); // jshint ignore:line
 var waitCount = -1;
 var cjsInit = function() {
 };
@@ -265,9 +266,16 @@ function waitFor(name) {
     }
   };
 }
-if (!isNode)
+if (!instanceInvocationArguments.isNode)
   document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
-function createCindy(data) {
+
+var globalInstance;
+
+function createCindyIntern(data) {
+  if (data.defaultAppearance)
+    setDefaultAppearance(data.defaultAppearance);
+  else if (!data.isNode && window.defaultAppearance)
+    setDefaultAppearance(window.defaultAppearance);
   if (waitCount === 0) {
     console.log("creating Cindy immediately.");
     createCindyNow(data);
@@ -280,8 +288,21 @@ function createCindy(data) {
       createCindyNow(data);
     };
   }
+  globalInstance = {
+    "evokeCS": evokeCS,
+    "evalcs": function(code) {
+      return evaluate(analyse(condense(code), false));
+    },
+    "niceprint": niceprint,
+  };
+  if (!data.isNode) {
+    window.evokeCS = evokeCS;
+  }
+  return globalInstance;
 }
-if (!isNode && window.__gwt_activeModules !== undefined) {
+
+if (!instanceInvocationArguments.isNode &&
+    window.__gwt_activeModules !== undefined) {
   Object.keys(window.__gwt_activeModules).forEach(function(key) {
     var m = window.__gwt_activeModules[key];
     m.cjsDoneWaiting = waitFor(m.moduleName);
