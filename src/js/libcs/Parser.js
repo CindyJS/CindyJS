@@ -226,16 +226,19 @@ function definitionDot(code, bestbinding, oper){
 function validDefinabaleFunction(f){//TODO Eventuell echte fehlermelungen zurückgeben
     var i, j;
     if(f.ctype!=='function'){
+        console.log("Invalid function name.")
         return false;               //Invalid Function Name
     }
     for(i=0; i<f.args.length;i++){
         if(f.args[i].ctype!=='variable'){
+            console.log("Argument is not a variable.")
             return false;               //Arg not a variable
         }
     }
     for(i=0; i<f.args.length-1;i++){
         for(j=i+1; j<f.args.length;j++){
             if(f.args[i].name===f.args[j].name){
+                console.log("Variable name used twice.")
                 return false;       //Varname used twice
             }
             
@@ -260,6 +263,7 @@ function definitionOp(code, bestbinding, oper){
         return generateInfix(oper, f1, f2);
         
     }
+    console.log(["Function not definable", f1])
     return  new CError('Function not definable');
 }
 
@@ -406,7 +410,7 @@ function funct(code, firstbraind, defining){
     // return t;
     var erg={};
     erg.ctype='function';
-    erg.oper=oper;
+    erg.oper=oper+"$"+argsf.length;
     erg.args=argsf;
     erg.modifs=modifs;
 
@@ -470,7 +474,7 @@ function parseList(code) {
     erg.ctype='function';
     erg.oper='genList';
     erg.args=argsf;
-    erg.modifs=[];
+    erg.modifs={};
     return erg;
 }
 

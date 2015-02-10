@@ -506,13 +506,11 @@ evaluator.define=function(args,modifs){
         var fname=args[0].oper;
         var ar=args[0].args;
         var body=args[1];
-        myfunctions[fname+ar.length]={
+        myfunctions[fname]={
             'oper':fname,
             'body':body,
             'arglist':ar
         };
-        if (evaluator[fname] !== undefined)
-            console.log("Warning: cannot redefine built-in function " + fname);
     }
     
     return nada;

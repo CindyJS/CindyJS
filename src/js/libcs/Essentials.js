@@ -179,12 +179,23 @@ var evaluator={};
 evaluator._helper={};
 
 evaluator._helper.evaluate= function(name,args,modifs){
-    var tt=evaluator[name];
-    if(tt===undefined){
-        return myfunctions(name+args.length,args,modifs); //Ich habe  überdefinieren von fkts rausgenommen
-        //Das muss man sich auch insbesomndere mit Arity nochmal anschauen
+    if (myfunctions.hasOwnProperty(name))
+        return myfunctions(name, args, modifs);
+    var f = evaluator[name];
+    if(f)
+        return f(args, modifs);
+    // This following is legacy code, and should be removed
+    // once all functions are converted to their arity-aware form.
+    // Unless we introduce something like variadic functions.
+    var n = name.lastIndexOf("$");
+    if (n !== -1) {
+        n = name.substr(0, n);
+        f = evaluator[n];
+        if (f)
+            return f(args, modifs);
     }
-    return tt(args,modifs);
+    console.log("Called undefined function " + name + "(" + n + ")");
+    return nada;
 };
 
 
