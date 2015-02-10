@@ -171,6 +171,18 @@ coerce.toString = function(arg, def=null) {
   return def;
 };
 
+/**
+ * @param {cjsType.anyval} arg
+ * @param {?boolean} def
+ * @return {?boolean}
+ */
+coerce.toBool = function(arg, def) {
+  if (arg["ctype"] === "boolean")
+    return arg["value"];
+  console.log("argument is not boolean");
+  return def;
+};
+
 //////////////////////////////////////////////////////////////////////
 // Modifier handling
 
