@@ -3109,6 +3109,49 @@ evaluator.javascript=function(args,modifs){
     return nada;
 };
 
+evaluator.use=function(args,modifs){
+    function defineFunction(name, arity, impl) {
+        // The following can be simplified once we handle arity differently.
+        var old = evaluator[name];
+        var chain = function(args, modifs) {
+            if (args.length === arity)
+                return impl(args, modifs);
+            else if (old)
+                return old(args, modifs);
+            else
+                throw "No implementation for " + name + "(" + arity + ")";
+        };
+        evaluator[name] = chain;
+    }
+    var v0=evaluate(args[0]);
+    if (v0.ctype==="string") {
+        var name = v0.value, cb;
+        if (instanceInvocationArguments.plugins)
+            cb = instanceInvocationArguments.plugins[name];
+        if (!cb)
+            cb = createCindy._pluginRegistry[name];
+        if (cb) {
+            /* The following object constitutes API for third-party plugins.
+             * We should feel committed to maintaining this API.
+             */
+            cb({
+                "instance": globalInstance,
+                "config": instanceInvocationArguments,
+                "nada": nada,
+                "evaluate": evaluate,
+                "evaluateAndVal": evaluateAndVal,
+                "defineFunction": defineFunction,
+            });
+            return {"ctype":"boolean", "value":true};
+        }
+        else {
+            console.log("Plugin " + name + " not found");
+            return {"ctype":"boolean", "value":false};
+        }
+    }
+    return nada;
+};
+
 evaluator.format=function(args,modifs){//TODO Angles
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);

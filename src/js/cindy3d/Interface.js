@@ -1,54 +1,23 @@
 //////////////////////////////////////////////////////////////////////
-// Global variables
-
-let instances = {};
-let currentInstance;
-
-//////////////////////////////////////////////////////////////////////
-// Defining operators
-
-/**
- * @param {string} name
- * @param {number} arity
- * @param {cjsType.op} impl
- */
-function defOp(name, arity, impl) {
-  /** @type {?cjsType.op} */
-  let old = evaluator[name];
-
-  /** @type {cjsType.op}  */
-  let chain = function(args, modifs) {
-    if (args.length === arity)
-      return impl(args, modifs);
-    else if (old)
-      return old(args, modifs);
-    else
-      throw "No implementation for " + name + "(" + arity + ")";
-  };
-
-  evaluator[name] = chain;
-}
-
-//////////////////////////////////////////////////////////////////////
 // Type coercion
 
 let coerce = {};
 
 /**
- * @param {cjsType.anyval} arg
- * @param {Array.<cjsType.anyval>=} def
- * @return {Array.<cjsType.anyval>}
+ * @param {createCindy.anyval} arg
+ * @param {Array.<createCindy.anyval>=} def
+ * @return {Array.<createCindy.anyval>}
  */
 coerce.toList = function(arg, def=null) {
   if (arg["ctype"] !== "list") {
     console.log("argument is not a list");
     return def;
   }
-  return /** @type {Array.<cjsType.anyval>} */(arg["value"]);
+  return /** @type {Array.<createCindy.anyval>} */(arg["value"]);
 };
 
 /**
- * @param {cjsType.anyval} arg
+ * @param {createCindy.anyval} arg
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
@@ -69,7 +38,7 @@ coerce.toHomog = function(arg, def=[0,0,0,0]) {
 };
 
 /**
- * @param {cjsType.anyval} arg
+ * @param {createCindy.anyval} arg
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
@@ -88,7 +57,7 @@ coerce.toDirection = function(arg, def=[0,0,0]) {
 };
 
 /**
- * @param {cjsType.anyval} arg
+ * @param {createCindy.anyval} arg
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
@@ -104,7 +73,7 @@ coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
 };
 
 /**
- * @param {cjsType.anyval} arg
+ * @param {createCindy.anyval} arg
  * @param {number=} def
  * @return {number}
  */
@@ -120,7 +89,7 @@ coerce.toReal = function(arg, def=Number.NaN) {
 };
 
 /**
- * @param {cjsType.anyval} arg
+ * @param {createCindy.anyval} arg
  * @param {number=} def
  * @return {number}
  */
@@ -151,7 +120,7 @@ coerce.clamp = function(min, max, arg) {
 /**
  * @param {number} min
  * @param {number} max
- * @param {cjsType.anyval} arg
+ * @param {createCindy.anyval} arg
  * @param {number=} def
  * @return {number}
  */
@@ -160,7 +129,7 @@ coerce.toInterval = function(min, max, arg, def=Number.NaN) {
 };
 
 /**
- * @param {cjsType.anyval} arg
+ * @param {createCindy.anyval} arg
  * @param {?string=} def
  * @return {?string}
  */
@@ -170,46 +139,3 @@ coerce.toString = function(arg, def=null) {
   console.log("argument is not a string");
   return def;
 };
-
-//////////////////////////////////////////////////////////////////////
-// Modifier handling
-
-/**
- * @param {Object} modifs
- * @param {Object} handlers
- */
-function handleModifs(modifs, handlers) {
-  let key, handler;
-  for (key in modifs) {
-    handler = handlers[key];
-    if (handler)
-      handler(evaluate(modifs[key]));
-    else
-      console.log("Modifier " + key + " not supported");
-  }
-}
-
-/**
- * @param {Appearance} appearance
- * @param {Object} modifs
- * @param {Object=} handlers
- * @return {Appearance}
- */
-function handleModifsAppearance(appearance, modifs, handlers = null) {
-  let color = appearance.color;
-  let alpha = appearance.alpha;
-  let shininess = appearance.shininess;
-  let size = appearance.size;
-  let combined = {
-    "color": (a => color = coerce.toColor(a)),
-    "alpha": (a => alpha = coerce.toInterval(0, 1, a)),
-    "shininess": (a => shininess = coerce.toInterval(0, 128, a)),
-    "size": (a => size = coerce.toReal(a) * Appearance.POINT_SCALE),
-  };
-  let key;
-  if (handlers)
-    for (key in handlers)
-      combined[key] = handlers[key];
-  handleModifs(modifs, combined);
-  return Appearance.createReal(color, alpha, shininess, size);
-}

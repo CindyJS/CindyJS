@@ -1,23 +1,29 @@
 //////////////////////////////////////////////////////////////////////
 // Externs for CindyJS bindings
 
-var cjsType = {};
+function createCindy() { }
 
 /** @typedef {{ctype:string}} */
-cjsType.anyval;
+createCindy.anyval;
 
-/** @typedef {function(Array.<cjsType.anyval>, Object): cjsType.anyval} */
-cjsType.op;
+/** @typedef {function(Array.<createCindy.anyval>, Object):
+ *            createCindy.anyval} */
+createCindy.op;
 
-// At the moment, the following are global objects.
-// Once cindyscript instances are encapsulated,
-// they might become members of an instance object instead.
+/** @typedef {{
+ *    instance: Object,
+ *    config: Object,
+ *    nada: createCindy.anyval,
+ *    evaluate: function(createCindy.anyval):createCindy.anyval,
+ *    evaluateAndVal: function(createCindy.anyval):createCindy.anyval,
+ *    defineFunction: function(string,number,createCindy.op)
+ *  }}
+ */
+createCindy.pluginApi;
 
-/** @type {cjsType.anyval} */
-var nada;
-
-/** @type {function(cjsType.anyval):cjsType.anyval} */
-var evaluate;
-
-/** @type {Object} */
-var evaluator;
+/**
+ * @param {number} apiVersion
+ * @param {string} pluginName
+ * @param {function(createCindy.pluginApi)} initCallback
+ */
+createCindy.registerPlugin;

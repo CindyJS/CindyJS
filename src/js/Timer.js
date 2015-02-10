@@ -1,10 +1,10 @@
-var d3_arraySlice = [].slice,
+var d3_arraySlice = [].slice, d3_window,
     d3_array = function(list) { return d3_arraySlice.call(list); }; 
     
     
 if (!instanceInvocationArguments.isNode) {
 var d3_document = document,
-    d3_documentElement = d3_document.documentElement,
+    d3_documentElement = d3_document.documentElement;
     d3_window = window;
 
 // Redefine d3_array if the browser doesn’t support slice-based conversion.

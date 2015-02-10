@@ -3,6 +3,15 @@ function createCindy(instanceInvocationArguments) { "use strict";
 return createCindyIntern(instanceInvocationArguments);}
 // End of concatenated sources.
 
+createCindy._pluginRegistry = {};
+createCindy.registerPlugin = function(apiVersion, pluginName, initCallback) {
+    "use strict";
+    if (apiVersion !== 1) {
+        console.error("Plugin API version " + apiVersion + " not supported");
+        return false;
+    }
+    createCindy._pluginRegistry[pluginName] = initCallback;
+};
 var defaultAppearance = {
     clip: "none",
     pointColor: [1,0,0],
