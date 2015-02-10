@@ -113,7 +113,7 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
     > 5^(-1)
     < 0.2
     > 2^(1/2)
-    < 1.4142135623730951
+    ~ 1.4142135623730951?
 
 ------
 
