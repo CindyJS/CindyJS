@@ -818,6 +818,20 @@ evaluator._helper.genericListMathGen("sum","add");
 evaluator._helper.genericListMathGen("max","max");
 evaluator._helper.genericListMathGen("min","min");
 
+evaluator.max$2=function(args,modifs){
+    var v1=evaluateAndVal(args[0]);
+    if (v1.ctype==="list")
+        return evaluator.max$3([v1, null, args[1]]);
+    return evaluator.max$1([List.turnIntoCSList([v1, args[1]])]);
+};
+
+evaluator.min$2=function(args,modifs){
+    var v1=evaluateAndVal(args[0]);
+    if (v1.ctype==="list")
+        return evaluator.min$3([v1, null, args[1]]);
+    return evaluator.min$1([List.turnIntoCSList([v1, args[1]])]);
+};
+
 evaluator.add$2=function(args,modifs){
     var v0=evaluateAndVal(args[0]);
     var v1=evaluateAndVal(args[1]);
