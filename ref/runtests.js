@@ -61,6 +61,8 @@ function runTestFile(filename) {
         break;
       } else if (mark === "< ") {
         curcase.expectResult(rest);
+      } else if (mark === "~ ") {
+        curcase.expectResult(new RegExp(rest));
       } else if (mark === '! ') {
         curcase.expectException(rest);
       } else if (mark === '* ') {
@@ -114,7 +116,7 @@ function myniceprint(val) {
 };
 
 TestCase.prototype.run = function() {
-  var val, actual, expected, conlog, clog = [];
+  var val, actual, expected, conlog, clog = [], matches, expstr;
   conlog = console.log;
   console.log = function(str) { clog.push(str); }
   try {
@@ -155,10 +157,19 @@ TestCase.prototype.run = function() {
   if (this.expected !== null) {
     expected = this.expected;
     actual = myniceprint(val);
-    if (expected !== actual) {
+    if (expected instanceof RegExp) {
+      expstr = expected.toString();
+      expstr = "~ " + expstr.substring(1, expstr.length - 1);
+      matches = expected.test(actual);
+    }
+    else {
+      expstr = "< " + expected;
+      matches = expected === actual;
+    }
+    if (!matches) {
       println("Location:  " + this.filename + ":" + this.lineno);
       println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
-      println("Expected:  < " + expected);
+      println("Expected:  " + expstr);
       println("Actual:    < " + actual);
       println("");
       return false;

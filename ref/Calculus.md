@@ -38,8 +38,7 @@ If `f(x)` is the function that should be derived, then the corresponding derivat
 Here `x` denotes the position at which the derivative should be evaluated.
 The value of the derivative is then calculated by the formula
 
-| `(f(x+eps)-f(x-eps))/2eps` |
-| -------------------------- |
+    (f(x+eps)-f(x-eps))/2eps
 
 for a sufficiently small number `eps`.
 This gives a reasonable approximation to the real derivative at this point.
@@ -94,8 +93,7 @@ The guess operator expects a number as input and returns a string.
 The string should be a symbolic expression describing the input number.
 The guess operator tries to generate a string of the form
 
-| `a+b*sqrt(c)`, |
-| -------------- |
+    a+b*sqrt(c)
 
 where `a`, `b`, and `c` are rational numbers with numerator and denominator not larger than about 1000.
 If the input number is expressible in the described way with a reasonable numeric precision, then the guess operator will generate this expression.

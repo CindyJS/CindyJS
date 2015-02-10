@@ -24,6 +24,7 @@ renderer.code = function(code, lang) {
   var cls = {
     "> ": "code",
     "< ": "result",
+    "~ ": "regexp",
     "* ": "output",
     "- ": "pragma",
   };
