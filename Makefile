@@ -36,7 +36,7 @@ endif
 closure_language = ECMASCRIPT5_STRICT
 closure_args = \
 	--language_in $(closure_language) \
-	--create_source_map build/js/Cindy.js.map \
+	--create_source_map $@.map \
 	--compilation_level $(closure_level) \
 	--source_map_format V3 \
 	--source_map_location_mapping "build/js/|" \
@@ -55,6 +55,7 @@ endif
 build/js/Cindy.closure.js: compiler.jar src/js/Cindy.js.wrapper $(srcs)
 	mkdir -p $(@D)
 	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
+	sed 's:$(@F):Cindy.js:g' $@.map > $(@:%.closure.js=%.js.map)
 
 build/js/Cindy.plain.js: $(srcs)
 
@@ -94,6 +95,8 @@ NPM:=npm
 NPM_DEP:=$(shell $(NPM) -version > /dev/null 2>&1 || echo download/node/bin/npm)
 NODE_PATH:=$(if $(NPM_DEP),PATH=$(dir $(NPM_DEP)):$$PATH,)
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
+NODE:=node
+NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
 
 download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
@@ -116,6 +119,88 @@ jshint: node_modules/.bin/jshint build/js/ours.js
 	$(NODE_PATH) $< -c Administration/jshint.conf --verbose $(filter %.js,$^)
 
 .PHONY: jshint
+
+######################################################################
+## Run test suite from reference manual using node
+######################################################################
+
+nodetest: build/js/Cindy.plain.js $(NPM_DEP)
+	$(NODE) ref/runtests.js
+
+tests: nodetest
+
+.PHONY: tests nodetest
+
+######################################################################
+## Format reference manual using markdown
+######################################################################
+
+node_modules/marked/package.json: $(NPM_DEP)
+	$(NPM_CMD) install marked
+
+refmd:=$(wildcard ref/*.md)
+refimg:=$(wildcard ref/img/*.png)
+refhtml:=$(refmd:ref/%.md=build/ref/%.html)
+refres:=ref.css
+
+$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2html.js ref/template.html
+	@mkdir -p $(@D)
+	$(NODE) ref/md2html.js $< $@
+
+$(refres:%=build/ref/%): build/ref/%: ref/%
+	cp $< $@
+
+$(refimg:%=build/%): build/%: %
+	@mkdir -p $(@D)
+	cp $< $@
+
+ref: $(refhtml) $(refres:%=build/ref/%) $(refimg:%=build/%)
+
+.PHONY: ref
+
+######################################################################
+## Build JavaScript version of Cindy3D
+######################################################################
+
+c3d_primitives = sphere cylinder triangle
+c3d_shaders = $(c3d_primitives:%=%-vert.glsl) $(c3d_primitives:%=%-frag.glsl) \
+	lighting.glsl common-frag.glsl
+c3d_str_res = $(c3d_shaders:%=src/str/cindy3d/%)
+
+build/js/c3dres.js: $(c3d_str_res) tools/files2json.js $(NPM_DEP)
+	$(NODE_CMD) tools/files2json.js -varname=c3d_resources -output=$@ $(c3d_str_res)
+
+# For debugging use these command line arguments for make:
+# c3d_closure_level=WHITESPACE_ONLY c3d_extra_args='--formatting PRETTY_PRINT'
+
+c3d_closure_level = ADVANCED
+c3d_closure_warnings = VERBOSE
+c3d_closure_args = \
+	--language_in ECMASCRIPT6_STRICT \
+	--language_out ECMASCRIPT5_STRICT \
+	--create_source_map build/js/Cindy3D.js.map \
+	--compilation_level $(c3d_closure_level) \
+	--warning_level $(c3d_closure_warnings) \
+	--source_map_format V3 \
+	--source_map_location_mapping "build/js/|" \
+	--source_map_location_mapping "src/js/|../../src/js/" \
+	--output_wrapper_file $(filter %.wrapper,$^) \
+	--js_output_file $@ \
+	--externs $(filter %.externs,$^) \
+	$(c3d_extra_args) \
+	--js $(filter %.js,$^)
+c3d_mods = ShaderProgram Camera Appearance Viewer PrimitiveRenderer \
+	Spheres Cylinders Triangles Interface Ops3D
+c3d_srcs = build/js/c3dres.js $(c3d_mods:%=src/js/cindy3d/%.js) \
+	src/js/cindy3d/cindyjs.externs src/js/cindy3d/Cindy3D.js.wrapper
+
+build/js/Cindy3D.js: compiler.jar $(c3d_srcs)
+	mkdir -p $(@D)
+	$(JAVA) -jar $(filter %compiler.jar,$^) $(c3d_closure_args)
+
+cindy3d: build/js/Cindy3D.js
+
+.PHONY: cindy3d
 
 ######################################################################
 ## Download Apache Ant to build java-like projects

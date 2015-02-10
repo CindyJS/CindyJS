@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Cindy JS</title>
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<link rel="stylesheet" href="../css/cindy.css">
+<!--link rel="stylesheet" href="../css/cindy.css"-->
 
 
 </head>
@@ -14,27 +14,18 @@
 <h1>CindyJS: Schleppkurve</h1>
 
 
-<script id='keyup' type='cindyscript'>
+
+<script id='init' type='cindyscript'>
+
+reset():=(
 forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
 old=allpoints();
 old=apply(2..length(old),old_#);
 
 oldpts=apply(old,#.xy);
-</script>
 
-<script id='up' type='cindyscript'>
-//forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
-//old=allpoints();
-//oldpts=apply(old,#.xy);
+);
 
-old=allpoints();
-pts=allpoints();
-old=apply(2..length(old),old_#);
-pts=apply(2..length(pts),pts_#);
-oldpts=apply(old,#.xy);
-</script>
-
-<script id='init' type='cindyscript'>
 old=allpoints();
 old=apply(2..length(old),old_#);
 
@@ -92,11 +83,31 @@ transf(pts,pt):=(
 
 finished=true;
 
+resetting=false;
 
 
 
 </script>
+<script id='down' type='cindyscript'>
+
+if(mouse().y<-8.5 & mouse().x<-7,
+reset();
+resetting=true;
+
+);
+</script>
+
+<script id='up' type='cindyscript'>
+
+resetting=false;
+
+
+</script>
+
+
 <script id='firstDrawing' type='cindyscript'>
+javascript("document.onkeydown={}");
+
 pts=allpoints();
 pts=apply(2..length(pts),pts_#);
 
@@ -104,8 +115,7 @@ apply(pts,#.size=3;#.color=(1,0,0));
 i=0;
 mover=mover();
 
-
-
+if(!resetting,
 
 if(mover!=A & isreal(mover.x)&finished,
    finished=false;
@@ -126,11 +136,11 @@ if(mover!=A & isreal(mover.x)&finished,
       forall(1..length(r),(r_#).xy=newptsr_#);
       
       oldpts=apply(pts,#.xy);
-      draw(mover.xy,size->5);
+   //   draw(mover.xy,size->5);
       );
    finished=true;
    );
-
+);
 connect(pts,color->(1,1,1)*0,size->3);
 
 tr=transf(oldpts,A.xy);
@@ -139,11 +149,14 @@ apply(1..length(tr),draw((pts_#+tr_#)/2,alpha->.5,color->(0,0,0),size->2));
 
 connect(tr,color->(1,1,1)*0,size->4);
 drawall(tr,color->(1,.7,0),size->4);
+fillpolygon([(-6.5,-8),(-6.5,-9.5),(-9.5,-9.5),(-9.5,-8)],color->(.6,.6,1));
+drawpolygon([(-6.5,-8),(-6.5,-9.5),(-9.5,-9.5),(-9.5,-8)],color->(0,0,0));
+drawtext((-9,-9),"Reset");
 
 </script>
 
 
-<canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
+<canvas  id="CSCanvas"  width=500 height=500  style="border:2px solid #000000"></canvas>
 
 <script>
 defaultAppearance.clip="inci";
@@ -158,9 +171,9 @@ for(var i=0;i<30;i++){
 }
 createCindy({canvasname:"CSCanvas",
 movescript:"firstDrawing",
-mouseupscript:"up",
-keydownscript:"keyup",
 initscript:"init",
+mousedownscript:"down",
+mouseupscript:"up",
 geometry:gslp});
 
 </script>

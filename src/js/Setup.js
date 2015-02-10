@@ -1,10 +1,3 @@
-var global = this; // jshint ignore:line
-var console = global.console || {
-  'log': function() { },
-  'warn': function() { },
-  'error': function() { }
-};
-
 var csconsole;
 var cslib;
 
@@ -248,6 +241,7 @@ var initialscript=
 '           );'
 ;
 
+var isNode = (typeof module !== 'undefined' && this.module !== module); // jshint ignore:line
 var waitCount = -1;
 var cjsInit = function() {
 };
@@ -271,7 +265,8 @@ function waitFor(name) {
     }
   };
 }
-document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
+if (!isNode)
+  document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
 function createCindy(data) {
   if (waitCount === 0) {
     console.log("creating Cindy immediately.");
@@ -286,7 +281,7 @@ function createCindy(data) {
     };
   }
 }
-if (window.__gwt_activeModules !== undefined) {
+if (!isNode && window.__gwt_activeModules !== undefined) {
   Object.keys(window.__gwt_activeModules).forEach(function(key) {
     var m = window.__gwt_activeModules[key];
     m.cjsDoneWaiting = waitFor(m.moduleName);

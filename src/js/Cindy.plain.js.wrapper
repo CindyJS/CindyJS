@@ -1,3 +1,14 @@
 "use strict";
 %output%
 // End of concatenated sources.
+
+if (isNode) {
+    csconsole = null;
+    // Export stuff for test suite
+    module.exports = {
+        evalcs: function(code) {
+            return evaluate(analyse(condense(code), false));
+        },
+        niceprint: niceprint
+    };
+}

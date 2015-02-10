@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Cindy JS</title>
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<link rel="stylesheet" href="../css/cindy.css">
+<!--link rel="stylesheet" href="../css/cindy.css"-->
 
 
 </head>
@@ -20,14 +20,28 @@ old=allpoints();
 oldpts=apply(old,#.xy);
 </script>
 
+<script id='down' type='cindyscript'>
 
+if(mouse().y<-8.5 & mouse().x<-7,
+forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
+old=allpoints();
+oldpts=apply(old,#.xy);
+
+);
+
+</script>
 
 <script id='init' type='cindyscript'>
 
 old=allpoints();
 oldpts=apply(old,#.xy);
 
+reset():=(
+forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
+old=allpoints();
+oldpts=apply(old,#.xy);
 
+);
 split(pts,oldpts,m):=(
                       
                       i=1;
@@ -79,6 +93,7 @@ transf(pts,pt):=(
 
 </script>
 <script id='firstDrawing' type='cindyscript'>
+javascript("document.onkeydown={}");
 pts=allpoints();
 
 apply(pts,#.size=4;#.color=(1,0,0));
@@ -105,13 +120,14 @@ if(isreal(mover.x),
       forall(1..length(r),(r_#).xy=newptsr_#);
       
       oldpts=apply(pts,#.xy);
-      draw(mover.xy,size->5);
+//      draw(mover.xy,size->5);
       );
    );
 
 connect(pts,color->(1,1,1)*0,size->3);
-
-
+//fillpolygon([(-6.5,-8),(-6.5,-9.5),(-9.5,-9.5),(-9.5,-8)],color->(.6,.6,1));
+//drawpolygon([(-6.5,-8),(-6.5,-9.5),(-9.5,-9.5),(-9.5,-8)],color->(0,0,0));
+//drawtext((-9,-9),"Reset");
 
 </script>
 
@@ -132,11 +148,12 @@ for(var i=0;i<30;i++){
 
 createCindy({canvasname:"CSCanvas",
 movescript:"firstDrawing",
-keydownscript:"keyup",
 initscript:"init",
 geometry:gslp});
 
-</script>
 
+</script>
+<br>
+<button style="width:100px;" onclick='evokeCS("reset()");' type="button" >Reset</button>
 </body>
 </html>

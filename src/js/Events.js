@@ -226,16 +226,22 @@ function setuplisteners(canvas) {
 }
 
 
-var requestAnimFrame =
-window.requestAnimationFrame ||
-window.webkitRequestAnimationFrame ||
-window.mozRequestAnimationFrame ||
-window.oRequestAnimationFrame ||
-window.msRequestAnimationFrame ||
-function (callback) {
-    //                window.setTimeout(callback, 1000 / 60);
-    window.setTimeout(callback, 0);
-};
+var requestAnimFrame;
+if (isNode) {
+    requestAnimFrame = process.nextTick; // jshint ignore:line
+}
+else {
+    requestAnimFrame =
+        window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback) {
+            //                window.setTimeout(callback, 1000 / 60);
+            window.setTimeout(callback, 0);
+        };
+}
 
 function doit(){//Callback for d3-timer
     if(csanimating){
