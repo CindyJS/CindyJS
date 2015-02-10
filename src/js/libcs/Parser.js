@@ -10,8 +10,7 @@ function evaluate(a){
     }
 
     if(a.ctype==='infix'){
-        var ioper=infixmap[a.oper];
-        return evaluator._helper.evaluate(ioper,a.args,[]);
+        return a.impl(a.args, {});
     }
     if(a.ctype==='variable'){
         return namespace.getvar(a.name);
@@ -196,6 +195,7 @@ function generateInfix(oper, f1, f2){
     var erg={};
     erg.ctype='infix';
     erg.oper=oper;
+    erg.impl=evaluator[infixmap[oper]];
     erg.args=[f1,f2];
     return erg;
 }
