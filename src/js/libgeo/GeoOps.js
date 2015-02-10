@@ -758,21 +758,23 @@ geoOps.IntersectConicConic = function(el){
     var three = CSNumber.real(3);
 
     // beta
-    var b1 = List.turnIntoCSList([List.column(A,one), List.column(A,two), List.column(B,three)]);
+//    var b1 = List.turnIntoCSList([List.column(A,one), List.column(A,two), List.column(B,three)]);
+    var b1 = List.det3(List.column(A,one), List.column(A,two), List.column(B,three));
 //    console.log("b11", b1);
-    b1 = List.add(b1, List.turnIntoCSList([List.column(A,one), List.column(B,two), List.column(A,three)]));
+    //b1 = List.add(b1, List.turnIntoCSList([List.column(A,one), List.column(B,two), List.column(A,three)]));
+    b1 = CSNumber.add(b1, List.det3(List.column(A,one), List.column(B,two), List.column(A,three)));
  //   console.log("b12", b1);
-    b1 = List.add(b1, List.turnIntoCSList([List.column(B,one), List.column(A,two), List.column(A,three)]));
+    b1 = CSNumber.add(b1, List.det3(List.column(B,one), List.column(A,two), List.column(A,three)));
   //  console.log("b13", b1);
-    var beta = List.det(b1);
+    var beta = b1;
     console.log("beta", beta);
 
 
     // gamma
-    var g1 = List.turnIntoCSList([List.column(A,one), List.column(B,two), List.column(B,three)]);
-    g1 = List.add(g1, List.turnIntoCSList([List.column(B,one), List.column(A,two), List.column(B,three)]));
-    g1 = List.add(g1, List.turnIntoCSList([List.column(B,one), List.column(B,two), List.column(A,three)]));
-    var gamma = List.det(g1);
+    var g1 = List.det3(List.column(A,one), List.column(B,two), List.column(B,three));
+    g1 = CSNumber.add(g1, List.det3(List.column(B,one), List.column(A,two), List.column(B,three)));
+    g1 = CSNumber.add(g1, List.det3(List.column(B,one), List.column(B,two), List.column(A,three)));
+    var gamma = g1;
     console.log("gamma", gamma);
 
     var delta = List.det(B);
@@ -814,7 +816,7 @@ geoOps.IntersectConicConic = function(el){
     // + 4*alpha*gamma^3
     D = CSNumber.add(D, CSNumber.mult(CSNumber.mult(CSNumber.real(4), alpha), gamma3));
     // - 18*alpha*beta*gamma*delta 
-    D = CSNumber.sub(D, CSNumber.multiMult([CSNumber.real(-18), alpha, beta, gamma, delta]));
+    D = CSNumber.sub(D, CSNumber.multiMult([CSNumber.real(18), alpha, beta, gamma, delta]));
     // + 27*alpha^2*delta^3
     D = CSNumber.add(D, CSNumber.multiMult([CSNumber.real(27), alpha2, delta3]));
     console.log("D",D);
@@ -824,7 +826,7 @@ geoOps.IntersectConicConic = function(el){
     console.log("Q",Q);
 
     // R = 3rd root of 4Q
-    var R = CSNumber.pow2(CSNumber.mult(CSNumber.real(4), Q),3);
+    var R = CSNumber.pow2(CSNumber.mult(CSNumber.real(4), Q),1/3);
     console.log("R",R);
 
 
@@ -832,16 +834,16 @@ geoOps.IntersectConicConic = function(el){
     var l1 = CSNumber.mult(CSNumber.real(2),beta2);
     l1 = CSNumber.sub(l1, CSNumber.multiMult([CSNumber.real(6), alpha, gamma]));
     var l2 = CSNumber.mult(CSNumber.real(-1),beta);
-    var l3 = R;
+    var l3 = CSNumber.clone(R);
 
     var L = List.turnIntoCSList([l1, l2, l3]);
 
     // M
-    var M = List.turnIntoCSList([R,one,two]);
+    var M = List.turnIntoCSList([R,CSNumber.real(1),CSNumber.real(2)]);
     M = List.scalmult(CSNumber.mult(CSNumber.real(3),alpha), M);
     console.log("M", M);
 
-    var omega = CSNumber.complex(-0.5, Math.sqrt(3/4));
+    var omega = CSNumber.complex(-0.5, Math.sqrt(0.75));
     var omega2 = CSNumber.mult(omega,omega);
 
     var Mat = List.turnIntoCSList([
@@ -856,17 +858,26 @@ geoOps.IntersectConicConic = function(el){
  //   var omegat1 = CSNumber.mult(t1, omega);
 //    var minusOne = CSNumber.real(-1);
 //    var omegaPlusOne = CSNumber.add(omega, CSNumber.real(1));
-    var invMat = List.inverse(Mat);
-    console.log(invMat);
+//    var invMat = List.inverse(Mat);
+//    console.log(invMat);
     //var lambda  = List.linearsolve(Mat, L);
-    var lambda = General.mult(invMat,L);
-    var mu      = General.mult(invMat, M);
+//    var lambda = General.mult(invMat,L);
+//    var mu      = General.mult(invMat, M);
+      var lambda  = General.mult(Mat, L);
+      var mu = General.mult(Mat,M);
 
     console.log("lambda", lambda);
     console.log("mu", mu); 
 
-    var C = List.scalmult(lambda.value[2], A);
-    C = List.add(C, List.scalmult(mu.value[2], B));
+   for(var i = 0; i < 3; i++){
+       console.log("lambda real", lambda.value[i].value.real)
+       console.log("lambda imag", lambda.value[i].value.imag)
+       console.log("mu real", mu.value[i].value.real)
+       console.log("mu imag", mu.value[i].value.imag)
+   }
+
+    var C = List.scalmult(lambda.value[1], A);
+    C = List.add(C, List.scalmult(mu.value[1], B));
 
 //    console.log(C);
 //    el.matrix=C;
@@ -876,9 +887,11 @@ geoOps.IntersectConicConic = function(el){
 //    erg.usage = "Conic";
  //   erg.matrix = C;
     var lines = geoOps._helper.splitDegenConic(C);
+    console.log("lines",lines);
 
-    var pts1 = geoOps._helper.IntersectLC(lines[0],C);
-    var pts2 = geoOps._helper.IntersectLC(lines[1],C);
+
+    var pts1 = geoOps._helper.IntersectLC(lines[0],A);
+    var pts2 = geoOps._helper.IntersectLC(lines[1],A);
 //
     console.log("pts");
     console.log(pts1);
@@ -895,6 +908,7 @@ geoOps.IntersectConicConic = function(el){
 
    };
 
+   console.log("check sol");
    for(var i = 0; i < 3; i++){
    check_sol(lambda.value[i],mu.value[i]);
    }
