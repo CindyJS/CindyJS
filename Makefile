@@ -72,14 +72,13 @@ endif
 
 closure_language = ECMASCRIPT5_STRICT
 closure_args_common = \
+	--language_in $(closure_language) \
 	--compilation_level $(closure_level) \
 	--js_output_file $@ \
 	--js $(filter %.js,$^)
 closure_args_wrapper = \
-	--language_in ECMASCRIPT5 \
 	$(closure_args_common)
 closure_args = \
-	--language_in $(closure_language) \
 	--create_source_map $@.map \
 	--source_map_format V3 \
 	--source_map_location_mapping "build/js/|" \
@@ -101,8 +100,10 @@ build/js/wrapper.js: src/js/Outside.js tools/compiler.jar
 	mkdir -p $(@D)
 	$(CLOSURE) $(closure_args_wrapper)
 
-build/js/Cindy.js.wrapper: src/js/newInstance.js build/js/wrapper.js $(NPM_DEP)
-	$(NODE_CMD) tools/wrap.js 'placeholder\(\)' build/js/wrapper.js < $< > $@
+build/js/Cindy.js.wrapper: src/js/newInstance.js build/js/wrapper.js \
+		tools/mkwrapper.sed $(NPM_DEP)
+	$(NODE_CMD) tools/wrap.js 'placeholder\(\)' build/js/wrapper.js < $< \
+	| sed -f tools/mkwrapper.sed > $@
 	echo "//# sourceMappingURL=Cindy.js.map" >> $@
 
 build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.js.wrapper $(srcs)
@@ -159,7 +160,8 @@ refimg:=$(wildcard ref/img/*.png)
 refhtml:=$(refmd:ref/%.md=build/ref/%.html)
 refres:=ref.css
 
-$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2html.js ref/template.html $(NPM_DEP)
+$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json \
+		ref/md2html.js ref/template.html $(NPM_DEP)
 	@mkdir -p $(@D)
 	$(NODE_CMD) ref/md2html.js $< $@
 
@@ -184,7 +186,8 @@ c3d_shaders = $(c3d_primitives:%=%-vert.glsl) $(c3d_primitives:%=%-frag.glsl) \
 c3d_str_res = $(c3d_shaders:%=src/str/cindy3d/%)
 
 build/js/c3dres.js: $(c3d_str_res) tools/files2json.js $(NPM_DEP)
-	$(NODE_CMD) tools/files2json.js -varname=c3d_resources -output=$@ $(c3d_str_res)
+	$(NODE_CMD) tools/files2json.js -varname=c3d_resources -output=$@ \
+	$(c3d_str_res)
 
 # For debugging use these command line arguments for make:
 # c3d_closure_level=WHITESPACE_ONLY c3d_extra_args='--formatting PRETTY_PRINT'
