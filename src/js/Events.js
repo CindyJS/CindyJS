@@ -109,7 +109,7 @@ function autoCleanEventListener(target, type, listener, useCapture) {
 function setuplisteners(canvas, data) {
 
     var MO = MutationObserver;
-    if (!MO) MO = WebKitMutationObserver;
+    if (!MO) MO = WebKitMutationObserver; // jshint ignore: line
     if (MO) {
         MO = new MO(function(mutations) {
             // Browsers which support MutationObserver likely support contains

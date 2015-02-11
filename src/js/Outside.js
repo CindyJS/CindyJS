@@ -1,4 +1,4 @@
-createCindy = (function(){
+var createCindy = (function(){
     "use strict";
 
     var debugStartup = false;
@@ -35,9 +35,10 @@ createCindy = (function(){
         };
     }
 
-    if (typeof document !== "undefined" &&
+    if (typeof document !== "undefined" && typeof window !== "undefined" &&
         typeof document.addEventListener !== "undefined" &&
-        (typeof cindyDontWait === "undefined" || cindyDontWait !== true)) {
+        (typeof window.cindyDontWait === "undefined" ||
+         window.cindyDontWait !== true)) {
         document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
     }
 

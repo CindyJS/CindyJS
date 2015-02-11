@@ -1,6 +1,7 @@
+var createCindy = this; // since this will be turned into a method
+
 var csconsole;
 var cslib;
-
 
 var cscompiled={};
 
