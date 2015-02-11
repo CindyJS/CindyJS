@@ -97,9 +97,36 @@ function getmover(mouse){
     return {mover:mov,offset:diff,offsetrad:orad};
 }
 
+function autoCleanEventListener(target, type, listener, useCapture) {
+    if (useCapture === undefined)
+        useCapture = false;
+    shutdownHooks.push(function() {
+        target.removeEventListener(type, listener, useCapture);
+    });
+    target.addEventListener(type, listener, useCapture);
+}
 
 function setuplisteners(canvas, data) {
-    
+
+    var MO = MutationObserver;
+    if (!MO) MO = WebKitMutationObserver;
+    if (MO) {
+        MO = new MO(function(mutations) {
+            // Browsers which support MutationObserver likely support contains
+            if (!document.body.contains(canvas))
+                shutdown();
+        });
+        MO.observe(document.documentElement,
+                   {"childList": true, "subtree": true});
+        shutdownHooks.push(function() {
+            MO.disconnect();
+        });
+    }
+    else {
+        autoCleanEventListener(canvas, "DOMNodeRemovedFromDocument", shutdown);
+        autoCleanEventListener(canvas, "DOMNodeRemoved", shutdown);
+    }
+
     function updatePostition(x,y){
         var pos=csport.to(x,y);
         mouse.prevx      = mouse.x;
@@ -112,13 +139,13 @@ function setuplisteners(canvas, data) {
     }
     
     if (data.keylistener) {
-        document.onkeydown=function(e){
+        autoCleanEventListener(document, "keydown", function(e){
             cs_keypressed(e);
             return false;
-        };
+        });
     }
 
-    canvas.onmousedown = function (e) {
+    autoCleanEventListener(canvas, "mousedown", function (e) {
         mouse.button  = e.which;
         var rect      = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left,e.clientY - rect.top);
@@ -128,9 +155,9 @@ function setuplisteners(canvas, data) {
             
             mouse.down    = true;
             e.preventDefault();
-    };
+    });
     
-    canvas.onmouseup = function (e) {
+    autoCleanEventListener(canvas, "mouseup", function (e) {
         mouse.down = false;
         
         cs_mouseup();
@@ -138,9 +165,9 @@ function setuplisteners(canvas, data) {
         updateCindy();
         
         e.preventDefault();
-    };
+    });
     
-    canvas.onmousemove = function (e) {
+    autoCleanEventListener(canvas, "mousemove", function (e) {
         var rect  = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left,e.clientY - rect.top);
         if(mouse.down){
@@ -150,7 +177,7 @@ function setuplisteners(canvas, data) {
             cs_mousemove();
         }
         e.preventDefault();
-    };
+    });
     
     
     function getOffsetLeft(elem) {
@@ -215,13 +242,12 @@ function setuplisteners(canvas, data) {
         
     }
     
-    canvas.addEventListener("touchstart", touchDown, false);
-    canvas.addEventListener("touchmove", touchMove, true);
-    canvas.addEventListener("touchend", touchUp, false);
-    document.body.addEventListener("touchcancel", touchUp, false);
-    //    document.body.addEventListener("mouseup", mouseUp, false);
-    
-    
+    autoCleanEventListener(canvas, "touchstart", touchDown, false);
+    autoCleanEventListener(canvas, "touchmove", touchMove, true);
+    autoCleanEventListener(canvas, "touchend", touchUp, false);
+    autoCleanEventListener(document.body, "touchcancel", touchUp, false);
+    //    autoCleanEventListener(document.body, "mouseup", mouseUp, false);
+
     updateCindy();
 }
 
@@ -244,16 +270,14 @@ else {
 }
 
 function doit(){//Callback for d3-timer
+    if (isShutDown) return true;
     if(csanimating){
         cs_tick();
     }
     updateCindy();
     csticking=csanimating || mouse.down;
     return !csticking;
-    
 }
-
-
 
 function startit(){
     if(!csticking) {
@@ -275,13 +299,10 @@ function updateCindy(){
     csport.greset();
     render();
     csctx.restore();
-    
 }
 
-
-
 function update() {
-    
+    if (isShutDown) return;
     updateCindy();
     if(mouse.down)
         requestAnimFrame(update);

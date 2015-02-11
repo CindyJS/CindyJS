@@ -3141,6 +3141,8 @@ evaluator.use=function(args,modifs){
                 "evaluate": evaluate,
                 "evaluateAndVal": evaluateAndVal,
                 "defineFunction": defineFunction,
+                "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),
+                "autoCleanEventListener": autoautoCleanEventListener,
             });
             return {"ctype":"boolean", "value":true};
         }

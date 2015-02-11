@@ -17,7 +17,10 @@ function setDefaultAppearance(obj) {
         if (obj[key] !== null)
             defaultAppearance[key] = obj[key];
 }
-
+if (instanceInvocationArguments.defaultAppearance)
+    setDefaultAppearance(instanceInvocationArguments.defaultAppearance);
+else if (typeof window !== "undefined" && window.defaultAppearance)
+    setDefaultAppearance(window.defaultAppearance);
 
 	function csinit(gslp){
 
@@ -406,8 +409,3 @@ function render(){
 
      
 }
-
-
-
-
-

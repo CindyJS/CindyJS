@@ -60,7 +60,8 @@ function initialTransformation(data) {
 
 var csmouse, csctx, csw, csh, csgeo, images;
 
-function createCindyNow(data){
+function createCindyNow(){
+    var data = instanceInvocationArguments;
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
     csmouse = [100, 100];
@@ -127,7 +128,6 @@ function createCindyNow(data){
         csinitphys(data.behavior);
     
     //Read images: TODO ordentlich machen
-
     for (var k in data.images) {
         var name=data.images[k];
         images[k] = new Image();
@@ -142,15 +142,25 @@ function createCindyNow(data){
         /*jshint +W083 */
         images[k].src = name;
     }
-    //Evaluate Init script
-    evaluate(cscompiled.init);
 
+    globalInstance.canvas = c;
 
-    
-    setuplisteners(document.getElementById(data.canvasname), data);
-    
+    // Invoke oninit callback
     if (data.oninit)
         data.oninit(globalInstance);
+
+    if (data.exclusive) {
+        i = createCindy.instances.length;
+        while (i > 0)
+            createCindy.instances[--i].shutdown();
+    }
+    createCindy.instances.push(globalInstance);
+
+    //Evaluate Init script
+    evaluate(cscompiled.init);
+    
+    setuplisteners(c, data);
+    
 }
 
 var backup=[];
@@ -243,73 +253,38 @@ var initialscript=
 '           );'
 ;
 
-var waitCount = -1;
-var cjsInit = function() {
-};
-function waitFor(name) {
-  if (waitCount === 0) {
-    console.error("Waiting for " + name + " after we finished waiting.");
-    return function() { };
-  }
-  if (waitCount < 0)
-    waitCount = 0;
-  console.log("Start waiting for " + name);
-  ++waitCount;
-  return function() {
-    console.log("Done waiting for " + name);
-    --waitCount;
-    if (waitCount < 0) {
-      console.error("Wait count mismatch: " + name);
+var shutdownHooks = [];
+var isShutDown = false;
+
+function shutdown(){
+    if (isShutDown)
+        return; // ignore multiple calls
+    console.log("Shutting down");
+    var n = createCindy.instances.length;
+    while (n > 0) {
+        if (createCindy.instances[--n] === globalInstance) {
+            createCindy.instances.splice(n, 1);
+            break;
+        }
     }
-    if (waitCount === 0) {
-      cjsInit();
+    // Call hooks in reverse order
+    n = shutdownHooks.length;
+    while (n > 0) {
+        try { shutdownHooks[--n](); }
+        catch(e) { console.error(e); }
     }
-  };
 }
-if (!instanceInvocationArguments.isNode)
-  document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
 
-var globalInstance;
-
-function createCindyIntern(data) {
-  if (data.defaultAppearance)
-    setDefaultAppearance(data.defaultAppearance);
-  else if (!data.isNode && window.defaultAppearance)
-    setDefaultAppearance(window.defaultAppearance);
-  if (waitCount === 0) {
-    console.log("creating Cindy immediately.");
-    createCindyNow(data);
-  } else {
-    console.log("creating Cindy later.");
-    var prevInit = cjsInit;
-    cjsInit = function() {
-      prevInit();
-      console.log("creating Cindy now.");
-      createCindyNow(data);
-    };
-  }
-  globalInstance = {
+// The following object will be returned from the public createCindy function.
+// Its startup method will be called automatically unless specified otherwise.
+var globalInstance = {
+    "config": instanceInvocationArguments,
+    "startup": createCindyNow,
+    "shutdown": shutdown,
     "evokeCS": evokeCS,
     "evalcs": function(code) {
       return evaluate(analyse(condense(code), false));
     },
     "niceprint": niceprint,
-  };
-  if (!data.isNode) {
-    window.evokeCS = evokeCS;
-  }
-  return globalInstance;
-}
-
-if (!instanceInvocationArguments.isNode &&
-    window.__gwt_activeModules !== undefined) {
-  Object.keys(window.__gwt_activeModules).forEach(function(key) {
-    var m = window.__gwt_activeModules[key];
-    m.cjsDoneWaiting = waitFor(m.moduleName);
-  });
-  window.__gwtStatsEvent = function(evt) {
-    if (evt.evtGroup === "moduleStartup" && evt.type === "end") {
-      window.__gwt_activeModules[evt.moduleName].cjsDoneWaiting();
-    }
-  };
-}
+    "canvas": null, // will be set during startup
+};

@@ -1,4 +1,15 @@
 //////////////////////////////////////////////////////////////////////
+// Type definitions to shorten some things
+
+function td() {};
+
+/** @typedef {EventListener|function(!Event):(boolean|undefined)} */
+td.EventCallback;
+
+/** @typedef {function(EventTarget, string, td.EventCallback, boolean=)} */
+td.EventManager;
+
+//////////////////////////////////////////////////////////////////////
 // Externs for CindyJS bindings
 
 function createCindy() { }
@@ -16,7 +27,9 @@ createCindy.op;
  *    nada: createCindy.anyval,
  *    evaluate: function(createCindy.anyval):createCindy.anyval,
  *    evaluateAndVal: function(createCindy.anyval):createCindy.anyval,
- *    defineFunction: function(string,number,createCindy.op)
+ *    defineFunction: function(string,number,createCindy.op),
+ *    addShutdownHook: function(function()),
+ *    autoCleanEventListener: td.EventManager
  *  }}
  */
 createCindy.pluginApi;

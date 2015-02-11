@@ -7,6 +7,8 @@ clean:
 
 .PHONY: all clean
 
+.DELETE_ON_ERROR:
+
 ######################################################################
 ## List all our sources
 ######################################################################
@@ -22,54 +24,6 @@ lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 ours = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab)
 
 srcs = $(ours) $(lib)
-
-######################################################################
-## Build different flavors of Cindy.js
-######################################################################
-
-# by defaul compile with SIMPLE flag
-closure_level = SIMPLE
-ifeq ($(O),1)
-	closure_level = ADVANCED
-endif
-
-closure_language = ECMASCRIPT5_STRICT
-closure_args = \
-	--language_in $(closure_language) \
-	--create_source_map $@.map \
-	--compilation_level $(closure_level) \
-	--source_map_format V3 \
-	--source_map_location_mapping "build/js/|" \
-	--source_map_location_mapping "src/js/|../../src/js/" \
-	--output_wrapper_file $(filter %.wrapper,$^) \
-	--js_output_file $@ \
-	--js $(filter %.js,$^)
-
-#by default use closure compiler
-js_compiler = closure
-
-ifeq ($(plain),1)
-	js_compiler = plain 
-endif
-
-build/js/Cindy.closure.js: compiler.jar src/js/Cindy.js.wrapper $(srcs)
-	mkdir -p $(@D)
-	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
-	sed 's:$(@F):Cindy.js:g' $@.map > $(@:%.closure.js=%.js.map)
-
-build/js/Cindy.plain.js: $(srcs)
-
-build/js/ours.js: $(ours)
-
-build/js/Cindy.plain.js build/js/ours.js: src/js/Cindy.plain.js.wrapper
-	mkdir -p $(@D)
-	awk '/%output%/{exit}{print}' $(filter %.wrapper,$^) > $@
-	cat $(filter %.js,$^) >> $@
-	awk '/%output%/{i=1;getline}{if(i)print}' $(filter %.wrapper,$^) \
-	| sed 's://#.*::' >> $@
-
-build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
-	cp $< $@
 
 ######################################################################
 ## Download stuff either using curl or wget
@@ -109,6 +63,67 @@ download/node/bin/npm: download/arch/$(NODE_TAR)
 	touch $@
 
 ######################################################################
+## Build different flavors of Cindy.js
+######################################################################
+
+# by defaul compile with SIMPLE flag
+closure_level = SIMPLE
+ifeq ($(O),1)
+	closure_level = ADVANCED
+endif
+
+closure_language = ECMASCRIPT5_STRICT
+closure_args_common = \
+	--compilation_level $(closure_level) \
+	--js_output_file $@ \
+	--js $(filter %.js,$^)
+closure_args_wrapper = \
+	--language_in ECMASCRIPT5 \
+	$(closure_args_common)
+closure_args = \
+	--language_in $(closure_language) \
+	--create_source_map $@.map \
+	--source_map_format V3 \
+	--source_map_location_mapping "build/js/|" \
+	--source_map_location_mapping "src/js/|../../src/js/" \
+	--output_wrapper_file $(filter %.wrapper,$^) \
+	$(closure_args_common)
+
+#by default use closure compiler
+js_compiler = closure
+
+ifeq ($(plain),1)
+	js_compiler = plain
+endif
+
+build/js/wrapper.js: src/js/Outside.js compiler.jar
+	mkdir -p $(@D)
+	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args_wrapper)
+
+build/js/Cindy.js.wrapper: src/js/newInstance.js build/js/wrapper.js $(NPM_DEP)
+	$(NODE_CMD) tools/wrap.js 'placeholder\(\)' build/js/wrapper.js < $< > $@
+	echo "//# sourceMappingURL=Cindy.js.map" >> $@
+
+build/js/Cindy.closure.js: compiler.jar build/js/Cindy.js.wrapper $(srcs)
+	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
+	sed 's:$(@F):Cindy.js:g' $@.map > $(@:%.closure.js=%.js.map)
+
+build/js/Cindy.plain.js: $(srcs)
+
+build/js/ours.js: $(ours)
+
+build/js/plain.wrapper: src/js/newInstance.js src/js/Outside.js $(NPM_DEP)
+	mkdir -p $(@D)
+	$(NODE_CMD) tools/wrap.js 'placeholder\(\)' src/js/Outside.js < $< > $@
+
+build/js/Cindy.plain.js build/js/ours.js: build/js/plain.wrapper $(NPM_DEP)
+	cat $(filter %.js,$^) | \
+	$(NODE_CMD) tools/wrap.js '%output%' $< > $@
+
+build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
+	cp $< $@
+
+######################################################################
 ## Run jshint to detect syntax problems
 ######################################################################
 
@@ -143,9 +158,9 @@ refimg:=$(wildcard ref/img/*.png)
 refhtml:=$(refmd:ref/%.md=build/ref/%.html)
 refres:=ref.css
 
-$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2html.js ref/template.html
+$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2html.js ref/template.html $(NPM_DEP)
 	@mkdir -p $(@D)
-	$(NODE) ref/md2html.js $< $@
+	$(NODE_CMD) ref/md2html.js $< $@
 
 $(refres:%=build/ref/%): build/ref/%: ref/%
 	cp $< $@
