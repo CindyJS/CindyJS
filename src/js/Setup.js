@@ -76,22 +76,29 @@ function createCindyNow(){
     
     //Setup the scripts
     var scripts=["move","keydown","mousedown","mouseup","mousedrag","init","tick","draw"];
-    var scriptpat=data.scripts;
-    if (!(scriptpat !== undefined && scriptpat.search(/\*/)))
-        scriptpat = null;
+    var scriptconf=data.scripts, scriptpat=null;
+    if (typeof scriptconf === "string" && scriptconf.search(/\*/))
+        scriptpat = scriptconf;
+    if (typeof scriptconf !== "object")
+        scriptconf = null;
 
     scripts.forEach(function(s){
-        var sname=s+"script";
-        if(data[sname]){
-            cscode=document.getElementById(data[sname]);
-        } else if (scriptpat) {
-            cscode=document.getElementById(scriptpat.replace(/\*/, s));
-            if (!cscode)
-                return;
+        var cscode;
+        if(scriptconf!== null && scriptconf[s]) {
+            cscode = scriptconf[s];
         } else {
-            return;
+            var sname=s+"script";
+            if(data[sname]){
+                cscode=document.getElementById(data[sname]);
+            } else if (scriptpat) {
+                cscode=document.getElementById(scriptpat.replace(/\*/, s));
+                if (!cscode)
+                    return;
+            } else {
+                return;
+            }
+            cscode=cscode.text;
         }
-        cscode=cscode.text;
         cscode=condense(cscode);
         cscompiled[s]=analyse(cscode,false);
     });
