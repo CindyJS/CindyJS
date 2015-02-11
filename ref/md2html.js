@@ -22,22 +22,38 @@ renderer.code = function(code, lang) {
   var n = lines.length, i;
   if (lines[n-1] === "") --n;
   var cls = {
+    "T ": "txt",
+    "J ": "js",
     "> ": "code",
     "< ": "result",
     "* ": "output",
     "- ": "pragma",
   };
-  var res = '<div class="codeblock"><pre class="fst ' +
-            cls[lines[0].substr(0, 2)] + '">' + escape(lines[0].substr(2));
-  for (i = 1; i < n; ++i) {
-    if (lines[i].substr(0, 2) !== lines[i - 1].substr(0, 2))
-      res += '</pre><pre class="' + cls[lines[i].substr(0, 2)] + '">';
+  var bcls = {
+    "T ": "txtblock",
+    "J ": "jsblock",
+    "> ": "codeblock",
+    "< ": "codeblock",
+    "* ": "codeblock",
+    "~ ": "codeblock",
+  };
+  var outer = 'block', prevmark = '', res = '';
+  for (i = 0; i < n; ++i) {
+    var mark = lines[i].substr(0, 2);
+    outer = bcls[mark] || outer;
+    if (mark !== prevmark) {
+      if (i === 0)
+        res += '<pre class="fst ';
+      else
+        res += '</pre><pre class="';
+      res += cls[mark] + '">';
+      prevmark = mark;
+    }
     else
       res += '\n';
     res += escape(lines[i].substr(2));
   }
-  res += '</pre></div>';
-  return res;
+  return '<div class="' + outer + '">' + res + '</pre></div>';
 };
 
 var opts = {

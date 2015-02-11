@@ -69,6 +69,8 @@ function runTestFile(filename) {
         curcase.expectException(rest);
       } else if (mark === '* ') {
         curcase.expectOutput(rest);
+      } else if (mark === 'J ' || mark === 'T ') {
+        // ignore
       } else {
         console.log("Unexpected line " + (lineno + i) + ": " + line);
       }
