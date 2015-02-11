@@ -66,14 +66,16 @@ function createCindyNow(){
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
     csmouse = [100, 100];
-    var cscode;
-    var c=document.getElementById(data.canvasname);
-    csctx=c.getContext("2d");
-    //Run initialscript
-          cscode=condense(initialscript);
-          var iscr=analyse(cscode,false);
-    evaluate(iscr);
+    var cscode, c;
+    if (typeof document !== "undefined") {
+        c=document.getElementById(data.canvasname);
+        csctx=c.getContext("2d");
+    }
 
+    //Run initialscript
+    cscode=condense(initialscript);
+    var iscr=analyse(cscode,false);
+    evaluate(iscr);
     
     //Setup the scripts
     var scripts=["move","keydown","mousedown","mouseup","mousedrag","init","tick","draw"];
@@ -112,10 +114,12 @@ function createCindyNow(){
     if(data.snap) cssnap=data.snap;
     initialTransformation(data);
 
-    csw=c.width;
-    csh=c.height;
-    csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
-    csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
+    if (c) {
+        csw=c.width;
+        csh=c.height;
+        csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
+        csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
+    }
 
     csgeo={};
     
@@ -166,9 +170,10 @@ function createCindyNow(){
 
     //Evaluate Init script
     evaluate(cscompiled.init);
-    
-    setuplisteners(c, data);
-    
+
+    if (c)
+        setuplisteners(c, data);
+
 }
 
 var backup=[];
