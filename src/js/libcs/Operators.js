@@ -3142,7 +3142,7 @@ evaluator.use=function(args,modifs){
                 "evaluateAndVal": evaluateAndVal,
                 "defineFunction": defineFunction,
                 "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),
-                "autoCleanEventListener": autoautoCleanEventListener,
+                "autoCleanEventListener": autoCleanEventListener,
             });
             return {"ctype":"boolean", "value":true};
         }
