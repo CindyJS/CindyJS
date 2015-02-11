@@ -1,5 +1,3 @@
-JAVA=java
-
 all: build/js/Cindy.js
 
 clean:
@@ -96,16 +94,19 @@ ifeq ($(plain),1)
 	js_compiler = plain
 endif
 
-build/js/wrapper.js: src/js/Outside.js compiler.jar
+JAVA=java
+CLOSURE=$(JAVA) -jar $(filter %compiler.jar,$^)
+
+build/js/wrapper.js: src/js/Outside.js tools/compiler.jar
 	mkdir -p $(@D)
-	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args_wrapper)
+	$(CLOSURE) $(closure_args_wrapper)
 
 build/js/Cindy.js.wrapper: src/js/newInstance.js build/js/wrapper.js $(NPM_DEP)
 	$(NODE_CMD) tools/wrap.js 'placeholder\(\)' build/js/wrapper.js < $< > $@
 	echo "//# sourceMappingURL=Cindy.js.map" >> $@
 
-build/js/Cindy.closure.js: compiler.jar build/js/Cindy.js.wrapper $(srcs)
-	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
+build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.js.wrapper $(srcs)
+	$(CLOSURE) $(closure_args)
 	sed 's:$(@F):Cindy.js:g' $@.map > $(@:%.closure.js=%.js.map)
 
 build/js/Cindy.plain.js: $(srcs)
@@ -209,9 +210,9 @@ c3d_mods = ShaderProgram Camera Appearance Viewer PrimitiveRenderer \
 c3d_srcs = build/js/c3dres.js $(c3d_mods:%=src/js/cindy3d/%.js) \
 	src/js/cindy3d/cindyjs.externs src/js/cindy3d/Cindy3D.js.wrapper
 
-build/js/Cindy3D.js: compiler.jar $(c3d_srcs)
+build/js/Cindy3D.js: tools/compiler.jar $(c3d_srcs)
 	mkdir -p $(@D)
-	$(JAVA) -jar $(filter %compiler.jar,$^) $(c3d_closure_args)
+	$(CLOSURE) $(c3d_closure_args)
 
 cindy3d: build/js/Cindy3D.js
 
