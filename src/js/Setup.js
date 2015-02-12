@@ -171,6 +171,9 @@ function createCindyNow(){
     //Evaluate Init script
     evaluate(cscompiled.init);
 
+    if (data.autoplay)
+        csplay();
+
     if (c)
         setuplisteners(c, data);
 

@@ -113,6 +113,10 @@ See the section “Lab” for details.
 A list of URLs which will be loaded.
 Whenever an image is ready, it can be used in the application instance.
 
+### autoplay
+
+Setting this to true indicates that the animation should start immediately after startup of the instance.
+
 ### oninit
 
 A JavaScript function to be called when the application instance is ready.
