@@ -742,7 +742,453 @@ geoOps.IntersectCirCir =function(el){
 };
 geoOpMap.IntersectCirCir="T";
 
+geoOps.solveCubic= function(a, b, c, d) {
+        return geoOps._helper.solveCubic(a.value.real, a.value.imag, b.value.real, b.value.imag, c.value.real, c.value.imag, d.value.real, d.value.imag);
+};
 
+
+geoOps._helper.solveCubic = function(ar, ai, br, bi, cr, ci, dr, di) {
+    // dreist direkt aus dem cinderella2 sourcecode geklaut
+
+    var c1 = 1.25992104989487316476721060727822835057025;  //2^(1/3)
+    var c2 = 1.58740105196819947475170563927230826039149;  //2^(2/3)
+    
+    // t1 = (4ac - b^2)
+    
+    var acr = ar * cr - ai * ci;
+    var aci = ar * ci + ai * cr;
+    
+    var t1r = 4 * acr - (br * br - bi * bi);
+    var t1i = 4 * aci - 2 * br * bi;
+    
+    // ab = ab
+    var abr = ar * br - ai * bi;
+    var abi = ar * bi + ai * br;
+    
+    // t3 = t1 *c - 18 ab * d = (4 ac - b*b)*c - 18 abd
+    var t3r = t1r * cr - t1i * ci - 18 * (abr * dr - abi * di);
+    var t3i = (t1r * ci + t1i * cr) - 18 * (abr * di + abi * dr);
+    
+    // aa = 27  a*a
+    var aar = 27 * (ar * ar - ai * ai);
+    var aai = 54 * (ai * ar);
+    
+    // aad =  aa *d = 27 aad
+    var aadr = aar * dr - aai * di;
+    var aadi = aar * di + aai * dr;
+    
+    // t1 = b^2
+    var bbr = br * br - bi * bi;
+    var bbi = 2 * br * bi;
+    
+    // w = b^3
+    var wr = bbr * br - bbi * bi;
+    var wi = bbr * bi + bbi * br;
+    
+    // t2 = aad + 4w = 27aad + 4bbb
+    var t2r = aadr + 4 * wr;
+    var t2i = aadi + 4 * wi;
+    
+    // t1 = 27 *(t3 * c + t2 *d)
+    t1r = t3r * cr - t3i * ci + t2r * dr - t2i * di;
+    t1i = t3r * ci + t3i * cr + t2r * di + t2i * dr;
+    
+    // DIS OK!!
+    
+    // w = -2 b^3
+    wr *= -2;
+    wi *= -2;
+    
+    // w = w + 9 a b c
+    wr += 9 * (abr * cr - abi * ci);
+    wi += 9 * (abr * ci + abi * cr);
+    
+    // w = w + -27 a*a d
+    wr -= aadr;
+    wi -= aadi;
+    
+    // t1 = (27 dis).Sqrt()
+    t1r *= 27;
+    t1i *= 27;
+    t2r = Math.sqrt(Math.sqrt(t1r * t1r + t1i * t1i));
+    t2i = Math.atan2(t1i, t1r);
+    t1i = t2r * Math.sin(t2i / 2);
+    t1r = t2r * Math.cos(t2i / 2);
+    
+    // w = w + a * dis // sqrt war schon oben
+    wr += t1r * ar - t1i * ai;
+    wi += t1r * ai + t1i * ar;
+    
+    // w ausgerechnet. Jetz w1 und w2
+    //     w1.assign(wr,wi);
+    //     w2.assign(wr,wi);
+    //     w1.sqrt1_3();
+    //     w2.sqrt2_3();
+    var radius = Math.exp(Math.log(Math.sqrt(wr * wr + wi * wi)) / 3.0);
+    var phi = Math.atan2(wi, wr);
+    var w1i = radius * Math.sin(phi / 3);
+    var w1r = radius * Math.cos(phi / 3);
+    
+    radius *= radius;
+    phi *= 2;
+    
+    var w2i = radius * Math.sin(phi / 3);
+    var w2r = radius * Math.cos(phi / 3);
+    
+    // x = 2 b^2
+    // x = x - 6 ac
+    var xr = 2 * bbr - 6 * acr;
+    var xi = 2 * bbi - 6 * aci;
+    
+    //y.assign(-c2).mul(b).mul(w1);
+    var yr = -c2 * (br * w1r - bi * w1i);
+    var yi = -c2 * (br * w1i + bi * w1r);
+    
+    //    z.assign(c1).mul(w2);
+    var zr = c1 * w2r;
+    var zi = c1 * w2i;
+    
+    //w1.mul(a).mul(3).mul(c2);
+    t1r = c2 * 3 * (w1r * ar - w1i * ai);
+    t1i = c2 * 3 * (w1r * ai + w1i * ar);
+    
+    var s = t1r * t1r + t1i * t1i;
+    
+    t2r = (xr * t1r + xi * t1i) / s;
+    t2i = (-xr * t1i + xi * t1r) / s;
+    xr = t2r;
+    xi = t2i;
+    
+    t2r = (yr * t1r + yi * t1i) / s;
+    t2i = (-yr * t1i + yi * t1r) / s;
+    yr = t2r;
+    yi = t2i;
+    
+    t2r = (zr * t1r + zi * t1i) / s;
+    t2i = (-zr * t1i + zi * t1r) / s;
+    zr = t2r;
+    zi = t2i;
+
+
+	return [xr, xi, yr, yi, yr, zr, zi];
+};
+
+
+geoOps.IntersectConicConic = function(el){
+    var A=csgeo.csnames[(el.args[0])].matrix;
+    var B=csgeo.csnames[(el.args[1])].matrix;
+
+    var alpha = List.det(A);
+//    console.log("alpha",alpha);
+    
+    // indexing
+    var one = CSNumber.real(1);
+    var two = CSNumber.real(2);
+    var three = CSNumber.real(3);
+    
+    // beta
+     // var b1 = List.turnIntoCSList([List.column(A,one), List.column(A,two), List.column(B,three)]);
+    var b1 = List.det3(List.column(A,one), List.column(A,two), List.column(B,three));
+    b1 = CSNumber.add(b1, List.det3(List.column(A,one), List.column(B,two), List.column(A,three)));
+    b1 = CSNumber.add(b1, List.det3(List.column(B,one), List.column(A,two), List.column(A,three)));
+    
+    var beta = CSNumber.clone(b1);
+    // Blinn
+    beta = CSNumber.mult(beta, CSNumber.real(1/3));
+    
+    // gamma
+    var g1 = List.det3(List.column(A,one), List.column(B,two), List.column(B,three));
+    g1 = CSNumber.add(g1, List.det3(List.column(B,one), List.column(A,two), List.column(B,three)));
+    g1 = CSNumber.add(g1, List.det3(List.column(B,one), List.column(B,two), List.column(A,three)));
+    var gamma = CSNumber.clone(g1);
+    // Blinn
+    gamma = CSNumber.mult(gamma, CSNumber.real(1/3));
+    
+    var delta = List.det(B);
+
+/*
+    // Blinn
+    var beta2 = CSNumber.mult(beta,beta);
+    var beta3 = CSNumber.mult(beta2,beta);
+    var gamma2 = CSNumber.mult(gamma,gamma);
+    var gamma3 = CSNumber.mult(gamma2,gamma);
+
+    var d1 = CSNumber.mult(alpha,gamma);
+    d1 = CSNumber.sub(d1, beta2);
+
+    var d2 = CSNumber.mult(alpha,delta);
+    d2 = CSNumber.sub(d2, CSNumber.mult(beta,gamma));
+
+    var d3 = CSNumber.mult(beta,delta);
+    d3 = CSNumber.sub(d3, gamma2);
+
+    var ldel = CSNumber.multiMult([CSNumber.real(4), d1, d3]);
+    ldel = CSNumber.sub(ldel, CSNumber.mult(d2,d2));
+
+    console.log("ldel", ldel.value.real);
+
+    var lambda, mu;
+    // large if else switch in paper
+    if(ldel.value.real < 0){
+        console.log("ldel value real < 0 true");
+        var abar;
+        var dbar;
+        var bbar;
+        var gbar;
+    
+        var ifone = CSNumber.sub(CSNumber.mult(beta3, delta), CSNumber.mult(alpha,gamma3));
+        //console.log("ifone", ifone);
+        if(ifone.value.real >= 0){
+        console.log("ifone value real >= 0 true");
+            abar = CSNumber.clone(alpha);
+            gbar = CSNumber.clone(d1);
+            dbar = CSNumber.add(CSNumber.multiMult([CSNumber.real(-2), beta,d1]), CSNumber.mult(alpha,d2));
+        }
+        else{
+        console.log("ifone value real >= 0 false");
+            abar = delta;
+            gbar = d3;
+            dbar = CSNumber.add(CSNumber.multiMult([CSNumber.real(-1), delta, d2]), CSNumber.multiMult([CSNumber.real(2), gamma, d3]));
+        }
+    
+        var signum = function(a){
+            if(a.value.real > 0) return CSNumber.real(1);
+            else return CSNumber.real(-1);
+        }
+    
+        var T0 = CSNumber.multiMult([CSNumber.real(-1), signum(dbar), CSNumber.abs(abar), CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), ldel))]);
+        var T1 = CSNumber.add(CSNumber.mult(CSNumber.real(-1), dbar), T0);
+    
+        var pp = CSNumber.pow2(CSNumber.mult(T1, CSNumber.real(0.5)), 1/3);
+    
+        var qq;
+        if(CSNumber.abs(T1, T0).value.real < 0.00000001){
+            console.log("p = -q");
+            qq = CSNumber.mult(CSNumber.real(-1), pp);
+        }
+        else {
+            console.log("p !!!!= -q");
+            qq = CSNumber.div(CSNumber.mult(CSNumber.real(-1),gbar), pp);
+        }
+    
+        var x1;
+        if(gbar.value.real <= 0){ 
+            console.log("gbar.value.real <= 0 true");
+            x1 = CSNumber.add(pp,qq);}
+        else {
+            console.log("gbar.value.real <= 0 false");
+            x1 = CSNumber.mult(CSNumber.real(-1), dbar);
+            var tmp = CSNumber.add(CSNumber.mult(pp,pp), CSNumber.mult(qq,qq));
+            tmp = CSNumber.add(tmp,gbar);
+            x1 = CSNumber.mult(x1, CSNumber.inv(tmp));
+        }
+    
+        var res1;
+        if(ifone.value.real >= 0) {
+            console.log("ifone.value.real >= 0 true")
+            res1 = [CSNumber.sub(x1, beta), alpha];
+        }
+        else {
+            console.log("ifone.value.real >= 0 false")
+            res1 = [CSNumber.mult(CSNumber.real(-1),delta), CSNumber.add(x1, gamma)];
+        }
+    
+        //console.log("res1", res1);
+        lambda = res1[0];
+        mu = res1[1];
+    }   //  if(ldel.value.real < 0)
+    else{
+console.log("ldel.value.real < 0 false");
+        // left side of Blinn's paper
+        //
+        var DAbar = CSNumber.add(CSNumber.multiMult([CSNumber.real(-2), beta, d1]), CSNumber.mult(alpha,d2));
+        var CAbar = CSNumber.clone(d1);
+
+        var sigA = CSNumber.arctan2(CSNumber.mult(alpha, CSNumber.sqrt(ldel)), CSNumber.mult(CSNumber.real(-1), DAbar));
+        sigA = CSNumber.mult(CSNumber.real(1/3), CSNumber.abs(sigA));
+
+        var CAsqrt = CSNumber.multiMult([CSNumber.real(2), CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), CAbar))]);
+
+        var x1A = CSNumber.mult(CAsqrt, CSNumber.cos(sigA));
+        var x3A = CSNumber.clone(CAsqrt);
+        var x3Ainner = CSNumber.mult(CSNumber.real(-0.5), CSNumber.cos(sigA));
+        // cos - sin
+        x3Ainner = CSNumber.add(x3Ainner, CSNumber.multiMult([CSNumber.real(-0.5), CSNumber.sqrt(CSNumber.real(3)), CSNumber.sin(sigA)]));
+        x3A = CSNumber.mult(CAsqrt, x3Ainner);
+
+//        console.log("x1A, x3A, x3Ainner", x1A, x3A,x3Ainner);
+        var ifxa = CSNumber.sub(CSNumber.add(x1A, x3A), CSNumber.mult(CSNumber.real(2), beta));
+
+        var xL;
+        if(ifxa.value.real > 0){
+            console.log( "ifxa.value.real > 0 true");
+            xL = x1A;
+        }
+        else{
+            console.log( "ifxa.value.real > 0 false");
+            xL = x3A;
+        }
+
+        var resL = [CSNumber.sub(xL, beta), alpha];
+
+        // right side of Blinn's paper
+        //
+        var DDbar = CSNumber.add(CSNumber.multiMult([CSNumber.real(-1), delta, d2]), CSNumber.multiMult([CSNumber.real(2),gamma,d3]));
+        var CDbar = CSNumber.clone(d3);
+        var sigD = CSNumber.arctan2(CSNumber.mult(delta, CSNumber.sqrt(ldel)), CSNumber.mult(CSNumber.real(-1), DDbar));
+        sigD = CSNumber.mult(CSNumber.real(1/3), CSNumber.abs(sigD));
+
+        var CDsqrt = CSNumber.multiMult([CSNumber.real(2), CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), CDbar))]);
+
+        var x1D = CSNumber.mult(CDsqrt, CSNumber.cos(sigD));
+        var x3D = CSNumber.clone(CDsqrt);
+        // cos - sin
+        var x3Dinner = CSNumber.mult(CSNumber.real(-0.5), CSNumber.cos(sigD));
+        x3Dinner = CSNumber.add(x3Dinner, CSNumber.multiMult([CSNumber.real(-0.5), CSNumber.sqrt(CSNumber.real(3)), CSNumber.sin(sigA)]));
+        x3D = CSNumber.mult(CAsqrt,x3Dinner);
+
+        console.log("x1D, x3d, x3Dinner", x1D, x3D, x3Dinner);
+
+        var ifxs = CSNumber.sub(CSNumber.add(x1D, x3D), CSNumber.mult(CSNumber.real(2), gamma));
+
+        var xS;
+        if(ifxa.value.real < 0){
+            console.log("ifxa.value.real < 0 true");
+            xS = x1D;
+        }
+        else{
+            console.log("ifxa.value.real < 0 false");
+            xS = x3D;
+        }
+
+        var resS = [CSNumber.mult(CSNumber.real(-1), delta), CSNumber.add(xS, gamma)];
+
+
+//        console.log("resL, resS", resL, resS);
+        // combine both -- lower end of Blinn's paper
+        var EE = CSNumber.mult(resL[1], resS[1]);
+        var FF = CSNumber.multiMult([CSNumber.real(-1), resL[0], resS[1]]);
+        FF = CSNumber.sub(FF, CSNumber.mult(resL[1], resS[0]));
+        var GG = CSNumber.mult(resL[0], resS[0]);
+
+ //       console.log("ee, ff, gg", EE, FF, GG);
+        var resg1 = CSNumber.sub(CSNumber.mult(gamma, FF), CSNumber.mult(beta, GG));
+        var resg2 = CSNumber.sub(CSNumber.mult(gamma, EE), CSNumber.mult(beta, FF));
+//        var regGes = [resg1, resg2];
+        lambda = resg1;
+        mu = resg2;
+
+    } // end else
+
+   
+
+   console.log("checksol");
+
+//   var lambda = res1[0];
+//   var mu = res1[1];
+*/
+var check_sol = function(lam,muu){
+   var tmp = CSNumber.multiMult([alpha,lam,lam,lam]);
+   tmp = CSNumber.add(tmp, CSNumber.multiMult([beta,lam,lam,muu]));
+   tmp = CSNumber.add(tmp, CSNumber.multiMult([gamma,lam,muu,muu]));
+   tmp = CSNumber.add(tmp, CSNumber.multiMult([delta,muu,muu,muu]));
+   console.log(tmp.value.real);
+   console.log(tmp.value.imag);
+   }
+
+    
+    var e1 = CSNumber.complex(-0.5, 0.5*Math.sqrt(3));
+    var e1bar= CSNumber.complex(-0.5, -0.5*Math.sqrt(3));
+
+    var solges = geoOps.solveCubic(alpha, beta, gamma, delta);
+    var sol1 = CSNumber.complex(solges[0], solges[1]);
+    var sol2 = CSNumber.complex(solges[2], solges[3]);
+    var sol3 = CSNumber.complex(solges[4], solges[5]);
+    
+    var vsol = List.turnIntoCSList([sol1, sol2, sol3]);
+    var ssol = CSNumber.add(CSNumber.add(sol1,sol2), sol3);
+    
+    var lambda = CSNumber.add(CSNumber.add(sol1, sol2), sol3);
+    console.log("lambda1", lambda);
+
+
+    var C = List.scalmult(lambda, A);
+//    C = List.add(C, List.scalmult(lambda, B));
+    C = List.add(C, B);
+
+
+    var lines1 = geoOps._helper.splitDegenConic(C);
+    var l11 = lines1[0];
+    var l12 = lines1[1]
+
+    var cub2 = List.turnIntoCSList([e1, CSNumber.real(1), e1bar]);
+
+    var solcub2 = List.scalproduct(vsol, cub2);
+
+    lambda = solcub2;
+    console.log("lambda2", lambda);
+    C = List.scalmult(lambda, A);
+//    C = List.add(C, List.scalmult(lambda, B));
+    C = List.add(C, B);
+    
+    var lines2 = geoOps._helper.splitDegenConic(C);
+    var l21 = lines2[0];
+    var l22 = lines2[1]
+
+    var p1 = List.cross(l11, l12);
+    var p2 = List.cross(l12, l21);
+    var p3 = List.cross(l11, l21);
+    var p4 = List.cross(l12, l22);
+
+    p1.usage="Point";
+    p2.usage="Point";
+    p3.usage="Point";
+    p4.usage="Point";
+
+    console.log("p1 -4", p1, p2, p3, p4);
+//    var mu = sol[1];
+    
+//   check_sol(lambda, mu);
+
+//   C = List.add(C, B);
+    
+//   C = List.normalizeMax(C); // console.log(C);
+   //console.log("lines",lines);
+    
+//   var checkdegen = function(mat){
+//
+//    var a = mat.value[0].value[0].value.real;
+//    var b = mat.value[1].value[0].value.real;
+//    var c = mat.value[1].value[1].value.real;
+//    var d = mat.value[2].value[0].value.real;
+//    var e = mat.value[2].value[1].value.real;
+//    var f = mat.value[2].value[2].value.real;
+//    
+//    var myMat = [[a,b,d],
+//    	         [b,c,e],
+//    	         [d,e,f]];
+//    
+//    var det = a*c*f - a*e*e - b*b*f + 2*b*d*e - c*d*d;
+//    var degen = Math.abs(det) < 0.00000001 ? true : false;
+//    console.log("degen", degen);
+//   };
+//    
+//   checkdegen(C);
+    
+//   var pts1 = geoOps._helper.IntersectLC(lines[0],A);
+//   var pts2 = geoOps._helper.IntersectLC(lines[1],A);
+
+   el.inited=true;
+   el.results=List.turnIntoCSList([p1, p2, p3, p4]);
+//   el.results=List.turnIntoCSList([lines[0], lines[1]]);
+
+
+};
+geoOpMap.IntersectConicConic="T";
+
+
+
+/*
 geoOps.IntersectConicConic = function(el){
     var A=csgeo.csnames[(el.args[0])].matrix;
     var B=csgeo.csnames[(el.args[1])].matrix;
@@ -766,7 +1212,7 @@ geoOps.IntersectConicConic = function(el){
  //   console.log("b12", b1);
     b1 = CSNumber.add(b1, List.det3(List.column(B,one), List.column(A,two), List.column(A,three)));
   //  console.log("b13", b1);
-    var beta = b1;
+    var beta = CSNumber.clone(b1);
     console.log("beta", beta);
 
 
@@ -774,7 +1220,7 @@ geoOps.IntersectConicConic = function(el){
     var g1 = List.det3(List.column(A,one), List.column(B,two), List.column(B,three));
     g1 = CSNumber.add(g1, List.det3(List.column(B,one), List.column(A,two), List.column(B,three)));
     g1 = CSNumber.add(g1, List.det3(List.column(B,one), List.column(B,two), List.column(A,three)));
-    var gamma = g1;
+    var gamma = CSNumber.clone(g1);
     console.log("gamma", gamma);
 
     var delta = List.det(B);
@@ -802,7 +1248,8 @@ geoOps.IntersectConicConic = function(el){
     // -2*beta^2 
     var W = CSNumber.mult(CSNumber.real(-2), beta3);
     // + 9*alpha*beta*gamma
-    W = CSNumber.add(W, CSNumber.mult(CSNumber.mult(CSNumber.mult(alpha,beta),gamma),CSNumber.real(9)));
+//    W = CSNumber.add(W, CSNumber.mult(CSNumber.mult(CSNumber.mult(alpha,beta),gamma),CSNumber.real(9)));
+    W = CSNumber.add(W, CSNumber.multiMult([CSNumber.real(9), alpha, beta, gamma]));
     // - 27*alpha^2*delta
     W = CSNumber.sub(W, CSNumber.mult(CSNumber.mult(CSNumber.real(27), alpha2), delta));
 
@@ -852,13 +1299,14 @@ geoOps.IntersectConicConic = function(el){
         List.turnIntoCSList([omega2, one, omega])]);
 
 
+        console.log("Mat", Mat);
     // inverse of Mat
     // t1 = omega + omega^2 - 2
 //    var t1 = CSNumber.sub(CSNumber.add(omega, omega2), CSNumber.real(-2));
  //   var omegat1 = CSNumber.mult(t1, omega);
 //    var minusOne = CSNumber.real(-1);
 //    var omegaPlusOne = CSNumber.add(omega, CSNumber.real(1));
-//    var invMat = List.inverse(Mat);
+   // var invMat = List.inverse(Mat);
 //    console.log(invMat);
     //var lambda  = List.linearsolve(Mat, L);
 //    var lambda = General.mult(invMat,L);
@@ -914,7 +1362,8 @@ geoOps.IntersectConicConic = function(el){
    }
 
    el.inited=true;
-   el.results=List.turnIntoCSList([pts1[0],pts1[1],pts2[0],pts2[1]]);
+ //  el.results=List.turnIntoCSList([pts1[0],pts1[1],pts2[0],pts2[1]]);
+    el.results=List.turnIntoCSList([lines[0], lines[1]]);
 
 
 
@@ -949,7 +1398,7 @@ geoOps.IntersectConicConic = function(el){
 
 };
 geoOpMap.IntersectConicConic="T";
-
+*/
 
 geoOps.SelectP =function(el){
     var set=csgeo.csnames[(el.args[0])];
@@ -960,6 +1409,15 @@ geoOps.SelectP =function(el){
 };
 geoOpMap.SelectP="P";
 
+geoOps.SelectL =function(el){
+    var set=csgeo.csnames[(el.args[0])];
+    if(!el.inited){
+        el.inited=true;
+    }
+    el.homog=set.results.value[el.index-1];
+    el.homog.usage="Line";  
+};
+geoOpMap.SelectL="L";
 
 
 // Define a projective transformation given four points and their images
