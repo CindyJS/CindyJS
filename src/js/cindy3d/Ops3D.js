@@ -66,12 +66,14 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
 
   defOp("begin3d", 0, function(args, modifs) {
     let name = "Cindy3D";
+    let opts = {};
     handleModifs(modifs, {
-      "name": (a => name = /** @type {string} */(coerce.toString(a, name)))
+      "name": (a => name = /** @type {string} */(coerce.toString(a, name))),
+      "antialias": (a => opts["antialias"] = coerce.toBool(a, false)),
     });
     currentInstance = instances[name];
     if (!currentInstance) {
-      instances[name] = currentInstance = new Viewer(name);
+      instances[name] = currentInstance = new Viewer(name, opts);
     }
     return nada;
   });

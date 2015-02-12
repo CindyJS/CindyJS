@@ -1,10 +1,11 @@
 /**
  * @param {string} name  the id of the canvas element
+ * @param {Object} opts  options for context creation
  * @param {td.EventManager=} addEventListener
  * @constructor
  * @struct
  */
-function Viewer(name, addEventListener) {
+function Viewer(name, opts, addEventListener) {
   /** @type {HTMLCanvasElement} */
   let canvas = /** @type {HTMLCanvasElement} */(document.getElementById(name));
   if (!canvas)
@@ -21,9 +22,11 @@ function Viewer(name, addEventListener) {
     "webglcontextcreationerror",
     onContextCreationError, false);
   /** @type {WebGLRenderingContext} */
-  let gl = /** @type {WebGLRenderingContext} */(canvas.getContext("webgl"));
+  let gl = /** @type {WebGLRenderingContext} */(
+    canvas.getContext("webgl", opts));
   if (!gl)
-    gl = /** @type {WebGLRenderingContext} */(canvas.getContext("experimental-webgl"));
+    gl = /** @type {WebGLRenderingContext} */(
+      canvas.getContext("experimental-webgl", opts));
   if (!gl)
     throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
   gl.enable(gl.DEPTH_TEST);

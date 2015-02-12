@@ -1,4 +1,4 @@
-all: build/js/Cindy.js
+all: build/js/Cindy.js cindy3d
 
 clean:
 	$(RM) -r build
