@@ -19,6 +19,12 @@ of the newly created instance.
 Removing the canvas from the DOM tree will shut down the instance.
 This parameter is *required*.
 
+### canvas
+
+Instead of giving the `id` of the canvas element, the element itself can be passed as a parameter.
+This must be an instance of `HTMLCanvasElement`.
+If both the element itself and its name are given, the name is ignored.
+
 ### scripts
 
 If this is a string, it must contain an asterisk `*`.

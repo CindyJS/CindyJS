@@ -66,11 +66,11 @@ function createCindyNow(){
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
     csmouse = [100, 100];
-    var cscode, c;
-    if (typeof document !== "undefined") {
+    var cscode, c = data.canvas;
+    if (!c && typeof document !== "undefined")
         c=document.getElementById(data.canvasname);
+    if (c)
         csctx=c.getContext("2d");
-    }
 
     //Run initialscript
     cscode=condense(initialscript);
