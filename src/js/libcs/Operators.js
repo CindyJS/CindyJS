@@ -3143,6 +3143,8 @@ evaluator.use=function(args,modifs){
                 "defineFunction": defineFunction,
                 "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),
                 "autoCleanEventListener": autoCleanEventListener,
+                "getVariable": namespace.getvar.bind(namespace),
+                "getInitialMatrix": function(){return csport.drawingstate.initialmatrix},
             });
             return {"ctype":"boolean", "value":true};
         }
