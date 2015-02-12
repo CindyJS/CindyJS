@@ -265,3 +265,15 @@ all: build/js/$(1)/$(1).nocache.js
 endef
 
 $(foreach mod,$(GWT_modules),$(eval $(call GWT_template,$(mod))))
+
+######################################################################
+## Help debugging a remote site
+######################################################################
+
+node_modules/http-proxy/package.json: $(NPM_DEP)
+	$(NPM_CMD) install http-proxy
+
+proxy: tools/CindyReplacingProxy.js node_modules/http-proxy/package.json
+	@echo Configure browser for host 127.0.0.1 port 8080.
+	@echo Press Ctrl+C to interrupt once you are done.
+	-$(NODE_CMD) $<
