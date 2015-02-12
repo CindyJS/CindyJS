@@ -299,6 +299,9 @@ var globalInstance = {
     "startup": createCindyNow,
     "shutdown": shutdown,
     "evokeCS": evokeCS,
+    "play": csplay,
+    "pause": cspause,
+    "stop": csstop,
     "evalcs": function(code) {
       return evaluate(analyse(condense(code), false));
     },

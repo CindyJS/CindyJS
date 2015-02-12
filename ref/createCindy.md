@@ -154,6 +154,20 @@ Removing some *parent* of the canvas from the document will not cause an automat
 This function accepts a string containing CindyScript code.
 It will execute that code immediately inside the scope of this instance.
 
+### play
+
+Start animating the content.
+
+### pause
+
+Pause the animation.
+The next call to `start` will resume the animation from the current position.
+
+### stop
+
+Stop the animation.
+The configuration will be reset to the situation where `play` was invoked.
+
 ## Static Functions
 
 The `createCindy` function has a number of additional functions defined as its members.
