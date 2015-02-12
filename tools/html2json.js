@@ -78,7 +78,7 @@ function transform() {
                 scripts[s] = condense(code);
             }
         });
-        params.scrips = scripts;
+        params.scripts = scripts;
         console.log(JSON.stringify(params));
     }
     else {
