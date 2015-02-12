@@ -272,7 +272,10 @@ var isShutDown = false;
 function shutdown(){
     if (isShutDown)
         return; // ignore multiple calls
-    console.log("Shutting down");
+    isShutDown = true;
+    // console.log("Shutting down");
+
+    // Remove this from the list of all running instances
     var n = createCindy.instances.length;
     while (n > 0) {
         if (createCindy.instances[--n] === globalInstance) {
@@ -280,6 +283,7 @@ function shutdown(){
             break;
         }
     }
+
     // Call hooks in reverse order
     n = shutdownHooks.length;
     while (n > 0) {
