@@ -97,7 +97,7 @@ function getmover(mouse){
     return {mover:mov,offset:diff,offsetrad:orad};
 }
 
-function autoCleanEventListener(target, type, listener, useCapture) {
+function addAutoCleaningEventListener(target, type, listener, useCapture) {
     if (useCapture === undefined)
         useCapture = false;
     shutdownHooks.push(function() {
@@ -123,8 +123,8 @@ function setuplisteners(canvas, data) {
         });
     }
     else {
-        autoCleanEventListener(canvas, "DOMNodeRemovedFromDocument", shutdown);
-        autoCleanEventListener(canvas, "DOMNodeRemoved", shutdown);
+        addAutoCleaningEventListener(canvas, "DOMNodeRemovedFromDocument", shutdown);
+        addAutoCleaningEventListener(canvas, "DOMNodeRemoved", shutdown);
     }
 
     function updatePostition(x,y){
@@ -139,13 +139,13 @@ function setuplisteners(canvas, data) {
     }
     
     if (data.keylistener) {
-        autoCleanEventListener(document, "keydown", function(e){
+        addAutoCleaningEventListener(document, "keydown", function(e){
             cs_keypressed(e);
             return false;
         });
     }
 
-    autoCleanEventListener(canvas, "mousedown", function (e) {
+    addAutoCleaningEventListener(canvas, "mousedown", function (e) {
         mouse.button  = e.which;
         var rect      = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left,e.clientY - rect.top);
@@ -157,7 +157,7 @@ function setuplisteners(canvas, data) {
             e.preventDefault();
     });
     
-    autoCleanEventListener(canvas, "mouseup", function (e) {
+    addAutoCleaningEventListener(canvas, "mouseup", function (e) {
         mouse.down = false;
         
         cs_mouseup();
@@ -167,7 +167,7 @@ function setuplisteners(canvas, data) {
         e.preventDefault();
     });
     
-    autoCleanEventListener(canvas, "mousemove", function (e) {
+    addAutoCleaningEventListener(canvas, "mousemove", function (e) {
         var rect  = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left,e.clientY - rect.top);
         if(mouse.down){
@@ -242,11 +242,11 @@ function setuplisteners(canvas, data) {
         
     }
     
-    autoCleanEventListener(canvas, "touchstart", touchDown, false);
-    autoCleanEventListener(canvas, "touchmove", touchMove, true);
-    autoCleanEventListener(canvas, "touchend", touchUp, false);
-    autoCleanEventListener(document.body, "touchcancel", touchUp, false);
-    //    autoCleanEventListener(document.body, "mouseup", mouseUp, false);
+    addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
+    addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
+    addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
+    addAutoCleaningEventListener(document.body, "touchcancel", touchUp, false);
+    //    addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);
 
     updateCindy();
 }
