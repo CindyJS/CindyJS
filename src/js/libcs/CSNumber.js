@@ -75,8 +75,6 @@ CSNumber.re=function(a){
         "value":{'real':a.value.real, 'imag':0}};
 };
 
-// BUG?
-// do we intentinally give back the imag value as the real value?
 CSNumber.im=function(a){
     return {"ctype":"number" ,
         "value":{'real':a.value.imag, 'imag':0}};
@@ -109,6 +107,19 @@ CSNumber.mult=function(a,b){
     return {"ctype":"number" ,
         "value":{'real':a.value.real*b.value.real-a.value.imag*b.value.imag,
             'imag':a.value.real*b.value.imag+a.value.imag*b.value.real}};
+};
+
+CSNumber.multiMult = function(arr){
+    var erg = arr[0];
+    if(erg.ctype !== "number") return nada;
+    for(var i = 1; i < arr.length; i++){
+        if(arr[i].ctype !== "number"){
+            return nada;
+        }
+        erg = CSNumber.mult(erg,arr[i]);
+    }
+
+    return erg;
 };
 
 // BUG?
@@ -253,6 +264,15 @@ CSNumber.sqrt=function(a)  {
     return {"ctype":"number" ,"value":{'real':r,'imag':i}};
 };
 
+CSNumber.pow2 = function(a,b){
+    var rr=a.value.real;
+    var ii=a.value.imag;
+    var n = Math.pow(Math.sqrt(rr * rr + ii * ii), b);
+    var w = Math.atan2(ii, rr);
+    var i = n * Math.sin(w * b);
+    var r = n * Math.cos(w * b);
+    return {"ctype":"number" ,"value":{'real':r,'imag':i}};
+};
 
 CSNumber.log=function(a){
     var re=a.value.real;
@@ -298,8 +318,6 @@ CSNumber.pow=function(a,b){
 };
 
 
-// BUG?
-// interesting what your are doing :)
 CSNumber.mod=function(a,b){
     var a1=a.value.real;
     var a2=b.value.real;
@@ -315,8 +333,13 @@ CSNumber.mod=function(a,b){
     return CSNumber.snap({"ctype":"number" ,"value":{'real':r,'imag':i}});
 };
 
-CSNumber._helper={};
+CSNumber.solveCubic= function(a, b, c, d) {
+        return CSNumber._helper.solveCubic(a.value.real, a.value.imag, b.value.real, b.value.imag, c.value.real, c.value.imag, d.value.real, d.value.imag);
+};
 
+
+
+CSNumber._helper={};
 CSNumber._helper.seed='NO';
 CSNumber.eps=0.0000000001;
 CSNumber.epsbig=0.000001;
@@ -402,3 +425,129 @@ CSNumber._helper.isAlmostImag=function(a) {
     return (r<CSNumber.epsbig) && (r>-CSNumber.epsbig);//So gemacht wie in Cindy
 };
 
+
+CSNumber._helper.solveCubic = function(ar, ai, br, bi, cr, ci, dr, di) {
+    // dreist direkt aus dem cinderella2 sourcecode geklaut
+
+    var c1 = 1.25992104989487316476721060727822835057025;  //2^(1/3)
+    var c2 = 1.58740105196819947475170563927230826039149;  //2^(2/3)
+    
+    // t1 = (4ac - b^2)
+    
+    var acr = ar * cr - ai * ci;
+    var aci = ar * ci + ai * cr;
+    
+    var t1r = 4 * acr - (br * br - bi * bi);
+    var t1i = 4 * aci - 2 * br * bi;
+    
+    // ab = ab
+    var abr = ar * br - ai * bi;
+    var abi = ar * bi + ai * br;
+    
+    // t3 = t1 *c - 18 ab * d = (4 ac - b*b)*c - 18 abd
+    var t3r = t1r * cr - t1i * ci - 18 * (abr * dr - abi * di);
+    var t3i = (t1r * ci + t1i * cr) - 18 * (abr * di + abi * dr);
+    
+    // aa = 27  a*a
+    var aar = 27 * (ar * ar - ai * ai);
+    var aai = 54 * (ai * ar);
+    
+    // aad =  aa *d = 27 aad
+    var aadr = aar * dr - aai * di;
+    var aadi = aar * di + aai * dr;
+    
+    // t1 = b^2
+    var bbr = br * br - bi * bi;
+    var bbi = 2 * br * bi;
+    
+    // w = b^3
+    var wr = bbr * br - bbi * bi;
+    var wi = bbr * bi + bbi * br;
+    
+    // t2 = aad + 4w = 27aad + 4bbb
+    var t2r = aadr + 4 * wr;
+    var t2i = aadi + 4 * wi;
+    
+    // t1 = 27 *(t3 * c + t2 *d)
+    t1r = t3r * cr - t3i * ci + t2r * dr - t2i * di;
+    t1i = t3r * ci + t3i * cr + t2r * di + t2i * dr;
+    
+    // DIS OK!!
+    
+    // w = -2 b^3
+    wr *= -2;
+    wi *= -2;
+    
+    // w = w + 9 a b c
+    wr += 9 * (abr * cr - abi * ci);
+    wi += 9 * (abr * ci + abi * cr);
+    
+    // w = w + -27 a*a d
+    wr -= aadr;
+    wi -= aadi;
+    
+    // t1 = (27 dis).Sqrt()
+    t1r *= 27;
+    t1i *= 27;
+    t2r = Math.sqrt(Math.sqrt(t1r * t1r + t1i * t1i));
+    t2i = Math.atan2(t1i, t1r);
+    t1i = t2r * Math.sin(t2i / 2);
+    t1r = t2r * Math.cos(t2i / 2);
+    
+    // w = w + a * dis // sqrt war schon oben
+    wr += t1r * ar - t1i * ai;
+    wi += t1r * ai + t1i * ar;
+    
+    // w ausgerechnet. Jetz w1 und w2
+    //     w1.assign(wr,wi);
+    //     w2.assign(wr,wi);
+    //     w1.sqrt1_3();
+    //     w2.sqrt2_3();
+    var radius = Math.exp(Math.log(Math.sqrt(wr * wr + wi * wi)) / 3.0);
+    var phi = Math.atan2(wi, wr);
+    var w1i = radius * Math.sin(phi / 3);
+    var w1r = radius * Math.cos(phi / 3);
+    
+    radius *= radius;
+    phi *= 2;
+    
+    var w2i = radius * Math.sin(phi / 3);
+    var w2r = radius * Math.cos(phi / 3);
+    
+    // x = 2 b^2
+    // x = x - 6 ac
+    var xr = 2 * bbr - 6 * acr;
+    var xi = 2 * bbi - 6 * aci;
+    
+    //y.assign(-c2).mul(b).mul(w1);
+    var yr = -c2 * (br * w1r - bi * w1i);
+    var yi = -c2 * (br * w1i + bi * w1r);
+    
+    //    z.assign(c1).mul(w2);
+    var zr = c1 * w2r;
+    var zi = c1 * w2i;
+    
+    //w1.mul(a).mul(3).mul(c2);
+    t1r = c2 * 3 * (w1r * ar - w1i * ai);
+    t1i = c2 * 3 * (w1r * ai + w1i * ar);
+    
+    var s = t1r * t1r + t1i * t1i;
+    
+    t2r = (xr * t1r + xi * t1i) / s;
+    t2i = (-xr * t1i + xi * t1r) / s;
+    xr = t2r;
+    xi = t2i;
+    
+    t2r = (yr * t1r + yi * t1i) / s;
+    t2i = (-yr * t1i + yi * t1r) / s;
+    yr = t2r;
+    yi = t2i;
+    
+    t2r = (zr * t1r + zi * t1i) / s;
+    t2i = (-zr * t1i + zi * t1r) / s;
+    zr = t2r;
+    zi = t2i;
+
+
+	return [CSNumber.complex(xr, xi), CSNumber.complex(yr, yi),CSNumber.complex(zr, zi)];
+};

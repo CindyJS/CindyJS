@@ -353,7 +353,6 @@ geoOps.CircleMFixedr =function(el){
 geoOpMap.CircleMFixedr="C";
 
 
-
 geoOps._helper.ConicBy5 =function(el,a,b,c,d,p){
 
     var v23=List.turnIntoCSList([List.cross(b, c)]);
@@ -743,6 +742,125 @@ geoOps.IntersectCirCir =function(el){
 geoOpMap.IntersectCirCir="T";
 
 
+geoOps._helper.IntersectConicConic = function(AA, BB){
+    var p1, p2, p3, p4;
+    var eps = 10e-16;
+
+    var alpha = List.det(AA);
+    
+    // indexing
+    var one = CSNumber.real(1);
+    var two = CSNumber.real(2);
+    var three = CSNumber.real(3);
+
+    var b1 = List.det3(List.column(AA,one), List.column(AA,two), List.column(BB,three));
+    b1 = CSNumber.add(b1, List.det3(List.column(AA,one), List.column(BB,two), List.column(AA,three)));
+    b1 = CSNumber.add(b1, List.det3(List.column(BB,one), List.column(AA,two), List.column(AA,three)));
+    var beta = CSNumber.clone(b1);
+    
+    // gamma
+    var g1 = List.det3(List.column(AA,one), List.column(BB,two), List.column(BB,three));
+    g1 = CSNumber.add(g1, List.det3(List.column(BB,one), List.column(AA,two), List.column(BB,three)));
+    g1 = CSNumber.add(g1, List.det3(List.column(BB,one), List.column(BB,two), List.column(AA,three)));
+    var gamma = CSNumber.clone(g1);
+    
+    var delta = List.det(BB);
+
+    // degenrate Case
+    var eps = 10e-8;
+    var AAdegen = (Math.abs(alpha.value.real) < eps) ? true : false;
+    var BBdegen = (Math.abs(delta.value.real) < eps) ? true : false;
+
+    if(AAdegen && BBdegen){
+        var Alines = geoOps._helper.splitDegenConic(AA);
+        var Blines = geoOps._helper.splitDegenConic(BB);
+        p1 = List.cross(Alines[0],Blines[0]);
+        p2 = List.cross(Alines[1],Blines[0]);
+        p3 = List.cross(Alines[0],Blines[1]);
+        p4 = List.cross(Alines[1],Blines[1]);
+    }
+    else if(AAdegen){
+        var Alines = geoOps._helper.splitDegenConic(AA);
+        var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
+        var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
+        p1 = pts1[0];
+        p2 = pts1[1];
+        p3 = pts2[0];
+        p4 = pts2[1];
+
+    }
+    else if(BBdegen){
+        var Blines = geoOps._helper.splitDegenConic(BB);
+        var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
+        var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
+        p1 = pts1[0];
+        p2 = pts1[1];
+        p3 = pts2[0];
+        p4 = pts2[1];
+
+    }
+    else{
+        var e1 = CSNumber.complex(-0.5, 0.5*Math.sqrt(3));
+        var e2 = CSNumber.complex(-0.5, -0.5*Math.sqrt(3));
+    
+        var solges = CSNumber.solveCubic(alpha, beta, gamma, delta);
+        var sol1 = solges[0];
+        var sol2 = solges[1];
+        var sol3 = solges[2];
+        
+        var cvsol = List.turnIntoCSList([sol1, sol2, sol3]);
+        var ssol = CSNumber.add(CSNumber.add(sol1,sol2), sol3);
+    
+        // produce degenrate Conic
+        var CDeg = List.add(List.scalmult(ssol, AA), BB);
+    
+        var lines1 = geoOps._helper.splitDegenConic(CDeg);
+        var l11 = lines1[0];
+        var l12 = lines1[1];
+    
+        var cub2 = List.turnIntoCSList([e1, CSNumber.real(1), e2]);
+    
+        var solcub2 = List.scalproduct(cvsol, cub2);
+    
+        var CDeg2 = List.add(List.scalmult(solcub2, AA), BB);
+        
+        var lines2 = geoOps._helper.splitDegenConic(CDeg2);
+        var l21 = lines2[0];
+        var l22 = lines2[1];
+    
+        p1 = List.cross(l11, l21);
+        p2 = List.cross(l12, l21);
+        p3 = List.cross(l11, l22);
+        p4 = List.cross(l12, l22);
+
+    } // end else
+
+    p1 = List.normalizeZ(p1);
+    p2 = List.normalizeZ(p2);
+    p3 = List.normalizeZ(p3);
+    p4 = List.normalizeZ(p4);
+
+    p1.usage="Point";
+    p2.usage="Point";
+    p3.usage="Point";
+    p4.usage="Point";
+
+    return [p1, p2, p3, p4];
+
+};
+
+geoOps.IntersectConicConic = function(el){
+    var AA=csgeo.csnames[(el.args[0])].matrix;
+    var BB=csgeo.csnames[(el.args[1])].matrix;
+     
+    var erg = geoOps._helper.IntersectConicConic(AA,BB);
+    el.inited=true;
+    el.results=List.turnIntoCSList(erg);
+
+};
+geoOpMap.IntersectConicConic="T";
+
+
 geoOps.SelectP =function(el){
     var set=csgeo.csnames[(el.args[0])];
     if(!el.inited){
@@ -752,6 +870,15 @@ geoOps.SelectP =function(el){
 };
 geoOpMap.SelectP="P";
 
+geoOps.SelectL =function(el){
+    var set=csgeo.csnames[(el.args[0])];
+    if(!el.inited){
+        el.inited=true;
+    }
+    el.homog=set.results.value[el.index-1];
+    el.homog.usage="Line";  
+};
+geoOpMap.SelectL="L";
 
 
 // Define a projective transformation given four points and their images
