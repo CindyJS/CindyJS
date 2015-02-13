@@ -451,7 +451,7 @@ evaluator._helper.assignlist=function(vars,vals){
     for(var i=0;i<n;i++){
        var name=vars[i];
        var val=vals[i];
-       evaluator.assign([name,val],[]);
+       evaluator.assign$2([name,val],[]);
     
     }
     
@@ -1075,7 +1075,7 @@ evaluator.arctan2$1=function(args,modifs){
     if(v0.ctype==='list' &&v0.value.length===2){
         var tmp=v0.value;
         if(tmp[0].ctype==='number' && tmp[1].ctype==='number') {
-            return evaluator.arctan2(tmp,modifs);
+            return evaluator.arctan2$2(tmp,modifs);
         }
     }
     return nada;
@@ -1581,7 +1581,7 @@ evaluator.take$2=function(args,modifs){
         var li=[];
         for(var i=0;i<v1.value.length;i++){
             var v1i=evaluateAndVal(v1.value[i]);
-            li[i]=evaluator.take([v0,v1i],[]);
+            li[i]=evaluator.take$2([v0,v1i],[]);
         }
         return List.turnIntoCSList(li);
     }
@@ -2164,7 +2164,7 @@ evaluator.replace$2=function(args,modifs){
             }
         }
         return s;
-    };
+    }
         
     //////////////// 
         
@@ -2251,7 +2251,7 @@ evaluator.tokenize$2=function(args,modifs){ //TODO der ist gerade sehr uneffikti
         var token=v1.value[0];
         
         var tli=List.turnIntoCSList(tokens);
-        var firstiter=evaluator.tokenize([args[0],token],modifs).value;
+        var firstiter=evaluator.tokenize$2([args[0],token],modifs).value;
         
         li=[];
         for(i=0;i<firstiter.length;i++){
@@ -2261,7 +2261,7 @@ evaluator.tokenize$2=function(args,modifs){ //TODO der ist gerade sehr uneffikti
             }
             
             tli=List.turnIntoCSList(tokens);
-            li[i]=evaluator.tokenize([firstiter[i],tli],modifs);
+            li[i]=evaluator.tokenize$2([firstiter[i],tli],modifs);
         }
         return List.turnIntoCSList(li);
     }
@@ -2756,8 +2756,8 @@ evaluator.generateWebGL$2=function(args,modifs){
     var a, b;
     if(expr.args.length===2){
         if(expr.ctype==="infix"||expr.ctype==="function" ) {
-            a= evaluator.compileToWebGL([expr.args[0]],{});
-            b= evaluator.compileToWebGL([expr.args[1]],{});
+            a= evaluator.compileToWebGL$1([expr.args[0]],{});
+            b= evaluator.compileToWebGL$1([expr.args[1]],{});
             if(expr.oper==="+"||expr.oper==="add") {
                 if(a.value===undefined || a.ctype==="void"){
                     return {"ctype":"string" ,  "value":b.value};
@@ -2787,7 +2787,7 @@ evaluator.generateWebGL$2=function(args,modifs){
         }
     }
     if((expr.ctype==="function" )&&(expr.args.length===1)) {
-        a= evaluator.compileToWebGL([expr.args[0]],{});
+        a= evaluator.compileToWebGL$1([expr.args[0]],{});
         
         if(expr.oper==="sin") {
             return {"ctype":"string" ,  "value":"sinc("+a.value+")"};
@@ -2854,8 +2854,8 @@ evaluator.compileToWebGL$1=function(args,modifs){
     }
     if(expr.args.length===2){
         if(expr.ctype==="infix"||expr.ctype==="function" ) {
-            a= evaluator.compileToWebGL([expr.args[0]],{});
-            b= evaluator.compileToWebGL([expr.args[1]],{});
+            a= evaluator.compileToWebGL$1([expr.args[0]],{});
+            b= evaluator.compileToWebGL$1([expr.args[1]],{});
             if(expr.oper==="+"||expr.oper==="add") {
                 if(a.value===undefined || a.ctype==="void"){
                     return {"ctype":"string" ,  "value":b.value};  
@@ -2885,7 +2885,7 @@ evaluator.compileToWebGL$1=function(args,modifs){
         }
     }
     if((expr.ctype==="function" )&&(expr.args.length===1)) {
-        a= evaluator.compileToWebGL([expr.args[0]],{});
+        a= evaluator.compileToWebGL$1([expr.args[0]],{});
         
         if(expr.oper==="sin") {
             return {"ctype":"string" ,  "value":"sinc("+a.value+")"};

@@ -69,12 +69,12 @@ infixmap['~<=']='comp_ule';
 infixmap['&']='and$2';
 infixmap['%']='or$2';
 infixmap['!']='not';
-infixmap['_']='take';
-infixmap['++']='concat';
-infixmap['~~']='common';
-infixmap['--']='remove';
-infixmap[':>']='append';
-infixmap['<:']='prepend';
+infixmap['_']='take$2';
+infixmap['++']='concat$2';
+infixmap['~~']='common$2';
+infixmap['--']='remove$2';
+infixmap[':>']='append$2';
+infixmap['<:']='prepend$2';
 
 /*jshint +W069 */
 

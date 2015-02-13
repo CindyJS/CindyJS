@@ -275,7 +275,7 @@ function render(){
             col=    el.color;//TODO Anpassen
            // col=List.realVector([0,0,1]);
         }    
-        evaluator.draw([el.homog],{size:el.size,color:col,alpha:el.alpha});
+        evaluator.draw$1([el.homog],{size:el.size,color:col,alpha:el.alpha});
         if(el.labeled) {
             var lbl = el.printname || el.name || "P";
             var lpos = el.labelpos || {'x':3, 'y':3};
@@ -288,13 +288,14 @@ function render(){
             if (dist > 0) {
                 factor = 1.0 + el.size.value.real / Math.sqrt(dist);
             }
-            evaluator.drawtext([el.homog, General.wrap(lbl)],
-                               {'x_offset':General.wrap(factor*lpos.x),
-                                'y_offset':General.wrap(factor*lpos.y),
-                                'size':General.wrap(textsize),
-                                'bold':General.wrap(bold),
-                                'italics':General.wrap(italics),
-                                'family':General.wrap(family)});
+            evaluator.drawtext$2(
+                [el.homog, General.wrap(lbl)],
+                {'x_offset':General.wrap(factor*lpos.x),
+                 'y_offset':General.wrap(factor*lpos.y),
+                 'size':General.wrap(textsize),
+                 'bold':General.wrap(bold),
+                 'italics':General.wrap(italics),
+                 'family':General.wrap(family)});
         }
     }
 
@@ -320,13 +321,14 @@ function render(){
             return;
 
         if(el.clip.value==="none"){
-            evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
+            evaluator.draw$1([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
         }
         else if(el.clip.value==="end"){
             pt1=csgeo.csnames[el.args[0]];
             pt2=csgeo.csnames[el.args[1]];
-            evaluator.draw([pt1.homog,pt2.homog],
-                           {size:el.size,color:el.color,alpha:el.alpha});
+            evaluator.draw$2(
+                [pt1.homog,pt2.homog],
+                {size:el.size,color:el.color,alpha:el.alpha});
         }
         else if(el.clip.value==="inci"){
             var li=[];
@@ -368,12 +370,16 @@ function render(){
            
             }
             if(pt1!==pt2){
-                evaluator.draw([pt1,pt2],
-                {size:el.size,color:el.color,alpha:el.alpha,overhang:el.overhang});
+                evaluator.draw$2(
+                    [pt1,pt2],
+                    {size:el.size,
+                     color:el.color,
+                     alpha:el.alpha,
+                     overhang:el.overhang});
             } else {
-                evaluator.draw([el.homog],{size:el.size,color:el.color,alpha:el.alpha});
-
-            
+                evaluator.draw$1(
+                    [el.homog],
+                    {size:el.size,color:el.color,alpha:el.alpha});
             }
         }
         else {

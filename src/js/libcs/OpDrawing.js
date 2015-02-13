@@ -55,7 +55,7 @@ evaluator._helper.extractPoint=function(v1){
     
 };
 
-evaluator.draw=function(args,modifs){
+evaluator.draw$1=function(args,modifs){
     var erg;
     var psize=csport.drawingstate.pointsize;
     var lsize=csport.drawingstate.linesize;
@@ -577,19 +577,17 @@ y:erg2[1]/erg2[2]
         
     }
     return drawpoint();
-    
-    
-    
-    
-    
+
 };
 
-evaluator.drawcircle=function(args,modifs){
+evaluator.draw$2=evaluator.draw$1; // TODO: perhaps separate these
+
+evaluator.drawcircle$2=function(args,modifs){
     evaluator._helper.drawcircle(args,modifs,"D");
 };
 
 
-evaluator.fillcircle=function(args,modifs){
+evaluator.fillcircle$2=function(args,modifs){
     evaluator._helper.drawcircle(args,modifs,"F");
 };
 
@@ -648,78 +646,68 @@ evaluator._helper.drawcircle=function(args,modifs,df){
         col="rgba("+r+","+g+","+b+","+alpha+")";//TODO Performanter machen
     }
     
-    
-    
-    function drawcirc(){
+    var v0=evaluateAndVal(args[0]);
+    var v1=evaluateAndVal(args[1]);
+
+    function magic_circle(ctx, x, y, r){
+        m = 0.551784;
         
-        function magic_circle(ctx, x, y, r){
-            m = 0.551784;
-            
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(r, r);
-            
-            ctx.beginPath();
-            ctx.moveTo(1, 0);
-            ctx.bezierCurveTo(1,  -m,  m, -1,  0, -1);
-            ctx.bezierCurveTo(-m, -1, -1, -m, -1,  0);
-            ctx.bezierCurveTo(-1,  m, -m,  1,  0,  1);
-            ctx.bezierCurveTo( m,  1,  1,  m,  1,  0);
-            ctx.closePath();
-            ctx.restore();
-        }
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(r, r);
         
-                    
-        var pt=evaluator._helper.extractPoint(v0);
-        
-        
-        if(!pt.ok || v1.ctype!=='number'){
-            return nada;
-        }
-        var m=csport.drawingstate.matrix;
-        
-        var xx=pt.x*m.a-pt.y*m.b+m.tx;
-        var yy=pt.x*m.c-pt.y*m.d-m.ty;
-        
-        col=csport.drawingstate.linecolor;
-        handleModifs();
-        csctx.lineWidth = size*0.3;
-        
-        
-        
-        csctx.beginPath();
-        csctx.lineWidth = size*0.4;
-        
-        csctx.arc(xx,yy,v1.value.real*m.sdet,0,2*Math.PI);
-      //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
-        
-        
-        if(df==="D"){
-            csctx.strokeStyle=col;
-            csctx.stroke();
-        }
-        if(df==="F"){
-            csctx.fillStyle=col;
-            csctx.fill();
-        }
-        if(df==="C"){
-            csctx.clip();
-        }
+        ctx.beginPath();
+        ctx.moveTo(1, 0);
+        ctx.bezierCurveTo(1,  -m,  m, -1,  0, -1);
+        ctx.bezierCurveTo(-m, -1, -1, -m, -1,  0);
+        ctx.bezierCurveTo(-1,  m, -m,  1,  0,  1);
+        ctx.bezierCurveTo( m,  1,  1,  m,  1,  0);
+        ctx.closePath();
+        ctx.restore();
     }
     
     
-    if(args.length===2) {
-        var v0=evaluateAndVal(args[0]);
-        var v1=evaluateAndVal(args[1]);
-        
-        return drawcirc();
+    var pt=evaluator._helper.extractPoint(v0);
+    
+    
+    if(!pt.ok || v1.ctype!=='number'){
+        return nada;
+    }
+    var m=csport.drawingstate.matrix;
+    
+    var xx=pt.x*m.a-pt.y*m.b+m.tx;
+    var yy=pt.x*m.c-pt.y*m.d-m.ty;
+    
+    col=csport.drawingstate.linecolor;
+    handleModifs();
+    csctx.lineWidth = size*0.3;
+    
+    
+    
+    csctx.beginPath();
+    csctx.lineWidth = size*0.4;
+    
+    csctx.arc(xx,yy,v1.value.real*m.sdet,0,2*Math.PI);
+    //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
+    
+    
+    if(df==="D"){
+        csctx.strokeStyle=col;
+        csctx.stroke();
+    }
+    if(df==="F"){
+        csctx.fillStyle=col;
+        csctx.fill();
+    }
+    if(df==="C"){
+        csctx.clip();
     }
     
     return nada;
 };
 
 
-evaluator.drawconic = function(args, modifs){
+evaluator.drawconic = function(args, modifs){ // TODO: figure out arity
     var col; 
     var size;
 
@@ -856,9 +844,9 @@ evaluator.drawconic = function(args, modifs){
     var lh = erg[1];
 
     var arg = [lg];
-    evaluator.draw(arg, modifs);
+    evaluator.draw$1(arg, modifs);
     arg[0] = lh;
-    evaluator.draw(arg, modifs);
+    evaluator.draw$1(arg, modifs);
     
     };
 
@@ -1135,40 +1123,37 @@ evaluator.drawconic = function(args, modifs){
     
 }; // end evaluator.drawconic
 
-evaluator.drawall =function(args,modifs){
-    if(args.length===1) {
-        var v1=evaluate(args[0]);
-        
-        if(v1.ctype==="list"){//TODO: Kann man optimaler implementieren (modifs nur einmal setzen)
-            for (var i=0;i<v1.value.length;i++){
-               evaluator.draw([v1.value[i]],modifs);
-            } 
-            
-        }
+evaluator.drawall$1 =function(args,modifs){
+    var v1=evaluate(args[0]);
+    if(v1.ctype==="list"){//TODO: Kann man optimaler implementieren (modifs nur einmal setzen)
+        for (var i=0;i<v1.value.length;i++){
+            evaluator.draw$1([v1.value[i]],modifs);
+        } 
     }
     return nada;
 };
-evaluator.connect=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"D",0);
+
+evaluator.connect$1=function(args,modifs){
+    evaluator._helper.drawpolygon(args,modifs,"D",false);
 };
 
 
-evaluator.drawpoly=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"D",1);
+evaluator.drawpoly$1=function(args,modifs){
+    evaluator._helper.drawpolygon(args,modifs,"D",true);
 };
 
 
-evaluator.fillpoly=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"F",1);
+evaluator.fillpoly$1=function(args,modifs){
+    evaluator._helper.drawpolygon(args,modifs,"F",true);
 };
 
-evaluator.drawpolygon=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"D",1);
+evaluator.drawpolygon$1=function(args,modifs){
+    evaluator._helper.drawpolygon(args,modifs,"D",true);
 };
 
 
-evaluator.fillpolygon=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"F",1);
+evaluator.fillpolygon$1=function(args,modifs){
+    evaluator._helper.drawpolygon(args,modifs,"F",true);
 };
 
 
@@ -1310,7 +1295,7 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         for(i=1;i<li.length;i++){
             csctx.lineTo(li[i][0],li[i][1]);
         }
-        if(cycle===1)
+        if(cycle)
             csctx.closePath();
         if(df==="D"){
             csctx.strokeStyle=col;
@@ -1325,28 +1310,19 @@ evaluator._helper.drawpolygon=function(args,modifs,df,cycle){
         }
     }
     
-    if(args.length===1) {
-        var v0=evaluate(args[0]);
-        
-        
-        if (v0.ctype==='list'){
-            return drawpoly();
-            
-        }
-        
-        if (v0.ctype==='shape'){
-            return drawpolyshape();
-            
-        }
-        
+    var v0=evaluate(args[0]);
+    if (v0.ctype==='list'){
+        drawpoly();
     }
-    
+    if (v0.ctype==='shape'){
+        drawpolyshape();
+    }
     return nada;
 };
 
 
 
-evaluator.drawtext=function(args,modifs){
+evaluator.drawtext$2=function(args,modifs){
     var size=csport.drawingstate.textsize;
     if(size<0) size=0;
 
@@ -1466,31 +1442,28 @@ evaluator.drawtext=function(args,modifs){
     
     
     
-    if(args.length===2) {
-        var v0=evaluateAndVal(args[0]);
-        var v1=evaluate(args[1]);
-        var pt=evaluator._helper.extractPoint(v0);
+    var v0=evaluateAndVal(args[0]);
+    var v1=evaluate(args[1]);
+    var pt=evaluator._helper.extractPoint(v0);
         
-        if(!pt.ok){
-            return nada;
-        }
-        
-        var m=csport.drawingstate.matrix;
-        
-        var xx=pt.x*m.a-pt.y*m.b+m.tx;
-        var yy=pt.x*m.c-pt.y*m.d-m.ty;
-        
-        var col=csport.drawingstate.textcolor;
-        handleModifs();
-        csctx.fillStyle=col;
-        
-        csctx.font=bold+italics+Math.round(size*10)/10+"px "+family;
-        var txt=niceprint(v1);
-        var width = csctx.measureText(txt).width;
-        csctx.fillText(txt,xx-width*align+ox,yy-oy);        
-        
+    if(!pt.ok){
+        return nada;
     }
-    
+        
+    var m=csport.drawingstate.matrix;
+        
+    var xx=pt.x*m.a-pt.y*m.b+m.tx;
+    var yy=pt.x*m.c-pt.y*m.d-m.ty;
+        
+    var col=csport.drawingstate.textcolor;
+    handleModifs();
+    csctx.fillStyle=col;
+        
+    csctx.font=bold+italics+Math.round(size*10)/10+"px "+family;
+    var txt=niceprint(v1);
+    var width = csctx.measureText(txt).width;
+    csctx.fillText(txt,xx-width*align+ox,yy-oy);        
+        
     return nada;
     
 };
@@ -1531,40 +1504,27 @@ evaluator._helper.clipshape=function(shape,modifs){
 
 
 
-evaluator.fill =function(args,modifs){
-    if(args.length===1) {
-        var v1=evaluate(args[0]);
-        
-        if(v1.ctype==="shape"){
-            return evaluator._helper.fillshape(v1,modifs);
-            
-        }
+evaluator.fill$1=function(args,modifs){
+    var v1=evaluate(args[0]);
+    if(v1.ctype==="shape"){
+        return evaluator._helper.fillshape(v1,modifs);
     }
     return nada;
 };
 
 
 
-evaluator.clip =function(args,modifs){
-    if(args.length===1) {
-        var v1=evaluate(args[0]);
-        
-        if(v1.ctype==="shape"){
-            return evaluator._helper.clipshape(v1,modifs);
-            
-        }
-        if(v1.ctype==="list"){
-            var erg=evaluator.polygon(args,[]);
-            
-            return evaluator.clip([erg],[]);
-            
-        }
+evaluator.clip$1=function(args,modifs){
+    var v1=evaluate(args[0]);
+    if(v1.ctype==="shape"){
+        return evaluator._helper.clipshape(v1,modifs);
+    }
+    if(v1.ctype==="list"){
+        var erg=evaluator.polygon$1(args,[]);
+        return evaluator.clip$1([erg],[]);
     }
     return nada;
 };
-
-
-
 
 
 evaluator._helper.setDash=function(pattern,size){
@@ -1620,7 +1580,11 @@ evaluator._helper.setDashType=function(type,s){
 
 // TODO: Dynamic Color and Alpha
 
-evaluator.plot=function(args,modifs){ //OK
+evaluator.plot$1=function(args,modifs){
+    evaluator.plot$2([args[0], null], modifs);
+};
+
+evaluator.plot$2=function(args,modifs){
     var dashing=false;
     var connectb=false;
     var minstep=0.001;
@@ -1754,7 +1718,7 @@ evaluator.plot=function(args,modifs){ //OK
     
     var v1=args[0];
     var runv;
-    if(args.length===2 && args[1].ctype==='variable'){
+    if(args[1]!==null && args[1].ctype==='variable'){
         runv=args[1].name;
         
     } else {
@@ -1779,10 +1743,6 @@ evaluator.plot=function(args,modifs){ //OK
     csctx.lineWidth = lsize;
     csctx.lineCap = 'round';
     csctx.lineJoin = 'round';
-    
-    
-    
-    
     
     function canbedrawn(v){
         return v.ctype==='number' && CSNumber._helper.isAlmostReal(v);
@@ -1969,7 +1929,7 @@ evaluator.plot=function(args,modifs){ //OK
 
 
 
-evaluator.plotX=function(args,modifs){ //OK
+evaluator.plotX$1=function(args,modifs){ //OK
     
     
     var v1=args[0];
@@ -2101,37 +2061,27 @@ evaluator._helper.plotvars=function(a){
 };
 
 
-evaluator.clrscr=function(args,modifs){
-    if(args.length===0) {
-        if(typeof csw !== 'undefined' && typeof csh !== 'undefined') {
-            csctx.clearRect ( 0   , 0 , csw , csh );
-        }
+evaluator.clrscr$0=function(args,modifs){
+    if(typeof csw !== 'undefined' && typeof csh !== 'undefined') {
+        csctx.clearRect ( 0   , 0 , csw , csh );
     }
     return nada;
 };
 
-evaluator.repaint=function(args,modifs){
-    if(args.length===0) {
-        updateCindy();
-        
-    }
+evaluator.repaint$0=function(args,modifs){
+    updateCindy();
     return nada;
 };
 
 
-evaluator.screenbounds=function(args,modifs){
-    if(args.length===0) {
-        var pt1=List.realVector(csport.to(0,0));
-        pt1.usage="Point";
-        var pt2=List.realVector(csport.to(csw,0));
-        pt2.usage="Point";
-        var pt3=List.realVector(csport.to(csw , csh ));
-        pt3.usage="Point";
-        var pt4=List.realVector(csport.to(0 , csh ));
-        pt4.usage="Point";
-        return(List.turnIntoCSList([pt1,pt2,pt3,pt4]));
-    
-    }
-    return nada;
-
+evaluator.screenbounds$0=function(args,modifs){
+    var pt1=List.realVector(csport.to(0,0));
+    pt1.usage="Point";
+    var pt2=List.realVector(csport.to(csw,0));
+    pt2.usage="Point";
+    var pt3=List.realVector(csport.to(csw , csh ));
+    pt3.usage="Point";
+    var pt4=List.realVector(csport.to(0 , csh ));
+    pt4.usage="Point";
+    return(List.turnIntoCSList([pt1,pt2,pt3,pt4]));
 };

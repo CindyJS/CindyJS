@@ -11,7 +11,7 @@ evaluator._helper.extractReferenceX=function(w,pos){
     
 };
 
-evaluator.drawimage = function(args,modifs){
+evaluator.drawimage$2 = function(args,modifs){
     
     function drawimg1(){
         
@@ -301,4 +301,6 @@ evaluator.drawimage = function(args,modifs){
     return nada;
 };
 
-
+// TODO: separate arities
+evaluator.drawimage$3 = evaluator.drawimage$2;
+evaluator.drawimage$4 = evaluator.drawimage$2;
