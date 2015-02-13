@@ -80,8 +80,6 @@ Observe that the operator generates an implicit typing of the return values, so 
     > drawall([a,b,c,d,ha,hb,hc,X,A,B,C]);
 
 ![Resulting construction](img/MeetJoinX.png)
-| --------------------------- |
-| ****                        |
 
 ------
 

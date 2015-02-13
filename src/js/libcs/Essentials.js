@@ -44,16 +44,16 @@ operators[';']=500;  //Befehlsseparator
 
 
 var infixmap={};
-infixmap['+']='add';
-infixmap['-']='minus';
-infixmap['*']='mult';
-infixmap['/']='div';
-infixmap['^']='pow';
+infixmap['+']='add$2';
+infixmap['-']='minus$2';
+infixmap['*']='mult$2';
+infixmap['/']='div$2';
+infixmap['^']='pow$2';
 infixmap['°']='numb_degree';
-infixmap[';']='semicolon';
-infixmap['=']='assign';
-infixmap['..']='sequence';
-infixmap[':=']='define';
+infixmap[';']='semicolon$2';
+infixmap['=']='assign$2';
+infixmap['..']='sequence$2';
+infixmap[':=']='define$2';
 infixmap['==']='comp_equals';
 infixmap['!=']='comp_notequals';
 infixmap['~=']='comp_almostequals';
@@ -66,15 +66,15 @@ infixmap['~>']='comp_ugt';
 infixmap['~<']='comp_ult';
 infixmap['~>=']='comp_uge';
 infixmap['~<=']='comp_ule';
-infixmap['&']='and';
-infixmap['%']='or';
+infixmap['&']='and$2';
+infixmap['%']='or$2';
 infixmap['!']='not';
-infixmap['_']='take';
-infixmap['++']='concat';
-infixmap['~~']='common';
-infixmap['--']='remove';
-infixmap[':>']='append';
-infixmap['<:']='prepend';
+infixmap['_']='take$2';
+infixmap['++']='concat$2';
+infixmap['~~']='common$2';
+infixmap['--']='remove$2';
+infixmap[':>']='append$2';
+infixmap['<:']='prepend$2';
 
 /*jshint +W069 */
 
@@ -179,12 +179,23 @@ var evaluator={};
 evaluator._helper={};
 
 evaluator._helper.evaluate= function(name,args,modifs){
-    var tt=evaluator[name];
-    if(tt===undefined){
-        return myfunctions(name+args.length,args,modifs); //Ich habe  überdefinieren von fkts rausgenommen
-        //Das muss man sich auch insbesomndere mit Arity nochmal anschauen
+    if (myfunctions.hasOwnProperty(name))
+        return myfunctions(name, args, modifs);
+    var f = evaluator[name];
+    if(f)
+        return f(args, modifs);
+    // This following is legacy code, and should be removed
+    // once all functions are converted to their arity-aware form.
+    // Unless we introduce something like variadic functions.
+    var n = name.lastIndexOf("$");
+    if (n !== -1) {
+        n = name.substr(0, n);
+        f = evaluator[n];
+        if (f)
+            return f(args, modifs);
     }
-    return tt(args,modifs);
+    console.log("Called undefined function " + name + "(" + n + ")");
+    return nada;
 };
 
 

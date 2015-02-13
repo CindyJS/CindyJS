@@ -153,12 +153,28 @@ This operator finds the maximum value in a list of entries.
 This operator is similar to the max operator `max(‹list›)`, but it takes the maximum of results of `‹expr›` while a loop traverses all elements of `‹list›`.
 The running variable is, as usual, `#`.
 
+    > max([5, -3, 1, -7], |#|)
+    < 7
+
+The two-argument form can however also be used to obtain the maximum of two numbers:
+
+    > max(5, 3)
+    < 5
+    > max(-7, 2)
+    < 2
+
 ------
 
 #### The maximum operator: `max(‹list›,‹var›,‹expr›)`
 
 **Description:**
 This operator is similar to the last one, except that the running variable is locally named `‹var›`.
+
+    > v = 323;
+    > max([5, -3, 1, -7], v, |v|)
+    < 7
+    > v
+    < 323
 
 ------
 
@@ -177,12 +193,28 @@ This operator finds the minimum of a list of entries.
 This operator is similar to the min operator `min(‹list›)`, but it takes the minimum of results of `‹expr›` while a loop traverses all elements of `‹list›`.
 The running variable is, as usual, `#`.
 
+    > min([5, -3, 1, 7], |#|)
+    < 1
+
+The two-argument form can however also be used to obtain the minimum of two numbers:
+
+    > min(5, 3)
+    < 3
+    > min(-7, 2)
+    < -7
+
 ------
 
 #### The minimum operator: `min(‹list›,‹var›,‹expr›)`
 
 **Description:**
 This operator is similar to the last one, except that the running variable is locally named `‹var›`.
+
+    > v = 321;
+    > min([5, -3, 1, 7], v, |v|)
+    < 1
+    > v
+    < 321
 
 ------
 
