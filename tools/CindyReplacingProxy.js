@@ -13,7 +13,7 @@ var urlParse = require("url").parse;
 var http = require("http");
 var httpProxy = require("http-proxy");
 
-var port = 8080;
+var port = +process.argv[2] || 8080;
 var proxy = httpProxy.createProxyServer({});
 var intercept = [
     {pattern: /Cindy\.js$/, path: "build/js/Cindy.js"},
