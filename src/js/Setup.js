@@ -6,6 +6,7 @@ var cslib;
 var cscompiled={};
 
 var csanimating=false;
+var csstopped=true;
 var csticking=false;
 var csscale=1;
 var csgridsize=0;
@@ -232,20 +233,28 @@ function restoreGeo(){
 
 
 function csplay(){
-  csanimating=true;
-  backupGeo();
-  startit();
+  if (!csanimating) { // stop or pause state
+    if (csstopped) { // stop state
+      backupGeo();
+      csstopped=false;
+    }
+    csanimating=true;
+    startit();
+  }
 }
 
 function cspause(){
-
-  csanimating=false;
+  if (csanimating) {
+    csanimating=false;
+  }
 }
 
 function csstop(){
-
-  csanimating=false;
-  restoreGeo();
+  if (!csstopped) {
+    csanimating=false; // might already be false
+    csstopped=true;
+    restoreGeo();
+  }
 }
 
 var initialscript=

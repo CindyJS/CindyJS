@@ -2468,6 +2468,25 @@ evaluator.textsize=function(args,modifs){
 };
 
 
+//////////////////////////////////////////
+//          Animation control           //
+//////////////////////////////////////////
+
+evaluator.playanimation=function(args,modifs){
+  csplay();
+  return nada;
+};
+
+evaluator.pauseanimation=function(args,modifs){
+  cspause();
+  return nada;
+};
+
+evaluator.stopanimation=function(args,modifs){
+  csstop();
+  return nada;
+};
+
 
 ///////////////////////////////
 //          String           //
