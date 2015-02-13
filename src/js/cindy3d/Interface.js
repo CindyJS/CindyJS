@@ -141,7 +141,7 @@ coerce.toString = function(arg, def=null) {
 };
 
 /**
- * @param {cjsType.anyval} arg
+ * @param {createCindy.anyval} arg
  * @param {?boolean} def
  * @return {?boolean}
  */

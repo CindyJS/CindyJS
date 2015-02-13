@@ -3142,7 +3142,7 @@ evaluator.use=function(args,modifs){
                 "evaluateAndVal": evaluateAndVal,
                 "defineFunction": defineFunction,
                 "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),
-                "autoCleanEventListener": autoCleanEventListener,
+                "addAutoCleaningEventListener": addAutoCleaningEventListener,
                 "getVariable": namespace.getvar.bind(namespace),
                 "getInitialMatrix": function(){return csport.drawingstate.initialmatrix},
             });

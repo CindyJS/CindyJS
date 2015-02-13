@@ -73,7 +73,8 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     });
     currentInstance = instances[name];
     if (!currentInstance) {
-      instances[name] = currentInstance = new Viewer(name, opts);
+      instances[name] = currentInstance = new Viewer(
+        name, opts, api.addAutoCleaningEventListener);
     }
     return nada;
   });

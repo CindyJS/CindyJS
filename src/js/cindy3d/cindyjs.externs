@@ -29,7 +29,10 @@ createCindy.op;
  *    evaluateAndVal: function(createCindy.anyval):createCindy.anyval,
  *    defineFunction: function(string,number,createCindy.op),
  *    addShutdownHook: function(function()),
- *    autoCleanEventListener: td.EventManager
+ *    addAutoCleaningEventListener: td.EventManager,
+ *    getVariable: function(string):createCindy.anyval,
+ *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
+ *      tx:number,ty:number,det:number,sdet:number}
  *  }}
  */
 createCindy.pluginApi;
