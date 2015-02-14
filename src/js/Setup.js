@@ -22,7 +22,7 @@ function dumpcs(a){
 }
 
 function evalcs(a){
-    var prog=evaluator.parse([General.wrap(a)],[]);
+    var prog=evaluator.parse$1([General.wrap(a)],[]);
     var erg=evaluate(prog);
     dumpcs(erg);
 }

@@ -113,7 +113,7 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
     > 5^(-1)
     < 0.2
     > 2^(1/2)
-    < 1.4142135623730951
+    ~ 1.4142135623730951?
 
 ------
 
@@ -299,17 +299,36 @@ The following operators generate pseudo random numbers.
 
 #### Uniformly distributed random real number between 0 and 1: `random()`
 
+    > random()
+    ~ 0\.\d{4,}
+
 #### (0,1)-normally distributed random number: `randomnormal()`
+
+    > randomnormal()
+    ~ -?\d+\.\d{4,}
 
 #### Random boolean value `true` or `false`: `randombool()`
 
+    > randombool()
+    ~ (true|false)
+
 #### Uniformly distributed random real number between 0 and `‹number›`: `random(‹number›)`
+
+    > random(10)
+    ~ \d\.\d{4,}
+    > sum(1..1000, random(5))
+    ~ 2\d\d\d\.\d+
 
 #### Uniformly distributed random integer number between 0 and `‹number›`: `randomint(‹number›)`
 
 **Description:**
 The random generators also accept negative and complex numbers as arguments.
 For example, `random(-5)` generates a random number between `-5` and `0`; `randomint(6+i*10)` generates a random complex number for which the real part is an integer between 0 and 6 and the imaginary part is an integer between 0 and 10.
+
+    > randomint(10)
+    ~ \d
+    > sum(1..1000, randomint(6))
+    ~ 2\d\d\d
 
 #### Initialize the random generator: `seedrandom(‹number›)`
 

@@ -26,6 +26,7 @@ renderer.code = function(code, lang) {
     "J ": "js",
     "> ": "code",
     "< ": "result",
+    "~ ": "regexp",
     "* ": "output",
     "- ": "pragma",
   };

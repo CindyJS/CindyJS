@@ -1,12 +1,12 @@
 
 //*******************************************************
-// and here are the definitions of the drawing operators
+// and here are the definitions of the sound operators
 //*******************************************************
 
-evaluator.sound={};
-evaluator.sound.lines=[0,0,0,0,0,0,0,0,0,0,0,0];
+var sound={};
+sound.lines=[0,0,0,0,0,0,0,0,0,0,0,0];
 
-evaluator.playsin= function(args,modifs){
+evaluator.playsin$1 = function(args,modifs){
 
     function handleModifs(){
         var erg;
@@ -26,7 +26,7 @@ evaluator.playsin= function(args,modifs){
     var linenumber=0;
     if(v0.ctype==='number' ){
         handleModifs();
-        var lines=evaluator.sound.lines;
+        var lines=sound.lines;
         var f=v0.value.real;
         if (lines[linenumber]===0){
             // Was bitte sollte die Funktion T an dieser Stelle sein?
