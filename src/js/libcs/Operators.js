@@ -2420,7 +2420,7 @@ evaluator.pointreflect$1=function(args,modifs){
 };
 
 
-evaluator.linereflect$2=function(args,modifs){ 
+evaluator.linereflect$1=function(args,modifs){ 
     var ii=List.ii;
     var jj=List.jj;
 
