@@ -583,12 +583,12 @@ y:erg2[1]/erg2[2]
 evaluator.draw$2=evaluator.draw$1; // TODO: perhaps separate these
 
 evaluator.drawcircle$2=function(args,modifs){
-    evaluator._helper.drawcircle(args,modifs,"D");
+    return evaluator._helper.drawcircle(args,modifs,"D");
 };
 
 
 evaluator.fillcircle$2=function(args,modifs){
-    evaluator._helper.drawcircle(args,modifs,"F");
+    return evaluator._helper.drawcircle(args,modifs,"F");
 };
 
 evaluator._helper.drawcircle=function(args,modifs,df){
@@ -1134,26 +1134,26 @@ evaluator.drawall$1 =function(args,modifs){
 };
 
 evaluator.connect$1=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"D",false);
+    return evaluator._helper.drawpolygon(args,modifs,"D",false);
 };
 
 
 evaluator.drawpoly$1=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"D",true);
+    return evaluator._helper.drawpolygon(args,modifs,"D",true);
 };
 
 
 evaluator.fillpoly$1=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"F",true);
+    return evaluator._helper.drawpolygon(args,modifs,"F",true);
 };
 
 evaluator.drawpolygon$1=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"D",true);
+    return evaluator._helper.drawpolygon(args,modifs,"D",true);
 };
 
 
 evaluator.fillpolygon$1=function(args,modifs){
-    evaluator._helper.drawpolygon(args,modifs,"F",true);
+    return evaluator._helper.drawpolygon(args,modifs,"F",true);
 };
 
 
@@ -1581,7 +1581,7 @@ evaluator._helper.setDashType=function(type,s){
 // TODO: Dynamic Color and Alpha
 
 evaluator.plot$1=function(args,modifs){
-    evaluator.plot$2([args[0], null], modifs);
+    return evaluator.plot$2([args[0], null], modifs);
 };
 
 evaluator.plot$2=function(args,modifs){
