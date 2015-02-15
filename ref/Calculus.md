@@ -139,7 +139,6 @@ The resulting expression is `[-0-i*1,-0+i*1]`, since the polynomial has the two 
 
 The code below calculates and draws the roots of a cubic polynomial given by its coefficients.
 
-    - skip test: "roots" not implemented yet.
     > a=0.4;
     > b=-0.4;
     > c=-3;
@@ -147,7 +146,7 @@ The code below calculates and draws the roots of a cubic polynomial given by its
     > f(x):=a*x^3+b*x^2+c*x+d;
     > r=roots([d,c,b,a]);
     > r
-    < [-2.0562,-0.3563,3.4125]
+    ~ \[-2\.0562014431217\d+, -0.35628936475808\d+, 3.41249080787982\d+\]
 
     - skip test: can't do drawing in the test suite.
     > plot(f(x),size->2);

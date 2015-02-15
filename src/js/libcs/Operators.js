@@ -948,7 +948,7 @@ evaluator._helper.laguerre = function(cs, x, maxiter)
         return nada;
     var rand = [1.0, 0.3141, 0.5926, 0.5358, 0.9793, 0.2385, 0.6264, 0.3383, 0.2795, 0.0288];
     var a, p, q, s, g, g2, h, r, d1, d2;
-    var tol = 1e-16;
+    var tol = 1e-14;
     for (var iter = 1; iter <= maxiter; iter++)
     {
         s = CSNumber.real(0.0);
