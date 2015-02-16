@@ -62,7 +62,7 @@ function runTestFile(filename) {
       } else if (mark === "< ") {
         curcase.expectResult(rest);
       } else if (mark === "~ ") {
-        curcase.expectResult(new RegExp(rest));
+        curcase.expectPattern(new RegExp("^(?:" + rest + ")$"));
       } else if (mark === '! ') {
         curcase.expectException(rest);
       } else if (mark === '* ') {
@@ -87,6 +87,7 @@ function TestCase(cmd, filename, lineno) {
 }
 
 TestCase.prototype.expected = null;
+TestCase.prototype.pattern = null;
 TestCase.prototype.output = null;
 TestCase.prototype.exception = null;
 
@@ -94,6 +95,12 @@ TestCase.prototype.expectResult = function(str) {
   if (this.expected !== null)
     console.err("Two results for command " + this.cmd);
   this.expected = str;
+};
+
+TestCase.prototype.expectPattern = function(re) {
+  if (this.pattern !== null)
+    console.err("Two patterns for command " + this.cmd);
+  this.pattern = re;
 };
 
 TestCase.prototype.expectOutput = function(str) {
@@ -154,8 +161,24 @@ TestCase.prototype.run = function() {
       return false;
     }
   }
-  if (this.expected !== null) {
-    expected = this.expected;
+  expected = this.expected;
+  if (this.pattern !== null) {
+    if (this.expected === null) {
+      println("Location:  " + this.filename + ":" + this.lineno);
+      println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
+      println("No nicely formatted result included with pattern.");
+      println("");
+    }
+    else if (!this.pattern.test(this.expected)) {
+      println("Location:  " + this.filename + ":" + this.lineno);
+      println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
+      println("Expected pattern does not match example expected result.");
+      println("");
+      return false;
+    }
+    expected = this.pattern;
+  }
+  if (expected !== null) {
     actual = myniceprint(val);
     if (expected instanceof RegExp) {
       expstr = expected.toString();
