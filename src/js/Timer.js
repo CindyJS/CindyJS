@@ -2,14 +2,14 @@ var d3_arraySlice = [].slice,
     d3_array = function(list) { return d3_arraySlice.call(list); }; 
     
     
-    
+if (!isNode) {
 var d3_document = document,
     d3_documentElement = d3_document.documentElement,
     d3_window = window;
 
 // Redefine d3_array if the browser doesn’t support slice-based conversion.
 try {
-  d3_array(d3_documentElement.childNodes)[0].nodeType;
+  d3_array(d3_documentElement.childNodes)[0].nodeType; // jshint ignore:line
 } catch(e) {
   d3_array = function(list) {
     var i = list.length, array = new Array(i);
@@ -17,7 +17,7 @@ try {
     return array;
   };
 }
-
+}
 
 
 function d3_vendorSymbol(object, name) {
@@ -38,7 +38,7 @@ var d3_timer_queueHead,
     d3_timer_interval, // is an interval (or frame) active?
     d3_timer_timeout, // is a timeout active?
     d3_timer_active, // active timer object
-    d3_timer_frame = d3_window[d3_vendorSymbol(d3_window, "requestAnimationFrame")] || function(callback) { setTimeout(callback, 17); };
+    d3_timer_frame = (!isNode && d3_window[d3_vendorSymbol(d3_window, "requestAnimationFrame")]) || function(callback) { setTimeout(callback, 17); };
 
 // The timer will continue to fire until callback returns true.
 d3.timer = function(callback, delay, then) {

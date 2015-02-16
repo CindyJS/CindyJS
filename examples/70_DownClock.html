@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            <link rel="stylesheet" href="../css/cindy.css">
+
+                
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>Downtimer</h1>
+        
+                <script id='init' type='cindyscript'>
+                now=seconds();
+                running=false;
+last=now;
+
+        </script>
+
+<script id='up' type='cindyscript'>
+xx=mouse().x;
+yy=mouse().y;
+
+if(xx>-9 & xx< -4 & yy>-9 & yy<-7,running=!running);
+if(xx>0 & xx< 5 & yy>-9 & yy<-7,now=seconds();
+                running=false;
+last=seconds(););
+
+
+</script>
+
+        <script id='firstDrawing' type='cindyscript'>
+        javascript("csplay()");
+        measured=seconds();
+        if(!running,now=now+measured-last);
+        last=measured;
+        
+        secs=measured-now;
+        
+        
+        tim=13*60-secs;
+        sig=" ";
+        if(tim<0,tim=-tim;sig="-");
+        ss=mod(tim,60);
+        mm=(tim-ss)/60;
+        col=(0,0.6,0);
+        if(mm<3,col=(0.8,0,0));
+        
+        sstr=""+floor(ss);
+        mstr=""+floor(mm);
+        if(length(sstr)==1,sstr="0"+sstr);
+        if(length(sstr)==1,mstr="0"+mstr);
+        drawtext((-9,-2),sig+mstr+":"+sstr,size->250,color->col);
+        
+        fillpolygon([(-9,-7),(-9,-9),(-4,-9),(-4,-7)],color->(.6,.6,1)*if(!running,1,.7));
+drawpolygon([(-9,-7),(-9,-9),(-4,-9),(-4,-7)],color->(0,0,0));
+
+ fillpolygon([(0,-7),(0,-9),(5,-9),(5,-7)],color->(.6,.6,1));
+drawpolygon([(0,-7),(0,-9),(5,-9),(5,-7)],color->(0,0,0));
+
+
+text=if(!running,"Start","Hold");
+drawtext((-8,-8.5),text,size->30);
+drawtext((1,-8.5),"Reset",size->30);
+
+
+
+        </script>
+        
+
+        <canvas  id="CSCanvas" width=800 height=500 style="border:2px solid #000000"></canvas>
+
+
+        <script type="text/javascript">
+            
+            var gslp=[
+                     // {name:"A1", type:"Free", pos:[3,0]}
+                    
+		                           ];
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        initscript:"init",
+                        mouseupscript:"up",
+                        snap:true,
+                        geometry:gslp});
+    
+        </script>
+
+
+	</body>
+</html>

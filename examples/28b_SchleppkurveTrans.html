@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cindy JS</title>
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<!--link rel="stylesheet" href="../css/cindy.css"-->
+
+
+</head>
+
+<body style="font-family:Arial;">
+
+<h1>CindyJS: Schleppkurve</h1>
+
+
+
+<script id='init' type='cindyscript'>
+
+reset():=(
+forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
+old=allpoints();
+old=apply(2..length(old),old_#);
+
+oldpts=apply(old,#.xy);
+
+);
+
+old=allpoints();
+old=apply(2..length(old),old_#);
+
+oldpts=apply(old,#.xy);
+
+
+split(pts,oldpts,m):=(
+                      
+                      i=1;
+                      while(pts_i!=m,i=i+1);
+                      l=apply(1..i,(pts_(i-#+1)));
+                      r=apply(i..length(pts),(pts_#));
+                      ol=apply(1..i,oldpts_(i-#+1));
+                      or=apply(i..length(oldpts),oldpts_#);
+                      [l,r,ol,or];
+                      
+                      );
+
+
+antiprismc(a,b,c):=(
+                    xx=|a-b|^2;
+                    yy=|a-c|^2;
+                    if(yy==0,c=c+0.0000000001);
+                    yy=|a-c|^2;
+                    if(yy==0,
+                       d=b,
+                       d=((a*b*xx)-(b*c*xx)-(a*c*yy)+(b*c*yy))/(a*xx-c*xx-a*yy+b*yy)
+                       );
+                    d;
+                    );
+
+tractrix(a,b,c):=(
+                  
+                  bb=a+(b-a)*2;
+                  dd=antiprismc(a,bb,c);
+                  (c+dd)/2;
+                  );
+
+
+
+
+
+
+
+transf(pts,pt):=(
+                 newpts=pts;
+                 newpts_1=pt;
+                 forall(1..(length(pts)-1),
+                        newpts_(#+1)=gauss(tractrix(complex(pts_#),complex(pts_(#+1)),complex(newpts_#)));
+                        
+                        );
+                 
+                 newpts;
+                 );
+
+finished=true;
+
+resetting=false;
+
+
+
+</script>
+<script id='down' type='cindyscript'>
+
+if(mouse().y<-8.5 & mouse().x<-7,
+reset();
+resetting=true;
+
+);
+</script>
+
+<script id='up' type='cindyscript'>
+
+resetting=false;
+
+
+</script>
+
+
+<script id='firstDrawing' type='cindyscript'>
+javascript("document.onkeydown={}");
+
+pts=allpoints();
+pts=apply(2..length(pts),pts_#);
+
+apply(pts,#.size=3;#.color=(1,0,0));
+i=0;
+mover=mover();
+
+if(!resetting,
+
+if(mover!=A & isreal(mover.x)&finished,
+   finished=false;
+   errc("MOVE");
+   m=mover;
+   if(m.xy!=start,
+      start=m.xy;
+      sp=split(pts,oldpts,m);
+      l=sp_1;
+      r=sp_2;
+      ol=sp_3;
+      or=sp_4;
+      
+      newptsl=transf(ol,start);
+      newptsr=transf(or,start);
+      
+      forall(1..length(l),(l_#).xy=newptsl_#);
+      forall(1..length(r),(r_#).xy=newptsr_#);
+      
+      oldpts=apply(pts,#.xy);
+   //   draw(mover.xy,size->5);
+      );
+   finished=true;
+   );
+);
+connect(pts,color->(1,1,1)*0,size->3);
+
+tr=transf(oldpts,A.xy);
+apply(1..length(tr),draw(pts_#,tr_#,alpha->0.3));
+apply(1..length(tr),draw((pts_#+tr_#)/2,alpha->.5,color->(0,0,0),size->2));
+
+connect(tr,color->(1,1,1)*0,size->4);
+drawall(tr,color->(1,.7,0),size->4);
+fillpolygon([(-6.5,-8),(-6.5,-9.5),(-9.5,-9.5),(-9.5,-8)],color->(.6,.6,1));
+drawpolygon([(-6.5,-8),(-6.5,-9.5),(-9.5,-9.5),(-9.5,-8)],color->(0,0,0));
+drawtext((-9,-9),"Reset");
+
+</script>
+
+
+<canvas  id="CSCanvas"  width=500 height=500  style="border:2px solid #000000"></canvas>
+
+<script>
+defaultAppearance.clip="inci";
+defaultAppearance.overhangLine=1.2;
+
+var gslp=[];
+gslp.push({name:"A", type:"Free", pos:[-2,1],color:[1,.7,0],size:8});
+
+for(var i=0;i<30;i++){
+    
+    gslp.push({name:"A"+i, type:"Free", pos:[-7+i*0.5,0],color:[1,1,1]});
+}
+createCindy({canvasname:"CSCanvas",
+movescript:"firstDrawing",
+initscript:"init",
+mousedownscript:"down",
+mouseupscript:"up",
+geometry:gslp});
+
+</script>
+
+</body>
+</html>

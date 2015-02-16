@@ -7,9 +7,9 @@ var cskey="";
 var cskeycode=0;
 
 
-movepoint=function (move){
-    if(move.mover==undefined) return;
-    m=move.mover;
+function movepoint(move){
+    if(move.mover===undefined) return;
+    var m=move.mover;
     if(m.pinned) return;
     m.sx=mouse.x+move.offset.x;
     m.sy=mouse.y+move.offset.y;
@@ -18,13 +18,13 @@ movepoint=function (move){
     //move.offset.y = (move.offset.y-1.45)*0.95+1.45;
     //dump(move.offset);
     //end
-    if(cssnap && csgridsize!=0){
+    if(cssnap && csgridsize!==0){
        var rx=Math.round(m.sx/csgridsize)*csgridsize;
        var ry=Math.round(m.sy/csgridsize)*csgridsize;
-       if(Math.abs(rx-m.sx)<.2 && Math.abs(ry-m.sy)<.2){
+       if(Math.abs(rx-m.sx)<0.2 && Math.abs(ry-m.sy)<0.2){
           m.sx=rx;
           m.sy=ry;
-       };
+       }
     
     }
     m.sz=1;
@@ -32,8 +32,8 @@ movepoint=function (move){
 
 }
 
-movepointscr=function (mover,pos){
-    m=mover;
+function movepointscr(mover,pos){
+    var m=mover;
     m.sx=pos.value[0].value.real;
     m.sy=pos.value[1].value.real;
     m.sz=1;
@@ -42,23 +42,23 @@ movepointscr=function (mover,pos){
 }
 
 
-getmover = function(mouse){
+function getmover(mouse){
     var mov;
     var adist=1000000;
     var diff,orad;
     for (var i=0;i<csgeo.free.length;i++){
         var el=csgeo.free[i];
-
         if(!el.pinned){
-            var dx,dy;
-            if(el.kind=="P"){
+
+            var dx,dy,dist;
+            var sc=csport.drawingstate.matrix.sdet;
+            if(el.kind==="P"){
                 dx=el.sx-mouse.x;
                 dy=el.sy-mouse.y;
-                var dist=Math.sqrt(dx*dx+dy*dy);
-                var sc=csport.drawingstate.matrix.sdet;
+                dist=Math.sqrt(dx*dx+dy*dy);
                 if(el.narrow & dist>20/sc) dist=10000;
             }
-            if(el.kind=="C"){//Must be Circle by Rad
+            if(el.kind==="C"){//Must be Circle by Rad
                 var mid=csgeo.csnames[el.args[0]];
                 var rad=el.radius;
                 var xx=CSNumber.div(mid.homog.value[0],mid.homog.value[2]).value.real;
@@ -66,19 +66,20 @@ getmover = function(mouse){
                 dx=xx-mouse.x;
                 dy=yy-mouse.y;
                 var ref=Math.sqrt(dx*dx+dy*dy);
-                var dist=ref-rad.value.real;
+                dist=ref-rad.value.real;
                 orad=-dist;
                 dx=0;dy=0;
                 if(dist<0){dist=-dist;}
-                dist=dist+1;
+                dist=dist+30/sc;
+
             }
-            if(el.kind=="L"){//Must be ThroughPoint(Horizontal/Vertical not treated yet)
+            if(el.kind==="L"){//Must be ThroughPoint(Horizontal/Vertical not treated yet)
                 var l=List.normalizeZ(el.homog);
                 var N=CSNumber;
                 var nn=N.add(N.mult(l.value[0],N.conjugate(l.value[0])),
                              N.mult(l.value[1],N.conjugate(l.value[1])));
                 var ln=List.scaldiv(N.sqrt(nn),l);
-                var dist=ln.value[0].value.real*mouse.x+ln.value[1].value.real*mouse.y+ln.value[2].value.real;
+                dist=ln.value[0].value.real*mouse.x+ln.value[1].value.real*mouse.y+ln.value[2].value.real;
                 dx=ln.value[0].value.real*dist;
                 dy=ln.value[1].value.real*dist;
                 
@@ -86,7 +87,7 @@ getmover = function(mouse){
                 dist=dist+1;
             }
             
-            if(dist<adist+.2/sc){//A bit a dirty hack, prefers new points
+            if(dist<adist+0.2/sc){//A bit a dirty hack, prefers new points
                 adist=dist;
                 mov=el;
                 diff={x:dx,y:dy};
@@ -97,9 +98,9 @@ getmover = function(mouse){
 }
 
 
-setuplisteners =function(canvas) {
+function setuplisteners(canvas) {
     
-    updatePostition= function(x,y){
+    function updatePostition(x,y){
         var pos=csport.to(x,y);
         mouse.prevx      = mouse.x;
         mouse.prevy      = mouse.y;
@@ -152,34 +153,31 @@ setuplisteners =function(canvas) {
     };
     
     
-    function getOffsetLeft( elem )
-        {
+    function getOffsetLeft(elem) {
         var offsetLeft = 0;
         do {
             if ( !isNaN( elem.offsetLeft ) )
                 {
                 offsetLeft += elem.offsetLeft;
                 }
-        } while( elem = elem.offsetParent );
+        } while((elem = elem.offsetParent));
         return offsetLeft;
-        }
+    }
 
-    function getOffsetTop( elem )
-        {
+    function getOffsetTop(elem) {
         var offsetTop = 0;
         do {
             if ( !isNaN( elem.offsetTop ) )
                 {
                 offsetTop += elem.offsetTop;
                 }
-        } while( elem = elem.offsetParent );
+        } while((elem = elem.offsetParent));
         return offsetTop;
-        }
-
+    }
     
     function touchMove(e) {
         if (!e)
-            var e = event;
+            e = event;
         
         updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
                         e.targetTouches[0].pageY - getOffsetTop(canvas));
@@ -195,7 +193,7 @@ setuplisteners =function(canvas) {
     
     function touchDown(e) {
         if (!e)
-            var e = event;
+            e = event;
         
         updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
                         e.targetTouches[0].pageY - getOffsetTop(canvas));
@@ -228,18 +226,24 @@ setuplisteners =function(canvas) {
 }
 
 
-window.requestAnimFrame =
-window.requestAnimationFrame ||
-window.webkitRequestAnimationFrame ||
-window.mozRequestAnimationFrame ||
-window.oRequestAnimationFrame ||
-window.msRequestAnimationFrame ||
-function (callback) {
-    //                window.setTimeout(callback, 1000 / 60);
-    window.setTimeout(callback, 0);
-};
+var requestAnimFrame;
+if (isNode) {
+    requestAnimFrame = process.nextTick; // jshint ignore:line
+}
+else {
+    requestAnimFrame =
+        window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback) {
+            //                window.setTimeout(callback, 1000 / 60);
+            window.setTimeout(callback, 0);
+        };
+}
 
-var doit=function(){//Callback for d3-timer
+function doit(){//Callback for d3-timer
     if(csanimating){
         cs_tick();
     }
@@ -251,10 +255,10 @@ var doit=function(){//Callback for d3-timer
 
 
 
-var startit=function(){
+function startit(){
     if(!csticking) {
         csticking=true;
-        d3.timer(doit)
+        d3.timer(doit);
     }
 }
 
@@ -262,7 +266,8 @@ function updateCindy(){
     recalc();                          
     csctx.save();
     csctx.clearRect ( 0   , 0 , csw , csh );
-    if(csgridsize!=0){evaluate(csgridscript)}
+    if(csgridsize!==0)
+        evaluate(csgridscript);
  //   console.log("NOW UPDATING");
   //  drawgrid();
     evaluate(cscompiled.move);
@@ -283,7 +288,7 @@ function update() {
 }
 
 
-var cs_keypressed=function(e){
+function cs_keypressed(e) {
     var evtobj=window.event? event : e;
     var unicode=evtobj.charCode? evtobj.charCode : evtobj.keyCode;
     var actualkey=String.fromCharCode(unicode);
@@ -296,29 +301,29 @@ var cs_keypressed=function(e){
 
 }
 
-var cs_mousedown=function(e){
+function cs_mousedown(e){
     evaluate(cscompiled.mousedown);
 
 }
 
-var cs_mouseup=function(e){
+function cs_mouseup(e){
     evaluate(cscompiled.mouseup);
 
 }
 
 
-var cs_mousedrag=function(e){
+function cs_mousedrag(e){
     evaluate(cscompiled.mousedrag);
 
 }
 
 
-var cs_mousemove=function(e){
+function cs_mousemove(e){
     evaluate(cscompiled.mousemove);
 
 }
 
-var cs_tick=function(e){
+function cs_tick(e){
     if(csPhysicsInited) {//TODO: Check here if physics is required
         if(typeof(lab)!=='undefined') {
             lab.tick();
@@ -330,6 +335,6 @@ var cs_tick=function(e){
 
 }
 
-
-
-
+function cindy_cancelmove(){
+    move=undefined;
+}
