@@ -1,11 +1,11 @@
-JAVA=java
-
 all: build/js/Cindy.js cindy3d
 
 clean:
 	$(RM) -r build
 
 .PHONY: all clean
+
+.DELETE_ON_ERROR:
 
 ######################################################################
 ## List all our sources
@@ -19,57 +19,9 @@ liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
 lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
-ours = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab)
+ours = src/js/Head.js src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab) src/js/Tail.js
 
-srcs = $(ours) $(lib)
-
-######################################################################
-## Build different flavors of Cindy.js
-######################################################################
-
-# by defaul compile with SIMPLE flag
-closure_level = SIMPLE
-ifeq ($(O),1)
-	closure_level = ADVANCED
-endif
-
-closure_language = ECMASCRIPT5_STRICT
-closure_args = \
-	--language_in $(closure_language) \
-	--create_source_map $@.map \
-	--compilation_level $(closure_level) \
-	--source_map_format V3 \
-	--source_map_location_mapping "build/js/|" \
-	--source_map_location_mapping "src/js/|../../src/js/" \
-	--output_wrapper_file $(filter %.wrapper,$^) \
-	--js_output_file $@ \
-	--js $(filter %.js,$^)
-
-#by default use closure compiler
-js_compiler = closure
-
-ifeq ($(plain),1)
-	js_compiler = plain 
-endif
-
-build/js/Cindy.closure.js: compiler.jar src/js/Cindy.js.wrapper $(srcs)
-	mkdir -p $(@D)
-	$(JAVA) -jar $(filter %compiler.jar,$^) $(closure_args)
-	sed 's:$(@F):Cindy.js:g' $@.map > $(@:%.closure.js=%.js.map)
-
-build/js/Cindy.plain.js: $(srcs)
-
-build/js/ours.js: $(ours)
-
-build/js/Cindy.plain.js build/js/ours.js: src/js/Cindy.plain.js.wrapper
-	mkdir -p $(@D)
-	awk '/%output%/{exit}{print}' $(filter %.wrapper,$^) > $@
-	cat $(filter %.js,$^) >> $@
-	awk '/%output%/{i=1;getline}{if(i)print}' $(filter %.wrapper,$^) \
-	| sed 's://#.*::' >> $@
-
-build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
-	cp $< $@
+srcs = $(lib) $(ours)
 
 ######################################################################
 ## Download stuff either using curl or wget
@@ -109,6 +61,60 @@ download/node/bin/npm: download/arch/$(NODE_TAR)
 	touch $@
 
 ######################################################################
+## Build different flavors of Cindy.js
+######################################################################
+
+# by defaul compile with SIMPLE flag
+closure_level = SIMPLE
+ifeq ($(O),1)
+	closure_level = ADVANCED
+endif
+
+closure_language = ECMASCRIPT5_STRICT
+closure_args_common = \
+	--language_in $(closure_language) \
+	--compilation_level $(closure_level) \
+	--js_output_file $@ \
+	--js $(filter %.js,$^)
+closure_args_wrapper = \
+	$(closure_args_common)
+closure_args = \
+	--create_source_map $@.map \
+	--source_map_format V3 \
+	--source_map_location_mapping "build/js/|" \
+	--source_map_location_mapping "src/js/|../../src/js/" \
+	--output_wrapper_file $(filter %.wrapper,$^) \
+	$(closure_args_common)
+
+#by default use closure compiler
+js_compiler = closure
+
+ifeq ($(plain),1)
+	js_compiler = plain
+endif
+
+JAVA=java
+CLOSURE=$(JAVA) -jar $(filter %compiler.jar,$^)
+
+node_modules/source-map/package.json: $(NPM_DEP)
+	$(NPM_CMD) install source-map
+
+build/js/Cindy.plain.js: $(srcs)
+
+build/js/ours.js: $(ours)
+
+build/js/Cindy.plain.js build/js/ours.js: node_modules/source-map/package.json
+	@mkdir -p $(@D)
+	$(NODE_CMD) tools/cat.js $(filter %.js,$^) -o $@
+
+build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cindy.js.wrapper
+	$(CLOSURE) $(closure_args)
+	$(NODE_CMD) tools/apply-source-map.js -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
+
+build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
+	cp $< $@
+
+######################################################################
 ## Run jshint to detect syntax problems
 ######################################################################
 
@@ -143,9 +149,10 @@ refimg:=$(wildcard ref/img/*.png)
 refhtml:=$(refmd:ref/%.md=build/ref/%.html)
 refres:=ref.css
 
-$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json ref/md2html.js ref/template.html
+$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json \
+		ref/md2html.js ref/template.html $(NPM_DEP)
 	@mkdir -p $(@D)
-	$(NODE) ref/md2html.js $< $@
+	$(NODE_CMD) ref/md2html.js $< $@
 
 $(refres:%=build/ref/%): build/ref/%: ref/%
 	cp $< $@
@@ -168,7 +175,8 @@ c3d_shaders = $(c3d_primitives:%=%-vert.glsl) $(c3d_primitives:%=%-frag.glsl) \
 c3d_str_res = $(c3d_shaders:%=src/str/cindy3d/%)
 
 build/js/c3dres.js: $(c3d_str_res) tools/files2json.js $(NPM_DEP)
-	$(NODE_CMD) tools/files2json.js -varname=c3d_resources -output=$@ $(c3d_str_res)
+	$(NODE_CMD) tools/files2json.js -varname=c3d_resources -output=$@ \
+	$(c3d_str_res)
 
 # For debugging use these command line arguments for make:
 # c3d_closure_level=WHITESPACE_ONLY c3d_extra_args='--formatting PRETTY_PRINT'
@@ -194,9 +202,9 @@ c3d_mods = ShaderProgram Camera Appearance Viewer PrimitiveRenderer \
 c3d_srcs = build/js/c3dres.js $(c3d_mods:%=src/js/cindy3d/%.js) \
 	src/js/cindy3d/cindyjs.externs src/js/cindy3d/Cindy3D.js.wrapper
 
-build/js/Cindy3D.js: compiler.jar $(c3d_srcs)
+build/js/Cindy3D.js: tools/compiler.jar $(c3d_srcs)
 	mkdir -p $(@D)
-	$(JAVA) -jar $(filter %compiler.jar,$^) $(c3d_closure_args)
+	$(CLOSURE) $(c3d_closure_args)
 
 cindy3d: build/js/Cindy3D.js
 
@@ -246,3 +254,15 @@ all: build/js/$(1)/$(1).nocache.js
 endef
 
 $(foreach mod,$(GWT_modules),$(eval $(call GWT_template,$(mod))))
+
+######################################################################
+## Help debugging a remote site
+######################################################################
+
+node_modules/http-proxy/package.json: $(NPM_DEP)
+	$(NPM_CMD) install http-proxy
+
+proxy: tools/CindyReplacingProxy.js node_modules/http-proxy/package.json
+	@echo Configure browser for host 127.0.0.1 port 8080.
+	@echo Press Ctrl+C to interrupt once you are done.
+	-$(NODE_CMD) $<

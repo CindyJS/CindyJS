@@ -1,11 +1,15 @@
 "use strict";
 
 var fs = require("fs"), path = require("path");
-var cjs = require("../build/js/Cindy.plain.js");
+var createCindy = require("../build/js/Cindy.plain.js");
 var println = console.log;
 
 var reTestLine = /^    ([<>!.] )?(.*)/mg;
 var failures = 0, numtests = 0;
+var cjs = createCindy({
+  "isNode": true,
+  "csconsole": null,
+});
 
 function runAllTests() {
   var files = process.argv.slice(2);
@@ -67,6 +71,8 @@ function runTestFile(filename) {
         curcase.expectException(rest);
       } else if (mark === '* ') {
         curcase.expectOutput(rest);
+      } else if (mark === 'J ' || mark === 'T ') {
+        // ignore
       } else {
         console.log("Unexpected line " + (lineno + i) + ": " + line);
       }

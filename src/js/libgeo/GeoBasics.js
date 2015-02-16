@@ -11,7 +11,16 @@
 	defaultAppearance.overhangSeg=1;
 	defaultAppearance.dimDependent=1;
 
-
+function setDefaultAppearance(obj) {
+    var key;
+    for (key in obj)
+        if (obj[key] !== null)
+            defaultAppearance[key] = obj[key];
+}
+if (instanceInvocationArguments.defaultAppearance)
+    setDefaultAppearance(instanceInvocationArguments.defaultAppearance);
+else if (typeof window !== "undefined" && window.defaultAppearance)
+    setDefaultAppearance(window.defaultAppearance);
 
 	function csinit(gslp){
 
@@ -406,8 +415,3 @@ function render(){
 
      
 }
-
-
-
-
-

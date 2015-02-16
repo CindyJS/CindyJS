@@ -1,4 +1,5 @@
 div.codeblock { border: 1px solid #66cc66; padding: 3px; margin: 0ex 3em; background: #ddddff; }
+div.jsblock { border: 1px solid #66cc66; padding: 3px; margin: 0ex 3em; background: #ddffff; }
 pre { margin: 0px; padding: 2px; }
 pre.code { color: #000066; margin-top: 1em; padding: 0px; }
 pre.code.fst { margin-top: 0px; }

@@ -97,9 +97,36 @@ function getmover(mouse){
     return {mover:mov,offset:diff,offsetrad:orad};
 }
 
+function addAutoCleaningEventListener(target, type, listener, useCapture) {
+    if (useCapture === undefined)
+        useCapture = false;
+    shutdownHooks.push(function() {
+        target.removeEventListener(type, listener, useCapture);
+    });
+    target.addEventListener(type, listener, useCapture);
+}
 
-function setuplisteners(canvas) {
-    
+function setuplisteners(canvas, data) {
+
+    var MO = MutationObserver;
+    if (!MO) MO = WebKitMutationObserver; // jshint ignore: line
+    if (MO) {
+        MO = new MO(function(mutations) {
+            // Browsers which support MutationObserver likely support contains
+            if (!document.body.contains(canvas))
+                shutdown();
+        });
+        MO.observe(document.documentElement,
+                   {"childList": true, "subtree": true});
+        shutdownHooks.push(function() {
+            MO.disconnect();
+        });
+    }
+    else {
+        addAutoCleaningEventListener(canvas, "DOMNodeRemovedFromDocument", shutdown);
+        addAutoCleaningEventListener(canvas, "DOMNodeRemoved", shutdown);
+    }
+
     function updatePostition(x,y){
         var pos=csport.to(x,y);
         mouse.prevx      = mouse.x;
@@ -111,14 +138,14 @@ function setuplisteners(canvas) {
         
     }
     
-    
-    document.onkeydown=function(e){
-       cs_keypressed(e);
-       return false;
-    };
+    if (data.keylistener) {
+        addAutoCleaningEventListener(document, "keydown", function(e){
+            cs_keypressed(e);
+            return false;
+        });
+    }
 
-    
-    canvas.onmousedown = function (e) {
+    addAutoCleaningEventListener(canvas, "mousedown", function (e) {
         mouse.button  = e.which;
         var rect      = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left,e.clientY - rect.top);
@@ -128,9 +155,9 @@ function setuplisteners(canvas) {
             
             mouse.down    = true;
             e.preventDefault();
-    };
+    });
     
-    canvas.onmouseup = function (e) {
+    addAutoCleaningEventListener(canvas, "mouseup", function (e) {
         mouse.down = false;
         
         cs_mouseup();
@@ -138,9 +165,9 @@ function setuplisteners(canvas) {
         updateCindy();
         
         e.preventDefault();
-    };
+    });
     
-    canvas.onmousemove = function (e) {
+    addAutoCleaningEventListener(canvas, "mousemove", function (e) {
         var rect  = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left,e.clientY - rect.top);
         if(mouse.down){
@@ -150,7 +177,7 @@ function setuplisteners(canvas) {
             cs_mousemove();
         }
         e.preventDefault();
-    };
+    });
     
     
     function getOffsetLeft(elem) {
@@ -215,19 +242,18 @@ function setuplisteners(canvas) {
         
     }
     
-    canvas.addEventListener("touchstart", touchDown, false);
-    canvas.addEventListener("touchmove", touchMove, true);
-    canvas.addEventListener("touchend", touchUp, false);
-    document.body.addEventListener("touchcancel", touchUp, false);
-    //    document.body.addEventListener("mouseup", mouseUp, false);
-    
-    
+    addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
+    addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
+    addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
+    addAutoCleaningEventListener(document.body, "touchcancel", touchUp, false);
+    //    addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);
+
     updateCindy();
 }
 
 
 var requestAnimFrame;
-if (isNode) {
+if (instanceInvocationArguments.isNode) {
     requestAnimFrame = process.nextTick; // jshint ignore:line
 }
 else {
@@ -244,16 +270,14 @@ else {
 }
 
 function doit(){//Callback for d3-timer
+    if (isShutDown) return true;
     if(csanimating){
         cs_tick();
     }
     updateCindy();
     csticking=csanimating || mouse.down;
     return !csticking;
-    
 }
-
-
 
 function startit(){
     if(!csticking) {
@@ -275,13 +299,10 @@ function updateCindy(){
     csport.greset();
     render();
     csctx.restore();
-    
 }
 
-
-
 function update() {
-    
+    if (isShutDown) return;
     updateCindy();
     if(mouse.down)
         requestAnimFrame(update);

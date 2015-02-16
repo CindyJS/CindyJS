@@ -1,10 +1,11 @@
 /**
  * @param {string} name  the id of the canvas element
  * @param {Object} opts  options for context creation
+ * @param {td.EventManager=} addEventListener
  * @constructor
  * @struct
  */
-function Viewer(name, opts) {
+function Viewer(name, opts, addEventListener) {
   /** @type {HTMLCanvasElement} */
   let canvas = /** @type {HTMLCanvasElement} */(document.getElementById(name));
   if (!canvas)
@@ -54,7 +55,13 @@ function Viewer(name, opts) {
   this.surfaceAppearance = Appearance.clone(Viewer.defaultAppearances.surface);
   this.appearanceStack = [];
   this.backgroundColor = [1, 1, 1, 1];
-  this.setupListeners();
+
+  if (!addEventListener)
+    addEventListener = /** @type {td.EventManager} */(function(
+      target, name, listener, useCapture) {
+      target.addEventListener(name, listener, !!useCapture);
+    });
+  this.setupListeners(addEventListener);
 }
 
 /** @const @type {Appearance.Triple} */
@@ -106,10 +113,13 @@ Viewer.prototype.appearanceStack;
 /** @type {Array.<number>} */
 Viewer.prototype.backgroundColor;
 
-Viewer.prototype.setupListeners = function() {
+/**
+ * @param {td.EventManager} addEventListener
+ */
+Viewer.prototype.setupListeners = function(addEventListener) {
   let canvas = this.canvas, mx = Number.NaN, my = Number.NaN, mdown = false;
   let camera = this.camera, render = this.render.bind(this);
-  canvas.addEventListener("mousedown", function(/** MouseEvent */ evnt) {
+  addEventListener(canvas, "mousedown", function(/** MouseEvent */ evnt) {
     if (evnt.button === 0) {
       mdown = true;
     }
@@ -118,7 +128,7 @@ Viewer.prototype.setupListeners = function() {
       my = evnt.screenY;
     }
   });
-  canvas.addEventListener("mousemove", function(/** MouseEvent */ evnt) {
+  addEventListener(canvas, "mousemove", function(/** MouseEvent */ evnt) {
     if (evnt.buttons === undefined ? mdown : (evnt.buttons & 1)) {
       /* if (evnt.movementX !== undefined) {
         camera.mouseRotate(evnt.movementX, evnt.movementY);
@@ -132,10 +142,10 @@ Viewer.prototype.setupListeners = function() {
       my = evnt.screenY;
     }
   });
-  canvas.addEventListener("mouseup", function(/** MouseEvent */ evnt) {
+  addEventListener(canvas, "mouseup", function(/** MouseEvent */ evnt) {
     if (evnt.button === 0) mdown = false;
   });
-  canvas.addEventListener("mouseleave", function(/** MouseEvent */ evnt) {
+  addEventListener(canvas, "mouseleave", function(/** MouseEvent */ evnt) {
     mdown = false;
     mx = my = Number.NaN;
   });

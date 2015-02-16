@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script type="text/javascript">
+      function sunflower(c) {
+        createCindy({
+          canvas:c,
+          scripts:{move:
+              "repeat(500,i,"
+            + " w=i*pi/180*(137.508+B.x*0.5);"
+            + " p=A+(cos(w),sin(w))*0.3*sqrt(i);"
+            + " a=i;"
+            + " draw(p,size->sqrt(i)*.4,color->hue(i/34));"
+            + ");"
+          },
+        defaultAppearance:{pointColor:[1,.7,0]},
+        geometry:[
+          {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
+          {name:"B", kind:"P", type:"Free", sx:0,sy:9,sz:1},
+        ]});
+      }
+      function spiral(c) {
+        createCindy({
+          canvas:c,
+          scripts:{move:
+              "a=complex(A.xy)/5;"
+            + "c=complex(C.xy)/10;"
+            + "repeat(1000,draw(gauss(a)*5,size->abs(a)*10,"
+            + "                 color->(re(a)*2,im(a)*2,-re(a)),alpha->.7);"
+            + "       a=a*c;);"
+            + "draw(A);draw(C);"
+          },
+          geometry:[
+            {name:"A", kind:"P", type:"Free", sx:7,sy:1,sz:1},
+            {name:"C", kind:"P", type:"Free", sx:0,sy:9,sz:1},
+          ]});
+      }
+      var c = null;
+      function change(gen) {
+        if (c) c.parentNode.removeChild(c);
+        c = document.createElement("canvas");
+        c.setAttribute("width", "600");
+        c.setAttribute("height", "600");
+        c.style.border="2px solid #000000";
+        document.body.appendChild(c);
+        gen(c);
+      }
+    </script>
+  </head>
+
+  <body>
+    <h1>CindyJS: Swapping between instances</h1>
+    <p><a href="javascript:change(sunflower)">Sunflower</a>
+    <a href="javascript:change(spiral)">Spiral</a></p>
+  </body>
+</html>

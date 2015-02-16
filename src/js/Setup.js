@@ -1,10 +1,12 @@
+var createCindy = this; // since this will be turned into a method
+
 var csconsole;
 var cslib;
-
 
 var cscompiled={};
 
 var csanimating=false;
+var csstopped=true;
 var csticking=false;
 var csscale=1;
 var csgridsize=0;
@@ -60,35 +62,47 @@ function initialTransformation(data) {
 
 var csmouse, csctx, csw, csh, csgeo, images;
 
-function createCindyNow(data){
+function createCindyNow(){
+    var data = instanceInvocationArguments;
+    if (data.csconsole !== undefined)
+        csconsole = data.csconsole;
     csmouse = [100, 100];
-    var cscode;
-    var c=document.getElementById(data.canvasname);
-    csctx=c.getContext("2d");
-    //Run initialscript
-          cscode=condense(initialscript);
-          var iscr=analyse(cscode,false);
-    evaluate(iscr);
+    var cscode, c = data.canvas;
+    if (!c && typeof document !== "undefined")
+        c=document.getElementById(data.canvasname);
+    if (c)
+        csctx=c.getContext("2d");
 
+    //Run initialscript
+    cscode=condense(initialscript);
+    var iscr=analyse(cscode,false);
+    evaluate(iscr);
     
     //Setup the scripts
     var scripts=["move","keydown","mousedown","mouseup","mousedrag","init","tick","draw"];
-    var scriptpat=data.scripts;
-    if (!(scriptpat !== undefined && scriptpat.search(/\*/)))
-        scriptpat = null;
+    var scriptconf=data.scripts, scriptpat=null;
+    if (typeof scriptconf === "string" && scriptconf.search(/\*/))
+        scriptpat = scriptconf;
+    if (typeof scriptconf !== "object")
+        scriptconf = null;
 
     scripts.forEach(function(s){
-        var sname=s+"script";
-        if(data[sname]){
-            cscode=document.getElementById(data[sname]);
-        } else if (scriptpat) {
-            cscode=document.getElementById(scriptpat.replace(/\*/, s));
-            if (!cscode)
-                return;
+        var cscode;
+        if(scriptconf!== null && scriptconf[s]) {
+            cscode = scriptconf[s];
         } else {
-            return;
+            var sname=s+"script";
+            if(data[sname]){
+                cscode=document.getElementById(data[sname]);
+            } else if (scriptpat) {
+                cscode=document.getElementById(scriptpat.replace(/\*/, s));
+                if (!cscode)
+                    return;
+            } else {
+                return;
+            }
+            cscode=cscode.text;
         }
-        cscode=cscode.text;
         cscode=condense(cscode);
         cscompiled[s]=analyse(cscode,false);
     });
@@ -101,10 +115,12 @@ function createCindyNow(data){
     if(data.snap) cssnap=data.snap;
     initialTransformation(data);
 
-    csw=c.width;
-    csh=c.height;
-    csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
-    csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
+    if (c) {
+        csw=c.width;
+        csh=c.height;
+        csport.drawingstate.matrix.ty=csport.drawingstate.matrix.ty-csh;
+        csport.drawingstate.initialmatrix.ty=csport.drawingstate.initialmatrix.ty-csh;
+    }
 
     csgeo={};
     
@@ -125,7 +141,6 @@ function createCindyNow(data){
         csinitphys(data.behavior);
     
     //Read images: TODO ordentlich machen
-
     for (var k in data.images) {
         var name=data.images[k];
         images[k] = new Image();
@@ -140,14 +155,28 @@ function createCindyNow(data){
         /*jshint +W083 */
         images[k].src = name;
     }
+
+    globalInstance.canvas = c;
+
+    // Invoke oninit callback
+    if (data.oninit)
+        data.oninit(globalInstance);
+
+    if (data.exclusive) {
+        i = createCindy.instances.length;
+        while (i > 0)
+            createCindy.instances[--i].shutdown();
+    }
+    createCindy.instances.push(globalInstance);
+
     //Evaluate Init script
     evaluate(cscompiled.init);
 
+    if (data.autoplay)
+        csplay();
 
-    
-    setuplisteners(document.getElementById(data.canvasname));
-    
-
+    if (c)
+        setuplisteners(c, data);
 
 }
 
@@ -204,20 +233,28 @@ function restoreGeo(){
 
 
 function csplay(){
-  csanimating=true;
-  backupGeo();
-  startit();
+  if (!csanimating) { // stop or pause state
+    if (csstopped) { // stop state
+      backupGeo();
+      csstopped=false;
+    }
+    csanimating=true;
+    startit();
+  }
 }
 
 function cspause(){
-
-  csanimating=false;
+  if (csanimating) {
+    csanimating=false;
+  }
 }
 
 function csstop(){
-
-  csanimating=false;
-  restoreGeo();
+  if (!csstopped) {
+    csanimating=false; // might already be false
+    csstopped=true;
+    restoreGeo();
+  }
 }
 
 var initialscript=
@@ -241,54 +278,45 @@ var initialscript=
 '           );'
 ;
 
-var isNode = (typeof module !== 'undefined' && this.module !== module); // jshint ignore:line
-var waitCount = -1;
-var cjsInit = function() {
+var shutdownHooks = [];
+var isShutDown = false;
+
+function shutdown(){
+    if (isShutDown)
+        return; // ignore multiple calls
+    isShutDown = true;
+    // console.log("Shutting down");
+
+    // Remove this from the list of all running instances
+    var n = createCindy.instances.length;
+    while (n > 0) {
+        if (createCindy.instances[--n] === globalInstance) {
+            createCindy.instances.splice(n, 1);
+            break;
+        }
+    }
+
+    // Call hooks in reverse order
+    n = shutdownHooks.length;
+    while (n > 0) {
+        try { shutdownHooks[--n](); }
+        catch(e) { console.error(e); }
+    }
+}
+
+// The following object will be returned from the public createCindy function.
+// Its startup method will be called automatically unless specified otherwise.
+var globalInstance = {
+    "config": instanceInvocationArguments,
+    "startup": createCindyNow,
+    "shutdown": shutdown,
+    "evokeCS": evokeCS,
+    "play": csplay,
+    "pause": cspause,
+    "stop": csstop,
+    "evalcs": function(code) {
+      return evaluate(analyse(condense(code), false));
+    },
+    "niceprint": niceprint,
+    "canvas": null, // will be set during startup
 };
-function waitFor(name) {
-  if (waitCount === 0) {
-    console.error("Waiting for " + name + " after we finished waiting.");
-    return function() { };
-  }
-  if (waitCount < 0)
-    waitCount = 0;
-  console.log("Start waiting for " + name);
-  ++waitCount;
-  return function() {
-    console.log("Done waiting for " + name);
-    --waitCount;
-    if (waitCount < 0) {
-      console.error("Wait count mismatch: " + name);
-    }
-    if (waitCount === 0) {
-      cjsInit();
-    }
-  };
-}
-if (!isNode)
-  document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
-function createCindy(data) {
-  if (waitCount === 0) {
-    console.log("creating Cindy immediately.");
-    createCindyNow(data);
-  } else {
-    console.log("creating Cindy later.");
-    var prevInit = cjsInit;
-    cjsInit = function() {
-      prevInit();
-      console.log("creating Cindy now.");
-      createCindyNow(data);
-    };
-  }
-}
-if (!isNode && window.__gwt_activeModules !== undefined) {
-  Object.keys(window.__gwt_activeModules).forEach(function(key) {
-    var m = window.__gwt_activeModules[key];
-    m.cjsDoneWaiting = waitFor(m.moduleName);
-  });
-  window.__gwtStatsEvent = function(evt) {
-    if (evt.evtGroup === "moduleStartup" && evt.type === "end") {
-      window.__gwt_activeModules[evt.moduleName].cjsDoneWaiting();
-    }
-  };
-}

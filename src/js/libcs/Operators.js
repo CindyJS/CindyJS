@@ -2115,6 +2115,25 @@ evaluator.textsize$1=function(args,modifs){
 };
 
 
+//////////////////////////////////////////
+//          Animation control           //
+//////////////////////////////////////////
+
+evaluator.playanimation$0=function(args,modifs){
+  csplay();
+  return nada;
+};
+
+evaluator.pauseanimation$0=function(args,modifs){
+  cspause();
+  return nada;
+};
+
+evaluator.stopanimation$0=function(args,modifs){
+  csstop();
+  return nada;
+};
+
 
 ///////////////////////////////
 //          String           //
@@ -2660,6 +2679,53 @@ evaluator.javascript$1=function(args,modifs){
     if(v0.ctype==='string'){
         var s=v0.value;
         eval(s); // jshint ignore:line
+    }
+    return nada;
+};
+
+evaluator.use$1=function(args,modifs){
+    function defineFunction(name, arity, impl) {
+        // The following can be simplified once we handle arity differently.
+        var old = evaluator[name];
+        var chain = function(args, modifs) {
+            if (args.length === arity)
+                return impl(args, modifs);
+            else if (old)
+                return old(args, modifs);
+            else
+                throw "No implementation for " + name + "(" + arity + ")";
+        };
+        evaluator[name] = chain;
+    }
+    var v0=evaluate(args[0]);
+    if (v0.ctype==="string") {
+        var name = v0.value, cb;
+        if (instanceInvocationArguments.plugins)
+            cb = instanceInvocationArguments.plugins[name];
+        if (!cb)
+            cb = createCindy._pluginRegistry[name];
+        if (cb) {
+            /* The following object constitutes API for third-party plugins.
+             * We should feel committed to maintaining this API.
+             */
+            cb({
+                "instance": globalInstance,
+                "config": instanceInvocationArguments,
+                "nada": nada,
+                "evaluate": evaluate,
+                "evaluateAndVal": evaluateAndVal,
+                "defineFunction": defineFunction,
+                "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),
+                "addAutoCleaningEventListener": addAutoCleaningEventListener,
+                "getVariable": namespace.getvar.bind(namespace),
+                "getInitialMatrix": function(){return csport.drawingstate.initialmatrix},
+            });
+            return {"ctype":"boolean", "value":true};
+        }
+        else {
+            console.log("Plugin " + name + " not found");
+            return {"ctype":"boolean", "value":false};
+        }
     }
     return nada;
 };
