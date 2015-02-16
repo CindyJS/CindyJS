@@ -2718,7 +2718,7 @@ evaluator.use$1=function(args,modifs){
                 "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),
                 "addAutoCleaningEventListener": addAutoCleaningEventListener,
                 "getVariable": namespace.getvar.bind(namespace),
-                "getInitialMatrix": function(){return csport.drawingstate.initialmatrix},
+                "getInitialMatrix": function(){return csport.drawingstate.initialmatrix;},
             });
             return {"ctype":"boolean", "value":true};
         }
