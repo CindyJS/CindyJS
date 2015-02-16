@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cindy JS</title>
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+<link rel="stylesheet" href="../css/cindy.css">
+
+
+
+</head>
+
+<body style="font-family:Arial;">
+
+<h1>CindyJS: Complex power grid</h1>
+<script id='init' type='cindyscript'>
+circles=false;
+grid=false;
+oldgamma=1;
+trace1=(5,0);
+trace2=(0,5);
+olda=(0,0);
+use=false;
+
+q=zeromatrix(150,150);
+m=zeromatrix(20,20);
+end=40;
+
+</script>
+
+<script id='down' type='cindyscript'>
+xx=mouse().x;
+yy=mouse().y;
+if(xx>31.5 & xx<35.5 & yy>-2.5 & yy<-.8,grid=!grid);
+if(xx>27 & xx<31 & yy>-2.5 & yy<-.8,circles=!circles);
+if(xx>27 & xx<35.5 & yy>-2.5+2 & yy<-.8+2,use=!use);
+
+
+</script>
+
+<script id='firstDrawing' type='cindyscript'>
+javascript("document.onkeydown={}");
+
+asym(n,g):=
+exp(i*pi/4)*
+(1
++(i*(-1+g)/(2*n))
++((-1+2*i)+(2-2*i)*g-g^2)/(8*n^2)
++i*((3+2*i)-(1+4*i)*g-(3-2*i)*g^2+g^3)/(16*n^3)
++((-17+20*i)+(28+4*i)*g-(2+36*i)*g^2-(12-12*i)*g^3+3*g^4)/(128*n^4)
++i*((-103-36*i)-(5-48*i)*g+(150+24*i)*g^2-(30+48*i)*g^3-(15-12*i)*g^4+3*g^5)/(256*n^5)
+);
+
+
+
+y=S.y;
+if(y<S1.y,y=S1.y);
+if(y>S2.y,y=S2.y);
+
+S.xy=(S1.x,y);
+
+s1=(|S,S1|/|S1,S2|);
+
+y=T.y;
+if(y<T1.y,y=T1.y);
+if(y>T2.y,y=T2.y);
+
+T.xy=(T1.x,y);
+
+t1=(|T,T1|/|T1,T2|);
+end=round(t1*80);
+
+
+s1=exp(s1*6)/20;
+
+if(mover()==A,
+  B.xy=B.xy+A-olda;
+  C.xy=C.xy+A-olda;
+  olda=A.xy;
+);
+//A=(0,0);
+off=A;
+
+clicking=false;
+xx=mouse().x;
+yy=mouse().y;
+if(xx>31.5 & xx<35.5 & yy>-2.5 & yy<-.8,clicking=true);
+if(xx>27 & xx<31 & yy>-2.5 & yy<-.8,clicking=true);
+
+if(!clicking,
+if(mover()==C,C.xy=mouse().xy);
+if(mover()==B,B.xy=A+(1,0)*|A,C|);
+);
+//if(mover()==C,C.xy=A+(C-A)/|C-A|*|mouse().xy-A.xy)|);
+//if(mover()==B,B.xy=A+(B-A)/|B-A|*|mouse().xy-A.xy)|);
+next(a,b,n):=(-2*b^2*n+2*b*a*n+gamma*b*a)/(gamma*b-2*b*n+2*a*n);
+a=(0,0);
+b=complex(B-A);
+c=complex(C-A);
+
+comp1=gauss(b/|b|*5);
+comp2=gauss(c/|c|*5);
+
+if(comp1*trace1>0,trace1=comp1,trace1=-comp1);
+if(comp2*trace2>0,trace2=comp2,trace2=-comp2);
+
+
+b=complex(comp1/abs(comp1)*s1);
+c=complex(comp2/abs(comp2)*s1);
+z=c/b;
+z=z/abs(z);
+gamma=log(z)*2/(i*pi);
+
+
+gamma=sort(apply(-100..100,gamma+4*#),gg,|gg-oldgamma|)_1;
+oldgamma=gamma;
+
+
+n=20 ;
+if(!use,n=end);
+
+data=data_(1..1)++apply(1..400,asym(#,gamma));
+
+m=apply(1..n,apply(1..n,0));;
+
+m_1_1=0;
+m_1_2=b;
+m_2_1=c;
+
+forall(3..n,j,m_1_j=next(m_1_(j-2),m_1_(j-1),j-2));
+forall(3..n,j,m_j_1=next(m_(j-2)_1,m_(j-1)_1,j-2));
+
+harmpt(a,b,c):=(
+  l=1/2;
+  ((a*b)-(b*c)-(a*b*l)+(a*c*l))/(a-c-b*l+c*l);
+);
+
+forall(2..n,j,forall(2..n,k,m_j_k=harmpt(m_(j-1)_(k-1),m_(j)_(k-1),m_(j-1)_(k))));
+
+
+if(use,
+
+n=430;
+
+
+
+
+q_1_1=0;
+repeat(19,j,
+repeat(19,k,
+q_j_k=m_k_j;
+));
+//r=1;
+ind=10;
+r=2;
+r=|m_(ind+1)_(ind+1),m_(ind+1)_ind|;
+ind=ind+1;
+//ind=ind+1;
+mid=join((0,0),(gauss(b)+gauss(c)));
+//draw(mid,size->3,color->(0,0,0));
+dir=exp(i*pi*gamma/4);
+
+repeat(390,
+del1=dir*(data_ind)*r;
+del2=dir/(data_ind)*r;
+q_ind_(ind+1)=q_ind_ind+del1;
+q_(ind+1)_ind=q_ind_ind+del2;
+
+//draw(gauss(q_ind_(ind+1)),size->4);
+//draw(gauss(q_(ind+1)_ind),size->4);
+
+q_(ind+1)_(ind+1)=complex(meet(mid,(perp(join(gauss(q_ind_ind),gauss(q_ind_(ind+1))),gauss(q_ind_(ind+1))))));
+//draw(gauss(q_(ind+1)_(ind+1)),size->4,color->(0,0,1));
+r=|q_(ind+1)_(ind+1),q_(ind+1)_ind|;
+ind=ind+1;
+
+);
+
+
+forall(3..n,j,q_1_j=next(q_1_(j-2),q_1_(j-1),j-2);
+//draw(gauss(q_1_j))
+);
+forall(3..n,j,q_j_1=next(q_(j-2)_1,q_(j-1)_1,j-2);
+//draw(gauss(q_j_1))
+);
+
+
+
+forall(3..end+2,j,
+forall(reverse(2..(j-1)),k,
+nn=j-1;
+mm=k-1;
+f=q_j_k;
+f2p=q_j_(k+1);
+f2m=q_j_(k-1);
+f1m=q_(j-1)_k;
+ls=gamma*f;
+t2=2*mm*((f2p-f)*(f-f2m))/(f2p-f2m);
+erg=(f1m*ls - 2*f^2*nn + 2*f*f1m*nn - f1m*t2)/(ls - 2*f*nn + 2*f1m*nn - t2);
+q_(j+1)_k=erg;
+
+lot=meet(perp(mid,gauss(erg)),mid);
+erg2=2*lot.xy-gauss(erg);
+erg2=complex(erg2.xy);
+q_k_(j+1)=erg2;
+//draw(gauss(erg),size->1,color->(0,0,0));
+//draw(gauss(erg2),size->1,color->(0,0,0));
+);
+);
+
+m=q;
+);
+al=max((.01,exp(-|gamma|*.3)));
+//draw(gauss(next(a,b)))
+if(circles,
+   
+   forall(1..end/2,k,
+          forall(1..end/2,j,
+                 if(al>0.01,
+                 fillcircle(off+gauss(m_(2*k)_(2*j)),abs(gauss(m_(2*k)_(2*j))-gauss(m_(2*k-1)_(2*j))),color->(1,0,0.3),alpha->0.3*al));
+                 drawcircle(off+gauss(m_(2*k)_(2*j)),abs(gauss(m_(2*k)_(2*j))-gauss(m_(2*k-1)_(2*j))),color->(0,.5,0));
+                 );
+          );
+   
+   forall(1..end/2,k,
+          forall(1..end/2,j,
+                 if(al>0.01,
+                    corr=0;
+                    if(j==1,corr=2);
+                    fillcircle(off+gauss(m_(2*k-1)_(2*j-1)),
+                               abs(gauss(m_(2*k-1)_(2*j-1))-gauss(m_(2*k-1)_(2*j-2+corr))),color->(1,0.8,0),alpha->0.3*al););
+                 drawcircle(off+gauss(m_(2*k-1)_(2*j-1)),
+                            abs(gauss(m_(2*k-1)_(2*j-1))-gauss(m_(2*k-1)_(2*j-2+corr))),color->(0,0,0));
+                 );
+          );
+   
+   );
+
+if(grid,
+   forall(1..end-1,k,
+          forall(1..end,j,
+                 draw(off+gauss(m_(k)_(j)),off+gauss(m_(k+1)_(j)),color->(0,0,0),alpha->1,size->2,color->(0,0,.9));
+                 draw(off+gauss(m_(j)_(k)),off+gauss(m_(j)_(k+1)),color->(0,0,0),alpha->1,size->2,color->(0,0,.9));
+                 
+                 )
+          )
+   );
+
+forall(1..end,k,forall(1..end,j,draw(off+gauss(m_k_j),size->1,color->(0,0,0))));
+
+
+draw(join(A,B),color->(0,0,0));
+draw(join(A,C),color->(0,0,0));
+
+fillpolygon([[26,-100],[26,100],[100,100],[100,-100]],color->(1,1,1));
+drawpolygon([[26,-100],[26,100],[100,100],[100,-100]],size->4,color->(0,0,0));
+
+
+fillpolygon([(27,-.8),(27,-2.5),(31,-2.5),(31,-.8)],color->(.6,.6,1)*if(!circles,1.1,0.7));
+drawpolygon([(27,-.8),(27,-2.5),(31,-2.5),(31,-.8)],color->(0,0,0));
+drawtext((27.5,-2),"Circles");
+
+
+fillpolygon([(31.5,-.8),(31.5,-2.5),(35.5,-2.5),(35.5,-.8)],color->(.6,.6,1)*if(!grid,1.1,0.7));
+drawpolygon([(31.5,-.8),(31.5,-2.5),(35.5,-2.5),(35.5,-.8)],color->(0,0,0));
+drawtext((32,-2),"Cells");
+drawtext((3,-3),"move the y-axis");
+drawtext((33,6),"scale");
+drawtext((29,6),"n="+round(end));
+drawtext((28,3),"γ="+format(gamma,2));
+
+fillpolygon([(27,-.8+2),(27,-2.5+2),(35.5,-2.5+2),(35.5,-.8+2)],color->(.6,.6,1)*if(!use,1.1,0.7));
+drawpolygon([(27,-.8+2),(27,-2.5+2),(35.5,-2.5+2),(35.5,-.8+2)],color->(0,0,0));
+drawtext((27.5,-2+2),"use asymptotics");
+
+
+
+//draw(trace1,size->9);
+//draw(trace2,size->9);
+
+</script>
+
+
+<canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000"></canvas>
+
+<script type="text/javascript">
+
+var gslp=[
+    {name:"A",  type:"Free", pos:[0,0], size:3, color:[0,0,0],narrow:true},
+    {name:"B",  type:"Free", pos:[+1,0], size:.005},
+   // {name:"F",  type:"Free", pos:[+3,0], size:.005,pinned:true},
+    {name:"C",  type:"Free", pos:[0,+1],size:.005 },
+    
+    
+    {name:"S1", type:"Free", pos:[34,8],color:[0,0,0],pinned:true,size:2},
+    {name:"S2", type:"Free", pos:[34,20],color:[0,0,0],pinned:true,size:2},
+    {name:"S", type:"Free", pos:[34,12],color:[1,0.5,0.5],pinned:false,size:4,narrow:true},
+    {name:"l", type:"Segment", args:["S1","S2"],color:[0,0,0],pinned:false,size:2},
+    {name:"T1", type:"Free", pos:[30,8],color:[0,0,0],pinned:true,size:2},
+    {name:"T2", type:"Free", pos:[30,20],color:[0,0,0],pinned:true,size:2},
+    {name:"T", type:"Free", pos:[30,14],color:[1,0.5,0.5],pinned:false,size:4,narrow:true},
+    {name:"m", type:"Segment", args:["T1","T2"],color:[0,0,0],pinned:false,size:2},
+    //    {name:"aa", type:"Through", args:["A"],dir:[1,0,0],color:[0,0,0],size:2},
+    //    {name:"bb", type:"Through", args:["A"],dir:[0,1,0],color:[0,0,0],size:2},
+    ];
+
+createCindy({canvasname:"CSCanvas",
+movescript:"firstDrawing",
+mousedownscript:"down",
+initscript:"init",
+geometry:gslp,
+transform:[{translate:[-7,-7]},{scale:.8}]
+});
+
+
+
+
+
+</script>
+
+</body>
+</html>
