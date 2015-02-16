@@ -1,5 +1,4 @@
 var createCindy = this; // since this will be turned into a method
-var global = window; // required by numeric.js
 
 var csconsole;
 var cslib;

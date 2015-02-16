@@ -19,9 +19,9 @@ liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
 lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
-ours = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab)
+ours = src/js/Head.js src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab) src/js/Tail.js
 
-srcs = $(ours) $(lib)
+srcs = $(lib) $(ours)
 
 ######################################################################
 ## Download stuff either using curl or wget
@@ -96,31 +96,20 @@ endif
 JAVA=java
 CLOSURE=$(JAVA) -jar $(filter %compiler.jar,$^)
 
-build/js/wrapper.js: src/js/Outside.js tools/compiler.jar
-	mkdir -p $(@D)
-	$(CLOSURE) $(closure_args_wrapper)
-
-build/js/Cindy.js.wrapper: src/js/newInstance.js build/js/wrapper.js \
-		tools/mkwrapper.sed $(NPM_DEP)
-	$(NODE_CMD) tools/wrap.js 'placeholder\(\)' build/js/wrapper.js < $< \
-	| sed -f tools/mkwrapper.sed > $@
-	echo "//# sourceMappingURL=Cindy.js.map" >> $@
-
-build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.js.wrapper $(srcs)
-	$(CLOSURE) $(closure_args)
-	sed 's:$(@F):Cindy.js:g' $@.map > $(@:%.closure.js=%.js.map)
+node_modules/source-map/package.json: $(NPM_DEP)
+	$(NPM_CMD) install source-map
 
 build/js/Cindy.plain.js: $(srcs)
 
 build/js/ours.js: $(ours)
 
-build/js/plain.wrapper: src/js/newInstance.js src/js/Outside.js $(NPM_DEP)
-	mkdir -p $(@D)
-	$(NODE_CMD) tools/wrap.js 'placeholder\(\)' src/js/Outside.js < $< > $@
+build/js/Cindy.plain.js build/js/ours.js: node_modules/source-map/package.json
+	@mkdir -p $(@D)
+	$(NODE_CMD) tools/cat.js $(filter %.js,$^) -o $@
 
-build/js/Cindy.plain.js build/js/ours.js: build/js/plain.wrapper $(NPM_DEP)
-	cat $(filter %.js,$^) | \
-	$(NODE_CMD) tools/wrap.js '%output%' $< > $@
+build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cindy.js.wrapper
+	$(CLOSURE) $(closure_args)
+	$(NODE_CMD) tools/apply-source-map.js -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
 
 build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
 	cp $< $@
