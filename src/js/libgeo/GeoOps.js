@@ -766,23 +766,25 @@ geoOps._helper.IntersectConicConic = function(AA, BB){
     
     var delta = List.det(BB);
 
-    // degenrate Case
-    var eps = 10e-8;
-    var AAdegen = (Math.abs(alpha.value.real) < eps) ? true : false;
-    var BBdegen = (Math.abs(delta.value.real) < eps) ? true : false;
+    var myeps = 10e-16;
 
+    // degenrate Case
+    var AAdegen = (Math.abs(alpha.value.real) < myeps) ? true : false;
+    var BBdegen = (Math.abs(delta.value.real) < myeps) ? true : false;
+
+    var Alines, Blines, pts1, pts2;
     if(AAdegen && BBdegen){
-        var Alines = geoOps._helper.splitDegenConic(AA);
-        var Blines = geoOps._helper.splitDegenConic(BB);
+        Alines = geoOps._helper.splitDegenConic(AA);
+        Blines = geoOps._helper.splitDegenConic(BB);
         p1 = List.cross(Alines[0],Blines[0]);
         p2 = List.cross(Alines[1],Blines[0]);
         p3 = List.cross(Alines[0],Blines[1]);
         p4 = List.cross(Alines[1],Blines[1]);
     }
     else if(AAdegen){
-        var Alines = geoOps._helper.splitDegenConic(AA);
-        var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
-        var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
+        Alines = geoOps._helper.splitDegenConic(AA);
+        pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
+        pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
@@ -790,9 +792,9 @@ geoOps._helper.IntersectConicConic = function(AA, BB){
 
     }
     else if(BBdegen){
-        var Blines = geoOps._helper.splitDegenConic(BB);
-        var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
-        var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
+        Blines = geoOps._helper.splitDegenConic(BB);
+        pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
+        pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
