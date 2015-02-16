@@ -122,7 +122,7 @@ node_modules/.bin/jshint: $(NPM_DEP)
 	$(NPM_CMD) install jshint
 
 jshint: node_modules/.bin/jshint build/js/ours.js
-	$(NODE_PATH) $< -c Administration/jshint.conf --verbose $(filter %.js,$^)
+	$(NODE_PATH) $< -c Administration/jshint.conf --verbose --reporter '$(CURDIR)/tools/jshint-reporter.js' $(filter %.js,$^)
 
 .PHONY: jshint
 
