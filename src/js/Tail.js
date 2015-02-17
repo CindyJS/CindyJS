@@ -1,4 +1,4 @@
-    return globalInstance;} // end newInstance method
+    return globalInstance;}; // end newInstance method
 
     return createCindy;
 })();
