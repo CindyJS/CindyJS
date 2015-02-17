@@ -434,7 +434,7 @@ evaluator._helper.assigndot=function(data,what){
     var where=evaluate(data.obj);
     var field=data.key;
     if(where && field){
-        Accessor.setField(where.value,field,evaluate(what));       
+        Accessor.setField(where.value,field,what);
     }
     
     return nada;
@@ -464,30 +464,36 @@ evaluator.assign$2=function(args,modifs){
     
     var u0=(args[0].ctype=== 'undefined');
     var u1=(args[1].ctype=== 'undefined');
+    var v1=evaluate(args[1]);
     if(u0 || u1 ){
         return nada;
     }
     if(args[0].ctype==='variable' ){
-        namespace.setvar(args[0].name,evaluate(args[1]));
+        namespace.setvar(args[0].name, v1);
     }
-    if(args[0].ctype==='infix' ){
+    else if(args[0].ctype==='infix' ){
         if(args[0].oper==='_'){
-            evaluator._helper.assigntake(args[0],args[1]);
+            evaluator._helper.assigntake(args[0], v1);
+        }
+        else {
+            console.error("Can't use infix expression as lvalue");
         }
     }
-    if(args[0].ctype==='field' ){
-        evaluator._helper.assigndot(args[0],args[1]);
+    else if(args[0].ctype==='field' ){
+        evaluator._helper.assigndot(args[0], v1);
     }
-
-    if(args[0].ctype==='function' &&args[0].oper==='genList' ){
-        var v1=evaluate(args[1]);
+    else if(args[0].ctype==='function' &&args[0].oper==='genList'){
         if(v1.ctype==="list"){
-            
             evaluator._helper.assignlist(args[0].args,v1.value);
         }
-        
+        else {
+            console.error("Expected list in rhs of assignment");
+        }
     }
-    return args[0].value;
+    else {
+        console.error("Left hand side of assignment is not a recognized lvalue");
+    }
+    return v1;
 };
 
 
@@ -1985,6 +1991,8 @@ evaluator.mouse$0=function(args,modifs){  //OK
 evaluator.mover$0=function(args,modifs){  //OK
     if(move && move.mover)
         return {ctype:"geo",value:move.mover,type:"P"};
+    else
+        console.log("Not moving anything at the moment");
     return nada;
 };
 
