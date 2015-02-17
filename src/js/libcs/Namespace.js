@@ -1,75 +1,125 @@
-
-
 //==========================================
 //      Namespace and Vars
 //==========================================
 
 
-/** @constructor */ function Nada(){this.ctype='undefined';}
-/** @constructor */ function Void(){this.ctype='void';}
-/** @constructor */ function CError(msg){this.ctype='error';this.message=msg;}
+/** @constructor */
+function Nada() {
+        this.ctype = 'undefined';
+    }
+    /** @constructor */
+function Void() {
+        this.ctype = 'void';
+    }
+    /** @constructor */
+function CError(msg) {
+    this.ctype = 'error';
+    this.message = msg;
+}
 var nada = new Nada();
 var unset = new Nada(); // to distinguish variables set to nada from those which were never set
 
 /** @constructor */
-function Namespace(){
-    this.vars={
-        'pi':{'ctype':'variable','stack':[{'ctype':'number','value':{'real':Math.PI,'imag':0}}],'name':'pi'},
-        'i':{'ctype':'variable','stack':[{'ctype':'number','value':{'real':0,'imag':1}}],'name':'i'},
-        'true':{'ctype':'variable','stack':[{'ctype':'boolean','value':true}],'name':'true'},
-        'false':{'ctype':'variable','stack':[{'ctype':'boolean','value':false}],'name':'false'},
-        '#':{'ctype':'variable','stack':[nada],'name':'#'}
+function Namespace() {
+    this.vars = {
+        'pi': {
+            'ctype': 'variable',
+            'stack': [{
+                'ctype': 'number',
+                'value': {
+                    'real': Math.PI,
+                    'imag': 0
+                }
+            }],
+            'name': 'pi'
+        },
+        'i': {
+            'ctype': 'variable',
+            'stack': [{
+                'ctype': 'number',
+                'value': {
+                    'real': 0,
+                    'imag': 1
+                }
+            }],
+            'name': 'i'
+        },
+        'true': {
+            'ctype': 'variable',
+            'stack': [{
+                'ctype': 'boolean',
+                'value': true
+            }],
+            'name': 'true'
+        },
+        'false': {
+            'ctype': 'variable',
+            'stack': [{
+                'ctype': 'boolean',
+                'value': false
+            }],
+            'name': 'false'
+        },
+        '#': {
+            'ctype': 'variable',
+            'stack': [nada],
+            'name': '#'
+        }
     };
-    this.isVariable= function(a){
-        return this.vars[a]!== undefined;
-        
+    this.isVariable = function(a) {
+        return this.vars[a] !== undefined;
+
     };
-    
-    this.isVariableName = function(a){//TODO will man das so? Den ' noch dazu machen
-        
-        if (a==='#') return true;
-        if (a==='#1') return true;
-        if (a==='#2') return true;
-        
-        var b0 =  /^[a-z,A-Z]+$/.test(a[0]);
-        var b1 =  /^[0-9,a-z,A-Z]+$/.test(a);
+
+    this.isVariableName = function(a) { //TODO will man das so? Den ' noch dazu machen
+
+        if (a === '#') return true;
+        if (a === '#1') return true;
+        if (a === '#2') return true;
+
+        var b0 = /^[a-z,A-Z]+$/.test(a[0]);
+        var b1 = /^[0-9,a-z,A-Z]+$/.test(a);
         return b0 && b1;
     };
 
-    this.create =function(code){
-        var v = {'ctype':'variable','stack':[unset],'name':code};
+    this.create = function(code) {
+        var v = {
+            'ctype': 'variable',
+            'stack': [unset],
+            'name': code
+        };
         this.vars[code] = v;
         return v;
     };
-    
-    this.newvar =function(code){
+
+    this.newvar = function(code) {
         var v = this.vars[code];
         v.stack.push(nada); // nada not unset for deeper levels
         return v;
     };
-    
-    this.removevar=function(code){
+
+    this.removevar = function(code) {
         var stack = this.vars[code].stack;
         if (stack.length === 0) console.error("Removing non-existing " + code);
         stack.pop();
         if (stack.length === 0) console.warn("Removing last " + code);
     };
-    
-    
-    this.setvar= function(code,val) {
-        var stack=this.vars[code].stack;
+
+
+    this.setvar = function(code, val) {
+        var stack = this.vars[code].stack;
         if (stack.length === 0) console.error("Setting non-existing variable " + code);
-        if (val===undefined) {
+        if (val === undefined) {
             console.error("Setting variable " + code + " to undefined value");
             val = nada;
         }
-        if(val.ctype==='undefined'){
-            stack[stack.length-1]=val;
+        if (val.ctype === 'undefined') {
+            stack[stack.length - 1] = val;
             return;
         }
-        var erg=evaluator._helper.clone(val);
+        var erg = evaluator._helper.clone(val);
         if (erg === unset) erg = nada; // explicite setting does lift unset state
-        stack[stack.length-1]=erg;
+        stack[stack.length - 1] = erg;
     };
 
     /* // Apparently unused
@@ -82,16 +132,18 @@ function Namespace(){
 
     this.undefinedWarning = {};
 
-    this.getvar= function(code) {
+    this.getvar = function(code) {
 
-        var stack=this.vars[code].stack;
+        var stack = this.vars[code].stack;
         if (stack.length === 0) console.error("Getting non-existing variable " + code);
-        var erg=stack[stack.length-1];
-        if(erg === unset){
-            if(csgeo.csnames[code] !== undefined){
-                return {'ctype':'geo','value':csgeo.csnames[code]};
-            }
-            else {
+        var erg = stack[stack.length - 1];
+        if (erg === unset) {
+            if (csgeo.csnames[code] !== undefined) {
+                return {
+                    'ctype': 'geo',
+                    'value': csgeo.csnames[code]
+                };
+            } else {
                 if (console && console.log && this.undefinedWarning[code] === undefined) {
                     this.undefinedWarning[code] = true;
                     console.log("Warning: Accessing undefined variable: " + code);
@@ -101,40 +153,40 @@ function Namespace(){
         }
         return erg;
     };
-    
-    this.dump= function(code) {
-        var stack=this.vars[code].stack;
-        console.log("*** Dump "+code);
-        
-        for(var i=0;i<stack.length;i++){
-            console.log(i+":> "+ niceprint(stack[i]));
-            
+
+    this.dump = function(code) {
+        var stack = this.vars[code].stack;
+        console.log("*** Dump " + code);
+
+        for (var i = 0; i < stack.length; i++) {
+            console.log(i + ":> " + niceprint(stack[i]));
+
         }
-        
+
     };
-    
-    this.vstack=[];
-    
-    this.pushVstack=function(v){
+
+    this.vstack = [];
+
+    this.pushVstack = function(v) {
         this.vstack.push(v);
-    
+
     };
-    this.popVstack=function(){
+    this.popVstack = function() {
         this.vstack.pop();
     };
-    
-    this.cleanVstack=function(){
-        var st=this.vstack;
-        while(st.length>0 && st[st.length-1]!=="*"){
-            this.removevar(st[st.length-1]);
+
+    this.cleanVstack = function() {
+        var st = this.vstack;
+        while (st.length > 0 && st[st.length - 1] !== "*") {
+            this.removevar(st[st.length - 1]);
             st.pop();
         }
-        if(st.length>0){st.pop();}
+        if (st.length > 0) {
+            st.pop();
+        }
     };
-    
-    
-    
-    
+
+
 }
 
-var namespace =new Namespace();
+var namespace = new Namespace();
