@@ -118,6 +118,18 @@ build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
 ## Run jshint to detect syntax problems
 ######################################################################
 
+node_modules/.bin/js-beautify: $(NPM_DEP)
+	$(NPM_CMD) install js-beautify
+
+beautify: node_modules/.bin/js-beautify
+	$(NODE_PATH) $< --replace --config Administration/beautify.conf $(ours)
+
+.PHONY: beautify
+
+######################################################################
+## Run jshint to detect syntax problems
+######################################################################
+
 node_modules/.bin/jshint: $(NPM_DEP)
 	$(NPM_CMD) install jshint
 
