@@ -55,7 +55,7 @@ function evaluate(a) {
 
     if (a.ctype === 'function') {
         var eargs = [];
-        return evaluator._helper.evaluate(a.oper, a.args, a.modifs);
+        return eval_helper.evaluate(a.oper, a.args, a.modifs);
     }
     return nada;
 

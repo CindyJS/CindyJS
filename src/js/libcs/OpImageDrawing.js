@@ -3,7 +3,7 @@
 //*******************************************************
 
 
-evaluator._helper.extractReferenceX = function(w, pos) {
+eval_helper.extractReferenceX = function(w, pos) {
 
 
 };
@@ -94,7 +94,7 @@ evaluator.drawimage$2 = function(args, modifs) {
         var rot = 0;
         var alpha = 1;
 
-        var pt = evaluator._helper.extractPoint(v0);
+        var pt = eval_helper.extractPoint(v0);
         if (!pt.ok || img.ctype !== 'string') {
             return nada;
         }
@@ -198,8 +198,8 @@ evaluator.drawimage$2 = function(args, modifs) {
         }
 
 
-        var pt1 = evaluator._helper.extractPoint(v0);
-        var pt2 = evaluator._helper.extractPoint(v1);
+        var pt1 = eval_helper.extractPoint(v0);
+        var pt2 = eval_helper.extractPoint(v1);
         var pt3;
 
 
@@ -221,7 +221,7 @@ evaluator.drawimage$2 = function(args, modifs) {
             aspect = h / w;
 
         } else {
-            pt3 = evaluator._helper.extractPoint(v2);
+            pt3 = eval_helper.extractPoint(v2);
             if (!pt1.ok) return nada;
         }
 

@@ -249,7 +249,7 @@ List.contains = function(a, b) {
     var bb = false;
     for (var i = 0; i < a.value.length; i++) {
         var cc = a.value[i];
-        if ((evaluator._helper.equals(cc, b)).value) {
+        if ((eval_helper.equals(cc, b)).value) {
             return {
                 'ctype': 'boolean',
                 'value': true
@@ -271,7 +271,7 @@ List.common = function(a, b) {
         var bb = false;
         var cc = a.value[i];
         for (var j = 0; j < b.value.length; j++) {
-            bb = bb || (evaluator._helper.equals(cc, b.value[j])).value;
+            bb = bb || (eval_helper.equals(cc, b.value[j])).value;
         }
         if (bb) {
             erg[ct] = a.value[i];
@@ -291,7 +291,7 @@ List.remove = function(a, b) {
         var bb = false;
         var cc = a.value[i];
         for (var j = 0; j < b.value.length; j++) {
-            bb = bb || (evaluator._helper.equals(cc, b.value[j])).value;
+            bb = bb || (eval_helper.equals(cc, b.value[j])).value;
         }
         if (!bb) {
             erg[ct] = a.value[i];
@@ -1038,7 +1038,7 @@ List.eucangle = function(a, b) {
 List.clone = function(a) {
     var erg = [];
     for (var i = 0; i < a.value.length; i++) {
-        erg[i] = evaluator._helper.clone(a.value[i]);
+        erg[i] = eval_helper.clone(a.value[i]);
     }
     return {
         "ctype": "list",

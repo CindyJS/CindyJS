@@ -422,7 +422,7 @@ evaluator.genList = function(args, modifs) { //VARIADIC!
 };
 
 
-evaluator._helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher obs das so tut
+eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher obs das so tut
     var where = evaluate(data.args[0]);
     var ind = evaluateAndVal(data.args[1]);
 
@@ -447,7 +447,7 @@ evaluator._helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sic
 };
 
 
-evaluator._helper.assigndot = function(data, what) {
+eval_helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
     if (where && field) {
@@ -459,7 +459,7 @@ evaluator._helper.assigndot = function(data, what) {
 };
 
 
-evaluator._helper.assignlist = function(vars, vals) {
+eval_helper.assignlist = function(vars, vals) {
     var n = vars.length;
     var m = vals.length;
     if (m < n) n = m;
@@ -487,15 +487,15 @@ evaluator.assign$2 = function(args, modifs) {
         namespace.setvar(args[0].name, v1);
     } else if (args[0].ctype === 'infix') {
         if (args[0].oper === '_') {
-            evaluator._helper.assigntake(args[0], v1);
+            eval_helper.assigntake(args[0], v1);
         } else {
             console.error("Can't use infix expression as lvalue");
         }
     } else if (args[0].ctype === 'field') {
-        evaluator._helper.assigndot(args[0], v1);
+        eval_helper.assigndot(args[0], v1);
     } else if (args[0].ctype === 'function' && args[0].oper === 'genList') {
         if (v1.ctype === "list") {
-            evaluator._helper.assignlist(args[0].args, v1.value);
+            eval_helper.assignlist(args[0].args, v1.value);
         } else {
             console.error("Expected list in rhs of assignment");
         }
@@ -843,7 +843,7 @@ evaluator.sequence$2 = function(args, modifs) { //OK
     return nada;
 };
 
-evaluator._helper.genericListMathGen = function(name, op) {
+eval_helper.genericListMathGen = function(name, op) {
     evaluator[name + "$1"] = function(args, modifs) {
         var v0 = evaluate(args[0]);
         if (v0.ctype === 'list')
@@ -885,10 +885,10 @@ evaluator._helper.genericListMathGen = function(name, op) {
     };
 };
 
-evaluator._helper.genericListMathGen("product", "mult");
-evaluator._helper.genericListMathGen("sum", "add");
-evaluator._helper.genericListMathGen("max", "max");
-evaluator._helper.genericListMathGen("min", "min");
+eval_helper.genericListMathGen("product", "mult");
+eval_helper.genericListMathGen("sum", "add");
+eval_helper.genericListMathGen("max", "max");
+eval_helper.genericListMathGen("min", "min");
 
 evaluator.max$2 = function(args, modifs) {
     var v1 = evaluateAndVal(args[0]);
@@ -1006,7 +1006,7 @@ evaluator.sqrt$1 = function(args, modifs) {
     return nada;
 };
 
-evaluator._helper.laguerre = function(cs, x, maxiter) {
+eval_helper.laguerre = function(cs, x, maxiter) {
     if (cs.ctype !== 'list')
         return nada;
     var n = cs.value.length - 1,
@@ -1066,8 +1066,8 @@ evaluator.roots$1 = function(args, modifs) {
         var cs_orig = List.clone(cs);
         var n = cs.value.length - 1;
         for (i = 0; i < n; i++) {
-            roots[i] = evaluator._helper.laguerre(cs, CSNumber.real(0.0), 200);
-            roots[i] = evaluator._helper.laguerre(cs_orig, roots[i], 1);
+            roots[i] = eval_helper.laguerre(cs, CSNumber.real(0.0), 200);
+            roots[i] = eval_helper.laguerre(cs_orig, roots[i], 1);
             var fx = [];
             fx[n - i] = CSNumber.clone(cs.value[n - i]);
             for (var j = n - i; j > 0; j--)
@@ -1160,7 +1160,7 @@ evaluator.log$1 = function(args, modifs) {
 };
 
 
-evaluator._helper.recursiveGen = function(op) {
+eval_helper.recursiveGen = function(op) {
     var numOp = CSNumber[op],
         listOp = List[op];
     evaluator[op + "$1"] = function(args, modifs) {
@@ -1175,13 +1175,13 @@ evaluator._helper.recursiveGen = function(op) {
     };
 };
 
-evaluator._helper.recursiveGen("im");
-evaluator._helper.recursiveGen("re");
-evaluator._helper.recursiveGen("conjugate");
-evaluator._helper.recursiveGen("round");
-evaluator._helper.recursiveGen("ceil");
-evaluator._helper.recursiveGen("floor");
-evaluator._helper.recursiveGen("abs");
+eval_helper.recursiveGen("im");
+eval_helper.recursiveGen("re");
+eval_helper.recursiveGen("conjugate");
+eval_helper.recursiveGen("round");
+eval_helper.recursiveGen("ceil");
+eval_helper.recursiveGen("floor");
+eval_helper.recursiveGen("abs");
 evaluator.abs_infix = evaluator.abs$1;
 
 ///////////////////////////////
@@ -1787,7 +1787,7 @@ evaluator.concat$2 = function(args, modifs) {
         return List.concat(v0, v1);
     }
     if (v0.ctype === 'shape' && v1.ctype === 'shape') {
-        return evaluator._helper.shapeconcat(v0, v1);
+        return eval_helper.shapeconcat(v0, v1);
     }
     return nada;
 };
@@ -1799,7 +1799,7 @@ evaluator.common$2 = function(args, modifs) {
         return List.set(List.common(v0, v1));
     }
     if (v0.ctype === 'shape' && v1.ctype === 'shape') {
-        return evaluator._helper.shapecommon(v0, v1);
+        return eval_helper.shapecommon(v0, v1);
     }
     return nada;
 };
@@ -1811,7 +1811,7 @@ evaluator.remove$2 = function(args, modifs) {
         return List.remove(v0, v1);
     }
     if (v0.ctype === 'shape' && v1.ctype === 'shape') {
-        return evaluator._helper.shaperemove(v0, v1);
+        return eval_helper.shaperemove(v0, v1);
     }
     return nada;
 };
@@ -1990,7 +1990,7 @@ evaluator.gray$1 = function(args, modifs) {
 
 evaluator.grey$1 = evaluator.gray$1;
 
-evaluator._helper.HSVtoRGB = function(h, s, v) {
+eval_helper.HSVtoRGB = function(h, s, v) {
 
     var r, g, b, i, f, p, q, t;
     if (h && s === undefined && v === undefined) {
@@ -2043,7 +2043,7 @@ evaluator.hue$1 = function(args, modifs) {
     if (v0.ctype === 'number') {
         var c = v0.value.real;
         c = c - Math.floor(c);
-        return evaluator._helper.HSVtoRGB(c, 1, 1);
+        return eval_helper.HSVtoRGB(c, 1, 1);
     }
     return nada;
 };
@@ -2053,7 +2053,7 @@ evaluator.hue$1 = function(args, modifs) {
 ///////////////////////////////
 
 
-evaluator._helper.shapeconvert = function(a) {
+eval_helper.shapeconvert = function(a) {
     var i, li;
     if (a.type === "circle") {
         var pt = a.value.value[0];
@@ -2093,11 +2093,11 @@ evaluator._helper.shapeconvert = function(a) {
 };
 
 
-evaluator._helper.shapeop = function(a, b, op) {
+eval_helper.shapeop = function(a, b, op) {
 
     var convert;
-    var aa = evaluator._helper.shapeconvert(a);
-    var bb = evaluator._helper.shapeconvert(b);
+    var aa = eval_helper.shapeconvert(a);
+    var bb = eval_helper.shapeconvert(b);
     var scale = 1000;
     ClipperLib.JS.ScaleUpPaths(aa, scale);
     ClipperLib.JS.ScaleUpPaths(bb, scale);
@@ -2119,16 +2119,16 @@ evaluator._helper.shapeop = function(a, b, op) {
 
 };
 
-evaluator._helper.shapecommon = function(a, b) {
-    return evaluator._helper.shapeop(a, b, ClipperLib.ClipType.ctIntersection);
+eval_helper.shapecommon = function(a, b) {
+    return eval_helper.shapeop(a, b, ClipperLib.ClipType.ctIntersection);
 };
 
-evaluator._helper.shaperemove = function(a, b) {
-    return evaluator._helper.shapeop(a, b, ClipperLib.ClipType.ctDifference);
+eval_helper.shaperemove = function(a, b) {
+    return eval_helper.shapeop(a, b, ClipperLib.ClipType.ctDifference);
 };
 
-evaluator._helper.shapeconcat = function(a, b) {
-    return evaluator._helper.shapeop(a, b, ClipperLib.ClipType.ctUnion);
+eval_helper.shapeconcat = function(a, b) {
+    return eval_helper.shapeop(a, b, ClipperLib.ClipType.ctUnion);
 };
 
 
@@ -2513,7 +2513,7 @@ evaluator.parse$1 = function(args, modifs) {
 //     Transformations       //
 ///////////////////////////////
 
-evaluator._helper.basismap = function(a, b, c, d) {
+eval_helper.basismap = function(a, b, c, d) {
     var mat = List.turnIntoCSList([a, b, c]);
     mat = List.inverse(List.transpose(mat));
     var vv = General.mult(mat, d);
@@ -2537,8 +2537,8 @@ evaluator.map$8 = function(args, modifs) {
     var v3 = evaluateAndHomog(args[7]);
     if (v0 !== nada && v1 !== nada && v2 !== nada && v3 !== nada &&
         w0 !== nada && w1 !== nada && w2 !== nada && w3 !== nada) {
-        var m1 = evaluator._helper.basismap(v0, v1, v2, v3);
-        var m2 = evaluator._helper.basismap(w0, w1, w2, w3);
+        var m1 = eval_helper.basismap(v0, v1, v2, v3);
+        var m2 = eval_helper.basismap(w0, w1, w2, w3);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2563,8 +2563,8 @@ evaluator.map$6 = function(args, modifs) {
 
     if (v0 !== nada && v1 !== nada && v2 !== nada && v3 !== nada &&
         w0 !== nada && w1 !== nada && w2 !== nada && w3 !== nada) {
-        var m1 = evaluator._helper.basismap(v0, v1, v2, v3);
-        var m2 = evaluator._helper.basismap(w0, w1, w2, w3);
+        var m1 = eval_helper.basismap(v0, v1, v2, v3);
+        var m2 = eval_helper.basismap(w0, w1, w2, w3);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2582,8 +2582,8 @@ evaluator.map$4 = function(args, modifs) {
 
     if (v0 !== nada && v1 !== nada &&
         w0 !== nada && w1 !== nada) {
-        var m1 = evaluator._helper.basismap(v0, v1, ii, jj);
-        var m2 = evaluator._helper.basismap(w0, w1, ii, jj);
+        var m1 = eval_helper.basismap(v0, v1, ii, jj);
+        var m2 = eval_helper.basismap(w0, w1, ii, jj);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2600,8 +2600,8 @@ evaluator.map$2 = function(args, modifs) {
 
     if (v0 !== nada && v1 !== nada &&
         w0 !== nada && w1 !== nada) {
-        var m1 = evaluator._helper.basismap(v0, v1, ii, jj);
-        var m2 = evaluator._helper.basismap(w0, w1, ii, jj);
+        var m1 = eval_helper.basismap(v0, v1, ii, jj);
+        var m2 = eval_helper.basismap(w0, w1, ii, jj);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2617,8 +2617,8 @@ evaluator.pointreflect$1 = function(args, modifs) {
     var v1 = General.add(List.realVector([-1, 0, 0]), w0);
 
     if (v1 !== nada && w0 !== nada && w1 !== nada) {
-        var m1 = evaluator._helper.basismap(w0, v1, ii, jj);
-        var m2 = evaluator._helper.basismap(w0, w1, ii, jj);
+        var m1 = eval_helper.basismap(w0, v1, ii, jj);
+        var m2 = eval_helper.basismap(w0, w1, ii, jj);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2637,8 +2637,8 @@ evaluator.linereflect$1 = function(args, modifs) {
     var w2 = List.cross(r1, w0);
 
     if (w0 !== nada && w1 !== nada) {
-        var m1 = evaluator._helper.basismap(w1, w2, ii, jj);
-        var m2 = evaluator._helper.basismap(w1, w2, jj, ii);
+        var m1 = eval_helper.basismap(w1, w2, ii, jj);
+        var m2 = eval_helper.basismap(w1, w2, jj, ii);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2651,7 +2651,7 @@ evaluator.linereflect$1 = function(args, modifs) {
 ///////////////////////////////
 
 
-evaluator._helper.extractPointVec = function(v1) { //Eventuell Homogen machen
+eval_helper.extractPointVec = function(v1) { //Eventuell Homogen machen
     var erg = {};
     erg.ok = false;
     if (v1.ctype === 'geo') {
@@ -2709,7 +2709,7 @@ evaluator.polygon$1 = function(args, modifs) {
     if (v0.ctype === 'list') {
         var li = [];
         for (var i = 0; i < v0.value.length; i++) {
-            var pt = evaluator._helper.extractPoint(v0.value[i]);
+            var pt = eval_helper.extractPoint(v0.value[i]);
             if (!pt.ok) {
                 return nada;
             }
@@ -2730,7 +2730,7 @@ evaluator.polygon$1 = function(args, modifs) {
 evaluator.circle$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    var pt = evaluator._helper.extractPointVec(v0);
+    var pt = eval_helper.extractPointVec(v0);
 
     if (!pt.ok || v1.ctype !== 'number') {
         return nada;
@@ -3033,12 +3033,12 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
 /**********    WEBGL     ***********/
 /***********************************/
 
-evaluator._helper.formatForWebGL = function(x) {
+eval_helper.formatForWebGL = function(x) {
     return x.toFixed(10);
 };
 
 evaluator.generateWebGL$2 = function(args, modifs) {
-    var f = evaluator._helper.formatForWebGL;
+    var f = eval_helper.formatForWebGL;
     var expr = args[0];
     var vars = evaluate(args[1]);
     console.log(vars);
@@ -3055,7 +3055,7 @@ evaluator.generateWebGL$2 = function(args, modifs) {
     }
     console.log("***********");
     console.log(varlist);
-    var li = evaluator._helper.plotvars(expr);
+    var li = eval_helper.plotvars(expr);
     console.log(li);
 
     if (li.indexOf("a") === -1 && li.indexOf("b") === -1 && li.indexOf("c") === -1 && li.indexOf("d") === -1 && li.indexOf("e") === -1 && li.indexOf("f") === -1) {
@@ -3201,9 +3201,9 @@ evaluator.generateWebGL$2 = function(args, modifs) {
 
 evaluator.compileToWebGL$1 = function(args, modifs) {
     var a, b;
-    var f = evaluator._helper.formatForWebGL;
+    var f = eval_helper.formatForWebGL;
     var expr = args[0];
-    var li = evaluator._helper.plotvars(expr);
+    var li = eval_helper.plotvars(expr);
 
     if (li.indexOf("a") === -1 && li.indexOf("b") === -1 && li.indexOf("c") === -1 && li.indexOf("d") === -1 && li.indexOf("e") === -1 && li.indexOf("f") === -1) {
         var erg = evaluateAndVal(expr);

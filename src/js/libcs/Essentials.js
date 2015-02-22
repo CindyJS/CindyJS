@@ -176,9 +176,9 @@ function myfunctions(name, args, modifs) {
 //this function evaluates a concrete function
 //*******************************************************
 var evaluator = {};
-evaluator._helper = {};
+var eval_helper = {};
 
-evaluator._helper.evaluate = function(name, args, modifs) {
+eval_helper.evaluate = function(name, args, modifs) {
     if (myfunctions.hasOwnProperty(name))
         return myfunctions(name, args, modifs);
     var f = evaluator[name];
@@ -199,7 +199,7 @@ evaluator._helper.evaluate = function(name, args, modifs) {
 };
 
 
-evaluator._helper.clone = function(a) { //Das ist jetzt gerade mal ätzend un-OO
+eval_helper.clone = function(a) { //Das ist jetzt gerade mal ätzend un-OO
     if (a.ctype === 'list') {
         return List.clone(a);
     }
@@ -210,7 +210,7 @@ evaluator._helper.clone = function(a) { //Das ist jetzt gerade mal ätzend un-OO
 
 };
 
-evaluator._helper.equals = function(v0, v1) { //Und nochmals un-OO
+eval_helper.equals = function(v0, v1) { //Und nochmals un-OO
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return {
             'ctype': 'boolean',

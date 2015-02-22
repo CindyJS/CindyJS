@@ -3,7 +3,7 @@
 //*******************************************************
 
 
-evaluator._helper.extractPoint = function(v1) {
+eval_helper.extractPoint = function(v1) {
     var erg = {};
     erg.ok = false;
     if (v1.ctype === 'geo') {
@@ -101,7 +101,7 @@ evaluator.draw$1 = function(args, modifs) {
                     for (var i = 0; i < erg.value.length; i++) {
                         pat[i] = erg.value[i].value.real;
                     }
-                    evaluator._helper.setDash(pat, lsize);
+                    eval_helper.setDash(pat, lsize);
                     dashing = true;
                 }
             }
@@ -111,7 +111,7 @@ evaluator.draw$1 = function(args, modifs) {
                 erg = evaluate(modifs.dashtype);
                 if (erg.ctype === 'number') {
                     var type2 = Math.floor(erg.value.real);
-                    evaluator._helper.setDashType(type2, lsize);
+                    eval_helper.setDashType(type2, lsize);
                     dashing = true;
 
 
@@ -122,7 +122,7 @@ evaluator.draw$1 = function(args, modifs) {
                 erg = evaluate(modifs.dashing);
                 if (erg.ctype === 'number') {
                     var si = Math.floor(erg.value.real);
-                    evaluator._helper.setDash([si * 2, si], lsize);
+                    eval_helper.setDash([si * 2, si], lsize);
                     dashing = true;
 
 
@@ -441,14 +441,14 @@ evaluator.draw$1 = function(args, modifs) {
         //        csctx.strokeStyle="rgba(0,0,255,0.2)";
 
         if (dashing)
-            evaluator._helper.unSetDash();
+            eval_helper.unSetDash();
     }
 
     function drawsegment(aa, bb) {
         var v1 = evaluateAndVal(aa);
         var v2 = evaluateAndVal(bb);
-        var pt1 = evaluator._helper.extractPoint(v1);
-        var pt2 = evaluator._helper.extractPoint(v2);
+        var pt1 = eval_helper.extractPoint(v1);
+        var pt2 = eval_helper.extractPoint(v2);
         if (!pt1.ok || !pt2.ok) {
             return nada;
         }
@@ -520,7 +520,7 @@ evaluator.draw$1 = function(args, modifs) {
 
 
     function drawpoint() {
-        var pt = evaluator._helper.extractPoint(v1);
+        var pt = eval_helper.extractPoint(v1);
 
         if (!pt.ok && typeof(v1.value) !== "undefined") { //eventuell doch ein Segment
             if (v1.value.length === 2) {
@@ -561,7 +561,7 @@ evaluator.draw$1 = function(args, modifs) {
     var v1 = evaluateAndVal(args[0]);
 
     if (v1.ctype === "shape") {
-        return evaluator._helper.drawshape(v1, modifs);
+        return eval_helper.drawshape(v1, modifs);
 
     }
 
@@ -577,15 +577,15 @@ evaluator.draw$1 = function(args, modifs) {
 evaluator.draw$2 = evaluator.draw$1; // TODO: perhaps separate these
 
 evaluator.drawcircle$2 = function(args, modifs) {
-    return evaluator._helper.drawcircle(args, modifs, "D");
+    return eval_helper.drawcircle(args, modifs, "D");
 };
 
 
 evaluator.fillcircle$2 = function(args, modifs) {
-    return evaluator._helper.drawcircle(args, modifs, "F");
+    return eval_helper.drawcircle(args, modifs, "F");
 };
 
-evaluator._helper.drawcircle = function(args, modifs, df) {
+eval_helper.drawcircle = function(args, modifs, df) {
     var erg;
     var size = 4;
     var col;
@@ -662,7 +662,7 @@ evaluator._helper.drawcircle = function(args, modifs, df) {
     }
 
 
-    var pt = evaluator._helper.extractPoint(v0);
+    var pt = eval_helper.extractPoint(v0);
 
 
     if (!pt.ok || v1.ctype !== 'number') {
@@ -1119,30 +1119,30 @@ evaluator.drawall$1 = function(args, modifs) {
 };
 
 evaluator.connect$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "D", false);
+    return eval_helper.drawpolygon(args, modifs, "D", false);
 };
 
 
 evaluator.drawpoly$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "D", true);
+    return eval_helper.drawpolygon(args, modifs, "D", true);
 };
 
 
 evaluator.fillpoly$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "F", true);
+    return eval_helper.drawpolygon(args, modifs, "F", true);
 };
 
 evaluator.drawpolygon$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "D", true);
+    return eval_helper.drawpolygon(args, modifs, "D", true);
 };
 
 
 evaluator.fillpolygon$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "F", true);
+    return eval_helper.drawpolygon(args, modifs, "F", true);
 };
 
 
-evaluator._helper.drawpolygon = function(args, modifs, df, cycle) {
+eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     var erg;
     var size = 4;
     var col;
@@ -1258,7 +1258,7 @@ evaluator._helper.drawpolygon = function(args, modifs, df, cycle) {
         var li = [],
             i;
         for (i = 0; i < v0.value.length; i++) {
-            var pt = evaluator._helper.extractPoint(v0.value[i]);
+            var pt = eval_helper.extractPoint(v0.value[i]);
 
             if (!pt.ok) {
                 return nada;
@@ -1433,7 +1433,7 @@ evaluator.drawtext$2 = function(args, modifs) {
 
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluate(args[1]);
-    var pt = evaluator._helper.extractPoint(v0);
+    var pt = eval_helper.extractPoint(v0);
 
     if (!pt.ok) {
         return nada;
@@ -1457,35 +1457,35 @@ evaluator.drawtext$2 = function(args, modifs) {
 
 };
 
-evaluator._helper.drawshape = function(shape, modifs) {
+eval_helper.drawshape = function(shape, modifs) {
     if (shape.type === "polygon") {
-        return evaluator._helper.drawpolygon([shape], modifs, "D", 1);
+        return eval_helper.drawpolygon([shape], modifs, "D", 1);
     }
     if (shape.type === "circle") {
-        return evaluator._helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "D");
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "D");
     }
     return nada;
 };
 
 
-evaluator._helper.fillshape = function(shape, modifs) {
+eval_helper.fillshape = function(shape, modifs) {
 
     if (shape.type === "polygon") {
-        return evaluator._helper.drawpolygon([shape], modifs, "F", 1);
+        return eval_helper.drawpolygon([shape], modifs, "F", 1);
     }
     if (shape.type === "circle") {
-        return evaluator._helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "F");
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "F");
     }
     return nada;
 };
 
 
-evaluator._helper.clipshape = function(shape, modifs) {
+eval_helper.clipshape = function(shape, modifs) {
     if (shape.type === "polygon") {
-        return evaluator._helper.drawpolygon([shape], modifs, "C", 1);
+        return eval_helper.drawpolygon([shape], modifs, "C", 1);
     }
     if (shape.type === "circle") {
-        return evaluator._helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "C");
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "C");
     }
     return nada;
 };
@@ -1494,7 +1494,7 @@ evaluator._helper.clipshape = function(shape, modifs) {
 evaluator.fill$1 = function(args, modifs) {
     var v1 = evaluate(args[0]);
     if (v1.ctype === "shape") {
-        return evaluator._helper.fillshape(v1, modifs);
+        return eval_helper.fillshape(v1, modifs);
     }
     return nada;
 };
@@ -1503,7 +1503,7 @@ evaluator.fill$1 = function(args, modifs) {
 evaluator.clip$1 = function(args, modifs) {
     var v1 = evaluate(args[0]);
     if (v1.ctype === "shape") {
-        return evaluator._helper.clipshape(v1, modifs);
+        return eval_helper.clipshape(v1, modifs);
     }
     if (v1.ctype === "list") {
         var erg = evaluator.polygon$1(args, []);
@@ -1513,7 +1513,7 @@ evaluator.clip$1 = function(args, modifs) {
 };
 
 
-evaluator._helper.setDash = function(pattern, size) {
+eval_helper.setDash = function(pattern, size) {
     var s = Math.sqrt(size);
     for (var i = 0; i < pattern.length; i++) {
         pattern[i] *= s;
@@ -1527,7 +1527,7 @@ evaluator._helper.setDash = function(pattern, size) {
     csctx.mozDash = pattern; //FFX
 };
 
-evaluator._helper.unSetDash = function() {
+eval_helper.unSetDash = function() {
     if (!csctx.setLineDash) {
         csctx.setLineDash = function() {};
 
@@ -1538,22 +1538,22 @@ evaluator._helper.unSetDash = function() {
 };
 
 
-evaluator._helper.setDashType = function(type, s) {
+eval_helper.setDashType = function(type, s) {
 
     if (type === 0) {
-        evaluator._helper.setDash([]);
+        eval_helper.setDash([]);
     }
     if (type === 1) {
-        evaluator._helper.setDash([10, 10], s);
+        eval_helper.setDash([10, 10], s);
     }
     if (type === 2) {
-        evaluator._helper.setDash([10, 4], s);
+        eval_helper.setDash([10, 4], s);
     }
     if (type === 3) {
-        evaluator._helper.setDash([1, 3], s);
+        eval_helper.setDash([1, 3], s);
     }
     if (type === 4) {
-        evaluator._helper.setDash([10, 5, 1, 5], s);
+        eval_helper.setDash([10, 5, 1, 5], s);
     }
 
 };
@@ -1602,7 +1602,7 @@ evaluator.plot$2 = function(args, modifs) {
                 for (var i = 0; i < erg.value.length; i++) {
                     pat[i] = erg.value[i].value.real;
                 }
-                evaluator._helper.setDash(pat, lsize);
+                eval_helper.setDash(pat, lsize);
                 dashing = true;
             }
         }
@@ -1612,7 +1612,7 @@ evaluator.plot$2 = function(args, modifs) {
             erg = evaluate(modifs.dashtype);
             if (erg.ctype === 'number') {
                 var type2 = Math.floor(erg.value.real);
-                evaluator._helper.setDashType(type2, lsize);
+                eval_helper.setDashType(type2, lsize);
                 dashing = true;
 
 
@@ -1623,7 +1623,7 @@ evaluator.plot$2 = function(args, modifs) {
             erg = evaluate(modifs.dashing);
             if (erg.ctype === 'number') {
                 var si = Math.floor(erg.value.real);
-                evaluator._helper.setDash([si * 2, si], lsize);
+                eval_helper.setDash([si * 2, si], lsize);
                 dashing = true;
 
 
@@ -1703,7 +1703,7 @@ evaluator.plot$2 = function(args, modifs) {
         runv = args[1].name;
 
     } else {
-        var li = evaluator._helper.plotvars(v1);
+        var li = eval_helper.plotvars(v1);
         runv = "#";
         if (li.indexOf("t") !== -1) {
             runv = "t";
@@ -1881,7 +1881,7 @@ evaluator.plot$2 = function(args, modifs) {
             }
         }
         if (dashing)
-            evaluator._helper.unSetDash();
+            eval_helper.unSetDash();
         return nada;
     }
 
@@ -1911,7 +1911,7 @@ evaluator.plot$2 = function(args, modifs) {
         csctx.stroke();
 
     if (dashing)
-        evaluator._helper.unSetDash();
+        eval_helper.unSetDash();
     return nada;
 
 };
@@ -1921,7 +1921,7 @@ evaluator.plotX$1 = function(args, modifs) { //OK
 
 
     var v1 = args[0];
-    var li = evaluator._helper.plotvars(v1);
+    var li = eval_helper.plotvars(v1);
     var runv = "#";
     if (li.indexOf("t") !== -1) {
         runv = "t";
@@ -1979,7 +1979,7 @@ evaluator.plotX$1 = function(args, modifs) { //OK
 };
 
 
-evaluator._helper.plotvars = function(a) {
+eval_helper.plotvars = function(a) {
     function merge(x, y) {
         var obj = {},
             i;
@@ -2013,8 +2013,8 @@ evaluator._helper.plotvars = function(a) {
     }
 
     if (a.ctype === 'infix') {
-        l1 = evaluator._helper.plotvars(a.args[0]);
-        l2 = evaluator._helper.plotvars(a.args[1]);
+        l1 = eval_helper.plotvars(a.args[0]);
+        l2 = eval_helper.plotvars(a.args[1]);
         return merge(l1, l2);
     }
 
@@ -2022,7 +2022,7 @@ evaluator._helper.plotvars = function(a) {
         els = a.value;
         li = [];
         for (j = 0; j < els.length; j++) {
-            l1 = evaluator._helper.plotvars(els[j]);
+            l1 = eval_helper.plotvars(els[j]);
             li = merge(li, l1);
         }
         return li;
@@ -2032,7 +2032,7 @@ evaluator._helper.plotvars = function(a) {
         els = a.args;
         li = [];
         for (j = 0; j < els.length; j++) {
-            l1 = evaluator._helper.plotvars(els[j]);
+            l1 = eval_helper.plotvars(els[j]);
             li = merge(li, l1);
 
         }
