@@ -359,7 +359,7 @@ List.equals = function(a1, a2) {
         if (av1.ctype === 'list' && av2.ctype === 'list') {
             erg = erg && List.equals(av1, av2).value;
         } else {
-            erg = erg && evaluator.comp_equals([av1, av2], []).value;
+            erg = erg && comp_equals([av1, av2], []).value;
 
         }
     }
@@ -385,7 +385,7 @@ List.almostequals = function(a1, a2) {
         if (av1.ctype === 'list' && av2.ctype === 'list') {
             erg = erg && List.comp_almostequals(av1, av2).value;
         } else {
-            erg = erg && evaluator.comp_almostequals([av1, av2], []).value;
+            erg = erg && comp_almostequals([av1, av2], []).value;
 
         }
     }
@@ -431,7 +431,7 @@ List.set = function(a1) {
     var erg1 = a1.value.sort(General.compare);
 
     for (var i = 0; i < erg1.length; i++) {
-        if (i === 0 || !(evaluator.comp_equals([erg[erg.length - 1], erg1[i]], [])).value) {
+        if (i === 0 || !(comp_equals([erg[erg.length - 1], erg1[i]], [])).value) {
             erg[ct] = erg1[i];
             ct++;
 

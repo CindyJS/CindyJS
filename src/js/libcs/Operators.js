@@ -325,7 +325,7 @@ evaluator.flatten$1 = function(args, modifs) {
 };
 
 
-evaluator.semicolon$2 = function(args, modifs) { //OK
+function infix_semicolon(args, modifs) { //OK
     var u0 = (args[0].ctype === 'void');
     var u1 = (args[1].ctype === 'void');
 
@@ -342,7 +342,7 @@ evaluator.semicolon$2 = function(args, modifs) { //OK
         return evaluate(args[1]);
     }
     return nada;
-};
+}
 
 
 evaluator.createvar$1 = function(args, modifs) { //OK
@@ -467,7 +467,7 @@ eval_helper.assignlist = function(vars, vals) {
     for (var i = 0; i < n; i++) {
         var name = vars[i];
         var val = vals[i];
-        evaluator.assign$2([name, val], []);
+        infix_assign([name, val], []);
 
     }
 
@@ -475,7 +475,7 @@ eval_helper.assignlist = function(vars, vals) {
 };
 
 
-evaluator.assign$2 = function(args, modifs) {
+function infix_assign(args, modifs) {
 
     var u0 = (args[0].ctype === 'undefined');
     var u1 = (args[1].ctype === 'undefined');
@@ -503,10 +503,10 @@ evaluator.assign$2 = function(args, modifs) {
         console.error("Left hand side of assignment is not a recognized lvalue");
     }
     return v1;
-};
+}
 
 
-evaluator.define$2 = function(args, modifs) {
+function infix_define(args, modifs) {
 
     var u0 = (args[0].ctype === 'undefined');
     var u1 = (args[1].ctype === 'undefined');
@@ -526,7 +526,7 @@ evaluator.define$2 = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
 evaluator.if$2 = function(args, modifs) { //OK
@@ -551,7 +551,7 @@ evaluator.if$3 = function(args, modifs) { //OK
 
 };
 
-evaluator.comp_equals = function(args, modifs) {
+function comp_equals(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -582,16 +582,16 @@ evaluator.comp_equals = function(args, modifs) {
         'ctype': 'boolean',
         'value': false
     };
-};
+}
 
-evaluator.comp_notequals = function(args, modifs) {
-    var erg = evaluator.comp_equals(args, modifs);
+function comp_notequals(args, modifs) {
+    var erg = comp_equals(args, modifs);
     erg.value = !erg.value;
     return erg;
-};
+}
 
 
-evaluator.comp_almostequals = function(args, modifs) {
+function comp_almostequals(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -620,10 +620,11 @@ evaluator.comp_almostequals = function(args, modifs) {
         'ctype': 'boolean',
         'value': false
     };
-};
+}
 
 
-evaluator.and$2 = function(args, modifs) {
+evaluator.and$2 = infix_and;
+function infix_and(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -635,10 +636,11 @@ evaluator.and$2 = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
-evaluator.or$2 = function(args, modifs) {
+evaluator.or$2 = infix_or;
+function infix_or(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -650,7 +652,7 @@ evaluator.or$2 = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
 evaluator.xor$2 = function(args, modifs) {
@@ -668,7 +670,7 @@ evaluator.xor$2 = function(args, modifs) {
 };
 
 
-evaluator.not = function(args, modifs) {
+function prefix_not(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -680,10 +682,10 @@ evaluator.not = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
-evaluator.numb_degree = function(args, modifs) {
+function postfix_numb_degree(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -692,17 +694,17 @@ evaluator.numb_degree = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
-evaluator.comp_notalmostequals = function(args, modifs) {
-    var erg = evaluator.comp_almostequals(args, modifs);
+function comp_notalmostequals(args, modifs) {
+    var erg = comp_almostequals(args, modifs);
     erg.value = !erg.value;
     return erg;
-};
+}
 
 
-evaluator.comp_ugt = function(args, modifs) {
+function comp_ugt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -713,9 +715,9 @@ evaluator.comp_ugt = function(args, modifs) {
             };
     }
     return nada;
-};
+}
 
-evaluator.comp_uge = function(args, modifs) {
+function comp_uge(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -726,9 +728,9 @@ evaluator.comp_uge = function(args, modifs) {
             };
     }
     return nada;
-};
+}
 
-evaluator.comp_ult = function(args, modifs) {
+function comp_ult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -739,9 +741,9 @@ evaluator.comp_ult = function(args, modifs) {
             };
     }
     return nada;
-};
+}
 
-evaluator.comp_ule = function(args, modifs) {
+function comp_ule(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -752,10 +754,10 @@ evaluator.comp_ule = function(args, modifs) {
             };
     }
     return nada;
-};
+}
 
 
-evaluator.comp_gt = function(args, modifs) {
+function comp_gt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -772,10 +774,10 @@ evaluator.comp_gt = function(args, modifs) {
         };
     }
     return nada;
-};
+}
 
 
-evaluator.comp_ge = function(args, modifs) {
+function comp_ge(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -792,10 +794,10 @@ evaluator.comp_ge = function(args, modifs) {
         };
     }
     return nada;
-};
+}
 
 
-evaluator.comp_le = function(args, modifs) {
+function comp_le(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -812,9 +814,9 @@ evaluator.comp_le = function(args, modifs) {
         };
     }
     return nada;
-};
+}
 
-evaluator.comp_lt = function(args, modifs) {
+function comp_lt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -831,17 +833,17 @@ evaluator.comp_lt = function(args, modifs) {
         };
     }
     return nada;
-};
+}
 
 
-evaluator.sequence$2 = function(args, modifs) { //OK
+function infix_sequence(args, modifs) { //OK
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return List.sequence(v0, v1);
     }
     return nada;
-};
+}
 
 eval_helper.genericListMathGen = function(name, op) {
     evaluator[name + "$1"] = function(args, modifs) {
@@ -904,15 +906,15 @@ evaluator.min$2 = function(args, modifs) {
     return evaluator.min$1([List.turnIntoCSList([v1, args[1]])]);
 };
 
-evaluator.add$2 = function(args, modifs) {
+evaluator.add$2 = infix_add;
+function infix_add(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     return General.add(v0, v1);
+}
 
-};
-
-
-evaluator.minus$2 = function(args, modifs) {
+evaluator.sub$2 = infix_sub;
+function infix_sub(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -931,24 +933,21 @@ evaluator.minus$2 = function(args, modifs) {
         return List.sub(v0, v1);
     }
     return nada;
+}
 
-};
-
-evaluator.mult$2 = function(args, modifs) {
-
+evaluator.mult$2 = infix_mult;
+function infix_mult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-
     return General.mult(v0, v1);
-};
+}
 
-evaluator.div$2 = function(args, modifs) {
-
+evaluator.div$2 = infix_div;
+function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     return General.div(v0, v1);
-
-};
+}
 
 
 evaluator.mod$2 = function(args, modifs) {
@@ -962,7 +961,8 @@ evaluator.mod$2 = function(args, modifs) {
 
 };
 
-evaluator.pow$2 = function(args, modifs) {
+evaluator.pow$2 = infix_pow;
+function infix_pow(args, modifs) {
 
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -971,7 +971,7 @@ evaluator.pow$2 = function(args, modifs) {
     }
     return nada;
 
-};
+}
 
 
 ///////////////////////////////
@@ -1593,7 +1593,7 @@ evaluator.join$2 = function(args, modifs) {
 evaluator.dist$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    var diff = evaluator.minus$2([v0, v1], []);
+    var diff = infix_sub([v0, v1], []);
     return evaluator.abs$1([diff], []);
 };
 
@@ -1688,7 +1688,7 @@ evaluator.linearsolve$2 = function(args, modifs) {
 //    List Manipulations     //
 ///////////////////////////////
 
-evaluator.take$2 = function(args, modifs) {
+function infix_take(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v1.ctype === 'number') {
@@ -1713,12 +1713,12 @@ evaluator.take$2 = function(args, modifs) {
         var li = [];
         for (var i = 0; i < v1.value.length; i++) {
             var v1i = evaluateAndVal(v1.value[i]);
-            li[i] = evaluator.take$2([v0, v1i], []);
+            li[i] = infix_take([v0, v1i], []);
         }
         return List.turnIntoCSList(li);
     }
     return nada;
-};
+}
 
 
 evaluator.length$1 = function(args, modifs) {
@@ -1780,7 +1780,8 @@ evaluator.directproduct$2 = function(args, modifs) {
     return nada;
 };
 
-evaluator.concat$2 = function(args, modifs) {
+evaluator.concat$2 = infix_concat;
+function infix_concat(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'list' && v1.ctype === 'list') {
@@ -1790,9 +1791,10 @@ evaluator.concat$2 = function(args, modifs) {
         return eval_helper.shapeconcat(v0, v1);
     }
     return nada;
-};
+}
 
-evaluator.common$2 = function(args, modifs) {
+evaluator.common$2 = infix_common;
+function infix_common(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'list' && v1.ctype === 'list') {
@@ -1802,9 +1804,10 @@ evaluator.common$2 = function(args, modifs) {
         return eval_helper.shapecommon(v0, v1);
     }
     return nada;
-};
+}
 
-evaluator.remove$2 = function(args, modifs) {
+evaluator.remove$2 = infix_remove;
+function infix_remove(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'list' && v1.ctype === 'list') {
@@ -1814,26 +1817,28 @@ evaluator.remove$2 = function(args, modifs) {
         return eval_helper.shaperemove(v0, v1);
     }
     return nada;
-};
+}
 
 
-evaluator.append$2 = function(args, modifs) {
+evaluator.append$2 = infix_append;
+function infix_append(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'list') {
         return List.append(v0, v1);
     }
     return nada;
-};
+}
 
-evaluator.prepend$2 = function(args, modifs) {
+evaluator.prepend$2 = infix_prepend;
+function infix_prepend(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v1.ctype === 'list') {
         return List.prepend(v0, v1);
     }
     return nada;
-};
+}
 
 evaluator.contains$2 = function(args, modifs) {
     var v0 = evaluate(args[0]);

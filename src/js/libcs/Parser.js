@@ -194,7 +194,7 @@ function generateInfix(oper, f1, f2) {
     var erg = {};
     erg.ctype = 'infix';
     erg.oper = oper;
-    erg.impl = evaluator[infixmap[oper]];
+    erg.impl = infixmap[oper];
     erg.args = [f1, f2];
     return erg;
 }

@@ -149,6 +149,7 @@ TestCase.prototype.run = function() {
       println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
       println("Exception: ! " + e);
     }
+    if (e.stack) println(e.stack);
     println("");
     return false;
   }
