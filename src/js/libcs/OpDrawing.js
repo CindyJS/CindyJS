@@ -701,7 +701,7 @@ eval_helper.drawcircle = function(args, modifs, df) {
 };
 
 
-evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
+eval_helper.drawconic = function(aConic, modifs) {
     var col;
     var size;
 
@@ -760,7 +760,7 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
     handleModifs();
 
     var eps = 10e-16;
-    var mat = args.matrix;
+    var mat = aConic.matrix;
 
     // check for complex values
     for (var i = 0; i < 2; i++)
@@ -1106,7 +1106,7 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         split_degen();
     }
 
-}; // end evaluator.drawconic
+}; // end eval_helper.drawconic
 
 evaluator.drawall$1 = function(args, modifs) {
     var v1 = evaluate(args[0]);
