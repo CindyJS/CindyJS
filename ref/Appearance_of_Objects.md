@@ -47,7 +47,6 @@ The following code produces the picture below:
     >   draw((#,0));
     >   drawtext((#,1),#);
     > )
-    >
 
 | ![Image](img/SizesX.png) |
 | ------------------------ |
@@ -101,7 +100,6 @@ The following code produces the picture below:
     >     draw((i+30,j),noborder->true);
     >   )
     > )
-    >
 
 | ![Image](img/ColorsX.png) |
 | ------------------------- |
@@ -175,7 +173,6 @@ The following code produces the picture below:
     >   color(hue(#));
     >   draw((0,0),(sin(#*2*pi),cos(#*2*pi)))
     > )
-    >
 
 | ![Image](img/HueX.png) |
 | ---------------------- |

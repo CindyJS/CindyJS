@@ -33,18 +33,16 @@ The following code lines summarize possible ways to move geometric elements (we 
     > A.y=3;                  //sets the y coordinate of A to 3, lets the x coordinate unchanged
     > moveto(A,[2,3,2]);      //moves A to homogeneous coordinates [2,3,2]
     > A.homog=[2,3,2];        //moves A to homogeneous coordinates [2,3,2]
-    >
+    > 
     > //a is a free line
     > moveto(a,[2,3,4]);      //moves a to homogeneous coordinates [2,3,4]
     > a.moveto=[2,3,4];       //moves a to homogeneous coordinates [2,3,4]
-    >
+    > 
     > //b is a line through a point
     > a.slope=1;              //sets the slope of the line to 1
-    >
+    > 
     > //C is a circle with free radius
     > C.radius=1;             //sets the radius of the circle to 1
-    >
-    >
 
 ------
 
@@ -72,7 +70,6 @@ They reappear if the mouse moves away again.
     > apply(allelements(),#.alpha=1);
     > apply(elementsatmouse(),#.alpha=0);
     > repaint();
-    >
 
 ------
 
@@ -98,7 +95,6 @@ For example, if you try to access the color of a line having the name `i`, you c
 Instead, you use:
 
     > element("i").color=[1,1,1]
-    >
 
 ------
 
@@ -134,7 +130,6 @@ The following table shows a few possible creation statements.
     > create(["P","Q"],"IntersectionCircleCircle",[X,Y]);
     > create(["b"],"Join",[P,Q]);
     > create(["M"],"Meet",[a,b]);
-    >
 
 This sequence of statements creates the fully functional construction shown below.
 Observe that in the sixth statement when two circles are intersected there must be a list of two output elements specified.
@@ -172,7 +167,6 @@ The following piece of code generates all information contained in a constructio
 
     > els=allelements();
     > data=apply(els,([[#.name],algorithm(#),inputs(#)]));
-    >
 
 Applied to the construction of a perpendicular bisector in the picture below it generates the following output:
 
@@ -182,7 +176,6 @@ Applied to the construction of a perpendicular bisector in the picture below it 
     >   [["C"],"Mid",[A,B]],
     >   [["b"],"Orthogonal",[a,C]]
     > ]
-    >
 
 | ![Image](img/PerpBisect.png) |
 | ---------------------------- |
@@ -210,7 +203,6 @@ The operator `inspect(A)` applied to a the free point *A* returns the following 
     > text.fontfamily,plane,pinning,incidences,labeled,textsize,textbold,textitalics,
     > ptsize,pointborder,printname,point.image,
     > point.image.media,point.image.rotation,freept.pos]
-    >
 
 ------
 

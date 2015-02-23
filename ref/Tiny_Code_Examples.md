@@ -20,7 +20,6 @@ Changing its color on a condition.
     >    (1,1,0),
     >    (0,0,1)
     > )
-    >
 
 The code is straight forward.
 Observe that for setting the coordinate of *D* the assignment is made to `D.xy`.
@@ -44,7 +43,6 @@ Separating points above and below the *x*-axis, and drawing the two clusters.
     > drawall(segs,color->(0.6,0,0));
     > segs=pairs(below);
     > drawall(segs,color->(0,0.6,0))
-    >
 
 The points above the *x*-axis are distinguished by using the `select` operator with a suitable condition.
 The points below the *x* axes are calculated by using a set difference.
@@ -65,12 +63,10 @@ Observe the use of the `~›` operator to deal with numeric instabilities.
     > pts=allpoints();
     > leftof(A,B):=select(pts,p,area(A,B,p)~>0);
     > rightof(A,B):=select(pts,p,area(A,B,p)~<0);
-    >
     > isedge(A,B):=(leftof(A,B)==[]%rightof(A,B)==[]);
     > segments=pairs(pts);
     > hull=select(segments,seg,isedge(seg_1,seg_2));
     > drawall(hull);
-    >
 
 Calculating the convex hull here is performed by a very nice geometric principle: a segment in the convex hull has all the other points on one of its sides.
 Here two functions `leftof` and `rightof` are defined that separate the two sides of a segment.
@@ -87,17 +83,16 @@ For this, draw a few arrows whose endpoints have appropriate names and enter the
 
     > //in timerstep
     > t=time();
-    >
+    > 
     > p(x):=(sin(2*pi*x),cos(2*pi*x));
     > B.xy=p(t_3/60)*4;
     > C.xy=p(t_2/60)*5;
     > D.xy=p((t_1*60+t_2)/(12*60))*3.5;
-    >
+    > 
     > apply(1..12,i,draw(p(i/12)*5));
     > apply(1..60,i,draw(p(i/60)*5,size->1));
-    >
+    > 
     > drawtext((3,5),t);
-    >
 
 | ![Image](img/Ex4.png) |
 | --------------------- |
@@ -124,7 +119,6 @@ Mark the point closest to *A* by a large green dot.
     > s=sort(pts,|#-A|);
     > p=s_2;
     > draw(p,size->20);
-    >
 
 Observe that we have to use the second closest point in the script, since *A* is closest to itself.
 Another solution would be to remove *A* from the list before sorting it:
@@ -134,7 +128,6 @@ Another solution would be to remove *A* from the list before sorting it:
     > s=sort(pts,|#-A|);
     > p=s_1;
     > draw(p,size->20);
-    >
 
 ------
 
@@ -151,24 +144,23 @@ The color of the strokes should resemble the color of the points.
     > forall(pts,p,
     >    p:"trace"=p:"trace" ++ [p.xy]
     > );
-    >
+    > 
     > tr0=[[1,0],[0,1]];
     > tr1=[[-1,0],[0,1]];
     > tr2=[[-1,0],[0,-1]];
     > tr3=[[1,0],[0,-1]];
-    >
+    > 
     > trs=[tr0,tr1,tr2,tr3];
-    >
+    > 
     > forall(trs,t,
     >  forall(pts,p,
     >    connect((p:"trace")*t,color->p.color,size->2);
     >  );
     > );
-    >
+    > 
     > //in init
     > pts=allpoints();
     > forall(pts,p,p:"trace"=[]);
-    >
 
 Observe that each point stores its own trace in the key variable `"trace"`.
 The transformations are performed by two-dimensional matrix multiplications.
@@ -186,7 +178,7 @@ Mark the squares corresponding to the underlying least square approximation.
 | ****                  |
 
     > //in draw
-    >
+    > 
     > //Least-square line
     > pts=allpoints();
     > m=apply(pts,(1,#.x));
@@ -197,18 +189,17 @@ Mark the squares corresponding to the underlying least square approximation.
     > v=mainv*mb;
     > f(x):=v_2*x+v_1;
     > plot(f(x));
-    >
+    > 
     > //Draw the squares
-    >
+    > 
     > sq(x,y1,y2):=(
     >    d=y2-y1;
     >    p=((x,y1),(x,y2),(x+d,y2),(x+d,y1),(x,y1));
     >    drawpoly(p,color->(1,0.5,0.5),alpha->0.4);
     >    connect(p,color->(.8,0,0));
     > );
-    >
+    > 
     > forall(pts,sq(#.x,#.y,(f(#.x))));
-    >
 
 The code makes use of high level matrix calculations to find the linear regression line.
 The calculation follows the standard procedure for this calculation given in a basic course on linear algebra.
@@ -234,7 +225,6 @@ Create a nice version of the sunflower applet from the tutorial.
     > );
     > drawtext((-5,-6),"n="+n);
     > drawtext((0,-6),"w="+180*ang/pi+"¡");
-    >
 
 This code relies on the effect that a very certain angle `ang=137.508°` produces a dense packing under the growth behavior of a sunflower.
 The example also illustrates that disturbing this angle a bit immediately leads to very prominent spirals, where the packing is not very isotropic.
@@ -250,7 +240,7 @@ Implement a function plotter with a freely enterable function and adjustable par
 | ****                  |
 
     > //in draw
-    >
+    > 
     > //Parameter sliders
     > a=K.x;
     > b=L.x;
@@ -260,11 +250,10 @@ Implement a function plotter with a freely enterable function and adjustable par
     > drawtext(L+(0.2,0.2),"b="+b);
     > drawtext(M+(0.2,0.2),"c="+c);
     > drawtext(N+(0.2,0.2),"d="+d);
-    >
+    > 
     > //Parse and plot
     > f(x):=parse(Text0.val);
     > plot(f(x),color->red(0.6),size->2);
-    >
 
 The function is entered in a Cinderella input field called *Text0*.
 The text in this input field is directly parsed.
@@ -282,14 +271,13 @@ The lamps are be represented by geometric points *A*, *B* and *C*.
 | ****                   |
 
     > //in draw
-    >
+    > 
     > colorplot(
     >  (1-|#,A|/4,
     >   1-|#,B|/4,
     >   1-|#,C|/4),
     >  (-5,-5),(5,5),pxlres->3
     > )
-    >
 
 This color mixer is indeed extremely simple.
 It makes use of the fact that one can directly calculate the slots of an RGB color vector.
@@ -306,9 +294,9 @@ Calculate and draw the Julia set, a well known fractal, determined by the comple
 | ****                   |
 
     > //in draw
-    >
+    > 
     > g(z,c):=z^2+c;
-    >
+    > 
     > julia(z):=(
     >   iter=0;
     >   while(iter<100 & |z|<2,
@@ -317,10 +305,9 @@ Calculate and draw the Julia set, a well known fractal, determined by the comple
     >   );
     >   1-iter/100;
     > );
-    >
+    > 
     > colorplot(julia(complex(#))
     >    ,A,B,startres->16,pxlres->1);
-    >
 
 Again using the `colorplot` command is the most powerful approach to this task.
 The function `julia` above iteratively calculates the color of each pixel.
@@ -341,7 +328,7 @@ Also build a fence with bouncers around the "aquarium."
 | ****                   |
 
     > //in draw
-    >
+    > 
     > ms=allmasses()--[U];
     > lim=0.5;
     > apply(ms,m,
@@ -352,7 +339,6 @@ Also build a fence with bouncers around the "aquarium."
     >   //Draw connections
     >   apply(near,draw(#,m,color->(0,0,0),alpha->0.2));
     > );
-    >
 
 Here all fish (as well as the obstacle) are modeled by masses with a positive charge.
 By this they push each other away.

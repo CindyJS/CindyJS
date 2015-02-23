@@ -15,7 +15,6 @@ The different properties can be read and set via the . operator (dot operator).
 For instance, the line of code
 
     > A.size=20
-    >
 
 sets the size of point *A* in a construction to the value 20.
 If a point or a line is contained in an arithmetic operator without a dot operator, then it is automatically converted to a vector representing its position.
@@ -29,7 +28,6 @@ Assume that *A*, *B*, and *C* are points in a Cinderella construction.
 The line
 
     > A.xy=(B+C)/2
-    >
 
 sets the point *A* to be the midpoint of *B* and *C*.
 These two points are contained in an arithmetic expression, and therefore they are immediately inverted to an `[x,y]` vector.
@@ -41,7 +39,6 @@ The following program sets the color of all three points to green:
     > forall(pts,p,
     >   p.color=[0,1,0];
     > )
-    >
 
 In this code the point names are passed as handles to the list `pts`.
 Traversing the list with the `forall` operator puts this handles one after the other into the variable `p`, from which their color property is accessed.
@@ -63,7 +60,6 @@ The following program changes the color of the points depending on their positio
     >     p.color=[0,1,0];
     >    )
     > )
-    >
 
 The following picture shows the application of the code to a random collection of points.
 
@@ -283,7 +279,6 @@ You can also use the generic CindyScript function `inspect(‹element›)` to ac
 For example, if a point *A* exists in the construction, the function
 
     > inspect(A)
-    >
 
 will return the array of strings
 
@@ -292,23 +287,19 @@ will return the array of strings
     > pinning,incidences,labeled,textsize,textbold,textitalics,
     > ptsize,pointborder,printname,point.image,
     > point.image.rotation,freept.pos]
-    >
 
 Using the two-parameter form `inspect(‹element›,‹string›)` you can read all the attributes of *A* that are listed in the above array:
 
     > inspect(A,"text.fontfamily")
-    >
 
 returns
 
     > SansSerif
-    >
 
 With the three-parameter form `inspect(‹element›,‹string›,‹expr›)` you can also set the attributes that are not read-only (for example, you cannot change the list of incidences or the definition of an element).
 The following function will set the font of *A* to a Serif font:
 
     > inspect(A,"text.fontfamily","Serif")
-    >
 
 The inspect command is very powerful, as you can automate all actions you normally would have to do in the Inspector using the mouse.
 Also, it gives you fine grained control over all properties.
@@ -335,7 +326,6 @@ Starting with Cinderella version 2.1 you can also create points on the fly from 
 The function
 
     > p = createpoint("A",[4,6])
-    >
 
 creates a point labelled *A* at coordinates [4,6], unless there is already an element *A*.
 If it exists, it will be moved to the position given as second argument.
@@ -347,12 +337,10 @@ Be aware that all dependent elements will be removed as well.
 The function expects an element as argument, so you can use either
 
     > removeelement(A)
-    >
 
 or
 
     > removeelement(element("A"))
-    >
 
 to remove the element named "*A*".
 

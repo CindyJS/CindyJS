@@ -41,6 +41,7 @@ function runTestFile(filename) {
   });
   fakeCanvas._log = [];
   var cases = [], curcase = null, ininput = false, lineno = 1;
+  var anythingToCheck = false;
   var txt = fs.readFileSync(filename, {encoding: "utf-8"});
   txt.split("\n\n").forEach(function(block) {
     var lines, match;
@@ -71,23 +72,31 @@ function runTestFile(filename) {
         break;
       } else if (mark === "< ") {
         curcase.expectResult(rest);
+        anythingToCheck = true;
       } else if (mark === "~ ") {
         curcase.expectPattern(new RegExp("^(?:" + rest + ")$"));
+        anythingToCheck = true;
       } else if (mark === '! ') {
         curcase.expectException(rest);
+        anythingToCheck = true;
       } else if (mark === '* ') {
         curcase.expectOutput(rest);
+        anythingToCheck = true;
       } else if (mark === 'D ') {
         curcase.expectDraw(rest);
+        anythingToCheck = true;
       } else if (mark === 'J ' || mark === 'T ') {
         // ignore
       } else {
-        console.log("Unexpected line " + (lineno + i) + ": " + line);
+        console.log("Unexpected line " + path.basename(filename) + ":" +
+                    (lineno + i) + ": " + line);
       }
       ininput = false;
     }
     lineno += n + 1;
   });
+  if (!anythingToCheck)
+    return;
   cases.forEach(function(c) {
     if (!c.run())
       ++failures;

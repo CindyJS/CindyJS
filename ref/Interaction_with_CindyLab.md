@@ -57,7 +57,6 @@ It shows the force field and force strength of the electrostatic field of two ch
     > f(x):=max((0,min([x,1])));
     > colorplot([0.1,0.1,0.1]+hue(f(abs(force(#)/3))),(-10,-10),(20,10));
     > drawforces(stream->true,move->0.2,color->[0,0,0],resolution->10);
-    >
 
 **Modifiers:**
 It is also possible to set the values of mass, charge and radius explicitly.

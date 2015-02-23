@@ -20,7 +20,7 @@ An auxiliary function `p(w)` is defined that produces points on the unit circle.
 The code must be placed in the "Tick" section of CindyScript in order for it to run continuously.
 
     > t=time();
-    >
+    > 
     > p(x):=[sin(2*pi*x),cos(2*pi*x)];
     > O=[0,0];
     > S=p(t_3/60)*4;
@@ -31,9 +31,8 @@ The code must be placed in the "Tick" section of CindyScript in order for it to 
     > draw(O,H,size->3);
     > apply(1..12,draw(p(#/12)*5));
     > apply(1..60,draw(p(#/60)*5,size->1));
-    >
+    > 
     > drawtext((3,5),t);
-    >
 
 | ![Image](img/ClockX.png) |
 | ------------------------ |
@@ -87,7 +86,6 @@ The following code produces an acoustic jingle.
     >   playtone(72+i);
     >   wait(100);
     > )
-    >
 
 ------
 

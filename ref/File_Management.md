@@ -27,14 +27,12 @@ The following code reads the data and creates a list by tokenizing it with respe
     > x=load("LoadTest.txt");
     > y=tokenize(x,(";",","));
     > apply(y,println(#));
-    >
 
 The resulting output is
 
     > [abc,gfdg]
     > [1,3,5.6,3.141]
     > [56,abc,xxx,yyy]
-    >
 
 ------
 
@@ -102,13 +100,11 @@ The following example illustrates a file write cycle:
     > forall(1..15,print(f,#+" ");
     > println(f,"");
     > closefile(f);
-    >
 
 This code generates a file with the following content:
 
     > Here are some numbers
     > 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
-    >
 
 ------
 
@@ -134,7 +130,6 @@ In the standalone application this statement does nothing.
 The following piece of script will cause a message window to pop up in the browser:
 
     >   javascript("alert('Hi from Cinderella!!')");
-    >
 
 ------
 
@@ -161,7 +156,6 @@ In the following example we open a connection to a web server and read the HTML 
     > y="";
     > while(!isundefined(y),y=readln(x);println(y));
     > closeconnection(x);
-    >
 
 ------
 

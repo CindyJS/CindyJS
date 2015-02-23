@@ -91,7 +91,6 @@ So for example, after the code fragment
     > a=[[2,[4,5]],1];
     > a_2="A";
     > a_1_2_1="B";
-    >
 
 is evaluated, the value of `a` is `[[2,["B",5]],"A"]`.
 

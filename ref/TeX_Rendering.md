@@ -18,7 +18,6 @@ The following statement produces a formula that already covers some interesting 
     >   (0,0),
     >   "Sum formula: $\sum_{i=1}^n i^2 = { 2\cdot n^3+ 4\cdot n^2 +n\over 6 }
     > );
-    >
 
 ![Image](img/TeX1X.png)
 
@@ -30,7 +29,6 @@ The TeX renderer tries to do its best even if uncommon font families are chosen 
     >                { 2\cdot n^3+ 3\cdot n^2 +n\over 6 }$",size->20,
     >   family->"Lucida Calligraphy"
     > );
-    >
 
 ![Image](img/TeX2X.png)
 
@@ -48,7 +46,6 @@ The following piece of code exemplifies various usages of sub- and superscripts.
     > drawtext((4,0), "$A_1^12$");
     > drawtext((6,0), "$A_{1_2}^{1/2}$");
     > drawtext((8,0), "$A_{1_2}^{\sqrt{x^2+y^2}}$");
-    >
 
 ![Image](img/TeX3X.png)
 
@@ -61,7 +58,6 @@ The following sample gives an impression of how these objects can be rendered.
     > drawtext((0,0), "$\sum_{i=1}^n (i^2+1)");
     > drawtext((3,0), "$\sqrt{x^2+y^2}");
     > drawtext((6,0), "$\int_a^b f(x)dx");
-    >
 
 ![Image](img/TeX4X.png)
 
@@ -104,7 +100,6 @@ They produce brackets of different sizes as the following piece of code exemplif
     > drawtext((15,0),size->16,
     > "$\Bigg| \bigg| \Big| \big| |\ldots|
     >            \big| \Big| \bigg| \Bigg|$")
-    >
 
 ![Image](img/TeX6X.png)
 
@@ -113,7 +108,6 @@ Using the command `\left` and `\right` one can generate brackets that fit the si
 
     > drawtext((0,0),size->16,
     > "$\left[\sum_{i=1}^n \left({\sqrt sin(i)\right)\right]^2$")
-    >
 
 ![Image](img/TeX7X.png)
 
@@ -133,7 +127,6 @@ Their usage is shown in the next example:
     > drawtext((3,0),size->16,"${2\choose 3}$");
     > drawtext((6,0),size->16,"$\frac{a+b}{x^2}$");
     > drawtext((9,0),size->16,"$\binom{a+b}{x^2}$");
-    >
 
 ![Image](img/TeX8X.png)
 
@@ -154,7 +147,6 @@ They produce a whitespace measured in units of an "m" of the current font.
 *  `\!`: negative whitespace of -5/18 units
 
     > drawtext((0,0),size->16,"$A\!A A \,A\;A\quad A \qquad A$")
-    >
 
 ![Image](img/TeX9X.png)
 
@@ -174,7 +166,6 @@ Here are a few formulas that use these features:
     >                       \sqrt{x^2+y^2}$");
     > drawtext((13,0),size->16,"$\tilde{X}+\hat{Y}\;=\;
     >                       \underline{X\oplus Y}$");
-    >
 
 ![Image](img/TeX10X.png)
 
@@ -206,7 +197,6 @@ In the following example the `array` statement is combined with enclosing braket
     > \right)
     > $"
     > ,size->20);
-    >
 
 ![Image](img/TeX11X.png)
 
@@ -222,7 +212,6 @@ Arrays can also be used to create formulas with several cases, as the following 
     > \right.
     > $"
     > ,size->20);
-    >
 
 ![Image](img/TeX12X.png)
 
@@ -239,7 +228,6 @@ The five types of admissible matrices are illustrated in the code below:
     >                         c & b-\lambda\\ \end{Bmatrix}$");
     > drawtext((16,0),"$\begin{vmatrix}a-\lambda & b\\
     >                         c & b-\lambda\\ \end{vmatrix}$");
-    >
 
 ![Image](img/TeX14X.png)
 
@@ -258,7 +246,6 @@ Using the color statement influences color of the subformula in which it it used
     > \quad = \quad
     > {\color{blue}{ 2\cdot n^3+ 4\cdot n^2 +n\over 6 }}$"
     > );
-    >
 
 ![Image](img/TeX15X.png)
 
@@ -273,7 +260,6 @@ The following example illustrates its usage:
     > \sum_{\mbox{All i not equal to j}}(i^2+j^2)
     > $"
     > );
-    >
 
 ![Image](img/TeX16X.png)
 
@@ -407,7 +393,6 @@ Then it renders the resulting string as a TeX formula
 
     > chess=sum(0..11,i,"\;\unicode{"+(9812+i)+"}");
     > drawtext((0,0),size->30,"$"+chess+"$");
-    >
 
 The resulting picture is shown below:
 

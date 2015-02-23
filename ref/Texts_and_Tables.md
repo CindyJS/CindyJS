@@ -44,7 +44,6 @@ The code
     >   bold->true,
     >   color->(1-i/10,0,i/10))
     > )
-    >
 
 produces the picture below.
 
@@ -60,7 +59,6 @@ By this it is easy to produce multilined text, as the following piece of code sh
     > are really used as line terminators.
     > So this text will appear as a
     > multilined text.")
-    >
 
 | ![Image](img/Newlines.png) |
 | -------------------------- |
@@ -80,7 +78,6 @@ The following piece of code displays the names of some of these font families in
     > while(length(families)>i,i=i+1;
     >    drawtext((mod(i,5)*7,round(i/5)),families_i,family->families_i);
     > )
-    >
 
 | ![Image](img/Fonts.png) |
 | ----------------------- |
@@ -125,7 +122,6 @@ The following code produces the picture below:
     > x=1..10;
     > table=apply(x,(#,#^2,#^3,#^4));
     > drawtable((0,0),table);
-    >
 
 | ![Image](img/Table1X.png) |
 | ------------------------- |
@@ -177,7 +173,6 @@ A second table is used to create a heading for the table.
     >   size->16,
     >   color->(1,1,1)
     > );
-    >
 
 | ![Image](img/Table2X.png) |
 | ------------------------- |

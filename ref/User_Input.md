@@ -130,17 +130,14 @@ The simplest usage is for instance given by the following piece of code.
 The tool created by
 
     > createtool("Move",2,2);
-    >
 
 ![Image](img/Tool1.png)
 
 More complicated examples that create toolbars with several tools are given below
 
     > createtool(["Move","Point","Line","Circle"],2,2);
-    >
 
     > createtool(["Move","Point","Line","Circle"],2,2,flipped->true);
-    >
 
     > createtool(
     >  [
@@ -149,14 +146,10 @@ More complicated examples that create toolbars with several tools are given belo
     >   ["Distance","Angle","Area","Polygon"],
     >  ]
     > ,2,2,flipped->false);
-    >
 
     > createtool(
-    >
     > ...same as example above...
-    >
     > ,reference->"LR");
-    >
 
 ![Image](img/Tool3.png)
 

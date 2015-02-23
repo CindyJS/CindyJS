@@ -10,7 +10,6 @@ Many calculations can already be expressed using only elementary functions.
 Thus the code fragment
 
     > sum(1..10)
-    >
 
 calculates the sum of the first 10 integers.
 Here `..` is a function that takes two integer numbers, `a` and `b`, and generates as output the list of all integers from `a` to `b`.
@@ -23,7 +22,6 @@ Moreover, seemingly procedural statements, such as an `if`-statement, are realiz
 For instance, the expression
 
     > if(x~60~y,print("Mine"),print("Yours"))
-    >
 
 demonstrates the function `if`, which takes three arguments.
 It checks the condition of its first argument `x‹y` and depending on the result, evaluates the second or the third argument, that is, either `print("Mine")` or `print("Yours"))`.
@@ -31,7 +29,6 @@ The result of this evaluation will be the result of the `if(_,_,_)` function.
 Thus the above expression is equivalent to
 
     > print(if(x~60~y,"Mine","Yours"))
-    >
 
 Depending on the evaluation of the condition, the `if` function returns the value of the second argument or the third argument.
 
@@ -56,13 +53,11 @@ A [CindyScript](CindyScript) statement can create and define a function that can
 For instance, the statement
 
     > draw([0,0])
-    >
 
 produces the side effect of drawing a point at position `(0,0)`.
 The statement
 
     > A.color=[1,1,1]
-    >
 
 sets the color of point *A* to *white*.
 
@@ -79,7 +74,6 @@ For instance, the program
     >    j=i*i;
     >    draw([i,j]);
     > )
-    >
 
 creates nine points on a parabola.
 The function `repeat(‹number›, ‹variable›, ‹program›)` creates a loop that performs `‹number›` runs.
@@ -97,7 +91,6 @@ On the one hand, this gives the programmer a great deal of freedom to generate p
 For instance, the following code fragment
 
     > f(x,y):=x+y;
-    >
 
 defines a function `f(x,y)` that could be used to add integers or complex numbers as well as vectors or matrices.
 On the other hand, this freedom requires that the programmer take some responsibility while writing a program in order to produce code that is semantically meaningful.
@@ -114,13 +107,11 @@ By default, [CindyScript](CindyScript) uses a variable #, which serves as a hand
 For instance, the statement
 
     > select(1..30,isodd(#))
-    >
 
 returns a list of all odd numbers between `1` and `30`.
 Moreover, loops use this run variable, and thus
 
     > repeat(9,print(#))
-    >
 
 prints all numbers from `1` to `9`.
 It is also possible to use an explicit run variable by providing it as the second argument.
@@ -153,7 +144,6 @@ A variable is created when it is assigned for the first time.
 If `x` is not already being used, the statement
 
     > x=7
-    >
 
 creates the variable `x` and assigns the value `7` to it.
 After a variable has been assigned, its value is accessible for the rest of the execution.
@@ -161,7 +151,6 @@ Values may also be partially overloaded by local variables of a function.
 Thus in a function defined by
 
     > f(x,y):=x+y
-    >
 
 the values of `x` and `y` are the local parameters of the function.
 After the execution of the function is completed, the original value of `x` is restored.
@@ -188,14 +177,12 @@ To that end, one lists corresponding modifiers in the call of the operator.
 For instance, the statement
 
     > draw([0,0])
-    >
 
 draws a point at position `(0,0)`.
 By default, the point is green and of size 3.
 The statement
 
     > draw([0,0],size->15,color->[1,1,0])
-    >
 
 draws a yellow point of size 15.
 Modifiers have to be separated by commas.

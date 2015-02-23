@@ -53,7 +53,6 @@ So the code
     > playtone(64);
     > playtone(67,channel->3);
     > playtone(72,channel->2);
-    >
 
 plays a C-major chord whose two lowest tones are played by the piano and whose upper notes are played by a vibraphone and a guitar.
 Each channel can be used completely polyphonically.
@@ -92,7 +91,6 @@ For this we only have to separate individual notes by wait statements.
     > playtone(64,duration->2.5);   wait(500);
     > playtone(67,duration->2);     wait(500);
     > playtone(72,duration->1.5);
-    >
 
 In the above example the timing is given explicitly so that all notes end at exactly the same time.
 One can also use this method to generate interesting melodies (or jingles) programmatically.
@@ -104,7 +102,6 @@ Try out the following piece of code in CindyScript (it is worth the typing effor
     >              channel->if(contains(halftones,i),3,5));
     >   wait(100);
     > );
-    >
 
 Generating notes this way has its disadvantages.
 First, the timing has to be described in detail by the CindyScript code.
@@ -124,7 +121,6 @@ So a broken C-major
 chord can for instance be coded as:
 
     > playmelody([[60,1],[64,1],[67,1],[72,4]]);
-    >
 
 It is also possible to access the notes by their names given as strings instead of the numbers.
 By this the following piece of code
@@ -136,7 +132,6 @@ By this the following piece of code
     >   ["f",4],["f",1],["e",1],["f",1],["g",2],["e",2],["c",2],["d",2],
     >   ["c",5]
     > ],speed->300,instrument->57)
-    >
 
 plays a very simple version of "Oh, when the saints".
 Again the statement may be decorated by various modifiers.
@@ -188,7 +183,6 @@ Observe that this program also uses the `"goto"` statement in `playmelody(...)` 
     >   [59,4],[59,4],[59,4],[59,4],["goto",0],        //ride cymbal
     >   [-1,13],[76,1],[62,1],[-1,2],["goto",0]        //percussion
     > ]);
-    >
 
 In the above code snippet several percussion instruments are overlaid in the same "melody" and form a complex rhythmic pattern.
 The note `-1` is used as a pause.
@@ -219,7 +213,6 @@ There are some specialties that will be explained in a moment.
     >   [-1,13],[76,1],[62,1],[-1,1]                   //percussion
     > ]);
     > midistart(speed->250);
-    >
 
 So in principle we add two tracks to the sequencer (one for the melody and one for the rhythm) and play it by using `midistart()`.
 There are some minor problems concerning timing and positioning that can be addressed using modifiers.
@@ -265,7 +258,6 @@ The following code plays a broken C-major chord.
     > playtone(67);
     > wait(1000);
     > playtone(72, duration->4);
-    >
 
 **Modifiers:**
 The command has several modifiers, most of them are self-explanatory.
@@ -333,12 +325,10 @@ The following piece of code describes invoking a simple C-major scale:
 
     > playmelody([["C",1],["D",1],["E",1],["F",1],
     >             ["G",1],["A",1],["H",1],["c",5]])
-    >
 
 Alternatively the same scale could also be expressed by describing the notes by the corresponding MIDI integers rather than names:
 
     > playmelody([[60,1],[62,1],[64,1],[65,1],[67,1],[69,1],[71,1],[72,5]])
-    >
 
 The second number in the short list describing a single note is its duration.
 The lengths of the durations are measured in *beats*.
@@ -367,7 +357,6 @@ However the notes are repeated by subdividing each beat.
     >             ["A",1/8],["A",1/8],["A",1/8],["A",1/8],
     >             ["A",1/8],["A",1/8],["A",1/8],["A",1/8],
     >             ["H",1],["c",5]])
-    >
 
 We will now describe the different elements of the melody description language.
 
@@ -400,7 +389,6 @@ The following example shows a melody list that play chords of increasing complex
     >             [["C","E"],1],
     >             [["C","E","G"],1],
     >             [["C","E","G","c"],5] ] )
-    >
 
 Finally, one can use the number `-1` or the strings `"P"` or `"p"` as a pause.
 
@@ -450,7 +438,6 @@ The following piece of code plays a scale beginning in a pianissimo staccato and
 
     > playmelody([["st"],["pp"],["C",1],["D",1],["E",1],["F",1],["le"],
     >             ["f"],["G",1],["A",1],["H",1],["c",5]])
-    >
 
 **Positioning:**
 The sequencer internally has a pointer that indicates the position at which a note is added.
@@ -481,7 +468,6 @@ The following piece of code adds a (more quiet) second voice by using the `goto(
     >    ["c",1],["e",1],["g",1],["a",1],["c'",4],["goto",0],["vel",0.3],
     >    ["g",1],["a",1],["c'",1],["e'",1],["a'",4],
     > ],speed->100)
-    >
 
 There are also more advanced ways of controlling the timing of notes that are added.
 They are closer to the usual musical notation.
@@ -516,7 +502,6 @@ can be coded in the following way as a melody in CindyScript:
     >            ["c",.5],["d",.5],[":||"],
     >    ["2."],["e",1],["e",1],["d",1],["d",1],["c",4]
     > ],speed->200)
-    >
 
 **Intrument control:**
 
@@ -716,7 +701,6 @@ The following piece of code plays a gentle c on a **Glockenspiel** then a loud a
     > wait(1000);
     > instrument(1,duration->2,velocity->.5);
     > playtone(60);
-    >
 
 ------
 
@@ -836,7 +820,7 @@ To do so one has simply to put the following code into the **timer tick** event 
     > pairs=[[65,60],[83,62],[68,64],[70,65],[71,67],[72,69],[74,71],
     >        [75,72],[76,74],[59,76],[222,77],[92,79],[87,61],[69,63],
     >        [84,66],[90,68],[85,70],[79,73],[80,75],[93,78]];
-    >
+    > 
     > l=keydownlist();
     > forall(pairs,p,
     >   if(contains(l,p_1)&!contains(ol,p_1),
@@ -844,7 +828,6 @@ To do so one has simply to put the following code into the **timer tick** event 
     >   if(contains(ol,p_1)&!contains(l,p_1),stoptone(p_2));
     > );
     > ol=l;
-    >
 
 The code makes use of the CindyScript operator `keydownlist()`.
 This operator gives a list of all (computer-internal) keycodes of keys that are pressed at this moment.
@@ -885,7 +868,7 @@ By this one can very easily adjust the amount of Swing feeling used by the tune 
     >      [72,2+g],[69,4],[65,2-g],[70,2+g],[68,2-g],[69,2+g],
     >      [65,13],[-1,3]
     > ];
-    >
+    > 
     > drum=44;
     > beat=[[-1,2-g]];
     > apply(1..11,beat=beat++[[-1,4],[drum,4]]);
@@ -893,4 +876,5 @@ By this one can very easily adjust the amount of Swing feeling used by the tune 
     > midiaddtrack(mel ,channel->2,track->2);
     > midiaddtrack(beat,channel->9,track->1,velocity->.5);
     > midistart(speed->700);
-    >
+
+<!-- End of document -->

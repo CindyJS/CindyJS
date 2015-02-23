@@ -108,7 +108,6 @@ The original shapes are outlined by a thinner line.
     > draw(shape1);
     > draw(shape2);
     > draw(shape3);
-    >
 
 The resulting image is shown as the first picture below.
 The other three images are created using other combinations of the shapes.
@@ -133,7 +132,6 @@ Then this shape is used as a clipping path for another drawing (concentric circl
     > );
     > greset();
     > draw(shape,color->(1,1,1),size->2);
-    >
 
 | ![Image](img/Shape5.png) |
 | ------------------------ |
@@ -154,7 +152,6 @@ The use of overly complex shapes can slow down Cinderella considerably.
     > );
     > fill(shape,color->(1,0.7,0));
     > draw(shape,color->(0,0,0),size->2);
-    >
 
 | ![Image](img/Shape6.png) |
 | ------------------------ |

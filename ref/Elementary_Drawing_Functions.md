@@ -44,7 +44,6 @@ Furthermore, the segments appear in front of the points, since their drawing ope
     > draw([A,B]);draw([B,C]);
     > draw([C,D]);draw([D,A]);
     > draw([C,E]);draw([B,E]);
-    >
 
 | ![Image](img/HouseX.png) |
 | ------------------------ |
@@ -66,7 +65,6 @@ Each of the following two draw operations draws a line:
 
     > draw(line([1,1,0.5]));
     > draw(join([1,2],[2,-1]));
-    >
 
 **Modifiers:**
 The draw operator can handle the modifiers summarized in the following table:
@@ -106,7 +104,6 @@ The following piece of code illustrates the effect of the dashing modifiers.
     > draw((12,0),(12,6),dashpattern->[0,2,2,2,4,2]);
     > draw((13,0),(13,6),dashpattern->[0,4,2,4]);
     > draw((14,0),(14,6),dashpattern->[4,2,1,2]);
-    >
 
 | ![Image](img/Dashing.png) |
 | ------------------------- |
@@ -153,7 +150,6 @@ In the final two lines the `draw` operator is used to draw these lists of object
     > segs=pairs(pts);
     > drawall(segs,alpha->0.9);
     > drawall(pts,size->4);
-    >
 
 | ![Image](img/CompleteGraphX.png) |
 | -------------------------------- |
@@ -178,7 +174,6 @@ Finally, the `connect` operator connects these points in the given sequential or
     > pts=allpoints();
     > sortpts=sort(pts,#.x);
     > connect(sortpts);
-    >
 
 | ![Image](img/ConnectTheDotsX.png) |
 | --------------------------------- |
@@ -219,7 +214,6 @@ In each iteration step of the `repeat` loop the square is drawn, and after this 
     >   rotate(4°);
     >   scale(0.95);
     > )
-    >
 
 | ![Image](img/DrawPolyX.png) |
 | --------------------------- |
@@ -268,7 +262,6 @@ The following piece of code shows a combined usage of the `drawcircle` and the `
     >  drawcircle((0,0),1,color->(0,0,0));
     >  translate((1.5,0));rotate(26°);scale(.95);
     > );
-    >
 
 | ![Image](img/FillCircleX.png) |
 | ----------------------------- |
