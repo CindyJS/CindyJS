@@ -87,11 +87,7 @@ This operator returns the geometric object identified by the name given in `‹s
 
 **Example:**
 The `element` operator is necessary for situations where the element name is not a valid variable identifier or already used by a user-defined or built-in name.
-For example, if you try to access the color of a line having the name `i`, you cannot write `i.color=[1,1,1](1,1,1)
-
-![external link](img/icons/external_link.gif)
-
-` as `i` is reserved for the complex unit.
+For example, if you try to access the color of a line having the name `i`, you cannot write `i.color=[1,1,1]` as `i` is reserved for the complex unit.
 Instead, you use:
 
     > element("i").color=[1,1,1]
