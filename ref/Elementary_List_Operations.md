@@ -8,11 +8,11 @@
 The expression `‹int1›..‹int2›` creates a list of consecutive integers starting with `‹int1›` and ending with `‹int2›`.
 If `‹int1›` is larger than `‹int2›`, then the empty list is returned.
 
-| Code   | Result               |
-| ------ | -------------------- |
-| `4..9` | `[4, 5, 6, 7, 8, 9]` |
-| `2..2` | `[-2, -1, 0, 1, 2]`  |
-| `4..1` | `[]`                 |
+| Code    | Result               |
+| ------- | -------------------- |
+| `4..9`  | `[4, 5, 6, 7, 8, 9]` |
+| `-2..2` | `[-2, -1, 0, 1, 2]`  |
+| `4..1`  | `[]`                 |
 
 ------
 
@@ -117,7 +117,7 @@ This operator returns a list that is created by prepending `‹expr›` to the l
 | Code                           | Result                |
 | ------------------------------ | --------------------- |
 | `prepend("d",["a", "b", "c"])` | `["d","a", "b", "c"]` |
-| `"d"‹:["a", "b", "c"~34`       | `["d","a", "b", "c"]` |
+| `"d"‹:["a", "b", "c"]`         | `["d","a", "b", "c"]` |
 
 ------
 
@@ -164,7 +164,7 @@ As usual, `#` is the run variable, which successively takes the value of each el
 | ---------------------------- | -------------------------------------------- |
 | `apply([1, 2, 3, 4, 5],#^2)` | `[1, 4, 9, 16, 25]`                          |
 | `apply([1, 2, 3, 4, 5],#+5)` | `[6, 7, 8, 9, 10]`                           |
-| `apply(1..5, [#,#ˆ2])`       | `[[1, 1], [2, 4], [3, 9], [4, 16], [5, 25]]` |
+| `apply(1..5, [#,#^2])`       | `[[1, 1], [2, 4], [3, 9], [4, 16], [5, 25]]` |
 
 ------
 
@@ -186,7 +186,7 @@ As usual, `#` is the run variable, which successively take the value of all elem
 | Code                        | Result            |
 | --------------------------- | ----------------- |
 | `select(1..10, isodd(#))`   | `[1, 3, 5, 7, 9]` |
-| `select(0..10, #+# == #ˆ2)` | `[0,2]`           |
+| `select(0..10, #+# == #^2)` | `[0,2]`           |
 
 A high-level application of the `select` operator is given by the following example:
 

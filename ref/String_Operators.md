@@ -16,7 +16,7 @@ If in an addition operation at least one of the arguments is a string, then the 
 | ----------------------------- | ------------------------ |
 | `"Cindy"+"Script"`            | `"CindyScript"`          |
 | `"Four plus three is "+(4+3)` | `"Four plus three is 7"` |
-| `""+(4+3)`                    | `"7".`                   |
+| `""+(4+3)`                    | `"7"`                    |
 
 **See also:**
 The `+` operator is also used for the addition of usual numerical values.
@@ -101,15 +101,15 @@ If &lt;expr&gt; is a list of strings, then a hierarchical list is generated that
 This can lead to information loss.
 To turn off this behavior, use the `autoconvert` modifier and set it to `false`.
 
-| Code                                                    | Result                                    |
-| ------------------------------------------------------- | ----------------------------------------- |
-| `tokenize( "one:two..three:four", ":")`                 | `["one", "two..three", "four"]`           |
-| `tokenize( "one:two..three:four", ".")`                 | `["one:two", "", "three:four"]`           |
-| `tokenize( "one:two..three:four", "..")`                | `["one:two", "three:four"]`               |
-| `tokenize( "one:two..three:four", [".",":"])`           | `[["one", "two"], [], ["three", "four"]]` |
-| `tokenize( "one:two..three:four", ["..",":"])`          | `[["one", "two"], ["three", "four"]]`     |
-| `tokenize( "77777777777777777",":")`                    | `[77777777777777776]`                     |
-| `tokenize( "77777777777777777",":",autoconvert->false)` | `[77777777777777777]`                     |
+| Code                                                    | Result                                      |
+| ------------------------------------------------------- | ------------------------------------------- |
+| `tokenize( "one:two..three:four", ":")`                 | `["one", "two..three", "four"]`             |
+| `tokenize( "one:two..three:four", ".")`                 | `["one:two", "", "three:four"]`             |
+| `tokenize( "one:two..three:four", "..")`                | `["one:two", "three:four"]`                 |
+| `tokenize( "one:two..three:four", [".",":"])`           | `[["one", "two"], [""], ["three", "four"]]` |
+| `tokenize( "one:two..three:four", ["..",":"])`          | `[["one", "two"], ["three", "four"]]`       |
+| `tokenize( "77777777777777777",":")`                    | `[77777777777777776]`                       |
+| `tokenize( "77777777777777777",":",autoconvert->false)` | `[77777777777777777]`                       |
 
 ------
 

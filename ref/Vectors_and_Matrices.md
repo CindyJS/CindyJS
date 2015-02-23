@@ -80,16 +80,16 @@ We can calculate the sum of all squares of the first hundred integers by the fol
 
 | Code              | Result   |
 | ----------------- | -------- |
-| `sum(1..100,#ˆ2)` | `338350` |
+| `sum(1..100,#^2)` | `338350` |
 
 It is time for a little mathematical mystery:
 
 | Code                | Result         |
 | ------------------- | -------------- |
-| `sum(1..10,#ˆ2)`    | `385`          |
-| `sum(1..100,#ˆ2)`   | `338350`       |
-| `sum(1..1000,#ˆ2)`  | `333833500`    |
-| `sum(1..10000,#ˆ2)` | `333383335000` |
+| `sum(1..10,#^2)`    | `385`          |
+| `sum(1..100,#^2)`   | `338350`       |
+| `sum(1..1000,#^2)`  | `333833500`    |
+| `sum(1..10000,#^2)` | `333383335000` |
 
 ------
 
@@ -192,11 +192,11 @@ Besides addition and multiplication, as described earlier in this section, there
 #### Dimensions of a matrix: `matrixrowcolum(‹matrix›)`
 
 **Description:**
-If the argument is a matrix, this operator returns the number of columns and the number of rows of the matrix, encoded as a two-element list.
+If the argument is a matrix, this operator returns the number of rows and the number of columns of the matrix, encoded as a two-element list.
 
 | Code                                         | Result  |
 | -------------------------------------------- | ------- |
-| `matrixrowcolumn([[1,2],[3,2],[1,3],[5,4]])` | `[2,4]` |
+| `matrixrowcolumn([[1,2],[3,2],[1,3],[5,4]])` | `[4,2]` |
 
 ------
 

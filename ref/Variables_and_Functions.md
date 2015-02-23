@@ -36,7 +36,7 @@ The following function assumes that `a` and `b` are two-dimensional vectors and 
 In this code a few interesting things happen.
 First of all, the code is in principle procedural.
 The body of the function has the form `(statement_1;…;statement_k)`.
-Furthermore, the function uses the variables `n` and `n1`.
+Furthermore, the function uses the variables `n` and `n2`.
 These variables are created when the function is first called.
 However, they are (by default) not local.
 Their values are visible also after the function has been called.
@@ -86,7 +86,7 @@ The program
     > c=2*b;
     >
 
-assigns to `x` the value `4`, to `b` the value `[9,27]`, and to `c` the value `[18,54]`.
+assigns to `x` the value `3`, to `b` the value `[9,27]`, and to `c` the value `[18,54]`.
 A variable defined in a function remains visible also outside the scope of the function.
 Exceptions to this rule are the parameters of the function and variables explicitly defined local.
 The following program exemplifies the scope of variables:
