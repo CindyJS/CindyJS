@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script id='csinit' type='cindyscript'>
+      txt = "Select canvas and type";
+    </script>
+    <script id='csdraw' type='cindyscript'>
+            repeat(500,i,
+                   w=i*pi/180*(137.508+B.x*0.5);
+                   p=A+(cos(w),sin(w))*0.3*sqrt(i);
+                   a=i;
+                   draw(p,size->sqrt(i)*.4,color->hue(i/34));
+            );
+            drawtext([-9,8], txt);
+    </script>
+    <script type="text/javascript">
+        
+            defaultAppearance.pointColor=[1,.7,0];
+            var gslp=[
+                      {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
+                      {name:"B", kind:"P", type:"Free", sx:0,sy:9,sz:1},
+                      ];
+            createCindy({canvasname:"CSCanvas",
+                        scripts:"cs*",
+                        geometry:gslp});
+
+            document.addEventListener("DOMContentLoaded", function() {
+              var canvas = document.getElementById("CSCanvas");
+              canvas.addEventListener("mousedown", function() {
+                canvas.focus();
+              });
+              canvas.addEventListener("keypress", function(e) {
+                console.log("Got key " + e.charCode + " / " + e.keyCode);
+                if (e.keyCode !== 9 /* tab */) {
+                  evokeCS("txt=\"" + String.fromCharCode(e.charCode) + "\";");
+                  e.preventDefault();
+                }
+              });
+            });
+            
+    </script>
+    <style type="text/css">
+      canvas { border: 2px solid #000; }
+      canvas:focus { border-color: #060; }
+    </style>
+  </head>
+  <body style="font-family:Arial;">
+    <h1>CindyJS: Focus behavior</h1>
+    <div>
+      <canvas  id="CSCanvas" width="500" height="500" tabindex="0"></canvas>
+    </div>
+    <p>Text: <input type="text"></p>
+  </body>
+</html>
