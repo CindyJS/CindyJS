@@ -1,6 +1,6 @@
-## Interaction with C-Books[?](tiki-editpage.php?page=C-Books)
+## Interaction with C-Books
 
-The c-book infrastructure and software (also called C-Book[?](tiki-editpage.php?page=C-Book) Environment CBE) is being developped in the EU project called MC Squared.
+The c-book infrastructure and software (also called C-Book Environment CBE) is being developped in the EU project called MC Squared.
 C-books are e-books which may be enhanced by so-called widgets which are small pieces of software running within the c-books.
 Typically, readers of the c-books can interact with the widgets; and moreover, the widgets can communicate internally both with the c-book infrastructure and also with other widgets.
 
@@ -20,7 +20,7 @@ This page gives a brief documentation of how to use this functionality, mainly v
 
 C-book scores are fully supported by Cinderella via CindyScript.
 For using scores in c-books there exists a tutorial in the form of a c-book.
-See http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&amp;language=en&amp;scoViewNr=5686812383117312.
+See http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&language=en&scoViewNr=5686812383117312.
 
 Here, we also give some written explanations of how to do this.
 At first, notice that after having added a widget to a c-book which uses scores in edit mode, you will have to click on the widget in order to open up the widget editor window.
@@ -76,7 +76,7 @@ This is usually a non-negative integer.
 
 C-book randomized values are fully supported by Cinderella via CindyScript.
 For using scores in c-books there exists a tutorial in the form of a c-book.
-See http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&amp;language=en&amp;scoViewNr=5723475968786432.
+See http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&language=en&scoViewNr=5723475968786432.
 
 Here are some brief explanations of how to do this.
 
