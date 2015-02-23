@@ -1,7 +1,9 @@
 "use strict";
 
 var fs = require("fs"), path = require("path");
-var createCindy = require("../build/js/Cindy.plain.js");
+var createCindy = require("../../build/js/Cindy.plain.js");
+
+var refdir = path.dirname(__dirname);
 var println = console.log;
 
 var reTestLine = /^    ([<>!.] )?(.*)/mg;
@@ -15,9 +17,9 @@ function runAllTests() {
   var files = process.argv.slice(2);
   if (files.length === 0) {
     files = [];
-    fs.readdirSync(__dirname).forEach(function(filename) {
+    fs.readdirSync(refdir).forEach(function(filename) {
       if (filename.match(/\.md$/))
-        files.push(path.join(__dirname, filename));
+        files.push(path.join(refdir, filename));
     });
   }
   files.forEach(runTestFile);

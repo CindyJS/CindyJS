@@ -148,7 +148,7 @@ jshint: node_modules/.bin/jshint build/js/ours.js
 ######################################################################
 
 nodetest: build/js/Cindy.plain.js $(NPM_DEP)
-	$(NODE) ref/runtests.js
+	$(NODE) ref/js/runtests.js
 
 tests: nodetest
 
@@ -167,9 +167,9 @@ refhtml:=$(refmd:ref/%.md=build/ref/%.html)
 refres:=ref.css
 
 $(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json \
-		ref/md2html.js ref/template.html $(NPM_DEP)
+		ref/js/md2html.js ref/template.html $(NPM_DEP)
 	@mkdir -p $(@D)
-	$(NODE_CMD) ref/md2html.js $< $@
+	$(NODE_CMD) ref/js/md2html.js $< $@
 
 $(refres:%=build/ref/%): build/ref/%: ref/%
 	cp $< $@

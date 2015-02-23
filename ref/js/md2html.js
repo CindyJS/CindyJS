@@ -2,7 +2,8 @@
 
 var fs = require("fs"), path = require("path"), marked = require("marked");
 
-var tmpl = fs.readFileSync(path.join(__dirname, "template.html")).toString()
+var refdir = path.dirname(__dirname);
+var tmpl = fs.readFileSync(path.join(refdir, "template.html")).toString()
 var md = fs.readFileSync(process.argv[2]).toString();
 
 function escape(str) {
