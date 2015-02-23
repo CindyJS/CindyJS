@@ -19,9 +19,13 @@ liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
 lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
 
-ours = src/js/Head.js src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab) src/js/Tail.js
+inclosure = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab) $(extra_inclosure)
+
+ours = src/js/Head.js $(inclosure) src/js/Tail.js
 
 srcs = $(lib) $(ours)
+
+js_src = $(filter-out tools/%,$(filter %.js,$^))
 
 ######################################################################
 ## Download stuff either using curl or wget
@@ -75,7 +79,7 @@ closure_args_common = \
 	--language_in $(closure_language) \
 	--compilation_level $(closure_level) \
 	--js_output_file $@ \
-	--js $(filter %.js,$^)
+	--js $(js_src)
 closure_args_wrapper = \
 	$(closure_args_common)
 closure_args = \
@@ -103,16 +107,29 @@ build/js/Cindy.plain.js: $(srcs)
 
 build/js/ours.js: $(ours)
 
-build/js/Cindy.plain.js build/js/ours.js: node_modules/source-map/package.json
+build/js/Cindy.plain.js build/js/ours.js: \
+		node_modules/source-map/package.json tools/cat.js
 	@mkdir -p $(@D)
-	$(NODE_CMD) tools/cat.js $(filter %.js,$^) -o $@
+	$(NODE_CMD) $(filter %tools/cat.js,$^) $(js_src) -o $@
 
-build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cindy.js.wrapper
+build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cindy.js.wrapper tools/apply-source-map.js
 	$(CLOSURE) $(closure_args)
-	$(NODE_CMD) tools/apply-source-map.js -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
+	$(NODE_CMD) $(filter %tools/apply-source-map.js,$^) -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
 
 build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
 	cp $< $@
+
+######################################################################
+## Run jshint to detect syntax problems
+######################################################################
+
+node_modules/.bin/js-beautify: $(NPM_DEP)
+	$(NPM_CMD) install js-beautify
+
+beautify: node_modules/.bin/js-beautify
+	$(NODE_PATH) $< --replace --config Administration/beautify.conf $(ours)
+
+.PHONY: beautify
 
 ######################################################################
 ## Run jshint to detect syntax problems
@@ -122,7 +139,7 @@ node_modules/.bin/jshint: $(NPM_DEP)
 	$(NPM_CMD) install jshint
 
 jshint: node_modules/.bin/jshint build/js/ours.js
-	$(NODE_PATH) $< -c Administration/jshint.conf --verbose $(filter %.js,$^)
+	$(NODE_PATH) $< -c Administration/jshint.conf --verbose --reporter '$(CURDIR)/tools/jshint-reporter.js' $(filter %.js,$^)
 
 .PHONY: jshint
 
@@ -175,8 +192,8 @@ c3d_shaders = $(c3d_primitives:%=%-vert.glsl) $(c3d_primitives:%=%-frag.glsl) \
 c3d_str_res = $(c3d_shaders:%=src/str/cindy3d/%)
 
 build/js/c3dres.js: $(c3d_str_res) tools/files2json.js $(NPM_DEP)
-	$(NODE_CMD) tools/files2json.js -varname=c3d_resources -output=$@ \
-	$(c3d_str_res)
+	$(NODE_CMD) $(filter %tools/files2json.js,$^) -varname=c3d_resources -output=$@ \
+	$(filter %.glsl,$^)
 
 # For debugging use these command line arguments for make:
 # c3d_closure_level=WHITESPACE_ONLY c3d_extra_args='--formatting PRETTY_PRINT'
@@ -196,7 +213,7 @@ c3d_closure_args = \
 	--js_output_file $@ \
 	--externs $(filter %.externs,$^) \
 	$(c3d_extra_args) \
-	--js $(filter %.js,$^)
+	--js $(js_src)
 c3d_mods = ShaderProgram Camera Appearance Viewer PrimitiveRenderer \
 	Spheres Cylinders Triangles Interface Ops3D
 c3d_srcs = build/js/c3dres.js $(c3d_mods:%=src/js/cindy3d/%.js) \
