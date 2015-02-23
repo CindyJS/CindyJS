@@ -20,11 +20,7 @@ This page gives a brief documentation of how to use this functionality, mainly v
 
 C-book scores are fully supported by Cinderella via CindyScript.
 For using scores in c-books there exists a tutorial in the form of a c-book.
-See [http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&amp;language=en&amp;scoViewNr=5686812383117312](http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&language=en&scoViewNr=5686812383117312)
-
-![external link](img/icons/external_link.gif)
-
-.
+See http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&amp;language=en&amp;scoViewNr=5686812383117312.
 
 Here, we also give some written explanations of how to do this.
 At first, notice that after having added a widget to a c-book which uses scores in edit mode, you will have to click on the widget in order to open up the widget editor window.
@@ -80,12 +76,7 @@ This is usually a non-negative integer.
 
 C-book randomized values are fully supported by Cinderella via CindyScript.
 For using scores in c-books there exists a tutorial in the form of a c-book.
-See
-[http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&amp;language=en&amp;scoViewNr=5723475968786432](http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&language=en&scoViewNr=5723475968786432)
-
-![external link](img/icons/external_link.gif)
-
-.
+See http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&amp;language=en&amp;scoViewNr=5723475968786432.
 
 Here are some brief explanations of how to do this.
 
