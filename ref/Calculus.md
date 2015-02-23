@@ -18,7 +18,7 @@ The free variable of the derivative is given as second argument.
 **Example:**
 The following code demonstrates the use of the operator:
 
-    - skip test: can't do drawing in the test suite.
+    - skip test: Operator d not implemented yet.
     > f(x):=(x-3)*(x-2)*(x-1)*x*.4;
     > g(x):=d(f(#),x);
     > h(x):=d(g(#),x);

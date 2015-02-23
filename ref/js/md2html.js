@@ -29,6 +29,7 @@ renderer.code = function(code, lang) {
     "< ": "result",
     "~ ": "regexp",
     "* ": "output",
+    "D ": "draw2d",
     "- ": "pragma",
   };
   var bcls = {
@@ -37,6 +38,7 @@ renderer.code = function(code, lang) {
     "> ": "codeblock",
     "< ": "codeblock",
     "* ": "codeblock",
+    "D ": "codeblock",
     "~ ": "codeblock",
   };
   var outer = 'block', prevmark = '', res = '';

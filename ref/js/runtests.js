@@ -8,10 +8,7 @@ var println = console.log;
 
 var reTestLine = /^    ([<>!.] )?(.*)/mg;
 var failures = 0, numtests = 0;
-var cjs = createCindy({
-  "isNode": true,
-  "csconsole": null,
-});
+var cjs, fakeCanvas;
 
 function runAllTests() {
   var files = process.argv.slice(2);
@@ -36,6 +33,13 @@ function runAllTests() {
 function runTestFile(filename) {
   // println("File: " + filename);
   // println("");
+  fakeCanvas = new FakeCanvas();
+  cjs = createCindy({
+    "isNode": true,
+    "csconsole": null,
+    "canvas": fakeCanvas,
+  });
+  fakeCanvas._log = [];
   var cases = [], curcase = null, ininput = false, lineno = 1;
   var txt = fs.readFileSync(filename, {encoding: "utf-8"});
   txt.split("\n\n").forEach(function(block) {
@@ -73,6 +77,8 @@ function runTestFile(filename) {
         curcase.expectException(rest);
       } else if (mark === '* ') {
         curcase.expectOutput(rest);
+      } else if (mark === 'D ') {
+        curcase.expectDraw(rest);
       } else if (mark === 'J ' || mark === 'T ') {
         // ignore
       } else {
@@ -97,6 +103,7 @@ function TestCase(cmd, filename, lineno) {
 TestCase.prototype.expected = null;
 TestCase.prototype.pattern = null;
 TestCase.prototype.output = null;
+TestCase.prototype.draw = null;
 TestCase.prototype.exception = null;
 
 TestCase.prototype.expectResult = function(str) {
@@ -115,6 +122,12 @@ TestCase.prototype.expectOutput = function(str) {
   if (this.output === null)
     this.output = [];
   this.output.push(str);
+};
+
+TestCase.prototype.expectDraw = function(str) {
+  if (this.draw === null)
+    this.draw = [];
+  this.draw.push(str);
 };
 
 TestCase.prototype.expectException = function(str) {
@@ -170,6 +183,19 @@ TestCase.prototype.run = function() {
       return false;
     }
   }
+  if (this.draw !== null || fakeCanvas._log.length !== 0) {
+    expected = this.draw;
+    if (expected === null) expected = [];
+    if (expected.join("\n") !== fakeCanvas._log.join("\n")) {
+      println("Location:  " + this.filename + ":" + this.lineno);
+      println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
+      println("Expected:  D " + expected.join("\n           D "));
+      println("Actual:    D " + fakeCanvas._log.join("\n           D "));
+      println("");
+      return false;
+    }
+    fakeCanvas._log = [];
+  }
   expected = this.expected;
   if (this.pattern !== null) {
     if (this.expected === null) {
@@ -209,5 +235,44 @@ TestCase.prototype.run = function() {
   }
   return true;
 };
+
+function FakeCanvas() {
+  this.width = 640;
+  this.height = 480;
+  this._log = [];
+  this._unchanged = {width: this.width, height: this.height};
+};
+FakeCanvas.prototype.addEventListener = function() { };
+FakeCanvas.prototype.removeEventListener = function() { };
+FakeCanvas.prototype.writeLog = function(methodName, args) {
+  var keys = Object.keys(this), map = Array.prototype.map;
+  keys.sort();
+  keys.forEach(function(k) {
+    if (k.substr(0,1) === "_") return;
+    if (this[k] !== this._unchanged[k]) {
+      this._unchanged[k] = this[k];
+      this._log.push(k + " = " + JSON.stringify(this[k]));
+    }
+  }, this);
+  this._log.push(methodName + "(" +
+                 map.call(args, JSON.stringify).join(", ") + ")");
+};
+[ "arc",
+  "beginPath",
+  "clearRect",
+  "clip",
+  "fill",
+  "getContext",
+  "lineTo",
+  "moveTo",
+  "restore",
+  "save",
+  "stroke",
+].forEach(function(m) {
+  FakeCanvas.prototype[m] = function() {
+    this.writeLog(m, arguments);
+    return this;
+  };
+});
 
 runAllTests();
