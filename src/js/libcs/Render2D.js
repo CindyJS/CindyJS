@@ -27,9 +27,6 @@ Render2D.reset = function() {
     Render2D.headlen = 10; // arrow head length - perhaps set this relative to canvas size
     Render2D.arrowShape = 'default';
     Render2D.alpha = csport.drawingstate.alpha;
-    csctx.webkitLineDash = []; //Safari
-    csctx.setLineDash([]); //Chrome
-    csctx.mozDash = []; //FFX
 };
 
 Render2D.modifHandlersPoints = {
@@ -178,11 +175,11 @@ Render2D.handleModifsLines = function(modifs) {
     Render2D.lineColor = Render2D.makeColor(Render2D.linecolorraw);
 };
 
-Render2D.makeColor = function() {
-    var rgb = Render2D.colorRGB, alpha = Render2D.alpha;
-    var r = Math.floor(rgb[0] * 255);
-    var g = Math.floor(rgb[1] * 255);
-    var b = Math.floor(rgb[2] * 255);
+Render2D.makeColor = function(colorraw) {
+    var alpha = Render2D.alpha;
+    var r = Math.floor(colorraw[0] * 255);
+    var g = Math.floor(colorraw[1] * 255);
+    var b = Math.floor(colorraw[2] * 255);
     return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
 };
 
@@ -293,7 +290,7 @@ Render2D.drawsegcore = function(pt1, pt2) {
     } // end isArrow
 
     if (Render2D.dashing)
-        eval_helper.unSetDash();
+        Render2D.unSetDash();
 
     function draw_arrowhead(x1, x2, y1, y2, sign) {
         var rx = x2 - sign*x30sub;
@@ -413,6 +410,12 @@ Render2D.setDash = function(pattern, size) {
     csctx.webkitLineDash = pattern; //Safari
     csctx.setLineDash(pattern); //Chrome
     csctx.mozDash = pattern; //FFX
+};
+
+Render2D.unSetDash = function() {
+    csctx.webkitLineDash = []; //Safari
+    csctx.setLineDash([]); //Chrome
+    csctx.mozDash = []; //FFX
 };
 
 Render2D.setDashType = function(type, s) {

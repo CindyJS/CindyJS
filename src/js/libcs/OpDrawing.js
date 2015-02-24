@@ -56,13 +56,14 @@ eval_helper.extractPoint = function(v1) {
 
 evaluator.draw$1 = function(args, modifs) {
 
-    function drawline() {
+    var v1 = evaluateAndVal(args[0]);
+    if (v1.ctype === "shape") {
+        eval_helper.drawshape(v1, modifs);
+    } else if (v1.usage === "Line") {
         Render2D.reset();
         Render2D.handleModifsLines(modifs);
         Render2D.drawline(v1);
-    }
-
-    function drawpoint() {
+    } else {
         var pt = eval_helper.extractPoint(v1);
 
         if (!pt.ok) {
@@ -80,15 +81,8 @@ evaluator.draw$1 = function(args, modifs) {
         }
         Render2D.drawpoint(pt);
     }
-
-    var v1 = evaluateAndVal(args[0]);
-    if (v1.ctype === "shape") {
-        eval_helper.drawshape(v1, modifs);
-    } else if (v1.usage === "Line") {
-        drawline();
-    } else {
-        drawpoint();
-    }
+    if (modifs !== null && Render2D.dashing)
+        Render2D.unSetDash();
     return nada;
 };
 
@@ -105,6 +99,8 @@ evaluator.draw$2 = function(args, modifs) {
         Render2D.handleModifsLines(modifs);
     }
     Render2D.drawsegcore(pt1, pt2);
+    if (modifs !== null && Render2D.dashing)
+        Render2D.unSetDash();
     return nada;
 };
 
@@ -649,6 +645,8 @@ evaluator.drawall$1 = function(args, modifs) {
         for (var i = 0; i < v1.value.length; i++) {
             evaluator.draw$1([v1.value[i]], null);
         }
+        if (Render2D.dashing)
+            Render2D.unSetDash();
     }
     return nada;
 };
@@ -1069,122 +1067,6 @@ evaluator.plot$2 = function(args, modifs) {
     var step = 1;
     var steps = 1000;
 
-
-    function handleModifs(type) {
-        var erg;
-
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                lsize = erg.value.real;
-                if (lsize < 0) lsize = 0;
-            }
-
-        }
-
-
-        if (modifs.dashpattern !== undefined) {
-            erg = evaluate(modifs.dashpattern);
-            if (erg.ctype === 'list') {
-                var pat = [];
-                for (var i = 0; i < erg.value.length; i++) {
-                    pat[i] = erg.value[i].value.real;
-                }
-                Render2D.setDash(pat, lsize);
-                dashing = true;
-            }
-        }
-
-
-        if (modifs.dashtype !== undefined) {
-            erg = evaluate(modifs.dashtype);
-            if (erg.ctype === 'number') {
-                var type2 = Math.floor(erg.value.real);
-                Render2D.setDashType(type2, lsize);
-                dashing = true;
-
-
-            }
-        }
-
-        if (modifs.dashing !== undefined) {
-            erg = evaluate(modifs.dashing);
-            if (erg.ctype === 'number') {
-                var si = Math.floor(erg.value.real);
-                Render2D.setDash([si * 2, si], lsize);
-                dashing = true;
-
-
-            }
-        }
-
-
-        if (modifs.connect !== undefined) {
-            erg = evaluate(modifs.connect);
-            if (erg.ctype === 'boolean') {
-                connectb = erg.value;
-            }
-        }
-
-        if (modifs.start !== undefined) {
-            erg = evaluate(modifs.start);
-            if (erg.ctype === 'number') {
-                start = erg.value.real;
-            }
-        }
-
-        if (modifs.stop !== undefined) {
-            erg = evaluate(modifs.stop);
-            if (erg.ctype === 'number') {
-                stop = erg.value.real;
-            }
-        }
-
-        if (modifs.steps !== undefined) {
-            erg = evaluate(modifs.steps);
-            if (erg.ctype === 'number') {
-                steps = erg.value.real;
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return;
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-        r = csport.drawingstate.linecolorraw[0] * 255;
-        g = csport.drawingstate.linecolorraw[1] * 255;
-        b = csport.drawingstate.linecolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-    }
-
-
     var v1 = args[0];
     var runv;
     if (args[1] !== null && args[1].ctype === 'variable') {
@@ -1213,11 +1095,37 @@ evaluator.plot$2 = function(args, modifs) {
     var col = csport.drawingstate.linecolor;
     var lsize = 1;
 
-    handleModifs();
+    Render2D.reset();
+    handleModifs(modifs, {
+        "color": Render2D.modifHandlersLines.color,
+        "alpha": Render2D.modifHandlersLines.alpha,
+        "size": Render2D.modifHandlersLines.size,
+        "dashpattern": Render2D.modifHandlersLines.dashpattern,
+        "dashtype": Render2D.modifHandlersLines.dashtype,
+        "dashing": Render2D.modifHandlersLines.dashing,
 
+        "connect": function(v) {
+            if (v.ctype === 'boolean')
+                connectb = v.value;
+        },
 
-    csctx.strokeStyle = col;
-    csctx.lineWidth = lsize;
+        "start": function(v) {
+            if (v.ctype === 'number')
+                start = v.value.real;
+        },
+
+        "stop": function(v) {
+            if (v.ctype === 'number')
+                stop = v.value.real;
+        },
+
+        "steps": function(v) {
+            if (v.ctype === 'number')
+                steps = v.value.real;
+        },
+    });
+    csctx.strokeStyle = Render2D.makeColor(Render2D.linecolorraw);
+    csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = 'round';
     csctx.lineJoin = 'round';
 
@@ -1369,7 +1277,7 @@ evaluator.plot$2 = function(args, modifs) {
             }
         }
         if (dashing)
-            eval_helper.unSetDash();
+            Render2D.unSetDash();
         return nada;
     }
 
@@ -1399,7 +1307,7 @@ evaluator.plot$2 = function(args, modifs) {
         csctx.stroke();
 
     if (dashing)
-        eval_helper.unSetDash();
+        Render2D.unSetDash();
     return nada;
 
 };
