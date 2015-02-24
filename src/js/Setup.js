@@ -70,8 +70,11 @@ function createCindyNow() {
     var cscode, c = data.canvas;
     if (!c && typeof document !== "undefined")
         c = document.getElementById(data.canvasname);
-    if (c)
+    if (c) {
         csctx = c.getContext("2d");
+        if (!csctx.setLineDash)
+            csctx.setLineDash = function() {};
+    }
 
     //Run initialscript
     cscode = condense(initialscript);
