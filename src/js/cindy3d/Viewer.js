@@ -254,6 +254,13 @@ Viewer.prototype.clear = function() {
 };
 
 Viewer.prototype.render = function() {
+  if (this.lighting.modified) {
+    this.lightingCode = c3d_resources.lighting1 +
+      this.lighting.shaderCode() + c3d_resources.lighting2;
+    this.spheres.recompileShader(this);
+    this.cylinders.recompileShader(this);
+    this.triangles.recompileShader(this);
+  }
   if (this.ssFactor === 1)
     this.renderAliased();
   else

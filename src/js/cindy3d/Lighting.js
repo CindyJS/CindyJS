@@ -18,6 +18,16 @@ Lighting.prototype.lights;
 Lighting.prototype.modified;
 
 /**
+ * @param {number} i
+ * @param {Light} l
+ */
+Lighting.prototype.setLight = function(i, l) {
+  this.modified =
+    (!l !== !this.lights[i]) || (!!l && this.lights[i].type !== l.type);
+  this.lights[i] = l;
+};
+
+/**
  * @return {string}
  */
 Lighting.prototype.shaderCode = function() {
@@ -106,3 +116,33 @@ function PointLight(pos, diffuse, specular) {
 
 PointLight.prototype = new Light(
   "pointLight", ["uLightPos", "uDiffuse", "uSpecular"]);
+
+/**
+ * @constructor
+ * @extends Light
+ */
+function DirectionalLight(dir, diffuse, specular) {
+  this["uLightDir"] = dir;
+  this["uDiffuse"] = diffuse;
+  this["uSpecular"] = specular;
+}
+
+DirectionalLight.prototype = new Light(
+  "directionalLight", ["uLightDir", "uDiffuse", "uSpecular"]);
+
+/**
+ * @constructor
+ * @extends Light
+ */
+function SpotLight(pos, dir, cutoff, exponent, diffuse, specular) {
+  this["uLightPos"] = pos;
+  this["uSpotDir"] = dir;
+  this["uSpotCosCutoff"] = [cutoff];
+  this["uSpotExponent"] = [exponent];
+  this["uDiffuse"] = diffuse;
+  this["uSpecular"] = specular;
+}
+
+SpotLight.prototype = new Light(
+  "spotLight", ["uLightPos", "uSpotDir", "uSpotCosCutoff", "uSpotExponent",
+                "uDiffuse", "uSpecular"]);

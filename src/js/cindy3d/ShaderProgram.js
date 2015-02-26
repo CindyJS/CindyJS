@@ -93,6 +93,17 @@ ShaderProgram.prototype.link = function(gl) {
 /**
  * @param {WebGLRenderingContext} gl
  */
+ShaderProgram.prototype.dispose = function(gl) {
+  gl.detachShader(this.handle, this.vs);
+  gl.deleteShader(this.vs);
+  gl.detachShader(this.handle, this.fs);
+  gl.deleteShader(this.fs);
+  gl.deleteProgram(this.handle);
+};
+
+/**
+ * @param {WebGLRenderingContext} gl
+ */
 ShaderProgram.prototype.detectUniforms = function(gl) {
   this.uniform = this.detectImpl(gl, true);
 };
