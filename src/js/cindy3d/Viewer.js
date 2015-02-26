@@ -54,7 +54,7 @@ function Viewer(name, ccOpts, opts, addEventListener) {
       this.ssFactor = 1;
   }
   if (this.ssFactor !== 1) {
-    let ssArea = this.width*this.height*this.ssFactor*this.ssFactor;
+    let ssArea = this.width*this.height*this.ssFactor;
     let ssSize = 64;
     while (ssSize*ssSize < ssArea)
       ssSize *= 2;
