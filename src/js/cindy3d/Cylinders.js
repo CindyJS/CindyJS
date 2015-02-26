@@ -4,25 +4,20 @@
  * @extends {PrimitiveRenderer}
  */
 function Cylinders(viewer) {
-  let vs = [
-    "precision mediump float;",
-    c3d_resources.cylinder_vert
-  ].join("\n");
-  let fs = [
-    "precision mediump float;",
-    viewer.lightingCode,
-    c3d_resources.common_frag,
-    c3d_resources.cylinder_frag
-  ].join("\n");
-  if (viewer.glExtFragDepth)
-    fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
-  this.init(viewer.gl.TRIANGLE_STRIP, viewer.gl, vs, fs);
+  this.init(viewer.gl.TRIANGLE_STRIP, viewer);
 }
 
 Cylinders.prototype = new PrimitiveRenderer(
   ["aPoint1", "aPoint2", "aColor", "aRelativeRadius"],
   [0, 0, 2, 4, 6, 7, 2, 3, 1, 7, 5, 4, 1, 0, 2, 2]);
 // Element pattern: http://stackoverflow.com/a/28375339/1468366
+
+/** @type {string} */
+Cylinders.prototype.vertexShaderCode = c3d_resources.cylinder_vert;
+
+/** @type {string} */
+Cylinders.prototype.fragmentShaderCode =
+  c3d_resources.common_frag + "\n" + c3d_resources.cylinder_frag;
 
 /**
  * @param {Array.<number>} pos1

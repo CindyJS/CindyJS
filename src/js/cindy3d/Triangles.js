@@ -4,24 +4,19 @@
  * @extends {PrimitiveRenderer}
  */
 function Triangles(viewer) {
-  let vs = [
-    "precision mediump float;",
-    c3d_resources.triangle_vert
-  ].join("\n");
-  let fs = [
-    "precision mediump float;",
-    viewer.lightingCode,
-    c3d_resources.common_frag,
-    c3d_resources.triangle_frag
-  ].join("\n");
-  if (viewer.glExtFragDepth)
-    fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
-  this.init(viewer.gl.TRIANGLES, viewer.gl, vs, fs);
+  this.init(viewer.gl.TRIANGLES, viewer);
 }
 
 Triangles.prototype = new PrimitiveRenderer(
   ["aPos", "aNormal", "aColor"],
   [0, 1, 2]);
+
+/** @type {string} */
+Triangles.prototype.vertexShaderCode = c3d_resources.triangle_vert;
+
+/** @type {string} */
+Triangles.prototype.fragmentShaderCode =
+  c3d_resources.common_frag + "\n" + c3d_resources.triangle_frag;
 
 /**
  * @param {Array.<number>} pos1

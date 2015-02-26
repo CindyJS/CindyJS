@@ -65,7 +65,7 @@ PrimitiveRenderer.prototype.elements;
 PrimitiveRenderer.prototype.numElements;
 
 /**
- * Number of floats per item for its attributes
+< * Number of floats per item for its attributes
  * @type {number}
  */
 PrimitiveRenderer.prototype.itemLength;
@@ -88,16 +88,32 @@ PrimitiveRenderer.prototype.itemAttribByteCount;
  */
 PrimitiveRenderer.prototype.itemTotalByteCount;
 
+/**
+ * Whether to make use of the fragment depth extension
+ * @type {boolean}
+ */
+PrimitiveRenderer.prototype.useFragDepth = true;
+
+/**
+ * Source code of vertex shader
+ * @type {string}
+ */
+PrimitiveRenderer.prototype.vertexShaderCode;
+
+/**
+ * Source code of fragment shader, sans lighting
+ * @type {string}
+ */
+PrimitiveRenderer.prototype.fragmentShaderCode;
+
 //////////////////////////////////////////////////////////////////////
 //
 
 /**
  * @param {number} mode
- * @param {WebGLRenderingContext} gl
- * @param {string} vs
- * @param {string} fs
+ * @param {Viewer} viewer
  */
-PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
+PrimitiveRenderer.prototype.init = function(mode, viewer) {
   let c = this.initialCapacity, d;
   this.mode = mode;
   this.count = 0;
@@ -114,9 +130,22 @@ PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
       d[k++] = e[j] + o;
   }
 
+  let gl = viewer.gl;
   this.bufferAttribs = gl.createBuffer();
   this.bufferIndices = gl.createBuffer();
   this.bufferCapacity = -1;
+
+  let vs = [
+    "precision mediump float;",
+    this.vertexShaderCode
+  ].join("\n");
+  let fs = [
+    "precision mediump float;",
+    viewer.lightingCode,
+    this.fragmentShaderCode
+  ].join("\n");
+  if (this.useFragDepth && viewer.glExtFragDepth)
+    fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
   this.shaderProgram = new ShaderProgram(gl, vs, fs);
   let sp = this.shaderProgram.handle;
   this.attribLocations = this.attributes.map(a => gl.getAttribLocation(sp, a));

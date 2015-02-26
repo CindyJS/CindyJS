@@ -4,23 +4,18 @@
  * @extends {PrimitiveRenderer}
  */
 function Spheres(viewer) {
-  let vs = [
-    "precision mediump float;",
-    c3d_resources.sphere_vert
-  ].join("\n");
-  let fs = [
-    "precision mediump float;",
-    viewer.lightingCode,
-    c3d_resources.common_frag,
-    c3d_resources.sphere_frag
-  ].join("\n");
-  if (viewer.glExtFragDepth)
-    fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
-  this.init(viewer.gl.TRIANGLES, viewer.gl, vs, fs);
+  this.init(viewer.gl.TRIANGLES, viewer);
 }
 
 Spheres.prototype = new PrimitiveRenderer(
   ["aCenter", "aColor", "aRelativeRadius"], [0, 1, 2, 2, 1, 3]);
+
+/** @type {string} */
+Spheres.prototype.vertexShaderCode = c3d_resources.sphere_vert;
+
+/** @type {string} */
+Spheres.prototype.fragmentShaderCode =
+  c3d_resources.common_frag + "\n" + c3d_resources.sphere_frag;
 
 /**
  * @param {Array.<number>} pos
