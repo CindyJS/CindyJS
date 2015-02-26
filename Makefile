@@ -186,7 +186,7 @@ ref: $(refhtml) $(refres:%=build/ref/%) $(refimg:%=build/%)
 ## Build JavaScript version of Cindy3D
 ######################################################################
 
-c3d_primitives = sphere cylinder triangle
+c3d_primitives = sphere cylinder triangle texq
 c3d_shaders = $(c3d_primitives:%=%-vert.glsl) $(c3d_primitives:%=%-frag.glsl) \
 	lighting.glsl common-frag.glsl
 c3d_str_res = $(c3d_shaders:%=src/str/cindy3d/%)
@@ -196,7 +196,7 @@ build/js/c3dres.js: $(c3d_str_res) tools/files2json.js $(NPM_DEP)
 	$(filter %.glsl,$^)
 
 # For debugging use these command line arguments for make:
-# c3d_closure_level=WHITESPACE_ONLY c3d_extra_args='--formatting PRETTY_PRINT'
+# c3d_extra_args='--transpile_only --formatting PRETTY_PRINT'
 
 c3d_closure_level = ADVANCED
 c3d_closure_warnings = VERBOSE

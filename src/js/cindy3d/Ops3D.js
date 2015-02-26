@@ -66,15 +66,16 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
 
   defOp("begin3d", 0, function(args, modifs) {
     let name = "Cindy3D";
-    let opts = {};
+    let ccOpts = {}, opts = {};
     handleModifs(modifs, {
       "name": (a => name = /** @type {string} */(coerce.toString(a, name))),
-      "antialias": (a => opts["antialias"] = coerce.toBool(a, false)),
+      "antialias": (a => ccOpts["antialias"] = coerce.toBool(a, false)),
+      "supersample": (a => opts.superSample = coerce.toReal(a, 1)),
     });
     currentInstance = instances[name];
     if (!currentInstance) {
       instances[name] = currentInstance = new Viewer(
-        name, opts, api.addAutoCleaningEventListener);
+        name, ccOpts, opts, api.addAutoCleaningEventListener);
     }
     return nada;
   });
