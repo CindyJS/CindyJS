@@ -108,6 +108,9 @@ function Viewer(name, ccOpts, opts, addEventListener) {
     this.ssHeight = this.height;
   }
 
+  this.lighting = new Lighting();
+  this.lightingCode = c3d_resources.lighting1 +
+    this.lighting.shaderCode() + c3d_resources.lighting2;
   this.camera = new Camera(this.width, this.height);
   this.spheres = new Spheres(this);
   this.cylinders = new Cylinders(this);
@@ -159,6 +162,12 @@ Viewer.prototype.textureQuadProgram;
 
 /** @type {number} */
 Viewer.prototype.textureQuadAttrib;
+
+/** @type {Lighting} */
+Viewer.prototype.lighting;
+
+/** @type {string} */
+Viewer.prototype.lightingCode;
 
 /** @type {Spheres} */
 Viewer.prototype.spheres;
@@ -316,12 +325,7 @@ Viewer.prototype.renderPrimitives = function(opaque) {
 Viewer.prototype.setUniforms = function(u) {
   u["uProjectionMatrix"](this.camera.projectionMatrix);
   u["uModelViewMatrix"](transpose4(this.camera.mvMatrix));
-  if(!u["materialShininess"]) return;
-  u["materialShininess"]([60]);
-  u["materialAmbient"]([0.2, 0.2, 0.2, 0.2]);
-  u["materialSpecular"]([0.5, 0.5, 0.5, 0.5]);
-  u["lightSource"][0]["position"]([0.0, 0.0, 0.0, 1.0]);
-  u["lightSource"][0]["ambient"]([0.0, 0.0, 0.0, 1.0]);
-  u["lightSource"][0]["diffuse"]([1.0, 1.0, 1.0, 1.0]);
-  u["lightSource"][0]["specular"]([0.0, 0.0, 0.0, 1.0]);
+  if(!u["uShininess"]) return;
+  u["uShininess"]([60]);
+  this.lighting.setUniforms(u);
 };

@@ -188,15 +188,12 @@ ref: $(refhtml) $(refres:%=build/ref/%) $(refimg:%=build/%)
 
 c3d_primitives = sphere cylinder triangle texq
 c3d_shaders = $(c3d_primitives:%=%-vert.glsl) $(c3d_primitives:%=%-frag.glsl) \
-	lighting.glsl common-frag.glsl
+	lighting1.glsl lighting2.glsl common-frag.glsl
 c3d_str_res = $(c3d_shaders:%=src/str/cindy3d/%)
 
 build/js/c3dres.js: $(c3d_str_res) tools/files2json.js $(NPM_DEP)
 	$(NODE_CMD) $(filter %tools/files2json.js,$^) -varname=c3d_resources -output=$@ \
 	$(filter %.glsl,$^)
-
-# For debugging use these command line arguments for make:
-# c3d_extra_args='--transpile_only --formatting PRETTY_PRINT'
 
 c3d_closure_level = ADVANCED
 c3d_closure_warnings = VERBOSE
@@ -214,8 +211,10 @@ c3d_closure_args = \
 	--externs $(filter %.externs,$^) \
 	$(c3d_extra_args) \
 	--js $(js_src)
-c3d_mods = ShaderProgram Camera Appearance Viewer PrimitiveRenderer \
-	Spheres Cylinders Triangles Interface Ops3D
+c3d_dbg_args = --transpile_only --formatting PRETTY_PRINT
+c3d_mods = ShaderProgram Camera Appearance Viewer Lighting \
+	PrimitiveRenderer Spheres Cylinders Triangles \
+	Interface Ops3D
 c3d_srcs = build/js/c3dres.js $(c3d_mods:%=src/js/cindy3d/%.js) \
 	src/js/cindy3d/cindyjs.externs src/js/cindy3d/Cindy3D.js.wrapper
 
@@ -224,6 +223,10 @@ build/js/Cindy3D.js: tools/compiler.jar $(c3d_srcs)
 	$(CLOSURE) $(c3d_closure_args)
 
 cindy3d: build/js/Cindy3D.js
+
+cindy3d-dbg:
+	$(RM) build/js/Cindy3D.js
+	$(MAKE) c3d_extra_args='$(c3d_dbg_args)' build/js/Cindy3D.js
 
 .PHONY: cindy3d
 

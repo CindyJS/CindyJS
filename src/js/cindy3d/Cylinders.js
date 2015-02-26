@@ -10,7 +10,7 @@ function Cylinders(viewer) {
   ].join("\n");
   let fs = [
     "precision mediump float;",
-    c3d_resources.lighting,
+    viewer.lightingCode,
     c3d_resources.common_frag,
     c3d_resources.cylinder_frag
   ].join("\n");
