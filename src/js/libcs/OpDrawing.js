@@ -915,7 +915,6 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         }
         csctx.stroke();
     }; // end drawArray
-<<<<<<< Temporary merge branch 1
     
     
     
@@ -1013,7 +1012,6 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         }
     y = yback; // convert y back
     }
-=======
 
 
     var eval_conic_x = function(C, ymin, ymax) {

@@ -770,7 +770,6 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var AAdegen = (Math.abs(alpha.value.real) < myeps) ? true : false;
     var BBdegen = (Math.abs(delta.value.real) < myeps) ? true : false;
 
-<<<<<<< Temporary merge branch 1
     var Alines, Blines, pts1, pts2;
     if (AAdegen && BBdegen) {
         Alines = geoOps._helper.splitDegenConic(AA);
@@ -784,7 +783,6 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         Alines = geoOps._helper.splitDegenConic(AA);
         pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
         pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
-=======
     if (AAdegen && BBdegen) {
         var Alines = geoOps._helper.splitDegenConic(AA);
         var Blines = geoOps._helper.splitDegenConic(BB);
