@@ -1102,7 +1102,6 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
             }
             y = yback; // convert y back
         }
->>>>>>> Temporary merge branch 2
     }; // end eval_conic_x
 
     // calc and draw conic

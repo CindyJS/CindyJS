@@ -803,12 +803,10 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         Blines = geoOps._helper.splitDegenConic(BB);
         pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
         pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
-=======
     } else if (BBdegen) {
         var Blines = geoOps._helper.splitDegenConic(BB);
         var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
         var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
->>>>>>> Temporary merge branch 2
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
