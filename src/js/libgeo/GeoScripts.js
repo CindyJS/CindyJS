@@ -1,1 +1,1 @@
-var geoscripts={};
+var geoscripts = {};

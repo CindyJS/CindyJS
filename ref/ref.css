@@ -4,7 +4,7 @@ pre { margin: 0px; padding: 2px; }
 pre.code { color: #000066; margin-top: 1em; padding: 0px; }
 pre.code.fst { margin-top: 0px; }
 pre.result { color: #006600; background: #ddffdd; }
-pre.regexp { color: #336600; background: #eeffdd; }
+pre.regexp { color: #99ccaa; background: #eeffdd; }
 pre.output { color: #993333; background: #dddddd; }
 pre.pragma { color: #996600; background: #ffffcc; }
 code { background: #ddddff; }
