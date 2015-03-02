@@ -938,10 +938,11 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         var ttemp; // trafo temp
         var perc = 0.05;
         var diff = ymax - ymin;
+        var distIsSmall = ((diff / csh < 0.10) && (diff / csh > 0.001) && (type === 'ellipsoid')) ? true : false;
         var ssmall = perc * diff + ymin;
         var slarge = ymax - perc * diff;
         for (var y = ymin; y <= ymax; y += step) {
-            if (y < ssmall || y > slarge) {
+            if (y < ssmall || y > slarge || distIsSmall) {
                 step = 1 / 3;
             } else {
                 step = 2;
