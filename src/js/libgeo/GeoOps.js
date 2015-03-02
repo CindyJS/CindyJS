@@ -742,7 +742,6 @@ geoOpMap.IntersectCirCir = "T";
 
 geoOps._helper.IntersectConicConic = function(AA, BB) {
     var p1, p2, p3, p4;
-    var eps = 10e-16;
 
     var alpha = List.det(AA);
 
@@ -764,44 +763,40 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
 
     var delta = List.det(BB);
 
-    var myeps = 10e-16;
-
     // degenrate Case
+    var myeps = 10e-16;
     var AAdegen = (Math.abs(alpha.value.real) < myeps) ? true : false;
     var BBdegen = (Math.abs(delta.value.real) < myeps) ? true : false;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> e50996c5936f29d1eaa2e3dea5063e803e5951c1
     var Alines, Blines, pts1, pts2;
-    if(AAdegen && BBdegen){
+    if (AAdegen && BBdegen) {
         Alines = geoOps._helper.splitDegenConic(AA);
         Blines = geoOps._helper.splitDegenConic(BB);
-        p1 = List.cross(Alines[0],Blines[0]);
-        p2 = List.cross(Alines[1],Blines[0]);
-        p3 = List.cross(Alines[0],Blines[1]);
-        p4 = List.cross(Alines[1],Blines[1]);
-    }
-    else if(AAdegen){
-        Alines = geoOps._helper.splitDegenConic(AA);
-        pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
-        pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
-=======
-    if (AAdegen && BBdegen) {
-        var Alines = geoOps._helper.splitDegenConic(AA);
-        var Blines = geoOps._helper.splitDegenConic(BB);
         p1 = List.cross(Alines[0], Blines[0]);
         p2 = List.cross(Alines[1], Blines[0]);
         p3 = List.cross(Alines[0], Blines[1]);
         p4 = List.cross(Alines[1], Blines[1]);
     } else if (AAdegen) {
+<<<<<<< HEAD
         var Alines = geoOps._helper.splitDegenConic(AA);
         var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
         var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
 >>>>>>> 507433db21105746e89b5ae9fd8a5447952cd79c
+=======
+        Alines = geoOps._helper.splitDegenConic(AA);
+        pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
+        pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
+>>>>>>> e50996c5936f29d1eaa2e3dea5063e803e5951c1
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
         p4 = pts2[1];
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     }
     else if(BBdegen){
@@ -814,6 +809,12 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
         var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
 >>>>>>> 507433db21105746e89b5ae9fd8a5447952cd79c
+=======
+    } else if (BBdegen) {
+        Blines = geoOps._helper.splitDegenConic(BB);
+        pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
+        pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
+>>>>>>> e50996c5936f29d1eaa2e3dea5063e803e5951c1
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
