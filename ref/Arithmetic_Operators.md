@@ -113,6 +113,7 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
     > 5^(-1)
     < 0.2
     > 2^(1/2)
+    < 1.414213562373095
     ~ 1.4142135623730951?
 
 ------
@@ -243,8 +244,9 @@ The standard trigonometric functions are available through the following operato
 The `arc` operators are in principle multivalued.
 However, the operator returns only one principal value, for which the real value is between `+pi` and `-pi`.
 
-    > format(sin(pi), 15) // suppress numeric noise
-    < "0"
+    > sin(pi) // almost zero except for numerics
+    < 1.2246467991473532e-16
+    ~ -?1\.\d+e-1[6-9]
     > arccos(-1)
     < 3.141592653589793
     > arctan2(1,1) ~= 45°
@@ -300,23 +302,28 @@ The following operators generate pseudo random numbers.
 #### Uniformly distributed random real number between 0 and 1: `random()`
 
     > random()
+    < 0.4680764123124367
     ~ 0\.\d{4,}
 
 #### (0,1)-normally distributed random number: `randomnormal()`
 
     > randomnormal()
+    < 0.1325114717517828
     ~ -?\d+\.\d{4,}
 
 #### Random boolean value `true` or `false`: `randombool()`
 
     > randombool()
+    < true
     ~ (true|false)
 
 #### Uniformly distributed random real number between 0 and `‹number›`: `random(‹number›)`
 
     > random(10)
+    < 7.089078226464412
     ~ \d\.\d{4,}
     > sum(1..1000, random(5))
+    < 2464.8003929607607
     ~ 2\d\d\d\.\d+
 
 #### Uniformly distributed random integer number between 0 and `‹number›`: `randomint(‹number›)`
@@ -326,8 +333,10 @@ The random generators also accept negative and complex numbers as arguments.
 For example, `random(-5)` generates a random number between `-5` and `0`; `randomint(6+i*10)` generates a random complex number for which the real part is an integer between 0 and 6 and the imaginary part is an integer between 0 and 10.
 
     > randomint(10)
+    < 0
     ~ \d
     > sum(1..1000, randomint(6))
+    < 2540
     ~ 2\d\d\d
 
 #### Initialize the random generator: `seedrandom(‹number›)`
