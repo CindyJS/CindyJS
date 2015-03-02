@@ -915,108 +915,6 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         }
         csctx.stroke();
     }; // end drawArray
-<<<<<<< HEAD
-<<<<<<< HEAD
-    
-    
-    
-    var eval_conic_x = function(C,ymin, ymax){
-    var x1, x2;
-    var type = get_concic_type(C);
-    
-    if(C.length !== 6)
-    {
-      console.error("Conic needs 6 Parameters");
-      return;
-    }
-    
-    var a = C[0];
-    var b = C[1];
-    var c = C[2];
-    var d = C[3];
-    var e = C[4];
-    var f = C[5];
-    
-    
-    var step;
-    var ttemp; // trafo temp
-    var perc = 0.05;
-
-    var diff = ymax - ymin;
-    var distIsSmall = ((diff/csh < 0.10) && (diff/csh > 0.001) && type === "ellipsoid") ? true : false;
-
-    var ssmall = perc*diff+ymin;
-    var slarge = ymax-perc*diff;
-    for(var y = ymin; y <= ymax; y+=step){
-    if(y < ssmall || y > slarge || distIsSmall){
-    	step = 1/3;
-    }
-    else{
-    	step = 2;
-    }
-    var yback = y;
-    ttemp = csport.to(0, y);
-    y = ttemp[1];
-    
-    var inner = -a*c* Math.pow(y, 2) - 2*a*e*y - a*f + Math.pow(b, 2) * Math.pow(y, 2) + 2*b*d*y  + Math.pow(d, 2);
-    inner = Math.sqrt(inner);
-    
-    
-    x1 = 1/a * (-b*y - d + inner);
-    x2 = -1/a * (b*y + d + inner);
-    
-    
-    var ya, yb, y1, y2;
-    if(useRot){
-    	var r1 = [x1, y, 1];
-    	var r2 = [x2, y, 1];
-    	r1 = numeric.dot(rMat, r1);
-    	r2 = numeric.dot(rMat, r2);
-    	x1 = r1[0];
-    	x2 = r2[0];
-    	ya =  r1[1];
-    	yb =  r2[1];
-    }
-    else{
-    	ya = y;
-    	yb = y;
-    }
-    
-    // transform to canvas coordiantes
-    if(!isNaN(x1)){
-    ttemp = csport.from(x1, ya, 1);
-    x1 = ttemp[0];
-    y1 = ttemp[1];
-    }
-    if(!isNaN(x2)){
-    ttemp = csport.from(x2, yb, 1);
-    x2 = ttemp[0];
-    y2 = ttemp[1];
-    }
-    
-    	// for ellipsoids we go out of canvas
-        if(!isNaN(x1) && type === "ellipsoid"){
-        arr_x1.push(x1);
-        arr_y1.push(y1);
-        }
-        else if(!isNaN(x1) && x1 >= x_zero && x1 <= x_w){ 
-        arr_x1.push(x1);
-        arr_y1.push(y1);
-        }
-    
-        if(!isNaN(x2) && type === "ellipsoid"){
-        arr_x2.push(x2);
-        arr_y2.push(y2);
-        }
-        else if(!isNaN(x2) && x2 >= x_zero && x2 <= x_w){ 
-        arr_x2.push(x2);
-        arr_y2.push(y2);
-        }
-    y = yback; // convert y back
-    }
-=======
-=======
->>>>>>> e50996c5936f29d1eaa2e3dea5063e803e5951c1
 
 
     var eval_conic_x = function(C, ymin, ymax) {
@@ -1106,10 +1004,6 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
             }
             y = yback; // convert y back
         }
-<<<<<<< HEAD
->>>>>>> 507433db21105746e89b5ae9fd8a5447952cd79c
-=======
->>>>>>> e50996c5936f29d1eaa2e3dea5063e803e5951c1
     }; // end eval_conic_x
 
     // calc and draw conic

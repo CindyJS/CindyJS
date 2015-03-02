@@ -768,10 +768,6 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var AAdegen = (Math.abs(alpha.value.real) < myeps) ? true : false;
     var BBdegen = (Math.abs(delta.value.real) < myeps) ? true : false;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> e50996c5936f29d1eaa2e3dea5063e803e5951c1
     var Alines, Blines, pts1, pts2;
     if (AAdegen && BBdegen) {
         Alines = geoOps._helper.splitDegenConic(AA);
@@ -781,40 +777,18 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         p3 = List.cross(Alines[0], Blines[1]);
         p4 = List.cross(Alines[1], Blines[1]);
     } else if (AAdegen) {
-<<<<<<< HEAD
-        var Alines = geoOps._helper.splitDegenConic(AA);
-        var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
-        var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
->>>>>>> 507433db21105746e89b5ae9fd8a5447952cd79c
-=======
         Alines = geoOps._helper.splitDegenConic(AA);
         pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
         pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
->>>>>>> e50996c5936f29d1eaa2e3dea5063e803e5951c1
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
         p4 = pts2[1];
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    }
-    else if(BBdegen){
-        Blines = geoOps._helper.splitDegenConic(BB);
-        pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
-        pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
-=======
-    } else if (BBdegen) {
-        var Blines = geoOps._helper.splitDegenConic(BB);
-        var pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
-        var pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
->>>>>>> 507433db21105746e89b5ae9fd8a5447952cd79c
-=======
     } else if (BBdegen) {
         Blines = geoOps._helper.splitDegenConic(BB);
         pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
         pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
->>>>>>> e50996c5936f29d1eaa2e3dea5063e803e5951c1
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
