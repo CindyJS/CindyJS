@@ -356,7 +356,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
 
   defOp("pointlight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
-    let position = [0, 0, 0, 1], diffuse = [1, 1, 1], specular = [0, 0, 0];
+    let position = [0, 0, 0, 1], diffuse = [1, 1, 1], specular = [1, 1, 1];
     handleModifs(modifs, {
       "position": a => position = coerce.toHomog(a, position),
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
@@ -369,7 +369,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
 
   defOp("directionallight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
-    let direction = [0, -1, 0], diffuse = [1, 1, 1], specular = [0, 0, 0];
+    let direction = [0, -1, 0], diffuse = [1, 1, 1], specular = [1, 1, 1];
     handleModifs(modifs, {
       "direction": a => direction = coerce.toDirection(a, direction),
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
@@ -384,7 +384,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let index = coerce.toInt(evaluate(args[0]), 0);
     let position = [0, 0, 0, 1], direction = [0, -1, 0];
     let cutoff = Math.PI/4, exponent = 0;
-    let diffuse = [1, 1, 1], specular = [0, 0, 0];
+    let diffuse = [1, 1, 1], specular = [1, 1, 1];
     handleModifs(modifs, {
       "position": a => position = coerce.toHomog(a, position),
       "direction": a => direction = coerce.toDirection(a, direction),

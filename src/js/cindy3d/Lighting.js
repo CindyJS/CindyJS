@@ -4,7 +4,7 @@
  */
 function Lighting() {
   this.ambient = [0, 0, 0];
-  this.lights = [new PointLight([0, 0, 0], [1, 1, 1], [0, 0, 0])];
+  this.lights = [new PointLight([0, 0, 0], [1, 1, 1], [1, 1, 1])];
   this.modified = false;
 }
 
