@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script id="csinit" type="text/x-cindyscript">use("Cindy3D")</script>
+<script id="csdraw" type="text/x-cindyscript">
+begin3d();
+fillpoly3d([[-3, -1, 0], [-0.8, -0.8, 1], [-1, 1, 0], [-3, 1, 0]]);
+fillpoly3d(apply(1..5, gauss(1 + exp(i*#*72°)) ++ [0.2 * (# - 3)]));
+end3d()
+</script>
+<script type="text/javascript">
+createCindy({canvasname:"CSCanvas",scripts:"cs*"});
+</script>
+</head>
+
+<body>
+  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+  <p>Polygons should look smooth even if they are in fact bent.</p>
+  <canvas id="CSCanvas" width="50" height="50" style="border:none"></canvas>
+</body>
+
+</html>

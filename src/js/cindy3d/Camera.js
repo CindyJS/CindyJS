@@ -77,6 +77,24 @@ function sub3(a, b) {
  * @param {Array.<number>} b
  * @return {Array.<number>}
  */
+function add3(a, b) {
+  return [a[0]+b[0], a[1]+b[1], a[2]+b[2]];
+}
+
+/**
+ * @param {Array.<number>} a
+ * @param {Array.<number>} b
+ * @return {Array.<number>}
+ */
+function add4(a, b) {
+  return [a[0]+b[0], a[1]+b[1], a[2]+b[2], a[3]+b[3]];
+}
+
+/**
+ * @param {Array.<number>} a
+ * @param {Array.<number>} b
+ * @return {Array.<number>}
+ */
 function cross3(a, b) {
   return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
 }

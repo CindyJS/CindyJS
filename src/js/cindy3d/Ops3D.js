@@ -263,10 +263,24 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
   });
 
   defOp("fillpoly3d", 1, function(args, modifs) {
+    let lst = coerce.toList(evaluate(args[0]));
+    let appearance = handleModifsAppearance(
+      currentInstance.surfaceAppearance, modifs);
+    if (lst.length < 2) return nada;
+    let pos = lst.map(elt => coerce.toHomog(elt));
+    currentInstance.triangles.addPolygonAutoNormal(pos, appearance);
     return nada;
   });
 
   defOp("fillpoly3d", 2, function(args, modifs) {
+    let lst1 = coerce.toList(evaluate(args[0]));
+    let lst2 = coerce.toList(evaluate(args[1]));
+    let appearance = handleModifsAppearance(
+      currentInstance.surfaceAppearance, modifs);
+    if (lst1.length < 2 || lst1.length != lst2.length) return nada;
+    let pos = lst1.map(elt => coerce.toHomog(elt));
+    let n = lst2.map(elt => coerce.toDirection(elt));
+    currentInstance.triangles.addPolygonWithNormals(pos, n, appearance);
     return nada;
   });
 
@@ -293,10 +307,8 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let k = 0;
     for (let i = 1; i < m; ++i) {
       for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addAutoNormal(
-          pos[k], pos[k + 1], pos[k + n], appearance);
-        currentInstance.triangles.addAutoNormal(
-          pos[k + n], pos[k + 1], pos[k + n + 1], appearance);
+        currentInstance.triangles.addPolygonAutoNormal(
+          [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]], appearance);
         ++k;
       }
       ++k;

@@ -54,6 +54,56 @@ Triangles.prototype.addAutoNormal = function(pos1, pos2, pos3, appearance) {
 };
 
 /**
+ * @param {Array.<Array.<number>>} pos
+ * @param {Appearance} appearance
+ */
+Triangles.prototype.addPolygonAutoNormal = function(pos, appearance) {
+  if (pos.length == 3)
+    return this.addAutoNormal(pos[0], pos[1], pos[2], appearance);
+  let k = pos.length, p = Array(k + 2), i, n = [0, 0, 0];
+  for (i = 0; i < k; ++i)
+    p[i] = dehom3(pos[i]);
+  p[k] = p[0];
+  p[k + 1] = p[1];
+  for (i = 1; i <= k; ++i)
+    n = add3(n, cross3(sub3(p[i], p[i - 1]), sub3(p[i], p[i + 1])));
+  if (k == 4) {
+    this.addWithNormals(pos[0], pos[1], pos[3], n, n, n, appearance);
+    this.addWithNormals(pos[3], pos[1], pos[2], n, n, n, appearance);
+    return;
+  }
+  let center = [0, 0, 0, 0], prev = pos[k - 1];
+  for (i = 0; i < k; ++i)
+    center = add4(center, pos[i]);
+  for (i = 0; i < k; ++i) {
+    this.addWithNormals(prev, pos[i], center, n, n, n, appearance);
+    prev = pos[i];
+  }
+};
+
+/**
+ * @param {Array.<Array.<number>>} pos
+ * @param {Array.<Array.<number>>} n
+ * @param {Appearance} appearance
+ */
+Triangles.prototype.addPolygonWithNormals = function(pos, n, appearance) {
+  if (pos.length == 3)
+    return this.addWithNormals(
+      pos[0], pos[1], pos[2], n[0], n[1], n[2], appearance);
+  let k = pos.length, i, center = [0, 0, 0, 0], cn = [0, 0, 0];
+  for (i = 0; i < k; ++i) {
+    center = add4(center, pos[i]);
+    cn = add3(cn, n[i]);
+  }
+  let pp = pos[k - 1], pn = n[k - 1];
+  for (i = 0; i < k; ++i) {
+    this.addWithNormals(pp, pos[i], center, pn, n[i], cn, appearance);
+    pp = pos[i];
+    pn = n[i];
+  }
+};
+
+/**
  * @param {Viewer} viewer
  */
 Triangles.prototype.render = function(viewer) {
