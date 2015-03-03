@@ -4,11 +4,14 @@ CSad.printArr= function(erg)
 {
     var n = erg.value.length; 
     var ttemp=[];
+    var ttempi=[];
     for(var k=0; k < n; k++)
     {
         ttemp[k] = erg.value[k].value.real;
+        ttempi[k] = erg.value[k].value.imag;
     }
         console.log(ttemp);
+        console.log(ttempi);
 };
 
 CSad.zero = function(n){
@@ -100,7 +103,7 @@ CSad.div = function(f, g){
         } // end inner
 
         ges = CSNumber.sub(ges, sum);
-        ges = CSNumber.div2(ges, g.value[0]);
+        ges = CSNumber.div2(ges, g.value[0]); // TODO L'Hospital!
         erg.value[k] = ges;
         ges = zero;
         sum = zero;
@@ -165,6 +168,63 @@ CSad.log = function(f){
     return erg;
 };
 
+CSad.sincos = function(f){
+    //console.log("f");
+    //CSad.printArr(f);
+    var zero = CSNumber.real(0);
+    var le = f.value.length;
+    var ergsin = CSad.zero(CSNumber.real(le));
+    var ergcos = CSad.zero(CSNumber.real(le));
+    ergsin.value[0] = CSNumber.sin(f.value[0]);
+    ergcos.value[0] = CSNumber.cos(f.value[0]);
+
+    var sumcos = zero;
+    var sumsin = zero;
+    var insin, incos, inboth;
+    var numk;
+    for(var k = 1; k < le; k++){
+           numk = CSNumber.real(k); 
+        for(var i = 1; i <= k; i++){
+           inboth = CSNumber.mult(CSNumber.real(i), f.value[i]);
+         //  console.log("inboth", inboth.value.real);
+         //  console.log("cos k-i", ergcos.value[k-i].value.real);
+         //  console.log("sin k-i", ergsin.value[k-i].value.real);
+           insin = CSNumber.mult(inboth, ergcos.value[k-i]);
+           incos = CSNumber.mult(inboth, ergsin.value[k-i]);
+
+           sumsin = CSNumber.add(sumsin, insin);
+
+           sumcos = CSNumber.add(sumcos, incos);
+        } // end inner
+
+          // console.log("sumsin", sumsin.value.real);
+         //  console.log("sumcos", sumcos.value.real);
+           sumsin = CSNumber.div(sumsin, numk);
+           sumcos = CSNumber.div(sumcos, CSNumber.neg(numk));
+           ergsin.value[k] = sumsin;
+           ergcos.value[k] = sumcos;
+           sumsin = zero;
+           sumcos = zero;
+    } // end outer
+
+    //CSad.printArr(ergsin);
+    //CSad.printArr(ergcos);
+
+    return [ergsin, ergcos];
+
+};
+
+CSad.sin = function(f){
+    var erg = CSad.sincos(f);
+    return erg[0];
+};
+
+CSad.cos = function(f){
+    var erg = CSad.sincos(f);
+    return erg[1];
+};
+
+
 CSad.faculty = function(n){
     var erg = [];
     erg[0] = CSNumber.real(1);
@@ -215,12 +275,16 @@ CSad.diff = function(prog, x0, grade){
     }
     else if(prog.ctype == "function"){
         if(prog.oper == "exp$1"){
-            console.log("prog.args", prog.args);
             return CSad.exp(CSad.diff(prog.args[0], x0, grade));
         }
         if(prog.oper == "log$1"){
-            console.log("prog.args", prog.args);
             return CSad.log(CSad.diff(prog.args[0], x0, grade));
+        }
+        if(prog.oper == "sin$1"){
+            return CSad.sin(CSad.diff(prog.args[0], x0, grade));
+        }
+        if(prog.oper == "cos$1"){
+            return CSad.cos(CSad.diff(prog.args[0], x0, grade));
         }
     }
     else{
@@ -237,8 +301,8 @@ CSad.adevaluate = function(ffunc, x0, grade){
     var prog = analyse(code);
 
     var ergarr = CSad.diff(prog, x0, grade);
-    console.log("erg before fac");
-    CSad.printArr(ergarr);
+//    console.log("erg before fac");
+ //   CSad.printArr(ergarr);
     var facs = CSad.faculty(grade);
     for(var i = 2; i < grade.value.real; i++){
         ergarr.value[i] = CSNumber.mult(ergarr.value[i], facs.value[i]);

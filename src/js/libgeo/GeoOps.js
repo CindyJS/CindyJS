@@ -381,8 +381,8 @@ geoOps.ConicBy5 = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix.usage = "Conic";
 
-    var fff = "log(x)";
-    var x0 = CSNumber.real(2);
+    var fff = "cos(x)";
+    var x0 = CSNumber.real(0);
     var grade = CSNumber.real(5);
     var erg = CSad.adevaluate(fff, x0, grade);
     //console.log(erg);
