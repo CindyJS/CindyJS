@@ -196,6 +196,7 @@ PrimitiveRenderer.prototype.recompileShader = function(viewer) {
     this.shaderProgram.dispose(gl);
   let vs = [
     "precision mediump float;",
+    "varying float vShininess;",
     this.vertexShaderCode
   ].join("\n");
   let fs = [

@@ -157,6 +157,37 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
   defOp("alpha3d", 1, surfacealpha3d);
   defOp("surfacealpha3d", 1, surfacealpha3d);
 
+  defOp("shininess3d", 1, function(args, modifs) {
+    let shininess = coerce.toInterval(0, 128, evaluate(args[0]));
+    if (!isNaN(shininess)) {
+      currentInstance.pointAppearance.shininess = shininess;
+      currentInstance.lineAppearance.shininess = shininess;
+      currentInstance.surfaceAppearance.shininess = shininess;
+    }
+    return nada;
+  });
+
+  defOp("pointshininess3d", 1, function(args, modifs) {
+    let shininess = coerce.toInterval(0, 128, evaluate(args[0]));
+    if (!isNaN(shininess))
+      currentInstance.pointAppearance.shininess = shininess;
+    return nada;
+  });
+
+  defOp("lineshininess3d", 1, function(args, modifs) {
+    let shininess = coerce.toInterval(0, 128, evaluate(args[0]));
+    if (!isNaN(shininess))
+      currentInstance.lineAppearance.shininess = shininess;
+    return nada;
+  });
+
+  defOp("surfaceshininess3d", 1, function(args, modifs) {
+    let shininess = coerce.toInterval(0, 128, evaluate(args[0]));
+    if (!isNaN(shininess))
+      currentInstance.surfaceAppearance.shininess = shininess;
+    return nada;
+  });
+
   defOp("size3d", 1, function(args, modifs) {
     let size = coerce.toReal(evaluate(args[0]), -1) * Appearance.POINT_SCALE;
     if (size >= 0) {
@@ -189,9 +220,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let pos = coerce.toHomog(evaluate(args[0]));
     let appearance = handleModifsAppearance(
       currentInstance.pointAppearance, modifs);
-    currentInstance.spheres.add(
-      pos, appearance.size,
-      Appearance.colorWithAlpha(appearance));
+    currentInstance.spheres.add(pos, appearance.size, appearance);
     return nada;
   });
 
@@ -250,8 +279,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let radius = coerce.toReal(evaluate(args[1]));
     let appearance = handleModifsAppearance(
       currentInstance.surfaceAppearance, modifs);
-    currentInstance.spheres.add(
-      pos, radius, Appearance.colorWithAlpha(appearance));
+    currentInstance.spheres.add(pos, radius, appearance);
     return nada;
   });
 
@@ -265,9 +293,9 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let k = 0;
     for (let i = 1; i < m; ++i) {
       for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.add(
+        currentInstance.triangles.addAutoNormal(
           pos[k], pos[k + 1], pos[k + n], appearance);
-        currentInstance.triangles.add(
+        currentInstance.triangles.addAutoNormal(
           pos[k + n], pos[k + 1], pos[k + n + 1], appearance);
         ++k;
       }

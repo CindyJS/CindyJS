@@ -1,7 +1,7 @@
 uniform vec3 uAmbient;
-uniform float uShininess;
 
 varying vec4 vColor;
+varying float vShininess;
 
 vec3 gPos;
 vec3 gEye;
@@ -23,7 +23,7 @@ void commonLight(in vec3 lightDir, in vec3 diffuse, in vec3 specular) {
   if (diffuseDot == 0.0)
     specFactor = 0.0;
   else
-    specFactor = pow(specularDot, uShininess);
+    specFactor = pow(specularDot, vShininess);
 
   // Add light received from this light source to global colors
   gAccumDiffuse  += diffuse * diffuseDot;
@@ -62,7 +62,7 @@ void spotLight(in vec3 lightPos, in vec3 spotDir,
   if (diffuseDot == 0.0)
     specFactor = 0.0;
   else
-    specFactor = pow(specularDot, uShininess);
+    specFactor = pow(specularDot, vShininess);
 
   // Add light received from this light source to global colors
   gAccumDiffuse  += spotAttenuation * diffuse * diffuseDot;

@@ -6,7 +6,7 @@ attribute vec4 aCenter;
 
 attribute vec4 aColor;
 
-attribute vec4 aRelativeRadius;
+attribute vec4 aRelativeShininessRadius;
 
 varying vec3 vViewSpacePos;
 
@@ -29,11 +29,13 @@ void main() {
 
   // Copy attributes to varyings for use in the fragment shader
   vColor = aColor;
-  vRadius = aRelativeRadius.w;
+  vShininess = aRelativeShininessRadius.z;
+  vRadius = aRelativeShininessRadius.w;
 
   // Cover sphere by quad in front of the real sphere
   vViewSpacePos = vViewSpaceCenter +
-	vRadius*(right * aRelativeRadius.x + up * aRelativeRadius.y + dir);
+	vRadius*(right * aRelativeShininessRadius.x +
+                 up * aRelativeShininessRadius.y + dir);
 
   // Transform position into screen space
   gl_Position = uProjectionMatrix * vec4(vViewSpacePos, 1);
