@@ -1,16 +1,21 @@
 var CSad = {};
+CSad.sinsave = 'undefined';
+CSad.cossave = 'undefined';
 
-CSad.printArr= function(erg)
+CSad.printArr = function(erg)
 {
     var n = erg.value.length; 
     var ttemp=[];
     var ttempi=[];
+    var printimag = false;
     for(var k=0; k < n; k++)
     {
         ttemp[k] = erg.value[k].value.real;
         ttempi[k] = erg.value[k].value.imag;
+        if(ttempi[k] !== 0) printimag = true;
     }
         console.log(ttemp);
+        if(printimag)
         console.log(ttempi);
 };
 
@@ -210,17 +215,25 @@ CSad.sincos = function(f){
     //CSad.printArr(ergsin);
     //CSad.printArr(ergcos);
 
+    CSad.sinsave = ergsin;
+    CSad.cossave = ergcos;
     return [ergsin, ergcos];
 
 };
 
 CSad.sin = function(f){
+//    if(CSad.sinsave !== 'undefined') return CSad.sinsave;
     var erg = CSad.sincos(f);
+    CSad.sinsave = erg[0];
+    CSad.cossave = erg[1];
     return erg[0];
 };
 
 CSad.cos = function(f){
+//    if(CSad.cossave !== 'undefined') return CSad.cossave;
     var erg = CSad.sincos(f);
+    CSad.sinsave = erg[0];
+    CSad.cossave = erg[1];
     return erg[1];
 };
 
@@ -297,12 +310,14 @@ CSad.diff = function(prog, x0, grade){
 };
 
 CSad.adevaluate = function(ffunc, x0, grade){
-    var code = condense(ffunc);
+//    console.log("ffunc, x0, grade", ffunc, x0, grade);
+    var code = condense(ffunc.value);
     var prog = analyse(code);
 
     var ergarr = CSad.diff(prog, x0, grade);
-//    console.log("erg before fac");
- //   CSad.printArr(ergarr);
+    //console.log("erg before fac");
+    //console.log(ergarr);
+   //CSad.printArr(ergarr);
     var facs = CSad.faculty(grade);
     for(var i = 2; i < grade.value.real; i++){
         ergarr.value[i] = CSNumber.mult(ergarr.value[i], facs.value[i]);
@@ -312,4 +327,23 @@ CSad.adevaluate = function(ffunc, x0, grade){
     //CSad.printArr(ergarr);
 
     return ergarr;
+};
+
+CSad.autodiff = function(ffunc, xarr, grade){
+    var erg = [];
+    var le = xarr.value.length;
+
+    var arr;
+    for(var i = 0; i < le; i++){
+        arr = CSad.adevaluate(ffunc, xarr.value[i], grade);
+        erg[i] = arr;
+    }
+
+   // for(var i = 0; i < le; i++){
+   //    CSad.printArr(erg[i]);
+   // }
+
+
+    erg = List.turnIntoCSList(erg);
+    return erg;
 };

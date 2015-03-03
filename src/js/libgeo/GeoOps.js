@@ -383,10 +383,14 @@ geoOps.ConicBy5 = function(el) {
 
     var fff = "cos(x)";
     var x0 = CSNumber.real(0);
-    var grade = CSNumber.real(5);
-    var erg = CSad.adevaluate(fff, x0, grade);
+    var x1 = CSNumber.real(Math.PI/2);
+    var x2 = CSNumber.real(Math.PI);
+    var xx = List.turnIntoCSList([x0, x1, x2]);
+    var grade = CSNumber.real(3);
+//    var erg = CSad.adevaluate(fff, x0, grade);
+    var erg = CSad.autodiff(fff, xx, grade);
     //console.log(erg);
-    CSad.printArr(erg);
+//    CSad.printArr(erg);
     //var f1 = CSad.number(CSNumber.real(1), grade);
     //var g1 = CSad.variable(x0, grade);
     //var f1 = CSad.variable(x0, grade);

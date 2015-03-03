@@ -1080,6 +1080,25 @@ evaluator.roots$1 = function(args, modifs) {
     return nada;
 };
 
+evaluator.autodiff$3 = function(args, modifs) {
+ //   console.log("reached autodiff");
+//    console.log(args);
+    var ffunc = args[0].stack[0];
+    var xarr = evaluateAndVal(args[1]);
+    var grade = evaluateAndVal(args[2]);
+
+    var t =  Date.now();
+    var erg = CSad.autodiff(ffunc, xarr, grade);
+    var t2 = Date.now();
+    console.log("time for autodiff", t2-t, " millisecs");
+    return erg;
+//    console.log("erg after autodiff", erg);
+
+//    console.log("cs1", cs1);
+//    console.log("cs2", cs2);
+//    console.log("cs3", cs3);
+};
+
 evaluator.cos$1 = function(args, modifs) {
 
     var v0 = evaluateAndVal(args[0]);
