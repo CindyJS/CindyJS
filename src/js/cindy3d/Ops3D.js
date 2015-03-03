@@ -301,14 +301,50 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let m = coerce.toInt(evaluate(args[0]));
     let n = coerce.toInt(evaluate(args[1]));
     let pos = coerce.toList(evaluate(args[2])).map(elt => coerce.toHomog(elt));
+    let normals = null;
+    let normaltype = "perface";
     let appearance = handleModifsAppearance(
-      currentInstance.surfaceAppearance, modifs);
+      currentInstance.surfaceAppearance, modifs, {
+        "normaltype": (a => normaltype =
+                       coerce.toString(a, normaltype).toLowerCase()),
+      });
+    if (pos.length !== m*n) return nada;
+    let pc = null, normal = null;
+    function donormal(p1, p2) {
+      let c = cross3(sub3(p1, pc), sub3(p2, pc));
+      normal[0] += c[0];
+      normal[1] += c[1];
+      normal[2] += c[2];
+    }
+    if (normaltype === "pervertex") {
+      normals = Array(m*n);
+      let mn = m*n, p = pos.map(dehom3);
+      for (let i = 0, k = 0; i < m; ++i) {
+        for (let j = 0; j < n; ++j) {
+          let kmn = k + mn;
+          pc = p[k];
+          let pw = p[(kmn - 1)%mn], pe = p[(kmn + 1)%mn];
+          let ps = p[(kmn - n)%mn], pn = p[(kmn + n)%mn];
+          normal = [0, 0, 0]
+          if (i     > 0 && j     > 0) donormal(pw, ps);
+          if (i + 1 < m && j     > 0) donormal(pn, pw);
+          if (i + 1 < m && j + 1 < n) donormal(pe, pn);
+          if (i     > 0 && j + 1 < n) donormal(ps, pe);
+          normals[k++] = normal;
+        }
+      }
+    }
     // TODO: handle modifiers, per-vertex normals in particular.
-    let k = 0;
-    for (let i = 1; i < m; ++i) {
+    for (let i = 1, k = 0; i < m; ++i) {
       for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonAutoNormal(
-          [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]], appearance);
+        if (normals)
+          currentInstance.triangles.addPolygonWithNormals(
+            [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]],
+            [normals[k], normals[k + 1], normals[k + n + 1], normals[k + n]],
+            appearance);
+        else
+          currentInstance.triangles.addPolygonAutoNormal(
+            [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]], appearance);
         ++k;
       }
       ++k;
@@ -414,6 +450,14 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
   defOp("disablelight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
     currentInstance.lighting.setLight(index, null);
+    return nada;
+  });
+
+  // This is not (yet) present in the Java version of Cindy3D.
+  defOp("ambientlight3d", 1, function(args, modifs) {
+    let color = coerce.toColor(evaluate(args[0]))
+    if (color)
+      currentInstance.lighting.ambient = color;
     return nada;
   });
 

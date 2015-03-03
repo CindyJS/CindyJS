@@ -90,6 +90,11 @@ Triangles.prototype.addPolygonWithNormals = function(pos, n, appearance) {
   if (pos.length == 3)
     return this.addWithNormals(
       pos[0], pos[1], pos[2], n[0], n[1], n[2], appearance);
+  if (pos.length == 4) {
+    this.addWithNormals(pos[0], pos[1], pos[3], n[0], n[1], n[3], appearance);
+    this.addWithNormals(pos[3], pos[1], pos[2], n[3], n[1], n[2], appearance);
+    return;
+  }
   let k = pos.length, i, center = [0, 0, 0, 0], cn = [0, 0, 0];
   for (i = 0; i < k; ++i) {
     center = add4(center, pos[i]);
