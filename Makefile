@@ -212,7 +212,7 @@ c3d_closure_args = \
 	$(c3d_extra_args) \
 	--js $(js_src)
 c3d_dbg_args = --transpile_only --formatting PRETTY_PRINT
-c3d_mods = ShaderProgram Camera Appearance Viewer Lighting \
+c3d_mods = ShaderProgram VecMat Camera Appearance Viewer Lighting \
 	PrimitiveRenderer Spheres Cylinders Triangles \
 	Interface Ops3D
 c3d_srcs = build/js/c3dres.js $(c3d_mods:%=src/js/cindy3d/%.js) \
