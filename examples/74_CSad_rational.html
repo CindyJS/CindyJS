@@ -23,7 +23,7 @@ f(x):=1/x;
 a = -200..500;
 a = a/20;
 
-order = 2;
+order = 1; // here is a bug for order = 1
 erg = autodiff(f(x), a, order);
 
 repeat(order+1,j,
