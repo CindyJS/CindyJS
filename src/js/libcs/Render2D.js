@@ -1,22 +1,12 @@
-function handleModifs(modifs, handlers) {
-    var key, handler;
-    for (key in modifs) {
-        handler = handlers[key];
-        if (handler)
-            handler(evaluate(modifs[key]));
-    }
-}
-
 var Render2D = {};
 
-Render2D.sin30deg = 0.5;
-Render2D.cos30deg = Math.sqrt(0.75);
+Render2D.handleModifs = function(modifs, handlers) {
 
-Render2D.reset = function() {
-    Render2D.pointcolorraw = csport.drawingstate.pointcolorraw;
-    Render2D.linecolorraw = csport.drawingstate.linecolorraw;
-    Render2D.psize = csport.drawingstate.pointsize;
-    Render2D.lsize = csport.drawingstate.linesize;
+    // Reset stuff first
+    if (Render2D.dashing)
+        Render2D.unSetDash();
+    Render2D.colorraw = null;
+    Render2D.size = null;
     if (Render2D.psize < 0) Render2D.psize = 0;
     if (Render2D.lsize < 0) Render2D.lsize = 0;
     Render2D.overhang = 1; //TODO Eventuell dfault setzen
@@ -27,21 +17,72 @@ Render2D.reset = function() {
     Render2D.headlen = 10; // arrow head length - perhaps set this relative to canvas size
     Render2D.arrowShape = 'default';
     Render2D.alpha = csport.drawingstate.alpha;
+    Render2D.bold = "";
+    Render2D.italics = "";
+    Render2D.family = "Arial";
+    Render2D.align = 0;
+    Render2D.xOffset = 0;
+    Render2D.yOffset = 0;
+
+    // Process handlers
+    var key, handler;
+    for (key in modifs) {
+        handler = handlers[key];
+        if (!handler) {
+            console.log("Modifier not supported: " + key);
+            continue;
+        }
+        if (handler === true) {
+            handler = Render2D.modifHandlers[key];
+        }
+        handler(evaluate(modifs[key]));
+    }
+
+    // Post-process settings
+    if (Render2D.size !== null) {
+        Render2D.psize = Render2D.lsize = Render2D.size;
+    } else {
+        Render2D.psize = csport.drawingstate.pointsize;
+        Render2D.lsize = csport.drawingstate.linesize;
+    }
+    if (Render2D.colorraw !== null) {
+        Render2D.pointColor = Render2D.lineColor = Render2D.textColor =
+            Render2D.makeColor(Render2D.colorraw);
+    } else if (Render2D.alpha === 1) {
+        Render2D.pointColor = csport.drawingstate.pointcolor;
+        Render2D.lineColor = csport.drawingstate.linecolor;
+        Render2D.textColor = csport.drawingstate.textcolor;
+    } else {
+        Render2D.pointColor =
+            Render2D.makeColor(csport.drawingstate.pointcolorraw);
+        Render2D.lineColor =
+            Render2D.makeColor(csport.drawingstate.linecolorraw);
+        Render2D.textColor =
+            Render2D.makeColor(csport.drawingstate.textcolorraw);
+    }
+    Render2D.black = "rgba(0,0,0,"+Render2D.alpha+")";
+
 };
 
-Render2D.modifHandlersPoints = {
+Render2D.sin30deg = 0.5;
+Render2D.cos30deg = Math.sqrt(0.75);
+
+Render2D.reset = function() {
+};
+
+Render2D.modifHandlers = {
 
     "size": function(v) {
         if (v.ctype === "number") {
-            Render2D.psize = v.value.real;
-            if (Render2D.psize < 0) Render2D.psize = 0;
-            if (Render2D.psize > 1000) Render2D.psize = 1000;
+            Render2D.size = v.value.real;
+            if (Render2D.size < 0) Render2D.size = 0;
+            if (Render2D.size > 1000) Render2D.size = 1000;
         }
     },
 
     "color": function(v) {
         if (List.isNumberVector(v).value && v.value.length === 3) {
-            Render2D.pointcolorraw = [
+            Render2D.colorraw = [
                 v.value[0].value.real,
                 v.value[1].value.real,
                 v.value[2].value.real
@@ -54,30 +95,6 @@ Render2D.modifHandlersPoints = {
             Render2D.alpha = v.value.real;
         }
     },
-
-};
-
-Render2D.modifHandlersLines = {
-
-    "size": function(v) {
-        if (v.ctype === "number") {
-            Render2D.lsize = v.value.real;
-            if (Render2D.lsize < 0) Render2D.lsize = 0;
-            if (Render2D.lsize > 1000) Render2D.lsize = 1000;
-        }
-    },
-
-    "color": function(v) {
-        if (List.isNumberVector(v).value && v.value.length === 3) {
-            Render2D.linecolorraw = [
-                v.value[0].value.real,
-                v.value[1].value.real,
-                v.value[2].value.real
-            ];
-        }
-    },
-
-    "alpha": Render2D.modifHandlersPoints.alpha,
 
     "dashpattern": function(v) {
         if (v.ctype === "list") {
@@ -170,18 +187,86 @@ Render2D.modifHandlersLines = {
         }
     },
 
+    "bold": function(v) {
+        if (v.ctype === "boolean" && v.value)
+            Render2D.bold = "bold ";
+    },
+
+    "italics": function(v) {
+        if (v.ctype === "boolean" && v.value)
+            Render2D.italics = "italic ";
+    },
+
+    "family": function(v) {
+        if (v.ctype === "string") {
+            var s = v.value;
+            if (s === "left")
+                Render2D.align = 0;
+            if (s === "right")
+                Render2D.align = 1;
+            if (s === "mid")
+                Render2D.align = 0.5;
+        }
+    },
+
+    "x_offset": function(v) {
+        if (v.ctype === "number")
+            Render2D.xOffset = v.value.real;
+    },
+
+    "y_offset": function(v) {
+        if (v.ctype === "number")
+            Render2D.yOffset = v.value.real;
+    },
+
+    "offset": function(v) {
+        if (v.ctype === "list" && v.value.length === 2 &&
+           v.value[0].ctype === "number" && v.value[1].ctype === "number") {
+            Render2D.xOffset = v.value[0].value.real;
+            Render2D.yOffset = v.value[1].value.real;
+        }
+    },
+
 };
 
-Render2D.handleModifsPoints = function(modifs) {
-    handleModifs(modifs, Render2D.modifHandlersPoints);
-    Render2D.pointColor = Render2D.makeColor(Render2D.pointcolorraw);
-    Render2D.black = "rgba(0,0,0,"+Render2D.alpha+")";
+Render2D.lineModifs = {
+    "size": true,
+    "color": true,
+    "alpha": true,
+    "dashpattern": true,
+    "dashtype": true,
+    "dashing": true,
+    "overhang": true,
+    "arrow": true,
+    "arrowshape": true,
+    "arrowsides": true,
+    "arrowposition": true,
+    "arrowsize": true,
 };
 
-Render2D.handleModifsLines = function(modifs) {
-    handleModifs(modifs, Render2D.modifHandlersLines);
-    Render2D.lineColor = Render2D.makeColor(Render2D.linecolorraw);
+Render2D.pointModifs = {
+    "size": true,
+    "color": true,
+    "alpha": true,
 };
+
+Render2D.pointAndLineModifs = Render2D.lineModifs;
+
+Render2D.conicModifs = Render2D.pointModifs;
+
+Render2D.textModifs = {
+    "size": true,
+    "color": true,
+    "alpha": true,
+    "bold": true,
+    "italics": true,
+    "family": true,
+    "align": true,
+    "x_offset": true,
+    "y_offset": true,
+    "offset": true,
+};
+
 
 Render2D.makeColor = function(colorraw) {
     var alpha = Render2D.alpha;
@@ -205,17 +290,16 @@ Render2D.drawsegcore = function(pt1, pt2) {
 
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = 'round';
+    csctx.lineJoin = 'miter';
     csctx.strokeStyle = Render2D.lineColor;
 
     if (!Render2D.isArrow ||
-        (endpoint1x == endpoint1y && endpoint2x == endpoint2y)) {
+        (endpoint1x === endpoint1y && endpoint2x === endpoint2y)) {
         // Fast path if we have no arrowheads
         csctx.beginPath();
         csctx.moveTo(overhang1x, overhang1y);
         csctx.lineTo(overhang2x, overhang2y);
         csctx.stroke();
-        if (Render2D.dashing)
-            Render2D.unSetDash();
         return;
     }
 
@@ -281,9 +365,6 @@ Render2D.drawsegcore = function(pt1, pt2) {
     if (arrowSides === '<==' || arrowSides === '<==>') {
         draw_arrowhead(tip1x, tip1y, -1);
     }
-
-    if (Render2D.dashing)
-        Render2D.unSetDash();
 
     function draw_arrowhead(tipx, tipy, sign) {
         var rx = tipx - sign*x30sub;

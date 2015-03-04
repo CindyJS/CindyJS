@@ -60,8 +60,7 @@ evaluator.draw$1 = function(args, modifs) {
     if (v1.ctype === "shape") {
         eval_helper.drawshape(v1, modifs);
     } else if (v1.usage === "Line") {
-        Render2D.reset();
-        Render2D.handleModifsLines(modifs);
+        Render2D.handleModifs(modifs, Render2D.lineModifs);
         Render2D.drawline(v1);
     } else {
         var pt = eval_helper.extractPoint(v1);
@@ -76,13 +75,10 @@ evaluator.draw$1 = function(args, modifs) {
         }
 
         if (modifs !== null) {
-            Render2D.reset();
-            Render2D.handleModifsPoints(modifs);
+            Render2D.handleModifs(modifs, Render2D.pointModifs);
         }
         Render2D.drawpoint(pt);
     }
-    if (modifs !== null && Render2D.dashing)
-        Render2D.unSetDash();
     return nada;
 };
 
@@ -95,12 +91,9 @@ evaluator.draw$2 = function(args, modifs) {
         return nada;
     }
     if (modifs !== null) {
-        Render2D.reset();
-        Render2D.handleModifsLines(modifs);
+        Render2D.handleModifs(modifs, Render2D.lineModifs);
     }
     Render2D.drawsegcore(pt1, pt2);
-    if (modifs !== null && Render2D.dashing)
-        Render2D.unSetDash();
     return nada;
 };
 
@@ -114,61 +107,6 @@ evaluator.fillcircle$2 = function(args, modifs) {
 };
 
 eval_helper.drawcircle = function(args, modifs, df) {
-    var erg;
-    var size = 4;
-    var col;
-    var black = "rgb(0,0,0)";
-
-    function handleModifs() {
-        var erg;
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                size = erg.value.real;
-                if (size < 0) size = 0;
-
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return;
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-
-        r = csport.drawingstate.linecolorraw[0] * 255;
-        g = csport.drawingstate.linecolorraw[1] * 255;
-        b = csport.drawingstate.linecolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-    }
-
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -201,24 +139,23 @@ eval_helper.drawcircle = function(args, modifs, df) {
     var xx = pt.x * m.a - pt.y * m.b + m.tx;
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
-    col = csport.drawingstate.linecolor;
-    handleModifs();
-    csctx.lineWidth = size * 0.3;
-
-
-    csctx.beginPath();
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    var size = 4;
+    if (Render2D.size !== null)
+        size = Render2D.size;
     csctx.lineWidth = size * 0.4;
 
+    csctx.beginPath();
     csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
     //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
 
 
     if (df === "D") {
-        csctx.strokeStyle = col;
+        csctx.strokeStyle = Render2D.lineColor;
         csctx.stroke();
     }
     if (df === "F") {
-        csctx.fillStyle = col;
+        csctx.fillStyle = Render2D.lineColor;
         csctx.fill();
     }
     if (df === "C") {
@@ -230,62 +167,12 @@ eval_helper.drawcircle = function(args, modifs, df) {
 
 
 eval_helper.drawconic = function(aConic, modifs) {
-    var col;
-    var size;
 
-    var handleModifs = function() {
-        var erg;
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                size = erg.value.real;
-                if (size < 0) size = 0;
-
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return "rgba(0,0,255,1)";
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-
-        r = csport.drawingstate.linecolorraw[0] * 255;
-        g = csport.drawingstate.linecolorraw[1] * 255;
-        b = csport.drawingstate.linecolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-
-    }; // end handleModifs
-
-
-    handleModifs();
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    var size = 4;
+    if (Render2D.size !== null)
+        size = Render2D.size;
+    csctx.lineWidth = size * 0.4;
 
     var eps = 10e-16;
     var mat = aConic.matrix;
@@ -432,7 +319,7 @@ eval_helper.drawconic = function(aConic, modifs) {
     };
 
     var drawArray = function(x, y) {
-        csctx.strokeStyle = col;
+        csctx.strokeStyle = Render2D.lineColor;
         csctx.lineWidth = size;
 
         csctx.beginPath();
@@ -639,14 +526,10 @@ eval_helper.drawconic = function(aConic, modifs) {
 evaluator.drawall$1 = function(args, modifs) {
     var v1 = evaluate(args[0]);
     if (v1.ctype === "list") {
-        Render2D.reset();
-        Render2D.handleModifsPoints(modifs);
-        Render2D.handleModifsLines(modifs);
+        Render2D.handleModifs(modifs, Render2D.pointAndLineModifs);
         for (var i = 0; i < v1.value.length; i++) {
             evaluator.draw$1([v1.value[i]], null);
         }
-        if (Render2D.dashing)
-            Render2D.unSetDash();
     }
     return nada;
 };
@@ -676,294 +559,80 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 
 
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
-    var erg;
+
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
     var size = 4;
-    var col;
-    var black = "rgb(0,0,0)";
+    if (Render2D.size !== null)
+        size = Render2D.size;
+    csctx.lineWidth = size * 0.4;
+    csctx.mozFillRule = 'evenodd';
+    csctx.lineJoin = "round";
 
-    function handleModifs() {
-        var erg;
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                size = erg.value.real;
-                if (size < 0) size = 0;
-
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return;
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-
-        r = csport.drawingstate.linecolorraw[0] * 255;
-        g = csport.drawingstate.linecolorraw[1] * 255;
-        b = csport.drawingstate.linecolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-    }
+    var m = csport.drawingstate.matrix;
 
     function drawpolyshape() {
-
-        var m = csport.drawingstate.matrix;
-
         var polys = v0.value;
-        if (df !== "D")
-            csctx.beginPath();
         for (var j = 0; j < polys.length; j++) {
             var pol = polys[j];
-            var li = [],
-                i;
-
+            var i;
             for (i = 0; i < pol.length; i++) {
                 var pt = pol[i];
                 var xx = pt.X * m.a - pt.Y * m.b + m.tx;
                 var yy = pt.X * m.c - pt.Y * m.d - m.ty;
-
-                li[i] = [xx, yy];
+                if (i === 0)
+                    csctx.moveTo(xx, yy);
+                else
+                    csctx.lineTo(xx, yy);
             }
-            col = csport.drawingstate.linecolor;
-            handleModifs();
-            csctx.lineWidth = size * 0.3;
-            csctx.mozFillRule = 'evenodd';
-            csctx.lineJoin = "round";
-            if (df === "D")
-                csctx.beginPath();
-            csctx.lineWidth = size * 0.4;
-            csctx.moveTo(li[0][0], li[0][1]);
-            for (i = 1; i < li.length; i++) {
-                csctx.lineTo(li[i][0], li[i][1]);
-            }
-            if (df === "D") {
-                csctx.closePath();
-                csctx.strokeStyle = col;
-                csctx.stroke();
-            }
-
-        }
-        if (df !== "D")
             csctx.closePath();
-
-        if (df === "F") {
-            csctx.fillStyle = col;
-            csctx.fill();
         }
-        if (df === "C") {
-            csctx.clip();
-        }
-
-
     }
 
-
     function drawpoly() {
-
-        var m = csport.drawingstate.matrix;
-
-        var li = [],
-            i;
+        var i;
         for (i = 0; i < v0.value.length; i++) {
             var pt = eval_helper.extractPoint(v0.value[i]);
-
             if (!pt.ok) {
-                return nada;
+                return;
             }
             var xx = pt.x * m.a - pt.y * m.b + m.tx;
             var yy = pt.x * m.c - pt.y * m.d - m.ty;
-
-            li[i] = [xx, yy];
-        }
-        col = csport.drawingstate.linecolor;
-        handleModifs();
-
-        csctx.lineWidth = size * 0.3;
-        csctx.mozFillRule = 'evenodd';
-
-        csctx.beginPath();
-        csctx.lineWidth = size * 0.4;
-        csctx.moveTo(li[0][0], li[0][1]);
-        for (i = 1; i < li.length; i++) {
-            csctx.lineTo(li[i][0], li[i][1]);
+            if (i === 0)
+                csctx.moveTo(xx, yy);
+            else
+                csctx.lineTo(xx, yy);
         }
         if (cycle)
             csctx.closePath();
-        if (df === "D") {
-            csctx.strokeStyle = col;
-            csctx.stroke();
-        }
-        if (df === "F") {
-            csctx.fillStyle = col;
-            csctx.fill();
-        }
-        if (df === "C") {
-            csctx.clip();
-        }
     }
 
     var v0 = evaluate(args[0]);
+    csctx.beginPath();
     if (v0.ctype === 'list') {
         drawpoly();
     }
     if (v0.ctype === 'shape') {
         drawpolyshape();
     }
+
+    if (df === "D") {
+        csctx.strokeStyle = Render2D.lineColor;
+        csctx.stroke();
+    }
+    if (df === "F") {
+        csctx.fillStyle = Render2D.lineColor;
+        csctx.fill();
+    }
+    if (df === "C") {
+        csctx.clip();
+    }
+
     return nada;
+
 };
 
 
 evaluator.drawtext$2 = function(args, modifs) {
-    var size = csport.drawingstate.textsize;
-    if (size < 0) size = 0;
-
-    var bold = "";
-    var italics = "";
-    var family = "Arial";
-    var align = 0;
-    var ox = 0;
-    var oy = 0;
-
-    function handleModifs() {
-        var erg;
-
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                size = erg.value.real;
-                if (size < 0) size = 0;
-            }
-        }
-
-        if (modifs.bold !== undefined) {
-            erg = evaluate(modifs.bold);
-            if (erg.ctype === 'boolean' && erg.value) {
-                bold = "bold ";
-            }
-        }
-        if (modifs.italics !== undefined) {
-            erg = evaluate(modifs.italics);
-            if (erg.ctype === 'boolean' && erg.value) {
-                italics = "italic ";
-            }
-        }
-
-        if (modifs.family !== undefined) {
-            erg = evaluate(modifs.family);
-            if (erg.ctype === 'string') {
-                family = erg.value;
-            }
-        }
-
-        if (modifs.align !== undefined) {
-            erg = evaluate(modifs.align);
-            if (erg.ctype === 'string') {
-                if (erg.value === "left") {
-                    align = 0;
-                }
-                if (erg.value === "right") {
-                    align = 1;
-                }
-                if (erg.value === "mid") {
-                    align = 0.5;
-                }
-            }
-        }
-
-        if (modifs.x_offset !== undefined) {
-            erg = evaluate(modifs.x_offset);
-            if (erg.ctype === 'number') {
-                ox = erg.value.real;
-            }
-        }
-
-        if (modifs.y_offset !== undefined) {
-            erg = evaluate(modifs.y_offset);
-            if (erg.ctype === 'number') {
-                oy = erg.value.real;
-            }
-        }
-
-        if (modifs.offset !== undefined) {
-            erg = evaluate(modifs.offset);
-            if (erg.ctype === 'list') {
-                if (erg.value.length === 2 &&
-                    erg.value[0].ctype === "number" &&
-                    erg.value[1].ctype === "number") {
-                    ox = erg.value[0].value.real;
-                    oy = erg.value[1].value.real;
-
-                }
-
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return;
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-
-        r = csport.drawingstate.textcolorraw[0] * 255;
-        g = csport.drawingstate.textcolorraw[1] * 255;
-        b = csport.drawingstate.textcolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-    }
-
-
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluate(args[1]);
     var pt = eval_helper.extractPoint(v0);
@@ -978,13 +647,17 @@ evaluator.drawtext$2 = function(args, modifs) {
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
     var col = csport.drawingstate.textcolor;
-    handleModifs();
-    csctx.fillStyle = col;
+    Render2D.handleModifs(modifs, Render2D.textModifs);
+    var size = csport.drawingstate.textsize;
+    if (Render2D.size !== null) size = Render2D.size;
+    csctx.fillStyle = Render2D.textColor;
 
-    csctx.font = bold + italics + Math.round(size * 10) / 10 + "px " + family;
+    csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
     var txt = niceprint(v1);
     var width = csctx.measureText(txt).width;
-    csctx.fillText(txt, xx - width * align + ox, yy - oy);
+    csctx.fillText(txt,
+                   xx - width * Render2D.align + Render2D.xOffset,
+                   yy - Render2D.yOffset);
 
     return nada;
 
@@ -1095,8 +768,7 @@ evaluator.plot$2 = function(args, modifs) {
     var col = csport.drawingstate.linecolor;
     var lsize = 1;
 
-    Render2D.reset();
-    handleModifs(modifs, {
+    Render2D.handleModifs(modifs, {
         "color": Render2D.modifHandlersLines.color,
         "alpha": Render2D.modifHandlersLines.alpha,
         "size": Render2D.modifHandlersLines.size,
@@ -1276,8 +948,6 @@ evaluator.plot$2 = function(args, modifs) {
 
             }
         }
-        if (dashing)
-            Render2D.unSetDash();
         return nada;
     }
 
@@ -1306,10 +976,7 @@ evaluator.plot$2 = function(args, modifs) {
     if (stroking)
         csctx.stroke();
 
-    if (dashing)
-        Render2D.unSetDash();
     return nada;
-
 };
 
 
