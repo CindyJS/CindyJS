@@ -1089,10 +1089,10 @@ evaluator.autodiff$3 = function(args, modifs) {
     var xarr = evaluateAndVal(args[1]);
     var grade = evaluateAndVal(args[2]);
 
-    var t =  Date.now();
+    //var t =  Date.now();
     var erg = CSad.autodiff(ffunc, xarr, grade);
-    var t2 = Date.now();
-    console.log("time for autodiff", t2-t, " millisecs");
+    //var t2 = Date.now();
+    //console.log("time for autodiff", t2-t, " millisecs");
     return erg;
 //    console.log("erg after autodiff", erg);
 

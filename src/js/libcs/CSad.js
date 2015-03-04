@@ -121,13 +121,15 @@ CSad.div = function(f, g){
     var zero = CSNumber.real(0);
     var le = f.value.length;
     var erg = CSad.zero(CSNumber.real(le));
-    erg.value[0] = CSNumber.div(f.value[0], g.value[0]);
+//    var indxs = CSad.findFirstNoneZero(f, g);
+//    erg.value[0] = CSNumber.div(f.value[0], g.value[0]);
 
     var sum = zero;
     var ges = zero;
+    var indxs;
     for(var k = 0; k < le; k++){
         // L'Hospitals rule
-        var indxs = CSad.findFirstNoneZero(f, g);
+        indxs = CSad.findFirstNoneZero(f, g);
         if(indxs[0] < indxs[1]){
             console.log("Division by 0!");
             return nada;
@@ -348,10 +350,10 @@ CSad.diff = function(prog, x0, grade){
 
 };
 
-CSad.adevaluate = function(ffunc, x0, grade){
+CSad.adevaluate = function(prog, x0, grade){
 //    console.log("ffunc, x0, grade", ffunc, x0, grade);
-    var code = condense(ffunc.value);
-    var prog = analyse(code);
+    //var code = condense(ffunc.value);
+    //var prog = analyse(code);
 
     var ergarr = CSad.diff(prog, x0, grade);
     //console.log("erg before fac");
@@ -375,8 +377,11 @@ CSad.autodiff = function(ffunc, xarr, grade){
     var le = xarr.value.length;
 
     var arr;
+    var code = condense(ffunc.value);
+    var prog = analyse(code);
+
     for(var i = 0; i < le; i++){
-        arr = CSad.adevaluate(ffunc, xarr.value[i], grade);
+        arr = CSad.adevaluate(prog, xarr.value[i], grade);
         erg[i] = arr;
     }
 
