@@ -17,13 +17,13 @@
 
         
 <script id='firstDrawing' type='cindyscript'>
-lam = |C|+0.1;
-f(x):=((x)^2)/(1+x^3);
+lam = |C|;
+f(x):=1/x;
 
 a = -200..500;
 a = a/20;
 
-order = 1;
+order = 2;
 erg = autodiff(f(x), a, order);
 
 repeat(order+1,j,
@@ -61,8 +61,8 @@ draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
             createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
                         initscript:"init",
-        //                grid:1,
-         //               snap:true,
+                        grid:1,
+                        snap:true,
                         //transform:[{scale:1.},{translate:[0,0]}],
 
                         geometry:gslp});

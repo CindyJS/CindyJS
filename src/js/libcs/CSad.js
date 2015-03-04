@@ -53,8 +53,9 @@ CSad.sub = function(a, b){
 };
 
 CSad.mult = function(f, g){
+    console.log("f, g in csad mult", f,g);
     if (f.value.length !== g.value.length){
-        console.log("dims don't fit return nada");
+        console.error("dims don't fit return nada");
         return nada;
     }
 
@@ -112,6 +113,7 @@ CSad.findFirstNoneZero = function(f, g){
 
 // f / g
 CSad.div = function(f, g){
+//    console.log("f g in div", f,g);
     if (f.value.length !== g.value.length)
         { 
             console.log("dims don't fit - return nada");
@@ -136,7 +138,7 @@ CSad.div = function(f, g){
         }
         // apply L'Hospital
         else if(k < indxs[0] && indxs[0] == indxs[1]){
-        //    console.log("apply l Hospital");
+            console.log("apply l Hospital");
             f.value[k] = f.value[indxs[0]];
 //                if(k < indxs[1]){
                     g.value[k] = g.value[indxs[1]];
@@ -299,10 +301,13 @@ CSad.diff = function(prog, varname, x0, grade){
     var erg;
 
     if(prog.ctype == "variable"){
+        //console.log(prog);
         if(prog.name !== varname){ // if we have different variable than run variable substitute with right val
+            //console.log("not var name");
             erg = CSad.number(evaluate(prog), grade);
         }
         else{
+//            console.log("else case");
             erg = CSad.variable(x0, grade);
         }
     }
@@ -319,6 +324,7 @@ CSad.diff = function(prog, varname, x0, grade){
         }
 
         if(prog.oper == "/"){
+//            console.log(prog.args[0], prog.args[1]);
             return CSad.div(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
         else if(prog.oper == "+"){
