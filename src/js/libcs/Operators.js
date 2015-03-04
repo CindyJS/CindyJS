@@ -1081,19 +1081,39 @@ evaluator.roots$1 = function(args, modifs) {
 };
 
 evaluator.autodiff$3 = function(args, modifs) {
- //   console.log("reached autodiff");
 //    console.log(args);
-  //  console.log("args0", args[0]);
+  //console.log("args0", args[0]);
     //console.log("args0 evaluateAndVal", evaluateAndVal(args[0]));
-    var ffunc = args[0].stack[0];
+    //console.log(myfunctions[args[0].oper]);
+
+    // Parse function code
+//   console.log("typeof",typeof(args[0].impl))
+    //
+    //   check for function type
+    var varname = "x";  // fix this later
+    var ffunc;
+    if(args[0].ctype === "function"){
+        ffunc = myfunctions[args[0].oper].body;
+        varname =  args[0].args[0].name;
+    }
+    else if(typeof(args[0].impl) === "function")
+        ffunc = args[0];
+    else{
+        console.log("could not parse function");
+        return nada;
+    };
     var xarr = evaluateAndVal(args[1]);
     var grade = evaluateAndVal(args[2]);
 
     //var t =  Date.now();
+    // grade + 1 since we count different in autodiff
     grade = CSNumber.add(grade, CSNumber.real(1));
-    var erg = CSad.autodiff(ffunc, xarr, grade);
+    //grade2 = CSNumber.add(grade, CSNumber.real(1));
+    var erg = CSad.autodiff(ffunc, varname, xarr, grade);
     //var t2 = Date.now();
     //console.log("time for autodiff", t2-t, " millisecs");
+
+    //console.log("autodiff erg",erg);
     return erg;
 //    console.log("erg after autodiff", erg);
 

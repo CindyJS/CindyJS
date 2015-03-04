@@ -23,6 +23,7 @@ CSad.zero = function(n){
     var erg = [];
     var zero = CSNumber.real(0);
 
+    //console.log("n in csad zero", n.value.real);
     for(var i = 0; i < n.value.real; i++){
         erg[i] = zero;
     }
@@ -121,8 +122,6 @@ CSad.div = function(f, g){
     var zero = CSNumber.real(0);
     var le = f.value.length;
     var erg = CSad.zero(CSNumber.real(le));
-//    var indxs = CSad.findFirstNoneZero(f, g);
-//    erg.value[0] = CSNumber.div(f.value[0], g.value[0]);
 
     var sum = zero;
     var ges = zero;
@@ -149,7 +148,7 @@ CSad.div = function(f, g){
         } // end inner
 
         ges = CSNumber.sub(ges, sum);
-        ges = CSNumber.div(ges, g.value[0]); // TODO L'Hospital!
+        ges = CSNumber.div(ges, g.value[0]); 
         erg.value[k] = ges;
         ges = zero;
         sum = zero;
@@ -293,11 +292,16 @@ CSad.faculty = function(n){
 
 
 
-CSad.diff = function(prog, x0, grade){
+CSad.diff = function(prog, varname, x0, grade){
     var erg;
 
     if(prog.ctype == "variable"){
-      erg = CSad.variable(x0, grade);
+        if(prog.name !== varname){ // if we have different variable than run variable substitute with right val
+            erg = CSad.number(evaluate(prog), grade);
+        }
+        else{
+            erg = CSad.variable(x0, grade);
+        }
     }
     else if(prog.ctype == "number"){
       erg = CSad.number(prog, grade);
@@ -305,20 +309,20 @@ CSad.diff = function(prog, x0, grade){
 
     else if(prog.ctype == "infix"){
         if(prog.oper == "*"){
-            return CSad.mult(CSad.diff(prog.args[0], x0, grade), CSad.diff(prog.args[1], x0, grade));
+            return CSad.mult(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
         if(prog.oper == "^"){
-            return CSad.pow(CSad.diff(prog.args[0], x0, grade), prog.args[1]);
+            return CSad.pow(CSad.diff(prog.args[0], varname, x0, grade), prog.args[1]);
         }
 
         if(prog.oper == "/"){
-            return CSad.div(CSad.diff(prog.args[0], x0, grade), CSad.diff(prog.args[1], x0, grade));
+            return CSad.div(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
         else if(prog.oper == "+"){
-           return CSad.add(CSad.diff(prog.args[0], x0, grade), CSad.diff(prog.args[1], x0, grade));
+           return CSad.add(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
         else if(prog.oper == "-"){
-           return CSad.sub(CSad.diff(prog.args[0], x0, grade), CSad.diff(prog.args[1], x0, grade));
+           return CSad.sub(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
 
         else{
@@ -329,16 +333,16 @@ CSad.diff = function(prog, x0, grade){
     }
     else if(prog.ctype == "function"){
         if(prog.oper == "exp$1"){
-            return CSad.exp(CSad.diff(prog.args[0], x0, grade));
+            return CSad.exp(CSad.diff(prog.args[0], varname, x0, grade));
         }
         if(prog.oper == "log$1"){
-            return CSad.log(CSad.diff(prog.args[0], x0, grade));
+            return CSad.log(CSad.diff(prog.args[0], varname, x0, grade));
         }
         if(prog.oper == "sin$1"){
-            return CSad.sin(CSad.diff(prog.args[0], x0, grade));
+            return CSad.sin(CSad.diff(prog.args[0], varname, x0, grade));
         }
         if(prog.oper == "cos$1"){
-            return CSad.cos(CSad.diff(prog.args[0], x0, grade));
+            return CSad.cos(CSad.diff(prog.args[0], varname, x0, grade));
         }
     }
     else{
@@ -350,12 +354,12 @@ CSad.diff = function(prog, x0, grade){
 
 };
 
-CSad.adevaluate = function(prog, x0, grade){
+CSad.adevaluate = function(prog, varname, x0, grade){
 //    console.log("ffunc, x0, grade", ffunc, x0, grade);
     //var code = condense(ffunc.value);
     //var prog = analyse(code);
 
-    var ergarr = CSad.diff(prog, x0, grade);
+    var ergarr = CSad.diff(prog, varname, x0, grade);
     //console.log("erg before fac");
     //console.log(ergarr);
    //CSad.printArr(ergarr);
@@ -372,16 +376,17 @@ CSad.adevaluate = function(prog, x0, grade){
     return ergarr;
 };
 
-CSad.autodiff = function(ffunc, xarr, grade){
+CSad.autodiff = function(ffunc, varname, xarr, grade){
+//    console.log("ffunc in autodiff", ffunc);
     var erg = [];
     var le = xarr.value.length;
 
     var arr;
-    var code = condense(ffunc.value);
-    var prog = analyse(code);
+    //var code = condense(ffunc.value);
+//    var prog = analyse(code);
 
     for(var i = 0; i < le; i++){
-        arr = CSad.adevaluate(prog, xarr.value[i], grade);
+        arr = CSad.adevaluate(ffunc, varname, xarr.value[i], grade);
         erg[i] = arr;
     }
 
