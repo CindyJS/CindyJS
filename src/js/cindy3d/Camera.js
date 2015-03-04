@@ -38,6 +38,12 @@ Camera.prototype.viewDist;
 Camera.prototype.projectionMatrix;
 
 /** @type {Array.<number>} */
+Camera.prototype.modelMatrix;
+
+/** @type {Array.<number>} */
+Camera.prototype.viewMatrix;
+
+/** @type {Array.<number>} */
 Camera.prototype.mvMatrix;
 
 Camera.prototype.updatePerspective = function() {
@@ -68,15 +74,21 @@ Camera.prototype.setCamera = function(position, lookAt, up) {
     x2[2], y2[2], z2[2]
   ];
   let m2 = adj3(m1);
-  let t = mul3mv(m2, position);
-  this.mvMatrix = [
+  let t = mul3mv(m2, lookAt);
+  this.modelMatrix = [
     m2[0], m2[1], m2[2], -t[0],
     m2[3], m2[4], m2[5], -t[1],
     m2[6], m2[7], m2[8], -t[2],
     0, 0, 0, 1
   ];
-  //console.log(mvMatrix);
-}
+  this.viewMatrix = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, -this.viewDist,
+    0, 0, 0, 1
+  ];
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
 
 /** @constant @type {number} */
 Camera.ROTATE_SENSITIVITY = 0.01;
@@ -99,34 +111,20 @@ Camera.prototype.mouseRotate = function(dx, dy) {
     0, cy, -sy, 0,
     0, sy, cy, 0,
     0, 0, 0, 1];
-  let mz1 = [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, this.viewDist,
-    0, 0, 0, 1];
-  let mz2 = [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, -this.viewDist,
-    0, 0, 0, 1];
-  this.mvMatrix =
-    mul4mm(mz2, mul4mm(mul4mm(mx, my), mul4mm(mz1, this.mvMatrix)));
-}
+  this.modelMatrix = mul4mm(mul4mm(mx, my), this.modelMatrix);
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
 
 /**
  * @param {number} dy
  */
 Camera.prototype.mouseZoom = function(dy) {
-  let mz1 = [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, this.viewDist,
-    0, 0, 0, 1];
   this.viewDist = this.viewDist * Math.pow(1.01, dy);
-  let mz2 = [
+  this.viewMatrix = [
     1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, -this.viewDist,
-    0, 0, 0, 1];
-  this.mvMatrix = mul4mm(mul4mm(mz2, mz1), this.mvMatrix);
-}
+    0, 0, 0, 1
+  ];
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
