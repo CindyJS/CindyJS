@@ -129,20 +129,23 @@ CSad.div = function(f, g){
     for(var k = 0; k < le; k++){
         // L'Hospitals rule
         indxs = CSad.findFirstNoneZero(f, g);
+        //console.log(indxs);
         if(indxs[0] < indxs[1]){
             console.log("Division by 0!");
             return nada;
         }
         // apply L'Hospital
-        else if(k < indxs[0]){
+        else if(k < indxs[0] && indxs[0] == indxs[1]){
+        //    console.log("apply l Hospital");
             f.value[k] = f.value[indxs[0]];
-                if(k < indxs[1]){
+//                if(k < indxs[1]){
                     g.value[k] = g.value[indxs[1]];
-                }
+ //               }
         }
 
 
         ges = f.value[k];
+        //console.log(ges, sum);
         for(var i = 0; i < k; i++){
            sum = CSNumber.add(sum,  CSNumber.mult(erg.value[i], g.value[k-i] ));
         } // end inner
