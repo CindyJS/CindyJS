@@ -380,35 +380,6 @@ geoOps.ConicBy5 = function(el) {
     el.matrix = erg;
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix.usage = "Conic";
-
-    var fff = "cos(x)";
-    var x0 = CSNumber.real(0);
-    var x1 = CSNumber.real(Math.PI/2);
-    var x2 = CSNumber.real(Math.PI);
-    var xx = List.turnIntoCSList([x0, x1, x2]);
-    var grade = CSNumber.real(3);
-//    var erg = CSad.adevaluate(fff, x0, grade);
-    var erg = CSad.autodiff(fff, xx, grade);
-    //console.log(erg);
-//    CSad.printArr(erg);
-    //var f1 = CSad.number(CSNumber.real(1), grade);
-    //var g1 = CSad.variable(x0, grade);
-    //var f1 = CSad.variable(x0, grade);
-
-    //console.log("f1", f1);
-    //CSad.printArr(f1);
-    //console.log("g1", g1);
-    //CSad.printArr(g1);
-    //var eerg = CSad.div(f1,g1);
-    //eerg = CSad.mult(f1, eerg);
-    //console.log(eerg);
-//    var eerg2 = CSad.mult(eerg, f1);
-//    CSad.printArr(f1);
-//    CSad.printArr(g1);
-   // CSad.printArr(eerg);
-//    CSad.printArr(eerg2);
-//    console.log(f1, g1);
-//    console.log(condense(fff));
 };
 geoOpMap.ConicBy5 = "C";
 

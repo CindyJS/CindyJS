@@ -85,6 +85,30 @@ CSad.pow= function(a, b){
     return temp;
 };
 
+// return first nonzero indexes of f and g;
+CSad.findFirstNoneZero = function(f, g){
+    var idxf = Infinity;
+    var idxg = Infinity;
+    var myEps = 10e-8;
+    for(var i = 0; i < f.value.length; i++){
+        if(CSNumber.abs(f.value[i]).value.real > myEps){
+            idxf = i;
+            break;
+        }
+    }
+    
+    for(var i = 0; i < g.value.length; i++){
+        if(CSNumber.abs(g.value[i]).value.real > myEps){
+            idxg = i;
+            break;
+        }
+    }
+
+    //console.log("idxg, idxf", idxf, idxg);
+    //console.log("values", f.value[idxf].value.real, g.value[idxg].value.real);
+    return [idxf, idxg];
+};
+
 // f / g
 CSad.div = function(f, g){
     if (f.value.length !== g.value.length)
@@ -102,13 +126,28 @@ CSad.div = function(f, g){
     var sum = zero;
     var ges = zero;
     for(var k = 0; k < le; k++){
+        // L'Hospitals rule
+        var indxs = CSad.findFirstNoneZero(f, g);
+        if(indxs[0] < indxs[1]){
+            console.log("Division by 0!");
+            return nada;
+        }
+        // apply L'Hospital
+        else if(k < indxs[0]){
+            f.value[k] = f.value[indxs[0]];
+                if(k < indxs[1]){
+                    g.value[k] = g.value[indxs[1]];
+                }
+        }
+
+
         ges = f.value[k];
         for(var i = 0; i < k; i++){
            sum = CSNumber.add(sum,  CSNumber.mult(erg.value[i], g.value[k-i] ));
         } // end inner
 
         ges = CSNumber.sub(ges, sum);
-        ges = CSNumber.div2(ges, g.value[0]); // TODO L'Hospital!
+        ges = CSNumber.div(ges, g.value[0]); // TODO L'Hospital!
         erg.value[k] = ges;
         ges = zero;
         sum = zero;
@@ -318,13 +357,15 @@ CSad.adevaluate = function(ffunc, x0, grade){
     //console.log("erg before fac");
     //console.log(ergarr);
    //CSad.printArr(ergarr);
+    //console.log(ergarr);
     var facs = CSad.faculty(grade);
+    if(ergarr !== nada)
     for(var i = 2; i < grade.value.real; i++){
         ergarr.value[i] = CSNumber.mult(ergarr.value[i], facs.value[i]);
     }
 
     //console.log("erg after fac");
-    //CSad.printArr(ergarr);
+    CSad.printArr(ergarr);
 
     return ergarr;
 };

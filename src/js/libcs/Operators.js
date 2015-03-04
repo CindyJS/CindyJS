@@ -1083,6 +1083,8 @@ evaluator.roots$1 = function(args, modifs) {
 evaluator.autodiff$3 = function(args, modifs) {
  //   console.log("reached autodiff");
 //    console.log(args);
+  //  console.log("args0", args[0]);
+    //console.log("args0 evaluateAndVal", evaluateAndVal(args[0]));
     var ffunc = args[0].stack[0];
     var xarr = evaluateAndVal(args[1]);
     var grade = evaluateAndVal(args[2]);
