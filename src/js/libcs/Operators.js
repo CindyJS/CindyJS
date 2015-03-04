@@ -1112,7 +1112,7 @@ evaluator.autodiff$3 = function(args, modifs) {
 
     //var t =  Date.now();
     // grade + 1 since we count different in autodiff
-    //grade = CSNumber.add(grade, CSNumber.real(1));
+    grade = CSNumber.add(grade, CSNumber.real(1));
     //grade2 = CSNumber.add(grade, CSNumber.real(1));
     var erg = CSad.autodiff(ffunc, varname, xarr, grade);
     //var t2 = Date.now();

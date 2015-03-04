@@ -53,7 +53,7 @@ CSad.sub = function(a, b){
 };
 
 CSad.mult = function(f, g){
-    console.log("f, g in csad mult", f,g);
+//    console.log("f, g in csad mult", f,g);
     if (f.value.length !== g.value.length){
         console.error("dims don't fit return nada");
         return nada;
