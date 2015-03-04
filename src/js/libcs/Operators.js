@@ -624,6 +624,7 @@ function comp_almostequals(args, modifs) {
 
 
 evaluator.and$2 = infix_and;
+
 function infix_and(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -640,6 +641,7 @@ function infix_and(args, modifs) {
 
 
 evaluator.or$2 = infix_or;
+
 function infix_or(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -907,6 +909,7 @@ evaluator.min$2 = function(args, modifs) {
 };
 
 evaluator.add$2 = infix_add;
+
 function infix_add(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -914,6 +917,7 @@ function infix_add(args, modifs) {
 }
 
 evaluator.sub$2 = infix_sub;
+
 function infix_sub(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -936,6 +940,7 @@ function infix_sub(args, modifs) {
 }
 
 evaluator.mult$2 = infix_mult;
+
 function infix_mult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -943,6 +948,7 @@ function infix_mult(args, modifs) {
 }
 
 evaluator.div$2 = infix_div;
+
 function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -962,6 +968,7 @@ evaluator.mod$2 = function(args, modifs) {
 };
 
 evaluator.pow$2 = infix_pow;
+
 function infix_pow(args, modifs) {
 
     var v0 = evaluateAndVal(args[0]);
@@ -1781,6 +1788,7 @@ evaluator.directproduct$2 = function(args, modifs) {
 };
 
 evaluator.concat$2 = infix_concat;
+
 function infix_concat(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
@@ -1794,6 +1802,7 @@ function infix_concat(args, modifs) {
 }
 
 evaluator.common$2 = infix_common;
+
 function infix_common(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
@@ -1807,6 +1816,7 @@ function infix_common(args, modifs) {
 }
 
 evaluator.remove$2 = infix_remove;
+
 function infix_remove(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
@@ -1821,6 +1831,7 @@ function infix_remove(args, modifs) {
 
 
 evaluator.append$2 = infix_append;
+
 function infix_append(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
@@ -1831,6 +1842,7 @@ function infix_append(args, modifs) {
 }
 
 evaluator.prepend$2 = infix_prepend;
+
 function infix_prepend(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);

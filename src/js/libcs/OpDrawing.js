@@ -655,9 +655,10 @@ evaluator.drawtext$2 = function(args, modifs) {
     csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
     var txt = niceprint(v1);
     var width = csctx.measureText(txt).width;
-    csctx.fillText(txt,
-                   xx - width * Render2D.align + Render2D.xOffset,
-                   yy - Render2D.yOffset);
+    csctx.fillText(
+        txt,
+        xx - width * Render2D.align + Render2D.xOffset,
+        yy - Render2D.yOffset);
 
     return nada;
 

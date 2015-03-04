@@ -60,15 +60,12 @@ Render2D.handleModifs = function(modifs, handlers) {
         Render2D.textColor =
             Render2D.makeColor(csport.drawingstate.textcolorraw);
     }
-    Render2D.black = "rgba(0,0,0,"+Render2D.alpha+")";
+    Render2D.black = "rgba(0,0,0," + Render2D.alpha + ")";
 
 };
 
 Render2D.sin30deg = 0.5;
 Render2D.cos30deg = Math.sqrt(0.75);
-
-Render2D.reset = function() {
-};
 
 Render2D.modifHandlers = {
 
@@ -221,7 +218,7 @@ Render2D.modifHandlers = {
 
     "offset": function(v) {
         if (v.ctype === "list" && v.value.length === 2 &&
-           v.value[0].ctype === "number" && v.value[1].ctype === "number") {
+            v.value[0].ctype === "number" && v.value[1].ctype === "number") {
             Render2D.xOffset = v.value[0].value.real;
             Render2D.yOffset = v.value[1].value.real;
         }
@@ -282,7 +279,8 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var endpoint1y = pt1.x * m.c - pt1.y * m.d - m.ty;
     var endpoint2x = pt2.x * m.a - pt2.y * m.b + m.tx;
     var endpoint2y = pt2.x * m.c - pt2.y * m.d - m.ty;
-    var overhang1 = Render2D.overhang, overhang2 = 1 - overhang1;
+    var overhang1 = Render2D.overhang;
+    var overhang2 = 1 - overhang1;
     var overhang1x = overhang1 * endpoint1x + overhang2 * endpoint2x;
     var overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
@@ -303,21 +301,24 @@ Render2D.drawsegcore = function(pt1, pt2) {
         return;
     }
 
-    var dx = endpoint2x - endpoint1x, dy = endpoint2y - endpoint1y;
-    var norm = Math.sqrt(dx*dx + dy*dy);
-    var cosAngle = dx/norm;
-    var sinAngle = dy/norm;
-    var pos_fac1 = Render2D.arrowposition, pos_fac2 = 1 - pos_fac1;
+    var dx = endpoint2x - endpoint1x;
+    var dy = endpoint2y - endpoint1y;
+    var norm = Math.sqrt(dx * dx + dy * dy);
+    var cosAngle = dx / norm;
+    var sinAngle = dy / norm;
+    var pos_fac1 = Render2D.arrowposition;
+    var pos_fac2 = 1 - pos_fac1;
     var tip1x = pos_fac1 * overhang1x + pos_fac2 * overhang2x;
     var tip1y = pos_fac1 * overhang1y + pos_fac2 * overhang2y;
     var tip2x = pos_fac1 * overhang2x + pos_fac2 * overhang1x;
     var tip2y = pos_fac1 * overhang2y + pos_fac2 * overhang1y;
     var headlen = Render2D.headlen;
-    var sin30 = Render2D.sin30deg, cos30 = Render2D.cos30deg;
-    var x30sub = headlen * (cosAngle*cos30 + sinAngle*sin30);
-    var x30add = headlen * (cosAngle*cos30 - sinAngle*sin30);
-    var y30sub = headlen * (sinAngle*cos30 - cosAngle*sin30);
-    var y30add = headlen * (sinAngle*cos30 + cosAngle*sin30);
+    var sin30 = Render2D.sin30deg;
+    var cos30 = Render2D.cos30deg;
+    var x30sub = headlen * (cosAngle * cos30 + sinAngle * sin30);
+    var x30add = headlen * (cosAngle * cos30 - sinAngle * sin30);
+    var y30sub = headlen * (sinAngle * cos30 - cosAngle * sin30);
+    var y30add = headlen * (sinAngle * cos30 + cosAngle * sin30);
     var arrowSides = Render2D.arrowSides;
 
     csctx.beginPath();
@@ -367,15 +368,15 @@ Render2D.drawsegcore = function(pt1, pt2) {
     }
 
     function draw_arrowhead(tipx, tipy, sign) {
-        var rx = tipx - sign*x30sub;
-        var ry = tipy - sign*y30sub;
+        var rx = tipx - sign * x30sub;
+        var ry = tipy - sign * y30sub;
 
         csctx.beginPath();
         if (Render2D.arrowShape === "full") {
             csctx.lineWidth = Render2D.lsize / 2;
         }
-        var lx = tipx - sign*x30add;
-        var ly = tipy - sign*y30add;
+        var lx = tipx - sign * x30add;
+        var ly = tipy - sign * y30add;
         csctx.moveTo(rx, ry);
         csctx.lineTo(tipx, tipy);
         csctx.lineTo(lx, ly);
@@ -387,7 +388,7 @@ Render2D.drawsegcore = function(pt1, pt2) {
             console.error("arrowshape is unknown");
         }
         csctx.stroke();
-    } // end draw_arrowhead
+    }
 
 };
 
