@@ -770,12 +770,12 @@ evaluator.plot$2 = function(args, modifs) {
     var lsize = 1;
 
     Render2D.handleModifs(modifs, {
-        "color": Render2D.modifHandlersLines.color,
-        "alpha": Render2D.modifHandlersLines.alpha,
-        "size": Render2D.modifHandlersLines.size,
-        "dashpattern": Render2D.modifHandlersLines.dashpattern,
-        "dashtype": Render2D.modifHandlersLines.dashtype,
-        "dashing": Render2D.modifHandlersLines.dashing,
+        "color": true,
+        "alpha": true,
+        "size": true,
+        "dashpattern": true,
+        "dashtype": true,
+        "dashing": true,
 
         "connect": function(v) {
             if (v.ctype === 'boolean')
@@ -797,7 +797,7 @@ evaluator.plot$2 = function(args, modifs) {
                 steps = v.value.real;
         },
     });
-    csctx.strokeStyle = Render2D.makeColor(Render2D.linecolorraw);
+    csctx.strokeStyle = Render2D.lineColor;
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = 'round';
     csctx.lineJoin = 'round';
