@@ -120,6 +120,7 @@ function Viewer(name, ccOpts, opts, addEventListener) {
   this.surfaceAppearance = Appearance.clone(Viewer.defaultAppearances.surface);
   this.appearanceStack = [];
   this.backgroundColor = [1, 1, 1, 1];
+  this.renderTimeout = null;
 
   if (!addEventListener)
     addEventListener = /** @type {td.EventManager} */(function(
@@ -211,12 +212,15 @@ Viewer.prototype.appearanceStack;
 /** @type {Array.<number>} */
 Viewer.prototype.backgroundColor;
 
+/** @type {number} */
+Viewer.prototype.renderTimeout;
+
 /**
  * @param {td.EventManager} addEventListener
  */
 Viewer.prototype.setupListeners = function(addEventListener) {
   let canvas = this.canvas, mx = Number.NaN, my = Number.NaN, mdown = false;
-  let camera = this.camera, render = this.render.bind(this);
+  let camera = this.camera, render = this.scheduleRender.bind(this);
   addEventListener(canvas, "mousedown", function(/** MouseEvent */ evnt) {
     if (evnt.button === 0) {
       mdown = true;
@@ -247,13 +251,27 @@ Viewer.prototype.setupListeners = function(addEventListener) {
     mdown = false;
     mx = my = Number.NaN;
   });
+  addEventListener(canvas, "wheel", function(/** WheelEvent */ evnt) {
+    let d = evnt.deltaY;
+    if (d) {
+      camera.mouseZoom(d);
+      render();
+    }
+    evnt.preventDefault();
+  });
 };
 
 Viewer.prototype.clear = function() {
   this.spheres.clear();
 };
 
+Viewer.prototype.scheduleRender = function() {
+  if (this.renderTimeout === null)
+    this.renderTimeout = setTimeout(this.render.bind(this), 0);
+};
+
 Viewer.prototype.render = function() {
+  this.renderTimeout = null;
   if (this.lighting.modified) {
     this.lightingCode = c3d_resources.lighting1 +
       this.lighting.shaderCode() + c3d_resources.lighting2;

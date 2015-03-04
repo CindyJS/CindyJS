@@ -81,6 +81,10 @@ Camera.prototype.setCamera = function(position, lookAt, up) {
 /** @constant @type {number} */
 Camera.ROTATE_SENSITIVITY = 0.01;
 
+/**
+ * @param {number} dx
+ * @param {number} dy
+ */
 Camera.prototype.mouseRotate = function(dx, dy) {
   let ax = Camera.ROTATE_SENSITIVITY*dx, ay = Camera.ROTATE_SENSITIVITY*dy;
   let cx = Math.cos(ax), cy = Math.cos(ay);
@@ -107,4 +111,22 @@ Camera.prototype.mouseRotate = function(dx, dy) {
     0, 0, 0, 1];
   this.mvMatrix =
     mul4mm(mz2, mul4mm(mul4mm(mx, my), mul4mm(mz1, this.mvMatrix)));
+}
+
+/**
+ * @param {number} dy
+ */
+Camera.prototype.mouseZoom = function(dy) {
+  let mz1 = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, this.viewDist,
+    0, 0, 0, 1];
+  this.viewDist = this.viewDist * Math.pow(1.01, dy);
+  let mz2 = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, -this.viewDist,
+    0, 0, 0, 1];
+  this.mvMatrix = mul4mm(mul4mm(mz2, mz1), this.mvMatrix);
 }
