@@ -1090,6 +1090,7 @@ evaluator.autodiff$3 = function(args, modifs) {
     var grade = evaluateAndVal(args[2]);
 
     //var t =  Date.now();
+    grade = CSNumber.add(grade, CSNumber.real(1));
     var erg = CSad.autodiff(ffunc, xarr, grade);
     //var t2 = Date.now();
     //console.log("time for autodiff", t2-t, " millisecs");
