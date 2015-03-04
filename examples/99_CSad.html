@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+ <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+  });
+</script>               
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+
+
+
+           <script id='init' type='cindyscript'>
+
+                   
+//           fak(x):=if(x==0,1,fak(x-1)*x);
+//fa=apply(1..110,fak(#));
+//oddx(x):=(x/2!=floor(x/2));
+//
+//oldn=0;
+        </script>
+
+        
+        <script id='firstDrawing' type='cindyscript'>
+a = -500..1000;
+//a = -3..3;
+a = a/50;
+//a = [0];
+order = 4;
+lam = 1/|C|;
+f(x):= sin(cos(lam*x));
+erg = autodiff(f(x), a, order);
+
+pointsize(0.7);
+repeat(order,j,
+repeat(length(a),i,
+draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
+));
+
+
+//                   x=C.x;
+//           if(x<-9,x=-9);
+//           if(x>18,x=18);
+//           x=round(x);
+//           C.xy=(x,8);
+//
+//
+//
+//n=round(|C,A|*2+1);
+//
+//
+//i=select(1..n,oddx(#));
+//
+//
+//f(x):=sum(i,(-1)^((#-1)/2)*x^#/fa_#);
+//g(x):=max((min((50,f(x))),-50));
+//linesize(2);
+//plot(sin(#-D.x)+D.y,alpha->0.8,color->(0,0.6,0),stop->22);
+//linesize(1);
+//if(oldn!=n,
+//  cur=apply((-400/2..420/2)/10*2,(#,g(#)));
+//);
+//cur2=apply(cur,#+D);
+//
+//connect(cur2);
+////plot(g(#-D.x)+D.y,pxlres->4,color->(0,0,0.6));
+//
+//        if(oldn!=n,
+//
+//
+//           ii1=apply(1..min((length(i),14)),i_#);
+//           
+//           t="$ ";
+//           si=+1;          
+//            forall(ii1,
+//             if(si==1,t=t+"{+}",t=t+"{-}");
+//             t=t+"{x^{"+#+"} \\over "+#+"!}";
+//             si=-si;
+//           );
+//           
+//           t=t+"$ ";
+//           javascript("renderEq('"+t+"')");
+//
+//   t="$\\qquad";
+//              ii1=apply(15..min((length(i),27)),i_#);
+//
+//           si=+1;          
+//            forall(ii1,
+//             if(si==1,t=t+"{+}",t=t+"{-}");
+//             t=t+"{x^{"+#+"} \\over "+#+"!}";
+//             si=-si;
+//           );
+//           
+//           t=t+"$";
+//javascript("renderEq1('"+t+"')");
+//javascript("renderall()");
+//);
+//            
+//         oldn=n;   
+//            
+        </script>
+                
+          <div style="position:relative;">
+        <canvas  id="CSCanvas" width=800 height=500  style="position:absolute; border:2px solid #000000; top:0px; left:0px;"></canvas>
+<div style="position:absolute; top:360px; left:40px; display:inline;z-index:4">
+<div id="texall">
+         <div id="tex" style="font-size: 130%;" ></div><br>
+         <div id="tex1" style="font-size: 130%;" ></div>
+</div>            
+        </div>
+       <div style="position:absolute; top:20px; left:20px; display:inline;z-index:4">
+<br><br>
+<br><br>
+</div>
+
+         
+
+</div>
+
+
+<!--
+ <script type="text/javascript">
+         var typ=function(a,b){
+                     var chCode = ('charCode' in event) ? event.charCode : event.keyCode;
+if(chCode==13){
+
+evokeCS("a="+b.value+";repaint();");
+
+         }
+         }
+
+        
+ 
+        var renderEq=function(a){
+        console.log(a);
+        var latex=a;
+        document.getElementById('tex').innerHTML=latex;
+        
+    //    MathJax.Hub.Queue(['Typeset',MathJax.Hub,'tex']);
+
+        }
+        var renderEq1=function(a){
+        console.log(a);
+        var latex=a;
+        document.getElementById('tex1').innerHTML=latex;
+     //   MathJax.Hub.Queue(['Typeset',MathJax.Hub,'tex']);
+
+        }
+        
+                var renderall=function(){
+                        MathJax.Hub.Queue(['Typeset',MathJax.Hub,'texall']);
+
+                }
+
+        </script>
+    -->
+        
+        <script type="text/javascript">
+            
+            var gslp=[
+                     // {name:"A", type:"Free", pos:[-9,8],color:[0,0,0],pinned:true,size:3},
+                     // {name:"B", type:"Free", pos:[18,8],color:[0,0,0],size:3},
+                     // {name:"a", type:"Segment", args:["A","B"],color:[0,0,0],size:1},
+                      {name:"C", type:"Free", pos:[-9,8],color:[1,1,0],size:5},
+                     // {name:"D", type:"Free", pos:[6,0],color:[1,1,0],size:5}
+                      ];
+            
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        initscript:"init",
+                        //transform:[{scale:1.},{translate:[0,0]}],
+
+                        geometry:gslp});
+            
+            
+                document.onkeydown={}
+
+            
+            
+            </script>
+
+
+
+
+         
+         </div>        
+        
+             
+<div style="left:10px;width:800px; line-height: 1.5">
+ <br><br><br><br>
+ <br><br><br><br>
+ <br><br><br><br>
+ <br><br><br><br>
+ <br><br><br><br>
+ <br><br><br><br>
+ <br><br><br><br>
+ <br><br><br><br>
+</div>
+	</body>
+</html>
