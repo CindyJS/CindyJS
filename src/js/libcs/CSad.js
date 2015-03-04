@@ -133,7 +133,7 @@ CSad.div = function(f, g){
         indxs = CSad.findFirstNoneZero(f, g);
         //console.log(indxs);
         if(indxs[0] < indxs[1]){
-            console.log("Division by 0!");
+            console.log("Division by 0! return nada");
             return nada;
         }
         // apply L'Hospital
