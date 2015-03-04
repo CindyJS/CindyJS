@@ -365,7 +365,7 @@ CSad.adevaluate = function(ffunc, x0, grade){
     }
 
     //console.log("erg after fac");
-    CSad.printArr(ergarr);
+    //CSad.printArr(ergarr);
 
     return ergarr;
 };
