@@ -1081,22 +1081,21 @@ evaluator.roots$1 = function(args, modifs) {
 };
 
 evaluator.autodiff$3 = function(args, modifs) {
-    var varname = "x";  // fix this later
+    var varname = "x"; // fix this later
     var ffunc;
-    if(args[0].ctype === "function"){
+    if (args[0].ctype === "function") {
         ffunc = myfunctions[args[0].oper].body;
-        varname =  args[0].args[0].name;
-    }
-    else if(typeof(args[0].impl) === "function")
+        varname = args[0].args[0].name;
+    } else if (typeof(args[0].impl) === "function")
         ffunc = args[0];
-    else{
+    else {
         console.log("could not parse function");
         return nada;
     }
     var xarr = evaluateAndVal(args[1]);
     var grade = evaluateAndVal(args[2]);
 
-    if(grade.value.real < 1){
+    if (grade.value.real < 1) {
         console.log("grade cant be < 1");
         return nada;
     }

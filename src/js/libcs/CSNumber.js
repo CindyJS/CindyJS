@@ -236,12 +236,11 @@ CSNumber.div = function(a, b) {
     return CSNumber.mult(a, CSNumber.inv(b));
 };
 
-CSNumber.div2 = function(a, b){
-    if((CSNumber.abs(a).value.real < CSNumber.eps) && (CSNumber.abs(b).value.real < CSNumber.eps)){
+CSNumber.div2 = function(a, b) {
+    if ((CSNumber.abs(a).value.real < CSNumber.eps) && (CSNumber.abs(b).value.real < CSNumber.eps)) {
         return CSNumber.real(0);
-    }
-    else{
-    return CSNumber.div(a, b);
+    } else {
+        return CSNumber.div(a, b);
     }
 };
 
