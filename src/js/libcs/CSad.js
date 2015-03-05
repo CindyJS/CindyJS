@@ -166,13 +166,13 @@ CSad.div = function(f, g){
        // f = List.turnIntoCSList(farr);
        //g = List.turnIntoCSList(garr);
 //    console.log(farr);
-        le = f.value.length;
+     //   le = f.value.length;
 //        console.log("arrgs after trim");
 //        CSad.printArr(f);
 //        CSad.printArr(g);
 
     var zero = CSNumber.real(0);
-    var le = f.value.length;
+//    var le = f.value.length;
     var erg = CSad.zero(CSNumber.real(le));
 
     var sum = zero;
@@ -182,14 +182,15 @@ CSad.div = function(f, g){
     var indxs = CSad.findFirstNoneZero(f, g, k);
 //       if(indxs[0] > indxs[1]){
   //          console.log("Division by 0!");
-//        console.log(indxs);
+        //console.log(indxs);
        // }
         // apply L'Hospital
         //else if(k < indxs[0] && (indxs[0] === indxs[1]) && indxs[0] !== Infinity){
         if(k < indxs[0] && (indxs[0] === indxs[1]) && indxs[0] !== Infinity){
-//            console.log("apply l Hospital", k);
+            console.log("apply l Hospital", k);
             f.value.splice(k,indxs[0]);
             g.value.splice(k,indxs[0]);
+            erg.value.splice(k,indxs[0]);
             le = le - indxs[0];
 //        console.log(k, indxs);
 //        console.log("f");
@@ -210,12 +211,12 @@ CSad.div = function(f, g){
         } // end inner
 
         ges = CSNumber.sub(ges, sum);
-        if(CSNumber.abs(ges).value.real < 10e-8 && CSNumber.abs(g.value[0]).value.real < 10e-8){
-            ges = CSNumber.real(Infinity);
-        }
-        else{
+ //       if(CSNumber.abs(ges).value.real < 10e-8 && CSNumber.abs(g.value[0]).value.real < 10e-8){
+ //           ges = CSNumber.real(Infinity);
+ //       }
+ //       else{
         ges = CSNumber.div(ges, g.value[0]); 
-        }
+//        }
         erg.value[k] = ges;
         ges = zero;
         sum = zero;
