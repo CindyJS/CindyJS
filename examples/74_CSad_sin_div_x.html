@@ -20,14 +20,18 @@
 lam = 5*|C|;
 f(x):=lam*sin(x)/x;
 
-a = -100..250;
+a = -100..100;
+//a = 0..1;
 a = a/10;
 
-order = 1;
+order = 3;
 erg = autodiff(f(x), a, order);
+println(erg);
+println(erg_1_2);
 
 repeat(order+1,j,
 repeat(length(a),i,
+//draw([a_i,erg_i_j]);
 draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
 ));
 
@@ -55,7 +59,7 @@ draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
         <script type="text/javascript">
             
             var gslp=[
-                      {name:"C", type:"Free", pos:[0,0],color:[1,1,0],size:5},
+                      {name:"C", type:"Free", pos:[1,0],color:[1,1,0],size:5},
                       ];
             
             createCindy({canvasname:"CSCanvas",

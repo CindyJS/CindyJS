@@ -25,12 +25,13 @@ a = a/20;
 
 order = 3; 
 erg = autodiff(f(x), a, order);
+println(erg);
 
 pointsize(0.5);
 repeat(order+1,j,
 repeat(length(a),i,
-//draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
-draw([a_i,erg_i_j]);
+draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
+//draw([a_i,erg_i_j]);
 ));
 
 

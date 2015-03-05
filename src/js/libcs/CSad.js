@@ -87,19 +87,19 @@ CSad.pow= function(a, b){
     return temp;
 };
 
-// return first nonzero indexes of f and g;
-CSad.findFirstNoneZero = function(f, g){
+// return first nonzero indexes of f and g starting from k
+CSad.findFirstNoneZero = function(f, g, k){
     var idxf = Infinity;
     var idxg = Infinity;
     var myEps = 10e-8;
-    for(var i = 0; i < f.value.length; i++){
+    for(var i = k; i < f.value.length; i++){
         if(CSNumber.abs(f.value[i]).value.real > myEps){
             idxf = i;
             break;
         }
     }
     
-    for(var i = 0; i < g.value.length; i++){
+    for(var i = k; i < g.value.length; i++){
         if(CSNumber.abs(g.value[i]).value.real > myEps){
             idxg = i;
             break;
@@ -111,6 +111,9 @@ CSad.findFirstNoneZero = function(f, g){
     return [idxf, idxg];
 };
 
+CSad.trimArr = function(f, g){
+};
+
 // f / g
 CSad.div = function(f, g){
 //    console.log("f g in div", f,g);
@@ -120,6 +123,53 @@ CSad.div = function(f, g){
             return nada;
         }
 
+    // trim array for L'Hospital
+    var le = f.value.length;
+//    var indxs = CSad.findFirstNoneZero(f, g, 0);
+  //  console.log("indx before trim", indxs);
+ //   if(indxs[0] == indxs[1] && indxs[0] > 0){
+       // var farr = f.value;
+//        var garr = g.value;
+        var myEps = 10e-16;
+//        console.log(farr);
+//        console.log(garr);
+        //var lle = le;
+        //console.log("arrgs before trim");
+//        CSad.printArr(f);
+//        CSad.printArr(g);
+ //   console.log(f);
+ //       console.log("farr", farr[le-1]);
+//    for(var i = le-1 ; i >= 0 ; i--){
+
+   // console.log("abs", CSNumber.abs(farr[i]));
+ //       if((CSNumber.abs(f.value[i]).value.real < myEps) && (CSNumber.abs(g.value[i]).value.real < myEps)) 
+  //      {
+            //console.log("delete index", i);
+   //         f.value.splice(i,1);
+    //        g.value.splice(i,1);
+     //   }
+       // console.log(farr);
+       // console.log(garr);
+   //     console.log(indxs);
+      //  console.log("trim array");
+     //   CSad.printArr(f);
+     //   CSad.printArr(g);
+        //var farr = f.value;
+        //var garr = g.value;
+        //farr = farr.splice(indxs[0], le);
+        //garr = garr.splice(indxs[0], le);
+     //   console.log("f,g after trim");
+     //   CSad.printArr(f);
+     //   CSad.printArr(g);
+
+//    }
+       // f = List.turnIntoCSList(farr);
+       //g = List.turnIntoCSList(garr);
+//    console.log(farr);
+        le = f.value.length;
+//        console.log("arrgs after trim");
+//        CSad.printArr(f);
+//        CSad.printArr(g);
 
     var zero = CSNumber.real(0);
     var le = f.value.length;
@@ -127,22 +177,29 @@ CSad.div = function(f, g){
 
     var sum = zero;
     var ges = zero;
-    var indxs;
     for(var k = 0; k < le; k++){
         // L'Hospitals rule
-        indxs = CSad.findFirstNoneZero(f, g);
-        //console.log(indxs);
-        if(indxs[0] < indxs[1]){
-            console.log("Division by 0! return nada");
-            return nada;
-        }
+    var indxs = CSad.findFirstNoneZero(f, g, k);
+//       if(indxs[0] > indxs[1]){
+  //          console.log("Division by 0!");
+//        console.log(indxs);
+       // }
         // apply L'Hospital
-        else if(k < indxs[0] && indxs[0] == indxs[1]){
-            console.log("apply l Hospital");
-            f.value[k] = f.value[indxs[0]];
+        //else if(k < indxs[0] && (indxs[0] === indxs[1]) && indxs[0] !== Infinity){
+        if(k < indxs[0] && (indxs[0] === indxs[1]) && indxs[0] !== Infinity){
+            console.log("apply l Hospital", k);
+            f.value.splice(k,indxs[0]);
+            g.value.splice(k,indxs[0]);
+            le = le - indxs[0];
+//        console.log(k, indxs);
+//        console.log("f");
+//        CSad.printArr(f);
+//        console.log("g");
+//        CSad.printArr(g);
+//            f.value[k] = f.value[indxs[0]];
 //                if(k < indxs[1]){
-                    g.value[k] = g.value[indxs[1]];
- //               }
+ //                   g.value[k] = g.value[indxs[1]];
+// //               }
         }
 
 
@@ -153,7 +210,12 @@ CSad.div = function(f, g){
         } // end inner
 
         ges = CSNumber.sub(ges, sum);
+        if(CSNumber.abs(ges).value.real < 10e-8 && CSNumber.abs(g.value[0]).value.real < 10e-8){
+            ges = CSNumber.real(Infinity);
+        }
+        else{
         ges = CSNumber.div(ges, g.value[0]); 
+        }
         erg.value[k] = ges;
         ges = zero;
         sum = zero;
@@ -369,13 +431,14 @@ CSad.adevaluate = function(prog, varname, x0, grade){
     //var prog = analyse(code);
 
     var ergarr = CSad.diff(prog, varname, x0, grade);
-    //console.log("erg before fac");
+//    console.log("erg before fac");
     //console.log(ergarr);
    //CSad.printArr(ergarr);
-    //console.log(ergarr);
+//    console.log(ergarr);
     var facs = CSad.faculty(grade);
-    if(ergarr !== nada)
-    for(var i = 2; i < grade.value.real; i++){
+ //   if(ergarr !== nada)
+//    for(var i = 2; i < grade.value.real; i++){
+    for(var i = 2; i < ergarr.value.length; i++){
         ergarr.value[i] = CSNumber.mult(ergarr.value[i], facs.value[i]);
     }
 
