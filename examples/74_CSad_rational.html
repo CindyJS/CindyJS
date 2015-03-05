@@ -18,17 +18,19 @@
         
 <script id='firstDrawing' type='cindyscript'>
 lam = |C|;
-f(x):=1/x;
+f(x):=(x+lam)^4/(x-lam)^3;
 
 a = -200..500;
 a = a/20;
 
-order = 1; // here is a bug for order = 1
+order = 3; 
 erg = autodiff(f(x), a, order);
 
+pointsize(0.5);
 repeat(order+1,j,
 repeat(length(a),i,
-draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
+//draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
+draw([a_i,erg_i_j]);
 ));
 
 
