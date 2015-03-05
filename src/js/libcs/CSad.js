@@ -98,9 +98,9 @@ CSad.findFirstNoneZero = function(f, g, k){
         }
     }
     
-    for(var i = k; i < g.value.length; i++){
-        if(CSNumber.abs(g.value[i]).value.real > myEps){
-            idxg = i;
+    for(var j = k; j < g.value.length; j++){
+        if(CSNumber.abs(g.value[j]).value.real > myEps){
+            idxg = j;
             break;
         }
     }
@@ -188,7 +188,7 @@ CSad.log = function(f){
     for(var k = 1; k < le; k++){
         ges = f.value[k];
         for(var i = 1; i < k; i++){
-           inner = CSNumber.mult(CSNumber.real(i), erg.value[i])
+           inner = CSNumber.mult(CSNumber.real(i), erg.value[i]);
            inner = CSNumber.mult(inner, f.value[k-i]);
            sum = CSNumber.add(sum, inner);
         } // end inner
@@ -269,7 +269,7 @@ CSad.faculty = function(n){
 CSad.diff = function(prog, varname, x0, grade){
     var erg;
 
-    if(prog.ctype == "variable"){
+    if(prog.ctype ==="variable"){
         if(prog.name !== varname){ // if we have different variable than run variable substitute with right val
             erg = CSad.number(evaluate(prog), grade);
         }
@@ -277,25 +277,25 @@ CSad.diff = function(prog, varname, x0, grade){
             erg = CSad.variable(x0, grade);
         }
     }
-    else if(prog.ctype == "number"){
+    else if(prog.ctype ==="number"){
       erg = CSad.number(prog, grade);
     }
 
-    else if(prog.ctype == "infix"){
-        if(prog.oper == "*"){
+    else if(prog.ctype ==="infix"){
+        if(prog.oper ==="*"){
             return CSad.mult(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
-        if(prog.oper == "^"){
+        if(prog.oper ==="^"){
             return CSad.pow(CSad.diff(prog.args[0], varname, x0, grade), prog.args[1]);
         }
 
-        if(prog.oper == "/"){
+        if(prog.oper ==="/"){
             return CSad.div(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
-        else if(prog.oper == "+"){
+        else if(prog.oper ==="+"){
            return CSad.add(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
-        else if(prog.oper == "-"){
+        else if(prog.oper ==="-"){
            return CSad.sub(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
 
@@ -305,17 +305,17 @@ CSad.diff = function(prog, varname, x0, grade){
         }
 
     }
-    else if(prog.ctype == "function"){
-        if(prog.oper == "exp$1"){
+    else if(prog.ctype ==="function"){
+        if(prog.oper ==="exp$1"){
             return CSad.exp(CSad.diff(prog.args[0], varname, x0, grade));
         }
-        if(prog.oper == "log$1"){
+        if(prog.oper ==="log$1"){
             return CSad.log(CSad.diff(prog.args[0], varname, x0, grade));
         }
-        if(prog.oper == "sin$1"){
+        if(prog.oper ==="sin$1"){
             return CSad.sin(CSad.diff(prog.args[0], varname, x0, grade));
         }
-        if(prog.oper == "cos$1"){
+        if(prog.oper ==="cos$1"){
             return CSad.cos(CSad.diff(prog.args[0], varname, x0, grade));
         }
     }
