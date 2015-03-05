@@ -15,10 +15,13 @@
     <script id='init' type='cindyscript'>
     </script>
 
+    <h2>CindyJS automatic differentiation</h2>
+    <h3>x^4/(x-|C|)^3</h3>
+    <h4>Order = 4</h4>
         
 <script id='firstDrawing' type='cindyscript'>
 lam = 0.5*|C|;
-f(x):=(x)^4/(x-lam)^3;
+f(x):=x^4/(x-lam)^3;
 
 a = -100..250;
 a = a/10;

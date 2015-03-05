@@ -15,6 +15,9 @@
     <script id='init' type='cindyscript'>
     </script>
 
+    <h2>CindyJS automatic differentiation</h2>
+    <h3>|C|*sin(x)</h3>
+    <h4>Order = 8</h4>
         
 <script id='firstDrawing' type='cindyscript'>
 lam = |C|;
@@ -23,7 +26,7 @@ f(x):=lam*sin(x);
 a = -100..250;
 a = a/10;
 
-order = 4;
+order = 8;
 erg = autodiff(f(x), a, order);
 
 repeat(order+1,j,
