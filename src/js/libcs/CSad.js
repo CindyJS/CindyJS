@@ -187,7 +187,7 @@ CSad.div = function(f, g){
         // apply L'Hospital
         //else if(k < indxs[0] && (indxs[0] === indxs[1]) && indxs[0] !== Infinity){
         if(k < indxs[0] && (indxs[0] === indxs[1]) && indxs[0] !== Infinity){
-            console.log("apply l Hospital", k);
+//            console.log("apply l Hospital", k);
             f.value.splice(k,indxs[0]);
             g.value.splice(k,indxs[0]);
             le = le - indxs[0];
