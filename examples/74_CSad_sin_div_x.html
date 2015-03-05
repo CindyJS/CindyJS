@@ -20,11 +20,11 @@
 lam = 5*|C|;
 f(x):=lam*sin(x)/x;
 
-a = -100..100;
+a = -100..250;
 //a = 0..1;
 a = a/10;
 
-order = 2;
+order = 5;
 erg = autodiff(f(x), a, order);
 
 repeat(order+1,j,

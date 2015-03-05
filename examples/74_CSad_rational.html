@@ -17,13 +17,13 @@
 
         
 <script id='firstDrawing' type='cindyscript'>
-lam = |C|;
-f(x):=(x+lam)^4/(x-lam)^3;
+lam = 0.5*|C|;
+f(x):=(x)^4/(x-lam)^3;
 
-a = -200..500;
-a = a/20;
+a = -100..250;
+a = a/10;
 
-order = 3; 
+order = 4; 
 erg = autodiff(f(x), a, order);
 println(erg);
 
