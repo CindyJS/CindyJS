@@ -415,7 +415,7 @@ geoOps._helper.splitDegenConic = function(mat) {
     var beta = CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), adj_mat.value[idx].value[idx]));
     idx = CSNumber.real(idx + 1);
     var p = List.column(adj_mat, idx);
-    if (CSNumber.abs(beta).value.real < 10e-8) {
+    if (CSNumber.abs(beta).value.real < 1e-8) {
         return nada;
     }
 
