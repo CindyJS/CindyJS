@@ -115,7 +115,7 @@ CSad.div = function(f, g) {
     }
 
     var le = f.value.length;
-    var myEps = 10e-16;
+    var myEps = 1e-16;
     var zero = CSNumber.real(0);
     var erg = CSad.zero(CSNumber.real(le));
 
