@@ -87,7 +87,7 @@ CSad.pow = function(a, b) {
 CSad.findFirstNoneZero = function(f, g, k) {
     var idxf = Infinity;
     var idxg = Infinity;
-    var myEps = 10e-8;
+    var myEps = 1e-8;
     for (var i = k; i < f.value.length; i++) {
         if (CSNumber.abs(f.value[i]).value.real > myEps) {
             idxf = i;
