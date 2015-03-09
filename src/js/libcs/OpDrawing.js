@@ -759,7 +759,7 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
 
     handleModifs();
 
-    var eps = 10e-16;
+    var eps = 1e-16;
     var mat = args.matrix;
 
     // check for complex values
@@ -782,7 +782,7 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
     ];
 
     var det = a * c * f - a * e * e - b * b * f + 2 * b * d * e - c * d * d;
-    var degen = Math.abs(det) < eps ? true : false;
+    var degen = Math.abs(det) < eps;
 
     var cswh_max = csw > csh ? csw : csh;
 

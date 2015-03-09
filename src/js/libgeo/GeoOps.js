@@ -764,9 +764,9 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var delta = List.det(BB);
 
     // degenrate Case
-    var myeps = 10e-16;
-    var AAdegen = (Math.abs(alpha.value.real) < myeps) ? true : false;
-    var BBdegen = (Math.abs(delta.value.real) < myeps) ? true : false;
+    var myeps = 1e-16;
+    var AAdegen = (Math.abs(alpha.value.real) < myeps);
+    var BBdegen = (Math.abs(delta.value.real) < myeps);
 
     var Alines, Blines, pts1, pts2;
     if (AAdegen && BBdegen) {
