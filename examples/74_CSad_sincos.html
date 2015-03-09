@@ -14,10 +14,12 @@
 
     <script id='init' type='cindyscript'>
     </script>
-
+    <h2>CindyJS automatic differentiation</h2>
+    <h3>sin(0.2*|C|*x)+cos(cos(x))</h3>
+    <h4>Order = 4</h4>
         
 <script id='firstDrawing' type='cindyscript'>
-lam = |C|+0.1;
+lam = 0.2*|C|;
 f(x):=sin(lam*x)+cos(cos(x));
 
 a = -200..500;

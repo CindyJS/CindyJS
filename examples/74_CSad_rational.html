@@ -15,22 +15,26 @@
     <script id='init' type='cindyscript'>
     </script>
 
+    <h2>CindyJS automatic differentiation</h2>
+    <h3>x^4/(x-|C|)^3</h3>
+    <h4>Order = 4</h4>
         
 <script id='firstDrawing' type='cindyscript'>
-lam = |C|;
-f(x):=(x+lam)^4/(x-lam)^3;
+lam = 0.5*|C|;
+f(x):=x^4/(x-lam)^3;
 
-a = -200..500;
-a = a/20;
+a = -100..250;
+a = a/10;
 
-order = 3; 
+order = 4; 
 erg = autodiff(f(x), a, order);
+println(erg);
 
 pointsize(0.5);
 repeat(order+1,j,
 repeat(length(a),i,
-//draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
-draw([a_i,erg_i_j]);
+draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
+//draw([a_i,erg_i_j]);
 ));
 
 

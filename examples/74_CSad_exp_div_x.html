@@ -14,20 +14,20 @@
 
     <script id='init' type='cindyscript'>
     </script>
-
     <h2>CindyJS automatic differentiation</h2>
-    <h3>5*|C|*sin(x)/x</h3>
-    <h4>Order = 5</h4>
+    <h3>0.1*|C|*(exp(lam*x)-1)/x</h3>
+    <h4>Order = 4</h4>
+        
         
 <script id='firstDrawing' type='cindyscript'>
-lam = 5*|C|;
-f(x):=lam*sin(x)/x;
+lam = |C|*0.1;
+f(x):=(exp(lam*x)-1)/x;
 
 a = -100..250;
 //a = 0..1;
 a = a/10;
 
-order = 5;
+order = 4;
 erg = autodiff(f(x), a, order);
 
 repeat(order+1,j,
@@ -60,7 +60,7 @@ draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
         <script type="text/javascript">
             
             var gslp=[
-                      {name:"C", type:"Free", pos:[1,0],color:[1,1,0],size:5},
+                      {name:"C", type:"Free", pos:[3,0],color:[1,1,0],size:5},
                       ];
             
             createCindy({canvasname:"CSCanvas",
