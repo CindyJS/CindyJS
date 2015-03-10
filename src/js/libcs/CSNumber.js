@@ -236,7 +236,6 @@ CSNumber.div = function(a, b) {
     return CSNumber.mult(a, CSNumber.inv(b));
 };
 
-
 CSNumber.eps = 0.0000001;
 
 CSNumber.snap = function(a) {

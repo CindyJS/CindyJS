@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+             
+            </head>
+    
+	<body style="font-family:Arial;">
+        
+
+
+
+    <script id='init' type='cindyscript'>
+    </script>
+    <h2>CindyJS automatic differentiation</h2>
+    <h3>0.1*|C|*(exp(lam*x)-1)/x</h3>
+    <h4>Order = 4</h4>
+        
+        
+<script id='firstDrawing' type='cindyscript'>
+lam = |C|*0.1;
+f(x):=(exp(lam*x)-1)/x;
+
+a = -100..250;
+//a = 0..1;
+a = a/10;
+
+order = 4;
+erg = autodiff(f(x), a, order);
+
+repeat(order+1,j,
+repeat(length(a),i,
+//draw([a_i,erg_i_j]);
+draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
+));
+
+
+        </script>
+                
+          <div style="position:relative;">
+        <canvas  id="CSCanvas" width=800 height=500  style="position:absolute; border:2px solid #000000; top:0px; left:0px;"></canvas>
+<div style="position:absolute; top:360px; left:40px; display:inline;z-index:4">
+<div id="texall">
+         <div id="tex" style="font-size: 130%;" ></div><br>
+         <div id="tex1" style="font-size: 130%;" ></div>
+</div>            
+        </div>
+       <div style="position:absolute; top:20px; left:20px; display:inline;z-index:4">
+<br><br>
+<br><br>
+</div>
+
+         
+
+</div>
+
+
+        <script type="text/javascript">
+            
+            var gslp=[
+                      {name:"C", type:"Free", pos:[3,0],color:[1,1,0],size:5},
+                      ];
+            
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"firstDrawing",
+                        initscript:"init",
+                        grid:1,
+                        snap:true,
+                        //transform:[{scale:1.},{translate:[0,0]}],
+
+                        geometry:gslp});
+            
+            
+                document.onkeydown={}
+
+            
+            
+            </script>
+
+
+
+
+         
+         </div>        
+        
+             
+
+	</body>
+</html>

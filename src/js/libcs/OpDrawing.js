@@ -759,7 +759,7 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
 
     handleModifs();
 
-    var eps = 10e-16;
+    var eps = 1e-16;
     var mat = args.matrix;
 
     // check for complex values
@@ -782,7 +782,7 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
     ];
 
     var det = a * c * f - a * e * e - b * b * f + 2 * b * d * e - c * d * d;
-    var degen = Math.abs(det) < eps ? true : false;
+    var degen = Math.abs(det) < eps;
 
     var cswh_max = csw > csh ? csw : csh;
 
@@ -938,11 +938,10 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         var ttemp; // trafo temp
         var perc = 0.05;
         var diff = ymax - ymin;
-        var distIsSmall = ((diff / csh < 0.10) && (diff / csh > 0.001) && (type === 'ellipsoid')) ? true : false;
         var ssmall = perc * diff + ymin;
         var slarge = ymax - perc * diff;
         for (var y = ymin; y <= ymax; y += step) {
-            if (y < ssmall || y > slarge || distIsSmall) {
+            if (y < ssmall || y > slarge) {
                 step = 1 / 3;
             } else {
                 step = 2;

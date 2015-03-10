@@ -415,7 +415,7 @@ geoOps._helper.splitDegenConic = function(mat) {
     var beta = CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), adj_mat.value[idx].value[idx]));
     idx = CSNumber.real(idx + 1);
     var p = List.column(adj_mat, idx);
-    if (CSNumber.abs(beta).value.real < 10e-8) {
+    if (CSNumber.abs(beta).value.real < 1e-8) {
         return nada;
     }
 
@@ -764,9 +764,9 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var delta = List.det(BB);
 
     // degenrate Case
-    var myeps = 10e-16;
-    var AAdegen = (Math.abs(alpha.value.real) < myeps) ? true : false;
-    var BBdegen = (Math.abs(delta.value.real) < myeps) ? true : false;
+    var myeps = 1e-16;
+    var AAdegen = (Math.abs(alpha.value.real) < myeps);
+    var BBdegen = (Math.abs(delta.value.real) < myeps);
 
     var Alines, Blines, pts1, pts2;
     if (AAdegen && BBdegen) {

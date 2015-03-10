@@ -131,7 +131,7 @@ describe("Basic Operations", function() {
   });
 
   it("snap", function() {
-  var eps = 10e-20;
+  var eps = 1e-20;
   var num = CSNumber.complex(1,1);
   var c_eps = CSNumber.complex(-eps, -eps);
   var d_num = CSNumber.add(num, c_eps);
