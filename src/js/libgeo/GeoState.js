@@ -176,38 +176,33 @@ csport.createnewbackup = function() {
 
 };
 
+csport.makecolor = function(r, g, b) {
+    var rv = Math.floor(r * 255);
+    var gv = Math.floor(g * 255);
+    var bv = Math.floor(b * 255);
+    if (csport.drawingstate.alpha === 1) {
+        return "rgb(" + rv + "," + gv + "," + bv + ")";
+    } else {
+        return "rgba(" + rv + "," + gv + "," + bv +
+            "," + csport.drawingstate.alpha + ")";
+    }
+};
 
 csport.setcolor = function(co) {
     var r = co.value[0].value.real;
     var g = co.value[1].value.real;
     var b = co.value[2].value.real;
-    if (csport.drawingstate.alpha === 1) {
-
-        csport.drawingstate.linecolor = "rgb(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + ")";
-        csport.drawingstate.linecolorraw = [r, g, b];
-        csport.drawingstate.pointcolor = "rgb(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + ")";
-    } else {
-        csport.drawingstate.linecolor = "rgb(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + "," + csport.drawingstate.alpha + ")";
-        csport.drawingstate.linecolorraw = [r, g, b];
-        csport.drawingstate.pointcolor = "rgb(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + "," + csport.drawingstate.alpha + ")";
-
-
-    }
-    csport.drawingstate.pointcolorraw = [r, g, b];
-
+    csport.drawingstate.linecolor =
+        csport.drawingstate.pointcolor = csport.makecolor(r, g, b);
+    csport.drawingstate.linecolorraw =
+        csport.drawingstate.pointcolorraw = [r, g, b];
 };
 
 csport.setlinecolor = function(co) {
     var r = co.value[0].value.real;
     var g = co.value[1].value.real;
     var b = co.value[2].value.real;
-    if (csport.drawingstate.alpha === 1) {
-        csport.drawingstate.linecolor =
-            "rgb(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + ")";
-    } else {
-        csport.drawingstate.linecolor =
-            "rgba(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + "," + csport.drawingstate.alpha + ")";
-    }
+    csport.drawingstate.linecolor = csport.makecolor(r, g, b);
     csport.drawingstate.linecolorraw = [r, g, b];
 };
 
@@ -215,13 +210,7 @@ csport.settextcolor = function(co) {
     var r = co.value[0].value.real;
     var g = co.value[1].value.real;
     var b = co.value[2].value.real;
-    if (csport.drawingstate.alpha === 1) {
-        csport.drawingstate.textcolor =
-            "rgb(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + ")";
-    } else {
-        csport.drawingstate.textcolor =
-            "rgba(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + "," + csport.drawingstate.alpha + ")";
-    }
+    csport.drawingstate.textcolor = csport.makecolor(r, g, b);
     csport.drawingstate.textcolorraw = [r, g, b];
 };
 
@@ -230,41 +219,24 @@ csport.setpointcolor = function(co) {
     var r = co.value[0].value.real;
     var g = co.value[1].value.real;
     var b = co.value[2].value.real;
-
-    if (csport.drawingstate.alpha === 1) {
-        csport.drawingstate.linecolor =
-            "rgb(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + ")";
-    } else {
-        csport.drawingstate.linecolor =
-            "rgba(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + "," + csport.drawingstate.alpha + ")";
-    }
-
+    csport.drawingstate.pointcolor = csport.makecolor(r, g, b);
     csport.drawingstate.pointcolorraw = [r, g, b];
-
 };
 
 csport.setalpha = function(al) {
-    var alpha = al.value.real,
-        r, g, b;
-    r = csport.drawingstate.linecolorraw[0];
-    g = csport.drawingstate.linecolorraw[1];
-    b = csport.drawingstate.linecolorraw[2];
-
-    csport.drawingstate.linecolor = "rgba(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + "," + alpha + ")";
-
-    r = csport.drawingstate.pointcolorraw[0];
-    g = csport.drawingstate.pointcolorraw[1];
-    b = csport.drawingstate.pointcolorraw[2];
-    csport.drawingstate.pointcolor = "rgba(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + "," + alpha + ")";
-
-    r = csport.drawingstate.textcolorraw[0];
-    g = csport.drawingstate.textcolorraw[1];
-    b = csport.drawingstate.textcolorraw[2];
-    csport.drawingstate.textcolor = "rgba(" + Math.floor(r * 255) + "," + Math.floor(g * 255) + "," + Math.floor(b * 255) + "," + alpha + ")";
-
-
-    csport.drawingstate.alpha = alpha;
-
+    csport.drawingstate.alpha = al.value.real;
+    csport.drawingstate.linecolor = csport.makecolor(
+        csport.drawingstate.linecolorraw[0],
+        csport.drawingstate.linecolorraw[1],
+        csport.drawingstate.linecolorraw[2]);
+    csport.drawingstate.pointcolor = csport.makecolor(
+        csport.drawingstate.pointcolorraw[0],
+        csport.drawingstate.pointcolorraw[1],
+        csport.drawingstate.pointcolorraw[2]);
+    csport.drawingstate.textcolor = csport.makecolor(
+        csport.drawingstate.textcolorraw[0],
+        csport.drawingstate.textcolorraw[1],
+        csport.drawingstate.textcolorraw[2]);
 };
 
 csport.setpointsize = function(si) {
