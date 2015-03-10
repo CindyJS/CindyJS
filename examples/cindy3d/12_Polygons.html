@@ -9,12 +9,9 @@
 <script id="csinit" type="text/x-cindyscript">use("Cindy3D")</script>
 <script id="csdraw" type="text/x-cindyscript">
 begin3d();
-alpha3d(0.85);
-background3d([0,0,0]);
-drawsphere3d([1,0,0], 1, color->[1,0,0]);
-drawsphere3d([cos(120°),sin(120°),0], 1, color->[0,1,0]);
-drawsphere3d([cos(120°),-sin(120°),0], 1, color->[0,0,1]);
-end3d();
+fillpoly3d([[-3, -1, 0], [-0.8, -0.8, 1], [-1, 1, 0], [-3, 1, 0]]);
+fillpoly3d(apply(1..5, gauss(1 + exp(i*#*72°)) ++ [0.2 * (# - 3)]));
+end3d()
 </script>
 <script type="text/javascript">
 createCindy({canvasname:"CSCanvas",scripts:"cs*"});
@@ -23,6 +20,7 @@ createCindy({canvasname:"CSCanvas",scripts:"cs*"});
 
 <body>
   <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+  <p>Polygons should look smooth even if they are in fact bent.</p>
   <canvas id="CSCanvas" width="50" height="50" style="border:none"></canvas>
 </body>
 

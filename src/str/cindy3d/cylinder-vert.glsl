@@ -10,6 +10,8 @@ attribute vec4 aColor;
 
 attribute vec4 aRelativeRadius;
 
+attribute vec4 aShininess;
+
 varying vec3 vPoint1;
 
 varying vec3 vPoint2;
@@ -46,6 +48,7 @@ void main() {
 
   // Copy attributes to varyings for use in the fragment shader
   vColor = aColor;
+  vShininess = aShininess.x;
   vRadius = aRelativeRadius.w;
 
   // Transform position into screen space

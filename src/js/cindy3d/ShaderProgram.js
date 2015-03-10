@@ -93,6 +93,17 @@ ShaderProgram.prototype.link = function(gl) {
 /**
  * @param {WebGLRenderingContext} gl
  */
+ShaderProgram.prototype.dispose = function(gl) {
+  gl.detachShader(this.handle, this.vs);
+  gl.deleteShader(this.vs);
+  gl.detachShader(this.handle, this.fs);
+  gl.deleteShader(this.fs);
+  gl.deleteProgram(this.handle);
+};
+
+/**
+ * @param {WebGLRenderingContext} gl
+ */
 ShaderProgram.prototype.detectUniforms = function(gl) {
   this.uniform = this.detectImpl(gl, true);
 };
@@ -177,6 +188,8 @@ ShaderProgram.prototype.uniformSetter = function(gl, name, info) {
     return gl.uniform4fv.bind(gl, loc);
   case gl.BOOL:
   case gl.INT:
+  case gl.SAMPLER_2D:
+  case gl.SAMPLER_CUBE:
     return gl.uniform1iv.bind(gl, loc);
   case gl.BOOL_VEC2:
   case gl.INT_VEC2:
@@ -193,8 +206,6 @@ ShaderProgram.prototype.uniformSetter = function(gl, name, info) {
     return gl.uniformMatrix3fv.bind(gl, loc, false);
   case gl.FLOAT_MAT4:
     return gl.uniformMatrix4fv.bind(gl, loc, false);
-    // case gl.SAMPLER_2D:
-    // case gl.SAMPLER_CUBE:
   default:
     throw new GlError("Unknown data type for uniform " + name);
   }

@@ -62,6 +62,11 @@ coerce.toDirection = function(arg, def=[0,0,0]) {
  * @return {Array.<number>}
  */
 coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
+  if (arg.ctype === "number") {
+    let c = coerce.toInterval(0, 1, arg);
+    if (!isNaN(c))
+      return [c, c, c];
+  }
   let lst = coerce.toList(arg);
   if (lst === null)
     return def;

@@ -8,13 +8,30 @@
 <script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
 <script id="csinit" type="text/x-cindyscript">use("Cindy3D")</script>
 <script id="csdraw" type="text/x-cindyscript">
+begin3d(supersample->2);
+disablelight3d(0);
+directionallight3d(0, direction->(-1, 0, 0), diffuse->(0.75,0.5,0.25));
+spotlight3d(1, position->(0,5,-5), diffuse->(0.25,0.5,0.75), cutoffangle->10°, exponent->20);
+ambientlight3d(0.1*[1,1,1]);
+background3d(0);
+color3d(1);
+shininess3d(80);
 begin3d();
-alpha3d(0.85);
-background3d([0,0,0]);
-drawsphere3d([1,0,0], 1, color->[1,0,0]);
-drawsphere3d([cos(120°),sin(120°),0], 1, color->[0,1,0]);
-drawsphere3d([cos(120°),-sin(120°),0], 1, color->[0,0,1]);
-end3d();
+res=.2;
+rr=30;
+ss=30;
+m=apply(-rr..rr,ii,u=ii/20;
+  apply(-ss..ss,jj,v=jj/20;
+    x = u - u^3/3 +u*v^2; 
+    y = v - v^3/3 +v*u^2;
+    z= u^2 - v^2;
+    (x,y,z)
+  )
+);
+m=flatten(m,levels->1);
+size3d(.6);
+mesh3d(2*rr+1,2*ss+1,m,normaltype->"pervertex");
+end3d()
 </script>
 <script type="text/javascript">
 createCindy({canvasname:"CSCanvas",scripts:"cs*"});

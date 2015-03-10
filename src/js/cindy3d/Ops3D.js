@@ -66,15 +66,16 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
 
   defOp("begin3d", 0, function(args, modifs) {
     let name = "Cindy3D";
-    let opts = {};
+    let ccOpts = {}, opts = {};
     handleModifs(modifs, {
       "name": (a => name = /** @type {string} */(coerce.toString(a, name))),
-      "antialias": (a => opts["antialias"] = coerce.toBool(a, false)),
+      "antialias": (a => ccOpts["antialias"] = coerce.toBool(a, false)),
+      "supersample": (a => opts.superSample = coerce.toReal(a, 1)),
     });
     currentInstance = instances[name];
     if (!currentInstance) {
       instances[name] = currentInstance = new Viewer(
-        name, opts, api.addAutoCleaningEventListener);
+        name, ccOpts, opts, api.addAutoCleaningEventListener);
     }
     return nada;
   });
@@ -156,6 +157,37 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
   defOp("alpha3d", 1, surfacealpha3d);
   defOp("surfacealpha3d", 1, surfacealpha3d);
 
+  defOp("shininess3d", 1, function(args, modifs) {
+    let shininess = coerce.toInterval(0, 128, evaluate(args[0]));
+    if (!isNaN(shininess)) {
+      currentInstance.pointAppearance.shininess = shininess;
+      currentInstance.lineAppearance.shininess = shininess;
+      currentInstance.surfaceAppearance.shininess = shininess;
+    }
+    return nada;
+  });
+
+  defOp("pointshininess3d", 1, function(args, modifs) {
+    let shininess = coerce.toInterval(0, 128, evaluate(args[0]));
+    if (!isNaN(shininess))
+      currentInstance.pointAppearance.shininess = shininess;
+    return nada;
+  });
+
+  defOp("lineshininess3d", 1, function(args, modifs) {
+    let shininess = coerce.toInterval(0, 128, evaluate(args[0]));
+    if (!isNaN(shininess))
+      currentInstance.lineAppearance.shininess = shininess;
+    return nada;
+  });
+
+  defOp("surfaceshininess3d", 1, function(args, modifs) {
+    let shininess = coerce.toInterval(0, 128, evaluate(args[0]));
+    if (!isNaN(shininess))
+      currentInstance.surfaceAppearance.shininess = shininess;
+    return nada;
+  });
+
   defOp("size3d", 1, function(args, modifs) {
     let size = coerce.toReal(evaluate(args[0]), -1) * Appearance.POINT_SCALE;
     if (size >= 0) {
@@ -188,9 +220,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let pos = coerce.toHomog(evaluate(args[0]));
     let appearance = handleModifsAppearance(
       currentInstance.pointAppearance, modifs);
-    currentInstance.spheres.add(
-      pos, appearance.size,
-      Appearance.colorWithAlpha(appearance));
+    currentInstance.spheres.add(pos, appearance.size, appearance);
     return nada;
   });
 
@@ -233,10 +263,24 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
   });
 
   defOp("fillpoly3d", 1, function(args, modifs) {
+    let lst = coerce.toList(evaluate(args[0]));
+    let appearance = handleModifsAppearance(
+      currentInstance.surfaceAppearance, modifs);
+    if (lst.length < 2) return nada;
+    let pos = lst.map(elt => coerce.toHomog(elt));
+    currentInstance.triangles.addPolygonAutoNormal(pos, appearance);
     return nada;
   });
 
   defOp("fillpoly3d", 2, function(args, modifs) {
+    let lst1 = coerce.toList(evaluate(args[0]));
+    let lst2 = coerce.toList(evaluate(args[1]));
+    let appearance = handleModifsAppearance(
+      currentInstance.surfaceAppearance, modifs);
+    if (lst1.length < 2 || lst1.length != lst2.length) return nada;
+    let pos = lst1.map(elt => coerce.toHomog(elt));
+    let n = lst2.map(elt => coerce.toDirection(elt));
+    currentInstance.triangles.addPolygonWithNormals(pos, n, appearance);
     return nada;
   });
 
@@ -249,8 +293,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let radius = coerce.toReal(evaluate(args[1]));
     let appearance = handleModifsAppearance(
       currentInstance.surfaceAppearance, modifs);
-    currentInstance.spheres.add(
-      pos, radius, Appearance.colorWithAlpha(appearance));
+    currentInstance.spheres.add(pos, radius, appearance);
     return nada;
   });
 
@@ -258,16 +301,50 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let m = coerce.toInt(evaluate(args[0]));
     let n = coerce.toInt(evaluate(args[1]));
     let pos = coerce.toList(evaluate(args[2])).map(elt => coerce.toHomog(elt));
+    let normals = null;
+    let normaltype = "perface";
     let appearance = handleModifsAppearance(
-      currentInstance.surfaceAppearance, modifs);
+      currentInstance.surfaceAppearance, modifs, {
+        "normaltype": (a => normaltype =
+                       coerce.toString(a, normaltype).toLowerCase()),
+      });
+    if (pos.length !== m*n) return nada;
+    let pc = null, normal = null;
+    function donormal(p1, p2) {
+      let c = cross3(sub3(p1, pc), sub3(p2, pc));
+      normal[0] += c[0];
+      normal[1] += c[1];
+      normal[2] += c[2];
+    }
+    if (normaltype === "pervertex") {
+      normals = Array(m*n);
+      let mn = m*n, p = pos.map(dehom3);
+      for (let i = 0, k = 0; i < m; ++i) {
+        for (let j = 0; j < n; ++j) {
+          let kmn = k + mn;
+          pc = p[k];
+          let pw = p[(kmn - 1)%mn], pe = p[(kmn + 1)%mn];
+          let ps = p[(kmn - n)%mn], pn = p[(kmn + n)%mn];
+          normal = [0, 0, 0]
+          if (i     > 0 && j     > 0) donormal(pw, ps);
+          if (i + 1 < m && j     > 0) donormal(pn, pw);
+          if (i + 1 < m && j + 1 < n) donormal(pe, pn);
+          if (i     > 0 && j + 1 < n) donormal(ps, pe);
+          normals[k++] = normal;
+        }
+      }
+    }
     // TODO: handle modifiers, per-vertex normals in particular.
-    let k = 0;
-    for (let i = 1; i < m; ++i) {
+    for (let i = 1, k = 0; i < m; ++i) {
       for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.add(
-          pos[k], pos[k + 1], pos[k + n], appearance);
-        currentInstance.triangles.add(
-          pos[k + n], pos[k + 1], pos[k + n + 1], appearance);
+        if (normals)
+          currentInstance.triangles.addPolygonWithNormals(
+            [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]],
+            [normals[k], normals[k + 1], normals[k + n + 1], normals[k + n]],
+            appearance);
+        else
+          currentInstance.triangles.addPolygonAutoNormal(
+            [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]], appearance);
         ++k;
       }
       ++k;
@@ -326,18 +403,61 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
   });
 
   defOp("pointlight3d", 1, function(args, modifs) {
+    let index = coerce.toInt(evaluate(args[0]), 0);
+    let position = [0, 0, 0, 1], diffuse = [1, 1, 1], specular = [1, 1, 1];
+    handleModifs(modifs, {
+      "position": a => position = coerce.toHomog(a, position),
+      "diffuse": a => diffuse = coerce.toColor(a, diffuse),
+      "specular": a => specular = coerce.toColor(a, specular),
+    });
+    currentInstance.lighting.setLight(
+      index, new PointLight(dehom3(position), diffuse, specular));
     return nada;
   });
 
   defOp("directionallight3d", 1, function(args, modifs) {
+    let index = coerce.toInt(evaluate(args[0]), 0);
+    let direction = [0, -1, 0], diffuse = [1, 1, 1], specular = [1, 1, 1];
+    handleModifs(modifs, {
+      "direction": a => direction = coerce.toDirection(a, direction),
+      "diffuse": a => diffuse = coerce.toColor(a, diffuse),
+      "specular": a => specular = coerce.toColor(a, specular),
+    });
+    currentInstance.lighting.setLight(
+      index, new DirectionalLight(direction, diffuse, specular));
     return nada;
   });
 
   defOp("spotlight3d", 1, function(args, modifs) {
+    let index = coerce.toInt(evaluate(args[0]), 0);
+    let position = [0, 0, 0, 1], direction = [0, -1, 0];
+    let cutoff = Math.PI/4, exponent = 0;
+    let diffuse = [1, 1, 1], specular = [1, 1, 1];
+    handleModifs(modifs, {
+      "position": a => position = coerce.toHomog(a, position),
+      "direction": a => direction = coerce.toDirection(a, direction),
+      "cutoffangle": a => cutoff = coerce.toInterval(0, Math.PI, a, cutoff),
+      "exponent": a => exponent = coerce.toReal(a, exponent),
+      "diffuse": a => diffuse = coerce.toColor(a, diffuse),
+      "specular": a => specular = coerce.toColor(a, specular),
+    });
+    currentInstance.lighting.setLight(
+      index, new SpotLight(dehom3(position), direction, Math.cos(cutoff),
+                           exponent, diffuse, specular));
     return nada;
   });
 
   defOp("disablelight3d", 1, function(args, modifs) {
+    let index = coerce.toInt(evaluate(args[0]), 0);
+    currentInstance.lighting.setLight(index, null);
+    return nada;
+  });
+
+  // This is not (yet) present in the Java version of Cindy3D.
+  defOp("ambientlight3d", 1, function(args, modifs) {
+    let color = coerce.toColor(evaluate(args[0]))
+    if (color)
+      currentInstance.lighting.ambient = color;
     return nada;
   });
 

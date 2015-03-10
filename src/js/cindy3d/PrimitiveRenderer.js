@@ -65,7 +65,7 @@ PrimitiveRenderer.prototype.elements;
 PrimitiveRenderer.prototype.numElements;
 
 /**
- * Number of floats per item for its attributes
+< * Number of floats per item for its attributes
  * @type {number}
  */
 PrimitiveRenderer.prototype.itemLength;
@@ -88,16 +88,32 @@ PrimitiveRenderer.prototype.itemAttribByteCount;
  */
 PrimitiveRenderer.prototype.itemTotalByteCount;
 
+/**
+ * Whether to make use of the fragment depth extension
+ * @type {boolean}
+ */
+PrimitiveRenderer.prototype.useFragDepth = true;
+
+/**
+ * Source code of vertex shader
+ * @type {string}
+ */
+PrimitiveRenderer.prototype.vertexShaderCode;
+
+/**
+ * Source code of fragment shader, sans lighting
+ * @type {string}
+ */
+PrimitiveRenderer.prototype.fragmentShaderCode;
+
 //////////////////////////////////////////////////////////////////////
 //
 
 /**
  * @param {number} mode
- * @param {WebGLRenderingContext} gl
- * @param {string} vs
- * @param {string} fs
+ * @param {Viewer} viewer
  */
-PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
+PrimitiveRenderer.prototype.init = function(mode, viewer) {
   let c = this.initialCapacity, d;
   this.mode = mode;
   this.count = 0;
@@ -113,13 +129,11 @@ PrimitiveRenderer.prototype.init = function(mode, gl, vs, fs) {
     for (j = 0; j < e.length; ++j)
       d[k++] = e[j] + o;
   }
-
-  this.bufferAttribs = gl.createBuffer();
-  this.bufferIndices = gl.createBuffer();
+  this.bufferAttribs = viewer.gl.createBuffer();
+  this.bufferIndices = viewer.gl.createBuffer();
   this.bufferCapacity = -1;
-  this.shaderProgram = new ShaderProgram(gl, vs, fs);
-  let sp = this.shaderProgram.handle;
-  this.attribLocations = this.attributes.map(a => gl.getAttribLocation(sp, a));
+  this.shaderProgram = null;
+  this.recompileShader(viewer);
 }
 
 /**
@@ -172,6 +186,30 @@ PrimitiveRenderer.prototype.shaderProgram;
 
 /** @type {Array.<number>} */
 PrimitiveRenderer.prototype.attribLocations;
+
+/**
+ * @param {Viewer} viewer
+ */
+PrimitiveRenderer.prototype.recompileShader = function(viewer) {
+  let gl = viewer.gl;
+  if (this.shaderProgram !== null)
+    this.shaderProgram.dispose(gl);
+  let vs = [
+    "precision mediump float;",
+    "varying float vShininess;",
+    this.vertexShaderCode
+  ].join("\n");
+  let fs = [
+    "precision mediump float;",
+    viewer.lightingCode,
+    this.fragmentShaderCode
+  ].join("\n");
+  if (this.useFragDepth && viewer.glExtFragDepth)
+    fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
+  this.shaderProgram = new ShaderProgram(gl, vs, fs);
+  let sp = this.shaderProgram.handle;
+  this.attribLocations = this.attributes.map(a => gl.getAttribLocation(sp, a));
+}
 
 /**
  * @param {Array.<number>} attributes

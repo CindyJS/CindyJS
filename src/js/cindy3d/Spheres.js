@@ -4,39 +4,35 @@
  * @extends {PrimitiveRenderer}
  */
 function Spheres(viewer) {
-  let vs = [
-    "precision mediump float;",
-    c3d_resources.sphere_vert
-  ].join("\n");
-  let fs = [
-    "precision mediump float;",
-    c3d_resources.lighting,
-    c3d_resources.common_frag,
-    c3d_resources.sphere_frag
-  ].join("\n");
-  if (viewer.glExtFragDepth)
-    fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
-  this.init(viewer.gl.TRIANGLES, viewer.gl, vs, fs);
+  this.init(viewer.gl.TRIANGLES, viewer);
 }
 
 Spheres.prototype = new PrimitiveRenderer(
-  ["aCenter", "aColor", "aRelativeRadius"], [0, 1, 2, 2, 1, 3]);
+  ["aCenter", "aColor", "aRelativeShininessRadius"], [0, 1, 2, 2, 1, 3]);
+
+/** @type {string} */
+Spheres.prototype.vertexShaderCode = c3d_resources.sphere_vert;
+
+/** @type {string} */
+Spheres.prototype.fragmentShaderCode =
+  c3d_resources.common_frag + "\n" + c3d_resources.sphere_frag;
 
 /**
  * @param {Array.<number>} pos
  * @param {number} radius
- * @param {Array.<number>} color
+ * @param {Appearance} appearance
  */
-Spheres.prototype.add = function(pos, radius, color) {
+Spheres.prototype.add = function(pos, radius, appearance) {
   let x = pos[0], y = pos[1], z = pos[2], w = pos[3];
-  let r = color[0], g = color[1], b = color[2], a = color[3];
+  let color = appearance.color, s = appearance.shininess;
+  let r = color[0], g = color[1], b = color[2], a = appearance.alpha;
   if (a < 1.0)
     this.opaque = false;
   this.addPrimitive([
-    x, y, z, w, r, g, b, a,  1.0,  1.0, 0.0, radius,
-    x, y, z, w, r, g, b, a, -1.0,  1.0, 0.0, radius,
-    x, y, z, w, r, g, b, a,  1.0, -1.0, 0.0, radius,
-    x, y, z, w, r, g, b, a, -1.0, -1.0, 0.0, radius
+    x, y, z, w, r, g, b, a,  1.0,  1.0, s, radius,
+    x, y, z, w, r, g, b, a, -1.0,  1.0, s, radius,
+    x, y, z, w, r, g, b, a,  1.0, -1.0, s, radius,
+    x, y, z, w, r, g, b, a, -1.0, -1.0, s, radius
   ]);
 };
 
