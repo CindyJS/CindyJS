@@ -49,6 +49,9 @@ Camera.prototype.mvMatrix;
 Camera.prototype.updatePerspective = function() {
   let f = 1.0/Math.tan(this.fieldOfView * (Math.PI / 360.));
   let nearMinusFar = this.zNear - this.zFar;
+  // Near plane is actually at -zNear, far plane at -zFar.
+  // This is in sync with the glFrustrum call of legacy OpenGL 2.
+  // This matrix is already tranposed.
   this.projectionMatrix = [
     f*this.height/this.width, 0, 0, 0,
     0, f, 0, 0,
@@ -94,6 +97,9 @@ Camera.prototype.setCamera = function(position, lookAt, up) {
 Camera.ROTATE_SENSITIVITY = 0.01;
 
 /**
+ * Rotate camera around lookAt point.
+ * Another interpretation is to rotate the viewed object.
+ *
  * @param {number} dx
  * @param {number} dy
  */
@@ -115,7 +121,34 @@ Camera.prototype.mouseRotate = function(dx, dy) {
   this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
 };
 
+/** @constant @type {number} */
+Camera.PAN_SENSITIVITY = 0.002;
+
 /**
+ * Move camera parallel to image plane but keep view direction and distance.
+ * Another interpretation is to move the displayed object.
+ *
+ * @param {number} dx
+ * @param {number} dy
+ */
+Camera.prototype.mousePan = function(dx, dy) {
+  let f = Camera.PAN_SENSITIVITY*this.viewDist, ax = f*dx, ay = -f*dy;
+  let m = [
+    1, 0, 0, ax,
+    0, 1, 0, ay,
+    0, 0, 1, 0,
+    0, 0, 0, 1];
+  this.modelMatrix = mul4mm(m, this.modelMatrix);
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
+
+/**
+ * Change distance between camera and lookAt point.
+ *
+ * Strictly speaking this is not a zoom since the view angle remains
+ * the same but the position changes, while for a real zoom the view
+ * angle would change and the position remain.
+ * 
  * @param {number} dy
  */
 Camera.prototype.mouseZoom = function(dy) {
@@ -126,5 +159,26 @@ Camera.prototype.mouseZoom = function(dy) {
     0, 0, 1, -this.viewDist,
     0, 0, 0, 1
   ];
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
+
+/** @constant @type {number} */
+Camera.DOLLY_SENSITIVITY = 0.02;
+
+/**
+ * Move camera perpendicular to image plane.
+ * In contrast to the mouseZoom method above, this maintains the viewDist,
+ * and therefore shifts the viewAt point along with the camera.
+ *
+ * @param {number} dy
+ */
+Camera.prototype.mouseDolly = function(dy) {
+  let az = -Camera.DOLLY_SENSITIVITY*this.viewDist*dy;
+  let m = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, az,
+    0, 0, 0, 1];
+  this.modelMatrix = mul4mm(m, this.modelMatrix);
   this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
 };
