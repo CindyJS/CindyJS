@@ -781,6 +781,7 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         [d, e, f]
     ];
 
+
     var det = a * c * f - a * e * e - b * b * f + 2 * b * d * e - c * d * d;
     var degen = Math.abs(det) < eps;
 
@@ -1036,14 +1037,14 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         y0 = (aebd - largeSqrt) / deNom;
         y1 = (aebd + largeSqrt) / deNom;
 
-        if (!isNaN(y0)) {
+        if (!isNaN(y0) && y0 > y_zero && y0 < y_h) {
             ttemp = csport.from(0, y0, 1);
             y0 = ttemp[1];
         } else {
             y0 = y_zero;
         }
 
-        if (!isNaN(y1)) {
+        if (!isNaN(y1) && y1 > y_zero && y1 < y_h) {
             ttemp = csport.from(0, y1, 1);
             y1 = ttemp[1];
         } else {

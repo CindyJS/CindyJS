@@ -14,21 +14,37 @@ createCindy({ // See ref/createCindy documentation for details.
   snap:true,
   defaultAppearance: {
   },
-  geometry: [
-    {name:"X", type:"Free", pos:[-6,-4]},
+
+    geometry:[
+    {name:"X", type:"Free", pos:[-2,-1]},
     {name:"Y", type:"Free", pos:[6,0]},
-    {name:"Z", type:"Free", pos:[3,6]},
-    {name:"A", type:"Free", pos:[1,0]},
-    {name:"B", type:"Free", pos:[3,4]},
+    {name:"Z", type:"Free", pos:[3,4]},
+    {name:"A", type:"Free", pos:[0,0]},
+    {name:"B", type:"Free", pos:[1,2]},
     {name:"g", type:"Join", args:["X", "Y"] },
     {name:"h", type:"Join", args:["X", "Z"] },
     {name:"l", type:"Join", args:["Y", "Z"] },
-    {name:"CoT", type:"ConicBy2p3l", args:["A","B","g","h","l"]},
+    {name:"CoT", type:"ConicBy3p2l", args:["g","h","l","A","B"]},
     {name:"Co1", type:"SelectConic", args:["CoT"], index:1},
     {name:"Co1", type:"SelectConic", args:["CoT"], index:2},
     {name:"Co1", type:"SelectConic", args:["CoT"], index:3},
     {name:"Co1", type:"SelectConic", args:["CoT"], index:4},
-  ] // End of geometry array.
+  ]
+//  geometry: [
+//    {name:"X", type:"Free", pos:[-6,-4]},
+//    {name:"Y", type:"Free", pos:[6,0]},
+//    {name:"Z", type:"Free", pos:[3,6]},
+//    {name:"A", type:"Free", pos:[1,0]},
+//    {name:"B", type:"Free", pos:[3,4]},
+//    {name:"g", type:"Join", args:["X", "Y"] },
+//    {name:"h", type:"Join", args:["X", "Z"] },
+//    {name:"l", type:"Join", args:["Y", "Z"] },
+//    {name:"CoT", type:"ConicBy2p3l", args:["A","B","g","h","l"]},
+//    {name:"Co1", type:"SelectConic", args:["CoT"], index:1},
+//    {name:"Co1", type:"SelectConic", args:["CoT"], index:2},
+//    {name:"Co1", type:"SelectConic", args:["CoT"], index:3},
+//    {name:"Co1", type:"SelectConic", args:["CoT"], index:4},
+//  ] // End of geometry array.
 });
 
 // Remove all comments after adjusting this template for your use case.
