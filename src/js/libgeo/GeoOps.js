@@ -516,7 +516,7 @@ geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
     var gl = List.cross(g, l);
     var hl = List.cross(h, l);
     var m1 = List.turnIntoCSList([gl, hl, gh]);
-    var s1 = List.productVM(c, List.adjoint3(m1))
+    var s1 = List.productVM(c, List.adjoint3(m1));
     var m2 = List.adjoint3(List.turnIntoCSList([
         List.scalmult(s1.value[0], gl),
         List.scalmult(s1.value[1], hl),
@@ -527,7 +527,7 @@ geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
     var bb = List.productMV(m3, b), b1 = bb.value[0], b2 = bb.value[1];
     // assert: aa.value[2] and bb.value[2] are zero
     var a3a = CSNumber.sqrt(mul(a1, a2)), b3a = CSNumber.sqrt(mul(b1, b2));
-    var signs, res = Array(4);
+    var signs, res = new Array(4);
     for (signs = 0; signs < 4; ++signs) {
         var sa = ((signs & 1) << 1) - 1, sb = (signs & 2) - 1;
         var a3 = mul(CSNumber.real(sa), a3a);
@@ -575,7 +575,7 @@ geoOps.ConicBy2p3l = function(el) {
     var h = csgeo.csnames[(el.args[3])].homog;
     var l = csgeo.csnames[(el.args[4])].homog;
     var dual = geoOps._helper.ConicBy3p2l(g, h, l, a, b);
-    var res = Array(4);
+    var res = new Array(4);
     for (var i = 0; i < 4; ++i)
         res[i] = List.normalizeMax(List.adjoint3(dual[i]));
     el.results = res;
