@@ -138,6 +138,21 @@ If set to `true`, this will cause all previous instances of the application to b
 An object providing plugins in addition to those registered by `createCindy.registerPlugin`.
 The key is the plugin name, the value a plugin initialization callback.
 
+### language
+
+The language of the page, given as a two-letter string.
+This is used to provide matching translations from the `translations` dictonary
+using the `tr` function.
+It is also returned using `currentlanguage`.
+This should always match the language of the rest of the containing page.
+
+### translations
+
+A dictionary of dictionaries.
+The outer key is the two-letter language abbreviation.
+The inner key is the string passed to the `tr` function.
+The corresponding value will be returned in response.
+
 ## Instance Methods
 
 The object returned from a call to `createCindy` has a number of methods which may be of use.
