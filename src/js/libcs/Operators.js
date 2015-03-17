@@ -2573,6 +2573,21 @@ evaluator.unicode$1 = function(args, modifs) {
     return General.string(str);
 };
 
+evaluator.tr$1 = function(args, modifs) {
+    var arg = evaluate(args[0]);
+    if (arg.ctype !== "string") return nada;
+    var language = instanceInvocationArguments.language || "en";
+    var tr = instanceInvocationArguments.translations || {};
+    var trl = tr[language] || {};
+    if (trl.hasOwnProperty(arg.value))
+        return General.string(trl[arg.value]);
+    return arg;
+};
+
+evaluator.currentlanguage$0 = function(args, modifs) {
+    return General.string(instanceInvocationArguments.language || "en");
+};
+
 ///////////////////////////////
 //     Transformations       //
 ///////////////////////////////
