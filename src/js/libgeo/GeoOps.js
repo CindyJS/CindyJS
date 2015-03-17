@@ -957,7 +957,7 @@ geoOps.TrProjection = function(el) {
             b = csgeo.csnames[el.args[2 + offset]].homog,
             c = csgeo.csnames[el.args[4 + offset]].homog,
             d = csgeo.csnames[el.args[6 + offset]].homog;
-        // Note: this duplicates functionality from evaluator._helper.basismap
+        // Note: this duplicates functionality from eval_helper.basismap
         tmp = List.adjoint3(List.turnIntoCSList([a, b, c]));
         tmp = List.productVM(d, tmp).value;
         tmp = List.transpose(List.turnIntoCSList([

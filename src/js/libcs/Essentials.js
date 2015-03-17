@@ -43,37 +43,37 @@ operators[';'] = 500; //Befehlsseparator
 
 
 var infixmap = {};
-infixmap['+'] = 'add$2';
-infixmap['-'] = 'minus$2';
-infixmap['*'] = 'mult$2';
-infixmap['/'] = 'div$2';
-infixmap['^'] = 'pow$2';
-infixmap['°'] = 'numb_degree';
-infixmap[';'] = 'semicolon$2';
-infixmap['='] = 'assign$2';
-infixmap['..'] = 'sequence$2';
-infixmap[':='] = 'define$2';
-infixmap['=='] = 'comp_equals';
-infixmap['!='] = 'comp_notequals';
-infixmap['~='] = 'comp_almostequals';
-infixmap['~!='] = 'comp_notalmostequals';
-infixmap['>'] = 'comp_gt';
-infixmap['<'] = 'comp_lt';
-infixmap['>='] = 'comp_ge';
-infixmap['<='] = 'comp_le';
-infixmap['~>'] = 'comp_ugt';
-infixmap['~<'] = 'comp_ult';
-infixmap['~>='] = 'comp_uge';
-infixmap['~<='] = 'comp_ule';
-infixmap['&'] = 'and$2';
-infixmap['%'] = 'or$2';
-infixmap['!'] = 'not';
-infixmap['_'] = 'take$2';
-infixmap['++'] = 'concat$2';
-infixmap['~~'] = 'common$2';
-infixmap['--'] = 'remove$2';
-infixmap[':>'] = 'append$2';
-infixmap['<:'] = 'prepend$2';
+infixmap['+'] = infix_add;
+infixmap['-'] = infix_sub;
+infixmap['*'] = infix_mult;
+infixmap['/'] = infix_div;
+infixmap['^'] = infix_pow;
+infixmap['°'] = postfix_numb_degree;
+infixmap[';'] = infix_semicolon;
+infixmap['='] = infix_assign;
+infixmap['..'] = infix_sequence;
+infixmap[':='] = infix_define;
+infixmap['=='] = comp_equals;
+infixmap['!='] = comp_notequals;
+infixmap['~='] = comp_almostequals;
+infixmap['~!='] = comp_notalmostequals;
+infixmap['>'] = comp_gt;
+infixmap['<'] = comp_lt;
+infixmap['>='] = comp_ge;
+infixmap['<='] = comp_le;
+infixmap['~>'] = comp_ugt;
+infixmap['~<'] = comp_ult;
+infixmap['~>='] = comp_uge;
+infixmap['~<='] = comp_ule;
+infixmap['&'] = infix_and;
+infixmap['%'] = infix_or;
+infixmap['!'] = prefix_not;
+infixmap['_'] = infix_take;
+infixmap['++'] = infix_concat;
+infixmap['~~'] = infix_common;
+infixmap['--'] = infix_remove;
+infixmap[':>'] = infix_append;
+infixmap['<:'] = infix_prepend;
 
 /*jshint +W069 */
 
@@ -176,9 +176,9 @@ function myfunctions(name, args, modifs) {
 //this function evaluates a concrete function
 //*******************************************************
 var evaluator = {};
-evaluator._helper = {};
+var eval_helper = {};
 
-evaluator._helper.evaluate = function(name, args, modifs) {
+eval_helper.evaluate = function(name, args, modifs) {
     if (myfunctions.hasOwnProperty(name))
         return myfunctions(name, args, modifs);
     var f = evaluator[name];
@@ -194,12 +194,12 @@ evaluator._helper.evaluate = function(name, args, modifs) {
         if (f)
             return f(args, modifs);
     }
-    console.log("Called undefined function " + name + "(" + n + ")");
+    console.log("Called undefined function " + n + " (as " + name + ")");
     return nada;
 };
 
 
-evaluator._helper.clone = function(a) { //Das ist jetzt gerade mal ätzend un-OO
+eval_helper.clone = function(a) { //Das ist jetzt gerade mal ätzend un-OO
     if (a.ctype === 'list') {
         return List.clone(a);
     }
@@ -210,7 +210,7 @@ evaluator._helper.clone = function(a) { //Das ist jetzt gerade mal ätzend un-OO
 
 };
 
-evaluator._helper.equals = function(v0, v1) { //Und nochmals un-OO
+eval_helper.equals = function(v0, v1) { //Und nochmals un-OO
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return {
             'ctype': 'boolean',

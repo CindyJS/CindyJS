@@ -3,7 +3,7 @@
 //*******************************************************
 
 
-evaluator._helper.extractPoint = function(v1) {
+eval_helper.extractPoint = function(v1) {
     var erg = {};
     erg.ok = false;
     if (v1.ctype === 'geo') {
@@ -55,592 +55,58 @@ evaluator._helper.extractPoint = function(v1) {
 };
 
 evaluator.draw$1 = function(args, modifs) {
-    var erg;
-    var psize = csport.drawingstate.pointsize;
-    var lsize = csport.drawingstate.linesize;
-    if (psize < 0) psize = 0;
-    if (lsize < 0) lsize = 0;
-    var overhang = 1; //TODO Eventuell dfault setzen
-    var dashing = false;
-    var isArrow = false;
-    var angle;
-    var arrowSides = '==>';
-    var arrowScaling = 1.0; // scale arrow length
-    var headlen = 10; // arrow head length - perhaps set this relative to canvas size
-    var arrowShape = 'default';
-    var col;
-    var black = "rgb(0,0,0)";
-    if (csport.drawingstate.alpha !== 1) {
-        black = "rgba(0,0,0," + csport.drawingstate.alpha + ")";
-    }
 
-    function handleModifs(type) {
-        var erg;
+    var v1 = evaluateAndVal(args[0]);
+    if (v1.ctype === "shape") {
+        eval_helper.drawshape(v1, modifs);
+    } else if (v1.usage === "Line") {
+        Render2D.handleModifs(modifs, Render2D.lineModifs);
+        Render2D.drawline(v1);
+    } else {
+        var pt = eval_helper.extractPoint(v1);
 
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                if (type === "P") {
-                    psize = erg.value.real;
-                    if (psize < 0) psize = 0;
-                    if (psize > 1000) psize = 1000;
-                }
-                if (type === "L") {
-                    lsize = erg.value.real;
-                    if (lsize < 0) lsize = 0;
-                    if (lsize > 1000) lsize = 1000;
+        if (!pt.ok) {
+            if (typeof(v1.value) !== "undefined") { //eventuell doch ein Segment
+                if (v1.value.length === 2) {
+                    return evaluator.draw$2(v1.value, modifs);
                 }
             }
-        }
-
-        if (type === "L") {
-            if (modifs.dashpattern !== undefined) {
-                erg = evaluate(modifs.dashpattern);
-                if (erg.ctype === 'list') {
-                    var pat = [];
-                    for (var i = 0; i < erg.value.length; i++) {
-                        pat[i] = erg.value[i].value.real;
-                    }
-                    evaluator._helper.setDash(pat, lsize);
-                    dashing = true;
-                }
-            }
-
-
-            if (modifs.dashtype !== undefined) {
-                erg = evaluate(modifs.dashtype);
-                if (erg.ctype === 'number') {
-                    var type2 = Math.floor(erg.value.real);
-                    evaluator._helper.setDashType(type2, lsize);
-                    dashing = true;
-
-
-                }
-            }
-
-            if (modifs.dashing !== undefined) {
-                erg = evaluate(modifs.dashing);
-                if (erg.ctype === 'number') {
-                    var si = Math.floor(erg.value.real);
-                    evaluator._helper.setDash([si * 2, si], lsize);
-                    dashing = true;
-
-
-                }
-            }
-            if (modifs.overhang !== undefined) {
-                erg = evaluate(modifs.overhang);
-                if (erg.ctype === 'number') {
-                    overhang = (erg.value.real);
-
-                }
-            }
-            if (modifs.arrow !== undefined) {
-                erg = evaluate(modifs.arrow);
-                if (erg.ctype === 'boolean') {
-                    isArrow = erg.value;
-                } else {
-                    console.error("arrow needs to be of type boolean");
-                }
-            }
-            if (modifs.arrowshape !== undefined) {
-                erg = evaluate(modifs.arrowshape);
-
-                erg = evaluate(modifs.arrowshape);
-                if (erg.ctype === 'string') {
-                    arrowShape = erg.value;
-                    if (!isArrow) {
-                        console.log("warning: implicitly activated modifier arrow by using arrowShape");
-                    }
-                    isArrow = true;
-                } else {
-                    console.error("arrowshape needs to be of type string");
-                }
-            }
-
-            if (modifs.arrowsides !== undefined) {
-                erg = evaluate(modifs.arrowsides);
-                if (!isArrow) {
-                    console.log("warning: implicitly activated modifier arrow by using arrowsides");
-                }
-                isArrow = true;
-                if (erg.ctype !== 'string') {
-                    console.error('arrowsides is not of type string');
-                }
-
-                if (!(erg.value === '==>' || erg.value === '<==>' || erg.value === '<==')) {
-                    console.error("arrowsides is unknows");
-                } else {
-                    arrowSides = erg.value;
-                }
-            }
-
-            if (modifs.arrowposition !== undefined) {
-                erg = evaluate(modifs.arrowposition);
-                if (!isArrow) {
-                    console.log("warning: implicitly activated modifier arrow by using arrowposition");
-                    isArrow = true;
-                }
-                if (erg.ctype !== "number") {
-                    console.error('arrowposition is not of type number');
-                }
-
-                if (erg.value.real < 0.0) {
-                    console.error("arrowposition has to be positive");
-                } else {
-                    arrowScaling = erg.value.real;
-                }
-            }
-
-            if (modifs.arrowsize !== undefined) {
-                erg = evaluate(modifs.arrowsize);
-                if (!isArrow) {
-                    console.log("warning: implicitly activated modifier arrow by using arrowposition");
-                    isArrow = true;
-                }
-                if (erg.ctype !== "number") {
-                    console.error('arrowsize is not of type number');
-                }
-
-                if (erg.value.real < 0.0) {
-                    console.error("arrowposition has to be positive");
-                } else {
-                    headlen = headlen * erg.value.real;
-                }
-            }
-        } // end handleModifs
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
             return;
         }
 
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-        if (type === "P") {
-            r = csport.drawingstate.pointcolorraw[0] * 255;
-            g = csport.drawingstate.pointcolorraw[1] * 255;
-            b = csport.drawingstate.pointcolorraw[2] * 255;
+        if (modifs !== null) {
+            Render2D.handleModifs(modifs, Render2D.pointModifs);
         }
-        if (type === "L") {
-            r = csport.drawingstate.linecolorraw[0] * 255;
-            g = csport.drawingstate.linecolorraw[1] * 255;
-            b = csport.drawingstate.linecolorraw[2] * 255;
-        }
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-        black = "rgba(0,0,0," + alpha + ")"; //TODO Performanter machen
+        Render2D.drawpoint(pt);
     }
-
-    function drawsegcore(pt1, pt2) {
-        var m = csport.drawingstate.matrix;
-        var xx1 = pt1.x * m.a - pt1.y * m.b + m.tx;
-        var yy1 = pt1.x * m.c - pt1.y * m.d - m.ty;
-        var xx2 = pt2.x * m.a - pt2.y * m.b + m.tx;
-        var yy2 = pt2.x * m.c - pt2.y * m.d - m.ty;
-
-
-        col = csport.drawingstate.linecolor;
-
-        handleModifs("L");
-        var xxx1 = overhang * xx1 + (1 - overhang) * xx2;
-        var yyy1 = overhang * yy1 + (1 - overhang) * yy2;
-        var xxx2 = overhang * xx2 + (1 - overhang) * xx1;
-        var yyy2 = overhang * yy2 + (1 - overhang) * yy1;
-
-        csctx.beginPath();
-        csctx.lineWidth = lsize;
-        csctx.lineCap = 'round';
-        csctx.strokeStyle = col;
-
-        // nasty workaround - could not get rid of this case easily - works at the moment
-        if (arrowScaling === 0.5) {
-            arrowScaling = 0.500001;
-        }
-
-        // save original x/y values
-        var or_x1 = xxx1;
-        var or_x2 = xxx2;
-        var or_y1 = yyy1;
-        var or_y2 = yyy2;
-        if (isArrow) {
-
-            var sc_x1, sc_x2, sc_y1, sc_y2;
-            var norm = Math.pow(xxx1 - xxx2, 2) + Math.pow(yyy1 - yyy2, 2);
-            norm = Math.sqrt(norm);
-
-            var sc_fac = norm * (1 - arrowScaling);
-            //angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
-            angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
-            sc_x1 = xxx1 + sc_fac * Math.cos(angle);
-            sc_x2 = xxx2 - sc_fac * Math.cos(angle);
-            sc_y1 = yyy1 + sc_fac * Math.sin(angle);
-            sc_y2 = yyy2 - sc_fac * Math.sin(angle);
-
-            // does this have nasty sideeffects? Currently none
-            xxx1 = sc_x1;
-            xxx2 = sc_x2;
-            yyy1 = sc_y1;
-            yyy2 = sc_y2;
-
-        }
-        csctx.moveTo(xxx1, yyy1);
-        // shorten arrow for full arrow
-        // Math.abs() for preventing bugs if points are the same
-        //if(isArrow && arrowShape === "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1-yyy2))){
-        if (isArrow && arrowShape === "full" && (Math.abs(xxx1 - xxx2) + Math.abs(yyy1 - yyy2))) {
-
-            angle = Math.atan2(or_y2 - or_y1, or_x2 - or_x1);
-            var rx, ry, lx, ly;
-            if (arrowScaling <= 0.5 && arrowScaling >= 0.5) {
-                rx = xxx2 + headlen * Math.cos(angle - Math.PI / 6);
-                ry = yyy2 + headlen * Math.sin(angle - Math.PI / 6);
-                lx = xxx2 + headlen * Math.cos(angle + Math.PI / 6);
-                ly = yyy2 + headlen * Math.sin(angle + Math.PI / 6);
-            } else {
-                rx = xxx2 - headlen * Math.cos(angle - Math.PI / 6);
-                ry = yyy2 - headlen * Math.sin(angle - Math.PI / 6);
-                lx = xxx2 - headlen * Math.cos(angle + Math.PI / 6);
-                ly = yyy2 - headlen * Math.sin(angle + Math.PI / 6);
-            }
-
-            var t1 = xxx2;
-            var t2 = yyy2;
-            if (arrowSides === '==>' || arrowSides === '<==>') {
-                t1 = (rx + lx) / 2;
-                t2 = (ry + ly) / 2;
-            }
-            if (arrowSides === "<==>" || arrowSides === "<==") {
-
-                if (arrowScaling <= 0.5 && arrowScaling >= 0.5) {
-                    rx = xxx1 - headlen * Math.cos(angle - Math.PI / 6);
-                    ry = yyy1 - headlen * Math.sin(angle - Math.PI / 6);
-                    lx = xxx1 - headlen * Math.cos(angle + Math.PI / 6);
-                    ly = yyy1 - headlen * Math.sin(angle + Math.PI / 6);
-                } else {
-                    rx = xxx1 + headlen * Math.cos(angle - Math.PI / 6);
-                    ry = yyy1 + headlen * Math.sin(angle - Math.PI / 6);
-                    lx = xxx1 + headlen * Math.cos(angle + Math.PI / 6);
-                    ly = yyy1 + headlen * Math.sin(angle + Math.PI / 6);
-                }
-
-                var s1 = (rx + lx) / 2;
-                var s2 = (ry + ly) / 2;
-                csctx.moveTo(t1, t2);
-                csctx.lineTo(s1, s2);
-            } else {
-                csctx.lineTo(t1, t2);
-            }
-
-        } else {
-            csctx.lineTo(xxx2, yyy2);
-        }
-
-        csctx.stroke();
-
-
-        if (isArrow) {
-            var draw_arrowhead = function(xxx1, xxx2, yyy1, yyy2, anglemodifier) {
-                angle = Math.atan2(yyy2 - yyy1, xxx2 - xxx1);
-
-                if (anglemodifier !== undefined) {
-                    angle = angle + anglemodifier;
-                } // for arrow rotation
-                var rx = xxx2 - headlen * Math.cos(angle - Math.PI / 6);
-                var ry = yyy2 - headlen * Math.sin(angle - Math.PI / 6);
-
-                csctx.beginPath();
-                if (arrowShape === "full") {
-                    csctx.lineWidth = lsize / 2;
-                }
-                //else{ csctx.lineWidth = lsize;}
-                //csctx.moveTo(xxx2 - lll*Math.cos(angle - Math.PI/6), yyy2 - lll*Math.sin(angle - Math.PI/6));
-                csctx.moveTo(xxx2, yyy2);
-                csctx.lineTo(rx, ry);
-                //csctx.moveTo(xxx2 - lll*Math.cos(angle + Math.PI/6), yyy2 - lll*Math.sin(angle + Math.PI/6));
-                csctx.moveTo(xxx2, yyy2);
-                var lx = xxx2 - headlen * Math.cos(angle + Math.PI / 6);
-                var ly = yyy2 - headlen * Math.sin(angle + Math.PI / 6);
-
-
-                if (arrowShape === 'default') {
-                    csctx.lineTo(lx, ly);
-                } else if (arrowShape === "full") {
-                    csctx.moveTo(rx, ry);
-                    csctx.lineTo(lx, ly);
-                    csctx.lineTo(xxx2, yyy2);
-                    csctx.fillStyle = col;
-                    csctx.fill();
-                } else { // this is failsafe - if type is unknow we will draw std arrows
-                    console.error("arrowshape is unknown");
-                }
-
-                csctx.stroke();
-            }; // end draw_arrowhead
-
-            // draw arrow heads at desired positions
-            var amodif = 0;
-            if (arrowScaling < 0.5) {
-                amodif = Math.PI;
-            }
-            if (arrowSides === '==>' || arrowSides === '<==>') {
-                draw_arrowhead(xxx1, xxx2, yyy1, yyy2, amodif);
-            }
-            if (arrowSides === '<==' || arrowSides === '<==>') {
-                draw_arrowhead(xxx2, xxx1, yyy2, yyy1, amodif);
-            }
-
-            // fix missing paths if we scale down arrows
-            if (arrowScaling < 1.0) {
-                var fixpaths = function(x1, y1, x2, y2) {
-                    csctx.beginPath();
-                    csctx.strokeStyle = col;
-                    csctx.lineWidth = lsize;
-                    csctx.lineCap = 'round';
-                    csctx.moveTo(x1, y1);
-                    csctx.lineTo(x2, y2);
-                    csctx.stroke();
-                };
-
-                if (arrowScaling > 0.5) {
-                    fixpaths(xxx1, yyy1, or_x1, or_y1);
-                    fixpaths(xxx2, yyy2, or_x2, or_y2);
-                } else {
-                    fixpaths(xxx1, yyy1, or_x2, or_y2);
-                    fixpaths(xxx2, yyy2, or_x1, or_y1);
-                }
-
-            }
-
-        } // end isArrow
-
-        //        csctx.strokeStyle="#0000FF";
-        //        csctx.strokeStyle="rgba(0,0,255,0.2)";
-
-        if (dashing)
-            evaluator._helper.unSetDash();
-    }
-
-    function drawsegment(aa, bb) {
-        var v1 = evaluateAndVal(aa);
-        var v2 = evaluateAndVal(bb);
-        var pt1 = evaluator._helper.extractPoint(v1);
-        var pt2 = evaluator._helper.extractPoint(v2);
-        if (!pt1.ok || !pt2.ok) {
-            return nada;
-        }
-
-        drawsegcore(pt1, pt2);
-
-        return nada;
-    }
-
-    function drawline() {
-        var na = CSNumber.abs(v1.value[0]).value.real;
-        var nb = CSNumber.abs(v1.value[1]).value.real;
-        var nc = CSNumber.abs(v1.value[2]).value.real;
-        var divi;
-
-
-        if (na >= nb && na >= nc) {
-            divi = v1.value[0];
-        }
-        if (nb >= na && nb >= nc) {
-            divi = v1.value[1];
-        }
-        if (nc >= nb && nc >= na) {
-            divi = v1.value[2];
-        }
-        var a = CSNumber.div(v1.value[0], divi);
-        var b = CSNumber.div(v1.value[1], divi);
-        var c = CSNumber.div(v1.value[2], divi); //TODO Realitycheck einbauen
-
-
-        var l = [a.value.real,
-            b.value.real,
-            c.value.real
-        ];
-        var b1, b2;
-        if (Math.abs(l[0]) < Math.abs(l[1])) {
-            b1 = [1, 0, 30];
-            b2 = [-1, 0, 30];
-        } else {
-            b1 = [0, 1, 30];
-            b2 = [0, -1, 30];
-        }
-        var erg1 = [
-            l[1] * b1[2] - l[2] * b1[1],
-            l[2] * b1[0] - l[0] * b1[2],
-            l[0] * b1[1] - l[1] * b1[0]
-        ];
-        var erg2 = [
-            l[1] * b2[2] - l[2] * b2[1],
-            l[2] * b2[0] - l[0] * b2[2],
-            l[0] * b2[1] - l[1] * b2[0]
-        ];
-
-
-        var pt1 = {
-            x: erg1[0] / erg1[2],
-            y: erg1[1] / erg1[2]
-        };
-        var pt2 = {
-            x: erg2[0] / erg2[2],
-            y: erg2[1] / erg2[2]
-
-        };
-
-
-        drawsegcore(pt1, pt2);
-
-    }
-
-
-    function drawpoint() {
-        var pt = evaluator._helper.extractPoint(v1);
-
-        if (!pt.ok && typeof(v1.value) !== "undefined") { //eventuell doch ein Segment
-            if (v1.value.length === 2) {
-
-                drawsegment(v1.value[0], v1.value[1]);
-                return;
-
-            }
-            return nada;
-        }
-        var m = csport.drawingstate.matrix;
-
-        var xx = pt.x * m.a - pt.y * m.b + m.tx;
-        var yy = pt.x * m.c - pt.y * m.d - m.ty;
-
-        col = csport.drawingstate.pointcolor;
-        handleModifs("P");
-        csctx.lineWidth = psize * 0.3;
-
-
-        csctx.beginPath();
-        csctx.arc(xx, yy, psize, 0, 2 * Math.PI);
-        csctx.fillStyle = col;
-
-        csctx.fill();
-
-        csctx.beginPath();
-        csctx.arc(xx, yy, psize * 1.15, 0, 2 * Math.PI);
-        csctx.fillStyle = black;
-        csctx.strokeStyle = black;
-        csctx.stroke();
-    }
-
-
-    if (args.length === 2) {
-        return drawsegment(args[0], args[1]);
-    }
-    var v1 = evaluateAndVal(args[0]);
-
-    if (v1.ctype === "shape") {
-        return evaluator._helper.drawshape(v1, modifs);
-
-    }
-
-
-    if (v1.usage === "Line") {
-        return drawline();
-
-    }
-    return drawpoint();
-
+    return nada;
 };
 
-evaluator.draw$2 = evaluator.draw$1; // TODO: perhaps separate these
+evaluator.draw$2 = function(args, modifs) {
+    var v1 = evaluateAndVal(args[0]);
+    var v2 = evaluateAndVal(args[1]);
+    var pt1 = eval_helper.extractPoint(v1);
+    var pt2 = eval_helper.extractPoint(v2);
+    if (!pt1.ok || !pt2.ok) {
+        return nada;
+    }
+    if (modifs !== null) {
+        Render2D.handleModifs(modifs, Render2D.lineModifs);
+    }
+    Render2D.drawsegcore(pt1, pt2);
+    return nada;
+};
 
 evaluator.drawcircle$2 = function(args, modifs) {
-    return evaluator._helper.drawcircle(args, modifs, "D");
+    return eval_helper.drawcircle(args, modifs, "D");
 };
 
 
 evaluator.fillcircle$2 = function(args, modifs) {
-    return evaluator._helper.drawcircle(args, modifs, "F");
+    return eval_helper.drawcircle(args, modifs, "F");
 };
 
-evaluator._helper.drawcircle = function(args, modifs, df) {
-    var erg;
-    var size = 4;
-    var col;
-    var black = "rgb(0,0,0)";
-
-    function handleModifs() {
-        var erg;
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                size = erg.value.real;
-                if (size < 0) size = 0;
-
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return;
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-
-        r = csport.drawingstate.linecolorraw[0] * 255;
-        g = csport.drawingstate.linecolorraw[1] * 255;
-        b = csport.drawingstate.linecolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-    }
-
+eval_helper.drawcircle = function(args, modifs, df) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -662,7 +128,7 @@ evaluator._helper.drawcircle = function(args, modifs, df) {
     }
 
 
-    var pt = evaluator._helper.extractPoint(v0);
+    var pt = eval_helper.extractPoint(v0);
 
 
     if (!pt.ok || v1.ctype !== 'number') {
@@ -673,24 +139,23 @@ evaluator._helper.drawcircle = function(args, modifs, df) {
     var xx = pt.x * m.a - pt.y * m.b + m.tx;
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
-    col = csport.drawingstate.linecolor;
-    handleModifs();
-    csctx.lineWidth = size * 0.3;
-
-
-    csctx.beginPath();
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    var size = 4;
+    if (Render2D.size !== null)
+        size = Render2D.size;
     csctx.lineWidth = size * 0.4;
 
+    csctx.beginPath();
     csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
     //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
 
 
     if (df === "D") {
-        csctx.strokeStyle = col;
+        csctx.strokeStyle = Render2D.lineColor;
         csctx.stroke();
     }
     if (df === "F") {
-        csctx.fillStyle = col;
+        csctx.fillStyle = Render2D.lineColor;
         csctx.fill();
     }
     if (df === "C") {
@@ -701,66 +166,16 @@ evaluator._helper.drawcircle = function(args, modifs, df) {
 };
 
 
-evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
-    var col;
-    var size;
+eval_helper.drawconic = function(aConic, modifs) {
 
-    var handleModifs = function() {
-        var erg;
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                size = erg.value.real;
-                if (size < 0) size = 0;
-
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return "rgba(0,0,255,1)";
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-
-        r = csport.drawingstate.linecolorraw[0] * 255;
-        g = csport.drawingstate.linecolorraw[1] * 255;
-        b = csport.drawingstate.linecolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-
-    }; // end handleModifs
-
-
-    handleModifs();
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    var size = 4;
+    if (Render2D.size !== null)
+        size = Render2D.size;
+    csctx.lineWidth = size * 0.4;
 
     var eps = 1e-16;
-    var mat = args.matrix;
+    var mat = aConic.matrix;
 
     // check for complex values
     for (var i = 0; i < 2; i++)
@@ -905,7 +320,7 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
     };
 
     var drawArray = function(x, y) {
-        csctx.strokeStyle = col;
+        csctx.strokeStyle = Render2D.lineColor;
         csctx.lineWidth = size;
 
         csctx.beginPath();
@@ -1107,334 +522,121 @@ evaluator.drawconic = function(args, modifs) { // TODO: figure out arity
         split_degen();
     }
 
-}; // end evaluator.drawconic
+}; // end eval_helper.drawconic
 
 evaluator.drawall$1 = function(args, modifs) {
     var v1 = evaluate(args[0]);
-    if (v1.ctype === "list") { //TODO: Kann man optimaler implementieren (modifs nur einmal setzen)
+    if (v1.ctype === "list") {
+        Render2D.handleModifs(modifs, Render2D.pointAndLineModifs);
         for (var i = 0; i < v1.value.length; i++) {
-            evaluator.draw$1([v1.value[i]], modifs);
+            evaluator.draw$1([v1.value[i]], null);
         }
     }
     return nada;
 };
 
 evaluator.connect$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "D", false);
+    return eval_helper.drawpolygon(args, modifs, "D", false);
 };
 
 
 evaluator.drawpoly$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "D", true);
+    return eval_helper.drawpolygon(args, modifs, "D", true);
 };
 
 
 evaluator.fillpoly$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "F", true);
+    return eval_helper.drawpolygon(args, modifs, "F", true);
 };
 
 evaluator.drawpolygon$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "D", true);
+    return eval_helper.drawpolygon(args, modifs, "D", true);
 };
 
 
 evaluator.fillpolygon$1 = function(args, modifs) {
-    return evaluator._helper.drawpolygon(args, modifs, "F", true);
+    return eval_helper.drawpolygon(args, modifs, "F", true);
 };
 
 
-evaluator._helper.drawpolygon = function(args, modifs, df, cycle) {
-    var erg;
+eval_helper.drawpolygon = function(args, modifs, df, cycle) {
+
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
     var size = 4;
-    var col;
-    var black = "rgb(0,0,0)";
+    if (Render2D.size !== null)
+        size = Render2D.size;
+    csctx.lineWidth = size * 0.4;
+    csctx.mozFillRule = 'evenodd';
+    csctx.lineJoin = "round";
 
-    function handleModifs() {
-        var erg;
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                size = erg.value.real;
-                if (size < 0) size = 0;
-
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return;
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-
-        r = csport.drawingstate.linecolorraw[0] * 255;
-        g = csport.drawingstate.linecolorraw[1] * 255;
-        b = csport.drawingstate.linecolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-    }
+    var m = csport.drawingstate.matrix;
 
     function drawpolyshape() {
-
-        var m = csport.drawingstate.matrix;
-
         var polys = v0.value;
-        if (df !== "D")
-            csctx.beginPath();
         for (var j = 0; j < polys.length; j++) {
             var pol = polys[j];
-            var li = [],
-                i;
-
+            var i;
             for (i = 0; i < pol.length; i++) {
                 var pt = pol[i];
                 var xx = pt.X * m.a - pt.Y * m.b + m.tx;
                 var yy = pt.X * m.c - pt.Y * m.d - m.ty;
-
-                li[i] = [xx, yy];
+                if (i === 0)
+                    csctx.moveTo(xx, yy);
+                else
+                    csctx.lineTo(xx, yy);
             }
-            col = csport.drawingstate.linecolor;
-            handleModifs();
-            csctx.lineWidth = size * 0.3;
-            csctx.mozFillRule = 'evenodd';
-            csctx.lineJoin = "round";
-            if (df === "D")
-                csctx.beginPath();
-            csctx.lineWidth = size * 0.4;
-            csctx.moveTo(li[0][0], li[0][1]);
-            for (i = 1; i < li.length; i++) {
-                csctx.lineTo(li[i][0], li[i][1]);
-            }
-            if (df === "D") {
-                csctx.closePath();
-                csctx.strokeStyle = col;
-                csctx.stroke();
-            }
-
-        }
-        if (df !== "D")
             csctx.closePath();
-
-        if (df === "F") {
-            csctx.fillStyle = col;
-            csctx.fill();
         }
-        if (df === "C") {
-            csctx.clip();
-        }
-
-
     }
 
-
     function drawpoly() {
-
-        var m = csport.drawingstate.matrix;
-
-        var li = [],
-            i;
+        var i;
         for (i = 0; i < v0.value.length; i++) {
-            var pt = evaluator._helper.extractPoint(v0.value[i]);
-
+            var pt = eval_helper.extractPoint(v0.value[i]);
             if (!pt.ok) {
-                return nada;
+                return;
             }
             var xx = pt.x * m.a - pt.y * m.b + m.tx;
             var yy = pt.x * m.c - pt.y * m.d - m.ty;
-
-            li[i] = [xx, yy];
-        }
-        col = csport.drawingstate.linecolor;
-        handleModifs();
-
-        csctx.lineWidth = size * 0.3;
-        csctx.mozFillRule = 'evenodd';
-
-        csctx.beginPath();
-        csctx.lineWidth = size * 0.4;
-        csctx.moveTo(li[0][0], li[0][1]);
-        for (i = 1; i < li.length; i++) {
-            csctx.lineTo(li[i][0], li[i][1]);
+            if (i === 0)
+                csctx.moveTo(xx, yy);
+            else
+                csctx.lineTo(xx, yy);
         }
         if (cycle)
             csctx.closePath();
-        if (df === "D") {
-            csctx.strokeStyle = col;
-            csctx.stroke();
-        }
-        if (df === "F") {
-            csctx.fillStyle = col;
-            csctx.fill();
-        }
-        if (df === "C") {
-            csctx.clip();
-        }
     }
 
     var v0 = evaluate(args[0]);
+    csctx.beginPath();
     if (v0.ctype === 'list') {
         drawpoly();
     }
     if (v0.ctype === 'shape') {
         drawpolyshape();
     }
+
+    if (df === "D") {
+        csctx.strokeStyle = Render2D.lineColor;
+        csctx.stroke();
+    }
+    if (df === "F") {
+        csctx.fillStyle = Render2D.lineColor;
+        csctx.fill();
+    }
+    if (df === "C") {
+        csctx.clip();
+    }
+
     return nada;
+
 };
 
 
 evaluator.drawtext$2 = function(args, modifs) {
-    var size = csport.drawingstate.textsize;
-    if (size < 0) size = 0;
-
-    var bold = "";
-    var italics = "";
-    var family = "Arial";
-    var align = 0;
-    var ox = 0;
-    var oy = 0;
-
-    function handleModifs() {
-        var erg;
-
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                size = erg.value.real;
-                if (size < 0) size = 0;
-            }
-        }
-
-        if (modifs.bold !== undefined) {
-            erg = evaluate(modifs.bold);
-            if (erg.ctype === 'boolean' && erg.value) {
-                bold = "bold ";
-            }
-        }
-        if (modifs.italics !== undefined) {
-            erg = evaluate(modifs.italics);
-            if (erg.ctype === 'boolean' && erg.value) {
-                italics = "italic ";
-            }
-        }
-
-        if (modifs.family !== undefined) {
-            erg = evaluate(modifs.family);
-            if (erg.ctype === 'string') {
-                family = erg.value;
-            }
-        }
-
-        if (modifs.align !== undefined) {
-            erg = evaluate(modifs.align);
-            if (erg.ctype === 'string') {
-                if (erg.value === "left") {
-                    align = 0;
-                }
-                if (erg.value === "right") {
-                    align = 1;
-                }
-                if (erg.value === "mid") {
-                    align = 0.5;
-                }
-            }
-        }
-
-        if (modifs.x_offset !== undefined) {
-            erg = evaluate(modifs.x_offset);
-            if (erg.ctype === 'number') {
-                ox = erg.value.real;
-            }
-        }
-
-        if (modifs.y_offset !== undefined) {
-            erg = evaluate(modifs.y_offset);
-            if (erg.ctype === 'number') {
-                oy = erg.value.real;
-            }
-        }
-
-        if (modifs.offset !== undefined) {
-            erg = evaluate(modifs.offset);
-            if (erg.ctype === 'list') {
-                if (erg.value.length === 2 &&
-                    erg.value[0].ctype === "number" &&
-                    erg.value[1].ctype === "number") {
-                    ox = erg.value[0].value.real;
-                    oy = erg.value[1].value.real;
-
-                }
-
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return;
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-
-        r = csport.drawingstate.textcolorraw[0] * 255;
-        g = csport.drawingstate.textcolorraw[1] * 255;
-        b = csport.drawingstate.textcolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-    }
-
-
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluate(args[1]);
-    var pt = evaluator._helper.extractPoint(v0);
+    var pt = eval_helper.extractPoint(v0);
 
     if (!pt.ok) {
         return nada;
@@ -1446,47 +648,52 @@ evaluator.drawtext$2 = function(args, modifs) {
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
     var col = csport.drawingstate.textcolor;
-    handleModifs();
-    csctx.fillStyle = col;
+    Render2D.handleModifs(modifs, Render2D.textModifs);
+    var size = csport.drawingstate.textsize;
+    if (Render2D.size !== null) size = Render2D.size;
+    csctx.fillStyle = Render2D.textColor;
 
-    csctx.font = bold + italics + Math.round(size * 10) / 10 + "px " + family;
+    csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
     var txt = niceprint(v1);
     var width = csctx.measureText(txt).width;
-    csctx.fillText(txt, xx - width * align + ox, yy - oy);
+    csctx.fillText(
+        txt,
+        xx - width * Render2D.align + Render2D.xOffset,
+        yy - Render2D.yOffset);
 
     return nada;
 
 };
 
-evaluator._helper.drawshape = function(shape, modifs) {
+eval_helper.drawshape = function(shape, modifs) {
     if (shape.type === "polygon") {
-        return evaluator._helper.drawpolygon([shape], modifs, "D", 1);
+        return eval_helper.drawpolygon([shape], modifs, "D", 1);
     }
     if (shape.type === "circle") {
-        return evaluator._helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "D");
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "D");
     }
     return nada;
 };
 
 
-evaluator._helper.fillshape = function(shape, modifs) {
+eval_helper.fillshape = function(shape, modifs) {
 
     if (shape.type === "polygon") {
-        return evaluator._helper.drawpolygon([shape], modifs, "F", 1);
+        return eval_helper.drawpolygon([shape], modifs, "F", 1);
     }
     if (shape.type === "circle") {
-        return evaluator._helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "F");
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "F");
     }
     return nada;
 };
 
 
-evaluator._helper.clipshape = function(shape, modifs) {
+eval_helper.clipshape = function(shape, modifs) {
     if (shape.type === "polygon") {
-        return evaluator._helper.drawpolygon([shape], modifs, "C", 1);
+        return eval_helper.drawpolygon([shape], modifs, "C", 1);
     }
     if (shape.type === "circle") {
-        return evaluator._helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "C");
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "C");
     }
     return nada;
 };
@@ -1495,7 +702,7 @@ evaluator._helper.clipshape = function(shape, modifs) {
 evaluator.fill$1 = function(args, modifs) {
     var v1 = evaluate(args[0]);
     if (v1.ctype === "shape") {
-        return evaluator._helper.fillshape(v1, modifs);
+        return eval_helper.fillshape(v1, modifs);
     }
     return nada;
 };
@@ -1504,7 +711,7 @@ evaluator.fill$1 = function(args, modifs) {
 evaluator.clip$1 = function(args, modifs) {
     var v1 = evaluate(args[0]);
     if (v1.ctype === "shape") {
-        return evaluator._helper.clipshape(v1, modifs);
+        return eval_helper.clipshape(v1, modifs);
     }
     if (v1.ctype === "list") {
         var erg = evaluator.polygon$1(args, []);
@@ -1512,53 +719,6 @@ evaluator.clip$1 = function(args, modifs) {
     }
     return nada;
 };
-
-
-evaluator._helper.setDash = function(pattern, size) {
-    var s = Math.sqrt(size);
-    for (var i = 0; i < pattern.length; i++) {
-        pattern[i] *= s;
-    }
-    if (!csctx.setLineDash) {
-        csctx.setLineDash = function() {};
-
-    }
-    csctx.webkitLineDash = pattern; //Safari
-    csctx.setLineDash(pattern); //Chrome
-    csctx.mozDash = pattern; //FFX
-};
-
-evaluator._helper.unSetDash = function() {
-    if (!csctx.setLineDash) {
-        csctx.setLineDash = function() {};
-
-    }
-    csctx.webkitLineDash = []; //Safari
-    csctx.setLineDash([]); //Chrome
-    csctx.mozDash = []; //FFX
-};
-
-
-evaluator._helper.setDashType = function(type, s) {
-
-    if (type === 0) {
-        evaluator._helper.setDash([]);
-    }
-    if (type === 1) {
-        evaluator._helper.setDash([10, 10], s);
-    }
-    if (type === 2) {
-        evaluator._helper.setDash([10, 4], s);
-    }
-    if (type === 3) {
-        evaluator._helper.setDash([1, 3], s);
-    }
-    if (type === 4) {
-        evaluator._helper.setDash([10, 5, 1, 5], s);
-    }
-
-};
-
 
 ///////////////////////////////////////////////
 ////// FUNCTION PLOTTING    ///////////////////
@@ -1582,129 +742,13 @@ evaluator.plot$2 = function(args, modifs) {
     var step = 1;
     var steps = 1000;
 
-
-    function handleModifs(type) {
-        var erg;
-
-        if (modifs.size !== undefined) {
-            erg = evaluate(modifs.size);
-            if (erg.ctype === 'number') {
-                lsize = erg.value.real;
-                if (lsize < 0) lsize = 0;
-            }
-
-        }
-
-
-        if (modifs.dashpattern !== undefined) {
-            erg = evaluate(modifs.dashpattern);
-            if (erg.ctype === 'list') {
-                var pat = [];
-                for (var i = 0; i < erg.value.length; i++) {
-                    pat[i] = erg.value[i].value.real;
-                }
-                evaluator._helper.setDash(pat, lsize);
-                dashing = true;
-            }
-        }
-
-
-        if (modifs.dashtype !== undefined) {
-            erg = evaluate(modifs.dashtype);
-            if (erg.ctype === 'number') {
-                var type2 = Math.floor(erg.value.real);
-                evaluator._helper.setDashType(type2, lsize);
-                dashing = true;
-
-
-            }
-        }
-
-        if (modifs.dashing !== undefined) {
-            erg = evaluate(modifs.dashing);
-            if (erg.ctype === 'number') {
-                var si = Math.floor(erg.value.real);
-                evaluator._helper.setDash([si * 2, si], lsize);
-                dashing = true;
-
-
-            }
-        }
-
-
-        if (modifs.connect !== undefined) {
-            erg = evaluate(modifs.connect);
-            if (erg.ctype === 'boolean') {
-                connectb = erg.value;
-            }
-        }
-
-        if (modifs.start !== undefined) {
-            erg = evaluate(modifs.start);
-            if (erg.ctype === 'number') {
-                start = erg.value.real;
-            }
-        }
-
-        if (modifs.stop !== undefined) {
-            erg = evaluate(modifs.stop);
-            if (erg.ctype === 'number') {
-                stop = erg.value.real;
-            }
-        }
-
-        if (modifs.steps !== undefined) {
-            erg = evaluate(modifs.steps);
-            if (erg.ctype === 'number') {
-                steps = erg.value.real;
-            }
-        }
-
-
-        if (modifs.color === undefined && modifs.alpha === undefined) {
-            return;
-        }
-
-
-        var r = 0;
-        var g = 0;
-        var b = 0;
-        var alpha = csport.drawingstate.alpha;
-        r = csport.drawingstate.linecolorraw[0] * 255;
-        g = csport.drawingstate.linecolorraw[1] * 255;
-        b = csport.drawingstate.linecolorraw[2] * 255;
-
-        if (modifs.color !== undefined) {
-            erg = evaluate(modifs.color);
-            if (List.isNumberVector(erg).value) {
-                if (erg.value.length === 3) {
-                    r = Math.floor(erg.value[0].value.real * 255);
-                    g = Math.floor(erg.value[1].value.real * 255);
-                    b = Math.floor(erg.value[2].value.real * 255);
-
-                }
-
-            }
-        }
-
-
-        if (modifs.alpha !== undefined) {
-            erg = evaluate(modifs.alpha);
-            if (erg.ctype === "number") {
-                alpha = erg.value.real;
-            }
-        }
-        col = "rgba(" + r + "," + g + "," + b + "," + alpha + ")"; //TODO Performanter machen
-    }
-
-
     var v1 = args[0];
     var runv;
     if (args[1] !== null && args[1].ctype === 'variable') {
         runv = args[1].name;
 
     } else {
-        var li = evaluator._helper.plotvars(v1);
+        var li = eval_helper.plotvars(v1);
         runv = "#";
         if (li.indexOf("t") !== -1) {
             runv = "t";
@@ -1726,11 +770,36 @@ evaluator.plot$2 = function(args, modifs) {
     var col = csport.drawingstate.linecolor;
     var lsize = 1;
 
-    handleModifs();
+    Render2D.handleModifs(modifs, {
+        "color": true,
+        "alpha": true,
+        "size": true,
+        "dashpattern": true,
+        "dashtype": true,
+        "dashing": true,
 
+        "connect": function(v) {
+            if (v.ctype === 'boolean')
+                connectb = v.value;
+        },
 
-    csctx.strokeStyle = col;
-    csctx.lineWidth = lsize;
+        "start": function(v) {
+            if (v.ctype === 'number')
+                start = v.value.real;
+        },
+
+        "stop": function(v) {
+            if (v.ctype === 'number')
+                stop = v.value.real;
+        },
+
+        "steps": function(v) {
+            if (v.ctype === 'number')
+                steps = v.value.real;
+        },
+    });
+    csctx.strokeStyle = Render2D.lineColor;
+    csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = 'round';
     csctx.lineJoin = 'round';
 
@@ -1881,8 +950,6 @@ evaluator.plot$2 = function(args, modifs) {
 
             }
         }
-        if (dashing)
-            evaluator._helper.unSetDash();
         return nada;
     }
 
@@ -1911,10 +978,7 @@ evaluator.plot$2 = function(args, modifs) {
     if (stroking)
         csctx.stroke();
 
-    if (dashing)
-        evaluator._helper.unSetDash();
     return nada;
-
 };
 
 
@@ -1922,7 +986,7 @@ evaluator.plotX$1 = function(args, modifs) { //OK
 
 
     var v1 = args[0];
-    var li = evaluator._helper.plotvars(v1);
+    var li = eval_helper.plotvars(v1);
     var runv = "#";
     if (li.indexOf("t") !== -1) {
         runv = "t";
@@ -1980,7 +1044,7 @@ evaluator.plotX$1 = function(args, modifs) { //OK
 };
 
 
-evaluator._helper.plotvars = function(a) {
+eval_helper.plotvars = function(a) {
     function merge(x, y) {
         var obj = {},
             i;
@@ -2014,8 +1078,8 @@ evaluator._helper.plotvars = function(a) {
     }
 
     if (a.ctype === 'infix') {
-        l1 = evaluator._helper.plotvars(a.args[0]);
-        l2 = evaluator._helper.plotvars(a.args[1]);
+        l1 = eval_helper.plotvars(a.args[0]);
+        l2 = eval_helper.plotvars(a.args[1]);
         return merge(l1, l2);
     }
 
@@ -2023,7 +1087,7 @@ evaluator._helper.plotvars = function(a) {
         els = a.value;
         li = [];
         for (j = 0; j < els.length; j++) {
-            l1 = evaluator._helper.plotvars(els[j]);
+            l1 = eval_helper.plotvars(els[j]);
             li = merge(li, l1);
         }
         return li;
@@ -2033,7 +1097,7 @@ evaluator._helper.plotvars = function(a) {
         els = a.args;
         li = [];
         for (j = 0; j < els.length; j++) {
-            l1 = evaluator._helper.plotvars(els[j]);
+            l1 = eval_helper.plotvars(els[j]);
             li = merge(li, l1);
 
         }

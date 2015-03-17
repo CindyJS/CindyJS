@@ -55,7 +55,7 @@ function evaluate(a) {
 
     if (a.ctype === 'function') {
         var eargs = [];
-        return evaluator._helper.evaluate(a.oper, a.args, a.modifs);
+        return eval_helper.evaluate(a.oper, a.args, a.modifs);
     }
     return nada;
 
@@ -194,7 +194,7 @@ function generateInfix(oper, f1, f2) {
     var erg = {};
     erg.ctype = 'infix';
     erg.oper = oper;
-    erg.impl = evaluator[infixmap[oper]];
+    erg.impl = infixmap[oper];
     erg.args = [f1, f2];
     return erg;
 }

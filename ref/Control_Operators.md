@@ -192,14 +192,87 @@ This operator is identical to the operator `repeat(‹number›,‹expr›)`, ex
 This allows for the use of nested loops with different run variables.
 
 **Example:**
-This code fragment will draw a 10 × 10 array of points.
+This code fragment will draw a 3 × 3 array of points.
 
-    - skip test: we can't use drawing commands in test suite.
-    > repeat(10,i,
-    >    repeat(10,j,
+    > repeat(3,i,
+    >    repeat(3,j,
     >       draw((i,j))
     >    )
-    > )
+    > );
+    D lineWidth = 1.2
+    D beginPath()
+    D arc(275, 205, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(275, 205, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D strokeStyle = "rgb(0,0,0)"
+    D stroke()
+    D beginPath()
+    D arc(275, 180, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(275, 180, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D stroke()
+    D beginPath()
+    D arc(275, 155, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(275, 155, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D stroke()
+    D beginPath()
+    D arc(300, 205, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(300, 205, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D stroke()
+    D beginPath()
+    D arc(300, 180, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(300, 180, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D stroke()
+    D beginPath()
+    D arc(300, 155, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(300, 155, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D stroke()
+    D beginPath()
+    D arc(325, 205, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(325, 205, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D stroke()
+    D beginPath()
+    D arc(325, 180, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(325, 180, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D stroke()
+    D beginPath()
+    D arc(325, 155, 4, 0, 6.283185307179586)
+    D fillStyle = "rgb(255,200,0)"
+    D fill()
+    D beginPath()
+    D arc(325, 155, 4.6, 0, 6.283185307179586)
+    D fillStyle = "rgb(0,0,0)"
+    D stroke()
 
 The variable is restricted to the local scope:
 
