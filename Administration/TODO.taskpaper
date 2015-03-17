@@ -1,0 +1,73 @@
+TODO:
+
+- min,max mit zwei argumenten @done(2015-02-10) @commit(5f734a5) @Martin
+- Soddy: warum muss d in dd umbenannt werden?
+- Soddy: Situation mit Gerade geht nicht
+
+- A.x=5; Tut‘s nicht
+- PointOnCircle tut‘s nicht
+- play->pause->play->stop logic @done(2015-02-13) @commit(e51650c) @Martin
+- perp mit zwei Elementen tut‘s nicht
+
+High Priority:
+
+- Layers @L
+- Function plot (basic) @L
+- Ableitung (basic) @L
+- Sensoren / Multitouch @L
+- all… @S
+- Hashtables @M
+- Console @S
+- Tracing (basic) @L
+- Locus @L
+- Conic… @Michael @S
+- Polar @S
+- Messfkt. (basic) @S
+- Arc(P,P,P) @M
+- Transformationen @S
+- Möbius @L
+- Abb. unter Trafo @S
+- Segment (via, proj. Trafo) @M
+- Colorplot (WebGL) @Jürgen @XL
+- IFS @L @Aaron
+- Musik (MIDI / WebAL) @XXL
+- Cindy3D @Martin @XL
+- Roots @Stefan @done(2015-03-17) @L
+- Complex L.A. @XL
+- Feldzugriff @S
+- is-Operatoren @S
+- Timer vs. Repaint (threads) @XL
+- Canvas / Images (WebGL) @XL
+- Renderingstate @S
+- Multitouch @L
+- Velocity @S
+- Gravity @S
+- Damping @S
+
+Medium Priority:
+
+- Function plot (full) @XL
+- Trigger @S
+- Ableitung (full) @XL
+- Angle bisector @M
+- Tracing (full) @XXL
+- Messfkt. (full) @M
+- Reg. Poly.
+- Animation @XL
+- Transformationsgruppen @L
+- Vektorfelder LIC/Stream @XL
+- TeX @XL
+- Unicode @S
+- Magnetfeld @S
+
+Low Priority:
+
+- Fillplot @M
+- Drawcurves @M
+- Save / Load @S
+- Guess / PSLQ @M
+- Convex Hull 3D: Degen @L
+- Line fixed angle @M
+- create, createpoint, … @S
+- inspect @S
+- geo.visible = bool @S

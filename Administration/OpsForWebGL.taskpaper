@@ -1,0 +1,151 @@
+Ops for WebGL:
+
+- ("abs", 1, OpAbs.class); 
+-      real->real
+-      complex->real
+-      vec2->real
+-      vec3->real
+
+- ("sqrt", 1, OpSqrt.class);
+- ("arccos", 1, OpArcCos.class); 
+- ("arcsin", 1, OpArcSin.class); 
+- ("log", 1, OpLog.class);
+-      real->complex
+-      complex->complex
+
+
+- ("arctan", 1, OpArcTan.class); 
+-      real->real
+-      complex->complex
+
+ 
+- ("exp", 1, OpExp.class);
+- ("sin", 1, OpSin.class); 
+- ("cos", 1, OpCos.class); 
+- ("tan", 1, OpTan.class); 
+-      real->real
+-      complex->complex
+
+ 
+- ("arctan2", 2, OpArcTan2.class); 
+- ("arctan2", 1, OpArcTan2_1.class); 
+        
+
+- ("add", 2, OpPlus.class); 
+- ("sub", 2, OpMinus.class); 
+- ("mult", 2, OpTimes.class); 
+- ("div", 2, OpQuot.class); 
+- ("pow", 2, OpPow.class); 
+- ("re", 1, OpRe.class); 
+- ("conjugate", 1, OpConjugate.class);
+- ("im", 1, OpIm.class); 
+- ("round", 1, OpRound.class); 
+- ("floor", 1, OpFloor.class); 
+- ("ceil", 1, OpCeil.class); 
+- ("mod", 2, OpMod.class); 
+- ("random", 1, OpRandom.class); 
+- ("randominteger", 1, OpRandomInteger.class); 
+- ("randomint", 1, OpRandomInteger.class); 
+- ("seedrandom", 1, OpSeedRandom.class); 
+- ("random", 0, OpRandom0.class); 
+- ("randombool", 0, OpRandomBool.class); 
+- ("randomnormal", 0, OpRandomNormal.class); 
+
+- ("dist", 2, OpDist.class);
+- ("perp", 2, OpPerp2.class);
+- ("perpendicular", 2, OpPerp2.class);
+- ("parallel", 2, OpPara.class);
+- ("para", 2, OpPara.class);
+- ("meet", 2, OpMeet.class);
+- ("join", 2, OpJoin.class);
+- ("area", 3, OpArea.class);
+- ("complex", 1, OpComplexFromPt.class);
+- ("gauss", 1, OpPtFromComplex.class);
+- ("perp", 1, OpPerp.class);
+- ("perpendicular", 1, OpPerp.class);
+- ("det", 3, OpDet3.class);
+- ("cross", 2, OpCross.class);
+- ("crossratio", 4, OpCrossRatio.class);
+
+Predicates:
+- ("isinteger", 1, OpIsInteger.class);
+- ("isreal", 1, OpIsReal.class);
+- ("iscomplex", 1, OpIsComplex.class);
+- ("iseven", 1, OpIsEven.class);
+- ("isodd", 1, OpIsOdd.class);
+       
+Boolean  Functions:
+- ("not", 1, OpNot.class);
+- ("and", 2, OpAnd.class);
+- ("or", 2, OpOr.class);
+- ("xor", 2, OpXor.class);
+
+Color functions:
+- ("red", 1, OpRed.class);
+- ("green", 1, OpGreen.class);
+- ("blue", 1, OpBlue.class);
+- ("gray", 1, OpGray.class);
+- ("grey", 1, OpGray.class);
+- ("hue", 1, OpHue.class);
+
+- ("if", 3, OpIfElse.class);  error
+- ("if", 2, OpIf.class);  error
+- ("while", 2, OpWhile.class); 
+- ("repeat", 2, OpRepeat.class); 
+- ("repeat", 3, OpRepeatVar.class); 
+- ("forall", 2, OpForall.class); 
+- ("forall", 3, OpForallVar.class); 
+
+- ("select", 2, OpSelect.class); 
+- ("select", 3, OpSelectVar.class); 
+- ("apply", 2, OpApply.class);
+- ("apply", 3, OpApplyVar.class);
+
+- ("pairs", 1, OpPairs.class);
+- ("directproduct", 2, OpDirectProduct.class);
+- ("triples", 1, OpTriples.class);
+- ("consecutive", 1, OpConsecutive.class);
+- ("cycle", 1, OpCycle.class);
+- ("reverse", 1, OpReverse.class);
+- ("set", 1, OpSet.class);
+- ("sort", 1, OpSort.class);
+- ("sort", 2, OpSortByVal.class);
+- ("sort", 3, OpSortValVar.class);
+
+- ("sum", 1, OpSum.class);
+- ("sum", 2, OpSumFun.class);
+- ("sum", 3, OpSumFunVar.class);
+- ("product", 1, OpProd.class);
+- ("product", 2, OpProdFun.class);
+- ("product", 3, OpProdFunVar.class);
+- ("max", 1, OpMax.class);
+- ("max", 2, OpMaxFun.class);
+- ("max", 3, OpMaxFunVar.class);
+- ("min", 1, OpMin.class);
+- ("min", 2, OpMinFun.class);
+- ("min", 3, OpMinFunVar.class);
+- ("matrixrowcolumn", 1, OpMatrixRowColumn.class);
+- ("transpose", 1, OpTranspose.class);
+- ("adj", 1, OpAdjoint.class);
+- ("inverse", 1, OpInverse.class);
+- ("eigenvectors", 1, OpEigenvectors.class);
+- ("eigenvalues", 1, OpEigenvalues.class);
+- ("linearsolve", 2, OpLinearSolve.class);
+- ("row", 2, OpRow.class);
+- ("column", 2, OpColumn.class);
+- ("submatrix", 3, OpSubmatrix.class);
+- ("zerovector", 1, OpZeroVector.class);
+- ("zeromatrix", 2, OpZeroMatrix.class);
+- ("det", 1, OpDetJampack.class);
+- ("rowmatrix", 1, OpRowMatrix.class);
+- ("columnmatrix", 1, OpColumnMatrix.class);
+- ("map", 2, OpTransform2.class);
+- ("map", 4, OpTransform4.class);
+- ("map", 6, OpTransform6.class);
+- ("map", 8, OpTransform8.class);
+- ("pointreflect", 1, OpReflectPoint.class);
+- ("linereflect", 1, OpReflectLine.class);
+- ("roots", 1, OpPolynomialRoot.class);
+
+- ("hermitianproduct", 2, OpScalProd.class);
+- ("hermiteanproduct", 2, OpScalProd.class);
