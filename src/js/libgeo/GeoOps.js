@@ -509,6 +509,79 @@ geoOps.ConicBy4p1l = function(el) {
 };
 geoOpMap.ConicBy4p1l = "T";
 
+geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
+    // see http://math.stackexchange.com/a/1187525/35416
+    var l = List.cross(a, b);
+    var gh = List.cross(g, h);
+    var gl = List.cross(g, l);
+    var hl = List.cross(h, l);
+    var m1 = List.turnIntoCSList([gl, hl, gh]);
+    var s1 = List.productVM(c, List.adjoint3(m1))
+    var m2 = List.adjoint3(List.turnIntoCSList([
+        List.scalmult(s1.value[0], gl),
+        List.scalmult(s1.value[1], hl),
+        List.scalmult(s1.value[2], gh)]));
+    var m3 = List.transpose(m2);
+    var mul = CSNumber.mult;
+    var aa = List.productMV(m3, a), a1 = aa.value[0], a2 = aa.value[1];
+    var bb = List.productMV(m3, b), b1 = bb.value[0], b2 = bb.value[1];
+    // assert: aa.value[2] and bb.value[2] are zero
+    var a3a = CSNumber.sqrt(mul(a1, a2)), b3a = CSNumber.sqrt(mul(b1, b2));
+    var signs, res = Array(4);
+    for (signs = 0; signs < 4; ++signs) {
+        var sa = ((signs & 1) << 1) - 1, sb = (signs & 2) - 1;
+        var a3 = mul(CSNumber.real(sa), a3a);
+        var b3 = mul(CSNumber.real(sb), b3a);
+        var p1 = det2(a2, a3, b2, b3);
+        var p2 = det2(b1, b3, a1, a3);
+        var p3 = det2(a1, a2, b1, b2);
+        var p4 = CSNumber.add(
+            CSNumber.add(
+                det2(b1, b2, a1, a2),
+                det2(b2, b3, a2, a3)),
+            det2(b3, b1, a3, a1));
+        var xx = mul(p1, p1), yy = mul(p2, p2), zz = mul(p4, p4);
+        var xy = mul(p1, p2), xz = mul(p1, p4), yz = mul(p2, p4);
+        xy = CSNumber.sub(xy, mul(CSNumber.real(0.5), mul(p3, p3)));
+        var mm = List.turnIntoCSList([
+            List.turnIntoCSList([xx, xy, xz]),
+            List.turnIntoCSList([xy, yy, yz]),
+            List.turnIntoCSList([xz, yz, zz])
+        ]);
+        var cc = List.realVector([1,1,1]);
+        mm = List.productMM(m2, List.productMM(mm, m3));
+        res[signs] = mm;
+    }
+    return res;
+    function det2(a, b, c, d) {
+        return CSNumber.sub(CSNumber.mult(a, d), CSNumber.mult(b, c));
+    }
+};
+
+geoOps.ConicBy3p2l = function(el) {
+    var a = csgeo.csnames[(el.args[0])].homog;
+    var b = csgeo.csnames[(el.args[1])].homog;
+    var c = csgeo.csnames[(el.args[2])].homog;
+    var g = csgeo.csnames[(el.args[3])].homog;
+    var h = csgeo.csnames[(el.args[4])].homog;
+    el.results = geoOps._helper.ConicBy3p2l(a, b, c, g, h);
+};
+geoOpMap.ConicBy3p2l = "T";
+
+geoOps.ConicBy2p3l = function(el) {
+    var a = csgeo.csnames[(el.args[0])].homog;
+    var b = csgeo.csnames[(el.args[1])].homog;
+    var g = csgeo.csnames[(el.args[2])].homog;
+    var h = csgeo.csnames[(el.args[3])].homog;
+    var l = csgeo.csnames[(el.args[4])].homog;
+    var dual = geoOps._helper.ConicBy3p2l(g, h, l, a, b);
+    var res = Array(4);
+    for (var i = 0; i < 4; ++i)
+        res[i] = List.normalizeMax(List.adjoint3(dual[i]));
+    el.results = res;
+};
+geoOpMap.ConicBy2p3l = "T";
+
 geoOps.ConicBy1p4l = function(el) {
     var l1 = csgeo.csnames[(el.args[0])].homog;
     var l2 = csgeo.csnames[(el.args[1])].homog;
