@@ -5,6 +5,9 @@
     <meta charset="utf-8"/>
     <script src="../build/js/Cindy.plain.js"></script>
     <script>
+      var cindy = createCindy({
+        canvasname:"Cindy"
+      });
       document.addEventListener("DOMContentLoaded", function() {
         var log, inp;
         log = document.getElementById("log");
@@ -18,13 +21,9 @@
           s.appendChild(p1);
           log.appendChild(s);
           console.log(i);
-          var c1 = condense(i);
-          console.log(c1);
-          var c2 = analyse(c1);
-          console.log(c2);
-          var o1 = evaluate(c2);
+          var o1 = cindy.evalcs(i);
           console.log(o1);
-          var o2 = niceprint(o1);
+          var o2 = cindy.niceprint(o1);
           console.log(o2);
           var t2 = document.createTextNode("< " + o2);
           var p2 = document.createElement("p");
@@ -40,5 +39,6 @@
     <span id="log"></span>
     <input id="inp" type="text">
     <input id="do" type="button" value="DO">
+    <canvas id="Cindy" style="display:none" width="1" height="1">
   </body>
 </html>

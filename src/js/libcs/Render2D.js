@@ -60,7 +60,11 @@ Render2D.handleModifs = function(modifs, handlers) {
         Render2D.textColor =
             Render2D.makeColor(csport.drawingstate.textcolorraw);
     }
-    Render2D.black = "rgba(0,0,0," + Render2D.alpha + ")";
+    if (Render2D.alpha === 1) {
+        Render2D.black = "rgb(0,0,0)";
+    } else {
+        Render2D.black = "rgba(0,0,0," + Render2D.alpha + ")";
+    }
 
 };
 

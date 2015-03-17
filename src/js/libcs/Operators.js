@@ -2551,6 +2551,65 @@ evaluator.parse$1 = function(args, modifs) {
     return nada;
 };
 
+evaluator.unicode$1 = function(args, modifs) {
+    var arg = evaluate(args[0]), codepoint, str, base = modifs.base || 16;
+    if (arg.ctype === 'string') {
+        codepoint = parseInt(arg.value, base);
+    } else if (arg.ctype === 'number') {
+        codepoint = arg.value.real;
+    } else {
+        return nada;
+    }
+    if (typeof String.fromCodePoint !== undefined) {
+        str = String.fromCodePoint(codepoint);
+    } else if (codepoint <= 0xffff) {
+        str = String.fromCharCode(codepoint);
+    } else {
+        var cp = codepoint - 0x10000;
+        var hi = (cp >> 10) + 0xd800;
+        var lo = (cp & 0x3ff) + 0xdc00;
+        str = String.fromCharCode(hi, lo);
+    }
+    return General.string(str);
+};
+
+evaluator.tr$1 = function(args, modifs) {
+    return evaluator.tr$2([args[0], null], modifs);
+};
+
+function defaultPluralForm(cnt) {
+    return cnt == 1 ? 0 : 1;
+}
+
+evaluator.tr$2 = function(args, modifs) {
+    var arg = evaluate(args[0]);
+    if (arg.ctype !== "string") return nada;
+    var language = instanceInvocationArguments.language || "en";
+    var tr = instanceInvocationArguments.translations || {};
+    var trl = tr[language] || {};
+    if (!trl.hasOwnProperty(arg.value)) return arg;
+    var entry = trl[arg.value];
+    if (typeof entry === "string")
+        return General.string(entry);
+    var pluralform = 0;
+    if (args[1] === null)
+        return arg;
+    var count = evaluate(args[1]);
+    if (count.ctype === "number")
+        count = count.value.real;
+    else
+        count = 0;
+    var pluralFormFunction = trl._pluralFormFunction || defaultPluralForm;
+    var pluralForm = pluralFormFunction(count);
+    if (pluralForm < entry.length)
+        return General.string(entry[pluralForm]);
+    return arg;
+};
+
+evaluator.currentlanguage$0 = function(args, modifs) {
+    return General.string(instanceInvocationArguments.language || "en");
+};
+
 ///////////////////////////////
 //     Transformations       //
 ///////////////////////////////

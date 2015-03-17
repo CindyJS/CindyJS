@@ -192,9 +192,8 @@ TestCase.prototype.run = function() {
       return false;
     }
   }
-  if (this.draw !== null || fakeCanvas._log.length !== 0) {
+  if (this.draw !== null) {
     expected = this.draw;
-    if (expected === null) expected = [];
     if (expected.join("\n") !== fakeCanvas._log.join("\n")) {
       println("Location:  " + this.filename + ":" + this.lineno);
       println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
@@ -266,6 +265,9 @@ FakeCanvas.prototype.writeLog = function(methodName, args) {
   this._log.push(methodName + "(" +
                  map.call(args, JSON.stringify).join(", ") + ")");
 };
+FakeCanvas.prototype.measureText = function(txt) {
+  return 8*txt.length;
+};
 [ "arc",
   "beginPath",
   "clearRect",
@@ -277,6 +279,8 @@ FakeCanvas.prototype.writeLog = function(methodName, args) {
   "restore",
   "save",
   "stroke",
+  "strokeText",
+  "fillText",
 ].forEach(function(m) {
   FakeCanvas.prototype[m] = function() {
     this.writeLog(m, arguments);

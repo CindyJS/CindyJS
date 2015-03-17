@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+drawtext([-6, -6], tr("current language: ") + currentlanguage());
+
+
+</script>
+<script type="text/javascript">
+
+var tr = {
+  "de": {
+    "current language: ": "Aktuelle Sprache: ",
+  },
+};
+
+createCindy({
+  canvasname: "enCindy",
+  scripts: "cs*",
+  translations: tr,
+  defaultAppearance: { },
+});
+
+createCindy({
+  canvasname: "deCindy",
+  scripts: "cs*",
+  language: "de",
+  translations: tr,
+  defaultAppearance: { },
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <pre>
+    <canvas id="enCindy" width="500" height="200"
+            style="border:2px solid black"></canvas>
+  </pre>
+  <pre>
+    <canvas id="deCindy" width="500" height="200"
+            style="border:2px solid black"></canvas>
+  </pre>
+</body>
+
+</html>
