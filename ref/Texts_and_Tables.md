@@ -44,6 +44,36 @@ The code
     >   bold->true,
     >   color->(1-i/10,0,i/10))
     > )
+    D fillStyle = "rgba(229,0,25,1)"
+    D font = "bold 17px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(204,0,51,1)"
+    D font = "bold 19px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(178,0,76,1)"
+    D font = "bold 21px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(153,0,102,1)"
+    D font = "bold 23px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(127,0,127,1)"
+    D font = "bold 25px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(101,0,153,1)"
+    D font = "bold 27px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(76,0,178,1)"
+    D font = "bold 29px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(50,0,204,1)"
+    D font = "bold 31px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(25,0,229,1)"
+    D font = "bold 33px Arial"
+    D fillText("Text", null, 230)
+    D fillStyle = "rgba(0,0,255,1)"
+    D font = "bold 35px Arial"
+    D fillText("Text", null, 230)
 
 produces the picture below.
 
@@ -59,6 +89,9 @@ By this it is easy to produce multilined text, as the following piece of code sh
     > are really used as line terminators.
     > So this text will appear as a
     > multilined text.")
+    D fillStyle = "rgb(0,0,0)"
+    D font = "18px Arial"
+    D fillText("In Cinderella 'newlines' in Text\nare really used as line terminators.\nSo this text will appear as a\nmultilined text.", null, 230)
 
 | ![Image](img/Newlines.png) |
 | -------------------------- |
@@ -73,6 +106,7 @@ This operator produces a list of all font families that are available on your co
 Usually this will be quite a lot.
 The following piece of code displays the names of some of these font families in their own font style.
 
+    - skip test: fontfamilies() not implemented
     > families=fontfamilies();
     > i=0;
     > while(length(families)>i,i=i+1;
@@ -97,8 +131,14 @@ The base can be changed by a modifier.
 
 The base of the unicode description can be changed with the `base` modifier.
 
-**Example:**
-Both `unicode("0041")` and `unicode("65",base->10)` produce the character "A".
+    > unicode("0041")
+    < "A"
+    > unicode("65",base->10)
+    < "A"
+    > unicode("263a")
+    < "☺"
+    > unicode("1F603")
+    < "😃"
 
 ------
 
@@ -119,6 +159,7 @@ Modifiers can be used to fine tune the appearance of the table.
 **Example:**
 The following code produces the picture below:
 
+    - skip test: drawtable not implemented yet
     > x=1..10;
     > table=apply(x,(#,#^2,#^3,#^4));
     > drawtable((0,0),table);
@@ -151,6 +192,7 @@ The following code is a more elaborate example using the `drawtable` operator.
 modifiers are used to create a nice appearance of the tables.
 A second table is used to create a heading for the table.
 
+    - skip test: drawtable not implemented yet
     > x=1..9;
     > tab=apply(x,(#,#^2,#^3,#^4));
     > tab1=("x","$x^2$","$x^3$","$x^4$");

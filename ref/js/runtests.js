@@ -265,6 +265,9 @@ FakeCanvas.prototype.writeLog = function(methodName, args) {
   this._log.push(methodName + "(" +
                  map.call(args, JSON.stringify).join(", ") + ")");
 };
+FakeCanvas.prototype.measureText = function(txt) {
+  return 8*txt.length;
+};
 [ "arc",
   "beginPath",
   "clearRect",
@@ -276,6 +279,8 @@ FakeCanvas.prototype.writeLog = function(methodName, args) {
   "restore",
   "save",
   "stroke",
+  "strokeText",
+  "fillText",
 ].forEach(function(m) {
   FakeCanvas.prototype[m] = function() {
     this.writeLog(m, arguments);

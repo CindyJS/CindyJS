@@ -2551,6 +2551,28 @@ evaluator.parse$1 = function(args, modifs) {
     return nada;
 };
 
+evaluator.unicode$1 = function(args, modifs) {
+    var arg = evaluate(args[0]), codepoint, str, base = modifs.base || 16;
+    if (arg.ctype === 'string') {
+        codepoint = parseInt(arg.value, base);
+    } else if (arg.ctype === 'number') {
+        codepoint = arg.value.real;
+    } else {
+        return nada;
+    }
+    if (typeof String.fromCodePoint !== undefined) {
+        str = String.fromCodePoint(codepoint);
+    } else if (codepoint <= 0xffff) {
+        str = String.fromCharCode(codepoint);
+    } else {
+        var cp = codepoint - 0x10000;
+        var hi = (cp >> 10) + 0xd800;
+        var lo = (cp & 0x3ff) + 0xdc00;
+        str = String.fromCharCode(hi, lo);
+    }
+    return General.string(str);
+};
+
 ///////////////////////////////
 //     Transformations       //
 ///////////////////////////////
