@@ -192,9 +192,8 @@ TestCase.prototype.run = function() {
       return false;
     }
   }
-  if (this.draw !== null || fakeCanvas._log.length !== 0) {
+  if (this.draw !== null) {
     expected = this.draw;
-    if (expected === null) expected = [];
     if (expected.join("\n") !== fakeCanvas._log.join("\n")) {
       println("Location:  " + this.filename + ":" + this.lineno);
       println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
