@@ -6,6 +6,7 @@ pre.code.fst { margin-top: 0px; }
 pre.result { color: #006600; background: #ddffdd; }
 pre.regexp { color: #99ccaa; background: #eeffdd; }
 pre.output { color: #993333; background: #dddddd; }
+pre.draw2d { color: #aa9999; background: #ddeedd; }
 pre.pragma { color: #996600; background: #ffffcc; }
 code { background: #ddddff; }
 table { border-collapse:collapse; }

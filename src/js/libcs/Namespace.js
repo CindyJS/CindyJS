@@ -117,7 +117,7 @@ function Namespace() {
             stack[stack.length - 1] = val;
             return;
         }
-        var erg = evaluator._helper.clone(val);
+        var erg = eval_helper.clone(val);
         if (erg === unset) erg = nada; // explicite setting does lift unset state
         stack[stack.length - 1] = erg;
     };

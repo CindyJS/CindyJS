@@ -321,7 +321,7 @@ function render() {
         modifs.size = el.size;
 
         var args = el;
-        evaluator.drawconic(args, modifs);
+        eval_helper.drawconic(args, modifs);
 
 
     }

@@ -118,8 +118,11 @@ function addAutoCleaningEventListener(target, type, listener, useCapture) {
 
 function setuplisteners(canvas, data) {
 
-    var MO = MutationObserver;
-    if (!MO) MO = WebKitMutationObserver; // jshint ignore: line
+    var MO = null;
+    if (typeof MutationObserver !== "undefined")
+        MO = MutationObserver;
+    if (!MO && typeof WebKitMutationObserver !== "undefined")
+        MO = WebKitMutationObserver; // jshint ignore: line
     if (MO) {
         MO = new MO(function(mutations) {
             // Browsers which support MutationObserver likely support contains
@@ -254,8 +257,10 @@ function setuplisteners(canvas, data) {
     addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
     addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
     addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
-    addAutoCleaningEventListener(document.body, "touchcancel", touchUp, false);
-    //    addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);
+    if (typeof document !== "undefined" && document.body) {
+        addAutoCleaningEventListener(document.body, "touchcancel", touchUp, false);
+        // addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);
+    }
 
     updateCindy();
 }

@@ -23,6 +23,8 @@ class SoupToMarkdown:
     _enclose = {
         "div": ("\n\n", "\n\n"),
         "p": ("\n\n", "\n\n"),
+        "ul": ("\n\n", "\n\n"),
+        "li": ("* ", "\n\n"),
         "i": ("*", "*"),
         "emph": ("*", "*"),
         "b": ("**", "**"),
@@ -160,7 +162,7 @@ class SoupToMarkdown:
                         if isinstance(c, bs4.element.Comment):
                             continue
                         if isinstance(c, str):
-                            if self._reWS.sub(c, ""):
+                            if self._reWS.sub("", c):
                                 break
                             continue
                         if c.name.lower() == "b" and b is None:
@@ -217,18 +219,44 @@ def scrub(name):
         f.write(md.result())
 
 names = [
-    "Control+Operators",
+    "CSFundamentals",
+    "General+Concepts",
+    "Entering+Program+Code",
     "Variables+and+Functions",
+    "Accessing+Geometric+Elements",
+    "Control+Operators",
     "Arithmetic+Operators",
     "Boolean+Operators",
     "String+Operators",
+    "Lists+and+Linear+Algebra",
     "Elementary+List+Operations",
     "Advanced+List+Operations",
     "Lists+of+Geometric+Elements",
     "Vectors+and+Matrices",
+    "Drawing",
+    "Appearance+of+Objects",
+    "Elementary+Drawing+Functions",
+    "Function+Plotting",
+    "Texts+and+Tables",
+    "TeX+Rendering",
+    "Image+Manipulation+and+Rendering",
+    "Shapes",
+    "Script+Coordinate+System",
     "Geometric+Operators",
     "Calculus",
+    "Syntherella",
+    "MIDI+Functions",
+    "Sampled-Audio+Functions",
+    "Special+Operators",
+    "Interaction+with+Geometry",
+    "File+Management",
     "Console+Output",
+    "Timing+and+Animations",
+    "User+Input",
+    "Interaction+with+CindyLab",
+    "Interaction+with+C-Books",
+    "The+CindyScript+Editor",
+    "Tiny+Code+Examples",
 ]
 if len(sys.argv) > 1:
     names = sys.argv[1:]

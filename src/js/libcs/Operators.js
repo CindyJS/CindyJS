@@ -325,7 +325,7 @@ evaluator.flatten$1 = function(args, modifs) {
 };
 
 
-evaluator.semicolon$2 = function(args, modifs) { //OK
+function infix_semicolon(args, modifs) { //OK
     var u0 = (args[0].ctype === 'void');
     var u1 = (args[1].ctype === 'void');
 
@@ -342,7 +342,7 @@ evaluator.semicolon$2 = function(args, modifs) { //OK
         return evaluate(args[1]);
     }
     return nada;
-};
+}
 
 
 evaluator.createvar$1 = function(args, modifs) { //OK
@@ -422,7 +422,7 @@ evaluator.genList = function(args, modifs) { //VARIADIC!
 };
 
 
-evaluator._helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher obs das so tut
+eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher obs das so tut
     var where = evaluate(data.args[0]);
     var ind = evaluateAndVal(data.args[1]);
 
@@ -447,7 +447,7 @@ evaluator._helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sic
 };
 
 
-evaluator._helper.assigndot = function(data, what) {
+eval_helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
     if (where && field) {
@@ -459,7 +459,7 @@ evaluator._helper.assigndot = function(data, what) {
 };
 
 
-evaluator._helper.assignlist = function(vars, vals) {
+eval_helper.assignlist = function(vars, vals) {
     var n = vars.length;
     var m = vals.length;
     if (m < n) n = m;
@@ -467,7 +467,7 @@ evaluator._helper.assignlist = function(vars, vals) {
     for (var i = 0; i < n; i++) {
         var name = vars[i];
         var val = vals[i];
-        evaluator.assign$2([name, val], []);
+        infix_assign([name, val], []);
 
     }
 
@@ -475,7 +475,7 @@ evaluator._helper.assignlist = function(vars, vals) {
 };
 
 
-evaluator.assign$2 = function(args, modifs) {
+function infix_assign(args, modifs) {
 
     var u0 = (args[0].ctype === 'undefined');
     var u1 = (args[1].ctype === 'undefined');
@@ -487,15 +487,15 @@ evaluator.assign$2 = function(args, modifs) {
         namespace.setvar(args[0].name, v1);
     } else if (args[0].ctype === 'infix') {
         if (args[0].oper === '_') {
-            evaluator._helper.assigntake(args[0], v1);
+            eval_helper.assigntake(args[0], v1);
         } else {
             console.error("Can't use infix expression as lvalue");
         }
     } else if (args[0].ctype === 'field') {
-        evaluator._helper.assigndot(args[0], v1);
+        eval_helper.assigndot(args[0], v1);
     } else if (args[0].ctype === 'function' && args[0].oper === 'genList') {
         if (v1.ctype === "list") {
-            evaluator._helper.assignlist(args[0].args, v1.value);
+            eval_helper.assignlist(args[0].args, v1.value);
         } else {
             console.error("Expected list in rhs of assignment");
         }
@@ -503,10 +503,10 @@ evaluator.assign$2 = function(args, modifs) {
         console.error("Left hand side of assignment is not a recognized lvalue");
     }
     return v1;
-};
+}
 
 
-evaluator.define$2 = function(args, modifs) {
+function infix_define(args, modifs) {
 
     var u0 = (args[0].ctype === 'undefined');
     var u1 = (args[1].ctype === 'undefined');
@@ -526,7 +526,7 @@ evaluator.define$2 = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
 evaluator.if$2 = function(args, modifs) { //OK
@@ -551,7 +551,7 @@ evaluator.if$3 = function(args, modifs) { //OK
 
 };
 
-evaluator.comp_equals = function(args, modifs) {
+function comp_equals(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -582,16 +582,16 @@ evaluator.comp_equals = function(args, modifs) {
         'ctype': 'boolean',
         'value': false
     };
-};
+}
 
-evaluator.comp_notequals = function(args, modifs) {
-    var erg = evaluator.comp_equals(args, modifs);
+function comp_notequals(args, modifs) {
+    var erg = comp_equals(args, modifs);
     erg.value = !erg.value;
     return erg;
-};
+}
 
 
-evaluator.comp_almostequals = function(args, modifs) {
+function comp_almostequals(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -620,10 +620,12 @@ evaluator.comp_almostequals = function(args, modifs) {
         'ctype': 'boolean',
         'value': false
     };
-};
+}
 
 
-evaluator.and$2 = function(args, modifs) {
+evaluator.and$2 = infix_and;
+
+function infix_and(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -635,10 +637,12 @@ evaluator.and$2 = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
-evaluator.or$2 = function(args, modifs) {
+evaluator.or$2 = infix_or;
+
+function infix_or(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -650,7 +654,7 @@ evaluator.or$2 = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
 evaluator.xor$2 = function(args, modifs) {
@@ -668,7 +672,7 @@ evaluator.xor$2 = function(args, modifs) {
 };
 
 
-evaluator.not = function(args, modifs) {
+function prefix_not(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -680,10 +684,10 @@ evaluator.not = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
-evaluator.numb_degree = function(args, modifs) {
+function postfix_numb_degree(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -692,17 +696,17 @@ evaluator.numb_degree = function(args, modifs) {
     }
 
     return nada;
-};
+}
 
 
-evaluator.comp_notalmostequals = function(args, modifs) {
-    var erg = evaluator.comp_almostequals(args, modifs);
+function comp_notalmostequals(args, modifs) {
+    var erg = comp_almostequals(args, modifs);
     erg.value = !erg.value;
     return erg;
-};
+}
 
 
-evaluator.comp_ugt = function(args, modifs) {
+function comp_ugt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -713,9 +717,9 @@ evaluator.comp_ugt = function(args, modifs) {
             };
     }
     return nada;
-};
+}
 
-evaluator.comp_uge = function(args, modifs) {
+function comp_uge(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -726,9 +730,9 @@ evaluator.comp_uge = function(args, modifs) {
             };
     }
     return nada;
-};
+}
 
-evaluator.comp_ult = function(args, modifs) {
+function comp_ult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -739,9 +743,9 @@ evaluator.comp_ult = function(args, modifs) {
             };
     }
     return nada;
-};
+}
 
-evaluator.comp_ule = function(args, modifs) {
+function comp_ule(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -752,10 +756,10 @@ evaluator.comp_ule = function(args, modifs) {
             };
     }
     return nada;
-};
+}
 
 
-evaluator.comp_gt = function(args, modifs) {
+function comp_gt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -772,10 +776,10 @@ evaluator.comp_gt = function(args, modifs) {
         };
     }
     return nada;
-};
+}
 
 
-evaluator.comp_ge = function(args, modifs) {
+function comp_ge(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -792,10 +796,10 @@ evaluator.comp_ge = function(args, modifs) {
         };
     }
     return nada;
-};
+}
 
 
-evaluator.comp_le = function(args, modifs) {
+function comp_le(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -812,9 +816,9 @@ evaluator.comp_le = function(args, modifs) {
         };
     }
     return nada;
-};
+}
 
-evaluator.comp_lt = function(args, modifs) {
+function comp_lt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -831,19 +835,19 @@ evaluator.comp_lt = function(args, modifs) {
         };
     }
     return nada;
-};
+}
 
 
-evaluator.sequence$2 = function(args, modifs) { //OK
+function infix_sequence(args, modifs) { //OK
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return List.sequence(v0, v1);
     }
     return nada;
-};
+}
 
-evaluator._helper.genericListMathGen = function(name, op) {
+eval_helper.genericListMathGen = function(name, op) {
     evaluator[name + "$1"] = function(args, modifs) {
         var v0 = evaluate(args[0]);
         if (v0.ctype === 'list')
@@ -885,10 +889,10 @@ evaluator._helper.genericListMathGen = function(name, op) {
     };
 };
 
-evaluator._helper.genericListMathGen("product", "mult");
-evaluator._helper.genericListMathGen("sum", "add");
-evaluator._helper.genericListMathGen("max", "max");
-evaluator._helper.genericListMathGen("min", "min");
+eval_helper.genericListMathGen("product", "mult");
+eval_helper.genericListMathGen("sum", "add");
+eval_helper.genericListMathGen("max", "max");
+eval_helper.genericListMathGen("min", "min");
 
 evaluator.max$2 = function(args, modifs) {
     var v1 = evaluateAndVal(args[0]);
@@ -904,15 +908,17 @@ evaluator.min$2 = function(args, modifs) {
     return evaluator.min$1([List.turnIntoCSList([v1, args[1]])]);
 };
 
-evaluator.add$2 = function(args, modifs) {
+evaluator.add$2 = infix_add;
+
+function infix_add(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     return General.add(v0, v1);
+}
 
-};
+evaluator.sub$2 = infix_sub;
 
-
-evaluator.minus$2 = function(args, modifs) {
+function infix_sub(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
@@ -931,24 +937,23 @@ evaluator.minus$2 = function(args, modifs) {
         return List.sub(v0, v1);
     }
     return nada;
+}
 
-};
+evaluator.mult$2 = infix_mult;
 
-evaluator.mult$2 = function(args, modifs) {
-
+function infix_mult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-
     return General.mult(v0, v1);
-};
+}
 
-evaluator.div$2 = function(args, modifs) {
+evaluator.div$2 = infix_div;
 
+function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     return General.div(v0, v1);
-
-};
+}
 
 
 evaluator.mod$2 = function(args, modifs) {
@@ -962,7 +967,9 @@ evaluator.mod$2 = function(args, modifs) {
 
 };
 
-evaluator.pow$2 = function(args, modifs) {
+evaluator.pow$2 = infix_pow;
+
+function infix_pow(args, modifs) {
 
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -971,7 +978,7 @@ evaluator.pow$2 = function(args, modifs) {
     }
     return nada;
 
-};
+}
 
 
 ///////////////////////////////
@@ -1006,7 +1013,7 @@ evaluator.sqrt$1 = function(args, modifs) {
     return nada;
 };
 
-evaluator._helper.laguerre = function(cs, x, maxiter) {
+eval_helper.laguerre = function(cs, x, maxiter) {
     if (cs.ctype !== 'list')
         return nada;
     var n = cs.value.length - 1,
@@ -1066,8 +1073,8 @@ evaluator.roots$1 = function(args, modifs) {
         var cs_orig = List.clone(cs);
         var n = cs.value.length - 1;
         for (i = 0; i < n; i++) {
-            roots[i] = evaluator._helper.laguerre(cs, CSNumber.real(0.0), 200);
-            roots[i] = evaluator._helper.laguerre(cs_orig, roots[i], 1);
+            roots[i] = eval_helper.laguerre(cs, CSNumber.real(0.0), 200);
+            roots[i] = eval_helper.laguerre(cs_orig, roots[i], 1);
             var fx = [];
             fx[n - i] = CSNumber.clone(cs.value[n - i]);
             for (var j = n - i; j > 0; j--)
@@ -1185,7 +1192,7 @@ evaluator.log$1 = function(args, modifs) {
 };
 
 
-evaluator._helper.recursiveGen = function(op) {
+eval_helper.recursiveGen = function(op) {
     var numOp = CSNumber[op],
         listOp = List[op];
     evaluator[op + "$1"] = function(args, modifs) {
@@ -1200,13 +1207,13 @@ evaluator._helper.recursiveGen = function(op) {
     };
 };
 
-evaluator._helper.recursiveGen("im");
-evaluator._helper.recursiveGen("re");
-evaluator._helper.recursiveGen("conjugate");
-evaluator._helper.recursiveGen("round");
-evaluator._helper.recursiveGen("ceil");
-evaluator._helper.recursiveGen("floor");
-evaluator._helper.recursiveGen("abs");
+eval_helper.recursiveGen("im");
+eval_helper.recursiveGen("re");
+eval_helper.recursiveGen("conjugate");
+eval_helper.recursiveGen("round");
+eval_helper.recursiveGen("ceil");
+eval_helper.recursiveGen("floor");
+eval_helper.recursiveGen("abs");
 evaluator.abs_infix = evaluator.abs$1;
 
 ///////////////////////////////
@@ -1618,7 +1625,7 @@ evaluator.join$2 = function(args, modifs) {
 evaluator.dist$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    var diff = evaluator.minus$2([v0, v1], []);
+    var diff = infix_sub([v0, v1], []);
     return evaluator.abs$1([diff], []);
 };
 
@@ -1713,7 +1720,7 @@ evaluator.linearsolve$2 = function(args, modifs) {
 //    List Manipulations     //
 ///////////////////////////////
 
-evaluator.take$2 = function(args, modifs) {
+function infix_take(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v1.ctype === 'number') {
@@ -1738,12 +1745,12 @@ evaluator.take$2 = function(args, modifs) {
         var li = [];
         for (var i = 0; i < v1.value.length; i++) {
             var v1i = evaluateAndVal(v1.value[i]);
-            li[i] = evaluator.take$2([v0, v1i], []);
+            li[i] = infix_take([v0, v1i], []);
         }
         return List.turnIntoCSList(li);
     }
     return nada;
-};
+}
 
 
 evaluator.length$1 = function(args, modifs) {
@@ -1805,60 +1812,70 @@ evaluator.directproduct$2 = function(args, modifs) {
     return nada;
 };
 
-evaluator.concat$2 = function(args, modifs) {
+evaluator.concat$2 = infix_concat;
+
+function infix_concat(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'list' && v1.ctype === 'list') {
         return List.concat(v0, v1);
     }
     if (v0.ctype === 'shape' && v1.ctype === 'shape') {
-        return evaluator._helper.shapeconcat(v0, v1);
+        return eval_helper.shapeconcat(v0, v1);
     }
     return nada;
-};
+}
 
-evaluator.common$2 = function(args, modifs) {
+evaluator.common$2 = infix_common;
+
+function infix_common(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'list' && v1.ctype === 'list') {
         return List.set(List.common(v0, v1));
     }
     if (v0.ctype === 'shape' && v1.ctype === 'shape') {
-        return evaluator._helper.shapecommon(v0, v1);
+        return eval_helper.shapecommon(v0, v1);
     }
     return nada;
-};
+}
 
-evaluator.remove$2 = function(args, modifs) {
+evaluator.remove$2 = infix_remove;
+
+function infix_remove(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'list' && v1.ctype === 'list') {
         return List.remove(v0, v1);
     }
     if (v0.ctype === 'shape' && v1.ctype === 'shape') {
-        return evaluator._helper.shaperemove(v0, v1);
+        return eval_helper.shaperemove(v0, v1);
     }
     return nada;
-};
+}
 
 
-evaluator.append$2 = function(args, modifs) {
+evaluator.append$2 = infix_append;
+
+function infix_append(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'list') {
         return List.append(v0, v1);
     }
     return nada;
-};
+}
 
-evaluator.prepend$2 = function(args, modifs) {
+evaluator.prepend$2 = infix_prepend;
+
+function infix_prepend(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v1.ctype === 'list') {
         return List.prepend(v0, v1);
     }
     return nada;
-};
+}
 
 evaluator.contains$2 = function(args, modifs) {
     var v0 = evaluate(args[0]);
@@ -2015,7 +2032,7 @@ evaluator.gray$1 = function(args, modifs) {
 
 evaluator.grey$1 = evaluator.gray$1;
 
-evaluator._helper.HSVtoRGB = function(h, s, v) {
+eval_helper.HSVtoRGB = function(h, s, v) {
 
     var r, g, b, i, f, p, q, t;
     if (h && s === undefined && v === undefined) {
@@ -2068,7 +2085,7 @@ evaluator.hue$1 = function(args, modifs) {
     if (v0.ctype === 'number') {
         var c = v0.value.real;
         c = c - Math.floor(c);
-        return evaluator._helper.HSVtoRGB(c, 1, 1);
+        return eval_helper.HSVtoRGB(c, 1, 1);
     }
     return nada;
 };
@@ -2078,7 +2095,7 @@ evaluator.hue$1 = function(args, modifs) {
 ///////////////////////////////
 
 
-evaluator._helper.shapeconvert = function(a) {
+eval_helper.shapeconvert = function(a) {
     var i, li;
     if (a.type === "circle") {
         var pt = a.value.value[0];
@@ -2118,11 +2135,11 @@ evaluator._helper.shapeconvert = function(a) {
 };
 
 
-evaluator._helper.shapeop = function(a, b, op) {
+eval_helper.shapeop = function(a, b, op) {
 
     var convert;
-    var aa = evaluator._helper.shapeconvert(a);
-    var bb = evaluator._helper.shapeconvert(b);
+    var aa = eval_helper.shapeconvert(a);
+    var bb = eval_helper.shapeconvert(b);
     var scale = 1000;
     ClipperLib.JS.ScaleUpPaths(aa, scale);
     ClipperLib.JS.ScaleUpPaths(bb, scale);
@@ -2144,16 +2161,16 @@ evaluator._helper.shapeop = function(a, b, op) {
 
 };
 
-evaluator._helper.shapecommon = function(a, b) {
-    return evaluator._helper.shapeop(a, b, ClipperLib.ClipType.ctIntersection);
+eval_helper.shapecommon = function(a, b) {
+    return eval_helper.shapeop(a, b, ClipperLib.ClipType.ctIntersection);
 };
 
-evaluator._helper.shaperemove = function(a, b) {
-    return evaluator._helper.shapeop(a, b, ClipperLib.ClipType.ctDifference);
+eval_helper.shaperemove = function(a, b) {
+    return eval_helper.shapeop(a, b, ClipperLib.ClipType.ctDifference);
 };
 
-evaluator._helper.shapeconcat = function(a, b) {
-    return evaluator._helper.shapeop(a, b, ClipperLib.ClipType.ctUnion);
+eval_helper.shapeconcat = function(a, b) {
+    return eval_helper.shapeop(a, b, ClipperLib.ClipType.ctUnion);
 };
 
 
@@ -2538,7 +2555,7 @@ evaluator.parse$1 = function(args, modifs) {
 //     Transformations       //
 ///////////////////////////////
 
-evaluator._helper.basismap = function(a, b, c, d) {
+eval_helper.basismap = function(a, b, c, d) {
     var mat = List.turnIntoCSList([a, b, c]);
     mat = List.inverse(List.transpose(mat));
     var vv = General.mult(mat, d);
@@ -2562,8 +2579,8 @@ evaluator.map$8 = function(args, modifs) {
     var v3 = evaluateAndHomog(args[7]);
     if (v0 !== nada && v1 !== nada && v2 !== nada && v3 !== nada &&
         w0 !== nada && w1 !== nada && w2 !== nada && w3 !== nada) {
-        var m1 = evaluator._helper.basismap(v0, v1, v2, v3);
-        var m2 = evaluator._helper.basismap(w0, w1, w2, w3);
+        var m1 = eval_helper.basismap(v0, v1, v2, v3);
+        var m2 = eval_helper.basismap(w0, w1, w2, w3);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2588,8 +2605,8 @@ evaluator.map$6 = function(args, modifs) {
 
     if (v0 !== nada && v1 !== nada && v2 !== nada && v3 !== nada &&
         w0 !== nada && w1 !== nada && w2 !== nada && w3 !== nada) {
-        var m1 = evaluator._helper.basismap(v0, v1, v2, v3);
-        var m2 = evaluator._helper.basismap(w0, w1, w2, w3);
+        var m1 = eval_helper.basismap(v0, v1, v2, v3);
+        var m2 = eval_helper.basismap(w0, w1, w2, w3);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2607,8 +2624,8 @@ evaluator.map$4 = function(args, modifs) {
 
     if (v0 !== nada && v1 !== nada &&
         w0 !== nada && w1 !== nada) {
-        var m1 = evaluator._helper.basismap(v0, v1, ii, jj);
-        var m2 = evaluator._helper.basismap(w0, w1, ii, jj);
+        var m1 = eval_helper.basismap(v0, v1, ii, jj);
+        var m2 = eval_helper.basismap(w0, w1, ii, jj);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2625,8 +2642,8 @@ evaluator.map$2 = function(args, modifs) {
 
     if (v0 !== nada && v1 !== nada &&
         w0 !== nada && w1 !== nada) {
-        var m1 = evaluator._helper.basismap(v0, v1, ii, jj);
-        var m2 = evaluator._helper.basismap(w0, w1, ii, jj);
+        var m1 = eval_helper.basismap(v0, v1, ii, jj);
+        var m2 = eval_helper.basismap(w0, w1, ii, jj);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2642,8 +2659,8 @@ evaluator.pointreflect$1 = function(args, modifs) {
     var v1 = General.add(List.realVector([-1, 0, 0]), w0);
 
     if (v1 !== nada && w0 !== nada && w1 !== nada) {
-        var m1 = evaluator._helper.basismap(w0, v1, ii, jj);
-        var m2 = evaluator._helper.basismap(w0, w1, ii, jj);
+        var m1 = eval_helper.basismap(w0, v1, ii, jj);
+        var m2 = eval_helper.basismap(w0, w1, ii, jj);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2662,8 +2679,8 @@ evaluator.linereflect$1 = function(args, modifs) {
     var w2 = List.cross(r1, w0);
 
     if (w0 !== nada && w1 !== nada) {
-        var m1 = evaluator._helper.basismap(w1, w2, ii, jj);
-        var m2 = evaluator._helper.basismap(w1, w2, jj, ii);
+        var m1 = eval_helper.basismap(w1, w2, ii, jj);
+        var m2 = eval_helper.basismap(w1, w2, jj, ii);
         var erg = General.mult(m1, List.inverse(m2));
         return List.normalizeMax(erg);
     }
@@ -2676,7 +2693,7 @@ evaluator.linereflect$1 = function(args, modifs) {
 ///////////////////////////////
 
 
-evaluator._helper.extractPointVec = function(v1) { //Eventuell Homogen machen
+eval_helper.extractPointVec = function(v1) { //Eventuell Homogen machen
     var erg = {};
     erg.ok = false;
     if (v1.ctype === 'geo') {
@@ -2734,7 +2751,7 @@ evaluator.polygon$1 = function(args, modifs) {
     if (v0.ctype === 'list') {
         var li = [];
         for (var i = 0; i < v0.value.length; i++) {
-            var pt = evaluator._helper.extractPoint(v0.value[i]);
+            var pt = eval_helper.extractPoint(v0.value[i]);
             if (!pt.ok) {
                 return nada;
             }
@@ -2755,7 +2772,7 @@ evaluator.polygon$1 = function(args, modifs) {
 evaluator.circle$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    var pt = evaluator._helper.extractPointVec(v0);
+    var pt = eval_helper.extractPointVec(v0);
 
     if (!pt.ok || v1.ctype !== 'number') {
         return nada;
@@ -3058,12 +3075,12 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
 /**********    WEBGL     ***********/
 /***********************************/
 
-evaluator._helper.formatForWebGL = function(x) {
+eval_helper.formatForWebGL = function(x) {
     return x.toFixed(10);
 };
 
 evaluator.generateWebGL$2 = function(args, modifs) {
-    var f = evaluator._helper.formatForWebGL;
+    var f = eval_helper.formatForWebGL;
     var expr = args[0];
     var vars = evaluate(args[1]);
     console.log(vars);
@@ -3080,7 +3097,7 @@ evaluator.generateWebGL$2 = function(args, modifs) {
     }
     console.log("***********");
     console.log(varlist);
-    var li = evaluator._helper.plotvars(expr);
+    var li = eval_helper.plotvars(expr);
     console.log(li);
 
     if (li.indexOf("a") === -1 && li.indexOf("b") === -1 && li.indexOf("c") === -1 && li.indexOf("d") === -1 && li.indexOf("e") === -1 && li.indexOf("f") === -1) {
@@ -3226,9 +3243,9 @@ evaluator.generateWebGL$2 = function(args, modifs) {
 
 evaluator.compileToWebGL$1 = function(args, modifs) {
     var a, b;
-    var f = evaluator._helper.formatForWebGL;
+    var f = eval_helper.formatForWebGL;
     var expr = args[0];
-    var li = evaluator._helper.plotvars(expr);
+    var li = eval_helper.plotvars(expr);
 
     if (li.indexOf("a") === -1 && li.indexOf("b") === -1 && li.indexOf("c") === -1 && li.indexOf("d") === -1 && li.indexOf("e") === -1 && li.indexOf("f") === -1) {
         var erg = evaluateAndVal(expr);

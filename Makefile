@@ -11,7 +11,7 @@ clean:
 ## List all our sources
 ######################################################################
 
-libcs := src/js/libcs/Namespace.js src/js/libcs/Accessors.js src/js/libcs/CSNumber.js src/js/libcs/List.js src/js/libcs/Essentials.js src/js/libcs/General.js src/js/libcs/Operators.js src/js/libcs/OpDrawing.js src/js/libcs/OpImageDrawing.js src/js/libcs/Parser.js src/js/libcs/OpSound.js src/js/libcs/CSad.js
+libcs := src/js/libcs/Namespace.js src/js/libcs/Accessors.js src/js/libcs/CSNumber.js src/js/libcs/List.js src/js/libcs/Essentials.js src/js/libcs/General.js src/js/libcs/Operators.js src/js/libcs/OpDrawing.js src/js/libcs/OpImageDrawing.js src/js/libcs/Parser.js src/js/libcs/OpSound.js src/js/libcs/CSad.js Render2D.js
 
 libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
 
@@ -148,7 +148,7 @@ jshint: node_modules/.bin/jshint build/js/ours.js
 ######################################################################
 
 nodetest: build/js/Cindy.plain.js $(NPM_DEP)
-	$(NODE) ref/runtests.js
+	$(NODE) ref/js/runtests.js
 
 tests: nodetest
 
@@ -167,9 +167,9 @@ refhtml:=$(refmd:ref/%.md=build/ref/%.html)
 refres:=ref.css
 
 $(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json \
-		ref/md2html.js ref/template.html $(NPM_DEP)
+		ref/js/md2html.js ref/template.html $(NPM_DEP)
 	@mkdir -p $(@D)
-	$(NODE_CMD) ref/md2html.js $< $@
+	$(NODE_CMD) ref/js/md2html.js $< $@
 
 $(refres:%=build/ref/%): build/ref/%: ref/%
 	cp $< $@

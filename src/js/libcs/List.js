@@ -249,7 +249,7 @@ List.contains = function(a, b) {
     var bb = false;
     for (var i = 0; i < a.value.length; i++) {
         var cc = a.value[i];
-        if ((evaluator._helper.equals(cc, b)).value) {
+        if ((eval_helper.equals(cc, b)).value) {
             return {
                 'ctype': 'boolean',
                 'value': true
@@ -271,7 +271,7 @@ List.common = function(a, b) {
         var bb = false;
         var cc = a.value[i];
         for (var j = 0; j < b.value.length; j++) {
-            bb = bb || (evaluator._helper.equals(cc, b.value[j])).value;
+            bb = bb || (eval_helper.equals(cc, b.value[j])).value;
         }
         if (bb) {
             erg[ct] = a.value[i];
@@ -291,7 +291,7 @@ List.remove = function(a, b) {
         var bb = false;
         var cc = a.value[i];
         for (var j = 0; j < b.value.length; j++) {
-            bb = bb || (evaluator._helper.equals(cc, b.value[j])).value;
+            bb = bb || (eval_helper.equals(cc, b.value[j])).value;
         }
         if (!bb) {
             erg[ct] = a.value[i];
@@ -359,7 +359,7 @@ List.equals = function(a1, a2) {
         if (av1.ctype === 'list' && av2.ctype === 'list') {
             erg = erg && List.equals(av1, av2).value;
         } else {
-            erg = erg && evaluator.comp_equals([av1, av2], []).value;
+            erg = erg && comp_equals([av1, av2], []).value;
 
         }
     }
@@ -385,7 +385,7 @@ List.almostequals = function(a1, a2) {
         if (av1.ctype === 'list' && av2.ctype === 'list') {
             erg = erg && List.comp_almostequals(av1, av2).value;
         } else {
-            erg = erg && evaluator.comp_almostequals([av1, av2], []).value;
+            erg = erg && comp_almostequals([av1, av2], []).value;
 
         }
     }
@@ -431,7 +431,7 @@ List.set = function(a1) {
     var erg1 = a1.value.sort(General.compare);
 
     for (var i = 0; i < erg1.length; i++) {
-        if (i === 0 || !(evaluator.comp_equals([erg[erg.length - 1], erg1[i]], [])).value) {
+        if (i === 0 || !(comp_equals([erg[erg.length - 1], erg1[i]], [])).value) {
             erg[ct] = erg1[i];
             ct++;
 
@@ -1038,7 +1038,7 @@ List.eucangle = function(a, b) {
 List.clone = function(a) {
     var erg = [];
     for (var i = 0; i < a.value.length; i++) {
-        erg[i] = evaluator._helper.clone(a.value[i]);
+        erg[i] = eval_helper.clone(a.value[i]);
     }
     return {
         "ctype": "list",

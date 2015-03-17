@@ -82,7 +82,7 @@ labObjects.Mass = {
     setToTimestep: function(beh, j, a) {},
 
     initRK: function(beh, dt) {
-        var pt = evaluator._helper.extractPoint(beh.el.homog);
+        var pt = eval_helper.extractPoint(beh.el.homog);
 
         beh.x = pt.x;
         beh.y = pt.y;
@@ -405,7 +405,7 @@ labObjects.Sun = {
     setToTimestep: function(beh, j, a) {},
 
     initRK: function(beh, dt) {
-        var pt = evaluator._helper.extractPoint(beh.el.homog);
+        var pt = eval_helper.extractPoint(beh.el.homog);
 
         beh.x = pt.x;
         beh.y = pt.y;
@@ -502,8 +502,8 @@ labObjects.Spring = {
         beh.nameb = elem.args[1];
         beh.ma = csgeo.csnames[beh.namea];
         beh.mb = csgeo.csnames[beh.nameb];
-        var pta = evaluator._helper.extractPoint(beh.ma.homog);
-        var ptb = evaluator._helper.extractPoint(beh.mb.homog);
+        var pta = eval_helper.extractPoint(beh.ma.homog);
+        var ptb = eval_helper.extractPoint(beh.mb.homog);
         if (true) {
             beh.l0 = (Math.sqrt((pta.x - ptb.x) * (pta.x - ptb.x) + (pta.y - ptb.y) * (pta.y - ptb.y)));
         }
@@ -532,7 +532,7 @@ labObjects.Spring = {
             xa = beh.ma.behavior.x;
             ya = beh.ma.behavior.y;
         } else {
-            var pta = evaluator._helper.extractPoint(beh.ma.homog);
+            var pta = eval_helper.extractPoint(beh.ma.homog);
             xa = pta.x;
             ya = pta.y;
         }
@@ -540,7 +540,7 @@ labObjects.Spring = {
             xb = beh.mb.behavior.x;
             yb = beh.mb.behavior.y;
         } else {
-            var ptb = evaluator._helper.extractPoint(beh.mb.homog);
+            var ptb = eval_helper.extractPoint(beh.mb.homog);
             xb = ptb.x;
             yb = ptb.y;
         }
@@ -630,8 +630,8 @@ labObjects.Bouncer = {
         beh.nameb = elem.args[1];
         beh.ma = csgeo.csnames[beh.namea];
         beh.mb = csgeo.csnames[beh.nameb];
-        var pta = evaluator._helper.extractPoint(beh.ma.homog);
-        var ptb = evaluator._helper.extractPoint(beh.mb.homog);
+        var pta = eval_helper.extractPoint(beh.ma.homog);
+        var ptb = eval_helper.extractPoint(beh.mb.homog);
         beh.x1o = pta.x * 1.01 - ptb.x * 0.01;
         beh.y1o = pta.y * 1.01 - ptb.y * 0.01;
         beh.x2o = ptb.x * 1.01 - pta.x * 0.01;
@@ -677,8 +677,8 @@ labObjects.Bouncer = {
     doCollisions: function(beh) {
 
 
-        var pta = evaluator._helper.extractPoint(beh.ma.homog);
-        var ptb = evaluator._helper.extractPoint(beh.mb.homog);
+        var pta = eval_helper.extractPoint(beh.ma.homog);
+        var ptb = eval_helper.extractPoint(beh.mb.homog);
         var x1 = pta.x;
         var y1 = pta.y;
         var x2 = ptb.x;
