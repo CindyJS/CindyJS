@@ -2574,13 +2574,35 @@ evaluator.unicode$1 = function(args, modifs) {
 };
 
 evaluator.tr$1 = function(args, modifs) {
+    return evaluator.tr$2([args[0], null], modifs);
+};
+
+function defaultPluralForm(cnt) {
+    return cnt == 1 ? 0 : 1;
+}
+
+evaluator.tr$2 = function(args, modifs) {
     var arg = evaluate(args[0]);
     if (arg.ctype !== "string") return nada;
     var language = instanceInvocationArguments.language || "en";
     var tr = instanceInvocationArguments.translations || {};
     var trl = tr[language] || {};
-    if (trl.hasOwnProperty(arg.value))
-        return General.string(trl[arg.value]);
+    if (!trl.hasOwnProperty(arg.value)) return arg;
+    var entry = trl[arg.value];
+    if (typeof entry === "string")
+        return General.string(entry);
+    var pluralform = 0;
+    if (args[1] === null)
+        return arg;
+    var count = evaluate(args[1]);
+    if (count.ctype === "number")
+        count = count.value.real;
+    else
+        count = 0;
+    var pluralFormFunction = trl._pluralFormFunction || defaultPluralForm;
+    var pluralForm = pluralFormFunction(count);
+    if (pluralForm < entry.length)
+        return General.string(entry[pluralForm]);
     return arg;
 };
 

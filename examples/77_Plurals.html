@@ -7,15 +7,18 @@
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csdraw" type="text/x-cindyscript">
 
-drawtext([-6, -6], tr("current language: ") + currentlanguage());
-
+forall(0..5,
+  drawtext([-6, 1.5*#-8], format(#, 0) + " " + tr("lines", #)));
 
 </script>
 <script type="text/javascript">
 
 var tr = {
+  "en": {
+    "lines": ["line", "lines"],
+  },
   "de": {
-    "current language: ": "Aktuelle Sprache: ",
+    "lines": ["Zeile", "Zeilen"],
   },
 };
 
@@ -39,11 +42,11 @@ createCindy({
 
 <body style="font-family:Arial;">
   <pre>
-    <canvas id="enCindy" width="500" height="200"
+    <canvas id="enCindy" width="500" height="300"
             style="border:2px solid black"></canvas>
   </pre>
   <pre>
-    <canvas id="deCindy" width="500" height="200"
+    <canvas id="deCindy" width="500" height="300"
             style="border:2px solid black"></canvas>
   </pre>
 </body>
