@@ -148,7 +148,7 @@ jshint: node_modules/.bin/jshint build/js/ours.js
 ######################################################################
 
 nodetest: build/js/Cindy.plain.js $(NPM_DEP)
-	$(NODE) ref/js/runtests.js
+	$(NODE_CMD) ref/js/runtests.js
 
 tests: nodetest
 
