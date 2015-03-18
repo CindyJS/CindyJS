@@ -1,5 +1,7 @@
 /build/
 /download/
+.idea/tasks.xml
+.idea/workspace.xml
 /node_modules/
 .project
 .settings
