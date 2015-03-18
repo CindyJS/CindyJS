@@ -2573,15 +2573,15 @@ evaluator.unicode$1 = function(args, modifs) {
     return General.string(str);
 };
 
-evaluator.tr$1 = function(args, modifs) {
-    return evaluator.tr$2([args[0], null], modifs);
+evaluator.translate$1 = function(args, modifs) {
+    return evaluator.translate$2([args[0], null], modifs);
 };
 
 function defaultPluralForm(cnt) {
     return cnt == 1 ? 0 : 1;
 }
 
-evaluator.tr$2 = function(args, modifs) {
+evaluator.translate$2 = function(args, modifs) {
     var arg = evaluate(args[0]);
     if (arg.ctype !== "string") return nada;
     var language = instanceInvocationArguments.language || "en";
