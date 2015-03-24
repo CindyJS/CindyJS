@@ -182,3 +182,12 @@ General.wrap = function(v) {
     }
     return nada;
 };
+
+General.withUsage = function(v, usage) {
+    // shallow copy with possibly new usage
+    return {
+        "ctype": v.ctype,
+        "value": v.value,
+        "usage": usage
+    };
+};

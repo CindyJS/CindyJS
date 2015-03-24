@@ -1032,15 +1032,6 @@ List.eucangle = function(a, b) {
 };
 
 
-List.withUsage = function(a, usage) {
-    // shallow copy with possibly new usage
-    return {
-        "ctype": "list",
-        "value": a.value.slice(),
-        "usage": usage
-    };
-};
-
 List.zerovector = function(a) {
     var erg = [];
     for (var i = 0; i < Math.floor(a.value.real); i++) {
@@ -1297,7 +1288,10 @@ List.getField = function(li, key) {
             return li;
         }
         if (List._helper.isNumberVecN(li, 3)) {
-            return List.scaldiv(li.value[2], li);
+            return List.turnIntoCSList([
+                CSNumber.div(li.value[0], li.value[2]),
+                CSNumber.div(li.value[1], li.value[2])
+            ]);
         }
     }
 

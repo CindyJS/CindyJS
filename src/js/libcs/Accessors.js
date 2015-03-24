@@ -47,7 +47,7 @@ Accessor.getField = function(geo, field) {
         }
 
         if (field === "homog") {
-            return List.withUsage(geo.homog, "Point");
+            return General.withUsage(geo.homog, "Point");
         }
 
 
@@ -61,7 +61,7 @@ Accessor.getField = function(geo, field) {
     }
     if (geo.kind === "L") {
         if (field === "homog") {
-            return List.withUsage(geo.homog, "Line");
+            return General.withUsage(geo.homog, "Line");
         }
         if (field === "angle") {
             erg = List.eucangle(List.ey, geo.homog);
