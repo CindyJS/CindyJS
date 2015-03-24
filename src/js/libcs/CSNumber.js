@@ -36,18 +36,6 @@ CSNumber.real = function(r) {
 
 CSNumber.zero = CSNumber.real(0);
 
-CSNumber.clone = function(a) {
-    return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.real,
-            'imag': a.value.imag
-        },
-        "usage": a.usage
-    };
-};
-
-
 CSNumber.argmax = function(a, b) {
     var n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
     var n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;

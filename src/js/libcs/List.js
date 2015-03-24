@@ -1041,19 +1041,6 @@ List.withUsage = function(a, usage) {
     };
 };
 
-List.clone = function(a) {
-    var erg = [];
-    for (var i = 0; i < a.value.length; i++) {
-        erg[i] = eval_helper.clone(a.value[i]);
-    }
-    return {
-        "ctype": "list",
-        "value": erg,
-        "usage": a.usage
-    };
-};
-
-
 List.zerovector = function(a) {
     var erg = [];
     for (var i = 0; i < Math.floor(a.value.real); i++) {

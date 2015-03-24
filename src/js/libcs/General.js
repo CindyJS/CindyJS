@@ -157,30 +157,6 @@ General.min = function(v0, v1) {
 
 };
 
-General.clone = function(v) {
-    if (v.ctype === 'number') {
-        return CSNumber.clone(v);
-    }
-    if (v.ctype === 'list') {
-        return List.clone(v);
-    }
-    if (v.ctype === 'boolean') {
-        return {
-            ctype: "boolean",
-            value: v.value
-        };
-    }
-    if (v.ctype === 'string') {
-        return {
-            ctype: "string",
-            value: v.value
-        };
-    }
-
-    return General.wrap(v);
-
-};
-
 General.wrap = function(v) {
     if (typeof v === "number") {
         return CSNumber.real(v);
