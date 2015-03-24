@@ -41,9 +41,7 @@ Accessor.getField = function(geo, field) {
             var xx = CSNumber.div(geo.homog.value[0], geo.homog.value[2]);
             var yy = CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
             erg = List.turnIntoCSList([xx, yy]);
-            erg.usage = "Point";
-
-            return erg;
+            return General.withUsage(erg, "Point");
         }
 
         if (field === "homog") {
@@ -65,8 +63,7 @@ Accessor.getField = function(geo, field) {
         }
         if (field === "angle") {
             erg = List.eucangle(List.ey, geo.homog);
-            erg.usage = "Angle";
-            return erg;
+            return General.withUsage(erg, "Angle");
         }
 
     }

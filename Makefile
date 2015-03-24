@@ -75,6 +75,7 @@ ifeq ($(O),1)
 endif
 
 closure_language = ECMASCRIPT5_STRICT
+closure_warnings = DEFAULT
 closure_args_common = \
 	--language_in $(closure_language) \
 	--compilation_level $(closure_level) \
@@ -88,6 +89,7 @@ closure_args = \
 	--source_map_location_mapping "build/js/|" \
 	--source_map_location_mapping "src/js/|../../src/js/" \
 	--output_wrapper_file $(filter %.wrapper,$^) \
+	--warning_level $(closure_warnings) \
 	$(closure_args_common)
 
 #by default use closure compiler
