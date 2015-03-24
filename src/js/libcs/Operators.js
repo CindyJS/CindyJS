@@ -1523,12 +1523,11 @@ evaluator.cross$2 = function(args, modifs) {
     var v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
         var erg = List.cross(v0, v1);
-        erg.usage = "None";
         if (v0.usage === "Point" && v1.usage === "Point") {
-            erg.usage = "Line";
+            erg = General.withUsage(erg, "Line");
         }
         if (v0.usage === "Line" && v1.usage === "Line") {
-            erg.usage = "Point";
+            erg = General.withUsage(erg, "Point");
         }
         return erg;
     }
@@ -1553,8 +1552,7 @@ evaluator.para$2 = function(args, modifs) {
         }
         var inf = List.linfty;
         var erg = List.cross(List.cross(inf, l), p);
-        erg.usage = "Line";
-        return erg;
+        return General.withUsage(erg, "Line");
     }
     return nada;
 };
@@ -1576,8 +1574,7 @@ evaluator.perp$2 = function(args, modifs) {
         }
         var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
         var erg = List.cross(tt, p);
-        erg.usage = "Line";
-        return erg;
+        return General.withUsage(erg, "Line");
     }
 };
 
@@ -1601,8 +1598,7 @@ evaluator.meet$2 = function(args, modifs) {
     var v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
         var erg = List.cross(v0, v1);
-        erg.usage = "Point";
-        return erg;
+        return General.withUsage(erg, "Point");
     }
     return nada;
 };
@@ -1613,8 +1609,7 @@ evaluator.join$2 = function(args, modifs) {
     var v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
         var erg = List.cross(v0, v1);
-        erg.usage = "Line";
-        return erg;
+        return General.withUsage(erg, "Line");
     }
     return nada;
 };
@@ -1633,7 +1628,7 @@ evaluator.dist_infix = evaluator.dist$2;
 evaluator.point$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if (List._helper.isNumberVecN(v0, 3) || List._helper.isNumberVecN(v0, 2)) {
-        v0.usage = "Point";
+        return General.withUsage(v0, "Point");
     }
     return v0;
 };
@@ -1641,7 +1636,7 @@ evaluator.point$1 = function(args, modifs) {
 evaluator.line$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if (List._helper.isNumberVecN(v0, 3)) {
-        v0.usage = "Line";
+        return General.withUsage(v0, "Line");
     }
     return v0;
 };

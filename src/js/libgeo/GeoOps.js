@@ -11,7 +11,7 @@ geoOps.Join = function(el) {
     var el2 = csgeo.csnames[(el.args[1])];
     el.homog = List.cross(el1.homog, el2.homog);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Line";
+    el.homog = General.withUsage(el.homog, "Line");
 };
 geoOpMap.Join = "L";
 
@@ -31,7 +31,7 @@ geoOps.Meet = function(el) {
     var el2 = csgeo.csnames[(el.args[1])];
     el.homog = List.cross(el1.homog, el2.homog);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Point";
+    el.homog = General.withUsage(el.homog, "Point");
 };
 
 geoOps.Meet.visiblecheck = function(el) {
@@ -63,7 +63,7 @@ geoOps.Mid = function(el) {
     var z2 = List.scalmult(ix, y);
     el.homog = List.add(z1, z2);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Point";
+    el.homog = General.withUsage(el.homog, "Point");
 };
 geoOpMap.Mid = "P";
 
@@ -74,7 +74,7 @@ geoOps.Perp = function(el) {
     var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
     el.homog = List.cross(tt, p);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Line";
+    el.homog = General.withUsage(el.homog, "Line");
 };
 geoOpMap.Perp = "L";
 
@@ -85,7 +85,7 @@ geoOps.Para = function(el) {
     var inf = List.linfty;
     el.homog = List.cross(List.cross(inf, l), p);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Line";
+    el.homog = General.withUsage(el.homog, "Line");
 };
 geoOpMap.Para = "L";
 
@@ -93,7 +93,7 @@ geoOps.Horizontal = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     el.homog = List.cross(List.ex, el1.homog);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Line";
+    el.homog = General.withUsage(el.homog, "Line");
 };
 geoOpMap.Horizontal = "L";
 
@@ -101,7 +101,7 @@ geoOps.Vertical = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     el.homog = List.cross(List.ey, el1.homog);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Line";
+    el.homog = General.withUsage(el.homog, "Line");
 };
 geoOpMap.Vertical = "L";
 
@@ -117,7 +117,7 @@ geoOps.Through = function(el) {
 
     el.homog = List.cross(el.dir, el1);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Line";
+    el.homog = General.withUsage(el.homog, "Line");
 };
 geoOpMap.Through = "L";
 
@@ -134,7 +134,7 @@ geoOps.PointOnLine = function(el) {
     var perp = List.cross(tt, p);
     el.homog = List.cross(perp, l);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Point";
+    el.homog = General.withUsage(el.homog, "Point");
     //TODO: Handle complex and infinite Points
     var x = CSNumber.div(el.homog.value[0], el.homog.value[2]);
     var y = CSNumber.div(el.homog.value[1], el.homog.value[2]);
@@ -181,7 +181,7 @@ geoOps.PointOnCircle = function(el) { //TODO was ist hier zu tun damit das stabi
 
     el.homog = erg;
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Point";
+    el.homog = General.withUsage(el.homog, "Point");
 
 
     //TODO: Handle complex and infinite Points
@@ -216,7 +216,7 @@ geoOps.PointOnSegment = function(el) { //TODO was ist hier zu tun damit das stab
         var perp = List.cross(tt, p);
         el.homog = List.cross(perp, l);
         el.homog = List.normalizeMax(el.homog);
-        el.homog.usage = "Point";
+        el.homog = General.withUsage(el.homog, "Point");
 
 
         var x1 = xx1.value.real;
@@ -245,7 +245,7 @@ geoOps.PointOnSegment = function(el) { //TODO was ist hier zu tun damit das stab
     var ergz = CSNumber.real(1);
     el.homog = List.turnIntoCSList([ergx, ergy, ergz]);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Point";
+    el.homog = General.withUsage(el.homog, "Point");
 
 
     //TODO: Handle complex and infinite Points
@@ -274,7 +274,7 @@ geoOps.CenterOfConic = function(el) {
     var erg = geoOps._helper.CenterOfConic(c);
     el.homog = erg;
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Point";
+    el.homog = General.withUsage(el.homog, "Point");
 
 
 };
@@ -300,7 +300,7 @@ geoOps.CircleMP = function(el) { //TODO Performance Checken. Das ist jetzt der v
     var p = csgeo.csnames[(el.args[1])].homog;
     el.matrix = geoOps._helper.CircleMP(m, p);
     el.matrix = List.normalizeMax(el.matrix);
-    el.matrix.usage = "Circle";
+    el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
 geoOpMap.CircleMP = "C";
@@ -320,7 +320,7 @@ geoOps.CircleMr = function(el) {
     p = List.add(p, mid);
     el.matrix = geoOps._helper.CircleMP(mid, p);
     el.matrix = List.normalizeMax(el.matrix);
-    el.matrix.usage = "Circle";
+    el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
 geoOpMap.CircleMr = "C";
@@ -335,7 +335,7 @@ geoOps.CircleMFixedr = function(el) {
 
     el.matrix = geoOps._helper.CircleMP(mid, p);
     el.matrix = List.normalizeMax(el.matrix);
-    el.matrix.usage = "Circle";
+    el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
 geoOpMap.CircleMFixedr = "C";
@@ -373,7 +373,7 @@ geoOps.ConicBy5 = function(el) {
 
     el.matrix = erg;
     el.matrix = List.normalizeMax(el.matrix);
-    el.matrix.usage = "Conic";
+    el.matrix = General.withUsage(el.matrix, "Conic");
 };
 geoOpMap.ConicBy5 = "C";
 
@@ -446,8 +446,8 @@ geoOps._helper.splitDegenConic = function(mat) {
     C = List.transpose(C);
     var lh = C.value[jj];
 
-    lg.usage = "Line";
-    lh.usage = "Line";
+    lg = General.withUsage(lg, "Line");
+    lh = General.withUsage(lh, "Line");
 
     return [lg, lh];
 };
@@ -459,7 +459,7 @@ geoOps.SelectConic = function(el) {
     }
     el.matrix = set.results[el.index - 1];
     el.matrix = List.normalizeMax(el.matrix);
-    el.matrix.usage = "Conic";
+    el.matrix = General.withUsage(el.matrix, "Conic");
 };
 geoOpMap.SelectConic = "C";
 
@@ -621,7 +621,7 @@ geoOps.ConicBy5lines = function(el) {
     var erg = List.adjoint3(erg_temp);
     el.matrix = erg;
     el.matrix = List.normalizeMax(el.matrix);
-    el.matrix.usage = "Conic";
+    el.matrix = General.withUsage(el.matrix, "Conic");
 };
 geoOpMap.ConicBy5lines = "C";
 
@@ -633,7 +633,7 @@ geoOps.CircleBy3 = function(el) {
     var p = csgeo.csnames[(el.args[2])].homog;
     var erg = geoOps._helper.ConicBy5(el, a, b, c, d, p);
     el.matrix = List.normalizeMax(erg);
-    el.matrix.usage = "Circle";
+    el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
 geoOpMap.CircleBy3 = "C";
@@ -754,11 +754,11 @@ geoOps._helper.IntersectLC = function(l, c) {
     var erg = List.add(s, List.scalmult(alp, l1));
     var erg1 = erg.value[0];
     erg1 = List.normalizeMax(erg1);
-    erg1.usage = "Point";
+    erg1 = General.withUsage(erg1, "Point");
     erg = List.transpose(erg);
     var erg2 = erg.value[0];
     erg2 = List.normalizeMax(erg2);
-    erg2.usage = "Point";
+    erg2 = General.withUsage(erg2, "Point");
     return [erg1, erg2];
 
 };
@@ -917,10 +917,10 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     p3 = List.normalizeZ(p3);
     p4 = List.normalizeZ(p4);
 
-    p1.usage = "Point";
-    p2.usage = "Point";
-    p3.usage = "Point";
-    p4.usage = "Point";
+    p1 = General.withUsage(p1, "Point");
+    p2 = General.withUsage(p2, "Point");
+    p3 = General.withUsage(p3, "Point");
+    p4 = General.withUsage(p4, "Point");
 
     return [p1, p2, p3, p4];
 
@@ -953,7 +953,7 @@ geoOps.SelectL = function(el) {
         el.inited = true;
     }
     el.homog = set.results.value[el.index - 1];
-    el.homog.usage = "Line";
+    el.homog = General.withUsage(el.homog, "Line");
 };
 geoOpMap.SelectL = "L";
 
@@ -987,6 +987,6 @@ geoOps.TransformP = function(el) {
     var m = csgeo.csnames[(el.args[0])].matrix;
     var p = csgeo.csnames[(el.args[1])].homog;
     el.homog = List.normalizeMax(List.productMV(m, p));
-    el.homog.usage = "Point";
+    el.homog = General.withUsage(el.homog, "Point");
 };
 geoOpMap.TransformP = "P";
