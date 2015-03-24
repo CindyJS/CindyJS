@@ -321,8 +321,7 @@ CSNumber.arccos = function(a) { //OK hässlich aber tuts.
     var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
     var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
     var erg = CSNumber.add(CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)), CSNumber.real(Math.PI * 0.5));
-    erg.usage = 'angle';
-    return erg;
+    return General.withUsage(erg, "Angle");
 };
 
 CSNumber.arcsin = function(a) { //OK hässlich aber tuts.
@@ -330,16 +329,14 @@ CSNumber.arcsin = function(a) { //OK hässlich aber tuts.
     var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
     var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
     var erg = CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, -1));
-    erg.usage = 'angle';
-    return erg;
+    return General.withUsage(erg, "Angle");
 };
 
 CSNumber.arctan = function(a) { //OK hässlich aber tuts.
     var t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
     var t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
     var erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
-    erg.usage = 'angle';
-    return erg;
+    return General.withUsage(erg, "Angle");
 };
 
 
@@ -348,8 +345,7 @@ CSNumber.arctan = function(a) { //OK hässlich aber tuts.
 //Bei Beiden Baustellen machen!!!
 CSNumber.arctan2 = function(a, b) { //OK
     var erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
-    erg.usage = 'angle';
-    return erg;
+    return General.withUsage(erg, "Angle");
 };
 
 
