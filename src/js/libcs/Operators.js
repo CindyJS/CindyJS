@@ -431,13 +431,17 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
         if (ind1 < 0) {
             ind1 = where.value.length + ind1 + 1;
         }
-        if (ind1 > 0 && ind1 < where.value.length + 1) {
+        if (ind1 > 0 && ind1 <= where.value.length) {
             if (where.ctype === 'list') {
-                where.value[ind1 - 1] = evaluate(what);
+                var lst = where.value.slice();
+                lst[ind1 - 1] = evaluate(what);
+                return List.turnIntoCSList(lst);
             } else {
                 var str = where.value;
-                str = str.substring(0, ind1 - 1) + niceprint(evaluate(what)) + str.substring(ind1, str.length);
-                where.value = str;
+                str = str.substring(0, ind1 - 1) +
+                    niceprint(evaluate(what)) +
+                    str.substring(ind1, str.length);
+                return General.string(str);
             }
         }
     }
@@ -486,8 +490,10 @@ function infix_assign(args, modifs) {
     if (args[0].ctype === 'variable') {
         namespace.setvar(args[0].name, v1);
     } else if (args[0].ctype === 'infix') {
-        if (args[0].oper === '_') {
-            eval_helper.assigntake(args[0], v1);
+        if (args[0].oper === '_' && args[0].args[0].ctype === 'variable') {
+            // Copy on write
+            namespace.setvar(args[0].args[0].name,
+                eval_helper.assigntake(args[0], v1));
         } else {
             console.error("Can't use infix expression as lvalue");
         }
@@ -585,11 +591,8 @@ function comp_equals(args, modifs) {
 }
 
 function comp_notequals(args, modifs) {
-    var erg = comp_equals(args, modifs);
-    erg.value = !erg.value;
-    return erg;
+    return General.not(comp_equals(args, modifs));
 }
-
 
 function comp_almostequals(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
@@ -700,9 +703,7 @@ function postfix_numb_degree(args, modifs) {
 
 
 function comp_notalmostequals(args, modifs) {
-    var erg = comp_almostequals(args, modifs);
-    erg.value = !erg.value;
-    return erg;
+    return General.not(comp_almostequals(args, modifs));
 }
 
 
@@ -1574,9 +1575,7 @@ evaluator.perp$2 = function(args, modifs) {
             p = w1;
             l = w0;
         }
-        var inf = List.linfty;
-        var tt = List.cross(inf, l);
-        tt.value = [tt.value[1], CSNumber.neg(tt.value[0]), tt.value[2]];
+        var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
         var erg = List.cross(tt, p);
         erg.usage = "Line";
         return erg;
@@ -1682,9 +1681,7 @@ evaluator.area$3 = function(args, modifs) {
             v1 = List.scaldiv(z1, v1);
             v2 = List.scaldiv(z2, v2);
             var erg = List.det3(v0, v1, v2);
-            erg.value.real = erg.value.real * 0.5;
-            erg.value.imag = erg.value.imag * 0.5;
-            return erg;
+            return CSNumber.realmult(0.5, erg);
         }
     }
     return nada;
@@ -2937,9 +2934,7 @@ evaluator.halfplane$2 = function(args, modifs) {
             l = v0;
         }
         //OK im Folgenden lässt sich viel optimieren
-        var inf = List.realVector([0, 0, 1]);
-        var tt = List.cross(inf, l);
-        tt.value = [tt.value[1], CSNumber.neg(tt.value[0]), tt.value[2]];
+        var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
         var erg = List.cross(tt, p);
         var foot = List.cross(l, erg);
         foot = General.div(foot, foot.value[2]);

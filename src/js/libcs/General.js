@@ -30,6 +30,10 @@ General.bool = function(b) {
     };
 };
 
+General.not = function(v) {
+    return General.bool(!v.value);
+};
+
 General.isLessThan = function(a, b) {
     return General.compare(a, b) === -1;
 

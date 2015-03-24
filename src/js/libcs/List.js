@@ -482,6 +482,7 @@ List.normalizeMax = function(a) {
     var s = CSNumber.inv(List.maxval(a));
     return List.scalmult(s, a);
 };
+
 List.normalizeZ = function(a) {
     var s = CSNumber.inv(a.value[2]);
     return List.scalmult(s, a);
@@ -1293,9 +1294,9 @@ List.getField = function(li, key) {
             return li;
         }
         if (List._helper.isNumberVecN(li, 2)) {
-            var li2 = General.clone(li);
-            li2.value[2] = CSNumber.real(1);
-            return li2;
+            return List.turnIntoCSList([
+                li.value[0], li.value[1], CSNumber.real(1)
+            ]);
         }
         return nada;
     }
@@ -1305,9 +1306,7 @@ List.getField = function(li, key) {
             return li;
         }
         if (List._helper.isNumberVecN(li, 3)) {
-            var erg = General.clone(li);
-            erg.value.pop();
-            return List.scaldiv(li.value[2], erg);
+            return List.scaldiv(li.value[2], li);
         }
         return nada;
 

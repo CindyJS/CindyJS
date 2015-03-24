@@ -34,6 +34,7 @@ CSNumber.real = function(r) {
     };
 };
 
+CSNumber.zero = CSNumber.real(0);
 
 CSNumber.clone = function(a) {
     return {
@@ -178,6 +179,16 @@ CSNumber.mult = function(a, b) {
         "value": {
             'real': a.value.real * b.value.real - a.value.imag * b.value.imag,
             'imag': a.value.real * b.value.imag + a.value.imag * b.value.real
+        }
+    };
+};
+
+CSNumber.realmult = function(r, c) {
+    return {
+        "ctype": "number",
+        "value": {
+            'real': r * c.value.real,
+            'imag': r * c.value.imag
         }
     };
 };

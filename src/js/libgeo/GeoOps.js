@@ -71,9 +71,7 @@ geoOpMap.Mid = "P";
 geoOps.Perp = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
     var p = csgeo.csnames[(el.args[1])].homog;
-    var inf = List.linfty;
-    var tt = List.cross(inf, l);
-    tt.value = [tt.value[1], CSNumber.neg(tt.value[0]), tt.value[2]];
+    var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
     el.homog = List.cross(tt, p);
     el.homog = List.normalizeMax(el.homog);
     el.homog.usage = "Line";
@@ -132,9 +130,7 @@ geoOpMap.Free = "P";
 geoOps.PointOnLine = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
     var p = el.homog;
-    var inf = List.linfty;
-    var tt = List.cross(inf, l);
-    tt.value = [tt.value[1], CSNumber.neg(tt.value[0]), tt.value[2]];
+    var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
     var perp = List.cross(tt, p);
     el.homog = List.cross(perp, l);
     el.homog = List.normalizeMax(el.homog);
@@ -216,9 +212,7 @@ geoOps.PointOnSegment = function(el) { //TODO was ist hier zu tun damit das stab
     if (!move || move.mover === el) {
 
         var p = el.homog;
-        var inf = List.linfty;
-        var tt = List.cross(inf, l);
-        tt.value = [tt.value[1], CSNumber.neg(tt.value[0]), tt.value[2]];
+        var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
         var perp = List.cross(tt, p);
         el.homog = List.cross(perp, l);
         el.homog = List.normalizeMax(el.homog);
@@ -802,7 +796,9 @@ geoOps.IntersectCirCir = function(el) {
     var ct2 = c1.value[0].value[0];
     var line2 = List.scalmult(ct2, c2.value[2]);
     var ll = List.sub(line1, line2);
-    ll.value[2] = CSNumber.mult(CSNumber.real(0.5), ll.value[2]);
+    ll = List.turnIntoCSList([
+        ll.value[0], ll.value[1], CSNumber.realmult(0.5, ll.value[2])
+    ]);
     ll = List.normalizeMax(ll);
 
 

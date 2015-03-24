@@ -93,9 +93,9 @@ function evaluateAndHomog(a) {
     }
 
     if (List._helper.isNumberVecN(x, 2)) {
-        var y = General.clone(x);
-        y.value[2] = CSNumber.real(1);
-        return y;
+        return List.turnIntoCSList([
+            x.value[0], x.value[1], CSNumber.real(1)
+        ]);
     }
 
     return nada;
