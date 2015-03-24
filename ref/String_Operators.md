@@ -288,3 +288,14 @@ Characters can be returned and set with this operator.
     < "CinderellaScript"
 
 In this example, a single letter has been replaced by a longer string.
+
+The infix operator `_` is also used for list subscripting.
+These two forms can be combined, both for reading and for writing.
+
+    > b="Cindy";
+    > a=[b, "Script"];
+    > a_1_5="erella";
+    > a
+    < ["Cinderella", "Script"]
+    > b
+    < "Cindy"

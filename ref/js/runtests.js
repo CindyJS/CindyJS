@@ -87,6 +87,8 @@ function runTestFile(filename) {
         anythingToCheck = true;
       } else if (mark === 'J ' || mark === 'T ') {
         // ignore
+      } else if (line === "") {
+        // ignore
       } else {
         console.log("Unexpected line " + path.basename(filename) + ":" +
                     (lineno + i) + ": " + line);
