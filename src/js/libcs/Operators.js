@@ -423,8 +423,10 @@ evaluator.genList = function(args, modifs) { //VARIADIC!
 
 
 eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher obs das so tut
-    var where = evaluate(data.args[0]);
+    var lhs = data.args[0];
+    var where = evaluate(lhs);
     var ind = evaluateAndVal(data.args[1]);
+    var rhs = nada;
 
     if (where.ctype === 'list' || where.ctype === 'string') {
         var ind1 = Math.floor(ind.value.real);
@@ -435,19 +437,17 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
             if (where.ctype === 'list') {
                 var lst = where.value.slice();
                 lst[ind1 - 1] = evaluate(what);
-                return List.turnIntoCSList(lst);
+                rhs = List.turnIntoCSList(lst);
             } else {
                 var str = where.value;
                 str = str.substring(0, ind1 - 1) +
                     niceprint(evaluate(what)) +
                     str.substring(ind1, str.length);
-                return General.string(str);
+                rhs = General.string(str);
             }
         }
     }
-
-    return nada;
-
+    infix_assign([lhs, rhs]);
 };
 
 
@@ -490,10 +490,9 @@ function infix_assign(args, modifs) {
     if (args[0].ctype === 'variable') {
         namespace.setvar(args[0].name, v1);
     } else if (args[0].ctype === 'infix') {
-        if (args[0].oper === '_' && args[0].args[0].ctype === 'variable') {
+        if (args[0].oper === '_') {
             // Copy on write
-            namespace.setvar(args[0].args[0].name,
-                eval_helper.assigntake(args[0], v1));
+            eval_helper.assigntake(args[0], v1);
         } else {
             console.error("Can't use infix expression as lvalue");
         }
