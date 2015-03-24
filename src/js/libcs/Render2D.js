@@ -196,6 +196,12 @@ Render2D.modifHandlers = {
 
     "family": function(v) {
         if (v.ctype === "string") {
+            Render2D.family = v.value;
+        }
+    },
+
+    "align": function(v) {
+        if (v.ctype === "string") {
             var s = v.value;
             if (s === "left")
                 Render2D.align = 0;
