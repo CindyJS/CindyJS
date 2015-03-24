@@ -835,13 +835,13 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var b1 = List.det3(List.column(AA, one), List.column(AA, two), List.column(BB, three));
     b1 = CSNumber.add(b1, List.det3(List.column(AA, one), List.column(BB, two), List.column(AA, three)));
     b1 = CSNumber.add(b1, List.det3(List.column(BB, one), List.column(AA, two), List.column(AA, three)));
-    var beta = CSNumber.clone(b1);
+    var beta = b1;
 
     // gamma
     var g1 = List.det3(List.column(AA, one), List.column(BB, two), List.column(BB, three));
     g1 = CSNumber.add(g1, List.det3(List.column(BB, one), List.column(AA, two), List.column(BB, three)));
     g1 = CSNumber.add(g1, List.det3(List.column(BB, one), List.column(BB, two), List.column(AA, three)));
-    var gamma = CSNumber.clone(g1);
+    var gamma = g1;
 
     var delta = List.det(BB);
 

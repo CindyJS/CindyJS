@@ -47,27 +47,21 @@ Accessor.getField = function(geo, field) {
         }
 
         if (field === "homog") {
-            erg = List.clone(geo.homog); //TODO will man hier clonen?
-            erg.usage = "Point";
-            return erg;
+            return List.withUsage(geo.homog, "Point");
         }
 
 
         if (field === "x") {
-            var x = CSNumber.div(geo.homog.value[0], geo.homog.value[2]);
-            return x;
+            return CSNumber.div(geo.homog.value[0], geo.homog.value[2]);
         }
 
         if (field === "y") {
-            var y = CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
-            return y;
+            return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
         }
     }
     if (geo.kind === "L") {
         if (field === "homog") {
-            erg = List.clone(geo.homog); //TODO will man hier clonen?
-            erg.usage = "Line";
-            return erg;
+            return List.withUsage(geo.homog, "Line");
         }
         if (field === "angle") {
             erg = List.eucangle(List.ey, geo.homog);
@@ -78,8 +72,7 @@ Accessor.getField = function(geo, field) {
     }
     if (geo.kind === "Tr") {
         if (field === "matrix") {
-            erg = List.clone(geo.matrix);
-            return erg;
+            return geo.matrix;
         }
     }
     if (geo.kind === "C") {
@@ -106,7 +99,6 @@ Accessor.getField = function(geo, field) {
     if (Accessor.generalFields[field]) { //must be defined an an actual string
         erg = geo[Accessor.generalFields[field]];
         if (erg) {
-            erg = General.clone(erg);
             return erg;
         } else
             return nada;
@@ -152,10 +144,10 @@ Accessor.getField = function(geo, field) {
 
 Accessor.setField = function(geo, field, value) {
     if (field === "color") {
-        geo.color = List.clone(value);
+        geo.color = value;
     }
     if (field === "size") {
-        geo.size = General.clone(value);
+        geo.size = value;
     }
     if (field === "xy" && geo.kind === "P" && geo.ismovable && List._helper.isNumberVecN(value, 2)) {
         movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]));
@@ -163,7 +155,7 @@ Accessor.setField = function(geo, field, value) {
     }
 
     if (field === "homog" && geo.kind === "P" && geo.ismovable && List._helper.isNumberVecN(value, 2)) {
-        movepointscr(geo, General.clone(value));
+        movepointscr(geo, value);
         recalc();
     }
 
@@ -173,7 +165,7 @@ Accessor.setField = function(geo, field, value) {
         var dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
         geo.dir = dir;
 
-        //    movepointscr(geo,General.clone(value));
+        // movepointscr(geo,value);
         recalc();
     }
     if (geo.behavior) {

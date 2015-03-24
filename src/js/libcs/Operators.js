@@ -1071,13 +1071,13 @@ evaluator.roots$1 = function(args, modifs) {
                 return nada;
 
         var roots = [];
-        var cs_orig = List.clone(cs);
+        var cs_orig = cs;
         var n = cs.value.length - 1;
         for (i = 0; i < n; i++) {
-            roots[i] = eval_helper.laguerre(cs, CSNumber.real(0.0), 200);
+            roots[i] = eval_helper.laguerre(cs, CSNumber.zero, 200);
             roots[i] = eval_helper.laguerre(cs_orig, roots[i], 1);
             var fx = [];
-            fx[n - i] = CSNumber.clone(cs.value[n - i]);
+            fx[n - i] = cs.value[n - i];
             for (var j = n - i; j > 0; j--)
                 fx[j - 1] = CSNumber.add(cs.value[j - 1], CSNumber.mult(fx[j], roots[i]));
             fx.shift();
@@ -2783,8 +2783,8 @@ eval_helper.extractPointVec = function(v1) { //Eventuell Homogen machen
         n1 = pt1[0];
         n2 = pt1[1];
         if (n1.ctype === 'number' && n2.ctype === 'number') {
-            erg.x = CSNumber.clone(n1);
-            erg.y = CSNumber.clone(n2);
+            erg.x = n1;
+            erg.y = n2;
             erg.z = CSNumber.real(1);
             erg.ok = true;
             return erg;

@@ -83,7 +83,7 @@ General.compare = function(a, b) {
 
 General.add = function(v0, v1) {
     if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Plus
-        return CSNumber.clone(v1);
+        return v1;
     }
 
     if (v0.ctype === 'number' && v1.ctype === 'number') {
