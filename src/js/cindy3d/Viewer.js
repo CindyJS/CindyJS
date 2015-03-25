@@ -236,10 +236,13 @@ Viewer.prototype.setupListeners = function(addEventListener) {
   addEventListener(canvas, "mousemove", function(/** MouseEvent */ evnt) {
     if (evnt.buttons === undefined ? mdown : (evnt.buttons & 1)) {
       if (!isNaN(mx)) {
-        if (evnt.altKey || evnt.ctrlKey || evnt.shiftKey || evnt.metaKey)
-          camera.mousePan(evnt.screenX - mx, evnt.screenY - my);
+        let dx = evnt.screenX - mx, dy = evnt.screenY - my;
+        if (evnt.shiftKey)
+          camera.rotateXY(dx, dy);
+        else if (evnt.altKey || evnt.ctrlKey || evnt.metaKey)
+          camera.translateXY(dx, dy);
         else
-          camera.mouseRotate(evnt.screenX - mx, evnt.screenY - my);
+          camera.orbitXY(dx, dy);
         render();
       }
       mx = evnt.screenX;
@@ -256,10 +259,12 @@ Viewer.prototype.setupListeners = function(addEventListener) {
   addEventListener(canvas, "wheel", function(/** WheelEvent */ evnt) {
     let d = evnt.deltaY;
     if (d) {
-      if (evnt.altKey || evnt.ctrlKey || evnt.shiftKey || evnt.metaKey)
-        camera.mouseDolly(d);
+      if (evnt.shiftKey)
+        camera.rotateZ(d);
+      else if (evnt.altKey || evnt.ctrlKey || evnt.metaKey)
+        camera.translateZ(d);
       else
-        camera.mouseZoom(d);
+        camera.zoom(d);
       render();
     }
     evnt.preventDefault();

@@ -94,7 +94,7 @@ Camera.prototype.setCamera = function(position, lookAt, up) {
 };
 
 /** @constant @type {number} */
-Camera.ROTATE_SENSITIVITY = 0.01;
+Camera.ORBIT_SENSITIVITY = 0.01;
 
 /**
  * Rotate camera around lookAt point.
@@ -103,8 +103,8 @@ Camera.ROTATE_SENSITIVITY = 0.01;
  * @param {number} dx
  * @param {number} dy
  */
-Camera.prototype.mouseRotate = function(dx, dy) {
-  let ax = Camera.ROTATE_SENSITIVITY*dx, ay = Camera.ROTATE_SENSITIVITY*dy;
+Camera.prototype.orbitXY = function(dx, dy) {
+  let ax = Camera.ORBIT_SENSITIVITY*dx, ay = Camera.ORBIT_SENSITIVITY*dy;
   let cx = Math.cos(ax), cy = Math.cos(ay);
   let sx = Math.sin(ax), sy = Math.sin(ay);
   let mx = [
@@ -122,6 +122,38 @@ Camera.prototype.mouseRotate = function(dx, dy) {
 };
 
 /** @constant @type {number} */
+Camera.ROTATE_SENSITIVITY = -0.01;
+
+/**
+ * Rotate camera around its own center.
+ *
+ * @param {number} dx
+ * @param {number} dy
+ */
+Camera.prototype.rotateXY = function(dx, dy) {
+  let ax = Camera.ROTATE_SENSITIVITY*dx, ay = Camera.ROTATE_SENSITIVITY*dy;
+  let cx = Math.cos(ax), cy = Math.cos(ay);
+  let sx = Math.sin(ax), sy = Math.sin(ay);
+  let mx = [
+    cx, 0, sx, 0,
+    0, 1, 0, 0,
+    -sx, 0, cx, 0,
+    0, 0, 0, 1];
+  let my = [
+    1, 0, 0, 0,
+    0, cy, -sy, 0,
+    0, sy, cy, 0,
+    0, 0, 0, 1];
+  let mv = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, this.viewDist,
+    0, 0, 0, 1];
+  this.mvMatrix = mul4mm(mul4mm(mx, my), this.mvMatrix);
+  this.modelMatrix = mul4mm(mv, this.mvMatrix);
+};
+
+/** @constant @type {number} */
 Camera.PAN_SENSITIVITY = 0.002;
 
 /**
@@ -131,7 +163,7 @@ Camera.PAN_SENSITIVITY = 0.002;
  * @param {number} dx
  * @param {number} dy
  */
-Camera.prototype.mousePan = function(dx, dy) {
+Camera.prototype.translateXY = function(dx, dy) {
   let f = Camera.PAN_SENSITIVITY*this.viewDist, ax = f*dx, ay = -f*dy;
   let m = [
     1, 0, 0, ax,
@@ -151,7 +183,7 @@ Camera.prototype.mousePan = function(dx, dy) {
  * 
  * @param {number} dy
  */
-Camera.prototype.mouseZoom = function(dy) {
+Camera.prototype.zoom = function(dy) {
   this.viewDist = this.viewDist * Math.pow(1.01, dy);
   this.viewMatrix = [
     1, 0, 0, 0,
@@ -167,17 +199,34 @@ Camera.DOLLY_SENSITIVITY = 0.02;
 
 /**
  * Move camera perpendicular to image plane.
- * In contrast to the mouseZoom method above, this maintains the viewDist,
+ * In contrast to the zoom method above, this maintains the viewDist,
  * and therefore shifts the viewAt point along with the camera.
  *
  * @param {number} dy
  */
-Camera.prototype.mouseDolly = function(dy) {
+Camera.prototype.translateZ = function(dy) {
   let az = -Camera.DOLLY_SENSITIVITY*this.viewDist*dy;
   let m = [
     1, 0, 0, 0,
     0, 1, 0, 0,
     0, 0, 1, az,
+    0, 0, 0, 1];
+  this.modelMatrix = mul4mm(m, this.modelMatrix);
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
+
+/**
+ * Roll camera around viewing axis.
+ *
+ * @param {number} dy
+ */
+Camera.prototype.rotateZ = function(dy) {
+  let a = Camera.ROTATE_SENSITIVITY*dy;
+  let c = Math.cos(a), s = Math.sin(a);
+  let m = [
+    c, -s, 0, 0,
+    s, c, 0, 0,
+    0, 0, 1, 0,
     0, 0, 0, 1];
   this.modelMatrix = mul4mm(m, this.modelMatrix);
   this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
