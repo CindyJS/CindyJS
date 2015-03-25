@@ -1,0 +1,37 @@
+Support all features of the Java plugin for Cinderella:
+
+- Line Segments die direkt auf die Kamera zu verlaufen @done(2015-03-25)
+- Lines and rays, clipping to frustrum (on the GPU)
+- topology-Modifier für mesh3d @done(2015-03-25)
+- Panning @done(2015-03-12)
+- fillcircle3d
+- mesh3d with normals
+
+Additional features not found in Cinderella:
+
+- Fullscreen-Mode (configurable)
+- Resizable window (configurable)
+- Clean transparency, with z-ordering (on the CPU) (configurable)
+- Handle contextlost events properly
+- Compile shaders only when they are needed
+- Adaptive quality (prescribed frame rate and ajust quality to match)
+- Lower quality when moving, higher quality on mouse up
+- OBJ loader, to use the viewer stand-alone
+- Support for touch devices
+- On-screen help, for camera movement in particular
+
+Adaptive rendering:
+
+With coordinates given by an expression instead of a list of coordinates,
+and different topologies.
+
+- square (two-element vectors from [0,1]²)
+- torus (two-element vectors from [0,1]²)
+- sphere (three-element unit length vectors, starting from icosahedron)
+
+Long-term goals:
+
+- Porting JS version back to Java for easier maintainance
+- Rendering algebraic surfaces, the way surfer does
+- Shadows, probably only for scenes with no transparency
+- Integration with CindyJS so they can share a single WebGL canvas
