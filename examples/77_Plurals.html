@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+forall(0..5,
+  drawtext([-6, 1.5*#-8], format(#, 0) + " " + translate("lines", #)));
+
+</script>
+<script type="text/javascript">
+
+var tr = {
+  "en": {
+    "lines": ["line", "lines"],
+  },
+  "de": {
+    "lines": ["Zeile", "Zeilen"],
+  },
+};
+
+createCindy({
+  canvasname: "enCindy",
+  scripts: "cs*",
+  translations: tr,
+  defaultAppearance: { },
+});
+
+createCindy({
+  canvasname: "deCindy",
+  scripts: "cs*",
+  language: "de",
+  translations: tr,
+  defaultAppearance: { },
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <pre>
+    <canvas id="enCindy" width="500" height="300"
+            style="border:2px solid black"></canvas>
+  </pre>
+  <pre>
+    <canvas id="deCindy" width="500" height="300"
+            style="border:2px solid black"></canvas>
+  </pre>
+</body>
+
+</html>

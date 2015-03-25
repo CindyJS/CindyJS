@@ -1,0 +1,85 @@
+GeoOps:
+
+- FreePoint @done(2015-03-17)
+- MeetLL @done(2015-03-17)
+- JoinPP @done(2015-03-17)
+- PerpPL @done(2015-03-17)
+- ParaPL @done(2015-03-17)
+- Segment @done(2015-03-17)
+- PointOnSegment @done(2015-03-17)
+- PointOnLine @done(2015-03-17)
+- MidPP @done(2015-03-17)
+- Horizontal @done(2015-03-17)
+- Vertical @done(2015-03-17)
+- LineThrough @done(2015-03-17)
+- FreeLine
+- FixedAngleL
+- AngularBisector
+
+- Tracing2 (rudimentär geschrieben)
+- Tracing4
+
+- CenterOfConic @done(2015-03-17)
+- CircleMr @done(2015-03-17)
+- CircleMFixedR @done(2015-03-17)
+- PointOnCircle @done(2015-03-17)
+- PointOnConic
+- CircleMP @done(2015-03-17)
+- Compass
+- CirclePPP @done(2015-03-17)
+- ConicPPPPP @done(2015-03-17)
+- ConicPPPPL
+- ConicLLLLP
+- ConicLLLLL
+- ConicQuad
+- ConicMidXY
+
+- PolarP
+- PolarL
+
+- EllipseFFP
+- HyperbolaFFP
+- ParabolaPL
+
+- IntersectConicL @done(2015-03-17)
+- IntersectCircCirc @done(2015-03-17)
+- IntersectConicConic
+
+- Dist
+- Ang
+- Area
+
+- MirrorLP
+- MirrorLL
+- MirrorLC
+- MirrorPP
+- MirrorPL
+- MirrorPC
+- MirrorCP
+- MirrorCL
+- MirrorCC
+
+- ArcPPP
+
+- Polygon
+- RegularPolygons....
+
+- Text
+
+- Trafo
+- Translation
+- Similarity
+- Affine
+- Projective @done(2015-03-17)
+- Möbius
+- Rotation
+
+- MapP @done(2015-03-17)
+- MapL
+- MapC
+
+- IFS
+- TransformationGroups
+
+- Locus
+- Animation

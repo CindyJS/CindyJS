@@ -73,30 +73,67 @@ CSad.mult = function(f, g) {
 
 
 CSad.pow = function(a, b) {
-    if (b.value.real !== Math.floor(b.value.real)) console.log("only implemented intergers for pow!");
-    var temp = a;
-
-    for (var i = 1; i < b.value.real; i++) {
-        temp = CSad.mult(temp, a);
+    if (b.value.real < 0 || b.value.real !== Math.floor(b.value.real)){
+        return CSad.root(a, b);
     }
+    else{
+        var temp = a;
+        for (var i = 1; i < b.value.real; i++) {
+            temp = CSad.mult(temp, a);
+        }
+        return temp;
+    }
+};
 
-    return temp;
+// (f)^r for float r
+CSad.root = function(f, r){
+    var zero = CSNumber.real(0);
+    var one = CSNumber.real(1);
+    var rOne = CSNumber.add(one, r); 
+
+    var le = f.value.length;
+    var erg = CSad.zero(CSNumber.real(le));
+    erg.value[0] = CSNumber.pow(f.value[0], r);
+
+    var sum = zero;
+    var inner;
+    var ges, csK;
+    for (var k = 1; k < le; k++) {
+        csK = CSNumber.real(k);
+        ges = f.value[k];
+        for (var i = 1; i <= k; i++) {
+            inner = CSNumber.mult(rOne, CSNumber.real(i));
+            inner = CSNumber.div(inner, csK);
+            inner = CSNumber.sub(inner, one);
+            inner = CSNumber.mult(inner, f.value[i]);
+            inner = CSNumber.mult(inner, erg.value[k - i]);
+            sum = CSNumber.add(sum, inner);
+        } // end inner
+
+        ges = CSNumber.div(sum, f.value[0]);
+        erg.value[k] = ges;
+        sum = zero;
+    } // end outer
+
+//    CSad.printArr(erg);
+    return erg;
+
 };
 
 // return first nonzero indexes of f and g starting from k
 CSad.findFirstNoneZero = function(f, g, k) {
     var idxf = Infinity;
     var idxg = Infinity;
-    var myEps = 1e-8;
+    var myEps = 1e-12;
     for (var i = k; i < f.value.length; i++) {
-        if (CSNumber.abs(f.value[i]).value.real > myEps) {
+        if (CSNumber.abs2(f.value[i]).value.real > myEps) {
             idxf = i;
             break;
         }
     }
 
     for (var j = k; j < g.value.length; j++) {
-        if (CSNumber.abs(g.value[j]).value.real > myEps) {
+        if (CSNumber.abs2(g.value[j]).value.real > myEps) {
             idxg = j;
             break;
         }
@@ -105,7 +142,7 @@ CSad.findFirstNoneZero = function(f, g, k) {
     return [idxf, idxg];
 };
 
-CSad.trimArr = function(f, g) {};
+//CSad.trimArr = function(f, g) {};
 
 // f / g
 CSad.div = function(f, g) {
@@ -276,7 +313,7 @@ CSad.diff = function(prog, varname, x0, grade) {
             return CSad.mult(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
         if (prog.oper === "^") {
-            return CSad.pow(CSad.diff(prog.args[0], varname, x0, grade), prog.args[1]);
+            return CSad.pow(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade).value[0]); // .value[0] since we only want the exponent
         }
 
         if (prog.oper === "/") {
