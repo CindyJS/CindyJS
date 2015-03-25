@@ -50,9 +50,6 @@ void main() {
   if (d < 0.0)
     discard;
   float lambda = (b + sqrt(d))/(-2.0*a);
-  if (lambda < 0.0)
-    discard;
-
   vec3 pointOnSurface = lambda*vPos;
   float mu = dot(pointOnSurface - vPoint1, u);
   vec3 center = endcaps(mu, pointOnSurface);
