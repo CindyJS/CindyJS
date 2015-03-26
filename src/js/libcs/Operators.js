@@ -2555,7 +2555,14 @@ evaluator.parse$1 = function(args, modifs) {
 };
 
 evaluator.unicode$1 = function(args, modifs) {
-    var arg = evaluate(args[0]), codepoint, str, base = modifs.base || 16;
+    var codepoint, str;
+    var arg = evaluate(args[0]);
+    var base = 16;
+    if (modifs.base) {
+        var b = evaluate(modifs.base);
+        if (b.ctype === 'number')
+            base = b.value.real;
+    }
     if (arg.ctype === 'string') {
         codepoint = parseInt(arg.value, base);
     } else if (arg.ctype === 'number') {
@@ -2563,7 +2570,7 @@ evaluator.unicode$1 = function(args, modifs) {
     } else {
         return nada;
     }
-    if (typeof String.fromCodePoint !== undefined) {
+    if (typeof String.fromCodePoint !== "undefined") {
         str = String.fromCodePoint(codepoint);
     } else if (codepoint <= 0xffff) {
         str = String.fromCharCode(codepoint);
@@ -2581,7 +2588,7 @@ evaluator.international$1 = function(args, modifs) {
 };
 
 function defaultPluralForm(cnt) {
-    return cnt == 1 ? 0 : 1;
+    return cnt === 1 ? 0 : 1;
 }
 
 evaluator.international$2 = function(args, modifs) {

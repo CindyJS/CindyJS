@@ -420,9 +420,9 @@ CSNumber.log = function(a) {
 
 CSNumber.pow = function(a, b) {
 
-//    if(a.value.real === 0 && a.value.imag === 0){
-//        return CSNumber.real(0);
-//    };
+    //    if(a.value.real === 0 && a.value.imag === 0){
+    //        return CSNumber.real(0);
+    //    };
 
     if (b.value.real === Math.round(b.value.real) && b.value.imag === 0) { //TODO später mal effizienter machen
         var erg = {
