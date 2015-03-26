@@ -2215,7 +2215,9 @@ evaluator.mover$0 = function(args, modifs) { //OK
 ///////////////////////////////
 
 evaluator.translate$1 = function(args, modifs) {
+
     var v0 = evaluateAndVal(args[0]);
+    console.log(v0);
     if (v0.ctype === 'list') {
         if (List.isNumberVector(v0)) {
             if (v0.value.length === 2) {
@@ -2231,6 +2233,7 @@ evaluator.translate$1 = function(args, modifs) {
 
 
 evaluator.rotate$1 = function(args, modifs) {
+
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'number') {
         csport.rotate(v0.value.real);
@@ -2573,15 +2576,15 @@ evaluator.unicode$1 = function(args, modifs) {
     return General.string(str);
 };
 
-evaluator.translate$1 = function(args, modifs) {
-    return evaluator.translate$2([args[0], null], modifs);
+evaluator.international$1 = function(args, modifs) {
+    return evaluator.international$2([args[0], null], modifs);
 };
 
 function defaultPluralForm(cnt) {
     return cnt == 1 ? 0 : 1;
 }
 
-evaluator.translate$2 = function(args, modifs) {
+evaluator.international$2 = function(args, modifs) {
     var arg = evaluate(args[0]);
     if (arg.ctype !== "string") return nada;
     var language = instanceInvocationArguments.language || "en";
