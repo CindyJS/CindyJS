@@ -2217,7 +2217,6 @@ evaluator.mover$0 = function(args, modifs) { //OK
 evaluator.translate$1 = function(args, modifs) {
 
     var v0 = evaluateAndVal(args[0]);
-    console.log(v0);
     if (v0.ctype === 'list') {
         if (List.isNumberVector(v0)) {
             if (v0.value.length === 2) {
