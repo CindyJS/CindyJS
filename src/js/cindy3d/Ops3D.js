@@ -314,12 +314,13 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     if (pos.length !== m*n) return nada;
     let tcr = (topology === "closerows" || topology === "closeboth");
     let tcc = (topology === "closecolumns" || topology === "closeboth");
-    let pc = null, normal = null;
+    let pc = null, normal = null, normalcnt = 0;
     function donormal(p1, p2) {
       let c = cross3(sub3(p1, pc), sub3(p2, pc));
       normal[0] += c[0];
       normal[1] += c[1];
       normal[2] += c[2];
+      ++normalcnt;
     }
     if (normaltype === "pervertex") {
       normals = Array(m*n);
@@ -331,11 +332,12 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
           let pw = p[(kmn - 1)%mn], pe = p[(kmn + 1)%mn];
           let ps = p[(kmn - n)%mn], pn = p[(kmn + n)%mn];
           normal = [0, 0, 0];
+          normalcnt = 0;
           if ((tcc || i     > 0) && (tcr || j     > 0)) donormal(pw, ps);
           if ((tcc || i + 1 < m) && (tcr || j     > 0)) donormal(pn, pw);
           if ((tcc || i + 1 < m) && (tcr || j + 1 < n)) donormal(pe, pn);
           if ((tcc || i     > 0) && (tcr || j + 1 < n)) donormal(ps, pe);
-          normals[k++] = normal;
+          normals[k++] = scale3(4./normalcnt, normal);
         }
       }
     }
