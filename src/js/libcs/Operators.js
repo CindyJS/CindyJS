@@ -1723,6 +1723,7 @@ function hungarianMethod(w) {
     // The result is the matched column (inner index) for every row
     // (outer index) of the supplied weight matrix.
 
+    var abs = Math.abs;
     var n = w.length;
     var i1, i2;
     var v1 = new Array(n);
@@ -1758,7 +1759,9 @@ function hungarianMethod(w) {
         for (i1 = 0; i1 < n; ++i1) {
             for (i2 = 0; i2 < n; ++i2) {
                 e[i1][i2] = w[i1][i2] - v1[i1].cost - v2[i2].cost;
-                // assert(e[i1][i2] >= 0);
+                if (e[i1][i2] < (abs(w[i1][i2]) + abs(v1[i1].cost) +
+                        abs(v2[i2].cost)) * 1e-14)
+                    e[i1][i2] = 0;
             }
         }
 
