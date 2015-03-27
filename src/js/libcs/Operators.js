@@ -909,14 +909,16 @@ evaluator.max$2 = function(args, modifs) {
     var v1 = evaluateAndVal(args[0]);
     if (v1.ctype === "list")
         return evaluator.max$3([v1, null, args[1]]);
-    return evaluator.max$1([List.turnIntoCSList([v1, args[1]])]);
+    var v2 = evaluateAndVal(args[1]);
+    return evaluator.max$1([List.turnIntoCSList([v1, v2])]);
 };
 
 evaluator.min$2 = function(args, modifs) {
     var v1 = evaluateAndVal(args[0]);
     if (v1.ctype === "list")
         return evaluator.min$3([v1, null, args[1]]);
-    return evaluator.min$1([List.turnIntoCSList([v1, args[1]])]);
+    var v2 = evaluateAndVal(args[1]);
+    return evaluator.min$1([List.turnIntoCSList([v1, v2])]);
 };
 
 evaluator.add$2 = infix_add;

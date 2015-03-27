@@ -200,6 +200,8 @@ The two-argument form can however also be used to obtain the maximum of two numb
     < 5
     > max(-7, 2)
     < 2
+    > max(3/2, 7/4)
+    < 1.75
 
 The maximum of an empty list is negative infinity.
 
@@ -255,6 +257,8 @@ The two-argument form can however also be used to obtain the minimum of two numb
     < 3
     > min(-7, 2)
     < -7
+    > min(3/2, 7/4)
+    < 1.5
 
 The minimum of an empty list is positive infinity.
 
