@@ -847,11 +847,19 @@ function infix_sequence(args, modifs) { //OK
     return nada;
 }
 
-eval_helper.genericListMathGen = function(name, op) {
+eval_helper.genericListMathGen = function(name, op, emptyval) {
     evaluator[name + "$1"] = function(args, modifs) {
         var v0 = evaluate(args[0]);
-        if (v0.ctype === 'list')
-            return List.genericListMath(v0, op);
+        if (v0.ctype === 'list') {
+            if (v0.value.length === 0) {
+                return emptyval;
+            }
+            var erg = v0.value[0];
+            for (var i = 1; i < v0.value.length; i++) {
+                erg = General[op](erg, v0.value[i]);
+            }
+            return erg;
+        }
         return nada;
     };
     var name$3 = name + "$3";
@@ -874,7 +882,7 @@ eval_helper.genericListMathGen = function(name, op) {
         var li = v1.value;
 
         if (li.length === 0) {
-            return nada;
+            return emptyval;
         }
         namespace.newvar(lauf);
         namespace.setvar(lauf, li[0]);
@@ -889,10 +897,12 @@ eval_helper.genericListMathGen = function(name, op) {
     };
 };
 
-eval_helper.genericListMathGen("product", "mult");
-eval_helper.genericListMathGen("sum", "add");
-eval_helper.genericListMathGen("max", "max");
-eval_helper.genericListMathGen("min", "min");
+eval_helper.genericListMathGen("product", "mult", CSNumber.real(1));
+eval_helper.genericListMathGen("sum", "add", CSNumber.real(0));
+eval_helper.genericListMathGen("max", "max",
+    CSNumber.real(Number.NEGATIVE_INFINITY));
+eval_helper.genericListMathGen("min", "min",
+    CSNumber.real(Number.POSITIVE_INFINITY));
 
 evaluator.max$2 = function(args, modifs) {
     var v1 = evaluateAndVal(args[0]);

@@ -74,6 +74,11 @@ This function works for a list of numbers as well as for the average of a list o
     > average([[2, 9], [4, 5]])
     < [3, 7]
 
+The sum of an empty list is zero.
+
+    > sum([])
+    < 0
+
 ------
 
 #### The summation operator: `sum(‹list›,‹expr›)`
@@ -98,12 +103,25 @@ It is time for a little mathematical mystery:
     > sum(1..10000,#^2)
     < 333383335000
 
+The sum of an empty list is zero.
+
+    > sum([], 99)
+    < 0
+
 ------
 
 #### The summation operator: `sum(‹list›,‹var›,‹expr›)`
 
 **Description:**
 This operator is similar to the last one, except that the running variable is locally named `‹var›`.
+
+    > sum(1..100, x, x^2)
+    < 338350
+
+The sum of an empty list is zero.
+
+    > sum([], x, 99)
+    < 0
 
 ------
 
@@ -120,6 +138,11 @@ One can, for instance, use the product operator to define the factorial function
 
     > fac(x) := product(1..x);
 
+The product over an empty list is one.
+
+    > product([])
+    < 1
+
 ------
 
 #### The product operator: `product(‹list›,‹expr›)`
@@ -128,12 +151,22 @@ One can, for instance, use the product operator to define the factorial function
 This operator is similar to the product operator, but it takes the product of results of `‹expr›` while a loop traverses all elements of `‹list›`.
 The running variable is, as usual, `#`.
 
+The product over an empty list is one.
+
+    > product([], 99)
+    < 1
+
 ------
 
 #### The product operator: `product(‹list›,‹var›,‹expr›)`
 
 **Description:**
 This operator is similar to the last one, except that the running variable is locally named `‹var›`.
+
+The product over an empty list is one.
+
+    > product([], x, 99)
+    < 1
 
 ------
 
@@ -144,6 +177,11 @@ This operator finds the maximum value in a list of entries.
 
     > max([4,2,6,3,5])
     < 6
+
+The maximum of an empty list is negative infinity.
+
+    > max([])
+    < -Infinity
 
 ------
 
@@ -163,6 +201,11 @@ The two-argument form can however also be used to obtain the maximum of two numb
     > max(-7, 2)
     < 2
 
+The maximum of an empty list is negative infinity.
+
+    > max([], 99)
+    < -Infinity
+
 ------
 
 #### The maximum operator: `max(‹list›,‹var›,‹expr›)`
@@ -176,6 +219,11 @@ This operator is similar to the last one, except that the running variable is lo
     > v
     < 323
 
+The maximum of an empty list is negative infinity.
+
+    > max([], x, 99)
+    < -Infinity
+
 ------
 
 #### The minimum operator: `min(‹list›)`
@@ -185,6 +233,11 @@ This operator finds the minimum of a list of entries.
 
     > min([4,2,6,3,5])
     < 2
+
+The minimum of an empty list is positive infinity.
+
+    > min([])
+    < Infinity
 
 ------
 
@@ -203,6 +256,11 @@ The two-argument form can however also be used to obtain the minimum of two numb
     > min(-7, 2)
     < -7
 
+The minimum of an empty list is positive infinity.
+
+    > min([], 99)
+    < Infinity
+
 ------
 
 #### The minimum operator: `min(‹list›,‹var›,‹expr›)`
@@ -215,6 +273,11 @@ This operator is similar to the last one, except that the running variable is lo
     < 1
     > v
     < 321
+
+The minimum of an empty list is positive infinity.
+
+    > min([], x, 99)
+    < Infinity
 
 ------
 
