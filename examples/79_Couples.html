@@ -11,12 +11,14 @@ PP = [Pa, Pb, Pc, Pd, Pe, Pf, Pg, Ph, Pi, Pj, Pk, Pl, Pm,
       Pn, Po, Pp, Pq, Pr, Ps, Pt, Pu, Pv, Pw, Px, Py, Pz];
 QQ = [Qa, Qb, Qc, Qd, Qe, Qf, Qg, Qh, Qi, Qj, Qk, Ql, Qm,
       Qn, Qo, Qp, Qq, Qr, Qs, Qt, Qu, Qv, Qw, Qx, Qy, Qz];
-forall(PP ++ QQ, #.xy = [random(), random()]);
-power = 2;
+randomize() := forall(PP ++ QQ, #.xy = [random(), random()]);
+randomize();
 
 </script>
 <script id="csdraw" type="text/x-cindyscript">
 
+power = |Nc,Na|/|Nb,Na|*9 + 1;
+drawtext(Nc.xy, format(power, 1), size->15, offset->[10,-5]);
 m = mincostmatching(apply(PP,p,apply(QQ,q,|p,q|^power)));
 drawall(apply(1..length(m),[PP_#, QQ_(m_#)]), color->[0,1,0]);
 
@@ -83,7 +85,11 @@ createCindy({ // See ref/createCindy documentation for details.
     {name:"Qw", type:"Free", pos:[0,0], color:[0,0,1]},
     {name:"Qx", type:"Free", pos:[0,0], color:[0,0,1]},
     {name:"Qy", type:"Free", pos:[0,0], color:[0,0,1]},
-    {name:"Qz", type:"Free", pos:[0,0], color:[0,0,1]}
+    {name:"Qz", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Na", type:"Free", pos:[1.15,0], visible:false, pinned:true},
+    {name:"Nb", type:"Free", pos:[1.15,1], visible:false, pinned:true},
+    {name:"Ns", type:"Segment", args:["Na","Nb"], color:[0,0,0]},
+    {name:"Nc", type:"PointOnSegment", args:["Ns"], pos:[1.15,1/9], color:[1,1,1]}
   ] // End of geometry array.
 });
 
@@ -95,6 +101,7 @@ createCindy({ // See ref/createCindy documentation for details.
 <body style="font-family:Arial;">
   <canvas id="CSCanvas" width="500" height="500"
           style="border:2px solid black"></canvas>
+  <p><button onclick="evokeCS('randomize()')" type="button">Randomize</button></p>
 </body>
 
 </html>
