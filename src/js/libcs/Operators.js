@@ -850,26 +850,32 @@ function infix_sequence(args, modifs) { //OK
 eval_helper.genericListMathGen = function(name, op, emptyval) {
     evaluator[name + "$1"] = function(args, modifs) {
         var v0 = evaluate(args[0]);
-        if (v0.ctype === 'list') {
-            if (v0.value.length === 0) {
-                return emptyval;
-            }
-            var erg = v0.value[0];
-            for (var i = 1; i < v0.value.length; i++) {
-                erg = General[op](erg, v0.value[i]);
-            }
-            return erg;
+        if (v0.ctype !== 'list') {
+            return nada;
         }
-        return nada;
+        var li = v0.value;
+        if (li.length === 0) {
+            return emptyval;
+        }
+
+        var erg = li[0];
+        for (var i = 1; i < li.length; i++) {
+            erg = op(erg, li[i]);
+        }
+        return erg;
     };
     var name$3 = name + "$3";
     evaluator[name + "$2"] = function(args, modifs) {
         return evaluator[name$3]([args[0], null, args[1]]);
     };
     evaluator[name$3] = function(args, modifs) {
-        var v1 = evaluateAndVal(args[0]);
-        if (v1.ctype !== 'list') {
+        var v0 = evaluateAndVal(args[0]);
+        if (v0.ctype !== 'list') {
             return nada;
+        }
+        var li = v0.value;
+        if (li.length === 0) {
+            return emptyval;
         }
 
         var lauf = '#';
@@ -879,29 +885,24 @@ eval_helper.genericListMathGen = function(name, op, emptyval) {
             }
         }
 
-        var li = v1.value;
-
-        if (li.length === 0) {
-            return emptyval;
-        }
         namespace.newvar(lauf);
         namespace.setvar(lauf, li[0]);
         var erg = evaluate(args[2]);
         for (var i = 1; i < li.length; i++) {
             namespace.setvar(lauf, li[i]);
             var b = evaluate(args[2]);
-            erg = General[op](erg, b);
+            erg = op(erg, b);
         }
         namespace.removevar(lauf);
         return erg;
     };
 };
 
-eval_helper.genericListMathGen("product", "mult", CSNumber.real(1));
-eval_helper.genericListMathGen("sum", "add", CSNumber.real(0));
-eval_helper.genericListMathGen("max", "max",
+eval_helper.genericListMathGen("product", General.mult, CSNumber.real(1));
+eval_helper.genericListMathGen("sum", General.add, CSNumber.real(0));
+eval_helper.genericListMathGen("max", General.max,
     CSNumber.real(Number.NEGATIVE_INFINITY));
-eval_helper.genericListMathGen("min", "min",
+eval_helper.genericListMathGen("min", General.min,
     CSNumber.real(Number.POSITIVE_INFINITY));
 
 evaluator.max$2 = function(args, modifs) {
