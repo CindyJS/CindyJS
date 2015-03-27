@@ -25,13 +25,11 @@ drawall(apply(1..length(m),[PP_#, QQ_(m_#)]), color->[0,1,0]);
 </script>
 <script type="text/javascript">
 
-createCindy({ // See ref/createCindy documentation for details.
+var cdy = createCindy({
   canvasname: "CSCanvas",
   scripts: "cs*",
   language: "en",
-  defaultAppearance: {
-    // See GeoBasics.js for possible attributes.
-  },
+  defaultAppearance: {},
   transform: [{scale: 15}, {translate:[-0.6,-0.5]}],
   geometry: [
     {name:"Pa", type:"Free", pos:[0,0], color:[1,0,0]},
@@ -90,10 +88,8 @@ createCindy({ // See ref/createCindy documentation for details.
     {name:"Nb", type:"Free", pos:[1.15,1], visible:false, pinned:true},
     {name:"Ns", type:"Segment", args:["Na","Nb"], color:[0,0,0]},
     {name:"Nc", type:"PointOnSegment", args:["Ns"], pos:[1.15,1/9], color:[1,1,1]}
-  ] // End of geometry array.
+  ]
 });
-
-// Remove all comments after adjusting this template for your use case.
 
 </script>
 </head>
@@ -101,7 +97,7 @@ createCindy({ // See ref/createCindy documentation for details.
 <body style="font-family:Arial;">
   <canvas id="CSCanvas" width="500" height="500"
           style="border:2px solid black"></canvas>
-  <p><button onclick="evokeCS('randomize()')" type="button">Randomize</button></p>
+  <p><button onclick="cdy.evokeCS('randomize()')" type="button">Randomize</button></p>
 </body>
 
 </html>
