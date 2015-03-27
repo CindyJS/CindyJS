@@ -24,10 +24,10 @@ createCindy({ // See ref/createCindy documentation for details.
     {name:"h", type:"Join", args:["X", "Z"] },
     {name:"l", type:"Join", args:["Y", "Z"] },
     {name:"CoT", type:"ConicBy2p3l", args:["A","B","g","h","l"]},
-    {name:"Co1", type:"SelectConic", args:["CoT"], index:1},
-    {name:"Co1", type:"SelectConic", args:["CoT"], index:2},
-    {name:"Co1", type:"SelectConic", args:["CoT"], index:3},
-    {name:"Co1", type:"SelectConic", args:["CoT"], index:4},
+    {name:"Co1", type:"SelectConic", args:["CoT"], index:1, color:[1,0,0]},
+    {name:"Co2", type:"SelectConic", args:["CoT"], index:2, color:[1,0,1]},
+    {name:"Co3", type:"SelectConic", args:["CoT"], index:3, color:[0,1,1]},
+    {name:"Co4", type:"SelectConic", args:["CoT"], index:4, color:[0,1,0]},
   ] // End of geometry array.
 });
 

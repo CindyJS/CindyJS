@@ -843,6 +843,30 @@ List.scalproduct = function(a1, a2) {
     return erg;
 };
 
+List.sesquilinearproduct = function(a1, a2) {
+    if (a1.value.length !== a2.value.length) {
+        return nada;
+    }
+    var real = 0;
+    var imag = 0;
+    for (var i = 0; i < a2.value.length; i++) {
+        var av1 = a1.value[i].value;
+        var av2 = a2.value[i].value;
+        real += av1.real * av2.real + av1.imag * av2.imag;
+        imag += av1.real * av2.imag - av1.imag * av2.real;
+    }
+    return CSNumber.complex(real, imag);
+};
+
+List.normSquared = function(a) {
+    var erg = 0;
+    for (var i = 0; i < a.value.length; i++) {
+        var av = a.value[i].value;
+        erg += av.real * av.real + av.imag * av.imag;
+    }
+    return CSNumber.real(erg);
+};
+
 List.productMV = function(a, b) {
     if (a.value[0].value.length !== b.value.length) {
         return nada;

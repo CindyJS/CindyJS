@@ -1715,6 +1715,46 @@ evaluator.linearsolve$2 = function(args, modifs) {
     return nada;
 };
 
+var permutationsFixedList = [
+    [[]], // 0
+    [[0]], // 1
+    [[0, 1], [1, 0]], // 2,
+    [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]], // 3
+    [ // 4
+        [0, 1, 2, 3], [0, 1, 3, 2], [0, 2, 1, 3], [0, 2, 3, 1], [0, 3, 1, 2],
+        [0, 3, 2, 1], [1, 0, 2, 3], [1, 0, 3, 2], [1, 2, 0, 3], [1, 2, 3, 0],
+        [1, 3, 0, 2], [1, 3, 2, 0], [2, 0, 1, 3], [2, 0, 3, 1], [2, 1, 0, 3],
+        [2, 1, 3, 0], [2, 3, 0, 1], [2, 3, 1, 0], [3, 0, 1, 2], [3, 0, 2, 1],
+        [3, 1, 0, 2], [3, 1, 2, 0], [3, 2, 0, 1], [3, 2, 1, 0]
+    ]
+];
+
+function minCostMatching(w) {
+    var n = w.length;
+    if (n === 0) return [];
+    if (n === 1) return [0];
+    if (n === 2) {
+        if (w[0][0] + w[1][1] <= w[0][1] + w[1][0]) return [0, 1];
+        else return [1, 0];
+    }
+    if (n > 4)
+        return hungarianMethod(w);
+    var perms = permutationsFixedList[n];
+    var bc = Number.POSITIVE_INFINITY;
+    var bp = perms[0];
+    for (var i = 0; i < perms.length; ++i) {
+        var p = perms[i];
+        var c = 0;
+        for (var j = 0; j < n; ++j)
+            c += w[j][p[j]];
+        if (c < bc) {
+            bc = c;
+            bp = p;
+        }
+    }
+    return bp;
+}
+
 function hungarianMethod(w) {
     // Hungarian Algorithm to determine a min-cost matching
     // for a square cost matrix given as JavaScript arrays (not Lists)
@@ -1915,7 +1955,7 @@ evaluator.mincostmatching$1 = function(args, modifs) {
                     w[i][j] = 0;
             }
         }
-        var matching = hungarianMethod(w);
+        var matching = minCostMatching(w);
         var res = new Array(nr);
         for (i = 0; i < nr; ++i) {
             j = matching[i];
