@@ -900,10 +900,8 @@ eval_helper.genericListMathGen = function(name, op, emptyval) {
 
 eval_helper.genericListMathGen("product", General.mult, CSNumber.real(1));
 eval_helper.genericListMathGen("sum", General.add, CSNumber.real(0));
-eval_helper.genericListMathGen("max", General.max,
-    CSNumber.real(Number.NEGATIVE_INFINITY));
-eval_helper.genericListMathGen("min", General.min,
-    CSNumber.real(Number.POSITIVE_INFINITY));
+eval_helper.genericListMathGen("max", General.max, nada);
+eval_helper.genericListMathGen("min", General.min, nada);
 
 evaluator.max$2 = function(args, modifs) {
     var v1 = evaluateAndVal(args[0]);

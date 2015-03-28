@@ -178,10 +178,10 @@ This operator finds the maximum value in a list of entries.
     > max([4,2,6,3,5])
     < 6
 
-The maximum of an empty list is negative infinity.
+The maximum of an empty list is not defined.
 
     > max([])
-    < -Infinity
+    < _?_
 
 ------
 
@@ -203,10 +203,10 @@ The two-argument form can however also be used to obtain the maximum of two numb
     > max(3/2, 7/4)
     < 1.75
 
-The maximum of an empty list is negative infinity.
+The maximum of an empty list is not defined.
 
     > max([], 99)
-    < -Infinity
+    < _?_
 
 ------
 
@@ -221,10 +221,10 @@ This operator is similar to the last one, except that the running variable is lo
     > v
     < 323
 
-The maximum of an empty list is negative infinity.
+The maximum of an empty list is not defined.
 
     > max([], x, 99)
-    < -Infinity
+    < _?_
 
 ------
 
@@ -236,10 +236,10 @@ This operator finds the minimum of a list of entries.
     > min([4,2,6,3,5])
     < 2
 
-The minimum of an empty list is positive infinity.
+The minimum of an empty list is not defined.
 
     > min([])
-    < Infinity
+    < _?_
 
 ------
 
@@ -260,10 +260,10 @@ The two-argument form can however also be used to obtain the minimum of two numb
     > min(3/2, 7/4)
     < 1.5
 
-The minimum of an empty list is positive infinity.
+The minimum of an empty list is not defined.
 
     > min([], 99)
-    < Infinity
+    < _?_
 
 ------
 
@@ -278,10 +278,10 @@ This operator is similar to the last one, except that the running variable is lo
     > v
     < 321
 
-The minimum of an empty list is positive infinity.
+The minimum of an empty list is not defined.
 
     > min([], x, 99)
-    < Infinity
+    < _?_
 
 ------
 
