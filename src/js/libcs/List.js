@@ -447,19 +447,6 @@ List.set = function(a1) {
 };
 
 
-List.genericListMath = function(a, op) {
-
-    if (a.value.length === 0) {
-        return nada;
-    }
-    var erg = a.value[0];
-    for (var i = 1; i < a.value.length; i++) {
-        erg = General[op](erg, a.value[i]);
-    }
-    return erg;
-};
-
-
 ///////////////////////////
 
 
