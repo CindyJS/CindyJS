@@ -465,7 +465,7 @@ List.genericListMath = function(a, op) {
 
 List.maxval = function(a) { //Only for Lists or Lists of Lists that contain numbers
     //Used for Normalize max
-    var erg = CSNumber.real(0);
+    var erg = CSNumber.zero;
     for (var i = 0; i < a.value.length; i++) {
         var v = a.value[i];
         if (v.ctype === "number") {
@@ -475,13 +475,14 @@ List.maxval = function(a) { //Only for Lists or Lists of Lists that contain numb
             erg = CSNumber.argmax(erg, List.maxval(v));
         }
     }
-    return CSNumber.clone(erg);
+    return erg;
 };
 
 List.normalizeMax = function(a) {
     var s = CSNumber.inv(List.maxval(a));
     return List.scalmult(s, a);
 };
+
 List.normalizeZ = function(a) {
     var s = CSNumber.inv(a.value[2]);
     return List.scalmult(s, a);
@@ -962,13 +963,13 @@ List.projectiveDistMinScal = function(a, b) {
 
 List.crossOperator = function(a) {
 
-    var x = CSNumber.clone(a.value[0]);
-    var y = CSNumber.clone(a.value[1]);
-    var z = CSNumber.clone(a.value[2]);
+    var x = a.value[0];
+    var y = a.value[1];
+    var z = a.value[2];
     return List.turnIntoCSList([
-        List.turnIntoCSList([CSNumber.real(0), CSNumber.neg(z), y]),
-        List.turnIntoCSList([z, CSNumber.real(0), CSNumber.neg(x)]),
-        List.turnIntoCSList([CSNumber.neg(y), x, CSNumber.real(0)])
+        List.turnIntoCSList([CSNumber.zero, CSNumber.neg(z), y]),
+        List.turnIntoCSList([z, CSNumber.zero, CSNumber.neg(x)]),
+        List.turnIntoCSList([CSNumber.neg(y), x, CSNumber.zero])
     ]);
 
 };
@@ -991,20 +992,16 @@ List.veronese = function(a) { //Assumes that a is 3-Vector
 };
 
 List.matrixFromVeronese = function(a) { //Assumes that a is 6-Vector
-    //Wie Wichtig ist hier das Clonen???
-    var xx = CSNumber.clone(a.value[0]);
-    var yy = CSNumber.clone(a.value[1]);
-    var zz = CSNumber.clone(a.value[2]);
-    var xy = CSNumber.div(a.value[3], CSNumber.real(2));
-    var xz = CSNumber.div(a.value[4], CSNumber.real(2));
-    var yz = CSNumber.div(a.value[5], CSNumber.real(2));
-    var yx = CSNumber.clone(xy);
-    var zx = CSNumber.clone(xz);
-    var zy = CSNumber.clone(yz);
+    var xx = a.value[0];
+    var yy = a.value[1];
+    var zz = a.value[2];
+    var xy = CSNumber.realmult(0.5, a.value[3]);
+    var xz = CSNumber.realmult(0.5, a.value[4]);
+    var yz = CSNumber.realmult(0.5, a.value[5]);
     return List.turnIntoCSList([
         List.turnIntoCSList([xx, xy, xz]),
-        List.turnIntoCSList([yx, yy, yz]),
-        List.turnIntoCSList([zx, zy, zz])
+        List.turnIntoCSList([xy, yy, yz]),
+        List.turnIntoCSList([xz, yz, zz])
     ]);
 
 };
@@ -1032,19 +1029,6 @@ List.eucangle = function(a, b) {
     var ang = CSNumber.log(dv);
     ang = CSNumber.mult(ang, CSNumber.complex(0, 0.5));
     return ang;
-};
-
-
-List.clone = function(a) {
-    var erg = [];
-    for (var i = 0; i < a.value.length; i++) {
-        erg[i] = eval_helper.clone(a.value[i]);
-    }
-    return {
-        "ctype": "list",
-        "value": erg,
-        "usage": a.usage
-    };
 };
 
 
@@ -1293,11 +1277,10 @@ List.getField = function(li, key) {
             return li;
         }
         if (List._helper.isNumberVecN(li, 2)) {
-            var li2 = General.clone(li);
-            li2.value[2] = CSNumber.real(1);
-            return li2;
+            return List.turnIntoCSList([
+                li.value[0], li.value[1], CSNumber.real(1)
+            ]);
         }
-        return nada;
     }
 
     if (key === "xy") {
@@ -1305,64 +1288,54 @@ List.getField = function(li, key) {
             return li;
         }
         if (List._helper.isNumberVecN(li, 3)) {
-            var erg = General.clone(li);
-            erg.value.pop();
-            return List.scaldiv(li.value[2], erg);
+            return List.turnIntoCSList([
+                CSNumber.div(li.value[0], li.value[2]),
+                CSNumber.div(li.value[1], li.value[2])
+            ]);
         }
-        return nada;
-
     }
 
     if (key === "x") {
         if (List.isNumberVector(li)) {
             n = li.value.length;
             if (n > 0 && n !== 3) {
-                return CSNumber.clone(li.value[0]);
+                return li.value[0];
             }
             if (n === 3) {
                 if (li.usage === "Point") {
                     return CSNumber.div(li.value[0], li.value[2]);
                 } else {
-                    return CSNumber.clone(li.value[0]);
+                    return li.value[0];
                 }
             }
-
         }
-        return nada;
-
     }
 
     if (key === "y") {
         if (List.isNumberVector(li)) {
             n = li.value.length;
             if (n > 1 && n !== 3) {
-                return CSNumber.clone(li.value[1]);
+                return li.value[1];
             }
             if (n === 3) {
                 if (li.usage === "Point") {
                     return CSNumber.div(li.value[1], li.value[2]);
                 } else {
-                    return CSNumber.clone(li.value[1]);
+                    return li.value[1];
                 }
             }
-
         }
-        return nada;
     }
 
     if (key === "z") {
         if (List.isNumberVector(li)) {
             n = li.value.length;
             if (n > 2) {
-                return CSNumber.clone(li.value[2]);
+                return li.value[2];
             }
         }
-
-        return nada;
     }
 
-
     return nada;
-
 
 };

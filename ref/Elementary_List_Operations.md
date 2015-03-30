@@ -236,5 +236,3 @@ The variable is local to the expression.
     < [0, 2]
     > v
     < 996
-
-<!-- end of code block. -->

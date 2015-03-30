@@ -876,5 +876,3 @@ By this one can very easily adjust the amount of Swing feeling used by the tune 
     > midiaddtrack(mel ,channel->2,track->2);
     > midiaddtrack(beat,channel->9,track->1,velocity->.5);
     > midistart(speed->700);
-
-<!-- End of document -->

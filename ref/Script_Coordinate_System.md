@@ -318,5 +318,3 @@ In most cases, the [`colorplot` function](Function_Plotting#colorplot) is easier
     >    draw((x,y),border->false,size->.5,color->[0,0,0]);
     >  )
     > )
-
-<!-- End of document -->

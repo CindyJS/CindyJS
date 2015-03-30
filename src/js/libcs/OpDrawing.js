@@ -1129,13 +1129,9 @@ evaluator.repaint$0 = function(args, modifs) {
 
 
 evaluator.screenbounds$0 = function(args, modifs) {
-    var pt1 = List.realVector(csport.to(0, 0));
-    pt1.usage = "Point";
-    var pt2 = List.realVector(csport.to(csw, 0));
-    pt2.usage = "Point";
-    var pt3 = List.realVector(csport.to(csw, csh));
-    pt3.usage = "Point";
-    var pt4 = List.realVector(csport.to(0, csh));
-    pt4.usage = "Point";
+    var pt1 = General.withUsage(List.realVector(csport.to(0, 0)), "Point");
+    var pt2 = General.withUsage(List.realVector(csport.to(csw, 0)), "Point");
+    var pt3 = General.withUsage(List.realVector(csport.to(csw, csh)), "Point");
+    var pt4 = General.withUsage(List.realVector(csport.to(0, csh)), "Point");
     return (List.turnIntoCSList([pt1, pt2, pt3, pt4]));
 };

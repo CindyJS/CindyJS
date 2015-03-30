@@ -423,27 +423,31 @@ evaluator.genList = function(args, modifs) { //VARIADIC!
 
 
 eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher obs das so tut
-    var where = evaluate(data.args[0]);
+    var lhs = data.args[0];
+    var where = evaluate(lhs);
     var ind = evaluateAndVal(data.args[1]);
+    var rhs = nada;
 
     if (where.ctype === 'list' || where.ctype === 'string') {
         var ind1 = Math.floor(ind.value.real);
         if (ind1 < 0) {
             ind1 = where.value.length + ind1 + 1;
         }
-        if (ind1 > 0 && ind1 < where.value.length + 1) {
+        if (ind1 > 0 && ind1 <= where.value.length) {
             if (where.ctype === 'list') {
-                where.value[ind1 - 1] = evaluate(what);
+                var lst = where.value.slice();
+                lst[ind1 - 1] = evaluate(what);
+                rhs = List.turnIntoCSList(lst);
             } else {
                 var str = where.value;
-                str = str.substring(0, ind1 - 1) + niceprint(evaluate(what)) + str.substring(ind1, str.length);
-                where.value = str;
+                str = str.substring(0, ind1 - 1) +
+                    niceprint(evaluate(what)) +
+                    str.substring(ind1, str.length);
+                rhs = General.string(str);
             }
         }
     }
-
-    return nada;
-
+    infix_assign([lhs, rhs]);
 };
 
 
@@ -487,6 +491,7 @@ function infix_assign(args, modifs) {
         namespace.setvar(args[0].name, v1);
     } else if (args[0].ctype === 'infix') {
         if (args[0].oper === '_') {
+            // Copy on write
             eval_helper.assigntake(args[0], v1);
         } else {
             console.error("Can't use infix expression as lvalue");
@@ -585,11 +590,8 @@ function comp_equals(args, modifs) {
 }
 
 function comp_notequals(args, modifs) {
-    var erg = comp_equals(args, modifs);
-    erg.value = !erg.value;
-    return erg;
+    return General.not(comp_equals(args, modifs));
 }
-
 
 function comp_almostequals(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
@@ -700,9 +702,7 @@ function postfix_numb_degree(args, modifs) {
 
 
 function comp_notalmostequals(args, modifs) {
-    var erg = comp_almostequals(args, modifs);
-    erg.value = !erg.value;
-    return erg;
+    return General.not(comp_almostequals(args, modifs));
 }
 
 
@@ -1070,13 +1070,13 @@ evaluator.roots$1 = function(args, modifs) {
                 return nada;
 
         var roots = [];
-        var cs_orig = List.clone(cs);
+        var cs_orig = cs;
         var n = cs.value.length - 1;
         for (i = 0; i < n; i++) {
-            roots[i] = eval_helper.laguerre(cs, CSNumber.real(0.0), 200);
+            roots[i] = eval_helper.laguerre(cs, CSNumber.zero, 200);
             roots[i] = eval_helper.laguerre(cs_orig, roots[i], 1);
             var fx = [];
-            fx[n - i] = CSNumber.clone(cs.value[n - i]);
+            fx[n - i] = cs.value[n - i];
             for (var j = n - i; j > 0; j--)
                 fx[j - 1] = CSNumber.add(cs.value[j - 1], CSNumber.mult(fx[j], roots[i]));
             fx.shift();
@@ -1523,12 +1523,11 @@ evaluator.cross$2 = function(args, modifs) {
     var v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
         var erg = List.cross(v0, v1);
-        erg.usage = "None";
         if (v0.usage === "Point" && v1.usage === "Point") {
-            erg.usage = "Line";
+            erg = General.withUsage(erg, "Line");
         }
         if (v0.usage === "Line" && v1.usage === "Line") {
-            erg.usage = "Point";
+            erg = General.withUsage(erg, "Point");
         }
         return erg;
     }
@@ -1553,8 +1552,7 @@ evaluator.para$2 = function(args, modifs) {
         }
         var inf = List.linfty;
         var erg = List.cross(List.cross(inf, l), p);
-        erg.usage = "Line";
-        return erg;
+        return General.withUsage(erg, "Line");
     }
     return nada;
 };
@@ -1574,12 +1572,9 @@ evaluator.perp$2 = function(args, modifs) {
             p = w1;
             l = w0;
         }
-        var inf = List.linfty;
-        var tt = List.cross(inf, l);
-        tt.value = [tt.value[1], CSNumber.neg(tt.value[0]), tt.value[2]];
+        var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
         var erg = List.cross(tt, p);
-        erg.usage = "Line";
-        return erg;
+        return General.withUsage(erg, "Line");
     }
 };
 
@@ -1603,8 +1598,7 @@ evaluator.meet$2 = function(args, modifs) {
     var v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
         var erg = List.cross(v0, v1);
-        erg.usage = "Point";
-        return erg;
+        return General.withUsage(erg, "Point");
     }
     return nada;
 };
@@ -1615,8 +1609,7 @@ evaluator.join$2 = function(args, modifs) {
     var v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
         var erg = List.cross(v0, v1);
-        erg.usage = "Line";
-        return erg;
+        return General.withUsage(erg, "Line");
     }
     return nada;
 };
@@ -1635,7 +1628,7 @@ evaluator.dist_infix = evaluator.dist$2;
 evaluator.point$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if (List._helper.isNumberVecN(v0, 3) || List._helper.isNumberVecN(v0, 2)) {
-        v0.usage = "Point";
+        return General.withUsage(v0, "Point");
     }
     return v0;
 };
@@ -1643,7 +1636,7 @@ evaluator.point$1 = function(args, modifs) {
 evaluator.line$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if (List._helper.isNumberVecN(v0, 3)) {
-        v0.usage = "Line";
+        return General.withUsage(v0, "Line");
     }
     return v0;
 };
@@ -1682,9 +1675,7 @@ evaluator.area$3 = function(args, modifs) {
             v1 = List.scaldiv(z1, v1);
             v2 = List.scaldiv(z2, v2);
             var erg = List.det3(v0, v1, v2);
-            erg.value.real = erg.value.real * 0.5;
-            erg.value.imag = erg.value.imag * 0.5;
-            return erg;
+            return CSNumber.realmult(0.5, erg);
         }
     }
     return nada;
@@ -2788,8 +2779,8 @@ eval_helper.extractPointVec = function(v1) { //Eventuell Homogen machen
         n1 = pt1[0];
         n2 = pt1[1];
         if (n1.ctype === 'number' && n2.ctype === 'number') {
-            erg.x = CSNumber.clone(n1);
-            erg.y = CSNumber.clone(n2);
+            erg.x = n1;
+            erg.y = n2;
             erg.z = CSNumber.real(1);
             erg.ok = true;
             return erg;
@@ -2939,9 +2930,7 @@ evaluator.halfplane$2 = function(args, modifs) {
             l = v0;
         }
         //OK im Folgenden lässt sich viel optimieren
-        var inf = List.realVector([0, 0, 1]);
-        var tt = List.cross(inf, l);
-        tt.value = [tt.value[1], CSNumber.neg(tt.value[0]), tt.value[2]];
+        var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
         var erg = List.cross(tt, p);
         var foot = List.cross(l, erg);
         foot = General.div(foot, foot.value[2]);
