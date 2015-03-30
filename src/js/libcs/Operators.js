@@ -3030,7 +3030,8 @@ evaluator.javascript$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if (v0.ctype === 'string') {
         var s = v0.value;
-        eval(s); // jshint ignore:line
+        var f = new Function(s); // jshint ignore:line
+        f.call(globalInstance); // run code, with CindyJS instance as "this".
     }
     return nada;
 };
