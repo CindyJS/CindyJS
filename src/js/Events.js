@@ -152,10 +152,22 @@ function setuplisteners(canvas, data) {
 
     }
 
-    if (data.keylistener) {
+    if (data.keylistener === true) {
         addAutoCleaningEventListener(document, "keydown", function(e) {
             cs_keypressed(e);
             return false;
+        });
+    } else if (cscompiled.keydown) {
+        canvas.setAttribute("tabindex", "0");
+        addAutoCleaningEventListener(canvas, "mousedown", function() {
+            canvas.focus();
+        });
+        addAutoCleaningEventListener(canvas, "keydown", function(e) {
+            // console.log("Got key " + e.charCode + " / " + e.keyCode);
+            if (e.keyCode !== 9 /* tab */ ) {
+                cs_keypressed(e);
+                e.preventDefault();
+            }
         });
     }
 

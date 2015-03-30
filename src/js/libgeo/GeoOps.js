@@ -554,9 +554,16 @@ geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
             List.turnIntoCSList([xy, yy, yz]),
             List.turnIntoCSList([xz, yz, zz])
         ]);
-        var cc = List.realVector([1, 1, 1]);
         mm = List.productMM(m2, List.productMM(mm, m3));
-        res[signs] = mm;
+        var vv = List.turnIntoCSList([
+            mm.value[0].value[0],
+            mm.value[0].value[1],
+            mm.value[0].value[2],
+            mm.value[1].value[1],
+            mm.value[1].value[2],
+            mm.value[2].value[2]
+        ]);
+        res[signs] = vv;
     }
     return res;
 
@@ -571,7 +578,27 @@ geoOps.ConicBy3p2l = function(el) {
     var c = csgeo.csnames[(el.args[2])].homog;
     var g = csgeo.csnames[(el.args[3])].homog;
     var h = csgeo.csnames[(el.args[4])].homog;
-    el.results = geoOps._helper.ConicBy3p2l(a, b, c, g, h);
+    var oldVecs = el.tracing;
+    var newVecs = geoOps._helper.ConicBy3p2l(a, b, c, g, h);
+    var i;
+    if (oldVecs === undefined) {
+        el.tracing = newVecs;
+    } else {
+        var m = geoOps._helper.tracingSesq(oldVecs, newVecs);
+        for (i = 0; i < 4; ++i) {
+            el.tracing[i] = newVecs[m[i]];
+        }
+    }
+    var res = new Array(4);
+    for (i = 0; i < 4; ++i) {
+        var v = el.tracing[i].value;
+        res[i] = List.turnIntoCSList([
+            List.turnIntoCSList([v[0], v[1], v[2]]),
+            List.turnIntoCSList([v[1], v[3], v[4]]),
+            List.turnIntoCSList([v[2], v[4], v[5]])
+        ]);
+    }
+    el.results = res;
 };
 geoOpMap.ConicBy3p2l = "T";
 
@@ -581,10 +608,27 @@ geoOps.ConicBy2p3l = function(el) {
     var g = csgeo.csnames[(el.args[2])].homog;
     var h = csgeo.csnames[(el.args[3])].homog;
     var l = csgeo.csnames[(el.args[4])].homog;
-    var dual = geoOps._helper.ConicBy3p2l(g, h, l, a, b);
+    var oldVecs = el.tracing;
+    var newVecs = geoOps._helper.ConicBy3p2l(g, h, l, a, b);
+    var i;
+    if (oldVecs === undefined) {
+        el.tracing = newVecs;
+    } else {
+        var m = geoOps._helper.tracingSesq(oldVecs, newVecs);
+        for (i = 0; i < 4; ++i) {
+            el.tracing[i] = newVecs[m[i]];
+        }
+    }
     var res = new Array(4);
-    for (var i = 0; i < 4; ++i)
-        res[i] = List.normalizeMax(List.adjoint3(dual[i]));
+    for (i = 0; i < 4; ++i) {
+        var v = el.tracing[i].value;
+        var dual = List.turnIntoCSList([
+            List.turnIntoCSList([v[0], v[1], v[2]]),
+            List.turnIntoCSList([v[1], v[3], v[4]]),
+            List.turnIntoCSList([v[2], v[4], v[5]])
+        ]);
+        res[i] = List.normalizeMax(List.adjoint3(dual));
+    }
     el.results = res;
 };
 geoOpMap.ConicBy2p3l = "T";
@@ -712,6 +756,44 @@ geoOps._helper.tracing2X = function(n1, n2, c1, c2, el) {
     }
     return DECREASE_STEP + tooClose;
 
+};
+
+geoOps._helper.tracingSesq = function(oldVecs, newVecs) {
+    /*
+     * Trace an arbitrary number of solutions, with an arbitrary
+     * dimension for the homogeneous solution vectors.
+     *
+     * Conceptually the cost function being used is the negated square
+     * of the absolute value of the sesquilinearproduct between two
+     * vectors normalized to unit norm. In practice, we avoid
+     * normalizing the vectors, and instead divide by the squared norm
+     * to avoid taking square roots.
+     */
+
+    var n = newVecs.length;
+    var oldNorms = new Array(n);
+    var newNorms = new Array(n);
+    var cost = new Array(n);
+    var i, j;
+    for (i = 0; i < n; ++i) {
+        oldNorms[i] = List.normSquared(oldVecs[i]).value.real;
+        newNorms[i] = List.normSquared(newVecs[i]).value.real;
+        cost[i] = new Array(n);
+    }
+    for (i = 0; i < n; ++i) {
+        for (j = 0; j < n; ++j) {
+            var p = List.sesquilinearproduct(oldVecs[i], newVecs[j]).value;
+            var w = (p.real * p.real + p.imag * p.imag) /
+                (oldNorms[i] * newNorms[j]);
+            cost[i][j] = -w;
+        }
+    }
+    var m = minCostMatching(cost);
+    //console.log(m.join(", ") + ": " +
+    //            cost.map(function(r){return r.join(", ")}).join("; "));
+
+    // TODO: signal wheter this decision is reliable
+    return m;
 };
 
 geoOps._helper.IntersectLC = function(l, c) {

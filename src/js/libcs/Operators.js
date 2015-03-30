@@ -1706,6 +1706,259 @@ evaluator.linearsolve$2 = function(args, modifs) {
     return nada;
 };
 
+var permutationsFixedList = [
+    [[]], // 0
+    [[0]], // 1
+    [[0, 1], [1, 0]], // 2,
+    [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]], // 3
+    [ // 4
+        [0, 1, 2, 3], [0, 1, 3, 2], [0, 2, 1, 3], [0, 2, 3, 1], [0, 3, 1, 2],
+        [0, 3, 2, 1], [1, 0, 2, 3], [1, 0, 3, 2], [1, 2, 0, 3], [1, 2, 3, 0],
+        [1, 3, 0, 2], [1, 3, 2, 0], [2, 0, 1, 3], [2, 0, 3, 1], [2, 1, 0, 3],
+        [2, 1, 3, 0], [2, 3, 0, 1], [2, 3, 1, 0], [3, 0, 1, 2], [3, 0, 2, 1],
+        [3, 1, 0, 2], [3, 1, 2, 0], [3, 2, 0, 1], [3, 2, 1, 0]
+    ]
+];
+
+function minCostMatching(w) {
+    var n = w.length;
+    if (n === 0) return [];
+    if (n === 1) return [0];
+    if (n === 2) {
+        if (w[0][0] + w[1][1] <= w[0][1] + w[1][0]) return [0, 1];
+        else return [1, 0];
+    }
+    if (n > 4)
+        return hungarianMethod(w);
+    var perms = permutationsFixedList[n];
+    var bc = Number.POSITIVE_INFINITY;
+    var bp = perms[0];
+    for (var i = 0; i < perms.length; ++i) {
+        var p = perms[i];
+        var c = 0;
+        for (var j = 0; j < n; ++j)
+            c += w[j][p[j]];
+        if (c < bc) {
+            bc = c;
+            bp = p;
+        }
+    }
+    return bp;
+}
+
+function hungarianMethod(w) {
+    // Hungarian Algorithm to determine a min-cost matching
+    // for a square cost matrix given as JavaScript arrays (not Lists)
+    // of floating point numbers (not CSNumbers).
+    // The invariant v1[i1].cost + v2[i2].cost <= w[i1][i2] will be maintained.
+    // The result is the matched column (inner index) for every row
+    // (outer index) of the supplied weight matrix.
+
+    var abs = Math.abs;
+    var n = w.length;
+    var i1, i2;
+    var v1 = new Array(n);
+    var v2 = new Array(n); // the two partitions
+    var e = new Array(n); // excess matrix, zero indicates edge in eq. subgr.
+    for (i1 = 0; i1 < n; ++i1)
+        e[i1] = new Array(n);
+
+    function mkVertex() {
+        return {
+            matched: -1, // index of partner in matching
+            prev: -1, // previous node in alternating tree
+            start: -1, // root of alternating path
+            cost: 0, // vertex cost for hungarian method
+            used: false, // flag used for matching and vertex cover
+            leaf: false // indicates queued item for matching computation
+        };
+    }
+
+    for (i1 = 0; i1 < n; ++i1) {
+        v1[i1] = mkVertex();
+        v2[i1] = mkVertex();
+        v1[i1].cost = w[i1][0];
+        for (i2 = 1; i2 < n; ++i2) {
+            if (v1[i1].cost > w[i1][i2])
+                v1[i1].cost = w[i1][i2];
+        }
+    }
+
+    for (;;) {
+
+        // Step 1: update excess matrix: edge cost minus sum of vertex costs
+        for (i1 = 0; i1 < n; ++i1) {
+            for (i2 = 0; i2 < n; ++i2) {
+                e[i1][i2] = w[i1][i2] - v1[i1].cost - v2[i2].cost;
+                if (e[i1][i2] < (abs(w[i1][i2]) + abs(v1[i1].cost) +
+                        abs(v2[i2].cost)) * 1e-14)
+                    e[i1][i2] = 0;
+            }
+        }
+
+        // Step 2: find a maximal matching in the equality subgraph
+        for (i1 = 0; i1 < n; ++i1)
+            v1[i1].matched = v2[i1].matched = -1; // reset
+        var matchsize = 0;
+        for (;;) {
+            for (i1 = 0; i1 < n; ++i1) {
+                v1[i1].used = v1[i1].leaf = v2[i1].used = v2[i1].leaf = false;
+                if (v1[i1].matched !== -1) continue;
+                v1[i1].start = i1;
+                v1[i1].used = v1[i1].leaf = true;
+                v1[i1].prev = -1;
+            }
+            var haspath = false;
+            var empty = false;
+            while (!empty) {
+
+                // follow edges not in matching
+                for (i1 = 0; i1 < n; ++i1) {
+                    if (!v1[i1].leaf) continue;
+                    v1[i1].leaf = false;
+                    for (i2 = 0; i2 < n; ++i2) {
+                        if (v2[i2].used || e[i1][i2] > 0)
+                            continue;
+                        if (v1[i1].matched === i2)
+                            continue;
+                        v2[i2].prev = i1;
+                        v2[i2].start = v1[i1].start;
+                        v2[i2].used = v2[i2].leaf = true;
+                        if (v2[i2].matched === -1) {
+                            v1[v2[i2].start].prev = i2;
+                            haspath = true;
+                            break;
+                        }
+                    } // for i2
+                } // for i1
+
+                if (haspath) break;
+                empty = true;
+
+                // follow edge in matching
+                for (i2 = 0; i2 < n; ++i2) {
+                    if (!v2[i2].leaf) continue;
+                    v2[i2].leaf = false;
+                    i1 = v2[i2].matched;
+                    if (v1[i1].used) continue;
+                    v1[i1].prev = i2;
+                    v1[i1].start = v2[i2].start;
+                    v1[i1].used = v1[i1].leaf = true;
+                    empty = false;
+                } // for i2
+
+            } // while !empty
+            if (!haspath) break;
+
+            // now augment every path found
+            for (var start = 0; start < n; ++start) {
+                if (v1[start].matched !== -1 || v1[start].prev === -1) continue;
+                i2 = v1[start].prev;
+                do {
+                    i1 = v2[i2].prev;
+                    v2[i2].matched = i1;
+                    v1[i1].matched = i2;
+                    i2 = v1[i1].prev;
+                } while (i1 !== start);
+                ++matchsize;
+            }
+        } // for(;;)
+
+        if (matchsize === n) break; // found maximum weight matching
+
+        // Step 3: find vertex cover on equality subgraph
+        for (i1 = 0; i1 < n; ++i1) {
+            v1[i1].used = v1[i1].leaf = v2[i1].used = v2[i1].leaf = false;
+        }
+        for (i1 = 0; i1 < n; ++i1) {
+            if (v1[i1].matched === -1) notincover1(i1);
+        }
+        for (i2 = 0; i2 < n; ++i2) {
+            if (v2[i2].matched === -1) notincover2(i2);
+        }
+        for (i1 = 0; i1 < n; ++i1) {
+            if (v1[i1].matched === -1) continue;
+            if (v1[i1].used || v2[v1[i1].matched].used) continue;
+            v1[i1].used = true;
+        }
+
+        // Step 4: adjust costs.
+        // cost change is minimal cost in the part not covered
+        var eps = Number.POSITIVE_INFINITY;
+        for (i1 = 0; i1 < n; ++i1) {
+            if (v1[i1].used) continue;
+            for (i2 = 0; i2 < n; ++i2) {
+                if (v2[i2].used) continue;
+                if (eps > e[i1][i2]) eps = e[i1][i2];
+            }
+        }
+        // assert(eps>0);
+        // reduce total cost by applying cost change
+        for (i1 = 0; i1 < n; ++i1) {
+            if (!v1[i1].used) v1[i1].cost += eps;
+            if (v2[i1].used) v2[i1].cost -= eps;
+        }
+    }
+
+    // We have a result, so let's format it appropriately
+    var res = new Array(n);
+    for (i1 = 0; i1 < n; ++i1) {
+        i2 = v1[i1].matched;
+        res[i1] = i2;
+    }
+    return res;
+
+    // v1[i1] is definitely not in the cover
+    //  => all edges must have their opposite endpoint covered
+    function notincover1(i1) {
+        for (var i2 = 0; i2 < n; ++i2) {
+            if (e[i1][i2] > 0 || v2[i2].used) continue;
+            v2[i2].used = true;
+            notincover1(v2[i2].matched);
+        }
+    }
+
+    // symmetric to the above
+    function notincover2(i2) {
+        for (var i1 = 0; i1 < n; ++i1) {
+            if (e[i1][i2] > 0 || v1[i1].used) continue;
+            v1[i1].used = true;
+            notincover2(v1[i1].matched);
+        }
+    }
+
+}
+
+evaluator.mincostmatching$1 = function(args, modifs) {
+    var costMatrix = evaluate(args[0]);
+    if (List.isNumberMatrix(costMatrix)) {
+        var nr = costMatrix.value.length;
+        var nc = List._helper.colNumb(costMatrix);
+        var size = (nr < nc ? nc : nr);
+        var i, j;
+        var w = new Array(size);
+        for (i = 0; i < size; ++i) {
+            w[i] = new Array(size);
+            for (j = 0; j < size; ++j) {
+                if (i < nr && j < nc)
+                    w[i][j] = costMatrix.value[i].value[j].value.real;
+                else
+                    w[i][j] = 0;
+            }
+        }
+        var matching = minCostMatching(w);
+        var res = new Array(nr);
+        for (i = 0; i < nr; ++i) {
+            j = matching[i];
+            if (j < nc)
+                res[i] = CSNumber.real(j + 1);
+            else
+                res[i] = CSNumber.real(0);
+        }
+        return List.turnIntoCSList(res);
+    }
+    return nada;
+};
 
 ///////////////////////////////
 //    List Manipulations     //
@@ -1935,6 +2188,79 @@ evaluator.set$1 = function(args, modifs) {
     return nada;
 };
 
+function gcd(a, b) {
+    a = a | 0;
+    b = b | 0;
+    if (a === 0 && b === 0)
+        return 0;
+    while (b !== 0) {
+        var c = a;
+        a = b;
+        b = (c % b) | 0;
+    }
+    return a;
+}
+
+evaluator.combinations$2 = function(args, modifs) {
+    var base = evaluate(args[0]);
+    var count = evaluate(args[1]);
+    var n, k, current, res;
+
+    if (count.ctype === 'number') {
+        k = count.value.real | 0;
+        if (base.ctype === 'number') {
+            n = base.value.real | 0;
+            if (n - k < k) k = n - k;
+            if (k < 0) return CSNumber.real(0);
+            if (k === 0) return CSNumber.real(1);
+            if (k === 1) return base;
+            // compute (n! / (n-k)!) / k! efficiently
+            var numer = 1;
+            var denom = 1;
+            for (var i = 1; i <= k; ++i) {
+                // Use "| 0" to indicate integer arithmetic
+                var x = (n - k + i) | 0;
+                var y = i | 0;
+                var g = gcd(x, y) | 0;
+                x = (x / g) | 0;
+                y = (y / g) | 0;
+                g = gcd(numer, y) | 0;
+                numer = (numer / g) | 0;
+                y = (y / g) | 0;
+                g = gcd(x, denom) | 0;
+                x = (x / g) | 0;
+                denom = (denom / g) | 0;
+                numer = (numer * x) | 0;
+                denom = (denom * y) | 0;
+            }
+            return CSNumber.real(numer / denom);
+        }
+        if (base.ctype === 'list') {
+            n = base.value.length;
+            if (k < 0 || k > n)
+                return List.turnIntoCSList([]);
+            if (k === 0)
+                return List.turnIntoCSList([List.turnIntoCSList([])]);
+            if (k === n)
+                return List.turnIntoCSList([base]);
+            res = [];
+            current = new Array(k);
+            pick(0, 0);
+            return List.turnIntoCSList(res);
+        }
+    }
+    return nada;
+
+    function pick(i, s) {
+        if (i === k) {
+            res.push(List.turnIntoCSList(current.slice()));
+        } else if (s < n) {
+            current[i] = base.value[s];
+            pick(i + 1, s + 1);
+            pick(i, s + 1);
+        }
+    }
+};
 
 evaluator.zeromatrix$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
