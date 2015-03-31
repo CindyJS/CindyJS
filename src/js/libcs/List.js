@@ -11,6 +11,14 @@ List.turnIntoCSList = function(l) {
     };
 };
 
+List.niceprint = function(l) {
+    for(var i = 0; i < l.value.length; i++){
+        for(var j = 0; j < l.value[0].length; j++){
+            console.log(CSNumber.niceprint(l.value[i].value[j]));
+            }
+     }
+};
+
 
 List.realVector = function(l) {
     var erg = [];

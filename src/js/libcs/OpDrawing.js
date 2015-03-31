@@ -176,12 +176,42 @@ eval_helper.drawconic = function(aConic, modifs) {
 
     var eps = 1e-16;
     var mat = aConic.matrix;
+    var origmat = mat;
 
     // check for complex values
     for (var i = 0; i < 2; i++)
         for (var j = 0; j < 2; j++) {
             if (Math.abs(mat.value[i].value[j].value.imag) > eps) return;
         }
+
+    // transform matrix to canvas coordiantes
+    var tMatrix1 = List.turnIntoCSList([ // inverse of homog points (0,0), (1,0), (0, 1)
+                    List.realVector([-1, -1, 1]),
+                    List.realVector([1, 0 ,0]),
+                    List.realVector([0, 1, 0])]);
+
+    // get canvas coordiantes
+    var pt0 = csport.from(0, 0, 1);
+    pt0[2] = 1;
+    var pt1 = csport.from(1, 0, 1);
+    pt1[2] = 1;
+    var pt2 = csport.from(0, 1, 1);
+    pt2[2] = 1;
+
+    var tMatrix2 = List.turnIntoCSList([
+                    List.realVector(pt0),
+                    List.realVector(pt1),
+                    List.realVector(pt2)]);
+    tMatrix2 = List.transpose(tMatrix2);
+
+    var ttMatrix = General.mult(tMatrix2, tMatrix1); // get transformation matrix
+
+    var ittMatrix = List.inverse(ttMatrix);
+    
+    // transform Conic
+    mat = General.mult(List.transpose(ittMatrix), mat);
+    mat = General.mult(mat, ittMatrix);
+    
 
     var a = mat.value[0].value[0].value.real;
     var b = mat.value[1].value[0].value.real;
@@ -195,6 +225,7 @@ eval_helper.drawconic = function(aConic, modifs) {
         [b, c, e],
         [d, e, f]
     ];
+
 
 
     var det = a * c * f - a * e * e - b * b * f + 2 * b * d * e - c * d * d;
@@ -212,7 +243,6 @@ eval_helper.drawconic = function(aConic, modifs) {
         useRot = 0;
     }
 
-
     if (useRot) {
         var C = [a, b, c, d, e, f];
         var A = [
@@ -226,9 +256,11 @@ eval_helper.drawconic = function(aConic, modifs) {
             angle = Math.PI / 4;
         }
         var get_rMat = function(angle) {
+            var acos = Math.cos(angle);
+            var asin= Math.sin(angle);
             return [
-                [Math.cos(angle), -Math.sin(angle), 0],
-                [Math.sin(angle), Math.cos(angle), 0],
+                [acos, -asin, 0],
+                [asin, acos, 0],
                 [0, 0, 1]
             ];
         };
@@ -253,7 +285,7 @@ eval_helper.drawconic = function(aConic, modifs) {
     var split_degen = function() {
 
         //modifs.size= CSNumber.real(2); // TODO fix this
-        var erg = geoOps._helper.splitDegenConic(mat);
+        var erg = geoOps._helper.splitDegenConic(origmat);
         if (erg === nada) return;
         var lg = erg[0];
         var lh = erg[1];
@@ -292,7 +324,7 @@ eval_helper.drawconic = function(aConic, modifs) {
     };
 
     var is_inside = function(x, y) {
-        return (x > 0 && x < csw && y > 0 && y < csh);
+        return (x >= 0 && x <= csw && y >= 0 && y <= csh);
     };
 
     //    var drawRect = function(x,y, col){
@@ -358,13 +390,10 @@ eval_helper.drawconic = function(aConic, modifs) {
         var slarge = ymax - perc * diff;
         for (var y = ymin; y <= ymax; y += step) {
             if (y < ssmall || y > slarge) {
-                step = 1 / 3;
+                step = 0.5;
             } else {
-                step = 2;
+                step = 4;
             }
-            var yback = y;
-            ttemp = csport.to(0, y);
-            y = ttemp[1];
 
             var inner = -a * c * Math.pow(y, 2) - 2 * a * e * y - a * f + Math.pow(b, 2) * Math.pow(y, 2) + 2 * b * d * y + Math.pow(d, 2);
             inner = Math.sqrt(inner);
@@ -382,32 +411,21 @@ eval_helper.drawconic = function(aConic, modifs) {
                 r2 = numeric.dot(rMat, r2);
                 x1 = r1[0];
                 x2 = r2[0];
-                ya = r1[1];
-                yb = r2[1];
+                y1 = r1[1];
+                y2 = r2[1];
             } else {
-                ya = y;
-                yb = y;
+                y1 = y;
+                y2 = y;
             }
 
-            // transform to canvas coordiantes
-            if (!isNaN(x1)) {
-                ttemp = csport.from(x1, ya, 1);
-                x1 = ttemp[0];
-                y1 = ttemp[1];
-            }
-            if (!isNaN(x2)) {
-                ttemp = csport.from(x2, yb, 1);
-                x2 = ttemp[0];
-                y2 = ttemp[1];
-            }
 
-            // for ellipsoids we go out of canvas
-            if (!isNaN(x1) && type === "ellipsoid") {
-                arr_x1.push(x1);
-                arr_y1.push(y1);
-            } else if (!isNaN(x1) && x1 >= x_zero && x1 <= x_w) {
-                arr_x1.push(x1);
-                arr_y1.push(y1);
+           // for ellipsoids we go out of canvas
+           if (!isNaN(x1) && type === "ellipsoid") {
+               arr_x1.push(x1);
+               arr_y1.push(y1);
+           } else if (!isNaN(x1) && x1 >= x_zero && x1 <= x_w) {
+               arr_x1.push(x1);
+               arr_y1.push(y1);
             }
 
             if (!isNaN(x2) && type === "ellipsoid") {
@@ -417,7 +435,6 @@ eval_helper.drawconic = function(aConic, modifs) {
                 arr_x2.push(x2);
                 arr_y2.push(y2);
             }
-            y = yback; // convert y back
         }
     }; // end eval_conic_x
 
@@ -453,15 +470,11 @@ eval_helper.drawconic = function(aConic, modifs) {
         y1 = (aebd + largeSqrt) / deNom;
 
         if (!isNaN(y0) && y0 > y_zero && y0 < y_h) {
-            ttemp = csport.from(0, y0, 1);
-            y0 = ttemp[1];
         } else {
             y0 = y_zero;
         }
 
         if (!isNaN(y1) && y1 > y_zero && y1 < y_h) {
-            ttemp = csport.from(0, y1, 1);
-            y1 = ttemp[1];
         } else {
             y1 = y_zero;
         }
@@ -482,9 +495,14 @@ eval_helper.drawconic = function(aConic, modifs) {
         //drawArray(arr_x1, arr_y1, "orange");
         drawArray(arr_x1, arr_y1);
         // bridge branches
+        console.log(csw, csh);
+        console.log(is_inside(arr_x1[0], arr_y1[1]));
+        console.log(is_inside(arr_x2[0], arr_y2[0]));
+        console.log(arr_x1[0], arr_y1[0]);
+        console.log(arr_x2[0], arr_y2[0]);
         if (is_inside(arr_x1[0], arr_y1[1]) || is_inside(arr_x2[0], arr_y2[0])) { // drawing bug fix
             csctx.beginPath();
-            //csctx.strokeStyle = "pink";
+            csctx.strokeStyle = "pink";
             csctx.moveTo(arr_x1[0], arr_y1[0]);
             csctx.lineTo(arr_x2[0], arr_y2[0]);
             csctx.stroke();
