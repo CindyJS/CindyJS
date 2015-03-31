@@ -226,9 +226,9 @@ eval_helper.drawconic = function(aConic, modifs) {
             angle = Math.PI / 4;
         }
         var get_rMat = function(angle) {
-            return [
                 var acos = Math.cos(angle);
                 var asin = Math.sin(angle);
+            return [
                 [acos, -asin, 0],
                 [asin, acos, 0],
                 [0, 0, 1]
