@@ -186,9 +186,10 @@ eval_helper.drawconic = function(aConic, modifs) {
 
     // transform matrix to canvas coordiantes
     var tMatrix1 = List.turnIntoCSList([ // inverse of homog points (0,0), (1,0), (0, 1)
-                    List.realVector([-1, -1, 1]),
-                    List.realVector([1, 0 ,0]),
-                    List.realVector([0, 1, 0])]);
+        List.realVector([-1, -1, 1]),
+        List.realVector([1, 0, 0]),
+        List.realVector([0, 1, 0])
+    ]);
 
     // get canvas coordiantes
     var pt0 = csport.from(0, 0, 1);
@@ -199,19 +200,19 @@ eval_helper.drawconic = function(aConic, modifs) {
     pt2[2] = 1;
 
     var tMatrix2 = List.turnIntoCSList([
-                    List.realVector(pt0),
-                    List.realVector(pt1),
-                    List.realVector(pt2)]);
+        List.realVector(pt0),
+        List.realVector(pt1),
+        List.realVector(pt2)
+    ]);
     tMatrix2 = List.transpose(tMatrix2);
 
     var ttMatrix = General.mult(tMatrix2, tMatrix1); // get transformation matrix
 
     var ittMatrix = List.inverse(ttMatrix);
-    
+
     // transform Conic
     mat = General.mult(List.transpose(ittMatrix), mat);
     mat = General.mult(mat, ittMatrix);
-
 
 
     var a = mat.value[0].value[0].value.real;
@@ -233,10 +234,10 @@ eval_helper.drawconic = function(aConic, modifs) {
 
     var cswh_max = csw > csh ? csw : csh;
 
-    var x_zero = -1.5*cswh_max;
-    var x_w = 1.5*cswh_max; //2 * cswh_max;
-    var y_zero = -1.5*cswh_max;
-    var y_h = 1.5*cswh_max;
+    var x_zero = -1.5 * cswh_max;
+    var x_w = 1.5 * cswh_max; //2 * cswh_max;
+    var y_zero = -1.5 * cswh_max;
+    var y_h = 1.5 * cswh_max;
 
     var useRot = 1;
     if (degen) { // since we split then - rotation unnecessary
@@ -257,8 +258,8 @@ eval_helper.drawconic = function(aConic, modifs) {
             angle = Math.PI / 4;
         }
         var get_rMat = function(angle) {
-                var acos = Math.cos(angle);
-                var asin = Math.sin(angle);
+            var acos = Math.cos(angle);
+            var asin = Math.sin(angle);
             return [
                 [acos, -asin, 0],
                 [asin, acos, 0],
@@ -328,13 +329,13 @@ eval_helper.drawconic = function(aConic, modifs) {
         return (x > 0 && x < csw && y > 0 && y < csh);
     };
 
-        var drawRect = function(x,y, col){
-        	csctx.strokeStyle = 'red';
-        	if(col !== 'undefined') csctx.strokeStyle = col;
-        	csctx.beginPath();
-        	csctx.rect(x,y, 10, 10);
-        	csctx.stroke();
-        };
+    var drawRect = function(x, y, col) {
+        csctx.strokeStyle = 'red';
+        if (col !== 'undefined') csctx.strokeStyle = col;
+        csctx.beginPath();
+        csctx.rect(x, y, 10, 10);
+        csctx.stroke();
+    };
     // arrays to save points on conic
     var arr_x1 = [];
     var arr_x2 = [];
@@ -389,13 +390,11 @@ eval_helper.drawconic = function(aConic, modifs) {
         var ssmall = perc * diff + ymin;
         var slarge = ymax - perc * diff;
         for (var y = ymin; y <= ymax; y += step) {
-            if (y < ssmall || y > slarge || Math.abs(ymax - ymin) < 100 ) {
+            if (y < ssmall || y > slarge || Math.abs(ymax - ymin) < 100) {
                 step = 1 / 2;
-            }
-            else if(y < 0 || y > csh){
+            } else if (y < 0 || y > csh) {
                 step = 10;
-            }
-             else {
+            } else {
                 step = 3;
             }
 
@@ -473,15 +472,12 @@ eval_helper.drawconic = function(aConic, modifs) {
         y0 = (aebd - largeSqrt) / deNom;
         y1 = (aebd + largeSqrt) / deNom;
 
-        if (!isNaN(y0) && y0 > y_zero  && y0 < y_h) { // ungly but works
-        }
-        else{
+        if (!isNaN(y0) && y0 > y_zero && y0 < y_h) { // ungly but works
+        } else {
             y0 = y_zero;
         }
 
-        if (!isNaN(y1) && y1 > y_zero && y1 < y_h) {
-        }
-        else{
+        if (!isNaN(y1) && y1 > y_zero && y1 < y_h) {} else {
             y1 = y_zero;
         }
 
@@ -515,17 +511,17 @@ eval_helper.drawconic = function(aConic, modifs) {
         eval_conic_x(C, ymin, ymax);
         drawArray(arr_x1, arr_y1);
         // bridge branches
-       // if (type === "ellipsoid" || type == "ellipsoid") {
-            csctx.beginPath();
-            csctx.moveTo(arr_x1[0], arr_y1[0]);
-            csctx.lineTo(arr_x2[0], arr_y2[0]);
-            csctx.stroke();
-            csctx.beginPath();
-            csctx.moveTo(arr_x1[arr_x1.length - 1], arr_y1[arr_y1.length - 1]);
-            csctx.lineTo(arr_x2[arr_x2.length - 1], arr_y2[arr_y2.length - 1]);
-            csctx.stroke();
-            //}
-       // }
+        // if (type === "ellipsoid") {
+        csctx.beginPath();
+        csctx.moveTo(arr_x1[0], arr_y1[0]);
+        csctx.lineTo(arr_x2[0], arr_y2[0]);
+        csctx.stroke();
+        csctx.beginPath();
+        csctx.moveTo(arr_x1[arr_x1.length - 1], arr_y1[arr_y1.length - 1]);
+        csctx.lineTo(arr_x2[arr_x2.length - 1], arr_y2[arr_y2.length - 1]);
+        csctx.stroke();
+        //}
+        // }
         drawArray(arr_x2, arr_y2);
         resetArrays();
     }; // end calc_draw
