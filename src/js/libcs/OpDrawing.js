@@ -362,7 +362,7 @@ eval_helper.drawconic = function(aConic, modifs) {
             if (y < ssmall || y > slarge || Math.abs(ymax - ymin) < 100 ) {
                 step = 1 / 2;
             } else {
-                step = 5;
+                step = 4;
             }
             var yback = y;
             ttemp = csport.to(0, y);
