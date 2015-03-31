@@ -202,10 +202,10 @@ eval_helper.drawconic = function(aConic, modifs) {
 
     var cswh_max = csw > csh ? csw : csh;
 
-    var x_zero = -cswh_max;
-    var x_w = 2 * cswh_max;
-    var y_zero = -cswh_max;
-    var y_h = 2 * cswh_max;
+    var x_zero = -1.2*cswh_max;
+    var x_w = 1.2 * cswh_max;
+    var y_zero = -1.2*cswh_max;
+    var y_h = 1.2 * cswh_max;
 
     var useRot = 1;
     if (degen) { // since we split then - rotation unnecessary
@@ -362,7 +362,7 @@ eval_helper.drawconic = function(aConic, modifs) {
             if (y < ssmall || y > slarge || Math.abs(ymax - ymin) < 100 ) {
                 step = 1 / 2;
             } else {
-                step = 4;
+                step = 3;
             }
             var yback = y;
             ttemp = csport.to(0, y);
