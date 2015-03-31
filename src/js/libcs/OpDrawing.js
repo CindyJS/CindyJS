@@ -233,10 +233,10 @@ eval_helper.drawconic = function(aConic, modifs) {
 
     var cswh_max = csw > csh ? csw : csh;
 
-    var x_zero = -5*cswh_max;
-    var x_w = 5 * cswh_max;
-    var y_zero = -5*cswh_max;
-    var y_h = 5 * cswh_max;
+    var x_zero = -1.5*cswh_max;
+    var x_w = 1.5*cswh_max; //2 * cswh_max;
+    var y_zero = -1.5*cswh_max;
+    var y_h = 1.5*cswh_max;
 
     var useRot = 1;
     if (degen) { // since we split then - rotation unnecessary
@@ -328,13 +328,13 @@ eval_helper.drawconic = function(aConic, modifs) {
         return (x > 0 && x < csw && y > 0 && y < csh);
     };
 
-    //    var drawRect = function(x,y, col){
-    //    	csctx.strokeStyle = 'navy';
-    //    	if(col !== 'undefined') csctx.strokeStyle = col;
-    //    	csctx.beginPath();
-    //    	csctx.rect(x,y, 10, 10);
-    //    	csctx.stroke();
-    //    };
+        var drawRect = function(x,y, col){
+        	csctx.strokeStyle = 'red';
+        	if(col !== 'undefined') csctx.strokeStyle = col;
+        	csctx.beginPath();
+        	csctx.rect(x,y, 10, 10);
+        	csctx.stroke();
+        };
     // arrays to save points on conic
     var arr_x1 = [];
     var arr_x2 = [];
@@ -391,7 +391,11 @@ eval_helper.drawconic = function(aConic, modifs) {
         for (var y = ymin; y <= ymax; y += step) {
             if (y < ssmall || y > slarge || Math.abs(ymax - ymin) < 100 ) {
                 step = 1 / 2;
-            } else {
+            }
+            else if(y < 0 || y > csh){
+                step = 10;
+            }
+             else {
                 step = 3;
             }
 
@@ -494,6 +498,9 @@ eval_helper.drawconic = function(aConic, modifs) {
 
         eval_conic_x(C, ymax, y_h);
         drawArray(arr_x1, arr_y1);
+        //drawRect(arr_x1[0], arr_y1[0], "red");
+        //console.log(arr_x1, arr_y1);
+        //drawRect(arr_x2[0], arr_y2[0], "green");
         // bridge branches
         if (is_inside(arr_x1[0], arr_y1[1]) || is_inside(arr_x2[0], arr_y2[0])) { // drawing bug fix
             csctx.beginPath();
@@ -508,7 +515,7 @@ eval_helper.drawconic = function(aConic, modifs) {
         eval_conic_x(C, ymin, ymax);
         drawArray(arr_x1, arr_y1);
         // bridge branches
-        if (type === "ellipsoid") {
+       // if (type === "ellipsoid" || type == "ellipsoid") {
             csctx.beginPath();
             csctx.moveTo(arr_x1[0], arr_y1[0]);
             csctx.lineTo(arr_x2[0], arr_y2[0]);
@@ -518,7 +525,7 @@ eval_helper.drawconic = function(aConic, modifs) {
             csctx.lineTo(arr_x2[arr_x2.length - 1], arr_y2[arr_y2.length - 1]);
             csctx.stroke();
             //}
-        }
+       // }
         drawArray(arr_x2, arr_y2);
         resetArrays();
     }; // end calc_draw
