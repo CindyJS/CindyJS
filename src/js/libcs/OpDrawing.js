@@ -176,12 +176,43 @@ eval_helper.drawconic = function(aConic, modifs) {
 
     var eps = 1e-16;
     var mat = aConic.matrix;
+    var origmat = aConic.matrix;
 
     // check for complex values
     for (var i = 0; i < 2; i++)
         for (var j = 0; j < 2; j++) {
             if (Math.abs(mat.value[i].value[j].value.imag) > eps) return;
         }
+
+    // transform matrix to canvas coordiantes
+    var tMatrix1 = List.turnIntoCSList([ // inverse of homog points (0,0), (1,0), (0, 1)
+                    List.realVector([-1, -1, 1]),
+                    List.realVector([1, 0 ,0]),
+                    List.realVector([0, 1, 0])]);
+
+    // get canvas coordiantes
+    var pt0 = csport.from(0, 0, 1);
+    pt0[2] = 1;
+    var pt1 = csport.from(1, 0, 1);
+    pt1[2] = 1;
+    var pt2 = csport.from(0, 1, 1);
+    pt2[2] = 1;
+
+    var tMatrix2 = List.turnIntoCSList([
+                    List.realVector(pt0),
+                    List.realVector(pt1),
+                    List.realVector(pt2)]);
+    tMatrix2 = List.transpose(tMatrix2);
+
+    var ttMatrix = General.mult(tMatrix2, tMatrix1); // get transformation matrix
+
+    var ittMatrix = List.inverse(ttMatrix);
+    
+    // transform Conic
+    mat = General.mult(List.transpose(ittMatrix), mat);
+    mat = General.mult(mat, ittMatrix);
+
+
 
     var a = mat.value[0].value[0].value.real;
     var b = mat.value[1].value[0].value.real;
@@ -202,10 +233,10 @@ eval_helper.drawconic = function(aConic, modifs) {
 
     var cswh_max = csw > csh ? csw : csh;
 
-    var x_zero = -1.2*cswh_max;
-    var x_w = 1.2 * cswh_max;
-    var y_zero = -1.2*cswh_max;
-    var y_h = 1.2 * cswh_max;
+    var x_zero = -5*cswh_max;
+    var x_w = 5 * cswh_max;
+    var y_zero = -5*cswh_max;
+    var y_h = 5 * cswh_max;
 
     var useRot = 1;
     if (degen) { // since we split then - rotation unnecessary
@@ -255,7 +286,7 @@ eval_helper.drawconic = function(aConic, modifs) {
     var split_degen = function() {
 
         //modifs.size= CSNumber.real(2); // TODO fix this
-        var erg = geoOps._helper.splitDegenConic(mat);
+        var erg = geoOps._helper.splitDegenConic(origmat);
         if (erg === nada) return;
         var lg = erg[0];
         var lh = erg[1];
@@ -353,7 +384,6 @@ eval_helper.drawconic = function(aConic, modifs) {
 
 
         var step;
-        var ttemp; // trafo temp
         var perc = 0.05;
         var diff = ymax - ymin;
         var ssmall = perc * diff + ymin;
@@ -364,9 +394,6 @@ eval_helper.drawconic = function(aConic, modifs) {
             } else {
                 step = 3;
             }
-            var yback = y;
-            ttemp = csport.to(0, y);
-            y = ttemp[1];
 
             var inner = -a * c * Math.pow(y, 2) - 2 * a * e * y - a * f + Math.pow(b, 2) * Math.pow(y, 2) + 2 * b * d * y + Math.pow(d, 2);
             inner = Math.sqrt(inner);
@@ -384,24 +411,13 @@ eval_helper.drawconic = function(aConic, modifs) {
                 r2 = numeric.dot(rMat, r2);
                 x1 = r1[0];
                 x2 = r2[0];
-                ya = r1[1];
-                yb = r2[1];
+                y1 = r1[1];
+                y2 = r2[1];
             } else {
-                ya = y;
-                yb = y;
+                y1 = y;
+                y2 = y;
             }
 
-            // transform to canvas coordiantes
-            if (!isNaN(x1)) {
-                ttemp = csport.from(x1, ya, 1);
-                x1 = ttemp[0];
-                y1 = ttemp[1];
-            }
-            if (!isNaN(x2)) {
-                ttemp = csport.from(x2, yb, 1);
-                x2 = ttemp[0];
-                y2 = ttemp[1];
-            }
 
             // for ellipsoids we go out of canvas
             if (!isNaN(x1) && type === "ellipsoid") {
@@ -419,7 +435,6 @@ eval_helper.drawconic = function(aConic, modifs) {
                 arr_x2.push(x2);
                 arr_y2.push(y2);
             }
-            y = yback; // convert y back
         }
     }; // end eval_conic_x
 
@@ -454,17 +469,15 @@ eval_helper.drawconic = function(aConic, modifs) {
         y0 = (aebd - largeSqrt) / deNom;
         y1 = (aebd + largeSqrt) / deNom;
 
-        if (!isNaN(y0) && y0 > y_zero && y0 < y_h) {
-            ttemp = csport.from(0, y0, 1);
-            y0 = ttemp[1];
-        } else {
+        if (!isNaN(y0) && y0 > y_zero  && y0 < y_h) { // ungly but works
+        }
+        else{
             y0 = y_zero;
         }
 
         if (!isNaN(y1) && y1 > y_zero && y1 < y_h) {
-            ttemp = csport.from(0, y1, 1);
-            y1 = ttemp[1];
-        } else {
+        }
+        else{
             y1 = y_zero;
         }
 
@@ -475,29 +488,24 @@ eval_helper.drawconic = function(aConic, modifs) {
         eval_conic_x(C, y_zero, ymin);
         arr_xg = arr_x1.concat(arr_x2.reverse());
         arr_yg = arr_y1.concat(arr_y2.reverse());
-        //drawArray(arr_xg, arr_yg, "gold");
         drawArray(arr_xg, arr_yg);
         resetArrays();
 
 
         eval_conic_x(C, ymax, y_h);
-        //drawArray(arr_x1, arr_y1, "orange");
         drawArray(arr_x1, arr_y1);
         // bridge branches
         if (is_inside(arr_x1[0], arr_y1[1]) || is_inside(arr_x2[0], arr_y2[0])) { // drawing bug fix
             csctx.beginPath();
-            //csctx.strokeStyle = "pink";
             csctx.moveTo(arr_x1[0], arr_y1[0]);
             csctx.lineTo(arr_x2[0], arr_y2[0]);
             csctx.stroke();
         }
-        //drawArray(arr_x2, arr_y2, "black");
         drawArray(arr_x2, arr_y2);
         resetArrays();
 
 
         eval_conic_x(C, ymin, ymax);
-        //drawArray(arr_x1, arr_y1, "red");
         drawArray(arr_x1, arr_y1);
         // bridge branches
         if (type === "ellipsoid") {
@@ -511,7 +519,6 @@ eval_helper.drawconic = function(aConic, modifs) {
             csctx.stroke();
             //}
         }
-        //drawArray(arr_x2, arr_y2, "green");
         drawArray(arr_x2, arr_y2);
         resetArrays();
     }; // end calc_draw
