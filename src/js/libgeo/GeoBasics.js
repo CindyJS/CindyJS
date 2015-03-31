@@ -42,29 +42,34 @@ function csinit(gslp) {
 
     function pointDefault(el) {
 
-        el.size = CSNumber.real(el.size || defaultAppearance.pointSize);
+        if(el.size==undefined) {el.size=defaultAppearance.pointSize};
+        el.size = CSNumber.real(el.size);
         if (el.type !== "Free") {
             el.color = List.realVector(el.color || defaultAppearance.pointColor);
             el.color = List.scalmult(CSNumber.real(defaultAppearance.dimDependent), el.color);
         } else {
             el.color = List.realVector(el.color || defaultAppearance.pointColor);
         }
-        el.alpha = CSNumber.real(el.alpha || defaultAppearance.alpha);
+        if(el.alpha==undefined) {el.alpha=defaultAppearance.alpha};
+        el.alpha = CSNumber.real(el.alpha);
     }
 
     function lineDefault(el) {
-        el.size = CSNumber.real(el.size || defaultAppearance.lineSize);
+        if(el.size==undefined) {el.size=defaultAppearance.lineSize};
+        el.size = CSNumber.real(el.size);
         el.color = List.realVector(el.color || defaultAppearance.lineColor);
-        el.alpha = CSNumber.real(el.alpha || defaultAppearance.alpha);
+        if(el.alpha==undefined) {el.alpha=defaultAppearance.alpha};
+        el.alpha = CSNumber.real(el.alpha);
         el.clip = General.string(el.clip || defaultAppearance.clip);
-        el.overhang = CSNumber.real(el.overhang || defaultAppearance.overhangLine);
+        if(el.overhang==undefined) {el.overhang=defaultAppearance.overhangLine};
+        el.overhang = CSNumber.real(el.overhang);
     }
 
     function segmentDefault(el) {
         lineDefault(el);
         el.clip = General.string("end");
-        el.overhang = CSNumber.real(el.overhang || defaultAppearance.overhangSeg);
-
+        if(el.overhang==undefined) {el.overhang=defaultAppearance.overhangSeg};
+        el.overhang = CSNumber.real(el.overhang);
     }
 
     csgeo.gslp = gslp;
@@ -131,9 +136,9 @@ function csinit(gslp) {
                     f.sz = 1;
                 }
                 if (f.pos.length === 3) {
-                    f.sx = f.pos[0];
-                    f.sy = f.pos[1];
-                    f.sz = f.pos[2];
+                    f.sx = f.pos[0]/f.pos[2];
+                    f.sy = f.pos[1]/f.pos[2];
+                    f.sz = f.pos[2]/f.pos[2];
                 }
 
             }
