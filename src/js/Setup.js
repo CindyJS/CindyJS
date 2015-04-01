@@ -132,7 +132,7 @@ function createCindyNow() {
             csctx.oBackingStorePixelRatio ||
             csctx.backingStorePixelRatio ||
             1;
-        if (devicePixelRatio != backingStoreRatio) {
+        if (devicePixelRatio !== backingStoreRatio) {
             var ratio = devicePixelRatio / backingStoreRatio;
             c.width = csw * ratio;
             c.height = csh * ratio;

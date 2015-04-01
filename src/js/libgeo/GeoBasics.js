@@ -42,7 +42,7 @@ function csinit(gslp) {
 
     function pointDefault(el) {
 
-        if(el.size==undefined) {el.size=defaultAppearance.pointSize};
+        if (el.size === undefined) el.size = defaultAppearance.pointSize;
         el.size = CSNumber.real(el.size);
         if (el.type !== "Free") {
             el.color = List.realVector(el.color || defaultAppearance.pointColor);
@@ -50,25 +50,27 @@ function csinit(gslp) {
         } else {
             el.color = List.realVector(el.color || defaultAppearance.pointColor);
         }
-        if(el.alpha==undefined) {el.alpha=defaultAppearance.alpha};
+        if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
         el.alpha = CSNumber.real(el.alpha);
     }
 
     function lineDefault(el) {
-        if(el.size==undefined) {el.size=defaultAppearance.lineSize};
+        if (el.size === undefined) el.size = defaultAppearance.lineSize;
         el.size = CSNumber.real(el.size);
         el.color = List.realVector(el.color || defaultAppearance.lineColor);
-        if(el.alpha==undefined) {el.alpha=defaultAppearance.alpha};
+        if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
         el.alpha = CSNumber.real(el.alpha);
         el.clip = General.string(el.clip || defaultAppearance.clip);
-        if(el.overhang==undefined) {el.overhang=defaultAppearance.overhangLine};
+        if (el.overhang === undefined)
+            el.overhang = defaultAppearance.overhangLine;
         el.overhang = CSNumber.real(el.overhang);
     }
 
     function segmentDefault(el) {
         lineDefault(el);
         el.clip = General.string("end");
-        if(el.overhang==undefined) {el.overhang=defaultAppearance.overhangSeg};
+        if (el.overhang === undefined)
+            el.overhang = defaultAppearance.overhangSeg;
         el.overhang = CSNumber.real(el.overhang);
     }
 
@@ -136,9 +138,9 @@ function csinit(gslp) {
                     f.sz = 1;
                 }
                 if (f.pos.length === 3) {
-                    f.sx = f.pos[0]/f.pos[2];
-                    f.sy = f.pos[1]/f.pos[2];
-                    f.sz = f.pos[2]/f.pos[2];
+                    f.sx = f.pos[0] / f.pos[2];
+                    f.sy = f.pos[1] / f.pos[2];
+                    f.sz = f.pos[2] / f.pos[2];
                 }
 
             }
