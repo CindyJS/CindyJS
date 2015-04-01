@@ -77,7 +77,7 @@ function evaluateAndVal(a) {
 }
 
 function evaluateAndHomog(a) {
-    var x = evaluate(a), y;
+    var x = evaluate(a);
     if (x.ctype === 'geo') {
         var val = x.value;
         if (val.kind === "P") {
@@ -93,7 +93,7 @@ function evaluateAndHomog(a) {
     }
 
     if (List._helper.isNumberVecN(x, 2)) {
-        y = List.turnIntoCSList([
+        var y = List.turnIntoCSList([
             x.value[0], x.value[1], CSNumber.real(1)
         ]);
         if (x.usage)
