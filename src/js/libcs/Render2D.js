@@ -284,8 +284,6 @@ Render2D.makeColor = function(colorraw) {
 };
 
 Render2D.drawsegcore = function(pt1, pt2) {
-console.log("DRAW SEG");
-console.log(Render2D.lsize);
     var m = csport.drawingstate.matrix;
     var endpoint1x = pt1.x * m.a - pt1.y * m.b + m.tx;
     var endpoint1y = pt1.x * m.c - pt1.y * m.d - m.ty;
@@ -306,12 +304,11 @@ console.log(Render2D.lsize);
     if (!Render2D.isArrow ||
         (endpoint1x === endpoint1y && endpoint2x === endpoint2y)) {
         // Fast path if we have no arrowheads
+        if (Render2D.lsize < 0.01) return;
         csctx.beginPath();
         csctx.moveTo(overhang1x, overhang1y);
         csctx.lineTo(overhang2x, overhang2y);
-        if(Render2D.lsize>0.01){
-            csctx.stroke();
-        }
+        csctx.stroke();
         return;
     }
 
