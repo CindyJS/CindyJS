@@ -32,8 +32,8 @@ function movepoint(move) {
 
 function movepointscr(mover, pos) {
     var m = mover;
-    m.sx = pos.value[0].value.real/pos.value[2].value.real;
-    m.sy = pos.value[1].value.real/pos.value[2].value.real;
+    m.sx = pos.value[0].value.real / pos.value[2].value.real;
+    m.sy = pos.value[1].value.real / pos.value[2].value.real;
     m.sz = 1;
     m.homog = pos;
 

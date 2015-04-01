@@ -38,7 +38,7 @@ Render2D.handleModifs = function(modifs, handlers) {
     }
 
     // Post-process settings
-    
+
     if (Render2D.size !== null) {
         Render2D.psize = Render2D.lsize = Render2D.size;
     } else {

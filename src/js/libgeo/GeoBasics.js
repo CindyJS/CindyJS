@@ -69,7 +69,7 @@ function csinit(gslp) {
     function segmentDefault(el) {
         lineDefault(el);
         el.clip = General.string("end");
-        if(el.overhang === undefined)
+        if (el.overhang === undefined)
             el.overhang = defaultAppearance.overhangSeg;
         el.overhang = CSNumber.real(el.overhang);
     }
@@ -138,9 +138,9 @@ function csinit(gslp) {
                     f.sz = 1;
                 }
                 if (f.pos.length === 3) {
-                    f.sx = f.pos[0]/f.pos[2];
-                    f.sy = f.pos[1]/f.pos[2];
-                    f.sz = f.pos[2]/f.pos[2];
+                    f.sx = f.pos[0] / f.pos[2];
+                    f.sy = f.pos[1] / f.pos[2];
+                    f.sz = f.pos[2] / f.pos[2];
                 }
 
             }
