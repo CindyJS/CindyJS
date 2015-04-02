@@ -198,7 +198,7 @@ LAYERS:
 - ("screenbounds", 0, OpEuclideanBounds.class); todo documnet
 - ("screenresolution", 0, OpEuclideanResolution.class); todo documnet
 
-- ("imagesize", 1, OpImageSize.class);
+- ("imagesize", 1, OpImageSize.class); @done
 - ("imagergb", 3, OpImagePixel.class);
 - ("clearimage", 1, OpClearImage.class);
 

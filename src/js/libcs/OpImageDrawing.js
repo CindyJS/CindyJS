@@ -8,6 +8,21 @@ eval_helper.extractReferenceX = function(w, pos) {
 
 };
 
+evaluator.imagesize$1 = function(args, modifs) {
+    var img = evaluateAndVal(args[0]);
+    if (img.ctype === 'string') {
+        if(images[img.value]){
+            var w = images[img.value].width;
+            var h = images[img.value].height;
+            return List.realVector([w,h]); 
+            
+        }
+    }
+    
+    return nada;       
+    
+}
+
 evaluator.drawimage$2 = function(args, modifs) {
 
     function drawimg1() {
