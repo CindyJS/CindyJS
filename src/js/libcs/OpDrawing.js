@@ -165,6 +165,64 @@ eval_helper.drawcircle = function(args, modifs, df) {
     return nada;
 };
 
+evaluator.drawconic$1 = function(args, modifs) {
+    var Conic = {};
+    Conic.usage = "conic";
+
+    var arr = evaluateAndVal(args[0]);
+
+    if (arr.ctype !== "list" || arr.value.length !== 3 && arr.value.length !== 6) {
+        console.error("could not parse conic");
+        return nada;
+    }
+
+    if (arr.value.length === 6) { // array case
+
+        for (var i = 0; i < 6; i++) // check for faulty arrays
+            if (arr.value[i].ctype !== "number") {
+                console.error("could not parse conic");
+                return nada;
+            }
+
+        var half = CSNumber.real(0.5);
+
+        var a = arr.value[0];
+        var b = arr.value[2];
+        b = CSNumber.mult(b, half);
+        var c = arr.value[1];
+        var d = arr.value[3];
+        d = CSNumber.mult(d, half);
+        var e = arr.value[4];
+        e = CSNumber.mult(e, half);
+        var f = arr.value[5];
+
+        var mat = List.turnIntoCSList([
+            List.turnIntoCSList([a, b, d]),
+            List.turnIntoCSList([b, c, e]),
+            List.turnIntoCSList([d, e, f])
+        ]);
+        Conic.matrix = mat;
+    } else { // matrix case
+
+        for (var ii = 0; ii < 3; ii++) // check for faulty arrays
+            for (var jj = 0; jj < 3; jj++)
+            if (arr.value[ii].value[jj].ctype !== "number") {
+                console.error("could not parse conic");
+                return nada;
+            }
+
+        if (!List.equals(arr, List.transpose(arr)).value) { // not symm case
+            var aa = General.mult(arr, CSNumber.real(0.5));
+            var bb = General.mult(List.transpose(arr), CSNumber.real(0.5));
+            arr = List.add(aa, bb);
+            Conic.matrix = arr;
+        } else {
+            Conic.matrix = arr;
+        }
+
+    }
+    return eval_helper.drawconic(Conic, modifs);
+};
 
 eval_helper.drawconic = function(aConic, modifs) {
 
