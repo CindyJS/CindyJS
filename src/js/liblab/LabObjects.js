@@ -535,8 +535,6 @@ labObjects.Gravity = {
 
         var fx = (xb-xa)*beh.strength;
         var fy = (yb-ya)*beh.strength;
-   //     var fx = 0;
-   //     var fy = 0;
         var fz = 0;
         for (var i = 0; i < masses.length; i++) {
             var m = masses[i];
