@@ -483,8 +483,6 @@ labObjects.Sun = {
 };
 
 
-
-
 /*----------------------------GRAVITY--------------------------*/
 
 
@@ -500,7 +498,7 @@ labObjects.Gravity = {
         beh.namea = elem.args[0];
         beh.nameb = elem.args[1];
         beh.ma = csgeo.csnames[beh.namea];
-        beh.mb = csgeo.csnames[beh.nameb];        
+        beh.mb = csgeo.csnames[beh.nameb];
 
     },
 
@@ -528,17 +526,17 @@ labObjects.Gravity = {
         var pta = eval_helper.extractPoint(beh.ma.homog);
         var ptb = eval_helper.extractPoint(beh.mb.homog);
 
-        var  xa = pta.x;
-        var  ya = pta.y;
-        var  xb = ptb.x;
-        var  yb = ptb.y;
+        var xa = pta.x;
+        var ya = pta.y;
+        var xb = ptb.x;
+        var yb = ptb.y;
 
-        var fx = (xb-xa)*beh.strength;
-        var fy = (yb-ya)*beh.strength;
+        var fx = (xb - xa) * beh.strength;
+        var fy = (yb - ya) * beh.strength;
         var fz = 0;
         for (var i = 0; i < masses.length; i++) {
             var m = masses[i];
-           
+
             m.behavior.fx += fx * m.behavior.mass;
             m.behavior.fy += fy * m.behavior.mass;
             m.behavior.fz += fz * m.behavior.mass;
@@ -566,8 +564,6 @@ labObjects.Gravity = {
 
 
 };
-
-
 
 
 /*-------------------------SPRING-----------------------*/

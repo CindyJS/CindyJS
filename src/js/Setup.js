@@ -259,11 +259,11 @@ function csplay() {
             csstopped = false;
         }
         if (typeof csinitphys === 'function') {
-            if(csPhysicsInited){
+            if (csPhysicsInited) {
                 csreinitphys(behaviors);
             }
         }
-        
+
         csanimating = true;
         startit();
     }

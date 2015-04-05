@@ -654,14 +654,14 @@ geoOps.ConicBy1p4l = function(el) {
 };
 geoOpMap.ConicBy1p4l = "T";
 
-geoOps.ConicBy2Foci1P= function(el) {
+geoOps.ConicBy2Foci1P = function(el) {
     var F1 = csgeo.csnames[(el.args[0])].homog;
     var F2 = csgeo.csnames[(el.args[1])].homog;
     var PP = csgeo.csnames[(el.args[2])].homog;
 
     // i and j
-    var II = List.turnIntoCSList([CSNumber.real(1), CSNumber.complex(0,1), CSNumber.real(0)]);
-    var JJ = List.turnIntoCSList([CSNumber.real(1), CSNumber.complex(0,-1), CSNumber.real(0)]);
+    var II = List.turnIntoCSList([CSNumber.real(1), CSNumber.complex(0, 1), CSNumber.real(0)]);
+    var JJ = List.turnIntoCSList([CSNumber.real(1), CSNumber.complex(0, -1), CSNumber.real(0)]);
 
     var t1 = List.cross(F1, II);
     var t2 = List.cross(F1, JJ);
