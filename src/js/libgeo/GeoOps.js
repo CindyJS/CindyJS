@@ -503,6 +503,7 @@ geoOps.ConicBy4p1l = function(el) {
 };
 geoOpMap.ConicBy4p1l = "T";
 
+
 geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
     // see http://math.stackexchange.com/a/1187525/35416
     var l = List.cross(a, b);
@@ -652,6 +653,33 @@ geoOps.ConicBy1p4l = function(el) {
 
 };
 geoOpMap.ConicBy1p4l = "T";
+
+geoOps.ConicBy2Foci1P= function(el) {
+    var F1 = csgeo.csnames[(el.args[0])].homog;
+    var F2 = csgeo.csnames[(el.args[1])].homog;
+    var PP = csgeo.csnames[(el.args[2])].homog;
+
+    // i and j
+    var II = List.turnIntoCSList([CSNumber.real(1), CSNumber.complex(0,1), CSNumber.real(0)]);
+    var JJ = List.turnIntoCSList([CSNumber.real(1), CSNumber.complex(0,-1), CSNumber.real(0)]);
+
+    var t1 = List.cross(F1, II);
+    var t2 = List.cross(F1, JJ);
+    var t3 = List.cross(F2, II);
+    var t4 = List.cross(F2, JJ);
+
+    // copied code from above ConicBy4p1l, perhaps we want a own function for that
+    var erg = geoOps._helper.ConicBy4p1l(el, t1, t2, t3, t4, PP);
+    var e1 = erg[0];
+    var e2 = erg[1];
+    e1 = List.adjoint3(e1);
+    e2 = List.adjoint3(e2);
+
+    erg = [e1, e2];
+    el.results = erg;
+
+};
+geoOpMap.ConicBy4p1l = "T";
 
 
 geoOps.ConicBy5lines = function(el) {

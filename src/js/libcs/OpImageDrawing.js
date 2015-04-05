@@ -21,7 +21,7 @@ evaluator.imagesize$1 = function(args, modifs) {
     
     return nada;       
     
-}
+};
 
 evaluator.drawimage$2 = function(args, modifs) {
 
