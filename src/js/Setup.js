@@ -258,6 +258,12 @@ function csplay() {
             backupGeo();
             csstopped = false;
         }
+        if (typeof csinitphys === 'function') {
+            if(csPhysicsInited){
+                csreinitphys(behaviors);
+            }
+        }
+        
         csanimating = true;
         startit();
     }
