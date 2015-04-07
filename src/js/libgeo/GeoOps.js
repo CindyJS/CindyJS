@@ -660,8 +660,8 @@ geoOps.ConicBy2Foci1P = function(el) {
     var PP = csgeo.csnames[(el.args[2])].homog;
 
     // i and j
-    var II = List.turnIntoCSList([CSNumber.real(1), CSNumber.complex(0, 1), CSNumber.real(0)]);
-    var JJ = List.turnIntoCSList([CSNumber.real(1), CSNumber.complex(0, -1), CSNumber.real(0)]);
+    var II = List.ii;
+    var JJ = List.jj;
 
     var t1 = List.cross(F1, II);
     var t2 = List.cross(F1, JJ);
@@ -672,6 +672,8 @@ geoOps.ConicBy2Foci1P = function(el) {
     var erg = geoOps._helper.ConicBy4p1l(el, t1, t2, t3, t4, PP);
     var e1 = erg[0];
     var e2 = erg[1];
+    console.log(e1);
+    List.niceprint(e1);
     e1 = List.adjoint3(e1);
     e2 = List.adjoint3(e2);
 
