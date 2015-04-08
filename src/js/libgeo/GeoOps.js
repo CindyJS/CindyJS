@@ -354,7 +354,6 @@ geoOps._helper.ConicBy5 = function(el, a, b, c, d, p) {
 };
 
 geoOps._helper.conicFromTwoDegenerates = function(v23, v14, v12, v34, p){
-
     var deg1 = General.mult(List.transpose(v14), v23);
     var deg2 = General.mult(List.transpose(v34), v12);
     deg1 = List.add(deg1, List.transpose(deg1));
@@ -676,27 +675,23 @@ geoOps.ConicBy2Foci1P = function(el) {
     var a2 = List.normalizeMax(List.cross(PP, JJ));
 
     var har = geoOps._helper.coHarmonic(a1, a2, b1, b2);
-    var e1 = List.normalizeZ(har[0]);
-    var e2 = List.normalizeZ(har[1]);
+    var e1 = List.normalizeMax(har[0]);
+    var e2 = List.normalizeMax(har[1]);
 
-    console.log("e1");
-    List.niceprint(e1);
-    console.log("e2");
-    List.niceprint(e2);
+    // lists for transposed
+    var lII = List.turnIntoCSList([II]);
+    var lJJ = List.turnIntoCSList([JJ]);
+    var lF1 = List.turnIntoCSList([F1]);
+    var lF2 = List.turnIntoCSList([F2]);
 
-    // copied code from above ConicBy4p1l, perhaps we want a own function for that
- //   var erg = geoOps._helper.ConicBy4p1l(el, t1, t2, t3, t4, PP);
-    var co1 = geoOps._helper.ConicBy5(el, List.ii, List.jj, F1, F2, e1);
-    var co2 = geoOps._helper.ConicBy5(el, List.ii, List.jj, F1, F2, e2);
- //   var e1 = erg[0];
- //   var e2 = erg[1];
- //   console.log(e1);
- //   List.niceprint(e1);
-    co1 = List.adjoint3(co1);
-    co2 = List.adjoint3(co2);
+    var co1 = geoOps._helper.conicFromTwoDegenerates(lII, lJJ, lF1, lF2, e1);
+    co1 = List.normalizeMax(co1);
+    var co2 = geoOps._helper.conicFromTwoDegenerates(lII, lJJ, lF1, lF2, e2);
+    co2 = List.normalizeMax(co2);
 
-   // List.niceprint(co1);
-   // List.niceprint(co2);
+    // adjoint
+    co1 = List.normalizeMax(List.adjoint3(co1));
+    co2 = List.normalizeMax(List.adjoint3(co2));
 
     var erg = [co1, co2];
     el.results = erg;
@@ -712,22 +707,16 @@ geoOps._helper.coHarmonic = function(a1, a2, b1, b2){
     var iy = List.det3(poi, b2, a1);
     var jy = List.det3(poi, b2, a2);
 
-//    console.log(CSNumber.niceprint(ix));
-//    console.log(CSNumber.niceprint(jx));
-//    console.log(CSNumber.niceprint(iy));
-//    console.log(CSNumber.niceprint(jy));
-
     var sqj = CSNumber.sqrt(CSNumber.mult(jy, jx));
     var sqi = CSNumber.sqrt(CSNumber.mult(iy, ix));
 
     var mui = General.mult(a1, sqj);
     var tauj = General.mult(a2, sqi);
 
-    //List.niceprint(mui);
-    //List.niceprint(tauj);
+    var out1 = List.add(mui, tauj);
+    var out2 = List.sub(mui, tauj);
 
-    return [mui, tauj];
-
+    return [out1, out2];
 };
 
 
