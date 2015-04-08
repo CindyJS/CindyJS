@@ -340,6 +340,28 @@ geoOps.CircleMFixedr = function(el) {
 };
 geoOpMap.CircleMFixedr = "C";
 
+geoOps._helper.getConicType = function(C) {
+    var myEps = 1e-16;
+    var adet = CSNumber.abs(List.det(C));
+
+    if (adet.value.real < myEps) {
+        return "degenrate";
+    }
+
+    var det = CSNumber.mult(C.value[0].value[0], C.value[1].value[1]);
+    det = CSNumber.sub(det, CSNumber.pow(C.value[0].value[1], CSNumber.real(2)));
+
+    det = det.value.real;
+
+    if (Math.abs(det) < myEps) {
+        return "parabola";
+    } else if (det > myEps) {
+        return "ellipsoid";
+    } else {
+        return "hyperbola";
+    }
+};
+
 
 geoOps._helper.ConicBy5 = function(el, a, b, c, d, p) {
 
@@ -692,6 +714,13 @@ geoOps.ConicBy2Foci1P = function(el) {
     // adjoint
     co1 = List.normalizeMax(List.adjoint3(co1));
     co2 = List.normalizeMax(List.adjoint3(co2));
+
+    // return ellipsoid first 
+    if(geoOps._helper.getConicType(co1) !== "ellipsoid"){
+        var temp = co1;
+        co1 = co2;
+        co2 = temp;
+    }
 
     var erg = [co1, co2];
     el.results = erg;
