@@ -716,7 +716,7 @@ geoOps.ConicBy2Foci1P = function(el) {
     co2 = List.normalizeMax(List.adjoint3(co2));
 
     // return ellipsoid first 
-    if(geoOps._helper.getConicType(co1) !== "ellipsoid"){
+    if (geoOps._helper.getConicType(co1) !== "ellipsoid") {
         var temp = co1;
         co1 = co2;
         co2 = temp;
