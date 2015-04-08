@@ -722,6 +722,12 @@ geoOps.ConicBy2Foci1P = function(el) {
         co2 = temp;
     }
 
+    // remove hyperbola in limit case
+    if (List.almostequals(F1, F2).value) {
+        var three = CSNumber.real(3);
+        co2 = List.zeromatrix(three, three);
+    }
+
     var erg = [co1, co2];
     el.results = erg;
 
