@@ -28,13 +28,13 @@ List.realVector = function(l) {
     };
 };
 
-List.niceprint = function(l) {
+List.println = function(l) {
     var erg = [];
     for (var i = 0; i < l.value.length; i++) {
         if (l.value[i].ctype === "number") {
             erg[i] = CSNumber.niceprint(l.value[i]);
         } else if (l.value[i].ctype === "list") {
-            List.niceprint(l.value[i]);
+            List.println(l.value[i]);
         } else return nada;
     }
 
