@@ -353,7 +353,7 @@ geoOps._helper.ConicBy5 = function(el, a, b, c, d, p) {
     return erg;
 };
 
-geoOps._helper.conicFromTwoDegenerates = function(v23, v14, v12, v34, p){
+geoOps._helper.conicFromTwoDegenerates = function(v23, v14, v12, v34, p) {
     var deg1 = General.mult(List.transpose(v14), v23);
     var deg2 = General.mult(List.transpose(v34), v12);
     deg1 = List.add(deg1, List.transpose(deg1));
@@ -699,8 +699,8 @@ geoOps.ConicBy2Foci1P = function(el) {
 };
 geoOpMap.ConicBy4p1l = "T";
 
-geoOps._helper.coHarmonic = function(a1, a2, b1, b2){
-    var poi = List.realVector([100*Math.random(), 100*Math.random(), 1]);
+geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
+    var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
 
     var ix = List.det3(poi, b1, a1);
     var jx = List.det3(poi, b1, a2);

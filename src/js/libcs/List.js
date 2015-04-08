@@ -28,19 +28,17 @@ List.realVector = function(l) {
     };
 };
 
-List.niceprint = function(l){
+List.niceprint = function(l) {
     var erg = [];
-    for(var i = 0; i < l.value.length; i++){
-        if(l.value[i].ctype === "number"){
+    for (var i = 0; i < l.value.length; i++) {
+        if (l.value[i].ctype === "number") {
             erg[i] = CSNumber.niceprint(l.value[i]);
-        }
-        else if(l.value[i].ctype === "list"){
+        } else if (l.value[i].ctype === "list") {
             List.niceprint(l.value[i]);
-        }
-        else return nada;
+        } else return nada;
     }
 
-    if(l.value[0].ctype === "number")
+    if (l.value[0].ctype === "number")
         console.log(erg);
 };
 
