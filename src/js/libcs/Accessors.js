@@ -146,6 +146,10 @@ Accessor.setField = function(geo, field, value) {
     if (field === "size") {
         geo.size = value;
     }
+    if (field === "alpha") {
+        geo.alpha = value;
+    }
+
     if (field === "xy" && geo.kind === "P" && geo.ismovable && List._helper.isNumberVecN(value, 2)) {
         movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]));
         recalc();
