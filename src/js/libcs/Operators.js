@@ -3373,7 +3373,7 @@ evaluator.convexhull3d$1 = function(args, modifs) {
         var ergf = [];
         for (i = 0; i < chf.length; i++) {
             for (j = 0; j < chf[i].length; j++) {
-                chf[i][j] ++;
+                chf[i][j]++;
             }
             ergf.push(List.realVector(chf[i]));
         }

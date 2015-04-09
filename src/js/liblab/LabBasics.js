@@ -25,11 +25,10 @@ var csPhysicsInited = false;
 
 function csreinitphys(behavs) {
     behaviors.forEach(function(beh) {
-     var geoname = beh.name;
-     labObjects[beh.behavior.type].init(beh.behavior, csgeo.csnames[geoname]);
+        var geoname = beh.name;
+        labObjects[beh.behavior.type].init(beh.behavior, csgeo.csnames[geoname]);
 
-    }
-    );
+    });
 }
 
 
