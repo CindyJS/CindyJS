@@ -3,17 +3,6 @@
 //*******************************************************
 
 
-evaluator.seconds$0 = function(args, modifs) { //OK
-    return {
-        "ctype": "number",
-        "value": {
-            'real': (new Date().getTime() / 1000),
-            'imag': 0
-        }
-    };
-};
-
-
 evaluator.err$1 = function(args, modifs) { //OK
 
     if (typeof csconsole === "undefined") {
@@ -3495,6 +3484,60 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     if ((v0.ctype === 'number' || v0.ctype === 'list') && v1.ctype === 'number') {
         dec = Math.round(v1.value.real);
         return fmt(v0);
+    }
+    return nada;
+};
+
+///////////////////////////////
+//     Date and time         //
+///////////////////////////////
+
+if (!Date.now) Date.now = function() {
+    return new Date().getTime();
+};
+var epoch = 0;
+
+evaluator.seconds$0 = function(args, modifs) { //OK
+    return {
+        "ctype": "number",
+        "value": {
+            'real': ((Date.now() - epoch) / 1000),
+            'imag': 0
+        }
+    };
+};
+
+evaluator.resetclock$0 = function(args, modifs) {
+    epoch = Date.now();
+    return nada;
+};
+
+evaluator.time$0 = function(args, modifs) {
+    var now = new Date();
+    return List.realVector([
+        now.getHours(), now.getMinutes(),
+        now.getSeconds(), now.getMilliseconds()
+    ]);
+};
+
+evaluator.date$0 = function(args, modifs) {
+    var now = new Date();
+    return List.realVector([
+        now.getFullYear(), now.getMonth(), now.getDay()
+    ]);
+};
+
+evaluator.setTimeout$2 = function(args, modifs) {
+    var delay = evaluate(args[0]); // delay in seconds
+    var code = args[1]; // code to execute, cannot refer to regional variables
+    function callback() {
+        evaluate(code);
+        updateCindy();
+    }
+    if (delay.ctype === "number") {
+        if (typeof window !== "undefined") {
+            window.setTimeout(callback, delay.value.real * 1000.0);
+        }
     }
     return nada;
 };
