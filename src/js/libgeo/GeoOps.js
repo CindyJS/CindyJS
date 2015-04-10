@@ -313,8 +313,8 @@ geoOps.CircleMr = function(el) {
         var xx = mid.value[0].value.real - mouse.x;
         var yy = mid.value[1].value.real - mouse.y;
         var rad = Math.sqrt(xx * xx + yy * yy); //+move.offsetrad;
-  //      el.radius = CSNumber.real(rad + move.offsetrad);
-        el.radius = CSNumber.real(rad);// + move.offsetrad);
+        //      el.radius = CSNumber.real(rad + move.offsetrad);
+        el.radius = CSNumber.real(rad); // + move.offsetrad);
     }
     var r = el.radius;
     var p = List.turnIntoCSList([r, CSNumber.real(0), CSNumber.real(0)]);
@@ -791,14 +791,14 @@ geoOps.Polar = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOpMap.Polar= "L";
+geoOpMap.Polar = "L";
 
-geoOps.angleBisector = function(el){
+geoOps.angleBisector = function(el) {
     var ll = csgeo.csnames[(el.args[0])];
     var mm = csgeo.csnames[(el.args[1])];
 
     var OO = List.cross(ll.homog, mm.homog);
-    var PP = List.realVector([100*Math.random(),100*Math.random(), 1]);
+    var PP = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
 
     var LL = List.cross(ll.homog, List.linfty);
     var MM = List.cross(mm.homog, List.linfty);
@@ -829,7 +829,7 @@ geoOps.angleBisector = function(el){
         }
     }
 };
-geoOpMap.angleBisector= "T";
+geoOpMap.angleBisector = "T";
 
 geoOps._helper.tracing2 = function(n1, n2, c1, c2, el) { //Billigtracing
     var OK = 0;

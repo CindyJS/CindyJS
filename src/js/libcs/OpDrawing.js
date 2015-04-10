@@ -1041,7 +1041,6 @@ evaluator.plot$2 = function(args, modifs) {
     }
 
 
-
     namespace.removevar(runv);
     if (stroking)
         csctx.stroke();
@@ -1212,46 +1211,44 @@ evaluator.createimage$3 = function(args, modifs) {
     var v2 = evaluateAndVal(args[2]);
 
 
-
-    if (v1.ctype !== 'number' || v2.ctype !== 'number' || v0.ctype !== 'string' ) {
+    if (v1.ctype !== 'number' || v2.ctype !== 'number' || v0.ctype !== 'string') {
         return nada;
     }
 
 
     var canvas = document.createElement("canvas");
     canvas.id = v0.value;
-    canvas.width=v1.value.real;
-    canvas.height=v2.value.real;
-  
-   // canvas.style.border="1px solid #FF0000";
-    canvas.style.display="none";
+    canvas.width = v1.value.real;
+    canvas.height = v2.value.real;
+
+    // canvas.style.border="1px solid #FF0000";
+    canvas.style.display = "none";
     document.body.appendChild(canvas);
-    images[v0.value]=canvas;
-  
+    images[v0.value] = canvas;
+
     return nada;
 };
 
 
 evaluator.clearimage$1 = function(args, modifs) {
-    
+
     var name = evaluate(args[0]);
-    
-    if (name.ctype !== 'string' ) {
+
+    if (name.ctype !== 'string') {
         return nada;
     }
-    
-    var localcanvas=document.getElementById(name.value);
-    if(typeof(localcanvas)==="undefined" ||  localcanvas === null){
+
+    var localcanvas = document.getElementById(name.value);
+    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
         return nada;
     }
-    var cw=localcanvas.width;
-    var ch=localcanvas.height;
+    var cw = localcanvas.width;
+    var ch = localcanvas.height;
     var localcontext = localcanvas.getContext('2d');
     localcontext.clearRect(0, 0, cw, ch);
-    
+
     return nada;
 };
-
 
 
 evaluator.canvas$4 = function(args, modifs) {
@@ -1259,34 +1256,34 @@ evaluator.canvas$4 = function(args, modifs) {
     var b = evaluateAndVal(args[1]);
     var name = evaluate(args[2]);
     var prog = args[3];
-    
+
     var pta = eval_helper.extractPoint(a);
     var ptb = eval_helper.extractPoint(b);
     if (!pta.ok || !pta.ok || name.ctype !== 'string') {
         return nada;
     }
-    var localcanvas=document.getElementById(name.value);
-    if(typeof(localcanvas)==="undefined" ||  localcanvas === null){
+    var localcanvas = document.getElementById(name.value);
+    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
         return nada;
     }
 
 
-    var cw=localcanvas.width;
-    var ch=localcanvas.height;
-    
-    var diffx=ptb.x-pta.x;
-    var diffy=ptb.y-pta.y;
+    var cw = localcanvas.width;
+    var ch = localcanvas.height;
 
-    var ptcx=pta.x-diffy*ch/cw;
-    var ptcy=pta.y+diffx*ch/cw;
-    var ptdx=ptb.x-diffy*ch/cw;
-    var ptdy=ptb.y+diffx*ch/cw;
-    
-    var cva=csport.from(pta.x,pta.y,1);
-    var cvc=csport.from(ptcx,ptcy,1);
-    var cvd=csport.from(ptdx,ptdy,1);
+    var diffx = ptb.x - pta.x;
+    var diffy = ptb.y - pta.y;
 
-   
+    var ptcx = pta.x - diffy * ch / cw;
+    var ptcy = pta.y + diffx * ch / cw;
+    var ptdx = ptb.x - diffy * ch / cw;
+    var ptdy = ptb.y + diffx * ch / cw;
+
+    var cva = csport.from(pta.x, pta.y, 1);
+    var cvc = csport.from(ptcx, ptcy, 1);
+    var cvd = csport.from(ptdx, ptdy, 1);
+
+
     var x11 = cva[0];
     var x12 = cva[1];
     var x21 = cvc[0];
@@ -1300,39 +1297,36 @@ evaluator.canvas$4 = function(args, modifs) {
     var y31 = cw;
     var y32 = 0;
 
-    var a1 = ((y11-y21)*(x12-x32)-(y11-y31)*(x12-x22))/
-                ((x11-x21)*(x12-x32)-(x11-x31)*(x12-x22));
-    var a2 = ((y11-y21)*(x11-x31)-(y11-y31)*(x11-x21))/
-                ((x12-x22)*(x11-x31)-(x12-x32)*(x11-x21));
-    var a3 = y11-a1*x11-a2*x12;
-    var a4 = ((y12-y22)*(x12-x32)-(y12-y32)*(x12-x22))/
-                ((x11-x21)*(x12-x32)-(x11-x31)*(x12-x22));
-    var a5 = ((y12-y22)*(x11-x31)-(y12-y32)*(x11-x21))/
-                ((x12-x22)*(x11-x31)-(x12-x32)*(x11-x21));
-    var a6 = y12-a4*x11-a5*x12;
-   
-   
-   
-    
- //   evaluator.draw$2([List.realVector([pta.x,pta.y]),List.realVector([ptb.x,ptb.y])],{size:CSNumber.real(2)});
- //   evaluator.draw$2([List.realVector([pta.x,pta.y]),List.realVector([ptcx,ptcy])],{size:CSNumber.real(2)});
- //   evaluator.draw$2([List.realVector([ptb.x,ptb.y]),List.realVector([ptdx,ptdy])],{size:CSNumber.real(2)});
- //   evaluator.draw$2([List.realVector([ptcx,ptcy]),List.realVector([ptdx,ptdy])],{size:CSNumber.real(2)});
+    var a1 = ((y11 - y21) * (x12 - x32) - (y11 - y31) * (x12 - x22)) /
+        ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
+    var a2 = ((y11 - y21) * (x11 - x31) - (y11 - y31) * (x11 - x21)) /
+        ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
+    var a3 = y11 - a1 * x11 - a2 * x12;
+    var a4 = ((y12 - y22) * (x12 - x32) - (y12 - y32) * (x12 - x22)) /
+        ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
+    var a5 = ((y12 - y22) * (x11 - x31) - (y12 - y32) * (x11 - x21)) /
+        ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
+    var a6 = y12 - a4 * x11 - a5 * x12;
 
-    
+
+    //   evaluator.draw$2([List.realVector([pta.x,pta.y]),List.realVector([ptb.x,ptb.y])],{size:CSNumber.real(2)});
+    //   evaluator.draw$2([List.realVector([pta.x,pta.y]),List.realVector([ptcx,ptcy])],{size:CSNumber.real(2)});
+    //   evaluator.draw$2([List.realVector([ptb.x,ptb.y]),List.realVector([ptdx,ptdy])],{size:CSNumber.real(2)});
+    //   evaluator.draw$2([List.realVector([ptcx,ptcy]),List.realVector([ptdx,ptdy])],{size:CSNumber.real(2)});
+
+
     var localcontext = localcanvas.getContext('2d');
-    
-    var backupctx=csctx;
-    csctx=localcontext;
+
+    var backupctx = csctx;
+    csctx = localcontext;
     csctx.save();
 
-    csctx.transform(a1,a4,a2,a5,a3,a6);
+    csctx.transform(a1, a4, a2, a5, a3, a6);
     //csctx.transform(.5,0,0,.5,0,0);
 
     evaluate(prog);
     csctx.restore();
 
-    csctx=backupctx;
-        
-};
+    csctx = backupctx;
 
+};
