@@ -812,10 +812,22 @@ geoOps.angleBisector = function(el){
     var A1 = List.add(f1, f2);
     var A2 = List.sub(f1, f2);
 
-    var ll1 = List.normalizeMax(List.cross(A1, OO));
-    var ll2 = List.normalizeMax(List.cross(A2, OO));
+    var erg1 = List.normalizeMax(List.cross(A1, OO));
+    var erg2 = List.normalizeMax(List.cross(A2, OO));
 
-    el.results = List.turnIntoCSList([ll1, ll2]);
+    // Billigtracing
+    if (!el.inited) {
+        el.check1 = erg1;
+        el.check2 = erg2;
+        el.inited = true;
+        el.results = List.turnIntoCSList([erg1, erg2]);
+    } else {
+        var action = geoOps._helper.tracing2(erg1, erg2, el.check1, el.check2, el);
+        if (!List._helper.isNaN(el.results.value[0]) && !List._helper.isNaN(el.results.value[1])) {
+            el.check1 = el.results.value[0];
+            el.check2 = el.results.value[1];
+        }
+    }
 };
 geoOpMap.angleBisector= "T";
 
