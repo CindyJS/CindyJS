@@ -784,6 +784,14 @@ geoOps.CircleBy3 = function(el) {
 };
 geoOpMap.CircleBy3 = "C";
 
+geoOps.Polar = function(el) {
+    var Conic = csgeo.csnames[(el.args[0])];
+    var Point = csgeo.csnames[(el.args[1])];
+    el.homog = General.mult(Conic.matrix, Point.homog);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Line");
+};
+geoOpMap.Polar= "L";
 
 geoOps._helper.tracing2 = function(n1, n2, c1, c2, el) { //Billigtracing
     var OK = 0;
