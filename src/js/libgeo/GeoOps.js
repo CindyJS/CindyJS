@@ -793,6 +793,32 @@ geoOps.Polar = function(el) {
 };
 geoOpMap.Polar= "L";
 
+geoOps.angleBisector = function(el){
+    var ll = csgeo.csnames[(el.args[0])];
+    var mm = csgeo.csnames[(el.args[1])];
+
+    var OO = List.cross(ll.homog, mm.homog);
+    var PP = List.realVector([100*Math.random(),100*Math.random(), 1]);
+
+    var LL = List.cross(ll.homog, List.linfty);
+    var MM = List.cross(mm.homog, List.linfty);
+
+    var plmj = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.jj), List.det3(PP, MM, List.jj)));; // factor before I
+    var f1 = General.mult(plmj, List.ii);
+
+    var plmi = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.ii), List.det3(PP, MM, List.ii))); // factor before J
+    var f2 = General.mult(plmi, List.jj);
+
+    var A1 = List.add(f1, f2);
+    var A2 = List.sub(f1, f2);
+
+    var ll1 = List.normalizeMax(List.cross(A1, OO));
+    var ll2 = List.normalizeMax(List.cross(A2, OO));
+
+    el.results = List.turnIntoCSList([ll1, ll2]);
+};
+geoOpMap.angleBisector= "T";
+
 geoOps._helper.tracing2 = function(n1, n2, c1, c2, el) { //Billigtracing
     var OK = 0;
     var DECREASE_STEP = 1;
