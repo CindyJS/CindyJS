@@ -1334,5 +1334,5 @@ evaluator.canvas$4 = function(args, modifs) {
 
     csctx=backupctx;
         
-}
+};
 

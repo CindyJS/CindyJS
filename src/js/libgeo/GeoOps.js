@@ -803,7 +803,7 @@ geoOps.angleBisector = function(el){
     var LL = List.cross(ll.homog, List.linfty);
     var MM = List.cross(mm.homog, List.linfty);
 
-    var plmj = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.jj), List.det3(PP, MM, List.jj)));; // factor before I
+    var plmj = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.jj), List.det3(PP, MM, List.jj))); // factor before I
     var f1 = General.mult(plmj, List.ii);
 
     var plmi = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.ii), List.det3(PP, MM, List.ii))); // factor before J
