@@ -173,6 +173,9 @@ Accessor.setField = function(geo, field, value) {
         if (field === "mass" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.mass = value.value.real;
         }
+        if (field === "mass" && geo.behavior.type === "Sun" && value.ctype === "number") {
+            geo.behavior.mass = value.value.real;
+        }
         if (field === "friction" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.friction = value.value.real;
         }
