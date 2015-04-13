@@ -17,11 +17,11 @@ function sqrt(x) {
 }
 
 
-PointOnCircle = {
+GeoOps.PointOnCircle = {
   computeParameters = function(el) {
     …
   }
-}
+};
 
 
 stateIdx = el.stateIdx;

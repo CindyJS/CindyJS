@@ -4,11 +4,6 @@ Sachen, die uns beim Tracing-Krams aufgefallen sind.
 
 - Trough kann nicht mit Geraden durch Fernpunkte umgehen.
 
-
-Tracing a la Stefan:
-
-- evtl. normalizeMax raus nehmen, durch konstanten Faktor ersetzen??? Eher nein.
-
 Fragen:
 
 - Tracen wir Mauspositionen, oder die Parameter in die diese übersetzt werden?
@@ -30,8 +25,8 @@ Was muss eine geom. Operation für Methoden haben?
 - updatePosition            (der Teil danach, mit el.homog = ...)
 - kind                      (bisher geoOpMap)
 - name ??                   (human readable)
-- backupState
-- restoreState
+- backupState ?
+- restoreState ?
 - stateSize                 (Anzahl der Floats im internen Parametervektor + anzahl der Floats, die von Wurzeln usw. gebraucht werden)
 
 Was hat ein Element selber an Informationen?
@@ -43,3 +38,10 @@ Was hat ein Element selber an Informationen?
 Globale Informationen:
 
 - Irgendwelche Arrays, auf die mit dem state array index zugegriffen werden kann?
+
+Nächste Schritte:
+
+- Bestehende Operationen in mehrere Funktionen aufspalten (s.o.) @Stefan
+- saveState und restoreState für adCSNumber einführen @Michael
+- stateSize für Operationen auf adCSNumber festlegen @Michael
+- Events an Tracing-Funktion weiterleiten @Martin
