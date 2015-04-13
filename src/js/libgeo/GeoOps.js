@@ -312,9 +312,8 @@ geoOps.CircleMr = function(el) {
     if (move && move.mover === el) {
         var xx = mid.value[0].value.real - mouse.x;
         var yy = mid.value[1].value.real - mouse.y;
-        var rad = Math.sqrt(xx * xx + yy * yy); //+move.offsetrad;
-        //      el.radius = CSNumber.real(rad + move.offsetrad);
-        el.radius = CSNumber.real(rad); // + move.offsetrad);
+        var rad = Math.sqrt(xx * xx + yy * yy);
+        el.radius = CSNumber.real(rad);
     }
     var r = el.radius;
     var p = List.turnIntoCSList([r, CSNumber.real(0), CSNumber.real(0)]);

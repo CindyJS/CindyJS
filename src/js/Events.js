@@ -43,7 +43,7 @@ function movepointscr(mover, pos) {
 function getmover(mouse) {
     var mov;
     var adist = 1000000;
-    var diff, orad;
+    var diff;
     for (var i = 0; i < csgeo.free.length; i++) {
         var el = csgeo.free[i];
         if (!el.pinned) {
@@ -56,7 +56,7 @@ function getmover(mouse) {
                 dist = Math.sqrt(dx * dx + dy * dy);
                 if (el.narrow & dist > 20 / sc) dist = 10000;
             }
-            if (el.kind === "C") { //Must be Circle by Rad
+            else if (el.kind === "C") { //Must be Circle by Rad
                 var mid = csgeo.csnames[el.args[0]];
                 var rad = el.radius;
                 var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
@@ -65,7 +65,6 @@ function getmover(mouse) {
                 dy = yy - mouse.y;
                 var ref = Math.sqrt(dx * dx + dy * dy);
                 dist = ref - rad.value.real;
-                orad = -dist;
                 dx = 0;
                 dy = 0;
                 if (dist < 0) {
@@ -74,7 +73,7 @@ function getmover(mouse) {
                 dist = dist + 30 / sc;
 
             }
-            if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
+            else if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
                 var l = List.normalizeZ(el.homog);
                 var N = CSNumber;
                 var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])),
@@ -103,7 +102,6 @@ function getmover(mouse) {
     return {
         mover: mov,
         offset: diff,
-        offsetrad: orad
     };
 }
 
