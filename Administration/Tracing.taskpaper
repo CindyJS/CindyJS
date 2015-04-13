@@ -1,0 +1,45 @@
+Merkliste:
+
+Sachen, die uns beim Tracing-Krams aufgefallen sind.
+
+- Trough kann nicht mit Geraden durch Fernpunkte umgehen.
+
+
+Tracing a la Stefan:
+
+- evtl. normalizeMax raus nehmen, durch konstanten Faktor ersetzen??? Eher nein.
+
+Fragen:
+
+- Tracen wir Mauspositionen, oder die Parameter in die diese übersetzt werden?
+
+1. Mover: Maus (und Eltern) in Parameter übersetzen
+2. ggf. Zahlenklasse austauschen
+3.   Schleife für Pfad (im Parameter-Raum), Refinement, …
+4.     Mover: Parameter in homogene Koordinaten übersetzen
+5.     Davon abhängige Elemente: Eltern in Parameter
+6.     Davon abhängige Elemente: Parameter in homogene Koordinaten
+7. Zahlenklasse zurück tauschen
+
+
+Was muss eine geom. Operation für Methoden haben?
+
+- computeParameters         (der Teil vor / statt move.mover === el)
+- computeParametersOnInput  (der Teil in move.mover === el)
+- parameterPath             (t in spezifische Parameter übersetzen)
+- updatePosition            (der Teil danach, mit el.homog = ...)
+- kind                      (bisher geoOpMap)
+- name ??                   (human readable)
+- backupState
+- restoreState
+- stateSize                 (Anzahl der Floats im internen Parametervektor + anzahl der Floats, die von Wurzeln usw. gebraucht werden)
+
+Was hat ein Element selber an Informationen?
+
+- Internen Parameter-Vektor
+- Position in homogenen Koordinaten für Kinder / Anzeige
+- index in ein State Array
+
+Globale Informationen:
+
+- Irgendwelche Arrays, auf die mit dem state array index zugegriffen werden kann?
