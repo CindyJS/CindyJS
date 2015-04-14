@@ -470,7 +470,7 @@ labObjects.Sun = {
 
 
     sqDist: function(beh, i, j) {
-        return 0
+        return 0;
     },
 
     kineticEnergy: function(beh) {},
@@ -555,7 +555,7 @@ labObjects.Gravity = {
 
 
     sqDist: function(beh, i, j) {
-        return 0
+        return 0;
     },
 
     kineticEnergy: function(beh) {},
@@ -684,7 +684,7 @@ labObjects.Spring = {
     restorePos: function(beh, i) {},
 
     sqDist: function(beh, i, j) {
-        return 0
+        return 0;
     },
 
     kineticEnergy: function(beh) {},
@@ -756,7 +756,7 @@ labObjects.Bouncer = {
     restorePos: function(beh, i) {},
 
     sqDist: function(beh, i, j) {
-        return 0
+        return 0;
     },
 
     kineticEnergy: function(beh) {},
@@ -1007,7 +1007,7 @@ labObjects.Environment = {
     restorePos: function(beh, i) {},
 
     sqDist: function(beh, i, j) {
-        return 0
+        return 0;
     },
 
     kineticEnergy: function(beh) {},

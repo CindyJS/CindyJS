@@ -811,24 +811,28 @@ geoOps.angleBisector = function(el) {
     var erg1 = List.normalizeMax(List.add(mui, tauj));
     var erg2 = List.normalizeMax(List.sub(mui, tauj));
 
-    var mu, tau, mux, tauy;
-    if (List.abs(erg1).value.real < List.abs(erg2).value.real) {
-        mu = List.det3(poi, yy.homog, erg2);
-        tau = List.det3(poi, xx.homog, erg2);
 
-        mux = General.mult(xx.homog, mu);
-        tauy = General.mult(yy.homog, tau);
-
-        erg1 = List.add(mux, tauy);
-
-    } else {
-        mu = List.det3(poi, yy.homog, erg1);
-        tau = List.det3(poi, xx.homog, erg1);
-
-        mux = General.mult(xx.homog, mu);
-        tauy = General.mult(yy.homog, tau);
-
-        erg2 = List.add(mux, tauy);
+    // degenrate case
+    if(List.almostequals(erg1, List.linfty).value || List.almostequals(erg2, List.linfty).value){
+        var mu, tau, mux, tauy;
+        if (List.abs(erg1).value.real < List.abs(erg2).value.real) {
+            mu = List.det3(poi, yy.homog, erg2);
+            tau = List.det3(poi, xx.homog, erg2);
+    
+            mux = General.mult(xx.homog, mu);
+            tauy = General.mult(yy.homog, tau);
+    
+            erg1 = List.add(mux, tauy);
+    
+        } else {
+            mu = List.det3(poi, yy.homog, erg1);
+            tau = List.det3(poi, xx.homog, erg1);
+    
+            mux = General.mult(xx.homog, mu);
+            tauy = General.mult(yy.homog, tau);
+    
+            erg2 = List.add(mux, tauy);
+        }
     }
 
     erg1 = List.normalizeMax(erg1);
