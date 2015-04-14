@@ -794,26 +794,46 @@ geoOps.Polar = function(el) {
 geoOpMap.Polar = "L";
 
 geoOps.angleBisector = function(el) {
-    var ll = csgeo.csnames[(el.args[0])];
-    var mm = csgeo.csnames[(el.args[1])];
+    var xx = csgeo.csnames[(el.args[0])];
+    var yy = csgeo.csnames[(el.args[1])];
 
-    var OO = List.cross(ll.homog, mm.homog);
-    var PP = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
+    var poi = List.normalizeMax(List.cross(xx.homog, yy.homog));
 
-    var LL = List.cross(ll.homog, List.linfty);
-    var MM = List.cross(mm.homog, List.linfty);
+    var myI = List.normalizeMax(List.cross(List.ii, poi));
+    var myJ = List.normalizeMax(List.cross(List.jj, poi));
 
-    var plmj = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.jj), List.det3(PP, MM, List.jj))); // factor before I
-    var f1 = General.mult(plmj, List.ii);
+    var sqi = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myI), List.det3(poi, xx.homog, myI)));
+    var sqj = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myJ), List.det3(poi, xx.homog, myJ)));
 
-    var plmi = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.ii), List.det3(PP, MM, List.ii))); // factor before J
-    var f2 = General.mult(plmi, List.jj);
+    var mui = General.mult(myI, sqj);
+    var tauj = General.mult(myJ, sqi);
 
-    var A1 = List.add(f1, f2);
-    var A2 = List.sub(f1, f2);
+    var erg1 = List.normalizeMax(List.add(mui, tauj));
+    var erg2 = List.normalizeMax(List.sub(mui, tauj));
 
-    var erg1 = List.normalizeMax(List.cross(A1, OO));
-    var erg2 = List.normalizeMax(List.cross(A2, OO));
+    var mu, tau, mux, tauy;
+    if(List.abs(erg1).value.real < List.abs(erg2).value.real){
+        mu = List.det3(poi, yy.homog, erg2);
+        tau = List.det3(poi, xx.homog, erg2);
+
+        mux = General.mult(xx.homog, mu);
+        tauy = General.mult(yy.homog, tau);
+        
+        erg1 = List.add(mux, tauy);
+
+    }
+    else{
+        mu = List.det3(poi, yy.homog, erg1);
+        tau = List.det3(poi, xx.homog, erg1);
+
+        mux = General.mult(xx.homog, mu);
+        tauy = General.mult(yy.homog, tau);
+        
+        erg2 = List.add(mux, tauy);
+    }
+
+    erg1 = List.normalizeMax(erg1);
+    erg2 = List.normalizeMax(erg2);
 
     // Billigtracing
     if (!el.inited) {
