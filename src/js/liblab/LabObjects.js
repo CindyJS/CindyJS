@@ -469,7 +469,9 @@ labObjects.Sun = {
     restorePos: function(beh, i) {},
 
 
-    sqDist: function(beh, i, j) {return 0},
+    sqDist: function(beh, i, j) {
+        return 0
+    },
 
     kineticEnergy: function(beh) {},
 
@@ -552,7 +554,9 @@ labObjects.Gravity = {
     restorePos: function(beh, i) {},
 
 
-    sqDist: function(beh, i, j) {return 0},
+    sqDist: function(beh, i, j) {
+        return 0
+    },
 
     kineticEnergy: function(beh) {},
 
@@ -679,7 +683,9 @@ labObjects.Spring = {
 
     restorePos: function(beh, i) {},
 
-    sqDist: function(beh, i, j) {return 0},
+    sqDist: function(beh, i, j) {
+        return 0
+    },
 
     kineticEnergy: function(beh) {},
 
@@ -749,7 +755,9 @@ labObjects.Bouncer = {
 
     restorePos: function(beh, i) {},
 
-    sqDist: function(beh, i, j) {return 0},
+    sqDist: function(beh, i, j) {
+        return 0
+    },
 
     kineticEnergy: function(beh) {},
 
@@ -868,10 +876,10 @@ labObjects.Environment = {
         if (typeof(beh.newton) === 'undefined') beh.newton = false;
         if (typeof(beh.ballInteractionBoosting) === 'undefined') beh.ballInteractionBoosting = 1;
         labObjects.env = beh;
-        beh.errorbound=0.001;
-        beh.lowestdeltat=0.0000001;
-        beh.slowdownfactor=2;
-        
+        beh.errorbound = 0.001;
+        beh.lowestdeltat = 0.0000001;
+        beh.slowdownfactor = 2;
+
 
     },
 
@@ -998,7 +1006,9 @@ labObjects.Environment = {
 
     restorePos: function(beh, i) {},
 
-    sqDist: function(beh, i, j) {return 0},
+    sqDist: function(beh, i, j) {
+        return 0
+    },
 
     kineticEnergy: function(beh) {},
 

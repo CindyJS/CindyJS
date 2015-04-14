@@ -812,23 +812,22 @@ geoOps.angleBisector = function(el) {
     var erg2 = List.normalizeMax(List.sub(mui, tauj));
 
     var mu, tau, mux, tauy;
-    if(List.abs(erg1).value.real < List.abs(erg2).value.real){
+    if (List.abs(erg1).value.real < List.abs(erg2).value.real) {
         mu = List.det3(poi, yy.homog, erg2);
         tau = List.det3(poi, xx.homog, erg2);
 
         mux = General.mult(xx.homog, mu);
         tauy = General.mult(yy.homog, tau);
-        
+
         erg1 = List.add(mux, tauy);
 
-    }
-    else{
+    } else {
         mu = List.det3(poi, yy.homog, erg1);
         tau = List.det3(poi, xx.homog, erg1);
 
         mux = General.mult(xx.homog, mu);
         tauy = General.mult(yy.homog, tau);
-        
+
         erg2 = List.add(mux, tauy);
     }
 

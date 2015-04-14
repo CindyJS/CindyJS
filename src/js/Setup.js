@@ -82,10 +82,11 @@ function createCindyNow() {
     evaluate(iscr);
 
     //Setup the scripts
-    var scripts = ["move", "keydown", 
-    "mousedown", "mouseup", "mousedrag", 
-    "init", "tick", "draw",
-    "simulationstep","cssimulationstart","cssimulationstop"];
+    var scripts = ["move", "keydown",
+        "mousedown", "mouseup", "mousedrag",
+        "init", "tick", "draw",
+        "simulationstep", "cssimulationstart", "cssimulationstop"
+    ];
     var scriptconf = data.scripts,
         scriptpat = null;
     if (typeof scriptconf === "string" && scriptconf.search(/\*/))
