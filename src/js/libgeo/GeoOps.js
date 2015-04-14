@@ -813,24 +813,24 @@ geoOps.angleBisector = function(el) {
 
 
     // degenrate case
-    if(List.almostequals(erg1, List.linfty).value || List.almostequals(erg2, List.linfty).value){
+    if (List.almostequals(erg1, List.linfty).value || List.almostequals(erg2, List.linfty).value) {
         var mu, tau, mux, tauy;
         if (List.abs(erg1).value.real < List.abs(erg2).value.real) {
             mu = List.det3(poi, yy.homog, erg2);
             tau = List.det3(poi, xx.homog, erg2);
-    
+
             mux = General.mult(xx.homog, mu);
             tauy = General.mult(yy.homog, tau);
-    
+
             erg1 = List.add(mux, tauy);
-    
+
         } else {
             mu = List.det3(poi, yy.homog, erg1);
             tau = List.det3(poi, xx.homog, erg1);
-    
+
             mux = General.mult(xx.homog, mu);
             tauy = General.mult(yy.homog, tau);
-    
+
             erg2 = List.add(mux, tauy);
         }
     }
