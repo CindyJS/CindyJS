@@ -381,6 +381,19 @@ function cs_tick(e) {
 
 }
 
+function cs_simulationstep(e) {
+    evaluate(cscompiled.simulationstep);
+}
+
+function cs_simulationstart(e) {
+    evaluate(cscompiled.simulationstart);
+}
+
+function cs_simulationstop(e) {
+    evaluate(cscompiled.simulationstop);
+}
+
+
 function cindy_cancelmove() {
     move = undefined;
 }

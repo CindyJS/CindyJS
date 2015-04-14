@@ -3,17 +3,6 @@
 //*******************************************************
 
 
-evaluator.seconds$0 = function(args, modifs) { //OK
-    return {
-        "ctype": "number",
-        "value": {
-            'real': (new Date().getTime() / 1000),
-            'imag': 0
-        }
-    };
-};
-
-
 evaluator.err$1 = function(args, modifs) { //OK
 
     if (typeof csconsole === "undefined") {
@@ -3499,6 +3488,60 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     return nada;
 };
 
+///////////////////////////////
+//     Date and time         //
+///////////////////////////////
+
+if (!Date.now) Date.now = function() {
+    return new Date().getTime();
+};
+var epoch = 0;
+
+evaluator.seconds$0 = function(args, modifs) { //OK
+    return {
+        "ctype": "number",
+        "value": {
+            'real': ((Date.now() - epoch) / 1000),
+            'imag': 0
+        }
+    };
+};
+
+evaluator.resetclock$0 = function(args, modifs) {
+    epoch = Date.now();
+    return nada;
+};
+
+evaluator.time$0 = function(args, modifs) {
+    var now = new Date();
+    return List.realVector([
+        now.getHours(), now.getMinutes(),
+        now.getSeconds(), now.getMilliseconds()
+    ]);
+};
+
+evaluator.date$0 = function(args, modifs) {
+    var now = new Date();
+    return List.realVector([
+        now.getFullYear(), now.getMonth(), now.getDay()
+    ]);
+};
+
+evaluator.setTimeout$2 = function(args, modifs) {
+    var delay = evaluate(args[0]); // delay in seconds
+    var code = args[1]; // code to execute, cannot refer to regional variables
+    function callback() {
+        evaluate(code);
+        updateCindy();
+    }
+    if (delay.ctype === "number") {
+        if (typeof window !== "undefined") {
+            window.setTimeout(callback, delay.value.real * 1000.0);
+        }
+    }
+    return nada;
+};
+
 /***********************************/
 /**********    WEBGL     ***********/
 /***********************************/
@@ -3811,3 +3854,63 @@ evaluator.compileToWebGL$1 = function(args, modifs) {
     }
     return nada;
 };
+
+
+/***********************************/
+/**********    PHYSIC    ***********/
+/***********************************/
+
+
+evaluator.setsimulationspeed$1 = function(args, modifs) {
+    
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'number') {
+        if(typeof(labObjects)!=="undefined" && typeof(labObjects.env)!=="undefined") {
+            labObjects.env.deltat=v0.value.real;
+        }
+    }
+    return nada;
+};
+
+evaluator.setsimulationaccuracy$1 = function(args, modifs) {
+    
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'number') {
+        if(typeof(labObjects)!=="undefined" && typeof(labObjects.env)!=="undefined") {
+            labObjects.env.accuracy=v0.value.real;
+        }
+    }
+    return nada;
+};
+
+evaluator.setsimulationquality$1 = function(args, modifs) {
+    
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'number') {
+        if(typeof(labObjects)!=="undefined" && typeof(labObjects.env)!=="undefined") {
+            var qual=v0.value.real;
+            if(qual==0) {
+                labObjects.env.errorbound=0.01;
+                labObjects.env.lowestdeltat=0.00001;
+                labObjects.env.slowdownfactor=2;
+            }
+            if(qual==1) {
+                labObjects.env.errorbound=0.001;
+                labObjects.env.lowestdeltat=0.0000001;
+                labObjects.env.slowdownfactor=2;
+            }
+            if(qual==2) {
+                labObjects.env.errorbound=0.00001;
+                labObjects.env.lowestdeltat=0.0000000001;
+                labObjects.env.slowdownfactor=4;
+            }
+            if(qual==3) {
+                labObjects.env.errorbound=0.000001;
+                labObjects.env.lowestdeltat=0.000000000001;
+                labObjects.env.slowdownfactor=4;
+            }
+        }
+    }
+    return nada;
+};
+

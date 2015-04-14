@@ -82,7 +82,10 @@ function createCindyNow() {
     evaluate(iscr);
 
     //Setup the scripts
-    var scripts = ["move", "keydown", "mousedown", "mouseup", "mousedrag", "init", "tick", "draw"];
+    var scripts = ["move", "keydown", 
+    "mousedown", "mouseup", "mousedrag", 
+    "init", "tick", "draw",
+    "simulationstep","cssimulationstart","cssimulationstop"];
     var scriptconf = data.scripts,
         scriptpat = null;
     if (typeof scriptconf === "string" && scriptconf.search(/\*/))
@@ -124,7 +127,9 @@ function createCindyNow() {
         csh = c.height;
         csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty - csh;
         csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty - csh;
-        var devicePixelRatio = window.devicePixelRatio || 1;
+        var devicePixelRatio = 1;
+        if (typeof window !== "undefined" && window.devicePixelRatio)
+            devicePixelRatio = window.devicePixelRatio;
         var backingStoreRatio =
             csctx.webkitBackingStorePixelRatio ||
             csctx.mozBackingStorePixelRatio ||
@@ -136,8 +141,10 @@ function createCindyNow() {
             var ratio = devicePixelRatio / backingStoreRatio;
             c.width = csw * ratio;
             c.height = csh * ratio;
-            c.style.width = csw + "px";
-            c.style.height = csh + "px";
+            if (!c.style.width)
+                c.style.width = csw + "px";
+            if (!c.style.height)
+                c.style.height = csh + "px";
             csctx.scale(ratio, ratio);
         }
     }
