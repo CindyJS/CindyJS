@@ -85,7 +85,7 @@ function csinit(gslp) {
     for (k = 0; k < csgeo.gslp.length; k++) {
         var g = csgeo.gslp[k];
         csgeo.csnames[g.name] = g;
-        g.kind = geoOpMap[g.type];
+        g.kind = geoOps[g.type].kind;
         g.incidences = [];
         g.isshowing = true;
         g.movable = false;
