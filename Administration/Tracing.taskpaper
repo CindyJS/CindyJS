@@ -2,7 +2,9 @@ Merkliste:
 
 Sachen, die uns beim Tracing-Krams aufgefallen sind.
 
-- Trough kann nicht mit Geraden durch Fernpunkte umgehen.
+- Through kann nicht mit Geraden durch Fernpunkte umgehen.
+- kind (ehemals geoOpMap) ist "C" sowohl für Kreise als auch für Kegelschnitte
+- kind (ehemals geoOpMap) ist "Tr" für TrProjection?
 
 Fragen:
 
@@ -21,8 +23,8 @@ Was muss eine geom. Operation für Methoden haben?
 
 - computeParameters         (der Teil vor / statt move.mover === el)
 - computeParametersOnInput  (der Teil in move.mover === el)
-- parameterPath             (t in spezifische Parameter übersetzen)
 - updatePosition            (der Teil danach, mit el.homog = ...)
+- parameterPath             (t in spezifische Parameter übersetzen)
 - kind                      (bisher geoOpMap)
 - name ??                   (human readable)
 - backupState ?
