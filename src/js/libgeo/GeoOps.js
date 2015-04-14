@@ -1,27 +1,34 @@
 var geoOps = {};
 geoOps._helper = {};
 
-geoOps.Join = function(el) {
+geoOps.Join = {};
+geoOps.Join.updatePosition = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     var el2 = csgeo.csnames[(el.args[1])];
     el.homog = List.cross(el1.homog, el2.homog);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.Join.computeParameters = function(el) {};
+geoOps.Join.computeParametersOnInput = function(el) {};
 geoOps.Join.kind = "L";
 
 
-geoOps.Segment = function(el) {
+geoOps.Segment = {};
+geoOps.Segment.updatePosition = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     var el2 = csgeo.csnames[(el.args[1])];
     el.homog = List.cross(el1.homog, el2.homog);
     el.homog = List.normalizeMax(el.homog);
-    el.homog.usage = "Line";
+    el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.Segment.computeParameters = function(el) {};
+geoOps.Segment.computeParametersOnInput = function(el) {};
 geoOps.Segment.kind = "S";
 
 
-geoOps.Meet = function(el) {
+geoOps.Meet = {};
+geoOps.Meet.updatePosition = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     var el2 = csgeo.csnames[(el.args[1])];
     el.homog = List.cross(el1.homog, el2.homog);
@@ -43,10 +50,13 @@ geoOps.Meet.visiblecheck = function(el) {
     el.isshowing = visible;
 };
 
+geoOps.Meet.computeParameters = function(el) {};
+geoOps.Meet.computeParametersOnInput = function(el) {};
 geoOps.Meet.kind = "P";
 
 
-geoOps.Mid = function(el) {
+geoOps.Mid = {};
+geoOps.Mid.updatePosition = function(el) {
     var x = csgeo.csnames[(el.args[0])].homog;
     var y = csgeo.csnames[(el.args[1])].homog;
 
@@ -60,10 +70,13 @@ geoOps.Mid = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
 };
+geoOps.Mid.computeParameters = function(el) {};
+geoOps.Mid.computeParametersOnInput = function(el) {};
 geoOps.Mid.kind = "P";
 
 
-geoOps.Perp = function(el) {
+geoOps.Perp = {};
+geoOps.Perp.updatePosition = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
     var p = csgeo.csnames[(el.args[1])].homog;
     var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
@@ -71,10 +84,13 @@ geoOps.Perp = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.Perp.computeParameters = function(el) {};
+geoOps.Perp.computeParametersOnInput = function(el) {};
 geoOps.Perp.kind = "L";
 
 
-geoOps.Para = function(el) {
+geoOps.Para = {};
+geoOps.Para.updatePosition = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
     var p = csgeo.csnames[(el.args[1])].homog;
     var inf = List.linfty;
@@ -82,26 +98,35 @@ geoOps.Para = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.Para.computeParameters = function(el) {};
+geoOps.Para.computeParametersOnInput = function(el) {};
 geoOps.Para.kind = "L";
 
-geoOps.Horizontal = function(el) {
+geoOps.Horizontal = {};
+geoOps.Horizontal.updatePosition = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     el.homog = List.cross(List.ex, el1.homog);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.Horizontal.computeParameters = function(el) {};
+geoOps.Horizontal.computeParametersOnInput = function(el) {};
 geoOps.Horizontal.kind = "L";
 
-geoOps.Vertical = function(el) {
+geoOps.Vertical = {};
+geoOps.Vertical.updatePosition = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     el.homog = List.cross(List.ey, el1.homog);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.Vertical.computeParameters = function(el) {};
+geoOps.Vertical.computeParametersOnInput = function(el) {};
 geoOps.Vertical.kind = "L";
 
 
-geoOps.Through = function(el) {
+geoOps.Through = {};
+geoOps.Through.updatePosition = function(el) {
     var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
 
     if (move && move.mover === el) {
@@ -114,15 +139,21 @@ geoOps.Through = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.Through.computeParameters = function(el) {};
+geoOps.Through.computeParametersOnInput = function(el) {};
 geoOps.Through.kind = "L";
 
 
-geoOps.Free = function(el) {
+geoOps.Free = {};
+geoOps.Free.updatePosition = function(el) {
 
 };
+geoOps.Free.computeParameters = function(el) {};
+geoOps.Free.computeParametersOnInput = function(el) {};
 geoOps.Free.kind = "P";
 
-geoOps.PointOnLine = function(el) {
+geoOps.PointOnLine = {};
+geoOps.PointOnLine.updatePosition = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
     var p = el.homog;
     var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
@@ -137,10 +168,13 @@ geoOps.PointOnLine = function(el) {
     el.sy = y.value.real;
     el.sz = 1;
 };
+geoOps.PointOnLine.computeParameters = function(el) {};
+geoOps.PointOnLine.computeParametersOnInput = function(el) {};
 geoOps.PointOnLine.kind = "P";
 
 
-geoOps.PointOnCircle = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
+geoOps.PointOnCircle = {};
+geoOps.PointOnCircle.updatePosition = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
 
     var c = csgeo.csnames[(el.args[0])];
     var pts = geoOps._helper.IntersectLC(List.linfty, c.matrix);
@@ -187,10 +221,13 @@ geoOps.PointOnCircle = function(el) { //TODO was ist hier zu tun damit das stabi
     el.sy = y.value.real;
     el.sz = 1;
 };
+geoOps.PointOnCircle.computeParameters = function(el) {};
+geoOps.PointOnCircle.computeParametersOnInput = function(el) {};
 geoOps.PointOnCircle.kind = "P";
 
 
-geoOps.PointOnSegment = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
+geoOps.PointOnSegment = {};
+geoOps.PointOnSegment.updatePosition = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
 
     var l = csgeo.csnames[(el.args[0])].homog;
     var el1 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[0]].homog;
@@ -251,6 +288,8 @@ geoOps.PointOnSegment = function(el) { //TODO was ist hier zu tun damit das stab
     el.sy = y.value.real;
     el.sz = 1;
 };
+geoOps.PointOnSegment.computeParameters = function(el) {};
+geoOps.PointOnSegment.computeParametersOnInput = function(el) {};
 geoOps.PointOnSegment.kind = "P";
 
 
@@ -264,7 +303,8 @@ geoOps._helper.CenterOfConic = function(c) {
     return erg;
 };
 
-geoOps.CenterOfConic = function(el) {
+geoOps.CenterOfConic = {};
+geoOps.CenterOfConic.updatePosition = function(el) {
     var c = csgeo.csnames[(el.args[0])].matrix;
     var erg = geoOps._helper.CenterOfConic(c);
     el.homog = erg;
@@ -273,6 +313,8 @@ geoOps.CenterOfConic = function(el) {
 
 
 };
+geoOps.CenterOfConic.computeParameters = function(el) {};
+geoOps.CenterOfConic.computeParametersOnInput = function(el) {};
 geoOps.CenterOfConic.kind = "P";
 
 geoOps._helper.CircleMP = function(m, p) {
@@ -289,7 +331,8 @@ geoOps._helper.CircleMP = function(m, p) {
     return erg;
 };
 
-geoOps.CircleMP = function(el) { //TODO Performance Checken. Das ist jetzt der volle CK-ansatz
+geoOps.CircleMP = {};
+geoOps.CircleMP.updatePosition = function(el) { //TODO Performance Checken. Das ist jetzt der volle CK-ansatz
     //Weniger Allgemein geht das viiiiel schneller
     var m = csgeo.csnames[(el.args[0])].homog;
     var p = csgeo.csnames[(el.args[1])].homog;
@@ -298,10 +341,13 @@ geoOps.CircleMP = function(el) { //TODO Performance Checken. Das ist jetzt der v
     el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
+geoOps.CircleMP.computeParameters = function(el) {};
+geoOps.CircleMP.computeParametersOnInput = function(el) {};
 geoOps.CircleMP.kind = "C";
 
 
-geoOps.CircleMr = function(el) {
+geoOps.CircleMr = {};
+geoOps.CircleMr.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;
     var mid = List.scaldiv(m.value[2], m);
     if (move && move.mover === el) {
@@ -318,10 +364,13 @@ geoOps.CircleMr = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
+geoOps.CircleMr.computeParameters = function(el) {};
+geoOps.CircleMr.computeParametersOnInput = function(el) {};
 geoOps.CircleMr.kind = "C";
 
 
-geoOps.CircleMFixedr = function(el) {
+geoOps.CircleMFixedr = {};
+geoOps.CircleMFixedr.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;
     var mid = List.scaldiv(m.value[2], m);
 
@@ -333,6 +382,8 @@ geoOps.CircleMFixedr = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
+geoOps.CircleMFixedr.computeParameters = function(el) {};
+geoOps.CircleMFixedr.computeParametersOnInput = function(el) {};
 geoOps.CircleMFixedr.kind = "C";
 
 geoOps._helper.getConicType = function(C) {
@@ -385,7 +436,8 @@ geoOps._helper.conicFromTwoDegenerates = function(v23, v14, v12, v34, p) {
 };
 
 
-geoOps.ConicBy5 = function(el) {
+geoOps.ConicBy5 = {};
+geoOps.ConicBy5.updatePosition = function(el) {
     var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
     var c = csgeo.csnames[(el.args[2])].homog;
@@ -398,6 +450,8 @@ geoOps.ConicBy5 = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
+geoOps.ConicBy5.computeParameters = function(el) {};
+geoOps.ConicBy5.computeParametersOnInput = function(el) {};
 geoOps.ConicBy5.kind = "C";
 
 geoOps._helper.buildConicMatrix = function(arr) {
@@ -475,7 +529,8 @@ geoOps._helper.splitDegenConic = function(mat) {
     return [lg, lh];
 };
 
-geoOps.SelectConic = function(el) {
+geoOps.SelectConic = {};
+geoOps.SelectConic.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
     if (!el.inited) {
         el.inited = true;
@@ -484,6 +539,8 @@ geoOps.SelectConic = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
+geoOps.SelectConic.computeParameters = function(el) {};
+geoOps.SelectConic.computeParametersOnInput = function(el) {};
 geoOps.SelectConic.kind = "C";
 
 // conic by 4 Points and 1 line
@@ -511,7 +568,8 @@ geoOps._helper.ConicBy4p1l = function(el, a, b, c, d, l) {
     return [t1, t2];
 };
 
-geoOps.ConicBy4p1l = function(el) {
+geoOps.ConicBy4p1l = {};
+geoOps.ConicBy4p1l.updatePosition = function(el) {
     var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
     var c = csgeo.csnames[(el.args[2])].homog;
@@ -524,6 +582,8 @@ geoOps.ConicBy4p1l = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy4p1l.computeParameters = function(el) {};
+geoOps.ConicBy4p1l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy4p1l.kind = "T";
 
 
@@ -596,7 +656,8 @@ geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
     }
 };
 
-geoOps.ConicBy3p2l = function(el) {
+geoOps.ConicBy3p2l = {};
+geoOps.ConicBy3p2l.updatePosition = function(el) {
     var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
     var c = csgeo.csnames[(el.args[2])].homog;
@@ -624,9 +685,12 @@ geoOps.ConicBy3p2l = function(el) {
     }
     el.results = res;
 };
+geoOps.ConicBy3p2l.computeParameters = function(el) {};
+geoOps.ConicBy3p2l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy3p2l.kind = "T";
 
-geoOps.ConicBy2p3l = function(el) {
+geoOps.ConicBy2p3l = {};
+geoOps.ConicBy2p3l.updatePosition = function(el) {
     var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
     var g = csgeo.csnames[(el.args[2])].homog;
@@ -655,9 +719,12 @@ geoOps.ConicBy2p3l = function(el) {
     }
     el.results = res;
 };
+geoOps.ConicBy2p3l.computeParameters = function(el) {};
+geoOps.ConicBy2p3l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy2p3l.kind = "T";
 
-geoOps.ConicBy1p4l = function(el) {
+geoOps.ConicBy1p4l = {};
+geoOps.ConicBy1p4l.updatePosition = function(el) {
     var l1 = csgeo.csnames[(el.args[0])].homog;
     var l2 = csgeo.csnames[(el.args[1])].homog;
     var l3 = csgeo.csnames[(el.args[2])].homog;
@@ -675,9 +742,12 @@ geoOps.ConicBy1p4l = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy1p4l.computeParameters = function(el) {};
+geoOps.ConicBy1p4l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy1p4l.kind = "T";
 
-geoOps.ConicBy2Foci1P = function(el) {
+geoOps.ConicBy2Foci1P = {};
+geoOps.ConicBy2Foci1P.updatePosition = function(el) {
     var F1 = csgeo.csnames[(el.args[0])].homog;
     var F2 = csgeo.csnames[(el.args[1])].homog;
     var PP = csgeo.csnames[(el.args[2])].homog;
@@ -727,6 +797,8 @@ geoOps.ConicBy2Foci1P = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy4p1l.computeParameters = function(el) {};
+geoOps.ConicBy4p1l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy4p1l.kind = "T";
 
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
@@ -750,7 +822,8 @@ geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
 };
 
 
-geoOps.ConicBy5lines = function(el) {
+geoOps.ConicBy5lines = {};
+geoOps.ConicBy5lines.updatePosition = function(el) {
     var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
     var c = csgeo.csnames[(el.args[2])].homog;
@@ -763,9 +836,12 @@ geoOps.ConicBy5lines = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
+geoOps.ConicBy5lines.computeParameters = function(el) {};
+geoOps.ConicBy5lines.computeParametersOnInput = function(el) {};
 geoOps.ConicBy5lines.kind = "C";
 
-geoOps.CircleBy3 = function(el) {
+geoOps.CircleBy3 = {};
+geoOps.CircleBy3.updatePosition = function(el) {
     var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
     var c = List.ii;
@@ -776,18 +852,24 @@ geoOps.CircleBy3 = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
+geoOps.CircleBy3.computeParameters = function(el) {};
+geoOps.CircleBy3.computeParametersOnInput = function(el) {};
 geoOps.CircleBy3.kind = "C";
 
-geoOps.Polar = function(el) {
+geoOps.Polar = {};
+geoOps.Polar.updatePosition = function(el) {
     var Conic = csgeo.csnames[(el.args[0])];
     var Point = csgeo.csnames[(el.args[1])];
     el.homog = General.mult(Conic.matrix, Point.homog);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.Polar.computeParameters = function(el) {};
+geoOps.Polar.computeParametersOnInput = function(el) {};
 geoOps.Polar.kind = "L";
 
-geoOps.angleBisector = function(el) {
+geoOps.angleBisector = {};
+geoOps.angleBisector.updatePosition = function(el) {
     var ll = csgeo.csnames[(el.args[0])];
     var mm = csgeo.csnames[(el.args[1])];
 
@@ -823,6 +905,8 @@ geoOps.angleBisector = function(el) {
         }
     }
 };
+geoOps.angleBisector.computeParameters = function(el) {};
+geoOps.angleBisector.computeParametersOnInput = function(el) {};
 geoOps.angleBisector.kind = "T";
 
 geoOps._helper.tracing2 = function(n1, n2, c1, c2, el) { //Billigtracing
@@ -987,7 +1071,8 @@ geoOps._helper.IntersectLC = function(l, c) {
 
 };
 
-geoOps.IntersectLC = function(el) {
+geoOps.IntersectLC = {};
+geoOps.IntersectLC.updatePosition = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
     var c = csgeo.csnames[(el.args[1])].matrix;
 
@@ -1009,9 +1094,12 @@ geoOps.IntersectLC = function(el) {
         }
     }
 };
+geoOps.IntersectLC.computeParameters = function(el) {};
+geoOps.IntersectLC.computeParametersOnInput = function(el) {};
 geoOps.IntersectLC.kind = "T";
 
-geoOps.IntersectCirCir = function(el) {
+geoOps.IntersectCirCir = {};
+geoOps.IntersectCirCir.updatePosition = function(el) {
     var c1 = csgeo.csnames[(el.args[0])].matrix;
     var c2 = csgeo.csnames[(el.args[1])].matrix;
 
@@ -1043,6 +1131,8 @@ geoOps.IntersectCirCir = function(el) {
     }
 
 };
+geoOps.IntersectCirCir.computeParameters = function(el) {};
+geoOps.IntersectCirCir.computeParametersOnInput = function(el) {};
 geoOps.IntersectCirCir.kind = "T";
 
 
@@ -1150,7 +1240,8 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
 
 };
 
-geoOps.IntersectConicConic = function(el) {
+geoOps.IntersectConicConic = {};
+geoOps.IntersectConicConic.updatePosition = function(el) {
     var AA = csgeo.csnames[(el.args[0])].matrix;
     var BB = csgeo.csnames[(el.args[1])].matrix;
 
@@ -1159,19 +1250,25 @@ geoOps.IntersectConicConic = function(el) {
     el.results = List.turnIntoCSList(erg);
 
 };
+geoOps.IntersectConicConic.computeParameters = function(el) {};
+geoOps.IntersectConicConic.computeParametersOnInput = function(el) {};
 geoOps.IntersectConicConic.kind = "T";
 
 
-geoOps.SelectP = function(el) {
+geoOps.SelectP = {};
+geoOps.SelectP.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
     if (!el.inited) {
         el.inited = true;
     }
     el.homog = set.results.value[el.index - 1];
 };
+geoOps.SelectP.computeParameters = function(el) {};
+geoOps.SelectP.computeParametersOnInput = function(el) {};
 geoOps.SelectP.kind = "P";
 
-geoOps.SelectL = function(el) {
+geoOps.SelectL = {};
+geoOps.SelectL.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
     if (!el.inited) {
         el.inited = true;
@@ -1179,11 +1276,14 @@ geoOps.SelectL = function(el) {
     el.homog = set.results.value[el.index - 1];
     el.homog = General.withUsage(el.homog, "Line");
 };
+geoOps.SelectL.computeParameters = function(el) {};
+geoOps.SelectL.computeParametersOnInput = function(el) {};
 geoOps.SelectL.kind = "L";
 
 
 // Define a projective transformation given four points and their images
-geoOps.TrProjection = function(el) {
+geoOps.TrProjection = {};
+geoOps.TrProjection.updatePosition = function(el) {
     function oneStep(offset) {
         var tmp,
             a = csgeo.csnames[el.args[0 + offset]].homog,
@@ -1204,13 +1304,18 @@ geoOps.TrProjection = function(el) {
     m = List.normalizeMax(m);
     el.matrix = m;
 };
+geoOps.TrProjection.computeParameters = function(el) {};
+geoOps.TrProjection.computeParametersOnInput = function(el) {};
 geoOps.TrProjection.kind = "Tr";
 
 // Apply a projective transformation to a point
-geoOps.TransformP = function(el) {
+geoOps.TransformP = {};
+geoOps.TransformP.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].matrix;
     var p = csgeo.csnames[(el.args[1])].homog;
     el.homog = List.normalizeMax(List.productMV(m, p));
     el.homog = General.withUsage(el.homog, "Point");
 };
+geoOps.TransformP.computeParameters = function(el) {};
+geoOps.TransformP.computeParametersOnInput = function(el) {};
 geoOps.TransformP.kind = "P";

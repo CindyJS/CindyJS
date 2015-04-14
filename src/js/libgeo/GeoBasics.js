@@ -244,7 +244,8 @@ function recalc() {
             console.error(el);
             console.error("Operation " + el.type + " not implemented yet");
         }
-        op(el);
+        op.computeParameters(el);
+        op.updatePosition(el);
         isShowing(el, op);
 
     }
