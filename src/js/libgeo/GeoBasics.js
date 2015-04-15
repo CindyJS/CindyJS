@@ -244,7 +244,11 @@ function recalc() {
             console.error(el);
             console.error("Operation " + el.type + " not implemented yet");
         }
-        op.computeParameters(el);
+        if (move && move.mover === el) {
+            op.computeParametersOnInput(el); // TODO move into event handling
+        } else {
+            op.computeParameters(el);
+        }
         op.updatePosition(el);
         isShowing(el, op);
 
