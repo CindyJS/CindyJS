@@ -180,7 +180,7 @@ geoOps.PointOnCircle.circleMidpoint = function(el) {
     return List.normalizeZ(List.cross(ln1, ln2));
 };
 geoOps.PointOnCircle.updatePosition = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
-
+    var c = csgeo.csnames[el];
     var mid = geoOps.PointOnCircle.circleMidpoint(el.args[0]);
     var angle = el.angle;
 
@@ -340,7 +340,7 @@ geoOps.CircleMr = {};
 geoOps.CircleMr.midpoint = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;
     return List.scaldiv(m.value[2], m);
-}
+};
 geoOps.CircleMr.updatePosition = function(el) {
     var mid = geoOps.CircleMr.midpoint(el);
     var r = el.radius;
