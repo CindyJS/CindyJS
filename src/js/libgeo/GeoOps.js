@@ -1,6 +1,15 @@
 var geoOps = {};
 geoOps._helper = {};
 
+/* Kinds of geometric elements:
+ * P  - Point
+ * L  - Line
+ * S  - Segment
+ * C  - Conic (including circle)
+ * *s - Set of *
+ * Tr - Transformation
+ */
+
 geoOps.Join = {};
 geoOps.Join.updatePosition = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
@@ -539,7 +548,7 @@ geoOps.ConicBy4p1l.updatePosition = function(el) {
     el.results = erg;
 
 };
-geoOps.ConicBy4p1l.kind = "T";
+geoOps.ConicBy4p1l.kind = "Cs";
 
 
 geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
@@ -640,7 +649,7 @@ geoOps.ConicBy3p2l.updatePosition = function(el) {
     }
     el.results = res;
 };
-geoOps.ConicBy3p2l.kind = "T";
+geoOps.ConicBy3p2l.kind = "Cs";
 
 geoOps.ConicBy2p3l = {};
 geoOps.ConicBy2p3l.updatePosition = function(el) {
@@ -672,7 +681,7 @@ geoOps.ConicBy2p3l.updatePosition = function(el) {
     }
     el.results = res;
 };
-geoOps.ConicBy2p3l.kind = "T";
+geoOps.ConicBy2p3l.kind = "Cs";
 
 geoOps.ConicBy1p4l = {};
 geoOps.ConicBy1p4l.updatePosition = function(el) {
@@ -693,7 +702,7 @@ geoOps.ConicBy1p4l.updatePosition = function(el) {
     el.results = erg;
 
 };
-geoOps.ConicBy1p4l.kind = "T";
+geoOps.ConicBy1p4l.kind = "Cs";
 
 geoOps.ConicBy2Foci1P = {};
 geoOps.ConicBy2Foci1P.updatePosition = function(el) {
@@ -746,7 +755,7 @@ geoOps.ConicBy2Foci1P.updatePosition = function(el) {
     el.results = erg;
 
 };
-geoOps.ConicBy4p1l.kind = "T";
+geoOps.ConicBy2Foci1P.kind = "Cs";
 
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
     var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
@@ -846,7 +855,7 @@ geoOps.angleBisector.updatePosition = function(el) {
         }
     }
 };
-geoOps.angleBisector.kind = "T";
+geoOps.angleBisector.kind = "Ls";
 
 geoOps._helper.tracing2 = function(n1, n2, c1, c2, el) { //Billigtracing
     var OK = 0;
@@ -1033,7 +1042,7 @@ geoOps.IntersectLC.updatePosition = function(el) {
         }
     }
 };
-geoOps.IntersectLC.kind = "T";
+geoOps.IntersectLC.kind = "Ps";
 
 geoOps.IntersectCirCir = {};
 geoOps.IntersectCirCir.updatePosition = function(el) {
@@ -1068,7 +1077,7 @@ geoOps.IntersectCirCir.updatePosition = function(el) {
     }
 
 };
-geoOps.IntersectCirCir.kind = "T";
+geoOps.IntersectCirCir.kind = "Ps";
 
 
 geoOps._helper.IntersectConicConic = function(AA, BB) {
@@ -1185,7 +1194,7 @@ geoOps.IntersectConicConic.updatePosition = function(el) {
     el.results = List.turnIntoCSList(erg);
 
 };
-geoOps.IntersectConicConic.kind = "T";
+geoOps.IntersectConicConic.kind = "Ps";
 
 
 geoOps.SelectP = {};
