@@ -8,6 +8,7 @@ Sachen, die uns beim Tracing-Krams aufgefallen sind.
 - Bedingung "if (!move || move.mover === el) {" für PointOnSegment?
 - GeoOps._helper enthält operationsspezifische helper, z.B. GeoOps._helper.CenterOfConic
 - CircleMr kann keinen Fernpunkt als Mittelpunkt haben
+- CircleMr kann keinen komplexen Radius
 - CircleMFixedr ist fast äquivalent zu CircleMr. Kann das als gepinnter CircleMr implementiert werden?
 - PointOnLine hat keinen mover, wie geht das?
 

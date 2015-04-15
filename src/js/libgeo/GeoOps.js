@@ -151,8 +151,8 @@ geoOps.PointOnLine.kind = "P";
 
 
 geoOps.PointOnCircle = {};
-geoOps.PointOnCircle.circleMidpoint = function(el) {
-    var c = csgeo.csnames[el];
+geoOps.PointOnCircle.circleMidpoint = function(circle) {
+    var c = csgeo.csnames[circle];
     var pts = geoOps._helper.IntersectLC(List.linfty, c.matrix);
     var ln1 = General.mult(c.matrix, pts[0]);
     var ln2 = General.mult(c.matrix, pts[1]);
@@ -311,19 +311,17 @@ geoOps.CircleMP.kind = "C";
 
 
 geoOps.CircleMr = {};
-geoOps.CircleMr.midpoint = function(el) {
-    var m = csgeo.csnames[(el.args[0])].homog;
-    return List.scaldiv(m.value[2], m);
-};
 geoOps.CircleMr.computeParametersOnInput = function(el) {
-    var mid = geoOps.CircleMr.midpoint(el);
+    var m = csgeo.csnames[(el.args[0])].homog;
+    var mid = List.normalizeZ(m);
     var xx = mid.value[0].value.real - mouse.x;
     var yy = mid.value[1].value.real - mouse.y;
     var rad = Math.sqrt(xx * xx + yy * yy);
     el.radius = CSNumber.real(rad);
 };
 geoOps.CircleMr.updatePosition = function(el) {
-    var mid = geoOps.CircleMr.midpoint(el);
+    var m = csgeo.csnames[(el.args[0])].homog;
+    var mid = List.normalizeZ(m);
     var r = el.radius;
     var p = List.turnIntoCSList([r, CSNumber.real(0), CSNumber.real(0)]);
     p = List.add(p, mid);
@@ -337,7 +335,7 @@ geoOps.CircleMr.kind = "C";
 geoOps.CircleMFixedr = {};
 geoOps.CircleMFixedr.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;
-    var mid = List.scaldiv(m.value[2], m);
+    var mid = List.normalizeZ(m);
 
     var r = el.radius;
     var p = List.turnIntoCSList([r, CSNumber.real(0), CSNumber.real(0)]);
