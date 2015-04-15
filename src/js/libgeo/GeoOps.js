@@ -9,8 +9,6 @@ geoOps.Join.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.Join.computeParameters = function(el) {};
-geoOps.Join.computeParametersOnInput = function(el) {};
 geoOps.Join.kind = "L";
 
 
@@ -22,8 +20,6 @@ geoOps.Segment.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.Segment.computeParameters = function(el) {};
-geoOps.Segment.computeParametersOnInput = function(el) {};
 geoOps.Segment.kind = "S";
 
 
@@ -50,8 +46,6 @@ geoOps.Meet.visiblecheck = function(el) {
     el.isshowing = visible;
 };
 
-geoOps.Meet.computeParameters = function(el) {};
-geoOps.Meet.computeParametersOnInput = function(el) {};
 geoOps.Meet.kind = "P";
 
 
@@ -70,8 +64,6 @@ geoOps.Mid.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
 };
-geoOps.Mid.computeParameters = function(el) {};
-geoOps.Mid.computeParametersOnInput = function(el) {};
 geoOps.Mid.kind = "P";
 
 
@@ -84,8 +76,6 @@ geoOps.Perp.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.Perp.computeParameters = function(el) {};
-geoOps.Perp.computeParametersOnInput = function(el) {};
 geoOps.Perp.kind = "L";
 
 
@@ -98,8 +88,6 @@ geoOps.Para.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.Para.computeParameters = function(el) {};
-geoOps.Para.computeParametersOnInput = function(el) {};
 geoOps.Para.kind = "L";
 
 geoOps.Horizontal = {};
@@ -109,8 +97,6 @@ geoOps.Horizontal.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.Horizontal.computeParameters = function(el) {};
-geoOps.Horizontal.computeParametersOnInput = function(el) {};
 geoOps.Horizontal.kind = "L";
 
 geoOps.Vertical = {};
@@ -120,8 +106,6 @@ geoOps.Vertical.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.Vertical.computeParameters = function(el) {};
-geoOps.Vertical.computeParametersOnInput = function(el) {};
 geoOps.Vertical.kind = "L";
 
 
@@ -132,7 +116,6 @@ geoOps.Through.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.Through.computeParameters = function(el) {};
 geoOps.Through.computeParametersOnInput = function(el) {
     var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
     var xx = el1.value[0].value.real - mouse.x + move.offset.x;
@@ -146,8 +129,6 @@ geoOps.Free = {};
 geoOps.Free.updatePosition = function(el) {
 
 };
-geoOps.Free.computeParameters = function(el) {};
-geoOps.Free.computeParametersOnInput = function(el) {};
 geoOps.Free.kind = "P";
 
 geoOps.PointOnLine = {};
@@ -166,8 +147,6 @@ geoOps.PointOnLine.updatePosition = function(el) {
     el.sy = y.value.real;
     el.sz = 1;
 };
-geoOps.PointOnLine.computeParameters = function(el) {};
-geoOps.PointOnLine.computeParametersOnInput = function(el) {};
 geoOps.PointOnLine.kind = "P";
 
 
@@ -214,7 +193,6 @@ geoOps.PointOnCircle.updatePosition = function(el) { //TODO was ist hier zu tun 
     el.sy = y.value.real;
     el.sz = 1;
 };
-geoOps.PointOnCircle.computeParameters = function(el) {};
 geoOps.PointOnCircle.computeParametersOnInput = function(el) {
     var mid = geoOps.PointOnCircle.circleMidpoint(el.args[0]);
     var xx = mid.value[0].value.real - mouse.x - move.offset.x;
@@ -303,8 +281,6 @@ geoOps.CenterOfConic.updatePosition = function(el) {
 
 
 };
-geoOps.CenterOfConic.computeParameters = function(el) {};
-geoOps.CenterOfConic.computeParametersOnInput = function(el) {};
 geoOps.CenterOfConic.kind = "P";
 
 geoOps._helper.CircleMP = function(m, p) {
@@ -331,8 +307,6 @@ geoOps.CircleMP.updatePosition = function(el) { //TODO Performance Checken. Das 
     el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
-geoOps.CircleMP.computeParameters = function(el) {};
-geoOps.CircleMP.computeParametersOnInput = function(el) {};
 geoOps.CircleMP.kind = "C";
 
 
@@ -350,7 +324,6 @@ geoOps.CircleMr.updatePosition = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
-geoOps.CircleMr.computeParameters = function(el) {};
 geoOps.CircleMr.computeParametersOnInput = function(el) {
     var mid = geoOps.CircleMr.midpoint(el);
     var xx = mid.value[0].value.real - mouse.x;
@@ -374,8 +347,6 @@ geoOps.CircleMFixedr.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
-geoOps.CircleMFixedr.computeParameters = function(el) {};
-geoOps.CircleMFixedr.computeParametersOnInput = function(el) {};
 geoOps.CircleMFixedr.kind = "C";
 
 geoOps._helper.getConicType = function(C) {
@@ -442,8 +413,6 @@ geoOps.ConicBy5.updatePosition = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
-geoOps.ConicBy5.computeParameters = function(el) {};
-geoOps.ConicBy5.computeParametersOnInput = function(el) {};
 geoOps.ConicBy5.kind = "C";
 
 geoOps._helper.buildConicMatrix = function(arr) {
@@ -531,8 +500,6 @@ geoOps.SelectConic.updatePosition = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
-geoOps.SelectConic.computeParameters = function(el) {};
-geoOps.SelectConic.computeParametersOnInput = function(el) {};
 geoOps.SelectConic.kind = "C";
 
 // conic by 4 Points and 1 line
@@ -574,8 +541,6 @@ geoOps.ConicBy4p1l.updatePosition = function(el) {
     el.results = erg;
 
 };
-geoOps.ConicBy4p1l.computeParameters = function(el) {};
-geoOps.ConicBy4p1l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy4p1l.kind = "T";
 
 
@@ -677,8 +642,6 @@ geoOps.ConicBy3p2l.updatePosition = function(el) {
     }
     el.results = res;
 };
-geoOps.ConicBy3p2l.computeParameters = function(el) {};
-geoOps.ConicBy3p2l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy3p2l.kind = "T";
 
 geoOps.ConicBy2p3l = {};
@@ -711,8 +674,6 @@ geoOps.ConicBy2p3l.updatePosition = function(el) {
     }
     el.results = res;
 };
-geoOps.ConicBy2p3l.computeParameters = function(el) {};
-geoOps.ConicBy2p3l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy2p3l.kind = "T";
 
 geoOps.ConicBy1p4l = {};
@@ -734,8 +695,6 @@ geoOps.ConicBy1p4l.updatePosition = function(el) {
     el.results = erg;
 
 };
-geoOps.ConicBy1p4l.computeParameters = function(el) {};
-geoOps.ConicBy1p4l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy1p4l.kind = "T";
 
 geoOps.ConicBy2Foci1P = {};
@@ -789,8 +748,6 @@ geoOps.ConicBy2Foci1P.updatePosition = function(el) {
     el.results = erg;
 
 };
-geoOps.ConicBy4p1l.computeParameters = function(el) {};
-geoOps.ConicBy4p1l.computeParametersOnInput = function(el) {};
 geoOps.ConicBy4p1l.kind = "T";
 
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
@@ -828,8 +785,6 @@ geoOps.ConicBy5lines.updatePosition = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
-geoOps.ConicBy5lines.computeParameters = function(el) {};
-geoOps.ConicBy5lines.computeParametersOnInput = function(el) {};
 geoOps.ConicBy5lines.kind = "C";
 
 geoOps.CircleBy3 = {};
@@ -844,8 +799,6 @@ geoOps.CircleBy3.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 
 };
-geoOps.CircleBy3.computeParameters = function(el) {};
-geoOps.CircleBy3.computeParametersOnInput = function(el) {};
 geoOps.CircleBy3.kind = "C";
 
 geoOps.Polar = {};
@@ -856,8 +809,6 @@ geoOps.Polar.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.Polar.computeParameters = function(el) {};
-geoOps.Polar.computeParametersOnInput = function(el) {};
 geoOps.Polar.kind = "L";
 
 geoOps.angleBisector = {};
@@ -897,8 +848,6 @@ geoOps.angleBisector.updatePosition = function(el) {
         }
     }
 };
-geoOps.angleBisector.computeParameters = function(el) {};
-geoOps.angleBisector.computeParametersOnInput = function(el) {};
 geoOps.angleBisector.kind = "T";
 
 geoOps._helper.tracing2 = function(n1, n2, c1, c2, el) { //Billigtracing
@@ -1086,8 +1035,6 @@ geoOps.IntersectLC.updatePosition = function(el) {
         }
     }
 };
-geoOps.IntersectLC.computeParameters = function(el) {};
-geoOps.IntersectLC.computeParametersOnInput = function(el) {};
 geoOps.IntersectLC.kind = "T";
 
 geoOps.IntersectCirCir = {};
@@ -1123,8 +1070,6 @@ geoOps.IntersectCirCir.updatePosition = function(el) {
     }
 
 };
-geoOps.IntersectCirCir.computeParameters = function(el) {};
-geoOps.IntersectCirCir.computeParametersOnInput = function(el) {};
 geoOps.IntersectCirCir.kind = "T";
 
 
@@ -1242,8 +1187,6 @@ geoOps.IntersectConicConic.updatePosition = function(el) {
     el.results = List.turnIntoCSList(erg);
 
 };
-geoOps.IntersectConicConic.computeParameters = function(el) {};
-geoOps.IntersectConicConic.computeParametersOnInput = function(el) {};
 geoOps.IntersectConicConic.kind = "T";
 
 
@@ -1255,8 +1198,6 @@ geoOps.SelectP.updatePosition = function(el) {
     }
     el.homog = set.results.value[el.index - 1];
 };
-geoOps.SelectP.computeParameters = function(el) {};
-geoOps.SelectP.computeParametersOnInput = function(el) {};
 geoOps.SelectP.kind = "P";
 
 geoOps.SelectL = {};
@@ -1268,8 +1209,6 @@ geoOps.SelectL.updatePosition = function(el) {
     el.homog = set.results.value[el.index - 1];
     el.homog = General.withUsage(el.homog, "Line");
 };
-geoOps.SelectL.computeParameters = function(el) {};
-geoOps.SelectL.computeParametersOnInput = function(el) {};
 geoOps.SelectL.kind = "L";
 
 
@@ -1296,8 +1235,6 @@ geoOps.TrProjection.updatePosition = function(el) {
     m = List.normalizeMax(m);
     el.matrix = m;
 };
-geoOps.TrProjection.computeParameters = function(el) {};
-geoOps.TrProjection.computeParametersOnInput = function(el) {};
 geoOps.TrProjection.kind = "Tr";
 
 // Apply a projective transformation to a point
@@ -1308,6 +1245,4 @@ geoOps.TransformP.updatePosition = function(el) {
     el.homog = List.normalizeMax(List.productMV(m, p));
     el.homog = General.withUsage(el.homog, "Point");
 };
-geoOps.TransformP.computeParameters = function(el) {};
-geoOps.TransformP.computeParametersOnInput = function(el) {};
 geoOps.TransformP.kind = "P";
