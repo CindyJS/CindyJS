@@ -110,17 +110,17 @@ geoOps.Vertical.kind = "L";
 
 
 geoOps.Through = {};
-geoOps.Through.updatePosition = function(el) {
-    var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
-    el.homog = List.cross(el.dir, el1);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Line");
-};
 geoOps.Through.computeParametersOnInput = function(el) {
     var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
     var xx = el1.value[0].value.real - mouse.x + move.offset.x;
     var yy = el1.value[1].value.real - mouse.y + move.offset.y;
     el.dir = List.realVector([xx, yy, 0]);
+};
+geoOps.Through.updatePosition = function(el) {
+    var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
+    el.homog = List.cross(el.dir, el1);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Line");
 };
 geoOps.Through.kind = "L";
 
@@ -158,6 +158,12 @@ geoOps.PointOnCircle.circleMidpoint = function(el) {
     var ln2 = General.mult(c.matrix, pts[1]);
     return List.normalizeZ(List.cross(ln1, ln2));
 };
+geoOps.PointOnCircle.computeParametersOnInput = function(el) {
+    var mid = geoOps.PointOnCircle.circleMidpoint(el.args[0]);
+    var xx = mid.value[0].value.real - mouse.x - move.offset.x;
+    var yy = mid.value[1].value.real - mouse.y - move.offset.y;
+    el.angle = CSNumber.real(Math.atan2(-yy, -xx));
+};
 geoOps.PointOnCircle.updatePosition = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
     var c = csgeo.csnames[el];
     var mid = geoOps.PointOnCircle.circleMidpoint(el.args[0]);
@@ -193,42 +199,10 @@ geoOps.PointOnCircle.updatePosition = function(el) { //TODO was ist hier zu tun 
     el.sy = y.value.real;
     el.sz = 1;
 };
-geoOps.PointOnCircle.computeParametersOnInput = function(el) {
-    var mid = geoOps.PointOnCircle.circleMidpoint(el.args[0]);
-    var xx = mid.value[0].value.real - mouse.x - move.offset.x;
-    var yy = mid.value[1].value.real - mouse.y - move.offset.y;
-    el.angle = CSNumber.real(Math.atan2(-yy, -xx));
-};
 geoOps.PointOnCircle.kind = "P";
 
 
 geoOps.PointOnSegment = {};
-geoOps.PointOnSegment.updatePosition = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
-    var el1 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[0]].homog;
-    var el2 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[1]].homog;
-
-    var xx1 = CSNumber.div(el1.value[0], el1.value[2]);
-    var yy1 = CSNumber.div(el1.value[1], el1.value[2]);
-    var xx2 = CSNumber.div(el2.value[0], el2.value[2]);
-    var yy2 = CSNumber.div(el2.value[1], el2.value[2]);
-
-    var diffx = CSNumber.sub(xx2, xx1);
-    var ergx = CSNumber.add(xx1, CSNumber.mult(el.param, diffx));
-    var diffy = CSNumber.sub(yy2, yy1);
-    var ergy = CSNumber.add(yy1, CSNumber.mult(el.param, diffy));
-    var ergz = CSNumber.real(1);
-    el.homog = List.turnIntoCSList([ergx, ergy, ergz]);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Point");
-
-    //TODO: Handle complex and infinite Points
-    var x = CSNumber.div(el.homog.value[0], el.homog.value[2]);
-    var y = CSNumber.div(el.homog.value[1], el.homog.value[2]);
-
-    el.sx = x.value.real;
-    el.sy = y.value.real;
-    el.sz = 1;
-};
 geoOps.PointOnSegment.computeParameters = function(el) {
     // TODO what follows should only be necessary on creation and input
     var el1 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[0]].homog;
@@ -258,6 +232,32 @@ geoOps.PointOnSegment.computeParameters = function(el) {
     el.param = CSNumber.real(par);
 };
 geoOps.PointOnSegment.computeParametersOnInput = geoOps.PointOnSegment.computeParameters;
+geoOps.PointOnSegment.updatePosition = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
+    var el1 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[0]].homog;
+    var el2 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[1]].homog;
+
+    var xx1 = CSNumber.div(el1.value[0], el1.value[2]);
+    var yy1 = CSNumber.div(el1.value[1], el1.value[2]);
+    var xx2 = CSNumber.div(el2.value[0], el2.value[2]);
+    var yy2 = CSNumber.div(el2.value[1], el2.value[2]);
+
+    var diffx = CSNumber.sub(xx2, xx1);
+    var ergx = CSNumber.add(xx1, CSNumber.mult(el.param, diffx));
+    var diffy = CSNumber.sub(yy2, yy1);
+    var ergy = CSNumber.add(yy1, CSNumber.mult(el.param, diffy));
+    var ergz = CSNumber.real(1);
+    el.homog = List.turnIntoCSList([ergx, ergy, ergz]);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Point");
+
+    //TODO: Handle complex and infinite Points
+    var x = CSNumber.div(el.homog.value[0], el.homog.value[2]);
+    var y = CSNumber.div(el.homog.value[1], el.homog.value[2]);
+
+    el.sx = x.value.real;
+    el.sy = y.value.real;
+    el.sz = 1;
+};
 geoOps.PointOnSegment.kind = "P";
 
 
@@ -315,6 +315,13 @@ geoOps.CircleMr.midpoint = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;
     return List.scaldiv(m.value[2], m);
 };
+geoOps.CircleMr.computeParametersOnInput = function(el) {
+    var mid = geoOps.CircleMr.midpoint(el);
+    var xx = mid.value[0].value.real - mouse.x;
+    var yy = mid.value[1].value.real - mouse.y;
+    var rad = Math.sqrt(xx * xx + yy * yy);
+    el.radius = CSNumber.real(rad);
+};
 geoOps.CircleMr.updatePosition = function(el) {
     var mid = geoOps.CircleMr.midpoint(el);
     var r = el.radius;
@@ -323,13 +330,6 @@ geoOps.CircleMr.updatePosition = function(el) {
     el.matrix = geoOps._helper.CircleMP(mid, p);
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Circle");
-};
-geoOps.CircleMr.computeParametersOnInput = function(el) {
-    var mid = geoOps.CircleMr.midpoint(el);
-    var xx = mid.value[0].value.real - mouse.x;
-    var yy = mid.value[1].value.real - mouse.y;
-    var rad = Math.sqrt(xx * xx + yy * yy);
-    el.radius = CSNumber.real(rad);
 };
 geoOps.CircleMr.kind = "C";
 
