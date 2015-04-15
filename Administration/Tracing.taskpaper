@@ -5,6 +5,10 @@ Sachen, die uns beim Tracing-Krams aufgefallen sind.
 - Through kann nicht mit Geraden durch Fernpunkte umgehen.
 - kind (ehemals geoOpMap) ist "C" sowohl für Kreise als auch für Kegelschnitte
 - kind (ehemals geoOpMap) ist "Tr" für TrProjection?
+- Bedingung "if (!move || move.mover === el) {" für PointOnSegment?
+- GeoOps._helper enthält operationsspezifische helper, z.B. GeoOps._helper.CenterOfConic
+- CircleMr kann keinen Fernpunkt als Mittelpunkt haben
+- CircleMFixedr ist fast äquivalent zu CircleMr. Kann das als gepinnter CircleMr implementiert werden?
 
 Fragen:
 
