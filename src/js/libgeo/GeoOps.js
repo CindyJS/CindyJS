@@ -814,14 +814,13 @@ geoOps.angleBisector = function(el) {
     var erg1zero = List.abs(erg1).value.real < CSNumber.eps;
     var erg2zero = List.abs(erg2).value.real < CSNumber.eps;
 
-    if(!erg1zero && !erg2zero){
+    if (!erg1zero && !erg2zero) {
         erg1 = List.normalizeMax(erg1);
         erg2 = List.normalizeMax(erg2);
     }
-    if(erg1zero){
+    if (erg1zero) {
         erg2 = List.normalizeMax(erg2);
-    }
-    else if(erg2zero){
+    } else if (erg2zero) {
         erg1 = List.normalizeMax(erg1);
     }
 
@@ -846,7 +845,7 @@ geoOps.angleBisector = function(el) {
 
             erg2 = List.add(mux, tauy);
         }
-   }
+    }
 
     erg1 = List.normalizeMax(erg1);
     erg2 = List.normalizeMax(erg2);
