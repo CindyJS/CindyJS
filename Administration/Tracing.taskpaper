@@ -13,10 +13,12 @@ Sachen, die uns beim Tracing-Krams aufgefallen sind.
 - PointOnLine hat keinen mover, wie geht das?
 - Wieso haben wir Polar, aber nicht Pole?
 - Sollte in mehr Fallunterscheidungen kind==="S" wie kind==="L" behandelt werden?
+- MV_LA1_Bsp1_4.html nimmt nicht PointOnCircle, pinnt die Kreisradien nicht, und hat daher manchmal den Punkt nicht auf dem Kreis.
 
 Fragen:
 
 - Tracen wir Mauspositionen, oder die Parameter in die diese übersetzt werden?
+- Tracen wir, wenn man im Skript per elt.xy oder elt.homog was setzt?
 
 1. Mover: Maus (und Eltern) in Parameter übersetzen
 2. ggf. Zahlenklasse austauschen
@@ -41,7 +43,7 @@ Was muss eine geom. Operation für Methoden haben?
 
 Was hat ein Element selber an Informationen?
 
-- Internen Parameter-Vektor
+- Internen Parameter-Vektor in "param" member
 - Position in homogenen Koordinaten für Kinder / Anzeige
 - index in ein State Array
 

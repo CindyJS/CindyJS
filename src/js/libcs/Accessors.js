@@ -152,12 +152,12 @@ Accessor.setField = function(geo, field, value) {
 
     if (field === "xy" && geo.kind === "P" && geo.ismovable && List._helper.isNumberVecN(value, 2)) {
         movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]));
-        recalc();
+        recalc(); // or trace?
     }
 
     if (field === "homog" && geo.kind === "P" && geo.ismovable && List._helper.isNumberVecN(value, 2)) {
         movepointscr(geo, value);
-        recalc();
+        recalc(); // or trace?
     }
 
     if (field === "angle" && geo.kind === "L") {
@@ -167,7 +167,7 @@ Accessor.setField = function(geo, field, value) {
         geo.dir = dir;
 
         // movepointscr(geo,value);
-        recalc();
+        recalc(); // or trace
     }
     if (geo.behavior) {
         if (field === "mass" && geo.behavior.type === "Mass" && value.ctype === "number") {

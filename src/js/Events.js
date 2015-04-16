@@ -5,7 +5,7 @@ var cskey = "";
 var cskeycode = 0;
 
 
-function movepoint(move) {
+function movepoint() {
     if (move.mover === undefined) return;
     var m = move.mover;
     if (m.pinned) return;
@@ -74,7 +74,7 @@ function getmover(mouse) {
 
             }
             else if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
-                var l = List.normalizeZ(el.homog);
+                var l = el.homog;
                 var N = CSNumber;
                 var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])),
                     N.mult(l.value[1], N.conjugate(l.value[1])));
@@ -99,8 +99,10 @@ function getmover(mouse) {
             }
         }
     }
+    console.log("Moving " + mov.name);
     return {
         mover: mov,
+        lastGoodParam: mov.param, // not cloning, must not get modified
         offset: diff,
     };
 }
@@ -195,7 +197,7 @@ function setuplisteners(canvas, data) {
         var rect = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left, e.clientY - rect.top);
         if (mouse.down) {
-            movepoint(move);
+            movepoint();
             cs_mousedrag();
         } else {
             cs_mousemove();
@@ -231,7 +233,7 @@ function setuplisteners(canvas, data) {
         updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
             e.targetTouches[0].pageY - getOffsetTop(canvas));
         if (mouse.down) {
-            movepoint(move);
+            movepoint();
             cs_mousedrag();
         } else {
             cs_mousemove();
@@ -311,7 +313,8 @@ function startit() {
 
 function updateCindy() {
     csport.reset();
-    recalc();
+    if (move)
+        trace();
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
     if (csgridsize !== 0)

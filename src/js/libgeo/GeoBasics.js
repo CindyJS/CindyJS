@@ -162,13 +162,16 @@ function csinit(gslp) {
         }
         if (ty === "Through") {
             f = csgeo.gslp[k];
-            f.dir = General.wrap(f.dir);
+            f.param = General.wrap(f.dir);
             csgeo.free[csgeo.ctf] = f;
             csgeo.ctf += 1;
         }
 
 
     }
+    tracingInitial = true;
+    recalc();
+    tracingInitial = false;
     guessIncidences();
 }
 
@@ -234,7 +237,7 @@ function isShowing(el, op) {
 }
 
 function recalc() {
-
+    noMoreRefinements = true;
     var gslp = csgeo.gslp;
     for (var k = 0; k < gslp.length; k++) {
         var el = gslp[k];
@@ -243,24 +246,110 @@ function recalc() {
             console.error(el);
             console.error("Operation " + el.type + " not implemented yet");
         }
-        if (move && move.mover === el) {
-            if (op.computeParametersOnInput)
-                op.computeParametersOnInput(el); // TODO move into event handling
-        } else {
-            if (op.computeParameters)
-                op.computeParameters(el);
-        }
+        if (op.computeParameters)
+            op.computeParameters(el);
         op.updatePosition(el);
         isShowing(el, op);
-
     }
 }
 
+var geoDependantsCache = {};
+
+function getGeoDependants(mover) {
+    var deps = geoDependantsCache[mover.name];
+    if (deps) return deps;
+    var depSet = {}, k = 0;
+    deps = [];
+    depSet[mover.name] = mover;
+    var gslp = csgeo.gslp;
+    for (var i = 0; i < gslp.length; ++i) {
+        var el = gslp[i];
+        var args = el.args;
+        if (!args) continue;
+        for (var j = 0; j < args.length; ++j) {
+            var arg = args[j];
+            if (depSet.hasOwnProperty(arg)) {
+                depSet[el.name] = el;
+                deps[k++] = el;
+            }
+        }
+    }
+    geoDependantsCache[mover.name] = deps;
+    return deps;
+}
+
+var stateIn, stateOut, stateIdx;
+
+var stateLastGood, stateCurrent;
+
+var tracingInitial, tracingFailed, noMoreRefinements;
+
+var RefineException = { toString: function() { return "RefineException"; } };
+
+function requestRefinement() {
+    // Call this whenever you would need exra refinement.
+    // Possible outcomes: either an exception will be thrown to
+    // request more refinements, or the tracingFailed flag will be set
+    // and the function returns normally.
+    if (noMoreRefinements) tracingFailed = true;
+    else throw RefineException;
+}
+
+function defaultParameterPath(el, t, src, dst) {
+    // src + t * (dst - src)
+    el.param = General.add(src, General.mult(t, General.sub(dst, src)));
+}
+
+function trace() {
+    var mover = move.mover;
+    var deps = getGeoDependants(mover);
+    var last = -1, t = 1;
+    var opMover = geoOps[mover.type];
+    var parameterPath = opMover.parameterPath || defaultParameterPath;
+    var lastGoodParam = move.lastGoodParam;
+    opMover.computeParametersOnInput(mover, lastGoodParam);
+    var targetParam = mover.param; // not cloning, must not get modified
+    tracingFailed = false;
+    while (last !== t) {
+        // Rational parametrization of semicircle,
+        // see http://jsperf.com/half-circle-parametrization
+        var t2 = t * t, dt = 0.5 / (1 + t2);
+        var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
+        noMoreRefinements = ((t - last) < 0.0004);
+        try {
+            parameterPath(mover, tc, lastGoodParam, targetParam);
+            opMover.updatePosition(mover);
+            for (var i = 0; i < deps.length; ++i) {
+                var el = deps[i];
+                var op = geoOps[el.type];
+                if (op.computeParameters)
+                    op.computeParameters(el);
+                op.updatePosition(el);
+            }
+            last = t; // successfully traced up to t
+            t = 1; // try to trace the rest of the way
+        }
+        catch (e) {
+            if (e !== RefineException)
+                throw e;
+            t = (last + t)/2; // reduce step size
+        }
+    }
+    if (!tracingFailed) {
+        move.lastGoodParam = targetParam;
+        var tmp = stateLastGood;
+        stateLastGood = stateCurrent;
+        stateCurrent = tmp;
+    }
+    for (var i = 0; i < deps.length; ++i) {
+        var el = deps[i];
+        isShowing(el, op);
+    }
+}
 
 function guessIncidences() {
 
     var gslp = csgeo.gslp;
-    recalc();
     for (var i = 0; i < csgeo.lines.length; i++) {
         var l = csgeo.lines[i];
         for (var j = 0; j < csgeo.points.length; j++) {

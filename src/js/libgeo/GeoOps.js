@@ -120,15 +120,18 @@ geoOps.Vertical.updatePosition = function(el) {
 
 geoOps.Through = {};
 geoOps.Through.kind = "L";
-geoOps.Through.computeParametersOnInput = function(el) {
+geoOps.Through.computeParametersOnInput = function(el, last) {
     var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
     var xx = el1.value[0].value.real - mouse.x + move.offset.x;
     var yy = el1.value[1].value.real - mouse.y + move.offset.y;
-    el.dir = List.realVector([xx, yy, 0]);
+    var param = List.realVector([xx, yy, 0]);
+    if (List.scalproduct(param, last).real < 0)
+        param = List.neg(param);
+    el.param = param;
 };
 geoOps.Through.updatePosition = function(el) {
     var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
-    el.homog = List.cross(el.dir, el1);
+    el.homog = List.cross(el.param, el1);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
