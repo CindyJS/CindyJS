@@ -142,14 +142,12 @@ function csinit(gslp) {
                     f.sy = f.pos[1] / f.pos[2];
                     f.sz = f.pos[2] / f.pos[2];
                 }
-
             }
-            f.homog = List.realVector([gslp[k].sx, gslp[k].sy, gslp[k].sz]);
+            f.param = List.realVector([gslp[k].sx, gslp[k].sy, gslp[k].sz]);
             f.isfinite = (f.sz !== 0);
             f.ismovable = true;
             if (ty === "PointOnCircle") {
                 f.angle = CSNumber.real(f.angle);
-
             }
             csgeo.free[csgeo.ctf] = f;
             csgeo.ctf += 1;

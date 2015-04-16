@@ -139,8 +139,10 @@ geoOps.Through.updatePosition = function(el) {
 
 geoOps.Free = {};
 geoOps.Free.kind = "P";
+geoOps.Free.computeParametersOnInput = function(el) {
+};
 geoOps.Free.updatePosition = function(el) {
-
+    el.homog = el.param;
 };
 
 geoOps.PointOnLine = {};

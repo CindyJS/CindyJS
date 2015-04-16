@@ -11,11 +11,15 @@ function movepoint() {
     if (m.pinned) return;
     m.sx = mouse.x + move.offset.x;
     m.sy = mouse.y + move.offset.y;
+    if (m.kind !== "P")
+        return;
+
     //experimental stuff by Ulli
     //move.offset.x *= 0.95;
     //move.offset.y = (move.offset.y-1.45)*0.95+1.45;
     //dump(move.offset);
     //end
+
     if (cssnap && csgridsize !== 0) {
         var rx = Math.round(m.sx / csgridsize) * csgridsize;
         var ry = Math.round(m.sy / csgridsize) * csgridsize;
@@ -26,8 +30,7 @@ function movepoint() {
 
     }
     m.sz = 1;
-    m.homog = List.realVector([m.sx, m.sy, m.sz]);
-
+    m.param = List.realVector([m.sx, m.sy, m.sz]);
 }
 
 function movepointscr(mover, pos) {
