@@ -5,43 +5,13 @@ var cskey = "";
 var cskeycode = 0;
 
 
-function movepoint() {
-    if (move.mover === undefined) return;
-    var m = move.mover;
-    if (m.pinned) return;
-    m.sx = mouse.x + move.offset.x;
-    m.sy = mouse.y + move.offset.y;
-    if (m.kind !== "P")
-        return;
-
-    //experimental stuff by Ulli
-    //move.offset.x *= 0.95;
-    //move.offset.y = (move.offset.y-1.45)*0.95+1.45;
-    //dump(move.offset);
-    //end
-
-    if (cssnap && csgridsize !== 0) {
-        var rx = Math.round(m.sx / csgridsize) * csgridsize;
-        var ry = Math.round(m.sy / csgridsize) * csgridsize;
-        if (Math.abs(rx - m.sx) < 0.2 && Math.abs(ry - m.sy) < 0.2) {
-            m.sx = rx;
-            m.sy = ry;
-        }
-
-    }
-    m.sz = 1;
-    m.param = List.realVector([m.sx, m.sy, m.sz]);
-}
-
 function movepointscr(mover, pos) {
-    var m = mover;
-    m.sx = pos.value[0].value.real / pos.value[2].value.real;
-    m.sy = pos.value[1].value.real / pos.value[2].value.real;
-    m.sz = 1;
-    m.homog = pos;
-
+    var f = geoOps[mover.type].computeParametersOnScript;
+    if (f)
+        f(mover, pos);
+    else
+        mover.param = pos;
 }
-
 
 function getmover(mouse) {
     var mov;
@@ -57,8 +27,11 @@ function getmover(mouse) {
         var dx, dy, dist;
         var sc = csport.drawingstate.matrix.sdet;
         if (el.kind === "P") {
-            dx = el.sx - mouse.x;
-            dy = el.sy - mouse.y;
+            var p = List.normalizeZ(el.homog);
+            if (!List._helper.isAlmostReal(p))
+                continue;
+            dx = p.value[0].value.real - mouse.x;
+            dy = p.value[1].value.real - mouse.y;
             dist = Math.sqrt(dx * dx + dy * dy);
             if (el.narrow & dist > 20 / sc) dist = 10000;
         } else if (el.kind === "C") { //Must be Circle by Rad
@@ -152,7 +125,6 @@ function setuplisteners(canvas, data) {
         mouse.y = pos[1];
         csmouse[0] = mouse.x;
         csmouse[1] = mouse.y;
-
     }
 
     if (data.keylistener === true) {
@@ -200,7 +172,6 @@ function setuplisteners(canvas, data) {
         var rect = canvas.getBoundingClientRect();
         updatePostition(e.clientX - rect.left, e.clientY - rect.top);
         if (mouse.down) {
-            movepoint();
             cs_mousedrag();
         } else {
             cs_mousemove();
@@ -236,7 +207,6 @@ function setuplisteners(canvas, data) {
         updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
             e.targetTouches[0].pageY - getOffsetTop(canvas));
         if (mouse.down) {
-            movepoint();
             cs_mousedrag();
         } else {
             cs_mousemove();

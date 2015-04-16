@@ -82,8 +82,8 @@ function csinit(gslp) {
     var k, l, f;
 
     // Das ist für alle gleich
-    for (k = 0; k < csgeo.gslp.length; k++) {
-        var g = csgeo.gslp[k];
+    for (k = 0; k < gslp.length; k++) {
+        var g = gslp[k];
         csgeo.csnames[g.name] = g;
         g.kind = geoOps[g.type].kind;
         g.incidences = [];
@@ -102,70 +102,70 @@ function csinit(gslp) {
     csgeo.ctc = 0;
     var m = csport.drawingstate.matrix;
 
-    for (k = 0; k < csgeo.gslp.length; k++) {
-        if (csgeo.gslp[k].kind === "P") {
-            var p = csgeo.gslp[k];
-            csgeo.points[csgeo.ctp] = p;
-            pointDefault(p);
+    for (k = 0; k < gslp.length; k++) {
+        var el = gslp[k];
+
+        if (el.kind === "P") {
+            csgeo.points[csgeo.ctp] = el;
+            pointDefault(el);
             csgeo.ctp += 1;
         }
-        if (csgeo.gslp[k].kind === "L") {
-            l = csgeo.gslp[k];
-            csgeo.lines[csgeo.ctl] = l;
-            lineDefault(l);
+        if (el.kind === "L") {
+            csgeo.lines[csgeo.ctl] = el;
+            lineDefault(el);
             csgeo.ctl += 1;
         }
-        if (csgeo.gslp[k].kind === "C") {
-            l = csgeo.gslp[k];
-            csgeo.conics[csgeo.ctc] = l;
-            lineDefault(l);
+        if (el.kind === "C") {
+            csgeo.conics[csgeo.ctc] = el;
+            lineDefault(el);
             csgeo.ctc += 1;
         }
-        if (csgeo.gslp[k].kind === "S") {
-            l = csgeo.gslp[k];
-            csgeo.lines[csgeo.ctl] = l;
-            segmentDefault(l);
+        if (el.kind === "S") {
+            csgeo.lines[csgeo.ctl] = el;
+            segmentDefault(el);
             csgeo.ctl += 1;
         }
 
-        var ty = csgeo.gslp[k].type;
+        var ty = el.type;
         if (ty === "Free" || ty === "PointOnLine" || ty === "PointOnCircle" || ty === "PointOnSegment") { //TODO generisch nach geoops ziehen
-            f = csgeo.gslp[k];
-            if (f.pos) {
-                if (f.pos.length === 2) {
-                    f.sx = f.pos[0];
-                    f.sy = f.pos[1];
-                    f.sz = 1;
+            var sx = el.sx || 0;
+            var sy = el.sy || 0;
+            var sz = el.sz || 1;
+            if (el.pos) {
+                if (el.pos.length === 2) {
+                    sx = el.pos[0];
+                    sy = el.pos[1];
+                    sz = 1;
                 }
-                if (f.pos.length === 3) {
-                    f.sx = f.pos[0] / f.pos[2];
-                    f.sy = f.pos[1] / f.pos[2];
-                    f.sz = f.pos[2] / f.pos[2];
+                if (el.pos.length === 3) {
+                    sx = el.pos[0] / el.pos[2];
+                    sy = el.pos[1] / el.pos[2];
+                    sz = el.pos[2] / el.pos[2];
                 }
             }
-            f.param = List.realVector([gslp[k].sx, gslp[k].sy, gslp[k].sz]);
-            f.isfinite = (f.sz !== 0);
-            f.ismovable = true;
+            el.param = List.realVector([sx, sy, sz]);
+            el.isfinite = (sz !== 0);
+            el.ismovable = true;
             if (ty === "PointOnCircle") {
-                f.angle = CSNumber.real(f.angle);
+                el.angle = CSNumber.real(el.angle);
             }
-            csgeo.free[csgeo.ctf] = f;
+            csgeo.free[csgeo.ctf] = el;
             csgeo.ctf += 1;
         }
         if (ty === "CircleMr" || ty === "CircleMFixedr") {
-            f = csgeo.gslp[k];
-            f.radius = CSNumber.real(f.radius);
-            csgeo.free[csgeo.ctf] = f;
+            el.radius = CSNumber.real(el.radius);
+            csgeo.free[csgeo.ctf] = el;
             csgeo.ctf += 1;
         }
         if (ty === "Through") {
-            f = csgeo.gslp[k];
-            f.param = General.wrap(f.dir);
-            csgeo.free[csgeo.ctf] = f;
+            el.param = General.wrap(el.dir);
+            csgeo.free[csgeo.ctf] = el;
             csgeo.ctf += 1;
         }
 
-
+        var init = geoOps[el.type].computeParametersOnInit;
+        if (init)
+            init(el);
     }
     tracingInitial = true;
     recalc();
@@ -308,6 +308,7 @@ function trace() {
     var deps = getGeoDependants(mover);
     var last = -1;
     var t = 1;
+    var i, el, op;
     var opMover = geoOps[mover.type];
     var parameterPath = opMover.parameterPath || defaultParameterPath;
     var lastGoodParam = move.lastGoodParam;
@@ -324,9 +325,9 @@ function trace() {
         try {
             parameterPath(mover, tc, lastGoodParam, targetParam);
             opMover.updatePosition(mover);
-            for (var i = 0; i < deps.length; ++i) {
-                var el = deps[i];
-                var op = geoOps[el.type];
+            for (i = 0; i < deps.length; ++i) {
+                el = deps[i];
+                op = geoOps[el.type];
                 if (op.computeParameters)
                     op.computeParameters(el);
                 op.updatePosition(el);
@@ -345,8 +346,9 @@ function trace() {
         stateLastGood = stateCurrent;
         stateCurrent = tmp;
     }
-    for (var i = 0; i < deps.length; ++i) {
-        var el = deps[i];
+    for (i = 0; i < deps.length; ++i) {
+        el = deps[i];
+        op = geoOps[el.type];
         isShowing(el, op);
     }
 }

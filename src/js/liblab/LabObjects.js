@@ -167,9 +167,6 @@ labObjects.Mass = {
             beh.internalmove = true;
             if (!move || !mouse.down || beh.el !== move.mover)
                 (beh.el).homog = List.realVector(beh.pos);
-            (beh.el).sx = beh.x;
-            (beh.el).sy = beh.y;
-
             beh.internalmove = false;
         }
 

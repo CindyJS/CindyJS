@@ -218,9 +218,6 @@ function backupGeo() {
         var data = {
             name: JSON.stringify(el.name),
             homog: JSON.stringify(el.homog),
-            sx: JSON.stringify(el.sx),
-            sy: JSON.stringify(el.sy),
-            sz: JSON.stringify(el.sz)
         };
         if (typeof(el.behavior) !== 'undefined') {
             data.vx = JSON.stringify(el.behavior.vx);
@@ -243,9 +240,6 @@ function restoreGeo() {
 
         var el = csgeo.csnames[name];
         el.homog = JSON.parse(backup[i].homog);
-        el.sx = JSON.parse(backup[i].sx);
-        el.sy = JSON.parse(backup[i].sy);
-        el.sz = JSON.parse(backup[i].sz);
         if (typeof(el.behavior) !== 'undefined') { //TODO Diese Physics Reset ist FALSCH
             el.behavior.vx = JSON.parse(backup[i].vx);
             el.behavior.vy = JSON.parse(backup[i].vy);

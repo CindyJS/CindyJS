@@ -29,6 +29,9 @@ geoOps.Segment.updatePosition = function(el) {
     el.homog = List.cross(el1.homog, el2.homog);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
+    el.startpos = el1.homog;
+    el.endpos = el2.homog;
+    el.farpoint = List.cross(el.homog, List.linfty);
 };
 
 
@@ -138,9 +141,27 @@ geoOps.Through.updatePosition = function(el) {
 
 geoOps.Free = {};
 geoOps.Free.kind = "P";
-geoOps.Free.computeParametersOnInput = function(el) {};
+geoOps.Free.computeParametersOnInput = function(el) {
+    var sx = mouse.x + move.offset.x;
+    var sy = mouse.y + move.offset.y;
+    if (cssnap && csgridsize !== 0) {
+        var rx = Math.round(sx / csgridsize) * csgridsize;
+        var ry = Math.round(sy / csgridsize) * csgridsize;
+        if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2) {
+            sx = rx;
+            sy = ry;
+        }
+    }
+    el.param = List.realVector([sx, sy, 1]);
+};
 geoOps.Free.updatePosition = function(el) {
     el.homog = General.withUsage(el.param, "Point");
+};
+
+geoOps._helper.projectPointToLine = function(point, line) {
+    var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+    var perp = List.cross(tt, point);
+    return List.normalizeMax(List.cross(perp, line));
 };
 
 geoOps.PointOnLine = {};
@@ -148,20 +169,17 @@ geoOps.PointOnLine.kind = "P";
 geoOps.PointOnLine.computeParameters = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
     var p = el.param;
-    var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
-    var perp = List.cross(tt, p);
-    el.param = List.normalizeMax(List.cross(perp, l));
+    el.param = geoOps._helper.projectPointToLine(p, l);
 };
-geoOps.PointOnLine.computeParametersOnInput =
-    geoOps.PointOnLine.computeParameters;
+geoOps.PointOnLine.computeParametersOnInput = function(el) {
+    var sx = mouse.x + move.offset.x;
+    var sy = mouse.y + move.offset.y;
+    el.param = List.realVector([sx, sy, 1]);
+    // TODO: snap to grid
+    geoOps.PointOnLine.computeParameters(el);
+};
 geoOps.PointOnLine.updatePosition = function(el) {
     el.homog = General.withUsage(el.param, "Point");
-    //TODO: Handle complex and infinite Points
-    var x = CSNumber.div(el.homog.value[0], el.homog.value[2]);
-    var y = CSNumber.div(el.homog.value[1], el.homog.value[2]);
-    el.sx = x.value.real;
-    el.sy = y.value.real;
-    el.sz = 1;
 };
 
 
@@ -205,74 +223,41 @@ geoOps.PointOnCircle.updatePosition = function(el) { //TODO was ist hier zu tun 
     el.homog = erg;
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
-
-
-    //TODO: Handle complex and infinite Points
-    var x = CSNumber.div(el.homog.value[0], el.homog.value[2]);
-    var y = CSNumber.div(el.homog.value[1], el.homog.value[2]);
-
-    el.sx = x.value.real;
-    el.sy = y.value.real;
-    el.sz = 1;
 };
 
 
 geoOps.PointOnSegment = {};
 geoOps.PointOnSegment.kind = "P";
-geoOps.PointOnSegment.computeParameters = function(el) {
-    // TODO what follows should only be necessary on creation and input
-    var el1 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[0]].homog;
-    var el2 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[1]].homog;
-    var elm = el.homog;
-
-    var xx1 = CSNumber.div(el1.value[0], el1.value[2]);
-    var yy1 = CSNumber.div(el1.value[1], el1.value[2]);
-    var xx2 = CSNumber.div(el2.value[0], el2.value[2]);
-    var yy2 = CSNumber.div(el2.value[1], el2.value[2]);
-    var xxm = CSNumber.div(elm.value[0], elm.value[2]);
-    var yym = CSNumber.div(elm.value[1], elm.value[2]);
-
-    var x1 = xx1.value.real;
-    var y1 = yy1.value.real;
-    var x2 = xx2.value.real;
-    var y2 = yy2.value.real;
-    var xm = xxm.value.real;
-    var ym = yym.value.real;
-    var d12 = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-    var d1m = Math.sqrt((x1 - xm) * (x1 - xm) + (y1 - ym) * (y1 - ym));
-    var d2m = Math.sqrt((x2 - xm) * (x2 - xm) + (y2 - ym) * (y2 - ym));
-    var dd = d12 - d1m - d2m;
-    var par = d1m / d12;
-    if (d1m > d12) par = 1;
-    if (d2m > d12) par = 0;
-    el.param = CSNumber.real(par);
+geoOps.PointOnSegment.computeParametersOnScript = function(el, pos) {
+    var seg = csgeo.csnames[el.args[0]];
+    var line = seg.homog;
+    var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+    el.param = List.normalizeMax(List.crossratio3harm(
+        seg.farpoint, seg.startpos, seg.endpos, pos, tt));
 };
-geoOps.PointOnSegment.computeParametersOnInput = geoOps.PointOnSegment.computeParameters;
-geoOps.PointOnSegment.updatePosition = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
-    var el1 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[0]].homog;
-    var el2 = csgeo.csnames[csgeo.csnames[(el.args[0])].args[1]].homog;
-
-    var xx1 = CSNumber.div(el1.value[0], el1.value[2]);
-    var yy1 = CSNumber.div(el1.value[1], el1.value[2]);
-    var xx2 = CSNumber.div(el2.value[0], el2.value[2]);
-    var yy2 = CSNumber.div(el2.value[1], el2.value[2]);
-
-    var diffx = CSNumber.sub(xx2, xx1);
-    var ergx = CSNumber.add(xx1, CSNumber.mult(el.param, diffx));
-    var diffy = CSNumber.sub(yy2, yy1);
-    var ergy = CSNumber.add(yy1, CSNumber.mult(el.param, diffy));
-    var ergz = CSNumber.real(1);
-    el.homog = List.turnIntoCSList([ergx, ergy, ergz]);
+geoOps.PointOnSegment.computeParametersOnInput = function(el) {
+    var sx = mouse.x + move.offset.x;
+    var sy = mouse.y + move.offset.y;
+    var pos = List.realVector([sx, sy, 1]);
+    geoOps.PointOnSegment.computeParametersOnScript(el, pos);
+};
+geoOps.PointOnSegment.computeParameters = function(el) {
+    if (el.param.value.length === 3)
+        geoOps.PointOnSegment.computeParametersOnScript(el, el.param);
+};
+geoOps.PointOnSegment.updatePosition = function(el) {
+    var seg = csgeo.csnames[el.args[0]];
+    // TODO: Handle case where seg is the result of a projective transform,
+    // where seg.farpoint would not have z==0. Can't happen yet.
+    var start = List.scalmult(seg.endpos.value[2], seg.startpos);
+    var end = List.scalmult(seg.startpos.value[2], seg.endpos);
+    // now they have the same z coordinate, so their difference is far
+    var far = List.sub(end, start);
+    el.homog = List.add(
+        List.scalmult(el.param.value[1], start),
+        List.scalmult(el.param.value[0], far));
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
-
-    //TODO: Handle complex and infinite Points
-    var x = CSNumber.div(el.homog.value[0], el.homog.value[2]);
-    var y = CSNumber.div(el.homog.value[1], el.homog.value[2]);
-
-    el.sx = x.value.real;
-    el.sy = y.value.real;
-    el.sz = 1;
 };
 
 

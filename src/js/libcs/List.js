@@ -1005,6 +1005,16 @@ List.cross = function(a, b) { //Assumes that a is 3-Vector
     return List.turnIntoCSList([x, y, z]);
 };
 
+List.crossratio3harm = function(a, b, c, d, x) {
+    var acx = List.det3(a, c, x);
+    var bdx = List.det3(b, d, x);
+    var adx = List.det3(a, d, x);
+    var bcx = List.det3(b, c, x);
+    var numer = CSNumber.mult(acx, bdx);
+    var denom = CSNumber.mult(adx, bcx);
+    return List.turnIntoCSList([numer, denom]);
+};
+
 List.veronese = function(a) { //Assumes that a is 3-Vector
     var xx = CSNumber.mult(a.value[0], a.value[0]);
     var yy = CSNumber.mult(a.value[1], a.value[1]);

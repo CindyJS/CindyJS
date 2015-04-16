@@ -18,6 +18,9 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
     {name:"A", type:"Free", pos:[0,0]},
     {name:"a", type:"Through", args:["A"], dir:[1,1,0]},
     {name:"B", type:"PointOnLine", args:["a"], pos:[2,2]},
+    {name:"C", type:"Free", pos:[-2,2]},
+    {name:"b", type:"Segment", args:["A","C"]},
+    {name:"D", type:"PointOnSegment", args:["b"], pos:[-1,1]},
   ] // End of geometry array.
 });
 
