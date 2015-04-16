@@ -232,8 +232,13 @@ geoOps.PointOnSegment.computeParametersOnScript = function(el, pos) {
     var seg = csgeo.csnames[el.args[0]];
     var line = seg.homog;
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
-    el.param = List.normalizeMax(List.crossratio3harm(
-        seg.farpoint, seg.startpos, seg.endpos, pos, tt));
+    var cr = List.crossratio3(
+        seg.farpoint, seg.startpos, seg.endpos, pos, tt);
+    if (cr.value.real < 0)
+        cr = CSNumber.complex(0, cr.value.imag);
+    if (cr.value.real > 1)
+        cr = CSNumber.complex(1, cr.value.imag);
+    el.param = cr;
 };
 geoOps.PointOnSegment.computeParametersOnInput = function(el) {
     var sx = mouse.x + move.offset.x;
@@ -253,9 +258,7 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     var end = List.scalmult(seg.startpos.value[2], seg.endpos);
     // now they have the same z coordinate, so their difference is far
     var far = List.sub(end, start);
-    el.homog = List.add(
-        List.scalmult(el.param.value[1], start),
-        List.scalmult(el.param.value[0], far));
+    el.homog = List.add(start, List.scalmult(el.param, far));
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
 };
