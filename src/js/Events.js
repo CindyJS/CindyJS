@@ -51,6 +51,8 @@ function getmover(mouse) {
         var el = csgeo.free[i];
         if (el.pinned)
             continue;
+        if (!geoOps[el.kind].computeParametersOnInput)
+            continue;
 
         var dx, dy, dist;
         var sc = csport.drawingstate.matrix.sdet;
