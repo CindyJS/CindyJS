@@ -310,6 +310,7 @@ function startit() {
 }
 
 function updateCindy() {
+    csport.reset();
     recalc();
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
