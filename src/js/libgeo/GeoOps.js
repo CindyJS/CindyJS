@@ -140,19 +140,22 @@ geoOps.Free = {};
 geoOps.Free.kind = "P";
 geoOps.Free.computeParametersOnInput = function(el) {};
 geoOps.Free.updatePosition = function(el) {
-    el.homog = el.param;
+    el.homog = General.withUsage(el.param, "Point");
 };
 
 geoOps.PointOnLine = {};
 geoOps.PointOnLine.kind = "P";
-geoOps.PointOnLine.updatePosition = function(el) {
+geoOps.PointOnLine.computeParameters = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
-    var p = el.homog;
+    var p = el.param;
     var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
     var perp = List.cross(tt, p);
-    el.homog = List.cross(perp, l);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Point");
+    el.param = List.normalizeMax(List.cross(perp, l));
+};
+geoOps.PointOnLine.computeParametersOnInput =
+    geoOps.PointOnLine.computeParameters;
+geoOps.PointOnLine.updatePosition = function(el) {
+    el.homog = General.withUsage(el.param, "Point");
     //TODO: Handle complex and infinite Points
     var x = CSNumber.div(el.homog.value[0], el.homog.value[2]);
     var y = CSNumber.div(el.homog.value[1], el.homog.value[2]);

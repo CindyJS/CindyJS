@@ -51,7 +51,7 @@ function getmover(mouse) {
         var el = csgeo.free[i];
         if (el.pinned)
             continue;
-        if (!geoOps[el.kind].computeParametersOnInput)
+        if (!geoOps[el.type].computeParametersOnInput)
             continue;
 
         var dx, dy, dist;
