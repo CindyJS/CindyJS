@@ -57,7 +57,6 @@ geoOps.Meet.visiblecheck = function(el) {
 };
 
 
-
 geoOps.Mid = {};
 geoOps.Mid.kind = "P";
 geoOps.Mid.updatePosition = function(el) {
@@ -139,8 +138,7 @@ geoOps.Through.updatePosition = function(el) {
 
 geoOps.Free = {};
 geoOps.Free.kind = "P";
-geoOps.Free.computeParametersOnInput = function(el) {
-};
+geoOps.Free.computeParametersOnInput = function(el) {};
 geoOps.Free.updatePosition = function(el) {
     el.homog = el.param;
 };

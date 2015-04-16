@@ -256,7 +256,8 @@ var geoDependantsCache = {};
 function getGeoDependants(mover) {
     var deps = geoDependantsCache[mover.name];
     if (deps) return deps;
-    var depSet = {}, k = 0;
+    var depSet = {};
+    var k = 0;
     deps = [];
     depSet[mover.name] = mover;
     var gslp = csgeo.gslp;
@@ -282,7 +283,11 @@ var stateLastGood, stateCurrent;
 
 var tracingInitial, tracingFailed, noMoreRefinements;
 
-var RefineException = { toString: function() { return "RefineException"; } };
+var RefineException = {
+    toString: function() {
+        return "RefineException";
+    }
+};
 
 function requestRefinement() {
     // Call this whenever you would need exra refinement.
@@ -301,7 +306,8 @@ function defaultParameterPath(el, t, src, dst) {
 function trace() {
     var mover = move.mover;
     var deps = getGeoDependants(mover);
-    var last = -1, t = 1;
+    var last = -1;
+    var t = 1;
     var opMover = geoOps[mover.type];
     var parameterPath = opMover.parameterPath || defaultParameterPath;
     var lastGoodParam = move.lastGoodParam;
@@ -311,7 +317,8 @@ function trace() {
     while (last !== t) {
         // Rational parametrization of semicircle,
         // see http://jsperf.com/half-circle-parametrization
-        var t2 = t * t, dt = 0.5 / (1 + t2);
+        var t2 = t * t;
+        var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = ((t - last) < 0.0004);
         try {
@@ -326,11 +333,10 @@ function trace() {
             }
             last = t; // successfully traced up to t
             t = 1; // try to trace the rest of the way
-        }
-        catch (e) {
+        } catch (e) {
             if (e !== RefineException)
                 throw e;
-            t = (last + t)/2; // reduce step size
+            t = (last + t) / 2; // reduce step size
         }
     }
     if (!tracingFailed) {

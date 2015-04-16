@@ -58,8 +58,7 @@ function getmover(mouse) {
                 dy = el.sy - mouse.y;
                 dist = Math.sqrt(dx * dx + dy * dy);
                 if (el.narrow & dist > 20 / sc) dist = 10000;
-            }
-            else if (el.kind === "C") { //Must be Circle by Rad
+            } else if (el.kind === "C") { //Must be Circle by Rad
                 var mid = csgeo.csnames[el.args[0]];
                 var rad = el.radius;
                 var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
@@ -75,8 +74,7 @@ function getmover(mouse) {
                 }
                 dist = dist + 30 / sc;
 
-            }
-            else if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
+            } else if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
                 var l = el.homog;
                 var N = CSNumber;
                 var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])),
