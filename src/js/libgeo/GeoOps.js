@@ -802,11 +802,6 @@ geoOps.angleBisector = function(el) {
     var myI = List.normalizeMax(List.cross(List.ii, poi));
     var myJ = List.normalizeMax(List.cross(List.jj, poi));
 
-    console.log("myI");
-    List.println(myI);
-    List.println(myJ);
-    console.log("end");
-
     var sqi = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myI), List.det3(poi, xx.homog, myI)));
     var sqj = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myJ), List.det3(poi, xx.homog, myJ)));
 
@@ -845,11 +840,6 @@ geoOps.angleBisector = function(el) {
             mu = List.det3(poi, yy.homog, erg1);
             tau = List.det3(poi, xx.homog, erg1);
 
-            List.println(poi);
-            List.println(yy.homog);
-            List.println(xx.homog);
-            List.println(erg2);
-            List.println(erg1);
             mux = General.mult(xx.homog, mu);
             tauy = General.mult(yy.homog, tau);
 
@@ -859,9 +849,6 @@ geoOps.angleBisector = function(el) {
 
     erg1 = List.normalizeMax(erg1);
     erg2 = List.normalizeMax(erg2);
-
-    List.println(erg1);
-    List.println(erg2);
 
     // Billigtracing
     if (!el.inited) {
