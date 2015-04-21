@@ -11,9 +11,8 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
   canvasname: "CSCanvas",
   scripts: "cs*",
   language: "en",
-  defaultAppearance: {
-    // See GeoBasics.js for possible attributes.
-  },
+  defaultAppearance: {},
+  enableTraceLog: true,
   geometry: [
     {name:"A", type:"Free", pos:[0,0]},
     {name:"a", type:"Through", args:["A"], dir:[1,1,0]},
@@ -21,6 +20,10 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
     {name:"C", type:"Free", pos:[-2,2]},
     {name:"b", type:"Segment", args:["A","C"]},
     {name:"D", type:"PointOnSegment", args:["b"], pos:[-1,1]},
+    {name:"E", type:"Free", pos:[-2,-3]},
+    {name:"C0", type:"CircleMr", args:["E"], radius:2},
+    {name:"Fs", type:"IntersectLC", args:["a","C0"]},
+    {name:"F", type:"SelectP", args:["Fs"], index:1},
   ] // End of geometry array.
 });
 
@@ -30,6 +33,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
 <body style="font-family:Arial;">
   <canvas id="CSCanvas" width="500" height="500"
           style="border:2px solid black"></canvas>
+  <p><button onclick="location.href=cdy.formatTraceLog()">Log</button></p>
 </body>
 
 </html>

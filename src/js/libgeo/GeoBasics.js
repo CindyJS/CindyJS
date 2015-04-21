@@ -79,17 +79,20 @@ function csinit(gslp) {
     csgeo.csnames = {}; //Lookup für elemente mit über Namen
 
 
-    var k, l, f;
+    var k, l, f, el;
+    var totalStateSize = 0;
 
     // Das ist für alle gleich
     for (k = 0; k < gslp.length; k++) {
-        var g = gslp[k];
-        csgeo.csnames[g.name] = g;
-        g.kind = geoOps[g.type].kind;
-        g.incidences = [];
-        g.isshowing = true;
-        g.movable = false;
-        g.inited = false;
+        el = gslp[k];
+        csgeo.csnames[el.name] = el;
+        var op = geoOps[el.type];
+        el.kind = op.kind;
+        el.stateIdx = totalStateSize;
+        totalStateSize += op.tracingStateSize || 0;
+        el.incidences = [];
+        el.isshowing = true;
+        el.movable = false;
     }
 
     csgeo.points = [];
@@ -103,7 +106,7 @@ function csinit(gslp) {
     var m = csport.drawingstate.matrix;
 
     for (k = 0; k < gslp.length; k++) {
-        var el = gslp[k];
+        el = gslp[k];
 
         if (el.kind === "P") {
             csgeo.points[csgeo.ctp] = el;
@@ -167,6 +170,9 @@ function csinit(gslp) {
         if (init)
             init(el);
     }
+    stateLastGood = new Float64Array(totalStateSize);
+    stateCurrent = new Float64Array(totalStateSize);
+    stateSpare = new Float64Array(totalStateSize);
     tracingInitial = true;
     recalc();
     tracingInitial = false;
@@ -236,6 +242,9 @@ function isShowing(el, op) {
 
 function recalc() {
     noMoreRefinements = true;
+    currentStateIsGood = false;
+    stateIn = stateCurrent; // or should this be stateLastGood?
+    stateOut = stateCurrent;
     var gslp = csgeo.gslp;
     for (var k = 0; k < gslp.length; k++) {
         var el = gslp[k];
@@ -244,11 +253,13 @@ function recalc() {
             console.error(el);
             console.error("Operation " + el.type + " not implemented yet");
         }
+        stateInIdx = stateOutIdx = el.stateIdx;
         if (op.computeParameters)
             op.computeParameters(el);
         op.updatePosition(el);
         isShowing(el, op);
     }
+    treatCurrentStateAsGood(); // is this correct?
 }
 
 var geoDependantsCache = {};
@@ -277,9 +288,26 @@ function getGeoDependants(mover) {
     return deps;
 }
 
-var stateIn, stateOut, stateIdx;
+/* Thoughts about state handling.
+ * - trace has to start from stateLastGood
+ * - each trace step reads from stateIn and writes to stateOut
+ * - if refinement is requested, we have to keep stateIn
+ * - if a step is concluded (succeeded or failed, no refinement),
+ *   then we want to use stateOut as the next stateIn
+ *   and the intermediate parameter as the next start parameter
+ * - after a whole trace run, if no step failed, stateOut
+ *   becomes stateLastGood since everything is good
+ * - on mouseup or after recalc, our stateOut becomes stateLastGood
+ * - stateIn and stateLastGood sometimes refer to the same object
+ * - we need at least three states and four variables for all of this
+ * - we try to avoid copying data between arrays, and swap arrays instead
+ */
 
-var stateLastGood, stateCurrent;
+var stateIn, stateOut, stateInIdx, stateOutIdx;
+
+var stateLastGood, stateCurrent, stateSpare;
+
+var currentStateIsGood;
 
 var tracingInitial, tracingFailed, noMoreRefinements;
 
@@ -298,12 +326,24 @@ function requestRefinement() {
     else throw RefineException;
 }
 
+function treatCurrentStateAsGood() {
+    if (!currentStateIsGood) {
+        currentStateIsGood = true;
+        var tmp = stateLastGood;
+        stateLastGood = stateCurrent;
+        stateCurrent = tmp;
+        //console.log("current state is now good:");
+        //console.log(stateLastGood);
+    }
+}
+
 function defaultParameterPath(el, t, src, dst) {
     // src + t * (dst - src)
     el.param = General.add(src, General.mult(t, General.sub(dst, src)));
 }
 
 function trace() {
+    //console.log(stateLastGood);
     var mover = move.mover;
     var deps = getGeoDependants(mover);
     var last = -1;
@@ -315,19 +355,39 @@ function trace() {
     opMover.computeParametersOnInput(mover, lastGoodParam);
     var targetParam = mover.param; // not cloning, must not get modified
     tracingFailed = false;
+    currentStateIsGood = false;
+    stateIn = stateLastGood;
+    stateOut = stateCurrent;
     while (last !== t) {
+        if (traceLog) {
+            traceLogRow = [];
+            traceLog.push(traceLogRow);
+            if (last === -1 && t === 1) {
+                traceLogRow[0] = niceprint(lastGoodParam);
+                traceLogRow[1] = niceprint(targetParam);
+            }
+            else {
+                traceLogRow[0] = "";
+                traceLogRow[1] = "";
+            }
+            traceLogRow[2] = last;
+            traceLogRow[3] = t;
+        }
         // Rational parametrization of semicircle,
         // see http://jsperf.com/half-circle-parametrization
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        noMoreRefinements = ((t - last) < 0.0004);
+        noMoreRefinements = ((t - last) < 0.2);
         try {
+            stateInIdx = stateOutIdx = mover.stateIdx;
             parameterPath(mover, tc, lastGoodParam, targetParam);
+            if (traceLog) traceLogRow[4] = niceprint(mover.param);
             opMover.updatePosition(mover);
             for (i = 0; i < deps.length; ++i) {
                 el = deps[i];
                 op = geoOps[el.type];
+                stateInIdx = stateOutIdx = el.stateIdx;
                 if (op.computeParameters)
                     op.computeParameters(el);
                 op.updatePosition(el);
@@ -341,16 +401,90 @@ function trace() {
         }
     }
     if (!tracingFailed) {
+        treatCurrentStateAsGood();
         move.lastGoodParam = targetParam;
-        var tmp = stateLastGood;
-        stateLastGood = stateCurrent;
-        stateCurrent = tmp;
     }
     for (i = 0; i < deps.length; ++i) {
         el = deps[i];
         op = geoOps[el.type];
         isShowing(el, op);
     }
+}
+
+var traceLog = null, traceLogRow = [];
+
+if (instanceInvocationArguments["enableTraceLog"]) {
+    traceLog = [];
+    globalInstance["formatTraceLog"] = formatTraceLog;
+}
+
+function formatTraceLog() {
+    var tbody = '<tbody>' + traceLog.map(function(row) {
+        var action = row[row.length - 1];
+        var cls;
+        if (/^Normal/.test(action))
+            cls = "normal";
+        else if (/refine.?$/.test(action))
+            cls = "refine";
+        else
+            cls = "other";
+        if (row[0] !== "")
+            cls = "initial " + cls;
+        else
+            cls = "refined " + cls;
+        return '<tr class="' + cls + '">' + row.map(function(cell) {
+            return '<td>' + cell + '</td>';
+        }).join('') + '</tr>\n';
+    }).join('') + '</tbody>';
+    var cols = ['lastGoodParam', 'targetParam', 'last', 't', 'param',
+                'do1n1', 'do1n2', 'do2n1', 'do2n2', 'do1o2', 'dn1n2', 'cost',
+                'n1', 'n2', 'o1', 'o2', 'case'];
+    var thead = '<thead>' + cols.map(function(cell) {
+        return '<th>' + cell + '</th>';
+    }).join('') + '</thead>';
+    var table1 = '<table id="t1">' + thead + tbody + '</table>';
+    var css = [
+        'html, body { margin: 0px; padding: 0px; }',
+        'td { white-space: nowrap; border: 1px solid black; }',
+        'table { border-collapse: collapse; margin: 0px; }',
+        'thead th { background: #fff; }',
+        'tr.initial.normal td { background: #0ff; }',
+        'tr.refined.normal td { background: #0f0; }',
+        'tr.initial.refine td { background: #f0f; }',
+        'tr.refined.refine td { background: #ff0; }',
+        'tr.other td { background: #f00; }',
+    ].join('\n');
+    var html = '<html><head><title>Tracing report</title>' +
+        '<style type="text/css">' + css + '</style></head><body>' +
+        table1 + '</body></html>';
+    var blob = new Blob([html], {'type': 'text/html'});
+    var uri = window.URL.createObjectURL(blob);
+    // var uri = 'data:text/html;base64,' + window.btoa(html);
+    return uri;
+}
+
+function getStateComplexNumber() {
+    var i = stateInIdx;
+    stateInIdx += 2;
+    return CSNumber.complex(stateIn[i], stateIn[i + 1]);
+}
+
+function getStateComplexVector(n) {
+    var lst = new Array(n);
+    for (var i = 0; i < n; ++i)
+        lst[i] = getStateComplexNumber();
+    return List.turnIntoCSList(lst);
+}
+
+function putStateComplexNumber(c) {
+    stateOut[stateOutIdx] = c.value.real;
+    stateOut[stateOutIdx + 1] = c.value.imag;
+    stateOutIdx += 2;
+}
+
+function putStateComplexVector(v) {
+    for (var i = 0, n = v.value.length; i < n; ++i)
+        putStateComplexNumber(v.value[i]);
 }
 
 function guessIncidences() {

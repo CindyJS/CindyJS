@@ -19,6 +19,7 @@ Fragen:
 
 - Tracen wir Mauspositionen, oder die Parameter in die diese übersetzt werden?
 - Tracen wir, wenn man im Skript per elt.xy oder elt.homog was setzt?
+- Wie ist das zusammenspiel zwischen einem aktiven Move und einem recalc, das eventuell irgendwo anders in der Zeit getriggert wird?
 
 1. Mover: Maus (und Eltern) in Parameter übersetzen
 2. ggf. Zahlenklasse austauschen

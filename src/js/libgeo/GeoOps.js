@@ -495,9 +495,6 @@ geoOps.SelectConic = {};
 geoOps.SelectConic.kind = "C";
 geoOps.SelectConic.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    if (!el.inited) {
-        el.inited = true;
-    }
     el.matrix = set.results[el.index - 1];
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
@@ -812,72 +809,103 @@ geoOps.Polar.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
-geoOps.angleBisector = {};
-geoOps.angleBisector.kind = "Ls";
-geoOps.angleBisector.updatePosition = function(el) {
-    var ll = csgeo.csnames[(el.args[0])];
-    var mm = csgeo.csnames[(el.args[1])];
-
-    var OO = List.cross(ll.homog, mm.homog);
-    var PP = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
-
-    var LL = List.cross(ll.homog, List.linfty);
-    var MM = List.cross(mm.homog, List.linfty);
-
-    var plmj = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.jj), List.det3(PP, MM, List.jj))); // factor before I
-    var f1 = General.mult(plmj, List.ii);
-
-    var plmi = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.ii), List.det3(PP, MM, List.ii))); // factor before J
-    var f2 = General.mult(plmi, List.jj);
-
-    var A1 = List.add(f1, f2);
-    var A2 = List.sub(f1, f2);
-
-    var erg1 = List.normalizeMax(List.cross(A1, OO));
-    var erg2 = List.normalizeMax(List.cross(A2, OO));
-
-    // Billigtracing
-    if (!el.inited) {
-        el.check1 = erg1;
-        el.check2 = erg2;
-        el.inited = true;
-        el.results = List.turnIntoCSList([erg1, erg2]);
-    } else {
-        var action = geoOps._helper.tracing2(erg1, erg2, el.check1, el.check2, el);
-        if (!List._helper.isNaN(el.results.value[0]) && !List._helper.isNaN(el.results.value[1])) {
-            el.check1 = el.results.value[0];
-            el.check2 = el.results.value[1];
-        }
-    }
-};
-
-geoOps._helper.tracing2 = function(n1, n2, c1, c2, el) { //Billigtracing
-    var OK = 0;
-    var DECREASE_STEP = 1;
-    var INVALID = 2;
-    var tooClose = OK;
+geoOps._helper.tracing2 = function(n1, n2) {
     var security = 3;
 
-    var do1n1 = List.projectiveDistMinScal(c1, n1);
-    var do1n2 = List.projectiveDistMinScal(c1, n2);
-    var do2n1 = List.projectiveDistMinScal(c2, n1);
-    var do2n2 = List.projectiveDistMinScal(c2, n2);
+    var o1 = getStateComplexVector(3);
+    var o2 = getStateComplexVector(3);
 
-
-    if ((do1n1 + do2n2) < (do1n2 + do2n1)) {
-        el.results = List.turnIntoCSList([n1, n2]); //Das ist "sort Output"
-    } else {
-        el.results = List.turnIntoCSList([n2, n1]); //Das ist "sort Output"
-
+    if (tracingInitial) {
+        putStateComplexVector(n1);
+        putStateComplexVector(n2);
+        return List.turnIntoCSList([n1, n2]);
     }
 
+    var do1n1 = List.projectiveDistMinScal(o1, n1);
+    var do1n2 = List.projectiveDistMinScal(o1, n2);
+    var do2n1 = List.projectiveDistMinScal(o2, n1);
+    var do2n2 = List.projectiveDistMinScal(o2, n2);
+    var do1o2 = List.projectiveDistMinScal(o1, o2);
+    var dn1n2 = List.projectiveDistMinScal(n1, n2);
+    var cost1 = do1n1 + do2n2;
+    var cost2 = do1n2 + do2n1;
+    var cost, res;
+
+    // Always sort output: we don't know yet whether it's correct, but
+    // it's our best bet.
+    if (cost1 > cost2) {
+        res = [n2, n1];
+        cost = cost2;
+    } else {
+        res = [n1, n2];
+        cost = cost1;
+    }
+    putStateComplexVector(res[0]);
+    putStateComplexVector(res[1]);
+
+    var debug = function() { };
+    // debug = console.log.bind(console);
+    var tlc = 5;
+    if (traceLog) {
+        traceLogRow[tlc++] = do1n1;
+        traceLogRow[tlc++] = do1n2;
+        traceLogRow[tlc++] = do2n1;
+        traceLogRow[tlc++] = do2n2;
+        traceLogRow[tlc++] = do1o2;
+        traceLogRow[tlc++] = dn1n2;
+        traceLogRow[tlc++] = cost;
+        traceLogRow[tlc++] = niceprint(res[0]);
+        traceLogRow[tlc++] = niceprint(res[1]);
+        traceLogRow[tlc++] = niceprint(o1);
+        traceLogRow[tlc++] = niceprint(o2);
+        debug = function(msg) { traceLogRow[tlc++] = msg; }
+    }
+    if (List._helper.isNaN(n1) || List._helper.isNaN(n2)) {
+        // Something went very wrong, numerically speaking. We have no
+        // clue whether refining will make things any better, so we
+        // assume it won't and give up.
+        debug("Tracing failed due to NaNs.");
+        tracingFailed = true;
+    } else if (do1o2 > cost*security && dn1n2 > cost*security) {
+        // Distance within matching considerably smaller than distance
+        // across matching, so we could probably match correctly.
+        debug("Normal case, everything all right.");
+    } else if (dn1n2 < 1e-5) {
+        // New points too close: we presumably are inside a singularity.
+        if (do1o2 < 1e-5) { // Cinderella uses the constant 1e-6 here
+            // The last "good" position was already singular.
+            // Nothing we can do about this.
+            debug("Staying inside singularity.");
+        } else {
+            // We newly moved into the singularity. New position is
+            // not "good", but refining won't help since the endpoint
+            // is singular.
+            debug("Moved into singularity.");
+            tracingFailed = true;
+        }
+    } else if (do1o2 < 1e-5) { // Cinderella uses the constant 1e-6 here
+        // We just moved out of a singularity. Things can only get
+        // better. If the singular situation was "good", we stay
+        // "good", and keep track of things from now on.
+        debug("Moved out of singularity.");
+    } else {
+        // Neither old nor new position looks singular, so there was
+        // an avoidable singularity along the way. Refine to avoid it.
+        if (noMoreRefinements)
+            debug("Reached refinement limit, giving up.")
+        else
+            debug("Need to refine.");
+        requestRefinement();
+    }
+    return List.turnIntoCSList(res);
 };
+geoOps._helper.tracing2.stateSize = 12; // two three-element complex vectors
 
 geoOps._helper.tracing2X = function(n1, n2, c1, c2, el) {
     var OK = 0;
     var DECREASE_STEP = 1;
     var INVALID = 2;
-    var tooClose = OK;
+    var tooClose = el.tooClose || OK;
     var security = 3;
 
     var do1n1 = List.projectiveDistMinScal(c1, n1);
@@ -908,7 +936,7 @@ geoOps._helper.tracing2X = function(n1, n2, c1, c2, el) {
     if (dn1n2 < 0.00001) {
         // They are. Do we care?
         if (care) {
-            tooClose = INVALID;
+            tooClose = el.tooClose = INVALID;
             el.results = List.turnIntoCSList([n1, n2]);
             return OK + tooClose;
         } else {
@@ -963,6 +991,34 @@ geoOps._helper.tracingSesq = function(oldVecs, newVecs) {
     // TODO: signal wheter this decision is reliable
     return m;
 };
+
+geoOps.angleBisector = {};
+geoOps.angleBisector.kind = "Ls";
+geoOps.angleBisector.updatePosition = function(el) {
+    var ll = csgeo.csnames[(el.args[0])];
+    var mm = csgeo.csnames[(el.args[1])];
+
+    var OO = List.cross(ll.homog, mm.homog);
+    var PP = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
+
+    var LL = List.cross(ll.homog, List.linfty);
+    var MM = List.cross(mm.homog, List.linfty);
+
+    var plmj = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.jj), List.det3(PP, MM, List.jj))); // factor before I
+    var f1 = General.mult(plmj, List.ii);
+
+    var plmi = CSNumber.sqrt(CSNumber.mult(List.det3(PP, LL, List.ii), List.det3(PP, MM, List.ii))); // factor before J
+    var f2 = General.mult(plmi, List.jj);
+
+    var A1 = List.add(f1, f2);
+    var A2 = List.sub(f1, f2);
+
+    var erg1 = List.normalizeMax(List.cross(A1, OO));
+    var erg2 = List.normalizeMax(List.cross(A2, OO));
+
+    el.results = geoOps._helper.tracing2(erg1, erg2);
+};
+geoOps.angleBisector.tracingStateSize = geoOps._helper.tracing2.stateSize;
 
 geoOps._helper.IntersectLC = function(l, c) {
 
@@ -1022,21 +1078,9 @@ geoOps.IntersectLC.updatePosition = function(el) {
     var erg = geoOps._helper.IntersectLC(l, c);
     var erg1 = erg[0];
     var erg2 = erg[1];
-
-    if (!el.inited) {
-        el.check1 = erg1;
-        el.check2 = erg2;
-        el.inited = true;
-        el.results = List.turnIntoCSList([erg1, erg2]);
-
-    } else {
-        var action = geoOps._helper.tracing2(erg1, erg2, el.check1, el.check2, el);
-        if (!List._helper.isNaN(el.results.value[0]) && !List._helper.isNaN(el.results.value[1])) {
-            el.check1 = el.results.value[0];
-            el.check2 = el.results.value[1];
-        }
-    }
+    el.results = geoOps._helper.tracing2(erg1, erg2);
 };
+geoOps.IntersectLC.tracingStateSize = geoOps._helper.tracing2.stateSize;
 
 geoOps.IntersectCirCir = {};
 geoOps.IntersectCirCir.kind = "Ps";
@@ -1058,20 +1102,9 @@ geoOps.IntersectCirCir.updatePosition = function(el) {
     var erg = geoOps._helper.IntersectLC(ll, c1);
     var erg1 = erg[0];
     var erg2 = erg[1];
-
-    if (!el.inited) {
-        el.check1 = erg1;
-        el.check2 = erg2;
-        el.inited = true;
-        el.results = List.turnIntoCSList([erg1, erg2]);
-
-    } else {
-        var action = geoOps._helper.tracing2(erg1, erg2, el.check1, el.check2, el);
-        el.check1 = el.results.value[0];
-        el.check2 = el.results.value[1];
-    }
-
+    el.results = geoOps._helper.tracing2(erg1, erg2);
 };
+geoOps.IntersectCirCir.tracingStateSize = geoOps._helper.tracing2.stateSize;
 
 
 geoOps._helper.IntersectConicConic = function(AA, BB) {
@@ -1185,9 +1218,7 @@ geoOps.IntersectConicConic.updatePosition = function(el) {
     var BB = csgeo.csnames[(el.args[1])].matrix;
 
     var erg = geoOps._helper.IntersectConicConic(AA, BB);
-    el.inited = true;
     el.results = List.turnIntoCSList(erg);
-
 };
 
 
@@ -1195,9 +1226,6 @@ geoOps.SelectP = {};
 geoOps.SelectP.kind = "P";
 geoOps.SelectP.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    if (!el.inited) {
-        el.inited = true;
-    }
     el.homog = set.results.value[el.index - 1];
 };
 
@@ -1205,9 +1233,6 @@ geoOps.SelectL = {};
 geoOps.SelectL.kind = "L";
 geoOps.SelectL.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    if (!el.inited) {
-        el.inited = true;
-    }
     el.homog = set.results.value[el.index - 1];
     el.homog = General.withUsage(el.homog, "Line");
 };

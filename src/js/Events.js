@@ -160,11 +160,9 @@ function setuplisteners(canvas, data) {
 
     addAutoCleaningEventListener(canvas, "mouseup", function(e) {
         mouse.down = false;
-
+        treatCurrentStateAsGood();
         cs_mouseup();
-
         updateCindy();
-
         e.preventDefault();
     });
 
@@ -232,11 +230,10 @@ function setuplisteners(canvas, data) {
 
     function touchUp(e) {
         mouse.down = false;
+        treatCurrentStateAsGood();
         updateCindy();
         cs_mouseup();
-
         e.preventDefault();
-
     }
 
     addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
