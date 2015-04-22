@@ -170,8 +170,8 @@ function csinit(gslp) {
         if (init)
             init(el);
     }
-    stateLastGood = new Float64Array(totalStateSize);
-    stateCurrent = new Float64Array(totalStateSize);
+    stateLastGood = stateIn = new Float64Array(totalStateSize);
+    stateOut = new Float64Array(totalStateSize);
     stateSpare = new Float64Array(totalStateSize);
     tracingInitial = true;
     recalc();
@@ -242,9 +242,6 @@ function isShowing(el, op) {
 
 function recalc() {
     noMoreRefinements = true;
-    currentStateIsGood = false;
-    stateIn = stateCurrent; // or should this be stateLastGood?
-    stateOut = stateCurrent;
     var gslp = csgeo.gslp;
     for (var k = 0; k < gslp.length; k++) {
         var el = gslp[k];
@@ -259,7 +256,7 @@ function recalc() {
         op.updatePosition(el);
         isShowing(el, op);
     }
-    treatCurrentStateAsGood(); // is this correct?
+    stateSwapGood(); // is this correct?
 }
 
 var geoDependantsCache = {};
@@ -303,11 +300,74 @@ function getGeoDependants(mover) {
  * - we try to avoid copying data between arrays, and swap arrays instead
  */
 
-var stateIn, stateOut, stateInIdx, stateOutIdx;
+/* Details on state handling:
+ * Between traces, we have two possible situations.
+ *
+ * A) The current state is good.
+ *    In this case, stateIn and stateLastGood point to the same array,
+ *    representing the current state. stateOut and stateSpare point to
+ *    two distinct arrays, the content of which is irrelevant.
+ *
+ * B) The current state is bad.
+ *    In this case, stateIn points to the current state, and stateLastGood
+ *    points to the last state which has been considered good. stateOut
+ *    points to a third array with irrelevant content. stateSpare is null.
+ *
+ * There are a number of transition functions to switch between these
+ * situations. These are called AFTER a tracing or recalc run, so that
+ * things are already prepared for the next run in the way described
+ * above.
+ */
 
-var stateLastGood, stateCurrent, stateSpare;
+var stateIn, stateOut, stateLastGood, stateSpare;
 
-var currentStateIsGood;
+/**
+ * stateOut is a good state, make it the last good state as well as
+ * the next stateIn. Ensure we don't loose any buffers.
+ */
+function stateSwapGood() {
+    var resultState = stateOut;
+    stateOut = stateIn;
+    stateSpare = stateSpare || stateLastGood;
+    stateLastGood = stateIn = resultState;
+}
+
+/**
+ * stateOut is a bad (failed or incomplete) state, make it the next stateIn but
+ * keep the current stateLastGood. Ensure we don't loose any buffers.
+ */
+function stateSwapBad() {
+    var resultState = stateOut;
+    stateOut = stateSpare || stateIn;
+    stateSpare = null;
+    stateIn = resultState;
+}
+
+/**
+ * Current state (i.e. stateIn) is now deemed good, even in case it
+ * wasn't considered good before. Make it the stateLastGood. If we
+ * were in a good situation, there is nothing to do.
+ */
+function stateContinueFromHere() {
+    if (!stateSpare) {
+        stateSpare = stateLastGood;
+        stateLastGood = stateIn;
+        tracingStateReport(false);
+    }
+}
+
+/**
+ * Make stateIn point to the last good state.
+ * If it already does, there is nothing to do.
+ */
+function stateRevertToGood() {
+    if (!stateSpare) {
+        stateSpare = stateIn;
+        stateIn = stateLastGood;
+    }
+}
+
+var stateInIdx, stateOutIdx;
 
 var tracingInitial, tracingFailed, noMoreRefinements;
 
@@ -326,17 +386,6 @@ function requestRefinement() {
     else throw RefineException;
 }
 
-function treatCurrentStateAsGood() {
-    if (!currentStateIsGood) {
-        currentStateIsGood = true;
-        var tmp = stateLastGood;
-        stateLastGood = stateCurrent;
-        stateCurrent = tmp;
-        //console.log("current state is now good:");
-        //console.log(stateLastGood);
-    }
-}
-
 function defaultParameterPath(el, t, src, dst) {
     // src + t * (dst - src)
     el.param = General.add(src, General.mult(t, General.sub(dst, src)));
@@ -351,13 +400,11 @@ function trace() {
     var i, el, op;
     var opMover = geoOps[mover.type];
     var parameterPath = opMover.parameterPath || defaultParameterPath;
+    stateRevertToGood();
     var lastGoodParam = move.lastGoodParam;
     opMover.computeParametersOnInput(mover, lastGoodParam);
     var targetParam = mover.param; // not cloning, must not get modified
     tracingFailed = false;
-    currentStateIsGood = false;
-    stateIn = stateLastGood;
-    stateOut = stateCurrent;
     while (last !== t) {
         if (traceLog) {
             traceLogRow = [];
@@ -394,6 +441,7 @@ function trace() {
             }
             last = t; // successfully traced up to t
             t = 1; // try to trace the rest of the way
+            stateSwapBad(); // may become good if we complete without failing
         } catch (e) {
             if (e !== RefineException)
                 throw e;
@@ -401,13 +449,22 @@ function trace() {
         }
     }
     if (!tracingFailed) {
-        treatCurrentStateAsGood();
         move.lastGoodParam = targetParam;
+        stateContinueFromHere();
     }
+    tracingStateReport(tracingFailed);
     for (i = 0; i < deps.length; ++i) {
         el = deps[i];
         op = geoOps[el.type];
         isShowing(el, op);
+    }
+}
+
+function tracingStateReport(failed) {
+    var arg = instanceInvocationArguments['tracingStateReport'];
+    if (typeof arg === "string") {
+        document.getElementById(arg).textContent =
+            failed ? "BAD" : "GOOD";
     }
 }
 
