@@ -977,7 +977,7 @@ List.projectiveDistMinScal = function(a, b) {
     var np = CSNumber.div(p, CSNumber.abs(p));
     var na = List.scaldiv(sa, a);
     var nb = List.scaldiv(sb, b);
-    na = List.scalmult(np, na);
+    nb = List.scalmult(np, nb);
 
     var d1 = List.abs(List.add(na, nb));
     var d2 = List.abs(List.sub(na, nb));
