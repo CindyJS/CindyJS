@@ -35,7 +35,8 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
   <canvas id="CSCanvas" width="500" height="500"
           style="border:2px solid black"></canvas>
   <p>
-    <button onclick="location.href=cdy.formatTraceLog()">Log</button>
+    <button onclick="location.href=cdy.formatTraceLog(false)">View log</button>
+    <button onclick="location.href=cdy.formatTraceLog(true)">Save log</button>
     <span id="tracingStateReport"></span>
   </p>
 </body>

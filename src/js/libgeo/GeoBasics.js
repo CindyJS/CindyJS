@@ -397,6 +397,7 @@ function trace() {
     var deps = getGeoDependants(mover);
     var last = -1;
     var t = 1;
+    var step = 2;
     var i, el, op;
     var opMover = geoOps[mover.type];
     var parameterPath = opMover.parameterPath || defaultParameterPath;
@@ -425,7 +426,7 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        noMoreRefinements = ((t - last) < 0.2);
+        noMoreRefinements = (last + 0.5 * step <= last);
         try {
             stateInIdx = stateOutIdx = mover.stateIdx;
             parameterPath(mover, tc, lastGoodParam, targetParam);
@@ -440,12 +441,15 @@ function trace() {
                 op.updatePosition(el);
             }
             last = t; // successfully traced up to t
-            t = 1; // try to trace the rest of the way
+            step *= 1.25;
+            t += step;
+            if (t >= 1) t = 1;
             stateSwapBad(); // may become good if we complete without failing
         } catch (e) {
             if (e !== RefineException)
                 throw e;
-            t = (last + t) / 2; // reduce step size
+            step *= 0.5; // reduce step size
+            t = last + step;
         }
     }
     if (!tracingFailed) {
@@ -475,7 +479,7 @@ if (instanceInvocationArguments["enableTraceLog"]) {
     globalInstance["formatTraceLog"] = formatTraceLog;
 }
 
-function formatTraceLog() {
+function formatTraceLog(save) {
     var tbody = '<tbody>' + traceLog.map(function(row) {
         var action = row[row.length - 1];
         var cls;
@@ -514,7 +518,8 @@ function formatTraceLog() {
     var html = '<html><head><title>Tracing report</title>' +
         '<style type="text/css">' + css + '</style></head><body>' +
         table1 + '</body></html>';
-    var blob = new Blob([html], {'type': 'text/html'});
+    var type = save ? 'application/octet-stream' : 'text/html';
+    var blob = new Blob([html], {'type': type});
     var uri = window.URL.createObjectURL(blob);
     // var uri = 'data:text/html;base64,' + window.btoa(html);
     return uri;
