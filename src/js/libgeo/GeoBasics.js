@@ -464,7 +464,7 @@ function trace() {
 }
 
 function tracingStateReport(failed) {
-    var arg = instanceInvocationArguments['tracingStateReport'];
+    var arg = instanceInvocationArguments.tracingStateReport;
     if (typeof arg === "string") {
         document.getElementById(arg).textContent =
             failed ? "BAD" : "GOOD";
@@ -474,9 +474,9 @@ function tracingStateReport(failed) {
 var traceLog = null;
 var traceLogRow = [];
 
-if (instanceInvocationArguments["enableTraceLog"]) {
+if (instanceInvocationArguments.enableTraceLog) {
     traceLog = [];
-    globalInstance["formatTraceLog"] = formatTraceLog;
+    globalInstance.formatTraceLog = formatTraceLog;
 }
 
 function formatTraceLog(save) {

@@ -860,7 +860,7 @@ geoOps._helper.tracing2 = function(n1, n2) {
         traceLogRow[tlc++] = niceprint(o2);
         debug = function(msg) {
             traceLogRow[tlc++] = msg;
-        }
+        };
     }
     if (List._helper.isNaN(n1) || List._helper.isNaN(n2)) {
         // Something went very wrong, numerically speaking. We have no
@@ -894,7 +894,7 @@ geoOps._helper.tracing2 = function(n1, n2) {
         // Neither old nor new position looks singular, so there was
         // an avoidable singularity along the way. Refine to avoid it.
         if (noMoreRefinements)
-            debug("Reached refinement limit, giving up.")
+            debug("Reached refinement limit, giving up.");
         else
             debug("Need to refine.");
         requestRefinement();
