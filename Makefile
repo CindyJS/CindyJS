@@ -53,7 +53,7 @@ NODE_PATH:=$(if $(NPM_DEP),PATH=$(dir $(NPM_DEP)):$$PATH,)
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE:=node
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
-NODE_MODULES:=source-map marked http-proxy rewire should
+NODE_MODULES:=source-map marked http-proxy rewire should expect
 NODE_BINARIES:=js-beautify jshint mocha
 
 download/arch/$(NODE_TAR):
@@ -164,6 +164,7 @@ tests: nodetest
 unittests: node_modules/.bin/mocha \
 		node_modules/rewire/package.json \
 		node_modules/should/package.json \
+		node_modules/expect/package.json \
 		build/js/exposed.js \
 		$(wildcard tests/*.js)
 	$(NODE_PATH) $< tests

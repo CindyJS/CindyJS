@@ -1,21 +1,10 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-       "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<title>CSNumber Tests</title>
-</head>
-<body>
-<link rel="shortcut icon" type="image/png" href="jasmine/lib/jasmine-2.0.3/jasmine_favicon.png">
-<link rel="stylesheet" type="text/css" href="jasmine/lib/jasmine-2.0.3/jasmine.css"> 
+var expect = require("expect");
+var rewire = require("rewire");
 
-<script type="text/javascript" src="jasmine/lib/jasmine-2.0.3/jasmine.js"></script>
-<script type="text/javascript" src="jasmine/lib/jasmine-2.0.3/jasmine-html.js"></script>
-<script type="text/javascript" src="jasmine/lib/jasmine-2.0.3/boot.js"></script>
-<script type="text/javascript" src="../CSNumber.js"></script>
+var cindyJS = rewire("../build/js/exposed.js");
 
-
-<script type="text/javascript">
-
+var List = cindyJS.__get__("List");
+var CSNumber = cindyJS.__get__("CSNumber");
 
 var bigNum = 1e8;
 var eps = 1e-8;
@@ -234,6 +223,3 @@ describe("Trigonometry", function() {
   });
 
 });
-</script>
-</body>
-</html>
