@@ -40,10 +40,6 @@ describe("Basic Operations", function() {
     expect(CSNumber._helper.isEqual(a,a)).toBe(true);
   });
 
-  it("a.clone = a", function() {
-    expect(CSNumber._helper.isEqual(CSNumber.clone(a),a)).toBe(true);
-  });
-
   it("argmax", function() {
     var max = CSNumber.argmax(f_a,f_b);
     expect(CSNumber._helper.isEqual(max,f_a)).toBe(true);
