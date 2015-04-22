@@ -843,7 +843,7 @@ geoOps._helper.tracing2 = function(n1, n2) {
     putStateComplexVector(res[0]);
     putStateComplexVector(res[1]);
 
-    var debug = function() { };
+    var debug = function() {};
     // debug = console.log.bind(console);
     var tlc = 5;
     if (traceLog) {
@@ -858,7 +858,9 @@ geoOps._helper.tracing2 = function(n1, n2) {
         traceLogRow[tlc++] = niceprint(res[1]);
         traceLogRow[tlc++] = niceprint(o1);
         traceLogRow[tlc++] = niceprint(o2);
-        debug = function(msg) { traceLogRow[tlc++] = msg; }
+        debug = function(msg) {
+            traceLogRow[tlc++] = msg;
+        }
     }
     if (List._helper.isNaN(n1) || List._helper.isNaN(n2)) {
         // Something went very wrong, numerically speaking. We have no
@@ -866,7 +868,7 @@ geoOps._helper.tracing2 = function(n1, n2) {
         // assume it won't and give up.
         debug("Tracing failed due to NaNs.");
         tracingFailed = true;
-    } else if (do1o2 > cost*security && dn1n2 > cost*security) {
+    } else if (do1o2 > cost * security && dn1n2 > cost * security) {
         // Distance within matching considerably smaller than distance
         // across matching, so we could probably match correctly.
         debug("Normal case, everything all right.");

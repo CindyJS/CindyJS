@@ -413,8 +413,7 @@ function trace() {
             if (last === -1 && t === 1) {
                 traceLogRow[0] = niceprint(lastGoodParam);
                 traceLogRow[1] = niceprint(targetParam);
-            }
-            else {
+            } else {
                 traceLogRow[0] = "";
                 traceLogRow[1] = "";
             }
@@ -472,7 +471,8 @@ function tracingStateReport(failed) {
     }
 }
 
-var traceLog = null, traceLogRow = [];
+var traceLog = null;
+var traceLogRow = [];
 
 if (instanceInvocationArguments["enableTraceLog"]) {
     traceLog = [];
@@ -497,9 +497,11 @@ function formatTraceLog(save) {
             return '<td>' + cell + '</td>';
         }).join('') + '</tr>\n';
     }).join('') + '</tbody>';
-    var cols = ['lastGoodParam', 'targetParam', 'last', 't', 'param',
-                'do1n1', 'do1n2', 'do2n1', 'do2n2', 'do1o2', 'dn1n2', 'cost',
-                'n1', 'n2', 'o1', 'o2', 'case'];
+    var cols = [
+        'lastGoodParam', 'targetParam', 'last', 't', 'param',
+        'do1n1', 'do1n2', 'do2n1', 'do2n2', 'do1o2', 'dn1n2', 'cost',
+        'n1', 'n2', 'o1', 'o2', 'case'
+    ];
     var thead = '<thead>' + cols.map(function(cell) {
         return '<th>' + cell + '</th>';
     }).join('') + '</thead>';
@@ -519,7 +521,9 @@ function formatTraceLog(save) {
         '<style type="text/css">' + css + '</style></head><body>' +
         table1 + '</body></html>';
     var type = save ? 'application/octet-stream' : 'text/html';
-    var blob = new Blob([html], {'type': type});
+    var blob = new Blob([html], {
+        'type': type
+    });
     var uri = window.URL.createObjectURL(blob);
     // var uri = 'data:text/html;base64,' + window.btoa(html);
     return uri;
