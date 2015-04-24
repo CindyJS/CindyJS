@@ -403,7 +403,16 @@ function trace() {
     var parameterPath = opMover.parameterPath || defaultParameterPath;
     stateRevertToGood();
     var lastGoodParam = move.lastGoodParam;
-    opMover.computeParametersOnInput(mover, lastGoodParam);
+    try {
+        opMover.computeParametersOnInput(mover, lastGoodParam);
+    } catch (e) {
+        if (e !== RefineException)
+            throw e;
+        // The parameter computation may explicitely forbid a
+        // single-step interpolation. PointOnCircle does that.
+        step = 0.05;
+        t = last + step;
+    }
     var targetParam = mover.param; // not cloning, must not get modified
     tracingFailed = false;
     while (last !== t) {
@@ -475,7 +484,7 @@ var traceLog = null;
 var traceLogRow = [];
 
 if (instanceInvocationArguments.enableTraceLog) {
-    traceLog = [];
+    traceLog = [traceLogRow];
     globalInstance.formatTraceLog = formatTraceLog;
 }
 

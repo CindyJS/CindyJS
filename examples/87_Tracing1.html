@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Cindy JS Example</title>
+<title>Tracing test 1</title>
 <meta charset="UTF-8">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script type="text/javascript">
@@ -14,6 +14,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
   defaultAppearance: {},
   enableTraceLog: true,
   tracingStateReport: "tracingStateReport",
+  grid: 1,
   geometry: [
     {name:"A", type:"Free", pos:[0,0]},
     {name:"a", type:"Through", args:["A"], dir:[1,1,0]},
@@ -24,7 +25,8 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
     {name:"E", type:"Free", pos:[-2,-3]},
     {name:"C0", type:"CircleMr", args:["E"], radius:2},
     {name:"Fs", type:"IntersectLC", args:["a","C0"]},
-    {name:"F", type:"SelectP", args:["Fs"], index:1},
+    {name:"F", type:"SelectP", args:["Fs"], index:1, color:[0,1,0]},
+    {name:"G", type:"PointOnCircle", args:["C0"], pos:[0,-3], color:[1,1,0]},
   ] // End of geometry array.
 });
 

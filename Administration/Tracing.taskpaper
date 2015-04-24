@@ -14,6 +14,8 @@ Sachen, die uns beim Tracing-Krams aufgefallen sind.
 - Wieso haben wir Polar, aber nicht Pole?
 - Sollte in mehr Fallunterscheidungen kind==="S" wie kind==="L" behandelt werden?
 - MV_LA1_Bsp1_4.html nimmt nicht PointOnCircle, pinnt die Kreisradien nicht, und hat daher manchmal den Punkt nicht auf dem Kreis.
+- Sollte PointOnCircle eher PointsOnCircle gefolgt von SelectP sein?
+- Wollen wir einen Bechanismus, um komplexere Befehle aus einfacheren aufzubauen?
 
 Fragen:
 
@@ -62,4 +64,6 @@ Nächste Schritte:
 - Tracing für alle mehrwertigen Operationen verifizieren
 - Halbfreie Elemente mit State ausstatten
 - Operationen auf korrekten umgang mit komplexen Umwegen überprüfen
+- Überprüfen, ob Interpolationspfade immer sinnvoll sind, incl. Vorzeichen
 - Die Bestandteile einer GeoOp dokumentieren
+- „el.parameter = …“ in return „…“ übersetzen

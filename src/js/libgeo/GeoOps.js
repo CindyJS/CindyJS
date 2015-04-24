@@ -185,45 +185,71 @@ geoOps.PointOnLine.updatePosition = function(el) {
 
 geoOps.PointOnCircle = {};
 geoOps.PointOnCircle.kind = "P";
-geoOps.PointOnCircle.circleMidpoint = function(circle) {
-    var c = csgeo.csnames[circle];
-    var pts = geoOps._helper.IntersectLC(List.linfty, c.matrix);
-    var ln1 = General.mult(c.matrix, pts[0]);
-    var ln2 = General.mult(c.matrix, pts[1]);
-    return List.normalizeZ(List.cross(ln1, ln2));
+geoOps.PointOnCircle.computeParametersOnScript = function(el, pos) {
+    // Would probably need to set some state.
+    throw "This operation is not implemented yet.";
 };
-geoOps.PointOnCircle.computeParametersOnInput = function(el) {
-    var mid = geoOps.PointOnCircle.circleMidpoint(el.args[0]);
-    var xx = mid.value[0].value.real - mouse.x - move.offset.x;
-    var yy = mid.value[1].value.real - mouse.y - move.offset.y;
-    el.angle = CSNumber.real(Math.atan2(-yy, -xx));
+geoOps.PointOnCircle.computeParametersOnInput = function(el, last) {
+    var sx = mouse.x + move.offset.x;
+    var sy = mouse.y + move.offset.y;
+    var pos = List.realVector([sx, sy, 1]);
+    var circle = csgeo.csnames[el.args[0]];
+    var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+    var dir = List.sub(pos, mid);
+    stateInIdx = el.stateIdx;
+    var oldpos = List.normalizeZ(getStateComplexVector(3));
+    stateInIdx = el.stateIdx;
+    var olddir = List.sub(oldpos, mid);
+    var oldSign = CSNumber.sub(
+        CSNumber.mult(last.value[0], olddir.value[1]),
+        CSNumber.mult(last.value[1], olddir.value[0]));
+    console.log(oldSign.value.real + " " + niceprint(olddir) + " " + niceprint(last));
+    if (oldSign.value.real < 0)
+        dir = List.neg(dir);
+    // if oldSign > 0 then last[0], last[1]
+    // is a positive multiple of olddir[1], -olddir[0]
+    el.param = List.turnIntoCSList([
+        dir.value[1],
+        CSNumber.neg(dir.value[0]),
+        CSNumber.zero]);
+    // TODO: Detect situations where we don't have to trace.
+    throw RefineException; // Always trace this for now.
 };
-geoOps.PointOnCircle.updatePosition = function(el) { //TODO was ist hier zu tun damit das stabil bei tracen bleibt
-    var c = csgeo.csnames[el];
-    var mid = geoOps.PointOnCircle.circleMidpoint(el.args[0]);
-    var angle = el.angle;
-
-    var pt = List.turnIntoCSList([CSNumber.cos(angle), CSNumber.sin(angle), CSNumber.real(0)]);
-    pt = List.scalmult(CSNumber.real(10), pt);
-    pt = List.add(mid, pt);
-
-    var ln = List.cross(pt, mid);
-    var ints = geoOps._helper.IntersectLC(ln, c.matrix); //TODO richtiges Tracing einbauen!!!
-    var int1 = List.normalizeZ(ints[0]);
-    var int2 = List.normalizeZ(ints[1]);
-    var d1 = List.abs2(List.sub(pt, int1));
-    var d2 = List.abs2(List.sub(pt, int2));
-
-    var erg = ints[0];
-    if (d1.value.real > d2.value.real) {
-        erg = ints[1];
+geoOps.PointOnCircle.updatePosition = function(el) {
+    var circle = csgeo.csnames[el.args[0]];
+    var diameter, candidates, pos, other;
+    if (tracingInitial) {
+        pos = List.normalizeZ(el.param);
+        var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+        var dir = List.sub(pos, mid);
+        el.param = List.turnIntoCSList([
+            dir.value[1],
+            CSNumber.neg(dir.value[0]),
+            CSNumber.zero]);
+        diameter = List.cross(pos, mid);
+        candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
+        var d0 = List.projectiveDistMinScal(pos, candidates[0]);
+        var d1 = List.projectiveDistMinScal(pos, candidates[1]);
+        if (d1 < d0) {
+            pos = candidates[1];
+            other = candidates[0];
+        } else {
+            pos = candidates[0];
+            other = candidates[1];
+        }
+        stateOutIdx = el.stateIdx;
+        putStateComplexVector(pos);
+        putStateComplexVector(other);
+    } else {
+        console.log(niceprint(el.param));
+        diameter = List.productMV(circle.matrix, el.param);
+        candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
+        candidates = tracing2(candidates[0], candidates[1]);
+        pos = List.normalizeMax(candidates.value[0]);
     }
-
-
-    el.homog = erg;
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Point");
+    el.homog = General.withUsage(pos, "Point");
 };
+geoOps.PointOnCircle.tracingStateSize = tracing2.stateSize;
 
 
 geoOps.PointOnSegment = {};
@@ -625,7 +651,7 @@ geoOps.ConicBy3p2l.updatePosition = function(el) {
     if (oldVecs === undefined) {
         el.tracing = newVecs;
     } else {
-        var m = geoOps._helper.tracingSesq(oldVecs, newVecs);
+        var m = tracingSesq(oldVecs, newVecs);
         for (i = 0; i < 4; ++i) {
             el.tracing[i] = newVecs[m[i]];
         }
@@ -656,7 +682,7 @@ geoOps.ConicBy2p3l.updatePosition = function(el) {
     if (oldVecs === undefined) {
         el.tracing = newVecs;
     } else {
-        var m = geoOps._helper.tracingSesq(oldVecs, newVecs);
+        var m = tracingSesq(oldVecs, newVecs);
         for (i = 0; i < 4; ++i) {
             el.tracing[i] = newVecs[m[i]];
         }
@@ -809,191 +835,6 @@ geoOps.Polar.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
-geoOps._helper.tracing2 = function(n1, n2) {
-    var security = 3;
-
-    var o1 = getStateComplexVector(3);
-    var o2 = getStateComplexVector(3);
-
-    if (tracingInitial) {
-        putStateComplexVector(n1);
-        putStateComplexVector(n2);
-        return List.turnIntoCSList([n1, n2]);
-    }
-
-    var do1n1 = List.projectiveDistMinScal(o1, n1);
-    var do1n2 = List.projectiveDistMinScal(o1, n2);
-    var do2n1 = List.projectiveDistMinScal(o2, n1);
-    var do2n2 = List.projectiveDistMinScal(o2, n2);
-    var do1o2 = List.projectiveDistMinScal(o1, o2);
-    var dn1n2 = List.projectiveDistMinScal(n1, n2);
-    var cost1 = do1n1 + do2n2;
-    var cost2 = do1n2 + do2n1;
-    var cost, res;
-
-    // Always sort output: we don't know yet whether it's correct, but
-    // it's our best bet.
-    if (cost1 > cost2) {
-        res = [n2, n1];
-        cost = cost2;
-    } else {
-        res = [n1, n2];
-        cost = cost1;
-    }
-    putStateComplexVector(res[0]);
-    putStateComplexVector(res[1]);
-
-    var debug = function() {};
-    // debug = console.log.bind(console);
-    var tlc = 5;
-    if (traceLog) {
-        traceLogRow[tlc++] = do1n1;
-        traceLogRow[tlc++] = do1n2;
-        traceLogRow[tlc++] = do2n1;
-        traceLogRow[tlc++] = do2n2;
-        traceLogRow[tlc++] = do1o2;
-        traceLogRow[tlc++] = dn1n2;
-        traceLogRow[tlc++] = cost;
-        traceLogRow[tlc++] = niceprint(res[0]);
-        traceLogRow[tlc++] = niceprint(res[1]);
-        traceLogRow[tlc++] = niceprint(o1);
-        traceLogRow[tlc++] = niceprint(o2);
-        debug = function(msg) {
-            traceLogRow[tlc++] = msg;
-        };
-    }
-    if (List._helper.isNaN(n1) || List._helper.isNaN(n2)) {
-        // Something went very wrong, numerically speaking. We have no
-        // clue whether refining will make things any better, so we
-        // assume it won't and give up.
-        debug("Tracing failed due to NaNs.");
-        tracingFailed = true;
-    } else if (do1o2 > cost * security && dn1n2 > cost * security) {
-        // Distance within matching considerably smaller than distance
-        // across matching, so we could probably match correctly.
-        debug("Normal case, everything all right.");
-    } else if (dn1n2 < 1e-5) {
-        // New points too close: we presumably are inside a singularity.
-        if (do1o2 < 1e-5) { // Cinderella uses the constant 1e-6 here
-            // The last "good" position was already singular.
-            // Nothing we can do about this.
-            debug("Staying inside singularity.");
-        } else {
-            // We newly moved into the singularity. New position is
-            // not "good", but refining won't help since the endpoint
-            // is singular.
-            debug("Moved into singularity.");
-            tracingFailed = true;
-        }
-    } else if (do1o2 < 1e-5) { // Cinderella uses the constant 1e-6 here
-        // We just moved out of a singularity. Things can only get
-        // better. If the singular situation was "good", we stay
-        // "good", and keep track of things from now on.
-        debug("Moved out of singularity.");
-    } else {
-        // Neither old nor new position looks singular, so there was
-        // an avoidable singularity along the way. Refine to avoid it.
-        if (noMoreRefinements)
-            debug("Reached refinement limit, giving up.");
-        else
-            debug("Need to refine.");
-        requestRefinement();
-    }
-    return List.turnIntoCSList(res);
-};
-geoOps._helper.tracing2.stateSize = 12; // two three-element complex vectors
-
-geoOps._helper.tracing2X = function(n1, n2, c1, c2, el) {
-    var OK = 0;
-    var DECREASE_STEP = 1;
-    var INVALID = 2;
-    var tooClose = el.tooClose || OK;
-    var security = 3;
-
-    var do1n1 = List.projectiveDistMinScal(c1, n1);
-    var do1n2 = List.projectiveDistMinScal(c1, n2);
-    var do2n1 = List.projectiveDistMinScal(c2, n1);
-    var do2n2 = List.projectiveDistMinScal(c2, n2);
-    var do1o2 = List.projectiveDistMinScal(c1, c2);
-    var dn1n2 = List.projectiveDistMinScal(n1, n2);
-
-    //Das Kommt jetzt eins zu eins aus Cindy
-
-    var care = (do1o2 > 0.000001);
-
-    // First we try to assign the points
-
-    if (do1o2 / security > do1n1 + do2n2 && dn1n2 / security > do1n1 + do2n2) {
-        el.results = List.turnIntoCSList([n1, n2]); //Das ist "sort Output"
-        return OK + tooClose;
-    }
-
-    if (do1o2 / security > do1n2 + do2n1 && dn1n2 / security > do1n2 + do2n1) {
-        el.results = List.turnIntoCSList([n2, n1]); //Das ist "sort Output"
-        return OK + tooClose;
-    }
-
-    //  Maybe they are too close?
-
-    if (dn1n2 < 0.00001) {
-        // They are. Do we care?
-        if (care) {
-            tooClose = el.tooClose = INVALID;
-            el.results = List.turnIntoCSList([n1, n2]);
-            return OK + tooClose;
-        } else {
-            el.results = List.turnIntoCSList([n1, n2]);
-            return OK + tooClose;
-        }
-    }
-
-    // They are far apart. We care now.
-    if (!care || tooClose === INVALID) {
-        el.results = List.turnIntoCSList([n1, n2]); //Das ist "sort Output"
-        return OK + tooClose;
-    }
-    return DECREASE_STEP + tooClose;
-
-};
-
-geoOps._helper.tracingSesq = function(oldVecs, newVecs) {
-    /*
-     * Trace an arbitrary number of solutions, with an arbitrary
-     * dimension for the homogeneous solution vectors.
-     *
-     * Conceptually the cost function being used is the negated square
-     * of the absolute value of the sesquilinearproduct between two
-     * vectors normalized to unit norm. In practice, we avoid
-     * normalizing the vectors, and instead divide by the squared norm
-     * to avoid taking square roots.
-     */
-
-    var n = newVecs.length;
-    var oldNorms = new Array(n);
-    var newNorms = new Array(n);
-    var cost = new Array(n);
-    var i, j;
-    for (i = 0; i < n; ++i) {
-        oldNorms[i] = List.normSquared(oldVecs[i]).value.real;
-        newNorms[i] = List.normSquared(newVecs[i]).value.real;
-        cost[i] = new Array(n);
-    }
-    for (i = 0; i < n; ++i) {
-        for (j = 0; j < n; ++j) {
-            var p = List.sesquilinearproduct(oldVecs[i], newVecs[j]).value;
-            var w = (p.real * p.real + p.imag * p.imag) /
-                (oldNorms[i] * newNorms[j]);
-            cost[i][j] = -w;
-        }
-    }
-    var m = minCostMatching(cost);
-    //console.log(m.join(", ") + ": " +
-    //            cost.map(function(r){return r.join(", ")}).join("; "));
-
-    // TODO: signal wheter this decision is reliable
-    return m;
-};
-
 geoOps.angleBisector = {};
 geoOps.angleBisector.kind = "Ls";
 geoOps.angleBisector.updatePosition = function(el) {
@@ -1018,9 +859,9 @@ geoOps.angleBisector.updatePosition = function(el) {
     var erg1 = List.normalizeMax(List.cross(A1, OO));
     var erg2 = List.normalizeMax(List.cross(A2, OO));
 
-    el.results = geoOps._helper.tracing2(erg1, erg2);
+    el.results = tracing2(erg1, erg2);
 };
-geoOps.angleBisector.tracingStateSize = geoOps._helper.tracing2.stateSize;
+geoOps.angleBisector.tracingStateSize = tracing2.stateSize;
 
 geoOps._helper.IntersectLC = function(l, c) {
 
@@ -1075,9 +916,9 @@ geoOps.IntersectLC.updatePosition = function(el) {
     var erg = geoOps._helper.IntersectLC(l, c);
     var erg1 = erg[0];
     var erg2 = erg[1];
-    el.results = geoOps._helper.tracing2(erg1, erg2);
+    el.results = tracing2(erg1, erg2);
 };
-geoOps.IntersectLC.tracingStateSize = geoOps._helper.tracing2.stateSize;
+geoOps.IntersectLC.tracingStateSize = tracing2.stateSize;
 
 geoOps.IntersectCirCir = {};
 geoOps.IntersectCirCir.kind = "Ps";
@@ -1099,9 +940,9 @@ geoOps.IntersectCirCir.updatePosition = function(el) {
     var erg = geoOps._helper.IntersectLC(ll, c1);
     var erg1 = erg[0];
     var erg2 = erg[1];
-    el.results = geoOps._helper.tracing2(erg1, erg2);
+    el.results = tracing2(erg1, erg2);
 };
-geoOps.IntersectCirCir.tracingStateSize = geoOps._helper.tracing2.stateSize;
+geoOps.IntersectCirCir.tracingStateSize = tracing2.stateSize;
 
 
 geoOps._helper.IntersectConicConic = function(AA, BB) {
