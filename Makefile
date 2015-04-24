@@ -126,7 +126,14 @@ build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cin
 	$(NODE_CMD) $(filter %tools/apply-source-map.js,$^) -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
 
 build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
+	@echo 'last_js_compiler=$(js_compiler)' > build/js_compiler.mk
 	cp $< $@
+
+-include build/js_compiler.mk
+
+ifneq ($(js_compiler),$(last_js_compiler))
+.PHONY: build/js/Cindy.js
+endif
 
 ######################################################################
 ## Run jshint to detect syntax problems
