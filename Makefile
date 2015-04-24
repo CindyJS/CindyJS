@@ -285,8 +285,9 @@ GWT_modules = $(patsubst src/java/cindyjs/%.gwt.xml,%,$(wildcard src/java/cindyj
 
 define GWT_template
 
-GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $$(wildcard src/java/cindyjs/$(1)/*.java) $$(ANT_DEP)
+GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $$(wildcard src/java/cindyjs/$(1)/*.java) | $$(ANT_DEP)
 	cd GWT && $$(ANT_CMD:download/%=../download/%) -Dcjs.module=$(1)
+	touch $$@
 
 build/js/$(1)/$(1).nocache.js: GWT/war/$(1)/$(1).nocache.js
 	rm -rf build/js/$(1)
