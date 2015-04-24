@@ -1029,42 +1029,37 @@ geoOps._helper.IntersectLC = function(l, c) {
     var l2 = List.transpose(l1);
     var s = General.mult(l2, General.mult(c, l1));
 
-    var ax = s.value[0].value[0];
-    var ay = s.value[0].value[1];
-    var az = s.value[0].value[2];
-    var bx = s.value[1].value[0];
-    var by = s.value[1].value[1];
-    var bz = s.value[1].value[2];
-    var cx = s.value[2].value[0];
-    var cy = s.value[2].value[1];
-    var cz = s.value[2].value[2];
-
-    var xx = l.value[0];
-    var yy = l.value[1];
-    var zz = l.value[2];
-
-
-    var absx = N.abs(xx).value.real;
-    var absy = N.abs(yy).value.real;
-    var absz = N.abs(zz).value.real;
-
-    var alp;
-    if (absz >= absx && absz >= absy) {
-        alp = N.div(N.sqrt(N.sub(N.mult(ay, bx), N.mult(ax, by))), zz);
+    var maxidx = List.maxIndex(l, CSNumber.abs2);
+    var a11, a12, a21, a22, b;
+    if (maxidx === 0) { // x is maximal
+        a11 = s.value[1].value[1];
+        a12 = s.value[1].value[2];
+        a21 = s.value[2].value[1];
+        a22 = s.value[2].value[2];
+        b = l.value[0];
+    } else if (maxidx === 1) { // y is maximal
+        a11 = s.value[0].value[0];
+        a12 = s.value[0].value[2];
+        a21 = s.value[2].value[0];
+        a22 = s.value[2].value[2];
+        b = l.value[1];
+    } else { // z is maximal
+        a11 = s.value[0].value[0];
+        a12 = s.value[0].value[1];
+        a21 = s.value[1].value[0];
+        a22 = s.value[1].value[1];
+        b = l.value[2];
     }
-    if (absx >= absy && absx >= absz) {
-
-        alp = N.div(N.sqrt(N.sub(N.mult(bz, cy), N.mult(by, cz))), xx);
-    }
-    if (absy >= absx && absy >= absz) {
-        alp = N.div(N.sqrt(N.sub(N.mult(cx, az), N.mult(cz, ax))), yy);
-    }
+    var alp = N.div(N.sqrt(N.sub(N.mult(a12, a21), N.mult(a11, a22))), b);
     var erg = List.add(s, List.scalmult(alp, l1));
-    var erg1 = erg.value[0];
+
+    maxidx = List.maxIndex(erg, List.abs2);
+    var erg1 = erg.value[maxidx];
     erg1 = List.normalizeMax(erg1);
     erg1 = General.withUsage(erg1, "Point");
     erg = List.transpose(erg);
-    var erg2 = erg.value[0];
+    maxidx = List.maxIndex(erg, List.abs2);
+    var erg2 = erg.value[maxidx];
     erg2 = List.normalizeMax(erg2);
     erg2 = General.withUsage(erg2, "Point");
     return [erg1, erg2];

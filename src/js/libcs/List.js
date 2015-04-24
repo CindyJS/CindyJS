@@ -478,6 +478,24 @@ List.maxval = function(a) { //Only for Lists or Lists of Lists that contain numb
     return erg;
 };
 
+/**
+ * Return the index associated with the entry of maximal value
+ * @param lst  a List to be iterated over, must not be empty
+ * @param fun  a function to apply to each list element, must return a real value
+ * @return the index of the maximal element as a JavaScript number
+ */
+List.maxIndex = function(lst, fun) {
+    var bestIdx = 0, bestVal = fun(lst.value[0]).value.real;
+    for (var i = 1; i < lst.value.length; ++i) {
+        var v = fun(lst.value[i]).value.real;
+        if (v > bestVal) {
+            bestIdx = i;
+            bestVal = v;
+        }
+    }
+    return bestIdx;
+};
+
 List.normalizeMax = function(a) {
     var s = CSNumber.inv(List.maxval(a));
     return List.scalmult(s, a);
