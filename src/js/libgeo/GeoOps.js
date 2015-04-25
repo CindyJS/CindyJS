@@ -219,7 +219,7 @@ geoOps.PointOnCircle.parameterPath = function(el, tr, tc, src, dst) {
     src = List.normalizeAbs(src);
     dst = List.normalizeAbs(dst);
     var sp = List.scalproduct(src, dst);
-    if (!(sp.value.real < 0))
+    if (sp.value.real >= 0)
         return defaultParameterPath(el, tr, tc, src, dst);
     var mid = List.turnIntoCSList([
         CSNumber.sub(src.value[1], dst.value[1]),
