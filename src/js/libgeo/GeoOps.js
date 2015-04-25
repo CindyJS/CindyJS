@@ -210,7 +210,8 @@ geoOps.PointOnCircle.computeParametersOnInput = function(el, last) {
     el.param = List.turnIntoCSList([
         dir.value[1],
         CSNumber.neg(dir.value[0]),
-        CSNumber.zero]);
+        CSNumber.zero
+    ]);
     // TODO: Detect situations where we don't have to trace.
     throw RefineException; // Always trace this for now.
 };
@@ -259,7 +260,8 @@ geoOps.PointOnCircle.updatePosition = function(el) {
         el.param = List.turnIntoCSList([
             dir.value[1],
             CSNumber.neg(dir.value[0]),
-            CSNumber.zero]);
+            CSNumber.zero
+        ]);
         diameter = List.cross(pos, mid);
         candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
         var d0 = List.projectiveDistMinScal(pos, candidates[0]);

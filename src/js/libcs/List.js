@@ -485,7 +485,8 @@ List.maxval = function(a) { //Only for Lists or Lists of Lists that contain numb
  * @return the index of the maximal element as a JavaScript number
  */
 List.maxIndex = function(lst, fun) {
-    var bestIdx = 0, bestVal = fun(lst.value[0]).value.real;
+    var bestIdx = 0;
+    var bestVal = fun(lst.value[0]).value.real;
     for (var i = 1; i < lst.value.length; ++i) {
         var v = fun(lst.value[i]).value.real;
         if (v > bestVal) {
