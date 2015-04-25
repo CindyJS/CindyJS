@@ -506,6 +506,11 @@ List.normalizeZ = function(a) {
     return List.scalmult(s, a);
 };
 
+List.normalizeAbs = function(a) {
+    var s = CSNumber.inv(List.abs(a));
+    return List.scalmult(s, a);
+};
+
 List.max = function(a1, a2) {
 
     if (a1.value.length !== a2.value.length) {

@@ -203,7 +203,6 @@ geoOps.PointOnCircle.computeParametersOnInput = function(el, last) {
     var oldSign = CSNumber.sub(
         CSNumber.mult(last.value[0], olddir.value[1]),
         CSNumber.mult(last.value[1], olddir.value[0]));
-    console.log(oldSign.value.real + " " + niceprint(olddir) + " " + niceprint(last));
     if (oldSign.value.real < 0)
         dir = List.neg(dir);
     // if oldSign > 0 then last[0], last[1]
@@ -214,6 +213,31 @@ geoOps.PointOnCircle.computeParametersOnInput = function(el, last) {
         CSNumber.zero]);
     // TODO: Detect situations where we don't have to trace.
     throw RefineException; // Always trace this for now.
+};
+geoOps.PointOnCircle.parameterPath = function(el, tr, tc, src, dst) {
+    src = List.normalizeAbs(src);
+    dst = List.normalizeAbs(dst);
+    var sp = List.scalproduct(src, dst);
+    if (sp.value.real < 0) {
+        var mid = List.turnIntoCSList([
+            CSNumber.sub(src.value[1], dst.value[1]),
+            CSNumber.sub(dst.value[0], src.value[0]),
+            CSNumber.zero
+        ]);
+        sp = List.scalproduct(src, mid);
+        if (sp.value.real < 0)
+            mid = List.neg(mid);
+        var uc = CSNumber.sub(CSNumber.real(1), tc);
+        var tc2 = CSNumber.mult(tc, tc);
+        var uc2 = CSNumber.mult(uc, uc);
+        var tuc = CSNumber.mult(tc, uc);
+        var res = List.scalmult(uc2, src);
+        res = List.add(res, List.scalmult(tuc, mid));
+        res = List.add(res, List.scalmult(tc2, dst));
+        el.param = res;
+    } else {
+        return defaultParameterPath(el, tr, tc, src, dst);
+    }
 };
 geoOps.PointOnCircle.updatePosition = function(el) {
     var circle = csgeo.csnames[el.args[0]];
@@ -241,7 +265,6 @@ geoOps.PointOnCircle.updatePosition = function(el) {
         putStateComplexVector(pos);
         putStateComplexVector(other);
     } else {
-        console.log(niceprint(el.param));
         diameter = List.productMV(circle.matrix, el.param);
         candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
         candidates = tracing2(candidates[0], candidates[1]);

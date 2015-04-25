@@ -386,9 +386,9 @@ function requestRefinement() {
     else throw RefineException;
 }
 
-function defaultParameterPath(el, t, src, dst) {
+function defaultParameterPath(el, tr, tc, src, dst) {
     // src + t * (dst - src)
-    el.param = General.add(src, General.mult(t, General.sub(dst, src)));
+    el.param = General.add(src, General.mult(tc, General.sub(dst, src)));
 }
 
 function trace() {
@@ -410,7 +410,7 @@ function trace() {
             throw e;
         // The parameter computation may explicitely forbid a
         // single-step interpolation. PointOnCircle does that.
-        step = 0.05;
+        step = 0.55; // will take three steps if all goes well
         t = last + step;
     }
     var targetParam = mover.param; // not cloning, must not get modified
@@ -437,7 +437,7 @@ function trace() {
         noMoreRefinements = (last + 0.5 * step <= last);
         try {
             stateInIdx = stateOutIdx = mover.stateIdx;
-            parameterPath(mover, tc, lastGoodParam, targetParam);
+            parameterPath(mover, t, tc, lastGoodParam, targetParam);
             if (traceLog) traceLogRow[4] = niceprint(mover.param);
             opMover.updatePosition(mover);
             for (i = 0; i < deps.length; ++i) {
