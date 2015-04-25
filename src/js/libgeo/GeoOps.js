@@ -228,6 +228,18 @@ geoOps.PointOnCircle.parameterPath = function(el, tr, tc, src, dst) {
     sp = List.scalproduct(src, mid);
     if (sp.value.real < 0)
         mid = List.neg(mid);
+    var t2, dt;
+    if (tr < 0) {
+        tr = 2 * tr + 1;
+        t2 = tr * tr;
+        dt = 0.25 / (1 + t2);
+        tc = CSNumber.complex((2 * tr) * dt + 0.25, (1 - t2) * dt);
+    } else {
+        tr = 2 * tr - 1;
+        t2 = tr * tr;
+        dt = 0.25 / (1 + t2);
+        tc = CSNumber.complex((2 * tr) * dt + 0.75, (1 - t2) * dt);
+    }
     var uc = CSNumber.sub(CSNumber.real(1), tc);
     var tc2 = CSNumber.mult(tc, tc);
     var uc2 = CSNumber.mult(uc, uc);
