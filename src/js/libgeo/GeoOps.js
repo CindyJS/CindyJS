@@ -218,26 +218,24 @@ geoOps.PointOnCircle.parameterPath = function(el, tr, tc, src, dst) {
     src = List.normalizeAbs(src);
     dst = List.normalizeAbs(dst);
     var sp = List.scalproduct(src, dst);
-    if (sp.value.real < 0) {
-        var mid = List.turnIntoCSList([
-            CSNumber.sub(src.value[1], dst.value[1]),
-            CSNumber.sub(dst.value[0], src.value[0]),
-            CSNumber.zero
-        ]);
-        sp = List.scalproduct(src, mid);
-        if (sp.value.real < 0)
-            mid = List.neg(mid);
-        var uc = CSNumber.sub(CSNumber.real(1), tc);
-        var tc2 = CSNumber.mult(tc, tc);
-        var uc2 = CSNumber.mult(uc, uc);
-        var tuc = CSNumber.mult(tc, uc);
-        var res = List.scalmult(uc2, src);
-        res = List.add(res, List.scalmult(tuc, mid));
-        res = List.add(res, List.scalmult(tc2, dst));
-        el.param = res;
-    } else {
+    if (!(sp.value.real < 0))
         return defaultParameterPath(el, tr, tc, src, dst);
-    }
+    var mid = List.turnIntoCSList([
+        CSNumber.sub(src.value[1], dst.value[1]),
+        CSNumber.sub(dst.value[0], src.value[0]),
+        CSNumber.zero
+    ]);
+    sp = List.scalproduct(src, mid);
+    if (sp.value.real < 0)
+        mid = List.neg(mid);
+    var uc = CSNumber.sub(CSNumber.real(1), tc);
+    var tc2 = CSNumber.mult(tc, tc);
+    var uc2 = CSNumber.mult(uc, uc);
+    var tuc = CSNumber.mult(tc, uc);
+    var res = List.scalmult(uc2, src);
+    res = List.add(res, List.scalmult(tuc, mid));
+    res = List.add(res, List.scalmult(tc2, dst));
+    el.param = res;
 };
 geoOps.PointOnCircle.updatePosition = function(el) {
     var circle = csgeo.csnames[el.args[0]];
