@@ -123,7 +123,7 @@ geoOps.Vertical.updatePosition = function(el) {
 geoOps.Through = {};
 geoOps.Through.kind = "L";
 geoOps.Through.isMovable = true;
-geoOps.Through.computeParametersOnInit = function(el) {
+geoOps.Through.initialize = function(el) {
     el.param = General.wrap(el.dir);
 }
 geoOps.Through.computeParametersOnInput = function(el, last) {
@@ -146,7 +146,7 @@ geoOps.Through.updatePosition = function(el) {
 geoOps.Free = {};
 geoOps.Free.kind = "P";
 geoOps.Free.isMovable = true;
-geoOps.Free.computeParametersOnInit = function(el) {
+geoOps.Free.initialize = function(el) {
     var sx = el.sx || 0;
     var sy = el.sy || 0;
     var sz = el.sz || 1;
@@ -190,8 +190,10 @@ geoOps._helper.projectPointToLine = function(point, line) {
 geoOps.PointOnLine = {};
 geoOps.PointOnLine.kind = "P";
 geoOps.PointOnLine.isMovable = true;
-geoOps.PointOnLine.computeParametersOnInit =
-    geoOps.Free.computeParametersOnInit;
+geoOps.PointOnLine.initialize = function(el) {
+    geoOps.Free.initialize(el);
+    geoOps.PointOnLine.computeParameters(el);
+};
 geoOps.PointOnLine.computeParameters = function(el) {
     var l = csgeo.csnames[(el.args[0])].homog;
     var p = el.param;
@@ -205,6 +207,7 @@ geoOps.PointOnLine.computeParametersOnInput = function(el) {
     geoOps.PointOnLine.computeParameters(el);
 };
 geoOps.PointOnLine.updatePosition = function(el) {
+    console.log("param = " + niceprint(el.param));
     el.homog = General.withUsage(el.param, "Point");
 };
 
@@ -212,6 +215,33 @@ geoOps.PointOnLine.updatePosition = function(el) {
 geoOps.PointOnCircle = {};
 geoOps.PointOnCircle.kind = "P";
 geoOps.PointOnCircle.isMovable = true;
+geoOps.PointOnCircle.initialize = function(el) {
+    var circle = csgeo.csnames[el.args[0]];
+    geoOps.Free.initialize(el);
+    var pos = List.normalizeZ(el.param);
+    var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+    var dir = List.sub(pos, mid);
+    el.param = List.turnIntoCSList([
+        dir.value[1],
+        CSNumber.neg(dir.value[0]),
+        CSNumber.zero
+    ]);
+    var diameter = List.cross(pos, mid);
+    var candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
+    var d0 = List.projectiveDistMinScal(pos, candidates[0]);
+    var d1 = List.projectiveDistMinScal(pos, candidates[1]);
+    var pos, other;
+    if (d1 < d0) {
+        pos = candidates[1];
+        other = candidates[0];
+    } else {
+        pos = candidates[0];
+        other = candidates[1];
+    }
+    putStateComplexVector(pos);
+    putStateComplexVector(other);
+    tracingInitial = false; // force updatePosition to do proper matching
+};
 geoOps.PointOnCircle.computeParametersOnScript = function(el, pos) {
     // Would probably need to set some state.
     throw "This operation is not implemented yet.";
@@ -278,37 +308,10 @@ geoOps.PointOnCircle.parameterPath = function(el, tr, tc, src, dst) {
 };
 geoOps.PointOnCircle.updatePosition = function(el) {
     var circle = csgeo.csnames[el.args[0]];
-    var diameter, candidates, pos, other;
-    if (tracingInitial) {
-        geoOps.Free.computeParametersOnInit(el);
-        pos = List.normalizeZ(el.param);
-        var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
-        var dir = List.sub(pos, mid);
-        el.param = List.turnIntoCSList([
-            dir.value[1],
-            CSNumber.neg(dir.value[0]),
-            CSNumber.zero
-        ]);
-        diameter = List.cross(pos, mid);
-        candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
-        var d0 = List.projectiveDistMinScal(pos, candidates[0]);
-        var d1 = List.projectiveDistMinScal(pos, candidates[1]);
-        if (d1 < d0) {
-            pos = candidates[1];
-            other = candidates[0];
-        } else {
-            pos = candidates[0];
-            other = candidates[1];
-        }
-        stateOutIdx = el.stateIdx;
-        putStateComplexVector(pos);
-        putStateComplexVector(other);
-    } else {
-        diameter = List.productMV(circle.matrix, el.param);
-        candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
-        candidates = tracing2(candidates[0], candidates[1]);
-        pos = List.normalizeMax(candidates.value[0]);
-    }
+    var diameter = List.productMV(circle.matrix, el.param);
+    var candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
+    candidates = tracing2(candidates[0], candidates[1]);
+    var pos = List.normalizeMax(candidates.value[0]);
     el.homog = General.withUsage(pos, "Point");
 };
 geoOps.PointOnCircle.tracingStateSize = tracing2.stateSize;
@@ -317,6 +320,10 @@ geoOps.PointOnCircle.tracingStateSize = tracing2.stateSize;
 geoOps.PointOnSegment = {};
 geoOps.PointOnSegment.kind = "P";
 geoOps.PointOnSegment.isMovable = true;
+geoOps.PointOnSegment.initialize = function(el) {
+    geoOps.Free.initialize(el);
+    geoOps.PointOnSegment.computeParametersOnScript(el, el.param);
+};
 geoOps.PointOnSegment.computeParametersOnScript = function(el, pos) {
     var seg = csgeo.csnames[el.args[0]];
     var line = seg.homog;
@@ -334,12 +341,6 @@ geoOps.PointOnSegment.computeParametersOnInput = function(el) {
     var sy = mouse.y + move.offset.y;
     var pos = List.realVector([sx, sy, 1]);
     geoOps.PointOnSegment.computeParametersOnScript(el, pos);
-};
-geoOps.PointOnSegment.computeParameters = function(el) {
-    if (!el.param) {
-        geoOps.Free.computeParametersOnInit(el);
-        geoOps.PointOnSegment.computeParametersOnScript(el, el.param);
-    }
 };
 geoOps.PointOnSegment.updatePosition = function(el) {
     var seg = csgeo.csnames[el.args[0]];
@@ -407,6 +408,9 @@ geoOps.CircleMP.updatePosition = function(el) { //TODO Performance Checken. Das 
 geoOps.CircleMr = {};
 geoOps.CircleMr.kind = "C";
 geoOps.CircleMr.isMovable = true;
+geoOps.CircleMr.initialize = function(el) {
+    el.param = CSNumber.real(el.radius);
+};
 geoOps.CircleMr.computeParametersOnInput = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;
     var mid = List.normalizeZ(m);
@@ -414,9 +418,6 @@ geoOps.CircleMr.computeParametersOnInput = function(el) {
     var yy = mid.value[1].value.real - mouse.y;
     var rad = Math.sqrt(xx * xx + yy * yy);
     el.param = CSNumber.real(rad);
-};
-geoOps.CircleMr.computeParametersOnInit = function(el) {
-    el.param = CSNumber.real(el.radius);
 };
 geoOps.CircleMr.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;

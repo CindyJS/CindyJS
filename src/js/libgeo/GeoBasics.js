@@ -79,7 +79,7 @@ function csinit(gslp) {
     csgeo.csnames = {}; //Lookup für elemente mit über Namen
 
 
-    var k, l, f, el;
+    var k, l, f, el, op;
     var totalStateSize = 0;
 
     csgeo.points = [];
@@ -105,7 +105,11 @@ function csinit(gslp) {
             continue;
         }
         csgeo.csnames[el.name] = el;
-        var op = geoOps[el.type];
+        op = geoOps[el.type];
+        if (!op) {
+            console.error(el);
+            console.error("Operation " + el.type + " not implemented yet");
+        }
         el.kind = op.kind;
         el.stateIdx = totalStateSize;
         totalStateSize += op.tracingStateSize || 0;
@@ -137,16 +141,25 @@ function csinit(gslp) {
             segmentDefault(el);
             ctl += 1;
         }
-
-        var init = geoOps[el.type].computeParametersOnInit;
-        if (init)
-            init(el);
     }
-    stateLastGood = stateIn = new Float64Array(totalStateSize);
-    stateOut = new Float64Array(totalStateSize);
+    stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
+    var stateOutLater = new Float64Array(totalStateSize);
     stateSpare = new Float64Array(totalStateSize);
-    tracingInitial = true;
-    recalc();
+    // initially, stateIn and stateOut are the same, so that initialize can
+    // write some state and updatePosition can immediately use it
+    for (k = 0; k < gslp.length; k++) {
+        el = gslp[k];
+        op = geoOps[el.type];
+        tracingInitial = true; // might get reset by initialize
+        if (op.initialize) {
+            stateInIdx = stateOutIdx = el.stateIdx;
+            op.initialize(el);
+        }
+        stateInIdx = stateOutIdx = el.stateIdx;
+        op.updatePosition(el);
+        isShowing(el, op);
+    }
+    stateOut = stateOutLater;
     tracingInitial = false;
     guessIncidences();
 }
@@ -218,10 +231,6 @@ function recalc() {
     for (var k = 0; k < gslp.length; k++) {
         var el = gslp[k];
         var op = geoOps[el.type];
-        if (!op) {
-            console.error(el);
-            console.error("Operation " + el.type + " not implemented yet");
-        }
         stateInIdx = stateOutIdx = el.stateIdx;
         if (op.computeParameters)
             op.computeParameters(el);
