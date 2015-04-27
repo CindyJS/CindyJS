@@ -62,7 +62,7 @@ Nächste Schritte:
 - saveState und restoreState für adCSNumber einführen @Michael
 - stateSize für Operationen auf adCSNumber festlegen @Michael
 - Events an Tracing-Funktion weiterleiten @Martin @done(2015-04-16)
-- Sicherstellen, dass alle freien Elemente wieder bewegbar sind
+- Sicherstellen, dass alle freien Elemente wieder bewegbar sind @done(2015-04-27)
 - Tracing für alle mehrwertigen Operationen verifizieren
 - Halbfreie Elemente mit State ausstatten
 - Operationen auf korrekten umgang mit komplexen Umwegen überprüfen
