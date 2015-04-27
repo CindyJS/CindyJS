@@ -383,13 +383,16 @@ geoOps.CircleMr.computeParametersOnInput = function(el) {
     var xx = mid.value[0].value.real - mouse.x;
     var yy = mid.value[1].value.real - mouse.y;
     var rad = Math.sqrt(xx * xx + yy * yy);
-    el.radius = CSNumber.real(rad);
+    el.param = CSNumber.real(rad);
+};
+geoOps.CircleMr.computeParametersOnInit = function(el) {
+    el.param = el.radius;
 };
 geoOps.CircleMr.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;
     var mid = List.normalizeZ(m);
-    var r = el.radius;
-    var p = List.turnIntoCSList([r, CSNumber.real(0), CSNumber.real(0)]);
+    var r = el.param;
+    var p = List.turnIntoCSList([r, CSNumber.zero, CSNumber.zero]);
     p = List.add(p, mid);
     el.matrix = geoOps._helper.CircleMP(mid, p);
     el.matrix = List.normalizeMax(el.matrix);
