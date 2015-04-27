@@ -212,8 +212,9 @@ geoOps.PointOnCircle.computeParametersOnInput = function(el, last) {
         CSNumber.neg(dir.value[0]),
         CSNumber.zero
     ]);
-    // TODO: Detect situations where we don't have to trace.
-    throw RefineException; // Always trace this for now.
+    var sp = List.scalproduct(olddir, dir);
+    if (sp.value.real < 0)
+        throw RefineException;
 };
 geoOps.PointOnCircle.parameterPath = function(el, tr, tc, src, dst) {
     src = List.normalizeAbs(src);
