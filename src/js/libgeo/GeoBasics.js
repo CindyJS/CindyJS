@@ -85,6 +85,16 @@ function csinit(gslp) {
     // Das ist für alle gleich
     for (k = 0; k < gslp.length; k++) {
         el = gslp[k];
+        var macro = geoMacros[el.type];
+        if (macro) {
+            var expansion = macro(el).slice();
+            // Replace single element gslp[k] with all the elements
+            // from expansion, using gslp.splice(k, 1, expansion[0], ...)
+            expansion.splice(0, 0, k, 1);
+            gslp.splice.apply(gslp, expansion);
+            --k; // process the first expanded element
+            continue;
+        }
         csgeo.csnames[el.name] = el;
         var op = geoOps[el.type];
         el.kind = op.kind;

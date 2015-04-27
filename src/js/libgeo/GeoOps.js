@@ -400,21 +400,6 @@ geoOps.CircleMr.updatePosition = function(el) {
 };
 
 
-geoOps.CircleMFixedr = {};
-geoOps.CircleMFixedr.kind = "C";
-geoOps.CircleMFixedr.updatePosition = function(el) {
-    var m = csgeo.csnames[(el.args[0])].homog;
-    var mid = List.normalizeZ(m);
-
-    var r = el.radius;
-    var p = List.turnIntoCSList([r, CSNumber.real(0), CSNumber.real(0)]);
-
-    el.matrix = geoOps._helper.CircleMP(mid, p);
-    el.matrix = List.normalizeMax(el.matrix);
-    el.matrix = General.withUsage(el.matrix, "Circle");
-
-};
-
 geoOps._helper.getConicType = function(C) {
     var myEps = 1e-16;
     var adet = CSNumber.abs(List.det(C));
@@ -1148,4 +1133,20 @@ geoOps.TransformP.updatePosition = function(el) {
     var p = csgeo.csnames[(el.args[1])].homog;
     el.homog = List.normalizeMax(List.productMV(m, p));
     el.homog = General.withUsage(el.homog, "Point");
+};
+
+
+var geoMacros = {};
+
+/* Note: currently the expansion of a macro is simply included in the
+ * gslp.  This means that objects from the expansion will currently
+ * end up in the allpoints() resp. alllines() results.  It might make
+ * sense to actively excude elements from these by setting some flag,
+ * but that hasn't been implemented yet.
+ */
+
+geoMacros.CircleMFixedr = function(el) {
+    el.pinned = true;
+    el.type = "CircleMr";
+    return [el];
 };
