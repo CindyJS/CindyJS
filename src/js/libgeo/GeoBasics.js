@@ -82,6 +82,15 @@ function csinit(gslp) {
     var k, l, f, el;
     var totalStateSize = 0;
 
+    csgeo.points = [];
+    csgeo.lines = [];
+    csgeo.conics = [];
+    csgeo.free = [];
+    var ctp = 0;
+    var ctf = 0;
+    var ctl = 0;
+    var ctc = 0;
+
     // Das ist für alle gleich
     for (k = 0; k < gslp.length; k++) {
         el = gslp[k];
@@ -103,76 +112,30 @@ function csinit(gslp) {
         el.incidences = [];
         el.isshowing = true;
         el.movable = false;
-    }
-
-    csgeo.points = [];
-    csgeo.lines = [];
-    csgeo.conics = [];
-    csgeo.free = [];
-    csgeo.ctp = 0;
-    csgeo.ctf = 0;
-    csgeo.ctl = 0;
-    csgeo.ctc = 0;
-    var m = csport.drawingstate.matrix;
-
-    for (k = 0; k < gslp.length; k++) {
-        el = gslp[k];
+        if (op.isMovable) {
+            el.movable = true;
+            csgeo.free[ctf++] = el;
+        }
 
         if (el.kind === "P") {
-            csgeo.points[csgeo.ctp] = el;
+            csgeo.points[ctp] = el;
             pointDefault(el);
-            csgeo.ctp += 1;
+            ctp += 1;
         }
         if (el.kind === "L") {
-            csgeo.lines[csgeo.ctl] = el;
+            csgeo.lines[ctl] = el;
             lineDefault(el);
-            csgeo.ctl += 1;
+            ctl += 1;
         }
         if (el.kind === "C") {
-            csgeo.conics[csgeo.ctc] = el;
+            csgeo.conics[ctc] = el;
             lineDefault(el);
-            csgeo.ctc += 1;
+            ctc += 1;
         }
         if (el.kind === "S") {
-            csgeo.lines[csgeo.ctl] = el;
+            csgeo.lines[ctl] = el;
             segmentDefault(el);
-            csgeo.ctl += 1;
-        }
-
-        var ty = el.type;
-        if (ty === "Free" || ty === "PointOnLine" || ty === "PointOnCircle" || ty === "PointOnSegment") { //TODO generisch nach geoops ziehen
-            var sx = el.sx || 0;
-            var sy = el.sy || 0;
-            var sz = el.sz || 1;
-            if (el.pos) {
-                if (el.pos.length === 2) {
-                    sx = el.pos[0];
-                    sy = el.pos[1];
-                    sz = 1;
-                }
-                if (el.pos.length === 3) {
-                    sx = el.pos[0] / el.pos[2];
-                    sy = el.pos[1] / el.pos[2];
-                    sz = el.pos[2] / el.pos[2];
-                }
-            }
-            el.param = List.realVector([sx, sy, sz]);
-            el.isfinite = (sz !== 0);
-            el.ismovable = true;
-            if (ty === "PointOnCircle") {
-                el.angle = CSNumber.real(el.angle);
-            }
-            csgeo.free[csgeo.ctf] = el;
-            csgeo.ctf += 1;
-        }
-        if (ty === "CircleMr") {
-            csgeo.free[csgeo.ctf] = el;
-            csgeo.ctf += 1;
-        }
-        if (ty === "Through") {
-            el.param = General.wrap(el.dir);
-            csgeo.free[csgeo.ctf] = el;
-            csgeo.ctf += 1;
+            ctl += 1;
         }
 
         var init = geoOps[el.type].computeParametersOnInit;
