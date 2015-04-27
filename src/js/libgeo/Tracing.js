@@ -109,8 +109,7 @@ function trace() {
     var mover = move.mover;
     var deps = getGeoDependants(mover);
     var last = -1;
-    var t = 1;
-    var step = 2;
+    var step = 0.9;
     var i, el, op;
     var opMover = geoOps[mover.type];
     var parameterPath = opMover.parameterPath || defaultParameterPath;
@@ -121,11 +120,11 @@ function trace() {
     } catch (e) {
         if (e !== RefineException)
             throw e;
-        // The parameter computation may explicitely forbid a
-        // single-step interpolation. PointOnCircle does that.
+        // The parameter computation may explicitely request at
+        // least a third interpolation step. PointOnCircle does that.
         step = 0.55; // will take three steps if all goes well
-        t = last + step;
     }
+    var t = last + step;
     var targetParam = mover.param; // not cloning, must not get modified
     tracingFailed = false;
     while (last !== t) {

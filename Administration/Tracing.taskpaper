@@ -17,6 +17,7 @@ Sachen, die uns beim Tracing-Krams aufgefallen sind.
 - Sollte PointOnCircle eher PointsOnCircle gefolgt von SelectP sein?
 - Wollen wir einen Mechanismus, um komplexere Befehle aus einfacheren aufzubauen? @done(2015-04-27) geoMacros
 - Gibt es Situationen, wo wir die Mausposition direkt, ohne offset, verwenden wollen?
+- Will man rein reell laufen, wo das zu gehen scheint? Kann man das überhaupt sauber erkennen? Zumindest nicht naiv, siehe Tracing2.html.
 
 Fragen:
 

@@ -16,9 +16,9 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
   tracingStateReport: "tracingStateReport",
   grid: 1,
   geometry: [
-    {name:"A", type:"Free", pos:[-1,1]},
+    {name:"A", type:"Free", pos:[0,0]},
     {name:"a", type:"Through", args:["A"], dir:[1,0,0]},
-    {name:"B", type:"PointOnLine", args:["a"], pos:[1,1]},
+    {name:"B", type:"PointOnLine", args:["a"], pos:[3,0]},
     {name:"C0", type:"CircleMP", args:["A", "B"]},
     {name:"G", type:"PointOnCircle", args:["C0"], pos:[4,3], color:[1,1,0]},
   ] // End of geometry array.
