@@ -386,7 +386,7 @@ geoOps.CircleMr.computeParametersOnInput = function(el) {
     el.param = CSNumber.real(rad);
 };
 geoOps.CircleMr.computeParametersOnInit = function(el) {
-    el.param = el.radius;
+    el.param = CSNumber.real(el.radius);
 };
 geoOps.CircleMr.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].homog;

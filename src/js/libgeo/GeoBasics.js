@@ -165,8 +165,7 @@ function csinit(gslp) {
             csgeo.free[csgeo.ctf] = el;
             csgeo.ctf += 1;
         }
-        if (ty === "CircleMr" || ty === "CircleMFixedr") {
-            el.radius = CSNumber.real(el.radius);
+        if (ty === "CircleMr") {
             csgeo.free[csgeo.ctf] = el;
             csgeo.ctf += 1;
         }

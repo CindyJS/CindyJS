@@ -34,9 +34,9 @@ function getmover(mouse) {
             dy = p.value[1].value.real - mouse.y;
             dist = Math.sqrt(dx * dx + dy * dy);
             if (el.narrow & dist > 20 / sc) dist = 10000;
-        } else if (el.kind === "C") { //Must be Circle by Rad
+        } else if (el.kind === "C") { //Must be CircleMr
             var mid = csgeo.csnames[el.args[0]];
-            var rad = el.radius;
+            var rad = el.param;
             var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
             var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
             dx = xx - mouse.x;
