@@ -109,23 +109,15 @@ function trace() {
     var mover = move.mover;
     var deps = getGeoDependants(mover);
     var last = -1;
-    var step = 0.9;
+    var step = 0.9; // two steps with the *1.25 scaling used below
     var i, el, op;
     var opMover = geoOps[mover.type];
     var parameterPath = opMover.parameterPath || defaultParameterPath;
     stateRevertToGood();
     var lastGoodParam = move.lastGoodParam;
-    try {
-        opMover.computeParametersOnInput(mover, lastGoodParam);
-    } catch (e) {
-        if (e !== RefineException)
-            throw e;
-        // The parameter computation may explicitely request at
-        // least a third interpolation step. PointOnCircle does that.
-        step = 0.55; // will take three steps if all goes well
-    }
-    var t = last + step;
+    opMover.computeParametersOnInput(mover, lastGoodParam);
     var targetParam = mover.param; // not cloning, must not get modified
+    var t = last + step;
     tracingFailed = false;
     while (last !== t) {
         if (traceLog) {
