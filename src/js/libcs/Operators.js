@@ -141,7 +141,7 @@ evaluator.repeat$3 = function(args, modifs) { //OK
         }
 
     namespace.newvar(lauf);
-    var erg;
+    var erg = nada;
     for (var i = 0; i < n; i++) {
         namespace.setvar(lauf, {
             'ctype': 'number',
