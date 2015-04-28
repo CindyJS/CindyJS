@@ -161,7 +161,7 @@ function csinit(gslp) {
     }
     stateOut = stateOutLater;
     tracingInitial = false;
-    stateMakePermanent();
+    stateSync();
     guessIncidences();
 }
 

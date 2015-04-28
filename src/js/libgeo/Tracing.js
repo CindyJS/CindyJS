@@ -74,7 +74,7 @@ function stateContinueFromHere() {
  * buffers.  This is important in case the mover changes, since
  * otherwise the result from the current move might get lost again.
  */
-function stateMakePermanent() {
+function stateSync() {
     stateContinueFromHere();
     stateOut.set(stateLastGood);
     stateSpare.set(stateLastGood);
