@@ -19,6 +19,8 @@ Sachen, die uns beim Tracing-Krams aufgefallen sind.
 - Wollen wir einen Mechanismus, um komplexere Befehle aus einfacheren aufzubauen? @done(2015-04-27) geoMacros
 - Gibt es Situationen, wo wir die Mausposition direkt, ohne offset, verwenden wollen?
 - Will man rein reell laufen, wo das zu gehen scheint? Kann man das überhaupt sauber erkennen? Zumindest nicht naiv, siehe Tracing2.html.
+- Soll ConicBy2Foci1P wirklich zweiwertig sein? Wenn ja, soll das auch getraced werden?
+- Muss man immer den nächstgelegenen Repräsentanten nehmen, damit lineare Interpolation den kürzesten Pfad widerspiegelt? Was bedeutet das bei komplexwertigen Vektoren?
 
 Fragen:
 
@@ -64,10 +66,16 @@ Nächste Schritte:
 - stateSize für Operationen auf adCSNumber festlegen @Michael
 - Events an Tracing-Funktion weiterleiten @Martin @done(2015-04-16)
 - Sicherstellen, dass alle freien Elemente wieder bewegbar sind @done(2015-04-27)
-- Tracing für alle mehrwertigen Operationen verifizieren
-- Halbfreie Elemente mit State ausstatten
+- Tracing für IntersectConicConic implementieren
+- Tracing für ConicBy4p1l und ConicBy1p4l implementieren
+- Entweder ConicBy2Foci1P tracen oder auf zwei Funktionen aufteilen
+- tracingSesq mit State und Refinement-Handling ausstatten
+- Tracing für alle mehrwertigen Operationen durch Beispiele verifizieren
+- Tracing für alle mehrwertigen Operationen durch Unit Tests verifizieren
+- Halbfreie Elemente mit State ausstatten @done(2015-04-27)
 - Operationen auf korrekten umgang mit komplexen Umwegen überprüfen
 - Überprüfen, ob Interpolationspfade immer sinnvoll sind, incl. Vorzeichen
 - Die Bestandteile einer GeoOp dokumentieren
 - „el.parameter = …“ in return „…“ übersetzen @done(2015-04-27)
 - Kein tracing, so lange sich nichts bewegt @done(2015-04-27)
+- Zuweisungen an .xy oder .homog richtig machen
