@@ -732,20 +732,11 @@ geoOps.ConicBy3p2l.updatePosition = function(el) {
     var c = csgeo.csnames[(el.args[2])].homog;
     var g = csgeo.csnames[(el.args[3])].homog;
     var h = csgeo.csnames[(el.args[4])].homog;
-    var oldVecs = el.tracing;
     var newVecs = geoOps._helper.ConicBy3p2l(a, b, c, g, h);
-    var i;
-    if (oldVecs === undefined) {
-        el.tracing = newVecs;
-    } else {
-        var m = tracingSesq(oldVecs, newVecs);
-        for (i = 0; i < 4; ++i) {
-            el.tracing[i] = newVecs[m[i]];
-        }
-    }
+    newVecs = tracingSesq(newVecs);
     var res = new Array(4);
-    for (i = 0; i < 4; ++i) {
-        var v = el.tracing[i].value;
+    for (var i = 0; i < 4; ++i) {
+        var v = newVecs[i].value;
         res[i] = List.turnIntoCSList([
             List.turnIntoCSList([v[0], v[1], v[2]]),
             List.turnIntoCSList([v[1], v[3], v[4]]),
@@ -754,6 +745,7 @@ geoOps.ConicBy3p2l.updatePosition = function(el) {
     }
     el.results = res;
 };
+geoOps.ConicBy3p2l.tracingStateSize = 48;
 
 geoOps.ConicBy2p3l = {};
 geoOps.ConicBy2p3l.kind = "Cs";
@@ -765,18 +757,10 @@ geoOps.ConicBy2p3l.updatePosition = function(el) {
     var l = csgeo.csnames[(el.args[4])].homog;
     var oldVecs = el.tracing;
     var newVecs = geoOps._helper.ConicBy3p2l(g, h, l, a, b);
-    var i;
-    if (oldVecs === undefined) {
-        el.tracing = newVecs;
-    } else {
-        var m = tracingSesq(oldVecs, newVecs);
-        for (i = 0; i < 4; ++i) {
-            el.tracing[i] = newVecs[m[i]];
-        }
-    }
+    newVecs = tracingSesq(newVecs);
     var res = new Array(4);
-    for (i = 0; i < 4; ++i) {
-        var v = el.tracing[i].value;
+    for (var i = 0; i < 4; ++i) {
+        var v = newVecs[i].value;
         var dual = List.turnIntoCSList([
             List.turnIntoCSList([v[0], v[1], v[2]]),
             List.turnIntoCSList([v[1], v[3], v[4]]),
@@ -786,6 +770,7 @@ geoOps.ConicBy2p3l.updatePosition = function(el) {
     }
     el.results = res;
 };
+geoOps.ConicBy2p3l.tracingStateSize = 48;
 
 geoOps.ConicBy1p4l = {};
 geoOps.ConicBy1p4l.kind = "Cs";

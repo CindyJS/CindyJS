@@ -306,7 +306,7 @@ function tracing2(n1, n2) {
 }
 
 function tracing2core(n1, n2, o1, o2) {
-    var security = 3;
+    var safety = 3;
 
     if (tracingInitial)
         return [n1, n2];
@@ -356,7 +356,7 @@ function tracing2core(n1, n2, o1, o2) {
         // assume it won't and give up.
         debug("Tracing failed due to NaNs.");
         tracingFailed = true;
-    } else if (do1o2 > cost * security && dn1n2 > cost * security) {
+    } else if (do1o2 > cost * safety && dn1n2 > cost * safety) {
         // Distance within matching considerably smaller than distance
         // across matching, so we could probably match correctly.
         debug("Normal case, everything all right.");
@@ -396,7 +396,7 @@ function tracing2X(n1, n2, c1, c2, el) {
     var DECREASE_STEP = 1;
     var INVALID = 2;
     var tooClose = el.tooClose || OK;
-    var security = 3;
+    var safety = 3;
 
     var do1n1 = List.projectiveDistMinScal(c1, n1);
     var do1n2 = List.projectiveDistMinScal(c1, n2);
@@ -411,12 +411,12 @@ function tracing2X(n1, n2, c1, c2, el) {
 
     // First we try to assign the points
 
-    if (do1o2 / security > do1n1 + do2n2 && dn1n2 / security > do1n1 + do2n2) {
+    if (do1o2 / safety > do1n1 + do2n2 && dn1n2 / safety > do1n1 + do2n2) {
         el.results = List.turnIntoCSList([n1, n2]); //Das ist "sort Output"
         return OK + tooClose;
     }
 
-    if (do1o2 / security > do1n2 + do2n1 && dn1n2 / security > do1n2 + do2n1) {
+    if (do1o2 / safety > do1n2 + do2n1 && dn1n2 / safety > do1n2 + do2n1) {
         el.results = List.turnIntoCSList([n2, n1]); //Das ist "sort Output"
         return OK + tooClose;
     }
@@ -443,7 +443,7 @@ function tracing2X(n1, n2, c1, c2, el) {
     return DECREASE_STEP + tooClose;
 }
 
-function tracingSesq(oldVecs, newVecs) {
+function tracingSesq(newVecs) {
     /*
      * Trace an arbitrary number of solutions, with an arbitrary
      * dimension for the homogeneous solution vectors.
@@ -456,27 +456,96 @@ function tracingSesq(oldVecs, newVecs) {
      */
 
     var n = newVecs.length;
+    var i, j;
+
+    if (tracingInitial) {
+        for (i = 0; i < n; ++i)
+            putStateComplexVector(newVecs[i]);
+        return newVecs;
+    }
+
+    var oldVecs = new Array(n);
     var oldNorms = new Array(n);
     var newNorms = new Array(n);
+    var oldMinCost = 99;
+    var newMinCost = 99;
     var cost = new Array(n);
-    var i, j;
     for (i = 0; i < n; ++i) {
+        oldVecs[i] = getStateComplexVector(newVecs[i].value.length);
         oldNorms[i] = List.normSquared(oldVecs[i]).value.real;
         newNorms[i] = List.normSquared(newVecs[i]).value.real;
         cost[i] = new Array(n);
     }
+    var p, w;
     for (i = 0; i < n; ++i) {
         for (j = 0; j < n; ++j) {
-            var p = List.sesquilinearproduct(oldVecs[i], newVecs[j]).value;
-            var w = (p.real * p.real + p.imag * p.imag) /
+            p = List.sesquilinearproduct(oldVecs[i], newVecs[j]).value;
+            w = (p.real * p.real + p.imag * p.imag) /
                 (oldNorms[i] * newNorms[j]);
-            cost[i][j] = -w;
+            cost[i][j] = 1 - w;
+        }
+        for (j = i + 1; j < n; ++j) {
+            p = List.sesquilinearproduct(oldVecs[i], oldVecs[j]).value;
+            w = (p.real * p.real + p.imag * p.imag) /
+                (oldNorms[i] * oldNorms[j]);
+            if (oldMinCost > 1 - w)
+                oldMinCost = 1 - w;
+            p = List.sesquilinearproduct(newVecs[i], newVecs[j]).value;
+            w = (p.real * p.real + p.imag * p.imag) /
+                (newNorms[i] * newNorms[j]);
+            if (newMinCost > 1 - w)
+                newMinCost = 1 - w;
         }
     }
     var m = minCostMatching(cost);
-    //console.log(m.join(", ") + ": " +
-    //            cost.map(function(r){return r.join(", ")}).join("; "));
-
-    // TODO: signal wheter this decision is reliable
-    return m;
+    var res = new Array(n);
+    var resCost = 0;
+    var anyNaN = false;
+    for (i = 0; i < n; ++i) {
+        resCost += cost[i][m[i]];
+        var v = res[i] = newVecs[m[i]];
+        putStateComplexVector(v);
+        anyNaN |= List._helper.isNaN(v);
+    }
+    anyNaN |= isNaN(resCost);
+    var safety = 3;
+    var debug = function() {};
+    if (anyNaN) {
+        // Something went very wrong, numerically speaking. We have no
+        // clue whether refining will make things any better, so we
+        // assume it won't and give up.
+        debug("Tracing failed due to NaNs.");
+        tracingFailed = true;
+    } else if (oldMinCost > resCost * safety && newMinCost > resCost * safety) {
+        // Distance within matching considerably smaller than distance
+        // across matching, so we could probably match correctly.
+        debug("Normal case, everything all right.");
+    } else if (newMinCost < 1e-5) {
+        // New points too close: we presumably are inside a singularity.
+        if (oldMinCost < 1e-5) {
+            // The last "good" position was already singular.
+            // Nothing we can do about this.
+            debug("Staying inside singularity.");
+        } else {
+            // We newly moved into the singularity. New position is
+            // not "good", but refining won't help since the endpoint
+            // is singular.
+            debug("Moved into singularity.");
+            tracingFailed = true;
+        }
+    } else if (oldMinCost < 1e-5) {
+        // We just moved out of a singularity. Things can only get
+        // better. If the singular situation was "good", we stay
+        // "good", and keep track of things from now on.
+        debug("Moved out of singularity.");
+    } else {
+        // Neither old nor new position looks singular, so there was
+        // an avoidable singularity along the way. Refine to avoid it.
+        if (noMoreRefinements)
+            debug("Reached refinement limit, giving up.");
+        else
+            debug("Need to refine.");
+        requestRefinement();
+    }
+    return res;
 }
