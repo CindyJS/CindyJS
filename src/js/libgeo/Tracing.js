@@ -70,6 +70,17 @@ function stateContinueFromHere() {
 }
 
 /**
+ * Current state is now deemed good, and copied to all the state
+ * buffers.  This is important in case the mover changes, since
+ * otherwise the result from the current move might get lost again.
+ */
+function stateMakePermanent() {
+    stateContinueFromHere();
+    stateOut.set(stateLastGood);
+    stateSpare.set(stateLastGood);
+}
+
+/**
  * Make stateIn point to the last good state.
  * If it already does, there is nothing to do.
  */

@@ -160,7 +160,7 @@ function setuplisteners(canvas, data) {
 
     addAutoCleaningEventListener(canvas, "mouseup", function(e) {
         mouse.down = false;
-        stateContinueFromHere();
+        stateMakePermanent();
         cs_mouseup();
         updateCindy();
         e.preventDefault();
@@ -230,7 +230,7 @@ function setuplisteners(canvas, data) {
 
     function touchUp(e) {
         mouse.down = false;
-        stateContinueFromHere();
+        stateMakePermanent();
         updateCindy();
         cs_mouseup();
         e.preventDefault();
