@@ -80,6 +80,10 @@ function getmover(mouse) {
         mover: mov,
         lastGoodParam: mov.param, // not cloning, must not get modified
         offset: diff,
+        prev: {
+            x: mouse.x,
+            y: mouse.y
+        }
     };
 }
 
@@ -283,8 +287,11 @@ function startit() {
 
 function updateCindy() {
     csport.reset();
-    if (move)
+    if (move && move.prev.x !== mouse.x && move.prev.y !== mouse.y) {
         trace();
+        move.prev.x = mouse.x;
+        move.prev.y = mouse.y;
+    }
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
     if (csgridsize !== 0)

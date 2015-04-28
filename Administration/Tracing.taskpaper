@@ -70,4 +70,4 @@ Nächste Schritte:
 - Überprüfen, ob Interpolationspfade immer sinnvoll sind, incl. Vorzeichen
 - Die Bestandteile einer GeoOp dokumentieren
 - „el.parameter = …“ in return „…“ übersetzen @done(2015-04-27)
-- Kein tracing, so lange sich nichts bewegt
+- Kein tracing, so lange sich nichts bewegt @done(2015-04-27)
