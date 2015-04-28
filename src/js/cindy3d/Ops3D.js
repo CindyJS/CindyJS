@@ -77,6 +77,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
       instances[name] = currentInstance = new Viewer(
         name, ccOpts, opts, api.addAutoCleaningEventListener);
     }
+    currentInstance.clear();
     return nada;
   });
 
