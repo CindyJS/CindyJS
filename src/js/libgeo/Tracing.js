@@ -67,6 +67,17 @@ function stateContinueFromHere() {
         stateLastGood = stateIn;
         tracingStateReport(false);
     }
+
+    // Make numbers which are almost real totally real. This avoids
+    // accumulating errors in the imaginary part.
+    var n = stateLastGood.length;
+    var abs = Math.abs;
+    var epsInverse = 1e12;
+    for (var i = 0; i < n; i += 2) {
+        if (abs(stateLastGood[i]) > abs(stateLastGood[i+1])*epsInverse) {
+            stateLastGood[i+1] = 0;
+        }
+    }
 }
 
 /**
