@@ -422,6 +422,20 @@ List._helper.isAlmostReal = function(a1) {
     return erg;
 };
 
+List._helper.isAlmostZero = function(lst) {
+    for (var i = 0; i < lst.value.length; i++) {
+        var elt = lst.value[i];
+        if (elt.ctype === 'list') {
+            if (!List._helper.isAlmostZero(elt))
+                return false;
+        } else {
+            if (!CSNumber._helper.isAlmostZero(elt))
+                return false;
+        }
+    }
+    return true;
+};
+
 List._helper.isNaN = function(a1) {
     var erg = false;
     for (var i = 0; i < a1.value.length; i++) {

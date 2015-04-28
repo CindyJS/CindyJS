@@ -104,8 +104,9 @@ function defaultParameterPath(el, tr, tc, src, dst) {
     el.param = General.add(src, General.mult(tc, General.sub(dst, src)));
 }
 
+// var traceLimit = 100;
+
 function trace() {
-    //console.log(stateLastGood);
     var mover = move.mover;
     var deps = getGeoDependants(mover);
     var last = -1;
@@ -123,7 +124,7 @@ function trace() {
         if (traceLog) {
             traceLogRow = [];
             traceLog.push(traceLogRow);
-            if (last === -1 && t === 1) {
+            if ((last === -1 && t > -0.11) || (t === 1 && last < -0.09)) {
                 traceLogRow[0] = niceprint(lastGoodParam);
                 traceLogRow[1] = niceprint(targetParam);
             } else {
@@ -162,6 +163,13 @@ function trace() {
                 throw e;
             step *= 0.5; // reduce step size
             t = last + step;
+            /*
+            if (traceLimit === 0) {
+                tracingFailed = true;
+                break;
+            }
+            --traceLimit;
+            */
         }
     }
     if (!tracingFailed) {
@@ -267,16 +275,19 @@ function putStateComplexVector(v) {
 }
 
 function tracing2(n1, n2) {
-    var security = 3;
-
     var o1 = getStateComplexVector(3);
     var o2 = getStateComplexVector(3);
+    var res = tracing2core(n1, n2, o1, o2);
+    putStateComplexVector(res[0]);
+    putStateComplexVector(res[1]);
+    return List.turnIntoCSList(res);
+}
 
-    if (tracingInitial) {
-        putStateComplexVector(n1);
-        putStateComplexVector(n2);
-        return List.turnIntoCSList([n1, n2]);
-    }
+function tracing2core(n1, n2, o1, o2) {
+    var security = 3;
+
+    if (tracingInitial)
+        return [n1, n2];
 
     var do1n1 = List.projectiveDistMinScal(o1, n1);
     var do1n2 = List.projectiveDistMinScal(o1, n2);
@@ -297,8 +308,6 @@ function tracing2(n1, n2) {
         res = [n1, n2];
         cost = cost1;
     }
-    putStateComplexVector(res[0]);
-    putStateComplexVector(res[1]);
 
     var debug = function() {};
     // debug = console.log.bind(console);
@@ -356,7 +365,7 @@ function tracing2(n1, n2) {
             debug("Need to refine.");
         requestRefinement();
     }
-    return List.turnIntoCSList(res);
+    return res;
 }
 tracing2.stateSize = 12; // two three-element complex vectors
 

@@ -192,24 +192,52 @@ geoOps.PointOnLine.kind = "P";
 geoOps.PointOnLine.isMovable = true;
 geoOps.PointOnLine.initialize = function(el) {
     geoOps.Free.initialize(el);
-    geoOps.PointOnLine.computeParameters(el);
+    var point = el.param;
+    var line = csgeo.csnames[(el.args[0])].homog;
+    el.param = geoOps._helper.projectPointToLine(point, line);
 };
 geoOps.PointOnLine.computeParameters = function(el) {
-    var l = csgeo.csnames[(el.args[0])].homog;
-    var p = el.param;
-    el.param = geoOps._helper.projectPointToLine(p, l);
+    var line = csgeo.csnames[(el.args[0])].homog;
+    var oldLine = getStateComplexVector(3);
+    var oldPoint = getStateComplexVector(3);
+    var center = List.cross(line, oldLine);
+    //if (CSNumber._helper.isAlmostZero(List.scalproduct(line, oldPoint))) {
+    if (List._helper.isAlmostZero(center)) {
+        // line stayed (almost) the same
+        el.param = oldPoint;
+        putStateComplexVector(line);
+        putStateComplexVector(oldPoint);
+        // should we project to line to avoid accumulating errors?
+        return;
+    }
+    var circle = geoOps._helper.CircleMP(center, oldPoint);
+    var candidates = geoOps._helper.IntersectLC(line, circle);
+    var oldCandidates = geoOps._helper.IntersectLC(oldLine, circle);
+    var o1 = oldCandidates[0];
+    var o2 = oldCandidates[1];
+    var d1 = List.projectiveDistMinScal(oldPoint, o1);
+    var d2 = List.projectiveDistMinScal(oldPoint, o2);
+    if (d1 > d2) {
+        o1 = oldCandidates[1];
+        o2 = oldCandidates[0];
+    }
+    var res = tracing2core(candidates[0], candidates[1], o1, o2);
+    el.param = res[0];
 };
 geoOps.PointOnLine.computeParametersOnInput = function(el) {
     var sx = mouse.x + move.offset.x;
     var sy = mouse.y + move.offset.y;
-    el.param = List.realVector([sx, sy, 1]);
+    var point = List.realVector([sx, sy, 1]);
+    var line = csgeo.csnames[(el.args[0])].homog;
+    el.param = geoOps._helper.projectPointToLine(point, line);
     // TODO: snap to grid
-    geoOps.PointOnLine.computeParameters(el);
 };
 geoOps.PointOnLine.updatePosition = function(el) {
-    console.log("param = " + niceprint(el.param));
+    putStateComplexVector(csgeo.csnames[(el.args[0])].homog);
+    putStateComplexVector(el.param);
     el.homog = General.withUsage(el.param, "Point");
 };
+geoOps.PointOnLine.tracingStateSize = 12;
 
 
 geoOps.PointOnCircle = {};
