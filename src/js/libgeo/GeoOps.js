@@ -379,11 +379,15 @@ geoOps.CenterOfConic.updatePosition = function(el) {
 };
 
 geoOps._helper.CircleMP = function(m, p) {
-    var l1 = List.crossOperator(m);
-    var l2 = List.transpose(l1);
-
-
-    var tang = General.mult(l2, General.mult(List.fundDual, l1));
+    var x = m.value[0];
+    var y = m.value[1];
+    var mz = CSNumber.neg(m.value[2]);
+    var zero = CSNumber.zero;
+    var tang = List.turnIntoCSList([
+        List.turnIntoCSList([mz, zero, x]),
+        List.turnIntoCSList([zero, mz, y]),
+        List.turnIntoCSList([x, y, zero]),
+    ]);
     var mu = General.mult(General.mult(p, tang), p);
     var la = General.mult(General.mult(p, List.fund), p);
     var m1 = General.mult(mu, List.fund);

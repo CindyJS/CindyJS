@@ -7,7 +7,8 @@ Sachen, die uns beim Tracing-Krams aufgefallen sind.
 - kind (ehemals geoOpMap) ist "Tr" für TrProjection?
 - Bedingung "if (!move || move.mover === el) {" für PointOnSegment? @done(2015-04-16)
 - GeoOps._helper enthält operationsspezifische helper, z.B. GeoOps._helper.CenterOfConic
-- CircleMr kann keinen Fernpunkt als Mittelpunkt haben
+- CircleMP kann keinen Fernpunkt als Mittelpunkt haben @done(2015-04-28)
+- CircleMr kann keinen Fernpunkt als Mittelpunkt haben. Wobei, was sollte dabei rauskommen? @done(2015-04-28)
 - CircleMr kann keinen komplexen Radius
 - CircleMFixedr ist fast äquivalent zu CircleMr. Kann das als gepinnter CircleMr implementiert werden?
 - PointOnLine hat keinen mover, wie geht das? @done(2015-04-16)
