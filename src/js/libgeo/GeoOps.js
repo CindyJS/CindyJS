@@ -125,7 +125,7 @@ geoOps.Through.kind = "L";
 geoOps.Through.isMovable = true;
 geoOps.Through.initialize = function(el) {
     el.param = General.wrap(el.dir);
-}
+};
 geoOps.Through.computeParametersOnInput = function(el, last) {
     var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
     var xx = el1.value[0].value.real - mouse.x + move.offset.x;
@@ -163,7 +163,7 @@ geoOps.Free.initialize = function(el) {
         }
     }
     el.param = List.realVector([sx, sy, sz]);
-}
+};
 geoOps.Free.computeParametersOnInput = function(el) {
     var sx = mouse.x + move.offset.x;
     var sy = mouse.y + move.offset.y;
@@ -258,7 +258,7 @@ geoOps.PointOnCircle.initialize = function(el) {
     var candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
     var d0 = List.projectiveDistMinScal(pos, candidates[0]);
     var d1 = List.projectiveDistMinScal(pos, candidates[1]);
-    var pos, other;
+    var other;
     if (d1 < d0) {
         pos = candidates[1];
         other = candidates[0];
