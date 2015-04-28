@@ -153,7 +153,7 @@ function csinit(gslp) {
         tracingInitial = true; // might get reset by initialize
         if (op.initialize) {
             stateInIdx = stateOutIdx = el.stateIdx;
-            op.initialize(el);
+            el.param = op.initialize(el);
         }
         stateInIdx = stateOutIdx = el.stateIdx;
         op.updatePosition(el);
@@ -234,7 +234,7 @@ function recalc() {
         var op = geoOps[el.type];
         stateInIdx = stateOutIdx = el.stateIdx;
         if (op.computeParameters)
-            op.computeParameters(el);
+            el.param = op.computeParameters(el);
         op.updatePosition(el);
         isShowing(el, op);
     }

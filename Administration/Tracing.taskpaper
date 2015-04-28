@@ -69,5 +69,5 @@ Nächste Schritte:
 - Operationen auf korrekten umgang mit komplexen Umwegen überprüfen
 - Überprüfen, ob Interpolationspfade immer sinnvoll sind, incl. Vorzeichen
 - Die Bestandteile einer GeoOp dokumentieren
-- „el.parameter = …“ in return „…“ übersetzen
+- „el.parameter = …“ in return „…“ übersetzen @done(2015-04-27)
 - Kein tracing, so lange sich nichts bewegt

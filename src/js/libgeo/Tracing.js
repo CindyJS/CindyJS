@@ -74,8 +74,8 @@ function stateContinueFromHere() {
     var abs = Math.abs;
     var epsInverse = 1e12;
     for (var i = 0; i < n; i += 2) {
-        if (abs(stateLastGood[i]) > abs(stateLastGood[i+1])*epsInverse) {
-            stateLastGood[i+1] = 0;
+        if (abs(stateLastGood[i]) > abs(stateLastGood[i + 1]) * epsInverse) {
+            stateLastGood[i + 1] = 0;
         }
     }
 }
@@ -123,7 +123,7 @@ function requestRefinement() {
 
 function defaultParameterPath(el, tr, tc, src, dst) {
     // src + t * (dst - src)
-    el.param = General.add(src, General.mult(tc, General.sub(dst, src)));
+    return General.add(src, General.mult(tc, General.sub(dst, src)));
 }
 
 // var traceLimit = 100;
@@ -138,8 +138,7 @@ function trace() {
     var parameterPath = opMover.parameterPath || defaultParameterPath;
     stateRevertToGood();
     var lastGoodParam = move.lastGoodParam;
-    opMover.computeParametersOnInput(mover, lastGoodParam);
-    var targetParam = mover.param; // not cloning, must not get modified
+    var targetParam = opMover.computeParametersOnInput(mover, lastGoodParam);
     var t = last + step;
     tracingFailed = false;
     while (last !== t) {
@@ -164,7 +163,8 @@ function trace() {
         noMoreRefinements = (last + 0.5 * step <= last);
         try {
             stateInIdx = stateOutIdx = mover.stateIdx;
-            parameterPath(mover, t, tc, lastGoodParam, targetParam);
+            mover.param =
+                parameterPath(mover, t, tc, lastGoodParam, targetParam);
             if (traceLog) traceLogRow[4] = niceprint(mover.param);
             opMover.updatePosition(mover);
             for (i = 0; i < deps.length; ++i) {
@@ -172,7 +172,7 @@ function trace() {
                 op = geoOps[el.type];
                 stateInIdx = stateOutIdx = el.stateIdx;
                 if (op.computeParameters)
-                    op.computeParameters(el);
+                    el.param = op.computeParameters(el);
                 op.updatePosition(el);
             }
             last = t; // successfully traced up to t
