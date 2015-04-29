@@ -203,8 +203,11 @@ geoOps.PointOnLine.initialize = function(el) {
 };
 geoOps.PointOnLine.computeParameters = function(el) {
     var line = csgeo.csnames[(el.args[0])].homog;
+    var tmpIn = stateIn;
+    stateIn = stateLastGood;
     var oldLine = getStateComplexVector(3);
     var oldPoint = getStateComplexVector(3);
+    stateIn = tmpIn;
     var center = List.cross(line, oldLine);
     //if (CSNumber._helper.isAlmostZero(List.scalproduct(line, oldPoint))) {
     if (List._helper.isAlmostZero(center)) {
