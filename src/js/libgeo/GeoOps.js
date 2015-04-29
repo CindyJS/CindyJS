@@ -124,7 +124,10 @@ geoOps.Through = {};
 geoOps.Through.kind = "L";
 geoOps.Through.isMovable = true;
 geoOps.Through.initialize = function(el) {
-    return General.wrap(el.dir);
+    if (el.dir)
+        return General.wrap(el.dir);
+    else
+        return List.realVector([el.pos[1], -el.pos[0], 0]);
 };
 geoOps.Through.computeParametersOnInput = function(el, last) {
     var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
@@ -1134,9 +1137,25 @@ geoOps.IntersectConicConic.updatePosition = function(el) {
 
 geoOps.SelectP = {};
 geoOps.SelectP.kind = "P";
+geoOps.SelectP.initialize = function(el) {
+    if (el.index !== undefined)
+        return el.index - 1;
+    var set = csgeo.csnames[(el.args[0])].results.value;
+    var pos = geoOps.Free.initialize(el);
+    var d1 = List.projectiveDistMinScal(pos, set[0]);
+    var best = 0;
+    for (var i = 1; i < set.length; ++i) {
+        var d2 = List.projectiveDistMinScal(pos, set[i]);
+        if (d2 < d1) {
+            d1 = d2;
+            best = i;
+        }
+    }
+    return best;
+};
 geoOps.SelectP.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    el.homog = set.results.value[el.index - 1];
+    el.homog = set.results.value[el.param];
 };
 
 geoOps.SelectL = {};
@@ -1197,4 +1216,20 @@ geoMacros.CircleMFixedr = function(el) {
     el.pinned = true;
     el.type = "CircleMr";
     return [el];
+};
+
+geoMacros.CircleByRadius = function(el) {
+    el.type = "CircleMr";
+    return [el];
+};
+
+geoMacros.IntersectionConicLine = function(el) {
+    el.args = [el.args[1], el.args[0]];
+    el.type = "IntersectLC";
+    return [el];
+};
+
+geoMacros.Calculation = function(el) {
+    console.log("Calculation stripped from construction");
+    return [];
 };
