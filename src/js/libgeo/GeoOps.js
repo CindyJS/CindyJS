@@ -1229,6 +1229,11 @@ geoMacros.IntersectionConicLine = function(el) {
     return [el];
 };
 
+geoMacros.IntersectionCircleCircle = function(el) {
+    el.type = "IntersectCirCir";
+    return [el];
+};
+
 geoMacros.Calculation = function(el) {
     console.log("Calculation stripped from construction");
     return [];
