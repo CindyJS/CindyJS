@@ -27,6 +27,15 @@ function dehom3(v) {
 }
 
 /**
+ * @param {number} f
+ * @param {Array.<number>} v
+ * @return {Array.<number>}
+ */
+function scale3(f, v) {
+  return [f*v[0], f*v[1], f*v[2]];
+}
+
+/**
  * @param {Array.<number>} m
  * @return {Array.<number>}
  */

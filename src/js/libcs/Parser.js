@@ -93,8 +93,11 @@ function evaluateAndHomog(a) {
     }
 
     if (List._helper.isNumberVecN(x, 2)) {
-        var y = General.clone(x);
-        y.value[2] = CSNumber.real(1);
+        var y = List.turnIntoCSList([
+            x.value[0], x.value[1], CSNumber.real(1)
+        ]);
+        if (x.usage)
+            y = General.withUsage(y, x.usage);
         return y;
     }
 

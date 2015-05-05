@@ -46,9 +46,18 @@ At the moment the following events are defined:
 * `draw` for drawing the scene
 * `mousedown` invoked after a mouse button got pressed
 * `mousedrag` invoked when the mouse is moved
-* `mouseup`   invoked if the mouse button us released
-* `keydown` see the `keylistener` parameter
+* `mouseup` invoked if the mouse button is released
+* `keydown` invoked when a key is pressed, see the `keylistener` parameter
 * `tick` to perform a timed animation
+
+### keylistener
+
+If this property is `true`, then a key listener will be installed for the
+document containing the instance. This will mean that every key pressed while
+visiting that page will eventually end up in the CindyJS event handler.
+If this property is not set to `true` but there is a `keydown` script
+then the canvas will be made focusable, and will receive key events
+only when focused. To focus the canvas, click it or use the tab key.
 
 ### transform
 

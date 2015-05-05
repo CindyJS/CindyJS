@@ -179,3 +179,31 @@ Together with the operators `concat`, `remove`, and `common`, this can be used a
     < [2, 5]
 
 Note that set operations have linear time complexity.
+
+------
+
+#### Combinations: `combinations(‹list›, ‹int›)`
+
+Returns all combinations with the given number of elements chosen from the given list.
+
+    > combinations(1..5, 3)
+    < [[1, 2, 3], [1, 2, 4], [1, 2, 5], [1, 3, 4], [1, 3, 5], [1, 4, 5], [2, 3, 4], [2, 3, 5], [2, 4, 5], [3, 4, 5]]
+    > combinations(1..5, 0)
+    < [[]]
+    > combinations(1..5, 5)
+    < [[1, 2, 3, 4, 5]]
+    > combinations(1..5, 6)
+    < []
+
+The first argument may also be a number.
+In that case, only the number of combinations is returned.
+It will be correct even in many cases where a computation using naive factorials would overflow.
+
+    > combinations(30, 12)
+    < 86493225
+    > combinations(30, 0)
+    < 1
+    > combinations(30, 29)
+    < 30
+    > combinations(30, 32)
+    < 0

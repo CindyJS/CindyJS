@@ -483,6 +483,93 @@ labObjects.Sun = {
 };
 
 
+
+
+/*----------------------------GRAVITY--------------------------*/
+
+
+labObjects.Gravity = {
+
+    init: function(beh, elem) {
+        beh.vel = [0, 0, 0]; //TODO: Das wird später mal die Velocity
+        beh.pos = [0, 0, 0, 0]; //Position (homogen) 
+
+        beh.el = elem;
+        if (typeof(beh.strength) === 'undefined') beh.strength = 1;
+
+        beh.namea = elem.args[0];
+        beh.nameb = elem.args[1];
+        beh.ma = csgeo.csnames[beh.namea];
+        beh.mb = csgeo.csnames[beh.nameb];        
+
+    },
+
+    resetForces: function(beh) {},
+
+    getBlock: false,
+
+    setToTimestep: function(beh, j, a) {},
+
+    initRK: function(beh, dt) {
+
+    },
+
+    setVelocity: function(beh, vx, vy, vz) {},
+
+    move: function(beh) {},
+
+    proceedMotion: function(beh, dt, i, a) {},
+
+    calculateDelta: function(beh, i) {},
+
+
+    calculateForces: function(beh) {
+
+        var pta = eval_helper.extractPoint(beh.ma.homog);
+        var ptb = eval_helper.extractPoint(beh.mb.homog);
+
+        var  xa = pta.x;
+        var  ya = pta.y;
+        var  xb = ptb.x;
+        var  yb = ptb.y;
+
+        var fx = (xb-xa)*beh.strength;
+        var fy = (yb-ya)*beh.strength;
+        var fz = 0;
+        for (var i = 0; i < masses.length; i++) {
+            var m = masses[i];
+           
+            m.behavior.fx += fx * m.behavior.mass;
+            m.behavior.fy += fy * m.behavior.mass;
+            m.behavior.fz += fz * m.behavior.mass;
+
+
+        }
+
+
+    },
+
+    savePos: function(beh, i) {},
+
+    restorePos: function(beh, i) {},
+
+
+    sqDist: function(beh, i, j) {},
+
+    kineticEnergy: function(beh) {},
+
+    storePosition: function(beh) {},
+
+    recallPosition: function(beh) {},
+
+    doCollisions: function(beh) {}
+
+
+};
+
+
+
+
 /*-------------------------SPRING-----------------------*/
 labObjects.Spring = {
 

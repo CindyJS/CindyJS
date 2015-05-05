@@ -1,14 +1,13 @@
 var Render2D = {};
 
 Render2D.handleModifs = function(modifs, handlers) {
-
     // Reset stuff first
     if (Render2D.dashing)
         Render2D.unSetDash();
     Render2D.colorraw = null;
     Render2D.size = null;
-    if (Render2D.psize < 0) Render2D.psize = 0;
-    if (Render2D.lsize < 0) Render2D.lsize = 0;
+    if (Render2D.psize <= 0) Render2D.psize = 0;
+    if (Render2D.lsize <= 0) Render2D.lsize = 0;
     Render2D.overhang = 1; //TODO Eventuell dfault setzen
     Render2D.dashing = false;
     Render2D.isArrow = false;
@@ -39,6 +38,7 @@ Render2D.handleModifs = function(modifs, handlers) {
     }
 
     // Post-process settings
+
     if (Render2D.size !== null) {
         Render2D.psize = Render2D.lsize = Render2D.size;
     } else {
@@ -200,6 +200,12 @@ Render2D.modifHandlers = {
 
     "family": function(v) {
         if (v.ctype === "string") {
+            Render2D.family = v.value;
+        }
+    },
+
+    "align": function(v) {
+        if (v.ctype === "string") {
             var s = v.value;
             if (s === "left")
                 Render2D.align = 0;
@@ -289,15 +295,16 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
-
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = 'round';
     csctx.lineJoin = 'miter';
     csctx.strokeStyle = Render2D.lineColor;
 
+
     if (!Render2D.isArrow ||
         (endpoint1x === endpoint1y && endpoint2x === endpoint2y)) {
         // Fast path if we have no arrowheads
+        if (Render2D.lsize < 0.01) return;
         csctx.beginPath();
         csctx.moveTo(overhang1x, overhang1y);
         csctx.lineTo(overhang2x, overhang2y);

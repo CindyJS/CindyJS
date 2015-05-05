@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+PP = [Pa, Pb, Pc, Pd, Pe, Pf, Pg, Ph, Pi, Pj, Pk, Pl, Pm,
+      Pn, Po, Pp, Pq, Pr, Ps, Pt, Pu, Pv, Pw, Px, Py, Pz];
+QQ = [Qa, Qb, Qc, Qd, Qe, Qf, Qg, Qh, Qi, Qj, Qk, Ql, Qm,
+      Qn, Qo, Qp, Qq, Qr, Qs, Qt, Qu, Qv, Qw, Qx, Qy, Qz];
+randomize() := forall(PP ++ QQ, #.xy = [random(), random()]);
+randomize();
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+
+power = |Nc,Na|/|Nb,Na|*9 + 1;
+drawtext(Nc.xy, format(power, 1), size->15, offset->[10,-5]);
+m = mincostmatching(apply(PP,p,apply(QQ,q,|p,q|^power)));
+drawall(apply(1..length(m),[PP_#, QQ_(m_#)]), color->[0,1,0]);
+
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({
+  canvasname: "CSCanvas",
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {},
+  transform: [{scale: 15}, {translate:[-0.6,-0.5]}],
+  geometry: [
+    {name:"Pa", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pb", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pc", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pd", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pe", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pf", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pg", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Ph", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pi", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pj", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pk", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pl", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pm", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pn", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Po", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pp", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pq", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pr", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Ps", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pt", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pu", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pv", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pw", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Px", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Py", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Pz", type:"Free", pos:[0,0], color:[1,0,0]},
+    {name:"Qa", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qb", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qc", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qd", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qe", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qf", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qg", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qh", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qi", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qj", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qk", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Ql", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qm", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qn", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qo", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qp", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qq", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qr", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qs", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qt", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qu", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qv", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qw", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qx", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qy", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Qz", type:"Free", pos:[0,0], color:[0,0,1]},
+    {name:"Na", type:"Free", pos:[1.15,0], visible:false, pinned:true},
+    {name:"Nb", type:"Free", pos:[1.15,1], visible:false, pinned:true},
+    {name:"Ns", type:"Segment", args:["Na","Nb"], color:[0,0,0]},
+    {name:"Nc", type:"PointOnSegment", args:["Ns"], pos:[1.15,1/9], color:[1,1,1]}
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+  <p><button onclick="cdy.evokeCS('randomize()')" type="button">Randomize</button></p>
+</body>
+
+</html>

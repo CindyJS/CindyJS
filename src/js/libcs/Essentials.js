@@ -199,17 +199,6 @@ eval_helper.evaluate = function(name, args, modifs) {
 };
 
 
-eval_helper.clone = function(a) { //Das ist jetzt gerade mal ätzend un-OO
-    if (a.ctype === 'list') {
-        return List.clone(a);
-    }
-    if (a.ctype === 'number') {
-        return CSNumber.clone(a);
-    }
-    return a; //Werden die anderen sachen gecloned, in Cindy ist das nicht so???
-
-};
-
 eval_helper.equals = function(v0, v1) { //Und nochmals un-OO
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return {

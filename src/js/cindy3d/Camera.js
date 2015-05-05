@@ -49,6 +49,9 @@ Camera.prototype.mvMatrix;
 Camera.prototype.updatePerspective = function() {
   let f = 1.0/Math.tan(this.fieldOfView * (Math.PI / 360.));
   let nearMinusFar = this.zNear - this.zFar;
+  // Near plane is actually at -zNear, far plane at -zFar.
+  // This is in sync with the glFrustrum call of legacy OpenGL 2.
+  // This matrix is already tranposed.
   this.projectionMatrix = [
     f*this.height/this.width, 0, 0, 0,
     0, f, 0, 0,
@@ -91,14 +94,17 @@ Camera.prototype.setCamera = function(position, lookAt, up) {
 };
 
 /** @constant @type {number} */
-Camera.ROTATE_SENSITIVITY = 0.01;
+Camera.ORBIT_SENSITIVITY = 0.01;
 
 /**
+ * Rotate camera around lookAt point.
+ * Another interpretation is to rotate the viewed object.
+ *
  * @param {number} dx
  * @param {number} dy
  */
-Camera.prototype.mouseRotate = function(dx, dy) {
-  let ax = Camera.ROTATE_SENSITIVITY*dx, ay = Camera.ROTATE_SENSITIVITY*dy;
+Camera.prototype.orbitXY = function(dx, dy) {
+  let ax = Camera.ORBIT_SENSITIVITY*dx, ay = Camera.ORBIT_SENSITIVITY*dy;
   let cx = Math.cos(ax), cy = Math.cos(ay);
   let sx = Math.sin(ax), sy = Math.sin(ay);
   let mx = [
@@ -115,10 +121,69 @@ Camera.prototype.mouseRotate = function(dx, dy) {
   this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
 };
 
+/** @constant @type {number} */
+Camera.ROTATE_SENSITIVITY = -0.01;
+
 /**
+ * Rotate camera around its own center.
+ *
+ * @param {number} dx
  * @param {number} dy
  */
-Camera.prototype.mouseZoom = function(dy) {
+Camera.prototype.rotateXY = function(dx, dy) {
+  let ax = Camera.ROTATE_SENSITIVITY*dx, ay = Camera.ROTATE_SENSITIVITY*dy;
+  let cx = Math.cos(ax), cy = Math.cos(ay);
+  let sx = Math.sin(ax), sy = Math.sin(ay);
+  let mx = [
+    cx, 0, sx, 0,
+    0, 1, 0, 0,
+    -sx, 0, cx, 0,
+    0, 0, 0, 1];
+  let my = [
+    1, 0, 0, 0,
+    0, cy, -sy, 0,
+    0, sy, cy, 0,
+    0, 0, 0, 1];
+  let mv = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, this.viewDist,
+    0, 0, 0, 1];
+  this.mvMatrix = mul4mm(mul4mm(mx, my), this.mvMatrix);
+  this.modelMatrix = mul4mm(mv, this.mvMatrix);
+};
+
+/** @constant @type {number} */
+Camera.PAN_SENSITIVITY = 0.002;
+
+/**
+ * Move camera parallel to image plane but keep view direction and distance.
+ * Another interpretation is to move the displayed object.
+ *
+ * @param {number} dx
+ * @param {number} dy
+ */
+Camera.prototype.translateXY = function(dx, dy) {
+  let f = Camera.PAN_SENSITIVITY*this.viewDist, ax = f*dx, ay = -f*dy;
+  let m = [
+    1, 0, 0, ax,
+    0, 1, 0, ay,
+    0, 0, 1, 0,
+    0, 0, 0, 1];
+  this.modelMatrix = mul4mm(m, this.modelMatrix);
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
+
+/**
+ * Change distance between camera and lookAt point.
+ *
+ * Strictly speaking this is not a zoom since the view angle remains
+ * the same but the position changes, while for a real zoom the view
+ * angle would change and the position remain.
+ * 
+ * @param {number} dy
+ */
+Camera.prototype.zoom = function(dy) {
   this.viewDist = this.viewDist * Math.pow(1.01, dy);
   this.viewMatrix = [
     1, 0, 0, 0,
@@ -126,5 +191,43 @@ Camera.prototype.mouseZoom = function(dy) {
     0, 0, 1, -this.viewDist,
     0, 0, 0, 1
   ];
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
+
+/** @constant @type {number} */
+Camera.DOLLY_SENSITIVITY = 0.02;
+
+/**
+ * Move camera perpendicular to image plane.
+ * In contrast to the zoom method above, this maintains the viewDist,
+ * and therefore shifts the viewAt point along with the camera.
+ *
+ * @param {number} dy
+ */
+Camera.prototype.translateZ = function(dy) {
+  let az = -Camera.DOLLY_SENSITIVITY*this.viewDist*dy;
+  let m = [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, az,
+    0, 0, 0, 1];
+  this.modelMatrix = mul4mm(m, this.modelMatrix);
+  this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
+};
+
+/**
+ * Roll camera around viewing axis.
+ *
+ * @param {number} dy
+ */
+Camera.prototype.rotateZ = function(dy) {
+  let a = Camera.ROTATE_SENSITIVITY*dy;
+  let c = Math.cos(a), s = Math.sin(a);
+  let m = [
+    c, -s, 0, 0,
+    s, c, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1];
+  this.modelMatrix = mul4mm(m, this.modelMatrix);
   this.mvMatrix = mul4mm(this.viewMatrix, this.modelMatrix);
 };

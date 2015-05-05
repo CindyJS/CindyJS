@@ -30,6 +30,10 @@ General.bool = function(b) {
     };
 };
 
+General.not = function(v) {
+    return General.bool(!v.value);
+};
+
 General.isLessThan = function(a, b) {
     return General.compare(a, b) === -1;
 
@@ -79,7 +83,7 @@ General.compare = function(a, b) {
 
 General.add = function(v0, v1) {
     if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Plus
-        return CSNumber.clone(v1);
+        return v1;
     }
 
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -153,30 +157,6 @@ General.min = function(v0, v1) {
 
 };
 
-General.clone = function(v) {
-    if (v.ctype === 'number') {
-        return CSNumber.clone(v);
-    }
-    if (v.ctype === 'list') {
-        return List.clone(v);
-    }
-    if (v.ctype === 'boolean') {
-        return {
-            ctype: "boolean",
-            value: v.value
-        };
-    }
-    if (v.ctype === 'string') {
-        return {
-            ctype: "string",
-            value: v.value
-        };
-    }
-
-    return General.wrap(v);
-
-};
-
 General.wrap = function(v) {
     if (typeof v === "number") {
         return CSNumber.real(v);
@@ -201,4 +181,13 @@ General.wrap = function(v) {
         };
     }
     return nada;
+};
+
+General.withUsage = function(v, usage) {
+    // shallow copy with possibly new usage
+    return {
+        "ctype": v.ctype,
+        "value": v.value,
+        "usage": usage
+    };
 };

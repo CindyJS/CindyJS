@@ -124,6 +124,22 @@ function createCindyNow() {
         csh = c.height;
         csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty - csh;
         csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty - csh;
+        var devicePixelRatio = window.devicePixelRatio || 1;
+        var backingStoreRatio =
+            csctx.webkitBackingStorePixelRatio ||
+            csctx.mozBackingStorePixelRatio ||
+            csctx.msBackingStorePixelRatio ||
+            csctx.oBackingStorePixelRatio ||
+            csctx.backingStorePixelRatio ||
+            1;
+        if (devicePixelRatio !== backingStoreRatio) {
+            var ratio = devicePixelRatio / backingStoreRatio;
+            c.width = csw * ratio;
+            c.height = csh * ratio;
+            c.style.width = csw + "px";
+            c.style.height = csh + "px";
+            csctx.scale(ratio, ratio);
+        }
     }
 
     csgeo = {};
@@ -242,6 +258,12 @@ function csplay() {
             backupGeo();
             csstopped = false;
         }
+        if (typeof csinitphys === 'function') {
+            if(csPhysicsInited){
+                csreinitphys(behaviors);
+            }
+        }
+        
         csanimating = true;
         startit();
     }

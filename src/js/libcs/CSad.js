@@ -73,10 +73,9 @@ CSad.mult = function(f, g) {
 
 
 CSad.pow = function(a, b) {
-    if (b.value.real < 0 || b.value.real !== Math.floor(b.value.real)){
+    if (b.value.real < 0 || b.value.real !== Math.floor(b.value.real)) {
         return CSad.root(a, b);
-    }
-    else{
+    } else {
         var temp = a;
         for (var i = 1; i < b.value.real; i++) {
             temp = CSad.mult(temp, a);
@@ -86,10 +85,10 @@ CSad.pow = function(a, b) {
 };
 
 // (f)^r for float r
-CSad.root = function(f, r){
+CSad.root = function(f, r) {
     var zero = CSNumber.real(0);
     var one = CSNumber.real(1);
-    var rOne = CSNumber.add(one, r); 
+    var rOne = CSNumber.add(one, r);
 
     var le = f.value.length;
     var erg = CSad.zero(CSNumber.real(le));
@@ -115,7 +114,7 @@ CSad.root = function(f, r){
         sum = zero;
     } // end outer
 
-//    CSad.printArr(erg);
+    //    CSad.printArr(erg);
     return erg;
 
 };

@@ -30,6 +30,9 @@ function Viewer(name, ccOpts, opts, addEventListener) {
       canvas.getContext("experimental-webgl", ccOpts));
   if (!gl)
     throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
+  canvas.removeEventListener(
+    "webglcontextcreationerror",
+    onContextCreationError, false);
   gl.depthFunc(gl.LEQUAL);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -212,7 +215,7 @@ Viewer.prototype.appearanceStack;
 /** @type {Array.<number>} */
 Viewer.prototype.backgroundColor;
 
-/** @type {number} */
+/** @type {?number} */
 Viewer.prototype.renderTimeout;
 
 /**
@@ -232,12 +235,14 @@ Viewer.prototype.setupListeners = function(addEventListener) {
   });
   addEventListener(canvas, "mousemove", function(/** MouseEvent */ evnt) {
     if (evnt.buttons === undefined ? mdown : (evnt.buttons & 1)) {
-      /* if (evnt.movementX !== undefined) {
-        camera.mouseRotate(evnt.movementX, evnt.movementY);
-        render();
-      }
-      else */ if (!isNaN(mx)) {
-        camera.mouseRotate(evnt.screenX - mx, evnt.screenY - my);
+      if (!isNaN(mx)) {
+        let dx = evnt.screenX - mx, dy = evnt.screenY - my;
+        if (evnt.shiftKey)
+          camera.rotateXY(dx, dy);
+        else if (evnt.altKey || evnt.ctrlKey || evnt.metaKey)
+          camera.translateXY(dx, dy);
+        else
+          camera.orbitXY(dx, dy);
         render();
       }
       mx = evnt.screenX;
@@ -254,7 +259,12 @@ Viewer.prototype.setupListeners = function(addEventListener) {
   addEventListener(canvas, "wheel", function(/** WheelEvent */ evnt) {
     let d = evnt.deltaY;
     if (d) {
-      camera.mouseZoom(d);
+      if (evnt.shiftKey)
+        camera.rotateZ(d);
+      else if (evnt.altKey || evnt.ctrlKey || evnt.metaKey)
+        camera.translateZ(d);
+      else
+        camera.zoom(d);
       render();
     }
     evnt.preventDefault();

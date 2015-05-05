@@ -303,18 +303,24 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let pos = coerce.toList(evaluate(args[2])).map(elt => coerce.toHomog(elt));
     let normals = null;
     let normaltype = "perface";
+    let topology = "open";
     let appearance = handleModifsAppearance(
       currentInstance.surfaceAppearance, modifs, {
         "normaltype": (a => normaltype =
                        coerce.toString(a, normaltype).toLowerCase()),
+        "topology": (a => topology =
+                       coerce.toString(a, normaltype).toLowerCase()),
       });
     if (pos.length !== m*n) return nada;
-    let pc = null, normal = null;
+    let tcr = (topology === "closerows" || topology === "closeboth");
+    let tcc = (topology === "closecolumns" || topology === "closeboth");
+    let pc = null, normal = null, normalcnt = 0;
     function donormal(p1, p2) {
       let c = cross3(sub3(p1, pc), sub3(p2, pc));
       normal[0] += c[0];
       normal[1] += c[1];
       normal[2] += c[2];
+      ++normalcnt;
     }
     if (normaltype === "pervertex") {
       normals = Array(m*n);
@@ -325,16 +331,16 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
           pc = p[k];
           let pw = p[(kmn - 1)%mn], pe = p[(kmn + 1)%mn];
           let ps = p[(kmn - n)%mn], pn = p[(kmn + n)%mn];
-          normal = [0, 0, 0]
-          if (i     > 0 && j     > 0) donormal(pw, ps);
-          if (i + 1 < m && j     > 0) donormal(pn, pw);
-          if (i + 1 < m && j + 1 < n) donormal(pe, pn);
-          if (i     > 0 && j + 1 < n) donormal(ps, pe);
-          normals[k++] = normal;
+          normal = [0, 0, 0];
+          normalcnt = 0;
+          if ((tcc || i     > 0) && (tcr || j     > 0)) donormal(pw, ps);
+          if ((tcc || i + 1 < m) && (tcr || j     > 0)) donormal(pn, pw);
+          if ((tcc || i + 1 < m) && (tcr || j + 1 < n)) donormal(pe, pn);
+          if ((tcc || i     > 0) && (tcr || j + 1 < n)) donormal(ps, pe);
+          normals[k++] = scale3(4./normalcnt, normal);
         }
       }
     }
-    // TODO: handle modifiers, per-vertex normals in particular.
     for (let i = 1, k = 0; i < m; ++i) {
       for (let j = 1; j < n; ++j) {
         if (normals)
@@ -347,7 +353,40 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
             [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]], appearance);
         ++k;
       }
+      if (tcr) {
+        if (normals)
+          currentInstance.triangles.addPolygonWithNormals(
+            [pos[k], pos[k + 1 - n], pos[k + 1], pos[k + n]],
+            [normals[k], normals[k + 1 - n], normals[k + 1], normals[k + n]],
+            appearance);
+        else
+          currentInstance.triangles.addPolygonAutoNormal(
+            [pos[k], pos[k + 1 - n], pos[k + 1], pos[k + n]], appearance);
+      }
       ++k;
+    }
+    if (tcc) {
+      for (let j = 1; j < n; ++j) {
+        if (normals)
+          currentInstance.triangles.addPolygonWithNormals(
+            [pos[k], pos[k + 1], pos[j], pos[j - 1]],
+            [normals[k], normals[k + 1], normals[j], normals[j - 1]],
+            appearance);
+        else
+          currentInstance.triangles.addPolygonAutoNormal(
+            [pos[k], pos[k + 1], pos[j], pos[j - 1]], appearance);
+        ++k;
+      }
+      if (tcr) {
+        if (normals)
+          currentInstance.triangles.addPolygonWithNormals(
+            [pos[k], pos[k + 1 - n], pos[0], pos[n - 1]],
+            [normals[k], normals[k + 1 - n], normals[0], normals[n - 1]],
+            appearance);
+        else
+          currentInstance.triangles.addPolygonAutoNormal(
+            [pos[k], pos[k + 1 - n], pos[0], pos[n - 1]], appearance);
+      }
     }
     return nada;
   });

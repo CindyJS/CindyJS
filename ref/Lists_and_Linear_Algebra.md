@@ -92,7 +92,29 @@ So for example, after the code fragment
     > a_2="A";
     > a_1_2_1="B";
 
-is evaluated, the value of `a` is `[[2,["B",5]],"A"]`.
+is evaluated, the value of `a` is
+
+    > a
+    < [[2, ["B", 5]], "A"]
+
+Note that such modifications only affect a single copy of the list.
+
+    > a=[1,2,3];
+    > b=a;
+    > a_3=0;
+    > [a,b]
+    < [[1, 2, 0], [1, 2, 3]]
+
+The same holds for function arguments: these follow call-by-value semantics,
+so modification of a list passed as argument will not change the variable
+a caller might be using.
+
+    > zeroFirst(lst) := (lst_1 = 0; println(lst));
+    > a = [1, 2, 4];
+    > zeroFirst(a)
+    * [0, 2, 4]
+    > a // remains unmodified
+    < [1, 2, 4]
 
 #####  Advanced usage
 

@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Cindy JS Example</title>
+<title>Cindy JS Example - direct conic drawing</title>
 <meta charset="UTF-8">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csinit" type="text/x-cindyscript">
@@ -12,7 +12,28 @@
 </script>
 <script id="csdraw" type="text/x-cindyscript">
 
-// Drawing code, executed whenever the canvas gets redrawn.
+// Conics can be handed over by
+
+// array: coefficiencts by order [a, c, f, 2b, 2d, 2e] 
+
+C0 = [-0.31, -0.27, -0.13, 2.8, 0.09, 1];
+
+// matrices 
+
+C1 = [[-0.31, -0.13/2, 2.8/2],
+     [-0.13/2, -0.27, 0.09/2],
+     [2.8/2, 0.09/2, 1]];
+
+// non symmetric matrices 
+
+C2 = [[-0.31, -0.13, 2.8],
+     [0, -0.27, 0.09],
+     [0, 0, 1]];
+
+// drawing command 
+drawconic(C0,alpha->0.3, color->[1,0,0]);
+drawconic(C1,alpha->0.3, color->[0,1,0]);
+drawconic(C2,alpha->0.3, color->[0,0,1]);
 
 </script>
 <script type="text/javascript">
@@ -25,7 +46,6 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
     // See GeoBasics.js for possible attributes.
   },
   geometry: [
-    {name:"A", type:"Free", pos:[0,0]}
     // For allowed types, see GeoOps.js.
     // For allowed properties, see csinit in GeoBasics.js.
   ] // End of geometry array.

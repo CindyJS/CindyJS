@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Yahtzee demonstrating mincostmatching</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+pipPositions = [
+  [],
+  [(1/2, 1/2)],
+  [(1/4, 1/4), (3/4, 3/4)],
+  [(1/4, 1/4), (1/2, 1/2), (3/4, 3/4)],
+  [(1/4, 1/4), (3/4, 3/4), (1/4, 3/4), (3/4, 1/4)],
+  [(1/4, 1/4), (3/4, 3/4), (1/4, 3/4), (3/4, 1/4), (1/2, 1/2)],
+  [(1/4, 1/4), (3/4, 3/4), (1/4, 3/4), (3/4, 1/4), (1/2, 1/4), (1/2, 3/4)]
+];
+  
+drawdie(x, y, p):=(
+  poly = [(x, y), (x + 1, y), (x + 1, y + 1), (x, y + 1)];
+  if (p == 0,
+    fillpoly(poly, color->gray(0.75)),
+    forall(pipPositions_(p+1), draw([x + #_1, y + #_2])));
+  drawpoly(poly);
+);
+
+dice = apply(1..13, apply(1..5, 0));
+revrows = reverse(1..13);
+revcols = reverse(1..5);
+
+example2 = [
+  [1, 1, 1, 1, 1],
+  [6, 6, 6, 6, 6],
+  [6, 6, 6, 1, 1],
+  [1, 1, 1, 2, 2],
+  [1, 1, 1, 2, 3],
+  [1, 2, 3, 4, 5],
+  [1, 2, 3, 4, 6],
+  [6, 1, 2, 6, 6],
+  [1, 4, 5, 5, 5],
+  [5, 5, 5, 5, 6],
+  [4, 4, 4, 5, 6],
+  [3, 1, 3, 6, 3],
+  [2, 2, 2, 4, 6]
+];
+
+names = ["ones", "twos", "threes", "fours", "fives", "sixes",
+         "chance", "three of a kind", "four of a kind", "five of a kind",
+         "short straight", "long straight", "full house"];
+names = apply(names, international(#));
+
+mysum(lst):=if(length(lst)==0, 0, sum(lst));
+
+score(d):=(
+  d = sort(d);
+  total = sum(d);
+  apply(1..6, p, mysum(select(d, # == p))) ++ [
+    total,
+    if(d_1 == d_3 % d_2 == d_4 % d_3 == d_5, total, 0),
+    if(d_1 == d_4 % d_2 == d_5, total, 0),
+    if(d_1 == d_5, 50, 0),
+    if(length(select([1..4, 2..5, 3..6], s,
+      length(select(s, contains(d, #))) == 4)) > 0, 25, 0),
+    if(length(select([1..5, 2..6], s,
+      length(select(s, contains(d, #))) == 5)) > 0, 35, 0),
+    if((d_1 == d_3 & d_4 == d_5) % (d_1 == d_2 & d_3 == d_5), 40, 0)
+  ]
+);
+
+recompute():=(
+  complete = select(1..13, y, length(select(dice_y, # == 0)) == 0);
+  scores = zeromatrix(13, 13);
+  forall(complete, y, scores_y = score(dice_y));
+  best = -1;
+  bonus = 0;
+  assignment = zerovector(13);
+  forall(combinations(1..13, 6), upper,
+    lower = (1..13) -- upper;
+    a = apply(scores_upper, #_(1..6));
+    b = apply(scores_lower, #_(7..13));
+    ma = mincostmatching(-a);
+    mb = mincostmatching(-b);
+    sa = sum(apply(1..6, a_#_(ma_#)));
+    sb = sum(apply(1..7, b_#_(mb_#)));
+    bon = if(sa >= 63, 35, 0);
+    s = sa + sb + bon;
+    if (s > best,
+      best = s;
+      bonus = bon;
+      forall(1..6, assignment_(upper_#) = [a_#_(ma_#), names_(ma_#)]);
+      forall(1..7, assignment_(lower_#) = [b_#_(mb_#), names_(mb_# + 6)]);
+    );
+  );
+);
+recompute();
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+
+pointsize(2);
+pointcolor([0, 0, 0]);
+forall(1..13, y, forall(1..5, x, drawdie(x, -1.25*y, dice_y_x)));
+forall(complete, y,
+  col = if(assignment_y_1 == 0, gray(0.75), gray(0));
+  drawtext([7, -1.25*y + 0.3], assignment_y_1, align->"right", color->col);
+  drawtext([8, -1.25*y + 0.3], assignment_y_2, color->col);
+);
+forall(1..13, y, forall(1..13, x,
+  drawtext([12 + 0.5*x, -1.25*y + 0.4], scores_y_x,
+    align->"right", size->10)));
+if(bonus > 0,
+  drawtext([7, -1.25*14 + 0.3], bonus, align->"right");
+  drawtext([8, -1.25*14 + 0.3], international("bonus")));
+drawtext([7, -1.25*15 + 0.3], best, align->"right");
+drawtext([8, -1.25*15 + 0.3], international("total"));
+
+</script>
+<script id="cskeydown" type="text/x-cindyscript">
+
+keynum = keycode() - 48;
+pos = [];
+if (keynum >= 1 & keynum <= 6,
+  forall(revrows, y, forall(revcols, x, if(dice_y_x == 0, pos = [y, x])));
+  if(length(pos) == 2,
+    dice_(pos_1)_(pos_2) = keynum;
+    recompute();
+  );
+);
+
+</script>
+<script id="csmousedown" type="text/x-cindyscript">
+
+pos = mouse();
+x = pos_1;
+y = pos_2;
+if (x > 1 & x < 7 & y < -0.25 & y > -1.25*13,
+  x = floor(x);
+  y = ceil(y/(-1.25));
+  if (pos_2 < 1 - 1.25*y,
+    dice_y_x = if(dice_y_x == 6, 1, dice_y_x + 1);
+    recompute();
+  );
+);
+
+</script>
+<script type="text/javascript">
+
+createCindy({
+  canvasname: "CSCanvas",
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {},
+  transform: [{scale: 1.5}, {translate: [-7, 12]}]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <p>Based on <a href="http://uva.onlinejudge.org/external/101/10149.pdf">this
+      problem</a>.</p>
+  <canvas id="CSCanvas" width="700" height="700"
+          style="border:2px solid black"></canvas>
+  <p>Use number keys to enter dice, or click die to modify it.</p>
+  <p><button onclick="evokeCS('dice=example2;recompute()')" type="button">Example 2</button></p>
+</body>
+
+</html>

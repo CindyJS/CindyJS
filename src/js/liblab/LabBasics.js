@@ -23,6 +23,16 @@ var behaviors;
 var masses = [];
 var csPhysicsInited = false;
 
+function csreinitphys(behavs) {
+    behaviors.forEach(function(beh) {
+     var geoname = beh.name;
+     labObjects[beh.behavior.type].init(beh.behavior, csgeo.csnames[geoname]);
+
+    }
+    );
+}
+
+
 function csinitphys(behavs) {
     csPhysicsInited = (behavs.length !== 0);
     //console.log(csPhysicsInited);

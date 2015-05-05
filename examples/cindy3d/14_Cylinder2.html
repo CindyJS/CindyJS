@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script id="csinit" type="text/x-cindyscript">use("Cindy3D")</script>
+<script id="csdraw" type="text/x-cindyscript">
+m = 8;
+n = 32;
+begin3d();
+mesh3d(m, n, flatten(apply(1..m, i, apply(1..n, j, (
+  [cos(j/n*360°), sin(j/n*360°), i/m*2 - 1]
+)))), topology->"closeRows", normaltype->"perVertex");
+end3d();
+</script>
+<script type="text/javascript">
+createCindy({canvasname:"CSCanvas",scripts:"cs*"});
+</script>
+</head>
+
+<body>
+  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+  <canvas id="CSCanvas" width="50" height="50" style="border:none"></canvas>
+</body>
+
+</html>

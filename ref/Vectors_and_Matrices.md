@@ -74,6 +74,11 @@ This function works for a list of numbers as well as for the average of a list o
     > average([[2, 9], [4, 5]])
     < [3, 7]
 
+The sum of an empty list is zero.
+
+    > sum([])
+    < 0
+
 ------
 
 #### The summation operator: `sum(‹list›,‹expr›)`
@@ -98,12 +103,25 @@ It is time for a little mathematical mystery:
     > sum(1..10000,#^2)
     < 333383335000
 
+The sum of an empty list is zero.
+
+    > sum([], 99)
+    < 0
+
 ------
 
 #### The summation operator: `sum(‹list›,‹var›,‹expr›)`
 
 **Description:**
 This operator is similar to the last one, except that the running variable is locally named `‹var›`.
+
+    > sum(1..100, x, x^2)
+    < 338350
+
+The sum of an empty list is zero.
+
+    > sum([], x, 99)
+    < 0
 
 ------
 
@@ -120,6 +138,11 @@ One can, for instance, use the product operator to define the factorial function
 
     > fac(x) := product(1..x);
 
+The product over an empty list is one.
+
+    > product([])
+    < 1
+
 ------
 
 #### The product operator: `product(‹list›,‹expr›)`
@@ -128,12 +151,22 @@ One can, for instance, use the product operator to define the factorial function
 This operator is similar to the product operator, but it takes the product of results of `‹expr›` while a loop traverses all elements of `‹list›`.
 The running variable is, as usual, `#`.
 
+The product over an empty list is one.
+
+    > product([], 99)
+    < 1
+
 ------
 
 #### The product operator: `product(‹list›,‹var›,‹expr›)`
 
 **Description:**
 This operator is similar to the last one, except that the running variable is locally named `‹var›`.
+
+The product over an empty list is one.
+
+    > product([], x, 99)
+    < 1
 
 ------
 
@@ -144,6 +177,11 @@ This operator finds the maximum value in a list of entries.
 
     > max([4,2,6,3,5])
     < 6
+
+The maximum of an empty list is not defined.
+
+    > max([])
+    < _?_
 
 ------
 
@@ -162,6 +200,13 @@ The two-argument form can however also be used to obtain the maximum of two numb
     < 5
     > max(-7, 2)
     < 2
+    > max(3/2, 7/4)
+    < 1.75
+
+The maximum of an empty list is not defined.
+
+    > max([], 99)
+    < _?_
 
 ------
 
@@ -176,6 +221,11 @@ This operator is similar to the last one, except that the running variable is lo
     > v
     < 323
 
+The maximum of an empty list is not defined.
+
+    > max([], x, 99)
+    < _?_
+
 ------
 
 #### The minimum operator: `min(‹list›)`
@@ -185,6 +235,11 @@ This operator finds the minimum of a list of entries.
 
     > min([4,2,6,3,5])
     < 2
+
+The minimum of an empty list is not defined.
+
+    > min([])
+    < _?_
 
 ------
 
@@ -202,6 +257,13 @@ The two-argument form can however also be used to obtain the minimum of two numb
     < 3
     > min(-7, 2)
     < -7
+    > min(3/2, 7/4)
+    < 1.5
+
+The minimum of an empty list is not defined.
+
+    > min([], 99)
+    < _?_
 
 ------
 
@@ -215,6 +277,11 @@ This operator is similar to the last one, except that the running variable is lo
     < 1
     > v
     < 321
+
+The minimum of an empty list is not defined.
+
+    > min([], x, 99)
+    < _?_
 
 ------
 
@@ -472,6 +539,48 @@ produces the output:
     * [2, 3, 4]
 
 ------
+
+#### Finding a minimal cost matching: `mincostmatching(‹matrix›)`
+
+**Description:**
+The operator `mincostmatching(A)` solves the assignment problem
+by finding a matching between rows and columns of `A` such that
+the sum of the matrix elements corresponding to that matching is minimized.
+The result is a list with one entry for each row of the matrix,
+indicating the index of the column matched to that row.
+
+    > a = [
+    > [ 2,  1,  5,  1,  1],
+    > [ 2,  4, -8,  6,  0],
+    > [-1,  1,  5,  1,  1],
+    > [ 1, -1,  0,  0,  1],
+    > [ 0, -2,  1, -1,  0]];
+    > m = mincostmatching(a)
+    < [5, 3, 1, 2, 4]
+    > sum(1..5, a_#_(m_#))
+    < -10
+
+If the matrix has more columns than it has rows,
+some columns will remain unmatched.
+
+    > a = [
+    > [14,  0,  1,  1,  3,  9],
+    > [-4, -3, -2, -1,  8,  1],
+    > [ 5,  1,  4,  1,  0,  4],
+    > [38, -2,  4,  1,  2, -1]];
+    > m = mincostmatching(a)
+    < [2, 1, 5, 6]
+    > sum(1..4, a_#_(m_#))
+    < -5
+
+If the matrix has more rows than columns,
+then some rows will remain unmatched,
+indicated by a zero in the matching.
+
+    > m = mincostmatching(transpose(a))
+    < [2, 1, 0, 0, 3, 4]
+    > sum(select(1..6, m_# > 0), a_(m_#)_#)
+    < -5
 
 ------
 
