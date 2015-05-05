@@ -2,6 +2,15 @@
 // and here are the definitions of the operators
 //*******************************************************
 
+evaluator.timestamp$0 = function(args, modifs) {
+    return {
+        "ctype": "number",
+        "value": {
+            "real": new Date().getTime(),
+            "imag": 0
+        }
+    };
+};
 
 evaluator.seconds$0 = function(args, modifs) { //OK
     return {
