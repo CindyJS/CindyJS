@@ -1342,36 +1342,6 @@ List.linearsolveCG = function(AA, bb) {
     if (count >= maxIter) console.log("CG did not converge");
 
     return x;
-
-    //    var r, d, Ad, alp, x, bet, rold;
-    //
-    //    x = b;
-    //    r = List.sub(b, General.mult(A, x)); // r0
-    //    console.log(List.println(r));
-    //    d = r; // d0
-    //
-    //    var count = 0;
-    //    while(true){
-    //        count++;
-    //        console.log(count);
-    //        Ad = General.mult(A, d);
-    //
-    //        alp = List.scalproduct(r, r);
-    //
-    //        rold = alp;
-    //        alp = CSNumber.div(alp, List.scalproduct(d, Ad));
-    //
-    //        x = List.add(x, List.scalmult(alp, d));
-    //        r = List.sub(r, List.scalmult(alp, Ad));
-    //        console.log(List.abs(r).value.real);
-    //        if((List.abs(r).value.real < CSNumber.eps) || count > 10) break;
-    //
-    //        bet = List.scalproduct(r, r);
-    //        bet = CSNumber.div(bet, rold);
-    //        d = List.add(r, List.scalmult(bet, d));
-    //    }
-
-    //    return x;
 };
 
 
