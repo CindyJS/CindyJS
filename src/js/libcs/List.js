@@ -1030,6 +1030,11 @@ List.matrixFromVeronese = function(a) { //Assumes that a is 6-Vector
 
 };
 
+List.det2 = function(R1, R2){
+    var tmp = CSNumber.mult(R1.value[0], R2.value[1]);
+    tmp = CSNumber.sub(tmp, CSNumber.mult(R1.value[1], R2.value[0]));
+    return tmp;
+};
 
 List.det3 = function(p, q, r) { //Assumes that a,b,c are 3-Vectors
     //Keine Ahnung ob man das so inlinen will (hab das grad mal so übernommen)
@@ -1246,6 +1251,9 @@ List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
 
 
 List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric zurück
+    if(a.value.length === 2) return List.linearsolveCramer2(a,bb);
+    if(a.value.length === 3) return List.linearsolveCramer3(a,bb);
+    
     var x = [];
     var y = [];
     var b = [];
@@ -1265,6 +1273,39 @@ List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric 
     var res = numeric.solve(x, b);
 
     return List.realVector(res);
+};
+
+List.linearsolveCramer2 = function(A, b){
+    var A1 = List.column(A, CSNumber.real(1));
+    var A2 = List.column(A, CSNumber.real(2));
+
+    var detA = List.det2(A1, A2);
+
+    var x1 = List.det2(b, A2);
+    x1 = CSNumber.div(x1, detA);
+    var x2 = List.det2(A1, b);
+    x2 = CSNumber.div(x2, detA);
+
+    var res = List.turnIntoCSList([x1, x2]);
+    return res;
+};
+
+List.linearsolveCramer3 = function(A, b){
+    var detA = List.det(A);
+    if(CSNumber._helper.isZero(detA)) console.log("A is not regular!");
+
+    var A1 = List.column(A, CSNumber.real(1));
+    var A2 = List.column(A, CSNumber.real(2));
+    var A3 = List.column(A, CSNumber.real(3));
+
+    var x1 = List.det3(b, A2, A3);
+    var x2 = List.det3(A1, b, A3);
+    var x3 = List.det3(A1, A2, b);
+
+    var res = List.turnIntoCSList([x1, x2, x3]);
+    res = List.scaldiv(detA, res);
+
+    return res;
 };
 
 
