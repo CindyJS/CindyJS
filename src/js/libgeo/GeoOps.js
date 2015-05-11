@@ -817,8 +817,7 @@ geoOps.angleBisector = function(el) {
     if (!erg1zero && !erg2zero) {
         erg1 = List.normalizeMax(erg1);
         erg2 = List.normalizeMax(erg2);
-    }
-    else if (erg1zero) {
+    } else if (erg1zero) {
         erg2 = List.normalizeMax(erg2);
     } else if (erg2zero) {
         erg1 = List.normalizeMax(erg1);

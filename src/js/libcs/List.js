@@ -1030,7 +1030,7 @@ List.matrixFromVeronese = function(a) { //Assumes that a is 6-Vector
 
 };
 
-List.det2 = function(R1, R2){
+List.det2 = function(R1, R2) {
     var tmp = CSNumber.mult(R1.value[0], R2.value[1]);
     tmp = CSNumber.sub(tmp, CSNumber.mult(R1.value[1], R2.value[0]));
     return tmp;
@@ -1251,9 +1251,9 @@ List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
 
 
 List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric zurück
-    if(a.value.length === 2) return List.linearsolveCramer2(a,bb);
-    if(a.value.length === 3) return List.linearsolveCramer3(a,bb);
-    
+    if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
+    if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
+
     var x = [];
     var y = [];
     var b = [];
@@ -1275,7 +1275,7 @@ List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric 
     return List.realVector(res);
 };
 
-List.linearsolveCramer2 = function(A, b){
+List.linearsolveCramer2 = function(A, b) {
     var A1 = List.column(A, CSNumber.real(1));
     var A2 = List.column(A, CSNumber.real(2));
 
@@ -1290,9 +1290,9 @@ List.linearsolveCramer2 = function(A, b){
     return res;
 };
 
-List.linearsolveCramer3 = function(A, b){
+List.linearsolveCramer3 = function(A, b) {
     var detA = List.det(A);
-    if(CSNumber._helper.isZero(detA)) console.log("A is not regular!");
+    if (CSNumber._helper.isZero(detA)) console.log("A is not regular!");
 
     var A1 = List.column(A, CSNumber.real(1));
     var A2 = List.column(A, CSNumber.real(2));
