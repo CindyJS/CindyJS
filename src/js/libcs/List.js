@@ -1276,10 +1276,11 @@ List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric 
 };
 
 List.linearsolveCramer2 = function(A, b) {
+    var detA = List.det2(A1, A2);
+    if (CSNumber._helper.isZero(detA)) console.log("A is not regular!");
     var A1 = List.column(A, CSNumber.real(1));
     var A2 = List.column(A, CSNumber.real(2));
 
-    var detA = List.det2(A1, A2);
 
     var x1 = List.det2(b, A2);
     x1 = CSNumber.div(x1, detA);
