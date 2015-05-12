@@ -1308,12 +1308,17 @@ List.linearsolveCramer3 = function(A, b) {
 
     return res;
 };
-
-List.linearsolveCG = function(AA, bb) {
+// solve general linear system AA*x=bb by transforming AA to sym. pos. definite
+List.linearsolveCGNR = function(AA, bb){
     var transA = List.transpose(AA);
     var A = General.mult(transA, AA);
     var b = General.mult(transA, bb);
 
+    return List.linearsolveCG(A, b);
+};
+
+// only for sym. pos. definite matrices!
+List.linearsolveCG = function(A, b) {
     var r, p, alp, x, bet, Ap, rback;
 
     x = b;
