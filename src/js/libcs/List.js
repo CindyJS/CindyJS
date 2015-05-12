@@ -1259,6 +1259,7 @@ List.linearsolve = function(a, bb) {
 List.LUdecomp = function(AA){
   var A = AA;
   var i, j, k, absAjk, Akk, Ak, Pk, Ai;
+  var tpos = 0;
   var max;
   var n = A.value.length, n1 = n-1;
   var P = new Array(n);
@@ -1279,6 +1280,7 @@ List.LUdecomp = function(AA){
       A.value[k] = A.value[Pk];
       A.value[Pk] = Ak;
       Ak = A.value[k];
+      tpos++;
     }
 
     Akk = Ak.value[k];
@@ -1300,7 +1302,8 @@ List.LUdecomp = function(AA){
 
   return {
     LU: A,
-    P:  P
+    P:  P,
+    TransPos: tpos
   };
 }
 
@@ -1415,25 +1418,19 @@ List.linearsolveCG = function(A, b) {
 };
 
 
-List.det = function(a) { //Das ist nur Reell und greift auf numeric zurück
-    var x = [];
-    var y = [];
-    var n = a.value.length;
-    for (var i = 0; i < n; i++) {
-        var lix = [];
-        var liy = [];
-        for (var j = 0; j < n; j++) {
-            lix[j] = a.value[i].value[j].value.real;
-            liy[j] = a.value[i].value[j].value.imag;
-        }
-        x[i] = lix;
-        y[i] = liy;
+List.det = function(a) { 
+    var LUP = List.LUdecomp(a);
+    var LU = LUP.LU;
+
+    var det = LU.value[0].value[0];
+    for(var i = 1; i < LU.value.length; i++){
+        det = CSNumber.mult(det, LU.value[i].value[i]);
     }
-    var z = new numeric.T(x, y);
-    var res = numeric.det(x);
-
-    return CSNumber.real(res);
-
+    
+    // take account of sign
+    if(LUP.transPos % 2 !== 0) det = CSNumber.neg(det);
+    
+    return det;
 };
 
 
