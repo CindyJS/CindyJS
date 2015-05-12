@@ -1337,7 +1337,7 @@ List._helper.LUsolve = function(LUP, bb) {
             x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
         }
 
-        x.value[i] = CSNumber.div(x.value[i], LUi.value[i]); ///= LUi[i];
+        x.value[i] = CSNumber.div(x.value[i], LUi.value[i]);
     }
 
     return x;
@@ -1376,7 +1376,8 @@ List.linearsolveCramer3 = function(A, b) {
 
     return res;
 };
-// solve general linear system AA*x=bb by transforming AA to sym. pos. definite
+
+// solve general linear system A*x=b by transforming A to sym. pos. definite
 List.linearsolveCGNR = function(AA, bb) {
     var transA = List.transpose(AA);
     var A = General.mult(transA, AA);
