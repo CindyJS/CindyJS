@@ -1250,32 +1250,10 @@ List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
 };
 
 
-List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric zurück
-    var AAA = Object.create(a);
-    var bbb = Object.create(bb);
-    return List.LUsolve(AAA,bbb);
-//    if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
-//    if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
-//
-//    var x = [];
-//    var y = [];
-//    var b = [];
-//
-//    var n = a.value.length;
-//    for (var i = 0; i < n; i++) {
-//        var lix = [];
-//        var liy = [];
-//        for (var j = 0; j < n; j++) {
-//            lix[j] = a.value[i].value[j].value.real;
-//            liy[j] = a.value[i].value[j].value.imag;
-//        }
-//        x[i] = lix;
-//        y[i] = liy;
-//        b[i] = bb.value[i].value.real;
-//    }
-//    var res = numeric.solve(x, b);
-//
-//    return List.realVector(res);
+List.linearsolve = function(a, bb) { 
+    if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
+    else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
+    else return List.LUsolve(a,bb);
 };
 
 List.LUdecomp = function(AA){
@@ -1379,12 +1357,12 @@ List.linearsolveCramer2 = function(A, b) {
 };
 
 List.linearsolveCramer3 = function(A, b) {
-    var detA = List.det(A);
-    if (CSNumber._helper.isZero(detA)) console.log("A is not regular!");
-
     var A1 = List.column(A, CSNumber.real(1));
     var A2 = List.column(A, CSNumber.real(2));
     var A3 = List.column(A, CSNumber.real(3));
+
+    var detA = List.det3(A1, A2, A3);
+    if (CSNumber._helper.isZero(detA)) console.log("A is not regular!");
 
     var x1 = List.det3(b, A2, A3);
     var x2 = List.det3(A1, b, A3);
