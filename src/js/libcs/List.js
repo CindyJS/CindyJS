@@ -1257,7 +1257,7 @@ List.linearsolve = function(a, bb) {
 };
 
 List.LUdecomp = function(AA){
-  var A = AA;
+  var A = JSON.parse(JSON.stringify(AA)); // TODO: get rid of this cloning
   var i, j, k, absAjk, Akk, Ak, Pk, Ai;
   var tpos = 0;
   var max;
@@ -1340,6 +1340,7 @@ List.LUsolve = function(A, b) {
     x.value[i] = CSNumber.div(x.value[i], LUi.value[i]); ///= LUi[i];
   }
 
+    console.log("end", List.println(AA));
   return x;
 }
 
@@ -1419,18 +1420,37 @@ List.linearsolveCG = function(A, b) {
 
 
 List.det = function(a) { 
-    var LUP = List.LUdecomp(a);
-    var LU = LUP.LU;
-
-    var det = LU.value[0].value[0];
-    for(var i = 1; i < LU.value.length; i++){
-        det = CSNumber.mult(det, LU.value[i].value[i]);
+console.log("call det");
+    var x = [];
+    var y = [];
+    var n = a.value.length;
+    for (var i = 0; i < n; i++) {
+        var lix = [];
+        var liy = [];
+        for (var j = 0; j < n; j++) {
+            lix[j] = a.value[i].value[j].value.real;
+            liy[j] = a.value[i].value[j].value.imag;
+        }
+        x[i] = lix;
+        y[i] = liy;
     }
-    
-    // take account of sign
-    if(LUP.transPos % 2 !== 0) det = CSNumber.neg(det);
-    
-    return det;
+    var z = new numeric.T(x, y);
+    var res = numeric.det(x);
+
+    return CSNumber.real(res);
+
+//    var LUP = List.LUdecomp(a);
+//    var LU = LUP.LU;
+//
+//    var det = LU.value[0].value[0];
+//    for(var i = 1; i < LU.value.length; i++){
+//        det = CSNumber.mult(det, LU.value[i].value[i]);
+//    }
+//    
+//    // take account of sign
+//    if(LUP.transPos % 2 !== 0) det = CSNumber.neg(det);
+//    
+//    return det;
 };
 
 
