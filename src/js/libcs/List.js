@@ -1222,31 +1222,24 @@ List.adjoint3 = function(a) {
 };
 
 List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
-    var i, j;
-    var x = [];
-    var y = [];
+    var LUP = List.LUdecomp(a);
     var n = a.value.length;
-    for (i = 0; i < n; i++) {
-        var lix = [];
-        var liy = [];
-        for (j = 0; j < n; j++) {
-            lix[j] = a.value[i].value[j].value.real;
-            liy[j] = a.value[i].value[j].value.imag;
-        }
-        x[i] = lix;
-        y[i] = liy;
+
+    var zero = CSNumber.real(0);
+    var one = CSNumber.real(1);
+
+    var ei = List.zerovector(CSNumber.real(n)); 
+    ei.value[0] = one;
+
+    var erg = new Array(n);
+    for(var i = 0; i < n ; i++){
+       erg[i] = List._helper.LUsolve(LUP, ei); 
+       ei.value[i] = zero;
+       ei.value[i+1] = one;
     }
-    var z = new numeric.T(x, y);
-    var res = z.inv(z);
-    var erg = [];
-    for (i = 0; i < n; i++) {
-        var li = [];
-        for (j = 0; j < n; j++) {
-            li[j] = CSNumber.complex(res.x[i][j], res.y[i][j]);
-        }
-        erg[i] = List.turnIntoCSList(li);
-    }
-    return List.turnIntoCSList(erg);
+    
+    erg = List.turnIntoCSList(erg);
+    return erg;
 };
 
 
@@ -1276,7 +1269,7 @@ List.LUdecomp = function(AA){
     }
     P[k] = Pk;
 
-    if (Pk != k) {
+    if (Pk !== k) {
       A.value[k] = A.value[Pk];
       A.value[Pk] = Ak;
       Ak = A.value[k];
@@ -1305,10 +1298,15 @@ List.LUdecomp = function(AA){
     P:  P,
     TransPos: tpos
   };
-}
+};
 
-List.LUsolve = function(A, b) {
-  var LUP = List.LUdecomp(A);
+List.LUsolve = function(A, b){
+   var LUP =  List.LUdecomp(A);
+    return List._helper.LUsolve(LUP, b);
+};
+
+List._helper.LUsolve = function(LUP, bb) {
+  var b =JSON.parse(JSON.stringify(bb)); // TODO: get rid of this cloning
   var i, j;
   var LU = LUP.LU;
   var n   = LU.value.length;
@@ -1340,9 +1338,8 @@ List.LUsolve = function(A, b) {
     x.value[i] = CSNumber.div(x.value[i], LUi.value[i]); ///= LUi[i];
   }
 
-    console.log("end", List.println(AA));
   return x;
-}
+};
 
 List.linearsolveCramer2 = function(A, b) {
     var A1 = List.column(A, CSNumber.real(1));
@@ -1394,7 +1391,7 @@ List.linearsolveCG = function(A, b) {
     r = List.sub(b, General.mult(A, b));
     p = r;
 
-    var maxIter = Math.ceil(1.2 * AA.value.length);
+    var maxIter = Math.ceil(1.2 * A.value.length);
     var count = 0;
     while (count < maxIter) {
         count++;
@@ -1420,37 +1417,29 @@ List.linearsolveCG = function(A, b) {
 
 
 List.det = function(a) { 
-console.log("call det");
-    var x = [];
-    var y = [];
-    var n = a.value.length;
-    for (var i = 0; i < n; i++) {
-        var lix = [];
-        var liy = [];
-        for (var j = 0; j < n; j++) {
-            lix[j] = a.value[i].value[j].value.real;
-            liy[j] = a.value[i].value[j].value.imag;
-        }
-        x[i] = lix;
-        y[i] = liy;
+    if(a.value.length === 2){
+        return List.det2(List.column(a, CSNumber.real(1)),  List.column(a, CSNumber.real(2)));
     }
-    var z = new numeric.T(x, y);
-    var res = numeric.det(x);
+    else if(a.value.length === 3){
+        var A1 = List.column(a, CSNumber.real(1));
+        var A2 = List.column(a, CSNumber.real(2));
+        var A3 = List.column(a, CSNumber.real(3));
+        return List.det3(A1, A2, A3);
+    }
+    else{
+    var LUP = List.LUdecomp(a);
+    var LU = LUP.LU;
 
-    return CSNumber.real(res);
-
-//    var LUP = List.LUdecomp(a);
-//    var LU = LUP.LU;
-//
-//    var det = LU.value[0].value[0];
-//    for(var i = 1; i < LU.value.length; i++){
-//        det = CSNumber.mult(det, LU.value[i].value[i]);
-//    }
-//    
-//    // take account of sign
-//    if(LUP.transPos % 2 !== 0) det = CSNumber.neg(det);
-//    
-//    return det;
+    var det = LU.value[0].value[0];
+    for(var i = 1; i < LU.value.length; i++){
+        det = CSNumber.mult(det, LU.value[i].value[i]);
+    }
+    
+    // take account of sign
+    if(LUP.transPos % 2 !== 0) det = CSNumber.neg(det);
+    
+    return det;
+}
 };
 
 
