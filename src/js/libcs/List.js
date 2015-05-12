@@ -1251,29 +1251,116 @@ List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
 
 
 List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric zurück
-    if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
-    if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
-
-    var x = [];
-    var y = [];
-    var b = [];
-
-    var n = a.value.length;
-    for (var i = 0; i < n; i++) {
-        var lix = [];
-        var liy = [];
-        for (var j = 0; j < n; j++) {
-            lix[j] = a.value[i].value[j].value.real;
-            liy[j] = a.value[i].value[j].value.imag;
-        }
-        x[i] = lix;
-        y[i] = liy;
-        b[i] = bb.value[i].value.real;
-    }
-    var res = numeric.solve(x, b);
-
-    return List.realVector(res);
+    var AAA = Object.create(a);
+    var bbb = Object.create(bb);
+    return List.LUsolve(AAA,bbb);
+//    if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
+//    if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
+//
+//    var x = [];
+//    var y = [];
+//    var b = [];
+//
+//    var n = a.value.length;
+//    for (var i = 0; i < n; i++) {
+//        var lix = [];
+//        var liy = [];
+//        for (var j = 0; j < n; j++) {
+//            lix[j] = a.value[i].value[j].value.real;
+//            liy[j] = a.value[i].value[j].value.imag;
+//        }
+//        x[i] = lix;
+//        y[i] = liy;
+//        b[i] = bb.value[i].value.real;
+//    }
+//    var res = numeric.solve(x, b);
+//
+//    return List.realVector(res);
 };
+
+List.LUdecomp = function(AA){
+  var A = AA;
+  var i, j, k, absAjk, Akk, Ak, Pk, Ai;
+  var max;
+  var n = A.value.length, n1 = n-1;
+  var P = new Array(n);
+  for (k = 0; k < n; ++k) {
+    Pk = k;
+    Ak = A.value[k];
+    max = CSNumber.abs(Ak.value[k]).value.real;
+    for (j = k + 1; j < n; ++j) {
+      absAjk = CSNumber.abs(A.value[j].value[k]);
+      if (max < absAjk.value.real) {
+        max = absAjk.value.real;
+        Pk = j;
+      }
+    }
+    P[k] = Pk;
+
+    if (Pk != k) {
+      A.value[k] = A.value[Pk];
+      A.value[Pk] = Ak;
+      Ak = A.value[k];
+    }
+
+    Akk = Ak.value[k];
+
+    for (i = k + 1; i < n; ++i) {
+      A.value[i].value[k] = CSNumber.div(A.value[i].value[k], Akk); 
+    }
+
+    for (i = k + 1; i < n; ++i) {
+      Ai = A.value[i];
+      for (j = k + 1; j < n1; ++j) {
+        Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+        ++j;
+        Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+      }
+      if(j===n1) Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+    }
+  }
+
+  return {
+    LU: A,
+    P:  P
+  };
+}
+
+List.LUsolve = function(A, b) {
+  var LUP = List.LUdecomp(A);
+  var i, j;
+  var LU = LUP.LU;
+  var n   = LU.value.length;
+  var x = b;
+  var P   = LUP.P;
+  var Pi, LUi, LUii, tmp;
+
+  for (i=n-1;i!==-1;--i) x.value[i] = b.value[i];
+  for (i = 0; i < n; ++i) {
+    Pi = P[i];
+    if (P[i] !== i) {
+      tmp = x.value[i];
+      x.value[i] = x.value[Pi];
+      x.value[Pi] = tmp;
+    }
+
+    LUi = LU.value[i];
+    for (j = 0; j < i; ++j) {
+      x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+    }
+  }
+
+  for (i = n - 1; i >= 0; --i) {
+    LUi = LU.value[i];
+    for (j = i + 1; j < n; ++j) {
+      x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+    }
+
+    x.value[i] = CSNumber.div(x.value[i], LUi.value[i]); ///= LUi[i];
+  }
+
+  return x;
+}
 
 List.linearsolveCramer2 = function(A, b) {
     var A1 = List.column(A, CSNumber.real(1));
