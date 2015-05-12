@@ -24,14 +24,6 @@ evaluator.seconds$0 = function(args, modifs) { //OK
 
 
 evaluator.err$1 = function(args, modifs) { //OK
-    if (typeof csconsole === "string") {
-        csconsole = document.getElementById(csconsole);
-    }
-
-    if (typeof csconsole === "undefined") {
-        csconsole = window.open('', '', 'width=200,height=100');
-    }
-
     var varname = '',
         s;
     if (args[0].ctype === 'variable') {
@@ -41,15 +33,8 @@ evaluator.err$1 = function(args, modifs) { //OK
         s = args[0];
     }
     s = varname + " ===> " + niceprint(evaluate(s));
-    if (console && console.log)
-        console.log(s);
 
-    if (csconsole) {
-        if (csconsole.document === undefined)
-            csconsole.innerHTML += s + "<br>";
-        else
-            csconsole.document.write(s + "<br>");
-    }
+    csconsole.append("<" + s);
 
     return nada;
 };

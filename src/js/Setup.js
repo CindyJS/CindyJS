@@ -19,6 +19,10 @@ function dump(a) {
 
 function dumpcs(a) {
     console.log(niceprint(a));
+
+    if (a.ctype !== "undefined") {
+        csconsole.append("< " + niceprint(a));
+    }
 }
 
 function evalcs(a) {
@@ -66,6 +70,9 @@ function createCindyNow() {
     var data = instanceInvocationArguments;
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
+
+    setupConsole();
+
     csmouse = [100, 100];
     var cscode, c = data.canvas;
     if (!c && typeof document !== "undefined")
@@ -347,4 +354,125 @@ var globalInstance = {
     },
     "niceprint": niceprint,
     "canvas": null, // will be set during startup
+};
+
+//
+// CONSOLE
+//
+function setupConsole() {
+    var args = "";
+
+    if (typeof csconsole === "boolean" && csconsole === true) {
+        csconsole = new CindyConsoleHandler();
+
+    } else if (typeof csconsole === "string") {
+        args = csconsole;
+        csconsole = new ElementConsoleHandler();
+    }
+
+    // Fallback
+    if (typeof csconsole === "undefined") {
+        csconsole = new PopupConsoleHandler();
+    }
+
+    csconsole.init(args);
+}
+
+function CindyConsoleHandler() {
+
+    var cmd;
+    var log;
+
+    var init = function() {
+        var container = document.createElement("div");
+
+        container.innerHTML = "<div id=\"console\" style=\"border-top: 1px solid #333333; bottom: 0px; position: absolute; width: 100%;\">"
+            + "<div id=\"log\" style=\"height: 150px; overflow-y: auto;\"></div>"
+            + "<input id=\"cmd\" type=\"text\" style=\"box-sizing: border-box; height: 30px; width: 100%;\">"
+            + "</div>";
+
+        document.body.appendChild(container);
+
+        cmd = document.getElementById("cmd");
+        log = document.getElementById("log");
+
+        cmd.onkeydown = function (evt) {
+            if (evt.keyCode !== 13 || cmd.value === "") {
+                return;
+            }
+
+            csconsole.append("> " + cmd.value);
+
+            evalcs(cmd.value);
+
+            cmd.value = "";
+
+            log.scrollTop = log.scrollHeight;
+        }
+    };
+
+    var append = function(s) {
+        var p = document.createElement("p");
+
+        p.appendChild(document.createTextNode(s));
+        log.appendChild(p);
+    };
+
+    var clear = function() {
+
+    };
+
+    return {
+        init: init,
+        append: append,
+        clear: clear
+    }
+};
+
+function ElementConsoleHandler() {
+
+    var element;
+
+    var init = function(id) {
+        element = document.getElementById(id);
+    };
+
+    var append = function(s) {
+        // TODO Use createTextNode
+        element.innerHTML += s + "<br>";
+    };
+
+    var clear = function() {
+        element.innerHTML = "";
+    };
+
+    return {
+        init: init,
+        append: append,
+        clear: clear
+    }
+};
+
+function PopupConsoleHandler() {
+
+    var popup;
+
+    var init = function() {
+        popup = window.open('', '', 'width=200,height=100');
+    };
+
+    var append = function(s) {
+        // TODO Use createTextNode
+        popup.document.write(s + "<br>");
+    };
+
+    var clear = function() {
+
+    };
+
+    return {
+        init: init,
+        append: append,
+        clear: clear
+    }
 };
