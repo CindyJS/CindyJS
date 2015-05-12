@@ -1228,117 +1228,118 @@ List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
     var zero = CSNumber.real(0);
     var one = CSNumber.real(1);
 
-    var ei = List.zerovector(CSNumber.real(n)); 
+    var ei = List.zerovector(CSNumber.real(n));
     ei.value[0] = one;
 
     var erg = new Array(n);
-    for(var i = 0; i < n ; i++){
-       erg[i] = List._helper.LUsolve(LUP, ei); 
-       ei.value[i] = zero;
-       ei.value[i+1] = one;
+    for (var i = 0; i < n; i++) {
+        erg[i] = List._helper.LUsolve(LUP, ei);
+        ei.value[i] = zero;
+        ei.value[i + 1] = one;
     }
-    
+
     erg = List.turnIntoCSList(erg);
     return erg;
 };
 
 
-List.linearsolve = function(a, bb) { 
+List.linearsolve = function(a, bb) {
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
-    else return List.LUsolve(a,bb);
+    else return List.LUsolve(a, bb);
 };
 
-List.LUdecomp = function(AA){
-  var A = JSON.parse(JSON.stringify(AA)); // TODO: get rid of this cloning
-  var i, j, k, absAjk, Akk, Ak, Pk, Ai;
-  var tpos = 0;
-  var max;
-  var n = A.value.length, n1 = n-1;
-  var P = new Array(n);
-  for (k = 0; k < n; ++k) {
-    Pk = k;
-    Ak = A.value[k];
-    max = CSNumber.abs(Ak.value[k]).value.real;
-    for (j = k + 1; j < n; ++j) {
-      absAjk = CSNumber.abs(A.value[j].value[k]);
-      if (max < absAjk.value.real) {
-        max = absAjk.value.real;
-        Pk = j;
-      }
+List.LUdecomp = function(AA) {
+    var A = JSON.parse(JSON.stringify(AA)); // TODO: get rid of this cloning
+    var i, j, k, absAjk, Akk, Ak, Pk, Ai;
+    var tpos = 0;
+    var max;
+    var n = A.value.length,
+        n1 = n - 1;
+    var P = new Array(n);
+    for (k = 0; k < n; ++k) {
+        Pk = k;
+        Ak = A.value[k];
+        max = CSNumber.abs(Ak.value[k]).value.real;
+        for (j = k + 1; j < n; ++j) {
+            absAjk = CSNumber.abs(A.value[j].value[k]);
+            if (max < absAjk.value.real) {
+                max = absAjk.value.real;
+                Pk = j;
+            }
+        }
+        P[k] = Pk;
+
+        if (Pk !== k) {
+            A.value[k] = A.value[Pk];
+            A.value[Pk] = Ak;
+            Ak = A.value[k];
+            tpos++;
+        }
+
+        Akk = Ak.value[k];
+
+        for (i = k + 1; i < n; ++i) {
+            A.value[i].value[k] = CSNumber.div(A.value[i].value[k], Akk);
+        }
+
+        for (i = k + 1; i < n; ++i) {
+            Ai = A.value[i];
+            for (j = k + 1; j < n1; ++j) {
+                Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+                ++j;
+                Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+            }
+            if (j === n1) Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+        }
     }
-    P[k] = Pk;
 
-    if (Pk !== k) {
-      A.value[k] = A.value[Pk];
-      A.value[Pk] = Ak;
-      Ak = A.value[k];
-      tpos++;
-    }
-
-    Akk = Ak.value[k];
-
-    for (i = k + 1; i < n; ++i) {
-      A.value[i].value[k] = CSNumber.div(A.value[i].value[k], Akk); 
-    }
-
-    for (i = k + 1; i < n; ++i) {
-      Ai = A.value[i];
-      for (j = k + 1; j < n1; ++j) {
-        Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
-        ++j;
-        Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
-      }
-      if(j===n1) Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
-    }
-  }
-
-  return {
-    LU: A,
-    P:  P,
-    TransPos: tpos
-  };
+    return {
+        LU: A,
+        P: P,
+        TransPos: tpos
+    };
 };
 
-List.LUsolve = function(A, b){
-   var LUP =  List.LUdecomp(A);
+List.LUsolve = function(A, b) {
+    var LUP = List.LUdecomp(A);
     return List._helper.LUsolve(LUP, b);
 };
 
 List._helper.LUsolve = function(LUP, bb) {
-  var b =JSON.parse(JSON.stringify(bb)); // TODO: get rid of this cloning
-  var i, j;
-  var LU = LUP.LU;
-  var n   = LU.value.length;
-  var x = b;
-  var P   = LUP.P;
-  var Pi, LUi, LUii, tmp;
+    var b = JSON.parse(JSON.stringify(bb)); // TODO: get rid of this cloning
+    var i, j;
+    var LU = LUP.LU;
+    var n = LU.value.length;
+    var x = b;
+    var P = LUP.P;
+    var Pi, LUi, LUii, tmp;
 
-  for (i=n-1;i!==-1;--i) x.value[i] = b.value[i];
-  for (i = 0; i < n; ++i) {
-    Pi = P[i];
-    if (P[i] !== i) {
-      tmp = x.value[i];
-      x.value[i] = x.value[Pi];
-      x.value[Pi] = tmp;
+    for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
+    for (i = 0; i < n; ++i) {
+        Pi = P[i];
+        if (P[i] !== i) {
+            tmp = x.value[i];
+            x.value[i] = x.value[Pi];
+            x.value[Pi] = tmp;
+        }
+
+        LUi = LU.value[i];
+        for (j = 0; j < i; ++j) {
+            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+        }
     }
 
-    LUi = LU.value[i];
-    for (j = 0; j < i; ++j) {
-      x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
-    }
-  }
+    for (i = n - 1; i >= 0; --i) {
+        LUi = LU.value[i];
+        for (j = i + 1; j < n; ++j) {
+            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+        }
 
-  for (i = n - 1; i >= 0; --i) {
-    LUi = LU.value[i];
-    for (j = i + 1; j < n; ++j) {
-      x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+        x.value[i] = CSNumber.div(x.value[i], LUi.value[i]); ///= LUi[i];
     }
 
-    x.value[i] = CSNumber.div(x.value[i], LUi.value[i]); ///= LUi[i];
-  }
-
-  return x;
+    return x;
 };
 
 List.linearsolveCramer2 = function(A, b) {
@@ -1375,7 +1376,7 @@ List.linearsolveCramer3 = function(A, b) {
     return res;
 };
 // solve general linear system AA*x=bb by transforming AA to sym. pos. definite
-List.linearsolveCGNR = function(AA, bb){
+List.linearsolveCGNR = function(AA, bb) {
     var transA = List.transpose(AA);
     var A = General.mult(transA, AA);
     var b = General.mult(transA, bb);
@@ -1416,30 +1417,28 @@ List.linearsolveCG = function(A, b) {
 };
 
 
-List.det = function(a) { 
-    if(a.value.length === 2){
-        return List.det2(List.column(a, CSNumber.real(1)),  List.column(a, CSNumber.real(2)));
-    }
-    else if(a.value.length === 3){
+List.det = function(a) {
+    if (a.value.length === 2) {
+        return List.det2(List.column(a, CSNumber.real(1)), List.column(a, CSNumber.real(2)));
+    } else if (a.value.length === 3) {
         var A1 = List.column(a, CSNumber.real(1));
         var A2 = List.column(a, CSNumber.real(2));
         var A3 = List.column(a, CSNumber.real(3));
         return List.det3(A1, A2, A3);
-    }
-    else{
-    var LUP = List.LUdecomp(a);
-    var LU = LUP.LU;
+    } else {
+        var LUP = List.LUdecomp(a);
+        var LU = LUP.LU;
 
-    var det = LU.value[0].value[0];
-    for(var i = 1; i < LU.value.length; i++){
-        det = CSNumber.mult(det, LU.value[i].value[i]);
+        var det = LU.value[0].value[0];
+        for (var i = 1; i < LU.value.length; i++) {
+            det = CSNumber.mult(det, LU.value[i].value[i]);
+        }
+
+        // take account of sign
+        if (LUP.transPos % 2 !== 0) det = CSNumber.neg(det);
+
+        return det;
     }
-    
-    // take account of sign
-    if(LUP.transPos % 2 !== 0) det = CSNumber.neg(det);
-    
-    return det;
-}
 };
 
 
