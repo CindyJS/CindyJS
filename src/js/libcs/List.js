@@ -1239,6 +1239,7 @@ List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
     }
 
     erg = List.turnIntoCSList(erg);
+    erg = List.transpose(erg);
     return erg;
 };
 
