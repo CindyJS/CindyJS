@@ -5,25 +5,42 @@ This method expects a single object as an argument, which in turn contains vario
 
 Example:
 
-    J createCindy({canvasname:"CindyCanvas",
+    J createCindy({ports:[{id:"CindyCanvas"}],
     J              scripts:"cs*",
     J              csconsole:null
     J             });
 
 ## Parameters
 
+### ports
+
+A list of display ports associated with the newly created instance.
+At the moment, only the first element of this list is actually used.
+Each port description is a dictionary which may contain the following items:
+
+* `id` is the element `id` of the drawing canvas.
+* `element` is a DOM element for the drawing canvas.
+* `width` and `height` specify the desired dimensions for the canvas,
+  and override any `width` and `height` attributes that element might have.
+* `background` specifies the CSS background color to be used for the canvas.
+  If this is omitted, the canvas will be transparent.
+* `transform` specifies coordinate system transformations.
+  If this is omitted, the global set of transformations applies instead.
+  For details see the `transform` setting at the top level.
+
+Either `id` or `element` must be given, with the latter taking precedence.
+The element identified in this way must be a `HTMLCanvasElement`.
+Removing the canvas from the DOM tree will shut down the instance.
+
 ### canvasname
 
-The element with this `id` will be used as the main drawing canvas
-of the newly created instance.
-Removing the canvas from the DOM tree will shut down the instance.
-This parameter is *required*.
+Backwards-compatibility setting.
+`canvasname:"name"` is equivalent to `ports:[{id:"name"}]`.
 
 ### canvas
 
-Instead of giving the `id` of the canvas element, the element itself can be passed as a parameter.
-This must be an instance of `HTMLCanvasElement`.
-If both the element itself and its name are given, the name is ignored.
+Backwards-compatibility setting.
+`canvas:elt` is equivalent to `ports:[{element:elt}]`.
 
 ### scripts
 

@@ -38,9 +38,8 @@ function evokeCS(code) {
 }
 
 
-function initialTransformation(data) {
-    if (data.transform) {
-        var trafos = data.transform;
+function initialTransformation(trafos) {
+    if (trafos) {
         for (var i = 0; i < trafos.length; i++) {
             var trafo = trafos[i];
             var trname = Object.keys(trafo)[0];
@@ -67,9 +66,28 @@ function createCindyNow() {
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
     csmouse = [100, 100];
-    var cscode, c = data.canvas;
-    if (!c && typeof document !== "undefined")
-        c = document.getElementById(data.canvasname);
+    var cscode, c = null, trafos = data.transform;
+    if (data.ports) {
+        if (data.ports.length > 0) {
+            var port = data.ports[0];
+            c = port.element;
+            if (!c)
+                c = document.getElementById(port.id);
+            if (port.width && port.height) {
+                c.setAttribute("width", port.width);
+                c.setAttribute("height", port.height);
+            }
+            if (port.background)
+                c.style.background_color = port.background;
+            if (port.transform !== undefined)
+                trafos = port.transform;
+        }
+    }
+    if (!c) {
+        c = data.canvas;
+        if (!c && typeof document !== "undefined")
+            c = document.getElementById(data.canvasname);
+    }
     if (c) {
         csctx = c.getContext("2d");
         if (!csctx.setLineDash)
@@ -121,7 +139,7 @@ function createCindyNow() {
         csgridscript = analyse('#drawgrid(' + csgridsize + ')', false);
     }
     if (data.snap) cssnap = data.snap;
-    initialTransformation(data);
+    initialTransformation(trafos);
 
     if (c) {
         csw = c.width;
