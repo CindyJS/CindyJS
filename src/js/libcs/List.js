@@ -1420,14 +1420,13 @@ List.linearsolveCG = function(A, b) {
 
 
 List.det = function(a) {
-    if (a.value.length === 2) {
-        return List.det2(List.column(a, CSNumber.real(1)), List.column(a, CSNumber.real(2)));
-    } else if (a.value.length === 3) {
+    if (a.value.length === 2) return List.det2(List.column(a, CSNumber.real(1)), List.column(a, CSNumber.real(2)));
+    if (a.value.length === 3) {
         var A1 = List.column(a, CSNumber.real(1));
         var A2 = List.column(a, CSNumber.real(2));
         var A3 = List.column(a, CSNumber.real(3));
         return List.det3(A1, A2, A3);
-    } else {
+    } 
         var LUP = List.LUdecomp(a);
         var LU = LUP.LU;
 
@@ -1437,10 +1436,10 @@ List.det = function(a) {
         }
 
         // take account of sign
-        if (LUP.transPos % 2 !== 0) det = CSNumber.neg(det);
+        if (LUP.TransPos % 2 === 1) det = CSNumber.neg(det);
 
         return det;
-    }
+    
 };
 
 List.inversereal = function(a) { //Das ist nur Reell und greift auf numeric zurück
