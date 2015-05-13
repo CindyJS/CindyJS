@@ -66,7 +66,9 @@ function createCindyNow() {
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
     csmouse = [100, 100];
-    var cscode, c = null, trafos = data.transform;
+    var cscode;
+    var c = null;
+    var trafos = data.transform;
     if (data.ports) {
         if (data.ports.length > 0) {
             var port = data.ports[0];
