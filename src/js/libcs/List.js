@@ -1443,6 +1443,77 @@ List.det = function(a) {
     }
 };
 
+List.inversereal = function(a) { //Das ist nur Reell und greift auf numeric zurück
+    var i, j;
+    var x = [];
+    var y = [];
+    var n = a.value.length;
+    for (i = 0; i < n; i++) {
+        var lix = [];
+        var liy = [];
+        for (j = 0; j < n; j++) {
+            lix[j] = a.value[i].value[j].value.real;
+            liy[j] = a.value[i].value[j].value.imag;
+        }
+        x[i] = lix;
+        y[i] = liy;
+    }
+    var z = new numeric.T(x, y);
+    var res = z.inv(z);
+    var erg = [];
+    for (i = 0; i < n; i++) {
+        var li = [];
+        for (j = 0; j < n; j++) {
+            li[j] = CSNumber.complex(res.x[i][j], res.y[i][j]);
+        }
+        erg[i] = List.turnIntoCSList(li);
+    }
+    return List.turnIntoCSList(erg);
+};
+
+List.linearsolvereal = function(a, bb) { //Das ist nur Reell und greift auf numeric zurück
+    var x = [];
+    var y = [];
+    var b = [];
+
+    var n = a.value.length;
+    for (var i = 0; i < n; i++) {
+        var lix = [];
+        var liy = [];
+        for (var j = 0; j < n; j++) {
+            lix[j] = a.value[i].value[j].value.real;
+            liy[j] = a.value[i].value[j].value.imag;
+        }
+        x[i] = lix;
+        y[i] = liy;
+        b[i] = bb.value[i].value.real;
+    }
+    var res = numeric.solve(x, b);
+
+    return List.realVector(res);
+};
+
+List.detreal = function(a) { //Das ist nur Reell und greift auf numeric zurück
+    var x = [];
+    var y = [];
+    var n = a.value.length;
+    for (var i = 0; i < n; i++) {
+        var lix = [];
+        var liy = [];
+        for (var j = 0; j < n; j++) {
+            lix[j] = a.value[i].value[j].value.real;
+            liy[j] = a.value[i].value[j].value.imag;
+        }
+        x[i] = lix;
+        y[i] = liy;
+    }
+    var z = new numeric.T(x, y);
+    var res = numeric.det(x);
+
+    return CSNumber.real(res);
+
+};
+
 
 ///Feldzugriff
 ///TODO Will man das in list haben??
