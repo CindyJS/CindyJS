@@ -23,15 +23,15 @@
         <script id='firstDrawing' type='cindyscript'>
         n = 30;
         AA=zeromatrix(n,n);
-       repeat(n,i,
-         repeat(n,j,
-           AA_i_j=random();
+       repeat(n,j,
+         repeat(n,k,
+           AA_j_k=(3*random()-1.5) + i*(3*random()-1.5);
          );
        );
 
 
         bb = zerovector(n);
-        repeat(n,i, bb_i = random());
+        repeat(n,j, bb_j = 2*random()-1 + i*(2*random()-1));
 
         javascript("var tt; t = Date.now()");
         x = linearsolve(AA,bb);
@@ -50,15 +50,15 @@
 //        println(|(invA*bb)-x|);
 //        println(|(inverse(AA)*bb)-x| < 0.0000001);
 
-       repeat(n,i,
-         repeat(n,j,
-           if(i<j,AA_i_j=0,);
+       repeat(n,j,
+         repeat(n,k,
+           if(j<k,AA_j_k=0,);
          );
        );
 
 	mydet = 1;
-	repeat(n, i, mydet = mydet*AA_i_i);
-//	println("mydet" +  mydet);
+	repeat(n, j, mydet = mydet*AA_j_j);
+	//println("mydet" +  mydet);
         javascript("var tt; t = Date.now()");
 	println("time for det");
 	ludet = det(AA);
@@ -67,6 +67,8 @@
         drawtext((-6, 3),"|Manual det - LUdet|");
         drawtext((-1, 3),|mydet - ludet|);
 
+        drawtext((-6, 2),"LUdet");
+        drawtext((-1, 2),ludet);
 
         </script>
 
