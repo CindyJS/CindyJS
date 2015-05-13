@@ -1221,7 +1221,7 @@ List.adjoint3 = function(a) {
     };
 };
 
-List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
+List.inverse = function(a) {
     var LUP = List.LUdecomp(a);
     var n = a.value.length;
 
