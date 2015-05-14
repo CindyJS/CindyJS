@@ -23,6 +23,10 @@ evaluator.seconds$0 = function(args, modifs) { //OK
 };
 
 
+evaluator.clearconsole$0 = function(args, modifs) {
+    csconsole.clear();
+}
+
 evaluator.err$1 = function(args, modifs) { //OK
     var varname = '',
         s;

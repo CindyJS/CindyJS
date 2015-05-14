@@ -419,7 +419,7 @@ function CindyConsoleHandler() {
     };
 
     var clear = function() {
-
+        log.innerHTML = "";
     };
 
     return {
@@ -467,7 +467,7 @@ function PopupConsoleHandler() {
     };
 
     var clear = function() {
-
+        popup.document.getElementsByTagName("body")[0].innerHTML = "";
     };
 
     return {
