@@ -377,6 +377,8 @@ function setupConsole() {
 function GenericConsoleHandler(args) {
 
     this.input = function(s, preventNewline) {
+        console.log(s);
+
         if (preventNewline) {
             this.append(this.createTextNode("span", "blue", s));
 
@@ -386,6 +388,8 @@ function GenericConsoleHandler(args) {
     };
 
     this.out = function(s, preventNewline) {
+        console.log(s);
+
         if (preventNewline) {
             this.append(this.createTextNode("span", "red", s));
 
@@ -395,6 +399,8 @@ function GenericConsoleHandler(args) {
     };
 
     this.err = function(s, preventNewline) {
+        console.log(s);
+        
         if (preventNewline) {
             this.append(this.createTextNode("span", "red", s));
 
