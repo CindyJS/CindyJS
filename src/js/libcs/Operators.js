@@ -58,9 +58,11 @@ evaluator.errc$1 = function(args, modifs) { //OK
     return nada;
 };
 
-evaluator.println$1 = function(args, modifs) {
-    console.log(niceprint(evaluate(args[0])));
+evaluator.print$1 = function(args, modifs) {
+    csconsole.out(niceprint(evaluate(args[0])), true);
+};
 
+evaluator.println$1 = function(args, modifs) {
     csconsole.out(niceprint(evaluate(args[0])));
 };
 

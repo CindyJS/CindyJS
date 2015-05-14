@@ -376,25 +376,39 @@ function setupConsole() {
 
 function GenericConsoleHandler(args) {
 
-    this.input = function(s) {
-        this.append(this.createParagraph("> " + s, "blue"));
+    this.input = function(s, preventNewline) {
+        if (preventNewline) {
+            this.append(this.createTextNode("span", "blue", s));
+
+        } else {
+            this.append(this.createTextNode("p", "blue", s));
+        }
     };
 
-    this.out = function(s) {
-        this.append(this.createParagraph("< " + s, "red"));
+    this.out = function(s, preventNewline) {
+        if (preventNewline) {
+            this.append(this.createTextNode("span", "red", s));
+
+        } else {
+            this.append(this.createTextNode("p", "red", s));
+        }
     };
 
-    this.err = function(s) {
-        this.append(this.createParagraph("< "  + s, "red"));
+    this.err = function(s, preventNewline) {
+        if (preventNewline) {
+            this.append(this.createTextNode("span", "red", s));
+
+        } else {
+            this.append(this.createTextNode("p", "red", s));
+        }
     };
 
-    this.createParagraph = function(s, color) {
-        var p = document.createElement("p");
-        p.appendChild(document.createTextNode(s));
+    this.createTextNode = function(tagName, color, s) {
+        var element = document.createElement(tagName);
+        element.appendChild(document.createTextNode(s));
+        element.style.color = color;
 
-        p.style.color = color;
-
-        return p;
+        return element;
     }
 };
 
