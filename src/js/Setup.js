@@ -360,174 +360,121 @@ var globalInstance = {
 // CONSOLE
 //
 function setupConsole() {
-    var args = "";
-
     if (typeof csconsole === "boolean" && csconsole === true) {
         csconsole = new CindyConsoleHandler();
 
     } else if (typeof csconsole === "string") {
-        args = csconsole;
-        csconsole = new ElementConsoleHandler();
+        var id = csconsole;
+        csconsole = new ElementConsoleHandler(id);
     }
 
     // Fallback
     if (typeof csconsole === "undefined") {
         csconsole = new PopupConsoleHandler();
     }
-
-    csconsole.init(args);
 }
 
-function createParagraph(s, color) {
-    var p = document.createElement("p");
-    p.appendChild(document.createTextNode(s));
+function GenericConsoleHandler(args) {
 
-    p.style.color = color;
+    this.input = function(s) {
+        this.append(this.createParagraph("> " + s, "blue"));
+    };
 
-    return p;
-}
+    this.out = function(s) {
+        this.append(this.createParagraph("< " + s, "red"));
+    };
+
+    this.err = function(s) {
+        this.append(this.createParagraph("< "  + s, "red"));
+    };
+
+    this.createParagraph = function(s, color) {
+        var p = document.createElement("p");
+        p.appendChild(document.createTextNode(s));
+
+        p.style.color = color;
+
+        return p;
+    }
+};
 
 function CindyConsoleHandler() {
 
+    var that = this;
     var cmd;
+    var container = document.createElement("div");
     var log;
 
-    var init = function() {
-        var container = document.createElement("div");
+    container.innerHTML = "<div id=\"console\" style=\"border-top: 1px solid #333333; bottom: 0px; position: absolute; width: 100%;\">"
+        + "<div id=\"log\" style=\"height: 150px; overflow-y: auto;\"></div>"
+        + "<input id=\"cmd\" type=\"text\" style=\"box-sizing: border-box; height: 30px; width: 100%;\">"
+        + "</div>";
 
-        container.innerHTML = "<div id=\"console\" style=\"border-top: 1px solid #333333; bottom: 0px; position: absolute; width: 100%;\">"
-            + "<div id=\"log\" style=\"height: 150px; overflow-y: auto;\"></div>"
-            + "<input id=\"cmd\" type=\"text\" style=\"box-sizing: border-box; height: 30px; width: 100%;\">"
-            + "</div>";
+    document.body.appendChild(container);
 
-        document.body.appendChild(container);
+    cmd = document.getElementById("cmd");
+    log = document.getElementById("log");
 
-        cmd = document.getElementById("cmd");
-        log = document.getElementById("log");
-
-        cmd.onkeydown = function (evt) {
-            if (evt.keyCode !== 13 || cmd.value === "") {
-                return;
-            }
-
-            input(cmd.value);
-
-            evalcs(cmd.value);
-
-            cmd.value = "";
-
-            log.scrollTop = log.scrollHeight;
+    cmd.onkeydown = function(evt) {
+        if (evt.keyCode !== 13 || cmd.value === "") {
+            return;
         }
-    };
 
-    var input = function(s) {
-        append(createParagraph("> " + s, "blue"));
-    };
+        that.input(cmd.value);
 
-    var out = function(s) {
-        append(createParagraph("< " + s, "red"));
-    };
+        evalcs(cmd.value);
 
-    var err = function(s) {
-        append(createParagraph("< "  + s, "red"));
-    };
+        cmd.value = "";
 
-    var append = function(s) {
+        log.scrollTop = log.scrollHeight;
+    }
+
+    this.append = function(s) {
         log.appendChild(s);
     };
 
-    var clear = function() {
+    this.clear = function() {
         log.innerHTML = "";
     };
-
-    return {
-        init: init,
-        input: input,
-        out: out,
-        err: err,
-        clear: clear
-    }
 };
 
-function ElementConsoleHandler() {
+CindyConsoleHandler.prototype = new GenericConsoleHandler;
 
-    var element;
+function ElementConsoleHandler(id) {
 
-    var init = function(id) {
-        element = document.getElementById(id);
+    var element = document.getElementById(id);
+
+    this.append = function(s) {
+        element.appendChild(s);
     };
 
-    var input = function(s) {
-        append(createParagraph("> " + s, "blue"));
-    };
-
-    var out = function(s) {
-        append(createParagraph("< " + s, "red"));
-    };
-
-    var err = function(s) {
-        append(createParagraph("< " + s, "red"));
-    };
-
-    var append = function(s) {
-        element.appendChild(createParagraph(s));
-    };
-
-    var clear = function() {
+    this.clear = function() {
         element.innerHTML = "";
     };
-
-    return {
-        init: init,
-        input: input,
-        out: out,
-        err: err,
-        clear: clear
-    }
 };
+
+ElementConsoleHandler.prototype = new GenericConsoleHandler;
 
 function PopupConsoleHandler() {
 
-    var popup;
+    var popup = window.open('', '', 'width=200,height=100');
     var body;
 
-    var init = function() {
-        popup = window.open('', '', 'width=200,height=100');
+    if (popup) {
+        body = popup.document.getElementsByTagName("body")[0];
+    }
 
-        if (popup) {
-            body = popup.document.getElementsByTagName("body")[0];
-        }
-    };
-
-    var input = function(s) {
-        append(createParagraph("> " + s, "blue"));
-    };
-
-    var out = function(s) {
-        append(createParagraph("< " + s, "red"));
-    };
-
-    var err = function(s) {
-        append(createParagraph("< " + s, "red"));
-    };
-
-    var append = function(s) {
+    this.append = function(s) {
         if (body) {
-            body.appendChild(createParagraph(s));
+            body.appendChild(s);
         }
     };
 
-    var clear = function() {
+    this.clear = function() {
         if (body) {
             body.innerHTML = "";
         }
     };
-
-    return {
-        init: init,
-        input: input,
-        out: out,
-        err: err,
-        clear: clear
-    }
 };
+
+PopupConsoleHandler.prototype = new GenericConsoleHandler;
