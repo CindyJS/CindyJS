@@ -21,7 +21,7 @@ function dumpcs(a) {
     console.log(niceprint(a));
 
     if (a.ctype !== "undefined") {
-        csconsole.append("< " + niceprint(a));
+        csconsole.out(niceprint(a));
     }
 }
 
@@ -378,9 +378,12 @@ function setupConsole() {
     csconsole.init(args);
 }
 
-function createParagraph(s) {
+function createParagraph(s, color) {
     var p = document.createElement("p");
     p.appendChild(document.createTextNode(s));
+
+    p.style.color = color;
+
     return p;
 }
 
@@ -407,7 +410,7 @@ function CindyConsoleHandler() {
                 return;
             }
 
-            csconsole.append("> " + cmd.value);
+            input(cmd.value);
 
             evalcs(cmd.value);
 
@@ -417,8 +420,20 @@ function CindyConsoleHandler() {
         }
     };
 
+    var input = function(s) {
+        append(createParagraph("> " + s, "blue"));
+    };
+
+    var out = function(s) {
+        append(createParagraph("< " + s, "red"));
+    };
+
+    var err = function(s) {
+        append(createParagraph("< "  + s, "red"));
+    };
+
     var append = function(s) {
-        log.appendChild(createParagraph(s));
+        log.appendChild(s);
     };
 
     var clear = function() {
@@ -427,7 +442,9 @@ function CindyConsoleHandler() {
 
     return {
         init: init,
-        append: append,
+        input: input,
+        out: out,
+        err: err,
         clear: clear
     }
 };
@@ -440,6 +457,18 @@ function ElementConsoleHandler() {
         element = document.getElementById(id);
     };
 
+    var input = function(s) {
+        append(createParagraph("> " + s, "blue"));
+    };
+
+    var out = function(s) {
+        append(createParagraph("< " + s, "red"));
+    };
+
+    var err = function(s) {
+        append(createParagraph("< " + s, "red"));
+    };
+
     var append = function(s) {
         element.appendChild(createParagraph(s));
     };
@@ -450,7 +479,9 @@ function ElementConsoleHandler() {
 
     return {
         init: init,
-        append: append,
+        input: input,
+        out: out,
+        err: err,
         clear: clear
     }
 };
@@ -458,27 +489,45 @@ function ElementConsoleHandler() {
 function PopupConsoleHandler() {
 
     var popup;
+    var body;
 
     var init = function() {
         popup = window.open('', '', 'width=200,height=100');
+
+        if (popup) {
+            body = popup.document.getElementsByTagName("body")[0];
+        }
+    };
+
+    var input = function(s) {
+        append(createParagraph("> " + s, "blue"));
+    };
+
+    var out = function(s) {
+        append(createParagraph("< " + s, "red"));
+    };
+
+    var err = function(s) {
+        append(createParagraph("< " + s, "red"));
     };
 
     var append = function(s) {
-        // TODO Use createTextNode
-        if (popup) {
-            popup.document.getElementsByTagName("body")[0].appendChild(createParagraph(s));
+        if (body) {
+            body.appendChild(createParagraph(s));
         }
     };
 
     var clear = function() {
-        if (popup) {
-            popup.document.getElementsByTagName("body")[0].innerHTML = "";
+        if (body) {
+            body.innerHTML = "";
         }
     };
 
     return {
         init: init,
-        append: append,
+        input: input,
+        out: out,
+        err: err,
         clear: clear
     }
 };

@@ -38,7 +38,7 @@ evaluator.err$1 = function(args, modifs) { //OK
     }
     s = varname + " ===> " + niceprint(evaluate(s));
 
-    csconsole.append("<" + s);
+    csconsole.err(s);
 
     return nada;
 };
@@ -60,6 +60,8 @@ evaluator.errc$1 = function(args, modifs) { //OK
 
 evaluator.println$1 = function(args, modifs) {
     console.log(niceprint(evaluate(args[0])));
+
+    csconsole.out(niceprint(evaluate(args[0])));
 };
 
 evaluator.dump$1 = function(args, modifs) {

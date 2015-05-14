@@ -194,7 +194,7 @@ eval_helper.evaluate = function(name, args, modifs) {
         if (f)
             return f(args, modifs);
     }
-    console.log("Called undefined function " + n + " (as " + name + ")");
+    csconsole.err("Called undefined function " + n + " (as " + name + ")");
     return nada;
 };
 
