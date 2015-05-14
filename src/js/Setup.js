@@ -378,6 +378,12 @@ function setupConsole() {
     csconsole.init(args);
 }
 
+function createParagraph(s) {
+    var p = document.createElement("p");
+    p.appendChild(document.createTextNode(s));
+    return p;
+}
+
 function CindyConsoleHandler() {
 
     var cmd;
@@ -412,10 +418,7 @@ function CindyConsoleHandler() {
     };
 
     var append = function(s) {
-        var p = document.createElement("p");
-
-        p.appendChild(document.createTextNode(s));
-        log.appendChild(p);
+        log.appendChild(createParagraph(s));
     };
 
     var clear = function() {
@@ -438,8 +441,7 @@ function ElementConsoleHandler() {
     };
 
     var append = function(s) {
-        // TODO Use createTextNode
-        element.innerHTML += s + "<br>";
+        element.appendChild(createParagraph(s));
     };
 
     var clear = function() {
@@ -463,11 +465,15 @@ function PopupConsoleHandler() {
 
     var append = function(s) {
         // TODO Use createTextNode
-        popup.document.write(s + "<br>");
+        if (popup) {
+            popup.document.getElementsByTagName("body")[0].appendChild(createParagraph(s));
+        }
     };
 
     var clear = function() {
-        popup.document.getElementsByTagName("body")[0].innerHTML = "";
+        if (popup) {
+            popup.document.getElementsByTagName("body")[0].innerHTML = "";
+        }
     };
 
     return {
