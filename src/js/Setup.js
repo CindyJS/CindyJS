@@ -376,7 +376,7 @@ function setupConsole() {
 
 function GenericConsoleHandler(args) {
 
-    this.input = function(s, preventNewline) {
+    this.in = function(s, preventNewline) {
         console.log(s);
 
         if (preventNewline) {
@@ -400,7 +400,7 @@ function GenericConsoleHandler(args) {
 
     this.err = function(s, preventNewline) {
         console.log(s);
-        
+
         if (preventNewline) {
             this.append(this.createTextNode("span", "red", s));
 
@@ -440,7 +440,7 @@ function CindyConsoleHandler() {
             return;
         }
 
-        that.input(cmd.value);
+        that.in(cmd.value);
 
         evalcs(cmd.value);
 
