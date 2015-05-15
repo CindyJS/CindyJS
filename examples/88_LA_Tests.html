@@ -21,17 +21,17 @@
         </script>
         
         <script id='firstDrawing' type='cindyscript'>
-        n = 30;
+        n = 100;
         AA=zeromatrix(n,n);
        repeat(n,j,
          repeat(n,k,
-           AA_j_k=(3*random()-1.5) + i*(3*random()-1.5);
+           AA_j_k=(random()) + i*(random());
          );
        );
 
 
         bb = zerovector(n);
-        repeat(n,j, bb_j = 2*random()-1 + i*(2*random()-1));
+        repeat(n,j, bb_j = random() + i*(random()));
 
         javascript("var tt; t = Date.now()");
         x = linearsolve(AA,bb);
@@ -52,7 +52,7 @@
 
        repeat(n,j,
          repeat(n,k,
-           if(j<k,AA_j_k=0,);
+           if(j<k,AA_j_k=0,AA_j_k = AA_j_k +0.25+0.25*i);
          );
        );
 
