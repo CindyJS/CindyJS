@@ -1426,49 +1426,60 @@ List.det = function(a) {
         var A2 = List.column(a, CSNumber.real(2));
         var A3 = List.column(a, CSNumber.real(3));
         return List.det3(A1, A2, A3);
-    } 
+    }
 
-    var n = a.value.length
-    , ret = CSNumber.real(1),i,j,k,A = JSON.parse(JSON.stringify(a)),
-	Aj,Ai,alpha,temp,k1,k2,k3;
-    for(j=0;j<n-1;j++) {
-        k=j;
-        for(i=j+1;i<n;i++) { if(CSNumber.abs(A.value[i].value[j]).value.real > CSNumber.abs(A.value[k].value[j]).value.real) { k = i; } }
-        if(k !== j) {
-            temp = A.value[k]; A.value[k] = A.value[j]; A.value[j] = temp;
-		ret = CSNumber.neg(ret);
+    var n = a.value.length,
+        ret = CSNumber.real(1),
+        i, j, k, A = JSON.parse(JSON.stringify(a)),
+        Aj, Ai, alpha, temp, k1, k2, k3;
+    for (j = 0; j < n - 1; j++) {
+        k = j;
+        for (i = j + 1; i < n; i++) {
+            if (CSNumber.abs(A.value[i].value[j]).value.real > CSNumber.abs(A.value[k].value[j]).value.real) {
+                k = i;
+            }
+        }
+        if (k !== j) {
+            temp = A.value[k];
+            A.value[k] = A.value[j];
+            A.value[j] = temp;
+            ret = CSNumber.neg(ret);
         }
         Aj = A.value[j];
-        for(i=j+1;i<n;i++) {
+        for (i = j + 1; i < n; i++) {
             Ai = A.value[i];
-            alpha = CSNumber.div(Ai.value[j],Aj.value[j]);
-            for(k=j+1;k<n-1;k+=2) {
-                k1 = k+1;
-                Ai.value[k] = CSNumber.sub(Ai.value[k], CSNumber.mult(Aj.value[k],alpha));
-                Ai.value[k1] = CSNumber.sub(Ai.value[k1],CSNumber.mult(Aj.value[k1],alpha));
+            alpha = CSNumber.div(Ai.value[j], Aj.value[j]);
+            for (k = j + 1; k < n - 1; k += 2) {
+                k1 = k + 1;
+                Ai.value[k] = CSNumber.sub(Ai.value[k], CSNumber.mult(Aj.value[k], alpha));
+                Ai.value[k1] = CSNumber.sub(Ai.value[k1], CSNumber.mult(Aj.value[k1], alpha));
             }
-            if(k!==n) { Ai.value[k] = CSNumber.sub(Ai.value[k],CSNumber.mult(Aj.value[k],alpha)); }
+            if (k !== n) {
+                Ai.value[k] = CSNumber.sub(Ai.value[k], CSNumber.mult(Aj.value[k], alpha));
+            }
         }
-        if(CSNumber._helper.isZero(Aj.value[j])) { return CSNumber.real(0); }
+        if (CSNumber._helper.isZero(Aj.value[j])) {
+            return CSNumber.real(0);
+        }
         ret = CSNumber.mult(ret, Aj.value[j]);
     }
-	var result = CSNumber.mult(ret,A.value[j].value[j]);
-    	return result;
+    var result = CSNumber.mult(ret, A.value[j].value[j]);
+    return result;
 };
 
-List.LUdet = function(a){
-        var LUP = List.LUdecomp(a);
-        var LU = LUP.LU;
+List.LUdet = function(a) {
+    var LUP = List.LUdecomp(a);
+    var LU = LUP.LU;
 
-	var len = LU.value.length;
+    var len = LU.value.length;
 
-	var det = LU.value[0].value[0];
-	for(var i = 1; i<len; i++) det = CSNumber.mult(det, LU.value[i].value[i]);
+    var det = LU.value[0].value[0];
+    for (var i = 1; i < len; i++) det = CSNumber.mult(det, LU.value[i].value[i]);
 
-        // take care of sign
-        if (LUP.TransPos % 2 === 1) det = CSNumber.neg(det);
+    // take care of sign
+    if (LUP.TransPos % 2 === 1) det = CSNumber.neg(det);
 
-        return det;
+    return det;
 };
 
 List.inversereal = function(a) { //Das ist nur Reell und greift auf numeric zurück
