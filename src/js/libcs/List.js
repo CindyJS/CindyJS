@@ -1062,8 +1062,9 @@ List.eucangle = function(a, b) {
 
 
 List.zerovector = function(a) {
-    var erg = [];
-    for (var i = 0; i < Math.floor(a.value.real); i++) {
+    var len = Math.floor(a.value.real);
+    var erg = new Array(len); 
+    for (var i = 0; i < len; i++) {
         erg[i] = 0;
     }
     return List.realVector(erg);
@@ -1071,11 +1072,23 @@ List.zerovector = function(a) {
 
 
 List.zeromatrix = function(a, b) {
-    var erg = [];
-    for (var i = 0; i < Math.floor(a.value.real); i++) {
+    var len = Math.floor(a.value.real);
+    var erg = new Array(len);
+    for (var i = 0; i < len; i++) {
         erg[i] = List.zerovector(b);
     }
     return List.turnIntoCSList(erg);
+};
+
+List.vandermonde = function(a){
+	var len = a.value.length;
+	var erg = List.zeromatrix(len, len);
+
+	for(var i = 0; i < len; i++){
+		for(var j = 0; j < len; j++);
+			erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j-1));
+	}
+	return erg;
 };
 
 
