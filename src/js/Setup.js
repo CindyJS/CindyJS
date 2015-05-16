@@ -54,6 +54,10 @@ function initialTransformation(trafos) {
                 csscale = trafo[trname][0] / 25;
                 csport[trname].apply(null, trafo[trname]);
             }
+            if (trname === "visibleRect") {
+                csport[trname].apply(null, trafo[trname]);
+                csscale = csport.drawingstate.initialmatrix.a / 25;
+            }
         }
         csport.createnewbackup();
     }
@@ -141,11 +145,11 @@ function createCindyNow() {
         csgridscript = analyse('#drawgrid(' + csgridsize + ')', false);
     }
     if (data.snap) cssnap = data.snap;
-    initialTransformation(trafos);
 
     if (c) {
         csw = c.width;
         csh = c.height;
+        initialTransformation(trafos);
         csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty - csh;
         csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty - csh;
         var devicePixelRatio = 1;

@@ -91,6 +91,13 @@ moves by the given offsets in `x` and `y` direction.
 specifies the transformation without reference to prior state.
 This operation makes any previous operations irrelevant.
 The first number is the scaling factor, the other two are the position of the origin.
+* `{visibleRect:[‹number›,‹number›,‹number›,‹number›]}`
+specifies the transformation without reference to prior state,
+in a way that interacts nicely with changing the size of the widget.
+The given coordinates are left, top, right and bottom coordinates of a
+visible rectangle, specified in user coordinates.
+The coordinate system is chosen in such a way that this rectangle will be
+fully visible and centered within the widget.
 
 ### defaultAppearance
 

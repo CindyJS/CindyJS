@@ -59,6 +59,25 @@ function handleFileData(path, err, str) {
             }
             data.ports = [port];
         }
+        if (data.ports &&
+            data.ports.length === 1 &&
+            data.ports[0].width &&
+            data.ports[0].height &&
+            data.ports[0].transform &&
+            data.ports[0].transform.length === 1 &&
+            data.ports[0].transform[0].scaleAndOrigin) {
+            var port = data.ports[0];
+            var transform = port.transform;
+            var sao = transform[0].scaleAndOrigin;
+            var scale = sao[0];
+            var tx = sao[1];
+            var ty = sao[2] - port.height;
+            var left = -tx/scale;
+            var top = -ty/scale;
+            var right = (port.width - tx)/scale;
+            var bottom = -(port.height + ty)/scale;
+            transform[0] = { visibleRect: [left, top, right, bottom] };
+        }
         var res = myStringify(data, "top");
         res = "\nvar cdy = createCindy(" + res + ");\n";
         if (res === script[2])
