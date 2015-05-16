@@ -124,8 +124,8 @@ csport.visibleRect = function(left, top, right, bottom) {
         scale = csw / width;
     else
         scale = csh / height;
-    var originX =(csw - scale * (left + right)) / 2;
-    var originY =(csh - scale * (top + bottom)) / 2;
+    var originX = (csw - scale * (left + right)) / 2;
+    var originY = (csh - scale * (top + bottom)) / 2;
     csport.setMat(scale, 0, 0, scale, originX, originY);
 };
 
@@ -144,7 +144,7 @@ csport.applyMat = function(a, b, c, d, tx, ty) {
     var tl = csport.to(0, -csh);
     var br = csport.to(csw, 0);
     console.log("{visibleRect: [" +
-                tl[0] + "," + tl[1] + "," + br[0] + "," + br[1] + "]}");
+        tl[0] + "," + tl[1] + "," + br[0] + "," + br[1] + "]}");
 };
 
 csport.translate = function(tx, ty) {
