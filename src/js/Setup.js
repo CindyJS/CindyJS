@@ -79,7 +79,12 @@ function createCindyNow() {
             c = port.element;
             if (!c)
                 c = document.getElementById(port.id);
-            if (port.width && port.height) {
+            if (port.fill === "window") {
+                c.setAttribute("width", window.innerWidth);
+                c.setAttribute("height", window.innerHeight);
+                // TODO: dynamic resizing on window change
+            }
+            else if (port.width && port.height) {
                 c.setAttribute("width", port.width);
                 c.setAttribute("height", port.height);
             }

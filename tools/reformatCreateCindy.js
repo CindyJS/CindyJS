@@ -113,6 +113,7 @@ var orderMap = {
     ]),
     "ports": orderCmp.bind(null, [
         "id",
+        "fill",
         "width",
         "height",
         "background",

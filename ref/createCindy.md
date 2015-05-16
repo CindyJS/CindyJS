@@ -27,6 +27,10 @@ Each port description is a dictionary which may contain the following items:
 * `transform` specifies coordinate system transformations.
   If this is omitted, the global set of transformations applies instead.
   For details see the `transform` setting at the top level.
+* `fill: "window"` will adjust the size of the canvas so that it matches the
+  `innerWidth` and `innerHeight` of the window.
+  This overrides the `width` and `height` attributes of the canvas element.
+  At the moment this still doesn't accomodate dynamic changes to window size.
 
 Either `id` or `element` must be given, with the latter taking precedence.
 The element identified in this way must be a `HTMLCanvasElement`.
