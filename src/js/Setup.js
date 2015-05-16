@@ -80,7 +80,7 @@ function createCindyNow() {
                 c.setAttribute("height", port.height);
             }
             if (port.background)
-                c.style.background_color = port.background;
+                c.style.backgroundColor = port.background;
             if (port.transform !== undefined)
                 trafos = port.transform;
         }
