@@ -43,8 +43,9 @@ List.println = function(l) {
 };
 
 List.realMatrix = function(l) {
-    var erg = [];
-    for (var i = 0; i < l.length; i++) {
+    var len = l.length;
+    var erg = new Array(len);
+    for (var i = 0; i < len ; i++) {
         erg[i] = List.realVector(l[i]);
     }
     return List.turnIntoCSList(erg);
