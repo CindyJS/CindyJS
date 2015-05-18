@@ -1299,7 +1299,7 @@ evaluator.canvas$4 = function(args, modifs) {
 
     var a1 = (cw * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
     var a2 = (cw * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
-    var a3 = - a1 * x11 - a2 * x12;
+    var a3 = -a1 * x11 - a2 * x12;
     var a4 = (ch * (x12 - x32) - ch * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
     var a5 = (ch * (x11 - x31) - ch * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
     var a6 = ch - a4 * x11 - a5 * x12;
@@ -1339,7 +1339,6 @@ evaluator.canvas$5 = function(args, modifs) {
 
     var cw = localcanvas.width;
     var ch = localcanvas.height;
-
 
 
     var cva = csport.from(pta.x, pta.y, 1);
