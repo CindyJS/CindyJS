@@ -141,7 +141,7 @@ Accessor.getField = function(geo, field) {
 
 Accessor.setField = function(geo, field, value) {
 
-    if (field === "color") {    
+    if (field === "color") {
         geo.color = value;
     }
     if (field === "size") {
@@ -151,13 +151,13 @@ Accessor.setField = function(geo, field, value) {
         geo.alpha = value;
     }
     if (field === "visible") {
-        if(value.ctype==="boolean"){
-           geo.visible = value.value;
+        if (value.ctype === "boolean") {
+            geo.visible = value.value;
         }
     }
     if (field === "pinned") {
-        if(value.ctype==="boolean"){
-           geo.pinned = value.value;
+        if (value.ctype === "boolean") {
+            geo.pinned = value.value;
         }
     }
 

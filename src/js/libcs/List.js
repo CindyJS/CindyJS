@@ -45,7 +45,7 @@ List.println = function(l) {
 List.realMatrix = function(l) {
     var len = l.length;
     var erg = new Array(len);
-    for (var i = 0; i < len ; i++) {
+    for (var i = 0; i < len; i++) {
         erg[i] = List.realVector(l[i]);
     }
     return List.turnIntoCSList(erg);
@@ -1064,7 +1064,7 @@ List.eucangle = function(a, b) {
 
 List.zerovector = function(a) {
     var len = Math.floor(a.value.real);
-    var erg = new Array(len); 
+    var erg = new Array(len);
     for (var i = 0; i < len; i++) {
         erg[i] = 0;
     }
@@ -1081,15 +1081,15 @@ List.zeromatrix = function(a, b) {
     return List.turnIntoCSList(erg);
 };
 
-List.vandermonde = function(a){
-	var len = a.value.length;
-	var erg = List.zeromatrix(len, len);
+List.vandermonde = function(a) {
+    var len = a.value.length;
+    var erg = List.zeromatrix(len, len);
 
-	for(var i = 0; i < len; i++){
-		for(var j = 0; j < len; j++);
-			erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j-1));
-	}
-	return erg;
+    for (var i = 0; i < len; i++) {
+        for (var j = 0; j < len; j++);
+        erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
+    }
+    return erg;
 };
 
 
