@@ -470,8 +470,8 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         }
         for (var jj = ii+1; jj < 4; jj++) {
             if(tracingFailed) break;
-            match_cost = dist_old_new[ii];
-            //match_cost = dsum;
+            //match_cost = dist_old_new[ii];
+            match_cost = dsum;
             match_cost *= safety;
 
             odist = List.projectiveDistMinScal(old_el[ii], old_el[jj]); // this is do1o2...
