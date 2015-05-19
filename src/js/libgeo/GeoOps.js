@@ -1047,7 +1047,7 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var delta = List.det(BB);
 
     // degenerate Case
-    var myeps = 1e-16;
+    var myeps = 1e-8;
     var AAdegen = (Math.abs(alpha.value.real) < myeps);
     var BBdegen = (Math.abs(delta.value.real) < myeps);
 
@@ -1134,8 +1134,11 @@ geoOps.IntersectConicConic.updatePosition = function(el) {
     var BB = csgeo.csnames[(el.args[1])].matrix;
 
     var erg = geoOps._helper.IntersectConicConic(AA, BB);
-    el.results = List.turnIntoCSList(erg);
+    erg = tracing4(erg[0], erg[1], erg[2], erg[3]);
+    el.results = erg;
+//    el.results = List.turnIntoCSList(erg);
 };
+geoOps.IntersectConicConic.tracingStateSize = tracing4.stateSize;
 
 
 geoOps.SelectP = {};
