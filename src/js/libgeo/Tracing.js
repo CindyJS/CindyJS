@@ -128,7 +128,7 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 
 
 function trace() {
-    var traceLimit = 1000;
+    var traceLimit = 100;
     var traceSteps = 0;
     var mover = move.mover;
     var deps = getGeoDependants(mover);
@@ -186,7 +186,12 @@ function trace() {
         } catch (e) {
             if (e !== RefineException)
                 throw e;
+            if(traceLimit*0.75 > traceSteps)
             step *= 0.5; // reduce step size
+            else{
+                console.log("incresing stepsize due trace limit");
+                step*=2;
+            }
             t = last + step;
             /*
             if (traceLimit === 0) {
