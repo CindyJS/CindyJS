@@ -128,7 +128,7 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 
 
 function trace() {
-    var traceLimit = 100;
+    var traceLimit = 50;
     var traceSteps = 0;
     var mover = move.mover;
     var deps = getGeoDependants(mover);
@@ -143,6 +143,7 @@ function trace() {
     var t = last + step;
     tracingFailed = false;
     while (last !== t) {
+        console.log("step", step);
         traceSteps++;
         if (traceLog) {
             traceLogRow = [];
@@ -186,12 +187,7 @@ function trace() {
         } catch (e) {
             if (e !== RefineException)
                 throw e;
-            if(traceLimit*0.75 > traceSteps)
             step *= 0.5; // reduce step size
-            else{
-                console.log("incresing stepsize due trace limit");
-                step*=2;
-            }
             t = last + step;
             /*
             if (traceLimit === 0) {
@@ -419,7 +415,7 @@ tracing4.stateSize = 24; // four three-element complex vectors
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     //var debug = function() {};
     var debug = console.log.bind(console);
-    var safety = 2;
+    var safety = 3;
 
     var old_el = [o1, o2, o3, o4];
     var new_el = [n1, n2, n3, n4];
@@ -475,8 +471,6 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         for (var jj = ii+1; jj < 4; jj++) {
             if(tracingFailed) break;
             match_cost = dist_old_new[ii];
-            if((List.projectiveDistMinScal(old_el[ii], res[ii])- dist_old_new[ii])!== 0)
-            console.log("projectiveDistMinScal", List.projectiveDistMinScal(old_el[ii], res[ii])- dist_old_new[ii]);
             //match_cost = dsum;
             match_cost *= safety;
 
