@@ -7,31 +7,33 @@
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csinit" type="text/x-cindyscript">
 
-// Initialization code, executed once up front.
+x = 0;
+f():=(
+  x = x + 0.1;
+  if (x > 4*pi, x = x - 4*pi; resetclock());
+  setTimeout(0.1*(cos(x)+1),f());
+);
+setTimeout(1, f());
 
 </script>
 <script id="csdraw" type="text/x-cindyscript">
 
-// Drawing code, executed whenever the canvas gets redrawn.
+draw(5*[sin(x), cos(x)]);
+drawtext([-2,6], seconds());
+drawtext([-2,7], format(x/(2*pi), 2));
 
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({ // See ref/createCindy documentation for details.
-  ports: [{id: "CSCanvas"}],
+var cdy = createCindy({
+  canvasname: "CSCanvas",
   scripts: "cs*",
   language: "en",
-  defaultAppearance: {
-    // See GeoBasics.js for possible attributes.
-  },
+  defaultAppearance: {},
   geometry: [
     {name:"A", type:"Free", pos:[0,0]}
-    // For allowed types, see GeoOps.js.
-    // For allowed properties, see csinit in GeoBasics.js.
-  ] // End of geometry array.
+  ]
 });
-
-// Remove all comments after adjusting this template for your use case.
 
 </script>
 </head>

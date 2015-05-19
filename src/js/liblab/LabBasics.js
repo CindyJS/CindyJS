@@ -17,7 +17,31 @@ doPri45.b1 = [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84, 0];
 doPri45.b2 = [5179 / 57600, 0, 7571 / 16695, 393 / 640, -92097 / 339200, 187 / 2100, 1 / 40];
 doPri45.size = 7; //is this 5, 6 or 7
 
+var fehlberg78 = {};
 
+fehlberg78.a = [
+    [],
+    [2 / 27],
+    [1 / 36, 1 / 12],
+    [1 / 24, 0, 1 / 8],
+    [5 / 12, 0, -25 / 16, 25 / 16],
+    [1 / 20, 0, 0, 1 / 4, 1 / 5],
+    [-25 / 108, 0, 0, 125 / 108, -65 / 27, 125 / 54],
+    [31 / 300, 0, 0, 0, 61 / 225, -2 / 9, 13 / 900],
+    [2, 0, 0, -53 / 6, 704 / 45, -107 / 9, 67 / 90, 3],
+    [-91 / 108, 0, 0, 23 / 108, -976 / 135, 311 / 54, -19 / 60, 17 / 6, -1 / 12],
+    [2383 / 4100, 0, 0, -341 / 164, 4496 / 1025, -301 / 82, 2133 / 4100, 45 / 82, 45 / 164, 18 / 41],
+    [3 / 205, 0, 0, 0, 0, -6 / 41, -3 / 205, -3 / 41, 3 / 41, 6 / 41, 0],
+    [-1777 / 4100, 0, 0, -341 / 164, 4496 / 1025, -289 / 82, 2193 / 4100, 51 / 82, 33 / 164, 12 / 41, 0, 1],
+    [0, 0, 0, 0, 0, 34 / 105, 9 / 35, 9 / 35, 9 / 280, 9 / 280, 0, 41 / 840, 41 / 840]
+];
+fehlberg78.dt = [0, 2 / 27, 1 / 9, 1 / 6, 5 / 12, 1 / 2, 5 / 6, 1 / 6, 2 / 3, 1 / 3, 1, 0, 1];
+fehlberg78.b1 = [0, 0, 0, 0, 0, 34 / 105, 9 / 35, 9 / 35, 9 / 280, 9 / 280, 0, 41 / 840, 41 / 840];
+fehlberg78.b2 = [41 / 840, 0, 0, 0, 0, 34 / 105, 9 / 35, 9 / 35, 9 / 280, 9 / 280, 41 / 840, 0, 0];
+fehlberg78.size = 13;
+
+
+//var rk = fehlberg78;
 var rk = doPri45;
 var behaviors;
 var masses = [];
@@ -25,11 +49,10 @@ var csPhysicsInited = false;
 
 function csreinitphys(behavs) {
     behaviors.forEach(function(beh) {
-     var geoname = beh.name;
-     labObjects[beh.behavior.type].init(beh.behavior, csgeo.csnames[geoname]);
+        var geoname = beh.name;
+        labObjects[beh.behavior.type].init(beh.behavior, csgeo.csnames[geoname]);
 
-    }
-    );
+    });
 }
 
 
@@ -68,6 +91,7 @@ lab.tick = function() {
 
     for (var i = 0; i < labObjects.env.accuracy; i++) {
         lab.tick1(labObjects.env.deltat / labObjects.env.accuracy);
+        cs_simulationstep();
     }
 };
 
@@ -264,10 +288,12 @@ lab.oneRKStep = function(mydeltat) {
 
         }
         var error = calculateError(mydeltat);
-
-        if (error > 0.001 && mydeltat > 0.0000001) {
-            //            if (error > 0.1 && mydeltat > 0.001) {
-            mydeltat /= 2;
+        //console.log(error);
+        //console.log(mydeltat);
+        if (error > labObjects.env.errorbound && mydeltat > labObjects.env.lowestdeltat) {
+            //          if (error > 0.0001 && mydeltat > 0.0000000001) {
+            mydeltat /= labObjects.env.slowdownfactor;
+            //            mydeltat /= 4;
             recallInitialPosition();
         } else {
 

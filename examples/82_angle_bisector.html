@@ -18,14 +18,27 @@
 <script type="text/javascript">
 
 var cdy = createCindy({ // See ref/createCindy documentation for details.
-  ports: [{id: "CSCanvas"}],
+  canvasname: "CSCanvas",
   scripts: "cs*",
   language: "en",
+  grid:1,
+  snap:true,
   defaultAppearance: {
     // See GeoBasics.js for possible attributes.
   },
   geometry: [
-    {name:"A", type:"Free", pos:[0,0]}
+    {name:"A", type:"Free", pos:[-1,1]},
+    {name:"B", type:"Free", pos:[1,-1]},
+    {name:"C", type:"Free", pos:[-3,-3]},
+    {name:"D", type:"Free", pos:[3,3]},
+    {name:"l", type:"Join", args:["A","B"],color:[0,0,1]},
+    {name:"m", type:"Join", args:["C","D"],color:[0,0,1]},
+
+    {name:"aBi", type:"angleBisector", args:["l","m"]},
+
+    {name:"al1", type:"SelectL", args:["aBi"], index:1, color:[1,0,0]},
+    {name:"al2", type:"SelectL", args:["aBi"], index:2, color:[0,1,0]},
+
     // For allowed types, see GeoOps.js.
     // For allowed properties, see csinit in GeoBasics.js.
   ] // End of geometry array.

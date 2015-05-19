@@ -313,7 +313,8 @@ geoOps.CircleMr = function(el) {
         var xx = mid.value[0].value.real - mouse.x;
         var yy = mid.value[1].value.real - mouse.y;
         var rad = Math.sqrt(xx * xx + yy * yy); //+move.offsetrad;
-        el.radius = CSNumber.real(rad + move.offsetrad);
+        //      el.radius = CSNumber.real(rad + move.offsetrad);
+        el.radius = CSNumber.real(rad); // + move.offsetrad);
     }
     var r = el.radius;
     var p = List.turnIntoCSList([r, CSNumber.real(0), CSNumber.real(0)]);
@@ -340,6 +341,28 @@ geoOps.CircleMFixedr = function(el) {
 };
 geoOpMap.CircleMFixedr = "C";
 
+geoOps._helper.getConicType = function(C) {
+    var myEps = 1e-16;
+    var adet = CSNumber.abs(List.det(C));
+
+    if (adet.value.real < myEps) {
+        return "degenrate";
+    }
+
+    var det = CSNumber.mult(C.value[0].value[0], C.value[1].value[1]);
+    det = CSNumber.sub(det, CSNumber.pow(C.value[0].value[1], CSNumber.real(2)));
+
+    det = det.value.real;
+
+    if (Math.abs(det) < myEps) {
+        return "parabola";
+    } else if (det > myEps) {
+        return "ellipsoid";
+    } else {
+        return "hyperbola";
+    }
+};
+
 
 geoOps._helper.ConicBy5 = function(el, a, b, c, d, p) {
 
@@ -349,6 +372,12 @@ geoOps._helper.ConicBy5 = function(el, a, b, c, d, p) {
     var v34 = List.turnIntoCSList([List.cross(c, d)]);
     var deg1 = General.mult(List.transpose(v14), v23);
 
+    var erg = geoOps._helper.conicFromTwoDegenerates(v23, v14, v12, v34, p);
+    return erg;
+};
+
+geoOps._helper.conicFromTwoDegenerates = function(v23, v14, v12, v34, p) {
+    var deg1 = General.mult(List.transpose(v14), v23);
     var deg2 = General.mult(List.transpose(v34), v12);
     deg1 = List.add(deg1, List.transpose(deg1));
     deg2 = List.add(deg2, List.transpose(deg2));
@@ -503,6 +532,7 @@ geoOps.ConicBy4p1l = function(el) {
 };
 geoOpMap.ConicBy4p1l = "T";
 
+
 geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
     // see http://math.stackexchange.com/a/1187525/35416
     var l = List.cross(a, b);
@@ -653,6 +683,78 @@ geoOps.ConicBy1p4l = function(el) {
 };
 geoOpMap.ConicBy1p4l = "T";
 
+geoOps.ConicBy2Foci1P = function(el) {
+    var F1 = csgeo.csnames[(el.args[0])].homog;
+    var F2 = csgeo.csnames[(el.args[1])].homog;
+    var PP = csgeo.csnames[(el.args[2])].homog;
+
+    // i and j
+    var II = List.ii;
+    var JJ = List.jj;
+
+    var b1 = List.normalizeMax(List.cross(F1, PP));
+    var b2 = List.normalizeMax(List.cross(F2, PP));
+    var a1 = List.normalizeMax(List.cross(PP, II));
+    var a2 = List.normalizeMax(List.cross(PP, JJ));
+
+    var har = geoOps._helper.coHarmonic(a1, a2, b1, b2);
+    var e1 = List.normalizeMax(har[0]);
+    var e2 = List.normalizeMax(har[1]);
+
+    // lists for transposed
+    var lII = List.turnIntoCSList([II]);
+    var lJJ = List.turnIntoCSList([JJ]);
+    var lF1 = List.turnIntoCSList([F1]);
+    var lF2 = List.turnIntoCSList([F2]);
+
+    var co1 = geoOps._helper.conicFromTwoDegenerates(lII, lJJ, lF1, lF2, e1);
+    co1 = List.normalizeMax(co1);
+    var co2 = geoOps._helper.conicFromTwoDegenerates(lII, lJJ, lF1, lF2, e2);
+    co2 = List.normalizeMax(co2);
+
+    // adjoint
+    co1 = List.normalizeMax(List.adjoint3(co1));
+    co2 = List.normalizeMax(List.adjoint3(co2));
+
+    // return ellipsoid first 
+    if (geoOps._helper.getConicType(co1) !== "ellipsoid") {
+        var temp = co1;
+        co1 = co2;
+        co2 = temp;
+    }
+
+    // remove hyperbola in limit case
+    if (List.almostequals(F1, F2).value) {
+        var three = CSNumber.real(3);
+        co2 = List.zeromatrix(three, three);
+    }
+
+    var erg = [co1, co2];
+    el.results = erg;
+
+};
+geoOpMap.ConicBy4p1l = "T";
+
+geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
+    var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
+
+    var ix = List.det3(poi, b1, a1);
+    var jx = List.det3(poi, b1, a2);
+    var iy = List.det3(poi, b2, a1);
+    var jy = List.det3(poi, b2, a2);
+
+    var sqj = CSNumber.sqrt(CSNumber.mult(jy, jx));
+    var sqi = CSNumber.sqrt(CSNumber.mult(iy, ix));
+
+    var mui = General.mult(a1, sqj);
+    var tauj = General.mult(a2, sqi);
+
+    var out1 = List.add(mui, tauj);
+    var out2 = List.sub(mui, tauj);
+
+    return [out1, out2];
+};
+
 
 geoOps.ConicBy5lines = function(el) {
     var a = csgeo.csnames[(el.args[0])].homog;
@@ -682,6 +784,86 @@ geoOps.CircleBy3 = function(el) {
 };
 geoOpMap.CircleBy3 = "C";
 
+geoOps.Polar = function(el) {
+    var Conic = csgeo.csnames[(el.args[0])];
+    var Point = csgeo.csnames[(el.args[1])];
+    el.homog = General.mult(Conic.matrix, Point.homog);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Line");
+};
+geoOpMap.Polar = "L";
+
+geoOps.angleBisector = function(el) {
+    var xx = csgeo.csnames[(el.args[0])];
+    var yy = csgeo.csnames[(el.args[1])];
+
+    var poi = List.normalizeMax(List.cross(xx.homog, yy.homog));
+
+    var myI = List.normalizeMax(List.cross(List.ii, poi));
+    var myJ = List.normalizeMax(List.cross(List.jj, poi));
+
+    var sqi = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myI), List.det3(poi, xx.homog, myI)));
+    var sqj = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myJ), List.det3(poi, xx.homog, myJ)));
+
+    var mui = General.mult(myI, sqj);
+    var tauj = General.mult(myJ, sqi);
+
+    var erg1 = List.add(mui, tauj);
+    var erg2 = List.sub(mui, tauj);
+
+    var erg1zero = List.abs(erg1).value.real < CSNumber.eps;
+    var erg2zero = List.abs(erg2).value.real < CSNumber.eps;
+
+    if (!erg1zero && !erg2zero) {
+        erg1 = List.normalizeMax(erg1);
+        erg2 = List.normalizeMax(erg2);
+    } else if (erg1zero) {
+        erg2 = List.normalizeMax(erg2);
+    } else if (erg2zero) {
+        erg1 = List.normalizeMax(erg1);
+    }
+
+    // degenrate case
+    if ((List.almostequals(erg1, List.linfty).value && erg2zero) || (List.almostequals(erg2, List.linfty).value && erg1zero)) {
+        var mu, tau, mux, tauy;
+        if (List.abs(erg1).value.real < List.abs(erg2).value.real) {
+            mu = List.det3(poi, yy.homog, erg2);
+            tau = List.det3(poi, xx.homog, erg2);
+
+            mux = General.mult(xx.homog, mu);
+            tauy = General.mult(yy.homog, tau);
+
+            erg1 = List.add(mux, tauy);
+
+        } else {
+            mu = List.det3(poi, yy.homog, erg1);
+            tau = List.det3(poi, xx.homog, erg1);
+
+            mux = General.mult(xx.homog, mu);
+            tauy = General.mult(yy.homog, tau);
+
+            erg2 = List.add(mux, tauy);
+        }
+    }
+
+    erg1 = List.normalizeMax(erg1);
+    erg2 = List.normalizeMax(erg2);
+
+    // Billigtracing
+    if (!el.inited) {
+        el.check1 = erg1;
+        el.check2 = erg2;
+        el.inited = true;
+        el.results = List.turnIntoCSList([erg1, erg2]);
+    } else {
+        var action = geoOps._helper.tracing2(erg1, erg2, el.check1, el.check2, el);
+        if (!List._helper.isNaN(el.results.value[0]) && !List._helper.isNaN(el.results.value[1])) {
+            el.check1 = el.results.value[0];
+            el.check2 = el.results.value[1];
+        }
+    }
+};
+geoOpMap.angleBisector = "T";
 
 geoOps._helper.tracing2 = function(n1, n2, c1, c2, el) { //Billigtracing
     var OK = 0;

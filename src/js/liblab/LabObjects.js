@@ -469,7 +469,9 @@ labObjects.Sun = {
     restorePos: function(beh, i) {},
 
 
-    sqDist: function(beh, i, j) {},
+    sqDist: function(beh, i, j) {
+        return 0;
+    },
 
     kineticEnergy: function(beh) {},
 
@@ -481,8 +483,6 @@ labObjects.Sun = {
 
 
 };
-
-
 
 
 /*----------------------------GRAVITY--------------------------*/
@@ -500,7 +500,7 @@ labObjects.Gravity = {
         beh.namea = elem.args[0];
         beh.nameb = elem.args[1];
         beh.ma = csgeo.csnames[beh.namea];
-        beh.mb = csgeo.csnames[beh.nameb];        
+        beh.mb = csgeo.csnames[beh.nameb];
 
     },
 
@@ -528,17 +528,17 @@ labObjects.Gravity = {
         var pta = eval_helper.extractPoint(beh.ma.homog);
         var ptb = eval_helper.extractPoint(beh.mb.homog);
 
-        var  xa = pta.x;
-        var  ya = pta.y;
-        var  xb = ptb.x;
-        var  yb = ptb.y;
+        var xa = pta.x;
+        var ya = pta.y;
+        var xb = ptb.x;
+        var yb = ptb.y;
 
-        var fx = (xb-xa)*beh.strength;
-        var fy = (yb-ya)*beh.strength;
+        var fx = (xb - xa) * beh.strength;
+        var fy = (yb - ya) * beh.strength;
         var fz = 0;
         for (var i = 0; i < masses.length; i++) {
             var m = masses[i];
-           
+
             m.behavior.fx += fx * m.behavior.mass;
             m.behavior.fy += fy * m.behavior.mass;
             m.behavior.fz += fz * m.behavior.mass;
@@ -554,7 +554,9 @@ labObjects.Gravity = {
     restorePos: function(beh, i) {},
 
 
-    sqDist: function(beh, i, j) {},
+    sqDist: function(beh, i, j) {
+        return 0;
+    },
 
     kineticEnergy: function(beh) {},
 
@@ -566,8 +568,6 @@ labObjects.Gravity = {
 
 
 };
-
-
 
 
 /*-------------------------SPRING-----------------------*/
@@ -683,7 +683,9 @@ labObjects.Spring = {
 
     restorePos: function(beh, i) {},
 
-    sqDist: function(beh, i, j) {},
+    sqDist: function(beh, i, j) {
+        return 0;
+    },
 
     kineticEnergy: function(beh) {},
 
@@ -753,7 +755,9 @@ labObjects.Bouncer = {
 
     restorePos: function(beh, i) {},
 
-    sqDist: function(beh, i, j) {},
+    sqDist: function(beh, i, j) {
+        return 0;
+    },
 
     kineticEnergy: function(beh) {},
 
@@ -860,6 +864,7 @@ labObjects.Bouncer = {
 /*-------------------------ENVIRONMENT-----------------------*/
 labObjects.Environment = {
 
+
     init: function(beh) {
         if (typeof(beh.gravity) === 'undefined') beh.gravity = 0;
         if (typeof(beh.friction) === 'undefined') beh.friction = 0;
@@ -871,6 +876,10 @@ labObjects.Environment = {
         if (typeof(beh.newton) === 'undefined') beh.newton = false;
         if (typeof(beh.ballInteractionBoosting) === 'undefined') beh.ballInteractionBoosting = 1;
         labObjects.env = beh;
+        beh.errorbound = 0.001;
+        beh.lowestdeltat = 0.0000001;
+        beh.slowdownfactor = 2;
+
 
     },
 
@@ -997,7 +1006,9 @@ labObjects.Environment = {
 
     restorePos: function(beh, i) {},
 
-    sqDist: function(beh, i, j) {},
+    sqDist: function(beh, i, j) {
+        return 0;
+    },
 
     kineticEnergy: function(beh) {},
 

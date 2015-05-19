@@ -140,12 +140,27 @@ Accessor.getField = function(geo, field) {
 };
 
 Accessor.setField = function(geo, field, value) {
+
     if (field === "color") {
         geo.color = value;
     }
     if (field === "size") {
         geo.size = value;
     }
+    if (field === "alpha") {
+        geo.alpha = value;
+    }
+    if (field === "visible") {
+        if (value.ctype === "boolean") {
+            geo.visible = value.value;
+        }
+    }
+    if (field === "pinned") {
+        if (value.ctype === "boolean") {
+            geo.pinned = value.value;
+        }
+    }
+
     if (field === "xy" && geo.kind === "P" && geo.ismovable && List._helper.isNumberVecN(value, 2)) {
         movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]));
         recalc();
@@ -167,6 +182,9 @@ Accessor.setField = function(geo, field, value) {
     }
     if (geo.behavior) {
         if (field === "mass" && geo.behavior.type === "Mass" && value.ctype === "number") {
+            geo.behavior.mass = value.value.real;
+        }
+        if (field === "mass" && geo.behavior.type === "Sun" && value.ctype === "number") {
             geo.behavior.mass = value.value.real;
         }
         if (field === "friction" && geo.behavior.type === "Mass" && value.ctype === "number") {
