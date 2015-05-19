@@ -128,7 +128,7 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 
 
 function trace() {
-    var traceLimit = 250;
+    var traceLimit = 1000;
     var traceSteps = 0;
     var mover = move.mover;
     var deps = getGeoDependants(mover);
@@ -143,7 +143,7 @@ function trace() {
     var t = last + step;
     tracingFailed = false;
     while (last !== t) {
-        traceSteps = 0;
+        traceSteps++;
         if (traceLog) {
             traceLogRow = [];
             traceLog.push(traceLogRow);
@@ -162,6 +162,7 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
+        if(traceLimit < traceSteps) console.log("tracelimit reached");
         noMoreRefinements = (traceSteps > traceLimit || last + 0.5 * step <= last);
         try {
             stateInIdx = stateOutIdx = mover.stateIdx;
@@ -411,9 +412,9 @@ tracing4.stateSize = 24; // four three-element complex vectors
 
 
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
-    var debug = function() {};
-    //var debug = console.log.bind(console);
-    var safety = 3;
+    //var debug = function() {};
+    var debug = console.log.bind(console);
+    var safety = 2;
 
     var old_el = [o1, o2, o3, o4];
     var new_el = [n1, n2, n3, n4];
@@ -469,7 +470,8 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         for (var jj = ii+1; jj < 4; jj++) {
             if(tracingFailed) break;
             match_cost = dist_old_new[ii];
-            //console.log("projectiveDistMinScal", List.projectiveDistMinScal(old_el[ii], res[ii]), dist_old_new[ii]);
+            if((List.projectiveDistMinScal(old_el[ii], res[ii])- dist_old_new[ii])!== 0)
+            console.log("projectiveDistMinScal", List.projectiveDistMinScal(old_el[ii], res[ii])- dist_old_new[ii]);
             //match_cost = dsum;
             match_cost *= safety;
 
@@ -498,6 +500,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
                 // "good", and keep track of things from now on.
                 debug("Moved out of singularity.");
             } else {
+                    //console.log(odist, ndist, match_cost);
                 //console.log(odist, ndist, match_cost);
                 // Neither old nor new position looks singular, so there was
                 // an avoidable singularity along the way. Refine to avoid it.
