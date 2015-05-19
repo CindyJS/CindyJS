@@ -151,12 +151,12 @@ Accessor.setField = function(geo, field, value) {
         geo.alpha = value;
     }
     if (field === "visible") {
-        if(value.ctype=="boolean"){
+        if(value.ctype==="boolean"){
            geo.visible = value.value;
         }
     }
     if (field === "pinned") {
-        if(value.ctype=="boolean"){
+        if(value.ctype==="boolean"){
            geo.pinned = value.value;
         }
     }
