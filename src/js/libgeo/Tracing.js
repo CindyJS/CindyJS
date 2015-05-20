@@ -143,8 +143,8 @@ function trace() {
     var t = last + step;
     tracingFailed = false;
     while (last !== t) {
-        console.log("step", step);
         traceSteps++;
+//        if(traceSteps > traceLimit) console.log("REACHED TRACELIMIT!");
         if (traceLog) {
             traceLogRow = [];
             traceLog.push(traceLogRow);
@@ -163,9 +163,10 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        if(traceLimit < traceSteps) console.log("tracelimit reached");
-        noMoreRefinements = (traceSteps > traceLimit || last + 0.5 * step <= last);
-        try {
+        noMoreRefinements = (traceSteps > traceLimit || step < 1e-8);
+
+        // use own function to enable compiler optimization
+        var coretracing = function(){
             stateInIdx = stateOutIdx = mover.stateIdx;
             mover.param =
                 parameterPath(mover, t, tc, lastGoodParam, targetParam);
@@ -184,6 +185,9 @@ function trace() {
             t += step;
             if (t >= 1) t = 1;
             stateSwapBad(); // may become good if we complete without failing
+        }
+        try {
+                coretracing();
         } catch (e) {
             if (e !== RefineException)
                 throw e;
@@ -413,48 +417,40 @@ tracing4.stateSize = 24; // four three-element complex vectors
 
 
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
-    //var debug = function() {};
+//    var debug = function() {};
     var debug = console.log.bind(console);
-    var safety = 3;
+    var safety = 0.25;
 
     var old_el = [o1, o2, o3, o4];
     var new_el = [n1, n2, n3, n4];
 
     // first we leave everything to input
-    var res = [n1, n2, n3, n4];
-
     if (tracingInitial)
-        return res;
+        return new_el;
+    var res = [];
 
-    var dist_old_new = new Array(4); // this will hold old to new points matching distance o1n1, o2n3 ... after matching
 
-    // reorder elements -- could be easily generelized
-    var dist, min_dist = Infinity,
-        idx, tmp;
+    var dist, min_cost= Infinity; 
+
+    var perms = permutationsFixedList[4];
+    var bestperm;
+    for(var k = 0; k < perms.length; k++){
     var dsum = 0; // record total costs
+    var cperm = perms[k];
     for (var ii = 0; ii < 4; ii++) {
-            idx = ii;
-        for (var kk = ii; kk < 4; kk++) {
-            dist = List.projectiveDistMinScal(old_el[ii], res[kk]);
-            if (dist < min_dist) {
-                idx = kk;
-                min_dist = dist;
-            }
-
-        }
-        // swap elements if necessary
-        if (idx !== ii) {
-            tmp = res[ii];
-            res[ii] = res[idx];
-            res[idx] = tmp;
-        }
-        dsum += min_dist;
-        dist_old_new[ii] = min_dist;
-        min_dist = Infinity;
+            dist = List.projectiveDistMinScal(old_el[ii], new_el[cperm[ii]]);
+            dsum += dist;
+    }
+    if(dsum < min_cost){
+        bestperm = cperm;
+        min_cost= dsum;
+    }
     }
 
-    //console.log("res", res, old_el);
-    //debugger;
+    // order
+    for(var ii = 0; ii < 4; ii++){
+        res[ii] = new_el[bestperm[ii]];
+    }
 
     // assume now we have machting between res and old_el
     var odist, ndist, diff, match_cost;
@@ -471,7 +467,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         for (var jj = ii+1; jj < 4; jj++) {
             if(tracingFailed) break;
             //match_cost = dist_old_new[ii];
-            match_cost = dsum;
+            match_cost = min_cost; //dsum;
             match_cost *= safety;
 
             odist = List.projectiveDistMinScal(old_el[ii], old_el[jj]); // this is do1o2...
