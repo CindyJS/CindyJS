@@ -128,7 +128,7 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 
 
 function trace() {
-    var traceStepLimit = 150;
+    var traceStepLimit = 300;
     var traceStepCount = 0;
     var mover = move.mover;
     var deps = getGeoDependants(mover);
@@ -163,7 +163,8 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-8 );//  (last + 0.5 * step <= last));
+        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-14 );//  (last + 0.5 * step <= last));
+        //if(noMoreRefinements) console.log(traceStepCount, step);
 
         // use own function to enable compiler optimization
         /* jshint ignore:start */
@@ -472,10 +473,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         var bestperm;
     
         var distMatrix = new Array(4);
-        distMatrix[0] = new Array(4);
-        distMatrix[1] = new Array(4);
-        distMatrix[2] = new Array(4);
-        distMatrix[3] = new Array(4);
+        for(var q = 0; q < 4; q++) distMatrix[q] = new Array(4);
     
         var cperm; // current permutation
         for(var k = 0; k < perms.length; k++){
