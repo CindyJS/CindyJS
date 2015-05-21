@@ -287,7 +287,7 @@ function startit() {
 
 function updateCindy() {
     csport.reset();
-    if (move && move.prev.x !== mouse.x && move.prev.y !== mouse.y) {
+    if (move && (move.prev.x !== mouse.x || move.prev.y !== mouse.y)) {
         trace();
         move.prev.x = mouse.x;
         move.prev.y = mouse.y;
