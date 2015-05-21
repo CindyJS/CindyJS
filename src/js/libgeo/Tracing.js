@@ -128,7 +128,7 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 
 
 function trace() {
-    var traceStepLimit = 300;
+    var traceStepLimit = 150;
     var traceStepCount = 0;
     var mover = move.mover;
     var deps = getGeoDependants(mover);
@@ -142,6 +142,7 @@ function trace() {
     var targetParam = opMover.computeParametersOnInput(mover, lastGoodParam);
     var t = last + step;
     tracingFailed = false;
+    var coretracing;
     while (last !== t) {
         traceStepCount++;
         if (traceLog) {
@@ -162,10 +163,11 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-8);
+        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-8 );//  (last + 0.5 * step <= last));
 
         // use own function to enable compiler optimization
-        var coretracing = function(){
+        /* jshint ignore:start */
+        coretracing = function(){ 
             stateInIdx = stateOutIdx = mover.stateIdx;
             mover.param =
                 parameterPath(mover, t, tc, lastGoodParam, targetParam);
@@ -185,8 +187,9 @@ function trace() {
             if (t >= 1) t = 1;
             stateSwapBad(); // may become good if we complete without failing
         };
+        /* jshint ignore:end */
         try {
-                coretracing(); // jshint ignore:line // performance tweak
+                coretracing(); // jshint ignore:line
         } catch (e) {
             if (e !== RefineException)
                 throw e;
@@ -416,8 +419,8 @@ tracing4.stateSize = 24; // four three-element complex vectors
 
 
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
-//    var debug = function() {};
-    var debug = console.log.bind(console);
+    var debug = function() {};
+//    var debug = console.log.bind(console);
     
     var useGreedy = false; // greedy or permutation?
     var safety;
@@ -431,7 +434,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
 
     var res = new Array(4);
 
-    var min_cost, dist;
+    var min_cost, dist, dsum;
     if(useGreedy){
         safety = 3;
         res = new_el;
@@ -439,11 +442,11 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     
         var min_dist = Infinity,
             idx, tmp;
-        var dsum = 0; // record total costs
-        for (var ii = 0; ii < 4; ii++) {
-            idx = ii;
-            for (var kk = ii; kk < 4; kk++) {
-                dist = List.projectiveDistMinScal(old_el[ii], res[kk]);
+        dsum = 0; 
+        for (var oo = 0; oo < 4; oo++) {
+            idx = oo;
+            for (var kk = oo; kk < 4; kk++) {
+                dist = List.projectiveDistMinScal(old_el[oo], res[kk]);
                 if (dist < min_dist) {
                     idx = kk;
                     min_dist = dist;
@@ -451,19 +454,19 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     
             }
             // swap elements if necessary
-            if (idx !== ii) {
-                tmp = res[ii];
-                res[ii] = res[idx];
+            if (idx !== oo) {
+                tmp = res[oo];
+                res[oo] = res[idx];
                 res[idx] = tmp;
             }
             dsum += min_dist;
-            dist_old_new[ii] = min_dist;
+            dist_old_new[oo] = min_dist;
             min_dist = Infinity;
         }
     }
     else{
         min_cost= Infinity; 
-        safety = 1;
+        safety = 3;
     
         var perms = permutationsFixedList[4];
         var bestperm;
@@ -474,7 +477,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         distMatrix[2] = new Array(4);
         distMatrix[3] = new Array(4);
     
-        var dsum, cperm;
+        var cperm; // current permutation
         for(var k = 0; k < perms.length; k++){
         dsum = 0; // record total costs
         cperm = perms[k];
