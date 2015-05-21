@@ -163,7 +163,7 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-14 );//  (last + 0.5 * step <= last));
+        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-16 );//  (last + 0.5 * step <= last));
         //if(noMoreRefinements) console.log(traceStepCount, step);
 
         // use own function to enable compiler optimization
@@ -474,20 +474,27 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     
         var distMatrix = new Array(4);
         for(var q = 0; q < 4; q++) distMatrix[q] = new Array(4);
+
+        // build dist matric
+        for(var xx = 0; xx < 4; xx++)
+            for(var yy = 0; yy < 4; yy++){
+                dist = List.projectiveDistMinScal(old_el[xx], new_el[yy]);
+                distMatrix[xx][yy] = dist;
+            }
     
         var cperm; // current permutation
         for(var k = 0; k < perms.length; k++){
         dsum = 0; // record total costs
         cperm = perms[k];
         for (var mm = 0; mm < 4; mm++) {
-                if(typeof(distMatrix[mm][cperm[mm]]) !== 'number'){
-                    dist = List.projectiveDistMinScal(old_el[mm], new_el[cperm[mm]]);
-                    distMatrix[mm][cperm[mm]] = dist;
-                    dsum += dist;
-                }
-                else{
-                    dsum += distMatrix[mm][cperm[mm]];
-                }
+//              if(typeof(distMatrix[mm][cperm[mm]]) !== 'number'){
+//                  dist = List.projectiveDistMinScal(old_el[mm], new_el[cperm[mm]]);
+//                  distMatrix[mm][cperm[mm]] = dist;
+//                  dsum += dist;
+//              }
+//              else{
+                dsum += distMatrix[mm][cperm[mm]];
+//              }
                 if(dsum > min_cost) break;
         }
         if(dsum < min_cost){
@@ -495,6 +502,13 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
             min_cost= dsum;
         }
         }
+
+ //       console.log("====");
+ //       console.log(distMatrix[0]);
+ //       console.log(distMatrix[1]);
+ //       console.log(distMatrix[2]);
+ //       console.log(distMatrix[3]);
+ //       console.log("====");
     
         // order
         for(var ll = 0; ll< 4; ll++){
@@ -560,7 +574,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         }
     }
 
-    if (need_refine && !noMoreRefinements)
+    if (need_refine)
         { 
             requestRefinement();
         }
