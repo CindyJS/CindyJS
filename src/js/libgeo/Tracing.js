@@ -128,8 +128,8 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 
 
 function trace() {
-    var traceLimit = 50;
-    var traceSteps = 0;
+    var traceStepLimit = 300;
+    var traceStepCount = 0;
     var mover = move.mover;
     var deps = getGeoDependants(mover);
     var last = -1;
@@ -143,8 +143,7 @@ function trace() {
     var t = last + step;
     tracingFailed = false;
     while (last !== t) {
-        traceSteps++;
-//        if(traceSteps > traceLimit) console.log("REACHED TRACELIMIT!");
+        traceStepCount++;
         if (traceLog) {
             traceLogRow = [];
             traceLog.push(traceLogRow);
@@ -163,7 +162,7 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        noMoreRefinements = (traceSteps > traceLimit || step < 1e-8);
+        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-8);
 
         // use own function to enable compiler optimization
         var coretracing = function(){
@@ -187,7 +186,7 @@ function trace() {
             stateSwapBad(); // may become good if we complete without failing
         };
         try {
-                coretracing();
+                coretracing(); // jshint ignore:line // performance tweak
         } catch (e) {
             if (e !== RefineException)
                 throw e;
@@ -417,8 +416,8 @@ tracing4.stateSize = 24; // four three-element complex vectors
 
 
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
-    var debug = function() {};
-//    var debug = console.log.bind(console);
+//    var debug = function() {};
+    var debug = console.log.bind(console);
     
     var useGreedy = false; // greedy or permutation?
     var safety;
@@ -464,7 +463,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     }
     else{
         min_cost= Infinity; 
-        safety = 0.1;
+        safety = 1;
     
         var perms = permutationsFixedList[4];
         var bestperm;
