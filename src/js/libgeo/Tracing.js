@@ -185,7 +185,7 @@ function trace() {
             t += step;
             if (t >= 1) t = 1;
             stateSwapBad(); // may become good if we complete without failing
-        }
+        };
         try {
                 coretracing();
         } catch (e) {
@@ -417,9 +417,11 @@ tracing4.stateSize = 24; // four three-element complex vectors
 
 
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
-//    var debug = function() {};
-    var debug = console.log.bind(console);
-    var safety = 0.25;
+    var debug = function() {};
+//    var debug = console.log.bind(console);
+    
+    var useGreedy = true; // greedy or permutation?
+    var safety;
 
     var old_el = [o1, o2, o3, o4];
     var new_el = [n1, n2, n3, n4];
@@ -427,30 +429,48 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     // first we leave everything to input
     if (tracingInitial)
         return new_el;
-    var res = [];
+    var res = new Array(4);
 
-
-    var dist, min_cost= Infinity; 
-
-    var perms = permutationsFixedList[4];
-    var bestperm;
-    for(var k = 0; k < perms.length; k++){
-    var dsum = 0; // record total costs
-    var cperm = perms[k];
-    for (var ii = 0; ii < 4; ii++) {
-            dist = List.projectiveDistMinScal(old_el[ii], new_el[cperm[ii]]);
-            dsum += dist;
+    if(useGreedy){
+    
     }
-    if(dsum < min_cost){
-        bestperm = cperm;
-        min_cost= dsum;
-    }
-    }
-
-    // order
-    for(var ii = 0; ii < 4; ii++){
-        res[ii] = new_el[bestperm[ii]];
-    }
+    else{
+        var dist, min_cost= Infinity; 
+    
+        var perms = permutationsFixedList[4];
+        var bestperm;
+    
+        var distMatrix = new Array(4);
+        distMatrix[0] = new Array(4);
+        distMatrix[1] = new Array(4);
+        distMatrix[2] = new Array(4);
+        distMatrix[3] = new Array(4);
+    
+        for(var k = 0; k < perms.length; k++){
+        var dsum = 0; // record total costs
+        var cperm = perms[k];
+        for (var mm = 0; mm < 4; mm++) {
+                if(typeof(distMatrix[mm][cperm[mm]]) !== 'number'){
+                    dist = List.projectiveDistMinScal(old_el[mm], new_el[cperm[mm]]);
+                    distMatrix[mm][cperm[mm]] = dist;
+                    dsum += dist;
+                }
+                else{
+                    dsum += distMatrix[mm][cperm[mm]];
+                }
+                if(dsum > min_cost) break;
+        }
+        if(dsum < min_cost){
+            bestperm = cperm;
+            min_cost= dsum;
+        }
+        }
+    
+        // order
+        for(var ll = 0; ll< 4; ll++){
+            res[ll] = new_el[bestperm[ll]];
+        }
+    } // end use greedy
 
     // assume now we have machting between res and old_el
     var odist, ndist, diff, match_cost;
