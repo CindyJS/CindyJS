@@ -420,7 +420,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     var debug = function() {};
 //    var debug = console.log.bind(console);
     
-    var useGreedy = true; // greedy or permutation?
+    var useGreedy = false; // greedy or permutation?
     var safety;
 
     var old_el = [o1, o2, o3, o4];
@@ -429,13 +429,42 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     // first we leave everything to input
     if (tracingInitial)
         return new_el;
+
     var res = new Array(4);
 
+    var min_cost, dist;
     if(useGreedy){
+        safety = 3;
+        res = new_el;
+        var dist_old_new = new Array(4); // this will hold old to new points matching distance o1n1, o2n3 ... after matching
     
+        var min_dist = Infinity,
+            idx, tmp;
+        var dsum = 0; // record total costs
+        for (var ii = 0; ii < 4; ii++) {
+            idx = ii;
+            for (var kk = ii; kk < 4; kk++) {
+                dist = List.projectiveDistMinScal(old_el[ii], res[kk]);
+                if (dist < min_dist) {
+                    idx = kk;
+                    min_dist = dist;
+                }
+    
+            }
+            // swap elements if necessary
+            if (idx !== ii) {
+                tmp = res[ii];
+                res[ii] = res[idx];
+                res[idx] = tmp;
+            }
+            dsum += min_dist;
+            dist_old_new[ii] = min_dist;
+            min_dist = Infinity;
+        }
     }
     else{
-        var dist, min_cost= Infinity; 
+        min_cost= Infinity; 
+        safety = 0.1;
     
         var perms = permutationsFixedList[4];
         var bestperm;
@@ -446,9 +475,10 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         distMatrix[2] = new Array(4);
         distMatrix[3] = new Array(4);
     
+        var dsum, cperm;
         for(var k = 0; k < perms.length; k++){
-        var dsum = 0; // record total costs
-        var cperm = perms[k];
+        dsum = 0; // record total costs
+        cperm = perms[k];
         for (var mm = 0; mm < 4; mm++) {
                 if(typeof(distMatrix[mm][cperm[mm]]) !== 'number'){
                     dist = List.projectiveDistMinScal(old_el[mm], new_el[cperm[mm]]);
