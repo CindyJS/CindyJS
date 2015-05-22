@@ -124,68 +124,76 @@ geoOps.Through = {};
 geoOps.Through.kind = "L";
 geoOps.Through.isMovable = true;
 geoOps.Through.initialize = function(el) {
+    var dir;
     if (el.dir)
-        return General.wrap(el.dir);
+        dir = General.wrap(el.dir);
     else
-        return List.realVector([el.pos[1], -el.pos[0], 0]);
+        dir = List.realVector([el.pos[1], -el.pos[0], 0]);
+    putStateComplexVector(dir);
 };
-geoOps.Through.computeParametersOnInput = function(el, last) {
-    var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
-    var xx = el1.value[0].value.real - mouse.x + move.offset.x;
-    var yy = el1.value[1].value.real - mouse.y + move.offset.y;
-    var param = List.realVector([xx, yy, 0]);
-    if (List.scalproduct(param, last).real < 0)
-        param = List.neg(param);
-    return param;
+geoOps.Through.getParamForInput = function(el, pos, type) {
+    var l;
+    if (type === "mouse") {
+        var p1 = csgeo.csnames[(el.args[0])].homog;
+        l = List.cross(p1, pos);
+    } else if (type === "homog") {
+        l = pos;
+    } else {
+        l = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
+    }
+    var dir = List.cross(List.linfty, l);
+    // The parameter is the point at infinity, without its last coordinate.
+    return List.normalizeMax(dir);
+};
+geoOps.Through.getParamFromState = function(el) {
+    return getStateComplexVector(3);
+};
+geoOps.Through.putParamToState = function(el, param) {
+    putStateComplexVector(param);
 };
 geoOps.Through.updatePosition = function(el) {
-    var el1 = List.normalizeZ(csgeo.csnames[(el.args[0])].homog);
-    el.homog = List.cross(el.param, el1);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Line");
+    var dir = getStateComplexVector(3);
+    putStateComplexVector(dir); // copy param
+    var p1 = csgeo.csnames[el.args[0]].homog;
+    var homog = List.cross(p1, dir);
+    homog = List.normalizeMax(homog);
+    el.homog = General.withUsage(homog, "Line");
 };
+geoOps.Through.stateSize = 6;
 
 
 geoOps.Free = {};
 geoOps.Free.kind = "P";
 geoOps.Free.isMovable = true;
 geoOps.Free.initialize = function(el) {
-    var sx = el.sx || 0;
-    var sy = el.sy || 0;
-    var sz = el.sz || 1;
-    if (el.pos) {
-        if (el.pos.length === 2) {
-            sx = el.pos[0];
-            sy = el.pos[1];
-            sz = 1;
-        }
-        if (el.pos.length === 3) {
-            sx = el.pos[0] / el.pos[2];
-            sy = el.pos[1] / el.pos[2];
-            sz = el.pos[2] / el.pos[2];
-        }
-    }
-    return List.realVector([sx, sy, sz]);
+    var pos = geoOps._helper.initializePoint(el);
+    putStateComplexVector(pos);
 };
-geoOps.Free.computeParametersOnInput = function(el, last) {
-    var sx = mouse.x + move.offset.x;
-    var sy = mouse.y + move.offset.y;
-    if (cssnap && csgridsize !== 0) {
+geoOps.Free.getParamForInput = function(el, pos, type) {
+    if (type === "mouse" && cssnap && csgridsize !== 0) {
+        pos = List.normalizeZ(pos);
+        var sx = pos.value[0].value.real;
+        var sy = pos.value[1].value.real;
         var rx = Math.round(sx / csgridsize) * csgridsize;
         var ry = Math.round(sy / csgridsize) * csgridsize;
         if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2) {
-            sx = rx;
-            sy = ry;
+            pos = List.realVector([rx, ry, 1]);
         }
     }
-    var param = List.realVector([sx, sy, 1]);
-    if (List.scalproduct(param, last).real < 0)
-        param = List.neg(param);
-    return param;
+    return List.normalizeMax(pos);
+};
+geoOps.Free.getParamFromState = function(el) {
+    return getStateComplexVector(3);
+};
+geoOps.Free.putParamToState = function(el, param) {
+    putStateComplexVector(param);
 };
 geoOps.Free.updatePosition = function(el) {
-    el.homog = General.withUsage(el.param, "Point");
+    var param = getStateComplexVector(3);
+    putStateComplexVector(param); // copy param
+    el.homog = General.withUsage(param, "Point");
 };
+geoOps.Free.stateSize = 6;
 
 geoOps._helper.projectPointToLine = function(point, line) {
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
@@ -197,54 +205,69 @@ geoOps.PointOnLine = {};
 geoOps.PointOnLine.kind = "P";
 geoOps.PointOnLine.isMovable = true;
 geoOps.PointOnLine.initialize = function(el) {
-    var point = geoOps.Free.initialize(el);
+    var point = geoOps._helper.initializePoint(el);
     var line = csgeo.csnames[(el.args[0])].homog;
-    return geoOps._helper.projectPointToLine(point, line);
+    point = geoOps._helper.projectPointToLine(point, line);
+    point = List.normalizeMax(point);
+    var other = List.cross(List.linfty, point);
+    other = List.normalizeMax(other);
+    putStateComplexVector(point);
+    putStateComplexVector(line);
+    tracingInitial = false; // force updatePosition to do proper matching
 };
-geoOps.PointOnLine.computeParameters = function(el) {
-    var line = csgeo.csnames[(el.args[0])].homog;
-    var tmpIn = stateIn;
-    stateIn = stateLastGood;
-    var oldLine = getStateComplexVector(3);
+geoOps.PointOnLine.updatePosition = function(el, isMover) {
+    var newPoint;
+    var newLine = csgeo.csnames[(el.args[0])].homog;
     var oldPoint = getStateComplexVector(3);
-    stateIn = tmpIn;
-    var center = List.cross(line, oldLine);
-    //if (CSNumber._helper.isAlmostZero(List.scalproduct(line, oldPoint))) {
-    if (List._helper.isAlmostZero(center)) {
-        // line stayed (almost) the same
-        // should we project to line to avoid accumulating errors?
-        putStateComplexVector(line);
-        putStateComplexVector(oldPoint);
-        return oldPoint;
+    var oldLine = getStateComplexVector(3);
+
+    if (isMover) {
+        newPoint = oldPoint;
+    } else {
+        // Also read from last good, which is real,
+        // instead of only stateIn which might be complex.
+        stateInIdx = el.stateIdx;
+        var tmpIn = stateIn;
+        stateIn = stateLastGood;
+        var realPoint = getStateComplexVector(3);
+        var realLine = getStateComplexVector(3);
+        stateIn = tmpIn;
+
+        var center = List.cross(realLine, newLine);
+        //if (CSNumber._helper.isAlmostZero(List.scalproduct(newLine, realPoint))) {
+        if (List._helper.isAlmostZero(center)) {
+            // line stayed (almost) the same, perform orthogonal projection
+            center = List.cross(List.linfty, newLine);
+        }
+        // Note: center is NOT continuous in the parameter,
+        // so refinements might cause it to jump between situations.
+        // But refinement will bring lines close to one another,
+        // in which case the exact location of center becomes less relevant
+        var circle = geoOps._helper.CircleMP(center, realPoint);
+        var newCandidates = geoOps._helper.IntersectLC(newLine, circle);
+        var oldAntipode = geoOps._helper.pointReflection(center, oldPoint);
+        var res = tracing2core(newCandidates[0], newCandidates[1],
+                               oldPoint, oldAntipode);
+        newPoint = res[0];
     }
-    var circle = geoOps._helper.CircleMP(center, oldPoint);
-    var candidates = geoOps._helper.IntersectLC(line, circle);
-    var oldCandidates = geoOps._helper.IntersectLC(oldLine, circle);
-    var o1 = oldCandidates[0];
-    var o2 = oldCandidates[1];
-    var d1 = List.projectiveDistMinScal(oldPoint, o1);
-    var d2 = List.projectiveDistMinScal(oldPoint, o2);
-    if (d1 > d2) {
-        o1 = oldCandidates[1];
-        o2 = oldCandidates[0];
-    }
-    var res = tracing2core(candidates[0], candidates[1], o1, o2);
-    return res[0];
+    newPoint = List.normalizeMax(newPoint);
+    putStateComplexVector(newPoint);
+    putStateComplexVector(newLine);
+    el.homog = General.withUsage(newPoint, "Point");;
 };
-geoOps.PointOnLine.computeParametersOnInput = function(el) {
-    var sx = mouse.x + move.offset.x;
-    var sy = mouse.y + move.offset.y;
-    var point = List.realVector([sx, sy, 1]);
+geoOps.PointOnLine.getParamForInput = function(el, pos, type) {
     var line = csgeo.csnames[(el.args[0])].homog;
-    return geoOps._helper.projectPointToLine(point, line);
+    pos = geoOps._helper.projectPointToLine(pos, line);
     // TODO: snap to grid
+    return pos;
 };
-geoOps.PointOnLine.updatePosition = function(el) {
-    putStateComplexVector(csgeo.csnames[(el.args[0])].homog);
-    putStateComplexVector(el.param);
-    el.homog = General.withUsage(el.param, "Point");
+geoOps.PointOnLine.getParamFromState = function(el) {
+    return getStateComplexVector(3); // point is first state element
 };
-geoOps.PointOnLine.tracingStateSize = 12;
+geoOps.PointOnLine.putParamToState = function(el, param) {
+    return putStateComplexVector(param);
+};
+geoOps.PointOnLine.stateSize = 12;
 
 
 geoOps.PointOnCircle = {};
@@ -252,7 +275,7 @@ geoOps.PointOnCircle.kind = "P";
 geoOps.PointOnCircle.isMovable = true;
 geoOps.PointOnCircle.initialize = function(el) {
     var circle = csgeo.csnames[el.args[0]];
-    var pos = List.normalizeZ(geoOps.Free.initialize(el));
+    var pos = List.normalizeZ(geoOps._helper.initializePoint(el));
     var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
     var dir = List.sub(pos, mid);
     var param = List.turnIntoCSList([
@@ -260,6 +283,7 @@ geoOps.PointOnCircle.initialize = function(el) {
         CSNumber.neg(dir.value[0]),
         CSNumber.zero
     ]);
+    // The parameter is the far point polar to the diameter through the point
     var diameter = List.cross(pos, mid);
     var candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
     var d0 = List.projectiveDistMinScal(pos, candidates[0]);
@@ -272,32 +296,31 @@ geoOps.PointOnCircle.initialize = function(el) {
         pos = candidates[0];
         other = candidates[1];
     }
+    putStateComplexVector(param);
     putStateComplexVector(pos);
     putStateComplexVector(other);
     tracingInitial = false; // force updatePosition to do proper matching
-    return param;
 };
-geoOps.PointOnCircle.computeParametersOnScript = function(el, pos) {
-    // Would probably need to set some state.
-    throw "This operation is not implemented yet.";
+geoOps.PointOnCircle.putParamToState = function(el, param) {
+    putStateComplexVector(param);
 };
-geoOps.PointOnCircle.computeParametersOnInput = function(el, last) {
-    var sx = mouse.x + move.offset.x;
-    var sy = mouse.y + move.offset.y;
-    var pos = List.realVector([sx, sy, 1]);
+geoOps.PointOnCircle.getParamFromState = function(el) {
+    return getStateComplexVector(3);
+};
+geoOps.PointOnCircle.getParamForInput = function(el, pos, type) {
     var circle = csgeo.csnames[el.args[0]];
     var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
     var dir = List.sub(pos, mid);
     stateInIdx = el.stateIdx;
+    var oldparam = getStateComplexVector(3);
     var oldpos = List.normalizeZ(getStateComplexVector(3));
-    stateInIdx = el.stateIdx;
     var olddir = List.sub(oldpos, mid);
     var oldSign = CSNumber.sub(
-        CSNumber.mult(last.value[0], olddir.value[1]),
-        CSNumber.mult(last.value[1], olddir.value[0]));
+        CSNumber.mult(oldparam.value[0], olddir.value[1]),
+        CSNumber.mult(oldparam.value[1], olddir.value[0]));
     if (oldSign.value.real < 0)
         dir = List.neg(dir);
-    // if oldSign > 0 then last[0], last[1]
+    // if oldSign > 0 then oldparam[0], oldparam[1]
     // is a positive multiple of olddir[1], -olddir[0]
     return List.turnIntoCSList([
         dir.value[1],
@@ -311,6 +334,9 @@ geoOps.PointOnCircle.parameterPath = function(el, tr, tc, src, dst) {
     var sp = List.scalproduct(src, dst);
     if (sp.value.real >= 0)
         return defaultParameterPath(el, tr, tc, src, dst);
+    // If we have more than half a turn, do two half-circle arcs
+    // with a real position half way along the path.
+    // This should ensure we get to the far intersection point when needed.
     var mid = List.turnIntoCSList([
         CSNumber.sub(src.value[1], dst.value[1]),
         CSNumber.sub(dst.value[0], src.value[0]),
@@ -341,24 +367,27 @@ geoOps.PointOnCircle.parameterPath = function(el, tr, tc, src, dst) {
     return res;
 };
 geoOps.PointOnCircle.updatePosition = function(el) {
+    var param = getStateComplexVector(3);
+    putStateComplexVector(param); // copy parameter
     var circle = csgeo.csnames[el.args[0]];
-    var diameter = List.productMV(circle.matrix, el.param);
+    var diameter = List.productMV(circle.matrix, param);
     var candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
     candidates = tracing2(candidates[0], candidates[1]);
     var pos = List.normalizeMax(candidates.value[0]);
     el.homog = General.withUsage(pos, "Point");
 };
-geoOps.PointOnCircle.tracingStateSize = tracing2.stateSize;
+geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 
 
 geoOps.PointOnSegment = {};
 geoOps.PointOnSegment.kind = "P";
 geoOps.PointOnSegment.isMovable = true;
 geoOps.PointOnSegment.initialize = function(el) {
-    var pos = geoOps.Free.initialize(el);
-    return geoOps.PointOnSegment.computeParametersOnScript(el, pos);
+    var pos = geoOps._helper.initializePoint(el);
+    var cr = geoOps.PointOnSegment.getParamForInput(el, pos);
+    putStateComplexNumber(cr);
 };
-geoOps.PointOnSegment.computeParametersOnScript = function(el, pos) {
+geoOps.PointOnSegment.getParamForInput = function(el, pos) {
     var seg = csgeo.csnames[el.args[0]];
     var line = seg.homog;
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
@@ -370,13 +399,15 @@ geoOps.PointOnSegment.computeParametersOnScript = function(el, pos) {
         cr = CSNumber.complex(1, cr.value.imag);
     return cr;
 };
-geoOps.PointOnSegment.computeParametersOnInput = function(el) {
-    var sx = mouse.x + move.offset.x;
-    var sy = mouse.y + move.offset.y;
-    var pos = List.realVector([sx, sy, 1]);
-    return geoOps.PointOnSegment.computeParametersOnScript(el, pos);
+geoOps.PointOnSegment.getParamFromState = function(el) {
+    return getStateComplexNumber();
+};
+geoOps.PointOnSegment.putParamToState = function(el, param) {
+    putStateComplexNumber(param);
 };
 geoOps.PointOnSegment.updatePosition = function(el) {
+    var param = getStateComplexNumber();
+    putStateComplexNumber(param); // copy parameter
     var seg = csgeo.csnames[el.args[0]];
     // TODO: Handle case where seg is the result of a projective transform,
     // where seg.farpoint would not have z==0. Can't happen yet.
@@ -384,10 +415,11 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     var end = List.scalmult(seg.startpos.value[2], seg.endpos);
     // now they have the same z coordinate, so their difference is far
     var far = List.sub(end, start);
-    el.homog = List.add(start, List.scalmult(el.param, far));
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Point");
+    var homog = List.add(start, List.scalmult(param, far));
+    homog = List.normalizeMax(homog);
+    el.homog = General.withUsage(homog, "Point");
 };
+geoOps.PointOnSegment.stateSize = 2;
 
 
 geoOps._helper.CenterOfConic = function(c) {
@@ -447,26 +479,35 @@ geoOps.CircleMr = {};
 geoOps.CircleMr.kind = "C";
 geoOps.CircleMr.isMovable = true;
 geoOps.CircleMr.initialize = function(el) {
-    return CSNumber.real(el.radius);
+    putStateComplexNumber(CSNumber.real(el.radius));
 };
-geoOps.CircleMr.computeParametersOnInput = function(el) {
+geoOps.CircleMr.getParamForInput = function(el, pos) {
     var m = csgeo.csnames[(el.args[0])].homog;
-    var mid = List.normalizeZ(m);
-    var xx = mid.value[0].value.real - mouse.x;
-    var yy = mid.value[1].value.real - mouse.y;
-    var rad = Math.sqrt(xx * xx + yy * yy);
-    return CSNumber.real(rad);
+    m = List.normalizeZ(m);
+    pos = List.normalizeZ(pos);
+    var rad = List.sub(m, pos);
+    rad = List.abs(rad);
+    return rad;
+};
+geoOps.CircleMr.getParamFromState = function(el) {
+    return getStateComplexNumber();
+};
+geoOps.CircleMr.putParamToState = function(el, param) {
+    putStateComplexNumber(param);
 };
 geoOps.CircleMr.updatePosition = function(el) {
+    var r = getStateComplexNumber();
+    putStateComplexNumber(r); // copy param
     var m = csgeo.csnames[(el.args[0])].homog;
-    var mid = List.normalizeZ(m);
-    var r = el.param;
+    m = List.normalizeZ(m);
     var p = List.turnIntoCSList([r, CSNumber.zero, CSNumber.zero]);
-    p = List.add(p, mid);
-    el.matrix = geoOps._helper.CircleMP(mid, p);
-    el.matrix = List.normalizeMax(el.matrix);
-    el.matrix = General.withUsage(el.matrix, "Circle");
+    p = List.add(p, m);
+    var matrix = geoOps._helper.CircleMP(m, p);
+    matrix = List.normalizeMax(matrix);
+    el.matrix = General.withUsage(matrix, "Circle");
+    el.radius = r;
 };
+geoOps.CircleMr.stateSize = 2;
 
 
 geoOps._helper.getConicType = function(C) {
@@ -751,7 +792,7 @@ geoOps.ConicBy3p2l.updatePosition = function(el) {
     }
     el.results = res;
 };
-geoOps.ConicBy3p2l.tracingStateSize = 48;
+geoOps.ConicBy3p2l.stateSize = 48;
 
 geoOps.ConicBy2p3l = {};
 geoOps.ConicBy2p3l.kind = "Cs";
@@ -776,7 +817,7 @@ geoOps.ConicBy2p3l.updatePosition = function(el) {
     }
     el.results = res;
 };
-geoOps.ConicBy2p3l.tracingStateSize = 48;
+geoOps.ConicBy2p3l.stateSize = 48;
 
 geoOps.ConicBy1p4l = {};
 geoOps.ConicBy1p4l.kind = "Cs";
@@ -939,7 +980,7 @@ geoOps.angleBisector.updatePosition = function(el) {
 
     el.results = tracing2(erg1, erg2);
 };
-geoOps.angleBisector.tracingStateSize = tracing2.stateSize;
+geoOps.angleBisector.stateSize = tracing2.stateSize;
 
 geoOps._helper.IntersectLC = function(l, c) {
 
@@ -982,7 +1023,6 @@ geoOps._helper.IntersectLC = function(l, c) {
     erg2 = List.normalizeMax(erg2);
     erg2 = General.withUsage(erg2, "Point");
     return [erg1, erg2];
-
 };
 
 geoOps.IntersectLC = {};
@@ -996,7 +1036,7 @@ geoOps.IntersectLC.updatePosition = function(el) {
     var erg2 = erg[1];
     el.results = tracing2(erg1, erg2);
 };
-geoOps.IntersectLC.tracingStateSize = tracing2.stateSize;
+geoOps.IntersectLC.stateSize = tracing2.stateSize;
 
 geoOps.IntersectCirCir = {};
 geoOps.IntersectCirCir.kind = "Ps";
@@ -1020,7 +1060,7 @@ geoOps.IntersectCirCir.updatePosition = function(el) {
     var erg2 = erg[1];
     el.results = tracing2(erg1, erg2);
 };
-geoOps.IntersectCirCir.tracingStateSize = tracing2.stateSize;
+geoOps.IntersectCirCir.stateSize = tracing2.stateSize;
 
 
 geoOps._helper.IntersectConicConic = function(AA, BB) {
@@ -1144,7 +1184,7 @@ geoOps.SelectP.initialize = function(el) {
     if (el.index !== undefined)
         return el.index - 1;
     var set = csgeo.csnames[(el.args[0])].results.value;
-    var pos = geoOps.Free.initialize(el);
+    var pos = geoOps._helper.initializePoint(el);
     var d1 = List.projectiveDistMinScal(pos, set[0]);
     var best = 0;
     for (var i = 1; i < set.length; ++i) {
@@ -1203,6 +1243,48 @@ geoOps.TransformP.updatePosition = function(el) {
     var p = csgeo.csnames[(el.args[1])].homog;
     el.homog = List.normalizeMax(List.productMV(m, p));
     el.homog = General.withUsage(el.homog, "Point");
+};
+
+geoOps._helper.pointReflection = function(center, point) {
+    // if center is at infinity, the result should always be center.
+    var circle = geoOps._helper.CircleMP(center, point);
+    return geoOps._helper.conicOtherIntersection(circle, point, center);
+};
+
+geoOps._helper.conicOtherIntersection = function(conic, a, b) {
+    // With A a point on conic M, find the point on
+    // line AB which also lies on that conic.
+    // return BMB*A - 2*AMB*B
+    var mb = List.productMV(conic, b);
+    var bmb = List.scalproduct(b, mb);
+    var amb = List.scalproduct(a, mb);
+    var amb2 = CSNumber.realmult(-2, amb);
+    var bmba = List.scalmult(bmb, a);
+    var amb2b = List.scalmult(amb2, b);
+    var res = List.add(bmba, amb2b);
+    res = List.normalizeMax(res);
+    return res;
+};
+
+geoOps._helper.initializePoint = function(el) {
+    var sx = el.sx || 0;
+    var sy = el.sy || 0;
+    var sz = el.sz || 1;
+    if (el.pos) {
+        if (el.pos.length === 2) {
+            sx = el.pos[0];
+            sy = el.pos[1];
+            sz = 1;
+        }
+        if (el.pos.length === 3) {
+            sx = el.pos[0];
+            sy = el.pos[1];
+            sz = el.pos[2];
+        }
+    }
+    var pos = List.realVector([sx, sy, sz]);
+    pos = List.normalizeMax(pos);
+    return pos;
 };
 
 

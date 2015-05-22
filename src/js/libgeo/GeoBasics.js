@@ -22,6 +22,13 @@ else if (typeof window !== "undefined" && window.defaultAppearance)
 
 function csinit(gslp) {
 
+    // establish defaults for geoOps
+    Object.keys(geoOps).forEach(function(opName) {
+        var op = geoOps[opName];
+        if (op.updatePosition !== undefined && op.stateSize === undefined)
+            op.stateSize = 0;
+    });
+
     //Main Data:
     //args          The arguments of the operator
     //type          The operator
@@ -112,7 +119,7 @@ function csinit(gslp) {
         }
         el.kind = op.kind;
         el.stateIdx = totalStateSize;
-        totalStateSize += op.tracingStateSize || 0;
+        totalStateSize += op.stateSize;
         el.incidences = [];
         el.isshowing = true;
         el.movable = false;
@@ -143,8 +150,6 @@ function csinit(gslp) {
         }
     }
     stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
-    var stateOutLater = new Float64Array(totalStateSize);
-    stateSpare = new Float64Array(totalStateSize);
     // initially, stateIn and stateOut are the same, so that initialize can
     // write some state and updatePosition can immediately use it
     for (k = 0; k < gslp.length; k++) {
@@ -154,14 +159,17 @@ function csinit(gslp) {
         if (op.initialize) {
             stateInIdx = stateOutIdx = el.stateIdx;
             el.param = op.initialize(el);
+            assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
         }
         stateInIdx = stateOutIdx = el.stateIdx;
-        op.updatePosition(el);
+        op.updatePosition(el, false);
+        assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
+        assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
         isShowing(el, op);
     }
-    stateOut = stateOutLater;
+    stateIn = new Float64Array(totalStateSize);
+    stateOut = new Float64Array(totalStateSize);
     tracingInitial = false;
-    stateSync();
     guessIncidences();
 }
 
@@ -235,7 +243,7 @@ function recalc() {
         stateInIdx = stateOutIdx = el.stateIdx;
         if (op.computeParameters)
             el.param = op.computeParameters(el);
-        op.updatePosition(el);
+        op.updatePosition(el, false);
         isShowing(el, op);
     }
     stateSwapGood(); // is this correct?

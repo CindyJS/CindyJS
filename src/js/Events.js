@@ -14,14 +14,12 @@ function movepointscr(mover, pos) {
 }
 
 function getmover(mouse) {
-    var mov;
+    var mov = null;
     var adist = 1000000;
     var diff;
     for (var i = 0; i < csgeo.free.length; i++) {
         var el = csgeo.free[i];
         if (el.pinned)
-            continue;
-        if (!geoOps[el.type].computeParametersOnInput)
             continue;
 
         var dx, dy, dist;
@@ -36,7 +34,7 @@ function getmover(mouse) {
             if (el.narrow & dist > 20 / sc) dist = 10000;
         } else if (el.kind === "C") { //Must be CircleMr
             var mid = csgeo.csnames[el.args[0]];
-            var rad = el.param;
+            var rad = el.radius;
             var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
             var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
             dx = xx - mouse.x;
@@ -75,10 +73,11 @@ function getmover(mouse) {
             };
         }
     }
-    console.log("Moving " + mov.name);
+    console.log("Moving " + (mov ? mov.name : "nothing"));
+    if (mov === null)
+        return null;
     return {
         mover: mov,
-        lastGoodParam: mov.param, // not cloning, must not get modified
         offset: diff,
         prev: {
             x: mouse.x,
@@ -164,7 +163,7 @@ function setuplisteners(canvas, data) {
 
     addAutoCleaningEventListener(canvas, "mouseup", function(e) {
         mouse.down = false;
-        stateSync();
+        stateContinueFromHere();
         cs_mouseup();
         updateCindy();
         e.preventDefault();
@@ -234,7 +233,7 @@ function setuplisteners(canvas, data) {
 
     function touchUp(e) {
         mouse.down = false;
-        stateSync();
+        stateContinueFromHere();
         updateCindy();
         cs_mouseup();
         e.preventDefault();
@@ -286,20 +285,14 @@ function startit() {
 }
 
 function updateCindy() {
+    traceMouseAndScripts();
     csport.reset();
-    if (move && (move.prev.x !== mouse.x || move.prev.y !== mouse.y)) {
-        trace();
-        move.prev.x = mouse.x;
-        move.prev.y = mouse.y;
-    }
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
     if (csgridsize !== 0)
         evaluate(csgridscript);
     //   console.log("NOW UPDATING");
     //  drawgrid();
-    evaluate(cscompiled.move);
-    evaluate(cscompiled.draw);
     csport.greset();
     render();
     csctx.restore();

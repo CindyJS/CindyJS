@@ -1,60 +1,14 @@
-/* Thoughts about state handling.
- * - trace has to start from stateLastGood
- * - each trace step reads from stateIn and writes to stateOut
- * - if refinement is requested, we have to keep stateIn
- * - if a step is concluded (succeeded or failed, no refinement),
- *   then we want to use stateOut as the next stateIn
- *   and the intermediate parameter as the next start parameter
- * - after a whole trace run, if no step failed, stateOut
- *   becomes stateLastGood since everything is good
- * - on mouseup or after recalc, our stateOut becomes stateLastGood
- * - stateIn and stateLastGood sometimes refer to the same object
- * - we need at least three states and four variables for all of this
- * - we try to avoid copying data between arrays, and swap arrays instead
- */
-
-/* Details on state handling:
- * Between traces, we have two possible situations.
- *
- * A) The current state is good.
- *    In this case, stateIn and stateLastGood point to the same array,
- *    representing the current state. stateOut and stateSpare point to
- *    two distinct arrays, the content of which is irrelevant.
- *
- * B) The current state is bad.
- *    In this case, stateIn points to the current state, and stateLastGood
- *    points to the last state which has been considered good. stateOut
- *    points to a third array with irrelevant content. stateSpare is null.
- *
- * There are a number of transition functions to switch between these
- * situations. These are called AFTER a tracing or recalc run, so that
- * things are already prepared for the next run in the way described
- * above.
- */
-
-var stateIn, stateOut, stateLastGood, stateSpare;
-
-/**
- * stateOut is a good state, make it the last good state as well as
- * the next stateIn. Ensure we don't loose any buffers.
- */
-function stateSwapGood() {
-    var resultState = stateOut;
-    stateOut = stateIn;
-    stateSpare = stateSpare || stateLastGood;
-    stateLastGood = stateIn = resultState;
+function assert(condition, message) {
+    var msg = "Assertion failed: " + message;
+    if (condition) return;
+    console.log(msg);
+    shutdown();
+    if (typeof alert !== "undefined") alert(msg);
+    throw new Error(msg);
+    throw msg;
 }
 
-/**
- * stateOut is a bad (failed or incomplete) state, make it the next stateIn but
- * keep the current stateLastGood. Ensure we don't loose any buffers.
- */
-function stateSwapBad() {
-    var resultState = stateOut;
-    stateOut = stateSpare || stateIn;
-    stateSpare = null;
-    stateIn = resultState;
-}
+var stateIn, stateOut, stateLastGood;
 
 /**
  * Current state (i.e. stateIn) is now deemed good, even in case it
@@ -62,11 +16,8 @@ function stateSwapBad() {
  * were in a good situation, there is nothing to do.
  */
 function stateContinueFromHere() {
-    if (!stateSpare) {
-        stateSpare = stateLastGood;
-        stateLastGood = stateIn;
-        tracingStateReport(false);
-    }
+    stateLastGood.set(stateIn);
+    tracingStateReport(false);
 
     // Make numbers which are almost real totally real. This avoids
     // accumulating errors in the imaginary part.
@@ -77,28 +28,6 @@ function stateContinueFromHere() {
         if (abs(stateLastGood[i]) > abs(stateLastGood[i + 1]) * epsInverse) {
             stateLastGood[i + 1] = 0;
         }
-    }
-}
-
-/**
- * Current state is now deemed good, and copied to all the state
- * buffers.  This is important in case the mover changes, since
- * otherwise the result from the current move might get lost again.
- */
-function stateSync() {
-    stateContinueFromHere();
-    stateOut.set(stateLastGood);
-    stateSpare.set(stateLastGood);
-}
-
-/**
- * Make stateIn point to the last good state.
- * If it already does, there is nothing to do.
- */
-function stateRevertToGood() {
-    if (!stateSpare) {
-        stateSpare = stateIn;
-        stateIn = stateLastGood;
     }
 }
 
@@ -126,27 +55,49 @@ function defaultParameterPath(el, tr, tc, src, dst) {
     return General.add(src, General.mult(tc, General.sub(dst, src)));
 }
 
-// var traceLimit = 100;
+function traceMouseAndScripts() {
+    tracingFailed = false;
+    stateIn.set(stateLastGood); // copy stateLastGood and use it as input
+    if (move && (move.prev.x !== mouse.x || move.prev.y !== mouse.y)) {
+        var mover = move.mover;
+        var sx = mouse.x + move.offset.x;
+        var sy = mouse.y + move.offset.y;
+        var pos = List.realVector([sx, sy, 1]);
+        traceMover(mover, pos, "mouse");
+        move.prev.x = mouse.x;
+        move.prev.y = mouse.y;
+    }
+    evaluate(cscompiled.move);
+    evaluate(cscompiled.draw);
+    if (!tracingFailed) {
+        stateContinueFromHere();
+    }
+}
 
-function trace() {
-    var mover = move.mover;
+/*
+ * traceMover moves mover from current param to param for pos along a complex detour.
+ */
+function traceMover(mover, pos, type) {
+    stateOut.set(stateIn); // copy in to out, for elements we don't recalc
+    var traceLimit = 100; // keep UI responsive in evil situations
     var deps = getGeoDependants(mover);
     var last = -1;
     var step = 0.9; // two steps with the *1.25 scaling used below
     var i, el, op;
     var opMover = geoOps[mover.type];
     var parameterPath = opMover.parameterPath || defaultParameterPath;
-    stateRevertToGood();
-    var lastGoodParam = move.lastGoodParam;
-    var targetParam = opMover.computeParametersOnInput(mover, lastGoodParam);
+    stateInIdx = mover.stateIdx;
+    var originParam = opMover.getParamFromState(mover);
+    stateInIdx = stateOutIdx = mover.stateIdx;
+    var targetParam = opMover.getParamForInput(mover, pos, type);
+    //console.log("Tracing from " + niceprint(originParam) + " to " + niceprint(targetParam));
     var t = last + step;
-    tracingFailed = false;
     while (last !== t) {
         if (traceLog) {
             traceLogRow = [];
             traceLog.push(traceLogRow);
             if ((last === -1 && t > -0.11) || (t === 1 && last < -0.09)) {
-                traceLogRow[0] = niceprint(lastGoodParam);
+                traceLogRow[0] = niceprint(originParam);
                 traceLogRow[1] = niceprint(targetParam);
             } else {
                 traceLogRow[0] = "";
@@ -160,43 +111,45 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        noMoreRefinements = (last + 0.5 * step <= last);
+        noMoreRefinements = (last + 0.5 * step <= last || traceLimit === 0);
         try {
             stateInIdx = stateOutIdx = mover.stateIdx;
-            mover.param =
-                parameterPath(mover, t, tc, lastGoodParam, targetParam);
-            if (traceLog) traceLogRow[4] = niceprint(mover.param);
-            opMover.updatePosition(mover);
+            var param =
+                parameterPath(mover, t, tc, originParam, targetParam);
+            if (traceLog) traceLogRow[4] = niceprint(param);
+
+            var stateTmp = stateOut;
+            stateOut = stateIn;
+            opMover.putParamToState(el, param);
+            stateOut = stateTmp;
+            stateOutIdx = mover.stateIdx;
+
+            opMover.updatePosition(mover, true);
+            assert(stateInIdx === mover.stateIdx + opMover.stateSize, "State fully consumed");
+            assert(stateOutIdx === mover.stateIdx + opMover.stateSize, "State fully updated");
             for (i = 0; i < deps.length; ++i) {
                 el = deps[i];
                 op = geoOps[el.type];
                 stateInIdx = stateOutIdx = el.stateIdx;
-                if (op.computeParameters)
-                    el.param = op.computeParameters(el);
-                op.updatePosition(el);
+                op.updatePosition(el, false);
+                assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
+                assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
             }
             last = t; // successfully traced up to t
             step *= 1.25;
             t += step;
             if (t >= 1) t = 1;
-            stateSwapBad(); // may become good if we complete without failing
+
+            // stateTmp = stateOut; // we still have this from above
+            stateOut = stateIn; // recycle old input, reuse as output
+            stateIn = stateTmp; // use last output as next input
         } catch (e) {
             if (e !== RefineException)
                 throw e;
             step *= 0.5; // reduce step size
             t = last + step;
-            /*
-            if (traceLimit === 0) {
-                tracingFailed = true;
-                break;
-            }
             --traceLimit;
-            */
         }
-    }
-    if (!tracingFailed) {
-        move.lastGoodParam = targetParam;
-        stateContinueFromHere();
     }
     tracingStateReport(tracingFailed);
     for (i = 0; i < deps.length; ++i) {
@@ -241,7 +194,7 @@ function formatTraceLog(save) {
         }).join('') + '</tr>\n';
     }).join('') + '</tbody>';
     var cols = [
-        'lastGoodParam', 'targetParam', 'last', 't', 'param',
+        'originParam', 'targetParam', 'last', 't', 'param',
         'do1n1', 'do1n2', 'do2n1', 'do2n2', 'do1o2', 'dn1n2', 'cost',
         'n1', 'n2', 'o1', 'o2', 'case'
     ];
@@ -459,8 +412,10 @@ function tracingSesq(newVecs) {
     var i, j;
 
     if (tracingInitial) {
-        for (i = 0; i < n; ++i)
+        for (i = 0; i < n; ++i) {
+            stateInIdx += 2 * newVecs[i].value.length
             putStateComplexVector(newVecs[i]);
+        }
         return newVecs;
     }
 
