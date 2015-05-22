@@ -128,7 +128,7 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 
 
 function trace() {
-    var traceStepLimit = 500;
+    var traceStepLimit = 1500;
     var traceStepCount = 0;
     var mover = move.mover;
     var deps = getGeoDependants(mover);
@@ -163,8 +163,8 @@ function trace() {
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
-        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-16 );//  (last + 0.5 * step <= last));
-        //if(noMoreRefinements) console.log(traceStepCount, step);
+        noMoreRefinements = (traceStepCount > traceStepLimit || step < 1e-17); //(last + 0.5 * step <= last));
+        if(noMoreRefinements) console.log(traceStepCount, step);
 
         // use own function to enable compiler optimization
         /* jshint ignore:start */
@@ -423,7 +423,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     var debug = function() {};
 //    var debug = console.log.bind(console);
     
-    var useGreedy = false; // greedy or permutation?
+    var useGreedy = true; // greedy or permutation?
     var safety;
 
     var old_el = [o1, o2, o3, o4];
@@ -461,9 +461,10 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
                 res[idx] = tmp;
             }
             dsum += min_dist;
-            dist_old_new[oo] = min_dist;
+            //dist_old_new[oo] = min_dist;
             min_dist = Infinity;
         }
+        min_cost = dsum;
     }
     else{
         min_cost= Infinity; 
@@ -495,7 +496,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
 //              else{
                 dsum += distMatrix[mm][cperm[mm]];
 //              }
-                if(dsum > min_cost) break;
+                //if(dsum > min_cost) break;
         }
         if(dsum < min_cost){
             bestperm = cperm;
@@ -519,7 +520,11 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     // assume now we have machting between res and old_el
     var odist, ndist, diff, match_cost;
     var need_refine = false;
+    match_cost = min_cost; //dsum;
+    match_cost *= safety;
+
     for (var ii = 0; ii < 4; ii++) {
+        if(need_refine) break;
         if (List._helper.isNaN(new_el[ii])) {
             // Something went very wrong, numerically speaking. We have no
             // clue whether refining will make things any better, so we
@@ -529,10 +534,8 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
             break;
         }
         for (var jj = ii+1; jj < 4; jj++) {
-            if(tracingFailed) break;
+            //if(tracingFailed) break;
             //match_cost = dist_old_new[ii];
-            match_cost = min_cost; //dsum;
-            match_cost *= safety;
 
             odist = List.projectiveDistMinScal(old_el[ii], old_el[jj]); // this is do1o2...
             ndist = List.projectiveDistMinScal(res[ii], res[jj]); // this is dn1n2...
@@ -569,15 +572,14 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
                 else {
                     debug("Need to refine.");
                     need_refine = true;
+                    break;
                 }
             }
         }
     }
 
-    if (need_refine)
-        { 
-            requestRefinement();
-        }
+    if (need_refine) requestRefinement();
+
     return res;
 
 }
