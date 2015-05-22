@@ -246,8 +246,9 @@ geoOps.PointOnLine.updatePosition = function(el, isMover) {
         var circle = geoOps._helper.CircleMP(center, realPoint);
         var newCandidates = geoOps._helper.IntersectLC(newLine, circle);
         var oldAntipode = geoOps._helper.pointReflection(center, oldPoint);
-        var res = tracing2core(newCandidates[0], newCandidates[1],
-                               oldPoint, oldAntipode);
+        var res = tracing2core(
+            newCandidates[0], newCandidates[1],
+            oldPoint, oldAntipode);
         newPoint = res[0];
     }
     newPoint = List.normalizeMax(newPoint);
