@@ -128,7 +128,7 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 
 
 function trace() {
-    var traceStepLimit = 300;
+    var traceStepLimit = 500;
     var traceStepCount = 0;
     var mover = move.mover;
     var deps = getGeoDependants(mover);
