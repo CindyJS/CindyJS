@@ -67,15 +67,17 @@ Nächste Schritte:
 - Events an Tracing-Funktion weiterleiten @Martin @done(2015-04-16)
 - Sicherstellen, dass alle freien Elemente wieder bewegbar sind @done(2015-04-27)
 - Tracing für IntersectConicConic implementieren
-- Tracing für ConicBy4p1l und ConicBy1p4l implementieren
+- Tracing für ConicBy4p1l und ConicBy1p4l implementieren @done(2015-04-28)
 - Entweder ConicBy2Foci1P tracen oder auf zwei Funktionen aufteilen
 - tracingSesq mit State und Refinement-Handling ausstatten @done(2015-04-28)
 - Tracing für alle mehrwertigen Operationen durch Beispiele verifizieren
 - Tracing für alle mehrwertigen Operationen durch Unit Tests verifizieren
 - Halbfreie Elemente mit State ausstatten @done(2015-04-27)
-- Operationen auf korrekten umgang mit komplexen Umwegen überprüfen
+- Operationen auf korrekten Umgang mit komplexen Umwegen überprüfen
 - Überprüfen, ob Interpolationspfade immer sinnvoll sind, incl. Vorzeichen
-- Die Bestandteile einer GeoOp dokumentieren
+- Die Bestandteile einer GeoOp dokumentieren @done(2015-05-22)
 - „el.parameter = …“ in return „…“ übersetzen @done(2015-04-28)
 - Kein tracing, so lange sich nichts bewegt @done(2015-04-28)
-- Zuweisungen an .xy oder .homog richtig machen
+- Zuweisungen an .xy oder .homog richtig machen @done(2015-05-22)
+- labObjects.Mass.move durch traceMover führen, evtl. via movepointscr
+- in Setup.js die backupGeo / restoreGeo durch State-Kopieren ersetzen
