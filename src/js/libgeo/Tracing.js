@@ -35,6 +35,8 @@ var stateInIdx, stateOutIdx;
 
 var tracingInitial, tracingFailed, noMoreRefinements;
 
+var inMouseMove = false;
+
 var RefineException = {
     toString: function() {
         return "RefineException";
@@ -56,6 +58,7 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 }
 
 function traceMouseAndScripts() {
+    inMouseMove = true;
     tracingFailed = false;
     stateIn.set(stateLastGood); // copy stateLastGood and use it as input
     if (move && (move.prev.x !== mouse.x || move.prev.y !== mouse.y)) {
@@ -72,6 +75,18 @@ function traceMouseAndScripts() {
     if (!tracingFailed) {
         stateContinueFromHere();
     }
+    inMouseMove = false;
+}
+
+function movepointscr(mover, pos, type) {
+    if (inMouseMove) {
+        traceMover(mover, pos, type);
+        return;
+    }
+    stateContinueFromHere();
+    tracingFailed = false;
+    traceMover(mover, pos, type);
+    stateContinueFromHere();
 }
 
 /*

@@ -5,14 +5,6 @@ var cskey = "";
 var cskeycode = 0;
 
 
-function movepointscr(mover, pos) {
-    var f = geoOps[mover.type].computeParametersOnScript;
-    if (f)
-        f(mover, pos);
-    else
-        mover.param = pos;
-}
-
 function getmover(mouse) {
     var mov = null;
     var adist = 1000000;

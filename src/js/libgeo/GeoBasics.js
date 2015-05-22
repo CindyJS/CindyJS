@@ -42,7 +42,7 @@ function csinit(gslp) {
     //clip
     //visible       zum ein und ausblenden
     //isshowing     das wird durch den Konstruktionsbaum vererbt
-    //ismovable     
+    //movable
 
 
     // Setzen der Default appearance
@@ -232,21 +232,6 @@ function isShowing(el, op) {
         op.visiblecheck(el);
     }
 
-}
-
-function recalc() {
-    noMoreRefinements = true;
-    var gslp = csgeo.gslp;
-    for (var k = 0; k < gslp.length; k++) {
-        var el = gslp[k];
-        var op = geoOps[el.type];
-        stateInIdx = stateOutIdx = el.stateIdx;
-        if (op.computeParameters)
-            el.param = op.computeParameters(el);
-        op.updatePosition(el, false);
-        isShowing(el, op);
-    }
-    stateSwapGood(); // is this correct?
 }
 
 var geoDependantsCache = {};
