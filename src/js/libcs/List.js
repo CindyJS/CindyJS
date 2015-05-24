@@ -1277,50 +1277,77 @@ List.inverse = function(a) {
 
 
 List.linearsolve = function(a, bb) {
-    List.QRdecomp(a);
+    var erg =List.QRdecomp(a);
+    var ergR = erg.R;
+    var ergQ = erg.Q;
+
+    List.println(ergR);
+    List.println(ergQ);
+    
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
     else return List.LUsolve(a, bb);
 };
 
-List.QRdecomp = function(AA){
+List.QRdecomp = function(A){
+    var AA = A;
     var len = AA.value.length;
     var cslen = CSNumber.real(len);
     var one = CSNumber.real(1);
 
-    // get alpha
     var e1 = List._helper.unitvector(CSNumber.real(AA.value.length), one);
-    var xx = List.column(AA, one);
-    var alpha = List._helper.QRgetAlpha(xx, 0);
 
-
-    var uu = List.add(xx, List.scalmult(alpha, e1));
-    var vv = List.scaldiv(List.abs(uu), uu);
-    var ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
-
+    var xx, alpha, uu, vv, ww, Qk;
     var QQ = List.idMatrix(cslen, cslen);
-    QQ = List.sub(QQ, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
+
+    for(var k = 0; k < len - 1; k++){
+        // get alpha
+        xx = List.column(AA, one);
+        alpha = List._helper.QRgetAlpha(xx, 0);
+    
+    
+        uu = List.add(xx, List.scalmult(alpha, e1));
+        vv = List.scaldiv(List.abs(uu), uu);
+        ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
+    
+        Qk = List.idMatrix(cslen, cslen);
+        Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
+
+        // fix dimention
+        Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
+
+        // update QQ
+        QQ = General.mult(QQ, List.transpose(Qk));
+        
+        // update AA
+        AA = General.mult(Qk, AA);
+
+
+        // after k+2 steps we are done
+        if(k+2 === len) break;
+
+        // book keeping
+        cslen = CSNumber.sub(cslen, one);
+        AA = List._helper.getBlock(AA,[k+1,], [k+1,]);
+        e1.value = e1.value.splice(0, e1.value.length-1);
+    }
+
+    var R = General.mult(List.transpose(QQ), A);
+
+    return {
+        Q: QQ,
+        R: R,
+    };
 
 };
 
-//List._helper.buildQRMat = function(dim, Qk){
-//    var one = CSNumber.real(1);
-//    var zer = CSNumber.real(0);
-//    var res = new Array(dim);
-//    var k = Qk.value.length;
-//
-//    for(var i = 0; i < dim; i++)
-//        res[i] = new Array(dim);
-//        for(var j = 0; j < dim ; j++){
-//            
-//        }
-//
-//};
-
 // build matrices of form
-// A 0
-// 0 B
+//      A 0
+//      0 B
 List._helper.buildBlockMatrix = function(A, B){
+    if(A.value.length === 0) return B;
+    if(B.value.length === 0) return A;
+
     var mA = A.value.length;
     var mB = B.value.length;
     var m = mA + mB;
@@ -1348,11 +1375,13 @@ List._helper.getBlock = function(A, m, n){
     var m0 = m[0], m1;
     var n0 = n[0], n1;
 
-    if(m1 === "undefined") m1 = AA.value.length;
+    if(m[1] === undefined) m1 = AA.value.length;
     else m1 = m[1];
 
-    if(n1 === "undefined") n1 = AA.value[0].length;
+    if(n[1] === undefined) n1 = AA.value[0].value.length;
     else n1 = n[1];
+
+    console.log(m0, m1, n0, n1);
 
     // slice does not include end
     m1++; n1++;
@@ -1382,8 +1411,9 @@ List._helper.QRgetAlpha = function(xx, k) {
 //    var alpha = CSNumber.neg(List.abs(xx));
 //    var expo = CSNumber.exp(CSNumber.mult(atan, CSNumber.complex(0, 1)));
 //    alpha = CSNumber.mult(alpha, expo);
-//    console.log(CSNumber.abs(xx.value[k]).value.real, CSNumber.abs(alpha).value.real, "absvals");
 //    return alpha;
+//
+    // real version
     return CSNumber.neg(List.abs(xx));
 };
 
