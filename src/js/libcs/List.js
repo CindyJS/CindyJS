@@ -1286,9 +1286,9 @@ List.linearsolve = function(a, bb) {
 List.QRdecomp = function(AA){
     var len = AA.value.length;
     var cslen = CSNumber.real(len);
+    var one = CSNumber.real(1);
 
     // get alpha
-    var one = CSNumber.real(1);
     var e1 = List._helper.unitvector(CSNumber.real(AA.value.length), one);
     var xx = List.column(AA, one);
     var alpha = List._helper.QRgetAlpha(xx, 0);
@@ -1301,27 +1301,21 @@ List.QRdecomp = function(AA){
     var QQ = List.idMatrix(cslen, cslen);
     QQ = List.sub(QQ, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
 
-    var IDD = List.idMatrix(cslen, cslen);
-    List.println(List._helper.getBlock(IDD, [0,3], [0,0]));
-
-
-    var block = List._helper.buildBlockMatrix(AA, AA);
-    List.println(block);
 };
 
-List._helper.buildQRMat = function(dim, Qk){
-    var one = CSNumber.real(1);
-    var zer = CSNumber.real(0);
-    var res = new Array(dim);
-    var k = Qk.value.length;
-
-    for(var i = 0; i < dim; i++)
-        res[i] = new Array(dim);
-        for(var j = 0; j < dim ; j++){
-            
-        }
-
-};
+//List._helper.buildQRMat = function(dim, Qk){
+//    var one = CSNumber.real(1);
+//    var zer = CSNumber.real(0);
+//    var res = new Array(dim);
+//    var k = Qk.value.length;
+//
+//    for(var i = 0; i < dim; i++)
+//        res[i] = new Array(dim);
+//        for(var j = 0; j < dim ; j++){
+//            
+//        }
+//
+//};
 
 // build matrices of form
 // A 0
