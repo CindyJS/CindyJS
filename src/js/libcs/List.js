@@ -28,6 +28,20 @@ List.realVector = function(l) {
     };
 };
 
+// return n'th unitvector in C^d
+List._helper.unitvector = function(d,n){
+    var res = List.zerovector(d);
+    res.value[Math.floor(n.value.real-1)] = CSNumber.real(1);
+    return res;
+};
+
+List.idMatrix = function(n){
+    var erg = List.zeromatrix(n,n);
+    var one = CSNumber.real(1);
+    for(var i = 0; i < n.value.real; i++) erg.value[i].value[i] = one;
+    return erg;
+};
+
 List.println = function(l) {
     var erg = [];
     for (var i = 0; i < l.value.length; i++) {
@@ -696,6 +710,10 @@ List.conjugate = function(a) {
     return List.recursive(a, "conjugate");
 };
 
+List.transjugate = function(a){
+    return List.transpose(List.conjugate(a));
+};
+
 
 List.round = function(a) {
     return List.recursive(a, "round");
@@ -1259,9 +1277,57 @@ List.inverse = function(a) {
 
 
 List.linearsolve = function(a, bb) {
+    List.QRdecomp(a);
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
     else return List.LUsolve(a, bb);
+};
+
+List.QRdecomp = function(AA){
+    var len = AA.value.length;
+    var cslen = CSNumber.real(len);
+
+    // get alpha
+    var one = CSNumber.real(1);
+    var e1 = List._helper.unitvector(CSNumber.real(AA.value.length), one);
+    var xx = List.column(AA, one);
+    var alpha = List._helper.QRgetAlpha(xx, 0);
+
+
+    var uu = List.add(xx, List.scalmult(alpha, e1));
+    var vv = List.scaldiv(List.abs(uu), uu);
+    var ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
+
+    var QQ = List.idMatrix(cslen, cslen);
+    QQ = List.sub(QQ, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
+
+
+
+};
+
+// return u v^T Matrix
+List._helper.transposeMult = function(u, v){
+    if(u.value.length !== v.value.length) return nada;
+    var len = u.value.length;
+
+    var erg = new Array(len);
+
+    for(var i = 0; i < len; i++){
+        erg[i] = List.scalmult(u.value[i], v);
+    }
+
+    return List.turnIntoCSList(erg);
+
+};
+
+List._helper.QRgetAlpha = function(xx, k) {
+//    var atan = CSNumber.real(Math.atan2(xx.value[k].value.real, xx.value[k].value.imag));
+//    var alpha = CSNumber.neg(List.abs(xx));
+//    var expo = CSNumber.exp(CSNumber.mult(atan, CSNumber.complex(0, 1)));
+//    alpha = CSNumber.mult(alpha, expo);
+//    console.log(CSNumber.abs(xx.value[k]).value.real, CSNumber.abs(alpha).value.real, "absvals");
+//    return alpha;
+    return CSNumber.neg(List.abs(xx));
 };
 
 List.LUdecomp = function(AA) {
