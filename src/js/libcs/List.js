@@ -1277,16 +1277,25 @@ List.inverse = function(a) {
 
 
 List.linearsolve = function(a, bb) {
-    var erg =List.QRdecomp(a);
-    var ergR = erg.R;
-    var ergQ = erg.Q;
+    var erg =List.eig(a);
 
-    List.println(ergR);
-    List.println(ergQ);
-    
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
     else return List.LUsolve(a, bb);
+};
+
+List.eig = function(A){
+    var AA = A;
+    var QR = List.QRdecomp(A);
+    var QQ = QR.Q;
+    for(var i = 0; i < 10250; i++){
+        AA = General.mult(List.transpose(QQ), AA);
+        AA = General.mult(AA,QQ);
+        QR = List.QRdecomp(AA);
+        QQ = QR.Q;
+    }
+
+    List.println(AA);
 };
 
 List.QRdecomp = function(A){
@@ -1380,8 +1389,6 @@ List._helper.getBlock = function(A, m, n){
 
     if(n[1] === undefined) n1 = AA.value[0].value.length;
     else n1 = n[1];
-
-    console.log(m0, m1, n0, n1);
 
     // slice does not include end
     m1++; n1++;
