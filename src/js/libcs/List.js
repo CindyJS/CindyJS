@@ -1301,8 +1301,71 @@ List.QRdecomp = function(AA){
     var QQ = List.idMatrix(cslen, cslen);
     QQ = List.sub(QQ, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
 
+    var IDD = List.idMatrix(cslen, cslen);
+    List.println(List._helper.getBlock(IDD, [0,3], [0,0]));
 
 
+    var block = List._helper.buildBlockMatrix(AA, AA);
+    List.println(block);
+};
+
+List._helper.buildQRMat = function(dim, Qk){
+    var one = CSNumber.real(1);
+    var zer = CSNumber.real(0);
+    var res = new Array(dim);
+    var k = Qk.value.length;
+
+    for(var i = 0; i < dim; i++)
+        res[i] = new Array(dim);
+        for(var j = 0; j < dim ; j++){
+            
+        }
+
+};
+
+// build matrices of form
+// A 0
+// 0 B
+List._helper.buildBlockMatrix = function(A, B){
+    var mA = A.value.length;
+    var mB = B.value.length;
+    var m = mA + mB;
+
+    var nA = A.value[0].value.length;
+    var nB = B.value[0].value.length;
+    var n = nA + nB;
+
+    var erg = List.zeromatrix(CSNumber.real(m), CSNumber.real(n));
+
+    for(var i = 0; i < A.value.length; i++)
+    for(var j = 0; j < A.value[0].value.length; j++)
+        erg.value[i].value[j] = A.value[i].value[j];
+
+
+    for(var ii = 0; ii < B.value.length; ii++)
+    for(var jj = 0; jj < B.value[0].value.length;  jj++)
+        erg.value[mA+ii].value[nA+jj] = B.value[ii].value[jj];
+
+    return erg;
+};
+
+List._helper.getBlock = function(A, m, n){
+    var AA = A;
+    var m0 = m[0], m1;
+    var n0 = n[0], n1;
+
+    if(m1 === "undefined") m1 = AA.value.length;
+    else m1 = m[1];
+
+    if(n1 === "undefined") n1 = AA.value[0].length;
+    else n1 = n[1];
+
+    // slice does not include end
+    m1++; n1++;
+    
+    AA.value = AA.value.slice(m0, m1);
+    for(var i = 0; i < AA.value.length ; i++) AA.value[i].value = AA.value[i].value.slice(n0, n1);
+    return AA;
 };
 
 // return u v^T Matrix
