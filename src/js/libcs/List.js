@@ -1295,9 +1295,9 @@ List.getDiag = function(A){
 List.eig = function(A){
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
-//    var QR = List.QRdecomp(AA);
-//    var QQ = QR.Q;
+    var len = cslen.value.real;
     var UU = List.idMatrix(cslen, cslen);
+    var QQ = UU;
     var QR;
     for(var i = 0; i < 1000; i++){
         QR = List.QRdecomp(AA);
@@ -1310,12 +1310,42 @@ List.eig = function(A){
 //        console.log("==");
 //        AA = General.mult(AA,QQ);
 //        QR = List.QRdecomp(AA);
-//        QQ = QR.Q;
+        QQ = General.mult(QQ,QR.Q);
       UU = General.mult(UU, QR.Q);
     }
 
+    // evtl QQ*
     var ZZ = General.mult(QQ, AA);
     var eigvals = List.getDiag(AA);
+    var zvec = List.zerovector(cslen);
+    var ID = List.idMatrix(cslen, cslen);
+
+    var eigenvecs = new Array(cslen);
+    eigenvecs = List.turnIntoCSList(eigenvecs);
+    eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
+    var xx, MM = {};
+
+    var PP = new Array(len);
+    for(var ii =0; ii < len; ii++){
+    PP[ii]= new Array(len);
+    for(var jj = 0; jj < len; jj++){
+        if(ii == jj) PP[ii][jj] =1;
+        else PP[ii][jj] = 0;
+    }
+        
+    }
+
+    MM.P = PP;
+
+    console.log(zvec,"zvec");
+    List.println(zvec);
+    for(var ii = 1; ii < len; ii++){
+        console.log("ii",ii);
+    MM.LU = List.sub(AA, List.scalmult(eigvals.value[ii], ID));
+    zvec = List.zerovector(cslen);
+    xx = List._helper.LUsolve(MM,zvec);
+    List.println(xx);
+    }
 
 
 //    List.println(AA);
@@ -1517,6 +1547,8 @@ List.LUsolve = function(A, b) {
 
 List._helper.LUsolve = function(LUP, bb) {
     var b = JSON.parse(JSON.stringify(bb)); // TODO: get rid of this cloning
+    
+    //var b = bb;
     var i, j;
     var LU = LUP.LU;
     var n = LU.value.length;
@@ -1524,6 +1556,7 @@ List._helper.LUsolve = function(LUP, bb) {
     var P = LUP.P;
     var Pi, LUi, LUii, tmp;
 
+    console.log(LU, x,bb);
     for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
     for (i = 0; i < n; ++i) {
         Pi = P[i];
