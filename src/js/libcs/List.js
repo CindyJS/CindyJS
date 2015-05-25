@@ -1278,8 +1278,6 @@ List.inverse = function(a) {
 
 List.linearsolve = function(a, bb) {
     var erg =List.eig(a);
-//    List.println(erg.Q);
-//    List.println(erg.R);
 
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
@@ -1310,14 +1308,14 @@ List.eig = function(A){
 
     List.println(AA);
     List.println(UU);
-    List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
-    List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
+   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
+   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
 
-    List.println(General.mult(A, List.column(UU, CSNumber.real(2))));
-    List.println(General.mult(AA.value[1].value[1], List.column(UU, CSNumber.real(2))));
+   List.println(General.mult(A, List.column(UU, CSNumber.real(2))));
+   List.println(General.mult(AA.value[1].value[1], List.column(UU, CSNumber.real(2))));
 
-    List.println(General.mult(A, List.column(UU, CSNumber.real(3))));
-    List.println(General.mult(AA.value[2].value[2], List.column(UU, CSNumber.real(3))));
+   List.println(General.mult(A, List.column(UU, CSNumber.real(3))));
+   List.println(General.mult(AA.value[2].value[2], List.column(UU, CSNumber.real(3))));
 
 };
 
@@ -1335,7 +1333,7 @@ List.QRdecomp = function(A){
     for(var k = 0; k < len - 1; k++){
         // get alpha
         xx = List.column(AA, one);
-        alpha = List._helper.QRgetAlpha(xx, k);
+        alpha = List._helper.QRgetAlpha(xx, 0);
     
     
         uu = List.add(xx, List.scalmult(alpha, e1));
@@ -1367,7 +1365,7 @@ List.QRdecomp = function(A){
     var R = General.mult(List.transpose(QQ), A);
 
     return {
-        Q: Qk,
+        Q: QQ,
         R: R,
     };
 
