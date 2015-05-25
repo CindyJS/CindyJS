@@ -1286,16 +1286,31 @@ List.linearsolve = function(a, bb) {
 
 List.eig = function(A){
     var AA = A;
+    var cslen = CSNumber.real(AA.value.length);
     var QR = List.QRdecomp(A);
     var QQ = QR.Q;
-    for(var i = 0; i < 10250; i++){
-        AA = General.mult(List.transpose(QQ), AA);
-        AA = General.mult(AA,QQ);
+//    var UU = List.idMatrix(cslen, cslen);
+    var UU = QQ;
+    var left;
+    for(var i = 0; i < 10000; i++){
+        left = General.mult(List.transpose(QQ), AA);
+        AA = General.mult(left,QQ);
         QR = List.QRdecomp(AA);
         QQ = QR.Q;
+        UU = General.mult(UU, QQ);
     }
 
-    List.println(AA);
+//    List.println(AA);
+//    List.println(UU);
+    List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
+    List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
+
+    List.println(General.mult(A, List.column(UU, CSNumber.real(2))));
+    List.println(General.mult(AA.value[1].value[1], List.column(UU, CSNumber.real(2))));
+
+    List.println(General.mult(A, List.column(UU, CSNumber.real(3))));
+    List.println(General.mult(AA.value[2].value[2], List.column(UU, CSNumber.real(3))));
+
 };
 
 List.QRdecomp = function(A){
