@@ -1278,6 +1278,8 @@ List.inverse = function(a) {
 
 List.linearsolve = function(a, bb) {
     var erg =List.eig(a);
+//    List.println(erg.Q);
+//    List.println(erg.R);
 
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
@@ -1287,21 +1289,27 @@ List.linearsolve = function(a, bb) {
 List.eig = function(A){
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
-    var QR = List.QRdecomp(A);
-    var QQ = QR.Q;
-//    var UU = List.idMatrix(cslen, cslen);
-    var UU = QQ;
-    var left;
-    for(var i = 0; i < 10000; i++){
-        left = General.mult(List.transpose(QQ), AA);
-        AA = General.mult(left,QQ);
+//    var QR = List.QRdecomp(AA);
+//    var QQ = QR.Q;
+    var UU = List.idMatrix(cslen, cslen);
+    var QR;
+    for(var i = 0; i < 1000; i++){
         QR = List.QRdecomp(AA);
-        QQ = QR.Q;
-        UU = General.mult(UU, QQ);
+        AA = General.mult(QR.R, QR.Q);
+//        List.println(QR.Q);
+//        console.log("==");
+//        List.println(QR.R);
+//        console.log("==");
+//        List.println(AA);
+//        console.log("==");
+//        AA = General.mult(AA,QQ);
+//        QR = List.QRdecomp(AA);
+//        QQ = QR.Q;
+        UU = General.mult(UU, QR.Q);
     }
 
-//    List.println(AA);
-//    List.println(UU);
+    List.println(AA);
+    List.println(UU);
     List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
     List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
 
@@ -1327,7 +1335,7 @@ List.QRdecomp = function(A){
     for(var k = 0; k < len - 1; k++){
         // get alpha
         xx = List.column(AA, one);
-        alpha = List._helper.QRgetAlpha(xx, 0);
+        alpha = List._helper.QRgetAlpha(xx, k);
     
     
         uu = List.add(xx, List.scalmult(alpha, e1));
@@ -1359,7 +1367,7 @@ List.QRdecomp = function(A){
     var R = General.mult(List.transpose(QQ), A);
 
     return {
-        Q: QQ,
+        Q: Qk,
         R: R,
     };
 
@@ -1434,8 +1442,9 @@ List._helper.QRgetAlpha = function(xx, k) {
 //    var expo = CSNumber.exp(CSNumber.mult(atan, CSNumber.complex(0, 1)));
 //    alpha = CSNumber.mult(alpha, expo);
 //    return alpha;
-//
+
     // real version
+    if(xx.value[k].value.real < 0) return List.abs(xx);
     return CSNumber.neg(List.abs(xx));
 };
 
