@@ -1284,6 +1284,14 @@ List.linearsolve = function(a, bb) {
     else return List.LUsolve(a, bb);
 };
 
+List.getDiag = function(A){
+    if(A.value.length !== A.value[0].value.length) return nada;
+    var erg = new Array(A.value.length);
+    for(var i = 0; i < A.value.length; i++) erg[i] = A.value[i].value[i];
+
+    return List.turnIntoCSList(erg);
+};
+
 List.eig = function(A){
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
@@ -1303,19 +1311,23 @@ List.eig = function(A){
 //        AA = General.mult(AA,QQ);
 //        QR = List.QRdecomp(AA);
 //        QQ = QR.Q;
-        UU = General.mult(UU, QR.Q);
+      UU = General.mult(UU, QR.Q);
     }
 
-    List.println(AA);
-    List.println(UU);
-   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
-   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
+    var ZZ = General.mult(QQ, AA);
+    var eigvals = List.getDiag(AA);
 
-   List.println(General.mult(A, List.column(UU, CSNumber.real(2))));
-   List.println(General.mult(AA.value[1].value[1], List.column(UU, CSNumber.real(2))));
 
-   List.println(General.mult(A, List.column(UU, CSNumber.real(3))));
-   List.println(General.mult(AA.value[2].value[2], List.column(UU, CSNumber.real(3))));
+//    List.println(AA);
+//    List.println(UU);
+//   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
+//   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
+//
+//   List.println(General.mult(A, List.column(UU, CSNumber.real(2))));
+//   List.println(General.mult(AA.value[1].value[1], List.column(UU, CSNumber.real(2))));
+//
+//   List.println(General.mult(A, List.column(UU, CSNumber.real(3))));
+//   List.println(General.mult(AA.value[2].value[2], List.column(UU, CSNumber.real(3))));
 
 };
 
