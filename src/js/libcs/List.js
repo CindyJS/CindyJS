@@ -1333,7 +1333,9 @@ List.eig = function(A){
     MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
     List.println(MM);
     xx = List._helper.inverseIteration(MM);
+    console.log("==");
     List.println(xx);
+    console.log("==");
     }
 
 
@@ -1362,14 +1364,13 @@ List._helper.inverseIteration = function(A){
     var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
 
     var shift = CSNumber.real(2*Math.random()-2);
-    for(var ii = 0; ii < 10; ii ++){
+    for(var ii = 0; ii < 3 ; ii ++){
         qk = List.scaldiv(List.abs(xx), xx);
-        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), xx);
+        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), xx); // TODO Use triangular form
     }
 
-    List.println(xx);
-    debugger;
     
+    return List.scaldiv(List.abs(xx), xx);
 
 };
 
