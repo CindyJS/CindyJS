@@ -1277,8 +1277,7 @@ List.inverse = function(a) {
 
 
 List.linearsolve = function(a, bb) {
-    var erg =List.eig(a);
-
+    List.eig(a);
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
     else return List.LUsolve(a, bb);
@@ -1296,6 +1295,7 @@ List.eig = function(A){
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
     var len = cslen.value.real;
+    var zero = CSNumber.real(0);
     var UU = List.idMatrix(cslen, cslen);
     var QQ = UU;
     var QR;
@@ -1323,27 +1323,16 @@ List.eig = function(A){
     var eigenvecs = new Array(cslen);
     eigenvecs = List.turnIntoCSList(eigenvecs);
     eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
-    var xx, MM = {};
+    var xx;
 
     var PP = new Array(len);
-    for(var ii =0; ii < len; ii++){
-    PP[ii]= new Array(len);
-    for(var jj = 0; jj < len; jj++){
-        if(ii == jj) PP[ii][jj] =1;
-        else PP[ii][jj] = 0;
-    }
-        
-    }
 
-    MM.P = PP;
 
-    console.log(zvec,"zvec");
-    List.println(zvec);
-    for(var ii = 1; ii < len; ii++){
-        console.log("ii",ii);
-    MM.LU = List.sub(AA, List.scalmult(eigvals.value[ii], ID));
-    zvec = List.zerovector(cslen);
-    xx = List._helper.LUsolve(MM,zvec);
+    var MM;
+    for(var qq = 1; qq < len; qq++){
+    MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
+    List.println(MM);
+    xx = List._helper.inverseIteration(MM);
     List.println(xx);
     }
 
@@ -1360,6 +1349,53 @@ List.eig = function(A){
 //   List.println(General.mult(AA.value[2].value[2], List.column(UU, CSNumber.real(3))));
 
 };
+
+List._helper.inverseIteration = function(A){
+    var len = A.value.length;
+
+    // random vector
+    var xx = new Array(len);
+    for(var i =0; i< len; i++) xx[i] = 2*Math.random() - 0.5;
+    xx = List.realVector(xx);
+
+    var qk = xx;
+    var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
+
+    var shift = CSNumber.real(2*Math.random()-2);
+    for(var ii = 0; ii < 10; ii ++){
+        qk = List.scaldiv(List.abs(xx), xx);
+        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), xx);
+    }
+
+    List.println(xx);
+    debugger;
+    
+
+};
+
+//List._helper.backSubstiution = function(LU,b){
+//    var x = b, LUi, i,j;
+//    var n = LU.value.length;
+//    for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
+////    for (i = 0; i < n; ++i) {
+////        LUi = LU.value[i];
+////        for (j = 0; j < i; ++j) {
+////            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+////        }
+////    }
+//
+//    for (i = n - 1; i >= 0; --i) {
+//        LUi = LU.value[i];
+//        for (j = i + 1; j < n; ++j) {
+//            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+//        }
+//
+//        if(CSNumber._helper.isZero(LUi.value[i])) continue;
+//        x.value[i] = CSNumber.div(x.value[i], LUi.value[i]);
+//    }
+//
+//    return x;
+//};
 
 List.QRdecomp = function(A){
     var AA = A;
@@ -1547,16 +1583,13 @@ List.LUsolve = function(A, b) {
 
 List._helper.LUsolve = function(LUP, bb) {
     var b = JSON.parse(JSON.stringify(bb)); // TODO: get rid of this cloning
-    
-    //var b = bb;
     var i, j;
     var LU = LUP.LU;
     var n = LU.value.length;
-    var x = b;
+    var x = JSON.parse(JSON.stringify(b));
     var P = LUP.P;
     var Pi, LUi, LUii, tmp;
 
-    console.log(LU, x,bb);
     for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
     for (i = 0; i < n; ++i) {
         Pi = P[i];
