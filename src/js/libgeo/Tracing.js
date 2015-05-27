@@ -85,6 +85,9 @@ function traceMouseAndScripts() {
         if (traceLog.length > traceLog.logLength)
             traceLog.splice(0, traceLog.length - traceLog.logLength);
         traceLog.currentMouseAndScripts = null;
+        traceLog.postMouseHooks.forEach(function(cb) {
+            cb();
+        });
     }
 }
 
@@ -251,11 +254,14 @@ if (instanceInvocationArguments.enableTraceLog) {
         labelTracing2: General.wrap("tracing2"),
         labelTracing4: General.wrap("tracing4"),
         labelTracingSesq: General.wrap("tracingSesq"),
+        postMouseHooks: []
     };
     if (typeof instanceInvocationArguments.enableTraceLog === "number")
         traceLog.logLength = instanceInvocationArguments.enableTraceLog;
     globalInstance.getTraceLog = getTraceLog;
     globalInstance.formatTraceLog = formatTraceLog;
+    globalInstance.addTraceHook =
+        traceLog.postMouseHooks.push.bind(traceLog.postMouseHooks);
 }
 
 function getTraceLog() {
