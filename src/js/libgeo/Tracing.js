@@ -400,7 +400,7 @@ tracing4.stateSize = 24; // four three-element complex vectors
 
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     var debug = function() {};
-//    var debug = console.log.bind(console);
+    // var debug = console.log.bind(console);
     
     var useGreedy = true; // greedy or permutation?
     var safety;
@@ -414,36 +414,27 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
 
     var res = new Array(4);
 
-    var min_cost, dist, dsum;
+    var min_cost, dist, dsum, i, j;
     if(useGreedy){
         safety = 3;
         res = new_el;
-        var dist_old_new = new Array(4); // this will hold old to new points matching distance o1n1, o2n3 ... after matching
-    
-        var min_dist = Infinity,
-            idx, tmp;
-        dsum = 0; 
-        for (var oo = 0; oo < 4; oo++) {
-            idx = oo;
-            for (var kk = oo; kk < 4; kk++) {
-                dist = List.projectiveDistMinScal(old_el[oo], res[kk]);
+        min_cost = 0;
+        for (i = 0; i < 4; i++) {
+            var idx = i;
+            var min_dist = List.projectiveDistMinScal(old_el[i], res[i]);
+            for (j = i + 1; j < 4; j++) {
+                dist = List.projectiveDistMinScal(old_el[i], res[j]);
                 if (dist < min_dist) {
-                    idx = kk;
+                    idx = j;
                     min_dist = dist;
                 }
-    
             }
-            // swap elements if necessary
-            if (idx !== oo) {
-                tmp = res[oo];
-                res[oo] = res[idx];
-                res[idx] = tmp;
-            }
-            dsum += min_dist;
-            //dist_old_new[oo] = min_dist;
-            min_dist = Infinity;
+            // swap elements
+            var tmp = res[i];
+            res[i] = res[idx];
+            res[idx] = tmp;
+            min_cost += min_dist;
         }
-        min_cost = dsum;
     }
     else{
         min_cost= Infinity; 
