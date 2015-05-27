@@ -254,7 +254,7 @@ geoOps.PointOnLine.updatePosition = function(el, isMover) {
     newPoint = List.normalizeMax(newPoint);
     putStateComplexVector(newPoint);
     putStateComplexVector(newLine);
-    el.homog = General.withUsage(newPoint, "Point");;
+    el.homog = General.withUsage(newPoint, "Point");
 };
 geoOps.PointOnLine.getParamForInput = function(el, pos, type) {
     var line = csgeo.csnames[(el.args[0])].homog;

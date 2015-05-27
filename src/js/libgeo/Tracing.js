@@ -3,9 +3,8 @@ function assert(condition, message) {
     if (condition) return;
     console.log(msg);
     shutdown();
-    if (typeof alert !== "undefined") alert(msg);
+    if (typeof alert !== "undefined") alert(msg); // jshint ignore:line
     throw new Error(msg);
-    throw msg;
 }
 
 var stateIn, stateOut, stateLastGood;
@@ -633,7 +632,7 @@ function tracingSesq(newVecs) {
 
     if (tracingInitial) {
         for (i = 0; i < n; ++i) {
-            stateInIdx += 2 * newVecs[i].value.length
+            stateInIdx += 2 * newVecs[i].value.length;
             putStateComplexVector(newVecs[i]);
         }
         return newVecs;
