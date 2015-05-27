@@ -1108,7 +1108,7 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var delta = List.det(BB);
 
     // degenerate Case
-    var myeps = 1e-8;
+    var myeps = 1e-16;
     var AAdegen = CSNumber.abs(alpha).value.real < myeps;
     var BBdegen = CSNumber.abs(delta).value.real < myeps;
 
