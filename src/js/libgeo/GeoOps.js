@@ -1199,7 +1199,7 @@ geoOps.IntersectConicConic.updatePosition = function(el) {
     el.results = erg;
 //    el.results = List.turnIntoCSList(erg);
 };
-geoOps.IntersectConicConic.StateSize = tracing4.stateSize;
+geoOps.IntersectConicConic.stateSize = tracing4.stateSize;
 
 
 geoOps.SelectP = {};
