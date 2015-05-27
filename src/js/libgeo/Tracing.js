@@ -57,6 +57,9 @@ function defaultParameterPath(el, tr, tc, src, dst) {
 }
 
 function traceMouseAndScripts() {
+    if (traceLog) {
+        traceLog.currentMouseAndScripts = [];
+    }
     inMouseMove = true;
     tracingFailed = false;
     stateIn.set(stateLastGood); // copy stateLastGood and use it as input
@@ -75,6 +78,14 @@ function traceMouseAndScripts() {
         stateContinueFromHere();
     }
     inMouseMove = false;
+    if (traceLog) {
+        traceLog.fullLog.push(List.turnIntoCSList([
+            List.turnIntoCSList(traceLog.currentMouseAndScripts)
+        ]));
+        if (traceLog.length > traceLog.logLength)
+            traceLog.splice(0, traceLog.length - traceLog.logLength);
+        traceLog.currentMouseAndScripts = null;
+    }
 }
 
 function movepointscr(mover, pos, type) {
@@ -92,6 +103,9 @@ function movepointscr(mover, pos, type) {
  * traceMover moves mover from current param to param for pos along a complex detour.
  */
 function traceMover(mover, pos, type) {
+    if (traceLog && traceLog.currentMouseAndScripts) {
+        traceLog.currentMover = [];
+    }
     stateOut.set(stateIn); // copy in to out, for elements we don't recalc
     var traceLimit = 100; // keep UI responsive in evil situations
     var deps = getGeoDependants(mover);
@@ -107,26 +121,17 @@ function traceMover(mover, pos, type) {
     //console.log("Tracing from " + niceprint(originParam) + " to " + niceprint(targetParam));
     var t = last + step;
     while (last !== t) {
-        if (traceLog) {
-            traceLogRow = [];
-            traceLog.push(traceLogRow);
-            if ((last === -1 && t > -0.11) || (t === 1 && last < -0.09)) {
-                traceLogRow[0] = niceprint(originParam);
-                traceLogRow[1] = niceprint(targetParam);
-            } else {
-                traceLogRow[0] = "";
-                traceLogRow[1] = "";
-            }
-            traceLogRow[2] = last;
-            traceLogRow[3] = t;
-        }
         // Rational parametrization of semicircle,
         // see http://jsperf.com/half-circle-parametrization
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = (last + 0.5 * step <= last || traceLimit === 0);
+        var refining = false;
 
+        if (traceLog && traceLog.currentMouseAndScripts) {
+            traceLog.currentStep = [];
+        }
         try {
             traceOneStep();
         } catch (e) {
@@ -135,6 +140,18 @@ function traceMover(mover, pos, type) {
             step *= 0.5; // reduce step size
             t = last + step;
             --traceLimit;
+            refining = true;
+        }
+        if (traceLog && traceLog.currentMouseAndScripts) {
+            traceLog.currentMover.push(List.turnIntoCSList([
+                /* 1 */ List.turnIntoCSList(traceLog.currentStep),
+                /* 2 */ General.wrap(refining),
+                /* 3 */ General.wrap(last),
+                /* 4 */ General.wrap(t),
+                /* 5 */ General.wrap(traceLog.currentParam),
+            ]));
+            traceLog.currentStep = null;
+            traceLog.currentParam = null;
         }
     }
     tracingStateReport(tracingFailed);
@@ -143,13 +160,25 @@ function traceMover(mover, pos, type) {
         op = geoOps[el.type];
         isShowing(el, op);
     }
+    if (traceLog && traceLog.currentMouseAndScripts) {
+        traceLog.currentMouseAndScripts.push(List.turnIntoCSList([
+            /* 1 */ List.turnIntoCSList(traceLog.currentMover),
+            /* 2 */ General.wrap(tracingFailed),
+            /* 3 */ General.wrap(mover.name),
+            /* 4 */ pos,
+            /* 5 */ General.wrap(type),
+            /* 6 */ originParam,
+            /* 7 */ targetParam,
+        ]));
+        traceLog.currentMover = null;
+    }
 
     // use own function to enable compiler optimization
     function traceOneStep() {
         stateInIdx = stateOutIdx = mover.stateIdx;
         var param =
             parameterPath(mover, t, tc, originParam, targetParam);
-        if (traceLog) traceLogRow[4] = niceprint(param);
+        if (traceLog) traceLog.currentParam = param;
 
         var stateTmp = stateOut;
         stateOut = stateIn;
@@ -157,6 +186,7 @@ function traceMover(mover, pos, type) {
         stateOut = stateTmp;
         stateOutIdx = mover.stateIdx;
 
+        if (traceLog) traceLog.currentElement = mover;
         opMover.updatePosition(mover, true);
         assert(stateInIdx === mover.stateIdx + opMover.stateSize, "State fully consumed");
         assert(stateOutIdx === mover.stateIdx + opMover.stateSize, "State fully updated");
@@ -164,10 +194,12 @@ function traceMover(mover, pos, type) {
             el = deps[i];
             op = geoOps[el.type];
             stateInIdx = stateOutIdx = el.stateIdx;
+            if (traceLog) traceLog.currentElement = el;
             op.updatePosition(el, false);
             assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
             assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
         }
+        if (traceLog) traceLog.currentElement = null;
         last = t; // successfully traced up to t
         step *= 1.25;
         t += step;
@@ -205,56 +237,35 @@ function tracingStateReport(failed) {
 }
 
 var traceLog = null;
-var traceLogRow = [];
 
 if (instanceInvocationArguments.enableTraceLog) {
-    traceLog = [traceLogRow];
+    // most properties are JavaScript lists of CindyScript lists
+    traceLog = {
+        logLength: Infinity,
+        fullLog: [],
+        currentMouseAndScripts: null,
+        currentMover: null,
+        currentStep: null,
+        currentElement: null,
+        currentParam: null,
+        labelTracing2: General.wrap("tracing2"),
+        labelTracing4: General.wrap("tracing4"),
+        labelTracingSesq: General.wrap("tracingSesq"),
+    };
+    if (typeof instanceInvocationArguments.enableTraceLog === "number")
+        traceLog.logLength = instanceInvocationArguments.enableTraceLog;
+    globalInstance.getTraceLog = getTraceLog;
     globalInstance.formatTraceLog = formatTraceLog;
 }
 
+function getTraceLog() {
+    return List.turnIntoCSList(traceLog.fullLog.slice());
+}
+
 function formatTraceLog(save) {
-    var tbody = '<tbody>' + traceLog.map(function(row) {
-        var action = row[row.length - 1];
-        var cls;
-        if (/^Normal/.test(action))
-            cls = "normal";
-        else if (/refine.?$/.test(action))
-            cls = "refine";
-        else
-            cls = "other";
-        if (row[0] !== "")
-            cls = "initial " + cls;
-        else
-            cls = "refined " + cls;
-        return '<tr class="' + cls + '">' + row.map(function(cell) {
-            return '<td>' + cell + '</td>';
-        }).join('') + '</tr>\n';
-    }).join('') + '</tbody>';
-    var cols = [
-        'originParam', 'targetParam', 'last', 't', 'param',
-        'do1n1', 'do1n2', 'do2n1', 'do2n2', 'do1o2', 'dn1n2', 'cost',
-        'n1', 'n2', 'o1', 'o2', 'case'
-    ];
-    var thead = '<thead>' + cols.map(function(cell) {
-        return '<th>' + cell + '</th>';
-    }).join('') + '</thead>';
-    var table1 = '<table id="t1">' + thead + tbody + '</table>';
-    var css = [
-        'html, body { margin: 0px; padding: 0px; }',
-        'td { white-space: nowrap; border: 1px solid black; }',
-        'table { border-collapse: collapse; margin: 0px; }',
-        'thead th { background: #fff; }',
-        'tr.initial.normal td { background: #0ff; }',
-        'tr.refined.normal td { background: #0f0; }',
-        'tr.initial.refine td { background: #f0f; }',
-        'tr.refined.refine td { background: #ff0; }',
-        'tr.other td { background: #f00; }',
-    ].join('\n');
-    var html = '<html><head><title>Tracing report</title>' +
-        '<style type="text/css">' + css + '</style></head><body>' +
-        table1 + '</body></html>';
-    var type = save ? 'application/octet-stream' : 'text/html';
-    var blob = new Blob([html], {
+    var str = JSON.stringify(traceLog.fullLog);
+    var type = save ? 'application/octet-stream' : 'application/json';
+    var blob = new Blob([str], {
         'type': type
     });
     var uri = window.URL.createObjectURL(blob);
@@ -323,21 +334,24 @@ function tracing2core(n1, n2, o1, o2) {
 
     var debug = function() {};
     // debug = console.log.bind(console);
-    var tlc = 5;
-    if (traceLog) {
-        traceLogRow[tlc++] = do1n1;
-        traceLogRow[tlc++] = do1n2;
-        traceLogRow[tlc++] = do2n1;
-        traceLogRow[tlc++] = do2n2;
-        traceLogRow[tlc++] = do1o2;
-        traceLogRow[tlc++] = dn1n2;
-        traceLogRow[tlc++] = cost;
-        traceLogRow[tlc++] = niceprint(res[0]);
-        traceLogRow[tlc++] = niceprint(res[1]);
-        traceLogRow[tlc++] = niceprint(o1);
-        traceLogRow[tlc++] = niceprint(o2);
+    if (traceLog && traceLog.currentStep) {
+        var logRow = [
+            /* 1 */ traceLog.labelTracing2,
+            /* 2 */ General.wrap(traceLog.currentElement.name),
+            /* 3 */ List.turnIntoCSList(res),
+            /* 4 */ List.turnIntoCSList([o1, o2]),
+            /* 5 */ List.realMatrix([[do1n1, do1n2], [do2n1, do2n2]]),
+            /* 6 */ General.wrap(cost),
+            /* 7 */ General.wrap(do1o2),
+            /* 8 */ General.wrap(dn1n2),
+            /* 9 */ nada, // will become the outcome message
+        ];
+        traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function(msg) {
-            traceLogRow[tlc++] = msg;
+            if (!traceLog.hasOwnProperty(msg))
+                traceLog[msg] = General.wrap(msg);
+            logRow[logRow.length - 1] = traceLog[msg];
+            // Evil: modify can break copy on write! But it's safe here.
         };
     }
     if (List._helper.isNaN(n1) || List._helper.isNaN(n2)) {
@@ -402,7 +416,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     var debug = function() {};
     // var debug = console.log.bind(console);
     
-    var useGreedy = false; // greedy or permutation?
+    var useGreedy = true; // greedy or permutation?
     var safety;
 
     var old_el = [o1, o2, o3, o4];
@@ -477,6 +491,27 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
             dist = List.projectiveDistMinScal(res[i], res[j]); // dn1n2...
             if (ndist > dist) ndist = dist;
         }
+    }
+
+    if (traceLog && traceLog.currentStep) {
+        var logRow = [
+            /* 1 */ traceLog.labelTracing4,
+            /* 2 */ General.wrap(traceLog.currentElement.name),
+            /* 3 */ List.turnIntoCSList(res),
+            /* 4 */ List.turnIntoCSList(old_el),
+            /* 5 */ List.realMatrix(costMatrix),
+            /* 6 */ General.wrap(min_cost),
+            /* 7 */ General.wrap(odist),
+            /* 8 */ General.wrap(ndist),
+            /* 9 */ nada, // will become the outcome message
+        ];
+        traceLog.currentStep.push(List.turnIntoCSList(logRow));
+        debug = function(msg) {
+            if (!traceLog.hasOwnProperty(msg))
+                traceLog[msg] = General.wrap(msg);
+            logRow[logRow.length - 1] = traceLog[msg];
+            // Evil: modify can break copy on write! But it's safe here.
+        };
     }
 
     if (odist > match_cost && ndist > match_cost) {
@@ -636,6 +671,26 @@ function tracingSesq(newVecs) {
     anyNaN |= isNaN(resCost);
     var safety = 3;
     var debug = function() {};
+    if (traceLog && traceLog.currentStep) {
+        var logRow = [
+            /* 1 */ traceLog.labelTracingSesq,
+            /* 2 */ General.wrap(traceLog.currentElement.name),
+            /* 3 */ List.turnIntoCSList(res),
+            /* 4 */ List.turnIntoCSList(oldVecs),
+            /* 5 */ List.realMatrix(cost),
+            /* 6 */ General.wrap(resCost),
+            /* 7 */ General.wrap(oldMinCost),
+            /* 8 */ General.wrap(newMinCost),
+            /* 9 */ nada, // will become the outcome message
+        ];
+        traceLog.currentStep.push(List.turnIntoCSList(logRow));
+        debug = function(msg) {
+            if (!traceLog.hasOwnProperty(msg))
+                traceLog[msg] = General.wrap(msg);
+            logRow[logRow.length - 1] = traceLog[msg];
+            // Evil: modify can break copy on write! But it's safe here.
+        };
+    }
     if (anyNaN) {
         // Something went very wrong, numerically speaking. We have no
         // clue whether refining will make things any better, so we
