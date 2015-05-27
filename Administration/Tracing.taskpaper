@@ -79,5 +79,5 @@ Nächste Schritte:
 - „el.parameter = …“ in return „…“ übersetzen @done(2015-04-28)
 - Kein tracing, so lange sich nichts bewegt @done(2015-04-28)
 - Zuweisungen an .xy oder .homog richtig machen @done(2015-05-22)
-- labObjects.Mass.move durch traceMover führen, evtl. via movepointscr
+- labObjects.Mass.move durch traceMover führen, evtl. via movepointscr @done(2015-05-27)
 - in Setup.js die backupGeo / restoreGeo durch State-Kopieren ersetzen
