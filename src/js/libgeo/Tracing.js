@@ -107,7 +107,6 @@ function traceMover(mover, pos, type) {
     var targetParam = opMover.getParamForInput(mover, pos, type);
     //console.log("Tracing from " + niceprint(originParam) + " to " + niceprint(targetParam));
     var t = last + step;
-    var coretracing;
     while (last !== t) {
         if (traceLog) {
             traceLogRow = [];
@@ -129,43 +128,8 @@ function traceMover(mover, pos, type) {
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = (last + 0.5 * step <= last || traceLimit === 0);
 
-        // use own function to enable compiler optimization
-        /* jshint ignore:start */
-        coretracing = function(){ 
-            stateInIdx = stateOutIdx = mover.stateIdx;
-            var param =
-                parameterPath(mover, t, tc, originParam, targetParam);
-            if (traceLog) traceLogRow[4] = niceprint(param);
-
-            var stateTmp = stateOut;
-            stateOut = stateIn;
-            opMover.putParamToState(el, param);
-            stateOut = stateTmp;
-            stateOutIdx = mover.stateIdx;
-
-            opMover.updatePosition(mover, true);
-            assert(stateInIdx === mover.stateIdx + opMover.stateSize, "State fully consumed");
-            assert(stateOutIdx === mover.stateIdx + opMover.stateSize, "State fully updated");
-            for (i = 0; i < deps.length; ++i) {
-                el = deps[i];
-                op = geoOps[el.type];
-                stateInIdx = stateOutIdx = el.stateIdx;
-                op.updatePosition(el, false);
-                assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
-                assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
-            }
-            last = t; // successfully traced up to t
-            step *= 1.25;
-            t += step;
-            if (t >= 1) t = 1;
-
-            // stateTmp = stateOut; // we still have this from above
-            stateOut = stateIn; // recycle old input, reuse as output
-            stateIn = stateTmp; // use last output as next input
-        };
-        /* jshint ignore:end */
         try {
-                coretracing(); // jshint ignore:line
+            traceOneStep();
         } catch (e) {
             if (e !== RefineException)
                 throw e;
@@ -179,6 +143,40 @@ function traceMover(mover, pos, type) {
         el = deps[i];
         op = geoOps[el.type];
         isShowing(el, op);
+    }
+
+    // use own function to enable compiler optimization
+    function traceOneStep() {
+        stateInIdx = stateOutIdx = mover.stateIdx;
+        var param =
+            parameterPath(mover, t, tc, originParam, targetParam);
+        if (traceLog) traceLogRow[4] = niceprint(param);
+
+        var stateTmp = stateOut;
+        stateOut = stateIn;
+        opMover.putParamToState(el, param);
+        stateOut = stateTmp;
+        stateOutIdx = mover.stateIdx;
+
+        opMover.updatePosition(mover, true);
+        assert(stateInIdx === mover.stateIdx + opMover.stateSize, "State fully consumed");
+        assert(stateOutIdx === mover.stateIdx + opMover.stateSize, "State fully updated");
+        for (i = 0; i < deps.length; ++i) {
+            el = deps[i];
+            op = geoOps[el.type];
+            stateInIdx = stateOutIdx = el.stateIdx;
+            op.updatePosition(el, false);
+            assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
+            assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
+        }
+        last = t; // successfully traced up to t
+        step *= 1.25;
+        t += step;
+        if (t >= 1) t = 1;
+
+        // stateTmp = stateOut; // we still have this from above
+        stateOut = stateIn; // recycle old input, reuse as output
+        stateIn = stateTmp; // use last output as next input
     }
 }
 
