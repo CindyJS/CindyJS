@@ -60,7 +60,7 @@ function traceMouseAndScripts() {
     inMouseMove = true;
     tracingFailed = false;
     stateIn.set(stateLastGood); // copy stateLastGood and use it as input
-    if (move && (move.prev.x !== mouse.x || move.prev.y !== mouse.y)) {
+    if (move) {
         var mover = move.mover;
         var sx = mouse.x + move.offset.x;
         var sy = mouse.y + move.offset.y;
