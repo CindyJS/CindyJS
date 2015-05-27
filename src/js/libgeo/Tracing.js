@@ -456,70 +456,63 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     } // end use greedy
 
     // assume now we have machting between res and old_el
-    var odist, ndist, diff, match_cost;
     var need_refine = false;
-    match_cost = min_cost; //dsum;
-    match_cost *= safety;
+    var match_cost = min_cost * safety;
+    var odist = Infinity;
+    var ndist = Infinity;
 
-    for (var ii = 0; ii < 4; ii++) {
+    for (i = 0; i < 4; i++) {
         if(need_refine) break;
-        if (List._helper.isNaN(new_el[ii])) {
+        if (List._helper.isNaN(new_el[i])) {
             // Something went very wrong, numerically speaking. We have no
             // clue whether refining will make things any better, so we
             // assume it won't and give up.
             debug("Tracing failed due to NaNs.");
             tracingFailed = true;
-            break;
+            return res;
         }
-        for (var jj = ii+1; jj < 4; jj++) {
-            //if(tracingFailed) break;
-            //match_cost = dist_old_new[ii];
-
-            odist = List.projectiveDistMinScal(old_el[ii], old_el[jj]); // this is do1o2...
-            ndist = List.projectiveDistMinScal(res[ii], res[jj]); // this is dn1n2...
-
-            if (odist > match_cost && ndist > match_cost) {
-                // Distance within matching considerably smaller than distance
-                // across matching, so we could probably match correctly.
-            } else if (ndist < 1e-5) {
-                // New points too close: we presumably are inside a singularity.
-                if (odist < 1e-5) { // Cinderella uses the constant 1e-6 here
-                    // The last "good" position was already singular.
-                    // Nothing we can do about this.
-                    debug("Staying inside singularity.");
-                } else {
-                    // We newly moved into the singularity. New position is
-                    // not "good", but refining won't help since the endpoint
-                    // is singular.
-                    debug("Moved into singularity.");
-                    tracingFailed = true;
-                }
-            } else if (odist < 1e-5) { // Cinderella uses the constant 1e-6 here
-                // We just moved out of a singularity. Things can only get
-                // better. If the singular situation was "good", we stay
-                // "good", and keep track of things from now on.
-                debug("Moved out of singularity.");
-            } else {
-                    //console.log(odist, ndist, match_cost);
-                //console.log(odist, ndist, match_cost);
-                // Neither old nor new position looks singular, so there was
-                // an avoidable singularity along the way. Refine to avoid it.
-                if (noMoreRefinements){
-                    debug("Reached refinement limit, giving up.");
-                }
-                else {
-                    debug("Need to refine.");
-                    need_refine = true;
-                    break;
-                }
-            }
+        for (j = i + 1; j < 4; j++) {
+            dist = List.projectiveDistMinScal(old_el[i], old_el[j]); // do1o2...
+            if (odist > dist) odist = dist;
+            dist = List.projectiveDistMinScal(res[i], res[j]); // dn1n2...
+            if (ndist > dist) ndist = dist;
         }
     }
 
-    if (need_refine) requestRefinement();
-
+    if (odist > match_cost && ndist > match_cost) {
+        // Distance within matching considerably smaller than distance
+        // across matching, so we could probably match correctly.
+        //debug("Normal case, everything all right.");
+    } else if (ndist < 1e-5) {
+        // New points too close: we presumably are inside a singularity.
+        if (odist < 1e-5) {
+            // The last "good" position was already singular.
+            // Nothing we can do about this.
+            debug("Staying inside singularity.");
+        } else {
+            // We newly moved into the singularity. New position is
+            // not "good", but refining won't help since the endpoint
+            // is singular.
+            debug("Moved into singularity.");
+            tracingFailed = true;
+        }
+    } else if (odist < 1e-5) {
+        // We just moved out of a singularity. Things can only get
+        // better. If the singular situation was "good", we stay
+        // "good", and keep track of things from now on.
+        debug("Moved out of singularity.");
+    } else {
+        //console.log(odist, ndist, match_cost);
+        //console.log(odist, ndist, match_cost);
+        // Neither old nor new position looks singular, so there was
+        // an avoidable singularity along the way. Refine to avoid it.
+        if (noMoreRefinements)
+            debug("Reached refinement limit, giving up.");
+        else
+            debug("Need to refine.");
+        requestRefinement();
+    }
     return res;
-
 }
 
 function tracing2X(n1, n2, c1, c2, el) {
