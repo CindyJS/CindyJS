@@ -277,12 +277,12 @@ function startit() {
 }
 
 function updateCindy() {
-    traceMouseAndScripts();
     csport.reset();
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
     if (csgridsize !== 0)
         evaluate(csgridscript);
+    traceMouseAndScripts();
     //   console.log("NOW UPDATING");
     //  drawgrid();
     csport.greset();
