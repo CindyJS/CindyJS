@@ -107,6 +107,7 @@ function traceMover(mover, pos, type) {
     var targetParam = opMover.getParamForInput(mover, pos, type);
     //console.log("Tracing from " + niceprint(originParam) + " to " + niceprint(targetParam));
     var t = last + step;
+    var coretracing;
     while (last !== t) {
         if (traceLog) {
             traceLogRow = [];
@@ -127,7 +128,10 @@ function traceMover(mover, pos, type) {
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = (last + 0.5 * step <= last || traceLimit === 0);
-        try {
+
+        // use own function to enable compiler optimization
+        /* jshint ignore:start */
+        coretracing = function(){ 
             stateInIdx = stateOutIdx = mover.stateIdx;
             var param =
                 parameterPath(mover, t, tc, originParam, targetParam);
@@ -158,6 +162,10 @@ function traceMover(mover, pos, type) {
             // stateTmp = stateOut; // we still have this from above
             stateOut = stateIn; // recycle old input, reuse as output
             stateIn = stateTmp; // use last output as next input
+        };
+        /* jshint ignore:end */
+        try {
+                coretracing(); // jshint ignore:line
         } catch (e) {
             if (e !== RefineException)
                 throw e;
@@ -375,6 +383,188 @@ function tracing2core(n1, n2, o1, o2) {
     return res;
 }
 tracing2.stateSize = 12; // two three-element complex vectors
+
+function tracing4(n1, n2, n3, n4) {
+    var o1 = getStateComplexVector(3);
+    var o2 = getStateComplexVector(3);
+    var o3 = getStateComplexVector(3);
+    var o4 = getStateComplexVector(3);
+
+    var res = tracing4core(n1, n2, n3, n4, o1, o2, o3, o4);
+
+    putStateComplexVector(res[0]);
+    putStateComplexVector(res[1]);
+    putStateComplexVector(res[2]);
+    putStateComplexVector(res[3]);
+    return List.turnIntoCSList(res);
+}
+tracing4.stateSize = 24; // four three-element complex vectors
+
+
+function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
+    var debug = function() {};
+//    var debug = console.log.bind(console);
+    
+    var useGreedy = true; // greedy or permutation?
+    var safety;
+
+    var old_el = [o1, o2, o3, o4];
+    var new_el = [n1, n2, n3, n4];
+
+    // first we leave everything to input
+    if (tracingInitial)
+        return new_el;
+
+    var res = new Array(4);
+
+    var min_cost, dist, dsum;
+    if(useGreedy){
+        safety = 3;
+        res = new_el;
+        var dist_old_new = new Array(4); // this will hold old to new points matching distance o1n1, o2n3 ... after matching
+    
+        var min_dist = Infinity,
+            idx, tmp;
+        dsum = 0; 
+        for (var oo = 0; oo < 4; oo++) {
+            idx = oo;
+            for (var kk = oo; kk < 4; kk++) {
+                dist = List.projectiveDistMinScal(old_el[oo], res[kk]);
+                if (dist < min_dist) {
+                    idx = kk;
+                    min_dist = dist;
+                }
+    
+            }
+            // swap elements if necessary
+            if (idx !== oo) {
+                tmp = res[oo];
+                res[oo] = res[idx];
+                res[idx] = tmp;
+            }
+            dsum += min_dist;
+            //dist_old_new[oo] = min_dist;
+            min_dist = Infinity;
+        }
+        min_cost = dsum;
+    }
+    else{
+        min_cost= Infinity; 
+        safety = 3;
+    
+        var perms = permutationsFixedList[4];
+        var bestperm;
+    
+        var distMatrix = new Array(4);
+        for(var q = 0; q < 4; q++) distMatrix[q] = new Array(4);
+
+        // build dist matric
+        for(var xx = 0; xx < 4; xx++)
+            for(var yy = 0; yy < 4; yy++){
+                dist = List.projectiveDistMinScal(old_el[xx], new_el[yy]);
+                distMatrix[xx][yy] = dist;
+            }
+    
+        var cperm; // current permutation
+        for(var k = 0; k < perms.length; k++){
+        dsum = 0; // record total costs
+        cperm = perms[k];
+        for (var mm = 0; mm < 4; mm++) {
+//              if(typeof(distMatrix[mm][cperm[mm]]) !== 'number'){
+//                  dist = List.projectiveDistMinScal(old_el[mm], new_el[cperm[mm]]);
+//                  distMatrix[mm][cperm[mm]] = dist;
+//                  dsum += dist;
+//              }
+//              else{
+                dsum += distMatrix[mm][cperm[mm]];
+//              }
+                //if(dsum > min_cost) break;
+        }
+        if(dsum < min_cost){
+            bestperm = cperm;
+            min_cost= dsum;
+        }
+        }
+
+ //       console.log("====");
+ //       console.log(distMatrix[0]);
+ //       console.log(distMatrix[1]);
+ //       console.log(distMatrix[2]);
+ //       console.log(distMatrix[3]);
+ //       console.log("====");
+    
+        // order
+        for(var ll = 0; ll< 4; ll++){
+            res[ll] = new_el[bestperm[ll]];
+        }
+    } // end use greedy
+
+    // assume now we have machting between res and old_el
+    var odist, ndist, diff, match_cost;
+    var need_refine = false;
+    match_cost = min_cost; //dsum;
+    match_cost *= safety;
+
+    for (var ii = 0; ii < 4; ii++) {
+        if(need_refine) break;
+        if (List._helper.isNaN(new_el[ii])) {
+            // Something went very wrong, numerically speaking. We have no
+            // clue whether refining will make things any better, so we
+            // assume it won't and give up.
+            debug("Tracing failed due to NaNs.");
+            tracingFailed = true;
+            break;
+        }
+        for (var jj = ii+1; jj < 4; jj++) {
+            //if(tracingFailed) break;
+            //match_cost = dist_old_new[ii];
+
+            odist = List.projectiveDistMinScal(old_el[ii], old_el[jj]); // this is do1o2...
+            ndist = List.projectiveDistMinScal(res[ii], res[jj]); // this is dn1n2...
+
+            if (odist > match_cost && ndist > match_cost) {
+                // Distance within matching considerably smaller than distance
+                // across matching, so we could probably match correctly.
+            } else if (ndist < 1e-5) {
+                // New points too close: we presumably are inside a singularity.
+                if (odist < 1e-5) { // Cinderella uses the constant 1e-6 here
+                    // The last "good" position was already singular.
+                    // Nothing we can do about this.
+                    debug("Staying inside singularity.");
+                } else {
+                    // We newly moved into the singularity. New position is
+                    // not "good", but refining won't help since the endpoint
+                    // is singular.
+                    debug("Moved into singularity.");
+                    tracingFailed = true;
+                }
+            } else if (odist < 1e-5) { // Cinderella uses the constant 1e-6 here
+                // We just moved out of a singularity. Things can only get
+                // better. If the singular situation was "good", we stay
+                // "good", and keep track of things from now on.
+                debug("Moved out of singularity.");
+            } else {
+                    //console.log(odist, ndist, match_cost);
+                //console.log(odist, ndist, match_cost);
+                // Neither old nor new position looks singular, so there was
+                // an avoidable singularity along the way. Refine to avoid it.
+                if (noMoreRefinements){
+                    debug("Reached refinement limit, giving up.");
+                }
+                else {
+                    debug("Need to refine.");
+                    need_refine = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (need_refine) requestRefinement();
+
+    return res;
+
+}
 
 function tracing2X(n1, n2, c1, c2, el) {
     var OK = 0;
