@@ -174,6 +174,23 @@ function traceMover(mover, pos, type) {
     }
 }
 
+function recalcAll() {
+    stateContinueFromHere();
+    noMoreRefinements = true; // avoid exceptions requesting refinements
+    var gslp = csgeo.gslp;
+    for (var k = 0; k < gslp.length; k++) {
+        var el = gslp[k];
+        var op = geoOps[el.type];
+        stateInIdx = stateOutIdx = el.stateIdx;
+        op.updatePosition(el, false);
+        isShowing(el, op);
+    }
+    var stateTmp = stateOut;
+    stateOut = stateIn;
+    stateIn = stateTmp;
+    stateContinueFromHere();
+}
+
 function tracingStateReport(failed) {
     var arg = instanceInvocationArguments.tracingStateReport;
     if (typeof arg === "string") {

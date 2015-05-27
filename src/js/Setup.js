@@ -207,49 +207,46 @@ function createCindyNow() {
 
 }
 
-var backup = [];
+var backup = null;
 
 function backupGeo() {
-
-    backup = [];
-
+    var state = backup ? backup.state : new Float64Array(stateIn.length);
+    state.set(stateIn);
+    var speeds = {};
     for (var i = 0; i < csgeo.points.length; i++) {
         var el = csgeo.points[i];
-        var data = {
-            name: JSON.stringify(el.name),
-            homog: JSON.stringify(el.homog),
-        };
         if (typeof(el.behavior) !== 'undefined') {
-            data.vx = JSON.stringify(el.behavior.vx);
-            data.vy = JSON.stringify(el.behavior.vy);
-            data.vz = JSON.stringify(el.behavior.vz);
+            speeds[el.name] = [
+                el.behavior.vx,
+                el.behavior.vy,
+                el.behavior.vz
+            ];
         }
-
-        backup.push(data);
-
     }
-
+    backup = {
+        state: state,
+        speeds: speeds
+    };
 }
 
 
 function restoreGeo() {
-
-
-    for (var i = 0; i < backup.length; i++) {
-        var name = JSON.parse(backup[i].name);
-
+    if (backup === null)
+        return;
+    stateIn.set(backup.state);
+    Object.keys(backup.speeds).forEach(function(name) {
         var el = csgeo.csnames[name];
-        el.homog = JSON.parse(backup[i].homog);
         if (typeof(el.behavior) !== 'undefined') { //TODO Diese Physics Reset ist FALSCH
-            el.behavior.vx = JSON.parse(backup[i].vx);
-            el.behavior.vy = JSON.parse(backup[i].vy);
-            el.behavior.vz = JSON.parse(backup[i].vz);
+            var speed = backup.speeds[name];
+            el.behavior.vx = speed[0];
+            el.behavior.vy = speed[1];
+            el.behavior.vz = speed[2];
             el.behavior.fx = 0;
             el.behavior.fy = 0;
             el.behavior.fz = 0;
         }
-    }
-
+    });
+    recalcAll();
 }
 
 
