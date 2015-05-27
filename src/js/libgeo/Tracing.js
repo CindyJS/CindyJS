@@ -402,7 +402,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     var debug = function() {};
     // var debug = console.log.bind(console);
     
-    var useGreedy = true; // greedy or permutation?
+    var useGreedy = false; // greedy or permutation?
     var safety;
 
     var old_el = [o1, o2, o3, o4];
@@ -412,13 +412,12 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     if (tracingInitial)
         return new_el;
 
-    var res = new Array(4);
+    var res, dist, i, j;
+    var min_cost = 0;
 
-    var min_cost, dist, dsum, i, j;
     if(useGreedy){
         safety = 3;
         res = new_el;
-        min_cost = 0;
         for (i = 0; i < 4; i++) {
             var idx = i;
             var min_dist = List.projectiveDistMinScal(old_el[i], res[i]);
@@ -435,55 +434,24 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
             res[idx] = tmp;
             min_cost += min_dist;
         }
-    }
-    else{
-        min_cost= Infinity; 
+    } else{
         safety = 3;
     
-        var perms = permutationsFixedList[4];
-        var bestperm;
-    
+        // build dist matrix
         var distMatrix = new Array(4);
-        for(var q = 0; q < 4; q++) distMatrix[q] = new Array(4);
-
-        // build dist matric
-        for(var xx = 0; xx < 4; xx++)
-            for(var yy = 0; yy < 4; yy++){
-                dist = List.projectiveDistMinScal(old_el[xx], new_el[yy]);
-                distMatrix[xx][yy] = dist;
+        for(i = 0; i < 4; i++) {
+            distMatrix[i] = new Array(4);
+            for(j = 0; j < 4; j++){
+                dist = List.projectiveDistMinScal(old_el[i], new_el[j]);
+                distMatrix[i][j] = dist;
             }
-    
-        var cperm; // current permutation
-        for(var k = 0; k < perms.length; k++){
-        dsum = 0; // record total costs
-        cperm = perms[k];
-        for (var mm = 0; mm < 4; mm++) {
-//              if(typeof(distMatrix[mm][cperm[mm]]) !== 'number'){
-//                  dist = List.projectiveDistMinScal(old_el[mm], new_el[cperm[mm]]);
-//                  distMatrix[mm][cperm[mm]] = dist;
-//                  dsum += dist;
-//              }
-//              else{
-                dsum += distMatrix[mm][cperm[mm]];
-//              }
-                //if(dsum > min_cost) break;
-        }
-        if(dsum < min_cost){
-            bestperm = cperm;
-            min_cost= dsum;
-        }
         }
 
- //       console.log("====");
- //       console.log(distMatrix[0]);
- //       console.log(distMatrix[1]);
- //       console.log(distMatrix[2]);
- //       console.log(distMatrix[3]);
- //       console.log("====");
-    
-        // order
-        for(var ll = 0; ll< 4; ll++){
-            res[ll] = new_el[bestperm[ll]];
+        var bestperm = minCostMatching(distMatrix);
+        res = new Array(4);
+        for (i = 0; i < 4; ++i) {
+            res[i] = new_el[bestperm[i]];
+            min_cost += distMatrix[i][bestperm[i]];
         }
     } // end use greedy
 
