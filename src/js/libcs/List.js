@@ -1299,10 +1299,11 @@ List.eig = function(A){
     var UU = List.idMatrix(cslen, cslen);
     var QQ = UU;
     var QR;
-    for(var i = 0; i < 1000; i++){
+    for(var i = 0; i < 150; i++){
         QR = List.QRdecomp(AA);
         AA = General.mult(QR.R, QR.Q);
-//        List.println(QR.Q);
+        if(i % 10 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
+        //console.log("is almost id", List._helper.isAlmostDiagonal(QR.Q));
 //        console.log("==");
 //        List.println(QR.R);
 //        console.log("==");
@@ -1310,9 +1311,12 @@ List.eig = function(A){
 //        console.log("==");
 //        AA = General.mult(AA,QQ);
 //        QR = List.QRdecomp(AA);
-        QQ = General.mult(QQ,QR.Q);
+      QQ = General.mult(QQ,QR.Q);
       UU = General.mult(UU, QR.Q);
     }
+
+    console.log("q at end");
+    List.println(QR.Q);
 
     // evtl QQ*
     var ZZ = General.mult(QQ, AA);
@@ -1352,6 +1356,31 @@ List.eig = function(A){
 
 };
 
+List._helper.isAlmostId = function(AA){
+    var A = AA;
+    var len = A.value.length;
+    var cslen = CSNumber.real(len);
+    if(len !== A.value[0].value.length) return false;
+
+    var erg = List.sub(A, List.idMatrix(cslen), cslen);
+    if(List.abs(erg).value.real < 1e-10) return true;
+    return false;
+};
+
+
+List._helper.isAlmostDiagonal = function(AA){
+    var erg = AA;
+    var len = AA.value.length;
+    var cslen = CSNumber.real(len);
+    var zero = CSNumber.real(0);
+    if(len !== AA.value[0].value.length) return false;
+
+    for(var i = 0; i < len; i++) erg.value[i].value[i] = zero;
+
+    if(List.abs(erg).value.real < 1e-10) return true;
+    return false;
+};
+
 List._helper.inverseIteration = function(A){
     var len = A.value.length;
 
@@ -1364,7 +1393,7 @@ List._helper.inverseIteration = function(A){
     var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
 
     var shift = CSNumber.real(2*Math.random()-2);
-    for(var ii = 0; ii < 3 ; ii ++){
+    for(var ii = 0; ii < 5 ; ii ++){
         qk = List.scaldiv(List.abs(xx), xx);
         xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), xx); // TODO Use triangular form
     }
@@ -1374,29 +1403,6 @@ List._helper.inverseIteration = function(A){
 
 };
 
-//List._helper.backSubstiution = function(LU,b){
-//    var x = b, LUi, i,j;
-//    var n = LU.value.length;
-//    for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
-////    for (i = 0; i < n; ++i) {
-////        LUi = LU.value[i];
-////        for (j = 0; j < i; ++j) {
-////            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
-////        }
-////    }
-//
-//    for (i = n - 1; i >= 0; --i) {
-//        LUi = LU.value[i];
-//        for (j = i + 1; j < n; ++j) {
-//            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
-//        }
-//
-//        if(CSNumber._helper.isZero(LUi.value[i])) continue;
-//        x.value[i] = CSNumber.div(x.value[i], LUi.value[i]);
-//    }
-//
-//    return x;
-//};
 
 List.QRdecomp = function(A){
     var AA = A;
