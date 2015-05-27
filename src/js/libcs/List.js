@@ -1356,6 +1356,27 @@ List.eig = function(A){
 
 };
 
+List._helper.QRIteration = function(A, maxIter){
+    var AA = A;
+    var mIter = maxIter ? maxIter : 150;
+    for(var i = 0; i < mIter ; i++){
+        QR = List.QRdecomp(AA);
+        AA = General.mult(QR.R, QR.Q);
+        if(i % 10 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
+        //console.log("is almost id", List._helper.isAlmostDiagonal(QR.Q));
+//        console.log("==");
+//        List.println(QR.R);
+//        console.log("==");
+//        List.println(AA);
+//        console.log("==");
+//        AA = General.mult(AA,QQ);
+//        QR = List.QRdecomp(AA);
+      QQ = General.mult(QQ,QR.Q);
+      UU = General.mult(UU, QR.Q);
+    }
+
+};
+
 List._helper.isAlmostId = function(AA){
     var A = AA;
     var len = A.value.length;
@@ -1365,6 +1386,10 @@ List._helper.isAlmostId = function(AA){
     var erg = List.sub(A, List.idMatrix(cslen), cslen);
     if(List.abs(erg).value.real < 1e-10) return true;
     return false;
+};
+
+List.getNullSpace = function(A){
+
 };
 
 
