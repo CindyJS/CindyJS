@@ -93,7 +93,7 @@ function movepointscr(mover, pos, type) {
  */
 function traceMover(mover, pos, type) {
     stateOut.set(stateIn); // copy in to out, for elements we don't recalc
-    var traceLimit = 100; // keep UI responsive in evil situations
+    var traceLimit = 1000; // keep UI responsive in evil situations
     var deps = getGeoDependants(mover);
     var last = -1;
     var step = 0.9; // two steps with the *1.25 scaling used below
@@ -126,6 +126,7 @@ function traceMover(mover, pos, type) {
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = (last + 0.5 * step <= last || traceLimit === 0);
+        if(traceLimit === 0) console.log("tracing limit Reached");
 
         try {
             traceOneStep();
@@ -399,8 +400,8 @@ tracing4.stateSize = 24; // four three-element complex vectors
 
 
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
-    var debug = function() {};
-    // var debug = console.log.bind(console);
+    //var debug = function() {};
+     var debug = console.log.bind(console);
     
     var useGreedy = false; // greedy or permutation?
     var safety;
@@ -502,8 +503,8 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         // "good", and keep track of things from now on.
         debug("Moved out of singularity.");
     } else {
-        //console.log(odist, ndist, match_cost);
-        //console.log(odist, ndist, match_cost);
+        console.log(odist, ndist, match_cost);
+        console.log(odist, ndist, match_cost);
         // Neither old nor new position looks singular, so there was
         // an avoidable singularity along the way. Refine to avoid it.
         if (noMoreRefinements)

@@ -1109,8 +1109,8 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
 
     // degenerate Case
     var myeps = 1e-8;
-    var AAdegen = (Math.abs(alpha.value.real) < myeps);
-    var BBdegen = (Math.abs(delta.value.real) < myeps);
+    var AAdegen = CSNumber.abs(alpha).value.real < myeps;
+    var BBdegen = CSNumber.abs(delta).value.real < myeps;
 
     var Alines, Blines, pts1, pts2;
     if (AAdegen && BBdegen) {
