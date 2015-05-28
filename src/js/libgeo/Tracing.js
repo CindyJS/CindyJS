@@ -522,16 +522,6 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     }
 
     if (odist > match_cost && ndist > match_cost) {
-
-//        List.println((List.sub(old_el[0], res[0])));
-//        List.println((List.sub(old_el[1], res[1])));
-//        List.println((List.sub(old_el[2], res[2])));
-//        List.println((List.sub(old_el[3], res[3])));
-//        console.log("===");
-//        List.println(List.normalizeZ(res[0]));
-//        List.println(List.normalizeZ(res[1]));
-//        List.println(List.normalizeZ(res[2]));
-//        List.println(List.normalizeZ(res[3]));
         // Distance within matching considerably smaller than distance
         // across matching, so we could probably match correctly.
         //debug("Normal case, everything all right.");
@@ -554,23 +544,6 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         // "good", and keep track of things from now on.
         debug("Moved out of singularity.");
     } else {
-       // console.log(odist > match_cost , ndist > match_cost);
- //       console.log(odist, ndist, match_cost);
-        //console.log(odist, ndist, match_cost);
-        // Neither old nor new position looks singular, so there was
-        // an avoidable singularity along the way. Refine to avoid it.
-  //      List.println(List.normalizeZ(old_el[0]));
-  //      List.println(List.normalizeZ(old_el[1]));
-  //      List.println(List.normalizeZ(old_el[2]));
-  //      List.println(List.normalizeZ(old_el[3]));
-  //      console.log("===");
-  //      List.println(List.normalizeZ(res[0]));
-  //      List.println(List.normalizeZ(res[1]));
-  //      List.println(List.normalizeZ(res[2]));
-  //      List.println(List.normalizeZ(res[3]));
-  //      console.log(distMatrix);
-        debugger;
-
         if (noMoreRefinements)
             debug("Reached refinement limit, giving up.");
         else

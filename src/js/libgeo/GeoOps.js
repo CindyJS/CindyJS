@@ -1124,13 +1124,13 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var B3 = BB.value[2];
 
     var c3 = List.det3(A1, A2, A3);
-    assert(CSNumber.abs2(CSNumber.sub(c3, alpha)).value.real < 1e-12);
+    //assert(CSNumber.abs2(CSNumber.sub(c3, alpha)).value.real < 1e-12);
     var c2 = CSNumber.add(CSNumber.add(
         List.det3(A1, A2, B3), List.det3(A1, B2, A3)), List.det3(B1, A2, A3));
     var c1 = CSNumber.add(CSNumber.add(
         List.det3(A1, B2, B3), List.det3(B1, A2, B3)), List.det3(B1, B2, A3));
     var c0 = List.det3(B1, B2, B3);
-    assert(CSNumber.abs2(CSNumber.sub(c0, delta)).value.real < 1e-12);
+//    assert(CSNumber.abs2(CSNumber.sub(c0, delta)).value.real < 1e-12);
 
     // det(a*A + b*B) = a^3*c3 + a^2*b*c2 + a*b^2*c1 + b^3*c0 = 0
 
