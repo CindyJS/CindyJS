@@ -1099,21 +1099,7 @@ geoOps.IntersectCirCir.stateSize = tracing2.stateSize;
 
 
 geoOps._helper.IntersectConicConic = function(AA, BB) {
-    // degenerate Case
-    var myeps = 1e-8;
-    var alpha = List.det(AA);
-    var delta = List.det(BB);
-    var AAdet= CSNumber.abs2(alpha).value.real;
-    var BBdet= CSNumber.abs2(delta).value.real;
-    if(AAdet < BBdet){
-        var tmp = AA;
-        AA = BB;
-        BB = tmp;
-
-        tmp = alpha;
-        alpha = delta;
-        delta = tmp;
-    };
+    var myeps = 1e-12;
     var p1, p2, p3, p4;
 
     var A1 = AA.value[0];
@@ -1124,30 +1110,51 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var B3 = BB.value[2];
 
     var c3 = List.det3(A1, A2, A3);
-    //assert(CSNumber.abs2(CSNumber.sub(c3, alpha)).value.real < 1e-12);
+    var c0 = List.det3(B1, B2, B3);
+
+    var AAabs2 = CSNumber.abs(c3).value.real;
+    var BBabs2 = CSNumber.abs(c0).value.real;
+
+    if(AAabs2 < BBabs2){
+        var tmp = AA;
+        AA = BB;
+        BB = tmp;
+
+        tmp = c0;
+        c0 = c3;
+        c3 = tmp;
+
+        tmp = AAabs2;
+        AAabs2 = BBabs2;
+        BBabs2 = tmp;
+        A1 = AA.value[0];
+        A2 = AA.value[1];
+        A3 = AA.value[2];
+        B1 = BB.value[0];
+        B2 = BB.value[1];
+        B3 = BB.value[2];
+    }
+
     var c2 = CSNumber.add(CSNumber.add(
         List.det3(A1, A2, B3), List.det3(A1, B2, A3)), List.det3(B1, A2, A3));
     var c1 = CSNumber.add(CSNumber.add(
         List.det3(A1, B2, B3), List.det3(B1, A2, B3)), List.det3(B1, B2, A3));
-    var c0 = List.det3(B1, B2, B3);
-//    assert(CSNumber.abs2(CSNumber.sub(c0, delta)).value.real < 1e-12);
 
     // det(a*A + b*B) = a^3*c3 + a^2*b*c2 + a*b^2*c1 + b^3*c0 = 0
 
     // degenerate Case
-    //var myeps = 1e-16;
-    var AAdegen = CSNumber.abs(c0).value.real < myeps;
-    var BBdegen = CSNumber.abs(c3).value.real < myeps;
+    var AAdegen = AAabs2 < myeps;
+    var BBdegen = BBabs2 < myeps;
 
     var Alines, Blines, pts1, pts2;
     if (AAdegen && BBdegen) {
         Alines = geoOps._helper.splitDegenConic(AA);
         Blines = geoOps._helper.splitDegenConic(BB);
-        p1 = List.cross(Alines[0], Blines[0]);
-        p2 = List.cross(Alines[1], Blines[0]);
-        p3 = List.cross(Alines[0], Blines[1]);
-        p4 = List.cross(Alines[1], Blines[1]);
-    } else if (AAdegen && false) {
+        p1 = List.cross(List.normalizeMax(Alines[0]), List.normalizeMax(Blines[0]));
+        p2 = List.cross(List.normalizeMax(Alines[1]), List.normalizeMax(Blines[0]));
+        p3 = List.cross(List.normalizeMax(Alines[0]), List.normalizeMax(Blines[1]));
+        p4 = List.cross(List.normalizeMax(Alines[1]), List.normalizeMax(Blines[1]));
+    } else if (AAdegen) {
         Alines = geoOps._helper.splitDegenConic(AA);
         pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
         pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
@@ -1156,7 +1163,7 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         p3 = pts2[0];
         p4 = pts2[1];
 
-    } else if (BBdegen && false) {
+    } else if (BBdegen) {
         Blines = geoOps._helper.splitDegenConic(BB);
         pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
         pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
@@ -1169,41 +1176,28 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         var e1 = CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
         var e2 = CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
 
-        var test_sols = function(x){
-            var t = CSNumber.add(CSNumber.mult(c3,x), c2);
-            t = CSNumber.add(CSNumber.mult(t, x), c1);
-            t = CSNumber.add(CSNumber.mult(t, x), c0);
-            console.log("test sol",niceprint(CSNumber.abs(t)));
-        }
-
-        console.log([c0, c1,c2, c3].map(niceprint).join(","));
         // produce degenerate Conic
         var sols = CSNumber.solveCubic(c3, c2, c1, c0);
 
         var CDeg1 = List.add(List.scalmult(sols[0], AA), BB);
-        test_sols(sols[0]);
-        console.log("det1", CSNumber.abs(List.det(CDeg1)).value.real)
         var lines1 = geoOps._helper.splitDegenConic(CDeg1);
         var l11 = lines1[0];
+        l11 = List.normalizeMax(l11);
         var l12 = lines1[1];
+        l12 = List.normalizeMax(l12);
 
         var CDeg2 = List.add(List.scalmult(sols[1], AA), BB);
-        test_sols(sols[1]);
-        console.log("det2", CSNumber.abs(List.det(CDeg2)).value.real)
         var lines2 = geoOps._helper.splitDegenConic(CDeg2);
         var l21 = lines2[0];
+        l21 = List.normalizeMax(l21);
         var l22 = lines2[1];
+        l22 = List.normalizeMax(l22);
 
         p1 = List.cross(l11, l21);
         p2 = List.cross(l12, l21);
         p3 = List.cross(l11, l22);
         p4 = List.cross(l12, l22);
 
-        evaluator.clrscr$0([],{});
-        evaluator.draw$1([General.withUsage(l11, "Line")], {color:List.realVector([1,0,0])});
-        evaluator.draw$1([General.withUsage(l12, "Line")], {color:List.realVector([0,1,0])});
-        evaluator.draw$1([General.withUsage(l21, "Line")], {color:List.realVector([0,1,1])});
-        evaluator.draw$1([General.withUsage(l22, "Line")], {color:List.realVector([1,0,1])});
 
     } // end else
 

@@ -433,7 +433,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     if (tracingInitial)
         return new_el;
 
-    var res, dist, i, j;
+    var res, dist, i, j, distMatrix;
     var min_cost = 0;
 
     if(useGreedy){
@@ -459,7 +459,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         safety = 1;
     
         // build dist matrix
-        var distMatrix = new Array(4);
+        distMatrix = new Array(4);
         for(i = 0; i < 4; i++) {
             distMatrix[i] = new Array(4);
             for(j = 0; j < 4; j++){
