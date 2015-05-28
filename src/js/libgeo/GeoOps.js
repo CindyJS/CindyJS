@@ -1153,14 +1153,14 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     if (AAdegen && BBdegen) {
         Alines = geoOps._helper.splitDegenConic(AA);
         Blines = geoOps._helper.splitDegenConic(BB);
-        p1 = List.cross(List.normalizeMax(Alines[0]), List.normalizeMax(Blines[0]));
-        p2 = List.cross(List.normalizeMax(Alines[1]), List.normalizeMax(Blines[0]));
-        p3 = List.cross(List.normalizeMax(Alines[0]), List.normalizeMax(Blines[1]));
-        p4 = List.cross(List.normalizeMax(Alines[1]), List.normalizeMax(Blines[1]));
+        p1 = List.cross(Alines[0], Blines[0]);
+        p2 = List.cross(Alines[1], Blines[0]);
+        p3 = List.cross(Alines[0], Blines[1]);
+        p4 = List.cross(Alines[1], Blines[1]);
     } else if (AAdegen) {
         Alines = geoOps._helper.splitDegenConic(AA);
-        pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
-        pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
+        pts1 = geoOps._helper.IntersectLC(Alines[0], BB);
+        pts2 = geoOps._helper.IntersectLC(Alines[1], BB);
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
@@ -1168,8 +1168,8 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
 
     } else if (BBdegen) {
         Blines = geoOps._helper.splitDegenConic(BB);
-        pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
-        pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
+        pts1 = geoOps._helper.IntersectLC(Blines[0], AA);
+        pts2 = geoOps._helper.IntersectLC(Blines[1], AA);
         p1 = pts1[0];
         p2 = pts1[1];
         p3 = pts2[0];
@@ -1185,16 +1185,12 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         var CDeg1 = List.add(List.scalmult(sols[0], AA), BB);
         var lines1 = geoOps._helper.splitDegenConic(CDeg1);
         var l11 = lines1[0];
-        l11 = List.normalizeMax(l11);
         var l12 = lines1[1];
-        l12 = List.normalizeMax(l12);
 
         var CDeg2 = List.add(List.scalmult(sols[1], AA), BB);
         var lines2 = geoOps._helper.splitDegenConic(CDeg2);
         var l21 = lines2[0];
-        l21 = List.normalizeMax(l21);
         var l22 = lines2[1];
-        l22 = List.normalizeMax(l22);
 
         p1 = List.cross(l11, l21);
         p2 = List.cross(l12, l21);
