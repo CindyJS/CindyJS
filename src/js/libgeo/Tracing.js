@@ -506,7 +506,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
             /* 2 */ General.wrap(traceLog.currentElement.name),
             /* 3 */ List.turnIntoCSList(res),
             /* 4 */ List.turnIntoCSList(old_el),
-            /* 5 */ List.turnIntoCSList(distMatrix),
+            /* 5 */ List.realMatrix(distMatrix),
             /* 6 */ General.wrap(min_cost),
             /* 7 */ General.wrap(odist),
             /* 8 */ General.wrap(ndist),
