@@ -1085,9 +1085,24 @@ geoOps.IntersectCirCir.stateSize = tracing2.stateSize;
 
 
 geoOps._helper.IntersectConicConic = function(AA, BB) {
+    // degenerate Case
+    var myeps = 1e-8;
+    var alpha = List.det(AA);
+    var delta = List.det(BB);
+    var AAdegen = CSNumber.abs(alpha).value.real < myeps;
+    var BBdegen = CSNumber.abs(delta).value.real < myeps;
+    if(AAdegen){
+        var tmp = AA;
+        AA = BB;
+        BB = tmp;
+
+        tmp = alpha;
+        alpha = delta;
+        delta = tmp;
+    };
     var p1, p2, p3, p4;
 
-    var alpha = List.det(AA);
+
 
     // indexing
     var one = CSNumber.real(1);
@@ -1105,12 +1120,10 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     g1 = CSNumber.add(g1, List.det3(List.column(BB, one), List.column(BB, two), List.column(AA, three)));
     var gamma = g1;
 
-    var delta = List.det(BB);
 
-    // degenerate Case
-    var myeps = 1e-16;
-    var AAdegen = CSNumber.abs(alpha).value.real < myeps;
-    var BBdegen = CSNumber.abs(delta).value.real < myeps;
+
+//    AAdegen =false;
+//    BBdegen =false;
 
     var Alines, Blines, pts1, pts2;
     if (AAdegen && BBdegen) {
@@ -1120,7 +1133,7 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         p2 = List.cross(Alines[1], Blines[0]);
         p3 = List.cross(Alines[0], Blines[1]);
         p4 = List.cross(Alines[1], Blines[1]);
-    } else if (AAdegen) {
+    } else if (AAdegen && false) {
         Alines = geoOps._helper.splitDegenConic(AA);
         pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[0]), BB);
         pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Alines[1]), BB);
@@ -1129,7 +1142,7 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         p3 = pts2[0];
         p4 = pts2[1];
 
-    } else if (BBdegen) {
+    } else if (BBdegen && false) {
         Blines = geoOps._helper.splitDegenConic(BB);
         pts1 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[0]), AA);
         pts2 = geoOps._helper.IntersectLC(List.normalizeMax(Blines[1]), AA);
@@ -1152,6 +1165,7 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
 
         // produce degenerate Conic
         var CDeg = List.add(List.scalmult(ssol, AA), BB);
+        console.log(CSNumber.abs(List.det(CDeg)).value.real, "CDeg abs det");
 
         var lines1 = geoOps._helper.splitDegenConic(CDeg);
         var l11 = lines1[0];
@@ -1172,12 +1186,18 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         p3 = List.cross(l11, l22);
         p4 = List.cross(l12, l22);
 
+        evaluator.clrscr$0([],{});
+        evaluator.draw$1([General.withUsage(l11, "Line")], {color:List.realVector([1,0,0])});
+        evaluator.draw$1([General.withUsage(l12, "Line")], {color:List.realVector([0,1,0])});
+        evaluator.draw$1([General.withUsage(l21, "Line")], {color:List.realVector([0,1,1])});
+        evaluator.draw$1([General.withUsage(l22, "Line")], {color:List.realVector([1,0,1])});
+
     } // end else
 
-    p1 = List.normalizeZ(p1);
-    p2 = List.normalizeZ(p2);
-    p3 = List.normalizeZ(p3);
-    p4 = List.normalizeZ(p4);
+    p1 = List.normalizeMax(p1);
+    p2 = List.normalizeMax(p2);
+    p3 = List.normalizeMax(p3);
+    p4 = List.normalizeMax(p4);
 
     p1 = General.withUsage(p1, "Point");
     p2 = General.withUsage(p2, "Point");
