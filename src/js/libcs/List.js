@@ -1487,11 +1487,11 @@ List.linearsolveCG = function(A, b) {
 
 
 List.det = function(a) {
-    if (a.value.length === 2) return List.det2(List.column(a, CSNumber.real(1)), List.column(a, CSNumber.real(2)));
+    if (a.value.length === 2) return List.det2(a.value[0], a.value[1]);
     if (a.value.length === 3) {
-        var A1 = List.column(a, CSNumber.real(1));
-        var A2 = List.column(a, CSNumber.real(2));
-        var A3 = List.column(a, CSNumber.real(3));
+        var A1 = a.value[0];
+        var A2 = a.value[1];
+        var A3 = a.value[2];
         return List.det3(A1, A2, A3);
     }
 
