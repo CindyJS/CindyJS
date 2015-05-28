@@ -1089,9 +1089,9 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var myeps = 1e-8;
     var alpha = List.det(AA);
     var delta = List.det(BB);
-    var AAdegen = CSNumber.abs(alpha).value.real < myeps;
-    var BBdegen = CSNumber.abs(delta).value.real < myeps;
-    if(AAdegen){
+    var AAdet= CSNumber.abs2(alpha).value.real;
+    var BBdet= CSNumber.abs2(delta).value.real;
+    if(AAdet < BBdet){
         var tmp = AA;
         AA = BB;
         BB = tmp;
@@ -1110,16 +1110,18 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var B3 = BB.value[2];
 
     var c3 = List.det3(A1, A2, A3);
+    assert(CSNumber.abs2(CSNumber.sub(c3, alpha)).value.real < 1e-12);
     var c2 = CSNumber.add(CSNumber.add(
         List.det3(A1, A2, B3), List.det3(A1, B2, A3)), List.det3(B1, A2, A3));
     var c1 = CSNumber.add(CSNumber.add(
         List.det3(A1, B2, B3), List.det3(B1, A2, B3)), List.det3(B1, B2, A3));
     var c0 = List.det3(B1, B2, B3);
+    assert(CSNumber.abs2(CSNumber.sub(c0, delta)).value.real < 1e-12);
 
     // det(a*A + b*B) = a^3*c3 + a^2*b*c2 + a*b^2*c1 + b^3*c0 = 0
 
     // degenerate Case
-    var myeps = 1e-16;
+    //var myeps = 1e-16;
     var AAdegen = CSNumber.abs(c0).value.real < myeps;
     var BBdegen = CSNumber.abs(c3).value.real < myeps;
 
@@ -1153,15 +1155,27 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
         var e1 = CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
         var e2 = CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
 
+        var test_sols = function(x){
+            var t = CSNumber.add(CSNumber.mult(c3,x), c2);
+            t = CSNumber.add(CSNumber.mult(t, x), c1);
+            t = CSNumber.add(CSNumber.mult(t, x), c0);
+            console.log("test sol",niceprint(CSNumber.abs(t)));
+        }
+
+        console.log([c0, c1,c2, c3].map(niceprint).join(","));
         // produce degenerate Conic
         var sols = CSNumber.solveCubic(c3, c2, c1, c0);
 
         var CDeg1 = List.add(List.scalmult(sols[0], AA), BB);
+        test_sols(sols[0]);
+        console.log("det1", CSNumber.abs(List.det(CDeg1)).value.real)
         var lines1 = geoOps._helper.splitDegenConic(CDeg1);
         var l11 = lines1[0];
         var l12 = lines1[1];
 
         var CDeg2 = List.add(List.scalmult(sols[1], AA), BB);
+        test_sols(sols[1]);
+        console.log("det2", CSNumber.abs(List.det(CDeg2)).value.real)
         var lines2 = geoOps._helper.splitDegenConic(CDeg2);
         var l21 = lines2[0];
         var l22 = lines2[1];
