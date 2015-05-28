@@ -140,6 +140,7 @@ Accessor.getField = function(geo, field) {
 };
 
 Accessor.setField = function(geo, field, value) {
+
     if (field === "color") {
         geo.color = value;
     }
@@ -148,6 +149,16 @@ Accessor.setField = function(geo, field, value) {
     }
     if (field === "alpha") {
         geo.alpha = value;
+    }
+    if (field === "visible") {
+        if (value.ctype === "boolean") {
+            geo.visible = value.value;
+        }
+    }
+    if (field === "pinned") {
+        if (value.ctype === "boolean") {
+            geo.pinned = value.value;
+        }
     }
 
     if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 2)) {

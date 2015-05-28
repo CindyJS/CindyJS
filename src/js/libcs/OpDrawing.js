@@ -1259,7 +1259,7 @@ evaluator.canvas$4 = function(args, modifs) {
 
     var pta = eval_helper.extractPoint(a);
     var ptb = eval_helper.extractPoint(b);
-    if (!pta.ok || !pta.ok || name.ctype !== 'string') {
+    if (!pta.ok || !ptb.ok || name.ctype !== 'string') {
         return nada;
     }
     var localcanvas = document.getElementById(name.value);
@@ -1297,6 +1297,68 @@ evaluator.canvas$4 = function(args, modifs) {
     var y31 = cw;
     var y32 = 0;
 
+    var a1 = (cw * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
+    var a2 = (cw * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
+    var a3 = -a1 * x11 - a2 * x12;
+    var a4 = (ch * (x12 - x32) - ch * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
+    var a5 = (ch * (x11 - x31) - ch * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
+    var a6 = ch - a4 * x11 - a5 * x12;
+
+    var localcontext = localcanvas.getContext('2d');
+
+    var backupctx = csctx;
+    csctx = localcontext;
+    csctx.save();
+
+    csctx.transform(a1, a4, a2, a5, a3, a6);
+
+    evaluate(prog);
+    csctx.restore();
+    csctx = backupctx;
+};
+
+
+evaluator.canvas$5 = function(args, modifs) {
+    var a = evaluateAndVal(args[0]);
+    var b = evaluateAndVal(args[1]);
+    var c = evaluateAndVal(args[2]);
+    var name = evaluate(args[3]);
+    var prog = args[4];
+
+    var pta = eval_helper.extractPoint(a);
+    var ptb = eval_helper.extractPoint(b);
+    var ptc = eval_helper.extractPoint(c);
+    if (!pta.ok || !ptb.ok || !ptc.ok || name.ctype !== 'string') {
+        return nada;
+    }
+    var localcanvas = document.getElementById(name.value);
+    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
+        return nada;
+    }
+
+
+    var cw = localcanvas.width;
+    var ch = localcanvas.height;
+
+
+    var cva = csport.from(pta.x, pta.y, 1);
+    var cvb = csport.from(ptb.x, ptb.y, 1);
+    var cvc = csport.from(ptc.x, ptc.y, 1);
+
+
+    var x11 = cva[0];
+    var x12 = cva[1];
+    var x21 = cvb[0];
+    var x22 = cvb[1];
+    var x31 = cvc[0];
+    var x32 = cvc[1];
+    var y11 = 0;
+    var y12 = ch;
+    var y21 = cw;
+    var y22 = ch;
+    var y31 = 0;
+    var y32 = 0;
+
     var a1 = ((y11 - y21) * (x12 - x32) - (y11 - y31) * (x12 - x22)) /
         ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
     var a2 = ((y11 - y21) * (x11 - x31) - (y11 - y31) * (x11 - x21)) /
@@ -1308,13 +1370,6 @@ evaluator.canvas$4 = function(args, modifs) {
         ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
     var a6 = y12 - a4 * x11 - a5 * x12;
 
-
-    //   evaluator.draw$2([List.realVector([pta.x,pta.y]),List.realVector([ptb.x,ptb.y])],{size:CSNumber.real(2)});
-    //   evaluator.draw$2([List.realVector([pta.x,pta.y]),List.realVector([ptcx,ptcy])],{size:CSNumber.real(2)});
-    //   evaluator.draw$2([List.realVector([ptb.x,ptb.y]),List.realVector([ptdx,ptdy])],{size:CSNumber.real(2)});
-    //   evaluator.draw$2([List.realVector([ptcx,ptcy]),List.realVector([ptdx,ptdy])],{size:CSNumber.real(2)});
-
-
     var localcontext = localcanvas.getContext('2d');
 
     var backupctx = csctx;
@@ -1322,11 +1377,8 @@ evaluator.canvas$4 = function(args, modifs) {
     csctx.save();
 
     csctx.transform(a1, a4, a2, a5, a3, a6);
-    //csctx.transform(.5,0,0,.5,0,0);
 
     evaluate(prog);
     csctx.restore();
-
     csctx = backupctx;
-
 };

@@ -141,7 +141,7 @@ evaluator.repeat$3 = function(args, modifs) { //OK
         }
 
     namespace.newvar(lauf);
-    var erg;
+    var erg = nada;
     for (var i = 0; i < n; i++) {
         namespace.setvar(lauf, {
             'ctype': 'number',
@@ -3847,55 +3847,54 @@ evaluator.compileToWebGL$1 = function(args, modifs) {
 
 
 evaluator.setsimulationspeed$1 = function(args, modifs) {
-    
+
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'number') {
-        if(typeof(labObjects)!=="undefined" && typeof(labObjects.env)!=="undefined") {
-            labObjects.env.deltat=v0.value.real;
+        if (typeof(labObjects) !== "undefined" && typeof(labObjects.env) !== "undefined") {
+            labObjects.env.deltat = v0.value.real;
         }
     }
     return nada;
 };
 
 evaluator.setsimulationaccuracy$1 = function(args, modifs) {
-    
+
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'number') {
-        if(typeof(labObjects)!=="undefined" && typeof(labObjects.env)!=="undefined") {
-            labObjects.env.accuracy=v0.value.real;
+        if (typeof(labObjects) !== "undefined" && typeof(labObjects.env) !== "undefined") {
+            labObjects.env.accuracy = v0.value.real;
         }
     }
     return nada;
 };
 
 evaluator.setsimulationquality$1 = function(args, modifs) {
-    
+
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'number') {
-        if(typeof(labObjects)!=="undefined" && typeof(labObjects.env)!=="undefined") {
-            var qual=v0.value.real;
-            if(qual===0) {
-                labObjects.env.errorbound=0.01;
-                labObjects.env.lowestdeltat=0.00001;
-                labObjects.env.slowdownfactor=2;
+        if (typeof(labObjects) !== "undefined" && typeof(labObjects.env) !== "undefined") {
+            var qual = v0.value.real;
+            if (qual === 0) {
+                labObjects.env.errorbound = 0.01;
+                labObjects.env.lowestdeltat = 0.00001;
+                labObjects.env.slowdownfactor = 2;
             }
-            if(qual===1) {
-                labObjects.env.errorbound=0.001;
-                labObjects.env.lowestdeltat=0.0000001;
-                labObjects.env.slowdownfactor=2;
+            if (qual === 1) {
+                labObjects.env.errorbound = 0.001;
+                labObjects.env.lowestdeltat = 0.0000001;
+                labObjects.env.slowdownfactor = 2;
             }
-            if(qual===2) {
-                labObjects.env.errorbound=0.00001;
-                labObjects.env.lowestdeltat=0.0000000001;
-                labObjects.env.slowdownfactor=4;
+            if (qual === 2) {
+                labObjects.env.errorbound = 0.00001;
+                labObjects.env.lowestdeltat = 0.0000000001;
+                labObjects.env.slowdownfactor = 4;
             }
-            if(qual===3) {
-                labObjects.env.errorbound=0.000001;
-                labObjects.env.lowestdeltat=0.000000000001;
-                labObjects.env.slowdownfactor=4;
+            if (qual === 3) {
+                labObjects.env.errorbound = 0.000001;
+                labObjects.env.lowestdeltat = 0.000000000001;
+                labObjects.env.slowdownfactor = 4;
             }
         }
     }
     return nada;
 };
-
