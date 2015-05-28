@@ -645,9 +645,12 @@ geoOps._helper.splitDegenConic = function(mat) {
     var lg = C.value[ii];
     C = List.transpose(C);
     var lh = C.value[jj];
+    lg = List.normalizeMax(lg);
+    lh = List.normalizeMax(lh);
 
     lg = General.withUsage(lg, "Line");
     lh = General.withUsage(lh, "Line");
+
 
     return [lg, lh];
 };
