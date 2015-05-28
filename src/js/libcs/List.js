@@ -1140,7 +1140,7 @@ List.vandermonde = function(a) {
 
     for (var i = 0; i < len; i++) {
         for (var j = 0; j < len; j++)
-        erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
+            erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
     }
     return erg;
 };

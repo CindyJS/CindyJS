@@ -130,7 +130,7 @@ function traceMover(mover, pos, type) {
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = (last + 0.5 * step <= last || traceLimit === 0);
-        if(traceLimit === 0) console.log("tracing limit Reached");
+        if (traceLimit === 0) console.log("tracing limit Reached");
         var refining = false;
 
         if (traceLog && traceLog.currentMouseAndScripts) {
@@ -148,11 +148,16 @@ function traceMover(mover, pos, type) {
         }
         if (traceLog && traceLog.currentMouseAndScripts) {
             traceLog.currentMover.push(List.turnIntoCSList([
-                /* 1 */ List.turnIntoCSList(traceLog.currentStep),
-                /* 2 */ General.wrap(refining),
-                /* 3 */ General.wrap(last),
-                /* 4 */ General.wrap(t),
-                /* 5 */ General.wrap(traceLog.currentParam),
+                /* 1 */
+                List.turnIntoCSList(traceLog.currentStep),
+                /* 2 */
+                General.wrap(refining),
+                /* 3 */
+                General.wrap(last),
+                /* 4 */
+                General.wrap(t),
+                /* 5 */
+                General.wrap(traceLog.currentParam),
             ]));
             traceLog.currentStep = null;
             traceLog.currentParam = null;
@@ -166,13 +171,20 @@ function traceMover(mover, pos, type) {
     }
     if (traceLog && traceLog.currentMouseAndScripts) {
         traceLog.currentMouseAndScripts.push(List.turnIntoCSList([
-            /* 1 */ List.turnIntoCSList(traceLog.currentMover),
-            /* 2 */ General.wrap(tracingFailed),
-            /* 3 */ General.wrap(mover.name),
-            /* 4 */ pos,
-            /* 5 */ General.wrap(type),
-            /* 6 */ originParam,
-            /* 7 */ targetParam,
+            /* 1 */
+            List.turnIntoCSList(traceLog.currentMover),
+            /* 2 */
+            General.wrap(tracingFailed),
+            /* 3 */
+            General.wrap(mover.name),
+            /* 4 */
+            pos,
+            /* 5 */
+            General.wrap(type),
+            /* 6 */
+            originParam,
+            /* 7 */
+            targetParam,
         ]));
         traceLog.currentMover = null;
     }
@@ -343,15 +355,27 @@ function tracing2core(n1, n2, o1, o2) {
     // debug = console.log.bind(console);
     if (traceLog && traceLog.currentStep) {
         var logRow = [
-            /* 1 */ traceLog.labelTracing2,
-            /* 2 */ General.wrap(traceLog.currentElement.name),
-            /* 3 */ List.turnIntoCSList(res),
-            /* 4 */ List.turnIntoCSList([o1, o2]),
-            /* 5 */ List.realMatrix([[do1n1, do1n2], [do2n1, do2n2]]),
-            /* 6 */ General.wrap(cost),
-            /* 7 */ General.wrap(do1o2),
-            /* 8 */ General.wrap(dn1n2),
-            /* 9 */ nada, // will become the outcome message
+            /* 1 */
+            traceLog.labelTracing2,
+            /* 2 */
+            General.wrap(traceLog.currentElement.name),
+            /* 3 */
+            List.turnIntoCSList(res),
+            /* 4 */
+            List.turnIntoCSList([o1, o2]),
+            /* 5 */
+            List.realMatrix([
+                [do1n1, do1n2],
+                [do2n1, do2n2]
+            ]),
+            /* 6 */
+            General.wrap(cost),
+            /* 7 */
+            General.wrap(do1o2),
+            /* 8 */
+            General.wrap(dn1n2),
+            /* 9 */
+            nada, // will become the outcome message
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function(msg) {
@@ -422,7 +446,7 @@ tracing4.stateSize = 24; // four three-element complex vectors
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     var debug = function() {};
     // var debug = console.log.bind(console);
-    
+
     var useGreedy = false; // greedy or permutation?
     var safety;
 
@@ -436,7 +460,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     var res, dist, i, j, distMatrix;
     var min_cost = 0;
 
-    if(useGreedy){
+    if (useGreedy) {
         safety = 3;
         res = new_el;
         for (i = 0; i < 4; i++) {
@@ -455,14 +479,14 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
             res[idx] = tmp;
             min_cost += min_dist;
         }
-    } else{
+    } else {
         safety = 1;
-    
+
         // build dist matrix
         distMatrix = new Array(4);
-        for(i = 0; i < 4; i++) {
+        for (i = 0; i < 4; i++) {
             distMatrix[i] = new Array(4);
-            for(j = 0; j < 4; j++){
+            for (j = 0; j < 4; j++) {
                 dist = List.projectiveDistMinScal(old_el[i], new_el[j]);
                 distMatrix[i][j] = dist;
             }
@@ -483,7 +507,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     var ndist = Infinity;
 
     for (i = 0; i < 4; i++) {
-        if(need_refine) break;
+        if (need_refine) break;
         if (List._helper.isNaN(new_el[i])) {
             // Something went very wrong, numerically speaking. We have no
             // clue whether refining will make things any better, so we
@@ -502,15 +526,24 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
 
     if (traceLog && traceLog.currentStep) {
         var logRow = [
-            /* 1 */ traceLog.labelTracing4,
-            /* 2 */ General.wrap(traceLog.currentElement.name),
-            /* 3 */ List.turnIntoCSList(res),
-            /* 4 */ List.turnIntoCSList(old_el),
-            /* 5 */ List.realMatrix(distMatrix),
-            /* 6 */ General.wrap(min_cost),
-            /* 7 */ General.wrap(odist),
-            /* 8 */ General.wrap(ndist),
-            /* 9 */ nada, // will become the outcome message
+            /* 1 */
+            traceLog.labelTracing4,
+            /* 2 */
+            General.wrap(traceLog.currentElement.name),
+            /* 3 */
+            List.turnIntoCSList(res),
+            /* 4 */
+            List.turnIntoCSList(old_el),
+            /* 5 */
+            List.realMatrix(distMatrix),
+            /* 6 */
+            General.wrap(min_cost),
+            /* 7 */
+            General.wrap(odist),
+            /* 8 */
+            General.wrap(ndist),
+            /* 9 */
+            nada, // will become the outcome message
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function(msg) {
@@ -549,7 +582,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         else
             debug("Need to refine.");
         requestRefinement();
-        
+
     }
     return res;
 }
@@ -677,15 +710,24 @@ function tracingSesq(newVecs) {
     var debug = function() {};
     if (traceLog && traceLog.currentStep) {
         var logRow = [
-            /* 1 */ traceLog.labelTracingSesq,
-            /* 2 */ General.wrap(traceLog.currentElement.name),
-            /* 3 */ List.turnIntoCSList(res),
-            /* 4 */ List.turnIntoCSList(oldVecs),
-            /* 5 */ List.realMatrix(cost),
-            /* 6 */ General.wrap(resCost),
-            /* 7 */ General.wrap(oldMinCost),
-            /* 8 */ General.wrap(newMinCost),
-            /* 9 */ nada, // will become the outcome message
+            /* 1 */
+            traceLog.labelTracingSesq,
+            /* 2 */
+            General.wrap(traceLog.currentElement.name),
+            /* 3 */
+            List.turnIntoCSList(res),
+            /* 4 */
+            List.turnIntoCSList(oldVecs),
+            /* 5 */
+            List.realMatrix(cost),
+            /* 6 */
+            General.wrap(resCost),
+            /* 7 */
+            General.wrap(oldMinCost),
+            /* 8 */
+            General.wrap(newMinCost),
+            /* 9 */
+            nada, // will become the outcome message
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function(msg) {

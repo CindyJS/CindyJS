@@ -683,7 +683,9 @@ labObjects.Spring = {
 
     restorePos: function(beh, i) {},
 
-    sqDist: function(beh, i, j) {return 0;},
+    sqDist: function(beh, i, j) {
+        return 0;
+    },
 
     kineticEnergy: function(beh) {},
 

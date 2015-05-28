@@ -1115,7 +1115,7 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     var AAabs2 = CSNumber.abs(c3).value.real;
     var BBabs2 = CSNumber.abs(c0).value.real;
 
-    if(AAabs2 < BBabs2){
+    if (AAabs2 < BBabs2) {
         var tmp = AA;
         AA = BB;
         BB = tmp;
@@ -1224,7 +1224,7 @@ geoOps.IntersectConicConic.updatePosition = function(el) {
     var erg = geoOps._helper.IntersectConicConic(AA, BB);
     erg = tracing4(erg[0], erg[1], erg[2], erg[3]);
     el.results = erg;
-//    el.results = List.turnIntoCSList(erg);
+    //    el.results = List.turnIntoCSList(erg);
 };
 geoOps.IntersectConicConic.stateSize = tracing4.stateSize;
 
