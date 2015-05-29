@@ -1149,6 +1149,20 @@ List.row = function(a, b) {
     return List.turnIntoCSList(erg);
 };
 
+List.adjoint2 = function(AA){
+    var a = AA.value[0].value[0];
+    var b = AA.value[0].value[1];
+    var c = AA.value[1].value[0];
+    var d = AA.value[1].value[1];
+
+    var erg = new Array(2);
+    erg[0] = List.turnIntoCSList([d, CSNumber.neg(b) ]);
+    erg[1] = List.turnIntoCSList([CSNumber.neg(c), a]);
+    erg = List.turnIntoCSList(erg);
+    return erg;
+};
+
+
 List.adjoint3 = function(a) {
     var row, elt,
         r11, i11, r12, i12, r13, i13,
@@ -1256,6 +1270,7 @@ List.adjoint3 = function(a) {
 List.inverse = function(a) {
     var len = a.value.length;
     if(len !== a.value[0].value.length){console.log("Inverse works only for square matrices"); return nada;}
+    if(len === 2) return List.scaldiv(List.det(a), List.adjoint2(a));
     if(len === 3) return List.scaldiv(List.det(a), List.adjoint3(a));
     
     var LUP = List.LUdecomp(a);
