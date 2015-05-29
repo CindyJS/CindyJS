@@ -596,20 +596,21 @@ geoOps._helper.buildConicMatrix = function(arr) {
 geoOps._helper.splitDegenConic = function(mat) {
     var adj_mat = List.adjoint3(mat);
 
-    var idx = 0,
-        k, l;
-    var max = CSNumber.abs(adj_mat.value[0].value[0]).value.real;
+    var idx = 0;
+    var k, l, abs2;
+    var max = CSNumber.abs2(adj_mat.value[0].value[0]).value.real;
     for (k = 1; k < 3; k++) {
-        if (CSNumber.abs(adj_mat.value[k].value[k]).value.real > max) {
+        abs2 = CSNumber.abs2(adj_mat.value[k].value[k]).value.real;
+        if (abs2 > max) {
             idx = k;
-            max = CSNumber.abs(adj_mat.value[k].value[k]).value.real;
+            max = abs2;
         }
     }
 
     var beta = CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), adj_mat.value[idx].value[idx]));
     idx = CSNumber.real(idx + 1);
     var p = List.column(adj_mat, idx);
-    if (CSNumber.abs(beta).value.real < 1e-8) {
+    if (CSNumber.abs2(beta).value.real < 1e-16) {
         return nada;
     }
 
@@ -629,15 +630,16 @@ geoOps._helper.splitDegenConic = function(mat) {
     var C = List.add(mat, M);
 
     // get nonzero index
-    var ii = 0,
-        jj = 0;
+    var ii = 0;
+    var jj = 0;
     max = 0;
     for (k = 0; k < 3; k++)
         for (l = 0; l < 3; l++) {
-            if (CSNumber.abs(C.value[k].value[l]).value.real > max) {
+            abs2 = CSNumber.abs2(C.value[k].value[l]).value.real;
+            if (abs2 > max) {
                 ii = k;
                 jj = l;
-                max = CSNumber.abs(C.value[k].value[l]).value.real;
+                max = abs2;
             }
         }
 
