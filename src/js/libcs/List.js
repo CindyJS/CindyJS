@@ -1296,7 +1296,7 @@ List.inverse = function(a) {
 
 
 List.linearsolve = function(a, bb) {
-//    List.eig(a);
+    List.eig(a);
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
     else return List.LUsolve(a, bb);
@@ -1315,52 +1315,60 @@ List.eig = function(A){
     var cslen = CSNumber.real(AA.value.length);
     var len = cslen.value.real;
     var zero = CSNumber.real(0);
-    var UU = List.idMatrix(cslen, cslen);
-    var QQ = UU;
-    var QR;
-    for(var i = 0; i < 150; i++){
-        QR = List.QRdecomp(AA);
-        AA = General.mult(QR.R, QR.Q);
-        if(i % 10 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
-        //console.log("is almost id", List._helper.isAlmostDiagonal(QR.Q));
-//        console.log("==");
-//        List.println(QR.R);
-//        console.log("==");
-//        List.println(AA);
-//        console.log("==");
-//        AA = General.mult(AA,QQ);
-//        QR = List.QRdecomp(AA);
-      QQ = General.mult(QQ,QR.Q);
-      UU = General.mult(UU, QR.Q);
-    }
 
-    console.log("q at end");
-    List.println(QR.Q);
+    var QRRes = List._helper.QRIteration(AA);
+    AA = QRRes[0];
+    var QQ = QRRes[1];
+    var UU = QRRes[2];
+
+    
+
+   // console.log("q at end");
+   // List.println(QR.Q);
 
     // evtl QQ*
     var ZZ = General.mult(QQ, AA);
+
     var eigvals = List.getDiag(AA);
-    var zvec = List.zerovector(cslen);
+
+    //var zvec = List.zerovector(cslen);
     var ID = List.idMatrix(cslen, cslen);
 
     var eigenvecs = new Array(cslen);
+
+
+    // calc eigenvecs
+    //
+    // if we have a normal matrix QQ holds already the eigenvecs
+    if(List._helper.isNormalMatrix(AA)){
+        console.log("normal matrix");
+        eigenvecs = QQ;
+    }
+    else{
     eigenvecs = List.turnIntoCSList(eigenvecs);
     eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
-    var xx;
-
-    var PP = new Array(len);
-
-
-    var MM;
-    for(var qq = 1; qq < len; qq++){
-    MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
-    List.println(MM);
-    xx = List._helper.inverseIteration(MM);
-    console.log("==");
-    List.println(xx);
-    console.log("==");
+    
+        var MM,xx, lam;
+        for(var qq = 1; qq < len; qq++){
+        lam = eigvals.value[qq];
+     //   MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
+    //    List.println(MM);
+        xx = List._helper.inverseIteration(AA, lam);
+        eigenvecs.value[qq] = xx;
+        List.println(AA);
+       // console.log("==");
+       // List.println(xx);
+       // console.log("==");
+        }
+    
     }
 
+    console.log("len", len);
+    List.println(eigvals);
+    console.log("===");
+    for(var k = 0; k < len ; k++){
+    List.println(eigenvecs.value[k]);
+    }
 
 //    List.println(AA);
 //    List.println(UU);
@@ -1375,9 +1383,20 @@ List.eig = function(A){
 
 };
 
+List._helper.isNormalMatrix = function(A){
+    return List.abs(List.sub(A, List.transjugate(A))).value.real < 1e-14;
+};
+
 List._helper.QRIteration = function(A, maxIter){
     var AA = A;
+    var cslen = CSNumber.real(AA.value.length);
+    var len = cslen.value.real;
+    var zero = CSNumber.real(0);
+    var UU = List.idMatrix(cslen, cslen);
+    var QQ = List.idMatrix(cslen, cslen);
     var mIter = maxIter ? maxIter : 150;
+
+    var QR;
     for(var i = 0; i < mIter ; i++){
         QR = List.QRdecomp(AA);
         AA = General.mult(QR.R, QR.Q);
@@ -1394,6 +1413,8 @@ List._helper.QRIteration = function(A, maxIter){
       UU = General.mult(UU, QR.Q);
     }
 
+    return [AA,QQ, UU];
+
 };
 
 List._helper.isAlmostId = function(AA){
@@ -1408,7 +1429,7 @@ List._helper.isAlmostId = function(AA){
 };
 
 List.getNullSpace = function(A){
-
+// todo
 };
 
 
@@ -1425,7 +1446,7 @@ List._helper.isAlmostDiagonal = function(AA){
     return false;
 };
 
-List._helper.inverseIteration = function(A){
+List._helper.inverseIteration = function(A,shiftinit){
     var len = A.value.length;
 
     // random vector
@@ -1436,10 +1457,11 @@ List._helper.inverseIteration = function(A){
     var qk = xx;
     var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
 
-    var shift = CSNumber.real(2*Math.random()-2);
-    for(var ii = 0; ii < 5 ; ii ++){
+    var shift = CSNumber.real(0.1*(Math.random()-1));
+    shift = CSNumber.add(shiftinit, shift);
+    for(var ii = 0; ii < 10 ; ii++){
         qk = List.scaldiv(List.abs(xx), xx);
-        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), xx); // TODO Use triangular form
+        xx = List.linearsolveCramer3(List.sub(A, List.scalmult(shift, ID)), xx); // TODO Use triangular form
     }
 
     
