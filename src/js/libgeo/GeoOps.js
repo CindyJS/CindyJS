@@ -1155,16 +1155,16 @@ geoOps._helper.IntersectConicConic = function(A, B) {
         var sol1, sol2;
         if (d01 > d02) {
             sol1 = sols[1];
-            if (d01 > d12) {    // d01 > {d02, d12}
+            if (d01 > d12) { // d01 > {d02, d12}
                 sol2 = sols[0];
-            } else {            // d12 >= d01 > d02
+            } else { // d12 >= d01 > d02
                 sol2 = sols[2];
             }
-        } else {                // d02 >= d01
+        } else { // d02 >= d01
             sol1 = sols[2];
-            if (d02 > d12) {    // d02 >= {d01, d12}
+            if (d02 > d12) { // d02 >= {d01, d12}
                 sol2 = sols[0];
-            } else {            // d12 >= d02 >= d01
+            } else { // d12 >= d02 >= d01
                 sol2 = sols[1];
             }
         }

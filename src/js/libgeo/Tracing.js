@@ -148,16 +148,11 @@ function traceMover(mover, pos, type) {
         }
         if (traceLog && traceLog.currentMouseAndScripts) {
             traceLog.currentMover.push(List.turnIntoCSList([
-                /* 1 */
-                List.turnIntoCSList(traceLog.currentStep),
-                /* 2 */
-                General.wrap(refining),
-                /* 3 */
-                General.wrap(last),
-                /* 4 */
-                General.wrap(t),
-                /* 5 */
-                General.wrap(traceLog.currentParam),
+                List.turnIntoCSList(traceLog.currentStep), // 1
+                General.wrap(refining), //                    2
+                General.wrap(last), //                        3
+                General.wrap(t), //                           4
+                General.wrap(traceLog.currentParam), //       5
             ]));
             traceLog.currentStep = null;
             traceLog.currentParam = null;
@@ -171,20 +166,13 @@ function traceMover(mover, pos, type) {
     }
     if (traceLog && traceLog.currentMouseAndScripts) {
         traceLog.currentMouseAndScripts.push(List.turnIntoCSList([
-            /* 1 */
-            List.turnIntoCSList(traceLog.currentMover),
-            /* 2 */
-            General.wrap(tracingFailed),
-            /* 3 */
-            General.wrap(mover.name),
-            /* 4 */
-            pos,
-            /* 5 */
-            General.wrap(type),
-            /* 6 */
-            originParam,
-            /* 7 */
-            targetParam,
+            List.turnIntoCSList(traceLog.currentMover), //    1
+            General.wrap(tracingFailed), //                   2
+            General.wrap(mover.name), //                      3
+            pos, //                                           4
+            General.wrap(type), //                            5
+            originParam, //                                   6
+            targetParam, //                                   7
         ]));
         traceLog.currentMover = null;
     }
@@ -355,27 +343,18 @@ function tracing2core(n1, n2, o1, o2) {
     // debug = console.log.bind(console);
     if (traceLog && traceLog.currentStep) {
         var logRow = [
-            /* 1 */
-            traceLog.labelTracing2,
-            /* 2 */
-            General.wrap(traceLog.currentElement.name),
-            /* 3 */
-            List.turnIntoCSList(res),
-            /* 4 */
-            List.turnIntoCSList([o1, o2]),
-            /* 5 */
-            List.realMatrix([
+            traceLog.labelTracing2, //                        1
+            General.wrap(traceLog.currentElement.name), //    2
+            List.turnIntoCSList(res), //                      3
+            List.turnIntoCSList([o1, o2]), //                 4
+            List.realMatrix([ //                              5
                 [do1n1, do1n2],
                 [do2n1, do2n2]
             ]),
-            /* 6 */
-            General.wrap(cost),
-            /* 7 */
-            General.wrap(do1o2),
-            /* 8 */
-            General.wrap(dn1n2),
-            /* 9 */
-            nada, // will become the outcome message
+            General.wrap(cost), //                            6
+            General.wrap(do1o2), //                           7
+            General.wrap(dn1n2), //                           8
+            nada, // will become the outcome message //       9
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function(msg) {
@@ -526,24 +505,15 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
 
     if (traceLog && traceLog.currentStep) {
         var logRow = [
-            /* 1 */
-            traceLog.labelTracing4,
-            /* 2 */
-            General.wrap(traceLog.currentElement.name),
-            /* 3 */
-            List.turnIntoCSList(res),
-            /* 4 */
-            List.turnIntoCSList(old_el),
-            /* 5 */
-            List.realMatrix(distMatrix),
-            /* 6 */
-            General.wrap(min_cost),
-            /* 7 */
-            General.wrap(odist),
-            /* 8 */
-            General.wrap(ndist),
-            /* 9 */
-            nada, // will become the outcome message
+            traceLog.labelTracing4, //                        1
+            General.wrap(traceLog.currentElement.name), //    2
+            List.turnIntoCSList(res), //                      3
+            List.turnIntoCSList(old_el), //                   4
+            List.realMatrix(distMatrix), //                   5
+            General.wrap(min_cost), //                        6
+            General.wrap(odist), //                           7
+            General.wrap(ndist), //                           8
+            nada, // will become the outcome message //       9
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function(msg) {
@@ -710,24 +680,15 @@ function tracingSesq(newVecs) {
     var debug = function() {};
     if (traceLog && traceLog.currentStep) {
         var logRow = [
-            /* 1 */
-            traceLog.labelTracingSesq,
-            /* 2 */
-            General.wrap(traceLog.currentElement.name),
-            /* 3 */
-            List.turnIntoCSList(res),
-            /* 4 */
-            List.turnIntoCSList(oldVecs),
-            /* 5 */
-            List.realMatrix(cost),
-            /* 6 */
-            General.wrap(resCost),
-            /* 7 */
-            General.wrap(oldMinCost),
-            /* 8 */
-            General.wrap(newMinCost),
-            /* 9 */
-            nada, // will become the outcome message
+            traceLog.labelTracingSesq, //                     1
+            General.wrap(traceLog.currentElement.name), //    2
+            List.turnIntoCSList(res), //                      3
+            List.turnIntoCSList(oldVecs), //                  4
+            List.realMatrix(cost), //                         5
+            General.wrap(resCost), //                         6
+            General.wrap(oldMinCost), //                      7
+            General.wrap(newMinCost), //                      8
+            nada, // will become the outcome message //       9
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function(msg) {
