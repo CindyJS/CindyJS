@@ -1296,7 +1296,7 @@ List.inverse = function(a) {
 
 
 List.linearsolve = function(a, bb) {
-    List.eig(a);
+//    List.eig(a);
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
     else return List.LUsolve(a, bb);
