@@ -1254,6 +1254,10 @@ List.adjoint3 = function(a) {
 };
 
 List.inverse = function(a) {
+    var len = a.value.length;
+    if(len !== a.value[0].value.length){console.log("Inverse works only for square matrices"); return nada;}
+    if(len === 3) return List.scaldiv(List.det(a), List.adjoint3(a));
+    
     var LUP = List.LUdecomp(a);
     var n = a.value.length;
 
