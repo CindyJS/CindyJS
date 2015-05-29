@@ -1103,104 +1103,86 @@ geoOps.IntersectCirCir.updatePosition = function(el) {
 geoOps.IntersectCirCir.stateSize = tracing2.stateSize;
 
 
-geoOps._helper.IntersectConicConic = function(AA, BB) {
-    var myeps = 1e-12;
-    var p1, p2, p3, p4;
+geoOps._helper.IntersectConicConic = function(A, B) {
+    var myeps = 1e-24;
 
-    var A1 = AA.value[0];
-    var A2 = AA.value[1];
-    var A3 = AA.value[2];
-    var B1 = BB.value[0];
-    var B2 = BB.value[1];
-    var B3 = BB.value[2];
+    var A1 = A.value[0];
+    var A2 = A.value[1];
+    var A3 = A.value[2];
+    var B1 = B.value[0];
+    var B2 = B.value[1];
+    var B3 = B.value[2];
 
     var c3 = List.det3(A1, A2, A3);
+    var c2 = CSNumber.add(CSNumber.add(
+        List.det3(A1, A2, B3), List.det3(A1, B2, A3)), List.det3(B1, A2, A3));
+    var c1 = CSNumber.add(CSNumber.add(
+        List.det3(A1, B2, B3), List.det3(B1, A2, B3)), List.det3(B1, B2, A3));
     var c0 = List.det3(B1, B2, B3);
+    // det(a*A + b*B) = a^3*c3 + a^2*b*c2 + a*b^2*c1 + b^3*c0 = 0
 
-    var AAabs2 = CSNumber.abs(c3).value.real;
-    var BBabs2 = CSNumber.abs(c0).value.real;
-
-    if (AAabs2 < BBabs2) {
-        var tmp = AA;
-        AA = BB;
-        BB = tmp;
+    var Aabs2 = CSNumber.abs2(c3).value.real;
+    var Babs2 = CSNumber.abs2(c0).value.real;
+    if (Aabs2 < Babs2) {
+        // ensure |c3| > |c0| so if only one is singular, it's B = (0*A + B)
+        var tmp = A;
+        A = B;
+        B = tmp;
 
         tmp = c0;
         c0 = c3;
         c3 = tmp;
 
-        tmp = AAabs2;
-        AAabs2 = BBabs2;
-        BBabs2 = tmp;
-        A1 = AA.value[0];
-        A2 = AA.value[1];
-        A3 = AA.value[2];
-        B1 = BB.value[0];
-        B2 = BB.value[1];
-        B3 = BB.value[2];
+        tmp = c1;
+        c1 = c2;
+        c2 = tmp;
+
+        tmp = Aabs2;
+        Aabs2 = Babs2;
+        Babs2 = tmp;
     }
 
-    var c2 = CSNumber.add(CSNumber.add(
-        List.det3(A1, A2, B3), List.det3(A1, B2, A3)), List.det3(B1, A2, A3));
-    var c1 = CSNumber.add(CSNumber.add(
-        List.det3(A1, B2, B3), List.det3(B1, A2, B3)), List.det3(B1, B2, A3));
-
-    // det(a*A + b*B) = a^3*c3 + a^2*b*c2 + a*b^2*c1 + b^3*c0 = 0
-
-    // degenerate Case
-    var AAdegen = AAabs2 < myeps;
-    var BBdegen = BBabs2 < myeps;
-
-    var Alines, Blines, pts1, pts2;
-    if (AAdegen && BBdegen) {
-        Alines = geoOps._helper.splitDegenConic(AA);
-        Blines = geoOps._helper.splitDegenConic(BB);
-        p1 = List.cross(Alines[0], Blines[0]);
-        p2 = List.cross(Alines[1], Blines[0]);
-        p3 = List.cross(Alines[0], Blines[1]);
-        p4 = List.cross(Alines[1], Blines[1]);
-    } else if (AAdegen) {
-        Alines = geoOps._helper.splitDegenConic(AA);
-        pts1 = geoOps._helper.IntersectLC(Alines[0], BB);
-        pts2 = geoOps._helper.IntersectLC(Alines[1], BB);
-        p1 = pts1[0];
-        p2 = pts1[1];
-        p3 = pts2[0];
-        p4 = pts2[1];
-
-    } else if (BBdegen) {
-        Blines = geoOps._helper.splitDegenConic(BB);
-        pts1 = geoOps._helper.IntersectLC(Blines[0], AA);
-        pts2 = geoOps._helper.IntersectLC(Blines[1], AA);
-        p1 = pts1[0];
-        p2 = pts1[1];
-        p3 = pts2[0];
-        p4 = pts2[1];
-
+    var CDeg1, CDeg2;
+    if (Aabs2 < myeps) { // both are degenerate
+        CDeg1 = A;
+        CDeg2 = B;
     } else {
-        var e1 = CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
-        var e2 = CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
-
-        // produce degenerate Conic
+        // produce two DISTINCT degenerate Conics
         var sols = CSNumber.solveCubic(c3, c2, c1, c0);
+        var d01 = CSNumber.abs2(CSNumber.sub(sols[0], sols[1])).value.real;
+        var d02 = CSNumber.abs2(CSNumber.sub(sols[0], sols[2])).value.real;
+        var d12 = CSNumber.abs2(CSNumber.sub(sols[1], sols[2])).value.real;
+        var sol1, sol2;
+        if (d01 > d02) {
+            sol1 = sols[1];
+            if (d01 > d12) {    // d01 > {d02, d12}
+                sol2 = sols[0];
+            } else {            // d12 >= d01 > d02
+                sol2 = sols[2];
+            }
+        } else {                // d02 >= d01
+            sol1 = sols[2];
+            if (d02 > d12) {    // d02 >= {d01, d12}
+                sol2 = sols[0];
+            } else {            // d12 >= d02 >= d01
+                sol2 = sols[1];
+            }
+        }
+        CDeg1 = List.add(List.scalmult(sol1, A), B);
+        CDeg2 = List.add(List.scalmult(sol2, A), B);
+    }
+    var lines1 = geoOps._helper.splitDegenConic(CDeg1);
+    var l11 = lines1[0];
+    var l12 = lines1[1];
 
-        var CDeg1 = List.add(List.scalmult(sols[0], AA), BB);
-        var lines1 = geoOps._helper.splitDegenConic(CDeg1);
-        var l11 = lines1[0];
-        var l12 = lines1[1];
+    var lines2 = geoOps._helper.splitDegenConic(CDeg2);
+    var l21 = lines2[0];
+    var l22 = lines2[1];
 
-        var CDeg2 = List.add(List.scalmult(sols[1], AA), BB);
-        var lines2 = geoOps._helper.splitDegenConic(CDeg2);
-        var l21 = lines2[0];
-        var l22 = lines2[1];
-
-        p1 = List.cross(l11, l21);
-        p2 = List.cross(l12, l21);
-        p3 = List.cross(l11, l22);
-        p4 = List.cross(l12, l22);
-
-
-    } // end else
+    var p1 = List.cross(l11, l21);
+    var p2 = List.cross(l12, l21);
+    var p3 = List.cross(l11, l22);
+    var p4 = List.cross(l12, l22);
 
     p1 = List.normalizeMax(p1);
     p2 = List.normalizeMax(p2);
@@ -1213,7 +1195,6 @@ geoOps._helper.IntersectConicConic = function(AA, BB) {
     p4 = General.withUsage(p4, "Point");
 
     return [p1, p2, p3, p4];
-
 };
 
 geoOps.IntersectConicConic = {};
