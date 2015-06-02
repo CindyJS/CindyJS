@@ -1428,6 +1428,22 @@ List._helper.QRIteration = function(A, maxIter){
 
 };
 
+List._helper.isLowerTriangular= function(A){
+    var leni = A.value.length;
+    var lenj = A.value[0].value.length;
+    for(var i =0; i < leni; i++)
+        for(var j = i+1 ; j < lenj; j++){
+            if(!CSNumber._helper.isAlmostZero(A.value[i].value[j])) return false;
+        }
+
+    return true;
+};
+
+
+List._helper.isUpperTriangular= function(A){
+    return List._helper.isLowerTriangular(List.transpose(A));
+};
+
 List._helper.isAlmostId = function(AA){
     var A = AA;
     var len = A.value.length;
@@ -1497,7 +1513,7 @@ List._helper.inverseIteration = function(A,shiftinit){
     var shift = shiftinit;
     for(var ii = 0; ii < 10 ; ii++){
         qk = List.scaldiv(List.abs(xx), xx);
-        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), qk); // TODO Use triangular form
+        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), JSON.parse(JSON.stringify(qk))); // TODO Use triangular form
     }
 
     
@@ -1507,6 +1523,18 @@ List._helper.inverseIteration = function(A,shiftinit){
 
 
 List.QRdecomp = function(A){
+    if(List._helper.isUpperTriangular(A)){
+        var cslen = CSNumber.real(A.value.length);
+        return {
+            Q: List.idMatrix(cslen, cslen),
+            R: A,
+        };
+    }
+
+
+
+
+
     var AA = A;
     var len = AA.value.length;
     var cslen = CSNumber.real(len);
@@ -1634,6 +1662,15 @@ List._helper.QRgetAlpha = function(xx, k) {
 };
 
 List.LUdecomp = function(AA) {
+    if(List._helper.isUpperTriangular){
+        var len = AA.value.length;
+        var PP = numeric.diag(numeric.rep([len],1))
+        return {
+            LU: AA,
+            P: PP,
+            TransPos: 0 
+        };
+    }
     var A = JSON.parse(JSON.stringify(AA)); // TODO: get rid of this cloning
     var i, j, k, absAjk, Akk, Ak, Pk, Ai;
     var tpos = 0;
@@ -1696,8 +1733,14 @@ List._helper.LUsolve = function(LUP, bb) {
     var LU = LUP.LU;
     var n = LU.value.length;
     var x = JSON.parse(JSON.stringify(b));
+
     var P = LUP.P;
+    console.log(x);
+    console.log("P");
+    console.log(P);
+    debugger;
     var Pi, LUi, LUii, tmp;
+
 
     for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
     for (i = 0; i < n; ++i) {
