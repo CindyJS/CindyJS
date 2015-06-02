@@ -1321,6 +1321,8 @@ List.eig = function(A){
     var QQ = QRRes[1];
     var UU = QRRes[2];
 
+    List.println(AA);
+
     
 
    // console.log("q at end");
@@ -1348,15 +1350,20 @@ List.eig = function(A){
     eigenvecs = List.turnIntoCSList(eigenvecs);
     eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
     
-        var MM,xx, lam;
+        var MM,xx, lam, nullS;
         for(var qq = 1; qq < len; qq++){
         lam = eigvals.value[qq];
-     //   MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
-    //    List.println(MM);
-        xx = List._helper.inverseIteration(AA, lam);
-        eigenvecs.value[qq] = xx;
-        List.println(AA);
-       // console.log("==");
+        MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
+//        console.log("MM");
+//        List.println(MM);
+        nullS = List.nullSpace(MM);
+//        console.log("nullS");
+//        List.println(nullS);
+//        console.log("test");
+//        List.println(General.mult(MM,nullS.value[0]));
+        eigenvecs.value[qq] = General.mult(QQ,nullS.value[0]);
+//        eigenvecs.value[qq] = List.Normalize(eigenvecs.value[qq]);
+
        // List.println(xx);
        // console.log("==");
         }
@@ -1372,6 +1379,10 @@ List.eig = function(A){
 
 //    List.println(AA);
 //    List.println(UU);
+ //  console.log("test");
+ //  List.println(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
+ //  List.println(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
+ //  List.println(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
 //   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
 //   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
 //
@@ -1384,7 +1395,7 @@ List.eig = function(A){
 };
 
 List._helper.isNormalMatrix = function(A){
-    return List.abs(List.sub(A, List.transjugate(A))).value.real < 1e-14;
+    return List.abs(List.sub(A, List.transjugate(A))).value.real < 1e-10;
 };
 
 List._helper.QRIteration = function(A, maxIter){
@@ -1392,15 +1403,21 @@ List._helper.QRIteration = function(A, maxIter){
     var cslen = CSNumber.real(AA.value.length);
     var len = cslen.value.real;
     var zero = CSNumber.real(0);
+    var Id = List.idMatrix(cslen, cslen);
     var UU = List.idMatrix(cslen, cslen);
     var QQ = List.idMatrix(cslen, cslen);
-    var mIter = maxIter ? maxIter : 150;
+    var mIter = maxIter ? maxIter : 1000;
 
-    var QR;
+    var QR, kap, shiftId;
     for(var i = 0; i < mIter ; i++){
-        QR = List.QRdecomp(AA);
+        kap = AA.value[len-1].value[len-1];
+        shiftId = List.scalmult(kap, Id);
+        QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
         AA = General.mult(QR.R, QR.Q);
+        AA = List.add(AA, shiftId);
+        console.log("i", i);
         if(i % 10 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
+
         //console.log("is almost id", List._helper.isAlmostDiagonal(QR.Q));
 //        console.log("==");
 //        List.println(QR.R);
@@ -1424,12 +1441,33 @@ List._helper.isAlmostId = function(AA){
     if(len !== A.value[0].value.length) return false;
 
     var erg = List.sub(A, List.idMatrix(cslen), cslen);
-    if(List.abs(erg).value.real < 1e-10) return true;
-    return false;
+    for(var i = 0; i < len ; i++)
+        for(var j = 0; j < len; j++){
+            if(CSNumber.abs2(erg.value[i].value[j]).value.real > 1e-16) return false;
+        } 
+
+    return true;
 };
 
-List.getNullSpace = function(A){
-// todo
+List.nullSpace = function(A){
+    var len = A.value.length;
+    var QR = List.QRdecomp(List.transpose(A));
+
+    var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
+
+    var erg = [];
+    // test if is in kernel
+    var vec, tmp;
+    for(var i = 0; i < len; i++){
+       vec = QQ.value[i];
+       tmp = General.mult(A,vec); 
+       if(List.abs(tmp).value.real < 1e-6) erg.push(List.scaldiv(List.abs(vec), vec));
+    }
+
+    erg = List.turnIntoCSList(erg);
+    if(erg.value.length > 0) return erg;
+    else return List.zerovector(CSNumber.real(len));
+
 };
 
 
@@ -1440,10 +1478,14 @@ List._helper.isAlmostDiagonal = function(AA){
     var zero = CSNumber.real(0);
     if(len !== AA.value[0].value.length) return false;
 
-    for(var i = 0; i < len; i++) erg.value[i].value[i] = zero;
 
-    if(List.abs(erg).value.real < 1e-10) return true;
-    return false;
+    for(var i = 0; i < len ; i++)
+        for(var j = 0; j < len; j++){
+            if(i === j) continue;
+            if(CSNumber.abs2(erg.value[i].value[j]).value.real > 1e-16) return false;
+        } 
+
+    return true;
 };
 
 List._helper.inverseIteration = function(A,shiftinit){
@@ -1451,17 +1493,21 @@ List._helper.inverseIteration = function(A,shiftinit){
 
     // random vector
     var xx = new Array(len);
-    for(var i =0; i< len; i++) xx[i] = 2*Math.random() - 0.5;
+    for(var i =0; i< len; i++)
+    {xx[i] = 2*Math.random() - 0.5;}
     xx = List.realVector(xx);
 
     var qk = xx;
     var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
 
-    var shift = CSNumber.real(0.1*(Math.random()-1));
-    shift = CSNumber.add(shiftinit, shift);
+    //var shift = CSNumber.real(0.1*(Math.random()-1));
+    //shift = CSNumber.add(shiftinit, shift);
+    var shift = shiftinit;
     for(var ii = 0; ii < 10 ; ii++){
+//        List.println(qk);
+//        console.log("=== qk ==");
         qk = List.scaldiv(List.abs(xx), xx);
-        xx = List.linearsolveCramer3(List.sub(A, List.scalmult(shift, ID)), xx); // TODO Use triangular form
+        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), qk); // TODO Use triangular form
     }
 
     
@@ -1767,6 +1813,8 @@ List.linearsolveCG = function(A, b) {
 
 
 List.det = function(a) {
+    List.eig(a);
+
     if (a.value.length === 2) return List.det2(List.column(a, CSNumber.real(1)), List.column(a, CSNumber.real(2)));
     if (a.value.length === 3) {
         var A1 = List.column(a, CSNumber.real(1));
