@@ -1350,27 +1350,30 @@ List.eig = function(A){
     eigenvecs = List.turnIntoCSList(eigenvecs);
     eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
     
-        var MM,xx, lam, nullS;
-        for(var qq = 1; qq < len; qq++){
-        lam = eigvals.value[qq];
-        MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
-//        console.log("MM");
-//        List.println(MM);
-        nullS = List.nullSpace(MM);
-//        console.log("nullS");
-//        List.println(nullS);
-//        console.log("test");
-//        List.println(General.mult(MM,nullS.value[0]));
-        eigenvecs.value[qq] = General.mult(QQ,nullS.value[0]);
-//        eigenvecs.value[qq] = List.Normalize(eigenvecs.value[qq]);
+        var useInverseIteration = true; // inverse iteration or nullspace method to obtain eigenvecs
 
-       // List.println(xx);
-       // console.log("==");
+        var MM,xx, nullS,qq;
+        if(useInverseIteration){
+            for(qq = 1; qq < len; qq++){
+                xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
+                xx = General.mult(QQ,xx);
+                eigenvecs.value[qq] = xx;
+            }
+        }
+        else{
+            for(qq = 1; qq < len; qq++){
+                MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
+                nullS = List.nullSpace(MM);
+                xx = General.mult(QQ,nullS.value[0]);
+                eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
+            }
+
         }
     
     }
 
-    console.log("len", len);
+    eigenvecs = List.transpose(eigenvecs);
+
     List.println(eigvals);
     console.log("===");
     for(var k = 0; k < len ; k++){
@@ -1415,17 +1418,8 @@ List._helper.QRIteration = function(A, maxIter){
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
         AA = General.mult(QR.R, QR.Q);
         AA = List.add(AA, shiftId);
-        console.log("i", i);
         if(i % 10 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
 
-        //console.log("is almost id", List._helper.isAlmostDiagonal(QR.Q));
-//        console.log("==");
-//        List.println(QR.R);
-//        console.log("==");
-//        List.println(AA);
-//        console.log("==");
-//        AA = General.mult(AA,QQ);
-//        QR = List.QRdecomp(AA);
       QQ = General.mult(QQ,QR.Q);
       UU = General.mult(UU, QR.Q);
     }
@@ -1461,7 +1455,7 @@ List.nullSpace = function(A){
     for(var i = 0; i < len; i++){
        vec = QQ.value[i];
        tmp = General.mult(A,vec); 
-       if(List.abs(tmp).value.real < 1e-6) erg.push(List.scaldiv(List.abs(vec), vec));
+       if(List.abs2(tmp).value.real < 1e-8) erg.push(List.scaldiv(List.abs(vec), vec));
     }
 
     erg = List.turnIntoCSList(erg);
@@ -1500,12 +1494,8 @@ List._helper.inverseIteration = function(A,shiftinit){
     var qk = xx;
     var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
 
-    //var shift = CSNumber.real(0.1*(Math.random()-1));
-    //shift = CSNumber.add(shiftinit, shift);
     var shift = shiftinit;
     for(var ii = 0; ii < 10 ; ii++){
-//        List.println(qk);
-//        console.log("=== qk ==");
         qk = List.scaldiv(List.abs(xx), xx);
         xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), qk); // TODO Use triangular form
     }
