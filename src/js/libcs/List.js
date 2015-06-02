@@ -1345,7 +1345,7 @@ List.eig = function(A){
     //var zvec = List.zerovector(cslen);
     var ID = List.idMatrix(cslen, cslen);
 
-    var eigenvecs = new Array(cslen);
+    var eigenvecs = new Array(len);
 
 
     // calc eigenvecs
