@@ -1487,6 +1487,7 @@ List.linearsolveCG = function(A, b) {
 
 
 List.det = function(a) {
+    if (a.value.length === 1) return a.value[0].value[0];
     if (a.value.length === 2) return List.det2(a.value[0], a.value[1]);
     if (a.value.length === 3) {
         var A1 = a.value[0];
