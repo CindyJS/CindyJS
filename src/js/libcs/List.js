@@ -42,6 +42,15 @@ List.idMatrix = function(n){
     return erg;
 };
 
+
+List._helper.flippedidMatrix = function(n){
+    var erg = List.zeromatrix(n,n);
+    var one = CSNumber.real(1);
+    for(var i = 0; i < n.value.real; i++) erg.value[i].value[n.value.real - i - 1] = one;
+
+    return erg;
+};
+
 List.println = function(l) {
     var erg = [];
     for (var i = 0; i < l.value.length; i++) {
@@ -1349,12 +1358,14 @@ List.eig = function(A){
     else{
     eigenvecs = List.turnIntoCSList(eigenvecs);
     eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
+
     
-        var useInverseIteration = true; // inverse iteration or nullspace method to obtain eigenvecs
+        var useInverseIteration = false; // inverse iteration or nullspace method to obtain eigenvecs
 
         var MM,xx, nullS,qq;
         if(useInverseIteration){
             for(qq = 1; qq < len; qq++){
+                List.println(eigenvecs);
                 xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
                 xx = General.mult(QQ,xx);
                 eigenvecs.value[qq] = xx;
@@ -1372,7 +1383,7 @@ List.eig = function(A){
     
     }
 
-    eigenvecs = List.transpose(eigenvecs);
+    //eigenvecs = List.transpose(eigenvecs);
 
     List.println(eigvals);
     console.log("===");
@@ -1510,8 +1521,9 @@ List._helper.inverseIteration = function(A,shiftinit){
     var qk = xx;
     var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
 
-    var shift = shiftinit;
-    for(var ii = 0; ii < 10 ; ii++){
+    var shift = shiftinit
+    shift = CSNumber.add(shift,  CSNumber.real(0.1*Math.random()-0.5)); // add rand to make get a full rank matrix
+    for(var ii = 0; ii < 50 ; ii++){
         qk = List.scaldiv(List.abs(xx), xx);
         xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), JSON.parse(JSON.stringify(qk))); // TODO Use triangular form
     }
@@ -1524,6 +1536,7 @@ List._helper.inverseIteration = function(A,shiftinit){
 
 List.QRdecomp = function(A){
     if(List._helper.isUpperTriangular(A)){
+        console.log("is upper triangular true");
         var cslen = CSNumber.real(A.value.length);
         return {
             Q: List.idMatrix(cslen, cslen),
@@ -1531,8 +1544,14 @@ List.QRdecomp = function(A){
         };
     }
 
-
-
+    if(List._helper.isLowerTriangular(A)){
+        var cslen = CSNumber.real(A.value.length);
+        List.println(List._helper.flippedidMatrix(cslen, cslen))
+        return {
+            Q: List._helper.flippedidMatrix(cslen, cslen),
+            R: A,
+        };
+    }
 
 
     var AA = A;
@@ -1664,7 +1683,9 @@ List._helper.QRgetAlpha = function(xx, k) {
 List.LUdecomp = function(AA) {
     if(List._helper.isUpperTriangular){
         var len = AA.value.length;
-        var PP = numeric.diag(numeric.rep([len],1))
+
+        var PP =  new Array(len);
+        for(var ii = 0; ii < len; ii++) PP[ii] =ii;
         return {
             LU: AA,
             P: PP,
@@ -1735,12 +1756,7 @@ List._helper.LUsolve = function(LUP, bb) {
     var x = JSON.parse(JSON.stringify(b));
 
     var P = LUP.P;
-    console.log(x);
-    console.log("P");
-    console.log(P);
-    debugger;
     var Pi, LUi, LUii, tmp;
-
 
     for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
     for (i = 0; i < n; ++i) {
