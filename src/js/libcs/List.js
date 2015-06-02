@@ -1352,33 +1352,34 @@ List.eig = function(A){
     //
     // if we have a normal matrix QQ holds already the eigenvecs
     if(List._helper.isNormalMatrix(AA)){
+        console.log("is normal matrix return QQ");
         eigenvecs = QQ;
     }
     else{
-    eigenvecs = List.turnIntoCSList(eigenvecs);
-    eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
+          eigenvecs = List.turnIntoCSList(eigenvecs);
+          eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
 
-    
-        var useInverseIteration = false; // inverse iteration or nullspace method to obtain eigenvecs
+          
+              var useInverseIteration = false; // inverse iteration or nullspace method to obtain eigenvecs
 
-        var MM,xx, nullS,qq;
-        if(useInverseIteration){
-            for(qq = 1; qq < len; qq++){
-                List.println(eigenvecs);
-                xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
-                xx = General.mult(QQ,xx);
-                eigenvecs.value[qq] = xx;
-            }
-        }
-        else{
-            for(qq = 1; qq < len; qq++){
-                MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
-                nullS = List.nullSpace(MM);
-                xx = General.mult(QQ,nullS.value[0]);
-                eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
-            }
+              var MM,xx, nullS,qq;
+              if(useInverseIteration){
+                  for(qq = 1; qq < len; qq++){
+                      List.println(eigenvecs);
+                      xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
+                      xx = General.mult(QQ,xx);
+                      eigenvecs.value[qq] = xx;
+                  }
+              }
+              else{
+                  for(qq = 1; qq < len; qq++){
+                      MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
+                      nullS = List.nullSpace(MM);
+                      xx = General.mult(QQ,nullS.value[0]);
+                      eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
+                  }
 
-        }
+              }
     
     }
 
