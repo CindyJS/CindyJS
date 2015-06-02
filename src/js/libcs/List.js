@@ -1376,7 +1376,8 @@ List.eig = function(A){
                       MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
                       nullS = List.nullSpace(MM);
                       xx = General.mult(QQ,nullS.value[0]);
-                      eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
+                      if(List.abs(xx).value.real < 1e-6) eigenvecs.value[qq] = xx;
+                      else eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
                   }
 
               }
