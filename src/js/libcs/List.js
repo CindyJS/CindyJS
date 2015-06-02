@@ -1365,7 +1365,6 @@ List.eig = function(A){
               var MM,xx, nullS,qq;
               if(useInverseIteration){
                   for(qq = 1; qq < len; qq++){
-                      List.println(eigenvecs);
                       xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
                       xx = General.mult(QQ,xx);
                       eigenvecs.value[qq] = xx;
@@ -1373,8 +1372,10 @@ List.eig = function(A){
               }
               else{
                   for(qq = 1; qq < len; qq++){
-                      MM = List.sub(AA, List.scalmult(eigvals.value[qq], ID));
+                      MM = List.transpose(List.sub(AA, List.scalmult(eigvals.value[qq], ID)));
                       nullS = List.nullSpace(MM);
+                      console.log(nullS);
+                      debugger;
                       xx = General.mult(QQ,nullS.value[0]);
                       if(List.abs(xx).value.real < 1e-6) eigenvecs.value[qq] = xx;
                       else eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
@@ -1386,18 +1387,19 @@ List.eig = function(A){
 
     //eigenvecs = List.transpose(eigenvecs);
 
-//    List.println(eigvals);
-//    console.log("===");
- //   for(var k = 0; k < len ; k++){
- //   List.println(eigenvecs.value[k]);
- //   }
+    List.println(eigvals);
+    console.log("===");
+    for(var k = 0; k < len ; k++){
+    List.println(eigenvecs.value[k]);
+    }
 
 //    List.println(AA);
 //    List.println(UU);
-   console.log("test");
-   List.println(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
-   List.println(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
-   List.println(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
+//   console.log("test");
+//   List.println(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
+//   List.println(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
+//   List.println(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
+//   console.log("end test");
 //   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
 //   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
 //
@@ -1488,7 +1490,7 @@ List.nullSpace = function(A){
 
     erg = List.turnIntoCSList(erg);
     if(erg.value.length > 0) return erg;
-    else return List.zerovector(CSNumber.real(len));
+    else return List.turnIntoCSList([List.zerovector(CSNumber.real(len))]);
 
 };
 
