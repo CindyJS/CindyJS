@@ -1330,7 +1330,7 @@ List.eig = function(A){
     var QQ = QRRes[1];
     var UU = QRRes[2];
 
-    List.println(AA);
+    //List.println(AA);
 
     
 
@@ -1352,7 +1352,6 @@ List.eig = function(A){
     //
     // if we have a normal matrix QQ holds already the eigenvecs
     if(List._helper.isNormalMatrix(AA)){
-        console.log("normal matrix");
         eigenvecs = QQ;
     }
     else{
@@ -1385,18 +1384,18 @@ List.eig = function(A){
 
     //eigenvecs = List.transpose(eigenvecs);
 
-    List.println(eigvals);
-    console.log("===");
-    for(var k = 0; k < len ; k++){
-    List.println(eigenvecs.value[k]);
-    }
+//    List.println(eigvals);
+//    console.log("===");
+ //   for(var k = 0; k < len ; k++){
+ //   List.println(eigenvecs.value[k]);
+ //   }
 
 //    List.println(AA);
 //    List.println(UU);
- //  console.log("test");
- //  List.println(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
- //  List.println(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
- //  List.println(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
+   console.log("test");
+   List.println(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
+   List.println(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
+   List.println(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
 //   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
 //   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
 //
@@ -1536,7 +1535,6 @@ List._helper.inverseIteration = function(A,shiftinit){
 
 List.QRdecomp = function(A){
     if(List._helper.isUpperTriangular(A)){
-        console.log("is upper triangular true");
         var cslen = CSNumber.real(A.value.length);
         return {
             Q: List.idMatrix(cslen, cslen),
@@ -1546,7 +1544,6 @@ List.QRdecomp = function(A){
 
     if(List._helper.isLowerTriangular(A)){
         var cslen = CSNumber.real(A.value.length);
-        List.println(List._helper.flippedidMatrix(cslen, cslen))
         return {
             Q: List._helper.flippedidMatrix(cslen, cslen),
             R: A,
