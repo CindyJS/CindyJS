@@ -1319,6 +1319,26 @@ List.getDiag = function(A){
     return List.turnIntoCSList(erg);
 };
 
+
+// get eigenvalues of a 2x2 matrix
+List.eig2 = function(AA){ // get eigenvalues of a 2x2 matrix
+        var trace = CSNumber.add(AA.value[0].value[0], AA.value[1].value[1]);
+        var bdet = List.det2(AA.value[0], AA.value[1]);
+
+        var trace2 = CSNumber.mult(trace, trace);
+
+        var L1 = CSNumber.mult(trace, CSNumber.real(0.5));
+        var L2 = L1;
+
+        var mroot = CSNumber.sqrt(CSNumber.sub(CSNumber.div(trace2, CSNumber.real(4)), bdet));
+ ;
+
+        L1 = CSNumber.add(L1, mroot);
+        L2 = CSNumber.sub(L2, mroot);
+
+        return List.turnIntoCSList([L1, L2]);
+};
+
 List.eig = function(A){
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
@@ -1461,10 +1481,24 @@ List._helper.QRIteration = function(A, maxIter){
     var QQ = List.idMatrix(cslen, cslen);
     var mIter = maxIter ? maxIter : 1000;
 
-    var QR, kap, shiftId;
+    var QR, kap, shiftId, block, L1, L2, blockeigs, ann, dist1, dist2;
     for(var i = 0; i < mIter ; i++){
-        kap = AA.value[len-1].value[len-1];
+        block = List._helper.getBlock(AA, [len-2, len-1], [len-2, len-1]);
+        blockeigs = List.eig2(block);
+        L1 = blockeigs.value[0];
+        L2 = blockeigs.value[1];
+
+        ann = AA.value[len-1].value[len-1];
+        dist1 = CSNumber.abs(CSNumber.sub(ann, L1)).value.real;
+        dist2 = CSNumber.abs(CSNumber.sub(ann, L2)).value.real;
+        kap = dist1 < dist2 ? L1 : L2;
+
+//        kap = ann;
+
         shiftId = List.scalmult(kap, Id);
+
+
+
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
         AA = General.mult(QR.R, QR.Q);
         AA = List.add(AA, shiftId);
@@ -1511,7 +1545,7 @@ List._helper.isAlmostId = function(AA){
 
 List.nullSpace = function(A){
     var len = A.value.length;
-    var QR = List.QRdecomp(List.transpose(A));
+    var QR = List.QRdecomp(List.transjugate(A));
 
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
 
@@ -1621,7 +1655,7 @@ List.QRdecomp = function(A){
         Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
 
         // update QQ
-        QQ = General.mult(QQ, List.transpose(Qk));
+        QQ = General.mult(QQ, List.transjugate(Qk));
         
         // update AA
         AA = General.mult(Qk, AA);
@@ -1636,7 +1670,7 @@ List.QRdecomp = function(A){
         e1.value = e1.value.splice(0, e1.value.length-1);
     }
 
-    var R = General.mult(List.transpose(QQ), A);
+    var R = General.mult(List.transjugate(QQ), A);
 
     return {
         Q: QQ,
@@ -1675,7 +1709,7 @@ List._helper.buildBlockMatrix = function(A, B){
 };
 
 List._helper.getBlock = function(A, m, n){
-    var AA = A;
+    var AA = JSON.parse(JSON.stringify(A));
     var m0 = m[0], m1;
     var n0 = n[0], n1;
 
@@ -1708,7 +1742,8 @@ List._helper.transposeMult = function(u, v){
 
 };
 
-List._helper.QRgetAlpha = function(xx, k) {
+List._helper.QRgetAlpha = function(x, k) {
+//    var xx = List.scaldiv(List.abs(x), x);
 //    var atan = CSNumber.real(Math.atan2(xx.value[k].value.real, xx.value[k].value.imag));
 //    var alpha = CSNumber.neg(List.abs(xx));
 //    var expo = CSNumber.exp(CSNumber.mult(atan, CSNumber.complex(0, 1)));
@@ -1716,8 +1751,8 @@ List._helper.QRgetAlpha = function(xx, k) {
 //    return alpha;
 
     // real version
-    if(xx.value[k].value.real < 0) return List.abs(xx);
-    return CSNumber.neg(List.abs(xx));
+    if(x.value[k].value.real < 0) return List.abs(x);
+    return CSNumber.neg(List.abs(x));
 };
 
 List.LUdecomp = function(AA) {
