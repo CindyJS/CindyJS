@@ -1521,7 +1521,7 @@ List.nullSpace = function(A){
     for(var i = 0; i < len; i++){
        vec = QQ.value[i];
        tmp = General.mult(A,vec); 
-       if(List.abs(tmp).value.real < 1e-6) erg.push(List.scaldiv(List.abs(vec), vec));
+       if(List.abs(tmp).value.real < 1e-8) erg.push(List.scaldiv(List.abs(vec), vec));
     }
 
     erg = List.turnIntoCSList(erg);
