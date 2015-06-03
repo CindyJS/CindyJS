@@ -1356,8 +1356,14 @@ List.eig = function(A){
         eigenvecs = QQ;
     }
     else{
+        var i,j;
           eigenvecs = List.turnIntoCSList(eigenvecs);
           eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
+
+          // null space below diagonal
+ //         for(i = 0; i < len; i++)
+ //           for(j = i+1; j < len; j++)
+ //               AA.value[j].value[i] = zero;
 
           
               var useInverseIteration = false; // inverse iteration or nullspace method to obtain eigenvecs
@@ -1372,6 +1378,9 @@ List.eig = function(A){
               }
               else{
                   for(qq = 1; qq < len; qq++){
+//                      console.log("AAA");
+//                      List.println(AA);
+//                      console.log("end AAA");
                       MM =List.sub(AA, List.scalmult(eigvals.value[qq], ID));
                       nullS = List.nullSpace(MM);
                       xx = General.mult(QQ,nullS.value[0]);
@@ -1379,8 +1388,8 @@ List.eig = function(A){
                           console.log("could not find eigenvec for idx", qq);
                           xx = List._helper.inverseIteration(AA, eigvals.value[qq])
                           xx = General.mult(QQ, xx);
-                          List.println(xx);
-                          console.log("===");
+ //                         List.println(xx);
+//                          console.log("===");
                           eigenvecs.value[qq] = xx;
                       }
                       else eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
@@ -1392,18 +1401,40 @@ List.eig = function(A){
 
     //eigenvecs = List.transpose(eigenvecs);
 
+//    List.println(eigvals);
+//    console.log("===");
+//    for(var k = 0; k < len ; k++){
+//    List.println(eigenvecs.value[k]);
+//    }
+
+//    List.println(AA);
+//    List.println(UU);
+//   console.log("test");
+   var a=(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
+   var b=(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
+   var c=(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
+
+   var aa = List.abs(a).value.real;
+   var bb = List.abs(b).value.real;
+   var cc = List.abs(c).value.real;
+
+   var testpassed = (aa + bb + cc)/3 < 1e-6;
+
+   console.log(testpassed, aa,bb,cc);
+   if(!testpassed){
     List.println(eigvals);
     console.log("===");
     for(var k = 0; k < len ; k++){
     List.println(eigenvecs.value[k]);
     }
-
-//    List.println(AA);
-//    List.println(UU);
-   console.log("test");
-   List.println(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
-   List.println(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
-   List.println(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
+    
+    console.log("===");
+    console.log("QQ");
+    List.println(QQ);
+    console.log("===");
+    console.log("AA");
+    List.println(AA);
+   }
 //   console.log("end test");
 //   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
 //   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
@@ -1472,7 +1503,7 @@ List._helper.isAlmostId = function(AA){
     var erg = List.sub(A, List.idMatrix(cslen), cslen);
     for(var i = 0; i < len ; i++)
         for(var j = 0; j < len; j++){
-            if(CSNumber.abs2(erg.value[i].value[j]).value.real > 1e-16) return false;
+            if(CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16) return false;
         } 
 
     return true;
@@ -1490,7 +1521,7 @@ List.nullSpace = function(A){
     for(var i = 0; i < len; i++){
        vec = QQ.value[i];
        tmp = General.mult(A,vec); 
-       if(List.abs2(tmp).value.real < 1e-8) erg.push(List.scaldiv(List.abs(vec), vec));
+       if(List.abs(tmp).value.real < 1e-6) erg.push(List.scaldiv(List.abs(vec), vec));
     }
 
     erg = List.turnIntoCSList(erg);
@@ -1511,7 +1542,7 @@ List._helper.isAlmostDiagonal = function(AA){
     for(var i = 0; i < len ; i++)
         for(var j = 0; j < len; j++){
             if(i === j) continue;
-            if(CSNumber.abs2(erg.value[i].value[j]).value.real > 1e-16) return false;
+            if(CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16) return false;
         } 
 
     return true;
@@ -1544,6 +1575,7 @@ List._helper.inverseIteration = function(A,shiftinit){
 
 List.QRdecomp = function(A){
     if(List._helper.isUpperTriangular(A)){
+        console.log("is upper traing in QRdecomp");
         var cslen = CSNumber.real(A.value.length);
         return {
             Q: List.idMatrix(cslen, cslen),
@@ -1551,13 +1583,15 @@ List.QRdecomp = function(A){
         };
     }
 
-    if(List._helper.isLowerTriangular(A)){
-        var cslen = CSNumber.real(A.value.length);
-        return {
-            Q: List._helper.flippedidMatrix(cslen, cslen),
-            R: A,
-        };
-    }
+    // well this does not work!
+//    if(List._helper.isLowerTriangular(A)){
+//        console.log("is lower traing in QRdecomp");
+//        var cslen = CSNumber.real(A.value.length);
+//        return {
+//            Q: List._helper.flippedidMatrix(cslen, cslen),
+//            R: A,
+//        };
+//    }
 
 
     var AA = A;
