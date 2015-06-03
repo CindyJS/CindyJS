@@ -1366,18 +1366,20 @@ List.eig = function(A){
     var ID = List.idMatrix(cslen, cslen);
 
     var eigenvecs = new Array(len);
-
+        eigenvecs = List.turnIntoCSList(eigenvecs);
 
     // calc eigenvecs
     //
     // if we have a normal matrix QQ holds already the eigenvecs
     if(List._helper.isNormalMatrix(AA)){
         console.log("is normal matrix return QQ");
-        eigenvecs = QQ;
+        var QQQ = List.transpose(QQ);
+        for(var i = 0; i < len; i++)
+        eigenvecs.value[i] = QQQ.value[i];
     }
     else{
         var i,j;
-          eigenvecs = List.turnIntoCSList(eigenvecs);
+        //  eigenvecs = List.turnIntoCSList(eigenvecs);
           eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
 
           // null space below diagonal
