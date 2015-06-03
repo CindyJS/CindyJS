@@ -1610,30 +1610,21 @@ List._helper.inverseIteration = function(A,shiftinit){
 
 
 List.QRdecomp = function(A){
+    var AA = A;
+    var len = AA.value.length;
+    var cslen = CSNumber.real(len);
+    var one = CSNumber.real(1);
+
+    // fetch upper triangular
     if(List._helper.isUpperTriangular(A)){
         console.log("is upper traing in QRdecomp");
-        var cslen = CSNumber.real(A.value.length);
         return {
             Q: List.idMatrix(cslen, cslen),
             R: A,
         };
     }
 
-    // well this does not work!
-//    if(List._helper.isLowerTriangular(A)){
-//        console.log("is lower traing in QRdecomp");
-//        var cslen = CSNumber.real(A.value.length);
-//        return {
-//            Q: List._helper.flippedidMatrix(cslen, cslen),
-//            R: A,
-//        };
-//    }
 
-
-    var AA = A;
-    var len = AA.value.length;
-    var cslen = CSNumber.real(len);
-    var one = CSNumber.real(1);
 
     var e1 = List._helper.unitvector(CSNumber.real(AA.value.length), one);
 
@@ -1645,19 +1636,25 @@ List.QRdecomp = function(A){
         xx = List.column(AA, one);
         alpha = List._helper.QRgetAlpha(xx, 0);
     
+        // fetch zero matrix
+        if(List.abs(AA).value.real > 1e-8){
     
-        uu = List.add(xx, List.scalmult(alpha, e1));
-        vv = List.scaldiv(List.abs(uu), uu);
-        ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
+            uu = List.add(xx, List.scalmult(alpha, e1));
+            vv = List.scaldiv(List.abs(uu), uu);
+            ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
+        
+            Qk = List.idMatrix(cslen, cslen);
+            Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
     
-        Qk = List.idMatrix(cslen, cslen);
-        Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
-
-        // fix dimention
-        Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
-
-        // update QQ
-        QQ = General.mult(QQ, List.transjugate(Qk));
+            // fix dimention
+            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
+    
+            // update QQ
+            QQ = General.mult(QQ, List.transjugate(Qk));
+        }
+        else{
+            Qk = List.idMatrix(cslen, cslen);
+        }
         
         // update AA
         AA = General.mult(Qk, AA);
@@ -1673,6 +1670,7 @@ List.QRdecomp = function(A){
     }
 
     var R = General.mult(List.transjugate(QQ), A);
+    
 
     return {
         Q: QQ,
