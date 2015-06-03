@@ -1637,7 +1637,7 @@ List.QRdecomp = function(A){
         alpha = List._helper.QRgetAlpha(xx, 0);
     
         // fetch zero matrix
-        if(List.abs(AA).value.real > 1e-8){
+        if(List.abs2(AA).value.real > 1e-16){
     
             uu = List.add(xx, List.scalmult(alpha, e1));
             vv = List.scaldiv(List.abs(uu), uu);
