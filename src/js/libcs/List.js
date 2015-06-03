@@ -1331,7 +1331,7 @@ List.eig2 = function(AA){ // get eigenvalues of a 2x2 matrix
         var L2 = L1;
 
         var mroot = CSNumber.sqrt(CSNumber.sub(CSNumber.div(trace2, CSNumber.real(4)), bdet));
- ;
+ 
 
         L1 = CSNumber.add(L1, mroot);
         L2 = CSNumber.sub(L2, mroot);
@@ -1340,6 +1340,7 @@ List.eig2 = function(AA){ // get eigenvalues of a 2x2 matrix
 };
 
 List.eig = function(A){
+    var i,j;
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
     var len = cslen.value.real;
@@ -1374,11 +1375,10 @@ List.eig = function(A){
     if(List._helper.isNormalMatrix(AA)){
         console.log("is normal matrix return QQ");
         var QQQ = List.transpose(QQ);
-        for(var i = 0; i < len; i++)
+        for(i = 0; i < len; i++)
         eigenvecs.value[i] = QQQ.value[i];
     }
     else{
-        var i,j;
         //  eigenvecs = List.turnIntoCSList(eigenvecs);
           eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
 
@@ -1408,7 +1408,7 @@ List.eig = function(A){
                       xx = General.mult(QQ,nullS.value[0]);
                       if(List.abs(xx).value.real < 1e-6){ // couldnt find a vector in nullspace -- should not happen
                           console.log("could not find eigenvec for idx", qq);
-                          xx = List._helper.inverseIteration(AA, eigvals.value[qq])
+                          xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
                           xx = General.mult(QQ, xx);
  //                         List.println(xx);
 //                          console.log("===");
@@ -1596,7 +1596,7 @@ List._helper.inverseIteration = function(A,shiftinit){
     var qk = xx;
     var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
 
-    var shift = shiftinit
+    var shift = shiftinit;
     shift = CSNumber.add(shift,  CSNumber.real(0.1*Math.random()-0.5)); // add rand to make get a full rank matrix
     for(var ii = 0; ii < 50 ; ii++){
         qk = List.scaldiv(List.abs(xx), xx);
