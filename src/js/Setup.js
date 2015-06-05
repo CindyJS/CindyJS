@@ -63,6 +63,11 @@ function initialTransformation(trafos) {
     }
 }
 
+// hook to allow instrumented versions to replace or augment the canvas object
+var haveCanvas = function(canvas) {
+    return canvas;
+};
+
 var csmouse, csctx, csw, csh, csgeo, images;
 
 function createCindyNow() {
@@ -99,6 +104,7 @@ function createCindyNow() {
             c = document.getElementById(data.canvasname);
     }
     if (c) {
+        c = haveCanvas(c);
         csctx = c.getContext("2d");
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
