@@ -1305,7 +1305,6 @@ List.inverse = function(a) {
 
 
 List.linearsolve = function(a, bb) {
-    List.eig(a);
     if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
     else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
     else return List.LUsolve(a, bb);
@@ -1462,16 +1461,18 @@ List.eig = function(A){
    var a=(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
    var b=(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
    var c=(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
-   var d=(List.sub(General.mult(A,eigenvecs.value[3]), General.mult(eigvals.value[3],eigenvecs.value[3])));
+ //  var d=(List.sub(General.mult(A,eigenvecs.value[3]), General.mult(eigvals.value[3],eigenvecs.value[3])));
 
    var aa = List.abs(a).value.real;
    var bb = List.abs(b).value.real;
    var cc = List.abs(c).value.real;
-   var dd = List.abs(d).value.real;
+  // var dd = List.abs(d).value.real;
 
-   var testpassed = (aa + bb + cc + dd)/4 < 1e-6;
+   //var testpassed = (aa + bb + cc + dd)/4 < 1e-6;
+   var testpassed = (aa + bb + cc + 0)/3 < 1e-6;
 
-   console.log(testpassed, aa,bb,cc, dd);
+   //console.log(testpassed, aa,bb,cc, dd);
+   console.log(testpassed, aa,bb,cc);
    if(!testpassed){
     List.println(eigvals);
     console.log("===");
@@ -1698,6 +1699,10 @@ List.QRdecomp = function(A){
         // update AAA
         AAA = General.mult(Qk, AAA);
 
+        console.log("qk von rechts");
+        List.println(General.mult(AAA,Qk));
+
+        debugger;
 
         // after k+2 steps we are done
         if(k+2 === len) break;
@@ -1976,8 +1981,6 @@ List.linearsolveCG = function(A, b) {
 
 
 List.det = function(a) {
-    List.eig(a);
-
     if (a.value.length === 2) return List.det2(List.column(a, CSNumber.real(1)), List.column(a, CSNumber.real(2)));
     if (a.value.length === 3) {
         var A1 = List.column(a, CSNumber.real(1));

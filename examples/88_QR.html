@@ -22,13 +22,13 @@
         
         <script id='firstDrawing' type='cindyscript'>
 //AA = [[12, -51, 4], [6, 167, -68], [-4, 24, -41]];
-//AA = [	[-7, 13, -16], 
-//	[13, -10, 13], 
-//	[-16, 13, 7]];
-AA =   [[1,   1,   6, random()],
-   	[3,   5,   7, random()],
-   	[2,   0,   1, random()],
-   	[random(),   9,   2, random()]];
+AA = [	[-7, 13+random(), -16], 
+	[13, -10, 13], 
+	[0, -13, 7+random()]];
+//AA =   [[1,   1,   6, random()],
+//   	[3,   5,   7, random()],
+//   	[2,   0,   1, random()],
+//   	[random(),   9,   2, random()]];
 //
 //AA = [[1, 1,0], [0,1,0], [0,0,1]];
 
@@ -37,7 +37,7 @@ AA =   [[1,   1,   6, random()],
 //	[0, 0, 2]];
 b = [0,0,0,0];
 println(AA);
-linearsolve(AA,b);
+eig(AA);
 //        n = 100;
 //        AA=zeromatrix(n,n);
 //       repeat(n,j,
