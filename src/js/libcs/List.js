@@ -1379,8 +1379,26 @@ List.eig = function(A){
         eigenvecs.value[i] = QQQ.value[i];
     }
     else{
-        //  eigenvecs = List.turnIntoCSList(eigenvecs);
+          eigenvecs = List.turnIntoCSList(eigenvecs);
           eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
+
+          // sort eigenvalues
+          var dist, mindist = Infinity, idx;
+          for(i = 0; i < len ; i++){
+              for(j = i+1; j < len; j++){
+
+                  dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], eigvals.value[j])).value.real;
+                  if(dist < mindist){
+                      idx = j;
+                      mindist = dist;
+                  }
+
+
+              }
+              mindist = Infinity;
+          }
+
+
 
           // null space below diagonal
  //         for(i = 0; i < len; i++)
@@ -1399,7 +1417,7 @@ List.eig = function(A){
                   }
               }
               else{
-                  for(qq = 1; qq < len; qq++){
+                  for(qq = 0; qq < len; qq++){
 //                      console.log("AAA");
 //                      List.println(AA);
 //                      console.log("end AAA");
@@ -1435,14 +1453,16 @@ List.eig = function(A){
    var a=(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
    var b=(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
    var c=(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
+   var d=(List.sub(General.mult(A,eigenvecs.value[3]), General.mult(eigvals.value[3],eigenvecs.value[3])));
 
    var aa = List.abs(a).value.real;
    var bb = List.abs(b).value.real;
    var cc = List.abs(c).value.real;
+   var dd = List.abs(d).value.real;
 
-   var testpassed = (aa + bb + cc)/3 < 1e-6;
+   var testpassed = (aa + bb + cc + dd)/4 < 1e-6;
 
-   console.log(testpassed, aa,bb,cc);
+   console.log(testpassed, aa,bb,cc, dd);
    if(!testpassed){
     List.println(eigvals);
     console.log("===");
@@ -1490,10 +1510,17 @@ List._helper.QRIteration = function(A, maxIter){
         L1 = blockeigs.value[0];
         L2 = blockeigs.value[1];
 
+        var l1n = List.abs(L1).value.real;
+        var l2n = List.abs(L2).value.real;
+
+
         ann = AA.value[len-1].value[len-1];
         dist1 = CSNumber.abs(CSNumber.sub(ann, L1)).value.real;
         dist2 = CSNumber.abs(CSNumber.sub(ann, L2)).value.real;
         kap = dist1 < dist2 ? L1 : L2;
+
+        
+
 
 //        kap = ann;
 
@@ -1504,7 +1531,7 @@ List._helper.QRIteration = function(A, maxIter){
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
         AA = General.mult(QR.R, QR.Q);
         AA = List.add(AA, shiftId);
-        if(i % 10 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
+        if(i % 100 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
 
       QQ = General.mult(QQ,QR.Q);
       UU = General.mult(UU, QR.Q);
@@ -1598,7 +1625,7 @@ List._helper.inverseIteration = function(A,shiftinit){
 
     var shift = shiftinit;
     shift = CSNumber.add(shift,  CSNumber.real(0.1*Math.random()-0.5)); // add rand to make get a full rank matrix
-    for(var ii = 0; ii < 50 ; ii++){
+    for(var ii = 0; ii < 100 ; ii++){
         qk = List.scaldiv(List.abs(xx), xx);
         xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), JSON.parse(JSON.stringify(qk))); // TODO Use triangular form
     }
