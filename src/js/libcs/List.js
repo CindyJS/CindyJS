@@ -1382,12 +1382,14 @@ List.eig = function(A){
           eigenvecs = List.turnIntoCSList(eigenvecs);
           eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
 
+          console.log("old eigvals");
+          List.println(eigvals);
           // sort eigenvalues
           var dist, mindist = Infinity, idx;
-          for(i = 0; i < len ; i++){
+          for(i = 1; i < len ; i++){
               for(j = i+1; j < len; j++){
 
-                  dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], eigvals.value[j])).value.real;
+                  dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], CSNumber.conjugate(eigvals.value[j]))).value.real;
                   if(dist < mindist){
                       idx = j;
                       mindist = dist;
@@ -1395,8 +1397,15 @@ List.eig = function(A){
 
 
               }
+              var tmp = eigvals.value[i];
+              eigvals.value[i] = eigvals.value[idx];
+              eigvals.value[idx] = tmp;
               mindist = Infinity;
           }
+
+          
+          console.log("new eigvals");
+          List.println(eigvals);
 
 
 
@@ -1501,7 +1510,7 @@ List._helper.QRIteration = function(A, maxIter){
     var Id = List.idMatrix(cslen, cslen);
     var UU = List.idMatrix(cslen, cslen);
     var QQ = List.idMatrix(cslen, cslen);
-    var mIter = maxIter ? maxIter : 1000;
+    var mIter = maxIter ? maxIter : 2500;
 
     var QR, kap, shiftId, block, L1, L2, blockeigs, ann, dist1, dist2;
     for(var i = 0; i < mIter ; i++){
@@ -1519,6 +1528,7 @@ List._helper.QRIteration = function(A, maxIter){
         dist2 = CSNumber.abs(CSNumber.sub(ann, L2)).value.real;
         kap = dist1 < dist2 ? L1 : L2;
 
+
         
 
 
@@ -1531,11 +1541,12 @@ List._helper.QRIteration = function(A, maxIter){
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
         AA = General.mult(QR.R, QR.Q);
         AA = List.add(AA, shiftId);
-        if(i % 100 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
+        if(i % 50 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
 
       QQ = General.mult(QQ,QR.Q);
       UU = General.mult(UU, QR.Q);
     }
+    console.log("iterations:", i);
 
     return [AA,QQ, UU];
 
@@ -1584,7 +1595,7 @@ List.nullSpace = function(A){
     for(var i = 0; i < len; i++){
        vec = QQ.value[i];
        tmp = General.mult(A,vec); 
-       if(List.abs(tmp).value.real < 1e-8) erg.push(List.scaldiv(List.abs(vec), vec));
+       if(List.abs(tmp).value.real < 1e-6) erg.push(List.scaldiv(List.abs(vec), vec));
     }
 
     erg = List.turnIntoCSList(erg);
