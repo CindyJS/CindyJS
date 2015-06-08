@@ -1631,6 +1631,7 @@ List.QRdecomp = function(A){
     var xx, alpha, uu, vv, ww, Qk;
     var QQ = List.idMatrix(cslen, cslen);
 
+    var AAA = JSON.parse(JSON.stringify(AA));
     for(var k = 0; k < len - 1; k++){
         // get alpha
         xx = List.column(AA, one);
@@ -1656,8 +1657,8 @@ List.QRdecomp = function(A){
             Qk = List.idMatrix(cslen, cslen);
         }
         
-        // update AA
-        AA = General.mult(Qk, AA);
+        // update AAA
+        AAA = General.mult(Qk, AAA);
 
 
         // after k+2 steps we are done
@@ -1665,7 +1666,7 @@ List.QRdecomp = function(A){
 
         // book keeping
         cslen = CSNumber.sub(cslen, one);
-        AA = List._helper.getBlock(AA,[k+1,], [k+1,]);
+        AA = List._helper.getBlock(AAA,[k+1,], [k+1,]);
         e1.value = e1.value.splice(0, e1.value.length-1);
     }
 
