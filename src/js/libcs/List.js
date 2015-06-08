@@ -1713,10 +1713,10 @@ List._helper.getBlock = function(A, m, n){
     var m0 = m[0], m1;
     var n0 = n[0], n1;
 
-    if(m[1] === undefined) m1 = AA.value.length;
+    if(m1 === undefined) m1 = AA.value.length;
     else m1 = m[1];
 
-    if(n[1] === undefined) n1 = AA.value[0].value.length;
+    if(n1 === undefined) n1 = AA.value[0].value.length;
     else n1 = n[1];
 
     // slice does not include end
