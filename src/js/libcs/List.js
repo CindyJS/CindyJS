@@ -1319,6 +1319,15 @@ List.getDiag = function(A){
 };
 
 
+List.getSubDiag = function(A){
+    if(A.value.length !== A.value[0].value.length) return nada;
+    var erg = new Array(A.value.length-1);
+    for(var i = 0; i < A.value.length-1; i++) erg[i] = A.value[i+1].value[i];
+
+    return List.turnIntoCSList(erg);
+};
+
+
 // get eigenvalues of a 2x2 matrix
 List.eig2 = function(AA){ // get eigenvalues of a 2x2 matrix
         var trace = CSNumber.add(AA.value[0].value[0], AA.value[1].value[1]);
@@ -1378,8 +1387,8 @@ List.eig = function(A){
     //QQ = General.mult(PP,AAA);
     //var UU = QRRes[2];
 
-    console.log("QQ");
-    List.println(QQ);
+    //console.log("QQ");
+    //List.println(QQ);
 
     
 
@@ -1411,10 +1420,10 @@ List.eig = function(A){
     }
     else{
           eigenvecs = List.turnIntoCSList(eigenvecs);
-          //eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
+          //eigenvecs.value[0] = List.column(QQ,CSNumber.real(1));
 
-          console.log("old eigvals");
-          List.println(eigvals);
+        //  console.log("old eigvals");
+        //  List.println(eigvals);
           // sort eigenvalues
         //  var dist, mindist = Infinity, idx;
         //  for(i = 0; i < len ; i++){
@@ -1450,7 +1459,7 @@ List.eig = function(A){
 
               var MM,xx, nullS,qq;
               if(useInverseIteration){
-                  for(qq = 1; qq < len; qq++){
+                  for(qq = 0; qq < len; qq++){
                       xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
                       xx = General.mult(QQ,xx);
                       eigenvecs.value[qq] = xx;
@@ -1543,7 +1552,7 @@ List._helper.QRIteration = function(A, maxIter){
     var Id = List.idMatrix(cslen, cslen);
     var UU = List.idMatrix(cslen, cslen);
     var QQ = List.idMatrix(cslen, cslen);
-    var mIter = maxIter ? maxIter : 100;
+    var mIter = maxIter ? maxIter : 2500;
 
     var QR, kap, shiftId, block, L1, L2, blockeigs, ann, dist1, dist2;
     for(var i = 0; i < mIter ; i++){
@@ -1575,7 +1584,10 @@ List._helper.QRIteration = function(A, maxIter){
         AA = General.mult(QR.R, QR.Q);
         AA = List.add(AA, shiftId);
         //if(i % 50 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
+        if(i % 50 === 0 && List._helper.isAlmostZeroVec(List.getSubDiag(AA))) break; // break if QR.Q is almost diagonal
 
+
+        if(i === 1500) List.println(List.getSubDiag(AA));
       QQ = General.mult(QQ,QR.Q);
       UU = General.mult(UU, QR.Q);
     }
@@ -1583,6 +1595,14 @@ List._helper.QRIteration = function(A, maxIter){
 
     return [AA,QQ, UU];
 
+};
+
+List._helper.isAlmostZeroVec = function(A){
+
+    var len = A.value.length;
+    for(var i =0; i < len; i++) if(!CSNumber._helper.isAlmostZero(A.value[i])) return false;
+
+    return true;
 };
 
 List._helper.isLowerTriangular= function(A){
