@@ -1339,17 +1339,21 @@ List.eig2 = function(AA){ // get eigenvalues of a 2x2 matrix
 };
 
 List.eig = function(A){
-    List._helper.toHessenberg(A);
+    //List._helper.toHessenberg(A);
+//    List.println(A);
+//    List.println(List._helper.toHessenberg(A));
     var i,j;
     var AA = A;
+    var AAA = List._helper.toHessenberg(A);
     var cslen = CSNumber.real(AA.value.length);
     var len = cslen.value.real;
     var zero = CSNumber.real(0);
 
-    var QRRes = List._helper.QRIteration(AA);
-    AA = QRRes[0];
-    var QQ = QRRes[1];
-    var UU = QRRes[2];
+    //var QRRes = List._helper.QRIteration(AA);
+    var QRRes = List._helper.QRIteration(AAA);
+    AAA = QRRes[0];
+    //var QQ = QRRes[1];
+    //var UU = QRRes[2];
 
     //List.println(AA);
 
@@ -1359,9 +1363,11 @@ List.eig = function(A){
    // List.println(QR.Q);
 
     // evtl QQ*
-    var ZZ = General.mult(QQ, AA);
+    //var ZZ = General.mult(QQ, AA);
 
-    var eigvals = List.getDiag(AA);
+    var eigvals = List.getDiag(AAA);
+    console.log("eigvals");
+    List.println(eigvals);
 
     //var zvec = List.zerovector(cslen);
     var ID = List.idMatrix(cslen, cslen);
@@ -1380,13 +1386,13 @@ List.eig = function(A){
     }
     else{
           eigenvecs = List.turnIntoCSList(eigenvecs);
-          eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
+          //eigenvecs.value[0] = List.column(UU,CSNumber.real(1));
 
           console.log("old eigvals");
           List.println(eigvals);
           // sort eigenvalues
           var dist, mindist = Infinity, idx;
-          for(i = 1; i < len ; i++){
+          for(i = 0; i < len ; i++){
               for(j = i+1; j < len; j++){
 
                   dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], CSNumber.conjugate(eigvals.value[j]))).value.real;
@@ -1677,9 +1683,6 @@ List._helper.toHessenberg = function(A){
 
             // book keeping
             cslen.value.real--;
-
-
-
     }
 
     return AA;
@@ -1718,7 +1721,7 @@ List.QRdecomp = function(A){
         if(List.abs2(AA).value.real > 1e-16){
     
             // TODO THIS IS SUB PERHAPS!
-            console.log("warnung sub not fixed!");
+//            console.log("warnung sub not fixed!");
             uu = List.add(xx, List.scalmult(alpha, e1));
             vv = List.scaldiv(List.abs(uu), uu);
             ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
@@ -1805,14 +1808,10 @@ List._helper.getBlock = function(A, m, n){
     // slice does not include end
     m1++; n1++;
 
-    console.log("m0, m1, n0, n1", m0, m1, n0, n1);
     
     AA.value = AA.value.slice(m0, m1);
     for(var i = 0; i < AA.value.length ; i++) AA.value[i].value = AA.value[i].value.slice(n0, n1);
 
-    console.log("AA", AA);
-    //if(isVec) // vector workaround
-    //return AA.value[0];
 
     return AA;
 };
