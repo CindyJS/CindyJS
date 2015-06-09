@@ -1339,23 +1339,47 @@ List.eig2 = function(AA){ // get eigenvalues of a 2x2 matrix
 };
 
 List.eig = function(A){
-    //List._helper.toHessenberg(A);
-//    List.println(A);
-//    List.println(List._helper.toHessenberg(A));
     var i,j;
     var AA = A;
-    var AAA = List._helper.toHessenberg(A);
     var cslen = CSNumber.real(AA.value.length);
     var len = cslen.value.real;
     var zero = CSNumber.real(0);
 
-    //var QRRes = List._helper.QRIteration(AA);
-    var QRRes = List._helper.QRIteration(AAA);
-    AAA = QRRes[0];
-    //var QQ = QRRes[1];
+    var useHess = true;
+    var PP;
+    if(useHess){
+        var Hess =  List._helper.toHessenberg(A);
+        // PP is Trafo matrix
+        PP = Hess[0];
+        AA = Hess[1];
+
+    }
+    //console.log("PP");
+    //List.println(PP);
+    //var AAA = Hess[1];
+
+
+    var QRRes = List._helper.QRIteration(AA);
+    //var QRRes = List._helper.QRIteration(AAA);
+    AA = QRRes[0];
+    //console.log("AAA after qr iter");
+    //List.println(AAA);
+
+    var QQ = QRRes[1];
+
+    if(useHess){
+        QQ = General.mult(PP, QQ);
+        //AA = General.mult(PP, AA);
+    }
+    //console.log("QQ from qrres");
+    //List.println(QQ);
+
+    // trafo QQ for Eigenvecs
+    //QQ = General.mult(PP,AAA);
     //var UU = QRRes[2];
 
-    //List.println(AA);
+    console.log("QQ");
+    List.println(QQ);
 
     
 
@@ -1365,9 +1389,10 @@ List.eig = function(A){
     // evtl QQ*
     //var ZZ = General.mult(QQ, AA);
 
-    var eigvals = List.getDiag(AAA);
+    var eigvals = List.getDiag(AA);
     console.log("eigvals");
     List.println(eigvals);
+    //debugger;
 
     //var zvec = List.zerovector(cslen);
     var ID = List.idMatrix(cslen, cslen);
@@ -1391,23 +1416,23 @@ List.eig = function(A){
           console.log("old eigvals");
           List.println(eigvals);
           // sort eigenvalues
-          var dist, mindist = Infinity, idx;
-          for(i = 0; i < len ; i++){
-              for(j = i+1; j < len; j++){
+        //  var dist, mindist = Infinity, idx;
+        //  for(i = 0; i < len ; i++){
+        //      for(j = i+1; j < len; j++){
 
-                  dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], CSNumber.conjugate(eigvals.value[j]))).value.real;
-                  if(dist < mindist){
-                      idx = j;
-                      mindist = dist;
-                  }
+        //          dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], CSNumber.conjugate(eigvals.value[j]))).value.real;
+        //          if(dist < mindist){
+        //              idx = j;
+        //              mindist = dist;
+        //          }
 
 
-              }
-              var tmp = eigvals.value[i];
-              eigvals.value[i] = eigvals.value[idx];
-              eigvals.value[idx] = tmp;
-              mindist = Infinity;
-          }
+        //      }
+        //      var tmp = eigvals.value[i];
+        //      eigvals.value[i] = eigvals.value[idx];
+        //      eigvals.value[idx] = tmp;
+        //      mindist = Infinity;
+        //  }
 
           
           console.log("new eigvals");
@@ -1518,7 +1543,7 @@ List._helper.QRIteration = function(A, maxIter){
     var Id = List.idMatrix(cslen, cslen);
     var UU = List.idMatrix(cslen, cslen);
     var QQ = List.idMatrix(cslen, cslen);
-    var mIter = maxIter ? maxIter : 2500;
+    var mIter = maxIter ? maxIter : 100;
 
     var QR, kap, shiftId, block, L1, L2, blockeigs, ann, dist1, dist2;
     for(var i = 0; i < mIter ; i++){
@@ -1549,7 +1574,7 @@ List._helper.QRIteration = function(A, maxIter){
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
         AA = General.mult(QR.R, QR.Q);
         AA = List.add(AA, shiftId);
-        if(i % 50 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
+        //if(i % 50 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
 
       QQ = General.mult(QQ,QR.Q);
       UU = General.mult(UU, QR.Q);
@@ -1655,13 +1680,16 @@ List._helper.inverseIteration = function(A,shiftinit){
 };
 
 
+// return Hessenberg Matrix H of A and tansformationmatrix QQ
 List._helper.toHessenberg = function(A){
     var AA = JSON.parse(JSON.stringify(A));
     var len = AA.value.length;
     var cslen = CSNumber.real(len-1);
+    var cslen2 = CSNumber.real(len);
     var one = CSNumber.real(1);
 
     var xx, uu, vv, alpha, e1, Qk, ww, erg;
+    var QQ = List.idMatrix(cslen2, cslen2);
     for(var k = 1; k < len - 1; k++){
 
             //xx = List.tranList._helper.getBlock(AA, [k, len+1], [k,k]);
@@ -1679,13 +1707,17 @@ List._helper.toHessenberg = function(A){
             // fix dimention
             Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
 
+            List.println(QQ);
+
+            QQ = General.mult(QQ, Qk);
+
             AA = General.mult(General.mult(Qk, AA), Qk);
 
             // book keeping
             cslen.value.real--;
     }
 
-    return AA;
+    return [QQ,AA];
 };
 
 
