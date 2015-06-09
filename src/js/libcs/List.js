@@ -1339,6 +1339,7 @@ List.eig2 = function(AA){ // get eigenvalues of a 2x2 matrix
 };
 
 List.eig = function(A){
+    List._helper.toHessenberg(A);
     var i,j;
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
@@ -1648,6 +1649,102 @@ List._helper.inverseIteration = function(A,shiftinit){
 };
 
 
+List._helper.toHessenberg = function(A){
+    var AA = A;
+    var len = AA.value.length;
+    var cslen = CSNumber.real(len-1);
+    var one = CSNumber.real(1);
+
+    var xx, uu, vv, alpha, e1, Qk, ww, erg;
+    List.println(AA);
+    for(var k = 1; k < len - 1; k++){
+        debugger;
+
+            //xx = List.tranList._helper.getBlock(AA, [k, len+1], [k,k]);
+            xx = List.column(AA, CSNumber.real(k));
+            xx.value = xx.value.splice(k);
+            console.log("xx", xx);
+            List.println(xx);
+            alpha = List._helper.QRgetAlpha(xx, 0);
+            e1 = List._helper.unitvector(CSNumber.real(len - k ), one);
+            console.log("e1", e1);
+            List.println(e1);
+            uu = List.sub(xx, List.scalmult(alpha, e1));
+            vv = List.scaldiv(List.abs(uu), uu);
+            ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
+        
+            Qk = List.idMatrix(cslen, cslen);
+            Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
+    
+            // fix dimention
+            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
+
+            erg = General.mult(General.mult(Qk, AA), Qk);
+            console.log("erg in k", k);
+            List.println(erg);
+
+
+//            cslen = CSNumber.sub(cslen, one);
+//            AA = List._helper.getBlock(AA,[k+1,], [k+1,]);
+
+            //console.log("Qk*Qk T");
+            //List.println(General.mult(Qk, List.transpose(Qk)));
+            //console.log("Qk");
+            //List.println(Qk);
+            //console.log("===");
+            //var tmp = General.mult(AA, Qk);
+            //List.println(tmp);
+            //tmp = General.mult(List.transpose(Qk),AA);
+            //console.log("===");
+            //tmp = General.mult(Qk,tmp);
+            //List.println(tmp);
+            //debugger;
+
+    
+//        xx = List._helper.getBlock(AA, [k+1, len], [k,k]);
+//        if(List.abs(xx) < 1e-8) continue; // if we are hessenberg in this column continue
+//        console.log("xx");
+//        List.println(xx);
+//        alpha = List._helper.QRgetAlpha(xx, 0);
+//
+//        e1 = List._helper.unitvector(CSNumber.real(len - k - 1), one);
+//        console.log("e1");
+//        List.println(e1);
+//        console.log("xx, e1, alpha", xx, e1, alpha);
+//        vv = List.add(xx, List.scalmult(alpha, e1));
+//        vv = List.scaldiv(List.abs(vv), vv);
+//
+//        debugger;
+//        Mat1 = List._helper.getBlock(AA, [k+1, len], [k, len]);
+//        console.log("Mat1", Mat1);
+//        List.println(Mat1);
+//        Mat2 = List._helper.getBlock(AA, [k+1, len], [k, len]);
+//        console.log("Mat2", Mat2);
+//        List.println(Mat2);
+//        Mat2 = List.transposeMult(List.conjugate(vv), Mat2);
+//        Mat2 = List._helper.transposeMult(List.scalmult(CSNumber.real(2), vv), Mat2);
+//        Mat1 = List.sub(Mat1, Mat2);
+//        AA = List._helper.setBlock(AA, Mat1, [k+1, k]);
+//        List.println(AA);
+//
+//        Mat1 = List._helper.getBlock(AA, [1, len], [k+1, len]);
+//        Mat2 = List._helper.getBlock(AA, [1, len], [k+1, len]);
+//        Mat2 = General.mult(Mat2, vv);
+//        Mat2 = List.transposeMult(Mat2, List.conjugate(vv));
+//        Mat2 = List.scalmult(CSNumber.real(2), Mat2);
+//        Mat1 = List.sub(Mat1, Mat2);
+//
+//        AA = List._helper.setBlock(AA, Mat1, [1, k+1]);
+//        List.println(AA);
+
+    }
+
+    console.log("erg");
+    List.println(erg);
+    debugger;
+};
+
+
 List.QRdecomp = function(A){
     var AA = A;
     var len = AA.value.length;
@@ -1679,6 +1776,8 @@ List.QRdecomp = function(A){
         // fetch zero matrix
         if(List.abs2(AA).value.real > 1e-16){
     
+            // TODO THIS IS SUB PERHAPS!
+            console.log("warnung sub not fixed!");
             uu = List.add(xx, List.scalmult(alpha, e1));
             vv = List.scaldiv(List.abs(uu), uu);
             ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
@@ -1698,11 +1797,6 @@ List.QRdecomp = function(A){
         
         // update AAA
         AAA = General.mult(Qk, AAA);
-
-        console.log("qk von rechts");
-        List.println(General.mult(AAA,Qk));
-
-        debugger;
 
         // after k+2 steps we are done
         if(k+2 === len) break;
@@ -1757,17 +1851,46 @@ List._helper.getBlock = function(A, m, n){
     var m0 = m[0], m1;
     var n0 = n[0], n1;
 
-    if(m1 === undefined) m1 = AA.value.length;
+
+    if(m[1] === undefined) m1 = AA.value.length;
     else m1 = m[1];
 
-    if(n1 === undefined) n1 = AA.value[0].value.length;
+    if(n[1] === undefined) n1 = AA.value[0].value.length;
     else n1 = n[1];
+
+
+    //var isVec = (n1 - n0 === 0); // workaround for vectors
 
     // slice does not include end
     m1++; n1++;
+
+    console.log("m0, m1, n0, n1", m0, m1, n0, n1);
     
     AA.value = AA.value.slice(m0, m1);
     for(var i = 0; i < AA.value.length ; i++) AA.value[i].value = AA.value[i].value.slice(n0, n1);
+
+    console.log("AA", AA);
+    //if(isVec) // vector workaround
+    //return AA.value[0];
+
+    return AA;
+};
+
+
+// return a copy of A with a Block B placed at position pos = [m, n]
+List._helper.setBlock = function(A, B , pos){
+    var AA = JSON.parse(JSON.stringify(A));
+    var m0 = pos[0];
+    var n1 = pos[1];
+
+    var m1 = B.value.length;
+    var n1 = B.value[0].value.length;
+
+    for(var i = 0; i < m1; i++)
+        for(var j = 0; j < n1; j++){
+            AA.value[m0 + i].value[n0 + j] = B.value[i].value[j];
+        }
+    
     return AA;
 };
 
