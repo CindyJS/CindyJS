@@ -1467,7 +1467,7 @@ List.eig = function(A){
                   }
               }
               else{
-                  var ceigval;
+                  var ceigval, oeigval;
                   var count = 0;
                   var sameEigVal = false;
                   for(qq = 0; qq < len; qq++){
@@ -1475,18 +1475,22 @@ List.eig = function(A){
 //                      List.println(AA);
 //                      console.log("end AAA");
                       //MM =List.sub(AA, List.scalmult(eigvals.value[qq], ID));
-                      ceigval = eigvals.value[qq];
-                      MM =List.sub(A, List.scalmult(ceigval, ID));
-                      nullS = List.nullSpace(MM);
-
+                      if(sameEigVal){
+                            xx = nullS.value[count];
+                      }
+                      else{
+                        ceigval = eigvals.value[qq];
+                        MM =List.sub(A, List.scalmult(ceigval, ID));
+                        nullS = List.nullSpace(MM);
+                        xx = nullS.value[0];
+                      }
                       //xx = General.mult(QQ,nullS.value[0]);
-                      xx = nullS.value[count];
-                      if(CSNumber.abs(CSNumber.sub(ceigval, eigvals.value[qq+1])).value.real < 1e-6){
-                          count++;
-                      }
-                      else{ 
-                          count = 0;
-                      }
+                      //if(CSNumber.abs(CSNumber.sub(ceigval, eigvals.value[qq+1])).value.real < 1e-6){
+                      //    count++;
+                      //}
+                      //else{ 
+                      //    count = 0;
+                      //}
 
                       if(List.abs(xx).value.real < 1e-6){ // couldnt find a vector in nullspace -- should not happen
                           console.log("could not find eigenvec for idx", qq);
@@ -1497,6 +1501,14 @@ List.eig = function(A){
                           eigenvecs.value[qq] = xx;
                       }
                       else eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
+
+
+                      if(qq < len-1){
+                          console.log("qq", qq);
+                        sameEigVal =  CSNumber.abs(CSNumber.sub(eigvals.value[qq], eigvals.value[qq+1])).value.real < 1e-6;
+                        if(sameEigVal) count++;
+                        else count = 0;
+                      }
                   }
 
               }
