@@ -1547,7 +1547,8 @@ List._helper.isNormalMatrix = function(A){
 List._helper.QRIteration = function(A, maxIter){
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
-    var len = cslen.value.real;
+    var Alen = cslen.value.real; // does not change
+    var len = cslen.value.real; // changes
     var zero = CSNumber.real(0);
     var Id = List.idMatrix(cslen, cslen);
     var UU = List.idMatrix(cslen, cslen);
@@ -1555,7 +1556,10 @@ List._helper.QRIteration = function(A, maxIter){
     var mIter = maxIter ? maxIter : 2500;
 
     var QR, kap, shiftId, block, L1, L2, blockeigs, ann, dist1, dist2;
+    var numDeflations = 0;
+    var eigvals = new Array(len);
     for(var i = 0; i < mIter ; i++){
+
         block = List._helper.getBlock(AA, [len-2, len-1], [len-2, len-1]);
         blockeigs = List.eig2(block);
         L1 = blockeigs.value[0];
@@ -1570,30 +1574,72 @@ List._helper.QRIteration = function(A, maxIter){
         dist2 = CSNumber.abs(CSNumber.sub(ann, L2)).value.real;
         kap = dist1 < dist2 ? L1 : L2;
 
-
-        
-
-
-//        kap = ann;
-
+        Id = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
         shiftId = List.scalmult(kap, Id);
 
 
 
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
+        // deflation
+
+
         AA = General.mult(QR.R, QR.Q);
         AA = List.add(AA, shiftId);
+
+        // deflation
+
+
         //if(i % 50 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
-        if(i % 50 === 0 && List._helper.isAlmostZeroVec(List.getSubDiag(AA))) break; // break if QR.Q is almost diagonal
 
 
-        if(i === 1500) List.println(List.getSubDiag(AA));
+//        if(i === 1500) List.println(List.getSubDiag(AA));
+      QR.Q = List._helper.buildBlockMatrix(QR.Q, List.idMatrix(CSNumber.real(numDeflations), CSNumber.real(numDeflations)));
       QQ = General.mult(QQ,QR.Q);
-      UU = General.mult(UU, QR.Q);
+  //    UU = General.mult(UU, QR.Q);
+
+        //deflation
+        if(i % 10 === 0){
+                if(CSNumber.abs(AA.value[AA.value.length - 1].value[AA.value[0].value.length -2]).value.real < 1e-20 && len > 1){
+                    console.log("deflate!!!!!");
+
+                    eigvals[Alen - numDeflations - 1] = AA.value[len-1].value[len-1]; // get Eigenvalue
+
+                    // shorten Matrix AA
+                    AA = List._helper.getBlock(AA, [0, len-2], [0, len-2]);
+
+
+                    //List.println(AA);
+
+                    numDeflations++;
+                    len--;
+                    }
+        }
+
+        console.log("AA in QRdecomp");
+        List.println(AA);
+
+        if(len == 1){
+            eigvals[0] = AA.value[0].value[0];
+            break;
+        }
+
+        //if(i % 50 === 0 && List._helper.isAlmostZeroVec(List.getSubDiag(AA))) break; // break if QR.Q is almost diagonal
     }
     console.log("iterations:", i);
 
-    return [AA,QQ, UU];
+
+    AA = List.zeromatrix(CSNumber.real(Alen), CSNumber.real( Alen));
+    for(var i =0; i < Alen; i++) AA.value[i].value[i] = eigvals[i];
+
+    console.log("eigvals");
+    List.println(List.turnIntoCSList(eigvals));
+    console.log("AA");
+    List.println(AA);
+
+    // TODO remove UU
+    //debugger;
+    return [AA,QQ];
+    //return [AA,QQ, UU];
 
 };
 
@@ -1774,7 +1820,7 @@ List.QRdecomp = function(A){
     
             // TODO THIS IS SUB PERHAPS!
 //            console.log("warnung sub not fixed!");
-            uu = List.add(xx, List.scalmult(alpha, e1));
+            uu = List.sub(xx, List.scalmult(alpha, e1));
             vv = List.scaldiv(List.abs(uu), uu);
             ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
         
