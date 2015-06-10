@@ -1399,6 +1399,7 @@ List.eig = function(A){
     //var ZZ = General.mult(QQ, AA);
 
     var eigvals = List.getDiag(AA);
+    eigvals = List.sort1(eigvals);
     console.log("eigvals");
     List.println(eigvals);
     //debugger;
@@ -1412,7 +1413,7 @@ List.eig = function(A){
     // calc eigenvecs
     //
     // if we have a normal matrix QQ holds already the eigenvecs
-    if(List._helper.isNormalMatrix(AA)){
+    if( false && List._helper.isNormalMatrix(AA)){
         console.log("is normal matrix return QQ");
         var QQQ = List.transpose(QQ);
         for(i = 0; i < len; i++)
@@ -1444,8 +1445,8 @@ List.eig = function(A){
         //  }
 
           
-          console.log("new eigvals");
-          List.println(eigvals);
+   //       console.log("new eigvals");
+   //       List.println(eigvals);
 
 
 
@@ -1466,13 +1467,27 @@ List.eig = function(A){
                   }
               }
               else{
+                  var ceigval;
+                  var count = 0;
+                  var sameEigVal = false;
                   for(qq = 0; qq < len; qq++){
 //                      console.log("AAA");
 //                      List.println(AA);
 //                      console.log("end AAA");
-                      MM =List.sub(AA, List.scalmult(eigvals.value[qq], ID));
+                      //MM =List.sub(AA, List.scalmult(eigvals.value[qq], ID));
+                      ceigval = eigvals.value[qq];
+                      MM =List.sub(A, List.scalmult(ceigval, ID));
                       nullS = List.nullSpace(MM);
-                      xx = General.mult(QQ,nullS.value[0]);
+
+                      //xx = General.mult(QQ,nullS.value[0]);
+                      xx = nullS.value[count];
+                      if(CSNumber.abs(CSNumber.sub(ceigval, eigvals.value[qq+1])).value.real < 1e-6){
+                          count++;
+                      }
+                      else{ 
+                          count = 0;
+                      }
+
                       if(List.abs(xx).value.real < 1e-6){ // couldnt find a vector in nullspace -- should not happen
                           console.log("could not find eigenvec for idx", qq);
                           xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
@@ -1491,10 +1506,10 @@ List.eig = function(A){
     //eigenvecs = List.transpose(eigenvecs);
 
 //    List.println(eigvals);
-//    console.log("===");
-//    for(var k = 0; k < len ; k++){
-//    List.println(eigenvecs.value[k]);
-//    }
+    console.log("===");
+    for(var k = 0; k < len ; k++){
+    List.println(eigenvecs.value[k]);
+    }
 
 //    List.println(AA);
 //    List.println(UU);
@@ -1551,7 +1566,7 @@ List._helper.QRIteration = function(A, maxIter){
     var len = cslen.value.real; // changes
     var zero = CSNumber.real(0);
     var Id = List.idMatrix(cslen, cslen);
-    var UU = List.idMatrix(cslen, cslen);
+    var erg = List.zeromatrix(cslen, cslen);
     var QQ = List.idMatrix(cslen, cslen);
     var mIter = maxIter ? maxIter : 2500;
 
@@ -1598,11 +1613,25 @@ List._helper.QRIteration = function(A, maxIter){
   //    UU = General.mult(UU, QR.Q);
 
         //deflation
-        if(i % 10 === 0){
+        if(i % 10 === 0 && true){
                 if(CSNumber.abs(AA.value[AA.value.length - 1].value[AA.value[0].value.length -2]).value.real < 1e-20 && len > 1){
                     console.log("deflate!!!!!");
 
                     eigvals[Alen - numDeflations - 1] = AA.value[len-1].value[len-1]; // get Eigenvalue
+
+                    // copy shortening to erg
+                    for(var i = 0; i < len; i++){
+                        erg.value[len-1].value[i] = AA.value[len-1].value[i];
+                        erg.value[i].value[len-1] = AA.value[i].value[len-1];
+                    }
+
+                   // console.log("erg");
+                   // List.println(erg);
+
+                    //console.log("AA");
+                    //List.println(AA);
+
+
 
                     // shorten Matrix AA
                     AA = List._helper.getBlock(AA, [0, len-2], [0, len-2]);
@@ -1615,30 +1644,38 @@ List._helper.QRIteration = function(A, maxIter){
                     }
         }
 
-        console.log("AA in QRdecomp");
-        List.println(AA);
+       // console.log("AA in QRdecomp");
+       // List.println(AA);
 
         if(len == 1){
-            eigvals[0] = AA.value[0].value[0];
+            erg.value[0].value[0] = AA.value[0].value[0];
             break;
         }
 
-        //if(i % 50 === 0 && List._helper.isAlmostZeroVec(List.getSubDiag(AA))) break; // break if QR.Q is almost diagonal
+        if(i % 5 === 0 && List._helper.isUpperTriangular(AA)){
+            for(var i = 0; i < len; i++){
+                erg.value[i].value[i] = AA.value[i].value[i];
+            }
+            break; // break if QR.Q is almost diagonal
+        }
     }
     console.log("iterations:", i);
 
 
-    AA = List.zeromatrix(CSNumber.real(Alen), CSNumber.real( Alen));
-    for(var i =0; i < Alen; i++) AA.value[i].value[i] = eigvals[i];
+   // console.log("QQ");
+   // List.println(QQ);
+   // AA = List.zeromatrix(CSNumber.real(Alen), CSNumber.real( Alen));
+    //
+   // for(var i =0; i < Alen; i++) AA.value[i].value[i] = eigvals[i];
 
-    console.log("eigvals");
-    List.println(List.turnIntoCSList(eigvals));
-    console.log("AA");
-    List.println(AA);
+   // console.log("eigvals");
+   // List.println(List.turnIntoCSList(eigvals));
+   // console.log("erg");
+   // List.println(erg);
 
     // TODO remove UU
     //debugger;
-    return [AA,QQ];
+    return [erg,QQ];
     //return [AA,QQ, UU];
 
 };
@@ -1753,6 +1790,9 @@ List._helper.toHessenberg = function(A){
     var cslen = CSNumber.real(len-1);
     var cslen2 = CSNumber.real(len);
     var one = CSNumber.real(1);
+
+
+    if(List._helper.isUpperTriangular(AA)) return [List.idMatrix(cslen, cslen), A];
 
     var xx, uu, vv, alpha, e1, Qk, ww, erg;
     var QQ = List.idMatrix(cslen2, cslen2);
