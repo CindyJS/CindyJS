@@ -112,7 +112,10 @@ function setuplisteners(canvas, data) {
         addAutoCleaningEventListener(canvas, "DOMNodeRemoved", shutdown);
     }
 
-    function updatePostition(x, y) {
+    function updatePostition(event) {
+        var rect = canvas.getBoundingClientRect();
+        var x = event.clientX - rect.left - canvas.clientLeft;
+        var y = event.clientY - rect.top - canvas.clientTop;
         var pos = csport.to(x, y);
         mouse.prevx = mouse.x;
         mouse.prevy = mouse.y;
@@ -143,8 +146,7 @@ function setuplisteners(canvas, data) {
 
     addAutoCleaningEventListener(canvas, "mousedown", function(e) {
         mouse.button = e.which;
-        var rect = canvas.getBoundingClientRect();
-        updatePostition(e.clientX - rect.left, e.clientY - rect.top);
+        updatePostition(e);
         cs_mousedown();
         move = getmover(mouse);
         startit(); //starts d3-timer
@@ -162,8 +164,7 @@ function setuplisteners(canvas, data) {
     });
 
     addAutoCleaningEventListener(canvas, "mousemove", function(e) {
-        var rect = canvas.getBoundingClientRect();
-        updatePostition(e.clientX - rect.left, e.clientY - rect.top);
+        updatePostition(e);
         if (mouse.down) {
             cs_mousedrag();
         } else {
@@ -173,54 +174,23 @@ function setuplisteners(canvas, data) {
     });
 
 
-    function getOffsetLeft(elem) {
-        var offsetLeft = 0;
-        do {
-            if (!isNaN(elem.offsetLeft)) {
-                offsetLeft += elem.offsetLeft;
-            }
-        } while ((elem = elem.offsetParent));
-        return offsetLeft;
-    }
-
-    function getOffsetTop(elem) {
-        var offsetTop = 0;
-        do {
-            if (!isNaN(elem.offsetTop)) {
-                offsetTop += elem.offsetTop;
-            }
-        } while ((elem = elem.offsetParent));
-        return offsetTop;
-    }
-
     function touchMove(e) {
-        if (!e)
-            e = event;
-
-        updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
-            e.targetTouches[0].pageY - getOffsetTop(canvas));
+        updatePostition(e.targetTouches[0]);
         if (mouse.down) {
             cs_mousedrag();
         } else {
             cs_mousemove();
         }
         e.preventDefault();
-
     }
 
     function touchDown(e) {
-        if (!e)
-            e = event;
-
-        updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
-            e.targetTouches[0].pageY - getOffsetTop(canvas));
+        updatePostition(e.targetTouches[0]);
         cs_mousedown();
-
         mouse.down = true;
         move = getmover(mouse);
         startit();
         e.preventDefault();
-
     }
 
     function touchUp(e) {
