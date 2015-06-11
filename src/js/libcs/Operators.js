@@ -3633,11 +3633,9 @@ evaluator.generateWebGL$2 = function(args, modifs) {
             }
         }
     }
-    console.log("ctype: "+expr.ctype);
 
     if ((expr.ctype === "function") && (expr.args.length === 1)) {
         a = evaluator.compileToWebGL$1([expr.args[0]], {});
-console.log("expr: "+expr.oper);
         if (expr.oper === "sin$1") {
             return {
                 "ctype": "string",
