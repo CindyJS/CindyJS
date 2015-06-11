@@ -1561,6 +1561,7 @@ evaluator.perp$2 = function(args, modifs) {
         var erg = List.cross(tt, p);
         return General.withUsage(erg, "Line");
     }
+    return nada;
 };
 
 evaluator.perp$1 = function(args, modifs) {

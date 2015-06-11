@@ -167,8 +167,9 @@ function csinit(gslp) {
         assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
         isShowing(el, op);
     }
-    stateIn = new Float64Array(totalStateSize);
+    stateLastGood = new Float64Array(totalStateSize);
     stateOut = new Float64Array(totalStateSize);
+    stateContinueFromHere();
     tracingInitial = false;
     guessIncidences();
 }
