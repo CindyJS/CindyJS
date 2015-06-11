@@ -1,16 +1,9 @@
 "use strict";
 
-var fs = require("fs");
+require("./processFiles")(processFileData);
 
 var reScript = /(<script[^>]*>)([^]*?)(<\/script>)/img;
 var reCreateCindy = /createCindy\(/m;
-// var reData = /var data = (\{[^]*?^\});\s*$/m;
-
-process.argv.slice(2).forEach(handleFileName);
-
-function handleFileName(path) {
-    fs.readFile(path, {encoding: "utf-8"}, handleFileData.bind(null, path));
-}
 
 function createCindyDummy(constr, data) {
     constr.data = data;
@@ -24,8 +17,7 @@ function jsQueryDummy(constr, arg) {
     };
 }
 
-function handleFileData(path, err, str) {
-    if (err) throw err;
+function processFileData(path, str) {
     var script, scripts = [];
     while ((script = reScript.exec(str))) {
         scripts.push(script);
@@ -37,10 +29,17 @@ function handleFileData(path, err, str) {
         if (!reCreateCindy.test(script[2]))
             continue;
         var constr = {attrs: {}};
-        var f = new Function("createCindy", "document", "$", script[2]);
+        var defaultAppearance = {}
+        var f = new Function(
+            "createCindy", "document", "$", "defaultAppearance",
+            script[2]);
         f(createCindyDummy.bind(null, constr),
-          "document", jsQueryDummy.bind(null, constr));
+          "document", jsQueryDummy.bind(null, constr),
+          defaultAppearance);
         var data = constr.data;
+        if (data.defaultAppearance === undefined &&
+            Object.keys(defaultAppearance).length !== 0)
+            data.defaultAppearance = defaultAppearance;
         if (constr.attrs.width !== undefined) {
             var port = {
                 width: constr.attrs.width,
@@ -78,6 +77,21 @@ function handleFileData(path, err, str) {
             var bottom = -(port.height + ty)/scale;
             transform[0] = { visibleRect: [left, top, right, bottom] };
         }
+        if (data.geometry) {
+            data.geometry.forEach(function(el) {
+                if (el.sx !== undefined && el.sy !== undefined) {
+                    if (!el.pos) {
+                        if (el.sz !== undefined)
+                            el.pos = [el.sx, el.sy, el.sz];
+                        else
+                            el.pos = [el.sx, el.sy];
+                    }
+                    delete el.sx;
+                    delete el.sy;
+                    delete el.sz;
+                }
+            });
+        }
         var res = myStringify(data, "top");
         res = "\nvar cdy = createCindy(" + res + ");\n";
         if (res === script[2])
@@ -86,9 +100,8 @@ function handleFileData(path, err, str) {
             str.substr(script.index + script[0].length);
         modified = true;
     }
-    if (modified) {
-        fs.writeFile(path, str, function(err) { if (err) throw err; });
-    }
+    if (modified)
+        return str;
 }
 
 function orderCmp(order, a, b) {
