@@ -83,8 +83,8 @@ function updateEvokeCS(path, str) {
         return str;
 }
 
-var reSxyz = /sx: *([\-0-9.]+), *sy: *([\-0-9.]+), *sz: *([\-0-9.]+)/g;
-var reSxy = /sx: *([\-0-9.]+), *sy: *([\-0-9.]+)/g;
+var reSxyz = /sx: *([^:};]+), *sy: *([^:};]+), *sz: *([^:};]+)/g;
+var reSxy = /sx: *([^:};]+), *sy: *([^:};]+)/g;
 
 function updateSx(path, str) {
     var res = str.replace(reSxyz, "pos:[$1,$2,$3]");
