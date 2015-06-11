@@ -23,8 +23,6 @@
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            defaultAppearance.clip="inci";
-            defaultAppearance.overhangLine=1.2;
 
             var gslp=[
 
@@ -69,6 +67,7 @@
                        {name:"Z", kind:"P", type:"Free", sx:-6,sy:0,sz:1}*/
                       ];
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {clip: "inci", overhangLine: 1.2},
                         movescript:"firstDrawing",
                         geometry:gslp,
                         transform:[{scale:1}],

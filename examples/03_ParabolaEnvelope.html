@@ -42,7 +42,6 @@
         <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
         
         <script type="text/javascript">
-            defaultAppearance.pointColor=[1,1,1];
             var gslp=[
                       {name:"A", kind:"P", type:"Free", sx:7,sy:1,sz:1},
                       {name:"B", kind:"P", type:"Free", sx:0,sy:9,sz:1},
@@ -51,6 +50,7 @@
                       ];
 
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {pointColor: [1,1,1]},
                         movescript:"firstDrawing",
                         geometry:gslp});
             

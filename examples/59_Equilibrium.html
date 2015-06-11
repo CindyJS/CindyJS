@@ -140,7 +140,6 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
 </div>
 
         <script type="text/javascript">
-            defaultAppearance.dimDependent=.7;
             
             var gslp=[
                       {name:"A", type:"Free", pos:[0,0],color:[1,0,0]},
@@ -178,6 +177,7 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
                        
                        ];
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp,

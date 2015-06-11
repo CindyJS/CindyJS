@@ -41,7 +41,6 @@
 
 
         <script type="text/javascript">
-            defaultAppearance.dimDependent=.7;
             
             var gslp=[
                       {name:"A", type:"Free", pos:[-5,2],color:[1,.5,.5]},
@@ -54,6 +53,7 @@
                        {name:"B", behavior:{type:"Sun"}}
                        ];
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp,

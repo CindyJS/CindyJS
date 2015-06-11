@@ -346,8 +346,6 @@ translate(-(off+Pos.xy-loc));
         <canvas  id="CSCanvas" width=800 height=600  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            defaultAppearance.clip="inci";
-            defaultAppearance.overhangLine=1.2;
 
             var gslp=[
 
@@ -380,6 +378,7 @@ translate(-(off+Pos.xy-loc));
                    
                       ];
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {clip: "inci", overhangLine: 1.2},
                         movescript:"firstDrawing",
                         initscript:"init",
                         mouseupscript:"up",

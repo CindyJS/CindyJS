@@ -44,7 +44,6 @@ forall(pairs,s,
 
 
         <script type="text/javascript">
-            defaultAppearance.dimDependent=.7;
             nn=80;
             var gslp=[
                       {name:"B", type:"Free", pos:[-9,9],color:[0,0,0],size:3},
@@ -99,6 +98,7 @@ forall(pairs,s,
     
 };
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp,

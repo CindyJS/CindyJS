@@ -29,13 +29,13 @@
         
         <script type="text/javascript">
         
-            defaultAppearance.pointColor=[1,.7,0];
             var gslp=[
                       {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
                       {name:"B", kind:"P", type:"Free", sx:0,sy:9,sz:1},
                       ];
                       
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {pointColor: [1,0.7,0]},
                         movescript:"firstDrawing",
                         geometry:gslp});
             
