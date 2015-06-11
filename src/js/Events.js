@@ -5,105 +5,76 @@ var cskey = "";
 var cskeycode = 0;
 
 
-function movepoint(move) {
-    if (move.mover === undefined) return;
-    var m = move.mover;
-    if (m.pinned) return;
-    m.sx = mouse.x + move.offset.x;
-    m.sy = mouse.y + move.offset.y;
-    //experimental stuff by Ulli
-    //move.offset.x *= 0.95;
-    //move.offset.y = (move.offset.y-1.45)*0.95+1.45;
-    //dump(move.offset);
-    //end
-    if (cssnap && csgridsize !== 0) {
-        var rx = Math.round(m.sx / csgridsize) * csgridsize;
-        var ry = Math.round(m.sy / csgridsize) * csgridsize;
-        if (Math.abs(rx - m.sx) < 0.2 && Math.abs(ry - m.sy) < 0.2) {
-            m.sx = rx;
-            m.sy = ry;
-        }
-
-    }
-    m.sz = 1;
-    m.homog = List.realVector([m.sx, m.sy, m.sz]);
-
-}
-
-function movepointscr(mover, pos) {
-    var m = mover;
-    m.sx = pos.value[0].value.real / pos.value[2].value.real;
-    m.sy = pos.value[1].value.real / pos.value[2].value.real;
-    m.sz = 1;
-    m.homog = pos;
-
-}
-
-
 function getmover(mouse) {
-    var mov;
+    var mov = null;
     var adist = 1000000;
-    var diff, orad;
+    var diff;
     for (var i = 0; i < csgeo.free.length; i++) {
         var el = csgeo.free[i];
-        if (!el.pinned) {
+        if (el.pinned)
+            continue;
 
-            var dx, dy, dist;
-            var sc = csport.drawingstate.matrix.sdet;
-            if (el.kind === "P") {
-                dx = el.sx - mouse.x;
-                dy = el.sy - mouse.y;
-                dist = Math.sqrt(dx * dx + dy * dy);
-                if (el.narrow & dist > 20 / sc) dist = 10000;
+        var dx, dy, dist;
+        var sc = csport.drawingstate.matrix.sdet;
+        if (el.kind === "P") {
+            var p = List.normalizeZ(el.homog);
+            if (!List._helper.isAlmostReal(p))
+                continue;
+            dx = p.value[0].value.real - mouse.x;
+            dy = p.value[1].value.real - mouse.y;
+            dist = Math.sqrt(dx * dx + dy * dy);
+            if (el.narrow & dist > 20 / sc) dist = 10000;
+        } else if (el.kind === "C") { //Must be CircleMr
+            var mid = csgeo.csnames[el.args[0]];
+            var rad = el.radius;
+            var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
+            var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
+            dx = xx - mouse.x;
+            dy = yy - mouse.y;
+            var ref = Math.sqrt(dx * dx + dy * dy);
+            dist = ref - rad.value.real;
+            dx = 0;
+            dy = 0;
+            if (dist < 0) {
+                dist = -dist;
             }
-            if (el.kind === "C") { //Must be Circle by Rad
-                var mid = csgeo.csnames[el.args[0]];
-                var rad = el.radius;
-                var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
-                var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
-                dx = xx - mouse.x;
-                dy = yy - mouse.y;
-                var ref = Math.sqrt(dx * dx + dy * dy);
-                dist = ref - rad.value.real;
-                orad = -dist;
-                dx = 0;
-                dy = 0;
-                if (dist < 0) {
-                    dist = -dist;
-                }
-                dist = dist + 30 / sc;
+            dist = dist + 30 / sc;
 
-            }
-            if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
-                var l = List.normalizeZ(el.homog);
-                var N = CSNumber;
-                var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])),
-                    N.mult(l.value[1], N.conjugate(l.value[1])));
-                var ln = List.scaldiv(N.sqrt(nn), l);
-                dist = ln.value[0].value.real * mouse.x + ln.value[1].value.real * mouse.y + ln.value[2].value.real;
-                dx = ln.value[0].value.real * dist;
-                dy = ln.value[1].value.real * dist;
+        } else if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
+            var l = el.homog;
+            var N = CSNumber;
+            var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])),
+                N.mult(l.value[1], N.conjugate(l.value[1])));
+            var ln = List.scaldiv(N.sqrt(nn), l);
+            dist = ln.value[0].value.real * mouse.x + ln.value[1].value.real * mouse.y + ln.value[2].value.real;
+            dx = ln.value[0].value.real * dist;
+            dy = ln.value[1].value.real * dist;
 
-                if (dist < 0) {
-                    dist = -dist;
-                }
-                dist = dist + 1;
+            if (dist < 0) {
+                dist = -dist;
             }
+            dist = dist + 1;
+        }
 
-            if (dist < adist + 0.2 / sc) { //A bit a dirty hack, prefers new points
-                adist = dist;
-                mov = el;
-                diff = {
-                    x: dx,
-                    y: dy
-                };
-            }
+        if (dist < adist + 0.2 / sc) { //A bit a dirty hack, prefers new points
+            adist = dist;
+            mov = el;
+            diff = {
+                x: dx,
+                y: dy
+            };
         }
     }
+    console.log("Moving " + (mov ? mov.name : "nothing"));
+    if (mov === null)
+        return null;
     return {
         mover: mov,
         offset: diff,
-        offsetrad: orad
+        prev: {
+            x: mouse.x,
+            y: mouse.y
+        }
     };
 }
 
@@ -141,7 +112,10 @@ function setuplisteners(canvas, data) {
         addAutoCleaningEventListener(canvas, "DOMNodeRemoved", shutdown);
     }
 
-    function updatePostition(x, y) {
+    function updatePostition(event) {
+        var rect = canvas.getBoundingClientRect();
+        var x = event.clientX - rect.left - canvas.clientLeft;
+        var y = event.clientY - rect.top - canvas.clientTop;
         var pos = csport.to(x, y);
         mouse.prevx = mouse.x;
         mouse.prevy = mouse.y;
@@ -149,7 +123,6 @@ function setuplisteners(canvas, data) {
         mouse.y = pos[1];
         csmouse[0] = mouse.x;
         csmouse[1] = mouse.y;
-
     }
 
     if (data.keylistener === true) {
@@ -173,8 +146,7 @@ function setuplisteners(canvas, data) {
 
     addAutoCleaningEventListener(canvas, "mousedown", function(e) {
         mouse.button = e.which;
-        var rect = canvas.getBoundingClientRect();
-        updatePostition(e.clientX - rect.left, e.clientY - rect.top);
+        updatePostition(e);
         cs_mousedown();
         move = getmover(mouse);
         startit(); //starts d3-timer
@@ -185,19 +157,16 @@ function setuplisteners(canvas, data) {
 
     addAutoCleaningEventListener(canvas, "mouseup", function(e) {
         mouse.down = false;
-
+        cindy_cancelmove();
+        stateContinueFromHere();
         cs_mouseup();
-
         updateCindy();
-
         e.preventDefault();
     });
 
     addAutoCleaningEventListener(canvas, "mousemove", function(e) {
-        var rect = canvas.getBoundingClientRect();
-        updatePostition(e.clientX - rect.left, e.clientY - rect.top);
+        updatePostition(e);
         if (mouse.down) {
-            movepoint(move);
             cs_mousedrag();
         } else {
             cs_mousemove();
@@ -206,64 +175,32 @@ function setuplisteners(canvas, data) {
     });
 
 
-    function getOffsetLeft(elem) {
-        var offsetLeft = 0;
-        do {
-            if (!isNaN(elem.offsetLeft)) {
-                offsetLeft += elem.offsetLeft;
-            }
-        } while ((elem = elem.offsetParent));
-        return offsetLeft;
-    }
-
-    function getOffsetTop(elem) {
-        var offsetTop = 0;
-        do {
-            if (!isNaN(elem.offsetTop)) {
-                offsetTop += elem.offsetTop;
-            }
-        } while ((elem = elem.offsetParent));
-        return offsetTop;
-    }
-
     function touchMove(e) {
-        if (!e)
-            e = event;
-
-        updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
-            e.targetTouches[0].pageY - getOffsetTop(canvas));
+        updatePostition(e.targetTouches[0]);
         if (mouse.down) {
-            movepoint(move);
             cs_mousedrag();
         } else {
             cs_mousemove();
         }
         e.preventDefault();
-
     }
 
     function touchDown(e) {
-        if (!e)
-            e = event;
-
-        updatePostition(e.targetTouches[0].pageX - getOffsetLeft(canvas),
-            e.targetTouches[0].pageY - getOffsetTop(canvas));
+        updatePostition(e.targetTouches[0]);
         cs_mousedown();
-
         mouse.down = true;
         move = getmover(mouse);
         startit();
         e.preventDefault();
-
     }
 
     function touchUp(e) {
         mouse.down = false;
+        cindy_cancelmove();
+        stateContinueFromHere();
         updateCindy();
         cs_mouseup();
-
         e.preventDefault();
-
     }
 
     addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
@@ -312,15 +249,14 @@ function startit() {
 }
 
 function updateCindy() {
-    recalc();
+    csport.reset();
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
     if (csgridsize !== 0)
         evaluate(csgridscript);
+    traceMouseAndScripts();
     //   console.log("NOW UPDATING");
     //  drawgrid();
-    evaluate(cscompiled.move);
-    evaluate(cscompiled.draw);
     csport.greset();
     render();
     csctx.restore();

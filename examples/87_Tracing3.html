@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Tracing test 3</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  canvasname: "CSCanvas",
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {},
+  enableTraceLog: true,
+  tracingStateReport: "tracingStateReport",
+  grid: 1,
+  snap: true,
+  transform: [{ scaleAndOrigin: [25, 245, 132] }],
+  geometry: [
+    {name:"A", type:"Free", pos:[4,-1.0309278350515465,-1.0309278350515465], color:[1,0,0], labeled:true},
+    {name:"C0", type:"CircleByRadius", color:[0,0,1], radius:2.3963305281200253, args:["A"], size:1, printname:"$C_{0}$"},
+    {name:"", type:"PointOnCircle", pos:[4,1.600086821325991,-1.4991779309311333], color:[1,1,1], args:["C0"], pinned:true, size:0},
+    {name:"B", type:"PointOnCircle", pos:[4,-2.4095735627354555,-0.7855658441530284], color:[1,0,0], args:["C0"], labeled:true},
+    {name:"C1", type:"CircleByRadius", color:[0,0,1], radius:4.951767361255979, args:["A"], size:1, printname:"$C_{1}$"},
+    {name:"C2", type:"CircleByRadius", color:[0,0,1], radius:3.5558440629476427, args:["B"], size:1, printname:"$C_{2}$"},
+    {name:"C", type:"PointOnCircle", pos:[4,0.9856263502830952,3.942276599743527], color:[1,0,0], args:["C1"], labeled:true},
+    {name:"C3", type:"CircleByRadius", color:[0,0,1], radius:4.920461462098855, args:["C"], size:1, printname:"$C_{3}$"},
+    {name:"Collection__1", type:"IntersectionCircleCircle", args:["C2","C3"]},
+    {name:"D", type:"SelectP", pos:[1.6335486195763964,-4,-0.9274943918340818], color:[1,0,0], args:["Collection__1"], labeled:true},
+    {name:"a", type:"Join", pos:[0.30086509006839735,-0.804624953694092,4], color:[0,0,1], args:["B","D"], labeled:true, size:1},
+    {name:"E", type:"PointOnLine", pos:[-2.800459343700798,-4,-0.5939848405252357], color:[1,0,0], args:["a"], labeled:true}
+  ] // End of geometry array.
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="543" height="424"
+          style="border:2px solid black"></canvas>
+  <p>
+    <button onclick="location.href=cdy.formatTraceLog(false)">View log</button>
+    <button onclick="location.href=cdy.formatTraceLog(true)">Save log</button>
+    <span id="tracingStateReport"></span>
+  </p>
+</body>
+
+</html>

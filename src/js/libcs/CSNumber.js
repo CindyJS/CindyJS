@@ -36,6 +36,8 @@ CSNumber.real = function(r) {
 
 CSNumber.zero = CSNumber.real(0);
 
+CSNumber.one = CSNumber.real(1);
+
 CSNumber.argmax = function(a, b) {
     var n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
     var n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
@@ -459,10 +461,6 @@ CSNumber.mod = function(a, b) {
     });
 };
 
-CSNumber.solveCubic = function(a, b, c, d) {
-    return CSNumber._helper.solveCubic(a.value.real, a.value.imag, b.value.real, b.value.imag, c.value.real, c.value.imag, d.value.real, d.value.imag);
-};
-
 
 CSNumber._helper = {};
 CSNumber._helper.seed = 'NO';
@@ -553,9 +551,49 @@ CSNumber._helper.isAlmostImag = function(a) {
     return (r < CSNumber.epsbig) && (r > -CSNumber.epsbig); //So gemacht wie in Cindy
 };
 
+CSNumber._helper.z3a = CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
+CSNumber._helper.z3b = CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
+CSNumber._helper.cub1 = {
+    "ctype": "list",
+    "value": [CSNumber.one, CSNumber.one, CSNumber.one]
+};
+CSNumber._helper.cub2 = {
+    "ctype": "list",
+    "value": [CSNumber._helper.z3a, CSNumber.one, CSNumber._helper.z3b]
+};
+CSNumber._helper.cub3 = {
+    "ctype": "list",
+    "value": [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a]
+};
 
-CSNumber._helper.solveCubic = function(ar, ai, br, bi, cr, ci, dr, di) {
-    // dreist direkt aus dem cinderella2 sourcecode geklaut
+/* Solve the cubic equation ax^3 + bx^2 + cx + d = 0.
+ * The result is a JavaScript array of three complex numbers satisfying that equation.
+ */
+CSNumber.solveCubic = function(a, b, c, d) {
+    var help = CSNumber._helper.solveCubicHelper(a, b, c, d);
+    return [
+        List.scalproduct(CSNumber._helper.cub1, help),
+        List.scalproduct(CSNumber._helper.cub2, help),
+        List.scalproduct(CSNumber._helper.cub3, help)
+    ];
+};
+
+/* Helps solving the cubic equation ax^3 + bx^2 + cx + d = 0.
+ * The returned values are however NOT the solution itself.
+ * If this function returns [y1, y2, y3] then the actual solutions are
+ * x = z*y1 + y2 + z^2*y3 where z^3 = 1 i.e. z is any of three roots of unity
+ */
+CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
+    // mostly adapted from the cinderella2 source code
+
+    var ar = a.value.real;
+    var ai = a.value.imag;
+    var br = b.value.real;
+    var bi = b.value.imag;
+    var cr = c.value.real;
+    var ci = c.value.imag;
+    var dr = d.value.real;
+    var di = d.value.imag;
 
     var c1 = 1.25992104989487316476721060727822835057025; //2^(1/3)
     var c2 = 1.58740105196819947475170563927230826039149; //2^(2/3)
@@ -676,8 +714,11 @@ CSNumber._helper.solveCubic = function(ar, ai, br, bi, cr, ci, dr, di) {
     zr = t2r;
     zi = t2i;
 
-
-    return [CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)];
+    return List.turnIntoCSList([
+        CSNumber.complex(xr, xi),
+        CSNumber.complex(yr, yi),
+        CSNumber.complex(zr, zi)
+    ]);
 };
 
 

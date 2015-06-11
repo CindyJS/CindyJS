@@ -22,6 +22,13 @@ else if (typeof window !== "undefined" && window.defaultAppearance)
 
 function csinit(gslp) {
 
+    // establish defaults for geoOps
+    Object.keys(geoOps).forEach(function(opName) {
+        var op = geoOps[opName];
+        if (op.updatePosition !== undefined && op.stateSize === undefined)
+            op.stateSize = 0;
+    });
+
     //Main Data:
     //args          The arguments of the operator
     //type          The operator
@@ -35,7 +42,7 @@ function csinit(gslp) {
     //clip
     //visible       zum ein und ausblenden
     //isshowing     das wird durch den Konstruktionsbaum vererbt
-    //ismovable     
+    //movable
 
 
     // Setzen der Default appearance
@@ -79,96 +86,90 @@ function csinit(gslp) {
     csgeo.csnames = {}; //Lookup für elemente mit über Namen
 
 
-    var k, l, f;
-
-    // Das ist für alle gleich
-    for (k = 0; k < csgeo.gslp.length; k++) {
-        var g = csgeo.gslp[k];
-        csgeo.csnames[g.name] = g;
-        g.kind = geoOpMap[g.type];
-        g.incidences = [];
-        g.isshowing = true;
-        g.movable = false;
-        g.inited = false;
-    }
+    var k, l, f, el, op;
+    var totalStateSize = 0;
 
     csgeo.points = [];
     csgeo.lines = [];
     csgeo.conics = [];
     csgeo.free = [];
-    csgeo.ctp = 0;
-    csgeo.ctf = 0;
-    csgeo.ctl = 0;
-    csgeo.ctc = 0;
-    var m = csport.drawingstate.matrix;
+    var ctp = 0;
+    var ctf = 0;
+    var ctl = 0;
+    var ctc = 0;
 
-    for (k = 0; k < csgeo.gslp.length; k++) {
-        if (csgeo.gslp[k].kind === "P") {
-            var p = csgeo.gslp[k];
-            csgeo.points[csgeo.ctp] = p;
-            pointDefault(p);
-            csgeo.ctp += 1;
+    // Das ist für alle gleich
+    for (k = 0; k < gslp.length; k++) {
+        el = gslp[k];
+        var macro = geoMacros[el.type];
+        if (macro) {
+            var expansion = macro(el).slice();
+            // Replace single element gslp[k] with all the elements
+            // from expansion, using gslp.splice(k, 1, expansion[0], ...)
+            expansion.splice(0, 0, k, 1);
+            gslp.splice.apply(gslp, expansion);
+            --k; // process the first expanded element
+            continue;
         }
-        if (csgeo.gslp[k].kind === "L") {
-            l = csgeo.gslp[k];
-            csgeo.lines[csgeo.ctl] = l;
-            lineDefault(l);
-            csgeo.ctl += 1;
+        csgeo.csnames[el.name] = el;
+        op = geoOps[el.type];
+        if (!op) {
+            console.error(el);
+            console.error("Operation " + el.type + " not implemented yet");
         }
-        if (csgeo.gslp[k].kind === "C") {
-            l = csgeo.gslp[k];
-            csgeo.conics[csgeo.ctc] = l;
-            lineDefault(l);
-            csgeo.ctc += 1;
-        }
-        if (csgeo.gslp[k].kind === "S") {
-            l = csgeo.gslp[k];
-            csgeo.lines[csgeo.ctl] = l;
-            segmentDefault(l);
-            csgeo.ctl += 1;
-        }
-
-        var ty = csgeo.gslp[k].type;
-        if (ty === "Free" || ty === "PointOnLine" || ty === "PointOnCircle" || ty === "PointOnSegment") { //TODO generisch nach geoops ziehen
-            f = csgeo.gslp[k];
-            if (f.pos) {
-                if (f.pos.length === 2) {
-                    f.sx = f.pos[0];
-                    f.sy = f.pos[1];
-                    f.sz = 1;
-                }
-                if (f.pos.length === 3) {
-                    f.sx = f.pos[0] / f.pos[2];
-                    f.sy = f.pos[1] / f.pos[2];
-                    f.sz = f.pos[2] / f.pos[2];
-                }
-
-            }
-            f.homog = List.realVector([gslp[k].sx, gslp[k].sy, gslp[k].sz]);
-            f.isfinite = (f.sz !== 0);
-            f.ismovable = true;
-            if (ty === "PointOnCircle") {
-                f.angle = CSNumber.real(f.angle);
-
-            }
-            csgeo.free[csgeo.ctf] = f;
-            csgeo.ctf += 1;
-        }
-        if (ty === "CircleMr" || ty === "CircleMFixedr") {
-            f = csgeo.gslp[k];
-            f.radius = CSNumber.real(f.radius);
-            csgeo.free[csgeo.ctf] = f;
-            csgeo.ctf += 1;
-        }
-        if (ty === "Through") {
-            f = csgeo.gslp[k];
-            f.dir = General.wrap(f.dir);
-            csgeo.free[csgeo.ctf] = f;
-            csgeo.ctf += 1;
+        el.kind = op.kind;
+        el.stateIdx = totalStateSize;
+        totalStateSize += op.stateSize;
+        el.incidences = [];
+        el.isshowing = true;
+        el.movable = false;
+        if (op.isMovable) {
+            el.movable = true;
+            csgeo.free[ctf++] = el;
         }
 
-
+        if (el.kind === "P") {
+            csgeo.points[ctp] = el;
+            pointDefault(el);
+            ctp += 1;
+        }
+        if (el.kind === "L") {
+            csgeo.lines[ctl] = el;
+            lineDefault(el);
+            ctl += 1;
+        }
+        if (el.kind === "C") {
+            csgeo.conics[ctc] = el;
+            lineDefault(el);
+            ctc += 1;
+        }
+        if (el.kind === "S") {
+            csgeo.lines[ctl] = el;
+            segmentDefault(el);
+            ctl += 1;
+        }
     }
+    stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
+    // initially, stateIn and stateOut are the same, so that initialize can
+    // write some state and updatePosition can immediately use it
+    for (k = 0; k < gslp.length; k++) {
+        el = gslp[k];
+        op = geoOps[el.type];
+        tracingInitial = true; // might get reset by initialize
+        if (op.initialize) {
+            stateInIdx = stateOutIdx = el.stateIdx;
+            el.param = op.initialize(el);
+            assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
+        }
+        stateInIdx = stateOutIdx = el.stateIdx;
+        op.updatePosition(el, false);
+        assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
+        assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
+        isShowing(el, op);
+    }
+    stateIn = new Float64Array(totalStateSize);
+    stateOut = new Float64Array(totalStateSize);
+    tracingInitial = false;
     guessIncidences();
 }
 
@@ -233,28 +234,35 @@ function isShowing(el, op) {
 
 }
 
-function recalc() {
+var geoDependantsCache = {};
 
-    csport.reset();
+function getGeoDependants(mover) {
+    var deps = geoDependantsCache[mover.name];
+    if (deps) return deps;
+    var depSet = {};
+    var k = 0;
+    deps = [];
+    depSet[mover.name] = mover;
     var gslp = csgeo.gslp;
-    for (var k = 0; k < gslp.length; k++) {
-        var el = gslp[k];
-        var op = geoOps[el.type];
-        if (!op) {
-            console.error(el);
-            console.error("Operation " + el.type + " not implemented yet");
+    for (var i = 0; i < gslp.length; ++i) {
+        var el = gslp[i];
+        var args = el.args;
+        if (!args) continue;
+        for (var j = 0; j < args.length; ++j) {
+            var arg = args[j];
+            if (depSet.hasOwnProperty(arg)) {
+                depSet[el.name] = el;
+                deps[k++] = el;
+            }
         }
-        op(el);
-        isShowing(el, op);
-
     }
+    geoDependantsCache[mover.name] = deps;
+    return deps;
 }
-
 
 function guessIncidences() {
 
     var gslp = csgeo.gslp;
-    recalc();
     for (var i = 0; i < csgeo.lines.length; i++) {
         var l = csgeo.lines[i];
         for (var j = 0; j < csgeo.points.length; j++) {

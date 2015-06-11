@@ -13,7 +13,7 @@ clean:
 
 libcs := src/js/libcs/Namespace.js src/js/libcs/Accessors.js src/js/libcs/CSNumber.js src/js/libcs/List.js src/js/libcs/Essentials.js src/js/libcs/General.js src/js/libcs/Operators.js src/js/libcs/OpDrawing.js src/js/libcs/OpImageDrawing.js src/js/libcs/Parser.js src/js/libcs/OpSound.js src/js/libcs/CSad.js src/js/libcs/Render2D.js
 
-libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
+libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/Tracing.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
 
 liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
@@ -53,6 +53,8 @@ NODE_PATH:=$(if $(NPM_DEP),PATH=$(dir $(NPM_DEP)):$$PATH,)
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE:=node
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
+NODE_MODULES:=source-map marked http-proxy rewire should expect
+NODE_BINARIES:=js-beautify jshint mocha
 
 download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
@@ -63,6 +65,12 @@ download/node/bin/npm: download/arch/$(NODE_TAR)
 	cd download && tar xzf arch/$(NODE_TAR)
 	mv download/node-v$(NODE_VERSION)-* download/node
 	touch $@
+
+$(NODE_MODULES:%=node_modules/%/package.json): node_modules/%/package.json: $(NPM_DEP)
+	$(NPM_CMD) install $*
+
+$(NODE_BINARIES:%=node_modules/.bin/%): node_modules/.bin/%: $(NPM_DEP)
+	$(NPM_CMD) install $*
 
 ######################################################################
 ## Build different flavors of Cindy.js
@@ -102,14 +110,13 @@ endif
 JAVA=java
 CLOSURE=$(JAVA) -jar $(filter %compiler.jar,$^)
 
-node_modules/source-map/package.json: $(NPM_DEP)
-	$(NPM_CMD) install source-map
-
 build/js/Cindy.plain.js: $(srcs)
 
 build/js/ours.js: $(ours)
 
-build/js/Cindy.plain.js build/js/ours.js: \
+build/js/exposed.js: $(lib) src/js/expose.js $(inclosure)
+
+build/js/Cindy.plain.js build/js/ours.js build/js/exposed.js: \
 		node_modules/source-map/package.json tools/cat.js
 	@mkdir -p $(@D)
 	$(NODE_CMD) $(filter %tools/cat.js,$^) $(js_src) -o $@
@@ -119,14 +126,18 @@ build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cin
 	$(NODE_CMD) $(filter %tools/apply-source-map.js,$^) -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
 
 build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
+	@echo 'last_js_compiler=$(js_compiler)' > build/js_compiler.mk
 	cp $< $@
+
+-include build/js_compiler.mk
+
+ifneq ($(js_compiler),$(last_js_compiler))
+.PHONY: build/js/Cindy.js
+endif
 
 ######################################################################
 ## Run jshint to detect syntax problems
 ######################################################################
-
-node_modules/.bin/js-beautify: $(NPM_DEP)
-	$(NPM_CMD) install js-beautify
 
 beautify: node_modules/.bin/js-beautify
 	$(NODE_PATH) $< --replace --config Administration/beautify.conf $(ours)
@@ -136,9 +147,6 @@ beautify: node_modules/.bin/js-beautify
 ######################################################################
 ## Run jshint to detect syntax problems
 ######################################################################
-
-node_modules/.bin/jshint: $(NPM_DEP)
-	$(NPM_CMD) install jshint
 
 jshint: node_modules/.bin/jshint build/js/ours.js
 	$(NODE_PATH) $< -c Administration/jshint.conf --verbose --reporter '$(CURDIR)/tools/jshint-reporter.js' $(filter %.js,$^)
@@ -157,11 +165,24 @@ tests: nodetest
 .PHONY: tests nodetest
 
 ######################################################################
-## Format reference manual using markdown
+## Run separate unit tests to test various interna
 ######################################################################
 
-node_modules/marked/package.json: $(NPM_DEP)
-	$(NPM_CMD) install marked
+unittests: node_modules/.bin/mocha \
+		node_modules/rewire/package.json \
+		node_modules/should/package.json \
+		node_modules/expect/package.json \
+		build/js/exposed.js \
+		$(wildcard tests/*.js)
+	$(NODE_PATH) $< tests
+
+tests: unittests
+
+.PHONY: unittests
+
+######################################################################
+## Format reference manual using markdown
+######################################################################
 
 refmd:=$(wildcard ref/*.md)
 refimg:=$(wildcard ref/img/*.png)
@@ -264,8 +285,9 @@ GWT_modules = $(patsubst src/java/cindyjs/%.gwt.xml,%,$(wildcard src/java/cindyj
 
 define GWT_template
 
-GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $$(wildcard src/java/cindyjs/$(1)/*.java) $$(ANT_DEP)
+GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $$(wildcard src/java/cindyjs/$(1)/*.java) | $$(ANT_DEP)
 	cd GWT && $$(ANT_CMD:download/%=../download/%) -Dcjs.module=$(1)
+	touch $$@
 
 build/js/$(1)/$(1).nocache.js: GWT/war/$(1)/$(1).nocache.js
 	rm -rf build/js/$(1)
@@ -281,10 +303,9 @@ $(foreach mod,$(GWT_modules),$(eval $(call GWT_template,$(mod))))
 ## Help debugging a remote site
 ######################################################################
 
-node_modules/http-proxy/package.json: $(NPM_DEP)
-	$(NPM_CMD) install http-proxy
-
 proxy: tools/CindyReplacingProxy.js node_modules/http-proxy/package.json
 	@echo Configure browser for host 127.0.0.1 port 8080.
 	@echo Press Ctrl+C to interrupt once you are done.
 	-$(NODE_CMD) $<
+
+.PHONY: proxy

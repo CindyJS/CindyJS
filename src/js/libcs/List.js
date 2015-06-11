@@ -446,6 +446,20 @@ List._helper.isAlmostReal = function(a1) {
     return erg;
 };
 
+List._helper.isAlmostZero = function(lst) {
+    for (var i = 0; i < lst.value.length; i++) {
+        var elt = lst.value[i];
+        if (elt.ctype === 'list') {
+            if (!List._helper.isAlmostZero(elt))
+                return false;
+        } else {
+            if (!CSNumber._helper.isAlmostZero(elt))
+                return false;
+        }
+    }
+    return true;
+};
+
 List._helper.isNaN = function(a1) {
     var erg = false;
     for (var i = 0; i < a1.value.length; i++) {
@@ -502,6 +516,25 @@ List.maxval = function(a) { //Only for Lists or Lists of Lists that contain numb
     return erg;
 };
 
+/**
+ * Return the index associated with the entry of maximal value
+ * @param lst  a List to be iterated over, must not be empty
+ * @param fun  a function to apply to each list element, must return a real value
+ * @return the index of the maximal element as a JavaScript number
+ */
+List.maxIndex = function(lst, fun) {
+    var bestIdx = 0;
+    var bestVal = fun(lst.value[0]).value.real;
+    for (var i = 1; i < lst.value.length; ++i) {
+        var v = fun(lst.value[i]).value.real;
+        if (v > bestVal) {
+            bestIdx = i;
+            bestVal = v;
+        }
+    }
+    return bestIdx;
+};
+
 List.normalizeMax = function(a) {
     var s = CSNumber.inv(List.maxval(a));
     return List.scalmult(s, a);
@@ -509,6 +542,11 @@ List.normalizeMax = function(a) {
 
 List.normalizeZ = function(a) {
     var s = CSNumber.inv(a.value[2]);
+    return List.scalmult(s, a);
+};
+
+List.normalizeAbs = function(a) {
+    var s = CSNumber.inv(List.abs(a));
     return List.scalmult(s, a);
 };
 
@@ -1005,7 +1043,7 @@ List.projectiveDistMinScal = function(a, b) {
     var np = CSNumber.div(p, CSNumber.abs(p));
     var na = List.scaldiv(sa, a);
     var nb = List.scaldiv(sb, b);
-    na = List.scalmult(np, na);
+    nb = List.scalmult(np, nb);
 
     var d1 = List.abs(List.add(na, nb));
     var d2 = List.abs(List.sub(na, nb));
@@ -1031,6 +1069,21 @@ List.cross = function(a, b) { //Assumes that a is 3-Vector
     var y = CSNumber.sub(CSNumber.mult(a.value[2], b.value[0]), CSNumber.mult(a.value[0], b.value[2]));
     var z = CSNumber.sub(CSNumber.mult(a.value[0], b.value[1]), CSNumber.mult(a.value[1], b.value[0]));
     return List.turnIntoCSList([x, y, z]);
+};
+
+List.crossratio3harm = function(a, b, c, d, x) {
+    var acx = List.det3(a, c, x);
+    var bdx = List.det3(b, d, x);
+    var adx = List.det3(a, d, x);
+    var bcx = List.det3(b, c, x);
+    var numer = CSNumber.mult(acx, bdx);
+    var denom = CSNumber.mult(adx, bcx);
+    return List.turnIntoCSList([numer, denom]);
+};
+
+List.crossratio3 = function(a, b, c, d, x) {
+    var cr = List.crossratio3harm(a, b, c, d, x);
+    return CSNumber.div(cr.value[0], cr.value[1]);
 };
 
 List.veronese = function(a) { //Assumes that a is 3-Vector
@@ -1114,7 +1167,7 @@ List.vandermonde = function(a) {
 
     for (var i = 0; i < len; i++) {
         for (var j = 0; j < len; j++)
-        erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
+            erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
     }
     return erg;
 };
@@ -2194,11 +2247,12 @@ List.linearsolveCG = function(A, b) {
 
 
 List.det = function(a) {
-    if (a.value.length === 2) return List.det2(List.column(a, CSNumber.real(1)), List.column(a, CSNumber.real(2)));
+    if (a.value.length === 1) return a.value[0].value[0];
+    if (a.value.length === 2) return List.det2(a.value[0], a.value[1]);
     if (a.value.length === 3) {
-        var A1 = List.column(a, CSNumber.real(1));
-        var A2 = List.column(a, CSNumber.real(2));
-        var A3 = List.column(a, CSNumber.real(3));
+        var A1 = a.value[0];
+        var A2 = a.value[1];
+        var A3 = a.value[2];
         return List.det3(A1, A2, A3);
     }
 

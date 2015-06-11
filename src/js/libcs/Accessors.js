@@ -161,24 +161,19 @@ Accessor.setField = function(geo, field, value) {
         }
     }
 
-    if (field === "xy" && geo.kind === "P" && geo.ismovable && List._helper.isNumberVecN(value, 2)) {
-        movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]));
-        recalc();
+    if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 2)) {
+        movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
     }
 
-    if (field === "homog" && geo.kind === "P" && geo.ismovable && List._helper.isNumberVecN(value, 2)) {
-        movepointscr(geo, value);
-        recalc();
+    if (field === "homog" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 3)) {
+        movepointscr(geo, value, "homog");
     }
 
-    if (field === "angle" && geo.kind === "L") {
+    if (field === "angle" && geo.type === "Through") {
         var cc = CSNumber.cos(value);
         var ss = CSNumber.sin(value);
         var dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
-        geo.dir = dir;
-
-        // movepointscr(geo,value);
-        recalc();
+        movepointscr(geo, dir, "dir");
     }
     if (geo.behavior) {
         if (field === "mass" && geo.behavior.type === "Mass" && value.ctype === "number") {

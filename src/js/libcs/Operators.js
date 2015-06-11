@@ -921,22 +921,7 @@ evaluator.sub$2 = infix_sub;
 function infix_sub(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-
-    if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Plus
-        return CSNumber.neg(v1);
-    }
-
-    if (v0.ctype === 'void' && v1.ctype === 'list') { //Monadisches Plus
-        return List.neg(v1);
-    }
-
-    if (v0.ctype === 'number' && v1.ctype === 'number') {
-        return CSNumber.sub(v0, v1);
-    }
-    if (v0.ctype === 'list' && v1.ctype === 'list') {
-        return List.sub(v0, v1);
-    }
-    return nada;
+    return General.sub(v0, v1);
 }
 
 evaluator.mult$2 = infix_mult;
@@ -3375,7 +3360,7 @@ evaluator.convexhull3d$1 = function(args, modifs) {
         var ergf = [];
         for (i = 0; i < chf.length; i++) {
             for (j = 0; j < chf[i].length; j++) {
-                chf[i][j]++;
+                chf[i][j] ++;
             }
             ergf.push(List.realVector(chf[i]));
         }

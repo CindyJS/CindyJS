@@ -6,10 +6,6 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
-            </head>
-    
-	<body style="font-family:Arial;">
         
         <h1>Intersection of Conics</h1>
         
@@ -22,7 +18,6 @@
 
 
         <script type="text/javascript">
-            
             var gslp=[
                       {name:"A1", type:"Free", pos:[3,0]},
                       {name:"A2", type:"Free", pos:[2,2]},
@@ -47,14 +42,21 @@
 		      {name:"P4", type:"SelectP", args:["CoCo"],index:4,color:[1,0,1],size:3},
 
                       ];
-            createCindy({canvasname:"CSCanvas",
+           var cdy = createCindy({canvasname:"CSCanvas",
+  			tracingStateReport: "tracingStateReport",
                         movescript:"firstDrawing",
-                        grid:1,
-//                        snap:true,
+                        //grid:1,
+                        //snap:true,
                         geometry:gslp});
     
         </script>
 
-
-	</body>
+                
+            </head>
+    
+<body style="font-family:Arial;">
+  <p>
+    <span id="tracingStateReport"></span>
+  </p>
+</body>
 </html>
