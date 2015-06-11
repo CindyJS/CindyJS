@@ -187,9 +187,9 @@ t=t+"$";
            var check=function(){
               var ch1=document.getElementById("ch1");
              if(document.getElementById("ch1").checked){
-                evokeCS('rast=true;repaint();');
+                cdy.evokeCS('rast=true;repaint();');
              } else {
-                 evokeCS('rast=false;repaint();');
+                 cdy.evokeCS('rast=false;repaint();');
 
              }
                       
@@ -213,7 +213,7 @@ t=t+"$";
                       {name:"C", kind:"P", type:"Free", sx:4,sy:-10,sz:1,size:4,color:[0,0,0]}
                       ];
             
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
                         initscript:"init",
 

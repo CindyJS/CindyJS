@@ -98,7 +98,7 @@ forall(pairs,s,
               )
     
 };
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
@@ -108,7 +108,7 @@ forall(pairs,s,
     
         </script>
         
-        <button onclick="csplay()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
+        <button onclick="cdy.csplay()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
         <button onclick="cspause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
         <button onclick="csstop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>
 

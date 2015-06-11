@@ -2481,7 +2481,7 @@ animstate=animstate+0.1
 errc(animstate);
 if(animstate>=1,
  animstate=1;
- javascript("csstop()");
+ javascript("cdy.csstop()");
 );
 if(animstate>=0,
   choice=newchoice
@@ -2601,7 +2601,7 @@ var gslp=[
     
     ];
 
-createCindy({canvasname:"CSCanvas",
+var cdy = createCindy({canvasname:"CSCanvas",
 movescript:"firstDrawing",
 initscript:"init",
 mousedownscript:"mouseDown",

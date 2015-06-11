@@ -144,7 +144,7 @@ for(var i=0;i<30;i++){
 }
    // gslp.push({name:"B", type:"Free", pos:[-7,1],color:[1,.9,0]});
 
-createCindy({canvasname:"CSCanvas",
+var cdy = createCindy({canvasname:"CSCanvas",
 defaultAppearance: {clip: "inci", overhangLine: 1.2},
 movescript:"firstDrawing",
 initscript:"init",
@@ -153,6 +153,6 @@ geometry:gslp});
 
 </script>
 <br>
-<button style="width:100px;" onclick='evokeCS("reset()");' type="button" >Reset</button>
+<button style="width:100px;" onclick='cdy.evokeCS("reset()");' type="button" >Reset</button>
 </body>
 </html>

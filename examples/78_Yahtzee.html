@@ -146,7 +146,7 @@ if (x > 1 & x < 7 & y < -0.25 & y > -1.25*13,
 </script>
 <script type="text/javascript">
 
-createCindy({
+var cdy = createCindy({
   canvasname: "CSCanvas",
   scripts: "cs*",
   language: "en",
@@ -163,7 +163,7 @@ createCindy({
   <canvas id="CSCanvas" width="700" height="700"
           style="border:2px solid black"></canvas>
   <p>Use number keys to enter dice, or click die to modify it.</p>
-  <p><button onclick="evokeCS('dice=example2;recompute()')" type="button">Example 2</button></p>
+  <p><button onclick="cdy.evokeCS('dice=example2;recompute()')" type="button">Example 2</button></p>
 </body>
 
 </html>

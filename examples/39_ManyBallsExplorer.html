@@ -21,7 +21,7 @@
         blobs=false;
         bondings=true;
         black=true;
-            javascript("csplay()");
+            javascript("cdy.csplay()");
 
         </script>
         
@@ -263,7 +263,7 @@ forall(pairs,s,
               )
     
 };
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
@@ -276,9 +276,9 @@ forall(pairs,s,
         <button onclick="csplay()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
         <button onclick="cspause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
         <button onclick="csstop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>
-        <button onclick="evokeCS('blobs=!blobs')" type="button" style="position:absolute; top:610px;left:270px" >Blobs</button>
-        <button onclick="evokeCS('bondings=!bondings')" type="button" style="position:absolute; top:610px;left:370px" >Bondings</button>
-        <button onclick="evokeCS('black=!black')" type="button" style="position:absolute; top:610px;left:470px" >Black/White</button>
+        <button onclick="cdy.evokeCS('blobs=!blobs')" type="button" style="position:absolute; top:610px;left:270px" >Blobs</button>
+        <button onclick="cdy.evokeCS('bondings=!bondings')" type="button" style="position:absolute; top:610px;left:370px" >Bondings</button>
+        <button onclick="cdy.evokeCS('black=!black')" type="button" style="position:absolute; top:610px;left:470px" >Black/White</button>
 
 	</body>
 </html>

@@ -176,7 +176,7 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
                                               
                        
                        ];
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
@@ -190,10 +190,10 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
     
         </script>
        <div style="position:absolute; top:630px;left:10px">
-        <button onclick="csplay()" type="button" >Play</button>
+        <button onclick="cdy.csplay()" type="button" >Play</button>
         <button onclick="cspause()" type="button" >Pause</button>
         <button onclick="csstop()" type="button">Stop</button>&nbsp;&nbsp;&nbsp;
-        <input onclick="evokeCS('togglebr()')" type="checkbox" >Brüche Raten<br>
+        <input onclick="cdy.evokeCS('togglebr()')" type="checkbox" >Brüche Raten<br>
         </div>
 	</body>
 </html>
