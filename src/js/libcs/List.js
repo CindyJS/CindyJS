@@ -1386,7 +1386,7 @@ List.getSubDiag = function(A){
 
 
 // get eigenvalues of a 2x2 matrix
-List.eig2 = function(AA){ // get eigenvalues of a 2x2 matrix
+List.eig2 = function(AA){
         var trace = CSNumber.add(AA.value[0].value[0], AA.value[1].value[1]);
         var bdet = List.det2(AA.value[0], AA.value[1]);
 
@@ -1480,30 +1480,45 @@ List.eig = function(A){
           eigenvecs = List.turnIntoCSList(eigenvecs);
           //eigenvecs.value[0] = List.column(QQ,CSNumber.real(1));
 
-        //  console.log("old eigvals");
-        //  List.println(eigvals);
-          // sort eigenvalues
-        //  var dist, mindist = Infinity, idx;
-        //  for(i = 0; i < len ; i++){
-        //      for(j = i+1; j < len; j++){
+       //   console.log("old eigvals");
+       //   List.println(eigvals);
+       // // sort eigenvalues
+       //     // get largest Eigenvalue
+       //   var abs, maxAbs = Infinity, idx = 0;
+       //   for(var i = 0; i < len; i++){
+       //       abs = CSNumber.abs(eigvals.value[i]).value.real;
+       //       if(abs > maxAbs){
+       //          idx = i; 
+       //       }
+       //   }
 
-        //          dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], CSNumber.conjugate(eigvals.value[j]))).value.real;
-        //          if(dist < mindist){
-        //              idx = j;
-        //              mindist = dist;
-        //          }
+       //   // switch max Eigenvals to first position
+       //   var tmp = eigvals.value[0];
+       //   eigvals.value[0] = eigvals.value[idx];
+       //   eigvals.value[idx] = tmp;
 
 
-        //      }
-        //      var tmp = eigvals.value[i];
-        //      eigvals.value[i] = eigvals.value[idx];
-        //      eigvals.value[idx] = tmp;
-        //      mindist = Infinity;
-        //  }
+       //   var dist, mindist = Infinity;
+       //   for(i = 1; i < len ; i++){
+       //       for(j = i+1; j < len; j++){
 
-          
-   //       console.log("new eigvals");
-   //       List.println(eigvals);
+       //           dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], eigvals.value[j])).value.real;
+       //           if(dist < mindist){
+       //               idx = j;
+       //               mindist = dist;
+       //           }
+
+
+       //       }
+       //       var tmp = eigvals.value[i];
+       //       eigvals.value[i] = eigvals.value[idx];
+       //       eigvals.value[idx] = tmp;
+       //       mindist = Infinity;
+       //   }
+
+       //   
+       //   console.log("new eigvals");
+       //   List.println(eigvals);
 
 
 
@@ -1541,6 +1556,11 @@ List.eig = function(A){
                         nullS = List.nullSpace(MM);
                         xx = nullS.value[0];
                       }
+
+                      // check if we got nothing from nullspace
+                      if(xx === undefined) xx = List.zerovector(cslen);
+                      console.log(cslen.value.real);
+
                       //xx = General.mult(QQ,nullS.value[0]);
                       //if(CSNumber.abs(CSNumber.sub(ceigval, eigvals.value[qq+1])).value.real < 1e-6){
                       //    count++;
@@ -1549,7 +1569,7 @@ List.eig = function(A){
                       //    count = 0;
                       //}
 
-                      if(List.abs(xx).value.real < 1e-6){ // couldnt find a vector in nullspace -- should not happen
+                      if(List.abs(xx).value.real < 1e-6 && false){ // couldnt find a vector in nullspace -- should not happen
                           console.log("could not find eigenvec for idx", qq);
                           xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
                           xx = General.mult(QQ, xx);
@@ -1557,12 +1577,12 @@ List.eig = function(A){
 //                          console.log("===");
                           eigenvecs.value[qq] = xx;
                       }
-                      else eigenvecs.value[qq] = List.scaldiv(List.abs(xx), xx);
+                      else eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx) ? xx : List.scaldiv(List.abs(xx), xx);
 
 
                       if(qq < len-1){
-                          console.log("qq", qq);
                         sameEigVal =  CSNumber.abs(CSNumber.sub(eigvals.value[qq], eigvals.value[qq+1])).value.real < 1e-6;
+                        if(sameEigVal) console.log("same eigenval!");
                         if(sameEigVal) count++;
                         else count = 0;
                       }
@@ -1586,15 +1606,15 @@ List.eig = function(A){
    var a=(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
    var b=(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
    var c=(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
- //  var d=(List.sub(General.mult(A,eigenvecs.value[3]), General.mult(eigvals.value[3],eigenvecs.value[3])));
+   var d=(List.sub(General.mult(A,eigenvecs.value[3]), General.mult(eigvals.value[3],eigenvecs.value[3])));
 
    var aa = List.abs(a).value.real;
    var bb = List.abs(b).value.real;
    var cc = List.abs(c).value.real;
-  // var dd = List.abs(d).value.real;
+   var dd = List.abs(d).value.real;
 
    //var testpassed = (aa + bb + cc + dd)/4 < 1e-6;
-   var testpassed = (aa + bb + cc + 0)/3 < 1e-6;
+   var testpassed = (aa + bb + cc + dd)/4 < 1e-10;
 
    //console.log(testpassed, aa,bb,cc, dd);
    console.log(testpassed, aa,bb,cc);
