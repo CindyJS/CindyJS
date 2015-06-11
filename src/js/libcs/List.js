@@ -1013,11 +1013,10 @@ List.projectiveDistMinScal = function(a, b) {
     var cb = List.conjugate(b);
     var p = List.scalproduct(a, cb);
 
-    // 1 here is derived from cinderella src -- Martin and i are not sure why this is 1 and not infinity
-    var np = CSNumber._helper.isAlmostZero(p)? CSNumber.real(1) : CSNumber.div(p, CSNumber.abs(p));
-;
-    
-    
+    // 1 here is derived from cinderella src -- Martin and I are not sure why this is 1 and not infinity
+    var np = CSNumber._helper.isAlmostZero(p) ? CSNumber.real(1) : CSNumber.div(p, CSNumber.abs(p));
+
+
     var na = List.scaldiv(sa, a);
     var nb = List.scaldiv(sb, b);
     nb = List.scalmult(np, nb);
