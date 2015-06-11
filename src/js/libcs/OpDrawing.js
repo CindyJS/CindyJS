@@ -416,8 +416,9 @@ eval_helper.drawconic = function(aConic, modifs) {
         csctx.lineWidth = size;
 
         csctx.beginPath();
+        csctx.moveTo(x[0], y[0]);
         for (var i = 1; i < x.length; i++) {
-            csctx.moveTo(x[i - 1], y[i - 1]);
+            //csctx.moveTo(x[i - 1], y[i - 1]);
             //csctx.fillRect(x[i],y[i],5,5);
             csctx.lineTo(x[i], y[i]);
         }

@@ -216,7 +216,7 @@ CSNumber.inv = function(a) {
     // perhaps we should not only check for 0
     // if(Math.abs(s) < 1e32) {
     if (s === 0) {
-        console.log("DIVISION BY ZERO");
+        console.error("DIVISION BY ZERO");
         //        halt=immediately;
 
     }
