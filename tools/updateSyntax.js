@@ -9,6 +9,9 @@ case "-defaultAppearance":
 case "-evokeCS":
     processFiles(updateEvokeCS, process.argv.slice(3));
     break;
+case "-sx":
+    processFiles(updateSx, process.argv.slice(3));
+    break;
 default:
     console.error("No such mode: " + process.argv[2]);
     process.exit(2);
@@ -78,4 +81,14 @@ function updateEvokeCS(path, str) {
     str = str.replace(reMethods, "$1" + v + ".$2");
     if (str !== orig)
         return str;
+}
+
+var reSxyz = /sx: *([\-0-9.]+), *sy: *([\-0-9.]+), *sz: *([\-0-9.]+)/g;
+var reSxy = /sx: *([\-0-9.]+), *sy: *([\-0-9.]+)/g;
+
+function updateSx(path, str) {
+    var res = str.replace(reSxyz, "pos:[$1,$2,$3]");
+    res = res.replace(reSxy, "pos:[$1,$2]");
+    if (res !== str)
+        return res;
 }
