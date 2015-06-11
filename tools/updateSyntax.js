@@ -6,6 +6,9 @@ switch (process.argv[2]) {
 case "-defaultAppearance":
     processFiles(updateDefaultAppearance, process.argv.slice(3));
     break;
+case "-evokeCS":
+    processFiles(updateEvokeCS, process.argv.slice(3));
+    break;
 default:
     console.error("No such mode: " + process.argv[2]);
     process.exit(2);
@@ -56,4 +59,23 @@ function updateDefaultAppearance(path, str) {
         str.substr(insertPos);
     str = str.replace(/^[ \t]*defaultAppearance\.[^;]*;[ \t]*\n/mg, "");
     return str;
+}
+
+var reMethods = /([^.])(evokeCS|cs(?:play|pause|stop))/;
+
+function updateEvokeCS(path, str) {
+    var orig = str;
+    if (!reMethods.test(str))
+        return;
+    var match = /(?:var\s+([A-Za-z0-9_]+)\s*=\s*)?createCindy\s*\(/.exec(str);
+    if (!match)
+        throw error("No createCindy found");
+    var v = match[1];
+    if (!v) {
+        str = str.substr(0, match.index) + "var cdy = " + str.substr(match.index);
+        v = "cdy";
+    }
+    str = str.replace(reMethods, "$1" + v + ".$2");
+    if (str !== orig)
+        return str;
 }
