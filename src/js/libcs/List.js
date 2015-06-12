@@ -1702,9 +1702,8 @@ List._helper.QRIteration = function(A, maxIter){
   //    UU = General.mult(UU, QR.Q);
 
         //deflation
-        if(i % 10 === 0 && true){
+        if(i % 10 === 0){
                 if(CSNumber.abs(AA.value[AA.value.length - 1].value[AA.value[0].value.length -2]).value.real < 1e-20 && len > 1){
-                    console.log("deflate!!!!!");
 
                     eigvals[Alen - numDeflations - 1] = AA.value[len-1].value[len-1]; // get Eigenvalue
 
@@ -1790,7 +1789,15 @@ List._helper.isLowerTriangular= function(A){
 
 
 List._helper.isUpperTriangular= function(A){
-    return List._helper.isLowerTriangular(List.transpose(A));
+    //return List._helper.isLowerTriangular(List.transpose(A));
+    var leni = A.value.length;
+    var lenj = A.value[0].value.length;
+    for(var i =0; i < leni; i++)
+        for(var j = i+1 ; j < lenj; j++){
+            if(!CSNumber._helper.isAlmostZero(A.value[j].value[i])) return false;
+        }
+
+    return true;
 };
 
 List._helper.isAlmostId = function(AA){
@@ -1810,7 +1817,7 @@ List._helper.isAlmostId = function(AA){
 
 List.nullSpace = function(A){
     var len = A.value.length;
-    var QR = List.QRdecomp(List.transjugate(A));
+    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
 
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
 
