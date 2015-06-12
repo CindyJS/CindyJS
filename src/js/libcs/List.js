@@ -1558,8 +1558,11 @@ List.eig = function(A){
                       }
 
                       // check if we got nothing from nullspace
-                      if(xx === undefined) xx = List.zerovector(cslen);
-                      console.log(cslen.value.real);
+                      if(xx === undefined){ 
+                          console.log("xx is undefined for idx", qq);
+                          xx = List.zerovector(cslen);
+                      }
+                     // console.log(cslen.value.real);
 
                       //xx = General.mult(QQ,nullS.value[0]);
                       //if(CSNumber.abs(CSNumber.sub(ceigval, eigvals.value[qq+1])).value.real < 1e-6){
@@ -1569,15 +1572,18 @@ List.eig = function(A){
                       //    count = 0;
                       //}
 
-                      if(List.abs(xx).value.real < 1e-6 && false){ // couldnt find a vector in nullspace -- should not happen
+                      console.log(niceprint(eigvals.value[qq]));
+                      debugger;
+                      if(List.abs(xx).value.real < 1e-8 && count == 0){ // couldnt find a vector in nullspace -- should not happen
                           console.log("could not find eigenvec for idx", qq);
-                          xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
-                          xx = General.mult(QQ, xx);
- //                         List.println(xx);
+                          xx = List._helper.inverseIteration(A, eigvals.value[qq]);
+                          //xx = General.mult(QQ, xx);
+                          List.println(List.scaldiv(List.abs(xx), xx));
 //                          console.log("===");
-                          eigenvecs.value[qq] = xx;
+                          //eigenvecs.value[qq] = xx;
                       }
-                      else eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx) ? xx : List.scaldiv(List.abs(xx), xx);
+                     // else
+                     eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx) ? xx : List.scaldiv(List.abs(xx), xx);
 
 
                       if(qq < len-1){
@@ -1614,7 +1620,7 @@ List.eig = function(A){
    var dd = List.abs(d).value.real;
 
    //var testpassed = (aa + bb + cc + dd)/4 < 1e-6;
-   var testpassed = (aa + bb + cc + dd)/4 < 1e-10;
+   var testpassed = (aa + bb + cc + dd)/4 < 1e-6;
 
    //console.log(testpassed, aa,bb,cc, dd);
    console.log(testpassed, aa,bb,cc);
@@ -1703,7 +1709,7 @@ List._helper.QRIteration = function(A, maxIter){
 
         //deflation
         if(i % 10 === 0){
-                if(CSNumber.abs(AA.value[AA.value.length - 1].value[AA.value[0].value.length -2]).value.real < 1e-20 && len > 1){
+                if(CSNumber.abs(AA.value[AA.value.length - 1].value[AA.value[0].value.length -2]).value.real < 1e-24 && len > 1){
 
                     eigvals[Alen - numDeflations - 1] = AA.value[len-1].value[len-1]; // get Eigenvalue
 
@@ -1789,15 +1795,15 @@ List._helper.isLowerTriangular= function(A){
 
 
 List._helper.isUpperTriangular= function(A){
-    //return List._helper.isLowerTriangular(List.transpose(A));
-    var leni = A.value.length;
-    var lenj = A.value[0].value.length;
-    for(var i =0; i < leni; i++)
-        for(var j = i+1 ; j < lenj; j++){
-            if(!CSNumber._helper.isAlmostZero(A.value[j].value[i])) return false;
-        }
-
-    return true;
+    return List._helper.isLowerTriangular(List.transpose(A));
+//    var leni = A.value.length;
+//    var lenj = A.value[0].value.length;
+//    for(var i =0; i < leni; i++)
+//        for(var j = i+1 ; j < lenj; j++){
+//            if(!CSNumber._helper.isAlmostZero(A.value[j].value[i])) return false;
+//        }
+//
+//    return true;
 };
 
 List._helper.isAlmostId = function(AA){
@@ -1817,9 +1823,13 @@ List._helper.isAlmostId = function(AA){
 
 List.nullSpace = function(A){
     var len = A.value.length;
-    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
+//    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
+    var QR = List.QRdecomp(List.transpose(A)); // QQ of QR is Nullspace of A^H
+    // TODO check if this should be transjugate
 
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
+    console.log("QQ in nullspace");
+    List.println(QQ);
 
     var erg = [];
     // test if is in kernel
@@ -1827,6 +1837,7 @@ List.nullSpace = function(A){
     for(var i = 0; i < len; i++){
        vec = QQ.value[i];
        tmp = General.mult(A,vec); 
+       console.log(List.abs(tmp).value.real, "abs in nulls");
        if(List.abs(tmp).value.real < 1e-6) erg.push(List.scaldiv(List.abs(vec), vec));
     }
 
