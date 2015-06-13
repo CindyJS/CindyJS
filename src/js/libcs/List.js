@@ -1104,6 +1104,79 @@ List.det3 = function(p, q, r) { //Assumes that a,b,c are 3-Vectors
     return CSNumber.complex(re, im);
 };
 
+List.det4m = function(m) {
+    // auto-generated code, see detgen.js
+    var m00r = +m.value[0].value[0].value.real;
+    var m00i = +m.value[0].value[0].value.imag;
+    var m01r = +m.value[0].value[1].value.real;
+    var m01i = +m.value[0].value[1].value.imag;
+    var m02r = +m.value[0].value[2].value.real;
+    var m02i = +m.value[0].value[2].value.imag;
+    var m03r = +m.value[0].value[3].value.real;
+    var m03i = +m.value[0].value[3].value.imag;
+    var m10r = +m.value[1].value[0].value.real;
+    var m10i = +m.value[1].value[0].value.imag;
+    var m11r = +m.value[1].value[1].value.real;
+    var m11i = +m.value[1].value[1].value.imag;
+    var m12r = +m.value[1].value[2].value.real;
+    var m12i = +m.value[1].value[2].value.imag;
+    var m13r = +m.value[1].value[3].value.real;
+    var m13i = +m.value[1].value[3].value.imag;
+    var m20r = +m.value[2].value[0].value.real;
+    var m20i = +m.value[2].value[0].value.imag;
+    var m21r = +m.value[2].value[1].value.real;
+    var m21i = +m.value[2].value[1].value.imag;
+    var m22r = +m.value[2].value[2].value.real;
+    var m22i = +m.value[2].value[2].value.imag;
+    var m23r = +m.value[2].value[3].value.real;
+    var m23i = +m.value[2].value[3].value.imag;
+    var m30r = +m.value[3].value[0].value.real;
+    var m30i = +m.value[3].value[0].value.imag;
+    var m31r = +m.value[3].value[1].value.real;
+    var m31i = +m.value[3].value[1].value.imag;
+    var m32r = +m.value[3].value[2].value.real;
+    var m32i = +m.value[3].value[2].value.imag;
+    var m33r = +m.value[3].value[3].value.real;
+    var m33i = +m.value[3].value[3].value.imag;
+    var a01r = m00r * m11r - m00i * m11i - m01r * m10r + m01i * m10i;
+    var a01i = m00r * m11i + m00i * m11r - m01r * m10i - m01i * m10r;
+    var b01r = m20r * m31r - m20i * m31i - m21r * m30r + m21i * m30i;
+    var b01i = m20r * m31i + m20i * m31r - m21r * m30i - m21i * m30r;
+    var a02r = m00r * m12r - m00i * m12i - m02r * m10r + m02i * m10i;
+    var a02i = m00r * m12i + m00i * m12r - m02r * m10i - m02i * m10r;
+    var b02r = m20r * m32r - m20i * m32i - m22r * m30r + m22i * m30i;
+    var b02i = m20r * m32i + m20i * m32r - m22r * m30i - m22i * m30r;
+    var a03r = m00r * m13r - m00i * m13i - m03r * m10r + m03i * m10i;
+    var a03i = m00r * m13i + m00i * m13r - m03r * m10i - m03i * m10r;
+    var b03r = m20r * m33r - m20i * m33i - m23r * m30r + m23i * m30i;
+    var b03i = m20r * m33i + m20i * m33r - m23r * m30i - m23i * m30r;
+    var a12r = m01r * m12r - m01i * m12i - m02r * m11r + m02i * m11i;
+    var a12i = m01r * m12i + m01i * m12r - m02r * m11i - m02i * m11r;
+    var b12r = m21r * m32r - m21i * m32i - m22r * m31r + m22i * m31i;
+    var b12i = m21r * m32i + m21i * m32r - m22r * m31i - m22i * m31r;
+    var a13r = m01r * m13r - m01i * m13i - m03r * m11r + m03i * m11i;
+    var a13i = m01r * m13i + m01i * m13r - m03r * m11i - m03i * m11r;
+    var b13r = m21r * m33r - m21i * m33i - m23r * m31r + m23i * m31i;
+    var b13i = m21r * m33i + m21i * m33r - m23r * m31i - m23i * m31r;
+    var a23r = m02r * m13r - m02i * m13i - m03r * m12r + m03i * m12i;
+    var a23i = m02r * m13i + m02i * m13r - m03r * m12i - m03i * m12r;
+    var b23r = m22r * m33r - m22i * m33i - m23r * m32r + m23i * m32i;
+    var b23i = m22r * m33i + m22i * m33r - m23r * m32i - m23i * m32r;
+    return CSNumber.complex(
+        a01r * b23r - a01i * b23i -
+        a02r * b13r + a02i * b13i +
+        a03r * b12r - a03i * b12i +
+        a12r * b03r - a12i * b03i -
+        a13r * b02r + a13i * b02i +
+        a23r * b01r - a23i * b01i,
+        a01r * b23i + a01i * b23r -
+        a02r * b13i - a02i * b13r +
+        a03r * b12i + a03i * b12r +
+        a12r * b03i + a12i * b03r -
+        a13r * b02i - a13i * b02r +
+        a23r * b01i + a23i * b01r);
+};
+
 List.eucangle = function(a, b) {
     var tmp1 = List.cross(a, List.linfty);
     var tmp2 = List.cross(b, List.linfty);
@@ -1493,10 +1566,10 @@ List.det = function(a) {
     if (a.value.length === 1) return a.value[0].value[0];
     if (a.value.length === 2) return List.det2(a.value[0], a.value[1]);
     if (a.value.length === 3) {
-        var A1 = a.value[0];
-        var A2 = a.value[1];
-        var A3 = a.value[2];
-        return List.det3(A1, A2, A3);
+        return List.det3(a.value[0], a.value[1], a.value[2]);
+    }
+    if (a.value.length === 4) {
+        return List.det4m(a);
     }
 
     var n = a.value.length,
