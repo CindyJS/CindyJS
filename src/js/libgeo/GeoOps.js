@@ -10,6 +10,30 @@ geoOps._helper = {};
  * Tr - Transformation
  */
 
+
+////The RandomLine RandomPoint operators are used by Cinderellas
+////Original Mirror Operations
+
+geoOps.RandomLine = {};
+geoOps.RandomLine.kind = "L";
+geoOps.RandomLine.updatePosition = function(el) {
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Line");
+};
+
+
+geoOps.RandomPoint = {};
+geoOps.RandomPoint.kind = "P";
+geoOps.RandomPoint.updatePosition = function(el) {
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Point");
+};
+
+///////////////////////////
+
+
 geoOps.Join = {};
 geoOps.Join.kind = "L";
 geoOps.Join.updatePosition = function(el) {
@@ -509,6 +533,32 @@ geoOps.CircleMr.updatePosition = function(el) {
     el.radius = r;
 };
 geoOps.CircleMr.stateSize = 2;
+
+
+
+//TODO Must be redone for Points at infinity
+//Original Cindy Implementation is not correct either
+geoOps.Compass = {};
+geoOps.Compass.kind = "C";
+geoOps.Compass.updatePosition = function(el) {
+    var m = csgeo.csnames[(el.args[2])].homog;
+    var b = csgeo.csnames[(el.args[1])].homog;
+    var c = csgeo.csnames[(el.args[0])].homog;
+    m = List.normalizeZ(m);
+    b = List.normalizeZ(b);
+    c = List.normalizeZ(c);
+    var diff=List.sub(b,c);
+    var p = List.add(diff, m);
+    p = List.normalizeZ(p);
+
+    var matrix = geoOps._helper.CircleMP(m, p);
+    matrix = List.normalizeMax(matrix);
+    console.log(matrix);
+    el.matrix = General.withUsage(matrix, "Circle");
+};
+
+
+
 
 
 geoOps._helper.getConicType = function(C) {

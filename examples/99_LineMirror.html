@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({
+  "scripts": "cs*",
+  "defaultAppearance": {},
+  "geometry": [
+    {
+      "name": "A",
+      "type": "Free",
+      "pos": [
+        1.7808219178082194,
+        -4.0,
+        -0.6849315068493151
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "labeled": true
+    },
+    {
+      "name": "B",
+      "type": "Free",
+      "pos": [
+        -2.810810810810811,
+        -4.0,
+        -2.7027027027027026
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "labeled": true
+    },
+    {
+      "name": "a",
+      "type": "Join",
+      "pos": [
+        -1.7577810030640215,
+        -1.4675052410901466,
+        4.0
+      ],
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "A",
+        "B"
+      ],
+      "labeled": true,
+      "size": 1
+    },
+    {
+      "name": "C",
+      "type": "Free",
+      "pos": [
+        4.0,
+        -2.3597122302158273,
+        -0.7194244604316548
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "labeled": true
+    },
+    {
+      "name": "D",
+      "type": "Free",
+      "pos": [
+        4.0,
+        -2.545454545454546,
+        -1.1363636363636365
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "labeled": true
+    },
+    {
+      "name": "b",
+      "type": "Join",
+      "pos": [
+        -2.0392156862745088,
+        -4.0,
+        1.7819607843137295
+      ],
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "C",
+        "D"
+      ],
+      "labeled": true,
+      "size": 1
+    },
+    {
+      "name": "C0",
+      "type": "CircleMP",
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "C",
+        "D"
+      ],
+      "size": 1,
+      "printname": "$C_{0}$"
+    },
+    {
+      "name": "c",
+      "type": "Perp",
+      "pos": [
+        0.64484126984127,
+        -0.7723922902494331,
+        4.0
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "a",
+        "D"
+      ],
+      "size": 0
+    },
+    {
+      "name": "E",
+      "type": "Meet",
+      "pos": [
+        1.1572571497061355,
+        -4.0,
+        -0.9589540827367815
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "a",
+        "c"
+      ],
+      "size": 0.0
+    },
+    {
+      "name": "C1",
+      "type": "CircleMP",
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "E",
+        "D"
+      ],
+      "size": 0,
+      "printname": "$C_{1}$"
+    },
+    {
+      "name": "F",
+      "type": "OtherIntersectionCL",
+      "pos": [
+        -0.7252320114333047,
+        -4.0,
+        -0.6554774074538854
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "C1",
+        "c",
+        "D"
+      ],
+      "labeled": true
+    },
+    {
+      "name": "d",
+      "type": "Perp",
+      "pos": [
+        0.42155000694862665,
+        -0.5049335248065967,
+        4.0
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "a",
+        "C"
+      ],
+      "size": 0
+    },
+    {
+      "name": "G",
+      "type": "Meet",
+      "pos": [
+        1.7667288022996808,
+        -4.0,
+        -0.6911246595280391
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "a",
+        "d"
+      ],
+      "size": 0.0
+    },
+    {
+      "name": "C2",
+      "type": "CircleMP",
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "G",
+        "C"
+      ],
+      "size": 0,
+      "printname": "$C_{2}$"
+    },
+    {
+      "name": "H",
+      "type": "OtherIntersectionCL",
+      "pos": [
+        -0.215726153622445,
+        -4.0,
+        -0.48219868441696123
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "C2",
+        "d",
+        "C"
+      ],
+      "labeled": true
+    },
+    {
+      "name": "K",
+      "type": "Meet",
+      "pos": [
+        4.0,
+        -1.5015553951232765,
+        1.2068959000313733
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "a",
+        "b"
+      ],
+      "size": 0.0
+    },
+    {
+      "name": "e",
+      "type": "RandomLine",
+      "pos": [
+        0.08573396619076568,
+        -0.9782097465392956,
+        0.8981479830324435
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": 0
+    },
+    {
+      "name": "L",
+      "type": "Meet",
+      "pos": [
+        -3.259399587434794,
+        3.443615475947153,
+        4.0
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "e",
+        "b"
+      ],
+      "size": 0.0
+    },
+    {
+      "name": "f",
+      "type": "Perp",
+      "pos": [
+        2.1646663117417404,
+        -2.592842065712634,
+        4.0
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "a",
+        "L"
+      ],
+      "size": 0
+    },
+    {
+      "name": "M",
+      "type": "Meet",
+      "pos": [
+        -1.1486785837656839,
+        -4.0,
+        -1.9722865893825972
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "a",
+        "f"
+      ],
+      "size": 0.0
+    },
+    {
+      "name": "C3",
+      "type": "CircleMP",
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "M",
+        "L"
+      ],
+      "size": 0,
+      "printname": "$C_{3}$"
+    },
+    {
+      "name": "N",
+      "type": "OtherIntersectionCL",
+      "pos": [
+        -2.4791443149131562,
+        -4.0,
+        -1.2519684577659302
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "C3",
+        "f",
+        "L"
+      ],
+      "size": 0.0
+    },
+    {
+      "name": "g",
+      "type": "Join",
+      "pos": [
+        -1.360366876105668,
+        -0.40883200599254604,
+        4.0
+      ],
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "K",
+        "N"
+      ],
+      "labeled": true,
+      "size": 1
+    },
+    {
+      "name": "h",
+      "type": "RandomLine",
+      "pos": [
+        0.6350964836170467,
+        -0.7318479413862092,
+        0.4790479664330306
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": 0
+    },
+    {
+      "name": "Collection__1",
+      "type": "IntersectionConicLine",
+      "args": [
+        "C0",
+        "h"
+      ]
+    },
+    {
+      "name": "O",
+      "type": "SelectP",
+      "pos": [
+        -3.1124183961911833,
+        -4.0,
+        0.20384373219285531
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "Collection__1"
+      ],
+      "size": 0.0
+    },
+    {
+      "name": "C4",
+      "type": "Compass",
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "C",
+        "O",
+        "H"
+      ],
+      "size": 1,
+      "printname": "$C_{4}$"
+    }
+  ],
+  "ports": [
+    {
+      "id": "CSCanvas",
+      "width": 680,
+      "height": 336,
+      "transform": [
+        {
+          "visibleRect": [
+            -9.04,
+            9.32,
+            18.16,
+            -4.12
+          ]
+        }
+      ],
+      "background": "rgb(168,176,192)"
+    }
+  ]
+});
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>
