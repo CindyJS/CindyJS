@@ -28,9 +28,24 @@ List.realVector = function(l) {
     };
 };
 
-List.realMatrix = function(l) {
+List.println = function(l) {
     var erg = [];
-    for (var i = 0; i < l.length; i++) {
+    for (var i = 0; i < l.value.length; i++) {
+        if (l.value[i].ctype === "number") {
+            erg[i] = CSNumber.niceprint(l.value[i]);
+        } else if (l.value[i].ctype === "list") {
+            List.println(l.value[i]);
+        } else return nada;
+    }
+
+    if (l.value[0].ctype === "number")
+        console.log(erg);
+};
+
+List.realMatrix = function(l) {
+    var len = l.length;
+    var erg = new Array(len);
+    for (var i = 0; i < len; i++) {
         erg[i] = List.realVector(l[i]);
     }
     return List.turnIntoCSList(erg);
@@ -408,6 +423,20 @@ List._helper.isAlmostReal = function(a1) {
     return erg;
 };
 
+List._helper.isAlmostZero = function(lst) {
+    for (var i = 0; i < lst.value.length; i++) {
+        var elt = lst.value[i];
+        if (elt.ctype === 'list') {
+            if (!List._helper.isAlmostZero(elt))
+                return false;
+        } else {
+            if (!CSNumber._helper.isAlmostZero(elt))
+                return false;
+        }
+    }
+    return true;
+};
+
 List._helper.isNaN = function(a1) {
     var erg = false;
     for (var i = 0; i < a1.value.length; i++) {
@@ -464,6 +493,25 @@ List.maxval = function(a) { //Only for Lists or Lists of Lists that contain numb
     return erg;
 };
 
+/**
+ * Return the index associated with the entry of maximal value
+ * @param lst  a List to be iterated over, must not be empty
+ * @param fun  a function to apply to each list element, must return a real value
+ * @return the index of the maximal element as a JavaScript number
+ */
+List.maxIndex = function(lst, fun) {
+    var bestIdx = 0;
+    var bestVal = fun(lst.value[0]).value.real;
+    for (var i = 1; i < lst.value.length; ++i) {
+        var v = fun(lst.value[i]).value.real;
+        if (v > bestVal) {
+            bestIdx = i;
+            bestVal = v;
+        }
+    }
+    return bestIdx;
+};
+
 List.normalizeMax = function(a) {
     var s = CSNumber.inv(List.maxval(a));
     return List.scalmult(s, a);
@@ -471,6 +519,11 @@ List.normalizeMax = function(a) {
 
 List.normalizeZ = function(a) {
     var s = CSNumber.inv(a.value[2]);
+    return List.scalmult(s, a);
+};
+
+List.normalizeAbs = function(a) {
+    var s = CSNumber.inv(List.abs(a));
     return List.scalmult(s, a);
 };
 
@@ -960,10 +1013,14 @@ List.projectiveDistMinScal = function(a, b) {
     var cb = List.conjugate(b);
     var p = List.scalproduct(a, cb);
 
-    var np = CSNumber.div(p, CSNumber.abs(p));
+    // 1 here is derived from cinderella src -- Martin and i are not sure why this is 1 and not infinity
+    var np = CSNumber._helper.isAlmostZero(p)? CSNumber.real(1) : CSNumber.div(p, CSNumber.abs(p));
+;
+    
+    
     var na = List.scaldiv(sa, a);
     var nb = List.scaldiv(sb, b);
-    na = List.scalmult(np, na);
+    nb = List.scalmult(np, nb);
 
     var d1 = List.abs(List.add(na, nb));
     var d2 = List.abs(List.sub(na, nb));
@@ -991,6 +1048,21 @@ List.cross = function(a, b) { //Assumes that a is 3-Vector
     return List.turnIntoCSList([x, y, z]);
 };
 
+List.crossratio3harm = function(a, b, c, d, x) {
+    var acx = List.det3(a, c, x);
+    var bdx = List.det3(b, d, x);
+    var adx = List.det3(a, d, x);
+    var bcx = List.det3(b, c, x);
+    var numer = CSNumber.mult(acx, bdx);
+    var denom = CSNumber.mult(adx, bcx);
+    return List.turnIntoCSList([numer, denom]);
+};
+
+List.crossratio3 = function(a, b, c, d, x) {
+    var cr = List.crossratio3harm(a, b, c, d, x);
+    return CSNumber.div(cr.value[0], cr.value[1]);
+};
+
 List.veronese = function(a) { //Assumes that a is 3-Vector
     var xx = CSNumber.mult(a.value[0], a.value[0]);
     var yy = CSNumber.mult(a.value[1], a.value[1]);
@@ -1016,6 +1088,11 @@ List.matrixFromVeronese = function(a) { //Assumes that a is 6-Vector
 
 };
 
+List.det2 = function(R1, R2) {
+    var tmp = CSNumber.mult(R1.value[0], R2.value[1]);
+    tmp = CSNumber.sub(tmp, CSNumber.mult(R1.value[1], R2.value[0]));
+    return tmp;
+};
 
 List.det3 = function(p, q, r) { //Assumes that a,b,c are 3-Vectors
     //Keine Ahnung ob man das so inlinen will (hab das grad mal so übernommen)
@@ -1043,8 +1120,9 @@ List.eucangle = function(a, b) {
 
 
 List.zerovector = function(a) {
-    var erg = [];
-    for (var i = 0; i < Math.floor(a.value.real); i++) {
+    var len = Math.floor(a.value.real);
+    var erg = new Array(len);
+    for (var i = 0; i < len; i++) {
         erg[i] = 0;
     }
     return List.realVector(erg);
@@ -1052,11 +1130,23 @@ List.zerovector = function(a) {
 
 
 List.zeromatrix = function(a, b) {
-    var erg = [];
-    for (var i = 0; i < Math.floor(a.value.real); i++) {
+    var len = Math.floor(a.value.real);
+    var erg = new Array(len);
+    for (var i = 0; i < len; i++) {
         erg[i] = List.zerovector(b);
     }
     return List.turnIntoCSList(erg);
+};
+
+List.vandermonde = function(a) {
+    var len = a.value.length;
+    var erg = List.zeromatrix(len, len);
+
+    for (var i = 0; i < len; i++) {
+        for (var j = 0; j < len; j++)
+            erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
+    }
+    return erg;
 };
 
 
@@ -1202,7 +1292,269 @@ List.adjoint3 = function(a) {
     };
 };
 
-List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
+List.inverse = function(a) {
+    var LUP = List.LUdecomp(a);
+    var n = a.value.length;
+
+    var zero = CSNumber.real(0);
+    var one = CSNumber.real(1);
+
+    var ei = List.zerovector(CSNumber.real(n));
+    ei.value[0] = one;
+
+    var erg = new Array(n);
+    for (var i = 0; i < n; i++) {
+        erg[i] = List._helper.LUsolve(LUP, ei);
+        ei.value[i] = zero;
+        ei.value[i + 1] = one;
+    }
+
+    erg = List.turnIntoCSList(erg);
+    erg = List.transpose(erg);
+    return erg;
+};
+
+
+List.linearsolve = function(a, bb) {
+    if (a.value.length === 2) return List.linearsolveCramer2(a, bb);
+    else if (a.value.length === 3) return List.linearsolveCramer3(a, bb);
+    else return List.LUsolve(a, bb);
+};
+
+List.LUdecomp = function(AA) {
+    var A = JSON.parse(JSON.stringify(AA)); // TODO: get rid of this cloning
+    var i, j, k, absAjk, Akk, Ak, Pk, Ai;
+    var tpos = 0;
+    var max;
+    var n = A.value.length,
+        n1 = n - 1;
+    var P = new Array(n);
+    for (k = 0; k < n; ++k) {
+        Pk = k;
+        Ak = A.value[k];
+        max = CSNumber.abs(Ak.value[k]).value.real;
+        for (j = k + 1; j < n; ++j) {
+            absAjk = CSNumber.abs(A.value[j].value[k]);
+            if (max < absAjk.value.real) {
+                max = absAjk.value.real;
+                Pk = j;
+            }
+        }
+        P[k] = Pk;
+
+        if (Pk !== k) {
+            A.value[k] = A.value[Pk];
+            A.value[Pk] = Ak;
+            Ak = A.value[k];
+            tpos++;
+        }
+
+        Akk = Ak.value[k];
+
+        for (i = k + 1; i < n; ++i) {
+            A.value[i].value[k] = CSNumber.div(A.value[i].value[k], Akk);
+        }
+
+        for (i = k + 1; i < n; ++i) {
+            Ai = A.value[i];
+            for (j = k + 1; j < n1; ++j) {
+                Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+                ++j;
+                Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+            }
+            if (j === n1) Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
+        }
+    }
+
+    return {
+        LU: A,
+        P: P,
+        TransPos: tpos
+    };
+};
+
+List.LUsolve = function(A, b) {
+    var LUP = List.LUdecomp(A);
+    return List._helper.LUsolve(LUP, b);
+};
+
+List._helper.LUsolve = function(LUP, bb) {
+    var b = JSON.parse(JSON.stringify(bb)); // TODO: get rid of this cloning
+    var i, j;
+    var LU = LUP.LU;
+    var n = LU.value.length;
+    var x = b;
+    var P = LUP.P;
+    var Pi, LUi, LUii, tmp;
+
+    for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
+    for (i = 0; i < n; ++i) {
+        Pi = P[i];
+        if (P[i] !== i) {
+            tmp = x.value[i];
+            x.value[i] = x.value[Pi];
+            x.value[Pi] = tmp;
+        }
+
+        LUi = LU.value[i];
+        for (j = 0; j < i; ++j) {
+            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+        }
+    }
+
+    for (i = n - 1; i >= 0; --i) {
+        LUi = LU.value[i];
+        for (j = i + 1; j < n; ++j) {
+            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
+        }
+
+        x.value[i] = CSNumber.div(x.value[i], LUi.value[i]);
+    }
+
+    return x;
+};
+
+List.linearsolveCramer2 = function(A, b) {
+    var A1 = List.column(A, CSNumber.real(1));
+    var A2 = List.column(A, CSNumber.real(2));
+
+    var detA = List.det2(A1, A2);
+    if (CSNumber._helper.isZero(detA)) console.log("A is not regular!");
+
+    var x1 = List.det2(b, A2);
+    x1 = CSNumber.div(x1, detA);
+    var x2 = List.det2(A1, b);
+    x2 = CSNumber.div(x2, detA);
+
+    var res = List.turnIntoCSList([x1, x2]);
+    return res;
+};
+
+List.linearsolveCramer3 = function(A, b) {
+    var A1 = List.column(A, CSNumber.real(1));
+    var A2 = List.column(A, CSNumber.real(2));
+    var A3 = List.column(A, CSNumber.real(3));
+
+    var detA = List.det3(A1, A2, A3);
+    if (CSNumber._helper.isZero(detA)) console.log("A is not regular!");
+
+    var x1 = List.det3(b, A2, A3);
+    var x2 = List.det3(A1, b, A3);
+    var x3 = List.det3(A1, A2, b);
+
+    var res = List.turnIntoCSList([x1, x2, x3]);
+    res = List.scaldiv(detA, res);
+
+    return res;
+};
+
+// solve general linear system A*x=b by transforming A to sym. pos. definite
+List.linearsolveCGNR = function(AA, bb) {
+    var transA = List.transpose(AA);
+    var A = General.mult(transA, AA);
+    var b = General.mult(transA, bb);
+
+    return List.linearsolveCG(A, b);
+};
+
+// only for sym. pos. definite matrices!
+List.linearsolveCG = function(A, b) {
+    var r, p, alp, x, bet, Ap, rback;
+
+    x = b;
+    r = List.sub(b, General.mult(A, b));
+    p = r;
+
+    var maxIter = Math.ceil(1.2 * A.value.length);
+    var count = 0;
+    while (count < maxIter) {
+        count++;
+        Ap = General.mult(A, p);
+
+        alp = List.scalproduct(r, r);
+        rback = alp;
+        alp = CSNumber.div(alp, List.scalproduct(p, Ap));
+
+        x = List.add(x, General.mult(alp, p));
+        r = List.sub(r, General.mult(alp, Ap));
+
+        if (List.abs(r).value.real < CSNumber.eps) break;
+
+        bet = List.scalproduct(r, r);
+        bet = CSNumber.div(bet, rback);
+        p = List.add(r, General.mult(bet, p));
+    }
+    if (count >= maxIter) console.log("CG did not converge");
+
+    return x;
+};
+
+
+List.det = function(a) {
+    if (a.value.length === 1) return a.value[0].value[0];
+    if (a.value.length === 2) return List.det2(a.value[0], a.value[1]);
+    if (a.value.length === 3) {
+        var A1 = a.value[0];
+        var A2 = a.value[1];
+        var A3 = a.value[2];
+        return List.det3(A1, A2, A3);
+    }
+
+    var n = a.value.length,
+        ret = CSNumber.real(1),
+        i, j, k, A = JSON.parse(JSON.stringify(a)),
+        Aj, Ai, alpha, temp, k1, k2, k3;
+    for (j = 0; j < n - 1; j++) {
+        k = j;
+        for (i = j + 1; i < n; i++) {
+            if (CSNumber.abs(A.value[i].value[j]).value.real > CSNumber.abs(A.value[k].value[j]).value.real) {
+                k = i;
+            }
+        }
+        if (k !== j) {
+            temp = A.value[k];
+            A.value[k] = A.value[j];
+            A.value[j] = temp;
+            ret = CSNumber.neg(ret);
+        }
+        Aj = A.value[j];
+        for (i = j + 1; i < n; i++) {
+            Ai = A.value[i];
+            alpha = CSNumber.div(Ai.value[j], Aj.value[j]);
+            for (k = j + 1; k < n - 1; k += 2) {
+                k1 = k + 1;
+                Ai.value[k] = CSNumber.sub(Ai.value[k], CSNumber.mult(Aj.value[k], alpha));
+                Ai.value[k1] = CSNumber.sub(Ai.value[k1], CSNumber.mult(Aj.value[k1], alpha));
+            }
+            if (k !== n) {
+                Ai.value[k] = CSNumber.sub(Ai.value[k], CSNumber.mult(Aj.value[k], alpha));
+            }
+        }
+        if (CSNumber._helper.isZero(Aj.value[j])) {
+            return CSNumber.real(0);
+        }
+        ret = CSNumber.mult(ret, Aj.value[j]);
+    }
+    var result = CSNumber.mult(ret, A.value[j].value[j]);
+    return result;
+};
+
+List.LUdet = function(a) {
+    var LUP = List.LUdecomp(a);
+    var LU = LUP.LU;
+
+    var len = LU.value.length;
+
+    var det = LU.value[0].value[0];
+    for (var i = 1; i < len; i++) det = CSNumber.mult(det, LU.value[i].value[i]);
+
+    // take care of sign
+    if (LUP.TransPos % 2 === 1) det = CSNumber.neg(det);
+
+    return det;
+};
+
+List.inversereal = function(a) { //Das ist nur Reell und greift auf numeric zurück
     var i, j;
     var x = [];
     var y = [];
@@ -1230,8 +1582,7 @@ List.inverse = function(a) { //Das ist nur Reell und greift auf numeric zurück
     return List.turnIntoCSList(erg);
 };
 
-
-List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric zurück
+List.linearsolvereal = function(a, bb) { //Das ist nur Reell und greift auf numeric zurück
     var x = [];
     var y = [];
     var b = [];
@@ -1253,8 +1604,7 @@ List.linearsolve = function(a, bb) { //Das ist nur Reell und greift auf numeric 
     return List.realVector(res);
 };
 
-
-List.det = function(a) { //Das ist nur Reell und greift auf numeric zurück
+List.detreal = function(a) { //Das ist nur Reell und greift auf numeric zurück
     var x = [];
     var y = [];
     var n = a.value.length;

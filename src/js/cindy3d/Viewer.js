@@ -273,6 +273,8 @@ Viewer.prototype.setupListeners = function(addEventListener) {
 
 Viewer.prototype.clear = function() {
   this.spheres.clear();
+  this.cylinders.clear();
+  this.triangles.clear();
 };
 
 Viewer.prototype.scheduleRender = function() {

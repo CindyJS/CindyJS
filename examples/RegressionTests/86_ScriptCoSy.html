@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+translate([1, 0]);
+draw([1, -1]);
+draw([1, 1]);
+A.xy = [0, 0];
+draw([1, 0]);
+
+
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({
+  canvasname: "CSCanvas",
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {},
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0]}
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+  <p>The three yellow dots should be horizontally aligned. Don't expect anything movable.</p>
+</body>
+
+</html>

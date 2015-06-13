@@ -1,0 +1,83 @@
+Merkliste:
+
+Sachen, die uns beim Tracing-Krams aufgefallen sind.
+
+- Through kann nicht mit Geraden durch Fernpunkte umgehen.
+- kind (ehemals geoOpMap) ist "C" sowohl für Kreise als auch für Kegelschnitte – ist gewollt @done(2015-04-15)
+- kind (ehemals geoOpMap) ist "Tr" für TrProjection?
+- Bedingung "if (!move || move.mover === el) {" für PointOnSegment? @done(2015-04-16)
+- GeoOps._helper enthält operationsspezifische helper, z.B. GeoOps._helper.CenterOfConic
+- CircleMP kann keinen Fernpunkt als Mittelpunkt haben @done(2015-04-28)
+- CircleMr kann keinen Fernpunkt als Mittelpunkt haben. Wobei, was sollte dabei rauskommen? @done(2015-04-28)
+- CircleMr kann keinen komplexen Radius
+- CircleMFixedr ist fast äquivalent zu CircleMr. Kann das als gepinnter CircleMr implementiert werden?
+- PointOnLine hat keinen mover, wie geht das? @done(2015-04-16)
+- Wieso haben wir Polar, aber nicht Pole?
+- Sollte in mehr Fallunterscheidungen kind==="S" wie kind==="L" behandelt werden?
+- MV_LA1_Bsp1_4.html nimmt nicht PointOnCircle, pinnt die Kreisradien nicht, und hat daher manchmal den Punkt nicht auf dem Kreis.
+- Sollte PointOnCircle eher PointsOnCircle gefolgt von SelectP sein?
+- Wollen wir einen Mechanismus, um komplexere Befehle aus einfacheren aufzubauen? @done(2015-04-27) geoMacros
+- Gibt es Situationen, wo wir die Mausposition direkt, ohne offset, verwenden wollen?
+- Will man rein reell laufen, wo das zu gehen scheint? Kann man das überhaupt sauber erkennen? Zumindest nicht naiv, siehe Tracing2.html.
+- Soll ConicBy2Foci1P wirklich zweiwertig sein? Wenn ja, soll das auch getraced werden?
+- Muss man immer den nächstgelegenen Repräsentanten nehmen, damit lineare Interpolation den kürzesten Pfad widerspiegelt? Was bedeutet das bei komplexwertigen Vektoren?
+
+Fragen:
+
+- Tracen wir Mauspositionen, oder die Parameter in die diese übersetzt werden?
+- Tracen wir, wenn man im Skript per elt.xy oder elt.homog was setzt?
+- Wie ist das zusammenspiel zwischen einem aktiven Move und einem recalc, das eventuell irgendwo anders in der Zeit getriggert wird?
+
+1. Mover: Maus (und Eltern) in Parameter übersetzen
+2. ggf. Zahlenklasse austauschen
+3.   Schleife für Pfad (im Parameter-Raum), Refinement, …
+4.     Mover: Parameter in homogene Koordinaten übersetzen
+5.     Davon abhängige Elemente: Eltern in Parameter
+6.     Davon abhängige Elemente: Parameter in homogene Koordinaten
+7. Zahlenklasse zurück tauschen
+
+
+Was muss eine geom. Operation für Methoden haben?
+
+- computeParameters         (der Teil vor / statt move.mover === el)
+- computeParametersOnInput  (der Teil in move.mover === el)
+- updatePosition            (der Teil danach, mit el.homog = ...)
+- parameterPath             (t in spezifische Parameter übersetzen)
+- kind                      (bisher geoOpMap)
+- name ??                   (human readable)
+- backupState ?
+- restoreState ?
+- stateSize                 (Anzahl der Floats im internen Parametervektor + anzahl der Floats, die von Wurzeln usw. gebraucht werden)
+
+Was hat ein Element selber an Informationen?
+
+- Internen Parameter-Vektor in "param" member
+- Position in homogenen Koordinaten für Kinder / Anzeige
+- index in ein State Array
+
+Globale Informationen:
+
+- State Arrays, auf die mit dem state array index zugegriffen werden kann
+
+Nächste Schritte:
+
+- Bestehende Operationen in mehrere Funktionen aufspalten (s.o.) @Stefan @done(2015-04-15)
+- saveState und restoreState für adCSNumber einführen @Michael
+- stateSize für Operationen auf adCSNumber festlegen @Michael
+- Events an Tracing-Funktion weiterleiten @Martin @done(2015-04-16)
+- Sicherstellen, dass alle freien Elemente wieder bewegbar sind @done(2015-04-27)
+- Tracing für IntersectConicConic implementieren
+- Tracing für ConicBy4p1l und ConicBy1p4l implementieren @done(2015-04-28)
+- Entweder ConicBy2Foci1P tracen oder auf zwei Funktionen aufteilen
+- tracingSesq mit State und Refinement-Handling ausstatten @done(2015-04-28)
+- Tracing für alle mehrwertigen Operationen durch Beispiele verifizieren
+- Tracing für alle mehrwertigen Operationen durch Unit Tests verifizieren
+- Halbfreie Elemente mit State ausstatten @done(2015-04-27)
+- Operationen auf korrekten Umgang mit komplexen Umwegen überprüfen
+- Überprüfen, ob Interpolationspfade immer sinnvoll sind, incl. Vorzeichen
+- Die Bestandteile einer GeoOp dokumentieren @done(2015-05-22)
+- „el.parameter = …“ in return „…“ übersetzen @done(2015-04-28)
+- Kein tracing, so lange sich nichts bewegt @done(2015-04-28)
+- Zuweisungen an .xy oder .homog richtig machen @done(2015-05-22)
+- labObjects.Mass.move durch traceMover führen, evtl. via movepointscr @done(2015-05-27)
+- in Setup.js die backupGeo / restoreGeo durch State-Kopieren ersetzen @done(2015-05-27)

@@ -38,9 +38,8 @@ function evokeCS(code) {
 }
 
 
-function initialTransformation(data) {
-    if (data.transform) {
-        var trafos = data.transform;
+function initialTransformation(trafos) {
+    if (trafos) {
         for (var i = 0; i < trafos.length; i++) {
             var trafo = trafos[i];
             var trname = Object.keys(trafo)[0];
@@ -55,10 +54,19 @@ function initialTransformation(data) {
                 csscale = trafo[trname][0] / 25;
                 csport[trname].apply(null, trafo[trname]);
             }
+            if (trname === "visibleRect") {
+                csport[trname].apply(null, trafo[trname]);
+                csscale = csport.drawingstate.initialmatrix.a / 25;
+            }
         }
         csport.createnewbackup();
     }
 }
+
+// hook to allow instrumented versions to replace or augment the canvas object
+var haveCanvas = function(canvas) {
+    return canvas;
+};
 
 var csmouse, csctx, csw, csh, csgeo, images;
 
@@ -67,10 +75,36 @@ function createCindyNow() {
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
     csmouse = [100, 100];
-    var cscode, c = data.canvas;
-    if (!c && typeof document !== "undefined")
-        c = document.getElementById(data.canvasname);
+    var cscode;
+    var c = null;
+    var trafos = data.transform;
+    if (data.ports) {
+        if (data.ports.length > 0) {
+            var port = data.ports[0];
+            c = port.element;
+            if (!c)
+                c = document.getElementById(port.id);
+            if (port.fill === "window") {
+                c.setAttribute("width", window.innerWidth);
+                c.setAttribute("height", window.innerHeight);
+                // TODO: dynamic resizing on window change
+            } else if (port.width && port.height) {
+                c.setAttribute("width", port.width);
+                c.setAttribute("height", port.height);
+            }
+            if (port.background)
+                c.style.backgroundColor = port.background;
+            if (port.transform !== undefined)
+                trafos = port.transform;
+        }
+    }
+    if (!c) {
+        c = data.canvas;
+        if (!c && typeof document !== "undefined")
+            c = document.getElementById(data.canvasname);
+    }
     if (c) {
+        c = haveCanvas(c);
         csctx = c.getContext("2d");
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
@@ -82,7 +116,11 @@ function createCindyNow() {
     evaluate(iscr);
 
     //Setup the scripts
-    var scripts = ["move", "keydown", "mousedown", "mouseup", "mousedrag", "init", "tick", "draw"];
+    var scripts = ["move", "keydown",
+        "mousedown", "mouseup", "mousedrag",
+        "init", "tick", "draw",
+        "simulationstep", "cssimulationstart", "cssimulationstop"
+    ];
     var scriptconf = data.scripts,
         scriptpat = null;
     if (typeof scriptconf === "string" && scriptconf.search(/\*/))
@@ -117,14 +155,16 @@ function createCindyNow() {
         csgridscript = analyse('#drawgrid(' + csgridsize + ')', false);
     }
     if (data.snap) cssnap = data.snap;
-    initialTransformation(data);
 
     if (c) {
         csw = c.width;
         csh = c.height;
+        initialTransformation(trafos);
         csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty - csh;
         csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty - csh;
-        var devicePixelRatio = window.devicePixelRatio || 1;
+        var devicePixelRatio = 1;
+        if (typeof window !== "undefined" && window.devicePixelRatio)
+            devicePixelRatio = window.devicePixelRatio;
         var backingStoreRatio =
             csctx.webkitBackingStorePixelRatio ||
             csctx.mozBackingStorePixelRatio ||
@@ -136,8 +176,10 @@ function createCindyNow() {
             var ratio = devicePixelRatio / backingStoreRatio;
             c.width = csw * ratio;
             c.height = csh * ratio;
-            c.style.width = csw + "px";
-            c.style.height = csh + "px";
+            if (!c.style.width)
+                c.style.width = csw + "px";
+            if (!c.style.height)
+                c.style.height = csh + "px";
             csctx.scale(ratio, ratio);
         }
     }
@@ -200,55 +242,46 @@ function createCindyNow() {
 
 }
 
-var backup = [];
+var backup = null;
 
 function backupGeo() {
-
-    backup = [];
-
+    var state = backup ? backup.state : new Float64Array(stateIn.length);
+    state.set(stateIn);
+    var speeds = {};
     for (var i = 0; i < csgeo.points.length; i++) {
         var el = csgeo.points[i];
-        var data = {
-            name: JSON.stringify(el.name),
-            homog: JSON.stringify(el.homog),
-            sx: JSON.stringify(el.sx),
-            sy: JSON.stringify(el.sy),
-            sz: JSON.stringify(el.sz)
-        };
         if (typeof(el.behavior) !== 'undefined') {
-            data.vx = JSON.stringify(el.behavior.vx);
-            data.vy = JSON.stringify(el.behavior.vy);
-            data.vz = JSON.stringify(el.behavior.vz);
+            speeds[el.name] = [
+                el.behavior.vx,
+                el.behavior.vy,
+                el.behavior.vz
+            ];
         }
-
-        backup.push(data);
-
     }
-
+    backup = {
+        state: state,
+        speeds: speeds
+    };
 }
 
 
 function restoreGeo() {
-
-
-    for (var i = 0; i < backup.length; i++) {
-        var name = JSON.parse(backup[i].name);
-
+    if (backup === null)
+        return;
+    stateIn.set(backup.state);
+    Object.keys(backup.speeds).forEach(function(name) {
         var el = csgeo.csnames[name];
-        el.homog = JSON.parse(backup[i].homog);
-        el.sx = JSON.parse(backup[i].sx);
-        el.sy = JSON.parse(backup[i].sy);
-        el.sz = JSON.parse(backup[i].sz);
         if (typeof(el.behavior) !== 'undefined') { //TODO Diese Physics Reset ist FALSCH
-            el.behavior.vx = JSON.parse(backup[i].vx);
-            el.behavior.vy = JSON.parse(backup[i].vy);
-            el.behavior.vz = JSON.parse(backup[i].vz);
+            var speed = backup.speeds[name];
+            el.behavior.vx = speed[0];
+            el.behavior.vy = speed[1];
+            el.behavior.vz = speed[2];
             el.behavior.fx = 0;
             el.behavior.fy = 0;
             el.behavior.fz = 0;
         }
-    }
-
+    });
+    recalcAll();
 }
 
 

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csmousedrag" type="text/x-cindyscript">
+//if(mover()==A,initiss());
+
+
+</script>
+
+<script id="cskeydown" type="text/x-cindyscript">
+
+
+</script>
+
+<script id="csdraw" type="text/x-cindyscript">
+
+
+
+canvas(pt1,pt2,"front",
+ // fillcircle((0,0),20,color->(1,1,1)); 
+  drawimage(pt1,pt2,"back",alpha->0.99);
+);
+
+clearimage("back");
+
+canvas(pt1,pt2,"back",
+//  fillcircle((0,0),20,color->(1,1,1)); 
+  drawimage(pt1,pt2,"front",alpha->.8);
+  forall(1..n,draw(oldstreamlets_#,streamlets_#,size->1,alpha->1/(1+(ages_#/1.5)^2)));
+//  forall(1..n,draw(oldstreamlets_#,streamlets_#,size->2,alpha->1));
+
+);
+clearimage("front");
+canvas(pt1,pt2,"front",
+  fillcircle((0,0),20,color->(1,1,1)); 
+
+);
+
+
+drawimage(pt1,pt2,"back",alpha->1);
+
+
+
+oldstreamlets=streamlets;
+
+streamlets=apply(streamlets,#+f(#)*.03);
+ages=apply(ages,#+.04);
+
+forall(1..n,if(ages_#>10,ages_#=-4;streamlets_#=initparticle();oldstreamlets_#=streamlets_#));
+</script>
+
+<script id="csinit" type="text/x-cindyscript">
+
+pt1=(-20,-20);
+pt2=(20,-20);
+
+initiss():=(
+
+  clearimage("test");
+  playanimation();
+
+);
+createimage("front",1000,1000);
+createimage("back",1000,1000);
+
+//g(v):=(v.y*A.x,sin(v.x)*A.y);
+//g(v):=(-sin(v.x),cos(v.y));
+g(v):=(v.y*A.x,v.x*A.y);
+
+//f(v):=(r=g(v);if(|r|>4,r=r/|r|*4);r);
+f(v):=(r=g(v);r/|r|*4);
+n=1000;
+
+initparticle():=(
+   pp=(random()-1/2,random()-1/2)*20;
+   repeat(50,pp=pp-f(pp)*.01);
+   pp;
+);
+streamlets=apply(1..n,initparticle());
+oldstreamlets=streamlets;
+ages=apply(1..n,(random()-1/2)*20);
+
+initiss();
+
+
+</script>
+
+<script type="text/javascript">
+
+            var gslp=[
+                      {name:"A", kind:"P", type:"Free", sx:1,sy:-1,sz:1,size:3}
+                                           
+                      ];
+createCindy({
+  canvasname: "cindy",
+  scripts: "cs*",
+  geometry:gslp,
+  defaultAppearance: { },
+});
+
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <pre>
+    <canvas id="cindy" width="500" height="500"
+            style="border:2px solid black"></canvas>
+  </pre>
+</body>
+
+</html>

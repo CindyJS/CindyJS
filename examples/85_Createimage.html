@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+linesize(4);
+//Zur Kontrolle im Originalbild
+  draw((0,0));
+  draw((-10,-10),(10,10),color->red(1));
+  draw((-10,10),(10,-10),color->blue(1));
+  draw(A,B,color->(0,0,0));
+  drawcircle(B,2);
+  draw((-10,0),(10,0),color->green(1));
+  
+clearimage("test");
+p(v):=[-v_2,v_1];
+fillpoly([C,D,D+p(D-C)*3/4,C+p(D-C)*3/4],alpha->0.2);
+fillpoly([E,F,F+p(F-E)*3/4,E+p(F-E)*3/4],alpha->0.2,color->gray(.8));
+
+//Und jetzt auf den canvas
+
+canvas(C,D,"test",
+  draw((0,0));
+  draw((-10,-10),(10,10),color->red(1));
+  draw((-10,10),(10,-10),color->blue(1));
+  draw(A,B,color->(0,0,0));
+  draw(B,size->6);
+  draw(A,size->6);
+  drawcircle(B,2);
+  draw((-10,0),(10,0),color->green(1));
+);
+
+drawimage(E,F,"test");
+
+</script>
+
+<script id="csinit" type="text/x-cindyscript">
+
+
+createimage("test",400,300);
+
+</script>
+
+<script type="text/javascript">
+
+            var gslp=[
+                      {name:"A", kind:"P", type:"Free", sx:7,sy:1,sz:1},
+                      {name:"B", kind:"P", type:"Free", sx:0,sy:-1,sz:1},
+                      {name:"C", kind:"P", type:"Free", sx:-3,sy:-4,sz:1},
+                      {name:"D", kind:"P", type:"Free", sx:4,sy:-4,sz:1},
+                      {name:"E", kind:"P", type:"Free", sx:-9,sy:4,sz:1,color:[1,1,1]},
+                      {name:"F", kind:"P", type:"Free", sx:-4,sy:2,sz:1,color:[1,1,1]}
+                      ];
+createCindy({
+  canvasname: "cindy",
+  scripts: "cs*",
+  geometry:gslp,
+  defaultAppearance: { },
+});
+
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <pre>
+    <canvas id="cindy" width="500" height="500"
+            style="border:2px solid black"></canvas>
+  </pre>
+</body>
+
+</html>

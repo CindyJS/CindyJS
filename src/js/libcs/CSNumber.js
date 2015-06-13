@@ -36,6 +36,8 @@ CSNumber.real = function(r) {
 
 CSNumber.zero = CSNumber.real(0);
 
+CSNumber.one = CSNumber.real(1);
+
 CSNumber.argmax = function(a, b) {
     var n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
     var n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
@@ -214,7 +216,7 @@ CSNumber.inv = function(a) {
     // perhaps we should not only check for 0
     // if(Math.abs(s) < 1e32) {
     if (s === 0) {
-        console.log("DIVISION BY ZERO");
+        console.error("DIVISION BY ZERO");
         //        halt=immediately;
 
     }
@@ -459,10 +461,6 @@ CSNumber.mod = function(a, b) {
     });
 };
 
-CSNumber.solveCubic = function(a, b, c, d) {
-    return CSNumber._helper.solveCubic(a.value.real, a.value.imag, b.value.real, b.value.imag, c.value.real, c.value.imag, d.value.real, d.value.imag);
-};
-
 
 CSNumber._helper = {};
 CSNumber._helper.seed = 'NO';
@@ -553,9 +551,49 @@ CSNumber._helper.isAlmostImag = function(a) {
     return (r < CSNumber.epsbig) && (r > -CSNumber.epsbig); //So gemacht wie in Cindy
 };
 
+CSNumber._helper.z3a = CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
+CSNumber._helper.z3b = CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
+CSNumber._helper.cub1 = {
+    "ctype": "list",
+    "value": [CSNumber.one, CSNumber.one, CSNumber.one]
+};
+CSNumber._helper.cub2 = {
+    "ctype": "list",
+    "value": [CSNumber._helper.z3a, CSNumber.one, CSNumber._helper.z3b]
+};
+CSNumber._helper.cub3 = {
+    "ctype": "list",
+    "value": [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a]
+};
 
-CSNumber._helper.solveCubic = function(ar, ai, br, bi, cr, ci, dr, di) {
-    // dreist direkt aus dem cinderella2 sourcecode geklaut
+/* Solve the cubic equation ax^3 + bx^2 + cx + d = 0.
+ * The result is a JavaScript array of three complex numbers satisfying that equation.
+ */
+CSNumber.solveCubic = function(a, b, c, d) {
+    var help = CSNumber._helper.solveCubicHelper(a, b, c, d);
+    return [
+        List.scalproduct(CSNumber._helper.cub1, help),
+        List.scalproduct(CSNumber._helper.cub2, help),
+        List.scalproduct(CSNumber._helper.cub3, help)
+    ];
+};
+
+/* Helps solving the cubic equation ax^3 + bx^2 + cx + d = 0.
+ * The returned values are however NOT the solution itself.
+ * If this function returns [y1, y2, y3] then the actual solutions are
+ * x = z*y1 + y2 + z^2*y3 where z^3 = 1 i.e. z is any of three roots of unity
+ */
+CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
+    // mostly adapted from the cinderella2 source code
+
+    var ar = a.value.real;
+    var ai = a.value.imag;
+    var br = b.value.real;
+    var bi = b.value.imag;
+    var cr = c.value.real;
+    var ci = c.value.imag;
+    var dr = d.value.real;
+    var di = d.value.imag;
 
     var c1 = 1.25992104989487316476721060727822835057025; //2^(1/3)
     var c2 = 1.58740105196819947475170563927230826039149; //2^(2/3)
@@ -676,6 +714,187 @@ CSNumber._helper.solveCubic = function(ar, ai, br, bi, cr, ci, dr, di) {
     zr = t2r;
     zi = t2i;
 
-
-    return [CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)];
+    return List.turnIntoCSList([
+        CSNumber.complex(xr, xi),
+        CSNumber.complex(yr, yi),
+        CSNumber.complex(zr, zi)
+    ]);
 };
+
+
+//CSNumber._helper.solveCubicBlinn = function(alpha, beta, gamma, delta) {
+//    // Blinn
+//    var beta2 = CSNumber.mult(beta,beta);
+//    var beta3 = CSNumber.mult(beta2,beta);
+//    var gamma2 = CSNumber.mult(gamma,gamma);
+//    var gamma3 = CSNumber.mult(gamma2,gamma);
+//
+//    var d1 = CSNumber.mult(alpha,gamma);
+//    d1 = CSNumber.sub(d1, beta2);
+//
+//    var d2 = CSNumber.mult(alpha,delta);
+//    d2 = CSNumber.sub(d2, CSNumber.mult(beta,gamma));
+//
+//    var d3 = CSNumber.mult(beta,delta);
+//    d3 = CSNumber.sub(d3, gamma2);
+//
+//    var ldel = CSNumber.multiMult([CSNumber.real(4), d1, d3]);
+//    ldel = CSNumber.sub(ldel, CSNumber.mult(d2,d2));
+//
+//    console.log("ldel", ldel.value.real);
+//
+//    var lambda, mu;
+//    // large if else switch in paper
+//    if(ldel.value.real < 0){
+//        console.log("ldel value real < 0 true");
+//        var abar;
+//        var dbar;
+//        var bbar;
+//        var gbar;
+//    
+//        var ifone = CSNumber.sub(CSNumber.mult(beta3, delta), CSNumber.mult(alpha,gamma3));
+//        //console.log("ifone", ifone);
+//        if(ifone.value.real >= 0){
+//        console.log("ifone value real >= 0 true");
+//            abar = CSNumber.clone(alpha);
+//            gbar = CSNumber.clone(d1);
+//            dbar = CSNumber.add(CSNumber.multiMult([CSNumber.real(-2), beta,d1]), CSNumber.mult(alpha,d2));
+//        }
+//        else{
+//        console.log("ifone value real >= 0 false");
+//            abar = delta;
+//            gbar = d3;
+//            dbar = CSNumber.add(CSNumber.multiMult([CSNumber.real(-1), delta, d2]), CSNumber.multiMult([CSNumber.real(2), gamma, d3]));
+//        }
+//    
+//        var signum = function(a){
+//            if(a.value.real > 0) return CSNumber.real(1);
+//            else return CSNumber.real(-1);
+//        }
+//    
+//        var T0 = CSNumber.multiMult([CSNumber.real(-1), signum(dbar), CSNumber.abs(abar), CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), ldel))]);
+//        var T1 = CSNumber.add(CSNumber.mult(CSNumber.real(-1), dbar), T0);
+//    
+//        var pp = CSNumber.pow2(CSNumber.mult(T1, CSNumber.real(0.5)), 1/3);
+//    
+//        var qq;
+//        if(CSNumber.abs(T1, T0).value.real < 0.00000001){
+//            console.log("p = -q");
+//            qq = CSNumber.mult(CSNumber.real(-1), pp);
+//        }
+//        else {
+//            console.log("p !!!!= -q");
+//            qq = CSNumber.div(CSNumber.mult(CSNumber.real(-1),gbar), pp);
+//        }
+//    
+//        var x1;
+//        if(gbar.value.real <= 0){ 
+//            console.log("gbar.value.real <= 0 true");
+//            x1 = CSNumber.add(pp,qq);}
+//        else {
+//            console.log("gbar.value.real <= 0 false");
+//            x1 = CSNumber.mult(CSNumber.real(-1), dbar);
+//            var tmp = CSNumber.add(CSNumber.mult(pp,pp), CSNumber.mult(qq,qq));
+//            tmp = CSNumber.add(tmp,gbar);
+//            x1 = CSNumber.mult(x1, CSNumber.inv(tmp));
+//        }
+//    
+//        var res1;
+//        if(ifone.value.real >= 0) {
+//            console.log("ifone.value.real >= 0 true")
+//            res1 = [CSNumber.sub(x1, beta), alpha];
+//        }
+//        else {
+//            console.log("ifone.value.real >= 0 false")
+//            res1 = [CSNumber.mult(CSNumber.real(-1),delta), CSNumber.add(x1, gamma)];
+//        }
+//    
+//        //console.log("res1", res1);
+//        lambda = res1[0];
+//        mu = res1[1];
+//    }   //  if(ldel.value.real < 0)
+//    else{
+//console.log("ldel.value.real < 0 false");
+//        // left side of Blinn's paper
+//        //
+//        var DAbar = CSNumber.add(CSNumber.multiMult([CSNumber.real(-2), beta, d1]), CSNumber.mult(alpha,d2));
+//        var CAbar = CSNumber.clone(d1);
+//
+//        var sigA = CSNumber.arctan2(CSNumber.mult(alpha, CSNumber.sqrt(ldel)), CSNumber.mult(CSNumber.real(-1), DAbar));
+//        sigA = CSNumber.mult(CSNumber.real(1/3), CSNumber.abs(sigA));
+//
+//        var CAsqrt = CSNumber.multiMult([CSNumber.real(2), CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), CAbar))]);
+//
+//        var x1A = CSNumber.mult(CAsqrt, CSNumber.cos(sigA));
+//        var x3A = CSNumber.clone(CAsqrt);
+//        var x3Ainner = CSNumber.mult(CSNumber.real(-0.5), CSNumber.cos(sigA));
+//        // cos - sin
+//        x3Ainner = CSNumber.add(x3Ainner, CSNumber.multiMult([CSNumber.real(-0.5), CSNumber.sqrt(CSNumber.real(3)), CSNumber.sin(sigA)]));
+//        x3A = CSNumber.mult(CAsqrt, x3Ainner);
+//
+////        console.log("x1A, x3A, x3Ainner", x1A, x3A,x3Ainner);
+//        var ifxa = CSNumber.sub(CSNumber.add(x1A, x3A), CSNumber.mult(CSNumber.real(2), beta));
+//
+//        var xL;
+//        if(ifxa.value.real > 0){
+//            console.log( "ifxa.value.real > 0 true");
+//            xL = x1A;
+//        }
+//        else{
+//            console.log( "ifxa.value.real > 0 false");
+//            xL = x3A;
+//        }
+//
+//        var resL = [CSNumber.sub(xL, beta), alpha];
+//
+//        // right side of Blinn's paper
+//        //
+//        var DDbar = CSNumber.add(CSNumber.multiMult([CSNumber.real(-1), delta, d2]), CSNumber.multiMult([CSNumber.real(2),gamma,d3]));
+//        var CDbar = CSNumber.clone(d3);
+//        var sigD = CSNumber.arctan2(CSNumber.mult(delta, CSNumber.sqrt(ldel)), CSNumber.mult(CSNumber.real(-1), DDbar));
+//        sigD = CSNumber.mult(CSNumber.real(1/3), CSNumber.abs(sigD));
+//
+//        var CDsqrt = CSNumber.multiMult([CSNumber.real(2), CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), CDbar))]);
+//
+//        var x1D = CSNumber.mult(CDsqrt, CSNumber.cos(sigD));
+//        var x3D = CSNumber.clone(CDsqrt);
+//        // cos - sin
+//        var x3Dinner = CSNumber.mult(CSNumber.real(-0.5), CSNumber.cos(sigD));
+//        x3Dinner = CSNumber.add(x3Dinner, CSNumber.multiMult([CSNumber.real(-0.5), CSNumber.sqrt(CSNumber.real(3)), CSNumber.sin(sigA)]));
+//        x3D = CSNumber.mult(CAsqrt,x3Dinner);
+//
+//        console.log("x1D, x3d, x3Dinner", x1D, x3D, x3Dinner);
+//
+//        var ifxs = CSNumber.sub(CSNumber.add(x1D, x3D), CSNumber.mult(CSNumber.real(2), gamma));
+//
+//        var xS;
+//        if(ifxa.value.real < 0){
+//            console.log("ifxa.value.real < 0 true");
+//            xS = x1D;
+//        }
+//        else{
+//            console.log("ifxa.value.real < 0 false");
+//            xS = x3D;
+//        }
+//
+//        var resS = [CSNumber.mult(CSNumber.real(-1), delta), CSNumber.add(xS, gamma)];
+//
+//
+////        console.log("resL, resS", resL, resS);
+//        // combine both -- lower end of Blinn's paper
+//        var EE = CSNumber.mult(resL[1], resS[1]);
+//        var FF = CSNumber.multiMult([CSNumber.real(-1), resL[0], resS[1]]);
+//        FF = CSNumber.sub(FF, CSNumber.mult(resL[1], resS[0]));
+//        var GG = CSNumber.mult(resL[0], resS[0]);
+//
+// //       console.log("ee, ff, gg", EE, FF, GG);
+//        var resg1 = CSNumber.sub(CSNumber.mult(gamma, FF), CSNumber.mult(beta, GG));
+//        var resg2 = CSNumber.sub(CSNumber.mult(gamma, EE), CSNumber.mult(beta, FF));
+////        var regGes = [resg1, resg2];
+//        lambda = resg1;
+//        mu = resg2;
+//
+//        return [lambda, mu];
+//
+//    } // end else
+//};

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csmousedrag" type="text/x-cindyscript">
+if(mover()==A,initiss());
+if(mover()==B,initiss());
+if(mover()==C,initiss());
+if(mover()==D,initiss());
+if(mover()==E,initiss());
+if(mover()==Z,initiss());
+
+
+</script>
+
+<script id="csdraw" type="text/x-cindyscript">
+
+if(Z.x<X.x,Z.xy=X.xy);
+if(Z.x>Y.x,Z.xy=Y.xy);
+
+linesize(2);
+draw(A,B);
+draw(A,C);
+draw(D,E);
+
+f1=map(A,B,A,C);
+f2=map(A,B,D,E);
+bd=|X,Z|/|X,Y|;
+//Und jetzt auf den canvas
+p=(4,0,1);
+canvas((-10,-10),(10,-10),"test",
+
+  repeat(500,
+    r=random();
+    if(r<bd,
+       p=f1*p,
+       p=f2*p
+    );
+    if(#>20,
+     fillcircle(p,.01);
+    );
+  );
+);
+
+drawimage((-10,-10),(10,-10),"test");
+
+</script>
+
+<script id="csinit" type="text/x-cindyscript">
+
+initiss():=(
+  f1=map(A,B,A,C);
+  f2=map(A,B,D,E);
+  clearimage("test");
+  playanimation();
+
+);
+createimage("test",1000,1000);
+initiss();
+
+</script>
+
+<script type="text/javascript">
+
+            var gslp=[
+                      {name:"A", kind:"P", type:"Free", sx:-2,sy:-2,sz:1,size:3},
+                      {name:"B", kind:"P", type:"Free", sx:4,sy:-2,sz:1,size:3},
+                      {name:"C", kind:"P", type:"Free", sx:2.2,sy:1.5,sz:1,size:3},
+                      {name:"D", kind:"P", type:"Free", sx:4,sy:4,sz:1,size:3},
+                      {name:"E", kind:"P", type:"Free", sx:6,sy:4,sz:1,size:3},
+                      {name:"X", kind:"P", type:"Free", sx:-8,sy:-9,sz:1,color:[1,1,1],visible:false,pinned:true},
+                      {name:"Y", kind:"P", type:"Free", sx:-4,sy:-9,sz:1,color:[1,1,1],visible:false,pinned:true},
+                      {name:"a", kind:"L", type:"Segment", args:["X","Y"],color:[0,0,0]},
+                      {name:"Z", kind:"P", type:"PointOnLine", args:["a"],sx:-4.5,sy:-9,sz:1,color:[1,1,1],size:3}
+                      
+                      ];
+createCindy({
+  canvasname: "cindy",
+  scripts: "cs*",
+  geometry:gslp,
+  defaultAppearance: { },
+});
+
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <pre>
+    <canvas id="cindy" width="500" height="500"
+            style="border:2px solid black"></canvas>
+  </pre>
+</body>
+
+</html>

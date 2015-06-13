@@ -116,6 +116,19 @@ csport.scaleAndOrigin = function(scale, originX, originY) {
     csport.setMat(scale, 0, 0, scale, originX, originY);
 };
 
+csport.visibleRect = function(left, top, right, bottom) {
+    var width = right - left;
+    var height = top - bottom;
+    var scale;
+    if (csw * height < csh * width)
+        scale = csw / width;
+    else
+        scale = csh / height;
+    var originX = (csw - scale * (left + right)) / 2;
+    var originY = (csh - scale * (top + bottom)) / 2;
+    csport.setMat(scale, 0, 0, scale, originX, originY);
+};
+
 // TODO: This function looks broken. It seems as if the linear
 // portion of the matrix is multiplied from the left, but the
 // translation is multiplied from the right. Very confusing!
@@ -128,6 +141,10 @@ csport.applyMat = function(a, b, c, d, tx, ty) {
         m.b * c + m.d * d,
         m.a * tx + m.c * ty + m.tx,
         m.b * tx + m.d * ty + m.ty);
+    var tl = csport.to(0, -csh);
+    var br = csport.to(csw, 0);
+    console.log("{visibleRect: [" +
+        tl[0] + "," + tl[1] + "," + br[0] + "," + br[1] + "]}");
 };
 
 csport.translate = function(tx, ty) {
