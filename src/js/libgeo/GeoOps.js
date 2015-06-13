@@ -376,9 +376,18 @@ geoOps.PointOnCircle.updatePosition = function(el) {
     candidates = tracing2(candidates[0], candidates[1]);
     var pos = List.normalizeMax(candidates.value[0]);
     el.homog = General.withUsage(pos, "Point");
+    el.antipodalPoint = candidates.value[1];
 };
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 
+geoOps.OtherPointOnCircle = {};
+geoOps.OtherPointOnCircle.kind = "P";
+geoOps.OtherPointOnCircle.updatePosition = function(el) {
+    var first = csgeo.csnames[el.args[0]];
+    var pos = first.antipodalPoint;
+    pos = List.normalizeMax(pos);
+    el.homog = General.withUsage(pos, "Point");
+};
 
 geoOps.PointOnSegment = {};
 geoOps.PointOnSegment.kind = "P";
