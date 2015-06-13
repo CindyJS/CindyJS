@@ -3634,58 +3634,58 @@ evaluator.generateWebGL$2 = function(args, modifs) {
             }
         }
     }
+
     if ((expr.ctype === "function") && (expr.args.length === 1)) {
         a = evaluator.compileToWebGL$1([expr.args[0]], {});
-
-        if (expr.oper === "sin") {
+        if (expr.oper === "sin$1") {
             return {
                 "ctype": "string",
                 "value": "sinc(" + a.value + ")"
             };
         }
-        if (expr.oper === "cos") {
+        if (expr.oper === "cos$1") {
             return {
                 "ctype": "string",
                 "value": "cosc(" + a.value + ")"
             };
         }
-        if (expr.oper === "tan") {
+        if (expr.oper === "tan$1") {
             return {
                 "ctype": "string",
                 "value": "tanc(" + a.value + ")"
             };
         }
-        if (expr.oper === "exp") {
+        if (expr.oper === "exp$1") {
             return {
                 "ctype": "string",
                 "value": "expc(" + a.value + ")"
             };
         }
-        if (expr.oper === "log") {
+        if (expr.oper === "log$1") {
             return {
                 "ctype": "string",
                 "value": "logc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arctan") {
+        if (expr.oper === "arctan$1") {
             return {
                 "ctype": "string",
                 "value": "arctanc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arcsin") {
+        if (expr.oper === "arcsin$1") {
             return {
                 "ctype": "string",
                 "value": "arcsinc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arccos") {
+        if (expr.oper === "arccos$1") {
             return {
                 "ctype": "string",
                 "value": "arccosc(" + a.value + ")"
             };
         }
-        if (expr.oper === "sqrt") {
+        if (expr.oper === "sqrt$1") {
             return {
                 "ctype": "string",
                 "value": "sqrtc(" + a.value + ")"
@@ -3783,55 +3783,55 @@ evaluator.compileToWebGL$1 = function(args, modifs) {
     if ((expr.ctype === "function") && (expr.args.length === 1)) {
         a = evaluator.compileToWebGL$1([expr.args[0]], {});
 
-        if (expr.oper === "sin") {
+        if (expr.oper === "sin$1") {
             return {
                 "ctype": "string",
                 "value": "sinc(" + a.value + ")"
             };
         }
-        if (expr.oper === "cos") {
+        if (expr.oper === "cos$1") {
             return {
                 "ctype": "string",
                 "value": "cosc(" + a.value + ")"
             };
         }
-        if (expr.oper === "tan") {
+        if (expr.oper === "tan$1") {
             return {
                 "ctype": "string",
                 "value": "tanc(" + a.value + ")"
             };
         }
-        if (expr.oper === "exp") {
+        if (expr.oper === "exp$1") {
             return {
                 "ctype": "string",
                 "value": "expc(" + a.value + ")"
             };
         }
-        if (expr.oper === "log") {
+        if (expr.oper === "log$1") {
             return {
                 "ctype": "string",
                 "value": "logc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arctan") {
+        if (expr.oper === "arctan$1") {
             return {
                 "ctype": "string",
                 "value": "arctanc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arcsin") {
+        if (expr.oper === "arcsin$1") {
             return {
                 "ctype": "string",
                 "value": "arcsinc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arccos") {
+        if (expr.oper === "arccos$1") {
             return {
-                "ctype": "string",
+                "ctype": "string$1",
                 "value": "arccosc(" + a.value + ")"
             };
         }
-        if (expr.oper === "sqrt") {
+        if (expr.oper === "sqrt$1") {
             return {
                 "ctype": "string",
                 "value": "sqrtc(" + a.value + ")"
