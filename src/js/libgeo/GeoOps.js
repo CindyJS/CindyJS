@@ -22,6 +22,14 @@ geoOps.RandomLine.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+geoOps.FreeLine = {};
+geoOps.FreeLine.kind = "L";
+geoOps.FreeLine.updatePosition = function(el) {
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Line");
+};
+
 
 geoOps.RandomPoint = {};
 geoOps.RandomPoint.kind = "P";
@@ -1005,10 +1013,24 @@ geoOps.Polar.kind = "L";
 geoOps.Polar.updatePosition = function(el) {
     var Conic = csgeo.csnames[(el.args[0])];
     var Point = csgeo.csnames[(el.args[1])];
-    el.homog = General.mult(Conic.matrix, Point.homog);
+    var iMatrix = List.inverse(Conic.matrix);
+    el.homog = General.mult(iMatrix, Point.homog);
+
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Point");
+};
+
+geoOps.PolarPoint = {};
+geoOps.PolarPoint.kind = "P";
+geoOps.PolarPoint.updatePosition = function(el) {
+    var Conic = csgeo.csnames[(el.args[1])];
+    var Line = csgeo.csnames[(el.args[0])];
+    el.homog = General.mult(Conic.matrix, Line.homog);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+
+
 
 geoOps.angleBisector = {};
 geoOps.angleBisector.kind = "Ls";
@@ -1463,6 +1485,13 @@ geoMacros.IntersectionCircleCircle = function(el) {
     el.type = "IntersectCirCir";
     return [el];
 };
+
+geoMacros.PolarLine = function(el) {
+    el.args = [el.args[1], el.args[0]];
+    el.type = "Polar";
+    return [el];
+};
+
 
 geoMacros.Calculation = function(el) {
     console.log("Calculation stripped from construction");
