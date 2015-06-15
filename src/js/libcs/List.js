@@ -1417,7 +1417,7 @@ List.eig = function(A){
     var len = cslen.value.real;
     var zero = CSNumber.real(0);
 
-    var useHess = false;
+    var useHess = true;
     if(useHess){
         var Hess =  List._helper.toHessenberg(A);
         // PP is Trafo matrix
@@ -1847,15 +1847,16 @@ List._helper.isAlmostId = function(AA){
 };
 
 List.nullSpace = function(A){
-    A = List.realMatrix([[0, 1, 1], [0, 1, 0], [ 0, 0, 1]])
-    List.println(List.transpose(A));
+  //  A = List.realMatrix([[0, 1, 1], [0, 0, 0], [ 0, 0, 0]])
+//    List.println(List.transpose(A));
+    console.log(niceprint(A));
     var len = A.value.length;
 //    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
     var QR = List.QRdecomp(List.transpose(A)); // QQ of QR is Nullspace of A^H
     // TODO check if this should be transjugate
 
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
-    var nullRank = QR.rank.value.real - len;
+    var nullRank = len -QR.rank.value.real;
     debugger;
 
     var erg = [];
@@ -2004,9 +2005,11 @@ List.QRdecomp = function(A){
         // account pivots
         piv[k] = maxIdx;
         // TODO this is a workaround -- remove this later!
-//        var permAAA = JSON.parse(JSON.stringify(AAA));
- //       if(usePerm) List._helper.swapColumn(permAAA, k, maxIdx);
-        AA = List._helper.getBlock(AAA,[k,], [k,]);
+        var permAAA = JSON.parse(JSON.stringify(AAA));
+       if(usePerm) List._helper.swapColumn(permAAA, k, maxIdx);
+//        if(usePerm) List._helper.swapColumn(AAA, k, maxIdx);
+        //AA = List._helper.getBlock(AAA,[k,], [k,]);
+        AA = List._helper.getBlock(permAAA,[k,], [k,]);
 
         // TODO this could be moved outside ... too lazy now
         if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
@@ -2048,13 +2051,13 @@ List.QRdecomp = function(A){
 
         // update norms 
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
-       // for(var i = k + 1; i < len; i++){
-       //     norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
-       // }
+        for(var i = k + 1; i < len; i++){
+            norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
+        }
         //
         // this is my workaroun
-        tA = List.transpose(AAA);
-        for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
+     //   tA = List.transpose(AAA);
+     //   for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
 
         maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
         tau = norms.value[maxIdx];
