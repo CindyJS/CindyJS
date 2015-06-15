@@ -2006,7 +2006,12 @@ List.QRdecomp = function(A){
         piv[k] = maxIdx;
         // TODO this is a workaround -- remove this later!
         var permAAA = JSON.parse(JSON.stringify(AAA));
-       if(usePerm) List._helper.swapColumn(permAAA, k, maxIdx);
+       if(usePerm){
+           List._helper.swapColumn(permAAA, k, maxIdx);
+           var tmp = norms.value[k];
+           norms.value[k] = norms.value[maxIdx];
+           norms.value[maxIdx] = tmp;
+       }
 //        if(usePerm) List._helper.swapColumn(AAA, k, maxIdx);
         //AA = List._helper.getBlock(AAA,[k,], [k,]);
         AA = List._helper.getBlock(permAAA,[k,], [k,]);
