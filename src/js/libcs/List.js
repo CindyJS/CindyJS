@@ -1939,7 +1939,6 @@ List._helper.toHessenberg = function(A){
 
 
 List.QRdecomp = function(A){
-    A = List.realMatrix([[0, 0, 0], [0,2,0], [0,0,1]]);
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -1986,7 +1985,7 @@ List.QRdecomp = function(A){
         // get alpha
         //xx = List.column(AA, one);
         xx = List.column(AA, CSNumber.real(k+1));
-        alpha = List._helper.QRgetAlpha(xx, k);
+        alpha = List._helper.QRgetAlpha(xx, 0);
 
     
     
@@ -2008,15 +2007,17 @@ List.QRdecomp = function(A){
 
 
         // update norms 
+        // TODO this is the right way to do this -- i don't understand why whis doesn't work
         //for(var i = k + 1; i < len; i++){
         //    norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
         //}
+        //
+        // this is my workaroun
         tA = List.transpose(AAA);
         for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
 
         maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
         tau = norms.value[maxIdx];
-        console.log("tau after k", k, niceprint(tau));
 
         // after k+2 steps we are done
         if(k+2 === len){
@@ -2030,18 +2031,6 @@ List.QRdecomp = function(A){
         e1.value = e1.value.splice(0, e1.value.length-1);
     }
 
-    console.log("piv", piv);
-    var R = General.mult(List.transjugate(QQ), A);
-    List.println(R);
-    console.log("QQ*QQ*");
-    List.println(General.mult(QQ, List.transjugate(QQ)));
-    console.log("Q*R");
-    List.println(List.sub(General.mult(QQ, R), A));
-    console.log("norm", List.abs(List.sub(General.mult(QQ, R), A)).value.real);
-
-    console.log("rank", rank);
-    debugger;
-    
 
     return {
         Q: QQ,
