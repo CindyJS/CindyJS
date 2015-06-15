@@ -1420,7 +1420,7 @@ List.eig = function(A){
     if(useHess){
         var Hess =  List._helper.toHessenberg(A);
         // PP is Trafo matrix
-        PP = Hess[0];
+        //PP = Hess[0];
         AA = Hess[1];
 
     }
@@ -1432,13 +1432,14 @@ List.eig = function(A){
     var QRRes = List._helper.QRIteration(AA);
     //var QRRes = List._helper.QRIteration(AAA);
     AA = QRRes[0];
-    //console.log("AAA after qr iter");
-    //List.println(AAA);
+    console.log("AAA after qr iter");
+    List.println(AA);
+    debugger
 
     var QQ = QRRes[1];
 
     if(useHess){
-        QQ = General.mult(PP, QQ);
+        //QQ = General.mult(PP, QQ);
         //AA = General.mult(PP, AA);
     }
     //console.log("QQ from qrres");
@@ -1975,8 +1976,6 @@ List.QRdecomp = function(A){
         // account pivots
         piv[k] = maxIdx;
         List._helper.swapColumn(AAA, k, maxIdx);
-        console.log("AAA after swap", k, maxIdx);
-        List.println(AAA);
 
         // TODO this could be moved outside ... too lazy now
         if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
@@ -1984,7 +1983,7 @@ List.QRdecomp = function(A){
 
         // get alpha
         //xx = List.column(AA, one);
-        xx = List.column(AA, CSNumber.real(k+1));
+        xx = List.column(AA, one);
         alpha = List._helper.QRgetAlpha(xx, 0);
 
     
@@ -2031,19 +2030,18 @@ List.QRdecomp = function(A){
         e1.value = e1.value.splice(0, e1.value.length-1);
     }
 
+    var R = General.mult(List.transjugate(QQ), A);
 
     return {
         Q: QQ,
         R: R,
-        Rank, rank
+        Rank: rank
     };
 
 };
 
 
 List._helper.swapColumn= function(A, l, m){
-    //if(l < 0 || m < 0 || l > A.value[0].value.length || m > A.value[0].value.length) return;
-
     var tmp;
     for(var i = 0; i < A.value.length; i++){
             tmp = A.value[i].value[l];
