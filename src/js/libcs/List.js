@@ -1939,7 +1939,7 @@ List._helper.toHessenberg = function(A){
 
 
 List.QRdecomp = function(A){
-    A = List.realMatrix([[1, 0, 0], [0,2,0], [0,0,3]]);
+    A = List.realMatrix([[0, 0, 0], [0,2,0], [0,0,1]]);
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -1968,22 +1968,25 @@ List.QRdecomp = function(A){
     var rank = 0;
     for(var k = 0; k < len && !CSNumber._helper.isAlmostZero(tau) ; k++){
         // break of corresponding column norm gets zero
-//        if(CSNumber._helper.isAlmostZero(tau)){
-//            break;
-//        }
+        if(CSNumber._helper.isAlmostZero(tau)){
+            break;
+        }
         rank++;
 
         // account pivots
         piv[k] = maxIdx;
         List._helper.swapColumn(AAA, k, maxIdx);
+        console.log("AAA after swap", k, maxIdx);
+        List.println(AAA);
 
         // TODO this could be moved outside ... too lazy now
         if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
 
 
         // get alpha
-        xx = List.column(AA, one);
-        alpha = List._helper.QRgetAlpha(xx, 0);
+        //xx = List.column(AA, one);
+        xx = List.column(AA, CSNumber.real(k+1));
+        alpha = List._helper.QRgetAlpha(xx, k);
 
     
     
@@ -2013,6 +2016,7 @@ List.QRdecomp = function(A){
 
         maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
         tau = norms.value[maxIdx];
+        console.log("tau after k", k, niceprint(tau));
 
         // after k+2 steps we are done
         if(k+2 === len){
