@@ -1409,8 +1409,8 @@ List.eig2 = function(AA){
 };
 
 List.eig = function(A){
-    A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
-    console.log(niceprint(A));
+    //A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
+//    console.log(niceprint(A));
     var i,j;
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
@@ -1418,7 +1418,6 @@ List.eig = function(A){
     var zero = CSNumber.real(0);
 
     var useHess = false;
-    var PP;
     if(useHess){
         var Hess =  List._helper.toHessenberg(A);
         // PP is Trafo matrix
@@ -1434,9 +1433,9 @@ List.eig = function(A){
     var QRRes = List._helper.QRIteration(AA);
     //var QRRes = List._helper.QRIteration(AAA);
     AA = QRRes[0];
-    console.log("AAA after qr iter");
-    List.println(AA);
-    debugger;
+   // console.log("AAA after qr iter");
+   // List.println(AA);
+   // debugger;
 
     var QQ = QRRes[1];
 
@@ -1696,7 +1695,26 @@ List._helper.QRIteration = function(A, maxIter){
 
 
 
-        QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
+        QR = List.QRdecomp(List.sub(AA, shiftId), false); // shift
+        var QR2 = List.QRdecomp(List.sub(AA, shiftId), true); // shift
+
+        
+        var nomR = List.abs(List.sub(QR.R, QR2.R)).value.real;
+        var nomQ = List.abs(List.sub(QR.Q, QR2.Q)).value.real;
+
+        if(nomR > 1e-8){
+           
+            console.log("R not equal!", nomR);
+            List.println(QR.R);
+            console.log("===");
+            List.println(QR2.R);
+            console.log("===");
+            List.println(List.sub(QR.R, QR2.R));
+            debugger;
+        }
+
+        if(nomQ > 1e-8) console.log("Q not equal!");
+
         // deflation
 
 
@@ -1941,7 +1959,7 @@ List._helper.toHessenberg = function(A){
 };
 
 
-List.QRdecomp = function(A){
+List.QRdecomp = function(A, usePerm){
   //  A = List.realMatrix([[1, 0, 0], [0, 2, 0],  [0, 0, 3]]);
   //  A = List.realMatrix([[5, 0, 0, 0], [1, 1, 0, 0], [4, 7, 5, 0], [1, 6, 5, 1]]);
    // A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
@@ -1971,7 +1989,8 @@ List.QRdecomp = function(A){
     var maxIdx = List.maxIndex(norms, CSNumber.abs);
     var tau = norms.value[maxIdx];
     var rank = 0;
-    var usePerm = true;
+   // var usePerm = true;
+    //console.log("userperm", usePerm);
     for(var k = 0; k < len && !CSNumber._helper.isAlmostZero(tau) ; k++){
         // break of corresponding column norm gets zero
         if(CSNumber._helper.isAlmostZero(tau)){
@@ -1997,6 +2016,7 @@ List.QRdecomp = function(A){
 
     
     
+//        if(List.abs2(AA).value.real > e1-8){
             uu = List.sub(xx, List.scalmult(alpha, e1));
             vv = List.scaldiv(List.abs(uu), uu);
             ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
@@ -2009,9 +2029,15 @@ List.QRdecomp = function(A){
     
             // update QQ
             QQ = General.mult(QQ, List.transjugate(Qk));
+
+
+            AAA = General.mult(Qk, AAA);
+ //       }
+ //       else{
+ //          // Qk = List.idMatrix(cslen2, cslen2);
+ //       }
         
         // update AAA
-        AAA = General.mult(Qk, AAA);
 
 
         // swap back
@@ -2019,9 +2045,9 @@ List.QRdecomp = function(A){
 
         // update norms 
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
-        //for(var i = k + 1; i < len; i++){
-        //    norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
-        //}
+       // for(var i = k + 1; i < len; i++){
+       //     norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
+       // }
         //
         // this is my workaroun
         tA = List.transpose(AAA);
@@ -2043,6 +2069,8 @@ List.QRdecomp = function(A){
 
     var R = General.mult(List.transjugate(QQ), A);
 
+    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
+
 
    // console.log("piv", piv);
    // console.log("AAA");
@@ -2055,10 +2083,10 @@ List.QRdecomp = function(A){
    // List.println(General.mult(QQ,R));
    // console.log("A");
    // List.println(A);
- //   console.log("norm Q");
- //   List.println(General.mult(QQ, List.transjugate(QQ)));
- //   console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
- //   debugger;
+   // console.log("norm Q");
+  //  List.println(General.mult(QQ, List.transjugate(QQ)));
+  //  console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
+  //  debugger;
     
     //dfjsdkfjsdf
 
