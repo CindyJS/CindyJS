@@ -1695,25 +1695,25 @@ List._helper.QRIteration = function(A, maxIter){
 
 
 
-        QR = List.QRdecomp(List.sub(AA, shiftId), false); // shift
-        var QR2 = List.QRdecomp(List.sub(AA, shiftId), true); // shift
+        QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
+//        var QR2 = List.QRdecomp(List.sub(AA, shiftId), true); // shift
 
         
-        var nomR = List.abs(List.sub(QR.R, QR2.R)).value.real;
-        var nomQ = List.abs(List.sub(QR.Q, QR2.Q)).value.real;
-
-        if(nomR > 1e-8){
-           
-            console.log("R not equal!", nomR);
-            List.println(QR.R);
-            console.log("===");
-            List.println(QR2.R);
-            console.log("===");
-            List.println(List.sub(QR.R, QR2.R));
-            debugger;
-        }
-
-        if(nomQ > 1e-8) console.log("Q not equal!");
+//        var nomR = List.abs(List.sub(QR.R, QR2.R)).value.real;
+//        var nomQ = List.abs(List.sub(QR.Q, QR2.Q)).value.real;
+//
+//        if(nomR > 1e-8){
+//           
+//            console.log("R not equal!", nomR);
+//            List.println(QR.R);
+//            console.log("===");
+//            List.println(QR2.R);
+//            console.log("===");
+//            List.println(List.sub(QR.R, QR2.R));
+//            debugger;
+//        }
+//
+//        if(nomQ > 1e-8) console.log("Q not equal!");
 
         // deflation
 
@@ -1847,14 +1847,16 @@ List._helper.isAlmostId = function(AA){
 };
 
 List.nullSpace = function(A){
+    A = List.realMatrix([[0, 1, 1], [0, 1, 0], [ 0, 0, 1]])
+    List.println(List.transpose(A));
     var len = A.value.length;
 //    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
     var QR = List.QRdecomp(List.transpose(A)); // QQ of QR is Nullspace of A^H
     // TODO check if this should be transjugate
 
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
-    console.log("QQ in nullspace");
-    List.println(QQ);
+    var nullRank = QR.rank.value.real - len;
+    debugger;
 
     var erg = [];
     // test if is in kernel
@@ -1959,7 +1961,7 @@ List._helper.toHessenberg = function(A){
 };
 
 
-List.QRdecomp = function(A, usePerm){
+List.QRdecomp = function(A){
   //  A = List.realMatrix([[1, 0, 0], [0, 2, 0],  [0, 0, 3]]);
   //  A = List.realMatrix([[5, 0, 0, 0], [1, 1, 0, 0], [4, 7, 5, 0], [1, 6, 5, 1]]);
    // A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
@@ -1989,11 +1991,12 @@ List.QRdecomp = function(A, usePerm){
     var maxIdx = List.maxIndex(norms, CSNumber.abs);
     var tau = norms.value[maxIdx];
     var rank = 0;
-   // var usePerm = true;
+    var usePerm = true; // use Pivoted QR
     //console.log("userperm", usePerm);
-    for(var k = 0; k < len && !CSNumber._helper.isAlmostZero(tau) ; k++){
+    for(var k = 0; k < len; k++){
         // break of corresponding column norm gets zero
         if(CSNumber._helper.isAlmostZero(tau)){
+            console.log("breake since tau is almost zero, k=", k);
             break;
         }
         rank++;
@@ -2001,9 +2004,9 @@ List.QRdecomp = function(A, usePerm){
         // account pivots
         piv[k] = maxIdx;
         // TODO this is a workaround -- remove this later!
-        var permAAA = JSON.parse(JSON.stringify(AAA));
-        if(usePerm) List._helper.swapColumn(permAAA, k, maxIdx);
-        AA = List._helper.getBlock(permAAA,[k,], [k,]);
+//        var permAAA = JSON.parse(JSON.stringify(AAA));
+ //       if(usePerm) List._helper.swapColumn(permAAA, k, maxIdx);
+        AA = List._helper.getBlock(AAA,[k,], [k,]);
 
         // TODO this could be moved outside ... too lazy now
         if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
@@ -2055,6 +2058,8 @@ List.QRdecomp = function(A, usePerm){
 
         maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
         tau = norms.value[maxIdx];
+        console.log("tau", niceprint(tau));
+        console.log(niceprint(norms));
 
         // after k+2 steps we are done
         if(k+2 === len){
@@ -2093,7 +2098,7 @@ List.QRdecomp = function(A, usePerm){
     return {
         Q: QQ,
         R: R,
-        Rank: rank
+        rank: CSNumber.real(rank)
     };
 
 };
