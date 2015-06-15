@@ -1409,13 +1409,15 @@ List.eig2 = function(AA){
 };
 
 List.eig = function(A){
+    A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
+    console.log(niceprint(A));
     var i,j;
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
     var len = cslen.value.real;
     var zero = CSNumber.real(0);
 
-    var useHess = true;
+    var useHess = false;
     var PP;
     if(useHess){
         var Hess =  List._helper.toHessenberg(A);
@@ -1434,7 +1436,7 @@ List.eig = function(A){
     AA = QRRes[0];
     console.log("AAA after qr iter");
     List.println(AA);
-    debugger
+    debugger;
 
     var QQ = QRRes[1];
 
@@ -1743,8 +1745,8 @@ List._helper.QRIteration = function(A, maxIter){
                     }
         }
 
-       // console.log("AA in QRdecomp");
-       // List.println(AA);
+//        console.log("AA in QRdecomp");
+//        List.println(AA);
 
         if(len == 1){
             erg.value[0].value[0] = AA.value[0].value[0];
@@ -1940,6 +1942,9 @@ List._helper.toHessenberg = function(A){
 
 
 List.QRdecomp = function(A){
+  //  A = List.realMatrix([[1, 0, 0], [0, 2, 0],  [0, 0, 3]]);
+  //  A = List.realMatrix([[5, 0, 0, 0], [1, 1, 0, 0], [4, 7, 5, 0], [1, 6, 5, 1]]);
+   // A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -1966,6 +1971,7 @@ List.QRdecomp = function(A){
     var maxIdx = List.maxIndex(norms, CSNumber.abs);
     var tau = norms.value[maxIdx];
     var rank = 0;
+    var usePerm = true;
     for(var k = 0; k < len && !CSNumber._helper.isAlmostZero(tau) ; k++){
         // break of corresponding column norm gets zero
         if(CSNumber._helper.isAlmostZero(tau)){
@@ -1975,7 +1981,10 @@ List.QRdecomp = function(A){
 
         // account pivots
         piv[k] = maxIdx;
-        List._helper.swapColumn(AAA, k, maxIdx);
+        // TODO this is a workaround -- remove this later!
+        var permAAA = JSON.parse(JSON.stringify(AAA));
+        if(usePerm) List._helper.swapColumn(permAAA, k, maxIdx);
+        AA = List._helper.getBlock(permAAA,[k,], [k,]);
 
         // TODO this could be moved outside ... too lazy now
         if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
@@ -2005,6 +2014,9 @@ List.QRdecomp = function(A){
         AAA = General.mult(Qk, AAA);
 
 
+        // swap back
+
+
         // update norms 
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
         //for(var i = k + 1; i < len; i++){
@@ -2026,11 +2038,29 @@ List.QRdecomp = function(A){
 
         // book keeping
         cslen = CSNumber.sub(cslen, one);
-        AA = List._helper.getBlock(AAA,[k+1,], [k+1,]);
         e1.value = e1.value.splice(0, e1.value.length-1);
     }
 
     var R = General.mult(List.transjugate(QQ), A);
+
+
+   // console.log("piv", piv);
+   // console.log("AAA");
+   // List.println(AAA);
+   // console.log("R");
+   // List.println(R);
+   // console.log("QQ");
+   // List.println(QQ);
+   // console.log("QQ*R");
+   // List.println(General.mult(QQ,R));
+   // console.log("A");
+   // List.println(A);
+ //   console.log("norm Q");
+ //   List.println(General.mult(QQ, List.transjugate(QQ)));
+ //   console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
+ //   debugger;
+    
+    //dfjsdkfjsdf
 
     return {
         Q: QQ,
