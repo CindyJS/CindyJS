@@ -520,12 +520,16 @@ List.maxval = function(a) { //Only for Lists or Lists of Lists that contain numb
  * Return the index associated with the entry of maximal value
  * @param lst  a List to be iterated over, must not be empty
  * @param fun  a function to apply to each list element, must return a real value
+ * @param startIdx start search from here
  * @return the index of the maximal element as a JavaScript number
  */
-List.maxIndex = function(lst, fun) {
-    var bestIdx = 0;
-    var bestVal = fun(lst.value[0]).value.real;
-    for (var i = 1; i < lst.value.length; ++i) {
+List.maxIndex = function(lst, fun, startIdx) {
+    var sIdx = 0;
+    if(startIdx !== undefined) sIdx = startIdx;
+
+    var bestIdx = sIdx;
+    var bestVal = fun(lst.value[sIdx]).value.real;
+    for (var i = sIdx; i < lst.value.length; ++i) {
         var v = fun(lst.value[i]).value.real;
         if (v > bestVal) {
             bestIdx = i;
@@ -1935,38 +1939,54 @@ List._helper.toHessenberg = function(A){
 
 
 List.QRdecomp = function(A){
-    var AA = A;
-    var len = AA.value.length;
+    A = List.realMatrix([[1, 0, 0], [0,2,0], [0,0,3]]);
+    var AA;
+    var len = A.value.length;
     var cslen = CSNumber.real(len);
     var one = CSNumber.real(1);
 
-    // fetch upper triangular
-    if(List._helper.isUpperTriangular(A)){
-        console.log("is upper traing in QRdecomp");
-        return {
-            Q: List.idMatrix(cslen, cslen),
-            R: A,
-        };
-    }
-
-
-
-    var e1 = List._helper.unitvector(CSNumber.real(AA.value.length), one);
+    var e1 = List._helper.unitvector(CSNumber.real(A.value.length), one);
 
     var xx, alpha, uu, vv, ww, Qk;
+    // QQ is the the normal matrix Q
     var QQ = List.idMatrix(cslen, cslen);
 
-    var AAA = JSON.parse(JSON.stringify(AA));
-    for(var k = 0; k < len - 1; k++){
+    // this will be the updated matrix
+    var AAA = JSON.parse(JSON.stringify(A));
+
+
+    // get column norms
+    var tA = List.transpose(A);
+    var norms = new Array();
+    for(var i = 0; i < len; i++) norms[i] = List.abs2(tA.value[i]);
+    norms = List.turnIntoCSList(norms);
+
+
+    var piv = new Array();
+    var maxIdx = List.maxIndex(norms, CSNumber.abs);
+    var tau = norms.value[maxIdx];
+    var rank = 0;
+    for(var k = 0; k < len && !CSNumber._helper.isAlmostZero(tau) ; k++){
+        // break of corresponding column norm gets zero
+//        if(CSNumber._helper.isAlmostZero(tau)){
+//            break;
+//        }
+        rank++;
+
+        // account pivots
+        piv[k] = maxIdx;
+        List._helper.swapColumn(AAA, k, maxIdx);
+
+        // TODO this could be moved outside ... too lazy now
+        if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
+
+
         // get alpha
         xx = List.column(AA, one);
         alpha = List._helper.QRgetAlpha(xx, 0);
+
     
-        // fetch zero matrix
-        if(List.abs2(AA).value.real > 1e-16){
     
-            // TODO THIS IS SUB PERHAPS!
-//            console.log("warnung sub not fixed!");
             uu = List.sub(xx, List.scalmult(alpha, e1));
             vv = List.scaldiv(List.abs(uu), uu);
             ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
@@ -1979,16 +1999,26 @@ List.QRdecomp = function(A){
     
             // update QQ
             QQ = General.mult(QQ, List.transjugate(Qk));
-        }
-        else{
-            Qk = List.idMatrix(cslen, cslen);
-        }
         
         // update AAA
         AAA = General.mult(Qk, AAA);
 
+
+        // update norms 
+        //for(var i = k + 1; i < len; i++){
+        //    norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
+        //}
+        tA = List.transpose(AAA);
+        for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
+
+        maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
+        tau = norms.value[maxIdx];
+
         // after k+2 steps we are done
-        if(k+2 === len) break;
+        if(k+2 === len){
+            if(!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
+            break;
+        } 
 
         // book keeping
         cslen = CSNumber.sub(cslen, one);
@@ -1996,14 +2026,37 @@ List.QRdecomp = function(A){
         e1.value = e1.value.splice(0, e1.value.length-1);
     }
 
+    console.log("piv", piv);
     var R = General.mult(List.transjugate(QQ), A);
+    List.println(R);
+    console.log("QQ*QQ*");
+    List.println(General.mult(QQ, List.transjugate(QQ)));
+    console.log("Q*R");
+    List.println(List.sub(General.mult(QQ, R), A));
+    console.log("norm", List.abs(List.sub(General.mult(QQ, R), A)).value.real);
+
+    console.log("rank", rank);
+    debugger;
     
 
     return {
         Q: QQ,
         R: R,
+        Rank, rank
     };
 
+};
+
+
+List._helper.swapColumn= function(A, l, m){
+    //if(l < 0 || m < 0 || l > A.value[0].value.length || m > A.value[0].value.length) return;
+
+    var tmp;
+    for(var i = 0; i < A.value.length; i++){
+            tmp = A.value[i].value[l];
+            A.value[i].value[l] = A.value[i].value[m];
+            A.value[i].value[m] = tmp;
+        }
 };
 
 // build matrices of form
