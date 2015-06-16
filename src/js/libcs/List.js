@@ -1963,9 +1963,10 @@ List._helper.toHessenberg = function(A){
 
 
 List.QRdecomp = function(A){
-  //  A = List.realMatrix([[1, 0, 0], [0, 2, 0],  [0, 0, 3]]);
+   // A = List.realMatrix([[1, 0, 0], [0, 2, 0],  [0, 0, 3]]);
   //  A = List.realMatrix([[5, 0, 0, 0], [1, 1, 0, 0], [4, 7, 5, 0], [1, 6, 5, 1]]);
-   // A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
+    A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
+    console.log(niceprint(A));
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -1988,9 +1989,29 @@ List.QRdecomp = function(A){
     norms = List.turnIntoCSList(norms);
 
 
-    var piv = new Array();
+    var piv = new Array(len);
+    for(var i = 0; i < len; i++) piv[i] = i;
+
+    var swapEl = function(arr, i, j){
+        var tmp;
+        if(Object.prototype.toString.call(arr) === '[object Array]') {
+            tmp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = tmp;
+            return;
+        }
+        if(arr.ctype === "list"){
+            tmp = arr.value[i];
+            arr.value[i] = arr.value[j];
+            arr.value[j] = tmp;
+            return;
+        }
+        console.log("could not swap");
+        debugger;
+        return;
+    }
+
     var maxIdx = List.maxIndex(norms, CSNumber.abs);
-    piv[0] = maxIdx;
     var tau = norms.value[maxIdx];
     var rank = 0;
     var usePerm = true; // use Pivoted QR
@@ -2007,10 +2028,9 @@ List.QRdecomp = function(A){
         // TODO this is a workaround -- remove this later!
         var permAAA = JSON.parse(JSON.stringify(AAA));
        if(usePerm){
+           console.log("swap indxes", k, maxIdx);
            List._helper.swapColumn(permAAA, k, maxIdx);
-           var tmp = norms.value[k];
-           norms.value[k] = norms.value[maxIdx];
-           norms.value[maxIdx] = tmp;
+           swapEl(norms, k, maxIdx); 
        }
 //        if(usePerm) List._helper.swapColumn(AAA, k, maxIdx);
         //AA = List._helper.getBlock(AAA,[k,], [k,]);
@@ -2064,10 +2084,10 @@ List.QRdecomp = function(A){
         tA = List.transpose(AAA);
         for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
 
-        maxIdx = List.maxIndex(norms, CSNumber.abs, k);
+        maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
         tau = norms.value[maxIdx];
 
-        piv[k+1] = maxIdx;
+        swapEl(piv, k+1, maxIdx);
         console.log("tau", niceprint(tau));
         console.log(niceprint(norms));
 
@@ -2083,8 +2103,15 @@ List.QRdecomp = function(A){
     }
 
     var R = General.mult(List.transjugate(QQ), A);
+    console.log("R");
+    List.println(R);
+    // permute R
+//    piv.reverse() // transpose 
+    for(var i = 0; i < piv.length; i++) List._helper.swapColumn(R, i, piv[i]);
+    console.log("permuted R");
+    List.println(R);
 
-    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
+//    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
 
 
     console.log("piv", piv);
