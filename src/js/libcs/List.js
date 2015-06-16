@@ -1983,6 +1983,7 @@ List._helper.swapEl = function(arr, i, j){
 // rank revealing QR decomposition
 List.RRQRdecomp = function(A){
     console.log("mat in rrqr", niceprint(A));
+    List.println(A);
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -2021,6 +2022,7 @@ List.RRQRdecomp = function(A){
            console.log("swap indxes", k, maxIdx);
            List._helper.swapColumn(AAA, k, maxIdx);
            List._helper.swapEl(norms, k, maxIdx); 
+           List._helper.swapEl(piv, k, maxIdx);
 //        if(usePerm) List._helper.swapColumn(AAA, k, maxIdx);
         //AA = List._helper.getBlock(AAA,[k,], [k,]);
         AA = List._helper.getBlock(AAA,[k,], [k,]);
@@ -2054,14 +2056,14 @@ List.RRQRdecomp = function(A){
             AAA = General.mult(Qk, AAA);
         // update norms 
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
-      //  for(var i = k + 1; i < len; i++){
-      //      norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
-      //  }
+        for(var i = k + 1; i < len; i++){
+            norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
+        }
 
         //
         // this is my workaround
-        tA = List.transpose(AAA);
-        for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
+        //tA = List.transpose(AAA);
+        //for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
             //
 //     console.log("new norms for k = ", k,  niceprint(norms));
 //     List.println(AAA);
@@ -2070,7 +2072,6 @@ List.RRQRdecomp = function(A){
 //        console.log("maxIdx after update", maxIdx);
         tau = norms.value[maxIdx];
 
-        List._helper.swapEl(piv, k+1, maxIdx);
  //       console.log("tau", niceprint(tau));
  //       console.log(niceprint(norms));
 
@@ -2092,8 +2093,9 @@ List.RRQRdecomp = function(A){
     // permute R
     //piv.reverse() // transpose 
     console.log("reverse pivs", piv);
-    var transAAA  = List.transpose(AAA);
 
+   */
+    var transAAA  = List.transpose(AAA);
     var Rerg = new Array(len);
     for(var i = 0; i < piv.length; i++) Rerg[i] = transAAA.value[piv[i]];
     Rerg = List.turnIntoCSList(Rerg);
@@ -2104,7 +2106,6 @@ List.RRQRdecomp = function(A){
 
 //    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
 
-*/
     console.log("AAA");
     List.println(AAA);
 
@@ -2119,26 +2120,26 @@ List.RRQRdecomp = function(A){
    console.log("Q*R");
    List.println(General.mult(QQ,R));
    console.log("pivs", piv);
+   console.log("pivs reverse", piv.reverse());
    console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
- //  console.log("norm rerg", List.abs(List.sub(A, General.mult(QQ,Rerg))).value.real);
+   console.log("norm rerg", List.abs(List.sub(A, General.mult(QQ,Rerg))).value.real);
    console.log(niceprint(norms));
    console.log("rank", rank);
    debugger;
     
-    dfjsdkfjsdf
 
     return {
         Q: QQ,
         R: R,
-        P: List.turnIntoCSList(piv.reverse()),
+        P: List.turnIntoCSList(piv),
         rank: CSNumber.real(rank)
     };
 };
 
 List.QRdecomp = function(A){
-    A = List.realMatrix([[1, 0, 0], [0, 0, 0],  [0, 2, 0]]);
+  //  A = List.realMatrix([[1, 0, 0], [0, 0, 0],  [0, 2, 0]]);
    // A = List.realMatrix([[5, 0, 0, 0], [1, 1, 0, 0], [4, 7, 5, 0], [1, 6, 5, 1]]);
-   // A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
+    A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
     List.RRQRdecomp(A);
     //console.log(niceprint(A));
     //var usePivot = true; // use Pivoted QR
