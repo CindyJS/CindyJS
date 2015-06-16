@@ -1990,6 +1990,7 @@ List.QRdecomp = function(A){
 
     var piv = new Array();
     var maxIdx = List.maxIndex(norms, CSNumber.abs);
+    piv[0] = maxIdx;
     var tau = norms.value[maxIdx];
     var rank = 0;
     var usePerm = true; // use Pivoted QR
@@ -2003,7 +2004,6 @@ List.QRdecomp = function(A){
         rank++;
 
         // account pivots
-        piv[k] = maxIdx;
         // TODO this is a workaround -- remove this later!
         var permAAA = JSON.parse(JSON.stringify(AAA));
        if(usePerm){
@@ -2056,16 +2056,18 @@ List.QRdecomp = function(A){
 
         // update norms 
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
-        for(var i = k + 1; i < len; i++){
-            norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
-        }
+      //  for(var i = k + 1; i < len; i++){
+      //      norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
+      //  }
         //
         // this is my workaroun
-     //   tA = List.transpose(AAA);
-     //   for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
+        tA = List.transpose(AAA);
+        for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
 
-        maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
+        maxIdx = List.maxIndex(norms, CSNumber.abs, k);
         tau = norms.value[maxIdx];
+
+        piv[k+1] = maxIdx;
         console.log("tau", niceprint(tau));
         console.log(niceprint(norms));
 
@@ -2085,23 +2087,23 @@ List.QRdecomp = function(A){
     if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
 
 
-   // console.log("piv", piv);
-   // console.log("AAA");
-   // List.println(AAA);
-   // console.log("R");
-   // List.println(R);
-   // console.log("QQ");
-   // List.println(QQ);
-   // console.log("QQ*R");
-   // List.println(General.mult(QQ,R));
-   // console.log("A");
-   // List.println(A);
-   // console.log("norm Q");
-  //  List.println(General.mult(QQ, List.transjugate(QQ)));
-  //  console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
-  //  debugger;
+    console.log("piv", piv);
+    console.log("AAA");
+    List.println(AAA);
+    console.log("R");
+    List.println(R);
+    console.log("QQ");
+    List.println(QQ);
+    console.log("QQ*R");
+    List.println(General.mult(QQ,R));
+    console.log("A");
+    List.println(A);
+    console.log("norm Q");
+   List.println(General.mult(QQ, List.transjugate(QQ)));
+   console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
+   debugger;
     
-    //dfjsdkfjsdf
+    dfjsdkfjsdf
 
     return {
         Q: QQ,
