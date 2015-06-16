@@ -1982,6 +1982,7 @@ List._helper.swapEl = function(arr, i, j){
 
 // rank revealing QR decomposition
 List.RRQRdecomp = function(A){
+    console.log("mat in rrqr", niceprint(A));
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -2085,8 +2086,7 @@ List.RRQRdecomp = function(A){
     }
 
     var R = AAA; //General.mult(List.transjugate(QQ), A);
-    /*
-     *
+/*
     console.log("R before swap");
     List.println(R);
     // permute R
@@ -2104,13 +2104,10 @@ List.RRQRdecomp = function(A){
 
 //    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
 
-
+*/
     console.log("AAA");
     List.println(AAA);
 
-    console.log("piv", piv);
-    console.log("R after swap");
-    List.println(R);
     console.log("QQ");
     List.println(QQ);
  //   console.log("QQ*R");
@@ -2119,32 +2116,43 @@ List.RRQRdecomp = function(A){
  //   List.println(A);
  //   console.log("norm Q");
   // List.println(General.mult(QQ, List.transjugate(QQ)));
+   console.log("Q*R");
+   List.println(General.mult(QQ,R));
+   console.log("pivs", piv);
    console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
-   console.log("norm rerg", List.abs(List.sub(A, General.mult(QQ,Rerg))).value.real);
+ //  console.log("norm rerg", List.abs(List.sub(A, General.mult(QQ,Rerg))).value.real);
    console.log(niceprint(norms));
    console.log("rank", rank);
    debugger;
     
     dfjsdkfjsdf
 
-   */
     return {
         Q: QQ,
         R: R,
+        P: List.turnIntoCSList(piv.reverse()),
         rank: CSNumber.real(rank)
     };
 };
 
 List.QRdecomp = function(A){
-   // A = List.realMatrix([[1, 0, 0], [0, 0, 0],  [0, 0, 3]]);
+    A = List.realMatrix([[1, 0, 0], [0, 0, 0],  [0, 2, 0]]);
    // A = List.realMatrix([[5, 0, 0, 0], [1, 1, 0, 0], [4, 7, 5, 0], [1, 6, 5, 1]]);
-    //A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
+   // A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
+    List.RRQRdecomp(A);
     //console.log(niceprint(A));
-    var usePivot = true; // use Pivoted QR
-
+    //var usePivot = true; // use Pivoted QR
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
+
+    if(List._helper.isUpperTriangular(A)){
+        return {
+            Q: List.idMatrix(cslen, cslen), 
+            R: A,
+        };
+    }
+
     var one = CSNumber.real(1);
 
     var e1 = List._helper.unitvector(CSNumber.real(A.value.length), one);
@@ -2214,11 +2222,12 @@ List.QRdecomp = function(A){
         // get alpha
         //xx = List.column(AA, one);
         xx = List.column(AA, one);
-        normxx = List.abs2(xx);
+        normxx = List.abs2(xx).value.real;
 
     
+        //console.log(normxx);
     
-        if(normxx.value.real > e1-8){
+        if(normxx > 1e-8){ // otherwise we already have the desired vector
             alpha = List._helper.QRgetAlpha(xx, 0);
             uu = List.sub(xx, List.scalmult(alpha, e1));
             vv = List.scaldiv(List.abs(uu), uu);
@@ -2235,6 +2244,8 @@ List.QRdecomp = function(A){
 
 
             AAA = General.mult(Qk, AAA);
+            console.log("AAA after k =", k);
+            List.println(AAA);
            }
  //       else{
  //          // Qk = List.idMatrix(cslen2, cslen2);
@@ -2300,13 +2311,11 @@ List.QRdecomp = function(A){
     List.println(Rerg);
 
 //    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
-
+*/
 
     console.log("AAA");
     List.println(AAA);
 
-    console.log("piv", piv);
-    console.log("R after swap");
     List.println(R);
     console.log("QQ");
     List.println(QQ);
@@ -2317,18 +2326,18 @@ List.QRdecomp = function(A){
  //   console.log("norm Q");
   // List.println(General.mult(QQ, List.transjugate(QQ)));
    console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
-   console.log("norm rerg", List.abs(List.sub(A, General.mult(QQ,Rerg))).value.real);
-   console.log(niceprint(norms));
-   console.log("rank", rank);
+ //  console.log("norm rerg", List.abs(List.sub(A, General.mult(QQ,Rerg))).value.real);
+ //  console.log(niceprint(norms));
+  // console.log("rank", rank);
    debugger;
-    
-    dfjsdkfjsdf
 
-   */
+   dfjkdfk
+    
+
     return {
         Q: QQ,
         R: R,
-        rank: CSNumber.real(rank)
+//        rank: CSNumber.real(rank)
     };
 
 };
