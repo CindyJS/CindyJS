@@ -1463,8 +1463,8 @@ List.eig = function(A){
 
     var eigvals = List.getDiag(AA);
     eigvals = List.sort1(eigvals);
-    console.log("eigvals");
-    List.println(eigvals);
+ //   console.log("eigvals");
+ //   List.println(eigvals);
     //debugger;
 
     //var zvec = List.zerovector(cslen);
@@ -1580,13 +1580,13 @@ List.eig = function(A){
                       //    count = 0;
                       //}
 
-                      console.log(niceprint(eigvals.value[qq]));
+                      //console.log(niceprint(eigvals.value[qq]));
                       //debugger;
                       if(List.abs(xx).value.real < 1e-8 && count == 0){ // couldnt find a vector in nullspace -- should not happen
                           console.log("could not find eigenvec for idx", qq);
                           xx = List._helper.inverseIteration(A, eigvals.value[qq]);
                           //xx = General.mult(QQ, xx);
-                          List.println(List.scaldiv(List.abs(xx), xx));
+//                          List.println(List.scaldiv(List.abs(xx), xx));
 //                          console.log("===");
                           //eigenvecs.value[qq] = xx;
                       }
@@ -1609,10 +1609,10 @@ List.eig = function(A){
     //eigenvecs = List.transpose(eigenvecs);
 
 //    List.println(eigvals);
-    console.log("===");
-    for(var k = 0; k < len ; k++){
-    List.println(eigenvecs.value[k]);
-    }
+   // console.log("===");
+   // for(var k = 0; k < len ; k++){
+   //     List.println(eigenvecs.value[k]);
+   // }
 
 //    List.println(AA);
 //    List.println(UU);
