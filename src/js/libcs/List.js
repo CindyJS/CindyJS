@@ -2069,8 +2069,10 @@ List.RRQRdecomp = function(A){
             AAA = General.mult(Qk, AAA);
         // update norms 
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
-        for(var i = k ; i < len; i++){
-            norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
+         console.log("AAA in RRQRdecomp");
+         List.println(AAA);
+        for(var i = k + 1 ; i < len; i++){
+            norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], CSNumber.conjugate(AAA.value[k].value[i]))); 
         }
 
         //
