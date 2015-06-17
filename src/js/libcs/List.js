@@ -1433,9 +1433,9 @@ List.eig = function(A){
     var QRRes = List._helper.QRIteration(AA);
     //var QRRes = List._helper.QRIteration(AAA);
     AA = QRRes[0];
-   // console.log("AAA after qr iter");
-   // List.println(AA);
-   // debugger;
+    console.log("AAA after qr iter");
+    List.println(AA);
+    debugger;
 
     var QQ = QRRes[1];
 
@@ -1694,8 +1694,17 @@ List._helper.QRIteration = function(A, maxIter){
         shiftId = List.scalmult(kap, Id);
 
 
+        console.log("input");
+        List.println(List.sub(AA, shiftId));
 
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
+        console.log("R");
+        List.println(QR.R);
+        console.log("Q");
+        List.println(QR.Q);
+        console.log("mult");
+        List.println(General.mult(QR.Q, QR.R));
+                     debugger;
 //        var QR2 = List.QRdecomp(List.sub(AA, shiftId), true); // shift
 
         
@@ -1727,6 +1736,7 @@ List._helper.QRIteration = function(A, maxIter){
         //if(i % 50 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
 
 
+//      debugger;
 //        if(i === 1500) List.println(List.getSubDiag(AA));
       QR.Q = List._helper.buildBlockMatrix(QR.Q, List.idMatrix(CSNumber.real(numDeflations), CSNumber.real(numDeflations)));
       QQ = General.mult(QQ,QR.Q);
@@ -1849,7 +1859,7 @@ List._helper.isAlmostId = function(AA){
 List.nullSpace = function(A){
   //  A = List.realMatrix([[0, 1, 1], [0, 0, 0], [ 0, 0, 0]])
 //    List.println(List.transpose(A));
-    console.log(niceprint(A));
+//    console.log(niceprint(A));
     var len = A.value.length;
 //    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
     var QR = List.QRdecomp(List.transpose(A)); // QQ of QR is Nullspace of A^H
@@ -1982,8 +1992,8 @@ List._helper.swapEl = function(arr, i, j){
 
 // rank revealing QR decomposition
 List.RRQRdecomp = function(A){
-    console.log("mat in rrqr", niceprint(A));
-    List.println(A);
+//    console.log("mat in rrqr", niceprint(A));
+//    List.println(A);
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -2094,13 +2104,8 @@ List.RRQRdecomp = function(A){
     //piv.reverse() // transpose 
     console.log("reverse pivs", piv);
 
-   */
-    var transAAA  = List.transpose(AAA);
-    var Rerg = new Array(len);
-    for(var i = 0; i < piv.length; i++) Rerg[i] = transAAA.value[piv[i]];
-    Rerg = List.turnIntoCSList(Rerg);
-    Rerg = List.transpose(Rerg);
 
+    var Rerg = List._helper.reOrderbyPivots(R, piv);
     console.log("rerg");
     List.println(Rerg);
 
@@ -2127,6 +2132,7 @@ List.RRQRdecomp = function(A){
    console.log("rank", rank);
    debugger;
     
+   */
 
     return {
         Q: QQ,
@@ -2136,11 +2142,21 @@ List.RRQRdecomp = function(A){
     };
 };
 
+// reorder matrix by pivots -- used in RRQRdecomp
+List._helper.reOrderbyPivots = function(A, piv){
+    var len = A.value.length.length;
+    var tA  = List.transpose(A);
+    var Rerg = new Array(len);
+    for(var i = 0; i < piv.length; i++) Rerg[piv[i]] = tA.value[i];
+    Rerg = List.turnIntoCSList(Rerg);
+    return List.transpose(Rerg);
+};
+
 List.QRdecomp = function(A){
   //  A = List.realMatrix([[1, 0, 0], [0, 0, 0],  [0, 2, 0]]);
    // A = List.realMatrix([[5, 0, 0, 0], [1, 1, 0, 0], [4, 7, 5, 0], [1, 6, 5, 1]]);
-    A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
-    List.RRQRdecomp(A);
+//    A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
+//    List.RRQRdecomp(A);
     //console.log(niceprint(A));
     //var usePivot = true; // use Pivoted QR
     var AA;
@@ -2245,8 +2261,8 @@ List.QRdecomp = function(A){
 
 
             AAA = General.mult(Qk, AAA);
-            console.log("AAA after k =", k);
-            List.println(AAA);
+//            console.log("AAA after k =", k);
+ //           List.println(AAA);
            }
  //       else{
  //          // Qk = List.idMatrix(cslen2, cslen2);
@@ -2312,7 +2328,6 @@ List.QRdecomp = function(A){
     List.println(Rerg);
 
 //    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
-*/
 
     console.log("AAA");
     List.println(AAA);
@@ -2332,8 +2347,13 @@ List.QRdecomp = function(A){
   // console.log("rank", rank);
    debugger;
 
-   dfjkdfk
+//   dfjkdfk
     
+*/
+
+//List.println(QQ);
+//List.println(AA);
+//debugger;
 
     return {
         Q: QQ,
