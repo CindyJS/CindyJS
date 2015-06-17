@@ -1545,7 +1545,7 @@ List.eig = function(A){
                   }
               }
               else{
-                  var ceigval, oeigval;
+                  var ceigval, oeigval, lastevec;
                   var count = 0;
                   var sameEigVal = false;
                   for(qq = 0; qq < len; qq++){
@@ -1561,12 +1561,14 @@ List.eig = function(A){
                         MM =List.sub(A, List.scalmult(ceigval, ID));
                         nullS = List.nullSpace(MM);
                         xx = nullS.value[0];
+                        if(xx !== undefined) lastevec = xx; // if we found a eigenvector != [0...0] may need it again
                       }
 
                       // check if we got nothing from nullspace
                       if(xx === undefined){ 
                           console.log("xx is undefined for idx", qq);
-                          xx = List.zerovector(cslen);
+//                          xx = List.zerovector(cslen);
+                          xx = lastevec;
                       }
                      // console.log(cslen.value.real);
 
@@ -1858,6 +1860,7 @@ List._helper.isAlmostId = function(AA){
 };
 
 List.nullSpace = function(A){
+//    A = List.realMatrix([[1, 0, 0], [0, 0, 3],  [0, 2, 0]]);
     var len = A.value.length;
     var QR = List.RRQRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
@@ -2088,7 +2091,7 @@ List.RRQRdecomp = function(A){
 
         // after k+2 steps we are done
         if(k+2 === len){
-//            if(!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
+            if(!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
             break;
         } 
 
