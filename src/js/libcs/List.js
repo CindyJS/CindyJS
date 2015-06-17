@@ -1863,11 +1863,12 @@ List.nullSpace = function(A){
 //    console.log(niceprint(A));
     var len = A.value.length;
 //    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
-    var QR = List.RRQRdecomp(List.transpose(A)); // QQ of QR is Nullspace of A^H
+    var QR = List.RRQRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
     // TODO check if this should be transjugate
 
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
     var nullRank = len -QR.rank.value.real;
+    console.log("nullrank", nullRank);
     //debugger;
 
     var erg = [];
