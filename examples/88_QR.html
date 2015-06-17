@@ -55,10 +55,15 @@ AA =   [[5,   1,   random(), 1],
 //println(magic);
 //eig(magic);
 println(AA);
-x = eig(AA);
-errc(x);
-println(aa);
-println(bb);
+[val,vec] = eig(AA);
+tt1 = AA*vec_1 - vec_1*val_1;
+tt2 = AA*vec_2 - vec_2*val_2;
+tt3 = AA*vec_3 - vec_3*val_3;
+tt4 = AA*vec_4 - vec_4*val_4;
+println(tt1);
+println(tt2);
+println(tt3);
+println(tt4);
 //        n = 100;
 //        AA=zeromatrix(n,n);
 //       repeat(n,j,

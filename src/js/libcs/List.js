@@ -1617,6 +1617,9 @@ List.eig = function(A){
 //    List.println(AA);
 //    List.println(UU);
 //   console.log("test");
+    //
+
+    /*
    var a=(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
    var b=(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
    var c=(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
@@ -1647,11 +1650,11 @@ List.eig = function(A){
     List.println(AA);
    }
 
-
+*/
    var erg = List.turnIntoCSList([eigvals, eigenvecs]);
 //   var erg = List.turnIntoCSList([eigenvecs, eigvals]);
 // var  erg = eigenvecs;
-   console.log(erg);
+//   console.log(erg);
   // debugger;
    return erg;
 //   console.log("end test");
