@@ -1483,7 +1483,7 @@ List.eig = function(A){
         eigenvecs.value[i] = QQQ.value[i];
     }
     else{
-          eigenvecs = List.turnIntoCSList(eigenvecs);
+         // eigenvecs = List.turnIntoCSList(eigenvecs);
           //eigenvecs.value[0] = List.column(QQ,CSNumber.real(1));
 
        //   console.log("old eigvals");
@@ -1646,6 +1646,14 @@ List.eig = function(A){
     console.log("AA");
     List.println(AA);
    }
+
+
+   var erg = List.turnIntoCSList([eigvals, eigenvecs]);
+//   var erg = List.turnIntoCSList([eigenvecs, eigvals]);
+// var  erg = eigenvecs;
+   console.log(erg);
+  // debugger;
+   return erg;
 //   console.log("end test");
 //   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
 //   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
