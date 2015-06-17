@@ -1433,9 +1433,9 @@ List.eig = function(A){
     var QRRes = List._helper.QRIteration(AA);
     //var QRRes = List._helper.QRIteration(AAA);
     AA = QRRes[0];
-    console.log("AAA after qr iter");
-    List.println(AA);
-    debugger;
+//    console.log("AAA after qr iter");
+//    List.println(AA);
+    //debugger;
 
     var QQ = QRRes[1];
 
@@ -1858,30 +1858,28 @@ List._helper.isAlmostId = function(AA){
 };
 
 List.nullSpace = function(A){
-  //  A = List.realMatrix([[0, 1, 1], [0, 0, 0], [ 0, 0, 0]])
-//    List.println(List.transpose(A));
-//    console.log(niceprint(A));
     var len = A.value.length;
-//    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
     var QR = List.RRQRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
-    // TODO check if this should be transjugate
-
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
-    var nullRank = len -QR.rank.value.real;
-    console.log("nullrank", nullRank);
-    //debugger;
+    var nullRank = len - QR.rank.value.real;
+    console.log("nullRank", nullRank);
 
-    var erg = [];
-    // test if is in kernel
+    var erg = new Array(nullRank);
+    QQ.value.reverse(); // the last vectors are the nullspace vectors
+
+    // get nullVectors
     var vec, tmp;
-    for(var i = 0; i < len; i++){
+    for(var i = 0 ; i < len ; i++){
        vec = QQ.value[i];
-       tmp = General.mult(A,vec); 
-       console.log(List.abs(tmp).value.real, "abs in nulls");
-       if(List.abs(tmp).value.real < 1e-6) erg.push(List.scaldiv(List.abs(vec), vec));
+       tmp = List.abs(General.mult(A, vec));
+       console.log("abs in nullspace", tmp.value.real);
+       if(tmp.value.real < 1e-6) erg[i] = (List.scaldiv(List.abs(vec), vec));
     }
 
+
+    console.log("erg in nullspace");
     erg = List.turnIntoCSList(erg);
+    List.println(erg);
     if(erg.value.length > 0) return erg;
     else return List.turnIntoCSList([List.zerovector(CSNumber.real(len))]);
 
@@ -2025,13 +2023,13 @@ List.RRQRdecomp = function(A){
     var maxIdx = List.maxIndex(norms, CSNumber.abs);
     var tau = norms.value[maxIdx];
     var rank = 0;
-    for(var k = 0; !CSNumber._helper.isAlmostZero(tau); k++){
+    for(var k = 0; CSNumber.abs2(tau).value.real > 1e-16; k++){
 
         // account pivots
         // TODO this is a workaround -- remove this later!
        // var permAAA = JSON.parse(JSON.stringify(AAA));
             rank++;
-           console.log("swap indxes", k, maxIdx);
+//           console.log("swap indxes", k, maxIdx);
            List._helper.swapColumn(AAA, k, maxIdx);
            List._helper.swapEl(norms, k, maxIdx); 
            List._helper.swapEl(piv, k, maxIdx);
@@ -2040,7 +2038,7 @@ List.RRQRdecomp = function(A){
         AA = List._helper.getBlock(AAA,[k,], [k,]);
 
         // TODO this could be moved outside ... too lazy now
-        if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
+        //if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
 
 
         // get alpha
@@ -2068,28 +2066,29 @@ List.RRQRdecomp = function(A){
             AAA = General.mult(Qk, AAA);
         // update norms 
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
-        for(var i = k + 1; i < len; i++){
+        for(var i = k ; i < len; i++){
             norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
         }
 
         //
         // this is my workaround
-        //tA = List.transpose(AAA);
-        //for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
+       // tA = List.transpose(AAA);
+       // for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
             //
 //     console.log("new norms for k = ", k,  niceprint(norms));
 //     List.println(AAA);
 
-        maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
+        maxIdx = List.maxIndex(norms, CSNumber.abs2, k+1);
 //        console.log("maxIdx after update", maxIdx);
         tau = norms.value[maxIdx];
+        console.log("tau", niceprint(tau));
 
  //       console.log("tau", niceprint(tau));
- //       console.log(niceprint(norms));
+        console.log(niceprint(norms));
 
         // after k+2 steps we are done
         if(k+2 === len){
-            if(!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
+//            if(!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
             break;
         } 
 
