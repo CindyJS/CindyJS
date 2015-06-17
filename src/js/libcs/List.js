@@ -1791,7 +1791,7 @@ List._helper.QRIteration = function(A, maxIter){
             break; // break if QR.Q is almost diagonal
         }
     }
-    console.log("iterations:", i);
+//    console.log("iterations:", i);
 
 
    // console.log("QQ");
@@ -1810,6 +1810,12 @@ List._helper.QRIteration = function(A, maxIter){
     return [erg,QQ];
     //return [AA,QQ, UU];
 
+};
+
+// return rank of a square matrix
+List.rank = function(A){
+    var QR = List.RRQRdecomp(A);
+    return QR.rank;
 };
 
 List._helper.isAlmostZeroVec = function(A){
@@ -1865,24 +1871,25 @@ List.nullSpace = function(A){
     var QR = List.RRQRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
     var nullRank = len - QR.rank.value.real;
-    console.log("nullRank", nullRank);
+    //console.log("nullRank", nullRank);
 
     var erg = new Array(nullRank);
     QQ.value.reverse(); // the last vectors are the nullspace vectors
 
     // get nullVectors
     var vec, tmp;
-    for(var i = 0 ; i < len ; i++){
+    for(var i = 0 ; i < nullRank ; i++){
        vec = QQ.value[i];
-       tmp = List.abs(General.mult(A, vec));
-       console.log("abs in nullspace", tmp.value.real);
-       if(tmp.value.real < 1e-6) erg[i] = (List.scaldiv(List.abs(vec), vec));
+       //tmp = List.abs(General.mult(A, vec));
+       //console.log("abs in nullspace", tmp.value.real);
+//       if(tmp.value.real < 1e-6)
+           erg[i] = (List.scaldiv(List.abs(vec), vec));
     }
 
 
-    console.log("erg in nullspace");
+ //   console.log("erg in nullspace");
     erg = List.turnIntoCSList(erg);
-    List.println(erg);
+ //   List.println(erg);
     if(erg.value.length > 0) return erg;
     else return List.turnIntoCSList([List.zerovector(CSNumber.real(len))]);
 
@@ -2069,8 +2076,8 @@ List.RRQRdecomp = function(A){
             AAA = General.mult(Qk, AAA);
         // update norms 
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
-         console.log("AAA in RRQRdecomp");
-         List.println(AAA);
+        // console.log("AAA in RRQRdecomp");
+        // List.println(AAA);
         for(var i = k + 1 ; i < len; i++){
             norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], CSNumber.conjugate(AAA.value[k].value[i]))); 
         }
@@ -2086,10 +2093,10 @@ List.RRQRdecomp = function(A){
         maxIdx = List.maxIndex(norms, CSNumber.abs2, k+1);
 //        console.log("maxIdx after update", maxIdx);
         tau = norms.value[maxIdx];
-        console.log("tau", niceprint(tau));
+//        console.log("tau", niceprint(tau));
 
  //       console.log("tau", niceprint(tau));
-        console.log(niceprint(norms));
+ //       console.log(niceprint(norms));
 
         // after k+2 steps we are done
         if(k+2 === len){
