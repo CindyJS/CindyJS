@@ -1417,7 +1417,7 @@ List.eig = function(A){
     var len = cslen.value.real;
     var zero = CSNumber.real(0);
 
-    var useHess = true;
+    var useHess = false;
     if(useHess){
         var Hess =  List._helper.toHessenberg(A);
         // PP is Trafo matrix
@@ -1694,17 +1694,17 @@ List._helper.QRIteration = function(A, maxIter){
         shiftId = List.scalmult(kap, Id);
 
 
-        console.log("input");
-        List.println(List.sub(AA, shiftId));
+     //   console.log("input");
+     //   List.println(List.sub(AA, shiftId));
 
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
-        console.log("R");
-        List.println(QR.R);
-        console.log("Q");
-        List.println(QR.Q);
-        console.log("mult");
-        List.println(General.mult(QR.Q, QR.R));
-                     debugger;
+     //   console.log("R");
+     //   List.println(QR.R);
+     //   console.log("Q");
+     //   List.println(QR.Q);
+     //   console.log("mult");
+     //   List.println(General.mult(QR.Q, QR.R));
+     //                debugger;
 //        var QR2 = List.QRdecomp(List.sub(AA, shiftId), true); // shift
 
         
@@ -1743,8 +1743,9 @@ List._helper.QRIteration = function(A, maxIter){
   //    UU = General.mult(UU, QR.Q);
 
         //deflation
-        if(i % 10 === 0){
-                if(CSNumber.abs(AA.value[AA.value.length - 1].value[AA.value[0].value.length -2]).value.real < 1e-24 && len > 1){
+       // if(i % 10 === 0){
+        //    debugger;
+                if(CSNumber.abs2(AA.value[AA.value.length - 1].value[AA.value[0].value.length -2]).value.real < 1e-48 && len > 1){
 
                     eigvals[Alen - numDeflations - 1] = AA.value[len-1].value[len-1]; // get Eigenvalue
 
@@ -1771,7 +1772,7 @@ List._helper.QRIteration = function(A, maxIter){
                     numDeflations++;
                     len--;
                     }
-        }
+        //}
 
 //        console.log("AA in QRdecomp");
 //        List.println(AA);
@@ -1781,7 +1782,7 @@ List._helper.QRIteration = function(A, maxIter){
             break;
         }
 
-        if(i % 5 === 0 && List._helper.isUpperTriangular(AA)){
+        if(List._helper.isUpperTriangular(AA)){
             for(var i = 0; i < len; i++){
                 erg.value[i].value[i] = AA.value[i].value[i];
             }
@@ -1862,7 +1863,7 @@ List.nullSpace = function(A){
 //    console.log(niceprint(A));
     var len = A.value.length;
 //    var QR = List.QRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
-    var QR = List.QRdecomp(List.transpose(A)); // QQ of QR is Nullspace of A^H
+    var QR = List.RRQRdecomp(List.transpose(A)); // QQ of QR is Nullspace of A^H
     // TODO check if this should be transjugate
 
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
