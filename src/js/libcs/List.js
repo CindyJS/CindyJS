@@ -1624,12 +1624,10 @@ List._helper.isAlmostId = function(AA){
 };
 
 List.nullSpace = function(A){
-//    A = List.realMatrix([[1, 0, 0], [0, 0, 3],  [0, 2, 0]]);
     var len = A.value.length;
     var QR = List.RRQRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
     var nullRank = len - QR.rank.value.real;
-    //console.log("nullRank", nullRank);
 
     var erg = new Array(nullRank);
     QQ.value.reverse(); // the last vectors are the nullspace vectors
@@ -1638,19 +1636,13 @@ List.nullSpace = function(A){
     var vec, tmp;
     for(var i = 0 ; i < nullRank ; i++){
        vec = QQ.value[i];
-       //tmp = List.abs(General.mult(A, vec));
-       //console.log("abs in nullspace", tmp.value.real);
-//       if(tmp.value.real < 1e-6)
            erg[i] = (List.scaldiv(List.abs(vec), vec));
     }
 
 
- //   console.log("erg in nullspace");
     erg = List.turnIntoCSList(erg);
- //   List.println(erg);
     if(erg.value.length > 0) return erg;
     else return List.turnIntoCSList([List.zerovector(CSNumber.real(len))]);
-
 };
 
 
