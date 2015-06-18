@@ -2105,17 +2105,17 @@ List._helper.QRgetAlpha = function(x, k) {
 };
 
 List.LUdecomp = function(AA) {
-    if(List._helper.isUpperTriangular){
-        var len = AA.value.length;
-
-        var PP =  new Array(len);
-        for(var ii = 0; ii < len; ii++) PP[ii] =ii;
-        return {
-            LU: AA,
-            P: PP,
-            TransPos: 0 
-        };
-    }
+//    if(List._helper.isUpperTriangular){
+//        var len = AA.value.length;
+//
+//        var PP =  new Array(len);
+//        for(var ii = 0; ii < len; ii++) PP[ii] =ii;
+//        return {
+//            LU: AA,
+//            P: PP,
+//            TransPos: 0 
+//        };
+//    }
     var A = JSON.parse(JSON.stringify(AA)); // TODO: get rid of this cloning
     var i, j, k, absAjk, Akk, Ak, Pk, Ai;
     var tpos = 0;
