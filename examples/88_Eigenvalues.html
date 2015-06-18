@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Eigenvalues2.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+niceguess(a):=(
+  a="{"+guess(a)+"}";
+  a=replace(a,"*sqrt(1)","");
+  a=replace(a,"sqrt","\sqrt");
+  a=replace(a,"*","}\cdot{");
+  a=replace(a,"(","{");
+  a=replace(a,")","}");
+  a=replace(a,"-","}-{");
+  a=replace(a,"+","}+{");
+  a=replace(a,"/","\over ");
+);
+
+
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+
+eps=0.0000000001;
+
+m=transpose((D.xy,E.xy));
+v=F.xy;
+
+G.xy=(m*v);
+
+[ew,ev] = eig(m);
+//ew=eigenvalues(m);
+//ev=eigenvectors(m);
+evt=transpose(ev);
+
+if(|im(ew_1)|<eps,
+  if(|ew_1-ew_2|>eps,
+    draw(100*evt_1,-100*evt_1,color->(0,.6,0),alpha->0.5);
+    draw(100*evt_2,-100*evt_2,color->(0,.6,0),alpha->0.5),
+
+    if(|evt_1*evt_2|<eps,
+
+       fillpoly(((-100,-100),(-100,100),(100,100),(100,-100)),color->(0,0.6,0),alpha->0.2),
+
+       draw(100*evt_2,-100*evt_2,color->(0,.6,0),alpha->0.5,size->4)
+    )
+
+  )
+);
+
+
+//fillpoly(((4.5,-4.5),(10.5,-4.5),(10.5,4.5),(4.5,4.5)),color->(1,1,1));
+//drawall(cycle(((4.5,-4.5),(10.5,-4.5),(10.5,4.5),(4.5,4.5))),color->(0,0,0));
+//
+//draw((4.5,2.5),(10.5,2.5));
+//draw((4.5,-.5),(10.5,-.5));
+//draw((4.5,-3.5),(10.5,-3.5));
+//
+//drawtext((5,4),"Matrix:  $f_A(e_1)=v_1\quad f_A(e_2)=v_2$",size->18);
+//
+//drawtext((5,3.1),
+//  "$A=\begin{pmatrix}"+
+//  format(D.x,2)+"&"+format(E.x,2)+"\\"+
+//  format(D.y,2)+"&"+format(E.y,2)+"\\"+
+//  "\end{pmatrix}$"
+//,size->16);
+//
+//
+//drawtext((5,2),"1. Eigenvektor/Eigenwert:",size->18);
+//drawtext((5,1),
+//  "$ev_1=\begin{pmatrix}"+
+//  format(ev_1_1,2)+"\\"+format(ev_2_1,2)+"\\"+
+//  "\end{pmatrix}$"
+//,size->16);
+//
+//drawtext((5,0),
+//  "$\lambda_1="+niceguess(ew_1)+"$"
+//,size->16);
+//
+//drawtext((5,-1),"2. Eigenvektor/Eigenwert:",size->18);
+//drawtext((5,-2),
+//  "$ev_2=\begin{pmatrix}"+
+//  format(ev_1_2,2)+"\\"+format(ev_2_2,2)+"\\"+
+//  "\end{pmatrix}$"
+//,size->16);
+//
+//drawtext((5,-3),
+//  "$\lambda_2="+niceguess(ew_2)+"$"
+//,size->16);
+//
+//
+//if(|im(ew_1)|<eps,
+//  if(|ew_1-ew_2|>eps,
+//    drawtext((5,-4.1),"Zwei reelle Eigenwerte") ,
+//    if(|evt_1*evt_2|<eps,
+//
+//       drawtext((5,-4.1),"2-dimensionaler Eigenraum") ,
+//
+//       drawtext((5,-4.1),"Doppelter Eigenwert")
+//    )
+//
+//  ), drawtext((5,-4.1),"Komplexe Eigenwerte",color->(0.8,0,0))
+//);
+//
+//;
+</script>
+
+    <script type="text/javascript">
+createCindy({
+  "scripts": "cs*",
+  "defaultAppearance": {},
+  grid: 1,
+  snap: true,
+  "geometry": [
+    {
+      "name": "A",
+      "type": "Free",
+      "pos": [
+        0.0,
+        -0.0,
+        4.0
+      ],
+      "color": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "pinned": true,
+      "labeled": true,
+      "textsize": 17.0,
+      "size": 2.0,
+      "printname": "O"
+    },
+    {
+      "name": "B",
+      "type": "Free",
+      "pos": [
+        4.0,
+        -0.0,
+        4.0
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "pinned": true,
+      "labeled": true,
+      "textsize": 17.0,
+      "size": 0.0,
+      "printname": "e1"
+    },
+    {
+      "name": "a",
+      "type": "Segment",
+      "pos": [
+        0.0,
+        -4.0,
+        0.0
+      ],
+      "color": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "A",
+        "B"
+      ],
+      "alpha": 0.8999999761581421,
+      "size": 3
+    },
+    {
+      "name": "C",
+      "type": "Free",
+      "pos": [
+        0.0,
+        -4.0,
+        -4.0
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "pinned": true,
+      "labeled": true,
+      "textsize": 17.0,
+      "size": 0.0,
+      "printname": "e2"
+    },
+    {
+      "name": "b",
+      "type": "Segment",
+      "pos": [
+        4.0,
+        0.0,
+        -0.0
+      ],
+      "color": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "A",
+        "C"
+      ],
+      "alpha": 0.8999999761581421,
+      "size": 3
+    },
+    {
+      "name": "D",
+      "type": "Free",
+      "pos": [
+        4.0,
+        2.0,
+        2.0
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "labeled": true,
+      "textsize": 17.0,
+      "size": 0.0,
+      "printname": "v1"
+    },
+    {
+      "name": "c",
+      "type": "Segment",
+      "pos": [
+        2.0,
+        -4.0,
+        0.0
+      ],
+      "color": [
+        0.7568628,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "A",
+        "D"
+      ],
+      "alpha": 0.8999999761581421,
+      "size": 1
+    },
+    {
+      "name": "E",
+      "type": "Free",
+      "pos": [
+        -2.0,
+        -4.0,
+        -2.0
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "labeled": true,
+      "textsize": 17.0,
+      "size": 0.0,
+      "printname": "v2"
+    },
+    {
+      "name": "d",
+      "type": "Segment",
+      "pos": [
+        4.0,
+        -2.0,
+        -0.0
+      ],
+      "color": [
+        0.7568628,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "A",
+        "E"
+      ],
+      "alpha": 0.8999999761581421,
+      "size": 1
+    },
+    {
+      "name": "F",
+      "type": "Free",
+      "pos": [
+        0.0,
+        -4.0,
+        4.0
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "alpha": 0.8999999761581421,
+      "labeled": true,
+      "textsize": 17.0,
+      "size": 0.0,
+      "printname": "w"
+    },
+    {
+      "name": "e",
+      "type": "Segment",
+      "pos": [
+        4.0,
+        -0.0,
+        0.0
+      ],
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "A",
+        "F"
+      ],
+      "alpha": 0.8999999761581421,
+      "size": 3
+    },
+    {
+      "name": "G",
+      "type": "Free",
+      "pos": [
+        -2.0,
+        -4.0,
+        2.0
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "alpha": 0.8999999761581421,
+      "labeled": true,
+      "textsize": 17.0,
+      "size": 0.0,
+      "printname": "f(w)"
+    },
+    {
+      "name": "f",
+      "type": "Segment",
+      "pos": [
+        4.0,
+        -2.0,
+        0.0
+      ],
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "A",
+        "G"
+      ],
+      "alpha": 0.8999999761581421,
+      "size": 1
+    }
+  ],
+  "ports": [
+    {
+      "id": "CSCanvas",
+      "width": 834,
+      "height": 511,
+      "transform": [
+        {
+          "visibleRect": [
+            -5.8979591836734695,
+            5.285714285714286,
+            11.122448979591837,
+            -5.142857142857143
+          ]
+        }
+      ],
+      "background": "rgb(168,176,192)"
+    }
+  ]
+});
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

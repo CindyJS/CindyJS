@@ -1654,13 +1654,7 @@ evaluator.eig$1 = function(args, modifs) {
     if (v0.ctype === 'list') {
         var n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length) {
-            var time = Date.now();
-            //for(var i = 0; i < 1000; i++){
-            //return List.eig(v0);
-                List.eig(v0);
-            //}
-            time = Date.now() - time;
-            console.log("time for eigenvals", time);
+                return List.eig(v0);
         }
     }
     return nada;

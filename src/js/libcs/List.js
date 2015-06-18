@@ -1566,7 +1566,7 @@ List.eig = function(A){
 
                       // check if we got nothing from nullspace
                       if(xx === undefined){ 
-                          console.log("xx is undefined for idx", qq);
+                          //console.log("xx is undefined for idx", qq);
 //                          xx = List.zerovector(cslen);
                           xx = lastevec;
                       }
@@ -1583,7 +1583,7 @@ List.eig = function(A){
                       //console.log(niceprint(eigvals.value[qq]));
                       //debugger;
                       if(List.abs(xx).value.real < 1e-8 && count == 0){ // couldnt find a vector in nullspace -- should not happen
-                          console.log("could not find eigenvec for idx", qq);
+                         // console.log("could not find eigenvec for idx", qq);
                           xx = List._helper.inverseIteration(A, eigvals.value[qq]);
                           //xx = General.mult(QQ, xx);
 //                          List.println(List.scaldiv(List.abs(xx), xx));
@@ -1596,7 +1596,7 @@ List.eig = function(A){
 
                       if(qq < len-1){
                         sameEigVal =  CSNumber.abs(CSNumber.sub(eigvals.value[qq], eigvals.value[qq+1])).value.real < 1e-6;
-                        if(sameEigVal) console.log("same eigenval!");
+                        //if(sameEigVal) console.log("same eigenval!");
                         if(sameEigVal) count++;
                         else count = 0;
                       }
@@ -1651,6 +1651,7 @@ List.eig = function(A){
    }
 
 */
+    eigenvecs = List.transpose(eigenvecs);
    var erg = List.turnIntoCSList([eigvals, eigenvecs]);
 //   var erg = List.turnIntoCSList([eigenvecs, eigvals]);
 // var  erg = eigenvecs;
