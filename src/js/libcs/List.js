@@ -1046,7 +1046,7 @@ List.projectiveDistMinScal = function(a, b) {
 
     // 1 here is derived from cinderella src -- Martin and i are not sure why this is 1 and not infinity
     var np = CSNumber._helper.isAlmostZero(p)? CSNumber.real(1) : CSNumber.div(p, CSNumber.abs(p));
-;
+
     
     
     var na = List.scaldiv(sa, a);
@@ -1582,7 +1582,7 @@ List.eig = function(A){
 
                       //console.log(niceprint(eigvals.value[qq]));
                       //debugger;
-                      if(List.abs(xx).value.real < 1e-8 && count == 0){ // couldnt find a vector in nullspace -- should not happen
+                      if(List.abs(xx).value.real < 1e-8 && count === 0){ // couldnt find a vector in nullspace -- should not happen
                          // console.log("could not find eigenvec for idx", qq);
                           xx = List._helper.inverseIteration(A, eigvals.value[qq]);
                           //xx = General.mult(QQ, xx);
@@ -1675,6 +1675,7 @@ List._helper.isNormalMatrix = function(A){
 };
 
 List._helper.QRIteration = function(A, maxIter){
+    var i;
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
     var Alen = cslen.value.real; // does not change
@@ -1688,7 +1689,7 @@ List._helper.QRIteration = function(A, maxIter){
     var QR, kap, shiftId, block, L1, L2, blockeigs, ann, dist1, dist2;
     var numDeflations = 0;
     var eigvals = new Array(len);
-    for(var i = 0; i < mIter ; i++){
+    for(i = 0; i < mIter ; i++){
 
         block = List._helper.getBlock(AA, [len-2, len-1], [len-2, len-1]);
         blockeigs = List.eig2(block);
@@ -1764,7 +1765,7 @@ List._helper.QRIteration = function(A, maxIter){
                     eigvals[Alen - numDeflations - 1] = AA.value[len-1].value[len-1]; // get Eigenvalue
 
                     // copy shortening to erg
-                    for(var i = 0; i < len; i++){
+                    for(i = 0; i < len; i++){
                         erg.value[len-1].value[i] = AA.value[len-1].value[i];
                         erg.value[i].value[len-1] = AA.value[i].value[len-1];
                     }
@@ -1791,13 +1792,13 @@ List._helper.QRIteration = function(A, maxIter){
 //        console.log("AA in QRdecomp");
 //        List.println(AA);
 
-        if(len == 1){
+        if(len === 1){
             erg.value[0].value[0] = AA.value[0].value[0];
             break;
         }
 
         if(List._helper.isUpperTriangular(AA)){
-            for(var i = 0; i < len; i++){
+            for(i = 0; i < len; i++){
                 erg.value[i].value[i] = AA.value[i].value[i];
             }
             break; // break if QR.Q is almost diagonal
@@ -2007,8 +2008,8 @@ List._helper.swapEl = function(arr, i, j){
                 arr.value[j] = tmp;
                 return;
             }
-            console.log("could not swap");
-            debugger;
+            //console.log("could not swap");
+            //debugger;
             return;
 };
 
@@ -2016,6 +2017,7 @@ List._helper.swapEl = function(arr, i, j){
 List.RRQRdecomp = function(A){
 //    console.log("mat in rrqr", niceprint(A));
 //    List.println(A);
+    var i;
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -2033,13 +2035,13 @@ List.RRQRdecomp = function(A){
 
     // get column norms
     var tA = List.transpose(A);
-    var norms = new Array();
-    for(var i = 0; i < len; i++) norms[i] = List.abs2(tA.value[i]);
+    var norms = new Array(len);
+    for(i = 0; i < len; i++) norms[i] = List.abs2(tA.value[i]);
     norms = List.turnIntoCSList(norms);
 
 
     var piv = new Array(len);
-    for(var i = 0; i < len; i++) piv[i] = i;
+    for(i = 0; i < len; i++) piv[i] = i;
 
 
     var maxIdx = List.maxIndex(norms, CSNumber.abs);
@@ -2090,7 +2092,7 @@ List.RRQRdecomp = function(A){
         // TODO this is the right way to do this -- i don't understand why whis doesn't work
         // console.log("AAA in RRQRdecomp");
         // List.println(AAA);
-        for(var i = k + 1 ; i < len; i++){
+        for(i = k + 1 ; i < len; i++){
             norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], CSNumber.conjugate(AAA.value[k].value[i]))); 
         }
 
@@ -2458,7 +2460,7 @@ List._helper.getBlock = function(A, m, n){
 List._helper.setBlock = function(A, B , pos){
     var AA = JSON.parse(JSON.stringify(A));
     var m0 = pos[0];
-    var n1 = pos[1];
+    var n0 = pos[1];
 
     var m1 = B.value.length;
     var n1 = B.value[0].value.length;
