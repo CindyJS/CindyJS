@@ -33,3 +33,21 @@ describe("projectiveDistMinScal", function() {
         d.should.be.below(1e-14);
     });
 });
+
+describe("Determinants", function() {
+    it("List.det4m on random matrix", function() {
+        var r = List.realMatrix([
+            [38, 48, 52, 85],
+            [78, 80, 20,  7],
+            [46,  1,  0, 29],
+            [69,  5, 50, 61]]);
+        var i = List.realMatrix([
+            [74, 35, 32, 73],
+            [38, 22, 61, 92],
+            [65, 84, 97,  4],
+            [45, 89, 69, 47]]);
+        var m = List.add(r, List.scalmult(CSNumber.complex(0, 1), i));
+        var actual = List.det4m(m);
+        actual.value.should.have.properties({real: -14134415, imag: -69048490});
+    });
+});

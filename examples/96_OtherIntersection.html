@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({
+  "scripts": "cs*",
+  "defaultAppearance": {},
+  "geometry": [
+    {
+      "name": "A",
+      "type": "Free",
+      "pos": [
+        -0.17021276595744683,
+        -4.0,
+        -2.127659574468085
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "labeled": true
+    },
+    {
+      "name": "C1",
+      "type": "CircleByRadius",
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "radius": 4.404543109109048,
+      "args": [
+        "A"
+      ],
+      "size": 1,
+      "printname": "$C_{1}$"
+    },
+    {
+      "name": "B",
+      "type": "PointOnCircle",
+      "pos": [
+        -3.412844036697248,
+        -4.0,
+        -0.9174311926605504
+      ],
+      "color": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "args": [
+        "C1"
+      ],
+      "labeled": true
+    },
+    {
+      "name": "C2",
+      "type": "CircleMP",
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "B",
+        "A"
+      ],
+      "size": 1,
+      "printname": "$C_{2}$"
+    },
+    {
+      "name": "Collection__1",
+      "type": "IntersectionCircleCircle",
+      "args": [
+        "C1",
+        "C2"
+      ]
+    },
+    {
+      "name": "C",
+      "type": "SelectP",
+      "pos": [
+        0.15799098825147656,
+        -4.0,
+        -0.6377212973443129
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "Collection__1"
+      ],
+      "labeled": true
+    },
+    {
+      "name": "C4",
+      "type": "CircleMP",
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "C",
+        "B"
+      ],
+      "size": 1,
+      "printname": "$C_{4}$"
+    },
+    {
+      "name": "D",
+      "type": "OtherIntersectionCC",
+      "pos": [
+        4.0,
+        -3.901834528078577,
+        -1.0288745934529593
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "C1",
+        "C4",
+        "B"
+      ],
+      "labeled": true
+    },
+    {
+      "name": "C5",
+      "type": "CircleMP",
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "D",
+        "C"
+      ],
+      "size": 1,
+      "printname": "$C_{5}$"
+    },
+    {
+      "name": "E",
+      "type": "OtherIntersectionCC",
+      "pos": [
+        4.0,
+        0.6741573033707866,
+        -1.1235955056179776
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "C1",
+        "C5",
+        "C"
+      ],
+      "labeled": true
+    },
+        {
+      "name": "C6",
+      "type": "CircleMP",
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "E",
+        "D"
+      ],
+      "size": 1,
+      "printname": "$C_{6}$"
+    },
+    {
+      "name": "F",
+      "type": "OtherIntersectionCC",
+      "pos": [
+        0.6491863736838409,
+        -4.0,
+        1.592145963212291
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "C1",
+        "C6",
+        "D"
+      ],
+      "labeled": true
+    },
+    {
+      "name": "C7",
+      "type": "CircleMP",
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "F",
+        "E"
+      ],
+      "size": 1,
+      "printname": "$C_{7}$"
+    },
+        {
+      "name": "G",
+      "type": "OtherIntersectionCC",
+      "pos": [
+        0.6491863736838409,
+        -4.0,
+        1.592145963212291
+      ],
+      "color": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "args": [
+        "C1",
+        "C7",
+        "E"
+      ],
+      "labeled": true
+    },
+        {
+      "name": "C8",
+      "type": "CircleMP",
+      "color": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "args": [
+        "G",
+        "F"
+      ],
+      "size": 1,
+      "printname": "$C_{8}$"
+    }
+  ],
+  "ports": [
+    {
+      "id": "CSCanvas",
+      "width": 680,
+      "height": 336,
+      "transform": [
+        {
+          "visibleRect": [
+            -9.04,
+            9.32,
+            18.16,
+            -4.12
+          ]
+        }
+      ],
+      "background": "rgb(168,176,192)"
+    }
+  ]
+});
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

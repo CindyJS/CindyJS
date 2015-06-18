@@ -10,6 +10,38 @@ geoOps._helper = {};
  * Tr - Transformation
  */
 
+
+////The RandomLine RandomPoint operators are used by Cinderellas
+////Original Mirror Operations
+
+geoOps.RandomLine = {};
+geoOps.RandomLine.kind = "L";
+geoOps.RandomLine.updatePosition = function(el) {
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Line");
+};
+
+geoOps.FreeLine = {};
+geoOps.FreeLine.kind = "L";
+geoOps.FreeLine.updatePosition = function(el) {
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Line");
+};
+
+
+geoOps.RandomPoint = {};
+geoOps.RandomPoint.kind = "P";
+geoOps.RandomPoint.updatePosition = function(el) {
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Point");
+};
+
+///////////////////////////
+
+
 geoOps.Join = {};
 geoOps.Join.kind = "L";
 geoOps.Join.updatePosition = function(el) {
@@ -376,9 +408,18 @@ geoOps.PointOnCircle.updatePosition = function(el) {
     candidates = tracing2(candidates[0], candidates[1]);
     var pos = List.normalizeMax(candidates.value[0]);
     el.homog = General.withUsage(pos, "Point");
+    el.antipodalPoint = candidates.value[1];
 };
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 
+geoOps.OtherPointOnCircle = {};
+geoOps.OtherPointOnCircle.kind = "P";
+geoOps.OtherPointOnCircle.updatePosition = function(el) {
+    var first = csgeo.csnames[el.args[0]];
+    var pos = first.antipodalPoint;
+    pos = List.normalizeMax(pos);
+    el.homog = General.withUsage(pos, "Point");
+};
 
 geoOps.PointOnSegment = {};
 geoOps.PointOnSegment.kind = "P";
@@ -509,6 +550,32 @@ geoOps.CircleMr.updatePosition = function(el) {
     el.radius = r;
 };
 geoOps.CircleMr.stateSize = 2;
+
+
+
+//TODO Must be redone for Points at infinity
+//Original Cindy Implementation is not correct either
+geoOps.Compass = {};
+geoOps.Compass.kind = "C";
+geoOps.Compass.updatePosition = function(el) {
+    var m = csgeo.csnames[(el.args[2])].homog;
+    var b = csgeo.csnames[(el.args[1])].homog;
+    var c = csgeo.csnames[(el.args[0])].homog;
+    m = List.normalizeZ(m);
+    b = List.normalizeZ(b);
+    c = List.normalizeZ(c);
+    var diff=List.sub(b,c);
+    var p = List.add(diff, m);
+    p = List.normalizeZ(p);
+
+    var matrix = geoOps._helper.CircleMP(m, p);
+    matrix = List.normalizeMax(matrix);
+    console.log(matrix);
+    el.matrix = General.withUsage(matrix, "Circle");
+};
+
+
+
 
 
 geoOps._helper.getConicType = function(C) {
@@ -955,10 +1022,24 @@ geoOps.Polar.kind = "L";
 geoOps.Polar.updatePosition = function(el) {
     var Conic = csgeo.csnames[(el.args[0])];
     var Point = csgeo.csnames[(el.args[1])];
-    el.homog = General.mult(Conic.matrix, Point.homog);
+    var iMatrix = List.inverse(Conic.matrix);
+    el.homog = General.mult(iMatrix, Point.homog);
+
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Point");
+};
+
+geoOps.PolarPoint = {};
+geoOps.PolarPoint.kind = "P";
+geoOps.PolarPoint.updatePosition = function(el) {
+    var Conic = csgeo.csnames[(el.args[1])];
+    var Line = csgeo.csnames[(el.args[0])];
+    el.homog = General.mult(Conic.matrix, Line.homog);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+
+
 
 geoOps.angleBisector = {};
 geoOps.angleBisector.kind = "Ls";
@@ -1080,6 +1161,30 @@ geoOps.IntersectLC.updatePosition = function(el) {
 };
 geoOps.IntersectLC.stateSize = tracing2.stateSize;
 
+geoOps.OtherIntersectionCL = {};
+geoOps.OtherIntersectionCL.kind = "P";
+geoOps.OtherIntersectionCL.updatePosition = function(el) {
+    var l = csgeo.csnames[(el.args[1])].homog;
+    var c = csgeo.csnames[(el.args[0])].matrix;
+    var p = csgeo.csnames[(el.args[2])].homog;
+
+    var erg = geoOps._helper.IntersectLC(l, c);
+    var erg1 = erg[0];
+    var erg2 = erg[1];
+    var d1 = List.projectiveDistMinScal(erg1, p);
+    var d2 = List.projectiveDistMinScal(erg2, p);
+    if(d1<d2){
+        el.homog=erg2;
+    } else {
+        el.homog=erg1;
+    }
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Point");
+
+};
+
+
+
 geoOps.IntersectCirCir = {};
 geoOps.IntersectCirCir.kind = "Ps";
 geoOps.IntersectCirCir.updatePosition = function(el) {
@@ -1103,6 +1208,42 @@ geoOps.IntersectCirCir.updatePosition = function(el) {
     el.results = tracing2(erg1, erg2);
 };
 geoOps.IntersectCirCir.stateSize = tracing2.stateSize;
+
+
+geoOps.OtherIntersectionCC = {};
+geoOps.OtherIntersectionCC.kind = "P";
+geoOps.OtherIntersectionCC.updatePosition = function(el) {
+    var c1 = csgeo.csnames[(el.args[0])].matrix;
+    var c2 = csgeo.csnames[(el.args[1])].matrix;
+    var p = csgeo.csnames[(el.args[2])].homog;
+
+    var ct1 = c2.value[0].value[0];
+    var line1 = List.scalmult(ct1, c1.value[2]);
+    var ct2 = c1.value[0].value[0];
+    var line2 = List.scalmult(ct2, c2.value[2]);
+    var ll = List.sub(line1, line2);
+    ll = List.turnIntoCSList([
+        ll.value[0], ll.value[1], CSNumber.realmult(0.5, ll.value[2])
+    ]);
+    ll = List.normalizeMax(ll);
+
+
+    var erg = geoOps._helper.IntersectLC(ll, c1);
+    var erg1 = erg[0];
+    var erg2 = erg[1];
+    var d1 = List.projectiveDistMinScal(erg1, p);
+    var d2 = List.projectiveDistMinScal(erg2, p);
+    if(d1<d2){
+        el.homog=erg2;
+    } else {
+        el.homog=erg1;
+    }
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Point");
+
+};
+
+
 
 
 geoOps._helper.IntersectConicConic = function(A, B) {
@@ -1353,6 +1494,13 @@ geoMacros.IntersectionCircleCircle = function(el) {
     el.type = "IntersectCirCir";
     return [el];
 };
+
+geoMacros.PolarLine = function(el) {
+    el.args = [el.args[1], el.args[0]];
+    el.type = "Polar";
+    return [el];
+};
+
 
 geoMacros.Calculation = function(el) {
     console.log("Calculation stripped from construction");
