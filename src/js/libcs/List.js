@@ -1415,11 +1415,11 @@ List.eig = function(A){
     var len = cslen.value.real;
     var zero = CSNumber.real(0);
 
+    // the code is not well tested -- perhaps we can use it later
     var useHess = false;
     if(useHess){
         var Hess =  List._helper.toHessenberg(A);
         AA = Hess[1];
-
     }
 
     var QRRes = List._helper.QRIteration(AA);
@@ -1535,57 +1535,14 @@ List._helper.QRIteration = function(A, maxIter){
         shiftId = List.scalmult(kap, Id);
 
 
-     //   console.log("input");
-     //   List.println(List.sub(AA, shiftId));
-
         QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
-     //   console.log("R");
-     //   List.println(QR.R);
-     //   console.log("Q");
-     //   List.println(QR.Q);
-     //   console.log("mult");
-     //   List.println(General.mult(QR.Q, QR.R));
-     //                debugger;
-//        var QR2 = List.QRdecomp(List.sub(AA, shiftId), true); // shift
-
-        
-//        var nomR = List.abs(List.sub(QR.R, QR2.R)).value.real;
-//        var nomQ = List.abs(List.sub(QR.Q, QR2.Q)).value.real;
-//
-//        if(nomR > 1e-8){
-//           
-//            console.log("R not equal!", nomR);
-//            List.println(QR.R);
-//            console.log("===");
-//            List.println(QR2.R);
-//            console.log("===");
-//            List.println(List.sub(QR.R, QR2.R));
-//            debugger;
-//        }
-//
-//        if(nomQ > 1e-8) console.log("Q not equal!");
-
-        // deflation
 
 
         AA = General.mult(QR.R, QR.Q);
         AA = List.add(AA, shiftId);
 
-        // deflation
-
-
-        //if(i % 50 === 0 && List._helper.isAlmostDiagonal(JSON.parse(JSON.stringify(QR.Q)))) break; // break if QR.Q is almost diagonal
-
-
-//      debugger;
-//        if(i === 1500) List.println(List.getSubDiag(AA));
       QR.Q = List._helper.buildBlockMatrix(QR.Q, List.idMatrix(CSNumber.real(numDeflations), CSNumber.real(numDeflations)));
       QQ = General.mult(QQ,QR.Q);
-  //    UU = General.mult(UU, QR.Q);
-
-        //deflation
-       // if(i % 10 === 0){
-        //    debugger;
                 if(CSNumber.abs2(AA.value[AA.value.length - 1].value[AA.value[0].value.length -2]).value.real < 1e-48 && len > 1){
 
                     eigvals[Alen - numDeflations - 1] = AA.value[len-1].value[len-1]; // get Eigenvalue
@@ -1596,28 +1553,16 @@ List._helper.QRIteration = function(A, maxIter){
                         erg.value[i].value[len-1] = AA.value[i].value[len-1];
                     }
 
-                   // console.log("erg");
-                   // List.println(erg);
-
-                    //console.log("AA");
-                    //List.println(AA);
-
-
-
                     // shorten Matrix AA
                     AA = List._helper.getBlock(AA, [0, len-2], [0, len-2]);
 
 
-                    //List.println(AA);
 
                     numDeflations++;
                     len--;
                     }
-        //}
 
-//        console.log("AA in QRdecomp");
-//        List.println(AA);
-
+        // break if we have only 1x1 matrix
         if(len === 1){
             erg.value[0].value[0] = AA.value[0].value[0];
             break;
@@ -1627,28 +1572,10 @@ List._helper.QRIteration = function(A, maxIter){
             for(i = 0; i < len; i++){
                 erg.value[i].value[i] = AA.value[i].value[i];
             }
-            break; // break if QR.Q is almost diagonal
+            break; 
         }
     }
-//    console.log("iterations:", i);
-
-
-   // console.log("QQ");
-   // List.println(QQ);
-   // AA = List.zeromatrix(CSNumber.real(Alen), CSNumber.real( Alen));
-    //
-   // for(var i =0; i < Alen; i++) AA.value[i].value[i] = eigvals[i];
-
-   // console.log("eigvals");
-   // List.println(List.turnIntoCSList(eigvals));
-   // console.log("erg");
-   // List.println(erg);
-
-    // TODO remove UU
-    //debugger;
     return [erg,QQ];
-    //return [AA,QQ, UU];
-
 };
 
 // return rank of a square matrix
@@ -1679,14 +1606,6 @@ List._helper.isLowerTriangular= function(A){
 
 List._helper.isUpperTriangular= function(A){
     return List._helper.isLowerTriangular(List.transpose(A));
-//    var leni = A.value.length;
-//    var lenj = A.value[0].value.length;
-//    for(var i =0; i < leni; i++)
-//        for(var j = i+1 ; j < lenj; j++){
-//            if(!CSNumber._helper.isAlmostZero(A.value[j].value[i])) return false;
-//        }
-//
-//    return true;
 };
 
 List._helper.isAlmostId = function(AA){
@@ -1752,7 +1671,9 @@ List._helper.isAlmostDiagonal = function(AA){
     return true;
 };
 
+
 List._helper.inverseIteration = function(A,shiftinit){
+    console.log("warning: code untested");
     var len = A.value.length;
 
     // random vector
@@ -1773,7 +1694,6 @@ List._helper.inverseIteration = function(A,shiftinit){
 
     
     return List.scaldiv(List.abs(xx), xx);
-
 };
 
 
