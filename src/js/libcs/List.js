@@ -1409,8 +1409,6 @@ List.eig2 = function(AA){
 };
 
 List.eig = function(A){
-    //A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
-//    console.log(niceprint(A));
     var i,j;
     var AA = A;
     var cslen = CSNumber.real(AA.value.length);
@@ -1420,54 +1418,18 @@ List.eig = function(A){
     var useHess = false;
     if(useHess){
         var Hess =  List._helper.toHessenberg(A);
-        // PP is Trafo matrix
-        //PP = Hess[0];
         AA = Hess[1];
 
     }
-    //console.log("PP");
-    //List.println(PP);
-    //var AAA = Hess[1];
-
 
     var QRRes = List._helper.QRIteration(AA);
-    //var QRRes = List._helper.QRIteration(AAA);
     AA = QRRes[0];
-//    console.log("AAA after qr iter");
-//    List.println(AA);
-    //debugger;
 
     var QQ = QRRes[1];
 
-    if(useHess){
-        //QQ = General.mult(PP, QQ);
-        //AA = General.mult(PP, AA);
-    }
-    //console.log("QQ from qrres");
-    //List.println(QQ);
-
-    // trafo QQ for Eigenvecs
-    //QQ = General.mult(PP,AAA);
-    //var UU = QRRes[2];
-
-    //console.log("QQ");
-    //List.println(QQ);
-
-    
-
-   // console.log("q at end");
-   // List.println(QR.Q);
-
-    // evtl QQ*
-    //var ZZ = General.mult(QQ, AA);
-
     var eigvals = List.getDiag(AA);
     eigvals = List.sort1(eigvals);
- //   console.log("eigvals");
- //   List.println(eigvals);
-    //debugger;
 
-    //var zvec = List.zerovector(cslen);
     var ID = List.idMatrix(cslen, cslen);
 
     var eigenvecs = new Array(len);
@@ -1476,64 +1438,13 @@ List.eig = function(A){
     // calc eigenvecs
     //
     // if we have a normal matrix QQ holds already the eigenvecs
-    if( false && List._helper.isNormalMatrix(AA)){
-        console.log("is normal matrix return QQ");
-        var QQQ = List.transpose(QQ);
-        for(i = 0; i < len; i++)
-        eigenvecs.value[i] = QQQ.value[i];
-    }
-    else{
-         // eigenvecs = List.turnIntoCSList(eigenvecs);
-          //eigenvecs.value[0] = List.column(QQ,CSNumber.real(1));
-
-       //   console.log("old eigvals");
-       //   List.println(eigvals);
-       // // sort eigenvalues
-       //     // get largest Eigenvalue
-       //   var abs, maxAbs = Infinity, idx = 0;
-       //   for(var i = 0; i < len; i++){
-       //       abs = CSNumber.abs(eigvals.value[i]).value.real;
-       //       if(abs > maxAbs){
-       //          idx = i; 
-       //       }
-       //   }
-
-       //   // switch max Eigenvals to first position
-       //   var tmp = eigvals.value[0];
-       //   eigvals.value[0] = eigvals.value[idx];
-       //   eigvals.value[idx] = tmp;
-
-
-       //   var dist, mindist = Infinity;
-       //   for(i = 1; i < len ; i++){
-       //       for(j = i+1; j < len; j++){
-
-       //           dist = CSNumber.abs(CSNumber.sub(eigvals.value[i], eigvals.value[j])).value.real;
-       //           if(dist < mindist){
-       //               idx = j;
-       //               mindist = dist;
-       //           }
-
-
-       //       }
-       //       var tmp = eigvals.value[i];
-       //       eigvals.value[i] = eigvals.value[idx];
-       //       eigvals.value[idx] = tmp;
-       //       mindist = Infinity;
-       //   }
-
-       //   
-       //   console.log("new eigvals");
-       //   List.println(eigvals);
-
-
-
-          // null space below diagonal
- //         for(i = 0; i < len; i++)
- //           for(j = i+1; j < len; j++)
- //               AA.value[j].value[i] = zero;
-
-          
+//    if( false && List._helper.isNormalMatrix(AA)){
+//        console.log("is normal matrix return QQ");
+//        var QQQ = List.transpose(QQ);
+//        for(i = 0; i < len; i++)
+//        eigenvecs.value[i] = QQQ.value[i];
+//    }
+//    else{
               var useInverseIteration = false; // inverse iteration or nullspace method to obtain eigenvecs
 
               var MM,xx, nullS,qq;
@@ -1549,10 +1460,6 @@ List.eig = function(A){
                   var count = 0;
                   var sameEigVal = false;
                   for(qq = 0; qq < len; qq++){
-//                      console.log("AAA");
-//                      List.println(AA);
-//                      console.log("end AAA");
-                      //MM =List.sub(AA, List.scalmult(eigvals.value[qq], ID));
                       if(sameEigVal){
                             xx = nullS.value[count];
                       }
@@ -1566,37 +1473,16 @@ List.eig = function(A){
 
                       // check if we got nothing from nullspace
                       if(xx === undefined){ 
-                          //console.log("xx is undefined for idx", qq);
-//                          xx = List.zerovector(cslen);
                           xx = lastevec;
                       }
-                     // console.log(cslen.value.real);
-
-                      //xx = General.mult(QQ,nullS.value[0]);
-                      //if(CSNumber.abs(CSNumber.sub(ceigval, eigvals.value[qq+1])).value.real < 1e-6){
-                      //    count++;
-                      //}
-                      //else{ 
-                      //    count = 0;
-                      //}
-
-                      //console.log(niceprint(eigvals.value[qq]));
-                      //debugger;
                       if(List.abs(xx).value.real < 1e-8 && count === 0){ // couldnt find a vector in nullspace -- should not happen
-                         // console.log("could not find eigenvec for idx", qq);
                           xx = List._helper.inverseIteration(A, eigvals.value[qq]);
-                          //xx = General.mult(QQ, xx);
-//                          List.println(List.scaldiv(List.abs(xx), xx));
-//                          console.log("===");
-                          //eigenvecs.value[qq] = xx;
                       }
-                     // else
                      eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx) ? xx : List.scaldiv(List.abs(xx), xx);
 
 
                       if(qq < len-1){
                         sameEigVal =  CSNumber.abs(CSNumber.sub(eigvals.value[qq], eigvals.value[qq+1])).value.real < 1e-6;
-                        //if(sameEigVal) console.log("same eigenval!");
                         if(sameEigVal) count++;
                         else count = 0;
                       }
@@ -1604,70 +1490,10 @@ List.eig = function(A){
 
               }
     
-    }
+    //} // end else from normal matrices
 
-    //eigenvecs = List.transpose(eigenvecs);
-
-//    List.println(eigvals);
-   // console.log("===");
-   // for(var k = 0; k < len ; k++){
-   //     List.println(eigenvecs.value[k]);
-   // }
-
-//    List.println(AA);
-//    List.println(UU);
-//   console.log("test");
-    //
-
-    /*
-   var a=(List.sub(General.mult(A,eigenvecs.value[0]), General.mult(eigvals.value[0],eigenvecs.value[0])));
-   var b=(List.sub(General.mult(A,eigenvecs.value[1]), General.mult(eigvals.value[1],eigenvecs.value[1])));
-   var c=(List.sub(General.mult(A,eigenvecs.value[2]), General.mult(eigvals.value[2],eigenvecs.value[2])));
-   var d=(List.sub(General.mult(A,eigenvecs.value[3]), General.mult(eigvals.value[3],eigenvecs.value[3])));
-
-   var aa = List.abs(a).value.real;
-   var bb = List.abs(b).value.real;
-   var cc = List.abs(c).value.real;
-   var dd = List.abs(d).value.real;
-
-   //var testpassed = (aa + bb + cc + dd)/4 < 1e-6;
-   var testpassed = (aa + bb + cc + dd)/4 < 1e-6;
-
-   //console.log(testpassed, aa,bb,cc, dd);
-   console.log(testpassed, aa,bb,cc);
-   if(!testpassed){
-    List.println(eigvals);
-    console.log("===");
-    for(var k = 0; k < len ; k++){
-    List.println(eigenvecs.value[k]);
-    }
-    
-    console.log("===");
-    console.log("QQ");
-    List.println(QQ);
-    console.log("===");
-    console.log("AA");
-    List.println(AA);
-   }
-
-*/
-    eigenvecs = List.transpose(eigenvecs);
-   var erg = List.turnIntoCSList([eigvals, eigenvecs]);
-//   var erg = List.turnIntoCSList([eigenvecs, eigvals]);
-// var  erg = eigenvecs;
-//   console.log(erg);
-  // debugger;
-   return erg;
-//   console.log("end test");
-//   List.println(General.mult(A, List.column(UU, CSNumber.real(1))));
-//   List.println(General.mult(AA.value[0].value[0], List.column(UU, CSNumber.real(1))));
-//
-//   List.println(General.mult(A, List.column(UU, CSNumber.real(2))));
-//   List.println(General.mult(AA.value[1].value[1], List.column(UU, CSNumber.real(2))));
-//
-//   List.println(General.mult(A, List.column(UU, CSNumber.real(3))));
-//   List.println(General.mult(AA.value[2].value[2], List.column(UU, CSNumber.real(3))));
-
+   eigenvecs = List.transpose(eigenvecs);
+   return List.turnIntoCSList([eigvals, eigenvecs]);
 };
 
 List._helper.isNormalMatrix = function(A){
@@ -1994,6 +1820,7 @@ List._helper.toHessenberg = function(A){
     return [QQ,AA];
 };
 
+// swap an element in js or cs array
 List._helper.swapEl = function(arr, i, j){
             var tmp;
             if(Object.prototype.toString.call(arr) === '[object Array]') {
@@ -2008,15 +1835,12 @@ List._helper.swapEl = function(arr, i, j){
                 arr.value[j] = tmp;
                 return;
             }
-            //console.log("could not swap");
-            //debugger;
             return;
 };
 
 // rank revealing QR decomposition
+// see Golub, van Loan -- Matrix Computations - p. 302
 List.RRQRdecomp = function(A){
-//    console.log("mat in rrqr", niceprint(A));
-//    List.println(A);
     var i;
     var AA;
     var len = A.value.length;
@@ -2048,31 +1872,15 @@ List.RRQRdecomp = function(A){
     var tau = norms.value[maxIdx];
     var rank = 0;
     for(var k = 0; CSNumber.abs2(tau).value.real > 1e-16; k++){
-
-        // account pivots
-        // TODO this is a workaround -- remove this later!
-       // var permAAA = JSON.parse(JSON.stringify(AAA));
-            rank++;
-//           console.log("swap indxes", k, maxIdx);
+           rank++;
            List._helper.swapColumn(AAA, k, maxIdx);
            List._helper.swapEl(norms, k, maxIdx); 
            List._helper.swapEl(piv, k, maxIdx);
-//        if(usePerm) List._helper.swapColumn(AAA, k, maxIdx);
-        //AA = List._helper.getBlock(AAA,[k,], [k,]);
         AA = List._helper.getBlock(AAA,[k,], [k,]);
 
-        // TODO this could be moved outside ... too lazy now
-        //if( k === 0) AA = JSON.parse(JSON.stringify(AAA));
+            xx = List.column(AA, one);
+            alpha = List._helper.QRgetAlpha(xx, 0);
 
-
-        // get alpha
-        //xx = List.column(AA, one);
-        xx = List.column(AA, one);
-        alpha = List._helper.QRgetAlpha(xx, 0);
-
-    
-    
-//        if(List.abs2(AA).value.real > e1-8){
             uu = List.sub(xx, List.scalmult(alpha, e1));
             vv = List.scaldiv(List.abs(uu), uu);
             ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
@@ -2088,29 +1896,15 @@ List.RRQRdecomp = function(A){
 
 
             AAA = General.mult(Qk, AAA);
+
         // update norms 
-        // TODO this is the right way to do this -- i don't understand why whis doesn't work
-        // console.log("AAA in RRQRdecomp");
-        // List.println(AAA);
         for(i = k + 1 ; i < len; i++){
             norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], CSNumber.conjugate(AAA.value[k].value[i]))); 
         }
 
-        //
-        // this is my workaround
-       // tA = List.transpose(AAA);
-       // for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
-            //
-//     console.log("new norms for k = ", k,  niceprint(norms));
-//     List.println(AAA);
 
         maxIdx = List.maxIndex(norms, CSNumber.abs2, k+1);
-//        console.log("maxIdx after update", maxIdx);
         tau = norms.value[maxIdx];
-//        console.log("tau", niceprint(tau));
-
- //       console.log("tau", niceprint(tau));
- //       console.log(niceprint(norms));
 
         // after k+2 steps we are done
         if(k+2 === len){
@@ -2124,42 +1918,6 @@ List.RRQRdecomp = function(A){
     }
 
     var R = AAA; //General.mult(List.transjugate(QQ), A);
-/*
-    console.log("R before swap");
-    List.println(R);
-    // permute R
-    //piv.reverse() // transpose 
-    console.log("reverse pivs", piv);
-
-
-    var Rerg = List._helper.reOrderbyPivots(R, piv);
-    console.log("rerg");
-    List.println(Rerg);
-
-//    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
-
-    console.log("AAA");
-    List.println(AAA);
-
-    console.log("QQ");
-    List.println(QQ);
- //   console.log("QQ*R");
- //   List.println(General.mult(QQ,R));
- //   console.log("A");
- //   List.println(A);
- //   console.log("norm Q");
-  // List.println(General.mult(QQ, List.transjugate(QQ)));
-   console.log("Q*R");
-   List.println(General.mult(QQ,R));
-   console.log("pivs", piv);
-   console.log("pivs reverse", piv.reverse());
-   console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
-   console.log("norm rerg", List.abs(List.sub(A, General.mult(QQ,Rerg))).value.real);
-   console.log(niceprint(norms));
-   console.log("rank", rank);
-   debugger;
-    
-   */
 
     return {
         Q: QQ,
@@ -2180,12 +1938,6 @@ List._helper.reOrderbyPivots = function(A, piv){
 };
 
 List.QRdecomp = function(A){
-  //  A = List.realMatrix([[1, 0, 0], [0, 0, 0],  [0, 2, 0]]);
-   // A = List.realMatrix([[5, 0, 0, 0], [1, 1, 0, 0], [4, 7, 5, 0], [1, 6, 5, 1]]);
-//    A = List.realMatrix([[12, -51, 4], [6, 167, -68], [-4, 24, -41]])
-//    List.RRQRdecomp(A);
-    //console.log(niceprint(A));
-    //var usePivot = true; // use Pivoted QR
     var AA;
     var len = A.value.length;
     var cslen = CSNumber.real(len);
@@ -2207,70 +1959,11 @@ List.QRdecomp = function(A){
 
     // this will be the updated matrix
     var AAA = JSON.parse(JSON.stringify(A));
-
-
-    // get column norms
-//    var tA;
-//    if(usePivot){
-//        tA = List.transpose(A);
-//        var norms = new Array();
-//        for(var i = 0; i < len; i++) norms[i] = List.abs2(tA.value[i]);
-//        norms = List.turnIntoCSList(norms);
-//
-//
-//        var piv = new Array(len);
-//        for(var i = 0; i < len; i++) piv[i] = i;
-//
-//        var swapEl = function(arr, i, j){
-//            var tmp;
-//            if(Object.prototype.toString.call(arr) === '[object Array]') {
-//                tmp = arr[i];
-//                arr[i] = arr[j];
-//                arr[j] = tmp;
-//                return;
-//            }
-//            if(arr.ctype === "list"){
-//                tmp = arr.value[i];
-//                arr.value[i] = arr.value[j];
-//                arr.value[j] = tmp;
-//                return;
-//            }
-//            console.log("could not swap");
-//            debugger;
-//            return;
-//        }
-//
-//    var maxIdx = List.maxIndex(norms, CSNumber.abs);
-//    var tau = norms.value[maxIdx];
-//    var rank = 0;
-//    } // end use pivot 
-    //console.log("userperm", usePerm);
     for(var k = 0; ; k++){
-
-        // account pivots
-        // TODO this is a workaround -- remove this later!
-       // var permAAA = JSON.parse(JSON.stringify(AAA));
-//       if(usePivot){
-//            rank++;
-//           console.log("swap indxes", k, maxIdx);
-//           List._helper.swapColumn(AAA, k, maxIdx);
-//           swapEl(norms, k, maxIdx); 
-//       }
-//        if(usePerm) List._helper.swapColumn(AAA, k, maxIdx);
-        //AA = List._helper.getBlock(AAA,[k,], [k,]);
         AA = List._helper.getBlock(AAA,[k,], [k,]);
 
-        // TODO this could be moved outside ... too lazy now
-
-
-        // get alpha
-        //xx = List.column(AA, one);
         xx = List.column(AA, one);
         normxx = List.abs2(xx).value.real;
-
-    
-        //console.log(normxx);
-    
         if(normxx > 1e-8){ // otherwise we already have the desired vector
             alpha = List._helper.QRgetAlpha(xx, 0);
             uu = List.sub(xx, List.scalmult(alpha, e1));
@@ -2288,42 +1981,7 @@ List.QRdecomp = function(A){
 
 
             AAA = General.mult(Qk, AAA);
-//            console.log("AAA after k =", k);
- //           List.println(AAA);
            }
- //       else{
- //          // Qk = List.idMatrix(cslen2, cslen2);
- //       }
-        
-        // update AAA
-
-
-        // swap back
-
-
-        // update norms 
-//         if(usePivot){
-//        // TODO this is the right way to do this -- i don't understand why whis doesn't work
-//      //  for(var i = k + 1; i < len; i++){
-//      //      norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], AAA.value[k].value[i])); 
-//      //  }
-//
-//        //
-//        // this is my workaround
-//        tA = List.transpose(AAA);
-//        for(var i = 0; i < len; i++) norms.value[i] = List.abs2(tA.value[i]);
-//            //
-//     console.log("new norms for k = ", k,  niceprint(norms));
-//     List.println(AAA);
-//
-//        maxIdx = List.maxIndex(norms, CSNumber.abs, k+1);
-//        console.log("maxIdx after update", maxIdx);
-//        tau = norms.value[maxIdx];
-//
-//        swapEl(piv, k+1, maxIdx);
-//        console.log("tau", niceprint(tau));
-//        console.log(niceprint(norms));
-//         } // end use pivot 
 
         // after k+2 steps we are done
         if(k+2 === len){
@@ -2337,55 +1995,9 @@ List.QRdecomp = function(A){
     }
 
     var R = AAA; //General.mult(List.transjugate(QQ), A);
-    /*
-     *
-    console.log("R before swap");
-    List.println(R);
-    // permute R
-    //piv.reverse() // transpose 
-    console.log("reverse pivs", piv);
-    var transAAA  = List.transpose(AAA);
-
-    var Rerg = new Array(len);
-    for(var i = 0; i < piv.length; i++) Rerg[i] = transAAA.value[piv[i]];
-    Rerg = List.turnIntoCSList(Rerg);
-    Rerg = List.transpose(Rerg);
-
-    console.log("rerg");
-    List.println(Rerg);
-
-//    if(piv.length % 2 === 0) R = List.scalmult(CSNumber.real(-1), R);
-
-    console.log("AAA");
-    List.println(AAA);
-
-    List.println(R);
-    console.log("QQ");
-    List.println(QQ);
- //   console.log("QQ*R");
- //   List.println(General.mult(QQ,R));
- //   console.log("A");
- //   List.println(A);
- //   console.log("norm Q");
-  // List.println(General.mult(QQ, List.transjugate(QQ)));
-   console.log("norm", List.abs(List.sub(A, General.mult(QQ,R))).value.real);
- //  console.log("norm rerg", List.abs(List.sub(A, General.mult(QQ,Rerg))).value.real);
- //  console.log(niceprint(norms));
-  // console.log("rank", rank);
-   debugger;
-
-//   dfjkdfk
-    
-*/
-
-//List.println(QQ);
-//List.println(AA);
-//debugger;
-
     return {
         Q: QQ,
         R: R,
-//        rank: CSNumber.real(rank)
     };
 
 };
