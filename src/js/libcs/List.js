@@ -1804,25 +1804,10 @@ List._helper.toHessenberg = function(A){
             xx.value = xx.value.splice(k);
             absxx = List.abs2(xx).value.real;
             if(absxx > 1e-16){
-            //alpha = List._helper.QRgetAlpha(xx, 0);
-            //e1 = List._helper.unitvector(CSNumber.real(len - k ), one);
-            //uu = List.sub(xx, List.scalmult(alpha, e1));
-            //vv = List.scaldiv(List.abs(uu), uu);
-            //ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
-        
-            //Qk = List.idMatrix(cslen, cslen);
-            //Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
-    
-            //// fix dimention
-            //Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
-            //
-            Qk = List._helper.getHouseHolder(xx);
+                Qk = List._helper.getHouseHolder(xx);
+                QQ = General.mult(QQ, Qk);
 
-            //List.println(QQ);
-
-            QQ = General.mult(QQ, Qk);
-
-            AA = General.mult(General.mult(Qk, AA), Qk);
+                AA = General.mult(General.mult(Qk, AA), Qk);
             }
 
             // book keeping
