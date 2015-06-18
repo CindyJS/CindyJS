@@ -1796,28 +1796,34 @@ List._helper.toHessenberg = function(A){
 
     var xx, uu, vv, alpha, e1, Qk, ww, erg;
     var QQ = List.idMatrix(cslen2, cslen2);
+    var absxx;
     for(var k = 1; k < len - 1; k++){
 
             //xx = List.tranList._helper.getBlock(AA, [k, len+1], [k,k]);
             xx = List.column(AA, CSNumber.real(k));
             xx.value = xx.value.splice(k);
-            alpha = List._helper.QRgetAlpha(xx, 0);
-            e1 = List._helper.unitvector(CSNumber.real(len - k ), one);
-            uu = List.sub(xx, List.scalmult(alpha, e1));
-            vv = List.scaldiv(List.abs(uu), uu);
-            ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
+            absxx = List.abs2(xx).value.real;
+            if(absxx > 1e-16){
+            //alpha = List._helper.QRgetAlpha(xx, 0);
+            //e1 = List._helper.unitvector(CSNumber.real(len - k ), one);
+            //uu = List.sub(xx, List.scalmult(alpha, e1));
+            //vv = List.scaldiv(List.abs(uu), uu);
+            //ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
         
-            Qk = List.idMatrix(cslen, cslen);
-            Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
+            //Qk = List.idMatrix(cslen, cslen);
+            //Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
     
-            // fix dimention
-            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
+            //// fix dimention
+            //Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
+            //
+            Qk = List._helper.getHouseHolder(xx);
 
             //List.println(QQ);
 
             QQ = General.mult(QQ, Qk);
 
             AA = General.mult(General.mult(Qk, AA), Qk);
+            }
 
             // book keeping
             cslen.value.real--;
@@ -1877,31 +1883,20 @@ List.RRQRdecomp = function(A){
     var maxIdx = List.maxIndex(norms, CSNumber.abs);
     var tau = norms.value[maxIdx];
     var rank = 0;
+    var normxx;
     for(var k = 0; CSNumber.abs2(tau).value.real > 1e-16; k++){
            rank++;
            List._helper.swapColumn(AAA, k, maxIdx);
            List._helper.swapEl(norms, k, maxIdx); 
            List._helper.swapEl(piv, k, maxIdx);
-        AA = List._helper.getBlock(AAA,[k,], [k,]);
-
+            AA = List._helper.getBlock(AAA,[k,], [k,]);
             xx = List.column(AA, one);
-            alpha = List._helper.QRgetAlpha(xx, 0);
-
-            uu = List.sub(xx, List.scalmult(alpha, e1));
-            vv = List.scaldiv(List.abs(uu), uu);
-            ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
-        
-            Qk = List.idMatrix(cslen, cslen);
-            Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
-    
-            // fix dimention
-            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
-    
-            // update QQ
-            QQ = General.mult(QQ, List.transjugate(Qk));
-
-
-            AAA = General.mult(Qk, AAA);
+            normxx = List.abs2(xx).value.real;
+            if(normxx > 1e-8){
+                Qk = List._helper.getHouseHolder(xx);
+                QQ = General.mult(QQ, List.transjugate(Qk));
+                AAA = General.mult(Qk, AAA);
+            }
 
         // update norms 
         for(i = k + 1 ; i < len; i++){
@@ -1931,6 +1926,26 @@ List.RRQRdecomp = function(A){
         P: List.turnIntoCSList(piv),
         rank: CSNumber.real(rank)
     };
+};
+
+List._helper.getHouseHolder = function(xx){
+    var cslen = CSNumber.real(xx.value.length);
+    if(List.abs2(xx) < 1e-16) return List.idMatrix(cslen, cslen);
+
+    var alpha, uu, vv, ww, Qk;
+    var one = CSNumber.real(1);
+    var e1 = List._helper.unitvector(CSNumber.real(xx.value.length), one);
+
+    alpha = List._helper.QRgetAlpha(xx, 0);
+    
+    uu = List.sub(xx, List.scalmult(alpha, e1));
+    vv = List.scaldiv(List.abs(uu), uu);
+    ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
+    
+    Qk = List.idMatrix(cslen, cslen);
+    Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
+
+    return Qk;
 };
 
 // reorder matrix by pivots -- used in RRQRdecomp
@@ -1971,21 +1986,9 @@ List.QRdecomp = function(A){
         xx = List.column(AA, one);
         normxx = List.abs2(xx).value.real;
         if(normxx > 1e-8){ // otherwise we already have the desired vector
-            alpha = List._helper.QRgetAlpha(xx, 0);
-            uu = List.sub(xx, List.scalmult(alpha, e1));
-            vv = List.scaldiv(List.abs(uu), uu);
-            ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
-        
-            Qk = List.idMatrix(cslen, cslen);
-            Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
-    
-            // fix dimention
-            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
-    
+            Qk = List._helper.getHouseHolder(xx);
             // update QQ
             QQ = General.mult(QQ, List.transjugate(Qk));
-
-
             AAA = General.mult(Qk, AAA);
            }
 
@@ -2058,9 +2061,6 @@ List._helper.getBlock = function(A, m, n){
 
     if(n[1] === undefined) n1 = AA.value[0].value.length;
     else n1 = n[1];
-
-
-    //var isVec = (n1 - n0 === 0); // workaround for vectors
 
     // slice does not include end
     m1++; n1++;
