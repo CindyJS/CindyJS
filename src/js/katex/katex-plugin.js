@@ -31,12 +31,18 @@
             ctx.fillText(text, x, y);
         };
     }
+    var firstMessage = true;
     function katexRenderer(ctx, text, x, y, align) {
         if (waitingForFonts !== null) {
             // Fonts not available yet
-            console.log("Math fonts are not available yet.");
+            if (firstMessage) {
+                console.log("Math fonts are not available yet.");
+                firstMessage = false;
+            }
+            /*
             var width = ctx.measureText(text).width;
             ctx.fillText(text, x - align * width, y);
+            */
             return;
         }
         var fontSize = /(?:^| )([0-9]+)px(?:$| )/.exec(ctx.font);
