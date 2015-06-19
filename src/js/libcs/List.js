@@ -1884,6 +1884,8 @@ List.RRQRdecomp = function(A){
             normxx = List.abs2(xx).value.real;
             if(normxx > 1e-8){
                 Qk = List._helper.getHouseHolder(xx);
+                // fix dimension
+                Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
                 QQ = General.mult(QQ, List.transjugate(Qk));
                 AAA = General.mult(Qk, AAA);
             }
@@ -1978,6 +1980,8 @@ List.QRdecomp = function(A){
         if(normxx > 1e-8){ // otherwise we already have the desired vector
             Qk = List._helper.getHouseHolder(xx);
             // update QQ
+                // fix dimension
+                Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
             QQ = General.mult(QQ, List.transjugate(Qk));
             AAA = General.mult(Qk, AAA);
            }
