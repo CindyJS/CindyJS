@@ -705,6 +705,11 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
 };
 
+// This is a hook: the following function may get replaced by a plugin.
+var textRenderer = function(ctx, text, x, y, align) {
+    var width = ctx.measureText(text).width;
+    ctx.fillText(text, x - width * align, y);
+};
 
 evaluator.drawtext$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
@@ -728,11 +733,8 @@ evaluator.drawtext$2 = function(args, modifs) {
 
     csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
     var txt = niceprint(v1);
-    var width = csctx.measureText(txt).width;
-    csctx.fillText(
-        txt,
-        xx - width * Render2D.align + Render2D.xOffset,
-        yy - Render2D.yOffset);
+    textRenderer(csctx, txt, xx + Render2D.xOffset, yy - Render2D.yOffset,
+                 Render2D.align);
 
     return nada;
 
