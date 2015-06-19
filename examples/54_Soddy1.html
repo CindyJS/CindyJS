@@ -136,8 +136,6 @@ drawlie(ce,(0,0,0),3);
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            defaultAppearance.clip="inci";
-            defaultAppearance.overhangLine=1.2;
 
             var gslp=[
 
@@ -147,6 +145,7 @@ drawlie(ce,(0,0,0),3);
                    
                       ];
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {clip: "inci", overhangLine: 1.2},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp});

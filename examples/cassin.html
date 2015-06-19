@@ -128,7 +128,6 @@ function setpos3(x,y)
 
 
 <script type="text/javascript">
-defaultAppearance.dimDependent=.7;
 
 var gslp=[
     {name:"A", type:"Free", pos:[-.5,-.5],color:[1,0,0],pinned:false,size:8},
@@ -141,6 +140,7 @@ var gslp=[
 
 
 createCindy({canvasname:"CSCanvas",
+     defaultAppearance: {dimDependent: 0.7},
      movescript:"firstDrawing",
     // initscript:"init",
     // mousedownscript:"click",

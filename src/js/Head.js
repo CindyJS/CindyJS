@@ -61,12 +61,6 @@ var createCindy = (function() {
                 var instance = createCindy.newInstance(data);
                 if (waitCount <= 0) instance.startup();
                 else if (data.autostart !== false) toStart.push(instance);
-                if (typeof window !== "undefined") {
-                    window.evokeCS = instance.evokeCS;
-                    window.csplay = instance.play;
-                    window.cspause = instance.pause;
-                    window.csstop = instance.stop;
-                }
                 return instance;
             }
 

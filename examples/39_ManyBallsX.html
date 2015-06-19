@@ -31,7 +31,6 @@ masses=allmasses();
 
 
         <script type="text/javascript">
-            defaultAppearance.dimDependent=.7;
             nn=80;
             var gslp=[
                       {name:"B", type:"Free", pos:[-9,9],color:[0,0,0],size:3},
@@ -85,7 +84,8 @@ masses=allmasses();
               )
     
 };
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp,
@@ -94,7 +94,7 @@ masses=allmasses();
     
         </script>
         
-        <button onclick="csplay()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
+        <button onclick="cdy.csplay()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
         <button onclick="cspause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
         <button onclick="csstop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>
 

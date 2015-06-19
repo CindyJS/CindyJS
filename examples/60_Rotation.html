@@ -188,7 +188,6 @@ if (b==0,pb="+0";mb="+0");
 </div>
 
         <script type="text/javascript">
-            defaultAppearance.dimDependent=.7;
             
             var gslp=[
                       {name:"O", type:"Free", pos:[0,0],color:[0,0,0],pinned:true,size:3},
@@ -205,6 +204,7 @@ if (b==0,pb="+0";mb="+0");
                       
                     ];
                      createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp,

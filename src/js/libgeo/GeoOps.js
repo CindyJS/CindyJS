@@ -1435,9 +1435,7 @@ geoOps._helper.conicOtherIntersection = function(conic, a, b) {
 };
 
 geoOps._helper.initializePoint = function(el) {
-    var sx = el.sx || 0;
-    var sy = el.sy || 0;
-    var sz = el.sz || 1;
+    var sx = 0, sy = 0, sz = 0;
     if (el.pos) {
         if (el.pos.length === 2) {
             sx = el.pos[0];

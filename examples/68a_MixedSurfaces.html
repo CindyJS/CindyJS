@@ -1107,7 +1107,7 @@ animstate=animstate+0.1
 errc(animstate);
 if(animstate>=1,
  animstate=1;
- javascript("csstop()");
+ javascript("cdy.csstop()");
 );
 if(animstate>=0,
   choice=newchoice
@@ -1208,7 +1208,7 @@ drawtext(T1-(1,1),size->16,"alpha");
 <script type="text/javascript">
 
 var gslp=[
-    {name:"A", kind:"P", type:"Free",alpha:0, sx:-1000,sy:-1000,sz:1,alpha:.001} ,
+    {name:"A", kind:"P", type:"Free",alpha:0, pos:[-1000,-1000,1],alpha:.001} ,
     {name:"S1", type:"Free", pos:[16,-2],color:[0,0,0],pinned:true,size:2},
     {name:"S2", type:"Free", pos:[16,12],color:[0,0,0],pinned:true,size:2},
     {name:"S", type:"Free", pos:[16,3.5],color:[1,0.5,0.5],pinned:false,size:4,narrow:true},
@@ -1221,7 +1221,7 @@ var gslp=[
     
     ];
 
-createCindy({canvasname:"CSCanvas",
+var cdy = createCindy({canvasname:"CSCanvas",
 movescript:"firstDrawing",
 initscript:"init",
 mousedownscript:"mouseDown",
