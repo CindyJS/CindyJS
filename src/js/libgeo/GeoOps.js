@@ -17,7 +17,7 @@ geoOps._helper = {};
 geoOps.RandomLine = {};
 geoOps.RandomLine.kind = "L";
 geoOps.RandomLine.updatePosition = function(el) {
-    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(), 100 * Math.random()]);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
@@ -25,7 +25,7 @@ geoOps.RandomLine.updatePosition = function(el) {
 geoOps.FreeLine = {};
 geoOps.FreeLine.kind = "L";
 geoOps.FreeLine.updatePosition = function(el) {
-    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(), 100 * Math.random()]);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
@@ -34,7 +34,7 @@ geoOps.FreeLine.updatePosition = function(el) {
 geoOps.RandomPoint = {};
 geoOps.RandomPoint.kind = "P";
 geoOps.RandomPoint.updatePosition = function(el) {
-    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(),100 * Math.random()]);
+    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(), 100 * Math.random()]);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
 };
@@ -552,7 +552,6 @@ geoOps.CircleMr.updatePosition = function(el) {
 geoOps.CircleMr.stateSize = 2;
 
 
-
 //TODO Must be redone for Points at infinity
 //Original Cindy Implementation is not correct either
 geoOps.Compass = {};
@@ -564,7 +563,7 @@ geoOps.Compass.updatePosition = function(el) {
     m = List.normalizeZ(m);
     b = List.normalizeZ(b);
     c = List.normalizeZ(c);
-    var diff=List.sub(b,c);
+    var diff = List.sub(b, c);
     var p = List.add(diff, m);
     p = List.normalizeZ(p);
 
@@ -573,9 +572,6 @@ geoOps.Compass.updatePosition = function(el) {
     console.log(matrix);
     el.matrix = General.withUsage(matrix, "Circle");
 };
-
-
-
 
 
 geoOps._helper.getConicType = function(C) {
@@ -1040,7 +1036,6 @@ geoOps.PolarPoint.updatePosition = function(el) {
 };
 
 
-
 geoOps.angleBisector = {};
 geoOps.angleBisector.kind = "Ls";
 geoOps.angleBisector.updatePosition = function(el) {
@@ -1173,16 +1168,15 @@ geoOps.OtherIntersectionCL.updatePosition = function(el) {
     var erg2 = erg[1];
     var d1 = List.projectiveDistMinScal(erg1, p);
     var d2 = List.projectiveDistMinScal(erg2, p);
-    if(d1<d2){
-        el.homog=erg2;
+    if (d1 < d2) {
+        el.homog = erg2;
     } else {
-        el.homog=erg1;
+        el.homog = erg1;
     }
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
 
 };
-
 
 
 geoOps.IntersectCirCir = {};
@@ -1233,17 +1227,15 @@ geoOps.OtherIntersectionCC.updatePosition = function(el) {
     var erg2 = erg[1];
     var d1 = List.projectiveDistMinScal(erg1, p);
     var d2 = List.projectiveDistMinScal(erg2, p);
-    if(d1<d2){
-        el.homog=erg2;
+    if (d1 < d2) {
+        el.homog = erg2;
     } else {
-        el.homog=erg1;
+        el.homog = erg1;
     }
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
 
 };
-
-
 
 
 geoOps._helper.IntersectConicConic = function(A, B) {

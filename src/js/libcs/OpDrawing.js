@@ -230,11 +230,11 @@ eval_helper.drawconic = function(aConic, modifs) {
     var size = 4;
     if (Render2D.size !== null)
         size = Render2D.size;
-    if(size===0)
-      return;
+    if (size === 0)
+        return;
     csctx.lineWidth = size * 0.4;
 
-    var eps = 1e-14;//JRG Hab ih von 1e-16 runtergesetzt
+    var eps = 1e-14; //JRG Hab ih von 1e-16 runtergesetzt
     var mat = aConic.matrix;
     var origmat = aConic.matrix;
 
