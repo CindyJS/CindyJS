@@ -3,7 +3,14 @@
     var waitingForFonts = [];
     WebFont.load({
         custom: {
-            families: ["KaTeX_Main:n7,i4,n4", "KaTeX_Math:i7,i4,n4"]
+            families: [
+                "KaTeX_Main:n7,i4,n4",
+                "KaTeX_Math:i7,i4,n4",
+                "KaTeX_Size1:n4",
+                "KaTeX_Size2:n4",
+                "KaTeX_Size3:n4",
+                "KaTeX_Size4:n4",
+            ]
         },
         active: function() {
             console.log("Math fonts are now available.");
@@ -29,7 +36,7 @@
             // Fonts not available yet
             console.log("Math fonts are not available yet.");
             var width = ctx.measureText(text).width;
-            ctx.fillText(text, x - align * total, y);
+            ctx.fillText(text, x - align * width, y);
             return;
         }
         var fontSize = /(?:^| )([0-9]+)px(?:$| )/.exec(ctx.font);
