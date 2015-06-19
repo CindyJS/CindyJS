@@ -1648,6 +1648,45 @@ evaluator.det$1 = function(args, modifs) {
     return nada;
 };
 
+
+evaluator.eig$1 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'list') {
+        var n = List._helper.colNumb(v0);
+        if (n !== -1 && n === v0.value.length) {
+            return List.eig(v0);
+        }
+    }
+    return nada;
+};
+
+
+evaluator.eigenvalues$1 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'list') {
+        var n = List._helper.colNumb(v0);
+        if (n !== -1 && n === v0.value.length) {
+            var erg = List.eig(v0, false);
+            return erg.value[0]; // return only eigenvals
+        }
+    }
+    return nada;
+};
+
+
+evaluator.eigenvectors$1 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'list') {
+        var n = List._helper.colNumb(v0);
+        if (n !== -1 && n === v0.value.length) {
+            var erg = List.eig(v0);
+            return erg.value[1]; // return only eigenvecs
+        }
+    }
+    return nada;
+};
+
+
 evaluator.area$3 = function(args, modifs) {
     var v0 = evaluateAndHomog(args[0]);
     var v1 = evaluateAndHomog(args[1]);

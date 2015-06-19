@@ -28,6 +28,29 @@ List.realVector = function(l) {
     };
 };
 
+// return n'th unitvector in C^d
+List._helper.unitvector = function(d, n) {
+    var res = List.zerovector(d);
+    res.value[Math.floor(n.value.real - 1)] = CSNumber.real(1);
+    return res;
+};
+
+List.idMatrix = function(n) {
+    var erg = List.zeromatrix(n, n);
+    var one = CSNumber.real(1);
+    for (var i = 0; i < n.value.real; i++) erg.value[i].value[i] = one;
+    return erg;
+};
+
+
+List._helper.flippedidMatrix = function(n) {
+    var erg = List.zeromatrix(n, n);
+    var one = CSNumber.real(1);
+    for (var i = 0; i < n.value.real; i++) erg.value[i].value[n.value.real - i - 1] = one;
+
+    return erg;
+};
+
 List.println = function(l) {
     var erg = [];
     for (var i = 0; i < l.value.length; i++) {
@@ -497,12 +520,16 @@ List.maxval = function(a) { //Only for Lists or Lists of Lists that contain numb
  * Return the index associated with the entry of maximal value
  * @param lst  a List to be iterated over, must not be empty
  * @param fun  a function to apply to each list element, must return a real value
+ * @param startIdx start search from here
  * @return the index of the maximal element as a JavaScript number
  */
-List.maxIndex = function(lst, fun) {
-    var bestIdx = 0;
-    var bestVal = fun(lst.value[0]).value.real;
-    for (var i = 1; i < lst.value.length; ++i) {
+List.maxIndex = function(lst, fun, startIdx) {
+    var sIdx = 0;
+    if (startIdx !== undefined) sIdx = startIdx;
+
+    var bestIdx = sIdx;
+    var bestVal = fun(lst.value[sIdx]).value.real;
+    for (var i = sIdx; i < lst.value.length; ++i) {
         var v = fun(lst.value[i]).value.real;
         if (v > bestVal) {
             bestIdx = i;
@@ -732,6 +759,10 @@ List.im = function(a) {
 
 List.conjugate = function(a) {
     return List.recursive(a, "conjugate");
+};
+
+List.transjugate = function(a) {
+    return List.transpose(List.conjugate(a));
 };
 
 
@@ -1013,7 +1044,7 @@ List.projectiveDistMinScal = function(a, b) {
     var cb = List.conjugate(b);
     var p = List.scalproduct(a, cb);
 
-    // 1 here is derived from cinderella src -- Martin and I are not sure why this is 1 and not infinity
+    // 1 here is derived from cinderella src -- Martin and i are not sure why this is 1 and not infinity
     var np = CSNumber._helper.isAlmostZero(p) ? CSNumber.real(1) : CSNumber.div(p, CSNumber.abs(p));
 
 
@@ -1281,6 +1312,20 @@ List.row = function(a, b) {
     return List.turnIntoCSList(erg);
 };
 
+List.adjoint2 = function(AA) {
+    var a = AA.value[0].value[0];
+    var b = AA.value[0].value[1];
+    var c = AA.value[1].value[0];
+    var d = AA.value[1].value[1];
+
+    var erg = new Array(2);
+    erg[0] = List.turnIntoCSList([d, CSNumber.neg(b)]);
+    erg[1] = List.turnIntoCSList([CSNumber.neg(c), a]);
+    erg = List.turnIntoCSList(erg);
+    return erg;
+};
+
+
 List.adjoint3 = function(a) {
     var row, elt,
         r11, i11, r12, i12, r13, i13,
@@ -1386,6 +1431,14 @@ List.adjoint3 = function(a) {
 };
 
 List.inverse = function(a) {
+    var len = a.value.length;
+    if (len !== a.value[0].value.length) {
+        console.log("Inverse works only for square matrices");
+        return nada;
+    }
+    if (len === 2) return List.scaldiv(List.det(a), List.adjoint2(a));
+    if (len === 3) return List.scaldiv(List.det(a), List.adjoint3(a));
+
     var LUP = List.LUdecomp(a);
     var n = a.value.length;
 
@@ -1414,7 +1467,668 @@ List.linearsolve = function(a, bb) {
     else return List.LUsolve(a, bb);
 };
 
+List.getDiag = function(A) {
+    if (A.value.length !== A.value[0].value.length) return nada;
+    var erg = new Array(A.value.length);
+    for (var i = 0; i < A.value.length; i++) erg[i] = A.value[i].value[i];
+
+    return List.turnIntoCSList(erg);
+};
+
+
+List.getSubDiag = function(A) {
+    if (A.value.length !== A.value[0].value.length) return nada;
+    var erg = new Array(A.value.length - 1);
+    for (var i = 0; i < A.value.length - 1; i++) erg[i] = A.value[i + 1].value[i];
+
+    return List.turnIntoCSList(erg);
+};
+
+
+// get eigenvalues of a 2x2 matrix
+List.eig2 = function(AA) {
+    var trace = CSNumber.add(AA.value[0].value[0], AA.value[1].value[1]);
+    var bdet = List.det2(AA.value[0], AA.value[1]);
+
+    var trace2 = CSNumber.mult(trace, trace);
+
+    var L1 = CSNumber.mult(trace, CSNumber.real(0.5));
+    var L2 = L1;
+
+    var mroot = CSNumber.sqrt(CSNumber.sub(CSNumber.div(trace2, CSNumber.real(4)), bdet));
+
+
+    L1 = CSNumber.add(L1, mroot);
+    L2 = CSNumber.sub(L2, mroot);
+
+    return List.turnIntoCSList([L1, L2]);
+};
+
+List.eig = function(A, getEigenvectors) {
+    var getEv = getEigenvectors || true;
+
+    var i, j;
+    var AA = A;
+    var cslen = CSNumber.real(AA.value.length);
+    var len = cslen.value.real;
+    var zero = CSNumber.real(0);
+
+    // the code is not well tested -- perhaps we can use it later
+    var useHess = false;
+    if (useHess) {
+        var Hess = List._helper.toHessenberg(A);
+        AA = Hess[1];
+    }
+
+    var QRRes = List._helper.QRIteration(AA);
+    AA = QRRes[0];
+
+    var QQ = QRRes[1];
+
+    var eigvals = List.getDiag(AA);
+    eigvals = List.sort1(eigvals);
+
+    var ID = List.idMatrix(cslen, cslen);
+
+
+    var eigenvecs = new Array(len);
+    eigenvecs = List.turnIntoCSList(eigenvecs);
+    if (getEv) {
+
+        // calc eigenvecs
+        //
+        // if we have a normal matrix QQ holds already the eigenvecs
+        //    if( false && List._helper.isNormalMatrix(AA)){
+        //        console.log("is normal matrix return QQ");
+        //        var QQQ = List.transpose(QQ);
+        //        for(i = 0; i < len; i++)
+        //        eigenvecs.value[i] = QQQ.value[i];
+        //    }
+        //    else{
+        var useInverseIteration = false; // inverse iteration or nullspace method to obtain eigenvecs
+
+        var MM, xx, nullS, qq;
+        if (useInverseIteration) {
+            for (qq = 0; qq < len; qq++) {
+                xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
+                xx = General.mult(QQ, xx);
+                eigenvecs.value[qq] = xx;
+            }
+        } else {
+            var ceigval, oeigval, lastevec;
+            var count = 0;
+            var sameEigVal = false;
+            for (qq = 0; qq < len; qq++) {
+                if (sameEigVal) {
+                    xx = nullS.value[count];
+                } else {
+                    ceigval = eigvals.value[qq];
+                    MM = List.sub(A, List.scalmult(ceigval, ID));
+                    nullS = List.nullSpace(MM);
+                    xx = nullS.value[0];
+                    if (xx !== undefined) lastevec = xx; // if we found a eigenvector != [0...0] may need it again
+                }
+
+                // check if we got nothing from nullspace
+                if (xx === undefined) {
+                    xx = lastevec;
+                }
+                if (List.abs(xx).value.real < 1e-8 && count === 0) { // couldnt find a vector in nullspace -- should not happen
+                    xx = List._helper.inverseIteration(A, eigvals.value[qq]);
+                }
+                eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx) ? xx : List.scaldiv(List.abs(xx), xx);
+
+
+                if (qq < len - 1) {
+                    sameEigVal = CSNumber.abs(CSNumber.sub(eigvals.value[qq], eigvals.value[qq + 1])).value.real < 1e-6;
+                    if (sameEigVal) count++;
+                    else count = 0;
+                }
+            }
+
+        }
+
+        //} // end else from normal matrices
+        eigenvecs = List.transpose(eigenvecs);
+    } // end getEv
+
+    return List.turnIntoCSList([eigvals, eigenvecs]);
+};
+
+List._helper.isNormalMatrix = function(A) {
+    return List.abs(List.sub(A, List.transjugate(A))).value.real < 1e-10;
+};
+
+List._helper.QRIteration = function(A, maxIter) {
+    var i;
+    var AA = A;
+    var cslen = CSNumber.real(AA.value.length);
+    var Alen = cslen.value.real; // does not change
+    var len = cslen.value.real; // changes
+    var zero = CSNumber.real(0);
+    var Id = List.idMatrix(cslen, cslen);
+    var erg = List.zeromatrix(cslen, cslen);
+    var QQ = List.idMatrix(cslen, cslen);
+    var mIter = maxIter ? maxIter : 2500;
+
+    var QR, kap, shiftId, block, L1, L2, blockeigs, ann, dist1, dist2;
+    var numDeflations = 0;
+    var eigvals = new Array(len);
+    for (i = 0; i < mIter; i++) {
+
+        block = List._helper.getBlock(AA, [len - 2, len - 1], [len - 2, len - 1]);
+        blockeigs = List.eig2(block);
+        L1 = blockeigs.value[0];
+        L2 = blockeigs.value[1];
+
+        var l1n = List.abs(L1).value.real;
+        var l2n = List.abs(L2).value.real;
+
+
+        ann = AA.value[len - 1].value[len - 1];
+        dist1 = CSNumber.abs(CSNumber.sub(ann, L1)).value.real;
+        dist2 = CSNumber.abs(CSNumber.sub(ann, L2)).value.real;
+        kap = dist1 < dist2 ? L1 : L2;
+
+        Id = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
+        shiftId = List.scalmult(kap, Id);
+
+
+        QR = List.QRdecomp(List.sub(AA, shiftId)); // shift
+
+
+        AA = General.mult(QR.R, QR.Q);
+        AA = List.add(AA, shiftId);
+
+        QR.Q = List._helper.buildBlockMatrix(QR.Q, List.idMatrix(CSNumber.real(numDeflations), CSNumber.real(numDeflations)));
+        QQ = General.mult(QQ, QR.Q);
+        if (CSNumber.abs2(AA.value[AA.value.length - 1].value[AA.value[0].value.length - 2]).value.real < 1e-48 && len > 1) {
+
+            eigvals[Alen - numDeflations - 1] = AA.value[len - 1].value[len - 1]; // get Eigenvalue
+
+            // copy shortening to erg
+            for (i = 0; i < len; i++) {
+                erg.value[len - 1].value[i] = AA.value[len - 1].value[i];
+                erg.value[i].value[len - 1] = AA.value[i].value[len - 1];
+            }
+
+            // shorten Matrix AA
+            AA = List._helper.getBlock(AA, [0, len - 2], [0, len - 2]);
+
+
+            numDeflations++;
+            len--;
+        }
+
+        // break if we have only 1x1 matrix
+        if (len === 1) {
+            erg.value[0].value[0] = AA.value[0].value[0];
+            break;
+        }
+
+        if (List._helper.isUpperTriangular(AA)) {
+            for (i = 0; i < len; i++) {
+                erg.value[i].value[i] = AA.value[i].value[i];
+            }
+            break;
+        }
+    }
+    return [erg, QQ];
+};
+
+// return rank of a square matrix
+List.rank = function(A) {
+    var QR = List.RRQRdecomp(A);
+    return QR.rank;
+};
+
+List._helper.isAlmostZeroVec = function(A) {
+
+    var len = A.value.length;
+    for (var i = 0; i < len; i++)
+        if (!CSNumber._helper.isAlmostZero(A.value[i])) return false;
+
+    return true;
+};
+
+List._helper.isLowerTriangular = function(A) {
+    var leni = A.value.length;
+    var lenj = A.value[0].value.length;
+    for (var i = 0; i < leni; i++)
+        for (var j = i + 1; j < lenj; j++) {
+            if (!CSNumber._helper.isAlmostZero(A.value[i].value[j])) return false;
+        }
+
+    return true;
+};
+
+
+List._helper.isUpperTriangular = function(A) {
+    return List._helper.isLowerTriangular(List.transpose(A));
+};
+
+List._helper.isAlmostId = function(AA) {
+    var A = AA;
+    var len = A.value.length;
+    var cslen = CSNumber.real(len);
+    if (len !== A.value[0].value.length) return false;
+
+    var erg = List.sub(A, List.idMatrix(cslen), cslen);
+    for (var i = 0; i < len; i++)
+        for (var j = 0; j < len; j++) {
+            if (CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16) return false;
+        }
+
+    return true;
+};
+
+List.nullSpace = function(A) {
+    var len = A.value.length;
+    var QR = List.RRQRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
+    var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
+    var nullRank = len - QR.rank.value.real;
+
+    var erg = new Array(nullRank);
+    QQ.value.reverse(); // the last vectors are the nullspace vectors
+
+    // get nullVectors
+    var vec, tmp;
+    for (var i = 0; i < nullRank; i++) {
+        vec = QQ.value[i];
+        erg[i] = (List.scaldiv(List.abs(vec), vec));
+    }
+
+
+    erg = List.turnIntoCSList(erg);
+    if (erg.value.length > 0) return erg;
+    else return List.turnIntoCSList([List.zerovector(CSNumber.real(len))]);
+};
+
+
+List._helper.isAlmostDiagonal = function(AA) {
+    var erg = AA;
+    var len = AA.value.length;
+    var cslen = CSNumber.real(len);
+    var zero = CSNumber.real(0);
+    if (len !== AA.value[0].value.length) return false;
+
+
+    for (var i = 0; i < len; i++)
+        for (var j = 0; j < len; j++) {
+            if (i === j) continue;
+            if (CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16) return false;
+        }
+
+    return true;
+};
+
+
+List._helper.inverseIteration = function(A, shiftinit) {
+    console.log("warning: code untested");
+    var len = A.value.length;
+
+    // random vector
+    var xx = new Array(len);
+    for (var i = 0; i < len; i++) {
+        xx[i] = 2 * Math.random() - 0.5;
+    }
+    xx = List.realVector(xx);
+
+    var qk = xx;
+    var ID = List.idMatrix(CSNumber.real(len), CSNumber.real(len));
+
+    var shift = shiftinit;
+    shift = CSNumber.add(shift, CSNumber.real(0.1 * Math.random() - 0.5)); // add rand to make get a full rank matrix
+    for (var ii = 0; ii < 100; ii++) {
+        qk = List.scaldiv(List.abs(xx), xx);
+        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), JSON.parse(JSON.stringify(qk))); // TODO Use triangular form
+    }
+
+
+    return List.scaldiv(List.abs(xx), xx);
+};
+
+
+// return Hessenberg Matrix H of A and tansformationmatrix QQ
+List._helper.toHessenberg = function(A) {
+    var AA = JSON.parse(JSON.stringify(A));
+    var len = AA.value.length;
+    var cslen = CSNumber.real(len - 1);
+    var cslen2 = CSNumber.real(len);
+    var one = CSNumber.real(1);
+
+
+    if (List._helper.isUpperTriangular(AA)) return [List.idMatrix(cslen, cslen), A];
+
+    var xx, uu, vv, alpha, e1, Qk, ww, erg;
+    var QQ = List.idMatrix(cslen2, cslen2);
+    var absxx;
+    for (var k = 1; k < len - 1; k++) {
+
+        //xx = List.tranList._helper.getBlock(AA, [k, len+1], [k,k]);
+        xx = List.column(AA, CSNumber.real(k));
+        xx.value = xx.value.splice(k);
+        absxx = List.abs2(xx).value.real;
+        if (absxx > 1e-16) {
+            Qk = List._helper.getHouseHolder(xx);
+            QQ = General.mult(QQ, Qk);
+
+            AA = General.mult(General.mult(Qk, AA), Qk);
+        }
+
+        // book keeping
+        cslen.value.real--;
+    }
+
+    return [QQ, AA];
+};
+
+// swap an element in js or cs array
+List._helper.swapEl = function(arr, i, j) {
+    var tmp;
+    if (Object.prototype.toString.call(arr) === '[object Array]') {
+        tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+        return;
+    }
+    if (arr.ctype === "list") {
+        tmp = arr.value[i];
+        arr.value[i] = arr.value[j];
+        arr.value[j] = tmp;
+        return;
+    }
+    return;
+};
+
+// rank revealing QR decomposition
+// see Golub, van Loan -- Matrix Computations - p. 302
+List.RRQRdecomp = function(A) {
+    var i;
+    var AA;
+    var len = A.value.length;
+    var cslen = CSNumber.real(len);
+    var one = CSNumber.real(1);
+
+    var e1 = List._helper.unitvector(CSNumber.real(A.value.length), one);
+
+    var xx, alpha, uu, vv, ww, Qk;
+    // QQ is the the normal matrix Q
+    var QQ = List.idMatrix(cslen, cslen);
+
+    // this will be the updated matrix
+    var AAA = JSON.parse(JSON.stringify(A));
+
+
+    // get column norms
+    var tA = List.transpose(A);
+    var norms = new Array(len);
+    for (i = 0; i < len; i++) norms[i] = List.abs2(tA.value[i]);
+    norms = List.turnIntoCSList(norms);
+
+
+    var piv = new Array(len);
+    for (i = 0; i < len; i++) piv[i] = i;
+
+
+    var maxIdx = List.maxIndex(norms, CSNumber.abs);
+    var tau = norms.value[maxIdx];
+    var rank = 0;
+    var normxx;
+    for (var k = 0; CSNumber.abs2(tau).value.real > 1e-16; k++) {
+        rank++;
+        List._helper.swapColumn(AAA, k, maxIdx);
+        List._helper.swapEl(norms, k, maxIdx);
+        List._helper.swapEl(piv, k, maxIdx);
+        AA = List._helper.getBlock(AAA, [k, ], [k, ]);
+        xx = List.column(AA, one);
+        normxx = List.abs2(xx).value.real;
+        if (normxx > 1e-8) {
+            Qk = List._helper.getHouseHolder(xx);
+            // fix dimension
+            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
+            QQ = General.mult(QQ, List.transjugate(Qk));
+            AAA = General.mult(Qk, AAA);
+        }
+
+        // update norms 
+        for (i = k + 1; i < len; i++) {
+            norms.value[i] = CSNumber.sub(norms.value[i], CSNumber.mult(AAA.value[k].value[i], CSNumber.conjugate(AAA.value[k].value[i])));
+        }
+
+
+        maxIdx = List.maxIndex(norms, CSNumber.abs2, k + 1);
+        tau = norms.value[maxIdx];
+
+        // after k+2 steps we are done
+        if (k + 2 === len) {
+            if (!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
+            break;
+        }
+
+        // book keeping
+        cslen = CSNumber.sub(cslen, one);
+        e1.value = e1.value.splice(0, e1.value.length - 1);
+    }
+
+    var R = AAA; //General.mult(List.transjugate(QQ), A);
+
+    return {
+        Q: QQ,
+        R: R,
+        P: List.turnIntoCSList(piv),
+        rank: CSNumber.real(rank)
+    };
+};
+
+List._helper.getHouseHolder = function(xx) {
+    var cslen = CSNumber.real(xx.value.length);
+    if (List.abs2(xx) < 1e-16) return List.idMatrix(cslen, cslen);
+
+    var alpha, uu, vv, ww, Qk;
+    var one = CSNumber.real(1);
+    var e1 = List._helper.unitvector(CSNumber.real(xx.value.length), one);
+
+    alpha = List._helper.QRgetAlpha(xx, 0);
+
+    uu = List.sub(xx, List.scalmult(alpha, e1));
+    vv = List.scaldiv(List.abs(uu), uu);
+    ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
+
+    Qk = List.idMatrix(cslen, cslen);
+    Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
+
+    return Qk;
+};
+
+// reorder matrix by pivots -- used in RRQRdecomp
+List._helper.reOrderbyPivots = function(A, piv) {
+    var len = A.value.length.length;
+    var tA = List.transpose(A);
+    var Rerg = new Array(len);
+    for (var i = 0; i < piv.length; i++) Rerg[piv[i]] = tA.value[i];
+    Rerg = List.turnIntoCSList(Rerg);
+    return List.transpose(Rerg);
+};
+
+List.QRdecomp = function(A) {
+    var AA;
+    var len = A.value.length;
+    var cslen = CSNumber.real(len);
+
+    if (List._helper.isUpperTriangular(A)) {
+        return {
+            Q: List.idMatrix(cslen, cslen),
+            R: A,
+        };
+    }
+
+    var one = CSNumber.real(1);
+
+    var e1 = List._helper.unitvector(CSNumber.real(A.value.length), one);
+
+    var xx, alpha, uu, vv, ww, Qk, normxx;
+    // QQ is the the normal matrix Q
+    var QQ = List.idMatrix(cslen, cslen);
+
+    // this will be the updated matrix
+    var AAA = JSON.parse(JSON.stringify(A));
+    for (var k = 0;; k++) {
+        AA = List._helper.getBlock(AAA, [k, ], [k, ]);
+
+        xx = List.column(AA, one);
+        normxx = List.abs2(xx).value.real;
+        if (normxx > 1e-8) { // otherwise we already have the desired vector
+            Qk = List._helper.getHouseHolder(xx);
+            // update QQ
+            // fix dimension
+            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
+            QQ = General.mult(QQ, List.transjugate(Qk));
+            AAA = General.mult(Qk, AAA);
+        }
+
+        // after k+2 steps we are done
+        if (k + 2 === len) {
+            //if(!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
+            break;
+        }
+
+        // book keeping
+        cslen = CSNumber.sub(cslen, one);
+        e1.value = e1.value.splice(0, e1.value.length - 1);
+    }
+
+    var R = AAA; //General.mult(List.transjugate(QQ), A);
+    return {
+        Q: QQ,
+        R: R,
+    };
+
+};
+
+
+List._helper.swapColumn = function(A, l, m) {
+    var tmp;
+    for (var i = 0; i < A.value.length; i++) {
+        tmp = A.value[i].value[l];
+        A.value[i].value[l] = A.value[i].value[m];
+        A.value[i].value[m] = tmp;
+    }
+};
+
+// build matrices of form
+//      A 0
+//      0 B
+List._helper.buildBlockMatrix = function(A, B) {
+    if (A.value.length === 0) return B;
+    if (B.value.length === 0) return A;
+
+    var mA = A.value.length;
+    var mB = B.value.length;
+    var m = mA + mB;
+
+    var nA = A.value[0].value.length;
+    var nB = B.value[0].value.length;
+    var n = nA + nB;
+
+    var erg = List.zeromatrix(CSNumber.real(m), CSNumber.real(n));
+
+    for (var i = 0; i < A.value.length; i++)
+        for (var j = 0; j < A.value[0].value.length; j++)
+            erg.value[i].value[j] = A.value[i].value[j];
+
+
+    for (var ii = 0; ii < B.value.length; ii++)
+        for (var jj = 0; jj < B.value[0].value.length; jj++)
+            erg.value[mA + ii].value[nA + jj] = B.value[ii].value[jj];
+
+    return erg;
+};
+
+List._helper.getBlock = function(A, m, n) {
+    var AA = JSON.parse(JSON.stringify(A));
+    var m0 = m[0],
+        m1;
+    var n0 = n[0],
+        n1;
+
+
+    if (m[1] === undefined) m1 = AA.value.length;
+    else m1 = m[1];
+
+    if (n[1] === undefined) n1 = AA.value[0].value.length;
+    else n1 = n[1];
+
+    // slice does not include end
+    m1++;
+    n1++;
+
+
+    AA.value = AA.value.slice(m0, m1);
+    for (var i = 0; i < AA.value.length; i++) AA.value[i].value = AA.value[i].value.slice(n0, n1);
+
+
+    return AA;
+};
+
+
+// return a copy of A with a Block B placed at position pos = [m, n]
+List._helper.setBlock = function(A, B, pos) {
+    var AA = JSON.parse(JSON.stringify(A));
+    var m0 = pos[0];
+    var n0 = pos[1];
+
+    var m1 = B.value.length;
+    var n1 = B.value[0].value.length;
+
+    for (var i = 0; i < m1; i++)
+        for (var j = 0; j < n1; j++) {
+            AA.value[m0 + i].value[n0 + j] = B.value[i].value[j];
+        }
+
+    return AA;
+};
+
+// return u v^T Matrix
+List._helper.transposeMult = function(u, v) {
+    if (u.value.length !== v.value.length) return nada;
+    var len = u.value.length;
+
+    var erg = new Array(len);
+
+    for (var i = 0; i < len; i++) {
+        erg[i] = List.scalmult(u.value[i], v);
+    }
+
+    return List.turnIntoCSList(erg);
+
+};
+
+List._helper.QRgetAlpha = function(x, k) {
+    //    var xx = List.scaldiv(List.abs(x), x);
+    //    var atan = CSNumber.real(Math.atan2(xx.value[k].value.real, xx.value[k].value.imag));
+    //    var alpha = CSNumber.neg(List.abs(xx));
+    //    var expo = CSNumber.exp(CSNumber.mult(atan, CSNumber.complex(0, 1)));
+    //    alpha = CSNumber.mult(alpha, expo);
+    //    return alpha;
+
+    // real version
+    if (x.value[k].value.real < 0) return List.abs(x);
+    return CSNumber.neg(List.abs(x));
+};
+
 List.LUdecomp = function(AA) {
+    //    if(List._helper.isUpperTriangular){
+    //        var len = AA.value.length;
+    //
+    //        var PP =  new Array(len);
+    //        for(var ii = 0; ii < len; ii++) PP[ii] =ii;
+    //        return {
+    //            LU: AA,
+    //            P: PP,
+    //            TransPos: 0 
+    //        };
+    //    }
     var A = JSON.parse(JSON.stringify(AA)); // TODO: get rid of this cloning
     var i, j, k, absAjk, Akk, Ak, Pk, Ai;
     var tpos = 0;
@@ -1476,7 +2190,8 @@ List._helper.LUsolve = function(LUP, bb) {
     var i, j;
     var LU = LUP.LU;
     var n = LU.value.length;
-    var x = b;
+    var x = JSON.parse(JSON.stringify(b));
+
     var P = LUP.P;
     var Pi, LUi, LUii, tmp;
 
