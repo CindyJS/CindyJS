@@ -45,21 +45,12 @@ v=F.xy;
 
 G.xy=(m*v);
 
-//[ew,ev] = eig(m);
-//ew1=eigenvalues(m);
-//ev2=eigenvectors(m);
-//println(ew);
-//println(ev);
-//println(ew1);
-//println(ev2);
-//evt=transpose(ev2);
+[ew,ev] = eig(m);
+ew1=eigenvalues(m);
+ev2=eigenvectors(m);
+evt=transpose(ev2);
 
 
-m1=[[1,1,0],[0,1,0],[0,0,.5]];
-println(m1);
-println(eigenvalues(m1));
-m2=[[1,1,0],[-1,1,0],[0,0,.5]];
-println(eigenvalues(m2));
 
 
 if(|im(ew_1)|<eps,
