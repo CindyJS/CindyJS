@@ -23,7 +23,8 @@
     createCindy.registerPlugin(1, "katex", function(api) {
         if (waitingForFonts)
             waitingForFonts.push(api.instance);
-        api.setTextRenderer(katexRenderer);
+        var storage = {cache: {}, misses:0};
+        api.setTextRenderer(katexRenderer.bind(storage));
     });
     function textBox(ctx, text) {
         this.width = ctx.measureText(text).width;
@@ -47,22 +48,33 @@
         }
         var fontSize = /(?:^| )([0-9]+)px(?:$| )/.exec(ctx.font);
         fontSize = fontSize ? +fontSize[1] : 16;
-        var opts = {
-            fontSize: fontSize
-        };
-        var parts = text.split("$");
-        var n = parts.length;
-        var i;
-        for (i = 0; i < n; i += 2) {
-            parts[i] = new textBox(ctx, parts[i]);
-        }
-        for (i = 1; i < n; i += 2) {
-            try {
-                parts[i] = katex.canvasBox(parts[i], ctx, opts);
-            } catch(e) {
-                console.error(e);
-                parts[i] = new textBox(ctx, "$" + parts[i] + "$");
+        var key = fontSize + ":" + text;
+        var parts, n, i;
+        if (this.cache.hasOwnProperty(key)) {
+            parts = this.cache[key];
+            n = parts.length;
+        } else {
+            var opts = {
+                fontSize: fontSize
+            };
+            parts = text.split("$");
+            n = parts.length;
+            for (i = 0; i < n; i += 2) {
+                parts[i] = new textBox(ctx, parts[i]);
             }
+            for (i = 1; i < n; i += 2) {
+                try {
+                    parts[i] = katex.canvasBox(parts[i], ctx, opts);
+                } catch(e) {
+                    console.error(e);
+                    parts[i] = new textBox(ctx, "$" + parts[i] + "$");
+                }
+            }
+            if (++this.misses === 1024) {
+                this.misses = 0;
+                this.cache = {};
+            }
+            this.cache[key] = parts;
         }
         var total = 0;
         for (i = 0; i < n; ++i)
