@@ -300,6 +300,24 @@ endef
 $(foreach mod,$(GWT_modules),$(eval $(call GWT_template,$(mod))))
 
 ######################################################################
+## Copy KaTeX to build directory
+######################################################################
+
+katex_src=$(wildcard lib/katex/*.*) $(wildcard lib/katex/fonts/*.*) lib/webfont.js
+
+$(katex_src:lib/%=build/js/%): build/js/%: lib/%
+	@mkdir -p $(@D)
+	cp $< $@
+
+build/js/katex-plugin.js: src/js/katex/katex-plugin.js
+	@mkdir -p $(@D)
+	cp $< $@
+
+katex: $(katex_src:lib/%=build/js/%) build/js/katex-plugin.js
+all: katex
+.PHONY: katex
+
+######################################################################
 ## Help debugging a remote site
 ######################################################################
 
