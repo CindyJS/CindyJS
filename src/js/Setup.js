@@ -71,6 +71,8 @@ var haveCanvas = function(canvas) {
 var csmouse, csctx, csw, csh, csgeo, images;
 
 function createCindyNow() {
+    startupCalled = true;
+    if (waitForPlugins !== 0) return;
     var data = instanceInvocationArguments;
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
@@ -232,6 +234,10 @@ function createCindyNow() {
     createCindy.instances.push(globalInstance);
 
     //Evaluate Init script
+    if (instanceInvocationArguments.use)
+        instanceInvocationArguments.use.forEach(function(name) {
+            evaluator.use$1([General.wrap(name)], {});
+        });
     evaluate(cscompiled.init);
 
     if (data.autoplay)
@@ -381,3 +387,26 @@ var globalInstance = {
     "niceprint": niceprint,
     "canvas": null, // will be set during startup
 };
+
+var startupCalled = false;
+var waitForPlugins = 0;
+if (instanceInvocationArguments.use) {
+    instanceInvocationArguments.use.forEach(function(name) {
+        var cb = null;
+        if (instanceInvocationArguments.plugins)
+            cb = instanceInvocationArguments.plugins[name];
+        if (!cb)
+            cb = createCindy._pluginRegistry[name];
+        if (!cb) {
+            ++waitForPlugins;
+            console.log("Loading script for plugin " + name);
+            createCindy.loadScript(name + "-plugin", name + "-plugin.js", function() {
+                console.log("Successfully loaded plugin " + name);
+                if (--waitForPlugins === 0 && startupCalled) createCindyNow();
+            }, function() {
+                console.error("Failed to auto-load plugin " + name);
+                if (--waitForPlugins === 0 && startupCalled) createCindyNow();
+            });
+        }
+    });
+}

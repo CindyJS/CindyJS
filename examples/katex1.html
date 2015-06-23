@@ -4,16 +4,7 @@
 <head>
 <title>Cindy JS Example</title>
 <meta charset="UTF-8">
-<link rel="stylesheet" type="text/css" href="../lib/katex/katex.min.css">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../build/js/katex/katex.min.js"></script>
-<script type="text/javascript" src="../build/js/webfont.js"></script>
-<script type="text/javascript" src="../build/js/katex-plugin.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-
-use("katex");
-
-</script>
 <script id="csdraw" type="text/x-cindyscript">
 
 drawtext([-5,3],"Test: $\begin{pmatrix}a&b\\c&d\end{pmatrix}$ works.", color->[0,0.5,0]);
@@ -27,6 +18,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
   ports: [{id: "CSCanvas"}],
   scripts: "cs*",
   language: "en",
+  use: ["katex"],
   defaultAppearance: {
     // See GeoBasics.js for possible attributes.
   },

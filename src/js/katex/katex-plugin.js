@@ -1,43 +1,75 @@
 (function() {
     "use strict";
-    var waitingForFonts = [];
-    WebFont.load({
-        custom: {
-            families: [
-                "KaTeX_Main:n7,i4,n4",
-                "KaTeX_Math:i7,i4,n4",
-                "KaTeX_Size1:n4",
-                "KaTeX_Size2:n4",
-                "KaTeX_Size3:n4",
-                "KaTeX_Size4:n4",
-            ]
-        },
-        active: function() {
-            console.log("Math fonts are now available.");
-            var instances = waitingForFonts;
-            waitingForFonts = null;
-            for (var i = 0; i < instances.length; ++i)
-                instances[i].evokeCS(""); // trigger repaint
-        }
-    });
-    createCindy.registerPlugin(1, "katex", function(api) {
-        if (waitingForFonts)
-            waitingForFonts.push(api.instance);
+
+    var katex = null;
+    var WebFontLoader = null;
+    var fontsLoaded = false;
+    var waitingInstances = [];
+
+    createCindy.loadScript("WebFont", "webfont.js", loadFonts);
+    createCindy.loadScript("katex", "katex/katex.min.js", katexReady);
+
+    function loadFonts() {
+        console.log("WebFontLoader is now available.");
+        WebFontLoader = window.WebFont;
+        WebFontLoader.load({
+            custom: {
+                families: [
+                    "KaTeX_Main:n7,i4,n4",
+                    "KaTeX_Math:i7,i4,n4",
+                    "KaTeX_Size1:n4",
+                    "KaTeX_Size2:n4",
+                    "KaTeX_Size3:n4",
+                    "KaTeX_Size4:n4",
+                ],
+                urls: [createCindy.getBaseDir() + "katex/katex.min.css"]
+            },
+            classes: false,
+            active: fontsReady
+        });
+    }
+
+    function fontsReady() {
+        console.log("Math fonts are now available.");
+        fontsLoaded = true;
+        if (katex) doneWaiting();
+    }
+
+    function katexReady() {
+        console.log("KaTeX is now available.");
+        katex = window.katex;
+        if (fontsLoaded) doneWaiting();
+    }
+
+    function doneWaiting() {
+        var instances = waitingInstances;
+        waitingInstances = null;
+        for (var i = 0; i < instances.length; ++i)
+            instances[i].evokeCS(""); // trigger repaint
+    }
+
+    createCindy.registerPlugin(1, "katex", plugin);
+
+    function plugin(api) {
+        if (waitingInstances)
+            waitingInstances.push(api.instance);
         var storage = {cache: {}, misses:0};
         api.setTextRenderer(katexRenderer.bind(storage));
-    });
+    }
+
     function textBox(ctx, text) {
         this.width = ctx.measureText(text).width;
         this.renderAt = function(x, y) {
             ctx.fillText(text, x, y);
         };
     }
+
     var firstMessage = true;
+
     function katexRenderer(ctx, text, x, y, align) {
-        if (waitingForFonts !== null) {
-            // Fonts not available yet
+        if (waitingInstances !== null) {
             if (firstMessage) {
-                console.log("Math fonts are not available yet.");
+                console.log("KaTeX is not ready yet.");
                 firstMessage = false;
             }
             /*
