@@ -17,11 +17,18 @@
                 families: [
                     "KaTeX_Main:n7,i4,n4",
                     "KaTeX_Math:i7,i4,n4",
+                    "KaTeX_AMS:n4",
                     "KaTeX_Size1:n4",
                     "KaTeX_Size2:n4",
                     "KaTeX_Size3:n4",
                     "KaTeX_Size4:n4",
                 ],
+                testStrings: {
+                  "KaTeX_Size1": "()[]",
+                  "KaTeX_Size2": "()[]",
+                  "KaTeX_Size3": "()[]",
+                  "KaTeX_Size4": "()[]"
+                },
                 urls: [createCindy.getBaseDir() + "katex/katex.min.css"]
             },
             classes: false,
