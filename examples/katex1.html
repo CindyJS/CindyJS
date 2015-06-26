@@ -4,6 +4,10 @@
 <head>
 <title>Cindy JS Example</title>
 <meta charset="UTF-8">
+<style type="text/css">
+  p#nofonts { display: none; }
+  .wf-inactive p#nofonts { display: block; }
+</style>
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csdraw" type="text/x-cindyscript">
 
@@ -38,6 +42,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
 <body style="font-family:Arial;">
   <canvas id="CSCanvas" width="500" height="500"
           style="border:2px solid black"></canvas>
+  <p id="nofonts">If you don't see any labels, and are using Firefox, please enable the <a href="http://kb.mozillazine.org/Security.fileuri.strict_origin_policy">security.fileuri.strict_origin_policy setting</a> to allow local access to the required fonts.</p>
 </body>
 
 </html>

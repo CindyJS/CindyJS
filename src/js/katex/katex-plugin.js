@@ -31,12 +31,21 @@
                 },
                 urls: [createCindy.getBaseDir() + "katex/katex.min.css"]
             },
-            classes: false,
+            fontactive: function(familyName, fvd) {
+                console.log("active: " + familyName + " " + fvd);
+            },
+            fontinactive: function(familyName, fvd) {
+                console.log("inactive: " + familyName + " " + fvd);
+            },
+            inactive: function() {
+                console.log("inactive.");
+            },
             active: fontsReady
         });
     }
 
     function fontsReady() {
+        console.log(arguments);
         console.log("Math fonts are now available.");
         fontsLoaded = true;
         if (katex) doneWaiting();
