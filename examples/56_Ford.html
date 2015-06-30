@@ -360,8 +360,6 @@ apply(seq,f,ff=f*zoom*2;
         <br>
 
         <script type="text/javascript">
-            defaultAppearance.clip="inci";
-            defaultAppearance.overhangLine=1.2;
 
             var gslp=[
 
@@ -386,6 +384,7 @@ apply(seq,f,ff=f*zoom*2;
                    
                       ];
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {clip: "inci", overhangLine: 1.2},
                         movescript:"firstDrawing",
                         initscript:"init",
                         mouseupscript:"up",

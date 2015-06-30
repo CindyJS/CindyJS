@@ -338,7 +338,7 @@ drawing();
             var gslp=[
 
                                            ];
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
                         keydownscript:"keyDown",
                         mousedownscript:"mouseDown",
@@ -346,7 +346,7 @@ drawing();
                         geometry:gslp});
     
            sel =function(type){
-             evokeCS('prepare('+type+');')
+             cdy.evokeCS('prepare('+type+');')
            
            }
     
@@ -355,9 +355,9 @@ drawing();
        
         
         
-        <button onclick="evokeCS('buttonClicked()')" type="button" style="position:absolute; top:620px;left:60px" >Check Entries</button>
+        <button onclick="cdy.evokeCS('buttonClicked()')" type="button" style="position:absolute; top:620px;left:60px" >Check Entries</button>
         
-        <button onclick="evokeCS('solving=!solving')" type="button" style="position:absolute; top:620px;left:210px" >Solve</button>
+        <button onclick="cdy.evokeCS('solving=!solving')" type="button" style="position:absolute; top:620px;left:210px" >Solve</button>
         
 <select onchange="sel(this.value)" style="position:absolute; top:620px;left:360px">
   <option value="text1">Travel (London)</option>

@@ -83,16 +83,16 @@
         
         <script type="text/javascript">
         
-            defaultAppearance.pointColor=[1,.7,0];
             gslp=[];
             for(var i=0;i<100;i++) {
-              gslp.push({name:"A"+i, kind:"P", type:"Free", sx:i*.5,sy:0,sz:1});
+              gslp.push({name:"A"+i, kind:"P", type:"Free", pos:[i*.5,0,1]});
             
             };
             
            
                       
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {pointColor: [1,0.7,0]},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp,

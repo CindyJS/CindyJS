@@ -75,8 +75,6 @@ plot[x^3*a_9+x^2*a_10+x*a_11+a_12,start->3,stop->4,size->3];
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            defaultAppearance.clip="inci";
-            defaultAppearance.overhangLine=1.2;
 
             var gslp=[
 
@@ -94,6 +92,7 @@ plot[x^3*a_9+x^2*a_10+x*a_11+a_12,start->3,stop->4,size->3];
                       
                       ];
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {clip: "inci", overhangLine: 1.2},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp,

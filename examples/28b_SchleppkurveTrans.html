@@ -159,8 +159,6 @@ drawtext((-9,-9),"Reset");
 <canvas  id="CSCanvas"  width=500 height=500  style="border:2px solid #000000"></canvas>
 
 <script>
-defaultAppearance.clip="inci";
-defaultAppearance.overhangLine=1.2;
 
 var gslp=[];
 gslp.push({name:"A", type:"Free", pos:[-2,1],color:[1,.7,0],size:8});
@@ -170,6 +168,7 @@ for(var i=0;i<30;i++){
     gslp.push({name:"A"+i, type:"Free", pos:[-7+i*0.5,0],color:[1,1,1]});
 }
 createCindy({canvasname:"CSCanvas",
+defaultAppearance: {clip: "inci", overhangLine: 1.2},
 movescript:"firstDrawing",
 initscript:"init",
 mousedownscript:"down",
