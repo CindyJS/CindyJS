@@ -184,6 +184,9 @@ If the four points are collinear, the usual cross ratio in the real projective p
 If the points are not collinear, then the cross ratio of the corresponding points in the complex projective line is calculated.
 For collinear finite points these two results coincide.
 
+    > crossratio([2,-2], [1,-1,1], [0,1], [0,0,1])
+    < 0.8 + i*0.1
+
 ------
 
 #### Cross ratio of four numbers: `crossratio(‹numb›,‹numb›,‹numb›,‹numb›)`
@@ -191,6 +194,9 @@ For collinear finite points these two results coincide.
 **Description:**
 Calculates the cross ratio (A/B)/(C/D) of four real or complex numbers.
 An extremely useful geometric invariant.
+
+    > crossratio(2-2*i, 1-i, i, 0)
+    < 0.8 + i*0.1
 
 ------
 
