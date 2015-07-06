@@ -11,7 +11,7 @@ function getmover(mouse) {
     var diff;
     for (var i = 0; i < csgeo.free.length; i++) {
         var el = csgeo.free[i];
-        if (el.pinned)
+        if (el.pinned || el.visible === false)
             continue;
 
         var dx, dy, dist;
