@@ -257,7 +257,7 @@ cindy3d-dbg:
 ## Download Apache Ant to build java-like projects
 ######################################################################
 
-ANT_VERSION=1.9.4
+ANT_VERSION=1.9.6
 ANT_MIRROR=http://apache.openmirror.de
 ANT_PATH=ant/binaries
 ANT_ZIP=apache-ant-$(ANT_VERSION)-bin.zip
