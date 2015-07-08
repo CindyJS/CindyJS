@@ -3478,6 +3478,9 @@ evaluator.use$1 = function(args, modifs) {
                 "getInitialMatrix": function() {
                     return csport.drawingstate.initialmatrix;
                 },
+                "setTextRenderer": function(handler) {
+                    textRenderer = handler;
+                },
             });
             return {
                 "ctype": "boolean",
