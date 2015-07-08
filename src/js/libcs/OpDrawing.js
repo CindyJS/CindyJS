@@ -1387,3 +1387,10 @@ evaluator.canvas$5 = function(args, modifs) {
     csctx.restore();
     csctx = backupctx;
 };
+
+
+evaluator.screenresolution$0 = function(args, modifs) {
+    var m = csport.drawingstate.matrix;
+    return CSNumber.real(m.a);
+}
+
