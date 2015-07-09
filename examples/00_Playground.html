@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css">
+    </head>
+    
+	<body style="font-family:Arial;">
+        
+        <h1>CindyJS: Playground</h1>
+        
+        <script id='csdraw' type='cindyscript'>
+           a();            
+            </script>
+
+       <script id='csinit' type='cindyscript'>
+            </script>
+        
+        
+        
+        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        
+        <script type="text/javascript">
+        
+            var gslp=[
+                      {name:"A", kind:"P", type:"Free", pos:[0,0,1]},
+                      {name:"B", kind:"P", type:"Free", pos:[0,9,1]},
+                      ];
+                      
+            cdy=createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {pointColor: [1,0.7,0]},
+                        scripts: "cs*",
+                        use: ["katex"],
+                        geometry:gslp});
+            
+            
+            var parseCS= function() {
+                var code=document.getElementById("code").value
+                code = code.replace("\n", " ");
+                console.log(code);
+                cdy.evokeCS("a():=("+code+")");
+            }
+            
+            
+            </script>
+<div style="position:absolute; top:100px; left:600px" >
+<textarea id="code" rows="38" cols="50">
+draw((0,0));
+</textarea>
+<button type="button" onclick="parseCS()">Parse</button>
+</div>
+        
+	</body>
+</html>
