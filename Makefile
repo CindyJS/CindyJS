@@ -258,7 +258,7 @@ cindy3d-dbg:
 ######################################################################
 
 ANT_VERSION=1.9.6
-ANT_MIRROR=http://apache.openmirror.de
+ANT_MIRROR=http://archive.apache.org/dist
 ANT_PATH=ant/binaries
 ANT_ZIP=apache-ant-$(ANT_VERSION)-bin.zip
 ANT_URL=$(ANT_MIRROR)/$(ANT_PATH)/$(ANT_ZIP)
