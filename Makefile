@@ -42,7 +42,7 @@ DOWNLOAD=$(if $(CURL_CMD),$(CURL_CMD),$(if $(WGET_CMD),$(WGET_CMD),$(error curl 
 ######################################################################
 
 NODE_OS:=$(subst Darwin,darwin,$(subst Linux,linux,$(shell uname -s)))
-NODE_ARCH:=$(subst x86_64,x86,$(subst i386,x86,$(shell uname -m)))
+NODE_ARCH:=$(subst x86_64,x64,$(subst i386,x86,$(shell uname -m)))
 NODE_VERSION:=0.10.33
 NODE_URLBASE:=http://nodejs.org/dist
 NODE_TAR:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH).tar.gz
