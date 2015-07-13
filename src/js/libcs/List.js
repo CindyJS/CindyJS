@@ -1677,8 +1677,8 @@ List._helper.QRIteration = function(A, maxIter) {
 };
 
 // return rank of a square matrix
-List.rank = function(A) {
-    var QR = List.RRQRdecomp(A);
+List.rank = function(A, preci) {
+    var QR = List.RRQRdecomp(A, preci);
     return QR.rank;
 };
 
@@ -1722,9 +1722,9 @@ List._helper.isAlmostId = function(AA) {
     return true;
 };
 
-List.nullSpace = function(A) {
+List.nullSpace = function(A, precision) {
     var len = A.value.length;
-    var QR = List.RRQRdecomp(List.transjugate(A)); // QQ of QR is Nullspace of A^H
+    var QR = List.RRQRdecomp(List.transjugate(A), precision); // QQ of QR is Nullspace of A^H
     var QQ = List.transpose(QR.Q); // transpose makes it easier to handle the vectors
     var nullRank = len - QR.rank.value.real;
 
@@ -1843,7 +1843,11 @@ List._helper.swapEl = function(arr, i, j) {
 
 // rank revealing QR decomposition
 // see Golub, van Loan -- Matrix Computations - p. 302
-List.RRQRdecomp = function(A) {
+List.RRQRdecomp = function(A, precision) {
+    var preci = Math.sqrt(CSNumber.eps); // sane default
+    if(precision !== undefined) preci = 0.1*precision.value.real; // 0.1 is a workaround
+    var preci2 = preci*preci; // we are working work abs()^2 later on
+
     var i;
     var AA;
     var len = A.value.length;
@@ -1902,7 +1906,8 @@ List.RRQRdecomp = function(A) {
 
         // after k+2 steps we are done
         if (k + 2 === len) {
-            if (!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
+            //if (!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
+            if (CSNumber.abs(tau).value.real > preci2) rank++; // if tau !=0 we have rank + 1
             break;
         }
 
@@ -1989,7 +1994,6 @@ List.QRdecomp = function(A) {
 
         // after k+2 steps we are done
         if (k + 2 === len) {
-            //if(!CSNumber._helper.isAlmostZero(tau)) rank++; // if tau !=0 we have rank + 1
             break;
         }
 

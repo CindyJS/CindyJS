@@ -1674,6 +1674,31 @@ evaluator.eigenvalues$1 = function(args, modifs) {
 };
 
 
+evaluator.rank$1= function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'list') {
+        var n = List._helper.colNumb(v0);
+        if (n !== -1 && n === v0.value.length) {
+            return List.rank(v0, modifs.precision);
+        }
+    }
+    return nada;
+};
+
+
+evaluator.kernel$1= function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'list') {
+        var n = List._helper.colNumb(v0);
+        if (n !== -1 && n === v0.value.length) {
+            var erg = List.nullSpace(v0, modifs.precision);
+            return List.transpose(erg);
+        }
+    }
+    return nada;
+};
+
+
 evaluator.eigenvectors$1 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'list') {
