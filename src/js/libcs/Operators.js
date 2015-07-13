@@ -1519,6 +1519,36 @@ evaluator.cross$2 = function(args, modifs) {
     return nada;
 };
 
+evaluator.crossratio$4 = function(args, modifs) {
+    var a0 = evaluate(args[0]);
+    var a1 = evaluate(args[1]);
+    var a2 = evaluate(args[2]);
+    var a3 = evaluate(args[3]);
+
+    var v0 = evaluateAndHomog(a0);
+    var v1 = evaluateAndHomog(a1);
+    var v2 = evaluateAndHomog(a2);
+    var v3 = evaluateAndHomog(a3);
+    if (v0 !== nada && v1 !== nada && v2 !== nada && v3 !== nada) {
+        // TODO: can't handle four collinear points at infinity
+        return List.crossratio3(v0, v1, v2, v3, List.ii);
+    }
+
+    if (a0.ctype === "number" && a1.ctype === "number" &&
+        a2.ctype === "number" && a3.ctype === "number") {
+        return CSNumber.div(
+            CSNumber.mult(
+                CSNumber.sub(a0, a2),
+                CSNumber.sub(a1, a3)
+            ), CSNumber.mult(
+                CSNumber.sub(a0, a3),
+                CSNumber.sub(a1, a2)
+            )
+        );
+    }
+
+    return nada;
+};
 
 evaluator.para$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
@@ -3472,6 +3502,9 @@ evaluator.use$1 = function(args, modifs) {
                 "getVariable": namespace.getvar.bind(namespace),
                 "getInitialMatrix": function() {
                     return csport.drawingstate.initialmatrix;
+                },
+                "setTextRenderer": function(handler) {
+                    textRenderer = handler;
                 },
             });
             return {

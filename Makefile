@@ -42,8 +42,8 @@ DOWNLOAD=$(if $(CURL_CMD),$(CURL_CMD),$(if $(WGET_CMD),$(WGET_CMD),$(error curl 
 ######################################################################
 
 NODE_OS:=$(subst Darwin,darwin,$(subst Linux,linux,$(shell uname -s)))
-NODE_ARCH:=$(subst x86_64,x86,$(subst i386,x86,$(shell uname -m)))
-NODE_VERSION:=0.10.33
+NODE_ARCH:=$(subst x86_64,x64,$(subst i386,x86,$(shell uname -m)))
+NODE_VERSION:=0.12.6
 NODE_URLBASE:=http://nodejs.org/dist
 NODE_TAR:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH).tar.gz
 NODE_URL:=$(NODE_URLBASE)/v$(NODE_VERSION)/$(NODE_TAR)
@@ -257,8 +257,8 @@ cindy3d-dbg:
 ## Download Apache Ant to build java-like projects
 ######################################################################
 
-ANT_VERSION=1.9.4
-ANT_MIRROR=http://apache.openmirror.de
+ANT_VERSION=1.9.6
+ANT_MIRROR=http://archive.apache.org/dist
 ANT_PATH=ant/binaries
 ANT_ZIP=apache-ant-$(ANT_VERSION)-bin.zip
 ANT_URL=$(ANT_MIRROR)/$(ANT_PATH)/$(ANT_ZIP)
@@ -298,6 +298,24 @@ all: build/js/$(1)/$(1).nocache.js
 endef
 
 $(foreach mod,$(GWT_modules),$(eval $(call GWT_template,$(mod))))
+
+######################################################################
+## Copy KaTeX to build directory
+######################################################################
+
+katex_src=$(wildcard lib/katex/*.*) $(wildcard lib/katex/fonts/*.*) lib/webfont.js
+
+$(katex_src:lib/%=build/js/%): build/js/%: lib/%
+	@mkdir -p $(@D)
+	cp $< $@
+
+build/js/katex-plugin.js: src/js/katex/katex-plugin.js
+	@mkdir -p $(@D)
+	cp $< $@
+
+katex: $(katex_src:lib/%=build/js/%) build/js/katex-plugin.js
+all: katex
+.PHONY: katex
 
 ######################################################################
 ## Help debugging a remote site
