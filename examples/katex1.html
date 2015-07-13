@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<style type="text/css">
+  p#nofonts { display: none; }
+  .wf-inactive p#nofonts { display: block; }
+</style>
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+drawtext([-5,3],"Test: $\begin{pmatrix}a&b\\c&d\end{pmatrix}$ works.", color->[0,0.5,0]);
+drawtext([-5,-3],"$A=\begin{pmatrix}" + format(A.x, 4) +
+                 "\\" + format(A.y, 4) + "\end{pmatrix}$");
+
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  use: ["katex"],
+  defaultAppearance: {
+    // See GeoBasics.js for possible attributes.
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0], labeled:true},
+    {name:"$A$", type:"Free", pos:[0,1], labeled:true},
+    {name:"$P_1$", type:"Free", pos:[1,0], labeled:true},
+    {name:"$\\sqrt5$", type:"Free", pos:[1,1], labeled:true}
+  ] // End of geometry array.
+});
+
+// Remove all comments after adjusting this template for your use case.
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+  <p id="nofonts">If you don't see any labels, and are using Firefox, please enable the <a href="http://kb.mozillazine.org/Security.fileuri.strict_origin_policy">security.fileuri.strict_origin_policy setting</a> to allow local access to the required fonts.</p>
+</body>
+
+</html>
