@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Tracing visualization 1</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript">
+
+var cdy1 = createCindy({
+  canvasname: "CSCanvas1",
+  scripts: "cs1*",
+  language: "en",
+  defaultAppearance: {},
+  enableTraceLog: 100,
+  tracingStateReport: "tracingStateReport",
+  grid: 1,
+  snap: true,
+  geometry: [
+    {name:"A", type:"Free", pos:[0,1]},
+    {name:"M", type:"Free", pos:[0,0], visible:false},
+    {name:"a", type:"Through", args:["A"], dir:[1,0,0]},
+    {name:"C0", type:"CircleMr", args:["M"], radius: 2},
+    {name:"Cs", type:"IntersectLC", args:["a","C0"]},
+    {name:"C", type:"SelectP", args:["Cs"], index:1, color:[0,1,0]}
+  ] // End of geometry array.
+});
+
+var cdy2 = createCindy({
+  canvasname: "CSCanvas2",
+  scripts: "cs2*",
+  language: "en",
+  defaultAppearance: {},
+  autoplay: false,
+  geometry: [],
+  grid: 1,
+  oninit: function() {
+    cdy1.addTraceHook(function() { cdy2.evokeCS(""); });
+  },
+  plugins: {
+    log: function(api) {
+      api.defineFunction("getlog", 0, function() {
+        return cdy1.getTraceLog();
+      });
+    }
+  }
+});
+
+
+
+</script>
+<script id="cs2init" type="text/x-cindyscript">
+
+use("log");
+
+maxlog = 100;
+mylog(msg) := if(maxlog > 0, errc(msg); maxlog = maxlog - 1);
+mydraw(p, a, c) := draw(gauss(p_1 / p_3), alpha->a, color->c);
+
+</script>
+<script id="cs2draw" type="text/x-cindyscript">
+
+log = getlog();
+n = length(log);
+i = 1;
+forall(log, mouseAndScripts,
+  forall(mouseAndScripts_1, mover,
+    forall(mover_1, step,
+      forall(step_1, tracingX,
+        mydraw(tracingX_3_1, i/n, [1,0,0]);
+        mydraw(tracingX_3_2, i/n, [0,1,0]);
+        mydraw(tracingX_3_3, i/n, [0,1,0]);
+        mydraw(tracingX_3_4, i/n, [0,1,0]);
+      )
+    )
+  );
+  i = i + 1;
+)
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas1" width="500" height="500"
+          style="border:2px solid black"></canvas>
+  <canvas id="CSCanvas2" width="500" height="500"
+          style="border:2px solid black"></canvas>
+  <p>
+    <button onclick="location.href=cdy1.formatTraceLog(false)">View log</button>
+    <button onclick="location.href=cdy1.formatTraceLog(true)">Save log</button>
+    <span id="tracingStateReport"></span>
+  </p>
+</body>
+
+</html>

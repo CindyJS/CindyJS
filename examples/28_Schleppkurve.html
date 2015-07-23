@@ -135,8 +135,6 @@ connect(pts,color->(1,1,1)*0,size->3);
 <canvas  id="CSCanvas" align="left" valign = "top" width=500 height=500  style="border:2px solid #000000"></canvas>
 
 <script>
-defaultAppearance.clip="inci";
-defaultAppearance.overhangLine=1.2;
 
 var gslp=[];
 
@@ -146,7 +144,8 @@ for(var i=0;i<30;i++){
 }
    // gslp.push({name:"B", type:"Free", pos:[-7,1],color:[1,.9,0]});
 
-createCindy({canvasname:"CSCanvas",
+var cdy = createCindy({canvasname:"CSCanvas",
+defaultAppearance: {clip: "inci", overhangLine: 1.2},
 movescript:"firstDrawing",
 initscript:"init",
 geometry:gslp});
@@ -154,6 +153,6 @@ geometry:gslp});
 
 </script>
 <br>
-<button style="width:100px;" onclick='evokeCS("reset()");' type="button" >Reset</button>
+<button style="width:100px;" onclick='cdy.evokeCS("reset()");' type="button" >Reset</button>
 </body>
 </html>

@@ -140,10 +140,10 @@ eval_helper.drawcircle = function(args, modifs, df) {
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4;
+    var size = 4/2.5;
     if (Render2D.size !== null)
         size = Render2D.size;
-    csctx.lineWidth = size * 0.4;
+    csctx.lineWidth = size;// * 0.4;
 
     csctx.beginPath();
     csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
@@ -227,12 +227,14 @@ evaluator.drawconic$1 = function(args, modifs) {
 eval_helper.drawconic = function(aConic, modifs) {
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4;
+    var size = 4/2.5;
     if (Render2D.size !== null)
         size = Render2D.size;
-    csctx.lineWidth = size * 0.4;
+    if (size === 0)
+        return;
+    csctx.lineWidth = size;// * 0.4;
 
-    var eps = 1e-16;
+    var eps = 1e-14; //JRG Hab ih von 1e-16 runtergesetzt
     var mat = aConic.matrix;
     var origmat = aConic.matrix;
 
@@ -416,8 +418,9 @@ eval_helper.drawconic = function(aConic, modifs) {
         csctx.lineWidth = size;
 
         csctx.beginPath();
+        csctx.moveTo(x[0], y[0]);
         for (var i = 1; i < x.length; i++) {
-            csctx.moveTo(x[i - 1], y[i - 1]);
+            //csctx.moveTo(x[i - 1], y[i - 1]);
             //csctx.fillRect(x[i],y[i],5,5);
             csctx.lineTo(x[i], y[i]);
         }
@@ -632,10 +635,10 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4;
+    var size = 4/2.5;
     if (Render2D.size !== null)
         size = Render2D.size;
-    csctx.lineWidth = size * 0.4;
+    csctx.lineWidth = size;// * 0.4;
     csctx.mozFillRule = 'evenodd';
     csctx.lineJoin = "round";
 
@@ -702,6 +705,11 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
 };
 
+// This is a hook: the following function may get replaced by a plugin.
+var textRenderer = function(ctx, text, x, y, align) {
+    var width = ctx.measureText(text).width;
+    ctx.fillText(text, x - width * align, y);
+};
 
 evaluator.drawtext$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
@@ -725,11 +733,8 @@ evaluator.drawtext$2 = function(args, modifs) {
 
     csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
     var txt = niceprint(v1);
-    var width = csctx.measureText(txt).width;
-    csctx.fillText(
-        txt,
-        xx - width * Render2D.align + Render2D.xOffset,
-        yy - Render2D.yOffset);
+    textRenderer(csctx, txt, xx + Render2D.xOffset, yy - Render2D.yOffset,
+                 Render2D.align);
 
     return nada;
 
@@ -1382,3 +1387,10 @@ evaluator.canvas$5 = function(args, modifs) {
     csctx.restore();
     csctx = backupctx;
 };
+
+
+evaluator.screenresolution$0 = function(args, modifs) {
+    var m = csport.drawingstate.matrix;
+    return CSNumber.real(m.a);
+}
+

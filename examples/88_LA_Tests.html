@@ -21,6 +21,10 @@
         </script>
         
         <script id='firstDrawing' type='cindyscript'>
+	DD = [[1+i, 2*i, 5],
+		[5, 1+i*random(), 3],
+		[1, 7+i*random(), 2]];
+	println(inverse(DD)*DD);
         n = 100;
         AA=zeromatrix(n,n);
        repeat(n,j,
@@ -79,7 +83,6 @@
 </div>
 
         <script type="text/javascript">
-            defaultAppearance.dimDependent=.7;
             
             var gslp=[
 //                      {name:"O", type:"Free", pos:[0,0],color:[0,0,0],pinned:true,size:3},
@@ -93,6 +96,7 @@
                       
                     ];
                      createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {dimDependent: 0.7},
                         movescript:"firstDrawing",
                         initscript:"init",
                         geometry:gslp,

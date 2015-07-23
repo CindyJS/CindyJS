@@ -86,7 +86,7 @@ javascript("document.onkeydown={}");
                    forall(1..10,j,
                           fillcircle(off+gauss(m_(2*k-1)_(2*j-1)),
                                      abs(gauss(m_(2*k-1)_(2*j-1))-gauss(m_(2*k-1)_(2*j))),color->(1,0.8,0),alpha->0.3);
-                          drawcircle(off+gauss(m_(2*k-1)_(2*j-1)),abs(gauss(m_(2*k-1)_(2*j-1))-gauss(m_(2*k-1)_(2*j))),color->(0,0,0));
+                          drawcircle(off+gauss(m_(2*k-1)_(2*j-1)),abs(gauss(m_(2*k-1)_(2*j-1))-gauss(m_(2*k-1)_(2*j))),color->(0,0,0),size->1);
                           );
                    );
             

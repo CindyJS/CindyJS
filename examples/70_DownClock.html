@@ -33,7 +33,7 @@ last=seconds(););
 </script>
 
         <script id='firstDrawing' type='cindyscript'>
-        javascript("csplay()");
+        javascript("cdy.csplay()");
         measured=seconds();
         if(!running,now=now+measured-last);
         last=measured;
@@ -80,7 +80,7 @@ drawtext((1,-8.5),"Reset",size->30);
                      // {name:"A1", type:"Free", pos:[3,0]}
                     
 		                           ];
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
                         initscript:"init",
                         mouseupscript:"up",

@@ -87,13 +87,13 @@
         <script type="text/javascript">
             
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:-1.5,sy:-7,sz:1,size:3,color:[1,.7,0]},
-                      {name:"B", kind:"P", type:"Free", sx:1.5,sy:-7,sz:1,size:3,color:[1,.7,0]},
-                      {name:"C", kind:"P", type:"Free", sx:0,sy:-20,sz:1,size:3,color:[1,.7,0]},
+                      {name:"A", kind:"P", type:"Free", pos:[-1.5,-7,1],size:3,color:[1,.7,0]},
+                      {name:"B", kind:"P", type:"Free", pos:[1.5,-7,1],size:3,color:[1,.7,0]},
+                      {name:"C", kind:"P", type:"Free", pos:[0,-20,1],size:3,color:[1,.7,0]},
 
-                      {name:"O", kind:"P", type:"Free", sx:0,sy:0,sz:1,size:4,color:[0,0,0]},
+                      {name:"O", kind:"P", type:"Free", pos:[0,0,1],size:4,color:[0,0,0]},
                       
-                      {name:"P", kind:"P", type:"Free", sx:-6,sy:-6,sz:1,size:4,color:[1,1,1]},
+                      {name:"P", kind:"P", type:"Free", pos:[-6,-6,1],size:4,color:[1,1,1]},
 
                       {name:"a", kind:"L", type:"Join", args:["O","C"],alpha:0.0002},
                       {name:"b", kind:"L", type:"Perp", args:["a","P"],alpha:0.0002},
@@ -111,8 +111,6 @@
                       
                       {name:"T3", type:"IntersectLC", args:["L2","d"]},
                       {name:"P2", type:"SelectP", args:["T3"],index:1,color:[1,0,0],size:3},
-                      {name:"S1", kind:"L", type:"Segment", args:["O","P1"],color:[0,0,0]},
-                      {name:"S2", kind:"L", type:"Segment", args:["O","P2"],color:[0,0,0]},
 
 
                       

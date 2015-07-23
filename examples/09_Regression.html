@@ -44,26 +44,25 @@
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
         
         <script type="text/javascript">
-            defaultAppearance.pointSize=4;
-            defaultAppearance.pointColor=[1,.7,0];
            	var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"C", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"D", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"E", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"F", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"G", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"H", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"I", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"J", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"K", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"L", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"M", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
-                      {name:"N", kind:"P", type:"Free", sx:Math.random()*12-6,sy:Math.random()*12-6,sz:1},
+                      {name:"A", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"B", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"C", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"D", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"E", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"F", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"G", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"H", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"I", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"J", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"K", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"L", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"M", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
+                      {name:"N", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
                       ];
             
             createCindy({canvasname:"CSCanvas",
+                        defaultAppearance: {pointSize: 4, pointColor: [1,0.7,0]},
                         movescript:"firstDrawing",
                         geometry:gslp});
             

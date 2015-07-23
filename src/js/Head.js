@@ -61,14 +61,61 @@ var createCindy = (function() {
                 var instance = createCindy.newInstance(data);
                 if (waitCount <= 0) instance.startup();
                 else if (data.autostart !== false) toStart.push(instance);
-                if (typeof window !== "undefined") {
-                    window.evokeCS = instance.evokeCS;
-                    window.csplay = instance.play;
-                    window.cspause = instance.pause;
-                    window.csstop = instance.stop;
-                }
                 return instance;
             }
+
+            var baseDir = null;
+            var cindyJsScriptElement = null;
+            var waitingForLoad = {};
+
+            createCindy.getBaseDir = function() {
+                if (baseDir !== null)
+                    return baseDir;
+                var scripts = document.getElementsByTagName("script");
+                for (var i = 0; i < scripts.length; ++i) {
+                    var script = scripts[i];
+                    var src = script.src;
+                    if (!src) continue;
+                    var match = /Cindy\.js$/.exec(src);
+                    if (match) {
+                        baseDir = src.substr(0, match.index);
+                        console.log("Will load extensions from " + baseDir);
+                        cindyJsScriptElement = script;
+                        return baseDir;
+                    }
+                }
+                console.error("Could not find <script> tag for Cindy.js");
+                baseDir = cindyJsScriptElement = false;
+                return baseDir;
+            }
+
+            createCindy.loadScript = function(name, path, onload, onerror) {
+                if (window[name]) {
+                    onload();
+                    return true;
+                }
+                if (!onerror) onerror = console.error.bind(console);
+                var baseDir = createCindy.getBaseDir();
+                if (baseDir === false) {
+                    onerror("Can't load additional components.");
+                    return false;
+                }
+                var elt = waitingForLoad[name];
+                if (!elt) {
+                    elt = document.createElement("script");
+                    elt.src = baseDir + path;
+                    var next = cindyJsScriptElement.nextSibling;
+                    var parent = cindyJsScriptElement.parentElement;
+                    if (next)
+                        parent.insertBefore(elt, next);
+                    else
+                        parent.appendChild(elt);
+                    waitingForLoad[name] = elt;
+                }
+                elt.addEventListener("load", onload);
+                elt.addEventListener("error", onerror);
+                return null;
+            };
 
             createCindy.waitFor = waitFor;
             createCindy._pluginRegistry = {};

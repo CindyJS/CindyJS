@@ -102,6 +102,22 @@ General.add = function(v0, v1) {
     return nada;
 };
 
+General.sub = function(v0, v1) {
+    if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Minus
+        return CSNumber.neg(v1);
+    }
+    if (v0.ctype === 'void' && v1.ctype === 'list') { //Monadisches Plus
+        return List.neg(v1);
+    }
+    if (v0.ctype === 'number' && v1.ctype === 'number') {
+        return CSNumber.sub(v0, v1);
+    }
+    if (v0.ctype === 'list' && v1.ctype === 'list') {
+        return List.sub(v0, v1);
+    }
+    return nada;
+};
+
 General.mult = function(v0, v1) {
 
     if (v0.ctype === 'number' && v1.ctype === 'number') {

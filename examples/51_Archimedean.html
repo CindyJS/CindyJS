@@ -422,12 +422,12 @@ mat=mmmx*mmmy*mat;
         <script type="text/javascript">
             
             var gslp=[
-                      {name:"A", kind:"P", type:"Free",alpha:0, sx:-1000,sy:-1000,sz:1,alpha:.001} ,
-                      {name:"B", kind:"P", type:"Free",alpha:0, sx:15,sy:-3,sz:1},
+                      {name:"A", kind:"P", type:"Free",alpha:0, pos:[-1000,-1000,1],alpha:.001} ,
+                      {name:"B", kind:"P", type:"Free",alpha:0, pos:[15,-3,1]},
                       
                                            ];
             
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
                         movescript:"firstDrawing",
                         initscript:"init",
                         mousedownscript:"mouseDown",
@@ -438,7 +438,7 @@ mat=mmmx*mmmy*mat;
 
             
             </script>
-             <button onclick="csplay()" type="button" style="position:absolute; top:640px;left:60px" >Play</button>
+             <button onclick="cdy.csplay()" type="button" style="position:absolute; top:640px;left:60px" >Play</button>
         <button onclick="csstop()" type="button" style="position:absolute; top:640px;left:150px" >Stop</button>
 
        	</body>

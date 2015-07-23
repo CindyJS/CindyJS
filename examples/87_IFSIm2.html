@@ -84,15 +84,15 @@ initiss();
 <script type="text/javascript">
 
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:-2,sy:-2,sz:1,size:3},
-                      {name:"B", kind:"P", type:"Free", sx:4,sy:0,sz:1,size:3},
-                      {name:"C", kind:"P", type:"Free", sx:2.2,sy:1.5,sz:1,size:3},
-                      {name:"D", kind:"P", type:"Free", sx:4,sy:4,sz:1,size:3},
-                      {name:"E", kind:"P", type:"Free", sx:6,sy:4,sz:1,size:3},
-                      {name:"X", kind:"P", type:"Free", sx:-8,sy:-9,sz:1,color:[1,1,1],visible:false,pinned:true},
-                      {name:"Y", kind:"P", type:"Free", sx:-4,sy:-9,sz:1,color:[1,1,1],visible:false,pinned:true},
+                      {name:"A", kind:"P", type:"Free", pos:[-2,-2,1],size:3},
+                      {name:"B", kind:"P", type:"Free", pos:[4,0,1],size:3},
+                      {name:"C", kind:"P", type:"Free", pos:[2.2,1.5,1],size:3},
+                      {name:"D", kind:"P", type:"Free", pos:[4,4,1],size:3},
+                      {name:"E", kind:"P", type:"Free", pos:[6,4,1],size:3},
+                      {name:"X", kind:"P", type:"Free", pos:[-8,-9,1],color:[1,1,1],visible:false,pinned:true},
+                      {name:"Y", kind:"P", type:"Free", pos:[-4,-9,1],color:[1,1,1],visible:false,pinned:true},
                       {name:"a", kind:"L", type:"Segment", args:["X","Y"],color:[0,0,0]},
-                      {name:"Z", kind:"P", type:"PointOnLine", args:["a"],sx:-6.5,sy:-9,sz:1,color:[1,1,1],size:3}
+                      {name:"Z", kind:"P", type:"PointOnLine", args:["a"],pos:[-6.5,-9,1],color:[1,1,1],size:3}
                       
                       ];
 createCindy({

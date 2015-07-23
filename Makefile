@@ -13,7 +13,7 @@ clean:
 
 libcs := src/js/libcs/Namespace.js src/js/libcs/Accessors.js src/js/libcs/CSNumber.js src/js/libcs/List.js src/js/libcs/Essentials.js src/js/libcs/General.js src/js/libcs/Operators.js src/js/libcs/OpDrawing.js src/js/libcs/OpImageDrawing.js src/js/libcs/Parser.js src/js/libcs/OpSound.js src/js/libcs/CSad.js src/js/libcs/Render2D.js
 
-libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
+libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/Tracing.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
 
 liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
@@ -43,7 +43,7 @@ DOWNLOAD=$(if $(CURL_CMD),$(CURL_CMD),$(if $(WGET_CMD),$(WGET_CMD),$(error curl 
 
 NODE_OS:=$(subst Darwin,darwin,$(subst Linux,linux,$(shell uname -s)))
 NODE_ARCH:=$(subst x86_64,x86,$(subst i386,x86,$(subst i686,x86,$(shell uname -m))))
-NODE_VERSION:=0.10.33
+NODE_VERSION:=0.12.6
 NODE_URLBASE:=http://nodejs.org/dist
 NODE_TAR:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH).tar.gz
 NODE_URL:=$(NODE_URLBASE)/v$(NODE_VERSION)/$(NODE_TAR)
@@ -53,6 +53,8 @@ NODE_PATH:=$(if $(NPM_DEP),PATH=$(dir $(NPM_DEP)):$$PATH,)
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE:=node
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
+NODE_MODULES:=source-map marked http-proxy rewire should expect
+NODE_BINARIES:=js-beautify jshint mocha
 
 download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
@@ -63,6 +65,12 @@ download/node/bin/npm: download/arch/$(NODE_TAR)
 	cd download && tar xzf arch/$(NODE_TAR)
 	mv download/node-v$(NODE_VERSION)-* download/node
 	touch $@
+
+$(NODE_MODULES:%=node_modules/%/package.json): node_modules/%/package.json: $(NPM_DEP)
+	$(NPM_CMD) install $*
+
+$(NODE_BINARIES:%=node_modules/.bin/%): node_modules/.bin/%: $(NPM_DEP)
+	$(NPM_CMD) install $*
 
 ######################################################################
 ## Build different flavors of Cindy.js
@@ -102,14 +110,13 @@ endif
 JAVA=java
 CLOSURE=$(JAVA) -jar $(filter %compiler.jar,$^)
 
-node_modules/source-map/package.json: $(NPM_DEP)
-	$(NPM_CMD) install source-map
-
 build/js/Cindy.plain.js: $(srcs)
 
 build/js/ours.js: $(ours)
 
-build/js/Cindy.plain.js build/js/ours.js: \
+build/js/exposed.js: $(lib) src/js/expose.js $(inclosure)
+
+build/js/Cindy.plain.js build/js/ours.js build/js/exposed.js: \
 		node_modules/source-map/package.json tools/cat.js
 	@mkdir -p $(@D)
 	$(NODE_CMD) $(filter %tools/cat.js,$^) $(js_src) -o $@
@@ -119,14 +126,18 @@ build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cin
 	$(NODE_CMD) $(filter %tools/apply-source-map.js,$^) -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
 
 build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
+	@echo 'last_js_compiler=$(js_compiler)' > build/js_compiler.mk
 	cp $< $@
+
+-include build/js_compiler.mk
+
+ifneq ($(js_compiler),$(last_js_compiler))
+.PHONY: build/js/Cindy.js
+endif
 
 ######################################################################
 ## Run jshint to detect syntax problems
 ######################################################################
-
-node_modules/.bin/js-beautify: $(NPM_DEP)
-	$(NPM_CMD) install js-beautify
 
 beautify: node_modules/.bin/js-beautify
 	$(NODE_PATH) $< --replace --config Administration/beautify.conf $(ours)
@@ -136,9 +147,6 @@ beautify: node_modules/.bin/js-beautify
 ######################################################################
 ## Run jshint to detect syntax problems
 ######################################################################
-
-node_modules/.bin/jshint: $(NPM_DEP)
-	$(NPM_CMD) install jshint
 
 jshint: node_modules/.bin/jshint build/js/ours.js
 	$(NODE_PATH) $< -c Administration/jshint.conf --verbose --reporter '$(CURDIR)/tools/jshint-reporter.js' $(filter %.js,$^)
@@ -157,11 +165,24 @@ tests: nodetest
 .PHONY: tests nodetest
 
 ######################################################################
-## Format reference manual using markdown
+## Run separate unit tests to test various interna
 ######################################################################
 
-node_modules/marked/package.json: $(NPM_DEP)
-	$(NPM_CMD) install marked
+unittests: node_modules/.bin/mocha \
+		node_modules/rewire/package.json \
+		node_modules/should/package.json \
+		node_modules/expect/package.json \
+		build/js/exposed.js \
+		$(wildcard tests/*.js)
+	$(NODE_PATH) $< tests
+
+tests: unittests
+
+.PHONY: unittests
+
+######################################################################
+## Format reference manual using markdown
+######################################################################
 
 refmd:=$(wildcard ref/*.md)
 refimg:=$(wildcard ref/img/*.png)
@@ -236,8 +257,8 @@ cindy3d-dbg:
 ## Download Apache Ant to build java-like projects
 ######################################################################
 
-ANT_VERSION=1.9.4
-ANT_MIRROR=http://apache.openmirror.de
+ANT_VERSION=1.9.6
+ANT_MIRROR=http://archive.apache.org/dist
 ANT_PATH=ant/binaries
 ANT_ZIP=apache-ant-$(ANT_VERSION)-bin.zip
 ANT_URL=$(ANT_MIRROR)/$(ANT_PATH)/$(ANT_ZIP)
@@ -264,8 +285,9 @@ GWT_modules = $(patsubst src/java/cindyjs/%.gwt.xml,%,$(wildcard src/java/cindyj
 
 define GWT_template
 
-GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $$(wildcard src/java/cindyjs/$(1)/*.java) $$(ANT_DEP)
+GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $$(wildcard src/java/cindyjs/$(1)/*.java) | $$(ANT_DEP)
 	cd GWT && $$(ANT_CMD:download/%=../download/%) -Dcjs.module=$(1)
+	touch $$@
 
 build/js/$(1)/$(1).nocache.js: GWT/war/$(1)/$(1).nocache.js
 	rm -rf build/js/$(1)
@@ -278,13 +300,30 @@ endef
 $(foreach mod,$(GWT_modules),$(eval $(call GWT_template,$(mod))))
 
 ######################################################################
-## Help debugging a remote site
+## Copy KaTeX to build directory
 ######################################################################
 
-node_modules/http-proxy/package.json: $(NPM_DEP)
-	$(NPM_CMD) install http-proxy
+katex_src=$(wildcard lib/katex/*.*) $(wildcard lib/katex/fonts/*.*) lib/webfont.js
+
+$(katex_src:lib/%=build/js/%): build/js/%: lib/%
+	@mkdir -p $(@D)
+	cp $< $@
+
+build/js/katex-plugin.js: src/js/katex/katex-plugin.js
+	@mkdir -p $(@D)
+	cp $< $@
+
+katex: $(katex_src:lib/%=build/js/%) build/js/katex-plugin.js
+all: katex
+.PHONY: katex
+
+######################################################################
+## Help debugging a remote site
+######################################################################
 
 proxy: tools/CindyReplacingProxy.js node_modules/http-proxy/package.json
 	@echo Configure browser for host 127.0.0.1 port 8080.
 	@echo Press Ctrl+C to interrupt once you are done.
 	-$(NODE_CMD) $<
+
+.PHONY: proxy

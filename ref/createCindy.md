@@ -122,10 +122,6 @@ The default is defined as follows:
 
 Any parameter which stays at this default value doesn't have to be specified at all.
 
-For reasons of backwards compatibility, a global object of the same name is installed as well.
-Modifying that object *prior to any call `createCindy`* will cause those changes to take effect if no `defaultAppearance` parameter is passed to that call.
-This behavior is however deprecated and should not be used.
-
 ### csconsole
 
 This should be either `null` or a suitable `DOMElement`.

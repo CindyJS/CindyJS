@@ -18,12 +18,12 @@
     </script>
     <script type="text/javascript">
         
-            defaultAppearance.pointColor=[1,.7,0];
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:0,sy:0,sz:1},
-                      {name:"B", kind:"P", type:"Free", sx:0,sy:9,sz:1},
+                      {name:"A", kind:"P", type:"Free", pos:[0,0,1]},
+                      {name:"B", kind:"P", type:"Free", pos:[0,9,1]},
                       ];
-            createCindy({canvasname:"CSCanvas",
+            var cdy = createCindy({canvasname:"CSCanvas",
+                        defaultAppearance:{pointColor:[1,.7,0]},
                         scripts:"cs*",
                         geometry:gslp});
 
@@ -35,7 +35,7 @@
               canvas.addEventListener("keypress", function(e) {
                 console.log("Got key " + e.charCode + " / " + e.keyCode);
                 if (e.keyCode !== 9 /* tab */) {
-                  evokeCS("txt=\"" + String.fromCharCode(e.charCode) + "\";");
+                  cdy.evokeCS("txt=\"" + String.fromCharCode(e.charCode) + "\";");
                   e.preventDefault();
                 }
               });

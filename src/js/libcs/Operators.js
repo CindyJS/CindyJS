@@ -942,22 +942,7 @@ evaluator.sub$2 = infix_sub;
 function infix_sub(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-
-    if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Plus
-        return CSNumber.neg(v1);
-    }
-
-    if (v0.ctype === 'void' && v1.ctype === 'list') { //Monadisches Plus
-        return List.neg(v1);
-    }
-
-    if (v0.ctype === 'number' && v1.ctype === 'number') {
-        return CSNumber.sub(v0, v1);
-    }
-    if (v0.ctype === 'list' && v1.ctype === 'list') {
-        return List.sub(v0, v1);
-    }
-    return nada;
+    return General.sub(v0, v1);
 }
 
 evaluator.mult$2 = infix_mult;
@@ -1555,6 +1540,36 @@ evaluator.cross$2 = function(args, modifs) {
     return nada;
 };
 
+evaluator.crossratio$4 = function(args, modifs) {
+    var a0 = evaluate(args[0]);
+    var a1 = evaluate(args[1]);
+    var a2 = evaluate(args[2]);
+    var a3 = evaluate(args[3]);
+
+    var v0 = evaluateAndHomog(a0);
+    var v1 = evaluateAndHomog(a1);
+    var v2 = evaluateAndHomog(a2);
+    var v3 = evaluateAndHomog(a3);
+    if (v0 !== nada && v1 !== nada && v2 !== nada && v3 !== nada) {
+        // TODO: can't handle four collinear points at infinity
+        return List.crossratio3(v0, v1, v2, v3, List.ii);
+    }
+
+    if (a0.ctype === "number" && a1.ctype === "number" &&
+        a2.ctype === "number" && a3.ctype === "number") {
+        return CSNumber.div(
+            CSNumber.mult(
+                CSNumber.sub(a0, a2),
+                CSNumber.sub(a1, a3)
+            ), CSNumber.mult(
+                CSNumber.sub(a0, a3),
+                CSNumber.sub(a1, a2)
+            )
+        );
+    }
+
+    return nada;
+};
 
 evaluator.para$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
@@ -1597,6 +1612,7 @@ evaluator.perp$2 = function(args, modifs) {
         var erg = List.cross(tt, p);
         return General.withUsage(erg, "Line");
     }
+    return nada;
 };
 
 evaluator.perp$1 = function(args, modifs) {
@@ -1682,6 +1698,45 @@ evaluator.det$1 = function(args, modifs) {
     }
     return nada;
 };
+
+
+evaluator.eig$1 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'list') {
+        var n = List._helper.colNumb(v0);
+        if (n !== -1 && n === v0.value.length) {
+            return List.eig(v0);
+        }
+    }
+    return nada;
+};
+
+
+evaluator.eigenvalues$1 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'list') {
+        var n = List._helper.colNumb(v0);
+        if (n !== -1 && n === v0.value.length) {
+            var erg = List.eig(v0, false);
+            return erg.value[0]; // return only eigenvals
+        }
+    }
+    return nada;
+};
+
+
+evaluator.eigenvectors$1 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    if (v0.ctype === 'list') {
+        var n = List._helper.colNumb(v0);
+        if (n !== -1 && n === v0.value.length) {
+            var erg = List.eig(v0);
+            return erg.value[1]; // return only eigenvecs
+        }
+    }
+    return nada;
+};
+
 
 evaluator.area$3 = function(args, modifs) {
     var v0 = evaluateAndHomog(args[0]);
@@ -3383,7 +3438,7 @@ evaluator.convexhull3d$1 = function(args, modifs) {
         var ergf = [];
         for (i = 0; i < chf.length; i++) {
             for (j = 0; j < chf[i].length; j++) {
-                chf[i][j]++;
+                chf[i][j] ++;
             }
             ergf.push(List.realVector(chf[i]));
         }
@@ -3443,6 +3498,9 @@ evaluator.use$1 = function(args, modifs) {
                 "getVariable": namespace.getvar.bind(namespace),
                 "getInitialMatrix": function() {
                     return csport.drawingstate.initialmatrix;
+                },
+                "setTextRenderer": function(handler) {
+                    textRenderer = handler;
                 },
             });
             return {
@@ -3669,58 +3727,58 @@ evaluator.generateWebGL$2 = function(args, modifs) {
             }
         }
     }
+
     if ((expr.ctype === "function") && (expr.args.length === 1)) {
         a = evaluator.compileToWebGL$1([expr.args[0]], {});
-
-        if (expr.oper === "sin") {
+        if (expr.oper === "sin$1") {
             return {
                 "ctype": "string",
                 "value": "sinc(" + a.value + ")"
             };
         }
-        if (expr.oper === "cos") {
+        if (expr.oper === "cos$1") {
             return {
                 "ctype": "string",
                 "value": "cosc(" + a.value + ")"
             };
         }
-        if (expr.oper === "tan") {
+        if (expr.oper === "tan$1") {
             return {
                 "ctype": "string",
                 "value": "tanc(" + a.value + ")"
             };
         }
-        if (expr.oper === "exp") {
+        if (expr.oper === "exp$1") {
             return {
                 "ctype": "string",
                 "value": "expc(" + a.value + ")"
             };
         }
-        if (expr.oper === "log") {
+        if (expr.oper === "log$1") {
             return {
                 "ctype": "string",
                 "value": "logc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arctan") {
+        if (expr.oper === "arctan$1") {
             return {
                 "ctype": "string",
                 "value": "arctanc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arcsin") {
+        if (expr.oper === "arcsin$1") {
             return {
                 "ctype": "string",
                 "value": "arcsinc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arccos") {
+        if (expr.oper === "arccos$1") {
             return {
                 "ctype": "string",
                 "value": "arccosc(" + a.value + ")"
             };
         }
-        if (expr.oper === "sqrt") {
+        if (expr.oper === "sqrt$1") {
             return {
                 "ctype": "string",
                 "value": "sqrtc(" + a.value + ")"
@@ -3818,55 +3876,55 @@ evaluator.compileToWebGL$1 = function(args, modifs) {
     if ((expr.ctype === "function") && (expr.args.length === 1)) {
         a = evaluator.compileToWebGL$1([expr.args[0]], {});
 
-        if (expr.oper === "sin") {
+        if (expr.oper === "sin$1") {
             return {
                 "ctype": "string",
                 "value": "sinc(" + a.value + ")"
             };
         }
-        if (expr.oper === "cos") {
+        if (expr.oper === "cos$1") {
             return {
                 "ctype": "string",
                 "value": "cosc(" + a.value + ")"
             };
         }
-        if (expr.oper === "tan") {
+        if (expr.oper === "tan$1") {
             return {
                 "ctype": "string",
                 "value": "tanc(" + a.value + ")"
             };
         }
-        if (expr.oper === "exp") {
+        if (expr.oper === "exp$1") {
             return {
                 "ctype": "string",
                 "value": "expc(" + a.value + ")"
             };
         }
-        if (expr.oper === "log") {
+        if (expr.oper === "log$1") {
             return {
                 "ctype": "string",
                 "value": "logc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arctan") {
+        if (expr.oper === "arctan$1") {
             return {
                 "ctype": "string",
                 "value": "arctanc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arcsin") {
+        if (expr.oper === "arcsin$1") {
             return {
                 "ctype": "string",
                 "value": "arcsinc(" + a.value + ")"
             };
         }
-        if (expr.oper === "arccos") {
+        if (expr.oper === "arccos$1") {
             return {
-                "ctype": "string",
+                "ctype": "string$1",
                 "value": "arccosc(" + a.value + ")"
             };
         }
-        if (expr.oper === "sqrt") {
+        if (expr.oper === "sqrt$1") {
             return {
                 "ctype": "string",
                 "value": "sqrtc(" + a.value + ")"
