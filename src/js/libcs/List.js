@@ -350,7 +350,8 @@ List._helper.compare = function(a, b) {
 };
 
 List.sort1 = function(a) {
-    var erg = JSON.parse(JSON.stringify(a)).value.sort(General.compare);
+    var erg = a.value.slice();
+    erg.sort(General.compare);
     return List.turnIntoCSList(erg);
 };
 
@@ -479,7 +480,8 @@ List.set = function(a1) {
     var erg = [];
     var ct = 0;
 
-    var erg1 = JSON.parse(JSON.stringify(a1)).value.sort(General.compare);
+    var erg1 = a1.value.slice();
+    erg1.sort(General.compare);
 
     for (var i = 0; i < erg1.length; i++) {
         if (i === 0 || !(comp_equals([erg[erg.length - 1], erg1[i]], [])).value) {
