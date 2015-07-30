@@ -479,7 +479,7 @@ List.set = function(a1) {
     var erg = [];
     var ct = 0;
 
-    var erg1 = a1.value.sort(General.compare);
+    var erg1 = JSON.parse(JSON.stringify(a1)).value.sort(General.compare);
 
     for (var i = 0; i < erg1.length; i++) {
         if (i === 0 || !(comp_equals([erg[erg.length - 1], erg1[i]], [])).value) {
