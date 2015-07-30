@@ -350,7 +350,7 @@ List._helper.compare = function(a, b) {
 };
 
 List.sort1 = function(a) {
-    var erg = a.value.sort(General.compare);
+    var erg = JSON.parse(JSON.stringify(a)).value.sort(General.compare);
     return List.turnIntoCSList(erg);
 };
 
