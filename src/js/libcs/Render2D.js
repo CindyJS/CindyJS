@@ -45,6 +45,9 @@ Render2D.handleModifs = function(modifs, handlers) {
         Render2D.psize = csport.drawingstate.pointsize;
         Render2D.lsize = csport.drawingstate.linesize;
     }
+    if (Render2D.dashing) {
+        Render2D.dashing(Render2D.lsize);
+    }
     if (Render2D.colorraw !== null) {
         Render2D.pointColor = Render2D.lineColor = Render2D.textColor =
             Render2D.makeColor(Render2D.colorraw);
@@ -104,24 +107,21 @@ Render2D.modifHandlers = {
                 if (v.value[i].ctype === "number")
                     pat[j++] = v.value[i].value.real;
             }
-            Render2D.setDash(pat, Render2D.lsize);
-            Render2D.dashing = true;
+            Render2D.dashing = Render2D.setDash.bind(null, pat);
         }
     },
 
     "dashtype": function(v) {
         if (v.ctype === "number") {
             var type = Math.floor(v.value.real);
-            Render2D.setDashType(type, Render2D.lsize);
-            Render2D.dashing = true;
+            Render2D.dashing = Render2D.setDashType.bind(null, type);
         }
     },
 
     "dashing": function(v) {
         if (v.ctype === 'number') {
             var si = Math.floor(v.value.real);
-            Render2D.setDash([si * 2, si], Render2D.lsize);
-            Render2D.dashing = true;
+            Render2D.dashing = Render2D.setDash.bind(null, [si * 2, si]);
         }
     },
 
