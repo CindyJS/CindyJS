@@ -19,6 +19,10 @@ function dump(a) {
 
 function dumpcs(a) {
     console.log(niceprint(a));
+
+    if (a.ctype !== "undefined") {
+        csconsole.out(niceprint(a));
+    }
 }
 
 function evalcs(a) {
@@ -76,6 +80,9 @@ function createCindyNow() {
     var data = instanceInvocationArguments;
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
+
+    setupConsole();
+
     csmouse = [100, 100];
     var cscode;
     var c = null;
@@ -410,3 +417,146 @@ if (instanceInvocationArguments.use) {
         }
     });
 }
+
+//
+// CONSOLE
+//
+function setupConsole() {
+    if (typeof csconsole === "boolean" && csconsole === true) {
+        csconsole = new CindyConsoleHandler();
+
+    } else if (typeof csconsole === "string") {
+        var id = csconsole;
+        csconsole = new ElementConsoleHandler(id);
+    }
+
+    // Fallback
+    if (typeof csconsole === "undefined") {
+        csconsole = new PopupConsoleHandler();
+    }
+}
+
+function GenericConsoleHandler(args) {
+
+    this.in = function(s, preventNewline) {
+        console.log(s);
+
+        if (preventNewline) {
+            this.append(this.createTextNode("span", "blue", s));
+
+        } else {
+            this.append(this.createTextNode("p", "blue", s));
+        }
+    };
+
+    this.out = function(s, preventNewline) {
+        console.log(s);
+
+        if (preventNewline) {
+            this.append(this.createTextNode("span", "red", s));
+
+        } else {
+            this.append(this.createTextNode("p", "red", s));
+        }
+    };
+
+    this.err = function(s, preventNewline) {
+        console.log(s);
+
+        if (preventNewline) {
+            this.append(this.createTextNode("span", "red", s));
+
+        } else {
+            this.append(this.createTextNode("p", "red", s));
+        }
+    };
+
+    this.createTextNode = function(tagName, color, s) {
+        var element = document.createElement(tagName);
+        element.appendChild(document.createTextNode(s));
+        element.style.color = color;
+
+        return element;
+    }
+};
+
+function CindyConsoleHandler() {
+
+    var that = this;
+    var cmd;
+    var container = document.createElement("div");
+    var log;
+
+    container.innerHTML = "<div id=\"console\" style=\"border-top: 1px solid #333333; bottom: 0px; position: absolute; width: 100%;\">"
+        + "<div id=\"log\" style=\"height: 150px; overflow-y: auto;\"></div>"
+        + "<input id=\"cmd\" type=\"text\" style=\"box-sizing: border-box; height: 30px; width: 100%;\">"
+        + "</div>";
+
+    document.body.appendChild(container);
+
+    cmd = document.getElementById("cmd");
+    log = document.getElementById("log");
+
+    cmd.onkeydown = function(evt) {
+        if (evt.keyCode !== 13 || cmd.value === "") {
+            return;
+        }
+
+        that.in(cmd.value);
+
+        evalcs(cmd.value);
+
+        cmd.value = "";
+
+        log.scrollTop = log.scrollHeight;
+    }
+
+    this.append = function(s) {
+        log.appendChild(s);
+    };
+
+    this.clear = function() {
+        log.innerHTML = "";
+    };
+};
+
+CindyConsoleHandler.prototype = new GenericConsoleHandler;
+
+function ElementConsoleHandler(id) {
+
+    var element = document.getElementById(id);
+
+    this.append = function(s) {
+        element.appendChild(s);
+    };
+
+    this.clear = function() {
+        element.innerHTML = "";
+    };
+};
+
+ElementConsoleHandler.prototype = new GenericConsoleHandler;
+
+function PopupConsoleHandler() {
+
+    var popup = window.open('', '', 'width=200,height=100');
+    var body;
+
+    if (popup) {
+        body = popup.document.getElementsByTagName("body")[0];
+    }
+
+    this.append = function(s) {
+        if (body) {
+            body.appendChild(s);
+        }
+    };
+
+    this.clear = function() {
+        if (body) {
+            body.innerHTML = "";
+        }
+    };
+};
+
+PopupConsoleHandler.prototype = new GenericConsoleHandler;

@@ -2,14 +2,32 @@
 // and here are the definitions of the operators
 //*******************************************************
 
+evaluator.timestamp$0 = function(args, modifs) {
+    return {
+        "ctype": "number",
+        "value": {
+            "real": new Date().getTime(),
+            "imag": 0
+        }
+    };
+};
+
+evaluator.seconds$0 = function(args, modifs) { //OK
+    return {
+        "ctype": "number",
+        "value": {
+            'real': (new Date().getTime() / 1000),
+            'imag': 0
+        }
+    };
+};
+
+
+evaluator.clearconsole$0 = function(args, modifs) {
+    csconsole.clear();
+}
 
 evaluator.err$1 = function(args, modifs) { //OK
-
-    if (typeof csconsole === "undefined") {
-        csconsole = window.open('', '', 'width=200,height=100');
-
-    }
-
     var varname = '',
         s;
     if (args[0].ctype === 'variable') {
@@ -19,10 +37,9 @@ evaluator.err$1 = function(args, modifs) { //OK
         s = args[0];
     }
     s = varname + " ===> " + niceprint(evaluate(s));
-    if (console && console.log)
-        console.log(s);
-    if (csconsole)
-        csconsole.document.write(s + "<br>");
+
+    csconsole.err(s);
+
     return nada;
 };
 
@@ -41,8 +58,12 @@ evaluator.errc$1 = function(args, modifs) { //OK
     return nada;
 };
 
+evaluator.print$1 = function(args, modifs) {
+    csconsole.out(niceprint(evaluate(args[0])), true);
+};
+
 evaluator.println$1 = function(args, modifs) {
-    console.log(niceprint(evaluate(args[0])));
+    csconsole.out(niceprint(evaluate(args[0])));
 };
 
 evaluator.dump$1 = function(args, modifs) {
