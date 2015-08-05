@@ -1,33 +1,51 @@
 (function() {
     "use strict";
 
-    var katex = null;
-    var WebFontLoader = null;
-    var fontsLoaded = false;
+    var log = console.log.bind(console);
+    var fonts = {};
     var waitingInstances = [];
+    var repaintTimeout = null;
 
-    createCindy.loadScript("WebFont", "webfont.js", loadFonts);
+    // Load required components: WebFontLoader and katex
+
+    var WebFontLoader = null;
+    var katex = null;
+
+    createCindy.loadScript("WebFont", "webfont.js", fontLoaderReady);
     createCindy.loadScript("katex", "katex/katex.min.js", katexReady);
 
-    function loadFonts() {
-        console.log("WebFontLoader is now available.");
+    function fontLoaderReady() {
+        log("WebFontLoader is now available.");
         WebFontLoader = window.WebFont;
+        loadFonts(["KaTeX_Math:i4", "KaTeX_Main:n4"]); // pre-load common fonts
+        someScriptLoaded();
+    }
+
+    function katexReady() {
+        log("KaTeX is now available.");
+        katex = window.katex;
+        someScriptLoaded();
+    }
+
+    function someScriptLoaded() {
+        if (allScriptsLoaded())
+            triggerRepaints();
+    }
+
+    function allScriptsLoaded() {
+        return katex && WebFontLoader;
+    }
+
+    // Load common and used fonts
+
+    function loadFonts(fontsToLoad) {
+        log("Loading ", fontsToLoad);
+        fontsToLoad.forEach(function(fvd) {
+            fonts[fvd] = "loading";
+        });
         WebFontLoader.load({
             custom: {
-                families: [
-                    "KaTeX_Main:n7,i4,n4",
-                    "KaTeX_Math:i7,i4,n4",
-                    "KaTeX_AMS:n4",
-                    "KaTeX_Size1:n4",
-                    "KaTeX_Size2:n4",
-                    "KaTeX_Size3:n4",
-                    "KaTeX_Size4:n4",
-                    "KaTeX_Caligraphic:n4,n7",
-                    "KaTeX_Fraktur:n4,n7",
-                    "KaTeX_SansSerif:n4",
-                    "KaTeX_Script:n4",
-                    "KaTeX_Typewriter:n4",
-                ],
+                families: fontsToLoad,
                 testStrings: {
                   "KaTeX_Size1": "()[]",
                   "KaTeX_Size2": "()[]",
@@ -36,38 +54,46 @@
                 },
                 urls: [createCindy.getBaseDir() + "katex/katex.min.css"]
             },
-            active: fontsReady
+            fontactive: fontActive
         });
     }
 
-    function fontsReady() {
-        console.log(arguments);
-        console.log("Math fonts are now available.");
-        fontsLoaded = true;
-        if (katex) doneWaiting();
+    function fontActive(font, variant) {
+        var fvd = font + ":" + variant;
+        log("Loaded " + fvd);
+        fonts[fvd] = true; // done loading
+        if (repaintTimeout === null)
+            repaintTimeout = setTimeout(triggerRepaints, 0);
     }
 
-    function katexReady() {
-        console.log("KaTeX is now available.");
-        katex = window.katex;
-        if (fontsLoaded) doneWaiting();
-    }
+    // Handle repainting
 
-    function doneWaiting() {
+    function triggerRepaints() {
+        repaintTimeout = null;
         var instances = waitingInstances;
-        waitingInstances = null;
+        waitingInstances = [];
         for (var i = 0; i < instances.length; ++i)
             instances[i].evokeCS(""); // trigger repaint
     }
 
+    function haveToWait(i) {
+        if (!waitingInstances.some(function(j) {
+            return i === j;
+        })) {
+            waitingInstances.push(i);
+        }
+    }
+
+    // Plugin API
+
     createCindy.registerPlugin(1, "katex", plugin);
 
     function plugin(api) {
-        if (waitingInstances)
-            waitingInstances.push(api.instance);
-        var storage = {cache: {}, misses:0};
+        var storage = {instance: api.instance, cache: {}, misses:0};
         api.setTextRenderer(katexRenderer.bind(storage));
     }
+
+    // Text box, with same api as a prepared KaTeX box but using current font
 
     function textBox(ctx, text) {
         this.width = ctx.measureText(text).width;
@@ -76,7 +102,7 @@
         };
     }
 
-    var firstMessage = true;
+    // Custom macros defined specifically for Cinderella / CindyJS
 
     var macros = {
         "\\mbox": "\\text",
@@ -116,21 +142,16 @@
         "\\arccsc": "\\operatorname{arccsc}",
     };
 
+    // Report whether we are ready
+
+    var firstMessage = true;
+
     function katexRenderer(ctx, text, x, y, align) {
-        if (waitingInstances !== null) {
-            if (firstMessage) {
-                console.log("KaTeX is not ready yet.");
-                firstMessage = false;
-            }
-            /*
-            var width = ctx.measureText(text).width;
-            ctx.fillText(text, x - align * width, y);
-            */
-            return;
-        }
         var fontSize = /(?:^| )([0-9]+)px(?:$| )/.exec(ctx.font);
         fontSize = fontSize ? +fontSize[1] : 16;
         var key = fontSize + ":" + text;
+        var fontsMissing = false;
+        var fontsToLoad = {};
         var parts, n, i;
         if (this.cache.hasOwnProperty(key)) {
             parts = this.cache[key];
@@ -142,12 +163,28 @@
             };
             parts = text.split("$");
             n = parts.length;
+            if (n > 1 && !allScriptsLoaded()) {
+                if (firstMessage) {
+                    log("KaTeX is not ready yet.");
+                    firstMessage = false;
+                }
+                haveToWait(this.instance);
+                return;
+            }
             for (i = 0; i < n; i += 2) {
                 parts[i] = new textBox(ctx, parts[i]);
             }
             for (i = 1; i < n; i += 2) {
                 try {
                     parts[i] = katex.canvasBox(parts[i], ctx, opts);
+                    for (var font in parts[i].fontsUsed) {
+                        var fontState = fonts[font];
+                        if (fontState !== true) {
+                            fontsMissing = true;
+                            if (fontState === undefined)
+                                fontsToLoad[font] = true;
+                        }
+                    }
                 } catch(e) {
                     console.error(e);
                     parts[i] = new textBox(ctx, "$" + parts[i] + "$");
@@ -157,15 +194,25 @@
                 this.misses = 0;
                 this.cache = {};
             }
-            this.cache[key] = parts;
+            if (!fontsMissing) {
+                this.cache[key] = parts;
+            }
         }
-        var total = 0;
-        for (i = 0; i < n; ++i)
-            total += parts[i].width;
-        x -= align * total;
-        for (i = 0; i < n; ++i) {
-            parts[i].renderAt(x, y);
-            x += parts[i].width;
+        if (fontsMissing) {
+            fontsToLoad = Object.keys(fontsToLoad);
+            if (fontsToLoad.length !== 0) {
+                loadFonts(fontsToLoad);
+            }
+            haveToWait(this.instance);
+        } else {
+            var total = 0;
+            for (i = 0; i < n; ++i)
+                total += parts[i].width;
+            x -= align * total;
+            for (i = 0; i < n; ++i) {
+                parts[i].renderAt(x, y);
+                x += parts[i].width;
+            }
         }
     };
 })();
