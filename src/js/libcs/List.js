@@ -452,6 +452,20 @@ List._helper.isNaN = function(a1) {
     return erg;
 };
 
+List._helper.isFinite = function(a1) {
+    var erg = true;
+    for (var i = 0; i < a1.value.length; i++) {
+        var av1 = a1.value[i];
+
+        if (av1.ctype === 'list') {
+            erg = erg && List._helper.isFinite(av1);
+        } else {
+            erg = erg && CSNumber._helper.isFinite(av1);
+        }
+    }
+    return erg;
+};
+
 
 List.set = function(a1) {
     var erg = [];

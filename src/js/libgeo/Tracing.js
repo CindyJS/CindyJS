@@ -399,11 +399,11 @@ function tracing2core(n1, n2, o1, o2) {
             // Evil: modify can break copy on write! But it's safe here.
         };
     }
-    if (List._helper.isNaN(n1) || List._helper.isNaN(n2)) {
+    if (!(List._helper.isFinite(n1) && List._helper.isFinite(n2))) {
         // Something went very wrong, numerically speaking. We have no
         // clue whether refining will make things any better, so we
         // assume it won't and give up.
-        debug("Tracing failed due to NaNs.");
+        debug("Tracing failed due to NaNs or Infinity.");
         tracingFailed = true;
     } else if (do1o2 > cost * safety && dn1n2 > cost * safety) {
         // Distance within matching considerably smaller than distance
@@ -522,11 +522,11 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
 
     for (i = 0; i < 4; i++) {
         if (need_refine) break;
-        if (List._helper.isNaN(new_el[i])) {
+        if (!List._helper.isFinite(new_el[i])) {
             // Something went very wrong, numerically speaking. We have no
             // clue whether refining will make things any better, so we
             // assume it won't and give up.
-            debug("Tracing failed due to NaNs.");
+            debug("Tracing failed due to NaNs or Infinity.");
             tracingFailed = true;
             return res;
         }
