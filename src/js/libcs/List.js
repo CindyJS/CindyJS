@@ -535,6 +535,11 @@ List.maxIndex = function(lst, fun, startIdx) {
 List.normalizeMax = function(a) {
     var s = CSNumber.inv(List.maxval(a));
     if (!CSNumber._helper.isFinite(s)) return a;
+    var r = s.value.real, i = s.value.imag;
+    if (r * r + i * i > 1e17) {
+        degenerateSituationDetected();
+        s = CSNumber.zero;
+    }
     return List.scalmult(s, a);
 };
 

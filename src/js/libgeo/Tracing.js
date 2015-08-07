@@ -77,6 +77,19 @@ var RefineException = {
     }
 };
 
+var DegenerateException = {
+    toString: function() {
+        return "DegenerateException";
+    }
+};
+
+var mayThrowDegenerateException = false;
+
+function degenerateSituationDetected() {
+    if (mayThrowDegenerateException)
+        throw DegenerateException;
+}
+
 function requestRefinement() {
     // Call this whenever you would need exra refinement.
     // Possible outcomes: either an exception will be thrown to
@@ -159,13 +172,16 @@ function traceMover(mover, pos, type) {
     //console.log("Tracing from " + niceprint(originParam) + " to " + niceprint(targetParam));
     var t = last + step;
     while (last !== t) {
+        if (traceLimit === 0)
+            t = 1;
+
         // Rational parametrization of semicircle,
         // see http://jsperf.com/half-circle-parametrization
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = (last + 0.5 * step <= last || traceLimit === 0);
-        if (traceLimit === 0) console.log("tracing limit Reached");
+        mayThrowDegenerateException = (t < 1);
         var refining = false;
 
         if (traceLog && traceLog.currentMouseAndScripts) {
@@ -174,11 +190,20 @@ function traceMover(mover, pos, type) {
         try {
             traceOneStep();
         } catch (e) {
+            if (e === DegenerateException) {
+                console.log(e.toString());
+                tracingFailed = true;
+                traceLimit = 0; // triggers noMoreRefinements
+                t = 1; // no more steps, go straight to the end
+                continue; // doesn't add to log! TODO!
+            }
             if (e !== RefineException)
                 throw e;
             step *= 0.5; // reduce step size
             t = last + step;
             --traceLimit;
+            if (traceLimit === 0)
+                console.log("tracing limit reached");
             refining = true;
         }
         if (traceLog && traceLog.currentMouseAndScripts) {
@@ -193,6 +218,7 @@ function traceMover(mover, pos, type) {
             traceLog.currentParam = null;
         }
     }
+    mayThrowDegenerateException = false;
     tracingStateReport(tracingFailed);
     for (i = 0; i < deps.length; ++i) {
         el = deps[i];
