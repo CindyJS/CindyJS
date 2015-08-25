@@ -201,6 +201,68 @@ function segmentDefault(el) {
     el.clip = General.string("end");
 }
 
+// TODO: Use this in csinit to avoid code duplication
+function addElement(el) {
+    var totalStateSize = stateLastGood.length;
+
+    csgeo.csnames[el.name] = el;
+    var op = geoOps[el.type];
+    if (!op) {
+        console.error(el);
+        console.error("Operation " + el.type + " not implemented yet");
+    }
+    el.kind = op.kind;
+    el.stateIdx = totalStateSize;
+    totalStateSize += op.stateSize;
+    el.incidences = [];
+    el.isshowing = true;
+    el.movable = false;
+
+    if (op.isMovable) {
+        el.movable = true;
+        csgeo.free.push(el);
+    }
+
+    if (el.kind === "P") {
+        csgeo.points.push(el);
+        pointDefault(el);
+    }
+    if (el.kind === "L") {
+        csgeo.lines.push(el);
+        lineDefault(el);
+    }
+    if (el.kind === "C") {
+        csgeo.conics.push(el);
+        lineDefault(el);
+    }
+    if (el.kind === "S") {
+        csgeo.lines.push(el);
+        segmentDefault(el);
+    }
+
+    stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
+    // initially, stateIn and stateOut are the same, so that initialize can
+    // write some state and updatePosition can immediately use it
+    tracingInitial = true; // might get reset by initialize
+    if (op.initialize) {
+        stateInIdx = stateOutIdx = el.stateIdx;
+        el.param = op.initialize(el);
+        assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
+    }
+    stateInIdx = stateOutIdx = el.stateIdx;
+    op.updatePosition(el, false);
+
+    assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
+    assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
+    isShowing(el, op);
+
+    /*stateLastGood = new Float64Array(totalStateSize);
+    stateOut = new Float64Array(totalStateSize);
+    stateContinueFromHere();
+    tracingInitial = false;
+    guessIncidences();*/
+}
+
 function onSegment(p, s) { //TODO was ist mit Fernpunkten
     // TODO das ist eine sehr teure implementiereung
     // Geht das einfacher?

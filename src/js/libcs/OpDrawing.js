@@ -1549,3 +1549,44 @@ evaluator.layer$1 = function(args, modifs) {
     // No-op to avoid error messages when exporting from Cinderella
     // See https://gitlab.cinderella.de:8082/cindyjs/cindyjs/issues/17
 };
+
+evaluator.create$3 = function(args, modifs) {
+    var names = evaluate(args[0]).value;
+    var type = evaluate(args[1]).value;
+    var args = evaluate(args[2]).value;
+
+    for (var i = 0; i < names.length; i++) {
+        var name = names[i];
+
+        var a = [];
+        var pos = [];
+
+        for (var j = 0; j < args.length; j++) {
+            var arg = args[j];
+
+            if (arg.ctype === "list" && List.isNumberVector(arg)) {
+                for (var x = 0; x < arg.value.length; x++) {
+                    pos.push(arg.value[x].value.real);
+                }
+
+            } else {
+                a.push(arg.value);
+            }
+        }
+
+        var el = {};
+
+        el.name = name.value;
+        el.type = type;
+        el.labeled = true;
+
+        if (pos.length > 0)
+            el.pos = pos;
+
+        if (a.length > 0)
+            el.args = a;
+
+        // TODO Check if exists
+        addElement(el);
+    }
+}
