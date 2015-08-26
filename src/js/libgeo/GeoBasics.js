@@ -205,12 +205,9 @@ function segmentDefault(el) {
 function addElement(el) {
     var totalStateSize = stateLastGood.length;
 
+    csgeo.gslp.push(el);
     csgeo.csnames[el.name] = el;
     var op = geoOps[el.type];
-    if (!op) {
-        console.error(el);
-        console.error("Operation " + el.type + " not implemented yet");
-    }
     el.kind = op.kind;
     el.stateIdx = totalStateSize;
     totalStateSize += op.stateSize;
@@ -240,27 +237,33 @@ function addElement(el) {
         segmentDefault(el);
     }
 
-    stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
-    // initially, stateIn and stateOut are the same, so that initialize can
-    // write some state and updatePosition can immediately use it
-    tracingInitial = true; // might get reset by initialize
-    if (op.initialize) {
+    if (true || op.stateSize !== 0) {
+        var prevState = stateLastGood;
+        stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
+        stateLastGood.set(prevState); // make new state a copy of old state
+        // initially, stateIn and stateOut are the same, so that initialize can
+        // write some state and updatePosition can immediately use it
+        if (op.initialize) {
+            tracingInitial = true;
+            stateInIdx = stateOutIdx = el.stateIdx;
+            el.param = op.initialize(el);
+            assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
+            tracingInitial = false;
+        }
         stateInIdx = stateOutIdx = el.stateIdx;
-        el.param = op.initialize(el);
-        assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
+        op.updatePosition(el, false);
+        assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
+        assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
+        stateLastGood = new Float64Array(totalStateSize);
+        stateOut = new Float64Array(totalStateSize);
+    } else {
+        // Do the updatePosition call with correct state handling around it.
     }
-    stateInIdx = stateOutIdx = el.stateIdx;
-    op.updatePosition(el, false);
-
-    assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
-    assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
+    stateContinueFromHere();
     isShowing(el, op);
 
-    /*stateLastGood = new Float64Array(totalStateSize);
-    stateOut = new Float64Array(totalStateSize);
-    stateContinueFromHere();
-    tracingInitial = false;
-    guessIncidences();*/
+    geoDependantsCache = {};
+    //guessIncidences();
 }
 
 function onSegment(p, s) { //TODO was ist mit Fernpunkten
@@ -347,6 +350,10 @@ function getGeoDependants(mover) {
         }
     }
     geoDependantsCache[mover.name] = deps;
+    /*
+    console.log("getGeoDependants(" + mover.name + ") := [" +
+                deps.map(function(el) { return el.name; }).join(",") + "]");
+    */
     return deps;
 }
 

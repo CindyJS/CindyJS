@@ -1840,6 +1840,9 @@ geoOps._helper.initializePoint = function(el) {
     var sy = 0;
     var sz = 0;
     if (el.pos) {
+        if (el.pos.ctype === "list" && List.isNumberVector(el.pos)) {
+            return el.pos;
+        }
         if (el.pos.length === 2) {
             sx = el.pos[0];
             sy = el.pos[1];

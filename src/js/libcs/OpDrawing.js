@@ -1551,42 +1551,78 @@ evaluator.layer$1 = function(args, modifs) {
 };
 
 evaluator.create$3 = function(args, modifs) {
-    var names = evaluate(args[0]).value;
-    var type = evaluate(args[1]).value;
-    var args = evaluate(args[2]).value;
+    var names = evaluate(args[0]);
+    var type = evaluate(args[1]);
+    var args = evaluate(args[2]);
 
-    for (var i = 0; i < names.length; i++) {
-        var name = names[i];
-
-        var a = [];
-        var pos = [];
-
-        for (var j = 0; j < args.length; j++) {
-            var arg = args[j];
-
-            if (arg.ctype === "list" && List.isNumberVector(arg)) {
-                for (var x = 0; x < arg.value.length; x++) {
-                    pos.push(arg.value[x].value.real);
-                }
-
-            } else {
-                a.push(arg.value);
-            }
-        }
-
-        var el = {};
-
-        el.name = name.value;
-        el.type = type;
-        el.labeled = true;
-
-        if (pos.length > 0)
-            el.pos = pos;
-
-        if (a.length > 0)
-            el.args = a;
-
-        // TODO Check if exists
-        addElement(el);
+    var name;
+    if (names.ctype === "string") {
+        name = names.value;
+    } else if (names.ctype !== "list") {
+        console.log("Names must be a string or a list of strings");
+        return nada;
+    } else if (names.value.length !== 1) {
+        console.log("multi-result compatibility operations not supported yet");
+        return nada;
+    } else if (names.value[0].ctype !== "string") {
+        console.log("Element of names list must be a string");
+        return nada;
+    } else {
+        name = names.value[0].value;
     }
+    if (type.ctype !== "string") {
+        console.log("Type must be a string");
+        return nada;
+    }
+    if (args.ctype !== "list") {
+        console.log("Arguments must be a list");
+        return nada;
+    }
+
+    if(csgeo.csnames[name] !== undefined) {
+        console.log("Element name '" + name + "' already exists");
+        return {
+            'ctype': 'geo',
+            'value': csgeo.csnames[name]
+        };
+    }
+    if (geoOps[type.value] === undefined) {
+        console.log("Invalid geometric operation: '" + type.value + "'");
+        return nada;
+    }
+
+    var a = [];
+    var pos = null;
+
+    for (var i = 0; i < args.value.length; i++) {
+        var arg = args.value[i];
+
+        if (arg.ctype === "list" && List.isNumberVector(arg)) {
+            pos = arg;
+        } else if (arg.ctype === "string") {
+            a.push(arg.value);
+        } else {
+            console.log("Unknown argument type");
+            return nada;
+        }
+    }
+
+    var el = {
+        name: name,
+        type: type.value,
+        labeled: true,
+    };
+
+    if (pos)
+        el.pos = pos;
+
+    if (a.length > 0)
+        el.args = a;
+
+    addElement(el);
+
+    return {
+        'ctype': 'geo',
+        'value': el
+    };
 }
