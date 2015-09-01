@@ -352,10 +352,8 @@ function render() {
                 alpha: el.alpha
             });
         } else if (el.clip.value === "end") {
-            pt1 = csgeo.csnames[el.args[0]];
-            pt2 = csgeo.csnames[el.args[1]];
             evaluator.draw$2(
-                [pt1.homog, pt2.homog], {
+                [el.startpos, el.endpos], {
                     size: el.size,
                     color: el.color,
                     alpha: el.alpha

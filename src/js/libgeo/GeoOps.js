@@ -1401,6 +1401,18 @@ geoOps.TrProjection.updatePosition = function(el) {
     var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
     m = List.normalizeMax(m);
     el.matrix = m;
+    m = List.transpose(List.adjoint3(m));
+    m = List.normalizeMax(m);
+    el.dualMatrix = m;
+};
+
+geoOps.TrInverse = {};
+geoOps.TrInverse.kind = "Tr";
+geoOps.TrInverse.updatePosition = function(el) {
+    var tr = csgeo.csnames[(el.args[0])];
+    var m = tr.matrix;
+    el.dualMatrix = List.transpose(tr.matrix);
+    el.matrix = List.transpose(tr.dualMatrix);
 };
 
 // Apply a projective transformation to a point
@@ -1411,6 +1423,30 @@ geoOps.TransformP.updatePosition = function(el) {
     var p = csgeo.csnames[(el.args[1])].homog;
     el.homog = List.normalizeMax(List.productMV(m, p));
     el.homog = General.withUsage(el.homog, "Point");
+};
+
+// Apply a projective transformation to a line
+geoOps.TransformL = {};
+geoOps.TransformL.kind = "L";
+geoOps.TransformL.updatePosition = function(el) {
+    var m = csgeo.csnames[(el.args[0])].dualMatrix;
+    var l = csgeo.csnames[(el.args[1])].homog;
+    el.homog = List.normalizeMax(List.productMV(m, p));
+    el.homog = General.withUsage(el.homog, "Line");
+};
+
+// Apply a projective transformation to a line segment
+geoOps.TransformS = {};
+geoOps.TransformS.kind = "S";
+geoOps.TransformS.updatePosition = function(el) {
+    var tr = csgeo.csnames[(el.args[0])];
+    var s = csgeo.csnames[(el.args[1])];
+    el.homog = List.normalizeMax(List.productMV(tr.dualMatrix, s.homog));
+    el.homog = General.withUsage(el.homog, "Line");
+    el.startpos = List.normalizeMax(List.productMV(tr.matrix, s.startpos));
+    el.endpos = List.normalizeMax(List.productMV(tr.matrix, s.endpos));
+    el.farpoint = List.normalizeMax(List.productMV(tr.matrix, s.farpoint));
+    //console.log(niceprint(List.turnIntoCSList([el.homog, el.startpos, el.endpos])));
 };
 
 geoOps._helper.pointReflection = function(center, point) {
@@ -1491,8 +1527,20 @@ geoMacros.PolarLine = function(el) {
     return [el];
 };
 
-
 geoMacros.Calculation = function(el) {
     console.log("Calculation stripped from construction");
     return [];
+};
+
+geoMacros.Transform = function(el) {
+    var arg = csgeo.csnames[el.args[1]];
+    var kind = geoOps[arg.type].kind;
+    var op = "Transform" + kind;
+    if (geoOps.hasOwnProperty(op)) {
+        el.type = op;
+        return [el];
+    } else {
+        console.log(op + " not implemented yet");
+        return [];
+    }
 };

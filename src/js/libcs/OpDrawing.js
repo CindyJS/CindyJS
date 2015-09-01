@@ -1388,9 +1388,12 @@ evaluator.canvas$5 = function(args, modifs) {
     csctx = backupctx;
 };
 
-
 evaluator.screenresolution$0 = function(args, modifs) {
     var m = csport.drawingstate.matrix;
     return CSNumber.real(m.a);
 }
 
+evaluator.layer$1 = function(args, modifs) {
+    // No-op to avoid error messages when exporting from Cinderella
+    // See https://gitlab.cinderella.de:8082/cindyjs/cindyjs/issues/17
+};
