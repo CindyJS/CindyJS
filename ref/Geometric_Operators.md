@@ -74,7 +74,7 @@ Observe that the operator generates an implicit typing of the return values, so 
     > hc=perpendicular(C,c);
     > X=meet(ha,hb);
     > X.xy
-    < [2.3043478260869565, 3.1739130434782608]
+    < [2.3043, 3.1739]
 
     - skip test: can't do drawing in the test suite.
     > drawall([a,b,c,d,ha,hb,hc,X,A,B,C]);

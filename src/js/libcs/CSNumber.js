@@ -2,15 +2,25 @@
 //      Complex Numbers
 //==========================================
 var CSNumber = {};
+CSNumber._helper = {};
+CSNumber._helper.roundingfactor = 1e4;
+
+CSNumber._helper.niceround = function(a) {
+    return Math.round(a * CSNumber._helper.roundingfactor) /
+        CSNumber._helper.roundingfactor;
+};
+
 CSNumber.niceprint = function(a) {
-    if (a.value.imag === 0) {
-        return "" + a.value.real;
+    var real = CSNumber._helper.niceround(a.value.real);
+    var imag = CSNumber._helper.niceround(a.value.imag);
+    if (imag === 0) {
+        return "" + real;
     }
 
-    if (a.value.imag > 0) {
-        return "" + a.value.real + " + i*" + a.value.imag;
+    if (imag > 0) {
+        return "" + real + " + i*" + imag;
     } else {
-        return "" + a.value.real + " - i*" + (-a.value.imag);
+        return "" + real + " - i*" + (-imag);
     }
 };
 
@@ -462,7 +472,6 @@ CSNumber.mod = function(a, b) {
 };
 
 
-CSNumber._helper = {};
 CSNumber._helper.seed = 'NO';
 CSNumber.eps = 0.0000000001;
 CSNumber.epsbig = 0.000001;

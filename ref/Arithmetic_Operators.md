@@ -113,8 +113,7 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
     > 5^(-1)
     < 0.2
     > 2^(1/2)
-    < 1.414213562373095
-    ~ 1.4142135623730951?
+    < 1.4142
 
 ------
 
@@ -124,7 +123,7 @@ This operator multiplies any number by the constant `pi/180` .
 This makes possible angle conversion from degrees to radians.
 
     > 180°
-    < 3.141592653589793
+    < 3.1416
     > cos(180°)
     < -1
 
@@ -143,7 +142,7 @@ It is not allowed to use the `|...|` operator in a nested way, since such expres
     > |(3,4)|
     < 5
     > |1+i|
-    < 1.4142135623730951
+    < 1.4142
 
 ------
 
@@ -245,10 +244,9 @@ The `arc` operators are in principle multivalued.
 However, the operator returns only one principal value, for which the real value is between `+pi` and `-pi`.
 
     > sin(pi) // almost zero except for numerics
-    < 1.2246467991473532e-16
-    ~ -?1\.\d+e-1[6-9]
+    < 0
     > arccos(-1)
-    < 3.141592653589793
+    < 3.1416
     > arctan2(1,1) ~= 45°
     < true
     > arctan2(-1,-1) ~= -135°
@@ -321,7 +319,7 @@ The following operators generate pseudo random numbers.
 
     > random(10)
     < 7.089078226464412
-    ~ \d\.\d{4,}
+    ~ \d\.\d{3,}
     > sum(1..1000, random(5))
     < 2464.8003929607607
     ~ 2\d\d\d\.\d+
