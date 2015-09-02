@@ -428,6 +428,8 @@ function setupConsole() {
     } else if (typeof csconsole === "string") {
         var id = csconsole;
         csconsole = new ElementConsoleHandler(id);
+    } else if (csconsole === null) {
+        csconsole = { out: function (x) { console.log(x); } };
     }
 
     // Fallback
