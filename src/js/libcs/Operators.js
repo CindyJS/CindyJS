@@ -684,7 +684,18 @@ evaluator.xor$2 = function(args, modifs) {
 };
 
 
-evaluator.not$1 = prefix_not;
+evaluator.not$1 = function prefix_not(args, modifs) {
+    var v = evaluateAndVal(args[0]);
+
+    if (v.ctype === 'boolean') {
+        return {
+            'ctype': 'boolean',
+            'value': (!v.value)
+        };
+    }
+
+    return nada;
+}
 
 function prefix_not(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
