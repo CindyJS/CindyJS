@@ -684,6 +684,8 @@ evaluator.xor$2 = function(args, modifs) {
 };
 
 
+evaluator.not$1 = prefix_not;
+
 function prefix_not(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
