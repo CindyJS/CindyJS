@@ -1550,6 +1550,40 @@ evaluator.layer$1 = function(args, modifs) {
     // See https://gitlab.cinderella.de:8082/cindyjs/cindyjs/issues/17
 };
 
+// TODO: Move to another location
+evaluator.createpoint$2 = function(args, modifs) {
+    var name = evaluate(args[0]);
+    var pos = evaluate(args[1]);
+
+    if (name.ctype !== "string") {
+        console.log("Name must be a string");
+        return nada;
+    }
+
+    if (pos.ctype !== "list" && List.isNumberVector(pos)) {
+        console.log("Position must be a number vector");
+        return nada;
+    }
+
+    var el = {
+        name: name.value,
+        type: "Free",
+        labeled: true,
+        pos: pos
+    };
+
+    // TODO  If an element with this name is already exists then no new element is created.
+    // However, if there already exists a free point with this name, then this point is moved
+    // to the specified position.
+
+    addElement(el);
+
+    return {
+        'ctype': 'geo',
+        'value': el
+    };
+}
+
 evaluator.create$3 = function(args, modifs) {
     var names = evaluate(args[0]);
     var type = evaluate(args[1]);
@@ -1610,7 +1644,7 @@ evaluator.create$3 = function(args, modifs) {
     var el = {
         name: name,
         type: type.value,
-        labeled: true,
+        labeled: true
     };
 
     if (pos)

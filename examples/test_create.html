@@ -23,14 +23,19 @@
     <body>
         <script id="csinit" type="text/x-cindyscript">
             err(timestamp());
+            createpoint("A", [0,0,1]);
+            createpoint("B", [5,0,1]);
+            createpoint("C", [5,5,1]);
+            create(["a"], "Join", ["A", "B"]);
+            create(["d"], "Para", ["a", "C"]);
+        </script>
+        <canvas id="CSCanvas" width="500" height="500"></canvas>        
+        <!--
             create(["A"], "Free", [[1, 1, 1]]);
             create(["B"], "Free", [[4, 3, 1]]);
             create(["a"], "Join", ["A", "B"]);
             create(["X"], "CircleMP", ["A", "B"]);
             create(["Y"], "CircleMP", ["B", "A"]);
-        </script>
-        <canvas id="CSCanvas" width="500" height="500"></canvas>        
-        <!--
             create(["P","Q"],"IntersectCirCir",[X,Y]);
             create(["b"],"Join",[P,Q]);
             create(["M"],"Meet",[a,b]);
