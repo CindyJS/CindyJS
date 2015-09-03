@@ -422,7 +422,14 @@ if (instanceInvocationArguments.use) {
 // CONSOLE
 //
 function setupConsole() {
-    if (typeof csconsole === "boolean" && csconsole === true) {
+    console.log("csconsole is " + csconsole);
+
+    if (typeof csconsole === "object" && csconsole === null) {
+        console.log("csconsole NullConsoleHandler created");
+
+        csconsole = new NullConsoleHandler();
+
+    } else if (typeof csconsole === "boolean" && csconsole === true) {
         csconsole = new CindyConsoleHandler();
 
     } else if (typeof csconsole === "string") {
@@ -560,3 +567,16 @@ function PopupConsoleHandler() {
 };
 
 PopupConsoleHandler.prototype = new GenericConsoleHandler;
+
+function NullConsoleHandler() {
+
+    this.append = function(s) {
+        // Do nothing
+    };
+
+    this.clear = function() {
+        // Do nothing
+    };
+};
+
+NullConsoleHandler.prototype = new GenericConsoleHandler;
