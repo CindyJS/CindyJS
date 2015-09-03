@@ -124,8 +124,9 @@ Any parameter which stays at this default value doesn't have to be specified at 
 
 ### csconsole
 
-This should be either `null` or a suitable `DOMElement`.
+This should be either `null`, set to `true` or a suitable `DOMElement`.
 If it is an element, then messages (in particular those created by the `err` function) will be appended to that element.
+If it is `true` a simple console with a command line will be created automatically.
 If it is `null`, error output will be suppressed.
 If this parameter is absent, then error messages will cause a popup window.
 
