@@ -422,11 +422,7 @@ if (instanceInvocationArguments.use) {
 // CONSOLE
 //
 function setupConsole() {
-    console.log("csconsole is " + csconsole);
-
     if (typeof csconsole === "object" && csconsole === null) {
-        console.log("csconsole NullConsoleHandler created");
-
         csconsole = new NullConsoleHandler();
 
     } else if (typeof csconsole === "boolean" && csconsole === true) {
@@ -479,11 +475,15 @@ function GenericConsoleHandler(args) {
     };
 
     this.createTextNode = function(tagName, color, s) {
-        var element = document.createElement(tagName);
-        element.appendChild(document.createTextNode(s));
-        element.style.color = color;
+        if (typeof document !== "undefined") {
+            var element = document.createElement(tagName);
+            element.appendChild(document.createTextNode(s));
+            element.style.color = color;
 
-        return element;
+            return element;
+        }
+
+        return s + "\n";
     }
 };
 
