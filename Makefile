@@ -17,7 +17,7 @@ libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/Tra
 
 liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
-lib := src/js/lib/numeric-1.2.6.js src/js/lib/clipper.js
+lib := lib/numeric/numeric-1.2.6.js lib/clipper/clipper.js
 
 inclosure = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab) $(extra_inclosure)
 
