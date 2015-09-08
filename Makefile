@@ -65,6 +65,24 @@ download/node/bin/npm: download/arch/$(NODE_TAR)
 	touch $@
 
 ######################################################################
+## Download Closure Compiler
+######################################################################
+
+CLOSURE_VERSION:=20150126
+CLOSURE_URLBASE:=http://dl.google.com/closure-compiler
+CLOSURE_URL:=$(CLOSURE_URLBASE)/compiler-$(CLOSURE_VERSION).zip
+
+download/arch/compiler-$(CLOSURE_VERSION).zip:
+	mkdir -p $(@D)
+	$(DOWNLOAD) $@ $(CLOSURE_URL)
+
+download/closure-compiler/compiler-$(CLOSURE_VERSION).jar: download/arch/compiler-$(CLOSURE_VERSION).zip
+	mkdir -p $(@D)
+	unzip -p $< compiler.jar > $@
+
+tools/compiler.jar: download/closure-compiler/compiler-$(CLOSURE_VERSION).jar
+
+######################################################################
 ## Build different flavors of Cindy.js
 ######################################################################
 
