@@ -273,6 +273,13 @@ If the argument is not a Boolean expression, the operator returns `_?_`.
 **Description:**
 `not(x)` is equivalent to `!x`.
 
+    > not(1 < 0)
+    < true
+    > not(1 > 0)
+    < false
+    > not(1)
+    < _?_
+
 ------
 
 #### Logical exclusive or: `xor(‹bool1›,‹bool2›)`
