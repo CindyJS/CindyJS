@@ -25,7 +25,7 @@ evaluator.seconds$0 = function(args, modifs) { //OK
 
 evaluator.clearconsole$0 = function(args, modifs) {
     csconsole.clear();
-}
+};
 
 evaluator.err$1 = function(args, modifs) { //OK
     var varname = '',
@@ -695,7 +695,7 @@ evaluator.not$1 = function(args, modifs) {
     }
 
     return nada;
-}
+};
 
 function prefix_not(args, modifs) {
     var v0 = evaluateAndVal(args[0]);

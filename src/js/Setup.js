@@ -484,8 +484,8 @@ function GenericConsoleHandler(args) {
         }
 
         return s + "\n";
-    }
-};
+    };
+}
 
 function CindyConsoleHandler() {
 
@@ -518,7 +518,7 @@ function CindyConsoleHandler() {
         cmd.value = "";
 
         log.scrollTop = log.scrollHeight;
-    }
+    };
 
     this.append = function(s) {
         log.appendChild(s);
@@ -527,9 +527,9 @@ function CindyConsoleHandler() {
     this.clear = function() {
         log.innerHTML = "";
     };
-};
+}
 
-CindyConsoleHandler.prototype = new GenericConsoleHandler;
+CindyConsoleHandler.prototype = new GenericConsoleHandler();
 
 function ElementConsoleHandler(id) {
 
@@ -542,9 +542,9 @@ function ElementConsoleHandler(id) {
     this.clear = function() {
         element.innerHTML = "";
     };
-};
+}
 
-ElementConsoleHandler.prototype = new GenericConsoleHandler;
+ElementConsoleHandler.prototype = new GenericConsoleHandler();
 
 function PopupConsoleHandler() {
 
@@ -566,9 +566,9 @@ function PopupConsoleHandler() {
             body.innerHTML = "";
         }
     };
-};
+}
 
-PopupConsoleHandler.prototype = new GenericConsoleHandler;
+PopupConsoleHandler.prototype = new GenericConsoleHandler();
 
 function NullConsoleHandler() {
 
@@ -579,6 +579,6 @@ function NullConsoleHandler() {
     this.clear = function() {
         // Do nothing
     };
-};
+}
 
-NullConsoleHandler.prototype = new GenericConsoleHandler;
+NullConsoleHandler.prototype = new GenericConsoleHandler();

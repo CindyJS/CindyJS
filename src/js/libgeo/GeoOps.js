@@ -1431,7 +1431,7 @@ geoOps.TransformL.kind = "L";
 geoOps.TransformL.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].dualMatrix;
     var l = csgeo.csnames[(el.args[1])].homog;
-    el.homog = List.normalizeMax(List.productMV(m, p));
+    el.homog = List.normalizeMax(List.productMV(m, l));
     el.homog = General.withUsage(el.homog, "Line");
 };
 
