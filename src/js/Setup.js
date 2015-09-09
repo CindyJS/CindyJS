@@ -431,8 +431,6 @@ function setupConsole() {
     } else if (typeof csconsole === "string") {
         var id = csconsole;
         csconsole = new ElementConsoleHandler(id);
-    } else if (csconsole === null) {
-        csconsole = { out: function (x) { console.log(x); } };
     }
 
     // Fallback
@@ -496,10 +494,12 @@ function CindyConsoleHandler() {
     var container = document.createElement("div");
     var log;
 
-    container.innerHTML = "<div id=\"console\" style=\"border-top: 1px solid #333333; bottom: 0px; position: absolute; width: 100%;\">"
-        + "<div id=\"log\" style=\"height: 150px; overflow-y: auto;\"></div>"
-        + "<input id=\"cmd\" type=\"text\" style=\"box-sizing: border-box; height: 30px; width: 100%;\">"
-        + "</div>";
+    container.innerHTML = (
+        '<div id="console" style="border-top: 1px solid #333333; bottom: 0px; position: absolute; width: 100%;">' +
+        '<div id="log" style="height: 150px; overflow-y: auto;"></div>' +
+        '<input id="cmd" type="text" style="box-sizing: border-box; height: 30px; width: 100%;">' +
+        '</div>'
+    );
 
     document.body.appendChild(container);
 

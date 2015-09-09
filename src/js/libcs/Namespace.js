@@ -5,13 +5,13 @@
 
 /** @constructor */
 function Nada() {
-        this.ctype = 'undefined';
-    }
-    /** @constructor */
+    this.ctype = 'undefined';
+}
+/** @constructor */
 function Void() {
-        this.ctype = 'void';
-    }
-    /** @constructor */
+    this.ctype = 'void';
+}
+/** @constructor */
 function CError(msg) {
     this.ctype = 'error';
     this.message = msg;
