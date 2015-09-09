@@ -155,9 +155,11 @@ function myniceprint(val) {
 };
 
 TestCase.prototype.run = function() {
-  var val, actual, expected, conlog, clog = [], matches, expstr;
-  conlog = console.log;
-  console.log = function(str) { clog.push(str); }
+  var val, actual, expected, clog = [], matches, expstr;
+  var conlog = console.log;
+  var conerr = console.error;
+  console.log = function(str) { clog.push(str); };
+  console.error = console.log;
   try {
     val = cjs.evalcs(this.cmd);
   }
@@ -181,6 +183,7 @@ TestCase.prototype.run = function() {
   }
   finally {
     console.log = conlog;
+    console.error = conerr;
   }
   if (this.output !== null || clog.length !== 0) {
     expected = this.output;
