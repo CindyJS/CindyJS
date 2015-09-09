@@ -1431,7 +1431,7 @@ geoOps.TransformL.kind = "L";
 geoOps.TransformL.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[0])].dualMatrix;
     var l = csgeo.csnames[(el.args[1])].homog;
-    el.homog = List.normalizeMax(List.productMV(m, p));
+    el.homog = List.normalizeMax(List.productMV(m, l));
     el.homog = General.withUsage(el.homog, "Line");
 };
 
@@ -1471,7 +1471,9 @@ geoOps._helper.conicOtherIntersection = function(conic, a, b) {
 };
 
 geoOps._helper.initializePoint = function(el) {
-    var sx = 0, sy = 0, sz = 0;
+    var sx = 0;
+    var sy = 0;
+    var sz = 0;
     if (el.pos) {
         if (el.pos.length === 2) {
             sx = el.pos[0];

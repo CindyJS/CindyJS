@@ -1847,8 +1847,8 @@ List._helper.swapEl = function(arr, i, j) {
 // see Golub, van Loan -- Matrix Computations - p. 302
 List.RRQRdecomp = function(A, precision) {
     var preci = Math.sqrt(CSNumber.eps); // sane default
-    if(precision !== undefined) preci = 0.1*precision.value.real; // 0.1 is a workaround
-    var preci2 = preci*preci; // we are working work abs()^2 later on
+    if (precision !== undefined) preci = 0.1 * precision.value.real; // 0.1 is a workaround
+    var preci2 = preci * preci; // we are working work abs()^2 later on
 
     var i;
     var AA;

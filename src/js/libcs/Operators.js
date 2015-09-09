@@ -25,7 +25,7 @@ evaluator.seconds$0 = function(args, modifs) { //OK
 
 evaluator.clearconsole$0 = function(args, modifs) {
     csconsole.clear();
-}
+};
 
 evaluator.err$1 = function(args, modifs) { //OK
     var varname = '',
@@ -695,7 +695,7 @@ evaluator.not$1 = function(args, modifs) {
     }
 
     return nada;
-}
+};
 
 function prefix_not(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
@@ -1738,7 +1738,7 @@ evaluator.eigenvalues$1 = function(args, modifs) {
 };
 
 
-evaluator.rank$1= function(args, modifs) {
+evaluator.rank$1 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'list') {
         var n = List._helper.colNumb(v0);
@@ -1750,7 +1750,7 @@ evaluator.rank$1= function(args, modifs) {
 };
 
 
-evaluator.kernel$1= function(args, modifs) {
+evaluator.kernel$1 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'list') {
         var n = List._helper.colNumb(v0);
@@ -3476,7 +3476,7 @@ evaluator.convexhull3d$1 = function(args, modifs) {
         var ergf = [];
         for (i = 0; i < chf.length; i++) {
             for (j = 0; j < chf[i].length; j++) {
-                chf[i][j] ++;
+                chf[i][j]++;
             }
             ergf.push(List.realVector(chf[i]));
         }

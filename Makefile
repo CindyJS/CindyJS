@@ -158,7 +158,7 @@ endif
 ######################################################################
 
 beautify: node_modules/.bin/js-beautify
-	$(NODE_PATH) $< --replace --config Administration/beautify.conf $(ours)
+	$(NODE_PATH) $< --replace --config Administration/beautify.conf $(ours) $(BEAUTIFY_FLAGS)
 
 .PHONY: beautify
 
@@ -197,6 +197,19 @@ unittests: node_modules/.bin/mocha \
 tests: unittests
 
 .PHONY: unittests
+
+######################################################################
+## Check that the code has been beautified
+######################################################################
+
+.PHONY: alltests beautified
+
+alltests: all tests jshint beautified
+
+beautified:
+	git diff --exit-code --name-only
+	$(MAKE) beautify BEAUTIFY_FLAGS=--quiet
+	git diff --exit-code
 
 ######################################################################
 ## Format reference manual using markdown

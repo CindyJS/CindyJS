@@ -87,7 +87,7 @@ var createCindy = (function() {
                 console.error("Could not find <script> tag for Cindy.js");
                 baseDir = cindyJsScriptElement = false;
                 return baseDir;
-            }
+            };
 
             createCindy.loadScript = function(name, path, onload, onerror) {
                 if (window[name]) {
