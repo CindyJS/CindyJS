@@ -49,12 +49,10 @@ NODE_TAR:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH).tar.gz
 NODE_URL:=$(NODE_URLBASE)/v$(NODE_VERSION)/$(NODE_TAR)
 NPM:=npm
 NPM_DEP:=$(shell $(NPM) -version > /dev/null 2>&1 || echo download/node/bin/npm)
-NODE_PATH:=$(if $(NPM_DEP),PATH=$(dir $(NPM_DEP)):$$PATH,)
+NODE_PATH:=PATH=node_modules/.bin:$(if $(NPM_DEP),$(dir $(NPM_DEP)):,)$$PATH
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE:=node
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
-NODE_MODULES:=source-map marked http-proxy rewire should expect
-NODE_BINARIES:=js-beautify jshint mocha
 
 download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
@@ -66,11 +64,10 @@ download/node/bin/npm: download/arch/$(NODE_TAR)
 	mv download/node-v$(NODE_VERSION)-* download/node
 	touch $@
 
-$(NODE_MODULES:%=node_modules/%/package.json): node_modules/%/package.json: $(NPM_DEP)
-	$(NPM_CMD) install $*
-
-$(NODE_BINARIES:%=node_modules/.bin/%): node_modules/.bin/%: $(NPM_DEP)
-	$(NPM_CMD) install $*
+build/node_modules.stamp: package.json
+	npm update --dev
+	@mkdir -p $(@D)
+	touch $@
 
 ######################################################################
 ## Download Closure Compiler
@@ -135,7 +132,7 @@ build/js/ours.js: $(ours)
 build/js/exposed.js: $(lib) src/js/expose.js $(inclosure)
 
 build/js/Cindy.plain.js build/js/ours.js build/js/exposed.js: \
-		node_modules/source-map/package.json tools/cat.js
+		build/node_modules.stamp tools/cat.js
 	@mkdir -p $(@D)
 	$(NODE_CMD) $(filter %tools/cat.js,$^) $(js_src) -o $@
 
@@ -157,8 +154,8 @@ endif
 ## Run jshint to detect syntax problems
 ######################################################################
 
-beautify: node_modules/.bin/js-beautify
-	$(NODE_PATH) $< --replace --config Administration/beautify.conf $(ours) $(BEAUTIFY_FLAGS)
+beautify: build/node_modules.stamp
+	$(NODE_PATH) js-beautify --replace --config Administration/beautify.conf $(ours) $(BEAUTIFY_FLAGS)
 
 .PHONY: beautify
 
@@ -166,8 +163,8 @@ beautify: node_modules/.bin/js-beautify
 ## Run jshint to detect syntax problems
 ######################################################################
 
-jshint: node_modules/.bin/jshint build/js/ours.js
-	$(NODE_PATH) $< -c Administration/jshint.conf --verbose --reporter '$(CURDIR)/tools/jshint-reporter.js' $(filter %.js,$^)
+jshint: build/node_modules.stamp
+	$(NODE_PATH) jshint -c Administration/jshint.conf --verbose --reporter '$(CURDIR)/tools/jshint-reporter.js' $(filter %.js,$^)
 
 .PHONY: jshint
 
@@ -186,13 +183,10 @@ tests: nodetest
 ## Run separate unit tests to test various interna
 ######################################################################
 
-unittests: node_modules/.bin/mocha \
-		node_modules/rewire/package.json \
-		node_modules/should/package.json \
-		node_modules/expect/package.json \
+unittests: build/node_modules.stamp \
 		build/js/exposed.js \
 		$(wildcard tests/*.js)
-	$(NODE_PATH) $< tests
+	$(NODE_PATH) mocha tests
 
 tests: unittests
 
@@ -220,7 +214,7 @@ refimg:=$(wildcard ref/img/*.png)
 refhtml:=$(refmd:ref/%.md=build/ref/%.html)
 refres:=ref.css
 
-$(refhtml): build/ref/%.html: ref/%.md node_modules/marked/package.json \
+$(refhtml): build/ref/%.html: ref/%.md build/node_modules.stamp \
 		ref/js/md2html.js ref/template.html $(NPM_DEP)
 	@mkdir -p $(@D)
 	$(NODE_CMD) ref/js/md2html.js $< $@
@@ -352,7 +346,7 @@ all: katex
 ## Help debugging a remote site
 ######################################################################
 
-proxy: tools/CindyReplacingProxy.js node_modules/http-proxy/package.json
+proxy: tools/CindyReplacingProxy.js build/node_modules.stamp
 	@echo Configure browser for host 127.0.0.1 port 8080.
 	@echo Press Ctrl+C to interrupt once you are done.
 	-$(NODE_CMD) $<
