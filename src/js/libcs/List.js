@@ -2153,6 +2153,8 @@ List.LUdecomp = function(AA) {
                 Pk = j;
             }
         }
+        if (max < CSNumber.eps) console.log("Warning: singular matrix!");
+
         P[k] = Pk;
 
         if (Pk !== k) {
@@ -2227,6 +2229,52 @@ List._helper.LUsolve = function(LUP, bb) {
 
     return x;
 };
+
+
+// currently not working because of bug in RRQR 
+
+/*
+List.linearsolveQR = function(a,bb){
+    // QR solve
+    var m = a.value.length;
+    var n = a.value[0].value.length;
+    if(m !== n) console.log("Warning: only implemented for square matrices!");
+    var res = List.RRQRdecomp(a);
+    if(res.rank.value.real !== m) console.log("Warning: matrix is singular!");
+    var RR = res.R;
+    var pivs = res.P.value;
+
+    console.log("Q", niceprint(res.Q));
+    console.log("R", niceprint(res.R));
+    console.log("pivs", pivs);
+    console.log("Q*R", niceprint(General.mult(res.Q,RR)));
+
+    // switch by pivots
+    var zz = General.mult(List.transjugate(res.Q), bb);
+
+
+    // backsubstitution
+    var xx, resvec = [];
+   for(var i = m - 1; i >=0; i--){
+       resvec[i] = zz.value[i];
+
+       for(var j = m-1; j > i; j--){
+           resvec[i] = CSNumber.sub(resvec[i] , CSNumber.mult(RR.value[i].value[j],resvec[j]));
+       }
+        resvec[i] = CSNumber.div(resvec[i], RR.value[i].value[i]);
+   }
+
+   // reorder pivots
+   var ges = new Array(m);
+   
+   for(var k = 0; k < m; k++){
+       ges[k] = resvec[pivs[k]];
+   }
+   ges = List.turnIntoCSList(ges);
+
+   return ges;
+};
+*/
 
 List.linearsolveCramer2 = function(A, b) {
     var A1 = List.column(A, CSNumber.real(1));
