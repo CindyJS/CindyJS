@@ -643,8 +643,8 @@ geoOps.ConicBy5.updatePosition = function(el) {
 
 
 geoOps._helper.isCircle = function(mat) {
-    var nI = CSNumber.abs2(General.mult(List.ii,(General.mult(mat,List.ii)))).value.real;
-    var nJ = CSNumber.abs2(General.mult(List.jj,(General.mult(mat,List.jj)))).value.real;
+    var nI = CSNumber.abs2(General.mult(List.ii, (General.mult(mat, List.ii)))).value.real;
+    var nJ = CSNumber.abs2(General.mult(List.jj, (General.mult(mat, List.jj)))).value.real;
 
     return ((nI < CSNumber.eps) && (nJ < CSNumber.eps));
 };
