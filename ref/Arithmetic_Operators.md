@@ -301,19 +301,19 @@ The following operators generate pseudo random numbers.
 
     > random()
     < 0.468
-    ~ 0\.\d{2,}
+    ~ 0\.\d+
     > 1000*random()
     < 278.4083
-    ~ \d{2,3}\.\d{2,}
+    ~ \d+\.\d+
 
 #### (0,1)-normally distributed random number: `randomnormal()`
 
     > randomnormal()
     < 0.1325
-    ~ -?\d+\.\d{2,}
+    ~ -?\d+\.\d+
     > 1000*randomnormal()
     < -1199.8909
-    ~ -?\d+\.\d{2,}
+    ~ -?\d+\.\d+
 
 #### Random boolean value `true` or `false`: `randombool()`
 
@@ -325,10 +325,10 @@ The following operators generate pseudo random numbers.
 
     > random(10)
     < 7.089
-    ~ \d\.\d{2,}
+    ~ \d\.\d+
     > random(1000)
     < 882.4784
-    ~ \d{2,3}\.\d{2,}
+    ~ \d+\.\d+
     > sum(1..1000, random(5))
     < 2464.8004
     ~ 2\d\d\d\.\d+
