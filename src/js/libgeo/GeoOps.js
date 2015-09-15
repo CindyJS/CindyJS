@@ -1112,7 +1112,7 @@ geoOps.angleBisector.updatePosition = function(el) {
     erg1 = List.normalizeMax(erg1);
     erg2 = List.normalizeMax(erg2);
 
-//    console.log(erg1, erg2, "erg1", "erg2");
+    //    console.log(erg1, erg2, "erg1", "erg2");
 
     el.results = tracing2(erg1, erg2);
 };
