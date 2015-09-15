@@ -638,7 +638,7 @@ geoOps.ConicBy5.updatePosition = function(el) {
     el.matrix = erg;
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
-    el.isCircle = geoOps._helper.isCircle(erg);
+    el.matrix.isCircle = geoOps._helper.isCircle(erg);
 };
 
 
@@ -1015,7 +1015,7 @@ geoOps.ConicBy5lines.updatePosition = function(el) {
     el.matrix = erg;
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
-    el.isCircle = geoOps._helper.isCircle(erg);
+    el.matrix.isCircle = geoOps._helper.isCircle(erg);
 };
 
 geoOps.CircleBy3 = {};
@@ -1029,7 +1029,7 @@ geoOps.CircleBy3.updatePosition = function(el) {
     var erg = geoOps._helper.ConicBy5(el, a, b, c, d, p);
     el.matrix = List.normalizeMax(erg);
     el.matrix = General.withUsage(el.matrix, "Circle");
-    el.isCircle = true;
+    el.matrix.isCircle = true;
 };
 
 geoOps.Polar = {};
