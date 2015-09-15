@@ -1,0 +1,59 @@
+{
+  "name": "cindyjs",
+  "version": "0.0.1",
+  "description": "A JavaScript framework for interactive (mathematical) content",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "devDependencies": {
+    "expect": "^1.9.0",
+    "http-proxy": "^1.11.2",
+    "js-beautify": "^1.5.10",
+    "jshint": "^2.8.0",
+    "marked": "^0.3.5",
+    "mocha": "^2.3.2",
+    "rewire": "^2.3.4",
+    "should": "^7.1.0",
+    "source-map": "^0.4.4"
+  },
+  "scripts": {
+    "prepublish": "make clean && make && make alltests",
+    "test": "make tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CindyJS/CindyJS.git"
+  },
+  "keywords": [
+    "geometry",
+    "mathematics",
+    "web",
+    "content",
+    "education",
+    "science",
+    "visualization",
+    "cinderella"
+  ],
+  "author": "Jürgen Richter-Gebert <richter@ma.tum.de>",
+  "contributors": [
+    "Martin von Gagern <gagern@ma.tum.de>",
+    "Michael Strobel <strobel@ma.tum.de>",
+    "Stefan Kranich <stefan.kranich@ma.tum.de>",
+    "Ulrich Kortenkamp <kortenkamp@cinderella.de>",
+    "Jens Wurster <jw@tophostingteam.de>",
+    "Aaron Montag <aaron.montag@tum.de>"
+  ],
+  "license": "Apache-2.0",
+  "main": "build/js/Cindy.js",
+  "files": [
+    "build/js",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "bugs": {
+    "url": "https://github.com/CindyJS/CindyJS/issues"
+  },
+  "homepage": "https://github.com/CindyJS/CindyJS#readme"
+}
