@@ -777,7 +777,6 @@ geoOps.ConicBy4p1l.updatePosition = function(el) {
 
     erg[0].isCircle = geoOps._helper.isCircle(erg[0]);
     erg[1].isCircle = geoOps._helper.isCircle(erg[1]);
-    console.log(erg);
     el.results = erg;
 };
 
@@ -1113,7 +1112,7 @@ geoOps.angleBisector.updatePosition = function(el) {
     erg1 = List.normalizeMax(erg1);
     erg2 = List.normalizeMax(erg2);
 
-    console.log(erg1, erg2, "erg1", "erg2");
+//    console.log(erg1, erg2, "erg1", "erg2");
 
     el.results = tracing2(erg1, erg2);
 };
