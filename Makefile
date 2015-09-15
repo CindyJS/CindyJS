@@ -65,7 +65,8 @@ download/node/bin/npm: download/arch/$(NODE_TAR)
 	touch $@
 
 build/node_modules.stamp: package.json
-	npm update --dev
+	rm -rf node_modules
+	CINDYJS_BUILDING=true npm install
 	@mkdir -p $(@D)
 	touch $@
 

@@ -18,7 +18,7 @@
     "source-map": "^0.4.4"
   },
   "scripts": {
-    "prepublish": "make clean && make && make alltests",
+    "prepublish": "test -n \"$CINDYJS_BUILDING\" || { make clean && make && make alltests; }",
     "test": "make tests"
   },
   "repository": {
