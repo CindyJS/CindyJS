@@ -1419,6 +1419,80 @@ evaluator.ismatrix$1 = function(args, modifs) {
     };
 };
 
+
+evaluator.iscircle$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo" && v0.value.kind === "C" && v0.value.matrix.usage === "Circle") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+
+evaluator.isconic$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo" && v0.value.kind === "C") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+evaluator.isline$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo" && v0.value.kind === "L") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+
+evaluator.ispoint$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo" && v0.value.kind === "P") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+
+evaluator.isgeometric$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
 evaluator.isnumbermatrix$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if ((List.isNumberMatrix(v0)).value) {
@@ -1436,6 +1510,80 @@ evaluator.isnumbermatrix$1 = function(args, modifs) {
 evaluator.isnumbervector$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if ((List.isNumberVector(v0)).value) {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+
+evaluator.issun$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === 'geo' && v0.value.behavior !== undefined && v0.value.behavior.type === "Sun") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+
+evaluator.ismass$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === 'geo' && v0.value.behavior !== undefined && v0.value.behavior.type === "Mass") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+
+evaluator.isspring$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === 'geo' && v0.value.behavior !== undefined && v0.value.behavior.type === "Spring") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+
+evaluator.isbouncer$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === 'geo' && v0.value.behavior !== undefined && v0.value.behavior.type === "Bouncer") {
+        return {
+            'ctype': 'boolean',
+            'value': true
+        };
+    }
+    return {
+        'ctype': 'boolean',
+        'value': false
+    };
+};
+
+evaluator.isundefined$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === 'undefined') {
         return {
             'ctype': 'boolean',
             'value': true
