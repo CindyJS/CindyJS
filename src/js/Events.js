@@ -11,7 +11,7 @@ function getmover(mouse) {
     var diff;
     for (var i = 0; i < csgeo.free.length; i++) {
         var el = csgeo.free[i];
-        if (el.pinned || el.visible === false)
+        if (el.pinned || el.visible === false || el.tmp === true)
             continue;
 
         var dx, dy, dist;
@@ -151,7 +151,8 @@ function setuplisteners(canvas, data) {
         mouse.button = e.which;
         updatePostition(e);
         cs_mousedown();
-        move = getmover(mouse);
+        manage("mousedown");
+
         startit(); //starts d3-timer
 
         mouse.down = true;
@@ -163,6 +164,7 @@ function setuplisteners(canvas, data) {
         cindy_cancelmove();
         stateContinueFromHere();
         cs_mouseup();
+        manage("mouseup");
         updateCindy();
         e.preventDefault();
     });
@@ -174,6 +176,7 @@ function setuplisteners(canvas, data) {
         } else {
             cs_mousemove();
         }
+        manage("mousemove");
         e.preventDefault();
     });
 
@@ -185,6 +188,9 @@ function setuplisteners(canvas, data) {
         } else {
             cs_mousemove();
         }
+
+        manage("mousemove");
+
         e.preventDefault();
     }
 
@@ -192,8 +198,9 @@ function setuplisteners(canvas, data) {
         updatePostition(e.targetTouches[0]);
         cs_mousedown();
         mouse.down = true;
-        move = getmover(mouse);
+        //move = getmover(mouse);
         startit();
+        manage("mousedown");
         e.preventDefault();
     }
 
@@ -203,6 +210,7 @@ function setuplisteners(canvas, data) {
         stateContinueFromHere();
         updateCindy();
         cs_mouseup();
+        manage("mouseup");
         e.preventDefault();
     }
 
