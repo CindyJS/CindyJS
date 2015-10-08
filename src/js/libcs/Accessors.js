@@ -160,6 +160,9 @@ Accessor.setField = function(geo, field, value) {
             geo.pinned = value.value;
         }
     }
+    if (field === "printlabel") {
+        geo.printname = niceprint(value);
+    }
 
     if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 2)) {
         movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
