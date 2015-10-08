@@ -95,6 +95,7 @@ function csinit(gslp) {
     var ctf = 0;
     var ctl = 0;
     var ctc = 0;
+    var dropped = {};
 
     // Das ist für alle gleich
     for (k = 0; k < gslp.length; k++) {
@@ -114,9 +115,24 @@ function csinit(gslp) {
         if (!op) {
             console.error(el);
             console.error("Operation " + el.type + " not implemented yet");
+            dropped[el.name] = true;
             gslp.splice(k, 1);
             k--;
             continue;
+        }
+        if (el.args) {
+            for (l = 0; l < el.args.length; ++l) {
+                if (dropped.hasOwnProperty(el.args[l]))
+                    break;
+            }
+            if (l < el.args.length) { // we did break
+                console.log("Dropping " + el.name +
+                    " due to dropped argument " + el.args[l]);
+                dropped[el.name] = true;
+                gslp.splice(k, 1);
+                k--;
+                continue;
+            }
         }
         el.kind = op.kind;
         el.stateIdx = totalStateSize;
