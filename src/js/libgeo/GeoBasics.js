@@ -114,6 +114,9 @@ function csinit(gslp) {
         if (!op) {
             console.error(el);
             console.error("Operation " + el.type + " not implemented yet");
+            gslp.splice(k, 1);
+            k--;
+            continue;
         }
         el.kind = op.kind;
         el.stateIdx = totalStateSize;
