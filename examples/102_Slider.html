@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Labeled Slider</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+C.printlabel = round(C.x);
+
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  transform: [{scale:1.75},{translate:[-5,-5]}],
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0], pinned:true, visible:false},
+    {name:"B", type:"Free", pos:[10,0], pinned:true, visible:false},
+    {name:"a", type:"Segment", args:["A","B"]},
+    {name:"C", type:"PointOnSegment", args:["a"], pos:[5,0], labeled:true, printname:"5"}
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="100"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>
