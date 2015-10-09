@@ -61,7 +61,7 @@ function updateDefaultAppearance(path, str) {
     return str;
 }
 
-var reMethods = /([^.])(evokeCS|cs(?:play|pause|stop))/g;
+var reMethods = /([^.])(?:(evokeCS)|cs(play|pause|stop))/g;
 
 function updateEvokeCS(path, str) {
     var orig = str;
@@ -75,7 +75,7 @@ function updateEvokeCS(path, str) {
         str = str.substr(0, match.index) + "var cdy = " + str.substr(match.index);
         v = "cdy";
     }
-    str = str.replace(reMethods, "$1" + v + ".$2");
+    str = str.replace(reMethods, "$1" + v + ".$2$3");
     if (str !== orig)
         return str;
 }
