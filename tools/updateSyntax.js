@@ -61,7 +61,7 @@ function updateDefaultAppearance(path, str) {
     return str;
 }
 
-var reMethods = /([^.])(evokeCS|cs(?:play|pause|stop))/;
+var reMethods = /([^.])(evokeCS|cs(?:play|pause|stop))/g;
 
 function updateEvokeCS(path, str) {
     var orig = str;
