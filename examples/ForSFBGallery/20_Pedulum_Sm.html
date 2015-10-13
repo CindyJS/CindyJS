@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+sec=seconds();
+use("Cindy3D");
+zdat=apply(1..64,1);
+cdat=apply(1..64,1);
+oldcdat=cdat;
+drawging=false;
+count=0;
+sub(A,B,C,D):=-1/18*A+10/18*B+10/18*C-1/18*D;
+pt(list,i):=list_(1+mod(i-1,length(list)));
+pol3d(a,b,c,d):=mesh3d(2, 2, [a,b,c,d],normaltype->"perVertex",alpha->.3,color->(0.5,0.5,1)*.3);
+speed=10;
+</script>
+
+<script id="csmouseup" type="text/x-cindyscript">
+dragging=false;
+zdat=apply(data,1);
+cdat=apply(data,exp(i*#));
+zdat=apply(1..length(cdat),(pt(cdat,#)+pt(cdat,#+1))/2);
+zdat=apply(zdat,#/|#|);
+oldcdat=cdat;
+playanimation();
+count=0;
+</script>
+
+<script id="csmousedrag" type="text/x-cindyscript">
+zdat=apply(data,1);
+cdat=apply(data,exp(i*#));
+oldcdat=cdat;
+</script>
+
+<script id="csmousedown" type="text/x-cindyscript">
+dragging=true;
+stopanimation();
+</script>
+
+<script id="csdraw" type="text/x-cindyscript">
+pts=allpoints();
+apply(1..length(pts),
+   p=pts_#;
+   p.xy=(-9+#,p.y);
+);
+
+
+data=apply(pts,#.y);
+
+k=.01;
+f(Q):=(k+Q)/(1+k*Q);
+iter(a,b,c):=f(a)*f(b)/c;
+
+
+n=length(cdat);
+if(!dragging,
+   count=count+1;
+   if(count==speed,
+    oldcdat=cdat;
+    zdat=apply(1..n,i,iter(pt(cdat,i),pt(cdat,i+1),pt(zdat,i)));
+    cdat=apply(1..n,i,iter(pt(zdat,i-1),pt(zdat,i),pt(cdat,i)));  
+    count=0;
+  );  
+);
+
+repeat(2,
+ mix=apply(1..length(data),i,
+   (pt(data,i),sub(pt(data,i-1),pt(data,i),pt(data,i+1),pt(data,i+2)));
+ );
+ data=flatten(mix);
+);
+
+poly=apply(1..length(data),(-8+(#-1)/4,data_#));
+connect(poly);
+drawall(poly,size->2);
+
+n=length(data);
+dw=360°/n;
+ddat=cdat*count/speed+oldcdat*(1-count/speed);
+sppt=apply(1..n,i,
+  pp=(sin(dw*i),cos(dw*i),0);
+  nn=(0,0,-1);
+  w=arctan2(im(ddat_i),re(ddat_i))+90°;
+  ((2*pp,2*pp+sin(w)*pp+cos(w)*nn)); 
+);
+sppt=sppt++[sppt_1];
+
+
+begin3d();
+background3d([0,0,0]);
+tim=seconds()-sec;
+apply(1..n+1,
+  p1=sppt_#_1*.6;  
+  p2=sppt_#_2*.6;  
+  q1=.6*sppt_(#+1)_1;  
+  q2=.6*sppt_(#+1)_2;  
+  draw3d(p1,p2,color->[0.5,0.75,0.75],size->.3);
+  draw3d(p2,color->[1,0.75,0.75],size->1);
+  pol3d(p1,p2,q1,q2);
+);
+end3d();
+
+</script>
+
+
+
+<script type="text/javascript">
+
+      var gslp=[
+                      {name:"A", kind:"P", type:"Free", pos:[-8,0,1],size:3},
+                      {name:"B", kind:"P", type:"Free", pos:[-7,0,1],size:3},
+                      {name:"C", kind:"P", type:"Free", pos:[-6,0,1],size:3},
+                      {name:"D", kind:"P", type:"Free", pos:[-5,0,1],size:3},
+                      {name:"E", kind:"P", type:"Free", pos:[-4,0,1],size:3},
+                      {name:"F", kind:"P", type:"Free", pos:[-3,0,1],size:3},
+                      {name:"G", kind:"P", type:"Free", pos:[-2,0,1],size:3},
+                      {name:"H", kind:"P", type:"Free", pos:[-1,0,1],size:3},
+                      {name:"I", kind:"P", type:"Free", pos:[0,0,1],size:3},
+                      {name:"J", kind:"P", type:"Free", pos:[1,0,1],size:3},
+                      {name:"K", kind:"P", type:"Free", pos:[2,0,1],size:3},
+                      {name:"L", kind:"P", type:"Free", pos:[3,0,1],size:3},
+                      {name:"M", kind:"P", type:"Free", pos:[4,0,1],size:3},
+                      {name:"N", kind:"P", type:"Free", pos:[5,0,1],size:3},
+                      {name:"O", kind:"P", type:"Free", pos:[6,0,1],size:3},
+                      {name:"P", kind:"P", type:"Free", pos:[7,0,1],size:3}
+                    ];
+
+
+createCindy({canvasname:"CSCanvas",scripts:"cs*",  geometry:gslp});
+</script>
+</head>
+
+<body>
+  <canvas id="Cindy3D" style="border: none;" width="500" height="500"></canvas>
+  <canvas id="CSCanvas" width="500" height="500" style="border:2px solid black"></canvas>
+</body>
+
+</html>

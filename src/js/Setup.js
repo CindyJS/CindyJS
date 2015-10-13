@@ -428,15 +428,17 @@ function setupConsole() {
     } else if (typeof csconsole === "boolean" && csconsole === true) {
         csconsole = new CindyConsoleHandler();
 
+    } else if (typeof csconsole === "boolean" && csconsole === false) {
+        return;
     } else if (typeof csconsole === "string") {
         var id = csconsole;
         csconsole = new ElementConsoleHandler(id);
     }
 
     // Fallback
-    if (typeof csconsole === "undefined") {
-        csconsole = new PopupConsoleHandler();
-    }
+    //    if (typeof csconsole === "undefined") {
+    //        csconsole = new PopupConsoleHandler();
+    //    }
 }
 
 function GenericConsoleHandler(args) {
