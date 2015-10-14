@@ -1526,6 +1526,11 @@ geoMacros.PolarLine = function(el) {
     return [el];
 };
 
+geoMacros.Parallel = function(el) {
+    el.type = "Para";
+    return [el];
+};
+
 geoMacros.Calculation = function(el) {
     console.log("Calculation stripped from construction");
     return [];
