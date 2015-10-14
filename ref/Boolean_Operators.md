@@ -446,6 +446,12 @@ This operator tests whether the expression `‹expr›` represents a [CindyLab](
 
 ------
 
+#### Is a bouncer: `isbouncer(‹expr›)`
+
+**Description:**
+This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab) bouncer.
+
+------
 #### Is undefined: `isundefined(‹expr›)`
 
 **Description:**
