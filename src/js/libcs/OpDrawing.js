@@ -530,8 +530,13 @@ eval_helper.drawconic = function(aConic, modifs) {
         var largeSqrt = Math.sqrt(a * (-a * c * f + a * Math.pow(e, 2) + Math.pow(b, 2) * f - 2 * b * d * e + c * Math.pow(d, 2)));
         var deNom = a * c - Math.pow(b, 2);
 
-        y0 = (aebd - largeSqrt) / deNom;
-        y1 = (aebd + largeSqrt) / deNom;
+        if (deNom !== 0) {
+            y0 = (aebd - largeSqrt) / deNom;
+            y1 = (aebd + largeSqrt) / deNom;
+        } else {
+            y0 = (-a * f + d * d) / (2 * a * e - 2 * b * d);
+            y1 = y0;
+        }
 
         if (!isNaN(y0) && y0 > y_zero && y0 < y_h) { // ungly but works
         } else {
