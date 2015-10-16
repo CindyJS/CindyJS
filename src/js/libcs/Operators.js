@@ -3688,6 +3688,9 @@ evaluator.use$1 = function(args, modifs) {
                 "setTextRenderer": function(handler) {
                     textRenderer = handler;
                 },
+                "getMyfunctions": function() {
+                    return myfunctions;
+                },
             });
             return {
                 "ctype": "boolean",
