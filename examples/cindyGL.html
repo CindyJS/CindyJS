@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../build/js/CindyGL.js"></script>
+
+<script type="text/javascript">
+var a = "test";
+createCindy.registerPlugin(1,"testing",function(api){
+  console.log("loading plugin testing");
+  a = api;
+  
+  api.defineFunction("compile",1,function(args,modifs){
+    console.log(JSON.stringify(args[0]));
+    //console.log("");
+    //console.log(JSON.stringify(api.getMyfunctions()));
+  });
+});
+</script>
+
+<script id="csinit" type="text/x-cindyscript">
+use("CindyGL");
+
+f(z, c) := z*z + c;
+
+mandle(c) := (
+  z = 0; //global variable
+  repeat(8,
+    z = f(z, c)
+  );
+   hue(arctan2(re(z), im(z))/pi)
+);
+
+
+compile(mandle(#));
+</script>
+<script id="csmove" type="text/x-cindyscript">
+drawtext(A, z);
+A.color = mandle(complex(A.xy));
+</script>
+<script type="text/javascript">
+
+            var gslp=[
+                      {name:"A", kind:"P", type:"Free", sx:-2,sy:-2,sz:1,size:3},
+                      ];
+createCindy({
+  canvasname: "cindy",
+  scripts: "cs*",
+  geometry:gslp,
+  defaultAppearance: { },
+});
+
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <pre>
+    <canvas id="cindy" width="500" height="500"
+            style="border:2px solid black"></canvas>
+  </pre>
+</body>
+
+</html>

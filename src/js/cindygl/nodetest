@@ -1,0 +1,1 @@
+cat TypeInference.js Types.js ../../../build/js/cglres.js IncludeFunctions.js compileToWebGL.js WebGLImplementation.js testing.js | node --use_strict --harmony 
