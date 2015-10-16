@@ -1,0 +1,46 @@
+//////////////////////////////////////////////////////////////////////
+// Type definitions to shorten some things
+
+function td() {};
+
+/** @typedef {EventListener|function(!Event):(boolean|undefined)} */
+td.EventCallback;
+
+/** @typedef {function(EventTarget, string, td.EventCallback, boolean=)} */
+td.EventManager;
+
+//////////////////////////////////////////////////////////////////////
+// Externs for CindyJS bindings
+
+function createCindy() { }
+
+/** @typedef {{ctype:string}} */
+createCindy.anyval;
+
+/** @typedef {function(Array.<createCindy.anyval>, Object):
+ *            createCindy.anyval} */
+createCindy.op;
+
+/** @typedef {{
+ *    instance: Object,
+ *    config: Object,
+ *    nada: createCindy.anyval,
+ *    evaluate: function(createCindy.anyval):createCindy.anyval,
+ *    evaluateAndVal: function(createCindy.anyval):createCindy.anyval,
+ *    defineFunction: function(string,number,createCindy.op),
+ *    addShutdownHook: function(function()),
+ *    addAutoCleaningEventListener: td.EventManager,
+ *    getVariable: function(string):createCindy.anyval,
+ *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
+ *      tx:number,ty:number,det:number,sdet:number},
+ *    getMyfunctions: function()
+ *  }}
+ */
+createCindy.pluginApi;
+
+/**
+ * @param {number} apiVersion
+ * @param {string} pluginName
+ * @param {function(createCindy.pluginApi)} initCallback
+ */
+createCindy.registerPlugin;
