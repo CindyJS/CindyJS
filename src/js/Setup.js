@@ -422,20 +422,15 @@ if (instanceInvocationArguments.use) {
 // CONSOLE
 //
 function setupConsole() {
-    if (typeof csconsole === "object" && csconsole === null) {
+    if (csconsole === null) {
         csconsole = new NullConsoleHandler();
-
-    } else if (typeof csconsole === "boolean" && csconsole === true) {
+    } else if (csconsole === true) {
         csconsole = new CindyConsoleHandler();
-
     } else if (typeof csconsole === "string") {
-        var id = csconsole;
-        csconsole = new ElementConsoleHandler(id);
-    }
-
-    // Fallback
-    if (typeof csconsole === "undefined") {
-        csconsole = new PopupConsoleHandler();
+        csconsole = new ElementConsoleHandler(csconsole);
+    } else {
+        // Default
+        csconsole = new NullConsoleHandler();
     }
 }
 
