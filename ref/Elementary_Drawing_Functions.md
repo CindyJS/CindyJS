@@ -266,3 +266,32 @@ The following piece of code shows a combined usage of the `drawcircle` and the `
 | ![Image](img/FillCircleX.png) |
 | ----------------------------- |
 | ****                          |
+
+------
+
+#### Drawing circular arc: `drawarc(‹point› A,<point> B, <point> C)`
+
+**Description:**
+Draws a circular arc from `‹point›` A to `‹point›` C via  `‹point›` B. 
+The points may be given either in euclidean or in homogeneous coordinates.
+
+**Modifiers:**
+This operator can handle the same modifiers as the `draw(‹expr›)` operator.
+
+------
+
+#### Filling circular arcs: `fillarc(‹point› A,<point> B, <point> C)` 
+
+**Description:**
+Draws the interior of a circular arc `‹point›` A to `‹point›` C via  `‹point›` B.
+The points may be given either in euclidean or in homogeneous coordinates.
+
+**Modifiers:**
+This operator can handle the following modifiers:
+
+| Modifier | Parameter                   | Effect                                 |
+| -------- | --------------------------- | -------------------------------------- |
+| `color`  | `[‹real1›,‹real2›,‹real3›]` | sets the fill color to an RGB value    |
+| `alpha`  | `‹real›`                    | sets the opacity to the value `‹real›` |
+
+------

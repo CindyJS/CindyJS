@@ -116,7 +116,6 @@ evaluator.fillarc$3 = function(args, modifs) {
 
 
 eval_helper.drawarc = function(args, modifs, df) {
-    // todo fill
     var v1 = evaluateAndVal(args[0]);
     var v2 = evaluateAndVal(args[1]);
     var v3 = evaluateAndVal(args[2]);
