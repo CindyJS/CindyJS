@@ -128,6 +128,10 @@ function csinit(gslp) {
             segmentDefault(el);
             ctl += 1;
         }
+
+        if (el.trace) {
+            el._traces = [];
+        }
     }
     stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
     // initially, stateIn and stateOut are the same, so that initialize can

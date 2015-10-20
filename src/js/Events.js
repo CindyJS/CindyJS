@@ -214,6 +214,27 @@ function setuplisteners(canvas, data) {
     updateCindy();
 }
 
+function draw_traces() {
+    for (var i = 0; i < csgeo.points.length; i++) {
+        var el = csgeo.points[i];
+
+        if (el.trace) {
+            el._traces.push(el.homog);
+
+            if (el._traces.length > 80) {
+                el._traces.shift();
+            }
+
+            var damp = 0.97;
+            var alpha = Math.pow(damp, el._traces.length);
+
+            for (var j = 0; j < el._traces.length; j++) {
+                evaluator.draw$1([el._traces[j]], { alpha: CSNumber.real(alpha), color: el.color });
+                alpha = alpha / damp;
+            }
+        }
+    }
+}
 
 var requestAnimFrame;
 if (instanceInvocationArguments.isNode) {
@@ -259,6 +280,7 @@ function updateCindy() {
     //  drawgrid();
     csport.greset();
     render();
+    draw_traces();
     csctx.restore();
 }
 
