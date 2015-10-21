@@ -428,6 +428,8 @@ function setupConsole() {
         csconsole = new CindyConsoleHandler();
     } else if (typeof csconsole === "string") {
         csconsole = new ElementConsoleHandler(csconsole);
+    } else if (typeof csconsole === "object" && typeof csconsole.appendChild === "function") {
+        csconsole = new ElementConsoleHandler(csconsole);
     } else {
         // Default
         csconsole = new NullConsoleHandler();
@@ -526,9 +528,12 @@ function CindyConsoleHandler() {
 
 CindyConsoleHandler.prototype = new GenericConsoleHandler();
 
-function ElementConsoleHandler(id) {
+function ElementConsoleHandler(idOrElement) {
 
-    var element = document.getElementById(id);
+    var element = idOrElement;
+    if (typeof idOrElement === "string") {
+        element = document.getElementById(idOrElement);
+    }
 
     this.append = function(s) {
         element.appendChild(s);
