@@ -546,30 +546,6 @@ function ElementConsoleHandler(idOrElement) {
 
 ElementConsoleHandler.prototype = new GenericConsoleHandler();
 
-function PopupConsoleHandler() {
-
-    var popup = window.open('', '', 'width=200,height=100');
-    var body;
-
-    if (popup) {
-        body = popup.document.getElementsByTagName("body")[0];
-    }
-
-    this.append = function(s) {
-        if (body) {
-            body.appendChild(s);
-        }
-    };
-
-    this.clear = function() {
-        if (body) {
-            body.innerHTML = "";
-        }
-    };
-}
-
-PopupConsoleHandler.prototype = new GenericConsoleHandler();
-
 function NullConsoleHandler() {
 
     this.append = function(s) {
