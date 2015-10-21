@@ -207,7 +207,7 @@ evaluator.drawimage$2 = function(args, modifs) {
             return nada;
         }
         // console.lof(JSON.stringify(images));
-        if (images === undefined || images[img.value] === 'undefined')
+        if (images === undefined || images[img.value] === undefined)
             return;
         var w = images[img.value].width;
         var h = images[img.value].height;
