@@ -450,7 +450,7 @@ evaluator._helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sic
 evaluator._helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
-    if (where && field) {
+    if (where.ctype === 'geo' && field) {
         Accessor.setField(where.value, field, what);
     }
 
