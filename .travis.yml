@@ -6,3 +6,10 @@ addons:
   apt:
     packages:
      - default-jdk
+deploy:
+  - provider: script
+    script: tools/travis-deploy.sh
+    on:
+      repo: CindyJS/CindyJS
+      branch: master
+    skip_cleanup: true
