@@ -203,10 +203,27 @@ function segmentDefault(el) {
 
 // TODO: Use this in csinit to avoid code duplication
 function addElement(el) {
-    var totalStateSize = stateLastGood.length;
+    console.log(el.name);
+
+    if (csgeo.csnames[el.name] !== undefined) {
+        console.log("Element name '" + el.name + "' already exists");
+
+        // TODO Update position of existing element does not work :-(
+        var existingEl = csgeo.csnames[el.name];
+        existingEl.pos = el.pos;
+
+        stateContinueFromHere();
+        updateCindy();
+
+        return {
+            'ctype': 'geo',
+            'value': existingEl
+        };
+    }
 
     csgeo.gslp.push(el);
     csgeo.csnames[el.name] = el;
+    var totalStateSize = stateLastGood.length;
     var op = geoOps[el.type];
     el.kind = op.kind;
     el.stateIdx = totalStateSize;

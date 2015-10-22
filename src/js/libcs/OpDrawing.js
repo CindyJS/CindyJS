@@ -1572,16 +1572,7 @@ evaluator.createpoint$2 = function(args, modifs) {
         pos: pos
     };
 
-    // TODO  If an element with this name is already exists then no new element is created.
-    // However, if there already exists a free point with this name, then this point is moved
-    // to the specified position.
-
-    addElement(el);
-
-    return {
-        'ctype': 'geo',
-        'value': el
-    };
+    return addElement(el);
 }
 
 evaluator.create$3 = function(args, modifs) {
@@ -1613,13 +1604,6 @@ evaluator.create$3 = function(args, modifs) {
         return nada;
     }
 
-    if(csgeo.csnames[name] !== undefined) {
-        console.log("Element name '" + name + "' already exists");
-        return {
-            'ctype': 'geo',
-            'value': csgeo.csnames[name]
-        };
-    }
     if (geoOps[type.value] === undefined) {
         console.log("Invalid geometric operation: '" + type.value + "'");
         return nada;
@@ -1653,10 +1637,5 @@ evaluator.create$3 = function(args, modifs) {
     if (a.length > 0)
         el.args = a;
 
-    addElement(el);
-
-    return {
-        'ctype': 'geo',
-        'value': el
-    };
+   return addElement(el);
 }
