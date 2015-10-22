@@ -214,14 +214,20 @@ function setuplisteners(canvas, data) {
     updateCindy();
 }
 
+// TODO Lines, ...
+// TODO tracedim
 function draw_traces() {
     for (var i = 0; i < csgeo.points.length; i++) {
         var el = csgeo.points[i];
 
         if (el.trace) {
-            el._traces.push(el.homog);
+            if (el._traces_tick % el.traceskip === 0) {
+                el._traces.push(el.homog);
+            }
 
-            if (el._traces.length > 80) {
+            el._traces_tick++;
+
+            if (el._traces.length > el.tracelength) {
                 el._traces.shift();
             }
 

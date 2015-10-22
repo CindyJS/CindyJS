@@ -128,10 +128,6 @@ function csinit(gslp) {
             segmentDefault(el);
             ctl += 1;
         }
-
-        if (el.trace) {
-            el._traces = [];
-        }
     }
     stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
     // initially, stateIn and stateOut are the same, so that initialize can
@@ -172,6 +168,15 @@ function pointDefault(el) {
     }
     if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
     el.alpha = CSNumber.real(el.alpha);
+
+    if (el.trace) {
+        el._traces = [];
+        el._traces_tick = 0;
+
+        if (typeof el.tracedim === "undefined") el.tracedim = 1;
+        if (typeof el.tracelength === "undefined") el.tracelength = 100;
+        if (typeof el.traceskip === "undefined") el.traceskip = 1;
+    }
 }
 
 function lineDefault(el) {
