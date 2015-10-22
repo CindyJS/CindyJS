@@ -4384,9 +4384,27 @@ evaluator.createtool$1 = function(args, modifis) {
         console.log("Name must be a string");
     }
 
-    // TODO Check if tool exists
+    if (typeof tools[name.value] === "undefined") {
+        console.log("Tool '" + name.value + "' not implemented yet.");
+        return;
+    }
 
     var toolbar = document.getElementById("toolbar");
+
+    if (document.getElementById("toolbar") === null) {
+        toolbar = document.createElement("div");
+        toolbar.id = "toolbar";
+
+        document.body.appendChild(toolbar);
+    }
+
+    if (document.getElementById("tooltip") === null) {
+        var tooltip = document.createElement("div");
+        tooltip.id = "tooltip";
+
+        document.body.appendChild(tooltip);
+    }
+
     var button = document.createElement("button");
     button.innerHTML = "<img src='" + name.value + ".png'>";
     button.onclick = function() {

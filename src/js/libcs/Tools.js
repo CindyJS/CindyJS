@@ -1,18 +1,14 @@
-// 1. Name generation
-// 2. getElementAtMouse
-// 3. Comments
-// 4. Intersections
-// 5. Easier creation of actions
-
-var tools = {};
-var pIndex = 0;
-var step = 0;
-var elements = [];
-var activeTool = "Move";
-var join;
-var idx = 0;
+var activeTool = "Move"; // Current selected tool
+var element; // The constructed element
+var elements = []; // Contains all grabbed or temporary created elements (except the constructed "element" above)
+var idx = 0; // Next free index for the elements array
+var pIndex = 0; // Current element index
+var step = 0; // Current step
 
 /**
+ * Returns the current element at mouse
+ *
+ * TODO Rewrite
  *
  * @param mouse
  * @returns {*}
@@ -120,6 +116,7 @@ function getElementAtMouse(mouse) {
 }
 
 /**
+ * Sets the active tool
  *
  * @param tool
  */
@@ -138,6 +135,9 @@ function setActiveTool(tool) {
 }
 
 /**
+ * Gets the next free name for an element
+ *
+ * TODO Rewrite
  *
  * @returns {string}
  */
@@ -146,7 +146,7 @@ function getNextFreeName() {
 };
 
 /**
- *
+ * Removes all temporary created elements
  */
 function removeTmpElements() {
     for (var i = 0; i < csgeo.gslp.length; i++) {
@@ -159,7 +159,7 @@ function removeTmpElements() {
 }
 
 /**
- *
+ * Makes tmp elements to regular elements
  */
 function adoptTmpElements() {
     for (var i = 0; i < csgeo.gslp.length; i++) {
@@ -172,6 +172,8 @@ function adoptTmpElements() {
 }
 
 /**
+ * Each tool has a set of actions which are defined in a specific order. An action is linked with an event (e. g. mouse down).
+ * Only if this event is triggered and the action returned true, the next action could be executed. Otherwise nothing happend.
  *
  * @param event
  */
@@ -197,6 +199,7 @@ function manage(event) {
 };
 
 /**
+ * Returns true, if an element is at mouse
  *
  * @param element
  * @returns {boolean}
@@ -206,6 +209,7 @@ function isElementAtMouse(element) {
 }
 
 /**
+ * Returns true, if a point is at mouse
  *
  * @param element
  * @returns {boolean}
@@ -215,6 +219,7 @@ function isPointAtMouse(element) {
 }
 
 /**
+ * Returns true, if a line is at mouse
  *
  * @param element
  * @returns {boolean}
@@ -224,6 +229,7 @@ function isLineAtMouse(element) {
 }
 
 /**
+ * Returns true, if a circle is at mouse
  *
  * @param element
  * @returns {*|boolean}
@@ -233,6 +239,7 @@ function isCircleAtMouse(element) {
 }
 
 /**
+ * Set a specific element at mouse
  *
  * @param element
  */
@@ -246,9 +253,9 @@ function setElementAtMouse(element) {
 }
 
 /**
- *
+ * Grabs a point if it is present at mouse or creates a temporary one
  */
-function handlePoint() {
+function grabPoint() {
     var el = getElementAtMouse(mouse);
 
     if (isPointAtMouse(el)) {
@@ -264,10 +271,11 @@ function handlePoint() {
 }
 
 /**
+ * Grabs a line if it is present at mouse
  *
  * @returns {boolean}
  */
-function handleLine() {
+function grabLine() {
     var el = getElementAtMouse(mouse);
 
     if (isLineAtMouse(el)) {
@@ -282,10 +290,11 @@ function handleLine() {
 }
 
 /**
+ * Grabs a line or circle if it is present at mouse
  *
  * @returns {boolean}
  */
-function handleLineOrCircle() {
+function grabLineOrCircle() {
     var el = getElementAtMouse(mouse);
 
     if (isLineAtMouse(el) || isCircleAtMouse(el)) {
@@ -300,13 +309,13 @@ function handleLineOrCircle() {
 }
 
 /**
- *
+ * Grabs the last point if it is present at mouse or uses the temporary created one
  */
-function handleLastPoint() {
+function grabLastPoint() {
     var p2 = getElementAtMouse(mouse);
 
     if (isPointAtMouse(p2)) {
-        join.args[1] = p2.mover.name;
+        element.args[1] = p2.mover.name;
         removeTmpElements();
 
     } else {
@@ -315,22 +324,29 @@ function handleLastPoint() {
 }
 
 /**
+ * Creates a new element
  *
  * @param type
  */
-function handle(type) {
+function create(type) {
     var tmpPoint = {type: "Free", name: getNextFreeName(), labeled: true, pos: [csmouse[0], csmouse[1], 1], tmp: true};
 
     tmpPoint = addElement(tmpPoint);
 
-    join = addElement({type: type, name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
+    element = addElement({type: type, name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
 
     setElementAtMouse(tmpPoint);
 }
 
 //
-// Delete
+// Tools
 //
+// Each tool has a set of actions which are defined in a specific order. An action is linked with an event (e. g. mouse down).
+// Only if this event is triggered and the action returned true, the next action could be executed. Otherwise nothing happend.
+//
+var tools = {};
+
+// Delete
 tools.Delete = {};
 tools.Delete.actions = [];
 tools.Delete.actions[0] = {};
@@ -346,9 +362,7 @@ tools.Delete.actions[0].do = function() {
     return true;
 };
 
-//
-// MOVE
-//
+// Move
 tools.Move = {};
 tools.Move.actions = [];
 tools.Move.actions[0] = {};
@@ -360,9 +374,7 @@ tools.Move.actions[0].do = function() {
     return true;
 };
 
-//
-// POINT
-//
+// Point
 tools.Point = {};
 tools.Point.actions = [];
 tools.Point.actions[0] = {};
@@ -374,16 +386,14 @@ tools.Point.actions[0].do = function() {
     return true;
 };
 
-//
-// MID
-//
+// Mid
 tools.Mid = {};
 tools.Mid.actions = [];
 tools.Mid.actions[0] = {};
 tools.Mid.actions[0].event = "mousedown";
 tools.Mid.actions[0].tooltip = "Construct two points and their midpoint by dragging";
 tools.Mid.actions[0].do = function() {
-    handlePoint();
+    grabPoint();
 
     return true;
 };
@@ -391,7 +401,7 @@ tools.Mid.actions[0].do = function() {
 tools.Mid.actions[1] = {};
 tools.Mid.actions[1].event = "mousemove";
 tools.Mid.actions[1].do = function() {
-    handle("Mid");
+    create("Mid");
 
     return true;
 };
@@ -399,21 +409,19 @@ tools.Mid.actions[1].do = function() {
 tools.Mid.actions[2] = {};
 tools.Mid.actions[2].event = "mouseup";
 tools.Mid.actions[2].do = function() {
-    handleLastPoint();
+    grabLastPoint();
 
     return true;
 };
 
-//
-// CIRCLE
-//
+// Circle
 tools.Circle = {};
 tools.Circle.actions = [];
 tools.Circle.actions[0] = {};
 tools.Circle.actions[0].event = "mousedown";
 tools.Circle.actions[0].tooltip = "Construct two points and a circle by dragging the mouse";
 tools.Circle.actions[0].do = function() {
-    handlePoint();
+    grabPoint();
 
     return true;
 };
@@ -421,7 +429,7 @@ tools.Circle.actions[0].do = function() {
 tools.Circle.actions[1] = {};
 tools.Circle.actions[1].event = "mousemove";
 tools.Circle.actions[1].do = function() {
-    handle("CircleMP");
+    create("CircleMP");
 
     return true;
 };
@@ -429,21 +437,19 @@ tools.Circle.actions[1].do = function() {
 tools.Circle.actions[2] = {};
 tools.Circle.actions[2].event = "mouseup";
 tools.Circle.actions[2].do = function() {
-    handleLastPoint();
+    grabLastPoint();
 
     return true;
 };
 
-//
-// COMPASS
-//
+// Compass
 tools.Compass = {};
 tools.Compass.actions = [];
 tools.Compass.actions[0] = {};
 tools.Compass.actions[0].event = "mousedown";
 tools.Compass.actions[0].tooltip = "...";
 tools.Compass.actions[0].do = function() {
-    handlePoint();
+    grabPoint();
 
     return true;
 };
@@ -452,7 +458,7 @@ tools.Compass.actions[1] = {};
 tools.Compass.actions[1].event = "mousedown";
 tools.Compass.actions[1].tooltip = "...";
 tools.Compass.actions[1].do = function() {
-    handlePoint();
+    grabPoint();
 
     return true;
 };
@@ -461,23 +467,21 @@ tools.Compass.actions[2] = {};
 tools.Compass.actions[2].event = "mousedown";
 tools.Compass.actions[2].tooltip = "...";
 tools.Compass.actions[2].do = function() {
-    handlePoint();
+    grabPoint();
 
     addElement({ type: "Compass", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name, elements[2].name]});
 
     return true;
 };
 
-//
-// LINE
-//
+// Line
 tools.Line = {};
 tools.Line.actions = [];
 tools.Line.actions[0] = {};
 tools.Line.actions[0].event = "mousedown";
 tools.Line.actions[0].tooltip = "Construct two points and their connecting line by dragging the mouse";
 tools.Line.actions[0].do = function() {
-    handlePoint();
+    grabPoint();
 
     return true;
 };
@@ -485,7 +489,7 @@ tools.Line.actions[0].do = function() {
 tools.Line.actions[1] = {};
 tools.Line.actions[1].event = "mousemove";
 tools.Line.actions[1].do = function() {
-    handle("Join");
+    create("Join");
 
     return true;
 };
@@ -493,21 +497,19 @@ tools.Line.actions[1].do = function() {
 tools.Line.actions[2] = {};
 tools.Line.actions[2].event = "mouseup";
 tools.Line.actions[2].do = function() {
-    handleLastPoint();
+    grabLastPoint();
 
     return true;
 };
 
-//
 // Segment
-//
 tools.Segment = {};
 tools.Segment.actions = [];
 tools.Segment.actions[0] = {};
 tools.Segment.actions[0].event = "mousedown";
 tools.Segment.actions[0].tooltip = "Draw a segment by dragging the mouse";
 tools.Segment.actions[0].do = function() {
-    handlePoint();
+    grabPoint();
 
     return true;
 };
@@ -515,7 +517,7 @@ tools.Segment.actions[0].do = function() {
 tools.Segment.actions[1] = {};
 tools.Segment.actions[1].event = "mousemove";
 tools.Segment.actions[1].do = function() {
-    handle("Segment");
+    create("Segment");
 
     return true;
 };
@@ -523,21 +525,19 @@ tools.Segment.actions[1].do = function() {
 tools.Segment.actions[2] = {};
 tools.Segment.actions[2].event = "mouseup";
 tools.Segment.actions[2].do = function() {
-    handleLastPoint();
+    grabLastPoint();
 
     return true;
 };
 
-//
-// PARALLEL
-//
+// Parallel
 tools.Parallel = {};
 tools.Parallel.actions = [];
 tools.Parallel.actions[0] = {};
 tools.Parallel.actions[0].event = "mousedown";
 tools.Parallel.actions[0].tooltip = "Construct a parallel line by dragging a line";
 tools.Parallel.actions[0].do = function() {
-    return handleLine();
+    return grabLine();
 }
 
 tools.Parallel.actions[1] = {};
@@ -547,7 +547,7 @@ tools.Parallel.actions[1].do = function() {
 
     tmpPoint = addElement(tmpPoint);
 
-    join = addElement({type: "Para", name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
+    element = addElement({type: "Para", name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
 
     setElementAtMouse(tmpPoint);
 
@@ -557,26 +557,24 @@ tools.Parallel.actions[1].do = function() {
 tools.Parallel.actions[2] = {};
 tools.Parallel.actions[2].event = "mouseup";
 tools.Parallel.actions[2].do = function() {
-    handleLastPoint();
+    grabLastPoint();
 
     return true;
 }
 
-//
-// ORTHOGONAL
-//
+// Orthogonal
 tools.Orthogonal = {};
 tools.Orthogonal.actions = [];
 tools.Orthogonal.actions[0] = {};
 tools.Orthogonal.actions[0].event = "mousedown";
 tools.Orthogonal.actions[0].tooltip = "Construct a orthogonal line by dragging a line";
 tools.Orthogonal.actions[0].do = function() {
-    if (handleLine()) {
+    if (grabLine()) {
         var tmpPoint = {type: "Free", name: getNextFreeName(), labeled: true, pos: [csmouse[0], csmouse[1], 1], tmp: true};
 
         tmpPoint = addElement(tmpPoint);
 
-        join = addElement({type: "Perp", name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
+        element = addElement({type: "Perp", name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
 
         setElementAtMouse(tmpPoint);
 
@@ -589,28 +587,28 @@ tools.Orthogonal.actions[0].do = function() {
 tools.Orthogonal.actions[1] = {};
 tools.Orthogonal.actions[1].event = "mouseup";
 tools.Orthogonal.actions[1].do = function() {
-    handleLastPoint();
+    grabLastPoint();
 
     return true;
 }
 
+// Meet
 //
-// MEET
-//
+// TODO Circle, ...
 tools.Meet = {};
 tools.Meet.actions = [];
 tools.Meet.actions[0] = {};
 tools.Meet.actions[0].event = "mousedown";
 tools.Meet.actions[0].tooltip = "Select two elements to define their intersection";
 tools.Meet.actions[0].do = function() {
-    return handleLineOrCircle();
+    return grabLineOrCircle();
 }
 
 tools.Meet.actions[1] = {};
 tools.Meet.actions[1].event = "mousedown";
 tools.Meet.actions[1].do = function() {
-    if (handleLineOrCircle()) {
-        join = addElement({type: "Meet", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name]});
+    if (grabLineOrCircle()) {
+        element = addElement({type: "Meet", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name]});
 
         return true;
     }
