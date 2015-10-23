@@ -269,7 +269,7 @@ The following piece of code shows a combined usage of the `drawcircle` and the `
 
 ------
 
-#### Drawing circular arc: `drawarc(‹point1› ,<point2> , <point3> )`
+#### Drawing circular arc: `drawarc(‹point1›,‹point2›,‹point3›)`
 
 **Description:**
 Draws a circular arc from `‹point1›` to `‹point3›` via `‹point2›`.
@@ -281,7 +281,7 @@ This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
 ------
 
-#### Filling circular arcs: `fillarc(‹point1›,<point2>, <point3>)` 
+#### Filling circular arcs: `fillarc(‹point1›,‹point2›,‹point3›)`
 
 **Description:**
 Draws the interior of a circular arc `‹point1›` to `‹point3›` via `‹point2›`.
