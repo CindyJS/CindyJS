@@ -262,24 +262,21 @@ eval_helper.drawarc = function(args, modifs, df) {
             var dx = sflip * (ptA.x - ptB.x);
             var dy = sflip * (ptA.y - ptB.y);
             var norm = Math.sqrt(dx * dx + dy * dy);
-            dx = dx / norm;
-            dy = dy / norm;
 
-            var ptATmp = eval_helper.extractPoint(a);
-            if (!ptATmp.ok) return nada;
             // get points outside canvas (at "infinity")
-            ptATmp.x = 1000 * dx + ptATmp.x;
-            ptATmp.y = 1000 * dy + ptATmp.y;
-            Render2D.drawsegcore(ptA, ptATmp);
-
-            // second ray
-            ptATmp = eval_helper.extractPoint(c);
-            if (!ptATmp.ok) return nada;
-            dx = -dx;
-            dy = -dy;
-            ptATmp.x = 1000 * dx + ptATmp.x;
-            ptATmp.y = 1000 * dy + ptATmp.y;
-            Render2D.drawsegcore(ptC, ptATmp);
+            var sc = csport.drawingstate.matrix.sdet;
+            var farAway = 25000 / sc; // 25000px in user coordinates
+            var factor = farAway / norm;
+            dx = dx * factor;
+            dy = dy * factor;
+            Render2D.drawsegcore(ptA, {
+                x: ptA.x + dx,
+                y: ptA.y + dy
+            });
+            Render2D.drawsegcore(ptC, {
+                x: ptC.x - dx,
+                y: ptC.y - dy
+            });
         }
     }
 
