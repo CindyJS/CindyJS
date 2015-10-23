@@ -221,6 +221,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         csctx.restore();
 
     } else { // segment case
+        if (df !== "D") return nada; // Nothing to fill in the degenerate case
         var ptA = eval_helper.extractPoint(a);
         var ptB = eval_helper.extractPoint(b);
         var ptC = eval_helper.extractPoint(c);
