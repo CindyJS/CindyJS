@@ -3507,51 +3507,6 @@ evaluator.screen$0 = function(args, modifs) {
     };
 };
 
-evaluator.allpoints$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < csgeo.points.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: csgeo.points[i],
-            type: "P"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
-};
-
-evaluator.allmasses$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < masses.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: masses[i],
-            type: "P"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
-};
-
-evaluator.alllines$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < csgeo.lines.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: csgeo.lines[i],
-            type: "L"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
-};
-
 evaluator.halfplane$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -3607,6 +3562,148 @@ evaluator.halfplane$2 = function(args, modifs) {
     }
     return nada;
 };
+
+///////////////////////////////
+//   Geometric elements      //
+///////////////////////////////
+
+evaluator.allpoints$0 = function(args, modifs) {
+    var erg = [];
+    for (var i = 0; i < csgeo.points.length; i++) {
+        erg[i] = {
+            ctype: "geo",
+            value: csgeo.points[i],
+            type: "P"
+        };
+    }
+    return {
+        ctype: "list",
+        value: erg
+    };
+};
+
+evaluator.allmasses$0 = function(args, modifs) {
+    var erg = [];
+    for (var i = 0; i < masses.length; i++) {
+        erg[i] = {
+            ctype: "geo",
+            value: masses[i],
+            type: "P"
+        };
+    }
+    return {
+        ctype: "list",
+        value: erg
+    };
+};
+
+evaluator.alllines$0 = function(args, modifs) {
+    var erg = [];
+    for (var i = 0; i < csgeo.lines.length; i++) {
+        erg[i] = {
+            ctype: "geo",
+            value: csgeo.lines[i],
+            type: "L"
+        };
+    }
+    return {
+        ctype: "list",
+        value: erg
+    };
+};
+
+evaluator.createpoint$2 = function(args, modifs) {
+    var name = evaluate(args[0]);
+    var pos = evaluate(args[1]);
+
+    if (name.ctype !== "string") {
+        console.log("Name must be a string");
+        return nada;
+    }
+
+    if (pos.ctype !== "list" && List.isNumberVector(pos)) {
+        console.log("Position must be a number vector");
+        return nada;
+    }
+
+    var el = {
+        name: name.value,
+        type: "Free",
+        labeled: true,
+        pos: pos
+    };
+
+    return addElement(el);
+}
+
+evaluator.create$3 = function(args, modifs) {
+    var names = evaluate(args[0]);
+    var type = evaluate(args[1]);
+    var args = evaluate(args[2]);
+
+    var name;
+    if (names.ctype === "string") {
+        name = names.value;
+    } else if (names.ctype !== "list") {
+        console.log("Names must be a string or a list of strings");
+        return nada;
+    } else if (names.value.length !== 1) {
+        console.log("multi-result compatibility operations not supported yet");
+        return nada;
+    } else if (names.value[0].ctype !== "string") {
+        console.log("Element of names list must be a string");
+        return nada;
+    } else {
+        name = names.value[0].value;
+    }
+    if (type.ctype !== "string") {
+        console.log("Type must be a string");
+        return nada;
+    }
+    if (args.ctype !== "list") {
+        console.log("Arguments must be a list");
+        return nada;
+    }
+
+    if (geoOps[type.value] === undefined) {
+        console.log("Invalid geometric operation: '" + type.value + "'");
+        return nada;
+    }
+
+    var a = [];
+    var pos = null;
+
+    for (var i = 0; i < args.value.length; i++) {
+        var arg = args.value[i];
+
+        if (arg.ctype === "list" && List.isNumberVector(arg)) {
+            pos = arg;
+        } else if (arg.ctype === "string") {
+            a.push(arg.value);
+        } else {
+            console.log("Unknown argument type");
+            return nada;
+        }
+    }
+
+    var el = {
+        name: name,
+        type: type.value,
+        labeled: true
+    };
+
+    if (pos)
+        el.pos = pos;
+
+    if (a.length > 0)
+        el.args = a;
+
+    return addElement(el);
+}
+
+///////////////////////////////
+//   Calling external code   //
+///////////////////////////////
 
 evaluator.javascript$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
