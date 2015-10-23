@@ -121,11 +121,7 @@ eval_helper.drawarc = function(args, modifs, df) {
     var c = evaluateAndHomog(args[2]);
 
     // check for complex values
-    [a, b, c].forEach(function(v) {
-        v.value.forEach(function(vv) {
-            if (Math.abs(vv.value.imag) > CSNumber.eps) return nada;
-        })
-    });
+    if (!List._helper.isAlmostReal(List.turnIntoCSList([a,b,c]))) return nada;
 
     var abcdet = List.det3(a, b, c);
 
