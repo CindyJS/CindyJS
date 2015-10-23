@@ -121,7 +121,7 @@ eval_helper.drawarc = function(args, modifs, df) {
     var c = evaluateAndHomog(args[2]);
 
     // check for complex values
-    if (!List._helper.isAlmostReal(List.turnIntoCSList([a,b,c]))) return nada;
+    if (!List._helper.isAlmostReal(List.turnIntoCSList([a, b, c]))) return nada;
 
     var abcdet = List.det3(a, b, c);
 
@@ -232,8 +232,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         if (dAB < 1e-12 || dAC < 1e-12 || dAB < 1e-12) return nada;
 
         // check by dets if B is in the middle
-        var randP = List.realVector([10 * Math.random(), 10 * Math.random(), 10 * Math.random()]);
-        var crossr = List.crossratio3(a, c, b, List.cross(List.cross(a, b), List.linfty), randP);
+        var crossr = List.crossratio3(a, c, b, List.cross(List.cross(a, b), List.linfty), List.ii);
         var Bmiddle = crossr.value.real < 0;
 
 
