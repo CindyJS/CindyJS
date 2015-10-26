@@ -124,11 +124,15 @@ Any parameter which stays at this default value doesn't have to be specified at 
 
 ### csconsole
 
-This should be either `null`, set to `true` or a suitable `DOMElement`.
-If it is an element, then messages (in particular those created by the `err` function) will be appended to that element.
+This should be either `null`, set to `true` or a suitable `DOMElement` or its id string.
+If it is an element (passed directly or identified via its id),
+then messages (in particular those created by the `err` function) will be appended to that element.
 If it is `true` a simple console with a command line will be created automatically.
-If it is `null`, error output will be suppressed.
-If this parameter is absent, then error messages will cause a popup window.
+If it is `null`, error output will be suppressed except for output to the web developer console.
+If this parameter is absent, then it will be handled like `null`.
+
+In the past, the absence of this parameter would cause a popup window,
+but that was more annyoing than useful in most environments.
 
 ### grid
 
