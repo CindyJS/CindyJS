@@ -231,12 +231,17 @@ function draw_traces() {
                 el._traces.shift();
             }
 
-            var damp = 0.97;
-            var alpha = Math.pow(damp, el._traces.length);
+            var antiDamp = 1.03;
+            var elAlpha = el.alpha.value.real;
+            var alpha = elAlpha * Math.pow(antiDamp, -el._traces.length);
 
             for (var j = 0; j < el._traces.length; j++) {
-                evaluator.draw$1([el._traces[j]], { alpha: CSNumber.real(alpha), color: el.color });
-                alpha = alpha / damp;
+                evaluator.draw$1([el._traces[j]], {
+                    size: el.size,
+                    color: el.color,
+                    alpha: CSNumber.real(alpha)
+                });
+                alpha *= antiDamp;
             }
         }
     }
