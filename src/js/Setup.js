@@ -422,20 +422,17 @@ if (instanceInvocationArguments.use) {
 // CONSOLE
 //
 function setupConsole() {
-    if (typeof csconsole === "object" && csconsole === null) {
+    if (csconsole === null) {
         csconsole = new NullConsoleHandler();
-
-    } else if (typeof csconsole === "boolean" && csconsole === true) {
+    } else if (csconsole === true) {
         csconsole = new CindyConsoleHandler();
-
     } else if (typeof csconsole === "string") {
-        var id = csconsole;
-        csconsole = new ElementConsoleHandler(id);
-    }
-
-    // Fallback
-    if (typeof csconsole === "undefined") {
-        csconsole = new PopupConsoleHandler();
+        csconsole = new ElementConsoleHandler(csconsole);
+    } else if (typeof csconsole === "object" && typeof csconsole.appendChild === "function") {
+        csconsole = new ElementConsoleHandler(csconsole);
+    } else {
+        // Default
+        csconsole = new NullConsoleHandler();
     }
 }
 
@@ -531,9 +528,12 @@ function CindyConsoleHandler() {
 
 CindyConsoleHandler.prototype = new GenericConsoleHandler();
 
-function ElementConsoleHandler(id) {
+function ElementConsoleHandler(idOrElement) {
 
-    var element = document.getElementById(id);
+    var element = idOrElement;
+    if (typeof idOrElement === "string") {
+        element = document.getElementById(idOrElement);
+    }
 
     this.append = function(s) {
         element.appendChild(s);
@@ -545,30 +545,6 @@ function ElementConsoleHandler(id) {
 }
 
 ElementConsoleHandler.prototype = new GenericConsoleHandler();
-
-function PopupConsoleHandler() {
-
-    var popup = window.open('', '', 'width=200,height=100');
-    var body;
-
-    if (popup) {
-        body = popup.document.getElementsByTagName("body")[0];
-    }
-
-    this.append = function(s) {
-        if (body) {
-            body.appendChild(s);
-        }
-    };
-
-    this.clear = function() {
-        if (body) {
-            body.innerHTML = "";
-        }
-    };
-}
-
-PopupConsoleHandler.prototype = new GenericConsoleHandler();
 
 function NullConsoleHandler() {
 

@@ -42,43 +42,6 @@ function csinit(gslp) {
     //isshowing     das wird durch den Konstruktionsbaum vererbt
     //movable
 
-
-    // Setzen der Default appearance
-
-    function pointDefault(el) {
-
-        if (el.size === undefined) el.size = defaultAppearance.pointSize;
-        el.size = CSNumber.real(el.size);
-        if (el.type !== "Free") {
-            el.color = List.realVector(el.color || defaultAppearance.pointColor);
-            el.color = List.scalmult(CSNumber.real(defaultAppearance.dimDependent), el.color);
-        } else {
-            el.color = List.realVector(el.color || defaultAppearance.pointColor);
-        }
-        if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
-        el.alpha = CSNumber.real(el.alpha);
-    }
-
-    function lineDefault(el) {
-        if (el.size === undefined) el.size = defaultAppearance.lineSize;
-        el.size = CSNumber.real(el.size);
-        el.color = List.realVector(el.color || defaultAppearance.lineColor);
-        if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
-        el.alpha = CSNumber.real(el.alpha);
-        el.clip = General.string(el.clip || defaultAppearance.clip);
-        if (el.overhang === undefined)
-            el.overhang = defaultAppearance.overhangLine;
-        el.overhang = CSNumber.real(el.overhang);
-    }
-
-    function segmentDefault(el) {
-        lineDefault(el);
-        el.clip = General.string("end");
-        if (el.overhang === undefined)
-            el.overhang = defaultAppearance.overhangSeg;
-        el.overhang = CSNumber.real(el.overhang);
-    }
-
     csgeo.gslp = gslp;
 
     csgeo.csnames = {}; //Lookup für elemente mit über Namen
@@ -189,6 +152,42 @@ function csinit(gslp) {
     stateContinueFromHere();
     tracingInitial = false;
     guessIncidences();
+}
+
+// Setzen der Default appearance
+
+function pointDefault(el) {
+
+    if (el.size === undefined) el.size = defaultAppearance.pointSize;
+    el.size = CSNumber.real(el.size);
+    if (el.type !== "Free") {
+        el.color = List.realVector(el.color || defaultAppearance.pointColor);
+        el.color = List.scalmult(CSNumber.real(defaultAppearance.dimDependent), el.color);
+    } else {
+        el.color = List.realVector(el.color || defaultAppearance.pointColor);
+    }
+    if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
+    el.alpha = CSNumber.real(el.alpha);
+}
+
+function lineDefault(el) {
+    if (el.size === undefined) el.size = defaultAppearance.lineSize;
+    el.size = CSNumber.real(el.size);
+    el.color = List.realVector(el.color || defaultAppearance.lineColor);
+    if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
+    el.alpha = CSNumber.real(el.alpha);
+    el.clip = General.string(el.clip || defaultAppearance.clip);
+    if (el.overhang === undefined)
+        el.overhang = defaultAppearance.overhangLine;
+    el.overhang = CSNumber.real(el.overhang);
+}
+
+function segmentDefault(el) {
+    lineDefault(el);
+    el.clip = General.string("end");
+    if (el.overhang === undefined)
+        el.overhang = defaultAppearance.overhangSeg;
+    el.overhang = CSNumber.real(el.overhang);
 }
 
 function onSegment(p, s) { //TODO was ist mit Fernpunkten
