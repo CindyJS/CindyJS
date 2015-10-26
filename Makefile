@@ -199,7 +199,7 @@ tests: unittests
 
 .PHONY: alltests beautified
 
-alltests: all tests jshint beautified
+alltests: all tests jshint beautified deploy
 
 beautified:
 	git diff --exit-code --name-only
@@ -342,6 +342,16 @@ build/js/katex-plugin.js: src/js/katex/katex-plugin.js
 katex: $(katex_src:lib/%=build/js/%) build/js/katex-plugin.js
 all: katex
 .PHONY: katex
+
+######################################################################
+## Copy things which constitute a release
+######################################################################
+
+.PHONY: deploy
+deploy: all build/js/Cindy.closure.js
+	rm -rf build/deploy
+	mkdir -p build/deploy
+	$(NODE_CMD) tools/prepare-deploy.js
 
 ######################################################################
 ## Help debugging a remote site
