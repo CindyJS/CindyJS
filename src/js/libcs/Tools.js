@@ -45,7 +45,7 @@ function getElementAtMouse(mouse) {
             if (typeof el.radius !== "undefined") {
                 rad = el.radius.value.real;
 
-            // For CircleMP
+                // For CircleMP
             } else if (el.args.length === 2) {
                 /*var p1 = csgeo.csnames[el.args[0]];
                 var p2 = csgeo.csnames[el.args[1]];
@@ -245,7 +245,12 @@ function isCircleAtMouse(element) {
  */
 function setElementAtMouse(element) {
     move = {
-        mover: element, offset: {x: 0, y: 0}, prev: {
+        mover: element,
+        offset: {
+            x: 0,
+            y: 0
+        },
+        prev: {
             x: mouse.x,
             y: mouse.y
         }
@@ -262,7 +267,12 @@ function grabPoint() {
         elements[idx] = el.mover;
 
     } else {
-        elements[idx] = {type: "Free", name: getNextFreeName(), labeled: true, pos: [csmouse[0], csmouse[1], 1]};
+        elements[idx] = {
+            type: "Free",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1]
+        };
 
         addElement(elements[idx]);
     }
@@ -297,7 +307,7 @@ function grabLine() {
 function grabLineOrCircle() {
     var el = getElementAtMouse(mouse);
 
-    if (isLineAtMouse(el) || isCircleAtMouse(el)) {
+    if (isLineAtMouse(el) || isCircleAtMouse(el)) {
         elements[idx] = el.mover;
 
         idx++;
@@ -329,11 +339,22 @@ function grabLastPoint() {
  * @param type
  */
 function create(type) {
-    var tmpPoint = {type: "Free", name: getNextFreeName(), labeled: true, pos: [csmouse[0], csmouse[1], 1], tmp: true};
+    var tmpPoint = {
+        type: "Free",
+        name: getNextFreeName(),
+        labeled: true,
+        pos: [csmouse[0], csmouse[1], 1],
+        tmp: true
+    };
 
     tmpPoint = addElement(tmpPoint);
 
-    element = addElement({type: type, name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
+    element = addElement({
+        type: type,
+        name: getNextFreeName(),
+        labeled: true,
+        args: [elements[0].name, tmpPoint.name]
+    });
 
     setElementAtMouse(tmpPoint);
 }
@@ -381,7 +402,12 @@ tools.Point.actions[0] = {};
 tools.Point.actions[0].event = "mousedown";
 tools.Point.actions[0].tooltip = "Add a single point with the mouse";
 tools.Point.actions[0].do = function() {
-    addElement({ type: "Free", name: getNextFreeName(), labeled: true, pos: [csmouse[0], csmouse[1], 1] });
+    addElement({
+        type: "Free",
+        name: getNextFreeName(),
+        labeled: true,
+        pos: [csmouse[0], csmouse[1], 1]
+    });
 
     return true;
 };
@@ -469,7 +495,12 @@ tools.Compass.actions[2].tooltip = "...";
 tools.Compass.actions[2].do = function() {
     grabPoint();
 
-    addElement({ type: "Compass", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name, elements[2].name]});
+    addElement({
+        type: "Compass",
+        name: getNextFreeName(),
+        labeled: true,
+        args: [elements[0].name, elements[1].name, elements[2].name]
+    });
 
     return true;
 };
@@ -543,11 +574,22 @@ tools.Parallel.actions[0].do = function() {
 tools.Parallel.actions[1] = {};
 tools.Parallel.actions[1].event = "mousemove";
 tools.Parallel.actions[1].do = function() {
-    var tmpPoint = {type: "Free", name: getNextFreeName(), labeled: true, pos: [csmouse[0], csmouse[1], 1], tmp: true};
+    var tmpPoint = {
+        type: "Free",
+        name: getNextFreeName(),
+        labeled: true,
+        pos: [csmouse[0], csmouse[1], 1],
+        tmp: true
+    };
 
     tmpPoint = addElement(tmpPoint);
 
-    element = addElement({type: "Para", name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
+    element = addElement({
+        type: "Para",
+        name: getNextFreeName(),
+        labeled: true,
+        args: [elements[0].name, tmpPoint.name]
+    });
 
     setElementAtMouse(tmpPoint);
 
@@ -570,11 +612,22 @@ tools.Orthogonal.actions[0].event = "mousedown";
 tools.Orthogonal.actions[0].tooltip = "Construct a orthogonal line by dragging a line";
 tools.Orthogonal.actions[0].do = function() {
     if (grabLine()) {
-        var tmpPoint = {type: "Free", name: getNextFreeName(), labeled: true, pos: [csmouse[0], csmouse[1], 1], tmp: true};
+        var tmpPoint = {
+            type: "Free",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1],
+            tmp: true
+        };
 
         tmpPoint = addElement(tmpPoint);
 
-        element = addElement({type: "Perp", name: getNextFreeName(), labeled: true, args: [elements[0].name, tmpPoint.name]});
+        element = addElement({
+            type: "Perp",
+            name: getNextFreeName(),
+            labeled: true,
+            args: [elements[0].name, tmpPoint.name]
+        });
 
         setElementAtMouse(tmpPoint);
 
@@ -608,7 +661,12 @@ tools.Meet.actions[1] = {};
 tools.Meet.actions[1].event = "mousedown";
 tools.Meet.actions[1].do = function() {
     if (grabLineOrCircle()) {
-        element = addElement({type: "Meet", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name]});
+        element = addElement({
+            type: "Meet",
+            name: getNextFreeName(),
+            labeled: true,
+            args: [elements[0].name, elements[1].name]
+        });
 
         return true;
     }
