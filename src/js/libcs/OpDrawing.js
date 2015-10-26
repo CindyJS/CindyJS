@@ -229,7 +229,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         var dBC = (ptC.x - ptB.x) * (ptC.x - ptB.x) + (ptC.y - ptB.y) * (ptC.y - ptB.y);
 
         // if 2 points are the same return nada;
-        if (dAB < 1e-12 || dAC < 1e-12 || dAB < 1e-12) return nada;
+        if (dAB < 1e-12 || dAC < 1e-12 || dBC < 1e-12) return nada;
 
         // check by dets if B is in the middle
         var crossr = List.crossratio3(a, c, b, List.cross(List.cross(a, b), List.linfty), List.ii);
