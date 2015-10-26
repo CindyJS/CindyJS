@@ -214,38 +214,6 @@ function setuplisteners(canvas, data) {
     updateCindy();
 }
 
-// TODO Lines, ...
-// TODO tracedim
-function draw_traces() {
-    for (var i = 0; i < csgeo.points.length; i++) {
-        var el = csgeo.points[i];
-
-        if (el.trace) {
-            if (el._traces_tick % el.traceskip === 0) {
-                el._traces.push(el.homog);
-            }
-
-            el._traces_tick++;
-
-            if (el._traces.length > el.tracelength) {
-                el._traces.shift();
-            }
-
-            var antiDamp = 1.03;
-            var elAlpha = el.alpha.value.real;
-            var alpha = elAlpha * Math.pow(antiDamp, -el._traces.length);
-
-            for (var j = 0; j < el._traces.length; j++) {
-                evaluator.draw$1([el._traces[j]], {
-                    size: el.size,
-                    color: el.color,
-                    alpha: CSNumber.real(alpha)
-                });
-                alpha *= antiDamp;
-            }
-        }
-    }
-}
 
 var requestAnimFrame;
 if (instanceInvocationArguments.isNode) {
