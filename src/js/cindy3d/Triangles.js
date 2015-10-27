@@ -42,6 +42,31 @@ Triangles.prototype.addWithNormals = function(
 };
 
 /**
+ * @param {Array.<number>} p1
+ * @param {Array.<number>} p2
+ * @param {Array.<number>} p3
+ * @param {Array.<number>} n1
+ * @param {Array.<number>} n2
+ * @param {Array.<number>} n3
+ * @param {Array.<number>} c1
+ * @param {Array.<number>} c2
+ * @param {Array.<number>} c3
+ * @param {Appearance} appearance
+ */
+Triangles.prototype.addWithNormalsAndColors = function(
+  p1, p2, p3, n1, n2, n3, c1, c2, c3, appearance)
+{
+  let s = appearance.shininess, a = appearance.alpha;
+  if (a < 1.0)
+    this.opaque = false;
+  this.addPrimitive([
+    p1[0], p1[1], p1[2], p1[3], n1[0], n1[1], n1[2], s, c1[0], c1[1], c1[2], a,
+    p2[0], p2[1], p2[2], p2[3], n2[0], n2[1], n2[2], s, c2[0], c2[1], c2[2], a,
+    p3[0], p3[1], p3[2], p3[3], n3[0], n3[1], n3[2], s, c3[0], c3[1], c3[2], a,
+  ]);
+};
+
+/**
  * @param {Array.<number>} pos1
  * @param {Array.<number>} pos2
  * @param {Array.<number>} pos3
@@ -106,6 +131,24 @@ Triangles.prototype.addPolygonWithNormals = function(pos, n, appearance) {
     pp = pos[i];
     pn = n[i];
   }
+};
+
+/**
+ * @param {Array.<Array.<number>>} pos
+ * @param {Array.<Array.<number>>} n
+ * @param {Array.<Array.<number>>} c
+ * @param {Appearance} appearance
+ */
+Triangles.prototype.addPolygonWithNormalsAndColors = function(pos, n, c, appearance) {
+  if (pos.length == 3)
+    return this.addWithNormalsAndColors(
+      pos[0], pos[1], pos[2], n[0], n[1], n[2], c[0], c[1], c[2], appearance);
+  if (pos.length == 4) {
+    this.addWithNormalsAndColors(pos[0], pos[1], pos[3], n[0], n[1], n[3], c[0], c[1], c[3], appearance);
+    this.addWithNormalsAndColors(pos[3], pos[1], pos[2], n[3], n[1], n[2], c[3], c[1], c[2], appearance);
+    return;
+  }
+  console.error("addPolygonWithNormalsAndColors not supported for more than 4 corners");
 };
 
 /**
