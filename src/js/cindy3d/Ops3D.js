@@ -442,17 +442,18 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let n = coerce.toInt(evaluate(args[1]));
     let pos = coerce.toList(evaluate(args[2])).map(elt => coerce.toHomog(elt));
     let normaltype = "perface";
+    let colortype = "pervertex";
     let topology = "open";
     let colors = null;
-    let nomix = false;
     let appearance = handleModifsAppearance(
       currentInstance.surfaceAppearance, modifs, {
         "normaltype": (a => normaltype =
                        coerce.toString(a, normaltype).toLowerCase()),
+        "colortype": (a => colortype =
+                       coerce.toString(a, colortype).toLowerCase()),
         "topology": (a => topology =
                        coerce.toString(a, normaltype).toLowerCase()),
         "colors": (a => colors = coerce.toList(a).map(elt => coerce.toColor(elt))),
-        "nomix": (a => nomix = coerce.toBool(a, false)),
       });
     if (pos.length !== m*n) return nada;
     if (colors !== null && colors.length !== m*n) return nada;
@@ -472,7 +473,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
         .map(elt => coerce.toDirection(elt));
       if (normals.length !== m*n) return nada;
       if (colors !== null) {
-        if (nomix) {
+        if (colortype === "perface") {
           meshWithNormalsAndColorsNoMix(m, n, tcr, tcc, pos, normals, colors, appearance);
         } else {
           meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance);
@@ -500,7 +501,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
         }
       }
       if (colors !== null) {
-        if (nomix) {
+        if (colortype === "perface") {
           meshWithNormalsAndColorsNoMix(m, n, tcr, tcc, pos, normals, colors, appearance);
         } else {
           meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance);
