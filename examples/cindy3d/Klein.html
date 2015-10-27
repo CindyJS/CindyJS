@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script id="csmousedown" type="text/x-cindyscript">
+dragging=true;
+</script>
+<script id="csmouseup" type="text/x-cindyscript">
+dragging=false;
+
+</script>
+
+<script id="csinit" type="text/x-cindyscript">
+dragging=false;
+m = 50;
+n = 20;
+epsx=0.01*.1;
+epsy=0.04*.1;
+
+xx=apply((1..m),#/m);
+yy=apply(1..(n+3),#/n-1/(2*n));
+xxs=xx;
+yys=yy;
+xxp=apply(xx,#+epsx);
+xxm=apply(xx,#-epsx);
+yyp=apply(yy,#+epsy);
+yym=apply(yy,#-epsy);
+xx=sort(xx++xxp++xxm);
+yy=sort(yy++yyp++yym);
+
+ ff(x):=(
+      mm=(sin(x+pi),cos(x+pi),((cos(x+pi)+1)^5)*0.02);
+      if (mm_2*mm_2<0.000001, mm_2=0;);
+      mm;
+  );
+  gg(x):=(
+      ((cos(x+pi)+1)^4)*0.08;
+  );
+
+    ax=3.32;
+    off=pi/4+0.0132622429;
+    mat=[[0,0,-1],[0.66695951993975,0.74509395297623,0],[0.74509395297623,0.66695951993975,0]];
+
+
+tor(x,y):=(
+        x=x;
+        ww=pi*1.999999*x-.1;//Handgefrickel
+        wwc=pi*2.0*y;
+
+        xyz1=ff(ww+off);
+        xyz2=ff(ww+off+0.02);
+        xyz1=mat*xyz1;
+        xyz2=mat*xyz2;
+        xy1=(xyz1_1,xyz1_2)*3;
+        xy2=(xyz2_1,xyz2_2)*3;
+
+        xy3=xy1-xy2;
+        xy3=xy3/|xy3|;
+        xyz3=xy3++[0];
+        xyz4=(xy3_2,-xy3_1)++[0];
+        xyz1_3=0;
+        xyz2=cross(xyz3,xyz4);
+        rr=(gg(ww+off+ax)+0.25)*.4;
+        xyz=xyz1+rr*sin(wwc)*xyz4+rr*cos(wwc)*xyz2;
+        xyz*2;
+
+);
+//tor(x,y):=(x,y,1);
+
+eeps=0.00001;
+n(a,b):=(
+  t1=tor(a,b);
+  t2=tor(a+eeps,b);
+  t3=tor(a,b+eeps);
+  nn=cross(t2-t1,t3-t1);
+  nn/|nn|;
+);
+
+cols=[];
+norms=[];
+coords=[];
+coords=zerovector(length(yy)*(length(xx)+1));
+norms=zerovector(length(yy)*(length(xx)+1));
+cols=zerovector(length(yy)*(length(xx)+1));
+cnt=1;
+me():=(
+  forall(1..length(yy),j,
+   b=yy_j;
+   forall(1..length(xx), i,
+     (
+      a=xx_i;
+      cols_cnt=if(mod(i,3)==0 & mod(j,3)==0 ,(1,.6,0),(0,0,0));
+      norms_cnt=n(a,b);
+      coords_cnt=tor(a,b);
+      cnt=cnt+1;
+     );
+     );
+      a=xx_1;
+      b1=yy_(mod(-j-3+3,60)+1);
+      cols_cnt=(1,.6,0);
+      norms_cnt=-n(a,b1);
+      coords_cnt=tor(a,b1);
+      cnt=cnt+1;
+ )
+;
+);
+me();
+
+
+
+  use("Cindy3D")
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+          x=S.x;
+          if(x<S1.x,x=S1.x);
+          if(x>S2.x,x=S2.x);
+          S.xy=(x,S1.y);
+
+          x=R.x;
+          if(x<R1.x,x=R1.x);
+          if(x>R2.x,x=R2.x);
+          R.xy=(x,R1.y);
+
+
+r1 = round(|S,S1|/|S1,S2|*11);
+r2 = |R,R1|/|R1,R2|*.4+.6;
+begin3d();
+background3d((.7,.7,1));
+//shininess3d(100);
+mesh3d(length(yy), length(xx), coords,norms,  colors->cols,nomix->true, topology->"closeColumns",alpha->0.8);
+
+
+
+off=(length(xx)+1);
+kk=4*off;
+
+stripe(r):=(
+ rr=1+3*r;
+ inds=1+rr*off..kk+rr*off;
+ mesh3d(4, length(xx)+1, coords_inds,norms_inds,  colors->cols_inds,nomix->true,alpha->r2);
+);
+
+
+if(r1>10,stripe(9));
+if(r1>9,stripe(8);stripe(10));
+if(r1>8,stripe(7);stripe(11));
+if(r1>7,stripe(6);stripe(12));
+if(r1>6,stripe(5);stripe(13));
+if(r1>5,stripe(4);stripe(14));
+if(r1>4,stripe(3);stripe(15));
+if(r1>3,stripe(2);stripe(16));
+if(r1>2,stripe(1);stripe(17));
+if(r1>1,stripe(0);stripe(18));
+if(r1>0,stripe(19));
+
+
+
+end3d();
+</script>
+<script type="text/javascript">
+gslp=[
+ {name:"S1", type:"Free", pos:[-9,0],color:[0,0,0],pinned:true,size:2},
+    {name:"S2", type:"Free", pos:[0,0],color:[0,0,0],pinned:true,size:2},
+    {name:"S", type:"Free", pos:[0,0],color:[1,1,1],pinned:false,size:4},
+    {name:"l", type:"Segment", args:["S1","S2"],color:[0,0,0],pinned:false,size:2},
+   {name:"R1", type:"Free", pos:[2,0],color:[0,0,0],pinned:true,size:2},
+    {name:"R2", type:"Free", pos:[9,0],color:[0,0,0],pinned:true,size:2},
+    {name:"R", type:"Free", pos:[9,0],color:[1,1,1],pinned:false,size:4},
+    {name:"m", type:"Segment", args:["R1","R2"],color:[0,0,0],pinned:false,size:2},
+
+];
+createCindy({
+  canvasname:"CSCanvas",
+  scripts:"cs*",
+  geometry:gslp,
+ "transform": [
+        {
+          "visibleRect": [
+            -10,
+            -1,
+            10,
+            1
+          ]
+        }
+      ]
+});
+</script>
+</head>
+
+<body>
+  <canvas id="Cindy3D" style="border: none;" width="800" height="600"></canvas>
+  <canvas id="CSCanvas" width="800" height="40" style="border:none"></canvas>
+</body>
+
+</html>

@@ -358,6 +358,47 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     }
   }
 
+
+  function meshWithNormalsAndColorsNoMix(m, n, tcr, tcc, pos, normals, colors, appearance) {
+    for (let i = 1, k = 0; i < m; ++i) {
+      for (let j = 1; j < n; ++j) {
+        currentInstance.triangles.addPolygonWithNormalsAndColors(
+          [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]],
+          [normals[k], normals[k + 1], normals[k + n + 1], normals[k + n]],
+          [colors[k], colors[k], colors[k], colors[k]],
+          appearance);
+        ++k;
+      }
+      if (tcr) {
+        currentInstance.triangles.addPolygonWithNormalsAndColors(
+          [pos[k], pos[k + 1 - n], pos[k + 1], pos[k + n]],
+          [normals[k], normals[k + 1 - n], normals[k + 1], normals[k + n]],
+          [colors[k], colors[k], colors[k], colors[k]],
+          appearance);
+      }
+      ++k;
+    }
+    if (tcc) {
+      for (let j = 1; j < n; ++j) {
+        currentInstance.triangles.addPolygonWithNormalsAndColors(
+          [pos[k], pos[k + 1], pos[j], pos[j - 1]],
+          [normals[k], normals[k + 1], normals[j], normals[j - 1]],
+          [colors[k], colors[k], colors[k], colors[k]],
+          appearance);
+        ++k;
+      }
+      if (tcr) {
+        currentInstance.triangles.addPolygonWithNormalsAndColors(
+          [pos[k], pos[k + 1 - n], pos[0], pos[n - 1]],
+          [normals[k], normals[k + 1 - n], normals[0], normals[n - 1]],
+          [colors[k], colors[k], colors[k], colors[k]],
+          appearance);
+      }
+    }
+  }
+
+
+
   function meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance) {
     for (let i = 1, k = 0; i < m; ++i) {
       for (let j = 1; j < n; ++j) {
@@ -403,6 +444,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let normaltype = "perface";
     let topology = "open";
     let colors = null;
+    let nomix = false;
     let appearance = handleModifsAppearance(
       currentInstance.surfaceAppearance, modifs, {
         "normaltype": (a => normaltype =
@@ -410,11 +452,13 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
         "topology": (a => topology =
                        coerce.toString(a, normaltype).toLowerCase()),
         "colors": (a => colors = coerce.toList(a).map(elt => coerce.toColor(elt))),
+        "nomix": (a => nomix = coerce.toBool(a, false)),
       });
     if (pos.length !== m*n) return nada;
     if (colors !== null && colors.length !== m*n) return nada;
     let tcr = (topology === "closerows" || topology === "closeboth");
     let tcc = (topology === "closecolumns" || topology === "closeboth");
+
     let pc = null, normal = null, normalcnt = 0;
     function donormal(p1, p2) {
       let c = cross3(sub3(p1, pc), sub3(p2, pc));
@@ -427,10 +471,16 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
       let normals = coerce.toList(evaluate(args[3]))
         .map(elt => coerce.toDirection(elt));
       if (normals.length !== m*n) return nada;
-      if (colors !== null)
-        meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance);
-      else
+      if (colors !== null) {
+        if (nomix) {
+          meshWithNormalsAndColorsNoMix(m, n, tcr, tcc, pos, normals, colors, appearance);
+        } else {
+          meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance);
+        }
+      }
+      else {
         meshWithNormals(m, n, tcr, tcc, pos, normals, appearance);
+      }
     } else if (normaltype === "pervertex") {
       let normals = Array(m*n);
       let mn = m*n, p = pos.map(dehom3);
@@ -449,10 +499,16 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
           normals[k++] = scale3(4./normalcnt, normal);
         }
       }
-      if (colors !== null)
-        meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance);
-      else
+      if (colors !== null) {
+        if (nomix) {
+          meshWithNormalsAndColorsNoMix(m, n, tcr, tcc, pos, normals, colors, appearance);
+        } else {
+          meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance);
+        }
+      }
+      else {
         meshWithNormals(m, n, tcr, tcc, pos, normals, appearance);
+      }
     } else {
       meshAutoNormals(m, n, tcr, tcc, pos, appearance);
     }
