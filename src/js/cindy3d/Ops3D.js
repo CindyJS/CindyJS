@@ -298,143 +298,59 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     return nada;
   });
 
-  function meshAutoNormals(m, n, tcr, tcc, pos, appearance) {
+  /**
+   * @param {number} m  the number of rows of the mesh
+   * @param {number} n  the number of columns of the mesh
+   * @param {boolean} tcr  whether the topology closes rows
+   * @param {boolean} tcc  whether the topology closes columns
+   * @param {!function(number, number, number, number)} callback  invoked once per mesh face
+   */
+  function iterMesh(m, n, tcr, tcc, callback) {
     for (let i = 1, k = 0; i < m; ++i) {
       for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonAutoNormal(
-          [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]], appearance);
+        callback(k, k + 1, k + n + 1, k + n);
         ++k;
       }
       if (tcr) {
-        currentInstance.triangles.addPolygonAutoNormal(
-          [pos[k], pos[k + 1 - n], pos[k + 1], pos[k + n]], appearance);
+        callback(k, k + 1 - n, k + 1, k + n);
       }
       ++k;
     }
     if (tcc) {
       for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonAutoNormal(
-          [pos[k], pos[k + 1], pos[j], pos[j - 1]], appearance);
+        callback(k, k + 1, j, j - 1);
         ++k;
       }
       if (tcr) {
-        currentInstance.triangles.addPolygonAutoNormal(
-          [pos[k], pos[k + 1 - n], pos[0], pos[n - 1]], appearance);
+        callback(k, k + 1 - n, 0, n - 1);
       }
     }
   }
 
-  function meshWithNormals(m, n, tcr, tcc, pos, normals, appearance) {
-    for (let i = 1, k = 0; i < m; ++i) {
-      for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonWithNormals(
-          [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]],
-          [normals[k], normals[k + 1], normals[k + n + 1], normals[k + n]],
-          appearance);
-        ++k;
-      }
-      if (tcr) {
-        currentInstance.triangles.addPolygonWithNormals(
-          [pos[k], pos[k + 1 - n], pos[k + 1], pos[k + n]],
-          [normals[k], normals[k + 1 - n], normals[k + 1], normals[k + n]],
-          appearance);
-      }
-      ++k;
+  /**
+   * @param {number} m  the number of rows of the mesh
+   * @param {number} n  the number of columns of the mesh
+   * @param {boolean} tcr  whether the topology closes rows
+   * @param {boolean} tcc  whether the topology closes columns
+   * @param {?Array.<number>} colors  the colors for each vertex resp. face
+   * @param {string} colortype  "pervertex" or "perface"
+   * @param {Appearance} appearance
+   */
+  function meshWithNormals(m, n, tcr, tcc, pos, normals, colors, colortype, appearance) {
+    var /** function(number, number): number */ cf; // color function
+    if (colors === null) {
+      cf = ((perface, pervertex) => appearance.color);
+    } else if (colortype === "perface") {
+      cf = ((perface, pervertex) => colors[perface]);
+    } else {
+      cf = ((perface, pervertex) => colors[pervertex]);
     }
-    if (tcc) {
-      for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonWithNormals(
-          [pos[k], pos[k + 1], pos[j], pos[j - 1]],
-          [normals[k], normals[k + 1], normals[j], normals[j - 1]],
-          appearance);
-        ++k;
-      }
-      if (tcr) {
-        currentInstance.triangles.addPolygonWithNormals(
-          [pos[k], pos[k + 1 - n], pos[0], pos[n - 1]],
-          [normals[k], normals[k + 1 - n], normals[0], normals[n - 1]],
-          appearance);
-      }
-    }
-  }
-
-
-  function meshWithNormalsAndColorsNoMix(m, n, tcr, tcc, pos, normals, colors, appearance) {
-    for (let i = 1, k = 0; i < m; ++i) {
-      for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonWithNormalsAndColors(
-          [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]],
-          [normals[k], normals[k + 1], normals[k + n + 1], normals[k + n]],
-          [colors[k], colors[k], colors[k], colors[k]],
-          appearance);
-        ++k;
-      }
-      if (tcr) {
-        currentInstance.triangles.addPolygonWithNormalsAndColors(
-          [pos[k], pos[k + 1 - n], pos[k + 1], pos[k + n]],
-          [normals[k], normals[k + 1 - n], normals[k + 1], normals[k + n]],
-          [colors[k], colors[k], colors[k], colors[k]],
-          appearance);
-      }
-      ++k;
-    }
-    if (tcc) {
-      for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonWithNormalsAndColors(
-          [pos[k], pos[k + 1], pos[j], pos[j - 1]],
-          [normals[k], normals[k + 1], normals[j], normals[j - 1]],
-          [colors[k], colors[k], colors[k], colors[k]],
-          appearance);
-        ++k;
-      }
-      if (tcr) {
-        currentInstance.triangles.addPolygonWithNormalsAndColors(
-          [pos[k], pos[k + 1 - n], pos[0], pos[n - 1]],
-          [normals[k], normals[k + 1 - n], normals[0], normals[n - 1]],
-          [colors[k], colors[k], colors[k], colors[k]],
-          appearance);
-      }
-    }
-  }
-
-
-
-  function meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance) {
-    for (let i = 1, k = 0; i < m; ++i) {
-      for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonWithNormalsAndColors(
-          [pos[k], pos[k + 1], pos[k + n + 1], pos[k + n]],
-          [normals[k], normals[k + 1], normals[k + n + 1], normals[k + n]],
-          [colors[k], colors[k + 1], colors[k + n + 1], colors[k + n]],
-          appearance);
-        ++k;
-      }
-      if (tcr) {
-        currentInstance.triangles.addPolygonWithNormalsAndColors(
-          [pos[k], pos[k + 1 - n], pos[k + 1], pos[k + n]],
-          [normals[k], normals[k + 1 - n], normals[k + 1], normals[k + n]],
-          [colors[k], colors[k + 1 - n], colors[k + 1], colors[k + n]],
-          appearance);
-      }
-      ++k;
-    }
-    if (tcc) {
-      for (let j = 1; j < n; ++j) {
-        currentInstance.triangles.addPolygonWithNormalsAndColors(
-          [pos[k], pos[k + 1], pos[j], pos[j - 1]],
-          [normals[k], normals[k + 1], normals[j], normals[j - 1]],
-          [colors[k], colors[k + 1], colors[j], colors[j - 1]],
-          appearance);
-        ++k;
-      }
-      if (tcr) {
-        currentInstance.triangles.addPolygonWithNormalsAndColors(
-          [pos[k], pos[k + 1 - n], pos[0], pos[n - 1]],
-          [normals[k], normals[k + 1 - n], normals[0], normals[n - 1]],
-          [colors[k], colors[k + 1 - n], colors[0], colors[n - 1]],
-          appearance);
-      }
-    }
+    iterMesh(m, n, tcr, tcc, (i1, i2, i3, i4) =>
+      currentInstance.triangles.addPolygonWithNormalsAndColors(
+        [pos[i1], pos[i2], pos[i3], pos[i4]],
+        [normals[i1], normals[i2], normals[i3], normals[i4]],
+        [cf(i1, i1), cf(i1, i2), cf(i1, i3), cf(i1, i4)],
+        appearance));
   }
 
   function mesh3dImpl(args, modifs) {
@@ -468,20 +384,12 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
       normal[2] += c[2];
       ++normalcnt;
     }
+
     if (args.length === 4) {
       let normals = coerce.toList(evaluate(args[3]))
         .map(elt => coerce.toDirection(elt));
       if (normals.length !== m*n) return nada;
-      if (colors !== null) {
-        if (colortype === "perface") {
-          meshWithNormalsAndColorsNoMix(m, n, tcr, tcc, pos, normals, colors, appearance);
-        } else {
-          meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance);
-        }
-      }
-      else {
-        meshWithNormals(m, n, tcr, tcc, pos, normals, appearance);
-      }
+      meshWithNormals(m, n, tcr, tcc, pos, normals, colors, colortype, appearance);
     } else if (normaltype === "pervertex") {
       let normals = Array(m*n);
       let mn = m*n, p = pos.map(dehom3);
@@ -500,18 +408,11 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
           normals[k++] = scale3(4./normalcnt, normal);
         }
       }
-      if (colors !== null) {
-        if (colortype === "perface") {
-          meshWithNormalsAndColorsNoMix(m, n, tcr, tcc, pos, normals, colors, appearance);
-        } else {
-          meshWithNormalsAndColors(m, n, tcr, tcc, pos, normals, colors, appearance);
-        }
-      }
-      else {
-        meshWithNormals(m, n, tcr, tcc, pos, normals, appearance);
-      }
+      meshWithNormals(m, n, tcr, tcc, pos, normals, colors, colortype, appearance);
     } else {
-      meshAutoNormals(m, n, tcr, tcc, pos, appearance);
+      iterMesh(m, n, tcr, tcc, (i1, i2, i3, i4) =>
+        currentInstance.triangles.addPolygonAutoNormal(
+          [pos[i1], pos[i2], pos[i3], pos[i4]], appearance));
     }
     return nada;
   };
