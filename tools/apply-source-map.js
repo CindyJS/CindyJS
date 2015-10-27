@@ -30,42 +30,10 @@ function open(path) {
   });
 }
 
-function myApplySourceMap(gen, con) {
-  gen._mappings.unsortedForEach(function (m) {
-    if (!m.originalLine) return;
-    console.log(m);
-    var orig = con.originalPositionFor(
-      {line: m.originalLine, column: 0});
-    if (orig.source == null) {
-      console.log(["Not found: ", m]);
-      return;
-    }
-    m.source = orig.source;
-    m.originalLine = orig.line;
-    m.originalColumn = orig.column;
-    if (orig.name != null)
-      m.name = orig.name;
-  });
-}
-
-function onlyLookupColumnZero(con) {
-  var original = con.originalPositionFor;
-  con.originalPositionFor = function(pos) {
-    var res = original.call(this, {line: pos.line, column: 0});
-    return {
-      source: res.source,
-      line: res.line,
-      column: pos.column,
-      name: null
-    };
-  };
-}
-
 function done() {
   var i = maps.length - 1;
   var generator = Generator.fromSourceMap(maps[i]);
   while (i-- > 0) {
-    onlyLookupColumnZero(maps[i]);
     generator.applySourceMap(maps[i]);
   }
   var map = generator.toJSON();

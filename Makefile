@@ -108,7 +108,7 @@ closure_args_common = \
 closure_args_wrapper = \
 	$(closure_args_common)
 closure_args = \
-	--create_source_map $@.map \
+	--create_source_map $@.tmp.map \
 	--source_map_format V3 \
 	--source_map_location_mapping "build/js/|" \
 	--source_map_location_mapping "src/js/|../../src/js/" \
@@ -139,11 +139,14 @@ build/js/Cindy.plain.js build/js/ours.js build/js/exposed.js: \
 
 build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cindy.js.wrapper tools/apply-source-map.js
 	$(CLOSURE) $(closure_args)
-	$(NODE_CMD) $(filter %tools/apply-source-map.js,$^) -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
+	$(NODE_CMD) $(filter %tools/apply-source-map.js,$^) -f $(@F) \
+		build/js/Cindy.plain.js.map build/js/Cindy.closure.js.tmp.map \
+		> $@.map
 
 build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
 	@echo 'last_js_compiler=$(js_compiler)' > build/js_compiler.mk
-	cp $< $@
+	sed 's,sourceMappingURL=$(<F).map,sourceMappingURL=$(@F).map,g' < $< > $@
+	sed 's,\("file": *\)"$(<F)",\1"$(@F)",g' < $<.map > $@.map
 
 -include build/js_compiler.mk
 

@@ -11,9 +11,10 @@ var outDir = "build/deploy";
 var head = null;
 
 var handlers = {
-    "Cindy.closure.js": renameMain,
+    "Cindy.closure.js": false,
     "Cindy.closure.js.map": false,
-    "Cindy.js": false,
+    "Cindy.closure.js.tmp.map": false,
+    "Cindy.js": subst,
     "Cindy.js.map": map,
     "Cindy.plain.js": false,
     "Cindy.plain.js.map": false,
@@ -58,11 +59,11 @@ function lsDir(err, files) {
     });
 }
 
-function renameMain(name, err, content) {
+function subst(name, err, content) {
     if (err) throw err;
     content = content.toString();
     content = content.replace(/\$gitid\$/, head);
-    fs.writeFile(path.join(outDir, "Cindy.js"), content);
+    fs.writeFile(path.join(outDir, name), content);
 }
 
 var mapKeys = ["version", "file", "sourceRoot", "sources", "names", "mappings"];
