@@ -47,11 +47,15 @@ NODE_VERSION:=0.12.6
 NODE_URLBASE:=http://nodejs.org/dist
 NODE_TAR:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH).tar.gz
 NODE_URL:=$(NODE_URLBASE)/v$(NODE_VERSION)/$(NODE_TAR)
+
+NODE:=node
 NPM:=npm
-NPM_DEP:=$(shell $(NPM) -version > /dev/null 2>&1 || echo download/node/bin/npm)
+cmd_needed=$(shell $(1) >/dev/null 2>&1 || echo needed)
+NODE_NEEDED:=$(call cmd_needed,$(NODE) tools/check-node-version.js)
+NPM_NEEDED:=$(call cmd_needed,$(NPM) -version)
+NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),download/node/bin/npm,)
 NODE_PATH:=PATH=node_modules/.bin:$(if $(NPM_DEP),$(dir $(NPM_DEP)):,)$$PATH
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
-NODE:=node
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
 
 download/arch/$(NODE_TAR):
