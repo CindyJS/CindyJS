@@ -151,7 +151,7 @@ ifneq ($(js_compiler),$(last_js_compiler))
 endif
 
 ######################################################################
-## Run jshint to detect syntax problems
+## Run js-beautify for consistent coding style
 ######################################################################
 
 beautify: build/node_modules.stamp
@@ -163,7 +163,7 @@ beautify: build/node_modules.stamp
 ## Run jshint to detect syntax problems
 ######################################################################
 
-jshint: build/node_modules.stamp
+jshint: build/node_modules.stamp build/js/ours.js
 	$(NODE_PATH) jshint -c Administration/jshint.conf --verbose --reporter '$(CURDIR)/tools/jshint-reporter.js' $(filter %.js,$^)
 
 .PHONY: jshint
