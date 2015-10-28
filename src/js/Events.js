@@ -258,6 +258,7 @@ function updateCindy() {
     //   console.log("NOW UPDATING");
     //  drawgrid();
     csport.greset();
+    draw_traces();
     render();
     csctx.restore();
 }
