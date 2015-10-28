@@ -239,7 +239,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         // handle modifs
         if (modifs !== null) {
             // workaround since conic width !== line width in default settings
-            if (modifs.size == null) modifs.size = CSNumber.real(4 / 2.5);
+            if (modifs.size === null) modifs.size = CSNumber.real(4 / 2.5);
 
             Render2D.handleModifs(modifs, Render2D.conicModifs);
         }

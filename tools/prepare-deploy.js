@@ -25,6 +25,8 @@ var handlers = {
     "exposed.js.map": false,
     "katex": true,
     "katex-plugin.js": true,
+    "ours.js": false,
+    "ours.js.map": false,
     "quickhull3d": true,
     "webfont.js": true,
 };
