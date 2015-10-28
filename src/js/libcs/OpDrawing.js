@@ -116,14 +116,13 @@ evaluator.fillarc$3 = function(args, modifs) {
 
 
 eval_helper.drawarc = function(args, modifs, df) {
-    // todo fill
-    var v1 = evaluateAndVal(args[0]);
-    var v2 = evaluateAndVal(args[1]);
-    var v3 = evaluateAndVal(args[2]);
+    var a = evaluateAndHomog(args[0]);
+    var b = evaluateAndHomog(args[1]);
+    var c = evaluateAndHomog(args[2]);
 
-    var a = List.normalizeZ(csgeo.csnames[args[0].name].homog);
-    var b = List.normalizeZ(csgeo.csnames[args[1].name].homog);
-    var c = List.normalizeZ(csgeo.csnames[args[2].name].homog);
+    // check for complex values
+    if (!List._helper.isAlmostReal(List.turnIntoCSList([a, b, c]))) return nada;
+
     var abcdet = List.det3(a, b, c);
 
     if (Math.abs(abcdet.value.real) > 1e-12) { // we have an arc, not segment
@@ -149,6 +148,9 @@ eval_helper.drawarc = function(args, modifs, df) {
         var endAngle = -Math.atan2(cc.value[1].value.real, cc.value[0].value.real);
 
         cen = List.normalizeZ(cen);
+        a = List.normalizeZ(a);
+        b = List.normalizeZ(b);
+        c = List.normalizeZ(c);
         var arcDist = List.abs(List.sub(a, cen));
 
         // x, y vals of the center
@@ -203,7 +205,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         }
 
 
-        if (df === "F" || false) {
+        if (df === "F") {
             csctx.fillStyle = Render2D.lineColor;
             csctx.closePath();
             csctx.fill();
@@ -215,9 +217,11 @@ eval_helper.drawarc = function(args, modifs, df) {
         csctx.restore();
 
     } else { // segment case
-        var ptA = eval_helper.extractPoint(v1);
-        var ptB = eval_helper.extractPoint(v2);
-        var ptC = eval_helper.extractPoint(v3);
+        if (df !== "D") return nada; // Nothing to fill in the degenerate case
+        var ptA = eval_helper.extractPoint(a);
+        var ptB = eval_helper.extractPoint(b);
+        var ptC = eval_helper.extractPoint(c);
+        if (!ptA.ok || !ptB.ok || !ptC.ok) return nada;
 
         // dists
         var dAB = (ptA.x - ptB.x) * (ptA.x - ptB.x) + (ptA.y - ptB.y) * (ptA.y - ptB.y);
@@ -225,16 +229,12 @@ eval_helper.drawarc = function(args, modifs, df) {
         var dBC = (ptC.x - ptB.x) * (ptC.x - ptB.x) + (ptC.y - ptB.y) * (ptC.y - ptB.y);
 
         // if 2 points are the same return nada;
-        if (dAB < 1e-12 || dAB < 1e-12 || dAB < 1e-12) return nada;
-
-        // drawing points
-        var pt1, pt2, pt3;
+        if (dAB < 1e-12 || dAC < 1e-12 || dBC < 1e-12) return nada;
 
         // check by dets if B is in the middle
-        var randP = List.realVector([10 * Math.random(), 10 * Math.random(), 10 * Math.random()]);
-        var detABP = List.det3(a, b, randP).value.real;
-        var detACP = List.det3(b, c, randP).value.real;
-        var Bmiddle = detABP * detACP > 0;
+        var crossr = List.crossratio3(a, c, b, List.cross(List.cross(a, b), List.linfty), List.ii);
+        var Bmiddle = crossr.value.real < 0;
+
 
         // handle modifs
         if (modifs !== null) {
@@ -247,9 +247,7 @@ eval_helper.drawarc = function(args, modifs, df) {
 
         // if B is in the middle we are fine
         if (Bmiddle) {
-            pt1 = ptA;
-            pt2 = ptC;
-            Render2D.drawsegcore(pt1, pt2);
+            Render2D.drawsegcore(ptA, ptC);
         } else { // nasty case -- B not in the middle -- we have 2 ray to infinity
 
             // flip the orientation to the right side 
@@ -260,22 +258,21 @@ eval_helper.drawarc = function(args, modifs, df) {
             var dx = sflip * (ptA.x - ptB.x);
             var dy = sflip * (ptA.y - ptB.y);
             var norm = Math.sqrt(dx * dx + dy * dy);
-            dx = dx / norm;
-            dy = dy / norm;
 
-            var ptATmp = eval_helper.extractPoint(v1);
             // get points outside canvas (at "infinity")
-            ptATmp.x = 1000 * dx + ptATmp.x;
-            ptATmp.y = 1000 * dy + ptATmp.y;
-            Render2D.drawsegcore(ptA, ptATmp);
-
-            // second ray
-            ptATmp = eval_helper.extractPoint(v3);
-            dx = -dx;
-            dy = -dy;
-            ptATmp.x = 1000 * dx + ptATmp.x;
-            ptATmp.y = 1000 * dy + ptATmp.y;
-            Render2D.drawsegcore(ptC, ptATmp);
+            var sc = csport.drawingstate.matrix.sdet;
+            var farAway = 25000 / sc; // 25000px in user coordinates
+            var factor = farAway / norm;
+            dx = dx * factor;
+            dy = dy * factor;
+            Render2D.drawsegcore(ptA, {
+                x: ptA.x + dx,
+                y: ptA.y + dy
+            });
+            Render2D.drawsegcore(ptC, {
+                x: ptC.x - dx,
+                y: ptC.y - dy
+            });
         }
     }
 

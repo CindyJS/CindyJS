@@ -4,61 +4,15 @@ var fs = require("fs");
 var util = require("util");
 var stream = require("stream");
 var path = require("path");
-var sourcemap = require("source-map");
-
-function LineCounter(source) {
-  stream.Transform.call(this, {});
-  this.atLF = false;
-  this.source = source;
-  this.line = 0;
-  this.col = 0;
-}
-util.inherits(LineCounter, stream.Transform);
-LineCounter.prototype._transform = function (chunk, encoding, callback) {
-  for (var i = 0; i < chunk.length; ++i) {
-    var chr = chunk[i];
-    ++this.col;
-    if (this.atLF = (chr === 10)) {
-      if (this.line !== 0)
-        smg.addMapping({
-          generated: { line: outLine, column: this.col },
-          source: this.source,
-          original: { line: this.line, column: this.col }
-        });
-      this.col = 0;
-      smg.addMapping({
-        generated: { line: ++outLine, column: 0 },
-        source: this.source,
-        original: { line: ++this.line, column: 0 }
-      });
-    }
-  }
-  this.push(chunk);
-  callback();
-};
-LineCounter.prototype._flush = function (callback) {
-  if (!this.atLF) {
-    ++this.col;
-    smg.addMapping({
-      generated: { line: outLine, column: this.col },
-      source: this.source,
-      original: { line: this.line, column: this.col }
-    });
-    ++outLine;
-    ++this.line;
-    this.col = 0;
-    this.push(this.NL);
-  }
-  callback();
-};
-LineCounter.prototype.NL = new Buffer([10]);
+var createDummySourceMap = require("source-map-dummy");
+var Concat = require("concat-with-sourcemaps");
 
 function relative(from, to) {
+  if (typeof from !== "string") return to;
   return path.relative(path.dirname(from), to);
 }
 
-var inputs = [], lines = [], out = null, map = null;
-var outStream, smg, outLine = 0;
+var inputs = [], nextInput = 0, concat = null, out = null, map = null;
 
 function processCommandLine() {
   var args = process.argv, n = args.length, i, arg;
@@ -87,23 +41,54 @@ function processCommandLine() {
     if (map === null)
       map = out + ".map";
   }
-  smg = new sourcemap.SourceMapGenerator({file: relative(map, out)});
-  outStream = out ? fs.createWriteStream(out) : process.stdout;
-  more(0);
+  concat = new Concat(true, relative(map, out) || "out.js", "");
+  for (var i = 0; i < inputs.length; ++i) {
+    fs.readFile(inputs[i], "utf8", inputRead.bind(null, i, inputs[i]));
+    inputs[i] = null;
+  }
 }
 
 process.nextTick(processCommandLine);
 
-function more(i) {
-  if (i >= inputs.length) return done();
-  var lct = new LineCounter(relative(map, inputs[i]));
-  fs.createReadStream(inputs[i]).pipe(lct).pipe(outStream, {end:false});
-  lct.on('end', more.bind(null, i + 1));
+function inputRead(i, name, err, data) {
+  if (err) throw err;
+  inputs[i] = {name: name, src: data};
+  while (nextInput < inputs.length) {
+    var input = inputs[nextInput];
+    if (input === null)
+      return; // abort loop, wait till that input becomes available
+    addInput(input.name, input.src);
+    ++nextInput;
+  }
+  // loop terminated because we successfully processed all inputs
+  writeOutput();
 }
 
-function done() {
-  if (!out) return;
-  outStream.write("//# sourceMappingURL=" + relative(out, map) + "\n");
-  outStream.end();
-  fs.writeFileSync(map, smg.toString());
+function addInput(name, src) {
+  name = relative(map, name);
+  if (!/\r?\n$/.test(src))
+    src += "\n";
+  var sm = createDummySourceMap(src, {
+    source: name,
+    type: "js"
+  });
+  concat.add(name, src, sm);
+}
+
+function writeOutput() {
+  var content = concat.content;
+  if (!/\r?\n$/.test(content))
+    content += "\n";
+  if (map) {
+    content += "//# sourceMappingURL=" + relative(out, map) + "\n";
+    fs.writeFile(map, concat.sourceMap, reportError);
+  }
+  if (out)
+    fs.writeFile(out, content, reportError);
+  else
+    process.stdout.write(content);
+}
+
+function reportError(err) {
+  if (err) throw err;
 }
