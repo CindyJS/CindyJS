@@ -569,7 +569,6 @@ geoOps.Compass.updatePosition = function(el) {
 
     var matrix = geoOps._helper.CircleMP(m, p);
     matrix = List.normalizeMax(matrix);
-    console.log(matrix);
     el.matrix = General.withUsage(matrix, "Circle");
 };
 
@@ -1094,8 +1093,6 @@ geoOps.angleBisector.updatePosition = function(el) {
     erg1 = List.normalizeMax(erg1);
     erg2 = List.normalizeMax(erg2);
 
-    console.log(erg1, erg2, "erg1", "erg2");
-
     el.results = tracing2(erg1, erg2);
 };
 geoOps.angleBisector.stateSize = tracing2.stateSize;
@@ -1526,6 +1523,11 @@ geoMacros.IntersectionCircleCircle = function(el) {
 geoMacros.PolarLine = function(el) {
     el.args = [el.args[1], el.args[0]];
     el.type = "Polar";
+    return [el];
+};
+
+geoMacros.Parallel = function(el) {
+    el.type = "Para";
     return [el];
 };
 

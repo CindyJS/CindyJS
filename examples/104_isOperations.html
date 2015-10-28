@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+
+<script id="csdraw" type="text/x-cindyscript">
+println("ispoint: point, line");
+println(ispoint(A));
+println(ispoint(a));
+
+println("isline: point, line");
+println(isline(A));
+println(isline(a));
+
+
+println("iscircle: circle, conic");
+println(iscircle(C0));
+println(iscircle(C1));
+
+
+println("isconic: circle, conic");
+println(isconic(C0));
+println(isconic(C1));
+
+println("isgeometric: circle, conic, line, string, int");
+int = 5;
+println(isgeometric(C0));
+println(isgeometric(C1));
+println(isgeometric(a));
+println(isgeometric("Test"));
+println(isgeometric(int));
+
+println("issun: sun, mass, point");
+println(issun(S));
+println(issun(M));
+println(issun(A));
+
+
+println("ismass: sun, mass, point");
+println(ismass(S));
+println(ismass(M));
+println(ismass(A));
+
+
+println("isspring: spring, bouncer, line");
+println(isspring(spring));
+println(isspring(bounce));
+println(isspring(a));
+
+
+println("isbouncer: spring, bouncer, line");
+println(isbouncer(spring));
+println(isbouncer(bounce));
+println(isbouncer(a));
+
+
+println("isundefined: defined, undefined");
+println(isundefined(a));
+println(isundefined(aaa));
+</script>
+
+    <script type="text/javascript">
+var cdy = createCindy({
+  scripts: "cs*",
+  defaultAppearance: {},
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 335,
+    background: "rgb(168,176,192)",
+    transform: [{visibleRect: [-9.04, 9.32, 18.16, -4.08]}]
+  }],
+  geometry: [
+    {name: "S", type: "Free", pos: [-0.03508771929824561, -7, -0.8771929824561404], color: [1, 1, 0], labeled: true},
+    {name: "M", type: "Free", pos: [-2.0350877192982457, -7, -0.8771929824561404], color: [1, 0, 1], labeled: true},
+    {name: "A", type: "Free", pos: [-0.03508771929824561, -4, -0.8771929824561404], color: [1, 0, 0], labeled: true},
+    {name: "B", type: "Free", pos: [4, 0.6382978723404256, 1.0638297872340425], color: [1, 0, 0], labeled: true},
+    {name: "C", type: "Free", pos: [4, 3.272727272727273, 0.6493506493506493], color: [1, 0, 0], labeled: true},
+    {name: "C0", type: "CircleBy3", args: ["C", "A", "B"], size: 1, color: [0, 0, 1], printname: "$C_{0}$"},
+    {name: "D", type: "Free", pos: [4, -0.9504950495049505, 0.49504950495049505], color: [1, 0, 0], labeled: true},
+    {name: "E", type: "Free", pos: [4, 0.5289256198347108, 0.4132231404958678], color: [1, 0, 0], labeled: true},
+    {name: "C1", type: "ConicBy5", args: ["E", "A", "B", "D", "C"], size: 1, color: [0, 0, 1], printname: "$C_{1}$"},
+    {name: "bounce", type: "Segment", args: ["A", "D"], pos: [0.06884681583476773, -0.8777969018932874, 4], size: 1, labeled: true},
+    {name: "spring", type: "Segment", args: ["A", "E"], pos: [0.06884681583476773, -0.8777969018932874, 4], size: 1, labeled: true},
+    {name: "a", type: "Join", args: ["C", "A"], pos: [0.06884681583476773, -0.8777969018932874, 4], size: 1, color: [0, 0, 1], labeled: true},
+    {name: "G", type: "Free", pos: [4, -1.925925925925926, -0.9259259259259259], color: [1, 0, 0], labeled: true}
+  ],
+  behavior: [
+    {behavior: {type: "Environment", deltat: 0.2, accuracy: 10}},
+    {name: "M", behavior: {type: "Mass", vy: 0.7}},
+    {name: "S", behavior: {type: "Sun"}},
+    {name: "spring", behavior: {type: "Spring"}},
+    {name: "bounce", behavior: {type: "Bouncer"}}
+  ]
+});
+</script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

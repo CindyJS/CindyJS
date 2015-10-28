@@ -1107,7 +1107,7 @@ animstate=animstate+0.1
 errc(animstate);
 if(animstate>=1,
  animstate=1;
- javascript("cdy.csstop()");
+ javascript("cdy.stop()");
 );
 if(animstate>=0,
   choice=newchoice
@@ -1122,7 +1122,7 @@ if((choice!=newchoice) & (animstate==1),
   animstate=-1;
   errc(animstate);
 
-  javascript("csplay()");
+  javascript("cdy.play()");
 
 );
 

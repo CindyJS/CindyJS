@@ -300,14 +300,20 @@ The following operators generate pseudo random numbers.
 #### Uniformly distributed random real number between 0 and 1: `random()`
 
     > random()
-    < 0.4680764123124367
-    ~ 0\.\d{4,}
+    < 0.468
+    ~ 0(\.\d+)?
+    > 1000*random()
+    < 278.4083
+    ~ \d+(\.\d+)?
 
 #### (0,1)-normally distributed random number: `randomnormal()`
 
     > randomnormal()
-    < 0.1325114717517828
-    ~ -?\d+\.\d{4,}
+    < 0.1325
+    ~ -?\d+(\.\d+)?
+    > 1000*randomnormal()
+    < -1199.8909
+    ~ -?\d+(\.\d+)?
 
 #### Random boolean value `true` or `false`: `randombool()`
 
@@ -318,11 +324,14 @@ The following operators generate pseudo random numbers.
 #### Uniformly distributed random real number between 0 and `‹number›`: `random(‹number›)`
 
     > random(10)
-    < 7.089078226464412
-    ~ \d\.\d{3,}
+    < 7.089
+    ~ \d(\.\d+)?
+    > random(1000)
+    < 882.4784
+    ~ \d+(\.\d+)?
     > sum(1..1000, random(5))
-    < 2464.8003929607607
-    ~ 2\d\d\d\.\d+
+    < 2464.8004
+    ~ 2\d\d\d(\.\d+)?
 
 #### Uniformly distributed random integer number between 0 and `‹number›`: `randomint(‹number›)`
 
