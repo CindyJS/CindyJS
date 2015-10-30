@@ -148,7 +148,13 @@ function getType(expr, fun) { //expression, current function
     
     //@TODO, implement complex->true and remove the following line
     //@rethink: use stack instead of scopes? # # #...
-    if(name === '#') return type.complex;
+    if(name === '#') {
+      /*if(modifs[generatecomplexresult]) { //better as uniform type handling
+        return type.complex;
+      }*/
+      return type.vec2; //type.complex if complex->true
+      
+    }
     if(name === 'pi') return type.float;
     
     if(T.hasOwnProperty(fun) && T[fun].hasOwnProperty(name)) { //is there some local variable

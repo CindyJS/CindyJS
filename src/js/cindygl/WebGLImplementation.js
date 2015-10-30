@@ -20,6 +20,7 @@ function identity(x) {return x};
 var float2cpl = function(f) {
   return 'vec2(' + f + ', 0.)';
 }
+
 var color2vec3 = function(c) {
   return '(' + c + ').rgb';
 }
@@ -30,6 +31,14 @@ var vec22point = function(v) {
   return 'vec3(' + v + ',1.0)'; //homogenize
 }
 
+var getReal = function(c) {
+  return '(' + c + ').x';
+}
+
+var getImag = function(c) {
+  return '(' + c + ').y';
+}
+
 var inclusionfunction = {};
 for(let t in type) {
   inclusionfunction[type[t]] = {};
@@ -38,9 +47,11 @@ for(let t in type) {
 inclusionfunction[type.bool][type.int] = usefunction('int'); // use int(...) to cast from boolean to int
 inclusionfunction[type.int][type.float] = usefunction('float');
 inclusionfunction[type.float][type.complex] = float2cpl;
-inclusionfunction[type.complex][type.vec2] = identity;
+inclusionfunction[type.float][type.color] = useincludefunction('float2color');
+
+//inclusionfunction[type.complex][type.vec2] = identity;
 inclusionfunction[type.color][type.vec3] = color2vec3;
-inclusionfunction[type.vec2][type.complex] = identity;
+//inclusionfunction[type.vec2][type.complex] = identity;
 inclusionfunction[type.vec2][type.point] = vec22point;
 
 
@@ -79,7 +90,9 @@ webgltr['+'] = webgltr['add'];
 webgltr["mult"] = [
   [int_fun$2, useinfix('*')],
   [float_fun$2, useinfix('*')],
-  [complex_fun$2, useincludefunction('multc')]
+  [complex_fun$2, useincludefunction('multc')],
+  [vec22float_fun$2, usefunction('dot')],
+  [vec32float_fun$2, usefunction('dot')]
 ];
 webgltr['*'] = webgltr['mult'];
 
@@ -109,6 +122,28 @@ webgltr['arctan2'] = [
 webgltr["hue"] = [
   [{args:[type.float], res: type.color},  useincludefunction('hue')]
 ];
+
+
+
+
+webgltr["complex"] = [
+  [{args: [type.vec2], res: type.complex}, identity]
+];
+
+webgltr["re"] = [
+  [complex2float_fun$1, getReal]
+];
+
+webgltr["im"] = [
+  [complex2float_fun$1, getImag]
+];
+
+webgltr["genList"] = [
+  [{args: [type.float, type.float],             res: type.vec2}, usefunction('vec2')],
+  [{args: [type.float, type.float, type.float], res: type.vec3}, usefunction('vec3')]
+  //@TODO: real lists in glsl
+];
+
 
 
 

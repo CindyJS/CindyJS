@@ -22,12 +22,12 @@ Object.freeze(type);
 // - it is sufficient to list generators only
 subtypegen[type.bool] = [type.int];
 subtypegen[type.int] = [type.float];
-subtypegen[type.float] = [type.complex];
+subtypegen[type.float] = [type.complex, type.color]; //color: as gray
 
-subtypegen[type.complex] = [type.vec2];
+subtypegen[type.complex] = []; //NOT type.vec2: because no automatic cast in cindyJS
 subtypegen[type.color] = [type.vec3];
 
-subtypegen[type.vec2] = [type.complex, type.point];
+subtypegen[type.vec2] = [type.point];
 subtypegen[type.vec3] = [type.color, type.point];
 
 subtypegen[type.point] = [type.vec2, type.vec3]; //in R^2 or in RP^3
@@ -55,12 +55,16 @@ const float2complex_fun$2 = {args: [type.float, type.float],     res: type.compl
 const complex2float_fun$1 = {args: [type.complex],               res: type.float};
 const complex2float_fun$2 = {args: [type.complex, type.complex], res: type.float};
 
+const vec22float_fun$2   = {args: [type.vec2, type.vec2],     res: type.float};
+const vec32float_fun$2   = {args: [type.vec3, type.vec3],     res: type.float};
+
+const point2float_fun$2   = {args: [type.point, type.point],     res: type.float};
+
 
 
 const template1 = makeTemplate(1);
 const template2 = makeTemplate(2);
 const template3 = makeTemplate(3);
-
 
 
 
@@ -121,7 +125,7 @@ typeinference["sub"] = [
 ];
 //- ("mult", 2, OpTimes.class); @done(2015-03-17)
 typeinference["mult"] = [
-  int_fun$2, float_fun$2, complex_fun$2
+  int_fun$2, float_fun$2, vec22float_fun$2, complex_fun$2, vec32float_fun$2
 ];
 //- ("div", 2, OpQuot.class); @done(2015-03-17)
 typeinference["div"] = [
@@ -608,6 +612,27 @@ typeinference["apply"] = [
 
 //- ("startrecording", 0, OpWriteSoundFile.class); @rethink
 //- ("writerecording", 1, OpStopSoundRecording.class); @rethink
+
+
+typeinference["complex"] = [
+  {args: [type.vec2], res: type.complex}
+];
+
+typeinference["re"] = [
+  complex2float_fun$1
+];
+
+typeinference["im"] = [
+  complex2float_fun$1
+];
+
+typeinference["genList"] = [
+  {args: [type.float, type.float],             res: type.vec2},
+  {args: [type.float, type.float, type.float], res: type.vec3}
+  //@TODO: real lists in glsl
+];
+
+
 
 Object.freeze(typeinference);
 
