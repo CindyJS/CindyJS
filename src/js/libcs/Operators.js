@@ -3677,6 +3677,7 @@ evaluator.use$1 = function(args, modifs) {
                 "config": instanceInvocationArguments,
                 "nada": nada,
                 "evaluate": evaluate,
+                "eval_helper": eval_helper,
                 "evaluateAndVal": evaluateAndVal,
                 "defineFunction": defineFunction,
                 "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),

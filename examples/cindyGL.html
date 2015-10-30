@@ -13,7 +13,7 @@ createCindy.registerPlugin(1,"testing",function(api){
   console.log("loading plugin testing");
   a = api;
   
-  api.defineFunction("compile",1,function(args,modifs){
+  api.defineFunction("parse",1,function(args,modifs){
     console.log(JSON.stringify(args[0]));
     //console.log("");
     //console.log(JSON.stringify(api.getMyfunctions()));
@@ -22,6 +22,7 @@ createCindy.registerPlugin(1,"testing",function(api){
 </script>
 
 <script id="csinit" type="text/x-cindyscript">
+use("testing");
 use("CindyGL");
 
 f(z, c) := z*z + c;
@@ -34,8 +35,11 @@ mandle(c) := (
    hue(arctan2(re(z), im(z))/pi)
 );
 
+parse((2,3));
+parse([2,3]);
 
-compile(mandle(#));
+parse(mandle(#));
+compile(mandle(complex(#)));
 </script>
 <script id="csmove" type="text/x-cindyscript">
 drawtext(A, z);

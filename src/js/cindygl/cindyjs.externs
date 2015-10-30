@@ -26,6 +26,7 @@ createCindy.op;
  *    config: Object,
  *    nada: createCindy.anyval,
  *    evaluate: function(createCindy.anyval):createCindy.anyval,
+ *    eval_helper: Object,
  *    evaluateAndVal: function(createCindy.anyval):createCindy.anyval,
  *    defineFunction: function(string,number,createCindy.op),
  *    addShutdownHook: function(function()),
