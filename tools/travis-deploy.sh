@@ -12,12 +12,12 @@ rm build/travis-ssh
 name=$(git describe --always)
 preserve=(.git README.md LICENSE)
 branch=snapshot
-cd build/js
-rm -rf ../deploy "${preserve[@]}"
-git clone --depth 1 --branch "${branch}" git@github.com:CindyJS/deploy.git ../deploy
+cd build/deploy
+rm -rf ../prevdeploy "${preserve[@]}"
+git clone --depth 1 --branch "${branch}" git@github.com:CindyJS/deploy.git ../prevdeploy
+cd ../prevdeploy
+mv "${preserve[@]}" ../deploy/
 cd ../deploy
-mv "${preserve[@]}" ../js/
-cd ../js
 git add -A
 git status
 if ! git diff --staged --quiet; then
@@ -27,4 +27,4 @@ if ! git diff --staged --quiet; then
     git push origin "${branch}"
 fi
 ssh-agent -k
-rm -rf ../deploy "${preserve[@]}"
+rm -rf ../prevdeploy "${preserve[@]}"

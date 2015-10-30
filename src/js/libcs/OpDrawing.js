@@ -239,7 +239,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         // handle modifs
         if (modifs !== null) {
             // workaround since conic width !== line width in default settings
-            if (modifs.size == null) modifs.size = CSNumber.real(4 / 2.5);
+            if (modifs.size === null) modifs.size = CSNumber.real(4 / 2.5);
 
             Render2D.handleModifs(modifs, Render2D.conicModifs);
         }
@@ -504,15 +504,16 @@ eval_helper.drawconic = function(aConic, modifs) {
 
 
         var rMat = get_rMat(angle);
-        var TrMat = numeric.transpose(rMat);
-        var tmp = numeric.dot(myMat, rMat);
-        tmp = numeric.dot(TrMat, tmp);
-        a = tmp[0][0];
-        b = tmp[1][0];
-        c = tmp[1][1];
-        d = tmp[2][0];
-        e = tmp[2][1];
-        f = tmp[2][2];
+        rMat = List.realMatrix(rMat);
+        var TrMat = List.transpose(rMat);
+        var tmp = General.mult(List.realMatrix(myMat), rMat);
+        tmp = General.mult(TrMat, tmp);
+        a = tmp.value[0].value[0].value.real;
+        b = tmp.value[1].value[0].value.real;
+        c = tmp.value[1].value[1].value.real;
+        d = tmp.value[2].value[0].value.real;
+        e = tmp.value[2].value[1].value.real;
+        f = tmp.value[2].value[2].value.real;
 
     }
 
@@ -646,12 +647,12 @@ eval_helper.drawconic = function(aConic, modifs) {
             if (useRot) {
                 var r1 = [x1, y, 1];
                 var r2 = [x2, y, 1];
-                r1 = numeric.dot(rMat, r1);
-                r2 = numeric.dot(rMat, r2);
-                x1 = r1[0];
-                x2 = r2[0];
-                y1 = r1[1];
-                y2 = r2[1];
+                r1 = General.mult(rMat, List.realVector(r1));
+                r2 = General.mult(rMat, List.realVector(r2));
+                x1 = r1.value[0].value.real;
+                x2 = r2.value[0].value.real;
+                y1 = r1.value[1].value.real;
+                y2 = r2.value[1].value.real;
             } else {
                 y1 = y;
                 y2 = y;

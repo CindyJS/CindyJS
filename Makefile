@@ -13,11 +13,11 @@ clean:
 
 libcs := src/js/libcs/Namespace.js src/js/libcs/Accessors.js src/js/libcs/CSNumber.js src/js/libcs/List.js src/js/libcs/Essentials.js src/js/libcs/General.js src/js/libcs/Operators.js src/js/libcs/OpDrawing.js src/js/libcs/OpImageDrawing.js src/js/libcs/Parser.js src/js/libcs/OpSound.js src/js/libcs/CSad.js src/js/libcs/Render2D.js
 
-libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/Tracing.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
+libgeo := src/js/libgeo/GeoState.js src/js/libgeo/GeoBasics.js src/js/libgeo/GeoRender.js src/js/libgeo/Tracing.js src/js/libgeo/GeoOps.js src/js/libgeo/GeoScripts.js
 
 liblab := src/js/liblab/LabBasics.js src/js/liblab/LabObjects.js
 
-lib := lib/numeric/numeric-1.2.6.js lib/clipper/clipper.js
+lib := lib/clipper/clipper.js
 
 inclosure = src/js/Setup.js src/js/Events.js src/js/Timer.js $(libcs) $(libgeo) $(liblab) $(extra_inclosure)
 
@@ -42,16 +42,20 @@ DOWNLOAD=$(if $(CURL_CMD),$(CURL_CMD),$(if $(WGET_CMD),$(WGET_CMD),$(error curl 
 ######################################################################
 
 NODE_OS:=$(subst Darwin,darwin,$(subst Linux,linux,$(shell uname -s)))
-NODE_ARCH:=$(subst x86_64,x86,$(subst i386,x86,$(subst i686,x86,$(shell uname -m))))
+NODE_ARCH:=$(subst x86_64,x64,$(subst i386,x86,$(subst i686,x86,$(shell uname -m))))
 NODE_VERSION:=0.12.6
 NODE_URLBASE:=http://nodejs.org/dist
 NODE_TAR:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH).tar.gz
 NODE_URL:=$(NODE_URLBASE)/v$(NODE_VERSION)/$(NODE_TAR)
+
+NODE:=node
 NPM:=npm
-NPM_DEP:=$(shell $(NPM) -version > /dev/null 2>&1 || echo download/node/bin/npm)
+cmd_needed=$(shell $(1) >/dev/null 2>&1 || echo needed)
+NODE_NEEDED:=$(call cmd_needed,$(NODE) tools/check-node-version.js)
+NPM_NEEDED:=$(call cmd_needed,$(NPM) -version)
+NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),download/node/bin/npm,)
 NODE_PATH:=PATH=node_modules/.bin:$(if $(NPM_DEP),$(dir $(NPM_DEP)):,)$$PATH
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
-NODE:=node
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
 
 download/arch/$(NODE_TAR):
@@ -108,7 +112,7 @@ closure_args_common = \
 closure_args_wrapper = \
 	$(closure_args_common)
 closure_args = \
-	--create_source_map $@.map \
+	--create_source_map $@.tmp.map \
 	--source_map_format V3 \
 	--source_map_location_mapping "build/js/|" \
 	--source_map_location_mapping "src/js/|../../src/js/" \
@@ -139,11 +143,14 @@ build/js/Cindy.plain.js build/js/ours.js build/js/exposed.js: \
 
 build/js/Cindy.closure.js: tools/compiler.jar build/js/Cindy.plain.js src/js/Cindy.js.wrapper tools/apply-source-map.js
 	$(CLOSURE) $(closure_args)
-	$(NODE_CMD) $(filter %tools/apply-source-map.js,$^) -f Cindy.js build/js/Cindy.plain.js.map build/js/Cindy.closure.js.map > build/js/Cindy.js.map
+	$(NODE_CMD) $(filter %tools/apply-source-map.js,$^) -f $(@F) \
+		build/js/Cindy.plain.js.map build/js/Cindy.closure.js.tmp.map \
+		> $@.map
 
 build/js/Cindy.js: build/js/Cindy.$(js_compiler).js
 	@echo 'last_js_compiler=$(js_compiler)' > build/js_compiler.mk
-	cp $< $@
+	sed 's,sourceMappingURL=$(<F).map,sourceMappingURL=$(@F).map,g' < $< > $@
+	sed 's,\("file": *\)"$(<F)",\1"$(@F)",g' < $<.map > $@.map
 
 -include build/js_compiler.mk
 
@@ -152,7 +159,7 @@ ifneq ($(js_compiler),$(last_js_compiler))
 endif
 
 ######################################################################
-## Run jshint to detect syntax problems
+## Run js-beautify for consistent coding style
 ######################################################################
 
 beautify: build/node_modules.stamp
@@ -164,7 +171,7 @@ beautify: build/node_modules.stamp
 ## Run jshint to detect syntax problems
 ######################################################################
 
-jshint: build/node_modules.stamp
+jshint: build/node_modules.stamp build/js/ours.js
 	$(NODE_PATH) jshint -c Administration/jshint.conf --verbose --reporter '$(CURDIR)/tools/jshint-reporter.js' $(filter %.js,$^)
 
 .PHONY: jshint
@@ -199,7 +206,7 @@ tests: unittests
 
 .PHONY: alltests beautified
 
-alltests: all tests jshint beautified
+alltests: all tests jshint beautified deploy
 
 beautified:
 	git diff --exit-code --name-only
@@ -342,6 +349,16 @@ build/js/katex-plugin.js: src/js/katex/katex-plugin.js
 katex: $(katex_src:lib/%=build/js/%) build/js/katex-plugin.js
 all: katex
 .PHONY: katex
+
+######################################################################
+## Copy things which constitute a release
+######################################################################
+
+.PHONY: deploy
+deploy: all build/js/Cindy.closure.js
+	rm -rf build/deploy
+	mkdir -p build/deploy
+	$(NODE_CMD) tools/prepare-deploy.js
 
 ######################################################################
 ## Help debugging a remote site
