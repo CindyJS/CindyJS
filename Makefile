@@ -287,30 +287,6 @@ cindy3d-dbg:
 .PHONY: cindy3d
 
 ######################################################################
-## Download Apache Ant to build java-like projects
-######################################################################
-
-ANT_VERSION=1.9.6
-ANT_MIRROR=http://archive.apache.org/dist
-ANT_PATH=ant/binaries
-ANT_ZIP=apache-ant-$(ANT_VERSION)-bin.zip
-ANT_URL=$(ANT_MIRROR)/$(ANT_PATH)/$(ANT_ZIP)
-
-download/arch/$(ANT_ZIP):
-	mkdir -p $(@D)
-	$(DOWNLOAD) $@ $(ANT_URL)
-
-download/ant/bin/ant: download/arch/$(ANT_ZIP)
-	rm -rf download/ant download/apache-ant-*
-	cd download && unzip arch/$(ANT_ZIP)
-	mv download/apache-ant-$(ANT_VERSION) download/ant
-	touch $@
-
-ANT:=ant
-ANT_DEP:=$(shell $(ANT) -version > /dev/null 2>&1 || echo download/ant/bin/ant)
-ANT_CMD:=$(if $(ANT_DEP),$(ANT_DEP),$(ANT))
-
-######################################################################
 ## Run GWT for each listed GWT module
 ######################################################################
 
