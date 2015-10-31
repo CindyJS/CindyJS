@@ -239,20 +239,59 @@ function createCindyNow() {
             createCindy.instances[--i].shutdown();
     }
     createCindy.instances.push(globalInstance);
-
-    //Evaluate Init script
     if (instanceInvocationArguments.use)
         instanceInvocationArguments.use.forEach(function(name) {
             evaluator.use$1([General.wrap(name)], {});
         });
+    loadExtraModules();
+    doneLoadingModule();
+}
+
+function loadExtraModules() {
+    if (usedFunctions.convexhull3d$1)
+        loadExtraPlugin("quickhull3d", "quickhull3d/quickhull3d.nocache.js");
+}
+
+var modulesToLoad = 1;
+
+function loadExtraPlugin(name, path) {
+    var cb = null;
+    if (instanceInvocationArguments.plugins)
+        cb = instanceInvocationArguments.plugins[name];
+    if (!cb)
+        cb = createCindy._pluginRegistry[name];
+    if (cb) {
+        evaluator.use$1([General.wrap(name)], {});
+        return;
+    }
+    ++modulesToLoad;
+    createCindy.autoLoadPlugin(name, path, function() {
+        evaluator.use$1([General.wrap(name)], {});
+        doneLoadingModule();
+    });
+}
+
+function loadExtraModule(name, path) {
+    ++modulesToLoad;
+    createCindy.loadScript(name, path, doneLoadingModule, function() {
+        console.error(
+            "Failed to load " + path + ", can't start CindyJS instance");
+        shutdown();
+    });
+}
+
+function doneLoadingModule() {
+    if (--modulesToLoad !== 0)
+        return;
+
+    //Evaluate Init script
     evaluate(cscompiled.init);
 
-    if (data.autoplay)
+    if (instanceInvocationArguments.autoplay)
         csplay();
 
-    if (c)
-        setuplisteners(c, data);
-
+    if (globalInstance.canvas)
+        setuplisteners(globalInstance.canvas, instanceInvocationArguments);
 }
 
 var backup = null;
