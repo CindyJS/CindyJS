@@ -3692,6 +3692,7 @@ evaluator.use$1 = function(args, modifs) {
                 "getMyfunctions": function() {
                     return myfunctions;
                 },
+                "Accessor": Accessor
             });
             return {
                 "ctype": "boolean",

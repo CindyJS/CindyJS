@@ -21,12 +21,13 @@ createCindy.anyval;
  *            createCindy.anyval} */
 createCindy.op;
 
+
 /** @typedef {{
  *    instance: Object,
  *    config: Object,
  *    nada: createCindy.anyval,
  *    evaluate: function(createCindy.anyval):createCindy.anyval,
- *    eval_helper: Object,
+ *    eval_helper: {extractPoint: function(createCindy.anyval):{ok: boolean, x:number, y:number}},
  *    evaluateAndVal: function(createCindy.anyval):createCindy.anyval,
  *    defineFunction: function(string,number,createCindy.op),
  *    addShutdownHook: function(function()),
@@ -34,7 +35,10 @@ createCindy.op;
  *    getVariable: function(string):createCindy.anyval,
  *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
  *      tx:number,ty:number,det:number,sdet:number},
- *    getMyfunctions: function()
+ *    getMyfunctions: function(),
+ *    Accessor: {
+ *       getField: function(createCindy.anyval, string)
+ *    }
  *  }}
  */
 createCindy.pluginApi;

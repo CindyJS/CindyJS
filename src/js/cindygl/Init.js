@@ -1,4 +1,7 @@
+/** @type {boolean} */
 var isinitialized = false;
+
+/** @type {HTMLCanvasElement|Element} */
 var glcanvas;
 
 /** @type {WebGLRenderingContext} */
@@ -25,11 +28,11 @@ function initGLIfRequired() {
     glcanvas.addEventListener(
       "webglcontextcreationerror",
       onContextCreationError, false);
-    /** @type {WebGLRenderingContext} */
-     gl = /** @type {WebGLRenderingContext} */(
+    
+     gl = (
       glcanvas.getContext("webgl"));
     if (!gl)
-      gl = /** @type {WebGLRenderingContext} */(
+      gl = (
         glcanvas.getContext("experimental-webgl"));
     if (!gl)
       throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);

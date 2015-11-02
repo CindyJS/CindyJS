@@ -30,24 +30,36 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var name = api.evaluate(args[2]);
     var prog = args[3];
 
-/*
+
+  console.log(name);
+    console.log(a);
+
     var pta = api.eval_helper.extractPoint(a);
-    var ptb = api.eval_helper.extractPoint(b);
-    if (!pta.ok || !ptb.ok || name.ctype !== 'string') {
+    //var ptb = api.eval_helper.extractPoint(b);
+    let x = api.Accessor.getField(a.value, "x");
+    console.log(x);
+    
+    console.log(pta);
+    
+    if (name.ctype !== 'string') {
         return nada;
     }
-    */
+    
+    console.log("hier");
+    
+    
     var localcanvas = document.getElementById(name.value);
+    console.log(localcanvas);
     if (typeof(localcanvas) === "undefined" || localcanvas === null) {
         return nada;
     }
-
+    
+    console.log("da");
 
     var cw = localcanvas.width;
     var ch = localcanvas.height;
     
-    console.log(name);
-    console.log(a);
+    
     
     
 
