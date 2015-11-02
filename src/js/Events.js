@@ -114,8 +114,8 @@ function setuplisteners(canvas, data) {
 
     function updatePostition(event) {
         var rect = canvas.getBoundingClientRect();
-        var x = event.clientX - rect.left - canvas.clientLeft;
-        var y = event.clientY - rect.top - canvas.clientTop;
+        var x = event.clientX - rect.left - canvas.clientLeft + 0.5;
+        var y = event.clientY - rect.top - canvas.clientTop + 0.5;
         var pos = csport.to(x, y);
         mouse.prevx = mouse.x;
         mouse.prevy = mouse.y;
