@@ -2685,17 +2685,7 @@ evaluator.javascript$1=function(args,modifs){
 
 evaluator.use$1=function(args,modifs){
     function defineFunction(name, arity, impl) {
-        // The following can be simplified once we handle arity differently.
-        var old = evaluator[name];
-        var chain = function(args, modifs) {
-            if (args.length === arity)
-                return impl(args, modifs);
-            else if (old)
-                return old(args, modifs);
-            else
-                throw "No implementation for " + name + "(" + arity + ")";
-        };
-        evaluator[name] = chain;
+        evaluator[name + "$" + arity] = impl;
     }
     var v0=evaluate(args[0]);
     if (v0.ctype==="string") {
