@@ -717,7 +717,7 @@ function postfix_numb_degree(args, modifs) {
     var v1 = evaluateAndVal(args[1]);
 
     if (v0.ctype === 'number' && v1.ctype === 'void') {
-        return CSNumber.mult(v0, CSNumber.real(Math.PI / 180));
+        return General.withUsage(CSNumber.realmult(Math.PI / 180, v0), "Angle");
     }
 
     return nada;
@@ -947,7 +947,10 @@ evaluator.add$2 = infix_add;
 function infix_add(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    return General.add(v0, v1);
+    var erg = General.add(v0, v1);
+    if (v0.usage === "Angle" && v1.usage === "Angle")
+        erg = General.withUsage(erg, "Angle");
+    return erg;
 }
 
 evaluator.sub$2 = infix_sub;
@@ -955,7 +958,10 @@ evaluator.sub$2 = infix_sub;
 function infix_sub(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    return General.sub(v0, v1);
+    var erg = General.sub(v0, v1);
+    if (v0.usage === "Angle" && v1.usage === "Angle")
+        erg = General.withUsage(erg, "Angle");
+    return erg;
 }
 
 evaluator.mult$2 = infix_mult;
@@ -963,7 +969,12 @@ evaluator.mult$2 = infix_mult;
 function infix_mult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    return General.mult(v0, v1);
+    var erg = General.mult(v0, v1);
+    if (v0.usage === "Angle" && !v1.usage)
+        erg = General.withUsage(erg, "Angle");
+    else if (v1.usage === "Angle" && !v0.usage)
+        erg = General.withUsage(erg, "Angle");
+    return erg;
 }
 
 evaluator.div$2 = infix_div;
@@ -971,7 +982,12 @@ evaluator.div$2 = infix_div;
 function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    return General.div(v0, v1);
+    var erg = General.div(v0, v1);
+    if (v0.usage === "Angle" && !v1.usage)
+        erg = General.withUsage(erg, "Angle");
+    else if (v1.usage === "Angle" && !v0.usage)
+        erg = General.withUsage(erg, "Angle");
+    return erg;
 }
 
 

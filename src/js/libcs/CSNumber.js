@@ -11,6 +11,9 @@ CSNumber._helper.niceround = function(a) {
 };
 
 CSNumber.niceprint = function(a) {
+    if (a.usage === "Angle") {
+        return CSNumber._helper.niceangle(a);
+    }
     var real = CSNumber._helper.niceround(a.value.real);
     var imag = CSNumber._helper.niceround(a.value.imag);
     if (imag === 0) {
@@ -22,6 +25,38 @@ CSNumber.niceprint = function(a) {
     } else {
         return "" + real + " - i*" + (-imag);
     }
+};
+
+var angleUnit = instanceInvocationArguments.angleUnit || "°";
+var angleUnitName = angleUnit.replace(/\s+/g, ""); // unit may contain space
+var TWOPI = Math.PI * 2;
+var PERTWOPI = 1 / TWOPI;
+var angleUnits = {
+    "rad": TWOPI,
+    "°": 360,
+    "deg": 360,
+    "degree": 360,
+    "gra": 400,
+    "grad": 400,
+    "turn": 1,
+    "cyc": 1,
+    "rev": 1,
+    "rot": 1,
+    "π": 2,
+    "pi": 2,
+    "quad": 4,
+};
+
+CSNumber._helper.niceangle = function(a) {
+    var unit = angleUnits[angleUnitName];
+    if (!unit)
+        return CSNumber.niceprint(General.withUsage(a, null));
+    if (typeof unit === "function")
+        return unit(a);
+    var num = CSNumber.niceprint(CSNumber.realmult(unit * PERTWOPI, a));
+    if (num.indexOf("i*") === -1)
+        return num + angleUnit;
+    return "(" + num + ")" + angleUnit;
 };
 
 CSNumber.complex = function(r, i) {
