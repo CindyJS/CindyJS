@@ -20,6 +20,7 @@ var handlers = {
     "Cindy.plain.js.map": false,
     "Cindy3D.js": true,
     "Cindy3D.js.map": map,
+    "WEB-INF": false,
     "c3dres.js": false,
     "exposed.js": false,
     "exposed.js.map": false,

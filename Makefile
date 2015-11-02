@@ -287,44 +287,39 @@ cindy3d-dbg:
 .PHONY: cindy3d
 
 ######################################################################
-## Download Apache Ant to build java-like projects
-######################################################################
-
-ANT_VERSION=1.9.6
-ANT_MIRROR=http://archive.apache.org/dist
-ANT_PATH=ant/binaries
-ANT_ZIP=apache-ant-$(ANT_VERSION)-bin.zip
-ANT_URL=$(ANT_MIRROR)/$(ANT_PATH)/$(ANT_ZIP)
-
-download/arch/$(ANT_ZIP):
-	mkdir -p $(@D)
-	$(DOWNLOAD) $@ $(ANT_URL)
-
-download/ant/bin/ant: download/arch/$(ANT_ZIP)
-	rm -rf download/ant download/apache-ant-*
-	cd download && unzip arch/$(ANT_ZIP)
-	mv download/apache-ant-$(ANT_VERSION) download/ant
-	touch $@
-
-ANT:=ant
-ANT_DEP:=$(shell $(ANT) -version > /dev/null 2>&1 || echo download/ant/bin/ant)
-ANT_CMD:=$(if $(ANT_DEP),$(ANT_DEP),$(ANT))
-
-######################################################################
 ## Run GWT for each listed GWT module
 ######################################################################
 
+GWT_VERSION:=2.6.1
+GWT_URL_BASE:=http://storage.googleapis.com/gwt-releases
+GWT_ZIP:=gwt-$(GWT_VERSION).zip
+GWT_URL:=$(GWT_URL_BASE)/$(GWT_ZIP)
+GWT_PARTS:=gwt-dev gwt-user validation-api-1.0.0.GA validation-api-1.0.0.GA-sources
+GWT_JARS:=$(patsubst %,download/gwt-$(GWT_VERSION)/%.jar,$(GWT_PARTS))
+EMPTY:=
+SPACE:=$(EMPTY) $(EMPTY)
+GWT_CLASSPATH:=$(subst $(SPACE),:,$(GWT_JARS))
+# call make with e.g. GWT_ARGS='-style PRETTY'
+GWT_ARGS=
 GWT_modules = $(patsubst src/java/cindyjs/%.gwt.xml,%,$(wildcard src/java/cindyjs/*.gwt.xml))
+
+download/arch/$(GWT_ZIP):
+	mkdir -p $(@D)
+	$(DOWNLOAD) $@ $(GWT_URL)
+
+$(firstword $(GWT_JARS)): download/arch/$(GWT_ZIP)
+	rm -rf $(@D)
+	cd download && unzip -q arch/$(GWT_ZIP)
+	touch $(GWT_JARS)
+
+$(filter-out $(firstword $(GWT_JARS)),$(GWT_JARS)): $(firstword $(GWT_JARS))
 
 define GWT_template
 
-GWT/war/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml $$(wildcard src/java/cindyjs/$(1)/*.java) | $$(ANT_DEP)
-	cd GWT && $$(ANT_CMD:download/%=../download/%) -Dcjs.module=$(1)
-	touch $$@
-
-build/js/$(1)/$(1).nocache.js: GWT/war/$(1)/$(1).nocache.js
+build/js/$(1)/$(1).nocache.js: src/java/cindyjs/$(1).gwt.xml src/java/cindyjs.gwt.xml $$(wildcard src/java/cindyjs/$(1)/*.java) $$(wildcard src/java/cindyjs/*.java) $(GWT_JARS)
 	rm -rf build/js/$(1)
-	cp -r GWT/war/$(1) build/js/
+	java -cp src/java/:$(GWT_CLASSPATH) com.google.gwt.dev.Compiler -war build/js $(GWT_ARGS) cindyjs.$(1)
+	touch $$@
 
 all: build/js/$(1)/$(1).nocache.js
 
