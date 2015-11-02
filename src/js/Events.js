@@ -123,6 +123,7 @@ function setuplisteners(canvas, data) {
         mouse.y = pos[1];
         csmouse[0] = mouse.x;
         csmouse[1] = mouse.y;
+        mouse.moved = true;
     }
 
     if (data.keylistener === true) {
@@ -236,7 +237,10 @@ function doit() { //Callback for d3-timer
     if (csanimating) {
         cs_tick();
     }
-    updateCindy();
+    if (csanimating || mouse.moved) {
+        mouse.moved = false;
+        updateCindy();
+    }
     csticking = csanimating || mouse.down;
     return !csticking;
 }
