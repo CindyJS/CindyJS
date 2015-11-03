@@ -17,6 +17,24 @@ const type = { //assert all indices are different
 }
 Object.freeze(type);
 
+function typeToString(t) {
+  let l = [
+  'bool',
+  'int',
+  'float',
+  'complex',
+  'voidt',
+  'vec2',
+  'vec3',
+  'vec4',
+  'color',
+  'point',
+  'mat2',
+  'mat3',
+  'mat4']; return l[t-1];
+}
+
+
 
 //all these subtype-inclusions have to be implementented!
 // - it is sufficient to list generators only
@@ -77,7 +95,7 @@ typeinference["abs"] = [
   float_fun$1, complex2float_fun$1
 ];
 //- ("exp", 1, OpExp.class); @done(2015-03-17)
-typeinference["abs"] = [
+typeinference["exp"] = [
   float_fun$1, complex_fun$1
 ];
 //- ("log", 1, OpLog.class); @done(2015-03-17)

@@ -71,17 +71,17 @@ function useinfix(inf) {
 
 
 /**
- * Creates new expression that is casted to toType
- * assert that fromType is Type of expr
+ * Creates new term that is casted to toType
+ * assert that fromType is Type of term
  * assert that fromType is a subtype of toType
  */
-function castType(expr, fromType, toType) {
+function castType(term, fromType, toType) {
 //  console.log('cast type ' + fromType +  ' to ' + toType);
-  if(fromType===toType) return expr;
+  if(fromType===toType) return term;
   else {
     let nextType = next[fromType][toType]; //use precomputed matrix
  //   console.log(nextType);
-    return castType((inclusionfunction[fromType][nextType])(expr), nextType, toType);
+    return castType((inclusionfunction[fromType][nextType])(term), nextType, toType);
   }
 }
 
@@ -443,7 +443,7 @@ function compile(expr, scope, generateTerm) {
         }
       }
       if(termGenerator === nada) {
-        console.error("There is no webgl-implementation for " + fname + '(' + signature.args.join(', ') + ').');
+        console.error("There is no webgl-implementation for " + fname + '(' + signature.args.map(typeToString).join(', ') + ').');
       }
     }
     
@@ -485,7 +485,9 @@ function compile(expr, scope, generateTerm) {
     
     let term = expr['name'];
     
-    //TODO handle # -> gl_FragCoord?
+    if(term === '#') {
+      term = 'pixel';
+    }
     return (generateTerm ? {term: term, type: termtype, code: ''} : {code: term +';\n'});
   } else if(expr['ctype'] === "void") {
     return (generateTerm ? {term: '', type: type.voidt, code: ''} : {code: ''});
@@ -543,8 +545,11 @@ function generateHeaderOfCompiledFunctions() {
 
 
 function generateColorPlotProgram(expr) { //TODO add arguments for #
+  
   precompile(expr); //determine variables, types etc.
   let r = compile(expr, '', true);
+  let colorterm = castType(r.term, r.type, type.color);
+  
   if(!issubtypeof(r.type,type.color)) {
     console.error("expression does not generate a color");
   }
@@ -560,8 +565,17 @@ function generateColorPlotProgram(expr) { //TODO add arguments for #
   
   code += 'void main(void) {\n' +
     r.code +
-    'gl_FragColor = ' + castType(r.term, r.type, type.color) + ';\n' +
+    'gl_FragColor = ' + colorterm + ';\n' +
   '}\n';
+  
+  
+  //cleaning up
+  includedfunctions = {};
+  variables = {}; 
+  assigments = {};
+  T = {};
+  compiledfunctions = {};
+
   return code;
 }
 

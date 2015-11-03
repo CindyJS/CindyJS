@@ -65,6 +65,11 @@ inclusionfunction[type.point][type.vec3] = identity;
 
 Object.freeze(inclusionfunction);
 
+webgltr['abs'] = [
+  [float_fun$1,   usefunction('abs')  ],
+  [complex2float_fun$1, usefunction('length')]
+];
+
 webgltr['sin'] = [
   [float_fun$1,   usefunction('sin')  ],
   [complex_fun$1, useincludefunction('sinc')]
@@ -81,9 +86,9 @@ webgltr['exp'] = [
 ];
 
 webgltr["add"] = [
-  [int_fun$2, useinfix('+')],
-  [float_fun$2, useinfix('+')],
-  [complex_fun$2, useincludefunction('addc')]
+  [int_fun$2,     useinfix('+')],
+  [float_fun$2,   useinfix('+')],
+  [complex_fun$2, useinfix('+')]
 ];
 webgltr['+'] = webgltr['add'];
 

@@ -403,7 +403,7 @@ cgl_closure_args = \
 	--externs $(filter %.externs,$^) \
 	--js $(js_src)
 cgl_dbg_args = --transpile_only --formatting PRETTY_PRINT
-cgl_mods = ShaderProgram Init Plugin TypeInference Types IncludeFunctions compileToWebGL WebGLImplementation
+cgl_mods = ShaderProgram Init ShaderProgram Renderer Plugin TypeInference Types IncludeFunctions compileToWebGL WebGLImplementation
 cgl_srcs = $(cgl_mods:%=src/js/cindygl/%.js) \
 	src/js/cindygl/cindyjs.externs src/js/cindygl/CindyGL.js.wrapper \
 	build/js/cglres.js

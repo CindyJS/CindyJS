@@ -40,15 +40,16 @@ myfunctions = {"#drawgrid$1":{"oper":"#drawgrid$1","body":{"ctype":"infix","oper
 {"f$2":{"oper":"f$2","body":{"ctype":"infix","oper":"+","args":[{"ctype":"infix","oper":"*","args":[{"ctype":"variable","stack":[{"ctype":"number","value":{"real":-2.179962618679341e+208,"imag":5.767460321370287e+208}}],"name":"z"},{"ctype":"variable","stack":[{"ctype":"number","value":{"real":-2.179962618679341e+208,"imag":5.767460321370287e+208}}],"name":"z"}]},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"c"}]},"arglist":[{"ctype":"variable","stack":[{"ctype":"number","value":{"real":-2.179962618679341e+208,"imag":5.767460321370287e+208}}],"name":"z"},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"c"}]},"mandle$1":{
   "oper":"mandle$1","body":{"ctype":"infix","oper":";","args":[{"ctype":"infix","oper":";","args":[{"ctype":"infix","oper":"=","args":[{"ctype":"variable","stack":[{"ctype":"number","value":{"real":-2.179962618679341e+208,"imag":5.767460321370287e+208}}],"name":"z"},{"ctype":"number","value":{"real":0,"imag":0}}]},{"ctype":"function","oper":"repeat$2","args":[{"ctype":"number","value":{"real":10,"imag":0}},{"ctype":"infix","oper":"=","args":[{"ctype":"variable","stack":[{"ctype":"number","value":{"real":-2.179962618679341e+208,"imag":5.767460321370287e+208}}],"name":"z"},{"ctype":"function","oper":"f$2","args":[{"ctype":"variable","stack":[{"ctype":"number","value":{"real":-2.179962618679341e+208,"imag":5.767460321370287e+208}}],"name":"z"},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"c"}],"modifs":{}}]}],"modifs":{}}]},{"ctype":"function","oper":"hue$1","args":[{"ctype":"function","oper":"arctan2$2","args":[{"ctype":"function","oper":"re$1","args":[{"ctype":"variable","stack":[{"ctype":"number","value":{"real":-2.179962618679341e+208,"imag":5.767460321370287e+208}}],"name":"z"}],"modifs":{}},{"ctype":"function","oper":"im$1","args":[{"ctype":"variable","stack":[{"ctype":"number","value":{"real":-2.179962618679341e+208,"imag":5.767460321370287e+208}}],"name":"z"}],"modifs":{}}],"modifs":{}}],"modifs":{}}]},"arglist":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"c"}]}};
 */
-var toyexpr = {"ctype":"function","oper":"mandle$1","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"}],"modifs":{}};
+var toyexpr = {"ctype":"function","oper":"mandle$1","args":[{"ctype":"function","oper":"complex$1","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"}],"modifs":{}}],"modifs":{}};
+var toyexprsin = {"ctype":"function","oper":"sin$1","args":[{"ctype":"infix","oper":"*","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"}]}],"modifs":{}};
 
 
 var toyexprwithoutvars = {"ctype":"function","oper":"sqrt$1","args":[{"ctype":"function","oper":"sin$1","args":[{"ctype":"infix","oper":"+","args":[{"ctype":"number","value":{"real":0,"imag":0}},{"ctype":"number","value":{"real":3,"imag":0}}]}],"modifs":{}}],"modifs":{}};
 
-console.log("==========================");
-console.log(getType(toyexprwithoutvars,''));
+console.log("==========A================");
+console.log(typeToString(getType(toyexprwithoutvars,'')));
 
-console.log(getType({"ctype":"number","value":{"real":10,"imag":0}},''));
+console.log(typeToString(getType({"ctype":"number","value":{"real":10,"imag":0}},'')));
 
 
 /*
@@ -67,23 +68,24 @@ for(let f in compiledfunctions) {
 }
 */
 console.log("==========================");
-console.log(getType(
-{ ctype: 'void' }), '');
+console.log(typeToString(getType(
+{ ctype: 'void' }), ''));
 
-console.log(getType(
+console.log(typeToString(getType(
 { ctype: 'infix',
   oper: ';',
   args: 
    [ { ctype: 'number', value: {real: 1.2, imag: 0.} },
      { ctype: 'void' } ] }
      
-), '');
+), ''));
 
 
 
-console.log("==========================");
+console.log("===========C===============");
 console.log(generateColorPlotProgram(toyexpr));
 console.log("==========================");
+console.log(generateColorPlotProgram(toyexprsin));
 console.log("==========================");
 
 console.log(compile({"ctype":"number","value":{"real":10,"imag":0}},'',true));
@@ -95,5 +97,9 @@ console.log("==========================");
 //console.log(generateColorPlotProgram({"ctype":"number","value":{"real":10,"imag":0}}));
 
 console.log("fertig :)");
+
+//console.log("========Compiling Renderers...==================");
+//let r = new Renderer(toyexprsin, 100, 100)
+//console.log(r);
 
 

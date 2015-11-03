@@ -1,7 +1,6 @@
 var nada;
 var myfunctions;
 
-
 createCindy.registerPlugin(1, "CindyGL", function(api) {
 
   //////////////////////////////////////////////////////////////////////
@@ -22,97 +21,45 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
   });
   
   api.defineFunction("colorplot", 4, function(args, modifs) {
-    console.log("run function colorplot");
     initGLIfRequired();
     
-    var a = api.evaluateAndVal(args[0]);
-    var b = api.evaluateAndVal(args[1]);
+    var a = api.eval_helper.extractPoint(api.evaluateAndVal(args[0]));
+    var b = api.eval_helper.extractPoint(api.evaluateAndVal(args[1]));
     var name = api.evaluate(args[2]);
     var prog = args[3];
-
-
-  console.log(name);
-    console.log(a);
-
-    var pta = api.eval_helper.extractPoint(a);
-    //var ptb = api.eval_helper.extractPoint(b);
-    let x = api.Accessor.getField(a.value, "x");
-    console.log(x);
     
-    console.log(pta);
-    
-    if (name.ctype !== 'string') {
+    if (!a.ok || !b.ok || name.ctype !== 'string') {
         return nada;
     }
     
-    console.log("hier");
-    
-    
     var localcanvas = document.getElementById(name.value);
-    console.log(localcanvas);
     if (typeof(localcanvas) === "undefined" || localcanvas === null) {
         return nada;
     }
     
-    console.log("da");
-
     var cw = localcanvas.width;
     var ch = localcanvas.height;
     
+    if(!prog.iscompiled) {
+      //console.log("Program is not compiled. So we will do that");
+      prog.iscompiled = true;
+      prog.renderer = new Renderer(prog, cw, ch);
+    } /*else {
+      console.log("Program has been compiled; we will use that compiled code.");
+    }*/
+
+    let alpha = ch/cw;
+    let n = {x: -(b.y-a.y)*alpha, y: (b.x-a.x)*alpha};
+    let c = {x: a.x + n.x, y: a.y + n.y};
+    //let d = {x: b.x + n.x, y: b.y + n.y};
+    
+    prog.renderer.render(a, b, c);
     
     
-    
-
-/*
-    var diffx = ptb.x - pta.x;
-    var diffy = ptb.y - pta.y;
-
-    var ptcx = pta.x - diffy * ch / cw;
-    var ptcy = pta.y + diffx * ch / cw;
-    var ptdx = ptb.x - diffy * ch / cw;
-    var ptdy = ptb.y + diffx * ch / cw;
-
-    var cva = csport.from(pta.x, pta.y, 1);
-    var cvc = csport.from(ptcx, ptcy, 1);
-    var cvd = csport.from(ptdx, ptdy, 1);
-
-
-    var x11 = cva[0];
-    var x12 = cva[1];
-    var x21 = cvc[0];
-    var x22 = cvc[1];
-    var x31 = cvd[0];
-    var x32 = cvd[1];
-    var y11 = 0;
-    var y12 = ch;
-    var y21 = 0;
-    var y22 = 0;
-    var y31 = cw;
-    var y32 = 0;
-
-    var a1 = (cw * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
-    var a2 = (cw * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
-    var a3 = -a1 * x11 - a2 * x12;
-    var a4 = (ch * (x12 - x32) - ch * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
-    var a5 = (ch * (x11 - x31) - ch * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
-    var a6 = ch - a4 * x11 - a5 * x12;
-*/
-
     var localcontext = localcanvas.getContext('2d');
-    localcontext.drawImage(0, 0, glcanvas);
+    localcontext.drawImage(glcanvas, 0, 0);
     
 
-/*
-    var backupctx = csctx;
-    csctx = localcontext;
-    csctx.save();
-
-    csctx.transform(a1, a4, a2, a5, a3, a6);
-
-    evaluate(prog);
-    csctx.restore();
-    csctx = backupctx;
-    */
     return nada;
   });
   

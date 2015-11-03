@@ -13,7 +13,8 @@ createCindy.registerPlugin(1,"testing",function(api){
   console.log("loading plugin testing");
   a = api;
   
-  api.defineFunction("parse",1,function(args,modifs){
+  api.defineFunction("parseexpr",1,function(args,modifs){
+    console.log("run parse function");
     console.log(JSON.stringify(args[0]));
     //console.log("");
     //console.log(JSON.stringify(api.getMyfunctions()));
@@ -26,6 +27,7 @@ use("testing");
 use("CindyGL");
 
 f(z, c) := z*z + c;
+z = 0;
 
 mandle(c) := (
   z = 0; //global variable
@@ -35,11 +37,14 @@ mandle(c) := (
    hue(arctan2(re(z), im(z))/pi)
 );
 
-parse((2,3));
-parse([2,3]);
+//parseexpr((2,3));
+//parseexpr([2,3]);
 
-parse(mandle(#));
-compile(mandle(complex(#)));
+
+parseexpr(mandle(complex(#)));
+//compile(mandle(complex(#)));
+parseexpr(sin((#*#)));
+compile(sin((#*#)));
 </script>
 <script id="csmove" type="text/x-cindyscript">
 drawtext(A, z);
@@ -48,7 +53,7 @@ A.color = mandle(complex(A.xy));
 <script type="text/javascript">
 
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", sx:-2,sy:-2,sz:1,size:3},
+                      {name:"A", kind:"P", type:"Free", pos:[0,0,1]}
                       ];
 createCindy({
   canvasname: "cindy",

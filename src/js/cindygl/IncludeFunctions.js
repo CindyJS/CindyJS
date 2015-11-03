@@ -1,14 +1,13 @@
 var includedfunctions = {};
 var requires = {};
 
-function includefunction(name) {
-  includedfunctions[name] = true;
+function includefunction(name) { //includes functions and does DFS on all required functions.
+  includedfunctions[name] = cgl_resources[name]; //lade aus name.glsl...
   for(let i in requires[name]) {
     let f = requires[name][i];
     if(includedfunctions.hasOwnProperty(f)) continue;
     includefunction(f);
   }
-  includedfunctions[name] = cgl_resources[name]; //lade aus name.glsl...
 }
 
 function generateHeaderOfIncludedFunctions() {
@@ -22,7 +21,6 @@ function generateHeaderOfIncludedFunctions() {
 function useincludefunction(name) {
   //includefunction(name);
   //return usefunction(name);
-  
   return function(args) { //runs includefunction(name) whenever useincludefunction(name) is called with some arguments
     includefunction(name);
     return (usefunction(name))(args);
