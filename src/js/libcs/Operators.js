@@ -2322,8 +2322,8 @@ evaluator.replace$3 = function(args, modifs) {
     var v2 = evaluate(args[2]);
     if (v0.ctype === 'string' && v1.ctype === 'string' && v2.ctype === 'string') {
         var str0 = v0.value;
-        var str1 = v1.value;
-        var str2 = v2.value;
+        var str1 = v1.value.replace(/[^A-Za-z0-9]/g, "\\$&");
+        var str2 = v2.value.replace(/\$/g, "$$$$");
         var regex = new RegExp(str1, "g");
         str0 = str0.replace(regex, str2);
         return {

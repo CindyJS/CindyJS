@@ -144,6 +144,10 @@ This operator is extremely useful for creating text replacement systems of the k
     < "F+F"
     > replace("F+F", "F", "F+F")
     < "F+F+F+F"
+    > replace("3*$ + 4", "$", "x")
+    < "3*x + 4"
+    > replace("1\2", "\", "$&")
+    < "1$&2"
 
 ------
 
