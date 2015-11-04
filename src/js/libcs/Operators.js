@@ -3614,7 +3614,7 @@ evaluator.alllines$0 = function(args, modifs) {
 
 evaluator.createpoint$2 = function(args, modifs) {
     var name = evaluate(args[0]);
-    var pos = evaluate(args[1]);
+    var pos = evaluateAndHomog(args[1]);
 
     if (name.ctype !== "string") {
         console.log("Name must be a string");
@@ -3634,12 +3634,12 @@ evaluator.createpoint$2 = function(args, modifs) {
     };
 
     return addElement(el);
-}
+};
 
 evaluator.create$3 = function(args, modifs) {
     var names = evaluate(args[0]);
     var type = evaluate(args[1]);
-    var args = evaluate(args[2]);
+    var defs = evaluate(args[2]);
 
     var name;
     if (names.ctype === "string") {
@@ -3660,7 +3660,7 @@ evaluator.create$3 = function(args, modifs) {
         console.log("Type must be a string");
         return nada;
     }
-    if (args.ctype !== "list") {
+    if (defs.ctype !== "list") {
         console.log("Arguments must be a list");
         return nada;
     }
@@ -3673,16 +3673,19 @@ evaluator.create$3 = function(args, modifs) {
     var a = [];
     var pos = null;
 
-    for (var i = 0; i < args.value.length; i++) {
-        var arg = args.value[i];
+    for (var i = 0; i < defs.value.length; i++) {
+        var def = defs.value[i];
 
-        if (arg.ctype === "list" && List.isNumberVector(arg)) {
-            pos = arg;
-        } else if (arg.ctype === "string") {
-            a.push(arg.value);
+        if (def.ctype === "string") {
+            a.push(def.value);
         } else {
-            console.log("Unknown argument type");
-            return nada;
+            var vec = evaluateAndHomog(def);
+            if (vec !== nada) {
+                pos = vec;
+            } else {
+                console.log("Unknown argument type");
+                return nada;
+            }
         }
     }
 
@@ -3699,7 +3702,7 @@ evaluator.create$3 = function(args, modifs) {
         el.args = a;
 
     return addElement(el);
-}
+};
 
 ///////////////////////////////
 //   Calling external code   //
