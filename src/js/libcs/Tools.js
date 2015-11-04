@@ -205,7 +205,7 @@ function manage(event) {
  * @returns {boolean}
  */
 function isElementAtMouse(element) {
-    return element != null && Math.abs(element.offset.x) < 0.5 && Math.abs(element.offset.y) < 0.5 && element.mover.tmp === false;
+    return element != null && Math.abs(element.offset.x) < 0.5 && Math.abs(element.offset.y) < 0.5 && !element.mover.tmp;
 }
 
 /**
