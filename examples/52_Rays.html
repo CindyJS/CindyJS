@@ -6,29 +6,29 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Angle Bisector</h1>
-        <script id='init' type='cindyscript'>
+        <script id='init' type='text/x-cindyscript'>
          dir=E-D;
           dir=dir/|dir|*1.5;
-        
+
         </script>
 
-        
-        <script id='firstDrawing' type='cindyscript'>
-        
+
+        <script id='csmove' type='text/x-cindyscript'>
+
         fillcircle((0,0),100,color->(0,0,.4));
-        
+
         if(mover()==E,
           dir=E-D;
           dir=dir/|dir|*1.5;
-        );    
+        );
         E.xy=D+dir;
-        
+
         m1=A.xy;
 r1=6;
 m2=B.xy;
@@ -45,7 +45,7 @@ r3=6;
         drawcircle(m1,r1,color->(1,1,1),size->3);
         drawcircle(m2,r2,color->(1,1,1),size->3);
         drawcircle(m3,r3,color->(1,1,1),size->3);
-     
+
 
 
 o1=["circ",m1,r1];
@@ -60,20 +60,20 @@ s=s/|s|;
 
 intersect(p,s,o):=(
   ll=[];
-  if(o_1=="circ", (   
+  if(o_1=="circ", (
     m=o_2;
     r=o_3;
 
     q=p-m;
     scal=s*q;
-    dist=q*q-r^2;   
+    dist=q*q-r^2;
 
     a=-scal+sqrt(scal^2-dist);
     b=-scal-sqrt(scal^2-dist);
 
 
 
-    if(|im(a)|<0.00000001 & re(a)>0.00000001,ll=ll++[[o,re(a)]]);   
+    if(|im(a)|<0.00000001 & re(a)>0.00000001,ll=ll++[[o,re(a)]]);
     if(|im(b)|<0.00000001 & re(b)>0.00000001,ll=ll++[[o,re(b)]]);
   );
   ll;
@@ -83,11 +83,11 @@ intersect(p,s,o):=(
 reflect(p,s,o,a):=(
   pp=p+a*s;
   ss=s;
-  if(o_1=="circ", (  
+  if(o_1=="circ", (
        sp=pp-o_2;
        sp=sp/|sp|;
        ss=s-2*(s*sp)*sp;
-    ); 
+    );
   );
   [pp,ss];
 );
@@ -101,7 +101,7 @@ dim=0.99;
 
 
 while(count<n & !stop,
-  count=count+1; 
+  count=count+1;
   l=intersect(p,s,o1)++intersect(p,s,o2)++intersect(p,s,o3);
 
   l=sort(l,#_2);
@@ -121,16 +121,16 @@ while(count<n & !stop,
   );
   alpha=alpha*dim;
 );
-        
-        
+
+
 
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=700 height=700  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            
+
             var gslp=[
 
                       {name:"A", type:"Free", pos:[-3,2],color:[0,0,0]},
@@ -146,10 +146,10 @@ while(count<n & !stop,
 
                       ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp});
-    
+
         </script>
 
 	</body>

@@ -9,19 +9,19 @@
 </script>
  <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-</script>               
+</script>
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: First Physics</h1>
 
 
 
-        
-        <script id='init' type='cindyscript'>
+
+        <script id='init' type='text/x-cindyscript'>
 numbguess(x,t):=(
-                 
+
                  if(x~=round(x)%t<1,
                     [round(x),1],
                     p=1/(x-floor(x));
@@ -39,7 +39,7 @@ inpc=-D.x-B.x;
 inpa=round(inpa*1000)/1000;
 inpb=round(inpb*1000)/1000;
 inpc=round(inpc*1000)/1000;
-if(oa~!=inpa % ob~!=inpb % oc~!=inpc, 
+if(oa~!=inpa % ob~!=inpb % oc~!=inpc,
             javascript("renderEq("+inpa+","+inpb+","+inpc+")"));
 oa=0;ob=0;oc=0;
 toggle=false;
@@ -49,9 +49,9 @@ errc("HALLO");
 
 );
         </script>
-        
-        <script id='firstDrawing' type='cindyscript'>
-        
+
+        <script id='csmove' type='text/x-cindyscript'>
+
         if(toggle,errc("br"));
         if(!toggle,errc("!!br"));
           xx1=numbguess(E.x,10);
@@ -85,7 +85,7 @@ errc("HALLO");
           javascript("document.getElementById('p3').style.top='"+(-F.y*3.132*25+450)+"px';");
           javascript("document.getElementById('p3').style.left='"+(F.x*3.132*25+60)+"px';");
 
- 
+
  //                    javascript("document.getElementById('tex').innerHTML='$P_i="+G.x+"$';"+
  //                    "MathJax.Hub.Queue(['Typeset',MathJax.Hub,'tex']);");
 
@@ -95,9 +95,9 @@ inpc=-D.x-B.x;
 inpa=round(inpa*100)/100;
 inpb=round(inpb*100)/100;
 inpc=round(inpc*100)/100;
-if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) , 
+if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
             javascript("renderEq("+substring(""+inpa,0,6)+","+inpb+","+inpc+")"));
-            
+
             oa=inpa;
             ob=inpb;
             oc=inpc;
@@ -140,7 +140,7 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
 </div>
 
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", type:"Free", pos:[0,0],color:[1,0,0]},
                       {name:"B", type:"Free", pos:[0,4],color:[1,0,0]},
@@ -157,8 +157,8 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
                       {name:"f", type:"Segment", args:["E","F"] },
                       {name:"g", type:"Segment", args:["F","G"] },
                       {name:"h", type:"Segment", args:["E","G"] }
-                      
-                      
+
+
                     ];
             var physics=[
                        {behavior:{type:"Environment",gravity:-.2}},
@@ -173,12 +173,12 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
                        {name:"f", behavior:{type:"Spring"}},
                        {name:"g", behavior:{type:"Spring"}},
                        {name:"h", behavior:{type:"Spring"}}
-                                              
-                       
+
+
                        ];
             var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp,
                         behavior:physics,
@@ -187,7 +187,7 @@ if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
                         transform:[{scale:3.132},{translate:[-2.5,-2.5]}],
 }
                         );
-    
+
         </script>
        <div style="position:absolute; top:630px;left:10px">
         <button onclick="cdy.play()" type="button" >Play</button>

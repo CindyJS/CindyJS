@@ -6,23 +6,23 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>Conics</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=600 height=600 style="border:2px solid #000000"></canvas>
 
 
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", type:"Free", pos:[0,4]},
                       {name:"B", type:"Free", pos:[-2,4]},
@@ -34,11 +34,11 @@
 		              {name:"l", type:"PolarPoint", args:["P","Co"],color:[0,1,0],alpha:1,size:2},
                       ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         grid:1,
                         snap:true,
                         geometry:gslp});
-    
+
         </script>
 
 

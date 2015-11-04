@@ -6,20 +6,20 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: First Physics</h1>
-        
-        
-               <script id='init' type='cindyscript'>
+
+
+               <script id='init' type='text/x-cindyscript'>
         l=[];
-            
+
         </script>
-        
-<script id='firstDrawing' type='cindyscript'>
+
+<script id='csmove' type='text/x-cindyscript'>
 
 masses=allmasses();
 
@@ -46,33 +46,33 @@ masses=allmasses();
                       {name:"b", type:"Segment", args:["C","D"],color:[0,0,0],size:1 },
                       {name:"c", type:"Segment", args:["D","E"],color:[0,0,0],size:1 },
                       {name:"d", type:"Segment", args:["E","B"],color:[0,0,0],size:1 }
-                    
 
-                      
+
+
                     ];
-                    
+
     for(var i=0;i<nn;i++){
     gslp.push(
-              {name:"A"+i, type:"Free", 
+              {name:"A"+i, type:"Free",
               pos:[(Math.random()-.5)*14,(Math.random()-.5)*14],
               color:i>nn/2?[1,.5,.5]:[.5,.5,1]}
               )
-    
+
 };
             var physics=[
                        {behavior:{type:"Environment",gravity:0,
                        accuracy:10,deltat:0.1,
                        balls:true,charges:true,friction:.1}},
-                       
+
                        {name:"a", behavior:{type:"Bouncer"}},
                        {name:"b", behavior:{type:"Bouncer"}},
                        {name:"c", behavior:{type:"Bouncer"}},
                        {name:"d", behavior:{type:"Bouncer"}}
-                       
-                       
+
+
                        ];
-                       
-                       
+
+
                            for(var i=0;i<nn;i++){
     physics.push(
               {name:"A"+i, behavior:{
@@ -80,20 +80,20 @@ masses=allmasses();
               vx:Math.random()-.5,
               vy:Math.random()-.5,
               charge:i>nn/2?-1:+1},
-              } 
+              }
               )
-    
+
 };
             var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp,
                         behavior:physics}
                         );
-    
+
         </script>
-        
+
         <button onclick="cdy.play()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
         <button onclick="cdy.pause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
         <button onclick="cdy.stop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>

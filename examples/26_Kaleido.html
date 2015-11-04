@@ -6,15 +6,15 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: 2D Lagrange Interpolation</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
             drawimage(D,E,G,"bild",alpha->.2);
           //  A=A.xy;
           //  B=B.xy;
@@ -28,17 +28,17 @@
             l3=join(B,F);
 
             path=(A.xy,B.xy,F);
-            
+
             t1=linereflect(l1);
             t2=linereflect(l2);
             t3=linereflect(l3);
 
             f(p,m):=m*(p++[1]);
             id=((1,0,0),(0,1,0),(0,0,1));
-            
+
             AA=A.xy;
             BB=B.xy;
-        
+
             drawme(m):=(
                         gsave();
                         clip(polygon((f(AA,m),f(BB,m),f(F,m))));
@@ -48,9 +48,9 @@
                         draw(f(BB,m),f(F,m),size->3,color->(0,0,0));
                         draw(f(AA,m),f(F,m),size->3,color->(0,0,0));
                         );
-            
-            
-            
+
+
+
             list=(
                   id,
                   t1,
@@ -64,7 +64,7 @@
                   t1*t2*t1*t2*t1*t2*t1*t2,
                   t1*t2*t1*t2*t1*t2*t1*t2*t1,
                   t1*t2*t1*t2*t1*t2*t1*t2*t1*t2,
-                  
+
                   t3,
                   t1*t3,
                   t2*t3,
@@ -77,8 +77,8 @@
                   t1*t2*t1*t2*t1*t2*t1*t2*t3,
                   t1*t2*t1*t2*t1*t2*t1*t2*t1*t3,
                   t1*t2*t1*t2*t1*t2*t1*t2*t1*t2*t3
-                  
-                  
+
+
                   );
             forall(list,m,   drawme(m);  );
             draw(A,B,color->(1,1,1),size->2 );
@@ -86,12 +86,12 @@
             draw(F,B,color->(1,1,1),size->2);
 
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            
+
             var gslp=[
 
                       {name:"A", type:"Free", pos:[1.9,.5],color:[1,1,1]},
@@ -101,11 +101,11 @@
                       {name:"G", type:"Free", pos:[7.5,-7.5],color:[1,1,1],color:[1,.7,0],size:3},
                                            ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp,
                         images:{bild:"bild.png"}}
 );
-    
+
         </script>
 
 	</body>

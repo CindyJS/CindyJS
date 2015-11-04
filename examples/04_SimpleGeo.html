@@ -7,53 +7,53 @@
 
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Simple Geometry</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
-           
+
+
+        <script id='csmove' type='text/x-cindyscript'>
+
             l1=cross(A,C);
             l2=parallel(l1,B);
             l3=perp(l1,D);
             draw(l1);
             draw(l2);
             draw(l3);
-            
+
             draw(A,size->6,color->(.9,0,0));
             draw(B,size->6,color->(.9,0,0));
             draw(C,size->6,color->(.9,0,0));
             draw(D,size->6,color->(.9,0,0));
-            
+
             </script>
-        
-        
-        
+
+
+
         <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", kind:"P", type:"Free", pos:[7,1,1]},
                       {name:"B", kind:"P", type:"Free", pos:[0,9,1]},
                       {name:"C", kind:"P", type:"Free", pos:[2,1,1]},
                       {name:"D", kind:"P", type:"Free", pos:[-2,7,1]},
                       ];
-            
+
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-            
-            
-            
-            
-            
+
+
+
+
+
             </script>
 
-        
+
 	</body>
 </html>

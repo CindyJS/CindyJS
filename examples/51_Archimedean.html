@@ -3,21 +3,21 @@
 	<head>
 		<meta charset="utf-8">
             <title>Cindy JS</title>
-            
+
             <script type="text/javascript" src="../build/js/quickhull3d/quickhull3d.nocache.js"></script>
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
-     
+
             <link rel="stylesheet" href="../css/cindy.css">
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Convex Hull</h1>
-        
-        
-        <script id='mouseDrag' type='cindyscript'>
-        if(mover()!=B,        
-        
+
+
+        <script id='mouseDrag' type='text/x-cindyscript'>
+        if(mover()!=B,
+
         xx=mouse().x;
 yy=mouse().y;
  wy=(startx-xx)*.3;
@@ -39,15 +39,15 @@ mmmy=[
 
 
   mat=mmmx*mmmy*mat;
-  
+
           startx=mouse().x;
 starty=mouse().y;
 
 );
         </script>
 
-        <script id='mouseUp' type='cindyscript'>
-                if(mover()!=B,        
+        <script id='mouseUp' type='text/x-cindyscript'>
+                if(mover()!=B,
 
 
         xx=mouse().x;
@@ -71,11 +71,11 @@ mmmy=[
 
 
   mat=mmmx*mmmy*mat;
-  
+
   )
         </script>
 
-        <script id='mouseDown' type='cindyscript'>
+        <script id='mouseDown' type='text/x-cindyscript'>
                 errc("DOWN");
 if(|spos0-mouse().xy|<1.5,setstate(0));
 if(|spos1-mouse().xy|<1.5,setstate(1));
@@ -85,9 +85,9 @@ starty=mouse().y;
         </script>
 
 
-        
-        
-<script id='init' type='cindyscript'>
+
+
+<script id='init' type='text/x-cindyscript'>
  firsttime=true;
  setstate(i):=(
  errc("SETSTATE"+i);
@@ -104,7 +104,7 @@ starty=mouse().y;
         obj=obj3;
         calc();repaint();
      );
- 
+
  );
 state=1;
 
@@ -112,7 +112,7 @@ spos0=(14,7);
 spos1=(17,7);
 spos2=(20,7);
 
-mat=[ 
+mat=[
     [1,0,0],
     [0,1,0],
     [0,0,1]
@@ -156,8 +156,8 @@ obj3=(
       (-gg,0,1),
       (gg,0,-1),
       (-gg,0,-1)
-      )*8; 
-      
+      )*8;
+
       obj=obj2;
 
 
@@ -165,9 +165,9 @@ obj3=(
 
 ma(p):=[p_1,p_2+2];
 
-pos1=(10,-10,-10); 
+pos1=(10,-10,-10);
 pos1=pos1/|pos1|;
-pos2=(-10,-10,-10); 
+pos2=(-10,-10,-10);
 pos2=pos2/|pos2|;
 col1=(1,-10,0);
 col2=(0,-10,1);
@@ -181,7 +181,7 @@ drawfaceB(f,nn,objc):=(
                      ff=f++[f_1];
                     fillpoly(f,color->col);
                      apply(1..(length(ff)-1),
-                           
+
                            draw(ff_#,ff_(#+1),size->2,color->(0,0,0))
                            )
                      )
@@ -193,9 +193,9 @@ drawfaceF(f,nn,objc):=(
                      col=objc*(pos1*nn+pos2*nn+.5);
                     // ff=f++[f_1];
                            fillpoly(f,color->col,alpha->.8);
-                           
+
                        //    draw(ff_#,ff_(#+1),size->2,color->(0,0,0))
-                        
+
                      )
                   );
 
@@ -205,7 +205,7 @@ drawfaceFEd(f,nn):=(
                      col=(pos1*nn*col1+pos2*nn*col2);
                      ff=f++[f_1];
                      apply(1..(length(ff)-1),
-                           
+
                            draw(ff_#,ff_(#+1),size->4,color->(0,0,0))
                            )
                      )
@@ -219,17 +219,17 @@ bary(ch):=(
       p2=(ch_1)_(fa_2);
       p3=(ch_1)_(fa_3);
       errc("****"+p1+" "+p2+" "+p3);
-      mid=(p1+p2+p3)/3; 
-      s12=(p1+p2)/2; 
-      s23=(p2+p3)/2; 
-      s31=(p1+p3)/2; 
-      barfc=barfc++[[p1,s12,mid]]; 
-      barfc=barfc++[[p2,s12,mid]]; 
-      barfc=barfc++[[p2,s23,mid]]; 
-      barfc=barfc++[[p3,s23,mid]]; 
-      barfc=barfc++[[p3,s31,mid]]; 
-      barfc=barfc++[[p1,s31,mid]]; 
-   
+      mid=(p1+p2+p3)/3;
+      s12=(p1+p2)/2;
+      s23=(p2+p3)/2;
+      s31=(p1+p3)/2;
+      barfc=barfc++[[p1,s12,mid]];
+      barfc=barfc++[[p2,s12,mid]];
+      barfc=barfc++[[p2,s23,mid]];
+      barfc=barfc++[[p3,s23,mid]];
+      barfc=barfc++[[p3,s31,mid]];
+      barfc=barfc++[[p1,s31,mid]];
+
    );
    barfc;
 
@@ -249,14 +249,14 @@ bar=bary(ch);
 calc();
         </script>
 
-        
-             <script id='tick' type='cindyscript'>
+
+             <script id='tick' type='text/x-cindyscript'>
 
         </script>
 
 
-        
-<script id='firstDrawing' type='cindyscript'>
+
+<script id='csmove' type='text/x-cindyscript'>
 PA=(13,0);
 PB=(20,0);
 PC=(13,-7);
@@ -326,64 +326,64 @@ if(length(erg>3),firsttime=false;
 a=convexhull3d(erg1);
 );
 
-points=a_1*transpose(mat);  
-faces=a_2;  
+points=a_1*transpose(mat);
+faces=a_2;
 
 
 
 apply(faces,f,
-      fa=points_f; 
+      fa=points_f;
       org=(a_1)_f;
       nn=cross( fa_2-fa_1,fa_2-fa_3);
       nn=nn/|nn|;
-      
+
       mm=cross( org_2-org_1,org_2-org_3);
       mm=mm/|mm|;
-      objcol=(.5,.5,1);      
+      objcol=(.5,.5,1);
       if(length(f)==4,
-         objcol=(0.5,1,0.5);      
+         objcol=(0.5,1,0.5);
       );
       if(length(f)==6,
-         objcol=(1,0.5,0.5);      
+         objcol=(1,0.5,0.5);
       );
 objcol=objcol*.7;
       erg=apply(fa,p,ma(p));
-      
+
       drawfaceB(erg,nn,objcol);
       );
 
 
 apply(faces,f,
-      fa=points_f; 
+      fa=points_f;
       org=(a_1)_f;
       nn=cross( fa_2-fa_1,fa_2-fa_3);
       nn=nn/|nn|;
-      
+
       mm=cross( org_2-org_1,org_2-org_3);
       mm=mm/|mm|;
-      objcol=(.5,.5,1);      
+      objcol=(.5,.5,1);
       if(length(f)==4,
-         objcol=(0.5,1,0.5);      
+         objcol=(0.5,1,0.5);
       );
       if(length(f)==6,
-         objcol=(1,0.5,0.5);      
+         objcol=(1,0.5,0.5);
       );
       objcol=objcol*.7;
       erg=apply(fa,p,ma(p));
-      
+
       drawfaceF(erg,nn,objcol);
       );
 apply(faces,f,
-      fa=points_f; 
+      fa=points_f;
       nn=cross( fa_2-fa_1,fa_2-fa_3);
       nn=nn/|nn|;
       erg=apply(fa,p,ma(p));
-      
-      
+
+
       drawfaceFEd(erg,nn);
       );
-      
-      
+
+
 drawcircle(spos0,1.2,size->if(state==0,6,2));
 drawcircle(spos1,1.2,size->if(state==1,6,2));
 drawcircle(spos2,1.2,size->if(state==2,6,2));
@@ -391,9 +391,9 @@ drawtext(spos0-(.5,.7),3,size->45);
 drawtext(spos1-(.5,.7),4,size->45);
 drawtext(spos2-(.5,.7),5,size->45);
         </script>
-        
-        
-       <script id='timer' type='cindyscript'>
+
+
+       <script id='timer' type='text/x-cindyscript'>
 wx=wx*0.998;
  wy=wy*0.998;
  wx=.01;
@@ -415,20 +415,20 @@ mmmy=[
 
 
 mat=mmmx*mmmy*mat;
-        </script> 
-        
+        </script>
+
         <canvas  id="CSCanvas" width=800 height=600  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", kind:"P", type:"Free",alpha:0, pos:[-1000,-1000,1],alpha:.001} ,
                       {name:"B", kind:"P", type:"Free",alpha:0, pos:[15,-3,1]},
-                      
+
                                            ];
-            
+
             var cdy = createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         mousedownscript:"mouseDown",
                         mouseupscript:"mouseUp",
@@ -436,7 +436,7 @@ mat=mmmx*mmmy*mat;
                         mousedragscript:"mouseDrag",
                         geometry:gslp});
 
-            
+
             </script>
              <button onclick="cdy.play()" type="button" style="position:absolute; top:640px;left:60px" >Play</button>
         <button onclick="cdy.stop()" type="button" style="position:absolute; top:640px;left:150px" >Stop</button>

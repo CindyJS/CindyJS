@@ -6,39 +6,39 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Simple Tree</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
             t1=map(A,B,B,C);
             t2=map(A,B,B,D);
             col(x):=(0.6*x,(1-x)*.8,0);
-            
-            
+
+
             tree(a,b,n):=(
                           if(n>0&|a_[1,2]/a_3,b_[1,2]/b_3|>.15,
                              draw(a,b,size->n*1,color->col(n/nn));
                              tree(t1*a,t1*b,n-1);
                              tree(t2*a,t2*b,n-1);
-                             );  
+                             );
                           );
             nn=12;
-            
+
             tree(A.homog,B.homog,nn);
-            
+
 
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            
+
             var gslp=[
 
                       {name:"A", type:"Free", pos:[0,-8],color:[1,1,1]},
@@ -47,9 +47,9 @@
                       {name:"D", type:"Free", pos:[-2,2.5],color:[1,1,1]},
                                            ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-    
+
         </script>
 
 	</body>

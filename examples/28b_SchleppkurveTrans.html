@@ -15,7 +15,7 @@
 
 
 
-<script id='init' type='cindyscript'>
+<script id='init' type='text/x-cindyscript'>
 
 reset():=(
 forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
@@ -33,7 +33,7 @@ oldpts=apply(old,#.xy);
 
 
 split(pts,oldpts,m):=(
-                      
+
                       i=1;
                       while(pts_i!=m,i=i+1);
                       l=apply(1..i,(pts_(i-#+1)));
@@ -41,7 +41,7 @@ split(pts,oldpts,m):=(
                       ol=apply(1..i,oldpts_(i-#+1));
                       or=apply(i..length(oldpts),oldpts_#);
                       [l,r,ol,or];
-                      
+
                       );
 
 
@@ -58,7 +58,7 @@ antiprismc(a,b,c):=(
                     );
 
 tractrix(a,b,c):=(
-                  
+
                   bb=a+(b-a)*2;
                   dd=antiprismc(a,bb,c);
                   (c+dd)/2;
@@ -75,9 +75,9 @@ transf(pts,pt):=(
                  newpts_1=pt;
                  forall(1..(length(pts)-1),
                         newpts_(#+1)=gauss(tractrix(complex(pts_#),complex(pts_(#+1)),complex(newpts_#)));
-                        
+
                         );
-                 
+
                  newpts;
                  );
 
@@ -88,7 +88,7 @@ resetting=false;
 
 
 </script>
-<script id='down' type='cindyscript'>
+<script id='down' type='text/x-cindyscript'>
 
 if(mouse().y<-8.5 & mouse().x<-7,
 reset();
@@ -97,7 +97,7 @@ resetting=true;
 );
 </script>
 
-<script id='up' type='cindyscript'>
+<script id='up' type='text/x-cindyscript'>
 
 resetting=false;
 
@@ -105,7 +105,7 @@ resetting=false;
 </script>
 
 
-<script id='firstDrawing' type='cindyscript'>
+<script id='csmove' type='text/x-cindyscript'>
 javascript("document.onkeydown={}");
 
 pts=allpoints();
@@ -128,13 +128,13 @@ if(mover!=A & isreal(mover.x)&finished,
       r=sp_2;
       ol=sp_3;
       or=sp_4;
-      
+
       newptsl=transf(ol,start);
       newptsr=transf(or,start);
-      
+
       forall(1..length(l),(l_#).xy=newptsl_#);
       forall(1..length(r),(r_#).xy=newptsr_#);
-      
+
       oldpts=apply(pts,#.xy);
    //   draw(mover.xy,size->5);
       );
@@ -164,12 +164,12 @@ var gslp=[];
 gslp.push({name:"A", type:"Free", pos:[-2,1],color:[1,.7,0],size:8});
 
 for(var i=0;i<30;i++){
-    
+
     gslp.push({name:"A"+i, type:"Free", pos:[-7+i*0.5,0],color:[1,1,1]});
 }
 createCindy({canvasname:"CSCanvas",
 defaultAppearance: {clip: "inci", overhangLine: 1.2},
-movescript:"firstDrawing",
+movescript:"csmove",
 initscript:"init",
 mousedownscript:"down",
 mouseupscript:"up",

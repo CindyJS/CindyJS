@@ -6,41 +6,41 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
             <link rel="stylesheet" href="../css/cindy.css">
-                
 
-                
-                
+
+
+
             </head>
-    
-	<body style="font-family:Arial;">
-        
-        <h1>CindyJS: Envelope</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
 
-           
+	<body style="font-family:Arial;">
+
+        <h1>CindyJS: Envelope</h1>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
+
+
             l1=cross(A.xy,D.xy);
             l2=cross(C.xy,B.xy);
             draw(l1);
             draw(l2);
             draw(cross(l1,l2));
-            
+
             n=1000;
             apply((1..n)/n,l,
                   p1=point(A*l+D*(1-l));
                   p2=point(C*l+B*(1-l));
                   draw(cross(p1,p2),alpha->0.2,color->(0,0,0));
                 );
-            
-           
-            
+
+
+
             </script>
-        
-        
-        
+
+
+
         <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
             var gslp=[
                       {name:"A", kind:"P", type:"Free", pos:[7,1,1]},
@@ -51,14 +51,14 @@
 
             createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {pointColor: [1,1,1]},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-            
-            
-            
-            
-            
+
+
+
+
+
             </script>
-        
+
 	</body>
 </html>

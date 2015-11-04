@@ -9,18 +9,18 @@
 </script>
  <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-</script>               
+</script>
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>Linear Algebra Tests</h1>
 <div  style="width:800px; line-height: 1.5">
 </div>
-        <script id='init' type='cindyscript'>
+        <script id='init' type='text/x-cindyscript'>
         </script>
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+        <script id='csmove' type='text/x-cindyscript'>
 	DD = [[1+i, 2*i, 5],
 		[5, 1+i*random(), 3],
 		[1, 7+i*random(), 2]];
@@ -76,14 +76,14 @@
 
         </script>
 
-       
-        
+
+
         <div style="position:relative">
         <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000; top:0px; left:0px;"></canvas>
 </div>
 
         <script type="text/javascript">
-            
+
             var gslp=[
 //                      {name:"O", type:"Free", pos:[0,0],color:[0,0,0],pinned:true,size:3},
 //                      {name:"B", type:"Free", pos:[9,1],color:[1,0,0],size:0.01},
@@ -92,12 +92,12 @@
 //                      {name:"D", type:"PointOnLine", pos:[1,2],args:["bc"],color:[1,0,0],size:3},
 
 
-                                           
-                      
+
+
                     ];
                      createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp,
  //                       grid:1,
@@ -105,10 +105,10 @@
                         transform:[{scale:1.5},{translate:[0,0]}],
 }
                         );
-    
+
         </script>
 <div  style="width:800px; line-height: 1.5">
-     
+
 </div>
 <br>
 <br>

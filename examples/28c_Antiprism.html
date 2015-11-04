@@ -14,12 +14,12 @@
 <h1>CindyJS: Antiparallelograms</h1>
 
 
-<script id='keyup' type='cindyscript'>
+<script id='keyup' type='text/x-cindyscript'>
 
 
 </script>
 
-<script id='down' type='cindyscript'>
+<script id='down' type='text/x-cindyscript'>
 if(mouse().x<0 & mouse().y>5.8 & mouse().y<6.8,highlight=1);
 if(mouse().x<0 & mouse().y>4.8 & mouse().y<5.8,highlight=2);
 if(mouse().x<0 & mouse().y>3.8 & mouse().y<4.8,highlight=3);
@@ -33,7 +33,7 @@ if(mouse().x<0 &  mouse().y<0.8,highlight=0);
 
 
 
-<script id='init' type='cindyscript'>
+<script id='init' type='text/x-cindyscript'>
 
 antiprismc(a,b,c):=(
                     xx=|a-b|^2;
@@ -58,14 +58,14 @@ tractrix(a,b,c):=(
 highlight=0;
 
 </script>
-<script id='firstDrawing' type='cindyscript'>
+<script id='csmove' type='text/x-cindyscript'>
 javascript("document.onkeydown={}");
 
 color((0,0,0));
 anti(a,b,c,high):=(
   color=(0,0,0);
   size=1;
-  
+
   if(high,color=(1,0,0);size=5);
   regional(d);
   d=gauss(antiprismc(complex(a),complex(b),complex(c)));
@@ -131,7 +131,7 @@ var gslp=[];
 
 createCindy({canvasname:"CSCanvas",
 defaultAppearance: {clip: "inci", overhangLine: 1.2},
-movescript:"firstDrawing",
+movescript:"csmove",
 mousedownscript:"down",
 keydownscript:"keyup",
 initscript:"init",
