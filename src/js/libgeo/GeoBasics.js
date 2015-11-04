@@ -208,12 +208,8 @@ function addElement(el) {
     if (csgeo.csnames[el.name] !== undefined) {
         console.log("Element name '" + el.name + "' already exists");
 
-        // TODO Update position of existing element does not work :-(
         var existingEl = csgeo.csnames[el.name];
-        existingEl.pos = el.pos;
-
-        stateContinueFromHere();
-        updateCindy();
+        movepointscr(existingEl, el.pos, "homog");
 
         return {
             'ctype': 'geo',
