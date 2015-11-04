@@ -52,26 +52,52 @@ var createCindy = (function() {
 
             var baseDir = null;
             var cindyJsScriptElement = null;
-            var waitingForLoad = {};
+            var lastScriptAtLoadTime = null;
+
+            // The following code must be executed immediately
+            // when the script gets loaded, not from some callback.
+            if (typeof document !== "object") {
+                cindyJsScriptElement = false;
+            } else if (document.currentScript) {
+                cindyJsScriptElement = document.currentScript;
+            } else {
+                // Assuming synchroneous loading, our script should be
+                // the last one in the DOM.
+                var scriptsAtLoadTime = document.getElementsByTagName("script");
+                lastScriptAtLoadTime =
+                    scriptsAtLoadTime[scriptsAtLoadTime.length - 1];
+            }
 
             createCindy.getBaseDir = function() {
                 if (baseDir !== null)
                     return baseDir;
-                var scripts = document.getElementsByTagName("script");
-                for (var i = 0; i < scripts.length; ++i) {
-                    var script = scripts[i];
-                    var src = script.src;
-                    if (!src) continue;
-                    var match = /Cindy\.js$/.exec(src);
-                    if (match) {
-                        baseDir = src.substr(0, match.index);
-                        console.log("Will load extensions from " + baseDir);
-                        cindyJsScriptElement = script;
-                        return baseDir;
+                if (cindyJsScriptElement === null) {
+                    var scripts = document.getElementsByTagName("script");
+                    for (var i = 0; i < scripts.length; ++i) {
+                        var script = scripts[i];
+                        var src = script.src;
+                        if (!src) continue;
+                        var match = /Cindy\.js$/.exec(src);
+                        if (match) {
+                            baseDir = src.substr(0, match.index);
+                            console.log("Found Cindy.js script at " + src);
+                            console.log("Will load extensions from " + baseDir);
+                            cindyJsScriptElement = script;
+                            return baseDir;
+                        }
                     }
+                    cindyJsScriptElement = lastScriptAtLoadTime;
+                    console.log(lastScriptAtLoadTime);
                 }
-                console.error("Could not find <script> tag for Cindy.js");
-                baseDir = cindyJsScriptElement = false;
+                if (!cindyJsScriptElement || !cindyJsScriptElement.src) {
+                    console.error("Could not find <script> tag for Cindy.js");
+                    baseDir = cindyJsScriptElement = false;
+                    return baseDir;
+                }
+                baseDir = cindyJsScriptElement.src
+                    .replace(/[?#][^]*$/, "") // strip query or fragment part
+                    .replace(/[^\/]*$/, ""); // strip file name, keep directory
+                console.log("Will load extensions from " + baseDir);
                 return baseDir;
             };
 
@@ -91,6 +117,8 @@ var createCindy = (function() {
                     parent.appendChild(elt);
                 return elt;
             };
+
+            var waitingForLoad = {};
 
             createCindy.loadScript = function(name, path, onload, onerror) {
                 if (window[name]) {
