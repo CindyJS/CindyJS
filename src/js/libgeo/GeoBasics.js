@@ -43,115 +43,14 @@ function csinit(gslp) {
     //isshowing     das wird durch den Konstruktionsbaum vererbt
     //movable
 
-    csgeo.gslp = gslp;
-
-    csgeo.csnames = {}; //Lookup für elemente mit über Namen
-
-
-    var k, l, f, el, op;
-    var totalStateSize = 0;
-
+    csgeo.gslp = [];
+    csgeo.csnames = {}; // Map from name to geometric element
     csgeo.points = [];
     csgeo.lines = [];
     csgeo.conics = [];
     csgeo.free = [];
-    var ctp = 0;
-    var ctf = 0;
-    var ctl = 0;
-    var ctc = 0;
-    var dropped = {};
 
-    // Das ist für alle gleich
-    for (k = 0; k < gslp.length; k++) {
-        el = gslp[k];
-        var macro = geoMacros[el.type];
-        if (macro) {
-            var expansion = macro(el).slice();
-            // Replace single element gslp[k] with all the elements
-            // from expansion, using gslp.splice(k, 1, expansion[0], ...)
-            expansion.splice(0, 0, k, 1);
-            gslp.splice.apply(gslp, expansion);
-            --k; // process the first expanded element
-            continue;
-        }
-        csgeo.csnames[el.name] = el;
-        op = geoOps[el.type];
-        if (!op) {
-            console.error(el);
-            console.error("Operation " + el.type + " not implemented yet");
-            dropped[el.name] = true;
-            gslp.splice(k, 1);
-            k--;
-            continue;
-        }
-        if (el.args) {
-            for (l = 0; l < el.args.length; ++l) {
-                if (dropped.hasOwnProperty(el.args[l]))
-                    break;
-            }
-            if (l < el.args.length) { // we did break
-                console.log("Dropping " + el.name +
-                    " due to dropped argument " + el.args[l]);
-                dropped[el.name] = true;
-                gslp.splice(k, 1);
-                k--;
-                continue;
-            }
-        }
-        el.kind = op.kind;
-        el.stateIdx = totalStateSize;
-        totalStateSize += op.stateSize;
-        el.incidences = [];
-        el.isshowing = true;
-        el.movable = false;
-        if (op.isMovable) {
-            el.movable = true;
-            csgeo.free[ctf++] = el;
-        }
-
-        if (el.kind === "P") {
-            csgeo.points[ctp] = el;
-            pointDefault(el);
-            ctp += 1;
-        }
-        if (el.kind === "L") {
-            csgeo.lines[ctl] = el;
-            lineDefault(el);
-            ctl += 1;
-        }
-        if (el.kind === "C") {
-            csgeo.conics[ctc] = el;
-            lineDefault(el);
-            ctc += 1;
-        }
-        if (el.kind === "S") {
-            csgeo.lines[ctl] = el;
-            segmentDefault(el);
-            ctl += 1;
-        }
-    }
-    stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
-    // initially, stateIn and stateOut are the same, so that initialize can
-    // write some state and updatePosition can immediately use it
-    for (k = 0; k < gslp.length; k++) {
-        el = gslp[k];
-        op = geoOps[el.type];
-        tracingInitial = true; // might get reset by initialize
-        if (op.initialize) {
-            stateInIdx = stateOutIdx = el.stateIdx;
-            el.param = op.initialize(el);
-            assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
-        }
-        stateInIdx = stateOutIdx = el.stateIdx;
-        op.updatePosition(el, false);
-        assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
-        assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
-        isShowing(el, op);
-    }
-    stateLastGood = new Float64Array(totalStateSize);
-    stateOut = new Float64Array(totalStateSize);
-    stateContinueFromHere();
-    tracingInitial = false;
+    gslp.forEach(addElement);
     guessIncidences();
 }
 
@@ -201,10 +100,10 @@ function segmentDefault(el) {
     el.clip = General.string("end");
 }
 
-// TODO: Use this in csinit to avoid code duplication
 function addElement(el) {
-    console.log(el.name);
+    var i;
 
+    // Adding an existing element moves that element to the given position
     if (csgeo.csnames[el.name] !== undefined) {
         console.log("Element name '" + el.name + "' already exists");
 
@@ -217,10 +116,37 @@ function addElement(el) {
         };
     }
 
+    // Expand macros
+    var macro = geoMacros[el.type];
+    if (macro) {
+        var expansion = macro(el);
+        var res = null;
+        for (i = 0; i < expansion.length; ++i) {
+            res = addElement(expansion[i]);
+        }
+        return res;
+    }
+
+    // Detect unsupported operations or missing arguments
+    var op = geoOps[el.type];
+    if (!op) {
+        console.error(el);
+        console.error("Operation " + el.type + " not implemented yet");
+        return null;
+    }
+    if (el.args) {
+        for (i = 0; i < el.args.length; ++i) {
+            if (!csgeo.csnames.hasOwnProperty(el.args[i])) {
+                console.log("Dropping " + el.name +
+                            " due to missing argument " + el.args[i]);
+                return null;
+            }
+        }
+    }
+
     csgeo.gslp.push(el);
     csgeo.csnames[el.name] = el;
     var totalStateSize = stateLastGood.length;
-    var op = geoOps[el.type];
     el.kind = op.kind;
     el.stateIdx = totalStateSize;
     totalStateSize += op.stateSize;
@@ -251,28 +177,30 @@ function addElement(el) {
     }
 
     if (true || op.stateSize !== 0) {
-        var prevState = stateLastGood;
-        stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
-        stateLastGood.set(prevState); // make new state a copy of old state
+        stateAlloc(totalStateSize);
+        stateIn = stateOut = stateLastGood;
         // initially, stateIn and stateOut are the same, so that initialize can
         // write some state and updatePosition can immediately use it
+        tracingInitial = true;
         if (op.initialize) {
-            tracingInitial = true;
             stateInIdx = stateOutIdx = el.stateIdx;
             el.param = op.initialize(el);
-            assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
-            tracingInitial = false;
+            assert(stateOutIdx === el.stateIdx + op.stateSize,
+                "State fully initialized");
         }
         stateInIdx = stateOutIdx = el.stateIdx;
         op.updatePosition(el, false);
-        assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
-        assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
-        stateLastGood = new Float64Array(totalStateSize);
-        stateOut = new Float64Array(totalStateSize);
+        assert(stateInIdx === el.stateIdx + op.stateSize,
+            "State fully consumed");
+        assert(stateOutIdx === el.stateIdx + op.stateSize,
+            "State fully updated");
+        tracingInitial = false;
+        stateIn = stateArrays.in;
+        stateIn.set(stateLastGood);
+        stateOut = stateArrays.out;
     } else {
         // Do the updatePosition call with correct state handling around it.
     }
-    stateContinueFromHere();
     isShowing(el, op);
 
     geoDependantsCache = {};
