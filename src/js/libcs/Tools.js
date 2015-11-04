@@ -215,7 +215,7 @@ function isElementAtMouse(element) {
  * @returns {boolean}
  */
 function isPointAtMouse(element) {
-    return isElementAtMouse(element) && (element.mover.type === "Free" || element.mover.type === "Mid");
+    return isElementAtMouse(element) && (element.mover.kind === "P");
 }
 
 /**
@@ -225,7 +225,7 @@ function isPointAtMouse(element) {
  * @returns {boolean}
  */
 function isLineAtMouse(element) {
-    return isElementAtMouse(element) && (element.mover.type === "Join" || element.mover.type === "Segment" || element.mover.type === "Perp");
+    return isElementAtMouse(element) && (element.mover.kind === "L" || element.mover.kind === "S");
 }
 
 /**
@@ -234,8 +234,8 @@ function isLineAtMouse(element) {
  * @param element
  * @returns {*|boolean}
  */
-function isCircleAtMouse(element) {
-    return isElementAtMouse(element) && (element.mover.type === "CircleMP");
+function isConicAtMouse(element) {
+    return isElementAtMouse(element) && (element.mover.kind === "C");
 }
 
 /**
@@ -304,10 +304,10 @@ function grabLine() {
  *
  * @returns {boolean}
  */
-function grabLineOrCircle() {
+function grabLineOrConic() {
     var el = getElementAtMouse(mouse);
 
-    if (isLineAtMouse(el) || isCircleAtMouse(el)) {
+    if (isLineAtMouse(el) || isConicAtMouse(el)) {
         elements[idx] = el.mover;
 
         idx++;
@@ -647,20 +647,20 @@ tools.Orthogonal.actions[1].do = function() {
 
 // Meet
 //
-// TODO Circle, ...
+// TODO Conic, ...
 tools.Meet = {};
 tools.Meet.actions = [];
 tools.Meet.actions[0] = {};
 tools.Meet.actions[0].event = "mousedown";
 tools.Meet.actions[0].tooltip = "Select two elements to define their intersection";
 tools.Meet.actions[0].do = function() {
-    return grabLineOrCircle();
+    return grabLineOrConic();
 }
 
 tools.Meet.actions[1] = {};
 tools.Meet.actions[1].event = "mousedown";
 tools.Meet.actions[1].do = function() {
-    if (grabLineOrCircle()) {
+    if (grabLineOrConic()) {
         element = addElement({
             type: "Meet",
             name: getNextFreeName(),
