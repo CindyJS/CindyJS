@@ -4420,7 +4420,7 @@ function addTool(name) {
     }
 
     var button = document.createElement("button");
-    button.innerHTML = "<img src='" + name + ".png'>";
+    button.innerHTML = "<img src='" + createCindy.getBaseDir() + "../img/" + name + ".png'>";
     button.onclick = function() {
         if (typeof activeButton !== "undefined") {
             activeButton.style.border = "";
