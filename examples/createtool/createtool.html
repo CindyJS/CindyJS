@@ -27,16 +27,8 @@
     </head>
     <body>
         <script id="csinit" type="cindyscript">
-            createtool("Move");
-            createtool("Point");
-            createtool("Mid");
-            createtool("Circle");
-            createtool("Line");
-            createtool("Compass");
-            createtool("Segment");
-            createtool("Parallel");
-            createtool("Orthogonal");
-            createtool("Meet");
+            createtool(["Move", "Point", "Mid", "Circle", "Line", "Compass", "Segment", "Parallel", "Orthogonal"], 0, 0);
+            createtool("Meet", 0, 0);
             //createtool("Delete");
         </script>
         <canvas id="CSCanvas" width="500" height="500"></canvas>
