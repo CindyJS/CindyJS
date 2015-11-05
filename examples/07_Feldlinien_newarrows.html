@@ -5,17 +5,17 @@
             <title>Cindy JS</title>
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
-                
-                
+
+
                 </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Two charges</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
-            
+
+
+        <script id='csmove' type='text/x-cindyscript'>
+
             n=10;
             linesize(2);
             forall((-n)..n,x,
@@ -38,36 +38,36 @@
                           //draw(p+f*.5,p+nn*.8,color->(0,0,1),alpha->0.9,color->col);
                           //draw(p+f*.5,p-nn*.8,color->(0,0,1),alpha->0.9,color->col);
                           )
-                   
+
                    );
-                       
-            
+
+
             </script>
-        
+
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A",  type:"Free", pos:[-4,-2],color:[1,0,0],size:7},
                       {name:"B", type:"Free", pos:[6,4],color:[0,1,0],size:7}
                       ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-            
-            
-            
-            
-            
+
+
+
+
+
             </script>
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+
 	</body>
 </html>

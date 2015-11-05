@@ -6,20 +6,20 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Allpoints Alllines</h1>
-        
-        
-        <script id='firstDrawing' type='text/cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
 		forall(allpoints(),draw(#.homog,size->10));
             forall(alllines(),draw(#.homog,size->1,dashing->2));
-            
+
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
@@ -44,12 +44,12 @@
                       {name:"AA", type:"Mid", args:["B","C"],size:4,color:[0,.7,0]},
                       {name:"BB", type:"Mid", args:["A","C"],size:4,color:[0,.7,0]},
                       {name:"CC", type:"Mid", args:["B","A"],size:4,color:[0,.7,0]},
-                      
+
                       {name:"mx", type:"Perp", args:["a","AA"],color:[0,.7,0]},
                       {name:"my", type:"Perp", args:["b","BB"],color:[0,.7,0]},
                       {name:"mz", type:"Perp", args:["c","CC"],color:[0,.7,0]},
                       {name:"M", type:"Meet", args:["mx","my"],color:[0.7,1,.7]},
-                      
+
                       {name:"ha", type:"Join", args:["A","AA"]},
                       {name:"hb", type:"Join", args:["B","BB"]},
                       {name:"hc", type:"Join", args:["C","CC"]},
@@ -57,9 +57,9 @@
 
                       {name:"E", type:"Join", args:["M","H"],color:[0,0,0],size:5},
 
-                      
-                      
-                      
+
+
+
                       /*,
                        {name:"D", kind:"P", type:"Free", pos:[-1,0,1]},
                        {name:"C", kind:"P", type:"Free", pos:[4,3,1]},
@@ -69,9 +69,9 @@
                       ];
             createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {clip: "inci", overhangLine: 1.2},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-    
+
         </script>
 
 	</body>

@@ -201,6 +201,19 @@ tests: unittests
 .PHONY: unittests
 
 ######################################################################
+## Check for forbidden patterns in certain files
+######################################################################
+
+forbidden:
+	! grep -Ero "<script[^>]*type *= *[\"'][^\"'/]*[\"']" examples
+	! grep -Ero "<script[^>]*type *= *[\"']text/cindyscript[\"']" examples
+	! grep -Er "firstDrawing" examples
+
+tests: forbidden
+
+.PHONY: forbidden
+
+######################################################################
 ## Check that the code has been beautified
 ######################################################################
 

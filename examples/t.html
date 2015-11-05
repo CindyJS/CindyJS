@@ -4,41 +4,41 @@
 		<meta charset="utf-8">
             <title>Cindy JS</title>
                      </head>
-    
+
 	<body style="font-family:Arial;">
-             
-        
+
+
     <script type="text/javascript">
         st="this.c=function(){console.log('There');}";
-        
+
         var Cindy=Cindy||{};
         (function(){
-               
+
             var a=function(){
                console.log("HERE");
-               
+
             }
-            
+
             this.b=function(){
                Cindy.c();
-               
+
             }
-         
-               
+
+
                }).apply(Cindy);
-        
-        
+
+
         (function(){
-         
+
          eval(st);
-         
+
          }).apply(Cindy);
-        
+
         Cindy.b();
-        
-        
+
+
             </script>
-        
-        
+
+
 	</body>
 </html>

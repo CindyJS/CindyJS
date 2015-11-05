@@ -6,23 +6,23 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: First Physics</h1>
-        
-        
-        <script id='init' type='cindyscript'>
+
+
+        <script id='init' type='text/x-cindyscript'>
         l=[];
-            
+
         </script>
-        
-        <script id='firstDrawing' type='cindyscript'>
-    
-             
-            
+
+        <script id='csmove' type='text/x-cindyscript'>
+
+
+
         </script>
 
 
@@ -30,7 +30,7 @@
 
 
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", type:"Free", pos:[-5,5],color:[1,0,0]},
                       {name:"B", type:"Free", pos:[-4,5],color:[1,.5,.5]},
@@ -53,8 +53,8 @@
                       {name:"h", type:"Segment", args:["H","I"] },
                       {name:"i", type:"Segment", args:["I","J"] },
                       {name:"j", type:"Segment", args:["J","K"] }
-                      
-                      
+
+
                     ];
             var physics=[
                        {behavior:{type:"Environment",gravity:-.2}},
@@ -77,19 +77,19 @@
                        {name:"h", behavior:{type:"Spring"}},
                        {name:"i", behavior:{type:"Spring"}},
                        {name:"j", behavior:{type:"Spring"}}
-                       
-                       
+
+
                        ];
             var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp,
                         behavior:physics}
                         );
-    
+
         </script>
-        
+
                <button onclick="cdy.play()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
         <button onclick="cdy.pause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
         <button onclick="cdy.stop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>

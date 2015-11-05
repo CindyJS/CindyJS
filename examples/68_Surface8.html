@@ -15,63 +15,63 @@
 <h1>Discrete Reuleaux Triangle Tetrahedron</h1>
 
 
-<script id='mouseDrag' type='cindyscript'>
+<script id='mouseDrag' type='text/x-cindyscript'>
 if((mover()!=S) & (mover()!=T),
    xx=mouse().x;
    yy=mouse().y;
    wy=(startx-xx)*.3;
    wx=-(starty-yy)*.3;
-   
+
    mmmx=[
        [1,0,0],
        [0,cos(wx),sin(wx)],
        [0,-sin(wx),cos(wx)]
        ];
-   
-   
+
+
    mmmy=[
        [cos(wy),0,-sin(wy)],
        [0,1,0],
        [sin(wy),0,cos(wy)]
        ];
-   
-   
-   
+
+
+
    mat=mmmx*mmmy*mat;
-   
+
    startx=mouse().x;
    starty=mouse().y;
    );
 </script>
 
-<script id='mouseUp' type='cindyscript'>
+<script id='mouseUp' type='text/x-cindyscript'>
 
 if((mover()!=S) & (mover()!=T),
    xx=mouse().x;
    yy=mouse().y;
    wy=(startx-xx)*.3;
    wx=-(starty-yy)*.3;
-   
+
    mmmx=[
        [1,0,0],
        [0,cos(wx),sin(wx)],
        [0,-sin(wx),cos(wx)]
        ];
-   
-   
+
+
    mmmy=[
        [cos(wy),0,-sin(wy)],
        [0,1,0],
        [sin(wy),0,cos(wy)]
        ];
-   
-   
-   
+
+
+
    mat=mmmx*mmmy*mat;
    );
 </script>
 
-<script id='mouseDown' type='cindyscript'>
+<script id='mouseDown' type='text/x-cindyscript'>
 
 startx=mouse().x;
 starty=mouse().y;
@@ -80,7 +80,7 @@ starty=mouse().y;
 
 
 
-<script id='init' type='cindyscript'>
+<script id='init' type='text/x-cindyscript'>
 
 
 
@@ -155,7 +155,7 @@ use("Cindy3D");
 
 
 
-mat=[ 
+mat=[
     [1,0,0],
     [0,1,0],
     [0,0,1]
@@ -178,13 +178,13 @@ mmmy=mat0;
 </script>
 
 
-<script id='tick' type='cindyscript'>
+<script id='tick' type='text/x-cindyscript'>
 
 </script>
 
 
 
-<script id='firstDrawing' type='cindyscript'>
+<script id='csmove' type='text/x-cindyscript'>
 y=S.y;
 if(y<S1.y,y=S1.y);
 if(y>S2.y,y=S2.y);
@@ -222,7 +222,7 @@ apply(f,q,
       fillpoly(pol,color->(col-(0.5,0.5,0))*d,alpha->al);
       pol=pol++[pol_1];
       forall(1..3,draw(pol_#,pol_(#+1),size->2,color->col*d*.02));
-      
+
       );
 
 drawtext(S1-(1.8,1),size->16,"perspective");
@@ -232,7 +232,7 @@ drawtext(T1-(1,1),size->16,"alpha");
 </script>
 
 
-<script id='timer' type='cindyscript'>
+<script id='timer' type='text/x-cindyscript'>
 wx=wx*0.998;
 wy=wy*0.998;
 wx=.01;
@@ -242,7 +242,7 @@ mmmx=[
     [1,0,0],
     [0,cos(wx*sp),sin(wx*sp)],
     [0,-sin(wx*sp),cos(wx*sp)]
-    
+
     ];
 
 
@@ -254,7 +254,7 @@ mmmy=[
 
 
 mat=mmmx*mmmy*mat;
-</script> 
+</script>
 
 <canvas  id="CSCanvas" width=800 height=600  style="border:2px solid #000000"></canvas>
 
@@ -270,12 +270,12 @@ var gslp=[
     {name:"T2", type:"Free", pos:[20,10],color:[0,0,0],pinned:true,size:2},
     {name:"T", type:"Free", pos:[20,8.5],color:[1,0.5,0.5],pinned:false,size:4,narrow:true},
     {name:"m", type:"Segment", args:["T1","T2"],color:[0,0,0],pinned:false,size:2}
-    
-    
+
+
     ];
 
 createCindy({canvasname:"CSCanvas",
-movescript:"firstDrawing",
+movescript:"csmove",
 initscript:"init",
 mousedownscript:"mouseDown",
 mouseupscript:"mouseUp",

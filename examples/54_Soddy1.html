@@ -6,14 +6,14 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Euler-Line</h1>
-        <script id='init' type='cindyscript'>
-        
+        <script id='init' type='text/x-cindyscript'>
+
 g(x,y):=(-x_1*y_1+x_2*y_2+x_3*y_3+x_4*y_4-x_5*y_5);
 lip(x,y):=((1+|(x,y)|^2)/2,(1-|(x,y)|^2)/2,x,y,0);
 lic(x,y,r):=[(1+|[x,y]|^2-r^2)/2,(1-|[x,y]|^2+r^2)/2,x,y,r];
@@ -74,8 +74,8 @@ d=sqrt(p^2/4-q);
 );
 
 findlie(a,b,c):=(
-   aa=orth(liequad*a,liequad*b,liequad*c,xx);   
-   bb=orth(liequad*a,liequad*b,liequad*c,yy);   
+   aa=orth(liequad*a,liequad*b,liequad*c,xx);
+   bb=orth(liequad*a,liequad*b,liequad*c,yy);
    r1=aa*liequad*aa;
    r2=2*bb*liequad*aa;
    r3=bb*liequad*bb;
@@ -98,14 +98,14 @@ theother(a,b,c,dd):=(
   out;
 );
 
-        
-        
+
+
         </script>
 
-        
-        <script id='firstDrawing' type='cindyscript'>
 
-            
+        <script id='csmove' type='text/x-cindyscript'>
+
+
 d1=|A,B|;
 d2=|B,C|;
 d3=|C,A|;
@@ -131,7 +131,7 @@ drawlie(ce,(0,0,0),3);
 
 
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
@@ -142,14 +142,14 @@ drawlie(ce,(0,0,0),3);
                       {name:"A", type:"Free", pos:[-3,6],color:[1,1,1]},
                       {name:"B", type:"Free", pos:[6,3],color:[1,1,1]},
                       {name:"C", type:"Free", pos:[-5,-5],color:[1,1,1]}
-                   
+
                       ];
             createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {clip: "inci", overhangLine: 1.2},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp});
-    
+
         </script>
 
 	</body>

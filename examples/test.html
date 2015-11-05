@@ -6,24 +6,24 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Angle Bisector</h1>
-        
-        
-        <script id='firstDrawing' type='text/cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
           //  errc(b.angle);
           //  a.angle=b.angle+90°;
             </script>
-        
+
 
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            
+
             var gslp=[
 
                       {name:"A", type:"Free", pos:[2.2,0],color:[0,0,0]},
@@ -34,12 +34,12 @@
                       {name:"D", type:"Meet", args:["a","b"],color:[0,0,1]},
                       {name:"c", type:"CircleMr", args:["D"],radius:3,color:[0,0,1]},
                       {name:"E", type:"PointOnCircle", args:["c"],angle:Math.PI/4,color:[1,0,0]},
- 
+
                       ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-    
+
         </script>
 
 	</body>

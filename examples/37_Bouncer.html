@@ -6,20 +6,20 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: First Physics</h1>
-        
-        
-               <script id='init' type='cindyscript'>
+
+
+               <script id='init' type='text/x-cindyscript'>
         l=[];
-            
+
         </script>
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+        <script id='csmove' type='text/x-cindyscript'>
         l=l++[A.xy];
         if(length(l)>80,l=apply(2..length(l),l_#));
         damp=.95;
@@ -27,8 +27,8 @@
         forall(1..length(l),
            draw(l_#,alpha->al,color->(1,.5,.5),size->7*al);
         al=al/damp);
-        
-            
+
+
         </script>
 
 
@@ -36,7 +36,7 @@
 
 
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", type:"Free", pos:[-5,5],color:[1,.5,.5]},
                       {name:"B", type:"Free", pos:[-9,7],color:[0,0,0],size:3},
@@ -53,31 +53,31 @@
                       {name:"b", type:"Segment", args:["C","D"],color:[0,0,0],size:1 },
                       {name:"c", type:"Segment", args:["D","E"],color:[0,0,0],size:1 },
                       {name:"d", type:"Segment", args:["F","G"],color:[0,0,0],size:1 }
-                    
 
-                      
+
+
                     ];
             var physics=[
                        {behavior:{type:"Environment",gravity:-.2}},
                        {name:"A", behavior:{type:"Mass",friction:0.0,vx:0.3}},
-                       
+
                        {name:"a", behavior:{type:"Bouncer"}},
                        {name:"b", behavior:{type:"Bouncer"}},
                        {name:"c", behavior:{type:"Bouncer"}},
                        {name:"d", behavior:{type:"Bouncer"}}
-                       
-                       
+
+
                        ];
             var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp,
                         behavior:physics}
                         );
-    
+
         </script>
-        
+
         <button onclick="cdy.play()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
         <button onclick="cdy.pause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
         <button onclick="cdy.stop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>
