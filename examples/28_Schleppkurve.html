@@ -14,13 +14,13 @@
 <h1>CindyJS: Schleppkurve</h1>
 
 
-<script id='keyup' type='cindyscript'>
+<script id='keyup' type='text/x-cindyscript'>
 forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
 old=allpoints();
 oldpts=apply(old,#.xy);
 </script>
 
-<script id='down' type='cindyscript'>
+<script id='down' type='text/x-cindyscript'>
 
 if(mouse().y<-8.5 & mouse().x<-7,
 forall(1..length(pts),(pts_#).xy=(-7+0.5*#,0));
@@ -31,7 +31,7 @@ oldpts=apply(old,#.xy);
 
 </script>
 
-<script id='init' type='cindyscript'>
+<script id='init' type='text/x-cindyscript'>
 
 old=allpoints();
 oldpts=apply(old,#.xy);
@@ -43,7 +43,7 @@ oldpts=apply(old,#.xy);
 
 );
 split(pts,oldpts,m):=(
-                      
+
                       i=1;
                       while(pts_i!=m,i=i+1);
                       l=apply(1..i,(pts_(i-#+1)));
@@ -51,7 +51,7 @@ split(pts,oldpts,m):=(
                       ol=apply(1..i,oldpts_(i-#+1));
                       or=apply(i..length(oldpts),oldpts_#);
                       [l,r,ol,or];
-                      
+
                       );
 
 
@@ -81,9 +81,9 @@ transf(pts,pt):=(
                  newpts_1=pt;
                  apply(1..(length(pts)-1),
                         newpts_(#+1)=gauss(tractrix(complex(pts_#),complex(pts_(#+1)),complex(newpts_#)));
-                        
+
                         );
-                 
+
                  newpts;
                  );
 
@@ -92,7 +92,7 @@ transf(pts,pt):=(
 
 
 </script>
-<script id='firstDrawing' type='cindyscript'>
+<script id='csmove' type='text/x-cindyscript'>
 javascript("document.onkeydown={}");
 pts=allpoints();
 
@@ -112,13 +112,13 @@ if(isreal(mover.x),
       r=sp_2;
       ol=sp_3;
       or=sp_4;
-      
+
       newptsl=transf(ol,start);
       newptsr=transf(or,start);
-      
+
       forall(1..length(l),(l_#).xy=newptsl_#);
       forall(1..length(r),(r_#).xy=newptsr_#);
-      
+
       oldpts=apply(pts,#.xy);
 //      draw(mover.xy,size->5);
       );
@@ -139,14 +139,14 @@ connect(pts,color->(1,1,1)*0,size->3);
 var gslp=[];
 
 for(var i=0;i<30;i++){
-    
+
     gslp.push({name:"A"+i, type:"Free", pos:[-7+i*0.5,0],color:[1,1,1]});
 }
    // gslp.push({name:"B", type:"Free", pos:[-7,1],color:[1,.9,0]});
 
 var cdy = createCindy({canvasname:"CSCanvas",
 defaultAppearance: {clip: "inci", overhangLine: 1.2},
-movescript:"firstDrawing",
+movescript:"csmove",
 initscript:"init",
 geometry:gslp});
 

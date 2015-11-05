@@ -6,40 +6,40 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: First Physics</h1>
-        
-        
-               <script id='init' type='cindyscript'>
+
+
+               <script id='init' type='text/x-cindyscript'>
                pts=allmasses()--[K,L,J];
 pts=select(pts,(#.size)<9);
 
       sizes=apply(pts,random()*.6+.5);
       colors=apply(pts,random());
-      
+
         </script>
-        
-<script id='firstDrawing' type='cindyscript'>
+
+<script id='csmove' type='text/x-cindyscript'>
 
           x=S.x;
           if(x<S1.x,x=S1.x);
           if(x>S2.x,x=S2.x);
           S.xy=(x,S1.y);
-          
+
           x=R.x;
           if(x<R1.x,x=R1.x);
           if(x>R2.x,x=R2.x);
           R.xy=(x,R1.y);
-          
+
           x=T.x;
           if(x<T1.x,x=T1.x);
           if(x>T2.x,x=T2.x);
           T.xy=(x,T1.y);
-       
+
 others=|S,S1|/|S1,S2|;
 dirothers=|R,R1|/|R1,R2|;
 //anz=round(|T,T1|/|T1,T2|)*14;
@@ -102,8 +102,8 @@ L.v=(0,0);
                       {name:"J", type:"Free", pos:[4,3],color:[.7,.7,1],size:13},
                       {name:"L", type:"Free", pos:[-2,7],color:[.7,.7,1],size:13},
 
-                      
-                      
+
+
                       {name:"S1", type:"Free", pos:[12,6],color:[0,0,0],pinned:true,size:2},
     {name:"S2", type:"Free", pos:[20,6],color:[0,0,0],pinned:true,size:2},
     {name:"S", type:"Free", pos:[15.5,6],color:[1,0.5,0.5],pinned:false,size:4},
@@ -121,18 +121,18 @@ L.v=(0,0);
                       {name:"b", type:"Segment", args:["C","D"],color:[0,0,0],size:1 },
                       {name:"c", type:"Segment", args:["D","E"],color:[0,0,0],size:1 },
                       {name:"d", type:"Segment", args:["E","B"],color:[0,0,0],size:1 }
-                    
 
-                      
+
+
                     ];
-                    
+
     for(var i=0;i<nn;i++){
     gslp.push(
-              {name:"A"+i, type:"Free", 
+              {name:"A"+i, type:"Free",
               pos:[(Math.random()-.5)*14,(Math.random()-.5)*14],
               color:[1,.5,.5],size:.1}
               )
-    
+
 };
             var physics=[
                        {behavior:{type:"Environment",gravity:0,
@@ -147,8 +147,8 @@ L.v=(0,0);
                        {name:"L", behavior:{type:"Mass",charge:1,fixed:true}},
                        {name:"J", behavior:{type:"Mass",charge:1,fixed:true}},
                        ];
-                       
-                       
+
+
 for(var i=0;i<nn;i++){
     physics.push(
               {name:"A"+i, behavior:{
@@ -156,13 +156,13 @@ for(var i=0;i<nn;i++){
               vx:Math.random()-.5,
               vy:Math.random()-.5,
               charge:1},
-              } 
+              }
               )
-    
+
 };
             var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp,
                         behavior:physics,
@@ -170,9 +170,9 @@ for(var i=0;i<nn;i++){
 
                         }
                         );
-    
+
         </script>
-        
+
         <button onclick="cdy.play()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
         <button onclick="cdy.pause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
         <button onclick="cdy.stop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>

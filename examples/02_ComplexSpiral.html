@@ -6,15 +6,15 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Complex Spiral</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
 
             a=complex(A.xy)/5;
             c=complex(C.xy)/10;
@@ -27,29 +27,29 @@
             draw(A);
             draw(C);
             </script>
-        
-        
-        
-        
-        
+
+
+
+
+
         <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", kind:"P", type:"Free", pos:[7,1,1]},
                       {name:"C", kind:"P", type:"Free", pos:[0,9,1]},
                       ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-        
-        
-            
-            
-            
+
+
+
+
+
             </script>
-        
-                
+
+
 	</body>
 </html>

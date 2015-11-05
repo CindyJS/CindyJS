@@ -7,14 +7,14 @@
             	<!--script src="../src/js/lib/jquery.js"></script-->
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1 style="margin-left:50px;">A sample C-test</h1>
-        
-        <script id='keyDown' type='cindyscript'>
+
+        <script id='keyDown' type='text/x-cindyscript'>
             if(keycode()==39,curleft());
             if(keycode()==37,curright());
             if(keycode()==38,curup());
@@ -26,21 +26,21 @@
             );
 
         </script>
-        
-        
-        <script id='mouseDown' type='cindyscript'>
+
+
+        <script id='mouseDown' type='text/x-cindyscript'>
             movecursortomouse();
 
 
         </script>
 
-        
-        <script id='initialization' type='cindyscript'>
-        
+
+        <script id='initialization' type='text/x-cindyscript'>
+
                     letters  ="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                     letterssm="abcdefghijklmnopqrstuvwxyz";
 
-        
+
 
 text1="Within the City of Westminster, the entertainment district of the West End has its focus around Leicester Square, where London and world film premieres are held, and Piccadilly Circus, with its giant electronic advertisements. London's theatre district is here, as are many cinemas, bars, clubs and restaurants, including the city's Chinatown district (in Soho), and just to the east is Covent Garden, an area housing speciality shops. The city is the home of Andrew Lloyd Webber, whose musicals have dominated the West End theatre since the late 20th century. The United Kingdom's Royal Ballet, English National Ballet, Royal Opera and English National Opera are based in London and perform at the Royal Opera House, the London Coliseum, Sadler's Wells Theatre and the Royal Albert Hall as well as touring the country.";
 
@@ -93,10 +93,10 @@ backspace():=(
 movecursortomouse():=(
   mx=mouse().x+9;
   my=mouse().y-8;
-  
+
   curx=floor(mx/cw);
   cury=floor(my/ch)+1;
-  
+
 );
 
 
@@ -127,7 +127,7 @@ curleft():=(
   curx=curx+1;
   if(curx>max+2,
     if(cury<=lines+1, curx=0;cury=cury+1;
-    , 
+    ,
     curx=curx-1;
     finalposition=true;)
   );
@@ -137,7 +137,7 @@ curright():=(
   curx=curx-1;
   if(curx<0,
     if(cury>0, curx=max+2;cury=cury-1;
-    , 
+    ,
     curx=curx+1)
   );
 );
@@ -175,34 +175,34 @@ prepare(tt):=(
 
 drawword(i,j,word,gap,fill,ind):=(
   correct=false;
-  if(checking % solving, 
+  if(checking % solving,
      correct=true;
      apply(1..length(word),k,
-       p=gap_k; 
-       q=fill_k; 
-       w=word_k; 
+       p=gap_k;
+       q=fill_k;
+       w=word_k;
        if(p=="_",
           if(w!=q,correct=false);
-       )     
+       )
      )
 
   );
-  
-  
-  
+
+
+
   apply(1..length(word),k,
-     p=gap_k; 
-     q=fill_k; 
-     w=word_k; 
+     p=gap_k;
+     q=fill_k;
+     w=word_k;
      r=p;
      if(i+k-1==curx & j==cury,
            posword=ind;
            posletter=k;
         );
-     grid_(i+k)_(j+1)=p; 
-     
+     grid_(i+k)_(j+1)=p;
+
      col=(0,0,1);
-     if(checking % solving, 
+     if(checking % solving,
        if(correct,
          col=(0,.7,0),
          col=(.8,0,0)
@@ -214,13 +214,13 @@ drawword(i,j,word,gap,fill,ind):=(
         if(r!=p,
           drawtext(((i+k-1)*cw,j*ch),r,family->"Courier",bold->true,size->20,color->col),
           drawtext(((i+k-1)*cw,j*ch),r,family->"Courier",bold->true,size->18,color->col))
-        
+
         ,
         drawtext(((i+k-1)*cw,j*ch),r,family->"Courier",size->20)
 
 
      );
-     
+
   );
 );
 
@@ -229,7 +229,7 @@ testword(i,j,gap,ind):=(
      if(i+k-1==curx & j==cury,
            posword=ind;
            posletter=k;
-        );     
+        );
   );
 );
 
@@ -281,7 +281,7 @@ buttonClicked():=(
 
 
 drawing():=(
-        
+
   clrscr();
   fillcircle((0,0),30,color->(1,.9,.7));
 
@@ -300,65 +300,65 @@ drawing():=(
     gap=gaps_ind;
     fill=fills_ind;
     if(i+length(word)>max, i=0;j=j+1);
-  
+
     drawword(i,j,word,gap,fill,ind);
     positions_ind=(i,j);
     i=i+length(word)+1;
   );
 
-  grestore();       
+  grestore();
 );
 
 checking=false;
 solving=false;
-drawing();        
-nextword();        
+drawing();
+nextword();
 
 
 
         </script>
 
-        
-<script id='firstDrawing' type='cindyscript'>
-        
-drawing();        
- 
-            
-            
-            
+
+<script id='csmove' type='text/x-cindyscript'>
+
+drawing();
+
+
+
+
 </script>
-       
-                
-           
+
+
+
 <div onkeyup="displayunicode(event)">
         <canvas  id="CSCanvas" align="left" valign = "top" width=700 height=500  style="border:2px solid #000000" ></canvas>
 </div>
         <script>
-            
+
             var gslp=[
 
                                            ];
             var cdy = createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         keydownscript:"keyDown",
                         mousedownscript:"mouseDown",
                         initscript:"initialization",
                         geometry:gslp});
-    
+
            sel =function(type){
              cdy.evokeCS('prepare('+type+');')
-           
+
            }
-    
+
         </script>
-        
-       
-        
-        
+
+
+
+
         <button onclick="cdy.evokeCS('buttonClicked()')" type="button" style="position:absolute; top:620px;left:60px" >Check Entries</button>
-        
+
         <button onclick="cdy.evokeCS('solving=!solving')" type="button" style="position:absolute; top:620px;left:210px" >Solve</button>
-        
+
 <select onchange="sel(this.value)" style="position:absolute; top:620px;left:360px">
   <option value="text1">Travel (London)</option>
   <option value="text2">Animals (Elephants)</option>

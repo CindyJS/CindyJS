@@ -15,63 +15,63 @@
 <h1>Conjugate Scherk Minimal Surface</h1>
 
 
-<script id='mouseDrag' type='cindyscript'>
+<script id='mouseDrag' type='text/x-cindyscript'>
 if((mover()!=S) & (mover()!=T),
    xx=mouse().x;
    yy=mouse().y;
    wy=(startx-xx)*.3;
    wx=-(starty-yy)*.3;
-   
+
    mmmx=[
        [1,0,0],
        [0,cos(wx),sin(wx)],
        [0,-sin(wx),cos(wx)]
        ];
-   
-   
+
+
    mmmy=[
        [cos(wy),0,-sin(wy)],
        [0,1,0],
        [sin(wy),0,cos(wy)]
        ];
-   
-   
-   
+
+
+
    mat=mmmx*mmmy*mat;
-   
+
    startx=mouse().x;
    starty=mouse().y;
    );
 </script>
 
-<script id='mouseUp' type='cindyscript'>
+<script id='mouseUp' type='text/x-cindyscript'>
 
 if((mover()!=S) & (mover()!=T),
    xx=mouse().x;
    yy=mouse().y;
    wy=(startx-xx)*.3;
    wx=-(starty-yy)*.3;
-   
+
    mmmx=[
        [1,0,0],
        [0,cos(wx),sin(wx)],
        [0,-sin(wx),cos(wx)]
        ];
-   
-   
+
+
    mmmy=[
        [cos(wy),0,-sin(wy)],
        [0,1,0],
        [sin(wy),0,cos(wy)]
        ];
-   
-   
-   
+
+
+
    mat=mmmx*mmmy*mat;
    );
 </script>
 
-<script id='mouseDown' type='cindyscript'>
+<script id='mouseDown' type='text/x-cindyscript'>
 
 startx=mouse().x;
 starty=mouse().y;
@@ -89,7 +89,7 @@ if(xx>14 & xx<21 & yy>-9.7 & yy<-8.5,newchoice=4);
 
 
 
-<script id='init' type='cindyscript'>
+<script id='init' type='text/x-cindyscript'>
 
 v1=[
 [-0.0010743239946101324,0.9510285135287327,0.3187837818954622],
@@ -2451,7 +2451,7 @@ mid=sum(v4)/length(v4);
 v4=apply(v4,(#-mid)*2.6);
 
 
-mat=[ 
+mat=[
     [1,0,0],
     [0,1,0],
     [0,0,1]
@@ -2476,7 +2476,7 @@ animstate=1;
 </script>
 
 
-<script id='tick' type='cindyscript'>
+<script id='tick' type='text/x-cindyscript'>
 animstate=animstate+0.1
 errc(animstate);
 if(animstate>=1,
@@ -2491,7 +2491,7 @@ if(animstate>=0,
 
 
 
-<script id='firstDrawing' type='cindyscript'>
+<script id='csmove' type='text/x-cindyscript'>
 if((choice!=newchoice) & (animstate==1),
   animstate=-1;
   errc(animstate);
@@ -2567,7 +2567,7 @@ apply(f,q,
       fillpoly(pol,color->(col-(0.5,0.5,0))*d,alpha->al);
       pol=pol++[pol_1];
       forall(1..4,draw(pol_#,pol_(#+1),size->2*scale,color->col*d*.02));
-      
+
       );
 
 drawtext(S1-(1.8,1),size->16,"perspective");
@@ -2577,11 +2577,11 @@ drawtext(T1-(1,1),size->16,"alpha");
 </script>
 
 
-<script id='timer' type='cindyscript'>
+<script id='timer' type='text/x-cindyscript'>
 
 
 
-</script> 
+</script>
 
 <canvas  id="CSCanvas" width=800 height=600  style="border:2px solid #000000"></canvas>
 
@@ -2597,12 +2597,12 @@ var gslp=[
     {name:"T2", type:"Free", pos:[20,12],color:[0,0,0],pinned:true,size:2},
     {name:"T", type:"Free", pos:[20,8.5],color:[1,0.5,0.5],pinned:false,size:4,narrow:true},
     {name:"m", type:"Segment", args:["T1","T2"],color:[0,0,0],pinned:false,size:2}
-    
-    
+
+
     ];
 
 var cdy = createCindy({canvasname:"CSCanvas",
-movescript:"firstDrawing",
+movescript:"csmove",
 initscript:"init",
 mousedownscript:"mouseDown",
 mouseupscript:"mouseUp",

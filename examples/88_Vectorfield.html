@@ -21,14 +21,14 @@
 
 
 canvas(pt1,pt2,"front",
- // fillcircle((0,0),20,color->(1,1,1)); 
+ // fillcircle((0,0),20,color->(1,1,1));
   drawimage(pt1,pt2,"back",alpha->0.99);
 );
 
 clearimage("back");
 
 canvas(pt1,pt2,"back",
-//  fillcircle((0,0),20,color->(1,1,1)); 
+//  fillcircle((0,0),20,color->(1,1,1));
   drawimage(pt1,pt2,"front",alpha->.8);
   forall(1..n,draw(oldstreamlets_#,streamlets_#,size->1,alpha->1/(1+(ages_#/1.5)^2)));
 //  forall(1..n,draw(oldstreamlets_#,streamlets_#,size->2,alpha->1));
@@ -36,7 +36,7 @@ canvas(pt1,pt2,"back",
 );
 clearimage("front");
 canvas(pt1,pt2,"front",
-  fillcircle((0,0),20,color->(1,1,1)); 
+  fillcircle((0,0),20,color->(1,1,1));
 
 );
 
@@ -93,7 +93,7 @@ initiss();
 
             var gslp=[
                       {name:"A", kind:"P", type:"Free", pos:[1,-1,1],size:3}
-                                           
+
                       ];
 createCindy({
   canvasname: "cindy",

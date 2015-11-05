@@ -6,22 +6,22 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Euler-Line with Snap and Grid</h1>
-        
-        <script id='init' type='cindyscript'>
+
+        <script id='init' type='text/x-cindyscript'>
               ne=E-A;
               ne=ne/|ne|*.5;
               nf=F-D;
               nf=nf/|nf|*.5;
         </script>
 
-        <script id='firstDrawing' type='cindyscript'>
-                    
+        <script id='csmove' type='text/x-cindyscript'>
+
 A.xy=(1,A.y);
 B.xy=(2,B.y);
 C.xy=(3,C.y);
@@ -39,7 +39,7 @@ D.xy=(4,D.y);
             ff=D+nf;
             E.xy=ee;
             F.xy=ff;
-            
+
 
 
 h1=(E-A).y/(E-A).x;
@@ -49,13 +49,13 @@ h2=(F-D).y/(F-D).x;
 m=[
 [1,1,1,1,0,0,0,0,0,0,0,0],
 [8,4,2,1,0,0,0,0,0,0,0,0],
-[0,0,0,0,8,4,2,1,0,0,0,0], 
+[0,0,0,0,8,4,2,1,0,0,0,0],
 [0,0,0,0,27,9,3,1,0,0,0,0],
 [0,0,0,0,0,0,0,0,27,9,3,1],
 [0,0,0,0,0,0,0,0,64,16,4,1],
 [3,2,1,0,0,0,0,0,0,0,0,0],
 [12,4,1,0,-12,-4,-1,0,0,0,0,0],
-[0,0,0,0,27,6,1,0,-27,-6,-1,0], 
+[0,0,0,0,27,6,1,0,-27,-6,-1,0],
 [0,0,0,0,0,0,0,0,48,8,1,0],
 [12,2,0,0,-12,-2,0,0,0,0,0,0],
 [0,0,0,0,18,2,0,0,-18,-2,0,0]
@@ -67,10 +67,10 @@ plot[x^3*a_1+x^2*a_2+x*a_3+a_4,start->1,stop->2,size->3];
 plot[x^3*a_5+x^2*a_6+x*a_7+a_8,start->2,stop->3,size->3];
 plot[x^3*a_9+x^2*a_10+x*a_11+a_12,start->3,stop->4,size->3];
 
-            
+
 
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
@@ -89,17 +89,17 @@ plot[x^3*a_9+x^2*a_10+x*a_11+a_12,start->3,stop->4,size->3];
                       {name:"s", type:"Segment", args:["A","E"],color:[0,0,0],size:1},
                       {name:"s", type:"Segment", args:["D","F"],color:[0,0,0],size:1}
 
-                      
+
                       ];
             createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {clip: "inci", overhangLine: 1.2},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp,
                         transform:[{scale:3},{translate:[-3,0]}],
                         grid:1
                         });
-    
+
         </script>
 
 	</body>

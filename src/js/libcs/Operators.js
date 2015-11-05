@@ -717,7 +717,7 @@ function postfix_numb_degree(args, modifs) {
     var v1 = evaluateAndVal(args[1]);
 
     if (v0.ctype === 'number' && v1.ctype === 'void') {
-        return CSNumber.mult(v0, CSNumber.real(Math.PI / 180));
+        return General.withUsage(CSNumber.realmult(Math.PI / 180, v0), "Angle");
     }
 
     return nada;
@@ -947,7 +947,10 @@ evaluator.add$2 = infix_add;
 function infix_add(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    return General.add(v0, v1);
+    var erg = General.add(v0, v1);
+    if (v0.usage === "Angle" && v1.usage === "Angle")
+        erg = General.withUsage(erg, "Angle");
+    return erg;
 }
 
 evaluator.sub$2 = infix_sub;
@@ -955,7 +958,10 @@ evaluator.sub$2 = infix_sub;
 function infix_sub(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    return General.sub(v0, v1);
+    var erg = General.sub(v0, v1);
+    if (v0.usage === "Angle" && v1.usage === "Angle")
+        erg = General.withUsage(erg, "Angle");
+    return erg;
 }
 
 evaluator.mult$2 = infix_mult;
@@ -963,7 +969,12 @@ evaluator.mult$2 = infix_mult;
 function infix_mult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    return General.mult(v0, v1);
+    var erg = General.mult(v0, v1);
+    if (v0.usage === "Angle" && !v1.usage)
+        erg = General.withUsage(erg, "Angle");
+    else if (v1.usage === "Angle" && !v0.usage)
+        erg = General.withUsage(erg, "Angle");
+    return erg;
 }
 
 evaluator.div$2 = infix_div;
@@ -971,7 +982,12 @@ evaluator.div$2 = infix_div;
 function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    return General.div(v0, v1);
+    var erg = General.div(v0, v1);
+    if (v0.usage === "Angle" && !v1.usage)
+        erg = General.withUsage(erg, "Angle");
+    else if (v1.usage === "Angle" && !v0.usage)
+        erg = General.withUsage(erg, "Angle");
+    return erg;
 }
 
 
@@ -2978,8 +2994,8 @@ evaluator.replace$3 = function(args, modifs) {
     var v2 = evaluate(args[2]);
     if (v0.ctype === 'string' && v1.ctype === 'string' && v2.ctype === 'string') {
         var str0 = v0.value;
-        var str1 = v1.value;
-        var str2 = v2.value;
+        var str1 = v1.value.replace(/[^A-Za-z0-9]/g, "\\$&");
+        var str2 = v2.value.replace(/\$/g, "$$$$");
         var regex = new RegExp(str1, "g");
         str0 = str0.replace(regex, str2);
         return {
@@ -3592,50 +3608,6 @@ evaluator.halfplane$2 = function(args, modifs) {
     return nada;
 };
 
-evaluator.convexhull3d$1 = function(args, modifs) {
-    var v0 = evaluate(args[0]);
-    if (v0.ctype === 'list') {
-        var vals = v0.value;
-        if (vals.length < 4) {
-            console.error("Less than four input points specified");
-            return nada;
-        }
-        var pts = [],
-            i, j;
-        for (i = 0; i < vals.length; i++) {
-            if (List._helper.isNumberVecN(vals[i], 3)) {
-                for (j = 0; j < 3; j++) {
-                    var a = vals[i].value[j].value.real;
-                    pts.push(a);
-
-                }
-
-            }
-
-        }
-        var ch = convexhull(pts);
-        var chp = ch[0];
-        var ergp = [];
-        for (i = 0; i < chp.length; i += 3) {
-            ergp.push(List.realVector([chp[i], chp[i + 1], chp[i + 2]]));
-        }
-        var outp = List.turnIntoCSList(ergp);
-        var chf = ch[1];
-        var ergf = [];
-        for (i = 0; i < chf.length; i++) {
-            for (j = 0; j < chf[i].length; j++) {
-                chf[i][j]++;
-            }
-            ergf.push(List.realVector(chf[i]));
-        }
-        var outf = List.turnIntoCSList(ergf);
-        return (List.turnIntoCSList([outp, outf]));
-
-    }
-    return nada;
-};
-
-
 evaluator.javascript$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if (v0.ctype === 'string') {
@@ -3648,17 +3620,7 @@ evaluator.javascript$1 = function(args, modifs) {
 
 evaluator.use$1 = function(args, modifs) {
     function defineFunction(name, arity, impl) {
-        // The following can be simplified once we handle arity differently.
-        var old = evaluator[name];
-        var chain = function(args, modifs) {
-            if (args.length === arity)
-                return impl(args, modifs);
-            else if (old)
-                return old(args, modifs);
-            else
-                throw "No implementation for " + name + "(" + arity + ")";
-        };
-        evaluator[name] = chain;
+        evaluator[name + "$" + arity] = impl;
     }
     var v0 = evaluate(args[0]);
     if (v0.ctype === "string") {

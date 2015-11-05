@@ -6,15 +6,15 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: L-System</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
             draw(A);
             list(x):=(
                       gsave();
@@ -22,7 +22,7 @@
                       repeat(length(x),turtle(x_#));
                       grestore();
                       );
-            
+
             turtle(x):=(
                         (if(x=="F",foreward()));
                         (if(x=="R",foreward()));
@@ -32,9 +32,9 @@
                         (if(x=="[",open()));
                         (if(x=="]",close()));
                         (if(x==">",rect()));
-                        
+
                         );
-            
+
             foreward():=(
                          draw((0,0),(l,0));
                          translate((l,0))
@@ -44,47 +44,47 @@
             rect():=rotate(90°);
             open():=gsave();
             close():=grestore();
-            
+
             l=.2;
             angle=(A.x+7)/5;
             word=">F";
             repl=[["F","F+F--F+F"]];
             word="L";
-            
+
             repl=[["L","L+R++R-L--LL-R+"], ["R","-L+RR++R+L--L-R"]];
             repeat(4,
                    word=replace(word,repl);
                    );
-            
+
             list(word);
             errc(word);
-            
-            
-            
+
+
+
         </script>
-        
+
         <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", kind:"P", type:"Free", pos:[-7,2,1]},
                                             ];
 
-            
+
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-            
-            
-            
-            
-            
+
+
+
+
+
             </script>
 
-        
-        
-        
-        
+
+
+
+
 	</body>
 </html>

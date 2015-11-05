@@ -35,7 +35,7 @@ drawtext(L+(0.4,.2),"xy="+(G.x)*(-F.x));
 
 repeat(80,i,
    if(mod(i,10)!=0,
-     if(mod(i,5)==0,  
+     if(mod(i,5)==0,
         draw((-.2,i/4),(.2,i/4),color->(0,0,0)),
         draw((-.1,i/4),(.1,i/4),color->(0,0,0))
      ),
@@ -46,7 +46,7 @@ repeat(80,i,
 
 repeat(30,#,i=#-15;
    if(mod(i,10)!=0,
-     if(mod(i,5)==0,  
+     if(mod(i,5)==0,
        draw((i,-.2),(i,.2),color->(0,0,0)),
        draw((i,-.1),(i,.1),color->(0,0,0))
      ),
@@ -60,38 +60,38 @@ draw(G,K,color->(0,0.6,0),size->3);
 </script>
 
     <script type="text/javascript">
-createCindy({ 
-	scripts: "cs*", 
-	defaultAppearance: {}, 
+createCindy({
+	scripts: "cs*",
+	defaultAppearance: {},
                         grid:1,
                         snap:true,
-	geometry: [ 
-		{ name: "A", type: "Free", pos: [ 0.0, -0.0, 4.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 }, 
-		{ name: "B", type: "Free", pos: [ 4.0, -2.0, -2.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 }, 
-		{ name: "C", type: "Free", pos: [ 4.0, 2.0, 2.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 }, 
-		{ name: "D", type: "Free", pos: [ 4.0, -4.0, -1.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 }, 
-		{ name: "E", type: "Free", pos: [ 4.0, 4.0, 1.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 }, 
-		{ name: "C0", type: "ConicBy5", color: [ 0.7568628, 0.0, 0.0 ], args: [ "A", "B", "C", "D", "E" ], size: 3 }, 
-		{ name: "a", type: "Through", pos: [ 0.0, -4.0, 0.0 ], color: [ 0.0, 0.0, 0.0 ], args: [ "A" ],  pinned: true, size: 1 }, 
-		{ name: "b", type: "Perp", pos: [ 4.0, -0.0, 0.0 ], color: [ 0.0, 0.0, 0.0 ], args: [ "a", "A" ], size: 1 }, 
-		{ name: "F", type: "Free", pos: [ 4.0, -0.0, -0.5714285714285714 ], color: [ 0.0, 1.0, 0.0 ], args: [ "a" ], size: 4.0 }, 
-		{ name: "G", type: "Free", pos: [ 4.0, -0.0, 1.3333333333333333 ], color: [ 0.0, 1.0, 0.0 ], args: [ "a" ], size: 4.0 }, 
-		{ name: "c", type: "Perp", pos: [ 0.5714285714285714, -0.0, 4.0 ], color: [ 0.098039225, 0.61960787, 0.30588236 ], args: [ "a", "F" ], size: 3 ,visible:false}, 
-		{ name: "d", type: "Perp", pos: [ -1.3333333333333333, -0.0, 4.0 ], color: [ 0.098039225, 0.61960787, 0.30588236 ], args: [ "a", "G" ], size: 3 ,visible:false}, 
-		{ name: "Collection__1", type: "IntersectionConicLine", args: [ "C0", "c" ] }, 
-		{ name: "H", type: "SelectP", pos: [ 2.2857142857142856, -4.0, -0.32653061224489793 ], color: [ 1.0, 1.0, 1.0 ], args: [ "Collection__1" ], size: 3.0 }, 
-		{ name: "", type: "SelectP", pos: [ 0.0, -4.0, 0.0 ], color: [ 1.0, 1.0, 1.0 ], args: [ "Collection__1" ], size: 0.0 }, 
-		{ name: "Collection__2", type: "IntersectionConicLine", args: [ "C0", "d" ] }, 
-		{ name: "K", type: "SelectP", pos: [ 4.0, 3.0, 1.3333333333333333 ], color: [ 1.0, 1.0, 1.0 ], args: [ "Collection__2" ], size: 3.0 }, 
-		{ name: "e", type: "Segment", pos: [ -0.7619047619047619, -0.7619047619047619, 4.0 ], color: [ 0.098039225, 0.61960787, 0.30588236 ], args: [ "H", "K" ], size: 3 }, 
-		{ name: "L", type: "Meet", pos: [ 0.0, -4.0, -0.7619047619047619 ], color: [ 1.0, 0.0, 0.0 ], args: [ "b", "e" ], size: 3.0 } ], 
-	ports: [ 
-		{ id: "CSCanvas", width: 744, height: 500, transform: [ { visibleRect: [ -14.72, 17.16, 15.04, -1.08 ] } ] 
+	geometry: [
+		{ name: "A", type: "Free", pos: [ 0.0, -0.0, 4.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 },
+		{ name: "B", type: "Free", pos: [ 4.0, -2.0, -2.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 },
+		{ name: "C", type: "Free", pos: [ 4.0, 2.0, 2.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 },
+		{ name: "D", type: "Free", pos: [ 4.0, -4.0, -1.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 },
+		{ name: "E", type: "Free", pos: [ 4.0, 4.0, 1.0 ], color: [ 1.0, 0.0, 0.0 ],  pinned: true, size: 0.0 },
+		{ name: "C0", type: "ConicBy5", color: [ 0.7568628, 0.0, 0.0 ], args: [ "A", "B", "C", "D", "E" ], size: 3 },
+		{ name: "a", type: "Through", pos: [ 0.0, -4.0, 0.0 ], color: [ 0.0, 0.0, 0.0 ], args: [ "A" ],  pinned: true, size: 1 },
+		{ name: "b", type: "Perp", pos: [ 4.0, -0.0, 0.0 ], color: [ 0.0, 0.0, 0.0 ], args: [ "a", "A" ], size: 1 },
+		{ name: "F", type: "Free", pos: [ 4.0, -0.0, -0.5714285714285714 ], color: [ 0.0, 1.0, 0.0 ], args: [ "a" ], size: 4.0 },
+		{ name: "G", type: "Free", pos: [ 4.0, -0.0, 1.3333333333333333 ], color: [ 0.0, 1.0, 0.0 ], args: [ "a" ], size: 4.0 },
+		{ name: "c", type: "Perp", pos: [ 0.5714285714285714, -0.0, 4.0 ], color: [ 0.098039225, 0.61960787, 0.30588236 ], args: [ "a", "F" ], size: 3 ,visible:false},
+		{ name: "d", type: "Perp", pos: [ -1.3333333333333333, -0.0, 4.0 ], color: [ 0.098039225, 0.61960787, 0.30588236 ], args: [ "a", "G" ], size: 3 ,visible:false},
+		{ name: "Collection__1", type: "IntersectionConicLine", args: [ "C0", "c" ] },
+		{ name: "H", type: "SelectP", pos: [ 2.2857142857142856, -4.0, -0.32653061224489793 ], color: [ 1.0, 1.0, 1.0 ], args: [ "Collection__1" ], size: 3.0 },
+		{ name: "", type: "SelectP", pos: [ 0.0, -4.0, 0.0 ], color: [ 1.0, 1.0, 1.0 ], args: [ "Collection__1" ], size: 0.0 },
+		{ name: "Collection__2", type: "IntersectionConicLine", args: [ "C0", "d" ] },
+		{ name: "K", type: "SelectP", pos: [ 4.0, 3.0, 1.3333333333333333 ], color: [ 1.0, 1.0, 1.0 ], args: [ "Collection__2" ], size: 3.0 },
+		{ name: "e", type: "Segment", pos: [ -0.7619047619047619, -0.7619047619047619, 4.0 ], color: [ 0.098039225, 0.61960787, 0.30588236 ], args: [ "H", "K" ], size: 3 },
+		{ name: "L", type: "Meet", pos: [ 0.0, -4.0, -0.7619047619047619 ], color: [ 1.0, 0.0, 0.0 ], args: [ "b", "e" ], size: 3.0 } ],
+	ports: [
+		{ id: "CSCanvas", width: 744, height: 500, transform: [ { visibleRect: [ -14.72, 17.16, 15.04, -1.08 ] } ]
          } ] }
 
 
         );
-        
+
     </script>
 </head>
 <body>

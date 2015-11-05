@@ -6,15 +6,15 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Euclids Algorithm</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
             linecolor((0,0,0));
             sq(a,b):=(
                       n1=a-b;
@@ -26,10 +26,10 @@
                       draw(b,b-n2,size->2);
                       draw(a-n2,b-n2,size->2);
                       );
-            
-            
+
+
             i=0;
-            
+
             ii=complex((0,1));
             arrow(aa,bb):=(
                            a1=complex(aa);
@@ -37,18 +37,18 @@
                            draw(gauss(a1),gauss(b1),color->(0,0,0.6));
                            draw(gauss(b1-((b1-a1)/|b1-a1|)*exp(ii*.4) ),gauss(b1),color->(0,0,0.6));
                            draw(gauss(b1-((b1-a1)/|b1-a1|)*exp(-ii*.4) ),gauss(b1),color->(0,0,0.6));
-                           
-                           );
-            
 
-            
+                           );
+
+
+
             kb(a,b,c,n):=if(n>0,
                             col=hue(.3*n/2);
                             if(abs(a-b)<abs(a-c),
                                (sq(b,a);nn=perp(a-b);kb(a+nn,b+nn,c,n-1)),
                                (sq(a,c);nn=perp(a-c);kb(a-nn,b,c-nn,n-1))
                                ));
-            
+
             nn=2.5;
             a=round((A.x+10)*nn);
             b=round((A.y+10)*nn);
@@ -62,7 +62,7 @@ A.xy=(a/nn-10,b/nn-10);
             apply(0..nn*20,
                   draw((0,#),(nn*20,#),color->(0,0,0),alpha->0.2);
                   draw((#,0),(#,nn*20),color->(0,0,0),alpha->0.2);
-                  
+
                   );
             kb((0,0),(0,b),(a,0),250);
             grestore();
@@ -91,40 +91,40 @@ A.xy=(a/nn-10,b/nn-10);
                                i=i+1;
                                );
                            i=i+1;
-                           
-                           );
-                     
-                     drawtext((65,43-i*7),a+" ist der ggT",size->20,color->(0.6,0,0));
-                     
-                     
 
-            
-            
+                           );
+
+                     drawtext((65,43-i*7),a+" ist der ggT",size->20,color->(0.6,0,0));
+
+
+
+
+
             grestore();
-            
+
         </script>
-        
-        
+
+
         <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000"></canvas>
-        
-        
-        
+
+
+
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", kind:"P", type:"Free", pos:[4,8,1],size:4,color:[0,0,0]}
                       ];
-            
+
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-            
-            
-            
-            
-            
+
+
+
+
+
             </script>
-        
-        
+
+
 	</body>
 </html>

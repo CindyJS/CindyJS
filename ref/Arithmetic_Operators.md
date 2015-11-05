@@ -121,9 +121,18 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
 
 This operator multiplies any number by the constant `pi/180` .
 This makes possible angle conversion from degrees to radians.
+Note that angles will be printed in degrees by default.
 
     > 180°
+    < 180°
+    > 180° + 0
     < 3.1416
+    > 180° / 3
+    < 60°
+    > 0.5 * 180°
+    < 90°
+    > 20° + 30°
+    < 50°
     > cos(180°)
     < -1
 
@@ -246,13 +255,7 @@ However, the operator returns only one principal value, for which the real value
     > sin(pi) // almost zero except for numerics
     < 0
     > arccos(-1)
-    < 3.1416
-    > arctan2(1,1) ~= 45°
-    < true
-    > arctan2(-1,-1) ~= -135°
-    < true
-
-    - skip test: printing of angles in degrees not implemented.
+    < 180°
     > arctan2(1,1)
     < 45°
     > arctan2(-1,-1)
