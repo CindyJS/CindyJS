@@ -85,12 +85,24 @@ webgltr['exp'] = [
   [complex_fun$1, useincludefunction('expc')]
 ];
 
+webgltr['log'] = [
+  [float2complex_fun$1,   useincludefunction('logr')],
+  [complex_fun$1, useincludefunction('logc')]
+];
+
 webgltr["add"] = [
   [int_fun$2,     useinfix('+')],
   [float_fun$2,   useinfix('+')],
   [complex_fun$2, useinfix('+')]
 ];
 webgltr['+'] = webgltr['add'];
+
+webgltr["sub"] = [
+  [int_fun$2,     useinfix('-')],
+  [float_fun$2,   useinfix('-')],
+  [complex_fun$2, useinfix('-')]
+];
+webgltr['-'] = webgltr['sub'];
 
 webgltr["mult"] = [
   [int_fun$2, useinfix('*')],
@@ -148,6 +160,19 @@ webgltr["genList"] = [
   [{args: [type.float, type.float, type.float], res: type.vec3}, usefunction('vec3')]
   //@TODO: real lists in glsl
 ];
+
+
+webgltr["&"] = [
+  [bool_fun$2, useinfix('&&')]
+];
+
+
+[">","<", ">=", "<="].forEach( oper =>
+  webgltr[oper] = [
+    [int2bool_fun$2, useinfix(oper)],
+    [float2bool_fun$2, useinfix(oper)]
+  ]
+);
 
 
 

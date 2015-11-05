@@ -1,21 +1,28 @@
-var includedfunctions = {};
+/** @dict @type {Object} */
+var hasbeenincluded = {};
+/**  @type {Array.<string>} */
+var includedfunctions = [];
+
+
 var requires = {};
 
 function includefunction(name) { //includes functions and does DFS on all required functions.
-  includedfunctions[name] = cgl_resources[name]; //lade aus name.glsl...
+  if(hasbeenincluded.hasOwnProperty(name)) return;
+  hasbeenincluded[name] = true; 
   for(let i in requires[name]) {
     let f = requires[name][i];
-    if(includedfunctions.hasOwnProperty(f)) continue;
     includefunction(f);
   }
+  
+  includedfunctions.push(cgl_resources[name]); //lade aus name.glsl...
 }
 
 function generateHeaderOfIncludedFunctions() {
-  var h = '';
+  /*var h = '';
   for(let f in includedfunctions) {
     h += includedfunctions[f] + '\n';
-  }
-  return h;
+  }*/
+  return includedfunctions.join('\n');
 }
 
 function useincludefunction(name) {

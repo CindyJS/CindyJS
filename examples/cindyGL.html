@@ -17,7 +17,7 @@ createCindy.registerPlugin(1,"testing",function(api){
     console.log("run parse function");
     console.log(JSON.stringify(args[0]));
     //console.log("");
-    //console.log(JSON.stringify(api.getMyfunctions()));
+    console.log(JSON.stringify(api.getMyfunctions()));
   });
 });
 </script>
@@ -31,20 +31,25 @@ z = 0;
 
 mandle(c) := (
   z = 0; //global variable
-  repeat(8,
-    z = f(z, c)
+  repeat(17,
+    z = f(z, c);
+    //if(abs(z)>5, z=5)
   );
-   hue(arctan2(re(z), im(z))/pi)
+  if(abs(z) < 5,
+    hue(arctan2(re(z), im(z))/pi),
+    (0,0,0)
+  )
 );
 
-//parseexpr((2,3));
-//parseexpr([2,3]);
 
 
 parseexpr(mandle(complex(#)));
 //compile(mandle(complex(#)));
 parseexpr(sin((#*#)));
 compile(sin((#*#)));
+x = 2;
+parseexpr(if(4>3, .2, 1));
+
 </script>
 <script id="csmove" type="text/x-cindyscript">
 drawtext(A, z);

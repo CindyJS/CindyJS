@@ -31,7 +31,8 @@ function typeToString(t) {
   'point',
   'mat2',
   'mat3',
-  'mat4']; return l[t-1];
+  'mat4'];
+  return l[t-1];
 }
 
 
@@ -73,12 +74,13 @@ const float2complex_fun$2 = {args: [type.float, type.float],     res: type.compl
 const complex2float_fun$1 = {args: [type.complex],               res: type.float};
 const complex2float_fun$2 = {args: [type.complex, type.complex], res: type.float};
 
-const vec22float_fun$2   = {args: [type.vec2, type.vec2],     res: type.float};
-const vec32float_fun$2   = {args: [type.vec3, type.vec3],     res: type.float};
+const vec22float_fun$2    = {args: [type.vec2, type.vec2],       res: type.float};
+const vec32float_fun$2    = {args: [type.vec3, type.vec3],       res: type.float};
 
 const point2float_fun$2   = {args: [type.point, type.point],     res: type.float};
 
-
+const int2bool_fun$2      = {args: [type.int, type.int],          res: type.bool};
+const float2bool_fun$2    = {args: [type.float, type.float],      res: type.bool};
 
 const template1 = makeTemplate(1);
 const template2 = makeTemplate(2);
@@ -262,14 +264,29 @@ typeinference["-"] = typeinference["sub"];
 //- operators.put("~<", 300);  //approx smaller @done(2015-03-17)
 //- operators.put("~>", 300);  //approx greater @done(2015-03-17)
 //- operators.put("=:=", 300); //Equals after evaluation
-//- operators.put(">=", 300);  //Größergleich @done(2015-03-17)
-//- operators.put("<=", 300);  //Kleinergleich @done(2015-03-17)
-//- operators.put("~>=", 300);  //ungefähr Größergleich @done(2015-03-17)
-//- operators.put("~<=", 300);  //ungefähr Kleinergleich @done(2015-03-17)
+
+
 //- operators.put(">", 300);   //Größer @done(2015-03-17)
 //- operators.put("<", 300);   //Kleiner @done(2015-03-17)
+//- operators.put(">=", 300);  //Größergleich @done(2015-03-17)
+//- operators.put("<=", 300);  //Kleinergleich @done(2015-03-17)
+[">","<", ">=", "<="].forEach( oper =>
+  typeinference[oper] = [
+    int2bool_fun$2, float2bool_fun$2
+  ]
+);
+
+
+
+//- operators.put("~>=", 300);  //ungefähr Größergleich @done(2015-03-17)
+//- operators.put("~<=", 300);  //ungefähr Kleinergleich @done(2015-03-17)
+
 //- operators.put("<>", 300);  //Ungleich @done(2015-03-17)
 //- operators.put("&", 350);   //Logisches Und @done(2015-03-17)
+typeinference["&"] = [
+  bool_fun$2
+];
+
 //- operators.put("%", 350);   //Logisches Oder @done(2015-03-17)
 //- operators.put("!=", 350);  //Ungleich @done(2015-03-17)
 //- operators.put("~!=", 350);  //ungefhr Ungleich @done(2015-03-17)

@@ -44,6 +44,9 @@ var toyexpr = {"ctype":"function","oper":"mandle$1","args":[{"ctype":"function",
 var toyexprsin = {"ctype":"function","oper":"sin$1","args":[{"ctype":"infix","oper":"*","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"}]}],"modifs":{}};
 
 
+var ifexpr = {"ctype":"function","oper":"if$3","args":[{"ctype":"infix","oper":">","args":[{"ctype":"number","value":{"real":4,"imag":0}},{"ctype":"number","value":{"real":3,"imag":0}}]},{"value":{"real":0.2,"imag":0},"ctype":"number"},{"ctype":"number","value":{"real":1,"imag":0}}],"modifs":{}};
+
+
 var toyexprwithoutvars = {"ctype":"function","oper":"sqrt$1","args":[{"ctype":"function","oper":"sin$1","args":[{"ctype":"infix","oper":"+","args":[{"ctype":"number","value":{"real":0,"imag":0}},{"ctype":"number","value":{"real":3,"imag":0}}]}],"modifs":{}}],"modifs":{}};
 
 console.log("==========A================");
@@ -93,6 +96,9 @@ console.log("==========================");
 console.log(compile(
 {"ctype":"infix","oper":"+","args":[{"ctype":"number","value":{"real":0,"imag":1}},{"ctype":"number","value":{"real":3,"imag":0}}]}
 ,'',true));
+console.log("==========================");
+
+console.log(generateColorPlotProgram(ifexpr));
 console.log("==========================");
 //console.log(generateColorPlotProgram({"ctype":"number","value":{"real":10,"imag":0}}));
 

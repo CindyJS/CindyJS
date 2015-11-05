@@ -392,13 +392,39 @@ function compile(expr, scope, generateTerm) {
     code += '}\n';
     return (generateTerm ? {code: code, term: ansvar, type: r.type} : {code: code});
   } else if (expr['oper'] === "repeat$3") {
-    console.log("TODO");
+    console.error("TODO");
     //@TODO implement with manual variable
-  } else if (expr['oper'] === "if$2") {
-    console.log("TODO");
-    //@TODO implement if
-  } else if (expr['oper'] === "if$3") {
-    console.log("TODO");
+  } else if (expr['oper'] === "if$2" || expr['oper'] === "if$3") {
+    let cond =       compile(expr['args'][0], scope, true);
+    let ifbranch   = compile(expr['args'][1], scope, generateTerm);
+    
+    let code = '';
+    let ans = '';
+    let ansvar = '';
+    
+    let termtype = getType(expr, scope);
+    
+    if(generateTerm) {
+      ansvar = generateUniqueHelperString();
+      code += webgltype[termtype] + ' ' + ansvar + ';'; //initial ansvar
+    }
+    code += cond.code;
+    code += 'if(' + cond.term + ') {\n';
+      code += ifbranch.code;
+      if(generateTerm) {
+        code += ansvar + ' = ' + castType(ifbranch.term, ifbranch.type, termtype) + ';\n';
+      }
+
+    if(expr['oper'] === "if$3") {
+      let elsebranch = compile(expr['args'][2], scope, generateTerm);
+      code += '} else {\n';
+      code += elsebranch.code;
+      if(generateTerm) {
+        code += ansvar + ' = ' + castType(elsebranch.term, elsebranch.type, termtype) + ';\n';
+      }
+    }
+    code += '}\n';
+    return (generateTerm ? {code: code, term: ansvar, type: termtype} : {code: code});
     //@TODO implement if
   } else if (expr['ctype'] === "function" || expr['ctype'] === "infix") {
     let fname = expr['oper'];
@@ -486,7 +512,7 @@ function compile(expr, scope, generateTerm) {
     let term = expr['name'];
     
     if(term === '#') {
-      term = 'pixel';
+      term = 'cgl_pixel';
     }
     return (generateTerm ? {term: term, type: termtype, code: ''} : {code: term +';\n'});
   } else if(expr['ctype'] === "void") {
@@ -504,11 +530,15 @@ function usemyfunction(fname) {
   return usefunction(fname);
 }
 
+/** @dict @type {Object} */
+var hasbeencompiled = {};
+/**  @type {Array.<string>} */
+var compiledfunctions = [];
 
-
-var compiledfunctions = {};
 function compileFunction(fname, nargs) {
-  if(compiledfunctions.hasOwnProperty(fname)) return;
+  if(hasbeencompiled.hasOwnProperty(fname)) return;
+  hasbeencompiled[fname] = true; //visited
+  
   let m = myfunctions[fname]; // + '$' + nargs];
   
   let vars = new Array(nargs);
@@ -532,15 +562,19 @@ function compileFunction(fname, nargs) {
     if(!isvoid)
       code += 'return ' + castType(r.term, r.type, T[''][fname]) + ';\n'; //TODO REPL 
   code += '}\n';
-  compiledfunctions[fname] = code;
+  
+  
+  compiledfunctions.push(code);
 }
 
 function generateHeaderOfCompiledFunctions() {
+  /*
   var h = '';
   for(let f in compiledfunctions) {
     h += compiledfunctions[f] + '\n';
   }
-  return h;
+  return h;*/
+  return compiledfunctions.join('\n');
 }
 
 
@@ -570,12 +604,17 @@ function generateColorPlotProgram(expr) { //TODO add arguments for #
   
   
   //cleaning up
-  includedfunctions = {};
+  includedfunctions = [];
+  hasbeenincluded = {};
+  
+  compiledfunctions = [];
+  hasbeencompiled = {};
+  
   variables = {}; 
   assigments = {};
   T = {};
-  compiledfunctions = {};
-
+  
+  //console.log(code);
   return code;
 }
 

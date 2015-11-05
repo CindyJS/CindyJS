@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Mandelbrot Fractal</h1>
+    <script id="csinit" type="cindyscript">
+      use("CindyGL");
+      
+      f(z, c) := z*z + c;
+      z = 0;
+      
+      mandle(c) := (
+        z = 0; //global variable
+        timetoescape = 0;
+        l0 = 0;
+        repeat(49,
+          if(l0<=4,
+            z = f(z, c);
+            l1 = abs(z);
+            timetoescape = timetoescape + if(l1 <= 4, 1, re(log(4/l0))/re(log(l1/l0))); //continious escape time
+            l0 = l1;
+          )
+        );
+        if(timetoescape >= 49,
+          hue(im(log(z))/(2*pi)), //phase of z
+          timetoescape/49 //floating point numbers in [0,1] will be interpreted as greys
+        )
+      );
+      createimage("plot",500,500);
+    </script>
+    <script id="csmove" type="cindyscript">
+      colorplot(A, B, "plot", mandle(complex(#)));
+      drawimage([0,0,1], "plot");
+    </script>
+    
+
+    <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+    
+    <script type="text/javascript">
+        
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[-2,-1.5,1]},
+                  {name:"B", kind:"P", type:"Free", pos:[.8,-1.5,1]},
+                  ];
+        createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    transform:[{scale:4.},{translate:[0,0]}]
+                    }
+                    );
+    </script>              
+	</body>
+</html>

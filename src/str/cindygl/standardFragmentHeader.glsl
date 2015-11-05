@@ -2,5 +2,7 @@
 precision highp float;
 #endif
 
-varying vec2 pixel;
+#define pi 3.141592653589793
+
+varying vec2 cgl_pixel;
 
