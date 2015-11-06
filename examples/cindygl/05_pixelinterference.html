@@ -15,10 +15,8 @@
     
     <script id="csmove" type="cindyscript">
       t = seconds()-t0;
-     
-      
-      //colorplot(A, B, "plot", (.5+sin(#*#), .5+sin(2*(#*#)), .5+sin(4*(#*#))));
-      colorplot(A, B, "plot", hue((#*#))); 
+      l = exp(4+im(complex(mouse())));
+      colorplot([-l,-l],[l,-l], "plot", .5+sin((#*#))); 
       drawimage([0,0], "plot");
     </script>
                
@@ -34,13 +32,12 @@
     <script type="text/javascript">
         
         var gslp=[
-                  {name:"A", kind:"P", type:"Free", pos:[-2,-1,1]},
-                  {name:"B", kind:"P", type:"Free", pos:[1,1,1]},
                   ];
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    transform:[{scale:.1},{translate:[0,0]}]
+                    autoplay: true,
+                    transform:[{scale:2.},{translate:[0,0]}]
                   });
     </script>              
 	</body>
