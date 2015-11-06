@@ -21,7 +21,14 @@
       f(z) := (
         (z-complex(A))*(z-complex(B))*(z-complex(C))
       );
-      colorplot([-2.5,-2.5],[2.5,-2.5],"plot", hue(im(log(f(complex(#))))/(2.*pi)));
+      
+      color(z) := (
+        z = log(z);
+        h = mod(re(z),1);
+        exp(-.1*re(z))*(.8+.2*h)*hue(im(z)/(2*pi));
+      );
+      
+      colorplot([-2.5,-2.5],[2.5,-2.5],"plot",color(f(complex(#))));
       
       drawimage([0,0], "plot");
     </script>

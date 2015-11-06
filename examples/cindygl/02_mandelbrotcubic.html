@@ -14,7 +14,7 @@
     <script id="csinit" type="cindyscript">
       use("CindyGL");
       
-      f(z, c) := z*z+c;
+      f(z, c) := z*z*z+c;
       
       iter(z, c) := (
         timetoescape = 0;
@@ -41,9 +41,9 @@
       
       c = complex(fm*C.homog);
       z0 = complex(fj*Z0.homog);
-           
+      
       Z0.color = iter(z0, c);
-      C.color  = iter(z0, c);
+      C.color = iter(z0, c);
       
       colorplot(A, B,                  "mandle", iter(z0, complex(#)));
       colorplot([-1.5,-1.5],[1.5,-1.5],"julia",  iter(complex(#),c));
@@ -58,8 +58,8 @@
     <script type="text/javascript">
         
         var gslp=[
-                  {name:"A", kind:"P", type:"Free", pos:[-2,-1.5]},
-                  {name:"B", kind:"P", type:"Free", pos:[.8,-1.5]},
+                  {name:"A", kind:"P", type:"Free", pos:[-1.5,-1.5]},
+                  {name:"B", kind:"P", type:"Free", pos:[1.5,-1.5]},
                   
                   {name: "m0", kind: "P", type:"Free", pos:[-2.5,-2.5]},
                   {name: "m1", kind: "P", type:"Free", pos:[2.5,-2.5]},
@@ -68,8 +68,8 @@
                   {name: "j1", kind: "P", type:"Free", pos:[7.5,-2.5]},
                     
                     
-                  {name:"C", kind:"P", type:"Free", pos:[.1,.1]},
-                  {name:"Z0", kind:"P", type:"Free", pos:[5., 0.01]}
+                  {name:"C", kind:"P", type:"Free", pos:[0.2,1.8]},
+                  {name:"Z0", kind:"P", type:"Free", pos:[5, 0.001]}
                   ];
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",

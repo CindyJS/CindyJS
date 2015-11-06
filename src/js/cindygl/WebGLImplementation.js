@@ -67,8 +67,10 @@ inclusionfunction[type.float][type.complex] = float2cpl;
 inclusionfunction[type.float][type.color] = useincludefunction('gray');
 
 //inclusionfunction[type.complex][type.vec2] = identity;
+
 inclusionfunction[type.color][type.vec3] = color2vec3;
 inclusionfunction[type.color][type.vec4] = identity;
+
 //inclusionfunction[type.vec2][type.complex] = identity;
 inclusionfunction[type.vec2][type.point] = vec22point;
 
@@ -110,26 +112,27 @@ webgltr['log'] = [
   [complex_fun$1, useincludefunction('logc')]
 ];
 
-webgltr["add"] = [
-  [int_fun$2,     useinfix('+')],
-  [float_fun$2,   useinfix('+')],
-  [complex_fun$2, useinfix('+')]
-];
-webgltr['+'] = webgltr['add'];
+webgltr["add"] = [];
+webgltr["sub"] = [];
 
+[int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2].forEach( function(t) {
+    webgltr["add"].push([t,  useinfix('+')]);
+    webgltr["sub"].push([t,  useinfix('-')]);
+  }
+);
 
 var negate = function(v) {
   return '-('+ v[1] + ')';
 }
 
-webgltr["sub"] = [
-  [int_fun$2,     useinfix('-')],
-  [float_fun$2,   useinfix('-')],
-  [complex_fun$2, useinfix('-')],
-  [{args: [type.voidt, type.int],     res: type.int}, negate],
-  [{args: [type.voidt, type.float],   res: type.float}, negate],
-  [{args: [type.voidt, type.complex], res: type.complex}, negate]
-];
+let rings = [type.int, type.float, type.complex, type.vec2, type.vec3, type.vec4];
+rings.forEach( function(t) {
+    webgltr["sub"].push([{args: [type.voidt, t], res: t}, negate]);
+  }
+);
+
+
+webgltr['+'] = webgltr['add'];
 webgltr['-'] = webgltr['sub'];
 
 webgltr["mult"] = [
@@ -137,8 +140,14 @@ webgltr["mult"] = [
   [float_fun$2, useinfix('*')],
   [complex_fun$2, useincludefunction('multc')],
   [vec22float_fun$2, usefunction('dot')],
-  [vec32float_fun$2, usefunction('dot')]
+  [vec32float_fun$2, usefunction('dot')],
+  [vec42float_fun$2, usefunction('dot')]
 ];
+
+rvectorspaces.forEach(function(t){
+  webgltr["mult"].push([{args: [type.float, t], res: t}, useinfix('*')]);
+});
+
 webgltr['*'] = webgltr['mult'];
 
 webgltr["div"] = [
@@ -153,6 +162,13 @@ webgltr['re'] = [
 
 webgltr['im'] = [
   [complex2float_fun$1, useincludefunction('imagc')]
+];
+
+
+webgltr["mod"] = [
+  [int_fun$2, useinfix('%')],
+  [float_fun$2, usefunction('mod')]
+  //complex_fun$2 TODO
 ];
 
 

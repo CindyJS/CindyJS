@@ -44,13 +44,13 @@ subtypegen[type.int] = [type.float];
 subtypegen[type.float] = [type.complex, type.color]; //color: as gray
 
 //subtypegen[type.complex] = []; //NOT type.vec2: because no automatic cast in cindyJS
-//subtypegen[type.color] = [type.vec3];
+subtypegen[type.color] = [type.vec3]; //NOT type.vec4 because vec3 -> color -> vec4. Only consider vec3 <-> color in the sense of cindyJS
 
 subtypegen[type.vec2] = [type.point];
 subtypegen[type.vec3] = [type.color, type.point];
-subtypegen[type.vec4] = [type.color];
+subtypegen[type.vec4] = [type.color]; //color with alpha
 
-subtypegen[type.point] = [type.vec2, type.vec3]; //in R^2 or in RP^3
+//subtypegen[type.point] = [type.vec2, type.vec3]; //in R^2 or in RP^3
 
 
 
@@ -70,6 +70,11 @@ const float_fun$1         = {args: [type.float],                 res: type.float
 const float_fun$2         = {args: [type.float, type.float],     res: type.float};
 const complex_fun$1       = {args: [type.complex],               res: type.complex};
 const complex_fun$2       = {args: [type.complex, type.complex], res: type.complex};
+
+const vec2_fun$2          = {args: [type.vec2, type.vec2],       res: type.vec2};
+const vec3_fun$2          = {args: [type.vec3, type.vec3],       res: type.vec3};
+const vec4_fun$2          = {args: [type.vec4, type.vec4],       res: type.vec4};
+
 const float2complex_fun$1 = {args: [type.float],                 res: type.complex};
 const float2complex_fun$2 = {args: [type.float, type.float],     res: type.complex};
 const complex2float_fun$1 = {args: [type.complex],               res: type.float};
@@ -77,6 +82,7 @@ const complex2float_fun$2 = {args: [type.complex, type.complex], res: type.float
 
 const vec22float_fun$2    = {args: [type.vec2, type.vec2],       res: type.float};
 const vec32float_fun$2    = {args: [type.vec3, type.vec3],       res: type.float};
+const vec42float_fun$2    = {args: [type.vec4, type.vec3],       res: type.float};
 
 const point2float_fun$2   = {args: [type.point, type.point],     res: type.float};
 
@@ -138,19 +144,32 @@ typeinference["arctan2"] = [
 ];
 //- ("add", 2, OpPlus.class); @done(2015-03-17)
 typeinference["add"] = [
-  int_fun$2, float_fun$2, complex_fun$2
+  int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2
 ];
 //- ("sub", 2, OpMinus.class); @done(2015-03-17)
 typeinference["sub"] = [
-  int_fun$2, float_fun$2, complex_fun$2,
+  int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2,
   {args: [type.voidt, type.int],     res: type.int},
   {args: [type.voidt, type.float],   res: type.float},
-  {args: [type.voidt, type.complex], res: type.complex}
+  {args: [type.voidt, type.complex], res: type.complex},
+  {args: [type.voidt, type.vec2],    res: type.vec2},
+  {args: [type.voidt, type.vec3],    res: type.vec3},
+  {args: [type.voidt, type.vec4],    res: type.vec4}
 ];
 //- ("mult", 2, OpTimes.class); @done(2015-03-17)
 typeinference["mult"] = [
-  int_fun$2, float_fun$2, vec22float_fun$2, complex_fun$2, vec32float_fun$2
+  int_fun$2, float_fun$2, complex_fun$2,
 ];
+//all R-vectorspaces:
+let rvectorspaces = [type.complex, type.vec2, type.vec3, type.vec4];
+rvectorspaces.forEach(function(t){
+  typeinference["mult"].push({args: [type.float, t], res: t});
+});
+typeinference["mult"].push(vec22float_fun$2); //dot products
+typeinference["mult"].push(vec32float_fun$2);
+typeinference["mult"].push(vec42float_fun$2);
+
+
 //- ("div", 2, OpQuot.class); @done(2015-03-17)
 typeinference["div"] = [
   float_fun$2, complex_fun$2
