@@ -10,31 +10,37 @@
     
 	<body style="font-family:Arial;">
     
-    <h1>CindyJS: static ColorPlot</h1>
+    <h1>CindyJS: Moiré pattern</h1>
     
     
     <script id="csmove" type="cindyscript">
-      colorplot(A, B, "plot", .5 + .5*sin((#*#))); //renders  sin(<x,x>) on 1000x1000 canvas
-      drawimage(A, B, "plot");
+      t = seconds()-t0;
+     
+      
+      //colorplot(A, B, "plot", (.5+sin(#*#), .5+sin(2*(#*#)), .5+sin(4*(#*#))));
+      colorplot(A, B, "plot", hue((#*#))); 
+      drawimage([0,0], "plot");
     </script>
                
     <script id="csinit" type="cindyscript">
       use("CindyGL");
-      createimage("plot",400,300);
+      t0 = seconds();
+      createimage("plot",500,500);
     </script>
     
 
-    <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
+    <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
     
     <script type="text/javascript">
         
         var gslp=[
-                  {name:"A", kind:"P", type:"Free", pos:[-7,-1,1]},
-                  {name:"B", kind:"P", type:"Free", pos:[10,1,1]},
+                  {name:"A", kind:"P", type:"Free", pos:[-2,-1,1]},
+                  {name:"B", kind:"P", type:"Free", pos:[1,1,1]},
                   ];
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
-                    geometry:gslp
+                    geometry:gslp,
+                    transform:[{scale:.1},{translate:[0,0]}]
                   });
     </script>              
 	</body>

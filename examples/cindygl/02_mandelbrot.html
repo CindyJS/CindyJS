@@ -15,13 +15,11 @@
       use("CindyGL");
       
       f(z, c) := z*z + c;
-      z = 0;
       
-      mandle(c) := (
-        z = 0; //global variable
+      iter(z, c) := (
         timetoescape = 0;
-        l0 = 0;
-        repeat(49,
+        l0 = abs(z);
+        repeat(43,
           if(l0<=4,
             z = f(z, c);
             l1 = abs(z);
@@ -29,26 +27,52 @@
             l0 = l1;
           )
         );
-        if(timetoescape >= 49,
-          hue(im(log(z))/(2*pi)), //phase of z
-          timetoescape/49 //floating point numbers in [0,1] will be interpreted as greys
+        if(timetoescape >= 43,
+          hue(im(log(z))/(2*pi)), //phase of z //TODO 
+          gray(1.-timetoescape/43) //floating point numbers in [0,1] will be interpreted as grays  
         )
       );
-      createimage("plot",500,500);
+      createimage("mandle",500,500);
+      createimage("julia",500,500);
     </script>
     <script id="csmove" type="cindyscript">
-      colorplot(A, B, "plot", mandle(complex(#)));
-      drawimage([0,0,1], "plot");
+      
+      
+      
+      fm = map(m0, m1, A, B);
+      fj = map(j0, j1, [-1.5,-1.5],[1.5,-1.5]);
+      
+      c = complex(fm*C.homog);
+      z0 = complex(fj*Z0.homog);
+      
+      Z0.color = iter(z0, c);
+      C.color = iter(z0, c);
+      
+      colorplot(A, B,                  "mandle", iter(z0, complex(#)));
+      colorplot([-1.5,-1.5],[1.5,-1.5],"julia",  iter(complex(#),c));
+      
+      drawimage(m0,m1, "mandle");
+      drawimage(j0,j1, "julia");
     </script>
     
 
-    <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+    <canvas  id="CSCanvas" width=1000 height=500  style="border:2px solid #000000"></canvas>
     
     <script type="text/javascript">
         
         var gslp=[
-                  {name:"A", kind:"P", type:"Free", pos:[-2,-1.5,1]},
-                  {name:"B", kind:"P", type:"Free", pos:[.8,-1.5,1]},
+                  {name:"A", kind:"P", type:"Free", pos:[-2,-1.5]},
+                  {name:"B", kind:"P", type:"Free", pos:[.8,-1.5]},
+                  
+                  {name: "m0", kind: "P", type:"Free", pos:[-2.5,-2.5]},
+                  {name: "m1", kind: "P", type:"Free", pos:[2.5,-2.5]},
+                  
+                  {name: "j0", kind: "P", type:"Free", pos:[2.5,-2.5]},
+                  {name: "j1", kind: "P", type:"Free", pos:[7.5,-2.5]},
+                    
+                    
+                  {name:"C", kind:"P", type:"Free", pos:[.1,.1]},
+                  {name:"Z0", kind:"P", type:"Free", pos:[5., 0.01]}
                   ];
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",

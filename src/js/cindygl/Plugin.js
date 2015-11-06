@@ -1,11 +1,12 @@
 var nada;
 var myfunctions;
 
-createCindy.registerPlugin(1, "CindyGL", function(api) {
+createCindy.registerPlugin(1, "CindyGL", function(capi) {
 
   //////////////////////////////////////////////////////////////////////
   // API bindings
 
+  api = capi;
   nada = api.nada;
   myfunctions = api.getMyfunctions();
   
@@ -43,7 +44,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     if(!prog.iscompiled) {
       //console.log("Program is not compiled. So we will do that");
       prog.iscompiled = true;
-      prog.renderer = new Renderer(prog, cw, ch);
+      prog.renderer = new Renderer(api, prog, cw, ch);
     } /*else {
       console.log("Program has been compiled; we will use that compiled code.");
     }*/
@@ -57,6 +58,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     
     
     var localcontext = localcanvas.getContext('2d');
+    //TODO: clear canvas first... usefull if rendered with alpha...
     localcontext.drawImage(glcanvas, 0, 0);
     
 

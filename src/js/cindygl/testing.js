@@ -85,8 +85,6 @@ console.log(typeToString(getType(
 
 
 
-console.log("===========C===============");
-console.log(generateColorPlotProgram(toyexpr));
 console.log("==========================");
 console.log(generateColorPlotProgram(toyexprsin));
 console.log("==========================");
@@ -99,9 +97,13 @@ console.log(compile(
 console.log("==========================");
 
 console.log(generateColorPlotProgram(ifexpr));
-console.log("==========================");
+
 //console.log(generateColorPlotProgram({"ctype":"number","value":{"real":10,"imag":0}}));
 
+console.log("===========C===============");
+console.log(generateColorPlotProgram(toyexpr));
+
+console.log("==========================");
 console.log("fertig :)");
 
 //console.log("========Compiling Renderers...==================");

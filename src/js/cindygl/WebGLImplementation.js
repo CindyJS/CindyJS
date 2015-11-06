@@ -13,8 +13,25 @@ webgltype[type.point] = 'vec3' //use homogenious coordinates
 Object.freeze(webgltype);
 
 
+
+function usefunction(name) {
+  return function(args) { //args?
+    if(typeof 'args' === 'string')
+      return getPlainName(name) + '(' + args + ')';
+    else
+      return getPlainName(name) + '(' + args.join(', ') + ')';
+  };
+}
+
+function useinfix(inf) {
+  return function(args) { //args?
+    return '(' + args.join(inf) + ')';
+  };
+}
+
 //subtype inclusion function in WebGL
 function identity(x) {return x};
+
 
 
 var float2cpl = function(f) {
@@ -47,16 +64,19 @@ for(let t in type) {
 inclusionfunction[type.bool][type.int] = usefunction('int'); // use int(...) to cast from boolean to int
 inclusionfunction[type.int][type.float] = usefunction('float');
 inclusionfunction[type.float][type.complex] = float2cpl;
-inclusionfunction[type.float][type.color] = useincludefunction('float2color');
+inclusionfunction[type.float][type.color] = useincludefunction('gray');
 
 //inclusionfunction[type.complex][type.vec2] = identity;
 inclusionfunction[type.color][type.vec3] = color2vec3;
+inclusionfunction[type.color][type.vec4] = identity;
 //inclusionfunction[type.vec2][type.complex] = identity;
 inclusionfunction[type.vec2][type.point] = vec22point;
 
 
 inclusionfunction[type.vec3][type.color] = vec32color;
 inclusionfunction[type.vec3][type.point] = identity;
+
+inclusionfunction[type.vec4][type.color] = identity;
 
 inclusionfunction[type.point][type.vec2] = useincludefunction('dehomogenize');
 inclusionfunction[type.point][type.vec3] = identity;
@@ -97,10 +117,18 @@ webgltr["add"] = [
 ];
 webgltr['+'] = webgltr['add'];
 
+
+var negate = function(v) {
+  return '-('+ v[1] + ')';
+}
+
 webgltr["sub"] = [
   [int_fun$2,     useinfix('-')],
   [float_fun$2,   useinfix('-')],
-  [complex_fun$2, useinfix('-')]
+  [complex_fun$2, useinfix('-')],
+  [{args: [type.voidt, type.int],     res: type.int}, negate],
+  [{args: [type.voidt, type.float],   res: type.float}, negate],
+  [{args: [type.voidt, type.complex], res: type.complex}, negate]
 ];
 webgltr['-'] = webgltr['sub'];
 
@@ -136,9 +164,13 @@ webgltr['arctan2'] = [
 //  {args:[{type: "list", length: 2, members: type.complex}], res: type.complex}
 ];
 
-webgltr["hue"] = [
-  [{args:[type.float], res: type.color},  useincludefunction('hue')]
-];
+
+["red", "green", "blue", "gray", "hue"].forEach( oper =>
+  webgltr[oper] = [
+    [{args:[type.float], res: type.color},  useincludefunction(oper)]
+  ]
+);
+webgltr["grey"] = webgltr["gray"];
 
 
 
@@ -157,7 +189,8 @@ webgltr["im"] = [
 
 webgltr["genList"] = [
   [{args: [type.float, type.float],             res: type.vec2}, usefunction('vec2')],
-  [{args: [type.float, type.float, type.float], res: type.vec3}, usefunction('vec3')]
+  [{args: [type.float, type.float, type.float], res: type.vec3}, usefunction('vec3')],
+  [{args: [type.float, type.float, type.float, type.float], res: type.vec4}, usefunction('vec4')]
   //@TODO: real lists in glsl
 ];
 

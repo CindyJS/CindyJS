@@ -43,11 +43,12 @@ subtypegen[type.bool] = [type.int];
 subtypegen[type.int] = [type.float];
 subtypegen[type.float] = [type.complex, type.color]; //color: as gray
 
-subtypegen[type.complex] = []; //NOT type.vec2: because no automatic cast in cindyJS
-subtypegen[type.color] = [type.vec3];
+//subtypegen[type.complex] = []; //NOT type.vec2: because no automatic cast in cindyJS
+//subtypegen[type.color] = [type.vec3];
 
 subtypegen[type.vec2] = [type.point];
 subtypegen[type.vec3] = [type.color, type.point];
+subtypegen[type.vec4] = [type.color];
 
 subtypegen[type.point] = [type.vec2, type.vec3]; //in R^2 or in RP^3
 
@@ -141,7 +142,10 @@ typeinference["add"] = [
 ];
 //- ("sub", 2, OpMinus.class); @done(2015-03-17)
 typeinference["sub"] = [
-  int_fun$2, float_fun$2, complex_fun$2
+  int_fun$2, float_fun$2, complex_fun$2,
+  {args: [type.voidt, type.int],     res: type.int},
+  {args: [type.voidt, type.float],   res: type.float},
+  {args: [type.voidt, type.complex], res: type.complex}
 ];
 //- ("mult", 2, OpTimes.class); @done(2015-03-17)
 typeinference["mult"] = [
@@ -376,9 +380,14 @@ typeinference["xor"] = [
 //- ("gray", 1, OpGray.class); @done(2015-03-17)
 //- ("grey", 1, OpGray.class); @done(2015-03-17)
 //- ("hue", 1, OpHue.class); @done(2015-03-17)
-typeinference["hue"] = [
-  {args:[type.float], res: type.color}
-];
+["red", "green", "blue", "gray", "grey", "hue"].forEach( oper =>
+  typeinference[oper] = [
+    {args:[type.float], res: type.color}
+  ]
+);
+
+
+
 
 //Drawing functions:
 //- ("repatype.int", 0, OpRepatype.int0.class);
@@ -663,7 +672,8 @@ typeinference["im"] = [
 
 typeinference["genList"] = [
   {args: [type.float, type.float],             res: type.vec2},
-  {args: [type.float, type.float, type.float], res: type.vec3}
+  {args: [type.float, type.float, type.float], res: type.vec3},
+  {args: [type.float, type.float, type.float, type.float], res: type.vec4}
   //@TODO: real lists in glsl
 ];
 

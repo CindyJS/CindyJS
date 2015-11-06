@@ -2,9 +2,13 @@
  * param {TODO} expression for the Code that will be used for rendering
  * @constructor
  */
-function Renderer(expression, sizeX, sizeY) {
+function Renderer(api, expression, sizeX, sizeY) {
+  this.api = api;
+  
+  let cpg = generateColorPlotProgram(expression);
+  this.cpguniforms = cpg.uniforms;
   this.fragmentShaderCode =
-    cgl_resources["standardFragmentHeader"] + generateColorPlotProgram(expression);
+    cgl_resources["standardFragmentHeader"] + cpg.code;
   this.vertexShaderCode = cgl_resources["vshader"];
   this.sizeX = sizeX;
   this.sizeY = sizeY;
@@ -49,6 +53,12 @@ function Renderer(expression, sizeX, sizeY) {
 // Members of the prototype objects
 
 /**
+ * List of uniforms that are required in cpg-prog
+ * @type {Object}
+ */
+Renderer.prototype.cpguniforms;
+
+/**
  * Source code of vertex shader
  * @type {string}
  */
@@ -68,6 +78,9 @@ Renderer.prototype.sizeY;
 
 /** @type {ShaderProgram} */
 Renderer.prototype.shaderProgram;
+
+/** @type {createCindy.pluginApi} */
+Renderer.prototype.api;
 
 
 
@@ -96,6 +109,31 @@ Renderer.prototype.setTransformMatrix = function(a, b, c) {
   this.shaderProgram.uniform["transformMatrix"](transpose3(m));
 }
 
+
+Renderer.prototype.setUniforms = function() {
+  for(let uname in this.cpguniforms) {
+    let val = this.api.evaluateAndVal(this.cpguniforms[uname].expr);
+    let t = this.cpguniforms[uname].type;
+    
+    //@TODO: handle other types as well
+    
+    let setter = this.shaderProgram.uniform[uname];
+    
+    if(setter===undefined) continue;
+    switch(t) {
+      case type.complex:
+        setter([val['value']['real'], val['value']['imag']]);
+        break;
+      case type.float:
+        setter([val['value']['real']]);
+        break;
+      default:
+        console.error("Don't know how to set uniform" + uname + " to " + val);
+        break;
+    }
+  }
+}
+
 /**
  * runs shaderProgram on gl
  */
@@ -106,6 +144,7 @@ Renderer.prototype.render = function(a, b, c) {
   
 	this.shaderProgram.use(gl);
   this.setTransformMatrix(a, b, c);
+  this.setUniforms();
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

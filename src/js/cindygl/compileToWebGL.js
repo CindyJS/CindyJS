@@ -1,42 +1,13 @@
 var webgltype = {}; //which type identifier is used in WebGL to represent our internal type
 
-//////////
+/** @type {createCindy.pluginApi} */
+var api;
 
-/*
-var variables = [];
+var precompileDone = false;
 
-function addvariable(name, type) {
-  variables.push({'name': name, 'type': type}); //use internal types; stack
-}
-
-var helpercnt = 0;
-function addhelper(name, type) {
-  addvariable('_helper'+ helpercnt, type);
-  return (helpercnt++); //return helpercnt first, then increase
-}
-* 
-
-function isEqual(a, b) {
-  if(a===b) return true;
-  if(isprimitive(a) || isprimitive(b)) return a===b;
-  
-  for(let key in a) if(a.hasOwnProperty(key)) {
-    if(!b.hasOwnProperty(key)) return false;
-    if(!isEqual(a[key], b[key])) return false;
-  }
-  
-  for(let key in b) if(b.hasOwnProperty(key)) {
-    if(!a.hasOwnProperty(key)) return false;
-  }
-  
-  return true;
-}
-
-*/
- 
-/////////
-
-//are two given signatures equal?
+/** 
+ * are two given signatures equal?
+ */
 function signaturesAreEqual(a, b) {
   if(a===b) return true;
   if(isprimitive(a) || isprimitive(b)) return a===b;
@@ -53,22 +24,6 @@ function signaturesAreEqual(a, b) {
   return true;
 }
 
-function usefunction(name) {
-  return function(args) { //args?
-    if(typeof 'args' === 'string')
-      return getPlainName(name) + '(' + args + ')';
-    else
-      return getPlainName(name) + '(' + args.join(', ') + ')';
-  };
-}
-
-function useinfix(inf) {
-  return function(args) { //args?
-    return '(' + args.join(inf) + ')';
-  };
-}
-
-
 
 /**
  * Creates new term that is casted to toType
@@ -76,11 +31,16 @@ function useinfix(inf) {
  * assert that fromType is a subtype of toType
  */
 function castType(term, fromType, toType) {
-//  console.log('cast type ' + fromType +  ' to ' + toType);
+//  console.log('cast type ' + typeToString(fromType) +  ' to ' + typeToString(toType) + " (for term" + term +")");
   if(fromType===toType) return term;
   else {
     let nextType = next[fromType][toType]; //use precomputed matrix
  //   console.log(nextType);
+    if(!inclusionfunction.hasOwnProperty(fromType) || !inclusionfunction[fromType].hasOwnProperty(nextType)) {
+      console.error("CindyGL: No type-inclusion function for " + typeToString(fromType) + " to " +
+        typeToString(nextType) + " found. \n Using identity");
+      return castType(term, nextType, toType);
+    }
     return castType((inclusionfunction[fromType][nextType])(term), nextType, toType);
   }
 }
@@ -136,13 +96,18 @@ var T = {}; //T: scope -> (variables -> types)
 
 
 /**
- * Gets the type of the expr, assuming it is evaluated in the scope of fun.
+ * computes the type of the expr, assuming it is evaluated in the scope of fun.
  * It might consider the type of variables (T)
  */
 //@TODO: Consider stack of variables. e.g. repeat(3, i, e = 32+i);
-function getType(expr, fun) { //expression, current function
+function computeType(expr, fun) { //expression, current function
   //console.log('parse the following expression');
   //console.log(expr);
+  
+  if(expr['isuniform']) {
+    return uniforms[expr['uvariable']].type;
+  }
+  
   if(expr['ctype'] === 'variable') {
     let name = expr['name'];
     
@@ -155,11 +120,11 @@ function getType(expr, fun) { //expression, current function
       return type.vec2; //type.complex if complex->true
       
     }
-    if(name === 'pi') return type.float;
+    //if(name === 'pi') return type.float; //done as uniform
     
     if(T.hasOwnProperty(fun) && T[fun].hasOwnProperty(name)) { //is there some local variable
       return T[fun][name];
-    } else if(T.hasOwnProperty('') && T[''].hasOwnProperty(name)) {
+    } else if(T.hasOwnProperty('') && T[''].hasOwnProperty(name)) { //interpret as global variable
       return T[''][name];
     }
   } else if(expr['ctype'] === 'function' && myfunctions.hasOwnProperty(expr['oper'])) {
@@ -185,6 +150,19 @@ function getType(expr, fun) { //expression, current function
     return signature.res;
   }
   return nada;
+}
+
+/**
+ * gets the type of the expr, trying to use cached results. Otherwise it will call computeType
+ */
+//@TODO: Consider stack of variables. e.g. repeat(3, i, e = 32+i);
+function getType(expr, fun) { //expression, current function
+  //return computeType(expr, fun);
+  if(precompileDone && expr.hasOwnProperty("computedType")) {
+    return expr["computedType"];
+  }
+  expr["computedType"] = computeType(expr, fun);
+  return expr["computedType"];
 }
 
 function determineVariables(expr) { //finds the occuring variables, saves them to variables and finally computes T
@@ -276,7 +254,7 @@ function determineTypes() {
     for(let s in assigments) for(let v in assigments[s]) for(let i in assigments[s][v]) { //iterate over all scopes, their variables(and functions), and their reassigments
       // variable  v (which lives in scope s) <- expression e in function f
       let e = assigments[s][v][i].expr; 
-      let f = assigments[s][v][i].fun; 
+      let f = assigments[s][v][i].fun;
       let othertype = getType(e, f); //type of expression e in function f
       
       let oldtype = nada;
@@ -293,20 +271,185 @@ function determineTypes() {
           if(!T.hasOwnProperty(s)) T[s] = {};
           
           T[s][v] = newtype;
-          //console.log("variable " + v + " in scope " + s + " got type " + newtype + "(oltype/othertype is "+ oldtype + "/" + othertype+") because of expr " + JSON.stringify(e));
+          //console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is "+ typeToString(oldtype) + "/" + typeToString(othertype)+") because of expr " + JSON.stringify(e));
           //console.log(T);
           changed = true; 
         }
       }
     }
   }
-  
 }
 
-function precompile(expr) {
-  determineVariables(expr);
-  determineTypes();
+
+var uniforms = {};
+/**
+ * computes the dict uniforms
+ * and sets .uniformvariable
+ * for all terms that have no child dependent on # or any variable dependent on #
+ */
+function determineUniforms(expr) {
+  uniforms = {};
   
+  var variableDependendsOnPixel = {'': {'#': true} };  //functionname -> dict of variables being dependent on #
+
+  //@rethink: include variables that change during plot call(like running variables in loops) as well.
+  //variableDependendsOnPixel -> varyingVariable
+  
+  //@simplefix: assume wlog that every variable that appears on left sign of assigment is dependent on varying variables (if might be called or not, depending on #)
+  
+  
+  function dependsOnPixel(expr, fun) {
+    //Have we already found out that expr depends on pixel?
+    if(expr.hasOwnProperty("dependsOnPixel") && expr["dependsOnPixel"] === true) {
+      return true;
+    }
+    
+    //Is expr a variable that depends on pixel? (according the current variableDependendsOnPixel)
+    if (expr['ctype'] === 'variable') {
+      let vname = expr['name'];
+      
+      if(variableDependendsOnPixel.hasOwnProperty(fun) && variableDependendsOnPixel[fun][vname]) {//local variable 
+        return expr["dependsOnPixel"] = true;
+      }
+      if(variables[fun].indexOf(vname)===-1) { //no regional function found
+        if((variableDependendsOnPixel.hasOwnProperty('') && variableDependendsOnPixel[''][vname])) { //global variable
+          return expr["dependsOnPixel"] = true;
+        }
+      } 
+    }
+    
+    //run recursion on all dependent arguments
+    for(let i in expr['args']) {
+      if(dependsOnPixel(expr['args'][i], fun)) {
+        return expr["dependsOnPixel"] = true;
+      }
+    }
+    
+    //Oh yes, it also might be a user-defined function!
+    if(expr['ctype'] ==='function' && myfunctions.hasOwnProperty(expr['oper'])) {
+      let rfun = expr['oper'];
+      if(!variableDependendsOnPixel.hasOwnProperty(rfun)) {
+        variableDependendsOnPixel[rfun] = {}; //dict of dependent variables
+      }
+      if(dependsOnPixel(myfunctions[rfun].body, rfun)) {
+        return expr["dependsOnPixel"] = true;
+      }
+    }
+    return false;
+  }
+  
+  
+  /*
+  //try to expand the set of variablesDependentOnPixel as long as possible
+  var changed = true;
+  while(changed) {
+    changed = false;
+    //iterate over all scopes, their variables(and functions), and their reassigments
+    for(let s in assigments) for(let v in assigments[s]) for(let i in assigments[s][v]) {
+      // variable  v (which lives in scope s) <- expression e in function f
+      let e = assigments[s][v][i].expr; 
+      let f = assigments[s][v][i].fun;
+      if(!variableDependendsOnPixel.hasOwnProperty(s)) {
+        variableDependendsOnPixel[s] = {}; //dict of dependent variables
+      }
+      if(!variableDependendsOnPixel[s][v]) { 
+        //try weather it actually is dependent
+        if(dependsOnPixel(e, f)) {
+          variableDependendsOnPixel[s][v] = true;
+          changed = true;
+        }
+      }
+    }
+  }
+  */
+  //KISS-Fix: every variable appearing on left side of assigment is varying
+  for(let s in assigments) for(let v in assigments[s]) {
+   if(!variableDependendsOnPixel.hasOwnProperty(s)) {
+      variableDependendsOnPixel[s] = {}; //dict of dependent variables
+    }
+    variableDependendsOnPixel[s][v] = true;
+  }
+  
+  //run expression to get all expr["dependsOnPixel"]
+  dependsOnPixel(expr, '');
+  
+  let visitedFunctions = {'': true};
+  //now find use those elements in expression trees that have no expr["dependsOnPixel"] and as high as possible having that property
+  function computeUniforms(expr, fun) {
+    if(dependsOnPixel(expr, fun)) {
+      //then run recursively on all childs
+      for(let i in expr['args']) {
+        computeUniforms(expr['args'][i], fun);
+      }
+    
+      //Oh yes, it also might be a user-defined function!
+      if(expr['ctype'] ==='function' && myfunctions.hasOwnProperty(expr['oper'])) {
+        let rfun = expr['oper'];
+        if(!visitedFunctions.hasOwnProperty(rfun)) { //only do this once per function
+          visitedFunctions[rfun] = true;
+          computeUniforms(myfunctions[rfun].body, rfun);
+        }
+      }
+    } else {
+      //assert that parent node was dependent on uniform
+      //we found a highest child that is not dependent -> this will be a candidate for a uniform!
+      
+      //To pass numbers as uniforms is overkill
+      if(expr['ctype']==='number') return;
+      
+      //nothing to pass
+      if(expr['ctype']==='void') return;
+      
+      let uname = generateUniqueHelperString();
+      expr["isuniform"] = true;
+      expr["uvariable"] = uname;
+      uniforms[uname] = {expr: expr, type: nada};    
+    }
+  }
+  computeUniforms(expr, '');
+  
+  console.log(uniforms);
+}
+
+function determineUniformTypes() {
+
+  
+  for(let uname in uniforms) {
+    //Default value
+    uniforms[uname].type = type.float; //every cindyJS number can be interpreted as complex.
+    
+    //TODO: check weather type was specified by modifier?
+  
+    //TODO: Compute value with api.eval and find out by guessing type
+    let tval = api.evaluateAndVal(uniforms[uname].expr);
+    
+    
+    if(tval['ctype'] === 'number') {
+      let z = tval['value'];
+      if(z['imag']===0.) {
+        if((z['real']|0) === z['real']) {
+          uniforms[uname].type = type.int;
+        } else {
+          uniforms[uname].type = type.float;
+        }
+      } else {
+        uniforms[uname].type = type.complex;
+      }
+    }
+    //TODO: genList...    
+    
+  }
+}
+
+
+function precompile(expr) {
+  precompileDone = false;
+  determineVariables(expr);
+  determineUniforms(expr);
+  determineUniformTypes();
+  
+  determineTypes();
+  precompileDone = true;
 }
 
 /*
@@ -328,7 +471,11 @@ function generateUniqueHelperString() {
  */
  //TODO: rename to compileExpressionToWebGL...
 function compile(expr, scope, generateTerm) {
-
+  if(expr['isuniform']) {
+    let uname = expr['uvariable'];
+    let type = uniforms[uname].type;
+    return generateTerm ? {code: '', term: uname, type: type} : {code: ''}; 
+  }
   if(expr['oper'] === ";") {
     /*
     let r0 = compile(expr['args'][0], scope, false);
@@ -567,16 +714,51 @@ function compileFunction(fname, nargs) {
   compiledfunctions.push(code);
 }
 
+function generateListOfUniforms() {
+  let ans = [];
+  for(let uname in uniforms)
+    ans.push('uniform ' + webgltype[uniforms[uname].type] + ' ' + uname + ';');
+  return ans.join('\n');
+}
+
 function generateHeaderOfCompiledFunctions() {
-  /*
-  var h = '';
-  for(let f in compiledfunctions) {
-    h += compiledfunctions[f] + '\n';
-  }
-  return h;*/
   return compiledfunctions.join('\n');
 }
 
+
+function cleanup(expr) {
+   
+  //cleaning up
+  includedfunctions = [];
+  hasbeenincluded = {};
+  
+  compiledfunctions = [];
+  hasbeencompiled = {};
+  
+  variables = {}; 
+  assigments = {};
+  T = {};
+  uniforms = {};
+  
+  var vis = {};
+  function dfs(expr) {
+    delete expr['computedType'];
+    delete expr['dependsOnPixel'];
+    delete expr['isuniform'];
+    delete expr['uvariable'];
+    for(let i in expr['args']) {
+      dfs(expr['args'][i]);
+    }
+    if(expr['ctype'] ==='function' && myfunctions.hasOwnProperty(expr['oper'])) {
+      let rfun = expr['oper'];
+      if(!vis.hasOwnProperty(rfun)) {
+        vis[rfun] = true;
+        dfs(myfunctions[rfun].body);
+      }
+    }
+  }
+  dfs(expr);
+}
 
 function generateColorPlotProgram(expr) { //TODO add arguments for #
   
@@ -587,7 +769,8 @@ function generateColorPlotProgram(expr) { //TODO add arguments for #
   if(!issubtypeof(r.type,type.color)) {
     console.error("expression does not generate a color");
   }
-  let code = generateHeaderOfIncludedFunctions();
+  let code = generateListOfUniforms();
+  code += generateHeaderOfIncludedFunctions();
   
   for(let i in variables['']) {//global variables
     let varname = variables[''][i];
@@ -602,20 +785,13 @@ function generateColorPlotProgram(expr) { //TODO add arguments for #
     'gl_FragColor = ' + colorterm + ';\n' +
   '}\n';
   
+  let utmp = uniforms;
   
-  //cleaning up
-  includedfunctions = [];
-  hasbeenincluded = {};
   
-  compiledfunctions = [];
-  hasbeencompiled = {};
+  cleanup(expr);// TODO: remove all 'isuniform' etc
   
-  variables = {}; 
-  assigments = {};
-  T = {};
-  
-  //console.log(code);
-  return code;
+  console.log(code);
+  return {code: code, uniforms: utmp};
 }
 
 //TODO:

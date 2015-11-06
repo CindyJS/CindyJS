@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Complex Function Plot</h1>
+    <script id="csinit" type="cindyscript">
+      use("CindyGL");
+      
+      createimage("plot",500,500);
+    </script>
+    <script id="csmove" type="cindyscript">
+      
+      f(z) := (
+        (z-complex(A))*(z-complex(B))*(z-complex(C))
+      );
+      colorplot([-2.5,-2.5],[2.5,-2.5],"plot", hue(im(log(f(complex(#))))/(2.*pi)));
+      
+      drawimage([0,0], "plot");
+    </script>
+    
+
+    <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+    
+    <script type="text/javascript">
+        
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[-2,-1.5]},
+                  {name:"B", kind:"P", type:"Free", pos:[.8,-1.5]},
+                  {name:"C", kind:"P", type:"Free", pos:[.1,.1]},
+                ];
+        createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    transform:[{scale:4.},{translate:[0,0]}]
+                    }
+                    );
+    </script>              
+	</body>
+</html>
