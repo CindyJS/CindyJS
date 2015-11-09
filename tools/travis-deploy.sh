@@ -9,6 +9,10 @@ set -x
 eval "$(ssh-agent -s)"
 ssh-add build/travis-ssh
 rm build/travis-ssh
+
+rsync --delete-delay -rci --rsh='ssh -l travis' \
+    build/deploy/ cinderella.de::CindyJS/snapshot/
+
 name=$(git describe --always)
 preserve=(.git README.md LICENSE)
 branch=snapshot
