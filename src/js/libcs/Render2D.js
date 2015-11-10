@@ -283,6 +283,13 @@ Render2D.makeColor = function(colorraw) {
     return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
 };
 
+Render2D.preDrawCurve = function() {
+    csctx.lineWidth = Render2D.lsize;
+    csctx.lineCap = 'round';
+    csctx.lineJoin = 'miter';
+    csctx.strokeStyle = Render2D.lineColor;
+};
+
 Render2D.drawsegcore = function(pt1, pt2) {
     var m = csport.drawingstate.matrix;
     var endpoint1x = pt1.x * m.a - pt1.y * m.b + m.tx;
