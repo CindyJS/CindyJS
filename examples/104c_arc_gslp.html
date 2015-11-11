@@ -14,23 +14,25 @@
 
 // Drawing code, executed whenever the canvas gets redrawn.
 
-drawarc(A,B.homog,C.xy);
 </script>
 <script type="text/javascript">
 
 var cdy = createCindy({ // See ref/createCindy documentation for details.
   ports: [{id: "CSCanvas"}],
   scripts: "cs*",
-  snap:true,
-  grid: 1,
   language: "en",
   defaultAppearance: {
     // See GeoBasics.js for possible attributes.
   },
   geometry: [
-  {name:"A", type:"Free", pos:[3,0], color:[1,0,0], labeled: true} ,
-    {name:"B", type:"Free", pos:[0,-4], color:[0,1,0], labeled: true},
-    {name:"C", type:"Free", pos:[0,4], color:[0,0,1], labeled: true},
+    {name:"A", type:"Free", pos:[-3,0]},
+    {name:"B", type:"Free", pos:[-4,-4]},
+    {name:"C", type:"Free", pos:[-5,1]},
+    {name:"Arc", type:"ArcBy3", args:["A", "B", "C"], filled: true, alpha: 0.3},
+    {name:"AA", type:"Free", pos:[6,1]},
+    {name:"BB", type:"Free", pos:[0,-4]},
+    {name:"CC", type:"Free", pos:[1,4]},
+    {name:"Arc2", type:"ArcBy3", args:["AA", "BB", "CC"], color: [0,1,0]},
     // For allowed types, see GeoOps.js.
     // For allowed properties, see csinit in GeoBasics.js.
   ] // End of geometry array.

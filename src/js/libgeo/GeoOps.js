@@ -1012,6 +1012,10 @@ geoOps.CircleBy3.updatePosition = function(el) {
 
 };
 
+geoOps.ArcBy3 = {};
+geoOps.ArcBy3.kind = "C";
+geoOps.ArcBy3.updatePosition = geoOps.CircleBy3.updatePosition;
+
 geoOps.Polar = {};
 geoOps.Polar.kind = "L";
 geoOps.Polar.updatePosition = function(el) {

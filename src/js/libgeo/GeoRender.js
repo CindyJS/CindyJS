@@ -40,6 +40,25 @@ function render() {
         }
     }
 
+    function drawgeoarc(el) {
+        if (!el.isshowing || el.visible === false)
+            return;
+
+        var modifs = {};
+        modifs.color = el.color;
+        modifs.alpha = el.alpha;
+        modifs.size = el.size;
+
+        // check if we have filled: true
+        var df = el.filled ? "F" : "D";
+
+        var newargs = [csgeo.csnames[el.args[0]].homog,
+            csgeo.csnames[el.args[1]].homog,
+            csgeo.csnames[el.args[2]].homog
+        ];
+        eval_helper.drawarc(newargs, modifs, df);
+    }
+
 
     function drawgeoconic(el) {
         if (!el.isshowing || el.visible === false)
@@ -138,7 +157,8 @@ function render() {
     var i;
 
     for (i = 0; i < csgeo.conics.length; i++) {
-        drawgeoconic(csgeo.conics[i]);
+        if (csgeo.conics[i].type === "ArcBy3") drawgeoarc(csgeo.conics[i]);
+        else drawgeoconic(csgeo.conics[i]);
     }
 
 
