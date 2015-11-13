@@ -169,13 +169,13 @@ function pointDefault(el) {
     if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
     el.alpha = CSNumber.real(el.alpha);
 
-    if (el.trace) {
-        el._traces = [];
-        el._traces_tick = 0;
-
+    if (el.drawtrace) {
         if (typeof el.tracedim === "undefined") el.tracedim = 1;
         if (typeof el.tracelength === "undefined") el.tracelength = 100;
         if (typeof el.traceskip === "undefined") el.traceskip = 1;
+        el._traces = new Array(el.tracelength);
+        el._traces_index = 0;
+        el._traces_tick = 0;
     }
 }
 
