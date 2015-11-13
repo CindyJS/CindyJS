@@ -179,29 +179,40 @@ function draw_traces() {
     for (var i = 0; i < csgeo.points.length; i++) {
         var el = csgeo.points[i];
 
-        if (el.trace) {
-            if (el._traces_tick % el.traceskip === 0) {
-                el._traces.push(el.homog);
-            }
-
+        if (!el.drawtrace) continue;
+        if (el._traces_tick === el.traceskip) {
+            el._traces[el._traces_index] = el.homog;
+            el._traces_index = (el._traces_index + 1) % el._traces.length;
+            el._traces_tick = 0;
+        } else {
             el._traces_tick++;
-
-            if (el._traces.length > el.tracelength) {
-                el._traces.shift();
-            }
-
-            var antiDamp = 1.03;
-            var elAlpha = el.alpha.value.real;
-            var alpha = elAlpha * Math.pow(antiDamp, -el._traces.length);
-
-            for (var j = 0; j < el._traces.length; j++) {
-                evaluator.draw$1([el._traces[j]], {
-                    size: el.size,
-                    color: el.color,
-                    alpha: CSNumber.real(alpha)
-                });
-                alpha *= antiDamp;
-            }
         }
+
+        var elAlpha = el.alpha.value.real;
+        var size = el.size.value.real;
+        var dimfactor = 1;
+        if (el.tracedim !== 1) {
+            size *= el.tracedim;
+            dimfactor = Math.pow(el.tracedim, -1 / el._traces.length);
+        }
+        var j, k = 0;
+        for (j = el._traces_index; j < el._traces.length; ++j)
+            drawIt();
+        for (j = 0; j < el._traces_index; ++j)
+            drawIt();
+    }
+
+    function drawIt() {
+        var lev = k++ / el._traces.length;
+        var pos = el._traces[j];
+        if (pos) {
+            var alpha = elAlpha * lev * lev * lev;
+            evaluator.draw$1([pos], {
+                size: CSNumber.real(size),
+                color: el.color,
+                alpha: CSNumber.real(alpha)
+            });
+        }
+        size *= dimfactor;
     }
 }
