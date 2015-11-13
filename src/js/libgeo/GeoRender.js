@@ -203,7 +203,7 @@ function draw_traces() {
     }
 
     function drawIt() {
-        var lev = k++ / el._traces.length;
+        var lev = k++/ el._traces.length;
         var pos = el._traces[j];
         if (pos) {
             var alpha = elAlpha * lev * lev * lev;
