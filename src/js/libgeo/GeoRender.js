@@ -80,20 +80,30 @@ function render() {
         if (!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
             return;
 
-        if (el.clip.value === "none") {
-            evaluator.draw$1([el.homog], {
-                size: el.size,
-                color: el.color,
-                alpha: el.alpha
-            });
-        } else if (el.clip.value === "end") {
+        if (el.kind === "S") {
+            // Segments always join their endpoints.
             evaluator.draw$2(
                 [el.startpos, el.endpos], {
                     size: el.size,
                     color: el.color,
                     alpha: el.alpha
                 });
-        } else if (el.clip.value === "inci") {
+            return;
+        }
+        if (el.clip.value === "end" && el.type === "Join") {
+            // Lines clipped to their defining points join these.
+            pt1 = csgeo.csnames[el.args[0]];
+            pt2 = csgeo.csnames[el.args[1]];
+            evaluator.draw$2(
+                [pt1.homog, pt2.homog], {
+                    size: el.size,
+                    color: el.color,
+                    alpha: el.alpha
+                });
+            return;
+        }
+        if (el.clip.value === "inci") {
+            // Figuring out incident points here.
             var li = [];
             var xmin = [+1000000, 0];
             var xmax = [-1000000, 0];
@@ -140,18 +150,16 @@ function render() {
                         alpha: el.alpha,
                         overhang: el.overhang
                     });
-            } else {
-                evaluator.draw$1(
-                    [el.homog], {
-                        size: el.size,
-                        color: el.color,
-                        alpha: el.alpha
-                    });
+                return;
             }
-        } else {
-            console.error(["Bad clip: ", el.clip]);
+            // otherwise fall through
         }
-
+        // Default: draw an unclipped line
+        evaluator.draw$1([el.homog], {
+            size: el.size,
+            color: el.color,
+            alpha: el.alpha
+        });
     }
 
     var i;
