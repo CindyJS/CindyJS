@@ -515,6 +515,7 @@ Render2D.dashTypes = {
 
 Render2D.setDash = function(pattern, size) {
     var s = Math.sqrt(size);
+    pattern = pattern.slice();
     for (var i = 0; i < pattern.length; i++) {
         pattern[i] *= s;
     }
