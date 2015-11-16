@@ -193,11 +193,10 @@ function lineDefault(el) {
 }
 
 function segmentDefault(el) {
-    lineDefault(el);
-    el.clip = General.string("end");
     if (el.overhang === undefined)
         el.overhang = defaultAppearance.overhangSeg;
-    el.overhang = CSNumber.real(el.overhang);
+    lineDefault(el);
+    el.clip = General.string("end");
 }
 
 function onSegment(p, s) { //TODO was ist mit Fernpunkten

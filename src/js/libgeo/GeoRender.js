@@ -84,6 +84,7 @@ function render() {
             // Segments always join their endpoints.
             evaluator.draw$2(
                 [el.startpos, el.endpos], {
+                    overhang: el.overhang,
                     size: el.size,
                     color: el.color,
                     alpha: el.alpha
@@ -96,6 +97,7 @@ function render() {
             pt2 = csgeo.csnames[el.args[1]];
             evaluator.draw$2(
                 [pt1.homog, pt2.homog], {
+                    overhang: el.overhang,
                     size: el.size,
                     color: el.color,
                     alpha: el.alpha
