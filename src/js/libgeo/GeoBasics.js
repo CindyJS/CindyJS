@@ -8,6 +8,7 @@ defaultAppearance.alpha = 1;
 defaultAppearance.overhangLine = 1.1;
 defaultAppearance.overhangSeg = 1;
 defaultAppearance.dimDependent = 1;
+defaultAppearance.fontFamily = "sans-serif";
 
 function setDefaultAppearance(obj) {
     var key;

@@ -22,7 +22,7 @@ function render() {
             var textsize = el.textsize || 12;
             var bold = (el.textbold === true);
             var italics = (el.textitalics === true);
-            var family = el.text_fontfamily || "Sans Serif";
+            var family = el.text_fontfamily || defaultAppearance.fontFamily;
             var dist = lpos.x * lpos.x + lpos.y * lpos.y;
             var factor = 1.0;
             if (dist > 0) {
