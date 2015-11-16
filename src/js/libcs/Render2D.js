@@ -26,6 +26,8 @@ Render2D.handleModifs = function(modifs, handlers) {
     // Process handlers
     var key, handler;
     for (key in modifs) {
+        var val = modifs[key];
+        if (!val) continue; // may happen when called internally
         handler = handlers[key];
         if (!handler) {
             console.log("Modifier not supported: " + key);
@@ -34,7 +36,7 @@ Render2D.handleModifs = function(modifs, handlers) {
         if (handler === true) {
             handler = Render2D.modifHandlers[key];
         }
-        handler(evaluate(modifs[key]));
+        handler(evaluate(val));
     }
 
     // Post-process settings
@@ -112,10 +114,17 @@ Render2D.modifHandlers = {
     },
 
     "dashtype": function(v) {
+        var type;
         if (v.ctype === "number") {
-            var type = Math.floor(v.value.real);
-            Render2D.dashing = Render2D.setDashType.bind(null, type);
+            type = Math.floor(v.value.real);
+        } else if (v.ctype === "string") {
+            type = v.value;
+        } else {
+            return;
         }
+        var pat = Render2D.dashTypes[type];
+        if (pat)
+            Render2D.dashing = Render2D.setDash.bind(null, pat);
     },
 
     "dashing": function(v) {
@@ -486,6 +495,24 @@ Render2D.drawline = function(homog) {
     Render2D.drawsegcore(pt1, pt2);
 };
 
+Render2D.dashTypes = {
+    "solid": [],
+    "dashed": [10, 10],
+    "tightdash": [10, 4],
+    "dotted": [1, 3],
+    "dashdot": [10, 5, 1, 5],
+    "dashvalue.solid": [],
+    "dashvalue.dashed": [10, 10],
+    "dashvalue.tightdash": [10, 4],
+    "dashvalue.dotted": [1, 3],
+    "dashvalue.dashdot": [10, 5, 1, 5],
+    0: [],
+    1: [10, 10],
+    2: [10, 4],
+    3: [1, 3],
+    4: [10, 5, 1, 5],
+};
+
 Render2D.setDash = function(pattern, size) {
     var s = Math.sqrt(size);
     for (var i = 0; i < pattern.length; i++) {
@@ -500,24 +527,4 @@ Render2D.unSetDash = function() {
     csctx.webkitLineDash = []; //Safari
     csctx.setLineDash([]); //Chrome
     csctx.mozDash = []; //FFX
-};
-
-Render2D.setDashType = function(type, s) {
-
-    if (type === 0) {
-        Render2D.setDash([]);
-    }
-    if (type === 1) {
-        Render2D.setDash([10, 10], s);
-    }
-    if (type === 2) {
-        Render2D.setDash([10, 4], s);
-    }
-    if (type === 3) {
-        Render2D.setDash([1, 3], s);
-    }
-    if (type === 4) {
-        Render2D.setDash([10, 5, 1, 5], s);
-    }
-
 };

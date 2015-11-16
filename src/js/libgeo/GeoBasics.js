@@ -190,6 +190,8 @@ function lineDefault(el) {
     if (el.overhang === undefined)
         el.overhang = defaultAppearance.overhangLine;
     el.overhang = CSNumber.real(el.overhang);
+    if (el.dashtype)
+        el.dashtype = General.wrap(el.dashtype);
 }
 
 function segmentDefault(el) {
