@@ -22,7 +22,7 @@ function render() {
             var textsize = el.textsize || 12;
             var bold = (el.textbold === true);
             var italics = (el.textitalics === true);
-            var family = el.text_fontfamily || "Sans Serif";
+            var family = el.text_fontfamily || defaultAppearance.fontFamily;
             var dist = lpos.x * lpos.x + lpos.y * lpos.y;
             var factor = 1.0;
             if (dist > 0) {
@@ -84,6 +84,8 @@ function render() {
             // Segments always join their endpoints.
             evaluator.draw$2(
                 [el.startpos, el.endpos], {
+                    overhang: el.overhang,
+                    dashtype: el.dashtype,
                     size: el.size,
                     color: el.color,
                     alpha: el.alpha
@@ -96,6 +98,8 @@ function render() {
             pt2 = csgeo.csnames[el.args[1]];
             evaluator.draw$2(
                 [pt1.homog, pt2.homog], {
+                    overhang: el.overhang,
+                    dashtype: el.dashtype,
                     size: el.size,
                     color: el.color,
                     alpha: el.alpha
@@ -145,6 +149,7 @@ function render() {
             if (pt1 !== pt2) {
                 evaluator.draw$2(
                     [pt1, pt2], {
+                        dashtype: el.dashtype,
                         size: el.size,
                         color: el.color,
                         alpha: el.alpha,
@@ -156,6 +161,7 @@ function render() {
         }
         // Default: draw an unclipped line
         evaluator.draw$1([el.homog], {
+            dashtype: el.dashtype,
             size: el.size,
             color: el.color,
             alpha: el.alpha
