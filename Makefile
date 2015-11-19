@@ -227,6 +227,17 @@ beautified:
 	git diff --exit-code
 
 ######################################################################
+## Check that the text property is set for all files
+######################################################################
+
+.PHONY: textattr
+
+alltests: textattr
+
+textattr:
+	! git ls-files | git check-attr --stdin text | grep unspecified
+
+######################################################################
 ## Format reference manual using markdown
 ######################################################################
 
