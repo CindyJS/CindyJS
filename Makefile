@@ -208,6 +208,7 @@ forbidden:
 	! grep -Ero "<script[^>]*type *= *[\"'][^\"'/]*[\"']" examples
 	! grep -Ero "<script[^>]*type *= *[\"']text/cindyscript[\"']" examples
 	! grep -Er "firstDrawing" examples
+	! grep -Er 'cinderella\.de/.*/Cindy.*\.js' examples
 
 tests: forbidden
 
