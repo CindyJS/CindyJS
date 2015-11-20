@@ -68,9 +68,9 @@ download/node/bin/npm: download/arch/$(NODE_TAR)
 	mv download/node-v$(NODE_VERSION)-* download/node
 	touch $@
 
-build/node_modules.stamp: package.json
+build/node_modules.stamp: package.json $(NPM_DEP)
 	rm -rf node_modules
-	CINDYJS_BUILDING=true npm install
+	CINDYJS_BUILDING=true $(NPM_CMD) install
 	@mkdir -p $(@D)
 	touch $@
 
