@@ -24,6 +24,8 @@ function csinit(gslp) {
     // establish defaults for geoOps
     Object.keys(geoOps).forEach(function(opName) {
         var op = geoOps[opName];
+        assert(op.signature || opName === "_helper",
+            opName + " has no signature");
         if (op.updatePosition !== undefined && op.stateSize === undefined)
             op.stateSize = 0;
     });
@@ -127,21 +129,37 @@ function addElement(el) {
         return res;
     }
 
-    // Detect unsupported operations or missing arguments
+    // Detect unsupported operations or missing or incorrect arguments
     var op = geoOps[el.type];
     if (!op) {
         console.error(el);
         console.error("Operation " + el.type + " not implemented yet");
         return null;
     }
+    if (op.signature.length !== (el.args ? el.args.length : 0)) {
+        window.alert("Wrong number of arguments for " + el.name);
+        return null;
+    }
     if (el.args) {
         for (i = 0; i < el.args.length; ++i) {
             if (!csgeo.csnames.hasOwnProperty(el.args[i])) {
-                console.log("Dropping " + el.name +
-                            " due to missing argument " + el.args[i]);
+                console.log(
+                    "Dropping " + el.name +
+                    " due to missing argument " + el.args[i]);
+                return null;
+            }
+            var argKind = csgeo.csnames[el.args[i]].kind;
+            if (!(op.signature[i] === argKind ||
+                    (argKind === "S" && op.signature[i] === "L"))) {
+                window.alert(
+                    "Wrong argument kind " + argKind + " as argument " + i +
+                    " to element " + el.name + " of type " + el.type);
                 return null;
             }
         }
+    }
+    if (op.signatureConstraints && !op.signatureConstraints(el)) {
+        window.alert("signature constraints violated for element " + el.name);
     }
 
     csgeo.gslp.push(el);
