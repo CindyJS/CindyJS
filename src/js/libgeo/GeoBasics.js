@@ -110,7 +110,8 @@ function addElement(el) {
         console.log("Element name '" + el.name + "' already exists");
 
         var existingEl = csgeo.csnames[el.name];
-        movepointscr(existingEl, el.pos, "homog");
+        if (geoOps[existingEl.type].isMovable)
+            movepointscr(existingEl, el.pos, "homog");
 
         return {
             'ctype': 'geo',
