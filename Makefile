@@ -45,7 +45,8 @@ NODE_OS:=$(subst Darwin,darwin,$(subst Linux,linux,$(shell uname -s)))
 NODE_ARCH:=$(subst x86_64,x64,$(subst i386,x86,$(subst i686,x86,$(shell uname -m))))
 NODE_VERSION:=0.12.6
 NODE_URLBASE:=http://nodejs.org/dist
-NODE_TAR:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH).tar.gz
+NODE_BASENAME:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH)
+NODE_TAR:=$(NODE_BASENAME).tar.gz
 NODE_URL:=$(NODE_URLBASE)/v$(NODE_VERSION)/$(NODE_TAR)
 
 NODE:=node
@@ -53,7 +54,7 @@ NPM:=npm
 cmd_needed=$(shell $(1) >/dev/null 2>&1 || echo needed)
 NODE_NEEDED:=$(call cmd_needed,$(NODE) tools/check-node-version.js)
 NPM_NEEDED:=$(call cmd_needed,$(NPM) -version)
-NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),download/node/bin/npm,)
+NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),download/$(NODE_BASENAME)/bin/npm,)
 NODE_PATH:=PATH=node_modules/.bin:$(if $(NPM_DEP),$(dir $(NPM_DEP)):,)$$PATH
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
@@ -62,15 +63,15 @@ download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
 	$(DOWNLOAD) $@ $(NODE_URL)
 
-download/node/bin/npm: download/arch/$(NODE_TAR)
-	rm -rf download/node*
+download/$(NODE_BASENAME)/bin/npm: download/arch/$(NODE_TAR)
+	rm -rf download/$(NODE_BASENAME) download/node
 	cd download && tar xzf arch/$(NODE_TAR)
-	mv download/node-v$(NODE_VERSION)-* download/node
+	test -e $@
 	touch $@
 
-build/node_modules.stamp: package.json
+build/node_modules.stamp: package.json $(NPM_DEP)
 	rm -rf node_modules
-	CINDYJS_BUILDING=true npm install
+	CINDYJS_BUILDING=true $(NPM_CMD) install
 	@mkdir -p $(@D)
 	touch $@
 
