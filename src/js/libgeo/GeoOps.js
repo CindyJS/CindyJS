@@ -133,6 +133,7 @@ geoOps.Para.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+// Horizontal line through a point
 geoOps.Horizontal = {};
 geoOps.Horizontal.kind = "L";
 geoOps.Horizontal.updatePosition = function(el) {
@@ -142,6 +143,34 @@ geoOps.Horizontal.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+
+// Cinderella's freely movable HorizontalLine (Cinderella semantics)
+geoOps.HorizontalLine = {};
+geoOps.HorizontalLine.kind = "L";
+geoOps.HorizontalLine.isMovable = true;
+geoOps.HorizontalLine.initialize = function(el) {
+    var pos = geoOps._helper.initializePoint(el);
+    putStateComplexVector(pos);
+};
+geoOps.HorizontalLine.getParamForInput = function(el, pos, type) {
+    var homog = List.cross(pos, List.ex);
+    return List.normalizeMax(homog);
+};
+geoOps.HorizontalLine.getParamFromState = function(el) {
+    return getStateComplexVector(3);
+};
+geoOps.HorizontalLine.putParamToState = function(el, param) {
+    putStateComplexVector(param);
+};
+geoOps.HorizontalLine.updatePosition = function(el) {
+    var param = getStateComplexVector(3);
+    putStateComplexVector(param); // copy param
+    el.homog = General.withUsage(param, "Line");
+};
+geoOps.HorizontalLine.stateSize = 6;
+
+
+// Vertical line through a point
 geoOps.Vertical = {};
 geoOps.Vertical.kind = "L";
 geoOps.Vertical.updatePosition = function(el) {
@@ -149,6 +178,31 @@ geoOps.Vertical.updatePosition = function(el) {
     el.homog = List.cross(List.ey, el1.homog);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
+};
+
+
+// Cinderella's freely movable VerticalLine (Cinderella semantics)
+geoOps.VerticalLine = {};
+geoOps.VerticalLine.kind = "L";
+geoOps.VerticalLine.isMovable = true;
+geoOps.VerticalLine.initialize = function(el) {
+    var pos = geoOps._helper.initializePoint(el);
+    putStateComplexVector(pos);
+};
+geoOps.VerticalLine.getParamForInput = function(el, pos, type) {
+    var homog = List.cross(pos, List.ey);
+    return List.normalizeMax(homog);
+};
+geoOps.VerticalLine.getParamFromState = function(el) {
+    return getStateComplexVector(3);
+};
+geoOps.VerticalLine.putParamToState = function(el, param) {
+    putStateComplexVector(param);
+};
+geoOps.VerticalLine.updatePosition = function(el) {
+    var param = getStateComplexVector(3);
+    putStateComplexVector(param); // copy param
+    el.homog = General.withUsage(param, "Line");
 };
 
 
