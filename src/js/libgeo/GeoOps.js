@@ -26,22 +26,22 @@ geoOps.RandomLine.updatePosition = function(el) {
 geoOps.FreeLine = {};
 geoOps.FreeLine.kind = "L";
 geoOps.FreeLine.isMovable = true;
-geoOps.FreeLine.initialize = function (el) {
+geoOps.FreeLine.initialize = function(el) {
     var pos = geoOps._helper.initializePoint(el);
     putStateComplexVector(pos);
 };
-geoOps.FreeLine.getParamForInput = function (el, pos, type) {
+geoOps.FreeLine.getParamForInput = function(el, pos, type) {
     var homog = List.cross(pos, List.ez);
     homog = List.cross(homog, pos);
     return List.normalizeMax(homog);
 };
-geoOps.FreeLine.getParamFromState = function (el) {
+geoOps.FreeLine.getParamFromState = function(el) {
     return getStateComplexVector(3);
 };
-geoOps.FreeLine.putParamToState = function (el, param) {
+geoOps.FreeLine.putParamToState = function(el, param) {
     putStateComplexVector(param);
 };
-geoOps.FreeLine.updatePosition = function (el) {
+geoOps.FreeLine.updatePosition = function(el) {
     var param = getStateComplexVector(3);
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
