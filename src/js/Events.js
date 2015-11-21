@@ -47,8 +47,8 @@ function getmover(mouse) {
                 N.mult(l.value[1], N.conjugate(l.value[1])));
             var ln = List.scaldiv(N.sqrt(nn), l);
             dist = ln.value[0].value.real * mouse.x + ln.value[1].value.real * mouse.y + ln.value[2].value.real;
-            dx = ln.value[0].value.real * dist;
-            dy = ln.value[1].value.real * dist;
+            dx = -ln.value[0].value.real * dist;
+            dy = -ln.value[1].value.real * dist;
 
             if (dist < 0) {
                 dist = -dist;
