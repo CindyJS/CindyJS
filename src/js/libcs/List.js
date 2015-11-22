@@ -157,25 +157,6 @@ List.triples = function(a) {
     };
 };
 
-List.triples = function(a) {
-    var erg = [];
-    for (var i = 0; i < a.value.length - 2; i++) {
-        for (var j = i + 1; j < a.value.length - 1; j++) {
-            for (var k = j + 1; k < a.value.length; k++) {
-                erg.push({
-                    'ctype': 'list',
-                    'value': [a.value[i], a.value[j], a.value[k]]
-                });
-            }
-        }
-    }
-    return {
-        'ctype': 'list',
-        'value': erg
-    };
-};
-
-
 List.cycle = function(a) {
     var erg = [];
     for (var i = 0; i < a.value.length - 1; i++) {
@@ -339,14 +320,6 @@ List.remove = function(a, b) {
         'ctype': 'list',
         'value': erg
     };
-};
-
-List._helper.compare = function(a, b) {
-    if (a.ctype === 'number' && b.ctype === 'number') {
-        return a.value.real - b.value.real;
-    }
-    return -1;
-
 };
 
 List.sort1 = function(a) {
