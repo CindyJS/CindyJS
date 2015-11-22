@@ -1487,7 +1487,11 @@ geoOps._helper.initializePoint = function(el) {
             sz = el.pos[2];
         }
     }
-    var pos = List.realVector([sx, sy, sz]);
+    var pos = List.turnIntoCSList([
+        CSNumber._helper.input(sx),
+        CSNumber._helper.input(sy),
+        CSNumber._helper.input(sz)
+    ]);
     pos = List.normalizeMax(pos);
     return pos;
 };
