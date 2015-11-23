@@ -84,14 +84,10 @@ CSNumber.zero = CSNumber.real(0);
 CSNumber.one = CSNumber.real(1);
 
 CSNumber._helper.input = function(a) {
-    var r = 0;
-    var i = 0;
-    if (typeof a === "number") r = a;
-    else if (typeof a === "object") {
-        if (typeof a.r === "number") r = a.r;
-        if (typeof a.i === "number") i = a.i;
-    }
-    return CSNumber.complex(r, i);
+    if (typeof a === "object")
+        return CSNumber.complex(+a.r, +a.i);
+    else
+        return CSNumber.real(+a);
 };
 
 CSNumber.argmax = function(a, b) {
