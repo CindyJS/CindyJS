@@ -83,6 +83,17 @@ CSNumber.zero = CSNumber.real(0);
 
 CSNumber.one = CSNumber.real(1);
 
+CSNumber._helper.input = function(a) {
+    var r = 0;
+    var i = 0;
+    if (typeof a === "number") r = a;
+    else if (typeof a === "object") {
+        if (typeof a.r === "number") r = a.r;
+        if (typeof a.i === "number") i = a.i;
+    }
+    return CSNumber.complex(r, i);
+};
+
 CSNumber.argmax = function(a, b) {
     var n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
     var n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;

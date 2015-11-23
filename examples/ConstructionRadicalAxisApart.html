@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ConstructionRadicalAxisApart.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: { dimDependent: 0.7 },
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 4.0, -3.0, -1.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C0", type: "CircleByRadius", color: [ 0.0, 0.0, 1.0 ], radius: 3.0, args: [ "A" ], size: 1, printname: "$C_{0}$" }, 
+		{ name: "B", type: "Free", pos: [ 4.0, -3.0, 1.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C1", type: "CircleByRadius", color: [ 0.0, 0.0, 1.0 ], radius: 3.0, args: [ "B" ], size: 1, printname: "$C_{1}$" }, 
+		{ name: "Collection__1", type: "IntersectionCircleCircle", args: [ "C0", "C1" ] }, 
+		{ name: "C", type: "SelectP", pos: [ -3.0, -4.0, -7.654042494670958E-17 ], color: [ 1.0, 0.0, 0.0 ], args: [ "Collection__1" ], labeled: true }, 
+		{ name: "D", type: "SelectP", pos: [ -3.0, -4.0, 7.654042494670958E-17 ], color: [ 1.0, 0.0, 0.0 ], args: [ "Collection__1" ], labeled: true }, 
+		{ name: "a", type: "Join", pos: [ 4.0, -3.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "C", "D" ], labeled: true, size: 1 } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -14.12, 7.0, 13.08, -7.0 ] } ], background: "rgb(168,176,192)" } ] });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>
