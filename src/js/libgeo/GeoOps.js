@@ -176,18 +176,21 @@ geoOps.LineByFixedAngle.initialize = function(el) {
     var a = CSNumber._helper.input(el.angle);
     var c = CSNumber.cos(a);
     var s = CSNumber.sin(a);
-    // Setup matrix for applying the angle rotation
+    // Setup matrix for applying the angle rotation.
+    // This will also map from line in the plane to point at infinity.
+    // So it's a rotation combined with a projection and hence has det=0.
+    // And the rotation is 90 degrees less than one might expect at first
+    // due to the translation between line and point.
     el.rot = List.turnIntoCSList([
-        List.turnIntoCSList([c, CSNumber.neg(s), CSNumber.zero]),
         List.turnIntoCSList([s, c, CSNumber.zero]),
+        List.turnIntoCSList([CSNumber.neg(c), s, CSNumber.zero]),
         List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero])
     ]);
 };
 geoOps.LineByFixedAngle.updatePosition = function(el) {
     var l = csgeo.csnames[(el.args[0])];
     var p = csgeo.csnames[(el.args[1])];
-    var dir = List.cross(l.homog, List.linfty);
-    dir = List.productMV(el.rot, dir);
+    var dir = List.productMV(el.rot, l.homog);
     el.homog = List.cross(p.homog, dir);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
