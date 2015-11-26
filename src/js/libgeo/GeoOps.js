@@ -181,8 +181,6 @@ geoOps.Vertical.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
-
-
 // Cinderella's freely movable VerticalLine (Cinderella semantics)
 geoOps.VerticalLine = {};
 geoOps.VerticalLine.kind = "L";
