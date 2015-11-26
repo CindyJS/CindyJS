@@ -1257,7 +1257,7 @@ geoOps.OtherIntersectionCC.updatePosition = function(el) {
 };
 
 
-geoOps._helper.IntersectConicConic = function(A, B) {
+geoOps._helper.IntersectionConicConic = function(A, B) {
     var myeps = 1e-24;
 
     var A1 = A.value[0];
@@ -1351,18 +1351,18 @@ geoOps._helper.IntersectConicConic = function(A, B) {
     return [p1, p2, p3, p4];
 };
 
-geoOps.IntersectConicConic = {};
-geoOps.IntersectConicConic.kind = "Ps";
-geoOps.IntersectConicConic.updatePosition = function(el) {
+geoOps.IntersectionConicConic = {};
+geoOps.IntersectionConicConic.kind = "Ps";
+geoOps.IntersectionConicConic.updatePosition = function(el) {
     var AA = csgeo.csnames[(el.args[0])].matrix;
     var BB = csgeo.csnames[(el.args[1])].matrix;
 
-    var erg = geoOps._helper.IntersectConicConic(AA, BB);
+    var erg = geoOps._helper.IntersectionConicConic(AA, BB);
     erg = tracing4(erg[0], erg[1], erg[2], erg[3]);
     el.results = erg;
     //    el.results = List.turnIntoCSList(erg);
 };
-geoOps.IntersectConicConic.stateSize = tracing4.stateSize;
+geoOps.IntersectionConicConic.stateSize = tracing4.stateSize;
 
 
 geoOps.SelectP = {};
