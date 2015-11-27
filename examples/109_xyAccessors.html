@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+// test for far points
+D.homog = [2,2,0];
+D.x = 2;
+D.y = 1;
+println(D.homog);
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+// test homogs
+C.homog = [2,2,2];
+C.x = 2;
+println(C.homog);
+
+D.homog = [2,2,2];
+D.y = 2;
+println(D.homog);
+
+// test gslp points
+A.x = 2;
+B.y = -5;
+println(A.xy);
+println(B.xy);
+
+// invalid assignments
+Ax = A.x;
+A.x = "aa";
+println(Ax == A.x);
+By = B.y;
+B.y = [2,3];
+println(B.y == By);
+
+
+
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+    // See GeoBasics.js for possible attributes.
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0]},
+    {name:"B", type:"Free", pos:[0,0]},
+    {name:"C", type:"Free", pos:[0,0]},
+    {name:"D", type:"Free", pos:[0,0]}
+    // For allowed types, see GeoOps.js.
+    // For allowed properties, see csinit in GeoBasics.js.
+  ] // End of geometry array.
+});
+
+// Remove all comments after adjusting this template for your use case.
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>

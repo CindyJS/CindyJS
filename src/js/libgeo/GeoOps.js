@@ -22,13 +22,31 @@ geoOps.RandomLine.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+
 geoOps.FreeLine = {};
 geoOps.FreeLine.kind = "L";
-geoOps.FreeLine.updatePosition = function(el) {
-    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(), 100 * Math.random()]);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Line");
+geoOps.FreeLine.isMovable = true;
+geoOps.FreeLine.initialize = function(el) {
+    var pos = geoOps._helper.initializePoint(el);
+    putStateComplexVector(pos);
 };
+geoOps.FreeLine.getParamForInput = function(el, pos, type) {
+    var homog = List.cross(pos, List.ez);
+    homog = List.cross(homog, pos);
+    return List.normalizeMax(homog);
+};
+geoOps.FreeLine.getParamFromState = function(el) {
+    return getStateComplexVector(3);
+};
+geoOps.FreeLine.putParamToState = function(el, param) {
+    putStateComplexVector(param);
+};
+geoOps.FreeLine.updatePosition = function(el) {
+    var param = getStateComplexVector(3);
+    putStateComplexVector(param); // copy param
+    el.homog = General.withUsage(param, "Line");
+};
+geoOps.FreeLine.stateSize = 6;
 
 
 geoOps.RandomPoint = {};
@@ -205,6 +223,33 @@ geoOps.VerticalLine.updatePosition = function(el) {
     var param = getStateComplexVector(3);
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
+};
+
+
+geoOps.LineByFixedAngle = {};
+geoOps.LineByFixedAngle.kind = "L";
+geoOps.LineByFixedAngle.initialize = function(el) {
+    var a = CSNumber._helper.input(el.angle);
+    var c = CSNumber.cos(a);
+    var s = CSNumber.sin(a);
+    // Setup matrix for applying the angle rotation.
+    // This will also map from line in the plane to point at infinity.
+    // So it's a rotation combined with a projection and hence has det=0.
+    // And the rotation is 90 degrees less than one might expect at first
+    // due to the translation between line and point.
+    el.rot = List.turnIntoCSList([
+        List.turnIntoCSList([s, c, CSNumber.zero]),
+        List.turnIntoCSList([CSNumber.neg(c), s, CSNumber.zero]),
+        List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero])
+    ]);
+};
+geoOps.LineByFixedAngle.updatePosition = function(el) {
+    var l = csgeo.csnames[(el.args[0])];
+    var p = csgeo.csnames[(el.args[1])];
+    var dir = List.productMV(el.rot, l.homog);
+    el.homog = List.cross(p.homog, dir);
+    el.homog = List.normalizeMax(el.homog);
+    el.homog = General.withUsage(el.homog, "Line");
 };
 
 
@@ -1543,7 +1588,11 @@ geoOps._helper.initializePoint = function(el) {
             sz = el.pos[2];
         }
     }
-    var pos = List.realVector([sx, sy, sz]);
+    var pos = List.turnIntoCSList([
+        CSNumber._helper.input(sx),
+        CSNumber._helper.input(sy),
+        CSNumber._helper.input(sz)
+    ]);
     pos = List.normalizeMax(pos);
     return pos;
 };
