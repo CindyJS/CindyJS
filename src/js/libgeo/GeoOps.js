@@ -569,13 +569,8 @@ geoOps.PointOnSegment.stateSize = 2;
 
 
 geoOps._helper.CenterOfConic = function(c) {
-    var pts = geoOps._helper.IntersectLC(List.linfty, c);
-    var ln1 = General.mult(c, pts[0]);
-    var ln2 = General.mult(c, pts[1]);
-
-    var erg = List.cross(ln1, ln2);
-
-    return erg;
+    // The center is the pole of the line at infinity.
+    return General.mult(List.adjoint3(c), List.linfty);
 };
 
 geoOps.CenterOfConic = {};
