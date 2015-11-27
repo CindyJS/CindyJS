@@ -453,7 +453,7 @@ Render2D.drawline = function(homog) {
     var xMax = 30;
     var yMin = -30;
     var yMax = 30;
-    
+
     var ul = distNeg(xMin, yMax);
     var ur = distNeg(xMax, yMax);
     var ll = distNeg(xMin, yMin);
