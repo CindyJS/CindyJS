@@ -440,59 +440,28 @@ Render2D.drawpoint = function(pt) {
 };
 
 Render2D.drawline = function(homog) {
-    var na = CSNumber.abs(homog.value[0]).value.real;
-    var nb = CSNumber.abs(homog.value[1]).value.real;
-    var nc = CSNumber.abs(homog.value[2]).value.real;
-    var divi;
+    var n = List.normalizeMax(homog);
+    var a = n.value[0].value.real;
+    var b = n.value[1].value.real;
+    var c = n.value[2].value.real;
 
-    if (na >= nb && na >= nc) {
-        divi = homog.value[0];
-    }
-    if (nb >= na && nb >= nc) {
-        divi = homog.value[1];
-    }
-    if (nc >= nb && nc >= na) {
-        divi = homog.value[2];
-    }
-    var a = CSNumber.div(homog.value[0], divi);
-    var b = CSNumber.div(homog.value[1], divi);
-    var c = CSNumber.div(homog.value[2], divi); //TODO Realitycheck einbauen
-
-    var l = [
-        a.value.real,
-        b.value.real,
-        c.value.real
-    ];
-    var b1, b2;
-    if (Math.abs(l[0]) < Math.abs(l[1])) {
-        b1 = [1, 0, 30];
-        b2 = [-1, 0, 30];
-    } else {
-        b1 = [0, 1, 30];
-        b2 = [0, -1, 30];
-    }
-    var erg1 = [
-        l[1] * b1[2] - l[2] * b1[1],
-        l[2] * b1[0] - l[0] * b1[2],
-        l[0] * b1[1] - l[1] * b1[0]
-    ];
-    var erg2 = [
-        l[1] * b2[2] - l[2] * b2[1],
-        l[2] * b2[0] - l[0] * b2[2],
-        l[0] * b2[1] - l[1] * b2[0]
-    ];
-
-    var pt1 = {
-        x: erg1[0] / erg1[2],
-        y: erg1[1] / erg1[2]
+    var distNeg = function(x, y) {
+        return x * a + y * b + c < 0;
     };
-    var pt2 = {
-        x: erg2[0] / erg2[2],
-        y: erg2[1] / erg2[2]
+    // This visibleRect value remains hardcoded as before
+    var xMin = -30, xMax = 30, yMin = -30, yMax = 30;
+    var ul = distNeg(xMin, yMax);
+    var ur = distNeg(xMax, yMax);
+    var ll = distNeg(xMin, yMin);
+    var lr = distNeg(xMax, yMin);
 
-    };
+    var erg = [];
 
-    Render2D.drawsegcore(pt1, pt2);
+    if (ul != ur) erg.push({ x: (-c - b * yMax) / a, y: yMax });
+    if (ur != lr) erg.push({ x: xMax, y: (-c - a * xMax) / b });
+    if (ll != lr) erg.push({ x: (-c - b * yMin) / a, y: yMin });
+    if (ul != ll) erg.push({ x: xMin, y: (-c - a * xMin) / b });
+    if (erg.length === 2) Render2D.drawsegcore(erg[0], erg[1]);
 };
 
 Render2D.dashTypes = {
