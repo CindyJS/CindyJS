@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LineClippingTest.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
+	angleUnit: "°", grid: 10,
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 4.0, -4.0, -0.13333333333333333 ], color: [ 1.0, 1.0, 0.0 ], pinned: true, size: 1.0, border: false }, 
+		{ name: "B", type: "Free", pos: [ 4.0, 4.0, 0.13333333333333333 ], color: [ 1.0, 1.0, 0.0 ], pinned: true, size: 1.0, border: false }, 
+		{ name: "C", type: "Free", pos: [ 4.0, -4.0, 0.13333333333333333 ], color: [ 1.0, 1.0, 0.0 ], pinned: true, size: 1.0, border: false }, 
+		{ name: "a", type: "Segment", pos: [ 0.0, -0.13333333333333333, 4.0 ], color: [ 1.0, 1.0, 0.0 ], args: [ "A", "B" ] }, 
+		{ name: "b", type: "Segment", pos: [ -0.13333333333333333, -0.0, 4.0 ], color: [ 1.0, 1.0, 0.0 ], args: [ "B", "C" ] }, 
+		{ name: "D", type: "Free", pos: [ 4.0, 4.0, -0.13333333333333333 ], color: [ 1.0, 1.0, 0.0 ], pinned: true, size: 1.0, border: false }, 
+		{ name: "c", type: "Segment", pos: [ -0.0, 0.13333333333333333, 4.0 ], color: [ 1.0, 1.0, 0.0 ], args: [ "C", "D" ] }, 
+		{ name: "d", type: "Segment", pos: [ 0.13333333333333333, -0.0, 4.0 ], color: [ 1.0, 1.0, 0.0 ], args: [ "D", "A" ] }, 
+		{ name: "E", type: "Free", pos: [ 0.0, -0.0, 4.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "e", type: "Through", pos: [ 0.0, -4.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "f", type: "Through", pos: [ 1.3333333333333333, -4.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "g", type: "Through", pos: [ 2.6666666666666665, -4.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "h", type: "Through", pos: [ 4.0, -4.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "k", type: "Through", pos: [ 4.0, -2.6666666666666665, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "l", type: "Through", pos: [ 4.0, -1.3333333333333333, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "m", type: "Through", pos: [ 4.0, -0.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "n", type: "Through", pos: [ 4.0, 1.3333333333333333, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "o", type: "Through", pos: [ 4.0, 2.6666666666666665, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "p", type: "Through", pos: [ 4.0, 4.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "q", type: "Through", pos: [ -2.6666666666666665, -4.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true }, 
+		{ name: "r", type: "Through", pos: [ -1.3333333333333333, -4.0, 0.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "E" ], labeled: true } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 935, height: 739, transform: [ { visibleRect: [ -57.55877642906321, 45.25613719231687, 59.81844486030233, -47.51580562355599 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas><p>The yellow segments represent the built-in clipping limits of CindyJS (the visibleRect value is ignored). Move point A everywhere to see the how differently the lines clip.</p>
+</body>
+</html>
