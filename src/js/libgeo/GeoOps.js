@@ -199,6 +199,8 @@ geoOps.Vertical.updatePosition = function(el) {
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
+
+
 // Cinderella's freely movable VerticalLine (Cinderella semantics)
 geoOps.VerticalLine = {};
 geoOps.VerticalLine.kind = "L";
@@ -224,6 +226,7 @@ geoOps.VerticalLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
+geoOps.VerticalLine.stateSize = 6;
 
 
 geoOps.LineByFixedAngle = {};
