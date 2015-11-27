@@ -1123,23 +1123,22 @@ geoOps.ArcBy3.updatePosition = geoOps.CircleBy3.updatePosition;
 geoOps.Polar = {};
 geoOps.Polar.kind = "L";
 geoOps.Polar.updatePosition = function(el) {
-    var Conic = csgeo.csnames[(el.args[0])];
-    var Point = csgeo.csnames[(el.args[1])];
-    var iMatrix = List.inverse(Conic.matrix);
-    el.homog = General.mult(iMatrix, Point.homog);
-
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Point");
+    var point = csgeo.csnames[(el.args[0])];
+    var conic = csgeo.csnames[(el.args[1])];
+    var homog = General.mult(conic.matrix, point.homog);
+    homog = List.normalizeMax(homog);
+    el.homog = General.withUsage(homog, "Line");
 };
 
-geoOps.PolarPoint = {};
-geoOps.PolarPoint.kind = "P";
-geoOps.PolarPoint.updatePosition = function(el) {
-    var Conic = csgeo.csnames[(el.args[1])];
-    var Line = csgeo.csnames[(el.args[0])];
-    el.homog = General.mult(Conic.matrix, Line.homog);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Line");
+geoOps.Pole = {};
+geoOps.Pole.kind = "P";
+geoOps.Pole.updatePosition = function(el) {
+    var line = csgeo.csnames[(el.args[0])];
+    var conic = csgeo.csnames[(el.args[1])];
+    var dualMatrix = List.adjoint3(conic.matrix);
+    var homog = General.mult(dualMatrix, line.homog);
+    homog = List.normalizeMax(homog);
+    el.homog = General.withUsage(homog, "Point");
 };
 
 
@@ -1629,12 +1628,6 @@ geoMacros.IntersectionConicLine = function(el) {
 
 geoMacros.IntersectionCircleCircle = function(el) {
     el.type = "IntersectCirCir";
-    return [el];
-};
-
-geoMacros.PolarLine = function(el) {
-    el.args = [el.args[1], el.args[0]];
-    el.type = "Polar";
     return [el];
 };
 
