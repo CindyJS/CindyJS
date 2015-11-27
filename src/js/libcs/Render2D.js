@@ -457,10 +457,10 @@ Render2D.drawline = function(homog) {
 
     var erg = [];
 
-    if (ul != ur) erg.push({ x: (-c - b * yMax) / a, y: yMax });
-    if (ur != lr) erg.push({ x: xMax, y: (-c - a * xMax) / b });
-    if (ll != lr) erg.push({ x: (-c - b * yMin) / a, y: yMin });
-    if (ul != ll) erg.push({ x: xMin, y: (-c - a * xMin) / b });
+    if (ul !== ur) erg.push({ x: (-c - b * yMax) / a, y: yMax });
+    if (ur !== lr) erg.push({ x: xMax, y: (-c - a * xMax) / b });
+    if (ll !== lr) erg.push({ x: (-c - b * yMin) / a, y: yMin });
+    if (ul !== ll) erg.push({ x: xMin, y: (-c - a * xMin) / b });
     if (erg.length === 2) Render2D.drawsegcore(erg[0], erg[1]);
 };
 
