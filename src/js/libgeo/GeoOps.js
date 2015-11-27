@@ -766,11 +766,37 @@ geoOps._helper.splitDegenConic = function(mat) {
 
 geoOps.SelectConic = {};
 geoOps.SelectConic.kind = "C";
+geoOps.SelectConic.initialize = function(el) {
+    if (el.index !== undefined)
+        return el.index - 1;
+    var xx = CSNumber._helper.input(el.pos.xx);
+    var yy = CSNumber._helper.input(el.pos.yy);
+    var zz = CSNumber._helper.input(el.pos.zz);
+    var xy = CSNumber.realmult(0.5, CSNumber._helper.input(el.pos.xy));
+    var xz = CSNumber.realmult(0.5, CSNumber._helper.input(el.pos.xz));
+    var yz = CSNumber.realmult(0.5, CSNumber._helper.input(el.pos.yz));
+    var pos = List.turnIntoCSList([
+        List.turnIntoCSList([xx, xy, xz]),
+        List.turnIntoCSList([xy, yy, yz]),
+        List.turnIntoCSList([xz, yz, zz])
+    ]);
+    var set = csgeo.csnames[(el.args[0])].results;
+    var d1 = List.conicDist(pos, set[0]);
+    console.log("d1=", d1);
+    var best = 0;
+    for (var i = 1; i < set.length; ++i) {
+        var d2 = List.conicDist(pos, set[i]);
+        console.log("d2=", d2);
+        if (d2 < d1) {
+            d1 = d2;
+            best = i;
+        }
+    }
+    return best;
+};
 geoOps.SelectConic.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    el.matrix = set.results[el.index - 1];
-    el.matrix = List.normalizeMax(el.matrix);
-    el.matrix = General.withUsage(el.matrix, "Conic");
+    el.matrix = set.results[el.param];
 };
 
 // conic by 4 Points and 1 line
