@@ -168,7 +168,7 @@ geoOps.HorizontalLine.kind = "L";
 geoOps.HorizontalLine.isMovable = true;
 geoOps.HorizontalLine.initialize = function(el) {
     var pos = geoOps._helper.initializePoint(el);
-    pos.value[0] = CSNumber.zero;
+    pos = List.turnIntoCSList([CSNumber.zero, pos.value[1], pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
 };
@@ -207,7 +207,7 @@ geoOps.VerticalLine.kind = "L";
 geoOps.VerticalLine.isMovable = true;
 geoOps.VerticalLine.initialize = function(el) {
     var pos = geoOps._helper.initializePoint(el);
-    pos.value[1] = CSNumber.zero;
+    pos = List.turnIntoCSList([pos.value[0], CSNumber.zero, pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
 };
