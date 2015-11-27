@@ -1627,6 +1627,11 @@ geoMacros.IntersectionCircleCircle = function(el) {
     return [el];
 };
 
+geoMacros.IntersectionConicConic = function(el) {
+    el.type = "IntersectConicConic";
+    return [el];
+};
+
 geoMacros.PolarLine = function(el) {
     el.args = [el.args[1], el.args[0]];
     el.type = "Polar";
