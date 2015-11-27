@@ -448,8 +448,12 @@ Render2D.drawline = function(homog) {
     var distNeg = function(x, y) {
         return x * a + y * b + c < 0;
     };
-    // This visibleRect value remains hardcoded as before
-    var xMin = -30, xMax = 30, yMin = -30, yMax = 30;
+    // The visibleRect value remains hardcoded as before
+    var xMin = -30;
+    var xMax = 30;
+    var yMin = -30;
+    var yMax = 30;
+    
     var ul = distNeg(xMin, yMax);
     var ur = distNeg(xMax, yMax);
     var ll = distNeg(xMin, yMin);
@@ -457,10 +461,22 @@ Render2D.drawline = function(homog) {
 
     var erg = [];
 
-    if (ul !== ur) erg.push({ x: (-c - b * yMax) / a, y: yMax });
-    if (ur !== lr) erg.push({ x: xMax, y: (-c - a * xMax) / b });
-    if (ll !== lr) erg.push({ x: (-c - b * yMin) / a, y: yMin });
-    if (ul !== ll) erg.push({ x: xMin, y: (-c - a * xMin) / b });
+    if (ul !== ur) erg.push({
+        x: (-c - b * yMax) / a,
+        y: yMax
+    });
+    if (ur !== lr) erg.push({
+        x: xMax,
+        y: (-c - a * xMax) / b
+    });
+    if (ll !== lr) erg.push({
+        x: (-c - b * yMin) / a,
+        y: yMin
+    });
+    if (ul !== ll) erg.push({
+        x: xMin,
+        y: (-c - a * xMin) / b
+    });
     if (erg.length === 2) Render2D.drawsegcore(erg[0], erg[1]);
 };
 
