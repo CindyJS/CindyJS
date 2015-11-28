@@ -1097,6 +1097,23 @@ geoOps.ConicBy5lines.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
 
+geoOps.ConicPrincipleDirs = {};
+geoOps.ConicPrincipleDirs.kind = "C";
+geoOps.ConicPrincipleDirs.updatePosition = function(el) {
+    var M = csgeo.csnames[(el.args[0])].homog;
+    var P1 = csgeo.csnames[(el.args[1])].homog;
+    var P2 = csgeo.csnames[(el.args[2])].homog;
+    var P3 = geoOps._helper.pointReflection(M, P1);
+    var P4 = geoOps._helper.pointReflection(M, P2);
+    // P5 is the reflection of P2 in the line through P1 and M
+    var P1M = List.cross(P1, M);
+    var P2P1M = geoOps._helper.projectPointToLine(P2, P1M);
+    var P5 = geoOps._helper.pointReflection(P2P1M, P2);
+    el.matrix = geoOps._helper.ConicBy5(el, P1, P2, P3, P4, P5);
+    el.matrix = List.normalizeMax(el.matrix);
+    el.matrix = General.withUsage(el.matrix, "Conic");
+};
+
 geoOps.CircleBy3 = {};
 geoOps.CircleBy3.kind = "C";
 geoOps.CircleBy3.updatePosition = function(el) {
