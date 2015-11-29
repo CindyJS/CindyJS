@@ -1109,6 +1109,14 @@ geoOps.ConicPrincipleDirs.updatePosition = function(el) {
     var P1M = List.cross(P1, M);
     var P2P1M = geoOps._helper.projectPointToLine(P2, P1M);
     var P5 = geoOps._helper.pointReflection(P2P1M, P2);
+    // Watch out for right angle case of M/P2_P1 where P4 equals P5
+    if (List._helper.isAlmostZeroVec(List.sub(List.normalizeZ(P4), List.normalizeZ(P5)))) {
+        var A = List.add(List.normalizeZ(M), List.normalizeZ(P2))
+        var B = geoOps._helper.pointReflection(P2, M);
+        var P3A = List.cross(A, P3);
+        var P1B = List.cross(B, P1);
+        P5 = List.cross(P3A, P1B);
+    }
     el.matrix = geoOps._helper.ConicBy5(el, P1, P2, P3, P4, P5);
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
