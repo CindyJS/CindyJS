@@ -1111,7 +1111,7 @@ geoOps.ConicPrincipleDirs.updatePosition = function(el) {
     var P5 = geoOps._helper.pointReflection(P2P1M, P2);
     // Watch out for right angle case of M/P2_P1 where P4 equals P5
     if (List._helper.isAlmostZeroVec(List.sub(List.normalizeZ(P4), List.normalizeZ(P5)))) {
-        var A = List.add(List.normalizeZ(M), List.normalizeZ(P2))
+        var A = List.add(List.normalizeZ(M), List.normalizeZ(P2));
         var B = geoOps._helper.pointReflection(P2, M);
         var P3A = List.cross(A, P3);
         var P1B = List.cross(B, P1);
