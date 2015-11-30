@@ -1097,27 +1097,22 @@ geoOps.ConicBy5lines.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
 
-geoOps.ConicPrincipleDirs = {};
-geoOps.ConicPrincipleDirs.kind = "C";
-geoOps.ConicPrincipleDirs.updatePosition = function(el) {
+geoOps.ConicFromPrincipalDirections  = {};
+geoOps.ConicFromPrincipalDirections.kind = "C";
+geoOps.ConicFromPrincipalDirections.updatePosition = function(el) {
     var M = csgeo.csnames[(el.args[0])].homog;
     var P1 = csgeo.csnames[(el.args[1])].homog;
     var P2 = csgeo.csnames[(el.args[2])].homog;
     var P3 = geoOps._helper.pointReflection(M, P1);
-    var P4 = geoOps._helper.pointReflection(M, P2);
-    // P5 is the reflection of P2 in the line through P1 and M
     var P1M = List.cross(P1, M);
-    var P2P1M = geoOps._helper.projectPointToLine(P2, P1M);
-    var P5 = geoOps._helper.pointReflection(P2P1M, P2);
-    // Watch out for right angle case of M/P2_P1 where P4 equals P5
-    if (List._helper.isAlmostZeroVec(List.sub(List.normalizeZ(P4), List.normalizeZ(P5)))) {
-        var A = List.add(List.normalizeZ(M), List.normalizeZ(P2));
-        var B = geoOps._helper.pointReflection(P2, M);
-        var P3A = List.cross(A, P3);
-        var P1B = List.cross(B, P1);
-        P5 = List.cross(P3A, P1B);
-    }
-    el.matrix = geoOps._helper.ConicBy5(el, P1, P2, P3, P4, P5);
+    // Extract perpendicular direction from line P1M
+    var perpDirP1M = List.turnIntoCSList([P1M.value[0], P1M.value[1], CSNumber.zero]);
+    // A pair of duplicate P1M lines serves as the first degenerate conic
+    var vP1M = List.turnIntoCSList([P1M]);
+    // The perpendicular lines to P1M through P1 and its antipodal P3 serve as the second
+    var vPP1MTP1 = List.turnIntoCSList([List.cross(P1, perpDirP1M)]);
+    var vPP1MTP3 = List.turnIntoCSList([List.cross(P3, perpDirP1M)]);
+    el.matrix = geoOps._helper.conicFromTwoDegenerates(vP1M, vP1M, vPP1MTP1, vPP1MTP3, P2);
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
