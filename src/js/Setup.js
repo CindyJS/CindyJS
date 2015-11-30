@@ -155,7 +155,15 @@ function createCindyNow() {
             cscode = cscode.text;
         }
         cscode = condense(cscode);
-        cscompiled[s] = analyse(cscode, false);
+        cscode = analyse(cscode, false);
+        if (cscode.ctype === "error") {
+            console.error(
+                "Error compiling " + s + " script: " +
+                cscode.message
+            );
+        } else {
+            cscompiled[s] = cscode;
+        }
     });
 
     //Setup canvasstuff
