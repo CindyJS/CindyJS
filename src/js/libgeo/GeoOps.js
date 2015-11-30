@@ -1097,7 +1097,7 @@ geoOps.ConicBy5lines.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
 
-geoOps.ConicFromPrincipalDirections  = {};
+geoOps.ConicFromPrincipalDirections = {};
 geoOps.ConicFromPrincipalDirections.kind = "C";
 geoOps.ConicFromPrincipalDirections.updatePosition = function(el) {
     var M = csgeo.csnames[(el.args[0])].homog;
