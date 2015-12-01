@@ -418,9 +418,8 @@ function determineUniformTypes() {
     //Default value
     uniforms[uname].type = type.float; //every cindyJS number can be interpreted as complex.
     
-    //TODO: check weather type was specified by modifier?
-  
-    //TODO: Compute value with api.eval and find out by guessing type
+    //TODO: check wether type was specified by modifier?
+
     let tval = api.evaluateAndVal(uniforms[uname].expr);
     
     
