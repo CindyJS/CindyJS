@@ -1080,6 +1080,37 @@ geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
     return [out1, out2];
 };
 
+geoOps.ConicInSquare = {};
+geoOps.ConicInSquare.kind = "C";
+geoOps.ConicInSquare.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var B = csgeo.csnames[(el.args[1])].homog;
+    var C = csgeo.csnames[(el.args[2])].homog;
+    var D = csgeo.csnames[(el.args[3])].homog;
+    // First create all six possible lines thru A, B, C & D
+    var a = List.cross(A, B);
+    var b = List.cross(B, C);
+    var c = List.cross(C, D);
+    var d = List.cross(D, A);
+    var e = List.cross(A, C);
+    var f = List.cross(B, D);
+    // Now all three additional intersections of the six lines
+    var E = List.cross(e, f);
+    var F = List.cross(a, c);
+    var G = List.cross(b, d);
+    // Line g duplicated is one of the degenerate conics
+    var g = List.cross(E, F);
+    // Find conic tangent point H on line c
+    var h = List.cross(E, G);
+    var H = List.cross(c, h);
+    // Lines b and d make up the other degenerate conic
+    var vb = List.turnIntoCSList([b]);
+    var vd = List.turnIntoCSList([d]);
+    var vg = List.turnIntoCSList([g]);
+    el.matrix = geoOps._helper.conicFromTwoDegenerates(vb, vd, vg, vg, H);
+    el.matrix = List.normalizeMax(el.matrix);
+    el.matrix = General.withUsage(el.matrix, "Conic");
+};
 
 geoOps.ConicBy5lines = {};
 geoOps.ConicBy5lines.kind = "C";
