@@ -377,11 +377,13 @@ evaluator.drawconic$1 = function(args, modifs) {
             Conic.matrix = arr;
         }
 
+
     }
-    return eval_helper.drawconic(Conic, modifs);
+    Conic.matrix = List.normalizeMax(Conic.matrix);
+    return eval_helper.drawconic(Conic.matrix, modifs);
 };
 
-eval_helper.drawconic = function(aConic, modifs) {
+eval_helper.drawconic = function(conicMatrix, modifs) {
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     if (Render2D.lsize === 0)
@@ -389,8 +391,8 @@ eval_helper.drawconic = function(aConic, modifs) {
     Render2D.preDrawCurve();
 
     var eps = 1e-14; //JRG Hab ih von 1e-16 runtergesetzt
-    var mat = aConic.matrix;
-    var origmat = aConic.matrix;
+    var mat = List.normalizeMax(conicMatrix);
+    var origmat = mat;
 
     // check for complex values
     for (var i = 0; i < 2; i++)
@@ -598,7 +600,7 @@ eval_helper.drawconic = function(aConic, modifs) {
 
 
         var step;
-        var perc = 0.05;
+        var perc = 0.1;
         var diff = ymax - ymin;
         var ssmall = perc * diff + ymin;
         var slarge = ymax - perc * diff;
@@ -611,7 +613,7 @@ eval_helper.drawconic = function(aConic, modifs) {
                 step = 3;
             }
 
-            var inner = -a * c * Math.pow(y, 2) - 2 * a * e * y - a * f + Math.pow(b, 2) * Math.pow(y, 2) + 2 * b * d * y + Math.pow(d, 2);
+            var inner = -a * c * y * y - 2 * a * e * y - a * f + b * b * y * y + 2 * b * d * y + d * d;
             inner = Math.sqrt(inner);
 
 
