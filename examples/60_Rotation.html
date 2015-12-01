@@ -4,22 +4,36 @@
 		<meta charset="utf-8">
             <title>Cindy JS</title>
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript"
-   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
- <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-</script>
             </head>
 
 	<body style="font-family:Arial;">
 
-        <h1>CindyJS: First Physics</h1>
+        <h1>CindyJS: Rotations</h1>
 
 
 
 
         <script id='init' type='text/x-cindyscript'>
+          renderEq(x1,y1,x2,y2,w,a,b) := (
+        drawtext([-1.8,-1], "$\begin{array}{c}"+
+        "a=\cos("+w+"^\circ)="+a+"\\"+
+        "b=\sin("+w+"^\circ)="+b+
+        "\end{array}\qquad"+
+        "\begin{pmatrix}"+
+        "x\\"+
+        "y"+
+        "\end{pmatrix}\mapsto"+
+        "\begin{pmatrix}"+
+        "ax-by\\"+
+        "bx+ay"+
+        "\end{pmatrix}"+
+        "\begin{pmatrix}"+
+        x1+"x"+y1+"y\\"+
+        x2+"x"+y2+"y"+
+        "\end{pmatrix}"+
+        "$");
+        );
+
         drawarrow(a,b,col):=(
            n=b-a;
            n=n/|n|*.5;
@@ -58,7 +72,7 @@ if (b>0,pb="+"+format(|b|,2);mb="-"+format(|b|,2));
 if (b<0,pb="-"+format(|b|,2);mb="+"+format(|b|,2));
 if (b==0,pb="+0";mb="+0");
 
-       javascript("renderEq('"+pa+"x"+mb+"y','"+pb+"x"+pa+"y','"+ww+"','"+pa+"','"+pb+"')");
+       renderEq(pa, mb, pb, pa, ww, pa, pb);
 
         </script>
 
@@ -132,58 +146,13 @@ if (b<0,pb="-"+format(|b|,2);mb="+"+format(|b|,2));
 if (b==0,pb="+0";mb="+0");
 
 
-        if(mover()==D,
-       javascript("renderEq('"+pa+"x"+mb+"y','"+pb+"x"+pa+"y','"+ww+"','"+pa+"','"+pb+"')");
-        );
+         renderEq(pa,mb,pb,pa,ww,pa,pb);
 
-        //  javascript("document.getElementById('q1').style.top='"+(-A.y*3.132*25+450)+"px';");
-        //  javascript("document.getElementById('q1').style.left='"+(A.x*3.132*25+60)+"px';");
-
-
-
- //                    javascript("document.getElementById('tex').innerHTML='$P_i="+G.x+"$';"+
- //                    "MathJax.Hub.Queue(['Typeset',MathJax.Hub,'tex']);");
-
-//inpa=-C.x;
-//inpb=-A.x-B.x;
-//inpc=-D.x-B.x;
-//inpa=round(inpa*100)/100;
-//inpb=round(inpb*100)/100;
-//inpc=round(inpc*100)/100;
-//if(or(or(oa~!=inpa,ob~!=inpb),oc~!=inpc) ,
-
-  //          oa=inpa;
-    //        ob=inpb;
-      //      oc=inpc;
         </script>
 
-        <script type="text/javascript">
-        var renderEq=function(xx,yy,w,a,b){
-        var latex="$\\begin{array}{c}"+
-        "a=cos("+w+"°)="+a+"\\\\"+
-        "b=sin("+w+"°)="+b+"\\\\"+
-        "\\end{array}\\qquad"+
-        "\\left(\\begin{array}{c}"+
-        "x\\\\"+
-        "y\\\\"+
-        "\\end{array}\\right)\\mapsto"+
-        "\\left(\\begin{array}{c}"+
-        "ax-by\\\\"+
-        "bx+ay\\\\"+
-        "\\end{array}\\right)="+
-        "\\left(\\begin{array}{c}"+
-        xx+"\\\\"+
-        yy+"\\\\"+
-        "\\end{array}\\right)"+
-        "$";
-        document.getElementById('tex').innerHTML=latex;
-        MathJax.Hub.Queue(['Typeset',MathJax.Hub,'tex']);
-        }
-        </script>
         <div style="position:relative">
         <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000;position:absolute; top:0px; left:0px;"></canvas>
 <div style="position:absolute; top:400px; left:30px; display:inline;z-index:4">
-         <div id="tex" style="font-size: 110%;" >$p_1$</div>
 </div>
 </div>
 
@@ -210,6 +179,7 @@ if (b==0,pb="+0";mb="+0");
                         geometry:gslp,
                         grid:.2,
                         transform:[{scale:5},{translate:[0,-.3]}],
+                        use:["katex"],
 }
                         );
 
