@@ -1,6 +1,9 @@
 "use strict";
 
-var fs = require("fs"), path = require("path"), marked = require("marked");
+var fs = require("fs");
+var path = require("path");
+var util = require("util");
+var marked = require("marked");
 
 var refdir = path.dirname(__dirname);
 var tmpl = fs.readFileSync(path.join(refdir, "template.html")).toString()
@@ -14,9 +17,13 @@ function escape(str) {
     .replace(/'/g, '&#39;');
 }
 
-var renderer = new marked.Renderer();
+function MyRenderer() {
+  this.cjsUsedAnchors = {};
+}
 
-renderer.code = function(code, lang) {
+util.inherits(MyRenderer, marked.Renderer);
+
+MyRenderer.prototype.code = function(code, lang) {
   if (lang) return marked.Renderer.prototype.code(code, lang);
   // console.log("code='" + code + "'")
   var lines = code.split("\n");
@@ -60,11 +67,65 @@ renderer.code = function(code, lang) {
   return '<div class="' + outer + '">' + res + '</pre></div>';
 };
 
-var opts = {
-  renderer: renderer
+MyRenderer.prototype.heading = function(text, level, raw) {
+  var id = null;
+  var match;
+  if (!id && (match = /(\w+)\(([^)]*)\)/.exec(raw))) {
+    // normal named functions
+    var arity = 0;
+    if (match[2] !== "")
+      arity = match[2].split(",").length;
+    id = match[1] + "$" + arity;
+  }
+  if (!id && (match = /`‹\w*›\s*(\S+)\s*‹\w*›`/.exec(raw))) {
+    // infix operators
+    id = "$" + match[1].replace(/./g, function(char) {
+      return "u" + char.charCodeAt(0).toString(16);
+    });
+  }
+  if (!id && (match = /`([^`]*)`/.exec(raw))) {
+    // other code constructs
+    match = match[1];
+    id = match
+      .replace(/\s+/g, "")
+      .replace(/_/g, "\\$u5f")
+      .replace(/‹[^‹›]*›/g, "_")
+      .replace(/\W/g, function(char) {
+        return "$u" + char.charCodeAt(0).toString(16);
+      });
+  }
+  if (!id && (match = /([\w.]+)\s*=.*‹/.exec(raw))) {
+    // Named settings with structure specification
+    id = match[1];
+  }
+  if (!id && (match = /\u2039/.exec(raw))) {
+    throw Error("Don't know how to create an ID for: " + raw);
+  }
+  if (!id) {
+    // Final fallback
+    id = raw.toLowerCase().replace(/[^\w.]+/g, '-');
+  }
+  if (this.cjsUsedAnchors.hasOwnProperty(id)) {
+    var idx = 9, id2;
+    do {
+      ++idx;
+      id2 = id + idx.toString(36); // append a, b, …
+    } while (this.cjsUsedAnchors.hasOwnProperty(id2));
+    id = id2;
+  }
+  //console.log(id);
+  this.cjsUsedAnchors[id] = raw;
+  return '<h' + level + ' id="' + id + '">' + text +
+    '<a class="hlink" href="#' + id + '"></a></h' + level + '>\n';
 };
 
-marked(md, opts, function(err, html) {
+function makeOpts() {
+  return {
+    renderer: new MyRenderer()
+  };
+}
+
+marked(md, makeOpts(), function(err, html) {
     if (err) throw err;
     html = tmpl.replace(/<div id="content"><\/div>/, html);
     fs.writeFileSync(process.argv[3], html);
