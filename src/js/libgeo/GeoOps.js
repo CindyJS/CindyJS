@@ -1128,6 +1128,26 @@ geoOps.ConicBy5lines.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
 
+geoOps.ConicFromPrincipalDirections = {};
+geoOps.ConicFromPrincipalDirections.kind = "C";
+geoOps.ConicFromPrincipalDirections.updatePosition = function(el) {
+    var M = csgeo.csnames[(el.args[0])].homog;
+    var P1 = csgeo.csnames[(el.args[1])].homog;
+    var P2 = csgeo.csnames[(el.args[2])].homog;
+    var P3 = geoOps._helper.pointReflection(M, P1);
+    var P1M = List.cross(P1, M);
+    // Extract perpendicular direction from line P1M
+    var perpDirP1M = List.turnIntoCSList([P1M.value[0], P1M.value[1], CSNumber.zero]);
+    // A pair of duplicate P1M lines serves as the first degenerate conic
+    var vP1M = List.turnIntoCSList([P1M]);
+    // The perpendicular lines to P1M through P1 and its antipodal P3 serve as the second
+    var vPP1MTP1 = List.turnIntoCSList([List.cross(P1, perpDirP1M)]);
+    var vPP1MTP3 = List.turnIntoCSList([List.cross(P3, perpDirP1M)]);
+    el.matrix = geoOps._helper.conicFromTwoDegenerates(vP1M, vP1M, vPP1MTP1, vPP1MTP3, P2);
+    el.matrix = List.normalizeMax(el.matrix);
+    el.matrix = General.withUsage(el.matrix, "Conic");
+};
+
 geoOps.CircleBy3 = {};
 geoOps.CircleBy3.kind = "C";
 geoOps.CircleBy3.updatePosition = function(el) {
