@@ -2,6 +2,7 @@
 
 var glob = require("glob");
 var path = require("path");
+var Q = require("q");
 
 var src = require("./sources");
 
@@ -151,6 +152,7 @@ module.exports = function build(settings, task) {
         "deploy",
         "textattr",
         "forbidden",
+        "ref",
     ]);
     
     task("beautified", [], function() {
@@ -181,13 +183,18 @@ module.exports = function build(settings, task) {
     ];
 
     task("refhtml", [], function() {
+        var cached = null;
+        function lazy() {
+            return (cached || (cached = Q.denodeify(
+                require("../ref/js/md2html").renderHtml)))
+                .apply(null, arguments);
+        }
+        this.input(["ref/js/template.html", "ref/js/md2html.js"]);
         this.parallel(function() {
             refmd.forEach(function(input) {
                 var output = path.join(
                     "build", input.replace(/\.md$/, ".html"));
-                this.node(
-                    "ref/js/md2html.js",
-                    this.input(input), this.output(output));
+                return this.process(input, output, lazy);
             }, this);
         });
     });
