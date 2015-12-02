@@ -180,9 +180,9 @@ If `A.caption` is the empty string the name is shown, otherwise the caption.
 ####  Properties of CindyLab Objects
 
 It is not only geometric properties that can be accessed by CindyScript.
-The simulation parameters of [CindyLab](CindyLab) constructions can also be read and sometimes set via CindyScript.
+The simulation parameters of [CindyLab](CindyLab.md) constructions can also be read and sometimes set via CindyScript.
 
-#####  Properties of All [CindyLab](CindyLab) Elements
+#####  Properties of All [CindyLab](CindyLab.md) Elements
 
 | Name       | Writeable | Type | Purpose                                                                 |
 | ---------- | --------- | ---- | ----------------------------------------------------------------------- |
@@ -279,7 +279,7 @@ The following slots of the environment can be accessed:
 
 ### Inspecting Elements
 
-You can also use the generic CindyScript function `inspect(‹element›)` to access all the attributes that are available in the [Inspector](Inspector).
+You can also use the generic CindyScript function `inspect(‹element›)` to access all the attributes that are available in the [Inspector](Inspector.md).
 For example, if a point *A* exists in the construction, the function
 
     > inspect(A)
@@ -325,7 +325,7 @@ Sets the user attribute of &lt;geo&gt; identified by &lt;string1&gt; to the valu
 **Description:**
 Returns the user attribute identified by &lt;string&gt; of the geometric element &lt;geo&gt; .
 
-Both versions of the attribute function are mainly used for interaction with the [Visage Extension](Visage).
+Both versions of the attribute function are mainly used for interaction with the [Visage Extension](Visage.md).
 
 ------
 
@@ -356,4 +356,4 @@ or
 
 to remove the element named "*A*".
 
-More functions to create arbitrary elements are also available and discussed in the section [section on special operators](Interaction_with_Geometry#createandremove).
+More functions to create arbitrary elements are also available and discussed in the section [section on special operators](Interaction_with_Geometry#createandremove.md).

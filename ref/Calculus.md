@@ -81,7 +81,7 @@ The picture below shows the resulting image created by the program.
 | ****                        |
 
 The result of the tangent function is a three-vector of homogeneous coordinates.
-In addition, the line attribute of this vector is set (see [Geometric Operators](Geometric_Operators)) so that the coordinates are automatically drawn as a line.
+In addition, the line attribute of this vector is set (see [Geometric Operators](Geometric_Operators.md)) so that the coordinates are automatically drawn as a line.
 
 ------
 

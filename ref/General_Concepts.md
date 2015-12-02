@@ -1,10 +1,10 @@
 ## General Concepts of CindyScript
 
-This section is a brief introduction to the most fundamental concepts of [CindyScript](CindyScript).
+This section is a brief introduction to the most fundamental concepts of [CindyScript](CindyScript.md).
 
 ### CindyScript Is a Functional Language
 
-All calculations in [CindyScript](CindyScript) are performed by executing functions.
+All calculations in [CindyScript](CindyScript.md) are performed by executing functions.
 A function can be considered as a kind of calculation that takes the arguments of the function and produces some kind of output value.
 Many calculations can already be expressed using only elementary functions.
 Thus the code fragment
@@ -37,21 +37,21 @@ Depending on the evaluation of the condition, the `if` function returns the valu
 
 ### Side Effects
 
-If a function is evaluated in [CindyScript](CindyScript), it may have "side effects." Side effects are important for all kinds of interactions between a [CindyScript](CindyScript) program and a Cinderella construction.
+If a function is evaluated in [CindyScript](CindyScript.md), it may have "side effects." Side effects are important for all kinds of interactions between a [CindyScript](CindyScript.md) program and a Cinderella construction.
 Typical side effects are:
 
 *  **Drawing:**
-A [CindyScript](CindyScript) statement may cause drawing operations in the construction views.
+A [CindyScript](CindyScript.md) statement may cause drawing operations in the construction views.
 
 *  **Assignments:**
-A [CindyScript](CindyScript) operation may change the position, color, size, etc.
+A [CindyScript](CindyScript.md) operation may change the position, color, size, etc.
 of geometric objects.
 
 *  **Variable assignments:**
-A [CindyScript](CindyScript) statement can create variables and assign values to them.
+A [CindyScript](CindyScript.md) statement can create variables and assign values to them.
 
 *  **Function creation:**
-A [CindyScript](CindyScript) statement can create and define a function that can be used later.
+A [CindyScript](CindyScript.md) statement can create and define a function that can be used later.
 
 For instance, the statement
 
@@ -69,8 +69,8 @@ sets the color of point *A* to *white*.
 ###  Control Flow
 
 Most users are probably accustomed to sequential programming languages like C, Java, Pascal, and Basic.
-In practice, writing sequential code in [CindyScript](CindyScript) is not so different from writing code in these languages.
-[CindyScript](CindyScript) has a `;` operator `‹statement1›;‹statement2›` that simply first evaluates `statement1` and then `statement2`.
+In practice, writing sequential code in [CindyScript](CindyScript.md) is not so different from writing code in these languages.
+[CindyScript](CindyScript.md) has a `;` operator `‹statement1›;‹statement2›` that simply first evaluates `statement1` and then `statement2`.
 The return value of the `;` operator is the result of the last statement.
 Writing a sequential program is relatively simple, and it looks similar to a program written in a sequential language.
 For instance, the program
@@ -88,9 +88,9 @@ The body of the loop is the two lines `j=i*i; draw([i,j]);`.
 
 ###  No Explicit Typing
 
-[CindyScript](CindyScript) is designed to provide a maximum of functionality with a minimum of syntactic overhead.
-Therefore, [CindyScript](CindyScript) does not have explicit typing of values.
-Like many other languages, [CindyScript](CindyScript) uses the concept of variables.
+[CindyScript](CindyScript.md) is designed to provide a maximum of functionality with a minimum of syntactic overhead.
+Therefore, [CindyScript](CindyScript.md) does not have explicit typing of values.
+Like many other languages, [CindyScript](CindyScript.md) uses the concept of variables.
 However, in contrast to other languages, the variables do not belong to a specific type.
 Any value of any type can be assigned to any variable.
 On the one hand, this gives the programmer a great deal of freedom to generate powerful code.
@@ -107,10 +107,10 @@ So, in the above example, `f([1,2],[3,4])` will perform a vector addition and ev
 
 ### Local Variables: The # Variable
 
-There are several loop-like constructions in [CindyScript](CindyScript).
+There are several loop-like constructions in [CindyScript](CindyScript.md).
 For instance, the operator `select(‹list›,‹condition‹)` traverses all elements of `‹list›` and returns a list of objects that satisfy the condition.
 For this to occur, there must be a way to feed elements that are to be tested to the condition.
-By default, [CindyScript](CindyScript) uses a variable #, which serves as a handle for the run variable.
+By default, [CindyScript](CindyScript.md) uses a variable #, which serves as a handle for the run variable.
 For instance, the statement
 
     > select(1..30,isodd(#))
@@ -128,9 +128,9 @@ Thus `select(1..30,i,isodd(i))` and `repeat(9,i,print(i))` are equivalent to the
 
 ### The Data Types of CindyScript
 
-As already mentioned, [CindyScript](CindyScript) does not have explicit typing.
+As already mentioned, [CindyScript](CindyScript.md) does not have explicit typing.
 Nevertheless, any *value* of a variable belongs to an explicit type.
-The basic types of [CindyScript](CindyScript) are
+The basic types of [CindyScript](CindyScript.md) are
 
 *  &lt;number&gt;: Any numeric value.
 Numbers can be integers, real numbers, or complex numbers.
@@ -148,7 +148,7 @@ The number type is particularly powerful, since it can contain integers, floatin
 
 ### Variables and Their Scope
 
-Since [CindyScript](CindyScript) does not have explicit typing for variables, it allows variables to be created "on the fly" as needed.
+Since [CindyScript](CindyScript.md) does not have explicit typing for variables, it allows variables to be created "on the fly" as needed.
 A variable is created when it is assigned for the first time.
 If `x` is not already being used, the statement
 
@@ -170,7 +170,7 @@ One can also produce additional local variables with the `regional(...)` operato
 ### Access to Geometric Elements and Their Properties
 
 Variables are also used as a kind of handle to geometric objects.
-They form a major link of [CindyScript](CindyScript) to Cinderella and [CindyLab](CindyLab).
+They form a major link of [CindyScript](CindyScript.md) to Cinderella and [CindyLab](CindyLab.md).
 If a variable has a name that is identical to the label of a geometric object, it provides a link to that geometric object.
 The value of the variable can still be overloaded by an explicit assignment of a value to the variable.
 The different properties of a geometric object (position, color, size, etc.) are accessible via the . operator.
@@ -180,7 +180,7 @@ Furthermore, properties relevant to physics simulation (mass, velocity, kinetic 
 
 ### Modifiers
 
-Many operators in [CindyScript](CindyScript) provide more functionality than one may notice at first glance.
+Many operators in [CindyScript](CindyScript.md) provide more functionality than one may notice at first glance.
 Usually these features can be accessed using so-called modifiers.
 The operators are defined in a way such that their default usage provides a suitable behavior for most situations.
 However, it may be necessary to modify the default behavior.
@@ -205,31 +205,31 @@ They may occur in any order and at any position of the function call.
 
 ` `
 
-[CindyScript](CindyScript) offers *lists* as elementary data types.
+[CindyScript](CindyScript.md) offers *lists* as elementary data types.
 Lists are the fundamental paradigm that is used to define more complex data structures.
 In addition to the obvious application as enumeration objects, lists can also be used to represent vectors and matrices.
 A vector is a list of numbers.
 A list of vectors whose vectors all have the same length will be interpreted as a matrix.
-[CindyScript](CindyScript) provides the usual operations for combining vectors, matrices, and numbers.
+[CindyScript](CindyScript.md) provides the usual operations for combining vectors, matrices, and numbers.
 Depending on the content of `a` and `b`, the expression `a*b` may represent a usual multiplication of numbers, a matrix product, or a matrix/vector multiplication.
 
-In [CindyScript](CindyScript) there is no distinction between row vectors and column vectors on the level of vectors.
+In [CindyScript](CindyScript.md) there is no distinction between row vectors and column vectors on the level of vectors.
 However, by the use of suitable functions one can convert a vector of length `n` to an (*n* × 1) matrix or to a (1 × *n*) matrix.
 
 ### Drawing
 
-[CindyScript](CindyScript) provides many statements with which one can draw directly on the canvas of the geometric views.
+[CindyScript](CindyScript.md) provides many statements with which one can draw directly on the canvas of the geometric views.
 Using this feature it is possible to enrich the behavior of Cinderella constructions significantly.
 It is possible to draw points, lines, segments, polygons, tables, functions, etc.
 However, it is important not to confuse a script-drawn geometric object with a geometric object that is active in geometry.
 It is not possible to use such script-drawn elements as definers in Cinderella modes.
 
-If one wants to modify active elements using a script, then it is necessary to first construct them and then alter their positions using [CindyScript](CindyScript) statements.
+If one wants to modify active elements using a script, then it is necessary to first construct them and then alter their positions using [CindyScript](CindyScript.md) statements.
 All free elements can be moved by setting their position parameters.
 
 ### Execution Slots
 
-The [script window of Cinderella](The_CindyScript_Editor) in which one enters the [CindyScript](CindyScript) code contains several slots in which the text can be entered.
+The [script window of Cinderella](The_CindyScript_Editor.md) in which one enters the [CindyScript](CindyScript.md) code contains several slots in which the text can be entered.
 The particular slots are called
 
 *  Draw
@@ -248,7 +248,7 @@ The particular slots are called
 
 Each of these entries corresponds to the occasion that triggers the execution of the script.
 For instance, scripts in the *Draw* slot is executed directly before a screen refresh in the view.
-The *Initialization* slot is executed directly after the [CindyScript](CindyScript) code is parsed.
+The *Initialization* slot is executed directly after the [CindyScript](CindyScript.md) code is parsed.
 *Simulation Start* is executed before starting an animation when the play button is pressed.
 Using this mechanism it is possible to write programs that react nicely to user events.
 
@@ -256,11 +256,11 @@ Using this mechanism it is possible to write programs that react nicely to user 
 
 ` `
 
-[CindyScript](CindyScript) runs in a runtime environment.
+[CindyScript](CindyScript.md) runs in a runtime environment.
 In principle, every tiny move in a construction can cause the evaluation of a script.
 For this to happen, a reasonable design decision in the language had to be made concerning the occurrence of runtime errors.
 It would be very distractive if the usual user interaction was interrupted by error messages over and over (in particular, if a construction is used as an applet within an HTML page).
-For this reason, error handling in [CindyScript](CindyScript) at runtime reports only the first ten errors.
+For this reason, error handling in [CindyScript](CindyScript.md) at runtime reports only the first ten errors.
 However, runtime errors will never interrupt execution.
 Runtime errors (such as division by zero, or access to a nonexistent array index) are simply ignored in the program flow.
 Erroneous function evaluations simply produce an undefined result, and the calculation proceeds (perhaps causing more undefined results).

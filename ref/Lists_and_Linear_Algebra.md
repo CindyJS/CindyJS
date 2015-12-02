@@ -17,13 +17,13 @@ They serve as
 This section covers the very general aspects of creating lists and accessing their elements as well as all elementary aspects of array functionality.
 For information on all other aspects of lists, consult the sections
 
-*  [Elementary List Operations](Elementary_List_Operations)
+*  [Elementary List Operations](Elementary_List_Operations.md)
 
-*  [Advanced List Operations](Advanced_List_Operations)
+*  [Advanced List Operations](Advanced_List_Operations.md)
 
-*  [Lists of Geometric Elements](Lists_of_Geometric_Elements)
+*  [Lists of Geometric Elements](Lists_of_Geometric_Elements.md)
 
-*  [Vectors and Matrices](Vectors_and_Matrices)
+*  [Vectors and Matrices](Vectors_and_Matrices.md)
 
 ------
 

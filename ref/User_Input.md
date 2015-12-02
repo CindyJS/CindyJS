@@ -1,7 +1,7 @@
 ##  User Input
 
 Sometimes it is necessary to handle user input by mouse or the keyboard explicitly.
-There are special evaluation times "Mouse Down," "Mouse Up," "Mouse Click," "Mouse Drag," and "Key Typed" for this (see [Entering Program Code](Entering_Program_Code)).
+There are special evaluation times "Mouse Down," "Mouse Up," "Mouse Click," "Mouse Drag," and "Key Typed" for this (see [Entering Program Code](Entering_Program_Code.md)).
 These evaluation times are captured exactly when the corresponding events occur.
 If one wants to react to the corresponding event data, there are several operators that read the input data.
 
@@ -39,7 +39,7 @@ Codes for 'shift', 'crtl' and 'alt' are usually 16, 17, 18.
 
 **Description:**
 This operator returns a list of the codes of all pressed keys.
-An interesting application of the keydown list id given in the chapter on MIDI functions, where you find an example [keyboard piano](MIDI_Functions#piano).
+An interesting application of the keydown list id given in the chapter on MIDI functions, where you find an example [keyboard piano](MIDI_Functions#piano.md).
 
 ------
 
@@ -71,10 +71,10 @@ The calibrated data is a vector of unit length that represents the orientation o
 
 Cinderella can be used to export interactive worksheets to an html page.
 Very often it is desirable not only to export an interactive construction but also a set of construction tools along with it (like buttons for constructing points, lines or circles).
-By using the following set of [CindyScript](CindyScript) operations it is easily possible to create (and remove) custom toolbars that reside within an applet window.
+By using the following set of [CindyScript](CindyScript.md) operations it is easily possible to create (and remove) custom toolbars that reside within an applet window.
 
 Toolbars are in particular important for creating interactive student exercises.
-An example for this is given in [Interactive Exercises](Interactive_Exercises).
+An example for this is given in [Interactive Exercises](Interactive_Exercises.md).
 
 ------
 

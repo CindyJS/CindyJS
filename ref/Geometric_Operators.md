@@ -105,13 +105,13 @@ If the three points are collinear, then the area is zero.
 
 The following operators from linear algebra are very useful in geometric contexts.
 They apply especially to numeric vectors of length 3.
-For other useful operators in that context (such as `dist`, matrix operations, and scalar product) please refer to [Vectors and Matrices](Vectors_and_Matrices).
+For other useful operators in that context (such as `dist`, matrix operations, and scalar product) please refer to [Vectors and Matrices](Vectors_and_Matrices.md).
 
 #### The determinant of three points: `det(‹vec1›,‹vec2›,‹vec3›)`
 
 **Description:**
 This operator calculates the determinant of a 3 × 3 matrix formed by the three three-dimensional vectors `‹vec1›`, `‹vec2›`, `‹vec3›`.
-Unlike the general determinant method described in the section [Vectors and Matrices](Vectors_and_Matrices), this method is optimized for performance.
+Unlike the general determinant method described in the section [Vectors and Matrices](Vectors_and_Matrices.md), this method is optimized for performance.
 
 ------
 

@@ -466,7 +466,7 @@ The modifiers are analogous to those for the `drawfield` operators.
 
 **Description:**
 This operator is again very similar to the `drawfield` operator.
-However, this time it is related to a physics simulation in [CindyLab](CindyLab).
+However, this time it is related to a physics simulation in [CindyLab](CindyLab.md).
 No arguments are required, and it shows the forces on a potential test charge that is placed at various locations on the screen.
 The test charge has mass = 1, charge = 1, and radius = 1.
 However, no other particle will interact with it.
@@ -601,7 +601,7 @@ Here `‹vec›` is a two-dimensional vector that refers to the lower left corne
 When the animation runs, the values are updated and the corresponding curves are drawn.
 
 **Example: ** The next picture shows a very simple application of the `drawcurves` operator.
-In [CindyLab](CindyLab), a physical pendulum was constructed.
+In [CindyLab](CindyLab.md), a physical pendulum was constructed.
 The following code produces a curve plot of the *x* coordinate of the moving point and of its *x* velocity:
 
     > drawcurves([0,0],[D.x,D.vx])

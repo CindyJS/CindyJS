@@ -1,7 +1,7 @@
 ##  TeX Rendering
 
 Starting with version 2.4 of Cinderella the text rendering became significantly more powerful.
-It is now also possible to render formulas using a variant of the TeX typesetting language [[Knu93]](References).
+It is now also possible to render formulas using a variant of the TeX typesetting language [[Knu93]](References.md).
 This language is standard for mathematical documents and allows for the description of very complex formulas.
 Currently Cinderella covers about 95% of the formatting capabilities of the TeX formula language.
 We here only report on the most important formatting issues.

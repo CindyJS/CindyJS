@@ -20,7 +20,7 @@ Finally, the `greset` operator sets the stack back to its initial state.
 In addition to appearance information, information on the local coordinate system is stored as well.
 
 **See also:**
-[Script Coordinate System](Script_Coordinate_System)
+[Script Coordinate System](Script_Coordinate_System.md)
 
 ------
 

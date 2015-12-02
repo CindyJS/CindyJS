@@ -1,7 +1,7 @@
 ## Arithmetic Operators
 
 The following section summarizes all functions and operators that can be applied to numbers.
-There are also many other mathematical operations, and these can be found in the sections [Vectors and Matrices](Vectors_and_Matrices), [Geometric Operators](Geometric_Operators), and [Function Plotting](Function_Plotting).
+There are also many other mathematical operations, and these can be found in the sections [Vectors and Matrices](Vectors_and_Matrices.md), [Geometric Operators](Geometric_Operators.md), and [Function Plotting](Function_Plotting.md).
 
 ### Infix Operators
 
@@ -27,7 +27,7 @@ Lists having the same structure can also be added; then the addition is carried 
 | `[2,3,[1,2]] + [3,4,[1,3]]` | `[5,7,[2,5]]` |
 
 **See also:**
-[String Operators](String_Operators)
+[String Operators](String_Operators.md)
 
 ------
 
@@ -47,7 +47,7 @@ Furthermore, the `-` operator can be used as a unary minus.
 | `[5,3,[1,2]] - [3,4,[1,3]]` | `[2,-1,[0,-1]]` |
 
 **See also:**
-[String Operators](String_Operators)
+[String Operators](String_Operators.md)
 
 ------
 
@@ -70,7 +70,7 @@ See the examples for further description.
 | `[[1,2],[3,4]] * [[1,2],[3,4]]` | `[[7,10],[15,22]]` (product of two matrices)                                               |
 
 **See also:**
-[Vectors and Matrices](Vectors_and_Matrices)
+[Vectors and Matrices](Vectors_and_Matrices.md)
 
 ------
 

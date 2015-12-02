@@ -289,21 +289,21 @@ This operator tests whether the expression `‹expr›` represents a geometric c
 #### Is a mass: `ismass(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab) mass.
+This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) mass.
 
 ------
 
 #### Is a sun: `issun(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab) sun.
+This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) sun.
 
 ------
 
 #### Is a spring: `isspring(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab) spring.
+This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) spring.
 
 ------
 
