@@ -1034,6 +1034,28 @@ List.projectiveDistMinScal = function(a, b) {
 
 };
 
+function conicMat2Vec(m) {
+    var v = m.value;
+    var r0 = v[0].value;
+    var r1 = v[1].value;
+    var r2 = v[2].value;
+    return List.turnIntoCSList([
+        r0[0],
+        CSNumber.add(r0[1], r1[0]),
+        CSNumber.add(r0[2], r2[0]),
+        r1[1],
+        CSNumber.add(r1[2], r2[1]),
+        r2[2]
+    ]);
+}
+
+List.conicDist = function(mat1, mat2) {
+    var vec1 = conicMat2Vec(mat1);
+    var vec2 = conicMat2Vec(mat2);
+    console.log(niceprint(vec1), niceprint(vec2));
+    return List.projectiveDistMinScal(vec1, vec2);
+};
+
 List.crossOperator = function(a) {
 
     var x = a.value[0];
