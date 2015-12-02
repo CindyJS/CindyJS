@@ -782,11 +782,9 @@ geoOps.SelectConic.initialize = function(el) {
     ]);
     var set = csgeo.csnames[(el.args[0])].results;
     var d1 = List.conicDist(pos, set[0]);
-    console.log("d1=", d1);
     var best = 0;
     for (var i = 1; i < set.length; ++i) {
         var d2 = List.conicDist(pos, set[i]);
-        console.log("d2=", d2);
         if (d2 < d1) {
             d1 = d2;
             best = i;
@@ -797,6 +795,8 @@ geoOps.SelectConic.initialize = function(el) {
 geoOps.SelectConic.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
     el.matrix = set.results[el.param];
+    el.matrix = List.normalizeMax(el.matrix);
+    el.matrix = General.withUsage(el.matrix, "Conic");
 };
 
 // conic by 4 Points and 1 line
