@@ -256,6 +256,15 @@ Here is a list of important commands.
   each of which has a property called `search` which is a regular expression
   and a property `replace` which is a string.
   They are applied in sequence via `String.prototype.replace`.
+* **forbidden(files, expressions):**
+  Report occurrences of forbidden patterns in the named files.
+  `files` is expected to be a pattern to be fed to
+  [glob](https://www.npmjs.com/package/glob) while `patterns` is an array of
+  [regular expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp).
+  Only the matched text will be printed,
+  so in order to print the whole line surround the pattern with `.*`.
+  Patterns should in general use the `g` flag to report multiple
+  occurrences of a forbidden pattern separately.
 * **download(url, dst):**
   Download file from `url` and store it at `dst`.
 * **unzip(src, dst[, files]):**

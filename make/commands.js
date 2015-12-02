@@ -2,6 +2,7 @@
 
 var cp = require("child_process");
 var fs = require("fs");
+var glob = require("glob");
 var path = require("path");
 var Q = require("q");
 var qfs = require("q-io/fs");
@@ -161,6 +162,37 @@ exports.replace = function(src, dst, replacements) {
                 replacement.search, replacement.replace);
         });
         return content;
+    });
+};
+
+exports.forbidden = function(files, expressions) {
+    var task = this;
+    this.addJob(function() {
+        var opts = { nodir: true };
+        task.log("Looking for " + expressions.length + " forbidden pattern" +
+                 (expressions.length === 1 ? "" : "s") + " in " + files);
+        return Q.nfcall(glob, files, opts).then(function(files) {
+            var errors = 0;
+            return Q.all(files.map(function(path) {
+                return qfs.read(path).then(function(content) {
+                    expressions.forEach(function(expression) {
+                        var match;
+                        while ((match = expression.exec(content))) {
+                            var lineno =
+                                content.substr(0, match.index)
+                                .split("\n").length;
+                            console.error(path + ":" + lineno + ":" + match[0]);
+                            ++errors;
+                            if (!expression.global) break;
+                        }
+                    });
+                });
+            })).then(function() {
+                if (errors !== 0) throw new BuildError(
+                    "Forbidden pattern" + (errors === 1 ? "" : "s") +
+                    " detected");
+            });
+        });
     });
 };
 

@@ -131,13 +131,14 @@ module.exports = function build(settings, task) {
     // Check for forbidden patterns in certain files
     //////////////////////////////////////////////////////////////////////
 
-    /*
-    forbidden:
-        ! grep -Ero "<script[^>]*type *= *[\"'][^\"'/]*[\"']" examples
-        ! grep -Ero "<script[^>]*type *= *[\"']text/cindyscript[\"']" examples
-        ! grep -Er "firstDrawing" examples
-        ! grep -Er 'cinderella\.de/.* /Cindy.*\.js' examples
-    */
+    task("forbidden", [], function() {
+        this.forbidden("examples/**/*", [
+            /<script[^>]*type *= *["'][^"'\/]*["']/g,
+            /<script[^>]*type *= *["']text\/cindyscript["']/g,
+            /.*firstDrawing.*/g,
+            /.*cinderella\.de\/.*\/Cindy.*\.js.*/g,
+        ]);
+    });
 
     //////////////////////////////////////////////////////////////////////
     // Check that the code has been beautified
@@ -149,6 +150,7 @@ module.exports = function build(settings, task) {
         "beautified",
         "deploy",
         "textattr",
+        "forbidden",
     ]);
     
     task("beautified", [], function() {
