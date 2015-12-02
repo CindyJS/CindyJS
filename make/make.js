@@ -12,8 +12,8 @@ var Q = require("q");
 var qfs = require("q-io/fs");
 var rimraf = require("rimraf");
 
-var settings = require("./settings");
-var tasks = require("./tasks");
+var settings = require("./Settings");
+var tasks = require("./Tasks");
 var BuildError = require("./BuildError");
 
 function addNodePath() {

@@ -13,7 +13,7 @@ If multiple settings use the same name, the last one is in effect.
 Settings and tasks may be mixed on the command line,
 but even the all settings are applied before the first task gets executed.
 
-The list of preset settings can be found in [`settings.js`](settings.js).
+The list of preset settings can be found in [`Settings.js`](Settings.js).
 In addition to these, some parts of the configuration may respond to
 additional settings, even though these are not defined by default.
 Grep the code for `settings.get` and `settings.use` if you need to know.
@@ -115,7 +115,7 @@ in very different ways.
 
 ### Handling of settings
 
-In [`settings.js`](settings.js) is both a list of predefined settings
+In [`Settings.js`](Settings.js) is both a list of predefined settings
 and the machinery to deal with settings.
 
 Using `get`, a setting may be retrieved.
@@ -262,7 +262,7 @@ It performs the following steps in order:
 ### Task logic
 
 Each task is represented as an instance of the `Task` constructor
-defined in [`tasks.js`](tasks.js).
+defined in [`Task.js`](Task.js).
 Apart from the command definitions imported from `commands.js`,
 there are various methods to control the execution of a task.
 

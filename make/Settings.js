@@ -9,7 +9,7 @@
 var fs = require("fs");
 var Q = require("q");
 
-var tasks = require("./tasks");
+var tasks = require("./Tasks");
 
 var prevSettingsFile = "build/prev-settings.json";
 

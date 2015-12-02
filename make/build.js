@@ -1,8 +1,8 @@
 "use strict";
 
-var task = require("./tasks").task;
+var task = require("./Tasks").task;
 var src = require("./sources");
-var settings = require("./settings");
+var settings = require("./Settings");
 var glob = require("glob");
 var path = require("path");
 

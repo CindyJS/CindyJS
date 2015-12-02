@@ -11,7 +11,6 @@ var touch = require("touch");
 var unzip = require("unzip");
 
 var BuildError = require("./BuildError");
-var setting = require("./settings").get;
 
 /**
  * Adds a job for running a node module or other command.
