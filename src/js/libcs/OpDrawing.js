@@ -682,7 +682,7 @@ eval_helper.drawconic = function(aConic, modifs) {
         var largeSqrt = Math.sqrt(a * (-a * c * f + a * Math.pow(e, 2) + Math.pow(b, 2) * f - 2 * b * d * e + c * Math.pow(d, 2)));
         var deNom = a * c - Math.pow(b, 2);
 
-        if (deNom !== 0) {
+        if (Math.abs(deNom) > eps) {
             y0 = (aebd - largeSqrt) / deNom;
             y1 = (aebd + largeSqrt) / deNom;
         } else {
