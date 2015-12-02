@@ -1033,6 +1033,37 @@ geoOps.ConicBy1p4l.updatePosition = function(el) {
 
 };
 
+geoOps.ConicParabolaPL = {};
+geoOps.ConicParabolaPL.kind = "C";
+geoOps.ConicParabolaPL.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog; // focus point
+    var a = csgeo.csnames[(el.args[1])].homog; // directrix line
+    // The direction of the directrix line
+    var dd = List.cross(a, List.linfty);
+    // The perpendicular direction of the directrix line
+    var dp = List.cross(dd, List.linfty);
+    // Parallel line through focus point in the direction of the directrix line
+    // forms both lines of one degenerate conic
+    var e = List.cross(A, dd);
+    // Line through focus point in the perpendicular direction of directrix line
+    var b = List.cross(A, dp);
+    // Point B is the projection of the focus point onto the directrix line
+    var B = List.cross(a, b);
+    // Create both both angle bisector lines through point B from the
+    // direction of the directrix and its perpendicular direction
+    var c = List.cross(B, List.sub(dd, dp));
+    var d = List.cross(B, List.add(dd, dp));
+    // Midpoint of point A and point B
+    var C = List.add(List.normalizeZ(A), List.normalizeZ(B));
+    // Line c and line d make up the other degenerate conic
+    var vc = List.turnIntoCSList([c]);
+    var vd = List.turnIntoCSList([d]);
+    var ve = List.turnIntoCSList([e]);
+    el.matrix = geoOps._helper.conicFromTwoDegenerates(vc, vd, ve, ve, C);
+    el.matrix = List.normalizeMax(el.matrix);
+    el.matrix = General.withUsage(el.matrix, "Conic");
+};
+
 geoOps.ConicBy2Foci1P = {};
 geoOps.ConicBy2Foci1P.kind = "Cs";
 geoOps.ConicBy2Foci1P.updatePosition = function(el) {

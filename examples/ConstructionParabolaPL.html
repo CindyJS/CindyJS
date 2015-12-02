@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ConstructionParabolaPL.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ -2.5954198473282437, -4.0, -0.7633587786259541 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "a", type: "FreeLine", pos: [ -0.5192878338278932, -1.85459940652819, 4.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C0", type: "ConicParabolaPL", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "a" ], printname: "$C_{0}$" } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>
