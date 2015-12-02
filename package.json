@@ -27,7 +27,7 @@
     "unzip": "^0.1.11"
   },
   "scripts": {
-    "prepublish": "node make/index.js call_npm=false clean all",
+    "prepublish": "node make/index.js call_npm=false parallel=true all",
     "test": "node make/index.js call_npm=false alltests"
   },
   "repository": {

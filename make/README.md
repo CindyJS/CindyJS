@@ -21,10 +21,14 @@ Grep the code for `settings.get` and `settings.use` if you need to know.
 Some of the settings which are more likely overridden on the command
 line include
 
-* **js_compiler** which should be one of `closure` (default) or `plain`
+* **parallel** can be set to `true` to run tasks in parallel if possible,
+  `false` to even run jobs marked for parallel execution sequentially,
+  or any other value to run designated jobs in parallel but tasks sequentially
+  which is the default.
+* **js_compiler** which should be one of `closure` (default) or `plain`.
 * **closure_version**
 * **gwt_version**
-* **gwt_args** which could be set to e.g. `-style PRETTY`
+* **gwt_args** which could be set to e.g. `-style PRETTY`.
 
 ### Tasks
 

@@ -52,6 +52,32 @@ exports.current = function() {
     return currentTask;
 };
 
+/* Execute the named tasks sequentially or in parallel
+ * depending on the “parallel” setting.
+ * Returns an array of booleans indicating which tasks got run.
+ */
+exports.schedule = function(taskNames) {
+    if (settings.get("parallel") === "true") {
+        return Q.all(taskNames.map(function(name){
+            return exports.get(name).promise();
+        }));
+    }
+    else {
+        var results = [];
+        var promise = Q();
+        taskNames.forEach(function(name) {
+            var task = exports.get(name);
+            promise = promise
+                .then(task.promise.bind(task))
+                .then(function(result) {
+                    results.push(result);
+                    return results;
+                });
+        });
+        return promise;
+    }
+};
+
 /* Constructor for task objects.
  */
 function Task(name, deps) {
@@ -87,6 +113,10 @@ Task.prototype.addJob = function(job) {
  * parallel.
  */
 Task.prototype.parallel = function(callback) {
+    if (settings.get("parallel") === "false") {
+        callback.call(this);
+        return;
+    }
     var backup = this.jobs;
     var lst = this.jobs = [];
     callback.call(this);
@@ -206,8 +236,7 @@ Task.prototype.promise = function() {
         this.mustRun()
         .then(function(doRun) {
             if (!doRun) return false;
-            return task
-                .allDeps(function(dep) { return dep.promise(); })
+            return exports.schedule(task.deps)
                 .then(task.mkdirs.bind(task))
                 .then(task.run.bind(task))
                 .then(function() {
@@ -241,5 +270,5 @@ Task.prototype.mkdirs = function() {
 };
 
 Task.prototype.run = function() {
-    return this.jobs.reduce(Q.when, Q(true));
+    return this.jobs.reduce(Q.when, Q());
 };

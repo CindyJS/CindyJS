@@ -36,9 +36,7 @@ module.exports = function make(tasksToRun, doClean) {
         return qfs.makeTree("build", 7*8*8 + 7*8 + 7)
     })
     .then(function() {
-        return Q.all(tasksToRun.map(function(name) {
-            return tasks.get(name).promise();
-        }))
+        return tasks.schedule(tasksToRun);
     })
     .then(function(ran) {
         if (ran.indexOf(true) === -1 && settings.get("verbose") !== "") {
