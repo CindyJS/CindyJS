@@ -24,7 +24,7 @@ function MyRenderer() {
 util.inherits(MyRenderer, marked.Renderer);
 
 MyRenderer.prototype.code = function(code, lang) {
-  if (lang) return marked.Renderer.prototype.code(code, lang);
+  if (lang) return marked.Renderer.prototype.code.call(this, code, lang);
   // console.log("code='" + code + "'")
   var lines = code.split("\n");
   var n = lines.length, i;
@@ -117,6 +117,12 @@ MyRenderer.prototype.heading = function(text, level, raw) {
   this.cjsUsedAnchors[id] = raw;
   return '<h' + level + ' id="' + id + '">' + text +
     '<a class="hlink" href="#' + id + '"></a></h' + level + '>\n';
+};
+
+MyRenderer.prototype.link = function(href, title, text) {
+  if (href.indexOf("//") === -1)
+    href = href.replace(/\.md$/, ".html");
+  return marked.Renderer.prototype.link.call(this, href, title, text);
 };
 
 function makeOpts() {
