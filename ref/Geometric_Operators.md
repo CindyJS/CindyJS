@@ -233,21 +233,21 @@ Returns a matrix that represents a translation that maps `‹point1›` to `‹p
 
 ------
 
-#### Similarity: `map(‹point1›,‹point2›,‹point3›,‹point4›)`
+#### Similarity: `map(‹point1›,‹point3›,‹point2›,‹point4›)`
 
 **Description:**
 Returns a matrix that represents a similarity that maps `‹point1›` to `‹point2›` and `‹point3›` to `‹point4›`.
 
 ------
 
-#### Affine transformation: `map(‹point1›,‹point2›,‹point3›,‹point4›, ‹point5›,‹point6›)`
+#### Affine transformation: `map(‹point1›,‹point3›,‹point5›,‹point2›, ‹point4›,‹point6›)`
 
 **Description:**
 Returns a matrix that represents an affine transformation that maps `‹point1›` to `‹point2›`, `‹point3›` to `‹point4›`, and `‹point5›` to `‹point6›`.
 
 ------
 
-#### Projective transformation: `map(‹point1›,‹point2›,‹point3›,‹point4›, ‹point5›,‹point6›,‹point7›,‹point8›)`
+#### Projective transformation: `map(‹point1›,‹point3›,‹point5›,‹point7›, ‹point2›,‹point4›,‹point6›,‹point8›)`
 
 **Description:**
 Returns a matrix that represents a projective transformation that maps `‹point1›` to `‹point2›`, `‹point3›` to `‹point4›`, `‹point5›` to `‹point6›`, and `‹point7›` to `‹point8›`.

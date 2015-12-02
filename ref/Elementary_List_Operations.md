@@ -99,7 +99,7 @@ This operator can equivalently be written as `‹list1›~~‹list2›`.
 
 **Description:**
 This operator returns a list that is created by appending `‹expr›` to the list `‹list›` as its last element.
-` This operator can equivalently be written as `‹list›:›‹expr›`.`
+This operator can equivalently be written as `‹list›:›‹expr›`.
 
 | Code                           | Result                |
 | ------------------------------ | --------------------- |
@@ -112,7 +112,7 @@ This operator returns a list that is created by appending `‹expr›` to the li
 
 **Description:**
 This operator returns a list that is created by prepending `‹expr›` to the list `‹list›` as its first element.
-` This operator can equivalently be written as `‹expr›‹:‹list›`.`
+This operator can equivalently be written as `‹expr›‹:‹list›`.
 
 | Code                           | Result                |
 | ------------------------------ | --------------------- |
