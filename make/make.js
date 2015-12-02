@@ -12,8 +12,6 @@ var Q = require("q");
 var qfs = require("q-io/fs");
 var rimraf = require("rimraf");
 
-var settings = require("./Settings");
-var tasks = require("./Tasks");
 var BuildError = require("./BuildError");
 
 function addNodePath() {
@@ -22,7 +20,7 @@ function addNodePath() {
         path.delimiter + process.env.PATH;
 }
 
-module.exports = function make(tasksToRun, doClean) {
+module.exports = function make(settings, tasks, tasksToRun, doClean) {
     addNodePath();
     if (tasksToRun.length === 0 && !doClean)
         tasksToRun = ["all"];

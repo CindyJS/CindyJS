@@ -9,64 +9,58 @@
 var fs = require("fs");
 var Q = require("q");
 
-var tasks = require("./Tasks");
-
 var prevSettingsFile = "build/prev-settings.json";
 
-var configSettings = {
-    js_compiler: "closure",
-    closure_urlbase: "http://dl.google.com/closure-compiler",
-    closure_language: "ECMASCRIPT5_STRICT",
-    closure_level: "SIMPLE",
-    closure_version: "20150126",
-    verbose: "true",
-    c3d_closure_level: "ADVANCED",
-    c3d_closure_warnings: "VERBOSE",
-    gwt_version: "2.7.0",
-    gwt_urlbase: "http://storage.googleapis.com/gwt-releases",
-    gwt_args: "",
-};
+module.exports = function Settings() {
 
-var perTaskSettings = {};
+    var configSettings = {
+        js_compiler: "closure",
+        closure_urlbase: "http://dl.google.com/closure-compiler",
+        closure_language: "ECMASCRIPT5_STRICT",
+        closure_level: "SIMPLE",
+        closure_version: "20150126",
+        verbose: "true",
+        c3d_closure_level: "ADVANCED",
+        c3d_closure_warnings: "VERBOSE",
+        gwt_version: "2.7.0",
+        gwt_urlbase: "http://storage.googleapis.com/gwt-releases",
+        gwt_args: "",
+    };
 
-exports.use = function(key) {
-    var val = configSettings[key];
-    var currentTask = tasks.current();
-    if (val !== undefined)
-        currentTask.settings[key] = val;
-    var name = currentTask.name;
-    var task = perTaskSettings[name];
-    var prev = task ? task[key] : undefined;
-    if (prev !== val)
-        currentTask.forceRun("setting '" + key + "' changed value");
-    return val;
-};
+    var perTaskSettings = {};
 
-exports.get = function(key) {
-    return configSettings[key];
-};
+    this.get = function(key) {
+        return configSettings[key];
+    };
 
-exports.set = function(key, val) {
-    configSettings[key] = val;
-};
+    this.set = function(key, val) {
+        configSettings[key] = val;
+    };
 
-exports.store = function() {
-    var json = JSON.stringify(perTaskSettings);
-    // Can't use qfs: https://github.com/kriskowal/q-io/issues/149
-    //return qfs.write(prevSettingsFile, json);
-    return Q.nfcall(fs.writeFile, prevSettingsFile, json);
-};
+    this.prevSetting = function(taskName, key) {
+        var task = perTaskSettings[taskName];
+        return task ? task[key] : undefined;
+    };
 
-exports.load = function() {
-    var json = fs.readFileSync(prevSettingsFile, "utf-8");
-    perTaskSettings = JSON.parse(json) || {};
-};
+    this.store = function() {
+        var json = JSON.stringify(perTaskSettings);
+        // Can't use qfs: https://github.com/kriskowal/q-io/issues/149
+        //return qfs.write(prevSettingsFile, json);
+        return Q.nfcall(fs.writeFile, prevSettingsFile, json);
+    };
 
-exports.remember = function(taskName, values) {
-    if (Object.keys(values).length !== 0)
-        perTaskSettings[taskName] = values;
-};
+    this.load = function() {
+        var json = fs.readFileSync(prevSettingsFile, "utf-8");
+        perTaskSettings = JSON.parse(json) || {};
+    };
 
-exports.forget = function(taskName) {
-    delete perTaskSettings[taskName];
+    this.remember = function(taskName, values) {
+        if (Object.keys(values).length !== 0)
+            perTaskSettings[taskName] = values;
+    };
+
+    this.forget = function(taskName) {
+        delete perTaskSettings[taskName];
+    };
+
 };

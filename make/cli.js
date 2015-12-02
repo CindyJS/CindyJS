@@ -10,12 +10,14 @@ var Q = require("q");
 Q.longStackSupport = true;
 
 var Settings = require("./Settings");
-var build = require("./build");
+var Tasks = require("./Tasks");
+var buildRules = require("./build");
 var make = require("./make");
 
 function main(args) {
 
     var settings = new Settings();
+    var tasks = new Tasks();
     var tasksToRun = [];
     var doClean = false;
 
@@ -38,10 +40,11 @@ function main(args) {
     }
     settings.set = null; // Safety precaution against later modification
 
-    build(settings); // Execute command definitions
+    var tasks = new Tasks(settings);
+    buildRules(settings, tasks.task); // Execute task definitions
 
     // Now run the selected tasks
-    process.nextTick(make.bind(null, settings, tasksToRun, doClean));
+    process.nextTick(make.bind(null, settings, tasks, tasksToRun, doClean));
 }
 
 if (require.main === module)

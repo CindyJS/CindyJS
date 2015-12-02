@@ -108,41 +108,62 @@ without triggering the build system in an infinite recursion.
 ### Command line parsing
 
 The file [`cli.js`](cli.js) is responsible for command line parsing.
-It applies the settings from the command line,
-and only then loads the task descriptions from `build.js`.
-The order is important here, since the settings may affect the tasks
-in very different ways.
+
+It also ties in most of the other parts of the system:
+it instantiates a [`Settings`](Settings.js) object
+and configures it with the settings given on the command line,
+it instantiates a [`Tasks`](Tasks.js) registry and
+calls to [`build.js`](build.js) to fill it with task definitions
+before delegating to [`make.js`](make.js) to run the selected tasks.
 
 ### Handling of settings
 
 In [`Settings.js`](Settings.js) is both a list of predefined settings
 and the machinery to deal with settings.
+The `Settings` constructor will instantiate a registry,
+so that multiple builds can use different settings
+even within the same node process.
 
 Using `get`, a setting may be retrieved.
-Using `use`, the setting is not only retrieved,
-but also associated with the task currently being defined.
+
+However, for a given [task](Task.js), the
+`task.setting` method is to be preferred.
+It not only retrieves the setting,
+but also associates it with the current task.
+Changes in that setting will mark the current task as outdated
+even if all its outputs are more recent than its inputs.
 So if a change in setting may cause a task to create
 a different output under the same output file name
 (as can be expected for e.g. a change in compiler version),
-then `settings.use` should be used.
+then `task.setting` should be used.
 If, on the other hand, the setting value is somehow encoded in the
 output file name (like e.g. the version number in the output of some
 download task), then `settings.get` is sufficient.
-Outside tasks, `settings.use` is not available.
 If settings used outside tasks affect the results of some tasks,
-these tasks should again call `settings.use` to indicate this fact.
+these tasks should again call `task.setting` to indicate this fact.
 
 The `load` and `store` functions maintain a JSON file containing the
 settings which were in use the last time each task got executed.
 The `remember` and `forget` update the in-memory representation
 of this information.
 
-### Task definitions
+### Registry of tasks
 
-Once the settings are in place, [`build.js`](build.js) is loaded.
+The tasks which are about to be defined are collected in a registry
+described in [`Tasks.js`](Tasks.js).
+It's mostly a map from task names to corresponding instance objects,
+but it also has some added functionality
+e.g. to schedule several tasks for execution.
+It also provides a factory method called `task`
+which is used by [`build.js`](build.js) to define the actual tasks.
+
+### Project-specific task definitions
+
+Once the settings and registry of tasks are in place,
+the function exported from [`build.js`](build.js) gets executed.
 It contains a sequence of task definitions.
 In this it closely resembles a Makefile or similar build description file.
-A task is defined using the `task` function, which accepts three arguments:
+A task is defined using the `task` factory, which accepts three arguments:
 the name of the task, its dependencies and its definition function.
 
 ```js
@@ -166,7 +187,7 @@ It is executed in a context where `this` is bound to the current task,
 and functions to describe jobs are available on `this` task object.
 So basically the function should call some of these functions,
 declare some input and output files using `this.input` and `this.output`,
-or declare a dependency on some setting using `settings.use`.
+or declare a dependency on some setting using `this.setting`.
 
 ### Available commands
 

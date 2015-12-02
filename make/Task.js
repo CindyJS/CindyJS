@@ -14,18 +14,19 @@ var path = require("path");
 var fs = require("fs");
 
 var commands = require("./commands");
-var settings = require("./Settings");
 
 module.exports = Task;
 
 /* Constructor for task objects.
  */
-function Task(name, deps) {
+function Task(settings, tasks, name, deps) {
+    this.settings = settings;
+    this.tasks = tasks;
     this.name = name;
     this.deps = deps;
     this.outputs = [];
     this.inputs = [];
-    this.settings = {};
+    this.mySettings = {};
     this.jobs = [];
 }
 
@@ -35,8 +36,18 @@ for (var cmd in commands) {
     Task.prototype[cmd] = commands[cmd];
 }
 
+Task.prototype.setting = function(key) {
+    var val = this.settings.get(key);
+    if (val !== undefined)
+        this.mySettings[key] = val;
+    var prev = this.settings.prevSetting(this.name, key);
+    if (prev !== val)
+        this.forceRun("setting '" + key + "' changed value");
+    return val;
+};
+
 Task.prototype.log = function() {
-    if (settings.get("verbose") !== "")
+    if (this.settings.get("verbose") !== "")
         console.log.apply(console, arguments);
 };
 
@@ -53,7 +64,7 @@ Task.prototype.addJob = function(job) {
  * parallel.
  */
 Task.prototype.parallel = function(callback) {
-    if (settings.get("parallel") === "false") {
+    if (this.settings.get("parallel") === "false") {
         callback.call(this);
         return;
     }
@@ -96,8 +107,9 @@ Task.prototype.forceRun = function(message) {
 
 
 Task.prototype.allDeps = function(f) {
+    var tasks = this.tasks;
     return Q.all(this.deps.map(function(name) {
-        return f(exports.get(name));
+        return f(tasks.get(name));
     }));
 };
 
@@ -122,7 +134,7 @@ Task.prototype.mustRun = function() {
         return this.mustRunCache;
     var task = this;
     var log = function(){};
-    if (settings.get("debug"))
+    if (this.settings.get("debug"))
         log = function(msg) { console.log(task.name + " " + msg); };
     if (this.outputs.length === 0 && this.jobs.length !== 0) {
         // There are no outputs, so this task runs for its side effects.
@@ -176,16 +188,16 @@ Task.prototype.promise = function() {
         this.mustRun()
         .then(function(doRun) {
             if (!doRun) return false;
-            return exports.schedule(task.deps)
+            return task.tasks.schedule(task.deps)
                 .then(task.mkdirs.bind(task))
                 .then(task.run.bind(task))
                 .then(function() {
                     // successful run: remember the settings in use
-                    settings.remember(task.name, task.settings);
+                    task.settings.remember(task.name, task.mySettings);
                     return true;
                 }, function(err) {
                     // failed run: forget all settings just to be safe
-                    settings.forget(task.name);
+                    task.settings.forget(task.name);
                     // try to delete all outputs, but ignore any errors
                     function rethrow() { throw err; }
                     return Q.allSettled(task.outputs.forEach(function(name) {
