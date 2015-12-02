@@ -53,7 +53,7 @@ exports.node = function(module) {
     this.cmd.apply(this, [null].concat(args));
 };
 
-exports.cmdscript = function(module) {
+exports.cmdscript = function(script) {
     var args = Array.prototype.slice.call(arguments);
     if (process.platform.substr(0, 3) === "win")
         args[0] += ".cmd";

@@ -30,11 +30,12 @@ exports.task = function(name, deps, definition) {
         throw Error("Invalid arguments for " + name);
     if (tasks.hasOwnProperty(name))
         throw Error("Dulicate name " + name);
-    currentTask = new Task(name, deps);
+    var res = currentTask = new Task(name, deps);
     if (definition)
-        definition.call(currentTask);
-    tasks[name] = currentTask;
+        definition.call(res);
+    tasks[name] = res;
     currentTask = null;
+    return res;
 };
 
 /* Retrieve a task by name. Thows an error if no match is found.

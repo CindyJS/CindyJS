@@ -6,7 +6,12 @@
  * affect various aspects of the build process.
  */
 
+var fs = require("fs");
+var Q = require("q");
+
 var tasks = require("./tasks");
+
+var prevSettingsFile = "build/prev-settings.json";
 
 var configSettings = {
     js_compiler: "closure",
@@ -46,10 +51,14 @@ exports.set = function(key, val) {
 };
 
 exports.store = function() {
-    return JSON.stringify(perTaskSettings);
+    var json = JSON.stringify(perTaskSettings);
+    // Can't use qfs: https://github.com/kriskowal/q-io/issues/149
+    //return qfs.write(prevSettingsFile, json);
+    return Q.nfcall(fs.writeFile, prevSettingsFile, json);
 };
 
-exports.load = function(json) {
+exports.load = function() {
+    var json = fs.readFileSync(prevSettingsFile, "utf-8");
     perTaskSettings = JSON.parse(json) || {};
 };
 

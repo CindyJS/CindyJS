@@ -75,7 +75,7 @@ function haveStat() {
 }
 
 function proceed() {
-    require("./make")(process.argv.slice(2));
+    require("./cli")(process.argv.slice(2));
 }
 
 function restart() {
