@@ -109,22 +109,19 @@ geoOps.Meet.visiblecheck = function(el) {
     el.isshowing = visible;
 };
 
+geoOps._helper.midpoint = function(a, b) {
+    return List.normalizeMax(List.add(
+        List.scalmult(b.value[2], a),
+        List.scalmult(a.value[2], b)));
+};
 
 geoOps.Mid = {};
 geoOps.Mid.kind = "P";
 geoOps.Mid.updatePosition = function(el) {
     var x = csgeo.csnames[(el.args[0])].homog;
     var y = csgeo.csnames[(el.args[1])].homog;
-
-    var line = List.cross(x, y);
-    var infp = List.cross(line, List.linfty);
-    var ix = List.det3(x, infp, line);
-    var iy = List.det3(y, infp, line);
-    var z1 = List.scalmult(iy, x);
-    var z2 = List.scalmult(ix, y);
-    el.homog = List.add(z1, z2);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Point");
+    var res = geoOps._helper.midpoint(x, y);
+    el.homog = General.withUsage(res, "Point");
 };
 
 
@@ -1054,7 +1051,7 @@ geoOps.ConicParabolaPL.updatePosition = function(el) {
     var c = List.cross(B, List.sub(dd, dp));
     var d = List.cross(B, List.add(dd, dp));
     // Midpoint of point A and point B
-    var C = List.add(List.normalizeZ(A), List.normalizeZ(B));
+    var C = geoOps._helper.midpoint(A, B);
     // Line c and line d make up the other degenerate conic
     var vc = List.turnIntoCSList([c]);
     var vd = List.turnIntoCSList([d]);
