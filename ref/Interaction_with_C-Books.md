@@ -116,13 +116,13 @@ set the pinning property to "false" for B and C (or even for all points) in the 
 2.
 and to set it later (e.g., in the "draw" event) to "true".
 
-This can be achieved using the following [CindyScript](CindyScript) code.
-Paste this into the "initialization" event part of the Cinderella "[CindyScript](CindyScript) Editor":
+This can be achieved using the following [CindyScript](CindyScript.md) code.
+Paste this into the "initialization" event part of the Cinderella "[CindyScript](CindyScript.md) Editor":
 
 forall(allpoints(), inspect(,"pinning", false));
 
 In order to pinn the points after having changed the x-coordinates of B and C,
-paste this into the "draw" event part of the Cinderella "[CindyScript](CindyScript) Editor":
+paste this into the "draw" event part of the Cinderella "[CindyScript](CindyScript.md) Editor":
 
 forall(allpoints(), inspect(,"pinning", true));
 
@@ -135,7 +135,7 @@ We will not go into this here.
 
 Moreover, not only coordinates of points can be set via the random parameters feature.
 
-You may change any other numerical property of a Cinderella object which is changeable from [CindyScript](CindyScript) via the syntax
+You may change any other numerical property of a Cinderella object which is changeable from [CindyScript](CindyScript.md) via the syntax
 
 ...
 = integer number

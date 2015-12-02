@@ -6,7 +6,7 @@
 
 We first describe those operators that allow to generate conditional branching and various kinds of loops.
 The user should be aware that there are also other kinds of loop-like structures that arise from the different ways of traversing lists.
-They are described in the section [Elementary List Operations](Elementary_List_Operations).
+They are described in the section [Elementary List Operations](Elementary_List_Operations.md).
 
 #### The conditional operator: `if(‹bool›,‹expr›)`
 

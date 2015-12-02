@@ -58,7 +58,7 @@ A script in this slot is executed whenever the parse button of the script editor
 This slot is very useful for resetting variables or points to an initial state or position.
 
 * **Timer Tick:**
-A script in this slot causes an [animation](Animation) controller to be shown in geometric view (if not already present).
+A script in this slot causes an [animation](Animation.md) controller to be shown in geometric view (if not already present).
 When the play button of the animation controller is pressed, a script in this slot will be regularly executed every few milliseconds.
 
 * **Integration Tick:**
@@ -121,4 +121,4 @@ In this documentation you will find all necessary information for programming in
 However, it is also possible to program in "Python", "JRuby" or in the core Cinderella geometry language.
 These options will be documented later and elsewhere.
 
-You find more information about the ways to enter code in [the corresponding section of the reference manual](The_CindyScript_Editor).
+You find more information about the ways to enter code in [the corresponding section of the reference manual](The_CindyScript_Editor.md).
