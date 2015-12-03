@@ -1736,6 +1736,16 @@ geoMacros.IntersectionConicConic = function(el) {
     return [el];
 };
 
+geoMacros.FreePoint = function(el) {
+    el.type = "Free";
+    return [el];
+};
+
+geoMacros.Orthogonal = function(el) {
+    el.type = "Perp";
+    return [el];
+};
+
 geoMacros.Parallel = function(el) {
     el.type = "Para";
     return [el];
