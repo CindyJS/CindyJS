@@ -422,7 +422,7 @@ eval_helper.drawconic = function(aConic, modifs) {
 
     var ttMatrix = General.mult(tMatrix2, tMatrix1); // get transformation matrix
 
-    var ittMatrix = List.inverse(ttMatrix);
+    var ittMatrix = List.adjoint3(ttMatrix);
 
     // transform Conic
     mat = General.mult(List.transpose(ittMatrix), mat);

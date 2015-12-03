@@ -3253,7 +3253,7 @@ evaluator.currentlanguage$0 = function(args, modifs) {
 
 eval_helper.basismap = function(a, b, c, d) {
     var mat = List.turnIntoCSList([a, b, c]);
-    mat = List.inverse(List.transpose(mat));
+    mat = List.adjoint3(List.transpose(mat));
     var vv = General.mult(mat, d);
     mat = List.turnIntoCSList([
         General.mult(vv.value[0], a),
@@ -3277,7 +3277,7 @@ evaluator.map$8 = function(args, modifs) {
         w0 !== nada && w1 !== nada && w2 !== nada && w3 !== nada) {
         var m1 = eval_helper.basismap(v0, v1, v2, v3);
         var m2 = eval_helper.basismap(w0, w1, w2, w3);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3303,7 +3303,7 @@ evaluator.map$6 = function(args, modifs) {
         w0 !== nada && w1 !== nada && w2 !== nada && w3 !== nada) {
         var m1 = eval_helper.basismap(v0, v1, v2, v3);
         var m2 = eval_helper.basismap(w0, w1, w2, w3);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3322,7 +3322,7 @@ evaluator.map$4 = function(args, modifs) {
         w0 !== nada && w1 !== nada) {
         var m1 = eval_helper.basismap(v0, v1, ii, jj);
         var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3340,7 +3340,7 @@ evaluator.map$2 = function(args, modifs) {
         w0 !== nada && w1 !== nada) {
         var m1 = eval_helper.basismap(v0, v1, ii, jj);
         var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3357,7 +3357,7 @@ evaluator.pointreflect$1 = function(args, modifs) {
     if (v1 !== nada && w0 !== nada && w1 !== nada) {
         var m1 = eval_helper.basismap(w0, v1, ii, jj);
         var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3377,7 +3377,7 @@ evaluator.linereflect$1 = function(args, modifs) {
     if (w0 !== nada && w1 !== nada) {
         var m1 = eval_helper.basismap(w1, w2, ii, jj);
         var m2 = eval_helper.basismap(w1, w2, jj, ii);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
