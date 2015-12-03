@@ -1570,6 +1570,115 @@ geoOps.SelectL.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+geoOps.TrMoebius = {};
+geoOps.TrMoebius.kind = "Tr";
+geoOps.TrMoebius.updatePosition = function(el) {
+    // input RP^2 coordinates mapped to complex numbers
+    // tranform A1, A2, A3, to B1, B2, B3
+
+    var A1 = List.normalizeZ((csgeo.csnames[el.args[0]]).homog);
+    var B1 = List.normalizeZ((csgeo.csnames[el.args[1]]).homog);
+
+    var A2 = List.normalizeZ((csgeo.csnames[el.args[2]]).homog);
+    var B2 = List.normalizeZ((csgeo.csnames[el.args[3]]).homog);
+
+    var A3 = List.normalizeZ((csgeo.csnames[el.args[4]]).homog);
+    var B3 = List.normalizeZ((csgeo.csnames[el.args[5]]).homog);
+
+    // map A1.x, A1.y to A1.x + i*A1.y ...
+    var a1 = CSNumber.complex(A1.value[0].value.real, A1.value[1].value.real);
+    var a2 = CSNumber.complex(A2.value[0].value.real, A2.value[1].value.real);
+    var a3 = CSNumber.complex(A3.value[0].value.real, A3.value[1].value.real);
+    var b1 = CSNumber.complex(B1.value[0].value.real, B1.value[1].value.real);
+    var b2 = CSNumber.complex(B2.value[0].value.real, B2.value[1].value.real);
+    var b3 = CSNumber.complex(B3.value[0].value.real, B3.value[1].value.real);
+
+    // generate products
+    var mult = CSNumber.mult;
+    var one = CSNumber.one;
+    var a1b1 = mult(a1, b1),
+        a2b2 = mult(a2, b2),
+        a3b3 = mult(a3, b3);
+
+    // matrices
+    var matA = List.turnIntoCSList([
+        List.turnIntoCSList([a1b1, b1, one]),
+        List.turnIntoCSList([a2b2, b2, one]),
+        List.turnIntoCSList([a3b3, b3, one])
+    ]);
+
+    var matB = List.turnIntoCSList([
+        List.turnIntoCSList([a1b1, a1, b1]),
+        List.turnIntoCSList([a2b2, a2, b2]),
+        List.turnIntoCSList([a3b3, a3, b3])
+    ]);
+
+    var matC = List.turnIntoCSList([
+        List.turnIntoCSList([a1, b1, one]),
+        List.turnIntoCSList([a2, b2, one]),
+        List.turnIntoCSList([a3, b3, one])
+    ]);
+
+    var matD = List.turnIntoCSList([
+        List.turnIntoCSList([a1b1, a1, one]),
+        List.turnIntoCSList([a2b2, a2, one]),
+        List.turnIntoCSList([a3b3, a3, one])
+    ]);
+
+
+    var a = List.det(matA),
+        b = List.det(matB),
+        c = List.det(matC),
+        d = List.det(matD);
+
+    var moeb = List.turnIntoCSList([
+        List.turnIntoCSList([a, b]),
+        List.turnIntoCSList([c, d])
+    ]);
+
+    el.matrix = List.normalizeMax(moeb);
+};
+
+geoOps.TrMoebiusP = {};
+geoOps.TrMoebiusP.kind = "P";
+geoOps.TrMoebiusP.updatePosition = function(el) {
+    var m = csgeo.csnames[(el.args[0])].matrix;
+    var p = csgeo.csnames[(el.args[1])].homog;
+
+    // split moebius transform to two matrices mat1, mat2
+    // transformed point is then (mat*p1) x (mat2 * p)
+    var a1 = m.value[0].value[0].value.real;
+    var a2 = m.value[0].value[0].value.imag;
+
+    var b1 = m.value[0].value[1].value.real;
+    var b2 = m.value[0].value[1].value.imag;
+
+    var c1 = m.value[1].value[0].value.real;
+    var c2 = m.value[1].value[0].value.imag;
+
+    var d1 = m.value[1].value[1].value.real;
+    var d2 = m.value[1].value[1].value.imag;
+
+    var mat1 = List.turnIntoCSList([
+        List.realVector([-c1, c2, -d1]),
+        List.realVector([c2, c1, d2]),
+        List.realVector([a1, -a2, b1])
+    ]);
+    mat1 = List.normalizeMax(mat1);
+
+    var mat2 = List.turnIntoCSList([
+        List.realVector([-c2, -c1, -d2]),
+        List.realVector([-c1, c2, -d1]),
+        List.realVector([a2, a1, b2])
+    ]);
+    mat2 = List.normalizeMax(mat2);
+
+    var P1 = List.productMV(mat1, p);
+    var P2 = List.productMV(mat2, p);
+
+    el.homog = List.normalizeMax(List.cross(P1, P2));
+    el.homog = General.withUsage(el.homog, "Point");
+};
 
 // Define a projective transformation given four points and their images
 geoOps.TrProjection = {};

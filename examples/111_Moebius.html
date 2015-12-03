@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+// Initialization code, executed once up front.
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+
+// Drawing code, executed whenever the canvas gets redrawn.
+
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  snap:true,
+  grid:1,
+  defaultAppearance: {
+    // See GeoBasics.js for possible attributes.
+  },
+  geometry: [
+    {name:"A1", type:"Free", pos:[0,5], color:[255,0,0], labeled:true},
+    {name:"A2", type:"Free", pos:[0,3], color:[255,0,0], labeled:true},
+    {name:"A3", type:"Free", pos:[0,0], color:[255,0,0], labeled:true},
+    {name:"B1", type:"Free", pos:[3,5], color:[0,255,0], labeled:true},
+    {name:"B2", type:"Free", pos:[3,3], color:[0,255,0], labeled:true},
+    {name:"B3", type:"Free", pos:[3,0], color:[0,255,0], labeled:true},
+
+    {name:"A", type:"Free", pos:[0,2], color:[255,255,0]},
+    {name:"Tr0", type:"TrMoebius", args:["A1","B1","A2","B2","A3","B3"]},
+    {name:"B", type:"TrMoebiusP", args:["Tr0","A"], color:[0, 255, 255]},
+    // For allowed properties, see csinit in GeoBasics.js.
+  ] // End of geometry array.
+});
+
+// Remove all comments after adjusting this template for your use case.
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>
