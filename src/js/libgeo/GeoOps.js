@@ -1137,43 +1137,30 @@ geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
 geoOps.ConicInSquare = {};
 geoOps.ConicInSquare.kind = "C";
 geoOps.ConicInSquare.updatePosition = function(el) {
-    // Setup a 3x3 diagonal matrix using a 3 element vector
-    function diagonalMatrix3(v) {
-        var z = CSNumber.zero;
-        var a = v.value;
-        return List.turnIntoCSList([
-            List.turnIntoCSList([a[0], z, z]),
-            List.turnIntoCSList([z, a[1], z]),
-            List.turnIntoCSList([z, z, a[2]])
-        ]);
-    }
-    // Compute projective transformation from basis to given points
-    function ptstep(a, b, c, d) {
-        var m = List.transpose(List.turnIntoCSList([a, b, c]));
-        var v = List.productMV(List.adjoint3(m), d);
-        return List.productMM(m, diagonalMatrix3(v));
-    }
-    // Compute projective transformation from first set of points to second
-    function pt(a1, b1, c1, d1, a2, b2, c2, d2) {
-        var m1 = ptstep(a1, b1, c1, d1); // first set of points
-        var m2 = ptstep(a2, b2, c2, d2); // second set of points
-        return List.productMM(m2, List.adjoint3(m1));
-    }
     var A = csgeo.csnames[(el.args[0])].homog;
     var B = csgeo.csnames[(el.args[1])].homog;
     var C = csgeo.csnames[(el.args[2])].homog;
     var D = csgeo.csnames[(el.args[3])].homog;
-    var p1 = CSNumber.one;
-    var n1 = CSNumber.real(-1);
-    var S1 = List.turnIntoCSList([p1, p1, p1]);
-    var S2 = List.turnIntoCSList([n1, p1, p1]);
-    var S3 = List.turnIntoCSList([n1, n1, p1]);
-    var S4 = List.turnIntoCSList([p1, n1, p1]);
-    var m = pt(A, B, C, D, S1, S2, S3, S4);
-    var uc = diagonalMatrix3(List.turnIntoCSList([p1, p1, n1])); // unit circle
-    m = List.productMM(List.productMM(List.transpose(m), uc), m);
-    m = List.normalizeMax(m);
-    el.matrix = General.withUsage(m, "Conic");
+    // Compute projective trasnformation from basis to given points (A, B, C, D)
+    var m1T = List.transpose(List.turnIntoCSList([A, B, C]));
+    var v = List.productMV(List.adjoint3(m1T), D).value;
+    // Setup a 3x3 diagonal matrix using the 3 element vector result.
+    var z = CSNumber.zero;
+    var v1dm = List.turnIntoCSList([
+        List.turnIntoCSList([v[0], z, z]),
+        List.turnIntoCSList([z, v[1], z]),
+        List.turnIntoCSList([z, z, v[2]])
+    ]);
+    var m1 = List.productMM(m1T, v1dm);
+    // Compute projective trasnformation from basis to the corners of a square
+    // tangent to a unit circle combined with applying this to the unit circle
+    // matrix. The pre-computed result scaled by 1/16 is used here.
+    var m2Tucm2 = List.realMatrix([[1, 1, -3], [1, 1, 1], [-3, 1, 1]]);
+    // Compute transformation m1 and m2Tucm2
+    var m1a = List.adjoint3(m1);
+    var mC = List.productMM(List.productMM(List.transpose(m1a), m2Tucm2), m1a);
+    mC = List.normalizeMax(mC);
+    el.matrix = General.withUsage(mC, "Conic");
 };
 
 geoOps.ConicBy5lines = {};
