@@ -1146,19 +1146,19 @@ geoOps.ConicInSquare.updatePosition = function(el) {
             List.turnIntoCSList([z, a[1], z]),
             List.turnIntoCSList([z, z, a[2]])
         ]);
-    };
+    }
     // Compute projective transformation from basis to given points
     function ptstep(a, b, c, d) {
         var m = List.transpose(List.turnIntoCSList([a, b, c]));
         var v = List.productMV(List.adjoint3(m), d);
         return List.productMM(m, diagonalMatrix3(v));
-    };
+    }
     // Compute projective transformation from first set of points to second
     function pt(a1, b1, c1, d1, a2, b2, c2, d2) {
         var m1 = ptstep(a1, b1, c1, d1); // first set of points
         var m2 = ptstep(a2, b2, c2, d2); // second set of points
         return List.productMM(m2, List.adjoint3(m1));
-    };
+    }
     var A = csgeo.csnames[(el.args[0])].homog;
     var B = csgeo.csnames[(el.args[1])].homog;
     var C = csgeo.csnames[(el.args[2])].homog;
