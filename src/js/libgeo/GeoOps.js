@@ -1137,33 +1137,43 @@ geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
 geoOps.ConicInSquare = {};
 geoOps.ConicInSquare.kind = "C";
 geoOps.ConicInSquare.updatePosition = function(el) {
+    // Setup a 3x3 diagonal matrix using a 3 element vector
+    function diagonalMatrix3(v) {
+        var z = CSNumber.zero;
+        var a = v.value;
+        return List.turnIntoCSList([
+            List.turnIntoCSList([a[0], z, z]),
+            List.turnIntoCSList([z, a[1], z]),
+            List.turnIntoCSList([z, z, a[2]])
+        ]);
+    };
+    // Compute projective transformation from basis to given points
+    function ptstep(a, b, c, d) {
+        var m = List.transpose(List.turnIntoCSList([a, b, c]));
+        var v = List.productMV(List.adjoint3(m), d);
+        return List.productMM(m, diagonalMatrix3(v));
+    };
+    // Compute projective transformation from first set of points to second
+    function pt(a1, b1, c1, d1, a2, b2, c2, d2) {
+        var m1 = ptstep(a1, b1, c1, d1); // first set of points
+        var m2 = ptstep(a2, b2, c2, d2); // second set of points
+        return List.productMM(m2, List.adjoint3(m1));
+    };
     var A = csgeo.csnames[(el.args[0])].homog;
     var B = csgeo.csnames[(el.args[1])].homog;
     var C = csgeo.csnames[(el.args[2])].homog;
     var D = csgeo.csnames[(el.args[3])].homog;
-    // First create all six possible lines thru A, B, C & D
-    var a = List.cross(A, B);
-    var b = List.cross(B, C);
-    var c = List.cross(C, D);
-    var d = List.cross(D, A);
-    var e = List.cross(A, C);
-    var f = List.cross(B, D);
-    // Now all three additional intersections of the six lines
-    var E = List.cross(e, f);
-    var F = List.cross(a, c);
-    var G = List.cross(b, d);
-    // Line g duplicated is one of the degenerate conics
-    var g = List.cross(E, F);
-    // Find conic tangent point H on line c
-    var h = List.cross(E, G);
-    var H = List.cross(c, h);
-    // Lines b and d make up the other degenerate conic
-    var vb = List.turnIntoCSList([b]);
-    var vd = List.turnIntoCSList([d]);
-    var vg = List.turnIntoCSList([g]);
-    el.matrix = geoOps._helper.conicFromTwoDegenerates(vb, vd, vg, vg, H);
-    el.matrix = List.normalizeMax(el.matrix);
-    el.matrix = General.withUsage(el.matrix, "Conic");
+    var p1 = CSNumber.one;
+    var n1 = CSNumber.real(-1);
+    var S1 = List.turnIntoCSList([p1, p1, p1]);
+    var S2 = List.turnIntoCSList([n1, p1, p1]);
+    var S3 = List.turnIntoCSList([n1, n1, p1]);
+    var S4 = List.turnIntoCSList([p1, n1, p1]);
+    var m = pt(A, B, C, D, S1, S2, S3, S4);
+    var uc = diagonalMatrix3(List.turnIntoCSList([p1, p1, n1])); // unit circle
+    m = List.productMM(List.productMM(List.transpose(m), uc), m);
+    m = List.normalizeMax(m);
+    el.matrix = General.withUsage(m, "Conic");
 };
 
 geoOps.ConicBy5lines = {};
