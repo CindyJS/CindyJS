@@ -1142,12 +1142,7 @@ geoOps.ConicInSquare.updatePosition = function(el) {
     var C = csgeo.csnames[(el.args[2])].homog;
     var D = csgeo.csnames[(el.args[3])].homog;
     // Compute projective transformation from basis to given points (A, B, C, D)
-    var m1T = List.transpose(List.turnIntoCSList([A, B, C]));
-    var v = List.productMV(List.adjoint3(m1T), D).value;
-    // Setup a 3x3 diagonal matrix using the 3 element vector result.
-    var z = CSNumber.zero;
-    var v1dm = geoOps._helper.buildConicMatrix([v[0], z, v[1], z, z, v[2]]);
-    var m1 = List.productMM(m1T, v1dm);
+    var m1 = eval_helper.basismap(A, B, C, D);
     // Compute projective transformation from basis to the corners of a square
     // tangent to a unit circle combined with applying this to the unit circle
     // matrix. The pre-computed constant result scaled by 1/16 is created here.
