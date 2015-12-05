@@ -656,12 +656,17 @@ geoOps.Compass.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[2])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
     var c = csgeo.csnames[(el.args[0])].homog;
-    m = List.normalizeZ(m);
-    b = List.normalizeZ(b);
-    c = List.normalizeZ(c);
+    // Scale each point's homogeneous coordinates by the other two
+    // point's z-value to allow addtion and subtraction to be valid.
+    var mZ = m.value[2];
+    var bZ = b.value[2];
+    var cZ = c.value[2];
+    m = List.scalmult(CSNumber.mult(bZ, cZ), m);
+    b = List.scalmult(CSNumber.mult(mZ, cZ), b);
+    c = List.scalmult(CSNumber.mult(mZ, bZ), c);
     var diff = List.sub(b, c);
     var p = List.add(diff, m);
-    p = List.normalizeZ(p);
+    p = List.normalizeMax(p);
 
     var matrix = geoOps._helper.CircleMP(m, p);
     matrix = List.normalizeMax(matrix);
