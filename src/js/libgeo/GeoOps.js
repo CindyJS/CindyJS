@@ -1041,6 +1041,9 @@ geoOps.ConicParabolaPL.updatePosition = function(el) {
      *  [-(Fx*dx^2 + Fx*dy^2 + Fz*dx*dz)*Fz,
      *   -(Fy*dx^2 + Fy*dy^2 + Fz*dy*dz)*Fz,
      *   Fx^2*dx^2 + Fy^2*dx^2 + Fx^2*dy^2 + Fy^2*dy^2 - Fz^2*dz^2]]
+     * For derivation see https://github.com/CindyJS/CindyJS/pull/126
+     * or http://math.stackexchange.com/a/1557496/35416
+     * or https://gist.github.com/gagern/5a1d6d4663c3da6f52dd
      */
     var mult = CSNumber.mult;
     var neg = CSNumber.neg;
@@ -1066,11 +1069,7 @@ geoOps.ConicParabolaPL.updatePosition = function(el) {
     var zz = sub(
         mult(add(mult(Fx, Fx), mult(Fy, Fy)), dx2pdy2),
         mult(Fz2, mult(dz, dz)));
-    var m = List.turnIntoCSList([
-        List.turnIntoCSList([xx, xy, xz]),
-        List.turnIntoCSList([xy, yy, yz]),
-        List.turnIntoCSList([xz, yz, zz])
-    ]);
+    var m = geoOps._helper.buildConicMatrix([xx, xy, yy, xz, yz, zz]);
     m = List.normalizeMax(m);
     el.matrix = General.withUsage(m, "Conic");
 };
