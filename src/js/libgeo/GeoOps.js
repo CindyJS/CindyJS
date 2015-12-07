@@ -1646,7 +1646,7 @@ geoOps._helper.pointReflection = function(center, point) {
     // If center is at infinity, the result will be center unless point
     // is also at infinity, then the result is the ideal point [0, 0, 0].
     return List.normalizeMax(List.sub(
-        List.scalmult(CSNumber.mult(CSNumber.real(2), point.value[2]), center),
+        List.scalmult(CSNumber.realmult(2, point.value[2]), center),
         List.scalmult(center.value[2], point)));
 };
 
