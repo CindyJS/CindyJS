@@ -1608,6 +1608,17 @@ geoOps.TrInverse.updatePosition = function(el) {
     el.matrix = List.transpose(tr.dualMatrix);
 };
 
+// Apply a projective transformation to a conic
+geoOps.TransformC = {};
+geoOps.TransformC.kind = "C";
+geoOps.TransformC.updatePosition = function(el) {
+    var d = csgeo.csnames[(el.args[0])].dualMatrix;
+    var c = csgeo.csnames[(el.args[1])].matrix;
+    var m = List.productMM(List.productMM(d, c), List.transpose(d));
+    m = List.normalizeMax(m);
+    el.matrix = General.withUsage(m, "Conic");
+};
+
 // Apply a projective transformation to a point
 geoOps.TransformP = {};
 geoOps.TransformP.kind = "P";
