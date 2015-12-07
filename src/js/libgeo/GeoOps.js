@@ -766,11 +766,14 @@ geoOps._helper.splitDegenConic = function(mat) {
     }
 
     var beta = CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), adj_mat.value[idx].value[idx]));
+    if (CSNumber.abs2(beta).value.real < 1e-16) {
+        var zeros = List.turnIntoCSList([
+            CSNumber.zero, CSNumber.zero, CSNumber.zero
+        ]);
+        return [zeros, zeros];
+    }
     idx = CSNumber.real(idx + 1);
     var p = List.column(adj_mat, idx);
-    if (CSNumber.abs2(beta).value.real < 1e-16) {
-        return nada;
-    }
 
     p = List.scaldiv(beta, p);
 
