@@ -1654,9 +1654,11 @@ geoOps.TransformS.updatePosition = function(el) {
 };
 
 geoOps._helper.pointReflection = function(center, point) {
-    // if center is at infinity, the result should always be center.
-    var circle = geoOps._helper.CircleMP(center, point);
-    return geoOps._helper.conicOtherIntersection(circle, point, center);
+    // If center is at infinity, the result will be center unless point
+    // is also at infinity, then the result is the ideal point [0, 0, 0].
+    return List.normalizeMax(List.sub(
+        List.scalmult(CSNumber.realmult(2, point.value[2]), center),
+        List.scalmult(center.value[2], point)));
 };
 
 geoOps._helper.conicOtherIntersection = function(conic, a, b) {
