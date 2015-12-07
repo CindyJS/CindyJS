@@ -1036,32 +1036,45 @@ geoOps.ConicBy1p4l.updatePosition = function(el) {
 geoOps.ConicParabolaPL = {};
 geoOps.ConicParabolaPL.kind = "C";
 geoOps.ConicParabolaPL.updatePosition = function(el) {
-    var A = csgeo.csnames[(el.args[0])].homog; // focus point
-    var a = csgeo.csnames[(el.args[1])].homog; // directrix line
-    // The direction of the directrix line
-    var dd = List.cross(a, List.linfty);
-    // The perpendicular direction of the directrix line
-    var dp = List.cross(dd, List.linfty);
-    // Parallel line through focus point in the direction of the directrix line
-    // forms both lines of one degenerate conic
-    var e = List.cross(A, dd);
-    // Line through focus point in the perpendicular direction of directrix line
-    var b = List.cross(A, dp);
-    // Point B is the projection of the focus point onto the directrix line
-    var B = List.cross(a, b);
-    // Create both both angle bisector lines through point B from the
-    // direction of the directrix and its perpendicular direction
-    var c = List.cross(B, List.sub(dd, dp));
-    var d = List.cross(B, List.add(dd, dp));
-    // Midpoint of point A and point B
-    var C = geoOps._helper.midpoint(A, B);
-    // Line c and line d make up the other degenerate conic
-    var vc = List.turnIntoCSList([c]);
-    var vd = List.turnIntoCSList([d]);
-    var ve = List.turnIntoCSList([e]);
-    el.matrix = geoOps._helper.conicFromTwoDegenerates(vc, vd, ve, ve, C);
-    el.matrix = List.normalizeMax(el.matrix);
-    el.matrix = General.withUsage(el.matrix, "Conic");
+    var F = csgeo.csnames[(el.args[0])].homog.value; // focus point
+    var d = csgeo.csnames[(el.args[1])].homog.value; // directrix line
+    /* Desired outcome:
+     * [[Fz^2*dy^2, -Fz^2*dx*dy, -(Fx*dx^2 + Fx*dy^2 + Fz*dx*dz)*Fz],
+     *  [-Fz^2*dx*dy, Fz^2*dx^2, -(Fy*dx^2 + Fy*dy^2 + Fz*dy*dz)*Fz],
+     *  [-(Fx*dx^2 + Fx*dy^2 + Fz*dx*dz)*Fz,
+     *   -(Fy*dx^2 + Fy*dy^2 + Fz*dy*dz)*Fz,
+     *   Fx^2*dx^2 + Fy^2*dx^2 + Fx^2*dy^2 + Fy^2*dy^2 - Fz^2*dz^2]]
+     * For derivation see https://github.com/CindyJS/CindyJS/pull/126
+     * or http://math.stackexchange.com/a/1557496/35416
+     * or https://gist.github.com/gagern/5a1d6d4663c3da6f52dd
+     */
+    var mult = CSNumber.mult;
+    var neg = CSNumber.neg;
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var Fx = F[0];
+    var Fy = F[1];
+    var Fz = F[2];
+    var dx = d[0];
+    var dy = d[1];
+    var dz = d[2];
+    var Fz2 = mult(Fz, Fz);
+    var dx2 = mult(dx, dx);
+    var dy2 = mult(dy, dy);
+    var Fzdz = mult(Fz, dz);
+    var nFz = neg(Fz);
+    var dx2pdy2 = add(dx2, dy2);
+    var xx = mult(Fz2, dy2);
+    var yy = mult(Fz2, dx2);
+    var xy = mult(neg(Fz2), mult(dx, dy));
+    var xz = mult(nFz, add(mult(Fx, dx2pdy2), mult(Fzdz, dx)));
+    var yz = mult(nFz, add(mult(Fy, dx2pdy2), mult(Fzdz, dy)));
+    var zz = sub(
+        mult(add(mult(Fx, Fx), mult(Fy, Fy)), dx2pdy2),
+        mult(Fz2, mult(dz, dz)));
+    var m = geoOps._helper.buildConicMatrix([xx, xy, yy, xz, yz, zz]);
+    m = List.normalizeMax(m);
+    el.matrix = General.withUsage(m, "Conic");
 };
 
 geoOps.ConicBy2Foci1P = {};
