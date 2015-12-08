@@ -7,7 +7,8 @@ geoOps._helper = {};
  * S  - Segment
  * C  - Conic (including circle)
  * *s - Set of *
- * Tr - Transformation
+ * Tr - Projective transformation
+ * Mt - Moebius transformation
  */
 
 
@@ -1928,9 +1929,13 @@ geoMacros.Calculation = function(el) {
 };
 
 geoMacros.Transform = function(el) {
-    var arg = csgeo.csnames[el.args[1]];
-    var kind = geoOps[arg.type].kind;
-    var op = "Transform" + kind;
+    var trKind = csgeo.csnames[el.args[0]].kind;
+    var argKind = csgeo.csnames[el.args[1]].kind;
+    var map = {
+        Tr: "Transform",
+        Mt: "TrMoebius"
+    };
+    var op = map[trKind] + argKind;
     if (geoOps.hasOwnProperty(op)) {
         el.type = op;
         return [el];
