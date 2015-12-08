@@ -65,6 +65,10 @@ List.println = function(l) {
         console.log(erg);
 };
 
+List.matrix = function(l) {
+    return List.turnIntoCSList(l.map(List.turnIntoCSList));
+};
+
 List.realMatrix = function(l) {
     var len = l.length;
     var erg = new Array(len);
