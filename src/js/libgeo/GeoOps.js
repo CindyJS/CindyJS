@@ -648,8 +648,6 @@ geoOps.CircleMr.updatePosition = function(el) {
 geoOps.CircleMr.stateSize = 2;
 
 
-//TODO Must be redone for Points at infinity
-//Original Cindy Implementation is not correct either
 geoOps.Compass = {};
 geoOps.Compass.kind = "C";
 geoOps.Compass.updatePosition = function(el) {
@@ -670,8 +668,11 @@ geoOps.Compass.updatePosition = function(el) {
     var z2 = CSNumber.abs2(cZ);
     var xz = CSNumber.neg(CSNumber.mult(cX, cZ));
     var yz = CSNumber.neg(CSNumber.mult(cY, cZ));
-    var sqR = List.abs2(List.sub(b, m));
-    var zz = CSNumber.sub(List.abs2(List.turnIntoCSList([cX, cY])), sqR);
+    var dXY = List.turnIntoCSList([cX, cY]);
+    var sqXY = List.scalproduct(dXY, dXY);
+    var dR = List.sub(b, m);
+    var sqR = List.scalproduct(dR, dR);
+    var zz = CSNumber.sub(sqXY, sqR);
     var matrix = geoOps._helper.buildConicMatrix([z2, CSNumber.zero, z2, xz, yz, zz]);
     matrix = List.normalizeMax(matrix);
     el.matrix = General.withUsage(matrix, "Circle");
