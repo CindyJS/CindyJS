@@ -1656,7 +1656,7 @@ geoOps.TrMoebius.updatePosition = function(el) {
     ⎝ B3  B2  B7  B6⎠ ⎝-A3 -A2  A1  A0⎠   ⎝ ci  cr  di  dr⎠
 
     But since we only care about two columns of the result, it's
-    enough to use two columns of the adjoint of A, namely the second
+    enough to use two columns of the adjoint of A, namely the first
     and the third.
     */
     var mB = List.normalizeMax(List.matrix([
