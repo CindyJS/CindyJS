@@ -1586,6 +1586,149 @@ geoOps.SelectL.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+geoOps._helper.moebiusStep = function(a, b, c) {
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var mult = CSNumber.mult;
+    var ax = a.value[0];
+    var ay = a.value[1];
+    var az = a.value[2];
+    var bx = b.value[0];
+    var by = b.value[1];
+    var bz = b.value[2];
+    var cx = c.value[0];
+    var cy = c.value[1];
+    var cz = c.value[2];
+    /*
+    Building the matrix [[ax + i*ay, az], [bx + i*by, bz]].transpose()
+    using matrices to represent the complex numbers yields this:
+
+        ⎛ ax -ay  bx -by⎞
+    m = ⎜ ay  ax  by  bx⎟
+        ⎜ az   0  bz   0⎟
+        ⎝  0  az   0  bz⎠
+
+    We want to solve that up to a scalar multiple for [cx + i*xy, cz]
+    using the same representation.  We avoid inversion and use the 2×2
+    adjoint. Since the adjoint of [[a,b],[c,d]] is [[d,-b],[-c,a]] we have
+
+    ⎛ bz   0 -bx  by⎞ ⎛ cx -cy⎞   ⎛ bz*cx - bx*cz -bz*cy + by*cz⎞
+    ⎜  0  bz -by -bx⎟ ⎜ cy  cx⎟ = ⎜ bz*cy - by*cz  bz*cx - bx*cz⎟
+    ⎜-az   0  ax -ay⎟ ⎜ cz   0⎟   ⎜-az*cx + ax*cz  az*cy - ay*cz⎟
+    ⎝  0 -az  ay  ax⎠ ⎝  0  cz⎠   ⎝-az*cy + ay*cz -az*cx + ax*cz⎠
+
+    Let's save the first column of that.
+    */
+    var d1 = sub(mult(bz, cx), mult(bx, cz));
+    var d2 = sub(mult(bz, cy), mult(by, cz));
+    var d3 = sub(mult(ax, cz), mult(az, cx));
+    var d4 = sub(mult(ay, cz), mult(az, cy));
+    /*
+    Now we turn that into a diagonal matrix, and multiply m with that.
+
+    ⎛ ax -ay  bx -by⎞ ⎛ d1 -d2   0   0⎞
+    ⎜ ay  ax  by  bx⎟ ⎜ d2  d1   0   0⎟ =
+    ⎜ az   0  bz   0⎟ ⎜  0   0  d3 -d4⎟
+    ⎝  0  az   0  bz⎠ ⎝  0   0  d4  d3⎠
+      ⎛ ax*d1 - ay*d2 -ay*d1 - ax*d2  bx*d3 - by*d4 -by*d3 - bx*d4⎞
+      ⎜ ay*d1 + ax*d2  ax*d1 - ay*d2  by*d3 + bx*d4  bx*d3 - by*d4⎟
+      ⎜         az*d1         -az*d2          bz*d3         -bz*d4⎟
+      ⎝         az*d2          az*d1          bz*d4          bz*d3⎠
+
+    We return the first and third column of that. In essence these are
+    the real and imaginary parts of the four entries of a 2×2 matrix.
+    */
+    return [
+        sub(mult(ax, d1), mult(ay, d2)),
+        add(mult(ay, d1), mult(ax, d2)),
+        mult(az, d1),
+        mult(az, d2),
+        sub(mult(bx, d3), mult(by, d4)),
+        add(mult(by, d3), mult(bx, d4)),
+        mult(bz, d3),
+        mult(bz, d4)
+    ];
+};
+
+geoOps.TrMoebius = {};
+geoOps.TrMoebius.kind = "Mt";
+geoOps.TrMoebius.updatePosition = function(el) {
+    var neg = CSNumber.neg;
+    var A1 = (csgeo.csnames[el.args[0]]).homog;
+    var A2 = (csgeo.csnames[el.args[2]]).homog;
+    var A3 = (csgeo.csnames[el.args[4]]).homog;
+    var A = geoOps._helper.moebiusStep(A1, A2, A3);
+    var B1 = (csgeo.csnames[el.args[1]]).homog;
+    var B2 = (csgeo.csnames[el.args[3]]).homog;
+    var B3 = (csgeo.csnames[el.args[5]]).homog;
+    var B = geoOps._helper.moebiusStep(B1, B2, B3);
+
+    /*
+    Now we conceptually want B * A.adjoint()
+
+    ⎛ B0 -B1  B4 -B5⎞ ⎛ A6 -A7 -A4  A5⎞   ⎛ ar -ai  br -bi⎞
+    ⎜ B1  B0  B5  B4⎟ ⎜ A7  A6 -A5 -A4⎟ = ⎜ ai  ar  bi  br⎟
+    ⎜ B2 -B3  B6 -B7⎟ ⎜-A2  A3  A0 -A1⎟   ⎜ cr -ci  dr -di⎟
+    ⎝ B3  B2  B7  B6⎠ ⎝-A3 -A2  A1  A0⎠   ⎝ ci  cr  di  dr⎠
+
+    But since we only care about two columns of the result, it's
+    enough to use two columns of the adjoint of A, namely the first
+    and the third.
+    */
+    var mB = List.normalizeMax(List.matrix([
+        [B[0], neg(B[1]), B[4], neg(B[5])],
+        [B[1], B[0], B[5], B[4]],
+        [B[2], neg(B[3]), B[6], neg(B[7])],
+        [B[3], B[2], B[7], B[6]]
+    ]));
+    var mAa = List.normalizeMax(List.matrix([
+        [A[6], neg(A[4])],
+        [A[7], neg(A[5])],
+        [neg(A[2]), A[0]],
+        [neg(A[3]), A[1]]
+    ]));
+    var C = List.productMM(mB, mAa);
+
+    // Read from that the (doubly) complex matrix [[a, b], [c, d]]
+    var ar = C.value[0].value[0];
+    var ai = C.value[1].value[0];
+    var br = C.value[0].value[1];
+    var bi = C.value[1].value[1];
+    var cr = C.value[2].value[0];
+    var ci = C.value[3].value[0];
+    var dr = C.value[2].value[1];
+    var di = C.value[3].value[1];
+
+    /*
+    Build two matrices with the interesting property that for pxy = px + i*py
+    this essentially encodes a Möbius transformation including division:
+
+                                ⎛Re((a*pxy + b*pz)*conj(c*pxy + d*pz))⎞
+    cross(mat1 * p, mat2 * p) = ⎜Im((a*pxy + b*pz)*conj(c*pxy + d*pz))⎟
+                                ⎝   (c*pxy + d*pz)*conj(c*pxy + d*pz) ⎠
+    */
+    el.mat1 = List.normalizeMax(List.matrix([
+        [neg(cr), ci, neg(dr)],
+        [ci, cr, di],
+        [ar, neg(ai), br]
+    ]));
+    el.mat2 = List.normalizeMax(List.matrix([
+        [neg(ci), neg(cr), neg(di)],
+        [neg(cr), ci, neg(dr)],
+        [ai, ar, bi]
+    ]));
+};
+
+geoOps.TrMoebiusP = {};
+geoOps.TrMoebiusP.kind = "P";
+geoOps.TrMoebiusP.updatePosition = function(el) {
+    var t = csgeo.csnames[(el.args[0])];
+    var p = csgeo.csnames[(el.args[1])].homog;
+    var l1 = List.productMV(t.mat1, p);
+    var l2 = List.productMV(t.mat2, p);
+    el.homog = List.normalizeMax(List.cross(l1, l2));
+    el.homog = General.withUsage(el.homog, "Point");
+};
 
 // Define a projective transformation given four points and their images
 geoOps.TrProjection = {};
