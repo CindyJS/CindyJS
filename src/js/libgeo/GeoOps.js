@@ -653,9 +653,9 @@ geoOps.CircleMr.stateSize = 2;
 geoOps.Compass = {};
 geoOps.Compass.kind = "C";
 geoOps.Compass.updatePosition = function(el) {
-    var m = csgeo.csnames[(el.args[2])].homog;
+    var m = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
-    var c = csgeo.csnames[(el.args[0])].homog;
+    var c = csgeo.csnames[(el.args[2])].homog;
     // Scale each point's homogeneous coordinates by the other two
     // point's z-value to allow addtion and subtraction to be valid.
     var mZ = m.value[2];
@@ -664,11 +664,15 @@ geoOps.Compass.updatePosition = function(el) {
     m = List.scalmult(CSNumber.mult(bZ, cZ), m);
     b = List.scalmult(CSNumber.mult(mZ, cZ), b);
     c = List.scalmult(CSNumber.mult(mZ, bZ), c);
-    var diff = List.sub(b, c);
-    var p = List.add(diff, m);
-    p = List.normalizeMax(p);
-
-    var matrix = geoOps._helper.CircleMP(m, p);
+    var cX = c.value[0]; // bZ*cX*mZ
+    var cY = c.value[1]; // bZ*cY*mZ
+    cZ = c.value[2]; // bZ*cZ*mZ
+    var z2 = CSNumber.abs2(cZ);
+    var xz = CSNumber.neg(CSNumber.mult(cX, cZ));
+    var yz = CSNumber.neg(CSNumber.mult(cY, cZ));
+    var sqR = List.abs2(List.sub(b, m));
+    var zz = CSNumber.sub(List.abs2(List.turnIntoCSList([cX, cY])), sqR);
+    var matrix = geoOps._helper.buildConicMatrix([z2, CSNumber.zero, z2, xz, yz, zz]);
     matrix = List.normalizeMax(matrix);
     el.matrix = General.withUsage(matrix, "Circle");
 };
