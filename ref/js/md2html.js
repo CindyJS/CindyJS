@@ -5,10 +5,6 @@ var path = require("path");
 var util = require("util");
 var marked = require("marked");
 
-var refdir = path.dirname(__dirname);
-var tmpl = fs.readFileSync(path.join(refdir, "template.html")).toString()
-var md = fs.readFileSync(process.argv[2]).toString();
-
 function escape(str) {
   return str
     .replace(/&/g, '&amp;')
@@ -131,8 +127,38 @@ function makeOpts() {
   };
 }
 
-marked(md, makeOpts(), function(err, html) {
-    if (err) throw err;
-    html = tmpl.replace(/<div id="content"><\/div>/, html);
-    fs.writeFileSync(process.argv[3], html);
-});
+function renderBody(md, cb) {
+    marked(md, makeOpts(), cb);
+}
+
+var tmpl = null;
+
+function renderHtml(md, cb) {
+    if (tmpl === null) {
+        try {
+            var tpath = require.resolve("../template.html");
+            tmpl = fs.readFileSync(tpath).toString();
+        } catch(err) {
+            return cb(err, null);
+        }
+    }
+    renderBody(md, function(err, html) {
+        if (err) return cb(err, null);
+        html = tmpl.replace(/<div id="content"><\/div>/, html);
+        cb(null, html);
+    });
+}
+
+function renderFileSync(infile, outfile) {
+    var md = fs.readFileSync(infile).toString();
+    renderHtml(md, function(err, html) {
+        if (err) throw err;
+        fs.writeFileSync(outfile, html);
+    });
+}
+
+module.exports.renderBody = renderBody;
+module.exports.renderHtml = renderHtml;
+
+if (require.main === module)
+    renderFileSync(process.argv[2], process.argv[3]);
