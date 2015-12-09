@@ -147,6 +147,7 @@ function computeType(expr, fun) { //expression, current function
     let f = getPlainName(expr['oper']);
     let signature = matchSignature(f, argtypes);
     //console.log(signature);
+    if(signature === undefined) return nada;
     return signature.res;
   }
   return nada;
@@ -271,7 +272,7 @@ function determineTypes() {
           if(!T.hasOwnProperty(s)) T[s] = {};
           
           T[s][v] = newtype;
-          //console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is "+ typeToString(oldtype) + "/" + typeToString(othertype)+") because of expr " + JSON.stringify(e));
+          console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is "+ typeToString(oldtype) + "/" + typeToString(othertype)+") because of expr " + JSON.stringify(e));
           //console.log(T);
           changed = true; 
         }
@@ -411,6 +412,37 @@ function determineUniforms(expr) {
   console.log(uniforms);
 }
 
+function guessTypeOfValue(tval) {
+  if(tval['ctype'] === 'number') {
+    let z = tval['value'];
+    if(z['imag']===0.) {
+      if((z['real']|0) === z['real']) {
+        return type.int;
+      } else {
+        return type.float;
+      }
+    } else {
+      return type.complex;
+    }
+  } else if(tval['ctype'] === 'list') {
+    let l = tval['value'];
+    if(l.length>0) {
+      let ctype = guessTypeOfValue(l[0]);
+      for(let i=1; i<l.length; i++) {
+        ctype = lca(ctype, guessTypeOfValue(l[i]));
+      }
+      //console.log("got lca " + typeToString(ctype));
+      if(issubtypeof(ctype, type.float)) {
+        if(l.length==2) return type.vec2;
+        if(l.length==3) return type.vec3;
+        if(l.length==4) return type.vec4;
+      }
+      //TODO: do all other lists
+    }
+  }
+  return nada;
+}
+
 function determineUniformTypes() {
 
   
@@ -423,20 +455,10 @@ function determineUniformTypes() {
     let tval = api.evaluateAndVal(uniforms[uname].expr);
     
     
-    if(tval['ctype'] === 'number') {
-      let z = tval['value'];
-      if(z['imag']===0.) {
-        if((z['real']|0) === z['real']) {
-          uniforms[uname].type = type.int;
-        } else {
-          uniforms[uname].type = type.float;
-        }
-      } else {
-        uniforms[uname].type = type.complex;
-      }
-    }
-    //TODO: genList...    
-    
+    uniforms[uname].type = guessTypeOfValue(tval);
+  
+    //TODO: list...    TODO: why are points evaluated to ints?
+    console.log("guessed type " + typeToString(uniforms[uname].type) + " for " + JSON.stringify(uniforms[uname].expr) + " because it has value " + JSON.stringify(tval));
   }
 }
 
@@ -448,6 +470,7 @@ function precompile(expr) {
   determineUniformTypes();
   
   determineTypes();
+  console.log("DETERMINED TYPES");
   precompileDone = true;
 }
 
@@ -765,7 +788,7 @@ function generateColorPlotProgram(expr) { //TODO add arguments for #
   let r = compile(expr, '', true);
   let colorterm = castType(r.term, r.type, type.color);
   
-  if(!issubtypeof(r.type,type.color)) {
+  if(!issubtypeof(r.type, type.color)) {
     console.error("expression does not generate a color");
   }
   let code = generateListOfUniforms();

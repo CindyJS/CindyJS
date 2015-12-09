@@ -89,7 +89,10 @@ Object.freeze(inclusionfunction);
 
 webgltr['abs'] = [
   [float_fun$1,   usefunction('abs')  ],
-  [complex2float_fun$1, usefunction('length')]
+  [complex2float_fun$1, usefunction('length')],
+  [vec22float_fun$1, usefunction('length')],
+  [vec32float_fun$1, usefunction('length')],
+  [vec42float_fun$1, usefunction('length')]
 ];
 
 webgltr['sin'] = [
@@ -105,6 +108,11 @@ webgltr['cos'] = [
 webgltr['exp'] = [
   [float_fun$1,   usefunction('exp')  ],
   [complex_fun$1, useincludefunction('expc')]
+];
+
+webgltr['arctan'] = [
+  [float_fun$1,   usefunction('atan')  ],
+  [complex_fun$1, useincludefunction('arctanc')]
 ];
 
 webgltr['log'] = [

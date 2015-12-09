@@ -17,13 +17,17 @@ function issubtypeof(a, b) { //TODO: what if b is template?
   if(isprimitive(a) && isprimitive(b)) {
     if(subtype[a] === undefined) return false;
     return (subtype[a][b]<oo);
-  } else {
+  } 
+  return false;
+  /*
+  //TODO: what is for nonprimitive types? Dont forget to consider nada/undefined, which is no subtype of any other type
+  else {
     for(var key in b) if(b.hasOwnProperty(key)) {
       if(!a.hasOwnProperty(key)) return false; //if a < b then a must have all "properties" of b
       if(!issubtypeof(a[key], b[key])) return false;
     }
     return true;
-  }
+  }*/
 }
 
 var highesttypeindex = 0;
@@ -77,6 +81,9 @@ function lca(a, b) {
   
   if(issubtypeof(b,a)) return a;
   else if(issubtypeof(a,b)) return b;
+  
+  if(!isprimitive(a)) return b; //handle nadas
+  if(!isprimitive(b)) return a; //TODO find algo for non-primitive types
   
   for(let t = 0; t<highesttypeindex; t++) { //O(|types|)
     if(issubtypeof(a, t) && issubtypeof(b, t)) {

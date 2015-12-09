@@ -46,7 +46,7 @@ subtypegen[type.float] = [type.complex, type.color]; //color: as gray
 //subtypegen[type.complex] = []; //NOT type.vec2: because no automatic cast in cindyJS
 subtypegen[type.color] = [type.vec3]; //NOT type.vec4 because vec3 -> color -> vec4. Only consider vec3 <-> color in the sense of cindyJS
 
-subtypegen[type.vec2] = [type.point];
+//subtypegen[type.vec2] = [type.point]; //TODO: kein eigentlicher grund fuer kommentar
 subtypegen[type.vec3] = [type.color, type.point];
 subtypegen[type.vec4] = [type.color]; //color with alpha
 
@@ -54,11 +54,12 @@ subtypegen[type.vec4] = [type.color]; //color with alpha
 
 
 
+/*
 //non-primitive types. No subtype implemented!
 const floatlist$2 = {type: "list", length: 2, members: type.float};
-const floatlist$3 = {type: "list", length: 2, members: type.float};
-const floatlist$4 = {type: "list", length: 2, members: type.float};
-
+const floatlist$3 = {type: "list", length: 3, members: type.float};
+const floatlist$4 = {type: "list", length: 4, members: type.float};
+*/
 
 
 
@@ -80,6 +81,9 @@ const float2complex_fun$2 = {args: [type.float, type.float],     res: type.compl
 const complex2float_fun$1 = {args: [type.complex],               res: type.float};
 const complex2float_fun$2 = {args: [type.complex, type.complex], res: type.float};
 
+const vec22float_fun$1    = {args: [type.vec2],       res: type.float};
+const vec32float_fun$1    = {args: [type.vec3],       res: type.float};
+const vec42float_fun$1    = {args: [type.vec4],       res: type.float};
 const vec22float_fun$2    = {args: [type.vec2, type.vec2],       res: type.float};
 const vec32float_fun$2    = {args: [type.vec3, type.vec3],       res: type.float};
 const vec42float_fun$2    = {args: [type.vec4, type.vec3],       res: type.float};
@@ -101,7 +105,7 @@ typeinference["sqrt"] = [
 ];
 //- ("abs", 1, OpAbs.class); @done(2015-03-17)
 typeinference["abs"] = [
-  float_fun$1, complex2float_fun$1
+  float_fun$1, complex2float_fun$1, vec22float_fun$1, vec32float_fun$1, vec42float_fun$1
 ];
 //- ("exp", 1, OpExp.class); @done(2015-03-17)
 typeinference["exp"] = [

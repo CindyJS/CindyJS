@@ -1,11 +1,15 @@
 var nada; //instead of Plugin.js
 var myfunctions;
 
+api = {};
+api.evaluateAndVal = function(k) {return {"ctype":"number","value":{"real":.23,"imag":0.}}}; //complex number
+
 //DEBUG; @TODO: Remove
 console.log(next);
 
 console.log(issubtypeof(type.float, type.int));
 console.log(issubtypeof(type.int, type.float));
+
 
 
 console.log(lca(type.int, type.float));
@@ -96,7 +100,7 @@ console.log(compile(
 ,'',true));
 console.log("==========================");
 
-console.log(generateColorPlotProgram(ifexpr));
+//console.log(generateColorPlotProgram(ifexpr));
 
 //console.log(generateColorPlotProgram({"ctype":"number","value":{"real":10,"imag":0}}));
 
@@ -110,4 +114,9 @@ console.log("fertig :)");
 //let r = new Renderer(toyexprsin, 100, 100)
 //console.log(r);
 
+
+
+
+console.log("==========================");
+console.log(issubtypeof(nada, type.int));
 

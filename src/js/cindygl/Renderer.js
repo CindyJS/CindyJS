@@ -127,6 +127,33 @@ Renderer.prototype.setUniforms = function() {
       case type.float:
         setter([val['value']['real']]);
         break;
+      case type.int:
+        setter([val['value']['real']]);
+        break;
+      case type.bool:
+        setter([val['value']['real']]);
+        break;
+      case type.vec2:
+        setter([
+          val['value'][0]['value']['real'],
+          val['value'][1]['value']['real']
+        ]);
+        break;
+      case type.vec3:
+        setter([
+          val['value'][0]['value']['real'],
+          val['value'][1]['value']['real'],
+          val['value'][2]['value']['real']
+        ]);
+        break;
+      case type.vec4:
+        setter([
+          val['value'][0]['value']['real'],
+          val['value'][1]['value']['real'],
+          val['value'][2]['value']['real'],
+          val['value'][3]['value']['real']
+        ]);
+        break;
       default:
         console.error("Don't know how to set uniform" + uname + " to " + val);
         break;
