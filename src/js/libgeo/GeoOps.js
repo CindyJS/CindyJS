@@ -637,44 +637,44 @@ geoOps.CircleMr.updatePosition = function(el) {
     var r = getStateComplexNumber();
     putStateComplexNumber(r); // copy param
     var m = csgeo.csnames[(el.args[0])].homog;
-    m = List.normalizeZ(m);
-    var p = List.turnIntoCSList([r, CSNumber.zero, CSNumber.zero]);
-    p = List.add(p, m);
-    var matrix = geoOps._helper.CircleMP(m, p);
-    matrix = List.normalizeMax(matrix);
+    var rs = CSNumber.mult(m.value[2], r); // scale the radius
+    var matrix = geoOps._helper.ScaledCircleMrr(m, CSNumber.mult(rs, rs));
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
 };
 geoOps.CircleMr.stateSize = 2;
 
 
+// M is center and rr is radius squared; both must be pre-scaled
+geoOps._helper.ScaledCircleMrr = function(M, rr) {
+    var x = M.value[0];
+    var y = M.value[1];
+    var mz = CSNumber.neg(M.value[2]); // minus z
+    var v = List.scalmult(mz, List.turnIntoCSList([x, y, mz])).value;
+    var vxy = List.turnIntoCSList([x, y]);
+    var zz = CSNumber.sub(List.scalproduct(vxy, vxy), rr);
+    var matrix = geoOps._helper.buildConicMatrix([v[2], CSNumber.zero, v[2], v[0], v[1], zz]);
+    return List.normalizeMax(matrix);
+};
+
+
 geoOps.Compass = {};
 geoOps.Compass.kind = "C";
 geoOps.Compass.updatePosition = function(el) {
-    var m = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
-    var c = csgeo.csnames[(el.args[2])].homog;
+    var m = csgeo.csnames[(el.args[2])].homog;
     // Scale each point's homogeneous coordinates by the other two
     // point's z-value to allow addtion and subtraction to be valid.
-    var mZ = m.value[2];
+    var aZ = a.value[2];
     var bZ = b.value[2];
-    var cZ = c.value[2];
-    m = List.scalmult(CSNumber.mult(bZ, cZ), m);
-    b = List.scalmult(CSNumber.mult(mZ, cZ), b);
-    c = List.scalmult(CSNumber.mult(mZ, bZ), c);
-    var cX = c.value[0]; // bZ*cX*mZ
-    var cY = c.value[1]; // bZ*cY*mZ
-    cZ = c.value[2]; // bZ*cZ*mZ
-    var z2 = CSNumber.abs2(cZ);
-    var xz = CSNumber.neg(CSNumber.mult(cX, cZ));
-    var yz = CSNumber.neg(CSNumber.mult(cY, cZ));
-    var dXY = List.turnIntoCSList([cX, cY]);
-    var sqXY = List.scalproduct(dXY, dXY);
-    var dR = List.sub(b, m);
-    var sqR = List.scalproduct(dR, dR);
-    var zz = CSNumber.sub(sqXY, sqR);
-    var matrix = geoOps._helper.buildConicMatrix([z2, CSNumber.zero, z2, xz, yz, zz]);
-    matrix = List.normalizeMax(matrix);
+    var mZ = m.value[2];
+    a = List.scalmult(CSNumber.mult(bZ, mZ), a);
+    b = List.scalmult(CSNumber.mult(aZ, mZ), b);
+    m = List.scalmult(CSNumber.mult(aZ, bZ), m);
+    // Setup circle's matrix with m as center and segment ab length as radius
+    var d = List.sub(b, a);
+    var matrix = geoOps._helper.ScaledCircleMrr(m, List.scalproduct(d, d));
     el.matrix = General.withUsage(matrix, "Circle");
 };
 
