@@ -117,7 +117,8 @@ The default is defined as follows:
     J   alpha: 1,
     J   overhangLine: 1.1,
     J   overhangSeg: 1,
-    J   dimDependent: 1
+    J   dimDependent: 1,
+    J   textsize: 12
     J }
 
 Any parameter which stays at this default value doesn't have to be specified at all.

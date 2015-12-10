@@ -9,6 +9,7 @@ defaultAppearance.overhangLine = 1.1;
 defaultAppearance.overhangSeg = 1;
 defaultAppearance.dimDependent = 1;
 defaultAppearance.fontFamily = "sans-serif";
+defaultAppearance.textsize = 12;
 
 function setDefaultAppearance(obj) {
     var key;
@@ -169,6 +170,7 @@ function pointDefault(el) {
     }
     if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
     el.alpha = CSNumber.real(el.alpha);
+    if (el.textsize === undefined) el.textsize = defaultAppearance.textsize;
 
     if (el.drawtrace) {
         if (typeof el.tracedim === "undefined") el.tracedim = 1;

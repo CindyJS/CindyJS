@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+// Initialization code, executed once up front.
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+textsize(20);
+drawtext([0, -2], "Move A");
+// Drawing code, executed whenever the canvas gets redrawn.
+
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+    textsize: 20
+    // See GeoBasics.js for possible attributes.
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0], labeled: true}
+    // For allowed types, see GeoOps.js.
+    // For allowed properties, see csinit in GeoBasics.js.
+  ] // End of geometry array.
+});
+
+// Remove all comments after adjusting this template for your use case.
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>
