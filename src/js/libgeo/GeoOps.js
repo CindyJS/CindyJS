@@ -637,8 +637,11 @@ geoOps.CircleMr.updatePosition = function(el) {
     var r = getStateComplexNumber();
     putStateComplexNumber(r); // copy param
     var m = csgeo.csnames[(el.args[0])].homog;
-    var rs = CSNumber.mult(m.value[2], r); // scale the radius
-    var matrix = geoOps._helper.ScaledCircleMrr(m, CSNumber.mult(rs, rs));
+    m = List.normalizeZ(m);
+    var p = List.turnIntoCSList([r, CSNumber.zero, CSNumber.zero]);
+    p = List.add(p, m);
+    var matrix = geoOps._helper.CircleMP(m, p);
+    matrix = List.normalizeMax(matrix);
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
 };
