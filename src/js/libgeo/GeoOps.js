@@ -637,11 +637,17 @@ geoOps.CircleMr.updatePosition = function(el) {
     var r = getStateComplexNumber();
     putStateComplexNumber(r); // copy param
     var m = csgeo.csnames[(el.args[0])].homog;
-    m = List.normalizeZ(m);
-    var p = List.turnIntoCSList([r, CSNumber.zero, CSNumber.zero]);
-    p = List.add(p, m);
-    var matrix = geoOps._helper.CircleMP(m, p);
-    matrix = List.normalizeMax(matrix);
+    var rabs2 = CSNumber.abs2(r).value.real;
+    var rs = m.value[2]; // Already scaled when r/r=1 is scaled by m
+    if (rabs2 > 1) {
+        // Like homog [1=r/r, 0, 1/r]; Scale m by 1/r; rs already scaled
+        // Note: CSNumber.inv(CSNumber.real(Infinity)) produces NaN - i*NaN
+        m = List.scalmult(isFinite(rabs2) ? CSNumber.inv(r) : CSNumber.zero, m);
+    } else {
+        // Like homog [r, 0, 1]; Scale r by m.value[2]; m already scaled by 1
+        rs = CSNumber.mult(rs, r);
+    }
+    var matrix = geoOps._helper.ScaledCircleMrr(m, CSNumber.mult(rs, rs));
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
 };
