@@ -1947,6 +1947,17 @@ geoOps.TrRotation.updatePosition = function(el) {
     });
 };
 
+// Define a translation transformation given one point and its image
+geoOps.TrTranslation = {};
+geoOps.TrTranslation.kind = "Tr";
+geoOps.TrTranslation.updatePosition = function(el) {
+    geoOps._helper.trBuildMatrix(el, function(offset) {
+        var a = csgeo.csnames[el.args[0 + offset]].homog,
+            b = List.add(List.scalmult(a.value[2], List.ex), a);
+        return eval_helper.basismap(a, b, List.ii, List.jj);
+    });
+};
+
 geoOps.TrInverse = {};
 geoOps.TrInverse.kind = "Tr";
 geoOps.TrInverse.signature = ["Tr"];
