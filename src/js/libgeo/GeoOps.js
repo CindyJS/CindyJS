@@ -1882,12 +1882,22 @@ geoOps.TrMoebiusArc.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
 
+// Produces the transformation matrix and its dual
+geoOps._helper.trBuildMatrix = function(el, oneStep) {
+    var m0 = oneStep(0);
+    var m1 = oneStep(1);
+    var m = List.productMM(m1, List.adjoint3(m0));
+    el.matrix = List.normalizeMax(m);
+    m = List.transpose(List.productMM(m0, List.adjoint3(m1)));
+    el.dualMatrix = List.normalizeMax(m);
+};
+
 // Define a projective transformation given four points and their images
 geoOps.TrProjection = {};
 geoOps.TrProjection.kind = "Tr";
 geoOps.TrProjection.signature = ["P", "P", "P", "P", "P", "P", "P", "P"];
 geoOps.TrProjection.updatePosition = function(el) {
-    function oneStep(offset) {
+    geoOps._helper.trBuildMatrix(el, function(offset) {
         var tmp,
             a = csgeo.csnames[el.args[0 + offset]].homog,
             b = csgeo.csnames[el.args[2 + offset]].homog,
@@ -1902,13 +1912,47 @@ geoOps.TrProjection.updatePosition = function(el) {
             List.scalmult(tmp[2], c)
         ]));
         return tmp;
-    }
-    var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
-    m = List.normalizeMax(m);
-    el.matrix = m;
-    m = List.transpose(List.adjoint3(m));
-    m = List.normalizeMax(m);
-    el.dualMatrix = m;
+    });
+};
+
+// Define an affine transformation given three points and their images
+geoOps.TrAffine = {};
+geoOps.TrAffine.kind = "Tr";
+geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
+geoOps.TrAffine.updatePosition = function(el) {
+    var inf = List.linfty;
+    var cc = List.cross;
+    geoOps._helper.trBuildMatrix(el, function(offset) {
+        var a = csgeo.csnames[el.args[0 + offset]].homog,
+            b = csgeo.csnames[el.args[2 + offset]].homog,
+            c = csgeo.csnames[el.args[4 + offset]].homog,
+            d = cc(cc(c, cc(inf, cc(a, b))), cc(b, cc(inf, cc(a, c))));
+        return eval_helper.basismap(a, b, c, d);
+    });
+};
+
+// Define a similarity transformation given two points and their images
+geoOps.TrRotation = {};
+geoOps.TrRotation.kind = "Tr";
+geoOps.TrRotation.signature = ["P", "P", "P", "P"];
+geoOps.TrRotation.updatePosition = function(el) {
+    geoOps._helper.trBuildMatrix(el, function(offset) {
+        var a = csgeo.csnames[el.args[0 + offset]].homog,
+            b = csgeo.csnames[el.args[2 + offset]].homog;
+        return eval_helper.basismap(a, b, List.ii, List.jj);
+    });
+};
+
+// Define a translation transformation given one point and its image
+geoOps.TrTranslation = {};
+geoOps.TrTranslation.kind = "Tr";
+geoOps.TrTranslation.signature = ["P", "P"];
+geoOps.TrTranslation.updatePosition = function(el) {
+    geoOps._helper.trBuildMatrix(el, function(offset) {
+        var a = csgeo.csnames[el.args[0 + offset]].homog,
+            b = List.add(List.scalmult(a.value[2], List.ex), a);
+        return eval_helper.basismap(a, b, List.ii, List.jj);
+    });
 };
 
 geoOps.TrInverse = {};
