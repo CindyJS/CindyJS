@@ -1911,6 +1911,31 @@ geoOps.TrProjection.updatePosition = function(el) {
     el.dualMatrix = m;
 };
 
+// Produces the transformation matrix and its dual
+geoOps._helper.trBuildMatrix = function(el, oneStep) {
+    var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
+    m = List.normalizeMax(m);
+    el.matrix = m;
+    m = List.transpose(List.adjoint3(m));
+    m = List.normalizeMax(m);
+    el.dualMatrix = m;
+};
+
+// Define an affine transformation given three points and their images
+geoOps.TrAffine = {};
+geoOps.TrAffine.kind = "Tr";
+geoOps.TrAffine.updatePosition = function(el) {
+    var inf = List.linfty;
+    var cc = List.cross;
+    geoOps._helper.trBuildMatrix(el, function(offset) {
+        var a = csgeo.csnames[el.args[0 + offset]].homog,
+            b = csgeo.csnames[el.args[2 + offset]].homog,
+            c = csgeo.csnames[el.args[4 + offset]].homog,
+            d = cc(cc(c, cc(inf, cc(a, b))), cc(b, cc(inf, cc(a, c))));
+        return eval_helper.basismap(a, b, c, d);
+    });
+};
+
 geoOps.TrInverse = {};
 geoOps.TrInverse.kind = "Tr";
 geoOps.TrInverse.signature = ["Tr"];
