@@ -34,24 +34,24 @@
           gray(1.-timetoescape/43) //floating point numbers in [0,1] will be interpreted as grays  
         )
       );
-      createimage("mandel",500,500);
-      createimage("julia", 500,500);
+      createimage("mandel", 500, 500);
+      createimage("julia",  500, 500);
     </script>
     <script id="csmove" type="cindyscript">
       fm = map(m0, m1, A, B);
       fj = map(j0, j1, [-1.5,-1.5],[1.5,-1.5]);
       
-      c = complex(fm*C.homog);
+      c =  complex(fm*C.homog);
       z0 = complex(fj*Z0.homog);
            
       Z0.color = iter(z0, c);
       C.color  = iter(z0, c);
       
       colorplot(A, B,                  "mandel", iter(z0, complex(#)));
-      colorplot([-1.5,-1.5],[1.5,-1.5],"julia",  iter(complex(#),c));
+      colorplot([-1.5,-1.5],[1.5,-1.5],"julia",  iter(complex(#), c));
       
-      drawimage(m0,m1, "mandel");
-      drawimage(j0,j1, "julia");
+      drawimage(m0, m1, "mandel");
+      drawimage(j0, j1, "julia");
     </script>
     
 
@@ -63,16 +63,17 @@
                   {name:"A", kind:"P", type:"Free", pos:[-2,-1.5]},
                   {name:"B", kind:"P", type:"Free", pos:[.8,-1.5]},
                   
-                  {name: "m0", kind: "P", type:"Free", pos:[-2.5,-2.5], visible:false,pinned:true},
-                  {name: "m1", kind: "P", type:"Free", pos:[2.5,-2.5], visible:false,pinned:true},
+                  {name: "m0", kind: "P", type:"Free", pos:[-2.5,-2.5], visible:false, pinned:true},
+                  {name: "m1", kind: "P", type:"Free", pos:[2.5,-2.5], visible:false, pinned:true},
                   
-                  {name: "j0", kind: "P", type:"Free", pos:[2.5,-2.5], visible:false,pinned:true},
-                  {name: "j1", kind: "P", type:"Free", pos:[7.5,-2.5], visible:false,pinned:true},
+                  {name: "j0", kind: "P", type:"Free", pos:[2.5,-2.5], visible:false, pinned:true},
+                  {name: "j1", kind: "P", type:"Free", pos:[7.5,-2.5], visible:false, pinned:true},
                     
                     
                   {name:"C", kind:"P", type:"Free", pos:[.75,1.5]},
                   {name:"Z0", kind:"P", type:"Free", pos:[5., 0.01]}
                   ];
+                  
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
