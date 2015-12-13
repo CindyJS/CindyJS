@@ -1936,6 +1936,17 @@ geoOps.TrAffine.updatePosition = function(el) {
     });
 };
 
+// Define a similarity transformation given two points and their images
+geoOps.TrRotation = {};
+geoOps.TrRotation.kind = "Tr";
+geoOps.TrRotation.updatePosition = function(el) {
+    geoOps._helper.trBuildMatrix(el, function(offset) {
+        var a = csgeo.csnames[el.args[0 + offset]].homog,
+            b = csgeo.csnames[el.args[2 + offset]].homog;
+        return eval_helper.basismap(a, b, List.ii, List.jj);
+    });
+};
+
 geoOps.TrInverse = {};
 geoOps.TrInverse.kind = "Tr";
 geoOps.TrInverse.signature = ["Tr"];
