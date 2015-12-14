@@ -102,23 +102,33 @@ evaluator.drawcircle$2 = function(args, modifs) {
 };
 
 
+eval_helper.arcHelper = function(args) {
+    var arc = {};
+    arc.startPoint = evaluateAndHomog(args[0]);
+    arc.viaPoint = evaluateAndHomog(args[1]);
+    arc.endPoint = evaluateAndHomog(args[2]);
+    return arc;
+};
+
 evaluator.fillcircle$2 = function(args, modifs) {
     return eval_helper.drawcircle(args, modifs, "F");
 };
 
 evaluator.drawarc$3 = function(args, modifs) {
-    return eval_helper.drawarc(args, modifs, "D");
+    var arc = eval_helper.arcHelper(args);
+    return eval_helper.drawarc(arc, modifs, "D");
 };
 
 evaluator.fillarc$3 = function(args, modifs) {
-    return eval_helper.drawarc(args, modifs, "F");
+    var arc = eval_helper.arcHelper(args);
+    return eval_helper.drawarc(arc, modifs, "F");
 };
 
 
 eval_helper.drawarc = function(args, modifs, df) {
-    var a = evaluateAndHomog(args[0]);
-    var b = evaluateAndHomog(args[1]);
-    var c = evaluateAndHomog(args[2]);
+    var a = args.startPoint;
+    var b = args.viaPoint;
+    var c = args.endPoint;
 
     // check for complex values
     if (!List._helper.isAlmostReal(List.turnIntoCSList([a, b, c]))) return nada;

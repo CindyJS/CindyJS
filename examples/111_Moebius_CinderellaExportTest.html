@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: {}, 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 0.41758241758241754, -4.0, -0.5494505494505494 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ -0.13008130081300814, -4.0, -0.8130081300813008 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C", type: "Free", pos: [ -2.1052631578947367, -4.0, -1.7543859649122808 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "D", type: "Free", pos: [ -3.634146341463415, -4.0, -0.6097560975609757 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "E", type: "Free", pos: [ 4.0, 2.891566265060241, 0.6024096385542169 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "F", type: "Free", pos: [ 4.0, 1.5, 0.5434782608695652 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "Tr0", type: "TrMoebius", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "D", "B", "E", "C", "F" ] }, 
+		{ name: "G", type: "Free", pos: [ -1.793103448275862, -4.0, 3.4482758620689653 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "H", type: "Free", pos: [ 4.0, 1.4311926605504586, -0.4587155963302752 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "K", type: "Free", pos: [ 0.45070422535211263, -4.0, 1.408450704225352 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C0", type: "Arc", color: [ 0.0, 0.0, 1.0 ], args: [ "G", "H", "K" ], size: 1, printname: "$C_{0}$" }, 
+		{ name: "C1", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C0" ], size: 1, printname: "$C_{1}$" }, 
+		{ name: "L", type: "Free", pos: [ 4.0, 1.8226600985221677, 0.24630541871921185 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "M", type: "Free", pos: [ 4.0, 2.3314285714285714, 0.2857142857142857 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "N", type: "Free", pos: [ 4.0, -0.04338394793926247, 0.21691973969631237 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "O", type: "Free", pos: [ 4.0, 0.194647201946472, 0.24330900243309 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "P", type: "Free", pos: [ 4.0, 1.6679245283018866, 0.18867924528301885 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "Q", type: "Free", pos: [ 4.0, 1.0727650727650728, 0.2079002079002079 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "R", type: "Free", pos: [ 4.0, 2.5891783567134263, 0.20040080160320642 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "S", type: "Free", pos: [ 4.0, 2.0696055684454757, 0.2320185614849188 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "Tr1", type: "TrProjection", color: [ 0.0, 0.0, 1.0 ], args: [ "L", "S", "M", "R", "N", "Q", "O", "P" ] }, 
+		{ name: "C2", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr1", "C0" ], size: 1, printname: "$C_{2}$" }, 
+		{ name: "T", type: "Transform", pos: [ 4.0, 3.0120032375808106, 0.12321971730404363 ], color: [ 1.0, 0.0, 0.0 ], args: [ "Tr1", "G" ], labeled: true }, 
+		{ name: "U", type: "Transform", pos: [ 4.0, 3.155084971423055, 0.1144918446644713 ], color: [ 1.0, 0.0, 0.0 ], args: [ "Tr1", "H" ], labeled: true }, 
+		{ name: "V", type: "Transform", pos: [ 4.0, 2.926257936039025, 0.12327138542933927 ], color: [ 1.0, 0.0, 0.0 ], args: [ "Tr1", "K" ], labeled: true } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 3200, height: 1548, transform: [ { visibleRect: [ -24.44, 32.4, 103.56, -29.52 ] } ], background: "rgb(168,176,192)" } ] });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

@@ -52,11 +52,7 @@ function render() {
         // check if we have filled: true
         var df = el.filled ? "F" : "D";
 
-        var newargs = [csgeo.csnames[el.args[0]].homog,
-            csgeo.csnames[el.args[1]].homog,
-            csgeo.csnames[el.args[2]].homog
-        ];
-        eval_helper.drawarc(newargs, modifs, df);
+        eval_helper.drawarc(el, modifs, df);
     }
 
 
@@ -171,7 +167,7 @@ function render() {
     var i;
 
     for (i = 0; i < csgeo.conics.length; i++) {
-        if (csgeo.conics[i].type === "ArcBy3") drawgeoarc(csgeo.conics[i]);
+        if (csgeo.conics[i].isArc) drawgeoarc(csgeo.conics[i]);
         else drawgeoconic(csgeo.conics[i]);
     }
 

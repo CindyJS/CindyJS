@@ -19,7 +19,7 @@ geoOps.RandomLine = {};
 geoOps.RandomLine.kind = "L";
 geoOps.RandomLine.signature = [];
 geoOps.RandomLine.updatePosition = function(el) {
-    el.homog = List.realVector([100 * Math.random(), 100 * Math.random(), 100 * Math.random()]);
+    el.homog = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Line");
 };
@@ -1255,6 +1255,7 @@ geoOps.CircleBy3.updatePosition = function(el) {
     var c = List.ii;
     var d = List.jj;
     var p = csgeo.csnames[(el.args[2])].homog;
+
     var erg = geoOps._helper.ConicBy5(el, a, b, c, d, p);
     el.matrix = List.normalizeMax(erg);
     el.matrix = General.withUsage(el.matrix, "Circle");
@@ -1264,7 +1265,18 @@ geoOps.CircleBy3.updatePosition = function(el) {
 geoOps.ArcBy3 = {};
 geoOps.ArcBy3.kind = "C";
 geoOps.ArcBy3.signature = ["P", "P", "P"];
-geoOps.ArcBy3.updatePosition = geoOps.CircleBy3.updatePosition;
+geoOps.ArcBy3.updatePosition = function(el) {
+    geoOps.CircleBy3.updatePosition(el);
+    el.startPoint = csgeo.csnames[(el.args[0])].homog;
+    el.viaPoint = csgeo.csnames[(el.args[1])].homog;
+    el.endPoint = csgeo.csnames[(el.args[2])].homog;
+};
+geoOps.ArcBy3.initialize = function(el) {
+    el.startPoint = csgeo.csnames[(el.args[0])].homog;
+    el.viaPoint = csgeo.csnames[(el.args[1])].homog;
+    el.endPoint = csgeo.csnames[(el.args[2])].homog;
+    el.isArc = true;
+};
 
 geoOps.PolarOfPoint = {};
 geoOps.PolarOfPoint.kind = "L";
@@ -1783,6 +1795,93 @@ geoOps.TrMoebiusP.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Point");
 };
 
+geoOps._helper.TrMoebiusP = function(p, Tr) {
+    var l1 = List.productMV(Tr.mat1, p);
+    var l2 = List.productMV(Tr.mat2, p);
+    return List.normalizeMax(List.cross(l1, l2));
+};
+
+geoOps.TrMoebiusL = {};
+geoOps.TrMoebiusL.kind = "C";
+geoOps.TrMoebiusL.signature = ["Mt", "L"];
+geoOps.TrMoebiusL.updatePosition = function(el) {
+    var t = csgeo.csnames[(el.args[0])];
+    var l = csgeo.csnames[(el.args[1])].homog;
+
+    var getRandLine = function() {
+        var rline = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
+        return List.normalizeMax(rline);
+    };
+
+    var a1 = List.cross(getRandLine(), l);
+    var a2 = List.cross(getRandLine(), l);
+    var a3 = List.cross(getRandLine(), l);
+
+    var b1 = geoOps._helper.TrMoebiusP(a1, t);
+    var b2 = geoOps._helper.TrMoebiusP(a2, t);
+    var b3 = geoOps._helper.TrMoebiusP(a3, t);
+
+    el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
+    el.matrix = General.withUsage(el.matrix, "Circle");
+};
+
+
+geoOps.TrMoebiusC = {};
+geoOps.TrMoebiusC.kind = "C";
+geoOps.TrMoebiusC.signature = ["Mt", "C"];
+geoOps.TrMoebiusC.updatePosition = function(el) {
+    var t = csgeo.csnames[(el.args[0])];
+    var cir = csgeo.csnames[(el.args[1])].matrix;
+
+    if (cir.usage !== "Circle") {
+        console.log("applying Moebius transform to conics is not implemented yet");
+        var th = CSNumber.real(3);
+        el.matrix = List.zeromatrix(th, th);
+    } else {
+        var getRandLine = function() {
+            var rline = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
+            return List.normalizeMax(rline);
+        };
+
+        var pts1 = geoOps._helper.IntersectLC(getRandLine(), cir);
+        var pts2 = geoOps._helper.IntersectLC(getRandLine(), cir);
+
+        var a1 = pts1[0],
+            a2 = pts1[1],
+            a3 = pts2[1];
+
+        var b1 = geoOps._helper.TrMoebiusP(a1, t);
+        var b2 = geoOps._helper.TrMoebiusP(a2, t);
+        var b3 = geoOps._helper.TrMoebiusP(a3, t);
+
+        el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
+    }
+    el.matrix = General.withUsage(el.matrix, "Circle");
+};
+
+geoOps.TrMoebiusArc = {};
+geoOps.TrMoebiusArc.kind = "C";
+geoOps.TrMoebiusArc.signature = ["Mt", "C"];
+geoOps.TrMoebiusArc.updatePosition = function(el) {
+    var t = csgeo.csnames[(el.args[0])];
+    var Arc = csgeo.csnames[(el.args[1])];
+
+    var a1 = Arc.startPoint;
+    var a2 = Arc.viaPoint;
+    var a3 = Arc.endPoint;
+
+    var b1 = geoOps._helper.TrMoebiusP(a1, t);
+    var b2 = geoOps._helper.TrMoebiusP(a2, t);
+    var b3 = geoOps._helper.TrMoebiusP(a3, t);
+    el.startPoint = b1;
+    el.viaPoint = b2;
+    el.endPoint = b3;
+
+    el.isArc = true;
+    el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
+    el.matrix = General.withUsage(el.matrix, "Circle");
+};
+
 // Define a projective transformation given four points and their images
 geoOps.TrProjection = {};
 geoOps.TrProjection.kind = "Tr";
@@ -1832,6 +1931,31 @@ geoOps.TransformC.updatePosition = function(el) {
     var m = List.productMM(List.productMM(d, c), List.transpose(d));
     m = List.normalizeMax(m);
     el.matrix = General.withUsage(m, "Conic");
+};
+
+
+geoOps.TransformArc = {};
+geoOps.TransformArc.kind = "C";
+geoOps.TransformArc.signature = ["Tr", "C"];
+geoOps.TransformArc.updatePosition = function(el) {
+    var t = csgeo.csnames[(el.args[0])].matrix;
+    var Arc = csgeo.csnames[(el.args[1])];
+
+    var a1 = Arc.startPoint;
+    var a2 = Arc.viaPoint;
+    var a3 = Arc.endPoint;
+
+    var b1 = List.normalizeMax(List.productMV(t, a1)),
+        b2 = List.normalizeMax(List.productMV(t, a2)),
+        b3 = List.normalizeMax(List.productMV(t, a3));
+
+    el.startPoint = b1;
+    el.viaPoint = b2;
+    el.endPoint = b3;
+
+    el.isArc = true;
+    el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
+    el.matrix = General.withUsage(el.matrix, "Circle");
 };
 
 // Apply a projective transformation to a point
@@ -1989,14 +2113,22 @@ geoMacros.Calculation = function(el) {
     return [];
 };
 
+geoMacros.Arc = function(el) {
+    el.type = "ArcBy3";
+    return [el];
+};
+
 geoMacros.Transform = function(el) {
-    var trKind = csgeo.csnames[el.args[0]].kind;
-    var argKind = csgeo.csnames[el.args[1]].kind;
+    var arg = csgeo.csnames[el.args[1]];
+    var tr = csgeo.csnames[el.args[0]];
+    // workaround for Arcs since we treat them as circles
+    var akind = arg.isArc ? "Arc" : arg.kind;
+
     var map = {
         Tr: "Transform",
         Mt: "TrMoebius"
     };
-    var op = map[trKind] + argKind;
+    var op = map[tr.kind] + akind;
     if (geoOps.hasOwnProperty(op)) {
         el.type = op;
         return [el];
