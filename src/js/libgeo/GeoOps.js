@@ -1048,12 +1048,12 @@ geoOps.ConicBy1p4l = {};
 geoOps.ConicBy1p4l.kind = "Cs";
 geoOps.ConicBy1p4l.signature = ["P", "L", "L", "L", "L"];
 geoOps.ConicBy1p4l.updatePosition = function(el) {
-    var l1 = csgeo.csnames[(el.args[0])].homog;
-    var l2 = csgeo.csnames[(el.args[1])].homog;
-    var l3 = csgeo.csnames[(el.args[2])].homog;
-    var l4 = csgeo.csnames[(el.args[3])].homog;
+    var p = csgeo.csnames[(el.args[0])].homog;
+    var l1 = csgeo.csnames[(el.args[1])].homog;
+    var l2 = csgeo.csnames[(el.args[2])].homog;
+    var l3 = csgeo.csnames[(el.args[3])].homog;
+    var l4 = csgeo.csnames[(el.args[4])].homog;
 
-    var p = csgeo.csnames[(el.args[4])].homog;
 
     var erg = geoOps._helper.ConicBy4p1l(el, l1, l2, l3, l4, p);
     var t1 = erg[0];
