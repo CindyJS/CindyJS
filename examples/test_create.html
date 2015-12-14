@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Cindy JS</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.plain.js"></script>
+        <script type="text/javascript">
+            createCindy({ 
+        	scripts: "cs*", 
+        	defaultAppearance: {}, 
+        	geometry: [], 
+        	ports: [ 
+        		{ id: "CSCanvas", width: 680, height: 336, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.12 ] } ], background: "rgb(168,176,192)" } ] });
+            </script>
+        </script>
+    </head>
+    <body>
+        <script id="csinit" type="text/x-cindyscript">
+            err(timestamp());
+            createpoint("A", [0,0,1]);
+            createpoint("B", [5,0,1]);
+            createpoint("C", [5,5,1]);
+            create(["a"], "Join", ["A", "B"]);
+            create(["d"], "Para", ["a", "C"]);
+            createpoint("A", [10,0,1]);
+        </script>
+        <canvas id="CSCanvas" width="500" height="500"></canvas>        
+        <!--
+            create(["A"], "Free", [[1, 1, 1]]);
+            create(["B"], "Free", [[4, 3, 1]]);
+            create(["a"], "Join", ["A", "B"]);
+            create(["X"], "CircleMP", ["A", "B"]);
+            create(["Y"], "CircleMP", ["B", "A"]);
+            create(["P","Q"],"IntersectCirCir",[X,Y]);
+            create(["b"],"Join",[P,Q]);
+            create(["M"],"Meet",[a,b]);
+            -->
+	</body>
+</html>

@@ -305,7 +305,7 @@ function doneLoadingModule() {
 var backup = null;
 
 function backupGeo() {
-    var state = backup ? backup.state : new Float64Array(stateIn.length);
+    var state = stateArrays.backup;
     state.set(stateIn);
     var speeds = {};
     for (var i = 0; i < csgeo.points.length; i++) {
