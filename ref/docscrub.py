@@ -116,7 +116,7 @@ class SoupToMarkdown:
         href = node["href"]
         tiki = "tiki-index.php?page="
         if href.startswith(tiki):
-            href = href[len(tiki):].replace("+", "_")
+            href = href[len(tiki):].replace("+", "_") + ".md"
         else:
             print("   href='{}'".format(href))
         self._output.append(href)

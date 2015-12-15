@@ -22,7 +22,7 @@ Thus, if a matrix contains *n* vectors of length *m*, then it is an *n* × *m* m
 
 ###  Addition and Multiplication
 
-In the section [Arithmetic Operators](Arithmetic_Operators) we explain how the fundamental operations of addition, subtraction, multiplication, and division can be applied to lists of numbers.
+In the section [Arithmetic Operators](Arithmetic_Operators.md) we explain how the fundamental operations of addition, subtraction, multiplication, and division can be applied to lists of numbers.
 As a rule of thumb, one can say that on this level, everything that is mathematically reasonable can be performed in CindyScript.
 So, for instance, if `A` and `B` are lists of numbers, then the expression `(A+B)/2` calculates the midpoint of these two vectors.
 
@@ -406,7 +406,7 @@ This operator calculates the determinant of a square matrix, that is, one with t
 Note that the determinant is an extremely useful function, for many geometric purposes.
 For instance, the determinant of the 3 × 3 matrix formed by the homogeneous coordinates of three points is zero if and only if the three points are collinear.
 The sign of the determinant carries information on the relative orientation of the three points.
-In the section [Geometric Operators](Geometric_Operators) you can find descriptions of the functions `area(‹vec1›,‹vec2›,‹vec3›)` and `det(‹vec1›,‹vec2›,‹vec3›)`.
+In the section [Geometric Operators](Geometric_Operators.md) you can find descriptions of the functions `area(‹vec1›,‹vec2›,‹vec3›)` and `det(‹vec1›,‹vec2›,‹vec3›)`.
 Both are variants of the determinant function that are particularly useful in geometric contexts and exhibit slightly better performance than the general determinant formula.
 
 ------

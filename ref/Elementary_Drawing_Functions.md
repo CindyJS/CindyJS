@@ -17,7 +17,7 @@ For the first two we assume that `x`, `y`, and `z` are numbers.
 
 A word on homogeneous coordinates: If `[x,y,z]` are the homogeneous coordinates of a point, then the corresponding point that will be drawn has *xy*-coordinates `[x/z,y/z]`.
 Points that have homogeneous coordinates with `z=0` correspond to "points at infinity." You won't see them in a usual Cinderella Euclidean view.
-However, they will be drawn in spherical view (or when a local projective basis is set (see [Script Coordinate System](Script_Coordinate_System)).
+However, they will be drawn in spherical view (or when a local projective basis is set (see [Script Coordinate System](Script_Coordinate_System.md)).
 
 **Drawing a segment:**
 A segment can be drawn by providing a list of two points.
@@ -110,7 +110,7 @@ The following piece of code illustrates the effect of the dashing modifiers.
 | ****                      |
 
 **See also:**
-[Script Coordinate System](Script_Coordinate_System) and [Geometric Operators](Geometric_Operators)
+[Script Coordinate System](Script_Coordinate_System.md) and [Geometric Operators](Geometric_Operators.md)
 
 ------
 

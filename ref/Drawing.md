@@ -12,20 +12,20 @@ One can also use high-level graphics operations within CindyScript to create a p
 
 The following topics will be treated:
 
-*  **[Appearance of Objects](Appearance_of_Objects):**
+*  **[Appearance of Objects](Appearance_of_Objects.md):**
 Since the appearance of the elements of a construction is fundamental for all such output operations, we treat the handling of color, size, and transparency first.
 
-*  **[Elementary Drawing Functions](Elementary_Drawing_Functions)**: This section covers the fundamental drawing primitives for points and lines.
+*  **[Elementary Drawing Functions](Elementary_Drawing_Functions.md)**: This section covers the fundamental drawing primitives for points and lines.
 
-*  **[Function Plotting](Function_Plotting):**
+*  **[Function Plotting](Function_Plotting.md):**
 Plotting of functions can be very easily done with high-level graphics operations.
 
-*  **[Texts and Tables](Texts_and_Tables):**
+*  **[Texts and Tables](Texts_and_Tables.md):**
 Textual output allows for various ways of creating additional information in a geometric view.
 
-*  **[TeX Rendering](TeX_Rendering):**
+*  **[TeX Rendering](TeX_Rendering.md):**
 More details on formula generation inside CindyScript.
 
-*  **[Script Coordinate System](Script_Coordinate_System):**
+*  **[Script Coordinate System](Script_Coordinate_System.md):**
 Finally, it will be explained how the local coordinate system for drawing can be transformed.
 In this way one can, for instance, create a perspective drawing of a scene.

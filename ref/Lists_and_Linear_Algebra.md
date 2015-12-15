@@ -17,13 +17,13 @@ They serve as
 This section covers the very general aspects of creating lists and accessing their elements as well as all elementary aspects of array functionality.
 For information on all other aspects of lists, consult the sections
 
-*  [Elementary List Operations](Elementary_List_Operations)
+*  [Elementary List Operations](Elementary_List_Operations.md)
 
-*  [Advanced List Operations](Advanced_List_Operations)
+*  [Advanced List Operations](Advanced_List_Operations.md)
 
-*  [Lists of Geometric Elements](Lists_of_Geometric_Elements)
+*  [Lists of Geometric Elements](Lists_of_Geometric_Elements.md)
 
-*  [Vectors and Matrices](Vectors_and_Matrices)
+*  [Vectors and Matrices](Vectors_and_Matrices.md)
 
 ------
 
@@ -124,7 +124,7 @@ The following examples exemplify this possibility:
 
 | Code                          | Result |
 | ----------------------------- | ------ |
-| `[2 ,5 ,7 ,3]_(-1)`           | `7`    |
+| `[2 ,5 ,7 ,3]_(-1)`           | `3`    |
 | `take([2 ,5 ,7 ,3],(-3))`     | `5`    |
 | `[ [2,6] ,5 ,7 ,3]_(-4)_(-1)` | `6`    |
 
