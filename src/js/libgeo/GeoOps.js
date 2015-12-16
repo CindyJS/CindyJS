@@ -1924,6 +1924,7 @@ geoOps._helper.trBuildMatrix = function(el, oneStep) {
 // Define an affine transformation given three points and their images
 geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
+geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
 geoOps.TrAffine.updatePosition = function(el) {
     var inf = List.linfty;
     var cc = List.cross;
@@ -1939,6 +1940,7 @@ geoOps.TrAffine.updatePosition = function(el) {
 // Define a similarity transformation given two points and their images
 geoOps.TrRotation = {};
 geoOps.TrRotation.kind = "Tr";
+geoOps.TrRotation.signature = ["P", "P", "P", "P"];
 geoOps.TrRotation.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
         var a = csgeo.csnames[el.args[0 + offset]].homog,
@@ -1950,6 +1952,7 @@ geoOps.TrRotation.updatePosition = function(el) {
 // Define a translation transformation given one point and its image
 geoOps.TrTranslation = {};
 geoOps.TrTranslation.kind = "Tr";
+geoOps.TrTranslation.signature = ["P", "P"];
 geoOps.TrTranslation.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
         var a = csgeo.csnames[el.args[0 + offset]].homog,
