@@ -393,7 +393,7 @@ evaluator.drawconic$1 = function(args, modifs) {
     return eval_helper.drawconic(Conic.matrix, modifs);
 };
 
-eval_helper.drawconic = function(conicMatrix, modifs) {
+eval_helper.drawconic = function(conicMatrix, modifs, isNotDegenCircle) {
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     if (Render2D.lsize === 0)
@@ -407,7 +407,9 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     // check for complex values
     for (var i = 0; i < 2; i++)
         for (var j = 0; j < 2; j++) {
-            if (Math.abs(mat.value[i].value[j].value.imag) > eps) return;
+            if (Math.abs(mat.value[i].value[j].value.imag) > CSNumber.eps) {
+                return;
+            }
         }
 
     // transform matrix to canvas coordiantes
@@ -456,7 +458,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
 
 
     var det = a * c * f - a * e * e - b * b * f + 2 * b * d * e - c * d * d;
-    var degen = Math.abs(det) < eps;
+    var degen = (Math.abs(det) < eps) && !isNotDegenCircle;
 
     var cswh_max = csw > csh ? csw : csh;
 
