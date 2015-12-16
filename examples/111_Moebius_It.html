@@ -1,65 +1,84 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csinit" type="text/x-cindyscript">
+    <meta charset="UTF-8">
+    <title>ThreePoints1.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
 
-// Initialization code, executed once up front.
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-
-// Drawing code, executed whenever the canvas gets redrawn.
-
-</script>
-<script type="text/javascript">
-
-var cdy = createCindy({ // See ref/createCindy documentation for details.
-  ports: [{id: "CSCanvas"}],
-  scripts: "cs*",
-  language: "en",
-  snap:true,
-  grid:1,
-  defaultAppearance: {
-    // See GeoBasics.js for possible attributes.
-  },
-  geometry: [
-    {name:"A1", type:"Free", pos:[3.95,-4,-1.03], color:[255,0,0], labeled:true},
-    {name:"A2", type:"Free", pos:[4, -3.8, -1.6], color:[255,0,0], labeled:true},
-    {name:"A3", type:"Free", pos:[4, 0.27, -0.97], color:[255,0,0], labeled:true},
-
-    {name: "AA", type: "CircleBy3", args: [ "A1", "A2", "A3" ]},
-    {name:"B1", type:"Free", pos:[0.65, -4, -0.9], color:[0,255,0], labeled:true},
-    {name:"B2", type:"Free", pos:[-1.78, -4, -1.3], color:[0,255,0], labeled:true},
-    {name:"B3", type:"Free", pos:[0.16, 3.2, 4], color:[0,255,0], labeled:true},
-    {name:"Tr0", type:"TrMoebius", args:["A1","B1","A2","B2","A3","B3"]},
-
-    {name: "BB", type: "CircleBy3", args: [ "B1", "B2", "B3" ]},
-    {name: "CC", type: "TrMoebiusC", args: [ "Tr0",  "BB"]},
-    {name: "DD", type: "TrMoebiusC", args: [ "Tr0",  "CC"]},
-    {name: "EE", type: "TrMoebiusC", args: [ "Tr0",  "DD"]},
-    {name: "FF", type: "TrMoebiusC", args: [ "Tr0",  "EE"]},
-    {name: "GG", type: "TrMoebiusC", args: [ "Tr0",  "FF"]},
-    {name: "HH", type: "TrMoebiusC", args: [ "Tr0",  "GG"]},
-    {name: "II", type: "TrMoebiusC", args: [ "Tr0",  "HH"]},
-    {name: "JJ", type: "TrMoebiusC", args: [ "Tr0",  "II"]},
-    {name: "KK", type: "TrMoebiusC", args: [ "Tr0",  "JJ"]},
-    {name: "LL", type: "TrMoebiusC", args: [ "Tr0",  "KK"]},
-    // For allowed properties, see csinit in GeoBasics.js.
-  ] // End of geometry array.
-});
-
-// Remove all comments after adjusting this template for your use case.
-
-</script>
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: {}, 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 3.9587628865979383, -4.0, -1.0309278350515465 ], color: [ 1.0, 0.0, 0.0 ], alpha: 0.8999999761581421, labeled: true, size: 3.0 }, 
+		{ name: "B", type: "Free", pos: [ 4.0, -3.806451612903225, -1.6129032258064515 ], color: [ 1.0, 0.0, 0.0 ], alpha: 0.8999999761581421, labeled: true, size: 3.0 }, 
+		{ name: "C", type: "Free", pos: [ 4.0, 0.2718446601941747, -0.9708737864077667 ], color: [ 1.0, 0.0, 0.0 ], alpha: 0.8999999761581421, labeled: true, size: 3.0 }, 
+		{ name: "D", type: "Free", pos: [ 0.6545454545454544, -4.0, -0.9090909090909093 ], color: [ 0.0, 1.0, 0.0 ], alpha: 0.8999999761581421, labeled: true, size: 3.0 }, 
+		{ name: "E", type: "Free", pos: [ -1.7894736842105268, -4.0, -1.3157894736842106 ], color: [ 0.0, 1.0, 0.0 ], alpha: 0.8999999761581421, labeled: true, size: 3.0 }, 
+		{ name: "F", type: "Free", pos: [ 0.16000000000000192, 3.1999999999999993, 4.0 ], color: [ 0.0, 1.0, 0.0 ], alpha: 0.8999999761581421, labeled: true, size: 3.0 }, 
+		{ name: "Tr0", type: "TrMoebius", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "D", "B", "E", "C", "F" ], alpha: 0.8999999761581421 }, 
+		{ name: "C0", type: "CircleBy3", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "B", "C" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C1", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C0" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C2", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C1" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C3", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C2" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C4", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C3" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C5", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C4" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C6", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C5" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C7", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C6" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C8", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C7" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C9", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C8" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C10", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C9" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C11", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C10" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C12", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C11" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C13", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C12" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C14", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C13" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C15", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C14" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C16", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C15" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C17", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C16" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C18", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C17" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C19", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C18" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C20", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C19" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C21", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C20" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C22", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C21" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C23", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C22" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C24", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C23" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C25", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C24" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C26", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C25" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C27", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C26" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C28", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C27" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C29", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C28" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C30", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C29" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C31", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C30" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C32", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C31" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C33", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C32" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C34", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C33" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C35", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C34" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C36", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C35" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "C37", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "C36" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "a", type: "Segment", pos: [ 0.14749262536873145, -0.8849557522123894, 4.0 ], color: [ 1.0, 1.0, 1.0 ], args: [ "A", "D" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "b", type: "Segment", pos: [ 0.253051503423638, -1.4289967252158382, 4.0 ], color: [ 1.0, 1.0, 1.0 ], args: [ "B", "E" ], alpha: 0.8999999761581421, size: 1 }, 
+		{ name: "c", type: "Segment", pos: [ 1.0384615384615377, -4.0, 3.1584615384615367 ], color: [ 1.0, 1.0, 1.0 ], args: [ "C", "F" ], alpha: 0.8999999761581421, size: 1 } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 390, transform: [ { visibleRect: [ -8.8, 6.56, 18.4, -9.04 ] } ], background: "rgb(168,176,192)" } ] });
+    </script>
 </head>
-
-<body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="1000" height="1000"
-          style="border:2px solid black"></canvas>
+<body>
+    <canvas id="CSCanvas"></canvas>
 </body>
-
 </html>
