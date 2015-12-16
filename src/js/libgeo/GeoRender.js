@@ -69,8 +69,7 @@ function render() {
         modifs.alpha = el.alpha;
         modifs.size = el.size;
 
-        var args = el;
-        eval_helper.drawconic(args, modifs);
+        eval_helper.drawconic(el.matrix, modifs);
 
 
     }
