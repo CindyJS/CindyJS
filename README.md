@@ -28,9 +28,23 @@ One exception is a Java Development Kit, which has to be installed before.
 If `make` terminated successfully, then `build/js` will contain
 the artifacts which you'd likely want to include in your web site.
 
+### Building on Windows
+
+The description above uses `make` mostly for convenience.
+Pretty much all the commands are in fact passed on to
+a JavaScript-based build system contained in the `make` directory.
+If you don't have `make` available on Windows,
+you can call `node make` instead.
+
+Note that you should have the following software installed:
+* A recent Java Development Kit (JDK)
+* Node.js with the `node` command added to the PATH
+* Git for Windows with the `git` command usable from the Windows Command Prompt
+
 ## Contributing
 
-When you work on the code base `make plain=1` will give you a
+When you work on the code base `make plain=1`
+(or `node make js_compiler=plain`) will give you a
 considerably faster compile time, and more readable source files.
 If you are confident that your work is done, call `make alltests`
 after you did `git add` to stage your changes.
