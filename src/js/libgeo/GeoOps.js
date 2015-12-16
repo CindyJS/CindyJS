@@ -1882,6 +1882,16 @@ geoOps.TrMoebiusArc.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
 
+// Produces the transformation matrix and its dual
+geoOps._helper.trBuildMatrix = function(el, oneStep) {
+    var m0 = oneStep(0);
+    var m1 = oneStep(1);
+    var m = List.productMM(m1, List.adjoint3(m0));
+    el.matrix = List.normalizeMax(m);
+    m = List.transpose(List.productMM(m0, List.adjoint3(m1)));
+    el.dualMatrix = List.normalizeMax(m);
+};
+
 // Define a projective transformation given four points and their images
 geoOps.TrProjection = {};
 geoOps.TrProjection.kind = "Tr";
@@ -1903,16 +1913,6 @@ geoOps.TrProjection.updatePosition = function(el) {
         ]));
         return tmp;
     }
-    var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
-    m = List.normalizeMax(m);
-    el.matrix = m;
-    m = List.transpose(List.adjoint3(m));
-    m = List.normalizeMax(m);
-    el.dualMatrix = m;
-};
-
-// Produces the transformation matrix and its dual
-geoOps._helper.trBuildMatrix = function(el, oneStep) {
     var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
     m = List.normalizeMax(m);
     el.matrix = m;
