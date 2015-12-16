@@ -124,35 +124,37 @@ Renderer.prototype.setUniforms = function() {
       case type.complex:
         setter([val['value']['real'], val['value']['imag']]);
         break;
+      case type.bool:
+      case type.int:
       case type.float:
         setter([val['value']['real']]);
         break;
-      case type.int:
-        setter([val['value']['real']]);
-        break;
-      case type.bool:
-        setter([val['value']['real']]);
-        break;
       case type.vec2:
-        setter([
-          val['value'][0]['value']['real'],
-          val['value'][1]['value']['real']
-        ]);
-        break;
       case type.vec3:
-        setter([
-          val['value'][0]['value']['real'],
-          val['value'][1]['value']['real'],
-          val['value'][2]['value']['real']
-        ]);
-        break;
       case type.vec4:
-        setter([
-          val['value'][0]['value']['real'],
-          val['value'][1]['value']['real'],
-          val['value'][2]['value']['real'],
-          val['value'][3]['value']['real']
-        ]);
+        {
+          let n = 0;
+          if(t === type.vec2) n = 2;
+          if(t === type.vec3) n = 3;
+          if(t === type.vec4) n = 4;
+          let v = [];
+          for(let i = 0; i < n; i++) v.push(val['value'][i]['value']['real']);
+          setter(v);
+        }
+        break;
+       //TODO: other non-quadratic matrices
+      case type.mat2:
+      case type.mat3:
+      case type.mat4:
+       {
+        let l = 0;
+        if(t === type.mat2) l = 2;
+        if(t === type.mat3) l = 3;
+        if(t === type.mat4) l = 4;
+        let m = [];
+        for(let i = 0; i < l; i++) for(let j = 0; j < l; j++) m.push(val['value'][j]['value'][i]['value']['real']);
+        setter(m);
+      }
         break;
       default:
         console.error("Don't know how to set uniform" + uname + " to " + val);

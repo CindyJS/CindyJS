@@ -161,6 +161,6 @@ function matchSignature(functionname, args) { //args is a list of types
       return si;
     }
   }
-  console.error('No Signature found for ' + functionname + '(' + args.map(typeToString).join(', ') + ')');
+  console.error('No Signature found for ' + functionname + '(' + args.map(typeToString).join(', ') + ')(' + JSON.stringify(args) + ')');
   return nada;
 }

@@ -44,7 +44,7 @@ subtypegen[type.int] = [type.float];
 subtypegen[type.float] = [type.complex, type.color]; //color: as gray
 
 //subtypegen[type.complex] = []; //NOT type.vec2: because no automatic cast in cindyJS
-subtypegen[type.color] = [type.vec3]; //NOT type.vec4 because vec3 -> color -> vec4. Only consider vec3 <-> color in the sense of cindyJS
+subtypegen[type.color] = [type.vec4]; //NOT type.vec4 because vec3 -> color -> vec4. Only consider vec3 <-> color in the sense of cindyJS
 
 //subtypegen[type.vec2] = [type.point]; //TODO: kein eigentlicher grund fuer kommentar
 subtypegen[type.vec3] = [type.color, type.point];
@@ -163,6 +163,9 @@ typeinference["sub"] = [
 //- ("mult", 2, OpTimes.class); @done(2015-03-17)
 typeinference["mult"] = [
   int_fun$2, float_fun$2, complex_fun$2,
+  {args: [type.mat2, type.vec2],    res: type.vec2},
+  {args: [type.mat3, type.vec3],    res: type.vec3},
+  {args: [type.mat4, type.vec4],    res: type.vec4}
 ];
 //all R-vectorspaces:
 let rvectorspaces = [type.complex, type.vec2, type.vec3, type.vec4];
@@ -178,6 +181,10 @@ typeinference["mult"].push(vec42float_fun$2);
 typeinference["div"] = [
   float_fun$2, complex_fun$2
 ];
+rvectorspaces.forEach(function(t){
+  typeinference["div"].push({args: [t,type.float], res: t});
+});
+
 //- ("pow", 2, OpPow.class); @done(2015-03-17)
 typeinference["pow"] = [
   {args: [type.float, type.int], res: type.float},
@@ -275,6 +282,12 @@ typeinference["randomnormal"] = [
 //- operators.put(".", 25); @tricky
 //- operators.put("\u00b0", 25);    //Degree @done(2015-03-17)
 //- operators.put("_", 50);    //x_i i-tes Element von x @done(2015-03-17)
+typeinference["_"] = [
+  {args:[type.vec2, type.int], res: type.float},
+  {args:[type.vec3, type.int], res: type.float},
+  {args:[type.vec4, type.int], res: type.float}
+];
+
 //- operators.put("^", 50);    //hoch @done(2015-03-17)
 typeinference["^"] = typeinference["pow"];
 //- operators.put("*", 100);   //Multiplikation (auch für Vectoren, Scalarmul) @done(2015-03-17)
@@ -297,7 +310,7 @@ typeinference["-"] = typeinference["sub"];
 //- operators.put("<", 300);   //Kleiner @done(2015-03-17)
 //- operators.put(">=", 300);  //Größergleich @done(2015-03-17)
 //- operators.put("<=", 300);  //Kleinergleich @done(2015-03-17)
-[">","<", ">=", "<="].forEach( oper =>
+[">","<", ">=", "<=", "=="].forEach( oper => //TODO: == also for other types
   typeinference[oper] = [
     int2bool_fun$2, float2bool_fun$2
   ]
@@ -603,6 +616,10 @@ typeinference["apply"] = [
 //- ("max", 2, OpMaxFun.class); @done(2015-03-17)
 //- ("max", 3, OpMaxFunVar.class); @done(2015-03-17)
 //- ("min", 1, OpMin.class); @done(2015-03-17)
+typeinference["min"] = [
+  int_fun$2,
+  float_fun$2
+];
 //- ("min", 2, OpMinFun.class); @done(2015-03-17)
 //- ("min", 3, OpMinFunVar.class); @done(2015-03-17)
 //- ("keys", 1, OpKeys.class); @rethink

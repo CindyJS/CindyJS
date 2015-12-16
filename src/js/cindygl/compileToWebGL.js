@@ -137,6 +137,8 @@ function computeType(expr, fun) { //expression, current function
     //TODO: other primitives like color, point...
   } else if(expr['ctype']==='void') {
     return type.voidt;
+  } else if(expr['ctype']==='field') {
+    return type.float; //so far we only have field indexes vor vec2, vec3, vec4
   } else {
     var argtypes = new Array(expr['args'].length);
     for(let i in expr['args']) {
@@ -147,7 +149,7 @@ function computeType(expr, fun) { //expression, current function
     let f = getPlainName(expr['oper']);
     let signature = matchSignature(f, argtypes);
     //console.log(signature);
-    if(signature === undefined) return nada;
+    if(signature === undefined || signature === nada) return nada;
     return signature.res;
   }
   return nada;
@@ -159,11 +161,13 @@ function computeType(expr, fun) { //expression, current function
 //@TODO: Consider stack of variables. e.g. repeat(3, i, e = 32+i);
 function getType(expr, fun) { //expression, current function
   //return computeType(expr, fun);
-  if(precompileDone && expr.hasOwnProperty("computedType")) {
+  if(false && precompileDone) {
+    if(!expr.hasOwnProperty("computedType"))
+      expr["computedType"] = computeType(expr, fun);
     return expr["computedType"];
   }
-  expr["computedType"] = computeType(expr, fun);
-  return expr["computedType"];
+  //hence the types of variables are not fixed yet.
+  return computeType(expr, fun);
 }
 
 function determineVariables(expr) { //finds the occuring variables, saves them to variables and finally computes T
@@ -200,9 +204,8 @@ function determineVariables(expr) { //finds the occuring variables, saves them t
         fun: fun
       });
       //rec(expr['args'][1], fun);
-    } else if(expr['oper'] === 'regional') {
+    } else if(expr['oper'] !== undefined && getPlainName(expr['oper']) === 'regional') {
       for (let i = 0; i < expr['args'].length; i++) {
-        
         if (expr['args'][i]['ctype'] === 'variable') {
           let vname = expr['args'][i]['name'];
           if(variables[fun].indexOf(vname) ===-1) {
@@ -336,6 +339,11 @@ function determineUniforms(expr) {
         return expr["dependsOnPixel"] = true;
       }
     }
+    
+    //p.x
+    if(expr['ctype'] === 'field') {
+      return expr["dependsOnPixel"] = dependsOnPixel(expr['obj'], fun);
+    }
     return false;
   }
   
@@ -437,7 +445,10 @@ function guessTypeOfValue(tval) {
         if(l.length==3) return type.vec3;
         if(l.length==4) return type.vec4;
       }
-      //TODO: do all other lists
+      if(ctype === type.vec2 && l.length == 2) return type.mat2;
+      if(ctype === type.vec3 && l.length == 3) return type.mat3;
+      if(ctype === type.vec4 && l.length == 4) return type.mat4;
+      //TODO: do all other lists and other matrices
     }
   }
   return nada;
@@ -471,6 +482,7 @@ function precompile(expr) {
   
   determineTypes();
   console.log("DETERMINED TYPES");
+  console.log(JSON.stringify(T));
   precompileDone = true;
 }
 
@@ -625,7 +637,14 @@ function compile(expr, scope, generateTerm) {
       
     } else { //cindyscript-function
       fname = getPlainName(fname);
+    //  if(fname === 'regional')
+    //    return (generateTerm ? {term: '', type: voidt, code: ''} : {code: ''});
       let signature = matchSignature(fname, currenttype);
+      if(signature === nada) {
+        console.error("Could not find a signature for " + fname + '(' + currenttype.map(typeToString).join(', ') + ').');
+        console.error("Returning empty-code");
+        return (generateTerm ? {term: '', type: type.voidt, code: ''} : {code: ''});
+      }
       //console.log("got the following signature for function " + fname + " and types " + currenttype);
       //console.log(signature);
       targettype = signature.args;
@@ -673,10 +692,11 @@ function compile(expr, scope, generateTerm) {
     //TODO other plain types, like 
   } else if(expr['ctype'] === "variable") {
     let termtype = getType(expr, scope);
+    //console.log(">>>>>>>>scope is " + scope + " for variable " + expr['name'] + " -> " + typeToString(termtype));
     
-    if(expr['name']==='pi') { // || === 'e'?
-      return compile(expr['stack'][0], scope, generateTerm);
-    }
+    //if(expr['name']==='pi') { // || === 'e'?
+    //  return compile(expr['stack'][0], scope, generateTerm);
+    //}
     
     let term = expr['name'];
     
@@ -686,6 +706,16 @@ function compile(expr, scope, generateTerm) {
     return (generateTerm ? {term: term, type: termtype, code: ''} : {code: term +';\n'});
   } else if(expr['ctype'] === "void") {
     return (generateTerm ? {term: '', type: type.voidt, code: ''} : {code: ''});
+  } else if(expr['ctype'] === 'field') {
+    //TODO: finish implementation once cindyJS got implementation
+    let termtype = getType(expr, scope);
+    let term = expr['obj']['name'];
+    
+    if(term === '#') {
+      term = 'cgl_pixel';
+    }
+    term += '.' + expr['key'];
+    return (generateTerm ? {term: term, type: termtype, code: ''} : {code: term +';\n'});
   }
   console.error("dont know how to compile " + JSON.stringify(expr));
   
@@ -805,6 +835,7 @@ function generateColorPlotProgram(expr) { //TODO add arguments for #
   code += 'void main(void) {\n' +
     r.code +
     'gl_FragColor = ' + colorterm + ';\n' +
+    'gl_FragColor.a = 1.;\n' +
   '}\n';
   
   let utmp = uniforms;

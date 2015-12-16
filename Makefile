@@ -394,18 +394,19 @@ build/js/cglres.js: $(cgl_shaders) tools/files2json.js $(NPM_DEP)
 	$(NODE_CMD) $(filter %tools/files2json.js,$^) -varname=cgl_resources -output=$@ \
 	$(filter %.glsl,$^)
 
-#ADVANCED
-cgl_closure_level = ADVANCED_OPTIMIZATIONS
+##ADVANCED_OPTIMIZATIONS
+##WHITESPACE_ONLY
+cgl_closure_level = WHITESPACE_ONLY
 cgl_closure_warnings = VERBOSE
 cgl_closure_args = \
 	--language_in ECMASCRIPT6_STRICT \
 	--language_out ECMASCRIPT5_STRICT \
-	--create_source_map build/js/CindyGL.js.map \
 	--compilation_level $(cgl_closure_level) \
-	--warning_level $(cgl_closure_warnings) \
-	--source_map_format V3 \
-	--source_map_location_mapping "build/js/|" \
-	--source_map_location_mapping "src/js/|../../src/js/" \
+	--warning_level VERBOSE \
+	--create_source_map build/js/CindyGL.js.map \
+  --source_map_format V3 \
+  --source_map_location_mapping "build/js/|" \
+  --source_map_location_mapping "src/js/|../../src/js/" \
 	--output_wrapper_file $(filter %.wrapper,$^) \
 	--js_output_file $@ \
 	--externs $(filter %.externs,$^) \
@@ -420,8 +421,15 @@ build/js/CindyGL.js: tools/compiler.jar $(cgl_srcs)
 	mkdir -p $(@D)
 	$(CLOSURE) $(cgl_closure_args)
 
+build/js/CindyGL.plain.js:
+	cat $(cgl_srcs) > $@
+
+
 cindyGL: build/js/CindyGL.js build/js/cglres.js
 
 cindyGL-dbg:
 	$(RM) build/js/CindyGL.js
 	$(MAKE) cgl_extra_args='$(cgl_dbg_args)' build/js/CindyGL.js
+
+
+cindyGL-plain: build/js/CindyGL.plain.js

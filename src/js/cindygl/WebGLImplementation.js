@@ -6,6 +6,9 @@ webgltype[type.voidt] = 'void';
 webgltype[type.vec2] = 'vec2';
 webgltype[type.vec3] = 'vec3';
 webgltype[type.vec4] = 'vec4';
+webgltype[type.mat2] = 'mat2';
+webgltype[type.mat3] = 'mat3';
+webgltype[type.mat4] = 'mat4';
 webgltype[type.color] = 'vec4';
 webgltype[type.point] = 'vec3' //use homogenious coordinates
 
@@ -140,6 +143,20 @@ rings.forEach( function(t) {
 );
 
 
+var accessbyshiftedindex = function(args) { //args?
+    if(isFinite(args[1]))
+      return '(' + args[0] + ')['+(args[1]-1)+']'; //change index for hardcoded integers
+    else
+      return '(' + args[0] + ')['+args[1]+'-1]';
+};
+
+webgltr["_"] = [
+  [{args:[type.vec2, type.int], res: type.float}, accessbyshiftedindex],
+  [{args:[type.vec3, type.int], res: type.float}, accessbyshiftedindex],
+  [{args:[type.vec4, type.int], res: type.float}, accessbyshiftedindex]
+];
+
+
 webgltr['+'] = webgltr['add'];
 webgltr['-'] = webgltr['sub'];
 
@@ -147,6 +164,9 @@ webgltr["mult"] = [
   [int_fun$2, useinfix('*')],
   [float_fun$2, useinfix('*')],
   [complex_fun$2, useincludefunction('multc')],
+  [{args: [type.mat2, type.vec2],    res: type.vec2}, useinfix('*')],
+  [{args: [type.mat3, type.vec3],    res: type.vec3}, useinfix('*')],
+  [{args: [type.mat4, type.vec4],    res: type.vec4}, useinfix('*')],
   [vec22float_fun$2, usefunction('dot')],
   [vec32float_fun$2, usefunction('dot')],
   [vec42float_fun$2, usefunction('dot')]
@@ -162,6 +182,9 @@ webgltr["div"] = [
   [float_fun$2, useinfix('/')],
   [complex_fun$2, useincludefunction('divc')]
 ];
+rvectorspaces.forEach(function(t){
+  webgltr["div"].push([{args: [t, type.float], res: t}, useinfix('/')]);
+});
 webgltr['/'] = webgltr['div'];
 
 webgltr['re'] = [
@@ -198,6 +221,10 @@ webgltr["grey"] = webgltr["gray"];
 
 
 
+webgltr["min"] = [
+  [int_fun$2, usefunction('min')],
+  [float_fun$2, usefunction('min')]
+];
 
 webgltr["complex"] = [
   [{args: [type.vec2], res: type.complex}, identity]
@@ -224,7 +251,7 @@ webgltr["&"] = [
 ];
 
 
-[">","<", ">=", "<="].forEach( oper =>
+[">","<", ">=", "<=", "=="].forEach( oper =>
   webgltr[oper] = [
     [int2bool_fun$2, useinfix(oper)],
     [float2bool_fun$2, useinfix(oper)]
