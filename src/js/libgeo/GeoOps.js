@@ -1920,15 +1920,26 @@ geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
 geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
 geoOps.TrAffine.updatePosition = function(el) {
+    // Dual view: map triangle edges and line at infinity
     var inf = List.linfty;
     var cc = List.cross;
     geoOps._helper.trBuildMatrix(el, function(offset) {
         var a = csgeo.csnames[el.args[0 + offset]].homog,
             b = csgeo.csnames[el.args[2 + offset]].homog,
-            c = csgeo.csnames[el.args[4 + offset]].homog,
-            d = cc(cc(c, cc(inf, cc(a, b))), cc(b, cc(inf, cc(a, c))));
-        return eval_helper.basismap(a, b, c, d);
+            c = csgeo.csnames[el.args[4 + offset]].homog;
+        var tmp = List.turnIntoCSList([a, b, c]);
+        tmp = List.productMV(tmp, inf).value;
+        tmp = List.transpose(List.turnIntoCSList([
+            List.scalmult(tmp[0], cc(b, c)),
+            List.scalmult(tmp[1], cc(c, a)),
+            List.scalmult(tmp[2], cc(a, b))
+        ]));
+        return tmp;
     });
+    // Back to primal
+    var tmp = el.dualMatrix;
+    el.dualMatrix = el.matrix;
+    el.matrix = tmp;
 };
 
 // Define a similarity transformation given two points and their images
