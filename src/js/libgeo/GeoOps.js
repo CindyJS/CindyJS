@@ -1897,7 +1897,7 @@ geoOps.TrProjection = {};
 geoOps.TrProjection.kind = "Tr";
 geoOps.TrProjection.signature = ["P", "P", "P", "P", "P", "P", "P", "P"];
 geoOps.TrProjection.updatePosition = function(el) {
-    function oneStep(offset) {
+    geoOps._helper.trBuildMatrix(el, function(offset) {
         var tmp,
             a = csgeo.csnames[el.args[0 + offset]].homog,
             b = csgeo.csnames[el.args[2 + offset]].homog,
@@ -1912,13 +1912,7 @@ geoOps.TrProjection.updatePosition = function(el) {
             List.scalmult(tmp[2], c)
         ]));
         return tmp;
-    }
-    var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
-    m = List.normalizeMax(m);
-    el.matrix = m;
-    m = List.transpose(List.adjoint3(m));
-    m = List.normalizeMax(m);
-    el.dualMatrix = m;
+    });
 };
 
 // Define an affine transformation given three points and their images
