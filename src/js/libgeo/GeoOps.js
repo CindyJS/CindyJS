@@ -1926,11 +1926,15 @@ geoOps.TrAffine.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
         var a = csgeo.csnames[el.args[0 + offset]].homog,
             b = csgeo.csnames[el.args[2 + offset]].homog,
-            c = csgeo.csnames[el.args[4 + offset]].homog,
-            ab = cc(a, b),
-            bc = cc(b, c),
-            ca = cc(c, a);
-        return eval_helper.basismap(ab, bc, ca, inf);
+            c = csgeo.csnames[el.args[4 + offset]].homog;
+        var tmp = List.turnIntoCSList([a, b, c]);
+        tmp = List.productMV(tmp, inf).value;
+        tmp = List.transpose(List.turnIntoCSList([
+            List.scalmult(tmp[0], cc(b, c)),
+            List.scalmult(tmp[1], cc(c, a)),
+            List.scalmult(tmp[2], cc(a, b))
+        ]));
+        return tmp;
     });
     // Back to primal
     var tmp = el.dualMatrix;
