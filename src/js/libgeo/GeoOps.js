@@ -1920,26 +1920,41 @@ geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
 geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
 geoOps.TrAffine.updatePosition = function(el) {
-    // Dual view: map triangle edges and line at infinity
     var inf = List.linfty;
     var cc = List.cross;
-    geoOps._helper.trBuildMatrix(el, function(offset) {
-        var a = csgeo.csnames[el.args[0 + offset]].homog,
-            b = csgeo.csnames[el.args[2 + offset]].homog,
-            c = csgeo.csnames[el.args[4 + offset]].homog;
-        var tmp = List.turnIntoCSList([a, b, c]);
-        tmp = List.productMV(tmp, inf).value;
-        tmp = List.transpose(List.turnIntoCSList([
-            List.scalmult(tmp[0], cc(b, c)),
-            List.scalmult(tmp[1], cc(c, a)),
-            List.scalmult(tmp[2], cc(a, b))
-        ]));
-        return tmp;
-    });
-    // Back to primal
-    var tmp = el.dualMatrix;
-    el.dualMatrix = el.matrix;
-    el.matrix = tmp;
+    var mult = CSNumber.mult;
+    var sm = List.scalmult;
+    var mat = List.turnIntoCSList;
+    var t = List.transpose;
+    var nm = List.normalizeMax;
+    var mm = List.productMM;
+    var a1 = csgeo.csnames[el.args[0]].homog;
+    var a2 = csgeo.csnames[el.args[1]].homog;
+    var b1 = csgeo.csnames[el.args[2]].homog;
+    var b2 = csgeo.csnames[el.args[3]].homog;
+    var c1 = csgeo.csnames[el.args[4]].homog;
+    var c2 = csgeo.csnames[el.args[5]].homog;
+    var a1z = a1.value[2];
+    var a2z = a2.value[2];
+    var b1z = b1.value[2];
+    var b2z = b2.value[2];
+    var c1z = c1.value[2];
+    var c2z = c2.value[2];
+    var left, right;
+    left = t(mat([a2, b2, c2]));
+    right = mat([
+        sm(mult(a1z, mult(b2z, c2z)), cc(b1, c1)),
+        sm(mult(b1z, mult(c2z, a2z)), cc(c1, a1)),
+        sm(mult(c1z, mult(a2z, b2z)), cc(a1, b1))
+    ]);
+    el.matrix = nm(mm(left, right));
+    left = t(mat([cc(b2, c2), cc(c2, a2), cc(a2, b2)]));
+    right = mat([
+        sm(mult(a2z, mult(b1z, c1z)), a1),
+        sm(mult(b2z, mult(c1z, a1z)), b1),
+        sm(mult(c2z, mult(a1z, b1z)), c1)
+    ]);
+    el.dualMatrix = nm(mm(left, right));
 };
 
 // Define a similarity transformation given two points and their images
