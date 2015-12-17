@@ -102,10 +102,181 @@ evaluator.drawcircle$2 = function(args, modifs) {
 };
 
 
+eval_helper.arcHelper = function(args) {
+    var arc = {};
+    arc.startPoint = evaluateAndHomog(args[0]);
+    arc.viaPoint = evaluateAndHomog(args[1]);
+    arc.endPoint = evaluateAndHomog(args[2]);
+    return arc;
+};
+
 evaluator.fillcircle$2 = function(args, modifs) {
     return eval_helper.drawcircle(args, modifs, "F");
 };
 
+evaluator.drawarc$3 = function(args, modifs) {
+    var arc = eval_helper.arcHelper(args);
+    return eval_helper.drawarc(arc, modifs, "D");
+};
+
+evaluator.fillarc$3 = function(args, modifs) {
+    var arc = eval_helper.arcHelper(args);
+    return eval_helper.drawarc(arc, modifs, "F");
+};
+
+
+eval_helper.drawarc = function(args, modifs, df) {
+    var a = args.startPoint;
+    var b = args.viaPoint;
+    var c = args.endPoint;
+
+    // check for complex values
+    if (!List._helper.isAlmostReal(List.turnIntoCSList([a, b, c]))) return nada;
+
+    // modifs handling
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    Render2D.preDrawCurve();
+
+    var abcdet = List.det3(a, b, c);
+
+    if (Math.abs(abcdet.value.real) > 1e-12) { // we have an arc, not segment
+        var con = geoOps._helper.ConicBy5(null, a, b, c, List.ii, List.jj);
+        var cen = geoOps._helper.CenterOfConic(con);
+        cen = List.normalizeMax(cen);
+
+        var zer = CSNumber.real(0);
+
+        // move center of conic to origin
+        var mat = List.turnIntoCSList([
+            List.turnIntoCSList([cen.value[2], zer, CSNumber.neg(cen.value[0])]),
+            List.turnIntoCSList([zer, cen.value[2], CSNumber.neg(cen.value[1])]),
+            List.turnIntoCSList([zer, zer, cen.value[2]])
+        ]);
+        var aa = List.normalizeZ(General.mult(mat, a));
+        var bb = List.normalizeZ(General.mult(mat, b));
+        var cc = List.normalizeZ(General.mult(mat, c));
+
+
+        // get angles of A and C 
+        var startAngle = -Math.atan2(aa.value[1].value.real, aa.value[0].value.real);
+        var endAngle = -Math.atan2(cc.value[1].value.real, cc.value[0].value.real);
+
+        cen = List.normalizeZ(cen);
+        a = List.normalizeZ(a);
+        b = List.normalizeZ(b);
+        c = List.normalizeZ(c);
+        var arcDist = List.abs(List.sub(a, cen));
+
+        // x, y vals of the center
+        var pt = [cen.value[0].value.real, cen.value[1].value.real];
+
+        // transform to canvas
+        var m = csport.drawingstate.matrix;
+        var xx = pt[0] * m.a - pt[1] * m.b + m.tx;
+        var yy = pt[0] * m.c - pt[1] * m.d - m.ty;
+
+
+        // check for counter clockwise drawing
+        var cclock = List.det3(a, b, c).value.real > 0;
+
+        csctx.save();
+
+        // canvas circle radius 
+        var rad = arcDist.value.real * m.sdet;
+
+        csctx.beginPath();
+        csctx.translate(xx, yy);
+
+        // use the canvas arc function -- buggy in Chrome at least in Okt 15
+        var useArc = false;
+
+        if (useArc) {
+            csctx.arc(0, 0, arcDist.value.real * m.sdet, startAngle, endAngle, cclock);
+        } else {
+            var num = 500; // Number of segments
+
+            //  mod 2 pi in case startAngle > endAngle
+            if (startAngle > endAngle) endAngle = endAngle + Math.PI * 2;
+
+            // divide segments --  rotate counterclockwise if necessary
+            var ntler = !cclock ? (endAngle - startAngle) / num : -(2 * Math.PI - endAngle + startAngle) / num;
+
+            // drawing
+            csctx.moveTo(rad * Math.cos(startAngle), rad * Math.sin(startAngle));
+            var angl;
+            for (var ii = 0; ii <= num; ii++) {
+                angl = startAngle + ii * ntler;
+                csctx.lineTo(rad * Math.cos(angl), rad * Math.sin(angl));
+            }
+        }
+
+
+        if (df === "F") {
+            csctx.fillStyle = Render2D.lineColor;
+            csctx.closePath();
+            csctx.fill();
+        }
+
+        if (df === "D") {
+            csctx.stroke();
+        }
+        csctx.restore();
+
+    } else { // segment case
+        if (df !== "D") return nada; // Nothing to fill in the degenerate case
+        var ptA = eval_helper.extractPoint(a);
+        var ptB = eval_helper.extractPoint(b);
+        var ptC = eval_helper.extractPoint(c);
+        if (!ptA.ok || !ptB.ok || !ptC.ok) return nada;
+
+        // dists
+        var dAB = (ptA.x - ptB.x) * (ptA.x - ptB.x) + (ptA.y - ptB.y) * (ptA.y - ptB.y);
+        var dAC = (ptA.x - ptC.x) * (ptA.x - ptC.x) + (ptA.y - ptC.y) * (ptA.y - ptC.y);
+        var dBC = (ptC.x - ptB.x) * (ptC.x - ptB.x) + (ptC.y - ptB.y) * (ptC.y - ptB.y);
+
+        // if 2 points are the same return nada;
+        if (dAB < 1e-12 || dAC < 1e-12 || dBC < 1e-12) return nada;
+
+        // check by dets if B is in the middle
+        var crossr = List.crossratio3(a, c, b, List.cross(List.cross(a, b), List.linfty), List.ii);
+        var Bmiddle = crossr.value.real < 0;
+
+        // if B is in the middle we are fine
+        if (Bmiddle) {
+            Render2D.drawsegcore(ptA, ptC);
+        } else { // nasty case -- B not in the middle -- we have 2 ray to infinity
+
+            // flip the orientation to the right side 
+            var sflip = dAB > dBC ? 1 : -1;
+
+            // first ray
+            // get direction and normalise
+            var dx = sflip * (ptA.x - ptB.x);
+            var dy = sflip * (ptA.y - ptB.y);
+            var norm = Math.sqrt(dx * dx + dy * dy);
+
+            // get points outside canvas (at "infinity")
+            var sc = csport.drawingstate.matrix.sdet;
+            var farAway = 25000 / sc; // 25000px in user coordinates
+            var factor = farAway / norm;
+            dx = dx * factor;
+            dy = dy * factor;
+            Render2D.drawsegcore(ptA, {
+                x: ptA.x + dx,
+                y: ptA.y + dy
+            });
+            Render2D.drawsegcore(ptC, {
+                x: ptC.x - dx,
+                y: ptC.y - dy
+            });
+        }
+    }
+
+    return nada;
+};
+
+
+// draw circle with from alp to bet (for circle 0 to 2*pi)
 eval_helper.drawcircle = function(args, modifs, df) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -140,10 +311,7 @@ eval_helper.drawcircle = function(args, modifs, df) {
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4 / 2.5;
-    if (Render2D.size !== null)
-        size = Render2D.size;
-    csctx.lineWidth = size; // * 0.4;
+    Render2D.preDrawCurve();
 
     csctx.beginPath();
     csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
@@ -151,7 +319,6 @@ eval_helper.drawcircle = function(args, modifs, df) {
 
 
     if (df === "D") {
-        csctx.strokeStyle = Render2D.lineColor;
         csctx.stroke();
     }
     if (df === "F") {
@@ -220,23 +387,22 @@ evaluator.drawconic$1 = function(args, modifs) {
             Conic.matrix = arr;
         }
 
+
     }
-    return eval_helper.drawconic(Conic, modifs);
+    Conic.matrix = List.normalizeMax(Conic.matrix);
+    return eval_helper.drawconic(Conic.matrix, modifs);
 };
 
-eval_helper.drawconic = function(aConic, modifs) {
+eval_helper.drawconic = function(conicMatrix, modifs) {
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4 / 2.5;
-    if (Render2D.size !== null)
-        size = Render2D.size;
-    if (size === 0)
+    if (Render2D.lsize === 0)
         return;
-    csctx.lineWidth = size; // * 0.4;
+    Render2D.preDrawCurve();
 
     var eps = 1e-14; //JRG Hab ih von 1e-16 runtergesetzt
-    var mat = aConic.matrix;
-    var origmat = aConic.matrix;
+    var mat = List.normalizeMax(conicMatrix);
+    var origmat = mat;
 
     // check for complex values
     for (var i = 0; i < 2; i++)
@@ -329,15 +495,16 @@ eval_helper.drawconic = function(aConic, modifs) {
 
 
         var rMat = get_rMat(angle);
-        var TrMat = numeric.transpose(rMat);
-        var tmp = numeric.dot(myMat, rMat);
-        tmp = numeric.dot(TrMat, tmp);
-        a = tmp[0][0];
-        b = tmp[1][0];
-        c = tmp[1][1];
-        d = tmp[2][0];
-        e = tmp[2][1];
-        f = tmp[2][2];
+        rMat = List.realMatrix(rMat);
+        var TrMat = List.transpose(rMat);
+        var tmp = General.mult(List.realMatrix(myMat), rMat);
+        tmp = General.mult(TrMat, tmp);
+        a = tmp.value[0].value[0].value.real;
+        b = tmp.value[1].value[0].value.real;
+        c = tmp.value[1].value[1].value.real;
+        d = tmp.value[2].value[0].value.real;
+        e = tmp.value[2].value[1].value.real;
+        f = tmp.value[2].value[2].value.real;
 
     }
 
@@ -414,9 +581,6 @@ eval_helper.drawconic = function(aConic, modifs) {
     };
 
     var drawArray = function(x, y) {
-        csctx.strokeStyle = Render2D.lineColor;
-        csctx.lineWidth = size;
-
         csctx.beginPath();
         csctx.moveTo(x[0], y[0]);
         for (var i = 1; i < x.length; i++) {
@@ -446,7 +610,7 @@ eval_helper.drawconic = function(aConic, modifs) {
 
 
         var step;
-        var perc = 0.05;
+        var perc = 0.1;
         var diff = ymax - ymin;
         var ssmall = perc * diff + ymin;
         var slarge = ymax - perc * diff;
@@ -459,7 +623,7 @@ eval_helper.drawconic = function(aConic, modifs) {
                 step = 3;
             }
 
-            var inner = -a * c * Math.pow(y, 2) - 2 * a * e * y - a * f + Math.pow(b, 2) * Math.pow(y, 2) + 2 * b * d * y + Math.pow(d, 2);
+            var inner = -a * c * y * y - 2 * a * e * y - a * f + b * b * y * y + 2 * b * d * y + d * d;
             inner = Math.sqrt(inner);
 
 
@@ -471,12 +635,12 @@ eval_helper.drawconic = function(aConic, modifs) {
             if (useRot) {
                 var r1 = [x1, y, 1];
                 var r2 = [x2, y, 1];
-                r1 = numeric.dot(rMat, r1);
-                r2 = numeric.dot(rMat, r2);
-                x1 = r1[0];
-                x2 = r2[0];
-                y1 = r1[1];
-                y2 = r2[1];
+                r1 = General.mult(rMat, List.realVector(r1));
+                r2 = General.mult(rMat, List.realVector(r2));
+                x1 = r1.value[0].value.real;
+                x2 = r2.value[0].value.real;
+                y1 = r1.value[1].value.real;
+                y2 = r2.value[1].value.real;
             } else {
                 y1 = y;
                 y2 = y;
@@ -530,7 +694,7 @@ eval_helper.drawconic = function(aConic, modifs) {
         var largeSqrt = Math.sqrt(a * (-a * c * f + a * Math.pow(e, 2) + Math.pow(b, 2) * f - 2 * b * d * e + c * Math.pow(d, 2)));
         var deNom = a * c - Math.pow(b, 2);
 
-        if (deNom !== 0) {
+        if (Math.abs(deNom) > eps) {
             y0 = (aebd - largeSqrt) / deNom;
             y1 = (aebd + largeSqrt) / deNom;
         } else {
@@ -640,12 +804,8 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4 / 2.5;
-    if (Render2D.size !== null)
-        size = Render2D.size;
-    csctx.lineWidth = size; // * 0.4;
+    Render2D.preDrawCurve();
     csctx.mozFillRule = 'evenodd';
-    csctx.lineJoin = "round";
 
     var m = csport.drawingstate.matrix;
 
@@ -695,7 +855,6 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     }
 
     if (df === "D") {
-        csctx.strokeStyle = Render2D.lineColor;
         csctx.stroke();
     }
     if (df === "F") {

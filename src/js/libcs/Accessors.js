@@ -168,6 +168,15 @@ Accessor.setField = function(geo, field, value) {
         movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
     }
 
+    if (field === "x" && geo.kind === "P" && geo.movable && value.ctype === "number") {
+        movepointscr(geo, List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]), "homog");
+    }
+
+    if (field === "y" && geo.kind === "P" && geo.movable && value.ctype === "number") {
+        movepointscr(geo, List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]), "homog");
+    }
+
+
     if (field === "homog" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 3)) {
         movepointscr(geo, value, "homog");
     }

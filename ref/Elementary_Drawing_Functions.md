@@ -17,7 +17,7 @@ For the first two we assume that `x`, `y`, and `z` are numbers.
 
 A word on homogeneous coordinates: If `[x,y,z]` are the homogeneous coordinates of a point, then the corresponding point that will be drawn has *xy*-coordinates `[x/z,y/z]`.
 Points that have homogeneous coordinates with `z=0` correspond to "points at infinity." You won't see them in a usual Cinderella Euclidean view.
-However, they will be drawn in spherical view (or when a local projective basis is set (see [Script Coordinate System](Script_Coordinate_System)).
+However, they will be drawn in spherical view (or when a local projective basis is set (see [Script Coordinate System](Script_Coordinate_System.md)).
 
 **Drawing a segment:**
 A segment can be drawn by providing a list of two points.
@@ -110,7 +110,7 @@ The following piece of code illustrates the effect of the dashing modifiers.
 | ****                      |
 
 **See also:**
-[Script Coordinate System](Script_Coordinate_System) and [Geometric Operators](Geometric_Operators)
+[Script Coordinate System](Script_Coordinate_System.md) and [Geometric Operators](Geometric_Operators.md)
 
 ------
 
@@ -266,3 +266,33 @@ The following piece of code shows a combined usage of the `drawcircle` and the `
 | ![Image](img/FillCircleX.png) |
 | ----------------------------- |
 | ****                          |
+
+------
+
+#### Drawing circular arc: `drawarc(‹point1›,‹point2›,‹point3›)`
+
+**Description:**
+Draws a circular arc from `‹point1›` to `‹point3›` via `‹point2›`.
+
+The points may be given either in euclidean or in homogeneous coordinates.
+
+**Modifiers:**
+This operator can handle the same modifiers as the `draw(‹expr›)` operator.
+
+------
+
+#### Filling circular arcs: `fillarc(‹point1›,‹point2›,‹point3›)`
+
+**Description:**
+Draws the interior of a circular arc `‹point1›` to `‹point3›` via `‹point2›`.
+The points may be given either in euclidean or in homogeneous coordinates.
+
+**Modifiers:**
+This operator can handle the following modifiers:
+
+| Modifier | Parameter                   | Effect                                 |
+| -------- | --------------------------- | -------------------------------------- |
+| `color`  | `[‹real1›,‹real2›,‹real3›]` | sets the fill color to an RGB value    |
+| `alpha`  | `‹real›`                    | sets the opacity to the value `‹real›` |
+
+------

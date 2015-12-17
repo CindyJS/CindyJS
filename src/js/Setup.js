@@ -155,7 +155,15 @@ function createCindyNow() {
             cscode = cscode.text;
         }
         cscode = condense(cscode);
-        cscompiled[s] = analyse(cscode, false);
+        cscode = analyse(cscode, false);
+        if (cscode.ctype === "error") {
+            console.error(
+                "Error compiling " + s + " script: " +
+                cscode.message
+            );
+        } else {
+            cscompiled[s] = cscode;
+        }
     });
 
     //Setup canvasstuff
@@ -239,26 +247,65 @@ function createCindyNow() {
             createCindy.instances[--i].shutdown();
     }
     createCindy.instances.push(globalInstance);
-
-    //Evaluate Init script
     if (instanceInvocationArguments.use)
         instanceInvocationArguments.use.forEach(function(name) {
             evaluator.use$1([General.wrap(name)], {});
         });
+    loadExtraModules();
+    doneLoadingModule();
+}
+
+function loadExtraModules() {
+    if (usedFunctions.convexhull3d$1)
+        loadExtraPlugin("quickhull3d", "quickhull3d/quickhull3d.nocache.js");
+}
+
+var modulesToLoad = 1;
+
+function loadExtraPlugin(name, path) {
+    var cb = null;
+    if (instanceInvocationArguments.plugins)
+        cb = instanceInvocationArguments.plugins[name];
+    if (!cb)
+        cb = createCindy._pluginRegistry[name];
+    if (cb) {
+        evaluator.use$1([General.wrap(name)], {});
+        return;
+    }
+    ++modulesToLoad;
+    createCindy.autoLoadPlugin(name, path, function() {
+        evaluator.use$1([General.wrap(name)], {});
+        doneLoadingModule();
+    });
+}
+
+function loadExtraModule(name, path) {
+    ++modulesToLoad;
+    createCindy.loadScript(name, path, doneLoadingModule, function() {
+        console.error(
+            "Failed to load " + path + ", can't start CindyJS instance");
+        shutdown();
+    });
+}
+
+function doneLoadingModule() {
+    if (--modulesToLoad !== 0)
+        return;
+
+    //Evaluate Init script
     evaluate(cscompiled.init);
 
-    if (data.autoplay)
+    if (instanceInvocationArguments.autoplay)
         csplay();
 
-    if (c)
-        setuplisteners(c, data);
-
+    if (globalInstance.canvas)
+        setuplisteners(globalInstance.canvas, instanceInvocationArguments);
 }
 
 var backup = null;
 
 function backupGeo() {
-    var state = backup ? backup.state : new Float64Array(stateIn.length);
+    var state = stateArrays.backup;
     state.set(stateIn);
     var speeds = {};
     for (var i = 0; i < csgeo.points.length; i++) {
@@ -422,20 +469,17 @@ if (instanceInvocationArguments.use) {
 // CONSOLE
 //
 function setupConsole() {
-    if (typeof csconsole === "object" && csconsole === null) {
+    if (csconsole === null) {
         csconsole = new NullConsoleHandler();
-
-    } else if (typeof csconsole === "boolean" && csconsole === true) {
+    } else if (csconsole === true) {
         csconsole = new CindyConsoleHandler();
-
     } else if (typeof csconsole === "string") {
-        var id = csconsole;
-        csconsole = new ElementConsoleHandler(id);
-    }
-
-    // Fallback
-    if (typeof csconsole === "undefined") {
-        csconsole = new PopupConsoleHandler();
+        csconsole = new ElementConsoleHandler(csconsole);
+    } else if (typeof csconsole === "object" && typeof csconsole.appendChild === "function") {
+        csconsole = new ElementConsoleHandler(csconsole);
+    } else {
+        // Default
+        csconsole = new NullConsoleHandler();
     }
 }
 
@@ -531,9 +575,12 @@ function CindyConsoleHandler() {
 
 CindyConsoleHandler.prototype = new GenericConsoleHandler();
 
-function ElementConsoleHandler(id) {
+function ElementConsoleHandler(idOrElement) {
 
-    var element = document.getElementById(id);
+    var element = idOrElement;
+    if (typeof idOrElement === "string") {
+        element = document.getElementById(idOrElement);
+    }
 
     this.append = function(s) {
         element.appendChild(s);
@@ -545,30 +592,6 @@ function ElementConsoleHandler(id) {
 }
 
 ElementConsoleHandler.prototype = new GenericConsoleHandler();
-
-function PopupConsoleHandler() {
-
-    var popup = window.open('', '', 'width=200,height=100');
-    var body;
-
-    if (popup) {
-        body = popup.document.getElementsByTagName("body")[0];
-    }
-
-    this.append = function(s) {
-        if (body) {
-            body.appendChild(s);
-        }
-    };
-
-    this.clear = function() {
-        if (body) {
-            body.innerHTML = "";
-        }
-    };
-}
-
-PopupConsoleHandler.prototype = new GenericConsoleHandler();
 
 function NullConsoleHandler() {
 

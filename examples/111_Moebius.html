@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript">
+
+var cdy = createCindy({
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  snap:true,
+  grid:1,
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A1", type:"Free", pos:[0,5], color:[1,0,0], labeled:true},
+    {name:"A2", type:"Free", pos:[0,3], color:[1,0,0], labeled:true},
+    {name:"A3", type:"Free", pos:[0,0], color:[1,0,0], labeled:true},
+    {name:"B1", type:"Free", pos:[3,5], color:[0,1,0], labeled:true},
+    {name:"B2", type:"Free", pos:[3,3], color:[0,1,0], labeled:true},
+    {name:"B3", type:"Free", pos:[3,0], color:[0,1,0], labeled:true},
+
+    {name:"A", type:"Free", pos:[0,2], color:[1,1,0]},
+    {name:"Tr0", type:"TrMoebius", args:["A1","B1","A2","B2","A3","B3"]},
+    {name:"B", type:"TrMoebiusP", args:["Tr0","A"], color:[0, 1, 1]},
+
+    {name:"M", type:"Free", pos:[-4,3], color:[0,0,1]},
+    {name:"C", type:"CircleMr", args:["M"], radius:2},
+    {name:"P1", type:"PointOnCircle", args:["C"], pos:[-2,3], color:[1,1,0], size:3},
+    {name:"P2", type:"TrMoebiusP", args:["Tr0", "P1"], color:[0,1,1], size:3, drawtrace:true},
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>

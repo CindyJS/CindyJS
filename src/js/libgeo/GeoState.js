@@ -18,8 +18,8 @@ csport.drawingstate.matrix.a = 25;
 csport.drawingstate.matrix.b = 0;
 csport.drawingstate.matrix.c = 0;
 csport.drawingstate.matrix.d = 25;
-csport.drawingstate.matrix.tx = 250;
-csport.drawingstate.matrix.ty = 250;
+csport.drawingstate.matrix.tx = 250.5;
+csport.drawingstate.matrix.ty = 250.5;
 csport.drawingstate.matrix.det = csport.drawingstate.matrix.a * csport.drawingstate.matrix.d - csport.drawingstate.matrix.b * csport.drawingstate.matrix.c;
 
 csport.drawingstate.matrix.sdet = Math.sqrt(csport.drawingstate.matrix.det);

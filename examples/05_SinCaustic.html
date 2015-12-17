@@ -4,21 +4,21 @@
 		<meta charset="utf-8">
             <title>Cindy JS</title>
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            
-            <link rel="stylesheet" href="../css/cindy.css">
-                
 
-                
+            <link rel="stylesheet" href="../css/cindy.css">
+
+
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Caustic of Sin</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
-           
-            
+
+
+        <script id='csmove' type='text/x-cindyscript'>
+
+
             l1=cross(A,B);
             n=A-B;
             n=n/abs(n);
@@ -32,7 +32,7 @@
                    p= A*l+(1-l)*B;
                    t1=p+m*sin(l*pi*2)*3;
                    draw(p,p+m*sin(l*pi*2)*3,size->2,alpha->0.3,color->(1,0,0),size->dist(A,B)/6);
-                   
+
                    );
 
             repeat(n,l=#/n;
@@ -44,38 +44,38 @@
                   p1= A*l+(1-l)*B;
                   t2=p1+m*sin(l*pi*2)*3;
                   draw(perp(join(t1,t2),t1),alpha->.1,color->(0,0,0));
-                  
+
                   );
             </script>
-        
-        
+
+
         <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
-            
+
             var gslp=[
-                      
+
                       {name:"A", kind:"P", type:"Free", pos:[-4,0,1]},
                       {name:"B", kind:"P", type:"Free", pos:[4,0,1]},
-                      
-                      ];
-            
-            createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
-                        geometry:gslp});
-            
-            
-            
-            
-            
-            </script>
-        
 
-        
-        
-        
-        
-                
-        
+                      ];
+
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"csmove",
+                        geometry:gslp});
+
+
+
+
+
+            </script>
+
+
+
+
+
+
+
+
 	</body>
 </html>

@@ -4,9 +4,9 @@
 		<meta charset="utf-8">
             <title>Cindy JS</title>
                      </head>
-    
+
 	<body style="font-family:Arial;">
-             
+
          <canvas  id="CSCanvas" width=600 height=600  style="border:1px solid #000000">
         <script type="text/javascript">
             var size=6;
@@ -24,12 +24,12 @@
                     mouse.down    = true;
                     e.preventDefault();
                 };
-                
+
                 canvas.onmouseup = function (e) {
                     mouse.down = false;
                     e.preventDefault();
                 };
-                
+
                 canvas.onmousemove = function (e) {
                     mouse.px  = mouse.x;
                     mouse.py  = mouse.y;
@@ -38,9 +38,9 @@
                     mouse.y   = e.clientY - rect.top,
                     e.preventDefault();
                 };
-                
-                
-                
+
+
+
                 function touchMove(e) {
                     if (!e)
                     var e = event;
@@ -54,30 +54,30 @@
                     e.preventDefault();
 
                 }
-                
+
                 function touchDown(e) {
                     mouse.down = true;
                     e.preventDefault();
 
                 }
-                
+
                 function touchUp(e) {
                     mouse.down = false;
                     e.preventDefault();
 
                 }
-                
+
                 canvas.addEventListener("touchstart", touchDown, false);
                 canvas.addEventListener("touchmove", touchMove, true);
                 canvas.addEventListener("touchend", touchUp, false);
                 document.body.addEventListener("touchcancel", touchUp, false);
             //    document.body.addEventListener("mouseup", mouseUp, false);
 
-                
+
                 update();
             }
 
-            
+
             window.requestAnimFrame =
             window.requestAnimationFrame ||
             window.webkitRequestAnimationFrame ||
@@ -96,52 +96,52 @@
                 }
                 if(mouse.down){
                     drawpt(mouse);
-                
+
                 }
 
             }
-            
+
             function update() {
-                
+
                 csctx.clearRect(0, 0, canvas.width, canvas.height);
                 pt1.x=pt1.x+2;
                 drawupdate();
-                
+
                 requestAnimFrame(update);
             }
-            
-            
+
+
             drawpt= function (p){
                 csctx.lineWidth = 2;
-                
-                
+
+
                 csctx.beginPath();
                 csctx.arc(p.x,p.y,size,0,2*Math.PI);
                 csctx.fillStyle="#000000";
                 csctx.fill();
             }
-            
+
             window.onload = function () {
-                
+
                 canvas  = document.getElementById('CSCanvas');
                 csctx     = canvas.getContext('2d');
-                
+
                  pt1={x:50,y:50};
                  pt2={x:350,y:150};
                  pt3={x:550,y:350};
                 pts=[pt1,pt2,pt3];
-                               
-                
+
+
                 start();
             };
-          
 
-            
-            
-            
-            
+
+
+
+
+
             </script>
-        
-        
+
+
 	</body>
 </html>

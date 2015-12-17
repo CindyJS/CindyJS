@@ -46,34 +46,34 @@ The code
     > )
     D fillStyle = "rgba(229,0,25,1)"
     D font = "bold 17px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 275.5, 229.5)
     D fillStyle = "rgba(204,0,51,1)"
     D font = "bold 19px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 300.5, 229.5)
     D fillStyle = "rgba(178,0,76,1)"
     D font = "bold 21px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 325.5, 229.5)
     D fillStyle = "rgba(153,0,102,1)"
     D font = "bold 23px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 350.5, 229.5)
     D fillStyle = "rgba(127,0,127,1)"
     D font = "bold 25px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 375.5, 229.5)
     D fillStyle = "rgba(101,0,153,1)"
     D font = "bold 27px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 400.5, 229.5)
     D fillStyle = "rgba(76,0,178,1)"
     D font = "bold 29px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 425.5, 229.5)
     D fillStyle = "rgba(50,0,204,1)"
     D font = "bold 31px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 450.5, 229.5)
     D fillStyle = "rgba(25,0,229,1)"
     D font = "bold 33px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 475.5, 229.5)
     D fillStyle = "rgba(0,0,255,1)"
     D font = "bold 35px Arial"
-    D fillText("Text", null, 230)
+    D fillText("Text", 500.5, 229.5)
 
 produces the picture below.
 
@@ -91,7 +91,7 @@ By this it is easy to produce multilined text, as the following piece of code sh
     > multilined text.")
     D fillStyle = "rgb(0,0,0)"
     D font = "18px Arial"
-    D fillText("In Cinderella 'newlines' in Text\nare really used as line terminators.\nSo this text will appear as a\nmultilined text.", null, 230)
+    D fillText("In Cinderella 'newlines' in Text\nare really used as line terminators.\nSo this text will appear as a\nmultilined text.", 250.5, 229.5)
 
 | ![Image](img/Newlines.png) |
 | -------------------------- |

@@ -25,165 +25,28 @@
 </script>
 
     <script type="text/javascript">
-createCindy({
-  "scripts": "cs*",
-  "defaultAppearance": {},
-  "geometry": [
-    {
-      "name": "A",
-      "type": "Free",
-      "pos": [
-        3.714285714285714,
-        -4.0,
-        -1.7857142857142856
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "C0",
-      "type": "CircleByRadius",
-      "color": [
-        0.0,
-        0.0,
-        1.0
-      ],
-      "radius": 4.216918306061904,
-      "args": [
-        "A"
-      ],
-      "size": 1,
-      "printname": "$C_{0}$"
-    },
-    {
-      "name": "B",
-      "type": "Free",
-      "pos": [
-        0.6333333333333333,
-        -4.0,
-        -0.8333333333333334
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "a",
-      "type": "PolarPoint",
-      "pos": [
-        -0.25419812047450324,
-        -0.4929902942535819,
-        4.0
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "args": [
-        "B",
-        "C0"
-      ],
-      "labeled": true,
-      "size": 1
-    },
-    {
-      "name": "C",
-      "type": "Free",
-      "pos": [
-        -2.4347826086956523,
-        -4.0,
-        -0.8695652173913044
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "D",
-      "type": "Free",
-      "pos": [
-        4.0,
-        0.6666666666666669,
-        1.1904761904761907
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "b",
-      "type": "Join",
-      "pos": [
-        -1.1635944700460832,
-        -0.16129032258064502,
-        4.0
-      ],
-      "color": [
-        0.098039225,
-        0.61960787,
-        0.30588236
-      ],
-      "args": [
-        "C",
-        "D"
-      ],
-      "labeled": true,
-      "size": 1
-    },
-    {
-      "name": "E",
-      "type": "PolarLine",
-      "pos": [
-        -1.968049656681811,
-        -4.0,
-        -1.474182741253347
-      ],
-      "color": [
-        0.0,
-        1.0,
-        0.0
-      ],
-      "args": [
-        "b",
-        "C0"
-      ],
-      "labeled": true
-    }
-  ],
-  "ports": [
-    {
-      "id": "CSCanvas",
-      "width": 680,
-      "height": 336,
-      "transform": [
-        {
-          "visibleRect": [
-            -9.04,
-            9.32,
-            18.16,
-            -4.12
-          ]
-        }
-      ],
-      "background": "rgb(168,176,192)"
-    }
+var cdy = createCindy({
+  scripts: "cs*",
+  defaultAppearance: {},
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 336,
+    background: "rgb(168,176,192)",
+    transform: [{visibleRect: [-9.04, 9.32, 18.16, -4.12]}]
+  }],
+  geometry: [
+    {name: "A", type: "Free", pos: [3.714285714285714, -4, -1.7857142857142856], color: [1, 0, 0], labeled: true},
+    {name: "C0", type: "CircleByRadius", args: ["A"], radius: 4.216918306061904, size: 1, color: [0, 0, 1], printname: "$C_{0}$"},
+    {name: "B", type: "Free", pos: [0.6333333333333333, -4, -0.8333333333333334], color: [1, 0, 0], labeled: true},
+    {name: "a", type: "PolarOfPoint", args: ["B", "C0"], pos: [-0.25419812047450324, -0.4929902942535819, 4], size: 1, color: [1, 0, 0], labeled: true},
+    {name: "C", type: "Free", pos: [-2.4347826086956523, -4, -0.8695652173913044], color: [1, 0, 0], labeled: true},
+    {name: "D", type: "Free", pos: [4, 0.6666666666666669, 1.1904761904761907], color: [1, 0, 0], labeled: true},
+    {name: "b", type: "Join", args: ["C", "D"], pos: [-1.1635944700460832, -0.16129032258064502, 4], size: 1, color: [0.098039225, 0.61960787, 0.30588236], labeled: true},
+    {name: "E", type: "PolarOfLine", args: ["b", "C0"], pos: [-1.968049656681811, -4, -1.474182741253347], color: [0, 1, 0], labeled: true}
   ]
 });
-    </script>
+</script>
 </head>
 <body>
     <canvas id="CSCanvas"></canvas>

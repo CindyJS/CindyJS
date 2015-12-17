@@ -372,6 +372,8 @@ function isBracketPair(c) {
     return c === '[]' || c === '()' || c === '{}' || c === '||';
 }
 
+var usedFunctions = {};
+
 
 function funct(code, firstbraind, defining) {
 
@@ -431,6 +433,7 @@ function funct(code, firstbraind, defining) {
     var erg = {};
     erg.ctype = 'function';
     erg.oper = oper + "$" + argsf.length;
+    usedFunctions[erg.oper] = true;
     erg.args = argsf;
     erg.modifs = modifs;
 

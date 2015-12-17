@@ -65,6 +65,10 @@ List.println = function(l) {
         console.log(erg);
 };
 
+List.matrix = function(l) {
+    return List.turnIntoCSList(l.map(List.turnIntoCSList));
+};
+
 List.realMatrix = function(l) {
     var len = l.length;
     var erg = new Array(len);
@@ -156,25 +160,6 @@ List.triples = function(a) {
         'value': erg
     };
 };
-
-List.triples = function(a) {
-    var erg = [];
-    for (var i = 0; i < a.value.length - 2; i++) {
-        for (var j = i + 1; j < a.value.length - 1; j++) {
-            for (var k = j + 1; k < a.value.length; k++) {
-                erg.push({
-                    'ctype': 'list',
-                    'value': [a.value[i], a.value[j], a.value[k]]
-                });
-            }
-        }
-    }
-    return {
-        'ctype': 'list',
-        'value': erg
-    };
-};
-
 
 List.cycle = function(a) {
     var erg = [];
@@ -339,14 +324,6 @@ List.remove = function(a, b) {
         'ctype': 'list',
         'value': erg
     };
-};
-
-List._helper.compare = function(a, b) {
-    if (a.ctype === 'number' && b.ctype === 'number') {
-        return a.value.real - b.value.real;
-    }
-    return -1;
-
 };
 
 List.sort1 = function(a) {
@@ -543,6 +520,7 @@ List.maxIndex = function(lst, fun, startIdx) {
 
 List.normalizeMax = function(a) {
     var s = CSNumber.inv(List.maxval(a));
+    if (!CSNumber._helper.isFinite(s)) return a;
     return List.scalmult(s, a);
 };
 
@@ -1058,6 +1036,28 @@ List.projectiveDistMinScal = function(a, b) {
     var d2 = List.abs(List.sub(na, nb));
     return Math.min(d1.value.real, d2.value.real);
 
+};
+
+function conicMat2Vec(m) {
+    var v = m.value;
+    var r0 = v[0].value;
+    var r1 = v[1].value;
+    var r2 = v[2].value;
+    return List.turnIntoCSList([
+        r0[0],
+        CSNumber.add(r0[1], r1[0]),
+        CSNumber.add(r0[2], r2[0]),
+        r1[1],
+        CSNumber.add(r1[2], r2[1]),
+        r2[2]
+    ]);
+}
+
+List.conicDist = function(mat1, mat2) {
+    var vec1 = conicMat2Vec(mat1);
+    var vec2 = conicMat2Vec(mat2);
+    console.log(niceprint(vec1), niceprint(vec2));
+    return List.projectiveDistMinScal(vec1, vec2);
 };
 
 List.crossOperator = function(a) {
@@ -2414,77 +2414,6 @@ List.LUdet = function(a) {
     if (LUP.TransPos % 2 === 1) det = CSNumber.neg(det);
 
     return det;
-};
-
-List.inversereal = function(a) { //Das ist nur Reell und greift auf numeric zurück
-    var i, j;
-    var x = [];
-    var y = [];
-    var n = a.value.length;
-    for (i = 0; i < n; i++) {
-        var lix = [];
-        var liy = [];
-        for (j = 0; j < n; j++) {
-            lix[j] = a.value[i].value[j].value.real;
-            liy[j] = a.value[i].value[j].value.imag;
-        }
-        x[i] = lix;
-        y[i] = liy;
-    }
-    var z = new numeric.T(x, y);
-    var res = z.inv(z);
-    var erg = [];
-    for (i = 0; i < n; i++) {
-        var li = [];
-        for (j = 0; j < n; j++) {
-            li[j] = CSNumber.complex(res.x[i][j], res.y[i][j]);
-        }
-        erg[i] = List.turnIntoCSList(li);
-    }
-    return List.turnIntoCSList(erg);
-};
-
-List.linearsolvereal = function(a, bb) { //Das ist nur Reell und greift auf numeric zurück
-    var x = [];
-    var y = [];
-    var b = [];
-
-    var n = a.value.length;
-    for (var i = 0; i < n; i++) {
-        var lix = [];
-        var liy = [];
-        for (var j = 0; j < n; j++) {
-            lix[j] = a.value[i].value[j].value.real;
-            liy[j] = a.value[i].value[j].value.imag;
-        }
-        x[i] = lix;
-        y[i] = liy;
-        b[i] = bb.value[i].value.real;
-    }
-    var res = numeric.solve(x, b);
-
-    return List.realVector(res);
-};
-
-List.detreal = function(a) { //Das ist nur Reell und greift auf numeric zurück
-    var x = [];
-    var y = [];
-    var n = a.value.length;
-    for (var i = 0; i < n; i++) {
-        var lix = [];
-        var liy = [];
-        for (var j = 0; j < n; j++) {
-            lix[j] = a.value[i].value[j].value.real;
-            liy[j] = a.value[i].value[j].value.imag;
-        }
-        x[i] = lix;
-        y[i] = liy;
-    }
-    var z = new numeric.T(x, y);
-    var res = numeric.det(x);
-
-    return CSNumber.real(res);
-
 };
 
 

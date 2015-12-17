@@ -37,11 +37,15 @@ module.exports = {
       prevfile = file;
 
       if (smc) {
-        var orig = smc.originalPositionFor({line: line, column: 0});
+        var orig = smc.originalPositionFor({
+          line: line,
+          column: col
+        });
         if (orig.source) {
           file = orig.source;
           file = file.replace(/^\.\.\/\.\.\/src\/js\//, "");
           line = orig.line;
+          col = orig.column;
         }
       }
       if (prevorig && prevorig !== file) {

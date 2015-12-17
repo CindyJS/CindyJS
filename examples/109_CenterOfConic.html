@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  grid: 5,
+  snap: true,
+  csconsole: true,
+  defaultAppearance: {
+    lineSize: 2
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[3,0]},
+    {name:"B", type:"Free", pos:[0,2]},
+    {name:"C", type:"Free", pos:[0,-2]},
+    {name:"D", type:"Free", pos:[-1,1]},
+    {name:"E", type:"Free", pos:[-1,-1]},
+    {name:"Q", type:"ConicBy5", args:["A", "B", "C", "D", "E"]},
+    {name:"X", type:"CenterOfConic", args:["Q"], color:[0,1,0]},
+
+    // Code below only for verification
+    {name:"linf", type:"FreeLine", pos:[0,0,1], pinned:true},
+    {name:"Fs", type:"IntersectionConicLine", args:["Q","linf"]},
+    {name:"F1", type:"SelectP", args:["Fs"], index:1},
+    {name:"F2", type:"SelectP", args:["Fs"], index:2},
+    {name:"g1", type:"PolarOfPoint", args:["F1", "Q"], color:[0.7,0.3,0]},
+    {name:"g2", type:"PolarOfPoint", args:["F2", "Q"], color:[0.7,0.3,0]},
+    {name:"hs", type:"angleBisector", args:["g1", "g2"]},
+    {name:"h1", type:"SelectL", args:["hs"], index:1, color:[1,1,0]},
+    {name:"h2", type:"SelectL", args:["hs"], index:2, color:[1,1,0]}
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>

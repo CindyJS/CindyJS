@@ -1,7 +1,7 @@
 ## Arithmetic Operators
 
 The following section summarizes all functions and operators that can be applied to numbers.
-There are also many other mathematical operations, and these can be found in the sections [Vectors and Matrices](Vectors_and_Matrices), [Geometric Operators](Geometric_Operators), and [Function Plotting](Function_Plotting).
+There are also many other mathematical operations, and these can be found in the sections [Vectors and Matrices](Vectors_and_Matrices.md), [Geometric Operators](Geometric_Operators.md), and [Function Plotting](Function_Plotting.md).
 
 ### Infix Operators
 
@@ -29,7 +29,7 @@ Lists having the same structure can also be added; then the addition is carried 
     < [5, 7, [2, 5]]
 
 **See also:**
-[String Operators](String_Operators)
+[String Operators](String_Operators.md)
 
 ------
 
@@ -51,7 +51,7 @@ Furthermore, the `-` operator can be used as a unary minus.
     < [2, -1, [0, -1]]
 
 **See also:**
-[String Operators](String_Operators)
+[String Operators](String_Operators.md)
 
 ------
 
@@ -80,7 +80,7 @@ See the examples for further description.
     < [[7, 10], [15, 22]]
 
 **See also:**
-[Vectors and Matrices](Vectors_and_Matrices)
+[Vectors and Matrices](Vectors_and_Matrices.md)
 
 ------
 
@@ -121,9 +121,18 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
 
 This operator multiplies any number by the constant `pi/180` .
 This makes possible angle conversion from degrees to radians.
+Note that angles will be printed in degrees by default.
 
     > 180°
+    < 180°
+    > 180° + 0
     < 3.1416
+    > 180° / 3
+    < 60°
+    > 0.5 * 180°
+    < 90°
+    > 20° + 30°
+    < 50°
     > cos(180°)
     < -1
 
@@ -246,13 +255,7 @@ However, the operator returns only one principal value, for which the real value
     > sin(pi) // almost zero except for numerics
     < 0
     > arccos(-1)
-    < 3.1416
-    > arctan2(1,1) ~= 45°
-    < true
-    > arctan2(-1,-1) ~= -135°
-    < true
-
-    - skip test: printing of angles in degrees not implemented.
+    < 180°
     > arctan2(1,1)
     < 45°
     > arctan2(-1,-1)

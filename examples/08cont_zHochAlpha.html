@@ -14,7 +14,7 @@
 <body style="font-family:Arial;">
 
 <h1>CindyJS: Complex power grid</h1>
-<script id='init' type='cindyscript'>
+<script id='init' type='text/x-cindyscript'>
 circles=true;
 grid=false;
 oldgamma=1;
@@ -22,7 +22,7 @@ trace1=(5,0);
 trace2=(0,5);
 </script>
 
-<script id='down' type='cindyscript'>
+<script id='down' type='text/x-cindyscript'>
 xx=mouse().x;
 yy=mouse().y;
 if(xx>31 & xx<35 & yy>-2.5 & yy<-.8,grid=!grid);
@@ -31,7 +31,7 @@ if(xx>25 & xx<29 & yy>-2.5 & yy<-.8,circles=!circles);
 
 </script>
 
-<script id='firstDrawing' type='cindyscript'>
+<script id='csmove' type='text/x-cindyscript'>
 javascript("document.onkeydown={}");
 y=S.y;
 if(y<S1.y,y=S1.y);
@@ -122,14 +122,14 @@ forall(2..n,j,
 
 //draw(gauss(next(a,b)))
 if(circles,
-   
+
    forall(1..10,k,
           forall(1..10,j,
                  fillcircle(off+gauss(m_(2*k)_(2*j)),abs(gauss(m_(2*k)_(2*j))-gauss(m_(2*k-1)_(2*j))),color->(1,0,0.3),alpha->0.3);
                  drawcircle(off+gauss(m_(2*k)_(2*j)),abs(gauss(m_(2*k)_(2*j))-gauss(m_(2*k-1)_(2*j))),color->(0,.5,0));
                  );
           );
-   
+
    forall(1..10,k,
           forall(1..10,j,
                  fillcircle(off+gauss(m_(2*k-1)_(2*j-1)),
@@ -137,7 +137,7 @@ if(circles,
                  drawcircle(off+gauss(m_(2*k-1)_(2*j-1)),abs(gauss(m_(2*k-1)_(2*j-1))-gauss(m_(2*k-1)_(2*j))),color->(0,0,0));
                  );
           );
-   
+
    );
 
 if(grid,
@@ -145,7 +145,7 @@ if(grid,
           forall(1..20,j,
                  draw(off+gauss(m_(k)_(j)),off+gauss(m_(k+1)_(j)),color->(0,0,0),alpha->1,size->2,color->(0,0,.9));
                  draw(off+gauss(m_(j)_(k)),off+gauss(m_(j)_(k+1)),color->(0,0,0),alpha->1,size->2,color->(0,0,.9));
-                 
+
                  )
           )
    );
@@ -187,8 +187,8 @@ var gslp=[
     {name:"B",  type:"Free", pos:[+1,0], size:.005},
     {name:"F",  type:"Free", pos:[+3,0], size:.005,pinned:true},
     {name:"C",  type:"Free", pos:[0,+1],size:.005 },
-    
-    
+
+
     {name:"S1", type:"Free", pos:[34,8],color:[0,0,0],pinned:true,size:2},
     {name:"S2", type:"Free", pos:[34,20],color:[0,0,0],pinned:true,size:2},
     {name:"S", type:"Free", pos:[34,14],color:[1,0.5,0.5],pinned:false,size:4,narrow:true},
@@ -198,7 +198,7 @@ var gslp=[
     ];
 
 createCindy({canvasname:"CSCanvas",
-movescript:"firstDrawing",
+movescript:"csmove",
 mousedownscript:"down",
 initscript:"init",
 geometry:gslp,

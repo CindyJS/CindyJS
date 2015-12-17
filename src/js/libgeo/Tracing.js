@@ -7,7 +7,42 @@ function assert(condition, message) {
     throw new Error(msg);
 }
 
-var stateIn, stateOut, stateLastGood;
+var totalStateSize = 0;
+var stateArrayNames = ["in", "out", "good", "backup"];
+// Initialize all state to zero-length arrays, can be reallocated later on
+var stateMasterArray = new Float64Array(0);
+var stateArrays = {};
+stateArrayNames.forEach(function(name) {
+    stateArrays[name] = stateMasterArray;
+});
+var stateIn = stateMasterArray;
+var stateOut = stateMasterArray;
+var stateLastGood = stateMasterArray;
+
+function stateAlloc(newSize) {
+    if (newSize === stateLastGood.length) return;
+    var offset, i;
+    var states = stateArrayNames.length;
+    if (stateMasterArray.length < newSize * states) {
+        // We really need to reallocate memory
+        offset = newSize * 2; // include some reserve
+        stateMasterArray = new Float64Array(states * offset);
+    } else {
+        // Master array still has room, we just need to lengthen the subarrays
+        offset = (stateMasterArray.length / states) | 0;
+    }
+    for (i = 0; i < states; ++i) {
+        stateArrays[stateArrayNames[i]] = stateMasterArray.subarray(
+            i * offset, i * offset + newSize);
+    }
+    // No array content is deliberately preserved by the above.
+    // Now we do preserve the stateLastGood.
+    var oldStateLastGood = stateLastGood;
+    stateIn = stateArrays.in;
+    stateOut = stateArrays.out;
+    stateLastGood = stateArrays.good;
+    stateLastGood.set(oldStateLastGood);
+}
 
 /**
  * Current state (i.e. stateIn) is now deemed good, even in case it

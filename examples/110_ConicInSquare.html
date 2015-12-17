@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ConstructionConicInSquareWithDottedLines.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ -2.857142857142857, -4.0, -1.4285714285714286 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ -3.63265306122449, -4.0, -1.0204081632653061 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C", type: "Free", pos: [ 4.0, 0.24793388429752067, 0.4132231404958678 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "D", type: "Free", pos: [ 4.0, -0.7826086956521738, 1.0869565217391304 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C0", type: "ConicInSquare", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "B", "C", "D" ], printname: "$C_{0}$" }, 
+		{ name: "a", type: "Join", pos: [ 2.1052631578947367, -2.9323308270676693, 4.0 ], color: [ 1.0, 0.0, 0.0 ], args: [ "A", "B" ], labeled: true, dashtype: "dotted" }, 
+		{ name: "b", type: "Join", pos: [ -0.37085027478664934, -0.6836155667753898, 4.0 ], color: [ 1.0, 0.0, 0.0 ], args: [ "B", "C" ], labeled: true, dashtype: "dotted" }, 
+		{ name: "c", type: "Join", pos: [ -0.5753138075313807, 2.6150627615062763, 4.0 ], color: [ 1.0, 0.0, 0.0 ], args: [ "C", "D" ], labeled: true, dashtype: "dotted" }, 
+		{ name: "d", type: "Join", pos: [ -1.1989100817438694, -0.572207084468665, 4.0 ], color: [ 1.0, 0.0, 0.0 ], args: [ "D", "A" ], labeled: true, dashtype: "dotted" } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas><p>Each of the dotted red lines are expected to be tangent to the conic at a single point.</p>
+</body>
+</html>

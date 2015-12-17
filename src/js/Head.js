@@ -43,20 +43,6 @@ var createCindy = (function() {
                 document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
             }
 
-            if (typeof window !== "undefined" &&
-                typeof window.__gwt_activeModules !== "undefined") {
-                Object.keys(window.__gwt_activeModules).forEach(function(key) {
-                    var m = window.__gwt_activeModules[key];
-                    m.cindyDoneWaiting = waitFor(m.moduleName);
-                });
-                var oldStatsEvent = window.__gwtStatsEvent;
-                window.__gwtStatsEvent = function(evt) {
-                    if (evt.evtGroup === "moduleStartup" && evt.type === "end") {
-                        window.__gwt_activeModules[evt.moduleName].cindyDoneWaiting();
-                    }
-                };
-            }
-
             function createCindy(data) {
                 var instance = createCindy.newInstance(data);
                 if (waitCount <= 0) instance.startup();
@@ -89,31 +75,61 @@ var createCindy = (function() {
                 return baseDir;
             };
 
+            createCindy.addNewScript = function(path, onerror) {
+                if (!onerror) onerror = console.error.bind(console);
+                var baseDir = createCindy.getBaseDir();
+                if (baseDir === false) {
+                    return false;
+                }
+                var elt = document.createElement("script");
+                elt.src = baseDir + path;
+                var next = cindyJsScriptElement.nextSibling;
+                var parent = cindyJsScriptElement.parentElement;
+                if (next)
+                    parent.insertBefore(elt, next);
+                else
+                    parent.appendChild(elt);
+                return elt;
+            };
+
             createCindy.loadScript = function(name, path, onload, onerror) {
                 if (window[name]) {
                     onload();
                     return true;
                 }
                 if (!onerror) onerror = console.error.bind(console);
-                var baseDir = createCindy.getBaseDir();
-                if (baseDir === false) {
-                    onerror("Can't load additional components.");
-                    return false;
-                }
                 var elt = waitingForLoad[name];
                 if (!elt) {
-                    elt = document.createElement("script");
-                    elt.src = baseDir + path;
-                    var next = cindyJsScriptElement.nextSibling;
-                    var parent = cindyJsScriptElement.parentElement;
-                    if (next)
-                        parent.insertBefore(elt, next);
-                    else
-                        parent.appendChild(elt);
+                    elt = createCindy.addNewScript(path, onerror);
+                    if (elt === false) {
+                        onerror("Can't load additional components.");
+                        return false;
+                    }
                     waitingForLoad[name] = elt;
                 }
                 elt.addEventListener("load", onload);
                 elt.addEventListener("error", onerror);
+                return null;
+            };
+
+            createCindy._autoLoadingPlugin = {};
+
+            createCindy.autoLoadPlugin = function(name, path, onload) {
+                if (createCindy._pluginRegistry[name]) {
+                    onload();
+                    return true;
+                }
+                var listeners = createCindy._autoLoadingPlugin[name];
+                if (!listeners) {
+                    if (!path) path = name + "-plugin.js";
+                    listeners = createCindy._autoLoadingPlugin[name] = [];
+                    var elt = createCindy.addNewScript(path);
+                    if (elt === false) {
+                        return false;
+                    }
+                    elt.addEventListener("error", console.error.bind(console));
+                }
+                listeners.push(onload);
                 return null;
             };
 
@@ -126,5 +142,9 @@ var createCindy = (function() {
                     return false;
                 }
                 createCindy._pluginRegistry[pluginName] = initCallback;
+                var listeners = createCindy._autoLoadingPlugin[pluginName] || [];
+                listeners.forEach(function(callback) {
+                    callback();
+                });
             };
             createCindy.newInstance = function(instanceInvocationArguments) {

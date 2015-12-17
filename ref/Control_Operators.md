@@ -6,7 +6,7 @@
 
 We first describe those operators that allow to generate conditional branching and various kinds of loops.
 The user should be aware that there are also other kinds of loop-like structures that arise from the different ways of traversing lists.
-They are described in the section [Elementary List Operations](Elementary_List_Operations).
+They are described in the section [Elementary List Operations](Elementary_List_Operations.md).
 
 #### The conditional operator: `if(‹bool›,‹expr›)`
 
@@ -201,76 +201,76 @@ This code fragment will draw a 3 × 3 array of points.
     > );
     D lineWidth = 1.2
     D beginPath()
-    D arc(275, 205, 4, 0, 6.283185307179586)
+    D arc(275.5, 204.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(275, 205, 4.6, 0, 6.283185307179586)
+    D arc(275.5, 204.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D strokeStyle = "rgb(0,0,0)"
     D stroke()
     D beginPath()
-    D arc(275, 180, 4, 0, 6.283185307179586)
+    D arc(275.5, 179.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(275, 180, 4.6, 0, 6.283185307179586)
+    D arc(275.5, 179.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D stroke()
     D beginPath()
-    D arc(275, 155, 4, 0, 6.283185307179586)
+    D arc(275.5, 154.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(275, 155, 4.6, 0, 6.283185307179586)
+    D arc(275.5, 154.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D stroke()
     D beginPath()
-    D arc(300, 205, 4, 0, 6.283185307179586)
+    D arc(300.5, 204.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(300, 205, 4.6, 0, 6.283185307179586)
+    D arc(300.5, 204.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D stroke()
     D beginPath()
-    D arc(300, 180, 4, 0, 6.283185307179586)
+    D arc(300.5, 179.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(300, 180, 4.6, 0, 6.283185307179586)
+    D arc(300.5, 179.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D stroke()
     D beginPath()
-    D arc(300, 155, 4, 0, 6.283185307179586)
+    D arc(300.5, 154.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(300, 155, 4.6, 0, 6.283185307179586)
+    D arc(300.5, 154.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D stroke()
     D beginPath()
-    D arc(325, 205, 4, 0, 6.283185307179586)
+    D arc(325.5, 204.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(325, 205, 4.6, 0, 6.283185307179586)
+    D arc(325.5, 204.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D stroke()
     D beginPath()
-    D arc(325, 180, 4, 0, 6.283185307179586)
+    D arc(325.5, 179.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(325, 180, 4.6, 0, 6.283185307179586)
+    D arc(325.5, 179.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D stroke()
     D beginPath()
-    D arc(325, 155, 4, 0, 6.283185307179586)
+    D arc(325.5, 154.5, 4, 0, 6.283185307179586)
     D fillStyle = "rgb(255,200,0)"
     D fill()
     D beginPath()
-    D arc(325, 155, 4.6, 0, 6.283185307179586)
+    D arc(325.5, 154.5, 4.6, 0, 6.283185307179586)
     D fillStyle = "rgb(0,0,0)"
     D stroke()
 

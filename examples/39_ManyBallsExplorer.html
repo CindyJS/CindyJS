@@ -6,15 +6,15 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>Molekule explorer</h1>
-        
-        
-               <script id='init' type='cindyscript'>
+
+
+               <script id='init' type='text/x-cindyscript'>
         l=[];
         ch1o=0;
         ch2o=0;
@@ -24,8 +24,8 @@
             javascript("cdy.play()");
 
         </script>
-        
-<script id='firstDrawing' type='cindyscript'>
+
+<script id='csmove' type='text/x-cindyscript'>
 javascript("document.onkeydown={}");
 bondcolor=(0,0,0);
 if(black,
@@ -51,19 +51,19 @@ if(black,
           if(x<S1.x,x=S1.x);
           if(x>S2.x,x=S2.x);
           S.xy=(x,S1.y);
-          
+
           x=R.x;
           if(x<R1.x,x=R1.x);
           if(x>R2.x,x=R2.x);
           x=round(x*4/|R1,R2|)/4*|R1,R2|;
           R.xy=(x,R1.y);
           char1=round(|R,R1|/|R1,R2|*4);
-          
+
           x=T.x;
           if(x<T1.x,x=T1.x);
           if(x>T2.x,x=T2.x);
           T.xy=(x,T1.y);
-       
+
           x=U.x;
           if(x<U1.x,x=U1.x);
           if(x>U2.x,x=U2.x);
@@ -132,12 +132,12 @@ drawtext(W2+(.5,-.2),"temperature",size->16);
 
 
 forall(ms,m,
-  if((m.color)_1>(m.color)_3, 
+  if((m.color)_1>(m.color)_3,
      m.size=r1*5+2;
      m.radius=r1;
      m.charge=char1;
   );
-  if((m.color)_1<(m.color)_3, 
+  if((m.color)_1<(m.color)_3,
     m.size=r2*5+2;
     m.radius=r2;
     m.charge=-char2
@@ -152,16 +152,16 @@ repeat(12,i,
   r=i/12;
   apply(ms,
      #.size=2;
-     rr=#.radius; 
+     rr=#.radius;
      fillcircle(#,(1-r)*rr,color->#.color*2-(1,1,1),alpha->r*.4)
-     
+
   );
 );
 );
 if(bondings,
 forall(pairs,s,
        if(|s_1,s_2|<(rad+rad1)*.9 & ((s_1).color!=(s_2).color),
-          
+
           al=(|s_1,s_2|-(rad+rad1)*.3)/((rad+rad1)*.6);
           if(al<0,al=0);
           if(al>1,al=1);
@@ -214,7 +214,7 @@ forall(pairs,s,
     {name:"W", type:"Free", pos:[12,-8],color:[1,1,1],pinned:false,size:4},
     {name:"s", type:"Segment", args:["W1","W2"],color:[0,0,0],pinned:false,size:2},
 
-   
+
                     //  {name:"F", type:"Free", pos:[7,2.5],color:[1,.5,.5]},
                     //  {name:"X", type:"Free", pos:[-9,-7],color:[0,0,0]},
                     //  {name:"Y", type:"Free", pos:[9,-7],color:[0,0,0]},
@@ -223,34 +223,34 @@ forall(pairs,s,
                       {name:"b", type:"Segment", args:["C","D"],color:[0,0,0],size:1 },
                       {name:"c", type:"Segment", args:["D","E"],color:[0,0,0],size:1 },
                       {name:"d", type:"Segment", args:["E","B"],color:[0,0,0],size:1 }
-                    
 
-                      
+
+
                     ];
-                    
+
     for(var i=0;i<nn;i++){
     gslp.push(
-              {name:"A"+i, type:"Free", 
+              {name:"A"+i, type:"Free",
               pos:[(Math.random()-.5)*b*1.8,(Math.random()-.5)*b*1.8],
               color:i>nn/f?[1,.5,.5]:[.5,.5,1],
               size:i>nn/f?5:5}
               )
-    
+
 };
             var physics=[
                        {behavior:{type:"Environment",gravity:0,
                        accuracy:10,deltat:0.1,
                        balls:true,charges:true,friction:.00}},
-                       
+
                        {name:"a", behavior:{type:"Bouncer"}},
                        {name:"b", behavior:{type:"Bouncer"}},
                        {name:"c", behavior:{type:"Bouncer"}},
                        {name:"d", behavior:{type:"Bouncer"}}
-                       
-                       
+
+
                        ];
-                       
-                       
+
+
                            for(var i=0;i<nn;i++){
     physics.push(
               {name:"A"+i, behavior:{
@@ -259,20 +259,20 @@ forall(pairs,s,
               vx:(Math.random()-.5)*.1,
               vy:(Math.random()-.5)*.1,
               charge:(i>nn/f?-1:1)*1},
-              } 
+              }
               )
-    
+
 };
             var cdy = createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         geometry:gslp,
                         behavior:physics}
                         );
-    
+
         </script>
-        
+
         <button onclick="cdy.play()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
         <button onclick="cdy.pause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
         <button onclick="cdy.stop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>

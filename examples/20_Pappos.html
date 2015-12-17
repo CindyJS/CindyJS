@@ -6,24 +6,24 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Pappos's Theorem</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
-            
+
+
+        <script id='csmove' type='text/x-cindyscript'>
+
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
 
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", type:"Free", pos:[-5,6]},
                       {name:"B", type:"Free", pos:[6,5]},
@@ -47,9 +47,9 @@
                       ];
             createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-    
+
         </script>
 
 	</body>

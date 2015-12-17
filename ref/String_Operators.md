@@ -21,7 +21,7 @@ If in an addition operation at least one of the arguments is a string, then the 
 
 **See also:**
 The `+` operator is also used for the addition of usual numerical values.
-For this see [Arithmetic Operators](Arithmetic_Operators).
+For this see [Arithmetic Operators](Arithmetic_Operators.md).
 
 ------
 
@@ -41,7 +41,7 @@ This operator returns the number of characters in a string.
 `length("CindyScript")` evaluates to the integer `11`.
 
 **See Also:**
-[Lists and Linear Algebra](Lists_and_Linear_Algebra)
+[Lists and Linear Algebra](Lists_and_Linear_Algebra.md)
 
 ------
 
@@ -144,6 +144,10 @@ This operator is extremely useful for creating text replacement systems of the k
     < "F+F"
     > replace("F+F", "F", "F+F")
     < "F+F+F+F"
+    > replace("3*$ + 4", "$", "x")
+    < "3*x + 4"
+    > replace("1\2", "\", "$&")
+    < "1$&2"
 
 ------
 
@@ -182,7 +186,7 @@ defines the function `f(x)` to be `sin(x)+cos(x)`.
 #### Guessing a good representation of a number: `guess(‹number›)`
 
 **Description:**
-This very powerful operator is described in detail in the section [Calculus](Calculus).
+This very powerful operator is described in detail in the section [Calculus](Calculus.md).
 It takes a numerical expression in floating-point representation and attempts to convert it to a mathematical expression that generates that floating-point number with high precision.
 This expression is then represented as a string.
 
@@ -193,7 +197,7 @@ This expression is then represented as a string.
     < "sqrt(3/5)"
 
 **See also:**
-[Calculus](Calculus)
+[Calculus](Calculus.md)
 
 ------
 
@@ -240,7 +244,7 @@ The following example illsustrates this:
 
 Like real numbers, strings admit a total ordering.
 Thus they can be compared using the operators `›`, `‹`, `›=`, `‹=`, `==`, and `!=`.
-Please refer to [Boolean Operators](Boolean_Operators) for the use of these relations.
+Please refer to [Boolean Operators](Boolean_Operators.md) for the use of these relations.
 
 The order that is used for strings is lexicographic (dictionary) order.
 Thus, for example,
@@ -264,7 +268,7 @@ Alternatively, one can specify a user-defined sorting function such as the lengt
     < ["one", "two", "four", "five", "three"]
 
 **See also:**
-[Lists and Linear Algebra](Lists_and_Linear_Algebra)
+[Lists and Linear Algebra](Lists_and_Linear_Algebra.md)
 
 ------
 

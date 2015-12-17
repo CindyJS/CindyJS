@@ -6,23 +6,23 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Euler-Line</h1>
-        
-        
-        <script id='firstDrawing' type='text/cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
 
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
 
         <script type="text/javascript">
-            
+
             var gslp=[
 
                       {name:"A", type:"Free", pos:[1,2],color:[1,1,1]},
@@ -38,9 +38,9 @@
                       {name:"Z", type:"SelectP", args:["S"],index:2,color:[0,1,0],size:6}
                       ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-    
+
         </script>
 
 	</body>

@@ -6,23 +6,23 @@
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>Conic by 1 point and 4 line</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
         </script>
-        
+
 
         <canvas  id="CSCanvas" width=600 height=600 style="border:2px solid #000000"></canvas>
 
 
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", type:"Free", pos:[15,1]},
                       {name:"B", type:"Free", pos:[20,4]},
@@ -39,16 +39,16 @@
 		      {name:"l2", type:"Join", args:["C", "D"] },
 		      {name:"l3", type:"Join", args:["E", "F"] },
 		      {name:"l4", type:"Join", args:["G", "H"] },
-		      {name:"CoT", type:"ConicBy1p4l", args:["l1","l2","l3","l4","P"]},
+		      {name:"CoT", type:"ConicBy1p4l", args:["P","l1","l2","l3","l4"]},
   	      	      {name:"Co1", type:"SelectConic", args:["CoT"], index:1},
 	 	      {name:"Co2", type:"SelectConic", args:["CoT"], index:2},
                       ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         grid:1,
                         snap:true,
                         geometry:gslp});
-    
+
         </script>
 
 	</body>

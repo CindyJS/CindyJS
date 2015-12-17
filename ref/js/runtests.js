@@ -271,7 +271,9 @@ FakeCanvas.prototype.writeLog = function(methodName, args) {
                  map.call(args, JSON.stringify).join(", ") + ")");
 };
 FakeCanvas.prototype.measureText = function(txt) {
-  return 8*txt.length;
+  return {
+      width: 8*txt.length,
+  };
 };
 [ "arc",
   "beginPath",

@@ -7,15 +7,15 @@
 
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Complete Graph</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
 n=round(|(B.x+10)*5|);
             f(x):=[sin(x),cos(x)]*6+A;
             steps=2*pi*(1..n)/n;
@@ -23,38 +23,38 @@ n=round(|(B.x+10)*5|);
             segs=pairs(pts);
             drawall(segs,alpha->1/n*5);
 			drawall(pts,size->4);
-            
+
         </script>
-        
-        
+
+
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
-        
-        
-        
+
+
+
         <script type="text/javascript">
-            
+
            	var gslp=[
                       {name:"A", kind:"P", type:"Free", pos:[0,0,1]},
                       {name:"B", kind:"P", type:"Free", pos:[-9,8,1]},
                 ];
-            
-            
-            
-            createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
-                        geometry:gslp});
-            
-            
-            
-            
-            
-            </script>
-        
-        
 
-        
-        
-        
-        
+
+
+            createCindy({canvasname:"CSCanvas",
+                        movescript:"csmove",
+                        geometry:gslp});
+
+
+
+
+
+            </script>
+
+
+
+
+
+
+
 	</body>
 </html>

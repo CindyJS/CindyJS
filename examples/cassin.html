@@ -49,7 +49,7 @@ void main( void ) {
 
 
 <script id='shader-fs-mainX' type='x-shader/x-fragment'>
-    
+
     float dx=position.x-posc.x;
     float dy=position.y-posc.y;
     float dx2=position.x-(posb.x);
@@ -66,7 +66,7 @@ void main( void ) {
  </script>
 
 <script id='shader-fs-main' type='x-shader/x-fragment'>
-    
+
     float dx=position.x-posc.x;
     float dy=position.y-posc.y;
     float dx2=position.x-(posb.x);
@@ -87,7 +87,7 @@ void main( void ) {
 
 <script id='shader-fs-post' type='x-shader/x-fragment'>
     gl_FragColor = vec4( color, alpha );
-} 
+}
 
 </script>
 
@@ -118,8 +118,8 @@ function setpos3(x,y)
 <script type="text/javascript" src="WebGLAdapter.js"></script>
 
 
-        <script id='firstDrawing' type='cindyscript'>
-        
+        <script id='csmove' type='text/x-cindyscript'>
+
    //     javascript("compile('color=vec3("+A.x+","+A.y+",0.0);');");
         javascript("setpos("+A.x+","+A.y+");");
         javascript("setpos2("+B.x+","+B.y+");");
@@ -133,15 +133,15 @@ var gslp=[
     {name:"A", type:"Free", pos:[-.5,-.5],color:[1,0,0],pinned:false,size:8},
     {name:"B", type:"Free", pos:[0,.5],color:[0,1,0],pinned:false,size:8},
     {name:"C", type:"Free", pos:[.5,.3],color:[0,0,1],pinned:false,size:8}
-    
-    
+
+
     ];
 
 
 
 createCindy({canvasname:"CSCanvas",
      defaultAppearance: {dimDependent: 0.7},
-     movescript:"firstDrawing",
+     movescript:"csmove",
     // initscript:"init",
     // mousedownscript:"click",
     // tickscript:"timer",

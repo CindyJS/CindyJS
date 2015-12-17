@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: {}, 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 4.0, 3.3577981651376145, 0.4587155963302752 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ 4.0, 2.5990783410138247, 0.4608294930875576 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C", type: "Free", pos: [ 4.0, 1.690909090909091, 0.45454545454545453 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "D", type: "Free", pos: [ 4.0, 2.831460674157303, 0.37453183520599254 ], color: [ 1.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "E", type: "Free", pos: [ 4.0, 2.1582733812949644, 0.3597122302158274 ], color: [ 1.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "F", type: "Free", pos: [ 4.0, 1.4571428571428573, 0.35714285714285715 ], color: [ 1.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "G", type: "Free", pos: [ 0.4800000000000004, 0.16000000000000014, 4.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "H", type: "Free", pos: [ 4.0, -2.232558139534884, 2.3255813953488373 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "K", type: "Free", pos: [ 4.0, 0.11999999999999966, 1.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "Tr0", type: "TrMoebius", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "D", "B", "E", "C", "F" ] }, 
+		{ name: "C0", type: "Arc", color: [ 1.0, 1.0, 0.0 ], args: [ "G", "H", "K" ], size: 1, printname: "$C_{0}$" }, 
+		{ name: "C1", type: "Transform", color: [ 0.9803922, 1.0, 0.61960787 ], args: [ "Tr0", "C0" ], size: 1, printname: "$C_{1}$" }, 
+		{ name: "a", type: "FreeLine", pos: [ 0.7053118800969804, -0.23143046065682168, 4.0 ], color: [ 0.0, 1.0, 0.0 ], labeled: true, size: 1 }, 
+		{ name: "C2", type: "Transform", color: [ 0.7137255, 1.0, 0.6666667 ], args: [ "Tr0", "a" ], size: 1, printname: "$C_{2}$", labeled: true }, 
+		{ name: "b", type: "Segment", pos: [ 0.07833920877399071, -0.6397702049875958, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "A", "D" ], labeled: true, size: 1 }, 
+		{ name: "c", type: "Segment", pos: [ 0.13537906137184152, -0.9175691937424797, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "B", "E" ], labeled: true, size: 1 }, 
+		{ name: "d", type: "Segment", pos: [ 0.25, -1.6666666666666672, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "C", "F" ], labeled: true, size: 1 } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 335, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.08 ] } ], background: "rgb(168,176,192)" } ] });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

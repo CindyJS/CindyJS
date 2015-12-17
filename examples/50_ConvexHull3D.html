@@ -3,20 +3,18 @@
 	<head>
 		<meta charset="utf-8">
             <title>Cindy JS</title>
-            
-            <script type="text/javascript" src="../build/js/quickhull3d/quickhull3d.nocache.js"></script>
 
             <script type="text/javascript" src="../build/js/Cindy.js"></script>
-     
+
             <link rel="stylesheet" href="../css/cindy.css">
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Convex Hull</h1>
-        
-        
-        <script id='mouseDrag' type='cindyscript'>
+
+
+        <script id='mouseDrag' type='text/x-cindyscript'>
         errc("Draw");
         xx=mouse().x;
 yy=mouse().y;
@@ -39,12 +37,12 @@ mmmy=[
 
 
   mat=mmmx*mmmy*mat;
-  
+
           startx=mouse().x;
 starty=mouse().y;
         </script>
 
-        <script id='mouseUp' type='cindyscript'>
+        <script id='mouseUp' type='text/x-cindyscript'>
                 errc("Up");
 
         xx=mouse().x;
@@ -70,7 +68,7 @@ mmmy=[
   mat=mmmx*mmmy*mat;
         </script>
 
-        <script id='mouseDown' type='cindyscript'>
+        <script id='mouseDown' type='text/x-cindyscript'>
                 errc("DOWN");
 
         startx=mouse().x;
@@ -78,12 +76,12 @@ starty=mouse().y;
         </script>
 
 
-        
-        
-<script id='init' type='cindyscript'>
- 
- 
-mat=[ 
+
+
+<script id='init' type='text/x-cindyscript'>
+
+
+mat=[
   [1,0,0],
   [0,1,0],
   [0,0,1]
@@ -101,7 +99,7 @@ mmmx=mat0;
 mmmy=mat0;
 
 
-        
+
         obj1=((-1,-1,-1),(-1,1,1),(1,-1,1),(1,1,-1));
  num=4;
 
@@ -127,13 +125,13 @@ mmmy=mat0;
    (-gg,0,1),
    (gg,0,-1),
    (-gg,0,-1)
- ); 
- 
+ );
+
  ma(p):=[p_1,p_2];
- 
-pos1=(10,-10,-10); 
+
+pos1=(10,-10,-10);
 pos1=pos1/|pos1|;
-pos2=(-10,-10,-10); 
+pos2=(-10,-10,-10);
 pos2=pos2/|pos2|;
  col1=(1,0,0);
  col2=(0,0,1);
@@ -147,7 +145,7 @@ drawface(f,nn):=(
 
           draw(ff_#,ff_(#+1),size->1,color->(0,0,0))
       )
-   
+
    )
 
 
@@ -156,48 +154,48 @@ drawface(f,nn):=(
 
         </script>
 
-        
-             <script id='tick' type='cindyscript'>
+
+             <script id='tick' type='text/x-cindyscript'>
              errc("HALLO");
 
         </script>
 
 
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+        <script id='csmove' type='text/x-cindyscript'>
 
            a=convexhull3d(obj3*5);
-           points=a_1*transpose(mat);  
-           faces=a_2;  
-         
+           points=a_1*transpose(mat);
+           faces=a_2;
+
            apply(faces,f,
-               fa=points_f; 
+               fa=points_f;
                 nn=cross( fa_2-fa_1,fa_2-fa_3);
 nn=nn/|nn|;
                erg=apply(fa,p,ma(p));
                drawface(erg,nn);
            );
-         
+
         </script>
-        
-        
+
+
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", kind:"P", type:"Free",alpha:0, pos:[-1000,-1000,1]}                      ];
-            
+
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         initscript:"init",
                         mousedownscript:"mouseDown",
                         mouseupscript:"mouseUp",
                         mousedragscript:"mouseDrag",
                         geometry:gslp});
 
-            
+
             </script>
-        
+
        	</body>
 </html>

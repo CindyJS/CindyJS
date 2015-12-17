@@ -106,13 +106,13 @@ If the three points are collinear, then the area is zero.
 
 The following operators from linear algebra are very useful in geometric contexts.
 They apply especially to numeric vectors of length 3.
-For other useful operators in that context (such as `dist`, matrix operations, and scalar product) please refer to [Vectors and Matrices](Vectors_and_Matrices).
+For other useful operators in that context (such as `dist`, matrix operations, and scalar product) please refer to [Vectors and Matrices](Vectors_and_Matrices.md).
 
 #### The determinant of three points: `det(‹vec1›,‹vec2›,‹vec3›)`
 
 **Description:**
 This operator calculates the determinant of a 3 × 3 matrix formed by the three three-dimensional vectors `‹vec1›`, `‹vec2›`, `‹vec3›`.
-Unlike the general determinant method described in the section [Vectors and Matrices](Vectors_and_Matrices), this method is optimized for performance.
+Unlike the general determinant method described in the section [Vectors and Matrices](Vectors_and_Matrices.md), this method is optimized for performance.
 
 ------
 
@@ -238,21 +238,21 @@ Returns a matrix that represents a translation that maps `‹point1›` to `‹p
 
 ------
 
-#### Similarity: `map(‹point1›,‹point2›,‹point3›,‹point4›)`
+#### Similarity: `map(‹point1›,‹point3›,‹point2›,‹point4›)`
 
 **Description:**
 Returns a matrix that represents a similarity that maps `‹point1›` to `‹point2›` and `‹point3›` to `‹point4›`.
 
 ------
 
-#### Affine transformation: `map(‹point1›,‹point2›,‹point3›,‹point4›, ‹point5›,‹point6›)`
+#### Affine transformation: `map(‹point1›,‹point3›,‹point5›,‹point2›, ‹point4›,‹point6›)`
 
 **Description:**
 Returns a matrix that represents an affine transformation that maps `‹point1›` to `‹point2›`, `‹point3›` to `‹point4›`, and `‹point5›` to `‹point6›`.
 
 ------
 
-#### Projective transformation: `map(‹point1›,‹point2›,‹point3›,‹point4›, ‹point5›,‹point6›,‹point7›,‹point8›)`
+#### Projective transformation: `map(‹point1›,‹point3›,‹point5›,‹point7›, ‹point2›,‹point4›,‹point6›,‹point8›)`
 
 **Description:**
 Returns a matrix that represents a projective transformation that maps `‹point1›` to `‹point2›`, `‹point3›` to `‹point4›`, `‹point5›` to `‹point6›`, and `‹point7›` to `‹point8›`.

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Construction.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: { pointSize: 5.0, fontFamily: "sans-serif", lineSize: 1.0 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 4.0, 0.8403361344537815, 0.8403361344537815 ], color: [ 1.0, 0.0, 0.0 ], drawtrace: true, tracelength: 34, traceskip: 10, tracedim: 0.38461538461538464, labeled: true } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 336, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.1 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1793, version: [ 2, 9, 1793 ] } });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

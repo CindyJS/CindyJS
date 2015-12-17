@@ -30,13 +30,13 @@ timosWinkel(B,A,C,r,col):=(
   if(w1>w2,w1=w1-360°);
   regional(l,n);
   l=[A];
-  n=(w2-w1)*30; 
+  n=(w2-w1)*30;
   repeat(n,start->w1,stop->w2,w,
     l=l++[gauss(exp(i*w)*r*25/screenresolution())+A]
   );
   l=l++[A.xy];
   fillpoly(l,color->col*.5+(1,1,1)*.5);
-  connect(l,size->1,border->false,color->col); 
+  connect(l,size->1,border->false,color->col);
   p=gauss(exp(i*(w1+w2)/2)*((r*25+20)/screenresolution()))+A;
   drawtext(p,(w2-w1),align->"center",color->col*.5);
 );

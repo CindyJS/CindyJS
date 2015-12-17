@@ -3,11 +3,12 @@ defaultAppearance.clip = "none";
 defaultAppearance.pointColor = [1, 0, 0];
 defaultAppearance.lineColor = [0, 0, 1];
 defaultAppearance.pointSize = 5;
-defaultAppearance.lineSize = 2;
+defaultAppearance.lineSize = 1;
 defaultAppearance.alpha = 1;
 defaultAppearance.overhangLine = 1.1;
 defaultAppearance.overhangSeg = 1;
 defaultAppearance.dimDependent = 1;
+defaultAppearance.fontFamily = "sans-serif";
 
 function setDefaultAppearance(obj) {
     var key;
@@ -23,6 +24,8 @@ function csinit(gslp) {
     // establish defaults for geoOps
     Object.keys(geoOps).forEach(function(opName) {
         var op = geoOps[opName];
+        assert(op.signature || opName === "_helper",
+            opName + " has no signature");
         if (op.updatePosition !== undefined && op.stateSize === undefined)
             op.stateSize = 0;
     });
@@ -42,153 +45,185 @@ function csinit(gslp) {
     //isshowing     das wird durch den Konstruktionsbaum vererbt
     //movable
 
-
-    // Setzen der Default appearance
-
-    function pointDefault(el) {
-
-        if (el.size === undefined) el.size = defaultAppearance.pointSize;
-        el.size = CSNumber.real(el.size);
-        if (el.type !== "Free") {
-            el.color = List.realVector(el.color || defaultAppearance.pointColor);
-            el.color = List.scalmult(CSNumber.real(defaultAppearance.dimDependent), el.color);
-        } else {
-            el.color = List.realVector(el.color || defaultAppearance.pointColor);
-        }
-        if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
-        el.alpha = CSNumber.real(el.alpha);
-    }
-
-    function lineDefault(el) {
-        if (el.size === undefined) el.size = defaultAppearance.lineSize;
-        el.size = CSNumber.real(el.size);
-        el.color = List.realVector(el.color || defaultAppearance.lineColor);
-        if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
-        el.alpha = CSNumber.real(el.alpha);
-        el.clip = General.string(el.clip || defaultAppearance.clip);
-        if (el.overhang === undefined)
-            el.overhang = defaultAppearance.overhangLine;
-        el.overhang = CSNumber.real(el.overhang);
-    }
-
-    function segmentDefault(el) {
-        lineDefault(el);
-        el.clip = General.string("end");
-        if (el.overhang === undefined)
-            el.overhang = defaultAppearance.overhangSeg;
-        el.overhang = CSNumber.real(el.overhang);
-    }
-
-    csgeo.gslp = gslp;
-
-    csgeo.csnames = {}; //Lookup für elemente mit über Namen
-
-
-    var k, l, f, el, op;
-    var totalStateSize = 0;
-
+    csgeo.gslp = [];
+    csgeo.csnames = {}; // Map from name to geometric element
     csgeo.points = [];
     csgeo.lines = [];
     csgeo.conics = [];
     csgeo.free = [];
-    var ctp = 0;
-    var ctf = 0;
-    var ctl = 0;
-    var ctc = 0;
-    var dropped = {};
 
-    // Das ist für alle gleich
-    for (k = 0; k < gslp.length; k++) {
-        el = gslp[k];
-        var macro = geoMacros[el.type];
-        if (macro) {
-            var expansion = macro(el).slice();
-            // Replace single element gslp[k] with all the elements
-            // from expansion, using gslp.splice(k, 1, expansion[0], ...)
-            expansion.splice(0, 0, k, 1);
-            gslp.splice.apply(gslp, expansion);
-            --k; // process the first expanded element
-            continue;
-        }
-        csgeo.csnames[el.name] = el;
-        op = geoOps[el.type];
-        if (!op) {
-            console.error(el);
-            console.error("Operation " + el.type + " not implemented yet");
-            dropped[el.name] = true;
-            gslp.splice(k, 1);
-            k--;
-            continue;
-        }
-        if (el.args) {
-            for (l = 0; l < el.args.length; ++l) {
-                if (dropped.hasOwnProperty(el.args[l]))
-                    break;
-            }
-            if (l < el.args.length) { // we did break
-                console.log("Dropping " + el.name +
-                    " due to dropped argument " + el.args[l]);
-                dropped[el.name] = true;
-                gslp.splice(k, 1);
-                k--;
-                continue;
-            }
-        }
-        el.kind = op.kind;
-        el.stateIdx = totalStateSize;
-        totalStateSize += op.stateSize;
-        el.incidences = [];
-        el.isshowing = true;
-        el.movable = false;
-        if (op.isMovable) {
-            el.movable = true;
-            csgeo.free[ctf++] = el;
-        }
+    gslp.forEach(addElement);
+    guessIncidences();
+}
 
-        if (el.kind === "P") {
-            csgeo.points[ctp] = el;
-            pointDefault(el);
-            ctp += 1;
+// Setzen der Default appearance
+
+function pointDefault(el) {
+
+    if (el.size === undefined) el.size = defaultAppearance.pointSize;
+    el.size = CSNumber.real(el.size);
+    if (el.type !== "Free") {
+        el.color = List.realVector(el.color || defaultAppearance.pointColor);
+        el.color = List.scalmult(CSNumber.real(defaultAppearance.dimDependent), el.color);
+    } else {
+        el.color = List.realVector(el.color || defaultAppearance.pointColor);
+    }
+    if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
+    el.alpha = CSNumber.real(el.alpha);
+
+    if (el.drawtrace) {
+        if (typeof el.tracedim === "undefined") el.tracedim = 1;
+        if (typeof el.tracelength === "undefined") el.tracelength = 100;
+        if (typeof el.traceskip === "undefined") el.traceskip = 1;
+        el._traces = new Array(el.tracelength);
+        el._traces_index = 0;
+        el._traces_tick = 0;
+    }
+}
+
+function lineDefault(el) {
+    if (el.size === undefined) el.size = defaultAppearance.lineSize;
+    el.size = CSNumber.real(el.size);
+    el.color = List.realVector(el.color || defaultAppearance.lineColor);
+    if (el.alpha === undefined) el.alpha = defaultAppearance.alpha;
+    el.alpha = CSNumber.real(el.alpha);
+    el.clip = General.string(el.clip || defaultAppearance.clip);
+    if (el.overhang === undefined)
+        el.overhang = defaultAppearance.overhangLine;
+    el.overhang = CSNumber.real(el.overhang);
+    if (el.dashtype)
+        el.dashtype = General.wrap(el.dashtype);
+}
+
+function segmentDefault(el) {
+    if (el.overhang === undefined)
+        el.overhang = defaultAppearance.overhangSeg;
+    lineDefault(el);
+    el.clip = General.string("end");
+}
+
+function addElement(el) {
+    var i;
+
+    // Adding an existing element moves that element to the given position
+    if (csgeo.csnames[el.name] !== undefined) {
+        console.log("Element name '" + el.name + "' already exists");
+
+        var existingEl = csgeo.csnames[el.name];
+        if (geoOps[existingEl.type].isMovable)
+            movepointscr(existingEl, el.pos, "homog");
+
+        return {
+            'ctype': 'geo',
+            'value': existingEl
+        };
+    }
+
+    // Expand macros
+    var macro = geoMacros[el.type];
+    if (macro) {
+        var expansion = macro(el);
+        var res = null;
+        for (i = 0; i < expansion.length; ++i) {
+            res = addElement(expansion[i]);
         }
-        if (el.kind === "L") {
-            csgeo.lines[ctl] = el;
-            lineDefault(el);
-            ctl += 1;
-        }
-        if (el.kind === "C") {
-            csgeo.conics[ctc] = el;
-            lineDefault(el);
-            ctc += 1;
-        }
-        if (el.kind === "S") {
-            csgeo.lines[ctl] = el;
-            segmentDefault(el);
-            ctl += 1;
+        return res;
+    }
+
+    // Detect unsupported operations or missing or incorrect arguments
+    var op = geoOps[el.type];
+    if (!op) {
+        console.error(el);
+        console.error("Operation " + el.type + " not implemented yet");
+        return null;
+    }
+    if (op.signature.length !== (el.args ? el.args.length : 0)) {
+        window.alert("Wrong number of arguments for " + el.name);
+        return null;
+    }
+    if (el.args) {
+        for (i = 0; i < el.args.length; ++i) {
+            if (!csgeo.csnames.hasOwnProperty(el.args[i])) {
+                console.log(
+                    "Dropping " + el.name +
+                    " due to missing argument " + el.args[i]);
+                return null;
+            }
+            var argKind = csgeo.csnames[el.args[i]].kind;
+            if (!(op.signature[i] === argKind ||
+                    (argKind === "S" && op.signature[i] === "L"))) {
+                window.alert(
+                    "Wrong argument kind " + argKind + " as argument " + i +
+                    " to element " + el.name + " of type " + el.type);
+                return null;
+            }
         }
     }
-    stateLastGood = stateIn = stateOut = new Float64Array(totalStateSize);
-    // initially, stateIn and stateOut are the same, so that initialize can
-    // write some state and updatePosition can immediately use it
-    for (k = 0; k < gslp.length; k++) {
-        el = gslp[k];
-        op = geoOps[el.type];
-        tracingInitial = true; // might get reset by initialize
+    if (op.signatureConstraints && !op.signatureConstraints(el)) {
+        window.alert("signature constraints violated for element " + el.name);
+    }
+
+    csgeo.gslp.push(el);
+    csgeo.csnames[el.name] = el;
+    var totalStateSize = stateLastGood.length;
+    el.kind = op.kind;
+    el.stateIdx = totalStateSize;
+    totalStateSize += op.stateSize;
+    el.incidences = [];
+    el.isshowing = true;
+    el.movable = false;
+
+    if (op.isMovable) {
+        el.movable = true;
+        csgeo.free.push(el);
+    }
+
+    if (el.kind === "P") {
+        csgeo.points.push(el);
+        pointDefault(el);
+    }
+    if (el.kind === "L") {
+        csgeo.lines.push(el);
+        lineDefault(el);
+    }
+    if (el.kind === "C") {
+        csgeo.conics.push(el);
+        lineDefault(el);
+    }
+    if (el.kind === "S") {
+        csgeo.lines.push(el);
+        segmentDefault(el);
+    }
+
+    if (true || op.stateSize !== 0) {
+        stateAlloc(totalStateSize);
+        stateIn = stateOut = stateLastGood;
+        // initially, stateIn and stateOut are the same, so that initialize can
+        // write some state and updatePosition can immediately use it
+        tracingInitial = true;
         if (op.initialize) {
             stateInIdx = stateOutIdx = el.stateIdx;
             el.param = op.initialize(el);
-            assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
+            assert(stateOutIdx === el.stateIdx + op.stateSize,
+                "State fully initialized");
         }
         stateInIdx = stateOutIdx = el.stateIdx;
         op.updatePosition(el, false);
-        assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
-        assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
-        isShowing(el, op);
+        assert(stateInIdx === el.stateIdx + op.stateSize,
+            "State fully consumed");
+        assert(stateOutIdx === el.stateIdx + op.stateSize,
+            "State fully updated");
+        tracingInitial = false;
+        stateIn = stateArrays.in;
+        stateIn.set(stateLastGood);
+        stateOut = stateArrays.out;
+    } else {
+        // Do the updatePosition call with correct state handling around it.
     }
-    stateLastGood = new Float64Array(totalStateSize);
-    stateOut = new Float64Array(totalStateSize);
-    stateContinueFromHere();
-    tracingInitial = false;
-    guessIncidences();
+    isShowing(el, op);
+
+    geoDependantsCache = {};
+    //guessIncidences();
 }
 
 function onSegment(p, s) { //TODO was ist mit Fernpunkten
@@ -275,6 +310,10 @@ function getGeoDependants(mover) {
         }
     }
     geoDependantsCache[mover.name] = deps;
+    /*
+    console.log("getGeoDependants(" + mover.name + ") := [" +
+                deps.map(function(el) { return el.name; }).join(",") + "]");
+    */
     return deps;
 }
 
@@ -295,163 +334,6 @@ function guessIncidences() {
             }
 
         }
-    }
-
-
-}
-
-
-function render() {
-
-    function drawgeopoint(el) {
-        if (!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
-            return;
-        var col = el.color;
-        if (el.behavior) {
-            col = el.color; //TODO Anpassen
-            // col=List.realVector([0,0,1]);
-        }
-        evaluator.draw$1([el.homog], {
-            size: el.size,
-            color: col,
-            alpha: el.alpha
-        });
-        if (el.labeled) {
-            var lbl = el.printname || el.name || "P";
-            var lpos = el.labelpos || {
-                'x': 3,
-                'y': 3
-            };
-            var textsize = el.textsize || 12;
-            var bold = (el.textbold === true);
-            var italics = (el.textitalics === true);
-            var family = el.text_fontfamily || "Sans Serif";
-            var dist = lpos.x * lpos.x + lpos.y * lpos.y;
-            var factor = 1.0;
-            if (dist > 0) {
-                factor = 1.0 + el.size.value.real / Math.sqrt(dist);
-            }
-            evaluator.drawtext$2(
-                [el.homog, General.wrap(lbl)], {
-                    'x_offset': General.wrap(factor * lpos.x),
-                    'y_offset': General.wrap(factor * lpos.y),
-                    'size': General.wrap(textsize),
-                    'bold': General.wrap(bold),
-                    'italics': General.wrap(italics),
-                    'family': General.wrap(family)
-                });
-        }
-    }
-
-
-    function drawgeoconic(el) {
-        if (!el.isshowing || el.visible === false)
-            return;
-
-        var modifs = {};
-        modifs.color = el.color;
-        modifs.alpha = el.alpha;
-        modifs.size = el.size;
-
-        var args = el;
-        eval_helper.drawconic(args, modifs);
-
-
-    }
-
-    function drawgeoline(el) {
-        var pt1, pt2;
-        if (!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
-            return;
-
-        if (el.clip.value === "none") {
-            evaluator.draw$1([el.homog], {
-                size: el.size,
-                color: el.color,
-                alpha: el.alpha
-            });
-        } else if (el.clip.value === "end") {
-            evaluator.draw$2(
-                [el.startpos, el.endpos], {
-                    size: el.size,
-                    color: el.color,
-                    alpha: el.alpha
-                });
-        } else if (el.clip.value === "inci") {
-            var li = [];
-            var xmin = [+1000000, 0];
-            var xmax = [-1000000, 0];
-            var ymin = [+1000000, 0];
-            var ymax = [-1000000, 0];
-            for (var i = 0; i < el.incidences.length; i++) {
-                var pt = csgeo.csnames[el.incidences[i]].homog;
-                var x = pt.value[0];
-                var y = pt.value[1];
-                var z = pt.value[2];
-
-                if (!CSNumber._helper.isAlmostZero(z)) {
-                    x = CSNumber.div(x, z);
-                    y = CSNumber.div(y, z);
-                    if (CSNumber._helper.isAlmostReal(x) && CSNumber._helper.isAlmostReal(y)) {
-                        if (x.value.real < xmin[0]) {
-                            xmin = [x.value.real, pt];
-                        }
-                        if (x.value.real > xmax[0]) {
-                            xmax = [x.value.real, pt];
-                        }
-                        if (y.value.real < ymin[0]) {
-                            ymin = [y.value.real, pt];
-                        }
-                        if (y.value.real > ymax[0]) {
-                            ymax = [y.value.real, pt];
-                        }
-                    }
-                }
-            }
-            if ((xmax[0] - xmin[0]) > (ymax[0] - ymin[0])) {
-                pt1 = xmin[1];
-                pt2 = xmax[1];
-            } else {
-                pt1 = ymin[1];
-                pt2 = ymax[1];
-
-            }
-            if (pt1 !== pt2) {
-                evaluator.draw$2(
-                    [pt1, pt2], {
-                        size: el.size,
-                        color: el.color,
-                        alpha: el.alpha,
-                        overhang: el.overhang
-                    });
-            } else {
-                evaluator.draw$1(
-                    [el.homog], {
-                        size: el.size,
-                        color: el.color,
-                        alpha: el.alpha
-                    });
-            }
-        } else {
-            console.error(["Bad clip: ", el.clip]);
-        }
-
-    }
-
-    var i;
-
-    for (i = 0; i < csgeo.conics.length; i++) {
-        drawgeoconic(csgeo.conics[i]);
-    }
-
-
-    for (i = 0; i < csgeo.lines.length; i++) {
-        drawgeoline(csgeo.lines[i]);
-    }
-
-
-    for (i = 0; i < csgeo.points.length; i++) {
-        drawgeopoint(csgeo.points[i]);
     }
 
 

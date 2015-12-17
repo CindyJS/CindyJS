@@ -1,0 +1,35 @@
+*.conf          text
+*.css           text
+*.enc           -text
+*.eot           -text
+*.externs       text
+*.glsl          text
+*.html          text
+*.jar           -text
+*.java          text
+*.json          text
+*.js            text
+*.md            text
+*.pages         -text
+*.pl            text
+*.png           -text
+*.pub           text
+*.py            text
+*.sh            text
+*.taskpaper     text
+*.ttf           -text
+*.txt           text
+*.woff2         -text
+*.woff          -text
+*.js.wrapper    text
+*.gwt.xml       text
+*.yml           text
+
+.git*           text
+
+COPYRIGHT       text
+LICENSE         text
+Makefile        text
+
+*.iml           -text
+.idea/**        -text

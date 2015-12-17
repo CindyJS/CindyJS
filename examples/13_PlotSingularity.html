@@ -7,46 +7,46 @@
 
             <link rel="stylesheet" href="../css/cindy.css">
 
-                
+
             </head>
-    
+
 	<body style="font-family:Arial;">
-        
+
         <h1>CindyJS: Function Plotting</h1>
-        
-        
-        <script id='firstDrawing' type='cindyscript'>
+
+
+        <script id='csmove' type='text/x-cindyscript'>
             draw(A);
             //plot(sin(x/A.x/2*pi)*A.y);
            // plot(sqrt(4-x^2));
 
             plot(sin(1/(x/20)+A.x)*x);
-            
-            
-            
+
+
+
         </script>
-        
-        
+
+
         <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
-        
+
         <script type="text/javascript">
-            
+
             var gslp=[
                       {name:"A", kind:"P", type:"Free", pos:[2,2,1]}
-                      
+
                       ];
             createCindy({canvasname:"CSCanvas",
-                        movescript:"firstDrawing",
+                        movescript:"csmove",
                         geometry:gslp});
-            
-            
-            
-            
-            
-            </script>
-        
 
-        
-        
+
+
+
+
+            </script>
+
+
+
+
 	</body>
 </html>
