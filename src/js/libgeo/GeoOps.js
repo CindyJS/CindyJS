@@ -1920,7 +1920,6 @@ geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
 geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
 geoOps.TrAffine.updatePosition = function(el) {
-    var inf = List.linfty;
     var cc = List.cross;
     var mult = CSNumber.mult;
     var sm = List.scalmult;
@@ -1928,33 +1927,39 @@ geoOps.TrAffine.updatePosition = function(el) {
     var t = List.transpose;
     var nm = List.normalizeMax;
     var mm = List.productMM;
-    var a1 = csgeo.csnames[el.args[0]].homog;
-    var a2 = csgeo.csnames[el.args[1]].homog;
-    var b1 = csgeo.csnames[el.args[2]].homog;
-    var b2 = csgeo.csnames[el.args[3]].homog;
-    var c1 = csgeo.csnames[el.args[4]].homog;
-    var c2 = csgeo.csnames[el.args[5]].homog;
-    var a1z = a1.value[2];
-    var a2z = a2.value[2];
-    var b1z = b1.value[2];
-    var b2z = b2.value[2];
-    var c1z = c1.value[2];
-    var c2z = c2.value[2];
-    var left, right;
-    left = t(mat([a2, b2, c2]));
-    right = mat([
-        sm(mult(a1z, mult(b2z, c2z)), cc(b1, c1)),
-        sm(mult(b1z, mult(c2z, a2z)), cc(c1, a1)),
-        sm(mult(c1z, mult(a2z, b2z)), cc(a1, b1))
+    function scale(ps) {
+        var v = ps.value,
+            z0 = v[0].value[2],
+            z1 = v[1].value[2],
+            z2 = v[2].value[2];
+        return mat([
+            sm(mult(z1, z2), v[0]),
+            sm(mult(z0, z2), v[1]),
+            sm(mult(z0, z1), v[2])
+        ]);
+    }
+    function crossScale(ps) {
+        var v = ps.value;
+        return mat([
+            sm(v[0].value[2], cc(v[1], v[2])),
+            sm(v[1].value[2], cc(v[2], v[0])),
+            sm(v[2].value[2], cc(v[0], v[1]))
+        ]);
+    }
+    // Get the set of points and the set of thier images
+    var ps1 = mat([
+            csgeo.csnames[el.args[0]].homog,
+            csgeo.csnames[el.args[2]].homog,
+            csgeo.csnames[el.args[4]].homog
     ]);
-    el.matrix = nm(mm(left, right));
-    left = t(mat([cc(b2, c2), cc(c2, a2), cc(a2, b2)]));
-    right = mat([
-        sm(mult(a2z, mult(b1z, c1z)), a1),
-        sm(mult(b2z, mult(c1z, a1z)), b1),
-        sm(mult(c2z, mult(a1z, b1z)), c1)
+    // Get the set of thier images
+    var ps2 = mat([
+            csgeo.csnames[el.args[1]].homog,
+            csgeo.csnames[el.args[3]].homog,
+            csgeo.csnames[el.args[5]].homog
     ]);
-    el.dualMatrix = nm(mm(left, right));
+    el.matrix = nm(mm(t(scale(ps2)), crossScale(ps1)));
+    el.dualMatrix = nm(mm(t(crossScale(ps2)), scale(ps1)));
 };
 
 // Define a similarity transformation given two points and their images
