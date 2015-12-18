@@ -6,6 +6,7 @@ var Consumer = sourcemap.SourceMapConsumer;
 var Generator = sourcemap.SourceMapGenerator;
 
 var n = 0, maps = [], file = null;
+var out = null;
 
 function processCommandLine() {
   for (var i = 2; i < process.argv.length; ++i) {
@@ -14,8 +15,19 @@ function processCommandLine() {
       file = process.argv[++i];
     else if (arg.substr(0, 2) === "-f")
       file = arg.substr(2);
+    else if (arg === "-o" && i + 1 < process.argv.length)
+      out = process.argv[++i];
+    else if (arg.substr(0, 2) === "-o")
+      out = arg.substr(2);
     else
       open(arg);
+  }
+  if (out) {
+    out = fs.createWriteStream(out);
+    out = out.end.bind(out);
+  } else {
+    out = process.stdout;
+    out = out.write.bind(out);
   }
 }
 
@@ -39,5 +51,5 @@ function done() {
   var map = generator.toJSON();
   if (file !== null)
     map.file = file;
-  process.stdout.write(JSON.stringify(map));
+  out(JSON.stringify(map));
 }

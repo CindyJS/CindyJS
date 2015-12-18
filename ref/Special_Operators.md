@@ -4,14 +4,14 @@ This section presents a collection of operators that do not fit into any of the 
 Nevertheless, most of them are extremely useful.
 Some of them are even necessary for the interaction of Cinderella and CindyScript.
 
-*  [Interaction with Geometry](Interaction_with_Geometry): How Cinderella and CindyScript can influence each other
+*  [Interaction with Geometry](Interaction_with_Geometry.md): How Cinderella and CindyScript can influence each other
 
-*  [File Management](File_Management): Input and output from and to files
+*  [File Management](File_Management.md): Input and output from and to files
 
-*  [Console Output](Console_Output): Printing messages on the CindyScript console
+*  [Console Output](Console_Output.md): Printing messages on the CindyScript console
 
-*  [Timing and Animations](Timing_and_Animations): Handling of timed events
+*  [Timing and Animations](Timing_and_Animations.md): Handling of timed events
 
-*  [User Input](User_Input): Keyboard and mouse handling
+*  [User Input](User_Input.md): Keyboard and mouse handling
 
-*  [Interaction with CindyLab](Interaction_with_CindyLab): How [CindyLab](CindyLab) and CindyScript can influence each other
+*  [Interaction with CindyLab](Interaction_with_CindyLab.md): How [CindyLab](CindyLab.md) and CindyScript can influence each other

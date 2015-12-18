@@ -83,6 +83,13 @@ CSNumber.zero = CSNumber.real(0);
 
 CSNumber.one = CSNumber.real(1);
 
+CSNumber._helper.input = function(a) {
+    if (typeof a === "object")
+        return CSNumber.complex(+a.r, +a.i);
+    else
+        return CSNumber.real(+a);
+};
+
 CSNumber.argmax = function(a, b) {
     var n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
     var n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
@@ -587,6 +594,10 @@ CSNumber._helper.isAlmostReal = function(a) {
 
 CSNumber._helper.isNaN = function(a) {
     return (isNaN(a.value.real)) || (isNaN(a.value.imag));
+};
+
+CSNumber._helper.isFinite = function(z) {
+    return isFinite(z.value.real) && isFinite(z.value.imag);
 };
 
 

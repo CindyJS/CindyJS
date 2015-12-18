@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>133_TransformC.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, dimDependent: 0.7 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 4.0, -4.0, -0.6666666666666666 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ 0.6666666666666666, -4.0, -0.6666666666666666 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C", type: "Free", pos: [ 4.0, -4.0, -4.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "D", type: "Free", pos: [ 4.0, -0.6666666666666666, -0.6666666666666666 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "E", type: "Free", pos: [ -2.6666666666666665, -4.0, -0.6666666666666666 ], color: [ 0.0, 1.0, 0.0 ], labeled: true }, 
+		{ name: "F", type: "Free", pos: [ 4.0, 2.6666666666666665, 0.4444444444444444 ], color: [ 0.0, 1.0, 0.0 ], labeled: true }, 
+		{ name: "G", type: "Free", pos: [ 4.0, 0.4444444444444444, 0.4444444444444444 ], color: [ 0.0, 1.0, 0.0 ], labeled: true }, 
+		{ name: "H", type: "Free", pos: [ 4.0, 1.0, 1.0 ], color: [ 0.0, 1.0, 0.0 ], labeled: true }, 
+		{ name: "Tr0", type: "TrProjection", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "E", "B", "F", "C", "G", "D", "H" ] }, 
+		{ name: "K", type: "Free", pos: [ 3.2, -4.0, -0.8 ], color: [ 0.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "L", type: "Free", pos: [ 1.6, -4.0, -0.8 ], color: [ 0.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "M", type: "Free", pos: [ 1.3333333333333333, -4.0, -1.3333333333333333 ], color: [ 0.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "N", type: "Free", pos: [ 4.0, -2.6666666666666665, -1.3333333333333333 ], color: [ 0.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "O", type: "Free", pos: [ 4.0, -2.4, -0.8 ], color: [ 0.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "C0", type: "ConicBy5", color: [ 0.0, 1.0, 1.0 ], args: [ "K", "L", "M", "N", "O" ], printname: "$C_{0}$" }, 
+		{ name: "P", type: "Transform", pos: [ 4.0, 3.3333333333333335, 0.6666666666666665 ], color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "K" ], labeled: true }, 
+		{ name: "Q", type: "Transform", pos: [ 4.0, 2.5, 0.49999999999999994 ], color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "L" ], labeled: true }, 
+		{ name: "R", type: "Transform", pos: [ 4.0, 1.3333333333333333, 0.4444444444444443 ], color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "M" ], labeled: true }, 
+		{ name: "S", type: "Transform", pos: [ 4.0, 1.1428571428571426, 0.5714285714285713 ], color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "N" ], labeled: true }, 
+		{ name: "T", type: "Transform", pos: [ 4.0, 2.3999999999999995, 0.7999999999999997 ], color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "O" ], labeled: true }, 
+		{ name: "C1", type: "Transform", color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "C0" ], printname: "$C_{1}$" } ], 
+    ports: [ 
+        { id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], background: "rgb(168,176,192)" } ], 
+    cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

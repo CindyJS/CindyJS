@@ -225,7 +225,7 @@ Other predefined variables are `true` and `false` for the logical constants, as 
 There is another important type of predefined variable.
 Any geometric element in a construction may be referred to as a predefined variable of the corresponding name.
 Thus, for instance, a point *A* can be accessed using variable `A`.
-More detailed information on this topic may be found in the section on [Accessing Geometric Elements](Accessing_Geometric_Elements).
+More detailed information on this topic may be found in the section on [Accessing Geometric Elements](Accessing_Geometric_Elements.md).
 
 ###  User Defined Data
 

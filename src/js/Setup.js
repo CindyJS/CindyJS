@@ -155,7 +155,15 @@ function createCindyNow() {
             cscode = cscode.text;
         }
         cscode = condense(cscode);
-        cscompiled[s] = analyse(cscode, false);
+        cscode = analyse(cscode, false);
+        if (cscode.ctype === "error") {
+            console.error(
+                "Error compiling " + s + " script: " +
+                cscode.message
+            );
+        } else {
+            cscompiled[s] = cscode;
+        }
     });
 
     //Setup canvasstuff
@@ -297,7 +305,7 @@ function doneLoadingModule() {
 var backup = null;
 
 function backupGeo() {
-    var state = backup ? backup.state : new Float64Array(stateIn.length);
+    var state = stateArrays.backup;
     state.set(stateIn);
     var speeds = {};
     for (var i = 0; i < csgeo.points.length; i++) {

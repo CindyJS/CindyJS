@@ -3253,7 +3253,7 @@ evaluator.currentlanguage$0 = function(args, modifs) {
 
 eval_helper.basismap = function(a, b, c, d) {
     var mat = List.turnIntoCSList([a, b, c]);
-    mat = List.inverse(List.transpose(mat));
+    mat = List.adjoint3(List.transpose(mat));
     var vv = General.mult(mat, d);
     mat = List.turnIntoCSList([
         General.mult(vv.value[0], a),
@@ -3277,7 +3277,7 @@ evaluator.map$8 = function(args, modifs) {
         w0 !== nada && w1 !== nada && w2 !== nada && w3 !== nada) {
         var m1 = eval_helper.basismap(v0, v1, v2, v3);
         var m2 = eval_helper.basismap(w0, w1, w2, w3);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3303,7 +3303,7 @@ evaluator.map$6 = function(args, modifs) {
         w0 !== nada && w1 !== nada && w2 !== nada && w3 !== nada) {
         var m1 = eval_helper.basismap(v0, v1, v2, v3);
         var m2 = eval_helper.basismap(w0, w1, w2, w3);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3322,7 +3322,7 @@ evaluator.map$4 = function(args, modifs) {
         w0 !== nada && w1 !== nada) {
         var m1 = eval_helper.basismap(v0, v1, ii, jj);
         var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3340,7 +3340,7 @@ evaluator.map$2 = function(args, modifs) {
         w0 !== nada && w1 !== nada) {
         var m1 = eval_helper.basismap(v0, v1, ii, jj);
         var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3357,7 +3357,7 @@ evaluator.pointreflect$1 = function(args, modifs) {
     if (v1 !== nada && w0 !== nada && w1 !== nada) {
         var m1 = eval_helper.basismap(w0, v1, ii, jj);
         var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3377,7 +3377,7 @@ evaluator.linereflect$1 = function(args, modifs) {
     if (w0 !== nada && w1 !== nada) {
         var m1 = eval_helper.basismap(w1, w2, ii, jj);
         var m2 = eval_helper.basismap(w1, w2, jj, ii);
-        var erg = General.mult(m1, List.inverse(m2));
+        var erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3507,51 +3507,6 @@ evaluator.screen$0 = function(args, modifs) {
     };
 };
 
-evaluator.allpoints$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < csgeo.points.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: csgeo.points[i],
-            type: "P"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
-};
-
-evaluator.allmasses$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < masses.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: masses[i],
-            type: "P"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
-};
-
-evaluator.alllines$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < csgeo.lines.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: csgeo.lines[i],
-            type: "L"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
-};
-
 evaluator.halfplane$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
@@ -3607,6 +3562,151 @@ evaluator.halfplane$2 = function(args, modifs) {
     }
     return nada;
 };
+
+///////////////////////////////
+//   Geometric elements      //
+///////////////////////////////
+
+evaluator.allpoints$0 = function(args, modifs) {
+    var erg = [];
+    for (var i = 0; i < csgeo.points.length; i++) {
+        erg[i] = {
+            ctype: "geo",
+            value: csgeo.points[i],
+            type: "P"
+        };
+    }
+    return {
+        ctype: "list",
+        value: erg
+    };
+};
+
+evaluator.allmasses$0 = function(args, modifs) {
+    var erg = [];
+    for (var i = 0; i < masses.length; i++) {
+        erg[i] = {
+            ctype: "geo",
+            value: masses[i],
+            type: "P"
+        };
+    }
+    return {
+        ctype: "list",
+        value: erg
+    };
+};
+
+evaluator.alllines$0 = function(args, modifs) {
+    var erg = [];
+    for (var i = 0; i < csgeo.lines.length; i++) {
+        erg[i] = {
+            ctype: "geo",
+            value: csgeo.lines[i],
+            type: "L"
+        };
+    }
+    return {
+        ctype: "list",
+        value: erg
+    };
+};
+
+evaluator.createpoint$2 = function(args, modifs) {
+    var name = evaluate(args[0]);
+    var pos = evaluateAndHomog(args[1]);
+
+    if (name.ctype !== "string") {
+        console.log("Name must be a string");
+        return nada;
+    }
+
+    if (pos.ctype !== "list" && List.isNumberVector(pos)) {
+        console.log("Position must be a number vector");
+        return nada;
+    }
+
+    var el = {
+        name: name.value,
+        type: "Free",
+        labeled: true,
+        pos: pos
+    };
+
+    return addElement(el);
+};
+
+evaluator.create$3 = function(args, modifs) {
+    var names = evaluate(args[0]);
+    var type = evaluate(args[1]);
+    var defs = evaluate(args[2]);
+
+    var name;
+    if (names.ctype === "string") {
+        name = names.value;
+    } else if (names.ctype !== "list") {
+        console.log("Names must be a string or a list of strings");
+        return nada;
+    } else if (names.value.length !== 1) {
+        console.log("multi-result compatibility operations not supported yet");
+        return nada;
+    } else if (names.value[0].ctype !== "string") {
+        console.log("Element of names list must be a string");
+        return nada;
+    } else {
+        name = names.value[0].value;
+    }
+    if (type.ctype !== "string") {
+        console.log("Type must be a string");
+        return nada;
+    }
+    if (defs.ctype !== "list") {
+        console.log("Arguments must be a list");
+        return nada;
+    }
+
+    if (geoOps[type.value] === undefined) {
+        console.log("Invalid geometric operation: '" + type.value + "'");
+        return nada;
+    }
+
+    var a = [];
+    var pos = null;
+
+    for (var i = 0; i < defs.value.length; i++) {
+        var def = defs.value[i];
+
+        if (def.ctype === "string") {
+            a.push(def.value);
+        } else {
+            var vec = evaluateAndHomog(def);
+            if (vec !== nada) {
+                pos = vec;
+            } else {
+                console.log("Unknown argument type");
+                return nada;
+            }
+        }
+    }
+
+    var el = {
+        name: name,
+        type: type.value,
+        labeled: true
+    };
+
+    if (pos)
+        el.pos = pos;
+
+    if (a.length > 0)
+        el.args = a;
+
+    return addElement(el);
+};
+
+///////////////////////////////
+//   Calling external code   //
+///////////////////////////////
 
 evaluator.javascript$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);

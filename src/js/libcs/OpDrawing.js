@@ -102,26 +102,40 @@ evaluator.drawcircle$2 = function(args, modifs) {
 };
 
 
+eval_helper.arcHelper = function(args) {
+    var arc = {};
+    arc.startPoint = evaluateAndHomog(args[0]);
+    arc.viaPoint = evaluateAndHomog(args[1]);
+    arc.endPoint = evaluateAndHomog(args[2]);
+    return arc;
+};
+
 evaluator.fillcircle$2 = function(args, modifs) {
     return eval_helper.drawcircle(args, modifs, "F");
 };
 
 evaluator.drawarc$3 = function(args, modifs) {
-    return eval_helper.drawarc(args, modifs, "D");
+    var arc = eval_helper.arcHelper(args);
+    return eval_helper.drawarc(arc, modifs, "D");
 };
 
 evaluator.fillarc$3 = function(args, modifs) {
-    return eval_helper.drawarc(args, modifs, "F");
+    var arc = eval_helper.arcHelper(args);
+    return eval_helper.drawarc(arc, modifs, "F");
 };
 
 
 eval_helper.drawarc = function(args, modifs, df) {
-    var a = evaluateAndHomog(args[0]);
-    var b = evaluateAndHomog(args[1]);
-    var c = evaluateAndHomog(args[2]);
+    var a = args.startPoint;
+    var b = args.viaPoint;
+    var c = args.endPoint;
 
     // check for complex values
     if (!List._helper.isAlmostReal(List.turnIntoCSList([a, b, c]))) return nada;
+
+    // modifs handling
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    Render2D.preDrawCurve();
 
     var abcdet = List.det3(a, b, c);
 
@@ -165,15 +179,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         // check for counter clockwise drawing
         var cclock = List.det3(a, b, c).value.real > 0;
 
-        // modifs handling
-        Render2D.handleModifs(modifs, Render2D.conicModifs);
-        var size = 4 / 2.5;
-        if (Render2D.size !== null)
-            size = Render2D.size;
-
         csctx.save();
-        csctx.lineWidth = size;
-        csctx.strokeStyle = Render2D.lineColor;
 
         // canvas circle radius 
         var rad = arcDist.value.real * m.sdet;
@@ -234,16 +240,6 @@ eval_helper.drawarc = function(args, modifs, df) {
         // check by dets if B is in the middle
         var crossr = List.crossratio3(a, c, b, List.cross(List.cross(a, b), List.linfty), List.ii);
         var Bmiddle = crossr.value.real < 0;
-
-
-        // handle modifs
-        if (modifs !== null) {
-            // workaround since conic width !== line width in default settings
-            if (modifs.size === null) modifs.size = CSNumber.real(4 / 2.5);
-
-            Render2D.handleModifs(modifs, Render2D.conicModifs);
-        }
-
 
         // if B is in the middle we are fine
         if (Bmiddle) {
@@ -315,10 +311,7 @@ eval_helper.drawcircle = function(args, modifs, df) {
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4 / 2.5;
-    if (Render2D.size !== null)
-        size = Render2D.size;
-    csctx.lineWidth = size; // * 0.4;
+    Render2D.preDrawCurve();
 
     csctx.beginPath();
     csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
@@ -326,7 +319,6 @@ eval_helper.drawcircle = function(args, modifs, df) {
 
 
     if (df === "D") {
-        csctx.strokeStyle = Render2D.lineColor;
         csctx.stroke();
     }
     if (df === "F") {
@@ -395,23 +387,22 @@ evaluator.drawconic$1 = function(args, modifs) {
             Conic.matrix = arr;
         }
 
+
     }
-    return eval_helper.drawconic(Conic, modifs);
+    Conic.matrix = List.normalizeMax(Conic.matrix);
+    return eval_helper.drawconic(Conic.matrix, modifs);
 };
 
-eval_helper.drawconic = function(aConic, modifs) {
+eval_helper.drawconic = function(conicMatrix, modifs) {
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4 / 2.5;
-    if (Render2D.size !== null)
-        size = Render2D.size;
-    if (size === 0)
+    if (Render2D.lsize === 0)
         return;
-    csctx.lineWidth = size; // * 0.4;
+    Render2D.preDrawCurve();
 
     var eps = 1e-14; //JRG Hab ih von 1e-16 runtergesetzt
-    var mat = aConic.matrix;
-    var origmat = aConic.matrix;
+    var mat = List.normalizeMax(conicMatrix);
+    var origmat = mat;
 
     // check for complex values
     for (var i = 0; i < 2; i++)
@@ -590,9 +581,6 @@ eval_helper.drawconic = function(aConic, modifs) {
     };
 
     var drawArray = function(x, y) {
-        csctx.strokeStyle = Render2D.lineColor;
-        csctx.lineWidth = size;
-
         csctx.beginPath();
         csctx.moveTo(x[0], y[0]);
         for (var i = 1; i < x.length; i++) {
@@ -622,7 +610,7 @@ eval_helper.drawconic = function(aConic, modifs) {
 
 
         var step;
-        var perc = 0.05;
+        var perc = 0.1;
         var diff = ymax - ymin;
         var ssmall = perc * diff + ymin;
         var slarge = ymax - perc * diff;
@@ -635,7 +623,7 @@ eval_helper.drawconic = function(aConic, modifs) {
                 step = 3;
             }
 
-            var inner = -a * c * Math.pow(y, 2) - 2 * a * e * y - a * f + Math.pow(b, 2) * Math.pow(y, 2) + 2 * b * d * y + Math.pow(d, 2);
+            var inner = -a * c * y * y - 2 * a * e * y - a * f + b * b * y * y + 2 * b * d * y + d * d;
             inner = Math.sqrt(inner);
 
 
@@ -706,7 +694,7 @@ eval_helper.drawconic = function(aConic, modifs) {
         var largeSqrt = Math.sqrt(a * (-a * c * f + a * Math.pow(e, 2) + Math.pow(b, 2) * f - 2 * b * d * e + c * Math.pow(d, 2)));
         var deNom = a * c - Math.pow(b, 2);
 
-        if (deNom !== 0) {
+        if (Math.abs(deNom) > eps) {
             y0 = (aebd - largeSqrt) / deNom;
             y1 = (aebd + largeSqrt) / deNom;
         } else {
@@ -816,12 +804,8 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
-    var size = 4 / 2.5;
-    if (Render2D.size !== null)
-        size = Render2D.size;
-    csctx.lineWidth = size; // * 0.4;
+    Render2D.preDrawCurve();
     csctx.mozFillRule = 'evenodd';
-    csctx.lineJoin = "round";
 
     var m = csport.drawingstate.matrix;
 
@@ -871,7 +855,6 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     }
 
     if (df === "D") {
-        csctx.strokeStyle = Render2D.lineColor;
         csctx.stroke();
     }
     if (df === "F") {
