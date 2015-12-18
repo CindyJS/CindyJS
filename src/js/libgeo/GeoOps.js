@@ -1974,11 +1974,36 @@ geoOps.TrTranslation = {};
 geoOps.TrTranslation.kind = "Tr";
 geoOps.TrTranslation.signature = ["P", "P"];
 geoOps.TrTranslation.updatePosition = function(el) {
-    geoOps._helper.trBuildMatrix(el, function(offset) {
-        var a = csgeo.csnames[el.args[0 + offset]].homog,
-            b = List.add(List.scalmult(a.value[2], List.ex), a);
-        return eval_helper.basismap(a, b, List.ii, List.jj);
-    });
+    /*
+        Build this matrix when a is [aX, aY, aZ] and  b is [bX, bY, bZ]:
+            ⎛aZ*bZ   0    aZ*bX-bZ*aX⎞
+        m = ⎜  0   aZ*bZ  aZ*bY-bZ*aY⎟
+            ⎝  0     0       aZ*bZ   ⎠
+    */
+    var a = csgeo.csnames[el.args[0]].homog,
+        b = csgeo.csnames[el.args[1]].homog,
+        aZ = a.value[2],
+        bZ = b.value[2],
+        n = CSNumber.mult(aZ, bZ),
+        d = List.sub(List.scalmult(aZ, b), List.scalmult(bZ, a)).value,
+        mat = List.turnIntoCSList,
+        zero = CSNumber.zero,
+        m = mat([
+            mat([n, zero, d[0]]),
+            mat([zero, n, d[1]]),
+            mat([zero, zero, n])
+        ]);
+    m = List.normalizeMax(m);
+    el.matrix = m;
+    // Transpose using already normalized values, negate diagonal values
+    // Matrix may end up scaled by -1 if n was the max value
+    n = CSNumber.neg(m.value[0].value[0]);
+    m = mat([
+        mat([n, zero, zero]),
+        mat([zero, n, zero]),
+        mat([m.value[0].value[2], m.value[1].value[2], n])
+    ]);
+    el.dualMatrix = m;
 };
 
 geoOps.TrInverse = {};
