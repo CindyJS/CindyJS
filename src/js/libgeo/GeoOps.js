@@ -1927,7 +1927,7 @@ geoOps.TrAffine.updatePosition = function(el) {
     var t = List.transpose;
     var nm = List.normalizeMax;
     var mm = List.productMM;
-    
+
     function scale(ps) {
         var v = ps.value,
             z0 = v[0].value[2],
@@ -1939,7 +1939,7 @@ geoOps.TrAffine.updatePosition = function(el) {
             sm(mult(z0, z1), v[2])
         ]);
     }
-    
+
     function crossScale(ps) {
         var v = ps.value;
         return mat([
