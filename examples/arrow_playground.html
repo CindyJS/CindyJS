@@ -110,6 +110,15 @@ draw(H,K,size->2,alpha->0.5, arrow->true, arrowshape->"full", arrowsides->"==>",
                       {name:"X", type:"Free", pos:[3,5],color:[1,0,0],size:3},
                       {name:"Y", type:"Free", pos:[9,5],color:[1,0,0],size:3},
 
+                      {name:"XX", type:"Free", pos:[8,-5],color:[1,0,0],size:3},
+                      {name:"YY", type:"Free", pos:[12,-5],color:[1,0,0],size:3},
+		      {name:"GSLP", type:"Segment", args:["XX","YY"], arrow:true, arrowsides: "<==>", arrowshape: "full", arrowsize: 2, arrowposition: 0.8, color: [1,0,0],alpha:0.5 },
+
+                      {name:"XX1", type:"Free", pos:[8,-6],color:[1,0,0],size:3},
+                      {name:"YY1", type:"Free", pos:[12,-6],color:[1,0,0],size:3},
+		      {name:"GSLP2", type:"Segment", args:["XX1","YY1"], arrow:true, arrowsides: "<==", arrowshape: "default", arrowsize: 3, arrowposition: 0.8, color: [0,1,0], },
+
+
                     ];
                      createCindy({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},

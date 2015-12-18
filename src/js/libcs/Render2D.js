@@ -77,7 +77,6 @@ Render2D.sin30deg = 0.5;
 Render2D.cos30deg = Math.sqrt(0.75);
 
 Render2D.modifHandlers = {
-
     "size": function(v) {
         if (v.ctype === "number") {
             Render2D.size = v.value.real;

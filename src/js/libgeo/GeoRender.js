@@ -83,7 +83,12 @@ function render() {
                     dashtype: el.dashtype,
                     size: el.size,
                     color: el.color,
-                    alpha: el.alpha
+                    alpha: el.alpha,
+                    arrow: el.arrow,
+                    arrowsize: el.arrowsize,
+                    arrowposition: el.arrowposition,
+                    arrowshape: el.arrowshape,
+                    arrowsides: el.arrowsides,
                 });
             return;
         }
