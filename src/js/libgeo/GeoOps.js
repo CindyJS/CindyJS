@@ -1927,6 +1927,7 @@ geoOps.TrAffine.updatePosition = function(el) {
     var t = List.transpose;
     var nm = List.normalizeMax;
     var mm = List.productMM;
+    
     function scale(ps) {
         var v = ps.value,
             z0 = v[0].value[2],
@@ -1938,6 +1939,7 @@ geoOps.TrAffine.updatePosition = function(el) {
             sm(mult(z0, z1), v[2])
         ]);
     }
+    
     function crossScale(ps) {
         var v = ps.value;
         return mat([
@@ -1946,17 +1948,17 @@ geoOps.TrAffine.updatePosition = function(el) {
             sm(v[2].value[2], cc(v[0], v[1]))
         ]);
     }
-    // Get the set of points and the set of thier images
+    // Get the set of points
     var ps1 = mat([
-            csgeo.csnames[el.args[0]].homog,
-            csgeo.csnames[el.args[2]].homog,
-            csgeo.csnames[el.args[4]].homog
+        csgeo.csnames[el.args[0]].homog,
+        csgeo.csnames[el.args[2]].homog,
+        csgeo.csnames[el.args[4]].homog
     ]);
     // Get the set of thier images
     var ps2 = mat([
-            csgeo.csnames[el.args[1]].homog,
-            csgeo.csnames[el.args[3]].homog,
-            csgeo.csnames[el.args[5]].homog
+        csgeo.csnames[el.args[1]].homog,
+        csgeo.csnames[el.args[3]].homog,
+        csgeo.csnames[el.args[5]].homog
     ]);
     el.matrix = nm(mm(t(scale(ps2)), crossScale(ps1)));
     el.dualMatrix = nm(mm(t(crossScale(ps2)), scale(ps1)));
