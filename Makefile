@@ -91,6 +91,8 @@ fwdtargets = \
 	beautify \
 	cindy3d \
 	cindy3d-dbg \
+  cindygl \
+  cindygl-dbg \
 	deploy \
 	forbidden \
 	jshint \
@@ -104,61 +106,3 @@ fwdtargets = \
 
 $(fwdtargets): js_make
 	$(JS_MAKE) $@
-
-<<<<<<< HEAD
-.PHONY: proxy
-
-
-
-######################################################################
-## Build JavaScript version of CindyGL
-######################################################################
-
-
-#cgl_shaders = $(wildcard *.glsl)
-#cgl_str_res = $(cgl_shaders:%=src/str/gl/%)
-cgl_shaders = $(wildcard src/str/cindygl/*.glsl)
-
-build/js/cglres.js: $(cgl_shaders) tools/files2json.js $(NPM_DEP)
-	$(NODE_CMD) $(filter %tools/files2json.js,$^) -varname=cgl_resources -output=$@ \
-	$(filter %.glsl,$^)
-
-##ADVANCED_OPTIMIZATIONS
-##WHITESPACE_ONLY
-cgl_closure_level = WHITESPACE_ONLY
-cgl_closure_warnings = VERBOSE
-cgl_closure_args = \
-	--language_in ECMASCRIPT6_STRICT \
-	--language_out ECMASCRIPT5_STRICT \
-	--compilation_level $(cgl_closure_level) \
-	--warning_level VERBOSE \
-	--create_source_map build/js/CindyGL.js.map \
-  --source_map_format V3 \
-  --source_map_location_mapping "build/js/|" \
-  --source_map_location_mapping "src/js/|../../src/js/" \
-	--output_wrapper_file $(filter %.wrapper,$^) \
-	--js_output_file $@ \
-	--externs $(filter %.externs,$^) \
-	--js $(js_src)
-cgl_dbg_args = --transpile_only --formatting PRETTY_PRINT
-cgl_mods = ShaderProgram Init ShaderProgram Renderer Plugin TypeInference Types IncludeFunctions compileToWebGL WebGLImplementation
-cgl_srcs = $(cgl_mods:%=src/js/cindygl/%.js) \
-	src/js/cindygl/cindyjs.externs src/js/cindygl/CindyGL.js.wrapper \
-	build/js/cglres.js
-#build/js/cglres.js src/js/cindy3d/Interface.js
-build/js/CindyGL.js: tools/compiler.jar $(cgl_srcs)
-	mkdir -p $(@D)
-	$(CLOSURE) $(cgl_closure_args)
-
-build/js/CindyGL.plain.js:
-	cat $(cgl_srcs) > $@
-
-
-cindyGL: build/js/CindyGL.js build/js/cglres.js
-
-cindyGL-dbg:
-	$(RM) build/js/CindyGL.js
-	$(MAKE) cgl_extra_args='$(cgl_dbg_args)' build/js/CindyGL.js
-
-
-cindyGL-plain: build/js/CindyGL.plain.js

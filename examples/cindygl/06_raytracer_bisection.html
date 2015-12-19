@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Raytracer (using Rolle's theorem and bisection method for root finding)</h1>
+    
+    
+    <script id="csdraw" type="cindyscript">
+      time = seconds()-t0;
+      alpha = .5+mouse().x;
+      
+      
+    
+    //  ind = -10..10;
+    //  forall(ind, x,
+    //    forall(ind, y,
+    //     draw((x, y), size->10, color->computeColor((x, y)));
+    //    )
+    //  );
+      
+    //  X.color = computeColor(X.xy/20);
+      
+      colorplot([-.5,-.5], [.5,-.5], "plot", computeColor(#));
+      drawimage((0,0), "plot");
+    </script>
+               
+    <script id="csinit" type="cindyscript">
+      alpha = .8;
+      F(p) := (
+        regional(x, y, z);
+        x = p.x;
+        y = p.y;
+        z = p.z;
+        alpha = 2.3+.35*sin(time);
+        x*x+y*y+z*z+alpha*x*y*z-1.
+      );
+      
+      dF(p) := (
+        regional(x, y, z);
+        x = p.x;
+        y = p.y;
+        z = p.z;
+        (
+          2.*x+alpha*y*z,
+          2.*y+alpha*x*z,
+          2.*z+alpha*x*y
+        )
+      );
+      
+      S(r) := (r*r-4*4); //sphere with radius 4
+      
+      ray(pos, t) := (
+        ([[cos(time/5+mouse().y/3),0.,sin(time/5+mouse().y/3)],
+         [0.,1.,0.],
+         [-sin(time/5+mouse().y/3),0.,cos(time/5+mouse().y/3)]]*
+        [[1.,0,0.],
+         [0,cos(mouse().x/3),sin(mouse().x/3)],
+         [0,-sin(mouse().x/3),cos(mouse().x/3)]])*
+          (t*(pos.x, pos.y, 1)+(0, 0, -9))
+      );
+      
+      eval(poly, t) := (((poly_4)*t+poly_3)*t+poly_2)*t+poly_1; //evals deg 3 poly at time t, using horner scheme
+      
+      d(poly) := (poly_2, 2*poly_3, 3*poly_4, 0); //computes derivative of polynomial
+      
+      oo = 1000;
+      
+      bisect(poly, x0, x1, def) := ( //finds root of poly in [x0, x1] using bisection. returns def if intermediate value theorem cannot be applied
+        regional(v0, v1, m, vm);
+        v0 = eval(poly, x0);
+        v1 = eval(poly, x1);
+        if(v0*v1<=0,
+          repeat(9,
+            m = (x0+x1)/2;
+            vm = eval(poly, m);
+            if(v0*vm<=0,
+              (x1 = m; v1 = vm;),
+              (x0 = m; v0 = vm;)
+            );
+          );
+          m,
+          def
+        )
+      );
+      
+      firstroot(poly, l, u) := ( //finds first root of poly in interval (l, u). returns oo if there is none
+        regional(p1, p2, p3, a0, b0, b1, c0, c1, c2);
+          p3 = poly;
+          p2 = d(p3);
+          p1 = d(p2); //linear
+          
+//   l   u
+//    \ /      <-bisection on p1
+//  l  a0  u   <-roots of p1
+//   \ /\ /    <-bisection on p2
+// l  b0 b1  u <-roots of p2
+//  \ /\ /\ /  <-bisection on p3
+//   c0 c1 c2  <-roots of p3
+
+          a0 = bisect(p1, l, u, u);
+          b0 = bisect(p2, l, a0, l);
+          c0 = bisect(p3, l, b0, l);
+          
+          if(l < c0 & c0 < u, c0,
+          b1 = bisect(p2, a0, u, u);
+          c1 = bisect(p3, b0, b1, c0);
+          if(l < c1 & c1 < u, c1,
+          c2 = bisect(p3, b1, u, u);
+          if(l < c2 & c2 < u, c2,
+            oo
+          )))
+      );
+      
+      //A = transpose([
+      //  [1, 1, 1, 1],
+      //  [0, 5, 10, 15],
+      //  [0, 5*5, 10*10, 15*15],
+      //  [0, 5*5*5, 10*10*10, 15*15*15]
+      //]); 
+      
+      A = apply(0..3,c,apply(0..3,i,(5*c)^i));
+      // A sends polynomials [p0, p1, p2, p3] = p0+p1*X+p2*X*X+p3*X*X*X to [p(0), p(5), p(10), p(15)]
+      B = inverse(A); //B interpolates polynomials, given the values [p(0), p(5), p(10), p(15)]
+      
+      addlight(oldcolor, lightcolor, lightpos, normal) := (
+        illumination = max(0,(lightpos/abs(lightpos))*normal);
+        oldcolor + (illumination*illumination)*lightcolor
+      );
+
+
+      computeColor(pos) := (
+        polyvalues = [F(ray(pos, 0)), F(ray(pos, 5)), F(ray(pos, 10)), F(ray(pos, 15))];
+        poly = B*polyvalues; //interpolate
+        
+        spolyvalues = [S(ray(pos, 0)), S(ray(pos, 5)), S(ray(pos, 10)), S(ray(pos, 15))];
+        spoly = B*spolyvalues;
+        
+        D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
+        froot = if(D>=0,
+          firstroot(poly,
+            (-spoly_2-re(sqrt(D)))/(2.*spoly_3),
+            (-spoly_2+re(sqrt(D)))/(2.*spoly_3)
+          ),
+          oo
+        );
+       // print(froot);
+        if(froot == oo,
+          gray(.8),
+          n = dF(ray(pos, froot));
+          n = n/abs(n);
+          
+          lightpos0 = (-1.,1.,0.);
+          lightpos1 = (0.,-1.,1.);
+          lightpos2 = (1.,0.,-1.);
+          lightpos3 = ray((.0,.0),-10.);
+          lightpos4 = ray((.0,.0),10.); //for other side of n
+          
+          color0 = .6*(1.,.6,.3);
+          color1 = .6*(.3,1.,.6);
+          color2 = .6*(.6,.3,1.);
+          color3 = (.0,.8,.8);
+          color4 = (.9,.3,.0);
+          
+          addlight(addlight(addlight(addlight(addlight(
+          (0,0,0),
+            color0, lightpos0, n),
+            color1, lightpos1, n),
+            color2, lightpos2, n),
+            color3, lightpos3, n),
+            color4, lightpos4, n);
+          
+        )
+      );
+      
+      use("CindyGL");
+      t0 = seconds();
+      createimage("plot", 500, 500);
+    </script>
+    
+
+    <canvas  id="CSCanvas" width=500 height=500  5style="border:2px solid #000000"></canvas>
+    
+    <script type="text/javascript">
+        
+        var gslp=[
+         // {name:"X", kind:"P", type:"Free", pos:[0,0,1]},
+        ];
+        createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    autoplay: true,
+                    transform:[{scale:1.},{translate:[0,0]}]
+                  });
+    </script>              
+	</body>
+</html>

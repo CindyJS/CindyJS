@@ -372,7 +372,7 @@ function determineUniforms(expr) {
   }
   */
   //KISS-Fix: every variable appearing on left side of assigment is varying
-  for(let s in assigments) for(let v in assigments[s]) {
+  for(let s in assigments) for(let v in assigments[s]) { //scope s, variable v
    if(!variableDependendsOnPixel.hasOwnProperty(s)) {
       variableDependendsOnPixel[s] = {}; //dict of dependent variables
     }

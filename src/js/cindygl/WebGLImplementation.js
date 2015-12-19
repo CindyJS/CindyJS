@@ -90,6 +90,11 @@ inclusionfunction[type.point][type.vec3] = identity;
 
 Object.freeze(inclusionfunction);
 
+webgltr["sqrt"] = [
+  [float2complex_fun$1, useincludefunction('sqrtf')],
+  [complex_fun$1, useincludefunction('sqrtc')]
+];
+
 webgltr['abs'] = [
   [float_fun$1,   usefunction('abs')  ],
   [complex2float_fun$1, usefunction('length')],
@@ -225,6 +230,12 @@ webgltr["min"] = [
   [int_fun$2, usefunction('min')],
   [float_fun$2, usefunction('min')]
 ];
+
+webgltr["max"] = [
+  [int_fun$2, usefunction('max')],
+  [float_fun$2, usefunction('max')]
+];
+
 
 webgltr["complex"] = [
   [{args: [type.vec2], res: type.complex}, identity]

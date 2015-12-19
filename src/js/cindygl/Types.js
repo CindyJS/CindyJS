@@ -101,7 +101,7 @@ const template3 = makeTemplate(3);
 
 //- ("sqrt", 1, OpSqrt.class); @done(2015-03-17)
 typeinference["sqrt"] = [
-  float2complex_fun$1 , complex_fun$1
+  float2complex_fun$1, complex_fun$1
 ];
 //- ("abs", 1, OpAbs.class); @done(2015-03-17)
 typeinference["abs"] = [
@@ -620,6 +620,8 @@ typeinference["min"] = [
   int_fun$2,
   float_fun$2
 ];
+
+typeinference["max"] = typeinference["min"];
 //- ("min", 2, OpMinFun.class); @done(2015-03-17)
 //- ("min", 3, OpMinFunVar.class); @done(2015-03-17)
 //- ("keys", 1, OpKeys.class); @rethink
