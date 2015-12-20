@@ -1920,32 +1920,22 @@ geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
 geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
 geoOps.TrAffine.updatePosition = function(el) {
-    var cc = List.cross;
-    var mult = CSNumber.mult;
+    var multiMult = CSNumber.multiMult;
     var sm = List.scalmult;
     var mat = List.turnIntoCSList;
     var t = List.transpose;
     var nm = List.normalizeMax;
     var mm = List.productMM;
+    var adj = List.adjoint3;
 
-    function scale(ps) {
-        var v = ps.value,
-            z0 = v[0].value[2],
-            z1 = v[1].value[2],
-            z2 = v[2].value[2];
+    function scl(a, b, m) {
+        var v1 = a.value,
+            v2 = b.value,
+            mv = m.value;
         return mat([
-            sm(mult(z1, z2), v[0]),
-            sm(mult(z0, z2), v[1]),
-            sm(mult(z0, z1), v[2])
-        ]);
-    }
-
-    function crossScale(ps) {
-        var v = ps.value;
-        return mat([
-            sm(v[0].value[2], cc(v[1], v[2])),
-            sm(v[1].value[2], cc(v[2], v[0])),
-            sm(v[2].value[2], cc(v[0], v[1]))
+            sm(multiMult([v1[0], v2[1], v2[2]]), mv[0]),
+            sm(multiMult([v1[1], v2[2], v2[0]]), mv[1]),
+            sm(multiMult([v1[2], v2[0], v2[1]]), mv[2])
         ]);
     }
     // Get the set of points
@@ -1960,8 +1950,11 @@ geoOps.TrAffine.updatePosition = function(el) {
         csgeo.csnames[el.args[3]].homog,
         csgeo.csnames[el.args[5]].homog
     ]);
-    el.matrix = nm(mm(t(scale(ps2)), crossScale(ps1)));
-    el.dualMatrix = nm(mm(t(crossScale(ps2)), scale(ps1)));
+    var three = CSNumber.real(3);
+    var z1 = List.column(ps1, three);
+    var z2 = List.column(ps2, three);
+    el.matrix = nm(mm(t(ps2), scl(z1, z2, t(adj(ps1)))));
+    el.dualMatrix = nm(mm(adj(ps2), scl(z2, z1, ps1)));
 };
 
 // Define a similarity transformation given two points and their images
