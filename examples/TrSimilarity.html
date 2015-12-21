@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>TrRotation.cdy</title>
+    <title>TrSimilarity.cdy</title>
     <style type="text/css">
         * {
             margin: 0px;
@@ -43,7 +43,7 @@ createCindy({
 		{ name: "C0", type: "CircleByRadius", color: [ 1.0, 1.0, 0.0 ], radius: 2.0, args: [ "O" ], printname: "$C_{0}$" }, 
 		{ name: "X", type: "PointOnCircle", pos: [ 4.0, { r: 3.333333333333336, i: 1.9169827324414995E-16 }, { r: 0.6666666666666666, i: 6.258201313294385E-32 } ], color: [ 0.0, 0.0, 1.0 ], args: [ "C0" ], labeled: true, size: 3.0 }, 
 		{ name: "Y", type: "PointOnCircle", pos: [ { r: -2.2857142857142856, i: 1.3307899785299405E-16 }, -4.0, { r: -0.5714285714285715, i: -5.380812436461479E-33 } ], color: [ 1.0, 0.0, 0.0 ], args: [ "C0" ], labeled: true, size: 3.0 }, 
-		{ name: "Tr0", type: "TrRotation", color: [ 0.0, 0.0, 1.0 ], args: [ "P1", "P1i", "P2", "P2i" ] }, 
+		{ name: "Tr0", type: "TrSimilarity", color: [ 0.0, 0.0, 1.0 ], args: [ "P1", "P1i", "P2", "P2i" ] }, 
 		{ name: "Oi", type: "Transform", pos: [ 4.0, { r: 0.5587975243147648, i: -3.092680756690795E-16 }, { r: 0.4420866489832007, i: -3.977494945664109E-17 } ], color: [ 1.0, 1.0, 1.0 ], args: [ "Tr0", "O" ], labeled: true, printname: "O'" }, 
 		{ name: "Xi", type: "Transform", pos: [ 4.0, { r: 0.06430006697923803, i: -1.9732120455980098E-17 }, { r: 0.334896182183523, i: -3.7681033789742703E-17 } ], color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "X" ], labeled: true, size: 3.0, printname: "X'" }, 
 		{ name: "Yi", type: "Transform", pos: [ 4.0, { r: 1.644268774703557, i: -1.6006932694196308E-16 }, { r: 0.39525691699604754, i: -1.202135520280823E-18 } ], color: [ 1.0, 0.0, 0.0 ], args: [ "Tr0", "Y" ], labeled: true, size: 3.0, printname: "Y'" }, 
