@@ -1982,22 +1982,21 @@ geoOps.TrTranslation.updatePosition = function(el) {
     */
     var a = csgeo.csnames[el.args[0]].homog,
         b = csgeo.csnames[el.args[1]].homog,
-        aZ = a.value[2],
-        bZ = b.value[2],
-        n = CSNumber.mult(aZ, bZ),
-        d = List.sub(List.scalmult(aZ, b), List.scalmult(bZ, a)).value,
+        c = List.cross(a, b).value,
+        n = CSNumber.mult(a.value[2], b.value[2]),
         mat = List.turnIntoCSList,
+        neg = CSNumber.neg,
         zero = CSNumber.zero,
         m = mat([
-            mat([n, zero, d[0]]),
-            mat([zero, n, d[1]]),
+            mat([n, zero, c[1]]),
+            mat([zero, n, neg(c[0])]),
             mat([zero, zero, n])
         ]);
     m = List.normalizeMax(m);
     el.matrix = m;
     // Transpose using already normalized values, negate diagonal values
     // Matrix may end up scaled by -1 if n was the max value
-    n = CSNumber.neg(m.value[0].value[0]);
+    n = neg(m.value[0].value[0]);
     m = mat([
         mat([n, zero, zero]),
         mat([zero, n, zero]),
