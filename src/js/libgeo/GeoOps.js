@@ -1898,20 +1898,12 @@ geoOps.TrProjection.kind = "Tr";
 geoOps.TrProjection.signature = ["P", "P", "P", "P", "P", "P", "P", "P"];
 geoOps.TrProjection.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
-        var tmp,
-            a = csgeo.csnames[el.args[0 + offset]].homog,
-            b = csgeo.csnames[el.args[2 + offset]].homog,
-            c = csgeo.csnames[el.args[4 + offset]].homog,
-            d = csgeo.csnames[el.args[6 + offset]].homog;
-        // Note: this duplicates functionality from eval_helper.basismap
-        tmp = List.adjoint3(List.turnIntoCSList([a, b, c]));
-        tmp = List.productVM(d, tmp).value;
-        tmp = List.transpose(List.turnIntoCSList([
-            List.scalmult(tmp[0], a),
-            List.scalmult(tmp[1], b),
-            List.scalmult(tmp[2], c)
-        ]));
-        return tmp;
+        return eval_helper.basismap(
+            csgeo.csnames[el.args[0 + offset]].homog,
+            csgeo.csnames[el.args[2 + offset]].homog,
+            csgeo.csnames[el.args[4 + offset]].homog,
+            csgeo.csnames[el.args[6 + offset]].homog
+        );
     });
 };
 
