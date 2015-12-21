@@ -1920,24 +1920,13 @@ geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
 geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
 geoOps.TrAffine.updatePosition = function(el) {
-    var multiMult = CSNumber.multiMult;
+    var mult = CSNumber.mult;
     var sm = List.scalmult;
     var mat = List.turnIntoCSList;
     var t = List.transpose;
     var nm = List.normalizeMax;
     var mm = List.productMM;
     var adj = List.adjoint3;
-
-    function scl(a, b, m) {
-        var v1 = a.value,
-            v2 = b.value,
-            mv = m.value;
-        return mat([
-            sm(multiMult([v1[0], v2[1], v2[2]]), mv[0]),
-            sm(multiMult([v1[1], v2[2], v2[0]]), mv[1]),
-            sm(multiMult([v1[2], v2[0], v2[1]]), mv[2])
-        ]);
-    }
     // Get the set of points
     var ps1 = mat([
         csgeo.csnames[el.args[0]].homog,
@@ -1950,11 +1939,23 @@ geoOps.TrAffine.updatePosition = function(el) {
         csgeo.csnames[el.args[3]].homog,
         csgeo.csnames[el.args[5]].homog
     ]);
-    var three = CSNumber.real(3);
-    var z1 = List.column(ps1, three);
-    var z2 = List.column(ps2, three);
-    el.matrix = nm(mm(t(ps2), scl(z1, z2, t(adj(ps1)))));
-    el.dualMatrix = nm(mm(adj(ps2), scl(z2, z1, ps1)));
+    var ps1t = t(ps1);
+    var ps2t = t(ps2);
+    var z1 = ps1t.value[2].value;
+    var z2 = ps2t.value[2].value;
+    var u = [mult(z1[0], z2[2]), mult(z1[1], z2[0]), mult(z1[2], z2[1])];
+    var w = adj(ps1t).value;
+    el.matrix = nm(mm(ps2t, mat([
+        sm(mult(u[0], z2[1]), w[0]),
+        sm(mult(u[1], z2[2]), w[1]),
+        sm(mult(u[2], z2[0]), w[2])
+    ])));
+    w = ps1.value;
+    el.dualMatrix = nm(mm(adj(ps2), mat([
+        sm(mult(z1[2], u[1]), w[0]),
+        sm(mult(z1[0], u[2]), w[1]),
+        sm(mult(z1[1], u[0]), w[2])
+    ])));
 };
 
 // Define a similarity transformation given two points and their images
@@ -1982,22 +1983,21 @@ geoOps.TrTranslation.updatePosition = function(el) {
     */
     var a = csgeo.csnames[el.args[0]].homog,
         b = csgeo.csnames[el.args[1]].homog,
-        aZ = a.value[2],
-        bZ = b.value[2],
-        n = CSNumber.mult(aZ, bZ),
-        d = List.sub(List.scalmult(aZ, b), List.scalmult(bZ, a)).value,
+        c = List.cross(a, b).value,
+        n = CSNumber.mult(a.value[2], b.value[2]),
         mat = List.turnIntoCSList,
+        neg = CSNumber.neg,
         zero = CSNumber.zero,
         m = mat([
-            mat([n, zero, d[0]]),
-            mat([zero, n, d[1]]),
+            mat([n, zero, c[1]]),
+            mat([zero, n, neg(c[0])]),
             mat([zero, zero, n])
         ]);
     m = List.normalizeMax(m);
     el.matrix = m;
     // Transpose using already normalized values, negate diagonal values
     // Matrix may end up scaled by -1 if n was the max value
-    n = CSNumber.neg(m.value[0].value[0]);
+    n = neg(m.value[0].value[0]);
     m = mat([
         mat([n, zero, zero]),
         mat([zero, n, zero]),
