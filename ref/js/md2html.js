@@ -75,8 +75,8 @@ MyRenderer.prototype.heading = function(text, level, raw) {
   }
   if (!id && (match = /`‹\w*›\s*(\S+)\s*‹\w*›`/.exec(raw))) {
     // infix operators
-    id = "$" + match[1].replace(/./g, function(char) {
-      return "u" + char.charCodeAt(0).toString(16);
+    id = match[1].replace(/./g, function(char) {
+      return "$" + char.charCodeAt(0).toString(16) + "u";
     });
   }
   if (!id && (match = /`([^`]*)`/.exec(raw))) {
@@ -84,10 +84,11 @@ MyRenderer.prototype.heading = function(text, level, raw) {
     match = match[1];
     id = match
       .replace(/\s+/g, "")
-      .replace(/_/g, "\\$u5f")
+      .replace(/\$/g, "\\$24u")
+      .replace(/_/g, "\\$5fu")
       .replace(/‹[^‹›]*›/g, "_")
       .replace(/\W/g, function(char) {
-        return "$u" + char.charCodeAt(0).toString(16);
+        return "$" + char.charCodeAt(0).toString(16) + "u";
       });
   }
   if (!id && (match = /([\w.]+)\s*=.*‹/.exec(raw))) {
