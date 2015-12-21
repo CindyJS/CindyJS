@@ -1908,6 +1908,9 @@ geoOps.TrProjection.updatePosition = function(el) {
 };
 
 // Define an affine transformation given three points and their images
+// see https://github.com/CindyJS/CindyJS/pull/148 and
+// https://gist.github.com/elkins0/f5a98a5ae98b8a8c7571
+// https://github.com/CindyJS/CindyJS/files/65335/TrAffine.pdf
 geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
 geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
@@ -1951,10 +1954,10 @@ geoOps.TrAffine.updatePosition = function(el) {
 };
 
 // Define a similarity transformation given two points and their images
-geoOps.TrRotation = {};
-geoOps.TrRotation.kind = "Tr";
-geoOps.TrRotation.signature = ["P", "P", "P", "P"];
-geoOps.TrRotation.updatePosition = function(el) {
+geoOps.TrSimilarity = {};
+geoOps.TrSimilarity.kind = "Tr";
+geoOps.TrSimilarity.signature = ["P", "P", "P", "P"];
+geoOps.TrSimilarity.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
         var a = csgeo.csnames[el.args[0 + offset]].homog,
             b = csgeo.csnames[el.args[2 + offset]].homog;
