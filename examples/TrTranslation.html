@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TrTranslation.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+draw(P1,P1i,arrow->true,color->(1,1,1));
+draw(O,X,arrow->true,color->(0,0,1));
+draw(Oi,Xi,arrow->true,color->(0,0,1));
+</script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "P1", type: "Free", pos: [ 4.0, -4.0, -0.6666666666666666 ], color: [ 0.0, 0.0, 0.0 ], labeled: true, size: 3.0 }, 
+		{ name: "P1i", type: "Free", pos: [ 0.0, -4.0, -1.3333333333333333 ], color: [ 0.5019608, 0.5019608, 0.5019608 ], labeled: true, size: 3.0, printname: "P1'" }, 
+		{ name: "Tr0", type: "TrTranslation", color: [ 0.0, 0.0, 1.0 ], args: [ "P1", "P1i" ] }, 
+		{ name: "O", type: "Free", pos: [ 4.0, 3.3333333333333335, 0.6666666666666666 ], color: [ 1.0, 1.0, 1.0 ], labeled: true }, 
+		{ name: "C0", type: "CircleByRadius", color: [ 1.0, 1.0, 0.0 ], radius: 2.999999999999999, args: [ "O" ], printname: "$C_{0}$" }, 
+		{ name: "X", type: "PointOnCircle", pos: [ 4.0, { r: 2.2077737946188507, i: -1.3419095945542774E-16 }, { r: 0.4444531955041505, i: 1.6304775351968118E-19 } ], color: [ 0.0, 0.0, 1.0 ], args: [ "C0" ], labeled: true, size: 3.0 }, 
+		{ name: "C1", type: "CircleByRadius", color: [ 1.0, 1.0, 0.0 ], radius: 0.041785545347643845, args: [ "X" ], printname: "$C_{1}$" }, 
+		{ name: "Oi", type: "Transform", pos: [ 4.0, { r: 0.6666666666666673, i: -3.996802888650567E-17 }, { r: 0.3333333333333333, i: 2.0400348077487273E-17 } ], color: [ 1.0, 1.0, 1.0 ], args: [ "Tr0", "O" ], labeled: true, printname: "O'" }, 
+		{ name: "Xi", type: "Transform", pos: [ 4.0, { r: 0.5246443927888744, i: -1.4647937769530865E-16 }, { r: 0.2666698170233487, i: 2.095953600789266E-17 } ], color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "X" ], labeled: true, size: 3.0, printname: "X'" }, 
+		{ name: "C2", type: "Transform", color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "C0" ], printname: "$C_{2}$" } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

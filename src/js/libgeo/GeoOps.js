@@ -1882,32 +1882,119 @@ geoOps.TrMoebiusArc.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
 
+// Produces the transformation matrix and its dual
+geoOps._helper.trBuildMatrix = function(el, oneStep) {
+    var m0 = oneStep(0);
+    var m1 = oneStep(1);
+    var m = List.productMM(m1, List.adjoint3(m0));
+    el.matrix = List.normalizeMax(m);
+    m = List.transpose(List.productMM(m0, List.adjoint3(m1)));
+    el.dualMatrix = List.normalizeMax(m);
+};
+
 // Define a projective transformation given four points and their images
 geoOps.TrProjection = {};
 geoOps.TrProjection.kind = "Tr";
 geoOps.TrProjection.signature = ["P", "P", "P", "P", "P", "P", "P", "P"];
 geoOps.TrProjection.updatePosition = function(el) {
-    function oneStep(offset) {
-        var tmp,
-            a = csgeo.csnames[el.args[0 + offset]].homog,
-            b = csgeo.csnames[el.args[2 + offset]].homog,
-            c = csgeo.csnames[el.args[4 + offset]].homog,
-            d = csgeo.csnames[el.args[6 + offset]].homog;
-        // Note: this duplicates functionality from eval_helper.basismap
-        tmp = List.adjoint3(List.turnIntoCSList([a, b, c]));
-        tmp = List.productVM(d, tmp).value;
-        tmp = List.transpose(List.turnIntoCSList([
-            List.scalmult(tmp[0], a),
-            List.scalmult(tmp[1], b),
-            List.scalmult(tmp[2], c)
-        ]));
-        return tmp;
-    }
-    var m = List.productMM(oneStep(1), List.adjoint3(oneStep(0)));
+    geoOps._helper.trBuildMatrix(el, function(offset) {
+        return eval_helper.basismap(
+            csgeo.csnames[el.args[0 + offset]].homog,
+            csgeo.csnames[el.args[2 + offset]].homog,
+            csgeo.csnames[el.args[4 + offset]].homog,
+            csgeo.csnames[el.args[6 + offset]].homog
+        );
+    });
+};
+
+// Define an affine transformation given three points and their images
+geoOps.TrAffine = {};
+geoOps.TrAffine.kind = "Tr";
+geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
+geoOps.TrAffine.updatePosition = function(el) {
+    var mult = CSNumber.mult;
+    var sm = List.scalmult;
+    var mat = List.turnIntoCSList;
+    var t = List.transpose;
+    var nm = List.normalizeMax;
+    var mm = List.productMM;
+    var adj = List.adjoint3;
+    // Get the set of points
+    var ps1 = mat([
+        csgeo.csnames[el.args[0]].homog,
+        csgeo.csnames[el.args[2]].homog,
+        csgeo.csnames[el.args[4]].homog
+    ]);
+    // Get the set of thier images
+    var ps2 = mat([
+        csgeo.csnames[el.args[1]].homog,
+        csgeo.csnames[el.args[3]].homog,
+        csgeo.csnames[el.args[5]].homog
+    ]);
+    var ps1t = t(ps1);
+    var ps2t = t(ps2);
+    var z1 = ps1t.value[2].value;
+    var z2 = ps2t.value[2].value;
+    var u = [mult(z1[0], z2[2]), mult(z1[1], z2[0]), mult(z1[2], z2[1])];
+    var w = adj(ps1t).value;
+    el.matrix = nm(mm(ps2t, mat([
+        sm(mult(u[0], z2[1]), w[0]),
+        sm(mult(u[1], z2[2]), w[1]),
+        sm(mult(u[2], z2[0]), w[2])
+    ])));
+    w = ps1.value;
+    el.dualMatrix = nm(mm(adj(ps2), mat([
+        sm(mult(z1[2], u[1]), w[0]),
+        sm(mult(z1[0], u[2]), w[1]),
+        sm(mult(z1[1], u[0]), w[2])
+    ])));
+};
+
+// Define a similarity transformation given two points and their images
+geoOps.TrSimilarity = {};
+geoOps.TrSimilarity.kind = "Tr";
+geoOps.TrSimilarity.signature = ["P", "P", "P", "P"];
+geoOps.TrSimilarity.updatePosition = function(el) {
+    geoOps._helper.trBuildMatrix(el, function(offset) {
+        var a = csgeo.csnames[el.args[0 + offset]].homog,
+            b = csgeo.csnames[el.args[2 + offset]].homog;
+        return eval_helper.basismap(a, b, List.ii, List.jj);
+    });
+};
+
+// Define a translation transformation given one point and its image
+geoOps.TrTranslation = {};
+geoOps.TrTranslation.kind = "Tr";
+geoOps.TrTranslation.signature = ["P", "P"];
+geoOps.TrTranslation.updatePosition = function(el) {
+    /*
+        Build this matrix when a is [aX, aY, aZ] and  b is [bX, bY, bZ]:
+            ⎛aZ*bZ   0    aZ*bX-bZ*aX⎞
+        m = ⎜  0   aZ*bZ  aZ*bY-bZ*aY⎟
+            ⎝  0     0       aZ*bZ   ⎠
+    */
+    var a = csgeo.csnames[el.args[0]].homog,
+        b = csgeo.csnames[el.args[1]].homog,
+        c = List.cross(a, b).value,
+        n = CSNumber.mult(a.value[2], b.value[2]),
+        mat = List.turnIntoCSList,
+        neg = CSNumber.neg,
+        zero = CSNumber.zero,
+        m = mat([
+            mat([n, zero, c[1]]),
+            mat([zero, n, neg(c[0])]),
+            mat([zero, zero, n])
+        ]);
     m = List.normalizeMax(m);
     el.matrix = m;
-    m = List.transpose(List.adjoint3(m));
-    m = List.normalizeMax(m);
+    // Transpose using already normalized values, negate diagonal values
+    // Matrix may end up scaled by -1 if n was the max value
+    n = neg(m.value[0].value[0]);
+    m = mat([
+        mat([n, zero, zero]),
+        mat([zero, n, zero]),
+        mat([m.value[0].value[2], m.value[1].value[2], n])
+    ]);
     el.dualMatrix = m;
 };
 
