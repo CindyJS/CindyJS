@@ -53,9 +53,7 @@
       drawimage(m0, m1, "mandel");
       drawimage(j0, j1, "julia");
     </script>
-    
-
-    <canvas  id="CSCanvas" width=1000 height=500  style="border:2px solid #000000"></canvas>
+    <canvas  id="CSCanvas"></canvas>
     
     <script type="text/javascript">
         
@@ -77,9 +75,13 @@
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    transform:[{scale:4.},{translate:[0,0]}]
-                    }
-                    );
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 1000,
+                      height: 500,
+                      transform: [ { visibleRect: [ -2.5, -2.5, 7.5, 2.5 ] } ]
+                    }]
+                    });
     </script>              
 	</body>
 </html>

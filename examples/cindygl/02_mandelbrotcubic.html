@@ -53,7 +53,7 @@
     </script>
     
 
-    <canvas  id="CSCanvas" width=1000 height=500  style="border:2px solid #000000"></canvas>
+    <canvas  id="CSCanvas"></canvas>
     
     <script type="text/javascript">
         
@@ -61,11 +61,11 @@
                   {name:"A", kind:"P", type:"Free", pos:[-1.5,-1.5]},
                   {name:"B", kind:"P", type:"Free", pos:[1.5,-1.5]},
                   
-                  {name: "m0", kind: "P", type:"Free", pos:[-2.5,-2.5]},
-                  {name: "m1", kind: "P", type:"Free", pos:[2.5,-2.5]},
+                  {name: "m0", kind: "P", type:"Free", pos:[-2.5,-2.5], visible:false, pinned:true},
+                  {name: "m1", kind: "P", type:"Free", pos:[2.5,-2.5], visible:false, pinned:true},
                   
-                  {name: "j0", kind: "P", type:"Free", pos:[2.5,-2.5]},
-                  {name: "j1", kind: "P", type:"Free", pos:[7.5,-2.5]},
+                  {name: "j0", kind: "P", type:"Free", pos:[2.5,-2.5], visible:false, pinned:true},
+                  {name: "j1", kind: "P", type:"Free", pos:[7.5,-2.5], visible:false, pinned:true},
                     
                     
                   {name:"C", kind:"P", type:"Free", pos:[0.2,1.8]},
@@ -74,9 +74,13 @@
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    transform:[{scale:4.},{translate:[0,0]}]
-                    }
-                    );
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 1000,
+                      height: 500,
+                      transform: [ { visibleRect: [ -2.5, -2.5, 7.5, 2.5 ] } ]
+                    }]
+                    });
     </script>              
 	</body>
 </html>

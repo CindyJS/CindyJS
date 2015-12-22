@@ -241,6 +241,15 @@ webgltr["complex"] = [
   [{args: [type.vec2], res: type.complex}, identity]
 ];
 
+webgltr["pow"] = [
+  [{args: [type.float, type.int], res: type.float}, 
+    function(args){return "pow("+args[0]+", float("+args[1]+"))";} //TODO: 0^0=1 in cindyjs
+  ],
+  [{args: [type.complex, type.complex], res: type.complex}, useincludefunction('powc')]
+];
+
+webgltr["^"] = webgltr["pow"];
+
 webgltr["re"] = [
   [complex2float_fun$1, getReal]
 ];

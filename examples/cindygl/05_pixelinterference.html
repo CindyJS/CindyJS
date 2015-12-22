@@ -28,7 +28,7 @@
     </script>
     
 
-    <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+    <canvas  id="CSCanvas"></canvas>
     
     <script type="text/javascript">
         
@@ -38,7 +38,12 @@
                     scripts: "cs*",
                     geometry:gslp,
                     autoplay: true,
-                    transform:[{scale:2.},{translate:[0,0]}]
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [-1,-1,1,1] } ]
+                    }]
                   });
     </script>              
 	</body>

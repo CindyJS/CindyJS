@@ -10,10 +10,12 @@ const type = { //assert all indices are different
   vec3: 7,
   vec4: 8,
   color: 9,
-  point: 10, //@TODO: positive int < int, positive real < real. Sinn: sqrt in float
+  point: 10, 
   mat2: 11,
   mat3: 12,
-  mat4: 13
+  mat4: 13,
+ // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
+ // nonnegativefloat: 15 //@TODO: negative float...
 }
 Object.freeze(type);
 
@@ -24,14 +26,18 @@ function typeToString(t) {
   'float',
   'complex',
   'voidt',
-  'vec2',
-  'vec3',
-  'vec4',
+  'float[2]',
+  'float[3]',
+  'float[4]',
   'color',
   'point',
-  'mat2',
-  'mat3',
-  'mat4'];
+  'float[2,2]',
+  'float[3,3]',
+  'float[4,4]',
+  //'positive float',
+  //'non-negative float'
+  ];
+  
   return l[t-1];
 }
 
@@ -49,6 +55,10 @@ subtypegen[type.color] = [type.vec4]; //NOT type.vec4 because vec3 -> color -> v
 //subtypegen[type.vec2] = [type.point]; //TODO: kein eigentlicher grund fuer kommentar
 subtypegen[type.vec3] = [type.color, type.point];
 subtypegen[type.vec4] = [type.color]; //color with alpha
+
+
+//subtypegen[type.nonegativefloat] = [type.positivefloat];
+//subtypegen[type.positivefloat] = [type.float];
 
 //subtypegen[type.point] = [type.vec2, type.vec3]; //in R^2 or in RP^3
 
@@ -86,7 +96,7 @@ const vec32float_fun$1    = {args: [type.vec3],       res: type.float};
 const vec42float_fun$1    = {args: [type.vec4],       res: type.float};
 const vec22float_fun$2    = {args: [type.vec2, type.vec2],       res: type.float};
 const vec32float_fun$2    = {args: [type.vec3, type.vec3],       res: type.float};
-const vec42float_fun$2    = {args: [type.vec4, type.vec3],       res: type.float};
+const vec42float_fun$2    = {args: [type.vec4, type.vec4],       res: type.float};
 
 const point2float_fun$2   = {args: [type.point, type.point],     res: type.float};
 
@@ -188,7 +198,9 @@ rvectorspaces.forEach(function(t){
 //- ("pow", 2, OpPow.class); @done(2015-03-17)
 typeinference["pow"] = [
   {args: [type.float, type.int], res: type.float},
-  {args: [type.float, type.float], res: type.complex},
+  //{args: [type.positivefloat, type.float], res: type.positivefloat},
+  //{args: [type.nonnegativefloat, type.nonnegativefloat], res: type.nonnegativefloat},
+  //{args: [type.float, type.float], res: type.complex},
   {args: [type.complex, type.complex], res: type.complex}
 ];
 //- ("re", 1, OpRe.class); @done(2015-03-17)
@@ -621,7 +633,14 @@ typeinference["min"] = [
   float_fun$2
 ];
 
-typeinference["max"] = typeinference["min"];
+typeinference["max"] = [
+  int_fun$2,
+  //{args: [type.float, type.positivefloat], res: type.positivefloat},
+  //{args: [type.positivefloat, type.float], res: type.positivefloat},
+  //{args: [type.float, type.nonnegativefloat], res: type.nonnegativefloat},
+  //{args: [type.nonnegativefloat, type.float], res: type.nonnegativefloat},
+  float_fun$2
+];
 //- ("min", 2, OpMinFun.class); @done(2015-03-17)
 //- ("min", 3, OpMinFunVar.class); @done(2015-03-17)
 //- ("keys", 1, OpKeys.class); @rethink
@@ -713,8 +732,8 @@ typeinference["im"] = [
 ];
 
 typeinference["genList"] = [
-  {args: [type.float, type.float],             res: type.vec2},
-  {args: [type.float, type.float, type.float], res: type.vec3},
+  {args: [type.float, type.float],                         res: type.vec2},
+  {args: [type.float, type.float, type.float],             res: type.vec3},
   {args: [type.float, type.float, type.float, type.float], res: type.vec4}
   //@TODO: real lists in glsl
 ];

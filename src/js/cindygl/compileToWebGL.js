@@ -3,27 +3,6 @@ var webgltype = {}; //which type identifier is used in WebGL to represent our in
 /** @type {createCindy.pluginApi} */
 var api;
 
-var precompileDone = false;
-
-/** 
- * are two given signatures equal?
- */
-function signaturesAreEqual(a, b) {
-  if(a===b) return true;
-  if(isprimitive(a) || isprimitive(b)) return a===b;
-  
-  for(let key in a) if(a.hasOwnProperty(key)) {
-    if(!b.hasOwnProperty(key)) return false;
-    if(!signaturesAreEqual(a[key], b[key])) return false;
-  }
-  
-  for(let key in b) if(b.hasOwnProperty(key)) {
-    if(!a.hasOwnProperty(key)) return false;
-  }
-  
-  return true;
-}
-
 
 /**
  * Creates new term that is casted to toType
@@ -31,7 +10,11 @@ function signaturesAreEqual(a, b) {
  * assert that fromType is a subtype of toType
  */
 function castType(term, fromType, toType) {
-//  console.log('cast type ' + typeToString(fromType) +  ' to ' + typeToString(toType) + " (for term" + term +")");
+  if(!issubtypeof(fromType, toType)) {
+    console.error(typeToString(fromType) + " is no subtype of " + typeToString(toType));
+    return term;
+  }
+
   if(fromType===toType) return term;
   else {
     let nextType = next[fromType][toType]; //use precomputed matrix
@@ -45,45 +28,13 @@ function castType(term, fromType, toType) {
   }
 }
 
-///////////
 var webgltr = {};
 
 
-
-/*
-
-function precompile(expr) {
-  //variable?
-  var argtypes = new Array(expr['args'].length);
-  for(let i in expr['args']) {
-    precompile(expr['args'][i]);
-    argtypes[i] = expr['args'][i].signature.res;
-  }
-  if (myfunctions.hasOwnProperty(expr['oper'])) {
-    //TODO
-    //determine type...
-    precompile(myfunctions[expr['oper']].body);
-  } else {
-    expr.signature = matchSignature(expr['oper'], argtypes) //TODO was ist mit myfunctions?
-    if(expr.signature === nada) {
-      console.log('No signature found for function ' + expr['oper'] + 
-        ' with arguments (' + argtypes.slice(', ') + ')');
-    }
-  }
-  
-  
-  
-  //contains varying?
-  //required type
-  //is expression or statement?
-}*/
-
-
-
-
-
-
-function getPlainName(oper) { //converts opernames like re$1 to re
+/**
+ * converts opernames like re$1 to re
+ */
+function getPlainName(oper) {
   if(oper.indexOf('$')===-1) return oper;
   else return oper.substr(0, oper.indexOf('$'));
 }
@@ -160,17 +111,17 @@ function computeType(expr, fun) { //expression, current function
  */
 //@TODO: Consider stack of variables. e.g. repeat(3, i, e = 32+i);
 function getType(expr, fun) { //expression, current function
-  //return computeType(expr, fun);
-  if(false && precompileDone) {
-    if(!expr.hasOwnProperty("computedType"))
-      expr["computedType"] = computeType(expr, fun);
-    return expr["computedType"];
-  }
-  //hence the types of variables are not fixed yet.
   return computeType(expr, fun);
+  /////TODO: update expr["computedType"] in determineVariables
+  if(!expr.hasOwnProperty("computedType"))
+    expr["computedType"] = computeType(expr, fun);
+  return expr["computedType"];
 }
 
-function determineVariables(expr) { //finds the occuring variables, saves them to variables and finally computes T
+/**
+ * finds the occuring variables, saves them to variables and finally computes T
+ */
+function determineVariables(expr) { 
   variables = {}; //functionname -> list of variables occuring in this scope. global corresponds to ''-function
   assigments = {}; 
   
@@ -255,7 +206,8 @@ function determineTypes() {
   let changed = true;
   while(changed) {
     changed = false;
-    for(let s in assigments) for(let v in assigments[s]) for(let i in assigments[s][v]) { //iterate over all scopes, their variables(and functions), and their reassigments
+    //iterate over all scopes, their variables(and functions), and their reassigments
+    for(let s in assigments) for(let v in assigments[s]) for(let i in assigments[s][v]) {
       // variable  v (which lives in scope s) <- expression e in function f
       let e = assigments[s][v][i].expr; 
       let f = assigments[s][v][i].fun;
@@ -276,6 +228,7 @@ function determineTypes() {
           
           T[s][v] = newtype;
           console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is "+ typeToString(oldtype) + "/" + typeToString(othertype)+") because of expr " + JSON.stringify(e));
+          
           //console.log(T);
           changed = true; 
         }
@@ -423,7 +376,7 @@ function determineUniforms(expr) {
 function guessTypeOfValue(tval) {
   if(tval['ctype'] === 'number') {
     let z = tval['value'];
-    if(z['imag']===0.) {
+    if(Math.abs(z['imag'])<1e-10) { //eps test. for some reasons sin(1) might have some imag part of order e-17
       if((z['real']|0) === z['real']) {
         return type.int;
       } else {
@@ -475,7 +428,6 @@ function determineUniformTypes() {
 
 
 function precompile(expr) {
-  precompileDone = false;
   determineVariables(expr);
   determineUniforms(expr);
   determineUniformTypes();
@@ -483,7 +435,6 @@ function precompile(expr) {
   determineTypes();
   console.log("DETERMINED TYPES");
   console.log(JSON.stringify(T));
-  precompileDone = true;
 }
 
 /*

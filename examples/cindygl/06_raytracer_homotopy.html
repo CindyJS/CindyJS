@@ -29,7 +29,7 @@
     //  X.color = computeColor(X.xy/20);
       
       colorplot([-.5,-.5], [.5,-.5], "plot", computeColor(#));
-      drawimage([-10.02,-10.02], [9.98,-10.02], "plot");
+      drawimage([-.5,-.5], [.5,-.5], "plot");
     </script>
                
     <script id="csinit" type="cindyscript">
@@ -186,15 +186,15 @@
     <canvas  id="CSCanvas" width=500 height=500  5style="border:2px solid #000000"></canvas>
     
     <script type="text/javascript">
-        
-        var gslp=[
-         // {name:"X", kind:"P", type:"Free", pos:[0,0,1]},
-        ];
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
-                    geometry:gslp,
                     autoplay: true,
-                    transform:[{scale:1.},{translate:[0,0]}]
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [ -0.5, -0.5, 0.5, 0.5 ] } ]
+                    }]
                   });
     </script>              
 	</body>

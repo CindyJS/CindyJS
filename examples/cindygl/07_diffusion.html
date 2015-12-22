@@ -48,8 +48,7 @@
     </script>
     
 
-    <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"
-      onclick="cdy.evokeCS('t0 = seconds();')"></canvas>
+    <canvas  id="CSCanvas" onclick="cdy.evokeCS('t0 = seconds();')"></canvas>
     
     <script type="text/javascript">
         
@@ -62,7 +61,12 @@
                     scripts: "cs*",
                     geometry:gslp,
                     autoplay: true,
-                    transform:[{scale:2.},{translate:[-5,-5]}]
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [ 0,0,10,10 ] } ]
+                    }]
                   });
     </script>              
 	</body>

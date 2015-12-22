@@ -80,7 +80,7 @@ function lca(a, b) {
   
   
   if(issubtypeof(b,a)) return a;
-  else if(issubtypeof(a,b)) return b;
+  if(issubtypeof(a,b)) return b;
   
   if(!isprimitive(a)) return b; //handle nadas
   if(!isprimitive(b)) return a; //TODO find algo for non-primitive types
@@ -163,4 +163,23 @@ function matchSignature(functionname, args) { //args is a list of types
   }
   console.error('No Signature found for ' + functionname + '(' + args.map(typeToString).join(', ') + ')(' + JSON.stringify(args) + ')');
   return nada;
+}
+
+/** 
+ * are two given signatures equal?
+ */
+function signaturesAreEqual(a, b) {
+  if(a===b) return true;
+  if(isprimitive(a) || isprimitive(b)) return a===b;
+  
+  for(let key in a) if(a.hasOwnProperty(key)) {
+    if(!b.hasOwnProperty(key)) return false;
+    if(!signaturesAreEqual(a[key], b[key])) return false;
+  }
+  
+  for(let key in b) if(b.hasOwnProperty(key)) {
+    if(!a.hasOwnProperty(key)) return false;
+  }
+  
+  return true;
 }
