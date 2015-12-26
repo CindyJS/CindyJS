@@ -1,4 +1,4 @@
-vec4 red(float f)
+vec3 red(float f)
 {
-   return vec4(f,0,0,1.);
+   return vec3(clamp(f,0.,1.),0.,0.);
 }

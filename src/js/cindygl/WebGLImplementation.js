@@ -67,7 +67,7 @@ for(let t in type) {
 inclusionfunction[type.bool][type.int] = usefunction('int'); // use int(...) to cast from boolean to int
 inclusionfunction[type.int][type.float] = usefunction('float');
 inclusionfunction[type.float][type.complex] = float2cpl;
-inclusionfunction[type.float][type.color] = useincludefunction('gray');
+inclusionfunction[type.float][type.color] = useincludefunction('float2color');
 
 //inclusionfunction[type.complex][type.vec2] = identity;
 
@@ -219,7 +219,7 @@ webgltr['arctan2'] = [
 
 ["red", "green", "blue", "gray", "hue"].forEach( oper =>
   webgltr[oper] = [
-    [{args:[type.float], res: type.color},  useincludefunction(oper)]
+    [{args:[type.float], res: type.vec3},  useincludefunction(oper)]
   ]
 );
 webgltr["grey"] = webgltr["gray"];

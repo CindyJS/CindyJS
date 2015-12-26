@@ -9,7 +9,7 @@ const type = { //assert all indices are different
   vec2: 6,
   vec3: 7,
   vec4: 8,
-  color: 9,
+  color: 9, //color is the color type of glsl. CindyJS-colors are vec3
   point: 10, 
   mat2: 11,
   mat3: 12,
@@ -50,7 +50,7 @@ subtypegen[type.int] = [type.float];
 subtypegen[type.float] = [type.complex, type.color]; //color: as gray
 
 //subtypegen[type.complex] = []; //NOT type.vec2: because no automatic cast in cindyJS
-subtypegen[type.color] = [type.vec4]; //NOT type.vec4 because vec3 -> color -> vec4. Only consider vec3 <-> color in the sense of cindyJS
+//subtypegen[type.color] = [type.vec4]; //NOT type.vec4 because vec3 -> color -> vec4. Only consider vec3 <-> color in the sense of cindyJS
 
 //subtypegen[type.vec2] = [type.point]; //TODO: kein eigentlicher grund fuer kommentar
 subtypegen[type.vec3] = [type.color, type.point];
@@ -430,7 +430,7 @@ typeinference["xor"] = [
 //- ("hue", 1, OpHue.class); @done(2015-03-17)
 ["red", "green", "blue", "gray", "grey", "hue"].forEach( oper =>
   typeinference[oper] = [
-    {args:[type.float], res: type.color}
+    {args:[type.float], res: type.vec3}
   ]
 );
 

@@ -1,4 +1,4 @@
-vec4 blue(float f)
+vec3 blue(float f)
 {
-   return vec4(0,0,f,1.);
+   return vec3(0., 0., clamp(f,0.,1.));
 }
