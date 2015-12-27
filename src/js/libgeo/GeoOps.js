@@ -9,6 +9,7 @@ geoOps._helper = {};
  * *s - Set of *
  * Tr - Projective transformation
  * Mt - Moebius transformation
+ * Rc - Reflection in a circle
  */
 
 
@@ -2087,7 +2088,7 @@ geoOps.TrReflectionC.updatePosition = function(el) {
         el.sclRsq = CSNumber.sub(add(mult(nx1, nx1), mult(ny1, ny1)), mult(z1, zz1));
     }
     el.dualMatrix = el.matrix = m1;
-}
+};
 
 geoOps._helper.ReflectC = function(Tr, m2) {
     var add = CSNumber.add;
