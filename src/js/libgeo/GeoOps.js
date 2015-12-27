@@ -2001,6 +2001,219 @@ geoOps.TrTranslation.updatePosition = function(el) {
     el.dualMatrix = m;
 };
 
+// Define a reflective transformation given a point
+geoOps.TrReflectionP = {};
+geoOps.TrReflectionP.kind = "Tr";
+geoOps.TrReflectionP.signature = ["P"];
+geoOps.TrReflectionP.updatePosition = function(el) {
+    /*
+        Build this matrix when p is [x, y, z]:
+
+        ⎛-z/2  0   x ⎞
+        ⎜  0 -z/2  y ⎟
+        ⎝  0   0  z/2⎠
+    */
+    var p = csgeo.csnames[el.args[0]].homog.value;
+    var n = CSNumber.realmult(-0.5, p[2]);
+    var zero = CSNumber.zero;
+    var m = List.turnIntoCSList([
+        List.turnIntoCSList([n, zero, p[0]]),
+        List.turnIntoCSList([zero, n, p[1]]),
+        List.turnIntoCSList([zero, zero, CSNumber.neg(n)])
+    ]);
+    m = List.normalizeMax(m);
+    el.matrix = m;
+    el.dualMatrix = List.transpose(m);
+};
+
+// Define a reflective transformation given a line
+geoOps.TrReflectionL = {};
+geoOps.TrReflectionL.kind = "Tr";
+geoOps.TrReflectionL.signature = ["L"];
+geoOps.TrReflectionL.updatePosition = function(el) {
+    /*
+        Build this matrix when l is [x, y, z]:
+
+        ⎛(x^2-y^2)/2     x*y         x*z    ⎞
+        ⎜    x*y    -(x^2-y^2)/2     y*z    ⎟
+        ⎝     0           0     -(x^2+y^2)/2⎠
+    */
+    var mult = CSNumber.mult,
+        realmult = CSNumber.realmult,
+        zero = CSNumber.zero,
+        l = csgeo.csnames[el.args[0]].homog.value,
+        x = l[0],
+        y = l[1],
+        z = l[2],
+        xx = mult(x, x),
+        yy = mult(y, y),
+        pm = realmult(-0.5, CSNumber.sub(xx, yy)),
+        txy = mult(x, y),
+        m = List.turnIntoCSList([
+            List.turnIntoCSList([CSNumber.neg(pm), txy, mult(x, z)]),
+            List.turnIntoCSList([txy, pm, mult(y, z)]),
+            List.turnIntoCSList([zero, zero, realmult(-0.5, CSNumber.add(xx, yy))])
+        ]);
+    m = List.normalizeMax(m);
+    el.matrix = m;
+    el.dualMatrix = List.transpose(m);
+};
+
+// Define a reflective transformation given a segment
+geoOps.TrReflectionS = {};
+geoOps.TrReflectionS.kind = "Tr";
+geoOps.TrReflectionS.signature = ["S"];
+geoOps.TrReflectionS.updatePosition = geoOps.TrReflectionL.updatePosition;
+
+// Define a reflective transformation given a circle (not a general conic)
+geoOps.TrReflectionC = {};
+geoOps.TrReflectionC.kind = "Rc";
+geoOps.TrReflectionC.signature = ["C"];
+geoOps.TrReflectionC.updatePosition = function(el) {
+    var m1 = csgeo.csnames[(el.args[0])].matrix;
+    if (m1.usage !== "Circle") {
+        console.log("reflection in general conics is not defined");
+        el.sclRsq = CSNumber.zero;
+        el.matrix = List.fund;
+    } else {
+        var add = CSNumber.add;
+        var sub = CSNumber.sub;
+        var mult = CSNumber.mult;
+        var m1r3 = m1.value[2].value;
+        var nx1 = m1r3[0];
+        var ny1 = m1r3[1];
+        var zz1 = m1r3[2];
+        var z1 = m1.value[0].value[0];
+        el.sclRsq = CSNumber.sub(add(mult(nx1, nx1), mult(ny1, ny1)), mult(z1, zz1));
+    }
+    el.dualMatrix = el.matrix = m1;
+}
+
+geoOps._helper.ReflectC = function(Tr, m2) {
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var mult = CSNumber.mult;
+    var scalmult = List.scalmult;
+    var m1 = Tr.matrix;
+    var z1 = m1.value[0].value[0];
+    var m1r3 = m1.value[2].value;
+    var nx1 = m1r3[0];
+    var ny1 = m1r3[1];
+    var zz1 = m1r3[2];
+    var z2 = m2.value[0].value[0];
+    var m2r3 = m2.value[2].value;
+    var nx2 = m2r3[0];
+    var ny2 = m2r3[1];
+    var zz2 = m2r3[2];
+    var u = sub(CSNumber.realmult(2, add(mult(nx1, nx2), mult(ny1, ny2))), add(mult(z1, zz2), mult(z2, zz1)));
+    return General.withUsage(List.normalizeMax(List.sub(scalmult(u, m1), scalmult(Tr.sclRsq, m2))), "Circle");
+};
+
+// Reflect a circle (not a general conic) in a circle
+geoOps.ReflectCC = {};
+geoOps.ReflectCC.kind = "C";
+geoOps.ReflectCC.signature = ["Rc", "C"];
+geoOps.ReflectCC.updatePosition = function(el) {
+    var cir = csgeo.csnames[(el.args[1])];
+    if (cir.matrix.usage !== "Circle") {
+        console.log("reflecting general conics in circles is not defined");
+        el.matrix = General.withUsage(List.fund, "Circle");
+    } else {
+        el.matrix = geoOps._helper.ReflectC(csgeo.csnames[(el.args[0])], cir.matrix);
+    }
+};
+
+// Reflect a line in a circle
+geoOps.ReflectCL = {};
+geoOps.ReflectCL.kind = "C";
+geoOps.ReflectCL.signature = ["Rc", "L"];
+geoOps.ReflectCL.updatePosition = function(el) {
+    /*
+        Define the line as this circle matrix when l is [x, y, z]:
+        ⎛  0   0   x ⎞
+        ⎜  0   0   y ⎟
+        ⎝  x   y  2*z⎠
+    */
+    var z = CSNumber.zero;
+    var l = csgeo.csnames[(el.args[1])].homog.value;
+    var c = geoOps._helper.buildConicMatrix([z, z, z, l[0], l[1], CSNumber.realmult(2, l[2])]);
+    el.matrix = geoOps._helper.ReflectC(csgeo.csnames[(el.args[0])], c);
+};
+
+geoOps._helper.ReflectCP = function(p, Tr) {
+    var m1 = Tr.matrix;
+    var m1r3 = m1.value[2].value;
+    var center = List.turnIntoCSList([m1r3[0], m1r3[1], CSNumber.neg(m1.value[0].value[0])]);
+    var cc = List.cross;
+    // Returns intersection of polar of p and line thru center and p
+    return List.normalizeMax(cc(List.productMV(m1, p), cc(center, p)));
+};
+
+// Reflect a point in a circle
+geoOps.ReflectCP = {};
+geoOps.ReflectCP.kind = "P";
+geoOps.ReflectCP.signature = ["Rc", "P"];
+geoOps.ReflectCP.updatePosition = function(el) {
+    el.homog = General.withUsage(
+        geoOps._helper.ReflectCP(csgeo.csnames[(el.args[1])].homog,
+            csgeo.csnames[(el.args[0])]), "Point");
+};
+
+// Reflect an arc in a circle
+geoOps.ReflectCArc = {};
+geoOps.ReflectCArc.kind = "C";
+geoOps.ReflectCArc.signature = ["Rc", "C"];
+geoOps.ReflectCArc.updatePosition = function(el) {
+    var t = csgeo.csnames[(el.args[0])];
+    var Arc = csgeo.csnames[(el.args[1])];
+
+    var a1 = Arc.startPoint;
+    var a2 = Arc.viaPoint;
+    var a3 = Arc.endPoint;
+
+    var b1 = geoOps._helper.ReflectCP(a1, t);
+    var b2 = geoOps._helper.ReflectCP(a2, t);
+    var b3 = geoOps._helper.ReflectCP(a3, t);
+    el.startPoint = b1;
+    el.viaPoint = b2;
+    el.endPoint = b3;
+
+    el.isArc = true;
+    el.matrix = geoOps._helper.ReflectC(t, Arc.matrix);
+};
+
+// Reflect a segment in a circle
+geoOps.ReflectCS = {};
+geoOps.ReflectCS.kind = "C";
+geoOps.ReflectCS.signature = ["Rc", "S"];
+geoOps.ReflectCS.updatePosition = function(el) {
+    var t = csgeo.csnames[(el.args[0])];
+    var Segment = csgeo.csnames[(el.args[1])];
+
+    var a1 = Segment.startpos;
+    var a3 = Segment.endpos;
+    var a2 = geoOps._helper.midpoint(a1, a3);
+
+    var b1 = geoOps._helper.ReflectCP(a1, t);
+    var b2 = geoOps._helper.ReflectCP(a2, t);
+    var b3 = geoOps._helper.ReflectCP(a3, t);
+    el.startPoint = b1;
+    el.viaPoint = b2;
+    el.endPoint = b3;
+
+    el.isArc = true;
+    /*
+        Define the line as this circle matrix when l is [x, y, z]:
+        ⎛  0   0   x ⎞
+        ⎜  0   0   y ⎟
+        ⎝  x   y  2*z⎠
+    */
+    var z = CSNumber.zero;
+    var l = Segment.homog.value;
+    var c = geoOps._helper.buildConicMatrix([z, z, z, l[0], l[1], CSNumber.realmult(2, l[2])]);
+    el.matrix = geoOps._helper.ReflectC(t, c);
+};
+
 geoOps.TrInverse = {};
 geoOps.TrInverse.kind = "Tr";
 geoOps.TrInverse.signature = ["Tr"];
@@ -2217,8 +2430,20 @@ geoMacros.Transform = function(el) {
     var map = {
         Tr: "Transform",
         Mt: "TrMoebius"
+        Rc: "ReflectC"
     };
     var op = map[tr.kind] + akind;
+    if (geoOps.hasOwnProperty(op)) {
+        el.type = op;
+        return [el];
+    } else {
+        console.log(op + " not implemented yet");
+        return [];
+    }
+};
+
+geoMacros.TrReflection = function(el) {
+    var op = "TrReflection" + csgeo.csnames[el.args[0]].kind;
     if (geoOps.hasOwnProperty(op)) {
         el.type = op;
         return [el];
