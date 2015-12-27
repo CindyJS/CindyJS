@@ -2429,7 +2429,7 @@ geoMacros.Transform = function(el) {
 
     var map = {
         Tr: "Transform",
-        Mt: "TrMoebius"
+        Mt: "TrMoebius",
         Rc: "ReflectC"
     };
     var op = map[tr.kind] + akind;
