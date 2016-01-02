@@ -209,7 +209,7 @@ typeinference["re"] = [
 ];
 //- ("conjugate", 1, OpConjugate.class); @done(2015-03-17)
 typeinference["conjugate"] = [
-  complex_fun$2
+  complex_fun$1
 ];
 //- ("im", 1, OpIm.class); @done(2015-03-17)
 typeinference["im"] = [

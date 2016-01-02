@@ -254,6 +254,10 @@ webgltr["re"] = [
   [complex2float_fun$1, getReal]
 ];
 
+webgltr["conjugate"] = [
+  [complex_fun$1, useincludefunction('conjugate')]
+];
+
 webgltr["im"] = [
   [complex2float_fun$1, getImag]
 ];
