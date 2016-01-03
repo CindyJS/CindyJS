@@ -1,9 +1,10 @@
 var webgltype = {}; //which type identifier is used in WebGL to represent our internal type
 
-/** @type {createCindy.pluginApi} */
-var api;
 
+//var api;
 
+var myfunctions;
+var precompileDone;
 /**
  * Creates new term that is casted to toType
  * assert that fromType is Type of term
@@ -45,6 +46,8 @@ var variables = {}; //list of names of variables
 var assigments = {}; // variables -> list of assigments in the form of {expr: expression, fun: in which functions this expression will be eval}
 var T = {}; //T: scope -> (variables -> types)
 
+//var isuniform = {}; //dict:[scope,expression]->{true}
+//var uvariable = {}; //dict:[scope,expression]->{uvariable}
 
 /**
  * computes the type of the expr, assuming it is evaluated in the scope of fun.
@@ -85,7 +88,6 @@ function computeType(expr, fun) { //expression, current function
     //number is real
     if((expr['value']['real']|0) === expr['value']['real']) return type.int; //MAX.Int?
     return type.float;
-    //TODO: other primitives like color, point...
   } else if(expr['ctype']==='void') {
     return type.voidt;
   } else if(expr['ctype']==='field') {
@@ -111,9 +113,9 @@ function computeType(expr, fun) { //expression, current function
  */
 //@TODO: Consider stack of variables. e.g. repeat(3, i, e = 32+i);
 function getType(expr, fun) { //expression, current function
-  return computeType(expr, fun);
+  //return computeType(expr, fun);
   /////TODO: update expr["computedType"] in determineVariables
-  if(!expr.hasOwnProperty("computedType"))
+  if(!precompileDone || !expr.hasOwnProperty("computedType"))
     expr["computedType"] = computeType(expr, fun);
   return expr["computedType"];
 }
@@ -197,6 +199,8 @@ function determineVariables(expr) {
       }
     }
   }
+  console.log(variables);
+  console.log(assigments);
 }
 
 /**
@@ -227,7 +231,8 @@ function determineTypes() {
           if(!T.hasOwnProperty(s)) T[s] = {};
           
           T[s][v] = newtype;
-          console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is "+ typeToString(oldtype) + "/" + typeToString(othertype)+") because of expr " + JSON.stringify(e));
+          //console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is "+ typeToString(oldtype) + "/" + typeToString(othertype)+") because of expr " + JSON.stringify(e));
+          console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is "+ typeToString(oldtype) + "/" + typeToString(othertype)+")");
           
           //console.log(T);
           changed = true; 
@@ -247,7 +252,7 @@ var uniforms = {};
 function determineUniforms(expr) {
   uniforms = {};
   
-  var variableDependendsOnPixel = {'': {'#': true} };  //functionname -> dict of variables being dependent on #
+  var variableDependendsOnPixel = {'': {'#': true} };  //scope -> dict of variables being dependent on #
 
   //@rethink: include variables that change during plot call(like running variables in loops) as well.
   //variableDependendsOnPixel -> varyingVariable
@@ -428,13 +433,19 @@ function determineUniformTypes() {
 
 
 function precompile(expr) {
+  precompileDone = false;
+  //console.log(JSON.stringify(api.getMyfunctions()));
+  //myfunctions = JSON.parse(JSON.stringify(api.getMyfunctions()));
+  myfunctions = clone(api.getMyfunctions());
+  //console.log(JSON.stringify(myfunctions));
   determineVariables(expr);
   determineUniforms(expr);
   determineUniformTypes();
   
   determineTypes();
-  console.log("DETERMINED TYPES");
-  console.log(JSON.stringify(T));
+  precompileDone = true;
+  //console.log("DETERMINED TYPES");
+  //console.log(JSON.stringify(T));
 }
 
 /*
@@ -592,8 +603,8 @@ function compile(expr, scope, generateTerm) {
     //    return (generateTerm ? {term: '', type: voidt, code: ''} : {code: ''});
       let signature = matchSignature(fname, currenttype);
       if(signature === nada) {
-        console.error("Could not find a signature for " + fname + '(' + currenttype.map(typeToString).join(', ') + ').');
-        console.error("Returning empty-code");
+        console.error("Could not find a signature for " + fname + '(' + currenttype.map(typeToString).join(', ') + ').\n' +
+                      "Returning empty code");
         return (generateTerm ? {term: '', type: type.voidt, code: ''} : {code: ''});
       }
       //console.log("got the following signature for function " + fname + " and types " + currenttype);
@@ -797,8 +808,3 @@ function generateColorPlotProgram(expr) { //TODO add arguments for #
   console.log(code);
   return {code: code, uniforms: utmp};
 }
-
-//TODO:
-//write inclusion function: auch mit automatischen Einbinden von Abhaengigen Funktionen!
-//
-

@@ -1,5 +1,33 @@
 var nada;
-var myfunctions;
+//var myfunctions;
+
+/** @type {createCindy.pluginApi} */
+var api;
+
+
+function clone(obj) {
+  var copy;
+  // Handle the 3 simple types, and null or undefined
+  if (null == obj || "object" != typeof obj) return obj;
+ // Handle Object
+    // Handle Array
+    if (obj instanceof Array) {
+        copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = clone(obj[i]);
+        }
+        return copy;
+    }
+    
+  if (obj instanceof Object) {
+      copy = {};
+      for (var attr in obj) {
+          if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+      }
+      return copy;
+  }
+}
+
 
 createCindy.registerPlugin(1, "CindyGL", function(capi) {
 
@@ -8,11 +36,11 @@ createCindy.registerPlugin(1, "CindyGL", function(capi) {
 
   api = capi;
   nada = api.nada;
-  myfunctions = api.getMyfunctions();
+  //myfunctions = api.getMyfunctions();
   
   api.defineFunction("compile",1,function(args, modifs) {
     let expr = args[0];
-    let code = generateColorPlotProgram(expr);
+    let code = generateColorPlotProgram(clone(expr));
     console.log(code);
     return {
       ctype: 'string',

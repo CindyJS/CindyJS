@@ -115,6 +115,9 @@ var typeinference = {};
 //console.log(typeinference);
 
 function matchSignature(functionname, args) { //args is a list of types
+  //if(args.indexOf(nada) != -1) { //skip matching signatures if one input type is unknown yet
+  //  return nada;
+  //}
   for(let idx in typeinference[functionname]) { //return first matching entry
     var s = typeinference[functionname][idx];
     var match = (args.length === s.args.length); //boolean, do they probably match?
@@ -161,7 +164,7 @@ function matchSignature(functionname, args) { //args is a list of types
       return si;
     }
   }
-  console.error('No Signature found for ' + functionname + '(' + args.map(typeToString).join(', ') + ')(' + JSON.stringify(args) + ')');
+  //console.error('No Signature found for ' + functionname + '(' + args.map(typeToString).join(', ') + ')(' + JSON.stringify(args) + ')');
   return nada;
 }
 
