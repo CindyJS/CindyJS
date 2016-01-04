@@ -1,3 +1,7 @@
+/**
+ * Contains global variables that are used everywhere
+ */
+
 /** @type {boolean} */
 var isinitialized = false;
 
@@ -6,6 +10,24 @@ var glcanvas;
 
 /** @type {WebGLRenderingContext} */
 var gl;
+
+var nada;
+//var myfunctions;
+
+/** @type {createCindy.pluginApi} */
+var api;
+
+var webgltype = {}; //which type identifier is used in WebGL to represent our internal type
+
+var webgltr = {};
+
+const oo = 1<<30; //infinity, but oo + oo should be > 0, hence not MaxInt
+
+
+var subtypegen = {}; //generators of subtype relations
+var subtype = []; //distance matrix 
+var next = []; //next[i][j]=k if i->k->...->j is shortest path of primitive subtype inclusions -> helps to compute subtype-inclusion sequence
+
 
 function initGLIfRequired() {
   if(isinitialized)

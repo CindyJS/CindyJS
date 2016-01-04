@@ -1,1 +1,1 @@
-cat TypeInference.js Types.js ../../../build/js/cglres.js Init.js IncludeFunctions.js compileToWebGL.js WebGLImplementation.js ShaderProgram.js Renderer.js testing.js | node --use_strict --harmony 
+cat General.js Init.js TypeInference.js Types.js ../../../build/js/cglres.js IncludeFunctions.js compileToWebGL.js WebGLImplementation.js ShaderProgram.js Renderer.js testing.js | node --use_strict --harmony 

@@ -5,7 +5,7 @@
 function Renderer(api, expression, sizeX, sizeY) {
   this.api = api;
   
-  let cpg = generateColorPlotProgram(expression);
+  let cpg = generateColorPlotProgram(clone(expression));
   this.cpguniforms = cpg.uniforms;
   this.fragmentShaderCode =
     cgl_resources["standardFragmentHeader"] + cpg.code;

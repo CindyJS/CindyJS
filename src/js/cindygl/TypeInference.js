@@ -1,16 +1,3 @@
-const oo = 1<<30; //infinity, but oo + oo should be > 0, hence not MaxInt
-
-
-//////
-
-var subtypegen = {}; //generators of subtype relations
-var subtype = []; //distance matrix 
-var next = []; //next[i][j]=k if i->k->...->j is shortest path of primitive subtype inclusions -> helps to compute subtype-inclusion sequence
-
-function isprimitive(a) {
-  return (typeof(a)==='number');
-}
-
 function issubtypeof(a, b) { //TODO: what if b is template?
   if(a===b) return true;
   
@@ -166,23 +153,4 @@ function matchSignature(functionname, args) { //args is a list of types
   }
   //console.error('No Signature found for ' + functionname + '(' + args.map(typeToString).join(', ') + ')(' + JSON.stringify(args) + ')');
   return nada;
-}
-
-/** 
- * are two given signatures equal?
- */
-function signaturesAreEqual(a, b) {
-  if(a===b) return true;
-  if(isprimitive(a) || isprimitive(b)) return a===b;
-  
-  for(let key in a) if(a.hasOwnProperty(key)) {
-    if(!b.hasOwnProperty(key)) return false;
-    if(!signaturesAreEqual(a[key], b[key])) return false;
-  }
-  
-  for(let key in b) if(b.hasOwnProperty(key)) {
-    if(!a.hasOwnProperty(key)) return false;
-  }
-  
-  return true;
 }

@@ -297,8 +297,8 @@ module.exports = function build(settings, task) {
     var cgl_str_res = glob.sync("src/str/cindygl/*.glsl");
     
     var cgl_mods = [
-        "ShaderProgram",
         "Init",
+        "General",
         "ShaderProgram",
         "Renderer",
         "Plugin",
