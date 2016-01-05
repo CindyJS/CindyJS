@@ -14,6 +14,7 @@ const type = { //assert all indices are different
   mat2: 11,
   mat3: 12,
   mat4: 13,
+  string: 14 //only needed for type detection of imagergb
  // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
  // nonnegativefloat: 15 //@TODO: negative float...
 }
@@ -34,6 +35,7 @@ function typeToString(t) {
   'float[2,2]',
   'float[3,3]',
   'float[4,4]',
+  'string'
   //'positive float',
   //'non-negative float'
   ];
@@ -738,7 +740,9 @@ typeinference["genList"] = [
   //@TODO: real lists in glsl
 ];
 
-
+typeinference["imagergb"] = [
+  {args: [type.vec2, type.vec2, type.string, type.vec2], res: type.vec3}
+];
 
 Object.freeze(typeinference);
 

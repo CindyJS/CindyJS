@@ -4,8 +4,9 @@
  */
 function Renderer(api, expression, sizeX, sizeY) {
   this.api = api;
-  
-  let cpg = generateColorPlotProgram(clone(expression));
+
+  let cb = new CodeBuilder(api);
+  let cpg = cb.generateColorPlotProgram(expression);
   this.cpguniforms = cpg.uniforms;
   this.fragmentShaderCode =
     cgl_resources["standardFragmentHeader"] + cpg.code;

@@ -1,15 +1,15 @@
-createCindy.registerPlugin(1, "CindyGL", function(capi) {
+createCindy.registerPlugin(1, "CindyGL", function(api) {
 
   //////////////////////////////////////////////////////////////////////
   // API bindings
-
-  api = capi;
   nada = api.nada;
+  
   //myfunctions = api.getMyfunctions();
   
   api.defineFunction("compile",1,function(args, modifs) {
     let expr = args[0];
-    let code = generateColorPlotProgram(clone(expr));
+    let cb = new CodeBuilder(api);
+    let code = cb.generateColorPlotProgram(expr);
     console.log(code);
     return {
       ctype: 'string',
@@ -55,7 +55,8 @@ createCindy.registerPlugin(1, "CindyGL", function(capi) {
     
     
     var localcontext = localcanvas.getContext('2d');
-    //TODO: clear canvas first... usefull if rendered with alpha...
+    localcontext.clearRect(0, 0, cw, ch);
+    //@TODO5: copy from texture to glcanvas... Or render directly
     localcontext.drawImage(glcanvas, 0, 0);
     
 

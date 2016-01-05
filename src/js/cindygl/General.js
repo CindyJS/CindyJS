@@ -99,6 +99,18 @@ function guessTypeOfValue(tval) {
       if(ctype === type.vec4 && l.length == 4) return type.mat4;
       //TODO: do all other lists and other matrices
     }
+  } else if(tval['ctype'] === "string") {
+    return type.string;
   }
   return nada;
 }
+
+
+var helpercnt = 0;
+
+function generateUniqueHelperString() {
+  helpercnt++;
+  return '_helper' + helpercnt;
+}
+
+

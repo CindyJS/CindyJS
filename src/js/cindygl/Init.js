@@ -14,9 +14,6 @@ var gl;
 var nada;
 //var myfunctions;
 
-/** @type {createCindy.pluginApi} */
-var api;
-
 var webgltype = {}; //which type identifier is used in WebGL to represent our internal type
 
 var webgltr = {};

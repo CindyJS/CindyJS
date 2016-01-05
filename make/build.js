@@ -305,7 +305,7 @@ module.exports = function build(settings, task) {
         "TypeInference",
         "Types",
         "IncludeFunctions",
-        "compileToWebGL",
+        "CodeBuilder",
         "WebGLImplementation"
     ];
 
