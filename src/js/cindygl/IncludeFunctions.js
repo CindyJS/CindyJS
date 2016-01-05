@@ -1,12 +1,7 @@
-/** @dict @type {Object} */
-var hasbeenincluded = {};
-/**  @type {Array.<string>} */
-var includedfunctions = [];
-
-
 var requires = {};
 
 function includefunction(name, codebuilder) { //includes functions and does DFS on all required functions.
+  //console.log("Runnining includefunction with args" + JSON.stringify([name,codebuilder]));
   if(codebuilder.hasbeenincluded.hasOwnProperty(name)) return;
   codebuilder.hasbeenincluded[name] = true; 
   for(let i in requires[name]) {

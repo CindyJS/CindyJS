@@ -11,6 +11,7 @@ function CodeBuilder(api) {
   this.hasbeencompiled = {};
   this.compiledfunctions = [];
   this.precompileDone = false;
+  this.myfunctions = {};
   this.api = api;
 }
 
@@ -54,7 +55,7 @@ CodeBuilder.prototype.api;
  * assert that fromType is Type of term
  * assert that fromType is a subtype of toType
  */
-function castType(term, fromType, toType) {
+CodeBuilder.prototype.castType = function(term, fromType, toType) {
   if (!issubtypeof(fromType, toType)) {
     console.error(typeToString(fromType) + " is no subtype of " + typeToString(toType));
     return term;
@@ -67,11 +68,11 @@ function castType(term, fromType, toType) {
     if (!inclusionfunction.hasOwnProperty(fromType) || !inclusionfunction[fromType].hasOwnProperty(nextType)) {
       console.error("CindyGL: No type-inclusion function for " + typeToString(fromType) + " to " +
         typeToString(nextType) + " found. \n Using identity");
-      return castType(term, nextType, toType);
+      return this.castType(term, nextType, toType);
     }
-    return castType((inclusionfunction[fromType][nextType])(term), nextType, toType);
+    return this.castType((inclusionfunction[fromType][nextType])(term, this), nextType, toType);
   }
-}
+};
 
 
 
@@ -132,7 +133,7 @@ CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current 
     return signature.res;
   }
   return nada;
-}
+};
 
 /**
  * gets the type of the expr, trying to use cached results. Otherwise it will call computeType
@@ -144,7 +145,7 @@ CodeBuilder.prototype.getType = function(expr, fun) { //expression, current func
   if (!this.precompileDone || !expr.hasOwnProperty("computedType"))
     expr["computedType"] = this.computeType(expr, fun);
   return expr["computedType"];
-}
+};
 
 /**
  * finds the occuring variables, saves them to this.variables and its occuring assigments to this.assigments
@@ -231,7 +232,7 @@ CodeBuilder.prototype.determineVariables = function(expr) {
       }
     }
   }
-}
+};
 
 /**
  * Computes the types of all occuring this.variables and user defined functions. These types are choosen such that the lca of all this.assigments
@@ -272,7 +273,7 @@ CodeBuilder.prototype.determineTypes = function() {
           }
         }
   }
-}
+};
 
 
 
@@ -427,7 +428,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
   computeUniforms(expr, '');
   this.uniforms = uniforms;
   console.log(this.uniforms);
-}
+};
 
 
 CodeBuilder.prototype.determineUniformTypes = function() {
@@ -447,7 +448,7 @@ CodeBuilder.prototype.determineUniformTypes = function() {
     //TODO: list...    TODO: why are points evaluated to ints?
     console.log("guessed type " + typeToString(this.uniforms[uname].type) + " for " + JSON.stringify(this.uniforms[uname].expr['name']) + " because it has value " + JSON.stringify(tval['value']));
   }
-}
+};
 
 
 CodeBuilder.prototype.precompile = function(expr) {
@@ -464,7 +465,7 @@ CodeBuilder.prototype.precompile = function(expr) {
   this.precompileDone = true;
   //console.log("DETERMINED TYPES");
   //console.log(JSON.stringify(this.T));
-}
+};
 
 /*
 function getScope(varname, currentscope) {
@@ -480,9 +481,14 @@ function getScope(varname, currentscope) {
  */
 
 CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
+  var self = this;
   if (expr['isuniform']) {
     let uname = expr['uvariable'];
-    let type = this.uniforms[uname].type;
+    
+    let uniforms = this.uniforms;
+    
+    
+    let type = uniforms[uname].type;
     return generateTerm ? {
       code: '',
       term: uname,
@@ -532,7 +538,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
     let varname = expr['args'][0]['name']
       //console.log(scope);
       //console.log(varname);
-    let t = varname + ' = ' + castType(r.term, r.type, this.getType(expr['args'][0], scope));
+    let t = varname + ' = ' + this.castType(r.term, r.type, this.getType(expr['args'][0], scope));
     if (generateTerm) {
       return {
         code: r.code,
@@ -595,7 +601,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
     code += 'if(' + cond.term + ') {\n';
     code += ifbranch.code;
     if (generateTerm) {
-      code += ansvar + ' = ' + castType(ifbranch.term, ifbranch.type, termtype) + ';\n';
+      code += ansvar + ' = ' + this.castType(ifbranch.term, ifbranch.type, termtype) + ';\n';
     }
 
     if (expr['oper'] === "if$3") {
@@ -603,7 +609,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
       code += '} else {\n';
       code += elsebranch.code;
       if (generateTerm) {
-        code += ansvar + ' = ' + castType(elsebranch.term, elsebranch.type, termtype) + ';\n';
+        code += ansvar + ' = ' + this.castType(elsebranch.term, elsebranch.type, termtype) + ';\n';
       }
     }
     code += '}\n';
@@ -619,8 +625,9 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
     let fname = expr['oper'];
 
     //console.log(JSON.stringify(expr));
+    //console.log("this:" + JSON.stringify(this));
     
-    let r = expr['args'].map(e => this.compile(e, scope, true)); //recursion on all arguments
+    let r = expr['args'].map(e => self.compile(e, scope, true)); //recursion on all arguments
 
     let termGenerator;
 
@@ -660,7 +667,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
           code: ''
         });
       }
-      //console.log("got the following signature for function " + fname + " and types " + currenttype);
+      //console.log("got the following signature for function " + fname + " and types " + typeToString(currenttype));
       //console.log(signature);
       targettype = signature.args;
       restype = signature.res;
@@ -672,7 +679,10 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
         }
       }
       if (termGenerator === nada) {
-        console.error("There is no webgl-implementation for " + fname + '(' + signature.args.map(typeToString).join(', ') + ').');
+        console.error("There is no webgl-implementation for " + fname + '(' + signature.args.map(typeToString).join(', ') + ').\n' +
+          'defualt: Try glsl-function with same name'
+        );
+        termGenerator = (args => fname + '(' + args.join(', ') + ')');
       }
     }
 
@@ -680,11 +690,11 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
     let argterms = new Array(r.length);
     for (let i in r) {
       code += r[i].code;
-      argterms[i] = castType(r[i].term, currenttype[i], targettype[i]);
+      argterms[i] = this.castType(r[i].term, currenttype[i], targettype[i]);
 
     }
 
-
+    //console.log("Running Term Generator with arguments" + JSON.stringify(argterms) + " and this: " + JSON.stringify(this));
     let term = termGenerator(argterms, this);
     //console.log(termGenerator);
     //console.log(termGenerator([1]));
@@ -750,11 +760,11 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
   } else if (expr['ctype'] === 'field') {
     //TODO: finish implementation once cindyJS got implementation
     let termtype = this.getType(expr, scope);
-    let term = expr['obj']['name'];
-
+    let term = self.compile(expr['obj'], scope, true).term;
+    /*
     if (term === '#') {
       term = 'cgl_pixel';
-    }
+    }*/
     term += '.' + expr['key']; //for .x .y. z .r .g .b things are same in cindyjs and glsl
     return (generateTerm ? {
       term: term,
@@ -766,7 +776,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
   }
   console.error("dont know how to this.compile " + JSON.stringify(expr));
 
-}
+};
 
 
 
@@ -774,10 +784,11 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
 CodeBuilder.prototype.usemyfunction = function(fname) {
   this.compileFunction(fname, this.myfunctions[fname]['arglist'].length);
   return usefunction(fname);
-}
+};
 
 
 CodeBuilder.prototype.compileFunction = function(fname, nargs) {
+  var self = this;
   if (this.hasbeencompiled.hasOwnProperty(fname)) return;
   this.hasbeencompiled[fname] = true; //visited
 
@@ -790,41 +801,41 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
   let isvoid = (webgltype[this.T[''][fname]] === type.voidt);
 
   let code = webgltype[this.T[''][fname]] /*TODO: mach das schoener*/ + ' ' + getPlainName(fname) +
-    '(' + vars.map(varname => webgltype[this.T[fname][varname]] + ' ' + varname).join(', ') + ')' + '{\n';
+    '(' + vars.map(varname => webgltype[self.T[fname][varname]] + ' ' + varname).join(', ') + ')' + '{\n';
   for (let i in this.variables[fname]) {
     let doprint = true;
     let varname = this.variables[fname][i];
     for (let j in vars) doprint &= (varname !== vars[j]);
     if (doprint) code += webgltype[this.T[fname][varname]] + ' ' + varname + ';\n';
   }
-  let r = this.compile(m.body, fname, !isvoid);
+  let r = self.compile(m.body, fname, !isvoid);
   code += r.code;
   //console.log(r);
   if (!isvoid)
-    code += 'return ' + castType(r.term, r.type, this.T[''][fname]) + ';\n'; //TODO REPL 
+    code += 'return ' + this.castType(r.term, r.type, this.T[''][fname]) + ';\n'; //TODO REPL 
   code += '}\n';
 
 
   this.compiledfunctions.push(code);
-}
+};
 
 CodeBuilder.prototype.generateListOfUniforms = function() {
   let ans = [];
   for (let uname in this.uniforms)
     ans.push('uniform ' + webgltype[this.uniforms[uname].type] + ' ' + uname + ';');
   return ans.join('\n');
-}
+};
 
 CodeBuilder.prototype.generateHeaderOfCompiledFunctions = function() {
   return this.compiledfunctions.join('\n');
-}
+};
 
   
 CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
   expr = clone(expr);
   this.precompile(expr); //determine this.variables, types etc.
   let r = this.compile(expr, '', true);
-  let colorterm = castType(r.term, r.type, type.color);
+  let colorterm = this.castType(r.term, r.type, type.color);
 
   if (!issubtypeof(r.type, type.color)) {
     console.error("expression does not generate a color");
@@ -851,5 +862,5 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     code: code,
     uniforms: this.uniforms
   };
-}
+};
 

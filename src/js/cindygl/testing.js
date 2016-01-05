@@ -5,6 +5,8 @@ var api = {};
 api.evaluateAndVal = function(k) {
   if(k['ctype']==='number') return k;
   if(k['ctype']==='string') return k;
+  if(k['ctype']==='function' && k['name']==='genList')
+    return {"ctype":'list', "value":[1,2,]};
   
   
   return {"ctype":"number","value":{"real":.23,"imag":0.}}; //float number
@@ -60,13 +62,22 @@ var ifexpr = {"ctype":"function","oper":"if$3","args":[{"ctype":"infix","oper":"
 var toyexprwithoutvars = {"ctype":"function","oper":"sqrt$1","args":[{"ctype":"function","oper":"sin$1","args":[{"ctype":"infix","oper":"+","args":[{"ctype":"number","value":{"real":0,"imag":0}},{"ctype":"number","value":{"real":3,"imag":0}}]}],"modifs":{}}],"modifs":{}};
 
 
+api['asasaa'] = 'test';
 var cb = new CodeBuilder(api);
+console.log(JSON.stringify(cb));
 
 console.log("==========0================");
 console.log(typeToString(cb.getType({"ctype":"string","value":"julia"})));
 
 console.log("==========A================");
+
+console.log(typeToString(cb.getType(
+{"ctype":"function","oper":"imagergb$4","args":[{"ctype":"function","oper":"genList","args":[{"ctype":"number","value":{"real":2,"imag":0}},{"ctype":"number","value":{"real":2,"imag":0}}],"modifs":{}},{"ctype":"function","oper":"genList","args":[{"ctype":"number","value":{"real":2,"imag":0}},{"ctype":"number","value":{"real":2,"imag":0}}],"modifs":{}},{"ctype":"string","value":"julia"},{"ctype":"function","oper":"genList","args":[{"ctype":"number","value":{"real":1,"imag":0}},{"ctype":"number","value":{"real":1,"imag":0}}],"modifs":{}}],"modifs":{}}
+)));
+
+console.log("==========A1================");
 /*
+ * 
 console.log(typeToString(getType(toyexprwithoutvars,'')));
 
 console.log(typeToString(getType({"ctype":"number","value":{"real":10,"imag":0}},'')));
@@ -174,4 +185,21 @@ cb.generateColorPlotProgram(
 console.log("==============");
 cb.generateColorPlotProgram(
   {"ctype":"string","value":"julia"}
+);
+
+console.log("==========A0================");
+cb = new CodeBuilder(api);
+cb.generateColorPlotProgram(
+{"ctype":"function","oper":"imagergb$4","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},{"ctype":"string","value":"julia"},{"ctype":"function","oper":"genList","args":[{"ctype":"field","obj":{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},"key":"x"},{"ctype":"field","obj":{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},"key":"y"}],"modifs":{}}],"modifs":{}}
+);
+
+console.log(typeToString(cb.getType(
+{"ctype":"function","oper":"imagergb$4","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},{"ctype":"string","value":"julia"},{"ctype":"function","oper":"genList","args":[{"ctype":"field","obj":{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},"key":"x"},{"ctype":"field","obj":{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"},"key":"y"}],"modifs":{}}],"modifs":{}}
+)));
+
+console.log("=========2016-01-05===============");
+
+cb = new CodeBuilder(api);
+cb.generateColorPlotProgram(
+{"ctype":"infix","oper":";","args":[{"ctype":"infix","oper":"=","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"z"},{"ctype":"function","oper":"complex$1","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"#"}],"modifs":{}}]},{"ctype":"function","oper":"if$3","args":[{"ctype":"infix","oper":"<","args":[{"ctype":"function","oper":"abs$1","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"z"}],"modifs":{}},{"ctype":"number","value":{"real":2,"imag":0}}]},{"ctype":"infix","oper":";","args":[{"ctype":"infix","oper":"=","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"point"},{"ctype":"function","oper":"genList","args":[{"ctype":"function","oper":"re$1","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"z"}],"modifs":{}},{"ctype":"function","oper":"im$1","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"z"}],"modifs":{}}],"modifs":{}}]},{"ctype":"infix","oper":"+","args":[{"ctype":"field","obj":{"ctype":"function","oper":"imagergb$4","args":[{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"point"},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"point"},{"ctype":"string","value":"julia"},{"ctype":"variable","stack":[{"ctype":"undefined"}],"name":"point"}],"modifs":{}},"key":"r"},{"value":{"real":0.05,"imag":0},"ctype":"number"}]}]},{"value":{"real":1,"imag":0},"ctype":"number"}],"modifs":{}}]}
 );
