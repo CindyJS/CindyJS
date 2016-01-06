@@ -62,7 +62,7 @@ subtypegen[type.vec4] = [type.color]; //color with alpha
 //subtypegen[type.nonegativefloat] = [type.positivefloat];
 //subtypegen[type.positivefloat] = [type.float];
 
-//subtypegen[type.point] = [type.vec2, type.vec3]; //in R^2 or in RP^3
+//subtypegen[type.point] = [type.vec2]; //in R^2 or in RP^3
 
 
 
@@ -342,6 +342,9 @@ typeinference["&"] = [
 ];
 
 //- operators.put("%", 350);   //Logisches Oder @done(2015-03-17)
+typeinference["%"] = [
+  bool_fun$2
+];
 //- operators.put("!=", 350);  //Ungleich @done(2015-03-17)
 //- operators.put("~!=", 350);  //ungefhr Ungleich @done(2015-03-17)
 //- operators.put("..", 350);  //Aufzählung 1..5=(1,2,3,4,5) @done(2015-03-17)

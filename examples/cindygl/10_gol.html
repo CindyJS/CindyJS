@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Game of Life on GPU</h1>
+    
+               
+    <script id="csinit" type="cindyscript">
+      use("CindyGL");
+      
+      
+      L = [0, 0]; //bottom left corner
+      R = [128, 0]; //bottom right corner
+      
+      createimage("gol", 128, 128);
+      
+      colorplot(L, R, "gol", floor(sin(abs(#-(32,32))+cos(#.y*3+#.x*4))+1));
+    </script>
+    
+    <script id="csdraw" type="cindyscript">
+      
+      get(x, y) :=  imagergb([0,0], [128,0], "gol", (mod(x,128),mod(y,128))).r; //Tourus world
+      
+      newstate(x, y) := (
+        regional(number);
+        number =
+          get(x-1, y+1) + get(x, y+1) + get(x+1, y+1) +
+          get(x-1, y) +                 get(x+1, y) +
+          get(x-1, y-1) + get(x, y-1) + get(x+1, y-1);
+        if(get(x,y)==1, //lives
+          if((number < 2) % (number > 3), 0, 1)
+        , //is dead
+          if(number==3, 1, 0)
+        )
+      );
+      
+      colorplot(L, R, "gol", newstate(#.x, #.y));
+      drawimage(L, R, "gol");
+    </script>
+
+    <canvas  id="CSCanvas"></canvas>
+    <script type="text/javascript">
+        
+        var gslp=[];
+        cdy = createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    autoplay: true,
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 512,
+                      height: 512,
+                      transform: [ { visibleRect: [0, 0, 128, 128] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

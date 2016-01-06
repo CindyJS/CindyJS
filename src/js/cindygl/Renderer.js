@@ -189,7 +189,7 @@ Renderer.prototype.loadTextures = function() {
 }
 
 /**
- * runs shaderProgram on gl
+ * runs shaderProgram on gl. Will render to texture in canvaswrapper
  */
 Renderer.prototype.render = function(a, b, c) {
   glcanvas.width  = this.sizeX;
@@ -200,13 +200,12 @@ Renderer.prototype.render = function(a, b, c) {
   this.setTransformMatrix(a, b, c);
   this.setUniforms();
   this.loadTextures();
-  //TODO: set uniforms for textureRead (ratio of other local canvae)
   
   this.canvaswrapper.bindFramebuffer(); 
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   gl.flush(); //renders stuff to canvaswrapper
   
-  /*
+  /* render on glcanvas
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.flush();

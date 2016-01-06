@@ -200,6 +200,15 @@ webgltr['im'] = [
   [complex2float_fun$1, useincludefunction('imagc')]
 ];
 
+webgltr["floor"] = [
+  [{args: [type.float], res: type.int}, (a=>'int(floor('+a+'))')]
+  //TODO{args: [type.complex], res: type.complex}
+];
+//- ("ceil", 1, OpCeil.class); @done(2015-03-17)
+webgltr["ceil"] = [
+  [{args: [type.float], res: type.int}, (a=>'int(ceil('+a+'))')]
+  //TODO{args: [type.complex], res: type.complex}
+];
 
 webgltr["mod"] = [
   [int_fun$2, useinfix('%')],
@@ -272,6 +281,10 @@ webgltr["genList"] = [
 
 webgltr["&"] = [
   [bool_fun$2, useinfix('&&')]
+];
+
+webgltr["%"] = [
+  [bool_fun$2, useinfix('||')]
 ];
 
 

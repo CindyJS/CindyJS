@@ -64,7 +64,7 @@ CodeBuilder.prototype.texturereaders;
  */
 CodeBuilder.prototype.castType = function(term, fromType, toType) {
   if (!issubtypeof(fromType, toType)) {
-    console.error(typeToString(fromType) + " is no subtype of " + typeToString(toType));
+    console.error(typeToString(fromType) + " is no subtype of " + typeToString(toType) + " (trying to cast the term " + term + ")");
     return term;
   }
 
@@ -271,8 +271,7 @@ CodeBuilder.prototype.determineTypes = function() {
               if (!this.T.hasOwnProperty(s)) this.T[s] = {};
 
               this.T[s][v] = newtype;
-              //console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is "+ typeToString(oldtype) + "/" + typeToString(othertype)+") because of expr " + JSON.stringify(e));
-              console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + "(oltype/othertype is " + typeToString(oldtype) + "/" + typeToString(othertype) + ")");
+              console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + " (oltype/othertype is " + typeToString(oldtype) + "/" + typeToString(othertype) + ")");
 
               //console.log(this.T);
               changed = true;
