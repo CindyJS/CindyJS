@@ -179,7 +179,7 @@ ShaderProgram.prototype.uniformSetter = function(gl, name, info) {
   loc = gl.getUniformLocation(handle, name);
   switch(info.type) {
   case gl.FLOAT:
-    return gl.uniform1fv.bind(gl, loc);
+    return gl.uniform1f.bind(gl, loc);  //gl.uniform1fv
   case gl.FLOAT_VEC2:
     return gl.uniform2fv.bind(gl, loc);
   case gl.FLOAT_VEC3:
@@ -190,7 +190,7 @@ ShaderProgram.prototype.uniformSetter = function(gl, name, info) {
   case gl.INT:
   case gl.SAMPLER_2D:
   case gl.SAMPLER_CUBE:
-    return gl.uniform1iv.bind(gl, loc);
+    return gl.uniform1i.bind(gl, loc); //gl.uniform1iv
   case gl.BOOL_VEC2:
   case gl.INT_VEC2:
     return gl.uniform2iv.bind(gl, loc);

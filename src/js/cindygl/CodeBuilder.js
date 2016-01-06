@@ -13,6 +13,7 @@ function CodeBuilder(api) {
   this.precompileDone = false;
   this.myfunctions = {};
   this.api = api;
+  this.texturereaders = {};
 }
 
 /** @dict @type {Object} */
@@ -31,11 +32,15 @@ CodeBuilder.prototype.precompileDone;
  *@dict @type {Object} */
 CodeBuilder.prototype.variables;
 
-/** @dict @type {Object} */
-CodeBuilder.prototype.assigments; // variables -> list of assigments in the form of {expr: expression, fun: in which functions this expression will be eval}
+/** 
+ * variables -> list of assigments in the form of {expr: expression, fun: in which functions this expression will be eval}
+ * @dict @type {Object} */
+CodeBuilder.prototype.assigments;
 
-/** @dict @type {Object} */
-CodeBuilder.prototype.T; //this.T: scope -> (variables -> types)
+/** 
+ * T: scope -> (variables -> types)
+ * @dict @type {Object} */
+CodeBuilder.prototype.T;
 
 /** @dict @type {Object} */
 CodeBuilder.prototype.uniforms;
@@ -49,6 +54,8 @@ CodeBuilder.prototype.includedfunctions;
 /** @type {createCindy.pluginApi} */
 CodeBuilder.prototype.api;
 
+/** @dict @type {Object} */
+CodeBuilder.prototype.texturereaders;
 
 /**
  * Creates new term that is casted to toType
@@ -481,7 +488,7 @@ function getScope(varname, currentscope) {
  */
 
 CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
-  var self = this;
+  var self = this; //for some reason recursion on this does not work, hence we create a copy; see http://stackoverflow.com/questions/18994712/recursive-call-within-prototype-function
   if (expr['isuniform']) {
     let uname = expr['uvariable'];
     
@@ -829,10 +836,10 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
 CodeBuilder.prototype.generateHeaderOfCompiledFunctions = function() {
   return this.compiledfunctions.join('\n');
 };
-
   
 CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
-  expr = clone(expr);
+  expr = clone(expr); //then we can write dirty things on expr...
+  
   this.precompile(expr); //determine this.variables, types etc.
   let r = this.compile(expr, '', true);
   let colorterm = this.castType(r.term, r.type, type.color);
@@ -841,6 +848,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     console.error("expression does not generate a color");
   }
   let code = this.generateListOfUniforms();
+  code += generateHeaderOfTextureReaders(this);
   code += generateHeaderOfIncludedFunctions(this);
 
   for (let i in this.variables['']) { //global this.variables
@@ -860,7 +868,8 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
   console.log(code);
   return {
     code: code,
-    uniforms: this.uniforms
+    uniforms: this.uniforms,
+    requiredtextures: Object.keys(this.texturereaders)
   };
 };
 

@@ -13,10 +13,6 @@ function includefunction(name, codebuilder) { //includes functions and does DFS 
 }
 
 function generateHeaderOfIncludedFunctions(codebuilder) {
-  /*var h = '';
-  for(let f in includedfunctions) {
-    h += includedfunctions[f] + '\n';
-  }*/
   return codebuilder.includedfunctions.join('\n');
 }
 

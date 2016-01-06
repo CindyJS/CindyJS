@@ -285,9 +285,10 @@ webgltr["&"] = [
 
 webgltr["imagergb"] = [
   [{args: [type.vec2, type.vec2, type.string, type.vec2], res: type.vec3},
-    function(args) {
+  useimagergb
+   /* function(args) {
       return 'texture2D(' + args[2] + ', computation(uniform_ratioOf' + args[2] + ', ' + args[0] + ', ' + args[1] + ', ' + args[3] +'))';
-    }
+    }*/
   ]
 ];
 

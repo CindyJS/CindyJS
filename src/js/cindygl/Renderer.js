@@ -2,17 +2,20 @@
  * param {TODO} expression for the Code that will be used for rendering
  * @constructor
  */
-function Renderer(api, expression, sizeX, sizeY) {
+function Renderer(api, expression, canvaswrapper) {
   this.api = api;
-
+  this.canvaswrapper = canvaswrapper;
+  
   let cb = new CodeBuilder(api);
   let cpg = cb.generateColorPlotProgram(expression);
   this.cpguniforms = cpg.uniforms;
+  this.requiredtextures = cpg.requiredtextures;
+  
   this.fragmentShaderCode =
     cgl_resources["standardFragmentHeader"] + cpg.code;
   this.vertexShaderCode = cgl_resources["vshader"];
-  this.sizeX = sizeX;
-  this.sizeY = sizeY;
+  this.sizeX = canvaswrapper.sizeX; //TODO: dont copy
+  this.sizeY = canvaswrapper.sizeY;
   this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
   
   /*
@@ -83,6 +86,12 @@ Renderer.prototype.shaderProgram;
 /** @type {createCindy.pluginApi} */
 Renderer.prototype.api;
 
+/** @type {CanvasWrapper} */
+Renderer.prototype.canvaswrapper
+
+
+/** @type {Array.<string>} */
+Renderer.prototype.requiredtextures
 
 
 /**
@@ -162,6 +171,21 @@ Renderer.prototype.setUniforms = function() {
         break;
     }
   }
+};
+
+/**
+ * Activates, loads textures and sets corresponding sampler uniforms
+ */
+Renderer.prototype.loadTextures = function() {
+  for(let t =0; t<this.requiredtextures.length; t++) {
+    gl.activeTexture(gl.TEXTURE0 + t);
+    let tname = this.requiredtextures[t];
+    let cw = canvaswrappers[tname];
+    cw.bindTexture();
+    this.shaderProgram.uniform['_sampler_'+tname](t);
+    this.shaderProgram.uniform['_ratio_'+tname](cw.sizeX/cw.sizeY);
+    this.shaderProgram.uniform['_cropfact_'+tname]([cw.sizeX/cw.sizeXP, cw.sizeY/cw.sizeYP]);
+  }
 }
 
 /**
@@ -175,8 +199,16 @@ Renderer.prototype.render = function(a, b, c) {
 	this.shaderProgram.use(gl);
   this.setTransformMatrix(a, b, c);
   this.setUniforms();
-
+  this.loadTextures();
+  //TODO: set uniforms for textureRead (ratio of other local canvae)
+  
+  this.canvaswrapper.bindFramebuffer(); 
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.flush(); //renders stuff to canvaswrapper
+  
+  /*
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.flush();
+  */
 }

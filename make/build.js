@@ -299,6 +299,7 @@ module.exports = function build(settings, task) {
     var cgl_mods = [
         "Init",
         "General",
+        "CanvasWrapper",
         "ShaderProgram",
         "Renderer",
         "Plugin",
@@ -306,6 +307,7 @@ module.exports = function build(settings, task) {
         "Types",
         "IncludeFunctions",
         "CodeBuilder",
+        "TextureReader",
         "WebGLImplementation"
     ];
 

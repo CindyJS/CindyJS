@@ -11,6 +11,12 @@ var glcanvas;
 /** @type {WebGLRenderingContext} */
 var gl;
 
+/**
+ * Dictoionary of all used canvaswrappers
+ * @dict @type {Object}
+ */
+var canvaswrappers = {};
+
 var nada;
 //var myfunctions;
 

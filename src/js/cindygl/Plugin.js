@@ -38,10 +38,14 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var cw = localcanvas.width;
     var ch = localcanvas.height;
     
-    if(!prog.iscompiled) {
+    if(!canvaswrappers.hasOwnProperty(name.value)) {
+      canvaswrappers[name.value] = new CanvasWrapper(localcanvas);
+    }
+    
+    if(!prog.iscompiled) { //Note we are adding attributes to the parsed cindyJS-Code tree
       //console.log("Program is not compiled. So we will do that");
       prog.iscompiled = true;
-      prog.renderer = new Renderer(api, prog, cw, ch);
+      prog.renderer = new Renderer(api, prog, canvaswrappers[name.value]);
     } /*else {
       console.log("Program has been compiled; we will use that compiled code.");
     }*/
@@ -53,12 +57,14 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     
     prog.renderer.render(a, b, c);
     
+    canvaswrappers[name.value].copyTextureToCanvas();
     
+    /*
     var localcontext = localcanvas.getContext('2d');
     localcontext.clearRect(0, 0, cw, ch);
     //@TODO5: copy from texture to glcanvas... Or render directly
     localcontext.drawImage(glcanvas, 0, 0);
-    
+    */
 
     return nada;
   });
