@@ -98,6 +98,16 @@ function lineDefault(el) {
 function segmentDefault(el) {
     if (el.overhang === undefined)
         el.overhang = defaultAppearance.overhangSeg;
+    if (el.arrow)
+        el.arrow = General.bool(el.arrow);
+    if (el.arrowsize)
+        el.arrowsize = CSNumber.real(el.arrowsize);
+    if (el.arrowposition)
+        el.arrowposition = CSNumber.real(el.arrowposition);
+    if (el.arrowshape)
+        el.arrowshape = General.string(el.arrowshape);
+    if (el.arrowsides)
+        el.arrowsides = General.string(el.arrowsides);
     lineDefault(el);
     el.clip = General.string("end");
 }
