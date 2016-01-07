@@ -6,6 +6,9 @@
  * The main purpose of this file is to reinstall all node modules if
  * the package.json file got modified.  It does so with no dependency
  * on any packages except those shipped with node.
+ *
+ * If you are looking for an overview over the build system,
+ * read the README file in this directory or look at build.js.
  */
 
 var fs = require("fs");
