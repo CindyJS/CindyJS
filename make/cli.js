@@ -42,6 +42,7 @@ function main(args) {
 
     var tasks = new Tasks(settings);
     buildRules(settings, tasks.task); // Execute task definitions
+    tasks.complete();
 
     // Now run the selected tasks
     process.nextTick(make.bind(null, settings, tasks, tasksToRun, doClean));

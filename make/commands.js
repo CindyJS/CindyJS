@@ -12,6 +12,7 @@ var touch = require("touch");
 var unzip = require("unzip");
 
 var BuildError = require("./BuildError");
+var WholeLineStream = require("./WholeLineStream");
 
 /**
  * Adds a job for running a node module or other command.
@@ -28,9 +29,13 @@ exports.cmd = function(command) {
     this.addJob(function() {
         return Q.Promise(function(resolve, reject) {
             task.log(cmdline);
-            var opts = { stdio: "inherit" };
+            var opts = { stdio: ["ignore", "pipe", "pipe"] };
             if (!command) command = process.argv[0]; // node
             var child = cp.spawn(command, args, opts);
+            var stream = new WholeLineStream(task.prefix);
+            stream.pipe(process.stdout);
+            child.stdout.pipe(stream);
+            child.stderr.pipe(stream);
             child.on("error", function(err) {
                 if (err.code === "ENOENT") {
                     reject(new BuildError(

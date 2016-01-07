@@ -5,6 +5,7 @@
  * Tasks are identified by name.
  */
 
+var chalk = require("chalk");
 var Q = require("q");
 
 var BuildError = require("./BuildError");
@@ -33,6 +34,31 @@ module.exports = function Tasks(settings) {
         tasks[name] = res;
         currentTask = null;
         return res;
+    };
+
+    /* Called when all tasks have been defined.
+     */
+    this.complete = function() {
+        if (settings.get("logprefix") === "true") {
+            var name;
+            var len = 0;
+            for (name in tasks) {
+                if (tasks.hasOwnProperty(name)) {
+                    name = tasks[name].abbr || name;
+                    if (len < name.length)
+                        len = name.length;
+                }
+            }
+            for (name in tasks) {
+                if (tasks.hasOwnProperty(name)) {
+                    var task = tasks[name];
+                    name = task.abbr || name;
+                    while (name.length < len)
+                        name += " ";
+                    task.prefix = chalk.blue("[" + name + "]") + " ";
+                }
+            }
+        }
     };
 
     /* Retrieve a task by name. Thows an error if no match is found.

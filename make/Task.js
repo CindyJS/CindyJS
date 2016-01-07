@@ -29,6 +29,7 @@ function Task(settings, tasks, name, deps) {
     this.inputs = [];
     this.mySettings = {};
     this.jobs = [];
+    this.prefix = "";
 }
 
 /* Adopt all commands as methods.
@@ -48,8 +49,16 @@ Task.prototype.setting = function(key) {
 };
 
 Task.prototype.log = function() {
-    if (this.settings.get("verbose") !== "")
-        console.log.apply(console, arguments);
+    if (this.settings.get("verbose") !== "") {
+        var args = Array.prototype.slice.call(arguments);
+        if (this.prefix !== "") {
+            if (args.length === 1 && typeof args[0] === "string")
+                args[0] = this.prefix + args[0];
+            else
+                args.unshift(this.prefix);
+        }
+        console.log.apply(console, args);
+    }
 };
 
 /* Add a new job. The provided function will be called when the task
