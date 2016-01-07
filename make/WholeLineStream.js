@@ -6,6 +6,7 @@ var util = require("util");
 var Transform = stream.Transform;
 
 var NL = 10;
+var CR = 13;
 
 function WholeLineStream(prefix) {
     Transform.call(this);
@@ -23,7 +24,11 @@ WholeLineStream.prototype._transform = function(chunk, encoding, done) {
     }
     var bol = 0, eol = 0;
     while (eol < chunk.length) {
-        if (chunk[eol++] === NL) {
+        var chr = chunk[eol++];
+        if (chr === CR) { // \r erases the current line, mocha does that
+            bol = eol;
+        }
+        if (chr === NL) {
             if (this.prefix)
                 this.push(this.prefix);
             this.push(chunk.slice(bol, eol));
