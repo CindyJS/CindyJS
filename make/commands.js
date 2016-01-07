@@ -31,7 +31,14 @@ exports.cmd = function(command) {
             var opts = { stdio: "inherit" };
             if (!command) command = process.argv[0]; // node
             var child = cp.spawn(command, args, opts);
-            child.on("error", reject);
+            child.on("error", function(err) {
+                if (err.code === "ENOENT") {
+                    reject(new BuildError(
+                        "Command " + JSON.stringify(command) + " not found"));
+                } else {
+                    reject(err);
+                }
+            });
             child.on("exit", function(code, signal) {
                 if (code === 0) {
                     resolve(true);
