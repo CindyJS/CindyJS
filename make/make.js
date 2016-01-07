@@ -6,6 +6,7 @@
  * and execute requested tasks.
  */
 
+var chalk = require("chalk");
 var fs = require("fs");
 var path = require("path");
 var Q = require("q");
@@ -38,7 +39,7 @@ module.exports = function make(settings, tasks, tasksToRun, doClean) {
     })
     .then(function(ran) {
         if (ran.indexOf(true) === -1 && settings.get("verbose") !== "") {
-            console.log("Nothing to do, everything up to date");
+            console.log(chalk.green("Nothing to do, everything up to date"));
         }
         return true;
     })
@@ -58,7 +59,10 @@ module.exports = function make(settings, tasks, tasksToRun, doClean) {
     .then(function(success) {
         process.exit(success ? 0 : 1);
     }, function(err) {
-        console.error(err.stack);
+        var str = err.toString(), stack = err.stack;
+        if (stack.substr(0, str.length) === str)
+            stack = stack.substr(str.length);
+        console.error(chalk.bold.red(str) + stack);
         process.exit(2);
     })
     .done();

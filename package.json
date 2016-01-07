@@ -7,6 +7,7 @@
     "test": "tests"
   },
   "devDependencies": {
+    "chalk": "^1.1.1",
     "concat-with-sourcemaps": "^1.0.4",
     "expect": "^1.9.0",
     "glob": "^6.0.1",

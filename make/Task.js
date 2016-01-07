@@ -8,10 +8,11 @@
  * of commands defined in commands.js.
  */
 
+var chalk = require("chalk");
+var fs = require("fs");
+var path = require("path");
 var Q = require("q");
 var qfs = require("q-io/fs");
-var path = require("path");
-var fs = require("fs");
 
 var commands = require("./commands");
 
@@ -135,7 +136,9 @@ Task.prototype.mustRun = function() {
     var task = this;
     var log = function(){};
     if (this.settings.get("debug"))
-        log = function(msg) { console.log(task.name + " " + msg); };
+        log = function(msg) {
+            console.log(chalk.gray(task.name + " " + msg));
+        };
     if (this.outputs.length === 0 && this.jobs.length !== 0) {
         // There are no outputs, so this task runs for its side effects.
         // This avoids having to declare all such tasks as PHONY.
