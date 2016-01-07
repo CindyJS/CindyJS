@@ -637,17 +637,19 @@ geoOps.CircleMr.updatePosition = function(el) {
     var r = getStateComplexNumber();
     putStateComplexNumber(r); // copy param
     var m = csgeo.csnames[(el.args[0])].homog;
-    var rabs2 = CSNumber.abs2(r).value.real;
-    var rs = m.value[2]; // Already scaled when r/r=1 is scaled by m
-    if (rabs2 > 1) {
-        // Like homog [1=r/r, 0, 1/r]; Scale m by 1/r; rs already scaled
-        // Note: CSNumber.inv(CSNumber.real(Infinity)) produces NaN - i*NaN
-        m = List.scalmult(isFinite(rabs2) ? CSNumber.inv(r) : CSNumber.zero, m);
-    } else {
-        // Like homog [r, 0, 1]; Scale r by m.value[2]; m already scaled by 1
-        rs = CSNumber.mult(rs, r);
-    }
-    var matrix = geoOps._helper.ScaledCircleMrr(m, CSNumber.mult(rs, rs));
+    /*
+    The circle's radius value may take on values from zero to infinity.
+    However since the squared radius value appears in the circle's matrix,
+    a radius value of 2E+154 or more could also end up as an infinite value.
+    The use of List.normalizeMax everywhere limits coordinate values of m to
+    no more 1.0, so scaling the radius value by m's z-coordinate first will
+    not make the radius value any larger. Then by squaring the radius value,
+    any infinity value produced can be caught here.
+    */
+    var sr = CSNumber.mult(m.value[2], r);
+    var sr2 = CSNumber.mult(sr, sr);
+    if (!CSNumber._helper.isFinite(sr2)) return List.fund;
+    var matrix = geoOps._helper.ScaledCircleMrr(m, sr2);
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
 };
@@ -656,6 +658,14 @@ geoOps.CircleMr.stateSize = 2;
 
 // M is center and rr is radius squared; both must be pre-scaled
 geoOps._helper.ScaledCircleMrr = function(M, rr) {
+    /*
+    Given M as the circle's homogeneous center point coordinates [x, y, z] and
+    rr as the circle's radius value squared scaled by M's z-coordinate squared,
+    build the following matrix:
+        ⎛   z*z      0      -z*x   ⎞
+        ⎜    0      z*z     -z*y   ⎟
+        ⎝  -z*x    -z*y  x*x+y*y-rr⎠
+    */
     var x = M.value[0];
     var y = M.value[1];
     var mz = CSNumber.neg(M.value[2]); // minus z
