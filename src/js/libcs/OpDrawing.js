@@ -400,7 +400,7 @@ eval_helper.drawconic = function(conicMatrix, modifs, isNotDegenCircle) {
         return;
     Render2D.preDrawCurve();
 
-    var eps = 1e-14; //JRG Hab ih von 1e-16 runtergesetzt
+    var eps = 1e-16; //JRG Hab ih von 1e-16 runtergesetzt
     var mat = List.normalizeMax(conicMatrix);
     var origmat = mat;
 
