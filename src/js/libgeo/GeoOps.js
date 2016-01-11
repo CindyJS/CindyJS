@@ -641,14 +641,14 @@ geoOps.CircleMr.updatePosition = function(el) {
     The circle's radius value may take on values from zero to infinity.
     However since the squared radius value appears in the circle's matrix,
     a radius value of 2E+154 or more could also end up as an infinite value.
-    The use of List.normalizeMax everywhere limits coordinate values of m to
-    no more 1.0, so scaling the radius value by m's z-coordinate first will
-    not make the radius value any larger. Then by squaring the radius value,
-    any infinity value produced can be caught here.
+    Using List.normalizeMax elsewhere will limit the coordinate values of m
+    to no more than 1.0, so that scaling the radius value by m's z-coordinate
+    first here will not make the radius value any larger. Then by squaring the
+    radius value, any infinity value produced can be caught here.
     */
     var sr = CSNumber.mult(m.value[2], r);
     var sr2 = CSNumber.mult(sr, sr);
-    if (!CSNumber._helper.isFinite(sr2)) return List.fund;
+    if (!CSNumber._helper.isFinite(sr2) && !CSNumber._helper.isNaN(sr2)) return List.fund;
     var matrix = geoOps._helper.ScaledCircleMrr(m, sr2);
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
@@ -656,7 +656,6 @@ geoOps.CircleMr.updatePosition = function(el) {
 geoOps.CircleMr.stateSize = 2;
 
 
-// M is center and rr is radius squared; both must be pre-scaled
 geoOps._helper.ScaledCircleMrr = function(M, rr) {
     /*
     Given M as the circle's homogeneous center point coordinates [x, y, z] and
