@@ -10,7 +10,8 @@ webgltype[type.mat2] = 'mat2';
 webgltype[type.mat3] = 'mat3';
 webgltype[type.mat4] = 'mat4';
 webgltype[type.color] = 'vec4';
-webgltype[type.point] = 'vec3' //use homogenious coordinates
+webgltype[type.point] = 'vec3'; //use homogenious coordinates
+webgltype[type.coordinate2d] = 'vec2';
 
 
 Object.freeze(webgltype);
@@ -87,6 +88,9 @@ inclusionfunction[type.point][type.vec2] = useincludefunction('dehomogenize');
 inclusionfunction[type.point][type.vec3] = identity;
 
 
+inclusionfunction[type.point][type.coordinate2d] = useincludefunction('dehomogenize');
+inclusionfunction[type.vec2][type.coordinate2d] = identity;
+inclusionfunction[type.complex][type.coordinate2d] = identity;
 
 Object.freeze(inclusionfunction);
 
@@ -297,7 +301,7 @@ webgltr["%"] = [
 
 
 webgltr["imagergb"] = [
-  [{args: [type.vec2, type.vec2, type.string, type.vec2], res: type.vec3},
+  [{args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec3},
   useimagergb
    /* function(args) {
       return 'texture2D(' + args[2] + ', computation(uniform_ratioOf' + args[2] + ', ' + args[0] + ', ' + args[1] + ', ' + args[3] +'))';

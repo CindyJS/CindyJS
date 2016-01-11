@@ -28,9 +28,9 @@
       f3=map(A,D,C,D);
       
       colorplot(L, R, "ifs",
-        imagergb((f1*L.homog).xy, (f1*R.homog).xy, "ifs", #) +
-        imagergb((f2*L.homog).xy, (f2*R.homog).xy, "ifs", #) +
-        imagergb((f3*L.homog).xy, (f3*R.homog).xy, "ifs", #) +
+        imagergb(f1*L.homog, f1*R.homog, "ifs", #) +
+        imagergb(f2*L.homog, f2*R.homog, "ifs", #) +
+        imagergb(f3*L.homog, f3*R.homog, "ifs", #) +
         if(abs(#)<2, 0.01*(1,2,3), (0,0,0))
       );
       drawimage(L, R, "ifs");

@@ -10,11 +10,12 @@ const type = { //assert all indices are different
   vec3: 7,
   vec4: 8,
   color: 9, //color is the color type of glsl. CindyJS-colors are vec3
-  point: 10, 
+  point: 10, //is never used
   mat2: 11,
   mat3: 12,
   mat4: 13,
-  string: 14 //only needed for type detection of imagergb
+  string: 14, //only needed for type detection of imagergb
+  coordinate2d: 15 //for access in on textures
  // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
  // nonnegativefloat: 15 //@TODO: negative float...
 }
@@ -35,7 +36,8 @@ function typeToString(t) {
   'float[2,2]',
   'float[3,3]',
   'float[4,4]',
-  'string'
+  'string',
+  '2D-Coordinate',
   //'positive float',
   //'non-negative float'
   ];
@@ -64,6 +66,9 @@ subtypegen[type.vec4] = [type.color]; //color with alpha
 
 //subtypegen[type.point] = [type.vec2]; //in R^2 or in RP^3
 
+subtypegen[type.point] = [type.coordinate2d]; //homogenious coordinates
+subtypegen[type.vec2] = [type.coordinate2d];
+subtypegen[type.complex] = [type.coordinate2d];
 
 
 /*
@@ -744,7 +749,7 @@ typeinference["genList"] = [
 ];
 
 typeinference["imagergb"] = [
-  {args: [type.vec2, type.vec2, type.string, type.vec2], res: type.vec3}
+  {args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec3}
 ];
 
 Object.freeze(typeinference);
