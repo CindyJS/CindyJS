@@ -156,8 +156,7 @@ evaluator.drawimage$2 = function(args, modifs) {
 
         csctx.translate(-xx, -yy);
         csctx.translate(-w / 2, -h / 2);
-
-
+    
         csctx.drawImage(images[img.value], xx, yy);
         csctx.globalAlpha = 1;
 

@@ -135,6 +135,11 @@ Renderer.prototype.setUniforms = function() {
         setter([val['value']['real'], val['value']['imag']]);
         break;
       case type.bool:
+        if(val['value'])
+          setter(1);
+        else
+          setter(0);
+        break;
       case type.int:
       case type.float:
         setter([val['value']['real']]);

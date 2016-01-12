@@ -188,6 +188,7 @@ typeinference["mult"] = [
 let rvectorspaces = [type.complex, type.vec2, type.vec3, type.vec4];
 rvectorspaces.forEach(function(t){
   typeinference["mult"].push({args: [type.float, t], res: t});
+  typeinference["mult"].push({args: [t, type.float], res: t});
 });
 typeinference["mult"].push(vec22float_fun$2); //dot products
 typeinference["mult"].push(vec32float_fun$2);
@@ -513,7 +514,7 @@ typeinference["xor"] = [
 //- ("fillplot", 2, OpFillPlot2.class);not errored @rethink
 
 //- ("plot", 2, OpPlot2.class);not errored @done(2015-03-17)
-//- ("type.colorplot", 3, OpColorPlot.class);not errored
+//- ("colorplot", 3, OpColorPlot.class);not errored
 //- ("drawtext", 2, OpDrawString.class); @done(2015-03-17)
 //- ("fontfamilies", 0, OpFontFamilies.class);
 //- ("drawtable", 2, OpDrawTable.class);

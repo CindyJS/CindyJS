@@ -2,7 +2,7 @@ function smallestPowerOfTwoGreaterOrEqual(a){
   let ans = 1;
   while(ans<a) ans <<= 1;
   return ans;
-}
+};
  
  /**
  * @constructor
@@ -19,7 +19,7 @@ function CanvasWrapper(canvas) {
     var pixels = [];
 		for ( var i = 0; i < this.sizeXP; i++) {
 			for ( var j = 0; j < this.sizeYP; j++) {
-				pixels.push(0, 0, 0, 255); //TODO: nicht RGBA-texturen
+				pixels.push(0, 0, 0, 255);
 			}
 		}
 
@@ -63,7 +63,7 @@ function CanvasWrapper(canvas) {
 	gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
 	gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
   
-}
+};
   
 /** @type {Array.<WebGLTexture>} */
 CanvasWrapper.prototype.textures;
@@ -94,8 +94,8 @@ CanvasWrapper.prototype.shaderProgram;
  * runs a gl.bindTexture(  gl.TEXTURE_2D,...) for sampling purposes
  */
 CanvasWrapper.prototype.bindTexture = function() { 
-  gl.bindTexture(  gl.TEXTURE_2D, this.textures[this.it]);
-}
+  gl.bindTexture(gl.TEXTURE_2D, this.textures[this.it]);
+};
 
 /**
  * runs a gl.bindFramebuffer (required before rendering) and updates 
@@ -103,7 +103,7 @@ CanvasWrapper.prototype.bindTexture = function() {
 CanvasWrapper.prototype.bindFramebuffer = function() {
   gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it^1]);
   this.it ^= 1;
-}
+};
 
 CanvasWrapper.prototype.copyTextureToCanvas = function() {
   //TODO: render texture this.textures[this.it] on glcanvas
@@ -128,4 +128,22 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
   let context = this.canvas.getContext('2d');
   context.clearRect(0, 0, this.sizeX, this.sizeY);
   context.drawImage(glcanvas, 0, 0);
-}
+};
+
+/**
+ * sets pixel at absolute coordinate x and y to color; both on canvas and on this.textures[this.it]
+ * 
+ */
+CanvasWrapper.prototype.setPixel = function(x, y, color) {
+    this.bindTexture();
+    
+    let color255 = [color[0]*255, color[1]*255, color[2]*255, 255];
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, 1, 1,
+                     gl.RGBA, gl.UNSIGNED_BYTE,
+                     new Uint8Array(color255));
+    
+    let context = this.canvas.getContext('2d');
+    let id = context.createImageData(1,1); // only do this once per page
+    id.data.d = color255;
+    context.putImageData( id, x, y );
+};

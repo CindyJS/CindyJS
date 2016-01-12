@@ -23,7 +23,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     
     var a = api.eval_helper.extractPoint(api.evaluateAndVal(args[0]));
     var b = api.eval_helper.extractPoint(api.evaluateAndVal(args[1]));
-    var name = api.evaluate(args[2]);
+    var name = api.evaluateAndVal(args[2]);
     var prog = args[3];
     
     if (!a.ok || !b.ok || name.ctype !== 'string') {
@@ -66,6 +66,20 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     localcontext.drawImage(glcanvas, 0, 0);
     */
 
+    return nada;
+  });
+  
+  api.defineFunction("setpixel", 4, function(args, modifs) {
+
+    var name = coerce.toString(api.evaluateAndVal(args[0]));
+    var x = coerce.toInt(api.evaluateAndVal(args[1]));
+    var y = coerce.toInt(api.evaluateAndVal(args[2]));
+
+    var color = coerce.toColor(api.evaluateAndVal(args[3]));
+    
+    if(isFinite(x) && isFinite(y) && name && canvaswrappers.hasOwnProperty(name) && color) {
+      canvaswrappers[name].setPixel(x, y, color);
+    }
     return nada;
   });
   

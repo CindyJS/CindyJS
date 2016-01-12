@@ -117,6 +117,11 @@ webgltr['cos'] = [
   [complex_fun$1, useincludefunction('cosc')]
 ];
 
+webgltr['tan'] = [
+  [float_fun$1,   usefunction('tan')  ],
+  [complex_fun$1, useincludefunction('tanc')]
+];
+
 webgltr['exp'] = [
   [float_fun$1,   usefunction('exp')  ],
   [complex_fun$1, useincludefunction('expc')]
@@ -183,6 +188,7 @@ webgltr["mult"] = [
 
 rvectorspaces.forEach(function(t){
   webgltr["mult"].push([{args: [type.float, t], res: t}, useinfix('*')]);
+  webgltr["mult"].push([{args: [t, type.float], res: t}, useinfix('*')]);
 });
 
 webgltr['*'] = webgltr['mult'];

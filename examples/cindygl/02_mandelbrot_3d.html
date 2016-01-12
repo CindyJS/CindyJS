@@ -55,8 +55,8 @@
           gray(.7-.7*timetoescape/43-.3*light)
         )
       );
-      createimage("mandel", 500, 500);
-      createimage("julia",  500, 500);
+      createimage("mandel", 1024, 1024);
+      createimage("julia",  1024, 1024);
     </script>
     <script id="csdraw" type="cindyscript">
       fm = map(m0, m1, A, B);
@@ -99,8 +99,8 @@
                     autoplay: true,
                     ports: [{
                       id: "CSCanvas",
-                      width: 1000,
-                      height: 500,
+                      width: 1024,
+                      height: 512,
                       transform: [ { visibleRect: [ -2.5, -2.5, 7.5, 2.5 ] } ]
                     }]
                     });

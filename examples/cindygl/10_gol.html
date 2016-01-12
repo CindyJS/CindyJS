@@ -21,13 +21,23 @@
       R = [128, 0]; //bottom right corner
       
       createimage("gol", 128, 128);
+      createimage("biggol", 512, 512);
       
-      colorplot(L, R, "gol", floor(sin(abs(#-(32,32))+cos(#.y*3+#.x*4))+1));
+      animate = true;
+      colorplot(L, R, "gol", floor(sin(abs(#-(32,32))+cos(#.y*3+#.x*4))+1)); //random stuff as starting image
     </script>
     
+    <script id="csmousedown" type="cindyscript">
+      animate = false;
+    </script>
+    <script id="csmouseup" type="cindyscript">
+      animate = true;
+    </script>
+
     <script id="csdraw" type="cindyscript">
+      if(!animate, setpixel("gol", floor(mouse().x), floor(mouse().y), (1,1,1)));
       
-      get(x, y) :=  imagergb([0,0], [128,0], "gol", (mod(x,128),mod(y,128))).r; //Tourus world
+      get(x, y) :=  imagergb((0,0), (128,0), "gol", (mod(x,128),mod(y,128))).r; //Tourus world
       
       newstate(x, y) := (
         regional(number);
@@ -35,15 +45,21 @@
           get(x-1, y+1) + get(x, y+1) + get(x+1, y+1) +
           get(x-1, y) +                 get(x+1, y) +
           get(x-1, y-1) + get(x, y-1) + get(x+1, y-1);
-        if(get(x,y)==1, //lives
-          if((number < 2) % (number > 3), 0, 1)
-        , //is dead
+        if(get(x,y)==1,
+        
+          //if the cell lives then it will die if it has less than 2 neigbours or more than 3 neighbours
+          if((number < 2) % (number > 3), 0, 1),
+          
+          //if cell was dead then 3 are required to be born
           if(number==3, 1, 0)
         )
       );
       
-      colorplot(L, R, "gol", newstate(#.x, #.y));
-      drawimage(L, R, "gol");
+      if(animate, colorplot(L, R, "gol", newstate(#.x, #.y)));
+      
+      //copy to high resolution texture
+      colorplot(L, R, "biggol", imagergb(L, R, "gol", (floor(#.x)+.5, floor(#.y)+.5)));
+      drawimage(L, R, "biggol");
     </script>
 
     <canvas  id="CSCanvas"></canvas>
