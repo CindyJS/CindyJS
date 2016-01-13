@@ -84,6 +84,7 @@ const bool_fun$1          = {args: [type.bool],                  res: type.bool}
 const bool_fun$2          = {args: [type.bool, type.bool],       res: type.bool};
 const int_fun$1           = {args: [type.int],                   res: type.int};
 const int_fun$2           = {args: [type.int, type.int],         res: type.int};
+const float_fun$0         = {args: [],                           res: type.float};
 const float_fun$1         = {args: [type.float],                 res: type.float};
 const float_fun$2         = {args: [type.float, type.float],     res: type.float};
 const complex_fun$1       = {args: [type.complex],               res: type.complex};
@@ -246,6 +247,7 @@ typeinference["mod"] = [
 ];
 //- ("random", 1, OpRandom.class); @done(2015-03-17)
 typeinference["random"] = [
+  float_fun$0,
   float_fun$1,
   complex_fun$1
 ];

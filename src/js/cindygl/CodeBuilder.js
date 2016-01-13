@@ -330,7 +330,12 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         return expr["dependsOnPixel"] = true;
       }
     }
-
+    
+    //our random function is dependent on pixel!
+    if (expr['ctype'] === 'function' && getPlainName(expr['oper']) === 'random') {
+      return expr["dependsOnPixel"] = true;      
+    }
+    
     //Oh yes, it also might be a user-defined function!
     if (expr['ctype'] === 'function' && myfunctions.hasOwnProperty(expr['oper'])) {
       let rfun = expr['oper'];

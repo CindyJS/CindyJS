@@ -226,6 +226,12 @@ webgltr["mod"] = [
   //complex_fun$2 TODO
 ];
 
+webgltr["random"] = [
+  [float_fun$0, useincludefunction('random')]
+  //float_fun$1,
+  //complex_fun$1
+];
+
 
 webgltr['arctan2'] = [
   [float_fun$2, usefunction('atan')],

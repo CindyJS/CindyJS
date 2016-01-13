@@ -116,7 +116,8 @@ Renderer.prototype.setTransformMatrix = function(a, b, c) {
     b.y - a.y, c.y - a.y, a.y,
     0,         0,         1
   ];
-  this.shaderProgram.uniform["transformMatrix"](transpose3(m));
+  if(this.shaderProgram.uniform.hasOwnProperty('transformMatrix'))
+    this.shaderProgram.uniform["transformMatrix"](transpose3(m));
 }
 
 
@@ -176,6 +177,9 @@ Renderer.prototype.setUniforms = function() {
         break;
     }
   }
+  if(this.shaderProgram.uniform.hasOwnProperty('rnd_'))
+    this.shaderProgram.uniform['rnd_'](Math.random());
+  
 };
 
 /**
