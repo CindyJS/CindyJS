@@ -24,7 +24,7 @@
       createimage("biggol", 512, 512);
       
       animate = true;
-      colorplot(L, R, "gol", floor(sin(abs(#-(32,32))+cos(#.y*3+#.x*4))+1)); //random stuff as starting image
+      colorplot(L, R, "gol", if(random()>.6,1,0)); //random stuff as starting image
     </script>
     
     <script id="csmousedown" type="cindyscript">
@@ -32,6 +32,12 @@
     </script>
     <script id="csmouseup" type="cindyscript">
       animate = true;
+    </script>
+    
+    <script id="cskeydown" type="cindyscript">
+      print("pressed key" + keycode());
+      if(keycode()==32, colorplot(L, R, "gol", 0)); //space -> black
+      if(keycode()==82, colorplot(L, R, "gol", if(random()>.6,1,0))); //R -> random image
     </script>
 
     <script id="csdraw" type="cindyscript">
@@ -61,14 +67,26 @@
       colorplot(L, R, "biggol", imagergb(L, R, "gol", (floor(#.x)+.5, floor(#.y)+.5)));
       drawimage(L, R, "biggol");
     </script>
+    
+   <list>
+     <li>
+    Click on canvas to interact!
+     </li>
+      <li>
+    Press R to reset to some random configuration.
+      </li>
+      <li>
+    Press SPACE to reset to blank configuration.
+      </li>
+    </list>
+  <canvas id="CSCanvas" style="position:relative; top:10px;"></canvas>
+    
 
-    <canvas  id="CSCanvas"></canvas>
-    <script type="text/javascript">
-        
-        var gslp=[];
+    
+    <script type="text/javascript">     
         cdy = createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
-                    geometry:gslp,
+                    geometry:[],
                     autoplay: true,
                     ports: [{
                       id: "CSCanvas",
@@ -77,6 +95,10 @@
                       transform: [ { visibleRect: [0, 0, 128, 128] } ]
                     }]
                   });
+        
+        var canvas = document.getElementById("CSCanvas");
+        canvas.focus();
+          
     </script>              
 	</body>
 </html>
