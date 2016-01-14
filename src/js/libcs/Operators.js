@@ -3750,6 +3750,11 @@ evaluator.use$1 = function(args, modifs) {
                 "setTextRenderer": function(handler) {
                     textRenderer = handler;
                 },
+                "getImage": function(name) {
+                    if (images.hasOwnProperty(name))
+                        return images[name];
+                    return null;
+                },
             });
             return {
                 "ctype": "boolean",
