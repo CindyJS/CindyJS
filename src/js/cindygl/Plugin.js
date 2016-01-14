@@ -57,7 +57,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     
     prog.renderer.render(a, b, c);
     
-    canvaswrappers[name.value].copyTextureToCanvas();
+    if(!(modifs.hasOwnProperty('nocopy')) || (api.evaluateAndVal(modifs['nocopy']).value === false))
+      canvaswrappers[name.value].copyTextureToCanvas();
     
     /*
     var localcontext = localcanvas.getContext('2d');

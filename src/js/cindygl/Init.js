@@ -65,5 +65,13 @@ function initGLIfRequired() {
       "webglcontextcreationerror",
       onContextCreationError, false);
       
+      
+        var float_texture_ext = gl.getExtension('OES_texture_float');
+  var float_texture_ext2 = gl.getExtension('OES_float_linear');
+  var float_texture_ext3 = gl.getExtension('OES_texture_float_linear');
+  
+  
+  
+  
   isinitialized = true;
 }

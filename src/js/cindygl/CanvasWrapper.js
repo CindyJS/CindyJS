@@ -17,22 +17,28 @@ function CanvasWrapper(canvas) {
   this.it = 0;
  //black default texture @TODO: copy texture from canvas
     var pixels = [];
+    
 		for ( var i = 0; i < this.sizeXP; i++) {
 			for ( var j = 0; j < this.sizeYP; j++) {
 				pixels.push(0, 0, 0, 255);
 			}
 		}
 
-  let rawData = new Uint8Array(pixels);
+  let rawData = new Float32Array(pixels);
   
   //framebuffers and textures
   this.textures = [];
   this.framebuffers = [];
+
+  
   for(let j = 0; j<2; j++) {
     this.textures[j] = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); //TODO?
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, gl.UNSIGNED_BYTE, rawData);
+    
+    
+    //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, gl.UNSIGNED_BYTE, rawData);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, gl.FLOAT, rawData);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     
