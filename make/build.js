@@ -249,6 +249,7 @@ module.exports = function build(settings, task) {
     ];
 
     task("c3dres", [], function() {
+        c3d_str_res.forEach(this.input, this);
         this.node(
             "tools/files2json.js",
             "-varname=c3d_resources",
