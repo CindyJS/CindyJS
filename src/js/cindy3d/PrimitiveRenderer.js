@@ -65,7 +65,7 @@ PrimitiveRenderer.prototype.elements;
 PrimitiveRenderer.prototype.numElements;
 
 /**
-< * Number of floats per item for its attributes
+ * Number of floats per item for its attributes
  * @type {number}
  */
 PrimitiveRenderer.prototype.itemLength;

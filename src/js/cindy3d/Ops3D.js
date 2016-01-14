@@ -361,6 +361,8 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let colortype = "pervertex";
     let topology = "open";
     let colors = null;
+    let uv = null;
+    let texture = null;
     let appearance = handleModifsAppearance(
       currentInstance.surfaceAppearance, modifs, {
         "normaltype": (a => normaltype =
@@ -368,10 +370,30 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
         "colortype": (a => colortype =
                        coerce.toString(a, colortype).toLowerCase()),
         "topology": (a => topology =
-                       coerce.toString(a, normaltype).toLowerCase()),
-        "colors": (a => colors = coerce.toList(a).map(elt => coerce.toColor(elt))),
+                       coerce.toString(a, topology).toLowerCase()),
+        "colors": (a => colors = coerce.toList(a).map(
+          elt => coerce.toColor(elt))),
+        "uv": (a => uv = coerce.toList(a).map(
+          elt => coerce.toHomog(elt, [0, 0, 0], 2))),
+        "texture": (a => texture = coerce.toString(a)),
       });
     if (pos.length !== m*n) return nada;
+    if (texture !== null && uv != null) {
+      const img = api.getImage(/** @type {string} */(texture));
+      if (!img) {
+        console.log("No such texture image: " + texture);
+        return nada;
+      }
+
+      // TODO: EVIL HACK!!!!!
+      // This sets the texture for all meshes in the instance,
+      // even though the modifier is just on a single mesh primitive.
+      // Will cause terribly wrong results if more than one mesh is drawn.
+      currentInstance.triangles.texture = img;
+
+      colors = uv; // Re-use the same object
+      colortype = "pervertex";
+    }
     if (colors !== null && colors.length !== m*n) return nada;
     let tcr = (topology === "closerows" || topology === "closeboth");
     let tcc = (topology === "closecolumns" || topology === "closeboth");

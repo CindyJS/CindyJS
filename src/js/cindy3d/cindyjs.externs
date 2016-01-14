@@ -21,6 +21,9 @@ createCindy.anyval;
  *            createCindy.anyval} */
 createCindy.op;
 
+/** @typedef {(HTMLImageElement|HTMLCanvasElement|HTMLVideoElement)} */
+createCindy.img;
+
 /** @typedef {{
  *    instance: Object,
  *    config: Object,
@@ -32,7 +35,8 @@ createCindy.op;
  *    addAutoCleaningEventListener: td.EventManager,
  *    getVariable: function(string):createCindy.anyval,
  *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
- *      tx:number,ty:number,det:number,sdet:number}
+ *      tx:number,ty:number,det:number,sdet:number},
+ *    getImage: function(string):?createCindy.img
  *  }}
  */
 createCindy.pluginApi;
