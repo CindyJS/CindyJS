@@ -23,7 +23,9 @@ function getmover(mouse) {
             dx = p.value[0].value.real - mouse.x;
             dy = p.value[1].value.real - mouse.y;
             dist = Math.sqrt(dx * dx + dy * dy);
-            if (el.narrow & dist > 20 / sc) dist = 10000;
+            if (el.narrow && dist > (typeof el.narrow === "number" ?
+                    el.narrow : 20) / sc)
+                continue;
         } else if (el.kind === "C") { //Must be CircleMr
             var mid = csgeo.csnames[el.args[0]];
             var rad = el.radius;
