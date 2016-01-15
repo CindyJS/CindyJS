@@ -443,8 +443,6 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 
 
 CodeBuilder.prototype.determineUniformTypes = function() {
-
-
   for (let uname in this.uniforms) {
     //Default value
     this.uniforms[uname].type = type.float; //every cindyJS number can be interpreted as complex.
@@ -461,27 +459,33 @@ CodeBuilder.prototype.determineUniformTypes = function() {
   }
 };
 
+/**
+ * examines recursively all code generates myfunctions, which is cloned from results from api.getMyfunction(...)
+ */
+CodeBuilder.prototype.copyRequiredFunctions = function(expr) {
+  if(expr['ctype'] === 'function' && !this.myfunctions.hasOwnProperty(expr['oper']) && this.api.getMyfunction(expr['oper'])!==null) { //copy and transverse recursively all occuring myfunctions
+    let fun = expr['oper'];
+    this.myfunctions[fun] = clone(this.api.getMyfunction(fun));
+    this.copyRequiredFunctions(this.myfunctions[fun].body);
+  }
+  for (let i in expr['args']) {
+    this.copyRequiredFunctions(expr['args'][i]);
+  }
+}
+
 
 CodeBuilder.prototype.precompile = function(expr) {
   this.precompileDone = false;
   
-  //this.myfunctions = JSON.parse(JSON.stringify(this.api.getMyfunctions()));
-  this.myfunctions = clone(this.api.getMyfunctions()); //TODO: only copy functions that are required
-  //console.log(JSON.stringify(this.myfunctions));
+  this.copyRequiredFunctions(expr);
   this.determineVariables(expr);
   this.determineUniforms(expr);
   this.determineUniformTypes();
 
   this.determineTypes();
   this.precompileDone = true;
-  //console.log("DETERMINED TYPES");
-  //console.log(JSON.stringify(this.T));
 };
 
-/*
-function getScope(varname, currentscope) {
-  not needed?
-}*/
 
 
 /**

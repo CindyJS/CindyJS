@@ -3759,8 +3759,10 @@ evaluator.use$1 = function(args, modifs) {
                         img.cdyUpdate();
                     return img;
                 },
-                "getMyfunctions": function() {
-                    return myfunctions;
+                "getMyfunction": function(name) {
+                    if(!myfunctions.hasOwnProperty(name))
+                      return null;
+                    return myfunctions[name];
                 }
             });
             return {
