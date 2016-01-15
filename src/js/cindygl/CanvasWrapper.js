@@ -139,7 +139,7 @@ CanvasWrapper.prototype.drawTo = function(context, x, y) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null); //renders to glcanvas
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.flush();
-  context.drawImage(glcanvas, x, y);
+  context.drawImage(glcanvas, 0, 0, this.sizeX, this.sizeY, x, y, this.sizeX, this.sizeY);
 };
 
 /**
