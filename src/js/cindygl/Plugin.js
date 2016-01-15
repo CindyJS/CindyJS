@@ -21,8 +21,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
   api.defineFunction("colorplot", 4, function(args, modifs) {
     initGLIfRequired();
     
-    var a = api.eval_helper.extractPoint(api.evaluateAndVal(args[0]));
-    var b = api.eval_helper.extractPoint(api.evaluateAndVal(args[1]));
+    var a = api.extractPoint(api.evaluateAndVal(args[0]));
+    var b = api.extractPoint(api.evaluateAndVal(args[1]));
     var name = api.evaluateAndVal(args[2]);
     var prog = args[3];
     

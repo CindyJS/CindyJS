@@ -1,7 +1,5 @@
 /*jshint -W069 */
 
-var myfunctions = {};
-
 var operators = {};
 operators[':'] = 20; //Colon: Feldzugriff auf Selbstdefinierte Felder
 operators['.'] = 25; //Dot: Feldzugriff
@@ -148,7 +146,7 @@ function niceprint(a) {
 //this is the container for self-defined functions
 //Distinct form evaluator for code clearness :-)
 //*******************************************************
-function evalmyfunctions(name, args, modifs) {
+function myfunctions(name, args, modifs) {
     var tt = myfunctions[name];
     if (tt === undefined) {
         return nada;
@@ -182,7 +180,7 @@ var eval_helper = {};
 
 eval_helper.evaluate = function(name, args, modifs) {
     if (myfunctions.hasOwnProperty(name))
-        return evalmyfunctions(name, args, modifs);
+        return myfunctions(name, args, modifs);
     var f = evaluator[name];
     if (f)
         return f(args, modifs);

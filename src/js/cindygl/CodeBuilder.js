@@ -870,10 +870,15 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     '}\n';
 
   console.log(code);
+  
+  //Object.keys(this.texturereaders)
+  let requiredtextures = [];
+  for(let texture in this.texturereaders) requiredtextures.push(texture);
+  
   return {
     code: code,
     uniforms: this.uniforms,
-    requiredtextures: Object.keys(this.texturereaders)
+    requiredtextures: requiredtextures
   };
 };
 

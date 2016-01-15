@@ -3739,7 +3739,7 @@ evaluator.use$1 = function(args, modifs) {
                 "config": instanceInvocationArguments,
                 "nada": nada,
                 "evaluate": evaluate,
-                "eval_helper": eval_helper,
+                "extractPoint": eval_helper.extractPoint,
                 "evaluateAndVal": evaluateAndVal,
                 "defineFunction": defineFunction,
                 "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),
@@ -3761,8 +3761,7 @@ evaluator.use$1 = function(args, modifs) {
                 },
                 "getMyfunctions": function() {
                     return myfunctions;
-                },
-                "Accessor": Accessor
+                }
             });
             return {
                 "ctype": "boolean",

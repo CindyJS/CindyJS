@@ -34,6 +34,7 @@ function Renderer(api, expression, canvaswrapper) {
   var posBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
+
 	var vertices = new Float32Array([ -1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0 ]);
 
 	var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
