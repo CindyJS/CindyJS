@@ -3751,10 +3751,13 @@ evaluator.use$1 = function(args, modifs) {
                 "setTextRenderer": function(handler) {
                     textRenderer = handler;
                 },
-                "getImage": function(name) {
-                    if (images.hasOwnProperty(name))
-                        return images[name];
-                    return null;
+                "getImage": function(name, lazy) {
+                    if (!images.hasOwnProperty(name))
+                        return null;
+                    var img = images[name];
+                    if (!lazy && img.cdyUpdate())
+                        img.cdyUpdate();
+                    return img;
                 },
                 "getMyfunctions": function() {
                     return myfunctions;

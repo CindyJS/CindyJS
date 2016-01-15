@@ -30,7 +30,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
         return nada;
     }
     
-    var localcanvas = document.getElementById(name.value);
+    var localcanvas = api.getImage(name.value, true);
+    
     if (typeof(localcanvas) === "undefined" || localcanvas === null) {
         return nada;
     }
@@ -57,8 +58,10 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     
     prog.renderer.render(a, b, c);
     
+    /*
     if(!(modifs.hasOwnProperty('nocopy')) || (api.evaluateAndVal(modifs['nocopy']).value === false))
       canvaswrappers[name.value].copyTextureToCanvas();
+    */
     
     /*
     var localcontext = localcanvas.getContext('2d');

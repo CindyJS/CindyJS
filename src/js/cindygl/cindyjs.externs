@@ -35,6 +35,7 @@ createCindy.op;
  *    getVariable: function(string):createCindy.anyval,
  *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
  *      tx:number,ty:number,det:number,sdet:number},
+ *    getImage: function(string, boolean),
  *    getMyfunctions: function(),
  *    Accessor: {
  *       getField: function(createCindy.anyval, string)

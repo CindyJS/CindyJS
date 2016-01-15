@@ -30,6 +30,9 @@ function CanvasWrapper(canvas) {
   this.textures = [];
   this.framebuffers = [];
 
+  canvas['drawTo'] = this.drawTo.bind(this);
+  canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
+  
   
   for(let j = 0; j<2; j++) {
     this.textures[j] = gl.createTexture();
@@ -111,9 +114,18 @@ CanvasWrapper.prototype.bindFramebuffer = function() {
   this.it ^= 1;
 };
 
+
+
 CanvasWrapper.prototype.copyTextureToCanvas = function() {
-  //TODO: render texture this.textures[this.it] on glcanvas
+  let context = this.canvas.getContext('2d');
   
+  //Copy things from glcanvas to the cindyjs-canvas representing that canvas
+  context.clearRect(0, 0, this.sizeX, this.sizeY);
+  this.drawTo(context, 0, 0);
+}
+
+CanvasWrapper.prototype.drawTo = function(context, x, y) {
+  //TODO: render texture this.textures[this.it] on glcanvas
   glcanvas.width  = this.sizeX;
   glcanvas.height = this.sizeY;
 	gl.viewport(0, 0, this.sizeXP, this.sizeYP);
@@ -127,13 +139,7 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null); //renders to glcanvas
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.flush();
-  
-  
-  //Copy things from glcanvas to the cindyjs-canvas representing that canvas
-  //@TODO5: render directly possible
-  let context = this.canvas.getContext('2d');
-  context.clearRect(0, 0, this.sizeX, this.sizeY);
-  context.drawImage(glcanvas, 0, 0);
+  context.drawImage(glcanvas, x, y);
 };
 
 /**
