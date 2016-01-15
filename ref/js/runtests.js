@@ -154,6 +154,42 @@ function myniceprint(val) {
   return cjs.niceprint(val).toString();
 };
 
+function sanityCheck(val) {
+  if (typeof val !== "object")
+    throw Error("value must be an object, is " + typeof(val));
+  if (!val.hasOwnProperty("ctype"))
+    throw Error("value must have a ctype");
+  if (typeof val.ctype !== "string")
+    throw Error("ctype is not a string");
+  switch (val.ctype) {
+  case "string":
+    if (typeof val.value !== "string")
+      throw Error("not a string");
+    break;
+  case "number":
+    if (typeof val.value !== "object")
+      throw Error("not a complex number object");
+    if (typeof val.value.real !== "number")
+      throw Error("real part is not a number");
+    if (typeof val.value.imag !== "number")
+      throw Error("imaginary part is not a number");
+    break;
+  case "boolean":
+    if (typeof val.value !== "boolean")
+      throw Error("not a boolean");
+    break;
+  case "list":
+    if (!Array.isArray(val.value))
+      throw Error("not an array");
+    val.value.forEach(sanityCheck);
+    break;
+  case "undefined":
+    break;
+  default:
+    throw Error("Unknown ctype: " + val.ctype);
+  }
+};
+
 TestCase.prototype.run = function() {
   var val, actual, expected, clog = [], matches, expstr;
   var conlog = console.log;
@@ -162,6 +198,7 @@ TestCase.prototype.run = function() {
   console.error = console.log;
   try {
     val = cjs.evalcs(this.cmd);
+    sanityCheck(val);
   }
   catch (e) {
     if (this.exception !== null) {
