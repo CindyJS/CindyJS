@@ -24,7 +24,7 @@ function CanvasWrapper(canvas) {
 			}
 		}
 
-  let rawData = new Float32Array(pixels);
+  let rawData = can_use_texture_float ? new Float32Array(pixels) : new Uint8Array(pixels);
   
   //framebuffers and textures
   this.textures = [];
@@ -41,7 +41,7 @@ function CanvasWrapper(canvas) {
     
     
     //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, gl.UNSIGNED_BYTE, rawData);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, gl.FLOAT, rawData);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, can_use_texture_float ? gl.FLOAT : gl.UNSIGNED_BYTE, rawData);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     

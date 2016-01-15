@@ -24,6 +24,9 @@ var webgltype = {}; //which type identifier is used in WebGL to represent our in
 
 var webgltr = {};
 
+
+var can_use_texture_float = false;
+
 const oo = 1<<30; //infinity, but oo + oo should be > 0, hence not MaxInt
 
 
@@ -66,9 +69,7 @@ function initGLIfRequired() {
       onContextCreationError, false);
       
       
-        var float_texture_ext = gl.getExtension('OES_texture_float');
-  var float_texture_ext2 = gl.getExtension('OES_float_linear');
-  var float_texture_ext3 = gl.getExtension('OES_texture_float_linear');
+    can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
   
   
   
