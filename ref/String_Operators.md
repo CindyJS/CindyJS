@@ -130,6 +130,13 @@ To turn off this behavior, use the `autoconvert` modifier and set it to `false`.
     > tokenize("77777777777777777",":",autoconvert->false)
     < ["77777777777777777"]
 
+Number conversion without splitting can be achieved using an empty separator list:
+
+    > tokenize("1234", []) + 1
+    < 1235
+    > tokenize("x1234", []) + 1
+    < "x12341"
+
 ------
 
 #### Replacing in strings: `replace(‹string1›,‹string2›,‹string3›)`

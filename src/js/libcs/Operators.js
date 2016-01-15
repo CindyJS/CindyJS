@@ -3090,58 +3090,40 @@ evaluator.substring$3 = function(args, modifs) {
 };
 
 
-evaluator.tokenize$2 = function(args, modifs) { //TODO der ist gerade sehr uneffiktiv implementiert
+evaluator.tokenize$2 = function(args, modifs) {
     var li, i;
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     if (v0.ctype === 'string' && v1.ctype === 'string') {
-        var convert = true;
-        if (modifs.autoconvert !== undefined) {
-            var erg = evaluate(modifs.autoconvert);
-            if (erg.ctype === 'boolean') {
-                convert = erg.value;
-            }
-        }
-
-
-        var str = v0.value;
-        var split = v1.value;
-        var splitlist = str.split(split);
-        li = [];
-        for (i = 0; i < splitlist.length; i++) {
-            var val = splitlist[i];
-            if (convert) {
-                var fl = parseFloat(val);
-                if (!isNaN(fl)) {
-                    li[i] = CSNumber.real(fl);
-                    continue;
-                }
-            }
-            li[i] = General.string(val);
-        }
-        return List.turnIntoCSList(li);
+        return evaluator.tokenize$2([v0, List.turnIntoCSList([v1])], modifs);
     }
     if (v0.ctype === 'string' && v1.ctype === 'list') {
+        var str = v0.value;
+
         if (v1.value.length === 0) {
-            return v0;
-        }
-
-        var token = v1.value[0];
-
-        var tli = List.turnIntoCSList(tokens);
-        var firstiter = evaluator.tokenize$2([args[0], token], modifs).value;
-
-        li = [];
-        for (i = 0; i < firstiter.length; i++) {
-            var tokens = [];
-            for (var j = 1; j < v1.value.length; j++) { //TODO: Das ist Notlösung weil ich das wegen 
-                tokens[j - 1] = v1.value[j]; //CbV und CbR irgendwie anders nicht hinbekomme
+            // This is a leaf
+            var convert = true;
+            if (modifs.autoconvert !== undefined) {
+                var erg = evaluate(modifs.autoconvert);
+                if (erg.ctype === 'boolean') {
+                    convert = erg.value;
+                }
             }
-
-            tli = List.turnIntoCSList(tokens);
-            li[i] = evaluator.tokenize$2([firstiter[i], tli], modifs);
+            if (convert) {
+                var fl = parseFloat(str);
+                if (!isNaN(fl)) {
+                    return CSNumber.real(fl);
+                }
+            }
+            return General.string(str);
         }
-        return List.turnIntoCSList(li);
+
+        var head = v1.value[0];
+        var tail = List.turnIntoCSList(v1.value.slice(1));
+        var tokens = str.split(head.value);
+        return List.turnIntoCSList(tokens.map(function(token) {
+            return evaluator.tokenize$2([General.string(token), tail], modifs);
+        }));
     }
     return nada;
 };
