@@ -96,9 +96,10 @@ This operator is very useful for parsing input.
 It creates a list of substrings of `‹string›`.
 The second argument `‹expr›` must be either a string or a list of strings.
 If `‹expr›` is a string, then the operator searches for occurrences of this string in `‹string›`.
-These occurrences serve as markers for breaking up &lt;string&gt; into a list of pieces.
+These occurrences serve as markers for breaking up ‹string› into a list of pieces.
 
-If &lt;expr&gt; is a list of strings, then a hierarchical list is generated that represents the subdivision of `‹string›` recursively by the tokens in the list.
+If ‹expr› is a list of strings, then a hierarchical list is generated
+that represents the subdivision of `‹string›` recursively by the tokens in the list.
 
     > tokenize("one:two..three:four", ":")
     < ["one", "two..three", "four"]
