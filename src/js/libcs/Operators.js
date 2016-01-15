@@ -3112,13 +3112,12 @@ evaluator.tokenize$2 = function(args, modifs) { //TODO der ist gerade sehr uneff
             var val = splitlist[i];
             if (convert) {
                 var fl = parseFloat(val);
-                if (!isNaN(fl))
-                    val = fl;
+                if (!isNaN(fl)) {
+                    li[i] = CSNumber.real(fl);
+                    continue;
+                }
             }
-            li[i] = {
-                ctype: "string",
-                value: val
-            };
+            li[i] = General.string(val);
         }
         return List.turnIntoCSList(li);
     }
