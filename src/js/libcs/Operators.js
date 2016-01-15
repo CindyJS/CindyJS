@@ -60,10 +60,12 @@ evaluator.errc$1 = function(args, modifs) { //OK
 
 evaluator.print$1 = function(args, modifs) {
     csconsole.out(niceprint(evaluate(args[0])), true);
+    return nada;
 };
 
 evaluator.println$1 = function(args, modifs) {
     csconsole.out(niceprint(evaluate(args[0])));
+    return nada;
 };
 
 evaluator.dump$1 = function(args, modifs) {
