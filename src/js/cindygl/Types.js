@@ -15,10 +15,12 @@ const type = { //assert all indices are different
   mat3: 12,
   mat4: 13,
   string: 14, //only needed for type detection of imagergb
-  coordinate2d: 15 //for accessing 2D textures
+  coordinate2d: 15, //for accessing 2D textures
+  vec2complex: 16,
+  mat2complex: 17
  // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
  // nonnegativefloat: 15 //@TODO: negative float...
-}
+};
 Object.freeze(type);
 
 function typeToString(t) {
@@ -38,6 +40,8 @@ function typeToString(t) {
   'float[4,4]',
   'string',
   '2D-Coordinate',
+  'complex[2]',
+  'complex[2,2]'
   //'positive float',
   //'non-negative float'
   ];
@@ -67,10 +71,10 @@ subtypegen[type.vec4] = [type.color]; //color with alpha
 //subtypegen[type.point] = [type.vec2]; //in R^2 or in RP^3
 
 subtypegen[type.point] = [type.coordinate2d]; //homogenious coordinates
-subtypegen[type.vec2] = [type.coordinate2d];
+subtypegen[type.vec2] = [type.coordinate2d, type.vec2complex];
 subtypegen[type.complex] = [type.coordinate2d];
 
-
+subtypegen[type.mat2] = [type.mat2complex];
 /*
 //non-primitive types. No subtype implemented!
 const floatlist$2 = {type: "list", length: 2, members: type.float};
@@ -182,6 +186,7 @@ typeinference["sub"] = [
 typeinference["mult"] = [
   int_fun$2, float_fun$2, complex_fun$2,
   {args: [type.mat2, type.vec2],    res: type.vec2},
+  {args: [type.mat2complex, type.vec2complex],    res: type.vec2complex},
   {args: [type.mat3, type.vec3],    res: type.vec3},
   {args: [type.mat4, type.vec4],    res: type.vec4}
 ];
@@ -307,7 +312,8 @@ typeinference["randomnormal"] = [
 typeinference["_"] = [
   {args:[type.vec2, type.int], res: type.float},
   {args:[type.vec3, type.int], res: type.float},
-  {args:[type.vec4, type.int], res: type.float}
+  {args:[type.vec4, type.int], res: type.float},
+  {args:[type.vec2complex, type.int], res: type.complex}
 ];
 
 //- operators.put("^", 50);    //hoch @done(2015-03-17)
@@ -747,7 +753,8 @@ typeinference["im"] = [
 typeinference["genList"] = [
   {args: [type.float, type.float],                         res: type.vec2},
   {args: [type.float, type.float, type.float],             res: type.vec3},
-  {args: [type.float, type.float, type.float, type.float], res: type.vec4}
+  {args: [type.float, type.float, type.float, type.float], res: type.vec4},
+  {args: [type.complex, type.complex],                     res: type.vec2complex}
   //@TODO: real lists in glsl
 ];
 

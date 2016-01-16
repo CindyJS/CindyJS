@@ -96,7 +96,13 @@ function guessTypeOfValue(tval) {
         if(l.length==3) return type.vec3;
         if(l.length==4) return type.vec4;
       }
+      
+      if(issubtypeof(ctype, type.complex)) {
+							 if(l.length==2) return type.vec2complex;
+						}
+						
       if(ctype === type.vec2 && l.length == 2) return type.mat2;
+      if(ctype === type.vec2complex && l.length == 2) return type.mat2complex;
       if(ctype === type.vec3 && l.length == 3) return type.mat3;
       if(ctype === type.vec4 && l.length == 4) return type.mat4;
       //TODO: do all other lists and other matrices

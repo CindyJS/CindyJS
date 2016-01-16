@@ -13,6 +13,15 @@ webgltype[type.color] = 'vec4';
 webgltype[type.point] = 'vec3'; //use homogenious coordinates
 webgltype[type.coordinate2d] = 'vec2';
 
+//(a, b) \in \C^4 \mapsto (re a, im a, re b, im b) \in \R^4 
+webgltype[type.vec2complex] = 'vec4'; 
+
+// (a b)    (re a, -im a, re b, -im b)
+// (c d) -> (im a,  re a, im b,  re b)
+//          (re c, -im c, re d, -im d)
+//          (im c,  re c, im d,  re d)
+webgltype[type.mat2complex] = 'mat4';
+
 
 Object.freeze(webgltype);
 
@@ -92,6 +101,8 @@ inclusionfunction[type.point][type.coordinate2d] = useincludefunction('dehomogen
 inclusionfunction[type.vec2][type.coordinate2d] = identity;
 inclusionfunction[type.complex][type.coordinate2d] = identity;
 
+inclusionfunction[type.vec2][type.vec2complex] = useincludefunction('vec2complex');
+inclusionfunction[type.mat2][type.mat2complex] = useincludefunction('mat2complex');
 Object.freeze(inclusionfunction);
 
 webgltr["sqrt"] = [
@@ -157,17 +168,28 @@ rings.forEach( function(t) {
 );
 
 
-var accessbyshiftedindex = function(args) { //args?
+var accessbyshiftedindex = function(args) {
     if(isFinite(args[1]))
       return '(' + args[0] + ')['+(args[1]-1)+']'; //change index for hardcoded integers
     else
       return '(' + args[0] + ')['+args[1]+'-1]';
 };
 
+var accesscomplexbyshiftedindex = function(args) { //only works for indices that were hardcoded in CindyJS
+		if(args[1]===1)
+			return '(' + args[0] + ').xy';
+		else if(args[1]===2)
+			return '(' + args[0] + ').zw';
+		else
+			console.error("access of components of complex[2] only works for indeces that were hardcoded in CindyJS");
+		return 'ERROR: SEE CONSOLE (index was ' + args[1] + ') \n';
+};
+
 webgltr["_"] = [
   [{args:[type.vec2, type.int], res: type.float}, accessbyshiftedindex],
   [{args:[type.vec3, type.int], res: type.float}, accessbyshiftedindex],
-  [{args:[type.vec4, type.int], res: type.float}, accessbyshiftedindex]
+  [{args:[type.vec4, type.int], res: type.float}, accessbyshiftedindex],
+  [{args:[type.vec2complex, type.int], res: type.complex}, accesscomplexbyshiftedindex]
 ];
 
 
@@ -179,6 +201,7 @@ webgltr["mult"] = [
   [float_fun$2, useinfix('*')],
   [complex_fun$2, useincludefunction('multc')],
   [{args: [type.mat2, type.vec2],    res: type.vec2}, useinfix('*')],
+  [{args: [type.mat2complex, type.vec2complex],    res: type.vec2complex}, useinfix('*')],
   [{args: [type.mat3, type.vec3],    res: type.vec3}, useinfix('*')],
   [{args: [type.mat4, type.vec4],    res: type.vec4}, useinfix('*')],
   [vec22float_fun$2, usefunction('dot')],
@@ -214,6 +237,12 @@ webgltr["floor"] = [
   [{args: [type.float], res: type.int}, (a=>'int(floor('+a+'))')]
   //TODO{args: [type.complex], res: type.complex}
 ];
+
+webgltr["round"] = [
+  [{args: [type.float], res: type.int}, (a=>'int(floor('+a+'+.5))')]
+  //TODO{args: [type.complex], res: type.complex}
+];
+
 //- ("ceil", 1, OpCeil.class); @done(2015-03-17)
 webgltr["ceil"] = [
   [{args: [type.float], res: type.int}, (a=>'int(ceil('+a+'))')]
@@ -290,7 +319,8 @@ webgltr["im"] = [
 webgltr["genList"] = [
   [{args: [type.float, type.float],             res: type.vec2}, usefunction('vec2')],
   [{args: [type.float, type.float, type.float], res: type.vec3}, usefunction('vec3')],
-  [{args: [type.float, type.float, type.float, type.float], res: type.vec4}, usefunction('vec4')]
+  [{args: [type.float, type.float, type.float, type.float], res: type.vec4}, usefunction('vec4')],
+  [{args: [type.complex, type.complex],  res: type.vec2complex}, usefunction('vec4')]
   //@TODO: real lists in glsl
 ];
 

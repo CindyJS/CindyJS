@@ -149,13 +149,14 @@ CanvasWrapper.prototype.drawTo = function(context, x, y) {
 CanvasWrapper.prototype.setPixel = function(x, y, color) {
     this.bindTexture();
     
-    let color255 = [color[0]*255, color[1]*255, color[2]*255, 255];
+    let s = can_use_texture_float ? 1. : 255;
+    let colordata = [color[0]*s, color[1]*s, color[2]*s, s];
     gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, 1, 1,
-                     gl.RGBA, gl.UNSIGNED_BYTE,
-                     new Uint8Array(color255));
+                     gl.RGBA, can_use_texture_float ? gl.FLOAT : gl.UNSIGNED_BYTE,
+                     can_use_texture_float ? new Float32Array(colordata) : new Uint8Array(colordata));
     
     let context = this.canvas.getContext('2d');
     let id = context.createImageData(1,1); // only do this once per page
-    id.data.d = color255;
+    id.data.d = colordata;
     context.putImageData( id, x, y );
 };

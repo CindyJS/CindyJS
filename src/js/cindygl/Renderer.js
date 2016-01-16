@@ -173,8 +173,22 @@ Renderer.prototype.setUniforms = function() {
         setter(m);
       }
         break;
+      case type.vec2complex:
+								setter([val['value'][0]['value']['real'], val['value'][0]['value']['imag'], val['value'][1]['value']['real'], val['value'][1]['value']['imag']]);
+        break;
+      case type.mat2complex:
+								let rm = Array(16);
+								for(let i = 0; i < 2; i++) for(let j = 0; j < 2; j++) {
+										let tval = val['value'][i]['value'][j]['value'];
+									 rm[4*(2*j)+2*i] = tval['real'];
+										rm[4*(2*j+1)+2*i+1] = tval['real'];
+										rm[4*(2*j+1)+2*i] = -tval['imag'];
+										rm[4*(2*j)+2*i+1] = tval['imag'];
+								}
+								setter(rm);
+								break;
       default:
-        console.error("Don't know how to set uniform" + uname + " to " + val);
+        console.error("Don't know how to set uniform" + uname + ", which has the type " + typeToString(t) + ", to " + val);
         break;
     }
   }
