@@ -15,7 +15,7 @@ const type = { //assert all indices are different
   mat3: 12,
   mat4: 13,
   string: 14, //only needed for type detection of imagergb
-  coordinate2d: 15 //for access in on textures
+  coordinate2d: 15 //for accessing 2D textures
  // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
  // nonnegativefloat: 15 //@TODO: negative float...
 }

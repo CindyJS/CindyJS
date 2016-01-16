@@ -91,8 +91,8 @@ fwdtargets = \
 	beautify \
 	cindy3d \
 	cindy3d-dbg \
-  cindygl \
-  cindygl-dbg \
+	cindygl \
+	cindygl-dbg \
 	deploy \
 	forbidden \
 	jshint \
@@ -106,3 +106,5 @@ fwdtargets = \
 
 $(fwdtargets): js_make
 	$(JS_MAKE) $@
+
+.PHONY: $(fwdtargets)
