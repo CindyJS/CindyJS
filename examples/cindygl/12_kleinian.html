@@ -87,7 +87,7 @@
       readb(z) := T(imagergb([-1.5,-1.5], [1.5,-1.5], "b", z).r);
       
       compose(f, a, b, c, x) := (
-        Tinv(f*f*(max(max(a, b), c)) + .0001*exp(-(x*x)));
+        Tinv(f*f*(max(max(a, b), c)) + .00001*exp(-(x*x)));
       );
       
       

@@ -18,20 +18,21 @@
     <script id="csinit" type="cindyscript">
       use("CindyGL");
       
-      createimage("A", 1000, 1000); //last trafo
-      createimage("a", 1000, 1000);
-      createimage("B", 1000, 1000);
-      createimage("b", 1000, 1000);
-      colorplot([-2.5,-2.5], [2.5,-2.5], "A", 0); //initialize as black
-      colorplot([-2.5,-2.5], [2.5,-2.5], "a", 0);
-      colorplot([-2.5,-2.5], [2.5,-2.5], "B", 0);
-      colorplot([-2.5,-2.5], [2.5,-2.5], "b", 0);
+      createimage("A", 1024, 1024); //last trafo
+      createimage("a", 1024, 1024);
+      createimage("B", 1024, 1024);
+      createimage("b", 1024, 1024);
+      colorplot([-2.3,-2.3], [2.3,-2.3], "A", 0); //initialize as black
+      colorplot([-2.3,-2.3], [2.3,-2.3], "a", 0);
+      colorplot([-2.3,-2.3], [2.3,-2.3], "B", 0);
+      colorplot([-2.3,-2.3], [2.3,-2.3], "b", 0);
       
-      createimage("output", 1000, 1000);
+      createimage("output", 1024, 1024);
     </script>
     
     <script id="csmove" type="cindyscript">
       ta = .5*complex(TA)+2;
+      //ta = 1.64213876 +i*0.76658841;
       tb = .5*complex(TB)+2;
 
       sq(x) := x*x;
@@ -57,10 +58,10 @@
   <script id="cskeydown" type="cindyscript">
       print("pressed key" + keycode());
       if(keycode()==32, 
-        colorplot([-2.5,-2.5], [2.5,-2.5], "A", 0);
-        colorplot([-2.5,-2.5], [2.5,-2.5], "a", 0);
-        colorplot([-2.5,-2.5], [2.5,-2.5], "B", 0);
-        colorplot([-2.5,-2.5], [2.5,-2.5], "b", 0);
+        colorplot([-2.3,-2.3], [2.3,-2.3], "A", 0);
+        colorplot([-2.3,-2.3], [2.3,-2.3], "a", 0);
+        colorplot([-2.3,-2.3], [2.3,-2.3], "B", 0);
+        colorplot([-2.3,-2.3], [2.3,-2.3], "b", 0);
       ); //space -> black
  </script>
     
@@ -81,51 +82,51 @@
         a/(1+a);
       );
 
-      readA(z) := T(imagergb([-2.5,-2.5], [2.5,-2.5], "A", z).r);
-      reada(z) := T(imagergb([-2.5,-2.5], [2.5,-2.5], "a", z).r);
-      readB(z) := T(imagergb([-2.5,-2.5], [2.5,-2.5], "B", z).r);
-      readb(z) := T(imagergb([-2.5,-2.5], [2.5,-2.5], "b", z).r);
+      readA(z) := T(imagergb([-2.3,-2.3], [2.3,-2.3], "A", z).r);
+      reada(z) := T(imagergb([-2.3,-2.3], [2.3,-2.3], "a", z).r);
+      readB(z) := T(imagergb([-2.3,-2.3], [2.3,-2.3], "B", z).r);
+      readb(z) := T(imagergb([-2.3,-2.3], [2.3,-2.3], "b", z).r);
       
       compose(f, a, b, c, x) := (
-        Tinv(f*f*(max(max(a, b), c)) + .0001*exp(-(x*x)));
+        Tinv(f*f*(max(max(a, b), c)) + .00001*exp(-(x*x)));
       );
       
       
       
-      colorplot([-2.5,-2.5], [2.5,-2.5], "a",
+      colorplot([-2.3,-2.3], [2.3,-2.3], "a",
         r = moebius(a, complex(#));
         compose(dmoebius(a, complex(#)), reada(r), readb(r), readB(r), #)
       );
       
-      colorplot([-2.5,-2.5], [2.5,-2.5], "A",
+      colorplot([-2.3,-2.3], [2.3,-2.3], "A",
         r = moebius(A, complex(#));
         compose(dmoebius(A, complex(#)), readA(r), readb(r), readB(r), #)
       );
       
-      colorplot([-2.5,-2.5], [2.5,-2.5], "b",
+      colorplot([-2.3,-2.3], [2.3,-2.3], "b",
         r = moebius(b, complex(#));
         compose(dmoebius(b, complex(#)), reada(r), readA(r), readb(r), #)
       );
       
       
-      colorplot([-2.5,-2.5], [2.5,-2.5], "B",
+      colorplot([-2.3,-2.3], [2.3,-2.3], "B",
         r = moebius(B, complex(#));
         compose(dmoebius(B, complex(#)), reada(r), readA(r), readB(r), #)
       );
       
       
       
-      colorplot([-2.5,-2.5], [2.5,-2.5], "output",
-        s0 = imagergb([-2.5,-2.5], [2.5,-2.5], "a", #).r;
-        s1 = imagergb([-2.5,-2.5], [2.5,-2.5], "A", #).r;
-        s2 = imagergb([-2.5,-2.5], [2.5,-2.5], "b", #).r;
-        s3 = imagergb([-2.5,-2.5], [2.5,-2.5], "B", #).r;
+      colorplot([-2.3,-2.3], [2.3,-2.3], "output",
+        s0 = imagergb([-2.3,-2.3], [2.3,-2.3], "a", #).r;
+        s1 = imagergb([-2.3,-2.3], [2.3,-2.3], "A", #).r;
+        s2 = imagergb([-2.3,-2.3], [2.3,-2.3], "b", #).r;
+        s3 = imagergb([-2.3,-2.3], [2.3,-2.3], "B", #).r;
         sum = (s0+s1+s2+s3);
         gray(sum)+
         s0*hue(1/8)+s1*hue(3/8)+s2*hue(5/8)+s3*hue(7/8)
       );
       
-      drawimage([-2.5,-2.5], [2.5,-2.5], "output");
+      drawimage([-2.3,-2.3], [2.3,-2.3], "output");
       
       drawtext(TA+(.01,.01), ta, color->[1,0.3,0.3]);
       drawtext(TB+(.01,.01), tb, color->[0.3,0.3,1]);
@@ -141,9 +142,9 @@
                     autoplay: true,
                     ports: [{
                       id: "CSCanvas",
-                      width: 1000,
-                      height: 1000,
-                      transform: [ { visibleRect: [-2.5, -2.5, 2.5, 2.5] } ]
+                      width: 1024,
+                      height: 1024,
+                      transform: [ { visibleRect: [-2.3, -2.3, 2.3, 2.3] } ]
                     }]
                   });
     </script>              
