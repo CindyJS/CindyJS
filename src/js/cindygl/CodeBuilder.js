@@ -322,6 +322,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
           return expr["dependsOnPixel"] = true;
         }
       }
+      return expr["dependsOnPixel"] = false;
     }
 
     //run recursion on all dependent arguments
@@ -402,6 +403,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
       for (let i in expr['args']) {
         computeUniforms(expr['args'][i], fun);
       }
+      
+      if(expr['ctype'] === 'field') {
+								computeUniforms(expr['obj'], fun);
+						}
 
       //Oh yes, it also might be a user-defined function!
       if (expr['ctype'] === 'function' && myfunctions.hasOwnProperty(expr['oper'])) {

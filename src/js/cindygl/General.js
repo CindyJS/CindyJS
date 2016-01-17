@@ -110,6 +110,7 @@ function guessTypeOfValue(tval) {
   } else if(tval['ctype'] === 'string') {
     return type.string;
   }
+  console.error("Cannot guess type of " + JSON.stringify(tval));
   return nada;
 }
 
