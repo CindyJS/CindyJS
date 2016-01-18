@@ -762,6 +762,10 @@ typeinference["imagergb"] = [
   {args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec3}
 ];
 
+typeinference["imagergba"] = [
+  {args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec4}
+];
+
 Object.freeze(typeinference);
 
 

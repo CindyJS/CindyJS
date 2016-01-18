@@ -343,13 +343,12 @@ webgltr["%"] = [
 
 
 webgltr["imagergb"] = [
-  [{args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec3},
-  useimagergb
-   /* function(args) {
-      return 'texture2D(' + args[2] + ', computation(uniform_ratioOf' + args[2] + ', ' + args[0] + ', ' + args[1] + ', ' + args[3] +'))';
-    }*/
-  ]
+  [{args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec3}, useimagergb]
 ];
+webgltr["imagergba"] = [
+  [{args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec4}, useimagergba]
+];
+
 
 
 
