@@ -14,16 +14,18 @@ geoOps._helper = {};
 
 ////The RandomLine RandomPoint operators are used by Cinderellas
 ////Original Mirror Operations
+geoOps._helper.getRandLine = function() {
+    var vec = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
+    return List.normalizeMax(vec);
+};
 
 geoOps.RandomLine = {};
 geoOps.RandomLine.kind = "L";
 geoOps.RandomLine.signature = [];
 geoOps.RandomLine.updatePosition = function(el) {
-    el.homog = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
-    el.homog = List.normalizeMax(el.homog);
+    el.homog = geoOps._helper.getRandLine();
     el.homog = General.withUsage(el.homog, "Line");
 };
-
 
 geoOps.FreeLine = {};
 geoOps.FreeLine.kind = "L";
@@ -635,7 +637,7 @@ geoOps.CircleMP.updatePosition = function(el) { //TODO Performance Checken. Das 
     el.matrix = geoOps._helper.CircleMP(m, p);
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Circle");
-
+    el.isNotDegenCircle = true;
 };
 
 
@@ -671,6 +673,8 @@ geoOps.CircleMr.updatePosition = function(el) {
     matrix = List.normalizeMax(matrix);
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
+
+    el.isNotDegenCircle = true;
 };
 geoOps.CircleMr.stateSize = 2;
 
@@ -684,6 +688,7 @@ geoOps.Compass.updatePosition = function(el) {
     var m = csgeo.csnames[(el.args[2])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
     var c = csgeo.csnames[(el.args[0])].homog;
+
     m = List.normalizeZ(m);
     b = List.normalizeZ(b);
     c = List.normalizeZ(c);
@@ -694,6 +699,8 @@ geoOps.Compass.updatePosition = function(el) {
     var matrix = geoOps._helper.CircleMP(m, p);
     matrix = List.normalizeMax(matrix);
     el.matrix = General.withUsage(matrix, "Circle");
+
+    el.isNotDegenCircle = true;
 };
 
 
@@ -1255,6 +1262,7 @@ geoOps.CircleBy3.updatePosition = function(el) {
     var c = List.ii;
     var d = List.jj;
     var p = csgeo.csnames[(el.args[2])].homog;
+    el.isNotDegenCircle = CSNumber.abs(List.det3(a, b, p)).value.real > CSNumber.eps;
 
     var erg = geoOps._helper.ConicBy5(el, a, b, c, d, p);
     el.matrix = List.normalizeMax(erg);
@@ -1808,14 +1816,9 @@ geoOps.TrMoebiusL.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
     var l = csgeo.csnames[(el.args[1])].homog;
 
-    var getRandLine = function() {
-        var rline = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
-        return List.normalizeMax(rline);
-    };
-
-    var a1 = List.cross(getRandLine(), l);
-    var a2 = List.cross(getRandLine(), l);
-    var a3 = List.cross(getRandLine(), l);
+    var a1 = List.cross(geoOps._helper.getRandLine(), l);
+    var a2 = List.cross(geoOps._helper.getRandLine(), l);
+    var a3 = List.cross(geoOps._helper.getRandLine(), l);
 
     var b1 = geoOps._helper.TrMoebiusP(a1, t);
     var b2 = geoOps._helper.TrMoebiusP(a2, t);
@@ -1838,24 +1841,23 @@ geoOps.TrMoebiusC.updatePosition = function(el) {
         var th = CSNumber.real(3);
         el.matrix = List.zeromatrix(th, th);
     } else {
-        var getRandLine = function() {
-            var rline = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
-            return List.normalizeMax(rline);
-        };
+        var pts1 = geoOps._helper.IntersectLC(geoOps._helper.getRandLine(), cir);
+        var pts2 = geoOps._helper.IntersectLC(geoOps._helper.getRandLine(), cir);
 
-        var pts1 = geoOps._helper.IntersectLC(getRandLine(), cir);
-        var pts2 = geoOps._helper.IntersectLC(getRandLine(), cir);
-
-        var a1 = pts1[0],
-            a2 = pts1[1],
-            a3 = pts2[1];
+        var a1 = List.normalizeMax(pts1[0]),
+            a2 = List.normalizeMax(pts1[1]),
+            a3 = List.normalizeMax(pts2[1]);
 
         var b1 = geoOps._helper.TrMoebiusP(a1, t);
+        b1 = List.normalizeMax(b1);
         var b2 = geoOps._helper.TrMoebiusP(a2, t);
+        b2 = List.normalizeMax(b2);
         var b3 = geoOps._helper.TrMoebiusP(a3, t);
+        b3 = List.normalizeMax(b3);
 
         el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
     }
+    el.isNotDegenCircle = csgeo.csnames[(el.args[1])].isNotDegenCircle;
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
 

@@ -65,9 +65,10 @@ function render() {
         modifs.alpha = el.alpha;
         modifs.size = el.size;
 
-        eval_helper.drawconic(el.matrix, modifs);
+        // perhaps we are conic now (e.g. projective transform)
+        var nonDegenCir = (el.matrix.usage === 'Circle' && el.isNotDegenCircle);
 
-
+        eval_helper.drawconic(el.matrix, modifs, nonDegenCir);
     }
 
     function drawgeoline(el) {
