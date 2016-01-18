@@ -3127,7 +3127,7 @@ evaluator.tokenize$2 = function(args, modifs) { //TODO der ist gerade sehr uneff
 
         var token = v1.value[0];
 
-        var tli = List.turnIntoCSList(tokens);
+        var tli = List.turnIntoCSList(token);
         var firstiter = evaluator.tokenize$2([args[0], token], modifs).value;
 
         li = [];
