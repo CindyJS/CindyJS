@@ -21,15 +21,13 @@
       theta = re(mouse().x+time/10);
       
       //mouselightpos = (ray(mouse(), min(getDistanceToObj(mouse())-1, 10)));
-      colorplot([-.5,-.5], [.5,-.5], "plot", computeColor(#));
-      drawimage((0,0), "plot");
+      colorplot(computeColor(#));
     </script>
                
     <script id="csinit" type="cindyscript">
       use("CindyGL");
       oo = 1000; //"infinity"
       t0 = seconds();
-      createimage("plot", 500, 500);
       
       F(p) := (
         regional(x, y, z);

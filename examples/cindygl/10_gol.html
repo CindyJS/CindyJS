@@ -21,7 +21,6 @@
       R = [128, 0]; //bottom right corner
       
       createimage("gol", 128, 128);
-      createimage("biggol", 512, 512);
       
       animate = true;
       colorplot(L, R, "gol", if(random()>.6,1,0)); //random stuff as starting image
@@ -63,9 +62,8 @@
       
       if(animate, colorplot(L, R, "gol", newstate(#.x, #.y)));
       
-      //copy to high resolution texture
-      colorplot(L, R, "biggol", imagergb(L, R, "gol", (floor(#.x)+.5, floor(#.y)+.5)));
-      drawimage(L, R, "biggol");
+      //plots to canvas using no interpolation
+      colorplot(imagergb(L, R, "gol", (floor(#.x)+.5, floor(#.y)+.5)));
     </script>
     
    <list>

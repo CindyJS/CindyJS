@@ -2,9 +2,8 @@
  * param {TODO} expression for the Code that will be used for rendering
  * @constructor
  */
-function Renderer(api, expression, canvaswrapper) {
+function Renderer(api, expression) {
   this.api = api;
-  this.canvaswrapper = canvaswrapper;
   
   let cb = new CodeBuilder(api);
   let cpg = cb.generateColorPlotProgram(expression);
@@ -14,8 +13,6 @@ function Renderer(api, expression, canvaswrapper) {
   this.fragmentShaderCode =
     cgl_resources["standardFragmentHeader"] + cpg.code;
   this.vertexShaderCode = cgl_resources["vshader"];
-  this.sizeX = canvaswrapper.sizeX; //TODO: dont copy
-  this.sizeY = canvaswrapper.sizeY;
   this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
   
   /*
@@ -74,12 +71,6 @@ Renderer.prototype.vertexShaderCode;
  * @type {string}
  */
 Renderer.prototype.fragmentShaderCode;
-
-/** @type {number} */
-Renderer.prototype.sizeX;
-
-/** @type {number} */
-Renderer.prototype.sizeY;
 
 /** @type {ShaderProgram} */
 Renderer.prototype.shaderProgram;
@@ -174,19 +165,19 @@ Renderer.prototype.setUniforms = function() {
       }
         break;
       case type.vec2complex:
-								setter([val['value'][0]['value']['real'], val['value'][0]['value']['imag'], val['value'][1]['value']['real'], val['value'][1]['value']['imag']]);
+        setter([val['value'][0]['value']['real'], val['value'][0]['value']['imag'], val['value'][1]['value']['real'], val['value'][1]['value']['imag']]);
         break;
       case type.mat2complex:
-								let rm = Array(16);
-								for(let i = 0; i < 2; i++) for(let j = 0; j < 2; j++) {
-										let tval = val['value'][i]['value'][j]['value'];
-									 rm[4*(2*j)+2*i] = tval['real'];
-										rm[4*(2*j+1)+2*i+1] = tval['real'];
-										rm[4*(2*j+1)+2*i] = -tval['imag'];
-										rm[4*(2*j)+2*i+1] = tval['imag'];
-								}
-								setter(rm);
-								break;
+        let rm = Array(16);
+        for(let i = 0; i < 2; i++) for(let j = 0; j < 2; j++) {
+          let tval = val['value'][i]['value'][j]['value'];
+          rm[4*(2*j)+2*i] = tval['real'];
+          rm[4*(2*j+1)+2*i+1] = tval['real'];
+          rm[4*(2*j+1)+2*i] = -tval['imag'];
+          rm[4*(2*j)+2*i+1] = tval['imag'];
+        }
+        setter(rm);
+        break;
       default:
         console.error("Don't know how to set uniform" + uname + ", which has the type " + typeToString(t) + ", to " + val);
         break;
@@ -213,19 +204,28 @@ Renderer.prototype.loadTextures = function() {
 }
 
 /**
- * runs shaderProgram on gl. Will render to texture in canvaswrapper
+ * runs shaderProgram on gl. Will render to texture in canvaswrapper 
+ * or if argument canvaswrapper is not given, then to glcanvas
  */
-Renderer.prototype.render = function(a, b, c) {
-  glcanvas.width  = this.sizeX;
-  glcanvas.height = this.sizeY;
-	gl.viewport(0, 0, this.sizeX, this.sizeY);
+Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
+  let alpha = sizeY/sizeX;
+  let n = {x: -(b.y-a.y)*alpha, y: (b.x-a.x)*alpha};
+  let c = {x: a.x + n.x, y: a.y + n.y};
+    //let d = {x: b.x + n.x, y: b.y + n.y};
+    
+  glcanvas.width  = sizeX;
+  glcanvas.height = sizeY;
+  gl.viewport(0, 0, sizeX, sizeY);
   
 	this.shaderProgram.use(gl);
   this.setTransformMatrix(a, b, c);
   this.setUniforms();
   this.loadTextures();
   
-  this.canvaswrapper.bindFramebuffer(); 
+  if(canvaswrapper) 
+    canvaswrapper.bindFramebuffer(); //render to texture stored in canvaswrapper
+  else
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); //render to glcanvas
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   gl.flush(); //renders stuff to canvaswrapper
   

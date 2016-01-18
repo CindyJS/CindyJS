@@ -18,6 +18,52 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     //console.log(myfunctions);
   });
   
+  /**
+   * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
+   */
+  function compileAndRender(prog, a, b, width, height, canvaswrapper) {
+    if(!prog.iscompiled) { 
+      //console.log("Program is not compiled. So we will do that");
+      prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
+      prog.renderer = new Renderer(api, prog);
+    } /*else {
+      console.log("Program has been compiled; we will use that compiled code.");
+    }*/
+    prog.renderer.render(a, b, width, height, canvaswrapper);
+	}
+  
+  /**
+   * plots colorplot on main canvas in CindyJS coordinates
+   */
+  api.defineFunction("colorplot", 1, function(args, modifs) {
+      initGLIfRequired();
+    
+			var prog = args[0];
+			
+      let cw = api.instance['canvas']['clientWidth'];
+      let ch = api.instance['canvas']['clientHeight'];
+      
+      let m = api.getInitialMatrix();
+      let transf = function(px, py) { //copied from Operators.js
+        var xx = px - m.tx;
+        var yy = py + m.ty;
+        var x = (xx * m.d - yy * m.b) / m.det;
+        var y = -(-xx * m.c + yy * m.a) / m.det;
+        var erg = {
+            x: x,
+            y: y
+        };
+        return erg;
+      };
+			compileAndRender(prog, transf(0, ch), transf(cw, ch), cw, ch, null);
+      let csctx = api.instance['canvas'].getContext('2d');
+      csctx.drawImage(glcanvas, 0, 0, cw, ch, 0, 0, cw, ch);
+			return nada;
+  });
+  
+  /**
+   * plots on a given canvas and assumes that it lies on CindyJS-table with corners having coordinates a and b.
+   */
   api.defineFunction("colorplot", 4, function(args, modifs) {
     initGLIfRequired();
     
@@ -43,33 +89,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
       canvaswrappers[name.value] = new CanvasWrapper(localcanvas);
     }
     
-    if(!prog.iscompiled) { //Note we are adding attributes to the parsed cindyJS-Code tree
-      //console.log("Program is not compiled. So we will do that");
-      prog.iscompiled = true;
-      prog.renderer = new Renderer(api, prog, canvaswrappers[name.value]);
-    } /*else {
-      console.log("Program has been compiled; we will use that compiled code.");
-    }*/
-
-    let alpha = ch/cw;
-    let n = {x: -(b.y-a.y)*alpha, y: (b.x-a.x)*alpha};
-    let c = {x: a.x + n.x, y: a.y + n.y};
-    //let d = {x: b.x + n.x, y: b.y + n.y};
+    compileAndRender(prog, a, b, cw, ch, canvaswrappers[name.value]);
     
-    prog.renderer.render(a, b, c);
-    
-    /*
-    if(!(modifs.hasOwnProperty('nocopy')) || (api.evaluateAndVal(modifs['nocopy']).value === false))
-      canvaswrappers[name.value].copyTextureToCanvas();
-    */
-    
-    /*
-    var localcontext = localcanvas.getContext('2d');
-    localcontext.clearRect(0, 0, cw, ch);
-    //@TODO5: copy from texture to glcanvas... Or render directly
-    localcontext.drawImage(glcanvas, 0, 0);
-    */
-
     return nada;
   });
   

@@ -36,15 +36,13 @@
         -sol(x,t,[C.y,C.x])
         ))
       );
-      createimage("plot",500,500);
     </script>
     
     <script id="csdraw" type="cindyscript">
       t = (seconds()-t0)*.2;
       
       
-      colorplot([0,0], [10,0], "plot", u(#, t));
-      drawimage([0,0], [10,0], "plot");
+      colorplot(u(#, t));
     </script>
     
 

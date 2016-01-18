@@ -9,86 +9,78 @@
   </head>
     
 	<body style="font-family:Arial;">
-    
     <h1>CindyJS: Reaction-diffusion system</h1>
-     <script id="csinit" type="cindyscript">
-      use("CindyGL");
-      
-      L = [0, 0]; //bottom left corner
-      R = [512, 0]; //bottom right corner
-      
-      createimage("state", 512, 512);
-      createimage("output", 512, 512);
-      
-      initialimage(x) := if(abs(#.x-256)<30 &abs(#.y-256)<30 ,.7*(random(),random(),0),(1,0,0));
-      colorplot(L, R, "state", initialimage(#));
-      
-      pressed=false;
-						
-						da = 0.2;
-						db = 0.1;
-						k = 0.06;
-						f = 0.035;
-    </script>
-    
-				<script id="csmousedown" type="cindyscript">
-					pressed = true;
-				</script>
-				<script id="csmouseup" type="cindyscript">
-					pressed = false;
-				</script>
+      <script id="csinit" type="cindyscript">
+        use("CindyGL");
 
- <script id="cskeydown" type="cindyscript">
-      print("pressed key" + keycode());
-      if(keycode()==32, colorplot(L, R, "state", 0)); //space -> black
-      if(keycode()==82, colorplot(L, R, "state", initialimage(#))); //R -> random image
- </script>
+        L = [0, 0]; //bottom left corner
+        R = [512, 0]; //bottom right corner
 
- <script id="csmove" type="cindyscript">
+        createimage("state", 512, 512);
+
+        initialimage(x) := if(abs(#.x-256)<30 &abs(#.y-256)<30 ,.7*(random(),random(),0),(1,0,0));
+        colorplot(L, R, "state", initialimage(#));
+
+        pressed=false;
+              
+        da = 0.2;
+        db = 0.1;
+        k = 0.06;
+        f = 0.035;
+      </script>
+      <script id="csmousedown" type="cindyscript">
+        pressed = true;
+      </script>
+      
+      <script id="csmouseup" type="cindyscript">
+        pressed = false;
+      </script>
+
+      <script id="cskeydown" type="cindyscript">
+        print("pressed key" + keycode());
+        if(keycode()==32, colorplot(L, R, "state", 0)); //space -> black
+        if(keycode()==82, colorplot(L, R, "state", initialimage(#))); //R -> random image
+      </script>
+
+      <script id="csmove" type="cindyscript">
         y=CA.y; y = max(200,min(450,y)); CA.xy=(500,y);
-        f = y*0.0001
-</script>
+        f = y*0.0001;
+      </script>
 
         
-<script id="csdraw" type="cindyscript">
-      get(x, y) :=  imagergb(L, R, "state", (mod(x,512),mod(y,512)));
-      
-      newstate(x, y) := (
-								laplacian = -4*get(x,y)+get(x-1,y)+get(x,y-1)+get(x+1,y)+get(x,y+1);      
-								val = get(x,y);
-								deltax = da * laplacian.x - val.x*val.y*val.y + f * (1-val.x);
-								deltay = db * laplacian.y + val.x*val.y*val.y - (k+f) * val.y;
-								(val.x+deltax, val.y+deltay, 0)
-      );
- 
+      <script id="csdraw" type="cindyscript">
+        get(x, y) :=  imagergb(L, R, "state", (mod(x,512),mod(y,512)));
 
-						repeat(10,
-								colorplot(L, R, "state", if(pressed & abs(mouse().xy-#)<3, (get(#.x, #.y).x,.6,0), newstate(#.x, #.y)));
-						);
-					
-					//copy to render texture
-      colorplot(L, R, "output", imagergb(L, R, "state", #)_1);
-      drawimage(L, R, "output");
-      
-       draw((500,200),(500,450),color->(0,0,0),size->2);
-    </script>
+        newstate(x, y) := (
+          laplacian = -4*get(x,y)+get(x-1,y)+get(x,y-1)+get(x+1,y)+get(x,y+1);      
+          val = get(x,y);
+          deltax = da * laplacian.x - val.x*val.y*val.y + f * (1-val.x);
+          deltay = db * laplacian.y + val.x*val.y*val.y - (k+f) * val.y;
+          (val.x+deltax, val.y+deltay, 0)
+        );
+        repeat(10, //do 10 steps for one rendered frame
+            colorplot(L, R, "state", if(pressed & abs(mouse().xy-#)<3, (get(#.x, #.y).x,.6,0), newstate(#.x, #.y)));
+        );
+        //output
+        colorplot(imagergb(L, R, "state", #)_1);
+        draw((500,200),(500,450),color->(0,0,0),size->2);
+      </script>
 
     <canvas  id="CSCanvas"></canvas>
     <script type="text/javascript">
-        
         cdy = createCindy({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:[
-																							{name:"CA", type:"Free", pos:[500,350],color:[1,0,0],pinned:false,size:6},
-                    ],
-                    autoplay: true,
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 512,
-                      height: 512,
-                      transform: [ { visibleRect: [0, 0, 512, 512] } ]
-                    }]
-                  });
+          scripts: "cs*",
+          geometry:[
+            {name:"CA", type:"Free", pos:[500,350],color:[1,0,0],pinned:false,size:6},
+          ],
+          autoplay: true,
+          ports: [{
+            id: "CSCanvas",
+            width: 512,
+            height: 512,
+            transform: [ { visibleRect: [0, 0, 512, 512] } ]
+          }]
+        });
     </script>              
 	</body>
 </html>

@@ -26,8 +26,6 @@
       colorplot([-2.3,-2.3], [2.3,-2.3], "a", 0);
       colorplot([-2.3,-2.3], [2.3,-2.3], "B", 0);
       colorplot([-2.3,-2.3], [2.3,-2.3], "b", 0);
-      
-      createimage("output", 1024, 1024);
     </script>
     
     <script id="csmove" type="cindyscript">
@@ -116,7 +114,7 @@
       
       
       
-      colorplot([-2.3,-2.3], [2.3,-2.3], "output",
+      colorplot(
         s0 = imagergb([-2.3,-2.3], [2.3,-2.3], "a", #).r;
         s1 = imagergb([-2.3,-2.3], [2.3,-2.3], "A", #).r;
         s2 = imagergb([-2.3,-2.3], [2.3,-2.3], "b", #).r;
@@ -125,8 +123,6 @@
         gray(sum)+
         s0*hue(1/8)+s1*hue(3/8)+s2*hue(5/8)+s3*hue(7/8)
       );
-      
-      drawimage([-2.3,-2.3], [2.3,-2.3], "output");
       
       drawtext(TA+(.01,.01), ta, color->[1,0.3,0.3]);
       drawtext(TB+(.01,.01), tb, color->[0.3,0.3,1]);

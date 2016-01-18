@@ -28,8 +28,7 @@
       
     //  X.color = computeColor(X.xy/20);
       
-      colorplot([-.5,-.5], [.5,-.5], "plot", computeColor(#));
-      drawimage([-.5,-.5], [.5,-.5], "plot");
+      colorplot(computeColor(#));
     </script>
                
     <script id="csinit" type="cindyscript">
@@ -179,7 +178,6 @@
       
       use("CindyGL");
       t0 = seconds();
-      createimage("plot", 250, 250);
     </script>
     
 

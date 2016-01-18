@@ -22,14 +22,12 @@
         (exp(-.03*da)*sin(da-t)+exp(-.03*db)*exp(-.001*db)*sin(db-t))*.4+.5
       );
       
-      colorplot([-50,-50], [50,-50], "plot", waves(#));
-      drawimage([0,0], "plot");
+      colorplot(waves(#));
     </script>
                
     <script id="csinit" type="cindyscript">
       use("CindyGL");
       t0 = seconds();
-      createimage("plot",500,500);
     </script>
     
 

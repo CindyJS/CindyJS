@@ -37,8 +37,8 @@
 							f1=(x-A)/abs(x-A)^3;
 							f2=(x-B)/abs(x-B)^3;
 							res=f1-f2;
-							//r = min(2, max(.5, abs(res)));
-							res/abs(res)
+							//r = min(1, max(.2, abs(res)));
+							res/abs(res)//*r
 						); //vector field
 						
 						h = 1;
@@ -55,41 +55,41 @@
 					      
       pixel2coord(x) := x/512*4+(-2,-2);
       color(x) := (
-							z = complex((pixel2coord(x).x, pixel2coord(x).y));
-							hue(im(log(z))/2/pi)+gray(1-.3*abs(z))
-						);
-			
-						colorplot(L, R, "N",
-							newC = getNewC(#);
-							newval =	if(newC.x > 0 & newC.y > 0 & newC.x<512 & newC.y < 512,
-								imagergb(L, R, "N", (floor(newC.x)+.5, floor(newC.y)+.5)), //NEAREST interpolation.
-								round(random())*color(newC)
-							);
-							//newval = if(abs(mouse().xy - pixel2coord(#)) < 0.1, (0,0,0), newval);
-							newval = if(abs(A.xy - pixel2coord(#)) < 0.01, round(random())*color(#), newval);
-							newval = if(abs(B.xy - pixel2coord(#)) < 0.01, round(random())*color(#), newval);
-							if(random()>.03, newval, round(random())*color(#)) //sometimes flip (noise injection to "counteract duplication effect")
-							
-						);
-						
-						
-						alpha = 0.02;
-						colorplot(L, R, "Nb", //exponentially blended images of linearly interpolated noise images
-						//	newC = getNewC(#);
-						//	Na =	if(newC.x > 0 & newC.y > 0 & newC.x<512 & newC.y < 512,
-						//			imagergb(L, R, "N", (newC.x, newC.y)), //linear interpolation
-						//			random()
-						//	);
-							Na = imagergb(L, R, "N", #);
-							alpha*Na + (1-alpha)*imagergb(L, R, "Nb", #)
-						);
-						
-						colorplot(L, R, "Cfract",
-							newC = getNewC(#);
-							(newC.x-floor(newC.x), newC.y-floor(newC.y), 0)
-						);
-						
-						drawimage([-2, -2], [2, -2], "Nb");
+							z = v(pixel2coord(x));
+							hue(arctan2(z.y, z.x)/2/pi)+gray(.5)
+      );
+
+      colorplot(L, R, "N",
+        newC = getNewC(#);
+        newval =	if(newC.x > 0 & newC.y > 0 & newC.x<512 & newC.y < 512,
+          imagergb(L, R, "N", (floor(newC.x)+.5, floor(newC.y)+.5)), //NEAREST interpolation.
+          round(random())*color(newC)
+        );
+        //newval = if(abs(mouse().xy - pixel2coord(#)) < 0.1, (0,0,0), newval);
+        newval = if(abs(A.xy - pixel2coord(#)) < 0.05, round(random())*color(#), newval);
+        newval = if(abs(B.xy - pixel2coord(#)) < 0.05, round(random())*color(#), newval);
+        if(random()>.01, newval, round(random())*color(#)) //sometimes flip (noise injection to "counteract duplication effect")
+        
+      );
+      
+      
+      alpha = 0.02;
+      colorplot(L, R, "Nb", //exponentially blended images of linearly interpolated noise images
+      //	newC = getNewC(#);
+      //	Na =	if(newC.x > 0 & newC.y > 0 & newC.x<512 & newC.y < 512,
+      //			imagergb(L, R, "N", (newC.x, newC.y)), //linear interpolation
+      //			random()
+      //	);
+        Na = imagergb(L, R, "N", #);
+        alpha*Na + (1-alpha)*imagergb(L, R, "Nb", #)
+      );
+      
+      colorplot(L, R, "Cfract",
+        newC = getNewC(#);
+        (newC.x-floor(newC.x), newC.y-floor(newC.y), 0)
+      );
+      
+      drawimage([-2, -2], [2, -2], "Nb");
     </script>
 
     <canvas  id="CSCanvas" style="position:relative; top:10px;"></canvas>

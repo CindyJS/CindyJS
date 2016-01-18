@@ -13,11 +13,8 @@
     <h1>CindyJS: Complex Function Plot</h1>
     <script id="csinit" type="cindyscript">
       use("CindyGL");
-      
-      createimage("plot",500,500);
     </script>
     <script id="csmove" type="cindyscript">
-      
       f(z) := (
         (z-complex(A))*(z-complex(B))*(z-complex(C))
       );
@@ -27,17 +24,13 @@
         h = mod(re(z),1);
         exp(-.1*re(z))*(.8+.2*h)*hue(im(z)/(2*pi));
       );
-      
-      colorplot([-2.5,-2.5],[2.5,-2.5],"plot",color(f(complex(#))));
-      
-      drawimage([0,0], "plot");
+      colorplot(color(f(complex(#))));
     </script>
     
 
-    <canvas  id="CSCanvas"></canvas>
+    <canvas  id="CSCanvas" width="500" height="400"></canvas>
     
     <script type="text/javascript">
-        
         var gslp=[
                   {name:"A", kind:"P", type:"Free", pos:[-2,-1.5]},
                   {name:"B", kind:"P", type:"Free", pos:[.8,-1.5]},
@@ -45,15 +38,9 @@
                 ];
         createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
-                    geometry:gslp,
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 500,
-                      height: 500,
-                      transform: [ { visibleRect: [-2.5,-2.5, 2.5,2.5] } ]
-                    }]
+                    geometry:gslp
                     }
-                    );
+        );
     </script>              
 	</body>
 </html>

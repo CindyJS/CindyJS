@@ -25,9 +25,7 @@
       colorplot([-1.5,-1.5], [1.5,-1.5], "A", 0); //initialize as black
       colorplot([-1.5,-1.5], [1.5,-1.5], "a", 0);
       colorplot([-1.5,-1.5], [1.5,-1.5], "B", 0);
-      colorplot([-1.5,-1.5], [1.5,-1.5], "b", 0);
-      
-      createimage("output", 500, 500);
+      colorplot([-1.5,-1.5], [1.5,-1.5], "b", 0);      
     </script>
     
     <script id="csmove" type="cindyscript">
@@ -115,7 +113,7 @@
       
       
       
-      colorplot([-1.5,-1.5], [1.5,-1.5], "output",
+      colorplot(
         s0 = imagergb([-1.5,-1.5], [1.5,-1.5], "a", #).r;
         s1 = imagergb([-1.5,-1.5], [1.5,-1.5], "A", #).r;
         s2 = imagergb([-1.5,-1.5], [1.5,-1.5], "b", #).r;
@@ -124,11 +122,7 @@
         gray(sum)+
         s0*hue(1/8)+s1*hue(3/8)+s2*hue(5/8)+s3*hue(7/8)
       );
-      
-      drawimage([-1.5,-1.5], [1.5,-1.5], "output");
-      
-      
-      
+
       pt(a) := (re(a), im(a));
       
       draw(pt(moebius(A, complex(T))));
