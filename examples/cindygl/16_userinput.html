@@ -27,7 +27,7 @@
     </script>
     
 
-    <canvas  id="CSCanvas" width="500" height="400"></canvas>
+    <canvas  id="CSCanvas" width="500" height="400" style="position:relative; top:0px;"></canvas>
     
     <script type="text/javascript">
         var gslp=[{name:"A", kind:"P", type:"Free", pos:[0.1,0.1]},];
@@ -53,7 +53,9 @@ var typ=function(a,b){
 
 
 
-    </script>     
-    f(z) := <input type="text" name="inp" value="z*z+1"  onkeypress="typ(event, this)" size="72" style="font-size:18px">         
+    </script>
+    <p>
+      f(z) := <input type="text" name="inp" value="z*z+1"  onkeypress="typ(event, this)" size="72" style="font-size:18px">
+    </p>
 	</body>
 </html>
