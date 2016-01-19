@@ -2247,6 +2247,12 @@ geoMacros.Arc = function(el) {
     return [el];
 };
 
+geoMacros.AngularBisector = function(el) {
+    el.type = "angleBisector";
+    el.args.length = 2; // Drop point of intersection
+    return [el];
+};
+
 geoMacros.Transform = function(el) {
     var arg = csgeo.csnames[el.args[1]];
     var tr = csgeo.csnames[el.args[0]];
