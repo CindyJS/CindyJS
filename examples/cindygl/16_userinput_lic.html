@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Lagrangian-Eulerian Advection of Noise (without LIC)</h1>
+    <p>
+    Implementation of Jobard, Bruno; Erlebacher, Gordon; Hussaini, M. Yousuff (2002). "Lagrangian-Eulerian Advection of Noise and Dye Textures for Unsteady Flow Visualization"
+    </p>
+     <script id="csinit" type="cindyscript">
+      use("CindyGL");
+      
+      L = [0, 0]; //bottom left corner
+      R = [512, 0]; //bottom right corner
+      
+      createimage("Cfract", 512, 512);
+      createimage("N", 512, 512);
+      createimage("Nb", 512, 512);
+      
+      colorplot(L, R, "Cfract", (random(), random(), 0)); //the fractional parts of the coordinates (Cx, Cy) (see paper)
+      colorplot(L, R, "N", round(random()));
+
+
+      pixel2coord(x) := x/512*4+(-2,-2);
+      vect(x) := v(x.x, x.y);
+      v(x, y) := (-y, x); //vector field
+      h = 1.;
+      getNewC(pc) := (
+        col = imagergb(L, R, "Cfract", pc);
+        curC = (floor(pc.x)+col.x, floor(pc.y)+col.y);
+        curC - h*vect(pixel2coord(curC));  //euler step in the past
+      );
+    </script>
+
+        
+        
+    <script id="csdraw" type="cindyscript">
+      colorplot(L, R, "N",
+        newC = getNewC(#);
+        newval =	if(newC.x > 0 & newC.y > 0 & newC.x<512 & newC.y < 512,
+          imagergb(L, R, "N", (floor(newC.x)+.5, floor(newC.y)+.5)).r, //NEAREST interpolation.
+          round(random())
+        );
+        if(random()>.03, newval, 1-newval) //sometimes flip (noise injection to "counteract duplication effect")
+      );
+      
+      
+      alpha = 0.1;
+      colorplot(L, R, "Nb", //exponentially blended images of linearly interpolated noise images
+      newC = getNewC(#);
+      Na =	if(newC.x > 0 & newC.y > 0 & newC.x<512 & newC.y < 512,
+          imagergb([0,0], [512,0], "N", (newC.x, newC.y)).r, //linear interpolation
+          random()
+      );
+      alpha*Na + (1-alpha)*imagergb([0,0], [512,0], "Nb", #).r
+      );
+      
+      colorplot(L, R, "Cfract",
+        newC = getNewC(#);
+        (newC.x-floor(newC.x), newC.y-floor(newC.y), 0)
+      );
+      
+						
+      drawimage([-2, -2], [2, -2], "Nb")
+      
+    </script>
+
+    <canvas  id="CSCanvas" style="position:relative; top:10px;"></canvas>
+    <script type="text/javascript">
+        
+        cdy = createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:[],
+                    autoplay: true,
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 512,
+                      height: 512,
+                      transform: [ { visibleRect: [-2, -2, 2, 2] } ]
+                    }]
+                  });
+
+
+var typ=function(a,b){
+  var chCode = ('charCode' in event) ? event.charCode : event.keyCode;
+  if(chCode==13){
+    console.log("*************");
+
+    console.log(b.value);
+    cdy.evokeCS('v(x,y) := (' + b.value + '); forcerecompile();');
+  }
+}
+
+</script>
+
+
+
+    </script>
+    <p>
+    v(x,y) := <input type="text" name="inp" value="(-y, x)"  onkeypress="typ(event, this)" size="72" style="font-size:18px">       
+    </p>             
+	</body>
+</html>

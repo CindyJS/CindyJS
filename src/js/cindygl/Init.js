@@ -29,6 +29,7 @@ var can_use_texture_float = false;
 
 const oo = 1<<30; //infinity, but oo + oo should be > 0, hence not MaxInt
 
+var requiredcompiletime = 1;
 
 var subtypegen = {}; //generators of subtype relations
 var subtype = []; //distance matrix 

@@ -19,7 +19,7 @@
       f(z, c) := z*z+c;
       
       createimage("julia", 1024, 1024);
-      colorplot([-1.5,-1.5], [1.5,-1.5], "julia", (#.x, #.y, 0, 0));
+      colorplot([-2,-2], [2,-2], "julia", (#.x, #.y, 0, 0));
       lastupdate = 0;
     </script> 
     <script id="csdraw" type="cindyscript">
@@ -29,23 +29,23 @@
       cesc(z) := (
         l0 = abs(z);
         l1 = abs(f(z,c));   
-        if(l0>1.5,
+        if(l0>2,
           0,
-          if(l1 > 1.5,
-            re(log(1.5/l0))/re(log(l1/l0)),
+          if(l1 > 2,
+            re(log(2/l0))/re(log(l1/l0)),
             1
           )
         )
       );
       
       coordtime(z) := (
-        currentcolor = imagergba([-1.5,-1.5], [1.5,-1.5], "julia", z);
-        othercolor = imagergba([-1.5,-1.5], [1.5,-1.5], "julia", f(z, c));
+        currentcolor = imagergba([-2,-2], [2,-2], "julia", z);
+        othercolor = imagergba([-2,-2], [2,-2], "julia", f(z, c));
         cz = if(lastupdate>0, complex((currentcolor.x, currentcolor.y)), z);
         
-        nz =  if(abs(cz)<1.5, f(cz, c), cz);
+        nz =  if(abs(cz)<2, f(cz, c), cz);
 
-        cval = if(lastupdate>0, currentcolor.a, 0) + cesc(cz); //cval is currect if cval < lastupdate
+        cval = if(lastupdate>0, currentcolor.a, 0) + cesc(cz); //cval is correct if cval < lastupdate
         aval = othercolor.b + cesc(z); //aval is an approximation obtained by reading current image
         
         (re(nz), im(nz), if(cval < lastupdate, cval, aval), cval) //RGBA vector
@@ -54,17 +54,14 @@
       lastupdate = if(c==lastc, lastupdate+1, 0); //how many frames elapsed since the last time that c was updated?
       lastc = c;
       
-      colorplot([-1.5,-1.5], [1.5,-1.5], "julia", coordtime(complex(#)));
+      colorplot([-2,-2], [2,-2], "julia", coordtime(complex(#)));
       
       
       timetocolor(f) := (
         l = min(f/250,1);
         min(0.1+f/30, 1)*((1-l)*(hue(f/300-.5))+l*(1,1,1));
       );
-      colorplot(timetocolor(imagergb([-1.5,-1.5], [1.5,-1.5], "julia", #).b));
-      
-      
-      
+      colorplot(timetocolor(imagergb([-2,-2], [2,-2], "julia", #).b));   
     </script>
 
     <canvas  id="CSCanvas"></canvas>
@@ -79,7 +76,7 @@
                       id: "CSCanvas",
                       width: 1024,
                       height: 1024,
-                      transform: [ { visibleRect: [-1.5, -1.5, 1.5, 1.5] } ]
+                      transform: [ { visibleRect: [-2, -2, 2, 2] } ]
                     }]
                   });
     </script>              

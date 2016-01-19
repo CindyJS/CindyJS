@@ -22,15 +22,22 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
    * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
    */
   function compileAndRender(prog, a, b, width, height, canvaswrapper) {
-    if(!prog.iscompiled) { 
+    if(!prog.iscompiled || prog.compiletime < requiredcompiletime) { 
       //console.log("Program is not compiled. So we will do that");
       prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
+      prog.compiletime = requiredcompiletime;
       prog.renderer = new Renderer(api, prog);
     } /*else {
       console.log("Program has been compiled; we will use that compiled code.");
     }*/
     prog.renderer.render(a, b, width, height, canvaswrapper);
 	}
+  
+  
+  api.defineFunction("forcerecompile", 0, function(args, modifs) {
+    requiredcompiletime++;
+    return nada;
+  });
   
   /**
    * plots colorplot on main canvas in CindyJS coordinates
