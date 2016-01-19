@@ -23,16 +23,17 @@
      t = seconds()-t0;
      a = complex(A.xy);
      colorplot(hue(im(log(f(complex(#))))/2/pi));
-     plot(f(#));
+     //plot(f(#));
     </script>
     
 
     <canvas  id="CSCanvas" width="500" height="400" style="position:relative; top:0px;"></canvas>
     
     <script type="text/javascript">
-        var gslp=[{name:"A", kind:"P", type:"Free", pos:[0.1,0.1]},];
+        var gslp=[{name:"A", kind:"P", type:"Free", pos:[-2,2]},];
         cdy = createCindy({canvasname:"CSCanvas",
                     scripts: "cs*",
+                    autoplay: true,
                     geometry:gslp
                     }
         );
@@ -55,7 +56,10 @@ var typ=function(a,b){
 
     </script>
     <p>
-      f(z) := <input type="text" name="inp" value="z*z+1"  onkeypress="typ(event, this)" size="72" style="font-size:18px">
+      f(z) := <input type="text" name="inp" value="z*z+1"  onkeypress="typ(event, this)" size="50" style="font-size:18px">
+    </p>
+    <p>
+      You can use variables <i>t</i> or <i>a</i> for the time or the position of the point respectively.
     </p>
 	</body>
 </html>
