@@ -31,7 +31,7 @@ geoOps.FreeLine.kind = "L";
 geoOps.FreeLine.signature = [];
 geoOps.FreeLine.isMovable = true;
 geoOps.FreeLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     putStateComplexVector(pos);
 };
 geoOps.FreeLine.getParamForInput = function(el, pos, type) {
@@ -177,7 +177,7 @@ geoOps.HorizontalLine.kind = "L";
 geoOps.HorizontalLine.signature = [];
 geoOps.HorizontalLine.isMovable = true;
 geoOps.HorizontalLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([CSNumber.zero, pos.value[1], pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
@@ -218,7 +218,7 @@ geoOps.VerticalLine.kind = "L";
 geoOps.VerticalLine.signature = [];
 geoOps.VerticalLine.isMovable = true;
 geoOps.VerticalLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([pos.value[0], CSNumber.zero, pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
@@ -2361,6 +2361,29 @@ geoOps._helper.initializePoint = function(el) {
             sx = el.pos[0];
             sy = el.pos[1];
             sz = 1;
+        }
+        if (el.pos.length === 3) {
+            sx = el.pos[0];
+            sy = el.pos[1];
+            sz = el.pos[2];
+        }
+    }
+    var pos = List.turnIntoCSList([
+        CSNumber._helper.input(sx),
+        CSNumber._helper.input(sy),
+        CSNumber._helper.input(sz)
+    ]);
+    pos = List.normalizeMax(pos);
+    return pos;
+};
+
+geoOps._helper.initializeLine = function(el) {
+    var sx = 0;
+    var sy = 0;
+    var sz = 0;
+    if (el.pos) {
+        if (el.pos.ctype === "list" && List.isNumberVector(el.pos)) {
+            return el.pos;
         }
         if (el.pos.length === 3) {
             sx = el.pos[0];
