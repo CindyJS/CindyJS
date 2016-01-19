@@ -1643,9 +1643,25 @@ geoOps.SelectP.updatePosition = function(el) {
 geoOps.SelectL = {};
 geoOps.SelectL.kind = "L";
 geoOps.SelectL.signature = ["Ls"];
+geoOps.SelectL.initialize = function(el) {
+    if (el.index !== undefined)
+        return el.index - 1;
+    var set = csgeo.csnames[(el.args[0])].results.value;
+    var pos = geoOps._helper.initializeLine(el);
+    var d1 = List.projectiveDistMinScal(pos, set[0]);
+    var best = 0;
+    for (var i = 1; i < set.length; ++i) {
+        var d2 = List.projectiveDistMinScal(pos, set[i]);
+        if (d2 < d1) {
+            d1 = d2;
+            best = i;
+        }
+    }
+    return best;
+};
 geoOps.SelectL.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    el.homog = set.results.value[el.index - 1];
+    el.homog = set.results.value[el.param];
     el.homog = General.withUsage(el.homog, "Line");
 };
 
