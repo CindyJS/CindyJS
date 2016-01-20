@@ -51,7 +51,7 @@ download/$(NODE_BASENAME)/bin/npm: download/arch/$(NODE_TAR)
 	test -e $@
 	touch $@
 
-js_make:
+js_make: $(NPM_DEP)
 
 .PHONY: js_make
 
