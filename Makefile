@@ -30,13 +30,16 @@ NODE_BASENAME:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH)
 NODE_TAR:=$(NODE_BASENAME).tar.gz
 NODE_URL:=$(NODE_URLBASE)/v$(NODE_VERSION)/$(NODE_TAR)
 
+ifeq ($(CURDIR),)
+CURDIR:=$(shell pwd)
+endif
 NODE:=node
 NPM:=npm
 cmd_needed=$(shell $(1) >/dev/null 2>&1 || echo needed)
 NODE_NEEDED:=$(call cmd_needed,$(NODE) tools/check-node-version.js)
 NPM_NEEDED:=$(call cmd_needed,$(NPM) -version)
 NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),download/$(NODE_BASENAME)/bin/npm,)
-NODE_PATH:=PATH=node_modules/.bin:$(if $(NPM_DEP),$(dir $(NPM_DEP)):,)$$PATH
+NODE_PATH:=PATH=$(CURDIR)/node_modules/.bin:$(if $(NPM_DEP),$(CURDIR)/$(dir $(NPM_DEP)):,)$$PATH
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
 JS_MAKE=$(NODE_CMD) make/index.js js_compiler=$(js_compiler)
