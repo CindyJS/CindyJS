@@ -14,7 +14,7 @@
     <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
        f(z) := (
-        z*z+1
+        z/(z-a)
       );
       
       t0 = seconds();
@@ -40,8 +40,8 @@
         
         
     
-var typ=function(a,b){
-  var chCode = ('charCode' in event) ? event.charCode : event.keyCode;
+var typ=function(e, b){
+  var chCode=e.which ? e.which:e.keyCode;
   if(chCode==13){
     console.log("*************");
 
@@ -52,11 +52,8 @@ var typ=function(a,b){
 
 </script>
 
-
-
-    </script>
     <p>
-      f(z) := <input type="text" name="inp" value="z*z+1"  onkeypress="typ(event, this)" size="50" style="font-size:18px">
+      f(z) := <input type="text" name="inp" value="z/(z-a)" onkeypress="typ(event, this);" size="50" style="font-size:18px">
     </p>
     <p>
       You can use variables <i>t</i> or <i>a</i> for the time or the position of the point respectively.

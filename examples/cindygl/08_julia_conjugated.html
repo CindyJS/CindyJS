@@ -46,14 +46,14 @@
       
       color(z) := (
 		z = exp(z)+d;
-        r = f(z, c);
-        if(abs(z)<4, imagergb(L, R, "juliaconj", log(r-d)) + cesc(z)/255*(1,2,3), (0,0,0));
+        r = log(f(z, c) - d);
+        if(abs(z)<4, if(re(r) > L.x+.01, imagergb(L, R, "juliaconj", r) + cesc(z)/255*(1,2,3), (1,.7,0)), (0,0,0));
       );
       
       colorplot(L, R, "juliaconj", (color(complex(#))));
       drawimage([1.5,-1.5], [7.5,-1.5], "juliaconj");
       
-      colorplot([-1.5,-1.5], [1.5,-1.5], "julia", imagergb(L, R, "juliaconj", log(complex(#)-d)));
+      colorplot([-1.5,-1.5], [1.5,-1.5], "julia", imagergb(L, R, "juliaconj", log(if( # * (re(d), im(d)) > 0, complex(#), complex(-#))-d)));
       drawimage([-1.5,-1.5], [1.5,-1.5], "julia");
       
       draw([1.5,-1.5],[1.5,1.5], color->(1,1,1));

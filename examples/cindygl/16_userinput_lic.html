@@ -88,8 +88,8 @@
                   });
 
 
-var typ=function(a,b){
-  var chCode = ('charCode' in event) ? event.charCode : event.keyCode;
+var typ=function(e, b){
+  var chCode=e.which ? e.which:e.keyCode;
   if(chCode==13){
     console.log("*************");
 
@@ -99,12 +99,8 @@ var typ=function(a,b){
 }
 
 </script>
-
-
-
-    </script>
     <p>
-    v(x,y) := <input type="text" name="inp" value="(-y, x)"  onkeypress="typ(event, this)" size="72" style="font-size:18px">       
+    v(x,y) := <input type="text" name="inp" value="(-y, x)"  onkeypress="typ(event, this);" size="72" style="font-size:18px">       
     </p>             
 	</body>
 </html>
