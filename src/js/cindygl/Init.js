@@ -73,7 +73,6 @@ function initGLIfRequired() {
     onContextCreationError, false);
 
 
-
   can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
   if (!can_use_texture_float) {
     console.error("Your browser does not suppert OES_texture_float, trying OES_texture_half_float...");
@@ -82,11 +81,5 @@ function initGLIfRequired() {
     if (!can_use_texture_half_float)
       console.error("Your browser does not suppert OES_texture_half_float, will use 8-bit textures.");
   }
-
-
-
-
-
-
   isinitialized = true;
 }
