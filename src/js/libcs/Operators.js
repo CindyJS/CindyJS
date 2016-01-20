@@ -985,7 +985,7 @@ function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (CSNumber._helper.isZero(v1))
-        console.error("WARNING: Division by zero!");
+        csconsole.err("WARNING: Division by zero!");
     var erg = General.div(v0, v1);
     if (v0.usage === "Angle" && !v1.usage)
         erg = General.withUsage(erg, "Angle");

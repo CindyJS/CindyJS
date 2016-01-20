@@ -23,7 +23,7 @@ The result of this operator is either `true` or `false`.
 Note that `NaN` (Not a Number) compares not equal even to itself:
 
     > a = 0/0
-    * DIVISION BY ZERO
+    * WARNING: Division by zero!
     > a == a
     < false
 
@@ -56,7 +56,7 @@ It is the logical negation of `‹expr1› == ‹expr2›`.
 Note that `NaN` (Not a Number) compares different from itself:
 
     > a = 0/0
-    * DIVISION BY ZERO
+    * WARNING: Division by zero!
     > a != a
     < true
 
