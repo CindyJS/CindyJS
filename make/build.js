@@ -8,6 +8,12 @@ var src = require("./sources");
 
 module.exports = function build(settings, task) {
 
+    function jsCompiler() {
+        if ((/release/i).test(settings.get("build")))
+            return "closure";
+        return "plain";
+    }
+
     //////////////////////////////////////////////////////////////////////
     // Download Closure Compiler
     //////////////////////////////////////////////////////////////////////
@@ -66,8 +72,9 @@ module.exports = function build(settings, task) {
         ], "build/js/Cindy.closure.js");
     });
 
-    task("Cindy.js", [settings.get("js_compiler")], function() {
-        var base = "Cindy." + this.setting("js_compiler") + ".js";
+    task("Cindy.js", [jsCompiler()], function() {
+        this.setting("build");
+        var base = "Cindy." + jsCompiler() + ".js";
         var js = base.replace(/\./g, "\\.");
         var map = (base + ".map").replace(/\./g, "\\.");
         this.replace("build/js/" + base, "build/js/Cindy.js", [{

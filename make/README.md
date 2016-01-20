@@ -4,7 +4,7 @@
 
 Run `node make [SETTINGS] [TASKS]` to build the project.
 
-Example: `node make js_compiler=plain Cindy.js`
+Example: `node make build=release Cindy.js`
 
 ### Settings
 

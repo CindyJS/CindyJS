@@ -54,7 +54,7 @@ NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),$(NPM_DOWNLOADED),$(NPM_WRAPPER))
 NODE_PATH:=PATH=$(if $(NPM_DEP),$(CURDIR)/$(dir $(NPM_DEP)):,)$$PATH
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
-JS_MAKE=$(NODE_CMD) make/index.js js_compiler=$(js_compiler)
+JS_MAKE=$(NODE_CMD) make/index.js build=$(build)
 
 download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
@@ -80,12 +80,8 @@ js_make: $(NPM_DEP)
 ## Build different flavors of Cindy.js
 ######################################################################
 
-#by default use closure compiler
-js_compiler = closure
-
-ifeq ($(plain),1)
-	js_compiler = plain
-endif
+# Specify build=release on the command line to run closure compiler
+build=debug
 
 build/js/Cindy.plain.js: js_make
 	$(JS_MAKE) plain

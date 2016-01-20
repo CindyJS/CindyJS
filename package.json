@@ -29,7 +29,7 @@
     "whole-line-stream": "^0.1.0"
   },
   "scripts": {
-    "prepublish": "node make/index.js call_npm=false parallel=true all",
+    "prepublish": "node make/index.js call_npm=false parallel=true build=release all",
     "test": "node make/index.js call_npm=false alltests"
   },
   "repository": {
