@@ -10,9 +10,9 @@ var request = require("request");
 var rimraf = require("rimraf");
 var touch = require("touch");
 var unzip = require("unzip");
+var WholeLineStream = require("whole-line-stream");
 
 var BuildError = require("./BuildError");
-var WholeLineStream = require("./WholeLineStream");
 
 /**
  * Adds a job for running a node module or other command.

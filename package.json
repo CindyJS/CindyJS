@@ -25,7 +25,8 @@
     "source-map": "^0.4.4",
     "source-map-dummy": "^1.0.0",
     "touch": "^1.0.0",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "whole-line-stream": "^0.1.0"
   },
   "scripts": {
     "prepublish": "node make/index.js call_npm=false parallel=true all",
