@@ -3760,8 +3760,8 @@ evaluator.use$1 = function(args, modifs) {
                     return img;
                 },
                 "getMyfunction": function(name) {
-                    if(!myfunctions.hasOwnProperty(name))
-                      return null;
+                    if (!myfunctions.hasOwnProperty(name))
+                        return null;
                     return myfunctions[name];
                 }
             });
