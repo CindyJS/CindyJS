@@ -664,35 +664,63 @@ geoOps.CircleMr.updatePosition = function(el) {
     var r = getStateComplexNumber();
     putStateComplexNumber(r); // copy param
     var m = csgeo.csnames[(el.args[0])].homog;
-    m = List.normalizeZ(m);
-    var p = List.turnIntoCSList([r, CSNumber.zero, CSNumber.zero]);
-    p = List.add(p, m);
-    var matrix = geoOps._helper.CircleMP(m, p);
-    matrix = List.normalizeMax(matrix);
+    /*
+    The circle's radius value may take on values from zero to infinity.
+    However since the squared radius value appears in the circle's matrix,
+    a radius value of 2E+154 or more could also end up as an infinite value.
+    Using List.normalizeMax elsewhere will limit the coordinate values of m
+    to no more than 1.0, so that scaling the radius value by m's z-coordinate
+    first here will not make the radius value any larger. Then by squaring the
+    radius value, any infinity value produced can be caught here.
+    */
+    var sr = CSNumber.mult(m.value[2], r);
+    var sr2 = CSNumber.mult(sr, sr);
+    if (!CSNumber._helper.isFinite(sr2) && !CSNumber._helper.isNaN(sr2)) return List.fund;
+    var matrix = geoOps._helper.ScaledCircleMrr(m, sr2);
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
 };
 geoOps.CircleMr.stateSize = 2;
 
 
-//TODO Must be redone for Points at infinity
-//Original Cindy Implementation is not correct either
+geoOps._helper.ScaledCircleMrr = function(M, rr) {
+    /*
+    Given M as the circle's homogeneous center point coordinates [x, y, z] and
+    rr as the circle's radius value squared scaled by M's z-coordinate squared,
+    build the following matrix:
+        ⎛   z*z      0      -z*x   ⎞
+        ⎜    0      z*z     -z*y   ⎟
+        ⎝  -z*x    -z*y  x*x+y*y-rr⎠
+    */
+    var x = M.value[0];
+    var y = M.value[1];
+    var mz = CSNumber.neg(M.value[2]); // minus z
+    var v = List.scalmult(mz, List.turnIntoCSList([x, y, mz])).value;
+    var vxy = List.turnIntoCSList([x, y]);
+    var zz = CSNumber.sub(List.scalproduct(vxy, vxy), rr);
+    var matrix = geoOps._helper.buildConicMatrix([v[2], CSNumber.zero, v[2], v[0], v[1], zz]);
+    return List.normalizeMax(matrix);
+};
+
+
 geoOps.Compass = {};
 geoOps.Compass.kind = "C";
 geoOps.Compass.signature = ["P", "P", "P"];
 geoOps.Compass.updatePosition = function(el) {
-    var m = csgeo.csnames[(el.args[2])].homog;
+    var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
-    var c = csgeo.csnames[(el.args[0])].homog;
-    m = List.normalizeZ(m);
-    b = List.normalizeZ(b);
-    c = List.normalizeZ(c);
-    var diff = List.sub(b, c);
-    var p = List.add(diff, m);
-    p = List.normalizeZ(p);
-
-    var matrix = geoOps._helper.CircleMP(m, p);
-    matrix = List.normalizeMax(matrix);
+    var m = csgeo.csnames[(el.args[2])].homog;
+    // Scale each point's homogeneous coordinates by the other two
+    // point's z-value to allow addtion and subtraction to be valid.
+    var aZ = a.value[2];
+    var bZ = b.value[2];
+    var mZ = m.value[2];
+    a = List.scalmult(CSNumber.mult(bZ, mZ), a);
+    b = List.scalmult(CSNumber.mult(aZ, mZ), b);
+    m = List.scalmult(CSNumber.mult(aZ, bZ), m);
+    // Setup circle's matrix with m as center and segment ab length as radius
+    var d = List.sub(b, a);
+    var matrix = geoOps._helper.ScaledCircleMrr(m, List.scalproduct(d, d));
     el.matrix = General.withUsage(matrix, "Circle");
 };
 
