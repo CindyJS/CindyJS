@@ -158,16 +158,16 @@ CodeBuilder.prototype.getType = function(expr, fun) { //expression, current func
  * finds the occuring variables, saves them to this.variables and its occuring assigments to this.assigments
  */
 CodeBuilder.prototype.determineVariables = function(expr) {
-  
+
   //for some reason this reference does not work in local function. Hence generate local variables
   let variables = {}; //functionname -> list of variables occuring in this scope. global corresponds to ''-function
   let assigments = {};
   let myfunctions = this.myfunctions;
-  
+
   rec(expr, ''); //global
   this.variables = variables;
   this.assigments = assigments;
-  
+
   function rec(expr, fun) { //dfs over executed code
     if (!variables.hasOwnProperty(fun)) {
       variables[fun] = []; //list of variables
@@ -302,8 +302,8 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 
   let variables = this.variables;
   let myfunctions = this.myfunctions;
-  
-  
+
+
   function dependsOnPixel(expr, fun) {
     //Have we already found out that expr depends on pixel?
     if (expr.hasOwnProperty("dependsOnPixel") && expr["dependsOnPixel"] === true) {
@@ -331,12 +331,12 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         return expr["dependsOnPixel"] = true;
       }
     }
-    
+
     //our random function is dependent on pixel!
     if (expr['ctype'] === 'function' && getPlainName(expr['oper']) === 'random') {
-      return expr["dependsOnPixel"] = true;      
+      return expr["dependsOnPixel"] = true;
     }
-    
+
     //Oh yes, it also might be a user-defined function!
     if (expr['ctype'] === 'function' && myfunctions.hasOwnProperty(expr['oper'])) {
       let rfun = expr['oper'];
@@ -394,7 +394,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
   let visitedFunctions = {
     '': true
   };
-  
+
   let uniforms = {};
   //now find use those elements in expression trees that have no expr["dependsOnPixel"] and as high as possible having that property
   function computeUniforms(expr, fun) {
@@ -403,10 +403,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
       for (let i in expr['args']) {
         computeUniforms(expr['args'][i], fun);
       }
-      
-      if(expr['ctype'] === 'field') {
-								computeUniforms(expr['obj'], fun);
-						}
+
+      if (expr['ctype'] === 'field') {
+        computeUniforms(expr['obj'], fun);
+      }
 
       //Oh yes, it also might be a user-defined function!
       if (expr['ctype'] === 'function' && myfunctions.hasOwnProperty(expr['oper'])) {
@@ -422,10 +422,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 
       //To pass constant numbers as uniforms is overkill
       if (expr['ctype'] === 'number') return;
-      
+
       //strings (e.g. names of other textures) cannot be passed as uniforms
       if (expr['ctype'] === 'string') return;
-      
+
       //nothing to pass
       if (expr['ctype'] === 'void') return;
 
@@ -438,9 +438,9 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
       };
     }
   }
-  
-  
-  
+
+
+
   computeUniforms(expr, '');
   this.uniforms = uniforms;
   console.log(this.uniforms);
@@ -468,7 +468,7 @@ CodeBuilder.prototype.determineUniformTypes = function() {
  * examines recursively all code generates myfunctions, which is cloned from results from api.getMyfunction(...)
  */
 CodeBuilder.prototype.copyRequiredFunctions = function(expr) {
-  if(expr['ctype'] === 'function' && !this.myfunctions.hasOwnProperty(expr['oper']) && this.api.getMyfunction(expr['oper'])!==null) { //copy and transverse recursively all occuring myfunctions
+  if (expr['ctype'] === 'function' && !this.myfunctions.hasOwnProperty(expr['oper']) && this.api.getMyfunction(expr['oper']) !== null) { //copy and transverse recursively all occuring myfunctions
     let fun = expr['oper'];
     this.myfunctions[fun] = clone(this.api.getMyfunction(fun));
     this.copyRequiredFunctions(this.myfunctions[fun].body);
@@ -481,7 +481,7 @@ CodeBuilder.prototype.copyRequiredFunctions = function(expr) {
 
 CodeBuilder.prototype.precompile = function(expr) {
   this.precompileDone = false;
-  
+
   this.copyRequiredFunctions(expr);
   this.determineVariables(expr);
   this.determineUniforms(expr);
@@ -504,10 +504,10 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
   var self = this; //for some reason recursion on this does not work, hence we create a copy; see http://stackoverflow.com/questions/18994712/recursive-call-within-prototype-function
   if (expr['isuniform']) {
     let uname = expr['uvariable'];
-    
+
     let uniforms = this.uniforms;
-    
-    
+
+
     let type = uniforms[uname].type;
     return generateTerm ? {
       code: '',
@@ -646,7 +646,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
 
     //console.log(JSON.stringify(expr));
     //console.log("this:" + JSON.stringify(this));
-    
+
     let r = expr['args'].map(e => self.compile(e, scope, true)); //recursion on all arguments
 
     let termGenerator;
@@ -849,10 +849,10 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
 CodeBuilder.prototype.generateHeaderOfCompiledFunctions = function() {
   return this.compiledfunctions.join('\n');
 };
-  
+
 CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
   expr = clone(expr); //then we can write dirty things on expr...
-  
+
   this.precompile(expr); //determine this.variables, types etc.
   let r = this.compile(expr, '', true);
   let colorterm = this.castType(r.term, r.type, type.color);
@@ -879,15 +879,14 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     '}\n';
 
   console.log(code);
-  
+
   //Object.keys(this.texturereaders)
   let requiredtextures = [];
-  for(let texture in this.texturereaders) requiredtextures.push(texture);
-  
+  for (let texture in this.texturereaders) requiredtextures.push(texture);
+
   return {
     code: code,
     uniforms: this.uniforms,
     requiredtextures: requiredtextures
   };
 };
-

@@ -14,7 +14,7 @@ webgltype[type.point] = 'vec3'; //use homogenious coordinates
 webgltype[type.coordinate2d] = 'vec2';
 
 //(a, b) \in \C^4 \mapsto (re a, im a, re b, im b) \in \R^4 
-webgltype[type.vec2complex] = 'vec4'; 
+webgltype[type.vec2complex] = 'vec4';
 
 // (a b)    (re a, -im a, re b, -im b)
 // (c d) -> (im a,  re a, im b,  re b)
@@ -29,7 +29,7 @@ Object.freeze(webgltype);
 
 function usefunction(name) {
   return function(args) { //args?
-    if(typeof 'args' === 'string')
+    if (typeof 'args' === 'string')
       return getPlainName(name) + '(' + args + ')';
     else
       return getPlainName(name) + '(' + args.join(', ') + ')';
@@ -43,7 +43,9 @@ function useinfix(inf) {
 }
 
 //subtype inclusion function in WebGL
-function identity(x) {return x};
+function identity(x) {
+  return x
+};
 
 
 
@@ -70,7 +72,7 @@ var getImag = function(c) {
 }
 
 var inclusionfunction = {};
-for(let t in type) {
+for (let t in type) {
   inclusionfunction[type[t]] = {};
 }
 
@@ -111,7 +113,7 @@ webgltr["sqrt"] = [
 ];
 
 webgltr['abs'] = [
-  [float_fun$1,   usefunction('abs')  ],
+  [float_fun$1, usefunction('abs')],
   [complex2float_fun$1, usefunction('length')],
   [vec22float_fun$1, usefunction('length')],
   [vec32float_fun$1, usefunction('length')],
@@ -119,77 +121,90 @@ webgltr['abs'] = [
 ];
 
 webgltr['sin'] = [
-  [float_fun$1,   usefunction('sin')  ],
+  [float_fun$1, usefunction('sin')],
   [complex_fun$1, useincludefunction('sinc')]
 ];
 
 webgltr['cos'] = [
-  [float_fun$1,   usefunction('cos')  ],
+  [float_fun$1, usefunction('cos')],
   [complex_fun$1, useincludefunction('cosc')]
 ];
 
 webgltr['tan'] = [
-  [float_fun$1,   usefunction('tan')  ],
+  [float_fun$1, usefunction('tan')],
   [complex_fun$1, useincludefunction('tanc')]
 ];
 
 webgltr['exp'] = [
-  [float_fun$1,   usefunction('exp')  ],
+  [float_fun$1, usefunction('exp')],
   [complex_fun$1, useincludefunction('expc')]
 ];
 
 webgltr['arctan'] = [
-  [float_fun$1,   usefunction('atan')  ],
+  [float_fun$1, usefunction('atan')],
   [complex_fun$1, useincludefunction('arctanc')]
 ];
 
 webgltr['log'] = [
-  [float2complex_fun$1,   useincludefunction('logr')],
+  [float2complex_fun$1, useincludefunction('logr')],
   [complex_fun$1, useincludefunction('logc')]
 ];
 
 webgltr["add"] = [];
 webgltr["sub"] = [];
 
-[int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2].forEach( function(t) {
-    webgltr["add"].push([t,  useinfix('+')]);
-    webgltr["sub"].push([t,  useinfix('-')]);
-  }
-);
+[int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2].forEach(function(t) {
+  webgltr["add"].push([t, useinfix('+')]);
+  webgltr["sub"].push([t, useinfix('-')]);
+});
 
 var negate = function(v) {
-  return '-('+ v[1] + ')';
+  return '-(' + v[1] + ')';
 }
 
 let rings = [type.int, type.float, type.complex, type.vec2, type.vec3, type.vec4];
-rings.forEach( function(t) {
-    webgltr["sub"].push([{args: [type.voidt, t], res: t}, negate]);
-  }
-);
+rings.forEach(function(t) {
+  webgltr["sub"].push([{
+    args: [type.voidt, t],
+    res: t
+  }, negate]);
+});
 
 
 var accessbyshiftedindex = function(args) {
-    if(isFinite(args[1]))
-      return '(' + args[0] + ')['+(args[1]-1)+']'; //change index for hardcoded integers
-    else
-      return '(' + args[0] + ')['+args[1]+'-1]';
+  if (isFinite(args[1]))
+    return '(' + args[0] + ')[' + (args[1] - 1) + ']'; //change index for hardcoded integers
+  else
+    return '(' + args[0] + ')[' + args[1] + '-1]';
 };
 
 var accesscomplexbyshiftedindex = function(args) { //only works for indices that were hardcoded in CindyJS
-		if(args[1]===1)
-			return '(' + args[0] + ').xy';
-		else if(args[1]===2)
-			return '(' + args[0] + ').zw';
-		else
-			console.error("access of components of complex[2] only works for indeces that were hardcoded in CindyJS");
-		return 'ERROR: SEE CONSOLE (index was ' + args[1] + ') \n';
+  if (args[1] === 1)
+    return '(' + args[0] + ').xy';
+  else if (args[1] === 2)
+    return '(' + args[0] + ').zw';
+  else
+    console.error("access of components of complex[2] only works for indeces that were hardcoded in CindyJS");
+  return 'ERROR: SEE CONSOLE (index was ' + args[1] + ') \n';
 };
 
 webgltr["_"] = [
-  [{args:[type.vec2, type.int], res: type.float}, accessbyshiftedindex],
-  [{args:[type.vec3, type.int], res: type.float}, accessbyshiftedindex],
-  [{args:[type.vec4, type.int], res: type.float}, accessbyshiftedindex],
-  [{args:[type.vec2complex, type.int], res: type.complex}, accesscomplexbyshiftedindex]
+  [{
+    args: [type.vec2, type.int],
+    res: type.float
+  }, accessbyshiftedindex],
+  [{
+    args: [type.vec3, type.int],
+    res: type.float
+  }, accessbyshiftedindex],
+  [{
+    args: [type.vec4, type.int],
+    res: type.float
+  }, accessbyshiftedindex],
+  [{
+    args: [type.vec2complex, type.int],
+    res: type.complex
+  }, accesscomplexbyshiftedindex]
 ];
 
 
@@ -200,18 +215,36 @@ webgltr["mult"] = [
   [int_fun$2, useinfix('*')],
   [float_fun$2, useinfix('*')],
   [complex_fun$2, useincludefunction('multc')],
-  [{args: [type.mat2, type.vec2],    res: type.vec2}, useinfix('*')],
-  [{args: [type.mat2complex, type.vec2complex],    res: type.vec2complex}, useinfix('*')],
-  [{args: [type.mat3, type.vec3],    res: type.vec3}, useinfix('*')],
-  [{args: [type.mat4, type.vec4],    res: type.vec4}, useinfix('*')],
+  [{
+    args: [type.mat2, type.vec2],
+    res: type.vec2
+  }, useinfix('*')],
+  [{
+    args: [type.mat2complex, type.vec2complex],
+    res: type.vec2complex
+  }, useinfix('*')],
+  [{
+    args: [type.mat3, type.vec3],
+    res: type.vec3
+  }, useinfix('*')],
+  [{
+    args: [type.mat4, type.vec4],
+    res: type.vec4
+  }, useinfix('*')],
   [vec22float_fun$2, usefunction('dot')],
   [vec32float_fun$2, usefunction('dot')],
   [vec42float_fun$2, usefunction('dot')]
 ];
 
-rvectorspaces.forEach(function(t){
-  webgltr["mult"].push([{args: [type.float, t], res: t}, useinfix('*')]);
-  webgltr["mult"].push([{args: [t, type.float], res: t}, useinfix('*')]);
+rvectorspaces.forEach(function(t) {
+  webgltr["mult"].push([{
+    args: [type.float, t],
+    res: t
+  }, useinfix('*')]);
+  webgltr["mult"].push([{
+    args: [t, type.float],
+    res: t
+  }, useinfix('*')]);
 });
 
 webgltr['*'] = webgltr['mult'];
@@ -220,8 +253,11 @@ webgltr["div"] = [
   [float_fun$2, useinfix('/')],
   [complex_fun$2, useincludefunction('divc')]
 ];
-rvectorspaces.forEach(function(t){
-  webgltr["div"].push([{args: [t, type.float], res: t}, useinfix('/')]);
+rvectorspaces.forEach(function(t) {
+  webgltr["div"].push([{
+    args: [t, type.float],
+    res: t
+  }, useinfix('/')]);
 });
 webgltr['/'] = webgltr['div'];
 
@@ -234,18 +270,27 @@ webgltr['im'] = [
 ];
 
 webgltr["floor"] = [
-  [{args: [type.float], res: type.int}, (a=>'int(floor('+a+'))')]
+  [{
+    args: [type.float],
+    res: type.int
+  }, (a => 'int(floor(' + a + '))')]
   //TODO{args: [type.complex], res: type.complex}
 ];
 
 webgltr["round"] = [
-  [{args: [type.float], res: type.int}, (a=>'int(floor('+a+'+.5))')]
+  [{
+    args: [type.float],
+    res: type.int
+  }, (a => 'int(floor(' + a + '+.5))')]
   //TODO{args: [type.complex], res: type.complex}
 ];
 
 //- ("ceil", 1, OpCeil.class); @done(2015-03-17)
 webgltr["ceil"] = [
-  [{args: [type.float], res: type.int}, (a=>'int(ceil('+a+'))')]
+  [{
+    args: [type.float],
+    res: type.int
+  }, (a => 'int(ceil(' + a + '))')]
   //TODO{args: [type.complex], res: type.complex}
 ];
 
@@ -265,15 +310,18 @@ webgltr["random"] = [
 webgltr['arctan2'] = [
   [float_fun$2, usefunction('atan')],
   [complex_fun$2, useincludefunction('arctanc')]
-//- ("arctan2", 1, OpArcTan2_1.class); @done(2015-03-17)
-//  {args:[{type: "list", length: 2, members: type.float}], res: type.float},
-//  {args:[{type: "list", length: 2, members: type.complex}], res: type.complex}
+  //- ("arctan2", 1, OpArcTan2_1.class); @done(2015-03-17)
+  //  {args:[{type: "list", length: 2, members: type.float}], res: type.float},
+  //  {args:[{type: "list", length: 2, members: type.complex}], res: type.complex}
 ];
 
 
-["red", "green", "blue", "gray", "hue"].forEach( oper =>
+["red", "green", "blue", "gray", "hue"].forEach(oper =>
   webgltr[oper] = [
-    [{args:[type.float], res: type.vec3},  useincludefunction(oper)]
+    [{
+      args: [type.float],
+      res: type.vec3
+    }, useincludefunction(oper)]
   ]
 );
 webgltr["grey"] = webgltr["gray"];
@@ -292,14 +340,25 @@ webgltr["max"] = [
 
 
 webgltr["complex"] = [
-  [{args: [type.vec2], res: type.complex}, identity]
+  [{
+    args: [type.vec2],
+    res: type.complex
+  }, identity]
 ];
 
 webgltr["pow"] = [
-  [{args: [type.float, type.int], res: type.float}, 
-    function(args){return "pow("+args[0]+", float("+args[1]+"))";} //TODO: 0^0=1 in cindyjs
+  [{
+      args: [type.float, type.int],
+      res: type.float
+    },
+    function(args) {
+      return "pow(" + args[0] + ", float(" + args[1] + "))";
+    } //TODO: 0^0=1 in cindyjs
   ],
-  [{args: [type.complex, type.complex], res: type.complex}, useincludefunction('powc')]
+  [{
+    args: [type.complex, type.complex],
+    res: type.complex
+  }, useincludefunction('powc')]
 ];
 
 webgltr["^"] = webgltr["pow"];
@@ -317,10 +376,22 @@ webgltr["im"] = [
 ];
 
 webgltr["genList"] = [
-  [{args: [type.float, type.float],             res: type.vec2}, usefunction('vec2')],
-  [{args: [type.float, type.float, type.float], res: type.vec3}, usefunction('vec3')],
-  [{args: [type.float, type.float, type.float, type.float], res: type.vec4}, usefunction('vec4')],
-  [{args: [type.complex, type.complex],  res: type.vec2complex}, usefunction('vec4')]
+  [{
+    args: [type.float, type.float],
+    res: type.vec2
+  }, usefunction('vec2')],
+  [{
+    args: [type.float, type.float, type.float],
+    res: type.vec3
+  }, usefunction('vec3')],
+  [{
+    args: [type.float, type.float, type.float, type.float],
+    res: type.vec4
+  }, usefunction('vec4')],
+  [{
+    args: [type.complex, type.complex],
+    res: type.vec2complex
+  }, usefunction('vec4')]
   //@TODO: real lists in glsl
 ];
 
@@ -334,7 +405,7 @@ webgltr["%"] = [
 ];
 
 
-[">","<", ">=", "<=", "=="].forEach( oper =>
+[">", "<", ">=", "<=", "=="].forEach(oper =>
   webgltr[oper] = [
     [int2bool_fun$2, useinfix(oper)],
     [float2bool_fun$2, useinfix(oper)]
@@ -343,10 +414,16 @@ webgltr["%"] = [
 
 
 webgltr["imagergb"] = [
-  [{args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec3}, useimagergb]
+  [{
+    args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
+    res: type.vec3
+  }, useimagergb]
 ];
 webgltr["imagergba"] = [
-  [{args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec4}, useimagergba]
+  [{
+    args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
+    res: type.vec4
+  }, useimagergba]
 ];
 
 
@@ -355,12 +432,12 @@ webgltr["imagergba"] = [
 Object.freeze(webgltr);
 
 //depends on glsl-implementation
-requires['divc']    = ['multc'];
-requires['powc']    = ['expc', 'multc', 'logc'];
-requires['sqrtc']   = ['expc', 'multc', 'logc'];
+requires['divc'] = ['multc'];
+requires['powc'] = ['expc', 'multc', 'logc'];
+requires['sqrtc'] = ['expc', 'multc', 'logc'];
 requires['arccosc'] = ['multc', 'negc', 'sqrtc', 'addc', 'logc'];
 requires['arcsinc'] = ['multc', 'negc', 'sqrtc', 'addc', 'logc'];
-requires['tanc']    = ['sinc', 'cosc', 'divc'];
+requires['tanc'] = ['sinc', 'cosc', 'divc'];
 requires['arctanc'] = ['logc', 'addc', 'multc', 'subc'];
 
 requires['hue'] = ['hsv2rgb'];

@@ -8,12 +8,12 @@ let coerce = {};
  * @param {Array.<createCindy.anyval>=} def
  * @return {Array.<createCindy.anyval>}
  */
-coerce.toList = function(arg, def=null) {
+coerce.toList = function(arg, def = null) {
   if (arg["ctype"] !== "list") {
     console.log("argument is not a list");
     return def;
   }
-  return /** @type {Array.<createCindy.anyval>} */(arg["value"]);
+  return /** @type {Array.<createCindy.anyval>} */ (arg["value"]);
 };
 
 /**
@@ -21,7 +21,7 @@ coerce.toList = function(arg, def=null) {
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
-coerce.toHomog = function(arg, def=[0,0,0,0]) {
+coerce.toHomog = function(arg, def = [0, 0, 0, 0]) {
   let lst1 = coerce.toList(arg);
   if (lst1 === null)
     return def;
@@ -42,7 +42,7 @@ coerce.toHomog = function(arg, def=[0,0,0,0]) {
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
-coerce.toDirection = function(arg, def=[0,0,0]) {
+coerce.toDirection = function(arg, def = [0, 0, 0]) {
   let lst1 = coerce.toList(arg);
   if (lst1 === null)
     return def;
@@ -61,7 +61,7 @@ coerce.toDirection = function(arg, def=[0,0,0]) {
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
-coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
+coerce.toColor = function(arg, def = [0.5, 0.5, 0.5]) {
   if (arg.ctype === "number") {
     let c = coerce.toInterval(0, 1, arg);
     if (!isNaN(c))
@@ -82,12 +82,14 @@ coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
  * @param {number=} def
  * @return {number}
  */
-coerce.toReal = function(arg, def=Number.NaN) {
+coerce.toReal = function(arg, def = Number.NaN) {
   if (arg["ctype"] !== "number") {
     console.log("argument is not a number");
     return def;
   }
-  let val = arg["value"], r = val["real"], i = val["imag"];
+  let val = arg["value"],
+    r = val["real"],
+    i = val["imag"];
   if (i !== 0)
     console.log("complex number is not real");
   return r;
@@ -98,12 +100,14 @@ coerce.toReal = function(arg, def=Number.NaN) {
  * @param {number=} def
  * @return {number}
  */
-coerce.toInt = function(arg, def=Number.NaN) {
+coerce.toInt = function(arg, def = Number.NaN) {
   if (arg["ctype"] !== "number") {
     console.log("argument is not a number");
     return def;
   }
-  let val = arg["value"], r = val["real"], i = val["imag"];
+  let val = arg["value"],
+    r = val["real"],
+    i = val["imag"];
   if (i !== 0)
     console.log("complex number is not real");
   i = Math.round(r);
@@ -129,7 +133,7 @@ coerce.clamp = function(min, max, arg) {
  * @param {number=} def
  * @return {number}
  */
-coerce.toInterval = function(min, max, arg, def=Number.NaN) {
+coerce.toInterval = function(min, max, arg, def = Number.NaN) {
   return coerce.clamp(min, max, coerce.toReal(arg, def));
 };
 
@@ -138,7 +142,7 @@ coerce.toInterval = function(min, max, arg, def=Number.NaN) {
  * @param {?string=} def
  * @return {?string}
  */
-coerce.toString = function(arg, def=null) {
+coerce.toString = function(arg, def = null) {
   if (arg["ctype"] === "string")
     return arg["value"];
   console.log("argument is not a string");

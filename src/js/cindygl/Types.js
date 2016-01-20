@@ -18,35 +18,35 @@ const type = { //assert all indices are different
   coordinate2d: 15, //for accessing 2D textures
   vec2complex: 16,
   mat2complex: 17
- // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
- // nonnegativefloat: 15 //@TODO: negative float...
+    // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
+    // nonnegativefloat: 15 //@TODO: negative float...
 };
 Object.freeze(type);
 
 function typeToString(t) {
   let l = [
-  'bool',
-  'int',
-  'float',
-  'complex',
-  'voidt',
-  'float[2]',
-  'float[3]',
-  'float[4]',
-  'color',
-  'point',
-  'float[2,2]',
-  'float[3,3]',
-  'float[4,4]',
-  'string',
-  '2D-Coordinate',
-  'complex[2]',
-  'complex[2,2]'
-  //'positive float',
-  //'non-negative float'
+    'bool',
+    'int',
+    'float',
+    'complex',
+    'voidt',
+    'float[2]',
+    'float[3]',
+    'float[4]',
+    'color',
+    'point',
+    'float[2,2]',
+    'float[3,3]',
+    'float[4,4]',
+    'string',
+    '2D-Coordinate',
+    'complex[2]',
+    'complex[2,2]'
+    //'positive float',
+    //'non-negative float'
   ];
-  
-  return l[t-1];
+
+  return l[t - 1];
 }
 
 
@@ -84,36 +84,111 @@ const floatlist$4 = {type: "list", length: 4, members: type.float};
 
 
 
-const bool_fun$1          = {args: [type.bool],                  res: type.bool};
-const bool_fun$2          = {args: [type.bool, type.bool],       res: type.bool};
-const int_fun$1           = {args: [type.int],                   res: type.int};
-const int_fun$2           = {args: [type.int, type.int],         res: type.int};
-const float_fun$0         = {args: [],                           res: type.float};
-const float_fun$1         = {args: [type.float],                 res: type.float};
-const float_fun$2         = {args: [type.float, type.float],     res: type.float};
-const complex_fun$1       = {args: [type.complex],               res: type.complex};
-const complex_fun$2       = {args: [type.complex, type.complex], res: type.complex};
+const bool_fun$1 = {
+  args: [type.bool],
+  res: type.bool
+};
+const bool_fun$2 = {
+  args: [type.bool, type.bool],
+  res: type.bool
+};
+const int_fun$1 = {
+  args: [type.int],
+  res: type.int
+};
+const int_fun$2 = {
+  args: [type.int, type.int],
+  res: type.int
+};
+const float_fun$0 = {
+  args: [],
+  res: type.float
+};
+const float_fun$1 = {
+  args: [type.float],
+  res: type.float
+};
+const float_fun$2 = {
+  args: [type.float, type.float],
+  res: type.float
+};
+const complex_fun$1 = {
+  args: [type.complex],
+  res: type.complex
+};
+const complex_fun$2 = {
+  args: [type.complex, type.complex],
+  res: type.complex
+};
 
-const vec2_fun$2          = {args: [type.vec2, type.vec2],       res: type.vec2};
-const vec3_fun$2          = {args: [type.vec3, type.vec3],       res: type.vec3};
-const vec4_fun$2          = {args: [type.vec4, type.vec4],       res: type.vec4};
+const vec2_fun$2 = {
+  args: [type.vec2, type.vec2],
+  res: type.vec2
+};
+const vec3_fun$2 = {
+  args: [type.vec3, type.vec3],
+  res: type.vec3
+};
+const vec4_fun$2 = {
+  args: [type.vec4, type.vec4],
+  res: type.vec4
+};
 
-const float2complex_fun$1 = {args: [type.float],                 res: type.complex};
-const float2complex_fun$2 = {args: [type.float, type.float],     res: type.complex};
-const complex2float_fun$1 = {args: [type.complex],               res: type.float};
-const complex2float_fun$2 = {args: [type.complex, type.complex], res: type.float};
+const float2complex_fun$1 = {
+  args: [type.float],
+  res: type.complex
+};
+const float2complex_fun$2 = {
+  args: [type.float, type.float],
+  res: type.complex
+};
+const complex2float_fun$1 = {
+  args: [type.complex],
+  res: type.float
+};
+const complex2float_fun$2 = {
+  args: [type.complex, type.complex],
+  res: type.float
+};
 
-const vec22float_fun$1    = {args: [type.vec2],       res: type.float};
-const vec32float_fun$1    = {args: [type.vec3],       res: type.float};
-const vec42float_fun$1    = {args: [type.vec4],       res: type.float};
-const vec22float_fun$2    = {args: [type.vec2, type.vec2],       res: type.float};
-const vec32float_fun$2    = {args: [type.vec3, type.vec3],       res: type.float};
-const vec42float_fun$2    = {args: [type.vec4, type.vec4],       res: type.float};
+const vec22float_fun$1 = {
+  args: [type.vec2],
+  res: type.float
+};
+const vec32float_fun$1 = {
+  args: [type.vec3],
+  res: type.float
+};
+const vec42float_fun$1 = {
+  args: [type.vec4],
+  res: type.float
+};
+const vec22float_fun$2 = {
+  args: [type.vec2, type.vec2],
+  res: type.float
+};
+const vec32float_fun$2 = {
+  args: [type.vec3, type.vec3],
+  res: type.float
+};
+const vec42float_fun$2 = {
+  args: [type.vec4, type.vec4],
+  res: type.float
+};
 
-const point2float_fun$2   = {args: [type.point, type.point],     res: type.float};
+const point2float_fun$2 = {
+  args: [type.point, type.point],
+  res: type.float
+};
 
-const int2bool_fun$2      = {args: [type.int, type.int],          res: type.bool};
-const float2bool_fun$2    = {args: [type.float, type.float],      res: type.bool};
+const int2bool_fun$2 = {
+  args: [type.int, type.int],
+  res: type.bool
+};
+const float2bool_fun$2 = {
+  args: [type.float, type.float],
+  res: type.bool
+};
 
 const template1 = makeTemplate(1);
 const template2 = makeTemplate(2);
@@ -135,7 +210,7 @@ typeinference["exp"] = [
 ];
 //- ("log", 1, OpLog.class); @done(2015-03-17)
 typeinference["log"] = [
-  float2complex_fun$1 , complex_fun$1
+  float2complex_fun$1, complex_fun$1
 ];
 //- ("sin", 1, OpSin.class); @done(2015-03-17)
 typeinference["sin"] = [
@@ -164,9 +239,22 @@ typeinference["arctan"] = [
 //- ("arctan2", 2, OpArcTan2.class); @done(2015-03-17)
 typeinference["arctan2"] = [
   float_fun$2, complex_fun$2,
-//- ("arctan2", 1, OpArcTan2_1.class); @done(2015-03-17)
-  {args:[{type: "list", length: 2, members: type.float}], res: type.float},
-  {args:[{type: "list", length: 2, members: type.complex}], res: type.complex}
+  //- ("arctan2", 1, OpArcTan2_1.class); @done(2015-03-17)
+  {
+    args: [{
+      type: "list",
+      length: 2,
+      members: type.float
+    }],
+    res: type.float
+  }, {
+    args: [{
+      type: "list",
+      length: 2,
+      members: type.complex
+    }],
+    res: type.complex
+  }
 ];
 //- ("add", 2, OpPlus.class); @done(2015-03-17)
 typeinference["add"] = [
@@ -174,27 +262,53 @@ typeinference["add"] = [
 ];
 //- ("sub", 2, OpMinus.class); @done(2015-03-17)
 typeinference["sub"] = [
-  int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2,
-  {args: [type.voidt, type.int],     res: type.int},
-  {args: [type.voidt, type.float],   res: type.float},
-  {args: [type.voidt, type.complex], res: type.complex},
-  {args: [type.voidt, type.vec2],    res: type.vec2},
-  {args: [type.voidt, type.vec3],    res: type.vec3},
-  {args: [type.voidt, type.vec4],    res: type.vec4}
+  int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2, {
+    args: [type.voidt, type.int],
+    res: type.int
+  }, {
+    args: [type.voidt, type.float],
+    res: type.float
+  }, {
+    args: [type.voidt, type.complex],
+    res: type.complex
+  }, {
+    args: [type.voidt, type.vec2],
+    res: type.vec2
+  }, {
+    args: [type.voidt, type.vec3],
+    res: type.vec3
+  }, {
+    args: [type.voidt, type.vec4],
+    res: type.vec4
+  }
 ];
 //- ("mult", 2, OpTimes.class); @done(2015-03-17)
 typeinference["mult"] = [
-  int_fun$2, float_fun$2, complex_fun$2,
-  {args: [type.mat2, type.vec2],    res: type.vec2},
-  {args: [type.mat2complex, type.vec2complex],    res: type.vec2complex},
-  {args: [type.mat3, type.vec3],    res: type.vec3},
-  {args: [type.mat4, type.vec4],    res: type.vec4}
+  int_fun$2, float_fun$2, complex_fun$2, {
+    args: [type.mat2, type.vec2],
+    res: type.vec2
+  }, {
+    args: [type.mat2complex, type.vec2complex],
+    res: type.vec2complex
+  }, {
+    args: [type.mat3, type.vec3],
+    res: type.vec3
+  }, {
+    args: [type.mat4, type.vec4],
+    res: type.vec4
+  }
 ];
 //all R-vectorspaces:
 let rvectorspaces = [type.complex, type.vec2, type.vec3, type.vec4];
-rvectorspaces.forEach(function(t){
-  typeinference["mult"].push({args: [type.float, t], res: t});
-  typeinference["mult"].push({args: [t, type.float], res: t});
+rvectorspaces.forEach(function(t) {
+  typeinference["mult"].push({
+    args: [type.float, t],
+    res: t
+  });
+  typeinference["mult"].push({
+    args: [t, type.float],
+    res: t
+  });
 });
 typeinference["mult"].push(vec22float_fun$2); //dot products
 typeinference["mult"].push(vec32float_fun$2);
@@ -205,17 +319,25 @@ typeinference["mult"].push(vec42float_fun$2);
 typeinference["div"] = [
   float_fun$2, complex_fun$2
 ];
-rvectorspaces.forEach(function(t){
-  typeinference["div"].push({args: [t,type.float], res: t});
+rvectorspaces.forEach(function(t) {
+  typeinference["div"].push({
+    args: [t, type.float],
+    res: t
+  });
 });
 
 //- ("pow", 2, OpPow.class); @done(2015-03-17)
-typeinference["pow"] = [
-  {args: [type.float, type.int], res: type.float},
+typeinference["pow"] = [{
+    args: [type.float, type.int],
+    res: type.float
+  },
   //{args: [type.positivefloat, type.float], res: type.positivefloat},
   //{args: [type.nonnegativefloat, type.nonnegativefloat], res: type.nonnegativefloat},
   //{args: [type.float, type.float], res: type.complex},
-  {args: [type.complex, type.complex], res: type.complex}
+  {
+    args: [type.complex, type.complex],
+    res: type.complex
+  }
 ];
 //- ("re", 1, OpRe.class); @done(2015-03-17)
 typeinference["re"] = [
@@ -230,20 +352,29 @@ typeinference["im"] = [
   complex2float_fun$1 //no float_fun as not needed
 ];
 //- ("round", 1, OpRound.class); @done(2015-03-17)
-typeinference["round"] = [
-  {args: [type.float], res: type.int},
-  {args: [type.complex], res: type.complex}
-];
+typeinference["round"] = [{
+  args: [type.float],
+  res: type.int
+}, {
+  args: [type.complex],
+  res: type.complex
+}];
 //- ("floor", 1, OpFloor.class); @done(2015-03-17)
-typeinference["floor"] = [
-  {args: [type.float], res: type.int},
-  {args: [type.complex], res: type.complex}
-];
+typeinference["floor"] = [{
+  args: [type.float],
+  res: type.int
+}, {
+  args: [type.complex],
+  res: type.complex
+}];
 //- ("ceil", 1, OpCeil.class); @done(2015-03-17)
-typeinference["ceil"] = [
-  {args: [type.float], res: type.int},
-  {args: [type.complex], res: type.complex}
-];
+typeinference["ceil"] = [{
+  args: [type.float],
+  res: type.int
+}, {
+  args: [type.complex],
+  res: type.complex
+}];
 //- ("mod", 2, OpMod.class); @done(2015-03-17)
 typeinference["mod"] = [
   int_fun$2,
@@ -265,21 +396,25 @@ typeinference["randomint"] = [
   int_fun$1
 ];
 //- ("seedrandom", 1, OpSeedRandom.class); @done(2015-03-17)
-typeinference["seedrandom"] = [
-  {args:[type.float], res: type.voidt}
-];
+typeinference["seedrandom"] = [{
+  args: [type.float],
+  res: type.voidt
+}];
 //- ("random", 0, OpRandom0.class); @done(2015-03-17)
-typeinference["random"] = [
-  {args:[], res: type.float}
-];
+typeinference["random"] = [{
+  args: [],
+  res: type.float
+}];
 //- ("randombool", 0, OpRandomBool.class); @done(2015-03-17)
-typeinference["randombool"] = [
-  {args:[], res: type.bool}
-];
+typeinference["randombool"] = [{
+  args: [],
+  res: type.bool
+}];
 //- ("randomnormal", 0, OpRandomNormal.class); @done(2015-03-17)
-typeinference["randomnormal"] = [
-  {args:[], res: type.float}
-];
+typeinference["randomnormal"] = [{
+  args: [],
+  res: type.float
+}];
 
 
 
@@ -305,16 +440,23 @@ typeinference["randomnormal"] = [
 
 
 
-  //operators.put(":", 20);
+//operators.put(":", 20);
 //- operators.put(".", 25); @tricky
 //- operators.put("\u00b0", 25);    //Degree @done(2015-03-17)
 //- operators.put("_", 50);    //x_i i-tes Element von x @done(2015-03-17)
-typeinference["_"] = [
-  {args:[type.vec2, type.int], res: type.float},
-  {args:[type.vec3, type.int], res: type.float},
-  {args:[type.vec4, type.int], res: type.float},
-  {args:[type.vec2complex, type.int], res: type.complex}
-];
+typeinference["_"] = [{
+  args: [type.vec2, type.int],
+  res: type.float
+}, {
+  args: [type.vec3, type.int],
+  res: type.float
+}, {
+  args: [type.vec4, type.int],
+  res: type.float
+}, {
+  args: [type.vec2complex, type.int],
+  res: type.complex
+}];
 
 //- operators.put("^", 50);    //hoch @done(2015-03-17)
 typeinference["^"] = typeinference["pow"];
@@ -338,7 +480,7 @@ typeinference["-"] = typeinference["sub"];
 //- operators.put("<", 300);   //Kleiner @done(2015-03-17)
 //- operators.put(">=", 300);  //Größergleich @done(2015-03-17)
 //- operators.put("<=", 300);  //Kleinergleich @done(2015-03-17)
-[">","<", ">=", "<=", "=="].forEach( oper => //TODO: == also for other types
+[">", "<", ">=", "<=", "=="].forEach(oper => //TODO: == also for other types
   typeinference[oper] = [
     int2bool_fun$2, float2bool_fun$2
   ]
@@ -368,19 +510,27 @@ typeinference["%"] = [
 //- operators.put(":>", 370);  //Append List @done(2015-03-17)
 //- operators.put("<:", 370);  //Prepend List @done(2015-03-17)
 //- operators.put("=", 400);   //Zuweisung @tricky
-typeinference["="] = [
-  {args:[template1, template2], res: template2}
-];
+typeinference["="] = [{
+  args: [template1, template2],
+  res: template2
+}];
 //- operators.put(":=", 400);  //Definition @tricky
 //- operators.put(":=_", 400);  //Definition
 //- operators.put("::=", 400);  //Definition
 //- operators.put("->", 400);  //Modifier @done(2015-03-17)
 //- operators.put(",", 500);   //Listen und Vektoren Separator @done(2015-03-17)
 //- operators.put(";", 500);   //Befehlsseparator @done(2015-03-17)
-typeinference[";"] = [
-  {args:[template1, type.voidt], res: template1}, // ; at end of function
-  {args:[template1, template2], res: template2},
-  {args:[template1], res: template1}
+typeinference[";"] = [{
+    args: [template1, type.voidt],
+    res: template1
+  }, // ; at end of function
+  {
+    args: [template1, template2],
+    res: template2
+  }, {
+    args: [template1],
+    res: template1
+  }
 ];
 
 
@@ -447,10 +597,11 @@ typeinference["xor"] = [
 //- ("gray", 1, OpGray.class); @done(2015-03-17)
 //- ("grey", 1, OpGray.class); @done(2015-03-17)
 //- ("hue", 1, OpHue.class); @done(2015-03-17)
-["red", "green", "blue", "gray", "grey", "hue"].forEach( oper =>
-  typeinference[oper] = [
-    {args:[type.float], res: type.vec3}
-  ]
+["red", "green", "blue", "gray", "grey", "hue"].forEach(oper =>
+  typeinference[oper] = [{
+    args: [type.float],
+    res: type.vec3
+  }]
 );
 
 
@@ -541,18 +692,26 @@ typeinference["xor"] = [
 //- ("setbasis", 4, OpSetTransformation4.class);
 
 //- ("if", 3, OpIfElse.class);  error @done(2015-03-17)
-typeinference["if"] = [
-  {args:[type.bool, template1, template1], res: template1},
-  {args:[type.bool, template1, template2], res: type.voidt}, //branch-types do not match
+typeinference["if"] = [{
+    args: [type.bool, template1, template1],
+    res: template1
+  }, {
+    args: [type.bool, template1, template2],
+    res: type.voidt
+  }, //branch-types do not match
   //- ("if", 2, OpIf.class);  error @done(2015-03-17)
-  {args:[type.bool, template1], res: type.voidt}
+  {
+    args: [type.bool, template1],
+    res: type.voidt
+  }
 ];
 //- ("trigger", 2, OpTrigger.class); @rethink
 //- ("while", 2, OpWhile.class); @done(2015-03-17)
 //- ("repeat", 2, OpRepeat.class); @done(2015-03-17)
-typeinference["repeat"] = [
-  {args: [type.int, template1], res: template1}
-];
+typeinference["repeat"] = [{
+  args: [type.int, template1],
+  res: template1
+}];
 //- ("repeat", 3, OpRepeatVar.class); @done(2015-03-17)
 //- ("forall", 2, OpForall.class); @done(2015-03-17)
 //- ("forall", 3, OpForallVar.class); @done(2015-03-17)
@@ -619,11 +778,22 @@ typeinference["repeat"] = [
 //- ("select", 3, OpSelectVar.class); @done(2015-03-17)
 //- ("apply", 2, OpApply.class); @done(2015-03-17)
 //- ("apply", 3, OpApplyVar.class); @done(2015-03-17)
-typeinference["apply"] = [
-  {args: [{type: "list", length: template1, members: template2},
-          {type: "expression", args: template2, res: template3}],
-   res: {type: "list", length: template1, members: template3}}
-];
+typeinference["apply"] = [{
+  args: [{
+    type: "list",
+    length: template1,
+    members: template2
+  }, {
+    type: "expression",
+    args: template2,
+    res: template3
+  }],
+  res: {
+    type: "list",
+    length: template1,
+    members: template3
+  }
+}];
 
 //- ("pairs", 1, OpPairs.class); @done(2015-03-17)
 //- ("directproduct", 2, OpDirectProduct.class); @done(2015-03-17)
@@ -738,9 +908,10 @@ typeinference["max"] = [
 //- ("writerecording", 1, OpStopSoundRecording.class); @rethink
 
 
-typeinference["complex"] = [
-  {args: [type.vec2], res: type.complex}
-];
+typeinference["complex"] = [{
+  args: [type.vec2],
+  res: type.complex
+}];
 
 typeinference["re"] = [
   complex2float_fun$1
@@ -750,21 +921,31 @@ typeinference["im"] = [
   complex2float_fun$1
 ];
 
-typeinference["genList"] = [
-  {args: [type.float, type.float],                         res: type.vec2},
-  {args: [type.float, type.float, type.float],             res: type.vec3},
-  {args: [type.float, type.float, type.float, type.float], res: type.vec4},
-  {args: [type.complex, type.complex],                     res: type.vec2complex}
+typeinference["genList"] = [{
+    args: [type.float, type.float],
+    res: type.vec2
+  }, {
+    args: [type.float, type.float, type.float],
+    res: type.vec3
+  }, {
+    args: [type.float, type.float, type.float, type.float],
+    res: type.vec4
+  }, {
+    args: [type.complex, type.complex],
+    res: type.vec2complex
+  }
   //@TODO: real lists in glsl
 ];
 
-typeinference["imagergb"] = [
-  {args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec3}
-];
+typeinference["imagergb"] = [{
+  args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
+  res: type.vec3
+}];
 
-typeinference["imagergba"] = [
-  {args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d], res: type.vec4}
-];
+typeinference["imagergba"] = [{
+  args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
+  res: type.vec4
+}];
 
 Object.freeze(typeinference);
 
@@ -774,4 +955,3 @@ preliminaryComputations();
 Object.freeze(subtypegen);
 Object.freeze(subtype);
 Object.freeze(next);
-
