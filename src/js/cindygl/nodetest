@@ -1,1 +1,0 @@
-cat General.js Init.js TypeInference.js Types.js ../../../build/js/cglres.js IncludeFunctions.js CodeBuilder.js TextureReader.js WebGLImplementation.js ShaderProgram.js Renderer.js testing.js | node --use_strict --harmony 
