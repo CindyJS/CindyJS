@@ -407,7 +407,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     // check for complex values
     for (var i = 0; i < 2; i++)
         for (var j = 0; j < 2; j++) {
-            if (Math.abs(mat.value[i].value[j].value.imag) > eps) return;
+            if (Math.abs(mat.value[i].value[j].value.imag) > CSNumber.eps) return;
         }
 
     // transform matrix to canvas coordiantes
