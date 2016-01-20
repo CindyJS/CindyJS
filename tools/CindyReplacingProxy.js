@@ -18,6 +18,7 @@ var proxy = httpProxy.createProxyServer({});
 var intercept = [
     {pattern: /Cindy\.js$/, path: "build/js/Cindy.js"},
     {pattern: /Cindy3D\.js$/, path: "build/js/Cindy3D.js"},
+    {pattern: /CindyGL\.js$/, path: "build/js/CindyGL.js"},
 ];
 
 http.createServer(function(req, res) {
