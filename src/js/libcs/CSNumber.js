@@ -264,14 +264,6 @@ CSNumber.abs = function(a1) {
 
 CSNumber.inv = function(a) {
     var s = a.value.real * a.value.real + a.value.imag * a.value.imag;
-    // BUG?
-    // perhaps we should not only check for 0
-    // if(Math.abs(s) < 1e32) {
-    if (s === 0) {
-        console.error("DIVISION BY ZERO");
-        //        halt=immediately;
-
-    }
     return {
         "ctype": "number",
         "value": {
