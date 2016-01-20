@@ -13,7 +13,7 @@
     <h1>CindyJS: Julia Feedbackloop</h1>
     
                
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       
       f(z, c) := z*z+c;
@@ -21,7 +21,7 @@
       createimage("julia", 500, 500);
     </script>
     
-    <script id="csdraw" type="cindyscript">
+    <script id="csdraw" type="text/x-cindyscript">
       c = complex(mouse());
       
       

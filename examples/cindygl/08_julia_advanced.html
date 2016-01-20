@@ -13,7 +13,7 @@
     <h1>CindyJS: Advanced Julia Feedbackloop</h1>
     O(1) per frame. Encode intermediate results in texture; requires float textures.
                
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       
       f(z, c) := z*z+c;
@@ -22,7 +22,7 @@
       colorplot([-2,-2], [2,-2], "julia", (#.x, #.y, 0, 0));
       lastupdate = 0;
     </script> 
-    <script id="csdraw" type="cindyscript">
+    <script id="csdraw" type="text/x-cindyscript">
       c = complex(mouse());
       
       //min(continious escape time, 1)

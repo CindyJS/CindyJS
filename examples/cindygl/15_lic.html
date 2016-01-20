@@ -14,7 +14,7 @@
     <p>
     Implementation of Jobard, Bruno; Erlebacher, Gordon; Hussaini, M. Yousuff (2002). "Lagrangian-Eulerian Advection of Noise and Dye Textures for Unsteady Flow Visualization"
     </p>
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       
       L = [0, 0]; //bottom left corner
@@ -45,7 +45,7 @@
       )
     </script>
 
-    <script id="csdraw" type="cindyscript">
+    <script id="csdraw" type="text/x-cindyscript">
       colorplot(L, R, "N",
         newC = getNewC(#);
         newval =	if(newC.x > 0 & newC.y > 0 & newC.x<512 & newC.y < 512,

@@ -13,7 +13,7 @@
     <h1>CindyJS: Raytracer</h1>
     
     
-    <script id="csdraw" type="cindyscript">
+    <script id="csdraw" type="text/x-cindyscript">
       time = seconds()-t0;
       alpha = .5+mouse().x;
 
@@ -24,7 +24,7 @@
       colorplot(computeColor(#));
     </script>
                
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       oo = 1000; //"infinity"
       t0 = seconds();

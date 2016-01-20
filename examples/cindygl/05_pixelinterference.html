@@ -13,7 +13,7 @@
     <h1>CindyJS: Moiré pattern</h1>
     
     
-    <script id="csmove" type="cindyscript">
+    <script id="csmove" type="text/x-cindyscript">
       t = seconds()-t0;
       l = exp(4+im(complex(mouse())));
       x = exp(re(complex(mouse())));
@@ -21,7 +21,7 @@
       drawimage([0,0], "plot");
     </script>
                
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       t0 = seconds();
       createimage("plot",500,500);

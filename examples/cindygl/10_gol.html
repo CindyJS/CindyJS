@@ -13,7 +13,7 @@
     <h1>CindyJS: Game of Life on GPU</h1>
     
                
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       
       
@@ -26,20 +26,20 @@
       colorplot(L, R, "gol", if(random()>.6,1,0)); //random stuff as starting image
     </script>
     
-    <script id="csmousedown" type="cindyscript">
+    <script id="csmousedown" type="text/x-cindyscript">
       animate = false;
     </script>
-    <script id="csmouseup" type="cindyscript">
+    <script id="csmouseup" type="text/x-cindyscript">
       animate = true;
     </script>
     
-    <script id="cskeydown" type="cindyscript">
+    <script id="cskeydown" type="text/x-cindyscript">
       print("pressed key" + keycode());
       if(keycode()==32, colorplot(L, R, "gol", 0)); //space -> black
       if(keycode()==82, colorplot(L, R, "gol", if(random()>.6,1,0))); //R -> random image
     </script>
 
-    <script id="csdraw" type="cindyscript">
+    <script id="csdraw" type="text/x-cindyscript">
       if(!animate, setpixel("gol", floor(mouse().x), floor(mouse().y), (1,1,1)));
       
       get(x, y) :=  imagergb((0,0), (128,0), "gol", (mod(x,128),mod(y,128))).r; //Tourus world

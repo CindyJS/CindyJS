@@ -11,7 +11,7 @@
 	<body style="font-family:Arial;">
     
     <h1>CindyJS: Complex Function Plot with user input</h1>
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
        f(z) := (
         z*z+1
@@ -19,7 +19,7 @@
       
       t0 = seconds();
     </script>
-    <script id="csdraw" type="cindyscript">
+    <script id="csdraw" type="text/x-cindyscript">
      t = seconds()-t0;
      a = complex(A.xy);
      colorplot(hue(im(log(f(complex(#))))/2/pi));

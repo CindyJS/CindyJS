@@ -11,7 +11,7 @@
 	<body style="font-family:Arial;">
     
     <h1>CindyJS: Mandelbrot Fractal</h1>
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       
       f(z, c) := z*z*z+c;
@@ -35,7 +35,7 @@
       createimage("mandle",500,500);
       createimage("julia",500,500);
     </script>
-    <script id="csmove" type="cindyscript">
+    <script id="csmove" type="text/x-cindyscript">
       fm = map(m0, m1, A, B);
       fj = map(j0, j1, [-1.5,-1.5],[1.5,-1.5]);
       

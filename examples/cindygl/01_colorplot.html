@@ -13,12 +13,12 @@
     <h1>CindyJS: static ColorPlot</h1>
     
     
-    <script id="csmove" type="cindyscript">
+    <script id="csmove" type="text/x-cindyscript">
       colorplot(A, B, "plot", .5 + .5*sin((#*#))); //renders  sin(<x,x>) on 400x300 canvas
       drawimage(A, B, "plot");
     </script>
                
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       createimage("plot",400,300);
     </script>

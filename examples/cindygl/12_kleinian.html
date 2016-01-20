@@ -15,7 +15,7 @@
     Press SPACE to reset everything. The red and the blue point determine the complex parameters ta, tb, which will be pluged into Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford, ‎Caroline Series, ‎David Wright.
   
                
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
       
       createimage("A", 500, 500); //last trafo
@@ -28,7 +28,7 @@
       colorplot([-1.5,-1.5], [1.5,-1.5], "b", 0);      
     </script>
     
-    <script id="csmove" type="cindyscript">
+    <script id="csmove" type="text/x-cindyscript">
       ta = .5*complex(TA)+2;
       tb = .5*complex(TB)+2;
 
@@ -52,7 +52,7 @@
       B = inverse(b);
   </script>
       
-  <script id="cskeydown" type="cindyscript">
+  <script id="cskeydown" type="text/x-cindyscript">
       print("pressed key" + keycode());
       if(keycode()==32, 
         colorplot([-1.5,-1.5], [1.5,-1.5], "A", 0);
@@ -62,7 +62,7 @@
       ); //space -> black
  </script>
     
-    <script id="csdraw" type="cindyscript">
+    <script id="csdraw" type="text/x-cindyscript">
       c = complex(mouse());
       
       dehomog(a) := a_1/a_2;

@@ -13,7 +13,7 @@
     <h1>CindyJS: Raytracer (root tracing by homotopy)</h1>
     
     
-    <script id="csdraw" type="cindyscript">
+    <script id="csdraw" type="text/x-cindyscript">
       time = seconds()-t0;
       alpha = .5+mouse().x;
       
@@ -31,7 +31,7 @@
       colorplot(computeColor(#));
     </script>
                
-    <script id="csinit" type="cindyscript">
+    <script id="csinit" type="text/x-cindyscript">
       alpha = .8;
       F(p) := (
         regional(x, y, z);

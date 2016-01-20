@@ -10,7 +10,7 @@
     
 	<body style="font-family:Arial;">
     <h1>CindyJS: Reaction-diffusion system</h1>
-      <script id="csinit" type="cindyscript">
+      <script id="csinit" type="text/x-cindyscript">
         use("CindyGL");
 
         L = [0, 0]; //bottom left corner
@@ -28,27 +28,27 @@
         k = 0.06;
         f = 0.035;
       </script>
-      <script id="csmousedown" type="cindyscript">
+      <script id="csmousedown" type="text/x-cindyscript">
         pressed = true;
       </script>
       
-      <script id="csmouseup" type="cindyscript">
+      <script id="csmouseup" type="text/x-cindyscript">
         pressed = false;
       </script>
 
-      <script id="cskeydown" type="cindyscript">
+      <script id="cskeydown" type="text/x-cindyscript">
         print("pressed key" + keycode());
         if(keycode()==32, colorplot(L, R, "state", 0)); //space -> black
         if(keycode()==82, colorplot(L, R, "state", initialimage(#))); //R -> random image
       </script>
 
-      <script id="csmove" type="cindyscript">
+      <script id="csmove" type="text/x-cindyscript">
         y=CA.y; y = max(200,min(450,y)); CA.xy=(500,y);
         f = y*0.0001;
       </script>
 
         
-      <script id="csdraw" type="cindyscript">
+      <script id="csdraw" type="text/x-cindyscript">
         get(x, y) :=  imagergb(L, R, "state", (mod(x,512),mod(y,512)));
 
         newstate(x, y) := (
