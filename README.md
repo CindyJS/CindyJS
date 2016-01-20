@@ -24,7 +24,9 @@ inside the repository, demonstrating individual functions and operations.
 To use the project, simply type `make` in the top level source directory.
 All required third-party tools should be downloaded automatically,
 and installed inside the project directory tree.
-One exception is a Java Development Kit, which has to be installed before.
+One exception is a Java Runtime Environment, which has to be installed before
+(because users have to manually accept the terms and conditions before
+being allowed to download a JRE).
 If `make` terminated successfully, then `build/js` will contain
 the artifacts which you'd likely want to include in your web site.
 
@@ -37,7 +39,7 @@ If you don't have `make` available on Windows,
 you can call `node make` instead.
 
 Note that you should have the following software installed:
-* A recent Java Development Kit (JDK)
+* A recent Java Runtime Environment (JRE)
 * Node.js with the `node` command added to the PATH
 * Git for Windows with the `git` command usable from the Windows Command Prompt
 
