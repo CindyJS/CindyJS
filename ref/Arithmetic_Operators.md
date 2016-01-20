@@ -118,6 +118,8 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
     < 0
     > 0^0
     < 1
+    > i^(2^30)
+    < 1
 
 ------
 
