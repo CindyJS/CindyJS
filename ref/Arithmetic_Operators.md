@@ -114,6 +114,10 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
     < 0.2
     > 2^(1/2)
     < 1.4142
+    > 0^(1/4)
+    < 0
+    > 0^0
+    < 1
 
 ------
 
