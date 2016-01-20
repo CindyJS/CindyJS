@@ -25,6 +25,8 @@ var webgltype = {}; //which type identifier is used in WebGL to represent our in
 var webgltr = {};
 
 
+var can_use_texture_half_float = false;
+var halfFloat;
 var can_use_texture_float = false;
 
 const oo = 1<<30; //infinity, but oo + oo should be > 0, hence not MaxInt
@@ -69,8 +71,18 @@ function initGLIfRequired() {
       "webglcontextcreationerror",
       onContextCreationError, false);
       
-      
+    
+    
     can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
+    if(!can_use_texture_float) {
+      console.error("Your browser does not suppert OES_texture_float, trying OES_texture_half_float...");
+      halfFloat = gl.getExtension('OES_texture_half_float');
+      can_use_texture_half_float = halfFloat && gl.getExtension('OES_texture_half_float_linear');
+      if(!can_use_texture_half_float)
+        console.error("Your browser does not suppert OES_texture_half_float, will use 8-bit textures.");
+    }
+    
+    
   
   
   
