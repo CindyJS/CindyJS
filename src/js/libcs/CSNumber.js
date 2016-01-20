@@ -419,7 +419,7 @@ CSNumber.sqrt = function(a) {
     };
 };
 
-CSNumber.pow2 = function(a, b) {
+CSNumber.powRealExponent = function(a, b) {
     var rr = a.value.real;
     var ii = a.value.imag;
     var n = Math.pow(Math.sqrt(rr * rr + ii * ii), b);
@@ -470,7 +470,7 @@ CSNumber.pow = function(a, b) {
     if (CSNumber._helper.isZero(a))
         return CSNumber.zero;
     if (CSNumber._helper.isReal(b))
-        return CSNumber.pow2(a, b.value.real);
+        return CSNumber.powRealExponent(a, b.value.real);
     return CSNumber.exp(CSNumber.mult(CSNumber.log(a), b));
 };
 
@@ -813,7 +813,7 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
 //        var T0 = CSNumber.multiMult([CSNumber.real(-1), signum(dbar), CSNumber.abs(abar), CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), ldel))]);
 //        var T1 = CSNumber.add(CSNumber.mult(CSNumber.real(-1), dbar), T0);
 //    
-//        var pp = CSNumber.pow2(CSNumber.mult(T1, CSNumber.real(0.5)), 1/3);
+//        var pp = CSNumber.powRealExponent(CSNumber.mult(T1, CSNumber.real(0.5)), 1/3);
 //    
 //        var qq;
 //        if(CSNumber.abs(T1, T0).value.real < 0.00000001){
