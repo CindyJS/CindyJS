@@ -36,7 +36,7 @@ endif
 NODE:=node
 NPM:=npm
 cmd_needed=$(shell $(1) >/dev/null 2>&1 || echo needed)
-NODE_NEEDED:=$(call cmd_needed,$(NODE) tools/check-node-version.js)
+NODE_NEEDED:=$(call cmd_needed,$(NODE) make/check-node-version.js)
 NPM_NEEDED:=$(call cmd_needed,$(NPM) -version)
 NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),download/$(NODE_BASENAME)/bin/npm,)
 NODE_PATH:=PATH=$(CURDIR)/node_modules/.bin:$(if $(NPM_DEP),$(CURDIR)/$(dir $(NPM_DEP)):,)$$PATH

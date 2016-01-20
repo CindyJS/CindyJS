@@ -14,6 +14,8 @@
 var fs = require("fs");
 var cp = require("child_process");
 
+require("./check-node-version");
+
 var stampFile = "build/node_modules.stamp";
 var packageStat = null;
 var stampStat = null;
