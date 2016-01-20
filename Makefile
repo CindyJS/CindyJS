@@ -37,9 +37,21 @@ NODE:=node
 NPM:=npm
 cmd_needed=$(shell $(1) >/dev/null 2>&1 || echo needed)
 NODE_NEEDED:=$(call cmd_needed,$(NODE) make/check-node-version.js)
+
+ifeq ($(NODE_NEEDED),needed)
+ifeq ($(call cmd_needed,nodejs make/check-node-version.js),)
+NODE:=nodejs
+NODE_NEEDED:=
+endif
+endif
 NPM_NEEDED:=$(call cmd_needed,$(NPM) -version)
-NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),download/$(NODE_BASENAME)/bin/npm,)
-NODE_PATH:=PATH=$(CURDIR)/node_modules/.bin:$(if $(NPM_DEP),$(CURDIR)/$(dir $(NPM_DEP)):,)$$PATH
+NPM_DOWNLOADED:=download/$(NODE_BASENAME)/bin/npm
+NPM_WRAPPER:=
+ifneq ($(NODE),node)
+NPM_WRAPPER:=build/bin/node
+endif
+NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),$(NPM_DOWNLOADED),$(NPM_WRAPPER))
+NODE_PATH:=PATH=$(if $(NPM_DEP),$(CURDIR)/$(dir $(NPM_DEP)):,)$$PATH
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
 JS_MAKE=$(NODE_CMD) make/index.js js_compiler=$(js_compiler)
@@ -53,6 +65,12 @@ download/$(NODE_BASENAME)/bin/npm: download/arch/$(NODE_TAR)
 	cd download && tar xzf arch/$(NODE_TAR)
 	test -e $@
 	touch $@
+
+build/bin/node:
+	mkdir -p $(@D)
+	echo '#!/bin/sh' >> $@
+	echo 'exec $(NODE) "$$@"' >> $@
+	chmod a+x $@
 
 js_make: $(NPM_DEP)
 
