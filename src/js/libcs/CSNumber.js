@@ -465,31 +465,13 @@ CSNumber.log = function(a) {
 
 
 CSNumber.pow = function(a, b) {
-
     if (CSNumber._helper.isZero(b))
         return CSNumber.one;
     if (CSNumber._helper.isZero(a))
         return CSNumber.zero;
-
-    if (b.value.real === Math.round(b.value.real) && b.value.imag === 0) { //TODO später mal effizienter machen
-        var erg = {
-            "ctype": "number",
-            "value": {
-                'real': 1,
-                'imag': 0
-            }
-        };
-        for (var i = 0; i < Math.abs(b.value.real); i++) {
-            erg = CSNumber.mult(erg, a);
-        }
-        if (b.value.real < 0) {
-            return CSNumber.inv(erg);
-        }
-        return (erg);
-
-    }
-    var res = CSNumber.exp(CSNumber.mult(CSNumber.log(a), b));
-    return res;
+    if (CSNumber._helper.isReal(b))
+        return CSNumber.pow2(a, b.value.real);
+    return CSNumber.exp(CSNumber.mult(CSNumber.log(a), b));
 };
 
 
