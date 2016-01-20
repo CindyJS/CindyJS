@@ -466,7 +466,9 @@ CSNumber.log = function(a) {
 
 CSNumber.pow = function(a, b) {
 
-    if (CSNumber._helper.isZero(a) && !CSNumber._helper.isZero(b))
+    if (CSNumber._helper.isZero(b))
+        return CSNumber.one;
+    if (CSNumber._helper.isZero(a))
         return CSNumber.zero;
 
     if (b.value.real === Math.round(b.value.real) && b.value.imag === 0) { //TODO später mal effizienter machen
