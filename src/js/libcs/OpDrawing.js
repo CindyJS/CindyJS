@@ -407,7 +407,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     // check for complex values
     for (var i = 0; i < 2; i++)
         for (var j = 0; j < 2; j++) {
-            if (Math.abs(mat.value[i].value[j].value.imag) > eps) return;
+            if (Math.abs(mat.value[i].value[j].value.imag) > CSNumber.eps) return;
         }
 
     // transform matrix to canvas coordiantes
@@ -457,6 +457,14 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
 
     var det = a * c * f - a * e * e - b * b * f + 2 * b * d * e - c * d * d;
     var degen = Math.abs(det) < eps;
+
+    // check for circles with very large radius 
+    if (degen && conicMatrix.usage === "Circle") {
+        var cen = General.mult(List.adjoint3(origmat), List.linfty);
+        var zabs = CSNumber.abs(cen.value[2]).value.real;
+        // we are not a degenrate circle if our center is finite
+        if (zabs > CSNumber.eps) degen = false;
+    }
 
     var cswh_max = csw > csh ? csw : csh;
 
