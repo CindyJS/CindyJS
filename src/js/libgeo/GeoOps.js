@@ -754,7 +754,6 @@ geoOps._helper.ConicBy5 = function(el, a, b, c, d, p) {
     var v14 = List.turnIntoCSList([List.cross(a, d)]);
     var v12 = List.turnIntoCSList([List.cross(a, b)]);
     var v34 = List.turnIntoCSList([List.cross(c, d)]);
-    var deg1 = General.mult(List.transpose(v14), v23);
 
     var erg = geoOps._helper.conicFromTwoDegenerates(v23, v14, v12, v34, p);
     return erg;
