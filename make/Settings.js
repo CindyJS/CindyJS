@@ -14,12 +14,13 @@ var prevSettingsFile = "build/prev-settings.json";
 module.exports = function Settings() {
 
     var configSettings = {
-        js_compiler: "closure",
+        build: "debug",
         closure_urlbase: "http://dl.google.com/closure-compiler",
         closure_language: "ECMASCRIPT5_STRICT",
         closure_level: "SIMPLE",
         closure_version: "20150126",
         verbose: "true",
+        logprefix: "true",
         c3d_closure_level: "ADVANCED",
         c3d_closure_warnings: "VERBOSE",
         gwt_version: "2.7.0",

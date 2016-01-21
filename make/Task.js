@@ -8,10 +8,11 @@
  * of commands defined in commands.js.
  */
 
+var chalk = require("chalk");
+var fs = require("fs");
+var path = require("path");
 var Q = require("q");
 var qfs = require("q-io/fs");
-var path = require("path");
-var fs = require("fs");
 
 var commands = require("./commands");
 
@@ -28,6 +29,7 @@ function Task(settings, tasks, name, deps) {
     this.inputs = [];
     this.mySettings = {};
     this.jobs = [];
+    this.prefix = "";
 }
 
 /* Adopt all commands as methods.
@@ -47,8 +49,16 @@ Task.prototype.setting = function(key) {
 };
 
 Task.prototype.log = function() {
-    if (this.settings.get("verbose") !== "")
-        console.log.apply(console, arguments);
+    if (this.settings.get("verbose") !== "") {
+        var args = Array.prototype.slice.call(arguments);
+        if (this.prefix !== "") {
+            if (args.length === 1 && typeof args[0] === "string")
+                args[0] = this.prefix + args[0];
+            else
+                args.unshift(this.prefix);
+        }
+        console.log.apply(console, args);
+    }
 };
 
 /* Add a new job. The provided function will be called when the task
@@ -135,7 +145,9 @@ Task.prototype.mustRun = function() {
     var task = this;
     var log = function(){};
     if (this.settings.get("debug"))
-        log = function(msg) { console.log(task.name + " " + msg); };
+        log = function(msg) {
+            console.log(chalk.gray(task.name + " " + msg));
+        };
     if (this.outputs.length === 0 && this.jobs.length !== 0) {
         // There are no outputs, so this task runs for its side effects.
         // This avoids having to declare all such tasks as PHONY.

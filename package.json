@@ -7,6 +7,7 @@
     "test": "tests"
   },
   "devDependencies": {
+    "chalk": "^1.1.1",
     "concat-with-sourcemaps": "^1.0.4",
     "expect": "^1.9.0",
     "glob": "^6.0.1",
@@ -24,10 +25,11 @@
     "source-map": "^0.4.4",
     "source-map-dummy": "^1.0.0",
     "touch": "^1.0.0",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "whole-line-stream": "^0.1.0"
   },
   "scripts": {
-    "prepublish": "node make/index.js call_npm=false parallel=true all",
+    "prepublish": "node make/index.js call_npm=false parallel=true build=release all",
     "test": "node make/index.js call_npm=false alltests"
   },
   "repository": {
