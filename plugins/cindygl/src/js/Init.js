@@ -8,6 +8,9 @@ var isinitialized = false;
 /** @type {HTMLCanvasElement|Element} */
 var glcanvas;
 
+/** @type {HTMLCanvasElement|Element} */
+var tmpcanvas;
+
 /** @type {WebGLRenderingContext} */
 var gl;
 
@@ -47,6 +50,10 @@ function initGLIfRequired() {
   glcanvas.width = glcanvas.height = 0;
   document.body.appendChild(glcanvas); //document.body.appendChil
 
+  tmpcanvas = document.createElement("canvas");
+  tmpcanvas.id = "tmpcanvas";
+  tmpcanvas.style.display = "none";
+  document.body.appendChild(tmpcanvas);
 
 
   let errorInfo = "Unknown";

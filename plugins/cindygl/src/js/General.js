@@ -8,6 +8,7 @@
  */
 function cloneExpression(obj) {
   var copy;
+  // Handle the 3 simple types, and null or undefined
   if (null == obj || "object" != typeof obj) return obj;
   // Handle Object
   // Handle Array
