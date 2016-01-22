@@ -97,7 +97,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var ch = localcanvas.height;
 
     addCanvasWrapperIfRequired(name.value, api);
-    
+
     compileAndRender(prog, a, b, cw, ch, canvaswrappers[name.value]);
 
     return nada;

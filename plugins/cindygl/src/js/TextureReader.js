@@ -5,9 +5,9 @@ function useimagergba(args, codebuilder) {
     console.error("Could not find image " + name + ".");
     return nada;
   }
-  
+
   addCanvasWrapperIfRequired(name, codebuilder.api);
-  
+
   if (!codebuilder.texturereaders.hasOwnProperty(name)) {
     codebuilder.texturereaders[name] = [
       'uniform sampler2D _sampler_', name, ';',

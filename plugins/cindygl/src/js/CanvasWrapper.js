@@ -9,7 +9,8 @@ function addCanvasWrapperIfRequired(name, api) {
       img['onload'] = function() {
         canvaswrappers[name] = new CanvasWrapper(img);
         console.log("Image " + name + " has been loaded now");
-      }
+        requiredcompiletime++; //force recompile
+      };
     }
     canvaswrappers[name] = new CanvasWrapper(img); //this might be a 0x0px trash-image if image was not loaded.
   }
