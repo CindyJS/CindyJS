@@ -5,20 +5,9 @@ function useimagergba(args, codebuilder) {
     console.error("Could not find image " + name + ".");
     return nada;
   }
-
-  if (!canvaswrappers.hasOwnProperty(name)) {
-    let img = codebuilder.api.getImage(name, true);
-    if (!img.ready) {
-      console.error("Image not ready. Creating onload event.");
-      tmpcanvas.width = tmpcanvas.height = 0;
-      canvaswrappers[name] = new CanvasWrapper(tmpcanvas);
-      img['onload'] = function() {
-        canvaswrappers[name] = new CanvasWrapper(img);
-      }
-    }
-    canvaswrappers[name] = new CanvasWrapper(img);
-  }
-
+  
+  addCanvasWrapperIfRequired(name, codebuilder.api);
+  
   if (!codebuilder.texturereaders.hasOwnProperty(name)) {
     codebuilder.texturereaders[name] = [
       'uniform sampler2D _sampler_', name, ';',

@@ -87,7 +87,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
       return nada;
     }
 
-    var localcanvas = api.getImage(name.value, true);
+    var localcanvas = api.getImage(name.value, true); //note: localcanvas might be an image
 
     if (typeof(localcanvas) === "undefined" || localcanvas === null) {
       return nada;
@@ -96,10 +96,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var cw = localcanvas.width;
     var ch = localcanvas.height;
 
-    if (!canvaswrappers.hasOwnProperty(name.value)) {
-      canvaswrappers[name.value] = new CanvasWrapper(localcanvas);
-    }
-
+    addCanvasWrapperIfRequired(name.value, api);
+    
     compileAndRender(prog, a, b, cw, ch, canvaswrappers[name.value]);
 
     return nada;

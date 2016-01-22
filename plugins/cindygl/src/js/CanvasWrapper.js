@@ -1,4 +1,22 @@
 /**
+ * adds a canvasWrapper to canvaswrappers-dictionary. If argument is a image that was not loaded, do this with onload-event.
+ */
+function addCanvasWrapperIfRequired(name, api) {
+  if (!canvaswrappers.hasOwnProperty(name)) {
+    let img = api.getImage(name, true); //this might be a canvas as well
+    if (!img.ready) {
+      console.error("Image not ready. Creating onload event.");
+      img['onload'] = function() {
+        canvaswrappers[name] = new CanvasWrapper(img);
+        console.log("Image " + name + " has been loaded now");
+      }
+    }
+    canvaswrappers[name] = new CanvasWrapper(img); //this might be a 0x0px trash-image if image was not loaded.
+  }
+}
+
+/**
+ * Note that CanvasWrapper might also wrap an image instead of a canvas
  * @constructor
  */
 function CanvasWrapper(canvas) {
