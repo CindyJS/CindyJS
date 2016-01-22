@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: static ColorPlot</h1>
+    
+    
+    <script id="csmove" type="text/x-cindyscript">
+      colorplot(A, B, "plot", .5 + .5*sin((#*#))); //renders  sin(<x,x>) on 400x300 canvas
+      drawimage(A, B, "plot");
+    </script>
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      createimage("plot",400,300);
+    </script>
+    
+
+    <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
+    
+    <script type="text/javascript">
+        
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[-7,-1,1]},
+                  {name:"B", kind:"P", type:"Free", pos:[10,1,1]},
+                  ];
+        createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp
+                  });
+    </script>              
+	</body>
+</html>

@@ -295,6 +295,70 @@ module.exports = function build(settings, task) {
         this.node(process.argv[1], "cindy3d", "cindy3d-dbg=true");
     });
 
+
+    //////////////////////////////////////////////////////////////////////
+    // Build JavaScript version of CindyGL
+    //////////////////////////////////////////////////////////////////////
+
+    var cgl_primitives = "sphere cylinder triangle texq".split(" ");
+
+    var cgl_str_res = glob.sync("src/str/cindygl/*.glsl");
+    
+    var cgl_mods = [
+        "Init",
+        "General",
+        "Interface",
+        "CanvasWrapper",
+        "ShaderProgram",
+        "Renderer",
+        "Plugin",
+        "TypeInference",
+        "Types",
+        "IncludeFunctions",
+        "CodeBuilder",
+        "TextureReader",
+        "WebGLImplementation"
+    ];
+
+    task("cglres", [], function() {
+        this.node(
+            "tools/files2json.js",
+            "-varname=cgl_resources",
+            "-output=" + this.output("build/js/cglres.js"),
+            cgl_str_res);
+    });
+
+    task("cindygl", ["cglres", "closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            create_source_map: "build/js/CindyGL.js.map",
+            compilation_level: this.setting("cgl_closure_level"),
+            warning_level: this.setting("cgl_closure_warnings"),
+            source_map_format: "V3",
+            source_map_location_mapping: [
+                "build/js/|",
+                "src/js/|../../src/js/",
+            ],
+            output_wrapper_file: "src/js/cindygl/CindyGL.js.wrapper",
+            js_output_file: "build/js/CindyGL.js",
+            externs: "src/js/cindygl/cindyjs.externs",
+            js: ["build/js/cglres.js"].concat(cgl_mods.map(function(name) {
+                return "src/js/cindygl/" + name + ".js";
+            })),
+        };
+        if (this.setting("cindygl-dbg") !== undefined) {
+            opts.transpile_only = true;
+            opts.formatting = "PRETTY_PRINT";
+        }
+        this.closureCompiler(closure_jar, opts);
+    });
+
+    task("cindygl-dbg", [], function() {
+        this.node(process.argv[1], "cindygl", "cindygl-dbg=true");
+    });
+    
     //////////////////////////////////////////////////////////////////////
     // Run GWT for each listed GWT module
     //////////////////////////////////////////////////////////////////////
@@ -405,6 +469,7 @@ module.exports = function build(settings, task) {
     task("all", [
         "Cindy.js",
         "cindy3d",
+        "cindygl",
         "katex",
     ].concat(gwt_modules));
 

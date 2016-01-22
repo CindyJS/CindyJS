@@ -108,6 +108,8 @@ fwdtargets = \
 	beautify \
 	cindy3d \
 	cindy3d-dbg \
+	cindygl \
+	cindygl-dbg \
 	deploy \
 	forbidden \
 	jshint \

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Random Operator on GPU</h1>
+    
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+    </script>
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      colorplot(random());
+    </script>
+
+    <canvas  id="CSCanvas"></canvas>
+    <script type="text/javascript">
+        
+        var gslp=[];
+        cdy = createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    autoplay: true,
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 512,
+                      height: 512,
+                      transform: [ { visibleRect: [-1, -1, 1, 1] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

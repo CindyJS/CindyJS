@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Julia Feedbackloop</h1>
+    
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      
+      f(z, c) := z*z+c;
+      
+      createimage("julia", 500, 500);
+    </script>
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      c = complex(mouse());
+      
+      
+      color(z) := (
+        z = f(z, c);
+        if(abs(z)<1.5,
+          imagergb([-1.5,-1.5], [1.5,-1.5], "julia", z) + 0.01*(1,2,3),
+          (0,0,0)
+        )
+      );
+      
+      colorplot([-1.5,-1.5], [1.5,-1.5], "julia", (color(complex(#))));
+      drawimage([-1.5,-1.5], [1.5,-1.5], "julia");
+    </script>
+
+    <canvas  id="CSCanvas"></canvas>
+    <script type="text/javascript">
+        
+        var gslp=[];
+        cdy = createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    autoplay: true,
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [-1.5, -1.5, 1.5, 1.5] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

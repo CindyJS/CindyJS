@@ -3724,6 +3724,7 @@ evaluator.use$1 = function(args, modifs) {
                 "config": instanceInvocationArguments,
                 "nada": nada,
                 "evaluate": evaluate,
+                "extractPoint": eval_helper.extractPoint,
                 "evaluateAndVal": evaluateAndVal,
                 "defineFunction": defineFunction,
                 "addShutdownHook": shutdownHooks.push.bind(shutdownHooks),
@@ -3735,11 +3736,19 @@ evaluator.use$1 = function(args, modifs) {
                 "setTextRenderer": function(handler) {
                     textRenderer = handler;
                 },
-                "getImage": function(name) {
-                    if (images.hasOwnProperty(name))
-                        return images[name];
-                    return null;
+                "getImage": function(name, lazy) {
+                    if (!images.hasOwnProperty(name))
+                        return null;
+                    var img = images[name];
+                    if (!lazy && img.cdyUpdate())
+                        img.cdyUpdate();
+                    return img;
                 },
+                "getMyfunction": function(name) {
+                    if (!myfunctions.hasOwnProperty(name))
+                        return null;
+                    return myfunctions[name];
+                }
             });
             return {
                 "ctype": "boolean",

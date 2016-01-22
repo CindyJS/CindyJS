@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Generation of Limit Sets of Kleinian Groups Using a Feedback Loop Approach</h1>
+    
+    Press SPACE to reset everything. The red and the blue point determine the complex parameters ta, tb, which will be pluged into Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford, ‎Caroline Series, ‎David Wright.
+  
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      
+      createimage("A", 500, 500); //last trafo
+      createimage("a", 500, 500);
+      createimage("B", 500, 500);
+      createimage("b", 500, 500);
+      colorplot([-1.5,-1.5], [1.5,-1.5], "A", 0); //initialize as black
+      colorplot([-1.5,-1.5], [1.5,-1.5], "a", 0);
+      colorplot([-1.5,-1.5], [1.5,-1.5], "B", 0);
+      colorplot([-1.5,-1.5], [1.5,-1.5], "b", 0);      
+    </script>
+    
+    <script id="csmove" type="text/x-cindyscript">
+      ta = .5*complex(TA)+2;
+      tb = .5*complex(TB)+2;
+
+      sq(x) := x*x;
+      
+      //Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford, ‎Caroline Series, ‎David Wright 
+      tab = ta*tb/2-i*sqrt(-((ta*tb/2)^2-ta^2-tb^2));
+      z0 = ((tab-2)*tb)/(tb*tab-2*ta+2*i*tab);
+      a = [
+      [ta/2,(ta*tab-2*tb+4*i)/((2*tab+4)*z0)],
+      [(ta*tab-2*tb-4*i)*z0/(2*tab-4),ta/2]
+      ];
+      b = [
+      [(tb-2*i)/2,tb/2],
+      [tb/2,(tb+2*i)/2]
+      ];
+      
+      b = a*b; //replace b by a*b for better results
+      
+      A = inverse(a);
+      B = inverse(b);
+  </script>
+      
+  <script id="cskeydown" type="text/x-cindyscript">
+      print("pressed key" + keycode());
+      if(keycode()==32, 
+        colorplot([-1.5,-1.5], [1.5,-1.5], "A", 0);
+        colorplot([-1.5,-1.5], [1.5,-1.5], "a", 0);
+        colorplot([-1.5,-1.5], [1.5,-1.5], "B", 0);
+        colorplot([-1.5,-1.5], [1.5,-1.5], "b", 0);
+      ); //space -> black
+ </script>
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      c = complex(mouse());
+      
+      dehomog(a) := a_1/a_2;
+      moebius(A, z)  := (x = A*[z, 1]; x_1/x_2); //use homogenious coordinates
+      dmoebius(A, z) := (x = A*[z, 1]; 1/re(x_2*conjugate(x_2))); //absolute value of deriviative
+      
+            
+      T(a) := ( //maps [0,1] to [0, oo)
+        res = a/(1-a);
+        res*res);
+
+      Tinv(a) := ( //maps [0,oo) to [0, 1]
+        a = re(sqrt(a));
+        a/(1+a);
+      );
+
+      readA(z) := T(imagergb([-1.5,-1.5], [1.5,-1.5], "A", z).r);
+      reada(z) := T(imagergb([-1.5,-1.5], [1.5,-1.5], "a", z).r);
+      readB(z) := T(imagergb([-1.5,-1.5], [1.5,-1.5], "B", z).r);
+      readb(z) := T(imagergb([-1.5,-1.5], [1.5,-1.5], "b", z).r);
+      
+      compose(f, a, b, c, x) := (
+        Tinv(f*f*(a+b+c) + .00001*exp(-(x*x)));
+      );
+      
+      
+      
+      colorplot([-1.5,-1.5], [1.5,-1.5], "a",
+        r = moebius(a, complex(#));
+        compose(dmoebius(a, complex(#)), reada(r), readb(r), readB(r), #)
+      );
+      
+      colorplot([-1.5,-1.5], [1.5,-1.5], "A",
+        r = moebius(A, complex(#));
+        compose(dmoebius(A, complex(#)), readA(r), readb(r), readB(r), #)
+      );
+      
+      colorplot([-1.5,-1.5], [1.5,-1.5], "b",
+        r = moebius(b, complex(#));
+        compose(dmoebius(b, complex(#)), reada(r), readA(r), readb(r), #)
+      );
+      
+      
+      colorplot([-1.5,-1.5], [1.5,-1.5], "B",
+        r = moebius(B, complex(#));
+        compose(dmoebius(B, complex(#)), reada(r), readA(r), readB(r), #)
+      );
+      
+      
+      
+      colorplot(
+        s0 = imagergb([-1.5,-1.5], [1.5,-1.5], "a", #).r;
+        s1 = imagergb([-1.5,-1.5], [1.5,-1.5], "A", #).r;
+        s2 = imagergb([-1.5,-1.5], [1.5,-1.5], "b", #).r;
+        s3 = imagergb([-1.5,-1.5], [1.5,-1.5], "B", #).r;
+        sum = (s0+s1+s2+s3);
+        gray(sum)+
+        s0*hue(1/8)+s1*hue(3/8)+s2*hue(5/8)+s3*hue(7/8)
+      );
+
+      pt(a) := (re(a), im(a));
+      
+      draw(pt(moebius(A, complex(T))));
+      draw(pt(moebius(a, complex(T))));
+      draw(pt(moebius(B, complex(T))));
+      draw(pt(moebius(b, complex(T))));
+      
+      drawtext(TA+(.01,.01), ta, color->[1,0,0]);
+      drawtext(TB+(.01,.01), tb, color->[0,0,1]);
+    </script>
+
+    <canvas  id="CSCanvas" style="position:relative; top:10px;"></canvas>
+    <script type="text/javascript">
+        
+        cdy = createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry: [{name:"T", type:"Free", pos:[1,1],color:[1,.7,0],pinned:false,size:6},
+                              {name:"TA", type:"Free", pos:[0.,0.],color:[1,0,0],pinned:false,size:6},
+                              {name:"TB", type:"Free", pos:[0.,0.],color:[0,0,1],pinned:false,size:6}],
+                    autoplay: true,
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [-1.5, -1.5, 1.5, 1.5] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

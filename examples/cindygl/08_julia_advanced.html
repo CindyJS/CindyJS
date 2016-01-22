@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Advanced Julia Feedbackloop</h1>
+    O(1) per frame. Encode intermediate results in texture; requires float textures.
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      
+      f(z, c) := z*z+c;
+      
+      createimage("julia", 1024, 1024);
+      colorplot([-2,-2], [2,-2], "julia", (#.x, #.y, 0, 0));
+      lastupdate = 0;
+    </script> 
+    <script id="csdraw" type="text/x-cindyscript">
+      c = complex(mouse());
+      
+      //min(continious escape time, 1)
+      cesc(z) := (
+        l0 = abs(z);
+        l1 = abs(f(z,c));   
+        if(l0>2,
+          0,
+          if(l1 > 2,
+            re(log(2/l0))/re(log(l1/l0)),
+            1
+          )
+        )
+      );
+      
+      coordtime(z) := (
+        currentcolor = imagergba([-2,-2], [2,-2], "julia", z);
+        othercolor = imagergba([-2,-2], [2,-2], "julia", f(z, c));
+        cz = if(lastupdate>0, complex((currentcolor.x, currentcolor.y)), z);
+        
+        nz =  if(abs(cz)<2, f(cz, c), cz);
+
+        cval = if(lastupdate>0, currentcolor.a, 0) + cesc(cz); //cval is correct if cval < lastupdate
+        aval = othercolor.b + cesc(z); //aval is an approximation obtained by reading current image
+        
+        (re(nz), im(nz), if(cval < lastupdate, cval, aval), cval) //RGBA vector
+      );
+      
+      lastupdate = if(c==lastc, lastupdate+1, 0); //how many frames elapsed since the last time that c was updated?
+      lastc = c;
+      
+      colorplot([-2,-2], [2,-2], "julia", coordtime(complex(#)));
+      
+      
+      timetocolor(f) := (
+        l = min(f/250,1);
+        min(0.1+f/30, 1)*((1-l)*(hue(f/300-.5))+l*(1,1,1));
+      );
+      colorplot(timetocolor(imagergb([-2,-2], [2,-2], "julia", #).b));   
+    </script>
+
+    <canvas  id="CSCanvas"></canvas>
+    <script type="text/javascript">
+        
+        var gslp=[];
+        cdy = createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    autoplay: true,
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 1024,
+                      height: 1024,
+                      transform: [ { visibleRect: [-2, -2, 2, 2] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

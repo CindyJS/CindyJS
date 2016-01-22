@@ -23,6 +23,14 @@ evaluator.imagesize$1 = function(args, modifs) {
 
 };
 
+function drawImageIndirection(img, x, y) {
+    if (img.drawTo) {
+        img.drawTo(csctx, x, y);
+    } else {
+        csctx.drawImage(img, x, y);
+    }
+}
+
 evaluator.drawimage$2 = function(args, modifs) {
 
     function drawimg1() {
@@ -113,6 +121,10 @@ evaluator.drawimage$2 = function(args, modifs) {
         if (!pt.ok || img.ctype !== 'string') {
             return nada;
         }
+        img = images[img.value];
+        if (!img) {
+            return nada;
+        }
 
         csctx.save();
         handleModifs();
@@ -122,8 +134,8 @@ evaluator.drawimage$2 = function(args, modifs) {
         var initm = csport.drawingstate.initialmatrix;
 
 
-        var w = images[img.value].width;
-        var h = images[img.value].height;
+        var w = img.width;
+        var h = img.height;
 
         //TODO das ist für die Drehungen im lokaen koordinatensystem
         //sollte eigentlich einfacher gehen
@@ -157,8 +169,7 @@ evaluator.drawimage$2 = function(args, modifs) {
         csctx.translate(-xx, -yy);
         csctx.translate(-w / 2, -h / 2);
 
-
-        csctx.drawImage(images[img.value], xx, yy);
+        drawImageIndirection(img, xx, yy);
         csctx.globalAlpha = 1;
 
         csctx.restore();
@@ -222,10 +233,12 @@ evaluator.drawimage$2 = function(args, modifs) {
             return nada;
         }
         // console.lof(JSON.stringify(images));
-        if (images === undefined || images[img.value] === undefined)
-            return;
-        var w = images[img.value].width;
-        var h = images[img.value].height;
+        img = images[img.value];
+        if (!img) {
+            return nada;
+        }
+        var w = img.width;
+        var h = img.height;
 
 
         if (v2 === 0) {
@@ -270,7 +283,7 @@ evaluator.drawimage$2 = function(args, modifs) {
         csctx.translate(0, -h);
 
 
-        csctx.drawImage(images[img.value], 0, 0);
+        drawImageIndirection(img, 0, 0);
         csctx.globalAlpha = 1;
 
         csctx.restore();
