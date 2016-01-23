@@ -73,7 +73,7 @@
           fp = fold(p); //corresponding point in fundamental cell
           
           //hue(.3*t+fp.x+fp.y)
-          imagergb([-2,-2],[2,-2], "texture", (fp.x, fp.y) + CDelta.xy)
+          imagergb([-2,-2],[2,-2], "texture", (fp.x, fp.y) + CDelta.xy + .1*(cos(t),sin(t)))
           *(.7*min(p.z,1)+.3)  //looks a bit more sphere like
           *if(showfundamentaldomain & na*p>0 & nb*p>0 & nc*p>0, .7, 1)
         )
