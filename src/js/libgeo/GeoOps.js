@@ -1334,61 +1334,15 @@ geoOps.angleBisector = {};
 geoOps.angleBisector.kind = "Ls";
 geoOps.angleBisector.signature = ["L", "L"];
 geoOps.angleBisector.updatePosition = function(el) {
-    var xx = csgeo.csnames[(el.args[0])];
-    var yy = csgeo.csnames[(el.args[1])];
-
-    var poi = List.normalizeMax(List.cross(xx.homog, yy.homog));
-
-    var myI = List.normalizeMax(List.cross(List.ii, poi));
-    var myJ = List.normalizeMax(List.cross(List.jj, poi));
-
-    var sqi = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myI), List.det3(poi, xx.homog, myI)));
-    var sqj = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myJ), List.det3(poi, xx.homog, myJ)));
-
-    var mui = General.mult(myI, sqj);
-    var tauj = General.mult(myJ, sqi);
-
-    var erg1 = List.add(mui, tauj);
-    var erg2 = List.sub(mui, tauj);
-
-    var erg1zero = List.abs(erg1).value.real < CSNumber.eps;
-    var erg2zero = List.abs(erg2).value.real < CSNumber.eps;
-
-    if (!erg1zero && !erg2zero) {
-        erg1 = List.normalizeMax(erg1);
-        erg2 = List.normalizeMax(erg2);
-    } else if (erg1zero) {
-        erg2 = List.normalizeMax(erg2);
-    } else if (erg2zero) {
-        erg1 = List.normalizeMax(erg1);
-    }
-
-    // degenrate case
-    if ((List.almostequals(erg1, List.linfty).value && erg2zero) || (List.almostequals(erg2, List.linfty).value && erg1zero)) {
-        var mu, tau, mux, tauy;
-        if (List.abs(erg1).value.real < List.abs(erg2).value.real) {
-            mu = List.det3(poi, yy.homog, erg2);
-            tau = List.det3(poi, xx.homog, erg2);
-
-            mux = General.mult(xx.homog, mu);
-            tauy = General.mult(yy.homog, tau);
-
-            erg1 = List.add(mux, tauy);
-
-        } else {
-            mu = List.det3(poi, yy.homog, erg1);
-            tau = List.det3(poi, xx.homog, erg1);
-
-            mux = General.mult(xx.homog, mu);
-            tauy = General.mult(yy.homog, tau);
-
-            erg2 = List.add(mux, tauy);
-        }
-    }
-
-    erg1 = List.normalizeMax(erg1);
-    erg2 = List.normalizeMax(erg2);
-
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    var abs = function(v) {
+        return CSNumber.sqrt(CSNumber.add(CSNumber.mult(v[0], v[0]), CSNumber.mult(v[1], v[1])));
+    };
+    var as = List.scalmult(abs(b.value), a);
+    var bs = List.scalmult(abs(a.value), b);
+    var erg1 = List.normalizeMax(List.sub(as, bs));
+    var erg2 = List.normalizeMax(List.add(as, bs));
     el.results = tracing2(erg1, erg2);
 };
 geoOps.angleBisector.stateSize = tracing2.stateSize;
