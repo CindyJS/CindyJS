@@ -282,16 +282,17 @@ geoOps.Through.initialize = function(el) {
     putStateComplexVector(dir);
 };
 geoOps.Through.getParamForInput = function(el, pos, type) {
-    var l;
+    var dir;
     if (type === "mouse") {
         var p1 = csgeo.csnames[(el.args[0])].homog;
-        l = List.cross(p1, pos);
-    } else if (type === "homog") {
-        l = pos;
+        dir = List.cross(List.linfty, List.cross(p1, pos));
+    } else if (type === "homog") { // For use by Accessor.setField(geo, "homog", value)
+        dir = List.cross(List.linfty, pos);
+    } else if (type === "dir") { // For use by Accessor.setField(geo, "angle", value)
+        dir = pos;
     } else {
-        l = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
+        dir = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
     }
-    var dir = List.cross(List.linfty, l);
     // The parameter is the point at infinity, without its last coordinate.
     return List.normalizeMax(dir);
 };
