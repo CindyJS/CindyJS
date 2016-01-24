@@ -181,7 +181,7 @@ Accessor.setField = function(geo, field, value) {
     }
 
 
-    if (field === "homog" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 3)) {
+    if (field === "homog" && (geo.kind === "P" || geo.kind === "L") && geo.movable && List._helper.isNumberVecN(value, 3)) {
         movepointscr(geo, value, "homog");
     }
 
