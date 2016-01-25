@@ -151,6 +151,15 @@ The code below calculates and draws the roots of a cubic polynomial given by its
     > roots([-1, 0, 1, 0]);
     < [-1, 1, Infinity + i*Infinity]
 
+    > roots([]);
+    < []
+
+    > roots([0]);
+    < []
+
+    > roots([1]);
+    < []
+
     - skip test: can't do drawing in the test suite.
     > plot(f(x),size->2);
     > forall(r,draw((#,0)))

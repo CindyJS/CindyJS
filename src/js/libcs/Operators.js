@@ -1119,6 +1119,8 @@ eval_helper.roots = function(cs) {
     var roots = [];
     var cs_orig = cs;
     var n = cs.value.length - 1;
+    if (n <= 0)
+        return List.turnIntoCSList([]);
     if (CSNumber._helper.isZero(cs.value[n])) {
         roots = eval_helper.roots(List.turnIntoCSList(cs.value.slice(0, n)));
         return List.append(roots, CSNumber.infinity);
