@@ -1115,37 +1115,44 @@ eval_helper.quadratic_roots = function(cs) {
     return [CSNumber.div(CSNumber.sub(r, b), CSNumber.mult(CSNumber.real(2.0), a)), CSNumber.div(CSNumber.mult(CSNumber.real(2.0), c), CSNumber.sub(r, b))];
 };
 
+eval_helper.roots = function(cs) {
+    var roots = [];
+    var cs_orig = cs;
+    var n = cs.value.length - 1;
+    if (CSNumber._helper.isZero(cs.value[n])) {
+        roots = eval_helper.roots(List.turnIntoCSList(cs.value.slice(0, n)));
+        return List.append(roots, CSNumber.infinity);
+    }
+    if (n === 1)
+        roots[0] = CSNumber.neg(CSNumber.div(cs.value[0], cs.value[1]));
+    else if (n === 2)
+        roots = eval_helper.quadratic_roots(cs);
+    else {
+        for (var i = 0; i < n - 2; i++) {
+            roots[i] = eval_helper.laguerre(cs, CSNumber.zero, 200);
+            roots[i] = eval_helper.laguerre(cs_orig, roots[i], 1);
+            var fx = [];
+            fx[n - i] = cs.value[n - i];
+            for (var j = n - i; j > 0; j--)
+                fx[j - 1] = CSNumber.add(cs.value[j - 1], CSNumber.mult(fx[j], roots[i]));
+            fx.shift();
+            cs = List.turnIntoCSList(fx);
+        }
+        var qroots = eval_helper.quadratic_roots(cs);
+        roots[n - 2] = qroots[0];
+        roots[n - 1] = qroots[1];
+    }
+    return List.turnIntoCSList(roots);
+};
+
 evaluator.roots$1 = function(args, modifs) {
     var cs = evaluateAndVal(args[0]);
     if (cs.ctype === 'list') {
-        var i;
-        for (i = 0; i < cs.value.length; i++)
+        for (var i = 0; i < cs.value.length; i++)
             if (cs.value[i].ctype !== 'number')
                 return nada;
-
-        var roots = [];
-        var cs_orig = cs;
-        var n = cs.value.length - 1;
-        if (n === 1)
-            roots[0] = CSNumber.neg(CSNumber.div(cs.value[0], cs.value[1]));
-        else if (n === 2)
-            roots = eval_helper.quadratic_roots(cs);
-        else {
-            for (i = 0; i < n - 2; i++) {
-                roots[i] = eval_helper.laguerre(cs, CSNumber.zero, 200);
-                roots[i] = eval_helper.laguerre(cs_orig, roots[i], 1);
-                var fx = [];
-                fx[n - i] = cs.value[n - i];
-                for (var j = n - i; j > 0; j--)
-                    fx[j - 1] = CSNumber.add(cs.value[j - 1], CSNumber.mult(fx[j], roots[i]));
-                fx.shift();
-                cs = List.turnIntoCSList(fx);
-            }
-            var qroots = eval_helper.quadratic_roots(cs);
-            roots[n - 2] = qroots[0];
-            roots[n - 1] = qroots[1];
-        }
-        return List.sort1(List.turnIntoCSList(roots));
+        var roots = eval_helper.roots(cs);
+        return List.sort1(roots);
     }
     return nada;
 };

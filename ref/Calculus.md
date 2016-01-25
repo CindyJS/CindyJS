@@ -148,6 +148,9 @@ The code below calculates and draws the roots of a cubic polynomial given by its
     > r
     < [-2.0562, -0.3563, 3.4125]
 
+    > roots([-1, 0, 1, 0]);
+    < [-1, 1, Infinity + i*Infinity]
+
     - skip test: can't do drawing in the test suite.
     > plot(f(x),size->2);
     > forall(r,draw((#,0)))
