@@ -83,6 +83,10 @@ CSNumber.zero = CSNumber.real(0);
 
 CSNumber.one = CSNumber.real(1);
 
+CSNumber.infinity = CSNumber.complex(Infinity, Infinity);
+
+CSNumber.nan = CSNumber.complex(NaN, NaN);
+
 CSNumber._helper.input = function(a) {
     if (typeof a === "object")
         return CSNumber.complex(+a.r, +a.i);
