@@ -189,7 +189,7 @@ describe("Trigonometry", function() {
   });
 
   it("sqrt", function() {
-    var sqrt_f_a = CSNumber.complex(10.000031249755862,-0.024999921875854481);
+    var sqrt_f_a = CSNumber.complex(-10.000031249755862,0.024999921875854481);
     var sqrt_f_b = CSNumber.complex(0.55589297025142115,0.89945371997393364);
 
     expect(CSNumber._helper.isAlmostEqual(sqrt_f_a, CSNumber.sqrt(f_a))).toBe(true);
