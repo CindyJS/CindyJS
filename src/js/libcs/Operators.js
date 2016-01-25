@@ -1094,7 +1094,7 @@ eval_helper.laguerre = function(cs, x, maxiter) {
         if (CSNumber._helper.isLessThan(CSNumber.abs(a), CSNumber.real(tol)))
             return x;
         if (iter % 20 === 0)
-            a = CSNumber.mult(a, CSNumber.real(rand[iter / 20]));
+            a = CSNumber.mult(a, CSNumber.real(rand[Math.floor(iter / 20)]));
         x = CSNumber.sub(x, a);
     }
     return x;
