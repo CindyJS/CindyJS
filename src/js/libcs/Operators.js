@@ -1066,8 +1066,8 @@ eval_helper.laguerre = function(cs, x, maxiter) {
     var a, p, q, s, g, g2, h, r, d1, d2;
     var tol = 1e-14;
     for (var iter = 1; iter <= maxiter; iter++) {
-        s = CSNumber.real(0.0);
-        q = CSNumber.real(0.0);
+        s = CSNumber.zero;
+        q = CSNumber.zero;
         p = cs.value[n];
 
         for (i = n - 1; i >= 0; i--) {
@@ -1090,7 +1090,7 @@ eval_helper.laguerre = function(cs, x, maxiter) {
         if (CSNumber._helper.isLessThan(CSNumber.real(tol), CSNumber.abs(d1)))
             a = CSNumber.div(CSNumber.real(n), d1);
         else
-            a = CSNumber.mult(CSNumber.add(CSNumber.abs(x), CSNumber.real(1.0)), CSNumber.complex(Math.cos(iter), Math.sin(iter)));
+            a = CSNumber.mult(CSNumber.add(CSNumber.abs(x), CSNumber.one), CSNumber.complex(Math.cos(iter), Math.sin(iter)));
         if (CSNumber._helper.isLessThan(CSNumber.abs(a), CSNumber.real(tol)))
             return x;
         if (iter % 20 === 0 && iter < maxiter - 19)
