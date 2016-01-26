@@ -1332,18 +1332,29 @@ geoOps.PolarOfLine.updatePosition = function(el) {
 
 geoOps.angleBisector = {};
 geoOps.angleBisector.kind = "Ls";
-geoOps.angleBisector.signature = ["L", "L"];
+geoOps.angleBisector.signature = ["L", "L", "P"];
 geoOps.angleBisector.updatePosition = function(el) {
     var a = csgeo.csnames[el.args[0]].homog;
     var b = csgeo.csnames[el.args[1]].homog;
-    var abs = function(v) {
-        return CSNumber.sqrt(CSNumber.add(CSNumber.mult(v[0], v[0]), CSNumber.mult(v[1], v[1])));
+    var mult = CSNumber.mult;
+    var scalAbs = function(v, l) {
+        return List.scalmult(CSNumber.sqrt(CSNumber.add(mult(v[0], v[0]), mult(v[1], v[1]))), l);
     };
-    var as = List.scalmult(abs(b.value), a);
-    var bs = List.scalmult(abs(a.value), b);
-    var erg1 = List.normalizeMax(List.sub(as, bs));
-    var erg2 = List.normalizeMax(List.add(as, bs));
-    el.results = tracing2(erg1, erg2);
+    var as = scalAbs(b.value, a);
+    var bs = scalAbs(a.value, b);
+    var res = [List.sub(as, bs), List.add(as, bs)];
+    var chk = function(which) {
+        // Check for concurrent lines
+        var t = res[which];
+        if (List._helper.isAlmostZero(t)) {
+            // Produce a line that is perpendicular to the other line at the point given
+            var l = res[1 - which].value;
+            var p = csgeo.csnames[(el.args[2])].homog;
+            t = List.cross(List.turnIntoCSList([l[0], l[1], CSNumber.zero]), p);
+        }
+        return List.normalizeMax(t);
+    };
+    el.results = tracing2(chk(0), chk(1));
 };
 geoOps.angleBisector.stateSize = tracing2.stateSize;
 
