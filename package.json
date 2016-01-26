@@ -29,8 +29,8 @@
     "whole-line-stream": "^0.1.0"
   },
   "scripts": {
-    "prepublish": "node make/index.js call_npm=false parallel=true build=release all",
-    "test": "node make/index.js call_npm=false alltests"
+    "prepublish": "$NODE make/index.js call_npm=false parallel=true build=release all",
+    "test": "$NODE make/index.js call_npm=false alltests"
   },
   "repository": {
     "type": "git",
