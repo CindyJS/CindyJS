@@ -307,9 +307,7 @@ module.exports = function build(settings, task) {
     var cgl_mods = [
         "Init",
         "General",
-        "Interface",
         "CanvasWrapper",
-        "ShaderProgram",
         "Renderer",
         "Plugin",
         "TypeInference",
@@ -318,6 +316,11 @@ module.exports = function build(settings, task) {
         "CodeBuilder",
         "TextureReader",
         "WebGLImplementation"
+    ];
+
+    var cgl_mods_from_c3d = [
+        "Interface",
+        "ShaderProgram"
     ];
 
     task("cglres", [], function() {
@@ -346,6 +349,8 @@ module.exports = function build(settings, task) {
             externs: "plugins/cindygl/src/js/cindyjs.externs",
             js: ["build/js/cglres.js"].concat(cgl_mods.map(function(name) {
                 return "plugins/cindygl/src/js/" + name + ".js";
+            })).concat(cgl_mods_from_c3d.map(function(name) {
+                return "plugins/cindy3d/src/js/" + name + ".js";
             })),
         };
         if (this.setting("cindygl-dbg") !== undefined) {
