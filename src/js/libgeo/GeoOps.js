@@ -1344,7 +1344,7 @@ geoOps.angleBisector.updatePosition = function(el) {
     var bs = scalAbs(a.value, b);
     var res = [List.sub(as, bs), List.add(as, bs)];
     var chk = function(which) {
-        // Check for concurrent lines
+        // Check for coincident lines
         var t = res[which];
         if (List._helper.isAlmostZero(t)) {
             // Produce a line that is perpendicular to the other line at the point given
@@ -2455,7 +2455,21 @@ geoMacros.Arc = function(el) {
 
 geoMacros.AngularBisector = function(el) {
     el.type = "angleBisector";
-    el.args.length = 2; // Drop point of intersection
+    if (el.args.length === 2) {
+        el.args.push("$InternalNullPoint$");
+        if (csgeo.csnames[el.args[2]] === undefined) {
+            var el2 = {
+                name: el.args[2],
+                type: "Free",
+                pos: [0, 0, 0],
+                pinned: true,
+                labeled: false,
+                visible: false,
+                size: 0
+            };
+            addElement(el2);
+        }
+    }
     return [el];
 };
 
