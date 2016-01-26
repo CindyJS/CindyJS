@@ -1348,7 +1348,7 @@ geoOps.angleBisector.updatePosition = function(el) {
         var t = res[which];
         if (List._helper.isAlmostZero(t)) {
             // Produce a line that is perpendicular to the other line at the point given
-            var l = res[1-which].value;
+            var l = res[1 - which].value;
             var p = csgeo.csnames[(el.args[2])].homog;
             t = List.cross(List.turnIntoCSList([l[0], l[1], CSNumber.zero]), p);
         }
