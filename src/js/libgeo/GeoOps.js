@@ -1336,25 +1336,22 @@ geoOps.angleBisector.signature = ["L", "L", "P"];
 geoOps.angleBisector.updatePosition = function(el) {
     var a = csgeo.csnames[el.args[0]].homog;
     var b = csgeo.csnames[el.args[1]].homog;
-    var mult = CSNumber.mult;
-    var scalAbs = function(v, l) {
-        return List.scalmult(CSNumber.sqrt(CSNumber.add(mult(v[0], v[0]), mult(v[1], v[1]))), l);
-    };
-    var as = scalAbs(b.value, a);
-    var bs = scalAbs(a.value, b);
-    var res = [List.sub(as, bs), List.add(as, bs)];
-    var chk = function(which) {
-        // Check for coincident lines
-        var t = res[which];
-        if (List._helper.isAlmostZero(t)) {
-            // Produce a line that is perpendicular to the other line at the point given
-            var l = res[1 - which].value;
-            var p = csgeo.csnames[(el.args[2])].homog;
-            t = List.cross(List.turnIntoCSList([l[0], l[1], CSNumber.zero]), p);
-        }
-        return List.normalizeMax(t);
-    };
-    el.results = tracing2(chk(0), chk(1));
+    var p = csgeo.csnames[el.args[2]].homog;
+    var add = List.add;
+    var sub = List.sub;
+    var abs = List.abs;
+    var cross = List.cross;
+    var sm = List.scalmult;
+    var nm = List.normalizeMax;
+    var isAlmostZero = List._helper.isAlmostZero;
+    var linfty = List.linfty;
+    var na = sm(abs(cross(cross(linfty, b), linfty)), a);
+    var nb = sm(abs(cross(cross(linfty, a), linfty)), b);
+    var res1 = sub(na, nb);
+    var res2 = add(na, nb);
+    if (isAlmostZero(res1)) res1 = cross(cross(cross(linfty, res2), linfty), p);
+    if (isAlmostZero(res2)) res2 = cross(cross(cross(linfty, res1), linfty), p);
+    el.results = tracing2(nm(res1), nm(res2));
 };
 geoOps.angleBisector.stateSize = tracing2.stateSize;
 
