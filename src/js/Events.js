@@ -76,8 +76,7 @@ function getmover(mouse) {
         var sy = mouse.y + diff.y;
         var pos = List.realVector([sx, sy, 1]);
         var p1 = csgeo.csnames[(mov.args[0])].homog;
-        var l = List.cross(pos, p1);
-        var sign = List.scalproduct(l, mov.homog);
+        var sign = List.scalproduct(List.cross(pos, p1), mov.homog);
         reversed = CSNumber._helper.isLessThan(sign, CSNumber.zero) !== CSNumber._helper.isLessThan(p1.value[2], CSNumber.zero);
     }
     return {
