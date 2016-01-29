@@ -2054,7 +2054,7 @@ geoOps.Angle.updatePosition = function(el) {
     var r = CSNumber.sqrt(add(mult(c, c), mult(s, s)));
     var cis = add(c, mult(CSNumber.complex(0, 1), s));
     var th = mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(cis, r)));
-    return el.angle = General.withUsage(th, "Angle");
+    el.angle = General.withUsage(th, "Angle");
 };
 
 // Define a rotation transformation given the center of rotation point and an angle
@@ -2168,8 +2168,8 @@ geoOps.TrRotationLL.updatePosition = function(el) {
     var a = csgeo.csnames[el.args[0]].homog;
     var b = csgeo.csnames[el.args[1]].homog;
     var p = List.cross(a, b).value;
-    var a = a.value;
-    var b = b.value;
+    a = a.value;
+    b = b.value;
     var mult = CSNumber.mult;
     var add = CSNumber.add;
     var sub = CSNumber.sub;
