@@ -331,6 +331,7 @@ geoOps.Free.getParamForInput = function(el, pos, type) {
             pos = List.realVector([rx, ry, 1]);
         }
     }
+    if (CSNumber._helper.isLessThan(CSNumber.mult(el.homog.value[2], pos.value[2]), CSNumber.zero)) pos = List.neg(pos);
     return List.normalizeMax(pos);
 };
 geoOps.Free.getParamFromState = function(el) {
