@@ -2107,6 +2107,112 @@ geoOps.TrRotationPNumb.updatePosition = function(el) {
     ]));
 };
 
+// Given two lines, define a rotation from the first line to the second line
+// This matches TrRotationPNumb and Angle and is reversed from what Cinderella does
+geoOps.TrRotationLL = {};
+geoOps.TrRotationLL.kind = "Tr";
+geoOps.TrRotationLL.signature = ["L", "L", "P"];
+geoOps.TrRotationLL.updatePosition = function(el) {
+    /*
+        Given line a as [ax, ay, az], line b as [bx, by, bz] and a point to be
+        used as the pivot point for the rotation when the lines are coincident.
+        That point is most meaningful if the lines are constructed so as to pass
+        through it. First a point p which is cross(a, b), [px, py, pz], the
+        intersection point of lines a and b is produced:
+            px is ay*bz-az*by
+            py is az*bx-ax*bz
+            pz is ax*by-ay*bx
+        When the lines a and b are coincident there is no solution [0, 0, 0].
+        Referring to the angle θ as the rotation from line a to line b, then
+            c, r*cos(θ), is (ax*bx+ay*by);
+            s, r*sin(θ), is (ax*by-ay*bx) which is also pz as shown above;
+            r is sqrt(c*c+s*s);
+            t is (r-c)/s, (1-cos(θ))/sin(θ) and also tan(θ/2).
+        The matrix formula in terms of θ and pivot [x, y, 1] is
+        translate([x, y, 1])·rotate(θ)·translate([-x, -y, 1]):
+        ⎛1  0  x⎞ ⎛cos(θ) -sin(θ)   0 ⎞ ⎛1  0 -x⎞
+        ⎜0  1  y⎟·⎜sin(θ)  cos(θ)   0 ⎟·⎜0  1 -y⎟
+        ⎝0  0  1⎠ ⎝  0       0      1 ⎠ ⎝0  0  1⎠
+        This expands out to:
+        ⎛    cos(θ)        -sin(θ) (1-cos(θ))*x+sin(θ)*y ⎞
+        ⎜    sin(θ)         cos(θ) (1-cos(θ))*y-sin(θ)*x ⎟
+        ⎝     0              0                 1         ⎠
+        Then substituting cos(θ)→c/r, sin(θ)→s/r, x→px/pz and y→py/pz:
+        ⎛    c/r           -s/r   (1-c/r)*px/pz+s/r*py/pz⎞
+        ⎜    s/r            c/r   (1-c/r)*py/pz-s/r*px/pz⎟
+        ⎝     0              0                1          ⎠
+        Scaling the entire matrix by r and then substituting pz→s and (r-c)/s→t
+        works when the lines are not coincident because θ is not an integer
+        multiple of π so that s is not 0 and no division-by-zero occurs.
+        This matrix and its dual are the result:
+                    ⎛   c      -s  t*px+py⎞             ⎛   c      -s     0   ⎞
+            matrix =⎜   s       c  t*py-px⎟ dualMatrix =⎜   s       c     0   ⎟
+                    ⎝   0       0     r   ⎠             ⎝t*px-py t*py+px  r   ⎠
+        When s is 0, the lines are coincident, c is -r and when θ is ±π and so
+        the point given is used as the point p [px, py, pz] because cross(a, b)
+        yields no solution for the pivot point [0, 0, 0]. Then substituting into
+        the matrix formula cos(θ)→-1, sin(θ)→0, x→px/pz, y→py/pz and scaling the
+        entire matrix by pz gives this matrix and its dual:
+                    ⎛  -pz      0    2*px ⎞             ⎛  -pz      0     0   ⎞
+            matrix =⎜   0      -pz   2*py ⎟ dualMatrix =⎜   0      -pz    0   ⎟
+                    ⎝   0       0     pz  ⎠             ⎝  2*px    2*py   pz  ⎠
+        When s is 0, the lines are coincident, c is r and when θ is 0 no rotation
+        occurs so the matrices are identities. This is made apparent substituting
+        cos(θ)→1, sin(θ)→0 into the matrix formula. We see that values of x and y
+        do not matter as both are multiplied by 0:
+                                 ⎛   1      0      0  ⎞
+            matrix = dualMatrix =⎜   0      1      0  ⎟
+                                 ⎝   0      0      1  ⎠
+    */
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    var p = List.cross(a, b).value;
+    var a = a.value;
+    var b = b.value;
+    var mult = CSNumber.mult;
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var mat = List.turnIntoCSList;
+    var nm = List.normalizeMax;
+    var zero = CSNumber.zero;
+    var isAlmostZero = CSNumber._helper.isAlmostZero;
+    var c = add(mult(a[0], b[0]), mult(a[1], b[1]));
+    var s = p[2];
+    var r = CSNumber.sqrt(add(mult(c, c), mult(s, s)));
+    var t = sub(r, c);
+    var px = p[0];
+    var py = p[1];
+    if (isAlmostZero(s)) { // The lines a and b are coincident
+        s = zero;
+        if (isAlmostZero(t)) { // θ is any even integer*π
+            c = r;
+            t = zero;
+        } else { // θ is any odd integer*π
+            // Use the point given since px and py will be zero
+            p = csgeo.csnames[el.args[2]].homog.value;
+            r = p[2]; // pz
+            c = CSNumber.neg(r); // cos(θ)*pz === -pz
+            t = CSNumber.real(2); // (r-c)/pz === 2
+        }
+        px = py = zero;
+    } else {
+        t = CSNumber.div(t, s);
+    }
+    var tpx = mult(t, p[0]);
+    var tpy = mult(t, p[1]);
+    var ns = CSNumber.neg(s);
+    el.matrix = nm(mat([
+        mat([c, ns, add(tpx, py)]),
+        mat([s, c, sub(tpy, px)]),
+        mat([zero, zero, r])
+    ]));
+    el.dualMatrix = nm(mat([
+        mat([c, ns, zero]),
+        mat([s, c, zero]),
+        mat([sub(tpx, py), add(tpy, px), r])
+    ]));
+};
+
 // Define a reflective transformation given a point
 geoOps.TrReflectionP = {};
 geoOps.TrReflectionP.kind = "Tr";
