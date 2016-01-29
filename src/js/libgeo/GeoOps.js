@@ -2029,6 +2029,33 @@ geoOps.TrTranslation.updatePosition = function(el) {
     el.dualMatrix = m;
 };
 
+// Given two lines, define a rotation angle from the first line to the second line
+// Does not make use of the pivot point given as the third argument
+geoOps.Angle = {};
+geoOps.Angle.kind = "A";
+geoOps.Angle.signature = ["L", "L", "P"];
+geoOps.Angle.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]].homog.value;
+    var b = csgeo.csnames[el.args[1]].homog.value;
+    /*
+        Given line a as [ax, ay, az] and line b as [bx, by, bz];
+        referring to the angle θ as the rotation from line a to line b, then
+            c, r*cos(θ), is (ax*bx+ay*by);
+            s, r*sin(θ), is (ax*by-ay*bx);
+            r is sqrt(c*c+s*s)
+        then the angle θ is -i*log((c+i*s)/r).
+    */
+    var mult = CSNumber.mult;
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var c = add(mult(a[0], b[0]), mult(a[1], b[1]));
+    var s = sub(mult(a[0], b[1]), mult(a[1], b[0]));
+    var r = CSNumber.sqrt(add(mult(c, c), mult(s, s)));
+    var cis = add(c, mult(CSNumber.complex(0, 1), s));
+    var th = mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(cis, r)));
+    return el.angle = General.withUsage(th, "Angle");
+};
+
 // Define a reflective transformation given a point
 geoOps.TrReflectionP = {};
 geoOps.TrReflectionP.kind = "Tr";
