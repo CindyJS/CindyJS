@@ -2670,6 +2670,84 @@ geoOps.TrTranslation.updatePosition = function(el) {
     el.dualMatrix = m;
 };
 
+// Given two lines, define a rotation angle from the first line to the second line
+// Does not make use of the pivot point given as the third argument
+geoOps.Angle = {};
+geoOps.Angle.kind = "A";
+geoOps.Angle.signature = ["L", "L", "P"];
+geoOps.Angle.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]].homog.value;
+    var b = csgeo.csnames[el.args[1]].homog.value;
+    /*
+        Given line a as [ax, ay, az] and line b as [bx, by, bz];
+        referring to the angle θ as the rotation from line a to line b, then
+            c, r*cos(θ), is (ax*bx+ay*by);
+            s, r*sin(θ), is (ax*by-ay*bx);
+            r is sqrt(c*c+s*s)
+        then the angle θ is -i*log((c+i*s)/r).
+    */
+    var mult = CSNumber.mult;
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var c = add(mult(a[0], b[0]), mult(a[1], b[1]));
+    var s = sub(mult(a[0], b[1]), mult(a[1], b[0]));
+    var r = CSNumber.sqrt(add(mult(c, c), mult(s, s)));
+    var cis = add(c, mult(CSNumber.complex(0, 1), s));
+    var th = mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(cis, r)));
+    return el.angle = General.withUsage(th, "Angle");
+};
+
+// Define a rotation transformation given the center of rotation point and an angle
+geoOps.TrRotationPNumb = {};
+geoOps.TrRotationPNumb.kind = "Tr";
+geoOps.TrRotationPNumb.signature = ["P", "A"];
+geoOps.TrRotationPNumb.updatePosition = function(el) {
+    /*
+        Given a point p as [x, y, z] and an angle θ, where c is cos(θ)
+        and s is sin(θ), build this matrix:
+        ⎛    c*z        -s*z     (1-c)*x+s*y⎞
+        ⎜    s*z         c*z     (1-c)*y-s*x⎟
+        ⎝     0           0           z     ⎠
+        and its dual:
+        ⎛    c*z        -s*z          0     ⎞
+        ⎜    s*z         c*z          0     ⎟
+        ⎝(1-c)*x-s*y (1-c)*y+s*x      z     ⎠
+        Based on the matrix formula in terms of θ and pivot [x/z, y/z, 1]:
+        z*translate([x/z, y/z, 1])·rotate(θ)·translate([-x/z, -y/z, 1]).
+    */
+    var p = csgeo.csnames[el.args[0]].homog.value;
+    var th = csgeo.csnames[el.args[1]].angle;
+    var mult = CSNumber.mult;
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var mat = List.turnIntoCSList;
+    var nm = List.normalizeMax;
+    var zero = CSNumber.zero;
+    var x = p[0];
+    var y = p[1];
+    var z = p[2];
+    var c = CSNumber.cos(th);
+    var s = CSNumber.sin(th);
+    var t = sub(CSNumber.real(1), c);
+    var tx = mult(t, x);
+    var ty = mult(t, y);
+    var sx = mult(s, x);
+    var sy = mult(s, y);
+    var cz = mult(c, z);
+    var sz = mult(s, z);
+    var nsz = CSNumber.neg(sz);
+    el.matrix = nm(mat([
+        mat([cz, nsz, add(tx, sy)]),
+        mat([sz, cz, sub(ty, sx)]),
+        mat([zero, zero, z])
+    ]));
+    el.dualMatrix = nm(mat([
+        mat([cz, nsz, zero]),
+        mat([sz, cz, zero]),
+        mat([sub(tx, sy), add(ty, sx), z])
+    ]));
+};
+
 // Define a reflective transformation given a point
 geoOps.TrReflectionP = {};
 geoOps.TrReflectionP.kind = "Tr";
