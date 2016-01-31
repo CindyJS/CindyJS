@@ -1024,6 +1024,9 @@ evaluator.plot$2 = function(args, modifs) {
         "dashpattern": true,
         "dashtype": true,
         "dashing": true,
+        "lineCap": true,
+        "lineJoin": true,
+        "miterLimit": true,
 
         "connect": function(v) {
             if (v.ctype === 'boolean')
@@ -1047,8 +1050,6 @@ evaluator.plot$2 = function(args, modifs) {
     });
     csctx.strokeStyle = Render2D.lineColor;
     csctx.lineWidth = Render2D.lsize;
-    csctx.lineCap = 'round';
-    csctx.lineJoin = 'round';
 
     function canbedrawn(v) {
         return v.ctype === 'number' && CSNumber._helper.isAlmostReal(v);
@@ -1254,7 +1255,9 @@ evaluator.plotX$1 = function(args, modifs) { //OK
     var col = csport.drawingstate.linecolor;
     csctx.fillStyle = col;
     csctx.lineWidth = 1;
-    csctx.lineCap = 'round';
+    csctx.lineCap = Render2D.lineCap;
+    csctx.lineJoin = Render2D.lineJoin;
+    csctx.miterLimit = Render2D.miterLimit;
 
     var stroking = false;
 

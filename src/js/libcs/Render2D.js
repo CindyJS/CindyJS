@@ -22,6 +22,9 @@ Render2D.handleModifs = function(modifs, handlers) {
     Render2D.align = 0;
     Render2D.xOffset = 0;
     Render2D.yOffset = 0;
+    Render2D.lineCap = "round";
+    Render2D.lineJoin = "round";
+    Render2D.miterLimit = 10;
 
     // Process handlers
     var key, handler;
@@ -242,6 +245,21 @@ Render2D.modifHandlers = {
         }
     },
 
+    "lineCap": function(v) {
+        if (v.ctype === "string" && (v.value === "round" || v.value === "square" || v.value === "butt"))
+            Render2D.lineCap = v.value;
+    },
+
+    "lineJoin": function(v) {
+        if (v.ctype === "string" && (v.value === "round" || v.value === "bevel" || v.value === "miter"))
+            Render2D.lineJoin = v.value;
+    },
+
+    "miterLimit": function(v) {
+        if (v.ctype === "number" && v.value.real > 0) {
+            Render2D.miterLimit = Math.round(v.value.real);
+        }
+    }
 };
 
 Render2D.lineModifs = {
@@ -257,6 +275,7 @@ Render2D.lineModifs = {
     "arrowsides": true,
     "arrowposition": true,
     "arrowsize": true,
+    "lineCap": true
 };
 
 Render2D.pointModifs = {
@@ -267,7 +286,14 @@ Render2D.pointModifs = {
 
 Render2D.pointAndLineModifs = Render2D.lineModifs;
 
-Render2D.conicModifs = Render2D.pointModifs;
+Render2D.conicModifs = {
+    "size": true,
+    "color": true,
+    "alpha": true,
+    "lineCap": true,
+    "lineJoin": true,
+    "miterLimit": true
+};
 
 Render2D.textModifs = {
     "size": true,
@@ -293,8 +319,9 @@ Render2D.makeColor = function(colorraw) {
 
 Render2D.preDrawCurve = function() {
     csctx.lineWidth = Render2D.lsize;
-    csctx.lineCap = 'round';
-    csctx.lineJoin = 'round';
+    csctx.lineCap = Render2D.lineCap;
+    csctx.lineJoin = Render2D.lineJoin;
+    csctx.miterLimit = Render2D.miterLimit;
     csctx.strokeStyle = Render2D.lineColor;
 };
 
@@ -311,8 +338,9 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
     csctx.lineWidth = Render2D.lsize;
-    csctx.lineCap = 'round';
-    csctx.lineJoin = 'round';
+    csctx.lineCap = Render2D.lineCap;
+    csctx.lineJoin = Render2D.lineJoin;
+    csctx.miterLimit = Render2D.miterLimit;
     csctx.strokeStyle = Render2D.lineColor;
 
 
