@@ -32,6 +32,15 @@ var f_a = CSNumber.complex(100, -0.5);
 var f_b = CSNumber.complex(-0.5, 1);
 var f_a_plus_b = CSNumber.add(f_a, f_b);
 var f_a_mult_f_b = CSNumber.complex(-49.5,100.25);
+var f_0 = CSNumber.real(0);
+var f_minus_rh2_minus_rh2i = CSNumber.complex(-Math.SQRT1_2, -Math.SQRT1_2);
+var f_minus_1i = CSNumber.complex(0, -1);
+var f_rh2_minus_rh2i = CSNumber.complex(Math.SQRT1_2, -Math.SQRT1_2);
+var f_1 = CSNumber.real(1);
+var f_rh2_plus_rh2i = CSNumber.complex(Math.SQRT1_2, Math.SQRT1_2);
+var f_1i = CSNumber.complex(0, 1);
+var f_minus_rh2_plus_rh2i = CSNumber.complex(-Math.SQRT1_2, Math.SQRT1_2);
+var f_minus_1 = CSNumber.real(-1);
 
 
 // basic operations
@@ -199,9 +208,27 @@ describe("Trigonometry", function() {
   it("log", function() {
     var log_f_a = CSNumber.complex(4.6051826858318439,-0.0049999583339583225);
     var log_f_b = CSNumber.complex(0.11157177565710488,2.0344439357957027);
+    var log_f_0 = CSNumber.real(-1/0);
+    var log_f_minus_rh2_minus_rh2i = CSNumber.complex(0, -3 * Math.PI/4);
+    var log_f_minus_1i = CSNumber.complex(0, -Math.PI/2);
+    var log_f_rh2_minus_rh2i = CSNumber.complex(0, -Math.PI/4);
+    var log_f_1 = CSNumber.real(0);
+    var log_f_rh2_plus_rh2i = CSNumber.complex(0, Math.PI/4);
+    var log_f_1i = CSNumber.complex(0, Math.PI/2);
+    var log_f_minus_rh2_plus_rh2i = CSNumber.complex(0, 3 * Math.PI/4);
+    var log_f_minus_1 = CSNumber.complex(0, Math.PI);
 
     expect(CSNumber._helper.isAlmostEqual(log_f_a, CSNumber.log(f_a))).toBe(true);
     expect(CSNumber._helper.isAlmostEqual(log_f_b, CSNumber.log(f_b))).toBe(true);
+    expect(CSNumber._helper.isEqual(log_f_0, CSNumber.log(f_0))).toBe(true);
+    expect(CSNumber._helper.isAlmostEqual(log_f_minus_rh2_minus_rh2i, CSNumber.log(f_minus_rh2_minus_rh2i))).toBe(true);
+    expect(CSNumber._helper.isAlmostEqual(log_f_minus_1i, CSNumber.log(f_minus_1i))).toBe(true);
+    expect(CSNumber._helper.isAlmostEqual(log_f_rh2_minus_rh2i, CSNumber.log(f_rh2_minus_rh2i))).toBe(true);
+    expect(CSNumber._helper.isAlmostEqual(log_f_1, CSNumber.log(f_1))).toBe(true);
+    expect(CSNumber._helper.isAlmostEqual(log_f_rh2_plus_rh2i, CSNumber.log(f_rh2_plus_rh2i))).toBe(true);
+    expect(CSNumber._helper.isAlmostEqual(log_f_1i, CSNumber.log(f_1i))).toBe(true);
+    expect(CSNumber._helper.isAlmostEqual(log_f_minus_rh2_plus_rh2i, CSNumber.log(f_minus_rh2_plus_rh2i))).toBe(true);
+    expect(CSNumber._helper.isAlmostEqual(log_f_minus_1, CSNumber.log(f_minus_1))).toBe(true);
   });
 
   it("pow", function() {
