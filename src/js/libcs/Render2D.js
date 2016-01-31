@@ -294,7 +294,7 @@ Render2D.makeColor = function(colorraw) {
 Render2D.preDrawCurve = function() {
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = 'round';
-    csctx.lineJoin = 'miter';
+    csctx.lineJoin = 'round';
     csctx.strokeStyle = Render2D.lineColor;
 };
 
@@ -312,7 +312,7 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = 'round';
-    csctx.lineJoin = 'miter';
+    csctx.lineJoin = 'round';
     csctx.strokeStyle = Render2D.lineColor;
 
 
