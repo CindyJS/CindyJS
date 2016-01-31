@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+pts = [[-2, 0.2], [0, 0], [-2, -0.2]];
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+connect(pts, lineJoin -> "miter", miterLimit->10, size->7);
+connect(apply(pts, # + [3, 0]), lineJoin -> "miter", miterLimit->20, size->7);
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({
+  ports: [{id: "CSCanvas", visibleRect: [-5, 5, 5, -5], width: 500, height: 500 }],
+  scripts: "cs*"
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>
+
