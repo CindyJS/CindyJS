@@ -294,7 +294,7 @@ Render2D.makeColor = function(colorraw) {
 Render2D.preDrawCurve = function() {
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = 'round';
-    csctx.lineJoin = 'miter';
+    csctx.lineJoin = 'round';
     csctx.strokeStyle = Render2D.lineColor;
 };
 
