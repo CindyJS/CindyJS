@@ -91,6 +91,23 @@ Accessor.getField = function(geo, field) {
 
             return erg;
         }
+
+        if (field === "size") {
+            return geo.size;
+        }
+
+        if (field === "matrix") {
+            return geo.matrix;
+        }
+
+        if (field === "center") {
+            var cen = geoOps._helper.CenterOfConic(geo.matrix);
+            return General.withUsage(cen, "Point");
+        }
+
+        if (field === "dualMatrix") {
+            return List.normalizeMax(List.adjoint3(geo.matrix));
+        }
     }
 
     if (Accessor.generalFields[field]) { //must be defined an an actual string
