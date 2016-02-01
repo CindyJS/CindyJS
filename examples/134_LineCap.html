@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+n = 5;
+pts = apply(0..4, gauss(exp(i*2*pi*#/n)));
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+draw([[-1, 1], [1, 1]], lineCap -> "butt", size->10);
+draw([[-1, 0], [1, 0]], lineCap -> "round", size->10);
+draw([[-1, -1], [1, -1]], lineCap -> "square", size->10);
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({
+  ports: [{id: "CSCanvas", visibleRect: [-2, 2, 2, -2], width: 500, height: 500 }],
+  scripts: "cs*"
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>
+
