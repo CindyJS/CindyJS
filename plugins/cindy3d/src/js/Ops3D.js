@@ -306,7 +306,8 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
    * @param {!function(number, number, number, number)} callback  invoked once per mesh face
    */
   function iterMesh(m, n, tcr, tcc, callback) {
-    for (let i = 1, k = 0; i < m; ++i) {
+    let k = 0;
+    for (let i = 1; i < m; ++i) {
       for (let j = 1; j < n; ++j) {
         callback(k, k + 1, k + n + 1, k + n);
         ++k;
