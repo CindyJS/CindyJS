@@ -48,9 +48,12 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
 
     var prog = args[0];
 
-    let cw = api.instance['canvas']['clientWidth'];
+    let cw = api.instance['canvas']['clientWidth']; //CSS pixels
     let ch = api.instance['canvas']['clientHeight'];
 
+    let iw = api.instance['canvas']['width']; //internal measures. might be twice as cw on HiDPI-Displays
+    let ih = api.instance['canvas']['height'];
+    
     let m = api.getInitialMatrix();
     let transf = function(px, py) { //copied from Operators.js
       var xx = px - m.tx;
@@ -63,9 +66,9 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
       };
       return erg;
     };
-    compileAndRender(prog, transf(0, ch), transf(cw, ch), cw, ch, null);
+    compileAndRender(prog, transf(0, ch), transf(cw, ch), iw, ih, null);
     let csctx = api.instance['canvas'].getContext('2d');
-    csctx.drawImage(glcanvas, 0, 0, cw, ch, 0, 0, cw, ch);
+    csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, cw, ch);
     return nada;
   });
 
