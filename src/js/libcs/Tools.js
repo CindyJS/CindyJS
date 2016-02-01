@@ -143,7 +143,7 @@ function setActiveTool(tool) {
  */
 function getNextFreeName() {
     return "P" + pIndex++;
-};
+}
 
 /**
  * Removes all temporary created elements
@@ -196,7 +196,7 @@ function manage(event) {
             }
         }
     }
-};
+}
 
 /**
  * Returns true, if an element is at mouse
@@ -205,7 +205,7 @@ function manage(event) {
  * @returns {boolean}
  */
 function isElementAtMouse(element) {
-    return element != null && Math.abs(element.offset.x) < 0.5 && Math.abs(element.offset.y) < 0.5 && !element.mover.tmp;
+    return element && Math.abs(element.offset.x) < 0.5 && Math.abs(element.offset.y) < 0.5 && !element.mover.tmp;
 }
 
 /**
@@ -376,7 +376,7 @@ tools.Delete.actions[0].tooltip = "...";
 tools.Delete.actions[0].do = function() {
     move = getElementAtMouse(mouse);
 
-    if (move != null) {
+    if (move !== null) {
         removeElement(move.mover.name);
     }
 
@@ -569,7 +569,7 @@ tools.Parallel.actions[0].event = "mousedown";
 tools.Parallel.actions[0].tooltip = "Construct a parallel line by dragging a line";
 tools.Parallel.actions[0].do = function() {
     return grabLine();
-}
+};
 
 tools.Parallel.actions[1] = {};
 tools.Parallel.actions[1].event = "mousemove";
@@ -594,7 +594,7 @@ tools.Parallel.actions[1].do = function() {
     setElementAtMouse(tmpPoint);
 
     return true;
-}
+};
 
 tools.Parallel.actions[2] = {};
 tools.Parallel.actions[2].event = "mouseup";
@@ -602,7 +602,7 @@ tools.Parallel.actions[2].do = function() {
     grabLastPoint();
 
     return true;
-}
+};
 
 // Orthogonal
 tools.Orthogonal = {};
@@ -635,7 +635,7 @@ tools.Orthogonal.actions[0].do = function() {
     }
 
     return false;
-}
+};
 
 tools.Orthogonal.actions[1] = {};
 tools.Orthogonal.actions[1].event = "mouseup";
@@ -643,7 +643,7 @@ tools.Orthogonal.actions[1].do = function() {
     grabLastPoint();
 
     return true;
-}
+};
 
 // Meet
 //
@@ -655,7 +655,7 @@ tools.Meet.actions[0].event = "mousedown";
 tools.Meet.actions[0].tooltip = "Select two elements to define their intersection";
 tools.Meet.actions[0].do = function() {
     return grabLineOrConic();
-}
+};
 
 tools.Meet.actions[1] = {};
 tools.Meet.actions[1].event = "mousedown";
@@ -672,4 +672,4 @@ tools.Meet.actions[1].do = function() {
     }
 
     return false;
-}
+};

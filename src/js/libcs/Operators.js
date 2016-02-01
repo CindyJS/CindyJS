@@ -4383,7 +4383,7 @@ evaluator.createtool$3 = function(args, modifis) {
     if (name.ctype === "string") {
         addTool(name.value);
 
-    } else if (name.ctype == "list") {
+    } else if (name.ctype === "list") {
         for (var i = 0; i < name.value.length; i++) {
             if (name.value[i].ctype === "string") {
                 addTool(name.value[i].value);
@@ -4395,7 +4395,7 @@ evaluator.createtool$3 = function(args, modifis) {
     }
 
     return nada;
-}
+};
 
 function addTool(name) {
     if (typeof tools[name] === "undefined") {
