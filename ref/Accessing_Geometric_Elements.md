@@ -149,6 +149,7 @@ If `A.caption` is the empty string the name is shown, otherwise the caption.
 | `center` | no        | real | The center of the circle                                        |
 | `radius` | free      | real | The radius of the circle                                        |
 | `matrix` | no        | real | The matrix describing the quadratic form of the circle or conic |
+| `dualMatrix` | no        | real | The matrix describing the dual (=adjoint) matrix of the conic  |
 | `size`   | yes       | int  | The size of the border line (0..10)                             |
 
 #####  Properties of Texts
