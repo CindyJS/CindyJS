@@ -470,7 +470,7 @@ CodeBuilder.prototype.determineUniformTypes = function() {
 CodeBuilder.prototype.copyRequiredFunctions = function(expr) {
   if (expr['ctype'] === 'function' && !this.myfunctions.hasOwnProperty(expr['oper']) && this.api.getMyfunction(expr['oper']) !== null) { //copy and transverse recursively all occuring myfunctions
     let fun = expr['oper'];
-    this.myfunctions[fun] = clone(this.api.getMyfunction(fun));
+    this.myfunctions[fun] = cloneExpression(this.api.getMyfunction(fun));
     this.copyRequiredFunctions(this.myfunctions[fun].body);
   }
   for (let i in expr['args']) {
@@ -851,7 +851,7 @@ CodeBuilder.prototype.generateHeaderOfCompiledFunctions = function() {
 };
 
 CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
-  expr = clone(expr); //then we can write dirty things on expr...
+  expr = cloneExpression(expr); //then we can write dirty things on expr...
 
   this.precompile(expr); //determine this.variables, types etc.
   let r = this.compile(expr, '', true);
