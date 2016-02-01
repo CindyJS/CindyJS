@@ -4,18 +4,17 @@
 
 
 /**
- * clone some object while ignoring  pointer-references to the same child
+ * clones expression while ignoring  pointer-references to the same child
  */
-function clone(obj) {
+function cloneExpression(obj) {
   var copy;
-  // Handle the 3 simple types, and null or undefined
   if (null == obj || "object" != typeof obj) return obj;
   // Handle Object
   // Handle Array
   if (obj instanceof Array) {
     copy = [];
     for (var i = 0, len = obj.length; i < len; i++) {
-      copy[i] = clone(obj[i]);
+      copy[i] = cloneExpression(obj[i]);
     }
     return copy;
   }
@@ -23,7 +22,25 @@ function clone(obj) {
   if (obj instanceof Object) {
     copy = {};
     for (var attr in obj) {
-      if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+      if (obj.hasOwnProperty(attr)) {
+        if(['oper',
+          'impl',
+          'args',
+          'ctype',
+          'stack',
+          'name',
+          'modifs',
+          'arglist',
+          'value',
+          'real',
+          'imag',
+          'key',
+          'obj',
+          'body'
+        ].indexOf(attr)>=0)
+          copy[attr] = cloneExpression(obj[attr]);
+        else console.log("Did not copy " + attr);
+      }
     }
     return copy;
   }
