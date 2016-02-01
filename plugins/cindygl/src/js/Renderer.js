@@ -129,9 +129,9 @@ Renderer.prototype.setUniforms = function() {
         break;
       case type.bool:
         if (val['value'])
-          setter(1);
+          setter([1]);
         else
-          setter(0);
+          setter([0]);
         break;
       case type.int:
       case type.float:
@@ -186,7 +186,7 @@ Renderer.prototype.setUniforms = function() {
     }
   }
   if (this.shaderProgram.uniform.hasOwnProperty('rnd_'))
-    this.shaderProgram.uniform['rnd_'](Math.random());
+    this.shaderProgram.uniform['rnd_']([Math.random()]);
 
 };
 
@@ -199,8 +199,8 @@ Renderer.prototype.loadTextures = function() {
     let tname = this.requiredtextures[t];
     let cw = canvaswrappers[tname];
     cw.bindTexture();
-    this.shaderProgram.uniform['_sampler_' + tname](t);
-    this.shaderProgram.uniform['_ratio_' + tname](cw.sizeX / cw.sizeY);
+    this.shaderProgram.uniform['_sampler_' + tname]([t]);
+    this.shaderProgram.uniform['_ratio_' + tname]([cw.sizeX / cw.sizeY]);
     this.shaderProgram.uniform['_cropfact_' + tname]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
   }
 }

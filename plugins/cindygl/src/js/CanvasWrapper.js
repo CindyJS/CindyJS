@@ -146,7 +146,7 @@ CanvasWrapper.prototype.drawTo = function(context, x, y) {
 
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, this.textures[this.it]);
-  this.shaderProgram.uniform["sampler"](0);
+  this.shaderProgram.uniform["sampler"]([0]);
 
   gl.bindFramebuffer(gl.FRAMEBUFFER, null); //renders to glcanvas
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
