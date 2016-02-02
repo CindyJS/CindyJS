@@ -31,7 +31,7 @@ geoOps.FreeLine.kind = "L";
 geoOps.FreeLine.signature = [];
 geoOps.FreeLine.isMovable = true;
 geoOps.FreeLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     putStateComplexVector(pos);
 };
 geoOps.FreeLine.getParamForInput = function(el, pos, type) {
@@ -177,7 +177,7 @@ geoOps.HorizontalLine.kind = "L";
 geoOps.HorizontalLine.signature = [];
 geoOps.HorizontalLine.isMovable = true;
 geoOps.HorizontalLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([CSNumber.zero, pos.value[1], pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
@@ -218,7 +218,7 @@ geoOps.VerticalLine.kind = "L";
 geoOps.VerticalLine.signature = [];
 geoOps.VerticalLine.isMovable = true;
 geoOps.VerticalLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([pos.value[0], CSNumber.zero, pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
@@ -1671,9 +1671,25 @@ geoOps.SelectP.updatePosition = function(el) {
 geoOps.SelectL = {};
 geoOps.SelectL.kind = "L";
 geoOps.SelectL.signature = ["Ls"];
+geoOps.SelectL.initialize = function(el) {
+    if (el.index !== undefined)
+        return el.index - 1;
+    var set = csgeo.csnames[(el.args[0])].results.value;
+    var pos = geoOps._helper.initializeLine(el);
+    var d1 = List.projectiveDistMinScal(pos, set[0]);
+    var best = 0;
+    for (var i = 1; i < set.length; ++i) {
+        var d2 = List.projectiveDistMinScal(pos, set[i]);
+        if (d2 < d1) {
+            d1 = d2;
+            best = i;
+        }
+    }
+    return best;
+};
 geoOps.SelectL.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    el.homog = set.results.value[el.index - 1];
+    el.homog = set.results.value[el.param];
     el.homog = General.withUsage(el.homog, "Line");
 };
 
@@ -2377,6 +2393,29 @@ geoOps._helper.initializePoint = function(el) {
     return pos;
 };
 
+geoOps._helper.initializeLine = function(el) {
+    var sx = 0;
+    var sy = 0;
+    var sz = 0;
+    if (el.pos) {
+        if (el.pos.ctype === "list" && List.isNumberVector(el.pos)) {
+            return el.pos;
+        }
+        if (el.pos.length === 3) {
+            sx = el.pos[0];
+            sy = el.pos[1];
+            sz = el.pos[2];
+        }
+    }
+    var pos = List.turnIntoCSList([
+        CSNumber._helper.input(sx),
+        CSNumber._helper.input(sy),
+        CSNumber._helper.input(sz)
+    ]);
+    pos = List.normalizeMax(pos);
+    return pos;
+};
+
 
 var geoMacros = {};
 
@@ -2446,6 +2485,12 @@ geoMacros.Calculation = function(el) {
 
 geoMacros.Arc = function(el) {
     el.type = "ArcBy3";
+    return [el];
+};
+
+geoMacros.AngularBisector = function(el) {
+    el.type = "angleBisector";
+    el.args.length = 2; // Drop point of intersection
     return [el];
 };
 
