@@ -3592,45 +3592,242 @@ evaluator.halfplane$2 = function(args, modifs) {
 //   Geometric elements      //
 ///////////////////////////////
 
-evaluator.allpoints$0 = function(args, modifs) {
+
+// helper for all*(<geoobject>)
+eval_helper.allhelper1arg = function(args, kind, restrict) {
+    if (args.length > 1) return nada;
+    var geoEl = csgeo.csnames[args[0].name];
     var erg = [];
-    for (var i = 0; i < csgeo.points.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: csgeo.points[i],
-            type: "P"
-        };
+    var cgeo;
+    if (geoEl) {
+        var inci = geoEl.incidences;
+        // perhaps we only want circles, segments etc ...
+        if (restrict) {
+            // restrictions are handled differently for P,L,S and C
+            if (kind === "C") { // Conics/Circles
+                inci.forEach(function(el) {
+                    if (el.matrix && el.matrix.usage !== restrict) return;
+                    cgeo = csgeo.csnames[el];
+                    if (cgeo.kind === kind) {
+                        erg.push({
+                            ctype: "geo",
+                            value: cgeo,
+                            type: cgeo.kind
+                        });
+                    }
+                });
+            } else { // point, segment, ... case
+                inci.forEach(function(el) {
+                    cgeo = csgeo.csnames[el];
+                    if (csgeo.csnames[el].type !== restrict) return;
+                    if (cgeo.kind === kind) {
+                        erg.push({
+                            ctype: "geo",
+                            value: cgeo,
+                            type: cgeo.kind
+                        });
+                    }
+                });
+            }
+        } else { // no restrictions case
+            inci.forEach(function(el) {
+                cgeo = csgeo.csnames[el];
+                if (cgeo.kind === kind) {
+                    erg.push({
+                        ctype: "geo",
+                        value: cgeo,
+                        type: cgeo.kind
+                    });
+                }
+            });
+
+        }
+
+    } // end if (geoEl)
+    return {
+        ctype: "list",
+        value: erg
+    };
+
+};
+
+// helper for all*()
+eval_helper.allhelper0arg = function(args, kind, array, restrict) {
+    var erg = [];
+    var i;
+    if (restrict) {
+        // restrictions are handled differently for P,L,S and C
+        if (kind === "C") { // Conics/Circles
+            for (i = 0; i < array.length; i++) {
+                if (array[i].matrix && array[i].matrix.usage !== restrict) continue;
+                erg.push({
+                    ctype: "geo",
+                    value: array[i],
+                    type: kind,
+                });
+            }
+        } else { // Points, Segments, Lines ...
+            for (i = 0; i < array.length; i++) {
+                if (array[i].type !== restrict) continue;
+                erg.push({
+                    ctype: "geo",
+                    value: array[i],
+                    type: kind,
+                });
+            }
+        }
+    } else { // no restrictions
+        for (i = 0; i < array.length; i++) {
+            erg[i] = {
+                ctype: "geo",
+                value: array[i],
+                type: kind,
+            };
+        }
     }
     return {
         ctype: "list",
         value: erg
     };
+};
+
+evaluator.allpoints$0 = function(args, modifs) {
+    return eval_helper.allhelper0arg(args, "P", csgeo.points);
+};
+
+evaluator.allpoints$1 = function(args, modifs) {
+    return eval_helper.allhelper1arg(args, "P");
 };
 
 evaluator.allmasses$0 = function(args, modifs) {
+    return eval_helper.allhelper0arg(args, "Mass", masses);
+};
+
+// collects only points
+evaluator.allmasses$1 = function(args, modifs) {
     var erg = [];
-    for (var i = 0; i < masses.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: masses[i],
-            type: "P"
-        };
+    var pts = eval_helper.allhelper1arg(args, "P");
+    var pp;
+    for (var i = 0; i < pts.value.length; i++) {
+        pp = pts.value[i];
+        if (pp.value.behavior && pp.value.behavior.type === "Mass") erg.push(pp);
     }
     return {
         ctype: "list",
         value: erg
     };
+
+};
+
+evaluator.allsprings$0 = function(args, modifs) {
+    return eval_helper.allhelper0arg(args, "Spring", springs);
+};
+
+
+// collects only segments
+evaluator.allsprings$1 = function(args, modifs) {
+    var erg = [];
+    var pts = eval_helper.allhelper1arg(args, "S", "Segment");
+    var sp;
+    for (var i = 0; i < pts.value.length; i++) {
+        sp = pts.value[i];
+        if (sp.value.behavior && sp.value.behavior.type === "Spring") erg.push(sp);
+    }
+    return {
+        ctype: "list",
+        value: erg
+    };
+
 };
 
 evaluator.alllines$0 = function(args, modifs) {
+    return eval_helper.allhelper0arg(args, "L", csgeo.lines);
+};
+
+evaluator.alllines$1 = function(args, modifs) {
+    return eval_helper.allhelper1arg(args, "L");
+};
+
+
+evaluator.allsegments$0 = function(args, modifs) {
+    return eval_helper.allhelper0arg(args, "S", csgeo.lines, "Segment");
+};
+
+
+evaluator.allsegments$1 = function(args, modifs) {
+    return eval_helper.allhelper1arg(args, "S", "Segment");
+};
+
+
+evaluator.allconics$0 = function(args, modifs) {
+    return eval_helper.allhelper0arg(args, "L", csgeo.conics);
+};
+
+evaluator.allconics$1 = function(args, modifs) {
+    return eval_helper.allhelper1arg(args, "C");
+};
+
+evaluator.allcircles$0 = function(args, modifs) {
+    return eval_helper.allhelper0arg(args, "C", csgeo.conics, "Circle");
+};
+
+evaluator.allcircles$1 = function(args, modifs) {
+    return eval_helper.allhelper1arg(args, "C", "Circle");
+};
+
+evaluator.allelements$0 = function(args, modifs) {
     var erg = [];
-    for (var i = 0; i < csgeo.lines.length; i++) {
-        erg[i] = {
+
+    var points = evaluator.allpoints$0(null, null);
+    var masses = evaluator.allmasses$0(null, null);
+    var springs = evaluator.allsprings$0(null, null);
+
+    // no segments or circles since we consider them as lines 
+    var lines = evaluator.alllines$0(null, null);
+    var conics = evaluator.allsegments$0(null, null);
+
+    var list = [points, masses, springs, lines, conics];
+
+    // glue everyting together
+    list.forEach(function(el) {
+        erg = erg.concat(el.value);
+    });
+
+    // find double entries
+    var ferg = [];
+    var i;
+    erg.forEach(function(el) {
+        var hit = false;
+        for (i = 0; i < ferg.length; i++) {
+            if (el.value.name === ferg[i].value.name) {
+                hit = true;
+                break;
+            }
+        }
+        if (!hit) ferg.push(el);
+    });
+
+
+    return {
+        ctype: "list",
+        value: ferg
+    };
+};
+
+
+evaluator.allelements$1 = function(args, modifs) {
+    var erg = [];
+    var inci = csgeo.csnames[args[0].name].incidences;
+    var cgeo;
+    inci.forEach(function(el) {
+        cgeo = csgeo.csnames[el];
+        erg.push({
             ctype: "geo",
-            value: csgeo.lines[i],
-            type: "L"
-        };
-    }
+            value: cgeo,
+            type: cgeo.kind
+        });
+    });
+
     return {
         ctype: "list",
         value: erg

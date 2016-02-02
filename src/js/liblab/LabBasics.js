@@ -45,6 +45,7 @@ fehlberg78.size = 13;
 var rk = doPri45;
 var behaviors;
 var masses = [];
+var springs = [];
 var csPhysicsInited = false;
 
 function csreinitphys(behavs) {
@@ -62,6 +63,7 @@ function csinitphys(behavs) {
 
     behaviors = behavs;
     masses = [];
+    springs = [];
 
 
     behaviors.forEach(function(beh) {
@@ -72,6 +74,10 @@ function csinitphys(behavs) {
                     labObjects[beh.behavior.type].init(beh.behavior, csgeo.csnames[geoname]);
                     if (beh.behavior.type === "Mass") {
                         masses.push(csgeo.csnames[geoname]);
+                    }
+
+                    if (beh.behavior.type === "Spring") {
+                        springs.push(csgeo.csnames[geoname]);
                     }
 
 
