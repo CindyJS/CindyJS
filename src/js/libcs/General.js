@@ -199,6 +199,31 @@ General.wrap = function(v) {
     return nada;
 };
 
+General.unwrap = function(v) {
+    if (typeof v !== "object" || v === null) {
+        return v;
+    }
+    if (Array.isArray(v)) {
+        return v.map(General.unwrap);
+    }
+    switch (v.ctype) {
+        case "string":
+        case "boolean":
+            return v.value;
+        case "number":
+            if (v.value.imag === 0)
+                return v.value.real;
+            return {
+                r: v.value.real,
+                i: v.value.imag
+            };
+        case "list":
+            return v.value.map(General.unwrap);
+        default:
+            return null;
+    }
+};
+
 General.withUsage = function(v, usage) {
     // shallow copy with possibly new usage
     return {
