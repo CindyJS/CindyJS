@@ -4,9 +4,10 @@
 function addCanvasWrapperIfRequired(name, api) {
   if (!canvaswrappers.hasOwnProperty(name)) {
     let img = api.getImage(name, true); //this might be a canvas as well
-    if (!img.ready) {
+    if (img instanceof Image && !img.ready) {
       console.error("Image not ready. Creating onload event.");
       img['onload'] = function() {
+        img['ready'] = true;
         canvaswrappers[name] = new CanvasWrapper(img);
         console.log("Image " + name + " has been loaded now");
         requiredcompiletime++; //force recompile
