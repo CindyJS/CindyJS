@@ -31,7 +31,7 @@ geoOps.FreeLine.kind = "L";
 geoOps.FreeLine.signature = [];
 geoOps.FreeLine.isMovable = true;
 geoOps.FreeLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     putStateComplexVector(pos);
 };
 geoOps.FreeLine.getParamForInput = function(el, pos, type) {
@@ -177,7 +177,7 @@ geoOps.HorizontalLine.kind = "L";
 geoOps.HorizontalLine.signature = [];
 geoOps.HorizontalLine.isMovable = true;
 geoOps.HorizontalLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([CSNumber.zero, pos.value[1], pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
@@ -218,7 +218,7 @@ geoOps.VerticalLine.kind = "L";
 geoOps.VerticalLine.signature = [];
 geoOps.VerticalLine.isMovable = true;
 geoOps.VerticalLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([pos.value[0], CSNumber.zero, pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
@@ -1332,64 +1332,26 @@ geoOps.PolarOfLine.updatePosition = function(el) {
 
 geoOps.angleBisector = {};
 geoOps.angleBisector.kind = "Ls";
-geoOps.angleBisector.signature = ["L", "L"];
+geoOps.angleBisector.signature = ["L", "L", "P"];
 geoOps.angleBisector.updatePosition = function(el) {
-    var xx = csgeo.csnames[(el.args[0])];
-    var yy = csgeo.csnames[(el.args[1])];
-
-    var poi = List.normalizeMax(List.cross(xx.homog, yy.homog));
-
-    var myI = List.normalizeMax(List.cross(List.ii, poi));
-    var myJ = List.normalizeMax(List.cross(List.jj, poi));
-
-    var sqi = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myI), List.det3(poi, xx.homog, myI)));
-    var sqj = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myJ), List.det3(poi, xx.homog, myJ)));
-
-    var mui = General.mult(myI, sqj);
-    var tauj = General.mult(myJ, sqi);
-
-    var erg1 = List.add(mui, tauj);
-    var erg2 = List.sub(mui, tauj);
-
-    var erg1zero = List.abs(erg1).value.real < CSNumber.eps;
-    var erg2zero = List.abs(erg2).value.real < CSNumber.eps;
-
-    if (!erg1zero && !erg2zero) {
-        erg1 = List.normalizeMax(erg1);
-        erg2 = List.normalizeMax(erg2);
-    } else if (erg1zero) {
-        erg2 = List.normalizeMax(erg2);
-    } else if (erg2zero) {
-        erg1 = List.normalizeMax(erg1);
-    }
-
-    // degenrate case
-    if ((List.almostequals(erg1, List.linfty).value && erg2zero) || (List.almostequals(erg2, List.linfty).value && erg1zero)) {
-        var mu, tau, mux, tauy;
-        if (List.abs(erg1).value.real < List.abs(erg2).value.real) {
-            mu = List.det3(poi, yy.homog, erg2);
-            tau = List.det3(poi, xx.homog, erg2);
-
-            mux = General.mult(xx.homog, mu);
-            tauy = General.mult(yy.homog, tau);
-
-            erg1 = List.add(mux, tauy);
-
-        } else {
-            mu = List.det3(poi, yy.homog, erg1);
-            tau = List.det3(poi, xx.homog, erg1);
-
-            mux = General.mult(xx.homog, mu);
-            tauy = General.mult(yy.homog, tau);
-
-            erg2 = List.add(mux, tauy);
-        }
-    }
-
-    erg1 = List.normalizeMax(erg1);
-    erg2 = List.normalizeMax(erg2);
-
-    el.results = tracing2(erg1, erg2);
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    var p = csgeo.csnames[el.args[2]].homog;
+    var add = List.add;
+    var sub = List.sub;
+    var abs = List.abs;
+    var cross = List.cross;
+    var sm = List.scalmult;
+    var nm = List.normalizeMax;
+    var isAlmostZero = List._helper.isAlmostZero;
+    var linfty = List.linfty;
+    var na = sm(abs(cross(cross(linfty, b), linfty)), a);
+    var nb = sm(abs(cross(cross(linfty, a), linfty)), b);
+    var res1 = sub(na, nb);
+    var res2 = add(na, nb);
+    if (isAlmostZero(res1)) res1 = cross(cross(cross(linfty, res2), linfty), p);
+    if (isAlmostZero(res2)) res2 = cross(cross(cross(linfty, res1), linfty), p);
+    el.results = tracing2(nm(res1), nm(res2));
 };
 geoOps.angleBisector.stateSize = tracing2.stateSize;
 
@@ -1671,9 +1633,25 @@ geoOps.SelectP.updatePosition = function(el) {
 geoOps.SelectL = {};
 geoOps.SelectL.kind = "L";
 geoOps.SelectL.signature = ["Ls"];
+geoOps.SelectL.initialize = function(el) {
+    if (el.index !== undefined)
+        return el.index - 1;
+    var set = csgeo.csnames[(el.args[0])].results.value;
+    var pos = geoOps._helper.initializeLine(el);
+    var d1 = List.projectiveDistMinScal(pos, set[0]);
+    var best = 0;
+    for (var i = 1; i < set.length; ++i) {
+        var d2 = List.projectiveDistMinScal(pos, set[i]);
+        if (d2 < d1) {
+            d1 = d2;
+            best = i;
+        }
+    }
+    return best;
+};
 geoOps.SelectL.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    el.homog = set.results.value[el.index - 1];
+    el.homog = set.results.value[el.param];
     el.homog = General.withUsage(el.homog, "Line");
 };
 
@@ -2377,6 +2355,29 @@ geoOps._helper.initializePoint = function(el) {
     return pos;
 };
 
+geoOps._helper.initializeLine = function(el) {
+    var sx = 0;
+    var sy = 0;
+    var sz = 0;
+    if (el.pos) {
+        if (el.pos.ctype === "list" && List.isNumberVector(el.pos)) {
+            return el.pos;
+        }
+        if (el.pos.length === 3) {
+            sx = el.pos[0];
+            sy = el.pos[1];
+            sz = el.pos[2];
+        }
+    }
+    var pos = List.turnIntoCSList([
+        CSNumber._helper.input(sx),
+        CSNumber._helper.input(sy),
+        CSNumber._helper.input(sz)
+    ]);
+    pos = List.normalizeMax(pos);
+    return pos;
+};
+
 
 var geoMacros = {};
 
@@ -2446,6 +2447,26 @@ geoMacros.Calculation = function(el) {
 
 geoMacros.Arc = function(el) {
     el.type = "ArcBy3";
+    return [el];
+};
+
+geoMacros.AngularBisector = function(el) {
+    el.type = "angleBisector";
+    if (el.args.length === 2) {
+        el.args.push("$InternalNullPoint$");
+        if (csgeo.csnames[el.args[2]] === undefined) {
+            var el2 = {
+                name: el.args[2],
+                type: "Free",
+                pos: [0, 0, 0],
+                pinned: true,
+                labeled: false,
+                visible: false,
+                size: 0
+            };
+            addElement(el2);
+        }
+    }
     return [el];
 };
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AngularBisectorCdy.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+draw((-9.06,0),(14.54,0),arrow->true,size->2,color->(128/255,128/255,128/255));//x-axis
+draw((0,-6.34),(0,9.34),arrow->true,size->2,color->(128/255,128/255,128/255));//y-axis
+</script>
+
+    <script type="text/javascript">
+createCindy({
+	scripts: "cs*", grid: 1, snap: true, 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, dimDependent: 0.7 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ -0.16, 0.16, 4.0 ], color: [ 1.0, 0.0, 0.0 ] }, 
+		{ name: "a", type: "Through", pos: [ -0.8739495798319329, -4.0, 0.1250420168067227 ], color: [ 1.0, 0.0, 0.0 ], args: [ "A" ] }, 
+		{ name: "b", type: "Through", pos: [ 3.2682926829268295, -4.0, 0.2907317073170732 ], color: [ 0.0, 0.0, 1.0 ], args: [ "A" ] }, 
+		{ name: "Collection__1", type: "AngularBisector", args: [ "a", "b", "A" ] }, 
+		{ name: "c", type: "SelectL", pos: [ 0.957605970573069, -4.0, 0.19830423882292275 ], color: [ 1.0, 1.0, 0.0 ], args: [ "Collection__1" ] }, 
+		{ name: "d", type: "SelectL", pos: [ 4.0, 0.9576059705730687, 0.12169576117707727 ], color: [ 0.0, 1.0, 1.0 ], args: [ "Collection__1" ] }, 
+		{ name: "Collection__2", type: "AngularBisector", args: [ "c", "d" ] }, 
+		{ name: "e", type: "SelectL", pos: [ 4.0, -2.454728389053679, 0.2581891355621472 ], color: [ 0.7, 0.0, 0.0 ], args: [ "Collection__2" ], dashtype: "dashed" }, 
+		{ name: "f", type: "SelectL", pos: [ -2.454728389053677, -4.0, 0.061810864437852914 ], color: [ 0.0, 0.0, 0.7 ], args: [ "Collection__2" ], dashtype: "dashed" } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 590, height: 392, transform: [ { visibleRect: [ -9.06, 9.34, 14.54, -6.34 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1813, version: [ 2, 9, 1813 ] } });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>
