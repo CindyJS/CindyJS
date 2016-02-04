@@ -1,1 +1,0 @@
-$myfunct(x,y):=x*y;
