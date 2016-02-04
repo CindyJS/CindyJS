@@ -76,9 +76,6 @@ Render2D.handleModifs = function(modifs, handlers) {
 
 };
 
-Render2D.sin30deg = 0.5;
-Render2D.cos30deg = Math.sqrt(0.75);
-
 Render2D.modifHandlers = {
     "size": function(v) {
         if (v.ctype === "number") {
@@ -357,48 +354,32 @@ Render2D.drawsegcore = function(pt1, pt2) {
 
     var dx = endpoint2x - endpoint1x;
     var dy = endpoint2y - endpoint1y;
-    var norm = Math.sqrt(dx * dx + dy * dy);
-    var cosAngle = dx / norm;
-    var sinAngle = dy / norm;
+    var hs = Render2D.headlen / Math.sqrt(dx * dx + dy * dy);
+    var hx = dx * hs;
+    var hy = dy * hs;
     var pos_fac1 = Render2D.arrowposition;
     var pos_fac2 = 1 - pos_fac1;
     var tip1x = pos_fac1 * overhang1x + pos_fac2 * overhang2x;
     var tip1y = pos_fac1 * overhang1y + pos_fac2 * overhang2y;
     var tip2x = pos_fac1 * overhang2x + pos_fac2 * overhang1x;
     var tip2y = pos_fac1 * overhang2y + pos_fac2 * overhang1y;
-    var headlen = Render2D.headlen;
-    var sin30 = Render2D.sin30deg;
-    var cos30 = Render2D.cos30deg;
-    var x30sub = headlen * (cosAngle * cos30 + sinAngle * sin30);
-    var x30add = headlen * (cosAngle * cos30 - sinAngle * sin30);
-    var y30sub = headlen * (sinAngle * cos30 - cosAngle * sin30);
-    var y30add = headlen * (sinAngle * cos30 + cosAngle * sin30);
     var arrowSides = Render2D.arrowSides;
 
     csctx.beginPath();
 
     // draw line in parts for full arrow
     if (Render2D.arrowShape === "full") {
-        var rx, ry, lx, ly;
         if (arrowSides === "<==>" || arrowSides === "<==") {
-            rx = tip1x + x30sub;
-            ry = tip1y + y30sub;
-            lx = tip1x + x30add;
-            ly = tip1y + y30add;
             if (Render2D.arrowposition < 1.0) {
                 csctx.moveTo(overhang1x, overhang1y);
                 csctx.lineTo(tip1x, tip1y);
             }
-            csctx.moveTo((rx + lx) / 2, (ry + ly) / 2);
+            csctx.moveTo(tip1x + hx, tip1y + hy);
         } else {
             csctx.moveTo(overhang1x, overhang1y);
         }
         if (arrowSides === '==>' || arrowSides === '<==>') {
-            rx = tip2x - x30sub;
-            ry = tip2y - y30sub;
-            lx = tip2x - x30add;
-            ly = tip2y - y30add;
-            csctx.lineTo((rx + lx) / 2, (ry + ly) / 2);
+            csctx.lineTo(tip2x - hx, tip2y - hy);
             if (Render2D.arrowposition < 1.0) {
                 csctx.moveTo(tip2x, tip2y);
                 csctx.lineTo(overhang2x, overhang2y);
@@ -422,15 +403,15 @@ Render2D.drawsegcore = function(pt1, pt2) {
     }
 
     function draw_arrowhead(tipx, tipy, sign) {
-        var rx = tipx - sign * x30sub;
-        var ry = tipy - sign * y30sub;
+        var rx = tipx - sign * hx + 0.5 * hy;
+        var ry = tipy - sign * hy - 0.5 * hx;
+        var lx = tipx - sign * hx - 0.5 * hy;
+        var ly = tipy - sign * hy + 0.5 * hx;
 
         csctx.beginPath();
         if (Render2D.arrowShape === "full") {
             csctx.lineWidth = Render2D.lsize / 2;
         }
-        var lx = tipx - sign * x30add;
-        var ly = tipy - sign * y30add;
         csctx.moveTo(rx, ry);
         csctx.lineTo(tipx, tipy);
         csctx.lineTo(lx, ly);
