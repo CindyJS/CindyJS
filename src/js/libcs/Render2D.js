@@ -160,6 +160,11 @@ Render2D.modifHandlers = {
         } else {
             Render2D.arrowShape = Render2D.arrowShapes[v.value];
             Render2D.isArrow = true;
+            if (Render2D.arrowShape.deprecated) {
+                console.log("arrowshape " + v.value + " is deprecated, use " +
+                    Render2D.arrowShape.deprecated + " instead.");
+                Render2D.arrowShape.deprecated = null;
+            }
         }
     },
 
@@ -328,13 +333,44 @@ Render2D.preDrawCurve = function() {
 };
 
 Render2D.arrowShapes = {
-    "default": { close: false, fill: false, ratio: 1 },
-    "line": { close: false, fill: false, ratio: 1 },
-    "empty": { close: true, fill: false, ratio: 1 },
-    "hollow": { close: true, fill: false, ratio: 1 },
-    "full": { close: true, fill: true, ratio: 1 },
-    "jet": { close: true, fill: true, ratio: 1.5 },
-    "delta": { close: true, fill: true, ratio: 1.5 },
+    "default": {
+        close: false,
+        fill: false,
+        ratio: 1,
+        deprecated: "line"
+    },
+    "line": {
+        close: false,
+        fill: false,
+        ratio: 1
+    },
+    "empty": {
+        close: true,
+        fill: false,
+        ratio: 1
+    },
+    "hollow": {
+        close: true,
+        fill: false,
+        ratio: 1,
+        deprecated: "empty"
+    },
+    "full": {
+        close: true,
+        fill: true,
+        ratio: 1
+    },
+    "jet": {
+        close: true,
+        fill: true,
+        ratio: 1.5
+    },
+    "delta": {
+        close: true,
+        fill: true,
+        ratio: 1.5,
+        deprecated: "jet"
+    },
 };
 
 Render2D.drawsegcore = function(pt1, pt2) {
