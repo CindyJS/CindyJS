@@ -141,10 +141,14 @@ module.exports = function build(settings, task) {
 
     task("forbidden", [], function() {
         this.forbidden("examples/**/*", [
-            /<script[^>]*type *= *["'][^"'\/]*["']/g,
-            /<script[^>]*type *= *["']text\/cindyscript["']/g,
-            /.*firstDrawing.*/g,
-            /.*cinderella\.de\/.*\/Cindy.*\.js.*/g,
+            // Correct MIME type is "text/x-cindyscript"
+            /<script[^>]*type *= *["'][^"'\/]*["']/g,          // requires /
+            /<script[^>]*type *= *["']text\/cindyscript["']/g, // requires x-
+            /.*firstDrawing.*/g, // excessive copy & paste of old example
+            /.*(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js.*/g, // remote
+        ]);
+        this.forbidden("ref/**/*.md", [
+            /^#.*`.*<[A-Za-z0-9]+>.*?`/mg, // use ‹…› instead
         ]);
     });
 
