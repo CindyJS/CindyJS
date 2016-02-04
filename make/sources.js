@@ -39,6 +39,7 @@ exports.inclosure = [
     "src/js/Setup.js",
     "src/js/Events.js",
     "src/js/Timer.js",
+    "build/js/Version.js",
 ].concat(exports.libcs, exports.libgeo, exports.liblab);
 
 exports.ours = ["src/js/Head.js"].concat(exports.inclosure, "src/js/Tail.js");

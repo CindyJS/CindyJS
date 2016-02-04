@@ -4,6 +4,7 @@ var glob = require("glob");
 var path = require("path");
 var Q = require("q");
 
+var getversion = require("./getversion");
 var src = require("./sources");
 
 module.exports = function build(settings, task) {
@@ -36,15 +37,20 @@ module.exports = function build(settings, task) {
     // Build different flavors of Cindy.js
     //////////////////////////////////////////////////////////////////////
 
+    var version = getversion.factory("build/js/Version.js", "var version");
+
     task("plain", [], function() {
+        version(this);
         this.concat(src.srcs, "build/js/Cindy.plain.js");
     });
 
     task("ours", [], function() {
+        version(this);
         this.concat(src.ours, "build/js/ours.js");
     });
 
     task("exposed", [], function() {
+        version(this);
         this.concat(
             src.lib.concat("src/js/expose.js", src.inclosure),
             "build/js/exposed.js");

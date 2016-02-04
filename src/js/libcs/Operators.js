@@ -2,6 +2,11 @@
 // and here are the definitions of the operators
 //*******************************************************
 
+evaluator.version$0 = function(args, modifs) {
+    var ver = ["CindyJS"].concat(version);
+    return List.turnIntoCSList(ver.map(General.wrap));
+};
+
 evaluator.timestamp$0 = function(args, modifs) {
     return {
         "ctype": "number",
