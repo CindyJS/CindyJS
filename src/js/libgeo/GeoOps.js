@@ -2449,6 +2449,11 @@ geoMacros.Arc = function(el) {
     return [el];
 };
 
+geoMacros.EuclideanMid = function(el) {
+    el.type = "Mid";
+    return [el];
+};
+
 geoMacros.Transform = function(el) {
     var arg = csgeo.csnames[el.args[1]];
     var tr = csgeo.csnames[el.args[0]];
