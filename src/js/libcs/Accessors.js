@@ -57,7 +57,7 @@ Accessor.getField = function(geo, field) {
             return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
         }
     }
-    if (geo.kind === "L") {
+    if (geo.kind === "L" || geo.kind === "S") {
         if (field === "homog") {
             return General.withUsage(geo.homog, "Line");
         }
