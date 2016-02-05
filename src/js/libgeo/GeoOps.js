@@ -108,10 +108,10 @@ geoOps.Meet.visiblecheck = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     var el2 = csgeo.csnames[(el.args[1])];
 
-    if (el1.type === "Segment") {
+    if (el1.kind === "S") {
         visible = onSegment(el, el1);
     }
-    if (visible && el1.type === "Segment") {
+    if (visible && el2.kind === "S") {
         visible = onSegment(el, el2);
     }
     el.isshowing = visible;
