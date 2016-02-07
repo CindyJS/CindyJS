@@ -44,6 +44,7 @@ function initGLIfRequired() {
   glcanvas = document.createElement("canvas");
   glcanvas.id = "glcanvas";
   glcanvas.style.display = "none";
+  glcanvas.width = glcanvas.height = 0;
   document.body.appendChild(glcanvas); //document.body.appendChil
 
 
