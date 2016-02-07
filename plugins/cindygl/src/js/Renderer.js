@@ -221,8 +221,11 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
   };
   //let d = {x: b.x + n.x, y: b.y + n.y};
 
-  glcanvas.width = sizeX;
-  glcanvas.height = sizeY;
+  if(sizeX > glcanvas.width || sizeY > glcanvas.height) {
+    console.log("resize" + sizeX + " x " + sizeY);
+    glcanvas.width = sizeX;
+    glcanvas.height = sizeY;
+  }
   gl.viewport(0, 0, sizeX, sizeY);
 
   this.shaderProgram.use(gl);
