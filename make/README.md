@@ -275,6 +275,17 @@ Here is a list of important commands.
   In that case, or if `files` is omitted altogether,
   `dst` should name a directory.
 
+### Version determination
+
+The file [`getversion.js`](getversion.js) provides a function
+which launces `git` to build a file called `Version.js`.
+However, unlike a regular command, this operation is not tied to a single task.
+Instead there are multiple tasks which need an up-to-date `Version.js`.
+Creation of that file can't be a task by itself, though, since
+it should only be created if one of the tasks that need it get run.
+So it's a mix between a task (since it is a shared dependency run only once)
+and a command (since it adds a job to the current task).
+
 ### Build logic
 
 Once all tasks have been defined, [`make.js`](make.js)

@@ -22,6 +22,7 @@ var handlers = {
     "Cindy3D.js.map": map,
     "CindyGL.js": true,
     "CindyGL.js.map": map,
+    "Version.js": false,
     "WEB-INF": false,
     "c3dres.js": false,
     "cglres.js": false,
