@@ -57,7 +57,7 @@ Accessor.getField = function(geo, field) {
             return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
         }
     }
-    if (geo.kind === "L") {
+    if (geo.kind === "L" || geo.kind === "S") {
         if (field === "homog") {
             return General.withUsage(geo.homog, "Line");
         }
@@ -112,10 +112,13 @@ Accessor.getField = function(geo, field) {
 
     if (Accessor.generalFields[field]) { //must be defined an an actual string
         erg = geo[Accessor.generalFields[field]];
-        if (erg) {
+        if (erg && erg.ctype) {
             return erg;
-        } else
+        } else if (typeof erg !== "object") {
+            return General.wrap(erg);
+        } else {
             return nada;
+        }
     }
     //Accessors for masses
     if (geo.behavior) {
