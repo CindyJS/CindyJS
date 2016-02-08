@@ -100,7 +100,7 @@ module.exports = function build(settings, task) {
     var beautify_args = [
         "--replace",
         "--config", "Administration/beautify.conf",
-        src.ours,
+        src.ours.filter(function(name) { return !/^build\//.test(name); }),
     ];
 
     task("beautify", [], function() {
