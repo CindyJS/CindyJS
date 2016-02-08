@@ -2338,6 +2338,33 @@ geoOps.Dist.updatePosition = function(el) {
     el.value = List.abs(List.sub(List.normalizeZ(a), List.normalizeZ(b)));
 };
 
+geoOps.Angle = {};
+geoOps.Angle.kind = "V";
+geoOps.Angle.signature = ["L", "L", "P"];
+geoOps.Angle.initialize = function(el) {
+    if (el.angle === undefined)
+        el.angle = 0.5 * Math.PI;
+    putStateComplexNumber(CSNumber._helper.input(el.angle));
+};
+geoOps.Angle.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    var p = csgeo.csnames[el.args[2]].homog;
+    var ap = List.cross(a, List.linfty);
+    var bp = List.cross(b, List.linfty);
+    var cr = List.crossratio3(ap, bp, List.ii, List.jj, p);
+    var ang = CSNumber.mult(CSNumber.complex(0, 0.5), CSNumber.log(cr));
+    var prev = getStateComplexNumber();
+    var diff = (prev.value.real - ang.value.real) / Math.PI;
+    var winding = Math.round(diff);
+    if (!tracingInitial && Math.abs(winding - diff) > 1e-2)
+        requestRefinement();
+    ang = CSNumber.complex(winding * Math.PI + ang.value.real, ang.value.imag);
+    putStateComplexNumber(ang);
+    el.value = General.withUsage(ang, "Angle");
+};
+geoOps.Angle.stateSize = 2;
+
 geoOps.TextImpl = {};
 geoOps.TextImpl.kind = "Text";
 geoOps.TextImpl.signature = [];

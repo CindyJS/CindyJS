@@ -41,8 +41,13 @@ createCindy({
 		{ name: "dist0", type: "Dist", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "C" ] }, 
 		{ name: "Text0", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "A" ], text: "foobar", dock: { to: "A", offset: [ 8.0, 9.0 ] } }, 
 		{ name: "Text1", type: "Text", pos: [ 4.0, 3.6708860759493662, 0.6329113924050632 ], color: [ 0.0, 0.0, 0.0 ], text: "baz" }, 
-		{ name: "Text2", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "dist0", "D" ], text: "|@$\"B\"@$\"C\"|= @#\"dist0\"", dock: { to: "D", offset: [ 3.0, 3.0 ] } }, 
-		{ name: "Text3", type: "Text", color: [ 0.0, 0.0, 0.0 ], text: "1234", dock: { corner: "UL", offset: [ 10.0, -60.0 ] } } ], 
+		{ name: "Text2", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "D", "dist0" ], text: "|@$\"B\"@$\"C\"|= @#\"dist0\"", dock: { to: "D", offset: [ 3.0, 3.0 ] } }, 
+		{ name: "Text3", type: "Text", color: [ 0.0, 0.0, 0.0 ], text: "1234", dock: { corner: "UL", offset: [ 10.0, -60.0 ] } }, 
+		{ name: "E", type: "Free", pos: [ 4.0, 2.945736434108527, 0.7751937984496123 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "a", type: "Join", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "C" ], clip: "inci" }, 
+		{ name: "b", type: "Join", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "E" ], clip: "inci" }, 
+		{ name: "α0", type: "Angle", color: [ 0.0, 0.0, 1.0 ], args: [ "a", "b", "B" ], angle: -2.4175393227414417 }, 
+		{ name: "Text4", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "B", "α0" ], text: "<)@$\"a\"@$\"b\"= @#\"α0\"", dock: { to: "B", offset: [ 8.0, 8.0 ] } } ], 
 	ports: [ 
 		{ id: "CSCanvas", width: 680, height: 322, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -3.54 ] } ], background: "rgb(168,176,192)" } ], 
 	cinderella: { build: 1822, version: [ 2, 9, 1822 ] } });
