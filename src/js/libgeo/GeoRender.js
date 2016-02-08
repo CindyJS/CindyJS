@@ -166,6 +166,50 @@ function drawgeoline(el) {
     });
 }
 
+var textCornerNames = {
+    "UL": 0,
+    "UR": 1,
+    "LR": 2,
+    "LL": 3
+};
+
+function drawgeotext(el) {
+    var opts = {
+        "size": el.size,
+    };
+    var pos = el.pos;
+    var text = el.text;
+    text = text.replace(/@[$#]"([^"\\]|\\.)*"/g, function(match) {
+        var name, el2;
+        try {
+            name = JSON.parse(match.substring(2));
+            el2 = csgeo.csnames[name];
+            if (!el2) return "?";
+        } catch (err) {
+            return "?";
+        }
+        switch (match.charAt(1)) {
+            case '$':
+                return el2.printname || name;
+            case '#':
+                if (el2.kind !== "V") return "?";
+                return niceprint(el2.value);
+        }
+    });
+    text = General.string(text);
+    if (el.dock) {
+        if (el.dock.to) {
+            pos = csgeo.csnames[el.dock.to].homog;
+        } else if (textCornerNames.hasOwnProperty(el.dock.corner)) {
+            pos = evaluator.screenbounds$0([], {});
+            pos = pos.value[textCornerNames[el.dock.corner]];
+        }
+        opts.offset = el.dock.offset;
+    }
+    if (pos)
+        evaluator.drawtext$2([pos, text], opts);
+}
+
 function render() {
 
     var i;
@@ -183,6 +227,10 @@ function render() {
 
     for (i = 0; i < csgeo.points.length; i++) {
         drawgeopoint(csgeo.points[i]);
+    }
+
+    for (i = 0; i < csgeo.texts.length; i++) {
+        drawgeotext(csgeo.texts[i]);
     }
 
 }
