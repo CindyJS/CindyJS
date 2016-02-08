@@ -50,7 +50,11 @@ createCindy({
 		{ name: "Text4", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "B", "α0" ], text: "<)@$\"a\"@$\"b\"= @#\"α0\"", dock: { to: "B", offset: [ 8.0, 8.0 ] } } ], 
 	ports: [ 
 		{ id: "CSCanvas", width: 680, height: 322, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -3.54 ] } ], background: "rgb(168,176,192)" } ], 
-	cinderella: { build: 1822, version: [ 2, 9, 1822 ] } });
+	cinderella: { build: 1822, version: [ 2, 9, 1822 ] },
+	oninit: function(cdy) {
+		console.log(cdy.saveState());
+	}
+	});
     </script>
 </head>
 <body>
