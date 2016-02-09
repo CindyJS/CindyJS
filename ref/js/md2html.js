@@ -145,6 +145,7 @@ function renderHtml(md, cb) {
     }
     renderBody(md, function(err, html) {
         if (err) return cb(err, null);
+        html = html.replace(/\$/g, "$$$$"); // to be used in String.replace
         html = tmpl.replace(/<div id="content"><\/div>/, html);
         cb(null, html);
     });
