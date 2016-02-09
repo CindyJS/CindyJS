@@ -23,21 +23,21 @@ function cloneExpression(obj) {
     copy = {};
     for (var attr in obj) {
       if (obj.hasOwnProperty(attr)) {
-        if(['oper',
-          'impl',
-          'args',
-          'ctype',
-          'stack',
-          'name',
-          'modifs',
-          'arglist',
-          'value',
-          'real',
-          'imag',
-          'key',
-          'obj',
-          'body'
-        ].indexOf(attr)>=0)
+        if (['oper',
+            'impl',
+            'args',
+            'ctype',
+            'stack',
+            'name',
+            'modifs',
+            'arglist',
+            'value',
+            'real',
+            'imag',
+            'key',
+            'obj',
+            'body'
+          ].indexOf(attr) >= 0)
           copy[attr] = cloneExpression(obj[attr]);
         else console.log("Did not copy " + attr);
       }

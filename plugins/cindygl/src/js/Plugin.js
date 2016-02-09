@@ -53,7 +53,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
 
     let iw = api.instance['canvas']['width']; //internal measures. might be twice as cw on HiDPI-Displays
     let ih = api.instance['canvas']['height'];
-    
+
     let m = api.getInitialMatrix();
     let transf = function(px, py) { //copied from Operators.js
       var xx = px - m.tx;
