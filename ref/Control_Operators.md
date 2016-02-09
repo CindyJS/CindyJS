@@ -26,10 +26,10 @@ This code fragment prints a message on the console, if `x` has a negative value.
 
 **Return value:**
 In this case the return value of the `if`-function is &lt;expr&gt;.
-Otherwise, `_?_` is returned.
+Otherwise, `___` is returned.
 
     > x = 5; if(x<0, -1);
-    < _?_
+    < ___
     > x = -3; if(x<0, -1);
     < -1
 

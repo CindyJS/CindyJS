@@ -226,13 +226,13 @@ If the argument of format is a list of objects the format statement is applied t
     > format([sin(30°),cos(30°)],3)
     < ["0.5", "0.866"]
 
-If the first argument is neither a number nor a list, then the result is `_?_`.
+If the first argument is neither a number nor a list, then the result is `___`.
 If, however, it is a list, and somewhere nested inside that list is a value which is neither a number nor a list, then that value will be turned into a string representation of itself.
 
     > format("foo",4)
-    < _?_
+    < ___
     > format(1 < 2,4)
-    < _?_
+    < ___
     > format([2.339, "foo", [5.678, 1 < 2]], 2)
     < ["2.34", "foo", ["5.68", "true"]]
 
@@ -293,7 +293,7 @@ Characters can be returned and set with this operator.
     > "CindyScript"_5
     < "y"
     > "CindyScript"_12
-    < _?_
+    < ___
     > a="CindyScript";
     > a_5="erella";
     > a

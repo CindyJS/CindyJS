@@ -181,7 +181,7 @@ This operator finds the maximum value in a list of entries.
 The maximum of an empty list is not defined.
 
     > max([])
-    < _?_
+    < ___
 
 ------
 
@@ -206,7 +206,7 @@ The two-argument form can however also be used to obtain the maximum of two numb
 The maximum of an empty list is not defined.
 
     > max([], 99)
-    < _?_
+    < ___
 
 ------
 
@@ -224,7 +224,7 @@ This operator is similar to the last one, except that the running variable is lo
 The maximum of an empty list is not defined.
 
     > max([], x, 99)
-    < _?_
+    < ___
 
 ------
 
@@ -239,7 +239,7 @@ This operator finds the minimum of a list of entries.
 The minimum of an empty list is not defined.
 
     > min([])
-    < _?_
+    < ___
 
 ------
 
@@ -263,7 +263,7 @@ The two-argument form can however also be used to obtain the minimum of two numb
 The minimum of an empty list is not defined.
 
     > min([], 99)
-    < _?_
+    < ___
 
 ------
 
@@ -281,7 +281,7 @@ This operator is similar to the last one, except that the running variable is lo
 The minimum of an empty list is not defined.
 
     > min([], x, 99)
-    < _?_
+    < ___
 
 ------
 

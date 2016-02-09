@@ -65,7 +65,7 @@ A three-dimensional vector may then be written as follows:
 **Description:**
 One can access the individual elements of a list either with the infix operator `‹list›_‹int›` or the functional operator `take(‹list›,‹int›)`.
 The indices start with number 1.
-If the index that should be accessed is less than 1 or greater than the number of elements in the list, then the value`_?_`is returned.
+If the index that should be accessed is less than 1 or greater than the number of elements in the list, then the value`___`is returned.
 Also, a warning message is issued on the console.
 
     > [2, 5, 7, 3]_3
@@ -73,7 +73,7 @@ Also, a warning message is issued on the console.
     > take([2, 5, 7, 3], 2)
     < 5
     > [2, 5, 7, 3]_5
-    < _?_
+    < ___
 
 The index can also be an arbitrary calculation.
 Furthermore, indices can access the nested parts of a nested list.
@@ -87,7 +87,7 @@ Furthermore, indices can access the nested parts of a nested list.
     > [[2, [4, 5]], 1]_1_2_2
     < 5
     > [[2, [4, 5]], 1]_1_2_2_2
-    < _?_
+    < ___
 
 If a list is stored in a variable, the individual entries can be set after they are accessed by the `_` operator.
 So for example, after the code fragment
