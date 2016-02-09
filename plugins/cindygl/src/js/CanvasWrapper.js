@@ -138,7 +138,7 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
   //TODO: render texture this.textures[this.it] on glcanvas
-  if(this.sizeX > glcanvas.width || this.sizeY > glcanvas.height) {
+  if (this.sizeX > glcanvas.width || this.sizeY > glcanvas.height) {
     console.log("resize" + this.sizeX + " x " + this.sizeY);
     glcanvas.width = this.sizeX;
     glcanvas.height = this.sizeY;

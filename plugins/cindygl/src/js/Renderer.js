@@ -221,7 +221,7 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
   };
   //let d = {x: b.x + n.x, y: b.y + n.y};
 
-  if(sizeX > glcanvas.width || sizeY > glcanvas.height) {
+  if (sizeX > glcanvas.width || sizeY > glcanvas.height) {
     console.log("resize" + sizeX + " x " + sizeY);
     glcanvas.width = sizeX;
     glcanvas.height = sizeY;

@@ -12,7 +12,7 @@ td.EventManager;
 //////////////////////////////////////////////////////////////////////
 // Externs for CindyJS bindings
 
-function createCindy() { }
+function createCindy() {}
 
 /** @typedef {{ctype:string}} */
 createCindy.anyval;
