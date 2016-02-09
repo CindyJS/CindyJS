@@ -133,9 +133,7 @@ Then this shape is used as a clipping path for another drawing (concentric circl
     > greset();
     > draw(shape,color->(1,1,1),size->2);
 
-| ![Image](img/Shape5.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/Shape5.png)
 
 Shapes can become rather complicated objects, as the following iterative example shows.
 A word of caution may be appropriate here: The more complicated shape become, the more computational resources they consume.
@@ -153,6 +151,4 @@ The use of overly complex shapes can slow down Cinderella considerably.
     > fill(shape,color->(1,0.7,0));
     > draw(shape,color->(0,0,0),size->2);
 
-| ![Image](img/Shape6.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/Shape6.png)

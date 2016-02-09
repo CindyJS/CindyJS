@@ -77,9 +77,7 @@ The code
 
 produces the picture below.
 
-| ![Image](img/TextX.png) |
-| ----------------------- |
-| ****                    |
+![Image](img/TextX.png)
 
 If the string expression contains a &lt;newline&gt; chacracter then this line-break is literally interpreted.
 By this it is easy to produce multilined text, as the following piece of code shows.
@@ -93,9 +91,7 @@ By this it is easy to produce multilined text, as the following piece of code sh
     D font = "18px sans-serif"
     D fillText("In Cinderella 'newlines' in Text\nare really used as line terminators.\nSo this text will appear as a\nmultilined text.", 250.5, 229.5)
 
-| ![Image](img/Newlines.png) |
-| -------------------------- |
-| ****                       |
+![Image](img/Newlines.png)
 
 ------
 
@@ -113,9 +109,7 @@ The following piece of code displays the names of some of these font families in
     >    drawtext((mod(i,5)*7,round(i/5)),families_i,family->families_i);
     > )
 
-| ![Image](img/Fonts.png) |
-| ----------------------- |
-| ****                    |
+![Image](img/Fonts.png)
 
 ------
 
@@ -164,9 +158,7 @@ The following code produces the picture below:
     > table=apply(x,(#,#^2,#^3,#^4));
     > drawtable((0,0),table);
 
-| ![Image](img/Table1X.png) |
-| ------------------------- |
-| ****                      |
+![Image](img/Table1X.png)
 
 **Modifiers:**
 The `drawtable` operator supports several modifiers to control the graphical appearance of the table.
@@ -216,6 +208,4 @@ A second table is used to create a heading for the table.
     >   color->(1,1,1)
     > );
 
-| ![Image](img/Table2X.png) |
-| ------------------------- |
-| ****                      |
+![Image](img/Table2X.png)

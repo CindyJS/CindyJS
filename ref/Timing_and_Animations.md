@@ -34,9 +34,7 @@ The code must be placed in the "Tick" section of CindyScript in order for it to 
     > 
     > drawtext((3,5),t);
 
-| ![Image](img/ClockX.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/ClockX.png)
 
 ------
 

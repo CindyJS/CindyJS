@@ -488,9 +488,7 @@ Second bracket.
 Using these commands it is easily possible to transfer sheet notes with repetitions directly.
 The following line from "Oh, Susanna"
 
-| ![Image](img/Susanna.png) |
-| ------------------------- |
-| ****                      |
+![Image](img/Susanna.png)
 
 can be coded in the following way as a melody in CindyScript:
 

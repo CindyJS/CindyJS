@@ -63,9 +63,7 @@ The following program changes the color of the points depending on their positio
 
 The following picture shows the application of the code to a random collection of points.
 
-| ![Image](img/ProgList1X.png)     |
-| -------------------------------- |
-| **Working with lists of points** |
+![Working with lists of points](img/ProgList1X.png)
 
 ### Properties of Geometric Objects
 
