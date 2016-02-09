@@ -168,7 +168,7 @@ The point `[x,b]` is converted to the complex number `a+i∗b`.
 
 ------
 
-#### Complex numbers to points: `gauss(‹point›)`
+#### Complex numbers to points: `gauss(‹number›)`
 
 **Description:**
 This operator is the opposite of the previous one.

@@ -119,13 +119,13 @@ TestCase.prototype.exception = null;
 
 TestCase.prototype.expectResult = function(str) {
   if (this.expected !== null)
-    console.err("Two results for command " + this.cmd);
+    console.error("Two results for command " + this.cmd);
   this.expected = str;
 };
 
 TestCase.prototype.expectPattern = function(re) {
   if (this.pattern !== null)
-    console.err("Two patterns for command " + this.cmd);
+    console.error("Two patterns for command " + this.cmd);
   this.pattern = re;
 };
 

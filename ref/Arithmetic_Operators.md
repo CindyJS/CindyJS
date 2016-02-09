@@ -239,37 +239,201 @@ Complex numbers are fully supported.
 
 The standard trigonometric functions are available through the following operators:
 
-#### Trigonometric sine function: `sin(‹expr1›)`
+#### Trigonometric sine function: `sin(‹expr›)`
 
-#### Trigonometric cosine function: `cos(‹expr1›)`
+The argument is an angle, given in radians.
+For angles in degrees, use the [degree sign](#_$b0u).
 
-#### Trigonometric tangent function: `tan(‹expr1›)`
+    > sin(0)
+    < 0
+    > sin(pi)
+    < 0
+    > sin(pi) == 0 // there likely is some slight numeric error
+    < false
+    > sin(90°)
+    < 1
+    > sin(90) // Don't forget the degree sign if your angle is in degree!
+    < 0.894
+    > sin(2 + 3*i)
+    < 9.1545 - i*4.1689
 
-#### Inverse trigonometric sine function: `arcsin(‹expr1›)`
+#### Trigonometric cosine function: `cos(‹expr›)`
 
-#### Inverse trigonometric cosine function: `arccos(‹expr1›)`
+The argument is an angle, given in radians.
+For angles in degrees, use the [degree sign](#_$b0u).
 
-#### Inverse rigonometric tangent function: `arctan(‹expr1›)`
+    > cos(0)
+    < 1
+    > cos(pi)
+    < -1
+    > cos(pi) == 1 // there likely is some slight numeric error
+    < false
+    > cos(90°)
+    < 0
+    > cos(90) // Don't forget the degree sign if your angle is in degree!
+    < -0.4481
+    > cos(2 + 3*i)
+    < -4.1896 - i*9.1092
 
-#### Angle of a vector: `arctan2(‹expr1,expr2›)`
+#### Trigonometric tangent function: `tan(‹expr›)`
+
+The argument is an angle, given in radians.
+For angles in degrees, use the [degree sign](#_$b0u).
+
+    > tan(0)
+    < 0
+    > tan(pi)
+    < 0
+    > tan(pi) == 0 // there likely is some slight numeric error
+    < false
+    > |tan(90°)| > 10^15 // almost infinity, except for rounding issues
+    < true
+    > tan(90) // Don't forget the degree sign if your angle is in degree!
+    < -1.9952
+    > tan(2 + 3*i)
+    < -0.0038 + i*1.0032
+
+#### Inverse trigonometric sine function: `arcsin(‹expr›)`
+
+The `arcsin` operator is in principle multivalued.
+However, the operator returns only one principal value,
+for which the real part is between −90° = −π/2 and +90° = +π/2.
+
+    > arcsin(0)
+    < 0°
+    > arcsin(1)
+    < 90°
+    > arcsin(-1)
+    < -90°
+    > arcsin(2) // the sign of the imaginary part is undefined here
+    < (90 - i*75.4561)°
+    ~ \(90 [+\-] i\*75.4561\)°
+    > arcsin(2 + 3*i)
+    < (32.696 + i*113.6397)°
+    > arcsin(sqrt(3)/2)
+    < 60°
+
+Even though the resulting angle is printed in degrees for convenience,
+it is actually represented in radians internally.
+The [`angleUnit` setting](createCindy.md#angleunit) controls the unit.
+
+    > arcsin(1) + 0 // actually π/2
+    < 1.5708
+
+#### Inverse trigonometric cosine function: `arccos(‹expr›)`
+
+The `arccos` operator is in principle multivalued.
+However, the operator returns only one principal value,
+for which the real part is between 0° = 0 and +180° = +π.
+
+    > arccos(0)
+    < 90°
+    > arccos(1)
+    < 0°
+    > arccos(-1)
+    < 180°
+    > arccos(2) // the sign of the imaginary part is undefined here
+    < (0 + i*75.4561)°
+    ~ \(0 [+\-] i\*75.4561\)°
+    > arccos(2 + 3*i)
+    < (57.304 - i*113.6397)°
+    > arccos(sqrt(3)/2)
+    < 30°
+
+Even though the resulting angle is printed in degrees for convenience,
+it is actually represented in radians internally.
+The [`angleUnit` setting](createCindy.md#angleunit) controls the unit.
+
+    > arccos(-1) + 0 // actually π
+    < 3.1416
+
+#### Inverse trigonometric tangent function: `arctan(‹expr›)`
+
+The `arctan` operator is in principle multivalued.
+However, the operator returns only one principal value,
+for which the real part is between −90° = −π/2 and +90° = +π/2.
+
+    > arctan(0)
+    < 0°
+    > arctan(1)
+    < 45°
+    > arctan(-1)
+    < -45°
+    > arctan(2)
+    < 63.4349°
+    > arctan(2 + 3*i)
+    < (80.7825 + i*13.1249)°
+    > arctan(sqrt(3))
+    < 60°
+
+#### Angle of a vector: `arctan2(‹expr1›,‹expr2›)`
+
+The value of `arctan2(x,y)` is the angle the vector `[x,y]` makes with the *x* axis.
+Its real part is between −180° = −π and +180° = +π.
+
+When adapting code written in other languages,
+note that some swap the arguments,
+i.e. write `arctan2(y,x)` (or `atan2(y,x)`)
+similar to the order used in `atan(y/x)`.
+CindyScript does not follow that convention,
+but uses the order “first `x` then `y`” as used in vectors.
+
+    > arctan2(1, 0)
+    < 0°
+    > arctan2(1, 1)
+    < 45°
+    > arctan2(-1, -1)
+    < -135°
+
+It is possible to see `arctan2` as the inverse of the `sin` and `cos` functions.
+This holds even if the arguments are complex numbers, and even if the results
+of the `sin` and `cos` functions are scaled by the same constant.
+
+    > a = 0.123 + i*4.567; r = 1.23 + i*4.56;
+    > arctan2(r*cos(a), r*sin(a)) + 0
+    < 0.123 + i*4.567
+
+Note however that this is only true if the real part of the scale factor remains positive.
+Swapping its sign rotates the angle by 180°, as can be seen here:
+
+    > r = -1.23 + i*4.56;
+    > arctan2(r*cos(a), r*sin(a)) + 0
+    < -3.0186 + i*4.567
+    > arctan2(r*cos(a), r*sin(a)) + pi
+    < 0.123 + i*4.567
+
+Since real arguments and complex arguments follow different code paths,
+it is important to verify that a small complex perturbation doesn't lead
+to different branch choices.
+
+    > jitter = i * 1.234 * 10^(-7);
+    > select(directproduct([-3, 3], [-4, 4]), // try all quadrants
+    >   |arctan2(#_1, #_2) - arctan2(#_1 + jitter, #_2 + jitter)| > 10^(-6))
+    < []
 
 #### Angle of a vector: `arctan2(‹vec›)`
 
-#### Argument of a complex number: `arctan2(‹expr1›)`
+The value of `arctan2(v)` is the angle the two-dimensional vector `[x,y]`
+makes with the *x* axis.
+Its real part is between −180° = −π and +180° = +π.
+`arctan2(x,y)` is equiavlent to `arctan2([x,y])`.
 
-The `arc` operators are in principle multivalued.
-However, the operator returns only one principal value, for which the real value is between `+pi` and `-pi`.
-
-    > sin(pi) // almost zero except for numerics
-    < 0
-    > arccos(-1)
-    < 180°
-    > arctan2(1,1)
+    > arctan2([1, 0])
+    < 0°
+    > arctan2([1, 1])
     < 45°
-    > arctan2(-1,-1)
+    > arctan2([-1, -1])
     < -135°
-    > arctan2(-i,i)
-    < 135°
+
+#### Argument of a complex number: `arctan2(‹number›)`
+
+Passing a single complex number to `arctan2` will treat that number as
+a vector in the complex number plane, effectively returning
+`arctan2(real(‹number›), imag(‹number›))`.
+This avoids a call to the [`gauss`](Geometric_Operators.md#gauss$1) function.
+
+    > arctan2(1+i)
+    < 45°
     > arctan2(-1-i)
     < -135°
 

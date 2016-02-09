@@ -191,6 +191,18 @@ The outer key is the two-letter language abbreviation.
 The inner key is the string passed to the `tr` function.
 The corresponding value will be returned in response.
 
+### angleUnit
+
+The unit to use when printing angles, given as a string.
+Supported values include `rad`, `°`=`deg`=`degree`,
+`gra`=`grad`, `turn`=`cyc`=`rev`=`rot`, `π`=`pi` and `quad`.
+The given name is also be printed as the unit,
+so the settings described as equal will print the same value
+but with a different notation for the unit. The default is `°`.
+An empty string will cause angles to be printed in radians with no unit.
+To enter the special symbols when editing the data in a non-Unicode environment,
+you can enter `°` as `\u00b0` and `π` as `\u03c0`.
+
 ## Instance Methods
 
 The object returned from a call to `createCindy` has a number of methods which may be of use.

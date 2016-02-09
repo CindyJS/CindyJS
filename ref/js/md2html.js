@@ -118,7 +118,7 @@ MyRenderer.prototype.heading = function(text, level, raw) {
 
 MyRenderer.prototype.link = function(href, title, text) {
   if (href.indexOf("//") === -1)
-    href = href.replace(/\.md$/, ".html");
+    href = href.replace(/\.md($|#)/, ".html$1");
   return marked.Renderer.prototype.link.call(this, href, title, text);
 };
 
