@@ -182,10 +182,29 @@ describe("Trigonometry", function() {
   });
 
   it("arctan2", function() {
-//    var erg = -0.0049999583339583225;
-//    var c_erg = CSNumber.complex(erg, 0);
-//    var cs_erg = CSNumber.arctan2(a,b);
-//    expect(CSNumber._helper.isAlmostEqual(cs_erg,c_erg)).toBe(true);
+    var f_x = CSNumber.real(4);
+    var f_y = CSNumber.real(3);
+    // CSNumber.arctan2 uses the following formula for complex arguments
+    function arctan2(a, b) {
+        var z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
+        var r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
+        erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
+        return erg;
+    }
+    // test whether this formula is compatible with Math.atan2
+    // for 4 pairs of real values in the different quadrants
+    var erg1 = CSNumber.arctan2(f_x, f_y);
+    var erg2 = arctan2(f_x, f_y);
+    expect(CSNumber._helper.isAlmostEqual(erg1, erg2)).toBe(true);
+    erg1 = CSNumber.arctan2(CSNumber.neg(f_x), f_y);
+    erg2 = arctan2(CSNumber.neg(f_x), f_y);
+    expect(CSNumber._helper.isAlmostEqual(erg1, erg2)).toBe(true);
+    erg1 = CSNumber.arctan2(f_x, CSNumber.neg(f_y));
+    erg2 = arctan2(f_x, CSNumber.neg(f_y));
+    expect(CSNumber._helper.isAlmostEqual(erg1, erg2)).toBe(true);
+    erg1 = CSNumber.arctan2(CSNumber.neg(f_x), CSNumber.neg(f_y));
+    erg2 = arctan2(CSNumber.neg(f_x), CSNumber.neg(f_y));
+    expect(CSNumber._helper.isAlmostEqual(erg1, erg2)).toBe(true);
   });
 
   it("sqrt", function() {
