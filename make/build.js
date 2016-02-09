@@ -279,6 +279,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
             create_source_map: "build/js/Cindy3D.js.map",
             compilation_level: this.setting("c3d_closure_level"),
             warning_level: this.setting("c3d_closure_warnings"),
@@ -295,7 +296,7 @@ module.exports = function build(settings, task) {
             })),
         };
         if (this.setting("cindy3d-dbg") !== undefined) {
-            opts.transpile_only = true;
+            opts.compilation_level = "WHITESPACE_ONLY";
             opts.formatting = "PRETTY_PRINT";
         }
         this.closureCompiler(closure_jar, opts);
@@ -346,6 +347,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
             create_source_map: "build/js/CindyGL.js.map",
             compilation_level: this.setting("cgl_closure_level"),
             warning_level: this.setting("cgl_closure_warnings"),
@@ -364,7 +366,7 @@ module.exports = function build(settings, task) {
             })),
         };
         if (this.setting("cindygl-dbg") !== undefined) {
-            opts.transpile_only = true;
+            opts.compilation_level = "WHITESPACE_ONLY";
             opts.formatting = "PRETTY_PRINT";
         }
         this.closureCompiler(closure_jar, opts);
