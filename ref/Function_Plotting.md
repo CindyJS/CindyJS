@@ -107,8 +107,9 @@ One can connect them on purpose by setting `connect->true`.
 By using the modifiers for a curve's significant points one can display zeros, minima, maxima, and inflection points.
 The following three pictures demonstrate the use of these operators.
 
-| ![Image](img/Plot4X.png) |
+|                          |
 | ------------------------ |
+| ![Image](img/Plot4X.png) |
 | `zeros->true`            |
 | ![Image](img/Plot2X.png) |
 | `extrema->true`          |

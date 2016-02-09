@@ -488,7 +488,7 @@ Second bracket.
 Using these commands it is easily possible to transfer sheet notes with repetitions directly.
 The following line from "Oh, Susanna"
 
-![Image](img/Susanna.png)
+<img alt="Image" src="img/Susanna.png" width="1024">
 
 can be coded in the following way as a melody in CindyScript:
 
@@ -708,8 +708,9 @@ The following piece of code plays a gentle c on a **Glockenspiel** then a loud a
 This statement return a list of all instrument names available on your computer.
 In the General MIDI database (that is probably preinstalled on your machine) you have the following instruments at hand.
 
-| Piano:                     | Bass:                     | Reed:                   | Synth Effects:        |
+|                            |                           |                         |                       |
 | -------------------------- | ------------------------- | ----------------------- | --------------------- |
+| **Piano:**                 | **Bass:**                 | **Reed:**               | **Synth Effects:**    |
 | 1 Acoustic Grand Piano     | 33 Acoustic Bass          | 65 Soprano Sax          | 97 FX 1 (rain)        |
 | 2 Bright Acoustic Piano    | 34 Electric Bass (finger) | 66 Alto Sax             | 98 FX 2 (soundtrack)  |
 | 3 Electric Grand Piano     | 35 Electric Bass (pick)   | 67 Tenor Sax            | 99 FX 3 (crystal)     |
@@ -718,7 +719,7 @@ In the General MIDI database (that is probably preinstalled on your machine) you
 | 6 Electric Piano 2         | 38 Slap Bass 2            | 70 English Horn         | 102 FX 6 (goblins)    |
 | 7 Harpsichord              | 39 Synth Bass 1           | 71 Bassoon              | 103 FX 7 (echoes)     |
 | 8 Clavi                    | 40 Synth Bass 2           | 72 Clarinet             | 104 FX 8 (sci-fi)     |
-|                            |
+|                            |                           |                         |                       |
 | **Chromatic Percussion:**  | **Strings: **             | **Pipe:**               | **Ethnic:**           |
 | 9 Celesta                  | 41 Violin                 | 73 Piccolo              | 105 Sitar             |
 | 10 Glockenspiel            | 42 Viola                  | 74 Flute                | 106 Banjo             |
@@ -728,7 +729,7 @@ In the General MIDI database (that is probably preinstalled on your machine) you
 | 14 Xylophone               | 46 Pizzicato Strings      | 78 Shakuhachi           | 110 Bagpipe           |
 | 15 Tubular Bells           | 47 Orchestral Harp        | 79 Whistle              | 111 Fiddle            |
 | 16 Dulcimer                | 48 Timpani                | 80 Ocarina              | 112 Shanai            |
-|                            |
+|                            |                           |                         |                       |
 | **Organ: **                | **Ensemble:**             | **Synth Lead:**         | **Percussive: **      |
 | 17 Organ                   | 49 String Ensemble 1      | 81 Lead 1 (square)      | 113 Tinkle Bell       |
 | 18 Percussive Organ        | 50 String Ensemble 2      | 82 Lead 2 (sawtooth)    | 114 Agogo Bells       |
@@ -738,7 +739,7 @@ In the General MIDI database (that is probably preinstalled on your machine) you
 | 22 Accordion               | 54 Voice Oohs             | 86 Lead 6 (voice)       | 118 Melodic Tom       |
 | 23 Harmonica               | 55 Synth Voice            | 87 Lead 7 (fifths)      | 119 Synth Drum        |
 | 24 Tango Accordion         | 56 Orchestra Hit          | 88 Lead 8 (bass + lead) | 120 Reverse Cymbal    |
-|                            |
+|                            |                           |                         |                       |
 | **Guitar: **               | **Brass:**                | **Synth Pad: **         | **Sound effects:**    |
 | 25 Acoustic Guitar (nylon) | 57 Trumpet                | 89 Pad 1 (new age)      | 121 Guitar Fret Noise |
 | 26 Acoustic Guitar (steel) | 58 Trombone               | 90 Pad 2 (warm)         | 122 Breath Noise      |

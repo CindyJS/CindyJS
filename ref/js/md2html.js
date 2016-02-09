@@ -122,6 +122,12 @@ MyRenderer.prototype.link = function(href, title, text) {
   return marked.Renderer.prototype.link.call(this, href, title, text);
 };
 
+MyRenderer.prototype.table = function() {
+  // Omit empty table headers
+  var html = marked.Renderer.prototype.table.apply(this, arguments);
+  return html.replace(/<thead>\n<tr>\n(<th><\/th>\n)*<\/tr>\n<\/thead>/, "");
+};
+
 function makeOpts() {
   return {
     renderer: new MyRenderer()
