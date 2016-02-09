@@ -2317,6 +2317,7 @@ function infix_take(args, modifs) {
     return nada;
 }
 
+evaluator.take$2 = infix_take;
 
 evaluator.length$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
