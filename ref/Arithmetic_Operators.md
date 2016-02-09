@@ -251,7 +251,7 @@ The standard trigonometric functions are available through the following operato
 
 #### Inverse rigonometric tangent function: `arctan(‹expr1›)`
 
-#### Angle of a vector: `arctan2(‹real1,real2›)`
+#### Angle of a vector: `arctan2(‹expr1,expr2›)`
 
 #### Angle of a vector: `arctan2(‹vec›)`
 
@@ -266,6 +266,8 @@ However, the operator returns only one principal value, for which the real value
     < 45°
     > arctan2(-1,-1)
     < -135°
+    > arctan2(-i,i)
+    < 135°
 
 ------
 

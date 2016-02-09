@@ -390,11 +390,17 @@ CSNumber.arctan = function(a) { //OK hässlich aber tuts.
 };
 
 
-//Das ist jetzt genau so wie in Cindy.
-//Da wurde das aber niemals voll auf complexe Zahlen umgestellt
-//Bei Beiden Baustellen machen!!!
-CSNumber.arctan2 = function(a, b) { //OK
-    var erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
+CSNumber.arctan2 = function(a, b) {
+    var erg;
+    if (b === undefined)
+        erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
+    else if (CSNumber._helper.isReal(a) && CSNumber._helper.isReal(b))
+        erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
+    else {
+        var z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
+        var r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
+        erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
+    }
     return General.withUsage(erg, "Angle");
 };
 
