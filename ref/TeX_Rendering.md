@@ -371,7 +371,7 @@ The following list gives an overview of all characters that are associated to sp
 | ▼ | \blacktriangledown  | ◊ | \lozenge       | ◆ | \blacklozenge     | ★ | \bigstar           |
 | ∠ | \angle              | ∡ | \measuredangle | ∢ | \sphericalangle   | ‵ | \backprime         |
 | ∄ | \nexists            | Ⅎ | \Finv          | ∅ | \varnothing       | ð | \eth               |
-| ℧ | \mho                | | | \vert          | ‖ | \Vert             | ℂ | \C                 |
+| ℧ | \mho                | &#x7c; | \vert          | ‖ | \Vert             | ℂ | \C                 |
 | ℇ | \vareps             | ℍ | \H             | ℑ | \Im               | ℓ | \ell               |
 | ℕ | \N                  | ℙ | \P             | ℚ | \Q                | ℜ | \Re                |
 | ℝ | \R                  | ℤ | \Z             | ± | \pm               | ∓ | \mp                |
