@@ -1220,7 +1220,8 @@ evaluator.arctan2$1 = function(args, modifs) {
         if (tmp[0].ctype === 'number' && tmp[1].ctype === 'number') {
             return evaluator.arctan2$2(tmp, modifs);
         }
-    }
+    } else if (v0.ctype === 'number')
+        return CSNumber.arctan2(v0);
     return nada;
 };
 

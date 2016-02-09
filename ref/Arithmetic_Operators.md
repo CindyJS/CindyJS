@@ -255,6 +255,8 @@ The standard trigonometric functions are available through the following operato
 
 #### Angle of a vector: `arctan2(‹vec›)`
 
+#### Argument of a complex number: `arctan2(‹expr1›)`
+
 The `arc` operators are in principle multivalued.
 However, the operator returns only one principal value, for which the real value is between `+pi` and `-pi`.
 
@@ -268,6 +270,8 @@ However, the operator returns only one principal value, for which the real value
     < -135°
     > arctan2(-i,i)
     < 135°
+    > arctan2(-1-i)
+    < -135°
 
 ------
 
