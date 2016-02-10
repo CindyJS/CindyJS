@@ -1330,10 +1330,10 @@ geoOps.PolarOfLine.updatePosition = function(el) {
 };
 
 
-geoOps.angleBisector = {};
-geoOps.angleBisector.kind = "Ls";
-geoOps.angleBisector.signature = ["L", "L", "P"];
-geoOps.angleBisector.updatePosition = function(el) {
+geoOps.AngleBisector = {};
+geoOps.AngleBisector.kind = "Ls";
+geoOps.AngleBisector.signature = ["L", "L", "P"];
+geoOps.AngleBisector.updatePosition = function(el) {
     var a = csgeo.csnames[el.args[0]].homog;
     var b = csgeo.csnames[el.args[1]].homog;
     var p = csgeo.csnames[el.args[2]].homog;
@@ -1353,7 +1353,7 @@ geoOps.angleBisector.updatePosition = function(el) {
     if (isAlmostZero(res2)) res2 = cross(cross(cross(linfty, res1), linfty), p);
     el.results = tracing2(nm(res1), nm(res2));
 };
-geoOps.angleBisector.stateSize = tracing2.stateSize;
+geoOps.AngleBisector.stateSize = tracing2.stateSize;
 
 geoOps._helper.IntersectLC = function(l, c) {
 
@@ -2453,6 +2453,23 @@ geoMacros.Arc = function(el) {
 geoMacros.EuclideanMid = function(el) {
     el.type = "Mid";
     return [el];
+};
+
+geoMacros.AngularBisector = function(el) {
+    el.type = "AngleBisector";
+    return [el];
+};
+
+geoMacros.angleBisector = function(el) {
+    var point = {
+        name: el.name + "_Intersection",
+        type: "Meet",
+        args: el.args,
+        visible: false
+    };
+    el.type = "AngleBisector";
+    el.args = [el.args[0], el.args[1], point.name];
+    return [point, el];
 };
 
 geoMacros.Transform = function(el) {
