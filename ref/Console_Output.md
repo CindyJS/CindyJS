@@ -29,6 +29,8 @@ This operator prints the result of evaluating `‹expr›` to the console and ad
 
 #### Printing a newline: `println()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator prints a newline character to the console.
 
@@ -42,6 +44,8 @@ Removes all text from the console.
 ------
 
 #### Conditional print: `assert(‹bool›,‹expr›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator is mainly meant for convenience purpose when generating own error mesages.
@@ -57,6 +61,8 @@ A typical usage of this operator is the following:
 ------
 
 #### Output a status message: `message(‹expr›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator shows the result of evaluating `‹expr›` in the status line of the application, or in the status line of the browser for Cinderella applets.

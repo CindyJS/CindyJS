@@ -77,6 +77,8 @@ With this RGB color scheme the eight fundamental colors are represented by the f
 
 #### Set text color: `textcolor(‹colorvec›)`
 
+**Not available in CindyJS yet!**
+
 #### Set color: `color(‹colorvec›)`
 
 The default colors can be set by three operators: `pointcolor(‹colorvec›)`, `linecolor(‹colorvec›)`, and `textcolor(‹colorvec›)`.

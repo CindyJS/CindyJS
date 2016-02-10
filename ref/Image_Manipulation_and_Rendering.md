@@ -199,6 +199,8 @@ The command supports the same modifiers as the previous one and the following ad
 
 #### Drawing an image: `drawimage(‹pos›,‹pos›,‹pos›,‹pos›,‹imagename›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Again this command is more general than the previous one.
 This time the four corners (or more generally reference points) are used to specify a projective transformation of the image.
@@ -228,6 +230,8 @@ The command supports the same modifiers as the previous one and the following ad
 ------
 
 #### Deforming an image: `mapimage(‹imagename›,‹function›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This command is extremely powerful for deforming images by functions.
@@ -301,6 +305,8 @@ This is a pair of integer values that refers to the pixel width and height of th
 
 #### Getting pixel data: `imagergb(‹imagename›,‹int›,‹int›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 The function `imagergb(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position *(x,y)*.
 The operator returns a four-dimensional vector with the raw data of the color.
@@ -362,6 +368,8 @@ It is completely transparent.
 ------
 
 #### Removing an image: `removeimage(‹imagename›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator removes the image from the Media Browser.
@@ -448,6 +456,8 @@ This is illustrated by the following piece of code and the corresponding image.
 ------
 
 #### Painting on a canvas with one reference point: `canvas(‹pos›,‹imagename›,‹drawing code›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator uses `‹imagename›` as a canvas and positions it with respect to one reference point identically to the rules of the `drawimage(‹pos›,‹imagename›)` operator.

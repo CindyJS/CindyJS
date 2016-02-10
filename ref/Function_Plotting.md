@@ -169,6 +169,8 @@ Identical to `plot(‹expr›)` but with a specified running variable.
 
 #### Plotting integral-like effects: `fillplot(‹expr›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Often it is desirable to highlight the area between a function graph and the x-axis of the coordinate system (for instance if one generates an applet for explaining integrals).
 This can be done using the function `fillplot`.
@@ -226,6 +228,8 @@ The following sampler illustrates different usages of the `fillplot` statement:
 
 #### Plotting integral like effects: `fillplot(‹expr1›,‹expr2›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This function is very similar to the `fillplot(...)` statement.
 However, instead of highlighting the are between a function and the x-axis it highlights the area between two functions.
@@ -250,6 +254,8 @@ Colorplots are useful to create visual information about functions defined in th
 They can associate a color value to every point in a rectangle.
 
 #### Creating a colorplot: `colorplot(‹expr›,‹vec›,‹vec›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 The `colorplot` operator makes it possible to give a visualization of a planar function.
@@ -347,6 +353,8 @@ They have many applications in the visualization of systems of differential equa
 
 #### Drawing a vector field: `drawfield(‹expr›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 The `drawfield` operator can be used to draw a vector field.
 The function must be given as an expression `‹expr›`.
@@ -431,6 +439,8 @@ The following picture has been rendered with `resolution->5` and `stream->true`.
 
 #### Drawing a complex vector field: `drawfieldcomplex(‹expr›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator is very similar to the `drawfield` operator.
 However, it takes as input a one-dimensional complex function.
@@ -453,6 +463,8 @@ The modifiers are analogous to those for the `drawfield` operators.
 
 #### Drawing a force field: `drawforces()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator is again very similar to the `drawfield` operator.
 However, this time it is related to a physics simulation in [CindyLab](CindyLab.md).
@@ -470,6 +482,8 @@ The following example shows the interaction among four charged particles.
 
 #### Drawing the force field of a point: `drawforces(‹mass›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 There is another operator that draws the force field with respect to a fixed mass particle.
 The particle itself takes no part in the calculation of the forces.
@@ -485,6 +499,8 @@ Grids can be used to visualize transformations that map the plane onto itself.
 With grids, the deformation induced by such a map can be visualized.
 
 #### Mapping a rectangular grid: `mapgrid(‹expr›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator takes a rectangular grid and deforms it by a function given in `‹expr›`.
@@ -577,6 +593,8 @@ The following three pictures show grids for the functions `z*z`, `sin(z)`, `1/z`
 Oscillographs allow to visualize dynamic changes of values in physic simulations and animations.
 
 #### Curve drawing of physics magnitudes: `drawcurves(‹vec›,‹list›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 In real and simulated physical situations one is often interested in plotting curves that show how magnitudes evolve over time.

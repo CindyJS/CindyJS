@@ -41,6 +41,8 @@ In order to produce your own widget which supports scores, you may use the follo
 
 #### Setting the current max score: `setmaxscore(‹newmaxscore›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This function sets the internal version of maxscore to the value newmaxscore.
 newmaxscore has to be a non-negative integer.
@@ -49,11 +51,15 @@ So, this function is just for testing purposes as long as the widget is still ru
 
 #### Getting the maximum possible score of the widget from the CBE: `getmaxscore()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This function returns the maximum possible score of the current widget which was specified in the widget editor.
 In the CBE, this is usually a non-negative integer.
 
 #### Getting the current score: `getscore()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This function returns the current score of the current widget.
@@ -62,11 +68,15 @@ It is usually a non-negative integer.
 
 #### Setting the current score: `setscore(‹newscore›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This function set the current score of the current widget to the value newscore.
 Newscore has to be a non-negative integer.
 
 #### Tell the CBE to read this widget's current score: `check()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This function tells the CBE to ask this widget for the current score (which has been set be setscore() earlier).

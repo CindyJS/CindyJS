@@ -391,6 +391,8 @@ This operator tests whether the expression `‹expr›` represents a geometric e
 
 #### Is selected: `isselected(‹expr›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator tests whether the expression `‹expr›` represents a geometric element and is selected.
 For a geometric element you can also use the .selected property to check this.
