@@ -137,7 +137,7 @@ module.exports = function build(settings, task) {
     // Run separate unit tests to test various interna
     //////////////////////////////////////////////////////////////////////
 
-    task("unittests", ["exposed"], function() {
+    task("unittests", ["exposed", "plain"], function() {
         this.cmdscript("mocha", "tests");
     });
 
