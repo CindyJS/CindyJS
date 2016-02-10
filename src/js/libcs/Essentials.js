@@ -89,7 +89,7 @@ function niceprint(a) {
         return '_??_';
     }
     if (a.ctype === 'undefined') {
-        return '_?_';
+        return '___';
     }
     if (a.ctype === 'number') {
         return CSNumber.niceprint(a);
@@ -138,7 +138,7 @@ function niceprint(a) {
     }
 
 
-    return "__";
+    return "_?_";
 
 }
 

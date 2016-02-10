@@ -94,12 +94,12 @@ If both expressions are **strings**, then the order is the lexicographic (dictio
     > "aa" > "a" + "a"
     < false
 
-In all other cases (if the values are not comparable) the value `_?_` is returned.
+In all other cases (if the values are not comparable) the value `___` is returned.
 
     > 1 > 1 + i
-    < _?_
+    < ___
     > "2" > 1
-    < _?_
+    < ___
 
 ------
 
@@ -123,9 +123,9 @@ This operator is similar to **&gt;** but tests for **less than**.
     > "aa" < "a" + "a"
     < false
     > 1 < 1 + i
-    < _?_
+    < ___
     > "2" < 1
-    < _?_
+    < ___
 
 ------
 
@@ -149,9 +149,9 @@ This operator is similar to **&gt;** but tests for **greater than or equal to**.
     > "aa" >= "a" + "a"
     < true
     > 1 >= 1 + i
-    < _?_
+    < ___
     > "2" >= 1
-    < _?_
+    < ___
 
 ------
 
@@ -175,9 +175,9 @@ This operator is similar to **&gt;** but tests for **less than or equal to**.
     > "aa" <= "a" + "a"
     < true
     > 1 <= 1 + i
-    < _?_
+    < ___
     > "2" <= 1
-    < _?_
+    < ___
 
 ------
 
@@ -209,7 +209,7 @@ Logical **and** of two Boolean values defined by the following truth table:
 | `true`  | `false` | `false` |
 | `true`  | `true`  | `true`  |
 
-If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
+If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
 ------
 
@@ -225,7 +225,7 @@ Logical **or** of two Boolean values defined by the following truth table:
 | `true`  | `false` | `true`  |
 | `true`  | `true`  | `true`  |
 
-If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
+If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
 ------
 
@@ -239,14 +239,14 @@ Logical **not** of one Boolean value defined by the following truth table:
 | `false` | `true`  |
 | `true`  | `false` |
 
-If the argument is not a Boolean expression, the operator returns `_?_`.
+If the argument is not a Boolean expression, the operator returns `___`.
 
     > !(1 < 0)
     < true
     > !(1 > 0)
     < false
     > !1
-    < _?_
+    < ___
 
 ------
 
@@ -278,7 +278,7 @@ If the argument is not a Boolean expression, the operator returns `_?_`.
     > not(1 > 0)
     < false
     > not(1)
-    < _?_
+    < ___
 
 ------
 
@@ -294,7 +294,7 @@ Logical **exclusive or** of two Boolean values defined by the following truth ta
 | `true`  | `false` | `true`     |
 | `true`  | `true`  | `false`    |
 
-If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
+If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
 ------
 
@@ -455,4 +455,4 @@ This operator tests whether the expression `‹expr›` represents a [CindyLab](
 #### Is undefined: `isundefined(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` returns an undefined element (`_?_`).
+This operator tests whether the expression `‹expr›` returns an undefined element (`___`).

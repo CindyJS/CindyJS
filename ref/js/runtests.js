@@ -4,14 +4,14 @@ var fs = require("fs"), path = require("path");
 var createCindy = require("../../build/js/Cindy.plain.js");
 
 var refdir = path.dirname(__dirname);
-var println = console.log;
+var println = console.log.bind(console);
+var exportJSON = false;
 
 var reTestLine = /^    ([<>!.] )?(.*)/mg;
 var failures = 0, numtests = 0;
 var cjs, fakeCanvas;
 
-function runAllTests() {
-  var files = process.argv.slice(2);
+function runAllTests(files) {
   if (files.length === 0) {
     files = [];
     fs.readdirSync(refdir).forEach(function(filename) {
@@ -20,11 +20,12 @@ function runAllTests() {
     });
   }
   files.forEach(runTestFile);
-  if (failures === 0) {
+  if (exportJSON) {
+    println(numtests + " tests extracted");
+  } else if (failures === 0) {
     println("All " + numtests + " tests passed");
     process.exit(0);
-  }
-  else {
+  } else {
     println(failures + " of " + numtests + " tests failed");
     process.exit(1);
   }
@@ -64,7 +65,6 @@ function runTestFile(filename) {
         } else {
           curcase = new TestCase(rest, filename, lineno + i);
           cases.push(curcase);
-          ++numtests;
           ininput = true;
         }
         continue;
@@ -74,7 +74,7 @@ function runTestFile(filename) {
         curcase.expectResult(rest);
         anythingToCheck = true;
       } else if (mark === "~ ") {
-        curcase.expectPattern(new RegExp("^(?:" + rest + ")$"));
+        curcase.expectPattern("^(?:" + rest + ")$");
         anythingToCheck = true;
       } else if (mark === '! ') {
         curcase.expectException(rest);
@@ -98,7 +98,12 @@ function runTestFile(filename) {
     lineno += n + 1;
   });
   if (!anythingToCheck)
+      return;
+  numtests += cases.length;
+  if (exportJSON) {
+    exportJSON.push(cases);
     return;
+  }
   cases.forEach(function(c) {
     if (!c.run())
       ++failures;
@@ -126,7 +131,8 @@ TestCase.prototype.expectResult = function(str) {
 TestCase.prototype.expectPattern = function(re) {
   if (this.pattern !== null)
     console.error("Two patterns for command " + this.cmd);
-  this.pattern = re;
+  this.patternSrc = re;
+  this.pattern = new RegExp(re);
 };
 
 TestCase.prototype.expectOutput = function(str) {
@@ -286,6 +292,19 @@ TestCase.prototype.run = function() {
   return true;
 };
 
+TestCase.prototype.asJSON = function() {
+  var res = {};
+  Object.keys(this).sort().forEach(function(key) {
+    res[key] = this[key];
+  }, this);
+  res.filename = path.basename(this.filename);
+  if (res.pattern) {
+    res.pattern = res.patternSrc;
+    delete res.patternSrc;
+  }
+  return res;
+};
+
 function FakeCanvas() {
   this.width = 640;
   this.height = 480;
@@ -332,4 +351,14 @@ FakeCanvas.prototype.measureText = function(txt) {
   };
 });
 
-runAllTests();
+if (process.argv.length >= 3 && /^--exportJSON[=]/.test(process.argv[2])) {
+  exportJSON = [];
+  runAllTests(process.argv.slice(3));
+  exportJSON = Array.prototype.concat.apply([], exportJSON);
+  exportJSON = exportJSON.map(function(testcase) { return testcase.asJSON(); });
+  exportJSON = JSON.stringify(exportJSON, null, 2);
+  fs.writeFileSync(process.argv[2].replace(/.*?=/, ""), exportJSON);
+  process.exit(0);
+}
+
+runAllTests(process.argv.slice(2));

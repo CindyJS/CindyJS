@@ -306,10 +306,10 @@ for which the real part is between −90° = −π/2 and +90° = +π/2.
     > arcsin(-1)
     < -90°
     > arcsin(2) // the sign of the imaginary part is undefined here
-    < (90 - i*75.4561)°
-    ~ \(90 [+\-] i\*75.4561\)°
+    < (90 - i*75.5)°
+    ~ \(90 [+\-] i\*75\.5\)°
     > arcsin(2 + 3*i)
-    < (32.696 + i*113.6397)°
+    < (32.7 + i*113.6)°
     > arcsin(sqrt(3)/2)
     < 60°
 
@@ -333,10 +333,10 @@ for which the real part is between 0° = 0 and +180° = +π.
     > arccos(-1)
     < 180°
     > arccos(2) // the sign of the imaginary part is undefined here
-    < (0 + i*75.4561)°
-    ~ \(0 [+\-] i\*75.4561\)°
+    < (0 + i*75.5)°
+    ~ \(0 [+\-] i\*75\.5\)°
     > arccos(2 + 3*i)
-    < (57.304 - i*113.6397)°
+    < (57.3 - i*113.6)°
     > arccos(sqrt(3)/2)
     < 30°
 
@@ -360,9 +360,9 @@ for which the real part is between −90° = −π/2 and +90° = +π/2.
     > arctan(-1)
     < -45°
     > arctan(2)
-    < 63.4349°
+    < 63.4°
     > arctan(2 + 3*i)
-    < (80.7825 + i*13.1249)°
+    < (80.8 + i*13.1)°
     > arctan(sqrt(3))
     < 60°
 
