@@ -8,13 +8,13 @@ Render2D.handleModifs = function(modifs, handlers) {
     Render2D.size = null;
     if (Render2D.psize <= 0) Render2D.psize = 0;
     if (Render2D.lsize <= 0) Render2D.lsize = 0;
-    Render2D.overhang = 1; //TODO Eventuell dfault setzen
+    Render2D.overhang = 1; //TODO Maybe set default
     Render2D.dashing = false;
     Render2D.isArrow = false;
     Render2D.arrowSides = '==>';
     Render2D.arrowposition = 1.0; // position arrowhead along the line
     Render2D.headlen = 10; // arrow head length - perhaps set this relative to canvas size
-    Render2D.arrowShape = 'default';
+    Render2D.arrowShape = Render2D.arrowShapes.line;
     Render2D.alpha = csport.drawingstate.alpha;
     Render2D.bold = "";
     Render2D.italics = "";
@@ -75,9 +75,6 @@ Render2D.handleModifs = function(modifs, handlers) {
     }
 
 };
-
-Render2D.sin30deg = 0.5;
-Render2D.cos30deg = Math.sqrt(0.75);
 
 Render2D.modifHandlers = {
     "size": function(v) {
@@ -153,11 +150,21 @@ Render2D.modifHandlers = {
     },
 
     "arrowshape": function(v) {
-        if (v.ctype === 'string') {
-            Render2D.arrowShape = v.value;
-            Render2D.isArrow = true;
-        } else {
+        if (v.ctype !== 'string') {
             console.error("arrowshape needs to be of type string");
+        } else if (!Render2D.arrowShapes.hasOwnProperty(v.value)) {
+            var allowed = Object.keys(Render2D.arrowShapes);
+            allowed.sort();
+            allowed = allowed.join(", ");
+            console.error("arrowshape needs to be one of " + allowed);
+        } else {
+            Render2D.arrowShape = Render2D.arrowShapes[v.value];
+            Render2D.isArrow = true;
+            if (Render2D.arrowShape.deprecated) {
+                console.log("arrowshape " + v.value + " is deprecated, use " +
+                    Render2D.arrowShape.deprecated + " instead.");
+                Render2D.arrowShape.deprecated = null;
+            }
         }
     },
 
@@ -325,6 +332,47 @@ Render2D.preDrawCurve = function() {
     csctx.strokeStyle = Render2D.lineColor;
 };
 
+Render2D.arrowShapes = {
+    "default": {
+        close: false,
+        fill: false,
+        ratio: 1,
+        deprecated: "line"
+    },
+    "line": {
+        close: false,
+        fill: false,
+        ratio: 1
+    },
+    "empty": {
+        close: true,
+        fill: false,
+        ratio: 1
+    },
+    "hollow": {
+        close: true,
+        fill: false,
+        ratio: 1,
+        deprecated: "empty"
+    },
+    "full": {
+        close: true,
+        fill: true,
+        ratio: 1
+    },
+    "jet": {
+        close: true,
+        fill: true,
+        ratio: 1.5
+    },
+    "delta": {
+        close: true,
+        fill: true,
+        ratio: 1.5,
+        deprecated: "jet"
+    },
+};
+
 Render2D.drawsegcore = function(pt1, pt2) {
     var m = csport.drawingstate.matrix;
     var endpoint1x = pt1.x * m.a - pt1.y * m.b + m.tx;
@@ -357,48 +405,32 @@ Render2D.drawsegcore = function(pt1, pt2) {
 
     var dx = endpoint2x - endpoint1x;
     var dy = endpoint2y - endpoint1y;
-    var norm = Math.sqrt(dx * dx + dy * dy);
-    var cosAngle = dx / norm;
-    var sinAngle = dy / norm;
+    var hs = Render2D.headlen / Math.sqrt(dx * dx + dy * dy);
+    var hx = dx * hs;
+    var hy = dy * hs;
     var pos_fac1 = Render2D.arrowposition;
     var pos_fac2 = 1 - pos_fac1;
     var tip1x = pos_fac1 * overhang1x + pos_fac2 * overhang2x;
     var tip1y = pos_fac1 * overhang1y + pos_fac2 * overhang2y;
     var tip2x = pos_fac1 * overhang2x + pos_fac2 * overhang1x;
     var tip2y = pos_fac1 * overhang2y + pos_fac2 * overhang1y;
-    var headlen = Render2D.headlen;
-    var sin30 = Render2D.sin30deg;
-    var cos30 = Render2D.cos30deg;
-    var x30sub = headlen * (cosAngle * cos30 + sinAngle * sin30);
-    var x30add = headlen * (cosAngle * cos30 - sinAngle * sin30);
-    var y30sub = headlen * (sinAngle * cos30 - cosAngle * sin30);
-    var y30add = headlen * (sinAngle * cos30 + cosAngle * sin30);
     var arrowSides = Render2D.arrowSides;
 
     csctx.beginPath();
 
     // draw line in parts for full arrow
-    if (Render2D.arrowShape === "full") {
-        var rx, ry, lx, ly;
+    if (Render2D.arrowShape.close) {
         if (arrowSides === "<==>" || arrowSides === "<==") {
-            rx = tip1x + x30sub;
-            ry = tip1y + y30sub;
-            lx = tip1x + x30add;
-            ly = tip1y + y30add;
             if (Render2D.arrowposition < 1.0) {
                 csctx.moveTo(overhang1x, overhang1y);
                 csctx.lineTo(tip1x, tip1y);
             }
-            csctx.moveTo((rx + lx) / 2, (ry + ly) / 2);
+            csctx.moveTo(tip1x + hx, tip1y + hy);
         } else {
             csctx.moveTo(overhang1x, overhang1y);
         }
         if (arrowSides === '==>' || arrowSides === '<==>') {
-            rx = tip2x - x30sub;
-            ry = tip2y - y30sub;
-            lx = tip2x - x30add;
-            ly = tip2y - y30add;
-            csctx.lineTo((rx + lx) / 2, (ry + ly) / 2);
+            csctx.lineTo(tip2x - hx, tip2y - hy);
             if (Render2D.arrowposition < 1.0) {
                 csctx.moveTo(tip2x, tip2y);
                 csctx.lineTo(overhang2x, overhang2y);
@@ -415,31 +447,32 @@ Render2D.drawsegcore = function(pt1, pt2) {
 
     // draw arrow heads at desired positions
     if (arrowSides === '==>' || arrowSides === '<==>') {
-        draw_arrowhead(tip2x, tip2y, 1);
+        draw_arrowhead(tip2x, tip2y, 1, Render2D.arrowShape.ratio);
     }
     if (arrowSides === '<==' || arrowSides === '<==>') {
-        draw_arrowhead(tip1x, tip1y, -1);
+        draw_arrowhead(tip1x, tip1y, -1, -Render2D.arrowShape.ratio);
     }
 
-    function draw_arrowhead(tipx, tipy, sign) {
-        var rx = tipx - sign * x30sub;
-        var ry = tipy - sign * y30sub;
+    function draw_arrowhead(tipx, tipy, sign, ratio) {
+        var rx = tipx - ratio * hx + 0.5 * hy;
+        var ry = tipy - ratio * hy - 0.5 * hx;
+        var lx = tipx - ratio * hx - 0.5 * hy;
+        var ly = tipy - ratio * hy + 0.5 * hx;
 
         csctx.beginPath();
-        if (Render2D.arrowShape === "full") {
+        if (Render2D.arrowShape.fill) {
             csctx.lineWidth = Render2D.lsize / 2;
         }
-        var lx = tipx - sign * x30add;
-        var ly = tipy - sign * y30add;
         csctx.moveTo(rx, ry);
         csctx.lineTo(tipx, tipy);
         csctx.lineTo(lx, ly);
-        if (Render2D.arrowShape === "full") {
+        if (Render2D.arrowShape.close) {
             csctx.fillStyle = Render2D.lineColor;
+            csctx.lineTo(tipx - sign * hx, tipy - sign * hy);
             csctx.closePath();
-            csctx.fill();
-        } else if (Render2D.arrowShape !== "default") {
-            console.error("arrowshape is unknown");
+            if (Render2D.arrowShape.fill) {
+                csctx.fill();
+            }
         }
         csctx.stroke();
     }
