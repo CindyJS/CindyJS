@@ -293,6 +293,8 @@ Besides addition and multiplication, as described earlier in this section, there
 
 #### Dimensions of a matrix: `matrixrowcolum(‹matrix›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 If the argument is a matrix, this operator returns the number of rows and the number of columns of the matrix, encoded as a two-element list.
 
@@ -436,6 +438,8 @@ This operator is also very useful for geometric calculations.
 
 #### The Hermitian scalar product: `hermiteanproduct(‹vec1›,‹vec2›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator returns the Hermitian scalar product of two vectors.
 It is similar to the dot product `‹vec1›*‹vec2›`.
@@ -470,6 +474,8 @@ If the matrix *A* does change often it is more preferable to use the `linearsolv
 ------
 
 #### Adjunct of a square matrix: `adj(‹matrix›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator calculates the adjunct of a square matrix.

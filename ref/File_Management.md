@@ -11,6 +11,8 @@ Please note that these commands will not work with applets in HTML pages.
 
 #### Loading data: `load(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator takes the argument `‹string›`, which is considered to be a file name (possibly preceded by directory information).
 If the file name is legitimate, then the entire information contained in the file will be returned as a string.
@@ -38,6 +40,8 @@ The resulting output is
 
 #### Importing program code: `import(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator takes the argument `‹string›`, which is considered to be a file name (including directory information).
 If the file name is legitimate, then the whole content of the file is assumed to be able to be parsed by CindyScript code, and it is immediately executed.
@@ -47,6 +51,8 @@ It is advisable to use the `import` operator only in the "Init" section of Cindy
 ------
 
 #### Setting the directory: `setdirectory(‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator sets the directory for all subsequent file operations.
@@ -65,6 +71,8 @@ This can be done using the following commands.
 
 #### Opening a file: `openfile(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Opens a file with the specified name.
 The function returns a handle to the file that is needed for subsequent print operations.
@@ -72,6 +80,8 @@ The function returns a handle to the file that is needed for subsequent print op
 ------
 
 #### Println to a file: `println(‹file›,‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Identical to the `println(...)` command.
@@ -81,6 +91,8 @@ However this command prints to the file specified by `‹file›`.
 
 #### Print to a file: `print(‹file›,‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Identical to the `print(...)` command.
 However this command prints to the file specified by `‹file›`.
@@ -88,6 +100,8 @@ However this command prints to the file specified by `‹file›`.
 ------
 
 #### Print to a file: `closefile(‹file›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This command finally closes the file.
@@ -113,6 +127,8 @@ This code generates a file with the following content:
 ### Connection to HTML
 
 #### Opening a web page: `openurl(‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Opens a browser with the webpage given in &lt;string&gt;.
@@ -144,6 +160,8 @@ You should be able to send and retrieve data over the internet.
 
 #### Open a TCP port: `openconnection(‹string›,‹int›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Opens a bidirectional tcp connection to the server specified by the first argument and the port specified by the second argument.
 The return value is a handle to this network connection.
@@ -161,7 +179,11 @@ In the following example we open a connection to a web server and read the HTML 
 
 #### Write to a TCP connection: `print(‹handle›,‹string›)`
 
+**Not available in CindyJS yet!**
+
 #### Write to a TCP connection: `println(‹handle›,‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 The `print` and `println` functions not only support writing to a file, but also to a network connection created by `openconnection`.
@@ -170,12 +192,16 @@ The `print` and `println` functions not only support writing to a file, but also
 
 #### Flush output to a TCP port: `flush(‹handle›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Flushes the output buffer of the given connection.
 
 ------
 
 #### Read from a TCP connection: `readln(‹handle›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Reads a line from the given connection.
@@ -184,6 +210,8 @@ If no data can be read, this command times out after 5 seconds.
 ------
 
 #### Close a TCP connection: `closeconnection(‹handle›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Closes the connection given by the handle.

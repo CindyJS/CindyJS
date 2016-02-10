@@ -307,10 +307,14 @@ Also, it gives you fine grained control over all properties.
 
 #### Set a user attribute: `attribute(‹geo›,‹string1›,‹string2›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Sets the user attribute of &lt;geo&gt; identified by &lt;string1&gt; to the value &lt;string2&gt;.
 
 #### Read a user attribute: `attribute(‹geo›,‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Returns the user attribute identified by &lt;string&gt; of the geometric element &lt;geo&gt; .

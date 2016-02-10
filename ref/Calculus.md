@@ -10,6 +10,8 @@ This section illustrates the use of these two functions.
 
 #### Calculating a derivative: `d(‹function›,‹var›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator creates a function that is the derivative of another function, which is passed as a first argument.
 The variable of `‹function›` with respect to which the derivative should be calculated has to be the standard run variable `#`.
@@ -55,6 +57,8 @@ This value can be altered using the modifier `eps->‹number›`.
 
 #### Tangent: `tangent(‹function›,‹var›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator is very similar to the operator that calculates the derivative of a function.
 However, instead of calculating the value of the derivative, this operator calculates the homogeneous coordinates of a tangent to the function at a point.
@@ -85,6 +89,8 @@ In addition, the line attribute of this vector is set (see [Geometric Operators]
 ##  Advanced calculations
 
 #### Guessing the value of a real number: `guess(‹number›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 The guess operator is perhaps one of the most sophisticated and powerful operators of CindyScript.

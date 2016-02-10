@@ -14,6 +14,8 @@ Another way of moving an element is with the `moveto` operator.
 
 #### Moving a Free Element: `moveto(‹geo›,‹pos›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 In this operator, `‹geo›` is a free geometric object and `‹pos›` (usually a vector) describes a position to which this object should be moved.
 Calling this operator simulates a move for this geometric object.
@@ -59,6 +61,8 @@ This operator gives a handle to the element that is currently moved by the mouse
 
 #### Elements close to the mouse: `elementsatmouse()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator gives a list with handles to all the elements that are close to the current mouse position.
 
@@ -75,12 +79,16 @@ They reappear if the mouse moves away again.
 
 #### Incidences of an object: `incidences(‹geo›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator returns a list all the elements that are generically incident to a geometric element `‹geo›`.
 
 ------
 
 #### Getting an element by name: `element(‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator returns the geometric object identified by the name given in `‹string›`.
@@ -138,12 +146,16 @@ You can find the valid parameters for elements by constructing them manually and
 
 #### Removing a geometric element: `removeelement(‹geo›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Removes a geometric element together with all its dependent elements from a construction.
 
 ------
 
 #### Input elements of an element: `inputs(‹geo›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator returns a list all the elements that are needed to define the object `‹geo›`.
@@ -152,6 +164,8 @@ These may be other geometric, elements, numbers or vectors.
 ------
 
 #### Algorithm of an element: `algorithm(‹geo›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator returns a string that resembles the algorithm of the definition the object `‹geo›`.
@@ -184,6 +198,8 @@ All of them can be generically accessed by the following operators.
 
 #### List all inspectable properties: `inspect(‹geo›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Returns a list of names of all private properties of a geometric element.
 
@@ -200,6 +216,8 @@ The operator `inspect(A)` applied to a the free point *A* returns the following 
 
 #### Accessing an inspectable property: `inspect(‹geo›,‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Accesses an arbitrary inspectable property.
 
@@ -209,6 +227,8 @@ One can access the color of a point *A* by `inspect(A,"color")`
 ------
 
 #### Setting an inspectable property: `inspect(‹geo›,‹string›,‹data›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Setting the value of inspectable property.
@@ -221,6 +241,8 @@ One can set the color of a point *A* to white by `inspect(A,"color",(1,1,1))`
 ------
 
 #### Forcing a repaint operation: `repaint()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator causes an immediate repaint of the drawing surface.
@@ -237,6 +259,8 @@ As `repaint` but with a time delay of as many milliseconds as given by he parame
 ------
 
 #### Points on a locus: `locusdata(‹locus›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator returns a list of points in *xy*-coordinates that are all on a locus given by the name `‹locus›` of a geometric element.

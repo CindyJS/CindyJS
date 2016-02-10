@@ -130,6 +130,8 @@ The cross product is a three-dimensional vector that is orthogonal to the other 
 
 #### The type of an object: `geotype(‹list›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator determines whether an object has an explicit geometric meaning.
 It returns a string that is either `"POINT"`, `"LINE"`, or `"NONE"`.

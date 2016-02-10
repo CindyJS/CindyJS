@@ -97,6 +97,8 @@ By this it is easy to produce multilined text, as the following piece of code sh
 
 #### Available font families: `fontfamilies()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator produces a list of all font families that are available on your computer.
 Usually this will be quite a lot.
@@ -138,6 +140,8 @@ The base of the unicode description can be changed with the `base` modifier.
 
 #### Test whether a string can be displayed: `candisplay(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator tests, whether a given string can be displayed in the currently chosen font.
 It returns a boolean value.
@@ -145,6 +149,8 @@ It returns a boolean value.
 ------
 
 #### Drawing tables: `drawtable(‹vec›,‹list›)`
+
+**Not available in CindyJS yet!**
 
 One- and two-dimensional lists can be easily drawn in a geometric view as tables.
 In the simplest form one has only to provide the list and a position where the table should be drawn.

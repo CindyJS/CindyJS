@@ -85,6 +85,8 @@ This code fragment takes a geometric element *A* (most probably a point) and set
 
 #### The trigger operator: `trigger(‹bool›,‹expr›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 The `trigger` operator is very similar to the `if` operator.
 In contrast to `if`, the `trigger` operator has a dynamic flavor.
@@ -323,6 +325,8 @@ Again the variable is local to the expression.
 
 #### Forcing evaluation: `eval(‹expr›,‹modif1›,‹modif2›,…)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator forces the evaluation of the expression &lt;expr&gt;.
 Free variables of the expression can be substituted using a list of modifiers.
@@ -395,6 +399,8 @@ Often it is useful to put a `clear()` statement under the `init` event of the pr
 
 #### Clear all variables: `clear()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator clears all variables.
 
@@ -402,12 +408,16 @@ This operator clears all variables.
 
 #### Clear a specific variable: `clear(‹var›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator clears variable `‹var›`.
 
 ------
 
 #### Handles to key variables of objects: `keys(‹var›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Gives a list of all keys associated to an object via a ` ‹object›:‹key›=‹something›` declaration.

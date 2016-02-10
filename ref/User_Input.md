@@ -25,6 +25,8 @@ Returns a string that contains the last typed character.
 
 #### Is a certain key pressed: `iskeydown(‹int›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator returns a boolean value that is true if a certain key is pressed.
 The key in question is specified by the integer in the argument.
@@ -36,6 +38,8 @@ Codes for 'shift', 'crtl' and 'alt' are usually 16, 17, 18.
 ------
 
 #### List of all pressed keys: `keydownlist()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator returns a list of the codes of all pressed keys.
@@ -52,12 +56,16 @@ The gravity sensor returns a three dimensional vector.
 
 #### Getting raw AMS data: `amsdata()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator returns the raw data of the AMS sensor.
 
 ------
 
 #### Getting calibrated AMS data: `calibratedamsdata()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator returns a calibrated version of the AMS sensor data.
@@ -80,7 +88,11 @@ An example for this is given in [Interactive Exercises](Interactive_Exercises.md
 
 #### Creating a custom toolbar: `createtool(‹string›,‹int›,‹int›)`
 
+**Not available in CindyJS yet!**
+
 #### Creating a custom toolbar: `createtool(‹list›,‹int›,‹int›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Creates one or many toolbuttons in a Cinderella view.
@@ -172,12 +184,16 @@ The createtool operator can handle the modifiers summarized in the following tab
 
 #### Removing a tool from a custom toolbar: `removetool(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Removes a tool from the custom toolbar.
 
 ------
 
 #### Removing all custom toolbars: `removetools()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Removes all tools from the custom toolbar.

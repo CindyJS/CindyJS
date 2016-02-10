@@ -64,6 +64,8 @@ Resets the value of the `seconds()` operator.
 
 #### Accessing the timestamp of a simulation: `simulationtime()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator gives a handle to the running time clock synchronized with the progression of an animation or simulation.
 
@@ -73,6 +75,8 @@ This operator is still experimental.
 ------
 
 #### Pause the script for a specified time: `wait(‹real›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Will completely halt every script execution for a number of milliseconds as given by the parameter.

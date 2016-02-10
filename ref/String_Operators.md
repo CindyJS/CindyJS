@@ -27,6 +27,8 @@ For this see [Arithmetic Operators](Arithmetic_Operators.md).
 
 #### Conversion to string: `text(‹expr›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 The operator `text(‹expr›)` evaluates the expression `‹expr›` and converts the result to a string representation.
 
@@ -192,6 +194,8 @@ defines the function `f(x)` to be `sin(x)+cos(x)`.
 ------
 
 #### Guessing a good representation of a number: `guess(‹number›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This very powerful operator is described in detail in the section [Calculus](Calculus.md).
