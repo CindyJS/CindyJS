@@ -75,13 +75,10 @@ Here comes a complete list of them:
 
 The Cinderella TeX implementation allows for the use of four types of brackets in formulas:
 
-*  Round bracktes: (....)
-
-*  Square braclets: [....]
-
-*  Curly brackets: \{...\}
-
-*  Vertical lines: |...|
+*  Round bracktes: `(…)`
+*  Square braclets: `[…]`
+*  Curly brackets: `\{…\}`
+*  Vertical lines: `|…|`
 
 Since Curly brackets have a special semantic meaning in TeX formulas they have to be preceded by a backslash.
 In formulas it is often necessary to use brackets of different sizes.
@@ -270,8 +267,9 @@ The following list gives an overview of all characters that are associated to sp
 
 ####  Greek letters
 
-| α | \alpha   | β | \beta       | γ | \gamma   | δ | \delta   |
+|   |          |   |             |   |          |   |          |
 | - | -------- | - | ----------- | - | -------- | - | -------- |
+| α | \alpha   | β | \beta       | γ | \gamma   | δ | \delta   |
 | ∊ | \epsilon | ε | \varepsilon | ζ | \zeta    | η | \eta     |
 | θ | \theta   | ϑ | \vartheta   | ι | \iota    | κ | \kappa   |
 | λ | \lambda  | λ | \lamda      | μ | \mu      | μ | \my      |
@@ -290,8 +288,9 @@ The following list gives an overview of all characters that are associated to sp
 
 ####  Arrows
 
-| ← | \leftarrow          | → | \rightarrow        | → | \to                  | ↔ | \leftrightarrow     |
+|   |                     |   |                    |   |                      |   |                     |
 | - | ------------------- | - | ------------------ | - | -------------------- | - | ------------------- |
+| ← | \leftarrow          | → | \rightarrow        | → | \to                  | ↔ | \leftrightarrow     |
 | ⇐ | \Leftarrow          | ⇒ | \Rightarrow        | ⇔ | \Leftrightarrow      | ↦ | \mapsto             |
 | ↩ | \hookleftarrow      | ↼ | \leftharpoonup     | ↽ | \leftharpoondown     | ↪ | \hookrightarrow     |
 | ⇀ | \rightharpoonup     | ⇁ | \rightharpoondown  | ← | \longleftarrow       | → | \longrightarrow     |
@@ -315,8 +314,9 @@ The following list gives an overview of all characters that are associated to sp
 
 ####  Math characters
 
-| ≤ | \leq                | ≪ | \ll            | ≺ | \prec             | ≼ | \preceq            |
+|   |                     |   |                |   |                   |   |                    |
 | - | ------------------- | - | -------------- | - | ----------------- | - | ------------------ |
+| ≤ | \leq                | ≪ | \ll            | ≺ | \prec             | ≼ | \preceq            |
 | ⊂ | \subset             | ⊆ | \subseteq      | ⊏ | \sqsubset         | ⊑ | \sqsubseteq        |
 | ∈ | \in                 | ⊢ | \vdash         | ∣ | \mid              | ⌣ | \smile             |
 | ≥ | \geq                | ≫ | \gg            | ≻ | \succ             | ≽ | \succeq            |
@@ -371,7 +371,7 @@ The following list gives an overview of all characters that are associated to sp
 | ▼ | \blacktriangledown  | ◊ | \lozenge       | ◆ | \blacklozenge     | ★ | \bigstar           |
 | ∠ | \angle              | ∡ | \measuredangle | ∢ | \sphericalangle   | ‵ | \backprime         |
 | ∄ | \nexists            | Ⅎ | \Finv          | ∅ | \varnothing       | ð | \eth               |
-| ℧ | \mho                | | | \vert          | ‖ | \Vert             | ℂ | \C                 |
+| ℧ | \mho                | &#x7c; | \vert          | ‖ | \Vert             | ℂ | \C                 |
 | ℇ | \vareps             | ℍ | \H             | ℑ | \Im               | ℓ | \ell               |
 | ℕ | \N                  | ℙ | \P             | ℚ | \Q                | ℜ | \Re                |
 | ℝ | \R                  | ℤ | \Z             | ± | \pm               | ∓ | \mp                |

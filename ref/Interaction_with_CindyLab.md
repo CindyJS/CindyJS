@@ -48,9 +48,7 @@ If no modifiers are used, the operator assumes that the probe particle has `mass
 The following picture was generated using the `drawforces` operator and a color plot of the `force` operator.
 It shows the force field and force strength of the electrostatic field of two charges.
 
-| ![Image](img/Flux.png) |
-| ---------------------- |
-| ****                   |
+![Image](img/Flux.png)
 
     > A.charge=(|C,G|-3)*3;
     > B.charge=(|E,H|-3)*3;

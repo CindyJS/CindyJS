@@ -5,9 +5,7 @@ When this item is selected, a window for the program code editor is opened.
 Each construction has an individual program editor window.
 When first opened, the editor window looks as follows:
 
-| ![Image](img/EnterScript5.png) |
-| ------------------------------ |
-| **The script editor**          |
+![The script editor](img/EnterScript5.png)
 
 This window contains several components that require explanation.
 The main part of the window is occupied by a large white space (the middle part of the right side).
@@ -27,9 +25,7 @@ After this entry has been selected, the main part of the window is ready for inp
 Clicking in the main window allows one to enter script code.
 In the example shown below a small script was entered and given the title "My first script"
 
-| ![Image](img/EnterScript6.png) |
-| ------------------------------ |
-| **Entering text**              |
+![Entering text](img/EnterScript6.png)
 
 Pressing the button with the two gears executes the script.
 In the above example a green dotted line will be drawn consisting of ten simple dots.
@@ -101,9 +97,7 @@ Scripts in this slot will be executed when the key on the keyboard is released, 
 
 In the upper part of the script editor window are two buttons to start and stop the program, as well as a text field to provide names to parts of the program and a language chooser for switching between different languages (at present, only CindyScript is documented).
 
-| ![Image](img/EnterScript7.png) |
-| ------------------------------ |
-| **The script controls**        |
+![The script controls](img/EnterScript7.png)
 
 Perhaps the most important part of these controls is the "Play" button (the one with the two gears).
 Whenever this button is pressed all scripts are parsed and the execution of the program is started.

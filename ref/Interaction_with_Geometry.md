@@ -130,9 +130,7 @@ The following table shows a few possible creation statements.
 This sequence of statements creates the fully functional construction shown below.
 Observe that in the sixth statement when two circles are intersected there must be a list of two output elements specified.
 
-| ![Image](img/CreateX.png) |
-| ------------------------- |
-| ****                      |
+![Image](img/CreateX.png)
 
 You can find the valid parameters for elements by constructing them manually and using the `algorithm` and `inputs` functions described below.
 
@@ -173,9 +171,7 @@ Applied to the construction of a perpendicular bisector in the picture below it 
     >   [["b"],"Orthogonal",[a,C]]
     > ]
 
-| ![Image](img/PerpBisect.png) |
-| ---------------------------- |
-| ****                         |
+![Image](img/PerpBisect.png)
 
 ------
 
