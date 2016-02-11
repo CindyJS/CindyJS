@@ -303,7 +303,7 @@ function isNumber(code) {
     if (a === -1) {
         return isPureNumber(code);
     } else {
-        return isPureNumber(code.substring(0, a)) || isPureNumber(code.substring(a + 1));
+        return isPureNumber(code.substring(0, a)) && isPureNumber(code.substring(a + 1));
     }
 }
 
