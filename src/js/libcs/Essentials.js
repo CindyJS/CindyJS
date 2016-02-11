@@ -3,82 +3,98 @@
 var myfunctions = {};
 
 var operators = {};
-operators[':'] = 20; //Colon: Feldzugriff auf Selbstdefinierte Felder
-operators['.'] = 25; //Dot: Feldzugriff
-operators['\u00b0'] = 25; //Degree
-operators['_'] = 50; //x_i i-tes Element von x
-operators['^'] = 50; //hoch
-operators['*'] = 100; //Multiplikation (auch für Vectoren, Scalarmul)
-operators['/'] = 100; //Division (auch für Vectoren, Scalerdiv)
-operators['+'] = 200; //Addition (auch für Vectoren, Vectorsumme)
-operators['-'] = 200; //Subtraktion (auch für Vectoren, Vectordiff)
-operators['!'] = 200; //Logisches Not (einstellig)
-operators['=='] = 300; //Equals
-operators['~='] = 300; //approx Equals
-operators['~<'] = 300; //approx smaller
-operators['~>'] = 300; //approx greater
-operators['=:='] = 300; //Equals after evaluation
-operators['>='] = 300; //Größergleich
-operators['<='] = 300; //Kleinergleich
-operators['~>='] = 300; //ungefähr Größergleich
-operators['~<='] = 300; //ungefähr Kleinergleich
-operators['>'] = 300; //Größer
-operators['<'] = 300; //Kleiner
-operators['<>'] = 300; //Ungleich
-operators['&'] = 350; //Logisches Und
-operators['%'] = 350; //Logisches Oder
-operators['!='] = 350; //Ungleich
-operators['~!='] = 350; //ungefähr Ungleich
-operators['..'] = 350; //Aufzählung 1..5=(1,2,3,4,5)
-operators['++'] = 370; //Listen Aneinanderhängen
-operators['--'] = 370; //Listen wegnehmen
-operators['~~'] = 370; //Gemeinsame Elemente
-operators[':>'] = 370; //Append List
-operators['<:'] = 370; //Prepend List
-operators['='] = 400; //Zuweisung
-operators[':='] = 400; //Definition
-operators[':=_'] = 400; //Definition
-operators['::='] = 400; //Definition
-operators['->'] = 400; //Modifier
-operators[','] = 500; //Listen und Vektoren Separator
-operators[';'] = 500; //Befehlsseparator
-
+operators[':'] = 20; // Access to user-defined fields
+operators['.'] = 25; // Field access
+operators['°'] = 25; // Degree
+operators['_'] = 50; // x_i means i-th element of x
+operators['^'] = 50; // power
+operators['*'] = 100; // multiplication (also for vectors and matrices)
+operators['/'] = 100; // division (also vectoren divided by scalar)
+operators['+'] = 200; // addition (also for vectors and matrices)
+operators['-'] = 200; // subtraction (also for vectors and matrices)
+operators['!'] = 200; // logical not (unary)
+operators['=='] = 300; // equal
+operators['~='] = 300; // approximately equal
+operators['~<'] = 300; // not greater or approximately equal
+operators['~>'] = 300; // not less or approximately equal
+operators['=:='] = 300; // equals after evaluation
+operators['>='] = 300; // greater or equal
+operators['<='] = 300; // less or equal
+operators['~>='] = 300; // greater or approximately equal
+operators['~<='] = 300; // less or approximately equal
+operators['>'] = 300; // greater
+operators['<'] = 300; // less
+operators['<>'] = 300; // not equal
+operators['&'] = 350; // logical and
+operators['%'] = 350; // logical or
+operators['!='] = 350; // not equal
+operators['~!='] = 350; // not approximately equal
+operators['..'] = 350; // sequence
+operators['++'] = 370; // concatenation of lists, union of shapes
+operators['--'] = 370; // list or shape difference
+operators['~~'] = 370; // list or shape intersection
+operators[':>'] = 370; // append element to list
+operators['<:'] = 370; // prepend element to list
+operators['='] = 400; // assignment
+operators[':='] = 400; // function definition
+operators[':=_'] = 400; // function undefinition
+operators['::='] = 400; // binding function definition
+operators['->'] = 400; // modifier
+operators[';'] = 500; // sequence of statements
+//operators[','] = 510; // list element separator, handled in parselist
 
 var infixmap = {};
-infixmap['+'] = infix_add;
-infixmap['-'] = infix_sub;
+infixmap[':'] = operator_not_implemented(':');
+// infixmap['.'] not needed thanks to definitionDot special handling
+infixmap['°'] = postfix_numb_degree;
+infixmap['_'] = infix_take;
+infixmap['^'] = infix_pow;
 infixmap['*'] = infix_mult;
 infixmap['/'] = infix_div;
-infixmap['^'] = infix_pow;
-infixmap['°'] = postfix_numb_degree;
-infixmap[';'] = infix_semicolon;
-infixmap['='] = infix_assign;
-infixmap['..'] = infix_sequence;
-infixmap[':='] = infix_define;
+infixmap['+'] = infix_add;
+infixmap['-'] = infix_sub;
+infixmap['!'] = prefix_not;
 infixmap['=='] = comp_equals;
-infixmap['!='] = comp_notequals;
 infixmap['~='] = comp_almostequals;
-infixmap['~!='] = comp_notalmostequals;
-infixmap['>'] = comp_gt;
-infixmap['<'] = comp_lt;
+infixmap['~<'] = comp_ult;
+infixmap['~>'] = comp_ugt;
+infixmap['=:='] = operator_not_implemented('=:=');
 infixmap['>='] = comp_ge;
 infixmap['<='] = comp_le;
-infixmap['~>'] = comp_ugt;
-infixmap['~<'] = comp_ult;
 infixmap['~>='] = comp_uge;
 infixmap['~<='] = comp_ule;
+infixmap['>'] = comp_gt;
+infixmap['<'] = comp_lt;
+infixmap['<>'] = comp_notequals;
 infixmap['&'] = infix_and;
 infixmap['%'] = infix_or;
-infixmap['!'] = prefix_not;
-infixmap['_'] = infix_take;
+infixmap['!='] = comp_notequals;
+infixmap['~!='] = comp_notalmostequals;
+infixmap['..'] = infix_sequence;
 infixmap['++'] = infix_concat;
-infixmap['~~'] = infix_common;
 infixmap['--'] = infix_remove;
+infixmap['~~'] = infix_common;
 infixmap[':>'] = infix_append;
 infixmap['<:'] = infix_prepend;
+infixmap['='] = infix_assign;
+infixmap[':='] = infix_define;
+infixmap[':=_'] = operator_not_implemented(':=_');
+infixmap['::='] = operator_not_implemented('::=');
+// infixmap['->'] not needed thanks to modifierOp special handling
+infixmap[';'] = infix_semicolon;
 
 /*jshint +W069 */
 
+function operator_not_implemented(name) {
+    var first = true;
+    return function(args, modifs) {
+        if (first) {
+            console.error("Operator " + name + " is not supported yet.");
+            first = false;
+        }
+        return nada;
+    };
+}
 
 //****************************************************************
 // this function is responsible for evaluation an expression tree
