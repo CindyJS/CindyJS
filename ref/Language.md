@@ -34,7 +34,6 @@ CindyScript considers the following Unicode characters to be whitespace:
 * U+0020 (space)
 * U+0009 (horizontal tab)
 * U+000A (line feed)
-* U+000C (form feed)
 * U+000D (carriage return)
 
 Whitespace is conceptually removed before tokenization,
@@ -46,7 +45,7 @@ so identifiers may contain space characters and even line breaks.
     < 123.45
     > a
     > 	b
-    > c
+    > 		c
     < 123.45
     > re ver se ([1,2,3])
     < [3, 2, 1]
