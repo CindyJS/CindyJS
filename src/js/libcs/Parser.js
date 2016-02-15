@@ -291,20 +291,12 @@ function infixOp(code, bestbinding, oper) {
 }
 
 function isPureNumber(code) {
-    return code !== "" && !isNaN(code);
+    return /^[0-9]+$/.test(code);
 }
 
 
 function isNumber(code) {
-
-    var a = code.indexOf('.');
-    var b = code.lastIndexOf('.');
-    if (a !== b) return false;
-    if (a === -1) {
-        return isPureNumber(code);
-    } else {
-        return isPureNumber(code.substring(0, a)) && isPureNumber(code.substring(a + 1));
-    }
+    return /^[0-9]+(?:\.[0-9])*|\.[0-9]*$/.test(code);
 }
 
 
