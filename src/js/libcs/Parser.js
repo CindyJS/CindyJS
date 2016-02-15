@@ -219,7 +219,7 @@ function definitionDot(code, bestbinding, oper) {
     if (isNumber(code)) {
         var erg = {};
         erg.value = {
-            'real': parseFloat(code),
+            'real': code === '.' ? 0 : +code,
             'imag': 0
         };
         erg.ctype = 'number';

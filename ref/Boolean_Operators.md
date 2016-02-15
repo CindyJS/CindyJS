@@ -181,7 +181,14 @@ This operator is similar to **&gt;** but tests for **less than or equal to**.
 
 ------
 
-#####  Fuzzy comparisons: `~=`, `~!=`, `~<`, `~>`, `~>=`, `~<=`
+####  Fuzzy comparisons:
+
+##### Approximately equal: `‹expr1› ~= ‹expr2›`
+##### Not approximately equal: `‹expr1› ~!= ‹expr2›`
+##### Greater or approximately equal: `‹expr1› ~>= ‹expr2›`
+##### Less or approximately equal: `‹expr1› ~<= ‹expr2›`
+##### Not greater or approximately equal: `‹expr1› ~< ‹expr2›`
+##### Not less or approximately equal: `‹expr1› ~> ‹expr2›`
 
 **Description:**
 CindyScript provides a *fuzzy* variant for each comparison operator.

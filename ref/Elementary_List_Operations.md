@@ -63,22 +63,22 @@ This operator returns either `true` or `false` depending on whether `‹list›`
 
 ###  List Manipulation
 
-#### Concatenation of lists: `concat(‹list1›,‹list2›)`
+#### Concatenation of lists: `‹list1› ++ ‹list2›`
+#### Concatenation of lists function: `concat(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list by concatenation of two other lists.
-This operator can equivalently be written as `‹list1›++‹list2›`.
 
     > concat(["a", "b"], ["c", "d"])
     < ["a", "b", "c", "d"]
 
 ------
 
-#### Removing elements from lists: `remove(‹list1›,‹list2›)`
+#### Removing elements from lists: `‹list1› -- ‹list2›`
+#### Removing elements from lists function: `remove(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list by removing all elements that occur in `‹list2›` from `‹list1›`.
-This operator can equivalently be written as `‹list1› -- ‹list2›`.
 
     > remove([1,3,4,5,1,5,6], [1,3,7])
     < [4, 5, 5, 6]
@@ -87,7 +87,8 @@ This operator can equivalently be written as `‹list1› -- ‹list2›`.
 
 ------
 
-#### Intersection of lists: `common(‹list1›,‹list2›)`
+#### Intersection of lists: `‹list1› ~~ ‹list2›`
+#### Intersection of lists function: `common(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list collecting all elements that are in both `‹list1›` and `‹list1›`.
@@ -101,11 +102,11 @@ This operator can equivalently be written as `‹list1›~~‹list2›`.
 
 ------
 
-#### Appending an element: `append(‹list›,‹expr›)`
+#### Appending an element: `‹list› :> ‹expr›`
+#### Appending an element function: `append(‹list›,‹expr›)`
 
 **Description:**
 This operator returns a list that is created by appending `‹expr›` to the list `‹list›` as its last element.
-This operator can equivalently be written as `‹list›:>‹expr›`.
 
     > append(["a", "b", "c"], "d")
     < ["a", "b", "c", "d"]
@@ -114,11 +115,11 @@ This operator can equivalently be written as `‹list›:>‹expr›`.
 
 ------
 
-#### Prepending an element: `prepend(‹expr›,‹list›)`
+#### Prepending an element: `‹expr› <: ‹list›`
+#### Prepending an element function: `prepend(‹expr›,‹list›)`
 
 **Description:**
 This operator returns a list that is created by prepending `‹expr›` to the list `‹list›` as its first element.
-This operator can equivalently be written as `‹expr›<:‹list›`.
 
     > prepend("d",["a", "b", "c"])
     < ["d", "a", "b", "c"]
