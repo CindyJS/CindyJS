@@ -236,8 +236,8 @@ CindyJS knows about the following operators, in order of precedence:
 1. [`=`](Variables_and_Functions.md#defining-variables),
    [`:=`](Variables_and_Functions.md#defining-functions),
    [`::=`](Variables_and_Functions.md#binding-variables-to-functions),
-   `:=_` *(unofficial)*
-1. [`->`](General_Concepts.md#modifiers)
+   `:=_` *(unofficial)*,
+   [`->`](General_Concepts.md#modifiers)
 1. [`;`](General_Concepts.md#control-flow)
 
 Operators of equal precedence are left-associative.
