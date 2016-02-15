@@ -48,7 +48,7 @@ There are more elegant ways.
 #### Testing for containment: `contains(‹list›,‹expr›)`
 
 **Description:**
-This operator returns either `true` or `false` depending on whether `‹list›` contains the element &lt;expr&gt;.
+This operator returns either `true` or `false` depending on whether `‹list›` contains the element `‹expr›`.
 
     > contains([1,3,4,5],4)
     < true
@@ -229,7 +229,7 @@ These numbers are the primes.
 #### Selecting elements of a list: `select(‹list›,‹var›,‹boolexpr›)`
 
 **Description:**
-Similar to `select(‹list›,‹boolexpr›)`, but the run variable is now named &lt;var&gt;.
+Similar to `select(‹list›,‹boolexpr›)`, but the run variable is now named ‹var›.
 The variable is local to the expression.
 
     > v = 996;

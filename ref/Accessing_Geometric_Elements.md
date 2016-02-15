@@ -310,14 +310,14 @@ Also, it gives you fine grained control over all properties.
 **Not available in CindyJS yet!**
 
 **Description:**
-Sets the user attribute of &lt;geo&gt; identified by &lt;string1&gt; to the value &lt;string2&gt;.
+Sets the user attribute of ‹geo› identified by ‹string1› to the value ‹string2›.
 
 #### Read a user attribute: `attribute(‹geo›,‹string›)`
 
 **Not available in CindyJS yet!**
 
 **Description:**
-Returns the user attribute identified by &lt;string&gt; of the geometric element &lt;geo&gt; .
+Returns the user attribute identified by ‹string› of the geometric element ‹geo› .
 
 Both versions of the attribute function are mainly used for interaction with the [Visage Extension](Visage.md).
 

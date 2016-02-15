@@ -131,7 +131,7 @@ This code generates a file with the following content:
 **Not available in CindyJS yet!**
 
 **Description:**
-Opens a browser with the webpage given in &lt;string&gt;.
+Opens a browser with the webpage given in ‹string›.
 
 ------
 

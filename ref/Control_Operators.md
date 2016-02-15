@@ -25,7 +25,7 @@ This code fragment prints a message on the console, if `x` has a negative value.
     * x is now negative
 
 **Return value:**
-In this case the return value of the `if`-function is &lt;expr&gt;.
+In this case the return value of the `if`-function is ‹expr›.
 Otherwise, `___` is returned.
 
     > x = 5; if(x<0, -1);
@@ -91,7 +91,7 @@ This code fragment takes a geometric element *A* (most probably a point) and set
 The `trigger` operator is very similar to the `if` operator.
 In contrast to `if`, the `trigger` operator has a dynamic flavor.
 The expression `‹expr›` is evaluated whenever `‹bool›` changes from `false` to `true`.
-This means that during the dragging of a construction, &lt;expr&gt; is evaluated, if &lt;bool&gt; was `false` in the previous instance and is now `true`.
+This means that during the dragging of a construction, ‹expr› is evaluated, if &lt;bool&gt; was `false` in the previous instance and is now `true`.
 The purpose of this operator is to trigger side effects whenever some event occurs while the construction is being dragged.
 The following code fragment demonstrates this behavior.
 
@@ -328,7 +328,7 @@ Again the variable is local to the expression.
 **Not available in CindyJS yet!**
 
 **Description:**
-This operator forces the evaluation of the expression &lt;expr&gt;.
+This operator forces the evaluation of the expression ‹expr›.
 Free variables of the expression can be substituted using a list of modifiers.
 The variables for the substitution are assigned only locally.
 Afterwards, the variables are set to the values they had before the evaluation.
