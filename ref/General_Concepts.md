@@ -125,14 +125,10 @@ The basic types of [CindyScript](CindyScript.md) are
 
 *  ‹number›: Any numeric value.
 Numbers can be integers, real numbers, or complex numbers.
-
 *  ‹list›: A list of arbitrary objects.
 Such a list may semantically also have the meaning of a vector or matrix.
-
 *  ‹string›: A text expression.
-
 *  ‹geo›: A geometric object that belongs to a construction.
-
 *  ‹boolean›: A value `true` or `false`.
 
 The number type is particularly powerful, since it can contain integers, floating-point numbers, and complex numbers.
