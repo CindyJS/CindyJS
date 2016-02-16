@@ -19,6 +19,7 @@ function runAllTests(files) {
         files.push(path.join(refdir, filename));
     });
   }
+  files.sort();
   files.forEach(runTestFile);
   if (exportJSON) {
     println(numtests + " tests extracted");
@@ -351,14 +352,31 @@ FakeCanvas.prototype.measureText = function(txt) {
   };
 });
 
-if (process.argv.length >= 3 && /^--exportJSON[=]/.test(process.argv[2])) {
+module.exports.runAllTests = runAllTests;
+
+module.exports.collectJSON = function(files) {
   exportJSON = [];
-  runAllTests(process.argv.slice(3));
+  runAllTests(files || []);
   exportJSON = Array.prototype.concat.apply([], exportJSON);
   exportJSON = exportJSON.map(function(testcase) { return testcase.asJSON(); });
-  exportJSON = JSON.stringify(exportJSON, null, 2);
-  fs.writeFileSync(process.argv[2].replace(/.*?=/, ""), exportJSON);
-  process.exit(0);
+  return exportJSON;
+};
+
+module.exports.writeJSON = function(outname, files) {
+  var json = module.exports.collectJSON(files);
+  json = JSON.stringify(json, null, 2);
+  fs.writeFileSync(outname, json);
+};
+
+module.exports.cli = function(argv) {
+  if (!argv) argv = process.argv.slice(2);
+  if (argv.length >= 1 && /^--exportJSON[=]/.test(argv[0])) {
+    module.exports.writeJSON(argv[0].replace(/.*?=/, ""));
+    process.exit(0);
+  }
+  runAllTests(argv);
 }
 
-runAllTests(process.argv.slice(2));
+if (require.main === module) {
+    module.exports.cli();
+}

@@ -442,6 +442,9 @@ var globalInstance = {
     "evalcs": function(code) {
         return evaluate(analyse(condense(code), false));
     },
+    "parse": function(code) {
+        return analyse(condense(code));
+    },
     "niceprint": niceprint,
     "canvas": null, // will be set during startup
 };
