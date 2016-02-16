@@ -308,11 +308,16 @@ webgltr["random"] = [
 
 
 webgltr['arctan2'] = [
-  [float_fun$2, usefunction('atan')],
-  [complex_fun$2, useincludefunction('arctanc')]
-  //- ("arctan2", 1, OpArcTan2_1.class); @done(2015-03-17)
-  //  {args:[{type: "list", length: 2, members: type.float}], res: type.float},
-  //  {args:[{type: "list", length: 2, members: type.complex}], res: type.complex}
+  [float_fun$2, args => ("atan(" + args[1] + ", " + args[0] + ")")], //reverse order
+  [complex_fun$2, useincludefunction('arctan2c')],
+  [{
+    args: [type.vec2],
+    res: type.float
+  }, args => ("atan(" + args[0] + ".y, " + args[0] + ".x)")], //reverse order
+  [{
+    args: [type.vec2complex],
+    res: type.complex
+  }, (args, cb) => useincludefunction('arctan2c')([args[0] + ".xy", args[0] + ".zw"], cb)]
 ];
 
 
@@ -439,7 +444,10 @@ requires['arccosc'] = ['multc', 'negc', 'sqrtc', 'addc', 'logc'];
 requires['arcsinc'] = ['multc', 'negc', 'sqrtc', 'addc', 'logc'];
 requires['tanc'] = ['sinc', 'cosc', 'divc'];
 requires['arctanc'] = ['logc', 'addc', 'multc', 'subc'];
-
+requires['arctan2c'] = ['logc', 'divc', 'sqrtc', 'multc'];
 requires['hue'] = ['hsv2rgb'];
+
+
+
 
 Object.freeze(requires);

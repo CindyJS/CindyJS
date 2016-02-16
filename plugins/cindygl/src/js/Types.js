@@ -241,18 +241,10 @@ typeinference["arctan2"] = [
   float_fun$2, complex_fun$2,
   //- ("arctan2", 1, OpArcTan2_1.class); @done(2015-03-17)
   {
-    args: [{
-      type: "list",
-      length: 2,
-      members: type.float
-    }],
+    args: [type.vec2],
     res: type.float
   }, {
-    args: [{
-      type: "list",
-      length: 2,
-      members: type.complex
-    }],
+    args: [type.vec2complex],
     res: type.complex
   }
 ];
