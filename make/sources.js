@@ -10,7 +10,7 @@ exports.libcs = [
     "src/js/libcs/Operators.js",
     "src/js/libcs/OpDrawing.js",
     "src/js/libcs/OpImageDrawing.js",
-    "src/js/libcs/Parser.js",
+    "src/js/libcs/Evaluator.js",
     "src/js/libcs/OpSound.js",
     "src/js/libcs/CSad.js",
     "src/js/libcs/Render2D.js",
