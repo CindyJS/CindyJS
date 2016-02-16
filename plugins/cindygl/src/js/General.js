@@ -140,3 +140,10 @@ function generateUniqueHelperString() {
   helpercnt++;
   return '_helper' + helpercnt;
 }
+
+function enlargeCanvasIfRequired(sizeX, sizeY) {
+  if (sizeX > glcanvas.width || sizeY > glcanvas.height) {
+    glcanvas.width = Math.ceil(sizeX);
+    glcanvas.height = Math.ceil(sizeY);
+  }
+}
