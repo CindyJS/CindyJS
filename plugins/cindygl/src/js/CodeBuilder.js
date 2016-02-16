@@ -673,8 +673,14 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
 
     } else { //cindyscript-function
       fname = getPlainName(fname);
-      //  if(fname === 'regional')
-      //    return (generateTerm ? {term: '', type: voidt, code: ''} : {code: ''});
+      if (fname === 'regional')
+        return (generateTerm ? {
+          term: '',
+          type: voidt,
+          code: ''
+        } : {
+          code: ''
+        });
       let signature = matchSignature(fname, currenttype);
       if (signature === nada) {
         console.error("Could not find a signature for " + fname + '(' + currenttype.map(typeToString).join(', ') + ').\n' +
