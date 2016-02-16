@@ -41,7 +41,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
   });
 
   /**
-   * plots colorplot on main canvas in CindyJS coordinates
+   * plots colorplot on whole main canvas in CindyJS coordinates
    */
   api.defineFunction("colorplot", 1, function(args, modifs) {
     initGLIfRequired();
@@ -69,6 +69,62 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     compileAndRender(prog, transf(0, ch), transf(cw, ch), iw, ih, null);
     let csctx = api.instance['canvas'].getContext('2d');
     csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, cw, ch);
+    return nada;
+  });
+
+  /**
+   * plots colorplot on main canvas in CindyJS coordinates in the rectangle bounded by two points (as in Cinderella: coloplot(<expr>, <vec>, <vec>))
+   */
+  api.defineFunction("colorplot", 3, function(args, modifs) {
+    initGLIfRequired();
+
+    var prog = args[0];
+    var a = api.extractPoint(api.evaluateAndVal(args[1]));
+    var b = api.extractPoint(api.evaluateAndVal(args[2]));
+
+    var ll = {
+      x: Math.min(a.x, b.x),
+      y: Math.min(a.y, b.y)
+    }; //lower left pt
+    var lr = {
+      x: Math.max(a.x, b.x),
+      y: Math.min(a.y, b.y)
+    }; //lower right pt
+
+    let cw = api.instance['canvas']['clientWidth']; //CSS pixels
+    let ch = api.instance['canvas']['clientHeight'];
+
+    let iw = api.instance['canvas']['width']; //internal measures. might be twice as cw on HiDPI-Displays
+    let ih = api.instance['canvas']['height'];
+
+    let m = api.getInitialMatrix();
+    let transf = function(px, py) { //copied from Operators.js
+      var xx = px - m.tx;
+      var yy = py + m.ty;
+      var x = (xx * m.d - yy * m.b) / m.det;
+      var y = -(-xx * m.c + yy * m.a) / m.det;
+      var erg = {
+        x: x,
+        y: y
+      };
+      return erg;
+    };
+
+    let fx = Math.abs((a.x - b.x) / (transf(cw, 0).x - transf(0, 0).x)); //x-ratio of screen that is used
+    let fy = Math.abs((a.y - b.y) / (transf(0, ch).y - transf(0, 0).y)); //y-ratio of screen that is used
+
+    compileAndRender(prog, ll, lr, iw * fx, ih * fy, null);
+    let csctx = api.instance['canvas'].getContext('2d');
+    //csctx.drawImage(glcanvas, 0, 0, iw*fx, ih*fy, ll.x, ll.y, cw, ch);
+
+    let pt = {
+      x: Math.min(a.x, b.x),
+      y: Math.max(a.y, b.y)
+    };
+    var xx = pt.x * m.a - pt.y * m.b + m.tx;
+    var yy = pt.x * m.c - pt.y * m.d - m.ty;
+
+    csctx.drawImage(glcanvas, 0, glcanvas.height - ih * fy, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
     return nada;
   });
 
