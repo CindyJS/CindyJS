@@ -2,6 +2,7 @@
 
 var myfunctions = {};
 
+/*
 var operators = {};
 operators[':'] = 20; // Access to user-defined fields
 operators['.'] = 25; // Field access
@@ -42,6 +43,8 @@ operators['::='] = 400; // binding function definition
 operators['->'] = 400; // modifier
 operators[';'] = 500; // sequence of statements
 //operators[','] = 510 is the list element separator, handled in parselist
+*/
+
 
 var infixmap = {};
 infixmap[':'] = operator_not_implemented(':');

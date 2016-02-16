@@ -109,7 +109,7 @@ function evaluateAndHomog(a) {
 // this function removes all comments spaces and newlines
 //*******************************************************
 
-function condense(code) {
+function old_condense(code) {
     var literalmode = false;
     var commentmode = false;
     var erg = '';
@@ -548,7 +548,7 @@ function bracket(code) {
 }
 
 
-function analyse(code, defining) {
+function old_analyse(code, defining) {
     var literalmode = false;
     var erg = {};
     var bra = '';
