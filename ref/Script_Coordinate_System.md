@@ -13,7 +13,7 @@ We first introduce the operators and than give a combined example.
 
 **Caution:**
 In the current version of Cinderella 2.6 the application of the transformations is not yet implemented for circles.
-For circles only euclidean transformations (rotations, translations, reflections, scalings) are supported.
+For circles only Euclidean transformations (rotations, translations, reflections, scalings) are supported.
 Affine and projective transformations will be provided in a later release.
 
 ------

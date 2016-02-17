@@ -223,7 +223,7 @@ This operator can handle the following modifiers:
 
 **Description:**
 Draws a circle at `‹point›` with radius given by a number `‹radius›`.
-The point may be given either in euclidean or in homogeneous coordinates.
+The point may be given either in Euclidean or in homogeneous coordinates.
 
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
@@ -234,7 +234,7 @@ This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
 **Description:**
 Draws the interior of a circle at `‹point›` with radius given by a number `‹radius›`.
-The point may be given either in euclidean or in homogeneous coordinates.
+The point may be given either in Euclidean or in homogeneous coordinates.
 
 **Modifiers:**
 This operator can handle the following modifiers:
@@ -262,7 +262,7 @@ The following piece of code shows a combined usage of the `drawcircle` and the `
 **Description:**
 Draws a circular arc from `‹point1›` to `‹point3›` via `‹point2›`.
 
-The points may be given either in euclidean or in homogeneous coordinates.
+The points may be given either in Euclidean or in homogeneous coordinates.
 
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
@@ -273,7 +273,7 @@ This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
 **Description:**
 Draws the interior of a circular arc `‹point1›` to `‹point3›` via `‹point2›`.
-The points may be given either in euclidean or in homogeneous coordinates.
+The points may be given either in Euclidean or in homogeneous coordinates.
 
 **Modifiers:**
 This operator can handle the following modifiers:
