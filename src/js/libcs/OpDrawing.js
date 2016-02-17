@@ -281,30 +281,14 @@ eval_helper.drawcircle = function(args, modifs, df) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
-    function magic_circle(ctx, x, y, r) {
-        m = 0.551784;
-
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(r, r);
-
-        ctx.beginPath();
-        ctx.moveTo(1, 0);
-        ctx.bezierCurveTo(1, -m, m, -1, 0, -1);
-        ctx.bezierCurveTo(-m, -1, -1, -m, -1, 0);
-        ctx.bezierCurveTo(-1, m, -m, 1, 0, 1);
-        ctx.bezierCurveTo(m, 1, 1, m, 1, 0);
-        ctx.closePath();
-        ctx.restore();
-    }
-
-
     var pt = eval_helper.extractPoint(v0);
 
 
-    if (!pt.ok || v1.ctype !== 'number') {
+    if (!pt.ok || v1.ctype !== 'number' || !CSNumber._helper.isAlmostReal(v1)) {
         return nada;
     }
+
+    /* CanvasRenderingContext2D.arc in Chrome is buggy. See #259
     var m = csport.drawingstate.matrix;
 
     var xx = pt.x * m.a - pt.y * m.b + m.tx;
@@ -315,7 +299,6 @@ eval_helper.drawcircle = function(args, modifs, df) {
 
     csctx.beginPath();
     csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
-    //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
 
 
     if (df === "D") {
@@ -328,6 +311,20 @@ eval_helper.drawcircle = function(args, modifs, df) {
     if (df === "C") {
         csctx.clip();
     }
+    */
+
+    var xx = pt.x;
+    var yy = pt.y;
+    var rad = v1.value.real;
+
+
+    var cMat = List.realMatrix([
+        [1, 0, -xx],
+        [0, 1, -yy],
+        [-xx, -yy, xx * xx + yy * yy - rad * rad]
+    ]);
+
+    eval_helper.drawconic(cMat, modifs);
 
     return nada;
 };
