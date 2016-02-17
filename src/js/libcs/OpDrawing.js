@@ -281,53 +281,49 @@ eval_helper.drawcircle = function(args, modifs, df) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
-    function magic_circle(ctx, x, y, r) {
-        m = 0.551784;
-
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(r, r);
-
-        ctx.beginPath();
-        ctx.moveTo(1, 0);
-        ctx.bezierCurveTo(1, -m, m, -1, 0, -1);
-        ctx.bezierCurveTo(-m, -1, -1, -m, -1, 0);
-        ctx.bezierCurveTo(-1, m, -m, 1, 0, 1);
-        ctx.bezierCurveTo(m, 1, 1, m, 1, 0);
-        ctx.closePath();
-        ctx.restore();
-    }
-
-
     var pt = eval_helper.extractPoint(v0);
 
 
-    if (!pt.ok || v1.ctype !== 'number') {
+    if (!pt.ok || v1.ctype !== 'number' || !CSNumber._helper.isAlmostReal(v1)) {
         return nada;
     }
-    var m = csport.drawingstate.matrix;
 
-    var xx = pt.x * m.a - pt.y * m.b + m.tx;
-    var yy = pt.x * m.c - pt.y * m.d - m.ty;
+    /*
+       var m = csport.drawingstate.matrix;
 
-    Render2D.handleModifs(modifs, Render2D.conicModifs);
-    Render2D.preDrawCurve();
+       var xx = pt.x * m.a - pt.y * m.b + m.tx;
+       var yy = pt.x * m.c - pt.y * m.d - m.ty;
+       Render2D.handleModifs(modifs, Render2D.conicModifs);
+       Render2D.preDrawCurve();
 
-    csctx.beginPath();
-    csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
-    //  magic_circle(csctx,xx,yy,v1.value.real*m.sdet);
+       csctx.beginPath();
+        csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
 
 
-    if (df === "D") {
-        csctx.stroke();
-    }
-    if (df === "F") {
-        csctx.fillStyle = Render2D.lineColor;
-        csctx.fill();
-    }
-    if (df === "C") {
-        csctx.clip();
-    }
+       if (df === "D") {
+           csctx.stroke();
+       }
+       if (df === "F") {
+           csctx.fillStyle = Render2D.lineColor;
+           csctx.fill();
+       }
+       if (df === "C") {
+           csctx.clip();
+       }
+     
+     */
+    var xx = pt.x;
+    var yy = pt.y;
+    var rad = v1.value.real;
+
+
+    var cMat = List.realMatrix([
+        [1, 0, -xx],
+        [0, 1, -yy],
+        [-xx, -yy, xx * xx + yy * yy - rad * rad]
+    ]);
+
+    eval_helper.drawconic(cMat, modifs);
 
     return nada;
 };
