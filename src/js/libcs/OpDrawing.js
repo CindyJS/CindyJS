@@ -288,7 +288,6 @@ eval_helper.drawcircle = function(args, modifs, df) {
         return nada;
     }
 
-    /* CanvasRenderingContext2D.arc in Chrome is buggy. See #259
     var m = csport.drawingstate.matrix;
 
     var xx = pt.x * m.a - pt.y * m.b + m.tx;
@@ -311,8 +310,9 @@ eval_helper.drawcircle = function(args, modifs, df) {
     if (df === "C") {
         csctx.clip();
     }
-    */
 
+    /* CanvasRenderingContext2D.arc in Chrome is buggy. See #259
+     * But drawconic doesn't handle filling, so it's no replacement.
     var xx = pt.x;
     var yy = pt.y;
     var rad = v1.value.real;
@@ -325,6 +325,7 @@ eval_helper.drawcircle = function(args, modifs, df) {
     ]);
 
     eval_helper.drawconic(cMat, modifs);
+    */
 
     return nada;
 };
