@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+  drawcircle([3.4652946678, 0.9609442573], 4.0714703598);
+  drawcircle([-8.6989520431, -179.1999199497], 178.949860468);
+  drawcircle([-6.641836753, -148.7326269682], 149.375895162);
+  drawcircle([3.5120981909, 1.6541366409], 3.3986029831);
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  ports: [{
+    id: "CSCanvas",
+    width: 881,
+    height: 523,
+    transform: [ { visibleRect: [ -18.790715287517532, 12.72288920056101, 24.752678821879382, -13.126367461430576 ] } ],
+    background: "rgb(255,255,255)"
+  }], 
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {},
+  geometry: [
+  ]
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" style="border:2px solid black"></canvas>
+  <p>Chrome in HiDPI mode used to draw the two large circles as
+    rotated squares until we changed the linejoin to miter and closed
+    the path.</p>
+</body>
+
+</html>
