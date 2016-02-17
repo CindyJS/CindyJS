@@ -298,7 +298,7 @@ eval_helper.drawcircle = function(args, modifs, df) {
     Render2D.preDrawCurve();
 
     csctx.beginPath();
-    csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
+    csctx.arc(xx, yy, Math.abs(v1.value.real) * m.sdet, 0, 2 * Math.PI);
 
 
     if (df === "D") {
