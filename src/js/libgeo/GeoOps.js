@@ -10,6 +10,8 @@ geoOps._helper = {};
  * Tr - Projective transformation
  * Mt - Moebius transformation
  * Rc - Reflection in a circle
+ * V  - (numeric) value
+ * Text - Text
  */
 
 
@@ -2327,6 +2329,60 @@ geoOps._helper.conicOtherIntersection = function(conic, a, b) {
     return res;
 };
 
+geoOps.Dist = {};
+geoOps.Dist.kind = "V";
+geoOps.Dist.signature = ["P", "P"];
+geoOps.Dist.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    el.value = List.abs(List.sub(List.normalizeZ(a), List.normalizeZ(b)));
+};
+
+geoOps.Angle = {};
+geoOps.Angle.kind = "V";
+geoOps.Angle.signature = ["L", "L", "P"];
+geoOps.Angle.initialize = function(el) {
+    if (el.angle === undefined)
+        el.angle = 0.5 * Math.PI;
+    putStateComplexNumber(CSNumber._helper.input(el.angle));
+};
+geoOps.Angle.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    var p = csgeo.csnames[el.args[2]].homog;
+    var ap = List.cross(a, List.linfty);
+    var bp = List.cross(b, List.linfty);
+    var cr = List.crossratio3(ap, bp, List.ii, List.jj, p);
+    var ang = CSNumber.mult(CSNumber.complex(0, 0.5), CSNumber.log(cr));
+    var prev = getStateComplexNumber();
+    var diff = (prev.value.real - ang.value.real) / Math.PI;
+    var winding = Math.round(diff);
+    if (!tracingInitial && Math.abs(winding - diff) > 1e-2)
+        requestRefinement();
+    ang = CSNumber.complex(winding * Math.PI + ang.value.real, ang.value.imag);
+    putStateComplexNumber(ang);
+    el.value = General.withUsage(ang, "Angle");
+};
+geoOps.Angle.stateSize = 2;
+
+geoOps.TextImpl = {};
+geoOps.TextImpl.kind = "Text";
+geoOps.TextImpl.signature = [];
+geoOps.TextImpl.updatePosition = noop;
+geoOps.TextImpl.initialize = function(el) {
+    el.text = String(el.text);
+    el.size = CSNumber.real(el.size ? +el.size : defaultAppearance.textsize);
+    if (el.pos) el.pos = geoOps._helper.initializePoint(el);
+    if (el.dock) {
+        if (el.dock.offset && el.dock.offset.length === 2)
+            el.dock.offset = List.realVector([+el.dock.offset[0], +el.dock.offset[1]]);
+        else
+            el.dock.offset = List.realVector([0, 0]);
+    }
+};
+
+function noop() {}
+
 geoOps._helper.initializePoint = function(el) {
     var sx = 0;
     var sy = 0;
@@ -2502,4 +2558,14 @@ geoMacros.TrReflection = function(el) {
         console.log(op + " not implemented yet");
         return [];
     }
+};
+
+geoMacros.Text = function(el) {
+    // Cinderella exports elements this text depends on, like the one this text
+    // was docked to, or elements whose coordinates are used in the expansion.
+    // Since we don't need to trace Text, and always repaint everything, we
+    // don't need this information at the moment.  Thus the indirection.
+    el.type = "TextImpl";
+    el.args = [];
+    return [el];
 };

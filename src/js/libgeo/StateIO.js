@@ -18,6 +18,7 @@ var attributesToClone = [
     "color",
     "dashtype",
     //"dir", // Through, not needed if we export pos
+    //"dock", // needs dedicated code
     "drawtrace",
     //"dualMatrix", // output for conic
     //"endPoint", // output for arc
@@ -88,6 +89,14 @@ function savePos(el) {
     }
 }
 
+function saveDockingInfo(dock) {
+    var res = {};
+    res.offset = General.unwrap(dock.offset);
+    if (dock.to) res.to = dock.to; // String
+    if (dock.corner) res.corner = dock.corner; // String
+    return res;
+}
+
 function saveGeoElement(el) {
     var res = {};
     attributesToClone.forEach(function(key) {
@@ -98,6 +107,7 @@ function saveGeoElement(el) {
     });
     var pos = savePos(el);
     if (pos) res.pos = pos;
+    if (el.dock) res.dock = saveDockingInfo(el.dock);
     return res;
 }
 

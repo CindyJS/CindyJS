@@ -50,6 +50,7 @@ function csinit(gslp) {
     csgeo.points = [];
     csgeo.lines = [];
     csgeo.conics = [];
+    csgeo.texts = [];
     csgeo.free = [];
 
     gslp.forEach(addElement);
@@ -203,6 +204,9 @@ function addElement(el) {
     if (el.kind === "S") {
         csgeo.lines.push(el);
         segmentDefault(el);
+    }
+    if (el.kind === "Text") {
+        csgeo.texts.push(el);
     }
 
     if (true || op.stateSize !== 0) {
