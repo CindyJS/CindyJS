@@ -335,6 +335,7 @@ module.exports = function build(settings, task) {
     ];
 
     task("cglres", [], function() {
+        cgl_str_res.forEach(this.input, this);
         this.node(
             "tools/files2json.js",
             "-varname=cgl_resources",
