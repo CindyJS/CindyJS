@@ -443,7 +443,6 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 
   computeUniforms(expr, '');
   this.uniforms = uniforms;
-  console.log(this.uniforms);
 };
 
 

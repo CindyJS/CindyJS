@@ -16,7 +16,7 @@
     </script>
     <script id="csmove" type="text/x-cindyscript">
       f(z) := arctan2(z,complex(A)); //arctan2 with complex arguments
-      colorplot(r = f(complex(#)); hue(arctan2(re(r), im(r))/2/pi)); //standard phase portrait of function f, arctan2 with real arguments
+      colorplot(hue(arctan2(f(complex(#)))/2/pi)); //standard phase portrait of function f, arctan2 with complex number as argument
     </script>
     
 
