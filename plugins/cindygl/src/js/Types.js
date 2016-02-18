@@ -694,7 +694,7 @@ typeinference["if"] = [{
   //- ("if", 2, OpIf.class);  error @done(2015-03-17)
   {
     args: [type.bool, template1],
-    res: type.voidt
+    res: template1
   }
 ];
 //- ("trigger", 2, OpTrigger.class); @rethink
