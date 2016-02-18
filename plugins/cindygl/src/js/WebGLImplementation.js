@@ -310,14 +310,15 @@ webgltr["random"] = [
 webgltr['arctan2'] = [
   [float_fun$2, args => ("atan(" + args[1] + ", " + args[0] + ")")], //reverse order
   [complex_fun$2, useincludefunction('arctan2c')],
+  [complex2float_fun$1, useincludefunction('arctan2vec2')], //one complex argument
   [{
     args: [type.vec2],
     res: type.float
-  }, args => ("atan(" + args[0] + ".y, " + args[0] + ".x)")], //reverse order
+  }, useincludefunction('arctan2vec2')],
   [{
     args: [type.vec2complex],
     res: type.complex
-  }, (args, cb) => useincludefunction('arctan2c')([args[0] + ".xy", args[0] + ".zw"], cb)]
+  }, useincludefunction('arctan2vec2c')]
 ];
 
 
@@ -445,6 +446,7 @@ requires['arcsinc'] = ['multc', 'negc', 'sqrtc', 'addc', 'logc'];
 requires['tanc'] = ['sinc', 'cosc', 'divc'];
 requires['arctanc'] = ['logc', 'addc', 'multc', 'subc'];
 requires['arctan2c'] = ['logc', 'divc', 'sqrtc', 'multc'];
+requires['arctan2vec2c'] = ['arctan2c'];
 requires['hue'] = ['hsv2rgb'];
 
 

@@ -39,7 +39,7 @@ function cloneExpression(obj) {
             'body'
           ].indexOf(attr) >= 0)
           copy[attr] = cloneExpression(obj[attr]);
-        else console.log("Did not copy " + attr);
+        //else console.log("Did not clone " + attr);
       }
     }
     return copy;

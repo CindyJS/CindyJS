@@ -238,7 +238,7 @@ typeinference["arctan"] = [
 ];
 //- ("arctan2", 2, OpArcTan2.class); @done(2015-03-17)
 typeinference["arctan2"] = [
-  float_fun$2, complex_fun$2,
+  float_fun$2, complex_fun$2, complex2float_fun$1,
   //- ("arctan2", 1, OpArcTan2_1.class); @done(2015-03-17)
   {
     args: [type.vec2],
