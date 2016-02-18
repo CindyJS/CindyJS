@@ -1113,7 +1113,7 @@ eval_helper.quadratic_roots = function(cs) {
         b = cs.value[1],
         c = cs.value[0];
     if (CSNumber._helper.isZero(c))
-        return List.turnIntoCSList([CSNumber.zero, CSNumber.neg(CSNumber.div(b, a))]);
+        return [CSNumber.zero, CSNumber.neg(CSNumber.div(b, a))];
     var r = CSNumber.sqrt(CSNumber.sub(CSNumber.mult(b, b), CSNumber.mult(CSNumber.real(4.0), CSNumber.mult(a, c))));
     if (CSNumber.re(b) >= 0.0)
         r = CSNumber.neg(r);
