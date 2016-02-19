@@ -273,16 +273,22 @@ webgltr["floor"] = [
   [{
     args: [type.float],
     res: type.int
-  }, (a => 'int(floor(' + a + '))')]
-  //TODO{args: [type.complex], res: type.complex}
+  }, (a => 'int(floor(' + a + '))')],
+  [{
+    args: [type.complex],
+    res: type.complex
+  }, usefunction('floor')]
 ];
 
 webgltr["round"] = [
   [{
     args: [type.float],
     res: type.int
-  }, (a => 'int(floor(' + a + '+.5))')]
-  //TODO{args: [type.complex], res: type.complex}
+  }, (a => 'int(floor(' + a + '+.5))')],
+  [{
+    args: [type.complex],
+    res: type.complex
+  }, (a => 'floor(' + a + '+vec2(.5))')]
 ];
 
 //- ("ceil", 1, OpCeil.class); @done(2015-03-17)
@@ -290,20 +296,24 @@ webgltr["ceil"] = [
   [{
     args: [type.float],
     res: type.int
-  }, (a => 'int(ceil(' + a + '))')]
-  //TODO{args: [type.complex], res: type.complex}
+  }, (a => 'int(ceil(' + a + '))')],
+  [{
+    args: [type.complex],
+    res: type.complex
+  }, usefunction('ceil')]
 ];
 
 webgltr["mod"] = [
   [int_fun$2, useinfix('%')],
-  [float_fun$2, usefunction('mod')]
-  //complex_fun$2 TODO
+  [float_fun$2, usefunction('mod')],
+  //[complex_fun$2, useincludefunction('modc')]
 ];
 
 webgltr["random"] = [
-  [float_fun$0, useincludefunction('random')]
-  //float_fun$1,
-  //complex_fun$1
+  [float_fun$0, useincludefunction('random')],
+  [float_fun$1, (a, cb) => (useincludefunction('random')([], cb) + '*' + a[0])],
+  [complex_fun$1, (a, cb) => ('vec2(' + useincludefunction('random')([], cb) + ',' + useincludefunction('random')([], cb) + ')*' + a[0])]
+
 ];
 
 

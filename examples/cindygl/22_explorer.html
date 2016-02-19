@@ -14,7 +14,7 @@
 </script>              
 
 <script id="csinit" type="text/x-cindyscript">
-f(z, a, b, c, d, e) := (1-a)*(1+a);
+f(z, a, b, c, d, e, A, B, C, D) := (1-a)*(1+a);
 
 grid1=true;   
 grid2=true;
@@ -30,7 +30,7 @@ x=S.x;
 if(x<S1.x,x=S1.x);
 if(x>S2.x,x=S2.x);
 S.xy=(x,S1.y);
-speed=S.x-S1.x;
+speed=(S.x-S1.x)/2;
 
 x=R.x;
 if(x<R1.x,x=R1.x);
@@ -76,7 +76,7 @@ drawtext(E+(.03,.03),"e");
 drawtext((1,E.y)+(.05,-.1),"-1");
 drawtext((1,E.y)+(1.08,-.1),"+1");
 
-draw((1,-1),(1,1), color->(0,0,0), size->2);
+
 
 //PLOT
 
@@ -93,44 +93,34 @@ hsvToRGB(h, s, v) := (
   q = 1 - s*f;
   t = 1 - s*(1-f);
 
-             col = [1, t, p];
-  if(j == 1, col = [q, 1, p]);
-  if(j == 2, col = [p, 1, t]);
-  if(j == 3, col = [p, q, 1]);
-  if(j == 4, col = [t, p, 1]);
-  if(j == 5, col = [1, p, q]);
-  
-  col*v
+  if(j == 0, [1, t, p],
+  if(j == 1, [q, 1, p],
+  if(j == 2, [p, 1, t],
+  if(j == 3, [p, q, 1],
+  if(j == 4, [t, p, 1],
+  if(j == 5, [1, p, q]))))))*v
 );
 
-n = G.x;
 
 time = t0-seconds();
 
-color(z) := (
-  regional(n, dist, grey, grey1, w);
+color(z) := ( //what color should be given to a complex number z?
+  regional(n, grey1, grey2);
   
-  n = grid*if(bw, .5, 1)*if(linear, .5, 1);
-  z = if(!linear, log(z), 2*i*z);
+  n = 2*grid*if(bw, .5, 1)*if(linear, .5, 1);
+  z = if(!linear, log(z), 2*i*z)/2/pi + i*time*speed;
   
-  dist = re(z)/pi*n;
-  grey = dist-floor(dist);
-  w = im(z)/pi+time*speed;
-  w=w/2;
-  w=w-floor(w);
+  zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
   
-  grey1=w*n*2-floor(w*n*2);
+  grey1 = if(grid1 & n>0, im(zfract), 1);
+  grey2 = if(grid2 & n>0, re(zfract), 1);
   
   if(bw,
-    grey = if(grey<0.5, 1, -1);
     grey1 = if(grey1<0.5, 1, -1);
+    grey2 = if(grey2<0.5, 1, -1);
   );
   
-  if(!grid1, grey1=1);
-  if(!grid2, grey=1);
-    
-  
-  hsvToRGB(w, if(bw, 0, sat), .5+.5*if(bw, grey1*grey, re(sqrt(grey1*grey))))
+  hsvToRGB(im(z), if(bw, 0, sat), .5+.5*if(bw, grey1*grey2, re(sqrt(grey1*grey2))))
 );
 
 colorplot(
@@ -142,12 +132,13 @@ colorplot(
   cc = complex(C)*5;
   dc = complex(D)*5;
   
-  fval = f(z, z-ac, z-bc, z-cc, z-dc, xx);
+  fval = f(z, z-ac, z-bc, z-cc, z-dc, xx, ac, bc, cc, dc);
   
   color(fval),
   (-1,-1), (1,1)
 );
 
+draw((1,-1),(1,1), color->(0,0,0), size->2);
 
 </script>
 <script type="text/javascript">
@@ -192,8 +183,13 @@ var typ=function(e, b){
   if(chCode==13){
     console.log("*************");
     console.log(b.value);
-    cdy.evokeCS('f(z, a, b, c, d, e) := (' + b.value + '); forcerecompile();');
+    cdy.evokeCS('f(z, a, b, c, d, e, A, B, C, D) := (' + b.value + '); forcerecompile();');
   }
+}
+
+var sel=function(e, b){
+  document.getElementById("inp").value = b.value;
+  cdy.evokeCS('f(z, a, b, c, d, e, A, B, C, D) := (' + b.value + '); forcerecompile();');
 }
 
 var check1=function(){
@@ -264,7 +260,19 @@ between $-1$ and $+1$.
   <input id="ch4" onclick="check4()" type="checkbox" >black/white<br>
   </div>
 <div style="position:absolute; top:770px; left:5px; display:inline;z-index:4">
-<input type="text" name="inp" value="(1-a)*(1+a)"  onkeypress="typ(event, this)" size="72" style="font-size:18px">
+<input type="text" id="inp" value="(1-a)*(1+a)"  onkeypress="typ(event, this)" size="60" style="font-size:18px">
+<select id="sel" onchange="sel(event, this)" width="20">
+  <option>(1-a)*(1+a)</option>
+  <option>(z-A)/(z-B)</option>
+  <option>z^(1+i)</option>
+  <option>z^A</option>
+  <option>(sin(a)/sin(b))^(1+i)</option>
+  <option value="z=z/4; repeat(7, z = z*z + A/5);">Julia set</option>
+  <option value="z = 0; repeat(11, z = z*z +a/4; z = z/abs(z)*min(abs(z),10));">Mandelbrot set</option>
+  <option value="z = a/3;(1-z^(20*e))/(1-z)">Convergence of Geometric series</option>
+  <option value="repeat(5, z = z - (z^3-A)/(3*z^2));">Newton</option>
+  <option value="z=a; repeat(11, z = z - (z^3-b*c*d)/(3*z^2));">Newton-like</option>
+</select>
 </div>
 </body>
 
