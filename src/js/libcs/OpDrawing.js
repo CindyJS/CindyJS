@@ -394,31 +394,59 @@ function solveRealQuadratic(a, b, c) {
     return [hom[0][0] / hom[0][1], hom[1][0] / hom[1][1]];
 }
 
+function inRange(x, a, b) {
+    return x >= Math.min(a, b) && x <= Math.max(a, b);
+}
+
 eval_helper.drawconic = function(conicMatrix, modifs) {
 
     var debug = true;
+    if (debug) {
+        eval_helper.old_drawconic(conicMatrix, {
+            size: CSNumber.real(1.5),
+            color: List.realVector([0, 0, 1]), // blue
+        }); // for comparison
+        modifs = {
+            size: CSNumber.one,
+            color: List.realVector([0, 1, 0]), // green
+        };
+    }
 
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     if (Render2D.lsize === 0)
         return;
     Render2D.preDrawCurve();
 
-    if (debug)
-        eval_helper.old_drawconic(conicMatrix, modifs); // for comparison
-
+    var eps = 1e-14;
     var mat = List.normalizeMax(conicMatrix);
     var tmat = csport.toMat();
     mat = List.mult(List.transpose(tmat), mat);
     mat = List.mult(mat, tmat);
     mat = List.normalizeMax(mat);
 
-    // cij is the coefficient of the monomial x^i * y^j
+    // Using polynomial coefficients instead of matrix
+    // since it generalizes to higher degrees more easily.
+    // cij is the coefficient of the monomial x^i * y^j.
     var c20 = mat.value[0].value[0].value.real;
     var c11 = mat.value[0].value[1].value.real * 2;
     var c10 = mat.value[0].value[2].value.real * 2;
     var c02 = mat.value[1].value[1].value.real;
     var c01 = mat.value[1].value[2].value.real * 2;
     var c00 = mat.value[2].value[2].value.real;
+
+    var det = c20 * c02 * c00 * 4 + c11 * c01 * c10 -
+        c00 * c11 * c11 - c20 * c01 * c01 - c02 * c10 * c10;
+    if (Math.abs(det) < eps) {
+        if (debug) {
+            csctx.lineWidth = 1;
+            csctx.strokeStyle = "rgb(0,255,0)";
+        }
+        var lines = geoOps._helper.splitDegenConic(conicMatrix);
+        if (lines === nada) return;
+        evaluator.draw$1([lines[0]], modifs);
+        evaluator.draw$1([lines[1]], modifs);
+        return;
+    }
 
     var dbgpts = [];
     // Find the control points of a quadratic Bézier which at the
@@ -430,6 +458,8 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         // x * pt2.gx + y * pt2.gy = pt2.dot
         // Solve using Cramer's rule
         var denom = 1 / (pt1.gx * pt2.gy - pt2.gx * pt1.gy);
+        if (Math.abs(denom) > 1e12)
+            return csctx.lineTo(pt2.px, pt2.py);
         var cx = (pt1.dot * pt2.gy - pt2.dot * pt1.gy) * denom;
         var cy = (pt1.gx * pt2.dot - pt2.gx * pt1.dot) * denom;
         if (!(isFinite(cx) && isFinite(cy))) // Probably already linear
@@ -455,18 +485,29 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             if (sol) {
                 var x1 = mx + sol[0] * gx;
                 var y1 = my + sol[0] * gy;
-                var s1 = y1 - secondPoint(x1, y1);
                 var x2 = mx + sol[1] * gx;
                 var y2 = my + sol[1] * gy;
-                var s2 = y2 - secondPoint(x2, y2);
-                //dbgpts.push([mx, my], [x1, y1], [x2, y2]);
-                var pt3;
-                if (s1 * s2 < 0) { // different order, so we choose by that
-                    if (sign * s1 > 0) {
-                        pt3 = mkp(x1, y1);
-                    } else {
-                        pt3 = mkp(x2, y2);
+                var v1 = inRange(x1, pt1.px, pt2.px) &&
+                    inRange(y1, pt1.py, pt2.py);
+                var v2 = inRange(x2, pt1.px, pt2.px) &&
+                    inRange(y2, pt1.py, pt2.py);
+                var pt3 = null;
+                if (v1 && v2) {
+                    var s1 = y1 - secondPoint(x1, y1);
+                    var s2 = y2 - secondPoint(x2, y2);
+                    if (s1 * s2 < 0) { // different order, so we choose by that
+                        if (sign * s1 > 0) {
+                            pt3 = mkp(x1, y1);
+                        } else {
+                            pt3 = mkp(x2, y2);
+                        }
                     }
+                } else if (v1) {
+                    pt3 = mkp(x1, y1);
+                } else if (v2) {
+                    pt3 = mkp(x2, y2);
+                }
+                if (pt3) {
                     refine(pt1, pt3, sign, depth + 1);
                     refine(pt3, pt2, sign, depth + 1);
                     return;
@@ -484,6 +525,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     // rz = 2*c02  so
     // ry/rz = - x*c11/c02 - y - c01/c02
     function secondPoint(x, y) {
+        if (containsYFP) return Infinity;
         return -((x * c11 + c01) / c02 + y);
     }
 
@@ -495,10 +537,12 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             gx: gx,
             gy: gy,
             dot: px * gx + py * gy,
+            finite: isFinite(px) && isFinite(py) &&
+                isFinite(gx) && isFinite(gy),
         };
     }
 
-    // Compute tangent directions for a given point on the conic.
+    // Compute gradient directions for a given point on the conic.
     function mkp(x, y) {
         var dx = 2 * c20 * x + c11 * y + c10; // dQ/dx
         var dy = 2 * c02 * y + c11 * x + c01; // dQ/dy
@@ -509,17 +553,24 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     // in order to correctly connect them. Each entry is a list of points
     // sharing the same x coordinate, formatted by mkpg.
     var specialPoints = [];
+
+    // Special case: if (0, 1, 0), i.e. the far-point (FP) in the Y direction,
+    // lies on the conic, then we only have a single finite y coordinate for
+    // every x coordinate. We need to deal with this in several places.
+    var containsYFP = (Math.abs(c02) < eps);
+
     var i, j, x, y, y2, pt, sol;
 
-    if (Math.abs(c02) < 1e-8 || Math.abs(c20) < 1e-8) {
-        // TODO: Handle cases where (1,0,0) or (0,1,0) lie on the conic.
-        if (!debug)
-            eval_helper.old_drawconic(conicMatrix, modifs);
-        return;
+    // Find points with horizontal or vertical tangents
+
+    if (containsYFP) {
+        // The vertical asymptote is a double double point at infinity
+        x = -c01 / c11;
+        pt = mkpg(x, Infinity, 1, 0);
+        specialPoints.push([pt, pt]);
+        pt = mkpg(x, Infinity, 1, 0);
+        specialPoints.push([pt, pt]); // This is a double double point
     } else {
-
-        // Find points with horizontal or vertical tangents
-
         // Compute the roots of the y discriminant
         // for points with vertical tangents
         sol = solveRealQuadratic(
@@ -533,7 +584,9 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
                 pt = mkpg(x, y, 1, 0);
                 specialPoints.push([pt, pt]); // This is a double point
             }
+    }
 
+    if (Math.abs(c20) >= eps) { // no horizontal asymptote
         // Compute the roots of the x discriminant
         // for points with horizontal tangents
         sol = solveRealQuadratic(
@@ -550,9 +603,15 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
                     mkp(x, y2)
                 ]);
             }
+    }
 
-        // Intersect the conic with the boundaries of the canvas
+    // Intersect the conic with the boundaries of the canvas
 
+    if (containsYFP) {
+        specialPoints.push([mkp(0, Infinity), mkp(0, -c00 / c01)]);
+        specialPoints.push([mkp(csw, Infinity), mkp(
+            csw, -((c20 * csw + c10) * csw + c00) / (c11 * csw + c01))]);
+    } else {
         // left boundary: x = 0
         sol = solveRealQuadratic(c02, c01, c00);
         if (sol) specialPoints.push([mkp(0, sol[0]), mkp(0, sol[1])]);
@@ -561,130 +620,146 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         sol = solveRealQuadratic(
             c02, c11 * csw + c01, (c20 * csw + c10) * csw + c00);
         if (sol) specialPoints.push([mkp(csw, sol[0]), mkp(csw, sol[1])]);
+    }
 
-        // top boundary: y = 0
-        sol = solveRealQuadratic(c20, c10, c00);
-        if (sol)
-            for (i = 0; i < 2; ++i) {
-                x = sol[i];
-                y2 = secondPoint(x, 0);
-                specialPoints.push([mkp(x, 0), mkp(x, y2)]);
-            }
+    // top boundary: y = 0
+    sol = solveRealQuadratic(c20, c10, c00);
+    if (sol)
+        for (i = 0; i < 2; ++i) {
+            x = sol[i];
+            y2 = secondPoint(x, 0);
+            specialPoints.push([mkp(x, 0), mkp(x, y2)]);
+        }
 
-        // bottom boundary: y = csh
-        sol = solveRealQuadratic(
-            c20, c11 * csh + c10, (c02 * csh + c01) * csh + c00);
-        if (sol)
-            for (i = 0; i < 2; ++i) {
-                x = sol[i];
-                y2 = secondPoint(x, csh);
-                specialPoints.push([mkp(x, csh), mkp(x, y2)]);
-            }
+    // bottom boundary: y = csh
+    sol = solveRealQuadratic(
+        c20, c11 * csh + c10, (c02 * csh + c01) * csh + c00);
+    if (sol)
+        for (i = 0; i < 2; ++i) {
+            x = sol[i];
+            y2 = secondPoint(x, csh);
+            specialPoints.push([mkp(x, csh), mkp(x, y2)]);
+        }
 
+    if (debug) {
         for (i = 0; i < specialPoints.length; ++i) {
             for (j = 0; j < 2; ++j) {
                 pt = specialPoints[i][j];
-                if (!(isFinite(pt.px) && isFinite(pt.py) &&
-                        isFinite(pt.gx) && isFinite(pt.gy)))
-                    return; // Can't draw if numerics failed us
-                if (debug) {
-                    csctx.strokeStyle = "rgb(255,0,0)";
-                    csctx.lineWidth = 3;
-                    csctx.beginPath();
-                    var f = 10 / Math.hypot(pt.gx, pt.gy);
-                    csctx.moveTo(pt.px - f * pt.gy, pt.py + f * pt.gx);
-                    csctx.lineTo(pt.px + f * pt.gy, pt.py - f * pt.gx);
-                    csctx.stroke();
-                }
+                if (!pt.finite) continue;
+                csctx.strokeStyle = "rgb(255,0,0)";
+                csctx.lineWidth = 3;
+                csctx.beginPath();
+                var f = 10 / Math.hypot(pt.gx, pt.gy);
+                csctx.moveTo(pt.px - f * pt.gy, pt.py + f * pt.gx);
+                csctx.lineTo(pt.px + f * pt.gy, pt.py - f * pt.gx);
+                csctx.stroke();
             }
         }
+    }
 
-        function sortByX(a, b) {
-            return a[0].px - b[0].px;
+    function sortByX(a, b) {
+        return a[0].px - b[0].px;
+    }
+
+    function sortByY(a, b) {
+        return a.py - b.py;
+    }
+    specialPoints.sort(sortByX);
+    // TODO: detect and handle situations where x values lie
+    // REALLY close together, leading to inconsistent ordering.
+
+    // Drop out-of-canvas portions, including x = NaN
+    /*jshint -W018 */
+    while (specialPoints.length && !(specialPoints[0][0].px >= 0))
+        specialPoints.shift();
+    while (specialPoints.length &&
+        !(specialPoints[specialPoints.length - 1][0].px <= csw))
+        specialPoints.pop();
+    /*jshint +W018 */
+
+    if (specialPoints.length < 2) return; // nothing to draw
+    specialPoints[0].sort(sortByY);
+    var csh2 = csh * 2;
+    var starts = [];
+    for (i = 1; i < specialPoints.length; ++i) {
+        specialPoints[i].sort(sortByY);
+        var p11 = specialPoints[i - 1][0];
+        var p12 = specialPoints[i - 1][1];
+        var p21 = specialPoints[i][0];
+        var p22 = specialPoints[i][1];
+        if (p11 === p12 && p21 === p22) {
+            // gap region in hyperbola
+            continue;
         }
-
-        function sortByY(a, b) {
-            return a.py - b.py;
-        }
-        specialPoints.sort(sortByX);
-        // TODO: detect and handle situations where x values lie
-        // REALLY close together, leading to inconsistent ordering.
-
-        // Drop out-of-canvas portions
-        while (specialPoints.length && specialPoints[0][0].px < 0)
-            specialPoints.shift();
-        while (specialPoints.length &&
-            specialPoints[specialPoints.length - 1][0].px > csw)
-            specialPoints.pop();
-
-        if (specialPoints.length === 0) return; // nothing to draw
-        specialPoints[0].sort(sortByY);
-        for (i = 1; i < specialPoints.length; ++i) {
-            specialPoints[i].sort(sortByY);
-            var p11 = specialPoints[i - 1][0];
-            var p12 = specialPoints[i - 1][1];
-            var p21 = specialPoints[i][0];
-            var p22 = specialPoints[i][1];
-            if (p11 === p12 && p21 === p22) {
-                // gap region in hyperbola
-                continue;
-            }
+        var ysum;
+        ysum = p11.py + p21.py;
+        if (ysum >= 0 && ysum <= csh2 && p11.finite && p21.finite) {
             p11.next = p21;
             p21.prev = p11;
             p11.sign = -1;
+        } else {
+            starts.push(p21);
+        }
+        ysum = p22.py + p12.py;
+        if (ysum >= 0 && ysum <= csh2 && p22.finite && p12.finite) {
             p22.next = p12;
             p12.prev = p22;
             p22.sign = 1;
+        } else {
+            starts.push(p12);
         }
-        var starts = [];
-        pt = specialPoints[0];
-        if (pt[0] !== pt[1])
-            starts.push(pt[0]);
-        pt = specialPoints[specialPoints.length - 1];
-        if (pt[0] !== pt[1] || starts.length === 0)
-            starts.push(pt[1]);
-        var csh2 = csh * 2;
-        if (debug) {
-            csctx.lineWidth = 1;
-            csctx.strokeStyle = "rgb(0,255,0)";
-        }
-        csctx.beginPath();
-        for (i = 0; i < starts.length; ++i) {
-            var pt0 = (pt = starts[i]);
-            var move = true;
-            while (pt.next) {
-                var ysum = pt.py + pt.next.py;
-                if (ysum < 0 || ysum > csh2) {
-                    // segment is not visible.
-                    move = true;
-                } else {
-                    if (move)
-                        csctx.moveTo(pt.px, pt.py);
-                    move = false;
-                    refine(pt, pt.next, pt.sign, 0);
-                }
-                pt = pt.next;
-                if (pt === pt0) {
-                    // completed the cycle
-                    csctx.closePath();
-                    break;
-                }
+    }
+    pt = specialPoints[specialPoints.length - 1];
+    if (pt[0] !== pt[1])
+        starts.push(pt[1]);
+    pt = specialPoints[0];
+    if (pt[0] !== pt[1] || (starts.length === 0 && pt[0].next))
+        starts.push(pt[0]);
+    if (false && debug) {
+        specialPoints.forEach(function(pair) {
+            console.log("x = " + pair[0].px + ": y in " +
+                pair.map(function(pt) {
+                    return pt.py;
+                }).join(", "));
+        });
+    }
+    if (debug) {
+        Render2D.handleModifs(modifs, Render2D.conicModifs);
+        Render2D.preDrawCurve();
+    }
+    csctx.beginPath();
+    for (i = 0; i < starts.length; ++i) {
+        var pt0 = (pt = starts[i]);
+        if (!pt.next) continue;
+        csctx.moveTo(pt.px, pt.py);
+        while (pt.next) {
+            refine(pt, pt.next, pt.sign, 0);
+            pt = pt.next;
+            if (pt === pt0) {
+                // completed the cycle
+                csctx.closePath();
+                break;
             }
         }
-        csctx.stroke();
-        dbgpts.forEach(function(p, idx) {
-            if (idx % 3 === 0)
-                csctx.fillStyle = "rgb(0,0,255)";
-            else
-                csctx.fillStyle = "rgb(255,0,255)";
-            csctx.beginPath();
-            csctx.arc(p[0], p[1], 3, 0, 2 * Math.PI);
-            csctx.fill();
-        });
-    } // end of general case, neither (1,0,0) nor (0,1,0) on conic
+    }
+    csctx.stroke();
+    dbgpts.forEach(function(p, idx) {
+        if (idx % 3 === 0)
+            csctx.fillStyle = "rgb(0,0,255)";
+        else
+            csctx.fillStyle = "rgb(255,0,255)";
+        csctx.beginPath();
+        csctx.arc(p[0], p[1], 3, 0, 2 * Math.PI);
+        csctx.fill();
+    });
 };
 
 eval_helper.old_drawconic = function(conicMatrix, modifs) {
+
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    if (Render2D.lsize === 0)
+        return;
+    Render2D.preDrawCurve();
 
     var eps = 1e-14; //JRG Hab ih von 1e-16 runtergesetzt
     var mat = List.normalizeMax(conicMatrix);
@@ -725,7 +800,7 @@ eval_helper.old_drawconic = function(conicMatrix, modifs) {
     // transform Conic
     mat = General.mult(List.transpose(ittMatrix), mat);
     mat = General.mult(mat, ittMatrix);
-
+    mat = List.normalizeMax(mat);
 
     var a = mat.value[0].value[0].value.real;
     var b = mat.value[1].value[0].value.real;
