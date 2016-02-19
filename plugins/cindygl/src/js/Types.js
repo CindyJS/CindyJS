@@ -276,19 +276,7 @@ typeinference["sub"] = [
 ];
 //- ("mult", 2, OpTimes.class); @done(2015-03-17)
 typeinference["mult"] = [
-  int_fun$2, float_fun$2, complex_fun$2, {
-    args: [type.mat2, type.vec2],
-    res: type.vec2
-  }, {
-    args: [type.mat2complex, type.vec2complex],
-    res: type.vec2complex
-  }, {
-    args: [type.mat3, type.vec3],
-    res: type.vec3
-  }, {
-    args: [type.mat4, type.vec4],
-    res: type.vec4
-  }
+  int_fun$2, float_fun$2
 ];
 //all R-vectorspaces:
 let rvectorspaces = [type.complex, type.vec2, type.vec3, type.vec4];
@@ -302,9 +290,27 @@ rvectorspaces.forEach(function(t) {
     res: t
   });
 });
+
+typeinference["mult"] = typeinference["mult"].concat([
+  complex_fun$2, {
+    args: [type.mat2, type.vec2],
+    res: type.vec2
+  }, {
+    args: [type.mat2complex, type.vec2complex],
+    res: type.vec2complex
+  }, {
+    args: [type.mat3, type.vec3],
+    res: type.vec3
+  }, {
+    args: [type.mat4, type.vec4],
+    res: type.vec4
+  }
+]);
+
 typeinference["mult"].push(vec22float_fun$2); //dot products
 typeinference["mult"].push(vec32float_fun$2);
 typeinference["mult"].push(vec42float_fun$2);
+
 
 
 //- ("div", 2, OpQuot.class); @done(2015-03-17)
@@ -391,11 +397,6 @@ typeinference["randomint"] = [
 typeinference["seedrandom"] = [{
   args: [type.float],
   res: type.voidt
-}];
-//- ("random", 0, OpRandom0.class); @done(2015-03-17)
-typeinference["random"] = [{
-  args: [],
-  res: type.float
 }];
 //- ("randombool", 0, OpRandomBool.class); @done(2015-03-17)
 typeinference["randombool"] = [{
