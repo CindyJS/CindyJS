@@ -7,7 +7,7 @@ defaultAppearance.lineSize = 1;
 defaultAppearance.alpha = 1;
 defaultAppearance.overhangLine = 1.1;
 defaultAppearance.overhangSeg = 1;
-defaultAppearance.dimDependent = 1;
+defaultAppearance.dimDependent = 0.7;
 defaultAppearance.fontFamily = "sans-serif";
 
 function setDefaultAppearance(obj) {
@@ -63,7 +63,7 @@ function pointDefault(el) {
 
     if (el.size === undefined) el.size = defaultAppearance.pointSize;
     el.size = CSNumber.real(el.size);
-    if (el.type !== "Free") {
+    if (!el.movable || el.pinned) {
         el.color = List.realVector(el.color || defaultAppearance.pointColor);
         el.color = List.scalmult(CSNumber.real(defaultAppearance.dimDependent), el.color);
     } else {
