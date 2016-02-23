@@ -19,7 +19,7 @@
       f(z, c) := z*z+c;
       
       createimage("julia", 1024, 1024);
-      colorplot([-2,-2], [2,-2], "julia", (#.x, #.y, 0, 0));
+      colorplot("julia", (#.x, #.y, 0, 0));
       lastupdate = 0;
     </script> 
     <script id="csdraw" type="text/x-cindyscript">
@@ -39,8 +39,8 @@
       );
       
       coordtime(z) := (
-        currentcolor = imagergba([-2,-2], [2,-2], "julia", z);
-        othercolor = imagergba([-2,-2], [2,-2], "julia", f(z, c));
+        currentcolor = imagergba("julia", z);
+        othercolor = imagergba("julia", f(z, c));
         cz = if(lastupdate>0, complex((currentcolor.x, currentcolor.y)), z);
         
         nz =  if(abs(cz)<2, f(cz, c), cz);
@@ -54,14 +54,14 @@
       lastupdate = if(c==lastc, lastupdate+1, 0); //how many frames elapsed since the last time that c was updated?
       lastc = c;
       
-      colorplot([-2,-2], [2,-2], "julia", coordtime(complex(#)));
+      colorplot("julia", coordtime(complex(#)));
       
       
       timetocolor(f) := (
         l = min(f/250,1);
         min(0.1+f/30, 1)*((1-l)*(hue(f/300-.5))+l*(1,1,1));
       );
-      colorplot(timetocolor(imagergb([-2,-2], [2,-2], "julia", #).b));   
+      colorplot(timetocolor(imagergb("julia", #).b));   
     </script>
 
     <canvas  id="CSCanvas"></canvas>

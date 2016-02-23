@@ -147,3 +147,30 @@ function enlargeCanvasIfRequired(sizeX, sizeY) {
     glcanvas.height = Math.ceil(sizeY);
   }
 }
+
+function transf(api, px, py) { //copied from Operators.js
+  let m = api.getInitialMatrix();
+  let xx = px - m.tx;
+  let yy = py + m.ty;
+  let x = (xx * m.d - yy * m.b) / m.det;
+  let y = -(-xx * m.c + yy * m.a) / m.det;
+  return {
+    x: x,
+    y: y
+  };
+};
+
+function computeLowerLeftCorner(api) {
+  let ch = api.instance['canvas']['clientHeight'];
+  return transf(api, 0, ch);
+}
+
+function computeLowerRightCorner(api) {
+  let cw = api.instance['canvas']['clientWidth'];
+  let ch = api.instance['canvas']['clientHeight'];
+  return transf(api, cw, ch);
+}
+
+function computeUpperLeftCorner(api) {
+  return transf(api, 0, 0);
+}

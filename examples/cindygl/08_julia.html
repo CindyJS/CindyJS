@@ -28,12 +28,12 @@
       color(z) := (
         z = f(z, c);
         if(abs(z)<1.5,
-          imagergb([-1.5,-1.5], [1.5,-1.5], "julia", z) + 0.01*(1,2,3),
+          imagergb("julia", z) + 0.01*(1,2,3),
           (0,0,0)
         )
       );
       
-      colorplot([-1.5,-1.5], [1.5,-1.5], "julia", (color(complex(#))));
+      colorplot("julia", (color(complex(#))));
       drawimage([-1.5,-1.5], [1.5,-1.5], "julia");
     </script>
 

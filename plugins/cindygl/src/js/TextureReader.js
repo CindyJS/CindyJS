@@ -1,4 +1,4 @@
-function useimagergba(args, codebuilder) {
+function useimagergba4(args, codebuilder) {
   let name = args[2];
   if (!codebuilder.texturereaders.hasOwnProperty(name)) {
     codebuilder.texturereaders[name] = [
@@ -24,10 +24,26 @@ function useimagergba(args, codebuilder) {
 }
 
 
-function useimagergb(args, codebuilder) {
+function useimagergb4(args, codebuilder) {
   let name = args[2];
-  useimagergba(args, codebuilder);
+  useimagergba4(args, codebuilder);
   return ['_imagergb_', name, '(', args[0], ',', args[1], ',', args[3], ')'].join('');
+}
+
+function useimagergba2(args, codebuilder) {
+  let name = args[0];
+  useimagergba4(['', ''].concat(args), codebuilder);
+  let a = computeLowerLeftCorner(codebuilder.api);
+  let b = computeLowerRightCorner(codebuilder.api);
+  return ['_imagergba_', name, '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ')'].join('');
+}
+
+function useimagergb2(args, codebuilder) {
+  let name = args[0];
+  useimagergba4(['', ''].concat(args), codebuilder);
+  let a = computeLowerLeftCorner(codebuilder.api);
+  let b = computeLowerRightCorner(codebuilder.api);
+  return ['_imagergb_', name, '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ')'].join('');
 }
 
 
