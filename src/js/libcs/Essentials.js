@@ -15,20 +15,20 @@ operators['-'] = 200; // subtraction (also for vectors and matrices)
 operators['!'] = 200; // logical not (unary)
 operators['=='] = 300; // equal
 operators['~='] = 300; // approximately equal
-operators['~<'] = 300; // not greater or approximately equal
-operators['~>'] = 300; // not less or approximately equal
+operators['~<'] = 300; // approximately less
+operators['~>'] = 300; // approximately greater
 operators['=:='] = 300; // equals after evaluation
 operators['>='] = 300; // greater or equal
 operators['<='] = 300; // less or equal
-operators['~>='] = 300; // greater or approximately equal
-operators['~<='] = 300; // less or approximately equal
+operators['~>='] = 300; // approximately greater or equal
+operators['~<='] = 300; // approximately less or equal
 operators['>'] = 300; // greater
 operators['<'] = 300; // less
 operators['<>'] = 300; // not equal
 operators['&'] = 350; // logical and
 operators['%'] = 350; // logical or
 operators['!='] = 350; // not equal
-operators['~!='] = 350; // not approximately equal
+operators['~!='] = 350; // approximately not equal
 operators['..'] = 350; // sequence
 operators['++'] = 370; // concatenation of lists, union of shapes
 operators['--'] = 370; // list or shape difference
