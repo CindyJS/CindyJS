@@ -434,18 +434,20 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     var c01 = mat.value[1].value[2].value.real * 2;
     var c00 = mat.value[2].value[2].value.real;
 
-    var det = c20 * c02 * c00 * 4 + c11 * c01 * c10 -
-        c00 * c11 * c11 - c20 * c01 * c01 - c02 * c10 * c10;
-    if (Math.abs(det) < eps) {
-        if (debug) {
-            csctx.lineWidth = 1;
-            csctx.strokeStyle = "rgb(0,255,0)";
+    var det = Math.abs(c20 * c02 * c00 * 4 + c11 * c01 * c10 -
+        c00 * c11 * c11 - c20 * c01 * c01 - c02 * c10 * c10);
+    if (det < eps) {
+        var discr = c20 * c02 * 4 - c11 * c11;
+        if (discr < eps) { // pair of lines
+            var lines = geoOps._helper.splitDegenConic(conicMatrix);
+            if (lines !== nada) {
+                evaluator.draw$1([lines[0]], modifs);
+                evaluator.draw$1([lines[1]], modifs);
+            }
+            return;
+        } else if (det < 1e-25) { // VERY small circle or ellipse
+            return;
         }
-        var lines = geoOps._helper.splitDegenConic(conicMatrix);
-        if (lines === nada) return;
-        evaluator.draw$1([lines[0]], modifs);
-        evaluator.draw$1([lines[1]], modifs);
-        return;
     }
 
     var dbgpts = [];
