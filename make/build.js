@@ -290,7 +290,7 @@ module.exports = function build(settings, task) {
             ],
             output_wrapper_file: "plugins/cindy3d/src/js/Cindy3D.js.wrapper",
             js_output_file: "build/js/Cindy3D.js",
-            externs: "plugins/cindy3d/src/js/cindyjs.externs",
+            externs: "plugins/cindyjs.externs",
             js: ["build/js/c3dres.js"].concat(c3d_mods.map(function(name) {
                 return "plugins/cindy3d/src/js/" + name + ".js";
             })),
@@ -359,7 +359,7 @@ module.exports = function build(settings, task) {
             ],
             output_wrapper_file: "plugins/cindygl/src/js/CindyGL.js.wrapper",
             js_output_file: "build/js/CindyGL.js",
-            externs: "plugins/cindygl/src/js/cindyjs.externs",
+            externs: "plugins/cindyjs.externs",
             js: ["build/js/cglres.js"].concat(cgl_mods.map(function(name) {
                 return "plugins/cindygl/src/js/" + name + ".js";
             })).concat(cgl_mods_from_c3d.map(function(name) {
