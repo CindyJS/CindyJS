@@ -1054,6 +1054,12 @@ evaluator.sqrt$1 = function(args, modifs) {
     return nada;
 };
 
+function infix_sqrt(args, modifs) {
+    if (args[0].ctype === 'void')
+        return evaluator.sqrt$1([args[1]], modifs);
+    return nada;
+}
+
 eval_helper.laguerre = function(cs, x, maxiter) {
     if (cs.ctype !== 'list')
         return nada;
@@ -1741,7 +1747,9 @@ evaluator.gauss$1 = function(args, modifs) {
 };
 
 
-evaluator.cross$2 = function(args, modifs) {
+evaluator.cross$2 = infix_cross;
+
+function infix_cross(args, modifs) {
     var v0 = evaluateAndHomog(args[0]);
     var v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
@@ -1755,7 +1763,7 @@ evaluator.cross$2 = function(args, modifs) {
         return erg;
     }
     return nada;
-};
+}
 
 evaluator.crossratio$4 = function(args, modifs) {
     var a0 = evaluate(args[0]);
@@ -2481,6 +2489,24 @@ evaluator.contains$2 = function(args, modifs) {
     }
     return nada;
 };
+
+function infix_in(args, modifs) {
+    var v0 = evaluate(args[0]);
+    var v1 = evaluate(args[1]);
+    if (v1.ctype === 'list') {
+        return List.contains(v1, v0);
+    }
+    return nada;
+}
+
+function infix_nin(args, modifs) {
+    var v0 = evaluate(args[0]);
+    var v1 = evaluate(args[1]);
+    if (v1.ctype === 'list') {
+        return General.not(List.contains(v1, v0));
+    }
+    return nada;
+}
 
 evaluator.sort$2 = function(args, modifs) {
     return evaluator.sort$3([args[0], null, args[1]], modifs);

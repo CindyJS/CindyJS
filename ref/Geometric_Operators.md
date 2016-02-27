@@ -122,6 +122,11 @@ Unlike the general determinant method described in the section [Vectors and Matr
 This operator takes two three-dimensional vectors and calculates their cross product.
 The cross product is a three-dimensional vector that is orthogonal to the other two vectors.
 
+    > cross([2, 5, 3], [1, 8, 11])
+    < [31, -19, 11]
+    > [2, 5, 3] × [1, 8, 11]
+    < [31, -19, 11]
+
 ------
 
 ------

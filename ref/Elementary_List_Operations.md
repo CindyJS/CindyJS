@@ -56,6 +56,14 @@ This operator returns either `true` or `false` depending on whether `‹list›`
     < false
     > contains([1,3,4,5],2*2)
     < true
+    > 4 ∈ [1,3,4,5]
+    < true
+    > 7 ∈ [1,3,4,5]
+    < false
+    > 4 ∉ [1,3,4,5]
+    < false
+    > 7 ∉ [1,3,4,5]
+    < true
 
 ------
 

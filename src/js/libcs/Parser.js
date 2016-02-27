@@ -13,12 +13,14 @@ const operatorLevels = [{
 }, {
     rassoc: true,
     pow: ['^'],
+    sqrt: ['√'],
 }, {
-    mul: ['*'],
-    div: ['/']
+    mul: ['*', '\u2062', '⋅'], // U+2062 = invisible times
+    cross: ['×'],
+    div: ['/'],
 }, {
     add: ['+'],
-    sub: ['-'],
+    sub: ['-', '−'],
     neg: ['!', '¬'],
 }, {
     seq: ['..'],
@@ -35,6 +37,8 @@ const operatorLevels = [{
     agt: ['~>', '⪊'],
     ale: ['~<=', '⪅'],
     age: ['~>=', '⪆'],
+    'in': ['∈'],
+    nin: ['∉'],
 }, {
     and: ['&', '∧'],
     or: ['%', '∨'],
@@ -59,7 +63,7 @@ const operatorLevels = [{
 }];
 
 const prefixOperators = ['+', '-'];
-const prefixOnly = ['!'];
+const prefixOnly = ['!', '√'];
 const postfixOnly = ['°'];
 const flexfix = [';', ','];
 

@@ -80,7 +80,6 @@ describe('CindyScript parser normal operation', () => {
     simplCase('f(1, foo->2)', {f$1: [[1], {foo: 2}]});
     simplCase('f(1,m->2,3)', {f$2: [[1, 3], {m: 2}]});
     simplCase('f[1, 2, m->3]', {f$2: [[1, 2], {m: 3}]});
-    //simplCase('[1]', {list: [1]});
     simplCase('[1]', {genList: [[1],{}]});
     simplCase('{1 + 2}', {'+': [1, 2]});
     simplCase('7° + 9', {'+': [{'°': [7, null]}, 9]});
@@ -88,6 +87,7 @@ describe('CindyScript parser normal operation', () => {
     simplCase('!b', {'!': [null, '$b']});
     simplCase('f();g();x',
               {';': [{';': [{f$0:[[],{}]}, {g$0:[[],{}]}]}, '$x']});
+    simplCase('4 ∈ [1,3]', {'∈': [4, {genList: [[1, 3],{}]}]});
     /* Copy & paste from here:
     simplCase('', );
     */

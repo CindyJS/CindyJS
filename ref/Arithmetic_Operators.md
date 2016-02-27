@@ -79,6 +79,14 @@ See the examples for further description.
     > [[1,2],[3,4]] * [[1,2],[3,4]] // product of two matrices
     < [[7, 10], [15, 22]]
 
+Using the unicode symbol U+2062 ‘invisible times’ it is possible to write
+polynomials that *appear* as though the coefficients were directly
+preceding the variable.  Input can't simply be typed this way, though.
+
+    > x = 5;
+    > 7⁢x^3 - 5⁢x^2 + 2⁢x - 1
+    < 759
+
 **See also:**
 [Vectors and Matrices](Vectors_and_Matrices.md)
 
@@ -223,15 +231,22 @@ The `mod` function calculates the remainder of `‹expr1›` if divided by `‹e
 
 ###  Standard Functions
 
+**Description:**
+These functions map numbers to numbers.
+Complex numbers are fully supported.
+
 #### Square root: `sqrt(‹expr›)`
+
+    > sqrt(4)
+    < 2
+    > √121
+    < 11
+    > sqrt(2*i)
+    < 1 + i*1
 
 #### Exponential function: `exp(‹expr›)`
 
 #### Natural logarithm: `log(‹expr›)`
-
-**Description:**
-These functions map numbers to numbers.
-Complex numbers are fully supported.
 
 ------
 
