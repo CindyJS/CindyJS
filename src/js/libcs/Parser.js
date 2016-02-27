@@ -5,10 +5,8 @@
 // All operators, sorted by precedence level
 const operatorLevels = [{
     key: [':'],
-}, {
     field: ['.'],
     deg: ['°'],
-}, {
     take: ['_'],
 }, {
     rassoc: true,
