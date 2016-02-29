@@ -492,7 +492,11 @@ var cvoid = {
     ctype: 'void'
 };
 
-function postprocess(expr) {
+function Parser(expr) {
+    this.usedFunctions = {};
+}
+
+Parser.prototype.postprocess = function(expr) {
     if (expr === null)
         return cvoid;
     if (expr) {
@@ -517,10 +521,10 @@ function postprocess(expr) {
         }
 
         if (expr.args)
-            expr.args = expr.args.map(postprocess);
+            expr.args = expr.args.map(this.postprocess, this);
         if (expr.modifs)
             for (var key in expr.modifs)
-                expr.modifs[key] = postprocess(expr.modifs[key]);
+                expr.modifs[key] = this.postprocess(expr.modifs[key]);
 
         // parent-last postprocessing
         if (expr.ctype === 'paren') {
@@ -534,19 +538,13 @@ function postprocess(expr) {
                 expr.obj = expr.args[0];
                 expr.key = expr.args[1].name;
             }
-            if (typeof infixmap !== 'undefined')
-                expr.impl = infixmap[expr.oper];
+            if (this.infixmap)
+                expr.impl = this.infixmap[expr.oper];
         } else if (expr.ctype === 'variable') {
-            if (typeof namespace !== 'undefined') {
-                if (namespace.isVariable(expr.name)) {
-                    return namespace.vars[expr.name];
-                } else {
-                    return namespace.create(expr.name);
-                }
-            }
+            this.processVariable(expr);
         } else if (expr.ctype === 'function') {
-            if (typeof usedFunctions !== 'undefined')
-                usedFunctions[expr.oper] = true;
+            if (this.usedFunctions)
+                this.usedFunctions[expr.oper] = true;
         }
     }
     if (expr && typeof expr === 'object') {
@@ -558,9 +556,9 @@ function postprocess(expr) {
         delete expr.text;
     }
     return expr;
-}
+};
 
-function parse(code) {
+Parser.prototype.parse = function(code) {
     try {
         var res = parseRec(new Tokenizer(code));
         if (res.closedBy.toktype !== 'EOF')
@@ -569,19 +567,21 @@ function parse(code) {
                 res.closedBy.start,
                 res.closedBy.text
             );
-        return postprocess(res.expr);
+        return this.postprocess(res.expr);
     } catch (err) {
         err.ctype = 'error';
         return err;
     }
-}
+};
 
-function analyse(code) {
-    return parse(code);
-}
+Parser.prototype.processVariable = function(v) {};
 
 if (typeof process !== "undefined" &&
     typeof module !== "undefined" &&
     typeof module.exports !== "undefined" &&
-    typeof window === "undefined")
-    module.exports = parse;
+    typeof window === "undefined") {
+    module.exports.Parser = Parser;
+    module.exports.parse = function(code) {
+        return (new Parser()).parse(code);
+    };
+}

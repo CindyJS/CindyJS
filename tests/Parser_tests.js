@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require('chai').expect;
-const parse = require('../src/js/libcs/Parser');
+const parse = require('../src/js/libcs/Parser').parse;
 
 // Represent AST using a simple JSON which can be inlined below.
 // This representation is not well suited to evaluation,

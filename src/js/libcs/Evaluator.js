@@ -171,3 +171,17 @@ function report(a, i) {
 }
 
 var usedFunctions = {};
+
+function analyse(code) {
+    var parser = new Parser();
+    parser.usedFunctions = usedFunctions;
+    parser.infixmap = infixmap;
+    parser.processVariable = function(v) {
+        if (namespace.isVariable(v.name)) {
+            return namespace.vars[v.name];
+        } else {
+            return namespace.create(v.name);
+        }
+    };
+    return parser.parse(code);
+}
