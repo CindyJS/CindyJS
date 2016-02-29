@@ -19,11 +19,7 @@ namespace.vars = (function() {
     };
     var vars = [];
     for (var name in preset)
-        vars[name] = {
-            ctype: 'variable',
-            name: name,
-            stack: [preset[name]]
-        };
+        vars[name] = [preset[name]];
     return vars;
 })();
 
@@ -34,23 +30,19 @@ namespace.isVariable = function(name) {
 namespace.create = function(name) {
     if (this.vars.hasOwnProperty(name))
         return this.vars[name];
-    var v = {
-        'ctype': 'variable',
-        'stack': [null],
-        'name': name
-    };
+    var v = [null];
     this.vars[name] = v;
     return v;
 };
 
 namespace.newvar = function(name) {
     var v = this.vars[name];
-    v.stack.push(nada); // nada not null for deeper levels
+    v.push(nada); // nada not null for deeper levels
     return v;
 };
 
 namespace.removevar = function(name) {
-    var stack = this.vars[name].stack;
+    var stack = this.vars[name];
     if (stack.length === 0) console.error("Removing non-existing " + name);
     stack.pop();
     if (stack.length === 0) console.warn("Removing last " + name);
@@ -58,7 +50,7 @@ namespace.removevar = function(name) {
 
 
 namespace.setvar = function(name, val) {
-    var stack = this.vars[name].stack;
+    var stack = this.vars[name];
     if (stack.length === 0) console.error("Setting non-existing variable " + name);
     if (val === undefined) {
         console.error("Setting variable " + name + " to undefined value");
@@ -77,7 +69,7 @@ namespace.undefinedWarning = {};
 
 namespace.getvar = function(name) {
 
-    var stack = this.vars[name].stack;
+    var stack = this.vars[name];
     if (stack.length === 0) console.error("Getting non-existing variable " + name);
     var erg = stack[stack.length - 1];
     if (erg === null) {
@@ -98,7 +90,7 @@ namespace.getvar = function(name) {
 };
 
 namespace.dump = function(name) {
-    var stack = this.vars[name].stack;
+    var stack = this.vars[name];
     console.log("*** Dump " + name);
 
     for (var i = 0; i < stack.length; i++) {
