@@ -500,15 +500,18 @@ function postprocess(expr) {
         if (expr.ctype === 'infix') {
             if (expr.oper === ':=') {
                 let fun = expr.args[0];
-                if (fun.ctype !== 'function')
+                if (fun.ctype === 'function') {
+                    for (let arg of fun.args)
+                        if (arg === null || arg.ctype !== 'variable')
+                            throw ParseError(
+                                'Function argument must be an identifier',
+                                arg.start || expr.start);
+                } else if (fun.ctype !== 'variable') {
                     throw ParseError(
-                        expr.oper + ' can only be used to define functions',
+                        expr.oper + ' can only be used to define ' +
+                        'functions or variables',
                         expr.start);
-                for (let arg of fun.args)
-                    if (arg === null || arg.ctype !== 'variable')
-                        throw ParseError(
-                            'Function argument must be an identifier',
-                            arg.start || expr.start);
+                }
             }
         }
 

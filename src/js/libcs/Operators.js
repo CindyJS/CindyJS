@@ -546,6 +546,9 @@ function infix_define(args, modifs) {
             'arglist': ar
         };
     }
+    if (args[0].ctype === 'variable') {
+        namespace.setvar(args[0].name, args[1]);
+    }
 
     return nada;
 }

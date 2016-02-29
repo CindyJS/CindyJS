@@ -6,7 +6,7 @@ This is in sharp contrast to many other programming languages.
 In this section you will learn under what circumstances one can create functions and variables.
 You will also learn how to destroy or clear variables and about their scope.
 
-### Defining Functions
+### Defining Functions: `‹fun›(‹args…›) := ‹expr›`
 
 Defining a function in CindyScript is very easy.
 One simply has to specify the name of a function, provide a parameter list, and write down the body of the function.
@@ -196,6 +196,21 @@ This program fragment produces the following output
     - skip test: "::=" not implemented yet.
     * 6
     * 20
+
+### Deferred evaluation: `‹var› := ‹expr›`
+
+One can also use the `:=` operator to define a variable.
+In this case, the expression in the right hand side will not be
+evaluated once during assignment, but whenever the variable is used.
+This can also be seen as a function which does not need parentheses
+when called.
+
+    > count = 0;
+    > x := (count = count + 1; count);
+    > [x, x, x]
+    < [1, 2, 3]
+    > x*10 + x
+    < 45
 
 ### Predefined Constants
 

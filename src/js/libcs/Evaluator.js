@@ -12,7 +12,7 @@ function evaluate(a) {
         return a.impl(a.args, {});
     }
     if (a.ctype === 'variable') {
-        return namespace.getvar(a.name);
+        return evaluate(namespace.getvar(a.name));
         //  return a.value[0];
     }
     if (a.ctype === 'void') {
