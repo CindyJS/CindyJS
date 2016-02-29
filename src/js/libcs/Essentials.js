@@ -155,7 +155,7 @@ function niceprint(a) {
         return "Error: " + a.message;
     }
     if (a.ctype === 'variable') {
-        return niceprint(a.stack[length.stack]);
+        return niceprint(namespace.getvar(a.name));
     }
 
     if (a.ctype === 'geo') {

@@ -32,6 +32,8 @@ namespace.isVariable = function(name) {
 };
 
 namespace.create = function(name) {
+    if (this.vars.hasOwnProperty(name))
+        return this.vars[name];
     var v = {
         'ctype': 'variable',
         'stack': [null],

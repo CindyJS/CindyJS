@@ -494,6 +494,7 @@ var cvoid = {
 
 function Parser(expr) {
     this.usedFunctions = {};
+    this.usedVariables = {};
 }
 
 Parser.prototype.postprocess = function(expr) {
@@ -541,10 +542,9 @@ Parser.prototype.postprocess = function(expr) {
             if (this.infixmap)
                 expr.impl = this.infixmap[expr.oper];
         } else if (expr.ctype === 'variable') {
-            this.processVariable(expr);
+            this.usedVariables[expr.name] = true;
         } else if (expr.ctype === 'function') {
-            if (this.usedFunctions)
-                this.usedFunctions[expr.oper] = true;
+            this.usedFunctions[expr.oper] = true;
         }
     }
     if (expr && typeof expr === 'object') {
@@ -573,8 +573,6 @@ Parser.prototype.parse = function(code) {
         return err;
     }
 };
-
-Parser.prototype.processVariable = function(v) {};
 
 if (typeof process !== "undefined" &&
     typeof module !== "undefined" &&
