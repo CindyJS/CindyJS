@@ -88,6 +88,7 @@ describe('CindyScript parser normal operation', () => {
     simplCase('f();g();x',
               {';': [{';': [{f$0:[[],{}]}, {g$0:[[],{}]}]}, '$x']});
     simplCase('4 ∈ [1,3]', {'∈': [4, {genList: [[1, 3],{}]}]});
+    simplCase('f(a,b):=123', {':=': [{f$2: [['$a','$b'],{}]}, 123]});
     /* Copy & paste from here:
     simplCase('', );
     */
@@ -109,6 +110,9 @@ describe('CindyScript parser error reporting', () => {
     badCase('17()', 'Function name must be an identifier at 1:0');
     badCase('f(7->8)', 'Modifier name must be an identifier at 1:3');
     badCase('f(x.y->8)', 'Modifier name must be an identifier at 1:5');
+    badCase('f(7):=123', 'Function argument must be an identifier at 1:2');
+    badCase('f(a,(b)):=123', 'Function argument must be an identifier at 1:8');
+    badCase('17:=123', ':= can only be used to define functions at 1:2');
     /* Copy & paste from here:
     badCase('', ': ‘’');
     */

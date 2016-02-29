@@ -496,11 +496,29 @@ function postprocess(expr) {
     if (expr === null)
         return cvoid;
     if (expr) {
+        // parent-first postprocessing
+        if (expr.ctype === 'infix') {
+            if (expr.oper === ':=') {
+                let fun = expr.args[0];
+                if (fun.ctype !== 'function')
+                    throw ParseError(
+                        expr.oper + ' can only be used to define functions',
+                        expr.start);
+                for (let arg of fun.args)
+                    if (arg === null || arg.ctype !== 'variable')
+                        throw ParseError(
+                            'Function argument must be an identifier',
+                            arg.start || expr.start);
+            }
+        }
+
         if (expr.args)
             expr.args = expr.args.map(postprocess);
         if (expr.modifs)
             for (let key in expr.modifs)
                 expr.modifs[key] = postprocess(expr.modifs[key]);
+
+        // parent-last postprocessing
         if (expr.ctype === 'paren') {
             return expr.args[0];
         } else if (expr.ctype === 'infix') {
@@ -522,6 +540,9 @@ function postprocess(expr) {
                     return namespace.create(expr.name);
                 }
             }
+        } else if (expr.ctype === 'function') {
+            if (typeof usedFunctions !== 'undefined')
+                usedFunctions[expr.oper] = true;
         }
     }
     if (expr && typeof expr === 'object') {
