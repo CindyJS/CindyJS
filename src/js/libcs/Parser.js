@@ -579,11 +579,6 @@ function analyse(code) {
     return parse(code);
 }
 
-function condense(code) {
-    // The new parser can handle uncondensed input.
-    return code;
-}
-
 if (typeof process !== "undefined" &&
     typeof module !== "undefined" &&
     typeof module.exports !== "undefined" &&

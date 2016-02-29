@@ -33,9 +33,7 @@ function evalcs(a) {
 
 
 function evokeCS(code) {
-    var cscode = condense(code);
-
-    var parsed = analyse(cscode, false);
+    var parsed = analyse(code, false);
     console.log(parsed);
     evaluate(parsed);
     updateCindy();
@@ -84,7 +82,6 @@ function createCindyNow() {
     setupConsole();
 
     csmouse = [100, 100];
-    var cscode;
     var c = null;
     var trafos = data.transform;
     if (data.ports) {
@@ -120,8 +117,7 @@ function createCindyNow() {
     }
 
     //Run initialscript
-    cscode = condense(initialscript);
-    var iscr = analyse(cscode, false);
+    var iscr = analyse(initialscript, false);
     evaluate(iscr);
 
     //Setup the scripts
@@ -154,7 +150,6 @@ function createCindyNow() {
             }
             cscode = cscode.text;
         }
-        cscode = condense(cscode);
         cscode = analyse(cscode, false);
         if (cscode.ctype === "error") {
             console.error(
@@ -440,10 +435,10 @@ var globalInstance = {
     "pause": cspause,
     "stop": csstop,
     "evalcs": function(code) {
-        return evaluate(analyse(condense(code), false));
+        return evaluate(analyse(code, false));
     },
     "parse": function(code) {
-        return analyse(condense(code));
+        return analyse(code);
     },
     "niceprint": niceprint,
     "canvas": null, // will be set during startup

@@ -3224,7 +3224,7 @@ evaluator.indexof$3 = function(args, modifs) {
 evaluator.parse$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if (v0.ctype === 'string') {
-        var code = condense(v0.value);
+        var code = v0.value;
         var prog = analyse(code);
         return evaluate(prog);
     }
