@@ -581,5 +581,8 @@ function condense(code) {
     return code;
 }
 
-if (module)
+if (typeof process !== "undefined" &&
+    typeof module !== "undefined" &&
+    typeof module.exports !== "undefined" &&
+    typeof window === "undefined")
     module.exports = parse;
