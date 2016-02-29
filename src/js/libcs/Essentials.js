@@ -111,6 +111,9 @@ function niceprint(a) {
     if (typeof a === 'undefined') {
         return '_??_';
     }
+    if (a === null) {
+        return '_???_';
+    }
     if (a.ctype === 'undefined') {
         return '___';
     }
@@ -152,7 +155,6 @@ function niceprint(a) {
         return "Error: " + a.message;
     }
     if (a.ctype === 'variable') {
-        console.log("HALLO");
         return niceprint(a.stack[length.stack]);
     }
 
