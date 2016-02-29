@@ -39,6 +39,9 @@ function evaluate(a) {
     if (a.ctype === 'shape') {
         return a;
     }
+    if (a.ctype === 'error') {
+        return a;
+    }
 
     if (a.ctype === 'field') {
 

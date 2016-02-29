@@ -192,6 +192,8 @@ function sanityCheck(val) {
     break;
   case "undefined":
     break;
+  case "error":
+    throw val;
   default:
     throw Error("Unknown ctype: " + val.ctype);
   }
