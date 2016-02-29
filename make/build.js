@@ -52,7 +52,7 @@ module.exports = function build(settings, task) {
     task("exposed", [], function() {
         version(this);
         this.concat(
-            ["src/js/expose.js"].concat(src.lib, src.inclosure),
+            src.lib.concat("src/js/expose.js", src.inclosure),
             "build/js/exposed.js");
     });
 
