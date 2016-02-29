@@ -2,50 +2,6 @@
 
 var myfunctions = {};
 
-/*
-var operators = {};
-operators[':'] = 20; // Access to user-defined fields
-operators['.'] = 25; // Field access
-operators['°'] = 25; // Degree
-operators['_'] = 50; // x_i means i-th element of x
-operators['^'] = 50; // power
-operators['*'] = 100; // multiplication (also for vectors and matrices)
-operators['/'] = 100; // division (also vectoren divided by scalar)
-operators['+'] = 200; // addition (also for vectors and matrices)
-operators['-'] = 200; // subtraction (also for vectors and matrices)
-operators['!'] = 200; // logical not (unary)
-operators['=='] = 300; // equal
-operators['~='] = 300; // approximately equal
-operators['~<'] = 300; // approximately less
-operators['~>'] = 300; // approximately greater
-operators['=:='] = 300; // equals after evaluation
-operators['>='] = 300; // greater or equal
-operators['<='] = 300; // less or equal
-operators['~>='] = 300; // approximately greater or equal
-operators['~<='] = 300; // approximately less or equal
-operators['>'] = 300; // greater
-operators['<'] = 300; // less
-operators['<>'] = 300; // not equal
-operators['&'] = 350; // logical and
-operators['%'] = 350; // logical or
-operators['!='] = 350; // not equal
-operators['~!='] = 350; // approximately not equal
-operators['..'] = 350; // sequence
-operators['++'] = 370; // concatenation of lists, union of shapes
-operators['--'] = 370; // list or shape difference
-operators['~~'] = 370; // list or shape intersection
-operators[':>'] = 370; // append element to list
-operators['<:'] = 370; // prepend element to list
-operators['='] = 400; // assignment
-operators[':='] = 400; // function definition
-operators[':=_'] = 400; // function undefinition
-operators['::='] = 400; // binding function definition
-operators['->'] = 400; // modifier
-operators[';'] = 500; // sequence of statements
-//operators[','] = 510 is the list element separator, handled in parselist
-*/
-
-
 var infixmap = {};
 infixmap[':'] = operator_not_implemented(':');
 // infixmap['.'] not needed thanks to definitionDot special handling
