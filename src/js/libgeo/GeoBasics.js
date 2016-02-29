@@ -37,6 +37,7 @@ function csinit(gslp) {
 
     //Relevant fields for appearance:
     //color
+    //dimDependent
     //size
     //alpha
     //overhang
@@ -65,7 +66,10 @@ function pointDefault(el) {
     el.size = CSNumber.real(el.size);
     if (!el.movable || el.pinned) {
         el.color = List.realVector(el.color || defaultAppearance.pointColor);
-        el.color = List.scalmult(CSNumber.real(defaultAppearance.dimDependent), el.color);
+        var dimDependent = el.dimDependent;
+        if (dimDependent === undefined)
+            dimDependent = defaultAppearance.dimDependent;
+        el.color = List.scalmult(CSNumber.real(dimDependent), el.color);
     } else {
         el.color = List.realVector(el.color || defaultAppearance.pointColor);
     }
