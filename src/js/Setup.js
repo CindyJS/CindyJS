@@ -116,10 +116,6 @@ function createCindyNow() {
             csctx.setLineDash = function() {};
     }
 
-    //Run initialscript
-    var iscr = analyse(initialscript, false);
-    evaluate(iscr);
-
     //Setup the scripts
     var scripts = ["move", "keydown",
         "mousedown", "mouseup", "mousedrag",
@@ -164,7 +160,6 @@ function createCindyNow() {
     //Setup canvasstuff
     if (data.grid && data.grid !== 0) {
         csgridsize = data.grid;
-        csgridscript = analyse('#drawgrid(' + csgridsize + ')', false);
     }
     if (data.snap) cssnap = data.snap;
 
@@ -374,26 +369,6 @@ function csstop() {
         restoreGeo();
     }
 }
-
-var initialscript =
-    '           #drawgrid(s):=(' +
-    '              regional(b,xmin,xmax,ymin,ymax,nx,ny);' +
-    '              b=screenbounds();' +
-    '              xmin=b_4_1-s;' +
-    '              xmax=b_2_1+s;' +
-    '              ymin=b_4_2-s;' +
-    '              ymax=b_2_2+s;' +
-    '              nx=round((xmax-xmin)/s);' +
-    '              ny=round((ymax-ymin)/s);' +
-    '              xmin=floor(xmin/s)*s;' +
-    '              ymin=floor(ymin/s)*s;' +
-    '              repeat(nx,x,' +
-    '                 draw((xmin+x*s,ymin),(xmin+x*s,ymax),color->(1,1,1)*.9,size->1);' +
-    '              );' +
-    '              repeat(ny,y,' +
-    '                 draw((xmin,ymin+y*s),(xmax,ymin+y*s),color->(1,1,1)*.9,size->1);' +
-    '              ) ' +
-    '           );';
 
 var shutdownHooks = [];
 var isShutDown = false;

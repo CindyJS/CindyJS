@@ -6,6 +6,7 @@ exports.libcs = [
     "src/js/libcs/General.js",
     "src/js/libcs/Essentials.js",
     "src/js/libcs/Namespace.js",
+    "build/js/Compiled.js",
     "src/js/libcs/Accessors.js",
     "src/js/libcs/Operators.js",
     "src/js/libcs/OpDrawing.js",
@@ -35,6 +36,10 @@ exports.liblab = [
 
 exports.lib = [
     "lib/clipper/clipper.js",
+];
+
+exports.cssrc = [
+    "src/cs/drawgrid.cs",
 ];
 
 exports.inclosure = [

@@ -259,7 +259,7 @@ function updateCindy() {
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
     if (csgridsize !== 0)
-        evaluate(csgridscript);
+        csAssets.drawgrid(CSNumber.real(csgridsize));
     traceMouseAndScripts();
     //   console.log("NOW UPDATING");
     //  drawgrid();

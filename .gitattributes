@@ -1,4 +1,5 @@
 *.conf          text
+*.cs            text
 *.css           text
 *.enc           -text
 *.eot           -text
