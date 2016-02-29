@@ -27,39 +27,39 @@ namespace.vars = (function() {
     return vars;
 })();
 
-namespace.isVariable = function(a) {
-    return this.vars.hasOwnProperty(a);
+namespace.isVariable = function(name) {
+    return this.vars.hasOwnProperty(name);
 };
 
-namespace.create = function(code) {
+namespace.create = function(name) {
     var v = {
         'ctype': 'variable',
         'stack': [null],
-        'name': code
+        'name': name
     };
-    this.vars[code] = v;
+    this.vars[name] = v;
     return v;
 };
 
-namespace.newvar = function(code) {
-    var v = this.vars[code];
+namespace.newvar = function(name) {
+    var v = this.vars[name];
     v.stack.push(nada); // nada not null for deeper levels
     return v;
 };
 
-namespace.removevar = function(code) {
-    var stack = this.vars[code].stack;
-    if (stack.length === 0) console.error("Removing non-existing " + code);
+namespace.removevar = function(name) {
+    var stack = this.vars[name].stack;
+    if (stack.length === 0) console.error("Removing non-existing " + name);
     stack.pop();
-    if (stack.length === 0) console.warn("Removing last " + code);
+    if (stack.length === 0) console.warn("Removing last " + name);
 };
 
 
-namespace.setvar = function(code, val) {
-    var stack = this.vars[code].stack;
-    if (stack.length === 0) console.error("Setting non-existing variable " + code);
+namespace.setvar = function(name, val) {
+    var stack = this.vars[name].stack;
+    if (stack.length === 0) console.error("Setting non-existing variable " + name);
     if (val === undefined) {
-        console.error("Setting variable " + code + " to undefined value");
+        console.error("Setting variable " + name + " to undefined value");
         val = nada;
     }
     if (val.ctype === 'undefined') {
@@ -73,21 +73,21 @@ namespace.setvar = function(code, val) {
 
 namespace.undefinedWarning = {};
 
-namespace.getvar = function(code) {
+namespace.getvar = function(name) {
 
-    var stack = this.vars[code].stack;
-    if (stack.length === 0) console.error("Getting non-existing variable " + code);
+    var stack = this.vars[name].stack;
+    if (stack.length === 0) console.error("Getting non-existing variable " + name);
     var erg = stack[stack.length - 1];
     if (erg === null) {
-        if (csgeo.csnames.hasOwnProperty(code)) {
+        if (csgeo.csnames.hasOwnProperty(name)) {
             return {
                 'ctype': 'geo',
-                'value': csgeo.csnames[code]
+                'value': csgeo.csnames[name]
             };
         } else {
-            if (console && console.log && this.undefinedWarning[code] === undefined) {
-                this.undefinedWarning[code] = true;
-                console.log("Warning: Accessing undefined variable: " + code);
+            if (console && console.log && this.undefinedWarning[name] === undefined) {
+                this.undefinedWarning[name] = true;
+                console.log("Warning: Accessing undefined variable: " + name);
             }
         }
         return nada;
@@ -95,9 +95,9 @@ namespace.getvar = function(code) {
     return erg;
 };
 
-namespace.dump = function(code) {
-    var stack = this.vars[code].stack;
-    console.log("*** Dump " + code);
+namespace.dump = function(name) {
+    var stack = this.vars[name].stack;
+    console.log("*** Dump " + name);
 
     for (var i = 0; i < stack.length; i++) {
         console.log(i + ":> " + niceprint(stack[i]));
