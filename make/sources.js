@@ -1,12 +1,12 @@
 "use strict";
 
 exports.libcs = [
-    "src/js/libcs/Namespace.js",
-    "src/js/libcs/Accessors.js",
     "src/js/libcs/CSNumber.js",
     "src/js/libcs/List.js",
-    "src/js/libcs/Essentials.js",
     "src/js/libcs/General.js",
+    "src/js/libcs/Essentials.js",
+    "src/js/libcs/Namespace.js",
+    "src/js/libcs/Accessors.js",
     "src/js/libcs/Operators.js",
     "src/js/libcs/OpDrawing.js",
     "src/js/libcs/OpImageDrawing.js",

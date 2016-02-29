@@ -60,51 +60,21 @@ var reVarName = new RegExp(
 
 /** @constructor */
 function Namespace() {
-    this.vars = {
-        'pi': {
-            'ctype': 'variable',
-            'stack': [{
-                'ctype': 'number',
-                'value': {
-                    'real': Math.PI,
-                    'imag': 0
-                }
-            }],
-            'name': 'pi'
-        },
-        'i': {
-            'ctype': 'variable',
-            'stack': [{
-                'ctype': 'number',
-                'value': {
-                    'real': 0,
-                    'imag': 1
-                }
-            }],
-            'name': 'i'
-        },
-        'true': {
-            'ctype': 'variable',
-            'stack': [{
-                'ctype': 'boolean',
-                'value': true
-            }],
-            'name': 'true'
-        },
-        'false': {
-            'ctype': 'variable',
-            'stack': [{
-                'ctype': 'boolean',
-                'value': false
-            }],
-            'name': 'false'
-        },
-        '#': {
-            'ctype': 'variable',
-            'stack': [nada],
-            'name': '#'
-        }
+    var vars = {
+        pi: CSNumber.real(Math.PI),
+        i: CSNumber.complex(0, 1),
+        'true': General.bool(true),
+        'false': General.bool(false),
+        '#': nada,
     };
+    this.vars = [];
+    for (var name in vars)
+        this.vars[name] = {
+            ctype: 'variable',
+            name: name,
+            stack: [vars[name]]
+        };
+
     this.isVariable = function(a) {
         return this.vars.hasOwnProperty(a);
     };
