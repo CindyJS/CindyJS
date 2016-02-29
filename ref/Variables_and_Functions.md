@@ -235,7 +235,24 @@ It produces the following output:
     * 0 + i*1
 
 If, for instance, the complex unit is needed but the variable `i` is overwritten, then it is still possible to access the complex unit using the function `complex([0,1])`.
-Other predefined variables are `true` and `false` for the logical constants, as well as the empty list, `nil`.
+Other predefined variables are `true` and `false` for the logical constants, as well as the empty list, `nil`, and the strings `newline` and `tab`.
+
+    > pi
+    < 3.1416
+    > π
+    < 3.1416
+    > i
+    < 0 + i*1
+    > true
+    < true
+    > false
+    < false
+    > nil
+    < []
+    > newline
+    < "\n"
+    > tab
+    < "\t"
 
 There is another important type of predefined variable.
 Any geometric element in a construction may be referred to as a predefined variable of the corresponding name.

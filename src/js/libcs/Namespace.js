@@ -8,10 +8,14 @@ var namespace = {};
 namespace.vars = (function() {
     var preset = {
         pi: CSNumber.real(Math.PI),
+        'π': CSNumber.real(Math.PI),
         i: CSNumber.complex(0, 1),
         'true': General.bool(true),
         'false': General.bool(false),
         '#': nada,
+        'nil': List.turnIntoCSList([]),
+        'newline': General.string('\n'),
+        'tab': General.string('\t'),
     };
     var vars = [];
     for (var name in preset)
