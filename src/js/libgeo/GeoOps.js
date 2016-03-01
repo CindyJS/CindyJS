@@ -37,8 +37,13 @@ geoOps.FreeLine.initialize = function(el) {
     putStateComplexVector(pos);
 };
 geoOps.FreeLine.getParamForInput = function(el, pos, type) {
-    var homog = List.cross(pos, List.ez);
-    homog = List.cross(homog, pos);
+    var homog;
+    if (type === "mouse") {
+        homog = List.cross(pos, List.ez);
+        homog = List.cross(homog, pos);
+    } else {
+        homog = pos;
+    }
     return List.normalizeMax(homog);
 };
 geoOps.FreeLine.getParamFromState = function(el) {
