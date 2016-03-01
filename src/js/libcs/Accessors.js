@@ -213,6 +213,10 @@ Accessor.setField = function(geo, field, value) {
         movepointscr(geo, value, "homog");
     }
 
+    if (field === "homog" && geo.type === "FreeLine" && geo.movable && List._helper.isNumberVecN(value, 3)) {
+        geo.homog = General.withUsage(value, "Line"); // TODO tracing (analogous to movepointscr)
+    }
+
     if (field === "angle" && geo.type === "Through") {
         var cc = CSNumber.cos(value);
         var ss = CSNumber.sin(value);
