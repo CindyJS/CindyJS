@@ -168,6 +168,7 @@ Accessor.getField = function(geo, field) {
 };
 
 Accessor.setField = function(geo, field, value) {
+    var dir;
 
     if (field === "color") {
         geo.color = value;
@@ -217,10 +218,16 @@ Accessor.setField = function(geo, field, value) {
         geo.homog = General.withUsage(value, "Line"); // TODO tracing (analogous to movepointscr)
     }
 
+    if (field === "homog" && geo.type === "Through" && geo.movable && List._helper.isNumberVecN(value, 3)) {
+        dir = List.turnIntoCSList([value.value[1], CSNumber.neg(value.value[0]), CSNumber.real(0)]);
+        geo.homog = General.withUsage(value, "Line");
+        movepointscr(geo, dir, "dir");
+    }
+
     if (field === "angle" && geo.type === "Through") {
         var cc = CSNumber.cos(value);
         var ss = CSNumber.sin(value);
-        var dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
+        dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
         movepointscr(geo, dir, "dir");
     }
     if (geo.behavior) {
