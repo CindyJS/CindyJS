@@ -285,7 +285,7 @@ geoOps.Through.initialize = function(el) {
 };
 geoOps.Through.getParamForInput = function(el, pos, type) {
     var l;
-    if (type === "mouse") {
+    if (type === "dir" || type === "mouse") {
         var p1 = csgeo.csnames[(el.args[0])].homog;
         l = List.cross(p1, pos);
     } else if (type === "homog") {
