@@ -523,36 +523,37 @@ Render2D.drawline = function(homog) {
         b.value.real,
         c.value.real
     ];
-    var b1, b2;
-    if (Math.abs(l[0]) < Math.abs(l[1])) {
-        b1 = [1, 0, 30];
-        b2 = [-1, 0, 30];
-    } else {
-        b1 = [0, 1, 30];
-        b2 = [0, -1, 30];
+
+    function crossxy(u, v) {
+        var z = (u[0] * v[1] - u[1] * v[0]);
+        return {
+            x: (u[1] * v[2] - u[2] * v[1]) / z,
+            y: (u[2] * v[0] - u[0] * v[2]) / z
+        };
     }
-    var erg1 = [
-        l[1] * b1[2] - l[2] * b1[1],
-        l[2] * b1[0] - l[0] * b1[2],
-        l[0] * b1[1] - l[1] * b1[0]
-    ];
-    var erg2 = [
-        l[1] * b2[2] - l[2] * b2[1],
-        l[2] * b2[0] - l[0] * b2[2],
-        l[0] * b2[1] - l[1] * b2[0]
-    ];
 
-    var pt1 = {
-        x: erg1[0] / erg1[2],
-        y: erg1[1] / erg1[2]
-    };
-    var pt2 = {
-        x: erg2[0] / erg2[2],
-        y: erg2[1] / erg2[2]
+    function sortxy(u, v) {
+        if (u.x !== v.x)
+            return u.x - v.x;
+        else
+            return u.y - v.y;
+    }
 
-    };
-
-    Render2D.drawsegcore(pt1, pt2);
+    // do not draw beyond canvas boundary
+    var m = csport.drawingstate.matrix;
+    var b1 = [m.a, m.b, m.tx]; // left boundary
+    var b2 = [m.a, m.b, m.tx - csctx.canvas.width]; // right boundary
+    var b3 = [m.c, m.d, m.ty]; // upper boundary
+    var b4 = [m.c, m.d, csctx.canvas.height - m.ty]; // lower boundary
+    if (l[0] === 0) { // horizontal line
+        Render2D.drawsegcore(crossxy(l, b1), crossxy(l, b2));
+        return;
+    } else if (l[1] === 0) { // vertical line
+        Render2D.drawsegcore(crossxy(l, b3), crossxy(l, b4));
+        return;
+    }
+    var intersection = [b1, b2, b3, b4].map(crossxy.bind(null, l)).sort(sortxy);
+    Render2D.drawsegcore(intersection[1], intersection[2]);
 };
 
 Render2D.dashTypes = {
