@@ -385,12 +385,44 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
+
+    // do not draw beyond canvas boundary
+    var p = List.realVector([overhang1x, overhang1y, 1]);
+    var q = List.realVector([overhang2x, overhang2y, 1]);
+    var l = List.cross(p, q);
+    var w = csctx.canvas.clientWidth,
+        h = csctx.canvas.clientHeight;
+    var a, b;
+    if (Math.abs(overhang2x - overhang1x) > Math.abs(overhang2y - overhang1y)) {
+        a = dehom(List.cross(l, List.realVector([1, 0, 0])));
+        b = dehom(List.cross(l, List.realVector([-1, 0, w])));
+    } else {
+        a = dehom(List.cross(l, List.realVector([0, 1, 0])));
+        b = dehom(List.cross(l, List.realVector([0, -1, h])));
+    }
+    p = dehom(p);
+    q = dehom(q);
+    var u;
+    if (overhang1x < 0 || overhang1x > w || overhang1y < 0 || overhang1y > h) {
+        u = a;
+        if (List.abs2(List.sub(b, p)) < List.abs2(List.sub(u, p)))
+            u = b;
+        overhang1x = u.value[0].value.real;
+        overhang1y = u.value[1].value.real;
+    }
+    if (overhang2x < 0 || overhang2x > w || overhang2y < 0 || overhang2y > h) {
+        u = a;
+        if (List.abs2(List.sub(b, q)) < List.abs2(List.sub(u, q)))
+            u = b;
+        overhang1x = u.value[0].value.real;
+        overhang1y = u.value[1].value.real;
+    }
+
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = Render2D.lineCap;
     csctx.lineJoin = Render2D.lineJoin;
     csctx.miterLimit = Render2D.miterLimit;
     csctx.strokeStyle = Render2D.lineColor;
-
 
     if (!Render2D.isArrow ||
         (endpoint1x === endpoint1y && endpoint2x === endpoint2y)) {
