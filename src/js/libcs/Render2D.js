@@ -387,35 +387,40 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
 
     // do not draw beyond canvas boundary
-    var p = List.realVector([overhang1x, overhang1y, 1]);
-    var q = List.realVector([overhang2x, overhang2y, 1]);
-    var l = List.cross(p, q);
+    var o1x = overhang1x,
+        o1y = overhang1y,
+        o2x = overhang2x,
+        o2y = overhang2y;
     var w = csctx.canvas.clientWidth,
         h = csctx.canvas.clientHeight;
     var a, b;
-    if (Math.abs(overhang2x - overhang1x) > Math.abs(overhang2y - overhang1y)) {
-        a = dehom(List.cross(l, List.realVector([1, 0, 0])));
-        b = dehom(List.cross(l, List.realVector([-1, 0, w])));
+    if (Math.abs(o2x - o1x) > Math.abs(o2y - o1y)) {
+        a = [0, (o1x * o2y - o1y * o2x) / (o1x - o2x)];
+        b = [w, (o1y * o2x - o1x * o2y + (o2y - o1y) * w) / (o2x - o1x)];
     } else {
-        a = dehom(List.cross(l, List.realVector([0, 1, 0])));
-        b = dehom(List.cross(l, List.realVector([0, -1, h])));
+        a = [(o1y * o2x - o1x * o2y) / (o1y - o2y), 0];
+        b = [(o1x * o2y - o1y * o2x + (o2x - o1x) * h) / (o2y - o1y), h];
     }
-    p = dehom(p);
-    q = dehom(q);
-    var u;
-    if (overhang1x < 0 || overhang1x > w || overhang1y < 0 || overhang1y > h) {
+    var p = [o1x, o1y];
+    var q = [o2x, o2y];
+    var u, da, db;
+    if (o1x < 0 || o1x > w || o1y < 0 || o1y > h) {
         u = a;
-        if (List.abs2(List.sub(b, p)) < List.abs2(List.sub(u, p)))
+        da = (a[0] - p[0]) * (a[0] - p[0]) + (a[1] - p[1]) * (a[1] - p[1]);
+        db = (b[0] - p[0]) * (b[0] - p[0]) + (b[1] - p[1]) * (b[1] - p[1]);
+        if (db < da)
             u = b;
-        overhang1x = u.value[0].value.real;
-        overhang1y = u.value[1].value.real;
+        overhang1x = u[0];
+        overhang1y = u[1];
     }
-    if (overhang2x < 0 || overhang2x > w || overhang2y < 0 || overhang2y > h) {
+    if (o2x < 0 || o2x > w || o2y < 0 || o2y > h) {
         u = a;
-        if (List.abs2(List.sub(b, q)) < List.abs2(List.sub(u, q)))
+        da = (a[0] - q[0]) * (a[0] - q[0]) + (a[1] - q[1]) * (a[1] - q[1]);
+        db = (b[0] - q[0]) * (b[0] - q[0]) + (b[1] - q[1]) * (b[1] - q[1]);
+        if (db < da)
             u = b;
-        overhang1x = u.value[0].value.real;
-        overhang1y = u.value[1].value.real;
+        overhang2x = u[0];
+        overhang2y = u[1];
     }
 
     csctx.lineWidth = Render2D.lsize;
