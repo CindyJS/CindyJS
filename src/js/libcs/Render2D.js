@@ -385,12 +385,49 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
+
+    // do not draw beyond canvas boundary
+    var o1x = overhang1x,
+        o1y = overhang1y,
+        o2x = overhang2x,
+        o2y = overhang2y;
+    var w = csctx.canvas.clientWidth,
+        h = csctx.canvas.clientHeight;
+    var a, b;
+    if (Math.abs(o2x - o1x) > Math.abs(o2y - o1y)) {
+        a = [0, (o1x * o2y - o1y * o2x) / (o1x - o2x)];
+        b = [w, (o1y * o2x - o1x * o2y + (o2y - o1y) * w) / (o2x - o1x)];
+    } else {
+        a = [(o1y * o2x - o1x * o2y) / (o1y - o2y), 0];
+        b = [(o1x * o2y - o1y * o2x + (o2x - o1x) * h) / (o2y - o1y), h];
+    }
+    var p = [o1x, o1y];
+    var q = [o2x, o2y];
+    var u, da, db;
+    if (o1x < 0 || o1x > w || o1y < 0 || o1y > h) {
+        u = a;
+        da = (a[0] - p[0]) * (a[0] - p[0]) + (a[1] - p[1]) * (a[1] - p[1]);
+        db = (b[0] - p[0]) * (b[0] - p[0]) + (b[1] - p[1]) * (b[1] - p[1]);
+        if (db < da)
+            u = b;
+        overhang1x = u[0];
+        overhang1y = u[1];
+    }
+    if (o2x < 0 || o2x > w || o2y < 0 || o2y > h) {
+        u = a;
+        da = (a[0] - q[0]) * (a[0] - q[0]) + (a[1] - q[1]) * (a[1] - q[1]);
+        db = (b[0] - q[0]) * (b[0] - q[0]) + (b[1] - q[1]) * (b[1] - q[1]);
+        if (db < da)
+            u = b;
+        overhang2x = u[0];
+        overhang2y = u[1];
+    }
+
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = Render2D.lineCap;
     csctx.lineJoin = Render2D.lineJoin;
     csctx.miterLimit = Render2D.miterLimit;
     csctx.strokeStyle = Render2D.lineColor;
-
 
     if (!Render2D.isArrow ||
         (endpoint1x === endpoint1y && endpoint2x === endpoint2y)) {
