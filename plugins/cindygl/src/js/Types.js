@@ -931,11 +931,17 @@ typeinference["genList"] = [{
 ];
 
 typeinference["imagergb"] = [{
+  args: [type.string, type.coordinate2d],
+  res: type.vec3
+}, {
   args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
   res: type.vec3
 }];
 
 typeinference["imagergba"] = [{
+  args: [type.string, type.coordinate2d],
+  res: type.vec4
+}, {
   args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
   res: type.vec4
 }];

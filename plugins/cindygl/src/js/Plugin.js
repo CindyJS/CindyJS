@@ -54,23 +54,12 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     let iw = api.instance['canvas']['width']; //internal measures. might be twice as cw on HiDPI-Displays
     let ih = api.instance['canvas']['height'];
 
-    let m = api.getInitialMatrix();
-    let transf = function(px, py) { //copied from Operators.js
-      var xx = px - m.tx;
-      var yy = py + m.ty;
-      var x = (xx * m.d - yy * m.b) / m.det;
-      var y = -(-xx * m.c + yy * m.a) / m.det;
-      var erg = {
-        x: x,
-        y: y
-      };
-      return erg;
-    };
-    compileAndRender(prog, transf(0, ch), transf(cw, ch), iw, ih, null);
+    compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
     let csctx = api.instance['canvas'].getContext('2d');
     csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, cw, ch);
     return nada;
   });
+
 
   /**
    * plots colorplot on main canvas in CindyJS coordinates in the rectangle bounded by two points (as in Cinderella: coloplot(<expr>, <vec>, <vec>))
@@ -97,21 +86,12 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     let iw = api.instance['canvas']['width']; //internal measures. might be twice as cw on HiDPI-Displays
     let ih = api.instance['canvas']['height'];
 
-    let m = api.getInitialMatrix();
-    let transf = function(px, py) { //copied from Operators.js
-      var xx = px - m.tx;
-      var yy = py + m.ty;
-      var x = (xx * m.d - yy * m.b) / m.det;
-      var y = -(-xx * m.c + yy * m.a) / m.det;
-      var erg = {
-        x: x,
-        y: y
-      };
-      return erg;
-    };
+    let cul = computeUpperLeftCorner(api);
+    let cll = computeLowerLeftCorner(api);
+    let clr = computeLowerRightCorner(api);
 
-    let fx = Math.abs((a.x - b.x) / (transf(cw, 0).x - transf(0, 0).x)); //x-ratio of screen that is used
-    let fy = Math.abs((a.y - b.y) / (transf(0, ch).y - transf(0, 0).y)); //y-ratio of screen that is used
+    let fx = Math.abs((a.x - b.x) / (cll.x - clr.x)); //x-ratio of screen that is used
+    let fy = Math.abs((a.y - b.y) / (cul.y - cll.y)); //y-ratio of screen that is used
 
     compileAndRender(prog, ll, lr, iw * fx, ih * fy, null);
     let csctx = api.instance['canvas'].getContext('2d');
@@ -121,6 +101,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
       x: Math.min(a.x, b.x),
       y: Math.max(a.y, b.y)
     };
+    let m = api.getInitialMatrix();
     var xx = pt.x * m.a - pt.y * m.b + m.tx;
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
@@ -140,6 +121,39 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var prog = args[3];
 
     if (!a.ok || !b.ok || name.ctype !== 'string') {
+      return nada;
+    }
+
+    var localcanvas = api.getImage(name.value, true);
+
+    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
+      return nada;
+    }
+
+    var cw = localcanvas.width;
+    var ch = localcanvas.height;
+
+    if (!canvaswrappers.hasOwnProperty(name.value)) {
+      canvaswrappers[name.value] = new CanvasWrapper(localcanvas);
+    }
+
+    compileAndRender(prog, a, b, cw, ch, canvaswrappers[name.value]);
+
+    return nada;
+  });
+
+  /**
+   * plots on a given canvas and assumes that it lies on CindyJS-table sharing the two bottom corners of main canvas
+   */
+  api.defineFunction("colorplot", 2, function(args, modifs) {
+    initGLIfRequired();
+
+    var a = computeLowerLeftCorner(api);
+    var b = computeLowerRightCorner(api);
+    var name = api.evaluateAndVal(args[0]);
+    var prog = args[1];
+
+    if (name.ctype !== 'string') {
       return nada;
     }
 
