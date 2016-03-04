@@ -500,7 +500,8 @@ Render2D.drawpoint = function(pt) {
 };
 
 Render2D.drawline = function(homog) {
-    // TODO test whether line has real-valued coordinates
+    if (!List._helper.isAlmostReal(homog))
+        return;
     var l = List.normalizeMax(homog);
     l = [l.value[0].value.real, l.value[1].value.real, l.value[2].value.real];
 
