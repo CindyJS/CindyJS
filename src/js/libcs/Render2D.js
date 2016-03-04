@@ -500,29 +500,9 @@ Render2D.drawpoint = function(pt) {
 };
 
 Render2D.drawline = function(homog) {
-    var na = CSNumber.abs(homog.value[0]).value.real;
-    var nb = CSNumber.abs(homog.value[1]).value.real;
-    var nc = CSNumber.abs(homog.value[2]).value.real;
-    var divi;
-
-    if (na >= nb && na >= nc) {
-        divi = homog.value[0];
-    }
-    if (nb >= na && nb >= nc) {
-        divi = homog.value[1];
-    }
-    if (nc >= nb && nc >= na) {
-        divi = homog.value[2];
-    }
-    var a = CSNumber.div(homog.value[0], divi);
-    var b = CSNumber.div(homog.value[1], divi);
-    var c = CSNumber.div(homog.value[2], divi); //TODO Realitycheck einbauen
-
-    var l = [
-        a.value.real,
-        b.value.real,
-        c.value.real
-    ];
+    // TODO test whether line has real-valued coordinates
+    var l = List.normalizeMax(homog);
+    l = [l.value[0].value.real, l.value[1].value.real, l.value[2].value.real];
 
     function crossxy(u, v) {
         var z = (u[0] * v[1] - u[1] * v[0]);
