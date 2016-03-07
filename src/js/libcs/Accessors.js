@@ -230,6 +230,11 @@ Accessor.setField = function(geo, field, value) {
         dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
         movepointscr(geo, dir, "dir");
     }
+    if (geo.kind === "C") {
+        if (field === "radius" && geo.type === "CircleMr" && value.ctype === "number") {
+            movepointscr(geo, value, "radius");
+        }
+    }
     if (geo.behavior) {
         if (field === "mass" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.mass = value.value.real;

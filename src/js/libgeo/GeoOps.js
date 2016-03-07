@@ -649,7 +649,8 @@ geoOps.CircleMr.isMovable = true;
 geoOps.CircleMr.initialize = function(el) {
     putStateComplexNumber(CSNumber.real(el.radius));
 };
-geoOps.CircleMr.getParamForInput = function(el, pos) {
+geoOps.CircleMr.getParamForInput = function(el, pos, type) {
+    if (type === "radius") return pos;
     var m = csgeo.csnames[(el.args[0])].homog;
     m = List.normalizeZ(m);
     pos = List.normalizeZ(pos);
