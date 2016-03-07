@@ -128,7 +128,7 @@ function createCindyNow() {
     var scripts = ["move", "keydown",
         "mousedown", "mouseup", "mousedrag",
         "init", "tick", "draw",
-        "simulationstep", "cssimulationstart", "cssimulationstop"
+        "simulationstep", "simulationstart", "simulationstop"
     ];
     var scriptconf = data.scripts,
         scriptpat = null;
@@ -358,6 +358,7 @@ function csplay() {
         }
 
         csanimating = true;
+        cs_simulationstart();
         startit();
     }
 }
@@ -370,7 +371,10 @@ function cspause() {
 
 function csstop() {
     if (!csstopped) {
-        csanimating = false; // might already be false
+        if (csanimating) {
+            cs_simulationstop();
+            csanimating = false;
+        }
         csstopped = true;
         restoreGeo();
     }
