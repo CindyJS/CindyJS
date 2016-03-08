@@ -394,6 +394,8 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
 
     var eps = 1e-14;
     var mat = List.normalizeMax(conicMatrix);
+    if (!List._helper.isAlmostReal(mat))
+        return;
     var tmat = csport.toMat();
     mat = List.mult(List.transpose(tmat), mat);
     mat = List.mult(mat, tmat);
