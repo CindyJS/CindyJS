@@ -35,7 +35,7 @@ var cdy;
 
 function itCmd(command, expected) {
     it(command, function() {
-        cdy.niceprint(cdy.evalcs(command)).should.equal(expected);
+        String(cdy.niceprint(cdy.evalcs(command))).should.equal(expected);
     });
 }
 
@@ -98,5 +98,23 @@ describe("all* operations", function() {
     itCmd("x = C1; allpoints(x)", "[A, B, C, D, E]");
     itCmd("alllines(K.homog)", "[]");
     itCmd("K = [1,2,3]; alllines(K)", "[]");
+
+});
+
+describe("toString as a name", function() {
+
+    before(function() {
+        cdy = createCindy({
+            isNode: true,
+            csconsole: null,
+            geometry: [
+                {name: "A", type: "Free", pos: [0, 0]},
+            ]
+        });
+    });
+
+    itCmd('isgeometric(toString)', 'false');
+    itCmd('isundefined(toString)', 'true');
+    itCmd('toString = 1; toString', '1');
 
 });
