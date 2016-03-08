@@ -2873,8 +2873,7 @@ evaluator.mover$0 = function(args, modifs) { //OK
     if (move && move.mover)
         return {
             ctype: "geo",
-            value: move.mover,
-            type: "P"
+            value: move.mover
         };
     else
         console.log("Not moving anything at the moment");
@@ -3592,50 +3591,104 @@ evaluator.halfplane$2 = function(args, modifs) {
 //   Geometric elements      //
 ///////////////////////////////
 
+
+// helper for all*(<geoobject>)
+eval_helper.all$1 = function(args, filter) {
+    var arg = evaluate(args[0]);
+    if (arg.ctype !== "geo") return List.nil; // or nada?
+    if (!arg.value.incidences) return List.nil;
+    return List.ofGeos(arg.value.incidences.map(function(name) {
+        return csgeo.csnames[name];
+    }).filter(filter));
+};
+
 evaluator.allpoints$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < csgeo.points.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: csgeo.points[i],
-            type: "P"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
+    return List.ofGeos(csgeo.points);
+};
+
+evaluator.allpoints$1 = function(args, modifs) {
+    return eval_helper.all$1(args, function(el) {
+        return el.kind === "P";
+    });
 };
 
 evaluator.allmasses$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < masses.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: masses[i],
-            type: "P"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
+    return List.ofGeos(masses);
+};
+
+evaluator.allmasses$1 = function(args, modifs) {
+    return eval_helper.all$1(args, function(el) {
+        return el.kind === "P" &&
+            el.behavior && el.behavior.type === "Mass";
+    });
+};
+
+evaluator.allsprings$0 = function(args, modifs) {
+    return List.ofGeos(springs);
+};
+
+evaluator.allsprings$1 = function(args, modifs) {
+    return eval_helper.all$1(args, function(el) {
+        return el.kind === "S" &&
+            el.behavior && el.behavior.type === "Spring";
+    });
 };
 
 evaluator.alllines$0 = function(args, modifs) {
-    var erg = [];
-    for (var i = 0; i < csgeo.lines.length; i++) {
-        erg[i] = {
-            ctype: "geo",
-            value: csgeo.lines[i],
-            type: "L"
-        };
-    }
-    return {
-        ctype: "list",
-        value: erg
-    };
+    return List.ofGeos(csgeo.lines);
 };
+
+evaluator.alllines$1 = function(args, modifs) {
+    return eval_helper.all$1(args, function(el) {
+        return el.kind === "L" || el.kind === "S";
+    });
+};
+
+evaluator.allsegments$0 = function(args, modifs) {
+    return List.ofGeos(csgeo.lines.filter(function(el) {
+        return el.kind === "S";
+    }));
+};
+
+evaluator.allsegments$1 = function(args, modifs) {
+    return eval_helper.all$1(args, function(el) {
+        return el.kind === "S";
+    });
+};
+
+evaluator.allconics$0 = function(args, modifs) {
+    return List.ofGeos(csgeo.conics);
+};
+
+evaluator.allconics$1 = function(args, modifs) {
+    return eval_helper.all$1(args, function(el) {
+        return el.kind === "C";
+    });
+};
+
+evaluator.allcircles$0 = function(args, modifs) {
+    return List.ofGeos(csgeo.conics.filter(function(el) {
+        return el.matrix.usage === "Circle";
+    }));
+};
+
+evaluator.allcircles$1 = function(args, modifs) {
+    return eval_helper.all$1(args, function(el) {
+        return el.kind === "C" && el.matrix.usage === "Circle";
+    });
+};
+
+evaluator.allelements$0 = function(args, modifs) {
+    return List.ofGeos(csgeo.gslp);
+};
+
+evaluator.allelements$1 = function(args, modifs) {
+    return eval_helper.all$1(args, function(el) {
+        return true;
+    });
+};
+
+evaluator.incidences$1 = evaluator.allelements$1;
 
 evaluator.createpoint$2 = function(args, modifs) {
     var name = evaluate(args[0]);

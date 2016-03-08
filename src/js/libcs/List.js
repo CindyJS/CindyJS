@@ -2490,3 +2490,14 @@ List.getField = function(li, key) {
     return nada;
 
 };
+
+List.nil = List.turnIntoCSList([]);
+
+List.ofGeos = function(geos) {
+    return List.turnIntoCSList(geos.map(function(geo) {
+        return {
+            ctype: "geo",
+            value: geo
+        };
+    }));
+};
