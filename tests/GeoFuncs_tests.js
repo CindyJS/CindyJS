@@ -118,3 +118,22 @@ describe("toString as a name", function() {
     itCmd('toString = 1; toString', '1');
 
 });
+
+describe("==", function() {
+
+    before(function() {
+        cdy = createCindy({
+            isNode: true,
+            csconsole: null,
+            geometry: [
+                {name: "A", type: "Free", pos: [0, 0]},
+            ]
+        });
+    });
+
+    itCmd('A == A.xy', 'false');
+    itCmd('A == A.homog', 'false');
+    itCmd('A == A', 'true');
+    itCmd('A == [0, 0]', 'false');
+
+});
