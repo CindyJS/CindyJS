@@ -183,13 +183,6 @@ This operator is similar to **&gt;** but tests for **less than or equal to**.
 
 ####  Fuzzy comparisons:
 
-##### Approximately equal: `‹expr1› ~= ‹expr2›`
-##### Approximately not equal: `‹expr1› ~!= ‹expr2›`
-##### Approximately greater or equal: `‹expr1› ~>= ‹expr2›`
-##### Approximately less or equal: `‹expr1› ~<= ‹expr2›`
-##### Approximately less: `‹expr1› ~< ‹expr2›`
-##### Approximately greater: `‹expr1› ~> ‹expr2›`
-
 **Description:**
 CindyScript provides a *fuzzy* variant for each comparison operator.
 This version tests whether the condition is satisfied up to an epsilon bound.
@@ -201,6 +194,96 @@ The exact semantics of the exact and the fuzzy operators can be read off from th
 Here for each operator the picture shows for which region of `b` (marked in red) the operator evaluates to true.
 
 ![Illustration of fuzzy comparisons](img/Comparisons.png)
+
+    > // The value of epsilon can't be represented exactly
+    > scaleFactor = 1;
+    > repeat(86, scaleFactor = 0.5 * scaleFactor);
+    > greaterThanEps = 7737125245533627 * scaleFactor;
+    > lessThanEps = 7737125245533626 * scaleFactor;
+    > greaterThanEps * 10^10
+    < 1
+    > lessThanEps * 10^10
+    < 1
+    > greaterThanEps == lessThanEps
+    < false
+
+##### Approximately equal: `‹expr1› ~= ‹expr2›`
+
+    > -greaterThanEps ~= 0
+    < false
+    > -lessThanEps ~= 0
+    < true
+    > 0 ~= 0
+    < true
+    > lessThanEps ~= 0
+    < true
+    > greaterThanEps ~= 0
+    < false
+
+##### Noticably different: `‹expr1› ~!= ‹expr2›`
+
+    > -greaterThanEps ~!= 0
+    < true
+    > -lessThanEps ~!= 0
+    < false
+    > 0 ~!= 0
+    < false
+    > lessThanEps ~!= 0
+    < false
+    > greaterThanEps ~!= 0
+    < true
+
+##### Greater or approximately equal: `‹expr1› ~>= ‹expr2›`
+
+    > -greaterThanEps ~>= 0
+    < false
+    > -lessThanEps ~>= 0
+    < true
+    > 0 ~>= 0
+    < true
+    > lessThanEps ~>= 0
+    < true
+    > greaterThanEps ~>= 0
+    < true
+
+##### Less or approximately equal: `‹expr1› ~<= ‹expr2›`
+
+    > -greaterThanEps ~<= 0
+    < true
+    > -lessThanEps ~<= 0
+    < true
+    > 0 ~<= 0
+    < true
+    > lessThanEps ~<= 0
+    < true
+    > greaterThanEps ~<= 0
+    < false
+
+##### Noticably less: `‹expr1› ~< ‹expr2›`
+
+    > -greaterThanEps ~< 0
+    < true
+    > -lessThanEps ~< 0
+    < false
+    > 0 ~< 0
+    < false
+    > lessThanEps ~< 0
+    < false
+    > greaterThanEps ~< 0
+    < false
+
+##### Noticably greater: `‹expr1› ~> ‹expr2›`
+
+    > -greaterThanEps ~> 0
+    < false
+    > -lessThanEps ~> 0
+    < false
+    > 0 ~> 0
+    < false
+    > lessThanEps ~> 0
+    < false
+    > greaterThanEps ~> 0
+    < true
 
 ------
 
