@@ -21,6 +21,7 @@ exports.libgeo = [
     "src/js/libgeo/GeoBasics.js",
     "src/js/libgeo/GeoRender.js",
     "src/js/libgeo/Tracing.js",
+    "src/js/libgeo/Prover.js",
     "src/js/libgeo/GeoOps.js",
     "src/js/libgeo/GeoScripts.js",
     "src/js/libgeo/StateIO.js",
