@@ -310,9 +310,6 @@ eval_helper.drawcircle = function(args, modifs, df) {
 };
 
 evaluator.drawconic$1 = function(args, modifs) {
-    var Conic = {};
-    Conic.usage = "conic";
-
     var arr = evaluateAndVal(args[0]);
 
     if (arr.ctype !== "list" || arr.value.length !== 3 && arr.value.length !== 6) {
@@ -340,34 +337,25 @@ evaluator.drawconic$1 = function(args, modifs) {
         e = CSNumber.mult(e, half);
         var f = arr.value[5];
 
-        var mat = List.turnIntoCSList([
+        arr = List.turnIntoCSList([
             List.turnIntoCSList([a, b, d]),
             List.turnIntoCSList([b, c, e]),
             List.turnIntoCSList([d, e, f])
         ]);
-        Conic.matrix = mat;
     } else { // matrix case
 
-        for (var ii = 0; ii < 3; ii++) // check for faulty arrays
-            for (var jj = 0; jj < 3; jj++)
-            if (arr.value[ii].value[jj].ctype !== "number") {
-                console.error("could not parse conic");
-                return nada;
-            }
+        if (!(List.isNumberMatrix(arr).value &&
+                arr.value.length === 3 &&
+                arr.value[0].value.length === 3))
+            return nada;
 
-        if (!List.equals(arr, List.transpose(arr)).value) { // not symm case
-            var aa = General.mult(arr, CSNumber.real(0.5));
-            var bb = General.mult(List.transpose(arr), CSNumber.real(0.5));
-            arr = List.add(aa, bb);
-            Conic.matrix = arr;
-        } else {
-            Conic.matrix = arr;
+        var tarr = List.transpose(arr);
+        if (!List.equals(arr, tarr).value) { // not symm case
+            arr = List.add(tarr, arr);
         }
 
-
     }
-    Conic.matrix = List.normalizeMax(Conic.matrix);
-    return eval_helper.drawconic(Conic.matrix, modifs);
+    return eval_helper.drawconic(arr, modifs);
 };
 
 // See also eval_helper.quadratic_roots for the complex case
