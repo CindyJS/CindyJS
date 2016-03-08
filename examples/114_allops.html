@@ -24,11 +24,11 @@
 <script id='csmove' type='text/x-cindyscript'>
 println("allpoints, should be A, B, C, D, E, F, G, H, K, L, M, N, O");
 println(allpoints());
-println("alllines, should be a,b,c");
+println("alllines, should be a, b, c, no");
 println(alllines());
-println("allsegments, should be a,c");
+println("allsegments, should be a, c, no");
 println(allsegments());
-println("allconics, should be C1, C2, C0");
+println("allconics, should be C0, C1, C2");
 println(allconics());
 println("allcircles, should be C0, C2");
 println(allcircles());
@@ -45,7 +45,7 @@ println(allelements());
 
 println("allpoints incident to b, should be K");
 println(allpoints(b));
-println("allpoints incident to C1, should be A B C D E");
+println("allpoints incident to C1, should be A, B, C, D, E");
 println(allpoints(C1));
 println("alllines incident to K, should be b");
 println(alllines(K));
