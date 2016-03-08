@@ -411,10 +411,10 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     var c01 = mat.value[1].value[2].value.real * 2;
     var c00 = mat.value[2].value[2].value.real;
 
-    var det = Math.abs(c20 * c02 * c00 * 4 + c11 * c01 * c10 -
-        c00 * c11 * c11 - c20 * c01 * c01 - c02 * c10 * c10);
+    var discr = c20 * c02 * 4 - c11 * c11;
+    var det = Math.abs(discr * c00 + c11 * c01 * c10 -
+        c20 * c01 * c01 - c02 * c10 * c10);
     if (det < eps) {
-        var discr = c20 * c02 * 4 - c11 * c11;
         if (discr < eps) { // pair of lines
             var lines = geoOps._helper.splitDegenConic(conicMatrix);
             if (lines !== nada) {
@@ -552,9 +552,9 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         // Compute the roots of the y discriminant
         // for points with vertical tangents
         sol = solveRealQuadratic(
-            c11 * c11 - 4 * c02 * c20,
-            2 * c01 * c11 - 4 * c10 * c02,
-            c01 * c01 - 4 * c00 * c02);
+            discr,
+            4 * c10 * c02 - 2 * c01 * c11,
+            4 * c00 * c02 - c01 * c01);
         if (sol)
             for (i = 0; i < 2; ++i) {
                 x = sol[i];
@@ -568,9 +568,9 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         // Compute the roots of the x discriminant
         // for points with horizontal tangents
         sol = solveRealQuadratic(
-            c11 * c11 - 4 * c02 * c20,
-            2 * c10 * c11 - 4 * c01 * c20,
-            c10 * c10 - 4 * c00 * c20);
+            discr,
+            4 * c01 * c20 - 2 * c10 * c11,
+            4 * c00 * c20 - c10 * c10);
         if (sol)
             for (i = 0; i < 2; ++i) {
                 y = sol[i];
