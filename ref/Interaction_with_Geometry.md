@@ -79,16 +79,12 @@ They reappear if the mouse moves away again.
 
 #### Incidences of an object: `incidences(‹geo›)`
 
-**Not available in CindyJS yet!**
-
 **Description:**
 This operator returns a list all the elements that are generically incident to a geometric element `‹geo›`.
 
 ------
 
 #### Getting an element by name: `element(‹string›)`
-
-**Not available in CindyJS yet!**
 
 **Description:**
 This operator returns the geometric object identified by the name given in `‹string›`.
