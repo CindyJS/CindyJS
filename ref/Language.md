@@ -328,6 +328,8 @@ These always denote a list, even if they contain exactly one expression.
 #### Curly braces `{…}`
 
 The single-expression form `{‹expr›}` is just like `(‹expr›)`.
+This form is deprecated, and likely will get removed in the near future.
+Use `(…)` instead.
 The use with zero elements, or more than one, is reserved for future extensions.
 
     > 7 * {1 + 2}
