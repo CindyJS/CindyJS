@@ -53,8 +53,8 @@ function csinit(gslp) {
     csgeo.texts = [];
     csgeo.free = [];
 
-    gslp.forEach(addElement);
-    guessIncidences();
+    gslp.forEach(addElementNoProof);
+    checkConjectures();
 }
 
 // Setzen der Default appearance
@@ -114,6 +114,12 @@ function segmentDefault(el) {
 }
 
 function addElement(el) {
+    el = addElementNoProof(el);
+    checkConjectures();
+    return el;
+}
+
+function addElementNoProof(el) {
     var i;
 
     // Adding an existing element moves that element to the given position
@@ -237,7 +243,7 @@ function addElement(el) {
     isShowing(el, op);
 
     geoDependantsCache = {};
-    //guessIncidences();
+    guessIncidences(el);
 }
 
 function onSegment(p, s) { //TODO was ist mit Fernpunkten
@@ -329,44 +335,4 @@ function getGeoDependants(mover) {
                 deps.map(function(el) { return el.name; }).join(",") + "]");
     */
     return deps;
-}
-
-function guessIncidences() {
-
-    var gslp = csgeo.gslp;
-    var p, c, erg, i, j, l, pn, ln, prod;
-    for (i = 0; i < csgeo.lines.length; i++) {
-        l = csgeo.lines[i];
-        for (j = 0; j < csgeo.points.length; j++) {
-            p = csgeo.points[j];
-            pn = List.scaldiv(List.abs(p.homog), p.homog);
-            ln = List.scaldiv(List.abs(l.homog), l.homog);
-            prod = CSNumber.abs(List.scalproduct(pn, ln));
-            if (prod.value.real < 0.0000000000001) {
-                p.incidences.push(l.name);
-                l.incidences.push(p.name);
-
-            }
-
-        }
-    }
-
-
-    // points and conics
-    for (i = 0; i < csgeo.conics.length; i++) {
-        c = csgeo.conics[i];
-        for (j = 0; j < csgeo.points.length; j++) {
-            p = csgeo.points[j];
-            erg = General.mult(c.matrix, p.homog);
-            erg = General.mult(p.homog, erg);
-            erg = CSNumber.abs(erg);
-            if (erg.value.real < 0.0000000000001) {
-                p.incidences.push(c.name);
-                c.incidences.push(p.name);
-            }
-
-        }
-    }
-
-
 }
