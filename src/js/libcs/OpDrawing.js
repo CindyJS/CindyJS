@@ -417,10 +417,8 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     if (det < eps) {
         if (discr < eps) { // pair of lines
             var lines = geoOps._helper.splitDegenConic(conicMatrix);
-            if (lines !== nada) {
-                evaluator.draw$1([lines[0]], modifs);
-                evaluator.draw$1([lines[1]], modifs);
-            }
+            evaluator.draw$1([lines[0]], modifs);
+            evaluator.draw$1([lines[1]], modifs);
             return;
         } else if (det < 1e-25) { // VERY small circle or ellipse
             return;
