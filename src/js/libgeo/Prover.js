@@ -78,9 +78,40 @@ function incidentPC(p, c) {
 
 function checkConjectures() {
     if (conjectures.length === 0) return;
+    //    debugger;
+    backupGeo();
     // TODO: we need some randomized proving here:
     // move free elements and check conjectures a number of times.
     // For now assume that all conjectures could be verified.
+
+    var ii, jj, kk;
+    var free = csgeo.free;
+    var newpos, el;
+    var nummoves = 10;
+
+    console.log("con before", conjectures);
+    // iterate over all elements
+    for (ii = 0; ii < free.length; ii++) {
+        el = free[ii];
+        // iterate over moves
+        for (jj = 0; jj < nummoves; jj++) {
+            newpos = geoOps[el.type].getRandomMove(el);
+            movepointscr(el, newpos, "homog");
+            // check if conjecture still holds
+            for (kk = 0; kk < conjectures.length; kk++) {
+                if (!(conjectures[kk].holds())) {
+                    console.log("removing conjecture");
+                    conjectures.splice(kk, 1);
+                }
+            } // end kk
+        } // end jj
+    } // end ii
+    console.log("con after", conjectures);
+
+
+    restoreGeo();
+
+
     for (var i = 0; i < conjectures.length; ++i) {
         conjectures[i].apply();
     }

@@ -371,6 +371,12 @@ geoOps.Free.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Point");
 };
+geoOps.Free.getRandomMove = function(el) {
+    var oldpos = List.normalizeZ(List.realVector(el.pos));
+    var move = List.realVector([(Math.random() - 0.5), (Math.random() - 0.5), 0]);
+    move = List.add(oldpos, move);
+    return move;
+};
 geoOps.Free.stateSize = 6;
 
 geoOps._helper.projectPointToLine = function(point, line) {
