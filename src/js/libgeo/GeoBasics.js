@@ -334,17 +334,35 @@ function getGeoDependants(mover) {
 function guessIncidences() {
 
     var gslp = csgeo.gslp;
-    for (var i = 0; i < csgeo.lines.length; i++) {
-        var l = csgeo.lines[i];
-        for (var j = 0; j < csgeo.points.length; j++) {
-            var p = csgeo.points[j];
-            var pn = List.scaldiv(List.abs(p.homog), p.homog);
-            var ln = List.scaldiv(List.abs(l.homog), l.homog);
-            var prod = CSNumber.abs(List.scalproduct(pn, ln));
+    var p, c, erg, i, j, l, pn, ln, prod;
+    for (i = 0; i < csgeo.lines.length; i++) {
+        l = csgeo.lines[i];
+        for (j = 0; j < csgeo.points.length; j++) {
+            p = csgeo.points[j];
+            pn = List.scaldiv(List.abs(p.homog), p.homog);
+            ln = List.scaldiv(List.abs(l.homog), l.homog);
+            prod = CSNumber.abs(List.scalproduct(pn, ln));
             if (prod.value.real < 0.0000000000001) {
                 p.incidences.push(l.name);
                 l.incidences.push(p.name);
 
+            }
+
+        }
+    }
+
+
+    // points and conics
+    for (i = 0; i < csgeo.conics.length; i++) {
+        c = csgeo.conics[i];
+        for (j = 0; j < csgeo.points.length; j++) {
+            p = csgeo.points[j];
+            erg = General.mult(c.matrix, p.homog);
+            erg = General.mult(p.homog, erg);
+            erg = CSNumber.abs(erg);
+            if (erg.value.real < 0.0000000000001) {
+                p.incidences.push(c.name);
+                c.incidences.push(p.name);
             }
 
         }

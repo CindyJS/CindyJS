@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+<script id='csmove' type='text/x-cindyscript'>
+println("allpoints, should be A, B, C, D, E, F, G, H, K, L, M, N, O");
+println(allpoints());
+println("alllines, should be a,b,c");
+println(alllines());
+println("allsegments, should be a,c");
+println(allsegments());
+println("allconics, should be C1, C2, C0");
+println(allconics());
+println("allcircles, should be C0, C2");
+println(allcircles());
+println("allmasses, should be M, O");
+println(allmasses());
+println("allsprings, should be c");
+println(allsprings());
+
+println("allelements");
+println(allelements());
+
+
+// INCIDENCES
+
+println("allpoints incident to b, should be K");
+println(allpoints(b));
+println("allpoints incident to C1, should be A B C D E");
+println(allpoints(C1));
+println("alllines incident to K, should be b");
+println(alllines(K));
+
+println("allsegments incident to L, should be c");
+println(allsegments(L));
+
+println("allmasses incident to Segment N-O, should be O");
+println(allmasses(no));
+println("allsprings incident to L, should be c");
+println(allsprings(L));
+println("allconics incident to A, should be C1");
+println(allconics(A));
+
+println("allcircles incident to G, should be C2");
+println(allcircles(G));
+
+println("allelements incident to K, should be b");
+println(allelements(K));
+
+
+//faulty case
+println("faulty case");
+A = [1,2,3];
+println(alllines(A));
+
+</script>
+
+    <script type="text/javascript">
+            var physics=[
+                       {behavior:{type:"Environment",gravity:-.2}},
+                       {name:"M", behavior:{type:"Mass",friction:0.1}},
+                       {name:"O", behavior:{type:"Mass",friction:0.1}},
+                       {name:"c", behavior:{type:"Spring"}}
+                       ];
+
+var cdy = createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: {}, 
+	behavior:physics,
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 2.6486486486486487, -4.0, -0.6756756756756757 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ 4.0, -3.183673469387755, -1.0204081632653061 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C", type: "Free", pos: [ 2.8888888888888893, -4.0, -2.7777777777777777 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "D", type: "Free", pos: [ -2.795180722891566, -4.0, -1.2048192771084338 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "E", type: "Free", pos: [ 0.20382165605095542, -4.0, -0.6369426751592356 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "F", type: "Free", pos: [ 4.0, 0.8928571428571428, 0.4464285714285714 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C0", type: "CircleByRadius", color: [ 0.0, 0.0, 1.0 ], radius: 3.807571404451924, args: [ "F" ], size: 1, printname: "$C_{0}$" }, 
+		{ name: "C1", type: "ConicBy5", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "B", "C", "D", "E" ], size: 1, printname: "$C_{1}$" }, 
+		{ name: "G", type: "Free", pos: [ -1.6536312849162011, -4.0, -0.5586592178770949 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "H", type: "Free", pos: [ -3.4254143646408846, -4.0, -0.5524861878453039 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "a", type: "Segment", pos: [ 0.013936311058462669, -0.5644205978677443, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "G", "H" ], labeled: true, size: 1 }, 
+		{ name: "K", type: "Free", pos: [ 4.0, 0.9929078014184397, -0.7092198581560284 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "b", type: "Through", pos: [ 0.694924364585733, 0.0575904169546188, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "K" ], labeled: true, size: 1 }, 
+		{ name: "L", type: "Free", pos: [ 4.0, 0.6588235294117648, -1.1764705882352942 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "M", type: "Free", pos: [ 0.8979591836734694, -4.0, 2.0408163265306123 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "c", type: "Segment", pos: [ 0.8103727714748782, 2.2227367446168094, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "L", "M" ], render: true, labeled: true, size: 1 }, 
+		{ name: "N", type: "Free", pos: [ 4.0, 0.7792207792207791, 1.2987012987012987 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "O", type: "Free", pos: [ 4.0, -0.6419753086419752, 1.2345679012345678 ], color: [ 1.0, 0.0, 0.0 ], labeled: true },
+		{ name: "no", type: "Segment" , color: [ 0.0, 0.0, 1.0 ], args: [ "N", "O" ], render: true, labeled: true, size: 1 }, 
+		{ name: "C2", type: "CircleBy3", color: [ 0.0, 0.0, 1.0 ], args: [ "G", "H", "F" ], size: 1, printname: "$C_{2}$" }, 
+ ],
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 335, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.08 ] } ], background: "rgb(168,176,192)" } ] });
+    </script>
+</head>
+
+
+
+<body>
+    <canvas id="CSCanvas"></canvas>
+    <br>
+               <button onclick="cdy.play()" type="button" >Play</button>
+        <button onclick="cdy.pause()" type="button" >Pause</button>
+        <button onclick="cdy.stop()" type="button" >Stop</button>
+
+</body>
+</html>
