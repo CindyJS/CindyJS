@@ -3588,6 +3588,16 @@ evaluator.halfplane$2 = function(args, modifs) {
 //   Geometric elements      //
 ///////////////////////////////
 
+evaluator.element$1 = function(args, modifs) {
+    var name = evaluate(args[0]);
+    if (name.ctype === "string")
+        if (csgeo.csnames.hasOwnProperty(name.value))
+            return {
+                ctype: "geo",
+                value: csgeo.csnames[name.value]
+            };
+    return nada;
+};
 
 // helper for all*(<geoobject>)
 eval_helper.all$1 = function(args, filter) {

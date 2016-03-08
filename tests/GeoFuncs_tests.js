@@ -137,3 +137,25 @@ describe("==", function() {
     itCmd('A == [0, 0]', 'false');
 
 });
+
+describe("element(‹string›)", function() {
+
+    before(function() {
+        cdy = createCindy({
+            isNode: true,
+            csconsole: null,
+            geometry: [
+                {name: "A", type: "Free", pos: [0, 0]},
+                {name: "B", type: "Free", pos: [1, 0]},
+                {name: "i", type: "Join", args: ["A", "B"]}
+            ]
+        });
+    });
+
+    itCmd('element("i")', 'i');
+    itCmd('element("i") == i', 'false');
+    itCmd('alllines()_1', 'i');
+    itCmd('element("i") == alllines()_1', 'true');
+    itCmd('isgeometric(element("toString"))', 'false');
+
+});
