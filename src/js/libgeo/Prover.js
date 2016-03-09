@@ -97,6 +97,7 @@ function checkConjectures() {
     csgeo.free.forEach(function(el) {
         jj = nummoves;
         while (jj--) {
+            if(el.kind === "C") break; // no conic movement currently
             if (el.pinned) {
                 if (debug) console.log("element ", el.name, "is pinned");
                 break;
