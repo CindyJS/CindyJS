@@ -87,7 +87,7 @@ function checkConjectures() {
     var ii, jj, kk;
     var free = csgeo.free;
     var newpos, el;
-    var nummoves = 10;
+    var nummoves = 3;
 
     console.log("con before", conjectures);
     // iterate over all elements
@@ -98,12 +98,9 @@ function checkConjectures() {
             newpos = geoOps[el.type].getRandomMove(el);
             movepointscr(el, newpos, "homog");
             // check if conjecture still holds
-            for (kk = 0; kk < conjectures.length; kk++) {
-                if (!(conjectures[kk].holds())) {
-                    console.log("removing conjecture");
-                    conjectures.splice(kk, 1);
-                }
-            } // end kk
+            conjectures = conjectures.filter(function(con){
+                return con.holds();
+            });
         } // end jj
     } // end ii
     console.log("con after", conjectures);
