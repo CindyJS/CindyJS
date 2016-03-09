@@ -90,24 +90,24 @@ function checkConjectures() {
     var newpos, el;
     var nummoves = 3;
 
- if(debug)    console.log("con before", conjectures);
-    csgeo.free.forEach(function(el){
+    if (debug) console.log("con before", conjectures);
+    csgeo.free.forEach(function(el) {
         jj = nummoves;
-        while(jj--){
-            if(el.pinned){
-                if(debug) console.log("element ", el.name, "is pinned");
+        while (jj--) {
+            if (el.pinned) {
+                if (debug) console.log("element ", el.name, "is pinned");
                 break;
             }
-            if(debug) console.log("prover: moving element", el.name);
+            if (debug) console.log("prover: moving element", el.name);
             newpos = geoOps[el.type].getRandomMove(el);
             movepointscr(el, newpos, "homog");
             // check if conjecture still holds
-            conjectures = conjectures.filter(function(con){
+            conjectures = conjectures.filter(function(con) {
                 return con.holds();
             });
-        } 
-    }); 
-    if(debug) console.log("con after", conjectures);
+        }
+    });
+    if (debug) console.log("con after", conjectures);
 
 
     restoreGeo();

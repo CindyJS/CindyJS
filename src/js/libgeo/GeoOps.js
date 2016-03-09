@@ -60,9 +60,9 @@ geoOps.FreeLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.FreeLine.getRandomMove = function(el) {
-    var rcomplex = function(){
+    var rcomplex = function() {
         var fact = 0.01;
-        return CSNumber.complex((Math.random()-0.5)*fact, (Math.random()-0.5)*fact);
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
     };
     var oldpos = List.normalizeMax(el.homog);
     var move = List.turnIntoCSList([rcomplex(), rcomplex(), rcomplex()]);
@@ -383,9 +383,9 @@ geoOps.Free.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Point");
 };
 geoOps.Free.getRandomMove = function(el) {
-    var rcomplex = function(){
+    var rcomplex = function() {
         var fact = 0.01;
-        return CSNumber.complex((Math.random()-0.5)*fact, (Math.random()-0.5)*fact);
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
     };
     var oldpos = List.normalizeMax(el.homog);
     var rvect = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(0)]);
