@@ -119,10 +119,9 @@ function checkConjectures() {
         conjectures[i].apply();
     }
     conjectures = [];
-    if(debug){
-    csgeo.gslp.forEach(function(el){
-        console.log(el.name, el.incidences);
-    }
-    );
+    if (debug) {
+        csgeo.gslp.forEach(function(el) {
+            console.log(el.name, el.incidences);
+        });
     }
 }
