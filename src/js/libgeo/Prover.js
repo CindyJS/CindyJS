@@ -68,7 +68,7 @@ function incidentPC(p, c) {
             var erg = General.mult(c.matrix, p.homog);
             erg = General.mult(p.homog, erg);
             erg = CSNumber.abs(erg);
-            return (erg.value.real < 0.0000000000001) 
+            return (erg.value.real < 0.0000000000001);
         }
     };
 }
@@ -93,7 +93,7 @@ function checkConjectures() {
     csgeo.free.forEach(function(el) {
         jj = nummoves;
         while (jj--) {
-            if(el.kind === "C") break; // no conic movement currently
+            if (el.kind === "C") break; // no conic movement currently
             if (el.pinned) {
                 if (debug) console.log("element ", el.name, "is pinned");
                 break;
@@ -107,8 +107,8 @@ function checkConjectures() {
             });
         }
     });
-    if (debug){ 
-        console.log("dropped ", nconject - conjectures.length, " conjectures"); 
+    if (debug) {
+        console.log("dropped ", nconject - conjectures.length, " conjectures");
     }
 
 
