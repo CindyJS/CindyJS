@@ -78,6 +78,7 @@ function incidentPC(p, c) {
 
 function checkConjectures() {
     var debug = true;
+    console.log(conjectures);
     if (conjectures.length === 0) return;
     //    debugger;
     backupGeo();
@@ -90,7 +91,8 @@ function checkConjectures() {
     var newpos, el;
     var nummoves = 3;
 
-    if (debug) console.log("con before", conjectures);
+    // debug code remove later
+    var nconject = conjectures.length;
     csgeo.free.forEach(function(el) {
         jj = nummoves;
         while (jj--) {
@@ -107,7 +109,9 @@ function checkConjectures() {
             });
         }
     });
-    if (debug) console.log("con after", conjectures);
+    if (debug){ 
+        console.log("dropped ", nconject - conjectures.length, " conjectures"); 
+    }
 
 
     restoreGeo();
