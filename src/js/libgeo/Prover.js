@@ -68,11 +68,7 @@ function incidentPC(p, c) {
             var erg = General.mult(c.matrix, p.homog);
             erg = General.mult(p.homog, erg);
             erg = CSNumber.abs(erg);
-            if (erg.value.real < 0.0000000000001) {
-                p.incidences.push(c.name);
-                c.incidences.push(p.name);
-                return true;
-            }
+            return (erg.value.real < 0.0000000000001) 
         }
     };
 }
