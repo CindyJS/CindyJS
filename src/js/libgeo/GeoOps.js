@@ -59,6 +59,17 @@ geoOps.FreeLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
+geoOps.FreeLine.getRandomMove = function(el) {
+    var rcomplex = function(){
+        var fact = 0.01;
+        return CSNumber.complex((Math.random()-0.5)*fact, (Math.random()-0.5)*fact);
+    };
+    var oldpos = List.normalizeMax(el.homog);
+    var move = List.turnIntoCSList([rcomplex(), rcomplex(), rcomplex()]);
+
+    move = List.add(oldpos, move);
+    return List.normalizeMax(move);
+};
 geoOps.FreeLine.stateSize = 6;
 
 
@@ -372,10 +383,16 @@ geoOps.Free.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Point");
 };
 geoOps.Free.getRandomMove = function(el) {
-    var oldpos = List.normalizeZ(List.realVector(el.pos));
-    var move = List.realVector([(Math.random() - 0.5), (Math.random() - 0.5), 0]);
+    var rcomplex = function(){
+        var fact = 0.01;
+        return CSNumber.complex((Math.random()-0.5)*fact, (Math.random()-0.5)*fact);
+    };
+    var oldpos = List.normalizeMax(el.homog);
+    var rvect = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(0)]);
+    var move = List.scalmult(oldpos.value[2], rvect);
+
     move = List.add(oldpos, move);
-    return move;
+    return List.normalizeMax(move);
 };
 geoOps.Free.stateSize = 6;
 
