@@ -60,7 +60,8 @@ A three-dimensional vector may then be written as follows:
 
 ------
 
-#### Accessing Elements of Lists: `take(‹list›,‹int›)`
+#### Accessing Elements of Lists: `‹list›_‹int›`
+##### Functional List Element Access: `take(‹list›,‹int›)`
 
 **Description:**
 One can access the individual elements of a list either with the infix operator `‹list›_‹int›` or the functional operator `take(‹list›,‹int›)`.

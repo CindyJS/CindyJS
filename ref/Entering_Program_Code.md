@@ -29,7 +29,7 @@ In the example shown below a small script was entered and given the title "My fi
 
 Pressing the button with the two gears executes the script.
 In the above example a green dotted line will be drawn consisting of ten simple dots.
-Alternatively the execution can be started by pressing &lt;shift&gt;+&lt;enter&gt;.
+Alternatively the execution can be started by pressing <kbd>⇧</kbd>+<kbd>↵</kbd>.
 
 ### Execution Slots
 
@@ -102,7 +102,7 @@ In the upper part of the script editor window are two buttons to start and stop 
 Perhaps the most important part of these controls is the "Play" button (the one with the two gears).
 Whenever this button is pressed all scripts are parsed and the execution of the program is started.
 Every change in a program requires the play button to be pressed to become active.
-Alternatively, the key combination &lt;shift&gt;+&lt;enter&gt; can be used as an equivalent for pressing the play button.
+Alternatively, the key combination <kbd>⇧</kbd>+<kbd>↵</kbd> can be used as an equivalent for pressing the play button.
 
 It may happen that a script gets stuck in an infinite loop or performs a calculation that simply takes too long.
 As a kind of emergency exit, the "Stop" button can be pressed.

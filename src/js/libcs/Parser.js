@@ -124,7 +124,7 @@ function condense(code) {
                 commentmode = true;
         if (c === '\n')
             commentmode = false;
-        if (!(c === '\u0020' || c === '\u0009' || c === '\u000A' || c === '\u000C' || c === '\u000D' || commentmode) || literalmode)
+        if (!(c === '\u0020' || c === '\u0009' || c === '\u000A' || c === '\u000D' || commentmode) || literalmode)
             erg = erg + c;
     }
     return erg;
@@ -219,7 +219,7 @@ function definitionDot(code, bestbinding, oper) {
     if (isNumber(code)) {
         var erg = {};
         erg.value = {
-            'real': parseFloat(code),
+            'real': code === '.' ? 0 : +code,
             'imag': 0
         };
         erg.ctype = 'number';
@@ -291,20 +291,12 @@ function infixOp(code, bestbinding, oper) {
 }
 
 function isPureNumber(code) {
-    return code !== "" && !isNaN(code);
+    return /^[0-9]+$/.test(code);
 }
 
 
 function isNumber(code) {
-
-    var a = code.indexOf('.');
-    var b = code.lastIndexOf('.');
-    if (a !== b) return false;
-    if (a === -1) {
-        return isPureNumber(code);
-    } else {
-        return isPureNumber(code.substring(0, a)) || isPureNumber(code.substring(a + 1));
-    }
+    return /^[0-9]+(?:\.[0-9])*|\.[0-9]*$/.test(code);
 }
 
 

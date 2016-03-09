@@ -79,7 +79,7 @@ produces the picture below.
 
 ![Image](img/TextX.png)
 
-If the string expression contains a &lt;newline&gt; chacracter then this line-break is literally interpreted.
+If the string expression contains a newline chacracter then this line-break is literally interpreted.
 By this it is easy to produce multilined text, as the following piece of code shows.
 
     > drawtext((0,0),size->18,

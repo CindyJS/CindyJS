@@ -123,17 +123,13 @@ As already mentioned, [CindyScript](CindyScript.md) does not have explicit typin
 Nevertheless, any *value* of a variable belongs to an explicit type.
 The basic types of [CindyScript](CindyScript.md) are
 
-*  &lt;number&gt;: Any numeric value.
+*  ‹number›: Any numeric value.
 Numbers can be integers, real numbers, or complex numbers.
-
-*  &lt;list&gt;: A list of arbitrary objects.
+*  ‹list›: A list of arbitrary objects.
 Such a list may semantically also have the meaning of a vector or matrix.
-
-*  &lt;string&gt;: A text expression.
-
-*  &lt;geo&gt;: A geometric object that belongs to a construction.
-
-*  &lt;boolean&gt;: A value `true` or `false`.
+*  ‹string›: A text expression.
+*  ‹geo›: A geometric object that belongs to a construction.
+*  ‹boolean›: A value `true` or `false`.
 
 The number type is particularly powerful, since it can contain integers, floating-point numbers, and complex numbers.
 

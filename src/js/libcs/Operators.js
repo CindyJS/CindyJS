@@ -743,7 +743,7 @@ function comp_ugt(args, modifs) {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 'ctype': 'boolean',
-                'value': (v0.value.real > v1.value.real + CSNumber.eps)
+                'value': (v0.value.real - v1.value.real >= CSNumber.eps)
             };
     }
     return nada;
@@ -756,7 +756,7 @@ function comp_uge(args, modifs) {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 'ctype': 'boolean',
-                'value': (v0.value.real > v1.value.real - CSNumber.eps)
+                'value': (v0.value.real - v1.value.real > -CSNumber.eps)
             };
     }
     return nada;
@@ -769,7 +769,7 @@ function comp_ult(args, modifs) {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 'ctype': 'boolean',
-                'value': (v0.value.real < v1.value.real - CSNumber.eps)
+                'value': (v0.value.real - v1.value.real <= -CSNumber.eps)
             };
     }
     return nada;
@@ -782,7 +782,7 @@ function comp_ule(args, modifs) {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 'ctype': 'boolean',
-                'value': (v0.value.real < v1.value.real + CSNumber.eps)
+                'value': (v0.value.real - v1.value.real < CSNumber.eps)
             };
     }
     return nada;

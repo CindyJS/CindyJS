@@ -82,10 +82,12 @@ General.compare = function(a, b) {
 };
 
 General.add = function(v0, v1) {
-    if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Plus
+    if (v0.ctype === 'void' && v1.ctype === 'number') { // unary plus
         return v1;
     }
-
+    if (v0.ctype === 'void' && v1.ctype === 'list') { // unary plus
+        return v1;
+    }
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return CSNumber.add(v0, v1);
     }
@@ -103,10 +105,10 @@ General.add = function(v0, v1) {
 };
 
 General.sub = function(v0, v1) {
-    if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Minus
+    if (v0.ctype === 'void' && v1.ctype === 'number') { // unary minus
         return CSNumber.neg(v1);
     }
-    if (v0.ctype === 'void' && v1.ctype === 'list') { //Monadisches Plus
+    if (v0.ctype === 'void' && v1.ctype === 'list') { // unary minus
         return List.neg(v1);
     }
     if (v0.ctype === 'number' && v1.ctype === 'number') {

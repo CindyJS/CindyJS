@@ -285,7 +285,8 @@ CSNumber.div = function(a, b) {
     return CSNumber.mult(a, CSNumber.inv(b));
 };
 
-CSNumber.eps = 0.0000001;
+CSNumber.eps = 1e-10;
+CSNumber.epsbig = 1e-6;
 
 CSNumber.snap = function(a) {
     var r = a.value.real;
@@ -503,8 +504,6 @@ CSNumber.mod = function(a, b) {
 
 
 CSNumber._helper.seed = 'NO';
-CSNumber.eps = 0.0000000001;
-CSNumber.epsbig = 0.000001;
 
 CSNumber._helper.seedrandom = function(a) {
     a = a - Math.floor(a);
@@ -577,7 +576,8 @@ CSNumber._helper.isReal = function(a) {
 
 CSNumber._helper.isAlmostReal = function(a) {
     var i = a.value.imag;
-    return (i < CSNumber.epsbig) && (i > -CSNumber.epsbig); //So gemacht wie in Cindy
+    // This implementation follows Cinderella
+    return (i < CSNumber.epsbig) && (i > -CSNumber.epsbig);
 };
 
 CSNumber._helper.isNaN = function(a) {
@@ -591,7 +591,8 @@ CSNumber._helper.isFinite = function(z) {
 
 CSNumber._helper.isAlmostImag = function(a) {
     var r = a.value.real;
-    return (r < CSNumber.epsbig) && (r > -CSNumber.epsbig); //So gemacht wie in Cindy
+    // This implementation follows Cinderella
+    return (r < CSNumber.epsbig) && (r > -CSNumber.epsbig);
 };
 
 CSNumber._helper.z3a = CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
