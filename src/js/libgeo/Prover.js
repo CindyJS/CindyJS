@@ -90,19 +90,17 @@ function checkConjectures() {
     var nummoves = 3;
 
     console.log("con before", conjectures);
-    // iterate over all elements
-    for (ii = 0; ii < free.length; ii++) {
-        el = free[ii];
-        // iterate over moves
-        for (jj = 0; jj < nummoves; jj++) {
+    csgeo.free.forEach(function(el){
+        jj = nummoves;
+        while(jj--){
             newpos = geoOps[el.type].getRandomMove(el);
             movepointscr(el, newpos, "homog");
             // check if conjecture still holds
             conjectures = conjectures.filter(function(con){
                 return con.holds();
             });
-        } // end jj
-    } // end ii
+        } 
+    }); 
     console.log("con after", conjectures);
 
 
