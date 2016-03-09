@@ -71,6 +71,7 @@ function incidentPC(p, c) {
             if (erg.value.real < 0.0000000000001) {
                 p.incidences.push(c.name);
                 c.incidences.push(p.name);
+                return true;
             }
         }
     };
