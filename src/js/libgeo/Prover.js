@@ -102,7 +102,7 @@ function checkConjectures() {
             moves = geoOps[el.type].getRandomMove(el);
             // moves are arrays which can have different type: homog, radius etc ...
             moves.forEach(function(newpos) {
-                //if(el.type === "PointOnCircle") debugger;
+                //if(el.type === "PointOnLine") 
                 movepointscr(el, newpos.value, newpos.type);
             });
             // check if conjecture still holds
