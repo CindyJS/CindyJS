@@ -75,8 +75,8 @@ function incidentPC(p, c) {
 
 function checkConjectures() {
     var debug = true;
-    console.log(conjectures);
-    if (conjectures.length === 0) return;
+    if(debug) console.log("conjectures", conjectures.length);
+    if(!debug) if (conjectures.length === 0) return;
     //    debugger;
     backupGeo();
     // TODO: we need some randomized proving here:
@@ -102,6 +102,7 @@ function checkConjectures() {
             moves = geoOps[el.type].getRandomMove(el);
             // moves are arrays which can have different type: homog, radius etc ...
             moves.forEach(function(newpos) {
+                //if(el.type === "PointOnCircle") debugger;
                 movepointscr(el, newpos.value, newpos.type);
             });
             // check if conjecture still holds
@@ -110,6 +111,7 @@ function checkConjectures() {
             });
         }
     });
+
     if (debug) {
         console.log("dropped ", nconject - conjectures.length, " conjectures");
     }

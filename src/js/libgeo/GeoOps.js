@@ -198,7 +198,6 @@ geoOps.Horizontal.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
-
 // Cinderella's freely movable HorizontalLine (Cinderella semantics)
 geoOps.HorizontalLine = {};
 geoOps.HorizontalLine.kind = "L";
@@ -233,6 +232,12 @@ geoOps.HorizontalLine.updatePosition = function(el) {
     var param = getStateComplexVector(3);
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
+};
+geoOps.HorizontalLine.getRandomMove = function(el){
+    var oldh = el.homog;
+    var rvec = List.realVector([0, Math.random()-0.5, Math.random()-0.5]);
+    var res = {type: "homog", value: rvec};
+    return [res];
 };
 geoOps.HorizontalLine.stateSize = 6;
 
@@ -283,6 +288,12 @@ geoOps.VerticalLine.updatePosition = function(el) {
     var param = getStateComplexVector(3);
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
+};
+geoOps.VerticalLine.getRandomMove = function(el){
+    var oldh = el.homog;
+    var rvec = List.realVector([Math.random()-0.5,0, Math.random()-0.5]);
+    var res = {type: "homog", value: rvec};
+    return [res];
 };
 geoOps.VerticalLine.stateSize = 6;
 
@@ -392,7 +403,7 @@ geoOps.Free.updatePosition = function(el) {
 };
 geoOps.Free.getRandomMove = function(el) {
     var rcomplex = function() {
-        var fact = 0.1;
+        var fact = 1;
         // debug only real remove later!
         return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
     };
@@ -482,6 +493,7 @@ geoOps.PointOnLine.getParamFromState = function(el) {
 geoOps.PointOnLine.putParamToState = function(el, param) {
     return putStateComplexVector(param);
 };
+geoOps.PointOnLine.getRandomMove = geoOps.Free.getRandomMove; 
 geoOps.PointOnLine.stateSize = 12;
 
 
@@ -593,6 +605,7 @@ geoOps.PointOnCircle.updatePosition = function(el) {
     el.homog = General.withUsage(pos, "Point");
     el.antipodalPoint = candidates.value[1];
 };
+geoOps.PointOnCircle.getRandomMove = geoOps.Free.getRandomMove; // does not work currently
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 
 geoOps.OtherPointOnCircle = {};
