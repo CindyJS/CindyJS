@@ -366,6 +366,14 @@ geoOps.Through.updatePosition = function(el) {
     homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Line");
 };
+geoOps.Through.getRandomMove = function(el){
+    var old = el.homog;
+    var fact = 0.1;
+    var move = List.realVector([(Math.random()-0.5)*fact, (Math.random()-0.5)*fact, 0]);
+    move = List.add(old, move);
+    var res = {type:"homog", value:move};
+    return [res];
+};
 geoOps.Through.stateSize = 6;
 
 
