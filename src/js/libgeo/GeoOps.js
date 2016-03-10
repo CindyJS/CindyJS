@@ -624,7 +624,7 @@ geoOps.PointOnCircle.updatePosition = function(el) {
 };
 geoOps.PointOnCircle.getRandomMove = function(el) {
     return geoOps.Free.getRandomMove(el);
-}
+};
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 
 geoOps.OtherPointOnCircle = {};
