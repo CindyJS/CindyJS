@@ -622,7 +622,12 @@ geoOps.PointOnCircle.updatePosition = function(el) {
     el.homog = General.withUsage(pos, "Point");
     el.antipodalPoint = candidates.value[1];
 };
-geoOps.PointOnCircle.getRandomMove = geoOps.Free.getRandomMove; // does not work currently
+geoOps.PointOnCircle.getRandomMove = function(el)
+{
+    console.log(el);
+    console.log(niceprint(List.normalizeZ(el.homog)));
+    return geoOps.Free.getRandomMove(el); // does not work currently
+}
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 
 geoOps.OtherPointOnCircle = {};
