@@ -624,9 +624,7 @@ geoOps.PointOnCircle.updatePosition = function(el) {
 };
 geoOps.PointOnCircle.getRandomMove = function(el)
 {
-    console.log(el);
-    console.log(niceprint(List.normalizeZ(el.homog)));
-    return geoOps.Free.getRandomMove(el); // does not work currently
+    return geoOps.Free.getRandomMove(el);
 }
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 

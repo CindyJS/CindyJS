@@ -96,7 +96,6 @@ function checkConjectures() {
         while (jj--) {
             //if (el.kind === "C") debugger; // no conic movement currently
             if (el.pinned) {
-                if (debug) console.log("element ", el.name, "is pinned");
                 break;
             }
             if (debug) console.log("prover: moving element", el.name);
