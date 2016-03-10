@@ -61,14 +61,19 @@ geoOps.FreeLine.updatePosition = function(el) {
 };
 geoOps.FreeLine.getRandomMove = function(el) {
     var rcomplex = function() {
-        var fact = 0.01;
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
+        var fact = 1;
+        // only real for debugging REMOVE later
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
     };
     var oldpos = List.normalizeMax(el.homog);
     var move = List.turnIntoCSList([rcomplex(), rcomplex(), rcomplex()]);
+    // adapt move to make the move smaller later
+    //move = List.scalmult(General.min(oldpos), move);
 
     move = List.add(oldpos, move);
-    return List.normalizeMax(move);
+    move = List.normalizeMax(move);
+    return [{type: "homog", value: move}];
+    
 };
 geoOps.FreeLine.stateSize = 6;
 
@@ -384,15 +389,16 @@ geoOps.Free.updatePosition = function(el) {
 };
 geoOps.Free.getRandomMove = function(el) {
     var rcomplex = function() {
-        var fact = 0.01;
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
+        var fact = 0.1;
+        // debug only real remove later!
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
     };
     var oldpos = List.normalizeMax(el.homog);
     var rvect = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(0)]);
     var move = List.scalmult(oldpos.value[2], rvect);
 
     move = List.add(oldpos, move);
-    return List.normalizeMax(move);
+    return [{type: "homog", value: move}];
 };
 geoOps.Free.stateSize = 6;
 

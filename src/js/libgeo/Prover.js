@@ -85,7 +85,7 @@ function checkConjectures() {
 
     var ii, jj, kk;
     var free = csgeo.free;
-    var newpos, el;
+    var moves, el;
     var nummoves = 3;
 
     // debug code remove later
@@ -99,9 +99,14 @@ function checkConjectures() {
                 break;
             }
             if (debug) console.log("prover: moving element", el.name);
-            newpos = geoOps[el.type].getRandomMove(el);
-            movepointscr(el, newpos, "homog");
+            moves = geoOps[el.type].getRandomMove(el);
+            // moves are arrays which can have different type: homog, radius etc ...
+            moves.forEach(function(newpos){
+                movepointscr(el, newpos.value, newpos.type);
+            }
+            );
             // check if conjecture still holds
+            console.log(niceprint(List.normalizeZ(el.homog)));
             conjectures = conjectures.filter(function(con) {
                 return con.holds();
             });
@@ -112,7 +117,7 @@ function checkConjectures() {
     }
 
 
-    restoreGeo();
+    if(!debug) restoreGeo();
 
 
     for (var i = 0; i < conjectures.length; ++i) {
