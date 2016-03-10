@@ -662,6 +662,7 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Point");
 };
+geoOps.PointOnSegment.getRandomMove = geoOps.Free.getRandomMove; 
 geoOps.PointOnSegment.stateSize = 2;
 
 
