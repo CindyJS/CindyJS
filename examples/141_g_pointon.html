@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 0.0, -0.0, 4.0 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
+		{ name: "C0", type: "CircleByRadius", pos: { xx: -0.1111111111111111, yy: -0.1111111111111111, zz: 1.0, xy: 0.0, xz: 0.0, yz: 0.0 }, color: [ 0.0, 0.0, 1.0 ], radius: 3.0, args: [ "A" ], printname: "$C_{0}$" }, 
+		{ name: "C", type: "PointOnCircle", pos: [ 1.232595164407831E-32, -4.0, 1.3333333333333333 ], color: [ 1.0, 0.0, 0.0 ], args: [ "C0" ], labeled: true }, 
+		{ name: "b", type: "HorizontalLine", pos: [ 0.0, 1.3333333333333333, 4.0 ], color: [ 0.0, 0.0, 1.0 ], pinned: true, labeled: true }, 
+		{ name: "D", type: "PointOnLine", pos: [ 4.0, -1.090909090909091, 0.3636363636363637 ], color: [ 1.0, 0.0, 0.0 ], args: [ "b" ], labeled: true }, 
+		{ name: "a", type: "VerticalLine", pos: [ -0.36363636363636365, -0.0, 4.0 ], color: [ 0.0, 0.0, 1.0 ], pinned: true, labeled: true }, 
+		{ name: "B", type: "Free", pos: [ -3.3333333333333335, -4.0, -0.6666666666666666 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
+		{ name: "E", type: "Free", pos: [ 4.0, 3.0, 0.5 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
+		{ name: "c", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "E" ], labeled: true }, 
+		{ name: "F", type: "PointOnSegment", pos: [ 4.0, 3.4285714285714293, 0.5714285714285714 ], color: [ 1.0, 0.0, 0.0 ], args: [ "c" ], labeled: true }, 
+		{ name: "d", type: "VerticalLine", pos: [ -0.5714285714285714, -0.0, 4.0 ], color: [ 0.0, 0.0, 1.0 ], labeled: true } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 335, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.06 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1820, version: [ 2, 9, 1820 ] } });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>
