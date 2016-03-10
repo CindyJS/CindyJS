@@ -75,9 +75,10 @@ function incidentPC(p, c) {
 
 function checkConjectures() {
     var debug = true;
-    if(debug) console.log("conjectures", conjectures.length);
-    if(!debug) if (conjectures.length === 0) return;
-    //    debugger;
+    if (debug) console.log("conjectures", conjectures.length);
+    if (!debug)
+        if (conjectures.length === 0) return;
+        //    debugger;
     backupGeo();
     // TODO: we need some randomized proving here:
     // move free elements and check conjectures a number of times.
@@ -102,8 +103,8 @@ function checkConjectures() {
             moves = geoOps[el.type].getRandomMove(el);
             // moves are arrays which can have different type: homog, radius etc ...
             moves.forEach(function(newpos) {
-                if(el.type === "Through") 
-                movepointscr(el, newpos.value, newpos.type);
+                //if (el.type === "Through")
+                    movepointscr(el, newpos.value, newpos.type);
             });
             // check if conjecture still holds
             conjectures = conjectures.filter(function(con) {

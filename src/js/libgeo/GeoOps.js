@@ -233,10 +233,13 @@ geoOps.HorizontalLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
-geoOps.HorizontalLine.getRandomMove = function(el){
+geoOps.HorizontalLine.getRandomMove = function(el) {
     var oldh = el.homog;
-    var rvec = List.realVector([0, Math.random()-0.5, Math.random()-0.5]);
-    var res = {type: "homog", value: rvec};
+    var rvec = List.realVector([0, Math.random() - 0.5, Math.random() - 0.5]);
+    var res = {
+        type: "homog",
+        value: rvec
+    };
     return [res];
 };
 geoOps.HorizontalLine.stateSize = 6;
@@ -289,10 +292,13 @@ geoOps.VerticalLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
-geoOps.VerticalLine.getRandomMove = function(el){
+geoOps.VerticalLine.getRandomMove = function(el) {
     var oldh = el.homog;
-    var rvec = List.realVector([Math.random()-0.5,0, Math.random()-0.5]);
-    var res = {type: "homog", value: rvec};
+    var rvec = List.realVector([Math.random() - 0.5, 0, Math.random() - 0.5]);
+    var res = {
+        type: "homog",
+        value: rvec
+    };
     return [res];
 };
 geoOps.VerticalLine.stateSize = 6;
@@ -366,12 +372,15 @@ geoOps.Through.updatePosition = function(el) {
     homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Line");
 };
-geoOps.Through.getRandomMove = function(el){
+geoOps.Through.getRandomMove = function(el) {
     var old = el.homog;
     var fact = 0.1;
-    var move = List.realVector([(Math.random()-0.5)*fact, (Math.random()-0.5)*fact, 0]);
+    var move = List.realVector([(Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact, 0]);
     move = List.add(old, move);
-    var res = {type:"homog", value:move};
+    var res = {
+        type: "homog",
+        value: move
+    };
     return [res];
 };
 geoOps.Through.stateSize = 6;
@@ -501,7 +510,7 @@ geoOps.PointOnLine.getParamFromState = function(el) {
 geoOps.PointOnLine.putParamToState = function(el, param) {
     return putStateComplexVector(param);
 };
-geoOps.PointOnLine.getRandomMove = geoOps.Free.getRandomMove; 
+geoOps.PointOnLine.getRandomMove = geoOps.Free.getRandomMove;
 geoOps.PointOnLine.stateSize = 12;
 
 
@@ -670,7 +679,7 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Point");
 };
-geoOps.PointOnSegment.getRandomMove = geoOps.Free.getRandomMove; 
+geoOps.PointOnSegment.getRandomMove = geoOps.Free.getRandomMove;
 geoOps.PointOnSegment.stateSize = 2;
 
 
@@ -776,7 +785,7 @@ geoOps.CircleMr.getRandomMove = function(el) {
     var oldr = el.radius;
     do {
         r = CSNumber.add(oldr, CSNumber.real((Math.random() - 0.5)));
-    } while (r.value.real <= 0) // make sure r > 0;
+    } while (r.value.real <= 0); // make sure r > 0;
     var rad = {
         type: "radius",
         value: r
@@ -787,7 +796,7 @@ geoOps.CircleMr.getRandomMove = function(el) {
 
     return [rad];
     //return [rad, hom];
-}
+};
 geoOps.CircleMr.stateSize = 2;
 
 
