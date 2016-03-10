@@ -72,8 +72,11 @@ geoOps.FreeLine.getRandomMove = function(el) {
 
     move = List.add(oldpos, move);
     move = List.normalizeMax(move);
-    return [{type: "homog", value: move}];
-    
+    return [{
+        type: "homog",
+        value: move
+    }];
+
 };
 geoOps.FreeLine.stateSize = 6;
 
@@ -398,7 +401,10 @@ geoOps.Free.getRandomMove = function(el) {
     var move = List.scalmult(oldpos.value[2], rvect);
 
     move = List.add(oldpos, move);
-    return [{type: "homog", value: move}];
+    return [{
+        type: "homog",
+        value: move
+    }];
 };
 geoOps.Free.stateSize = 6;
 
@@ -742,6 +748,24 @@ geoOps.CircleMr.updatePosition = function(el) {
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
 };
+geoOps.CircleMr.getRandomMove = function(el) {
+    // radius 
+    var r;
+    var oldr = el.radius;
+    do {
+        r = CSNumber.add(oldr, CSNumber.real((Math.random() - 0.5)));
+    } while (r.value.real <= 0) // make sure r > 0;
+    var rad = {
+        type: "radius",
+        value: r
+    };
+
+    // center 
+    //var hom = geoOps.Free.getRandomMove(csgeo.csnames[el.args[0]])[0];
+
+    return [rad];
+    //return [rad, hom];
+}
 geoOps.CircleMr.stateSize = 2;
 
 
