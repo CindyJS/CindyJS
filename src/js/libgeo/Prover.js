@@ -74,15 +74,10 @@ function incidentPC(p, c) {
 }
 
 function checkConjectures() {
-    var debug = false;
+    var debug = true;
     if (debug) console.log("conjectures", conjectures.length);
-    if (!debug)
-        if (conjectures.length === 0) return;
-        //    debugger;
+    //if (!debug) if (conjectures.length === 0) return;
     backupGeo();
-    // TODO: we need some randomized proving here:
-    // move free elements and check conjectures a number of times.
-    // For now assume that all conjectures could be verified.
 
     var ii, jj, kk;
     var free = csgeo.free;
@@ -116,7 +111,9 @@ function checkConjectures() {
     }
 
 
-//    restoreGeo();
+    if(!debug){
+        restoreGeo();
+    }
 
 
     for (var i = 0; i < conjectures.length; ++i) {
