@@ -76,7 +76,7 @@ function incidentPC(p, c) {
 function checkConjectures() {
     var debug = false;
     if (debug) console.log("conjectures", conjectures.length);
-    //if (!debug) if (conjectures.length === 0) return;
+    if (!debug) if (conjectures.length === 0) return;
     backupGeo();
 
     var ii, jj;
