@@ -70,7 +70,7 @@ geoOps.FreeLine.getRandomMove = function(el) {
     var p = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(1)]);
     var perp = List.cross(p, tt);
 
-    var move  = List.cross(perp, l);
+    var move = List.cross(perp, l);
     move = List.normalizeMax(move);
 
     return [{
@@ -239,13 +239,13 @@ geoOps.HorizontalLine.getRandomMove = function(el) {
     p = List.normalizeMax(p);
 
     var fact = 0.1;
-    var rvec = List.realVector([0, (Math.random() - 0.5)*fact, (Math.random()-0.5)*fact]);
+    var rvec = List.realVector([0, (Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact]);
     rvec = List.scalmult(p.value[2], rvec);
 
     var move = List.add(rvec, p);
     var res = {
         type: "homog",
-        value:move  
+        value: move
     };
     return [res];
 };
@@ -303,7 +303,7 @@ geoOps.VerticalLine.getRandomMove = function(el) {
     var p = List.cross(el.homog, List.ey);
     p = List.normalizeMax(p);
     var fact = 0.1;
-    var rvec = List.realVector([(Math.random() - 0.5)*fact, 0, fact*(Math.random() - 0.5)]);
+    var rvec = List.realVector([(Math.random() - 0.5) * fact, 0, fact * (Math.random() - 0.5)]);
     rvec = List.scalmult(p.value[2], rvec);
     var move = List.add(rvec, p);
 

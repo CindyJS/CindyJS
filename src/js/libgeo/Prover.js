@@ -111,7 +111,7 @@ function checkConjectures() {
     }
 
 
-    if(!debug){
+    if (!debug) {
         restoreGeo();
     }
 
