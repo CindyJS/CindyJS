@@ -432,7 +432,7 @@ geoOps.Free.updatePosition = function(el) {
 };
 geoOps.Free.getRandomMove = function(el) {
     var rcomplex = function() {
-        var fact = 1;
+        var fact = 0.1;
         // debug only real remove later!
         return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
     };
