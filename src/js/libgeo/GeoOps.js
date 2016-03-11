@@ -402,7 +402,7 @@ geoOps.Through.getRandomMove = function(el) {
         return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
     };
 
-    var move = List.realVector([rcomplex(), rcomplex(), 0]);
+    var move = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.zero]);
     move = List.add(el.homog, move);
     var res = {
         type: "homog",
