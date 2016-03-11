@@ -8,3 +8,4 @@
 *.swp
 /Selenium/
 /private_examples/
+examples/bugs/*

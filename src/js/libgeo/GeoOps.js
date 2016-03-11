@@ -235,11 +235,16 @@ geoOps.HorizontalLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.HorizontalLine.getRandomMove = function(el) {
+    var rcomplex = function() {
+        var fact = 0.1;
+        // debug only real remove later!
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
+    };
+
     var p = List.cross(el.homog, List.ex);
     p = List.normalizeMax(p);
 
-    var fact = 0.1;
-    var rvec = List.realVector([0, (Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact]);
+    var rvec = List.turnIntoCSList([CSNumber.zero, rcomplex(), rcomplex()]);
     rvec = List.scalmult(p.value[2], rvec);
 
     var move = List.add(rvec, p);
@@ -300,12 +305,18 @@ geoOps.VerticalLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.VerticalLine.getRandomMove = function(el) {
+    var rcomplex = function() {
+        var fact = 0.1;
+        // debug only real remove later!
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
+    };
+
     var p = List.cross(el.homog, List.ey);
     p = List.normalizeMax(p);
-    var fact = 0.1;
-    var rvec = List.realVector([(Math.random() - 0.5) * fact, 0, fact * (Math.random() - 0.5)]);
+    var rvec = List.turnIntoCSList([rcomplex(), CSNumber.zero, rcomplex()]);
     rvec = List.scalmult(p.value[2], rvec);
     var move = List.add(rvec, p);
+    console.log(niceprint(move));
 
     var res = {
         type: "homog",
@@ -385,10 +396,14 @@ geoOps.Through.updatePosition = function(el) {
     el.homog = General.withUsage(homog, "Line");
 };
 geoOps.Through.getRandomMove = function(el) {
-    var old = el.homog;
-    var fact = 0.1;
-    var move = List.realVector([(Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact, 0]);
-    move = List.add(old, move);
+    var rcomplex = function() {
+        var fact = 0.1;
+        // debug only real remove later!
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
+    };
+
+    var move = List.realVector([rcomplex(), rcomplex(), 0]);
+    move = List.add(el.homog, move);
     var res = {
         type: "homog",
         value: move
@@ -634,9 +649,7 @@ geoOps.PointOnCircle.updatePosition = function(el) {
     el.homog = General.withUsage(pos, "Point");
     el.antipodalPoint = candidates.value[1];
 };
-geoOps.PointOnCircle.getRandomMove = function(el) {
-    return geoOps.Free.getRandomMove(el);
-};
+geoOps.PointOnCircle.getRandomMove = geoOps.Free.getRandomMove;
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 
 geoOps.OtherPointOnCircle = {};
