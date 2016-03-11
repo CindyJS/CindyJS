@@ -237,7 +237,9 @@ geoOps.HorizontalLine.updatePosition = function(el) {
 geoOps.HorizontalLine.getRandomMove = function(el) {
     var p = List.cross(el.homog, List.ex);
     p = List.normalizeMax(p);
-    var rvec = List.realVector([Math.random() - 0.5, Math.random() - 0.5, 1]);
+
+    var fact = 0.1;
+    var rvec = List.realVector([0, (Math.random() - 0.5)*fact, (Math.random()-0.5)*fact]);
     rvec = List.scalmult(p.value[2], rvec);
 
     var move = List.add(rvec, p);
@@ -300,7 +302,8 @@ geoOps.VerticalLine.updatePosition = function(el) {
 geoOps.VerticalLine.getRandomMove = function(el) {
     var p = List.cross(el.homog, List.ey);
     p = List.normalizeMax(p);
-    var rvec = List.realVector([Math.random() - 0.5, Math.random() - 0.5, 1]);
+    var fact = 0.1;
+    var rvec = List.realVector([(Math.random() - 0.5)*fact, 0, fact*(Math.random() - 0.5)]);
     rvec = List.scalmult(p.value[2], rvec);
     var move = List.add(rvec, p);
 
