@@ -79,7 +79,7 @@ function checkConjectures() {
     //if (!debug) if (conjectures.length === 0) return;
     backupGeo();
 
-    var ii, jj, kk;
+    var ii, jj;
     var free = csgeo.free;
     var moves, el;
     var nummoves = 3;
@@ -87,18 +87,17 @@ function checkConjectures() {
     // debug code remove later
     var nconject = conjectures.length;
     csgeo.free.forEach(function(el) {
-        jj = nummoves;
-        while (jj--) {
-            //if (el.kind === "C") debugger; // no conic movement currently
+        ii = nummoves;
+        while (ii--) {
             if (el.pinned) {
                 break;
             }
             if (debug) console.log("prover: moving element", el.name);
             moves = geoOps[el.type].getRandomMove(el);
             // moves are arrays which can have different type: homog, radius etc ...
-            moves.forEach(function(newpos) {
-                movepointscr(el, newpos.value, newpos.type);
-            });
+            for(jj = 0 ; jj < moves.length; ++jj){
+                movepointscr(el, moves[jj].value, moves[jj].type);
+            }
             // check if conjecture still holds
             conjectures = conjectures.filter(function(con) {
                 return con.holds();
