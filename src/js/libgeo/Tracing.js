@@ -133,6 +133,7 @@ function movepointscr(mover, pos, type) {
     }
     stateContinueFromHere();
     tracingFailed = false;
+    console.log("noveptsrc",niceprint(pos));
     traceMover(mover, pos, type);
     stateContinueFromHere();
 }

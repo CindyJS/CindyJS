@@ -116,7 +116,7 @@ function checkConjectures() {
     }
 
 
-    restoreGeo();
+//    restoreGeo();
 
 
     for (var i = 0; i < conjectures.length; ++i) {
