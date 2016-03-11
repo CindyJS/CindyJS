@@ -95,7 +95,7 @@ function checkConjectures() {
             if (debug) console.log("prover: moving element", el.name);
             moves = geoOps[el.type].getRandomMove(el);
             // moves are arrays which can have different type: homog, radius etc ...
-            for(jj = 0 ; jj < moves.length; ++jj){
+            for (jj = 0; jj < moves.length; ++jj) {
                 movepointscr(el, moves[jj].value, moves[jj].type);
             }
             // check if conjecture still holds
