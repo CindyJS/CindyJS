@@ -235,11 +235,15 @@ geoOps.HorizontalLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.HorizontalLine.getRandomMove = function(el) {
-    var oldh = el.homog;
-    var rvec = List.realVector([0, Math.random() - 0.5, Math.random() - 0.5]);
+    var p = List.cross(el.homog, List.ex);
+    p = List.normalizeMax(p);
+    var rvec = List.realVector([Math.random() - 0.5, Math.random() - 0.5, 1]);
+    rvec = List.scalmult(p.value[2], rvec);
+
+    var move = List.add(rvec, p);
     var res = {
         type: "homog",
-        value: rvec
+        value:move  
     };
     return [res];
 };
@@ -294,11 +298,15 @@ geoOps.VerticalLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.VerticalLine.getRandomMove = function(el) {
-    var oldh = el.homog;
-    var rvec = List.realVector([Math.random() - 0.5, 0, Math.random() - 0.5]);
+    var p = List.cross(el.homog, List.ey);
+    p = List.normalizeMax(p);
+    var rvec = List.realVector([Math.random() - 0.5, Math.random() - 0.5, 1]);
+    rvec = List.scalmult(p.value[2], rvec);
+    var move = List.add(rvec, p);
+
     var res = {
         type: "homog",
-        value: rvec
+        value: move
     };
     return [res];
 };
