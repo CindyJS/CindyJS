@@ -316,7 +316,6 @@ geoOps.VerticalLine.getRandomMove = function(el) {
     var rvec = List.turnIntoCSList([rcomplex(), CSNumber.zero, rcomplex()]);
     rvec = List.scalmult(p.value[2], rvec);
     var move = List.add(rvec, p);
-    console.log(niceprint(move));
 
     var res = {
         type: "homog",
