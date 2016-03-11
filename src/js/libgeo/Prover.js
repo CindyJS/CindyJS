@@ -77,11 +77,10 @@ function checkConjectures() {
     var debug = false;
     if (debug) console.log("conjectures", conjectures.length);
     //if (!debug)
-        if (conjectures.length === 0) return;
+    if (conjectures.length === 0) return;
     backupGeo();
 
     var ii, jj;
-    var free = csgeo.free;
     var moves, el;
     var nummoves = 3;
 
