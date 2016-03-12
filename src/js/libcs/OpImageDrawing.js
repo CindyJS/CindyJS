@@ -326,3 +326,16 @@ evaluator.drawimage$2 = function(args, modifs) {
 // TODO: separate arities
 evaluator.drawimage$3 = evaluator.drawimage$2;
 evaluator.drawimage$4 = evaluator.drawimage$2;
+
+evaluator.allimages$0 = function(){
+    var lst = [];
+    var keys = Object.keys(images);
+    keys.forEach(function(e){
+        lst.push(
+                {ctype: "string",
+                    value: e} 
+                );
+    }
+    );
+    return List.turnIntoCSList(lst);
+};
