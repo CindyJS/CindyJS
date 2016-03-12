@@ -42,26 +42,5 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
           style="border:2px solid black"></canvas>
 </body>
 
-<script type="text/javascript">
-var dropbox = document.getElementById("CSCanvas");
-var drawcode = document.getElementById("csdraw");
-dropbox.addEventListener("drop", drop, false);
-
-function drop(e) {
-  e.preventDefault();
-
-  var dt = e.dataTransfer;
-  var files = dt.files;
-  var imname = files[0].name;
-  imname = imname.replace(/\.[^/.]+$/, "");
-
-  var cstring =  'drawimage(A,\"' + imname + "\")";
-		  console.log(cstring);
-  cdy.evokeCS(cstring);
-}
-
-function sendImg(imname){
-}
-</script>
 
 </html>
