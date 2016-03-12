@@ -180,6 +180,45 @@ function setuplisteners(canvas, data) {
         e.preventDefault();
     });
 
+    addAutoCleaningEventListener(canvas, "dragenter", function(e) {
+        e.preventDefault();
+    });
+
+    addAutoCleaningEventListener(canvas, "dragover", function(e) {
+        e.preventDefault();
+    });
+
+    addAutoCleaningEventListener(canvas, "drop", function(e) {
+        e.preventDefault();
+
+        var dt = e.dataTransfer;
+        var files = dt.files;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var imageType = /^image\//;
+
+            if (!imageType.test(file.type)) {
+                continue;
+            }
+
+            var img = new Image();
+            var reader = new FileReader();
+            reader.onload = (function(aImg) {
+                return function(e) {
+                    aImg.src = e.target.result;
+                };
+            })(img);
+            reader.readAsDataURL(file);
+
+            // remove file extension
+            var fname = file.name.replace(/\.[^/.]+$/, "");
+            // add file to image array
+            images[fname] = img;
+
+        }
+
+    });
+
 
     function touchMove(e) {
         updatePostition(e.targetTouches[0]);
