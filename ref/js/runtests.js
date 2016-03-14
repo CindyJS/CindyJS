@@ -292,6 +292,13 @@ TestCase.prototype.run = function() {
       return false;
     }
   }
+  if (this.exception !== null) {
+    println("Location:  " + this.filename + ":" + this.lineno);
+    println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
+    println("Expected:  ! " + this.exception);
+    println("Actual:    No exception encountered");
+    return false;
+  }
   return true;
 };
 

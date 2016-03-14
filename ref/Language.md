@@ -219,6 +219,46 @@ There may be no spaces within operator symbols.
     > f(x) : = 123
     ! CindyScriptParseError: Operator may not be used postfix at 1:5: ‘:’
 
+### Superscript and subscript
+
+One may use superscript and subscript unicode symbols to denote
+exponentials and indices.
+They operate mostly like the [`^`](Arithmetic_Operators.md#$5eu)
+and [`_`](Lists_and_Linear_Algebra.md#$5fu) operators.
+A superscript literal is an optional superscript sign,
+followed by one or more superscript digits.
+All characters may be separated by in-token [whitespace](#whitespace).
+A subscript literal is defined correspondingly.
+
+    > 5³
+    < 125
+    > 4⁻¹
+    < 0.25
+    > 2 ⁺  ¹ ⁰
+    < 1024
+    > lst = 10 * (1..20);
+    > lst₃
+    < 30
+    > lst ₊ ₁ ₅
+    < 150
+
+Subscripts are of the same precedence and left associativity as `_`.
+For superscripts, the situation is a bit different.
+
+It is forbidden to follow the superscript by any operator
+which would bind as tightly or tighter than the power operator `^`.
+This avoids confusion between the fact that `^` is right-associative
+and the fact that superscript visually appears more closely coupled.
+
+    > 2³^4
+    ! CindyScriptParseError: Operator not allowed after superscript at 1:2: ‘^’
+    > 2³_1
+    ! CindyScriptParseError: Operator not allowed after superscript at 1:2: ‘_’
+    > (2³)^4
+    < 4096
+    > [2³]_1
+    < 8
+
 ## Grammar
 
 The grammar describes how lexical tokens are combined to form expressions.

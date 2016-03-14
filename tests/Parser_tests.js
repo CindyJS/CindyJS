@@ -91,6 +91,9 @@ describe('CindyScript parser normal operation', function() {
     simplCase('4 ∈ [1,3]', {'∈': [4, {genList: [[1, 3],{}]}]});
     simplCase('f(a,b):=123', {':=': [{f$2: [['$a','$b'],{}]}, 123]});
     simplCase('x:=123', {':=': ['$x', 123]});
+    simplCase('x²', {'^': ['$x', 2]});
+    simplCase('x ⁻ ⁰ ¹ ²', {'^': ['$x', -12]});
+    simplCase('a₇', {'_': ['$a', 7]});
     /* Copy & paste from here:
     simplCase('', );
     */
