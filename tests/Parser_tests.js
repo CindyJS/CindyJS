@@ -1,9 +1,9 @@
 'use strict';
 
-const expect = require('chai').expect;
-const Parser = require('../src/js/libcs/Parser');
-const Tokenizer = Parser.Tokenizer;
-const parse = Parser.parse;
+var expect = require('chai').expect;
+var Parser = require('../src/js/libcs/Parser');
+var Tokenizer = Parser.Tokenizer;
+var parse = Parser.parse;
 
 // Represent AST using a simple JSON which can be inlined below.
 // This representation is not well suited to evaluation,
@@ -11,7 +11,7 @@ const parse = Parser.parse;
 function simpl(expr) {
     if (expr === null)
         return null;
-    let res = {};
+    var res = {};
     switch (expr.ctype) {
     case 'number':
         return expr.value.real;
@@ -26,8 +26,8 @@ function simpl(expr) {
         res.list = expr.args.map(simpl);
         break;
     case 'function':
-        let modifs = {};
-        for (let key in expr.modifs)
+        var modifs = {};
+        for (var key in expr.modifs)
             modifs[key] = simpl(expr.modifs[key]);
         res[expr.oper] = [expr.args.map(simpl), modifs];
         break;
@@ -43,24 +43,24 @@ function simpl(expr) {
 }
 
 function simplCase(input, expected) {
-    let title = JSON.stringify(input);
+    var title = JSON.stringify(input);
     title = title.substring(1, title.length - 1);
-    it(title, () => {
+    it(title, function() {
         expect(simpl(parse(input))).to.deep.equal(expected);
     });
 }
 
 function badCase(input, expected) {
-    let title = JSON.stringify(input);
+    var title = JSON.stringify(input);
     title = title.substring(1, title.length - 1);
-    it(title, () => {
-        let res = parse(input);
+    it(title, function() {
+        var res = parse(input);
         expect(res.message).to.equal(expected);
         expect(res.ctype).to.equal('error');
     });
 }
 
-describe('CindyScript parser normal operation', () => {
+describe('CindyScript parser normal operation', function() {
     simplCase('1 + 2', {'+': [1, 2]});
     simplCase('1+2', {'+': [1, 2]});
     simplCase('1 + 2 + 3', {'+': [{'+': [1, 2]}, 3]});
@@ -96,7 +96,7 @@ describe('CindyScript parser normal operation', () => {
     */
 });
 
-describe('CindyScript parser error reporting', () => {
+describe('CindyScript parser error reporting', function() {
     badCase('1 * "foo', 'Invalid token at 1:4: ‘"’');
     badCase('test??()', 'Invalid token at 1:4: ‘??’');
     badCase('7+', 'Operator may not be used postfix at 1:1: ‘+’');
@@ -120,22 +120,22 @@ describe('CindyScript parser error reporting', () => {
     */
 });
 
-describe('CindyScript tokenizer', () => {
+describe('CindyScript tokenizer', function() {
     function lexCase(input, expected) {
         if (typeof expected === 'string') {
-            it(input, () => {
-                expect(() => {
-                    let tokenizer = new Tokenizer(input);
+            it(input, function() {
+                expect(function() {
+                    var tokenizer = new Tokenizer(input);
                     while (tokenizer.next().toktype !== 'EOF') {}
                 }).to.throw(expected);
             });
         } else {
-            it(input, () => {
-                let tokenizer = new Tokenizer(input);
-                let tokens = [];
-                let token;
+            it(input, function() {
+                var tokenizer = new Tokenizer(input);
+                var tokens = [];
+                var token;
                 while ((token = tokenizer.next()).toktype !== 'EOF') {
-                    let obj = {};
+                    var obj = {};
                     obj[token.toktype] = token.text;
                     tokens.push(obj);
                 }
@@ -151,7 +151,7 @@ describe('CindyScript tokenizer', () => {
     lexCase('/* a /* b */ c */', []);
     lexCase('/**/*a*/***/', [{OP:'*'},{ID:'a'},{OP:'*'}]);
 
-    it('should reconstruct regular expression for unicode letters', () => {
+    it('should reconstruct regular expression for unicode letters', function() {
         function esc(s) {
             return s.replace(/["\\]/g, "\\$&")
                 .replace(/[^\x00-\x7f]/g, function(c) {
@@ -217,7 +217,7 @@ function supsetTree(actual, expected) {
     return true;
 }
 
-describe('CindyScript parsing example file scripts', () => {
+describe('CindyScript parsing example file scripts', function() {
     allScripts.forEach(data => {
         let title = data.code;
         title = title.replace(/\s+/g, ' ').replace(/^\s+/, '');
@@ -225,7 +225,7 @@ describe('CindyScript parsing example file scripts', () => {
             title = title.substr(0, 20).replace(/\s+$/, '') + ' …';
         title = data.file.replace(/.*[\/\\]/, '').replace(/\.html$/, '') +
             ' - ' + title;
-        it(title, () => {
+        it(title, function() {
             let tree;
             try {
                 tree = parse(data.code);

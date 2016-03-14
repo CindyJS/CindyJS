@@ -1,5 +1,7 @@
 language: node_js
-node_js: node
+node_js:
+  - node
+  - "0.12"
 script: node make build=release alltests
 sudo: false
 addons:

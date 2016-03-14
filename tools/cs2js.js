@@ -6,6 +6,13 @@ var Q = require("q");
 var qfs = require("q-io/fs");
 var parse = require("../src/js/libcs/Parser.js").parse;
 
+if (!String.prototype.startsWith) { // ES6 compatibility
+    String.prototype.startsWith = function(searchString, position) {
+        position = position || 0;
+        return this.substr(position, searchString.length) === searchString;
+    };
+}
+
 var moduleName = "csAssets";
 
 var ops = {
