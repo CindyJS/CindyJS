@@ -22,6 +22,12 @@ function addNodePath() {
 }
 
 module.exports = function make(settings, tasks, tasksToRun, doClean) {
+    var exitStatus = 3;
+    process.once('beforeExit', function() {
+        if (exitStatus === 3)
+            console.error(chalk.bold.red("Event loop drained unexpectedly!"));
+        process.exit(exitStatus);
+    });
     addNodePath();
     if (tasksToRun.length === 0 && !doClean)
         tasksToRun = ["all"];
@@ -57,13 +63,13 @@ module.exports = function make(settings, tasks, tasksToRun, doClean) {
         });
     })
     .then(function(success) {
-        process.exit(success ? 0 : 1);
+        exitStatus = success ? 0 : 1;
     }, function(err) {
         var str = err.toString(), stack = err.stack;
         if (stack.substr(0, str.length) === str)
             stack = stack.substr(str.length);
         console.error(chalk.bold.red(str) + stack);
-        process.exit(2);
+        exitStatus = 2;
     })
     .done();
 };

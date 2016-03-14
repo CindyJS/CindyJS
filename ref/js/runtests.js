@@ -25,10 +25,10 @@ function runAllTests(files) {
     println(numtests + " tests extracted");
   } else if (failures === 0) {
     println("All " + numtests + " tests passed");
-    process.exit(0);
+    process.once('beforeExit', function() { process.exit(0); });
   } else {
     println(failures + " of " + numtests + " tests failed");
-    process.exit(1);
+    process.once('beforeExit', function() { process.exit(1); });
   }
 }
 
