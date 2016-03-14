@@ -100,22 +100,10 @@ The fractional part is a dot (U+002E) followed by zero or more digits.
 The exponent is the letter `e` or `E`, possibly followed by a sign
 (`+` or `-`), followed by one or more digits.
 
-    > 1
-    < 1
-    > 2.
-    < 2
-    > 3.4
-    < 3.4
-    > .5
-    < 0.5
-    > 6e7
-    < 60000000
-    > 2.e-3
-    < 0.002
-    > 3.2e+1
-    < 32
-    > .5e-3
-    < 0.0005
+    > [1, 2., 3.4, .5, 6e7, 2.e-3, 3.2E+1, .5e-3]
+    < [1, 2, 3.4, 0.5, 60000000, 0.002, 32, 0.0005]
+    > [1 1, 2 2 ., 3 3 . 4 4, . 5 6, 6 e 5, 1 2 . E - 3, 3 . 2 e + 1, . 5 e - 3]
+    < [11, 22, 33.44, 0.56, 600000, 0.012, 32, 0.0005]
 
 Contrary to past CindyScript versions, a sole dot is no longer
 a valid representation for the number zero.
@@ -212,18 +200,12 @@ Spaces may be used instead to separate words, as described [above](#whitespace).
 
 The following section will describe a number of operators and bracket symbols
 which too form lexical tokens.
-They won't overlap with the tokens described above with one exception:
-the `.` may be used both for field access and for numeric literals.
 
-Internally, the dot is always parsed as a field access operator at first,
-but if its arguments are only digits,
-then it is interpreted as a numeric literal instead.
-So the precedence of the dot operator controls this distinction.
-Since this precedence is pretty low, one can in general assume that
-a given piece of code containing a dot is a numeric literal
-unless there is an identifier before or after the dot.
-One notable exception is the `:` operator which has even lower precedence.
-It is not implemented in CindyJS yet, though.
+The token parsed at a given position is the one which matches the
+longes portion of input at that position, with the
+[noted](#numeric-literals) exception of `..` following a numeric
+literal, which gets parsed as an operator in its own right instead of
+a number ending in a decimal dot and followed by the operator `.`.
 
     > x = [];
     > x:12.3 = 4.56;
@@ -231,6 +213,11 @@ It is not implemented in CindyJS yet, though.
     * Can't use infix expression as lvalue
     * Operator : is not supported yet.
     < ___
+
+There may be no spaces within operator symbols.
+
+    > f(x) : = 123
+    ! CindyScriptParseError: Operator may not be used postfix at 1:5: ‘:’
 
 ## Grammar
 
@@ -252,33 +239,36 @@ An expression can be one of the following
 
 CindyJS knows about the following operators, in order of precedence:
 
-1. [`:`](Variables_and_Functions.md#user-defined-data)
-1. [`.`](Accessing_Geometric_Elements.md#properties-of-geometric-objects),
+1. [`:`](Variables_and_Functions.md#user-defined-data),
+   [`.`](Accessing_Geometric_Elements.md#properties-of-geometric-objects),
+   [`_`](Lists_and_Linear_Algebra.md#$5fu),
    [`°`](Arithmetic_Operators.md#_$b0u)
-1. [`_`](Lists_and_Linear_Algebra.md#$5fu),
-   [`^`](Arithmetic_Operators.md#$5eu)
+1. [`^`](Arithmetic_Operators.md#$5eu),
+   `√`
 1. [`*`](Arithmetic_Operators.md#$2au),
+   `×`,
    [`/`](Arithmetic_Operators.md#$2fu)
 1. [`+`](Arithmetic_Operators.md#$2bu),
    [`-`](Arithmetic_Operators.md#$2du),
    [`!`](Boolean_Operators.md#$21u_)
+1. [`..`](Elementary_List_Operations.md#$2eu$2eu)
 1. [`==`](Boolean_Operators.md#$3du$3du),
+   [`!=`](Boolean_Operators.md#$21u$3du),
+   [`<`](Boolean_Operators.md#$3cu),
+   [`>`](Boolean_Operators.md#$3eu),
+   [`<=`](Boolean_Operators.md#$3cu$3du),
+   [`>=`](Boolean_Operators.md#$3eu$3du),
    [`~=`](Boolean_Operators.md#$7eu$3du),
+   [`~!=`](Boolean_Operators.md#$7eu$21u$3du),
    [`~<`](Boolean_Operators.md#$7eu$3cu),
    [`~>`](Boolean_Operators.md#$7eu$3eu),
-   `=:=` *(unofficial)*,
-   [`>=`](Boolean_Operators.md#$3eu$3du),
-   [`<=`](Boolean_Operators.md#$3cu$3du),
-   [`~>=`](Boolean_Operators.md#$7eu$3eu$3du),
    [`~<=`](Boolean_Operators.md#$7eu$3cu$3du),
-   [`>`](Boolean_Operators.md#$3eu),
-   [`<`](Boolean_Operators.md#$3cu),
-   [`<>`](Boolean_Operators.md#$21u$3du)
+   [`~>=`](Boolean_Operators.md#$7eu$3eu$3du),
+   `∈`,
+   `∉`,
+   `=:=` *(not documented)*
 1. [`&`](Boolean_Operators.md#$26u),
-   [`%`](Boolean_Operators.md#$25u),
-   [`!=`](Boolean_Operators.md#$21u$3du),
-   [`~!=`](Boolean_Operators.md#$7eu$21u$3du),
-   [`..`](Elementary_List_Operations.md#$2eu$2eu)
+   [`%`](Boolean_Operators.md#$25u)
 1. [`++`](Elementary_List_Operations.md#$2bu$2bu),
    [`--`](Elementary_List_Operations.md#$2du$2du),
    [`~~`](Elementary_List_Operations.md#$7eu$7eu),
@@ -287,7 +277,7 @@ CindyJS knows about the following operators, in order of precedence:
 1. [`=`](Variables_and_Functions.md#defining-variables),
    [`:=`](Variables_and_Functions.md#defining-functions),
    [`::=`](Variables_and_Functions.md#binding-variables-to-functions),
-   `:=_` *(unofficial)*,
+   `:=_` *(not documented)*,
    [`->`](General_Concepts.md#modifiers)
 1. [`;`](General_Concepts.md#control-flow)
 
@@ -319,6 +309,36 @@ it is not included in the above list.
     > 1, 2, 3
     ! CindyScriptParseError: comma may only be used to delimit list elements at 1:1
 
+Several of these operators have alternate Unicode forms
+which often are more readable but harder to type.
+
+* `*` = U+2062 invisible times = `⋅` U+22C5 dot operator = `·` U+00B7 mittle dot
+* `/` = `÷` U+00F7 division sign = `∕` U+2215 division slash = `∶` U+2236 ratio
+* `-` = '−' U+2212 minus sign
+* `!` = `¬` U+C2AC not sign
+* `==` = `≟` U+225F questioned equal to
+* `!=` = `<>` = `≠` U+2260 not equal to
+* `<=` = `≤` U+2264 less-than or equal to = `≦` U+2266 less-than over equal to
+* `>=` = `≥` U+2265 greater-than or equal to = `≧` U+2267 greater-than over equal to
+* `~=` = `≈` U+2248 almost equal to
+* `~!=` = `≉` U+2249 not almost equal to
+* `~<` = `⪉` U+2A89 less-than and not approximate
+* `~>` = `⪊` U+2A8A greater-than and not approximate
+* `~<=` = `⪅` U+2A85 less-than or approximate
+* `~>=` = `⪆` U+2A86 greater-than or approximate
+* `&` = `∧` U+2227 logical and
+* `%` = `∨` U+2228 logical or
+* `++` = `∪` U+222A union
+* `--` = `∖` U+2216 set minux
+* `~~` = `∩` U+2229 intersection
+* `->` = `→` U+2192 rightwards arrow
+
+These alternatives are valid only in operator tokens.
+It is illegal to use the Unicode minus sign in the exponent of a numeric literal:
+
+    > 2.34e−5
+    ! CindyScriptParseError: Missing operator at 1:4: ‘e’
+
 ### Prefix and postfix operators
 
 The `+` and `-` operators may be used both in infix and in prefix notation.
@@ -333,10 +353,12 @@ The `+` and `-` operators may be used both in infix and in prefix notation.
     > +[1, 2, 3]
     < [1, 2, 3]
 
-The `!` operator may only be used in prefix notation.
+The `!` and `√` operators may only be used in prefix notation.
 
     > !(7 == 7)
     < false
+    > √4
+    < 2
 
 The `°` operator may only be used in postfix notation.
 
@@ -384,15 +406,14 @@ These always denote a list, even if they contain exactly one expression.
 
 #### Curly braces `{…}`
 
-The single-expression form `{‹expr›}` is just like `(‹expr›)`.
-This form is deprecated, and likely will get removed in the near future.
-Use `(…)` instead.
-The use with zero elements, or more than one, is reserved for future extensions.
+Curly braces are reserved for future applications.
 
     > 7 * {1 + 2}
-    < 21
+    ! CindyScriptParseError: {…} reserved for future use at 1:4
     > 7 * {1, 2}
-    ! CindyScriptParseError: {…} only takes one argument at 1:4
+    ! CindyScriptParseError: {…} reserved for future use at 1:4
+    > 7 * {}
+    ! CindyScriptParseError: {…} reserved for future use at 1:4
 
 #### Vertical bars `|…|`
 

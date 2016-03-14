@@ -83,7 +83,6 @@ describe('CindyScript parser normal operation', () => {
     simplCase('f(1,m->2,3)', {f$2: [[1, 3], {m: 2}]});
     simplCase('f[1, 2, m->3]', {f$2: [[1, 2], {m: 3}]});
     simplCase('[1]', {genList: [[1],{}]});
-    simplCase('{1 + 2}', {'+': [1, 2]});
     simplCase('7° + 9', {'+': [{'°': [7, null]}, 9]});
     simplCase('- 9 + 2', {'+': [{'-': [null, 9]}, 2]});
     simplCase('!b', {'!': [null, '$b']});
@@ -109,7 +108,7 @@ describe('CindyScript parser error reporting', () => {
     badCase('1 + || * 2', "Don't support |…| with 0 arguments at 1:4");
     badCase('|x,y,z|', "Don't support |…| with 3 arguments at 1:0");
     badCase('1 + 2)', 'Closing bracket never opened. at 1:5: ‘)’');
-    badCase('{1,2}', '{…} only takes one argument at 1:0');
+    badCase('{1,2}', '{…} reserved for future use at 1:0');
     badCase('17()', 'Function name must be an identifier at 1:0');
     badCase('f(7->8)', 'Modifier name must be an identifier at 1:3');
     badCase('f(x.y->8)', 'Modifier name must be an identifier at 1:5');

@@ -13,9 +13,19 @@ var operatorLevels = [{
     pow: ['^'],
     sqrt: ['√'],
 }, {
-    mul: ['*', '\u2062', '⋅'], // U+2062 = invisible times
+    mul: [
+        '*',
+        '\u2062', // invisible times
+        '\u22c5', // ⋅ dot operator
+        '\u00b7', // · middle dot
+    ],
     cross: ['×'],
-    div: ['/'],
+    div: [
+        '/',
+        '\u00f7', // ÷ division sign
+        '\u2215', // ∕ division slash
+        '\u2236', // ∶ ratio
+    ],
 }, {
     add: ['+'],
     sub: ['-', '−'],
@@ -473,26 +483,25 @@ function parseRec(tokens, closing) {
                                 "Don't support |…| with " + lst.length +
                                 ' arguments', tok.start);
                         }
+                    } else if (pair === '{}') {
+                        throw ParseError('{…} reserved for future use', tok.start);
                     } else if (pair !== '[]' && lst.length === 1) {
                         seq.push({
                             ctype: 'paren',
                             args: lst,
                         });
-                    } else if (pair !== '{}') {
-                        if (lst.length === 0)
-                            seq.push({
-                                ctype: 'list',
-                                value: [],
-                            });
-                        else
-                            seq.push({
-                                ctype: 'function',
-                                oper: 'genList',
-                                args: lst,
-                                modifs: {},
-                            });
+                    } else if (lst.length === 0) {
+                        seq.push({
+                            ctype: 'list',
+                            value: [],
+                        });
                     } else {
-                        throw ParseError('{…} only takes one argument', tok.start);
+                        seq.push({
+                            ctype: 'function',
+                            oper: 'genList',
+                            args: lst,
+                            modifs: {},
+                        });
                     }
                 } else { // operator position, so it's a function call
                     var fname = seq[seq.length - 1];

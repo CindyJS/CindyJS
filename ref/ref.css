@@ -13,8 +13,11 @@ table { border-collapse:collapse; }
 table td, table th { padding: 0.5ex 1em;  border: 1px solid black; }
 table td, table th, table code { background: #ffffff; }
 a.hlink { margin-left: 0.5em; opacity: 0.1; text-decoration: none; }
+a.hlink:hover { text-decoration: underline; }
 a.hlink::after { content: "¶"; }
 a.hlink:hover { opacity: 0.8; }
+a { text-decoration: none; }
+a:hover { text-decoration: underline; }
 kbd {
 display: inline-block;
 padding: 0.2em 0.3em;
