@@ -189,10 +189,11 @@ function setuplisteners(canvas, data) {
     });
 
     addAutoCleaningEventListener(canvas, "drop", function(e) {
-        e.preventDefault();
 
+        // add images to image array
         var dt = e.dataTransfer;
         var files = dt.files;
+        var img, reader;
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
             var imageType = /^image\//;
@@ -201,8 +202,8 @@ function setuplisteners(canvas, data) {
                 continue;
             }
 
-            var img = new Image();
-            var reader = new FileReader();
+            img = new Image();
+            reader = new FileReader();
             reader.onload = (function(aImg) {
                 return function(e) {
                     aImg.src = e.target.result;
@@ -216,8 +217,11 @@ function setuplisteners(canvas, data) {
             images[fname] = img;
 
         }
-        updateCindy();
 
+        // run ondrop scripts 
+        cs_onDrop();
+
+        e.preventDefault();
     });
 
 
@@ -427,6 +431,13 @@ function cs_simulationstart(e) {
 
 function cs_simulationstop(e) {
     evaluate(cscompiled.simulationstop);
+}
+
+
+function cs_onDrop(e) {
+    debugger;
+    evaluate(cscompiled.ondrop);
+    updateCindy();
 }
 
 
