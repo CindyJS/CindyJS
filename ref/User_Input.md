@@ -12,7 +12,7 @@ If one wants to react to the corresponding event data, there are several operato
 **Description:**
 Returns a vector that represents the current position of the mouse if the mouse is pressed.
 The vector is given in homogeneous coordinates (this allows also for access of infinite objects).
-If one needs the two-dimensional euclidean coordinates of the mouse position one can access them via `mouse().xy`.
+If one needs the two-dimensional Euclidean coordinates of the mouse position one can access them via `mouse().xy`.
 
 ------
 

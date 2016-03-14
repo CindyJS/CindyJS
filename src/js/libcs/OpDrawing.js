@@ -298,9 +298,8 @@ eval_helper.drawcircle = function(args, modifs, df) {
 
     csctx.lineJoin = "miter";
     csctx.beginPath();
-    csctx.arc(xx, yy, v1.value.real * m.sdet, 0, 2 * Math.PI);
+    csctx.arc(xx, yy, Math.abs(v1.value.real) * m.sdet, 0, 2 * Math.PI);
     csctx.closePath();
-
 
     if (df === "D") {
         csctx.stroke();
