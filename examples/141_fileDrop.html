@@ -10,14 +10,20 @@
 // Initialization code, executed once up front.
 
 </script>
-<script id="csdraw" type="text/x-cindyscript">
-apply(allimages(), drawimage(A, #));
+<script id="csmove" type="text/x-cindyscript">
+gsave();
+forall(allimages(), drawimage(A, #));
+grestore();
 // Drawing code, executed whenever the canvas gets redrawn.
 
 </script>
 
 <script id="csondrop" type="text/x-cindyscript">
-apply(allimages(), drawimage(A, #))
+println("ondrop called");
+gsave();
+//apply(allimages(), drawimage(A, #))
+forall(allimages(), drawimage(A, #));
+grestore();
 // Drawing code, executed whenever the canvas gets redrawn.
 
 </script>
@@ -27,6 +33,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
   ports: [{id: "CSCanvas"}],
   scripts: "cs*",
   language: "en",
+  movescript: "csmove",
   defaultAppearance: {
     // See GeoBasics.js for possible attributes.
   },
