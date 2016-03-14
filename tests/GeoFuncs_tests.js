@@ -35,7 +35,7 @@ var cdy;
 
 function itCmd(command, expected) {
     it(command, function() {
-        cdy.niceprint(cdy.evalcs(command)).should.equal(expected);
+        String(cdy.niceprint(cdy.evalcs(command))).should.equal(expected);
     });
 }
 
@@ -100,5 +100,64 @@ describe("all* operations", function() {
     itCmd("x = C1; allpoints(x)", "[A, B, C, D, E]");
     itCmd("alllines(K.homog)", "[]");
     itCmd("K = [1,2,3]; alllines(K)", "[]");
+
+});
+
+describe("toString as a name", function() {
+
+    before(function() {
+        cdy = createCindy({
+            isNode: true,
+            csconsole: null,
+            geometry: [
+                {name: "A", type: "Free", pos: [0, 0]},
+            ]
+        });
+    });
+
+    itCmd('isgeometric(toString)', 'false');
+    itCmd('isundefined(toString)', 'true');
+    itCmd('toString = 1; toString', '1');
+
+});
+
+describe("==", function() {
+
+    before(function() {
+        cdy = createCindy({
+            isNode: true,
+            csconsole: null,
+            geometry: [
+                {name: "A", type: "Free", pos: [0, 0]},
+            ]
+        });
+    });
+
+    itCmd('A == A.xy', 'false');
+    itCmd('A == A.homog', 'false');
+    itCmd('A == A', 'true');
+    itCmd('A == [0, 0]', 'false');
+
+});
+
+describe("element(‹string›)", function() {
+
+    before(function() {
+        cdy = createCindy({
+            isNode: true,
+            csconsole: null,
+            geometry: [
+                {name: "A", type: "Free", pos: [0, 0]},
+                {name: "B", type: "Free", pos: [1, 0]},
+                {name: "i", type: "Join", args: ["A", "B"]}
+            ]
+        });
+    });
+
+    itCmd('element("i")', 'i');
+    itCmd('element("i") == i', 'false');
+    itCmd('alllines()_1', 'i');
+    itCmd('element("i") == alllines()_1', 'true');
+    itCmd('isgeometric(element("toString"))', 'false');
 
 });

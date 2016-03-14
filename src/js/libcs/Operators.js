@@ -574,31 +574,28 @@ evaluator.if$3 = function(args, modifs) { //OK
 };
 
 function comp_equals(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    var v0 = evaluate(args[0]);
+    var v1 = evaluate(args[1]);
 
-    if (v0.ctype === 'number' && v1.ctype === 'number') {
-        return {
-            'ctype': 'boolean',
-            'value': (v0.value.real === v1.value.real) &&
-                (v0.value.imag === v1.value.imag)
-        };
-    }
-    if (v0.ctype === 'string' && v1.ctype === 'string') {
-        return {
-            'ctype': 'boolean',
-            'value': (v0.value === v1.value)
-        };
-    }
-    if (v0.ctype === 'boolean' && v1.ctype === 'boolean') {
-        return {
-            'ctype': 'boolean',
-            'value': (v0.value === v1.value)
-        };
-    }
-    if (v0.ctype === 'list' && v1.ctype === 'list') {
-        var erg = List.equals(v0, v1);
-        return erg;
+    if (v0.ctype === v1.ctype) {
+        if (v0.ctype === 'number') {
+            return General.bool(
+                v0.value.real === v1.value.real &&
+                v0.value.imag === v1.value.imag
+            );
+        }
+        if (v0.ctype === 'string') {
+            return General.bool(v0.value === v1.value);
+        }
+        if (v0.ctype === 'boolean') {
+            return General.bool(v0.value === v1.value);
+        }
+        if (v0.ctype === 'list') {
+            return List.equals(v0, v1);
+        }
+        if (v0.ctype === 'geo') {
+            return General.bool(v0.value === v1.value);
+        }
     }
     return {
         'ctype': 'boolean',
@@ -3591,6 +3588,16 @@ evaluator.halfplane$2 = function(args, modifs) {
 //   Geometric elements      //
 ///////////////////////////////
 
+evaluator.element$1 = function(args, modifs) {
+    var name = evaluate(args[0]);
+    if (name.ctype === "string")
+        if (csgeo.csnames.hasOwnProperty(name.value))
+            return {
+                ctype: "geo",
+                value: csgeo.csnames[name.value]
+            };
+    return nada;
+};
 
 // helper for all*(<geoobject>)
 eval_helper.all$1 = function(args, filter) {

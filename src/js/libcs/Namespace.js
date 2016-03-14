@@ -106,8 +106,7 @@ function Namespace() {
         }
     };
     this.isVariable = function(a) {
-        return this.vars[a] !== undefined;
-
+        return this.vars.hasOwnProperty(a);
     };
 
     this.isVariableName = function(a) {
@@ -170,7 +169,7 @@ function Namespace() {
         if (stack.length === 0) console.error("Getting non-existing variable " + code);
         var erg = stack[stack.length - 1];
         if (erg === unset) {
-            if (csgeo.csnames[code] !== undefined) {
+            if (csgeo.csnames.hasOwnProperty(code)) {
                 return {
                     'ctype': 'geo',
                     'value': csgeo.csnames[code]
