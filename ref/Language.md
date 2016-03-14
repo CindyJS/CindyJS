@@ -189,6 +189,10 @@ The set of letters includes characters from
 other than the Basic Multilingual Plane (BMP).
 These are encoded using surrogare pairs in JavaScript's UTF-16 encoding.
 
+    > 𝐶𝑖𝑛𝑑𝑦 𝑱𝑺 = 2;
+    > 𝐶𝑖𝑛𝑑𝑦𝑱𝑺
+    < 2
+
 Note that some letters may have right-to-left as the default text orientation.
 Depending on the environment, this may lead to unexpected display order
 for input or output.
