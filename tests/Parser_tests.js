@@ -1,7 +1,9 @@
 'use strict';
 
 const expect = require('chai').expect;
-const parse = require('../src/js/libcs/Parser').parse;
+const Parser = require('../src/js/libcs/Parser');
+const Tokenizer = Parser.Tokenizer;
+const parse = Parser.parse;
 
 // Represent AST using a simple JSON which can be inlined below.
 // This representation is not well suited to evaluation,
@@ -117,6 +119,38 @@ describe('CindyScript parser error reporting', () => {
     /* Copy & paste from here:
     badCase('', ': ‘’');
     */
+});
+
+describe('CindyScript tokenizer', () => {
+    function lexCase(input, expected) {
+        if (typeof expected === 'string') {
+            it(input, () => {
+                expect(() => {
+                    let tokenizer = new Tokenizer(input);
+                    while (tokenizer.next().toktype !== 'EOF') {}
+                }).to.throw(expected);
+            });
+        } else {
+            it(input, () => {
+                let tokenizer = new Tokenizer(input);
+                let tokens = [];
+                let token;
+                while ((token = tokenizer.next()).toktype !== 'EOF') {
+                    let obj = {};
+                    obj[token.toktype] = token.text;
+                    tokens.push(obj);
+                }
+                expect(tokens).to.deep.equal(expected);
+            });
+        }
+    }
+
+    lexCase('/* foo */', []);
+    lexCase('/**/', []);
+    lexCase('/*/', 'Unterminated comment');
+    lexCase('/* foo */+1', [{OP:'+'}, {NUM:'1'}]);
+    lexCase('/* a /* b */ c */', []);
+    lexCase('/**/*a*/***/', [{OP:'*'},{ID:'a'},{OP:'*'}]);
 });
 
 /* Used for output comparison during Parser rewrite

@@ -122,12 +122,13 @@ operatorSymbols.sort(function(a, b) {
 
 var brackets = '[](){}||';
 
-var whitespace = '[ \t\n]';
+var inTokenWhitespace = '[ \t]*';
+var whitespaceToken = '[ \t\n]+';
 
 // Allow spaces in tokens. Any occurrence of ' ' is replaced by '[…]*',
 // with […] matching the class of allowed in-token whitespace.
 function expandSpaces(str) {
-    return str.replace(/ /g, whitespace + '*');
+    return str.replace(/ /g, inTokenWhitespace);
 }
 
 // Quote special characters in strings so they can be used in regular
@@ -136,15 +137,10 @@ function rescape(str) {
     return str.replace(/[^A-Za-z0-9 \u0080-\uffff]/ig, '\\$&');
 }
 
-// Quote string, but allow whitespace anywhere in its body
-function withSpaces(str) {
-    return expandSpaces(rescape(str.replace(/.(?=.)/g, '$& ')));
-}
-
 // Form a group consisting matching any of the given strings literally,
 // but with whitespace allowed.
 function anyOfGroup(lst) {
-    return '(' + lst.map(withSpaces).join('|') + ')';
+    return '(' + lst.map(rescape).join('|') + ')';
 }
 
 // Either an integer part, possibly followed by a possibly empty
@@ -196,21 +192,23 @@ var reIdentifier = expandSpaces(
     "(?:#(?: [1-9])?|['" + bmpLetters + "](?: [0-9'" + bmpLetters + "])*)"
 );
 
-var reNextToken = [ //               0: token text
-    '(' + whitespace + '+)', //        1: whitespace
-    '(//.*)', //                       2: comment
-    '(' + reNumber + ')', //           3: number literal
-    anyOfGroup(operatorSymbols), //    4: operator
-    anyOfGroup(brackets.split('')), // 5: bracket
-    '(' + reIdentifier + ')', //       6: identifier
-    '("[^"]*")', //                    7: string literal
-    '($)', //                          8: EOF
+var reNextToken = [ //                 0: token text
+    '(' + whitespaceToken + ')', //    1: whitespace
+    '(//.*)', //                       2: single-line comment
+    '(/\\*)', //                       3: start of multi-line comment
+    '(' + reNumber + ')', //           4: number literal
+    anyOfGroup(operatorSymbols), //    5: operator
+    anyOfGroup(brackets.split('')), // 6: bracket
+    '(' + reIdentifier + ')', //       7: identifier
+    '("[^"]*")', //                    8: string literal
+    '($)', //                          9: EOF
 ].join('|');
 
-var reSpace = new RegExp(whitespace + '+', 'g');
+var reSpace = new RegExp(inTokenWhitespace.replace(/\*$/, '+'), 'g');
 
 var tokenTypes = [
-    'ANY', 'WS', 'COMMENT', 'NUM', 'OP', 'BRA', 'ID', 'STR', 'EOF'
+    'ANY', 'WS', 'COMMENT', 'START_COMMENT',
+    'NUM', 'OP', 'BRA', 'ID', 'STR', 'EOF'
 ];
 
 (function sanityCheck() {
@@ -252,9 +250,13 @@ function Tokenizer(input) {
     this.line = 1;
 }
 
-Tokenizer.prototype.advance = function(offset) {
-    this.pos += offset;
-    while (this.bols[0] <= this.pos) {
+Tokenizer.prototype.advanceBy = function(offset) {
+    this.advanceTo(this.pos + offset);
+};
+
+Tokenizer.prototype.advanceTo = function(pos) {
+    this.pos = pos;
+    while (this.bols[0] <= pos) {
         this.bol = this.bols.shift();
         this.line++;
     }
@@ -274,7 +276,7 @@ Tokenizer.prototype.nextInternal = function() {
         throw ParseError('Invalid token', this.curPos(),
             this.input.substring(this.pos, match.index));
     var pos1 = this.curPos();
-    this.advance(match[0].length);
+    this.advanceBy(match[0].length);
     var pos2 = this.curPos();
     var tt;
     /*jshint -W116 */
@@ -293,6 +295,30 @@ Tokenizer.prototype.next = function() {
     var tok;
     do {
         tok = this.nextInternal();
+        if (tok.toktype === 'START_COMMENT') {
+            // Match multiline comment, take nesting into account
+            var reComment = /\*\/|\/\*/g;
+            reComment.lastIndex = tok.start.pos + 2;
+            var depth = 1;
+            var match;
+            while (depth > 0) {
+                match = reComment.exec(this.input);
+                if (!match) {
+                    throw ParseError('Unterminated comment',
+                        tok.start, tok.text);
+                } else if (match[0] === '/*') {
+                    ++depth;
+                } else {
+                    --depth;
+                }
+            }
+            this.re.lastIndex = reComment.lastIndex;
+            this.advanceTo(reComment.lastIndex);
+            tok.end = this.curPos();
+            tok.raw = this.input.substring(tok.start.pos, tok.end.pos);
+            tok.text = tok.raw;
+            tok.toktype = 'COMMENT';
+        }
     } while (tok.toktype === 'WS' || tok.toktype === 'COMMENT');
     return tok;
 };
@@ -518,6 +544,10 @@ Parser.prototype.postprocess = function(expr) {
                         'functions or variables',
                         expr.start);
                 }
+            } else if (expr.oper === ',') {
+                throw ParseError(
+                    'comma may only be used to delimit list elements',
+                    expr.start);
             }
         }
 
@@ -579,6 +609,7 @@ if (typeof process !== "undefined" &&
     typeof module.exports !== "undefined" &&
     typeof window === "undefined") {
     module.exports.Parser = Parser;
+    module.exports.Tokenizer = Tokenizer;
     module.exports.parse = function(code) {
         return (new Parser()).parse(code);
     };

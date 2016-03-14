@@ -9,49 +9,66 @@ into a sequence of individual units, called tokens, and similar to words.
 
 ### Comments
 
-A comment is introduced by `//` and spans to the end of the line,
+A single line comment is introduced by `//` and spans to the end of the line,
 i.e. the next newline character or the end of the input text.
 
     > 6 * 7 // this is a comment so it will be ignored
     < 42
 
-There are no block comments in CindyScript.
-However, one can often achieve a similar effect by turning the text in question
-into a multi-line string literal,
-as long as it does not contain any double quotation marks of its own.
+A block comment is enclosed by `/*` and `*/`.
 
-    > "This is a multi-line string literal,
-    >  pointing out that the value computed here
-    >  has some connection to the
-    >  Hitchhiker's Guide to the Galaxy";
-    > 6 * 7
-    < 42
+    > 1 + /* 7 - */ 2
+    < 3
+
+Block comments in CindyJS can be nested.
+
+    > 1 + /* 2 + /* 3 + */ 4 + */ 5
+    < 6
+
+Unclosed block comments are an error.
+
+    > 1 + /* this does not close
+    ! CindyScriptParseError: Unterminated comment at 1:4: ‘/*’
+    > 1 + /* this /* still */ not
+    ! CindyScriptParseError: Unterminated comment at 1:4: ‘/*’
 
 ### Whitespace
 
-CindyScript considers the following Unicode characters to be whitespace:
-
+CindyScript considers the following characters to be whitespace:
 * U+0020 (space)
 * U+0009 (horizontal tab)
 * U+000A (line feed)
 * U+000D (carriage return)
 
-Whitespace is conceptually removed before tokenization,
-so identifiers may contain space characters and even line breaks.
+These characters may occur between lexical tokens
+without affecting the meaning of the code.
+One exception are [string literals](#string-literals),
+where such tokens are interpreted literally.
+Another exception are line [comments](#comments) (`// …`)
+where newline has the effect of terminating the comment.
+
+The space and horizontal tab characters may also occur *within*
+certain lexical tokens, namely within
+[numeric literals](#numeric-literals) and
+[identifiers](#identifiers).
+If such whitespace characters are encountered in one of these tokens,
+they are stripped before further processing occurs,
+so they are not part of the semantic content of the token.
 
     > arc sin ( 1 )
     < 90°
     > abc = 1 2 3  .  45; a b c
     < 123.45
-    > a
-    > 	b
-    > 		c
-    < 123.45
     > re ver se ([1,2,3])
     < [3, 2, 1]
 
-Using characters other than a single space within a token is discouraged,
-since it is highly confusing and may be unsupported in a future version.
+Newlines still delimit tokens, so the following is read as
+three distinct identifiers with no operators between them:
+
+    > a
+    > 	b
+    > 		c
+    ! CindyScriptParseError: Missing operator at 2:1: ‘b’
 
 ### String literals
 
@@ -74,37 +91,53 @@ but that representation would actually not be suitable as input.
 
 ### Numeric literals
 
-A numeric literal is any non-empty sequence of any number of ASCII digits
-and at least one dot (U+002E).
+Numeric literals in general consist of an integer part,
+an optional fractional part, and an optional base-10 exponent.
+The integer part is a sequence of zero or more ASCII decimal digits.
+If there are no digits in the fractional part, then the integer part
+mus contain at least one digit.
+The fractional part is a dot (U+002E) followed by zero or more digits.
+The exponent is the letter `e` or `E`, possibly followed by a sign
+(`+` or `-`), followed by one or more digits.
 
+    > 1
+    < 1
+    > 2.
+    < 2
+    > 3.4
+    < 3.4
+    > .5
+    < 0.5
+    > 6e7
+    < 60000000
+    > 2.e-3
+    < 0.002
+    > 3.2e+1
+    < 32
+    > .5e-3
+    < 0.0005
+
+Contrary to past CindyScript versions, a sole dot is no longer
+a valid representation for the number zero.
 In particular, this includes a sole dot as a valid representation
 for the number zero.
-This is a rather obscure quirk, and portable code should not rely
-on this behavior in future releases.
 
-    > [1.23, 2., .34, ., 5]
-    < [1.23, 2, 0.34, 0, 5]
+    > 0 + (.)
+    ! CindyScriptParseError: Operator without operands at 1:5: ‘.’
 
 There are no negative literals, but unary sign operators may be combined with
 numeric literals to build negative numbers.
+The unary negation has the same precedence as binary negation,
+so it binds less tight than e.g. the power operator `^`.
+
+    > -1 ^ 4 // actually parsed as -(1^4)
+    < -1
+
 There also are no literals for complex numbers,
 but the variable `i` is pre-set to the complex unit.
 
-    > [- 2.3, 4.5 + 6.7 * i]
-    < [-2.3, 4.5 + i*6.7]
-
-There is no implicit way to write literals in scientific notation.
-What looks like a numeric literal is in fact considered a variable name.
-One can use the [power operator `^`](Arithmetic_Operators.md#$5eu)
-to write in scientific notation, though.
-
-    > 12e3
-    * Warning: Accessing undefined variable: 12e3
-    < ___
-    > 12e3 = 17; 12e3
-    < 17
-    > 12 * 10^3
-    < 12000
+    > 4.5 + 6.7 * i
+    < 4.5 + i*6.7
 
 There are no literals representing infinite values or NaN (Not a Number) values.
 
@@ -115,15 +148,30 @@ floating-point precision is exhausted.
     > 3.141592653589793234567890123456789012345 == pi // last digits are WRONG!
     < true
 
+A numeric literal may only end in a dot if it is not immediately followed
+by a second dot, since the latter represents a range.
+
+    > 1..3
+    < [1, 2, 3]
+    > 1 . . 3
+    ! CindyScriptParseError: Field name must be identifier at 1:2: ‘.’
+
 ### Identifier names
+
+Identifiers are used both for
+[variables](Variables_and_Functions.md#defining-variables) and for
+[user-defined functions](Variables_and_Functions.md#defining-functions),
+as well as for arguments to such functions and to name
+[modifiers](General_Concepts.md#modifiers).
 
 Identifiers may contain one or more of the following symbols:
 * ASCII letters `a`-`z` and `A`-`Z`
-* ASCII digits `0`-`9`
+* ASCII digits `0`-`9`, but not as the first character
 * The ASCII apostrophe U+0027 `'`
-* Codepoints from the [Unicode 6.2.0](http://www.unicode.org/Public/6.2.0/)
-Basic Multilingual [Plane](http://www.unicode.org/glossary/#plane) (BMP) with 
-[General category](http://www.unicode.org/reports/tr44/tr44-16.html#General_Category_Values) `L` (i.e. Letters).
+* Codepoints from
+  [the Unicode 8.0.0 standard](http://www.unicode.org/Public/8.0.0/)
+  with [General category](http://www.unicode.org/reports/tr44/tr44-16.html#General_Category_Values)
+  `L` (i.e. Letters).
 
 In addition to these, [`#`](General_Concepts.md#local-variables-the-variable)
 and `#1` through `#9` are also valid variable names.
@@ -132,9 +180,14 @@ Multiple digits are not permissible, though.
     > #9 = 12; #9
     < 12
     > #12 = 17; #12
-    < ___
+    ! CindyScriptParseError: Missing operator at 1:2: ‘2’
     > foo#1 = 19; foo#1
-    < ___
+    ! CindyScriptParseError: Missing operator at 1:3: ‘#1’
+
+The set of letters includes characters from
+[planes](http://www.unicode.org/glossary/#plane)
+other than the Basic Multilingual Plane (BMP).
+These are encoded using surrogare pairs in JavaScript's UTF-16 encoding.
 
 Note that some letters may have right-to-left as the default text orientation.
 Depending on the environment, this may lead to unexpected display order
@@ -150,12 +203,6 @@ Contrary to many other programming languages,
 the [underscore `_` is an operator](Lists_and_Linear_Algebra.md#$5fu)
 and may not be used as part of an identifier name.
 Spaces may be used instead to separate words, as described [above](#whitespace).
-
-These identifiers may be used both for
-[variables](Variables_and_Functions.md#defining-variables) and for
-[user-defined functions](Variables_and_Functions.md#defining-functions),
-as well as for arguments to such functions and to name
-[modifiers](General_Concepts.md#modifiers).
 
 ### Operators and Brackets
 
@@ -177,7 +224,7 @@ It is not implemented in CindyJS yet, though.
     > x = [];
     > x:12.3 = 4.56;
     > x:"12.3"
-    * Left hand side of assignment is not a recognized lvalue
+    * Can't use infix expression as lvalue
     * Operator : is not supported yet.
     < ___
 
@@ -240,17 +287,23 @@ CindyJS knows about the following operators, in order of precedence:
    [`->`](General_Concepts.md#modifiers)
 1. [`;`](General_Concepts.md#control-flow)
 
-Operators of equal precedence are left-associative.
+Operators of equal precedence are usually left-associative.
+
+One exception from this are the `^` operator and others of equal precedence,
+which are right-associative.
 
     > 3^2^4
-    < 6561
-    > 3^(2^4)
     < 43046721
-    > x = y = 0
-    * Can't use infix expression as lvalue
-    < 0
-    > x = (y = 1)
+    > (3^2)^4
+    < 6561
+
+Another class of right-associative operators are those for assignment.
+
+    > x = y = 1
     < 1
+    > (x = y) = 2
+    * Can't use infix expression as lvalue
+    < 2
     > x
     < 1
 
@@ -260,7 +313,7 @@ But since `,` may only be used inside brackets, and not at the top level,
 it is not included in the above list.
 
     > 1, 2, 3
-    < ___
+    ! CindyScriptParseError: comma may only be used to delimit list elements at 1:1
 
 ### Prefix and postfix operators
 
@@ -335,7 +388,7 @@ The use with zero elements, or more than one, is reserved for future extensions.
     > 7 * {1 + 2}
     < 21
     > 7 * {1, 2}
-    < ___
+    ! CindyScriptParseError: {…} only takes one argument at 1:4
 
 #### Vertical bars `|…|`
 
@@ -356,8 +409,14 @@ computes the distance between these points or vectors.
     > |x, y|
     < 5
 
-It is illegal to nest expressions using vertical bars.
+It is illegal to nest expressions using vertical bars
+directly inside one another:
+
+    > |3 + |4*i| - 2|
+    ! CindyScriptParseError: Operator may not be used postfix at 1:3: ‘+’
+
+They may however be nested if there is at least one level of other brackets
+(`(…)`, `[…]` or `{…}`) between them.
 
     > |[3, |4*i|]|
-    < ___
-
+    < 5

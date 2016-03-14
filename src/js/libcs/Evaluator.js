@@ -16,7 +16,7 @@ function evaluate(a) {
         //  return a.value[0];
     }
     if (a.ctype === 'void') {
-        return a;
+        return nada;
     }
     if (a.ctype === 'geo') {
         return a;
