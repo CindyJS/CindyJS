@@ -33,10 +33,11 @@ Lists having the same structure can also be added; then the addition is carried 
 
 ------
 
-#### The subtraction operator: `‹expr›-‹expr›`
+#### The subtraction operator: `‹expr›-‹expr›` or `‹expr›−‹expr›`
 
 **Description:**
-Numbers (integers, real, complex) can be subtracted with the `-` operator.
+Numbers (integers, real, complex) can be subtracted with the `-` operator,
+or the Unicode minus sign `−`.
 Lists of the same shape can also be subtracted.
 The subtraction is then performed componentwise.
 Furthermore, the `-` operator can be used as a unary minus.
@@ -55,10 +56,11 @@ Furthermore, the `-` operator can be used as a unary minus.
 
 ------
 
-#### The multiplication operator: `‹expr›*‹expr›`
+#### The multiplication operator: `‹expr›*‹expr›`, `‹expr›⋅‹expr›`, `‹expr›·‹expr›` or `‹expr›⁢‹expr›`
 
 **Description:**
-Numbers (integers, real, complex) can be multiplied with the `*` operator.
+Numbers (integers, real, complex) can be multiplied with the `*` operator,
+or one of its Unicode variants.
 Lists that represent numerical vectors or numerical matrices can also be multiplied if the dimensions admit a reasonable mathematical operation.
 See the examples for further description.
 
@@ -68,13 +70,13 @@ See the examples for further description.
     < 1 + i*3
     > 2 * [5,3,2]       // scalar multiplication of number and vector
     < [10, 6, 4]
-    > [5,3,2] * 2       // scalar multiplication of number and vector
+    > [5,3,2] ⋅ 2       // scalar multiplication of number and vector
     < [10, 6, 4]
     > [2,2,3] * [3,4,6] // scalar product (dot product) of two vectors
     < 32
     > [[1,2],[3,4]] * [1,2]         // matrix times vector
     < [5, 11]
-    > [1,2] * [[1,2],[3,4]]         // vector times matrix
+    > [1,2] · [[1,2],[3,4]]         // vector times matrix
     < [7, 10]
     > [[1,2],[3,4]] * [[1,2],[3,4]] // product of two matrices
     < [[7, 10], [15, 22]]
@@ -92,16 +94,23 @@ preceding the variable.  Input can't simply be typed this way, though.
 
 ------
 
-#### The division operator: `‹expr›/‹number›`
+#### The division operator: `‹expr›/‹number›`, `‹expr›÷‹number›`, `‹expr›∕‹number›` or `‹expr›∶‹number›`
 
 **Description:**
-Numbers (integers, real, complex) can be divided with the `/` operator.
-Also, a vector can be divided by a number.
+Numbers (integers, real, complex) can be divided with the `/` operator,
+or one of its Unicode variants.
+Note that `∶` is not a simple colon, but the Unicode ratio sign.
+The [colon `:` operator](Variables_and_Functions.md#user-defined-data)
+has a different meaning.
+
+It is also possible to divide a vector or matrix by a number.
 
     > 56 / 8
     < 7
     > [6, 8, 4] / 2
     < [3, 4, 2]
+    > [[2,4],[4,8]] / (-2*i)
+    < [[1*i, 2*i], [2*i, 4*i]]
 
 ------
 

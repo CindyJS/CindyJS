@@ -64,56 +64,73 @@ MyRenderer.prototype.code = function(code, lang) {
 };
 
 MyRenderer.prototype.heading = function(text, level, raw) {
-  var id = null;
-  var match;
-  if (!id && (match = /(\w+)\(([^)]*)\)/.exec(raw))) {
-    // normal named functions
-    var arity = 0;
+  var ids = [];
+  var re, match, cur, arity;
+  re = /`([^`]*)`/g;
+  while (match = re.exec(raw)) {
+    cur = match[0];
+    if (match = /(\w+)\(([^)]*)\)/.exec(cur)) {
+      // normal named functions
+      arity = 0;
+      if (match[2] !== "")
+        arity = match[2].split(",").length;
+      ids.push(match[1] + "$" + arity);
+    } else if (match = /`‹\w*›\s*(\S+)\s*‹\w*›`/.exec(cur)) {
+      // infix operators
+      ids.push(match[1].replace(/./g, function(char) {
+        return "$" + char.charCodeAt(0).toString(16) + "u";
+      }));
+    } else {
+      // other code constructs
+      ids.push(cur
+        .replace(/\s+/g, "")
+        .replace(/\$/g, "\\$24u")
+        .replace(/_/g, "\\$5fu")
+        .replace(/‹[^‹›]*›/g, "_")
+        .replace(/…/g, "__")
+        .replace(/\W/g, function(char) {
+          return "$" + char.charCodeAt(0).toString(16) + "u";
+        }));
+    }
+  }
+  if (!ids.length && (match = /(\w+)\(([^)]*)\)/.exec(raw))) {
+    // normal named functions but not formatted as code
+    arity = 0;
     if (match[2] !== "")
       arity = match[2].split(",").length;
-    id = match[1] + "$" + arity;
+    ids.push(match[1] + "$" + arity);
   }
-  if (!id && (match = /`‹\w*›\s*(\S+)\s*‹\w*›`/.exec(raw))) {
-    // infix operators
-    id = match[1].replace(/./g, function(char) {
-      return "$" + char.charCodeAt(0).toString(16) + "u";
-    });
-  }
-  if (!id && (match = /`([^`]*)`/.exec(raw))) {
-    // other code constructs
-    match = match[1];
-    id = match
-      .replace(/\s+/g, "")
-      .replace(/\$/g, "\\$24u")
-      .replace(/_/g, "\\$5fu")
-      .replace(/‹[^‹›]*›/g, "_")
-      .replace(/\W/g, function(char) {
-        return "$" + char.charCodeAt(0).toString(16) + "u";
-      });
-  }
-  if (!id && (match = /([\w.]+)\s*=.*‹/.exec(raw))) {
+  if (!ids.length && (match = /([\w.]+)\s*=.*‹/.exec(raw))) {
     // Named settings with structure specification
-    id = match[1];
+    ids.push(match[1]);
   }
-  if (!id && (match = /\u2039/.exec(raw))) {
+  if (!ids.length && (match = /‹/.exec(raw))) {
     throw Error("Don't know how to create an ID for: " + raw);
   }
-  if (!id) {
+  if (!ids.length) {
     // Final fallback
-    id = raw.toLowerCase().replace(/[^\w.]+/g, '-');
+    ids.push(raw.toLowerCase().replace(/[^\w.]+/g, '-'));
   }
-  if (this.cjsUsedAnchors.hasOwnProperty(id)) {
-    var idx = 9, id2;
-    do {
-      ++idx;
-      id2 = id + idx.toString(36); // append a, b, …
-    } while (this.cjsUsedAnchors.hasOwnProperty(id2));
-    id = id2;
-  }
-  //console.log(id);
-  this.cjsUsedAnchors[id] = raw;
-  return '<h' + level + ' id="' + id + '">' + text +
-    '<a class="hlink" href="#' + id + '"></a></h' + level + '>\n';
+  var usedAnchors = this.cjsUsedAnchors;
+  ids = ids.map(function(id) {
+    if (usedAnchors.hasOwnProperty(id)) {
+      var idx = 9, id2;
+      do {
+        ++idx;
+        id2 = id + idx.toString(36); // append a, b, …
+      } while (usedAnchors.hasOwnProperty(id2));
+      id = id2;
+    }
+    //console.log(id);
+    usedAnchors[id] = raw;
+    return id;
+  });
+  var id0 = ids[0];
+  ids = ids.slice(1).map(function(id) {
+    return '<a class="hlink" id="' + id + '" href="#' + id + '"></a>';
+  }).join('');
+  return '<h' + level + ' id="' + id0 + '">' + text +
+    '<a class="hlink" href="#' + id0 + '"></a>' + ids + '</h' + level + '>\n';
 };
 
 MyRenderer.prototype.link = function(href, title, text) {
