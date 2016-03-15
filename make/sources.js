@@ -14,6 +14,7 @@ exports.libcs = [
     "src/js/libcs/OpSound.js",
     "src/js/libcs/CSad.js",
     "src/js/libcs/Render2D.js",
+    "src/js/libcs/RenderBackends.js",
 ];
 
 exports.libgeo = [
