@@ -146,6 +146,244 @@ SvgWriterContext.prototype = {
 
 };
 
+/*jshint -W078 */
+
+function PdfWriterContext() {
+    this._body = [];
+    this._xPos = NaN;
+    this._yPos = NaN;
+    this._extGState = {
+        Af255: '<< /ca 1 >>',
+        As255: '<< /CA 1 >>'
+    };
+
+    this.width = 0;
+    this.height = 0;
+    this.lineWidth = 1;
+    this.lineCap = 'butt';
+    this.lineJoin = 'miter';
+    this.miterLimit = 10;
+}
+
+PdfWriterContext.prototype = {
+
+    _cmd: function() {
+        this._body.push(Array.prototype.join.call(arguments, ' '));
+    },
+
+    set fillStyle(style) {
+        var match;
+        if ((match = /^rgba\(([0-9]+), *([0-9]+), *([0-9]+), *([0-9]+)\)$/
+                .exec(style))) {
+            this._cmd(match[1] / 255, match[2] / 255, match[3] / 255, 'rg');
+            var alphaName = 'Af' + (+match[4]);
+            this._extGState[alphaName] =
+                '<< /ca ' + (match[4] / 255) + ' >>';
+            this._cmd('/' + alphaName, 'gs');
+        } else if ((match = /^rgb\(([0-9]+), *([0-9]+), *([0-9]+)\)$/
+                .exec(style))) {
+            this._cmd(match[1] / 255, match[2] / 255, match[3] / 255, 'rg');
+            this._cmd('/Af255', 'gs');
+        } else {
+            throw Error("Can't handle fillStyle " + style);
+        }
+    },
+
+    set strokeStyle(style) {
+        var match;
+        if ((match = /^rgba\(([0-9]+), *([0-9]+), *([0-9]+), *([0-9]+)\)$/
+                .exec(style))) {
+            this._cmd(match[1] / 255, match[2] / 255, match[3] / 255, 'RG');
+            var alphaName = 'As' + (+match[4]);
+            this._extGState[alphaName] =
+                '<< /CA ' + (match[4] / 255) + ' >>';
+            this._cmd('/' + alphaName, 'gs');
+        } else if ((match = /^rgb\(([0-9]+), *([0-9]+), *([0-9]+)\)$/
+                .exec(style))) {
+            this._cmd(match[1] / 255, match[2] / 255, match[3] / 255, 'RG');
+            this._cmd('/As255', 'gs');
+        } else {
+            throw Error("Can't handle strokeStyle " + style);
+        }
+    },
+
+    set lineWidth(width) {
+        this._cmd(width, 'w');
+    },
+
+    set lineCap(style) {
+        this._cmd({
+            butt: 0,
+            round: 1,
+            square: 2
+        }[style], 'J');
+    },
+
+    set lineJoin(style) {
+        this._cmd({
+            miter: 0,
+            round: 1,
+            bevel: 2
+        }[style], 'j');
+    },
+
+    set miterLimit(limit) {
+        this._cmd(limit, 'M');
+    },
+
+    clearRect: function() {
+        // Presumably this just clears everything in an already empty state.
+        // But we already might have some transformations applied.
+        // So let's just ignore this for now.
+    },
+
+    beginPath: function() {
+        // PDF paths start after the previous stroke or fill command
+    },
+
+    closePath: function() {
+        this._cmd('h');
+    },
+
+    moveTo: function(x, y) {
+        this._cmd(this._xPos = x, this._yPos = -y, 'm');
+    },
+
+    lineTo: function(x, y) {
+        this._cmd(this._xPos = x, this._yPos = -y, 'l');
+    },
+
+    bezierCurveTo: function(x1, y1, x2, y2, x3, y3) {
+        this._cmd(x1, -y1, x2, -y2, this._xPos = x3, this._yPos = -y3, 'c');
+    },
+
+    quadraticCurveTo: function(x1, y1, x2, y2) {
+        this.bezierCurveTo(
+            (2 * x1 + this._xPos) / 3, (2 * y1 - this._yPos) / 3,
+            (x2 + 2 * x1) / 3, (y2 + 2 * y1) / 3, x2, y2);
+    },
+
+    _kappa: 0.55228474983079340, // 4 * (Math.sqrt(2) - 1) / 3
+
+    arc: function(x, y, r, a1, a2, dir) {
+        if (a1 === 0 && a2 === 2 * Math.PI) {
+            var k = this._kappa * r;
+            this.moveTo(x + r, y);
+            this.bezierCurveTo(x + r, y + k, x + k, y + r, x, y + r);
+            this.bezierCurveTo(x - k, y + r, x - r, y + k, x - r, y);
+            this.bezierCurveTo(x - r, y - k, x - k, y - r, x, y - r);
+            this.bezierCurveTo(x + k, y - r, x + r, y - k, x + r, y);
+            return;
+        }
+        throw Error('PdfWriterContext.arc only supports full circles');
+    },
+
+    rect: function(x, y, w, h) {
+        this._cmd(x, -y, w, -h, 're');
+    },
+
+    fill: function() {
+        this._cmd('f');
+    },
+
+    stroke: function() {
+        this._cmd('S');
+    },
+
+    save: function() {
+        this._cmd('q');
+    },
+
+    restore: function() {
+        this._cmd('Q');
+    },
+
+    translate: function(x, y) {
+        this.transform(1, 0, 0, 1, x, y);
+    },
+
+    rotate: function(rad) {
+        var c = Math.cos(rad);
+        var s = Math.sin(rad);
+        this.transform(c, s, -s, c, 0, 0);
+    },
+
+    scale: function(x, y) {
+        this.transform(x, 0, 0, y, 0, 0);
+    },
+
+    transform: function(a, b, c, d, e, f) {
+        this._cmd(a, -b, -c, d, e, -f, 'cm');
+    },
+
+    _dict: function(dict) {
+        var res = '<<';
+        for (var key in dict)
+            res += ' /' + key + ' ' + dict[key];
+        return res + ' >>';
+    },
+
+    _obj: function(idx, dict) {
+        return idx + ' 0 obj\n' + this._dict(dict) + '\nendobj\n';
+    },
+
+    _strm: function(idx, dict, data) {
+        dict.Length = data.length;
+        return idx + ' 0 obj\n' + this._dict(dict) + '\nstream\n' +
+            data + '\nendstream\nendobj\n';
+    },
+
+    toArray: function() {
+        // See PDF reference 1.7 Appendix G
+        var head = '%PDF-1.4\n';
+        var mediaBox = '[' + [0, -this.height, this.width, 0].join(' ') + ']';
+        var objects = [
+            null,
+            this._obj(1, {
+                Type: '/Catalog',
+                Pages: '2 0 R'
+            }),
+            this._obj(2, {
+                Type: '/Pages',
+                Kids: '[3 0 R]',
+                Count: 1
+            }),
+            this._obj(3, {
+                Type: '/Page',
+                Parent: '2 0 R',
+                MediaBox: mediaBox,
+                Contents: '4 0 R',
+                Resources: this._dict({
+                    ProcSet: '[/PDF /Text /ImageB /ImageC /ImageI]',
+                    ExtGState: this._extGState
+                })
+            }),
+            this._strm(4, {}, this._body.join('\n'))
+        ];
+        var xref = 'xref\n0 ' + objects.length + '\n0000000000 65535 f \n';
+        var offset = head.length;
+        for (var i = 1; i < objects.length; ++i) {
+            var off = offset.toString();
+            while (off.length < 10)
+                off = '0' + off;
+            xref += off + ' 00000 n \n';
+            offset += objects[i].length;
+        }
+        var trailer = 'trailer\n' + this._dict({
+            Size: objects.length,
+            Root: '1 0 R'
+        }) + '\nstartxref\n' + offset + '\n%%EOF\n';
+        var str = head + objects.join('') + xref + trailer;
+        var buf = new Uint8Array(str.length);
+        for (var j = 0; j < str.length; ++j)
+            buf[j] = str.charCodeAt(j); // simple latin1 encoding
+        return buf;
+    }
+
+};
+
+/*jshint +W078 */
+
 var exportedCanvasURL = null;
 
 function releaseExportedObject() {
@@ -174,6 +412,19 @@ globalInstance.exportSVG = function() {
         csctx.height = csh;
         updateCindy();
         exportAsObject('image/svg+xml', csctx.toString());
+    } finally {
+        csctx = origctx;
+    }
+};
+
+globalInstance.exportPDF = function() {
+    var origctx = csctx;
+    try {
+        csctx = new PdfWriterContext();
+        csctx.width = csw;
+        csctx.height = csh;
+        updateCindy();
+        exportAsObject('application/pdf', csctx.toArray());
     } finally {
         csctx = origctx;
     }
