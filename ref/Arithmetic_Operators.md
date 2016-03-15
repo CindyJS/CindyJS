@@ -110,7 +110,7 @@ It is also possible to divide a vector or matrix by a number.
     > [6, 8, 4] / 2
     < [3, 4, 2]
     > [[2,4],[4,8]] / (-2*i)
-    < [[1*i, 2*i], [2*i, 4*i]]
+    < [[0 + i*1, 0 + i*2], [0 + i*2, 0 + i*4]]
 
 ------
 
