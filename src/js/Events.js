@@ -237,8 +237,6 @@ function setuplisteners(canvas, data) {
             };
         }
 
-        console.log(lastDropped);
-
 
         // run ondrop scripts 
         cs_onDrop();
