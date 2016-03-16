@@ -22,6 +22,7 @@ function SvgWriterContext() {
     this.lineCap = 'butt';
     this.lineJoin = 'miter';
     this.miterLimit = 10;
+    this.globalAlpha = 1;
 }
 
 SvgWriterContext.prototype = {
@@ -254,6 +255,9 @@ function PdfWriterContext() {
     this._imgcache = [];
     this._xobjects = {};
     this._pathUsed = -1;
+    this._globalAlpha = 1;
+    this._strokeAlpha = 1;
+    this._fillAlpha = 1;
 
     this.width = 0;
     this.height = 0;
@@ -269,25 +273,33 @@ PdfWriterContext.prototype = {
         this._body.push(Array.prototype.join.call(arguments, ' '));
     },
 
+    _setAlpha: function(alpha, prefix, param) {
+        var val = Math.round(255 * alpha * this._globalAlpha);
+        var name = prefix + val;
+        this._extGState[name] = '<< /' + param + ' ' + (val / 255) + ' >>';
+        this._cmd('/' + name, 'gs');
+        return alpha;
+    },
+
+    set globalAlpha(alpha) {
+        this._globalAlpha = alpha;
+        this._setAlpha(this._strokeAlpha, 'As', 'CA');
+        this._setAlpha(this._fillAlpha, 'Af', 'ca');
+    },
+
     set fillStyle(style) {
         var self = this;
         parseColor(style, function(r, g, b, a) {
-            var av = Math.round(255 * a);
-            var an = 'Af' + av;
-            self._extGState[an] = '<< /ca ' + (av / 255) + ' >>';
             self._cmd(r / 255, g / 255, b / 255, 'rg');
-            self._cmd(an, 'gs');
+            self._setAlpha(self._fillAlpha = a, 'Af', 'ca');
         });
     },
 
     set strokeStyle(style) {
         var self = this;
         parseColor(style, function(r, g, b, a) {
-            var av = Math.round(255 * a);
-            var an = 'As' + av;
-            self._extGState[an] = '<< /CA ' + (av / 255) + ' >>';
             self._cmd(r / 255, g / 255, b / 255, 'RG');
-            self._cmd(an, 'gs');
+            self._setAlpha(self._strokeAlpha = a, 'As', 'CA');
         });
     },
 
@@ -518,6 +530,7 @@ PdfWriterContext.prototype = {
             this._xobjects['img' + idx] = xobj.ref;
         }
         this._cmd('q');
+        this._setAlpha(1, 'Af', 'ca');
         this._cmd(img.width, 0, 0, img.height, x, -y - img.height, 'cm');
         this._cmd('/img' + idx, 'Do');
         this._cmd('Q');
