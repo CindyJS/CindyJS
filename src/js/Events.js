@@ -198,17 +198,20 @@ function setuplisteners(canvas, data) {
 
         // only consider last file dropped - perhaps rework this later
         var file = files[files.length - 1];
-        console.log(file);
+        var fname = file.name.replace(/\.[^/.]+$/, "");
 
-        // string case 
-            debugger;
-        if(file.type === "text/plain"){
+        // text case 
+        if (file.type === "text/plain") {
             var string;
-            reader.onload = (function(txt) {
-                return function(e) {
-                    txt = e.target.result;
+
+            reader.onload = function() {
+                string = reader.result;
+                lastDropped = {
+                    "value": string,
+                    "ctype": "string",
+                    "filename": fname
                 };
-            })(string);
+            };
 
             reader.readAsText(file);
 
@@ -216,7 +219,7 @@ function setuplisteners(canvas, data) {
 
 
         // image case 
-        if((/^image\//).test(file.type)){
+        if ((/^image\//).test(file.type)) {
             var img;
             img = new Image();
             reader.onload = (function(aImg) {
@@ -227,8 +230,11 @@ function setuplisteners(canvas, data) {
             reader.readAsDataURL(file);
 
             // remove file extension
-            var fname = file.name.replace(/\.[^/.]+$/, "");
-            lastDropped = {"value": img, "ctype": "image", "filename" : fname};
+            lastDropped = {
+                "value": img,
+                "ctype": "image",
+                "filename": fname
+            };
         }
 
         console.log(lastDropped);

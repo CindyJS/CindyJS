@@ -33,7 +33,7 @@ function drawImageIndirection(img, x, y) {
 
 evaluator.drawimage$2 = function(args, modifs) {
 
-     //   debugger;
+    //   debugger;
     function drawimg1() {
 
 
@@ -124,13 +124,11 @@ evaluator.drawimage$2 = function(args, modifs) {
             return nada;
         }
 
-        if(img.ctype === "image"){
+        if (img.ctype === "image") {
             img = img.value;
-        }
-        else if(img.ctype === "string"){
+        } else if (img.ctype === "string") {
             img = images[img.value];
-        }
-        else{
+        } else {
             return nada;
         }
 
