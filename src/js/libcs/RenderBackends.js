@@ -1,12 +1,21 @@
+// JSHint doesn't like setters without getters, but we use them anyway
+
+/*jshint -W078 */
+
 // SVG Writer creates a string representation, as opposed to DOM manipulation.
 
 function SvgWriterContext() {
     this._path = [];
+    this._defs = ['<defs>'];
+    this._imgcache = [];
     this._body = [];
     this._saveStack = [''];
+    this._clipIndex = 0;
+    this._fill = '#000';
+    this._stroke = '#000';
+    this._fillOpacity = null;
+    this._strokeOpacity = null;
 
-    this.fillStyle = '#000';
-    this.strokeStyle = '#000';
     this.width = 0;
     this.height = 0;
     this.lineWidth = 1;
@@ -16,6 +25,28 @@ function SvgWriterContext() {
 }
 
 SvgWriterContext.prototype = {
+
+    set fillStyle(style) {
+        var self = this;
+        parseColor(style, function(r, g, b, a) {
+            self._fill = '#' +
+                padStr(r.toString(16), 2) +
+                padStr(g.toString(16), 2) +
+                padStr(b.toString(16), 2);
+            self._fillOpacity = (a === 255 ? null : a);
+        });
+    },
+
+    set strokeStyle(style) {
+        var self = this;
+        parseColor(style, function(r, g, b, a) {
+            self._stroke = '#' +
+                padStr(r.toString(16), 2) +
+                padStr(g.toString(16), 2) +
+                padStr(b.toString(16), 2);
+            self._strokeOpacity = (a === 255 ? null : a);
+        });
+    },
 
     clearRect: function() {
         // Presumably this just clears everything in an already empty state.
@@ -77,24 +108,54 @@ SvgWriterContext.prototype = {
         this._pathcmd('M', x, y, 'h', w, 'v', h, 'h', -w, 'z');
     },
 
+    _cmd: function(op) {
+        if (this.globalAlpha !== 1) {
+            this._body.push('<g opacity="' + this.globalAlpha + '">');
+            this._body.push(op);
+            this._body.push('</g>');
+        } else {
+            this._body.push(op);
+        }
+    },
+
+    _attrs: function(dict) {
+        var res = '';
+        for (var key in dict)
+            if (dict[key] !== null)
+                res += ' ' + key + '="' + dict[key] + '"';
+        return res;
+    },
+
     fill: function() {
-        this._body.push(
-            '<path d="' + this._path.join(' ') + '"' +
-            ' fill="' + this.fillStyle + '"' +
-            '/>'
-        );
+        this._cmd('<path' + this._attrs({
+            d: this._path.join(' '),
+            fill: this._fill,
+            'fill-opacity': this._fillOpacity,
+        }) + '/>');
     },
 
     stroke: function() {
+        this._cmd('<path' + this._attrs({
+            d: this._path.join(' '),
+            stroke: this._stroke,
+            'stroke-opacity': this._strokeOpacity,
+            'stroke-width': this.lineWidth,
+            'stroke-linecap': this.lineCap,
+            'stroke-linejoin': this.lineJoin,
+            'stroke-miterlimit': (
+                this.lineJoin === 'miter' ? this.miterLimit : null),
+        }) + '/>');
+    },
+
+    clip: function() {
+        ++this._clipIndex;
         this._body.push(
-            '<path d="' + this._path.join(' ') + '"' +
-            ' stroke="' + this.strokeStyle + '"' +
-            ' stroke-width="' + this.lineWidth + '"' +
-            ' stroke-linecap="' + this.lineCap + '"' +
-            ' stroke-linejoin="' + this.lineJoin + '"' +
-            ' stroke-miterlimit="' + this.miterLimit + '"' +
-            '/>'
+            '<clipPath id="clip' + this._clipIndex + '">' +
+            '<path d="' + this._path.join(' ') + '"/>' +
+            '</clipPath>',
+            '<g clip-path="url(#clip' + this._clipIndex + ')">'
         );
+        this._saveStack[this._saveStack.length - 1] += '</g>';
     },
 
     save: function() {
@@ -128,25 +189,51 @@ SvgWriterContext.prototype = {
         this._transform('matrix(' + [a, b, c, d, e, f].join(' ') + ')');
     },
 
-    toString: function() {
+    drawImage: function(img, x, y) {
+        if (arguments.length !== 3)
+            throw Error('PdfWriterContext only supports ' +
+                '3-argument version of drawImage');
+        var idx = this._imgcache.indexOf(img);
+        if (idx === -1) {
+            idx = this._imgcache.length;
+            var data;
+            if (img.cachedDataURL) {
+                data = img.cachedDataURL;
+            } else {
+                data = imageToDataURL(img);
+                // Don't add as img.cachedDataURL since it might be
+                // e.g. a video source, which we'd want to re-convert
+            }
+            this._defs.push(
+                '<image id="img' + idx + '" x="0" y="0" width="' + img.width +
+                '" height="' + img.height + '" xlink:href="' + data + '"/>');
+            this._imgcache.push(img);
+        }
+        this._cmd(
+            '<use x="' + x + '" y="' + y + '" xlink:href="#img' + idx + '"/>');
+    },
+
+    toBlob: function() {
         while (this._saveStack.length > 1 || this._saveStack[0] !== '')
             this.restore();
-        return (
+        var str = (
             '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' +
             '<svg xmlns="http://www.w3.org/2000/svg" ' +
             'xmlns:xlink="http://www.w3.org/1999/xlink" ' +
             'version="1.1" ' +
             'width="' + this.width + 'px" ' +
             'height="' + this.height + 'px">\n' +
+            this._defs.join('\n') + '\n</defs>\n' +
             '<g stroke="none" fill="none">\n' +
-            this._body.join('\n') +
+            this._body.join('\n') + '\n' +
             '</g>\n</svg>\n'
         );
+        return new Blob([str], {
+            type: 'image/svg+xml'
+        });
     }
 
 };
-
-/*jshint -W078 */
 
 function PdfWriterContext() {
     this._body = [];
@@ -172,39 +259,25 @@ PdfWriterContext.prototype = {
     },
 
     set fillStyle(style) {
-        var match;
-        if ((match = /^rgba\(([0-9]+), *([0-9]+), *([0-9]+), *([0-9]+)\)$/
-                .exec(style))) {
-            this._cmd(match[1] / 255, match[2] / 255, match[3] / 255, 'rg');
-            var alphaName = 'Af' + (+match[4]);
-            this._extGState[alphaName] =
-                '<< /ca ' + (match[4] / 255) + ' >>';
-            this._cmd('/' + alphaName, 'gs');
-        } else if ((match = /^rgb\(([0-9]+), *([0-9]+), *([0-9]+)\)$/
-                .exec(style))) {
-            this._cmd(match[1] / 255, match[2] / 255, match[3] / 255, 'rg');
-            this._cmd('/Af255', 'gs');
-        } else {
-            throw Error("Can't handle fillStyle " + style);
-        }
+        var self = this;
+        parseColor(style, function(r, g, b, a) {
+            var av = Math.round(255 * a);
+            var an = 'Af' + av;
+            self._extGState[an] = '<< /ca ' + (av / 255) + ' >>';
+            self._cmd(r / 255, g / 255, b / 255, 'rg');
+            self._cmd(an, 'gs');
+        });
     },
 
     set strokeStyle(style) {
-        var match;
-        if ((match = /^rgba\(([0-9]+), *([0-9]+), *([0-9]+), *([0-9]+)\)$/
-                .exec(style))) {
-            this._cmd(match[1] / 255, match[2] / 255, match[3] / 255, 'RG');
-            var alphaName = 'As' + (+match[4]);
-            this._extGState[alphaName] =
-                '<< /CA ' + (match[4] / 255) + ' >>';
-            this._cmd('/' + alphaName, 'gs');
-        } else if ((match = /^rgb\(([0-9]+), *([0-9]+), *([0-9]+)\)$/
-                .exec(style))) {
-            this._cmd(match[1] / 255, match[2] / 255, match[3] / 255, 'RG');
-            this._cmd('/As255', 'gs');
-        } else {
-            throw Error("Can't handle strokeStyle " + style);
-        }
+        var self = this;
+        parseColor(style, function(r, g, b, a) {
+            var av = Math.round(255 * a);
+            var an = 'As' + av;
+            self._extGState[an] = '<< /CA ' + (av / 255) + ' >>';
+            self._cmd(r / 255, g / 255, b / 255, 'RG');
+            self._cmd(an, 'gs');
+        });
     },
 
     set lineWidth(width) {
@@ -333,7 +406,7 @@ PdfWriterContext.prototype = {
             data + '\nendstream\nendobj\n';
     },
 
-    toArray: function() {
+    toBlob: function() {
         // See PDF reference 1.7 Appendix G
         var head = '%PDF-1.4\n';
         var mediaBox = '[' + [0, -this.height, this.width, 0].join(' ') + ']';
@@ -363,10 +436,7 @@ PdfWriterContext.prototype = {
         var xref = 'xref\n0 ' + objects.length + '\n0000000000 65535 f \n';
         var offset = head.length;
         for (var i = 1; i < objects.length; ++i) {
-            var off = offset.toString();
-            while (off.length < 10)
-                off = '0' + off;
-            xref += off + ' 00000 n \n';
+            xref += padStr(String(offset), 10) + ' 00000 n \n';
             offset += objects[i].length;
         }
         var trailer = 'trailer\n' + this._dict({
@@ -377,12 +447,88 @@ PdfWriterContext.prototype = {
         var buf = new Uint8Array(str.length);
         for (var j = 0; j < str.length; ++j)
             buf[j] = str.charCodeAt(j); // simple latin1 encoding
-        return buf;
+        return new Blob([buf], {
+            type: 'application/pdf'
+        });
     }
 
 };
 
 /*jshint +W078 */
+
+function imageToDataURL(img, type) {
+    var w = img.width;
+    var h = img.height;
+    var c = document.createElement('canvas');
+    c.setAttribute('width', w);
+    c.setAttribute('height', h);
+    c.setAttribute('style', 'display:none;');
+    var mainCanvas = globalInstance.canvas;
+    mainCanvas.parentNode.insertBefore(c, mainCanvas.nextSibling);
+    try {
+        var ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        return c.toDataURL(type || "image/png");
+    } finally {
+        c.parentNode.removeChild(c);
+    }
+}
+
+function parseColor(spec, cb) {
+    var match;
+    if ((match = /^rgba\(([0-9]+), *([0-9]+), *([0-9]+), *([0-9]+)\)$/
+            .exec(spec))) {
+        cb(+match[1], +match[2], +match[3], +match[4]);
+    } else if ((match = /^rgb\(([0-9]+), *([0-9]+), *([0-9]+)\)$/
+            .exec(spec))) {
+        cb(+match[1], +match[2], +match[3], 1);
+    } else {
+        throw Error("Can't handle color style " + spec);
+    }
+}
+
+function cacheImages(cb) {
+    var toCache = 1;
+    Object.keys(images).forEach(function(name) {
+        var img = images[name];
+        if (img.cachedDataURL !== undefined) return;
+        if (!img.src) return;
+        if (img.src.substr(0, 5) === 'data:') {
+            img.cachedDataURL = img.src;
+            return;
+        }
+        ++toCache;
+        img.cachedDataURL = null;
+        var req = new XMLHttpRequest();
+        req.responseType = 'blob';
+        req.onreadystatechange = function() {
+            if (req.readyState !== XMLHttpRequest.DONE) return;
+            if (req.status === 200) {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    img.cachedDataURL = reader.result;
+                    console.log('Cached data for image ' + img.src);
+                    if (--toCache === 0) cb();
+                };
+                reader.readAsDataURL(req.response);
+            } else {
+                console.error('Failed to load ' + img.src + ': ' +
+                    req.statusText);
+                if (--toCache === 0) cb();
+            }
+        };
+        req.open('GET', img.src, true);
+        req.send();
+    });
+    if (--toCache === 0) cb();
+}
+
+function padStr(str, len, chr) {
+    if (!chr) chr = '0';
+    while (str.length < len)
+        str = chr + str;
+    return str;
+}
 
 var exportedCanvasURL = null;
 
@@ -395,37 +541,33 @@ function releaseExportedObject() {
 
 shutdownHooks.push(releaseExportedObject);
 
-function exportAsObject(type, data) {
-    releaseExportedObject();
-    var blob = new Blob([data], {
-        type: type
+// Export current contruction with given writer backend and open the
+// result in a new tab.  Note that Chrome has some problems displaying
+// PDF this way, while Firefox fails to show images embedded into an
+// SVG.  So in the long run, saving is probably better than opening.
+// Note: See https://github.com/eligrey/FileSaver.js/ for saving Blobs
+function exportWith(Context) {
+    cacheImages(function() {
+        var origctx = csctx;
+        try {
+            csctx = new Context();
+            csctx.width = csw;
+            csctx.height = csh;
+            updateCindy();
+            var blob = csctx.toBlob();
+            releaseExportedObject();
+            exportedCanvasURL = window.URL.createObjectURL(blob);
+            window.open(exportedCanvasURL, '_blank');
+        } finally {
+            csctx = origctx;
+        }
     });
-    exportedCanvasURL = window.URL.createObjectURL(blob);
-    window.open(exportedCanvasURL, '_blank');
 }
 
 globalInstance.exportSVG = function() {
-    var origctx = csctx;
-    try {
-        csctx = new SvgWriterContext();
-        csctx.width = csw;
-        csctx.height = csh;
-        updateCindy();
-        exportAsObject('image/svg+xml', csctx.toString());
-    } finally {
-        csctx = origctx;
-    }
+    exportWith(SvgWriterContext);
 };
 
 globalInstance.exportPDF = function() {
-    var origctx = csctx;
-    try {
-        csctx = new PdfWriterContext();
-        csctx.width = csw;
-        csctx.height = csh;
-        updateCindy();
-        exportAsObject('application/pdf', csctx.toArray());
-    } finally {
-        csctx = origctx;
-    }
+    exportWith(PdfWriterContext);
 };
