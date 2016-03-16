@@ -459,6 +459,23 @@ module.exports = function build(settings, task) {
     task("katex", ["katex_src", "katex-plugin"]);
 
     //////////////////////////////////////////////////////////////////////
+    // Copy additional libraries used for some features
+    //////////////////////////////////////////////////////////////////////
+
+    var extra_libs = [
+        "node_modules/pako/dist/pako.min.js",
+    ];
+
+    task("xlibs", [], function() {
+        this.parallel(function() {
+            extra_libs.forEach(function(input) {
+                var output = path.join("build", "js", path.basename(input));
+                this.copy(input, output);
+            }, this);
+        });
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Copy things which constitute a release
     //////////////////////////////////////////////////////////////////////
 
@@ -489,6 +506,7 @@ module.exports = function build(settings, task) {
         "cindy3d",
         "cindygl",
         "katex",
+        "xlibs",
     ].concat(gwt_modules));
 
 };

@@ -570,6 +570,7 @@ PdfWriterContext.prototype = {
 
     toBlob: function() {
         // See PDF reference 1.7 Appendix G
+        var i;
         var mediaBox = '[' + [0, -this.height, this.width, 0].join(' ') + ']';
         this._obj({
             Type: '/Catalog',
@@ -591,10 +592,16 @@ PdfWriterContext.prototype = {
                 ExtGState: this._dict(this._extGState)
             })
         }, 3);
-        this._strm({}, this._body.join('\n'), 4);
+        var body = this._body.join('\n');
+        var buf = new Uint8Array(body.length);
+        for (i = 0; i < body.length; ++i)
+            buf[i] = body.charCodeAt(i) & 0xff;
+        body = window.pako.deflate(buf);
+        this._strm({
+            Filter: '/FlateDecode'
+        }, body, 4);
         var objects = this._objects;
         var byIndex = [];
-        var i;
         for (i = 1; i < objects.length; ++i)
             byIndex[objects[i].index] = objects[i];
         var xref = 'xref\n0 ' + byIndex.length + '\n';
@@ -805,5 +812,7 @@ globalInstance.exportSVG = function() {
 };
 
 globalInstance.exportPDF = function() {
-    exportWith(PdfWriterContext);
+    createCindy.loadScript('pako', 'pako.min.js', function() {
+        exportWith(PdfWriterContext);
+    });
 };
