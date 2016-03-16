@@ -189,21 +189,36 @@ function setuplisteners(canvas, data) {
     });
 
     addAutoCleaningEventListener(canvas, "drop", function(e) {
+        e.preventDefault();
 
-        // add images to image array
+        // get data
         var dt = e.dataTransfer;
         var files = dt.files;
-        var img, reader;
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            var imageType = /^image\//;
+        var reader = new FileReader();
 
-            if (!imageType.test(file.type)) {
-                continue;
-            }
+        // only consider last file dropped - perhaps rework this later
+        var file = files[files.length - 1];
+        console.log(file);
 
+        // string case 
+            debugger;
+        if(file.type === "text/plain"){
+            var string;
+            reader.onload = (function(txt) {
+                return function(e) {
+                    txt = e.target.result;
+                };
+            })(string);
+
+            reader.readAsText(file);
+
+        }
+
+
+        // image case 
+        if((/^image\//).test(file.type)){
+            var img;
             img = new Image();
-            reader = new FileReader();
             reader.onload = (function(aImg) {
                 return function(e) {
                     aImg.src = e.target.result;
@@ -213,18 +228,15 @@ function setuplisteners(canvas, data) {
 
             // remove file extension
             var fname = file.name.replace(/\.[^/.]+$/, "");
-            // add file to image array
-            images[fname] = img;
-
-
+            lastDropped = {"value": img, "ctype": "image", "filename" : fname};
         }
 
-        lastDropped = {"value": img, "ctype": "image", "fileName" : fname};
+        console.log(lastDropped);
+
 
         // run ondrop scripts 
         cs_onDrop();
 
-        e.preventDefault();
     });
 
 
