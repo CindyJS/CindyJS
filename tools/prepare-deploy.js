@@ -32,6 +32,7 @@ var handlers = {
     "katex-plugin.js": true,
     "ours.js": false,
     "ours.js.map": false,
+    "pako.min.js": true,
     "quickhull3d": true,
     "webfont.js": true,
 };
