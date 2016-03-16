@@ -4433,3 +4433,7 @@ function addTool(name) {
 
     toolbar.appendChild(button);
 }
+
+evaluator.lastdropped$0 = function(){
+    return lastDropped;
+};

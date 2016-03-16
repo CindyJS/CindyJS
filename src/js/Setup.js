@@ -71,7 +71,7 @@ var haveCanvas = function(canvas) {
     return canvas;
 };
 
-var csmouse, csctx, csw, csh, csgeo, images;
+var csmouse, csctx, csw, csh, csgeo, images, lastDropped;
 
 function createCindyNow() {
     startupCalled = true;

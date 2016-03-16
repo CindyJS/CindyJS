@@ -11,19 +11,23 @@
 
 </script>
 <script id="csmove" type="text/x-cindyscript">
-gsave();
-forall(allimages(), drawimage(A, #));
-grestore();
+//gsave();
+//forall(allimages(), drawimage(A, #));
+//grestore();
 // Drawing code, executed whenever the canvas gets redrawn.
+aa = lastdropped();
+drawimage(A,aa);
 
 </script>
 
 <script id="csondrop" type="text/x-cindyscript">
 println("ondrop called");
 gsave();
-//apply(allimages(), drawimage(A, #))
-forall(allimages(), drawimage(A, #));
+aa = lastdropped();
+drawimage(A,aa);
 grestore();
+//apply(allimages(), drawimage(A, #))
+//forall(allimages(), drawimage(A, #));
 // Drawing code, executed whenever the canvas gets redrawn.
 
 </script>
