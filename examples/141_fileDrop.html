@@ -11,15 +11,25 @@
 
 </script>
 <script id="csmove" type="text/x-cindyscript">
-// Drawing code, executed whenever the canvas gets redrawn.
-if(!isundefined(aa),drawimage(A,aa));
+aa = lastdropped();
+errc(aa);
+if(!isundefined(aa),
+	ft = lastdroppedtype();
+	println(ft);
+	if(ft == "image", drawimage(A,aa),
+		if(ft == "string", println(aa)));
+);
+//errc(aa);
+//if(!isundefined(aa),
+//	ft = lastdroppedtype();
+//	println(ft);
+//	if(ft == "image", drawimage(A,aa),
+//		if(ft == "string", println(aa)));
+//);
 
 </script>
 
 <script id="csondrop" type="text/x-cindyscript">
-println("ondrop called");
-aa = lastdropped();
-drawimage(A,aa);
 </script>
 <script type="text/javascript">
 

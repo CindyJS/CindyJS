@@ -214,6 +214,7 @@ function setuplisteners(canvas, data) {
             };
 
             reader.readAsText(file);
+            //reader.readAsDataURL(file);
 
         }
 
