@@ -191,7 +191,7 @@ SvgWriterContext.prototype = {
 
     drawImage: function(img, x, y) {
         if (arguments.length !== 3)
-            throw Error('PdfWriterContext only supports ' +
+            throw Error('SvgWriterContext only supports ' +
                 '3-argument version of drawImage');
         var idx = this._imgcache.indexOf(img);
         if (idx === -1) {
@@ -235,6 +235,9 @@ SvgWriterContext.prototype = {
 
 };
 
+// A PDF file writer, currently creating uncompressed PDF.
+// See https://www.adobe.com/devnet/pdf/pdf_reference_archive.html.
+
 function PdfWriterContext() {
     this._body = [];
     this._xPos = NaN;
@@ -243,6 +246,14 @@ function PdfWriterContext() {
         Af255: '<< /ca 1 >>',
         As255: '<< /CA 1 >>'
     };
+    this._objects = [
+        ['%PDF-1.4\n']
+    ];
+    this._offset = this._objects[0][0].length;
+    this._nextIndex = 5;
+    this._imgcache = [];
+    this._xobjects = {};
+    this._pathUsed = -1;
 
     this.width = 0;
     this.height = 0;
@@ -311,7 +322,7 @@ PdfWriterContext.prototype = {
     },
 
     beginPath: function() {
-        // PDF paths start after the previous stroke or fill command
+        this._pathUsed = false;
     },
 
     closePath: function() {
@@ -355,12 +366,40 @@ PdfWriterContext.prototype = {
         this._cmd(x, -y, w, -h, 're');
     },
 
+    _usePath: function(cmd) {
+        if (this._pathUsed) {
+            var prev = this._body[this._pathUsed];
+            var combined = {
+                'S + f': 'B',
+                'f + S': 'B',
+                'W n + S': 'W S',
+                'W n + f': 'W f',
+                'S + W n': 'W S',
+                'f + W n': 'W f',
+                'B + W n': 'W B',
+                'W S + f': 'W B',
+                'W f + S': 'W B',
+            }[prev + ' + ' + cmd];
+            if (!combined)
+                throw Error("Don't know how to combine '" +
+                    prev + "' and '" + cmd + "'");
+            this._body.splice(this._pathUsed, 1);
+            cmd = combined;
+        }
+        this._pathUsed = this._body.length;
+        this._cmd(cmd);
+    },
+
     fill: function() {
-        this._cmd('f');
+        this._usePath('f');
     },
 
     stroke: function() {
-        this._cmd('S');
+        this._usePath('S');
+    },
+
+    clip: function() {
+        this._usePath('W n');
     },
 
     save: function() {
@@ -389,6 +428,101 @@ PdfWriterContext.prototype = {
         this._cmd(a, -b, -c, d, e, -f, 'cm');
     },
 
+    _png: function(dataURL) {
+        if (dataURL.substr(0, 22) !== 'data:image/png;base64,')
+            return {
+                error: 'Not a base64-encoded PNG file'
+            };
+        var bytes = base64Decode(dataURL.substr(22));
+        var chunks = pngChunks(bytes);
+        console.log('PNG chunks:',
+            chunks.map(function(chunk) {
+                return chunk.type;
+            }));
+
+        // Read header
+        if (chunks[0].type !== 'IHDR')
+            throw Error('Image does not start with an IHDR');
+        var ihdr = chunks[0].data;
+        var width = ((ihdr[0] << 24) | (ihdr[1] << 16) |
+            (ihdr[2] << 8) | (ihdr[3])) >>> 0;
+        var height = ((ihdr[4] << 24) | (ihdr[5] << 16) |
+            (ihdr[6] << 8) | (ihdr[7])) >>> 0;
+        var bitDepth = ihdr[8];
+        var colorType = ihdr[9];
+        var palette = (colorType & 1) !== 0;
+        var grayscale = (colorType & 2) === 0;
+        var alpha = (colorType & 4) !== 0;
+        var compressionMethod = ihdr[10];
+        var filterMethod = ihdr[11];
+        var interlaceMethod = ihdr[12];
+        if (compressionMethod !== 0)
+            throw Error('Unsupported PNG compression method: ' +
+                compressionMethod);
+        if (filterMethod !== 0)
+            throw Error('Unsupported PNG filter method: ' +
+                filterMethod);
+        if (interlaceMethod !== 0)
+            return {
+                error: 'Interlaced image not supported'
+            };
+        if (palette)
+            return {
+                error: 'Indexed PNG image not supported'
+            };
+        if (alpha)
+            throw Error('Soft mask aka. alpha channel not supported');
+
+        var len = 0;
+        var idats = chunks
+            .filter(function(chunk) {
+                return chunk.type === 'IDAT';
+            })
+            .map(function(chunk) {
+                len += chunk.data.length;
+                return chunk.data;
+            });
+        var xobj = this._obj([this._dict({
+            Type: '/XObject',
+            Subtype: '/Image',
+            Name: '/img' + this._imgcache.length,
+            Width: width,
+            Height: height,
+            ColorSpace: grayscale ? '/DeviceGray' : '/DeviceRGB',
+            BitsPerComponent: bitDepth,
+            Length: len,
+            Filter: '/FlateDecode',
+            DecodeParms: this._dict({
+                Predictor: 15,
+                Colors: grayscale ? 1 : 3,
+                BitsPerComponent: bitDepth,
+                Columns: width
+            })
+        }), '\nstream\n'].concat(idats, ['\nendstream']));
+        return xobj;
+    },
+
+    drawImage: function(img, x, y) {
+        if (arguments.length !== 3)
+            throw Error('PdfWriterContext only supports ' +
+                '3-argument version of drawImage');
+        var idx = this._imgcache.indexOf(img);
+        if (idx === -1) {
+            idx = this._imgcache.length;
+            this._imgcache.push(img);
+            var xobj = this._png(img.cachedDataURL || '');
+            if (xobj.hasOwnProperty('error'))
+                xobj = this._png(imageToDataURL(img));
+            if (xobj.hasOwnProperty('error'))
+                throw Error(xobj.error);
+            this._xobjects['img' + idx] = xobj.ref;
+        }
+        this._cmd('q');
+        this._cmd(img.width, 0, 0, img.height, x, -y - img.height, 'cm');
+        this._cmd('/img' + idx, 'Do');
+        this._cmd('Q');
+    },
+
     _dict: function(dict) {
         var res = '<<';
         for (var key in dict)
@@ -396,58 +530,74 @@ PdfWriterContext.prototype = {
         return res + ' >>';
     },
 
-    _obj: function(idx, dict) {
-        return idx + ' 0 obj\n' + this._dict(dict) + '\nendobj\n';
+    // obj is either an array, or an object which will be treated as a dict.
+    // This adds some fields to the object, to facilitate offset computations.
+    // Elements of obj should be ASCII-only strings or typed arrays.
+    _obj: function(obj, idx) {
+        if (!idx) idx = this._nextIndex++;
+        if (!Array.isArray(obj))
+            obj = [this._dict(obj)];
+        obj.index = idx;
+        obj.ref = idx + ' 0 R';
+        obj.offset = this._offset;
+        var len = 0;
+        obj.unshift(idx + ' 0 obj\n');
+        obj.push('\nendobj\n');
+        for (var i = 0; i < obj.length; ++i)
+            len += obj[i].length;
+        this._offset += len;
+        this._objects.push(obj);
+        return obj;
     },
 
-    _strm: function(idx, dict, data) {
+    _strm: function(dict, data, idx) {
         dict.Length = data.length;
-        return idx + ' 0 obj\n' + this._dict(dict) + '\nstream\n' +
-            data + '\nendstream\nendobj\n';
+        this._obj([this._dict(dict), '\nstream\n', data, '\nendstream'], idx);
     },
 
     toBlob: function() {
         // See PDF reference 1.7 Appendix G
-        var head = '%PDF-1.4\n';
         var mediaBox = '[' + [0, -this.height, this.width, 0].join(' ') + ']';
-        var objects = [
-            null,
-            this._obj(1, {
-                Type: '/Catalog',
-                Pages: '2 0 R'
-            }),
-            this._obj(2, {
-                Type: '/Pages',
-                Kids: '[3 0 R]',
-                Count: 1
-            }),
-            this._obj(3, {
-                Type: '/Page',
-                Parent: '2 0 R',
-                MediaBox: mediaBox,
-                Contents: '4 0 R',
-                Resources: this._dict({
-                    ProcSet: '[/PDF /Text /ImageB /ImageC /ImageI]',
-                    ExtGState: this._extGState
-                })
-            }),
-            this._strm(4, {}, this._body.join('\n'))
-        ];
-        var xref = 'xref\n0 ' + objects.length + '\n0000000000 65535 f \n';
-        var offset = head.length;
-        for (var i = 1; i < objects.length; ++i) {
-            xref += padStr(String(offset), 10) + ' 00000 n \n';
-            offset += objects[i].length;
+        this._obj({
+            Type: '/Catalog',
+            Pages: '2 0 R'
+        }, 1);
+        this._obj({
+            Type: '/Pages',
+            Kids: '[3 0 R]',
+            Count: 1
+        }, 2);
+        this._obj({
+            Type: '/Page',
+            Parent: '2 0 R',
+            MediaBox: mediaBox,
+            Contents: '4 0 R',
+            Resources: this._dict({
+                ProcSet: '[/PDF /Text /ImageB /ImageC /ImageI]',
+                XObject: this._dict(this._xobjects),
+                ExtGState: this._dict(this._extGState)
+            })
+        }, 3);
+        this._strm({}, this._body.join('\n'), 4);
+        var objects = this._objects;
+        var byIndex = [];
+        var i;
+        for (i = 1; i < objects.length; ++i)
+            byIndex[objects[i].index] = objects[i];
+        var xref = 'xref\n0 ' + byIndex.length + '\n';
+        for (i = 0; i < byIndex.length; ++i) {
+            if (!byIndex[i])
+                xref += '0000000000 65535 f \n';
+            else
+                xref += padStr(String(byIndex[i].offset), 10) + ' 00000 n \n';
         }
         var trailer = 'trailer\n' + this._dict({
-            Size: objects.length,
+            Size: byIndex.length,
             Root: '1 0 R'
-        }) + '\nstartxref\n' + offset + '\n%%EOF\n';
-        var str = head + objects.join('') + xref + trailer;
-        var buf = new Uint8Array(str.length);
-        for (var j = 0; j < str.length; ++j)
-            buf[j] = str.charCodeAt(j); // simple latin1 encoding
-        return new Blob([buf], {
+        }) + '\nstartxref\n' + this._offset + '\n%%EOF\n';
+        objects = Array.prototype.concat.apply([], objects);
+        objects.push(xref, trailer);
+        return new Blob(objects, {
             type: 'application/pdf'
         });
     }
@@ -472,6 +622,79 @@ function imageToDataURL(img, type) {
     } finally {
         c.parentNode.removeChild(c);
     }
+}
+
+function base64Decode(str) {
+    var alphabet =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    str = str.replace(new RegExp('[^' + alphabet + ']+', 'g'), '');
+    var bytes = new Uint8Array(str.length * 3 >> 2);
+    var i, j, a, b, c, d;
+    for (i = 0, j = 0; i + 3 < str.length; i += 4) {
+        a = alphabet.indexOf(str.charAt(i));
+        b = alphabet.indexOf(str.charAt(i + 1));
+        c = alphabet.indexOf(str.charAt(i + 2));
+        d = alphabet.indexOf(str.charAt(i + 3));
+        bytes[j++] = (a << 2) | (b >> 4);
+        bytes[j++] = (b << 4) | (c >> 2);
+        bytes[j++] = (c << 6) | d;
+    }
+    switch (str.length - i) {
+        case 0:
+            break;
+        case 2:
+            a = alphabet.indexOf(str.charAt(i));
+            b = alphabet.indexOf(str.charAt(i + 1));
+            bytes[j++] = (a << 2) | (b >> 4);
+            break;
+        case 3:
+            a = alphabet.indexOf(str.charAt(i));
+            b = alphabet.indexOf(str.charAt(i + 1));
+            c = alphabet.indexOf(str.charAt(i + 2));
+            bytes[j++] = (a << 2) | (b >> 4);
+            bytes[j++] = (b << 4) | (c >> 2);
+            break;
+        default:
+            throw Error('Malformed Base64 input: ' +
+                (str.length - i) + ' chars left: ' + str.substr(i));
+    }
+    if (j !== bytes.length)
+        throw Error('Failed assertion: ' + j + ' should be ' + bytes.length);
+    return bytes;
+}
+
+// See PNG specification at e.g. http://www.libpng.org/pub/png/
+function pngChunks(bytes) {
+    function u32be(offset) {
+        return ((bytes[offset] << 24) | (bytes[offset + 1] << 16) |
+            (bytes[offset + 2] << 8) | (bytes[offset + 3])) >>> 0;
+    }
+    if (bytes.length < 57)
+        throw Error('Too short to be a PNG file');
+    if (u32be(0) !== 0x89504e47 || u32be(4) !== 0x0d0a1a0a)
+        throw Error('PNG signature missing');
+    var chunks = [];
+    var pos = 8;
+    while (pos < bytes.length) {
+        if (pos + 12 > bytes.length)
+            throw Error('Incomplete chunk at offset 0x' + pos.toString(16));
+        var len = u32be(pos);
+        if (len >= 0x80000000)
+            throw Error('Chunk too long');
+        var end = pos + 12 + len;
+        if (end > bytes.length)
+            throw Error('Incomplete chunk at offset 0x' + pos.toString(16));
+        var type = bytes.subarray(pos + 4, pos + 8);
+        type = String.fromCharCode.apply(String, type);
+        chunks.push({
+            len: len,
+            type: type,
+            data: bytes.subarray(pos + 8, pos + 8 + len),
+            crc: u32be(pos + 8 + len)
+        });
+        pos = end;
+    }
+    return chunks;
 }
 
 function parseColor(spec, cb) {
