@@ -482,18 +482,67 @@ PdfWriterContext.prototype = {
             return {
                 error: 'Indexed PNG image not supported'
             };
-        if (alpha)
-            throw Error('Soft mask aka. alpha channel not supported');
+
+        var smask = null;
+        var numColors = grayscale ? 1 : 3;
+        var idats = chunks.filter(function(chunk) {
+            return chunk.type === 'IDAT';
+        }).map(function(chunk) {
+            return chunk.data;
+        });
+        if (alpha) {
+            var pako = window.pako;
+            var inflate = new pako.Inflate();
+            var i;
+            for (i = 0; i < idats.length; ++i)
+                inflate.push(idats[i], i + 1 === idats.length);
+            if (inflate.err) throw Error(inflate.err);
+            var rgba = inflate.result;
+            var bytesPerComponent = bitDepth >>> 3;
+            var bytesPerPixel = (numColors + 1) * bytesPerComponent;
+            var bytesPerLine = width * bytesPerPixel + 1;
+            if (rgba.length !== height * bytesPerLine)
+                throw Error("Data length mismatch");
+            var colorBytesPerPixel = numColors * bytesPerComponent;
+            var rgb = new Uint8Array(height * (width * colorBytesPerPixel + 1));
+            var mask = new Uint8Array(height * (width * bytesPerComponent + 1));
+            var a = 0;
+            var b = 0;
+            var c = 0;
+            for (var y = 0; y < height; ++y) {
+                rgb[b++] = mask[c++] = rgba[a++];
+                for (var x = 0; x < width; ++x) {
+                    for (i = 0; i < colorBytesPerPixel; ++i)
+                        rgb[b++] = rgba[a++];
+                    for (i = 0; i < bytesPerComponent; ++i)
+                        mask[c++] = rgba[a++];
+                }
+            }
+            if (a !== rgba.length || b !== rgb.length || c !== mask.length)
+                throw Error("Seems we garbled our index computation somehow");
+            mask = pako.deflate(mask);
+            smask = this._strm({
+                Type: '/XObject',
+                Subtype: '/Image',
+                Width: width,
+                Height: height,
+                ColorSpace: '/DeviceGray',
+                BitsPerComponent: bitDepth,
+                Filter: '/FlateDecode',
+                DecodeParms: this._dict({
+                    Predictor: 15,
+                    Colors: 1,
+                    BitsPerComponent: bitDepth,
+                    Columns: width
+                })
+            }, mask).ref;
+            idats = [pako.deflate(rgb)]; // continue with color only
+        }
 
         var len = 0;
-        var idats = chunks
-            .filter(function(chunk) {
-                return chunk.type === 'IDAT';
-            })
-            .map(function(chunk) {
-                len += chunk.data.length;
-                return chunk.data;
-            });
+        idats.forEach(function(chunk) {
+            len += chunk.length;
+        });
         var xobj = this._obj([this._dict({
             Type: '/XObject',
             Subtype: '/Image',
@@ -501,12 +550,13 @@ PdfWriterContext.prototype = {
             Width: width,
             Height: height,
             ColorSpace: grayscale ? '/DeviceGray' : '/DeviceRGB',
+            SMask: smask,
             BitsPerComponent: bitDepth,
             Length: len,
             Filter: '/FlateDecode',
             DecodeParms: this._dict({
                 Predictor: 15,
-                Colors: grayscale ? 1 : 3,
+                Colors: numColors,
                 BitsPerComponent: bitDepth,
                 Columns: width
             })
@@ -565,7 +615,10 @@ PdfWriterContext.prototype = {
 
     _strm: function(dict, data, idx) {
         dict.Length = data.length;
-        this._obj([this._dict(dict), '\nstream\n', data, '\nendstream'], idx);
+        return this._obj([
+            this._dict(dict),
+            '\nstream\n', data, '\nendstream'
+        ], idx);
     },
 
     toBlob: function() {
@@ -785,9 +838,8 @@ function releaseExportedObject() {
 shutdownHooks.push(releaseExportedObject);
 
 // Export current contruction with given writer backend and open the
-// result in a new tab.  Note that Chrome has some problems displaying
-// PDF this way, while Firefox fails to show images embedded into an
-// SVG.  So in the long run, saving is probably better than opening.
+// result in a new tab.  Note that Firefox fails to show images embedded
+// into an SVG.  So in the long run, saving is probably better than opening.
 // Note: See https://github.com/eligrey/FileSaver.js/ for saving Blobs
 function exportWith(Context) {
     cacheImages(function() {
