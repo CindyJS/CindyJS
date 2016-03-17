@@ -33,6 +33,7 @@ var handlers = {
     "ours.js": false,
     "ours.js.map": false,
     "pako.min.js": true,
+    "papaparse.min.js": true,
     "quickhull3d": true,
     "webfont.js": true,
 };
