@@ -258,6 +258,17 @@ function createCindyNow() {
 function loadExtraModules() {
     if (usedFunctions.convexhull3d$1)
         loadExtraPlugin("quickhull3d", "quickhull3d/quickhull3d.nocache.js");
+
+    debugger;
+    if (usedFunctions.parseCSV$1){
+        var suc = function(){
+            console.log("suc loaded");
+        }
+        var fail = function(){
+            console.log("fail loaded");
+        }
+        createCindy.loadScript('papaparse', 'papaparse.min.js', suc, fail);
+    } 
 }
 
 var modulesToLoad = 1;

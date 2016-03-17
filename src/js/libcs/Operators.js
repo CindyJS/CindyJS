@@ -4339,3 +4339,9 @@ evaluator.setsimulationquality$1 = function(args, modifs) {
     }
     return nada;
 };
+
+evaluator.parseCSV$1 = function(args, modifs){
+    debugger;
+    var v0 = evaluateAndVal(args[0]);
+    var data = Papa.parse(csv);
+};
