@@ -239,11 +239,23 @@ evaluator.drawimage$2 = function(args, modifs) {
         var pt3;
 
 
-        if (!pt1.ok || !pt2.ok || img.ctype !== 'string') {
+        if (!pt1.ok || !pt2.ok) {
+            return nada;
+        }
+
+        if (img.ctype === "image") {
+            img = img.value;
+        } else if (img.ctype === "string") {
+            img = images[img.value];
+        } else {
+            return nada;
+        }
+
+        if (!img) {
             return nada;
         }
         // console.lof(JSON.stringify(images));
-        img = images[img.value];
+        //img = images[img.value];
         if (!img) {
             return nada;
         }
