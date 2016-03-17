@@ -355,8 +355,7 @@ PdfWriterContext.prototype = {
 
     quadraticCurveTo: function(x1, y1, x2, y2) {
         this.bezierCurveTo(
-            (2 * x1 + this._xPos) / 3, (2 * y1 - this._yPos) / 3,
-            (x2 + 2 * x1) / 3, (y2 + 2 * y1) / 3, x2, y2);
+            (2 * x1 + this._xPos) / 3, (2 * y1 - this._yPos) / 3, (x2 + 2 * x1) / 3, (y2 + 2 * y1) / 3, x2, y2);
     },
 
     _kappa: 0.55228474983079340, // 4 * (Math.sqrt(2) - 1) / 3

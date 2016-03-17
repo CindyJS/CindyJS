@@ -4340,14 +4340,14 @@ evaluator.setsimulationquality$1 = function(args, modifs) {
     return nada;
 };
 
-evaluator.parseCSV$1 = function(args, modifs){
+evaluator.parseCSV$1 = function(args, modifs) {
     // more strict float parsing
-    var filterFloat = function (value) {
-    if(/^(\-|\+)?([0-9]+(\.[0-9]+)?|Infinity)$/
-      .test(value))
-        return Number(value);
+    var filterFloat = function(value) {
+        if (/^(\-|\+)?([0-9]+(\.[0-9]+)?|Infinity)$/
+            .test(value))
+            return Number(value);
         return NaN;
-    }
+    };
 
     var str = evaluateAndVal(args[0]).value;
     var parsed = window.Papa.parse(str);
@@ -4355,12 +4355,15 @@ evaluator.parseCSV$1 = function(args, modifs){
 
     // convert to CS*
     var itm, pitm;
-    for(var i =0; i < data.length; i++){
-        for(var j = 0; j < data[i].length ; j++){
+    for (var i = 0; i < data.length; i++) {
+        for (var j = 0; j < data[i].length; j++) {
             itm = data[i][j];
             pitm = filterFloat(itm);
-            if(!isNaN(pitm)) data[i][j] = CSNumber.real(pitm);
-            else data[i][j] = {"ctype": "string", value: itm};
+            if (!isNaN(pitm)) data[i][j] = CSNumber.real(pitm);
+            else data[i][j] = {
+                "ctype": "string",
+                value: itm
+            };
 
         }
         data[i] = List.turnIntoCSList(data[i]);
