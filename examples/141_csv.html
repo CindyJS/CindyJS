@@ -30,6 +30,7 @@ Barrr,1.7
 Baz,4.7";
 
 res2 = parseCSV(str2);
+println(res2);
 res3 = sort(res2, #_2);
 grades = column(res2, 2);
 average = sum(grades)/length(grades);

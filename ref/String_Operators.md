@@ -193,6 +193,23 @@ defines the function `f(x)` to be `sin(x)+cos(x)`.
 
 ------
 
+#### Parsing a CVS string: `parseCVS(‹string›)`
+
+**Description:**
+This operator parses a CVS string to an list of lists.
+
+     > parseCVS("Foo,1.0
+		Bar,2.3
+		abc,5.0
+		asd,1.3
+		sdf,4.3
+		lala,2.3
+		Barrr,1.7
+		Baz,4.7");
+    < [[Foo, 1], [Bar, 2.3], [abc, 5], [asd, 1.3], [sdf, 4.3], [lala, 2.3], [Barrr, 1.7], [Baz, 4.7]]
+
+------
+
 #### Guessing a good representation of a number: `guess(‹number›)`
 
 **Not available in CindyJS yet!**
