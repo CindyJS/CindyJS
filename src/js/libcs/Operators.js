@@ -4436,7 +4436,7 @@ function addTool(name) {
 
 evaluator.lastdropped$0 = function() {
     if (lastDropped) {
-        return lastDropped;
+        return List.turnIntoCSList(lastDropped);
     }
     return nada;
 };

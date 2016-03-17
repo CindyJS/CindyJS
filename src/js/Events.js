@@ -194,23 +194,26 @@ function setuplisteners(canvas, data) {
         // get data
         var dt = e.dataTransfer;
         var files = dt.files;
-        var reader = new FileReader();
 
-        // only consider last file dropped - perhaps rework this later
-        var file = files[files.length - 1];
-        var fname = file.name.replace(/\.[^/.]+$/, "");
-
+        var file, fname;
+        debugger;
+        for(var i = 0; i < files.length; i++){
+        file = files[i];
+        fname = file.name.replace(/\.[^/.]+$/, "");
         // text case 
-        if (file.type === "text/plain") {
+        if ((/^text\//).test(file.type)) {
+        //if (file.type === "text/plain") {
             var string;
 
+            var reader = new FileReader();
             reader.onload = function() {
                 string = reader.result;
-                lastDropped = {
+                lastDropped.push({
                     "value": string,
                     "ctype": "string",
                     "filename": fname
-                };
+                }
+                );
             };
 
             reader.readAsText(file);
@@ -223,6 +226,7 @@ function setuplisteners(canvas, data) {
         if ((/^image\//).test(file.type)) {
             var img;
             img = new Image();
+            var reader = new FileReader();
             reader.onload = (function(aImg) {
                 return function(e) {
                     aImg.src = e.target.result;
@@ -231,12 +235,16 @@ function setuplisteners(canvas, data) {
             reader.readAsDataURL(file);
 
             // remove file extension
-            lastDropped = {
+            lastDropped.push( {
                 "value": img,
                 "ctype": "image",
                 "filename": fname
-            };
+            }
+            );
         }
+
+
+        } // end for loop
 
 
         // run ondrop scripts 
@@ -456,6 +464,7 @@ function cs_simulationstop(e) {
 
 function cs_onDrop(e) {
     evaluate(cscompiled.ondrop);
+    updateCindy();
 }
 
 
