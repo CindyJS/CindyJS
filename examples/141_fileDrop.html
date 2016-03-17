@@ -14,10 +14,12 @@
 aa = lastdropped();
 errc(aa);
 if(!isundefined(aa),
+apply(aa,
 	ft = lastdroppedtype();
 	println(ft);
-	if(ft == "image", drawimage(A,aa),
-		if(ft == "string", println(aa)));
+	if(ft == "image", drawimage(A,#),
+		if(ft == "string", println(#)));
+);
 );
 //errc(aa);
 //if(!isundefined(aa),
