@@ -4379,20 +4379,20 @@ evaluator.parseCSV$1 = function(args, modifs) {
         for (var j = 0; j < data[i].length; j++) {
             itm = data[i][j];
             pitm = filterFloat(itm);
-                // Numbers
-                if (!isNaN(pitm) && aucon) data[i][j] = CSNumber.real(pitm);
-                // Bools
-                else if ((/[Tt]rue/).test(itm) && aucon) {
-                    data[i][j] = {
-                        'ctype': 'boolean',
-                        'value': true
-                    };
-                } else if ((/[Ff]alse/).test(itm) && aucon) {
-                    data[i][j] = {
-                        'ctype': 'boolean',
-                        'value': false
-                    };
-                }
+            // Numbers
+            if (!isNaN(pitm) && aucon) data[i][j] = CSNumber.real(pitm);
+            // Bools
+            else if ((/[Tt]rue/).test(itm) && aucon) {
+                data[i][j] = {
+                    'ctype': 'boolean',
+                    'value': true
+                };
+            } else if ((/[Ff]alse/).test(itm) && aucon) {
+                data[i][j] = {
+                    'ctype': 'boolean',
+                    'value': false
+                };
+            }
             // Strings
             else data[i][j] = {
                 "ctype": "string",
