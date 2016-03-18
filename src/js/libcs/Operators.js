@@ -4370,7 +4370,6 @@ evaluator.parseCSV$1 = function(args, modifs) {
     var str = evaluateAndVal(args[0]).value;
     var parsed = window.Papa.parse(str, papaconfig);
     if (parsed.errors.length > 0) console.log("there were CSV parse errors");
-    console.log(parsed.errors.length);
     var data = parsed.data;
 
     // convert to CS*
