@@ -4351,20 +4351,20 @@ evaluator.parseCSV$1 = function(args, modifs) {
 
     var delim = "";
     var md = modifs.delimiter;
-    if(md && md.ctype === "string" && md.value.length == 1) delim = md.value;
+    if (md && md.ctype === "string" && md.value.length === 1) delim = md.value;
 
     var nl = "";
     var mnl = modifs.newline;
-    if(mnl&& mnl.ctype === "string" && mnl.value.length == 2) nl = mnl.value;
+    if (mnl && mnl.ctype === "string" && mnl.value.length === 2) nl = mnl.value;
 
     var papaconfig = {
-	    delimiter: delim,
-	    newline: nl,
-    }
+        delimiter: delim,
+        newline: nl
+    };
 
     var str = evaluateAndVal(args[0]).value;
     var parsed = window.Papa.parse(str, papaconfig);
-    if(parsed.errors.length > 0) console.log("there were CSV parse errors");
+    if (parsed.errors.length > 0) console.log("there were CSV parse errors");
     var data = parsed.data;
 
     // convert to CS*
@@ -4376,11 +4376,16 @@ evaluator.parseCSV$1 = function(args, modifs) {
             // Numbers
             if (!isNaN(pitm)) data[i][j] = CSNumber.real(pitm);
             // Bools
-            else if((/[Tt]rue/).test(itm)){
-                data[i][j] = {'ctype': 'boolean', 'value': true} 
-            }
-            else if((/[Ff]alse/).test(itm)){
-                data[i][j] = {'ctype': 'boolean', 'value': false} 
+            else if ((/[Tt]rue/).test(itm)) {
+                data[i][j] = {
+                    'ctype': 'boolean',
+                    'value': true
+                };
+            } else if ((/[Ff]alse/).test(itm)) {
+                data[i][j] = {
+                    'ctype': 'boolean',
+                    'value': false
+                };
             }
             // Strings
             else data[i][j] = {
