@@ -4349,6 +4349,11 @@ evaluator.parseCSV$1 = function(args, modifs) {
         return NaN;
     };
 
+    // autoconvert like tokenize
+    var aucon = true;
+    var mcon = evaluateAndVal(modifs.autoconvert);
+    if (mcon.ctype === "boolean") aucon = mcon.value;
+
     var delim = "";
     var md = modifs.delimiter;
     if (md && md.ctype === "string" && md.value.length === 1) delim = md.value;
@@ -4365,6 +4370,7 @@ evaluator.parseCSV$1 = function(args, modifs) {
     var str = evaluateAndVal(args[0]).value;
     var parsed = window.Papa.parse(str, papaconfig);
     if (parsed.errors.length > 0) console.log("there were CSV parse errors");
+    console.log(parsed.errors.length);
     var data = parsed.data;
 
     // convert to CS*
@@ -4373,20 +4379,20 @@ evaluator.parseCSV$1 = function(args, modifs) {
         for (var j = 0; j < data[i].length; j++) {
             itm = data[i][j];
             pitm = filterFloat(itm);
-            // Numbers
-            if (!isNaN(pitm)) data[i][j] = CSNumber.real(pitm);
-            // Bools
-            else if ((/[Tt]rue/).test(itm)) {
-                data[i][j] = {
-                    'ctype': 'boolean',
-                    'value': true
-                };
-            } else if ((/[Ff]alse/).test(itm)) {
-                data[i][j] = {
-                    'ctype': 'boolean',
-                    'value': false
-                };
-            }
+                // Numbers
+                if (!isNaN(pitm) && aucon) data[i][j] = CSNumber.real(pitm);
+                // Bools
+                else if ((/[Tt]rue/).test(itm) && aucon) {
+                    data[i][j] = {
+                        'ctype': 'boolean',
+                        'value': true
+                    };
+                } else if ((/[Ff]alse/).test(itm) && aucon) {
+                    data[i][j] = {
+                        'ctype': 'boolean',
+                        'value': false
+                    };
+                }
             // Strings
             else data[i][j] = {
                 "ctype": "string",

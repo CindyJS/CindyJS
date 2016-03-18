@@ -11,15 +11,15 @@
 <script id="csdraw" type="text/x-cindyscript">
 
 str = "id,first_name,last_name,email,gender,ip_address
-1,Christopher,Myers,cmyers0@dmoz.org,Male,35.39.21.234
-2,"Johnny",Weaver,jweaver1@google.es,Male,237.124.135.200
-3,Ronald,Cunningham,rcunningham2@shutterfly.com,Male,65.239.45.108
+1,Christopher    ,Myers,cmyers0@dmoz.org,Male,35.39.21.234
+2,""Johnny"",Weaver,jweaver1@google.es,Male,237.124.135.200
+3,       Ronald,Cunningham,rcunningham2@shutterfly.com,Male,65.239.45.108
 4,Julia,"Flores",jflores3@tumblr.com,False,121.137.43.247
-5,Amy,Wright,awright4@wikipedia.org,True,50.3.70.174";
+5,Amy     ,Wright,awright4@wikipedia.org,True,50.3.70.174";
 
 println(str);
 
-res = parseCSV(str, delimiter->",", newline->"\n");
+res = parseCSV(str, delimiter->",", newline->"\n", autoconvert->false);
 println(res);
 
 str2 = "Foo,1.0
