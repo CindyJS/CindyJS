@@ -198,6 +198,7 @@ defines the function `f(x)` to be `sin(x)+cos(x)`.
 **Description:**
 This operator parses a CVS string to an list of lists.
 
+    - skip test: parseCSV module not linked in for unit tests.
     > parseCSV("Foo,1.0
     > Bar,2.3
     > abc,5.0
