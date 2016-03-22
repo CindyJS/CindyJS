@@ -41,8 +41,10 @@ geoOps.FreeLine.getParamForInput = function(el, pos, type) {
     if (type === "mouse") {
         homog = List.cross(pos, List.ez);
         homog = List.cross(homog, pos);
-    } else {
+    } else if (type === "homog") {
         homog = pos;
+    } else {
+        homog = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
     }
     return List.normalizeMax(homog);
 };
@@ -190,8 +192,17 @@ geoOps.HorizontalLine.initialize = function(el) {
     putStateComplexVector(pos);
 };
 geoOps.HorizontalLine.getParamForInput = function(el, pos, type) {
-    var homog = List.cross(pos, List.ex);
-    return List.normalizeMax(homog);
+    if (type === "mouse") {
+        pos = List.cross(pos, List.ex);
+    } else if (type === "homog") {
+        if (pos.value[0].real !== 0 || pos.value[0].imag !== 0)
+            pos = List.turnIntoCSList([
+                CSNumber.zero, pos.value[1], pos.value[2]
+            ]);
+    } else {
+        pos = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
+    }
+    return List.normalizeMax(pos);
 };
 geoOps.HorizontalLine.getParamFromState = function(el) {
     return getStateComplexVector(3);
@@ -231,8 +242,17 @@ geoOps.VerticalLine.initialize = function(el) {
     putStateComplexVector(pos);
 };
 geoOps.VerticalLine.getParamForInput = function(el, pos, type) {
-    var homog = List.cross(pos, List.ey);
-    return List.normalizeMax(homog);
+    if (type === "mouse") {
+        pos = List.cross(pos, List.ey);
+    } else if (type === "homog") {
+        if (pos.value[1].real !== 0 || pos.value[1].imag !== 0)
+            pos = List.turnIntoCSList([
+                pos.value[0], CSNumber.zero, pos.value[2]
+            ]);
+    } else {
+        pos = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
+    }
+    return List.normalizeMax(pos);
 };
 geoOps.VerticalLine.getParamFromState = function(el) {
     return getStateComplexVector(3);
