@@ -214,14 +214,8 @@ Accessor.setField = function(geo, field, value) {
         movepointscr(geo, value, "homog");
     }
 
-    if (field === "homog" && geo.type === "FreeLine" && geo.movable && List._helper.isNumberVecN(value, 3)) {
-        movepointscr(geo, value);
-    }
-
-    if (field === "homog" && geo.type === "Through" && geo.movable && List._helper.isNumberVecN(value, 3)) {
-        dir = List.turnIntoCSList([value.value[1], CSNumber.neg(value.value[0]), CSNumber.real(0)]);
-        geo.homog = General.withUsage(value, "Line");
-        movepointscr(geo, dir, "dir");
+    if (field === "homog" && geo.kind === "L" && geo.movable && List._helper.isNumberVecN(value, 3)) {
+        movepointscr(geo, value, "homog");
     }
 
     if (field === "angle" && geo.type === "Through") {
