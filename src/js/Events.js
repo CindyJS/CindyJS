@@ -443,10 +443,10 @@ function cs_simulationstop(e) {
     evaluate(cscompiled.simulationstop);
 }
 
-function cs_onDrop(dropped) {
-    lastDropped = List.turnIntoCSList(dropped);
+function cs_onDrop(lst) {
+    dropped = List.turnIntoCSList(lst);
     evaluate(cscompiled.ondrop);
-    lastDropped = nada;
+    dropped = nada;
     updateCindy();
 }
 

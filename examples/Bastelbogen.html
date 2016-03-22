@@ -71,8 +71,8 @@ grestore();
 </script>
 
 <script id="csondrop" type="text/x-cindyscript">
-  err(lastdropped());
-  forall(lastdropped(), if(#_2 == "image", aa = #_1));
+  err(dropped());
+  forall(dropped(), if(#_2 == "image", aa = #_1));
 </script>
 <script type="text/javascript">
 var cdy = createCindy({
