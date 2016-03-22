@@ -215,7 +215,7 @@ Accessor.setField = function(geo, field, value) {
     }
 
     if (field === "homog" && geo.type === "FreeLine" && geo.movable && List._helper.isNumberVecN(value, 3)) {
-        geo.homog = General.withUsage(value, "Line"); // TODO tracing (analogous to movepointscr)
+        movepointscr(geo, value);
     }
 
     if (field === "homog" && geo.type === "Through" && geo.movable && List._helper.isNumberVecN(value, 3)) {
