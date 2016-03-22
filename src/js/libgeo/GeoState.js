@@ -141,10 +141,6 @@ csport.applyMat = function(a, b, c, d, tx, ty) {
         m.b * c + m.d * d,
         m.a * tx + m.c * ty + m.tx,
         m.b * tx + m.d * ty + m.ty);
-    var tl = csport.to(0, -csh);
-    var br = csport.to(csw, 0);
-    console.log("{visibleRect: [" +
-        tl[0] + "," + tl[1] + "," + br[0] + "," + br[1] + "]}");
 };
 
 csport.translate = function(tx, ty) {

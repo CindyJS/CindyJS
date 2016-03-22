@@ -194,62 +194,42 @@ function setuplisteners(canvas, data) {
         // get data
         var dt = e.dataTransfer;
         var files = dt.files;
-
-        var file, fname;
-        debugger;
-        for(var i = 0; i < files.length; i++){
-        file = files[i];
-        fname = file.name.replace(/\.[^/.]+$/, "");
-        // text case 
-        if ((/^text\//).test(file.type)) {
-        //if (file.type === "text/plain") {
-            var string;
-
+        var dropped = Array(files.length);
+        var countDown = files.length;
+        Array.prototype.forEach.call(files, function(file, i) {
             var reader = new FileReader();
-            reader.onload = function() {
-                string = reader.result;
-                lastDropped.push({
-                    "value": string,
-                    "ctype": "string",
-                    "filename": fname
-                }
-                );
-            };
-
-            reader.readAsText(file);
-            //reader.readAsDataURL(file);
-
-        }
-
-
-        // image case 
-        if ((/^image\//).test(file.type)) {
-            var img;
-            img = new Image();
-            var reader = new FileReader();
-            reader.onload = (function(aImg) {
-                return function(e) {
-                    aImg.src = e.target.result;
+            if ((/^text\//).test(file.type)) {
+                reader.onload = function() {
+                    var value = General.string(reader.result);
+                    oneDone(i, value);
                 };
-            })(img);
-            reader.readAsDataURL(file);
-
-            // remove file extension
-            lastDropped.push( {
-                "value": img,
-                "ctype": "image",
-                "filename": fname
+                reader.readAsText(file);
+            } else if ((/^image\//).test(file.type)) {
+                reader.onload = function() {
+                    var img = new Image();
+                    img.src = reader.result;
+                    var value = {
+                        ctype: "image",
+                        value: img
+                    };
+                    oneDone(i, value);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                oneDone(i, nada);
             }
-            );
+        });
+        function oneDone(i, value, type) {
+            dropped[i] = List.turnIntoCSList([
+                value,
+                General.string(type || value.ctype),
+                General.string(files[i].type),
+                General.string(files[i].name),
+            ]);
+            if (--countDown === 0) {
+                cs_onDrop(dropped);
+            }
         }
-
-
-        } // end for loop
-
-
-        // run ondrop scripts 
-        cs_onDrop();
-
     });
 
 
@@ -461,9 +441,10 @@ function cs_simulationstop(e) {
     evaluate(cscompiled.simulationstop);
 }
 
-
-function cs_onDrop(e) {
+function cs_onDrop(dropped) {
+    lastDropped = List.turnIntoCSList(dropped);
     evaluate(cscompiled.ondrop);
+    lastDropped = nada;
     updateCindy();
 }
 

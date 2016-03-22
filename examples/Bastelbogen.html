@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+  aa=(;); // Initialize to nada
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+lasche(a,b):=(
+ nn=-perp(a-b);
+ nn=nn/|nn|*.7;
+ pp=perp(nn);
+ ll=((a,a+nn-pp,b+nn+pp,b));
+ connect(ll,color->(0,0,0));
+);
+
+            pt1=(0,0); 
+            pt2=(1,0)*6; 
+            pt3=(.5,sqrt(.75))*6; 
+            pt4=(.5,-sqrt(.75))*6; 
+           
+
+
+drawit=(!isundefined(aa));
+            drawme(a,b,c):=(
+            if(drawit,
+                        gsave();
+                        clip(polygon([a,b,c]));
+                        drawimage(a,b,aa,alpha->1);
+                        grestore(););
+                        draw(a,b,size->.1,color->(0,0,0));
+                        draw(a,c,size->.1,color->(0,0,0));
+                        draw(c,b,size->.1,color->(0,0,0));
+                        );
+
+scale(0.93);
+translate((0,-.2));
+
+translate(-(14.5,5.2));
+rotate(25°);
+gsave();
+gsave();
+apply(1..5,
+translate(pt2);
+drawme(pt1,pt2,pt3);
+drawme(pt2,pt1,pt4);
+if(#>1,lasche(pt3,pt2));
+if(#==2,lasche(pt1,pt3));
+);
+grestore();
+translate(pt4);
+gsave();
+apply(1..5,
+translate(pt2);
+drawme(pt1,pt2,pt3);
+drawme(pt2,pt1,pt4);
+if(#>1,lasche(pt2,pt4));
+if(#==2,lasche(pt4,pt1));
+if(#==5,lasche(pt3,pt2));
+
+);
+
+grestore();
+
+grestore();
+
+
+</script>
+
+<script id="csondrop" type="text/x-cindyscript">
+  err(lastdropped());
+  forall(lastdropped(), if(#_2 == "image", aa = #_1));
+</script>
+<script type="text/javascript">
+var cdy = createCindy({
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="850" height="600"
+          style="border:2px solid black"></canvas>
+ <button onclick="cdy.exportSVG()" type="button" >SVG</button>
+        <button onclick="cdy.exportPDF()" type="button" >PDF</button>
+</body>
+
+
+</html>
