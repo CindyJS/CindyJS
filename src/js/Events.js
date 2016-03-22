@@ -207,12 +207,14 @@ function setuplisteners(canvas, data) {
             } else if ((/^image\//).test(file.type)) {
                 reader.onload = function() {
                     var img = new Image();
+                    img.onload = function() {
+                        var value = {
+                            ctype: "image",
+                            value: img
+                        };
+                        oneDone(i, value);
+                    }
                     img.src = reader.result;
-                    var value = {
-                        ctype: "image",
-                        value: img
-                    };
-                    oneDone(i, value);
                 };
                 reader.readAsDataURL(file);
             } else {
