@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csmove" type="text/x-cindyscript">
+  pos = cross(P1, P2);
+  f.homog = pos;
+  h.homog = pos;
+  v.homog = pos;
+  t1.homog = pos;
+  t2.angle = t1.angle;
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({
+  scripts: "cs*",
+  ports: [{id: "CSCanvas"}],
+  defaultAppearance: {},
+  geometry: [
+    {name:"x", type:"HorizontalLine", pos:[0,1,0], color:[.7,.7,.7], pinned:true},
+    {name:"y", type:"VerticalLine", pos:[1,0,0], color:[.7,.7,.7], pinned:true},
+    {name:"P1", type:"Free", pos:[2,3]},
+    {name:"P2", type:"Free", pos:[3,2]},
+    {name:"Q1", type:"Free", pos:[-2,-1]},
+    {name:"Q2", type:"Free", pos:[-1,-2]},
+    {name:"f", type:"FreeLine", pos:[1,1,1], color:[0,.5,.3], size:2, pinned:true},
+    {name:"h", type:"HorizontalLine", pos:[0,1,1], pinned:true},
+    {name:"v", type:"VerticalLine", pos:[1,0,1], pinned:true},
+    {name:"t1", type:"Through", args:["Q1"], pos:[1,-2,0], pinned:true},
+    {name:"t2", type:"Through", args:["Q2"], pos:[2,-1,0], pinned:true},
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>
