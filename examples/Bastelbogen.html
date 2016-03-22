@@ -194,9 +194,10 @@ function plugin(api) {
         });
         iTXt = iTXt.map(function(chunk) {
             var d = chunk.data;
-            var pos1 = d.indexOf(0);
-            var pos2 = d.indexOf(0, pos1 + 3);
-            var pos3 = d.indexOf(0, pos2 + 1);
+            var indexOf = Array.prototype.indexOf.bind(d);
+            var pos1 = indexOf(0);
+            var pos2 = indexOf(0, pos1 + 3);
+            var pos3 = indexOf(0, pos2 + 1);
             var textBytes = chunk.data.subarray(pos3 + 1);
             var compressed = !!d[pos1 + 1];
             var text = null;
