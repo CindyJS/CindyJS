@@ -9,6 +9,7 @@ function escape(str) {
   return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
@@ -20,7 +21,10 @@ function MyRenderer() {
 util.inherits(MyRenderer, marked.Renderer);
 
 MyRenderer.prototype.code = function(code, lang) {
-  if (lang) return marked.Renderer.prototype.code.call(this, code, lang);
+  if (lang) {
+    return '<pre class="block"><code class="lang-' + lang + '">' +
+      escape(code) + '\n</code></pre>\n';
+  }
   // console.log("code='" + code + "'")
   var lines = code.split("\n");
   var n = lines.length, i;

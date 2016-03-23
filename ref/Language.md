@@ -552,7 +552,7 @@ They were mainly choosen to distinguish different levels of precedence,
 and while the names tend to capture the main application
 of the operators described at that level, this does not always fit.
 
-```
+```bnf
 program
     : expressionOpt
     ;
