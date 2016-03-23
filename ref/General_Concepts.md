@@ -216,6 +216,9 @@ draws a yellow point of size 15.
 Modifiers have to be separated by commas.
 They may occur in any order and at any position of the function call.
 
+    > a = []; repeat(3, start->4; 5, a = a ++ [#]); a
+    < [5, 6, 7]
+
 ### Lists/Vectors/Matrices
 
 [CindyScript](CindyScript.md) offers *lists* as elementary data types.

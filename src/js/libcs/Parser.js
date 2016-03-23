@@ -64,9 +64,10 @@ var operatorLevels = [{
     define: [':='],
     undefine: [':=_'],
     bdefine: ['::='],
-    modif: ['->', '→'],
 }, {
     seq: [';'],
+}, {
+    modif: ['->', '→'],
 }, {
     rassoc: true,
     list: [','],
