@@ -555,6 +555,7 @@ the sum of the matrix elements corresponding to that matching is minimized.
 The result is a list with one entry for each row of the matrix,
 indicating the index of the column matched to that row.
 
+    - only CindyJS
     > a = [
     > [ 2,  1,  5,  1,  1],
     > [ 2,  4, -8,  6,  0],
@@ -569,6 +570,7 @@ indicating the index of the column matched to that row.
 If the matrix has more columns than it has rows,
 some columns will remain unmatched.
 
+    - only CindyJS
     > a = [
     > [14,  0,  1,  1,  3,  9],
     > [-4, -3, -2, -1,  8,  1],
@@ -583,6 +585,7 @@ If the matrix has more rows than columns,
 then some rows will remain unmatched,
 indicated by a zero in the matching.
 
+    - only CindyJS
     > m = mincostmatching(transpose(a))
     < [2, 1, 0, 0, 3, 4]
     > sum(select(1..6, m_# > 0), a_(m_#)_#)

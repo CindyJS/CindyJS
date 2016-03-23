@@ -57,6 +57,7 @@ function runTestFile(filename) {
         return;
       }
     }
+    var pragmas = [];
     for (i = 0; i < n; ++i) {
       line = lines[i];
       var mark = line.substr(4, 2), rest = line.substr(6);
@@ -66,11 +67,16 @@ function runTestFile(filename) {
         } else {
           curcase = new TestCase(rest, filename, lineno + i);
           cases.push(curcase);
+          if (pragmas.length)
+            curcase.pragma = pragmas.slice();
           ininput = true;
         }
         continue;
-      } else if (mark === "- " && rest.substr(0, 4) == "skip") {
-        break;
+      } else if (mark === "- ") {
+        if (rest.substr(0, 4) == "skip") {
+          break;
+        }
+        pragmas.push(rest);
       } else if (mark === "< ") {
         curcase.expectResult(rest);
         anythingToCheck = true;
@@ -122,6 +128,7 @@ TestCase.prototype.pattern = null;
 TestCase.prototype.output = null;
 TestCase.prototype.draw = null;
 TestCase.prototype.exception = null;
+TestCase.prototype.pragma = null;
 
 TestCase.prototype.expectResult = function(str) {
   if (this.expected !== null)
@@ -200,6 +207,15 @@ function sanityCheck(val) {
 };
 
 TestCase.prototype.run = function() {
+  if (this.pragma) {
+    for (var p = 0; p < this.pragma.length; ++p) {
+      if (/^only /.test(this.pragma[p]) &&
+          !(/^only [^:]*CindyJS/).test(this.pragma[p]))
+        return true;
+      if ((/^CindyScript <2016/i).test(this.pragma[p]))
+        return true;
+    }
+  }
   var val, actual, expected, clog = [], matches, expstr;
   var conlog = console.log;
   var conerr = console.error;

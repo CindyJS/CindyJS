@@ -70,21 +70,30 @@ See the examples for further description.
     < 1 + i*3
     > 2 * [5,3,2]       // scalar multiplication of number and vector
     < [10, 6, 4]
-    > [5,3,2] ⋅ 2       // scalar multiplication of number and vector
+    > [5,3,2] * 2       // scalar multiplication of number and vector
     < [10, 6, 4]
     > [2,2,3] * [3,4,6] // scalar product (dot product) of two vectors
     < 32
     > [[1,2],[3,4]] * [1,2]         // matrix times vector
     < [5, 11]
-    > [1,2] · [[1,2],[3,4]]         // vector times matrix
+    > [1,2] * [[1,2],[3,4]]         // vector times matrix
     < [7, 10]
     > [[1,2],[3,4]] * [[1,2],[3,4]] // product of two matrices
     < [[7, 10], [15, 22]]
+
+One may also use the dot operator or middle dot symbol as multiplication signs.
+
+    - CindyScript >=2016
+    > [5,3,2] ⋅ 2
+    < [10, 6, 4]
+    > [1,2] · [[1,2],[3,4]]
+    < [7, 10]
 
 Using the unicode symbol U+2062 ‘invisible times’ it is possible to write
 polynomials that *appear* as though the coefficients were directly
 preceding the variable.  Input can't simply be typed this way, though.
 
+    - CindyScript >=2016
     > x = 5;
     > 7⁢x^3 - 5⁢x^2 + 2⁢x - 1
     < 759
@@ -111,6 +120,7 @@ It is also possible to divide a vector or matrix by a number.
     < [3, 4, 2]
     > [[2,4],[4,8]] / (-2*i)
     < [[0 + i*1, 0 + i*2], [0 + i*2, 0 + i*4]]
+    ~ \[\[-?0 \+ i\*1, -?0 \+ i\*2\], \[-?0 \+ i\*2, -?0 \+ i\*4\]\]
 
 ------
 
@@ -248,10 +258,12 @@ Complex numbers are fully supported.
 
     > sqrt(4)
     < 2
-    > √121
-    < 11
     > sqrt(2*i)
     < 1 + i*1
+
+    - CindyScript >=2016
+    > √121
+    < 11
 
 #### Exponential function: `exp(‹expr›)`
 
@@ -272,14 +284,16 @@ For angles in degrees, use the [degree sign](#_$b0u).
     < 0
     > sin(pi)
     < 0
-    > sin(pi) == 0 // there likely is some slight numeric error
-    < false
     > sin(90°)
     < 1
     > sin(90) // Don't forget the degree sign if your angle is in degree!
     < 0.894
     > sin(2 + 3*i)
     < 9.1545 - i*4.1689
+
+    - only CindyJS
+    > sin(pi) == 0 // there likely is some slight numeric error
+    < false
 
 #### Trigonometric cosine function: `cos(‹expr›)`
 
@@ -290,14 +304,16 @@ For angles in degrees, use the [degree sign](#_$b0u).
     < 1
     > cos(pi)
     < -1
-    > cos(pi) == 1 // there likely is some slight numeric error
-    < false
     > cos(90°)
     < 0
     > cos(90) // Don't forget the degree sign if your angle is in degree!
     < -0.4481
     > cos(2 + 3*i)
     < -4.1896 - i*9.1092
+
+    - only CindyJS
+    > cos(pi) == 1 // there likely is some slight numeric error
+    < false
 
 #### Trigonometric tangent function: `tan(‹expr›)`
 
@@ -308,14 +324,19 @@ For angles in degrees, use the [degree sign](#_$b0u).
     < 0
     > tan(pi)
     < 0
-    > tan(pi) == 0 // there likely is some slight numeric error
-    < false
+
+    - only CindyJS: Cinderella returns ___ here
     > |tan(90°)| > 10^15 // almost infinity, except for rounding issues
     < true
+
     > tan(90) // Don't forget the degree sign if your angle is in degree!
     < -1.9952
     > tan(2 + 3*i)
     < -0.0038 + i*1.0032
+
+    - only CindyJS
+    > tan(pi) == 0 // there likely is some slight numeric error
+    < false
 
 #### Inverse trigonometric sine function: `arcsin(‹expr›)`
 

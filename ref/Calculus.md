@@ -151,17 +151,22 @@ The code below calculates and draws the roots of a cubic polynomial given by its
     > d=-1;
     > f(x):=a*x^3+b*x^2+c*x+d;
     > r=roots([d,c,b,a]);
-    > r
+    > sort(r)
     < [-2.0562, -0.3563, 3.4125]
 
-    > roots([-1, 0, 1]);
+    > sort(roots([-1, 0, 1]));
     < [-1, 1]
 
-    > roots([0, -1, 0, 1]);
+    > sort(roots([0, -1, 0, 1]));
     < [-1, 0, 1]
 
-    > roots([-1, 0, 1, 0]);
+    - only CindyJS
+    > sort(roots([-1, 0, 1, 0]));
     < [-1, 1, Infinity + i*Infinity]
+
+    - only Cinderella
+    > sort(roots([-1, 0, 1, 0]));
+    < [-1, 1, NaN]
 
     > roots([]);
     < []
