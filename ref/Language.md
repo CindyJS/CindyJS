@@ -533,3 +533,259 @@ They may however be nested if there is at least one level of other brackets
     - CindyScript >=2016
     > |[3, |4*i|]|
     < 5
+
+## Formal grammar
+
+This is a description of the CindyScript language using a context-free grammar
+in BNF notation as understood by e.g. GNU Bison.
+
+Most non-terminals come in two flavors:
+one without and one with a suffix of `NoBars`.
+That's because one must not nest `|…|` constructs without
+other forms of parentheses in between.
+So the `NoBars` versions are the ones used inside `|…|` constructs,
+and the others at the top level or inside `(…)` or `[…]`.
+
+Don't expect too much meaning
+from the names of the nonterminals used in this grammar.
+They were mainly choosen to distinguish different levels of precedence,
+and while the names tend to capture the main application
+of the operators described at that level, this does not always fit.
+
+```
+program
+    : expressionOpt
+    ;
+expressionOpt
+    : expression
+    | %empty
+    ;
+expressionOptNoBars
+    : expressionNoBars
+    | %empty
+    ;
+expression
+    : statement
+    | expression OP_SEMI statement
+    | expression OP_SEMI
+    | OP_SEMI statement
+    | OP_SEMI
+    ;
+expressionNoBars
+    : statementNoBars
+    | expressionNoBars OP_SEMI statementNoBars
+    | expressionNoBars OP_SEMI
+    | OP_SEMI statementNoBars
+    | OP_SEMI
+    ;
+statement
+    : assignment
+    ;
+statementNoBars
+    : assignmentNoBars
+    ;
+assignment
+    : listOp
+    | listOp OP_ASSIGN assignment
+    | listOp OP_DEFINE assignment
+    | listOp OP_BDEFINE assignment
+    | listOp OP_DEFINE OP_TAKE
+    ;
+assignmentNoBars
+    : listOpNoBars
+    | listOpNoBars OP_ASSIGN assignmentNoBars
+    | listOpNoBars OP_DEFINE assignmentNoBars
+    | listOpNoBars OP_BDEFINE assignmentNoBars
+    | listOpNoBars OP_DEFINE OP_TAKE
+    ;
+listOp
+    : prepend
+    | listOp OP_CONCAT prepend
+    | listOp OP_REMOVE prepend
+    | listOp OP_COMMON prepend
+    | listOp OP_APPEND prepend
+    ;
+listOpNoBars
+    : prependNoBars
+    | listOpNoBars OP_CONCAT prependNoBars
+    | listOpNoBars OP_REMOVE prependNoBars
+    | listOpNoBars OP_COMMON prependNoBars
+    | listOpNoBars OP_APPEND prependNoBars
+    ;
+prepend
+    : cond
+    | cond OP_PREPEND prepend
+    ;
+prependNoBars
+    : condNoBars
+    | condNoBars OP_PREPEND prependNoBars
+    ;
+cond
+    : rel
+    | cond OP_AND rel
+    | cond OP_OR rel
+    ;
+condNoBars
+    : relNoBars
+    | condNoBars OP_AND relNoBars
+    | condNoBars OP_OR relNoBars
+    ;
+rel
+    : seq
+    | rel OP_EQ seq
+    | rel OP_NE seq
+    | rel OP_LT seq
+    | rel OP_GT seq
+    | rel OP_LE seq
+    | rel OP_GE seq
+    | rel OP_AEQ seq
+    | rel OP_ANE seq
+    | rel OP_ALT seq
+    | rel OP_AGT seq
+    | rel OP_ALE seq
+    | rel OP_AGE seq
+    | rel OP_IN seq
+    | rel OP_NIN seq
+    ;
+relNoBars
+    : seqNoBars
+    | relNoBars OP_EQ seqNoBars
+    | relNoBars OP_NE seqNoBars
+    | relNoBars OP_LT seqNoBars
+    | relNoBars OP_GT seqNoBars
+    | relNoBars OP_LE seqNoBars
+    | relNoBars OP_GE seqNoBars
+    | relNoBars OP_AEQ seqNoBars
+    | relNoBars OP_ANE seqNoBars
+    | relNoBars OP_ALT seqNoBars
+    | relNoBars OP_AGT seqNoBars
+    | relNoBars OP_ALE seqNoBars
+    | relNoBars OP_AGE seqNoBars
+    | relNoBars OP_IN seqNoBars
+    | relNoBars OP_NIN seqNoBars
+    ;
+seq
+    : sum
+    | seq OP_SEQ sum
+    ;
+seqNoBars
+    : sumNoBars
+    | seqNoBars OP_SEQ sumNoBars
+    ;
+sum
+    : product
+    | sum OP_ADD product
+    | sum OP_SUB product
+    | OP_ADD product
+    | OP_SUB product
+    | OP_NEG product
+    ;
+sumNoBars
+    : productNoBars
+    | sumNoBars OP_ADD productNoBars
+    | sumNoBars OP_SUB productNoBars
+    | OP_ADD productNoBars
+    | OP_SUB productNoBars
+    | OP_NEG productNoBars
+    ;
+product
+    : power
+    | product OP_MUL power
+    | product OP_CROSS power
+    | product OP_DIV power
+    ;
+productNoBars
+    : powerNoBars
+    | productNoBars OP_MUL powerNoBars
+    | productNoBars OP_CROSS powerNoBars
+    | productNoBars OP_DIV powerNoBars
+    ;
+power
+    : indexed
+    | indexed OP_POW power
+    | indexed SUPSCRIPT
+    | OP_SQRT indexed
+    ;
+powerNoBars
+    : indexedNoBars
+    | indexedNoBars OP_POW powerNoBars
+    | indexedNoBars SUPSCRIPT
+    | OP_SQRT indexedNoBars
+    ;
+indexed
+    : atom
+    | indexed OP_KEY atom
+    | indexed OP_FIELD IDENTIFIER
+    | indexed OP_TAKE atom
+    | indexed SUBSCRIPT
+    | indexed OP_DEG
+    ;
+indexedNoBars
+    : atomNoBars
+    | indexedNoBars OP_KEY atomNoBars
+    | indexedNoBars OP_FIELD IDENTIFIER
+    | indexedNoBars OP_TAKE atomNoBars
+    | indexedNoBars SUBSCRIPT
+    | indexedNoBars OP_DEG
+    ;
+atom
+    : ROUND_OPEN expression ROUND_CLOSE
+    | list
+    | functionCall
+    | absNormDist
+    | number
+    | string
+    | variable
+    ;
+atomNoBars
+    : ROUND_OPEN expression ROUND_CLOSE
+    | list
+    | functionCall
+    | number
+    | string
+    | variable
+    ;
+variable
+    : IDENTIFIER
+    ;
+list
+    : ROUND_OPEN ROUND_CLOSE
+    | ROUND_OPEN expressions2 ROUND_CLOSE
+    | SQUARE_OPEN expressions0 SQUARE_CLOSE
+    ;
+expressions0
+    : %empty
+    | expression
+    | expressions2
+    ;
+expressions2
+    : expressionOpt OP_LIST expressionOpt
+    | expressions2 OP_LIST expressionOpt
+    ;
+absNormDist
+    : BAR expressionNoBars BAR
+    | BAR expressionOptNoBars OP_LIST expressionOptNoBars BAR
+    ;
+functionCall
+    : functionName ROUND_OPEN args ROUND_CLOSE
+    | functionName SQUARE_OPEN args SQUARE_CLOSE
+    | functionName CURLY_OPEN args CURLY_CLOSE
+    ;
+args
+    : arg
+    | args OP_LIST arg
+    ;
+arg
+    : expressionOpt
+    | IDENTIFIER OP_MODIF expression
+    ;
+functionName
+    : IDENTIFIER
+    ;
+number
+    : FLOAT
+    ;
+string
+    : STRING
+    ;
+```
