@@ -75,7 +75,7 @@ var operatorLevels = [{
 
 var prefixOperators = ['+', '-'];
 var prefixOnly = ['!', '√'];
-var postfixOnly = ['°'];
+var postfixOnly = ['°', ':=_'];
 var flexfix = [';', ','];
 
 var operatorSymbols = [];
@@ -446,6 +446,14 @@ function parseRec(tokens, closing) {
         switch (tok.toktype) {
             case 'OP':
                 var op = operators[tok.text];
+                if (op.sym === '_' &&
+                    seq.length && !(seq.length & 1) && // preceding op
+                    seq[seq.length - 1].toktype === 'OP' && // 
+                    seq[seq.length - 1].op.sym === ':=') {
+                    seq.pop();
+                    op = operators[':=_'];
+                    tok.text = op.sym;
+                }
                 tok.op = op;
                 tok.precedence = op.precedence;
                 if (!(seq.length & 1)) seq.push(null);

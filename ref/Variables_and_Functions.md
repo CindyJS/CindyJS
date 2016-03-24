@@ -54,6 +54,51 @@ Since functions are not explicitly typed, it is also possible to pass more compl
 The function is automatically as polymorphic as possible, restricted only by the generality of the operations used in the function.
 For instance, `mean([3,4],[2,7],[4,7])` evaluates to `[3,6]`.
 
+### Redefining functions
+
+It is possible to arbitrarily re-define any function.
+
+    > f(x) := x + 1; f(3)
+    < 4
+    > f(x) := 3 * x; f(3)
+    < 9
+
+Redefinitions take arity into account,
+so multiple definitions which differ in the number of arguments
+can co-exist simultaneously.
+
+    > f(x, y) := x + y; f(3, 4)
+    < 7
+    > f(7)
+    < 21
+
+Even built-in functions may be re-defined.
+
+    > repeat(2, 3)
+    < 3
+    > repeat(x, y) := [x, y, x, y]; repeat(2, 3)
+    < [2, 3, 2, 3]
+
+### Undefining functions: `‹fun›(‹args…›) := _`
+
+It is possible to undefine a function explicitely.
+
+    > f(z):=_;
+    > f(7)
+    * Called undefined function f (as f$1)
+    < ___
+
+Again this only affects a single arity.
+
+    > f(1, 2)
+    < 3
+
+Undefining a built-in function restores its built-in definition.
+
+    - CindyScript >=2016: see Cinderella bug #144
+    > repeat(a, b) := _; repeat(2, 3)
+    < 3
+
 ### Recursive Functions
 
 Functions may also be defined recursively.

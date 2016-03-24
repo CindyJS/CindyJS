@@ -547,6 +547,17 @@ function infix_define(args, modifs) {
 }
 
 
+function postfix_undefine(args, modifs) {
+    if (args[1].ctype !== 'void') {
+        return nada;
+    }
+    if (args[0].ctype === 'function') {
+        delete myfunctions[args[0].oper];
+    }
+    return nada;
+}
+
+
 evaluator.if$2 = function(args, modifs) { //OK
     return evaluator.if$3(args, modifs);
 };

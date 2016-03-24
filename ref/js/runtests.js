@@ -389,7 +389,7 @@ module.exports.collectJSON = function(files) {
 
 module.exports.writeJSON = function(outname, files) {
   var json = module.exports.collectJSON(files);
-  json = JSON.stringify(json, null, 2);
+  json = JSON.stringify(json, null, 2) + "\n";
   fs.writeFileSync(outname, json);
 };
 
