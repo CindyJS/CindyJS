@@ -341,9 +341,9 @@ CindyJS knows about the following operators, in order of precedence:
    [`~~`](Elementary_List_Operations.md#$7eu$7eu),
    [`:>`](Elementary_List_Operations.md#$3au$3eu)
 1. [`=`](Variables_and_Functions.md#defining-variables),
-   [`:=`](Variables_and_Functions.md#defining-functions),
+   [`:=`](Variables_and_Functions.html#_$28u_$29u$3au$3du_),
    [`::=`](Variables_and_Functions.md#binding-variables-to-functions),
-   `:=_` *(not documented)*,
+   [`:=_`](Variables_and_Functions.html#_$28u_$29u$3au$3du$5cu$24u5fu)
    [`->`](General_Concepts.md#modifiers)
 1. [`;`](General_Concepts.md#control-flow)
 

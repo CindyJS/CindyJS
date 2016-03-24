@@ -72,7 +72,7 @@ MyRenderer.prototype.heading = function(text, level, raw) {
   var re, match, cur, arity;
   re = /`([^`]*)`/g;
   while (match = re.exec(raw)) {
-    cur = match[0];
+    cur = match[1];
     if (match = /(\w+)\(([^)]*)\)/.exec(cur)) {
       // normal named functions
       arity = 0;
