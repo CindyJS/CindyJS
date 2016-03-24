@@ -175,14 +175,34 @@ If `x` is not already being used, the statement
 
 creates the variable `x` and assigns the value `7` to it.
 After a variable has been assigned, its value is accessible for the rest of the execution.
-Values may also be partially overloaded by local variables of a function.
+Values may also be temporarily overwritten by local variables of a function.
 Thus in a function defined by
 
     > f(x,y):=x+y;
 
 the values of `x` and `y` are the local parameters of the function.
 After the execution of the function is completed, the original value of `x` is restored.
-One can also produce additional local variables with the `regional(...)` operator.
+
+CindyScript employs dynamic scoping, not lexical scoping.
+So a function argument will overwrite a global variable of the same name
+even for code outside the body of the function.
+
+    > a = 10;
+    > f(x) := a * x;
+    > g(a) := f(2) + a;
+    > g(3)
+    < 9
+    > a
+    < 10
+
+One can also produce additional local variables with the [`regional(…)`](Control_Operators.md#regional$3) operator.
+This uses dynamic scoping, too.
+
+    > g(x) := (regional(a); a = x + 1; f(2) + a);
+    > g(3)
+    < 12
+    > a
+    < 10
 
 ### Access to Geometric Elements and Their Properties
 

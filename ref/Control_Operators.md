@@ -381,7 +381,7 @@ This code fragment produces the output
 
 ------
 
-#### Creating many local variables for a function: `regional(name1,name2,...)`
+#### Creating many local variables for a function: `regional(‹name1›,‹name2›,…)`
 
 **Description:**
 This statement can be used at the beginning of a function.
