@@ -653,6 +653,7 @@ Parser.prototype.postprocess = function(expr) {
                 expr.ctype = 'field';
                 expr.obj = expr.args[0];
                 expr.key = expr.args[1].name;
+                delete expr.args;
             }
             if (this.infixmap)
                 expr.impl = this.infixmap[expr.oper];
