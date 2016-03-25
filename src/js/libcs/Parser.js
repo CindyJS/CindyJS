@@ -583,7 +583,7 @@ function parseRec(tokens, closing) {
                             args.push(elt);
                         }
                     }
-                    fname.oper = fname.name + '$' + fname.args.length;
+                    fname.oper = fname.name.toLowerCase() + '$' + fname.args.length;
                 }
                 break;
             case 'EOF':

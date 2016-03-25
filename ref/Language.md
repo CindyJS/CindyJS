@@ -53,7 +53,7 @@ where newline has the effect of terminating the comment.
 The space and horizontal tab characters may also occur *within*
 certain lexical tokens, namely within
 [numeric literals](#numeric-literals) and
-[identifiers](#identifiers).
+[identifiers](#identifier-names).
 If such whitespace characters are encountered in one of these tokens,
 they are stripped before further processing occurs,
 so they are not part of the semantic content of the token.
@@ -214,6 +214,13 @@ Contrary to many other programming languages,
 the [underscore `_` is an operator](Lists_and_Linear_Algebra.md#$5fu)
 and may not be used as part of an identifier name.
 Spaces may be used instead to separate words, as described [above](#whitespace).
+
+Function names are case insensitive.
+
+    > forAll(1..3, println(#))
+    * 1
+    * 2
+    * 3
 
 ### Operators and Brackets
 
