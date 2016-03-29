@@ -1,16 +1,18 @@
 "use strict";
 
 exports.libcs = [
-    "src/js/libcs/Namespace.js",
-    "src/js/libcs/Accessors.js",
     "src/js/libcs/CSNumber.js",
     "src/js/libcs/List.js",
-    "src/js/libcs/Essentials.js",
     "src/js/libcs/General.js",
+    "src/js/libcs/Essentials.js",
+    "src/js/libcs/Namespace.js",
+    "build/js/Compiled.js",
+    "src/js/libcs/Accessors.js",
     "src/js/libcs/Operators.js",
     "src/js/libcs/OpDrawing.js",
     "src/js/libcs/OpImageDrawing.js",
     "src/js/libcs/Parser.js",
+    "src/js/libcs/Evaluator.js",
     "src/js/libcs/OpSound.js",
     "src/js/libcs/CSad.js",
     "src/js/libcs/Render2D.js",
@@ -35,6 +37,10 @@ exports.liblab = [
 
 exports.lib = [
     "lib/clipper/clipper.js",
+];
+
+exports.cssrc = [
+    "src/cs/drawgrid.cs",
 ];
 
 exports.inclosure = [

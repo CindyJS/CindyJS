@@ -133,6 +133,10 @@ var createCindy = (function() {
                 return null;
             };
 
+            var nada = {
+                ctype: 'undefined'
+            };
+
             createCindy.waitFor = waitFor;
             createCindy._pluginRegistry = {};
             createCindy.instances = [];

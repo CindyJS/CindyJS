@@ -3,6 +3,7 @@
 var glob = require("glob");
 var path = require("path");
 var Q = require("q");
+var qfs = require("q-io/fs");
 
 var getversion = require("./getversion");
 var src = require("./sources");
@@ -39,17 +40,29 @@ module.exports = function build(settings, task) {
 
     var version = getversion.factory("build/js/Version.js", "var version");
 
-    task("plain", [], function() {
+    task("cs2js", [], function() {
+        this.input("tools/cs2js.js");
+        var cssrc = this.input(src.cssrc);
+        var dst = this.output("build/js/Compiled.js");
+        this.addJob(function() {
+            return require("../tools/cs2js").compileFiles(cssrc)
+                .then(function(jscode) {
+                    return qfs.write(dst, jscode);
+                });
+        });
+    });
+
+    task("plain", ["cs2js"], function() {
         version(this);
         this.concat(src.srcs, "build/js/Cindy.plain.js");
     });
 
-    task("ours", [], function() {
+    task("ours", ["cs2js"], function() {
         version(this);
         this.concat(src.ours, "build/js/ours.js");
     });
 
-    task("exposed", [], function() {
+    task("exposed", ["cs2js"], function() {
         version(this);
         this.concat(
             src.lib.concat("src/js/expose.js", src.inclosure),

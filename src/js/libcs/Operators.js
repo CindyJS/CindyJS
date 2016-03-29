@@ -428,14 +428,7 @@ evaluator.regional = function(args, modifs) { //VARIADIC!
 
 
 evaluator.genList = function(args, modifs) { //VARIADIC!
-    var erg = [];
-    for (var i = 0; i < args.length; i++) {
-        erg[i] = evaluate(args[i]);
-    }
-    return {
-        'ctype': 'list',
-        'value': erg
-    };
+    return List.turnIntoCSList(args.map(evaluate));
 };
 
 
@@ -546,7 +539,21 @@ function infix_define(args, modifs) {
             'arglist': ar
         };
     }
+    if (args[0].ctype === 'variable') {
+        namespace.setvar(args[0].name, args[1]);
+    }
 
+    return nada;
+}
+
+
+function postfix_undefine(args, modifs) {
+    if (args[1].ctype !== 'void') {
+        return nada;
+    }
+    if (args[0].ctype === 'function') {
+        delete myfunctions[args[0].oper];
+    }
     return nada;
 }
 
@@ -702,10 +709,9 @@ evaluator.not$1 = function(args, modifs) {
 };
 
 function prefix_not(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
 
-    if (v0.ctype === 'void' && v1.ctype === 'boolean') {
+    if (args[0].ctype === 'void' && v1.ctype === 'boolean') {
         return {
             'ctype': 'boolean',
             'value': (!v1.value)
@@ -718,9 +724,8 @@ function prefix_not(args, modifs) {
 
 function postfix_numb_degree(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
 
-    if (v0.ctype === 'number' && v1.ctype === 'void') {
+    if (v0.ctype === 'number' && args[1].ctype === 'void') {
         return General.withUsage(CSNumber.realmult(Math.PI / 180, v0), "Angle");
     }
 
@@ -949,7 +954,9 @@ evaluator.min$2 = function(args, modifs) {
 evaluator.add$2 = infix_add;
 
 function infix_add(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    var v0 = args[0];
+    if (v0.ctype !== "void")
+        v0 = evaluateAndVal(v0);
     var v1 = evaluateAndVal(args[1]);
     var erg = General.add(v0, v1);
     if (v0.usage === "Angle" && v1.usage === "Angle")
@@ -960,7 +967,9 @@ function infix_add(args, modifs) {
 evaluator.sub$2 = infix_sub;
 
 function infix_sub(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    var v0 = args[0];
+    if (v0.ctype !== "void")
+        v0 = evaluateAndVal(v0);
     var v1 = evaluateAndVal(args[1]);
     var erg = General.sub(v0, v1);
     if (v0.usage === "Angle" && v1.usage === "Angle")
@@ -1053,6 +1062,12 @@ evaluator.sqrt$1 = function(args, modifs) {
     }
     return nada;
 };
+
+function infix_sqrt(args, modifs) {
+    if (args[0].ctype === 'void')
+        return evaluator.sqrt$1([args[1]], modifs);
+    return nada;
+}
 
 eval_helper.laguerre = function(cs, x, maxiter) {
     if (cs.ctype !== 'list')
@@ -1741,7 +1756,9 @@ evaluator.gauss$1 = function(args, modifs) {
 };
 
 
-evaluator.cross$2 = function(args, modifs) {
+evaluator.cross$2 = infix_cross;
+
+function infix_cross(args, modifs) {
     var v0 = evaluateAndHomog(args[0]);
     var v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
@@ -1755,7 +1772,7 @@ evaluator.cross$2 = function(args, modifs) {
         return erg;
     }
     return nada;
-};
+}
 
 evaluator.crossratio$4 = function(args, modifs) {
     var a0 = evaluate(args[0]);
@@ -2482,6 +2499,24 @@ evaluator.contains$2 = function(args, modifs) {
     return nada;
 };
 
+function infix_in(args, modifs) {
+    var v0 = evaluate(args[0]);
+    var v1 = evaluate(args[1]);
+    if (v1.ctype === 'list') {
+        return List.contains(v1, v0);
+    }
+    return nada;
+}
+
+function infix_nin(args, modifs) {
+    var v0 = evaluate(args[0]);
+    var v1 = evaluate(args[1]);
+    if (v1.ctype === 'list') {
+        return General.not(List.contains(v1, v0));
+    }
+    return nada;
+}
+
 evaluator.sort$2 = function(args, modifs) {
     return evaluator.sort$3([args[0], null, args[1]], modifs);
 };
@@ -3195,7 +3230,7 @@ evaluator.indexof$3 = function(args, modifs) {
 evaluator.parse$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     if (v0.ctype === 'string') {
-        var code = condense(v0.value);
+        var code = v0.value;
         var prog = analyse(code);
         return evaluate(prog);
     }

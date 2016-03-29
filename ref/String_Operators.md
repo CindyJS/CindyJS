@@ -118,12 +118,13 @@ that represents the subdivision of `‹string›` recursively by the tokens in t
 This can lead to information loss.
 In the Java version, the conversion looks like this:
 
-    - skip test: this is only for comparison with the Java version
+    - only Cinderella
     > tokenize("77777777777777777",":")
     < [77777777777777776]
 
 In JavaScript, however, the [rounding rules of ECMAScript](http://www.ecma-international.org/ecma-262/5.1/#sec-9.3.1) force trailing zeros instead:
 
+    - only CindyJS
     > tokenize("77777777777777777",":")
     < [77777777777777780]
 
@@ -313,5 +314,7 @@ These two forms can be combined, both for reading and for writing.
     > a_1_5="erella";
     > a
     < ["Cinderella", "Script"]
+
+    - only CindyJS: known Cinderella bug #83
     > b
     < "Cindy"

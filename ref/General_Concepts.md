@@ -10,6 +10,7 @@ Many calculations can already be expressed using only elementary functions.
 Thus the code fragment
 
     > sum(1..10)
+    < 55
 
 calculates the sum of the first 10 integers.
 Here `..` is a function that takes two integer numbers, `a` and `b`, and generates as output the list of all integers from `a` to `b`.
@@ -21,14 +22,19 @@ Thus if we type `sum(1..10)` into the command shell, the system will respond wit
 Moreover, seemingly procedural statements, such as an `if`-statement, are realized as functions.
 For instance, the expression
 
-    > if(x~60~y,print("Mine"),print("Yours"))
+    > x = 33; y = 7;
+    > if(x < y, print("Mine"), print("Yours"))
+    * Yours
 
 demonstrates the function `if`, which takes three arguments.
-It checks the condition of its first argument `x‹y` and depending on the result, evaluates the second or the third argument, that is, either `print("Mine")` or `print("Yours"))`.
+It checks the condition of its first argument `x < y`
+and depending on the result, evaluates the second or the third argument,
+that is, either `print("Mine")` or `print("Yours"))`.
 The result of this evaluation will be the result of the `if(_,_,_)` function.
 Thus the above expression is equivalent to
 
-    > print(if(x~60~y,"Mine","Yours"))
+    > print(if(x < y, "Mine", "Yours"))
+    * Yours
 
 Depending on the evaluation of the condition, the `if` function returns the value of the second argument or the third argument.
 
@@ -52,12 +58,13 @@ A [CindyScript](CindyScript.md) statement can create and define a function that 
 
 For instance, the statement
 
-    > draw([0,0])
+    > draw([0,0]);
 
 produces the side effect of drawing a point at position `(0,0)`.
 The statement
 
-    > A.color=[1,1,1]
+    - skip test: no geometry available here
+    > A.color=[1,1,1];
 
 sets the color of point *A* to *white*.
 
@@ -66,14 +73,29 @@ sets the color of point *A* to *white*.
 Most users are probably accustomed to sequential programming languages like C, Java, Pascal, and Basic.
 In practice, writing sequential code in [CindyScript](CindyScript.md) is not so different from writing code in these languages.
 [CindyScript](CindyScript.md) has a `;` operator `‹statement1›;‹statement2›` that simply first evaluates `statement1` and then `statement2`.
-The return value of the `;` operator is the result of the last statement.
+The return value of the `;` operator is the result of the last non-empty statement.
+
+    > 5; 7
+    < 7
+    > ;2
+    < 2
+    > 3;
+    < 3
+    > ;
+    < ___
+    > 2;;
+    < 2
+    > 2;(;)
+    < ___
+
+
 Writing a sequential program is relatively simple, and it looks similar to a program written in a sequential language.
 For instance, the program
 
     > repeat(9,i,
     >    j=i*i;
     >    draw([i,j]);
-    > )
+    > );
 
 creates nine points on a parabola.
 The function `repeat(‹number›, ‹variable›, ‹program›)` creates a loop that performs `‹number›` runs.
@@ -98,7 +120,7 @@ When a function tries to evaluate a meaningless expression, the program will not
 Instead, the function will return the value `___`, which stands for a meaningless expression.
 So, in the above example, `f([1,2],[3,4])` will perform a vector addition and evaluate to `[4,5]`, whereas the expression `f(4,[3,4])` is meaningless and evaluates to `___`.
 
-### Local Variables: The # Variable
+### Local Variables: The `#` Variable
 
 There are several loop-like constructions in [CindyScript](CindyScript.md).
 For instance, the operator `select(‹list›,‹condition‹)` traverses all elements of `‹list›` and returns a list of objects that satisfy the condition.
@@ -106,12 +128,22 @@ For this to occur, there must be a way to feed elements that are to be tested to
 By default, [CindyScript](CindyScript.md) uses a variable #, which serves as a handle for the run variable.
 For instance, the statement
 
-    > select(1..30,isodd(#))
+    > select(1..30, isodd(#))
+    < [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
 
 returns a list of all odd numbers between `1` and `30`.
 Moreover, loops use this run variable, and thus
 
-    > repeat(9,print(#))
+    > repeat(9, println(#))
+    * 1
+    * 2
+    * 3
+    * 4
+    * 5
+    * 6
+    * 7
+    * 8
+    * 9
 
 prints all numbers from `1` to `9`.
 It is also possible to use an explicit run variable by providing it as the second argument.
@@ -139,18 +171,38 @@ Since [CindyScript](CindyScript.md) does not have explicit typing for variables,
 A variable is created when it is assigned for the first time.
 If `x` is not already being used, the statement
 
-    > x=7
+    > x=7;
 
 creates the variable `x` and assigns the value `7` to it.
 After a variable has been assigned, its value is accessible for the rest of the execution.
-Values may also be partially overloaded by local variables of a function.
+Values may also be temporarily overwritten by local variables of a function.
 Thus in a function defined by
 
-    > f(x,y):=x+y
+    > f(x,y):=x+y;
 
 the values of `x` and `y` are the local parameters of the function.
 After the execution of the function is completed, the original value of `x` is restored.
-One can also produce additional local variables with the `regional(...)` operator.
+
+CindyScript employs dynamic scoping, not lexical scoping.
+So a function argument will overwrite a global variable of the same name
+even for code outside the body of the function.
+
+    > a = 10;
+    > f(x) := a * x;
+    > g(a) := f(2) + a;
+    > g(3)
+    < 9
+    > a
+    < 10
+
+One can also produce additional local variables with the [`regional(…)`](Control_Operators.md#regional$3) operator.
+This uses dynamic scoping, too.
+
+    > g(x) := (regional(a); a = x + 1; f(2) + a);
+    > g(3)
+    < 12
+    > a
+    < 10
 
 ### Access to Geometric Elements and Their Properties
 
@@ -172,21 +224,23 @@ However, it may be necessary to modify the default behavior.
 To that end, one lists corresponding modifiers in the call of the operator.
 For instance, the statement
 
-    > draw([0,0])
+    > draw([0,0]);
 
 draws a point at position `(0,0)`.
 By default, the point is green and of size 3.
 The statement
 
-    > draw([0,0],size->15,color->[1,1,0])
+    > draw([0,0],size->15,color->[1,1,0]);
 
 draws a yellow point of size 15.
 Modifiers have to be separated by commas.
 They may occur in any order and at any position of the function call.
 
-### Lists/Vectors/Matrices
+    - CindyScript >=2016
+    > a = []; repeat(3, start->4; 5, a = a ++ [#]); a
+    < [5, 6, 7]
 
-` `
+### Lists/Vectors/Matrices
 
 [CindyScript](CindyScript.md) offers *lists* as elementary data types.
 Lists are the fundamental paradigm that is used to define more complex data structures.
@@ -216,17 +270,11 @@ The [script window of Cinderella](The_CindyScript_Editor.md) in which one enters
 The particular slots are called
 
 *  Draw
-
 *  Move
-
 *  Initialization
-
 *  Timer Tick
-
 *  Simulation Start
-
 *  Simulation Stop
-
 *  …
 
 Each of these entries corresponds to the occasion that triggers the execution of the script.
@@ -236,8 +284,6 @@ The *Initialization* slot is executed directly after the [CindyScript](CindyScri
 Using this mechanism it is possible to write programs that react nicely to user events.
 
 ### Runtime Error handling
-
-` `
 
 [CindyScript](CindyScript.md) runs in a runtime environment.
 In principle, every tiny move in a construction can cause the evaluation of a script.

@@ -57,14 +57,23 @@ This operator returns either `true` or `false` depending on whether `‹list›`
     > contains([1,3,4,5],2*2)
     < true
 
+    - CindyScript >=2016
+    > 4 ∈ [1,3,4,5]
+    < true
+    > 7 ∈ [1,3,4,5]
+    < false
+    > 4 ∉ [1,3,4,5]
+    < false
+    > 7 ∉ [1,3,4,5]
+    < true
+
 ------
 
 ------
 
 ###  List Manipulation
 
-#### Concatenation of lists: `‹list1› ++ ‹list2›`
-#### Concatenation of lists function: `concat(‹list1›,‹list2›)`
+#### Concatenation of lists: `‹list1› ++ ‹list2›`, `‹list1› ∪ ‹list2›` or `concat(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list by concatenation of two other lists.
@@ -74,11 +83,11 @@ This operator creates a list by concatenation of two other lists.
 
 ------
 
-#### Removing elements from lists: `‹list1› -- ‹list2›`
-#### Removing elements from lists function: `remove(‹list1›,‹list2›)`
+#### Removing elements from lists: `‹list1› -- ‹list2›`, `‹list1› ∖ ‹list2›` or `remove(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list by removing all elements that occur in `‹list2›` from `‹list1›`.
+Note that `∖` is not a plain backslash, but the Unicode symbol ‘set minus’.
 
     > remove([1,3,4,5,1,5,6], [1,3,7])
     < [4, 5, 5, 6]
@@ -87,13 +96,11 @@ This operator creates a list by removing all elements that occur in `‹list2›
 
 ------
 
-#### Intersection of lists: `‹list1› ~~ ‹list2›`
-#### Intersection of lists function: `common(‹list1›,‹list2›)`
+#### Intersection of lists: `‹list1› ~~ ‹list2›`, `‹list1› ∩ ‹list2›` or `common(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list collecting all elements that are in both `‹list1›` and `‹list1›`.
 In the returned list the elements are sorted and each element occurs at most once.
-This operator can equivalently be written as `‹list1›~~‹list2›`.
 
     > common([1,3,4,5,1,5,6], [1,3,7])
     < [1, 3]
@@ -102,8 +109,7 @@ This operator can equivalently be written as `‹list1›~~‹list2›`.
 
 ------
 
-#### Appending an element: `‹list› :> ‹expr›`
-#### Appending an element function: `append(‹list›,‹expr›)`
+#### Appending an element: `‹list› :> ‹expr›` or `append(‹list›,‹expr›)`
 
 **Description:**
 This operator returns a list that is created by appending `‹expr›` to the list `‹list›` as its last element.
@@ -115,8 +121,7 @@ This operator returns a list that is created by appending `‹expr›` to the li
 
 ------
 
-#### Prepending an element: `‹expr› <: ‹list›`
-#### Prepending an element function: `prepend(‹expr›,‹list›)`
+#### Prepending an element: `‹expr› <: ‹list›` or `prepend(‹expr›,‹list›)`
 
 **Description:**
 This operator returns a list that is created by prepending `‹expr›` to the list `‹list›` as its first element.

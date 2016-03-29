@@ -1,0 +1,183 @@
+//****************************************************************
+// this function is responsible for evaluation an expression tree
+//****************************************************************
+
+function evaluate(a) {
+
+    if (typeof a === 'undefined') {
+        return nada;
+    }
+
+    if (a.ctype === 'infix') {
+        return a.impl(a.args, {});
+    }
+    if (a.ctype === 'variable') {
+        return evaluate(namespace.getvar(a.name));
+        //  return a.value[0];
+    }
+    if (a.ctype === 'void') {
+        return nada;
+    }
+    if (a.ctype === 'geo') {
+        return a;
+    }
+    if (a.ctype === 'number') {
+        return a;
+    }
+    if (a.ctype === 'boolean') {
+        return a;
+    }
+    if (a.ctype === 'string') {
+        return a;
+    }
+    if (a.ctype === 'list') {
+        return a;
+    }
+    if (a.ctype === 'undefined') {
+        return a;
+    }
+    if (a.ctype === 'shape') {
+        return a;
+    }
+    if (a.ctype === 'error') {
+        return a;
+    }
+
+    if (a.ctype === 'field') {
+
+        var obj = evaluate(a.obj);
+
+        if (obj.ctype === "geo") {
+            return Accessor.getField(obj.value, a.key);
+        }
+        if (obj.ctype === "list") {
+            return List.getField(obj, a.key);
+        }
+        return nada;
+    }
+
+    if (a.ctype === 'function') {
+        var eargs = [];
+        return eval_helper.evaluate(a.oper, a.args, a.modifs);
+    }
+    return nada;
+
+}
+
+
+function evaluateAndVal(a) {
+
+
+    var x = evaluate(a);
+    if (x.ctype === 'geo') {
+        var val = x.value;
+        if (val.kind === "P") {
+            return Accessor.getField(val, "xy");
+        }
+
+    }
+    return x; //TODO Implement this
+}
+
+function evaluateAndHomog(a) {
+    var x = evaluate(a);
+    if (x.ctype === 'geo') {
+        var val = x.value;
+        if (val.kind === "P") {
+            return Accessor.getField(val, "homog");
+        }
+        if (val.kind === "L") {
+            return Accessor.getField(val, "homog");
+        }
+
+    }
+    if (List._helper.isNumberVecN(x, 3)) {
+        return x;
+    }
+
+    if (List._helper.isNumberVecN(x, 2)) {
+        var y = List.turnIntoCSList([
+            x.value[0], x.value[1], CSNumber.real(1)
+        ]);
+        if (x.usage)
+            y = General.withUsage(y, x.usage);
+        return y;
+    }
+
+    return nada;
+}
+
+
+//*******************************************************
+// this function shows an expression tree on the console
+//*******************************************************
+
+function report(a, i) {
+    var prep = new Array(i + 1).join('.'),
+        els, j;
+    if (a.ctype === 'infix') {
+        console.log(prep + "INFIX: " + a.oper);
+        console.log(prep + "ARG 1 ");
+        report(a.args[0], i + 1);
+        console.log(prep + "ARG 2 ");
+        report(a.args[1], i + 1);
+    }
+    if (a.ctype === 'number') {
+        console.log(prep + "NUMBER: " + CSNumber.niceprint(a));
+    }
+    if (a.ctype === 'variable') {
+        console.log(prep + "VARIABLE: " + a.name);
+    }
+    if (a.ctype === 'undefined') {
+        console.log(prep + "UNDEF");
+    }
+    if (a.ctype === 'void') {
+        console.log(prep + "VOID");
+    }
+    if (a.ctype === 'string') {
+        console.log(prep + "STRING: " + a.value);
+    }
+    if (a.ctype === 'shape') {
+        console.log(prep + "SHAPE: " + a.type);
+    }
+    if (a.ctype === 'modifier') {
+        console.log(prep + "MODIF: " + a.key);
+    }
+    if (a.ctype === 'list') {
+        console.log(prep + "LIST ");
+        els = a.value;
+        for (j = 0; j < els.length; j++) {
+            console.log(prep + "EL" + j);
+            report(els[j], i + 1);
+        }
+    }
+    if (a.ctype === 'function') {
+        console.log(prep + "FUNCTION: " + a.oper);
+        els = a.args;
+        for (j = 0; j < els.length; j++) {
+            console.log(prep + "ARG" + j);
+            report(els[j], i + 1);
+        }
+        els = a.modifs;
+        for (var name in els) {
+            console.log(prep + "MODIF:" + name);
+            report(els[name], i + 1);
+        }
+    }
+    if (a.ctype === 'error') {
+        console.log(prep + "ERROR: " + a.message);
+    }
+
+}
+
+var usedFunctions = {};
+
+function analyse(code) {
+    var parser = new Parser();
+    parser.usedFunctions = usedFunctions;
+    parser.infixmap = infixmap;
+    var res = parser.parse(code);
+    for (var name in parser.usedVariables)
+        namespace.create(name);
+    return res;
+}

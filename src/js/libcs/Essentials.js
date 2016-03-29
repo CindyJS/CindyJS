@@ -2,54 +2,15 @@
 
 var myfunctions = {};
 
-var operators = {};
-operators[':'] = 20; // Access to user-defined fields
-operators['.'] = 25; // Field access
-operators['°'] = 25; // Degree
-operators['_'] = 50; // x_i means i-th element of x
-operators['^'] = 50; // power
-operators['*'] = 100; // multiplication (also for vectors and matrices)
-operators['/'] = 100; // division (also vectoren divided by scalar)
-operators['+'] = 200; // addition (also for vectors and matrices)
-operators['-'] = 200; // subtraction (also for vectors and matrices)
-operators['!'] = 200; // logical not (unary)
-operators['=='] = 300; // equal
-operators['~='] = 300; // approximately equal
-operators['~<'] = 300; // approximately less
-operators['~>'] = 300; // approximately greater
-operators['=:='] = 300; // equals after evaluation
-operators['>='] = 300; // greater or equal
-operators['<='] = 300; // less or equal
-operators['~>='] = 300; // approximately greater or equal
-operators['~<='] = 300; // approximately less or equal
-operators['>'] = 300; // greater
-operators['<'] = 300; // less
-operators['<>'] = 300; // not equal
-operators['&'] = 350; // logical and
-operators['%'] = 350; // logical or
-operators['!='] = 350; // not equal
-operators['~!='] = 350; // approximately not equal
-operators['..'] = 350; // sequence
-operators['++'] = 370; // concatenation of lists, union of shapes
-operators['--'] = 370; // list or shape difference
-operators['~~'] = 370; // list or shape intersection
-operators[':>'] = 370; // append element to list
-operators['<:'] = 370; // prepend element to list
-operators['='] = 400; // assignment
-operators[':='] = 400; // function definition
-operators[':=_'] = 400; // function undefinition
-operators['::='] = 400; // binding function definition
-operators['->'] = 400; // modifier
-operators[';'] = 500; // sequence of statements
-//operators[','] = 510 is the list element separator, handled in parselist
-
 var infixmap = {};
 infixmap[':'] = operator_not_implemented(':');
 // infixmap['.'] not needed thanks to definitionDot special handling
 infixmap['°'] = postfix_numb_degree;
 infixmap['_'] = infix_take;
 infixmap['^'] = infix_pow;
+infixmap['√'] = infix_sqrt;
 infixmap['*'] = infix_mult;
+infixmap['×'] = infix_cross;
 infixmap['/'] = infix_div;
 infixmap['+'] = infix_add;
 infixmap['-'] = infix_sub;
@@ -66,6 +27,8 @@ infixmap['~<='] = comp_ule;
 infixmap['>'] = comp_gt;
 infixmap['<'] = comp_lt;
 infixmap['<>'] = comp_notequals;
+infixmap['∈'] = infix_in;
+infixmap['∉'] = infix_nin;
 infixmap['&'] = infix_and;
 infixmap['%'] = infix_or;
 infixmap['!='] = comp_notequals;
@@ -78,7 +41,7 @@ infixmap[':>'] = infix_append;
 infixmap['<:'] = infix_prepend;
 infixmap['='] = infix_assign;
 infixmap[':='] = infix_define;
-infixmap[':=_'] = operator_not_implemented(':=_');
+infixmap[':=_'] = postfix_undefine;
 infixmap['::='] = operator_not_implemented('::=');
 // infixmap['->'] not needed thanks to modifierOp special handling
 infixmap[';'] = infix_semicolon;
@@ -103,6 +66,9 @@ function operator_not_implemented(name) {
 function niceprint(a) {
     if (typeof a === 'undefined') {
         return '_??_';
+    }
+    if (a === null) {
+        return '_???_';
     }
     if (a.ctype === 'undefined') {
         return '___';
@@ -145,8 +111,7 @@ function niceprint(a) {
         return "Error: " + a.message;
     }
     if (a.ctype === 'variable') {
-        console.log("HALLO");
-        return niceprint(a.stack[length.stack]);
+        return niceprint(namespace.getvar(a.name));
     }
 
     if (a.ctype === 'geo') {

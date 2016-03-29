@@ -19,15 +19,16 @@ function runAllTests(files) {
         files.push(path.join(refdir, filename));
     });
   }
+  files.sort();
   files.forEach(runTestFile);
   if (exportJSON) {
     println(numtests + " tests extracted");
   } else if (failures === 0) {
     println("All " + numtests + " tests passed");
-    process.exit(0);
+    process.once('beforeExit', function() { process.exit(0); });
   } else {
     println(failures + " of " + numtests + " tests failed");
-    process.exit(1);
+    process.once('beforeExit', function() { process.exit(1); });
   }
 }
 
@@ -56,6 +57,7 @@ function runTestFile(filename) {
         return;
       }
     }
+    var pragmas = [];
     for (i = 0; i < n; ++i) {
       line = lines[i];
       var mark = line.substr(4, 2), rest = line.substr(6);
@@ -65,11 +67,16 @@ function runTestFile(filename) {
         } else {
           curcase = new TestCase(rest, filename, lineno + i);
           cases.push(curcase);
+          if (pragmas.length)
+            curcase.pragma = pragmas.slice();
           ininput = true;
         }
         continue;
-      } else if (mark === "- " && rest.substr(0, 4) == "skip") {
-        break;
+      } else if (mark === "- ") {
+        if (rest.substr(0, 4) == "skip") {
+          break;
+        }
+        pragmas.push(rest);
       } else if (mark === "< ") {
         curcase.expectResult(rest);
         anythingToCheck = true;
@@ -121,6 +128,7 @@ TestCase.prototype.pattern = null;
 TestCase.prototype.output = null;
 TestCase.prototype.draw = null;
 TestCase.prototype.exception = null;
+TestCase.prototype.pragma = null;
 
 TestCase.prototype.expectResult = function(str) {
   if (this.expected !== null)
@@ -191,12 +199,23 @@ function sanityCheck(val) {
     break;
   case "undefined":
     break;
+  case "error":
+    throw val;
   default:
     throw Error("Unknown ctype: " + val.ctype);
   }
 };
 
 TestCase.prototype.run = function() {
+  if (this.pragma) {
+    for (var p = 0; p < this.pragma.length; ++p) {
+      if (/^only /.test(this.pragma[p]) &&
+          !(/^only [^:]*CindyJS/).test(this.pragma[p]))
+        return true;
+      if ((/^CindyScript <2016/i).test(this.pragma[p]))
+        return true;
+    }
+  }
   var val, actual, expected, clog = [], matches, expstr;
   var conlog = console.log;
   var conerr = console.error;
@@ -289,6 +308,13 @@ TestCase.prototype.run = function() {
       return false;
     }
   }
+  if (this.exception !== null) {
+    println("Location:  " + this.filename + ":" + this.lineno);
+    println("Input:     > " + this.cmd.replace(/\n/g, "\n           > "));
+    println("Expected:  ! " + this.exception);
+    println("Actual:    No exception encountered");
+    return false;
+  }
   return true;
 };
 
@@ -351,14 +377,31 @@ FakeCanvas.prototype.measureText = function(txt) {
   };
 });
 
-if (process.argv.length >= 3 && /^--exportJSON[=]/.test(process.argv[2])) {
+module.exports.runAllTests = runAllTests;
+
+module.exports.collectJSON = function(files) {
   exportJSON = [];
-  runAllTests(process.argv.slice(3));
+  runAllTests(files || []);
   exportJSON = Array.prototype.concat.apply([], exportJSON);
   exportJSON = exportJSON.map(function(testcase) { return testcase.asJSON(); });
-  exportJSON = JSON.stringify(exportJSON, null, 2);
-  fs.writeFileSync(process.argv[2].replace(/.*?=/, ""), exportJSON);
-  process.exit(0);
+  return exportJSON;
+};
+
+module.exports.writeJSON = function(outname, files) {
+  var json = module.exports.collectJSON(files);
+  json = JSON.stringify(json, null, 2) + "\n";
+  fs.writeFileSync(outname, json);
+};
+
+module.exports.cli = function(argv) {
+  if (!argv) argv = process.argv.slice(2);
+  if (argv.length >= 1 && /^--exportJSON[=]/.test(argv[0])) {
+    module.exports.writeJSON(argv[0].replace(/.*?=/, ""));
+    process.exit(0);
+  }
+  runAllTests(argv);
 }
 
-runAllTests(process.argv.slice(2));
+if (require.main === module) {
+    module.exports.cli();
+}

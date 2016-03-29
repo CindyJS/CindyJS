@@ -33,9 +33,7 @@ function evalcs(a) {
 
 
 function evokeCS(code) {
-    var cscode = condense(code);
-
-    var parsed = analyse(cscode, false);
+    var parsed = analyse(code, false);
     console.log(parsed);
     evaluate(parsed);
     updateCindy();
@@ -84,7 +82,6 @@ function createCindyNow() {
     setupConsole();
 
     csmouse = [100, 100];
-    var cscode;
     var c = null;
     var trafos = data.transform;
     if (data.ports) {
@@ -119,11 +116,6 @@ function createCindyNow() {
             csctx.setLineDash = function() {};
     }
 
-    //Run initialscript
-    cscode = condense(initialscript);
-    var iscr = analyse(cscode, false);
-    evaluate(iscr);
-
     //Setup the scripts
     var scripts = ["move", "keydown",
         "mousedown", "mouseup", "mousedrag",
@@ -154,7 +146,6 @@ function createCindyNow() {
             }
             cscode = cscode.text;
         }
-        cscode = condense(cscode);
         cscode = analyse(cscode, false);
         if (cscode.ctype === "error") {
             console.error(
@@ -169,7 +160,6 @@ function createCindyNow() {
     //Setup canvasstuff
     if (data.grid && data.grid !== 0) {
         csgridsize = data.grid;
-        csgridscript = analyse('#drawgrid(' + csgridsize + ')', false);
     }
     if (data.snap) cssnap = data.snap;
 
@@ -380,26 +370,6 @@ function csstop() {
     }
 }
 
-var initialscript =
-    '           #drawgrid(s):=(' +
-    '              regional(b,xmin,xmax,ymin,ymax,nx,ny);' +
-    '              b=screenbounds();' +
-    '              xmin=b_4_1-s;' +
-    '              xmax=b_2_1+s;' +
-    '              ymin=b_4_2-s;' +
-    '              ymax=b_2_2+s;' +
-    '              nx=round((xmax-xmin)/s);' +
-    '              ny=round((ymax-ymin)/s);' +
-    '              xmin=floor(xmin/s)*s;' +
-    '              ymin=floor(ymin/s)*s;' +
-    '              repeat(nx,x,' +
-    '                 draw((xmin+x*s,ymin),(xmin+x*s,ymax),color->(1,1,1)*.9,size->1);' +
-    '              );' +
-    '              repeat(ny,y,' +
-    '                 draw((xmin,ymin+y*s),(xmax,ymin+y*s),color->(1,1,1)*.9,size->1);' +
-    '              ) ' +
-    '           );';
-
 var shutdownHooks = [];
 var isShutDown = false;
 
@@ -440,7 +410,10 @@ var globalInstance = {
     "pause": cspause,
     "stop": csstop,
     "evalcs": function(code) {
-        return evaluate(analyse(condense(code), false));
+        return evaluate(analyse(code, false));
+    },
+    "parse": function(code) {
+        return analyse(code);
     },
     "niceprint": niceprint,
     "canvas": null, // will be set during startup

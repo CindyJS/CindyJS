@@ -2476,6 +2476,12 @@ geoMacros.CircleMFixedr = function(el) {
     return [el];
 };
 
+geoMacros.CircleByFixedRadius = function(el) {
+    el.pinned = true;
+    el.type = "CircleMr";
+    return [el];
+};
+
 geoMacros.CircleByRadius = function(el) {
     el.type = "CircleMr";
     return [el];
