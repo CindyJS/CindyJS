@@ -79,7 +79,7 @@ The calibrated data is a vector of unit length that represents the orientation o
 
 Cinderella can be used to export interactive worksheets to an html page.
 Very often it is desirable not only to export an interactive construction but also a set of construction tools along with it (like buttons for constructing points, lines or circles).
-By using the following set of [CindyScript](CindyScript.md) operations it is easily possible to create (and remove) custom toolbars that reside within an applet window.
+By using the following set of CindyScript operations it is easily possible to create (and remove) custom toolbars that reside within an applet window.
 
 Toolbars are in particular important for creating interactive student exercises.
 An example for this is given in [Interactive Exercises](Interactive_Exercises.md).
