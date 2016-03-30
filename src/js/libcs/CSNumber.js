@@ -444,27 +444,11 @@ CSNumber.powRealExponent = function(a, b) {
 CSNumber.log = function(a) {
     var re = a.value.real;
     var im = a.value.imag;
-    var s = Math.sqrt(re * re + im * im);
-    var i = im;
-
-
-    var imag = Math.atan2(im, re);
-    if (i < 0) {
-        imag += (2 * Math.PI);
-    }
-    if (i === 0 && re < 0) {
-        imag = Math.PI;
-    }
-    if (imag > Math.PI) {
-        imag -= (2 * Math.PI);
-    }
-    var real = Math.log(s);
-
     return CSNumber.snap({
         "ctype": "number",
         "value": {
-            'real': real,
-            'imag': imag
+            'real': Math.log(Math.sqrt(re * re + im * im)),
+            'imag': Math.atan2(im, re)
         }
     });
 };
