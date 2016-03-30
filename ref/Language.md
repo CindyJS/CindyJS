@@ -752,6 +752,7 @@ powerNoBars
     ;
 indexed
     : atom
+    | functionCall
     | indexed OP_KEY atom
     | indexed OP_FIELD IDENTIFIER
     | indexed OP_TAKE atom
@@ -760,6 +761,7 @@ indexed
     ;
 indexedNoBars
     : atomNoBars
+    | functionCall
     | indexedNoBars OP_KEY atomNoBars
     | indexedNoBars OP_FIELD IDENTIFIER
     | indexedNoBars OP_TAKE atomNoBars
@@ -769,7 +771,6 @@ indexedNoBars
 atom
     : ROUND_OPEN expression ROUND_CLOSE
     | list
-    | functionCall
     | absNormDist
     | number
     | string
@@ -778,7 +779,6 @@ atom
 atomNoBars
     : ROUND_OPEN expression ROUND_CLOSE
     | list
-    | functionCall
     | number
     | string
     | variable
@@ -807,7 +807,6 @@ absNormDist
 functionCall
     : functionName ROUND_OPEN args ROUND_CLOSE
     | functionName SQUARE_OPEN args SQUARE_CLOSE
-    | functionName CURLY_OPEN args CURLY_CLOSE
     ;
 args
     : arg
@@ -827,3 +826,118 @@ string
     : STRING
     ;
 ```
+
+The associated terminals are defined as follows:
+
+```bnf
+OP_KEY: ':';
+OP_FIELD: '.';
+OP_DEG: '°';
+OP_TAKE: '_'; // also used inside := _
+
+OP_POW: '^';
+OP_SQRT: '√';
+
+OP_MUL
+    : '*'
+    | '\u2062' // invisible times
+    | '\u22c5' // ⋅ dot operator
+    | '\u00b7' // · middle dot
+    ;
+OP_CROSS: '×';
+OP_DIV
+    : '/'
+    | '\u00f7' // ÷ division sign
+    | '\u2215' // ∕ division slash
+    | '\u2236' // ∶ ratio
+    ;
+OP_ADD: '+';
+OP_SUB: '-' | '−';
+OP_NEG: '!' | '¬';
+
+OP_SEQ: '..';
+
+OP_EQ: '==' | '≟';
+OP_NE: '!=' | '<>' | '≠';
+OP_LT: '<';
+OP_GT: '>';
+OP_LE: '<=' | '≤' | '≦';
+OP_GE: '>=' | '≥' | '≧';
+OP_AEQ: '~=' | '≈';
+OP_ANE: '~!=' | '≉';
+OP_ALT: '~<' | '⪉';
+OP_AGT: '~>' | '⪊';
+OP_ALE: '~<=' | '⪅';
+OP_AGE: '~>=' | '⪆';
+OP_IN: '∈';
+OP_NIN: '∉';
+
+OP_AND: '&' | '∧';
+OP_OR: '%' | '∨';
+
+OP_PREPEND: '<:';
+
+OP_APPEND: ':>';
+OP_CONCAT: '++' | '∪';
+OP_REMOVE: '--' | '∖';
+OP_COMMON: '~~' | '∩';
+
+OP_ASSIGN: '=';
+OP_DEFINE: ':='; // also used inside := _
+OP_BDEFINE: '::=';
+
+OP_SEMI: ';';
+
+OP_MODIF: '->' | '→';
+
+OP_LIST: ',';
+
+BAR: '|';
+ROUND_OPEN: '(';
+ROUND_CLOSE: ')';
+SQUARE_OPEN: '[';
+SQUARE_CLOSE: ']';
+
+STRING: '"' .*? '"'
+FLOAT
+    : [0-9] (WS [0-9])* (WS [.] (?![.]))? (WS [Ee] (WS [+\-])? (WS [0-9])+)?
+    | ([0-9] WS)* [.] (WS [0-9])+ (WS [Ee] (WS [+\-])? (WS [0-9])+)?
+    ;
+SUBSCRIPT: ([₊₋] WS)? [₀₁₂₃₄₅₆₇₈₉] (WS [₀₁₂₃₄₅₆₇₈₉])*
+SUPERSCRIPT: ([₊₋] WS)? [⁰¹²³⁴⁵⁶⁷⁸⁹] (WS [⁰¹²³⁴⁵⁶⁷⁸⁹])*
+IDENTIFIER
+    : (LETTER | [']) (WS ([0-9'] | LETTER))*
+    | [#] (WS [0-9])?
+    ;
+```
+
+The non-operator tokens at the end of this list may contain optional
+in-token whitespace `WS`, which can be any sequence consisting of
+space characters and/or horizontal tabs. It is without semantic relevance.
+
+```bnf
+WS: [ \t]*;
+```
+
+Between tokens, the following lexical constructs are allowed
+and will be ignored by subsequent processing steps.
+
+```bnf
+SPACE: [ \t\n]+;
+SINGLE_LINE_COMMENT: '//' [^\n]*;
+MULTI_LINE_COMMENT: '/*' (MLC_BODY MULTI_LINE_COMMENT)* MLC_BODY '*'+ '/';
+MLC_BODY: ([^/*] | [/]+[^/*] | [*]+[^/*])*;
+```
+
+Of course, many lexer generators don't allow recursive token definitions,
+so an implementation may want to treat `/*` and `*/` as separate tokens,
+and switch between normal and comment parsing mode.
+
+As stated [above](#identifier-names), the `LETTER` construct
+represents any codepoint which has general category `L`
+in the Unicode 8.0.0 standard.
+
+Within the `FLOAT` token, `(?![.])` is used to denote a negative
+look-ahead assertion: the next character at this point *must not* be a
+second dot.  If it is, the first dot and any whitespace preceding it
+is not part of the `FLOAT` token.
