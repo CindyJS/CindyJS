@@ -508,6 +508,37 @@ Curly braces are reserved for future applications.
     > sin{30°}
     ! CindyScriptParseError: {…} reserved for future use at 1:3
 
+#### Function invocation
+
+A function invocation is a function name (which is an identifier),
+followed by zero or more arguments enclosed in square or round brackets.
+
+    > sin[0]
+    < 0
+    > resetclock()
+    < ___
+
+It is permissible for function arguments to be empty.
+This is particularly relevant for control flow functions,
+where an empty argument can represent an empty sequence of commands.
+
+    > if (2 < 3, , println("Back to school!"))
+    < ___
+
+When a function is used in the index position of an indexing construct
+using `_`, `.` or `:`, it has to be enclosed in parentheses.
+(This reserves such constructs for method-like invocations
+of probably anonymous functions in an object-oriented programming style.)
+
+    > lst = 10 * (1..7);
+    > f(x) := x + 1;
+    > lst_(f(3))
+    < 40
+
+    - CindyScript >=2016
+    > lst_f(3)
+    ! CindyScriptParseError: Function call in indexing construct must be enclosed in parentheses at 1:5
+
 #### Vertical bars `|…|`
 
 With a single argument, [`|‹expr›|`](Arithmetic_Operators.md#$7cu_$7cu)
