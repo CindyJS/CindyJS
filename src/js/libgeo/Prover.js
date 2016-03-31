@@ -80,14 +80,13 @@ function incidentPC(p, c) {
 }
 
 function checkConjectures() {
-    var debug = true;
+    var debug = false;
     if (debug) console.log("conjectures", conjectures.length);
     //if (!debug)
     if (conjectures.length === 0) return;
     backupGeo();
 
-    var ii, jj;
-    var moves, el;
+    var ii, jj, emove;
     var nummoves = 3;
 
     // filter free objects which are involved in conjectures
@@ -108,8 +107,8 @@ function checkConjectures() {
                 break;
             }
             if (debug) console.log("prover: moving element", el.name);
-            var emove = geoOps[el.type].getRandomMove(el);
-            // moves are arrays which can have different type: homog, radius etc ...
+            // get random move and move free element
+            emove = geoOps[el.type].getRandomMove(el);
             movepointscr(el, emove.value, emove.type);
             // if something bad happens
             if (tracingFailed) stateIn.set(stateLastGood);

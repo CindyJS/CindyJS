@@ -249,7 +249,7 @@ geoOps.HorizontalLine.getRandomMove = function(el) {
 
     var move = List.add(rvec, p);
     var res = {
-        type: "homog",
+        type: "mouse",
         value: move
     };
     return res;
@@ -318,7 +318,7 @@ geoOps.VerticalLine.getRandomMove = function(el) {
     var move = List.add(rvec, p);
 
     var res = {
-        type: "homog",
+        type: "mouse",
         value: move
     };
     return res;
