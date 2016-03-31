@@ -113,7 +113,7 @@ function checkConjectures() {
             for (jj = 0; jj < moves.length; ++jj) {
                 movepointscr(el, moves[jj].value, moves[jj].type);
                 // if something bad happens
-                if(tracingFailed) stateIn.set(stateLastGood);
+                if (tracingFailed) stateIn.set(stateLastGood);
             }
             // check if conjecture still holds
             conjectures = conjectures.filter(function(con) {
