@@ -80,7 +80,7 @@ function incidentPC(p, c) {
 }
 
 function checkConjectures() {
-    var debug = false;
+    var debug = true;
     if (debug) console.log("conjectures", conjectures.length);
     //if (!debug)
     if (conjectures.length === 0) return;
@@ -108,13 +108,11 @@ function checkConjectures() {
                 break;
             }
             if (debug) console.log("prover: moving element", el.name);
-            moves = geoOps[el.type].getRandomMove(el);
+            var emove = geoOps[el.type].getRandomMove(el);
             // moves are arrays which can have different type: homog, radius etc ...
-            for (jj = 0; jj < moves.length; ++jj) {
-                movepointscr(el, moves[jj].value, moves[jj].type);
-                // if something bad happens
-                if (tracingFailed) stateIn.set(stateLastGood);
-            }
+            movepointscr(el, emove.value, emove.type);
+            // if something bad happens
+            if (tracingFailed) stateIn.set(stateLastGood);
             // check if conjecture still holds
             conjectures = conjectures.filter(function(con) {
                 return con.holds();

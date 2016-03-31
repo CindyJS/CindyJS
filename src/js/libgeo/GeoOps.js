@@ -73,10 +73,10 @@ geoOps.FreeLine.getRandomMove = function(el) {
     var move = List.cross(perp, l);
     move = List.normalizeMax(move);
 
-    return [{
+    return {
         type: "homog",
         value: move
-    }];
+    };
 
 };
 geoOps.FreeLine.stateSize = 6;
@@ -252,7 +252,7 @@ geoOps.HorizontalLine.getRandomMove = function(el) {
         type: "homog",
         value: move
     };
-    return [res];
+    return res;
 };
 geoOps.HorizontalLine.stateSize = 6;
 
@@ -321,7 +321,7 @@ geoOps.VerticalLine.getRandomMove = function(el) {
         type: "homog",
         value: move
     };
-    return [res];
+    return res;
 };
 geoOps.VerticalLine.stateSize = 6;
 
@@ -407,7 +407,7 @@ geoOps.Through.getRandomMove = function(el) {
         type: "homog",
         value: move
     };
-    return [res];
+    return res;
 };
 geoOps.Through.stateSize = 6;
 
@@ -455,10 +455,10 @@ geoOps.Free.getRandomMove = function(el) {
     var move = List.scalmult(oldpos.value[2], rvect);
 
     move = List.add(oldpos, move);
-    return [{
+    return {
         type: "homog",
         value: move
-    }];
+    };
 };
 geoOps.Free.stateSize = 6;
 
@@ -817,11 +817,7 @@ geoOps.CircleMr.getRandomMove = function(el) {
         value: r
     };
 
-    // center 
-    //var hom = geoOps.Free.getRandomMove(csgeo.csnames[el.args[0]])[0];
-
-    return [rad];
-    //return [rad, hom];
+    return rad;
 };
 geoOps.CircleMr.stateSize = 2;
 
