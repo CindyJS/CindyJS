@@ -45,6 +45,9 @@ function applyIncidence(a, b) {
 
 function incidentPL(p, l) {
     return {
+        getInvolved: function() {
+            return [p, l];
+        },
         toString: function() {
             return "point " + p.name + " incident line " + l.name;
         },
@@ -60,6 +63,9 @@ function incidentPL(p, l) {
 
 function incidentPC(p, c) {
     return {
+        getInvolved: function() {
+            return [p, c];
+        },
         toString: function() {
             return "point " + p.name + " incident conic " + c.name;
         },
@@ -84,9 +90,18 @@ function checkConjectures() {
     var moves, el;
     var nummoves = 3;
 
+    // filter free objects which are involved in conjectures
+    var involved = [];
+    conjectures.forEach(function(con) {
+        var invs = con.getInvolved();
+        invs = invs.forEach(function(el) {
+            if (involved.indexOf(el) < 0 && csgeo.free.indexOf(el) >= 0) involved.push(el);
+        });
+    });
+
     // debug code remove later
     var nconject = conjectures.length;
-    csgeo.free.forEach(function(el) {
+    involved.forEach(function(el) {
         ii = nummoves;
         while (ii--) {
             if (el.pinned) {
