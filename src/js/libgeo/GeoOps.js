@@ -74,7 +74,7 @@ geoOps.FreeLine.getRandomMove = function(el) {
     move = List.normalizeMax(move);
 
     return {
-        type: "homog",
+        type: "mouse",
         value: move
     };
 
