@@ -181,6 +181,28 @@ describe("Prover: Through", function() {
 });
 
 
+describe("Prover: points on l_infty", function() {
+
+    before(function() {
+        // See examples/141_f_through.html
+        cdy = createCindy({
+            isNode: true,
+            csconsole: null,
+            canvas: new FakeCanvas(),
+
+	geometry: [ 
+        {name:"A", type:"Free", pos:[1,0,0], pinned:true},
+        {name:"B", type:"Free", pos:[1,1,0], pinned:true},
+        {name:"l", type:"Join", args:["A", "B"]},
+        {name:"C", type:"Free", pos:[1,2,0]}
+            ]
+    });
+    });
+
+    itCmd("allpoints(l)", "[A, B]");
+    itCmd("alllines(C)", "[]");
+});
+
 describe("Prover: PointOn*", function() {
 
     before(function() {

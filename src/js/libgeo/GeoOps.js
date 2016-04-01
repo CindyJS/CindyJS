@@ -455,7 +455,7 @@ geoOps.Free.getRandomMove = function(el) {
     // far points 
     if (ozabs < CSNumber.eps) {
         oz = CSNumber.real(Math.random());
-        rvect[2] = CSNumber.real(Math.random());
+        rvect.value[2] = CSNumber.real(Math.random());
     }
 
     var move = List.scalmult(oz, rvect);
