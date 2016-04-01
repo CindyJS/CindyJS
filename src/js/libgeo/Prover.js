@@ -90,13 +90,19 @@ function checkConjectures() {
     var nummoves = 3;
 
     // filter free objects which are involved in conjectures
-    var involved = [];
-    conjectures.forEach(function(con) {
-        var invs = con.getInvolved();
-        invs = invs.forEach(function(el) {
-            if (involved.indexOf(el) < 0 && csgeo.free.indexOf(el) >= 0) involved.push(el);
+    var involved;
+
+    var recalcInvolved = function(){
+        involved = [];
+        conjectures.forEach(function(con) {
+            var invs = con.getInvolved();
+            invs = invs.forEach(function(el) {
+                if (involved.indexOf(el) < 0 && el.moveable) involved.push(el);
+            });
         });
-    });
+    }
+
+    recalcInvolved();
 
     // debug code remove later
     var nconject = conjectures.length;
@@ -116,7 +122,7 @@ function checkConjectures() {
             conjectures = conjectures.filter(function(con) {
                 return con.holds();
             });
-        }
+        } // while
     });
 
     if (debug) {
