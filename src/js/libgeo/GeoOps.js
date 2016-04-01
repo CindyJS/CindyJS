@@ -819,9 +819,11 @@ geoOps.CircleMr.getRandomMove = function(el) {
     // radius 
     var r;
     var oldr = el.radius;
-    do {
-        r = CSNumber.add(oldr, CSNumber.real(0.1 * (Math.random() - 0.5)));
-    } while (r.value.real <= 0); // make sure r > 0;
+    var oabs = CSNumber.abs(oldr).value.real;
+
+    // if radius was small we want something larger and if not we scale the old one
+    r = oabs < CSNumber.eps ? CSNumber.real(Math.random() + 0.1) : CSNumber.mult(oldr, CSNumber.real(Math.random() + 0.5));
+
     var rad = {
         type: "radius",
         value: r
