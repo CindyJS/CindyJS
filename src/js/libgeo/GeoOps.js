@@ -451,8 +451,18 @@ geoOps.Free.getRandomMove = function(el) {
         return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
     };
     var oldpos = List.normalizeMax(el.homog);
+    var oz = oldpos.value[2];
+    var ozabs = CSNumber.abs(oz).value.real;
+
     var rvect = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(0)]);
-    var move = List.scalmult(oldpos.value[2], rvect);
+
+    // far points 
+    if(ozabs < CSNumber.eps) {
+        oz = CSNumber.real(Math.random());
+        rvect[2] = CSNumber.real(Math.random());
+    }
+
+    var move = List.scalmult(oz, rvect);
 
     move = List.add(oldpos, move);
     return {
