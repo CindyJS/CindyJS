@@ -97,10 +97,10 @@ function checkConjectures() {
         conjectures.forEach(function(con) {
             var invs = con.getInvolved();
             invs = invs.forEach(function(el) {
-                if (involved.indexOf(el) < 0 && el.moveable) involved.push(el);
+                if (involved.indexOf(el) < 0 && el.movable) involved.push(el);
             });
         });
-    }
+    };
 
     recalcInvolved();
 
