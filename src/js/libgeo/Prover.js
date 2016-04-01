@@ -80,7 +80,7 @@ function incidentPC(p, c) {
 }
 
 function checkConjectures() {
-    var debug = true;
+    var debug = false;
     if (debug) console.log("conjectures", conjectures.length);
     //if (!debug)
     if (conjectures.length === 0) return;
@@ -104,10 +104,16 @@ function checkConjectures() {
 
     recalcInvolved();
 
+    // for jshint move the function definition outside loop 
+    var checkCon = function(con){
+        return con.holds();
+    };
+
     // debug code remove later
     var nconject = conjectures.length;
-    for(var ii = 0; ii < nummoves; ii++){
-        involved.forEach(function(el) {
+    for(var kk = 0; kk < nummoves; kk++){
+        for(var oo = 0; oo < involved.length; oo++){
+            var el = involved[oo];
                 if (!el.pinned) {
                     if (debug) console.log("prover: moving element", el.name);
                     // get random move and move free element
@@ -116,11 +122,9 @@ function checkConjectures() {
                     // if something bad happens
                     if (tracingFailed) stateIn.set(stateLastGood);
                     // check if conjecture still holds
-                    conjectures = conjectures.filter(function(con) {
-                        return con.holds();
-                    });
+                    conjectures = conjectures.filter(checkCon);
                 }
-        });
+        }
         recalcInvolved();
     }
 
