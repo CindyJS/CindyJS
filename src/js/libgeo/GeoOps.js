@@ -457,7 +457,7 @@ geoOps.Free.getRandomMove = function(el) {
     var rvect = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(0)]);
 
     // far points 
-    if(ozabs < CSNumber.eps) {
+    if (ozabs < CSNumber.eps) {
         oz = CSNumber.real(Math.random());
         rvect[2] = CSNumber.real(Math.random());
     }

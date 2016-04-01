@@ -92,7 +92,7 @@ function checkConjectures() {
     // filter free objects which are involved in conjectures
     var involved;
 
-    var recalcInvolved = function(){
+    var recalcInvolved = function() {
         involved = [];
         conjectures.forEach(function(con) {
             var invs = con.getInvolved();
@@ -105,25 +105,25 @@ function checkConjectures() {
     recalcInvolved();
 
     // for jshint move the function definition outside loop 
-    var checkCon = function(con){
+    var checkCon = function(con) {
         return con.holds();
     };
 
     // debug code remove later
     var nconject = conjectures.length;
-    for(var kk = 0; kk < nummoves; kk++){
-        for(var oo = 0; oo < involved.length; oo++){
+    for (var kk = 0; kk < nummoves; kk++) {
+        for (var oo = 0; oo < involved.length; oo++) {
             var el = involved[oo];
-                if (!el.pinned) {
-                    if (debug) console.log("prover: moving element", el.name);
-                    // get random move and move free element
-                    emove = geoOps[el.type].getRandomMove(el);
-                    movepointscr(el, emove.value, emove.type);
-                    // if something bad happens
-                    if (tracingFailed) stateIn.set(stateLastGood);
-                    // check if conjecture still holds
-                    conjectures = conjectures.filter(checkCon);
-                }
+            if (!el.pinned) {
+                if (debug) console.log("prover: moving element", el.name);
+                // get random move and move free element
+                emove = geoOps[el.type].getRandomMove(el);
+                movepointscr(el, emove.value, emove.type);
+                // if something bad happens
+                if (tracingFailed) stateIn.set(stateLastGood);
+                // check if conjecture still holds
+                conjectures = conjectures.filter(checkCon);
+            }
         }
         recalcInvolved();
     }
