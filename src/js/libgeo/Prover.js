@@ -106,24 +106,23 @@ function checkConjectures() {
 
     // debug code remove later
     var nconject = conjectures.length;
-    involved.forEach(function(el) {
-        ii = nummoves;
-        while (ii--) {
-            if (el.pinned) {
-                break;
-            }
-            if (debug) console.log("prover: moving element", el.name);
-            // get random move and move free element
-            emove = geoOps[el.type].getRandomMove(el);
-            movepointscr(el, emove.value, emove.type);
-            // if something bad happens
-            if (tracingFailed) stateIn.set(stateLastGood);
-            // check if conjecture still holds
-            conjectures = conjectures.filter(function(con) {
-                return con.holds();
-            });
-        } // while
-    });
+    for(var ii = 0; ii < nummoves; ii++){
+        involved.forEach(function(el) {
+                if (!el.pinned) {
+                    if (debug) console.log("prover: moving element", el.name);
+                    // get random move and move free element
+                    emove = geoOps[el.type].getRandomMove(el);
+                    movepointscr(el, emove.value, emove.type);
+                    // if something bad happens
+                    if (tracingFailed) stateIn.set(stateLastGood);
+                    // check if conjecture still holds
+                    conjectures = conjectures.filter(function(con) {
+                        return con.holds();
+                    });
+                }
+        });
+        recalcInvolved();
+    }
 
     if (debug) {
         console.log("dropped ", nconject - conjectures.length, " conjectures");
