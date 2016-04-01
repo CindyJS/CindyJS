@@ -62,9 +62,9 @@ geoOps.FreeLine.updatePosition = function(el) {
 geoOps.FreeLine.getRandomMove = function(el) {
     var rcomplex = function() {
         var fact = 0.1;
-        // only real for debugging REMOVE later
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
     };
+
     var l = el.homog;
     var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
     var p = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(1)]);
@@ -237,8 +237,7 @@ geoOps.HorizontalLine.updatePosition = function(el) {
 geoOps.HorizontalLine.getRandomMove = function(el) {
     var rcomplex = function() {
         var fact = 0.1;
-        // debug only real remove later!
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
     };
 
     var p = List.cross(el.homog, List.ex);
@@ -307,8 +306,7 @@ geoOps.VerticalLine.updatePosition = function(el) {
 geoOps.VerticalLine.getRandomMove = function(el) {
     var rcomplex = function() {
         var fact = 0.1;
-        // debug only real remove later!
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
     };
 
     var p = List.cross(el.homog, List.ey);
@@ -397,8 +395,7 @@ geoOps.Through.updatePosition = function(el) {
 geoOps.Through.getRandomMove = function(el) {
     var rcomplex = function() {
         var fact = 0.1;
-        // debug only real remove later!
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
     };
 
     var move = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.zero]);
@@ -447,8 +444,7 @@ geoOps.Free.updatePosition = function(el) {
 geoOps.Free.getRandomMove = function(el) {
     var rcomplex = function() {
         var fact = 0.1;
-        // debug only real remove later!
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * 0);
+        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
     };
     var oldpos = List.normalizeMax(el.homog);
     var oz = oldpos.value[2];
