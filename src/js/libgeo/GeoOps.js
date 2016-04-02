@@ -2601,3 +2601,9 @@ geoMacros.Text = function(el) {
     el.args = [];
     return [el];
 };
+
+
+geoMacros.ConicFoci= function(el) {
+    el.type = "ConicBy2Foci1P";
+    return [el];
+};

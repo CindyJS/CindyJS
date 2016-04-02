@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Construction.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [-3.1392405063291133, -4.0, -1.2658227848101264], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "B", type: "Free", pos: [4.0, 0.7142857142857143, 1.7857142857142856], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C", type: "Free", pos: [2.685714285714286, -4.0, -1.4285714285714286], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "Collection__1", type: "ConicFoci", args: ["C", "B", "A"]},
+    {name: "C0", type: "SelectConic", pos: {xx: {r: -0.14276488371979168, i: -8.735379101285408E-17}, yy: {r: -0.18974292674086995, i: -1.0289451531750134E-16}, zz: 1.0, xy: {r: 0.08284328887723323, i: 7.631526144615379E-17}, xz: {r: 0.18394462034269818, i: 1.831820736768352E-16}, yz: {r: -0.6220891575686859, i: -4.518527773763827E-16}}, color: [0.0, 0.0, 1.0], args: ["Collection__1"], printname: "$C_{0}$"}
+  ],
+  autoplay: true,
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 335,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.06]}],
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1841, version: [2, 9, 1841]}
+});
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>
