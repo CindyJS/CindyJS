@@ -3,34 +3,6 @@ var rewire = require("rewire");
 
 var createCindy = require("../build/js/Cindy.plain.js");
 
-function FakeCanvas() {
-  this.width = 640;
-  this.height = 480;
-};
-FakeCanvas.prototype.measureText = function(txt) {
-  return { width: 8*txt.length };
-};
-function dummy() { return this; }
-[
-    "addEventListener",
-    "removeEventListener",
-    "arc",
-    "beginPath",
-    "clearRect",
-    "clip",
-    "fill",
-    "getContext",
-    "lineTo",
-    "moveTo",
-    "restore",
-    "save",
-    "stroke",
-    "strokeText",
-    "fillText",
-].forEach(function(m) {
-    FakeCanvas.prototype[m] = dummy;
-});
-
 var cdy;
 
 function itCmd(command, expected) {
@@ -46,7 +18,6 @@ describe("Prover: angle bisector test", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
 	geometry: [ 
 		{ name: "A", type: "Free", pos: [ 2.2941176470588234, -4.0, -1.4705882352941175 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
 		{ name: "B", type: "Free", pos: [ -2.0387096774193547, -4.0, -0.6451612903225806 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
@@ -62,12 +33,6 @@ describe("Prover: angle bisector test", function() {
 		{ name: "D", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "d", "e" ], labeled: true }, 
 		{ name: "Collection__3", type: "AngularBisector", args: [ "a", "c", "B" ] }, 
 		{ name: "f", type: "SelectL", pos: [ -1.6203679158952222, 0.18070364745627465, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "Collection__3" ], labeled: true } ], 
-            behavior: [
-                {behavior:{type:"Environment",gravity:-.2}},
-                {name:"M", behavior:{type:"Mass",friction:0.1}},
-                {name:"O", behavior:{type:"Mass",friction:0.1}},
-                {name:"c", behavior:{type:"Spring"}}
-            ],
         });
     });
 
@@ -81,7 +46,6 @@ describe("Prover: Pappos", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
   geometry: [
     {name: "A", type: "Free", pos: [4.0, -2.050420168067227, -0.8403361344537815], color: [1.0, 0.0, 0.0], labeled: true},
     {name: "B", type: "Free", pos: [0.2857142857142857, -4.0, 2.3809523809523814], color: [1.0, 0.0, 0.0], labeled: true},
@@ -115,7 +79,6 @@ describe("Prover: free points", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
 	geometry: [ 
 		{ name: "A", type: "Free", pos: [ 4.0, -0.0, -2.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
 		{ name: "B", type: "Free", pos: [ 4.0, -0.0, 1.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
@@ -136,7 +99,6 @@ describe("Prover: free line", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
 	geometry: [ 
 		{ name: "A", type: "Free", pos: [ 4.0, -4.0, -1.3333333333333333 ], color: [ 1.0, 0.0, 0.0 ], labeled: true, pinned: true }, 
 		{ name: "B", type: "Free", pos: [ 4.0, 4.0, 1.3333333333333333 ], color: [ 1.0, 0.0, 0.0 ], labeled: true , pinned: true}, 
@@ -161,7 +123,6 @@ describe("Prover: CircleMR", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
 	geometry: [ 
 		{ name: "A", type: "Free", pos: [ 4.0, 4.0, 1.3333333333333333 ], color: [ 1.0, 0.0, 0.0 ], labeled: true, pinned: true }, 
 		{ name: "B", type: "Free", pos: [ 0.0, -0.0, 4.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true, pinned: true }, 
@@ -181,7 +142,6 @@ describe("Prover: HorizontalLine VerticalLine", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
 	geometry: [ 
 		{ name: "a", type: "VerticalLine", pos: [ -2.0, -0.0, 4.0 ], color: [ 0.0, 0.0, 1.0 ], labeled: true }, 
 		{ name: "A", type: "Free", pos: [ -2.0, -4.0, -1.0 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
@@ -202,7 +162,6 @@ describe("Prover: Through", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
 	geometry: [ 
 		{ name: "A", type: "Free", pos: [ 0.0, -0.0, 4.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true, pinned: true }, 
 		{ name: "B", type: "Free", pos: [ 4.0, 4.0, 1.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true, pinned: true }, 
@@ -222,7 +181,6 @@ describe("Prover: points on l_infty", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
 
 	geometry: [ 
         {name:"A", type:"Free", pos:[1,0,0], pinned:true},
@@ -244,7 +202,6 @@ describe("Prover: PointOn*", function() {
         cdy = createCindy({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
 	geometry: [ 
 		{ name: "A", type: "Free", pos: [ -2.2857142857142856, -4.0, -0.5714285714285714 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
 		{ name: "B", type: "Free", pos: [ 4.0, 3.5, 0.5 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
