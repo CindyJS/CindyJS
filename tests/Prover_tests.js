@@ -102,12 +102,6 @@ describe("Prover: Pappos", function() {
     {name: "k", type: "Join", color: [0.0, 0.0, 1.0], args: ["H", "G"], labeled: true},
     {name: "K", type: "Meet", color: [1.0, 0.0, 0.0], args: ["c", "f"], labeled: true}
   ],
-            behavior: [
-                {behavior:{type:"Environment",gravity:-.2}},
-                {name:"M", behavior:{type:"Mass",friction:0.1}},
-                {name:"O", behavior:{type:"Mass",friction:0.1}},
-                {name:"c", behavior:{type:"Spring"}}
-            ],
         });
     });
 
