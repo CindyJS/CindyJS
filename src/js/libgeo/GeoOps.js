@@ -2603,7 +2603,7 @@ geoMacros.Text = function(el) {
 };
 
 
-geoMacros.ConicFoci= function(el) {
+geoMacros.ConicFoci = function(el) {
     el.type = "ConicBy2Foci1P";
     return [el];
 };

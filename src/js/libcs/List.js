@@ -1056,7 +1056,7 @@ function conicMat2Vec(m) {
 List.conicDist = function(mat1, mat2) {
     var vec1 = conicMat2Vec(mat1);
     var vec2 = conicMat2Vec(mat2);
-//    console.log(niceprint(vec1), niceprint(vec2));
+    //    console.log(niceprint(vec1), niceprint(vec2));
     return List.projectiveDistMinScal(vec1, vec2);
 };
 
