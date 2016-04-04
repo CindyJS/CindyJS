@@ -299,7 +299,7 @@ module.exports = function build(settings, task) {
             source_map_format: "V3",
             source_map_location_mapping: [
                 "build/js/|",
-                "src/js/|../../plugins/cindy3d/src/js/",
+                "plugins/|../../plugins/",
             ],
             output_wrapper_file: "plugins/cindy3d/src/js/Cindy3D.js.wrapper",
             js_output_file: "build/js/Cindy3D.js",
@@ -368,7 +368,7 @@ module.exports = function build(settings, task) {
             source_map_format: "V3",
             source_map_location_mapping: [
                 "build/js/|",
-                "src/js/|../../plugins/cindygl/src/js/",
+                "plugins/|../../plugins/",
             ],
             output_wrapper_file: "plugins/cindygl/src/js/CindyGL.js.wrapper",
             js_output_file: "build/js/CindyGL.js",
