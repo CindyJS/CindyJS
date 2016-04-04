@@ -75,7 +75,7 @@ function subst(name, err, content) {
     fs.writeFile(path.join(outDir, name), content);
 }
 
-var mapKeys = ["version", "file", "sourceRoot", "sources", "names", "mappings"];
+var mapKeys = ["version", "file", "sourceRoot", "sources", "sourcesContent", "names", "mappings"];
 mapKeys.reverse(); // so that missing keys (indexOf returns -1) go to the end
 
 function map(name, err, content) {
@@ -89,6 +89,10 @@ function map(name, err, content) {
     map.sourceRoot = "https://raw.githubusercontent.com/CindyJS/CindyJS/" + head + "/";
     map.sources = map.sources.map(function(src) {
         return ppath.normalize(ppath.join("build/js", root, src));
+    });
+    map.sourcesContent = map.sources.map(function(src) {
+        if (!/^build/.test(src)) return null;
+        return fs.readFileSync(src, "utf-8");
     });
     var keys = Object.keys(map);
     keys.sort(function(a, b) {
