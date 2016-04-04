@@ -2487,6 +2487,11 @@ geoMacros.CircleByRadius = function(el) {
     return [el];
 };
 
+geoMacros.ConicFoci = function(el) {
+    el.type = "ConicBy2Foci1P";
+    return [el];
+};
+
 geoMacros.IntersectionConicLine = function(el) {
     el.args = [el.args[1], el.args[0]];
     el.type = "IntersectLC";
