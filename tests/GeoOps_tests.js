@@ -1,5 +1,4 @@
-var assert = require("assert");
-var should = require("should");
+var should = require("chai").should();
 var rewire = require("rewire");
 
 var createCindy = require("../build/js/Cindy.plain.js");

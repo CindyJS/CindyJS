@@ -1,5 +1,4 @@
-var assert = require("assert");
-var should = require("should");
+var should = require("chai").should();
 var rewire = require("rewire");
 
 var cindyJS = rewire("../build/js/exposed.js");
@@ -48,6 +47,6 @@ describe("Determinants", function() {
             [45, 89, 69, 47]]);
         var m = List.add(r, List.scalmult(CSNumber.complex(0, 1), i));
         var actual = List.det4m(m);
-        actual.value.should.have.properties({real: -14134415, imag: -69048490});
+        actual.value.should.eql({real: -14134415, imag: -69048490});
     });
 });
