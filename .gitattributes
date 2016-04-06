@@ -27,6 +27,7 @@
 *.yml           text
 
 .git*           text
+.mailmap        text
 
 COPYRIGHT       text
 LICENSE         text
