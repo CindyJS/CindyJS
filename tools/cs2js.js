@@ -176,6 +176,7 @@ Visitor.prototype.fun_if$2 = function(args, modifs) {
     this.statement(thenBody);
     jscode.push(indent + "}");
     this.indent = indent;
+    return null;
 };
 
 Visitor.prototype.fun_repeat$3 = function(args, modifs) {
