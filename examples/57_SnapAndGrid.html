@@ -66,15 +66,18 @@
                        {name:"Y", kind:"P", type:"Free", pos:[-8,.8,1]},
                        {name:"Z", kind:"P", type:"Free", pos:[-6,0,1]}*/
                       ];
-            createCindy({canvasname:"CSCanvas",
-                        defaultAppearance: {clip: "inci", overhangLine: 1.2},
-                        movescript:"csmove",
-                        geometry:gslp,
-                        transform:[{scale:1}],
-                        grid:2,
-                        snap:true,
-                        axes:true
-                        });
+            createCindy({
+                defaultAppearance: {clip: "inci", overhangLine: 1.2},
+                movescript:"csmove",
+                geometry:gslp,
+                ports:[{
+                    id:"CSCanvas",
+                    transform:[{scale:1}],
+                    grid:2,
+                    snap:true,
+                    axes:true
+                }]
+            });
 
         </script>
 

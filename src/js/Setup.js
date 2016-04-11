@@ -170,9 +170,6 @@ function createCindyNow() {
     if (data.snap) {
         cssnap = true;
     }
-    if (data.axes) {
-        csaxes = true;
-    }
 
     if (c) {
         csw = c.width;
