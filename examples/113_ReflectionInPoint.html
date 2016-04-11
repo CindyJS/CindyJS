@@ -25,7 +25,7 @@
 createCindy({ 
 	scripts: "cs*", 
 	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, dimDependent: 0.7 },
-	angleUnit: "°", grid: 1, snap: true, 
+	angleUnit: "°", 
 	geometry: [ 
 		{ name: "A", type: "Free", pos: [ 1.0, -4.0, -0.5 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
 		{ name: "a", type: "FreeLine", pos: [ 0.48, -0.64, 4.0 ], color: [ 0.0, 0.0, 1.0 ], labeled: true }, 
@@ -46,7 +46,7 @@ createCindy({
 		{ name: "C2", type: "Transform", color: [ 0.0, 1.0, 0.0 ], args: [ "Tr0", "C0" ], printname: "$C_{2}$" }, 
 		{ name: "C3", type: "Transform", color: [ 0.0, 1.0, 1.0 ], args: [ "Tr0", "C1" ], printname: "$C_{3}$" } ], 
 	ports: [ 
-		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], background: "rgb(168,176,192)" } ], 
+		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], grid: 1, snap: true, background: "rgb(168,176,192)" } ], 
 	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
     </script>
 </head>

@@ -102,6 +102,10 @@ function createCindyNow() {
                 c.style.backgroundColor = port.background;
             if (port.transform !== undefined)
                 trafos = port.transform;
+            if (Number.isFinite(port.grid) && port.grid > 0)
+                csgridsize = port.grid;
+            if (port.snap)
+                cssnap = true;
         }
     }
     if (!c) {
@@ -157,11 +161,12 @@ function createCindyNow() {
         }
     });
 
-    //Setup canvasstuff
-    if (data.grid && data.grid !== 0) {
+    if (Number.isFinite(data.grid) && data.grid > 0) {
         csgridsize = data.grid;
     }
-    if (data.snap) cssnap = data.snap;
+    if (data.snap) {
+        cssnap = true;
+    }
 
     if (c) {
         csw = c.width;
