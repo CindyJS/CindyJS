@@ -12,6 +12,7 @@ var csscale = 1;
 var csgridsize = 0;
 var csgridscript;
 var cssnap = false;
+var csaxes = false;
 
 function dump(a) {
     console.log(JSON.stringify(a));
@@ -106,6 +107,8 @@ function createCindyNow() {
                 csgridsize = port.grid;
             if (port.snap)
                 cssnap = true;
+            if (port.axes)
+                csaxes = true;
         }
     }
     if (!c) {
@@ -166,6 +169,9 @@ function createCindyNow() {
     }
     if (data.snap) {
         cssnap = true;
+    }
+    if (data.axes) {
+        csaxes = true;
     }
 
     if (c) {

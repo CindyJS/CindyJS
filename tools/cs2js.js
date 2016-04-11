@@ -110,6 +110,8 @@ Visitor.prototype.visit = function(expr) {
     case "number":
         return this.jscall("CSNumber.complex", [
             expr.value.real, expr.value.imag].map(String));
+    case "string":
+        return this.jscall("General.string", [JSON.stringify(expr.value)]);
     default:
         throw Error("Construct unsupported: " + expr.ctype);
     }
