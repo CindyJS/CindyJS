@@ -204,7 +204,7 @@ This code fragment will draw a 3 × 3 array of points.
     D lineWidth = 1.2
     D beginPath()
     D arc(275.5, 204.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(275.5, 204.5, 4.6, 0, 6.283185307179586)
@@ -213,7 +213,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(275.5, 179.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(275.5, 179.5, 4.6, 0, 6.283185307179586)
@@ -221,7 +221,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(275.5, 154.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(275.5, 154.5, 4.6, 0, 6.283185307179586)
@@ -229,7 +229,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(300.5, 204.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(300.5, 204.5, 4.6, 0, 6.283185307179586)
@@ -237,7 +237,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(300.5, 179.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(300.5, 179.5, 4.6, 0, 6.283185307179586)
@@ -245,7 +245,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(300.5, 154.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(300.5, 154.5, 4.6, 0, 6.283185307179586)
@@ -253,7 +253,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(325.5, 204.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(325.5, 204.5, 4.6, 0, 6.283185307179586)
@@ -261,7 +261,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(325.5, 179.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(325.5, 179.5, 4.6, 0, 6.283185307179586)
@@ -269,7 +269,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(325.5, 154.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(325.5, 154.5, 4.6, 0, 6.283185307179586)
