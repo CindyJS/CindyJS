@@ -21,6 +21,10 @@ var ops = {
     "*": "General.mult",
     "/": "General.div",
     "_": "evaluator.take$2",
+    "%": "evaluator.or$2",
+    "!=": "comp_notequals",
+    "~!=": "comp_notalmostequals",
+    "!": "prefix_not",
 };
 
 var jscode = ["var " + moduleName + " = {};"];
@@ -77,6 +81,10 @@ Visitor.prototype.visit = function(expr) {
             } else {
                 throw Error("Only know how to assign to variables");
             }
+        case "!=":
+        case "!":
+        case "~!=":
+            return this.cscall(ops[expr.oper], expr.args);
         default:
             if (ops.hasOwnProperty(expr.oper)) {
                 if (ops[expr.oper].startsWith("evaluator.")) {
@@ -112,6 +120,8 @@ Visitor.prototype.visit = function(expr) {
             expr.value.real, expr.value.imag].map(String));
     case "string":
         return this.jscall("General.string", [JSON.stringify(expr.value)]);
+    case "void":
+        return "{ctype:'void'}";
     default:
         throw Error("Construct unsupported: " + expr.ctype);
     }
@@ -156,6 +166,18 @@ Visitor.prototype.fun_genList = function(args, modifs) {
         args.map(this.visit, this).join(", ") + "])";
 };
 
+Visitor.prototype.fun_if$2 = function(args, modifs) {
+    var cond = args[0];
+    var thenBody = args[1];
+    var indent = this.indent;
+    jscode.push(
+        indent + "if ((" + this.visit(cond) + ").value === true) {");
+    this.indent = indent + "    ";
+    this.statement(thenBody);
+    jscode.push(indent + "}");
+    this.indent = indent;
+};
+
 Visitor.prototype.fun_repeat$3 = function(args, modifs) {
     var count = args[0];
     var v = args[1];
@@ -194,6 +216,8 @@ function top(cscode) {
         break;
     case "void":
         break;
+    case "error":
+        throw cscode;
     default:
         throw Error("Unsupported top level construct: " + cscode.ctype);
     }
