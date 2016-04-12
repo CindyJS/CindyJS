@@ -505,11 +505,11 @@ Render2D.drawline = function(homog) {
     var l = List.normalizeMax(homog);
     l = [l.value[0].value.real, l.value[1].value.real, l.value[2].value.real];
 
-    function crossxy(u, v) {
-        var zInverse = 1 / (u[0] * v[1] - u[1] * v[0]);
+    function lcrossxy(v) {
+        var zInverse = 1 / (l[0] * v[1] - l[1] * v[0]);
         return {
-            x: (u[1] * v[2] - u[2] * v[1]) * zInverse,
-            y: (u[2] * v[0] - u[0] * v[2]) * zInverse
+            x: (l[1] * v[2] - l[2] * v[1]) * zInverse,
+            y: (l[2] * v[0] - l[0] * v[2]) * zInverse
         };
     }
 
@@ -527,13 +527,13 @@ Render2D.drawline = function(homog) {
     var b3 = [m.c, m.d, m.ty]; // upper boundary
     var b4 = [m.c, m.d, csh - m.ty]; // lower boundary
     if (l[0] === 0) { // horizontal line
-        Render2D.drawsegcore(crossxy(l, b1), crossxy(l, b2));
+        Render2D.drawsegcore(lcrossxy(b1), lcrossxy(b2));
         return;
     } else if (l[1] === 0) { // vertical line
-        Render2D.drawsegcore(crossxy(l, b3), crossxy(l, b4));
+        Render2D.drawsegcore(lcrossxy(b3), lcrossxy(b4));
         return;
     }
-    var intersection = [b1, b2, b3, b4].map(crossxy.bind(null, l)).sort(sortxy);
+    var intersection = [b1, b2, b3, b4].map(lcrossxy).sort(sortxy);
     Render2D.drawsegcore(intersection[1], intersection[2]);
 };
 
