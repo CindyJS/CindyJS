@@ -57,7 +57,7 @@ This operator returns either `true` or `false` depending on whether `‹list›`
     > contains([1,3,4,5],2*2)
     < true
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 4 ∈ [1,3,4,5]
     < true
     > 7 ∈ [1,3,4,5]

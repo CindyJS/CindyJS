@@ -83,7 +83,7 @@ See the examples for further description.
 
 One may also use the dot operator or middle dot symbol as multiplication signs.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > [5,3,2] ⋅ 2
     < [10, 6, 4]
     > [1,2] · [[1,2],[3,4]]
@@ -93,7 +93,7 @@ Using the unicode symbol U+2062 ‘invisible times’ it is possible to write
 polynomials that *appear* as though the coefficients were directly
 preceding the variable.  Input can't simply be typed this way, though.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > x = 5;
     > 7⁢x^3 - 5⁢x^2 + 2⁢x - 1
     < 759
@@ -261,7 +261,7 @@ Complex numbers are fully supported.
     > sqrt(2*i)
     < 1 + i*1
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > √121
     < 11
 

@@ -236,7 +236,7 @@ draws a yellow point of size 15.
 Modifiers have to be separated by commas.
 They may occur in any order and at any position of the function call.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > a = []; repeat(3, start->4; 5, a = a ++ [#]); a
     < [5, 6, 7]
 
