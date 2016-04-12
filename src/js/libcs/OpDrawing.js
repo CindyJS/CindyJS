@@ -540,12 +540,14 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     // Find points with horizontal or vertical tangents
 
     if (containsYFP) {
-        // The vertical asymptote is a double double point at infinity
-        x = -c01 / c11;
-        pt = mkpg(x, Infinity, 1, 0);
-        specialPoints.push([pt, pt]);
-        pt = mkpg(x, Infinity, 1, 0);
-        specialPoints.push([pt, pt]); // This is a double double point
+        if (Math.abs(discr) > eps) {
+            // The vertical asymptote is a double double point at infinity
+            x = -c01 / c11;
+            pt = mkpg(x, Infinity, 1, 0);
+            specialPoints.push([pt, pt]);
+            pt = mkpg(x, Infinity, 1, 0);
+            specialPoints.push([pt, pt]); // This is a double double point
+        }
     } else {
         // Compute the roots of the y discriminant
         // for points with vertical tangents
@@ -563,14 +565,21 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     }
 
     if (Math.abs(c20) >= eps) { // no horizontal asymptote
-        // Compute the roots of the x discriminant
-        // for points with horizontal tangents
-        sol = solveRealQuadratic(
-            discr,
-            4 * c01 * c20 - 2 * c10 * c11,
-            4 * c00 * c20 - c10 * c10);
+        if (Math.abs(discr) > eps) {
+            // Compute the roots of the x discriminant
+            // for points with horizontal tangents
+            sol = solveRealQuadratic(
+                discr,
+                4 * c01 * c20 - 2 * c10 * c11,
+                4 * c00 * c20 - c10 * c10);
+        } else {
+            // Parabola, only a single horizontal asymptote
+            sol = [
+                (c10 * c10 - 4 * c00 * c20) / (4 * c01 * c20 - 2 * c10 * c11)
+            ];
+        }
         if (sol)
-            for (i = 0; i < 2; ++i) {
+            for (i = 0; i < sol.length; ++i) {
                 y = sol[i];
                 x = -0.5 * (c11 * y + c10) / c20;
                 y2 = secondPoint(x, y);
