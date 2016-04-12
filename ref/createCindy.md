@@ -31,6 +31,12 @@ Each port description is a dictionary which may contain the following items:
   `innerWidth` and `innerHeight` of the window.
   This overrides the `width` and `height` attributes of the canvas element.
   At the moment this still doesn't accomodate dynamic changes to window size.
+* `grid` is a numeric value which specified the grid size in user units.
+  A missing or zero value indicates that no grid is to be drawn.
+* `snap` is a boolean value and indicates that points being moved
+  should snap to nearby grid points. Defaults to `false`.
+* `axes` is a boolean value which indicates
+  whether coordinate axes are to be drawn. Defaults to `false`.
 
 Either `id` or `element` must be given, with the latter taking precedence.
 The element identified in this way must be a `HTMLCanvasElement`.
@@ -136,11 +142,15 @@ but that was more annyoing than useful in most environments.
 
 ### grid
 
-To draw a grid behind the scene, set this to an integer specifying the grid size.
+Backwards-compatibility setting.
+`grid:2` is equivalent to `ports:[{…, grid:2}]`,
+i.e. to that property being specified inside each port.
 
 ### snap
 
-Set this to true to enable snapping to the grid.
+Backwards-compatibility setting.
+`snap:true` is equivalent to `ports:[{…, snap:true}]`,
+i.e. to that property being specified inside each port.
 
 ### geomety
 

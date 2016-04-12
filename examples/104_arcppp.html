@@ -19,10 +19,8 @@ drawarc(A,B.homog,C.xy);
 <script type="text/javascript">
 
 var cdy = createCindy({ // See ref/createCindy documentation for details.
-  ports: [{id: "CSCanvas"}],
+  ports: [{id: "CSCanvas", snap: true, grid: 1}],
   scripts: "cs*",
-  snap:true,
-  grid: 1,
   language: "en",
   defaultAppearance: {
     // See GeoBasics.js for possible attributes.

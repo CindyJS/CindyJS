@@ -8,11 +8,9 @@
 <script type="text/javascript">
 
 var cdy = createCindy({ // See ref/createCindy documentation for details.
-  ports: [{id: "CSCanvas"}],
+  ports: [{id: "CSCanvas", snap: true, grid: 5}],
   scripts: "cs*",
   language: "en",
-  grid: 5,
-  snap: true,
   csconsole: true,
   defaultAppearance: {
     lineSize: 2
