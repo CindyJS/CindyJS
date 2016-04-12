@@ -125,7 +125,7 @@ The cross product is a three-dimensional vector that is orthogonal to the other 
     > cross([2, 5, 3], [1, 8, 11])
     < [31, -19, 11]
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > [2, 5, 3] × [1, 8, 11]
     < [31, -19, 11]
 
