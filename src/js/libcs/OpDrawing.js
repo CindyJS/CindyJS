@@ -414,7 +414,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     var discr = c20 * c02 * 4 - c11 * c11;
     var det = Math.abs(discr * c00 + c11 * c01 * c10 -
         c20 * c01 * c01 - c02 * c10 * c10);
-    if (det < eps) {
+    if (det < 1e-24) {
         if (discr < eps) { // pair of lines
             var lines = geoOps._helper.splitDegenConic(conicMatrix);
             evaluator.draw$1([lines[0]], modifs);
