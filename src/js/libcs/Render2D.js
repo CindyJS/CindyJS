@@ -506,10 +506,10 @@ Render2D.drawline = function(homog) {
     l = [l.value[0].value.real, l.value[1].value.real, l.value[2].value.real];
 
     function crossxy(u, v) {
-        var z = (u[0] * v[1] - u[1] * v[0]);
+        var zInverse = 1 / (u[0] * v[1] - u[1] * v[0]);
         return {
-            x: (u[1] * v[2] - u[2] * v[1]) / z,
-            y: (u[2] * v[0] - u[0] * v[2]) / z
+            x: (u[1] * v[2] - u[2] * v[1]) * zInverse,
+            y: (u[2] * v[0] - u[0] * v[2]) * zInverse
         };
     }
 
