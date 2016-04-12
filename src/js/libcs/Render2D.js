@@ -523,9 +523,9 @@ Render2D.drawline = function(homog) {
     // do not draw beyond canvas boundary
     var m = csport.drawingstate.matrix;
     var b1 = [m.a, m.b, m.tx]; // left boundary
-    var b2 = [m.a, m.b, m.tx - csctx.canvas.width]; // right boundary
+    var b2 = [m.a, m.b, m.tx - csw]; // right boundary
     var b3 = [m.c, m.d, m.ty]; // upper boundary
-    var b4 = [m.c, m.d, csctx.canvas.height - m.ty]; // lower boundary
+    var b4 = [m.c, m.d, csh - m.ty]; // lower boundary
     if (l[0] === 0) { // horizontal line
         Render2D.drawsegcore(crossxy(l, b1), crossxy(l, b2));
         return;
