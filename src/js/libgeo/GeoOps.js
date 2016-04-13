@@ -618,8 +618,14 @@ geoOps.PointOnSegment.stateSize = 2;
 
 
 geoOps._helper.CenterOfConic = function(c) {
-    // The center is the pole of the line at infinity.
-    return General.mult(List.adjoint3(c), List.linfty);
+    // The center is the pole of the dual conic of the line at infinity
+    var adj = List.adjoint3(c);
+    // return General.mult(adj, List.linfty);
+    // do not use matrix vector multiplication, we know the result
+    return {
+        'ctype': 'list',
+        'value': [adj.value[2].value[0], adj.value[2].value[1], adj.value[2].value[2]]
+    };
 };
 
 geoOps.CenterOfConic = {};
@@ -631,8 +637,6 @@ geoOps.CenterOfConic.updatePosition = function(el) {
     el.homog = erg;
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
-
-
 };
 
 geoOps._helper.CircleMP = function(m, p) {
