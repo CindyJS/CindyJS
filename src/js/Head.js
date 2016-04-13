@@ -151,10 +151,10 @@ var createCindy = (function() {
                     callback();
                 });
             };
-            createCindy.dumpState(index) {
+            createCindy.dumpState = function(index) {
                 // Call this if you find a rendering bug you'd like to reproduce.
                 // The save the printed JSON to a file and include it in your report.
                 var state = createCindy.instances[index || 0].saveState();
                 console.log(JSON.stringify(state));
-            }
+            };
             createCindy.newInstance = function(instanceInvocationArguments) {
