@@ -258,10 +258,53 @@ function updateCindy() {
     csport.reset();
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
-    if (csgridsize !== 0)
-        csAssets.drawgrid(CSNumber.real(csgridsize), General.bool(csaxes));
-    if (csaxes)
-        csAssets.drawaxes();
+    var m = csport.drawingstate.matrix;
+    // due to the csport.reset(), m is initial, i.e. a = d and b = c = 0
+    if (csgridsize !== 0) {
+        csctx.beginPath();
+        csctx.strokeStyle = "rgba(0,0,0,0.1)";
+        csctx.lineWidth = 1;
+        csctx.lineCap = "butt";
+        var d = csgridsize * m.a;
+        var i, p;
+        i = Math.ceil(-m.tx / d);
+        while ((p = i * d + m.tx) < csw) {
+            if (i || !csaxes) {
+                csctx.moveTo(p, 0);
+                csctx.lineTo(p, csh);
+            }
+            i++;
+        }
+        i = Math.floor(m.ty / d);
+        while ((p = i * d - m.ty) < csh) {
+            if (i || !csaxes) {
+                csctx.moveTo(0, p);
+                csctx.lineTo(csw, p);
+            }
+            i++;
+        }
+        csctx.stroke();
+    }
+    if (csaxes) {
+        csctx.beginPath();
+        csctx.strokeStyle = "rgba(0,0,0,0.2)";
+        csctx.lineWidth = 3;
+        csctx.lineCap = "butt";
+        csctx.lineJoin = "miter";
+        csctx.miterLimit = 10;
+        csctx.beginPath();
+        csctx.moveTo(0, -m.ty);
+        csctx.lineTo(csw - 6, -m.ty);
+        csctx.moveTo(csw - 23, -10 - m.ty);
+        csctx.lineTo(csw - 3, -m.ty);
+        csctx.lineTo(csw - 23, 10 - m.ty);
+        csctx.moveTo(m.tx, csh);
+        csctx.lineTo(m.tx, 6);
+        csctx.moveTo(m.tx - 10, 23);
+        csctx.lineTo(m.tx, 3);
+        csctx.lineTo(m.tx + 10, 23);
+        csctx.stroke();
+    }
     traceMouseAndScripts();
     //   console.log("NOW UPDATING");
     //  drawgrid();

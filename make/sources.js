@@ -40,7 +40,6 @@ exports.lib = [
 ];
 
 exports.cssrc = [
-    "src/cs/drawgrid.cs",
 ];
 
 exports.inclosure = [
