@@ -295,14 +295,14 @@ function updateCindy() {
         csctx.beginPath();
         csctx.moveTo(0, -m.ty);
         csctx.lineTo(csw - 6, -m.ty);
-        csctx.moveTo(csw - 23, -10 - m.ty);
+        csctx.moveTo(csw - 13, -5 - m.ty);
         csctx.lineTo(csw - 3, -m.ty);
-        csctx.lineTo(csw - 23, 10 - m.ty);
+        csctx.lineTo(csw - 13, 5 - m.ty);
         csctx.moveTo(m.tx, csh);
         csctx.lineTo(m.tx, 6);
-        csctx.moveTo(m.tx - 10, 23);
+        csctx.moveTo(m.tx - 5, 13);
         csctx.lineTo(m.tx, 3);
-        csctx.lineTo(m.tx + 10, 23);
+        csctx.lineTo(m.tx + 5, 13);
         csctx.stroke();
     }
     traceMouseAndScripts();
