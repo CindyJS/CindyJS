@@ -477,6 +477,7 @@ module.exports = function build(settings, task) {
 
     var extra_libs = [
         "node_modules/pako/dist/pako.min.js",
+        "node_modules/papaparse/papaparse.min.js",
     ];
 
     task("xlibs", [], function() {

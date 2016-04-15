@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+
+str = "id,first_name,last_name,email,gender,ip_address
+1,Christopher    ,Myers,cmyers0@dmoz.org,Male,35.39.21.234
+2,""Johnny"",Weaver,jweaver1@google.es,Male,237.124.135.200
+3,       Ronald,Cunningham,rcunningham2@shutterfly.com,Male,65.239.45.108
+4,Julia,"Flores",jflores3@tumblr.com,False,121.137.43.247
+5,Amy     ,Wright,awright4@wikipedia.org,True,50.3.70.174";
+
+println(str);
+
+res = parseCSV(str, delimiter->",", newline->"\n", autoconvert->false);
+println(res);
+
+str2 = "Foo,1.0
+Bar,2.3
+abc,5.0
+asd,1.3
+sdf,4.3
+lala,2.3
+Barrr,1.7
+Baz,4.7";
+
+res2 = parseCSV(str2);
+println(res2);
+res3 = sort(res2, #_2);
+grades = column(res2, 2);
+average = sum(grades)/length(grades);
+println("average " + average);
+println("best " + min(grades));
+println("worst " + max(grades));
+
+println("best + name: " + res3_1_1 + " " + res3_1_2);
+// Initialization code, executed once up front.
+// Drawing code, executed whenever the canvas gets redrawn.
+
+// bools
+
+bools= "Foo;True
+Bar;False
+abc;true
+asd;false
+sdf;4.3
+lala;2.3
+Barrr;1.7
+Baz;4.7";
+
+println(bools);
+cbool = parseCSV(bools);
+println(cbool);
+mytrue = cbool_1_2;
+println("should be true: "+mytrue);
+myfalse = !mytrue;
+println("should be false: "+myfalse);
+println("!true " + !(cbool_1_2));
+
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+    // See GeoBasics.js for possible attributes.
+  },
+  geometry: [
+//    {name:"A", type:"Free", pos:[0,0]}
+    // For allowed types, see GeoOps.js.
+    // For allowed properties, see csinit in GeoBasics.js.
+  ] // End of geometry array.
+});
+
+// Remove all comments after adjusting this template for your use case.
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="500" height="500"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>

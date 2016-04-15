@@ -4374,3 +4374,68 @@ evaluator.setsimulationquality$1 = function(args, modifs) {
     }
     return nada;
 };
+
+evaluator.parseCSV$1 = function(args, modifs) {
+    // more strict float parsing
+    var filterFloat = function(value) {
+        if (/^(\-|\+)?([0-9]+(\.[0-9]+)?|Infinity)$/
+            .test(value))
+            return Number(value);
+        return NaN;
+    };
+
+    // autoconvert like tokenize
+    var aucon = true;
+    var mcon = evaluateAndVal(modifs.autoconvert);
+    if (mcon.ctype === "boolean") aucon = mcon.value;
+
+    var delim = "";
+    var md = modifs.delimiter;
+    if (md && md.ctype === "string" && md.value.length === 1) delim = md.value;
+
+    var nl = "";
+    var mnl = modifs.newline;
+    if (mnl && mnl.ctype === "string" && mnl.value.length === 2) nl = mnl.value;
+
+    var papaconfig = {
+        delimiter: delim,
+        newline: nl
+    };
+
+    var str = evaluateAndVal(args[0]).value;
+    var parsed = window.Papa.parse(str, papaconfig);
+    if (parsed.errors.length > 0) console.log("there were CSV parse errors");
+    var data = parsed.data;
+
+    // convert to CS*
+    var itm, pitm;
+    for (var i = 0; i < data.length; i++) {
+        for (var j = 0; j < data[i].length; j++) {
+            itm = data[i][j];
+            pitm = filterFloat(itm);
+            // Numbers
+            if (!isNaN(pitm) && aucon) data[i][j] = CSNumber.real(pitm);
+            // Bools
+            else if ((/[Tt]rue/).test(itm) && aucon) {
+                data[i][j] = {
+                    'ctype': 'boolean',
+                    'value': true
+                };
+            } else if ((/[Ff]alse/).test(itm) && aucon) {
+                data[i][j] = {
+                    'ctype': 'boolean',
+                    'value': false
+                };
+            }
+            // Strings
+            else data[i][j] = {
+                "ctype": "string",
+                value: itm
+            };
+
+        }
+        data[i] = List.turnIntoCSList(data[i]);
+    }
+    return List.turnIntoCSList(data);
+    // error handling todo
+};
