@@ -127,9 +127,21 @@ geoOps.Meet.visiblecheck = function(el) {
 };
 
 geoOps._helper.midpoint = function(a, b) {
+    var aZ = a.value[2];
+    var bZ = b.value[2];
+
+    // case both points on l_infty
+    if (CSNumber._helper.isAlmostZero(aZ) && CSNumber._helper.isAlmostZero(bZ)) {
+        var aY = a.value[1];
+        var bY = b.value[1];
+        return List.normalizeMax(List.add(
+            List.scalmult(bY, a),
+            List.scalmult(aY, b)));
+    }
+    // finite points + 1 finite and 1 infinite 
     return List.normalizeMax(List.add(
-        List.scalmult(b.value[2], a),
-        List.scalmult(a.value[2], b)));
+        List.scalmult(bZ, a),
+        List.scalmult(aZ, b)));
 };
 
 geoOps.Mid = {};
