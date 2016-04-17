@@ -166,3 +166,35 @@ describe("IntersectLC helper", function() {
     p2.value[1].value.imag.should.be.approximately(0, 1e-12);
   });
 });
+
+
+describe("MidPoint", function() {
+  it("generic input", function(done) {
+    testGeo([
+      {name:"A", type:"Free", pos:[0,0]},
+      {name:"B", type:"Free", pos:[2,2]},
+      {name:"M", type:"Mid", args:["A","B"]},
+    ], homog([1,1,1]), done);
+  });
+  it("finite identical", function(done) {
+    testGeo([
+      {name:"A", type:"Free", pos:[2,2]},
+      {name:"B", type:"Free", pos:[2,2]},
+      {name:"M", type:"Mid", args:["A","B"]},
+    ], homog([2,2,1]), done);
+  });
+  it("finite point + far point", function(done) {
+    testGeo([
+      {name:"A", type:"Free", pos:[0,0,1]},
+      {name:"B", type:"Free", pos:[1,1,0]},
+      {name:"M", type:"Mid", args:["A","B"]},
+    ], homog([1,1,0]), done);
+  });
+  it("2 x infinite", function(done) {
+    testGeo([
+      {name:"A", type:"Free", pos:[2,2,0]},
+      {name:"B", type:"Free", pos:[0,-1,0]},
+      {name:"M", type:"Mid", args:["A","B"]},
+    ], homog([1,2,0]), done);
+  });
+});
