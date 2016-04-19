@@ -502,39 +502,47 @@ Render2D.drawpoint = function(pt) {
 Render2D.drawline = function(homog) {
     if (!List._helper.isAlmostReal(homog))
         return;
-    var l = List.normalizeMax(homog);
-    l = [l.value[0].value.real, l.value[1].value.real, l.value[2].value.real];
 
-    function lcrossxy(v) {
-        var zInverse = 1 / (l[0] * v[1] - l[1] * v[0]);
-        return {
-            x: (l[1] * v[2] - l[2] * v[1]) * zInverse,
-            y: (l[2] * v[0] - l[0] * v[2]) * zInverse
-        };
-    }
+    var n = List.normalizeMax(homog);
+    var a = n.value[0].value.real;
+    var b = n.value[1].value.real;
+    var c = n.value[2].value.real;
 
-    function sortxy(u, v) {
-        if (u.x !== v.x)
-            return u.x - v.x;
-        else
-            return u.y - v.y;
-    }
+    var distNeg = function(x, y) {
+        return x * a + y * b + c < 0;
+    };
 
     // do not draw beyond canvas boundary
     var m = csport.drawingstate.matrix;
-    var b1 = [m.a, m.b, m.tx]; // left boundary
-    var b2 = [m.a, m.b, m.tx - csw]; // right boundary
-    var b3 = [m.c, m.d, m.ty]; // upper boundary
-    var b4 = [m.c, m.d, csh - m.ty]; // lower boundary
-    if (l[0] === 0) { // horizontal line
-        Render2D.drawsegcore(lcrossxy(b1), lcrossxy(b2));
-        return;
-    } else if (l[1] === 0) { // vertical line
-        Render2D.drawsegcore(lcrossxy(b3), lcrossxy(b4));
-        return;
-    }
-    var intersection = [b1, b2, b3, b4].map(lcrossxy).sort(sortxy);
-    Render2D.drawsegcore(intersection[1], intersection[2]);
+    var xMin = (m.b * m.ty - m.d * m.tx) / m.det;
+    var xMax = (m.b * (m.ty - csh) - m.d * (m.tx - csw)) / m.det;
+    var yMax = (m.c * m.tx - m.a * m.ty) / m.det;
+    var yMin = (m.c * (m.tx - csw) - m.a * (m.ty + csh)) / m.det;
+
+    var ul = distNeg(xMin, yMax);
+    var ur = distNeg(xMax, yMax);
+    var ll = distNeg(xMin, yMin);
+    var lr = distNeg(xMax, yMin);
+
+    var erg = [];
+
+    if (ul !== ur) erg.push({
+        x: (-c - b * yMax) / a,
+        y: yMax
+    });
+    if (ur !== lr) erg.push({
+        x: xMax,
+        y: (-c - a * xMax) / b
+    });
+    if (ll !== lr) erg.push({
+        x: (-c - b * yMin) / a,
+        y: yMin
+    });
+    if (ul !== ll) erg.push({
+        x: xMin,
+        y: (-c - a * xMin) / b
+    });
+    if (erg.length === 2) Render2D.drawsegcore(erg[0], erg[1]);
 };
 
 Render2D.dashTypes = {
