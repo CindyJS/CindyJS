@@ -503,7 +503,12 @@ Render2D.drawline = function(homog) {
     if (!List._helper.isAlmostReal(homog))
         return;
 
-    var n = List.normalizeMax(homog);
+    // transformation to canvas coordinates
+    var m = csport.drawingstate.matrix;
+    var mInverse = List.inverse(List.realMatrix([[m.a, -m.b, m.tx],
+        [m.c, -m.d, -m.ty], [0, 0, 1]]));
+
+    var n = List.normalizeMax(List.productMV(List.transpose(mInverse), homog));
     var a = n.value[0].value.real;
     var b = n.value[1].value.real;
     var c = n.value[2].value.real;
@@ -513,11 +518,10 @@ Render2D.drawline = function(homog) {
     };
 
     // do not draw beyond canvas boundary
-    var m = csport.drawingstate.matrix;
-    var xMin = (m.b * m.ty - m.d * m.tx) / m.det;
-    var xMax = (m.b * (m.ty - csh) - m.d * (m.tx - csw)) / m.det;
-    var yMax = (m.c * m.tx - m.a * m.ty) / m.det;
-    var yMin = (m.c * (m.tx - csw) - m.a * (m.ty + csh)) / m.det;
+    var xMin = 0;
+    var xMax = csw;
+    var yMax = 0;
+    var yMin = csh;
 
     var ul = distNeg(xMin, yMax);
     var ur = distNeg(xMax, yMax);
@@ -542,7 +546,17 @@ Render2D.drawline = function(homog) {
         x: xMin,
         y: (-c - a * xMin) / b
     });
-    if (erg.length === 2) Render2D.drawsegcore(erg[0], erg[1]);
+
+    var toUserSpace = function (p) {
+        var q = List.productMV(mInverse, List.realVector([p.x, p.y, 1]));
+        return {
+            x: q.value[0].value.real / q.value[2].value.real,
+            y: q.value[1].value.real / q.value[2].value.real
+        };
+    };
+
+    if (erg.length === 2)
+        Render2D.drawsegcore(toUserSpace(erg[0]), toUserSpace(erg[1]));
 };
 
 Render2D.dashTypes = {
