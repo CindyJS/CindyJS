@@ -544,11 +544,7 @@ Render2D.drawline = function(homog) {
     });
 
     if (erg.length === 2 && lsize >= 0.01) {
-        csctx.lineWidth = lsize;
-        csctx.lineCap = Render2D.lineCap;
-        csctx.lineJoin = Render2D.lineJoin;
-        csctx.miterLimit = Render2D.miterLimit;
-        csctx.strokeStyle = Render2D.lineColor;
+        Render2D.preDrawCurve();
         csctx.beginPath();
         csctx.moveTo(erg[0].x, erg[0].y);
         csctx.lineTo(erg[1].x, erg[1].y);
