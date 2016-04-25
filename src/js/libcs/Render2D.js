@@ -518,10 +518,11 @@ Render2D.drawline = function(homog) {
     };
 
     // do not draw beyond canvas boundary
-    var xMin = 0;
-    var xMax = csw;
-    var yMax = 0;
-    var yMin = csh;
+    var lsize = Render2D.lsize;
+    var xMin = 0 - lsize;
+    var xMax = csw + lsize;
+    var yMax = 0 - lsize;
+    var yMin = csh + lsize;
 
     var ul = distNeg(xMin, yMax);
     var ur = distNeg(xMax, yMax);
@@ -547,8 +548,8 @@ Render2D.drawline = function(homog) {
         y: (-c - a * xMin) / b
     });
 
-    if (erg.length === 2 && Render2D.lsize >= 0.01) {
-        csctx.lineWidth = Render2D.lsize;
+    if (erg.length === 2 && lsize >= 0.01) {
+        csctx.lineWidth = lsize;
         csctx.lineCap = Render2D.lineCap;
         csctx.lineJoin = Render2D.lineJoin;
         csctx.miterLimit = Render2D.miterLimit;
