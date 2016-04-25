@@ -547,16 +547,18 @@ Render2D.drawline = function(homog) {
         y: (-c - a * xMin) / b
     });
 
-    var toUserSpace = function (p) {
-        var q = List.productMV(mInverse, List.realVector([p.x, p.y, 1]));
-        return {
-            x: q.value[0].value.real / q.value[2].value.real,
-            y: q.value[1].value.real / q.value[2].value.real
-        };
-    };
+    if (erg.length === 2 && Render2D.lsize >= 0.01) {
+        csctx.lineWidth = Render2D.lsize;
+        csctx.lineCap = Render2D.lineCap;
+        csctx.lineJoin = Render2D.lineJoin;
+        csctx.miterLimit = Render2D.miterLimit;
+        csctx.strokeStyle = Render2D.lineColor;
 
-    if (erg.length === 2)
-        Render2D.drawsegcore(toUserSpace(erg[0]), toUserSpace(erg[1]));
+        csctx.beginPath();
+        csctx.moveTo(erg[0].x, erg[0].y);
+        csctx.lineTo(erg[1].x, erg[1].y);
+        csctx.stroke();
+    }
 };
 
 Render2D.dashTypes = {
