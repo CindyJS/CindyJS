@@ -507,30 +507,25 @@ Render2D.drawline = function(homog) {
     var m = csport.drawingstate.matrix;
     var mInverse = List.inverse(List.realMatrix([[m.a, -m.b, m.tx],
         [m.c, -m.d, -m.ty], [0, 0, 1]]));
-
     var n = List.normalizeMax(List.productMV(List.transpose(mInverse), homog));
     var a = n.value[0].value.real;
     var b = n.value[1].value.real;
     var c = n.value[2].value.real;
 
-    var distNeg = function(x, y) {
-        return x * a + y * b + c < 0;
-    };
-
-    // do not draw beyond canvas boundary
+    // clip to canvas boundary (up to line size)
     var lsize = Render2D.lsize;
     var xMin = 0 - lsize;
     var xMax = csw + lsize;
     var yMax = 0 - lsize;
     var yMin = csh + lsize;
-
+    var distNeg = function(x, y) {
+        return x * a + y * b + c < 0;
+    };
     var ul = distNeg(xMin, yMax);
     var ur = distNeg(xMax, yMax);
     var ll = distNeg(xMin, yMin);
     var lr = distNeg(xMax, yMin);
-
     var erg = [];
-
     if (ul !== ur) erg.push({
         x: (-c - b * yMax) / a,
         y: yMax
@@ -554,7 +549,6 @@ Render2D.drawline = function(homog) {
         csctx.lineJoin = Render2D.lineJoin;
         csctx.miterLimit = Render2D.miterLimit;
         csctx.strokeStyle = Render2D.lineColor;
-
         csctx.beginPath();
         csctx.moveTo(erg[0].x, erg[0].y);
         csctx.lineTo(erg[1].x, erg[1].y);
