@@ -385,12 +385,7 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
-    csctx.lineWidth = Render2D.lsize;
-    csctx.lineCap = Render2D.lineCap;
-    csctx.lineJoin = Render2D.lineJoin;
-    csctx.miterLimit = Render2D.miterLimit;
-    csctx.strokeStyle = Render2D.lineColor;
-
+    Render2D.preDrawCurve();
 
     if (!Render2D.isArrow ||
         (endpoint1x === endpoint1y && endpoint2x === endpoint2y)) {
