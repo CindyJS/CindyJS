@@ -512,10 +512,11 @@ Render2D.drawline = function(homog) {
 
     // clip to canvas boundary (up to line size)
     var lsize = Render2D.lsize;
-    var xMin = 0 - lsize;
-    var xMax = csw + lsize;
-    var yMax = 0 - lsize;
-    var yMin = csh + lsize;
+    var margin = Math.sqrt(0.5) * lsize;
+    var xMin = 0 - margin;
+    var xMax = csw + margin;
+    var yMax = 0 - margin;
+    var yMin = csh + margin;
     var distNeg = function(x, y) {
         return x * a + y * b + c < 0;
     };
