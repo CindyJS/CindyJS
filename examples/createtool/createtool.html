@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Cindy JS</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            button {
+                background-color: #FFFFFF;
+                border: 1px solid #CCCCCC;
+            }
+        </style>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cindy = createCindy({ 
+        	scripts: "cs*", 
+        	defaultAppearance: {}, 
+        	geometry: [], 
+        	ports: [ 
+        		{ id: "CSCanvas", width: 680, height: 336, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.12 ] } ], background: "rgb(168,176,192)" } ] });
+        </script>
+    </head>
+    <body>
+        <script id="csinit" type="text/x-cindyscript">
+            createtool(["Move", "Point", "Mid", "Circle", "Line", "Compass", "Segment", "Parallel", "Orthogonal"], 0, 0);
+            createtool("Meet", 0, 0);
+            //createtool("Delete");
+        </script>
+        <canvas id="CSCanvas" width="500" height="500"></canvas>
+	</body>
+</html>

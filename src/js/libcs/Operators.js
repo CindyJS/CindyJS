@@ -4374,3 +4374,62 @@ evaluator.setsimulationquality$1 = function(args, modifs) {
     }
     return nada;
 };
+
+var activeButton;
+
+evaluator.createtool$3 = function(args, modifis) {
+    var name = evaluate(args[0]);
+
+    if (name.ctype === "string") {
+        addTool(name.value);
+
+    } else if (name.ctype === "list") {
+        for (var i = 0; i < name.value.length; i++) {
+            if (name.value[i].ctype === "string") {
+                addTool(name.value[i].value);
+            }
+        }
+
+    } else {
+        console.log("Name must be a string or a list of strings");
+    }
+
+    return nada;
+};
+
+function addTool(name) {
+    if (typeof tools[name] === "undefined") {
+        console.log("Tool '" + name + "' not implemented yet.");
+        return;
+    }
+
+    var toolbar = document.getElementById("toolbar");
+
+    if (document.getElementById("toolbar") === null) {
+        toolbar = document.createElement("div");
+        toolbar.id = "toolbar";
+
+        document.body.appendChild(toolbar);
+    }
+
+    if (document.getElementById("tooltip") === null) {
+        var tooltip = document.createElement("div");
+        tooltip.id = "tooltip";
+
+        document.body.appendChild(tooltip);
+    }
+
+    var button = document.createElement("button");
+    button.innerHTML = "<img src='" + createCindy.getBaseDir() + "images/" + name + ".png'>";
+    button.onclick = function() {
+        if (typeof activeButton !== "undefined") {
+            activeButton.style.border = "";
+        }
+
+        activeButton = this;
+        activeButton.style.border = "1px solid black";
+        setActiveTool(name);
+    };
+
+    toolbar.appendChild(button);
+}

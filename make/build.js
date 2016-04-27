@@ -489,6 +489,20 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Copy images to build directory
+    //////////////////////////////////////////////////////////////////////
+
+    var images = glob.sync("images/*.{png,jpg}");
+
+    task("images", [], function() {
+        this.parallel(function() {
+            images.forEach(function(input) {
+                this.copy(input, path.join("build", "js", input));
+            }, this);
+        });
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Copy things which constitute a release
     //////////////////////////////////////////////////////////////////////
 
@@ -520,6 +534,7 @@ module.exports = function build(settings, task) {
         "cindygl",
         "katex",
         "xlibs",
+        "images",
     ].concat(gwt_modules));
 
 };
