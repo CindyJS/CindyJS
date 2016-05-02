@@ -7,6 +7,7 @@
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script type="text/javascript" src="../build/js/pako.min.js"></script>
 <script id="csinit" type="text/x-cindyscript">
+  use("imgmeta");
   aa=(;); // Initialize to nada
 </script>
 <script id="csdraw" type="text/x-cindyscript">
@@ -168,7 +169,7 @@ function utf8Decode(bytes) {
     }).join(""));
 }
 
-function plugin(api) {
+createCindy.registerPlugin(1, "imgmeta", function(api) {
     api.defineFunction("xmpdescription", 1, function(args, modifs) {
         var img = api.evaluate(args[0]);
         if (img.ctype === "image") { // dropped image file
@@ -246,12 +247,9 @@ function plugin(api) {
             return api.nada;
         }
     });
-}
-plugin.apiVersion = 1;
+});
 
 var cdy = createCindy({
-  plugins: {imgmeta: plugin},
-  use: ["imgmeta"],
   ports: [{id: "CSCanvas"}],
   scripts: "cs*",
   language: "en",
