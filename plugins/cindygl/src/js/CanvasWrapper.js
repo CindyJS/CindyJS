@@ -4,7 +4,7 @@
 function addCanvasWrapperIfRequired(name, api) {
   if (!canvaswrappers.hasOwnProperty(name)) {
     let img = api.getImage(name, true); //this might be a canvas as well
-    if (img instanceof Image && !img.ready) {
+    if (img instanceof Image && !img['ready']) {
       console.error("Image not ready. Creating onload event.");
       img['onload'] = function() {
         img['ready'] = true;
@@ -35,12 +35,12 @@ function CanvasWrapper(canvas) {
   tmpcanvas.height = this.sizeYP;
 
   let tcontext = tmpcanvas.getContext('2d');
-  
+
   //we will draw the image on tmpcanvas on y-flipped way, because webgl encodes pixel rows in other order than canvas
   tcontext.translate(0, this.sizeY);
   tcontext.scale(1, -1); // flip the image
   tcontext.drawImage(canvas, 0, 0, this.sizeX, this.sizeY);
-  
+
   let rawData = createPixelArrayFromUint8(tcontext.getImageData(0, 0, this.sizeXP, this.sizeYP).data);
 
   //framebuffers and textures
@@ -55,7 +55,7 @@ function CanvasWrapper(canvas) {
     this.textures[j] = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    
+
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

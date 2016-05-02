@@ -177,40 +177,36 @@ function computeUpperLeftCorner(api) {
 }
 
 //from http://stackoverflow.com/questions/6162651/half-precision-floating-point-in-java/6162687#6162687
-var toHalf = (function() {
+var floatView = new Float32Array(1);
+var int32View = new Int32Array(floatView.buffer);
+function toHalf(fval) {
+  floatView[0] = fval;
+  var fbits = int32View[0];
+  var sign = (fbits >> 16) & 0x8000; // sign only
+  var val = (fbits & 0x7fffffff) + 0x1000; // rounded value
 
-  var floatView = new Float32Array(1);
-  var int32View = new Int32Array(floatView.buffer);
-
-  return function toHalf(fval) {
-    floatView[0] = fval;
-    var fbits = int32View[0];
-    var sign = (fbits >> 16) & 0x8000; // sign only
-    var val = (fbits & 0x7fffffff) + 0x1000; // rounded value
-
-    if (val >= 0x47800000) { // might be or become NaN/Inf
-      if ((fbits & 0x7fffffff) >= 0x47800000) {
-        // is or must become NaN/Inf
-        if (val < 0x7f800000) { // was value but too large
-          return sign | 0x7c00; // make it +/-Inf
-        }
-        return sign | 0x7c00 | // remains +/-Inf or NaN
-          (fbits & 0x007fffff) >> 13; // keep NaN (and Inf) bits
+  if (val >= 0x47800000) { // might be or become NaN/Inf
+    if ((fbits & 0x7fffffff) >= 0x47800000) {
+      // is or must become NaN/Inf
+      if (val < 0x7f800000) { // was value but too large
+        return sign | 0x7c00; // make it +/-Inf
       }
-      return sign | 0x7bff; // unrounded not quite Inf
+      return sign | 0x7c00 | // remains +/-Inf or NaN
+        (fbits & 0x007fffff) >> 13; // keep NaN (and Inf) bits
     }
-    if (val >= 0x38800000) { // remains normalized value
-      return sign | val - 0x38000000 >> 13; // exp - 127 + 15
-    }
-    if (val < 0x33000000) { // too small for subnormal
-      return sign; // becomes +/-0
-    }
-    val = (fbits & 0x7fffffff) >> 23; // tmp exp for subnormal calc
-    return sign | ((fbits & 0x7fffff | 0x800000) // add subnormal bit
-      + (0x800000 >>> val - 102) // round depending on cut off
-      >> 126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
-  };
-}());
+    return sign | 0x7bff; // unrounded not quite Inf
+  }
+  if (val >= 0x38800000) { // remains normalized value
+    return sign | val - 0x38000000 >> 13; // exp - 127 + 15
+  }
+  if (val < 0x33000000) { // too small for subnormal
+    return sign; // becomes +/-0
+  }
+  val = (fbits & 0x7fffffff) >> 23; // tmp exp for subnormal calc
+  return sign | ((fbits & 0x7fffff | 0x800000) // add subnormal bit
+    + (0x800000 >>> val - 102) // round depending on cut off
+    >> 126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
+};
 
 var toByte = function(f) {
   return f * 255;
@@ -218,20 +214,45 @@ var toByte = function(f) {
 
 /**
  * converts a float array to an array encoded in the internal type
+ * @param {Array<number>} pixels
  */
 function createPixelArrayFromFloat(pixels) {
   if (can_use_texture_float) return new Float32Array(pixels);
-  if (can_use_texture_half_float) return new Uint16Array(pixels.map(toHalf));
-  else return new Uint8Array(pixels.map(toByte));
+  if (can_use_texture_half_float) { //return new Uint16Array(pixels.map(toHalf)); <- does not work in recent safari
+    let newpixels = new Uint16Array(pixels.length);
+    for (let i = 0; i < pixels.length; i++) {
+      newpixels[i] = toHalf(pixels[i]);
+    }
+    return newpixels;
+  } else { //return new Uint8Array(pixels.map(toByte)); <- does not work in recent safari
+    let newpixels = new Uint8Array(pixels.length);
+    for (let i = 0; i < pixels.length; i++) {
+      newpixels[i] = toByte(pixels[i]);
+    }
+    return newpixels;
+  }
 }
 
 /**
  * converts a float array to an array encoded in the internal type
+ * @param {Array<number>} pixels
  */
 function createPixelArrayFromUint8(pixels) {
-  if (can_use_texture_float) return (new Float32Array(pixels)).map(x => x / 255.);
-  if (can_use_texture_half_float) return new Uint16Array((new Float32Array(pixels)).map(x => x / 255.));
-  else return new Uint8Array(pixels);
+  if (can_use_texture_float) { //return (new Float32Array(pixels)).map(x => x / 255.); <- does not work in recent safari
+    let newpixels = new Float32Array(pixels.length);
+    for (let i = 0; i < pixels.length; i++) {
+      newpixels[i] = pixels[i] / 255.;
+    }
+    return newpixels;
+  }
+
+  if (can_use_texture_half_float) { //return new Uint16Array((new Float32Array(pixels)).map(x => x / 255.)); <- does not work in recent safari
+    let newpixels = new Uint16Array(pixels.length);
+    for (let i = 0; i < pixels.length; i++) {
+      newpixels[i] = toHalf(pixels[i] / 255.);
+    }
+    return newpixels;
+  } else return new Uint8Array(pixels);
 }
 
 
