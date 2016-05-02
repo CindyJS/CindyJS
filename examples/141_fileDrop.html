@@ -6,52 +6,43 @@
 <meta charset="UTF-8">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csinit" type="text/x-cindyscript">
-
-// Initialization code, executed once up front.
-
+  dropped = (;); // undefined
 </script>
-<script id="csmove" type="text/x-cindyscript">
-aa = lastdropped();
-errc(aa);
-if(!isundefined(aa),
-apply(aa,
-	ft = lastdroppedtype();
-	println(ft);
-	if(ft == "image", drawimage(A,#),
-		if(ft == "string", println(#)));
-);
-);
-//errc(aa);
-//if(!isundefined(aa),
-//	ft = lastdroppedtype();
-//	println(ft);
-//	if(ft == "image", drawimage(A,aa),
-//		if(ft == "string", println(aa)));
-//);
-
+<script id="csdraw" type="text/x-cindyscript">
+  img = (;);
+  txt = (;);
+  if (!isundefined(dropped),
+    forall (dropped, i, (
+      if (i_2 == "image", img = i_1);
+      if (i_2 == "string", txt = i_1);
+    ));
+  );
+  if (!isundefined(img), drawimage(A, B, img),
+    if (!isundefined(txt), drawtext(A, txt, color->[0, 0.5, 0.75])));
+  if (!isundefined(dropped), (
+    drawtext((0, 0), length(dropped) + " files dropped");
+    forall (1..length(dropped), i, (
+      drawtext((0, -i), dropped_i_2 + " named " + dropped_i_4);
+    ));
+  ), drawtext((0, 0), "Drag and drop files into this area"));
 </script>
 
 <script id="csondrop" type="text/x-cindyscript">
+  dropped = dropped();
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({ // See ref/createCindy documentation for details.
-  ports: [{id: "CSCanvas"}],
+var cdy = createCindy({
+  ports: [{id: "CSCanvas", transform: [{visibleRect: [-1, -25, 25, 1]}]}],
   scripts: "cs*",
   language: "en",
-  movescript: "csmove",
   defaultAppearance: {
-    // See GeoBasics.js for possible attributes.
   },
-                       // images:{rost:"rost.png",boe:"boe.png"},
   geometry: [
-    {name:"A", type:"Free", pos:[0,0]},
-    // For allowed types, see GeoOps.js.
-    // For allowed properties, see csinit in GeoBasics.js.
-  ] // End of geometry array.
+    {name:"A", type:"Free", pos:[5,-20]},
+    {name:"B", type:"Free", pos:[15,-20]},
+  ]
 });
-
-// Remove all comments after adjusting this template for your use case.
 
 </script>
 </head>
