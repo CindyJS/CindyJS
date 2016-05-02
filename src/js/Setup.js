@@ -71,7 +71,7 @@ var haveCanvas = function(canvas) {
     return canvas;
 };
 
-var csmouse, csctx, csw, csh, csgeo, images;
+var csmouse, csctx, csw, csh, csgeo, images, dropped = nada;
 
 function createCindyNow() {
     startupCalled = true;
@@ -127,7 +127,7 @@ function createCindyNow() {
     var scripts = ["move", "keydown",
         "mousedown", "mouseup", "mousedrag",
         "init", "tick", "draw",
-        "simulationstep", "simulationstart", "simulationstop"
+        "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
     var scriptconf = data.scripts,
         scriptpat = null;

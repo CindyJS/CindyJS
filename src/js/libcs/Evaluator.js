@@ -42,6 +42,9 @@ function evaluate(a) {
     if (a.ctype === 'error') {
         return a;
     }
+    if (a.ctype === 'image') {
+        return a;
+    }
 
     if (a.ctype === 'field') {
 
