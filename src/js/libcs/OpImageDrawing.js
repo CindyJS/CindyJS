@@ -2,32 +2,22 @@
 // and here are the definitions of the image operators
 //*******************************************************
 
-
-eval_helper.extractReferenceX = function(w, pos) {
-
-
-};
+function imageFromValue(val) {
+    if (val.ctype === 'image') {
+        return val.value;
+    }
+    if (val.ctype === 'string' && images.hasOwnProperty(val.value)) {
+        return images[val.value];
+    }
+    return null;
+}
 
 evaluator.imagesize$1 = function(args, modifs) {
-    var img = evaluateAndVal(args[0]);
-
-    if (img.ctype === 'string') {
-        if (images[img.value]) {
-            var w = images[img.value].width;
-            var h = images[img.value].height;
-            return List.realVector([w, h]);
-        }
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (img) {
+        return List.realVector([+img.width, +img.height]);
     }
-    if (img.ctype === 'image') {
-        if (img.value) {
-            var w = img.value.width;
-            var h = img.value.height;
-            return List.realVector([w, h]);
-        }
-    }
-
     return nada;
-
 };
 
 function drawImageIndirection(img, x, y) {
@@ -130,13 +120,7 @@ evaluator.drawimage$2 = function(args, modifs) {
             return nada;
         }
 
-        if (img.ctype === "image") {
-            img = img.value;
-        } else if (img.ctype === "string") {
-            img = images[img.value];
-        } else {
-            return nada;
-        }
+        img = imageFromValue(img);
         if (!img) {
             return nada;
         }
@@ -248,13 +232,7 @@ evaluator.drawimage$2 = function(args, modifs) {
             return nada;
         }
 
-        if (img.ctype === "image") {
-            img = img.value;
-        } else if (img.ctype === "string") {
-            img = images[img.value];
-        } else {
-            return nada;
-        }
+        img = imageFromValue(img);
         if (!img) {
             return nada;
         }

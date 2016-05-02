@@ -213,7 +213,7 @@ function setuplisteners(canvas, data) {
                             value: img
                         };
                         oneDone(i, value);
-                    }
+                    };
                     img.src = reader.result;
                 };
                 reader.readAsDataURL(file);
@@ -221,6 +221,7 @@ function setuplisteners(canvas, data) {
                 oneDone(i, nada);
             }
         });
+
         function oneDone(i, value, type) {
             dropped[i] = List.turnIntoCSList([
                 value,
