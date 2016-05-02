@@ -40,7 +40,6 @@ function drawImageIndirection(img, x, y) {
 
 evaluator.drawimage$2 = function(args, modifs) {
 
-    //   debugger;
     function drawimg1() {
 
 
@@ -138,7 +137,6 @@ evaluator.drawimage$2 = function(args, modifs) {
         } else {
             return nada;
         }
-
         if (!img) {
             return nada;
         }
@@ -257,15 +255,10 @@ evaluator.drawimage$2 = function(args, modifs) {
         } else {
             return nada;
         }
+        if (!img) {
+            return nada;
+        }
 
-        if (!img) {
-            return nada;
-        }
-        // console.lof(JSON.stringify(images));
-        //img = images[img.value];
-        if (!img) {
-            return nada;
-        }
         var w = img.width;
         var h = img.height;
 

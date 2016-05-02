@@ -219,7 +219,6 @@ function createCindyNow() {
 
     //Read images: TODO ordentlich machen
     for (var k in data.images) {
-        //debugger;
         var name = data.images[k];
         images[k] = new Image();
         images[k].ready = false;
