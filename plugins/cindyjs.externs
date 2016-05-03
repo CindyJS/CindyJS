@@ -27,7 +27,7 @@ createCindy.op;
  *    height: number,
  *    ready: boolean,
  *    live: boolean,
- *    callWhenReady: function(function()),
+ *    whenReady: function(function()),
  *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number))
  *  }}
  */

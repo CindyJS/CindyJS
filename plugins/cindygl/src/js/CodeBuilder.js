@@ -54,7 +54,7 @@ CodeBuilder.prototype.includedfunctions;
 /** @type {createCindy.pluginApi} */
 CodeBuilder.prototype.api;
 
-/** @dict @type {Object} */
+/** @type {Object.<TextureReader>} */
 CodeBuilder.prototype.texturereaders;
 
 /**
@@ -885,13 +885,9 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
 
   console.log(code);
 
-  //Object.keys(this.texturereaders)
-  let requiredtextures = [];
-  for (let texture in this.texturereaders) requiredtextures.push(texture);
-
   return {
     code: code,
     uniforms: this.uniforms,
-    requiredtextures: requiredtextures
+    texturereaders: this.texturereaders
   };
 };

@@ -3,11 +3,11 @@
  */
 function addCanvasWrapperIfRequired(name, api) {
   if (!canvaswrappers.hasOwnProperty(name)) {
-    let img = api.getImage(name, true); //this might be a canvas as well
-    canvaswrappers[name] = new CanvasWrapper(img); //this might be a 0x0px trash-image if image was not loaded.
-    if (!img.ready) {
+    let img = api.getImage(name, true);
+    canvaswrappers[name] = new CanvasWrapper(img);
+    if (!img.ready && false) {
       console.error("Image not ready. Creating onload event.");
-      img.callWhenReady(function() {
+      img.whenReady(function() {
         console.log("Image " + name + " has been loaded now");
         requiredcompiletime++; //force recompile
       });
@@ -46,9 +46,10 @@ function CanvasWrapper(canvas) {
   this.textures = [];
   this.framebuffers = [];
 
-  canvas['drawTo'] = this.drawTo.bind(this);
+  //canvas['drawTo'] = this.drawTo.bind(this);
+  //canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
+  canvas.drawTo = this.drawTo.bind(this);
   canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
-
 
   for (let j = 0; j < 2; j++) {
     this.textures[j] = gl.createTexture();

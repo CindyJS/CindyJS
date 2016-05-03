@@ -1,15 +1,11 @@
-function useimagergba4(args, codebuilder) {
-  let name = args[2];
-
-  if (codebuilder.api.getImage(name, true) == null) {
-    console.error("Could not find image " + name + ".");
-    return nada;
-  }
-
-  addCanvasWrapperIfRequired(name, codebuilder.api);
-
-  if (!codebuilder.texturereaders.hasOwnProperty(name)) {
-    codebuilder.texturereaders[name] = [
+/**
+ * @param {createCindy.image} image
+ * @param {string} name
+ * @constructor
+ */
+function TextureReader(name, image) {
+	 this.name = name;
+  this.code = [
       'uniform sampler2D _sampler_', name, ';',
       'uniform float _ratio_', name, ';',
       'uniform vec2 _cropfact_', name, ';',
@@ -27,6 +23,41 @@ function useimagergba4(args, codebuilder) {
       'return _imagergba_', name, '(A, B, p).rgb;',
       '}'
     ].join('');
+  this.image = image;
+}
+
+
+/**
+ * GLSL name of texture
+ * @type {string}
+ */
+TextureReader.prototype.name;
+
+/**
+ * glsl code of the texture reader (vec 4_imagergba_NAME(vec2 A, vec2 B, vec2 p) {...})
+ * @type {string}
+ */
+TextureReader.prototype.code;
+
+/**
+ * @type {createCindy.image}
+ */
+TextureReader.prototype.image;
+
+//TODO attribute von TextureReader auflisten
+
+function useimagergba4(args, codebuilder) {
+  let name = args[2];
+  let image = codebuilder.api.getImage(name, true);
+  if (image == null) {
+    console.error("Could not find image " + name + ".");
+    return nada;
+  }
+
+  addCanvasWrapperIfRequired(name, codebuilder.api);
+
+  if (!codebuilder.texturereaders.hasOwnProperty(name)) {
+    codebuilder.texturereaders[name] = new TextureReader(name, image);
   }
   return ['_imagergba_', name, '(', args[0], ',', args[1], ',', args[3], ')'].join('');
 }
@@ -58,7 +89,7 @@ function useimagergb2(args, codebuilder) {
 function generateHeaderOfTextureReaders(codebuilder) {
   let ans = '';
   for (let t in codebuilder.texturereaders) {
-    ans += codebuilder.texturereaders[t] + '\n';
+    ans += codebuilder.texturereaders[t].code + '\n';
   }
   return ans;
 };

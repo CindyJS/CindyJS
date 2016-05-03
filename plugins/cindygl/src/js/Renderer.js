@@ -82,8 +82,8 @@ Renderer.prototype.api;
 Renderer.prototype.canvaswrapper
 
 
-/** @type {Array.<string>} */
-Renderer.prototype.requiredtextures
+/** @type {Object.<TextureReader>} */
+Renderer.prototype.texturereaders
 
 
 /**
@@ -194,9 +194,11 @@ Renderer.prototype.setUniforms = function() {
  * Activates, loads textures and sets corresponding sampler uniforms
  */
 Renderer.prototype.loadTextures = function() {
-  for (let t = 0; t < this.requiredtextures.length; t++) {
-    gl.activeTexture(gl.TEXTURE0 + t);
-    let tname = this.requiredtextures[t];
+		let cnt = 0;
+  for (let t in this.texturereaders) {
+    gl.activeTexture(gl.TEXTURE0 + cnt);
+    cnt++;
+    let tname = this.texturereaders[t].name;
     let cw = canvaswrappers[tname];
     cw.bindTexture();
     this.shaderProgram.uniform['_sampler_' + tname]([t]);
