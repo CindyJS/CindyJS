@@ -21,6 +21,17 @@ createCindy.anyval;
  *            createCindy.anyval} */
 createCindy.op;
 
+/** @typedef {{
+ *    img: (HTMLImageElement|HTMLCanvasElement|HTMLVideoElement),
+ *    width: number,
+ *    height: number,
+ *    ready: boolean,
+ *    live: boolean,
+ *    callWhenReady: function(function()),
+ *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number))
+ *  }}
+ */
+createCindy.image;
 
 /** @typedef {{
  *    instance: Object,
@@ -35,7 +46,7 @@ createCindy.op;
  *    getVariable: function(string):createCindy.anyval,
  *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
  *      tx:number,ty:number,det:number,sdet:number},
- *    getImage: function(string, boolean),
+ *    getImage: function((string|createCindy.anyval),boolean=):createCindy.image,
  *    getMyfunction: function(string)
  *  }}
  */

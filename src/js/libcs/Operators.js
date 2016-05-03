@@ -3872,10 +3872,11 @@ evaluator.use$1 = function(args, modifs) {
                     textRenderer = handler;
                 },
                 "getImage": function(name, lazy) {
-                    if (!images.hasOwnProperty(name))
-                        return null;
-                    var img = images[name];
-                    if (!lazy && img.cdyUpdate())
+                    if (typeof name === "string")
+                        name = General.string(name);
+                    var img = imageFromValue(name);
+                    if (!img) return null;
+                    if (!lazy && img.cdyUpdate)
                         img.cdyUpdate();
                     return img;
                 },

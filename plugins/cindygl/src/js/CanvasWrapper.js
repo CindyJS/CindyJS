@@ -4,22 +4,21 @@
 function addCanvasWrapperIfRequired(name, api) {
   if (!canvaswrappers.hasOwnProperty(name)) {
     let img = api.getImage(name, true); //this might be a canvas as well
-    if (img instanceof Image && !img['ready']) {
+    canvaswrappers[name] = new CanvasWrapper(img); //this might be a 0x0px trash-image if image was not loaded.
+    if (!img.ready) {
       console.error("Image not ready. Creating onload event.");
-      img['onload'] = function() {
-        img['ready'] = true;
-        canvaswrappers[name] = new CanvasWrapper(img);
+      img.callWhenReady(function() {
         console.log("Image " + name + " has been loaded now");
         requiredcompiletime++; //force recompile
-      };
+      });
     }
-    canvaswrappers[name] = new CanvasWrapper(img); //this might be a 0x0px trash-image if image was not loaded.
   }
 }
 
 /**
  * Note that CanvasWrapper might also wrap an image instead of a canvas
  * @constructor
+ * @param canvas {createCindy.image}
  */
 function CanvasWrapper(canvas) {
   this.canvas = canvas;
@@ -39,7 +38,7 @@ function CanvasWrapper(canvas) {
   //we will draw the image on tmpcanvas on y-flipped way, because webgl encodes pixel rows in other order than canvas
   tcontext.translate(0, this.sizeY);
   tcontext.scale(1, -1); // flip the image
-  tcontext.drawImage(canvas, 0, 0, this.sizeX, this.sizeY);
+  tcontext.drawImage(canvas.img, 0, 0, this.sizeX, this.sizeY);
 
   let rawData = createPixelArrayFromUint8(tcontext.getImageData(0, 0, this.sizeXP, this.sizeYP).data);
 
@@ -132,7 +131,7 @@ CanvasWrapper.prototype.bindFramebuffer = function() {
 
 
 CanvasWrapper.prototype.copyTextureToCanvas = function() {
-  let context = this.canvas.getContext('2d');
+  let context = this.canvas.img.getContext('2d');
 
   //Copy things from glcanvas to the cindyjs-canvas representing that canvas
   context.clearRect(0, 0, this.sizeX, this.sizeY);
@@ -166,7 +165,7 @@ CanvasWrapper.prototype.setPixel = function(x, y, color) {
   gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, 1, 1,
     gl.RGBA, getPixelType(), createPixelArrayFromFloat(colordata));
 
-  let context = this.canvas.getContext('2d');
+  let context = this.canvas.img.getContext('2d');
   let id = context.createImageData(1, 1); // only do this once per page
   id.data.d = colordata;
   context.putImageData(id, x, y);

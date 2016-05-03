@@ -208,11 +208,7 @@ function setuplisteners(canvas, data) {
                 reader.onload = function() {
                     var img = new Image();
                     img.onload = function() {
-                        var value = {
-                            ctype: "image",
-                            value: img
-                        };
-                        oneDone(i, value);
+                        oneDone(i, loadImage(img));
                     };
                     img.src = reader.result;
                 };

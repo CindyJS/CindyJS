@@ -7,24 +7,32 @@ function imageFromValue(val) {
         return val.value;
     }
     if (val.ctype === 'string' && images.hasOwnProperty(val.value)) {
-        return images[val.value];
+        return images[val.value].value;
     }
     return null;
 }
 
 evaluator.imagesize$1 = function(args, modifs) {
     var img = imageFromValue(evaluateAndVal(args[0]));
-    if (img) {
-        return List.realVector([+img.width, +img.height]);
+    if (!img) {
+        return nada;
     }
-    return nada;
+    return List.realVector([+img.width, +img.height]);
+};
+
+evaluator.imageready$1 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (!img) {
+        return nada;
+    }
+    return General.bool(img.ready);
 };
 
 function drawImageIndirection(img, x, y) {
     if (img.drawTo) {
         img.drawTo(csctx, x, y);
     } else {
-        csctx.drawImage(img, x, y);
+        csctx.drawImage(img.img, x, y);
     }
 }
 
