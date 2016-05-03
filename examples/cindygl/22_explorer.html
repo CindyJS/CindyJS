@@ -111,7 +111,11 @@ if (webcam & isundefined(camvideo), camvideo=cameravideo());
 if (webcam & imageready(camvideo), (
   if (!iscam, iscam=true; err("webcam on"); forcerecompile(););
   color(z) := ( //what color should be given to a complex number z?
-    imagergb(camvideo, z - floor(z))
+    z = if(linear, z, log(z));
+    z = z * (grid+1);
+    c = imagergb([-.2,0],[1.2,0],camvideo, mod(z/2/pi + .5+0.5*i, 1+1*i));
+    b = c*[1,1,1]/3;
+    sat*c + (1-sat)*[b,b,b]
   );
 ), (
   if (iscam, iscam=false; err("webcam off"); forcerecompile(););
