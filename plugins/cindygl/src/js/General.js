@@ -267,3 +267,81 @@ function smallestPowerOfTwoGreaterOrEqual(a) {
   while (ans < a) ans <<= 1;
   return ans;
 };
+
+
+var imageobjects = {};
+
+function callFunctionNow(f) {
+    return f();
+}
+
+/**
+ * @return {createCindy.image}
+ */
+function generateImageObjectFromNameIfRequired(name, api) {
+	
+	if (imageobjects.hasOwnProperty(name)) return imageobjects[name];
+	
+	let img = api.getImage(name.value, true);
+	 let value = {
+        img: img,
+        width: NaN,
+        height: NaN,
+        ready: true,
+        live: false,
+        whenReady: callFunctionNow,
+    };
+    var tag = img.tagName.toLowerCase();
+    var callWhenReady = [];
+    if (tag === "img") {
+        if (img.complete) {
+            value.width = img.width;
+            value.height = img.height;
+        } else {
+            value.ready = false;
+            img.addEventListener("load", function() {
+                value.width = img.width;
+                value.height = img.height;
+                value.ready = true;
+                value.whenReady = callFunctionNow;
+                callWhenReady.forEach(callFunctionNow);
+            });
+            value.whenReady = callWhenReady.push.bind(callWhenReady);
+        }
+    } else if (tag === "video") {
+        value.live = true;
+        if (img.readyState >= img.HAVE_METADATA) {
+            value.width = img.videoWidth;
+            value.height = img.videoHeight;
+        } else {
+            value.ready = false;
+            img.addEventListener("loadedmetadata", function() {
+                value.width = img.videoWidth;
+                value.height = img.videoHeight;
+                value.ready = true;
+                value.whenReady = callFunctionNow;
+                callWhenReady.forEach(callFunctionNow);
+            });
+            value.whenReady = callWhenReady.push.bind(callWhenReady);
+        }
+    } else if (tag === "canvas") {
+        value.width = img.width;
+        value.height = img.height;
+    } else {
+        console.error("Not a valid image element", tag, img);
+    }
+    imageobjects[name] = value;
+    return imageobjects[name];
+}
+
+/** @typedef {{
+ *    img: (HTMLImageElement|HTMLCanvasElement|HTMLVideoElement),
+ *    width: number,
+ *    height: number,
+ *    ready: boolean,
+ *    live: boolean,
+ *    whenReady: function(function()),
+ *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number))
+ *  }}
+ */
+;

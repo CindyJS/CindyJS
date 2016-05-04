@@ -1,18 +1,22 @@
 /**
- * adds a canvasWrapper to canvaswrappers-dictionary. If argument is a image that was not loaded, do this with onload-event.
+ * adds a canvasWrapper to an image object. A reference will be added to imageobject. If argument is a image that was not loaded, this will be done as onload-event.
+ * @param {createCindy.image} imageobject
+ * @return {CanvasWrapper}
  */
-function addCanvasWrapperIfRequired(name, api) {
-  if (!canvaswrappers.hasOwnProperty(name)) {
-    let img = api.getImage(name, true);
-    canvaswrappers[name] = new CanvasWrapper(img);
-    if (!img.ready && false) {
+function generateCanvasWrapperIfRequired(imageobject, api) {
+  if (!imageobject.hasOwnProperty('canvaswrapper')) {
+				
+				imageobject.canvaswrapper = new CanvasWrapper(imageobject);
+    if (!imageobject.ready) {
       console.error("Image not ready. Creating onload event.");
-      img.whenReady(function() {
-        console.log("Image " + name + " has been loaded now");
-        requiredcompiletime++; //force recompile
+      imageobject.whenReady(function() {
+								imageobject.canvaswrapper = new CanvasWrapper(imageobject);
+        console.log("Image has been loaded now");
+        requiredcompiletime++; //force recompile //TODO: check
       });
     }
   }
+  return imageobject['canvaswrapper'];
 }
 
 /**

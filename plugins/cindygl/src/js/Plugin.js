@@ -124,18 +124,11 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
       return nada;
     }
 
-    var localcanvas = api.getImage(name.value, true); //note: localcanvas might be an image
-
-    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
-      return nada;
-    }
-
-    var cw = localcanvas.width;
-    var ch = localcanvas.height;
-
-    addCanvasWrapperIfRequired(name.value, api);
-
-    compileAndRender(prog, a, b, cw, ch, canvaswrappers[name.value]);
+				let imageobject = generateImageObjectFromNameIfRequired(name.value, api);
+    let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
+    var cw = imageobject.width;
+    var ch = imageobject.height;
+    compileAndRender(prog, a, b, cw, ch, canvaswrapper);
 
     return nada;
   });
@@ -155,20 +148,12 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
       return nada;
     }
 
-    var localcanvas = api.getImage(name.value, true);
+		let imageobject = generateImageObjectFromNameIfRequired(name.value, api);
+    let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
+    var cw = imageobject.width;
+    var ch = imageobject.height;
+    compileAndRender(prog, a, b, cw, ch, canvaswrapper);
 
-    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
-      return nada;
-    }
-
-    var cw = localcanvas.width;
-    var ch = localcanvas.height;
-
-    if (!canvaswrappers.hasOwnProperty(name.value)) {
-      canvaswrappers[name.value] = new CanvasWrapper(localcanvas);
-    }
-
-    compileAndRender(prog, a, b, cw, ch, canvaswrappers[name.value]);
 
     return nada;
   });
@@ -180,9 +165,12 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var y = coerce.toInt(api.evaluateAndVal(args[2]));
 
     var color = coerce.toColor(api.evaluateAndVal(args[3]));
+    
+    let imageobject = generateImageObjectFromNameIfRequired(name, api);
+    let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
 
-    if (isFinite(x) && isFinite(y) && name && canvaswrappers.hasOwnProperty(name) && color) {
-      canvaswrappers[name].setPixel(x, y, color);
+    if (isFinite(x) && isFinite(y) && name && canvaswrapper && color) {
+      canvaswrapper.setPixel(x, y, color);
     }
     return nada;
   });

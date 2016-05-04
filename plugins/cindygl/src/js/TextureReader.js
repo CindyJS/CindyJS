@@ -1,9 +1,9 @@
 /**
- * @param {createCindy.image} image
+ * @param {CanvasWrapper} canvaswrapper
  * @param {string} name
  * @constructor
  */
-function TextureReader(name, image) {
+function TextureReader(name, canvaswrapper) {
 	 this.name = name;
   this.code = [
       'uniform sampler2D _sampler_', name, ';',
@@ -23,7 +23,7 @@ function TextureReader(name, image) {
       'return _imagergba_', name, '(A, B, p).rgb;',
       '}'
     ].join('');
-  this.image = image;
+  this.canvaswrapper = canvaswrapper;
 }
 
 
@@ -40,9 +40,9 @@ TextureReader.prototype.name;
 TextureReader.prototype.code;
 
 /**
- * @type {createCindy.image}
+ * @type {CanvasWrapper}
  */
-TextureReader.prototype.image;
+TextureReader.prototype.canvaswrapper;
 
 //TODO attribute von TextureReader auflisten
 
@@ -54,10 +54,11 @@ function useimagergba4(args, codebuilder) {
     return nada;
   }
 
-  addCanvasWrapperIfRequired(name, codebuilder.api);
+				let imageobject = generateImageObjectFromNameIfRequired(name, codebuilder.api);
+    let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, codebuilder.api);
 
   if (!codebuilder.texturereaders.hasOwnProperty(name)) {
-    codebuilder.texturereaders[name] = new TextureReader(name, image);
+    codebuilder.texturereaders[name] = new TextureReader(name, canvaswrapper);
   }
   return ['_imagergba_', name, '(', args[0], ',', args[1], ',', args[3], ')'].join('');
 }
