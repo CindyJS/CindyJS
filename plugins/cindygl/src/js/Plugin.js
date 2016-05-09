@@ -30,7 +30,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     }
     /*else {
          console.log("Program has been compiled; we will use that compiled code.");
-       }*/
+    }*/
     prog.renderer.render(a, b, width, height, canvaswrapper);
   }
 
@@ -123,8 +123,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     if (!a.ok || !b.ok || name.ctype !== 'string') {
       return nada;
     }
-
-				let imageobject = generateImageObjectFromNameIfRequired(name.value, api);
+				let imageobject = api.getImage(name.value, true);
     let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
     var cw = imageobject.width;
     var ch = imageobject.height;
@@ -147,8 +146,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     if (name.ctype !== 'string') {
       return nada;
     }
-
-		let imageobject = generateImageObjectFromNameIfRequired(name.value, api);
+			
+				let imageobject = api.getImage(name.value, true);
     let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
     var cw = imageobject.width;
     var ch = imageobject.height;
@@ -165,8 +164,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var y = coerce.toInt(api.evaluateAndVal(args[2]));
 
     var color = coerce.toColor(api.evaluateAndVal(args[3]));
-    
-    let imageobject = generateImageObjectFromNameIfRequired(name, api);
+				if(!name) return nada;
+    let imageobject = api.getImage(name, true);
     let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
 
     if (isFinite(x) && isFinite(y) && name && canvaswrapper && color) {

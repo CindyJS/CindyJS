@@ -194,7 +194,7 @@ Renderer.prototype.setUniforms = function() {
  * Activates, loads textures and sets corresponding sampler uniforms
  */
 Renderer.prototype.loadTextures = function() {
-		let cnt = 0;
+  let cnt = 0;
   for (let t in this.texturereaders) {
     gl.activeTexture(gl.TEXTURE0 + cnt);
     cnt++;

@@ -179,6 +179,7 @@ function computeUpperLeftCorner(api) {
 //from http://stackoverflow.com/questions/6162651/half-precision-floating-point-in-java/6162687#6162687
 var floatView = new Float32Array(1);
 var int32View = new Int32Array(floatView.buffer);
+
 function toHalf(fval) {
   floatView[0] = fval;
   var fbits = int32View[0];
@@ -272,66 +273,16 @@ function smallestPowerOfTwoGreaterOrEqual(a) {
 var imageobjects = {};
 
 function callFunctionNow(f) {
-    return f();
+  return f();
 }
 
 /**
  * @return {createCindy.image}
  */
-function generateImageObjectFromNameIfRequired(name, api) {
-	
-	if (imageobjects.hasOwnProperty(name)) return imageobjects[name];
-	
-	let img = api.getImage(name.value, true);
-	 let value = {
-        img: img,
-        width: NaN,
-        height: NaN,
-        ready: true,
-        live: false,
-        whenReady: callFunctionNow,
-    };
-    var tag = img.tagName.toLowerCase();
-    var callWhenReady = [];
-    if (tag === "img") {
-        if (img.complete) {
-            value.width = img.width;
-            value.height = img.height;
-        } else {
-            value.ready = false;
-            img.addEventListener("load", function() {
-                value.width = img.width;
-                value.height = img.height;
-                value.ready = true;
-                value.whenReady = callFunctionNow;
-                callWhenReady.forEach(callFunctionNow);
-            });
-            value.whenReady = callWhenReady.push.bind(callWhenReady);
-        }
-    } else if (tag === "video") {
-        value.live = true;
-        if (img.readyState >= img.HAVE_METADATA) {
-            value.width = img.videoWidth;
-            value.height = img.videoHeight;
-        } else {
-            value.ready = false;
-            img.addEventListener("loadedmetadata", function() {
-                value.width = img.videoWidth;
-                value.height = img.videoHeight;
-                value.ready = true;
-                value.whenReady = callFunctionNow;
-                callWhenReady.forEach(callFunctionNow);
-            });
-            value.whenReady = callWhenReady.push.bind(callWhenReady);
-        }
-    } else if (tag === "canvas") {
-        value.width = img.width;
-        value.height = img.height;
-    } else {
-        console.error("Not a valid image element", tag, img);
-    }
-    imageobjects[name] = value;
-    return imageobjects[name];
+function generateImageObjectFromNameIfRequiredTODODELTE(name, api) {
+  if (imageobjects.hasOwnProperty(name)) return imageobjects[name];
+  imageobjects[name] = api.getImage(name, true);
+  return imageobjects[name];
 }
 
 /** @typedef {{
