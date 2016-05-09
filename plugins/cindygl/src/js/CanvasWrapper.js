@@ -7,7 +7,7 @@ function addCanvasWrapperIfRequired(name, api) {
     canvaswrappers[name] = new CanvasWrapper(img); //this might be a 0x0px trash-image if image was not loaded.
     if (!img.ready) {
       console.error("Image not ready. Creating onload event.");
-      img.callWhenReady(function() {
+      img.whenReady(function() {
         console.log("Image " + name + " has been loaded now");
         requiredcompiletime++; //force recompile
       });
