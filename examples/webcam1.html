@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Webcam in Cindy JS</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+video = camera video();
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if (image ready(video),
+  draw image (A, B, video);
+);
+</script>
+<script type="text/javascript">
+var cdy = createCindy({
+  ports: [{id: "CSCanvas", transform:[{visibleRect:[-0.1,30.1,40.1,-0.1]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0]},
+    {name:"B", type:"Free", pos:[40,0]}
+  ]
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="804" height="604"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>
