@@ -574,6 +574,8 @@ evaluator.if$3 = function(args, modifs) { //OK
         } else if (args.length === 3) {
             return evaluate(args[2]);
         }
+    } else {
+        csconsole.err("Condition for if is not boolean");
     }
 
     return nada;

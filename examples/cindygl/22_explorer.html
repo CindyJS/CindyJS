@@ -20,6 +20,9 @@ grid1=true;
 grid2=true;
 linear=false;   
 bw=false;
+webcam=false;
+camvideo=(;);
+iscam=false;
 
 t0 = seconds();
 </script>
@@ -104,6 +107,18 @@ hsvToRGB(h, s, v) := (
 
 time = t0-seconds();
 
+if (webcam & isundefined(camvideo), camvideo=cameravideo());
+if (webcam & imageready(camvideo), (
+  if (!iscam, iscam=true; err("webcam on"); forcerecompile(););
+  color(z) := ( //what color should be given to a complex number z?
+    z = if(linear, z, log(z));
+    z = z * (grid+1);
+    c = imagergb([-.2,0],[1.2,0],camvideo, mod(z/2/pi + .5+0.5*i, 1+1*i));
+    b = c*[1,1,1]/3;
+    sat*c + (1-sat)*[b,b,b]
+  );
+), (
+  if (iscam, iscam=false; err("webcam off"); forcerecompile(););
 color(z) := ( //what color should be given to a complex number z?
   regional(n, grey1, grey2);
   
@@ -122,6 +137,7 @@ color(z) := ( //what color should be given to a complex number z?
   
   hsvToRGB(im(z), if(bw, 0, sat), .5+.5*if(bw, grey1*grey2, re(sqrt(grey1*grey2))))
 );
+));
 
 colorplot(
   regional(z, ac, bc, cc, dc);
@@ -227,6 +243,15 @@ var check3=function(){
 
        }
 }
+
+    var check5=function(){
+       if(document.getElementById("ch5").checked){
+          cdy.evokeCS('webcam=true;');
+       } else {
+           cdy.evokeCS('webcam=false;');
+
+       }
+}
 </script>
 </head>
 
@@ -257,7 +282,8 @@ between $-1$ and $+1$.
   <input id="ch1" onclick="check1()" checked=true type="checkbox" >angles&nbsp;&nbsp;&nbsp;
   <input id="ch2" onclick="check2()" checked=true type="checkbox" >radii&nbsp;&nbsp;&nbsp;
   <input id="ch3" onclick="check3()" type="checkbox" >linear diagram&nbsp;&nbsp;&nbsp;
-  <input id="ch4" onclick="check4()" type="checkbox" >black/white<br>
+  <input id="ch4" onclick="check4()" type="checkbox" >black/white&nbsp;&nbsp;&nbsp;
+  <input id="ch5" onclick="check5()" type="checkbox" >webcam<br>
   </div>
 <div style="position:absolute; top:770px; left:5px; display:inline;z-index:4">
 <input type="text" id="inp" value="(1-a)*(1+a)"  onkeypress="typ(event, this)" size="60" style="font-size:18px">
