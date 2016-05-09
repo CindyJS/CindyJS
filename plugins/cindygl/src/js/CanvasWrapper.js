@@ -60,7 +60,6 @@ function CanvasWrapper(canvas) {
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
-    console.log("copied image");
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
