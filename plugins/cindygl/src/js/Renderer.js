@@ -8,7 +8,7 @@ function Renderer(api, expression) {
   let cb = new CodeBuilder(api);
   let cpg = cb.generateColorPlotProgram(expression);
   this.cpguniforms = cpg.uniforms;
-  this.requiredtextures = cpg.requiredtextures;
+  this.texturereaders = cpg.texturereaders;
 
   this.fragmentShaderCode =
     cgl_resources["standardFragmentHeader"] + cpg.code;

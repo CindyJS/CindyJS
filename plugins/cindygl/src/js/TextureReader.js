@@ -54,7 +54,7 @@ function useimagergba4(args, codebuilder) {
     return nada;
   }
 
-  
+
   let imageobject = codebuilder.api.getImage(name, true);
   let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, codebuilder.api);
 
