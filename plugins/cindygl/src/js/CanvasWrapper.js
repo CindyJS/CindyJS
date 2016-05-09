@@ -50,10 +50,9 @@ function CanvasWrapper(canvas) {
   this.textures = [];
   this.framebuffers = [];
 
-  //canvas['drawTo'] = this.drawTo.bind(this);
-  //canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
-  canvas.drawTo = this.drawTo.bind(this);
+  canvas['drawTo'] = this.drawTo.bind(this);
   canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
+
 
   for (let j = 0; j < 2; j++) {
     this.textures[j] = gl.createTexture();

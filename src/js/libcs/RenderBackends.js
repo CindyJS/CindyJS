@@ -785,7 +785,7 @@ function parseColor(spec, cb) {
 function cacheImages(cb) {
     var toCache = 1;
     Object.keys(images).forEach(function(name) {
-        var img = images[name];
+        var img = images[name].value.img;
         if (img.cachedDataURL !== undefined) return;
         if (!img.src) return;
         if (img.src.substr(0, 5) === 'data:') {
