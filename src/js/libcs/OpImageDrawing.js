@@ -349,10 +349,15 @@ evaluator.allimages$0 = function() {
 
 evaluator.cameravideo$0 = function() {
     var openVideoStream = null;
+    var constraints = {
+        video: true,
+        audio: false
+    };
     var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     if (gum) {
         openVideoStream = function(success, failure) {
-            navigator.mediaDevices.getUserMedia({video: true, audio: false})
+            navigator.mediaDevices
+                .getUserMedia(constraints)
                 .then(success, failure);
         };
     } else {
@@ -360,11 +365,9 @@ evaluator.cameravideo$0 = function() {
             navigator.webkitGetUserMedia ||
             navigator.mozGetUserMedia ||
             navigator.msGetUserMedia;
-        if(gum) {
+        if (gum) {
             openVideoStream = function(success, failure) {
-                gum.call(
-                    navigator, {video: true, audio: false},
-                    success, failure);
+                gum.call(navigator, constraints, success, failure);
             };
         }
     }
