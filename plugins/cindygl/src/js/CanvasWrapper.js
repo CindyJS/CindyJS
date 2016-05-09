@@ -32,6 +32,8 @@ function CanvasWrapper(canvas) {
   this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
   this.ratio = canvas.height / canvas.width;
   this.it = 0;
+  if (canvas.live)
+    updateBeforeRendering.push(this.reload.bind(this));
 
   //copy content of canvas to tmpcanvas in order to obtain pixel array
   tmpcanvas.width = this.sizeXP;
@@ -60,6 +62,7 @@ function CanvasWrapper(canvas) {
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+    console.log("copied image");
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -107,7 +110,7 @@ CanvasWrapper.prototype.sizeY;
 /** @type {number} */
 CanvasWrapper.prototype.ratio;
 
-/** @type {HTMLCanvasElement|Element} */
+/** @type {createCindy.image} */
 CanvasWrapper.prototype.canvas;
 
 /** What is the current index of the rendered frame

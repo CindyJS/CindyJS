@@ -426,6 +426,9 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
       //strings (e.g. names of other textures) cannot be passed as uniforms
       if (expr['ctype'] === 'string') return;
 
+      //possibly unnamed image object, handle like image name string
+      if (expr['ctype'] === 'image') return;
+
       //nothing to pass
       if (expr['ctype'] === 'void') return;
 

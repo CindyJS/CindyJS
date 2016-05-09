@@ -22,10 +22,7 @@ evaluator.imagesize$1 = function(args, modifs) {
 
 evaluator.imageready$1 = function(args, modifs) {
     var img = imageFromValue(evaluateAndVal(args[0]));
-    if (!img) {
-        return nada;
-    }
-    return General.bool(img.ready);
+    return General.bool(!!(img && img.ready));
 };
 
 function drawImageIndirection(img, x, y) {
@@ -345,4 +342,45 @@ evaluator.allimages$0 = function() {
         });
     });
     return List.turnIntoCSList(lst);
+};
+
+evaluator.cameravideo$0 = function() {
+    var openVideoStream = null;
+    var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+    if (gum) {
+        openVideoStream = function(success, failure) {
+            navigator.mediaDevices.getUserMedia({video: true, audio: false})
+                .then(success, failure);
+        };
+    } else {
+        gum = navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia;
+        if(gum) {
+            openVideoStream = function(success, failure) {
+                gum.call(
+                    navigator, {video: true, audio: false},
+                    success, failure);
+            };
+        }
+    }
+    if (!openVideoStream) {
+        console.warn("getUserMedia call not supported");
+        return nada;
+    }
+    var video = document.createElement("video");
+    video.autoplay = true;
+    var img = loadImage(video);
+    console.log("Opening stream.");
+    openVideoStream(function success(stream) {
+        var url = window.URL.createObjectURL(stream);
+        console.log("Got video", url);
+        video.src = url;
+        video.addEventListener("loadeddata", csplay);
+    }, function failure(err) {
+        console.error("Could not get user video:", String(err), err);
+    });
+    console.log("img ready: ", img.value.ready);
+    return img;
 };
