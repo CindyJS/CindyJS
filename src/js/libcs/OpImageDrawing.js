@@ -378,12 +378,10 @@ evaluator.cameravideo$0 = function() {
     console.log("Opening stream.");
     openVideoStream(function success(stream) {
         var url = window.URL.createObjectURL(stream);
-        console.log("Got video", url);
         video.src = url;
         video.addEventListener("loadeddata", csplay);
     }, function failure(err) {
         console.error("Could not get user video:", String(err), err);
     });
-    console.log("img ready: ", img.value.ready);
     return img;
 };
