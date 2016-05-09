@@ -32,6 +32,8 @@ function CanvasWrapper(canvas) {
   this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
   this.ratio = canvas.height / canvas.width;
   this.it = 0;
+  if (canvas.live)
+    updateBeforeRendering.push(this.reload.bind(this));
 
   //copy content of canvas to tmpcanvas in order to obtain pixel array
   tmpcanvas.width = this.sizeXP;
@@ -108,7 +110,7 @@ CanvasWrapper.prototype.sizeY;
 /** @type {number} */
 CanvasWrapper.prototype.ratio;
 
-/** @type {HTMLCanvasElement|Element} */
+/** @type {createCindy.image} */
 CanvasWrapper.prototype.canvas;
 
 /** What is the current index of the rendered frame
@@ -174,4 +176,14 @@ CanvasWrapper.prototype.setPixel = function(x, y, color) {
   let id = context.createImageData(1, 1); // only do this once per page
   id.data.d = colordata;
   context.putImageData(id, x, y);
+};
+
+/**
+ * Reload texture data from input element (e.g. HTML video)
+ */
+CanvasWrapper.prototype.reload = function() {
+  this.bindTexture();
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
 };

@@ -14,6 +14,12 @@ var tmpcanvas;
 /** @type {WebGLRenderingContext} */
 var gl;
 
+/**
+ * Functions to call before rendering
+ * @type {Array.<function()>}
+ */
+var updateBeforeRendering = [];
+
 var nada;
 //var myfunctions;
 

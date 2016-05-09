@@ -22,10 +22,7 @@ evaluator.imagesize$1 = function(args, modifs) {
 
 evaluator.imageready$1 = function(args, modifs) {
     var img = imageFromValue(evaluateAndVal(args[0]));
-    if (!img) {
-        return nada;
-    }
-    return General.bool(img.ready);
+    return General.bool(!!(img && img.ready));
 };
 
 function drawImageIndirection(img, x, y) {

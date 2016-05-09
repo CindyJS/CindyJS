@@ -129,6 +129,8 @@ function guessTypeOfValue(tval) {
     }
   } else if (tval['ctype'] === 'string') {
     return type.string;
+  } else if (tval['ctype'] === 'image') {
+    return type.string; // Actually a misnomer here
   }
   console.error("Cannot guess type of " + JSON.stringify(tval));
   return nada;
