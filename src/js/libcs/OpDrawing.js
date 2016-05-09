@@ -1403,7 +1403,7 @@ evaluator.createimage$3 = function(args, modifs) {
     // canvas.style.border="1px solid #FF0000";
     canvas.style.display = "none";
     document.body.appendChild(canvas);
-    images[v0.value] = canvas;
+    images[v0.value] = loadImage(canvas);
 
     return nada;
 };
