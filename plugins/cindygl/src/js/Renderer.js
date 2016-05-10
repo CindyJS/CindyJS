@@ -225,7 +225,10 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
   //let d = {x: b.x + n.x, y: b.y + n.y};
 
   enlargeCanvasIfRequired(sizeX, sizeY)
-  gl.viewport(0, 0, sizeX, sizeY);
+  if (canvaswrapper)
+    gl.viewport(0, 0, sizeX, sizeY);
+  else
+    gl.viewport(0, glcanvas.height-sizeY, sizeX, sizeY);
 
   this.shaderProgram.use(gl);
   this.setTransformMatrix(a, b, c);

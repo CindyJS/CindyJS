@@ -56,8 +56,10 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     let ih = api.instance['canvas']['height'];
 
     compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
-    let csctx = api.instance['canvas'].getContext('2d');
+    let csctx = api.instance['canvas'].getContext('2d');    
     csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, cw, ch);
+    
+    
     return nada;
   });
 
@@ -106,7 +108,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var xx = pt.x * m.a - pt.y * m.b + m.tx;
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
-    csctx.drawImage(glcanvas, 0, glcanvas.height - ih * fy, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
+    //csctx.drawImage(glcanvas, 0, glcanvas.height - ih * fy, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
+    csctx.drawImage(glcanvas, 0, 0, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
     return nada;
   });
 
