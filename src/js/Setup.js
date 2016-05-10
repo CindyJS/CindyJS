@@ -71,6 +71,10 @@ var haveCanvas = function(canvas) {
     return canvas;
 };
 
+var isFiniteNumber = Number.isFinite || function(x) {
+    return (typeof x === 'number') && isFinite(x);
+};
+
 var csmouse, csctx, csw, csh, csgeo, images, dropped = nada;
 
 function createCindyNow() {
@@ -103,7 +107,7 @@ function createCindyNow() {
                 c.style.backgroundColor = port.background;
             if (port.transform !== undefined)
                 trafos = port.transform;
-            if (Number.isFinite(port.grid) && port.grid > 0)
+            if (isFiniteNumber(port.grid) && port.grid > 0)
                 csgridsize = port.grid;
             if (port.snap)
                 cssnap = true;
@@ -164,7 +168,7 @@ function createCindyNow() {
         }
     });
 
-    if (Number.isFinite(data.grid) && data.grid > 0) {
+    if (isFiniteNumber(data.grid) && data.grid > 0) {
         csgridsize = data.grid;
     }
     if (data.snap) {
