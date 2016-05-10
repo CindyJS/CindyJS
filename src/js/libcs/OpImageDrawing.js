@@ -346,13 +346,15 @@ evaluator.allimages$0 = function() {
 
 evaluator.cameravideo$0 = function() {
     var openVideoStream = null;
+    var constraints = {
+        video: true,
+        audio: false
+    };
     var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     if (gum) {
         openVideoStream = function(success, failure) {
-            navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: false
-                })
+            navigator.mediaDevices
+                .getUserMedia(constraints)
                 .then(success, failure);
         };
     } else {
@@ -362,12 +364,7 @@ evaluator.cameravideo$0 = function() {
             navigator.msGetUserMedia;
         if (gum) {
             openVideoStream = function(success, failure) {
-                gum.call(
-                    navigator, {
-                        video: true,
-                        audio: false
-                    },
-                    success, failure);
+                gum.call(navigator, constraints, success, failure);
             };
         }
     }
@@ -381,12 +378,10 @@ evaluator.cameravideo$0 = function() {
     console.log("Opening stream.");
     openVideoStream(function success(stream) {
         var url = window.URL.createObjectURL(stream);
-        console.log("Got video", url);
         video.src = url;
         video.addEventListener("loadeddata", csplay);
     }, function failure(err) {
         console.error("Could not get user video:", String(err), err);
     });
-    console.log("img ready: ", img.value.ready);
     return img;
 };
