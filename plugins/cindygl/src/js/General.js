@@ -270,31 +270,3 @@ function smallestPowerOfTwoGreaterOrEqual(a) {
   while (ans < a) ans <<= 1;
   return ans;
 };
-
-
-var imageobjects = {};
-
-function callFunctionNow(f) {
-  return f();
-}
-
-/**
- * @return {createCindy.image}
- */
-function generateImageObjectFromNameIfRequiredTODODELTE(name, api) {
-  if (imageobjects.hasOwnProperty(name)) return imageobjects[name];
-  imageobjects[name] = api.getImage(name, true);
-  return imageobjects[name];
-}
-
-/** @typedef {{
- *    img: (HTMLImageElement|HTMLCanvasElement|HTMLVideoElement),
- *    width: number,
- *    height: number,
- *    ready: boolean,
- *    live: boolean,
- *    whenReady: function(function()),
- *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number))
- *  }}
- */
-;

@@ -17,7 +17,8 @@ const type = { //assert all indices are different
   string: 14, //only needed for type detection of imagergb
   coordinate2d: 15, //for accessing 2D textures
   vec2complex: 16,
-  mat2complex: 17
+  mat2complex: 17,
+  image: 18
     // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
     // nonnegativefloat: 15 //@TODO: negative float...
 };
@@ -41,7 +42,8 @@ function typeToString(t) {
     'string',
     '2D-Coordinate',
     'complex[2]',
-    'complex[2,2]'
+    'complex[2,2]',
+    'image'
     //'positive float',
     //'non-negative float'
   ];
@@ -944,6 +946,12 @@ typeinference["imagergb"] = [{
 }, {
   args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
   res: type.vec3
+}, {
+  args: [type.image, type.coordinate2d],
+  res: type.vec3
+}, {
+  args: [type.coordinate2d, type.coordinate2d, type.image, type.coordinate2d],
+  res: type.vec3
 }];
 
 typeinference["imagergba"] = [{
@@ -951,6 +959,12 @@ typeinference["imagergba"] = [{
   res: type.vec4
 }, {
   args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
+  res: type.vec4
+}, {
+  args: [type.image, type.coordinate2d],
+  res: type.vec4
+}, {
+  args: [type.coordinate2d, type.coordinate2d, type.image, type.coordinate2d],
   res: type.vec4
 }];
 

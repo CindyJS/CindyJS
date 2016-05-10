@@ -320,7 +320,7 @@ webgltr["ceil"] = [
 webgltr["mod"] = [
   [int_fun$2, useinfix('%')],
   [float_fun$2, usefunction('mod')],
-  //[complex_fun$2, useincludefunction('modc')]
+  [complex_fun$2, usefunction('mod')] //or implement [complex_fun$2, useincludefunction('modc')], see https://github.com/CindyJS/CindyJS/issues/272
 ];
 
 webgltr["random"] = [
@@ -451,6 +451,14 @@ webgltr["imagergb"] = [
   [{
     args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
     res: type.vec3
+  }, useimagergb4],
+  [{
+    args: [type.image, type.coordinate2d],
+    res: type.vec3
+  }, useimagergb2],
+  [{
+    args: [type.coordinate2d, type.coordinate2d, type.image, type.coordinate2d],
+    res: type.vec3
   }, useimagergb4]
 ];
 webgltr["imagergba"] = [
@@ -460,6 +468,14 @@ webgltr["imagergba"] = [
   }, useimagergba2],
   [{
     args: [type.coordinate2d, type.coordinate2d, type.string, type.coordinate2d],
+    res: type.vec4
+  }, useimagergba4],
+  [{
+    args: [type.image, type.coordinate2d],
+    res: type.vec4
+  }, useimagergba2],
+  [{
+    args: [type.coordinate2d, type.coordinate2d, type.image, type.coordinate2d],
     res: type.vec4
   }, useimagergba4]
 ];

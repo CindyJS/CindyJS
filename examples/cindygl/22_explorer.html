@@ -111,7 +111,7 @@ if (webcam & isundefined(camvideo), camvideo=cameravideo());
 if (webcam & imageready(camvideo), (
   if (!iscam, iscam=true; err("webcam on"); forcerecompile(););
   color(z) := ( //what color should be given to a complex number z?
-    z = if(linear, z, log(z));
+    z = if(linear, z/5, log(z));
     z = z * (grid+1);
     c = imagergb([-.2,0],[1.2,0],camvideo, mod(z/2/pi + .5+0.5*i, 1+1*i));
     b = c*[1,1,1]/3;
@@ -247,8 +247,14 @@ var check3=function(){
     var check5=function(){
        if(document.getElementById("ch5").checked){
           cdy.evokeCS('webcam=true;');
+          document.getElementById("ch1").disabled = 
+          document.getElementById("ch2").disabled = 
+          document.getElementById("ch4").disabled = true;
        } else {
            cdy.evokeCS('webcam=false;');
+          document.getElementById("ch1").disabled = 
+          document.getElementById("ch2").disabled = 
+          document.getElementById("ch4").disabled = false;
 
        }
 }

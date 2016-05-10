@@ -62,7 +62,6 @@ function CanvasWrapper(canvas) {
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
-    console.log("copied image");
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -144,6 +143,17 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
   context.clearRect(0, 0, this.sizeX, this.sizeY);
   this.drawTo(context, 0, 0);
 }
+
+
+/**
+ * Reload texture data from input element (e.g. HTML video)
+ */
+CanvasWrapper.prototype.reload = function() {
+  this.bindTexture();
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+};
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
   enlargeCanvasIfRequired(this.sizeX, this.sizeY);

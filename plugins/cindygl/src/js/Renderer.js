@@ -201,9 +201,9 @@ Renderer.prototype.loadTextures = function() {
     let tname = this.texturereaders[t].name;
     let cw = this.texturereaders[t].canvaswrapper;
     cw.bindTexture();
-    this.shaderProgram.uniform['_sampler_' + tname]([t]);
-    this.shaderProgram.uniform['_ratio_' + tname]([cw.sizeX / cw.sizeY]);
-    this.shaderProgram.uniform['_cropfact_' + tname]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
+    this.shaderProgram.uniform['_sampler' + tname]([t]);
+    this.shaderProgram.uniform['_ratio' + tname]([cw.sizeX / cw.sizeY]);
+    this.shaderProgram.uniform['_cropfact' + tname]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
   }
 }
 
