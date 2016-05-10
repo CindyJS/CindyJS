@@ -258,6 +258,15 @@ function createPixelArrayFromUint8(pixels) {
   } else return new Uint8Array(pixels);
 }
 
+/**
+ * creates pixel array for black image
+ */
+function createPixelArray(size) {
+  if (can_use_texture_float) return new Float32Array(size);
+  if (can_use_texture_half_float) return new Uint16Array(size);
+  else return new Uint8Array(size);
+}
+
 
 function getPixelType() {
   if (can_use_texture_float) return gl.FLOAT;
