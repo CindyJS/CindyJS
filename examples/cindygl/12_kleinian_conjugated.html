@@ -99,7 +99,7 @@
       reada(z) := imagergb([-pi, -pi], [pi, -pi], "a", z).r;
       readInvB(z) := imagergb([-pi, -pi], [pi, -pi], "B", z).r;
       readb(z) := imagergb([-pi, -pi], [pi, -pi], "b", z).r;
-      readC(z) := imagergb([-pi, -pi], [pi, -pi], "C", z).r;
+      readInvC(z) := imagergb([-pi, -pi], [pi, -pi], "C", z).r;
       readc(z) := imagergb([-pi, -pi], [pi, -pi], "c", z).r;
       
       compose(f, a, b, c, d, e) := (
@@ -119,21 +119,21 @@
         ze = exp(complex(#));
         r0 = moebius(A, ze);
         r = log(r0);
-        compose(dmoebius(A, ze)/abs(r0)*abs(ze), readInvA(r), 0, readc(r), readC(r), 0)
+        compose(dmoebius(A, ze)/abs(r0)*abs(ze), readInvA(r), 0, readc(r), readInvC(r), 0)
       );
       
       colorplot([-pi, -pi], [pi, -pi], "b",
         ze = exp(complex(#));
         r0 = moebius(b, ze);
         r = log(r0);
-        compose(dmoebius(b, ze)/abs(r0)*abs(ze), reada(r), readInvA(r), readb(r), readc(r), readC(r))
+        compose(dmoebius(b, ze)/abs(r0)*abs(ze), reada(r), readInvA(r), readb(r), readc(r), readInvC(r))
       );
       
       colorplot([-pi, -pi], [pi, -pi], "B",
         ze = exp(complex(#));
         r0 = moebius(B, ze);
         r = log(r0);
-        compose(dmoebius(B, ze)/abs(r0)*abs(ze), reada(r), readInvA(r), readInvB(r), readc(r), readC(r))
+        compose(dmoebius(B, ze)/abs(r0)*abs(ze), reada(r), readInvA(r), readInvB(r), readc(r), readInvC(r))
       );
       
       colorplot([-pi, -pi], [pi, -pi], "c",
@@ -147,7 +147,7 @@
         ze = exp(complex(#));
         r0 = moebius(C, ze);
         r = log(r0);
-        compose(dmoebius(C, ze)/abs(r0)*abs(ze), reada(r), readInvA(r), readInvB(r), readb(r), readC(r))
+        compose(dmoebius(C, ze)/abs(r0)*abs(ze), reada(r), readInvA(r), readInvB(r), readb(r), readInvC(r))
       );
       
       
@@ -158,7 +158,7 @@
         s1 = reada(z);
         s2 = readInvB(z);
         s3 = readb(z);
-        s4 = readC(z);
+        s4 = readInvC(z);
         s5 = readc(z);
         sum = (s0+s1+s2+s3+s4+s5);
         gray(sum)+
