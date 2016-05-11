@@ -87,9 +87,9 @@
         a/(1+a);
       );
 
-      readA(z) := imagergb([-2.5, -2.5], [2.5, -2.5], "A", (z)).r;
+      readInvA(z) := imagergb([-2.5, -2.5], [2.5, -2.5], "A", (z)).r;
       reada(z) := imagergb([-2.5, -2.5], [2.5, -2.5], "a", (z)).r;
-      readB(z) := imagergb([-2.5, -2.5], [2.5, -2.5], "B", (z)).r;
+      readInvB(z) := imagergb([-2.5, -2.5], [2.5, -2.5], "B", (z)).r;
       readb(z) := imagergb([-2.5, -2.5], [2.5, -2.5], "b", (z)).r;
       readC(z) := imagergb([-2.5, -2.5], [2.5, -2.5], "C", (z)).r;
       readc(z) := imagergb([-2.5, -2.5], [2.5, -2.5], "c", (z)).r;
@@ -102,41 +102,41 @@
       
       colorplot([-2.5, -2.5], [2.5, -2.5], "a",
         r = moebius(a, (complex(#)));
-        compose(dmoebius(a, (complex(#))), reada(r), readb(r), readB(r), 0, 0)
+        compose(dmoebius(a, (complex(#))), reada(r), readb(r), readInvB(r), 0, 0)
       );
       
       colorplot([-2.5, -2.5], [2.5, -2.5], "A",
         r = moebius(A, (complex(#)));
-        compose(dmoebius(A, (complex(#))), readA(r), 0, readc(r), readC(r), 0)
+        compose(dmoebius(A, (complex(#))), readInvA(r), 0, readc(r), readC(r), 0)
       );
       
       colorplot([-2.5, -2.5], [2.5, -2.5], "b",
         r = moebius(b, (complex(#)));
-        compose(dmoebius(b, (complex(#))), reada(r), readA(r), readb(r), readc(r), readC(r))
+        compose(dmoebius(b, (complex(#))), reada(r), readInvA(r), readb(r), readc(r), readC(r))
       );
       
       colorplot([-2.5, -2.5], [2.5, -2.5], "B",
         r = moebius(B, (complex(#)));
-        compose(dmoebius(B, (complex(#))), reada(r), readA(r), readB(r), readc(r), readC(r))
+        compose(dmoebius(B, (complex(#))), reada(r), readInvA(r), readInvB(r), readc(r), readC(r))
       );
       
       colorplot([-2.5, -2.5], [2.5, -2.5], "c",
         r = moebius(c, (complex(#)));
-        compose(dmoebius(c, (complex(#))), reada(r), readA(r), readB(r), readb(r), readc(r))
+        compose(dmoebius(c, (complex(#))), reada(r), readInvA(r), readInvB(r), readb(r), readc(r))
       );
       
       colorplot([-2.5, -2.5], [2.5, -2.5], "C",
         r = moebius(C, (complex(#)));
-        compose(dmoebius(C, (complex(#))), reada(r), readA(r), readB(r), readb(r), readC(r))
+        compose(dmoebius(C, (complex(#))), reada(r), readInvA(r), readInvB(r), readb(r), readC(r))
       );
       
       
       
       colorplot( //crops internal textures from 1000x1000 to 1000x1000
         z = (complex(#));
-        s0 = readA(z);
+        s0 = readInvA(z);
         s1 = reada(z);
-        s2 = readB(z);
+        s2 = readInvB(z);
         s3 = readb(z);
         s4 = readC(z);
         s5 = readc(z);

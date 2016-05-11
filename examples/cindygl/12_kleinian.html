@@ -79,9 +79,9 @@
         a/(1+a);
       );
 
-      readA(z) := T(imagergb("A", z).r);
+      readInvA(z) := T(imagergb("A", z).r);
       reada(z) := T(imagergb("a", z).r);
-      readB(z) := T(imagergb("B", z).r);
+      readInvB(z) := T(imagergb("B", z).r);
       readb(z) := T(imagergb("b", z).r);
       
       compose(f, a, b, c, x) := (
@@ -92,23 +92,23 @@
       
       colorplot("a",
         r = moebius(a, complex(#));
-        compose(dmoebius(a, complex(#)), reada(r), readb(r), readB(r), #)
+        compose(dmoebius(a, complex(#)), reada(r), readb(r), readInvB(r), #)
       );
       
       colorplot("A",
         r = moebius(A, complex(#));
-        compose(dmoebius(A, complex(#)), readA(r), readb(r), readB(r), #)
+        compose(dmoebius(A, complex(#)), readInvA(r), readb(r), readInvB(r), #)
       );
       
       colorplot("b",
         r = moebius(b, complex(#));
-        compose(dmoebius(b, complex(#)), reada(r), readA(r), readb(r), #)
+        compose(dmoebius(b, complex(#)), reada(r), readInvA(r), readb(r), #)
       );
       
       
       colorplot("B",
         r = moebius(B, complex(#));
-        compose(dmoebius(B, complex(#)), reada(r), readA(r), readB(r), #)
+        compose(dmoebius(B, complex(#)), reada(r), readInvA(r), readInvB(r), #)
       );
       
       
