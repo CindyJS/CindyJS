@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>kal4.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({
+  scripts: "cs*",
+  use: ["katex"],
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, 3.5596330275229358, 0.9174311926605504], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "a", type: "Through", pos: [-0.061278264599546536, -0.9620687542128806, 4.0], color: [1.0, 0.0, 0.0], args: ["A"], labeled: true, size: 2},
+    {name: "b", type: "LineByFixedAngle", angle: 1.0471975511965976, color: [1.0, 0.0, 0.0], args: ["a", "A"], labeled: true, size: 2},
+    {name: "B", type: "PointOnLine", pos: [4.0, {r: -3.8033086097290982, i: 2.5887757123740245E-16}, {r: 3.673760161389957, i: -8.553888349923011E-16}], color: [1.0, 0.0, 0.0], args: ["b"], labeled: true},
+    {name: "C", type: "Mid", color: [1.0, 0.0, 0.0], args: ["A", "B"], visible: false, labeled: true},
+    {name: "C0", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["C", "A"], visible: false, printname: "$C_{0}$"},
+    {name: "D", type: "PointOnCircle", pos: [{r: -2.016061429309736, i: -5.028577817906375E-17}, -4.0, {r: -0.9251262885716401, i: -2.3187163313034956E-17}], color: [1.0, 0.0, 0.0], args: ["C0"], labeled: true},
+    {name: "", type: "OtherPointOnCircle", pos: [4.0, {r: -1.8094063931217357, i: 4.87835848818824E-18}, {r: 1.2234008338920301, i: -6.655686091523918E-17}], color: [1.0, 1.0, 1.0], args: ["D"], pinned: true, size: 0.0},
+    {name: "c", type: "Orthogonal", color: [0.0, 0.0, 1.0], args: ["b", "D"], visible: false, labeled: true},
+    {name: "d", type: "Orthogonal", color: [0.0, 0.0, 1.0], args: ["b", "C"], visible: false, labeled: true},
+    {name: "e", type: "Orthogonal", color: [0.0, 0.0, 1.0], args: ["c", "D"], visible: false, labeled: true},
+    {name: "E", type: "Meet", color: [0.0, 1.0, 0.0], args: ["b", "c"], visible: false, labeled: true},
+    {name: "C1", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["C", "E"], visible: false, printname: "$C_{1}$"},
+    {name: "F", type: "Meet", color: [1.0, 0.0, 0.0], args: ["d", "e"], visible: false, labeled: true},
+    {name: "C2", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["C", "F"], visible: false, printname: "$C_{2}$"},
+    {name: "Collection__1", type: "IntersectionConicLine", args: ["C2", "b"]},
+    {name: "H", type: "SelectP", pos: [4.0, {r: 3.2468005014178463, i: -1.3026559884886648E-16}, {r: 1.0345405487501997, i: -2.444547060364103E-17}], color: [0.831, 0.639, 1.0], args: ["Collection__1"], visible: false, labeled: true},
+    {name: "G", type: "SelectP", pos: [4.0, {r: -0.7423421953716579, i: -2.9403899987942096E-16}, {r: 2.527882492400307, i: -3.508792643522563E-16}], color: [0.831, 0.639, 1.0], args: ["Collection__1"], visible: false, labeled: true},
+    {name: "K", type: "OtherIntersectionCL", color: [0.0, 1.0, 0.0], args: ["C1", "b", "E"], visible: false, labeled: true},
+    {name: "f", type: "Orthogonal", color: [0.0, 0.0, 1.0], args: ["a", "B"], visible: false, labeled: true},
+    {name: "L", type: "Meet", color: [1.0, 0.0, 0.0], args: ["a", "f"], visible: false, labeled: true},
+    {name: "C3", type: "Compass", color: [0.0, 0.0, 1.0], args: ["L", "B", "C"], visible: false, printname: "$C_{3}$"},
+    {name: "Collection__2", type: "IntersectionConicLine", args: ["C3", "b"]},
+    {name: "M", type: "SelectP", pos: [{r: -3.91423314423894, i: 4.5107371534145966E-17}, -4.0, {r: -0.7043355671843328, i: 1.7036238555180012E-17}], color: [1.0, 0.0, 0.0], args: ["Collection__2"], visible: false, labeled: true},
+    {name: "Tr0", type: "TrSimilarity", color: [0.0, 0.0, 1.0], args: ["C", "C", "A", "M"], dock: {offset: [0.0, -0.0]}},
+    {name: "N", type: "TransformP", color: [0.831, 0.639, 1.0], args: ["Tr0", "G"], visible: false, labeled: true},
+    {name: "Collection__3", type: "IntersectionConicLine", args: ["C3", "d"]},
+    {name: "O", type: "SelectP", pos: [{r: 1.440404586585263, i: 1.6580913255809417E-16}, -4.0, {r: -0.9400023808660876, i: -3.7644385676057246E-17}], color: [1.0, 0.0, 0.0], args: ["Collection__3"], visible: false, labeled: true},
+    {name: "C4", type: "ConicFromPrincipalDirections", color: [1.0, 1.0, 1.0], args: ["C", "O", "N"], alpha: 0.20512820512820512, visible: false, printname: "$C_{4}$"},
+    {name: "P", type: "Free", pos: [4.0, 3.3846153846153846, 0.0], color: [1.0, 0.0, 0.0], visible: false, labeled: true},
+    {name: "Q", type: "Free", pos: [4.0, -1.0677966101694913, 0.0], color: [1.0, 0.0, 0.0], visible: false, labeled: true},
+    {name: "g", type: "Join", color: [0.0, 0.0, 1.0], args: ["P", "Q"], labeled: true},
+    {name: "R", type: "Meet", color: [1.0, 0.0, 0.0], args: ["a", "g"], visible: false, labeled: true},
+    {name: "h", type: "PolarOfPoint", color: [0.0, 0.0, 1.0], args: ["R", "C4"], visible: false, labeled: true},
+    {name: "Collection__4", type: "IntersectionConicLine", args: ["C4", "h"]},
+    {name: "S", type: "SelectP", pos: [{r: -1.1136219995549943, i: 2.4378334363989733E-16}, -4.0, {r: -0.7248687440473744, i: -4.5506761299218526E-17}], color: [1.0, 0.0, 0.0], args: ["Collection__4"], visible: false, labeled: true},
+    {name: "k", type: "Parallel", color: [0.0, 0.0, 1.0], args: ["a", "S"], visible: false, labeled: true},
+    {name: "l", type: "Parallel", color: [0.0, 0.0, 1.0], args: ["b", "S"], visible: false, labeled: true},
+    {name: "T", type: "Meet", color: [1.0, 0.0, 0.0], args: ["a", "l"], labeled: true},
+    {name: "Tr1", type: "TrTranslation", color: [0.0, 0.0, 1.0], args: ["S", "T"], dock: {offset: [0.0, -0.0]}},
+    {name: "C5", type: "TransformConic", color: [1.0, 1.0, 1.0], args: ["Tr1", "C4"], visible: false, printname: "$C_{5}$"},
+    {name: "U", type: "TransformP", color: [0.0, 1.0, 0.0], args: ["Tr1", "E"], labeled: true},
+    {name: "V", type: "TransformP", color: [0.0, 1.0, 0.0], args: ["Tr1", "K"], labeled: true},
+    {name: "m", type: "Segment", color: [0.0, 0.0, 1.0], args: ["U", "V"], labeled: true, size: 7},
+    {name: "Y", type: "Mid", color: [1.0, 0.0, 0.0], args: ["U", "V"], labeled: true},
+    {name: "Z", type: "Mid", color: [1.0, 0.0, 0.0], args: ["Y", "T"], visible: false, labeled: true},
+    {name: "C6", type: "Compass", color: [0.0, 0.0, 1.0], args: ["G", "H", "C"], visible: false, printname: "$C_{6}$"},
+    {name: "Collection__5", type: "IntersectionConicLine", args: ["C6", "b"]},
+    {name: "W", type: "SelectP", pos: [{r: 0.8763586995657636, i: 4.733494224864143E-16}, -4.0, {r: 1.9903549853061948, i: -2.0772223459790832E-16}], color: [0.467, 0.0, 0.718], args: ["Collection__5"], visible: false, labeled: true},
+    {name: "C7", type: "Compass", color: [1.0, 1.0, 1.0], args: ["A", "B", "C"], alpha: 0.20512820512820512, visible: false, printname: "$C_{7}$"},
+    {name: "Collection__6", type: "IntersectionConicLine", args: ["C7", "d"]},
+    {name: "X", type: "SelectP", pos: [{r: 1.8671193368394712, i: 1.166557350575155E-16}, -4.0, {r: -0.8522305319854716, i: -5.108063528896542E-17}], color: [1.0, 0.0, 0.0], args: ["Collection__6"], visible: false, labeled: true},
+    {name: "C8", type: "ConicFromPrincipalDirections", color: [1.0, 1.0, 1.0], args: ["C", "W", "X"], alpha: 0.20512820512820512, visible: false, printname: "$C_{8}$"},
+    {name: "C9", type: "TransformConic", color: [1.0, 1.0, 1.0], args: ["Tr1", "C8"], visible: false, printname: "$C_{9}$"},
+    {name: "Collection__7", type: "IntersectionConicLine", args: ["C9", "a"]},
+    {name: "P1", type: "SelectP", pos: [{r: -3.2660259747073206, i: -6.022529181234843E-15}, -4.0, {r: -1.0121028551796576, i: -9.226253418155035E-17}], color: [0.0, 1.0, 0.0], args: ["Collection__7"], labeled: true, printname: "$P_{0}$"},
+    {name: "P0", type: "SelectP", pos: [{r: 1.8819502912889265, i: -2.4009607435465606E-15}, -4.0, {r: -0.9332380922346815, i: -3.6781676934042784E-17}], color: [0.0, 1.0, 0.0], args: ["Collection__7"], labeled: true, printname: "$P_{0}$"},
+    {name: "n", type: "Segment", color: [0.0, 0.0, 1.0], args: ["P0", "P1"], labeled: true, size: 6},
+    {name: "Anim0", type: "AnimationAlg", color: [0.0, 0.0, 1.0], args: ["D", "C0"], dock: {offset: [0.0, -0.0]}},
+    {name: "P2", type: "Mid", color: [1.0, 0.0, 0.0], args: ["P0", "P1"], labeled: true, printname: "$P_{2}$"},
+    {name: "o", type: "Segment", color: [0.0, 0.0, 1.0], args: ["P1", "V"], labeled: true},
+    {name: "p", type: "Segment", color: [0.0, 0.0, 1.0], args: ["V", "P0"], labeled: true},
+    {name: "q", type: "Segment", color: [0.0, 0.0, 1.0], args: ["P0", "U"], labeled: true},
+    {name: "r", type: "Segment", color: [0.0, 0.0, 1.0], args: ["U", "P1"], labeled: true},
+    {name: "P3", type: "Mid", color: [1.0, 0.0, 0.0], args: ["P0", "U"], labeled: true, printname: "$P_{3}$"},
+    {name: "P4", type: "Mid", color: [1.0, 0.0, 0.0], args: ["U", "P1"], labeled: true, printname: "$P_{4}$"},
+    {name: "P5", type: "Mid", color: [1.0, 0.0, 0.0], args: ["P1", "V"], labeled: true, printname: "$P_{5}$"},
+    {name: "P6", type: "Mid", color: [1.0, 0.0, 0.0], args: ["V", "P0"], labeled: true, printname: "$P_{6}$"},
+    {name: "s", type: "Segment", color: [0.0, 0.0, 1.0], args: ["P6", "P3"], labeled: true},
+    {name: "t", type: "Segment", color: [0.0, 0.0, 1.0], args: ["P3", "P4"], labeled: true},
+    {name: "u", type: "Segment", color: [0.0, 0.0, 1.0], args: ["P4", "P5"], labeled: true},
+    {name: "v", type: "Segment", color: [0.0, 0.0, 1.0], args: ["P5", "P6"], labeled: true},
+    {name: "E0", type: "Locus", color: [1.0, 0.0, 0.0], args: ["D", "C0", "P6"]},
+    {name: "P7", type: "Mid", color: [1.0, 0.0, 0.0], args: ["P6", "P4"], labeled: true, printname: "$P_{7}$"}
+  ],
+  autoplay: true,
+  ports: [{
+    id: "CSCanvas",
+    width: 1154,
+    height: 670,
+    transform: [{visibleRect: [-6.791617521258162, 7.356892908584423, 12.39449415446257, -3.7823573710801273]}],
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1844, version: [2, 9, 1844]}
+});
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

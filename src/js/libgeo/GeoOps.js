@@ -2552,6 +2552,11 @@ geoMacros.AngularBisector = function(el) {
     return [el];
 };
 
+geoMacros.TransformConic = function(el) {
+    el.type = "TransformC";
+    return [el];
+};
+
 geoMacros.angleBisector = function(el) {
     var point = {
         name: el.name + "_Intersection",
