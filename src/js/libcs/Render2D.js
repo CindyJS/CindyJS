@@ -520,37 +520,37 @@ Render2D.clipLine = function(homog) {
     var ur = distNeg(xMax, yMax);
     var ll = distNeg(xMin, yMin);
     var lr = distNeg(xMax, yMin);
-    var erg = [];
-    if (ul !== ur) erg.push({
+    var res = [];
+    if (ul !== ur) res.push({
         x: (-c - b * yMax) / a,
         y: yMax
     });
-    if (ur !== lr) erg.push({
+    if (ur !== lr) res.push({
         x: xMax,
         y: (-c - a * xMax) / b
     });
-    if (ll !== lr) erg.push({
+    if (ll !== lr) res.push({
         x: (-c - b * yMin) / a,
         y: yMin
     });
-    if (ul !== ll) erg.push({
+    if (ul !== ll) res.push({
         x: xMin,
         y: (-c - a * xMin) / b
     });
 
-    return erg;
+    return res;
 };
 
 Render2D.drawline = function(homog) {
     if (!List._helper.isAlmostReal(homog))
         return;
 
-    var erg = Render2D.clipLine(homog);
-    if (erg.length === 2 && Render2D.lsize >= 0.01) {
+    var res = Render2D.clipLine(homog);
+    if (res.length === 2 && Render2D.lsize >= 0.01) {
         Render2D.preDrawCurve();
         csctx.beginPath();
-        csctx.moveTo(erg[0].x, erg[0].y);
-        csctx.lineTo(erg[1].x, erg[1].y);
+        csctx.moveTo(res[0].x, res[0].y);
+        csctx.lineTo(res[1].x, res[1].y);
         csctx.stroke();
     }
 };
