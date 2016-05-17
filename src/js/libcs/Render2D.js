@@ -374,16 +374,16 @@ Render2D.arrowShapes = {
 };
 
 Render2D.onSegment = function(startpos, endpos, pt) {
-	var det = List.det(List.realMatrix([
-		[startpos.x, startpos.y, 1],
-		[endpos.x, endpos.y, 1],
-		[pt.x, pt.y, 1]
-	]));
+    var det = List.det(List.realMatrix([
+        [startpos.x, startpos.y, 1],
+        [endpos.x, endpos.y, 1],
+        [pt.x, pt.y, 1]
+    ]));
     var onLine = CSNumber._helper.isAlmostEqual(det, CSNumber.zero, CSNumber.epsbig);
-	var a = List.realVector([startpos.x, startpos.y, 1]);
-	var b = List.realVector([endpos.x - startpos.x, endpos.y - startpos.y, 0]);
-	var c = List.realVector([pt.x, pt.y, 1]);
-	var d = List.realVector([endpos.x, endpos.y, 1]);
+    var a = List.realVector([startpos.x, startpos.y, 1]);
+    var b = List.realVector([endpos.x - startpos.x, endpos.y - startpos.y, 0]);
+    var c = List.realVector([pt.x, pt.y, 1]);
+    var d = List.realVector([endpos.x, endpos.y, 1]);
     var cr = List.crossratio3(a, b, c, d, List.ii).value.real;
     return onLine && cr >= 0 && cr <= 1;
 };
@@ -413,12 +413,18 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
 
     // clip to canvas boundary (up to line size)
-	var res = Render2D.clipSegment({ x: overhang1x, y: overhang1y }, { x: overhang2x, y: overhang2y });
+    var res = Render2D.clipSegment({
+        x: overhang1x,
+        y: overhang1y
+    }, {
+        x: overhang2x,
+        y: overhang2y
+    });
     if (res.length !== 2 || Render2D.lsize < 0.01) return;
-	overhang1x = res[0].x;
-	overhang1y = res[0].y;
-	overhang2x = res[1].x;
-	overhang2y = res[1].y;
+    overhang1x = res[0].x;
+    overhang1y = res[0].y;
+    overhang2x = res[1].x;
+    overhang2y = res[1].y;
 
     Render2D.preDrawCurve();
 
@@ -576,7 +582,7 @@ Render2D.clipLine = function(homog) {
     var a = n.value[0].value.real;
     var b = n.value[1].value.real;
     var c = n.value[2].value.real;
-	return Render2D.clipLineCore(a, b, c);
+    return Render2D.clipLineCore(a, b, c);
 };
 
 Render2D.drawline = function(homog) {
