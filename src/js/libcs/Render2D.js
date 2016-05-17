@@ -494,19 +494,7 @@ Render2D.drawpoint = function(pt) {
     csctx.stroke();
 };
 
-Render2D.clipLine = function(homog) {
-    // transformation to canvas coordinates
-    var m = csport.drawingstate.matrix;
-    var mInverse = List.inverse(List.realMatrix([
-        [m.a, -m.b, m.tx],
-        [m.c, -m.d, -m.ty],
-        [0, 0, 1]
-    ]));
-    var n = List.normalizeMax(List.productMV(List.transpose(mInverse), homog));
-    var a = n.value[0].value.real;
-    var b = n.value[1].value.real;
-    var c = n.value[2].value.real;
-
+Render2D.clipLineCore = function(a, b, c) {
     // clip to canvas boundary (up to line size)
     var margin = Math.sqrt(0.5) * Render2D.lsize;
     var xMin = 0 - margin;
@@ -539,6 +527,21 @@ Render2D.clipLine = function(homog) {
     });
 
     return res;
+};
+
+Render2D.clipLine = function(homog) {
+    // transformation to canvas coordinates
+    var m = csport.drawingstate.matrix;
+    var mInverse = List.inverse(List.realMatrix([
+        [m.a, -m.b, m.tx],
+        [m.c, -m.d, -m.ty],
+        [0, 0, 1]
+    ]));
+    var n = List.normalizeMax(List.productMV(List.transpose(mInverse), homog));
+    var a = n.value[0].value.real;
+    var b = n.value[1].value.real;
+    var c = n.value[2].value.real;
+	return Render2D.clipLineCore(a, b, c);
 };
 
 Render2D.drawline = function(homog) {
