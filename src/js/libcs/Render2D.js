@@ -373,6 +373,32 @@ Render2D.arrowShapes = {
     },
 };
 
+Render2D.onSegment = function(startpos, endpos, pt) {
+	var det = List.det(List.realMatrix([
+		[startpos.x, startpos.y, 1],
+		[endpos.x, endpos.y, 1],
+		[pt.x, pt.y, 1]
+	]));
+    var onLine = CSNumber._helper.isAlmostEqual(det, CSNumber.zero, CSNumber.epsbig);
+	var a = List.realVector([startpos.x, startpos.y, 1]);
+	var b = List.realVector([endpos.x - startpos.x, endpos.y - startpos.y, 0]);
+	var c = List.realVector([pt.x, pt.y, 1]);
+	var d = List.realVector([endpos.x, endpos.y, 1]);
+    var cr = List.crossratio3(a, b, c, d, List.ii).value.real;
+    return onLine && cr >= 0 && cr <= 1;
+};
+
+Render2D.clipSegment = function(pt1, pt2) {
+    var clipPoints = Render2D.clipLineCore(pt1.y - pt2.y, pt2.x - pt1.x, pt1.x * pt2.y - pt2.x * pt1.y);
+    if (clipPoints.length !== 2) return [];
+    var res = [];
+    if (Render2D.onSegment(clipPoints[0], clipPoints[1], pt1)) res.push(pt1);
+    if (Render2D.onSegment(clipPoints[0], clipPoints[1], pt2)) res.push(pt2);
+    if (Render2D.onSegment(pt1, pt2, clipPoints[0])) res.push(clipPoints[0]);
+    if (Render2D.onSegment(pt1, pt2, clipPoints[1])) res.push(clipPoints[1]);
+    return res;
+};
+
 Render2D.drawsegcore = function(pt1, pt2) {
     var m = csport.drawingstate.matrix;
     var endpoint1x = pt1.x * m.a - pt1.y * m.b + m.tx;
@@ -385,6 +411,15 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
+
+    // clip to canvas boundary (up to line size)
+	var res = Render2D.clipSegment({ x: overhang1x, y: overhang1y }, { x: overhang2x, y: overhang2y });
+    if (res.length !== 2 || Render2D.lsize < 0.01) return;
+	overhang1x = res[0].x;
+	overhang1y = res[0].y;
+	overhang2x = res[1].x;
+	overhang2y = res[1].y;
+
     Render2D.preDrawCurve();
 
     if (!Render2D.isArrow ||
