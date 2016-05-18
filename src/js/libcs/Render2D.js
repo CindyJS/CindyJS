@@ -404,19 +404,24 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
 
-    // clip to canvas boundary (up to line size)
-    var res = Render2D.clipSegment({
-        x: overhang1x,
-        y: overhang1y
-    }, {
-        x: overhang2x,
-        y: overhang2y
-    });
-    if (res.length !== 2 || Render2D.lsize < 0.01) return;
-    overhang1x = res[0].x;
-    overhang1y = res[0].y;
-    overhang2x = res[1].x;
-    overhang2y = res[1].y;
+    if (overhang1x < 0 || overhang1x > csw ||
+        overhang1y < 0 || overhang1y > csh ||
+        overhang2x < 0 || overhang2x > csw ||
+        overhang2y < 0 || overhang2y > csh) {
+        // clip to canvas boundary (up to line size)
+        var res = Render2D.clipSegment({
+            x: overhang1x,
+            y: overhang1y
+        }, {
+            x: overhang2x,
+            y: overhang2y
+        });
+        if (res.length !== 2 || Render2D.lsize < 0.01) return;
+        overhang1x = res[0].x;
+        overhang1y = res[0].y;
+        overhang2x = res[1].x;
+        overhang2y = res[1].y;
+    }
 
     Render2D.preDrawCurve();
 
