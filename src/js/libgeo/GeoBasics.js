@@ -254,7 +254,6 @@ function onSegment(p, s) { //TODO was ist mit Fernpunkten
     var xm = CSNumber.div(elm.value[0], elm.value[2]);
     var ym = CSNumber.div(elm.value[1], elm.value[2]);
 
-    // TODO merge with Render2D.onSegment or vice versa
     if (CSNumber._helper.isAlmostReal(x1) &&
         CSNumber._helper.isAlmostReal(y1) &&
         CSNumber._helper.isAlmostReal(x2) &&
