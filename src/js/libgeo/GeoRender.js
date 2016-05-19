@@ -17,7 +17,7 @@ function drawgeopoint(el) {
             'x': 3,
             'y': 3
         };
-        var textsize = el.textsize || 12;
+        var textsize = el.textsize || defaultAppearance.textsize;
         var bold = (el.textbold === true);
         var italics = (el.textitalics === true);
         var family = el.text_fontfamily || defaultAppearance.fontFamily;
