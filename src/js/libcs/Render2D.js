@@ -571,7 +571,7 @@ Render2D.clipLineCore = function(a, b, c) {
 
 Render2D.clipLine = function(homog) {
     // transformation to canvas coordinates
-    var n = List.normalizeMax(List.productMV(List.transpose(csport.toMat()), homog));
+    var n = List.normalizeMax(List.productVM(homog, csport.toMat()));
     var a = n.value[0].value.real;
     var b = n.value[1].value.real;
     var c = n.value[2].value.real;
