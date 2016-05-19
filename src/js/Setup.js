@@ -221,20 +221,10 @@ function createCindyNow() {
     if (typeof csinitphys === 'function')
         csinitphys(data.behavior);
 
-    //Read images: TODO ordentlich machen
     for (var k in data.images) {
-        var name = data.images[k];
-        images[k] = new Image();
-        images[k].ready = false;
-        /*jshint -W083 */
-        images[k].onload = function() {
-            images[k].ready = true;
-            updateCindy();
-
-
-        };
-        /*jshint +W083 */
-        images[k].src = name;
+        var img = loadImage(data.images[k]);
+        if (img !== nada)
+            images[k] = img;
     }
 
     globalInstance.canvas = c;
@@ -255,6 +245,85 @@ function createCindyNow() {
         });
     loadExtraModules();
     doneLoadingModule();
+}
+
+/*
+ * An image wrapper object contains the following properties:
+ * img: the actual drawable, i.e. an <img>, <canvas>, <video> or similar
+ * width, height: dimensions of the image
+ * ready: boolean indicating whether the image been loaded already
+ * live: boolean indicating whether the image is expected to change continuously
+ */
+function loadImage(obj) {
+    var img;
+    if (typeof obj === "string") {
+        img = new Image();
+        img.src = obj;
+    } else {
+        img = obj;
+    }
+    if (!img.tagName) {
+        console.error("Not a valid image element", img);
+        return nada;
+    }
+    var value = {
+        img: img,
+        width: NaN,
+        height: NaN,
+        ready: true,
+        live: false,
+        whenReady: callFunctionNow,
+    };
+    var tag = img.tagName.toLowerCase();
+    var callWhenReady = [];
+    if (tag === "img") {
+        if (img.complete) {
+            value.width = img.width;
+            value.height = img.height;
+        } else {
+            value.ready = false;
+            img.addEventListener("load", function() {
+                value.width = img.width;
+                value.height = img.height;
+                value.ready = true;
+                value.whenReady = callFunctionNow;
+                callWhenReady.forEach(callFunctionNow);
+                updateCindy();
+            });
+            value.whenReady = callWhenReady.push.bind(callWhenReady);
+        }
+    } else if (tag === "video") {
+        value.live = true;
+        if (img.readyState >= img.HAVE_METADATA) {
+            value.width = img.videoWidth;
+            value.height = img.videoHeight;
+        } else {
+            value.ready = false;
+            img.addEventListener("loadedmetadata", function() {
+                value.width = img.videoWidth;
+                value.height = img.videoHeight;
+                value.ready = true;
+                value.whenReady = callFunctionNow;
+                callWhenReady.forEach(callFunctionNow);
+                updateCindy();
+            });
+            value.whenReady = callWhenReady.push.bind(callWhenReady);
+        }
+    } else if (tag === "canvas") {
+        value.width = img.width;
+        value.height = img.height;
+    } else {
+        console.error("Not a valid image element", tag, img);
+        return nada;
+    }
+    return {
+        ctype: "image",
+        value: value,
+    };
+}
+
+function callFunctionNow(f) {
+    return f();
 }
 
 function loadExtraModules() {
