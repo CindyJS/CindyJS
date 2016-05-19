@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Text sizes</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+  drawtext((0, 0), "drawtext default");
+  drawtext((0, -1), "drawtext small", size->12);
+  drawtext((0, 1), "drawtext large", size->20);
+  textsize(12);
+  drawtext((0, -0.5), "textsize small");
+  textsize(20);
+  drawtext((0, 0.5), "textsize large");
+
+</script>
+<script type="text/javascript">
+
+function doCreate(id, defaultAppearance) {
+  return createCindy({
+    ports: [{id: id, transform:[{visibleRect:[-1,0,7,0]}]}],
+    scripts: "cs*",
+    language: "en",
+    defaultAppearance: defaultAppearance,
+    geometry: [
+      {name:"A", type:"Free", pos:[3,0], labeled:true},
+      {name:"B", type:"Free", pos:[3,-1], labeled:true, textsize:12},
+      {name:"C", type:"Free", pos:[3,1], labeled:true, textsize:20},
+      {name:"T1", type:"Text", text:"Text default", pos:[5,0]},
+      {name:"T2", type:"Text", text:"Text small", pos:[5,-1], size:12},
+      {name:"T3", type:"Text", text:"Text large", pos:[5,1], size:20},
+    ]
+  });
+}
+var cdy1 = doCreate("CSCanvas1", {});
+var cdy2 = doCreate("CSCanvas2", {textsize: 12});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas1" width="500" height="200"
+          style="border:2px solid black"></canvas>
+  <canvas id="CSCanvas2" width="500" height="200"
+          style="border:2px solid black"></canvas>
+</body>
+
+</html>
