@@ -3985,7 +3985,7 @@ evaluator.time$0 = function(args, modifs) {
 evaluator.date$0 = function(args, modifs) {
     var now = new Date();
     return List.realVector([
-        now.getFullYear(), now.getMonth(), now.getDay()
+        now.getFullYear(), now.getMonth() + 1, now.getDate()
     ]);
 };
 
