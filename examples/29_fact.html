@@ -67,7 +67,7 @@
             apply(2..length(pfz),str=str+"×"+pfz_#);
             if(length(pfz)==1,str="prime");
             if(pfz==[1],str="the unit");
-            drawtext((-9,9),n+"="+str);
+            drawtext((-9,9),n+"="+str,size->20);
 
             compress(li):=if(length(li)<1,false,li_[1,2]==[2,2]);
             app=[];

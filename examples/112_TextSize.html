@@ -12,7 +12,7 @@
 </script>
 <script id="csdraw" type="text/x-cindyscript">
 textsize(20);
-
+drawtext([0, -2], "Move A");
 // Drawing code, executed whenever the canvas gets redrawn.
 
 </script>
@@ -27,7 +27,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
     // See GeoBasics.js for possible attributes.
   },
   geometry: [
-    {name:"A", type:"Free", pos:[0,0]}
+    {name:"A", type:"Free", pos:[0,0], labeled: true}
     // For allowed types, see GeoOps.js.
     // For allowed properties, see csinit in GeoBasics.js.
   ] // End of geometry array.
