@@ -82,6 +82,16 @@ csport.to = function(px, py) { //Rechnet Pixelkoordinaten in Homogene Koordinate
     return [x, y, 1];
 };
 
+// Homogeneous matrix representation of csport.to
+csport.toMat = function() {
+    var m = csport.drawingstate.matrix;
+    return List.realMatrix([
+        [m.d, -m.b, -m.tx * m.d - m.ty * m.b],
+        [m.c, -m.a, -m.tx * m.c - m.ty * m.a],
+        [0, 0, m.det]
+    ]);
+};
+
 csport.dumpTrafo = function() {
 
     function r(x) {

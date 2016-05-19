@@ -529,6 +529,16 @@ List.normalizeZ = function(a) {
     return List.scalmult(s, a);
 };
 
+List.dehom = function(a) {
+    a = a.value.slice();
+    var n = a.length - 1;
+    var d = CSNumber.inv(a[n]);
+    a.length = n;
+    for (var i = 0; i < n; ++i)
+        a[i] = CSNumber.mult(d, a[i]);
+    return List.turnIntoCSList(a);
+};
+
 List.normalizeAbs = function(a) {
     var s = CSNumber.inv(List.abs(a));
     return List.scalmult(s, a);

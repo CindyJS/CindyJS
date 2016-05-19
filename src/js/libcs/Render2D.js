@@ -375,6 +375,24 @@ Render2D.arrowShapes = {
     },
 };
 
+Render2D.clipSegment = function(pt1, pt2) {
+    var dx = pt2.x - pt1.x;
+    var dy = pt2.y - pt1.y;
+    var clipPoints = Render2D.clipLineCore(-dy, dx, pt1.x * pt2.y - pt2.x * pt1.y);
+    if (clipPoints.length !== 2) return [];
+    var q1 = clipPoints[0];
+    var q2 = clipPoints[1];
+    var factor = 1 / (dx * dx + dy * dy);
+    var dot1 = ((q1.x - pt1.x) * dx + (q1.y - pt1.y) * dy) * factor;
+    var dot2 = ((q2.x - pt1.x) * dx + (q2.y - pt1.y) * dy) * factor;
+    if (dot1 < 0) q1 = pt1;
+    if (dot1 > 1) q1 = pt2;
+    if (dot2 < 0) q2 = pt1;
+    if (dot2 > 1) q2 = pt2;
+    if (q1 === q2) return [];
+    return [q1, q2];
+};
+
 Render2D.drawsegcore = function(pt1, pt2) {
     var m = csport.drawingstate.matrix;
     var endpoint1x = pt1.x * m.a - pt1.y * m.b + m.tx;
@@ -387,12 +405,27 @@ Render2D.drawsegcore = function(pt1, pt2) {
     var overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
     var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
     var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
-    csctx.lineWidth = Render2D.lsize;
-    csctx.lineCap = Render2D.lineCap;
-    csctx.lineJoin = Render2D.lineJoin;
-    csctx.miterLimit = Render2D.miterLimit;
-    csctx.strokeStyle = Render2D.lineColor;
 
+    if (overhang1x < 0 || overhang1x > csw ||
+        overhang1y < 0 || overhang1y > csh ||
+        overhang2x < 0 || overhang2x > csw ||
+        overhang2y < 0 || overhang2y > csh) {
+        // clip to canvas boundary (up to line size)
+        var res = Render2D.clipSegment({
+            x: overhang1x,
+            y: overhang1y
+        }, {
+            x: overhang2x,
+            y: overhang2y
+        });
+        if (res.length !== 2 || Render2D.lsize < 0.01) return;
+        overhang1x = res[0].x;
+        overhang1y = res[0].y;
+        overhang2x = res[1].x;
+        overhang2y = res[1].y;
+    }
+
+    Render2D.preDrawCurve();
 
     if (!Render2D.isArrow ||
         (endpoint1x === endpoint1y && endpoint2x === endpoint2y)) {
@@ -501,60 +534,62 @@ Render2D.drawpoint = function(pt) {
     csctx.stroke();
 };
 
+Render2D.clipLineCore = function(a, b, c) {
+    // clip to canvas boundary (up to line size)
+    var margin = Math.SQRT1_2 * Render2D.lsize;
+    var xMin = 0 - margin;
+    var xMax = csw + margin;
+    var yMax = 0 - margin;
+    var yMin = csh + margin;
+    var distNeg = function(x, y) {
+        return x * a + y * b + c < 0;
+    };
+    var ul = distNeg(xMin, yMax);
+    var ur = distNeg(xMax, yMax);
+    var ll = distNeg(xMin, yMin);
+    var lr = distNeg(xMax, yMin);
+    var res = [];
+    if (ul !== ur) res.push({
+        x: (-c - b * yMax) / a,
+        y: yMax
+    });
+    if (ur !== lr) res.push({
+        x: xMax,
+        y: (-c - a * xMax) / b
+    });
+    if (ll !== lr) res.push({
+        x: (-c - b * yMin) / a,
+        y: yMin
+    });
+    if (ul !== ll) res.push({
+        x: xMin,
+        y: (-c - a * xMin) / b
+    });
+
+    return res;
+};
+
+Render2D.clipLine = function(homog) {
+    // transformation to canvas coordinates
+    var n = List.normalizeMax(List.productMV(List.transpose(csport.toMat()), homog));
+    var a = n.value[0].value.real;
+    var b = n.value[1].value.real;
+    var c = n.value[2].value.real;
+    return Render2D.clipLineCore(a, b, c);
+};
+
 Render2D.drawline = function(homog) {
-    var na = CSNumber.abs(homog.value[0]).value.real;
-    var nb = CSNumber.abs(homog.value[1]).value.real;
-    var nc = CSNumber.abs(homog.value[2]).value.real;
-    var divi;
+    if (!List._helper.isAlmostReal(homog))
+        return;
 
-    if (na >= nb && na >= nc) {
-        divi = homog.value[0];
+    var res = Render2D.clipLine(homog);
+    if (res.length === 2 && Render2D.lsize >= 0.01) {
+        Render2D.preDrawCurve();
+        csctx.beginPath();
+        csctx.moveTo(res[0].x, res[0].y);
+        csctx.lineTo(res[1].x, res[1].y);
+        csctx.stroke();
     }
-    if (nb >= na && nb >= nc) {
-        divi = homog.value[1];
-    }
-    if (nc >= nb && nc >= na) {
-        divi = homog.value[2];
-    }
-    var a = CSNumber.div(homog.value[0], divi);
-    var b = CSNumber.div(homog.value[1], divi);
-    var c = CSNumber.div(homog.value[2], divi); //TODO Realitycheck einbauen
-
-    var l = [
-        a.value.real,
-        b.value.real,
-        c.value.real
-    ];
-    var b1, b2;
-    if (Math.abs(l[0]) < Math.abs(l[1])) {
-        b1 = [1, 0, 30];
-        b2 = [-1, 0, 30];
-    } else {
-        b1 = [0, 1, 30];
-        b2 = [0, -1, 30];
-    }
-    var erg1 = [
-        l[1] * b1[2] - l[2] * b1[1],
-        l[2] * b1[0] - l[0] * b1[2],
-        l[0] * b1[1] - l[1] * b1[0]
-    ];
-    var erg2 = [
-        l[1] * b2[2] - l[2] * b2[1],
-        l[2] * b2[0] - l[0] * b2[2],
-        l[0] * b2[1] - l[1] * b2[0]
-    ];
-
-    var pt1 = {
-        x: erg1[0] / erg1[2],
-        y: erg1[1] / erg1[2]
-    };
-    var pt2 = {
-        x: erg2[0] / erg2[2],
-        y: erg2[1] / erg2[2]
-
-    };
-
-    Render2D.drawsegcore(pt1, pt2);
 };
 
 Render2D.dashTypes = {
