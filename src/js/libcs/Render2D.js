@@ -534,7 +534,7 @@ Render2D.drawpoint = function(pt) {
 
 Render2D.clipLineCore = function(a, b, c) {
     // clip to canvas boundary (up to line size)
-    var margin = Math.sqrt(0.5) * Render2D.lsize;
+    var margin = Math.SQRT1_2 * Render2D.lsize;
     var xMin = 0 - margin;
     var xMax = csw + margin;
     var yMax = 0 - margin;
