@@ -8,11 +8,69 @@ var Q = require("q");
 var qfs = require("q-io/fs");
 var request = require("request");
 var rimraf = require("rimraf");
+var stream = require("stream");
 var touch = require("touch");
 var unzip = require("unzip");
 var WholeLineStream = require("whole-line-stream");
 
 var BuildError = require("./BuildError");
+
+function cmdImpl(task, opts, command, args) {
+    return Q.Promise(function(resolve, reject) {
+        var spawnOpts = { stdio: ["ignore", "pipe", "pipe"] };
+        if (!command) command = process.argv[0]; // node
+        var child = cp.spawn(command, args, spawnOpts);
+        var output = null;
+        var wls = new WholeLineStream(task.prefix);
+        wls.pipe(process.stdout);
+        child.stderr.pipe(wls);
+        if (!opts.returnOutput) {
+            child.stdout.pipe(wls);
+        } else {
+            output = [];
+            var collector = new stream.Writable();
+            collector._write = function(chunk, encoding, callback) {
+                output.push(chunk);
+                if (typeof callback === "function")
+                    callback();
+            }
+            child.stdout.pipe(collector);
+        }
+        child.on("error", function(err) {
+            if (err.code === "ENOENT") {
+                reject(new BuildError(
+                    "Command " + JSON.stringify(command) + " not found"));
+            } else {
+                reject(err);
+            }
+        });
+        child.on("exit", function(code, signal) {
+            if (code === 0) {
+                var res = true;
+                if (opts.returnOutput)
+                    res = Buffer.concat(output);
+                resolve(res);
+            } else if (code !== null) {
+                reject(new BuildError(
+                    cmdline + " exited with code " + code));
+            } else {
+                reject(BuildError(
+                    cmdline + " exited with signal " + signal));
+            }
+        });
+    });
+}
+
+function gitLsFiles(task) {
+    var args = ["ls-files", "-z"];
+    return cmdImpl(task, {returnOutput: true}, "git", args)
+        .then(function(buf) {
+            var lst = buf.toString().split("\0");
+            if (lst.length && lst[lst.length - 1] === "")
+                lst.pop();
+            return lst;
+        });
+}
 
 /**
  * Adds a job for running a node module or other command.
@@ -25,37 +83,10 @@ exports.cmd = function(command) {
     var args = Array.prototype.slice.call(arguments, 1);
     args = Array.prototype.concat.apply([], args); // flatten one level
     args = Array.prototype.concat.apply([], args); // flatten a second level
-    var cmdline = [command || "node"].concat(args).join(" ");
     this.addJob(function() {
-        return Q.Promise(function(resolve, reject) {
-            task.log(cmdline);
-            var opts = { stdio: ["ignore", "pipe", "pipe"] };
-            if (!command) command = process.argv[0]; // node
-            var child = cp.spawn(command, args, opts);
-            var stream = new WholeLineStream(task.prefix);
-            stream.pipe(process.stdout);
-            child.stdout.pipe(stream);
-            child.stderr.pipe(stream);
-            child.on("error", function(err) {
-                if (err.code === "ENOENT") {
-                    reject(new BuildError(
-                        "Command " + JSON.stringify(command) + " not found"));
-                } else {
-                    reject(err);
-                }
-            });
-            child.on("exit", function(code, signal) {
-                if (code === 0) {
-                    resolve(true);
-                } else if (code !== null) {
-                    reject(new BuildError(
-                        cmdline + " exited with code " + code));
-                } else {
-                    reject(BuildError(
-                        cmdline + " exited with signal " + signal));
-                }
-            });
-        });
+        var cmdline = [command || "node"].concat(args).join(" ");
+        task.log(cmdline);
+        return cmdImpl(task, {}, command, args);
     });
 };
 
@@ -181,9 +212,16 @@ exports.forbidden = function(files, expressions) {
     var task = this;
     this.addJob(function() {
         var opts = { nodir: true };
+        var listFiles;
+        if (files === null) {
+            listFiles = gitLsFiles(task);
+            files = "all versioned files"
+        } else {
+            listFiles = Q.nfcall(glob, files, opts);
+        }
         task.log("Looking for " + expressions.length + " forbidden pattern" +
                  (expressions.length === 1 ? "" : "s") + " in " + files);
-        return Q.nfcall(glob, files, opts).then(function(files) {
+        return listFiles.then(function(files) {
             var errors = 0;
             return Q.all(files.map(function(path) {
                 return qfs.read(path).then(function(content) {
@@ -197,6 +235,13 @@ exports.forbidden = function(files, expressions) {
                             ++errors;
                             if (!expression.global) break;
                         }
+                    });
+                }, function(err) {
+                    if (err.code !== "ENOENT")
+                        throw err;
+                    return Q.nfcall(fs.lstat, path).then(function(stats) {
+                        if (!stats.isSymbolicLink())
+                            throw err;
                     });
                 });
             })).then(function() {

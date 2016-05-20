@@ -156,6 +156,9 @@ module.exports = function build(settings, task) {
         this.forbidden("ref/**/*.md", [
             /^#.*`.*<[A-Za-z0-9]+>.*?`/mg, // use ‹…› instead
         ]);
+        this.forbidden(null, [
+            /createCind[y](?!\.md[)#])[.(]/g, // use CindyJS instead
+        ]);
     });
 
     //////////////////////////////////////////////////////////////////////
