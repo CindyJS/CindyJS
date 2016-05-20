@@ -6,9 +6,9 @@ This method expects a single object as an argument, which in turn contains vario
 Example:
 
     J CindyJS({ports:[{id:"CindyCanvas"}],
-    J              scripts:"cs*",
-    J              csconsole:null
-    J             });
+    J          scripts:"cs*",
+    J          csconsole:null
+    J         });
 
 ## Parameters
 

@@ -31,7 +31,7 @@ function jsQueryDummy() {
     };
 }
 
-//                   1             123    3 4   45     526   6
+//                   1         123    3 4   45     526   6
 var reCreateCindy = /(CindyJS\()((.*\n)?(\s*)([^;]*))(\);)/;
 
 function updateDefaultAppearance(path, str) {
