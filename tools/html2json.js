@@ -30,7 +30,7 @@ function addToBuffer(data) {
 
 function transform() {
     var reScript = /<script([^>]*)>([^]*?)<\/script>/ig;
-    var reCindy = /CindyJS/;
+    var reCindy = /CindyJS|createCindy/;
     var reId = /\sid\s*=\s*["']([^"']+)["']/;
     var byId = {};
     var cindys = [];
@@ -48,11 +48,12 @@ function transform() {
     }
     if (cindys.length === 1) {
         var fun = Function(
-            "CindyJS", "defaultAppearance", // passed below
+            "CindyJS", "createCindy", "defaultAppearance", // passed below
             "require", "module", // undefined for SOME security
             cindys[0]);
         var params = null, defaultAppearance = {};
-        fun(function(arg) { params = arg; }, defaultAppearance);
+        function dummyCindyJS(arg) { params = arg; }
+        fun(dummyCindyJS, dummyCindyJS, defaultAppearance);
         if (!params) {
             console.error("CindyJS not called");
             process.exit(1);

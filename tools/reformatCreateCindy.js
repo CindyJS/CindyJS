@@ -3,7 +3,7 @@
 require("./processFiles")(processFileData);
 
 var reScript = /(<script[^>]*>)([^]*?)(<\/script>)/img;
-var reCreateCindy = /CindyJS\(/m;
+var reCreateCindy = /(CindyJS|createCindy)\(/m;
 
 function CindyJSDummy(constr, data) {
     constr.data = data;
@@ -30,10 +30,11 @@ function processFileData(path, str) {
             continue;
         var constr = {attrs: {}};
         var defaultAppearance = {}
+        var dummy = CindyJSDummy.bind(null, constr);
         var f = new Function(
-            "CindyJS", "document", "$", "defaultAppearance",
+            "CindyJS", "createCindy", "document", "$", "defaultAppearance",
             script[2]);
-        f(CindyJSDummy.bind(null, constr),
+        f(dummy, dummy,
           "document", jsQueryDummy.bind(null, constr),
           defaultAppearance);
         var data = constr.data;
