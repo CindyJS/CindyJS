@@ -1,4 +1,4 @@
-createCindy.registerPlugin(1, "CindyGL", function(api) {
+CindyJS.registerPlugin(1, "CindyGL", function(api) {
 
     //////////////////////////////////////////////////////////////////////
     // API bindings

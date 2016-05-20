@@ -3,9 +3,9 @@
 require("./processFiles")(processFileData);
 
 var reScript = /(<script[^>]*>)([^]*?)(<\/script>)/img;
-var reCreateCindy = /createCindy\(/m;
+var reCreateCindy = /CindyJS\(/m;
 
-function createCindyDummy(constr, data) {
+function CindyJSDummy(constr, data) {
     constr.data = data;
 }
 
@@ -31,9 +31,9 @@ function processFileData(path, str) {
         var constr = {attrs: {}};
         var defaultAppearance = {}
         var f = new Function(
-            "createCindy", "document", "$", "defaultAppearance",
+            "CindyJS", "document", "$", "defaultAppearance",
             script[2]);
-        f(createCindyDummy.bind(null, constr),
+        f(CindyJSDummy.bind(null, constr),
           "document", jsQueryDummy.bind(null, constr),
           defaultAppearance);
         var data = constr.data;
@@ -93,7 +93,7 @@ function processFileData(path, str) {
             });
         }
         var res = myStringify(data, "top");
-        res = "\nvar cdy = createCindy(" + res + ");\n";
+        res = "\nvar cdy = CindyJS(" + res + ");\n";
         if (res === script[2])
             continue;
         str = str.substr(0, script.index) + script[1] + res + script[3] +

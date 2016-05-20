@@ -3851,7 +3851,7 @@ evaluator.use$1 = function(args, modifs) {
         if (instanceInvocationArguments.plugins)
             cb = instanceInvocationArguments.plugins[name];
         if (!cb)
-            cb = createCindy._pluginRegistry[name];
+            cb = CindyJS._pluginRegistry[name];
         if (cb) {
             /* The following object constitutes API for third-party plugins.
              * We should feel committed to maintaining this API.
@@ -4423,7 +4423,7 @@ function addTool(name) {
     }
 
     var button = document.createElement("button");
-    button.innerHTML = "<img src='" + createCindy.getBaseDir() + "images/" + name + ".png'>";
+    button.innerHTML = "<img src='" + CindyJS.getBaseDir() + "images/" + name + ".png'>";
     button.onclick = function() {
         if (typeof activeButton !== "undefined") {
             activeButton.style.border = "";

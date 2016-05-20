@@ -75,7 +75,7 @@ Renderer.prototype.fragmentShaderCode;
 /** @type {ShaderProgram} */
 Renderer.prototype.shaderProgram;
 
-/** @type {createCindy.pluginApi} */
+/** @type {CindyJS.pluginApi} */
 Renderer.prototype.api;
 
 /** @type {CanvasWrapper} */

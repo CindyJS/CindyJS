@@ -1,15 +1,15 @@
-createCindy.registerPlugin(1, "Cindy3D", function(api) {
+CindyJS.registerPlugin(1, "Cindy3D", function(api) {
 
   //////////////////////////////////////////////////////////////////////
   // API bindings
 
-  /** @type {createCindy.anyval} */
+  /** @type {CindyJS.anyval} */
   let nada = api.nada;
 
-  /** @type {function(createCindy.anyval):createCindy.anyval} */
+  /** @type {function(CindyJS.anyval):CindyJS.anyval} */
   let evaluate = api.evaluate;
 
-  /** @type {function(string,number,createCindy.op)} */
+  /** @type {function(string,number,CindyJS.op)} */
   let defOp = api.defineFunction;
 
   //////////////////////////////////////////////////////////////////////

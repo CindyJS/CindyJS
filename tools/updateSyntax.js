@@ -32,14 +32,14 @@ function jsQueryDummy() {
 }
 
 //                   1             123    3 4   45     526   6
-var reCreateCindy = /(createCindy\()((.*\n)?(\s*)([^;]*))(\);)/;
+var reCreateCindy = /(CindyJS\()((.*\n)?(\s*)([^;]*))(\);)/;
 
 function updateDefaultAppearance(path, str) {
     var match = reCreateCindy.exec(str);
     if (!match) {
-        if (str.indexOf("createCindy") === -1)
+        if (str.indexOf("CindyJS") === -1)
             return;
-        throw new Error("No createCindy found");
+        throw new Error("No CindyJS found");
     }
     if (match[2].indexOf("defaultAppearance") >= 0)
         return;
@@ -48,7 +48,7 @@ function updateDefaultAppearance(path, str) {
     start = str.indexOf(">", start) + 1;
     var defaultAppearance = {};
     var f = new Function(
-        "createCindy", "csplay", "defaultAppearance", "document", "$",
+        "CindyJS", "csplay", "defaultAppearance", "document", "$",
         str.substring(start, end)
     );
     f(noop, noop, defaultAppearance, "document", jsQueryDummy);
@@ -73,9 +73,9 @@ function updateEvokeCS(path, str) {
     var orig = str;
     if (!reMethods.test(str))
         return;
-    var match = /(?:var\s+([A-Za-z0-9_]+)\s*=\s*)?createCindy\s*\(/.exec(str);
+    var match = /(?:var\s+([A-Za-z0-9_]+)\s*=\s*)?CindyJS\s*\(/.exec(str);
     if (!match)
-        throw error("No createCindy found");
+        throw error("No CindyJS found");
     var v = match[1];
     if (!v) {
         str = str.substr(0, match.index) + "var cdy = " + str.substr(match.index);

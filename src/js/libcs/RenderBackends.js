@@ -864,7 +864,7 @@ globalInstance.exportSVG = function() {
 
 globalInstance.exportPDF = function() {
     var wnd = window.open('about:blank', '_blank');
-    createCindy.loadScript('pako', 'pako.min.js', function() {
+    CindyJS.loadScript('pako', 'pako.min.js', function() {
         exportWith(PdfWriterContext, wnd);
     });
 };

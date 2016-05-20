@@ -1,7 +1,7 @@
 var should = require("chai").should();
 var rewire = require("rewire");
 
-var createCindy = require("../build/js/Cindy.plain.js");
+var CindyJS = require("../build/js/Cindy.plain.js");
 
 function FakeCanvas() {
   this.width = 640;
@@ -44,7 +44,7 @@ describe("all* operations", function() {
 
     before(function() {
         // See examples/114_allops.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
             canvas: new FakeCanvas(),
@@ -107,7 +107,7 @@ describe("all* operations", function() {
 describe("toString as a name", function() {
 
     before(function() {
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
             geometry: [
@@ -125,7 +125,7 @@ describe("toString as a name", function() {
 describe("==", function() {
 
     before(function() {
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
             geometry: [
@@ -144,7 +144,7 @@ describe("==", function() {
 describe("element(‹string›)", function() {
 
     before(function() {
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
             geometry: [

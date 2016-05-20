@@ -1,4 +1,4 @@
-var createCindy = this; // since this will be turned into a method
+var CindyJS = this; // since this will be turned into a method
 
 var csconsole;
 var cslib;
@@ -159,9 +159,9 @@ function createCindyNow() {
 
     var data = instanceInvocationArguments;
     if (data.exclusive) {
-        i = createCindy.instances.length;
+        i = CindyJS.instances.length;
         while (i > 0)
-            createCindy.instances[--i].shutdown();
+            CindyJS.instances[--i].shutdown();
     }
 
     if (data.csconsole !== undefined)
@@ -294,7 +294,7 @@ function createCindyNow() {
     if (data.oninit)
         data.oninit(globalInstance);
 
-    createCindy.instances.push(globalInstance);
+    CindyJS.instances.push(globalInstance);
     if (instanceInvocationArguments.use)
         instanceInvocationArguments.use.forEach(function(name) {
             evaluator.use$1([General.wrap(name)], {});
@@ -396,13 +396,13 @@ function loadExtraPlugin(name, path) {
     if (instanceInvocationArguments.plugins)
         cb = instanceInvocationArguments.plugins[name];
     if (!cb)
-        cb = createCindy._pluginRegistry[name];
+        cb = CindyJS._pluginRegistry[name];
     if (cb) {
         evaluator.use$1([General.wrap(name)], {});
         return;
     }
     ++modulesToLoad;
-    createCindy.autoLoadPlugin(name, path, function() {
+    CindyJS.autoLoadPlugin(name, path, function() {
         evaluator.use$1([General.wrap(name)], {});
         doneLoadingModule();
     });
@@ -410,7 +410,7 @@ function loadExtraPlugin(name, path) {
 
 function loadExtraModule(name, path) {
     ++modulesToLoad;
-    createCindy.loadScript(name, path, doneLoadingModule, function() {
+    CindyJS.loadScript(name, path, doneLoadingModule, function() {
         console.error(
             "Failed to load " + path + ", can't start CindyJS instance");
         shutdown();
@@ -519,10 +519,10 @@ function shutdown() {
     // console.log("Shutting down");
 
     // Remove this from the list of all running instances
-    var n = createCindy.instances.length;
+    var n = CindyJS.instances.length;
     while (n > 0) {
-        if (createCindy.instances[--n] === globalInstance) {
-            createCindy.instances.splice(n, 1);
+        if (CindyJS.instances[--n] === globalInstance) {
+            CindyJS.instances.splice(n, 1);
             break;
         }
     }
@@ -538,7 +538,7 @@ function shutdown() {
     }
 }
 
-// The following object will be returned from the public createCindy function.
+// The following object will be returned from the public CindyJS function.
 // Its startup method will be called automatically unless specified otherwise.
 var globalInstance = {
     "config": instanceInvocationArguments,
@@ -566,11 +566,11 @@ if (instanceInvocationArguments.use) {
         if (instanceInvocationArguments.plugins)
             cb = instanceInvocationArguments.plugins[name];
         if (!cb)
-            cb = createCindy._pluginRegistry[name];
+            cb = CindyJS._pluginRegistry[name];
         if (!cb) {
             ++waitForPlugins;
             console.log("Loading script for plugin " + name);
-            createCindy.loadScript(name + "-plugin", name + "-plugin.js", function() {
+            CindyJS.loadScript(name + "-plugin", name + "-plugin.js", function() {
                 console.log("Successfully loaded plugin " + name);
                 if (--waitForPlugins === 0 && startupCalled) createCindyNow();
             }, function() {

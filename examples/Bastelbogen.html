@@ -169,7 +169,7 @@ function utf8Decode(bytes) {
     }).join(""));
 }
 
-createCindy.registerPlugin(1, "imgmeta", function(api) {
+CindyJS.registerPlugin(1, "imgmeta", function(api) {
     api.defineFunction("xmpdescription", 1, function(args, modifs) {
         var img = api.evaluate(args[0]);
         console.log(img);
@@ -245,7 +245,7 @@ createCindy.registerPlugin(1, "imgmeta", function(api) {
     });
 });
 
-var cdy = createCindy({
+var cdy = CindyJS({
   ports: [{id: "CSCanvas"}],
   scripts: "cs*",
   language: "en",

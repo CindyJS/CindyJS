@@ -30,7 +30,7 @@ function addToBuffer(data) {
 
 function transform() {
     var reScript = /<script([^>]*)>([^]*?)<\/script>/ig;
-    var reCindy = /createCindy/;
+    var reCindy = /CindyJS/;
     var reId = /\sid\s*=\s*["']([^"']+)["']/;
     var byId = {};
     var cindys = [];
@@ -48,13 +48,13 @@ function transform() {
     }
     if (cindys.length === 1) {
         var fun = Function(
-            "createCindy", "defaultAppearance", // passed below
+            "CindyJS", "defaultAppearance", // passed below
             "require", "module", // undefined for SOME security
             cindys[0]);
         var params = null, defaultAppearance = {};
         fun(function(arg) { params = arg; }, defaultAppearance);
         if (!params) {
-            console.error("createCindy not called");
+            console.error("CindyJS not called");
             process.exit(1);
         }
         if (params.defaultAppearance === null)
@@ -82,7 +82,7 @@ function transform() {
         console.log(JSON.stringify(params));
     }
     else {
-        console.error(cindys.length + " createCindy invocations found");
+        console.error(cindys.length + " CindyJS invocations found");
         process.exit(1);
     }
 }
