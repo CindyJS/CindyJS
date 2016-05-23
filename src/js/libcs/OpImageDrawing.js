@@ -346,3 +346,45 @@ evaluator.allimages$0 = function() {
     });
     return List.turnIntoCSList(lst);
 };
+
+evaluator.cameravideo$0 = function() {
+    var openVideoStream = null;
+    var constraints = {
+        video: true,
+        audio: false
+    };
+    var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+    if (gum) {
+        openVideoStream = function(success, failure) {
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then(success, failure);
+        };
+    } else {
+        gum = navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia;
+        if (gum) {
+            openVideoStream = function(success, failure) {
+                gum.call(navigator, constraints, success, failure);
+            };
+        }
+    }
+    if (!openVideoStream) {
+        console.warn("getUserMedia call not supported");
+        return nada;
+    }
+    var video = document.createElement("video");
+    video.autoplay = true;
+    var img = loadImage(video);
+    console.log("Opening stream.");
+    openVideoStream(function success(stream) {
+        var url = window.URL.createObjectURL(stream);
+        video.src = url;
+        video.addEventListener("loadeddata", csplay);
+    }, function failure(err) {
+        console.error("Could not get user video:", String(err), err);
+    });
+    return img;
+};
