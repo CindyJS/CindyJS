@@ -54,7 +54,7 @@ CodeBuilder.prototype.includedfunctions;
 /** @type {createCindy.pluginApi} */
 CodeBuilder.prototype.api;
 
-/** @dict @type {Object} */
+/** @type {Object.<TextureReader>} */
 CodeBuilder.prototype.texturereaders;
 
 /**
@@ -97,7 +97,6 @@ CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current 
   if (expr['ctype'] === 'variable') {
     let name = expr['name'];
 
-    //@TODO, implement complex->true and remove the following line
     //@rethink: use stack instead of scopes? # # #...
     if (name === '#') {
       /*if(modifs[generatecomplexresult]) { //better as uniform type handling
@@ -106,7 +105,6 @@ CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current 
       return type.vec2; //type.complex if complex->true
 
     }
-    //if(name === 'pi') return type.float; //done as uniform
 
     if (this.T.hasOwnProperty(fun) && this.T[fun].hasOwnProperty(name)) { //is there some local variable
       return this.T[fun][name];
@@ -426,6 +424,9 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
       //strings (e.g. names of other textures) cannot be passed as uniforms
       if (expr['ctype'] === 'string') return;
 
+      //possibly unnamed image object, handle like image name string
+      if (expr['ctype'] === 'image') return;
+
       //nothing to pass
       if (expr['ctype'] === 'void') return;
 
@@ -459,7 +460,7 @@ CodeBuilder.prototype.determineUniformTypes = function() {
     this.uniforms[uname].type = guessTypeOfValue(tval);
 
     //TODO: list...    TODO: why are points evaluated to ints?
-    console.log("guessed type " + typeToString(this.uniforms[uname].type) + " for " + JSON.stringify(this.uniforms[uname].expr['name']) + " because it has value " + JSON.stringify(tval['value']));
+    console.log("guessed type " + typeToString(this.uniforms[uname].type) + " for " + JSON.stringify(this.uniforms[uname].expr['name']));
   }
 };
 
@@ -507,11 +508,11 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
     let uniforms = this.uniforms;
 
 
-    let type = uniforms[uname].type;
+    let ctype = uniforms[uname].type;
     return generateTerm ? {
       code: '',
-      term: uname,
-      type: type
+      term: (ctype != type.string) ? uname : this.api.evaluateAndVal(this.uniforms[uname].expr)['value'], //copy strings directly into the code with their current value
+      type: ctype
     } : {
       code: ''
     };
@@ -705,7 +706,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
       }
       if (termGenerator === nada) {
         console.error("There is no webgl-implementation for " + fname + '(' + signature.args.map(typeToString).join(', ') + ').\n' +
-          'defualt: Try glsl-function with same name'
+          'default: Try glsl-function with same name'
         );
         termGenerator = (args => fname + '(' + args.join(', ') + ')');
       }
@@ -847,7 +848,8 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
 CodeBuilder.prototype.generateListOfUniforms = function() {
   let ans = [];
   for (let uname in this.uniforms)
-    ans.push('uniform ' + webgltype[this.uniforms[uname].type] + ' ' + uname + ';');
+    if (this.uniforms[uname].type != type.string)
+      ans.push('uniform ' + webgltype[this.uniforms[uname].type] + ' ' + uname + ';');
   return ans.join('\n');
 };
 
@@ -885,13 +887,9 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
 
   console.log(code);
 
-  //Object.keys(this.texturereaders)
-  let requiredtextures = [];
-  for (let texture in this.texturereaders) requiredtextures.push(texture);
-
   return {
     code: code,
     uniforms: this.uniforms,
-    requiredtextures: requiredtextures
+    texturereaders: this.texturereaders
   };
 };

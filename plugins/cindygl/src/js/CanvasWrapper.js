@@ -1,18 +1,22 @@
 /**
- * adds a canvasWrapper to canvaswrappers-dictionary. If argument is a image that was not loaded, do this with onload-event.
+ * adds a canvasWrapper to an image object. A reference will be added to imageobject. If argument is a image that was not loaded, this will be done as onload-event.
+ * @param {createCindy.image} imageobject
+ * @return {CanvasWrapper}
  */
-function addCanvasWrapperIfRequired(name, api) {
-  if (!canvaswrappers.hasOwnProperty(name)) {
-    let img = api.getImage(name, true); //this might be a canvas as well
-    canvaswrappers[name] = new CanvasWrapper(img); //this might be a 0x0px trash-image if image was not loaded.
-    if (!img.ready) {
+function generateCanvasWrapperIfRequired(imageobject, api) {
+  if (!imageobject.hasOwnProperty('canvaswrapper')) {
+
+    imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
+    if (!imageobject.ready) {
       console.error("Image not ready. Creating onload event.");
-      img.whenReady(function() {
-        console.log("Image " + name + " has been loaded now");
-        requiredcompiletime++; //force recompile
+      imageobject.whenReady(function() {
+        imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
+        console.log("Image has been loaded now");
+        requiredcompiletime++; //force recompile //TODO: check
       });
     }
   }
+  return imageobject['canvaswrapper'];
 }
 
 /**
@@ -28,34 +32,31 @@ function CanvasWrapper(canvas) {
   this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
   this.ratio = canvas.height / canvas.width;
   this.it = 0;
+  if (canvas.live)
+    updateBeforeRendering.push(this.reload.bind(this));
 
-  //copy content of canvas to tmpcanvas in order to obtain pixel array
-  tmpcanvas.width = this.sizeXP;
-  tmpcanvas.height = this.sizeYP;
-
-  let tcontext = tmpcanvas.getContext('2d');
-
-  //we will draw the image on tmpcanvas on y-flipped way, because webgl encodes pixel rows in other order than canvas
-  tcontext.translate(0, this.sizeY);
-  tcontext.scale(1, -1); // flip the image
-  tcontext.drawImage(canvas.img, 0, 0, this.sizeX, this.sizeY);
-
-  let rawData = createPixelArrayFromUint8(tcontext.getImageData(0, 0, this.sizeXP, this.sizeYP).data);
-
-  //framebuffers and textures
   this.textures = [];
   this.framebuffers = [];
+
+  this.bindTexture();
 
   canvas['drawTo'] = this.drawTo.bind(this);
   canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
 
+  let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
 
   for (let j = 0; j < 2; j++) {
     this.textures[j] = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+    if (this.canvas.ready)
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+				
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -103,7 +104,7 @@ CanvasWrapper.prototype.sizeY;
 /** @type {number} */
 CanvasWrapper.prototype.ratio;
 
-/** @type {HTMLCanvasElement|Element} */
+/** @type {createCindy.image} */
 CanvasWrapper.prototype.canvas;
 
 /** What is the current index of the rendered frame
@@ -137,6 +138,17 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
   context.clearRect(0, 0, this.sizeX, this.sizeY);
   this.drawTo(context, 0, 0);
 }
+
+
+/**
+ * Reload texture data from input element (e.g. HTML video)
+ */
+CanvasWrapper.prototype.reload = function() {
+  this.bindTexture();
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+};
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
   enlargeCanvasIfRequired(this.sizeX, this.sizeY);

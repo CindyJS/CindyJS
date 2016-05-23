@@ -8,7 +8,7 @@ function Renderer(api, expression) {
   let cb = new CodeBuilder(api);
   let cpg = cb.generateColorPlotProgram(expression);
   this.cpguniforms = cpg.uniforms;
-  this.requiredtextures = cpg.requiredtextures;
+  this.texturereaders = cpg.texturereaders;
 
   this.fragmentShaderCode =
     cgl_resources["standardFragmentHeader"] + cpg.code;
@@ -82,8 +82,8 @@ Renderer.prototype.api;
 Renderer.prototype.canvaswrapper
 
 
-/** @type {Array.<string>} */
-Renderer.prototype.requiredtextures
+/** @type {Object.<TextureReader>} */
+Renderer.prototype.texturereaders
 
 
 /**
@@ -194,14 +194,17 @@ Renderer.prototype.setUniforms = function() {
  * Activates, loads textures and sets corresponding sampler uniforms
  */
 Renderer.prototype.loadTextures = function() {
-  for (let t = 0; t < this.requiredtextures.length; t++) {
-    gl.activeTexture(gl.TEXTURE0 + t);
-    let tname = this.requiredtextures[t];
-    let cw = canvaswrappers[tname];
+  let cnt = 0;
+  for (let t in this.texturereaders) {
+    gl.activeTexture(gl.TEXTURE0 + cnt);
+
+    let tname = this.texturereaders[t].name;
+    let cw = this.texturereaders[t].canvaswrapper;
     cw.bindTexture();
-    this.shaderProgram.uniform['_sampler_' + tname]([t]);
-    this.shaderProgram.uniform['_ratio_' + tname]([cw.sizeX / cw.sizeY]);
-    this.shaderProgram.uniform['_cropfact_' + tname]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
+    this.shaderProgram.uniform['_sampler' + tname]([cnt]);
+    this.shaderProgram.uniform['_ratio' + tname]([cw.sizeX / cw.sizeY]);
+    this.shaderProgram.uniform['_cropfact' + tname]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
+    cnt++;
   }
 }
 
@@ -222,7 +225,10 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
   //let d = {x: b.x + n.x, y: b.y + n.y};
 
   enlargeCanvasIfRequired(sizeX, sizeY)
-  gl.viewport(0, 0, sizeX, sizeY);
+  if (canvaswrapper)
+    gl.viewport(0, 0, sizeX, sizeY);
+  else
+    gl.viewport(0, glcanvas.height-sizeY, sizeX, sizeY);
 
   this.shaderProgram.use(gl);
   this.setTransformMatrix(a, b, c);

@@ -8,17 +8,14 @@ var isinitialized = false;
 /** @type {HTMLCanvasElement|Element} */
 var glcanvas;
 
-/** @type {HTMLCanvasElement|Element} */
-var tmpcanvas;
-
 /** @type {WebGLRenderingContext} */
 var gl;
 
 /**
- * Dictoionary of all used canvaswrappers
- * @dict @type {Object}
+ * Functions to call before rendering
+ * @type {Array.<function()>}
  */
-var canvaswrappers = {};
+var updateBeforeRendering = [];
 
 var nada;
 //var myfunctions;
@@ -48,13 +45,7 @@ function initGLIfRequired() {
   glcanvas.id = "glcanvas";
   glcanvas.style.display = "none";
   glcanvas.width = glcanvas.height = 0;
-  document.body.appendChild(glcanvas); //document.body.appendChil
-
-  tmpcanvas = document.createElement("canvas");
-  tmpcanvas.id = "tmpcanvas";
-  tmpcanvas.style.display = "none";
-  document.body.appendChild(tmpcanvas);
-
+  document.body.appendChild(glcanvas);
 
   let errorInfo = "Unknown";
 

@@ -129,6 +129,8 @@ function guessTypeOfValue(tval) {
     }
   } else if (tval['ctype'] === 'string') {
     return type.string;
+  } else if (tval['ctype'] === 'image') {
+    return type.string; // Actually a misnomer here
   }
   console.error("Cannot guess type of " + JSON.stringify(tval));
   return nada;
@@ -179,6 +181,7 @@ function computeUpperLeftCorner(api) {
 //from http://stackoverflow.com/questions/6162651/half-precision-floating-point-in-java/6162687#6162687
 var floatView = new Float32Array(1);
 var int32View = new Int32Array(floatView.buffer);
+
 function toHalf(fval) {
   floatView[0] = fval;
   var fbits = int32View[0];
@@ -253,6 +256,15 @@ function createPixelArrayFromUint8(pixels) {
     }
     return newpixels;
   } else return new Uint8Array(pixels);
+}
+
+/**
+ * creates pixel array for black image
+ */
+function createPixelArray(size) {
+  if (can_use_texture_float) return new Float32Array(size);
+  if (can_use_texture_half_float) return new Uint16Array(size);
+  else return new Uint8Array(size);
 }
 
 

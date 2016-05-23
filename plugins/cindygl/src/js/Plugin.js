@@ -30,7 +30,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     }
     /*else {
          console.log("Program has been compiled; we will use that compiled code.");
-       }*/
+    }*/
+    updateBeforeRendering.forEach(f => f());
     prog.renderer.render(a, b, width, height, canvaswrapper);
   }
 
@@ -55,8 +56,10 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     let ih = api.instance['canvas']['height'];
 
     compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
-    let csctx = api.instance['canvas'].getContext('2d');
+    let csctx = api.instance['canvas'].getContext('2d');    
     csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, cw, ch);
+    
+    
     return nada;
   });
 
@@ -105,7 +108,8 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var xx = pt.x * m.a - pt.y * m.b + m.tx;
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
-    csctx.drawImage(glcanvas, 0, glcanvas.height - ih * fy, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
+    //csctx.drawImage(glcanvas, 0, glcanvas.height - ih * fy, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
+    csctx.drawImage(glcanvas, 0, 0, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
     return nada;
   });
 
@@ -123,19 +127,11 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     if (!a.ok || !b.ok || name.ctype !== 'string') {
       return nada;
     }
-
-    var localcanvas = api.getImage(name.value, true); //note: localcanvas might be an image
-
-    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
-      return nada;
-    }
-
-    var cw = localcanvas.width;
-    var ch = localcanvas.height;
-
-    addCanvasWrapperIfRequired(name.value, api);
-
-    compileAndRender(prog, a, b, cw, ch, canvaswrappers[name.value]);
+    let imageobject = api.getImage(name.value, true);
+    let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
+    var cw = imageobject.width;
+    var ch = imageobject.height;
+    compileAndRender(prog, a, b, cw, ch, canvaswrapper);
 
     return nada;
   });
@@ -155,20 +151,12 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
       return nada;
     }
 
-    var localcanvas = api.getImage(name.value, true);
+    let imageobject = api.getImage(name.value, true);
+    let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
+    var cw = imageobject.width;
+    var ch = imageobject.height;
+    compileAndRender(prog, a, b, cw, ch, canvaswrapper);
 
-    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
-      return nada;
-    }
-
-    var cw = localcanvas.width;
-    var ch = localcanvas.height;
-
-    if (!canvaswrappers.hasOwnProperty(name.value)) {
-      canvaswrappers[name.value] = new CanvasWrapper(localcanvas);
-    }
-
-    compileAndRender(prog, a, b, cw, ch, canvaswrappers[name.value]);
 
     return nada;
   });
@@ -180,9 +168,12 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
     var y = coerce.toInt(api.evaluateAndVal(args[2]));
 
     var color = coerce.toColor(api.evaluateAndVal(args[3]));
+    if (!name) return nada;
+    let imageobject = api.getImage(name, true);
+    let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
 
-    if (isFinite(x) && isFinite(y) && name && canvaswrappers.hasOwnProperty(name) && color) {
-      canvaswrappers[name].setPixel(x, y, color);
+    if (isFinite(x) && isFinite(y) && name && canvaswrapper && color) {
+      canvaswrapper.setPixel(x, y, color);
     }
     return nada;
   });
