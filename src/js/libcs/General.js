@@ -60,6 +60,15 @@ General.compare = function(a, b) {
     if (a.ctype === 'list') {
         return List._helper.compare(a, b);
     }
+    if (a.ctype === 'geo') {
+        if (a.value.name === b.value.name) {
+            return 0;
+        }
+        if (a.value.name < b.value.name) {
+            return -1;
+        }
+        return 1;
+    }
     if (a.ctype === 'string') {
         if (a.value === b.value) {
             return 0;
