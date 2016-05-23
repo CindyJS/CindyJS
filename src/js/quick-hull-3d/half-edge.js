@@ -3,33 +3,36 @@ var HalfEdge = function(vertex, face) {
     this.face = face;
 };
 
-HalfEdge.prototype.setOpposite = function(edge) {
-    this.opposite = edge;
-    edge.opposite = this;
+var HalfEdgeOperations = {};
+var HEO = HalfEdgeOperations;
+
+HEO.setOpposite = function(edge, oppEdge) {
+    edge.opposite = oppEdge;
+    oppEdge.opposite = edge;
 };
 
-HalfEdge.prototype.tail = function() {
-    return (this.previous !== null) ? this.previous.head : null;
+HEO.tail = function(edge) {
+    return (edge.previous !== null) ? edge.previous.head : null;
 };
 
-HalfEdge.prototype.oppositeFace = function() {
-    return (this.opposite !== null) ? this.opposite.face : null;
+HEO.oppositeFace = function(edge) {
+    return (edge.opposite !== null) ? edge.opposite.face : null;
 };
 
-HalfEdge.prototype.getVertexString = function() {
-    var tail = this.tail();
+HEO.getVertexString = function(edge) {
+    var tail = HEO.tail(edge);
 
-    return (tail !== null) ? (tail.index + '-' + this.head.index) : ('?-' + this.head.index);
+    return (tail !== null) ? (tail.index + '-' + edge.head.index) : ('?-' + edge.head.index);
 };
 
-HalfEdge.prototype.length = function() {
-    var tail = this.tail();
+HEO.length = function(edge) {
+    var tail = HEO.tail(edge);
 
-    return (tail !== null) ? VectorOperations.abs(VectorOperations.sub(this.head.point, tail.point)) : -1;
+    return (tail !== null) ? VectorOperations.abs(VectorOperations.sub(edge.head.point, tail.point)) : -1;
 };
 
-HalfEdge.prototype.lengthSquared = function() {
-    var tail = this.tail();
+HEO.lengthSquared = function(edge) {
+    var tail = HEO.tail(edge);
 
-    return (tail !== null) ? VectorOperations.abs2(VectorOperations.sub(this.head.point, tail.point)) : -1;
+    return (tail !== null) ? VectorOperations.abs2(VectorOperations.sub(edge.head.point, tail.point)) : -1;
 };

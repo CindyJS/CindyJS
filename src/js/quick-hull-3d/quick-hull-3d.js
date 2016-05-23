@@ -123,8 +123,8 @@ QuickHull3D.prototype.triangulate = function() {
     this.newFaces = [];
 
     this.faces.forEach(function(face) {
-        if (face.mark === Face.VISIBLE) {
-            face.triangulate(this.newFaces, minArea);
+        if (face.mark === FO.VISIBLE) {
+            FO.triangulate(face, this.newFaces, minArea);
         }
     }, this);
 
@@ -180,7 +180,7 @@ QuickHull3D.prototype._findHalfEdge = function(tail, head) {
     var he;
 
     for (var i = 0; i < length; i++) {
-        he = this.faces[i].findEdge(tail, head);
+        he = FO.findEdge(this.faces[i], tail, head);
         if (he !== null) {
             return he;
         }
@@ -197,12 +197,12 @@ QuickHull3D.prototype._setHull = function(coordinates, numberOfPoints, faceIndic
     var face, he, heOpp;
 
     for (var i = 0; i < numberOfFaces; i++) {
-        face = Face.create(this.pointBuffer, faceIndices[i]);
+        face = FO.create(this.pointBuffer, faceIndices[i]);
         he = face.halfEdge0;
         do {
-            heOpp = this._findHalfEdge(he.head, he.tail());
+            heOpp = this._findHalfEdge(he.head, HEO.tail(he));
             if (heOpp !== null) {
-                he.setOpposite(heOpp);
+                HEO.setOpposite(he, heOpp);
             }
             he = he.next;
         } while (he !== face.halfEdge0);
@@ -405,26 +405,26 @@ QuickHull3D.prototype._createInitialSimplex = function() {
     var tris = [],
         k;
     if (VectorOperations.scalproduct(vertices[3].point, normal) - d0 < 0) {
-        tris.push(Face.createTriangle(vertices[0], vertices[1], vertices[2]));
-        tris.push(Face.createTriangle(vertices[3], vertices[1], vertices[0]));
-        tris.push(Face.createTriangle(vertices[3], vertices[2], vertices[1]));
-        tris.push(Face.createTriangle(vertices[3], vertices[0], vertices[2]));
+        tris.push(FO.createTriangle(vertices[0], vertices[1], vertices[2]));
+        tris.push(FO.createTriangle(vertices[3], vertices[1], vertices[0]));
+        tris.push(FO.createTriangle(vertices[3], vertices[2], vertices[1]));
+        tris.push(FO.createTriangle(vertices[3], vertices[0], vertices[2]));
 
         for (i = 0; i < 3; i++) {
             k = (i + 1) % 3;
-            tris[i + 1].getEdge(1).setOpposite(tris[k + 1].getEdge(0));
-            tris[i + 1].getEdge(2).setOpposite(tris[0].getEdge(k));
+            HEO.setOpposite(FO.getEdge(tris[i + 1], 1), FO.getEdge(tris[k + 1], 0));
+            HEO.setOpposite(FO.getEdge(tris[i + 1], 2), FO.getEdge(tris[0], k));
         }
     } else {
-        tris.push(Face.createTriangle(vertices[0], vertices[2], vertices[1]));
-        tris.push(Face.createTriangle(vertices[3], vertices[0], vertices[1]));
-        tris.push(Face.createTriangle(vertices[3], vertices[1], vertices[2]));
-        tris.push(Face.createTriangle(vertices[3], vertices[2], vertices[0]));
+        tris.push(FO.createTriangle(vertices[0], vertices[2], vertices[1]));
+        tris.push(FO.createTriangle(vertices[3], vertices[0], vertices[1]));
+        tris.push(FO.createTriangle(vertices[3], vertices[1], vertices[2]));
+        tris.push(FO.createTriangle(vertices[3], vertices[2], vertices[0]));
 
         for (i = 0; i < 3; i++) {
             k = (i + 1) % 3;
-            tris[i + 1].getEdge(0).setOpposite(tris[k + 1].getEdge(1));
-            tris[i + 1].getEdge(2).setOpposite(tris[0].getEdge((3 - i) % 3));
+            HEO.setOpposite(FO.getEdge(tris[i + 1], 0), FO.getEdge(tris[k + 1], 1));
+            HEO.setOpposite(FO.getEdge(tris[i + 1], 2), FO.getEdge(tris[0], (3 - i) % 3));
         }
     }
 
@@ -442,7 +442,7 @@ QuickHull3D.prototype._createInitialSimplex = function() {
         }
 
         tris.forEach(function(tri) {
-            var distance = tri.distanceToPlane(vertex.point);
+            var distance = FO.distanceToPlane(tri, vertex.point);
 
             if (distance > maxDistance) {
                 maxFace = tri;
@@ -506,8 +506,8 @@ QuickHull3D.prototype._resolveUnclaimedPoints = function(newFaces) {
         for (i = 0; i < length; i++) {
             newFace = newFaces[i];
 
-            if (newFace.mark === Face.VISIBLE) {
-                dist = newFace.distanceToPlane(vertex.point);
+            if (newFace.mark === FO.VISIBLE) {
+                dist = FO.distanceToPlane(newFace, vertex.point);
 
                 if (dist > maxDist) {
                     maxDist = dist;
@@ -522,7 +522,7 @@ QuickHull3D.prototype._resolveUnclaimedPoints = function(newFaces) {
         if (maxFace !== null) {
             this._addPointToFace(vertex, maxFace);
             if (this.debug && vertex.index === this._findIndex) {
-                console.log(this._findIndex + " CLAIMED BY " + maxFace.getVertexString());
+                console.log(this._findIndex + " CLAIMED BY " + FO.getVertexString(maxFace));
             }
         } else if (this.debug && vertex.index === this._findIndex) {
             console.log(this._findIndex + " DISCARDED");
@@ -562,7 +562,7 @@ QuickHull3D.prototype._deleteFacePoints = function(face, absorbingFace) {
 
     for (var vertex = faceVertex; vertex !== null; vertex = next) {
         next = vertex.next;
-        var distance = absorbingFace.distanceToPlane(vertex.point);
+        var distance = FO.distanceToPlane(absorbingFace, vertex.point);
 
         if (distance > this.tolerance) {
             this._addPointToFace(vertex, absorbingFace);
@@ -573,7 +573,7 @@ QuickHull3D.prototype._deleteFacePoints = function(face, absorbingFace) {
 };
 
 QuickHull3D.prototype._oppFaceDistance = function(halfEdge) {
-    return halfEdge.face.distanceToPlane(halfEdge.opposite.face.centroid);
+    return FO.distanceToPlane(halfEdge.face, halfEdge.opposite.face.centroid);
 };
 
 QuickHull3D.prototype._doAdjacentMerge = function(face, mergeType) {
@@ -582,7 +582,7 @@ QuickHull3D.prototype._doAdjacentMerge = function(face, mergeType) {
     var oppFace, merge;
 
     do {
-        oppFace = hedge.oppositeFace();
+        oppFace = HEO.oppositeFace(hedge);
         merge = false;
 
         if (mergeType === this.constructor.NONCONVEX) {
@@ -614,18 +614,18 @@ QuickHull3D.prototype._doAdjacentMerge = function(face, mergeType) {
         if (merge) {
             if (this.debug) {
                 console.log(
-                    "  merging " + face.getVertexString() + "  and  " +
-                    oppFace.getVertexString());
+                    "  merging " + FO.getVertexString(face) + "  and  " +
+                        FO.getVertexString(oppFace));
             }
 
-            var numd = face.mergeAdjacentFace(hedge, this.discardedFaces);
+            var numd = FO.mergeAdjacentFace(face, hedge, this.discardedFaces);
 
             for (var i = 0; i < numd; i++) {
                 this._deleteFacePoints(this.discardedFaces[i], face);
             }
 
             if (this.debug) {
-                console.log("  result: " + face.getVertexString());
+                console.log("  result: " + FO.getVertexString(face));
             }
 
             return true;
@@ -635,7 +635,7 @@ QuickHull3D.prototype._doAdjacentMerge = function(face, mergeType) {
     } while (hedge !== face.halfEdge0);
 
     if (!convex) {
-        face.mark = Face.NON_CONVEX;
+        face.mark = FO.NON_CONVEX;
     }
 
     return false;
@@ -643,16 +643,16 @@ QuickHull3D.prototype._doAdjacentMerge = function(face, mergeType) {
 
 QuickHull3D.prototype._calculateHorizon = function(eyePoint, edge0, face, horizon) {
     this._deleteFacePoints(face, null);
-    face.mark = Face.DELETED;
+    face.mark = FO.DELETED;
 
     if (this.debug) {
-        console.log('Visiting face ' + face.getVertexString());
+        console.log('Visiting face ' + FO.getVertexString(face));
     }
 
     var edge;
 
     if (edge0 === null) {
-        edge0 = face.getEdge(0);
+        edge0 = FO.getEdge(face, 0);
         edge = edge0;
     } else {
         edge = edge0.next;
@@ -661,16 +661,16 @@ QuickHull3D.prototype._calculateHorizon = function(eyePoint, edge0, face, horizo
     var oppositeFace;
 
     do {
-        oppositeFace = edge.oppositeFace();
+        oppositeFace = HEO.oppositeFace(edge);
 
-        if (oppositeFace.mark === Face.VISIBLE) {
-            if (oppositeFace.distanceToPlane(eyePoint) > this.tolerance) {
+        if (oppositeFace.mark === FO.VISIBLE) {
+            if (FO.distanceToPlane(oppositeFace, eyePoint) > this.tolerance) {
                 this._calculateHorizon(eyePoint, edge.opposite, oppositeFace, horizon);
             } else {
                 horizon.push(edge);
 
                 if (this.debug) {
-                    console.log('Adding horizon edge ' + edge.getVertexString());
+                    console.log('Adding horizon edge ' + HEO.getVertexString(edge));
                 }
             }
         }
@@ -680,12 +680,12 @@ QuickHull3D.prototype._calculateHorizon = function(eyePoint, edge0, face, horizo
 };
 
 QuickHull3D.prototype._addAdjoiningFace = function(eyeVertex, halfEdge) {
-    var face = Face.createTriangle(eyeVertex, halfEdge.tail(), halfEdge.head);
+    var face = FO.createTriangle(eyeVertex, HEO.tail(halfEdge), halfEdge.head);
 
     this.faces.push(face);
-    face.getEdge(-1).setOpposite(halfEdge.opposite);
+    HEO.setOpposite(FO.getEdge(face, -1), halfEdge.opposite);
 
-    return face.getEdge(0);
+    return FO.getEdge(face, 0);
 };
 
 QuickHull3D.prototype._addNewFaces = function(newFaces, eyeVertex, horizon) {
@@ -698,11 +698,11 @@ QuickHull3D.prototype._addNewFaces = function(newFaces, eyeVertex, horizon) {
         var hedgeSide = this._addAdjoiningFace(eyeVertex, horizonHe);
 
         if (this.debug) {
-            console.log("new face: " + hedgeSide.face.getVertexString());
+            console.log("new face: " + FO.getVertexString(hedgeSide.face));
         }
 
         if (hedgeSidePrev !== null) {
-            hedgeSide.next.setOpposite(hedgeSidePrev);
+            HEO.setOpposite(hedgeSide.next, hedgeSidePrev);
         } else {
             hedgeSideBegin = hedgeSide;
         }
@@ -711,7 +711,7 @@ QuickHull3D.prototype._addNewFaces = function(newFaces, eyeVertex, horizon) {
         hedgeSidePrev = hedgeSide;
     }, this);
 
-    hedgeSideBegin.next.setOpposite(hedgeSidePrev);
+    HEO.setOpposite(hedgeSideBegin.next, hedgeSidePrev);
 };
 
 QuickHull3D.prototype._nextPointToAdd = function() {
@@ -725,7 +725,7 @@ QuickHull3D.prototype._nextPointToAdd = function() {
     var vertex, distance;
 
     for (vertex = eyeFace.outside; vertex !== null && vertex.face === eyeFace; vertex = vertex.next) {
-        distance = eyeFace.distanceToPlane(vertex.point);
+        distance = FO.distanceToPlane(eyeFace, vertex.point);
 
         if (distance > maxDistance) {
             maxDistance = distance;
@@ -742,8 +742,8 @@ QuickHull3D.prototype._addPointToHull = function(eyeVertex) {
 
     if (this.debug) {
         console.log('Adding point:', eyeVertex.index, '\n which is ' +
-            eyeVertex.face.distanceToPlane(eyeVertex.point) +
-            'above face ' + eyeVertex.face.getVertexString());
+                    FO.distanceToPlane(eyeVertex.face, eyeVertex.point) +
+                    'above face ' + FO.getVertexString(eyeVertex.face));
     }
 
     this._removePointFromFace(eyeVertex, eyeVertex.face);
@@ -756,7 +756,7 @@ QuickHull3D.prototype._addPointToHull = function(eyeVertex) {
     // as determined by the larger face
 
     this.newFaces.forEach(function(face) {
-        if (face.mark === Face.VISIBLE) {
+        if (face.mark === FO.VISIBLE) {
             while (this._doAdjacentMerge(face, this.constructor.NONCONVEX_WRT_LARGER_FACE));
         }
     }, this);
@@ -764,8 +764,8 @@ QuickHull3D.prototype._addPointToHull = function(eyeVertex) {
     // second merge pass ... merge faces which are non-convex
     // wrt either face
     this.newFaces.forEach(function(face) {
-        if (face.mark === Face.NON_CONVEX) {
-            face.mark = Face.VISIBLE;
+        if (face.mark === FO.NON_CONVEX) {
+            face.mark = FO.VISIBLE;
             while (this._doAdjacentMerge(face, this.constructor.NONCONVEX));
         }
     }, this);
@@ -821,7 +821,7 @@ QuickHull3D.prototype._reindexFacesAndVertices = function() {
 
     // remove inactive faces and mark active vertices
     this.faces.forEach(function(face) {
-        if (face.mark === Face.VISIBLE) {
+        if (face.mark === FO.VISIBLE) {
             newFaces.push(face);
             this._markFaceVertices(face, 0);
             this.numberOfFaces++;
