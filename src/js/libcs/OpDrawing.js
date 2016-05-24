@@ -1425,7 +1425,7 @@ evaluator.clearimage$1 = function(args, modifs) {
     var ch = localcanvas.height;
     var localcontext = localcanvas.getContext('2d');
     localcontext.clearRect(0, 0, cw, ch);
-    localcanvas['copiedToCindyGL'] = false;
+    localcanvas.copiedToCindyGL = false;
 
     return nada;
 };
@@ -1491,9 +1491,9 @@ evaluator.canvas$4 = function(args, modifs) {
     csctx.save();
 
     csctx.transform(a1, a4, a2, a5, a3, a6);
-    
-    
-    localcanvas['copiedToCindyGL'] = false;
+
+
+    localcanvas.copiedToCindyGL = false;
 
     evaluate(prog);
     csctx.restore();
@@ -1560,8 +1560,8 @@ evaluator.canvas$5 = function(args, modifs) {
     csctx.save();
 
     csctx.transform(a1, a4, a2, a5, a3, a6);
-    
-    localcanvas['copiedToCindyGL'] = false;
+
+    localcanvas.copiedToCindyGL = false;
 
     evaluate(prog);
     csctx.restore();
