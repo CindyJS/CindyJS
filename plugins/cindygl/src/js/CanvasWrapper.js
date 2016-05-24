@@ -10,9 +10,7 @@ function generateCanvasWrapperIfRequired(imageobject, api) {
         if (!imageobject.ready) {
             console.error("Image not ready. Creating onload event.");
             imageobject.whenReady(function() {
-                imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
-                console.log("Image has been loaded now");
-                requiredcompiletime++; //force recompile //TODO: check
+								imageobject.img['copiedToCindyGL'] = false;
             });
         }
     }
