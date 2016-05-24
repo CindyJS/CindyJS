@@ -121,7 +121,7 @@ CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current 
     } else if (expr['ctype'] === 'field') {
         return type.float; //so far we only have field indexes vor vec2, vec3, vec4
     } else if (expr['ctype'] === 'string') {
-        return type.string;
+    return type.image;
     } else {
         var argtypes = new Array(expr['args'].length);
         for (let i = 0; i < expr['args'].length; i++) {
@@ -418,12 +418,6 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             //To pass constant numbers as uniforms is overkill
             if (expr['ctype'] === 'number') return;
 
-            //strings (e.g. names of other textures) cannot be passed as uniforms
-            if (expr['ctype'] === 'string') return;
-
-            //possibly unnamed image object, handle like image name string
-            if (expr['ctype'] === 'image') return;
-
             //nothing to pass
             if (expr['ctype'] === 'void') return;
 
@@ -499,14 +493,11 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
     var self = this; //for some reason recursion on this does not work, hence we create a copy; see http://stackoverflow.com/questions/18994712/recursive-call-within-prototype-function
     if (expr['isuniform']) {
         let uname = expr['uvariable'];
-
         let uniforms = this.uniforms;
-
-
         let ctype = uniforms[uname].type;
         return generateTerm ? {
             code: '',
-            term: (ctype != type.string) ? uname : this.api.evaluateAndVal(this.uniforms[uname].expr)['value'], //copy strings directly into the code with their current value
+      term: uname,
             type: ctype
         } : {
             code: ''
@@ -745,7 +736,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             code: termtype + ';\n'
         });
     } else if (expr['ctype'] === 'string') { //just copy strings directly into glsl. Useful for example for names of textures
-        let termtype = type.string;
+    /*let termtype = type.string;
         let term = expr['value'];
         return (generateTerm ? {
             term: term,
@@ -753,7 +744,9 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             code: ''
         } : {
             code: termtype + ';\n'
-        });
+    });*/
+    console.error("Cannot compile strings to WebGL.");
+    return nada;
     } else if (expr['ctype'] === "variable") {
         let termtype = this.getType(expr, scope);
 
@@ -840,7 +833,7 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
 CodeBuilder.prototype.generateListOfUniforms = function() {
     let ans = [];
     for (let uname in this.uniforms)
-        if (this.uniforms[uname].type != type.string)
+    if (this.uniforms[uname].type != type.image)
             ans.push('uniform ' + webgltype[this.uniforms[uname].type] + ' ' + uname + ';');
     return ans.join('\n');
 };

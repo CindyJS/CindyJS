@@ -199,7 +199,7 @@ Renderer.prototype.loadTextures = function() {
     gl.activeTexture(gl.TEXTURE0 + cnt);
 
     let tname = this.texturereaders[t].name;
-    let cw = this.texturereaders[t].canvaswrapper;
+    let cw = this.texturereaders[t].returnCanvaswrapper();
     cw.reloadIfRequired();
     cw.bindTexture();
     this.shaderProgram.uniform['_sampler' + tname]([cnt]);
