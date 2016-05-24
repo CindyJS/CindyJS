@@ -209,6 +209,12 @@ eval_helper.equals = function(v0, v1) { //Und nochmals un-OO
         var erg = List.equals(v0, v1);
         return erg;
     }
+    if (v0.ctype === 'geo' && v1.ctype === 'geo') {
+        return {
+            'ctype': 'boolean',
+            'value': (v0.value === v1.value)
+        };
+    }
     return {
         'ctype': 'boolean',
         'value': false
