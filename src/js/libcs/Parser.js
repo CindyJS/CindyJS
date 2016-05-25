@@ -558,5 +558,5 @@ function condense(code) {
     return code;
 }
 
-if (module)
+if (typeof module !== "undefined" && module)
     module.exports = parse;
