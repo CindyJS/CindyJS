@@ -663,15 +663,60 @@ Parser.prototype.postprocess = function(expr) {
             this.usedFunctions[expr.oper] = true;
         }
     }
-    if (expr && typeof expr === 'object') {
-        delete expr.start;
-        delete expr.end;
-        delete expr.toktype;
-        delete expr.op;
-        delete expr.raw;
-        delete expr.text;
+
+    // Re-construct all objects using object literals.
+    // This helps some JavaScript engines improve performance.
+    if (expr.ctype === 'infix') {
+        return {
+            ctype: 'infix',
+            oper: String(expr.oper),
+            args: [expr.args[0], expr.args[1]],
+            impl: expr.impl,
+        };
     }
-    return expr;
+    if (expr.ctype === 'variable') {
+        return {
+            ctype: 'variable',
+            name: String(expr.name),
+        };
+    }
+    if (expr.ctype === 'number') {
+        return {
+            ctype: 'number',
+            value: {
+                real: +expr.value.real,
+                imag: +expr.value.imag
+            },
+        };
+    }
+    if (expr.ctype === 'string') {
+        return {
+            ctype: 'string',
+            value: String(expr.value),
+        };
+    }
+    if (expr.ctype === 'list') {
+        return {
+            ctype: 'list',
+            value: expr.value,
+        };
+    }
+    if (expr.ctype === 'function') {
+        return {
+            ctype: 'function',
+            oper: String(expr.oper),
+            args: expr.args,
+            modifs: expr.modifs,
+        };
+    }
+    if (expr.ctype === 'field') {
+        return {
+            ctype: 'field',
+            obj: expr.obj,
+            key: String(expr.key),
+        };
+    }
+    throw Error("Unsupported AST node of type " + expr.ctype);
 };
 
 Parser.prototype.parse = function(code) {
