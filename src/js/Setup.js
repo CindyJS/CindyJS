@@ -253,6 +253,7 @@ function createCindyNow() {
  * width, height: dimensions of the image
  * ready: boolean indicating whether the image been loaded already
  * live: boolean indicating whether the image is expected to change continuously
+ * generation: A counter that is increased once the drawable is changed.
  */
 function loadImage(obj) {
     var img;
@@ -272,6 +273,7 @@ function loadImage(obj) {
         height: NaN,
         ready: true,
         live: false,
+        generation: 0,
         whenReady: callFunctionNow,
     };
     var tag = img.tagName.toLowerCase();

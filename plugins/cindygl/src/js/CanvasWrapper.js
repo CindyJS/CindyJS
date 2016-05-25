@@ -10,7 +10,7 @@ function generateCanvasWrapperIfRequired(imageobject, api) {
         if (!imageobject.ready) {
             console.error("Image not ready. Creating onload event.");
             imageobject.whenReady(function() {
-								imageobject.img['copiedToCindyGL'] = false;
+        imageobject.generation = Math.max(imageobject.generation, imageobject['canvaswrapper'].generation+1);
             });
         }
     }
@@ -32,6 +32,7 @@ function CanvasWrapper(canvas) {
     this.it = 0;
     this.textures = [];
     this.framebuffers = [];
+  this.generation = -1;
 
     this.bindTexture();
 
@@ -96,6 +97,13 @@ CanvasWrapper.prototype.ratio;
 /** @type {createCindy.image} */
 CanvasWrapper.prototype.canvas;
 
+/**
+ * What was the generation of the imageobject when it was copied to the internal textures.
+ * It should be canvas.generation whenever the internal texture is read.
+ * @type {number} */
+CanvasWrapper.prototype.generation;
+
+
 /** What is the current index of the rendered frame
  *@type {number} */
 CanvasWrapper.prototype.it;
@@ -132,7 +140,7 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
  * Reload texture data from input element (e.g. HTML video)
  */
 CanvasWrapper.prototype.reloadIfRequired = function() {
-  if (!this.canvas.live && (!this.canvas.ready || this.canvas.img['copiedToCindyGL'])) {
+  if (!this.canvas.live && (!this.canvas.ready || this.generation >= this.canvas.generation)) {
     return;
   }
 
@@ -153,7 +161,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
-  this.canvas.img['copiedToCindyGL'] = true;
+  this.generation = this.canvas.generation;
   console.log("Image has been loaded to GPU");
 };
 

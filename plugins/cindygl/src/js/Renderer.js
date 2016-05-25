@@ -238,7 +238,7 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
 
   if (canvaswrapper) {
     canvaswrapper.bindFramebuffer(); //render to texture stored in canvaswrapper
-    canvaswrapper.canvas.img['copiedToCindyGL'] = true;
+    canvaswrapper.generation = ++canvaswrapper.canvas.generation;
   } else
     gl.bindFramebuffer(gl.FRAMEBUFFER, null); //render to glcanvas
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

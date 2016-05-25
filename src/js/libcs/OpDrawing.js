@@ -1413,19 +1413,21 @@ evaluator.clearimage$1 = function(args, modifs) {
 
     var name = evaluate(args[0]);
 
-    if (name.ctype !== 'string') {
+    if (!(name.ctype === 'string' || name.ctype === 'image')) {
         return nada;
     }
 
-    var localcanvas = document.getElementById(name.value);
+    var image = imageFromValue(name);
+    var localcanvas = image.img;
+
     if (typeof(localcanvas) === "undefined" || localcanvas === null) {
         return nada;
     }
-    var cw = localcanvas.width;
-    var ch = localcanvas.height;
+    var cw = image.width;
+    var ch = image.height;
     var localcontext = localcanvas.getContext('2d');
     localcontext.clearRect(0, 0, cw, ch);
-    localcanvas.copiedToCindyGL = false;
+    image.generation++;
 
     return nada;
 };
@@ -1439,17 +1441,20 @@ evaluator.canvas$4 = function(args, modifs) {
 
     var pta = eval_helper.extractPoint(a);
     var ptb = eval_helper.extractPoint(b);
-    if (!pta.ok || !ptb.ok || name.ctype !== 'string') {
+    if (!pta.ok || !ptb.ok || !(name.ctype === 'string' || name.ctype === 'image')) {
         return nada;
     }
-    var localcanvas = document.getElementById(name.value);
+
+    var image = imageFromValue(name);
+
+    var localcanvas = image.img;
     if (typeof(localcanvas) === "undefined" || localcanvas === null) {
         return nada;
     }
 
 
-    var cw = localcanvas.width;
-    var ch = localcanvas.height;
+    var cw = image.width;
+    var ch = image.height;
 
     var diffx = ptb.x - pta.x;
     var diffy = ptb.y - pta.y;
@@ -1493,7 +1498,7 @@ evaluator.canvas$4 = function(args, modifs) {
     csctx.transform(a1, a4, a2, a5, a3, a6);
 
 
-    localcanvas.copiedToCindyGL = false;
+    image.generation++;
 
     evaluate(prog);
     csctx.restore();
@@ -1511,17 +1516,19 @@ evaluator.canvas$5 = function(args, modifs) {
     var pta = eval_helper.extractPoint(a);
     var ptb = eval_helper.extractPoint(b);
     var ptc = eval_helper.extractPoint(c);
-    if (!pta.ok || !ptb.ok || !ptc.ok || name.ctype !== 'string') {
+    if (!pta.ok || !ptb.ok || !ptc.ok || !(name.ctype === 'string' || name.ctype === 'image')) {
         return nada;
     }
-    var localcanvas = document.getElementById(name.value);
+
+    var image = imageFromValue(name);
+    var localcanvas = image.img;
     if (typeof(localcanvas) === "undefined" || localcanvas === null) {
         return nada;
     }
 
 
-    var cw = localcanvas.width;
-    var ch = localcanvas.height;
+    var cw = image.width;
+    var ch = image.height;
 
 
     var cva = csport.from(pta.x, pta.y, 1);
@@ -1561,7 +1568,7 @@ evaluator.canvas$5 = function(args, modifs) {
 
     csctx.transform(a1, a4, a2, a5, a3, a6);
 
-    localcanvas.copiedToCindyGL = false;
+    image.generation++;
 
     evaluate(prog);
     csctx.restore();
