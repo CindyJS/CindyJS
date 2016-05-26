@@ -95,7 +95,7 @@ Again this only affects a single arity.
 
 Undefining a built-in function restores its built-in definition.
 
-    - CindyScript >=2016: see Cinderella bug #144
+    - CindyScript >=3.0: see Cinderella bug #144
     > repeat(a, b) := _; repeat(2, 3)
     < 3
 

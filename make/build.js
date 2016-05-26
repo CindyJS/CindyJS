@@ -299,7 +299,7 @@ module.exports = function build(settings, task) {
             source_map_format: "V3",
             source_map_location_mapping: [
                 "build/js/|",
-                "src/js/|../../plugins/cindy3d/src/js/",
+                "plugins/|../../plugins/",
             ],
             output_wrapper_file: "plugins/cindy3d/src/js/Cindy3D.js.wrapper",
             js_output_file: "build/js/Cindy3D.js",
@@ -368,7 +368,7 @@ module.exports = function build(settings, task) {
             source_map_format: "V3",
             source_map_location_mapping: [
                 "build/js/|",
-                "src/js/|../../plugins/cindygl/src/js/",
+                "plugins/|../../plugins/",
             ],
             output_wrapper_file: "plugins/cindygl/src/js/CindyGL.js.wrapper",
             js_output_file: "build/js/CindyGL.js",
@@ -489,6 +489,20 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Copy images to build directory
+    //////////////////////////////////////////////////////////////////////
+
+    var images = glob.sync("images/*.{png,jpg}");
+
+    task("images", [], function() {
+        this.parallel(function() {
+            images.forEach(function(input) {
+                this.copy(input, path.join("build", "js", input));
+            }, this);
+        });
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Copy things which constitute a release
     //////////////////////////////////////////////////////////////////////
 
@@ -520,6 +534,7 @@ module.exports = function build(settings, task) {
         "cindygl",
         "katex",
         "xlibs",
+        "images",
     ].concat(gwt_modules));
 
 };

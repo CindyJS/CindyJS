@@ -17,19 +17,19 @@ i.e. the next newline character or the end of the input text.
 
 A block comment is enclosed by `/*` and `*/`.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 1 + /* 7 - */ 2
     < 3
 
 Block comments in CindyJS can be nested.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 1 + /* 2 + /* 3 + */ 4 + */ 5
     < 6
 
 Unclosed block comments are an error.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 1 + /* this does not close
     ! CindyScriptParseError: Unterminated comment at 1:4: ‘/*’
     > 1 + /* this /* still */ not
@@ -68,13 +68,13 @@ so they are not part of the semantic content of the token.
 Newlines still delimit tokens, so the following is read as
 three distinct identifiers with no operators between them:
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > a
     > 	b
     > 		c
     ! CindyScriptParseError: Missing operator at 2:1: ‘b’
 
-    - CindyScript <2016
+    - CindyScript <3.0
     > a
     > 	b
     > 		c
@@ -110,7 +110,7 @@ The fractional part is a dot (U+002E) followed by zero or more digits.
 The exponent is the letter `e` or `E`, possibly followed by a sign
 (`+` or `-`), followed by one or more digits.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > [1, 2., 3.4, .5, 6e7, 2.e-3, 3.2E+1, .5e-3]
     < [1, 2, 3.4, 0.5, 60000000, 0.002, 32, 0.0005]
     > [1 1, 2 2 ., 3 3 . 4 4, . 5 6, 6 e 5, 1 2 . E - 3, 3 . 2 e + 1, . 5 e - 3]
@@ -121,11 +121,11 @@ a valid representation for the number zero.
 In particular, this includes a sole dot as a valid representation
 for the number zero.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 0 + (.)
     ! CindyScriptParseError: Operator without operands at 1:5: ‘.’
 
-    - CindyScript <2016
+    - CindyScript <3.0
     > 0 + (.)
     < 0
 
@@ -158,7 +158,7 @@ by a second dot, since the latter represents a range.
     > 1..3
     < [1, 2, 3]
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 1 . . 3
     ! CindyScriptParseError: Field name must be identifier at 1:2: ‘.’
 
@@ -195,7 +195,7 @@ The set of letters includes characters from
 other than the Basic Multilingual Plane (BMP).
 These are encoded using surrogare pairs in JavaScript's UTF-16 encoding.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 𝐶𝑖𝑛𝑑𝑦 𝑱𝑺 = 2;
     > 𝐶𝑖𝑛𝑑𝑦𝑱𝑺
     < 2
@@ -243,7 +243,7 @@ a number ending in a decimal dot and followed by the operator `.`.
 
 There may be no spaces within operator symbols.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > f(x) : = 123
     ! CindyScriptParseError: Operator may not be used postfix at 1:5: ‘:’
 
@@ -258,7 +258,7 @@ followed by one or more superscript digits.
 All characters may be separated by in-token [whitespace](#whitespace).
 A subscript literal is defined correspondingly.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 5³
     < 125
     > 4⁻¹
@@ -279,7 +279,7 @@ which would bind as tightly or tighter than the power operator `^`.
 This avoids confusion between the fact that `^` is right-associative
 and the fact that superscript visually appears more closely coupled.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 2³^4
     ! CindyScriptParseError: Operator not allowed after superscript at 1:2: ‘^’
     > 2³_1
@@ -359,19 +359,19 @@ Operators of equal precedence are usually left-associative.
 One exception from this are the `^` operator and others of equal precedence,
 which are right-associative.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 3^2^4
     < 43046721
     > (3^2)^4
     < 6561
 
-    - CindyScript <2016
+    - CindyScript <3.0
     > 3^2^4
     < 6561
 
 Another class of right-associative operators are those for assignment.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > x = y = 1
     < 1
     > (x = y) = 2
@@ -382,7 +382,7 @@ Another class of right-associative operators are those for assignment.
 
 The prepend operator `<:` is right-associative as well.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 1 <: 2 <: [3, 4, 5] :> 6 :> 7
     < [1, 2, 3, 4, 5, 6, 7]
     > 1 <: 2 <: [3] -- [2]
@@ -445,7 +445,7 @@ The `!` and `√` operators may only be used in prefix notation.
     > !(7 == 7)
     < false
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > √4
     < 2
 
@@ -498,7 +498,7 @@ These always denote a list, even if they contain exactly one expression.
 
 Curly braces are reserved for future applications.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > 7 * {1 + 2}
     ! CindyScriptParseError: {…} reserved for future use at 1:4
     > 7 * {1, 2}
@@ -507,6 +507,37 @@ Curly braces are reserved for future applications.
     ! CindyScriptParseError: {…} reserved for future use at 1:4
     > sin{30°}
     ! CindyScriptParseError: {…} reserved for future use at 1:3
+
+#### Function invocation
+
+A function invocation is a function name (which is an identifier),
+followed by zero or more arguments enclosed in square or round brackets.
+
+    > sin[0]
+    < 0
+    > resetclock()
+    < ___
+
+It is permissible for function arguments to be empty.
+This is particularly relevant for control flow functions,
+where an empty argument can represent an empty sequence of commands.
+
+    > if (2 < 3, , println("Back to school!"))
+    < ___
+
+When a function is used in the index position of an indexing construct
+using `_`, `.` or `:`, it has to be enclosed in parentheses.
+(This reserves such constructs for method-like invocations
+of probably anonymous functions in an object-oriented programming style.)
+
+    > lst = 10 * (1..7);
+    > f(x) := x + 1;
+    > lst_(f(3))
+    < 40
+
+    - CindyScript >=2016
+    > lst_f(3)
+    ! CindyScriptParseError: Function call in indexing construct must be enclosed in parentheses at 1:5
 
 #### Vertical bars `|…|`
 
@@ -530,14 +561,14 @@ computes the distance between these points or vectors.
 It is illegal to nest expressions using vertical bars
 directly inside one another:
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > |3 + |4*i| - 2|
     ! CindyScriptParseError: Operator may not be used postfix at 1:3: ‘+’
 
 They may however be nested if there is at least one level of other brackets
 (`(…)`, `[…]` or `{…}`) between them.
 
-    - CindyScript >=2016
+    - CindyScript >=3.0
     > |[3, |4*i|]|
     < 5
 
@@ -721,6 +752,7 @@ powerNoBars
     ;
 indexed
     : atom
+    | functionCall
     | indexed OP_KEY atom
     | indexed OP_FIELD IDENTIFIER
     | indexed OP_TAKE atom
@@ -729,6 +761,7 @@ indexed
     ;
 indexedNoBars
     : atomNoBars
+    | functionCall
     | indexedNoBars OP_KEY atomNoBars
     | indexedNoBars OP_FIELD IDENTIFIER
     | indexedNoBars OP_TAKE atomNoBars
@@ -738,7 +771,6 @@ indexedNoBars
 atom
     : ROUND_OPEN expression ROUND_CLOSE
     | list
-    | functionCall
     | absNormDist
     | number
     | string
@@ -747,7 +779,6 @@ atom
 atomNoBars
     : ROUND_OPEN expression ROUND_CLOSE
     | list
-    | functionCall
     | number
     | string
     | variable
@@ -776,7 +807,6 @@ absNormDist
 functionCall
     : functionName ROUND_OPEN args ROUND_CLOSE
     | functionName SQUARE_OPEN args SQUARE_CLOSE
-    | functionName CURLY_OPEN args CURLY_CLOSE
     ;
 args
     : arg
@@ -796,3 +826,118 @@ string
     : STRING
     ;
 ```
+
+The associated terminals are defined as follows:
+
+```bnf
+OP_KEY: ':';
+OP_FIELD: '.';
+OP_DEG: '°';
+OP_TAKE: '_'; // also used inside := _
+
+OP_POW: '^';
+OP_SQRT: '√';
+
+OP_MUL
+    : '*'
+    | '\u2062' // invisible times
+    | '\u22c5' // ⋅ dot operator
+    | '\u00b7' // · middle dot
+    ;
+OP_CROSS: '×';
+OP_DIV
+    : '/'
+    | '\u00f7' // ÷ division sign
+    | '\u2215' // ∕ division slash
+    | '\u2236' // ∶ ratio
+    ;
+OP_ADD: '+';
+OP_SUB: '-' | '−';
+OP_NEG: '!' | '¬';
+
+OP_SEQ: '..';
+
+OP_EQ: '==' | '≟';
+OP_NE: '!=' | '<>' | '≠';
+OP_LT: '<';
+OP_GT: '>';
+OP_LE: '<=' | '≤' | '≦';
+OP_GE: '>=' | '≥' | '≧';
+OP_AEQ: '~=' | '≈';
+OP_ANE: '~!=' | '≉';
+OP_ALT: '~<' | '⪉';
+OP_AGT: '~>' | '⪊';
+OP_ALE: '~<=' | '⪅';
+OP_AGE: '~>=' | '⪆';
+OP_IN: '∈';
+OP_NIN: '∉';
+
+OP_AND: '&' | '∧';
+OP_OR: '%' | '∨';
+
+OP_PREPEND: '<:';
+
+OP_APPEND: ':>';
+OP_CONCAT: '++' | '∪';
+OP_REMOVE: '--' | '∖';
+OP_COMMON: '~~' | '∩';
+
+OP_ASSIGN: '=';
+OP_DEFINE: ':='; // also used inside := _
+OP_BDEFINE: '::=';
+
+OP_SEMI: ';';
+
+OP_MODIF: '->' | '→';
+
+OP_LIST: ',';
+
+BAR: '|';
+ROUND_OPEN: '(';
+ROUND_CLOSE: ')';
+SQUARE_OPEN: '[';
+SQUARE_CLOSE: ']';
+
+STRING: '"' .*? '"'
+FLOAT
+    : [0-9] (WS [0-9])* (WS [.] (?![.]))? (WS [Ee] (WS [+\-])? (WS [0-9])+)?
+    | ([0-9] WS)* [.] (WS [0-9])+ (WS [Ee] (WS [+\-])? (WS [0-9])+)?
+    ;
+SUBSCRIPT: ([₊₋] WS)? [₀₁₂₃₄₅₆₇₈₉] (WS [₀₁₂₃₄₅₆₇₈₉])*
+SUPERSCRIPT: ([₊₋] WS)? [⁰¹²³⁴⁵⁶⁷⁸⁹] (WS [⁰¹²³⁴⁵⁶⁷⁸⁹])*
+IDENTIFIER
+    : (LETTER | [']) (WS ([0-9'] | LETTER))*
+    | [#] (WS [0-9])?
+    ;
+```
+
+The non-operator tokens at the end of this list may contain optional
+in-token whitespace `WS`, which can be any sequence consisting of
+space characters and/or horizontal tabs. It is without semantic relevance.
+
+```bnf
+WS: [ \t]*;
+```
+
+Between tokens, the following lexical constructs are allowed
+and will be ignored by subsequent processing steps.
+
+```bnf
+SPACE: [ \t\n]+;
+SINGLE_LINE_COMMENT: '//' [^\n]*;
+MULTI_LINE_COMMENT: '/*' (MLC_BODY MULTI_LINE_COMMENT)* MLC_BODY '*'+ '/';
+MLC_BODY: ([^/*] | [/]+[^/*] | [*]+[^/*])*;
+```
+
+Of course, many lexer generators don't allow recursive token definitions,
+so an implementation may want to treat `/*` and `*/` as separate tokens,
+and switch between normal and comment parsing mode.
+
+As stated [above](#identifier-names), the `LETTER` construct
+represents any codepoint which has general category `L`
+in the Unicode 8.0.0 standard.
+
+Within the `FLOAT` token, `(?![.])` is used to denote a negative
+look-ahead assertion: the next character at this point *must not* be a
+second dot.  If it is, the first dot and any whitespace preceding it
+is not part of the `FLOAT` token.

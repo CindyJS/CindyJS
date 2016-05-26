@@ -282,7 +282,9 @@ Render2D.lineModifs = {
     "arrowsides": true,
     "arrowposition": true,
     "arrowsize": true,
-    "lineCap": true
+    "lineCap": true,
+    "lineJoin": true,
+    "miterLimit": true,
 };
 
 Render2D.pointModifs = {

@@ -1,5 +1,13 @@
 function useimagergba4(args, codebuilder) {
   let name = args[2];
+
+  if (codebuilder.api.getImage(name, true) == null) {
+    console.error("Could not find image " + name + ".");
+    return nada;
+  }
+
+  addCanvasWrapperIfRequired(name, codebuilder.api);
+
   if (!codebuilder.texturereaders.hasOwnProperty(name)) {
     codebuilder.texturereaders[name] = [
       'uniform sampler2D _sampler_', name, ';',

@@ -13,7 +13,7 @@ Here, one can specify the occasion on which the program will be executed.
 For instance, it can be executed whenever the user moves the construction or after any mouse click.
 Thus one can easily add functional behavior and graphical enhancements to an existing construction.
 
-The following sections will give you an overview of the global design of the programming language [CindyScript](CindyScript.md).
+The following sections will give you an overview of the global design of the programming language CindyScript.
 The language design follows some guiding principles:
 
 *  The language should be easy to learn, write and read
@@ -51,4 +51,4 @@ Logic statements
 Dealing with strings of characters
 
 For a detailed description of the language it is necessary to consult the documentation on specific parameters.
-We recommend to browse over the [CindyScript](CindyScript.md) manual at least once to get an impression of various possibilities of the language.
+We recommend to browse over the CindyScript manual at least once to get an impression of various possibilities of the language.

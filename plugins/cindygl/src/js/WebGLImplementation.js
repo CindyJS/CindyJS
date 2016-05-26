@@ -120,6 +120,20 @@ webgltr['abs'] = [
   [vec42float_fun$1, usefunction('length')]
 ];
 
+webgltr['abs_infix'] = webgltr['abs'];
+
+webgltr['dist'] = [
+  [float_fun$2, (x => usefunction('abs')(useinfix('-')(x)))],
+  [complex2float_fun$2, (x => usefunction('length')(useinfix('-')(x)))],
+  [vec22float_fun$2, (x => usefunction('length')(useinfix('-')(x)))],
+  [vec32float_fun$2, (x => usefunction('length')(useinfix('-')(x)))],
+  [vec42float_fun$2, (x => usefunction('length')(useinfix('-')(x)))]
+];
+
+
+webgltr['dist_infix'] = webgltr['dist'];
+
+
 webgltr['sin'] = [
   [float_fun$1, usefunction('sin')],
   [complex_fun$1, useincludefunction('sinc')]

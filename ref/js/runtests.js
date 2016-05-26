@@ -212,7 +212,7 @@ TestCase.prototype.run = function() {
       if (/^only /.test(this.pragma[p]) &&
           !(/^only [^:]*CindyJS/).test(this.pragma[p]))
         return true;
-      if ((/^CindyScript <2016/i).test(this.pragma[p]))
+      if ((/^CindyScript <3\.0/i).test(this.pragma[p]))
         return true;
     }
   }

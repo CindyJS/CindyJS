@@ -355,8 +355,7 @@ PdfWriterContext.prototype = {
 
     quadraticCurveTo: function(x1, y1, x2, y2) {
         this.bezierCurveTo(
-            (2 * x1 + this._xPos) / 3, (2 * y1 - this._yPos) / 3,
-            (x2 + 2 * x1) / 3, (y2 + 2 * y1) / 3, x2, y2);
+            (2 * x1 + this._xPos) / 3, (2 * y1 - this._yPos) / 3, (x2 + 2 * x1) / 3, (y2 + 2 * y1) / 3, x2, y2);
     },
 
     _kappa: 0.55228474983079340, // 4 * (Math.sqrt(2) - 1) / 3
@@ -841,7 +840,7 @@ shutdownHooks.push(releaseExportedObject);
 // result in a new tab.  Note that Firefox fails to show images embedded
 // into an SVG.  So in the long run, saving is probably better than opening.
 // Note: See https://github.com/eligrey/FileSaver.js/ for saving Blobs
-function exportWith(Context) {
+function exportWith(Context, wnd) {
     cacheImages(function() {
         var origctx = csctx;
         try {
@@ -852,7 +851,7 @@ function exportWith(Context) {
             var blob = csctx.toBlob();
             releaseExportedObject();
             exportedCanvasURL = window.URL.createObjectURL(blob);
-            window.open(exportedCanvasURL, '_blank');
+            wnd.location.href = exportedCanvasURL;
         } finally {
             csctx = origctx;
         }
@@ -860,11 +859,12 @@ function exportWith(Context) {
 }
 
 globalInstance.exportSVG = function() {
-    exportWith(SvgWriterContext);
+    exportWith(SvgWriterContext, window.open('about:blank', '_blank'));
 };
 
 globalInstance.exportPDF = function() {
+    var wnd = window.open('about:blank', '_blank');
     createCindy.loadScript('pako', 'pako.min.js', function() {
-        exportWith(PdfWriterContext);
+        exportWith(PdfWriterContext, wnd);
     });
 };

@@ -117,6 +117,9 @@ function niceprint(a) {
     if (a.ctype === 'geo') {
         return a.value.name;
     }
+    if (a.ctype === 'image') {
+        return "IMAGE";
+    }
 
 
     return "_?_";

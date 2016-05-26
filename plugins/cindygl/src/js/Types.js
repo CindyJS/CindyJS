@@ -412,6 +412,9 @@ typeinference["randomnormal"] = [{
 
 
 //- ("dist", 2, OpDist.class); @done(2015-03-17)
+typeinference["dist"] = [
+  float_fun$2, complex2float_fun$2, vec22float_fun$2, vec32float_fun$2, vec42float_fun$2
+];
 //- ("perp", 2, OpPerp2.class); @done(2015-03-17)
 //- ("perpendicular", 2, OpPerp2.class); @done(2015-03-17)
 //- ("parallel", 2, OpPara.class); @done(2015-03-17)
@@ -528,6 +531,11 @@ typeinference[";"] = [{
 
 
 //- Abs and Dist |.....| @done(2015-03-17)
+//abs_infix
+//dist_infix
+
+typeinference["abs_infix"] = typeinference["abs"];
+typeinference["dist_infix"] = typeinference["dist"];
 
 
 //Predicates:

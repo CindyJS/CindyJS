@@ -11,7 +11,7 @@ function getmover(mouse) {
     var diff;
     for (var i = 0; i < csgeo.free.length; i++) {
         var el = csgeo.free[i];
-        if (el.pinned || el.visible === false)
+        if (el.pinned || el.visible === false || el.tmp === true)
             continue;
 
         var dx, dy, dist;
@@ -151,7 +151,8 @@ function setuplisteners(canvas, data) {
         mouse.button = e.which;
         updatePostition(e);
         cs_mousedown();
-        move = getmover(mouse);
+        manage("mousedown");
+
         startit(); //starts d3-timer
 
         mouse.down = true;
@@ -163,6 +164,7 @@ function setuplisteners(canvas, data) {
         cindy_cancelmove();
         stateContinueFromHere();
         cs_mouseup();
+        manage("mouseup");
         updateCindy();
         e.preventDefault();
     });
@@ -174,7 +176,63 @@ function setuplisteners(canvas, data) {
         } else {
             cs_mousemove();
         }
+        manage("mousemove");
         e.preventDefault();
+    });
+
+    addAutoCleaningEventListener(canvas, "dragenter", function(e) {
+        e.preventDefault();
+    });
+
+    addAutoCleaningEventListener(canvas, "dragover", function(e) {
+        e.preventDefault();
+    });
+
+    addAutoCleaningEventListener(canvas, "drop", function(e) {
+        e.preventDefault();
+
+        // get data
+        var dt = e.dataTransfer;
+        var files = dt.files;
+        var dropped = Array(files.length);
+        var countDown = files.length;
+        Array.prototype.forEach.call(files, function(file, i) {
+            var reader = new FileReader();
+            if ((/^text\//).test(file.type)) {
+                reader.onload = function() {
+                    var value = General.string(reader.result);
+                    oneDone(i, value);
+                };
+                reader.readAsText(file);
+            } else if ((/^image\//).test(file.type)) {
+                reader.onload = function() {
+                    var img = new Image();
+                    img.onload = function() {
+                        var value = {
+                            ctype: "image",
+                            value: img
+                        };
+                        oneDone(i, value);
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                oneDone(i, nada);
+            }
+        });
+
+        function oneDone(i, value, type) {
+            dropped[i] = List.turnIntoCSList([
+                value,
+                General.string(type || value.ctype),
+                General.string(files[i].type),
+                General.string(files[i].name),
+            ]);
+            if (--countDown === 0) {
+                cs_onDrop(dropped);
+            }
+        }
     });
 
 
@@ -185,6 +243,9 @@ function setuplisteners(canvas, data) {
         } else {
             cs_mousemove();
         }
+
+        manage("mousemove");
+
         e.preventDefault();
     }
 
@@ -192,8 +253,9 @@ function setuplisteners(canvas, data) {
         updatePostition(e.targetTouches[0]);
         cs_mousedown();
         mouse.down = true;
-        move = getmover(mouse);
+        //move = getmover(mouse);
         startit();
+        manage("mousedown");
         e.preventDefault();
     }
 
@@ -203,6 +265,7 @@ function setuplisteners(canvas, data) {
         stateContinueFromHere();
         updateCindy();
         cs_mouseup();
+        manage("mouseup");
         e.preventDefault();
     }
 
@@ -258,8 +321,53 @@ function updateCindy() {
     csport.reset();
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
-    if (csgridsize !== 0)
-        csAssets.drawgrid(CSNumber.real(csgridsize));
+    var m = csport.drawingstate.matrix;
+    // due to the csport.reset(), m is initial, i.e. a = d and b = c = 0
+    if (csgridsize !== 0) {
+        csctx.beginPath();
+        csctx.strokeStyle = "rgba(0,0,0,0.1)";
+        csctx.lineWidth = 1;
+        csctx.lineCap = "butt";
+        var d = csgridsize * m.a;
+        var i, p;
+        i = Math.ceil(-m.tx / d);
+        while ((p = i * d + m.tx) < csw) {
+            if (i || !csaxes) {
+                csctx.moveTo(p, 0);
+                csctx.lineTo(p, csh);
+            }
+            i++;
+        }
+        i = Math.floor(m.ty / d);
+        while ((p = i * d - m.ty) < csh) {
+            if (i || !csaxes) {
+                csctx.moveTo(0, p);
+                csctx.lineTo(csw, p);
+            }
+            i++;
+        }
+        csctx.stroke();
+    }
+    if (csaxes) {
+        csctx.beginPath();
+        csctx.strokeStyle = "rgba(0,0,0,0.2)";
+        csctx.lineWidth = 3;
+        csctx.lineCap = "butt";
+        csctx.lineJoin = "miter";
+        csctx.miterLimit = 10;
+        csctx.beginPath();
+        csctx.moveTo(0, -m.ty);
+        csctx.lineTo(csw - 6, -m.ty);
+        csctx.moveTo(csw - 13, -5 - m.ty);
+        csctx.lineTo(csw - 3, -m.ty);
+        csctx.lineTo(csw - 13, 5 - m.ty);
+        csctx.moveTo(m.tx, csh);
+        csctx.lineTo(m.tx, 6);
+        csctx.moveTo(m.tx - 5, 13);
+        csctx.lineTo(m.tx, 3);
+        csctx.lineTo(m.tx + 5, 13);
+        csctx.stroke();
+    }
     traceMouseAndScripts();
     //   console.log("NOW UPDATING");
     //  drawgrid();
@@ -334,6 +442,13 @@ function cs_simulationstart(e) {
 
 function cs_simulationstop(e) {
     evaluate(cscompiled.simulationstop);
+}
+
+function cs_onDrop(lst) {
+    dropped = List.turnIntoCSList(lst);
+    evaluate(cscompiled.ondrop);
+    dropped = nada;
+    updateCindy();
 }
 
 

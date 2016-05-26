@@ -12,6 +12,7 @@ var csscale = 1;
 var csgridsize = 0;
 var csgridscript;
 var cssnap = false;
+var csaxes = false;
 
 function dump(a) {
     console.log(JSON.stringify(a));
@@ -70,7 +71,7 @@ var haveCanvas = function(canvas) {
     return canvas;
 };
 
-var csmouse, csctx, csw, csh, csgeo, images;
+var csmouse, csctx, csw, csh, csgeo, images, dropped = nada;
 
 function createCindyNow() {
     startupCalled = true;
@@ -102,6 +103,12 @@ function createCindyNow() {
                 c.style.backgroundColor = port.background;
             if (port.transform !== undefined)
                 trafos = port.transform;
+            if (Number.isFinite(port.grid) && port.grid > 0)
+                csgridsize = port.grid;
+            if (port.snap)
+                cssnap = true;
+            if (port.axes)
+                csaxes = true;
         }
     }
     if (!c) {
@@ -120,7 +127,7 @@ function createCindyNow() {
     var scripts = ["move", "keydown",
         "mousedown", "mouseup", "mousedrag",
         "init", "tick", "draw",
-        "simulationstep", "simulationstart", "simulationstop"
+        "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
     var scriptconf = data.scripts,
         scriptpat = null;
@@ -157,11 +164,12 @@ function createCindyNow() {
         }
     });
 
-    //Setup canvasstuff
-    if (data.grid && data.grid !== 0) {
+    if (Number.isFinite(data.grid) && data.grid > 0) {
         csgridsize = data.grid;
     }
-    if (data.snap) cssnap = data.snap;
+    if (data.snap) {
+        cssnap = true;
+    }
 
     if (c) {
         csw = c.width;

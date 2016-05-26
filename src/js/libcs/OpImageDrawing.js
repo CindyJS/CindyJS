@@ -2,25 +2,22 @@
 // and here are the definitions of the image operators
 //*******************************************************
 
-
-eval_helper.extractReferenceX = function(w, pos) {
-
-
-};
+function imageFromValue(val) {
+    if (val.ctype === 'image') {
+        return val.value;
+    }
+    if (val.ctype === 'string' && images.hasOwnProperty(val.value)) {
+        return images[val.value];
+    }
+    return null;
+}
 
 evaluator.imagesize$1 = function(args, modifs) {
-    var img = evaluateAndVal(args[0]);
-    if (img.ctype === 'string') {
-        if (images[img.value]) {
-            var w = images[img.value].width;
-            var h = images[img.value].height;
-            return List.realVector([w, h]);
-
-        }
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (img) {
+        return List.realVector([+img.width, +img.height]);
     }
-
     return nada;
-
 };
 
 function drawImageIndirection(img, x, y) {
@@ -118,10 +115,12 @@ evaluator.drawimage$2 = function(args, modifs) {
         var alpha = 1;
 
         var pt = eval_helper.extractPoint(v0);
-        if (!pt.ok || img.ctype !== 'string') {
+
+        if (!pt.ok) {
             return nada;
         }
-        img = images[img.value];
+
+        img = imageFromValue(img);
         if (!img) {
             return nada;
         }
@@ -229,14 +228,15 @@ evaluator.drawimage$2 = function(args, modifs) {
         var pt3;
 
 
-        if (!pt1.ok || !pt2.ok || img.ctype !== 'string') {
+        if (!pt1.ok || !pt2.ok) {
             return nada;
         }
-        // console.lof(JSON.stringify(images));
-        img = images[img.value];
+
+        img = imageFromValue(img);
         if (!img) {
             return nada;
         }
+
         var w = img.width;
         var h = img.height;
 
@@ -326,3 +326,15 @@ evaluator.drawimage$2 = function(args, modifs) {
 // TODO: separate arities
 evaluator.drawimage$3 = evaluator.drawimage$2;
 evaluator.drawimage$4 = evaluator.drawimage$2;
+
+evaluator.allimages$0 = function() {
+    var lst = [];
+    var keys = Object.keys(images);
+    keys.forEach(function(e) {
+        lst.push({
+            ctype: "string",
+            value: e
+        });
+    });
+    return List.turnIntoCSList(lst);
+};

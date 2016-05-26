@@ -244,6 +244,64 @@ function addElementNoProof(el) {
 
     geoDependantsCache = {};
     guessIncidences(el);
+
+    return csgeo.csnames[el.name];
+}
+
+// TODO Remove dependencies also
+function removeElement(name) {
+    var i, el;
+    console.log("Remove element " + name);
+
+    // TODO Check if name exists
+    delete csgeo.csnames[name];
+
+    for (i = 0; i < csgeo.gslp.length; i++) {
+        el = csgeo.gslp[i];
+
+        if (el.name === name) {
+            console.log("Removed element from gslp " + name);
+            csgeo.gslp.splice(i, 1);
+        }
+    }
+
+    for (i = 0; i < csgeo.free.length; i++) {
+        el = csgeo.free[i];
+
+        if (el.name === name) {
+            console.log("Removed element from free " + name);
+            csgeo.free.splice(i, 1);
+        }
+    }
+
+    for (i = 0; i < csgeo.points.length; i++) {
+        el = csgeo.points[i];
+
+        if (el.name === name) {
+            console.log("Removed element from points " + name);
+            csgeo.points.splice(i, 1);
+        }
+    }
+
+    for (i = 0; i < csgeo.lines.length; i++) {
+        el = csgeo.lines[i];
+
+        if (el.name === name) {
+            console.log("Removed element from lines " + name);
+            csgeo.lines.splice(i, 1);
+        }
+    }
+
+    for (i = 0; i < csgeo.conics.length; i++) {
+        el = csgeo.conics[i];
+
+        if (el.name === name) {
+            console.log("Removed element from conics " + name);
+            csgeo.conics.splice(i, 1);
+        }
+    }
+
+    geoDependantsCache = {};
 }
 
 function onSegment(p, s) { //TODO was ist mit Fernpunkten

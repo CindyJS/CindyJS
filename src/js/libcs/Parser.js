@@ -9,6 +9,8 @@ var operatorLevels = [{
     deg: ['°'],
     take: ['_'],
 }, {
+    functionCall: true
+}, {
     rassoc: true,
     pow: ['^'],
     sqrt: ['√'],
@@ -80,12 +82,15 @@ var flexfix = [';', ','];
 
 var operatorSymbols = [];
 var operators = {};
+var functionCallPrecedence;
 
 (function initializeOperators() {
     var precedence = 0;
     operatorLevels.forEach(function(level) {
         precedence += 2;
         var rassoc = !!level.rassoc;
+        if (level.functionCall)
+            functionCallPrecedence = precedence;
         for (var name in level) {
             var symbols = level[name];
             if (typeof symbols === 'boolean')
@@ -567,6 +572,11 @@ function parseRec(tokens, closing) {
                         throw ParseError(
                             'Function name must be an identifier',
                             fname.start);
+                    if (seq.length > 2 &&
+                        seq[seq.length - 2].precedence < functionCallPrecedence)
+                        throw ParseError(
+                            'Function call in indexing construct must be enclosed in parentheses',
+                            tok.start);
                     fname.ctype = 'function';
                     var args = fname.args = [];
                     var modifs = fname.modifs = {};
