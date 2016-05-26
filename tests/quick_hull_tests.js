@@ -134,11 +134,7 @@ describe('Quick hull', function() {
             var result, expected;
 
            describe(test.args.length + ' points', function() {
-               afterEach(function() {
-                   result.should.deepEqual(expected);
-               });
-               
-               it('vertices', function() {
+               it('Resulting vertices', function() {
                    hull.build(test.args);
 
                    result = hull.getVertices().map(function(point) {
@@ -150,10 +146,11 @@ describe('Quick hull', function() {
                    });
 
                    expected = test.expected.vertices; 
+                   result.should.deepEqual(expected);
 
                });
 
-               it('faces', function() {
+               it('Resulting faces', function() {
                    var sorting = function(a, b) {
                        return a > b ? 1 : a < b ? -1 : 0;
                    };
@@ -167,6 +164,29 @@ describe('Quick hull', function() {
                    });
 
                    expected = test.expected.faces;
+
+                   var t = true;
+                   var t1, i,j, face;
+                   var corresponding;
+
+                   for (i=0; i<result.length; i++) {
+                       face = result[i];
+                       t1 = false;
+                       
+                       for (j=0; j < expected.length; j++) {
+                           if (permutationEquality(face, expected[j])) {
+                               t1 = true;
+                               break;
+                           }
+                       }
+
+                       if (! t1) {
+                           t = false;
+                           break;
+                       }
+                   };
+
+                   t.should.equal(true);
                });
             });
 
