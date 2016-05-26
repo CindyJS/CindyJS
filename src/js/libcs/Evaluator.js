@@ -3,53 +3,23 @@
 //****************************************************************
 
 function evaluate(a) {
-
-    if (typeof a === 'undefined') {
+    if (a === undefined) {
         return nada;
     }
-
     if (a.ctype === 'infix') {
         return a.impl(a.args, {});
     }
     if (a.ctype === 'variable') {
         return evaluate(namespace.getvar(a.name));
-        //  return a.value[0];
+    }
+    if (a.ctype === 'function') {
+        return eval_helper.evaluate(a.oper, a.args, a.modifs);
     }
     if (a.ctype === 'void') {
         return nada;
     }
-    if (a.ctype === 'geo') {
-        return a;
-    }
-    if (a.ctype === 'number') {
-        return a;
-    }
-    if (a.ctype === 'boolean') {
-        return a;
-    }
-    if (a.ctype === 'string') {
-        return a;
-    }
-    if (a.ctype === 'list') {
-        return a;
-    }
-    if (a.ctype === 'undefined') {
-        return a;
-    }
-    if (a.ctype === 'shape') {
-        return a;
-    }
-    if (a.ctype === 'error') {
-        return a;
-    }
-    if (a.ctype === 'image') {
-        return a;
-    }
-
     if (a.ctype === 'field') {
-
         var obj = evaluate(a.obj);
-
         if (obj.ctype === "geo") {
             return Accessor.getField(obj.value, a.key);
         }
@@ -58,13 +28,7 @@ function evaluate(a) {
         }
         return nada;
     }
-
-    if (a.ctype === 'function') {
-        var eargs = [];
-        return eval_helper.evaluate(a.oper, a.args, a.modifs);
-    }
-    return nada;
-
+    return a;
 }
 
 
