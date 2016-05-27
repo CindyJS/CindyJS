@@ -170,7 +170,7 @@ module.exports = function build(settings, task) {
         "forbidden",
         "ref",
     ]);
-    
+
     task("beautified", [], function() {
         this.cmd("git", "diff", "--exit-code", "--name-only");
         this.cmdscript("js-beautify", "--quiet", beautify_args);
@@ -367,7 +367,9 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindygl/src/js/CindyGL.js.wrapper",
             js_output_file: "build/js/CindyGL.js",
             externs: "plugins/cindyjs.externs",
-            js: ["build/js/cglres.js"].concat(cgl_mods_srcs).concat(cgl_mods_from_c3d_srcs),
+            js: ["build/js/cglres.js"]
+                .concat(cgl_mods_srcs)
+                .concat(cgl_mods_from_c3d_srcs),
         };
         if (this.setting("cindygl-dbg") !== undefined) {
             opts.compilation_level = "WHITESPACE_ONLY";
@@ -387,7 +389,9 @@ module.exports = function build(settings, task) {
     var beautify_args = [
         "--replace",
         "--config", "Administration/beautify.conf",
-        (src.ours).concat(cgl_mods_srcs).filter(function(name) { return !/^build\//.test(name); }),
+        (src.ours).concat(cgl_mods_srcs).filter(function(name) {
+            return !/^build\//.test(name);
+        }),
     ];
 
     task("beautify", [], function() {
