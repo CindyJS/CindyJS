@@ -121,7 +121,7 @@ CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current 
     } else if (expr['ctype'] === 'field') {
         return type.float; //so far we only have field indexes vor vec2, vec3, vec4
     } else if (expr['ctype'] === 'string') {
-    return type.image;
+        return type.image;
     } else {
         var argtypes = new Array(expr['args'].length);
         for (let i = 0; i < expr['args'].length; i++) {
@@ -421,28 +421,28 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             //nothing to pass
             if (expr['ctype'] === 'void') return;
 
-						//check whether uniform with same expression has already been generated. Note this causes O(n^2) running time :/ One might use a hashmap if it becomes relevant
-      let found = false;
-      let uname;
-      for (let otheruname in uniforms)
-        if (!found) {
-          if (expressionsAreEqual(expr, uniforms[otheruname].expr)) {
-            found = true;
-            uname = otheruname;
-          }
-        }
-      if (!found) {
-        uname = generateUniqueHelperString();
-            uniforms[uname] = {
-                expr: expr,
-                type: nada
-            };
-        }
+            //check whether uniform with same expression has already been generated. Note this causes O(n^2) running time :/ One might use a hashmap if it becomes relevant
+            let found = false;
+            let uname;
+            for (let otheruname in uniforms)
+                if (!found) {
+                    if (expressionsAreEqual(expr, uniforms[otheruname].expr)) {
+                        found = true;
+                        uname = otheruname;
+                    }
+                }
+            if (!found) {
+                uname = generateUniqueHelperString();
+                uniforms[uname] = {
+                    expr: expr,
+                    type: nada
+                };
+            }
 
-      expr["isuniform"] = true;
-      expr["uvariable"] = uname;
+            expr["isuniform"] = true;
+            expr["uvariable"] = uname;
 
-    }
+        }
     }
 
 
@@ -511,7 +511,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
         let ctype = uniforms[uname].type;
         return generateTerm ? {
             code: '',
-      term: uname,
+            term: uname,
             type: ctype
         } : {
             code: ''
@@ -750,17 +750,17 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             code: termtype + ';\n'
         });
     } else if (expr['ctype'] === 'string') { //just copy strings directly into glsl. Useful for example for names of textures
-    /*let termtype = type.string;
-        let term = expr['value'];
-        return (generateTerm ? {
-            term: term,
-            type: termtype,
-            code: ''
-        } : {
-            code: termtype + ';\n'
-    });*/
-    console.error("Cannot compile strings to WebGL.");
-    return nada;
+        /*let termtype = type.string;
+            let term = expr['value'];
+            return (generateTerm ? {
+                term: term,
+                type: termtype,
+                code: ''
+            } : {
+                code: termtype + ';\n'
+        });*/
+        console.error("Cannot compile strings to WebGL.");
+        return nada;
     } else if (expr['ctype'] === "variable") {
         let termtype = this.getType(expr, scope);
 
@@ -847,7 +847,7 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
 CodeBuilder.prototype.generateListOfUniforms = function() {
     let ans = [];
     for (let uname in this.uniforms)
-    if (this.uniforms[uname].type != type.image)
+        if (this.uniforms[uname].type != type.image)
             ans.push('uniform ' + webgltype[this.uniforms[uname].type] + ' ' + uname + ';');
     return ans.join('\n');
 };

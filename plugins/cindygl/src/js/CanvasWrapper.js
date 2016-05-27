@@ -10,7 +10,7 @@ function generateCanvasWrapperIfRequired(imageobject, api) {
         if (!imageobject.ready) {
             console.error("Image not ready. Creating onload event.");
             imageobject.whenReady(function() {
-        imageobject.generation = Math.max(imageobject.generation, imageobject['canvaswrapper'].generation+1);
+                imageobject.generation = Math.max(imageobject.generation, imageobject['canvaswrapper'].generation + 1);
             });
         }
     }
@@ -32,7 +32,7 @@ function CanvasWrapper(canvas) {
     this.it = 0;
     this.textures = [];
     this.framebuffers = [];
-  this.generation = -1;
+    this.generation = -1;
 
     this.bindTexture();
 
@@ -140,29 +140,29 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
  * Reload texture data from input element (e.g. HTML video)
  */
 CanvasWrapper.prototype.reloadIfRequired = function() {
-  if (!this.canvas.live && (!this.canvas.ready || this.generation >= this.canvas.generation)) {
-    return;
-  }
-
-  if (this.sizeX != this.canvas.width || this.sizeY != this.canvas.height) {
-    this.sizeX = this.canvas.width;
-    this.sizeY = this.canvas.height;
-    this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX);
-    this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
-    let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
-
-    for (let j = 0; j < 2; j++) {
-      gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+    if (!this.canvas.live && (!this.canvas.ready || this.generation >= this.canvas.generation)) {
+        return;
     }
-  }
+
+    if (this.sizeX != this.canvas.width || this.sizeY != this.canvas.height) {
+        this.sizeX = this.canvas.width;
+        this.sizeY = this.canvas.height;
+        this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX);
+        this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
+        let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
+
+        for (let j = 0; j < 2; j++) {
+            gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+        }
+    }
 
     this.bindTexture();
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
-  this.generation = this.canvas.generation;
-  console.log("Image has been loaded to GPU");
+    this.generation = this.canvas.generation;
+    console.log("Image has been loaded to GPU");
 };
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
