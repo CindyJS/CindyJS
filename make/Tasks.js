@@ -66,6 +66,12 @@ module.exports = function Tasks(settings) {
     this.get = function(name) {
         if(tasks.hasOwnProperty(name))
             return tasks[name];
+        var names = Object.keys(tasks);
+        names.sort();
+        console.log("Valid task names:");
+        names.forEach(function(name) {
+            console.log("- " + name);
+        });
         throw new BuildError("No task named " + name);
     };
 
