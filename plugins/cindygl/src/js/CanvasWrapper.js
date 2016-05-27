@@ -4,19 +4,19 @@
  * @return {CanvasWrapper}
  */
 function generateCanvasWrapperIfRequired(imageobject, api) {
-  if (!imageobject.hasOwnProperty('canvaswrapper')) {
+    if (!imageobject.hasOwnProperty('canvaswrapper')) {
 
-    imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
-    if (!imageobject.ready) {
-      console.error("Image not ready. Creating onload event.");
-      imageobject.whenReady(function() {
         imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
-        console.log("Image has been loaded now");
-        requiredcompiletime++; //force recompile //TODO: check
-      });
+        if (!imageobject.ready) {
+            console.error("Image not ready. Creating onload event.");
+            imageobject.whenReady(function() {
+                imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
+                console.log("Image has been loaded now");
+                requiredcompiletime++; //force recompile //TODO: check
+            });
+        }
     }
-  }
-  return imageobject['canvaswrapper'];
+    return imageobject['canvaswrapper'];
 }
 
 /**
@@ -25,67 +25,67 @@ function generateCanvasWrapperIfRequired(imageobject, api) {
  * @param canvas {createCindy.image}
  */
 function CanvasWrapper(canvas) {
-  this.canvas = canvas;
-  this.sizeX = canvas.width;
-  this.sizeY = canvas.height;
-  this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX);
-  this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
-  this.ratio = canvas.height / canvas.width;
-  this.it = 0;
-  if (canvas.live)
-    updateBeforeRendering.push(this.reload.bind(this));
+    this.canvas = canvas;
+    this.sizeX = canvas.width;
+    this.sizeY = canvas.height;
+    this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX);
+    this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
+    this.ratio = canvas.height / canvas.width;
+    this.it = 0;
+    if (canvas.live)
+        updateBeforeRendering.push(this.reload.bind(this));
 
-  this.textures = [];
-  this.framebuffers = [];
+    this.textures = [];
+    this.framebuffers = [];
 
-  this.bindTexture();
+    this.bindTexture();
 
-  canvas['drawTo'] = this.drawTo.bind(this);
-  canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
+    canvas['drawTo'] = this.drawTo.bind(this);
+    canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
 
-  let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
+    let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
 
-  for (let j = 0; j < 2; j++) {
-    this.textures[j] = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    for (let j = 0; j < 2; j++) {
+        this.textures[j] = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
-    if (this.canvas.ready)
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
-				
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+        if (this.canvas.ready)
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
 
-    this.framebuffers[j] = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[j]);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures[j], 0);
-  }
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-  this.shaderProgram = new ShaderProgram(gl, cgl_resources["copytexture_v"], cgl_resources["copytexture_f"]);
-  var posBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+        this.framebuffers[j] = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[j]);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures[j], 0);
+    }
 
-  var vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+    this.shaderProgram = new ShaderProgram(gl, cgl_resources["copytexture_v"], cgl_resources["copytexture_f"]);
+    var posBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
-  var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
-  gl.enableVertexAttribArray(aPosLoc);
+    var vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
 
-  var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
-  gl.enableVertexAttribArray(aTexLoc);
+    var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
+    gl.enableVertexAttribArray(aPosLoc);
 
-  var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+    var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
+    gl.enableVertexAttribArray(aTexLoc);
 
-  var texCoordOffset = vertices.byteLength;
+    var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
 
-  gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
-  gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
-  gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
-  gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-  gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    var texCoordOffset = vertices.byteLength;
+
+    gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
+    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
 
 };
 
@@ -118,25 +118,24 @@ CanvasWrapper.prototype.shaderProgram;
  * runs a gl.bindTexture(  gl.TEXTURE_2D,...) for sampling purposes
  */
 CanvasWrapper.prototype.bindTexture = function() {
-  gl.bindTexture(gl.TEXTURE_2D, this.textures[this.it]);
+    gl.bindTexture(gl.TEXTURE_2D, this.textures[this.it]);
 };
 
 /**
  * runs a gl.bindFramebuffer (required before rendering) and updates 
  */
 CanvasWrapper.prototype.bindFramebuffer = function() {
-  gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it ^ 1]);
-  this.it ^= 1;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it ^ 1]);
+    this.it ^= 1;
 };
 
 
-
 CanvasWrapper.prototype.copyTextureToCanvas = function() {
-  let context = this.canvas.img.getContext('2d');
+    let context = this.canvas.img.getContext('2d');
 
-  //Copy things from glcanvas to the cindyjs-canvas representing that canvas
-  context.clearRect(0, 0, this.sizeX, this.sizeY);
-  this.drawTo(context, 0, 0);
+    //Copy things from glcanvas to the cindyjs-canvas representing that canvas
+    context.clearRect(0, 0, this.sizeX, this.sizeY);
+    this.drawTo(context, 0, 0);
 }
 
 
@@ -144,26 +143,26 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
  * Reload texture data from input element (e.g. HTML video)
  */
 CanvasWrapper.prototype.reload = function() {
-  this.bindTexture();
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+    this.bindTexture();
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
 };
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
-  enlargeCanvasIfRequired(this.sizeX, this.sizeY);
-  gl.viewport(0, 0, this.sizeXP, this.sizeYP);
+    enlargeCanvasIfRequired(this.sizeX, this.sizeY);
+    gl.viewport(0, 0, this.sizeXP, this.sizeYP);
 
-  this.shaderProgram.use(gl);
+    this.shaderProgram.use(gl);
 
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, this.textures[this.it]);
-  this.shaderProgram.uniform["sampler"]([0]);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.textures[this.it]);
+    this.shaderProgram.uniform["sampler"]([0]);
 
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null); //renders to glcanvas
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  gl.flush();
-  context.drawImage(glcanvas, 0, glcanvas.height - this.sizeY, this.sizeX, this.sizeY, x, y, this.sizeX, this.sizeY);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); //renders to glcanvas
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.flush();
+    context.drawImage(glcanvas, 0, glcanvas.height - this.sizeY, this.sizeX, this.sizeY, x, y, this.sizeX, this.sizeY);
 };
 
 /**
@@ -171,14 +170,14 @@ CanvasWrapper.prototype.drawTo = function(context, x, y) {
  * 
  */
 CanvasWrapper.prototype.setPixel = function(x, y, color) {
-  this.bindTexture();
-  let colordata = [color[0], color[1], color[2], 1];
+    this.bindTexture();
+    let colordata = [color[0], color[1], color[2], 1];
 
-  gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, 1, 1,
-    gl.RGBA, getPixelType(), createPixelArrayFromFloat(colordata));
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, x, y, 1, 1,
+        gl.RGBA, getPixelType(), createPixelArrayFromFloat(colordata));
 
-  let context = this.canvas.img.getContext('2d');
-  let id = context.createImageData(1, 1); // only do this once per page
-  id.data.d = colordata;
-  context.putImageData(id, x, y);
+    let context = this.canvas.img.getContext('2d');
+    let id = context.createImageData(1, 1); // only do this once per page
+    id.data.d = colordata;
+    context.putImageData(id, x, y);
 };

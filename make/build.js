@@ -107,20 +107,6 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
-    // Run js-beautify for consistent coding style
-    //////////////////////////////////////////////////////////////////////
-
-    var beautify_args = [
-        "--replace",
-        "--config", "Administration/beautify.conf",
-        src.ours.filter(function(name) { return !/^build\//.test(name); }),
-    ];
-
-    task("beautify", [], function() {
-        this.cmdscript("js-beautify", beautify_args);
-    });
-
-    //////////////////////////////////////////////////////////////////////
     // Run jshint to detect syntax problems
     //////////////////////////////////////////////////////////////////////
 
@@ -184,7 +170,7 @@ module.exports = function build(settings, task) {
         "forbidden",
         "ref",
     ]);
-    
+
     task("beautified", [], function() {
         this.cmd("git", "diff", "--exit-code", "--name-only");
         this.cmdscript("js-beautify", "--quiet", beautify_args);
@@ -347,6 +333,14 @@ module.exports = function build(settings, task) {
         "ShaderProgram"
     ];
 
+    var cgl_mods_srcs = cgl_mods.map(function(name) {
+        return "plugins/cindygl/src/js/" + name + ".js";
+    });
+
+    var cgl_mods_from_c3d_srcs = cgl_mods_from_c3d.map(function(name) {
+        return "plugins/cindy3d/src/js/" + name + ".js";
+    });
+
     task("cglres", [], function() {
         cgl_str_res.forEach(this.input, this);
         this.node(
@@ -373,11 +367,9 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindygl/src/js/CindyGL.js.wrapper",
             js_output_file: "build/js/CindyGL.js",
             externs: "plugins/cindyjs.externs",
-            js: ["build/js/cglres.js"].concat(cgl_mods.map(function(name) {
-                return "plugins/cindygl/src/js/" + name + ".js";
-            })).concat(cgl_mods_from_c3d.map(function(name) {
-                return "plugins/cindy3d/src/js/" + name + ".js";
-            })),
+            js: ["build/js/cglres.js"]
+                .concat(cgl_mods_srcs)
+                .concat(cgl_mods_from_c3d_srcs),
         };
         if (this.setting("cindygl-dbg") !== undefined) {
             opts.compilation_level = "WHITESPACE_ONLY";
@@ -389,6 +381,23 @@ module.exports = function build(settings, task) {
     task("cindygl-dbg", [], function() {
         this.node(process.argv[1], "cindygl", "cindygl-dbg=true");
     });
+    
+    //////////////////////////////////////////////////////////////////////
+    // Run js-beautify for consistent coding style
+    //////////////////////////////////////////////////////////////////////
+
+    var beautify_args = [
+        "--replace",
+        "--config", "Administration/beautify.conf",
+        (src.ours).concat(cgl_mods_srcs).filter(function(name) {
+            return !/^build\//.test(name);
+        }),
+    ];
+
+    task("beautify", [], function() {
+        this.cmdscript("js-beautify", beautify_args);
+    });
+
     
     //////////////////////////////////////////////////////////////////////
     // Run GWT for each listed GWT module
