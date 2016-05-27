@@ -107,6 +107,20 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Run js-beautify for consistent coding style
+    //////////////////////////////////////////////////////////////////////
+
+    var beautify_args = [
+        "--replace",
+        "--config", "Administration/beautify.conf",
+        src.ours.filter(function(name) { return !/^build\//.test(name); }),
+    ];
+
+    task("beautify", [], function() {
+        this.cmdscript("js-beautify", beautify_args);
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Run jshint to detect syntax problems
     //////////////////////////////////////////////////////////////////////
 
@@ -170,7 +184,7 @@ module.exports = function build(settings, task) {
         "forbidden",
         "ref",
     ]);
-
+    
     task("beautified", [], function() {
         this.cmd("git", "diff", "--exit-code", "--name-only");
         this.cmdscript("js-beautify", "--quiet", beautify_args);
