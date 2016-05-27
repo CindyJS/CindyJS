@@ -28,17 +28,22 @@ module.exports = function Tasks(settings) {
             throw Error("Invalid arguments for " + name);
         if (tasks.hasOwnProperty(name))
             throw Error("Dulicate name " + name);
-        var res = currentTask = new Task(settings, self, name, deps);
-        if (definition)
-            definition.call(res);
+        var res = new Task(settings, self, name, deps, definition);
         tasks[name] = res;
-        currentTask = null;
         return res;
     };
 
     /* Called when all tasks have been defined.
      */
     this.complete = function() {
+        for (name in tasks) {
+            if (tasks.hasOwnProperty(name)) {
+                currentTask = tasks[name];
+                if (currentTask.definition)
+                    currentTask.definition();
+                currentTask = null;
+            }
+        }
         if (settings.get("logprefix") === "true") {
             var name;
             var len = 0;

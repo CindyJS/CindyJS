@@ -20,11 +20,12 @@ module.exports = Task;
 
 /* Constructor for task objects.
  */
-function Task(settings, tasks, name, deps) {
+function Task(settings, tasks, name, deps, definition) {
     this.settings = settings;
     this.tasks = tasks;
     this.name = name;
     this.deps = deps;
+    this.definition = definition;
     this.outputs = [];
     this.inputs = [];
     this.mySettings = {};
