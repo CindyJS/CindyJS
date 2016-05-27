@@ -28,17 +28,22 @@ module.exports = function Tasks(settings) {
             throw Error("Invalid arguments for " + name);
         if (tasks.hasOwnProperty(name))
             throw Error("Dulicate name " + name);
-        var res = currentTask = new Task(settings, self, name, deps);
-        if (definition)
-            definition.call(res);
+        var res = new Task(settings, self, name, deps, definition);
         tasks[name] = res;
-        currentTask = null;
         return res;
     };
 
     /* Called when all tasks have been defined.
      */
     this.complete = function() {
+        for (name in tasks) {
+            if (tasks.hasOwnProperty(name)) {
+                currentTask = tasks[name];
+                if (currentTask.definition)
+                    currentTask.definition();
+                currentTask = null;
+            }
+        }
         if (settings.get("logprefix") === "true") {
             var name;
             var len = 0;
@@ -66,6 +71,12 @@ module.exports = function Tasks(settings) {
     this.get = function(name) {
         if(tasks.hasOwnProperty(name))
             return tasks[name];
+        var names = Object.keys(tasks);
+        names.sort();
+        console.log("Valid task names:");
+        names.forEach(function(name) {
+            console.log("- " + name);
+        });
         throw new BuildError("No task named " + name);
     };
 
