@@ -107,20 +107,6 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
-    // Run js-beautify for consistent coding style
-    //////////////////////////////////////////////////////////////////////
-
-    var beautify_args = [
-        "--replace",
-        "--config", "Administration/beautify.conf",
-        src.ours.filter(function(name) { return !/^build\//.test(name); }),
-    ];
-
-    task("beautify", [], function() {
-        this.cmdscript("js-beautify", beautify_args);
-    });
-
-    //////////////////////////////////////////////////////////////////////
     // Run jshint to detect syntax problems
     //////////////////////////////////////////////////////////////////////
 
@@ -389,6 +375,21 @@ module.exports = function build(settings, task) {
     task("cindygl-dbg", [], function() {
         this.node(process.argv[1], "cindygl", "cindygl-dbg=true");
     });
+    
+    //////////////////////////////////////////////////////////////////////
+    // Run js-beautify for consistent coding style
+    //////////////////////////////////////////////////////////////////////
+
+    var beautify_args = [
+        "--replace",
+        "--config", "Administration/beautify.conf",
+        (src.ours).concat(cgl_mods.map(function(name) { return 'plugins/cindygl/src/js/' + name + '.js';})).filter(function(name) { return !/^build\//.test(name); }),
+    ];
+
+    task("beautify", [], function() {
+        this.cmdscript("js-beautify", beautify_args);
+    });
+
     
     //////////////////////////////////////////////////////////////////////
     // Run GWT for each listed GWT module
