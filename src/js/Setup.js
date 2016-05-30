@@ -424,7 +424,7 @@ function csplay() {
         }
         if (typeof csinitphys === 'function') {
             if (csPhysicsInited) {
-                csreinitphys(behaviors);
+                csreinitphys();
             }
         }
 
