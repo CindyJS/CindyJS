@@ -73,6 +73,9 @@ function csinitphys(behavs) {
                 beh.behavior.geo = [beh.name];
             }
             beh = beh.behavior;
+            if (beh.gravity) {
+                beh.gravity = -beh.gravity; // positive was up but now is down
+            }
         } else {
             geo = beh.geo;
         }
