@@ -2513,15 +2513,15 @@ List.ofGeos = function(geos) {
 };
 
 List.getRandRealVec = function(min, max){
-    var min = min || 0;
-    var max = max || 1;
+    var mmin = min || 0;
+    var mmax = max || 1;
 
-    return List.turnIntoCSList([CSNumber.getRandReal(min,max), CSNumber.getRandReal(min,max),CSNumber.getRandReal(min,max)]);
+    return List.turnIntoCSList([CSNumber.getRandReal(mmin,mmax), CSNumber.getRandReal(mmin,mmax),CSNumber.getRandReal(mmin,mmax)]);
 };
 
 List.getRandComplexVec = function(min, max){
-    var min = min || 0;
-    var max = max || 1;
+    var mmin = min || 0;
+    var mmax = max || 1;
 
-    return List.turnIntoCSList([CSNumber.getRandComplex(min,max), CSNumber.getRandComplex(min,max),CSNumber.getRandComplex(min,max)]);
-}
+    return List.turnIntoCSList([CSNumber.getRandComplex(mmin,mmax), CSNumber.getRandComplex(mmin,mmax),CSNumber.getRandComplex(mmin,mmax)]);
+};
