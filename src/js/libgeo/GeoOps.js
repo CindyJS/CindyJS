@@ -27,6 +27,17 @@ geoOps.RandomLine.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+geoOps._helper.getRandHomogMove = function(el){
+    var l = el.homog;
+    var rand = List.getRandRealVec(-0.05, 0.05);
+    var move = List.add(l, rand);
+
+    return {
+        type: "homog",
+        value: move
+    };
+};
+
 
 geoOps.FreeLine = {};
 geoOps.FreeLine.kind = "L";
@@ -60,19 +71,7 @@ geoOps.FreeLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.FreeLine.getRandomMove = function(el) {
-    var l = el.homog;
-    var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
-    var p = List.turnIntoCSList([CSNumber.getRandReal(-0.1,0.1), CSNumber.getRandReal(-0.1,0.1), CSNumber.real(1)]);
-    var perp = List.cross(p, tt);
-
-    var move = List.cross(perp, l);
-    move = List.normalizeMax(move);
-
-    return {
-        type: "mouse",
-        value: move
-    };
-
+    return geoOps._helper.getRandHomogMove(el);
 };
 geoOps.FreeLine.stateSize = 6;
 
@@ -230,18 +229,7 @@ geoOps.HorizontalLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.HorizontalLine.getRandomMove = function(el) {
-    var p = List.cross(el.homog, List.ex);
-    p = List.normalizeMax(p);
-
-    var rvec = List.turnIntoCSList([CSNumber.zero, CSNumber.getRandReal(-0.1,0.1), CSNumber.getRandReal(-0.1,0.1)]);
-    rvec = List.scalmult(p.value[2], rvec);
-
-    var move = List.add(rvec, p);
-    var res = {
-        type: "mouse",
-        value: move
-    };
-    return res;
+    return geoOps._helper.getRandHomogMove(el);
 };
 geoOps.HorizontalLine.stateSize = 6;
 
@@ -294,17 +282,7 @@ geoOps.VerticalLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.VerticalLine.getRandomMove = function(el) {
-    var p = List.cross(el.homog, List.ey);
-    p = List.normalizeMax(p);
-    var rvec = List.turnIntoCSList([CSNumber.getRandReal(-0.1,0.1), CSNumber.zero, CSNumber.getRandReal(-0.1,0.1)]);
-    rvec = List.scalmult(p.value[2], rvec);
-    var move = List.add(rvec, p);
-
-    var res = {
-        type: "mouse",
-        value: move
-    };
-    return res;
+    return geoOps._helper.getRandHomogMove(el);
 };
 geoOps.VerticalLine.stateSize = 6;
 
@@ -378,13 +356,7 @@ geoOps.Through.updatePosition = function(el) {
     el.homog = General.withUsage(homog, "Line");
 };
 geoOps.Through.getRandomMove = function(el) {
-    var move = List.turnIntoCSList([CSNumber.getRandReal(-0.1,0.1), CSNumber.getRandReal(-0.1,0.1), CSNumber.zero]);
-    move = List.add(el.homog, move);
-    var res = {
-        type: "homog",
-        value: move
-    };
-    return res;
+    return geoOps._helper.getRandHomogMove(el);
 };
 geoOps.Through.stateSize = 6;
 

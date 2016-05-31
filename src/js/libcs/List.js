@@ -2511,3 +2511,17 @@ List.ofGeos = function(geos) {
         };
     }));
 };
+
+List.getRandRealVec = function(min, max){
+    var min = min || 0;
+    var max = max || 1;
+
+    return List.turnIntoCSList([CSNumber.getRandReal(min,max), CSNumber.getRandReal(min,max),CSNumber.getRandReal(min,max)]);
+};
+
+List.getRandComplexVec = function(min, max){
+    var min = min || 0;
+    var max = max || 1;
+
+    return List.turnIntoCSList([CSNumber.getRandComplex(min,max), CSNumber.getRandComplex(min,max),CSNumber.getRandComplex(min,max)]);
+}
