@@ -2,8 +2,24 @@ var should = require("chai").should();
 var rewire = require("rewire");
 
 var createCindy = require("../build/js/Cindy.plain.js");
+var cindyJS = rewire("../build/js/exposed.js");
+var geoOps = cindyJS.__get__("geoOps");
 
 var cdy;
+
+describe("Prover: test free objects for random moves", function() {
+    var frees = Object.keys(geoOps).filter(function(opName){
+            return geoOps[opName].isMovable;
+        }
+        );
+
+    frees.forEach(function(OpName){
+    it(OpName, function(){
+        geoOps[OpName].should.have.property("getRandomMove");
+    });
+    }
+    );
+});
 
 function itCmd(command, expected) {
     it(command, function() {
