@@ -2512,16 +2512,16 @@ List.ofGeos = function(geos) {
     }));
 };
 
-List.getRandRealVec = function(min, max){
+List.getRandRealVec = function(min, max) {
     var mmin = min || 0;
     var mmax = max || 1;
 
-    return List.turnIntoCSList([CSNumber.getRandReal(mmin,mmax), CSNumber.getRandReal(mmin,mmax),CSNumber.getRandReal(mmin,mmax)]);
+    return List.turnIntoCSList([CSNumber.getRandReal(mmin, mmax), CSNumber.getRandReal(mmin, mmax), CSNumber.getRandReal(mmin, mmax)]);
 };
 
-List.getRandComplexVec = function(min, max){
+List.getRandComplexVec = function(min, max) {
     var mmin = min || 0;
     var mmax = max || 1;
 
-    return List.turnIntoCSList([CSNumber.getRandComplex(mmin,mmax), CSNumber.getRandComplex(mmin,mmax),CSNumber.getRandComplex(mmin,mmax)]);
+    return List.turnIntoCSList([CSNumber.getRandComplex(mmin, mmax), CSNumber.getRandComplex(mmin, mmax), CSNumber.getRandComplex(mmin, mmax)]);
 };

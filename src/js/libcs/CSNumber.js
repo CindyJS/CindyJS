@@ -765,13 +765,13 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
     ]);
 };
 
-CSNumber.getRandReal = function(min, max){
+CSNumber.getRandReal = function(min, max) {
     var mmin = min || 0;
     var mmax = max || 1;
     return CSNumber.real(Math.random() * (mmax - mmin) + mmin);
 };
 
-CSNumber.getRandComplex = function(min, max){
+CSNumber.getRandComplex = function(min, max) {
     var mmin = min || 0;
     var mmax = max || 1;
     return CSNumber.complex(Math.random() * (mmax - mmin) + mmin, Math.random() * (mmax - mmin) + mmin);
