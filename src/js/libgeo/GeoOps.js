@@ -60,14 +60,9 @@ geoOps.FreeLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.FreeLine.getRandomMove = function(el) {
-    var rcomplex = function() {
-        var fact = 0.1;
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
-    };
-
     var l = el.homog;
     var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
-    var p = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(1)]);
+    var p = List.turnIntoCSList([CSNumber.getRandReal(-0.1,0.1), CSNumber.getRandReal(-0.1,0.1), CSNumber.real(1)]);
     var perp = List.cross(p, tt);
 
     var move = List.cross(perp, l);
@@ -235,15 +230,10 @@ geoOps.HorizontalLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.HorizontalLine.getRandomMove = function(el) {
-    var rcomplex = function() {
-        var fact = 0.1;
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
-    };
-
     var p = List.cross(el.homog, List.ex);
     p = List.normalizeMax(p);
 
-    var rvec = List.turnIntoCSList([CSNumber.zero, rcomplex(), rcomplex()]);
+    var rvec = List.turnIntoCSList([CSNumber.zero, CSNumber.getRandReal(-0.1,0.1), CSNumber.getRandReal(-0.1,0.1)]);
     rvec = List.scalmult(p.value[2], rvec);
 
     var move = List.add(rvec, p);
@@ -304,14 +294,9 @@ geoOps.VerticalLine.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.VerticalLine.getRandomMove = function(el) {
-    var rcomplex = function() {
-        var fact = 0.1;
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
-    };
-
     var p = List.cross(el.homog, List.ey);
     p = List.normalizeMax(p);
-    var rvec = List.turnIntoCSList([rcomplex(), CSNumber.zero, rcomplex()]);
+    var rvec = List.turnIntoCSList([CSNumber.getRandReal(-0.1,0.1), CSNumber.zero, CSNumber.getRandReal(-0.1,0.1)]);
     rvec = List.scalmult(p.value[2], rvec);
     var move = List.add(rvec, p);
 
@@ -393,12 +378,7 @@ geoOps.Through.updatePosition = function(el) {
     el.homog = General.withUsage(homog, "Line");
 };
 geoOps.Through.getRandomMove = function(el) {
-    var rcomplex = function() {
-        var fact = 0.1;
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
-    };
-
-    var move = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.zero]);
+    var move = List.turnIntoCSList([CSNumber.getRandReal(-0.1,0.1), CSNumber.getRandReal(-0.1,0.1), CSNumber.zero]);
     move = List.add(el.homog, move);
     var res = {
         type: "homog",
@@ -442,15 +422,11 @@ geoOps.Free.updatePosition = function(el) {
     el.homog = General.withUsage(param, "Point");
 };
 geoOps.Free.getRandomMove = function(el) {
-    var rcomplex = function() {
-        var fact = 0.1;
-        return CSNumber.complex((Math.random() - 0.5) * fact, (Math.random() - 0.5) * fact);
-    };
     var oldpos = List.normalizeMax(el.homog);
     var oz = oldpos.value[2];
     var ozabs = CSNumber.abs(oz).value.real;
 
-    var rvect = List.turnIntoCSList([rcomplex(), rcomplex(), CSNumber.real(0)]);
+    var rvect = List.turnIntoCSList([CSNumber.getRandReal(-0.1,0.1), CSNumber.getRandReal(-0.1,0.1), CSNumber.real(0)]);
 
     // far points 
     if (ozabs < CSNumber.eps) {

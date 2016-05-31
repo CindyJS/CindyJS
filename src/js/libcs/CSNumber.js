@@ -765,6 +765,18 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
     ]);
 };
 
+CSNumber.getRandReal = function(min, max){
+    var min = min || 0;
+    var max = max || 1;
+    return CSNumber.real(Math.random() * (max - min) + min);
+};
+
+CSNumber.getRandComplex = function(min, max){
+    var min = min || 0;
+    var max = max || 1;
+    return CSNumber.complex(Math.random() * (max - min) + min, Math.random() * (max - min) + min);
+};
+
 
 //CSNumber._helper.solveCubicBlinn = function(alpha, beta, gamma, delta) {
 //    // Blinn
