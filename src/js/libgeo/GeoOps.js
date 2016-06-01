@@ -765,7 +765,7 @@ geoOps.CircleMr.getRandomMove = function(el) {
         r = CSNumber.getRandReal(0.05, 0.10);
     }
     else{
-        r = CSNumber.mult(oldr, CSNumber.getRandReal(0.95, 1.05))
+        r = CSNumber.mult(oldr, CSNumber.getRandReal(0.95, 1.05));
     }
 
     var rad = {

@@ -83,7 +83,9 @@ function checkConjectures() {
     var debug = false;
     if (debug) console.log("conjectures", conjectures.length);
     if (conjectures.length === 0) return;
-    backupGeo();
+
+    //backupGeo
+    stateArrays.prover.set(stateIn);
 
     var nummoves = 3;
 
@@ -107,8 +109,8 @@ function checkConjectures() {
         return con.holds();
     };
 
-    // debug code remove later
-    var nconject = conjectures.length;
+
+    var emove, nconject = conjectures.length;
     for (var kk = 0; kk < nummoves; kk++) {
         for (var oo = 0; oo < involved.length; oo++) {
             var el = involved[oo];
@@ -131,8 +133,10 @@ function checkConjectures() {
     }
 
 
+    //restoreGeo
     if (!debug) {
-        restoreGeo();
+        stateIn.set(stateArrays.prover); 
+        recalcAll();
     }
 
 

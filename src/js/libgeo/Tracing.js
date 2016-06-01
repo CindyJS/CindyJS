@@ -8,7 +8,7 @@ function assert(condition, message) {
 }
 
 var totalStateSize = 0;
-var stateArrayNames = ["in", "out", "good", "backup"];
+var stateArrayNames = ["in", "out", "good", "backup", "prover"];
 // Initialize all state to zero-length arrays, can be reallocated later on
 var stateMasterArray = new Float64Array(0);
 var stateArrays = {};
