@@ -38,21 +38,21 @@ geoOps._helper.getRandMove = function(el) {
     };
 };
 
-geoOps._helper.getRandPointMove = function(el){
+geoOps._helper.getRandPointMove = function(el) {
     var oldpos = List.normalizeMax(el.homog);
     var oz = oldpos.value[2];
     var ozabs = CSNumber.abs(oz).value.real;
-    
+
     var rvect = List.turnIntoCSList([CSNumber.getRandReal(-0.1, 0.1), CSNumber.getRandReal(-0.1, 0.1), CSNumber.real(0)]);
-    
+
     // far points 
     if (ozabs < CSNumber.eps) {
         oz = CSNumber.real(Math.random());
         rvect.value[2] = CSNumber.real(Math.random());
     }
-    
+
     var move = List.scalmult(oz, rvect);
-    
+
     move = List.add(oldpos, move);
     return {
         type: "homog",
@@ -761,10 +761,9 @@ geoOps.CircleMr.getRandomMove = function(el) {
     var oabs = CSNumber.abs(oldr).value.real;
 
     // if radius was small we want something larger and if not we scale the old one
-    if(oabs < CSNumber.eps){
+    if (oabs < CSNumber.eps) {
         r = CSNumber.getRandReal(0.05, 0.10);
-    }
-    else{
+    } else {
         r = CSNumber.mult(oldr, CSNumber.getRandReal(0.95, 1.05));
     }
 

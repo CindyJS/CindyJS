@@ -101,9 +101,9 @@ function checkConjectures() {
                 if (involved.indexOf(el) < 0) {
                     involved.push(el);
                     // also add incidences of involved objects
-                    incis = findAllIncis(el,[]);
-                    incis.forEach(function(i){
-                        if(involved.indexOf(i) < 0) involved.push(i);
+                    incis = findAllIncis(el, []);
+                    incis.forEach(function(i) {
+                        if (involved.indexOf(i) < 0) involved.push(i);
                     });
                 }
             });
@@ -111,18 +111,18 @@ function checkConjectures() {
     };
 
     // recursively find all incidences to an geo object
-    var findAllIncis = function(el, list){
+    var findAllIncis = function(el, list) {
         // get all incidences we don't already know
-        var nincis = el.incidences.filter(function(iels){
+        var nincis = el.incidences.filter(function(iels) {
             return list.indexOf(csgeo.csnames[iels]) < 0;
         });
-        if(nincis.length === 0) return list;
+        if (nincis.length === 0) return list;
         // add new incidences
-        nincis.forEach(function(ii){
+        nincis.forEach(function(ii) {
             list.push(csgeo.csnames[ii]);
         });
         // recursive call
-        nincis.forEach(function(nel){
+        nincis.forEach(function(nel) {
             return findAllIncis(csgeo.csnames[nel], list);
         });
         return list;
@@ -160,7 +160,7 @@ function checkConjectures() {
 
     //restoreGeo
     if (!debug) {
-        stateIn.set(stateArrays.prover); 
+        stateIn.set(stateArrays.prover);
         recalcAll();
     }
 
