@@ -85,7 +85,6 @@ function checkConjectures() {
     if (conjectures.length === 0) return;
     backupGeo();
 
-    var ii, jj, emove;
     var nummoves = 3;
 
     // filter free objects which are involved in conjectures
