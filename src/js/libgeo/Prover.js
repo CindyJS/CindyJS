@@ -86,6 +86,8 @@ function checkConjectures() {
 
     //backupGeo
     stateArrays.prover.set(stateIn);
+    // proverTmp holds temporary good configurations
+    stateArrays.proverTmp.set(stateIn);
 
     var nummoves = 3;
 
@@ -144,8 +146,10 @@ function checkConjectures() {
                 // get random move and move free element
                 emove = geoOps[el.type].getRandomMove(el);
                 movepointscr(el, emove.value, emove.type);
-                // if something bad happens
-                if (tracingFailed) stateIn.set(stateLastGood);
+                // backup configuration if tracing succeeded 
+                if (!tracingFailed) stateArrays.proverTmp.set(stateLastGood);
+                // restore last good configuration if not
+                else stateIn.set(stateArrays.proverTmp);
                 // check if conjecture still holds
                 conjectures = conjectures.filter(checkCon);
             }
