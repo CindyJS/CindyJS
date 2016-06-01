@@ -102,7 +102,33 @@ function checkConjectures() {
         });
     };
 
+
+    // recursively find all incidences to an geo object
+    var findAllIncis = function(el, list){
+        // get all incidences we don't already know
+        var nincis = el.incidences.filter(function(iels){
+            return list.indexOf(csgeo.csnames[iels]) < 0;
+        });
+        if(nincis.length === 0) return list;
+        // add new incidences
+        nincis.forEach(function(ii){
+            list.push(csgeo.csnames[ii]);
+        });
+
+        // recursive call
+        nincis.forEach(function(nel){
+            return findAllIncis(csgeo.csnames[nel], list);
+        });
+        return list;
+    };
+
     recalcInvolved();
+//    var list = [];
+//    list = findAllIncis(involved[0],list);
+//    console.log("the list");
+//        list.forEach(function(ell){
+//        console.log(ell.name, ell);
+//        });
 
     // for jshint move the function definition outside loop 
     var checkCon = function(con) {
