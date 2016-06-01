@@ -43,13 +43,14 @@ geoOps._helper.getRandPointMove = function(el) {
     var oz = oldpos.value[2];
     var ozabs = CSNumber.abs(oz).value.real;
 
-    var rvect = List.turnIntoCSList([CSNumber.getRandComplex(-0.1, 0.1), CSNumber.getRandComplex(-0.1, 0.1), CSNumber.real(0)]);
-
+    var rZ = CSNumber.real(0);
     // far points 
     if (ozabs < CSNumber.eps) {
-        oz = CSNumber.real(Math.random());
-        rvect.value[2] = CSNumber.real(Math.random());
+        rZ = CSNumber.getRandComplex(-0.05, 0.05);
+        oz = CSNumber.real(1);
     }
+
+    var rvect = List.turnIntoCSList([CSNumber.getRandComplex(-0.1, 0.1), CSNumber.getRandComplex(-0.1, 0.1), rZ]);
 
     var move = List.scalmult(oz, rvect);
 
