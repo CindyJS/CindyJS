@@ -29,7 +29,7 @@ geoOps.RandomLine.updatePosition = function(el) {
 
 geoOps._helper.getRandMove = function(el) {
     var l = el.homog;
-    var rand = List.getRandRealVec(-0.05, 0.05);
+    var rand = List.getRandComplexVec(-0.05, 0.05);
     var move = List.add(l, rand);
 
     return {
@@ -43,7 +43,7 @@ geoOps._helper.getRandPointMove = function(el) {
     var oz = oldpos.value[2];
     var ozabs = CSNumber.abs(oz).value.real;
 
-    var rvect = List.turnIntoCSList([CSNumber.getRandReal(-0.1, 0.1), CSNumber.getRandReal(-0.1, 0.1), CSNumber.real(0)]);
+    var rvect = List.turnIntoCSList([CSNumber.getRandComplex(-0.1, 0.1), CSNumber.getRandComplex(-0.1, 0.1), CSNumber.real(0)]);
 
     // far points 
     if (ozabs < CSNumber.eps) {
