@@ -139,7 +139,7 @@ function checkConjectures() {
     for (var kk = 0; kk < nummoves; kk++) {
         for (var oo = 0; oo < involved.length; oo++) {
             var el = involved[oo];
-            if (!el.pinned && el.isMovable) {
+            if (!el.pinned && geoOps[el.type].isMovable) {
                 if (debug) console.log("prover: moving element", el.name);
                 // get random move and move free element
                 emove = geoOps[el.type].getRandomMove(el);
