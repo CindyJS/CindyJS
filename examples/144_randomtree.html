@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <style type="text/css">
+        * {
+          border: 0;
+          margin: 0;
+          padding: 0;
+        }
+    </style>
+  </head>
+    
+	<body style="font-family:Arial;">
+    <script id="csinit" type="text/x-cindyscript">
+
+      N = 10;
+      forall(0..N-1,
+        createimage("tree"+#, 750, 600);
+      );
+      forall(0..1,
+        createimage("out"+#, 750, 600);
+      );
+      it = 1;
+      o1(it) := mod(it - 1, N);
+      o2(it) := mod(floor(it - 2 - (N-3)*random()), N);
+      rp() := ((random(), random()) - (.5, .5))*.2;
+      
+      L = (-3,-2);
+      R = (3,-2);
+      
+      lastsecond = -1;
+      cnt = 0;
+    </script>
+
+    <script id="csdraw" type="text/x-cindyscript">
+      
+      if(cnt < 10,
+        it = mod(it + 1, N);
+
+        f1 = map(A, B, B, D + rp());
+        f2 = map(A, B, B, C + rp());
+        
+        clearimage("tree"+it);
+        canvas(L, R, "tree"+it,
+          draw(A, B, color->[0,0,0], size->25);
+          drawimage(f1*L.homog, f1*R.homog, "tree" + o1(it), alpha->.6+random()/2);
+          drawimage(f2*L.homog, f2*R.homog, "tree" + o2(it), alpha->.6+random()/2);
+        );
+      );
+      
+      m = mod(floor(seconds()),2);
+      
+      if(floor(seconds()) > lastsecond,
+        clearimage("out"+m);
+        canvas(L, R, "out"+m, drawimage(L, R, "tree" + it));
+        lastsecond = floor(seconds());
+        cnt = 0;
+      );
+      f = (1-cos(mod(seconds(), 1)*pi))*.5; //f = mod(seconds(), 1);
+      drawimage(L, R, "out" + m, alpha -> f);
+      drawimage(L, R, "out" + (1-m), alpha -> (1-f));
+    </script>
+
+    <canvas  id="CSCanvas"></canvas>
+    <script type="text/javascript">
+        
+        var gslp=[];
+        cdy = createCindy({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:[
+                      {name:"A", type:"Free", pos:[0, -1.75], color:[1,0,0], pinned:false, size:6, alpha: .3},
+                      {name:"B", type:"Free", pos:[0, -.85], color:[1,0,0], pinned:false, size:6, alpha: .3},
+                      {name:"C", type:"Free", pos:[-.25, -.25], color:[1,0,0], pinned:false, size:6, alpha: .3},
+                      {name:"D", type:"Free", pos:[.25, -.25], color:[1,0,0], pinned:false, size:6, alpha: .3}
+                    ],
+                    autoplay: true,
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 750,
+                      height: 600,
+                      transform: [ { visibleRect: [-3, -2, 3, 3] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>
