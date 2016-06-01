@@ -96,12 +96,19 @@ function checkConjectures() {
         involved = [];
         conjectures.forEach(function(con) {
             var invs = con.getInvolved();
+            var incis;
             invs = invs.forEach(function(el) {
-                if (involved.indexOf(el) < 0 && el.movable) involved.push(el);
+                if (involved.indexOf(el) < 0) {
+                    involved.push(el);
+                    // also add incidences of involved objects
+                    incis = findAllIncis(el,[]);
+                    incis.forEach(function(i){
+                        if(involved.indexOf(i) < 0) involved.push(i);
+                    });
+                }
             });
         });
     };
-
 
     // recursively find all incidences to an geo object
     var findAllIncis = function(el, list){
@@ -114,7 +121,6 @@ function checkConjectures() {
         nincis.forEach(function(ii){
             list.push(csgeo.csnames[ii]);
         });
-
         // recursive call
         nincis.forEach(function(nel){
             return findAllIncis(csgeo.csnames[nel], list);
@@ -123,24 +129,17 @@ function checkConjectures() {
     };
 
     recalcInvolved();
-//    var list = [];
-//    list = findAllIncis(involved[0],list);
-//    console.log("the list");
-//        list.forEach(function(ell){
-//        console.log(ell.name, ell);
-//        });
 
     // for jshint move the function definition outside loop 
     var checkCon = function(con) {
         return con.holds();
     };
 
-
     var emove, nconject = conjectures.length;
     for (var kk = 0; kk < nummoves; kk++) {
         for (var oo = 0; oo < involved.length; oo++) {
             var el = involved[oo];
-            if (!el.pinned) {
+            if (!el.pinned && el.isMovable) {
                 if (debug) console.log("prover: moving element", el.name);
                 // get random move and move free element
                 emove = geoOps[el.type].getRandomMove(el);
