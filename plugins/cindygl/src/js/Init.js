@@ -81,8 +81,15 @@ function initGLIfRequired() {
     }
 
     if (navigator.userAgent.match(/(iPad|iPhone)/i)) { //TODO: detect this better by checking wheather building a toy shader fails...
-        console.log("You are  using an iPhone/iPad, hence we will use 8-bit textures.");
+        console.log("You are  using an iPhone/iPad.");
         can_use_texture_float = can_use_texture_half_float = false;
+        if (gl.getExtension('OES_texture_half_float') && gl.getExtension('OES_texture_half_float_linear') && gl.getExtension('EXT_color_buffer_half_float')) {
+            can_use_texture_half_float = true;
+        } else {
+            console.error("Your browser does not suppert writing to half_float textures, we will use 8-bit textures.");
+        }
+
+
     }
 
     isinitialized = true;
