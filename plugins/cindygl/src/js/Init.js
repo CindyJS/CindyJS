@@ -71,7 +71,6 @@ function initGLIfRequired() {
         "webglcontextcreationerror",
         onContextCreationError, false);
 
-
     can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
     if (!can_use_texture_float) {
         console.error("Your browser does not suppert OES_texture_float, trying OES_texture_half_float...");
@@ -80,5 +79,11 @@ function initGLIfRequired() {
         if (!can_use_texture_half_float)
             console.error("Your browser does not suppert OES_texture_half_float, will use 8-bit textures.");
     }
+
+    if (navigator.userAgent.match(/(iPad|iPhone)/i)) { //TODO: detect this better by checking wheather building a toy shader fails...
+        console.log("You are  using an iPhone/iPad, hence we will use 8-bit textures.");
+        can_use_texture_float = can_use_texture_half_float = false;
+    }
+
     isinitialized = true;
 }
