@@ -195,18 +195,30 @@ Renderer.prototype.setUniforms = function() {
  */
 Renderer.prototype.loadTextures = function() {
     let cnt = 0;
-    for (let t in this.texturereaders) {
-        gl.activeTexture(gl.TEXTURE0 + cnt);
+    for (let t in this.texturereaders)
+        for (let i in this.texturereaders[t]) {
+            gl.activeTexture(gl.TEXTURE0 + cnt);
 
-        let tname = this.texturereaders[t].name;
-        let cw = this.texturereaders[t].returnCanvaswrapper();
-        cw.reloadIfRequired();
-        cw.bindTexture();
-        this.shaderProgram.uniform['_sampler' + tname]([cnt]);
-        this.shaderProgram.uniform['_ratio' + tname]([cw.sizeX / cw.sizeY]);
-        this.shaderProgram.uniform['_cropfact' + tname]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
-        cnt++;
-    }
+            let tr = this.texturereaders[t][i];
+            let tname = tr.name;
+
+            let properties = {
+                interpolate: tr.modifs.hasOwnProperty("interpolate") ? tr.api.evaluateAndVal(tr.modifs['interpolate'])['value'] : true,
+                mipmap: tr.modifs.hasOwnProperty("mipmap") ? tr.api.evaluateAndVal(tr.modifs['mipmap'])['value'] : false,
+                repeat: tr.modifs.hasOwnProperty("repeat") ? tr.api.evaluateAndVal(tr.modifs['repeat'])['value'] : false
+            };
+            let cw = tr.returnCanvaswrapper(properties);
+
+            cw.reloadIfRequired();
+            cw.bindTexture();
+            this.shaderProgram.uniform['_sampler' + tname]([cnt]);
+            this.shaderProgram.uniform['_ratio' + tname]([cw.sizeX / cw.sizeY]);
+            this.shaderProgram.uniform['_cropfact' + tname]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
+            this.shaderProgram.uniform['_repeat' + tname]([properties.repeat]);
+            this.shaderProgram.uniform['_mipmap' + tname]([properties.mipmap]);
+
+            cnt++;
+        }
 }
 
 /**

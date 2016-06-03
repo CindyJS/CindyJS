@@ -127,7 +127,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
             return nada;
         }
         let imageobject = api.getImage(name.value, true);
-        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
+        let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
         var cw = imageobject.width;
         var ch = imageobject.height;
         compileAndRender(prog, a, b, cw, ch, canvaswrapper);
@@ -151,7 +151,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
         }
 
         let imageobject = api.getImage(name.value, true);
-        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
+        let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
         var cw = imageobject.width;
         var ch = imageobject.height;
         compileAndRender(prog, a, b, cw, ch, canvaswrapper);
@@ -169,7 +169,7 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
         var color = coerce.toColor(api.evaluateAndVal(args[3]));
         if (!name) return nada;
         let imageobject = api.getImage(name, true);
-        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api);
+        let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
 
         if (isFinite(x) && isFinite(y) && name && canvaswrapper && color) {
             canvaswrapper.setPixel(x, y, color);

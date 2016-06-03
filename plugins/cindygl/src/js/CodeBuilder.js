@@ -77,7 +77,7 @@ CodeBuilder.prototype.castType = function(term, fromType, toType) {
                 typeToString(nextType) + " found. \n Using identity");
             return this.castType(term, nextType, toType);
         }
-        return this.castType((inclusionfunction[fromType][nextType])(term, this), nextType, toType);
+        return this.castType((inclusionfunction[fromType][nextType])(term, {}, this), nextType, toType);
     }
 };
 
@@ -718,9 +718,8 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             argterms[i] = this.castType(r[i].term, currenttype[i], targettype[i]);
 
         }
-
         //console.log("Running Term Generator with arguments" + JSON.stringify(argterms) + " and this: " + JSON.stringify(this));
-        let term = termGenerator(argterms, this);
+        let term = termGenerator(argterms, expr['modifs'], this);
         //console.log(termGenerator);
         //console.log(termGenerator([1]));
         //console.log("generated the following term:" + term);

@@ -30,7 +30,7 @@ function cloneExpression(obj) {
                         'ctype',
                         'stack',
                         'name',
-                        'modifs',
+                        //'modifs',
                         'arglist',
                         'value',
                         'real',
@@ -41,6 +41,7 @@ function cloneExpression(obj) {
                     ].indexOf(attr) >= 0)
                     copy[attr] = cloneExpression(obj[attr]);
                 //else console.log("Did not clone " + attr);
+                if (obj['modifs']) copy['modifs'] = obj['modifs']; //modifs cannot be handeled in recursion properly
             }
         }
         return copy;
