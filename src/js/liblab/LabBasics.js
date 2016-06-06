@@ -48,12 +48,12 @@ var masses = [];
 var springs = [];
 var csPhysicsInited = false;
 
-function csreinitphys() {
+function csresetphys() {
     behaviors.forEach(function(beh) {
         var geo = (beh.geo || []).map(function(name) {
             return csgeo.csnames[name];
         });
-        labObjects[beh.type].init(beh, geo[0], geo);
+        labObjects[beh.type].reset(beh, geo[0], geo);
     });
 }
 
@@ -89,7 +89,9 @@ function csinitphys(behavs) {
             console.error("Behavior " + beh.type + " not implemented yet");
             return;
         }
-        op.init(beh, mainGeo, geo);
+        if (op.init) {
+            op.init(beh, mainGeo, geo);
+        }
         if (mainGeo) {
             mainGeo.behavior = beh;
             if (beh.type === "Mass") {
