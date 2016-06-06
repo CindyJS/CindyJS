@@ -31,7 +31,6 @@ createCindy.registerPlugin(1, "CindyGL", function(api) {
         /*else {
              console.log("Program has been compiled; we will use that compiled code.");
         }*/
-        updateBeforeRendering.forEach(f => f());
         prog.renderer.render(a, b, width, height, canvaswrapper);
     }
 

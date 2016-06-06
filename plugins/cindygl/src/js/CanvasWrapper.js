@@ -10,9 +10,7 @@ function generateCanvasWrapperIfRequired(imageobject, api) {
         if (!imageobject.ready) {
             console.error("Image not ready. Creating onload event.");
             imageobject.whenReady(function() {
-                imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
-                console.log("Image has been loaded now");
-                requiredcompiletime++; //force recompile //TODO: check
+                imageobject.generation = Math.max(imageobject.generation, imageobject['canvaswrapper'].generation + 1);
             });
         }
     }
@@ -32,16 +30,15 @@ function CanvasWrapper(canvas) {
     this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
     this.ratio = canvas.height / canvas.width;
     this.it = 0;
-    if (canvas.live)
-        updateBeforeRendering.push(this.reload.bind(this));
-
     this.textures = [];
     this.framebuffers = [];
+    this.generation = -1;
 
     this.bindTexture();
 
     canvas['drawTo'] = this.drawTo.bind(this);
     canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
+
 
     let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
 
@@ -49,14 +46,7 @@ function CanvasWrapper(canvas) {
         this.textures[j] = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
-        if (this.canvas.ready)
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
-
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
-
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -107,6 +97,13 @@ CanvasWrapper.prototype.ratio;
 /** @type {createCindy.image} */
 CanvasWrapper.prototype.canvas;
 
+/**
+ * What was the generation of the imageobject when it was copied to the internal textures.
+ * It should be canvas.generation whenever the internal texture is read.
+ * @type {number} */
+CanvasWrapper.prototype.generation;
+
+
 /** What is the current index of the rendered frame
  *@type {number} */
 CanvasWrapper.prototype.it;
@@ -142,11 +139,30 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
 /**
  * Reload texture data from input element (e.g. HTML video)
  */
-CanvasWrapper.prototype.reload = function() {
+CanvasWrapper.prototype.reloadIfRequired = function() {
+    if (!this.canvas.live && (!this.canvas.ready || this.generation >= this.canvas.generation)) {
+        return;
+    }
+
+    if (this.sizeX != this.canvas.width || this.sizeY != this.canvas.height) {
+        this.sizeX = this.canvas.width;
+        this.sizeY = this.canvas.height;
+        this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX);
+        this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
+        let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
+
+        for (let j = 0; j < 2; j++) {
+            gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+        }
+    }
+
     this.bindTexture();
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+    this.generation = this.canvas.generation;
+    console.log("Image has been loaded to GPU");
 };
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {

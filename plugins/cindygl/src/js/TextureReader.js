@@ -1,9 +1,11 @@
 /**
- * @param {CanvasWrapper} canvaswrapper
- * @param {string} name
+ * @param {string} name the uniform variable that describes the texture
  * @constructor
  */
-function TextureReader(name, canvaswrapper) {
+function TextureReader(name, expr, api) {
+    this.expr = expr;
+    this.api = api;
+
     this.name = name;
     this.code = [
         'uniform sampler2D _sampler', name, ';',
@@ -23,7 +25,6 @@ function TextureReader(name, canvaswrapper) {
         'return _imagergba', name, '(A, B, p).rgb;',
         '}'
     ].join('');
-    this.canvaswrapper = canvaswrapper;
 }
 
 
@@ -39,10 +40,28 @@ TextureReader.prototype.name;
  */
 TextureReader.prototype.code;
 
+
 /**
- * @type {CanvasWrapper}
+ * The expression that is encoded by the the uniform
  */
-TextureReader.prototype.canvaswrapper;
+TextureReader.prototype.expr;
+
+/**
+ * The API
+ */
+TextureReader.prototype.api;
+
+TextureReader.prototype.returnCanvaswrapper = function() {
+    let nameorimageobject = this.api.evaluateAndVal(this.expr)['value'];
+    let imageobject = (typeof nameorimageobject === "string") ? this.api.getImage(nameorimageobject, true) : nameorimageobject;
+
+    if (imageobject == null) {
+        console.error("Could not find image " + nameorimageobject + ".");
+        return nada;
+    }
+
+    return generateCanvasWrapperIfRequired(imageobject, this.api);
+}
 
 /**
  * Either takes original name of the image or generates a new unique name for the image for nameless imageobjects.
@@ -59,47 +78,53 @@ function getNameFromImage(image) {
 
 
 function useimagergba4(args, codebuilder) {
-    let imageobject = args[2];
-    let name = getNameFromImage(args[2]);
+    let uname = args[2];
 
-    if (typeof imageobject === "string") {
-        imageobject = codebuilder.api.getImage(name, true);
+    /*
+		let imageobject = codebuilder.api.evaluateAndVal(codebuilder.uniforms[uname].expr)['value'];
+		console.error(uname + "has expr" +  JSON.stringify(codebuilder.uniforms[uname].expr) + "which encodes" + JSON.stringify(imageobject));
+		let name = getNameFromImage(imageobject);
+		
+  if (typeof imageobject === "string") {
+    imageobject = codebuilder.api.getImage(name, true);
+  }
+
+  if (imageobject == null) {
+    console.error("Could not find image " + name + ".");
+    return nada;
+  }
+  
+  
+
+  let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, codebuilder.api);
+		*/
+    if (!codebuilder.texturereaders.hasOwnProperty(uname)) {
+        codebuilder.texturereaders[uname] = new TextureReader(uname, codebuilder.uniforms[uname].expr, codebuilder.api);
     }
-
-    if (imageobject == null) {
-        console.error("Could not find image " + name + ".");
-        return nada;
-    }
-
-    let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, codebuilder.api);
-
-    if (!codebuilder.texturereaders.hasOwnProperty(name)) {
-        codebuilder.texturereaders[name] = new TextureReader(name, canvaswrapper);
-    }
-    return ['_imagergba', name, '(', args[0], ',', args[1], ',', args[3], ')'].join('');
+    return ['_imagergba', uname, '(', args[0], ',', args[1], ',', args[3], ')'].join('');
 }
 
 
 function useimagergb4(args, codebuilder) {
-    let name = getNameFromImage(args[2]);
+    let uname = args[2];
     useimagergba4(args, codebuilder);
-    return ['_imagergb', name, '(', args[0], ',', args[1], ',', args[3], ')'].join('');
+    return ['_imagergb', uname, '(', args[0], ',', args[1], ',', args[3], ')'].join('');
 }
 
 function useimagergba2(args, codebuilder) {
-    let name = getNameFromImage(args[0]);
+    let uname = args[0];
     useimagergba4(['', ''].concat(args), codebuilder);
     let a = computeLowerLeftCorner(codebuilder.api);
     let b = computeLowerRightCorner(codebuilder.api);
-    return ['_imagergba', name, '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ')'].join('');
+    return ['_imagergba', uname, '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ')'].join('');
 }
 
 function useimagergb2(args, codebuilder) {
-    let name = getNameFromImage(args[0]);
+    let uname = args[0];
     useimagergba4(['', ''].concat(args), codebuilder);
     let a = computeLowerLeftCorner(codebuilder.api);
     let b = computeLowerRightCorner(codebuilder.api);
-    return ['_imagergb', name, '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ')'].join('');
+    return ['_imagergb', uname, '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ')'].join('');
 }
 
 

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -6,35 +7,45 @@
 <meta charset="UTF-8">
 <script type="text/javascript" src="../../build/js/Cindy.js"></script>
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+
 <script id="csinit" type="text/x-cindyscript">
-  dropped = (;); // undefined
-  image = "image";
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-  colorplot(imagergb([0,0], [1,0], image, mod((complex(#)-complex(A))/(complex(B)-complex(A)) ,1+i*imagesize(image).y/imagesize(image).x))+[.5,.5,.5]);
-  drawimage(A, B, image);
-  
-  if (isundefined(dropped), drawtext((-9, 0), "Drag and drop a image into this area"));
+createimage("canvas", 400, 300);
+
+t0 = seconds();
 </script>
 
-<script id="csondrop" type="text/x-cindyscript">
-  dropped = dropped();
-  dump(dropped);
-  if (!isundefined(dropped_1_1), image = dropped_1_1; dump(image););
-  
+<script id="csmove" type="text/x-cindyscript">
+  clearimage("canvas");
+  canvas(A, B, "canvas",
+      draw(C, color->green(1), size->20);
+      draw(A, C);
+      draw(B, C);
+  );
 </script>
+
+<script id="csdraw" type="text/x-cindyscript">
+  colorplot(
+    d = [sin(#.x),sin(#.y)]/2;
+    imagergba(A, B, if(mod(seconds(),2)<1,"image","canvas"), #+d)+[d.x*d.y,-d.x*d.y,0,.3]
+  );
+</script>
+
+
+
 <script type="text/javascript">
 
 var cdy = createCindy({
   ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
   scripts: "cs*",
   language: "en",
+  autoplay: true,
   images: {image:"image.png"},
   defaultAppearance: {
   },
   geometry: [
-    {name:"A", type:"Free", pos:[-5,1]},
-    {name:"B", type:"Free", pos:[5,-1.2]},
+    {name:"A", type:"Free", pos:[-8,-7]},
+    {name:"B", type:"Free", pos:[8,-4.2]},
+    {name:"C", type:"Free", pos:[-1, 1]},
   ],
   use: ["CindyGL"]
 });

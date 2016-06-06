@@ -170,7 +170,7 @@ module.exports = function build(settings, task) {
         "forbidden",
         "ref",
     ]);
-
+    
     task("beautified", [], function() {
         this.cmd("git", "diff", "--exit-code", "--name-only");
         this.cmdscript("js-beautify", "--quiet", beautify_args);
