@@ -14,6 +14,8 @@
 *.pages         -text
 *.pl            text
 *.png           -text
+*.jpg		-text
+*.jpeg		-text
 *.pub           text
 *.py            text
 *.sh            text
