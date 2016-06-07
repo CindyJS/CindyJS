@@ -59,6 +59,15 @@ function csinit(gslp) {
 
 // Setzen der Default appearance
 
+function setupTraceDrawing(el) {
+    if (typeof el.tracedim === "undefined") el.tracedim = 1;
+    if (typeof el.tracelength === "undefined") el.tracelength = 100;
+    if (typeof el.traceskip === "undefined") el.traceskip = 1;
+    el._traces = new Array(el.tracelength);
+    el._traces_index = 0;
+    el._traces_tick = 0;
+}
+
 function pointDefault(el) {
 
     if (el.size === undefined) el.size = defaultAppearance.pointSize;
@@ -73,12 +82,7 @@ function pointDefault(el) {
     el.alpha = CSNumber.real(el.alpha);
 
     if (el.drawtrace) {
-        if (typeof el.tracedim === "undefined") el.tracedim = 1;
-        if (typeof el.tracelength === "undefined") el.tracelength = 100;
-        if (typeof el.traceskip === "undefined") el.traceskip = 1;
-        el._traces = new Array(el.tracelength);
-        el._traces_index = 0;
-        el._traces_tick = 0;
+        setupTraceDrawing(el);
     }
 }
 
