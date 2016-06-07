@@ -15,11 +15,10 @@
 </script>
 <script id="csdraw" type="text/x-cindyscript">
   t = seconds()-t0+.001;
-  
+  ratio = imagesize(image).y/imagesize(image).x;
   colorplot(imagergb([0,0], [2*pi,0], image,
-    ratio = imagesize(image).y/imagesize(image).x;
-    e = round(A.x)+i*round(A.y)/ratio;
-    -t+e*log(complex(#))*ratio+i*pi/4;
+    e = round(A.x)*ratio+i*round(A.y);
+    -t+e*log(complex(#)); //=log(complex(#^e)) (mod 2 pi i)
   , repeat->true, mipmap->mipmap, interpolate->interpolate));
   if (isundefined(dropped), drawtext((-18, 0), "Drag and drop an image into this area"));
 </script>
@@ -40,7 +39,7 @@ var cdy = createCindy({
   defaultAppearance: {
   },
   geometry: [
-    {name:"A", type:"Free", pos:[-10,3]},
+    {name:"A", type:"Free", pos:[10,3]},
   ],
   use: ["CindyGL"]
 });
