@@ -39,19 +39,17 @@ function TextureReader(name, expr, modifs, api) {
             'totalWeight += w;',
           '}}',
         */
-        'for(int dx=0; dx<2; dx++) { for(int dy=0; dy<2; dy++) {', //iterate over the 4 rectengular maps of atlas for the Torus
-        'vec2 center = .5*vec2(dx,dy)+vec2(.5);', //center of map
-        'vec2 tc = p+(vec2(1.)-step(.5,p))*vec2(dx,dy);',
-        //tc = p;
-        //'if(tc.x<.5) tc.x+=float(dx);',
-        //'if(tc.y<.5) tc.y+=float(dy);',
+        'for(int d=0; d<2; d++) {', //iterate over the 2 rectengular maps of atlas for the Torus
+        'vec2 delta = .5*vec2(d);',
+        'vec2 center = delta+vec2(.5);', //center of map
+        'vec2 tc = fract(p-delta)+delta;', //texture coordinate
         'float dst = dot(abs(tc-center),vec2(1.));', //manhatten distance to center of map of atlas
         'float w = max(.5-dst,0.);', //Weight based on distance to center of map of atlas
         'w=w*w;',
         //Sample and accumulate
         'color += w * texture2D(_sampler', name, ', tc*_cropfact', name, ');',
         'totalWeight += w;',
-        '}}',
+        '}',
         'return color/totalWeight;',
         '}',
 
