@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+  dropped = (;); // undefined
+  image = "image";
+  t0 = seconds();
+  mipmap = true;
+  interpolate = true;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+  t = seconds()-t0+.001;
+  
+  colorplot(imagergb([0,0], [2*pi,0], image,
+    ratio = imagesize(image).y/imagesize(image).x;
+    e = round(A.x)+i*round(A.y)/ratio;
+    -t+e*log(complex(#))*ratio+i*pi/4;
+  , repeat->true, mipmap->mipmap, interpolate->interpolate));
+  if (isundefined(dropped), drawtext((-18, 0), "Drag and drop an image into this area"));
+</script>
+
+<script id="csondrop" type="text/x-cindyscript">
+  dropped = dropped();
+  dump(dropped);
+  if (!isundefined(dropped_1_1), image = dropped_1_1; dump(image););
+</script>
+<script type="text/javascript">
+
+var cdy = createCindy({
+  ports: [{id: "CSCanvas", transform: [{visibleRect: [-20, -20, 20, 20]}]}],
+  scripts: "cs*",
+  language: "en",
+  autoplay: true,
+  images: {image:"tile.jpg"},
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[-10,3]},
+  ],
+  use: ["CindyGL"]
+});
+
+
+var check1=function(){
+  if(document.getElementById("ch1").checked){
+    cdy.evokeCS('interpolate=true;');
+  } else {
+    cdy.evokeCS('interpolate=false;');
+  }
+}
+
+var check2=function(){
+  if(document.getElementById("ch2").checked){
+    cdy.evokeCS('mipmap=true;');
+  } else {
+    cdy.evokeCS('mipmap=false;');
+  }
+}
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <canvas id="CSCanvas" width="800" height="800"
+          style="border:2px solid black"></canvas>
+  <p>
+    <input id="ch1" onclick="check1()" checked=true type="checkbox" >interpolate linear&nbsp;&nbsp;&nbsp;
+    <input id="ch2" onclick="check2()" checked=true type="checkbox" >mipmap 
+  </p>
+</body>
+
+
+</html>

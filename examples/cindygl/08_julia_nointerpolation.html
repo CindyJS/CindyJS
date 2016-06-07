@@ -27,7 +27,7 @@
       color(z) := (
         z = f(z, c);
         if(abs(z)<1.5,
-          imagergb("julia", z) + 0.01*(1,2,3),
+          imagergb("julia", z, interpolate->false) + 0.01*(1,2,3),
           (0,0,0)
         )
       );

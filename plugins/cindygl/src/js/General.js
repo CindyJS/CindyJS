@@ -30,7 +30,7 @@ function cloneExpression(obj) {
                         'ctype',
                         'stack',
                         'name',
-                        'modifs',
+                        //'modifs',
                         'arglist',
                         'value',
                         'real',
@@ -41,6 +41,7 @@ function cloneExpression(obj) {
                     ].indexOf(attr) >= 0)
                     copy[attr] = cloneExpression(obj[attr]);
                 //else console.log("Did not clone " + attr);
+                if (obj['modifs']) copy['modifs'] = obj['modifs']; //modifs cannot be handeled in recursion properly
             }
         }
         return copy;
@@ -238,8 +239,10 @@ function toHalf(fval) {
     }
     val = (fbits & 0x7fffffff) >> 23; // tmp exp for subnormal calc
     return sign | ((fbits & 0x7fffff | 0x800000) // add subnormal bit
-        + (0x800000 >>> val - 102) // round depending on cut off
-        >> 126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
+        +
+        (0x800000 >>> val - 102) // round depending on cut off
+        >>
+        126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
 };
 
 var toByte = function(f) {

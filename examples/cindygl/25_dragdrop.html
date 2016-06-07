@@ -11,10 +11,10 @@
   image = "image";
 </script>
 <script id="csdraw" type="text/x-cindyscript">
-  colorplot(imagergb([0,0], [1,0], image, mod((complex(#)-complex(A))/(complex(B)-complex(A)) ,1+i*imagesize(image).y/imagesize(image).x))+[.5,.5,.5]);
+  colorplot(imagergb([0,0], [1,0], image, (complex(#)-complex(A))/(complex(B)-complex(A)), repeat->true, mipmap->true));
   drawimage(A, B, image);
   
-  if (isundefined(dropped), drawtext((-9, 0), "Drag and drop a image into this area"));
+  if (isundefined(dropped), drawtext((-9, 0), "Drag and drop an image into this area"));
 </script>
 
 <script id="csondrop" type="text/x-cindyscript">
