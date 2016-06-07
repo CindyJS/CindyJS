@@ -58,7 +58,6 @@ function TextureReader(name, expr, modifs, api) {
         'else return vec4(0.);',
         '}'
     ].join('');
-    console.log("creted texturereader with" + this.code);
 }
 
 
