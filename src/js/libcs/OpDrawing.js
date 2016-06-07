@@ -1348,7 +1348,8 @@ eval_helper.plotvars = function(a) {
 
         }
         if ((a.oper === "apply" //OK, das kann man eleganter machen, TODO: irgendwann
-                || a.oper === "select" || a.oper === "forall" || a.oper === "sum" || a.oper === "product" || a.oper === "repeat" || a.oper === "min" || a.oper === "max" || a.oper === "sort"
+                ||
+                a.oper === "select" || a.oper === "forall" || a.oper === "sum" || a.oper === "product" || a.oper === "repeat" || a.oper === "min" || a.oper === "max" || a.oper === "sort"
             ) && a.args[1].ctype === "variable") {
             li = remove(li, a.args[1].name);
         }

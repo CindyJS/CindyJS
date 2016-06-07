@@ -239,7 +239,8 @@ function toHalf(fval) {
     }
     val = (fbits & 0x7fffffff) >> 23; // tmp exp for subnormal calc
     return sign | ((fbits & 0x7fffff | 0x800000) // add subnormal bit
-        + (0x800000 >>> val - 102) // round depending on cut off
+        +
+        (0x800000 >>> val - 102) // round depending on cut off
         >>
         126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
 };
