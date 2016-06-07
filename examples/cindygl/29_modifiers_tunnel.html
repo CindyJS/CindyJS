@@ -19,9 +19,9 @@
   colorplot(imagergb([0,0], [2*pi,0], image,
     ratio = imagesize(image).y/imagesize(image).x;
     e = round(A.x)+i*round(A.y)/ratio;
-    -t+log(complex(#)^e)*ratio+i*pi/4;
+    -t+e*log(complex(#))*ratio+i*pi/4;
   , repeat->true, mipmap->mipmap, interpolate->interpolate));
-  if (isundefined(dropped), drawtext((-9, 0), "Drag and drop an image into this area"));
+  if (isundefined(dropped), drawtext((-18, 0), "Drag and drop an image into this area"));
 </script>
 
 <script id="csondrop" type="text/x-cindyscript">
@@ -32,7 +32,7 @@
 <script type="text/javascript">
 
 var cdy = createCindy({
-  ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
+  ports: [{id: "CSCanvas", transform: [{visibleRect: [-20, -20, 20, 20]}]}],
   scripts: "cs*",
   language: "en",
   autoplay: true,
@@ -40,7 +40,7 @@ var cdy = createCindy({
   defaultAppearance: {
   },
   geometry: [
-    {name:"A", type:"Free", pos:[-5,2]},
+    {name:"A", type:"Free", pos:[-10,3]},
   ],
   use: ["CindyGL"]
 });
