@@ -21,7 +21,7 @@ function TextureReader(name, expr, modifs, api) {
         'float b = dot(B,B);',
         'p = vec2(dot(p,B),_ratio', name, '*dot(p,vec2(-B.y,B.x)))/b;',
 
-        'if(_repeat', name, ') p = mod(p, vec2(1.));', //, ' && _mipmap',name,'
+        'if(_repeat', name, ') p = mod(p, vec2(1.));',
 
         'if(_repeat', name, ' && _mipmap', name, ') {', //Use modified 4-tap trick from https://0fps.net/2013/07/09/texture-atlases-wrapping-and-mip-mapping/
         'vec4 color = vec4(0.);',
@@ -56,9 +56,6 @@ function TextureReader(name, expr, modifs, api) {
         'if(0. <= p.x && p.x <= 1. && 0. <= p.y && p.y <= 1.)',
         'return texture2D(_sampler', name, ', p*_cropfact', name, ');',
         'else return vec4(0.);',
-        '}',
-        'vec3 _imagergb', name, '(vec2 A, vec2 B, vec2 p) {',
-        'return _imagergba', name, '(A, B, p).rgb;',
         '}'
     ].join('');
     console.log("creted texturereader with" + this.code);
@@ -146,7 +143,7 @@ function useimagergba4(args, modifs, codebuilder) {
 
 
 function useimagergb4(args, modifs, codebuilder) {
-    return ['_imagergb', generateTextureReaderIfRequired(args[2], modifs, codebuilder), '(', args[0], ',', args[1], ',', args[3], ')'].join('');
+    return ['(_imagergba', generateTextureReaderIfRequired(args[2], modifs, codebuilder), '(', args[0], ',', args[1], ',', args[3], ').rgb)'].join('');
 }
 
 function useimagergba2(args, modifs, codebuilder) {
@@ -158,7 +155,7 @@ function useimagergba2(args, modifs, codebuilder) {
 function useimagergb2(args, modifs, codebuilder) {
     let a = computeLowerLeftCorner(codebuilder.api);
     let b = computeLowerRightCorner(codebuilder.api);
-    return ['_imagergb', generateTextureReaderIfRequired(args[0], modifs, codebuilder), '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ')'].join('');
+    return ['(_imagergba', generateTextureReaderIfRequired(args[0], modifs, codebuilder), '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ').rgb)'].join('');
 }
 
 
