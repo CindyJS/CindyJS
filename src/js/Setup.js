@@ -77,6 +77,46 @@ var isFiniteNumber = Number.isFinite || function(x) {
 
 var csmouse, csctx, csw, csh, csgeo, images, dropped = nada;
 
+function canvasWithContainingDiv(elt) {
+    var canvas, div;
+    if (elt.tagName.toLowerCase() !== "canvas") {
+        // we have a div or something like that, nest a canvas inside that
+        div = elt;
+        canvas = document.createElement("canvas");
+        while (div.firstChild) {
+            div.removeChild(div.firstChild);
+        }
+    } else {
+        // we have a canvas; build a div around it
+        canvas = elt;
+        div = document.createElement("div");
+        var attrs = Array.prototype.slice.call(canvas.attributes);
+        var width = canvas.width;
+        var height = canvas.height;
+        attrs.forEach(function(attr) {
+            if (attr.name !== "width" && attr.name !== "height")
+                div.setAttributeNodeNS(canvas.removeAttributeNode(attr));
+        });
+        div.style.width = width + "px";
+        div.style.height = height + "px";
+        canvas.parentNode.replaceChild(div, canvas);
+    }
+    var style = canvas.style;
+    style.position = "absolute";
+    style.border = "none";
+    style.margin = style.padding = style.left = style.top = "0px";
+    style.width = style.height = "100%";
+    var position = "static";
+    if (window.getComputedStyle) {
+        position = window.getComputedStyle(div).getPropertyValue("position");
+        position = String(position || "static");
+    }
+    if (position === "static")
+        div.style.position = "relative"; // serve as a positioning root
+    div.appendChild(canvas);
+    return canvas;
+}
+
 function createCindyNow() {
     startupCalled = true;
     if (waitForPlugins !== 0) return;
@@ -95,13 +135,15 @@ function createCindyNow() {
             c = port.element;
             if (!c)
                 c = document.getElementById(port.id);
+            c = canvasWithContainingDiv(c);
+            var divStyle = c.parentNode.style;
             if (port.fill === "window") {
-                c.setAttribute("width", window.innerWidth);
-                c.setAttribute("height", window.innerHeight);
+                divStyle.width = (c.width = window.innerWidth) + "px";
+                divStyle.height = (c.height = window.innerHeight) + "px";
                 // TODO: dynamic resizing on window change
             } else if (port.width && port.height) {
-                c.setAttribute("width", port.width);
-                c.setAttribute("height", port.height);
+                divStyle.width = (c.width = port.width) + "px";
+                divStyle.height = (c.height = port.height) + "px";
             }
             if (port.background)
                 c.style.backgroundColor = port.background;
@@ -117,8 +159,10 @@ function createCindyNow() {
     }
     if (!c) {
         c = data.canvas;
-        if (!c && typeof document !== "undefined")
+        if (!c && typeof document !== "undefined") {
             c = document.getElementById(data.canvasname);
+            if (c) c = canvasWithContainingDiv(c);
+        }
     }
     if (c) {
         c = haveCanvas(c);
@@ -195,10 +239,6 @@ function createCindyNow() {
             var ratio = devicePixelRatio / backingStoreRatio;
             c.width = csw * ratio;
             c.height = csh * ratio;
-            if (!c.style.width)
-                c.style.width = csw + "px";
-            if (!c.style.height)
-                c.style.height = csh + "px";
             csctx.scale(ratio, ratio);
         }
     }
