@@ -39,8 +39,8 @@ function TextureReader(name, expr, modifs, api) {
             'totalWeight += w;',
           '}}',
         */
-        'for(int d=0; d<2; d++) {', //iterate over the 2 rectengular maps of atlas for the Torus
-        'vec2 delta = .5*vec2(d);',
+        'for(int dx=0; dx<2; dx++) for(int dy=0; dy<2; dy++) {', //iterate over the 2 rectengular maps of atlas for the Torus
+        'vec2 delta = .5*vec2(dx, dy);',
         'vec2 center = delta+vec2(.5);', //center of map
         'vec2 tc = fract(p-delta)+delta;', //texture coordinate
         'float dst = dot(abs(tc-center),vec2(1.));', //manhatten distance to center of map of atlas
