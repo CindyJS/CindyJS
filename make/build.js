@@ -151,6 +151,7 @@ module.exports = function build(settings, task) {
             /<script[^>]*type *= *["']text\/cindyscript["']/g, // requires x-
             /.*firstDrawing.*/g, // excessive copy & paste of old example
             /.*(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js.*/g, // remote
+            /<canvas[^>]+id=['"]CSCanvas/g,                    // use <div>
         ]);
         this.forbidden("ref/**/*.md", [
             /^#.*`.*<[A-Za-z0-9]+>.*?`/mg, // use ‹…› instead
