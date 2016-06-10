@@ -24,6 +24,7 @@ function dummy() { return this; }
     "moveTo",
     "restore",
     "save",
+    "setTransform",
     "stroke",
     "strokeText",
     "fillText",
