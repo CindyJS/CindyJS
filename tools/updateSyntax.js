@@ -12,6 +12,9 @@ case "-evokeCS":
 case "-sx":
     processFiles(updateSx, process.argv.slice(3));
     break;
+case "-div":
+    processFiles(updateToDiv, process.argv.slice(3));
+    break;
 default:
     console.error("No such mode: " + process.argv[2]);
     process.exit(2);
@@ -89,6 +92,23 @@ var reSxy = /sx: *([^:};]+), *sy: *([^:};]+)/g;
 function updateSx(path, str) {
     var res = str.replace(reSxyz, "pos:[$1,$2,$3]");
     res = res.replace(reSxy, "pos:[$1,$2]");
+    if (res !== str)
+        return res;
+}
+
+function updateToDiv(path, str) {
+    var res = str.replace(/<canvas[^>]*>\s*<\/canvas>/ig, function(canvas) {
+        if (canvas.indexOf('id="Cindy3D"') >= 0) return canvas;
+        var div = canvas
+            .replace(/width="?(\d+)"?\s+height="?(\d+)"?\s+style="/,
+                     'style="width:$1px; height:$2px; ')
+            .replace(/width="?(\d+)"?\s+height="?(\d+)"?/,
+                     'style="width:$1px; height:$2px;"')
+            .replace(/(<\/?)canvas/ig, '$1div');
+        if (/(width|height)\s*(=|:[^]*\1:)/.test(div))
+            throw error("Could not convert dimensions for " + canvas);
+        return div;
+    });
     if (res !== str)
         return res;
 }
