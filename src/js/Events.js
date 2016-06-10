@@ -273,6 +273,15 @@ function setuplisteners(canvas, data) {
         // addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);
     }
 
+    if (typeof window !== "undefined") {
+        addAutoCleaningEventListener(window, "resize", function() {
+            requestAnimFrame(function() {
+                updateCanvasDimensions();
+                updateCindy();
+            });
+        }, false);
+    }
+
     updateCindy();
 }
 

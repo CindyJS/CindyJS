@@ -41,7 +41,14 @@ function evokeCS(code) {
 }
 
 
-function initialTransformation(trafos) {
+var canvas;
+var trafos;
+
+function updateCanvasDimensions() {
+    canvas.width = csw = canvas.clientWidth;
+    canvas.height = csh = canvas.clientHeight;
+    csctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    csport.setMat(25, 0, 0, 25, 250.5, 250.5); // reset
     if (trafos) {
         for (var i = 0; i < trafos.length; i++) {
             var trafo = trafos[i];
@@ -62,7 +69,24 @@ function initialTransformation(trafos) {
                 csscale = csport.drawingstate.initialmatrix.a / 25;
             }
         }
-        csport.createnewbackup();
+    }
+    csport.createnewbackup();
+    csport.greset();
+    var devicePixelRatio = 1;
+    if (typeof window !== "undefined" && window.devicePixelRatio)
+        devicePixelRatio = window.devicePixelRatio;
+    var backingStoreRatio =
+        csctx.webkitBackingStorePixelRatio ||
+        csctx.mozBackingStorePixelRatio ||
+        csctx.msBackingStorePixelRatio ||
+        csctx.oBackingStorePixelRatio ||
+        csctx.backingStorePixelRatio ||
+        1;
+    if (devicePixelRatio !== backingStoreRatio) {
+        var ratio = devicePixelRatio / backingStoreRatio;
+        canvas.width = csw * ratio;
+        canvas.height = csh * ratio;
+        csctx.scale(ratio, ratio);
     }
 }
 
@@ -77,31 +101,92 @@ var isFiniteNumber = Number.isFinite || function(x) {
 
 var csmouse, csctx, csw, csh, csgeo, images, dropped = nada;
 
+function canvasWithContainingDiv(elt) {
+    var div;
+    if (elt.tagName.toLowerCase() !== "canvas") {
+        // we have a div or something like that, nest a canvas inside that
+        div = elt;
+        canvas = document.createElement("canvas");
+        while (div.firstChild) {
+            div.removeChild(div.firstChild);
+        }
+    } else {
+        // we have a canvas; build a div around it
+        canvas = elt;
+        div = document.createElement("div");
+        var attrs = Array.prototype.slice.call(canvas.attributes);
+        var width = null;
+        var height = null;
+        attrs.forEach(function(attr) {
+            if (attr.name === "width") {
+                width = attr.value;
+            } else if (attr.name === "height") {
+                height = attr.value;
+            } else {
+                div.setAttributeNodeNS(canvas.removeAttributeNode(attr));
+            }
+        });
+        if (width !== null && !div.style.width) {
+            div.style.width = width + "px";
+        }
+        if (height !== null && !div.style.height) {
+            div.style.height = height + "px";
+        }
+        canvas.parentNode.replaceChild(div, canvas);
+    }
+    var style = canvas.style;
+    style.position = "absolute";
+    style.border = "none";
+    style.margin = style.padding = style.left = style.top = "0px";
+    style.width = style.height = "100%";
+    var position = "static";
+    if (window.getComputedStyle) {
+        position = window.getComputedStyle(div).getPropertyValue("position");
+        position = String(position || "static");
+    }
+    if (position === "static")
+        div.style.position = "relative"; // serve as a positioning root
+    div.appendChild(canvas);
+    // TODO: implement component resizing detection, probably similar to
+    // github.com/marcj/css-element-queries/blob/bfa9a7f/src/ResizeSensor.js
+    return canvas;
+}
+
 function createCindyNow() {
     startupCalled = true;
     if (waitForPlugins !== 0) return;
+
     var data = instanceInvocationArguments;
+    if (data.exclusive) {
+        i = createCindy.instances.length;
+        while (i > 0)
+            createCindy.instances[--i].shutdown();
+    }
+
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
-
     setupConsole();
 
     csmouse = [100, 100];
     var c = null;
-    var trafos = data.transform;
+    trafos = data.transform;
     if (data.ports) {
         if (data.ports.length > 0) {
             var port = data.ports[0];
             c = port.element;
             if (!c)
                 c = document.getElementById(port.id);
+            c = canvasWithContainingDiv(c);
+            var divStyle = c.parentNode.style;
             if (port.fill === "window") {
-                c.setAttribute("width", window.innerWidth);
-                c.setAttribute("height", window.innerHeight);
-                // TODO: dynamic resizing on window change
+                divStyle.width = "100vw";
+                divStyle.height = "100vh";
+            } else if (port.fill === "parent") {
+                divStyle.width = "100%";
+                divStyle.height = "100%";
             } else if (port.width && port.height) {
-                c.setAttribute("width", port.width);
-                c.setAttribute("height", port.height);
+                divStyle.width = port.width + "px";
+                divStyle.height = port.height + "px";
             }
             if (port.background)
                 c.style.backgroundColor = port.background;
@@ -117,12 +202,15 @@ function createCindyNow() {
     }
     if (!c) {
         c = data.canvas;
-        if (!c && typeof document !== "undefined")
+        if (!c && typeof document !== "undefined") {
             c = document.getElementById(data.canvasname);
+            if (c) c = canvasWithContainingDiv(c);
+        }
     }
     if (c) {
-        c = haveCanvas(c);
+        canvas = c = haveCanvas(c);
         csctx = c.getContext("2d");
+        updateCanvasDimensions();
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
     }
@@ -175,34 +263,6 @@ function createCindyNow() {
         cssnap = true;
     }
 
-    if (c) {
-        csw = c.width;
-        csh = c.height;
-        initialTransformation(trafos);
-        csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty - csh;
-        csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty - csh;
-        var devicePixelRatio = 1;
-        if (typeof window !== "undefined" && window.devicePixelRatio)
-            devicePixelRatio = window.devicePixelRatio;
-        var backingStoreRatio =
-            csctx.webkitBackingStorePixelRatio ||
-            csctx.mozBackingStorePixelRatio ||
-            csctx.msBackingStorePixelRatio ||
-            csctx.oBackingStorePixelRatio ||
-            csctx.backingStorePixelRatio ||
-            1;
-        if (devicePixelRatio !== backingStoreRatio) {
-            var ratio = devicePixelRatio / backingStoreRatio;
-            c.width = csw * ratio;
-            c.height = csh * ratio;
-            if (!c.style.width)
-                c.style.width = csw + "px";
-            if (!c.style.height)
-                c.style.height = csh + "px";
-            csctx.scale(ratio, ratio);
-        }
-    }
-
     csgeo = {};
 
     var i = 0;
@@ -214,7 +274,7 @@ function createCindyNow() {
     }
     csinit(data.geometry);
 
-    //Read Geometry
+    //Read Physics
     if (!data.behavior) {
         data.behavior = [];
     }
@@ -233,11 +293,6 @@ function createCindyNow() {
     if (data.oninit)
         data.oninit(globalInstance);
 
-    if (data.exclusive) {
-        i = createCindy.instances.length;
-        while (i > 0)
-            createCindy.instances[--i].shutdown();
-    }
     createCindy.instances.push(globalInstance);
     if (instanceInvocationArguments.use)
         instanceInvocationArguments.use.forEach(function(name) {

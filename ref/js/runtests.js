@@ -332,10 +332,14 @@ TestCase.prototype.asJSON = function() {
 };
 
 function FakeCanvas() {
-  this.width = 640;
-  this.height = 480;
+  this.width = this.clientWidth = this.scrollWidth = 640;
+  this.height = this.clientHeight = this.scrollHeight = 480;
   this._log = [];
-  this._unchanged = {width: this.width, height: this.height};
+  this._unchanged = {}
+  Object.keys(this).forEach(function(k) {
+    if (k.substr(0,1) !== "_")
+      this._unchanged[k] = this[k];
+  }, this);
 };
 FakeCanvas.prototype.addEventListener = function() { };
 FakeCanvas.prototype.removeEventListener = function() { };
@@ -367,6 +371,7 @@ FakeCanvas.prototype.measureText = function(txt) {
   "moveTo",
   "restore",
   "save",
+  "setTransform",
   "stroke",
   "strokeText",
   "fillText",
