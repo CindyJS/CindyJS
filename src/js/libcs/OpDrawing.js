@@ -877,12 +877,22 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 };
 
 // This is a hook: the following function may get replaced by a plugin.
-var textRenderer = function(ctx, text, x, y, align) {
-    var width = ctx.measureText(text).width;
-    ctx.fillText(text, x - width * align, y);
+var textRenderer = function(ctx, text, x, y, align, textChanged, html) {
+    var measure = ctx.measureText(text);
+    if (!html) {
+        ctx.fillText(text, x - measure.width * align, y);
+    } else {
+        if (textChanged) html.textContent = text;
+        var dx = html.offsetWidth - measure.width;
+        var style = html.parentNode.style;
+        style.left = (x - measure.width * align - dx * 0.5 - 1) + "px";
+        style.top = (y - 1e3) + "px";
+    }
 };
 
-evaluator.drawtext$2 = function(args, modifs) {
+// This is a special function: when called internally, additional arguments
+// may be used which are not accessible from a script invocation.
+evaluator.drawtext$2 = function(args, modifs, textChanged, html) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluate(args[1]);
     var pt = eval_helper.extractPoint(v0);
@@ -904,9 +914,10 @@ evaluator.drawtext$2 = function(args, modifs) {
     csctx.fillStyle = Render2D.textColor;
 
     csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
+    if (html) html.style.font = csctx.font;
     var txt = niceprint(v1);
     textRenderer(csctx, txt, xx + Render2D.xOffset, yy - Render2D.yOffset,
-        Render2D.align);
+        Render2D.align, textChanged, html);
 
     return nada;
 

@@ -196,6 +196,8 @@ function drawgeotext(el) {
                 return niceprint(el2.value);
         }
     });
+    var changed = (text !== el.prevText);
+    el.prevText = text;
     text = General.string(text);
     if (el.dock) {
         if (el.dock.to) {
@@ -207,7 +209,7 @@ function drawgeotext(el) {
         opts.offset = el.dock.offset;
     }
     if (pos)
-        evaluator.drawtext$2([pos, text], opts);
+        evaluator.drawtext$2([pos, text], opts, changed, el.html);
 }
 
 function render() {

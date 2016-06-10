@@ -2610,3 +2610,27 @@ geoMacros.Text = function(el) {
     el.args = [];
     return [el];
 };
+
+geoMacros.PushButton = function(el) {
+    el.type = "TextImpl";
+    el.args = [];
+    var p = document.createElement("p");
+    var img = document.createElement("img");
+    var button = document.createElement("button");
+    p.style.position = "absolute";
+    img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUh" +
+        "EUgAAAAEAAAPoCAQAAAC1v1zVAAAAGklEQVR42u3BMQEAAA" +
+        "DCoPVPbQ0PoAAAgHcDC7gAAVI8ZnwAAAAASUVORK5CYII=";
+    img.style.verticalAlign = "baseline";
+    img.style.border = p.style.border = "none";
+    img.style.display = "inline";
+    img.style.margin = p.style.margin = "0px";
+    img.style.padding = p.style.padding = "0px";
+    p.style.whiteSpace = "nowrap";
+    p.style.position = "absolute";
+    p.appendChild(img);
+    p.appendChild(button);
+    canvas.parentNode.appendChild(p);
+    el.html = button;
+    return [el];
+};

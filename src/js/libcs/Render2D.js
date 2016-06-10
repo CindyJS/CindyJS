@@ -225,6 +225,7 @@ Render2D.modifHandlers = {
     "align": function(v) {
         if (v.ctype === "string") {
             var s = v.value;
+            // TODO: Use values suitable for csctx.textAlign here
             if (s === "left")
                 Render2D.align = 0;
             if (s === "right")

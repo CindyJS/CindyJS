@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Construction.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "Text0", type: "Switch", pos: [-2.0, -4.0, -0.8], color: [0.0, 0.0, 0.0], text: "Button 1"},
+    {name: "Text1", type: "Text", pos: [4.0, 4.0, 1.6], color: [0.0, 0.0, 0.0], text: "Button 2"},
+    {name: "Text2", type: "Text", pos: [4.0, 2.6666666666666665, 0.5333333333333333], color: [0.0, 0.0, 0.0], text: "Button 3"},
+    {name: "Text3", type: "PushButton", pos: [4.0, 1.3333333333333333, 0.5333333333333333], color: [0.0, 0.0, 0.0], text: "Button 4"}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 336,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.1]}],
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1843, version: [2, 9, 1843]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
