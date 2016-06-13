@@ -2611,7 +2611,7 @@ geoMacros.Text = function(el) {
     return [el];
 };
 
-function commonButton(el, button) {
+function commonButton(el, event, button) {
     el.type = "TextImpl";
     el.args = [];
     var outer = document.createElement("div");
@@ -2621,15 +2621,25 @@ function commonButton(el, button) {
         "DCoPVPbQ0PoAAAgHcDC7gAAVI8ZnwAAAAASUVORK5CYII=";
     outer.className = "CindyJS-button";
     outer.appendChild(img);
-    for (var i = 1; i < arguments.length; ++i)
+    for (var i = 2; i < arguments.length; ++i)
         outer.appendChild(arguments[i]);
     canvas.parentNode.appendChild(outer);
     el.html = arguments[arguments.length - 1];
+    var onEvent = updateCindy;
+    if (el.script) {
+        var code = analyse(el.script);
+        onEvent = function() {
+            evaluate(code);
+            updateCindy();
+        };
+    }
+    button.addEventListener(event, onEvent);
     return [el];
 }
 
 geoMacros.PushButton = function(el) {
-    return commonButton(el, document.createElement("button"));
+    var button = document.createElement("button");
+    return commonButton(el, "click", button);
 };
 
 geoMacros.Switch = function(el) {
@@ -2639,5 +2649,6 @@ geoMacros.Switch = function(el) {
     checkbox.setAttribute("id", id);
     label.setAttribute("for", id);
     checkbox.setAttribute("type", "checkbox");
-    return commonButton(el, checkbox, label);
+    el.checkbox = checkbox;
+    return commonButton(el, "change", checkbox, label);
 };

@@ -22,6 +22,10 @@
     </style>
     <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
+    <script id="csdraw" type="text/x-cindyscript">
+        draw([2, if(Text0.pressed, 4, 6)]);
+        draw([7, if(Text3.pressed, 1.5, 3.5)]);
+    </script>
     <script type="text/javascript">
 CindyJS({
   scripts: "cs*",
@@ -37,7 +41,8 @@ CindyJS({
     {name: "Text0", type: "Switch", pos: [-2.0, -4.0, -0.8], color: [0.0, 0.0, 0.0], text: "Button 1"},
     {name: "Text1", type: "Text", pos: [4.0, 4.0, 1.6], color: [0.0, 0.0, 0.0], text: "Button 2"},
     {name: "Text2", type: "Text", pos: [4.0, 2.6666666666666665, 0.5333333333333333], color: [0.0, 0.0, 0.0], text: "Button 3"},
-    {name: "Text3", type: "PushButton", pos: [4.0, 1.3333333333333333, 0.5333333333333333], color: [0.0, 0.0, 0.0], text: "Button 4"}
+    {name: "Text3", type: "PushButton", pos: [4.0, 1.3333333333333333, 0.5333333333333333], color: [0.0, 0.0, 0.0], text: "Button 4", script: "A.xy = [random(), random()]; Text0.pressed = true;"},
+    {name: "A", type: "Free", pos: [0.0, -0.0, 4.0], color: [1.0, 0.0, 0.0], labeled: true}
   ],
   ports: [{
     id: "CSCanvas",
