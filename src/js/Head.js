@@ -151,10 +151,20 @@ var CindyJS = (function() {
                     callback();
                 });
             };
+
+            var idCounter = 0;
+
+            function generateId(prefix) {
+                if (prefix === undefined)
+                    prefix = "CindyJSid";
+                return prefix + (++idCounter);
+            }
+
             CindyJS.dumpState = function(index) {
                 // Call this if you find a rendering bug you'd like to reproduce.
                 // The save the printed JSON to a file and include it in your report.
                 var state = CindyJS.instances[index || 0].saveState();
                 console.log(JSON.stringify(state));
             };
+
             CindyJS.newInstance = function(instanceInvocationArguments) {

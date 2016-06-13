@@ -2611,19 +2611,33 @@ geoMacros.Text = function(el) {
     return [el];
 };
 
-geoMacros.PushButton = function(el) {
+function commonButton(el, button) {
     el.type = "TextImpl";
     el.args = [];
-    var p = document.createElement("p");
+    var outer = document.createElement("div");
     var img = document.createElement("img");
-    var button = document.createElement("button");
     img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUh" +
         "EUgAAAAEAAAPoCAQAAAC1v1zVAAAAGklEQVR42u3BMQEAAA" +
         "DCoPVPbQ0PoAAAgHcDC7gAAVI8ZnwAAAAASUVORK5CYII=";
-    p.className = "CindyJS-button";
-    p.appendChild(img);
-    p.appendChild(button);
-    canvas.parentNode.appendChild(p);
-    el.html = button;
+    outer.className = "CindyJS-button";
+    outer.appendChild(img);
+    for (var i = 1; i < arguments.length; ++i)
+        outer.appendChild(arguments[i]);
+    canvas.parentNode.appendChild(outer);
+    el.html = arguments[arguments.length - 1];
     return [el];
+}
+
+geoMacros.PushButton = function(el) {
+    return commonButton(el, document.createElement("button"));
+};
+
+geoMacros.Switch = function(el) {
+    var id = generateId();
+    var checkbox = document.createElement("input");
+    var label = document.createElement("label");
+    checkbox.setAttribute("id", id);
+    label.setAttribute("for", id);
+    checkbox.setAttribute("type", "checkbox");
+    return commonButton(el, checkbox, label);
 };
