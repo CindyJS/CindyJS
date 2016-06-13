@@ -2617,17 +2617,10 @@ geoMacros.PushButton = function(el) {
     var p = document.createElement("p");
     var img = document.createElement("img");
     var button = document.createElement("button");
-    p.style.position = "absolute";
     img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUh" +
         "EUgAAAAEAAAPoCAQAAAC1v1zVAAAAGklEQVR42u3BMQEAAA" +
         "DCoPVPbQ0PoAAAgHcDC7gAAVI8ZnwAAAAASUVORK5CYII=";
-    img.style.verticalAlign = "baseline";
-    img.style.border = p.style.border = "none";
-    img.style.display = "inline";
-    img.style.margin = p.style.margin = "0px";
-    img.style.padding = p.style.padding = "0px";
-    p.style.whiteSpace = "nowrap";
-    p.style.position = "absolute";
+    p.className = "CindyJS-button";
     p.appendChild(img);
     p.appendChild(button);
     canvas.parentNode.appendChild(p);

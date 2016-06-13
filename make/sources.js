@@ -53,3 +53,7 @@ exports.inclosure = [
 exports.ours = ["src/js/Head.js"].concat(exports.inclosure, "src/js/Tail.js");
 
 exports.srcs = exports.lib.concat(exports.ours);
+
+exports.scss = [
+    "src/scss/CindyJS.scss",
+];
