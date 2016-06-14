@@ -3842,7 +3842,7 @@ evaluator.javascript$1 = function(args, modifs) {
 
 evaluator.use$1 = function(args, modifs) {
     function defineFunction(name, arity, impl) {
-        evaluator[name + "$" + arity] = impl;
+        evaluator[name.toLowerCase() + "$" + arity] = impl;
     }
     var v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
