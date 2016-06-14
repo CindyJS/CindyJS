@@ -200,10 +200,8 @@ function drawgeotext(el) {
     if (el.html) {
         var cache = el._textCache || {};
         var label = el.html;
-        var outer = label.parentNode;
-        var span = label.firstChild;
-        if (!span)
-            label.appendChild(span = document.createElement("span"));
+        var inlinebox = label.parentNode;
+        var outer = inlinebox.parentNode;
         htmlCallback = function(text, font, x, y, align) {
             if (text === cache.text && font === cache.font &&
                 x === cache.x && y === cache.y && align === cache.align)
@@ -211,12 +209,13 @@ function drawgeotext(el) {
             if (font !== cache.font)
                 label.style.font = font;
             if (text !== cache.text)
-                if (textRendererHtml(span, text, font) === false)
+                if (textRendererHtml(label, text, font) === false)
                     text = false; // Do not cache, must re-run
             outer.style.left = x + "px";
-            outer.style.top = (y - 1e3) + "px";
-            if (align || outer.style.transform)
-                outer.style.transform = "translateX(" + (-100 * align) + "%)";
+            outer.style.top = y + "px";
+            if (align || inlinebox.style.transform)
+                inlinebox.style.transform =
+                "translateX(" + (-100 * align) + "%)";
             el._textCache = {
                 text: text,
                 font: font,

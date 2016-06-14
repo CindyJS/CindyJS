@@ -2619,10 +2619,13 @@ function commonButton(el, event, button) {
     img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUh" +
         "EUgAAAAEAAAPoCAQAAAC1v1zVAAAAGklEQVR42u3BMQEAAA" +
         "DCoPVPbQ0PoAAAgHcDC7gAAVI8ZnwAAAAASUVORK5CYII=";
-    outer.className = "CindyJS-button";
+    outer.className = "CindyJS-baseline";
     outer.appendChild(img);
+    var inlinebox = document.createElement("div");
+    inlinebox.className = "CindyJS-button";
+    outer.appendChild(inlinebox);
     for (var i = 2; i < arguments.length; ++i)
-        outer.appendChild(arguments[i]);
+        inlinebox.appendChild(arguments[i]);
     canvas.parentNode.appendChild(outer);
     el.html = arguments[arguments.length - 1];
     var onEvent = updateCindy;
