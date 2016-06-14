@@ -3870,8 +3870,9 @@ evaluator.use$1 = function(args, modifs) {
                 "getInitialMatrix": function() {
                     return csport.drawingstate.initialmatrix;
                 },
-                "setTextRenderer": function(handler) {
-                    textRenderer = handler;
+                "setTextRenderer": function(handlerCanvas, handlerHtml) {
+                    textRendererCanvas = handlerCanvas;
+                    if (handlerHtml) textRendererHtml = handlerHtml;
                 },
                 "getImage": function(name, lazy) {
                     if (typeof name === "string")

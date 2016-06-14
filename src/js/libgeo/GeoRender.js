@@ -196,8 +196,36 @@ function drawgeotext(el) {
                 return niceprint(el2.value);
         }
     });
-    var changed = (text !== el.prevText);
-    el.prevText = text;
+    var htmlCallback = null;
+    if (el.html) {
+        var cache = el._textCache || {};
+        var label = el.html;
+        var outer = label.parentNode;
+        var span = label.firstChild;
+        if (!span)
+            label.appendChild(span = document.createElement("span"));
+        htmlCallback = function(text, font, x, y, align) {
+            if (text === cache.text && font === cache.font &&
+                x === cache.x && y === cache.y && align === cache.align)
+                return;
+            if (font !== cache.font)
+                label.style.font = font;
+            if (text !== cache.text)
+                textRendererHtml(span, text, font);
+            var innerRect = span.getBoundingClientRect();
+            var outerRect = outer.getBoundingClientRect();
+            outer.style.left = (x - innerRect.width * align +
+                outerRect.left - innerRect.left) + "px";
+            outer.style.top = (y - 1e3) + "px";
+            el._textCache = {
+                text: text,
+                font: font,
+                x: x,
+                y: y,
+                align: align
+            };
+        };
+    }
     text = General.string(text);
     if (el.dock) {
         if (el.dock.to) {
@@ -209,7 +237,7 @@ function drawgeotext(el) {
         opts.offset = el.dock.offset;
     }
     if (pos)
-        evaluator.drawtext$2([pos, text], opts, changed, el.html);
+        evaluator.drawtext$2([pos, text], opts, htmlCallback);
 }
 
 function render() {
