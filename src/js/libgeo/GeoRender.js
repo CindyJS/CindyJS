@@ -206,7 +206,8 @@ function drawgeotext(el) {
             label.appendChild(span = document.createElement("span"));
         htmlCallback = function(text, font, x, y, align) {
             if (text === cache.text && font === cache.font &&
-                x === cache.x && y === cache.y && align === cache.align)
+                x === cache.x && y === cache.y && align === cache.align &&
+                outer.getBoundingClientRect().width === cache.outerWidth)
                 return;
             if (font !== cache.font)
                 label.style.font = font;
@@ -222,7 +223,8 @@ function drawgeotext(el) {
                 font: font,
                 x: x,
                 y: y,
-                align: align
+                align: align,
+                outerWidth: outer.getBoundingClientRect().width
             };
         };
     }
