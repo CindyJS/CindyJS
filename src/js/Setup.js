@@ -100,7 +100,7 @@ var isFiniteNumber = Number.isFinite || function(x) {
 };
 
 var csmouse, csctx, csw, csh, csgeo, images, dropped = nada,
-    droppedpos = nada;
+    dropPoint = nada;
 
 function canvasWithContainingDiv(elt) {
     var div;

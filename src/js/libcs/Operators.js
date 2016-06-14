@@ -4442,6 +4442,6 @@ evaluator.dropped$0 = function() {
 };
 
 
-evaluator.droppedpos$0 = function() {
-    return droppedpos;
+evaluator.droppoint$0 = function() {
+    return dropPoint;
 };

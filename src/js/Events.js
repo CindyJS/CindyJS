@@ -457,10 +457,10 @@ function cs_simulationstop(e) {
 
 function cs_onDrop(lst, pos) {
     dropped = List.turnIntoCSList(lst);
-    droppedpos = pos;
+    dropPoint = pos;
     evaluate(cscompiled.ondrop);
-    droppedpos = nada;
     dropped = nada;
+    dropPoint = nada;
     updateCindy();
 }
 
