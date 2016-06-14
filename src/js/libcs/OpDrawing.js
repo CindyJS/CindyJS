@@ -899,6 +899,7 @@ evaluator.drawtext$2 = function(args, modifs) {
     var col = csport.drawingstate.textcolor;
     Render2D.handleModifs(modifs, Render2D.textModifs);
     var size = csport.drawingstate.textsize;
+    if (size === null) size = defaultAppearance.textsize;
     if (Render2D.size !== null) size = Render2D.size;
     csctx.fillStyle = Render2D.textColor;
 

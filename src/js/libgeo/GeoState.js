@@ -11,7 +11,7 @@ csport.drawingstate.textcolorraw = [0, 0, 0];
 csport.drawingstate.alpha = 1.0;
 csport.drawingstate.pointsize = 4.0;
 csport.drawingstate.linesize = 1.0;
-csport.drawingstate.textsize = 20;
+csport.drawingstate.textsize = null; // use defaultAppearance.textsize
 
 csport.drawingstate.matrix = {};
 csport.drawingstate.matrix.a = 25;
