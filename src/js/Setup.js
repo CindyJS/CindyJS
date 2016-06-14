@@ -99,7 +99,8 @@ var isFiniteNumber = Number.isFinite || function(x) {
     return (typeof x === 'number') && isFinite(x);
 };
 
-var csmouse, csctx, csw, csh, csgeo, images, dropped = nada;
+var csmouse, csctx, csw, csh, csgeo, images, dropped = nada,
+    dropPoint = nada;
 
 function canvasWithContainingDiv(elt) {
     var div;

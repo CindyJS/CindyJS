@@ -197,40 +197,42 @@ function setuplisteners(canvas, data) {
         var dropped = Array(files.length);
         var countDown = files.length;
         // drop position
-        var pos = List.realVector(csport.to(e.clientX, e.clientY));
+        var rect = e.currentTarget.getBoundingClientRect();
+        var x = e.clientX - rect.left - canvas.clientLeft + 0.5;
+        var y = e.clientY - rect.top - canvas.clientTop + 0.5;
+        var pos = List.realVector(csport.to(x, y));
 
         Array.prototype.forEach.call(files, function(file, i) {
             var reader = new FileReader();
             if ((/^text\//).test(file.type)) {
                 reader.onload = function() {
                     var value = General.string(reader.result);
-                    oneDone(i, value, value.ctype, pos);
+                    oneDone(i, value);
                 };
                 reader.readAsText(file);
             } else if ((/^image\//).test(file.type)) {
                 reader.onload = function() {
                     var img = new Image();
                     img.onload = function() {
-                        oneDone(i, loadImage(img), undefined, pos);
+                        oneDone(i, loadImage(img));
                     };
                     img.src = reader.result;
                 };
                 reader.readAsDataURL(file);
             } else {
-                oneDone(i, nada, nada.ctype, pos);
+                oneDone(i, nada);
             }
         });
 
-        function oneDone(i, value, type, pos) {
+        function oneDone(i, value, type) {
             dropped[i] = List.turnIntoCSList([
                 value,
                 General.string(type || value.ctype),
                 General.string(files[i].type),
                 General.string(files[i].name),
-                pos,
             ]);
             if (--countDown === 0) {
-                cs_onDrop(dropped);
+                cs_onDrop(dropped, pos);
             }
         }
     });
@@ -453,10 +455,12 @@ function cs_simulationstop(e) {
     evaluate(cscompiled.simulationstop);
 }
 
-function cs_onDrop(lst) {
+function cs_onDrop(lst, pos) {
     dropped = List.turnIntoCSList(lst);
+    dropPoint = pos;
     evaluate(cscompiled.ondrop);
     dropped = nada;
+    dropPoint = nada;
     updateCindy();
 }
 
