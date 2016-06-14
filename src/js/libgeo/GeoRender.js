@@ -211,7 +211,8 @@ function drawgeotext(el) {
             if (font !== cache.font)
                 label.style.font = font;
             if (text !== cache.text)
-                textRendererHtml(span, text, font);
+                if (textRendererHtml(span, text, font) === false)
+                    text = false; // Do not cache, must re-run
             outer.style.left = x + "px";
             outer.style.top = (y - 1e3) + "px";
             if (align || outer.style.transform)
