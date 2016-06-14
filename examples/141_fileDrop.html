@@ -7,6 +7,7 @@
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csinit" type="text/x-cindyscript">
   dropped = (;); // undefined
+  droppedpos = (;); // undefined
 </script>
 <script id="csdraw" type="text/x-cindyscript">
   img = (;);
@@ -20,7 +21,7 @@
   if (!isundefined(img), drawimage(A, B, img),
     if (!isundefined(txt), drawtext(A, txt, color->[0, 0.5, 0.75])));
   if (!isundefined(dropped), (
-    drawtext((0, 0), length(dropped) + " files dropped" + "at pos " +  dropped_1_5_1 + " " + dropped_1_5_2);
+    drawtext((0, 0), length(dropped) + " files dropped" + "at pos " +  droppedpos_1 + " " + droppedpos_2);
     forall (1..length(dropped), i, (
       drawtext((0, -i), dropped_i_2 + " named " + dropped_i_4);
     ));
@@ -29,6 +30,7 @@
 
 <script id="csondrop" type="text/x-cindyscript">
   dropped = dropped();
+  droppedpos = droppedpos();
 </script>
 <script type="text/javascript">
 

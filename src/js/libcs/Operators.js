@@ -4440,3 +4440,8 @@ function addTool(name) {
 evaluator.dropped$0 = function() {
     return dropped;
 };
+
+
+evaluator.droppedpos$0 = function() {
+    return droppedpos;
+};
