@@ -196,34 +196,38 @@ function setuplisteners(canvas, data) {
         var files = dt.files;
         var dropped = Array(files.length);
         var countDown = files.length;
+        // drop position
+        var pos = List.realVector(csport.to(e.clientX, e.clientY));
+
         Array.prototype.forEach.call(files, function(file, i) {
             var reader = new FileReader();
             if ((/^text\//).test(file.type)) {
                 reader.onload = function() {
                     var value = General.string(reader.result);
-                    oneDone(i, value);
+                    oneDone(i, value, value.ctype, pos);
                 };
                 reader.readAsText(file);
             } else if ((/^image\//).test(file.type)) {
                 reader.onload = function() {
                     var img = new Image();
                     img.onload = function() {
-                        oneDone(i, loadImage(img));
+                        oneDone(i, loadImage(img), undefined, pos);
                     };
                     img.src = reader.result;
                 };
                 reader.readAsDataURL(file);
             } else {
-                oneDone(i, nada);
+                oneDone(i, nada, nada.ctype, pos);
             }
         });
 
-        function oneDone(i, value, type) {
+        function oneDone(i, value, type, pos) {
             dropped[i] = List.turnIntoCSList([
                 value,
                 General.string(type || value.ctype),
                 General.string(files[i].type),
                 General.string(files[i].name),
+                pos,
             ]);
             if (--countDown === 0) {
                 cs_onDrop(dropped);
