@@ -30,6 +30,7 @@ $focused-shadow: 0px 0px 3px #06f;
             position: static;
             vertical-align: baseline;
             visibility: hidden;
+            margin-right: -1px;
         }
 
         input[type=checkbox] {
@@ -38,7 +39,7 @@ $focused-shadow: 0px 0px 3px #06f;
         }
 
         button, label {
-            margin: 0px;
+            margin: -6px -7px; // compensate padding + border
             padding: 5px 6px;
             border-radius: 4px;
             background-color: #bfc4d0;
