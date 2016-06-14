@@ -39,6 +39,7 @@ and installed inside the project directory tree.
 One exception is a Java Runtime Environment, which has to be installed before
 (because users have to manually accept the terms and conditions before
 being allowed to download a JRE).
+
 If `npm` resp. `make` terminated successfully, then `build/js` will contain
 the artefacts which you'd likely want to include in your web site.
 If you are building from an official commit, then `make build=release deploy`

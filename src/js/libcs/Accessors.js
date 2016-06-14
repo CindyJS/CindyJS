@@ -13,7 +13,7 @@ Accessor.generalFields = { //Übersetungstafel der Feldnamen
     visible: "visible",
     name: "name",
     caption: "caption",
-    trace: "trace",
+    trace: "",
     tracelength: "",
     selected: ""
 };
@@ -107,6 +107,9 @@ Accessor.getField = function(geo, field) {
             return List.normalizeMax(List.adjoint3(geo.matrix));
         }
     }
+    if (field === "trace") {
+        return General.bool(!!geo.drawtrace);
+    }
 
     if (Accessor.generalFields[field]) { //must be defined an an actual string
         erg = geo[Accessor.generalFields[field]];
@@ -181,6 +184,16 @@ Accessor.setField = function(geo, field, value) {
     }
     if (field === "printlabel") {
         geo.printname = niceprint(value);
+    }
+    if (field === "trace") {
+        if (value.ctype === "boolean") {
+            if (value.value && !geo.drawtrace) {
+                geo.drawtrace = true;
+                setupTraceDrawing(geo);
+            } else {
+                geo.drawtrace = value.value;
+            }
+        }
     }
 
     if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 2)) {
