@@ -1,5 +1,6 @@
 function issubtypeof(a, b) { //TODO: what if b is template?
     if (a === b) return true;
+    if (a === type.anytype) return true;
 
     if (isprimitive(a) && isprimitive(b)) {
         if (subtype[a] === undefined) return false;
