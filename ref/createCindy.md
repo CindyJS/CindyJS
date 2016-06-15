@@ -1,14 +1,14 @@
 # The public interface to CindyJS
 
-Except for some legacy stuff which is now deprecated, CindyJS exports a single object into the global namespace, which is called `createCindy`.
+Except for some legacy stuff which is now deprecated, CindyJS exports a single object into the global namespace, which is called `CindyJS`.
 This method expects a single object as an argument, which in turn contains various parameters.
 
 Example:
 
-    J createCindy({ports:[{id:"CindyCanvas"}],
-    J              scripts:"cs*",
-    J              csconsole:null
-    J             });
+    J CindyJS({ports:[{id:"CindyCanvas"}],
+    J          scripts:"cs*",
+    J          csconsole:null
+    J         });
 
 ## Parameters
 
@@ -183,7 +183,7 @@ If set to `true`, this will cause all previous instances of the application to b
 
 ### plugins
 
-An object providing plugins in addition to those registered by `createCindy.registerPlugin`.
+An object providing plugins in addition to those registered by `CindyJS.registerPlugin`.
 The key is the plugin name, the value a plugin initialization callback.
 
 ### language
@@ -215,7 +215,7 @@ you can enter `°` as `\u00b0` and `π` as `\u03c0`.
 
 ## Instance Methods
 
-The object returned from a call to `createCindy` has a number of methods which may be of use.
+The object returned from a call to `CindyJS` has a number of methods which may be of use.
 
 ### startup
 
@@ -255,16 +255,16 @@ The configuration will be reset to the situation where `play` was invoked.
 
 ## Static Functions
 
-The `createCindy` function has a number of additional functions defined as its members.
+The `CindyJS` function has a number of additional functions defined as its members.
 
 ### newInstance
 
-The `createCindy.newInstance` function behaves mostly like `createCindy` itself, but it will not automatically invoke the `startup` method of the newly created instance.
+The `CindyJS.newInstance` function behaves mostly like `CindyJS` itself, but it will not automatically invoke the `startup` method of the newly created instance.
 Use this in special cases where custom control over startup and shutdown is required.
 
 ### waitFor
 
-The `createCindy.waitFor` function will return a function which can be used as a callback.
+The `CindyJS.waitFor` function will return a function which can be used as a callback.
 Created instances will only be started automatically after all callbacks created in this way have been executed.
 This method must be called in the header of the HTML document, before the `DOMContentLoaded` event has been triggered.
 That is because internally there is one such wait for that event, and once all events have been waited for it is an error to specify additional waiting conditions.

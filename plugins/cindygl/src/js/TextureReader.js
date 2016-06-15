@@ -98,7 +98,7 @@ TextureReader.prototype.returnCanvaswrapper = function(properties) {
 
 /**
  * Either takes original name of the image or generates a new unique name for the image for nameless imageobjects.
- * @type {createCindy.image|string} image
+ * @type {CindyJS.image|string} image
  */
 function getNameFromImage(image) {
     if (typeof image === "string") {

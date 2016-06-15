@@ -1,7 +1,7 @@
 var should = require("chai").should();
 var rewire = require("rewire");
 
-var createCindy = require("../build/js/Cindy.plain.js");
+var CindyJS = require("../build/js/Cindy.plain.js");
 var cindyJS = rewire("../build/js/exposed.js");
 
 var List = cindyJS.__get__("List");
@@ -61,7 +61,7 @@ function testGeo(geometry, verifier, done) {
     scripts: { init: initscript },
     plugins: { verify: plugin }
   };
-  createCindy(data);
+  CindyJS(data);
 }
 
 //////////////////////////////////////////////////////////////////////

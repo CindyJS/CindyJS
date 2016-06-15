@@ -3,8 +3,8 @@
 const fs = require("fs");
 const glob = require("glob");
 const reftests = require("../ref/js/runtests.js");
-const createCindy = require("../build/js/Cindy.js");
-const cdy = createCindy({isNode: true});
+const CindyJS = require("../build/js/Cindy.js");
+const cdy = CindyJS({isNode: true});
 const parse = cdy.parse;
 
 let countdown = 2;

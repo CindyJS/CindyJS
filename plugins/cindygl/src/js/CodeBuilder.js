@@ -51,7 +51,7 @@ CodeBuilder.prototype.hasbeenincluded;
 /**  @type {Array.<string>} */
 CodeBuilder.prototype.includedfunctions;
 
-/** @type {createCindy.pluginApi} */
+/** @type {CindyJS.pluginApi} */
 CodeBuilder.prototype.api;
 
 /** @type {Object.<TextureReader>} */

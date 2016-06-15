@@ -79,7 +79,7 @@ and are accompanied by a suitable test case or demonstrating example
 
 ## Documentation
 
-[The `createCindy` documentation]
+[The CindyJS API documentation]
 (https://github.com/CindyJS/CindyJS/blob/master/ref/createCindy.md)
 describes how to create a widget on an HTML page using this framework.
 

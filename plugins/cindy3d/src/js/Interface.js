@@ -4,20 +4,20 @@
 let coerce = {};
 
 /**
- * @param {createCindy.anyval} arg
- * @param {Array.<createCindy.anyval>=} def
- * @return {Array.<createCindy.anyval>}
+ * @param {CindyJS.anyval} arg
+ * @param {Array.<CindyJS.anyval>=} def
+ * @return {Array.<CindyJS.anyval>}
  */
 coerce.toList = function(arg, def=null) {
   if (arg["ctype"] !== "list") {
     console.log("argument is not a list");
     return def;
   }
-  return /** @type {Array.<createCindy.anyval>} */(arg["value"]);
+  return /** @type {Array.<CindyJS.anyval>} */(arg["value"]);
 };
 
 /**
- * @param {createCindy.anyval} arg
+ * @param {CindyJS.anyval} arg
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
@@ -38,7 +38,7 @@ coerce.toHomog = function(arg, def=[0,0,0,0]) {
 };
 
 /**
- * @param {createCindy.anyval} arg
+ * @param {CindyJS.anyval} arg
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
@@ -57,7 +57,7 @@ coerce.toDirection = function(arg, def=[0,0,0]) {
 };
 
 /**
- * @param {createCindy.anyval} arg
+ * @param {CindyJS.anyval} arg
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
@@ -78,7 +78,7 @@ coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
 };
 
 /**
- * @param {createCindy.anyval} arg
+ * @param {CindyJS.anyval} arg
  * @param {number=} def
  * @return {number}
  */
@@ -94,7 +94,7 @@ coerce.toReal = function(arg, def=Number.NaN) {
 };
 
 /**
- * @param {createCindy.anyval} arg
+ * @param {CindyJS.anyval} arg
  * @param {number=} def
  * @return {number}
  */
@@ -125,7 +125,7 @@ coerce.clamp = function(min, max, arg) {
 /**
  * @param {number} min
  * @param {number} max
- * @param {createCindy.anyval} arg
+ * @param {CindyJS.anyval} arg
  * @param {number=} def
  * @return {number}
  */
@@ -134,7 +134,7 @@ coerce.toInterval = function(min, max, arg, def=Number.NaN) {
 };
 
 /**
- * @param {createCindy.anyval} arg
+ * @param {CindyJS.anyval} arg
  * @param {?string=} def
  * @return {?string}
  */
@@ -146,7 +146,7 @@ coerce.toString = function(arg, def=null) {
 };
 
 /**
- * @param {createCindy.anyval} arg
+ * @param {CindyJS.anyval} arg
  * @param {?boolean} def
  * @return {?boolean}
  */

@@ -1,7 +1,7 @@
 "use strict";
 
 var fs = require("fs"), path = require("path");
-var createCindy = require("../../build/js/Cindy.plain.js");
+var CindyJS = require("../../build/js/Cindy.plain.js");
 
 var refdir = path.dirname(__dirname);
 var println = console.log.bind(console);
@@ -36,7 +36,7 @@ function runTestFile(filename) {
   // println("File: " + filename);
   // println("");
   fakeCanvas = new FakeCanvas();
-  cjs = createCindy({
+  cjs = CindyJS({
     "isNode": true,
     "csconsole": null,
     "canvas": fakeCanvas,

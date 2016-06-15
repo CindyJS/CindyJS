@@ -1,6 +1,6 @@
 /**
  * adds a canvasWrapper to an image object for reading access. A reference will in the 'readcanvaswrappers' list. If argument is an image that was not loaded, this will be done as onload-event.
- * @param {createCindy.image} imageobject
+ * @param {CindyJS.image} imageobject
  * @return {CanvasWrapper}
  */
 function generateReadCanvasWrapperIfRequired(imageobject, api, properties) {
@@ -25,7 +25,7 @@ function generateReadCanvasWrapperIfRequired(imageobject, api, properties) {
 
 /**
  * adds a canvasWrapper that is supposed to be written to an image object. A reference 'writecanvaswrapper' will be added to imageobject. If it already exists, take it. If none exists, try to find the canvaswrapper of some existing texturereader
- * @param {createCindy.image} imageobject
+ * @param {CindyJS.image} imageobject
  * @return {CanvasWrapper}
  */
 function generateWriteCanvasWrapperIfRequired(imageobject, api) {
@@ -54,7 +54,7 @@ function generateWriteCanvasWrapperIfRequired(imageobject, api) {
 /**
  * Note that CanvasWrapper might also wrap an image instead of a canvas
  * @constructor
- * @param canvas {createCindy.image}
+ * @param canvas {CindyJS.image}
  */
 function CanvasWrapper(canvas, properties) {
     this.canvas = canvas;
@@ -133,7 +133,7 @@ CanvasWrapper.prototype.sizeY;
 /** @type {number} */
 CanvasWrapper.prototype.ratio;
 
-/** @type {createCindy.image} */
+/** @type {CindyJS.image} */
 CanvasWrapper.prototype.canvas;
 
 /**

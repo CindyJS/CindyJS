@@ -11,8 +11,8 @@
     var WebFontLoader = null;
     var katex = null;
 
-    createCindy.loadScript("WebFont", "webfont.js", fontLoaderReady);
-    createCindy.loadScript("katex", "katex/katex.min.js", katexReady);
+    CindyJS.loadScript("WebFont", "webfont.js", fontLoaderReady);
+    CindyJS.loadScript("katex", "katex/katex.min.js", katexReady);
 
     function fontLoaderReady() {
         log("WebFontLoader is now available.");
@@ -52,7 +52,7 @@
                   "KaTeX_Size3": "()[]",
                   "KaTeX_Size4": "()[]"
                 },
-                urls: [createCindy.getBaseDir() + "katex/katex.min.css"]
+                urls: [CindyJS.getBaseDir() + "katex/katex.min.css"]
             },
             fontactive: fontActive
         });
@@ -86,7 +86,7 @@
 
     // Plugin API
 
-    createCindy.registerPlugin(1, "katex", plugin);
+    CindyJS.registerPlugin(1, "katex", plugin);
 
     function plugin(api) {
         var storage = {instance: api.instance, cache: {}, misses:0};
