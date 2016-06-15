@@ -1,0 +1,4 @@
+[submodule "ComplexCurves"]
+	path = plugins/ComplexCurves/lib/ComplexCurves
+	url = https://github.com/kranich/ComplexCurves.git
+	branch = nocache
