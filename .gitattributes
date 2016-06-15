@@ -4,8 +4,10 @@
 *.enc           -text
 *.eot           -text
 *.externs       text
+*.frag          text
 *.glsl          text
 *.html          text
+*.ico           -text
 *.jar           -text
 *.java          text
 *.json          text
@@ -28,9 +30,11 @@
 *.woff          -text
 *.js.wrapper    text
 *.gwt.xml       text
+*.vert          text
 *.yml           text
 
 .git*           text
+.jshintrc       text
 .mailmap        text
 
 COPYRIGHT       text

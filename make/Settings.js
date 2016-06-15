@@ -23,6 +23,8 @@ module.exports = function Settings() {
         logprefix: "true",
         c3d_closure_level: "ADVANCED",
         c3d_closure_warnings: "VERBOSE",
+        cc_closure_level: "ADVANCED",
+        cc_closure_warnings: "VERBOSE",
         cgl_closure_level: "ADVANCED",
         cgl_closure_warnings: "VERBOSE",
         gwt_version: "2.7.0",
