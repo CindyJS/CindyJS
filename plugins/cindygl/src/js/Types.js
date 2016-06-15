@@ -17,9 +17,10 @@ const type = { //assert all indices are different
     image: 14,
     coordinate2d: 15, //for accessing 2D textures
     vec2complex: 16,
-    mat2complex: 17
-        // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
-        // nonnegativefloat: 15 //@TODO: negative float...
+    mat2complex: 17,
+    anytype: 18, // is subtype of any other type
+    // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
+    // nonnegativefloat: 15 //@TODO: negative float...
 };
 Object.freeze(type);
 
@@ -41,7 +42,8 @@ function typeToString(t) {
         'image',
         '2D-Coordinate',
         'complex[2]',
-        'complex[2,2]'
+        'complex[2,2]',
+        'anytype'
         //'positive float',
         //'non-negative float'
     ];
