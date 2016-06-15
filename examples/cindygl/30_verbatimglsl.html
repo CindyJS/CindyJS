@@ -29,10 +29,10 @@
         hsv2rgb(pixel.x, pixel.y, .8+.2*sin(pixel*(12,-7))) + verbatimglsl("vec3(.3*fract(dot(vec2(14.),pixel)))"));
     </script>
 
-    <div  id="CSCanvas"></div>
+    <div id="CSCanvas"></div>
     
     <script type="text/javascript">
-        createCindy({canvasname:"CSCanvas",
+        CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     autoplay: false,
                     ports: [{
