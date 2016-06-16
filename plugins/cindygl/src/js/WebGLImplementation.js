@@ -316,7 +316,7 @@ webgltr["ceil"] = [
 ];
 
 webgltr["mod"] = [
-    [int_fun$2, useinfix('%')],
+    [int_fun$2, (a, cb) => ('int(' + usefunction('mod')('float(' + a[0] + '), float(' + a[1] + ')', cb) + ')')], //useinfix('%') '%' : integer modulus operator supported in GLSL ES 3.00 only  
     [float_fun$2, usefunction('mod')],
     [complex_fun$2, usefunction('mod')] //or implement [complex_fun$2, useincludefunction('modc')], see https://github.com/CindyJS/CindyJS/issues/272
 ];
