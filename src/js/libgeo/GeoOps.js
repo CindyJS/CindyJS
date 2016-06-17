@@ -1226,6 +1226,46 @@ geoOps.ConicBy2Foci1P.updatePosition = function(el) {
 
 };
 
+// Given (A, a, B, b, C), compute conic such that
+// 1. (A, a) and (B, b) are pole-polar pairs and
+// 2. C is incident with the conic
+geoOps.ConicBy2Pol1P = {};
+geoOps.ConicBy2Pol1P.kind = "C";
+geoOps.ConicBy2Pol1P.signature = ["P", "L", "P", "L", "P"];
+geoOps.ConicBy2Pol1P.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var b = csgeo.csnames[(el.args[3])].homog;
+    var C = csgeo.csnames[(el.args[4])].homog;
+
+    var sp = List.scalproduct;
+    var sm = List.scalmult;
+    var sub = List.sub;
+    var rm = CSNumber.realmult;
+    var dc = geoOps._helper.degeneratePairOfJoiningLines;
+    var transpose = List.transpose;
+    var asList = List.turnIntoCSList;
+
+    // D = ⟨a,A⟩⋅C − 2⟨a,C⟩⋅A, E = ⟨b,B⟩⋅C − 2⟨b,C⟩⋅B
+    var D = sub(sm(sp(a, A), C), sm(rm(2, sp(a, C)), A));
+    var E = sub(sm(sp(b, B), C), sm(rm(2, sp(b, C)), B));
+    var AC = asList([List.cross(A, C)]);
+    var BC = asList([List.cross(B, C)]);
+    var M1 = General.mult(transpose(AC), asList([List.cross(A, E)]));
+    var M2 = General.mult(transpose(BC), asList([List.cross(B, D)]));
+    var M3 = General.mult(transpose(AC), BC);
+    var Ab = sp(A, b);
+    var Ba = sp(B, a);
+    // M = Ba * M1 + Ab * M2 - 2 * Ab * Ba * M3
+    var M = List.add(sm(Ba, M1), sm(Ab, M2));
+    M = sub(M, sm(rm(2, CSNumber.mult(Ab, Ba)), M3));
+    M = List.add(M, transpose(M));
+    M = List.normalizeMax(M);
+    M = General.withUsage(M, "Conic");
+    el.matrix = M;
+};
+
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
     var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
 
