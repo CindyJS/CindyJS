@@ -1266,6 +1266,53 @@ geoOps.ConicBy2Pol1P.updatePosition = function(el) {
     el.matrix = M;
 };
 
+// Given (A, a, B, C, D), compute conic such that
+// 1. (A, a) is a pole-polar pair and
+// 2. B, C, D are incident with the conic
+geoOps.ConicBy1Pol3P = {};
+geoOps.ConicBy1Pol3P.kind = "C";
+geoOps.ConicBy1Pol3P.signature = ["P", "L", "P", "P", "P"];
+geoOps.ConicBy1Pol3P.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var C = csgeo.csnames[(el.args[3])].homog;
+    var D = csgeo.csnames[(el.args[4])].homog;
+
+    var sp = List.scalproduct;
+    var sm = List.scalmult;
+    var add = List.add;
+    var mm = List.productMM;
+    var cp = List.cross;
+    var rm = CSNumber.realmult;
+    var transpose = List.transpose;
+    var asList = List.turnIntoCSList;
+
+    var aA = sp(a, A);
+
+    function oneCombination(B, C, D) {
+        // returns [ABC]⋅(2⋅⟨a,D⟩⋅((AB^T⋅CD) + (AC^T⋅BD)) + ⟨a,A⟩⋅(BD^T⋅CD))
+        var ABC = List.det3(A, B, C);
+        var twoD2 = rm(2, sp(a, D));
+        var AB = asList([cp(A, B)]);
+        var CD = asList([cp(C, D)]);
+        var AC = asList([cp(A, C)]);
+        var BD = asList([cp(B, D)]);
+        var M1 = mm(transpose(AB), CD);
+        var M2 = mm(transpose(AC), BD);
+        var M3 = mm(transpose(BD), CD);
+        return sm(ABC, add(sm(twoD2, add(M1, M2)), sm(aA, M3)));
+    }
+
+    var M = oneCombination(B, C, D);
+    M = add(oneCombination(C, D, B), M);
+    M = add(oneCombination(D, B, C), M);
+    M = List.add(M, transpose(M));
+    M = List.normalizeMax(M);
+    M = General.withUsage(M, "Conic");
+    el.matrix = M;
+};
+
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
     var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
 
