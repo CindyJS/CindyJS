@@ -1266,19 +1266,8 @@ geoOps.ConicBy2Pol1P.updatePosition = function(el) {
     el.matrix = M;
 };
 
-// Given (A, a, B, C, D), compute conic such that
-// 1. (A, a) is a pole-polar pair and
-// 2. B, C, D are incident with the conic
-geoOps.ConicBy1Pol3P = {};
-geoOps.ConicBy1Pol3P.kind = "C";
-geoOps.ConicBy1Pol3P.signature = ["P", "L", "P", "P", "P"];
-geoOps.ConicBy1Pol3P.updatePosition = function(el) {
-    var A = csgeo.csnames[(el.args[0])].homog;
-    var a = csgeo.csnames[(el.args[1])].homog;
-    var B = csgeo.csnames[(el.args[2])].homog;
-    var C = csgeo.csnames[(el.args[3])].homog;
-    var D = csgeo.csnames[(el.args[4])].homog;
-
+// Conic by one polar pair and three incident flats
+geoOps._helper.conic1Pol3Inc = function(A, a, B, C, D) {
     var sp = List.scalproduct;
     var sm = List.scalmult;
     var add = List.add;
@@ -1309,6 +1298,42 @@ geoOps.ConicBy1Pol3P.updatePosition = function(el) {
     M = add(oneCombination(D, B, C), M);
     M = List.add(M, transpose(M));
     M = List.normalizeMax(M);
+    return M;
+};
+
+// Given (A, a, B, C, D), compute conic such that
+// 1. (A, a) is a pole-polar pair and
+// 2. B, C, D are incident with the conic
+geoOps.ConicBy1Pol3P = {};
+geoOps.ConicBy1Pol3P.kind = "C";
+geoOps.ConicBy1Pol3P.signature = ["P", "L", "P", "P", "P"];
+geoOps.ConicBy1Pol3P.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var C = csgeo.csnames[(el.args[3])].homog;
+    var D = csgeo.csnames[(el.args[4])].homog;
+
+    var M = geoOps._helper.conic1Pol3Inc(A, a, B, C, D);
+    M = General.withUsage(M, "Conic");
+    el.matrix = M;
+};
+
+// Given (A, a, b, c, d), compute conic such that
+// 1. (A, a) is a pole-polar pair and
+// 2. b, c, d are tangents to the conic
+geoOps.ConicBy1Pol3L = {};
+geoOps.ConicBy1Pol3L.kind = "C";
+geoOps.ConicBy1Pol3L.signature = ["P", "L", "L", "L", "L"];
+geoOps.ConicBy1Pol3L.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var b = csgeo.csnames[(el.args[2])].homog;
+    var c = csgeo.csnames[(el.args[3])].homog;
+    var d = csgeo.csnames[(el.args[4])].homog;
+
+    var M = geoOps._helper.conic1Pol3Inc(a, A, b, c, d);
+    M = List.normalizeMax(List.adjoint3(M));
     M = General.withUsage(M, "Conic");
     el.matrix = M;
 };

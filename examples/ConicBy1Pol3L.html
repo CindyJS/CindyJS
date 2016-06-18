@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Conic by one polar pair and three points</title>
+<title>Conic by one polar pair and three lines</title>
 <meta charset="UTF-8">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script type="text/javascript">
@@ -15,11 +15,11 @@ var cdy = CindyJS({ // See ref/createCindy documentation for details.
   },
   geometry: [
     {name:"A", type:"Free", pos:[-1,2], color:[0,1,1]},
-    {name:"B", type:"Free", pos:[2,-1], color:[1,1,0]},
-    {name:"C", type:"Free", pos:[5,2], color:[1,1,0]},
-    {name:"D", type:"Free", pos:[6,6], color:[1,1,0]},
     {name:"a", type:"FreeLine", pos:[1,0,1], color:[1,0,0]},
-    {name:"Q", type:"ConicBy1Pol3P", args:["A","a","B","C","D"]},
+    {name:"b", type:"FreeLine", pos:[0,1,1], color:[0.5,0,0.7]},
+    {name:"c", type:"FreeLine", pos:[0,1,-1], color:[0.5,0,0.7]},
+    {name:"d", type:"FreeLine", pos:[1,0,-1], color:[0.5,0,0.7]},
+    {name:"Q", type:"ConicBy1Pol3L", args:["A","a","b","c","d"]},
     {name:"aa", type:"PolarOfPoint", args:["A", "Q"], color:[0,0.7,0], size:1.5},
   ]
 });
@@ -28,12 +28,12 @@ var cdy = CindyJS({ // See ref/createCindy documentation for details.
 </head>
 
 <body style="font-family:Arial;">
-  <h1>Conic by one polar pair and three points</h1>
+  <h1>Conic by one polar pair and three lines</h1>
   <div id="CSCanvas" style="border:2px solid black"></div>
   <p>You should <em>not</em> be seeing a red line in this example,
     since it should be covered by a green line in the same
     location.</p>
-  <p>If the cyan point is located on the line, this gives you
+  <p>If the cyan point is located on the green line, this gives you
     access to conics which touch a given tangent in a given
     point of contact.</p>
 </body>
