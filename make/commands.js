@@ -17,6 +17,8 @@ var BuildError = require("./BuildError");
 
 function cmdImpl(task, opts, command, args) {
     return Q.Promise(function(resolve, reject) {
+        var cmdline = [command || "node"].concat(args).join(" ");
+        task.log(cmdline);
         var spawnOpts = { stdio: ["ignore", "pipe", "pipe"] };
         if (!command) command = process.argv[0]; // node
         var child = cp.spawn(command, args, spawnOpts);
@@ -84,8 +86,6 @@ exports.cmd = function(command) {
     args = Array.prototype.concat.apply([], args); // flatten one level
     args = Array.prototype.concat.apply([], args); // flatten a second level
     this.addJob(function() {
-        var cmdline = [command || "node"].concat(args).join(" ");
-        task.log(cmdline);
         return cmdImpl(task, {}, command, args);
     });
 };
