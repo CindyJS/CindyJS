@@ -1270,32 +1270,26 @@ geoOps.ConicBy2Pol1P.updatePosition = function(el) {
 geoOps._helper.conic1Pol3Inc = function(A, a, B, C, D) {
     var sp = List.scalproduct;
     var sm = List.scalmult;
-    var add = List.add;
     var mm = List.productMM;
     var cp = List.cross;
     var rm = CSNumber.realmult;
+    var mult = CSNumber.mult;
     var transpose = List.transpose;
     var asList = List.turnIntoCSList;
+    var det3 = List.det3;
 
+    var ABC = det3(A, B, C);
+    var BD = asList([cp(B, D)]);
+    var AD = asList([cp(A, D)]);
+    var BC = asList([cp(B, C)]);
     var aA = sp(a, A);
-
-    function oneCombination(B, C, D) {
-        // returns [ABC]⋅(2⋅⟨a,D⟩⋅((AB^T⋅CD) + (AC^T⋅BD)) + ⟨a,A⟩⋅(BD^T⋅CD))
-        var ABC = List.det3(A, B, C);
-        var twoD2 = rm(2, sp(a, D));
-        var AB = asList([cp(A, B)]);
-        var CD = asList([cp(C, D)]);
-        var AC = asList([cp(A, C)]);
-        var BD = asList([cp(B, D)]);
-        var M1 = mm(transpose(AB), CD);
-        var M2 = mm(transpose(AC), BD);
-        var M3 = mm(transpose(BD), CD);
-        return sm(ABC, add(sm(twoD2, add(M1, M2)), sm(aA, M3)));
-    }
-
-    var M = oneCombination(B, C, D);
-    M = add(oneCombination(C, D, B), M);
-    M = add(oneCombination(D, B, C), M);
+    var aB = sp(a, B);
+    var aD = sp(a, D);
+    var v = asList([cp(C, List.sub(sm(aA, D), sm(rm(2, aD), A)))]);
+    var M = sm(ABC, mm(transpose(BD), v));
+    var f = rm(2, CSNumber.add(mult(det3(A, C, D), aB), mult(ABC, aD)));
+    f = CSNumber.sub(mult(det3(B, C, D), aA), f);
+    M = List.add(M, sm(f, mm(transpose(AD), BC)));
     M = List.add(M, transpose(M));
     M = List.normalizeMax(M);
     return M;
