@@ -7,7 +7,7 @@
 <script type="text/javascript" src="../../build/js/Cindy.js"></script>
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 <script id="csinit" type="text/x-cindyscript">
-N = 256;
+N = 512;
 
 createimage("x", N, N);
 createimage("output", N, N);
@@ -25,23 +25,20 @@ readcomplex(p) := (
   encodealpha*(color.x + i*color.y-encodedelta);
 );
 
-
 reloadimage() := (
-
   if (!isundefined(image) & imageready(image),
   colorplot((0,0),(N,0),"x",
       complex2color(
-        imagergb((0,0),(N,0),image,(complex(#)-complex(B))/(complex(A)-complex(B))*N,repeat->false)*(1,1,1)/3 //grayscale image
+         imagergb((0,0),(N,0),image,(complex(#)-complex(B))/(complex(A)-complex(B))*N,repeat->false).r //grayscale image
       )
   ),
   colorplot((0,0),(N,0),"x",
     c = (complex(#)-complex(B))/(complex(A)-complex(B));
-    
-      complex2color(
-        if(0 < re(c) & re(c)<1 & 0 < im(c) & im(c)<1,
-        mod(4*c,1+i),
-        0)
+    complex2color(
+      exp(-|#,(N/2,N/2)|^2/N/40)*(
+        sin(re(8*pi*c))*sin(im(8*pi*c))>0
       )
+    )
   )
    
   );
@@ -85,22 +82,28 @@ drawimage((0,0),(N,0),"output");
 
 FFT();
 
+colorplot((N,N),(0,N),"output",//upside down
+  abs(readcomplex(#+(N/2, N/2))) //center
+);
+
+drawimage((N,0), (2*N,0),"output");
+
 //pointwise squaring
 colorplot((0,0),(N,0),"x",
   z = readcomplex(#);
   complex2color(
-    min(abs(z*z),1)
+    z*conjugate(z)
   )
 );
-
-drawimage((N,0), (2*N,0),"x");
-
 
 
 FFT();
 
 colorplot((N,N),(0,N),"output",//upside down
-  abs(readcomplex(#+(N/2, N/2))) //center
+  v0 = abs(readcomplex((.46*N,.42*N)));
+  v1 = abs(readcomplex((0,0))); //middle
+  v = abs(readcomplex(#+(N/2, N/2)));
+  (v-v0)/(v1-v0)
 );
 drawimage((2*N,0),(3*N,0),"output"); 
 </script>
@@ -113,12 +116,12 @@ drawimage((2*N,0),(3*N,0),"output");
 <script type="text/javascript">
 
 var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform: [{visibleRect: [0, 0, 768, 256]}]}],
+  ports: [{id: "CSCanvas", transform: [{visibleRect: [0, 0, 1536, 512]}]}],
   scripts: "cs*",
   language: "en",
   geometry: [
-    {name:"A", type:"Free", pos:[220,20]},
-    {name:"B", type:"Free", pos:[40,40]}
+    {name:"A", type:"Free", pos:[412,100.1]},
+    {name:"B", type:"Free", pos:[100,100]}
   ],
   use: ["CindyGL"]
 });
@@ -133,7 +136,7 @@ var cdy = CindyJS({
   <h1>CindyJS: Autocorrelation</h1>
   We calculate the autocorrelation of an image with Fourier transforms and the Convolution Theorem. Please drag and drop a periodic image to the area.
 
-  <div id="CSCanvas" style="width:768px; height:256px; border:2px solid black"></div>
+  <div id="CSCanvas" style="width:1536px; height:512px; border:2px solid black"></div>
 </body>
 
 

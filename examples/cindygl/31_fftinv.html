@@ -46,7 +46,7 @@ FFT():=(
       ek = readcomplex(2*l - delta); //even, step*(2*k)+delta
       ok = readcomplex(2*l - delta + step); //odd, step*(2*k+1)+delta
       
-      complex2color(re(sqrt(1/2))*(ek + exp((-2*pi*i/N*step)*k)*ok));
+      complex2color(sqrt(1/2)*(ek + exp((-2*pi*i/N*step)*k)*ok));
     );
     
     step = step/2;
