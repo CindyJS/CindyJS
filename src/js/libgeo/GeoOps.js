@@ -2652,6 +2652,8 @@ geoMacros.Switch = function(el) {
     checkbox.setAttribute("id", id);
     label.setAttribute("for", id);
     checkbox.setAttribute("type", "checkbox");
+    if (el.pressed)
+        checkbox.checked = true;
     el.checkbox = checkbox;
     return commonButton(el, "change", checkbox, label);
 };
