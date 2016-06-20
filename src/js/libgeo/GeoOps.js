@@ -2640,12 +2640,12 @@ function commonButton(el, event, button) {
     return [el];
 }
 
-geoMacros.PushButton = function(el) {
+geoMacros.Button = function(el) {
     var button = document.createElement("button");
     return commonButton(el, "click", button);
 };
 
-geoMacros.Switch = function(el) {
+geoMacros.ToggleButton = function(el) {
     var id = generateId();
     var checkbox = document.createElement("input");
     var label = document.createElement("label");
