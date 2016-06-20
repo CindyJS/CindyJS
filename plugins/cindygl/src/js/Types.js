@@ -125,6 +125,12 @@ const vec2_fun$2 = {
     args: [type.vec2, type.vec2],
     res: type.vec2
 };
+
+const vec2complex_fun$2 = {
+    args: [type.vec2complex, type.vec2complex],
+    res: type.vec2complex
+};
+
 const vec3_fun$2 = {
     args: [type.vec3, type.vec3],
     res: type.vec3
@@ -249,11 +255,11 @@ typeinference["arctan2"] = [
 ];
 //- ("add", 2, OpPlus.class); @done(2015-03-17)
 typeinference["add"] = [
-    int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2
+    int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2, vec2complex_fun$2
 ];
 //- ("sub", 2, OpMinus.class); @done(2015-03-17)
 typeinference["sub"] = [
-    int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2, {
+    int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2, vec2complex_fun$2, {
         args: [type.voidt, type.int],
         res: type.int
     }, {
@@ -310,6 +316,14 @@ typeinference["mult"].push(vec22float_fun$2); //dot products
 typeinference["mult"].push(vec32float_fun$2);
 typeinference["mult"].push(vec42float_fun$2);
 
+typeinference["mult"].push({
+    args: [type.complex, type.vec2complex],
+    res: type.vec2complex
+});
+typeinference["mult"].push({
+    args: [type.vec2complex, type.complex],
+    res: type.vec2complex
+});
 
 //- ("div", 2, OpQuot.class); @done(2015-03-17)
 typeinference["div"] = [
@@ -320,6 +334,11 @@ rvectorspaces.forEach(function(t) {
         args: [t, type.float],
         res: t
     });
+});
+
+typeinference["div"].push({
+    args: [type.vec2complex, type.complex],
+    res: type.vec2complex
 });
 
 //- ("pow", 2, OpPow.class); @done(2015-03-17)

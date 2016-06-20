@@ -165,7 +165,7 @@ webgltr['log'] = [
 webgltr["add"] = [];
 webgltr["sub"] = [];
 
-[int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2].forEach(function(t) {
+[int_fun$2, float_fun$2, complex_fun$2, vec2_fun$2, vec3_fun$2, vec4_fun$2, vec2complex_fun$2].forEach(function(t) {
     webgltr["add"].push([t, useinfix('+')]);
     webgltr["sub"].push([t, useinfix('-')]);
 });
@@ -259,11 +259,23 @@ rvectorspaces.forEach(function(t) {
     }, useinfix('*')]);
 });
 
+webgltr["mult"].push(
+    [{
+        args: [type.complex, type.vec2complex],
+        res: type.vec2complex
+    }, useincludefunction('multcv')]);
+webgltr["mult"].push(
+    [{
+            args: [type.vec2complex, type.complex],
+            res: type.vec2complex
+        }, (a => (useincludefunction('multcv')([a[1], a[0]]))) //reverse order
+    ]);
+
 webgltr['*'] = webgltr['mult'];
 
 webgltr["div"] = [
     [float_fun$2, useinfix('/')],
-    [complex_fun$2, useincludefunction('divc')]
+    [complex_fun$2, useincludefunction('divc')],
 ];
 rvectorspaces.forEach(function(t) {
     webgltr["div"].push([{
@@ -271,6 +283,11 @@ rvectorspaces.forEach(function(t) {
         res: t
     }, useinfix('/')]);
 });
+webgltr["div"].push([{
+    args: [type.vec2complex, type.complex],
+    res: type.vec2complex
+}, useincludefunction('divcv')])
+
 webgltr['/'] = webgltr['div'];
 
 webgltr['re'] = [
@@ -467,6 +484,7 @@ Object.freeze(webgltr);
 
 //depends on glsl-implementation
 requires['divc'] = ['multc'];
+requires['divcv'] = ['multcv'];
 requires['powc'] = ['expc', 'multc', 'logc'];
 requires['sqrtc'] = ['expc', 'multc', 'logc'];
 requires['arccosc'] = ['multc', 'negc', 'sqrtc', 'addc', 'logc'];

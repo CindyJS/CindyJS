@@ -13,16 +13,16 @@ image = "image";
 
 createimage("x", N, N);
 
-encodealpha = 4;
+encodealpha = 8;
 encodedelta = .5+.5*i;
 
 complex2color(c) := (
   c = c/encodealpha+encodedelta;
-  (re(c), im(c), re(c), 1) //last 2 components are actually rubbish
+  (re(c), im(c), re(c)) //last 2 components are actually rubbish
 );
 
 readcomplex(p) := (
-  color = imagergba((0,0),(N,0), "x", p, interpolate->false, repeat->true); //circular domain
+  color = imagergba((-N/2,-N/2),(N/2,-N/2), "x", p, interpolate->false, repeat->true); //circular domain
   encodealpha*(color.x + i*color.y-encodedelta);
 );
 
@@ -30,11 +30,11 @@ readcomplex(p) := (
 reloadimage() := (
   if (!isundefined(image) & imageready(image),
   colorplot((0,0),(256,0),"x",
-      imagergb((0,0),(256,0),image,#,repeat->true)*(1,1,1)/3 //grayscale image
-      * min(1, |#, A|/30) //we want to see some real time user interaction :)
+      imagergb((0,0),(256,0),image,#,repeat->true)*(1,1,1)/3 //grayscale image 
+      -exp(-|#, A|/15)//we want to see some real time user interaction :)
   ),
   colorplot((0,0),(256,0),"x",
-    min(1, |#, A|/30)
+    1-exp(-|#, A|/15)
   )
   );
 );
@@ -43,7 +43,7 @@ FFT(interaction):=(
   step = N/2;
 
   while(step>=1,
-    colorplot((0,0),(N,0),"x",
+    colorplot((-N/2,-N/2),(N/2,-N/2),"x",
     
       l = #; //global index
       delta = (mod(l.x,step),mod(l.y,step)); //shift
@@ -57,8 +57,9 @@ FFT(interaction):=(
         x00
         + exp((-2*pi*i/N*step)*k.x)*x10
         + exp((-2*pi*i/N*step)*k.y)*x01
-        + exp((-2*pi*i/N*step)*(k.x+k.y))*x11)
-      )*if(step~=1 & interaction , min(1,|A,#+(256,0)|/30), 1) //we want to see some real time user interaction :)
+        + exp((-2*pi*i/N*step)*(k.x+k.y))*x11
+        )
+      )*if(step~=1 & interaction , 1-exp(-|A,#+(256+128,128)|/30), 1) //we want to see some real time user interaction :) 
     );
     
     step = step/2;
@@ -71,7 +72,7 @@ FFT(interaction):=(
 reloadimage();
 
 drawimage((0,0), (256,0),"x");
-FFT(256<A.x & A.x<512);
+FFT(true);
 
 drawimage((256,0), (512,0),"x");
 FFT(false);
