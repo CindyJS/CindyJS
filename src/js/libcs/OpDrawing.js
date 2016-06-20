@@ -877,12 +877,19 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 };
 
 // This is a hook: the following function may get replaced by a plugin.
-var textRenderer = function(ctx, text, x, y, align) {
+var textRendererCanvas = function(ctx, text, x, y, align) {
     var width = ctx.measureText(text).width;
     ctx.fillText(text, x - width * align, y);
 };
 
-evaluator.drawtext$2 = function(args, modifs) {
+// This is a hook: the following function may get replaced by a plugin.
+var textRendererHtml = function(element, text, font) {
+    element.textContent = text;
+};
+
+// This is a special function: when called internally, additional arguments
+// may be used which are not accessible from a script invocation.
+evaluator.drawtext$2 = function(args, modifs, callback) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluate(args[1]);
     var pt = eval_helper.extractPoint(v0);
@@ -893,9 +900,6 @@ evaluator.drawtext$2 = function(args, modifs) {
 
     var m = csport.drawingstate.matrix;
 
-    var xx = pt.x * m.a - pt.y * m.b + m.tx;
-    var yy = pt.x * m.c - pt.y * m.d - m.ty;
-
     var col = csport.drawingstate.textcolor;
     Render2D.handleModifs(modifs, Render2D.textModifs);
     var size = csport.drawingstate.textsize;
@@ -903,13 +907,22 @@ evaluator.drawtext$2 = function(args, modifs) {
     if (Render2D.size !== null) size = Render2D.size;
     csctx.fillStyle = Render2D.textColor;
 
-    csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
+    var xx = pt.x * m.a - pt.y * m.b + m.tx + Render2D.xOffset;
+    var yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset;
+
     var txt = niceprint(v1);
-    textRenderer(csctx, txt, xx + Render2D.xOffset, yy - Render2D.yOffset,
-        Render2D.align);
+    var font = (
+        Render2D.bold + Render2D.italics +
+        Math.round(size * 10) / 10 + "px " +
+        Render2D.family);
+    csctx.font = font;
+    if (callback) {
+        callback(txt, font, xx, yy, Render2D.align);
+    } else {
+        textRendererCanvas(csctx, txt, xx, yy, Render2D.align);
+    }
 
     return nada;
-
 };
 
 eval_helper.drawshape = function(shape, modifs) {

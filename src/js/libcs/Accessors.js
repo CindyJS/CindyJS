@@ -107,6 +107,15 @@ Accessor.getField = function(geo, field) {
             return List.normalizeMax(List.adjoint3(geo.matrix));
         }
     }
+    if (geo.kind === "Text") {
+        if (field === "pressed") {
+            if (geo.checkbox) {
+                return General.bool(geo.checkbox.checked);
+            } else {
+                return General.bool(false);
+            }
+        }
+    }
     if (field === "trace") {
         return General.bool(!!geo.drawtrace);
     }
@@ -230,6 +239,11 @@ Accessor.setField = function(geo, field, value) {
     if (geo.kind === "C") {
         if (field === "radius" && geo.type === "CircleMr" && value.ctype === "number") {
             movepointscr(geo, value, "radius");
+        }
+    }
+    if (geo.kind === "Text") {
+        if (field === "pressed" && value.ctype === "boolean" && geo.checkbox) {
+            geo.checkbox.checked = value.value;
         }
     }
     if (geo.behavior) {

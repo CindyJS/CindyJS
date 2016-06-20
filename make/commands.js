@@ -167,6 +167,26 @@ exports.applySourceMap = function(maps, dst) {
         "-o", this.output(dst + ".map"));
 };
 
+exports.sass = function(src, dst) {
+    this.input(src);
+    this.output(dst);
+    this.output(dst + ".map");
+    this.addJob(function() {
+        var basename = path.basename(dst);
+        return Q.ninvoke(require("node-sass"), "render", {
+            file: src,
+            outFile: basename,
+            sourceMap: basename + ".map",
+            sourceMapRoot: path.relative(path.dirname(dst), ".")
+        }).then(function(res) {
+            return Q.all([
+                qfs.write(dst, res.css),
+                qfs.write(dst + ".map", res.map)
+            ]);
+        });
+    });
+}
+
 exports.touch = function(dst) {
     this.output(dst);
     this.addJob(function() { return Q.nfcall(touch, dst); });

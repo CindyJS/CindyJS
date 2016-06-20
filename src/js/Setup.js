@@ -135,6 +135,7 @@ function canvasWithContainingDiv(elt) {
         }
         canvas.parentNode.replaceChild(div, canvas);
     }
+    div.classList.add("CindyJS-widget");
     var style = canvas.style;
     style.position = "absolute";
     style.border = "none";

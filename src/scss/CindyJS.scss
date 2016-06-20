@@ -1,0 +1,79 @@
+// This stylesheet contains styling which is relevant to the
+// functionality of the CindyJS user interface.
+// See http://sass-lang.com/ for SASS language documentation.
+
+@mixin naked {
+    margin: 0px;
+    padding: 0px;
+    border: none;
+}
+
+$button-shadow: inset 1px 1px 2px #fff, inset -1px -1px 2px #aaa;
+$checked-shadow: inset 1px 1px 2px #999, inset -1px -1px 2px #ccc;
+$focused-shadow: 0px 0px 3px #06f;
+
+.CindyJS-widget {
+    overflow: hidden;
+    z-index: 0;
+
+    canvas {
+        z-index: 1;
+    }
+
+    .CindyJS-baseline {
+        @include naked;
+        position: absolute;
+        white-space: nowrap;
+        margin-top: -1000px;
+
+        img {
+            @include naked;
+            display: inline;
+            position: static;
+            vertical-align: baseline;
+            visibility: hidden;
+            margin-right: -1px;
+        }
+
+        .CindyJS-button {
+            position: relative;
+            display: inline-block;
+            z-index: 2;
+        }
+
+    } // end baseline
+
+    .CindyJS-button {
+
+        input[type=checkbox] {
+            position: absolute;
+            left: -10000px;
+        }
+
+        button, label {
+            margin: -6px -7px; // compensate padding + border
+            padding: 5px 6px;
+            border-radius: 4px;
+            background-color: #bfc4d0;
+            border: 1px solid #d0d0d0;
+            box-shadow: $button-shadow;
+            outline: none;
+        }
+
+        button:focus, input[type=checkbox]:focus + label {
+            box-shadow: $focused-shadow, $button-shadow;
+        }
+
+        button:active, input[type=checkbox]:checked + label {
+            background-color: #aaafbb;
+            box-shadow: $checked-shadow;
+        }
+
+        button:focus:active, input[type=checkbox]:focus:checked + label {
+            background-color: #aaafbb;
+            box-shadow: $focused-shadow, $checked-shadow;
+        }
+
+    } // end button
+
+} // end widget

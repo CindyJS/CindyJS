@@ -12,6 +12,7 @@ geoOps._helper = {};
  * Rc - Reflection in a circle
  * V  - (numeric) value
  * Text - Text
+ * "**" - arbitrary number of arguments with arbitrary types
  */
 
 
@@ -2395,11 +2396,11 @@ geoOps.Angle.updatePosition = function(el) {
 };
 geoOps.Angle.stateSize = 2;
 
-geoOps.TextImpl = {};
-geoOps.TextImpl.kind = "Text";
-geoOps.TextImpl.signature = [];
-geoOps.TextImpl.updatePosition = noop;
-geoOps.TextImpl.initialize = function(el) {
+geoOps.Text = {};
+geoOps.Text.kind = "Text";
+geoOps.Text.signature = "**";
+geoOps.Text.updatePosition = noop;
+geoOps.Text.initialize = function(el) {
     el.text = String(el.text);
     el.size = CSNumber.real(el.size ? +el.size : defaultAppearance.textsize);
     if (el.pos) el.pos = geoOps._helper.initializePoint(el);
@@ -2409,6 +2410,59 @@ geoOps.TextImpl.initialize = function(el) {
         else
             el.dock.offset = List.realVector([0, 0]);
     }
+};
+
+function commonButton(el, event, button) {
+    var outer = document.createElement("div");
+    var img = document.createElement("img");
+    img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUh" +
+        "EUgAAAAEAAAPoCAQAAAC1v1zVAAAAGklEQVR42u3BMQEAAA" +
+        "DCoPVPbQ0PoAAAgHcDC7gAAVI8ZnwAAAAASUVORK5CYII=";
+    outer.className = "CindyJS-baseline";
+    outer.appendChild(img);
+    var inlinebox = document.createElement("div");
+    inlinebox.className = "CindyJS-button";
+    outer.appendChild(inlinebox);
+    for (var i = 2; i < arguments.length; ++i)
+        inlinebox.appendChild(arguments[i]);
+    canvas.parentNode.appendChild(outer);
+    el.html = arguments[arguments.length - 1];
+    var onEvent = updateCindy;
+    if (el.script) {
+        var code = analyse(el.script);
+        onEvent = function() {
+            evaluate(code);
+            updateCindy();
+        };
+    }
+    button.addEventListener(event, onEvent);
+    geoOps.Text.initialize(el);
+}
+
+geoOps.Button = {};
+geoOps.Button.kind = "Text";
+geoOps.Button.signature = "**";
+geoOps.Button.updatePosition = noop;
+geoOps.Button.initialize = function(el) {
+    var button = document.createElement("button");
+    commonButton(el, "click", button);
+};
+
+geoOps.ToggleButton = {};
+geoOps.ToggleButton.kind = "Text";
+geoOps.ToggleButton.signature = "**";
+geoOps.ToggleButton.updatePosition = noop;
+geoOps.ToggleButton.initialize = function(el) {
+    var id = generateId();
+    var checkbox = document.createElement("input");
+    var label = document.createElement("label");
+    checkbox.setAttribute("id", id);
+    label.setAttribute("for", id);
+    checkbox.setAttribute("type", "checkbox");
+    if (el.pressed)
+        checkbox.checked = true;
+    el.checkbox = checkbox;
+    commonButton(el, "change", checkbox, label);
 };
 
 function noop() {}
@@ -2599,14 +2653,4 @@ geoMacros.TrReflection = function(el) {
         console.log(op + " not implemented yet");
         return [];
     }
-};
-
-geoMacros.Text = function(el) {
-    // Cinderella exports elements this text depends on, like the one this text
-    // was docked to, or elements whose coordinates are used in the expansion.
-    // Since we don't need to trace Text, and always repaint everything, we
-    // don't need this information at the moment.  Thus the indirection.
-    el.type = "TextImpl";
-    el.args = [];
-    return [el];
 };

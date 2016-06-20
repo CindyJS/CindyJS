@@ -485,6 +485,19 @@ module.exports = function build(settings, task) {
     task("katex", ["katex_src", "katex-plugin"]);
 
     //////////////////////////////////////////////////////////////////////
+    // Compile SASS to CSS
+    //////////////////////////////////////////////////////////////////////
+
+    task("sass", [], function() {
+        this.parallel(function() {
+            src.scss.forEach(function(input) {
+                var name = path.basename(input, ".scss") + ".css";
+                this.sass(input, path.join("build", "js", name));
+            }, this);
+        });
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Copy additional libraries used for some features
     //////////////////////////////////////////////////////////////////////
 
@@ -548,6 +561,7 @@ module.exports = function build(settings, task) {
         "katex",
         "xlibs",
         "images",
+        "sass",
     ].concat(gwt_modules));
 
 };

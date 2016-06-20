@@ -90,7 +90,9 @@
 
     function plugin(api) {
         var storage = {instance: api.instance, cache: {}, misses:0};
-        api.setTextRenderer(katexRenderer.bind(storage));
+        api.setTextRenderer(
+            katexRenderer.bind(storage),
+            katexHtml.bind(storage));
     }
 
     // Text box, with same api as a prepared KaTeX box but using current font
@@ -215,4 +217,29 @@
             }
         }
     };
+
+    function katexHtml(element, text) {
+        var opts = {
+            macros: macros
+        };
+        var parts = text.split("$");
+        var n = parts.length;
+        if (n > 1 && !allScriptsLoaded()) {
+            if (firstMessage) {
+                log("KaTeX is not ready yet.");
+                firstMessage = false;
+            }
+            haveToWait(this.instance);
+            return false;
+        }
+        while (element.firstChild)
+            element.removeChild(element.firstChild);
+        for (var i = 0; i < n; ++i) {
+            if ((i & 1) === 0) {
+                element.appendChild(document.createTextNode(parts[i]));
+            } else {
+                katex.render(parts[i], element, opts);
+            }
+        }
+    }
 })();

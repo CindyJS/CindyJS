@@ -18,6 +18,7 @@
 *.jpeg		-text
 *.pub           text
 *.py            text
+*.scss          text
 *.sh            text
 *.taskpaper     text
 *.ttf           -text
