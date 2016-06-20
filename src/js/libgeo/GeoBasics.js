@@ -159,9 +159,11 @@ function addElementNoProof(el) {
         console.error("Operation " + el.type + " not implemented yet");
         return null;
     }
-    if (op.signature.length !== (el.args ? el.args.length : 0)) {
-        window.alert("Wrong number of arguments for " + el.name);
-        return null;
+    if (op.signature !== "**") {
+        if (op.signature.length !== (el.args ? el.args.length : 0)) {
+            window.alert("Wrong number of arguments for " + el.name);
+            return null;
+        }
     }
     if (el.args) {
         for (i = 0; i < el.args.length; ++i) {
@@ -171,13 +173,15 @@ function addElementNoProof(el) {
                     " due to missing argument " + el.args[i]);
                 return null;
             }
-            var argKind = csgeo.csnames[el.args[i]].kind;
-            if (!(op.signature[i] === argKind ||
-                    (argKind === "S" && op.signature[i] === "L"))) {
-                window.alert(
-                    "Wrong argument kind " + argKind + " as argument " + i +
-                    " to element " + el.name + " of type " + el.type);
-                return null;
+            if (op.signature !== "**") {
+                var argKind = csgeo.csnames[el.args[i]].kind;
+                if (!(op.signature[i] === argKind ||
+                        (argKind === "S" && op.signature[i] === "L"))) {
+                    window.alert(
+                        "Wrong argument kind " + argKind + " as argument " + i +
+                        " to element " + el.name + " of type " + el.type);
+                    return null;
+                }
             }
         }
     }
