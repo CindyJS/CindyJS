@@ -265,9 +265,9 @@ function setuplisteners(canvas, data) {
         mouse.down = false;
         cindy_cancelmove();
         stateContinueFromHere();
-        updateCindy();
         cs_mouseup();
         manage("mouseup");
+        updateCindy();
         e.preventDefault();
     }
 
