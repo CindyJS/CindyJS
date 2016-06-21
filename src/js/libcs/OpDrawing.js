@@ -809,7 +809,6 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 
 
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
-
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     Render2D.preDrawCurve();
     csctx.mozFillRule = 'evenodd';
@@ -853,6 +852,7 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     }
 
     var v0 = evaluate(args[0]);
+
     csctx.beginPath();
     if (v0.ctype === 'list') {
         drawpoly();

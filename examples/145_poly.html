@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Construction.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+CindyJS({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, textsize: 12.0 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 4.0, -1.8987341772151896, -0.6329113924050632 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ 4.0, -0.33587786259541985, -0.7633587786259541 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C", type: "Free", pos: [ 4.0, -2.7450980392156863, -1.9607843137254903 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "D", type: "Free", pos: [ 3.5438596491228074, -4.0, -0.8771929824561404 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "E", type: "Free", pos: [ 4.0, 3.313131313131313, 1.0101010101010102 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "F", type: "Free", pos: [ 4.0, 0.2439024390243903, 0.6097560975609757 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "G", type: "Free", pos: [ 4.0, 0.2857142857142857, 0.34013605442176875 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "H", type: "Free", pos: [ 4.0, 2.557692307692308, 0.4807692307692307 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+        { name: "Poly0", type: "Poly", args:["A", "B", "C", "D"], color:[1,0,0],  alpha:0.2},
+        { name: "Poly1", type: "Poly", args:["E", "F", "G", "H"], color:[1,1,0], alpha:0.3, size:15, filled:false}, ],
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 335, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.06 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1835, version: [ 2, 9, 1835 ] } });
+    </script>
+</head>
+<body>
+  <div id="CSCanvas" style="border:2px solid black"></div>
+</body>
+</html>

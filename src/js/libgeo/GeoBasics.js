@@ -53,6 +53,7 @@ function csinit(gslp) {
     csgeo.conics = [];
     csgeo.texts = [];
     csgeo.free = [];
+    csgeo.polygons = [];
 
     gslp.forEach(addElementNoProof);
     checkConjectures();
@@ -118,6 +119,12 @@ function segmentDefault(el) {
     el.clip = General.string("end");
 }
 
+
+function polygonDefault(el) {
+    el.filled = (el.filled !== "undefined" ? General.bool(el.filled) : General.bool(true));
+    lineDefault(el);
+}
+
 function addElement(el) {
     el = addElementNoProof(el);
     checkConjectures();
@@ -154,13 +161,27 @@ function addElementNoProof(el) {
 
     // Detect unsupported operations or missing or incorrect arguments
     var op = geoOps[el.type];
+    var isSet = false;
+    var getKind = function(el) {
+        return csgeo.csnames[el].kind;
+    };
+
     if (!op) {
         console.error(el);
         console.error("Operation " + el.type + " not implemented yet");
         return null;
     }
     if (op.signature !== "**") {
-        if (op.signature.length !== (el.args ? el.args.length : 0)) {
+        // check for sets
+        if (!Array.isArray(op.signature) && op.signature.charAt(1) === "s") {
+            isSet = true;
+            el.args.forEach(function(val) {
+                if (csgeo.csnames[val].kind !== op.signature.charAt(0)) {
+                    window.alert("Not all elements in set are of same type: " + el.name);
+                    return null;
+                }
+            });
+        } else if (op.signature.length !== (el.args ? el.args.length : 0)) {
             window.alert("Wrong number of arguments for " + el.name);
             return null;
         }
@@ -174,9 +195,13 @@ function addElementNoProof(el) {
                 return null;
             }
             if (op.signature !== "**") {
+                var opSigs;
+                if (isSet) {
+                    opSigs = el.args.map(getKind);
+                } // end isSet
+                else opSigs = op.signature;
                 var argKind = csgeo.csnames[el.args[i]].kind;
-                if (!(op.signature[i] === argKind ||
-                        (argKind === "S" && op.signature[i] === "L"))) {
+                if (!(opSigs[i] === argKind || (argKind === "S" && opSigs[i] === "L"))) {
                     window.alert(
                         "Wrong argument kind " + argKind + " as argument " + i +
                         " to element " + el.name + " of type " + el.type);
@@ -222,6 +247,10 @@ function addElementNoProof(el) {
     }
     if (el.kind === "Text") {
         csgeo.texts.push(el);
+    }
+    if (el.kind === "Poly") {
+        csgeo.polygons.push(el);
+        polygonDefault(el);
     }
 
     if (true || op.stateSize !== 0) {

@@ -13,6 +13,7 @@ geoOps._helper = {};
  * V  - (numeric) value
  * Text - Text
  * "**" - arbitrary number of arguments with arbitrary types
+ * Poly - Polygons
  */
 
 
@@ -2517,6 +2518,12 @@ geoOps._helper.initializeLine = function(el) {
     pos = List.normalizeMax(pos);
     return pos;
 };
+
+
+geoOps.Poly = {};
+geoOps.Poly.kind = "Poly";
+geoOps.Poly.signature = "Ps";
+geoOps.Poly.updatePosition = noop;
 
 
 var geoMacros = {};

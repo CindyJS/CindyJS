@@ -241,6 +241,30 @@ function drawgeotext(el) {
         evaluator.drawtext$2([pos, text], opts, htmlCallback);
 }
 
+function drawgeopolygon(el) {
+    if (!el.isshowing || el.visible === false)
+        return;
+
+    var modifs = {};
+    modifs.color = el.color;
+    modifs.alpha = el.alpha;
+    modifs.size = el.size;
+
+
+    var args = List.turnIntoCSList(el.args.map(function(x) {
+        return {
+            ctype: "geo",
+            value: csgeo.csnames[x]
+        };
+    }));
+
+    var filled = (el.filled.value === false) ? "D" : "F";
+
+    eval_helper.drawpolygon([args], modifs, filled, true);
+
+
+}
+
 function render() {
 
     var i;
@@ -262,6 +286,10 @@ function render() {
 
     for (i = 0; i < csgeo.texts.length; i++) {
         drawgeotext(csgeo.texts[i]);
+    }
+
+    for (i = 0; i < csgeo.polygons.length; i++) {
+        drawgeopolygon(csgeo.polygons[i]);
     }
 
 }
