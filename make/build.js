@@ -417,7 +417,7 @@ module.exports = function build(settings, task) {
         "validation-api-1.0.0.GA-sources",
     ];
     var gwt_jars = gwt_parts.map(function(name) {
-        return "download/gwt-" + settings.get("gwt_version") + "/" +
+        return "gwt-" + settings.get("gwt_version") + "/" +
             name + ".jar";
     });
     var gwt_modules = glob.sync("src/java/cindyjs/*.gwt.xml")
@@ -430,12 +430,7 @@ module.exports = function build(settings, task) {
     });
 
     task("gwt-jars", ["gwt-zip"], function() {
-        this.unzip(gwt_archive, "download");
-        this.parallel(function() {
-            gwt_jars.forEach(function(name) {
-                this.touch(name);
-            }, this);
-        });
+        this.unzip(gwt_archive, "download", gwt_jars);
     });
 
     function extra_args(args) {
@@ -450,7 +445,9 @@ module.exports = function build(settings, task) {
                 gwt_module + ".nocache.js";
             this.delete("build/js/" + gwt_module);
             this.output(mainFile);
-            var cp = ["src/java/"].concat(gwt_jars).join(path.delimiter);
+            var cp = ["src/java/"].concat(gwt_jars.map(function(name) {
+                return "download/" + name;
+            })).join(path.delimiter);
             this.java(
                 "-cp", cp,
                 "com.google.gwt.dev.Compiler",
