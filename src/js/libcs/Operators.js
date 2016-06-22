@@ -521,7 +521,7 @@ function infix_assign(args, modifs) {
 }
 
 
-function infix_define(args, modifs) {
+function infix_define(args, modifs, self) {
 
     var u0 = (args[0].ctype === 'undefined');
     var u1 = (args[1].ctype === 'undefined');
@@ -533,10 +533,22 @@ function infix_define(args, modifs) {
         var fname = args[0].oper;
         var ar = args[0].args;
         var body = args[1];
+        var generation = 1;
+        if (myfunctions.hasOwnProperty(fname)) {
+            var previous = myfunctions[fname];
+            if (previous.definer === self) {
+                // Redefinition using the same piece of code changes nothing.
+                // This needs some work once we have closures.
+                return nada;
+            }
+            generation = previous.generation + 1;
+        }
         myfunctions[fname] = {
             'oper': fname,
             'body': body,
-            'arglist': ar
+            'arglist': ar,
+            'definer': self,
+            'generation': generation
         };
     }
     if (args[0].ctype === 'variable') {
