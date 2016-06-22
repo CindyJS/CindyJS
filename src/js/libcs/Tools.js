@@ -184,7 +184,7 @@ function manage(event) {
         var success = actions[step].do();
 
         if (success) {
-            updateCindy();
+            scheduleUpdate();
 
             if (step === actions.length - 1) {
                 elements = [];

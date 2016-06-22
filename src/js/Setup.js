@@ -7,7 +7,6 @@ var cscompiled = {};
 
 var csanimating = false;
 var csstopped = true;
-var csticking = false;
 var csscale = 1;
 var csgridsize = 0;
 var csgridscript;
@@ -37,7 +36,7 @@ function evokeCS(code) {
     var parsed = analyse(code, false);
     console.log(parsed);
     evaluate(parsed);
-    updateCindy();
+    scheduleUpdate();
 }
 
 
@@ -347,7 +346,7 @@ function loadImage(obj) {
                 value.ready = true;
                 value.whenReady = callFunctionNow;
                 callWhenReady.forEach(callFunctionNow);
-                updateCindy();
+                scheduleUpdate();
             });
             value.whenReady = callWhenReady.push.bind(callWhenReady);
         }
@@ -364,7 +363,7 @@ function loadImage(obj) {
                 value.ready = true;
                 value.whenReady = callFunctionNow;
                 callWhenReady.forEach(callFunctionNow);
-                updateCindy();
+                scheduleUpdate();
             });
             value.whenReady = callWhenReady.push.bind(callWhenReady);
         }
@@ -489,7 +488,7 @@ function csplay() {
 
         csanimating = true;
         cs_simulationstart();
-        startit();
+        scheduleUpdate();
     }
 }
 
