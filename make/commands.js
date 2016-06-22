@@ -10,10 +10,10 @@ var request = require("request");
 var rimraf = require("rimraf");
 var stream = require("stream");
 var touch = require("touch");
-var unzip = require("unzip");
 var WholeLineStream = require("whole-line-stream");
 
 var BuildError = require("./BuildError");
+var util = require("./util");
 
 function cmdImpl(task, opts, command, args) {
     return Q.Promise(function(resolve, reject) {
@@ -307,35 +307,35 @@ exports.unzip = function(src, dst, files) {
         }, this);
     }
     this.addJob(function() {
-        return Q.Promise(function(resolve, reject) {
-            task.log("unzip " + src + " to " + dst);
-            var countdown = 1;
-            function done() {
-                if (--countdown === 0)
-                    resolve();
-            }
-            var out;
-            if (files) {
-                out = unzip.Parse({ path: dst })
-                    .on("entry", function(entry) {
-                        if (files.indexOf(entry.path) === -1) {
-                            entry.autodrain();
-                        } else {
-                            ++countdown;
-                            var out = fs.createWriteStream(
-                                outFile(entry.path))
-                                .on("error", reject)
-                                .on("finish", done);
-                            entry.on("error", reject).pipe(out);
-                        }
+        task.log("unzip " + src + " to " + dst);
+        var yauzl = require("yauzl"); // load lazily, only when needed
+        var zipFile, readNext;
+        return Q.nfcall(yauzl.open, src, {lazyEntries: true})
+            .then(function(zf) {
+                zipFile = zf;
+                readNext = zipFile.readEntry.bind(zipFile);
+                process.nextTick(readNext);
+                return Q.Promise(function(resolve, reject) {
+                    zipFile.on("error", reject);
+                    zipFile.on("end", resolve);
+                    zipFile.on("entry", function(entry) {
+                        handleEntry(entry).then(readNext).catch(reject).done();
                     });
-            } else {
-                out = unzip.Extract({ path: dst });
-            }
-            out.on("error", reject).on("close", done);
-            fs.createReadStream(src)
-                .on("error", reject)
-                .pipe(out);
-        });
+                });
+            });
+        function handleEntry(entry) {
+            if (files && files.indexOf(entry.fileName) === -1)
+                return Q(); // skip this file
+            var dst = outFile(entry.fileName);
+            if (entry.fileName[entry.fileName.length - 1] === "/")
+                return qfs.makeTree(dst, 7*8*8 + 7*8 + 7);
+            return qfs
+                .makeTree(path.dirname(dst), 7*8*8 + 7*8 + 7)
+                .then(function() {
+                    return Q.ninvoke(zipFile, "openReadStream", entry);
+                }).then(function(inStream) {
+                    return util.qpipe(inStream, fs.createWriteStream(dst));
+                });
+        }
     });
 };
