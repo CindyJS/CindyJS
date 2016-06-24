@@ -1266,6 +1266,54 @@ geoOps.ConicBy2Pol1P.updatePosition = function(el) {
     el.matrix = M;
 };
 
+// Given (A, a, B, b, c), compute conic such that
+// 1. (A, a) and (B, b) are pole-polar pairs and
+// 2. c is a tangent to the conic
+geoOps.ConicBy2Pol1L = {};
+geoOps.ConicBy2Pol1L.kind = "C";
+geoOps.ConicBy2Pol1L.signature = ["P", "L", "P", "L", "L"];
+geoOps.ConicBy2Pol1L.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var b = csgeo.csnames[(el.args[3])].homog;
+    var c = csgeo.csnames[(el.args[4])].homog;
+
+    var sp = List.scalproduct;
+    var sm = List.scalmult;
+    var mm = List.productMM;
+    var mul = CSNumber.mult;
+    var rm = CSNumber.realmult;
+    var transpose = List.transpose;
+    var asList = List.turnIntoCSList;
+
+    var aA = sp(a, A);
+    var aB = sp(a, B);
+    var bA = sp(b, A);
+    var bB = sp(b, B);
+    var cA = sp(c, A);
+    var cB = sp(c, B);
+    var v = asList([List.sub(sm(mul(bA, cB), a), sm(mul(aB, cA), b))]);
+
+    var M = List.add(
+        mm(
+            transpose(asList([sm(mul(bA, aB), c)])),
+            asList([List.sub(
+                List.add(
+                    sm(CSNumber.sub(mul(aA, cB), mul(aB, cA)), b),
+                    sm(CSNumber.sub(mul(bB, cA), mul(bA, cB)), a)
+                ),
+                sm(List.det3(a, b, c), List.cross(A, B))
+            )])
+        ),
+        mm(transpose(v), v)
+    );
+    M = List.add(M, transpose(M));
+    M = List.normalizeMax(M);
+    M = General.withUsage(M, "Conic");
+    el.matrix = M;
+};
+
 // Conic by one polar pair and three incident flats
 geoOps._helper.conic1Pol3Inc = function(A, a, B, C, D) {
     var sp = List.scalproduct;
