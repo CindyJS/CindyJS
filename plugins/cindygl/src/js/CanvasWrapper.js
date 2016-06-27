@@ -9,7 +9,7 @@ function generateReadCanvasWrapperIfRequired(imageobject, api, properties) {
     }
     let idx = properties.mipmap * 2 + properties.interpolate;
     if (!imageobject['readcanvaswrappers'].hasOwnProperty(idx)) {
-        if (imageobject['writecanvaswrapper']) imageobject['writecanvaswrapper'].copyTextureToCanvas();
+        if (imageobject['writecanvaswrapper'] && imageobject['writecanvaswrapper'].generation > imageobject.generation) imageobject['writecanvaswrapper'].copyTextureToCanvas();
 
         imageobject['readcanvaswrappers'][idx] = new CanvasWrapper(imageobject, properties);
         if (!imageobject.ready) {
@@ -173,7 +173,16 @@ CanvasWrapper.prototype.bindFramebuffer = function() {
 
 
 CanvasWrapper.prototype.copyTextureToCanvas = function() {
-    let context = this.canvas.img.getContext('2d');
+    let context = null;
+    if (this.canvas.img.hasOwnProperty('getContext'))
+        context = this.canvas.img.getContext('2d');
+    else {
+        this.canvas.img = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
+        this.canvas.img.style.display = "none";
+        this.canvas.img.width = this.sizeX;
+        this.canvas.img.height = this.sizeY;
+        context = this.canvas.img.getContext('2d');
+    }
 
     //Copy things from glcanvas to the cindyjs-canvas representing that canvas
     context.clearRect(0, 0, this.sizeX, this.sizeY);

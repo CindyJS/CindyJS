@@ -15,22 +15,25 @@
       use("CindyGL");
     </script>
     <script id="csdraw" type="text/x-cindyscript">
-     L = [0, 0];
-     R = [imagesize("image")_1, 0];
-     
-     colorplot(L, R, "image",
-      .2*imagergb(L, R, "image", #) +
-      .1*imagergb(L, R, "image", # + (-1, 1)) +
-      .1*imagergb(L, R, "image", # + (0,  1)) +
-      .1*imagergb(L, R, "image", # + (1,  1)) +
-      .1*imagergb(L, R, "image", # + (-1, 0)) +
-      .1*imagergb(L, R, "image", # + (1,  0)) +
-      .1*imagergb(L, R, "image", # + (-1,-1)) +
-      .1*imagergb(L, R, "image", # + (0, -1)) +
-      .1*imagergb(L, R, "image", # + (1, -1))
+    if(imageready("image"),
+       L = [0, 0];
+       R = [imagesize("image")_1, 0];
+       
+       read(p) := imagergb(L, R, "image", p, interpolate->false);
+       colorplot(L, R, "image",
+        .2*read(#) +
+        .1*read(# + (-1, 1)) +
+        .1*read(# + (0,  1)) +
+        .1*read(# + (1,  1)) +
+        .1*read(# + (-1, 0)) +
+        .1*read(# + (1,  0)) +
+        .1*read(# + (-1,-1)) +
+        .1*read(# + (0, -1)) +
+        .1*read(# + (1, -1))
+       );
+       
+       drawimage([-3, -3], [3, -3], "image");
      );
-     
-     drawimage([-3, -3], [3, -3], "image");
     </script>
     
 

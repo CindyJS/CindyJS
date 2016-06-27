@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 
@@ -9,16 +8,10 @@
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 
 <style type="text/css">
-* {
-  border: 0;
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-}
+  html,body { margin: 0px; padding: 0px; }
 </style>
-    
+</head>
+
 <script id="csinit" type="text/x-cindyscript">
 video = camera video();
 mirror = false;
@@ -35,28 +28,17 @@ if (image ready(video),
   h = .05*(10.1+mouse().y);
   z = complex(#);
   if(mirror, z = -re(z)+i*im(z));  
-  h*imagergb(video,  z*z*.1*(10.1+mouse().x)));
+  h*imagergb(video, z*z*.1*(10.1+mouse().x)));
 );
 </script>
 
 </head>
 
 <body>
-  
-  <div id="CSCanvas"></div>
-  
-  <script type="text/javascript">
-  
-canvas = document.getElementById("CSCanvas");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-  
-window.onload = window.onresize = function() {
-  console.log("resized");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-};
+  <div id="CSCanvas" style="width:100vw; height:100vh"></div>
 
+
+<script type="text/javascript">
 var cdy = CindyJS({
   ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
   scripts: "cs*",
@@ -65,9 +47,6 @@ var cdy = CindyJS({
   },
   use: ["CindyGL"]
 });
-
-
-
 </script>
 
 </body>
