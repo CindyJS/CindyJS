@@ -427,7 +427,11 @@ module.exports = function build(settings, task) {
         "Interface"
     ];
 
-    task("ComplexCurves.glsl.js", [], function() {
+    task("ComplexCurves.submod", [], function() {
+        this.git_submodule("plugins/ComplexCurves/lib/ComplexCurves");
+    });
+
+    task("ComplexCurves.glsl.js", ["ComplexCurves.submod"], function() {
         cc_shaders.forEach(this.input, this);
         this.node(
             "tools/files2json.js",

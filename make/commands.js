@@ -391,3 +391,15 @@ exports.unzip = function(src, dst, files) {
         }
     });
 };
+
+exports.git_submodule = function(path) {
+    var task = this;
+    this.addCondition(function() {
+        var args = ["submodule", "status", path];
+        return cmdImpl(task, {returnOutput: true}, "git", args)
+            .then(function(buf) {
+                return buf[0] !== 32;
+            });
+    });
+    this.cmd("git", "submodule", "update", "--init", path);
+};
