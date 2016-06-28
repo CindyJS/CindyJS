@@ -14,12 +14,25 @@
         <h1>Conic by 4 points and 1 line</h1>
 
 
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id='csinit' type='text/x-cindyscript'>
+          example1():=(
+            A.homog = [0.34653465346534656,1,0.24752475247524758];
+            B.homog = [1,-0.35460992907801425,-0.17730496453900713];
+            C.homog = [-0.3,1,0.125];
+            D.homog = [-0.9705882352941176,1,0.7352941176470587];
+            X.homog = [1,0.8333333333333333,0.16666666666666666];
+            Y.homog = [1,0,0.16666666666666666];
+          );
+          //{"geometry":[{"alpha":1,"color":[1,0,0],"name":"A","size":5,"type":"Free","pos":[0.34653465346534656,1,0.24752475247524758]},{"alpha":1,"color":[1,0,0],"name":"B","size":5,"type":"Free","pos":[1,-0.35460992907801425,-0.17730496453900713]},{"alpha":1,"color":[1,0,0],"name":"C","size":5,"type":"Free","pos":[-0.3,1,0.125]},{"alpha":1,"color":[1,0,0],"name":"D","size":5,"type":"Free","pos":[-0.9705882352941176,1,0.7352941176470587]},{"alpha":1,"color":[1,0,0],"name":"X","size":5,"type":"Free","pos":[1,0.8333333333333333,0.16666666666666666]},{"alpha":1,"color":[1,0,0],"name":"Y","size":5,"type":"Free","pos":[1,0,0.16666666666666666]},{"alpha":1,"args":["X","Y"],"clip":"none","color":[0,0,1],"name":"l","overhang":1.1,"size":1,"type":"Join"},{"args":["A","B","C","D","l"],"name":"CoT","type":"ConicBy4p1l"},{"alpha":1,"args":["CoT"],"clip":"none","color":[1,0,1],"name":"Co1","overhang":1.1,"size":1,"type":"SelectConic","pos":{"xx":0.02431214616590816,"yy":0.15535274705466007,"zz":1,"xy":0.1841185689664879,"xz":-0.31130379709496026,"yz":-1.0368332952856512}},{"alpha":1,"args":["CoT"],"clip":"none","color":[0,0.5,0.5],"name":"Co2","overhang":1.1,"size":1,"type":"SelectConic","pos":{"xx":0.05358047574465267,"yy":0.03641252240672584,"zz":1,"xy":-0.07230220577985288,"xz":0.4779336588784801,"yz":-0.4850233179980595}}]}
         </script>
 
 
         <div  id="CSCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
 
+        <p>Navigating to
+          <button onclick="cdy.evokeCS('example1()')">Example 1</button>
+          and moving the bottom-most point D used to cause the colored
+          conics to change their roles in past versions without tracing.</p>
 
         <script type="text/javascript">
 
@@ -35,8 +48,8 @@
 		      {name:"Co1", type:"SelectConic", args:["CoT"], color:[1,0,1], pos:{xx:0.06,yy:0.003,zz:1,xy:0.02,xz:-0.5,yz:-0.07}},
 		      {name:"Co2", type:"SelectConic", args:["CoT"], color:[0,.5,.5], pos:{xx:0.04,yy:0.04,zz:1,xy:0.0007,xz:-0.4,yz:-0.2}}
                       ];
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
+            var cdy = CindyJS({canvasname:"CSCanvas",
+                        scripts:"cs*",
                         grid:1,
                         snap:true,
                         geometry:gslp});
