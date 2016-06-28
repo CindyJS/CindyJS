@@ -961,11 +961,12 @@ geoOps._helper.ConicBy4p1l = function(el, a, b, c, d, l) {
     var a2 = List.cross(List.cross(b, d), l);
     var k1 = List.scalmult(r1, a1);
     var k2 = List.scalmult(r2, a2);
-    var x = List.add(k1, k2);
-    var y = List.sub(k1, k2);
-    var t1 = geoOps._helper.ConicBy5(el, a, b, c, d, x);
-    var t2 = geoOps._helper.ConicBy5(el, a, b, c, d, y);
-    return [t1, t2];
+    var x = List.normalizeMax(List.add(k1, k2));
+    var y = List.normalizeMax(List.sub(k1, k2));
+    var xy = tracing2(x, y);
+    var t1 = geoOps._helper.ConicBy5(el, a, b, c, d, xy.value[0]);
+    var t2 = geoOps._helper.ConicBy5(el, a, b, c, d, xy.value[1]);
+    return [List.normalizeMax(t1), List.normalizeMax(t2)];
 };
 
 geoOps.ConicBy4p1l = {};
@@ -984,6 +985,7 @@ geoOps.ConicBy4p1l.updatePosition = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy4p1l.stateSize = tracing2.stateSize;
 
 
 geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
@@ -1126,6 +1128,7 @@ geoOps.ConicBy1p4l.updatePosition = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy1p4l.stateSize = tracing2.stateSize;
 
 geoOps.ConicParabolaPL = {};
 geoOps.ConicParabolaPL.kind = "C";
