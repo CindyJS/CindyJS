@@ -9,16 +9,9 @@
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 
 <style type="text/css">
-* {
-  border: 0;
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-}
+  html,body { margin: 0px; padding: 0px; }
 </style>
-    
+
 <script id="csinit" type="text/x-cindyscript">
 video = camera video();
 mirror = false;
@@ -49,21 +42,9 @@ h = .05*(10.1+mouse().y);
 </head>
 
 <body>
-  
-  <div id="CSCanvas"></div>
-  
+  <div id="CSCanvas" style="width:100vw; height:100vh"></div>
   <script type="text/javascript">
   
-canvas = document.getElementById("CSCanvas");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-  
-window.onload = window.onresize = function() {
-  console.log("resized");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-};
-
 var cdy = CindyJS({
   ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
   scripts: "cs*",

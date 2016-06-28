@@ -32,6 +32,8 @@ CindyJS.registerPlugin(1, "CindyGL", function(api) {
              console.log("Program has been compiled; we will use that compiled code.");
         }*/
         prog.renderer.render(a, b, width, height, canvaswrapper);
+        if (canvaswrapper)
+            canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
 
 
