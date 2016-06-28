@@ -69,13 +69,13 @@ function savePos(el) {
     if (!(/^Select/.test(el.type) || geoOps[el.type].isMovable))
         return null; // Fully determined by arguments, no position needed
     var unwrap = General.unwrap;
-    var sum = CSNumber.sum;
+    var sum = CSNumber.add;
     switch (el.kind) {
         case "P":
         case "L":
             return unwrap(el.homog);
         case "C":
-            var mat = el.mat.value;
+            var mat = el.matrix.value;
             return {
                 xx: unwrap(mat[0].value[0]),
                 yy: unwrap(mat[1].value[1]),
