@@ -32,8 +32,8 @@
                       {name:"Y", type:"Free", pos:[6,0]},
 		      {name:"l", type:"Join", args:["X", "Y"] },
 		      {name:"CoT", type:"ConicBy4p1l", args:["A","B","C","D","l"]},
-		      {name:"Co1", type:"SelectConic", args:["CoT"], index:1},
-		      {name:"Co2", type:"SelectConic", args:["CoT"], index:2},
+		      {name:"Co1", type:"SelectConic", args:["CoT"], color:[1,0,1], pos:{xx:0.06,yy:0.003,zz:1,xy:0.02,xz:-0.5,yz:-0.07}},
+		      {name:"Co2", type:"SelectConic", args:["CoT"], color:[0,.5,.5], pos:{xx:0.04,yy:0.04,zz:1,xy:0.0007,xz:-0.4,yz:-0.2}}
                       ];
             CindyJS({canvasname:"CSCanvas",
                         movescript:"csmove",
