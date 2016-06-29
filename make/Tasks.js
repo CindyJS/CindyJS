@@ -103,4 +103,17 @@ module.exports = function Tasks(settings) {
         }
     };
 
+    this.allInputs = function() {
+        var inputs = [];
+        for (var name in tasks) {
+            if (tasks.hasOwnProperty(name)) {
+                tasks[name].inputs.forEach(function(input) {
+                    if (inputs.indexOf(input) === -1)
+                        inputs.push(input);
+                });
+            }
+        }
+        return inputs;
+    };
+
 };

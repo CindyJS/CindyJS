@@ -8,31 +8,25 @@
 
 var chalk = require("chalk");
 var fs = require("fs");
-var path = require("path");
 var Q = require("q");
 var qfs = require("q-io/fs");
 var rimraf = require("rimraf");
 
 var BuildError = require("./BuildError");
+var buildRules = require("./build");
+var Tasks = require("./Tasks");
 
-function addNodePath() {
-    process.env.PATH =
-        path.resolve(path.join("node_modules", ".bin")) +
-        path.delimiter + process.env.PATH;
-}
-
-module.exports = function make(settings, tasks, tasksToRun, doClean) {
-    var exitStatus = 3;
-    process.once('beforeExit', function() {
-        if (exitStatus === 3)
-            console.error(chalk.bold.red("Event loop drained unexpectedly!"));
-        process.exit(exitStatus);
-    });
-    addNodePath();
+module.exports = function make(settings, tasksToRun, doClean) {
+    var tasks = new Tasks(settings);
+    var error = null;
+    buildRules(settings, tasks.task); // Execute task definitions
+    tasks.complete();
     if (tasksToRun.length === 0 && !doClean)
         tasksToRun = ["all"];
-    Q
-    .fcall(function() {
+    return Q.Promise(function(resolve, reject) {
+        process.nextTick(resolve); // detach from call stack
+    })
+    .then(function() {
         if (!doClean) return;
         console.log("Deleting build directory");
         return Q.nfcall(rimraf, "build");
@@ -47,12 +41,20 @@ module.exports = function make(settings, tasks, tasksToRun, doClean) {
         if (ran.indexOf(true) === -1 && settings.get("verbose") !== "") {
             console.log(chalk.green("Nothing to do, everything up to date"));
         }
-        return true;
+        return {
+            success: true,
+            error: null,
+            tasks: tasks
+        };
     })
     .catch(function(err) {
         if (err instanceof BuildError) {
             console.error(err.toString());
-            return false;
+            return {
+                success: false,
+                error: err,
+                tasks: tasks
+            };
         } else {
             throw err;
         }
@@ -61,15 +63,5 @@ module.exports = function make(settings, tasks, tasksToRun, doClean) {
         return settings.store().catch(function(err) {
             console.error("Could not store settings: " + err);
         });
-    })
-    .then(function(success) {
-        exitStatus = success ? 0 : 1;
-    }, function(err) {
-        var str = err.toString(), stack = err.stack;
-        if (stack.substr(0, str.length) === str)
-            stack = stack.substr(str.length);
-        console.error(chalk.bold.red(str) + stack);
-        exitStatus = 2;
-    })
-    .done();
+    });
 };
