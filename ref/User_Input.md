@@ -170,8 +170,6 @@ The createtool operator can handle the modifiers summarized in the following tab
 | `space`     | `‹int›`    | spacing (in pixels) between tools          |
 | `toolbar`   | `‹string›` | id of the HTML element to receive buttons  |
 
-The `flipped` modifier isn't supported by CindyJS yet.
-
 **Examples:**
 The simplest usage is for instance given by the following piece of code.
 The tool created by

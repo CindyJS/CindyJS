@@ -31,7 +31,7 @@
             createtool([["Move", "Point", "Mid"], ["Circle"]], 10, 20, space->10, toolbar->"toolbar1");
             createtool("Intersection", 150, 20);
             createtool(["Line", "Compass"], 10, 20, reference->"UR", toolbar->"toolbar2");
-            createtool([["Segment", "Parallel"], ["Orthogonal"]], 10, 20, reference->"LL");
+            createtool([["Segment"], ["Parallel", "Orthogonal"]], 10, 20, reference->"LL", flipped->true);
         </script>
         <div id="toolbar1" class="CindyJS-toolbar"></div>
         <div id="CSCanvas"></div>

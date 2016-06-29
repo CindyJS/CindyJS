@@ -4452,12 +4452,33 @@ evaluator.createtool$3 = function(args, modifs) {
                     }
                 });
             } else {
-                return [];
+                return [null];
             }
         });
     } else {
         console.log("Name must be a string or a list of strings");
         return nada;
+    }
+
+    if (modifs.flipped) {
+        modif = evaluate(modifs.flipped);
+        if (modif.ctype === "boolean" && modif.value) {
+            console.log("Flipping");
+            var ncols = 0;
+            var nrows = names.length;
+            names.forEach(function(row) {
+                if (row.length > ncols)
+                    ncols = row.length;
+            });
+            var flipped = [];
+            for (var i = 0; i < ncols; ++i) {
+                flipped[i] = [];
+                for (var j = 0; j < nrows; ++j) {
+                    flipped[i][j] = names[j][i] || null;
+                }
+            }
+            names = flipped;
+        }
     }
 
     if (yref === "bottom") names.reverse();
@@ -4466,9 +4487,14 @@ evaluator.createtool$3 = function(args, modifs) {
         var rowElt = document.createElement("div");
         toolbar.appendChild(rowElt);
         row.forEach(function(name) {
-            if (name === null) return;
             if (!tools.hasOwnProperty(name)) {
                 console.log("Tool '" + name + "' not implemented yet.");
+                name = null;
+            }
+            if (name === null) {
+                var spacer = document.createElement("span");
+                spacer.className = "CindyJS-spacer";
+                rowElt.appendChild(spacer);
                 return;
             }
             var button = document.createElement("button");
