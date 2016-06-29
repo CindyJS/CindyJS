@@ -4383,6 +4383,9 @@ var activeButton = null;
 var statusbar = null;
 
 evaluator.createtool$3 = function(args, modifs) {
+    var xref = "left";
+    var yref = "top";
+
     var toolbar = null;
     if (modifs.toolbar) {
         var modif = evaluate(modifs.toolbar);
@@ -4393,15 +4396,31 @@ evaluator.createtool$3 = function(args, modifs) {
         }
     }
     if (!toolbar) {
+        if (modifs.reference) {
+            var ref = evaluate(modifs.reference);
+            if (ref.ctype === "string") {
+                switch (ref.value) {
+                    case "UR":
+                        xref = "right";
+                        break;
+                    case "LL":
+                        yref = "bottom";
+                        break;
+                    case "LR":
+                        xref = "right";
+                        yref = "bottom";
+                }
+            }
+        }
         toolbar = document.createElement("div");
         toolbar.className = "CindyJS-toolbar";
         canvas.parentNode.appendChild(toolbar);
         var x = evaluate(args[1]);
         var y = evaluate(args[2]);
         if (x.ctype === "number")
-            toolbar.style.left = x.value.real + "px";
+            toolbar.style[xref] = x.value.real + "px";
         if (y.ctype === "number")
-            toolbar.style.top = y.value.real + "px";
+            toolbar.style[yref] = y.value.real + "px";
     }
 
     var names = evaluate(args[0]);
@@ -4430,7 +4449,9 @@ evaluator.createtool$3 = function(args, modifs) {
         return nada;
     }
 
+    if (yref === "bottom") names.reverse();
     names.forEach(function(row) {
+        if (xref === "right") row.reverse();
         var rowElt = document.createElement("div");
         toolbar.appendChild(rowElt);
         row.forEach(function(name) {
