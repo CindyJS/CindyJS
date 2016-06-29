@@ -14,6 +14,7 @@
                 border: 1px solid #CCCCCC;
             }
         </style>
+        <link rel="stylesheet" href="../../build/js/CindyJS.css">
         <script type="text/javascript" src="../../build/js/Cindy.js"></script>
         <script type="text/javascript">
             var cindy = CindyJS({ 
@@ -26,8 +27,8 @@
     </head>
     <body>
         <script id="csinit" type="text/x-cindyscript">
-            createtool(["Move", "Point", "Mid", "Circle", "Line", "Compass", "Segment", "Parallel", "Orthogonal"], 0, 0);
-            createtool("Meet", 0, 0);
+            createtool([["Move", "Point", "Mid"], ["Circle", "Line", "Compass"], ["Segment", "Parallel", "Orthogonal"]], 10, 20);
+            createtool("Meet", 150, 20);
             //createtool("Delete");
         </script>
         <div id="CSCanvas" style="width:500px; height:500px;"></div>

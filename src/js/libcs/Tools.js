@@ -125,8 +125,8 @@ function setActiveTool(tool) {
 
     var actions = tools[activeTool].actions;
 
-    if (typeof actions[0].tooltip !== "undefined") {
-        document.getElementById("tooltip").innerHTML = actions[0].tooltip;
+    if (statusbar) {
+        statusbar.textContent = actions[0].tooltip || "";
     }
 
     elements = [];
