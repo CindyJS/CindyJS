@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Createtool with external containers</title>
+        <style type="text/css">
+          #statusbar {
+            width: 680px;
+            box-sizing: border-box;
+            margin-bottom: 2px;
+            height: 2em;
+            padding: 0.25em;
+            border: 2px inset #ccc;
+            background-color: #ccc;
+          }
+        </style>
+        <link rel="stylesheet" href="../../build/js/CindyJS.css">
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cindy = CindyJS({ 
+        	scripts: "cs*", 
+        	defaultAppearance: {}, 
+        	geometry: [], 
+                statusbar: "statusbar",
+        	ports: [ 
+        		{ id: "CSCanvas", width: 680, height: 336, background: "rgb(168,176,192)" } ] });
+        </script>
+    </head>
+    <body>
+        <script id="csinit" type="text/x-cindyscript">
+            createtool([["Move", "Point", "Mid"], ["Circle"]], 10, 20, space->10, toolbar->"toolbar1");
+            createtool("Intersection", 150, 20);
+            createtool(["Line", "Compass"], 10, 20, reference->"UR", toolbar->"toolbar2");
+            createtool([["Segment", "Parallel"], ["Orthogonal"]], 10, 20, reference->"LL");
+        </script>
+        <div id="toolbar1" class="CindyJS-toolbar"></div>
+        <div id="CSCanvas"></div>
+        <div id="statusbar"></div>
+        <div id="toolbar2"></div>
+        <p>It is possible to add tool buttons not only to the widget area
+          but also to surrounding HTML elements, using the <code>toolbar</code>
+          modifier of the <code>createtool</code> function.
+          To achieve consistent styling, the resulting container should have
+          the <code>CindyJS-toolbar</code> CSS class, as seen above the widget
+          in this example. Otherwise default button styling will be used,
+          as seen below the widget.</p>
+        <p>If a <code>statusbar</code> property is given to the
+          <code>CindyJS</code> invocation, it will be used to identify a HTML
+          element which will display messages about the expected next step
+          for using the current tool.</p>
+    </body>
+</html>

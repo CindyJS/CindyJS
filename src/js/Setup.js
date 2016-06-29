@@ -216,6 +216,13 @@ function createCindyNow() {
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
     }
+    if (data.statusbar) {
+        if (typeof data.statusbar === "string") {
+            statusbar = document.getElementById(data.statusbar);
+        } else {
+            statusbar = data.statusbar;
+        }
+    }
 
     //Setup the scripts
     var scripts = ["move", "keydown",

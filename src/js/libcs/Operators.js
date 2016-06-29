@@ -4399,7 +4399,7 @@ evaluator.createtool$3 = function(args, modifs) {
     if (modifs.toolbar) {
         modif = evaluate(modifs.toolbar);
         if (modif.ctype === "string") {
-            toolbar = document.getElement(modif.value);
+            toolbar = document.getElementById(modif.value);
             if (!toolbar)
                 console.warn("Element #" + modif.value + " not found");
         }
