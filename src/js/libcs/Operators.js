@@ -4383,12 +4383,21 @@ var activeButton = null;
 var statusbar = null;
 
 evaluator.createtool$3 = function(args, modifs) {
+    var modif;
     var xref = "left";
     var yref = "top";
 
+    var space = null;
+    if (modifs.space) {
+        modif = evaluate(modifs.space);
+        if (modif.ctype === "number") {
+            space = modif.value.real / 2;
+        }
+    }
+
     var toolbar = null;
     if (modifs.toolbar) {
-        var modif = evaluate(modifs.toolbar);
+        modif = evaluate(modifs.toolbar);
         if (modif.ctype === "string") {
             toolbar = document.getElement(modif.value);
             if (!toolbar)
@@ -4421,6 +4430,8 @@ evaluator.createtool$3 = function(args, modifs) {
             toolbar.style[xref] = x.value.real + "px";
         if (y.ctype === "number")
             toolbar.style[yref] = y.value.real + "px";
+        if (space !== null)
+            toolbar.style.margin = (-space) + "px";
     }
 
     var names = evaluate(args[0]);
@@ -4472,8 +4483,10 @@ evaluator.createtool$3 = function(args, modifs) {
                 button.classList.add("CindyJS-active");
                 setActiveTool(name);
             }
+
             button.addEventListener("click", click);
             if (!activeButton) click();
+            if (space !== null) button.style.margin = space + "px";
             rowElt.appendChild(button);
         });
     });
