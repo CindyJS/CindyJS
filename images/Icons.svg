@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ This file is meant to be viewed in Inkscape but edited by hand.
+ Feel free to edit in Inkscape, too, but then copy only the relevant changes.
+ We don't want IDs and similar cruft all over the file after every change.
+ Plus we need the stylesheet to control layer visibility.
+-->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32"
+   height="24"
+   viewBox="-16 -12 32 24"
+   id="svg2"
+   version="1.1">
+  <title>CindyJS Icons</title>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <dc:title>CindyJS Icons</dc:title>
+        <cc:license
+            rdf:resource="http://www.apache.org/licenses/LICENSE-2.0.html"/>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs>
+    <filter
+        id="raised"
+        style="color-interpolation-filters:sRGB"
+        filterUnits="userSpaceOnUse"
+        x="-18" y="-14" width="36" height="28">
+      <feMorphology in="SourceAlpha" radius="0.3"/>
+      <feGaussianBlur stdDeviation="0.5"/>
+      <feDiffuseLighting
+          surfaceScale="2"
+          lighting-color="rgb(255,255,255)"
+          diffuseConstant="0.8">
+        <feDistantLight azimuth="230" elevation="25"/>
+      </feDiffuseLighting>
+      <feGaussianBlur stdDeviation="0.1" result="lighting"/>
+      <feColorMatrix
+          in="lighting"
+          type="matrix"
+          values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.5 0.5 0.5 0 -0.5 "
+          result="light"/>
+      <feColorMatrix
+          in="lighting"
+          type="matrix"
+          values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 -1 -1 0 0.8 "
+          result="dark"/>
+      <feMerge>
+        <feMergeNode in="light"/>
+        <feMergeNode in="dark"/>
+      </feMerge>
+      <feComposite in2="SourceGraphic" operator="atop"/>
+    </filter>
+  </defs>
+  <style type="text/css">
+    /* <![CDATA[ */
+
+    svg > g { display: none; }    /* hide layers…                 */
+    g:target { display: inline; } /* … except for the #named one. */
+
+    .raised { fill: #dfdfdf; stroke: none; filter:url(#raised); }
+
+    /* ]]> */
+  </style>
+  <sodipodi:namedview
+      pagecolor="#bfc4d0"
+      bordercolor="#666666"
+      borderopacity="1.0"
+      inkscape:document-units="px"
+      showgrid="true"
+      units="px"
+      inkscape:snap-global="true">
+    <inkscape:grid type="xygrid" empspacing="4"/>
+  </sodipodi:namedview>
+  <g inkscape:groupmode="layer" id="pause">
+    <rect class="raised" width="6" height="16" x="-8" y="-8"/>
+    <rect class="raised" width="6" height="16" x="2" y="-8"/>
+  </g>
+  <g inkscape:groupmode="layer" id="play">
+    <path class="raised" d="M 8,0 -8,6 -8,-6 Z"/>
+  </g>
+  <g inkscape:groupmode="layer" id="stop">
+    <rect class="raised" width="16" height="16" x="-8" y="-8"/>
+  </g>
+</svg>

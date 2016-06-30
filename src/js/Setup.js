@@ -215,6 +215,7 @@ function createCindyNow() {
         updateCanvasDimensions();
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
+        if (data.animcontrols) setupAnimControls();
     }
     if (data.statusbar) {
         if (typeof data.statusbar === "string") {
@@ -388,6 +389,37 @@ function loadImage(obj) {
     };
 }
 
+var animcontrols = {
+    play: noop,
+    pause: noop,
+    stop: noop
+};
+
+function setupAnimControls() {
+    var animContainer = document.createElement("div");
+    animContainer.className = "CindyJS-animcontrols";
+    canvas.parentNode.appendChild(animContainer);
+    setupAnimButton("play", csplay);
+    setupAnimButton("pause", cspause);
+    setupAnimButton("stop", csstop);
+    animcontrols.stop(true);
+
+    function setupAnimButton(id, ctrl) {
+        var button = document.createElement("button");
+        var img = document.createElement("img");
+        button.appendChild(img);
+        animContainer.appendChild(button);
+        img.src = CindyJS.getBaseDir() + "images/Icons.svg#" + id;
+        button.addEventListener("click", ctrl);
+        animcontrols[id] = setActive;
+
+        function setActive(active) {
+            if (active) button.classList.add("CindyJS-active");
+            else button.classList.remove("CindyJS-active");
+        }
+    }
+}
+
 function callFunctionNow(f) {
     return f();
 }
@@ -487,7 +519,11 @@ function csplay() {
         if (csstopped) { // stop state
             backupGeo();
             csstopped = false;
+            animcontrols.stop(false);
+        } else {
+            animcontrols.pause(false);
         }
+        animcontrols.play(true);
         if (typeof csinitphys === 'function') {
             if (csPhysicsInited) {
                 csresetphys();
@@ -502,6 +538,8 @@ function csplay() {
 
 function cspause() {
     if (csanimating) {
+        animcontrols.play(false);
+        animcontrols.pause(true);
         csanimating = false;
     }
 }
@@ -511,7 +549,11 @@ function csstop() {
         if (csanimating) {
             cs_simulationstop();
             csanimating = false;
+            animcontrols.play(false);
+        } else {
+            animcontrols.pause(false);
         }
+        animcontrols.stop(true);
         csstopped = true;
         restoreGeo();
     }
