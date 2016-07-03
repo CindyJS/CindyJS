@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Conic by one polar pair, one point and two lines</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript">
+
+var cdy = CindyJS({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas", width: 500, height: 500}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,5], color:[0,1,1]},
+    {name:"a", type:"FreeLine", pos:[0,-1,5], color:[1,0,0]},
+    {name:"B", type:"Free", pos:[3,-2], color:[1,1,0]},
+    {name:"c", type:"FreeLine", pos:[1,0.6,5], color:[0.5,0,0.7]},
+    {name:"d", type:"FreeLine", pos:[-1,0.6,5], color:[0.5,0,0.7]},
+    {name:"Qs", type:"ConicBy1Pol1P2L", args:["A","a","B","c","d"]},
+    {name:"Q1", type:"SelectConic", args:["Qs"], index:1},
+    {name:"Q2", type:"SelectConic", args:["Qs"], index:2},
+    {name:"aa", type:"PolarOfPoint", args:["A", "Q1"], color:[0,0.7,0], size:1.5},
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <h1>Conic by one polar pair, one point and two lines</h1>
+  <div id="CSCanvas" style="border:2px solid black"></div>
+  <p>You should <em>not</em> be seeing a red line in this example,
+    since it should be covered by a green line in the same
+    location.</p>
+  <p>If the cyan point is located on the green line, this gives you
+    access to conics which touch a given tangent in a given
+    point of contact.</p>
+</body>
+
+</html>
