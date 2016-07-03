@@ -1380,6 +1380,60 @@ geoOps.ConicBy1Pol3L.updatePosition = function(el) {
     el.matrix = M;
 };
 
+// Given (A, a, B, C, d), compute conic such that
+// 1. (A, a) is a pole-polar pair,
+// 2. B, C are incident with the conic and
+// 3. d is a tangent to the conic
+geoOps.ConicBy1Pol2P1L = {};
+geoOps.ConicBy1Pol2P1L.kind = "Cs";
+geoOps.ConicBy1Pol2P1L.signature = ["P", "L", "P", "P", "L"];
+geoOps.ConicBy1Pol2P1L.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var C = csgeo.csnames[(el.args[3])].homog;
+    var d = csgeo.csnames[(el.args[4])].homog;
+
+    var add = CSNumber.add;
+    var asList = List.turnIntoCSList;
+    var cp = List.cross;
+    var mm = List.productMM;
+    var mul = CSNumber.mult;
+    var rm = CSNumber.realmult;
+    var sm = List.scalmult;
+    var sp = List.scalproduct;
+    var sub = CSNumber.sub;
+    var transpose = List.transpose;
+
+    var aA = sp(a, A);
+    var aB = sp(a, B);
+    var aC = sp(a, C);
+    var dA = sp(d, A);
+    var dB = sp(d, B);
+    var dC = sp(d, C);
+    var AB = asList([cp(A, B)]);
+    var AC = asList([cp(A, C)]);
+    var BC = asList([cp(B, C)]);
+    var r = CSNumber.sqrt(mul(mul(dB, dC), mul(
+        sub(mul(aA, dB), rm(2, mul(dA, aB))),
+        sub(mul(aA, dC), rm(2, mul(dA, aC))))));
+    var ABAC = mm(transpose(AB), AC);
+    var M1 = sm(r, List.add(ABAC, transpose(ABAC)));
+    var M2 = sm(
+        sub(mul(aA, mul(dB, dC)),
+            add(mul(dA, mul(aB, dC)),
+                mul(dA, mul(dB, aC)))),
+        ABAC);
+    var v = List.add(
+        List.sub(sm(aC, AB), sm(aB, AC)),
+        sm(rm(0.5, aA), BC));
+    M2 = List.add(M2, sm(mul(dA, dA), mm(transpose(BC), v)));
+    M2 = List.add(M2, transpose(M2));
+    var res1 = List.normalizeMax(List.add(M1, M2));
+    var res2 = List.normalizeMax(List.sub(M1, M2));
+    el.results = [res1, res2];
+};
+
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
     var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
 
