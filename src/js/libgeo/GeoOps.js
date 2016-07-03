@@ -840,6 +840,17 @@ geoOps._helper.buildConicMatrix = function(arr) {
     return M;
 };
 
+geoOps._helper.flattenConicMatrix = function(mat) {
+    return List.turnIntoCSList([
+        mat.value[0].value[0],
+        mat.value[0].value[1],
+        mat.value[1].value[1],
+        mat.value[0].value[2],
+        mat.value[1].value[2],
+        mat.value[2].value[2]
+    ]);
+};
+
 geoOps._helper.splitDegenConic = function(mat) {
     var adj_mat = List.adjoint3(mat);
 
@@ -1431,8 +1442,9 @@ geoOps.ConicBy1Pol2P1L.updatePosition = function(el) {
     M2 = List.add(M2, transpose(M2));
     var res1 = List.normalizeMax(List.add(M1, M2));
     var res2 = List.normalizeMax(List.sub(M1, M2));
-    el.results = [res1, res2];
+    el.results = tracing2Conics(res1, res2).value;
 };
+geoOps.ConicBy1Pol2P1L.stateSize = tracing2Conics.stateSize;
 
 // Given (A, a, B, c, d), compute conic such that
 // 1. (A, a) is a pole-polar pair,
@@ -1515,8 +1527,9 @@ geoOps.ConicBy1Pol1P2L.updatePosition = function(el) {
     M2 = List.add(M2, transpose(M2));
     var res1 = List.normalizeMax(List.add(M1, M2));
     var res2 = List.normalizeMax(List.sub(M1, M2));
-    el.results = [res1, res2];
+    el.results = tracing2Conics(res1, res2).value;
 };
+geoOps.ConicBy1Pol1P2L.stateSize = tracing2Conics.stateSize;
 
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
     var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
