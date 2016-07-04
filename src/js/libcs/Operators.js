@@ -4379,64 +4379,146 @@ evaluator.setsimulationquality$1 = function(args, modifs) {
     return nada;
 };
 
-var activeButton;
+var activeButton = null;
+var statusbar = null;
 
-evaluator.createtool$3 = function(args, modifis) {
-    var name = evaluate(args[0]);
+evaluator.createtool$3 = function(args, modifs) {
+    var modif;
+    var xref = "left";
+    var yref = "top";
 
-    if (name.ctype === "string") {
-        addTool(name.value);
+    var space = null;
+    if (modifs.space) {
+        modif = evaluate(modifs.space);
+        if (modif.ctype === "number") {
+            space = modif.value.real / 2;
+        }
+    }
 
-    } else if (name.ctype === "list") {
-        for (var i = 0; i < name.value.length; i++) {
-            if (name.value[i].ctype === "string") {
-                addTool(name.value[i].value);
+    var toolbar = null;
+    if (modifs.toolbar) {
+        modif = evaluate(modifs.toolbar);
+        if (modif.ctype === "string") {
+            toolbar = document.getElementById(modif.value);
+            if (!toolbar)
+                console.warn("Element #" + modif.value + " not found");
+        }
+    }
+    if (!toolbar) {
+        if (modifs.reference) {
+            var ref = evaluate(modifs.reference);
+            if (ref.ctype === "string") {
+                switch (ref.value) {
+                    case "UR":
+                        xref = "right";
+                        break;
+                    case "LL":
+                        yref = "bottom";
+                        break;
+                    case "LR":
+                        xref = "right";
+                        yref = "bottom";
+                }
             }
         }
+        toolbar = document.createElement("div");
+        toolbar.className = "CindyJS-toolbar";
+        canvas.parentNode.appendChild(toolbar);
+        var x = evaluate(args[1]);
+        var y = evaluate(args[2]);
+        if (x.ctype === "number")
+            toolbar.style[xref] = x.value.real + "px";
+        if (y.ctype === "number")
+            toolbar.style[yref] = y.value.real + "px";
+        if (space !== null)
+            toolbar.style.margin = (-space) + "px";
+    }
 
+    var names = evaluate(args[0]);
+    if (names.ctype === "string") {
+        names = [
+            [names.value]
+        ];
+    } else if (names.ctype === "list") {
+        names = names.value.map(function(row) {
+            if (row.ctype === "string") {
+                return [row.value];
+            } else if (row.ctype === "list") {
+                return row.value.map(function(name) {
+                    if (name.ctype === "string") {
+                        return name.value;
+                    } else {
+                        return null;
+                    }
+                });
+            } else {
+                return [null];
+            }
+        });
     } else {
         console.log("Name must be a string or a list of strings");
+        return nada;
     }
+
+    if (modifs.flipped) {
+        modif = evaluate(modifs.flipped);
+        if (modif.ctype === "boolean" && modif.value) {
+            console.log("Flipping");
+            var ncols = 0;
+            var nrows = names.length;
+            names.forEach(function(row) {
+                if (row.length > ncols)
+                    ncols = row.length;
+            });
+            var flipped = [];
+            for (var i = 0; i < ncols; ++i) {
+                flipped[i] = [];
+                for (var j = 0; j < nrows; ++j) {
+                    flipped[i][j] = names[j][i] || null;
+                }
+            }
+            names = flipped;
+        }
+    }
+
+    if (yref === "bottom") names.reverse();
+    names.forEach(function(row) {
+        if (xref === "right") row.reverse();
+        var rowElt = document.createElement("div");
+        toolbar.appendChild(rowElt);
+        row.forEach(function(name) {
+            if (!tools.hasOwnProperty(name)) {
+                console.log("Tool '" + name + "' not implemented yet.");
+                name = null;
+            }
+            if (name === null) {
+                var spacer = document.createElement("span");
+                spacer.className = "CindyJS-spacer";
+                rowElt.appendChild(spacer);
+                return;
+            }
+            var button = document.createElement("button");
+            var img = document.createElement("img");
+            img.src = CindyJS.getBaseDir() + "images/" + name + ".png";
+            button.appendChild(img);
+
+            function click() {
+                if (activeButton)
+                    activeButton.classList.remove("CindyJS-active");
+                activeButton = button;
+                button.classList.add("CindyJS-active");
+                setActiveTool(name);
+            }
+
+            button.addEventListener("click", click);
+            if (!activeButton) click();
+            if (space !== null) button.style.margin = space + "px";
+            rowElt.appendChild(button);
+        });
+    });
 
     return nada;
 };
-
-function addTool(name) {
-    if (typeof tools[name] === "undefined") {
-        console.log("Tool '" + name + "' not implemented yet.");
-        return;
-    }
-
-    var toolbar = document.getElementById("toolbar");
-
-    if (document.getElementById("toolbar") === null) {
-        toolbar = document.createElement("div");
-        toolbar.id = "toolbar";
-
-        document.body.appendChild(toolbar);
-    }
-
-    if (document.getElementById("tooltip") === null) {
-        var tooltip = document.createElement("div");
-        tooltip.id = "tooltip";
-
-        document.body.appendChild(tooltip);
-    }
-
-    var button = document.createElement("button");
-    button.innerHTML = "<img src='" + CindyJS.getBaseDir() + "images/" + name + ".png'>";
-    button.onclick = function() {
-        if (typeof activeButton !== "undefined") {
-            activeButton.style.border = "";
-        }
-
-        activeButton = this;
-        activeButton.style.border = "1px solid black";
-        setActiveTool(name);
-    };
-
-    toolbar.appendChild(button);
-}
 
 evaluator.dropped$0 = function() {
     return dropped;

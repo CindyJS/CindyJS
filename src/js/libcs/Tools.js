@@ -125,8 +125,8 @@ function setActiveTool(tool) {
 
     var actions = tools[activeTool].actions;
 
-    if (typeof actions[0].tooltip !== "undefined") {
-        document.getElementById("tooltip").innerHTML = actions[0].tooltip;
+    if (statusbar) {
+        statusbar.textContent = actions[0].tooltip || "";
     }
 
     elements = [];
@@ -645,21 +645,21 @@ tools.Orthogonal.actions[1].do = function() {
     return true;
 };
 
-// Meet
+// Intersection
 //
 // TODO Conic, ...
-tools.Meet = {};
-tools.Meet.actions = [];
-tools.Meet.actions[0] = {};
-tools.Meet.actions[0].event = "mousedown";
-tools.Meet.actions[0].tooltip = "Select two elements to define their intersection";
-tools.Meet.actions[0].do = function() {
+tools.Intersection = {};
+tools.Intersection.actions = [];
+tools.Intersection.actions[0] = {};
+tools.Intersection.actions[0].event = "mousedown";
+tools.Intersection.actions[0].tooltip = "Select two elements to define their intersection";
+tools.Intersection.actions[0].do = function() {
     return grabLineOrConic();
 };
 
-tools.Meet.actions[1] = {};
-tools.Meet.actions[1].event = "mousedown";
-tools.Meet.actions[1].do = function() {
+tools.Intersection.actions[1] = {};
+tools.Intersection.actions[1].event = "mousedown";
+tools.Intersection.actions[1].do = function() {
     if (grabLineOrConic()) {
         element = addElement({
             type: "Meet",

@@ -88,54 +88,87 @@ An example for this is given in [Interactive Exercises](Interactive_Exercises.md
 
 #### Creating a custom toolbar: `createtool(‹string›,‹int›,‹int›)`
 
-**Not available in CindyJS yet!**
+**Description:**
+Shorthand for `createtool([[‹string›]],‹int›,‹int›)` to create a single tool.
 
 #### Creating a custom toolbar: `createtool(‹list›,‹int›,‹int›)`
 
-**Not available in CindyJS yet!**
-
 **Description:**
-Creates one or many toolbuttons in a Cinderella view.
+Creates one or many tool buttons in a CindyJS view.
 The first argument is either a string that describes a single construction tool or a list or matrix of strings that describe an entire toolbar.
 The other two arguments describe the position relative to a corner of the screen in pixel distances.
-Normally a createtoolbar statement is located in the *init* slot of the script editor.
+Normally a `createtool` statement is located in the `init` script.
 
-The following string identifiers that correspond to the construction tools are available:
+The following string identifiers that correspond to the construction tools are available in Cinderella or CindyJS.
+Those in parentheses are not supported by CindyJS yet.
 
-* **Moving:**
-`"Move"`
-
+* **General:**
+  `"Move"`,
+  `"Delete"`
 * **Points:**
-`"Point"`, `"Intersection"`, `"Mid"`, `"Center"`
-
+  `"Point"`,
+  `"Intersection"`,
+  `"Mid"`,
+  (`"Center"`)
 * **Lines:**
-`"Line"`, `"Segment"`, `"Line Through"`, `"Parallel"`, `"Orthogonal"`, `"Angle Bisector"`
-
+  `"Line"`,
+  `"Segment"`,
+  (`"Line Through"`),
+  `"Parallel"`,
+  `"Orthogonal"`,
+  (`"Angle Bisector"`)
 * **Circles:**
-`"Circle"`, `"Circle by Radius"`, `"Compass"`, `"Circle by 3"`, `"Arc"`
-
+  `"Circle"`,
+  (`"Circle by Radius"`),
+  `"Compass"`,
+  (`"Circle by 3"`),
+  (`"Arc"`)
 * **Conics:**
-`"Conic by 5"`, `"Ellipse"`, `"Hyperbola"`, `"Parabola"`
-
+  (`"Conic by 5"`),
+  (`"Ellipse"`),
+  (`"Hyperbola"`),
+  (`"Parabola"`)
 * **Special:**
-`"Polar Point"`, `"Polar Line"`, `"Polygon"`, `"Reflection"`, `"Locus"`
-
+  (`"Polar Point"`),
+  (`"Polar Line"`),
+  (`"Polygon"`),
+  (`"Reflection"`),
+  (`"Locus"`)
 * **Measure:**
-`"Distance"`, `"Angle"`, `"Area"`
+  (`"Distance"`),
+  (`"Angle"`),
+  (`"Area"`)
 
 It is also possible to add construction tools from CindyLab:
 
 * **Local:**
-`"Mass"`, `"Velocity"`, `"Rubberband"`, `"Spring"`, `"Coulomb"`
-
-* **Environmentsl:**
-`"Gravity"`, `"Sun"`, `"Floor"`, `"Bouncer"`, `"Magnet"`
+  (`"Mass"`),
+  (`"Velocity"`),
+  (`"Rubberband"`),
+  (`"Spring"`),
+  (`"Coulomb"`)
+* **Environments:**
+  (`"Gravity"`),
+  (`"Sun"`),
+  (`"Floor"`),
+  (`"Bouncer"`),
+  (`"Magnet"`)
 
 The position of the tools is fixed relative to the construction view.
 By default the upper left corner is chosen.
 By using the modifyer `reference` one can also choose the other corners.
 Allowed values for this modifier are `"UL", "UR", "LL", "LR"`.
 Here the first letter stands for *upper/lower* and the second letter stands for *left/right*.
+
+**Modifiers:**
+The createtool operator can handle the modifiers summarized in the following table:
+
+| Modifier    | Parameter  | Effect                                     |
+| ----------- | ---------- | ------------------------------------------ |
+| `reference` | `‹string›` | reference position                         |
+| `flipped`   | `‹bool›`   | `flipped->true` exchanges rows and columns |
+| `space`     | `‹int›`    | spacing (in pixels) between tools          |
+| `toolbar`   | `‹string›` | id of the HTML element to receive buttons  |
 
 **Examples:**
 The simplest usage is for instance given by the following piece of code.
@@ -149,7 +182,11 @@ More complicated examples that create toolbars with several tools are given belo
 
     > createtool(["Move","Point","Line","Circle"],2,2);
 
+![Image](img/Tool2.png)
+
     > createtool(["Move","Point","Line","Circle"],2,2,flipped->true);
+
+![Image](img/Tool3.png)
 
     > createtool(
     >  [
@@ -159,26 +196,13 @@ More complicated examples that create toolbars with several tools are given belo
     >  ]
     > ,2,2,flipped->false);
 
+![Image](img/Tool5.png)
+
     > createtool(
     > ...same as example above...
     > ,reference->"LR");
 
-![Image](img/Tool3.png)
-
-![Image](img/Tool2.png)
-
-![Image](img/Tool5.png)
-
 ![Image](img/Tool6.png)
-
-**Modifiers:**
-The createtool operator can handle the modifiers summarized in the following table:
-
-| Modifier    | Parameter  | Effect                                     |
-| ----------- | ---------- | ------------------------------------------ |
-| `reference` | `‹string›` | reference position                         |
-| `flipped`   | `‹bool›`   | `flipped->true` exchanges rows and columns |
-| `space`     | `‹int›`    | spacing (in pixels) between tools          |
 
 ------
 

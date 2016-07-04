@@ -76,4 +76,52 @@ $focused-shadow: 0px 0px 3px #06f;
 
     } // end button
 
+    .CindyJS-toolbar {
+        position: absolute;
+
+        button {
+            position: relative;
+            z-index: 3;
+        }
+    }
+
 } // end widget
+
+.CindyJS-toolbar {
+
+    button {
+        display: inline-block;
+        margin: 0px;
+        padding: 0px;
+        border-radius: 0px;
+        background-color: #bfc4d0;
+        border: 1px solid #d0d0d0;
+        box-shadow: $button-shadow;
+        outline: none;
+    }
+
+    button.CindyJS-active, button:active {
+        box-shadow: $checked-shadow;
+    }
+
+    button:focus {
+        border-color: #06f;
+    }
+
+    img {
+        display: block;
+    }
+
+    div {
+        line-height: 0px;
+    }
+
+    span.CindyJS-spacer {
+        display: inline-block;
+        margin: 0px;
+        padding: 1px; // to match border of actual buttons
+        width: 32px;
+        height: 24px;
+    }
+
+} // end toolbar
