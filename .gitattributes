@@ -1,3 +1,4 @@
+*.commit        text
 *.conf          text
 *.cs            text
 *.css           text

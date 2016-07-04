@@ -347,12 +347,25 @@ exports.unzip = function(src, dst, files) {
     var task = this;
     this.input(src);
     var outFile = path.join.bind(path, dst);
+    var listed = function() { return true; }
     if (files) {
+        listed = function(file) { return files.indexOf(file) !== -1; }
         if (typeof files === "string") {
-            // Passing a single file instead of an array means
-            // that dst is the target file, not a directory
+            // Passing a single name instead of an array means
+            // that the named file or subtree is extracted to dst,
+            // possibly renaming it in the process
+            if (files[files.length - 1] === "/") {
+                // rename named subdirectory to dst
+                outFile = function(file) {
+                    return path.join(dst, file.substr(files[0].length));
+                }
+                listed = function(file) {
+                    return file.substr(0, files[0].length) === files[0];
+                }
+            } else {
+                outFile = function() { return dst; }
+            }
             files = [files];
-            outFile = function() { return dst; }
         }
         files.forEach(function(name) {
             this.output(outFile(name));
@@ -376,7 +389,7 @@ exports.unzip = function(src, dst, files) {
                 });
             });
         function handleEntry(entry) {
-            if (files && files.indexOf(entry.fileName) === -1)
+            if (!listed(entry.fileName))
                 return Q(); // skip this file
             var dst = outFile(entry.fileName);
             if (entry.fileName[entry.fileName.length - 1] === "/")

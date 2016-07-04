@@ -1,5 +1,6 @@
 "use strict";
 
+var fs = require("fs");
 var glob = require("glob");
 var path = require("path");
 var Q = require("q");
@@ -414,8 +415,22 @@ module.exports = function build(settings, task) {
     // Build ComplexCurves plugin
     //////////////////////////////////////////////////////////////////////
 
+    var cc_get_commit = function() {
+        var commit = fs.readFileSync(
+            "plugins/ComplexCurves/lib/ComplexCurves.commit", "utf8");
+        commit = commit.replace(/\s+/, "");
+        cc_get_commit = function() { // cache result
+            return commit;
+        }
+        return commit;
+    }
     var cc_lib_dir = "plugins/ComplexCurves/lib/ComplexCurves/";
-    var cc_shaders = glob.sync(cc_lib_dir + "src/glsl/*");
+    var cc_shaders = Array.prototype.concat.apply(
+        ["Common.glsl", "Textures.glsl"], [
+            "Assembly", "CachedSurface", "DomainColouring", "Export", "FXAA",
+            "Initial", "Subdivision", "SubdivisionPre", "Surface",
+        ].map(function(name) { return [name + ".vert", name + ".frag"]; }))
+        .map(function(name) { return cc_lib_dir + "src/glsl/" + name; });
     var cc_mods = [
         "Assembly", "CachedSurface", "Complex", "ComplexCurves", "Export",
         "GLSL", "Initial", "Matrix", "Mesh", "Misc", "Monomial", "Parser",
@@ -427,12 +442,27 @@ module.exports = function build(settings, task) {
         "Interface"
     ];
 
-    task("ComplexCurves.submod", [], function() {
-        this.git_submodule("plugins/ComplexCurves/lib/ComplexCurves");
+    task("ComplexCurves.get", [], function() {
+        var id = cc_get_commit();
+        this.download(
+            "https://github.com/kranich/ComplexCurves/archive/" + id + ".zip",
+            "download/arch/ComplexCurves-" + id + ".zip"
+        );
     });
 
-    task("ComplexCurves.glsl.js", ["ComplexCurves.submod"], function() {
-        cc_shaders.forEach(this.input, this);
+    task("ComplexCurves.unzip", ["ComplexCurves.get"], function() {
+        var id = cc_get_commit();
+        this.input("plugins/ComplexCurves/lib/ComplexCurves.commit");
+        this.delete("plugins/ComplexCurves/lib/ComplexCurves");
+        this.unzip(
+            "download/arch/ComplexCurves-" + id + ".zip",
+            "plugins/ComplexCurves/lib/ComplexCurves",
+            "ComplexCurves-" + id + "/"
+        );
+    });
+
+    task("ComplexCurves.glsl.js", ["ComplexCurves.unzip"], function() {
+        this.input(cc_shaders);
         this.node(
             "tools/files2json.js",
             "-varname=resources",
