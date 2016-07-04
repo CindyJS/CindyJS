@@ -171,6 +171,10 @@ Whenever an image is ready, it can be used in the application instance.
 
 Setting this to true indicates that the animation should start immediately after startup of the instance.
 
+### animcontrols
+
+When set to true, buttons to control animations will be shown.
+
 ### oninit
 
 A JavaScript function to be called when the application instance is ready.

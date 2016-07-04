@@ -215,6 +215,7 @@ function createCindyNow() {
         updateCanvasDimensions();
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
+        if (data.animcontrols) setupAnimControls();
     }
     if (data.statusbar) {
         if (typeof data.statusbar === "string") {
@@ -388,6 +389,113 @@ function loadImage(obj) {
     };
 }
 
+var animcontrols = {
+    play: noop,
+    pause: noop,
+    stop: noop
+};
+
+function setupAnimControls() {
+    var animContainer = document.createElement("div");
+    animContainer.className = "CindyJS-animcontrols";
+    canvas.parentNode.appendChild(animContainer);
+    setupAnimButton("play", csplay);
+    setupAnimButton("pause", cspause);
+    setupAnimButton("stop", csstop);
+    animcontrols.stop(true);
+
+    function setupAnimButton(id, ctrl) {
+        var button = document.createElement("button");
+        var img = document.createElement("img");
+        button.appendChild(img);
+        animContainer.appendChild(button);
+        loadSvgIcon(img, id);
+        button.addEventListener("click", ctrl);
+        animcontrols[id] = setActive;
+
+        function setActive(active) {
+            if (active) button.classList.add("CindyJS-active");
+            else button.classList.remove("CindyJS-active");
+        }
+    }
+}
+
+/* Install layer ‹id› of Icons.svg as the src of the given img element.
+ * Since Safari has problems honoring the :target SVG selector
+ * to make the selected layer visible, we achieve the same effect manually:
+ * We load the SVG once, then remove all layers from its DOM but keep them
+ * in a dictionary.  Then when an icon gets requested, we re-add that layer
+ * to the SVG DOM, serialize the resulting XML and use it as a data: URI.
+ *
+ * There are three phases, and during each the loadSvgIcon variable refers
+ * to a fifferent function.
+ * The first request triggers loading of the SVG, and changes the function
+ * to a version which simply enqueues subsequent requests.
+ * Once the SVG has arrived, the function gets changes to the one that actually
+ * sets the src attribute to the icon in question.
+ * That function is then applied to all the enqueued requests as well.
+ */
+var loadSvgIcon = function(img, id) {
+    var iconsToLoad = [];
+    loadSvgIcon = function cacheRequest(img, id) {
+        // subsequent requests get enqueued while we load the SVG
+        iconsToLoad.push({
+            img: img,
+            id: id
+        });
+    };
+    loadSvgIcon(img, id); // cache the first request as well
+    var url = CindyJS.getBaseDir() + "images/Icons.svg";
+    var req = new XMLHttpRequest();
+    req.onreadystatechange = handleStateChange;
+    req.responseType = "document";
+    req.open("GET", url);
+    req.send();
+
+    function handleStateChange() {
+        if (req.readyState !== XMLHttpRequest.DONE) return;
+        if (req.status !== 200) {
+            console.error(
+                "Failed to load CindyJS Icons.svg from " + url +
+                ": " + req.statusText);
+            return;
+        }
+        var svg = req.responseXML;
+        var docElt = svg.documentElement;
+        var layers = {};
+        var node, next;
+        for (node = docElt.firstChild; node; node = next) {
+            next = node.nextSibling;
+            if (node.nodeType !== Node.ELEMENT_NODE ||
+                node.namespaceURI !== "http://www.w3.org/2000/svg" ||
+                node.localName.toLowerCase() !== "g")
+                continue;
+            docElt.removeChild(node);
+            node.setAttribute("style", "display:inline");
+            layers[node.getAttribute("id")] = node;
+        }
+        var serializer = new XMLSerializer();
+        loadSvgIcon = function(img, id) {
+            // now that the SVG is loaded, requests get handled straight away
+            if (!layers.hasOwnProperty(id)) return;
+            var layer = layers[id];
+            docElt.appendChild(layer);
+            var str;
+            try {
+                str = serializer.serializeToString(svg);
+            } finally {
+                docElt.removeChild(layer);
+            }
+            img.src = "data:image/svg+xml;charset=utf-8," +
+                encodeURIComponent(str);
+        };
+        iconsToLoad.forEach(function(icon) {
+            loadSvgIcon(icon.img, icon.id);
+        });
+        iconsToLoad = null;
+    }
+};
+
 function callFunctionNow(f) {
     return f();
 }
@@ -487,7 +595,11 @@ function csplay() {
         if (csstopped) { // stop state
             backupGeo();
             csstopped = false;
+            animcontrols.stop(false);
+        } else {
+            animcontrols.pause(false);
         }
+        animcontrols.play(true);
         if (typeof csinitphys === 'function') {
             if (csPhysicsInited) {
                 csresetphys();
@@ -502,6 +614,8 @@ function csplay() {
 
 function cspause() {
     if (csanimating) {
+        animcontrols.play(false);
+        animcontrols.pause(true);
         csanimating = false;
     }
 }
@@ -511,7 +625,11 @@ function csstop() {
         if (csanimating) {
             cs_simulationstop();
             csanimating = false;
+            animcontrols.play(false);
+        } else {
+            animcontrols.pause(false);
         }
+        animcontrols.stop(true);
         csstopped = true;
         restoreGeo();
     }

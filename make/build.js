@@ -515,7 +515,7 @@ module.exports = function build(settings, task) {
     // Copy images to build directory
     //////////////////////////////////////////////////////////////////////
 
-    var images = glob.sync("images/*.{png,jpg}");
+    var images = glob.sync("images/*.{png,jpg,svg}");
 
     task("images", [], function() {
         this.parallel(function() {
