@@ -69,8 +69,8 @@ Camera.prototype.setCamera = function(position, lookAt, up) {
   let viewDir = sub3(position, lookAt);
   this.viewDist = norm3(viewDir);
   let z2 = normalized3(viewDir);
-  let y2 = normalized3(up);
-  let x2 = cross3(y2, z2);
+  let x2 = normalized3(cross3(up, z2));
+  let y2 = cross3(z2, x2);
   let m1 = [
     x2[0], y2[0], z2[0],
     x2[1], y2[1], z2[1],
