@@ -475,46 +475,51 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
   defOp("pointlight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
     let position = [0, 0, 0, 1], diffuse = [1, 1, 1], specular = [1, 1, 1];
+    let frame = "camera";
     handleModifs(modifs, {
       "position": a => position = coerce.toHomog(a, position),
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
       "specular": a => specular = coerce.toColor(a, specular),
+      "frame": a => frame = coerce.toEnum(["camera", "world"], a, frame),
     });
     currentInstance.lighting.setLight(
-      index, new PointLight(position, diffuse, specular));
+      index, new (PointLights[frame])(position, diffuse, specular));
     return nada;
   });
 
   defOp("directionallight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
-    let direction = [0, -1, 0], diffuse = [1, 1, 1], specular = [1, 1, 1];
+    let direction = [0, -1, 0, 0], diffuse = [1, 1, 1], specular = [1, 1, 1];
+    let frame = "camera";
     handleModifs(modifs, {
-      "direction": a => direction = coerce.toDirection(a, direction),
+      "direction": a => direction = coerce.toDirectionPoint(a, direction),
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
       "specular": a => specular = coerce.toColor(a, specular),
+      "frame": a => frame = coerce.toEnum(["camera", "world"], a, frame),
     });
-    direction.push(0);
     currentInstance.lighting.setLight(
-      index, new PointLight(direction, diffuse, specular));
+      index, new (PointLights[frame])(direction, diffuse, specular));
     return nada;
   });
 
   defOp("spotlight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
-    let position = [0, 0, 0, 1], direction = [0, -1, 0];
+    let position = [0, 0, 0, 1], direction = [0, -1, 0, 0];
     let cutoff = Math.PI/4, exponent = 0;
     let diffuse = [1, 1, 1], specular = [1, 1, 1];
+    let frame = "camera";
     handleModifs(modifs, {
       "position": a => position = coerce.toHomog(a, position),
-      "direction": a => direction = coerce.toDirection(a, direction),
+      "direction": a => direction = coerce.toDirectionPoint(a, direction),
       "cutoffangle": a => cutoff = coerce.toInterval(0, Math.PI, a, cutoff),
       "exponent": a => exponent = coerce.toReal(a, exponent),
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
       "specular": a => specular = coerce.toColor(a, specular),
+      "frame": a => frame = coerce.toEnum(["camera", "world"], a, frame),
     });
     currentInstance.lighting.setLight(
-      index, new SpotLight(position, direction, Math.cos(cutoff),
-                           exponent, diffuse, specular));
+      index, new SpotLights[frame](
+        position, direction, Math.cos(cutoff), exponent, diffuse, specular));
     return nada;
   });
 
