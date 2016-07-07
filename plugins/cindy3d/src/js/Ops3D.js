@@ -481,7 +481,7 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
       "specular": a => specular = coerce.toColor(a, specular),
     });
     currentInstance.lighting.setLight(
-      index, new PointLight(dehom3(position), diffuse, specular));
+      index, new PointLight(position, diffuse, specular));
     return nada;
   });
 
@@ -493,8 +493,9 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
       "specular": a => specular = coerce.toColor(a, specular),
     });
+    direction.push(0);
     currentInstance.lighting.setLight(
-      index, new DirectionalLight(direction, diffuse, specular));
+      index, new PointLight(direction, diffuse, specular));
     return nada;
   });
 
@@ -512,7 +513,7 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
       "specular": a => specular = coerce.toColor(a, specular),
     });
     currentInstance.lighting.setLight(
-      index, new SpotLight(dehom3(position), direction, Math.cos(cutoff),
+      index, new SpotLight(position, direction, Math.cos(cutoff),
                            exponent, diffuse, specular));
     return nada;
   });

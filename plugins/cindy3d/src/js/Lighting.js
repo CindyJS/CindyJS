@@ -71,8 +71,7 @@ Light.prototype.args;
 Light.prototype.typeMap = {
   "uDiffuse": "vec3",
   "uSpecular": "vec3",
-  "uLightPos": "vec3",
-  "uLightDir": "vec3",
+  "uLightPos": "vec4",
   "uSpotDir": "vec3",
   "uSpotCosCutoff": "float",
   "uSpotExponent": "float",
@@ -116,19 +115,6 @@ function PointLight(pos, diffuse, specular) {
 
 PointLight.prototype = new Light(
   "pointLight", ["uLightPos", "uDiffuse", "uSpecular"]);
-
-/**
- * @constructor
- * @extends Light
- */
-function DirectionalLight(dir, diffuse, specular) {
-  this["uLightDir"] = dir;
-  this["uDiffuse"] = diffuse;
-  this["uSpecular"] = specular;
-}
-
-DirectionalLight.prototype = new Light(
-  "directionalLight", ["uLightDir", "uDiffuse", "uSpecular"]);
 
 /**
  * @constructor

@@ -30,15 +30,15 @@ void commonLight(in vec3 lightDir, in vec3 diffuse, in vec3 specular) {
   gAccumSpecular += specular * specFactor;
 }
 
-void pointLight(in vec3 lightPos, in vec3 diffuse, in vec3 specular) {
-  commonLight(normalize(lightPos - gPos), diffuse, specular);
+vec3 getLightDir(in vec4 lightPos) {
+  return normalize(lightPos.xyz - lightPos.w*gPos);
 }
 
-void directionalLight(in vec3 lightDir, in vec3 diffuse, in vec3 specular) {
-  commonLight(normalize(lightDir), diffuse, specular);
+void pointLight(in vec4 lightPos, in vec3 diffuse, in vec3 specular) {
+  commonLight(getLightDir(lightPos), diffuse, specular);
 }
 
-void spotLight(in vec3 lightPos, in vec3 spotDir,
+void spotLight(in vec4 lightPos, in vec3 spotDir,
                in float spotCosCutoff, in float spotExponent,
                in vec3 diffuse, in vec3 specular) {
   vec3 lightDir;      // direction from surface to light position
@@ -49,7 +49,7 @@ void spotLight(in vec3 lightPos, in vec3 spotDir,
   float spotCosAngle;    // cosine of angle between spotlight
   float spotAttenuation; // spotlight attenuation factor
 
-  lightDir = normalize(lightPos - gPos);
+  lightDir = getLightDir(lightPos);
   halfVector = normalize(lightDir + gEye);
   diffuseDot = max(0.0, dot(gNormal, lightDir));
   specularDot = max(0.0, dot(gNormal, halfVector));
