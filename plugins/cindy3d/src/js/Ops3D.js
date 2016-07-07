@@ -449,7 +449,7 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
   });
 
   defOp("fieldofview3d", 1, function(args, modifs) {
-    let fov = coerce.toInterval(1, 179, evaluate(args[0]), 0);
+    let fov = coerce.toInterval(0.01, 3.13, evaluate(args[0]), 0);
     if (fov > 0) {
       currentInstance.camera.fieldOfView = fov;
       currentInstance.camera.updatePerspective();
