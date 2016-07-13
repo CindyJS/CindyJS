@@ -9,7 +9,7 @@
 function Camera(width, height) {
   this.width = width;
   this.height = height;
-  this.fieldOfView = 45;
+  this.fieldOfView = 45 * (Math.PI / 360.);
   this.zNear = 0.1;
   this.zFar = 100;
   this.updatePerspective();
@@ -47,7 +47,7 @@ Camera.prototype.viewMatrix;
 Camera.prototype.mvMatrix;
 
 Camera.prototype.updatePerspective = function() {
-  let f = 1.0/Math.tan(this.fieldOfView * (Math.PI / 360.));
+  let f = 1.0/Math.tan(this.fieldOfView);
   let nearMinusFar = this.zNear - this.zFar;
   // Near plane is actually at -zNear, far plane at -zFar.
   // This is in sync with the glFrustrum call of legacy OpenGL 2.
@@ -69,8 +69,8 @@ Camera.prototype.setCamera = function(position, lookAt, up) {
   let viewDir = sub3(position, lookAt);
   this.viewDist = norm3(viewDir);
   let z2 = normalized3(viewDir);
-  let y2 = normalized3(up);
-  let x2 = cross3(y2, z2);
+  let x2 = normalized3(cross3(up, z2));
+  let y2 = cross3(z2, x2);
   let m1 = [
     x2[0], y2[0], z2[0],
     x2[1], y2[1], z2[1],
