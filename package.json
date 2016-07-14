@@ -7,8 +7,10 @@
     "test": "tests"
   },
   "devDependencies": {
+    "browser-sync": "^2.13.0",
     "chai": "^3.5.0",
     "chalk": "^1.1.1",
+    "chokidar": "^1.6.0",
     "concat-with-sourcemaps": "^1.0.4",
     "glob": "^7.0.3",
     "http-proxy": "^1.11.2",

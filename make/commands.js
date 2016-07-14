@@ -168,10 +168,12 @@ exports.applySourceMap = function(maps, dst) {
 };
 
 exports.sass = function(src, dst) {
+    var task = this;
     this.input(src);
     this.output(dst);
     this.output(dst + ".map");
     this.addJob(function() {
+        task.log(src + " \u219d " + dst);
         var basename = path.basename(dst);
         return Q.ninvoke(require("node-sass"), "render", {
             file: src,
@@ -183,6 +185,9 @@ exports.sass = function(src, dst) {
                 qfs.write(dst, res.css),
                 qfs.write(dst + ".map", res.map)
             ]);
+        }, function(err) {
+            throw new BuildError(
+                "Error applying SASS to " + src + ": " + err.message);
         });
     });
 }
