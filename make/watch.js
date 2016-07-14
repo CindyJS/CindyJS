@@ -12,9 +12,27 @@ var chalk = require("chalk");
 var chokidar = require("chokidar");
 var browserSync = require("browser-sync");
 
+// The following files and directories will trigger a build & reload
+var watchToBuild = [
+    "images",
+    "lib",
+    "package.json",
+    "plugins",
+    "ref",
+    "src",
+    "tests",
+    "tools",
+];
+
+// The following directories will trigger a reload only
+var watchToReload = [
+    "examples",
+    "private_examples",
+];
+
 module.exports = function watch(makeOnce, doClean) {
     var deferred = Q.defer();
-    var inputs, watcher;
+    var watcher;
 
     var bs = browserSync.create("CindyJS");
     bs.init({
@@ -24,10 +42,7 @@ module.exports = function watch(makeOnce, doClean) {
         },
         port: 1337,
         startPath: "/examples/",
-        files: [ // watch these in addition to source files
-            "examples",
-            "private_examples",
-        ],
+        files: watchToReload,
     }, function(err, instance) {
         if (err) return deferred.reject(err);
     });
@@ -49,22 +64,11 @@ module.exports = function watch(makeOnce, doClean) {
 
     function gotResult(result) {
         if (!watcher) {
-            inputs = result.tasks.allInputs();
-            watcher = chokidar.watch(inputs, {
+            watcher = chokidar.watch(watchToBuild, {
                 ignoreInitial: true,
             });
             watcher.on("error", deferred.reject);
             watcher.on("all", onChange);
-            watcher.once("ready", function() {
-                console.log(chalk.yellow(
-                    "Watching " + inputs.length + " items"));
-            });
-        } else {
-            result.tasks.allInputs().forEach(function(path) {
-                if (inputs.indexOf(path) !== -1) return;
-                inputs.push(path);
-                watcher.add(path);
-            });
         }
         if (bs) {
             if (result.success) {
