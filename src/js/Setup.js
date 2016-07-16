@@ -215,7 +215,8 @@ function createCindyNow() {
         updateCanvasDimensions();
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
-        if (data.animcontrols) setupAnimControls();
+        if (data.animation ? data.animation.controls : data.animcontrols)
+            setupAnimControls();
     }
     if (data.statusbar) {
         if (typeof data.statusbar === "string") {
@@ -540,7 +541,8 @@ function doneLoadingModule() {
     //Evaluate Init script
     evaluate(cscompiled.init);
 
-    if (instanceInvocationArguments.autoplay)
+    if ((instanceInvocationArguments.animation ||
+            instanceInvocationArguments).autoplay)
         csplay();
 
     if (globalInstance.canvas)
