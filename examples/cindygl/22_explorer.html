@@ -285,15 +285,15 @@ between $-1$ and $+1$.
 
   <div id="CSCanvas" style="border:2px solid black"></div>
 <div style="position:absolute; top:815px;left:10px">
-  <input id="ch1" onclick="check1()" checked=true type="checkbox" >angles&nbsp;&nbsp;&nbsp;
-  <input id="ch2" onclick="check2()" checked=true type="checkbox" >radii&nbsp;&nbsp;&nbsp;
+  <input id="ch1" onclick="check1()" checked type="checkbox" >angles&nbsp;&nbsp;&nbsp;
+  <input id="ch2" onclick="check2()" checked type="checkbox" >radii&nbsp;&nbsp;&nbsp;
   <input id="ch3" onclick="check3()" type="checkbox" >linear diagram&nbsp;&nbsp;&nbsp;
   <input id="ch4" onclick="check4()" type="checkbox" >black/white&nbsp;&nbsp;&nbsp;
   <input id="ch5" onclick="check5()" type="checkbox" >webcam<br>
   </div>
 <div style="position:absolute; top:770px; left:5px; display:inline;z-index:4">
 <input type="text" id="inp" value="(1-a)*(1+a)"  onkeypress="typ(event, this)" size="60" style="font-size:18px">
-<select id="sel" onchange="sel(event, this)" width="20">
+<select id="sel" onchange="sel(event, this)" style="width:20em;">
   <option>(1-a)*(1+a)</option>
   <option>(z-A)/(z-B)</option>
   <option>z^(1+i)</option>
