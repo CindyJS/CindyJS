@@ -876,6 +876,7 @@ CodeBuilder.prototype.generateHeaderOfCompiledFunctions = function() {
 };
 
 CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
+    helpercnt = 0;
     expr = cloneExpression(expr); //then we can write dirty things on expr...
 
     this.precompile(expr); //determine this.variables, types etc.

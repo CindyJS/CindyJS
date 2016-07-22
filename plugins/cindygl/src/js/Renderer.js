@@ -4,52 +4,10 @@
  */
 function Renderer(api, expression) {
     this.api = api;
-
-    let cb = new CodeBuilder(api);
-    let cpg = cb.generateColorPlotProgram(expression);
-    this.cpguniforms = cpg.uniforms;
-    this.texturereaders = cpg.texturereaders;
-
-    this.fragmentShaderCode =
-        cgl_resources["standardFragmentHeader"] + cpg.code;
-    this.vertexShaderCode = cgl_resources["vshader"];
-    this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
-
-    /*
-     *    gl.bindBuffer(gl.ARRAY_BUFFER, this.ssArrayBuffer);
-      gl.bufferData(
-        gl.ARRAY_BUFFER, new Float32Array([
-          1,  1,  1, 1,
-          -1,  1, 0, 1,
-          1, -1,  1, 0,
-          -1, -1, 0, 0]),
-        gl.STATIC_DRAW);
-      this.textureQuadProgram = new ShaderProgram(
-        gl, c3d_resources.texq_vert, c3d_resources.texq_frag);
-      this.textureQuadAttrib = gl.getAttribLocation(
-        this.textureQuadProgram.handle, "aPos");*/
-    var posBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-
-
-    var vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
-
-    var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
-    gl.enableVertexAttribArray(aPosLoc);
-
-    var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
-    gl.enableVertexAttribArray(aTexLoc);
-
-    var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
-
-    var texCoordOffset = vertices.byteLength;
-
-    gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
-    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
-    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    this.expression = expression;
+    this.rebuild();
 }
+
 
 //////////////////////////////////////////////////////////////////////
 // Members of the prototype objects
@@ -78,6 +36,10 @@ Renderer.prototype.shaderProgram;
 /** @type {CindyJS.pluginApi} */
 Renderer.prototype.api;
 
+/** @type {CindyJS.anyval} */
+Renderer.prototype.expression;
+
+
 /** @type {CanvasWrapper} */
 Renderer.prototype.canvaswrapper
 
@@ -85,6 +47,53 @@ Renderer.prototype.canvaswrapper
 /** @type {Object.<TextureReader>} */
 Renderer.prototype.texturereaders
 
+
+Renderer.prototype.rebuild = function() {
+    let cb = new CodeBuilder(this.api);
+    let cpg = cb.generateColorPlotProgram(this.expression);
+    this.cpguniforms = cpg.uniforms;
+    this.texturereaders = cpg.texturereaders;
+
+    this.fragmentShaderCode =
+        cgl_resources["standardFragmentHeader"] + cpg.code;
+    this.vertexShaderCode = cgl_resources["vshader"];
+    this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
+
+    /*
+     *    gl.bindBuffer(gl.ARRAY_BUFFER, this.ssArrayBuffer);
+      gl.bufferData(
+        gl.ARRAY_BUFFER, new Float32Array([
+          1,  1,  1, 1,
+          -1,  1, 0, 1,
+          1, -1,  1, 0,
+          -1, -1, 0, 0]),
+        gl.STATIC_DRAW);
+      this.textureQuadProgram = new ShaderProgram(
+        gl, c3d_resources.texq_vert, c3d_resources.texq_frag);
+      this.textureQuadAttrib = gl.getAttribLocation(l
+        this.textureQuadProgram.handle, "aPos");*/
+    var posBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+
+
+    var vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+
+    var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
+    gl.enableVertexAttribArray(aPosLoc);
+
+    var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
+    gl.enableVertexAttribArray(aTexLoc);
+
+    var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+
+    var texCoordOffset = vertices.byteLength;
+
+    gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
+    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+}
 
 /**
  * @param {Array.<number>} m
@@ -117,6 +126,12 @@ Renderer.prototype.setUniforms = function() {
     for (let uname in this.cpguniforms) {
         let val = this.api.evaluateAndVal(this.cpguniforms[uname].expr);
         let t = this.cpguniforms[uname].type;
+
+
+        if (!issubtypeof(guessTypeOfValue(val), t)) {
+            console.log("type of " + uname + " changed; forcing rebuild");
+            this.rebuild();
+        }
 
         //@TODO: handle other types as well
 
