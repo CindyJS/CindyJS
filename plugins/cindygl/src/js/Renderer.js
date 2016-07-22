@@ -127,10 +127,12 @@ Renderer.prototype.setUniforms = function() {
         let val = this.api.evaluateAndVal(this.cpguniforms[uname].expr);
         let t = this.cpguniforms[uname].type;
 
-
         if (!issubtypeof(guessTypeOfValue(val), t)) {
-            console.log("type of " + uname + " changed; forcing rebuild");
+            console.log("Type of " + uname + " changed; forcing rebuild.");
             this.rebuild();
+            this.shaderProgram.use(gl);
+            this.setUniforms();
+            return;
         }
 
         //@TODO: handle other types as well
@@ -259,8 +261,8 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
         gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
 
     this.shaderProgram.use(gl);
-    this.setTransformMatrix(a, b, c);
     this.setUniforms();
+    this.setTransformMatrix(a, b, c);
     this.loadTextures();
 
     if (canvaswrapper) {
