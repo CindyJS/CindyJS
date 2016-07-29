@@ -3997,7 +3997,7 @@ evaluator.setTimeout$2 = function(args, modifs) {
     var code = args[1]; // code to execute, cannot refer to regional variables
     function callback() {
         evaluate(code);
-        updateCindy();
+        scheduleUpdate();
     }
     if (delay.ctype === "number") {
         if (typeof window !== "undefined") {

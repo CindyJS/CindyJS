@@ -372,6 +372,7 @@ FakeCanvas.prototype.measureText = function(txt) {
   "restore",
   "save",
   "setTransform",
+  "setLineDash",
   "stroke",
   "strokeText",
   "fillText",

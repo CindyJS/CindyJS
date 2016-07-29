@@ -1384,7 +1384,7 @@ evaluator.clrscr$0 = function(args, modifs) {
 };
 
 evaluator.repaint$0 = function(args, modifs) {
-    updateCindy();
+    scheduleUpdate();
     return nada;
 };
 
