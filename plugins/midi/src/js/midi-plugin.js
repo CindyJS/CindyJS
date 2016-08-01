@@ -76,7 +76,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         for (var i = 0; i < insts.value.length; ++i) {
             var inst = insts.value[i];
             if (inst.ctype === "number") {
-                inst = Math.max(0, Math.min(127, inst.value.real | 0));
+                inst = Math.max(-1, Math.min(127, inst.value.real | 0));
                 var status = instrumentStatus[inst];
                 if (status !== STATUS.LOADED) {
                     allLoaded = false;
