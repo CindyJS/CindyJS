@@ -227,7 +227,7 @@ function createCindyNow() {
 
     //Setup the scripts
     var scripts = ["move", "keydown",
-        "mousedown", "mouseup", "mousedrag", "mousemove",
+        "mousedown", "mouseup", "mousedrag", "mousemove", "mouseclick",
         "init", "tick", "draw",
         "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
