@@ -76,7 +76,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         for (var i = 0; i < insts.value.length; ++i) {
             var inst = insts.value[i];
             if (inst.ctype === "number") {
-                inst = Math.max(-1, Math.min(127, inst.value.real | 0));
+                inst = Math.max(0, Math.min(128, inst.value.real | 0)) - 1;
                 var status = instrumentStatus[inst];
                 if (status !== STATUS.LOADED) {
                     allLoaded = false;
@@ -134,7 +134,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
             inst = MIDI.getInstrument(channel);
         }
         if (modifs.instrument) {
-            inst = Math.round(numModif(modifs.instrument, 0));
+            inst = Math.round(numModif(modifs.instrument, 0)) - 1;
             MIDI.setInstrument(channel, inst);
         }
         if (modifs.speed) {
