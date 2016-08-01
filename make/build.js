@@ -677,6 +677,26 @@ module.exports = function build(settings, task) {
     task("katex", ["katex_src", "katex-plugin"]);
 
     //////////////////////////////////////////////////////////////////////
+    // Copy MIDI to build directory
+    //////////////////////////////////////////////////////////////////////
+
+    var midi_src = glob.sync("lib/midi/*.*");
+
+    task("midi_src", [], function() {
+        this.parallel(function() {
+            midi_src.forEach(function(input) {
+                this.copy(input, path.join("build", "js", input.substr(4)));
+            }, this);
+        });
+    });
+
+    task("midi-plugin", [], function() {
+        this.copy("plugins/midi/src/js/midi-plugin.js", "build/js/midi-plugin.js");
+    });
+
+    task("midi", ["midi_src", "midi-plugin"]);
+
+    //////////////////////////////////////////////////////////////////////
     // Compile SASS to CSS
     //////////////////////////////////////////////////////////////////////
 
@@ -757,6 +777,7 @@ module.exports = function build(settings, task) {
         "cindygl",
         "quickhull3d",
         "katex",
+        "midi",
         "xlibs",
         "images",
         "sass",
