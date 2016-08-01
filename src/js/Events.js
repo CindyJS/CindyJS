@@ -177,6 +177,12 @@ function setuplisteners(canvas, data) {
         e.preventDefault();
     });
 
+    addAutoCleaningEventListener(canvas, "click", function(e) {
+        updatePostition(e);
+        cs_mouseclick();
+        e.preventDefault();
+    });
+
     addAutoCleaningEventListener(canvas, "dragenter", function(e) {
         e.preventDefault();
     });
@@ -406,6 +412,10 @@ function cs_mousedrag(e) {
 
 function cs_mousemove(e) {
     evaluate(cscompiled.mousemove);
+}
+
+function cs_mouseclick(e) {
+    evaluate(cscompiled.mouseclick);
 }
 
 function cs_tick(e) {
