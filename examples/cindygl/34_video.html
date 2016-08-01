@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Video in Cindy JS</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+play video("video");
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if (image ready("video"),
+  colorplot(imagergb(A, B, "video", #+[sin(#.y),sin(#.x)]/2, repeat->true));
+);
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform:[{visibleRect:[-0.1,10.1,20.1,-0.1]}]}],
+  scripts: "cs*",
+  language: "en",
+  autoplay: true,
+  images: {video: "video.webm"},
+  geometry: [
+    {name:"A", type:"Free", pos:[2,1]},
+    {name:"B", type:"Free", pos:[18,1]}
+  ],
+  use: ["CindyGL"]
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="width:800px; height:400px; border:2px solid black"></div>
+</body>
+</html>

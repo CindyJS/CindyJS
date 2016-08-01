@@ -385,3 +385,19 @@ evaluator.cameravideo$0 = function() {
     });
     return img;
 };
+
+evaluator.playvideo$1 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (img.live) {
+        img.img.play();
+    }
+    return nada;
+};
+
+evaluator.pausevideo$1 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (img.live) {
+        img.img.pause();
+    }
+    return nada;
+};

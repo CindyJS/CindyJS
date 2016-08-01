@@ -323,7 +323,14 @@ function createCindyNow() {
 function loadImage(obj) {
     var img;
     if (typeof obj === "string") {
-        img = new Image();
+        var ext = obj.split('.').pop().toLowerCase();
+        if (ext === "mp4" || ext === "webm" || ext === "ogg") {
+            img = document.createElement("video");
+            img.preload = "auto";
+            img.loop = true; //loop videos as default
+        } else {
+            img = new Image();
+        }
         img.src = obj;
     } else {
         img = obj;

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Video in Cindy JS</title>
+<link rel="stylesheet" href="../build/js/CindyJS.css">
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+play video("video");
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if (image ready("video"),
+  draw image (A, B, "video");
+);
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform:[{visibleRect:[0, 0, 560, 320]}]}],
+  scripts: "cs*",
+  language: "en",
+  autoplay: true,
+  images: {video: "cindygl/video.webm"},
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0]},
+    {name:"B", type:"Free", pos:[560,0]},
+    {name: "Button", type: "ToggleButton", pos: [20,20], text: "Play/Pause", script: 'if(Button.pressed, pause video("video"), play video("video"));'}
+  ],
+});
+</script>
+</head>
+
+<body>
+  <div id="CSCanvas" style="width:560px; height:320px; border:2px solid black"></div>
+</body>
+
+</html>
