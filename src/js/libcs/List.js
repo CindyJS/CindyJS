@@ -11,6 +11,21 @@ List.turnIntoCSList = function(l) {
     };
 };
 
+List.EMPTY = List.turnIntoCSList([]);
+
+List.asList = function(x) {
+    if (x.ctype === "list") {
+        return x;
+    }
+    if (x.ctype === "number" || x.ctype === "boolean") {
+        return List.turnIntoCSList([x]);
+    }
+    if (x.ctype === "string" || x.ctype === "undefined") {
+        return List.EMPTY;
+    }
+    return nada;
+};
+
 List.realVector = function(l) {
     var erg = [];
     for (var i = 0; i < l.length; i++) {
