@@ -94,10 +94,9 @@ var CindyJS = (function() {
 
             CindyJS.loadScript = function(name, path, onload, onerror) {
                 var names = String(name).split(".");
-                var obj;
-                for (obj = window;
-                     names.length && typeof obj === "object" && obj !== null;
-                     obj = obj[names.shift()]) {}
+                var obj = window;
+                while (names.length && typeof obj === "object" && obj !== null)
+                    obj = obj[names.shift()];
                 if (obj && !names.length) {
                     onload();
                     return true;
