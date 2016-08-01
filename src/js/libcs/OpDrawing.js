@@ -1461,12 +1461,10 @@ evaluator.canvas$4 = function(args, modifs) {
     }
 
     var image = imageFromValue(name);
-
-    var localcanvas = image.img;
-    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
+    if (!image || !image.img.getContext) {
         return nada;
     }
-
+    var localcanvas = image.img;
 
     var cw = image.width;
     var ch = image.height;
@@ -1482,7 +1480,6 @@ evaluator.canvas$4 = function(args, modifs) {
     var cva = csport.from(pta.x, pta.y, 1);
     var cvc = csport.from(ptcx, ptcy, 1);
     var cvd = csport.from(ptdx, ptdy, 1);
-
 
     var x11 = cva[0];
     var x12 = cva[1];
@@ -1512,7 +1509,6 @@ evaluator.canvas$4 = function(args, modifs) {
 
     csctx.transform(a1, a4, a2, a5, a3, a6);
 
-
     image.generation++;
 
     evaluate(prog);
@@ -1536,20 +1532,17 @@ evaluator.canvas$5 = function(args, modifs) {
     }
 
     var image = imageFromValue(name);
-    var localcanvas = image.img;
-    if (typeof(localcanvas) === "undefined" || localcanvas === null) {
+    if (!image || !image.img.getContext) {
         return nada;
     }
-
+    var localcanvas = image.img;
 
     var cw = image.width;
     var ch = image.height;
 
-
     var cva = csport.from(pta.x, pta.y, 1);
     var cvb = csport.from(ptb.x, ptb.y, 1);
     var cvc = csport.from(ptc.x, ptc.y, 1);
-
 
     var x11 = cva[0];
     var x12 = cva[1];
