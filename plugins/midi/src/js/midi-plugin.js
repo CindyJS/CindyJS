@@ -50,6 +50,9 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         getInstrument: function(ch) {
             return chan2inst[ch];
         },
+        setInstrument: function(ch, inst) {
+            chan2inst[ch] = inst;
+        },
     };
 
     function numModif(modif, deflt) {
@@ -124,6 +127,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         var instruments = [];
         var inst = MIDI.getInstrument(channel);
         var bpm = 60;
+        var chan2inst = [];
 
         if (modifs.channel) {
             channel = Math.round(numModif(modifs.channel, 0));
@@ -138,6 +142,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         }
         var timeUnit = 60 / bpm;
         var timeOff = 10 * timeUnit / RESOLUTION;
+        chan2inst[channel] = inst;
 
         for (var i = 0; i < list.value.length; ++i) {
             var data = list.value[i];
@@ -205,15 +210,24 @@ CindyJS.registerPlugin(1, "midi", function(api) {
                             continue;
                         } else if (cmd === "channel" || cmd === "ch") {
                             channel = Math.max(0, Math.min(15, va | 0));
+                            if (!chan2inst.hasOwnProperty(channel)) {
+                                inst = MIDI.getInstrument(channel);
+                                chan2inst[channel] = inst;
+                            } else {
+                                inst = chan2inst[channel];
+                            }
                             // schedule a program change event as well?
                             continue;
                         } else if (cmd === "instrument" || cmd === "inst") {
+                            inst = (va | 0) - 1;
                             melody.push({
                                 event: "program",
                                 channel: channel,
                                 time: time - timeOff,
-                                program: (va | 0) - 1,
+                                program: inst,
                             });
+                            chan2inst[channel] = inst;
+                            instruments[inst] = true;
                             continue;
                         }
                     }
@@ -246,6 +260,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
                                     vel: v,
                                     duration: duration,
                                 });
+                                instruments[inst] = true;
                             } // note 0 - 127
                         } // for all notes of this chord
                         time += duration;
@@ -259,6 +274,8 @@ CindyJS.registerPlugin(1, "midi", function(api) {
                 return a.time - b.time;
             });
             var allLoaded = true;
+            instruments = Object.keys(instruments);
+            // console.log("Instruments used in melody:", instruments);
             for (var k = 0; k < instruments.length; ++k) {
                 var status = instrumentStatus[instruments[k]];
                 if (status !== STATUS.LOADED) {
@@ -268,7 +285,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
                 }
             }
             if (allLoaded) {
-                playMelody(MIDI.now() + 1, melody);
+                playMelody(MIDI.now(), melody);
             } else {
                 triggerLoad();
             }
