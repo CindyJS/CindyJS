@@ -427,7 +427,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
 
     // Find the control points of a quadratic Bézier which at the
     // endpoints agrees with the conic in position and tangent direction.
-    // sign is -1 for the lower branch and +1 for the upper.
+    // Unused: sign is -1 for the lower branch and +1 for the upper.
     function refine(pt1, pt2, sign, depth) {
         // (x - pt1.px) * pt1.gx + (y - pt1.py) * pt1.gy = 0
         // x * pt1.gx + y * pt1.gy = pt1.dot
@@ -440,53 +440,45 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         var cy = (pt1.gx * pt2.dot - pt2.gx * pt1.dot) * denom;
         if (!(isFinite(cx) && isFinite(cy))) // Probably already linear
             return csctx.lineTo(pt2.px, pt2.py);
-        var area = Math.abs(
-            pt1.px * cy + cx * pt2.py + pt2.px * pt1.py -
-            pt2.px * cy - cx * pt1.py - pt1.px * pt2.py);
-        if (area > 1 && depth < 10) {
-            var mx = 0.5 * cx + 0.25 * (pt1.px + pt2.px);
-            var my = 0.5 * cy + 0.25 * (pt1.py + pt2.py);
-            var gx = 2 * c20 * mx + c11 * my + c10;
-            var gy = 2 * c02 * my + c11 * mx + c01;
-            // Now solve polynomial p(m + t*g) = 0 for t
-            // (m + tg)M(m + tg) = mMm + 2tmMg + t²gMg
-            var sol = solveRealQuadratic(
-                (c02 * gy + c11 * gx) * gy +
-                c20 * gx * gx,
-                (2 * c02 * gy + c11 * gx) * my +
-                (c11 * mx + c01) * gy +
-                2 * c20 * gx * mx + c10 * gx,
-                (c02 * my + (c11 * mx + c01)) * my +
-                (c20 * mx + c10) * mx + c00);
-            if (sol) {
-                var x1 = mx + sol[0] * gx;
-                var y1 = my + sol[0] * gy;
-                var x2 = mx + sol[1] * gx;
-                var y2 = my + sol[1] * gy;
-                var v1 = inRange(x1, pt1.px, pt2.px) &&
-                    inRange(y1, pt1.py, pt2.py);
-                var v2 = inRange(x2, pt1.px, pt2.px) &&
-                    inRange(y2, pt1.py, pt2.py);
-                var pt3 = null;
-                if (v1 && v2) {
-                    var s1 = y1 - secondPoint(x1, y1);
-                    var s2 = y2 - secondPoint(x2, y2);
-                    if (s1 * s2 < 0) { // different order, so we choose by that
-                        if (sign * s1 > 0) {
-                            pt3 = mkp(x1, y1);
-                        } else {
-                            pt3 = mkp(x2, y2);
-                        }
+        if (depth < 10) {
+            // Compute pt3 as the intersection of the segment (hx|hy) & (cx|cy) and the conic
+            var hx = 0.5 * (pt1.px + pt2.px);
+            var hy = 0.5 * (pt1.py + pt2.py);
+            var rdx = cx - hx;
+            var rdy = cy - hy;
+            if (rdx * rdx + rdy * rdy > 0.25) { // compare to the distance in pixels squared
+                var ua = c20 * rdx * rdx + c11 * rdx * rdy + c02 * rdy * rdy;
+                var hrxy = hy * rdx - hx * rdy;
+                var sol, pt3 = null;
+                if (Math.abs(rdy) < Math.abs(rdx)) { // Avoids divide by zero
+                    sol = solveRealQuadraticX(ua,
+                        rdx * (c10 * rdx + c01 * rdy) + (c11 * rdx + 2 * c02 * rdy) * hrxy,
+                        c00 * rdx * rdx + (c01 * rdx + c02 * hrxy) * hrxy);
+                    if (sol) {
+                        var x3 = sol.length > 1 && inRange(sol[1], hx, cx) ? sol[1] : sol[0];
+                        pt3 = mkp(x3, hy + rdy * (x3 - hx) / rdx);
                     }
-                } else if (v1) {
-                    pt3 = mkp(x1, y1);
-                } else if (v2) {
-                    pt3 = mkp(x2, y2);
+                } else {
+                    sol = solveRealQuadraticX(ua,
+                        rdy * (c10 * rdx + c01 * rdy) - (c11 * rdy + 2 * c20 * rdx) * hrxy,
+                        c00 * rdy * rdy - (c10 * rdy - c20 * hrxy) * hrxy);
+                    if (sol) {
+                        var y3 = sol.length > 1 && inRange(sol[1], hy, cy) ? sol[1] : sol[0];
+                        pt3 = mkp(hx + rdx * (y3 - hy) / rdy, y3);
+                    }
                 }
                 if (pt3) {
-                    refine(pt1, pt3, sign, depth + 1);
-                    refine(pt3, pt2, sign, depth + 1);
-                    return;
+                    // The midpoint (mx|my) of the control point (cx|cy) and the
+                    // midpoint of pt1 and pt2 (hx|hy) lies on the Bézier curve
+                    var mx = 0.5 * (cx + hx);
+                    var my = 0.5 * (cy + hy);
+                    var dx = pt3.px - mx;
+                    var dy = pt3.py - my;
+                    if (dx * dx + dy * dy > 0.25) { // compare to the distance in pixels squared
+                        refine(pt1, pt3, sign, depth + 1);
+                        refine(pt3, pt2, sign, depth + 1);
+                        return;
+                    }
                 }
             }
         }
