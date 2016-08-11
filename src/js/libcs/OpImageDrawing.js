@@ -374,7 +374,7 @@ evaluator.cameravideo$0 = function() {
     }
     var video = document.createElement("video");
     video.autoplay = true;
-    var img = loadImage(video);
+    var img = loadImage(video, true);
     console.log("Opening stream.");
     openVideoStream(function success(stream) {
         var url = window.URL.createObjectURL(stream);
@@ -388,7 +388,7 @@ evaluator.cameravideo$0 = function() {
 
 evaluator.playvideo$1 = function(args, modifs) {
     var img = imageFromValue(evaluateAndVal(args[0]));
-    if (img.live) {
+    if (img.live && img.img.play) {
         img.img.play();
     }
     return nada;
@@ -396,7 +396,7 @@ evaluator.playvideo$1 = function(args, modifs) {
 
 evaluator.pausevideo$1 = function(args, modifs) {
     var img = imageFromValue(evaluateAndVal(args[0]));
-    if (img.live) {
+    if (img.live && img.img.pause) {
         img.img.pause();
     }
     return nada;

@@ -297,6 +297,12 @@ function createCindyNow() {
             images[k] = img;
     }
 
+    for (var k in data.videos) {
+        var img = loadImage(data.videos[k], true);
+        if (img !== nada)
+            images[k] = img;
+    }
+
     globalInstance.canvas = c;
 
     // Invoke oninit callback
@@ -320,11 +326,10 @@ function createCindyNow() {
  * live: boolean indicating whether the image is expected to change continuously
  * generation: A counter that is increased once the drawable is changed.
  */
-function loadImage(obj) {
+function loadImage(obj, video = false) {
     var img;
     if (typeof obj === "string") {
-        var ext = obj.split('.').pop().toLowerCase();
-        if (ext === "mp4" || ext === "webm" || ext === "ogg") {
+        if (video) {
             img = document.createElement("video");
             img.preload = "auto";
             img.loop = true; //loop videos as default
