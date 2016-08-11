@@ -999,7 +999,7 @@ evaluator.plot$2 = function(args, modifs) {
     var stroking = false;
     var start = -10; //TODO Anpassen auf PortScaling
     var stop = 10;
-    var step = 1;
+    var step = 0.1;
     var steps = 1000;
 
     var v1 = args[0];
