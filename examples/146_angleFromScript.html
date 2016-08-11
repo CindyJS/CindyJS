@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>sample2.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+f(x):=sin(x);
+
+plot(f(x),start->-0,stop->2*pi);
+A.xy=[-1.5,0];
+B.xy=[-0.5,0];
+th=α0/180°*pi;
+//th1=arccos(C.x+1.5);
+K.xy=A.xy+[cos(th-pi/3),sin(th-pi/3)];
+plot([t,sin(t-pi/3)],start->0,stop->th);
+//K.xy=A.xy+[cos(th1-pi/3),sin(th1-pi/3)];
+//plot([t,sin(t-pi/3)],start->0,stop->th1);
+</script>
+
+    <script type="text/javascript">
+CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, -0.0, -2.6666666666666665], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "B", type: "Free", pos: [-2.0, 0.0, 4.0], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C0", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["A", "B"], printname: "$C_{0}$"},
+    {name: "C", type: "PointOnCircle", pos: [{r: -3.1982849928827424, i: -3.150945216011797E-34}, {r: 2.854889318151221, i: 3.09225665673844E-34}, 4.0], color: [1.0, 0.0, 0.0], args: ["C0"], labeled: true},
+    {name: "", type: "OtherPointOnCircle", pos: [4.0, {r: 1.2974241114794995, i: 1.8697650299800483E-34}, {r: -1.8178275469112612, i: -6.50768061433802E-35}], color: [1.0, 1.0, 1.0], args: ["C"], pinned: true, size: 0.0},
+    {name: "D", type: "Free", pos: [4.0, -0.0, -1.4545454545454546], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "E", type: "Free", pos: [-1.0, -0.0, 4.0], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["D", "E"], labeled: true},
+    {name: "F", type: "Free", pos: [4.0, -3.3333333333333335, -2.6666666666666665], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "G", type: "Free", pos: [4.0, 3.3333333333333335, -2.6666666666666665], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "b", type: "Segment", color: [0.0, 0.0, 1.0], args: ["F", "G"], labeled: true},
+    {name: "c", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "C"], labeled: true},
+    {name: "H", type: "Meet", color: [1.0, 0.0, 0.0], args: ["a", "c"], size: 0.0},
+    {name: "α0", type: "Angle", angle: {r: 0.7947982808119504, i: 5.551115123125783E-17}, color: [0.0, 0.0, 1.0], args: ["a", "c", "H"]},
+    {name: "K", type: "PointOnCircle", pos: [-2.1267358219295796, -0.9989117112520369, 4.0], color: [1.0, 0.0, 0.0], args: ["C0"], labeled: true},
+    {name: "d", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "K"], labeled: true},
+    {name: "L", type: "Free", pos: [0.0, -4.0, -3.2], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "M", type: "Free", pos: [0.0, -4.0, 3.2], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "e", type: "Segment", color: [0.0, 0.0, 1.0], args: ["L", "M"], labeled: true},
+    {name: "N", type: "PointOnSegment", pos: [0.0, -0.0, 4.0], color: [1.0, 0.0, 0.0], args: ["e"], labeled: true},
+    {name: "O", type: "Free", pos: [4.0, -0.0, 0.43243243243243246], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "f", type: "Segment", color: [0.0, 0.0, 1.0], args: ["N", "O"], labeled: true},
+    {name: "Text0", type: "Text", color: [0.0, 0.0, 0.0], args: ["H", "α0"], visible: false, text: "<)@$\"a\"@$\"c\"= @#\"α0\"", dock: {to: "H", offset: [3.0, 3.0]}}
+  ],
+  autoplay: true,
+  ports: [{
+    id: "CSCanvas",
+    width: 990,
+    height: 389,
+    transform: [{visibleRect: [-3.2874173596272556, 3.01615698810595, 9.500571583520026, -2.0086184653125274]}],
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1846, version: [2, 9, 1846]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
