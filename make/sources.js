@@ -37,6 +37,7 @@ exports.liblab = [
 ];
 
 exports.lib = [
+    "node_modules/iphone-inline-video/dist/iphone-inline-video.browser.js",
     "lib/clipper/clipper.js",
 ];
 

@@ -292,7 +292,7 @@ function createCindyNow() {
         csinitphys(data.behavior);
 
     for (var k in data.images) {
-        var img = loadImage(data.images[k]);
+        var img = loadImage(data.images[k], false);
         if (img !== nada)
             images[k] = img;
     }
@@ -326,7 +326,7 @@ function createCindyNow() {
  * live: boolean indicating whether the image is expected to change continuously
  * generation: A counter that is increased once the drawable is changed.
  */
-function loadImage(obj, video = false) {
+function loadImage(obj, video) {
     var img;
     if (typeof obj === "string") {
         if (video) {

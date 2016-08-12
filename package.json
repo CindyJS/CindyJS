@@ -30,7 +30,8 @@
     "st": "^1.2.0",
     "touch": "^1.0.0",
     "whole-line-stream": "^0.1.0",
-    "yauzl": "^2.6.0"
+    "yauzl": "^2.6.0",
+    "iphone-inline-video": "^1.9.3"
   },
   "scripts": {
     "prepublish": "$NODE make/index.js call_npm=false parallel=true build=release all",

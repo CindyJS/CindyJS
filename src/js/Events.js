@@ -211,7 +211,7 @@ function setuplisteners(canvas, data) {
                 reader.onload = function() {
                     var img = new Image();
                     img.onload = function() {
-                        oneDone(i, loadImage(img));
+                        oneDone(i, loadImage(img, false));
                     };
                     img.src = reader.result;
                 };

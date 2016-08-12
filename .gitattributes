@@ -11,7 +11,7 @@
 *.json          text
 *.js            text
 *.md            text
-*.mp4		-text
+*.mp4           -text
 *.pages         -text
 *.pl            text
 *.png           -text
@@ -30,6 +30,7 @@
 *.js.wrapper    text
 *.gwt.xml       text
 *.yml           text
+*.webm          -text
 
 .git*           text
 .mailmap        text
