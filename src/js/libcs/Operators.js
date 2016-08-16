@@ -3994,7 +3994,7 @@ evaluator.date$0 = function(args, modifs) {
     ]);
 };
 
-evaluator.setTimeout$2 = function(args, modifs) {
+evaluator.settimeout$2 = function(args, modifs) {
     var delay = evaluate(args[0]); // delay in seconds
     var code = args[1]; // code to execute, cannot refer to regional variables
     function callback() {
