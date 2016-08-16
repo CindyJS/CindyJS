@@ -1,6 +1,7 @@
 var should = require("chai").should();
 var rewire = require("rewire");
 
+global.navigator = {};
 var CindyJS = require("../build/js/Cindy.plain.js");
 
 function FakeCanvas() {

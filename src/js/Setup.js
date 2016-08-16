@@ -297,10 +297,10 @@ function createCindyNow() {
             images[k] = img;
     }
 
-    for (var k in data.videos) {
-        var img = loadImage(data.videos[k], true);
-        if (img !== nada)
-            images[k] = img;
+    for (var l in data.videos) {
+        var video = loadImage(data.videos[l], true);
+        if (video !== nada)
+            images[l] = video;
     }
 
     globalInstance.canvas = c;
