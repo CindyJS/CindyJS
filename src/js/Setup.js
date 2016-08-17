@@ -503,6 +503,10 @@ function callFunctionNow(f) {
 function loadExtraModules() {
     if (usedFunctions.convexhull3d$1)
         loadExtraPlugin("quickhull3d", "quickhull3d/quickhull3d.nocache.js");
+
+    if (usedFunctions.parsecsv$1)
+        loadExtraModule("papaparse", "papaparse.min.js");
+
 }
 
 var modulesToLoad = 1;
