@@ -289,8 +289,60 @@ function setuplisteners(canvas, data) {
             });
         }, false);
     }
+    resizeSensor(canvas.parentNode);
 
     scheduleUpdate();
+}
+
+function mkdiv(parent, style) {
+    var div = document.createElement("div");
+    div.setAttribute("style", style);
+    parent.appendChild(div);
+    return div;
+}
+
+// Inspired by
+// github.com/marcj/css-element-queries/blob/bfa9a7f/src/ResizeSensor.js
+// written by Marc J. Schmidt and others, licensed under the MIT license.
+function resizeSensor(element) {
+    if (typeof document === "undefined") return;
+    var styleChild = "position: absolute; transition: 0s; left: 0; top: 0;";
+    var style = styleChild + " right: 0; bottom: 0; overflow: hidden;" +
+        " z-index: -1; visibility: hidden;";
+    var expand = mkdiv(element, style);
+    var expandChild = mkdiv(
+        expand, styleChild + " width: 100000px; height: 100000px");
+    var shrink = mkdiv(element, style);
+    mkdiv(shrink, styleChild + " width: 200%; height: 200%");
+
+    function reset() {
+        expand.scrollLeft = expand.scrollTop =
+            shrink.scrollLeft = shrink.scrollTop = 100000;
+    }
+
+    reset();
+    var w = element.clientWidth;
+    var h = element.clientHeight;
+    var scheduled = false;
+
+    function onScroll() {
+        if (w !== element.clientWidth || h !== element.clientHeight) {
+            w = element.clientWidth;
+            h = element.clientHeight;
+            if (!scheduled) {
+                scheduled = true;
+                requestAnimFrame(function() {
+                    scheduled = false;
+                    updateCanvasDimensions();
+                    scheduleUpdate();
+                });
+            }
+        }
+        reset();
+    }
+
+    expand.addEventListener("scroll", onScroll);
+    shrink.addEventListener("scroll", onScroll);
 }
 
 var requestAnimFrame;
