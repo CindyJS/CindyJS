@@ -194,6 +194,29 @@ defines the function `f(x)` to be `sin(x)+cos(x)`.
 
 ------
 
+
+#### Parsing a CSV string: `parseCSV(‹string›)`
+
+**Description:**
+This operator parses a CVS string to an list of lists.
+
+    - skip test: parseCSV module not linked in for unit tests.
+    > parseCSV("Foo,1.0
+    > Bar,2.3
+    > abc,5.0
+    > asd,1.3
+    > sdf,4.3
+    > lala,2.3
+    > Barrr,1.7
+    > Baz,4.7");
+    < [[Foo, 1], [Bar, 2.3], [abc, 5], [asd, 1.3], [sdf, 4.3], [lala, 2.3], [Barrr, 1.7], [Baz, 4.7]]
+
+Numbers and Booleans are converted to their respective CindyScript counterparts, if this is not the desired behavior use the `autoconvert` modifier and set it to `false`.
+The modifiers `delimiter` and `newline` can be used to set the separating and linebreak characters.
+
+------
+
+
 #### Guessing a good representation of a number: `guess(‹number›)`
 
 **Not available in CindyJS yet!**
