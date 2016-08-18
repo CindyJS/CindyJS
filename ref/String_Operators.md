@@ -194,6 +194,111 @@ defines the function `f(x)` to be `sin(x)+cos(x)`.
 
 ------
 
+#### Parsing a CSV string: `parseCSV(‹string›)`
+
+**Description:**
+This operator parses a comma-separated values (CSV) string to a list of lists.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("Foo,1.0
+    > Bar,2.3
+    > true,5.0.7
+    > ")
+    < [["Foo", 1], ["Bar", 2.3], [true, "5.0.7"]]
+
+All rows in a CSV file should have the same number of columns.
+If this is not the case, short rows are padded with `___`.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("11,12
+    > 21,22,23,24,
+    > 31,32, 33
+    > 41")
+    < [[11, 12, ___, ___, ___], [21, 22, 23, 24, ""], [31, 32, " 33", ___, ___], [41, ___, ___, ___, ___]]
+
+Numbers and Booleans are converted to their respective CindyScript counterparts.
+If this is not the desired behavior the `autoconvert` modifier can be set to `false`.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("Foo,1.0,true,bar", autoconvert->false)
+    < [["Foo", "1.0", "true", "bar"]]
+
+Boolean values may have their first letter in upper case, but the rest must be lower case.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("true,True,TRUE,true ,false,False,fAlse, false,fALSE")
+    < [[true, true, "TRUE", "true ", false, false, "fAlse", " false", "fALSE"]]
+
+The current implementation does not auto-convert scientific notation.
+It does however handle infinite values.
+This may however change in a future release, so don't rely on this.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("1e2,1e+2,1e-2
+    > Infinity,+Infinity,-Infinity
+    > 100,+100,-100")
+    < [["1e2", "1e+2", "1e-2"], [Infinity, Infinity, -Infinity], [100, 100, -100]]
+
+Strings may be enclosed in double quotes.
+Inside such a quoted string, occurrences of double quotes have to be doubled.
+The following example writes `'` to represent `"`, then uses `unicode("22")`
+to replace that by an actual `"` character.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV(replace("a,'b,c''d'''',e',f
+    > g,h'i'j,'k
+    > l,m,n'", "'", unicode("22")))
+    < [["a", "b,c\"d\"\",e", "f"], ["g", "h\"i\"j", "k\nl,m,n"]]
+
+Lines may be terminated by carriage return, line feed,
+or a carriage return followed by a line feed.
+The input may use a mixture of end of line conventions.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV(replace(replace("1,2\n3,4\r5,6\n\r7,8\r\n9,10",
+    >     "\r", unicode("0D")), "\n", unicode("0A")))
+    < [[1, 2], [3, 4], [5, 6], ["", ___], [7, 8], [9, 10]]
+
+The line terminator is optional for the last line.
+This is even true if the last line ends in an empty field,
+which may be tricky for reasons internal to the implementation.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("1,2
+    > 11,")
+    < [[1, 2], [11, ""]]
+    > parseCSV("1,2,3
+    > 11,")
+    < [[1, 2, 3], [11, "", ___]]
+    > parseCSV("1,")
+    < [[1, ""]]
+    > parseCSV("1
+    > 11,")
+    < [[1, ___], [11, ""]]
+
+The modifier `delimiter` can be used to set the column-separating character.
+The argument to that modifier has to be a single character,
+excluding `"`, newline and carriage return.
+The default delimiter is the comma (as the name CSV suggests).
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("1;2,3;4.5", delimiter->";")
+    < [[1, "2,3", 4.5]]
+
+Some delimiters warrant extra checks due to possible special meanings
+in the internal implementation, so these are checked here.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("1,2d3", delimiter->"d")
+    < [["1,2", 3]]
+    > parseCSV("1,2.3", delimiter->".")
+    < [["1,2", 3]]
+    > parseCSV("1,2$3", delimiter->"$")
+    < [["1,2", 3]]
+
+------
+
+
 #### Guessing a good representation of a number: `guess(‹number›)`
 
 **Not available in CindyJS yet!**

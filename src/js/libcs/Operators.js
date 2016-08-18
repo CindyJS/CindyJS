@@ -4530,3 +4530,74 @@ evaluator.dropped$0 = function() {
 evaluator.droppoint$0 = function() {
     return dropPoint;
 };
+
+evaluator.parsecsv$1 = function(args, modifs) {
+    var autoconvert = true;
+    var mcon = evaluateAndVal(modifs.autoconvert);
+    if (mcon.ctype === "boolean") autoconvert = mcon.value;
+
+    var delim = null;
+    var md = evaluateAndVal(modifs.delimiter);
+    if (md.ctype === "string" && /^[^\"\r\n]$/.test(md.value))
+        delim = md.value;
+
+    var str = evaluateAndVal(args[0]);
+    if (str.ctype !== "string") {
+        console.log("CSV data is not a string");
+        return nada;
+    }
+    str = str.value;
+
+    var re = '(?:"((?:[^"]+|"")*)"|([^]*?))(\r\n|(,)|[\r\n]|$)';
+    // captures:  1             1  2     2 3     4 4         3
+    if (delim) {
+        // see replace$3
+        delim = delim
+            .replace(/[^A-Za-z0-9]/g, "\\$&")
+            .replace(/\$/g, "$$$$");
+        re = re.replace(/,/g, delim);
+    }
+    re = new RegExp(re, "g");
+
+    var row = [];
+    var data = [];
+    var ncols = null;
+    while (re.lastIndex < str.length) {
+        var match = re.exec(str);
+        var itm = match[2];
+        if (typeof match[1] === "string")
+            itm = match[1].replace(/""/g, '"');
+        if (!autoconvert)
+            itm = General.string(itm);
+        else if (/^[Tt]rue$/.test(itm))
+            itm = General.bool(true);
+        else if (/^[Ff]alse$/.test(itm))
+            itm = General.bool(false);
+        else if (/^[\-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+|Infinity)$/.test(itm))
+            itm = CSNumber.real(Number(itm));
+        else
+            itm = General.string(itm);
+        row.push(itm);
+        if (match[4] && re.lastIndex === str.length) {
+            // last row ended with a delimiter
+            row.push(General.string(""));
+            match = {}; // fall through to end-of-input handling below
+        }
+        if (!match[4]) { // end of row
+            if (ncols === null)
+                ncols = row.length;
+            if (ncols < row.length) {
+                ncols = row.length;
+                for (var i = 0; i < data.length; ++i)
+                    for (var j = data[i].length; j < ncols; ++j)
+                        data[i][j] = nada;
+            } else if (ncols > row.length) {
+                for (var k = row.length; k < ncols; ++k)
+                    row[k] = nada;
+            }
+            data.push(row);
+            row = [];
+        }
+    }
+    return List.turnIntoCSList(data.map(List.turnIntoCSList));
+};
