@@ -1668,6 +1668,71 @@ evaluator.isundefined$1 = function(args, modifs) {
     };
 };
 
+// See AlgoMap.java in the Cinderella codebase, but also geoMacros in GeoOps.js
+var cinderellaAlgoNames = {
+    ArcBy3: "Arc",
+    CenterOfConic: "Center",
+    ConicBy1p4l: "Conic1P4L",
+    ConicBy4p1l: "Conic4P1L",
+    ConicBy5lines: "Conic5L",
+    ConicBy2Foci1P: "ConicFoci", // sometimes "ConicFociH" instead
+    ConicFromPrincipalDirections: "ConicPrincipleDirs",
+    // Mid: "EuclideanMid", (only sometimes)
+    Free: "FreePoint",
+    PolarOfLine: "PolarLine",
+    PolarOfPoint: "PolarPoint",
+    PointOnSegment: "PointOnLine",
+    Button: "Text",
+    ToggleButton: "Text",
+    TrReflectionL: "TrReflection",
+    TrReflectionP: "TrReflection",
+    TrReflectionC: "TrReflection",
+    TrTranslation: "TrProjection", // or TrTranslationPP?
+    TrSimilarity: "TrProjection",
+    TrAffine: "TrProjection",
+    TransformP: "Transform",
+    TransformL: "Transform",
+    TransformSegment: "Transform",
+    TransformS: "Transform",
+    TransformPolygon: "Transform",
+    TransformArc: "Transform",
+    TransformConic: "Transform",
+    TransformC: "Transform",
+    TrMoebiusP: "Transform",
+    TrMoebiusL: "Transform",
+    TrMoebiusSegment: "Transform",
+    TrMoebiusS: "Transform",
+    TrMoebiusPolygon: "Transform",
+    TrMoebiusArc: "Transform",
+    TrMoebiusCircle: "Transform",
+    TrMoebiusC: "Transform",
+    TrInverseMoebius: "TrInverse",
+    Perp: "Orthogonal",
+    Para: "Parallel",
+    AngleBisector: "AngularBisector",
+    IntersectLC: "IntersectionConicLine",
+    IntersectCirCir: "IntersectionCircleCircle",
+    OtherPointOnCircle: "PointOnCircle",
+};
+
+evaluator.algorithm$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo") {
+        var el = v0.value;
+        var type = el.type;
+        if (/^Select/.test(type)) {
+            el = csgeo.csnames[el.args[0]];
+            type = el.type;
+        }
+        if (cinderellaAlgoNames.hasOwnProperty(type))
+            type = cinderellaAlgoNames[type];
+        else if (type === "CircleMr")
+            type = el.pinned ? "CircleByFixedRadius" : "CircleByRadius";
+        return General.string(type);
+    }
+    return nada;
+};
+
 evaluator.matrixrowcolumn$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     var n = List._helper.colNumb(v0);
