@@ -148,22 +148,21 @@
 
     var firstMessage = true;
 
-    function katexRenderer(ctx, text, x, y, align) {
-        var fontSize = /(?:^| )([0-9]+)px(?:$| )/.exec(ctx.font);
-        fontSize = fontSize ? +fontSize[1] : 16;
-        var key = fontSize + ":" + text;
+    function katexRenderer(ctx, text, x, y, align, fontSize, lineHeight) {
+        var key = fontSize + "," + lineHeight + ":" + text;
         var fontsMissing = false;
         var fontsToLoad = {};
-        var parts, n, i;
+        var parts, rows, row, n, i, j;
         if (this.cache.hasOwnProperty(key)) {
-            parts = this.cache[key];
-            n = parts.length;
+            rows = this.cache[key];
         } else {
             var opts = {
                 fontSize: fontSize,
                 macros: macros
             };
             parts = text.split("$");
+            row = [];
+            rows = [row];
             n = parts.length;
             if (n > 1 && !allScriptsLoaded()) {
                 if (firstMessage) {
@@ -173,23 +172,35 @@
                 haveToWait(this.instance);
                 return;
             }
-            for (i = 0; i < n; i += 2) {
-                parts[i] = new textBox(ctx, parts[i]);
-            }
-            for (i = 1; i < n; i += 2) {
-                try {
-                    parts[i] = katex.canvasBox(parts[i], ctx, opts);
-                    for (var font in parts[i].fontsUsed) {
-                        var fontState = fonts[font];
-                        if (fontState !== true) {
-                            fontsMissing = true;
-                            if (fontState === undefined)
-                                fontsToLoad[font] = true;
+            for (i = 0; i < n; ++i) {
+                var part = parts[i];
+                var box;
+                if ((i & 1) === 0) { // plain text not TeX
+                    if (part.indexOf("\n") === -1) {
+                        row.push(new textBox(ctx, part));
+                    } else {
+                        var rows2 = part.split("\n");
+                        row.push(new textBox(ctx, rows2[0]));
+                        for (j = 1; j < rows2.length; ++j) {
+                            row = [new textBox(ctx, rows2[j])];
+                            rows.push(row);
                         }
                     }
-                } catch(e) {
-                    console.error(e);
-                    parts[i] = new textBox(ctx, "$" + parts[i] + "$");
+                } else {
+                    try {
+                        row.push(katex.canvasBox(parts[i], ctx, opts));
+                        for (var font in parts[i].fontsUsed) {
+                            var fontState = fonts[font];
+                            if (fontState !== true) {
+                                fontsMissing = true;
+                                if (fontState === undefined)
+                                    fontsToLoad[font] = true;
+                            }
+                        }
+                    } catch(e) {
+                        console.error(e);
+                        row.push(new textBox(ctx, "$" + parts[i] + "$"));
+                    }
                 }
             }
             if (++this.misses === 1024) {
@@ -197,7 +208,7 @@
                 this.cache = {};
             }
             if (!fontsMissing) {
-                this.cache[key] = parts;
+                this.cache[key] = rows;
             }
         }
         if (fontsMissing) {
@@ -207,13 +218,20 @@
             }
             haveToWait(this.instance);
         } else {
-            var total = 0;
-            for (i = 0; i < n; ++i)
-                total += parts[i].width;
-            x -= align * total;
-            for (i = 0; i < n; ++i) {
-                parts[i].renderAt(x, y);
-                x += parts[i].width;
+            for (i = 0; i < rows.length; ++i) {
+                var total = 0;
+                var pos = x;
+                row = rows[i];
+                n = row.length;
+                for (j = 0; j < n; ++j)
+                    total += row[j].width;
+                var pos = x - align * total;
+                for (j = 0; j < n; ++j) {
+                    row[j].renderAt(pos, y);
+                    pos += row[j].width;
+                }
+                y += lineHeight;
+                // TODO: take vertical dimensions of formulas into account
             }
         }
     };
@@ -235,10 +253,23 @@
         while (element.firstChild)
             element.removeChild(element.firstChild);
         for (var i = 0; i < n; ++i) {
+            var text = parts[i];
             if ((i & 1) === 0) {
-                element.appendChild(document.createTextNode(parts[i]));
+                if (text.indexOf("\n") !== -1) {
+                    var rows = text.split("\n");
+                    console.log(rows);
+                    element.appendChild(document.createTextNode(rows[0]));
+                    for (var j = 1; j < rows.length; ++j) {
+                        element.appendChild(document.createElement("br"));
+                        element.appendChild(document.createTextNode(rows[j]));
+                    }
+                } else {
+                    element.appendChild(document.createTextNode(text));
+                }
             } else {
-                katex.render(parts[i], element, opts);
+                var span = document.createElement("span");
+                katex.render(text, span, opts);
+                element.appendChild(span);
             }
         }
     }

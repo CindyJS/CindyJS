@@ -89,7 +89,10 @@ By this it is easy to produce multilined text, as the following piece of code sh
     > multilined text.")
     D fillStyle = "rgb(0,0,0)"
     D font = "18px sans-serif"
-    D fillText("In Cinderella 'newlines' in Text\nare really used as line terminators.\nSo this text will appear as a\nmultilined text.", 250.5, 229.5)
+    D fillText("In Cinderella 'newlines' in Text", 250.5, 229.5)
+    D fillText("are really used as line terminators.", 250.5, 255.6)
+    D fillText("So this text will appear as a", 250.5, 281.7)
+    D fillText("multilined text.", 250.5, 307.8)
 
 ![Image](img/Newlines.png)
 
