@@ -208,8 +208,10 @@ function drawgeotext(el) {
             if (text === cache.text && font === cache.font &&
                 x === cache.x && y === cache.y && align === cache.align)
                 return;
-            if (font !== cache.font)
+            if (font !== cache.font) {
                 label.style.font = font;
+                label.style.lineHeight = defaultAppearance.lineHeight;
+            }
             if (text !== cache.text)
                 if (textRendererHtml(label, text, font) === false)
                     text = false; // Do not cache, must re-run

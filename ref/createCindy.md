@@ -119,11 +119,14 @@ The default is defined as follows:
     J   pointColor: [1,0,0],
     J   lineColor: [0,0,1],
     J   pointSize: 5,
-    J   lineSize: 2,
+    J   lineSize: 1,
     J   alpha: 1,
     J   overhangLine: 1.1,
     J   overhangSeg: 1,
-    J   dimDependent: 1
+    J   dimDependent: 0.7,
+    J   fontFamily: "sans-serif",
+    J   textsize: 20,
+    J   lineHeight: 1.45
     J }
 
 Any parameter which stays at this default value doesn't have to be specified at all.

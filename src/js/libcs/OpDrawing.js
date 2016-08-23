@@ -940,14 +940,8 @@ evaluator.drawtext$2 = function(args, modifs, callback) {
         callback(txt, font, xx, yy, Render2D.align, size);
     } else {
         textRendererCanvas(
-            csctx, txt, xx, yy, Render2D.align, size, size * 1.45);
-        /* The value of 1.45 for the line height agrees reasonably well
-         * with the default font of Cinderella on OS X,
-         * but it might well be that the Java line height
-         * is read from the font file,
-         * so that other fonts should use other line heights.
-         * Not sure whether we can reasonably reproduce this.
-         */
+            csctx, txt, xx, yy, Render2D.align,
+            size, size * defaultAppearance.lineHeight);
     }
 
     return nada;
