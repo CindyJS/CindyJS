@@ -121,7 +121,7 @@ The default is defined as follows:
     J   pointSize: 5,
     J   lineSize: 2,
     J   alpha: 1,
-    J   overhangLine: 1.1,
+    J   overhangLine: 1,
     J   overhangSeg: 1,
     J   dimDependent: 1
     J }
