@@ -3876,15 +3876,28 @@ evaluator.create$3 = function(args, modifs) {
     var type = evaluate(args[1]);
     var defs = evaluate(args[2]);
 
-    var name;
+    var name, el, i;
     if (names.ctype === "string") {
         name = names.value;
     } else if (names.ctype !== "list") {
         console.log("Names must be a string or a list of strings");
         return nada;
     } else if (names.value.length !== 1) {
-        console.log("multi-result compatibility operations not supported yet");
-        return nada;
+        // Create the compound object, then Select objects to split it up
+        name = General.string(names.value.map(function(name) {
+            return name.value;
+        }).join("__"));
+        el = evaluator.create$3([name, type, defs], modifs);
+        if (el !== nada) {
+            type = General.string(el.kind.replace(/^(.*)s$/, "Select$1"));
+            defs = List.turnIntoCSList([General.string(el.name)]);
+            for (i = 0; i < names.value.length; ++i) {
+                evaluator.create$3([names.value[i], type, defs], {
+                    index: CSNumber.real(i + 1)
+                });
+            }
+        }
+        return el;
     } else if (names.value[0].ctype !== "string") {
         console.log("Element of names list must be a string");
         return nada;
@@ -3900,7 +3913,8 @@ evaluator.create$3 = function(args, modifs) {
         return nada;
     }
 
-    if (geoOps[type.value] === undefined) {
+    if (!geoOps.hasOwnProperty(type.value) &&
+        !geoMacros.hasOwnProperty(type.value)) {
         console.log("Invalid geometric operation: '" + type.value + "'");
         return nada;
     }
@@ -3908,11 +3922,13 @@ evaluator.create$3 = function(args, modifs) {
     var a = [];
     var pos = null;
 
-    for (var i = 0; i < defs.value.length; i++) {
+    for (i = 0; i < defs.value.length; i++) {
         var def = defs.value[i];
 
         if (def.ctype === "string") {
             a.push(def.value);
+        } else if (def.ctype === "geo") {
+            a.push(def.value.name);
         } else {
             var vec = evaluateAndHomog(def);
             if (vec !== nada) {
@@ -3924,7 +3940,7 @@ evaluator.create$3 = function(args, modifs) {
         }
     }
 
-    var el = {
+    el = {
         name: name,
         type: type.value,
         labeled: true
@@ -3935,6 +3951,10 @@ evaluator.create$3 = function(args, modifs) {
 
     if (a.length > 0)
         el.args = a;
+
+    var index = evaluateAndVal(modifs.index);
+    if (index.ctype === "number")
+        el.index = index.value.real | 0;
 
     return addElement(el);
 };
