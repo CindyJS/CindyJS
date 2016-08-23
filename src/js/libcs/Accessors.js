@@ -176,13 +176,13 @@ Accessor.getField = function(geo, field) {
 Accessor.setField = function(geo, field, value) {
     var dir;
 
-    if (field === "color") {
+    if (field === "color" && CSNumber._helper.isNumberVecN(value, 3)) {
         geo.color = value;
     }
-    if (field === "size") {
+    if (field === "size" && value.ctype === "number") {
         geo.size = value;
     }
-    if (field === "alpha") {
+    if (field === "alpha" && value.ctype === "number") {
         geo.alpha = value;
     }
     if (field === "visible") {
@@ -234,7 +234,7 @@ Accessor.setField = function(geo, field, value) {
         movepointscr(geo, value, "homog");
     }
 
-    if (field === "angle" && geo.type === "Through") {
+    if (field === "angle" && geo.type === "Through" && value.ctype === "number") {
         var cc = CSNumber.cos(value);
         var ss = CSNumber.sin(value);
         dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);

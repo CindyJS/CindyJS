@@ -465,7 +465,7 @@ eval_helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
     if (where.ctype === 'geo' && field) {
-        Accessor.setField(where.value, field, what);
+        Accessor.setField(where.value, field, evaluateAndVal(what));
     }
 
     return nada;
