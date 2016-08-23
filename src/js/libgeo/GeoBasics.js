@@ -161,7 +161,11 @@ function addElementNoProof(el) {
     }
     if (op.signature !== "**") {
         if (op.signature.length !== (el.args ? el.args.length : 0)) {
-            window.alert("Wrong number of arguments for " + el.name);
+            console.error(
+                "Wrong number of arguments for " + el.name +
+                " of type " + el.type);
+            if (typeof window !== "undefined")
+                window.alert("Wrong number of arguments for " + el.name);
             return null;
         }
     }
