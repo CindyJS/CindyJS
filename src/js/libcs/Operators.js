@@ -1765,6 +1765,20 @@ evaluator.inputs$1 = function(args, modifs) {
     return nada;
 };
 
+evaluator.moveto$2 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    var v1 = evaluateAndVal(args[1]);
+    if (v0.ctype === "geo") {
+        var el = v0.value;
+        if (List._helper.isNumberVecN(v1, 2)) {
+            Accessor.setField(el, "xy", v1);
+        } else if (List._helper.isNumberVecN(v1, 3)) {
+            Accessor.setField(el, "homog", v1);
+        }
+    }
+    return nada;
+};
+
 evaluator.matrixrowcolumn$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     var n = List._helper.colNumb(v0);
