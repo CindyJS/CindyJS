@@ -1720,14 +1720,18 @@ evaluator.algorithm$1 = function(args, modifs) {
     if (v0.ctype === "geo") {
         var el = v0.value;
         var type = el.type;
-        if (/^Select/.test(type)) {
-            el = csgeo.csnames[el.args[0]];
-            type = el.type;
+        var compat = evaluateAndVal(modifs.compatibility);
+        if (compat.ctype === "string" &&
+            (/^cinderella$/i).test(compat.value)) {
+            if (/^Select/.test(type)) {
+                el = csgeo.csnames[el.args[0]];
+                type = el.type;
+            }
+            if (cinderellaAlgoNames.hasOwnProperty(type))
+                type = cinderellaAlgoNames[type];
+            else if (type === "CircleMr")
+                type = el.pinned ? "CircleByFixedRadius" : "CircleByRadius";
         }
-        if (cinderellaAlgoNames.hasOwnProperty(type))
-            type = cinderellaAlgoNames[type];
-        else if (type === "CircleMr")
-            type = el.pinned ? "CircleByFixedRadius" : "CircleByRadius";
         return General.string(type);
     }
     return nada;
