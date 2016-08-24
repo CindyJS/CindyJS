@@ -402,7 +402,10 @@ Characters can be returned and set with this operator.
 
     > "CindyScript"_5
     < "y"
+    > "CindyScript"_[1, 6]
+    < ["C", "S"]
     > "CindyScript"_12
+    * WARNING: Index out of range!
     < ___
     > a="CindyScript";
     > a_5="erella";

@@ -2448,25 +2448,28 @@ evaluator.mincostmatching$1 = function(args, modifs) {
 function infix_take(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluateAndVal(args[1]);
+    if (v0.ctype !== 'string') {
+        v0 = List.asList(v0);
+    }
     if (v1.ctype === 'number') {
         var ind = Math.floor(v1.value.real);
-        if (v0.ctype === 'list' || v0.ctype === 'string') {
-            if (ind < 0) {
-                ind = v0.value.length + ind + 1;
+        if (ind < 0) {
+            ind = v0.value.length + ind + 1;
+        }
+        if (ind > 0 && ind < v0.value.length + 1) {
+            if (v0.ctype === 'list') {
+                return v0.value[ind - 1];
             }
-            if (ind > 0 && ind < v0.value.length + 1) {
-                if (v0.ctype === 'list') {
-                    return v0.value[ind - 1];
-                }
-                return {
-                    "ctype": "string",
-                    "value": v0.value.charAt(ind - 1)
-                };
-            }
+            return {
+                "ctype": "string",
+                "value": v0.value.charAt(ind - 1)
+            };
+        } else {
+            csconsole.err("WARNING: Index out of range!");
             return nada;
         }
     }
-    if (v1.ctype === 'list') { //Hab das jetzt mal rekursiv gemacht, ist anders als in Cindy
+    if (v1.ctype === 'list') { // This is recursive, different from Cinderella
         var li = [];
         for (var i = 0; i < v1.value.length; i++) {
             var v1i = evaluateAndVal(v1.value[i]);
