@@ -176,7 +176,7 @@ Accessor.getField = function(geo, field) {
 Accessor.setField = function(geo, field, value) {
     var dir;
 
-    if (field === "color" && CSNumber._helper.isNumberVecN(value, 3)) {
+    if (field === "color" && List._helper.isNumberVecN(value, 3)) {
         geo.color = value;
     }
     if (field === "size" && value.ctype === "number") {
