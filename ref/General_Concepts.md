@@ -40,7 +40,7 @@ Depending on the evaluation of the condition, the `if` function returns the valu
 
 ### Side Effects
 
-If a function is evaluated in CindyScript, it may have "side effects".
+If a function is evaluated in CindyScript, it may have “side effects”.
 Side effects are important for all kinds of interactions between a CindyScript program and a Cinderella construction.
 Typical side effects are:
 
@@ -168,7 +168,7 @@ The number type is particularly powerful, since it can contain integers, floatin
 
 ### Variables and Their Scope
 
-Since CindyScript does not have explicit typing for variables, it allows variables to be created "on the fly" as needed.
+Since CindyScript does not have explicit typing for variables, it allows variables to be created “on the fly” as needed.
 A variable is created when it is assigned for the first time.
 If `x` is not already being used, the statement
 

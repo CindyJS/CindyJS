@@ -1,7 +1,7 @@
 ##  User Input
 
 Sometimes it is necessary to handle user input by mouse or the keyboard explicitly.
-There are special evaluation times "Mouse Down", "Mouse Up", "Mouse Click", "Mouse Drag", and "Key Typed" for this (see [Entering Program Code](Entering_Program_Code.md)).
+There are special evaluation times “Mouse Down”, “Mouse Up”, “Mouse Click”, “Mouse Drag”, and “Key Typed” for this (see [Entering Program Code](Entering_Program_Code.md)).
 These evaluation times are captured exactly when the corresponding events occur.
 If one wants to react to the corresponding event data, there are several operators that read the input data.
 

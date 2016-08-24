@@ -338,7 +338,7 @@ The result should also be a two-dimensional vector.
 Applying the operator `drawfield` to this expression will result in plotting the corresponding vector field.
 The field will be animated.
 This means that it will change slightly with every picture.
-Therefore, it is often useful to put the `drawfield` operator into the "timer tick" evaluation slot.
+Therefore, it is often useful to put the `drawfield` operator into the “timer tick” evaluation slot.
 This creates an animation control in the geometric view.
 Running the animation will automatically animate the vector field.
 The running variable policy is identical to the one in the `colorplot(…)` statement.

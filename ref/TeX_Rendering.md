@@ -131,7 +131,7 @@ Their usage is shown in the next example:
 
 Usual blanks and newlines are only used as syntactic separators in formulas and do not have any influence on the layout of the formula.
 To introduce whitespace the commands `\`, `\;`, `\quad`, `\qquad`, `\!` are used.
-They produce a whitespace measured in units of an "m" of the current font.
+They produce a whitespace measured in units of an “m” of the current font.
 
 *  `\qquad`: whitespace of 2.0 units
 *  `\quad`: whitespace of 1.0 unit

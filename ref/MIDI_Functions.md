@@ -133,7 +133,7 @@ By this the following piece of code
     >   ["c",5]
     > ],speed->300,instrument->57)
 
-plays a very simple version of "Oh, when the saints".
+plays a very simple version of “Oh, when the saints”.
 Again the statement may be decorated by various modifiers.
 So here the instrument is chosen to be something that sound roughly like a trumpet (real trumpet players please forgive us).
 The speed is set to 300 *beats per minute*.
@@ -184,7 +184,7 @@ Observe that this program also uses the `"goto"` statement in `playmelody(…)` 
     >   [-1,13],[76,1],[62,1],[-1,2],["goto",0]        //percussion
     > ]);
 
-In the above code snippet several percussion instruments are overlaid in the same "melody" and form a complex rhythmic pattern.
+In the above code snippet several percussion instruments are overlaid in the same “melody” and form a complex rhythmic pattern.
 The note `-1` is used as a pause.
 
 ### Tracks and Pieces of Music
@@ -194,7 +194,7 @@ MIDI can accept many different tracks for the sequencer.
 Each track may be associated with one player of a band.
 CindyScript offers a statement `midiaddtrack(…)` that silently adds a track to the sequencer without immediately playing it.
 All added track can be played by invoking the `midistart()` command.
-The following piece of code shows how our Rock rhythm can be combined with the "Oh, when the saints" melody to give a rocky version of this traditional piece of music.
+The following piece of code shows how our Rock rhythm can be combined with the “Oh, when the saints” melody to give a rocky version of this traditional piece of music.
 There are some specialties that will be explained in a moment.
 
     > midichannel(3,instrument->57);
@@ -216,13 +216,13 @@ There are some specialties that will be explained in a moment.
 
 So in principle we add two tracks to the sequencer (one for the melody and one for the rhythm) and play it by using `midistart()`.
 There are some minor problems concerning timing and positioning that can be addressed using modifiers.
-First of all we take the "Oh, when the saints" track from the previous example as it is.
+First of all we take the “Oh, when the saints” track from the previous example as it is.
 We associate it with track 1 of the sequencer.
 Adding the Rock rhythm pattern from the other example to track 2 brings up several problems.
 First of all the timing does not fit.
 The beats in the melody are twice as long as the beats in the rhythm track.
 We can adjust this by using the modifier `stretch->1/2` equivalently we could have halved the position numbers of the rhythm track.
-Second "Oh, when the saints" has some pickup notes (the first three).
+Second “Oh, when the saints” has some pickup notes (the first three).
 So the rhythm track should not start immediately.
 We can fix this by using `offset->3`.
 Finally, we need all together eight repetitions of the rhythm pattern.
@@ -486,7 +486,7 @@ First bracket.
 Second bracket.
 
 Using these commands it is easily possible to transfer sheet notes with repetitions directly.
-The following line from "Oh, Susanna"
+The following line from “Oh, Susanna”
 
 <img alt="Image" src="img/Susanna.png" width="1024">
 
@@ -842,7 +842,7 @@ We want to create a Ping-Pong game with sound effects.
 By using the physics simulation facilities of [CindyLab](CindyLab.md) it is very easy to construct a physically reasonable interactive Ping-Pong table.
 The boundary of the table is created by physical **bouncers**.
 In the Inspector each of these bouncers can be associated with a script that is executed at the moment when a mass hits the bouncer.
-There we have to simply place a `playtone` statement that produces a "click" sound.
+There we have to simply place a `playtone` statement that produces a “click” sound.
 That's it.
 
 ![Image](img/MIDIPong.png)
@@ -855,7 +855,7 @@ Finally, our last example exemplifies the precision of the sequencer timing.
 it simply plays the beginning of the famous Charlie Parker Jazz tune **Ornithology** (Charlies nickname was *Bird* and this title refers to his nickname).
 A typical thing for Jazz is its groovy timing, the Swing feeling.
 This comes from a certain sensible shift of of the notes with respect to the ground beat.
-In the following example code the variable `g` is used as a "Swing parameter".
+In the following example code the variable `g` is used as a “Swing parameter”.
 It shifts the beginning of each second note with resect to the ground beat.
 It is instructive to associate `g` with a movable point in a range from 0.0 to 1.0.
 By this one can very easily adjust the amount of Swing feeling used by the tune (in a range between 0.5 and 0.7 it sounds quite reasonable).

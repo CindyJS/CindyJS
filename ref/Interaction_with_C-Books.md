@@ -24,8 +24,8 @@ See http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&language=en&scoViewNr=56868
 
 Here, we also give some written explanations of how to do this.
 At first, notice that after having added a widget to a c-book which uses scores in edit mode, you will have to click on the widget in order to open up the widget editor window.
-There you have to make sure the "include in grading" ("teltMee" in Dutch) check box on top of the window is checked, and that the max score is set to a positive number.
-Moreover, you either have to check the "add check button" checkbox or not, depending on how the widget interacts with the CBE.
+There you have to make sure the “include in grading” (“teltMee” in Dutch) check box on top of the window is checked, and that the max score is set to a positive number.
+Moreover, you either have to check the “add check button” checkbox or not, depending on how the widget interacts with the CBE.
 
 In order to produce your own widget which supports scores, you may use the following functions which are described in more detail below:
 
@@ -111,23 +111,23 @@ Actually, this is the most natural thing.
 E.g., based on the following code, it might pass to the widget the code:
 B.x=3
 C.x=-4
-The Cinderella widget simply takes these lines of code and executes them, after having executed the Cinderella widget "initialization".
+The Cinderella widget simply takes these lines of code and executes them, after having executed the Cinderella widget “initialization”.
 
 Thus, if B and C are free points, everything is fine.
 
 However, we do not want to allow the user to move B and C.
-For this, we may use Cinderella's "pinning" property.
-Most Cinderella objects can be "pinned" to a fixed coordinate, i.e.
+For this, we may use Cinderella's “pinning” property.
+Most Cinderella objects can be “pinned” to a fixed coordinate, i.e.
 they are not allowed to be moved using the mouse or anything else.
 
-So, what we have to do to be able to set the x-coordinates of B and C after the "initialization" is to
+So, what we have to do to be able to set the x-coordinates of B and C after the “initialization” is to
 
-1. set the pinning property to "false" for B and C (or even for all points) in the "initialization" event
+1. set the pinning property to “false” for B and C (or even for all points) in the “initialization” event
 
-2. and to set it later (e.g., in the "draw" event) to "true".
+2. and to set it later (e.g., in the “draw” event) to “true”.
 
 This can be achieved using the following CindyScript code.
-Paste this into the "initialization" event part of the Cinderella "CindyScript Editor":
+Paste this into the “initialization” event part of the Cinderella "CindyScript Editor":
 
 forall(allpoints(), inspect(,"pinning", false));
 
@@ -150,7 +150,7 @@ You may change any other numerical property of a Cinderella object which is chan
 ...
 = integer number
 
-E.g., points also have a y-coordinate, so if you type the following into the "variables for random parameters"
+E.g., points also have a y-coordinate, so if you type the following into the “variables for random parameters”
 textarea in the DME at the bottom right of a page
 A.x = -5..5
 A.y=-3..3

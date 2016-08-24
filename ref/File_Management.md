@@ -46,7 +46,7 @@ The resulting output is
 This operator takes the argument `‹string›`, which is considered to be a file name (including directory information).
 If the file name is legitimate, then the whole content of the file is assumed to be able to be parsed by CindyScript code, and it is immediately executed.
 In this way, one can load libraries with predefined functionality.
-It is advisable to use the `import` operator only in the "Init" section of CindyScript, since otherwise, the file will be read for each move.
+It is advisable to use the `import` operator only in the “Init” section of CindyScript, since otherwise, the file will be read for each move.
 
 ------
 

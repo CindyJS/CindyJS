@@ -16,7 +16,7 @@ For the first two we assume that `x`, `y`, and `z` are numbers.
 | `draw([x,y,z])` | Draws a point with homogenous coordinates given by `[x,y,z]` |
 
 A word on homogeneous coordinates: If `[x,y,z]` are the homogeneous coordinates of a point, then the corresponding point that will be drawn has *xy*-coordinates `[x/z,y/z]`.
-Points that have homogeneous coordinates with `z=0` correspond to "points at infinity". You won't see them in a usual Cinderella Euclidean view.
+Points that have homogeneous coordinates with `z=0` correspond to “points at infinity”. You won't see them in a usual Cinderella Euclidean view.
 However, they will be drawn in spherical view (or when a local projective basis is set (see [Script Coordinate System](Script_Coordinate_System.md)).
 
 **Drawing a segment:**

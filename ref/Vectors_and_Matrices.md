@@ -9,9 +9,9 @@ Several arithmetic operations serve the particular purpose of calculating direct
 
 ###  Definition of Vectors and Matrices
 
-Any list can be considered as a "vector of objects".
+Any list can be considered as a “vector of objects”.
 However, of particular interest are vectors of numbers.
-Such a vector will be called a "number vector".
+Such a vector will be called a “number vector”.
 Whether a certain list is a number vector can be tested with the operator `isnumbervector(‹expr›)`.
 
 If the elements of a list are again lists, and if all these lists have the same length, then such a list is called a *matrix*.

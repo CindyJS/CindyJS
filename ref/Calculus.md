@@ -110,7 +110,7 @@ Thus it is possible to use the guess operator to discover whether a number is ra
 **Examples:**
 This operator is sometimes extremely useful for finding hidden properties of geometric constructions.
 We illustrate this with a few examples.
-The first picture shows a construction in which the slope of the line and the coordinates of the intersection of two circles are "guessed":
+The first picture shows a construction in which the slope of the line and the coordinates of the intersection of two circles are “guessed”:
 
 ![Values guessed from geometric construction](img/GuessX.png)
 
