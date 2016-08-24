@@ -2338,6 +2338,19 @@ geoOps.TransformS.updatePosition = function(el) {
     //console.log(niceprint(List.turnIntoCSList([el.homog, el.startpos, el.endpos])));
 };
 
+geoOps.TransformPolygon = {};
+geoOps.TransformPolygon.kind = "Poly";
+geoOps.TransformPolygon.signature = ["Tr", "Poly"];
+geoOps.TransformPolygon.updatePosition = function(el) {
+    var m = csgeo.csnames[(el.args[0])].matrix;
+    var ps = csgeo.csnames[(el.args[1])].vertices.value;
+    el.vertices = List.turnIntoCSList(ps.map(function(p) {
+        var homog = List.normalizeMax(List.productMV(m, p));
+        homog = General.withUsage(homog, "Point");
+        return homog;
+    }));
+};
+
 geoOps._helper.pointReflection = function(center, point) {
     // If center is at infinity, the result will be center unless point
     // is also at infinity, then the result is the ideal point [0, 0, 0].
@@ -2523,7 +2536,11 @@ geoOps._helper.initializeLine = function(el) {
 geoOps.Poly = {};
 geoOps.Poly.kind = "Poly";
 geoOps.Poly.signature = "P*";
-geoOps.Poly.updatePosition = noop;
+geoOps.Poly.updatePosition = function(el) {
+    el.vertices = List.turnIntoCSList(el.args.map(function(x) {
+        return csgeo.csnames[x].homog;
+    }));
+};
 
 
 var geoMacros = {};

@@ -246,7 +246,6 @@ function drawgeotext(el) {
 function drawgeopolygon(el) {
     if (!el.isshowing || el.visible === false)
         return;
-
     var modifs = {
         color: el.color,
         alpha: el.alpha,
@@ -254,17 +253,7 @@ function drawgeopolygon(el) {
         fillalpha: el.fillalpha,
         size: el.size,
     };
-
-    var args = List.turnIntoCSList(el.args.map(function(x) {
-        return {
-            ctype: "geo",
-            value: csgeo.csnames[x]
-        };
-    }));
-
-    eval_helper.drawpolygon([args], modifs, "D", true);
-
-
+    eval_helper.drawpolygon([el.vertices], modifs, "D", true);
 }
 
 function render() {
