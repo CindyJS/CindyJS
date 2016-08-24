@@ -625,7 +625,7 @@ Applying the convex hull operator to this list produces the following output:
 Observe that the interior point has been properly removed, and that the convex hull operator can nicely handle coplanarities.
 
 The convex hull operator is remarkably robust to degenerate situations.
-The following image has been computed under usage of the `convexhull3d(...)` operator.
+The following image has been computed under usage of the `convexhull3d(…)` operator.
 It shows the section of a 4-dimensional polytope (a 600-cell) with a 3-dimensional space.
 
 ![A section of a 600-cell rendered with CindyScript](img/ConvexHullX.png)

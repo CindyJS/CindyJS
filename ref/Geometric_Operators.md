@@ -44,7 +44,7 @@ This operator takes a point and a line as input (no matter in which order) and c
 The line that is returned by the operator is again represented in homogeneous coordinates.
 This operator refers to Euclidean geometry.
 Hyperbolic and spherical computations are not supported.
-This operator can also be abbreviated by `para(...)`.
+This operator can also be abbreviated by `para(…)`.
 
 ------
 
@@ -57,7 +57,7 @@ This operator takes a point and a line as input (no matter in which order) and c
 The line that is returned by the operator is again represented in homogeneous coordinates.
 This operator refers to Euclidean geometry.
 Hyperbolic and spherical computations are not supported.
-This operator can also be abbreviated by `perp(...)`.
+This operator can also be abbreviated by `perp(…)`.
 
 **Combined example:**
 The following code creates the picture below.

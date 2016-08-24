@@ -5,16 +5,16 @@ By this it is possible to explore the interrelations of mathematics and the very
 
 Syntherella provides essentially three specialized functions that cover different scenarios.
 
-* **`playfunction(...)`** allows to form a sound wave by specifying its underlying function.
+* **`playfunction(…)`** allows to form a sound wave by specifying its underlying function.
 
-* **`playlist(...)`** plays a sound specified by a list of samples that specify the wave.
+* **`playlist(…)`** plays a sound specified by a list of samples that specify the wave.
 
-* **`playsin(...)`** plays a *sin(x)* wave with specified frequency.
+* **`playsin(…)`** plays a *sin(x)* wave with specified frequency.
 Harmonics can also be specified.
 
 Before we will describe these statements in detail we will give a brief explanation (in a nutshell) of these statements and the subtleties that are relevant for the generation of an audio signal.
 
-In all three functions the amplitude of the overall signal is restricted to the range (-1.0...1.0).
+In all three functions the amplitude of the overall signal is restricted to the range (-1.0…1.0).
 Moreover the sum of all accumulated audio signals must stay in this range.
 We start our explanations with the `playsin(‹real›)` function.
 In its simplest form it starts the audio-rendering of a sine wave of a given frequency.
@@ -37,7 +37,7 @@ The resulting code will look as follows:
 
 Everytime the function `playsin` is called a new tone is added to the already existing sounds.
 If the function `playsin` is called a second time while a tone is already playing the old tone still continues while a new tone is started.
-This may very soon lead to a situation where the dynamics range -1.0...1.0 is exceeded.
+This may very soon lead to a situation where the dynamics range -1.0…1.0 is exceeded.
 There is a modifier `line->‹int›` that helps to prevent such situations.
 Specifying `line->1` associates the tone to an output line that can carry at most one tone.
 So for instance the code
@@ -75,7 +75,7 @@ The command has several modifiers.
 
 | Modifier    | Parameter              | Effect                                  |
 | ----------- | ---------------------- | --------------------------------------- |
-| `amp`       | `0.0 ... 1.0`          | global amplitude (volume) of the sample |
+| `amp`       | `0.0 … 1.0`          | global amplitude (volume) of the sample |
 | `damp`      | `‹real›`               | factor for exponential damping          |
 | `harmonics` | `‹list›`               | spectrum of the tone                    |
 | `duration`  | `‹real›`               | duration for playing                    |
@@ -117,7 +117,7 @@ The command has several modifiers.
 
 | Modifier   | Parameter              | Effect                                  |
 | ---------- | ---------------------- | --------------------------------------- |
-| `amp`      | `0.0 ... 1.0`          | global amplitude (volume) of the sample |
+| `amp`      | `0.0 … 1.0`          | global amplitude (volume) of the sample |
 | `damp`     | `‹real›`               | factor for exponential damping          |
 | `start`    | `‹real›`               | start position of sample                |
 | `stop`     | `‹real›`               | end position of sample                  |
@@ -161,7 +161,7 @@ This could be done for instance by
 
 **Description:**
 This statement creates a sound that is driven by a list that contains sample data.
-The vales of the samples are assumed to lie in the range *-1.0...1.0*.
+The vales of the samples are assumed to lie in the range *-1.0…1.0*.
 The sample rate is 44100 samples per second.
 Usually the sample is played over and over for one second.
 The play time may be modified by the `duration` modifier.
@@ -171,7 +171,7 @@ The command has several modifiers.
 
 | Modifier   | Parameter              | Effect                                  |
 | ---------- | ---------------------- | --------------------------------------- |
-| `amp`      | `0.0 ... 1.0`          | global amplitude (volume) of the sample |
+| `amp`      | `0.0 … 1.0`          | global amplitude (volume) of the sample |
 | `damp`     | `‹real›`               | factor for exponential damping          |
 | `duration` | `‹real›`               | duration for playing                    |
 | `line`     | `‹number› or ‹string›` | a sound-line associated to the tone     |

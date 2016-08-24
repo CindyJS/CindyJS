@@ -31,8 +31,8 @@ Returns a string that contains the last typed character.
 This operator returns a boolean value that is true if a certain key is pressed.
 The key in question is specified by the integer in the argument.
 This operator can be used to determine for instance the *shift* key is pressed.
-The codes for keys are usually 65, 66, 66, ....
-for 'A', 'B', 'C',...
+The codes for keys are usually 65, 66, 66, …
+for 'A', 'B', 'C',…
 Codes for 'shift', 'crtl' and 'alt' are usually 16, 17, 18.
 
 ------
@@ -199,7 +199,7 @@ More complicated examples that create toolbars with several tools are given belo
 ![Image](img/Tool5.png)
 
     > createtool(
-    > ...same as example above...
+    > …same as example above…
     > ,reference->"LR");
 
 ![Image](img/Tool6.png)

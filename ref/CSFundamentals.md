@@ -39,7 +39,7 @@ Declearing, destroying and scope of variables and functions
 How to interact with Cinderella and [CindyLab](CindyLab.md)
 
 *  **[Control Operators](Control_Operators.md):**
-How to create control structures with `if, repeat, while,...`
+How to create control structures with `if`, `repeat`, `while`, …
 
 *  **[Arithmetic Operators](Arithmetic_Operators.md):**
 Dealing with numbers (+, -, *, /, sin(), cos(), …)

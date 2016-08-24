@@ -84,7 +84,7 @@ The function returns a handle to the file that is needed for subsequent print op
 **Not available in CindyJS yet!**
 
 **Description:**
-Identical to the `println(...)` command.
+Identical to the `println(…)` command.
 However this command prints to the file specified by `‹file›`.
 
 ------
@@ -94,7 +94,7 @@ However this command prints to the file specified by `‹file›`.
 **Not available in CindyJS yet!**
 
 **Description:**
-Identical to the `print(...)` command.
+Identical to the `print(…)` command.
 However this command prints to the file specified by `‹file›`.
 
 ------

@@ -8,7 +8,7 @@ Care has to be taken when using the transformations: if many of them are applied
 In order to still make an easy use of the transformation operators CindyScript provides two operators `gsave` and `grestore`.
 Similar to PostScript like languages these operators push/pop the actual state of the drawing engine to a stack.
 This state contains (besides the graphical default appearance information) the present coordinate transformation.
-So a temporal use of coordinate systems may be enclosed by a `gsave()`...`grestore()` construction.
+So a temporal use of coordinate systems may be enclosed by a `gsave()`…`grestore()` construction.
 We first introduce the operators and than give a combined example.
 
 **Caution:**
@@ -150,7 +150,7 @@ CindyScript has a mechanism that serves for such services.
 
 The `gsave()` operator stores all informations in the graphic state (coordinate transformations, sizes, colors, opacity) to a stack.
 While the `grestore()` operator reverses this effect by popping the information from the stack.
-Thus within a sequence `gsave()`...`grestore()` any coordinate transformations can be made without having effect to the remaining code.
+Thus within a sequence `gsave()`…`grestore()` any coordinate transformations can be made without having effect to the remaining code.
 
 ------
 

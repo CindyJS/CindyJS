@@ -18,7 +18,7 @@ In the latter case, it will draw a parametric plot of a function.
 The coordinate system is tied to the coordinate system of the geometric views.
 Instead of `#` also other running variables are detected automatically.
 If there is only one free variable then this variable is taken as running variable.
-If there are several free variables the `plot(...)` function searches for typical names in the order `x`, `y`, `t`, `z`.
+If there are several free variables the `plot(…)` function searches for typical names in the order `x`, `y`, `t`, `z`.
 
 **Examples:**
 In its simplest form the `plot` operator can be used directly to plot a function.
@@ -74,7 +74,7 @@ Observe that some of the modifiers may even be invoked with different types of a
 | `inflections`      | `[‹real1›,‹real2›,‹real3›]` | mark all inflection points in specified color                |
 | Line style         |
 | `dashing`          | `‹real›`                    | width of dash patterns (default 5)                           |
-| `dashtype`         | `‹int›`                     | a specific dash type (values 0...4 are allowed)              |
+| `dashtype`         | `‹int›`                     | a specific dash type (values 0…4 are allowed)                |
 | `dashpattern`      | `‹list›`                    | specify an individual dash pattern                           |
 
 **Examples:**
@@ -88,7 +88,7 @@ For instance, `plot(f(#),start->A.x,stop->B.x)` helps to control the plot using 
 #####  Plot Appearance
 
 The resolution of the plot is controlled automatically and adaptively.
-The `plot(...)` function automatically increases its resolution close to singularities.
+The `plot(…)` function automatically increases its resolution close to singularities.
 The following plot shows the output of the call `plot(sin(1/#)*#)`.
 Observe the quality of the plot close to the origin.
 
@@ -161,10 +161,10 @@ Identical to `plot(‹expr›)` but with a specified running variable.
 **Description:**
 Often it is desirable to highlight the area between a function graph and the x-axis of the coordinate system (for instance if one generates an applet for explaining integrals).
 This can be done using the function `fillplot`.
-Similarly to `plot`, this operator takes a function as argument (the running variable is determined by the same process as in `plot(...)`).
+Similarly to `plot`, this operator takes a function as argument (the running variable is determined by the same process as in `plot(…)`).
 In its simplest form this operator just highlights the area traversed by the function.
 The function itself is not drawn.
-This could be done by explicitly calling also the `plot(...)` operator.
+This could be done by explicitly calling also the `plot(…)` operator.
 The following code
 
     > f(x):=1/(x^2+1)*sin(4*x);
@@ -176,7 +176,7 @@ produces the following picture:
 ![Image](img/FillPlot1.png)
 
 **Warning:**
-The singularity treatment of the `fillplot(...)` statement is by far less subtle than that of the `plot(...)` statement.
+The singularity treatment of the `fillplot(…)` statement is by far less subtle than that of the `plot(…)` statement.
 So although the modifiers allow to draw functions also with `fillplot` one should use `plot` for function plotting.
 
 **Modifiers:**
@@ -216,7 +216,7 @@ The following sampler illustrates different usages of the `fillplot` statement:
 **Not available in CindyJS yet!**
 
 **Description:**
-This function is very similar to the `fillplot(...)` statement.
+This function is very similar to the `fillplot(…)` statement.
 However, instead of highlighting the are between a function and the x-axis it highlights the area between two functions.
 The following picture
 
@@ -227,7 +227,7 @@ was created using the statement
     > fillplot(sin(x),cos(x),graph->true,pluscolor->(.5,1,.5),minuscolor->(1,.5,.5))
 
 **Modifiers:**
-This statement supports exactly the same modifiers as `fillplot(...)`.
+This statement supports exactly the same modifiers as `fillplot(…)`.
 
 ------
 
@@ -341,7 +341,7 @@ This means that it will change slightly with every picture.
 Therefore, it is often useful to put the `drawfield` operator into the "timer tick" evaluation slot.
 This creates an animation control in the geometric view.
 Running the animation will automatically animate the vector field.
-The running variable policy is identical to the one in the `colorplot(...)` statement.
+The running variable policy is identical to the one in the `colorplot(…)` statement.
 In particular it is possible to use free variables `x` and `y` to represent the two dimensional location `(x,y)`
 
 **Examples:**
@@ -583,13 +583,13 @@ Than can be used to change the appearance of the curves and to show additional i
 | `back`      | `‹bool›`                     | show a background                                                                                      |
 | `back`      | `[‹real1›,‹real2›,‹real3›]`  | show background in specified color                                                                     |
 | `backalpha` | `‹real›`                     | opacity of background                                                                                  |
-| `colors`    | `[‹col1›,‹col2›,‹col3›,...]` | provide a color for each curve                                                                         |
+| `colors`    | `[‹col1›,‹col2›,‹col3›,…]`   | provide a color for each curve                                                                         |
 | Information |
-| `texts`     | `[‹text1›,‹text2›,...]`      | provide a caption for each curve                                                                       |
+| `texts`     | `[‹text1›,‹text2›,…]`        | provide a caption for each curve                                                                       |
 | `showrange` | `‹bool›`                     | show the max and min values for each curve                                                             |
 | Rendering   |
 | `range`     | `‹string›`                   | "peek" scales to the absolute measured maximum, "auto" scales to the currently shown part of the curve |
-| `range`     | `[‹string1›,‹string2›,...]`  | individual "peek"/"auto" for each curve                                                                |
+| `range`     | `[‹string1›,‹string2›,…]`    | individual "peek"/"auto" for each curve                                                                |
 
 The following piece of code demonstrates the usage of the modifiers.
 It shows a weakly coupled pendulum and its energy behavior.

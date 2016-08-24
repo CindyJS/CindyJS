@@ -44,7 +44,7 @@ A single MIDI device is capable of playing the instruments of an entire band wit
 For this MIDI offers 16 channels numbered from 0 to 15.
 Each of them can be associated to a specific instrument the instruments are numbered from 1 to 128 and cover a broad range of musical experiences (brass, mallets, strings, pianos, accordeons, guitars, percussion and many more).
 In CindyScript an instrument (say 25 which is an acoustic guitar) can be associated to a channel (say 3) either by `midichannel(3, intrument->25)` or by `instruments(25, channel->3)`.
-The standard channel in which a tone is played by `playtone(...)` is 0 but it can be changed by a modifier.
+The standard channel in which a tone is played by `playtone(…)` is 0 but it can be changed by a modifier.
 So the code
 
     > midichannel(3,instrument->25); //guitar
@@ -83,7 +83,7 @@ The default for duration without explicit modifier is 1 second.
 
 So far we have only dealt with tones that are played all at once.
 There are two ways for creating melodies in Cinderella.
-Either one creates the timing explicitly by using the `wait(...)` command of CindyScript or one uses the built-in MIDI sequencer.
+Either one creates the timing explicitly by using the `wait(…)` command of CindyScript or one uses the built-in MIDI sequencer.
 We first briefly describe how the method that does not rely on the sequencer works.
 For this we only have to separate individual notes by wait statements.
 
@@ -105,17 +105,17 @@ Try out the following piece of code in CindyScript (it is worth the typing effor
 
 Generating notes this way has its disadvantages.
 First, the timing has to be described in detail by the CindyScript code.
-Second, during the `wait(...)` statements the execution of other CindyScript code is blocked, since CindyScript is *waiting*.
+Second, during the `wait(…)` statements the execution of other CindyScript code is blocked, since CindyScript is *waiting*.
 For this reason (and several others) it is often by far more easier to use the built-in MIDI sequencer.
 
 The MIDI sequencer is the second major feature of MIDI.
 It is a piece of program logic that allows to store MIDI events in a timed manner.
 Thus arbitrary pieces of music can be described and played.
 The MIDI sequencer associates each MIDI event with a timestamp that tells the synthesizer when a specific note has to be played.
-In CindyScript you can access the sequencer either via the `playmelody(...)` statement or via the `midiaddtrack(...);midistart()` commands.
+In CindyScript you can access the sequencer either via the `playmelody(…)` statement or via the `midiaddtrack(…);midistart()` commands.
 The first is simpler and more immediate, whereas the second is more powerful.
 We will briefly describe the first method here.
-The statement `plamelody(...)` simply expects a list of MIDI events.
+The statement `plamelody(…)` simply expects a list of MIDI events.
 In its most basic form such a MIDI event is a list that just consists of a number that indicates the note followed by another number indicating the duration.
 So a broken C-major
 chord can for instance be coded as:
@@ -174,7 +174,7 @@ The percussion instruments are also very useful to create sound effects in other
 For instance if you use [CindyLab](CindyLab.md) to create a Ping-Pong game, you can use the *Wood Blocks* (key 76 and 77) to create click effects when hitting the ball.
 
 The following code shows a simple implementation of a Rock rhythm by using the sequencer.
-Observe that this program also uses the `"goto"` statement in `playmelody(...)` to rewind the track to the beginning.
+Observe that this program also uses the `"goto"` statement in `playmelody(…)` to rewind the track to the beginning.
 
     > playmelody(channel->9,speed->500,loop->8,
     >  [[35,3],[35,3],[35,3],[35,6],[35,1],["goto",0], //bass drum
@@ -192,7 +192,7 @@ The note `-1` is used as a pause.
 We will end our little introductory journey by creating a small piece of music consisting of a melody part and a drum pattern.
 MIDI can accept many different tracks for the sequencer.
 Each track may be associated with one player of a band.
-CindyScript offers a statement `midiaddtrack(...)` that silently adds a track to the sequencer without immediately playing it.
+CindyScript offers a statement `midiaddtrack(…)` that silently adds a track to the sequencer without immediately playing it.
 All added track can be played by invoking the `midistart()` command.
 The following piece of code shows how our Rock rhythm can be combined with the "Oh, when the saints" melody to give a rocky version of this traditional piece of music.
 There are some specialties that will be explained in a moment.
@@ -264,18 +264,18 @@ The command has several modifiers, most of them are self-explanatory.
 
 | Modifier   | Parameter      | Effect                                                 |
 | ---------- | -------------- | ------------------------------------------------------ |
-| `velocity` | `0.0 ... 1.0`  | the volume of a tone (how fast a piano key is pressed) |
-| `amp`      | `0.0 ... 1.0`  | identical to `velocity`                                |
+| `velocity` | `0.0 … 1.0`    | the volume of a tone (how fast a piano key is pressed) |
+| `amp`      | `0.0 … 1.0`    | identical to `velocity`                                |
 | `duration` | `‹real›`       | duration of the tone in seconds                        |
-| `channel`  | `0..15`        | selecting the channel that is played                   |
-| `reverb`   | `0.0 ... 1.0 ` | reverb effect                                          |
-| `balance`  | `-1.0 ... 1.0` | left/right panorama of tone                            |
-| `bend`     | `-2.0 ... 2.0` | bending a tone up to a whole note down or up           |
+| `channel`  | `0 … 15`       | selecting the channel that is played                   |
+| `reverb`   | `0.0 … 1.0 `   | reverb effect                                          |
+| `balance`  | `-1.0 … 1.0`   | left/right panorama of tone                            |
+| `bend`     | `-2.0 … 2.0`   | bending a tone up to a whole note down or up           |
 
 By the `bend` modifier the pitch of the note can be altered by two half-steps up or down.
 One unit of bend corresponds to one half-step.
 
-If duration is set to 0 (or smaller) then the tone is kept for an indefinite time and will be only stopped by the `stoptone(...)` statement.
+If duration is set to 0 (or smaller) then the tone is kept for an indefinite time and will be only stopped by the `stoptone(…)` statement.
 
 ------
 
@@ -292,14 +292,14 @@ This might be useful if a tone has been started with indefinite length.
 **Description:**
 This statement is very similar to `playtone`.
 However in this case the frequency (in Hz) is explicitly given by a real parameter.
-Sometimes it may be useful to use the more physical oriented function `playsin(...)` instead.
+Sometimes it may be useful to use the more physical oriented function `playsin(…)` instead.
 
 **Example:**
 `playfrequency(440)` plays a tone of 440 Hz with the currently chosen channel and instrument.
 The `playfrequency` statement is particularly interesting for simulating scales of non-european cultures, needed for instance in Indian Ragas or Javanesian Gamelan music.
 
 **Modifiers:**
-The modifiers are identical to `playtone(...)`.
+The modifiers are identical to `playtone(…)`.
 However the `bend` modifier has no effect here.
 
 ------
@@ -333,7 +333,7 @@ Alternatively the same scale could also be expressed by describing the notes by 
 The second number in the short list describing a single note is its duration.
 The lengths of the durations are measured in *beats*.
 By default if the melody is played it play with a speed of 60 *beats per minute*.
-If necessary, this can be changed by a modifier of be the `midispeed(...)` command.
+If necessary, this can be changed by a modifier of be the `midispeed(…)` command.
 
 Internally while a melody is played roughly the following happens.
 When the melody starts the sequencer is set to its start position.
@@ -382,7 +382,7 @@ So `c'''` corresponds to 96.
 
 It is also possible to play chords instead of notes.
 For this the keys of the notes in a chord have to be collected have to be collected in a list.
-SO the format of a chord is `[[‹key1›,‹key2›,‹key3›,...],‹duration›]`.
+SO the format of a chord is `[[‹key1›,‹key2›,‹key3›,…],‹duration›]`.
 The following example shows a melody list that play chords of increasing complexity.
 
     > playmelody([["C",1],
@@ -462,7 +462,7 @@ However moves resulting in negative absolute positions are forbidden.
 *  **`["gr",‹real›]`:**
 same as `"gorel"`.
 
-The following piece of code adds a (more quiet) second voice by using the `goto(...)`statement.
+The following piece of code adds a (more quiet) second voice by using the `goto(…)` statement.
 
     > playmelody([
     >    ["c",1],["e",1],["g",1],["a",1],["c'",4],["goto",0],["vel",0.3],
@@ -508,13 +508,13 @@ By this it is possible to change the instrument while the melody is playing by c
 The commands are as follows:
 
 *  **`["channel",‹int›]`:**
-changes the channel (0...15) that is currently used for the melody.
+changes the channel (0…15) that is currently used for the melody.
 
 *  **`["ch",‹int›]`:**
 same as `channel`.
 
 *  **`["instrument",‹int›]`:**
-changes the instrument (1...128) that is associated to the channel.
+changes the instrument (1…128) that is associated to the channel.
 
 *  **`["inst",‹int›]`:**same as `instrument`.
 
@@ -531,10 +531,10 @@ The MIDI control language we described above now forms the basis of all other MI
 #### Playing a melody: `playmelody(‹list›)`
 
 **Description:**
-We have already used `playmelody(...)` in all previous examples on the melody language.
+We have already used `playmelody(…)` in all previous examples on the melody language.
 It is the most direct was to play a melody that starts immediately.
 The list is assumed to be a melody described in the melody language.
-Invoking `playmelody(...)` adds the list to the sequencer and immediately plays it.
+Invoking `playmelody(…)` adds the list to the sequencer and immediately plays it.
 It is important to know that when the melody is called all other tracks are erased from the sequencer.
 
 **Modifiers:**
@@ -543,9 +543,9 @@ In addition, the statement has modifiers for globally setting the channel, instr
 | Modifier     | Parameter       | Effect                               |
 | ------------ | --------------- | ------------------------------------ |
 | `channel`    | `0..15`         | selecting the channel that is played |
-| `instrument` | `1 ... 123`     | selecting a specific instrument      |
+| `instrument` | `1 … 123`       | selecting a specific instrument      |
 | `speed`      | `‹real›`        | speed in beats-per-minute            |
-| `loop`       | `0,1,2,3,4 ...` | repetition of the melody             |
+| `loop`       | `0,1,2,3,4 …`   | repetition of the melody             |
 | `start`      | `‹real›`        | start position (in beats)            |
 
 The modifier loop tells the sequencer to rewind and restart after the melody is ended.
@@ -560,7 +560,7 @@ Alternatively the `midistop()` command can be used.
 #### Adding a track to the sequencer: `midiaddtrack(‹list›)`
 
 **Description:**
-In contrast to `playmelody(...)` this statement adds a melody to the sequencer, but does not immediately play it.
+In contrast to `playmelody(…)` this statement adds a melody to the sequencer, but does not immediately play it.
 By this it is possible to build a more complex composition first by adding several voices and start playing it later when the composition is completed.
 Starting the sequencer is done via the `midistart()` command.
 If a track is added while the sequencer is already running the sequencer is *not* restarted.
@@ -576,7 +576,7 @@ The function supports the following modifiers:
 | Modifier     | Parameter                    | Effect                                                                                        |
 | ------------ | ---------------------------- | --------------------------------------------------------------------------------------------- |
 | `channel`    | `0..15`                      | selecting the channel that is played                                                          |
-| `instrument` | `1 ... 123`                  | selecting a specific instrument                                                               |
+| `instrument` | `1 … 123`                    | selecting a specific instrument                                                               |
 | `speed`      | `‹real›`                     | speed in beats-per-minute                                                                     |
 | `track`      | `0..10`                      | selecting the track of the sequencer                                                          |
 | `start`      | `‹real›`                     | start position (in beats)                                                                     |
@@ -606,16 +606,16 @@ Using `stretch`, `offset` and `repeat` can be very helpful when adding a drum pa
 
 **Description:**
 This command starts the MIDI sequencer.
-Tracks must have been added in advance by the `midiaddtrack(...)` command.
+Tracks must have been added in advance by the `midiaddtrack(…)` command.
 
 **Modifiers:**
-Modifiers are similar to those of the `playmelody(...)` command.
+Modifiers are similar to those of the `playmelody(…)` command.
 The following modifiers are allowed.
 
 | Modifier | Parameter       | Effect                    |
 | -------- | --------------- | ------------------------- |
 | `speed`  | `‹real›`        | speed in beats-per-minute |
-| `loop`   | `0,1,2,3,4 ...` | repetition of the melody  |
+| `loop`   | `0,1,2,3,4 …`   | repetition of the melody  |
 | `start`  | `‹real›`        | start position (in beats) |
 
 ------
@@ -670,7 +670,7 @@ With the following CindyScript statements you can select the default instruments
 **Description:**
 With this command you can associate an instrument to a channel.
 If no channel is specified the default channel is used.
-Each instrument is identified by an integer in the range 1...128.
+Each instrument is identified by an integer in the range 1…128.
 The correlation between instruments and the integers is explained in the next section on `instrumentnames()`.
 If an explicit channel is specified by a modifier the instrument of the corresponding channel is altered.
 
@@ -679,14 +679,14 @@ This function supports various modifiers that influence the tone characteristics
 
 | Modifier   | Parameter      | Effect                                                 |
 | ---------- | -------------- | ------------------------------------------------------ |
-| `velocity` | `0.0 ... 1.0`  | the volume of a tone (how fast a piano key is pressed) |
+| `velocity` | `0.0 … 1.0`    | the volume of a tone (how fast a piano key is pressed) |
 | `duration` | `‹real›`       | duration of the tone in seconds                        |
-| `bend`     | `-2.0 ... 2.0` | bending a tone up to a whole note down or up           |
+| `bend`     | `-2.0 … 2.0`   | bending a tone up to a whole note down or up           |
 | `channel`  | `0..15`        | selecting the channel that is played                   |
-| `reverb`   | `0.0 ... 1.0 ` | reverb effect                                          |
-| `balance`  | `-1.0 ... 1.0` | left/right panorama of tone                            |
+| `reverb`   | `0.0 … 1.0 `   | reverb effect                                          |
+| `balance`  | `-1.0 … 1.0`   | left/right panorama of tone                            |
 
-Here the modifiers `velocity` and `duration` influence the default velocity (volume) and duration with which a tone is played (for instance by `playtone(...)`).
+Here the modifiers `velocity` and `duration` influence the default velocity (volume) and duration with which a tone is played (for instance by `playtone(…)`).
 
 **Example:**
 The following piece of code plays a gentle c on a **Glockenspiel** then a loud and short one on a trumpet and finally a long one (of medium volume) on a piano:
@@ -755,7 +755,7 @@ In the General MIDI database (that is probably preinstalled on your machine) you
 #### Choose a channel: `midichannel(‹int›)`
 
 **Description:**
-This command selects the current default channel that is used for playing tones with `playmelody(...)` or `playtone(...)`.
+This command selects the current default channel that is used for playing tones with `playmelody(…)` or `playtone(…)`.
 Via modifers it is possible to change the instruments and tone characteristics of the selected channel.
 
 **Modifiers:**
@@ -763,12 +763,12 @@ The modifiers here are very similar to the `instrument` modifiers.
 
 | Modifier     | Parameter      | Effect                                                 |
 | ------------ | -------------- | ------------------------------------------------------ |
-| `velocity`   | `0.0 ... 1.0`  | the volume of a tone (how fast a piano key is pressed) |
+| `velocity`   | `0.0 … 1.0`    | the volume of a tone (how fast a piano key is pressed) |
 | `duration`   | `‹real›`       | duration of the tone in seconds                        |
-| `bend`       | `-2.0 ... 2.0` | bending a tone up to a whole note down or up           |
+| `bend`       | `-2.0 … 2.0`   | bending a tone up to a whole note down or up           |
 | `instrument` | `0..15`        | selecting the instrument that is played                |
-| `reverb`     | `0.0 ... 1.0 ` | reverb effect                                          |
-| `balance`    | `-1.0 ... 1.0` | left/right panorama of tone                            |
+| `reverb`     | `0.0 … 1.0 `   | reverb effect                                          |
+| `balance`    | `-1.0 … 1.0`   | left/right panorama of tone                            |
 
 ------
 
@@ -776,7 +776,7 @@ The modifiers here are very similar to the `instrument` modifiers.
 
 **Description:**
 By this statement the overall volume of the MIDI sound of a channel is controlled.
-The parameter is a real number in the range 0.0...1.0.
+The parameter is a real number in the range 0.0…1.0.
 Usually this statement affect the volume of the default channel.
 However, by modifiers one can select the affected channel.
 
@@ -836,7 +836,7 @@ On a contemporary computer this code is quite free of latency and can be used as
 
 ###  Ping Pong With Sound
 
-Our next example is really very tiny and uses just one `playtone(...)` statement in the right place.
+Our next example is really very tiny and uses just one `playtone(…)` statement in the right place.
 We want to create a Ping-Pong game with sound effects.
 By using the physics simulation facilities of [CindyLab](CindyLab.md) it is very easy to construct a physically reasonable interactive Ping-Pong table.
 The boundary of the table is created by physical **bouncers**.
