@@ -93,7 +93,7 @@ Task.prototype.parallel = function(callback) {
  */
 Task.prototype.input = function(file) {
     if (Array.isArray(file)) {
-        file.forEach(this.input.bind(this));
+        file.forEach(this.input, this);
     } else if (this.outputs.indexOf(file) === -1) {
         this.inputs.push(file);
     }
@@ -105,7 +105,7 @@ Task.prototype.input = function(file) {
  */
 Task.prototype.output = function(file) {
     if (Array.isArray(file)) {
-        file.forEach(this.output.bind(this));
+        file.forEach(this.output, this);
     } else {
         this.outputs.push(file);
     }

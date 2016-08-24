@@ -2428,12 +2428,12 @@ function commonButton(el, event, button) {
         inlinebox.appendChild(arguments[i]);
     canvas.parentNode.appendChild(outer);
     el.html = arguments[arguments.length - 1];
-    var onEvent = updateCindy;
+    var onEvent = scheduleUpdate;
     if (el.script) {
         var code = analyse(el.script);
         onEvent = function() {
             evaluate(code);
-            updateCindy();
+            scheduleUpdate();
         };
     }
     button.addEventListener(event, onEvent);
@@ -2615,6 +2615,11 @@ geoMacros.AngularBisector = function(el) {
 
 geoMacros.TransformConic = function(el) {
     el.type = "TransformC";
+    return [el];
+};
+
+geoMacros.TransformSegment = function(el) {
+    el.type = "TransformS";
     return [el];
 };
 

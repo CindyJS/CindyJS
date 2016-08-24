@@ -61,6 +61,17 @@ coerce.toDirection = function(arg, def=[0,0,0]) {
  * @param {Array.<number>=} def
  * @return {Array.<number>}
  */
+coerce.toDirectionPoint = function(arg, def=[0,0,0,0]) {
+  let lst = coerce.toDirection(arg, def);
+  if (lst !== def) lst[3] = 0;
+  return lst;
+}
+
+/**
+ * @param {CindyJS.anyval} arg
+ * @param {Array.<number>=} def
+ * @return {Array.<number>}
+ */
 coerce.toColor = function(arg, def=[0.5,0.5,0.5]) {
   if (arg.ctype === "number") {
     let c = coerce.toInterval(0, 1, arg);
@@ -142,6 +153,20 @@ coerce.toString = function(arg, def=null) {
   if (arg["ctype"] === "string")
     return arg["value"];
   console.log("argument is not a string");
+  return def;
+};
+
+/**
+ * @param {Array.<?string>} names
+ * @param {CindyJS.anyval} arg
+ * @param {?string=} def
+ * @return {?string}
+ */
+coerce.toEnum = function(names, arg, def=null) {
+  let str = coerce.toString(arg, def);
+  if (str !== def && names.indexOf(str) !== -1)
+    return str;
+  console.log("argument is not one of " + names.join(", "));
   return def;
 };
 

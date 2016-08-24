@@ -1,4 +1,5 @@
 uniform vec3 uAmbient;
+uniform mat4 uModelViewMatrix;
 
 varying vec4 vColor;
 varying float vShininess;
@@ -9,62 +10,84 @@ vec3 gNormal;
 vec3 gAccumDiffuse;
 vec3 gAccumSpecular;
 
-void commonLight(in vec3 lightDir, in vec3 diffuse, in vec3 specular) {
-  vec3 halfVector;    // Direction of maximum highlights
-  float diffuseDot;   // Dot(normal, light direction)
-  float specularDot;  // Dot(normal, light half vector)
-  float specFactor;   // specular factor
+void commonLight(in vec4 lightPos, out vec3 lightDir,
+                 out float diffuseFactor, out float specularFactor) {
+  vec3 halfVector;       // direction of maximum highlights
+  float specularDot;     // dot(normal, light half vector)
 
+  lightDir = normalize(lightPos.xyz - lightPos.w*gPos);
   halfVector = normalize(lightDir + gEye);
-  diffuseDot = max(0.0, dot(gNormal, lightDir));
+  diffuseFactor = max(0.0, dot(gNormal, lightDir));
   specularDot = max(0.0, dot(gNormal, halfVector));
 
   // If point is not lit
-  if (diffuseDot == 0.0)
-    specFactor = 0.0;
+  if (diffuseFactor == 0.0)
+    specularFactor = 0.0;
   else
-    specFactor = pow(specularDot, vShininess);
+    specularFactor = pow(specularDot, vShininess);
+}
+
+vec4 flipY(in vec4 v) {
+  return vec4(v.x, -v.y, v.z, v.w);
+}
+
+void pointLight(in vec4 lightPos, in vec3 diffuse, in vec3 specular) {
+  vec3 lightDir;         // direction from surface to light position
+  float diffuseFactor;   // dot(normal, light direction)
+  float specularFactor;  // specular factor
+
+  commonLight(lightPos, lightDir, diffuseFactor, specularFactor);
 
   // Add light received from this light source to global colors
-  gAccumDiffuse  += diffuse * diffuseDot;
-  gAccumSpecular += specular * specFactor;
+  gAccumDiffuse  += diffuse * diffuseFactor;
+  gAccumSpecular += specular * specularFactor;
 }
 
-void pointLight(in vec3 lightPos, in vec3 diffuse, in vec3 specular) {
-  commonLight(normalize(lightPos - gPos), diffuse, specular);
+void cameraPointLight(in vec4 lightPos, in vec3 diffuse, in vec3 specular) {
+  pointLight(flipY(lightPos), diffuse, specular);
 }
 
-void directionalLight(in vec3 lightDir, in vec3 diffuse, in vec3 specular) {
-  commonLight(normalize(lightDir), diffuse, specular);
+void worldPointLight(in vec4 lightPos, in vec3 diffuse, in vec3 specular) {
+  pointLight(-uModelViewMatrix*lightPos, diffuse, specular);
 }
 
-void spotLight(in vec3 lightPos, in vec3 spotDir,
-               in float spotCosCutoff, in float spotExponent,
-               in vec3 diffuse, in vec3 specular) {
-  vec3 lightDir;      // direction from surface to light position
-  vec3 halfVector;    // Direction of maximum highlights
-  float diffuseDot;   // Dot(normal, light direction)
-  float specularDot;  // Dot(normal, light half vector)
-  float specFactor;   // specular factor
+void spotLight(
+  in vec4 lightPos, in vec4 spotPos, in float spotCosCutoff,
+  in float spotExponent, in vec3 diffuse, in vec3 specular)
+{
+  vec3 lightDir;         // direction from surface to light position
+  float diffuseFactor;   // dot(normal, light direction)
+  float specularFactor;  // specular factor
+  vec3 spotDir;          // direction from light source to spot
   float spotCosAngle;    // cosine of angle between spotlight
   float spotAttenuation; // spotlight attenuation factor
 
-  lightDir = normalize(lightPos - gPos);
-  halfVector = normalize(lightDir + gEye);
-  diffuseDot = max(0.0, dot(gNormal, lightDir));
-  specularDot = max(0.0, dot(gNormal, halfVector));
+  commonLight(lightPos, lightDir, diffuseFactor, specularFactor);
 
+  spotDir = lightPos.w*spotPos.xyz - spotPos.w*lightPos.xyz;
   spotCosAngle = dot(-lightDir, normalize(spotDir));
   spotAttenuation =
     step(spotCosCutoff, spotCosAngle) * pow(spotCosAngle, spotExponent);
 
-  // If point is not lit
-  if (diffuseDot == 0.0)
-    specFactor = 0.0;
-  else
-    specFactor = pow(specularDot, vShininess);
-
   // Add light received from this light source to global colors
-  gAccumDiffuse  += spotAttenuation * diffuse * diffuseDot;
-  gAccumSpecular += spotAttenuation * specular * specFactor;
+  gAccumDiffuse  += spotAttenuation * diffuse * diffuseFactor;
+  gAccumSpecular += spotAttenuation * specular * specularFactor;
+}
+
+void cameraSpotLight(
+  in vec4 lightPos, in vec4 spotPos, in float spotCosCutoff,
+  in float spotExponent, in vec3 diffuse, in vec3 specular)
+{
+  spotLight(
+    flipY(lightPos), flipY(spotPos),
+    spotCosCutoff, spotExponent, diffuse, specular);
+}
+
+void worldSpotLight(
+  in vec4 lightPos, in vec4 spotPos, in float spotCosCutoff,
+  in float spotExponent, in vec3 diffuse, in vec3 specular)
+{
+  spotLight(
+    -uModelViewMatrix*lightPos, -uModelViewMatrix*spotPos,
+    spotCosCutoff, spotExponent, diffuse, specular);
 }

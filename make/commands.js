@@ -17,6 +17,8 @@ var util = require("./util");
 
 function cmdImpl(task, opts, command, args) {
     return Q.Promise(function(resolve, reject) {
+        var cmdline = [command || "node"].concat(args).join(" ");
+        task.log(cmdline);
         var spawnOpts = { stdio: ["ignore", "pipe", "pipe"] };
         if (!command) command = process.argv[0]; // node
         var child = cp.spawn(command, args, spawnOpts);
@@ -84,8 +86,6 @@ exports.cmd = function(command) {
     args = Array.prototype.concat.apply([], args); // flatten one level
     args = Array.prototype.concat.apply([], args); // flatten a second level
     this.addJob(function() {
-        var cmdline = [command || "node"].concat(args).join(" ");
-        task.log(cmdline);
         return cmdImpl(task, {}, command, args);
     });
 };
@@ -168,10 +168,12 @@ exports.applySourceMap = function(maps, dst) {
 };
 
 exports.sass = function(src, dst) {
+    var task = this;
     this.input(src);
     this.output(dst);
     this.output(dst + ".map");
     this.addJob(function() {
+        task.log(src + " \u219d " + dst);
         var basename = path.basename(dst);
         return Q.ninvoke(require("node-sass"), "render", {
             file: src,
@@ -183,6 +185,9 @@ exports.sass = function(src, dst) {
                 qfs.write(dst, res.css),
                 qfs.write(dst + ".map", res.map)
             ]);
+        }, function(err) {
+            throw new BuildError(
+                "Error applying SASS to " + src + ": " + err.message);
         });
     });
 }

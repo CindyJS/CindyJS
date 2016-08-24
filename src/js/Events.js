@@ -125,7 +125,7 @@ function setuplisteners(canvas, data) {
         mouse.y = pos[1];
         csmouse[0] = mouse.x;
         csmouse[1] = mouse.y;
-        mouse.moved = true;
+        scheduleUpdate();
     }
 
     if (data.keylistener === true) {
@@ -152,9 +152,6 @@ function setuplisteners(canvas, data) {
         updatePostition(e);
         cs_mousedown();
         manage("mousedown");
-
-        startit(); //starts d3-timer
-
         mouse.down = true;
         e.preventDefault();
     });
@@ -165,7 +162,7 @@ function setuplisteners(canvas, data) {
         stateContinueFromHere();
         cs_mouseup();
         manage("mouseup");
-        updateCindy();
+        scheduleUpdate();
         e.preventDefault();
     });
 
@@ -177,6 +174,12 @@ function setuplisteners(canvas, data) {
             cs_mousemove();
         }
         manage("mousemove");
+        e.preventDefault();
+    });
+
+    addAutoCleaningEventListener(canvas, "click", function(e) {
+        updatePostition(e);
+        cs_mouseclick();
         e.preventDefault();
     });
 
@@ -256,7 +259,6 @@ function setuplisteners(canvas, data) {
         cs_mousedown();
         mouse.down = true;
         //move = getmover(mouse);
-        startit();
         manage("mousedown");
         e.preventDefault();
     }
@@ -267,7 +269,7 @@ function setuplisteners(canvas, data) {
         stateContinueFromHere();
         cs_mouseup();
         manage("mouseup");
-        updateCindy();
+        scheduleUpdate();
         e.preventDefault();
     }
 
@@ -283,14 +285,13 @@ function setuplisteners(canvas, data) {
         addAutoCleaningEventListener(window, "resize", function() {
             requestAnimFrame(function() {
                 updateCanvasDimensions();
-                updateCindy();
+                scheduleUpdate();
             });
         }, false);
     }
 
-    updateCindy();
+    scheduleUpdate();
 }
-
 
 var requestAnimFrame;
 if (instanceInvocationArguments.isNode) {
@@ -303,28 +304,27 @@ if (instanceInvocationArguments.isNode) {
         window.oRequestAnimationFrame ||
         window.msRequestAnimationFrame ||
         function(callback) {
-            //                window.setTimeout(callback, 1000 / 60);
             window.setTimeout(callback, 0);
         };
 }
 
-function doit() { //Callback for d3-timer
-    if (isShutDown) return true;
+var requestedAnimFrame = null;
+
+function scheduleUpdate() {
+    if (!requestedAnimFrame) {
+        requestedAnimFrame = requestAnimFrame(doit);
+    }
+}
+
+function doit() {
+    requestedAnimFrame = null; // so we can schedule a new one
+    if (isShutDown) return;
     if (csanimating) {
         cs_tick();
     }
-    if (csanimating || mouse.moved) {
-        mouse.moved = false;
-        updateCindy();
-    }
-    csticking = csanimating || mouse.down;
-    return !csticking;
-}
-
-function startit() {
-    if (!csticking) {
-        csticking = true;
-        d3.timer(doit);
+    updateCindy();
+    if (csanimating) {
+        scheduleUpdate();
     }
 }
 
@@ -388,47 +388,34 @@ function updateCindy() {
     csctx.restore();
 }
 
-function update() {
-    if (isShutDown) return;
-    updateCindy();
-    if (mouse.down)
-        requestAnimFrame(update);
-}
-
-
 function cs_keypressed(e) {
     var evtobj = window.event ? event : e;
     var unicode = evtobj.charCode ? evtobj.charCode : evtobj.keyCode;
     var actualkey = String.fromCharCode(unicode);
     cskey = actualkey;
     cskeycode = unicode;
-
-
     evaluate(cscompiled.keydown);
-    updateCindy();
-
+    scheduleUpdate();
 }
 
 function cs_mousedown(e) {
     evaluate(cscompiled.mousedown);
-
 }
 
 function cs_mouseup(e) {
     evaluate(cscompiled.mouseup);
-
 }
-
 
 function cs_mousedrag(e) {
     evaluate(cscompiled.mousedrag);
-
 }
-
 
 function cs_mousemove(e) {
     evaluate(cscompiled.mousemove);
+}
 
+function cs_mouseclick(e) {
+    evaluate(cscompiled.mouseclick);
 }
 
 function cs_tick(e) {
@@ -440,7 +427,6 @@ function cs_tick(e) {
     if (csanimating) {
         evaluate(cscompiled.tick);
     }
-
 }
 
 function cs_simulationstep(e) {
@@ -461,9 +447,8 @@ function cs_onDrop(lst, pos) {
     evaluate(cscompiled.ondrop);
     dropped = nada;
     dropPoint = nada;
-    updateCindy();
+    scheduleUpdate();
 }
-
 
 function cindy_cancelmove() {
     move = undefined;

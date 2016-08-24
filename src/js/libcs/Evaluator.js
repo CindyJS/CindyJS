@@ -41,6 +41,9 @@ function evaluateAndVal(a) {
         if (val.kind === "P") {
             return Accessor.getField(val, "xy");
         }
+        if (val.kind === "V") {
+            return val.value;
+        }
 
     }
     return x; //TODO Implement this

@@ -62,6 +62,10 @@ Accessor.getField = function(geo, field) {
             erg = List.eucangle(List.ey, geo.homog);
             return General.withUsage(erg, "Angle");
         }
+        if (field === "slope") {
+            return CSNumber.neg(CSNumber.div(
+                geo.homog.value[0], geo.homog.value[1]));
+        }
 
     }
     if (geo.kind === "Tr") {
@@ -172,13 +176,13 @@ Accessor.getField = function(geo, field) {
 Accessor.setField = function(geo, field, value) {
     var dir;
 
-    if (field === "color") {
+    if (field === "color" && CSNumber._helper.isNumberVecN(value, 3)) {
         geo.color = value;
     }
-    if (field === "size") {
+    if (field === "size" && value.ctype === "number") {
         geo.size = value;
     }
-    if (field === "alpha") {
+    if (field === "alpha" && value.ctype === "number") {
         geo.alpha = value;
     }
     if (field === "visible") {
@@ -230,10 +234,14 @@ Accessor.setField = function(geo, field, value) {
         movepointscr(geo, value, "homog");
     }
 
-    if (field === "angle" && geo.type === "Through") {
+    if (field === "angle" && geo.type === "Through" && value.ctype === "number") {
         var cc = CSNumber.cos(value);
         var ss = CSNumber.sin(value);
         dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
+        movepointscr(geo, dir, "dir");
+    }
+    if (field === "slope" && geo.type === "Through" && value.ctype === "number") {
+        dir = List.turnIntoCSList([CSNumber.real(1), value, CSNumber.real(0)]);
         movepointscr(geo, dir, "dir");
     }
     if (geo.kind === "C") {

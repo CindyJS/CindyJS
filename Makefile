@@ -114,6 +114,7 @@ fwdtargets = \
 	forbidden \
 	jshint \
 	katex \
+	live \
 	nodetest \
 	proxy \
 	ref \

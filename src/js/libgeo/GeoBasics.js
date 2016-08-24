@@ -177,12 +177,22 @@ function addElementNoProof(el) {
             isSet = true;
             el.args.forEach(function(val) {
                 if (csgeo.csnames[val].kind !== op.signature.charAt(0)) {
-                    window.alert("Not all elements in set are of same type: " + el.name);
+                    console.error(
+                        "Not all elements in set are of same type: " +
+                        el.name + " expects " + op.signature +
+                        " but " + val + " is of kind " +
+                        csgeo.csnames[val].kind);
+                    if (typeof window !== "undefined")
+                        window.alert("Not all elements in set are of same type: " + el.name);
                     return null;
                 }
             });
         } else if (op.signature.length !== (el.args ? el.args.length : 0)) {
-            window.alert("Wrong number of arguments for " + el.name);
+            console.error(
+                "Wrong number of arguments for " + el.name +
+                " of type " + el.type);
+            if (typeof window !== "undefined")
+                window.alert("Wrong number of arguments for " + el.name);
             return null;
         }
     }

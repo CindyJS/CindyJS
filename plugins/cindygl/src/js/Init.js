@@ -5,10 +5,10 @@
 /** @type {boolean} */
 var isinitialized = false;
 
-/** @type {HTMLCanvasElement|Element} */
+/** @type {HTMLCanvasElement} */
 var glcanvas;
 
-/** @type {HTMLCanvasElement|Element} */
+/** @type {HTMLCanvasElement} */
 var tmpcanvas;
 
 /** @type {WebGLRenderingContext} */
@@ -38,13 +38,13 @@ var next = []; //next[i][j]=k if i->k->...->j is shortest path of primitive subt
 function initGLIfRequired() {
     if (isinitialized)
         return;
-    glcanvas = document.createElement("canvas");
+    glcanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
     glcanvas.id = "glcanvas";
     glcanvas.style.display = "none";
     glcanvas.width = glcanvas.height = 0;
     document.body.appendChild(glcanvas);
 
-    tmpcanvas = document.createElement("canvas");
+    tmpcanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
     tmpcanvas.id = "tmpcanvas";
     tmpcanvas.style.display = "none";
     tmpcanvas.width = tmpcanvas.height = 0;
@@ -63,10 +63,10 @@ function initGLIfRequired() {
         "webglcontextcreationerror",
         onContextCreationError, false);
 
-    gl = (
+    gl = /** @type {WebGLRenderingContext} */ (
         glcanvas.getContext("webgl"));
     if (!gl)
-        gl = (
+        gl = /** @type {WebGLRenderingContext} */ (
             glcanvas.getContext("experimental-webgl"));
     if (!gl)
         throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);

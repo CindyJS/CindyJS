@@ -174,6 +174,8 @@ var textCornerNames = {
 };
 
 function drawgeotext(el) {
+    if (!el.isshowing || el.visible === false)
+        return;
     var opts = {
         "size": el.size,
     };

@@ -17,8 +17,6 @@ module.exports = function Tasks(settings) {
 
     var tasks = {};
 
-    var currentTask = null;
-
     /* Define a new task. The definition is a function which describes the
      * task, without executing it yet. It should call the addJob method
      * and may also call input and output methods.
@@ -38,10 +36,9 @@ module.exports = function Tasks(settings) {
     this.complete = function() {
         for (name in tasks) {
             if (tasks.hasOwnProperty(name)) {
-                currentTask = tasks[name];
-                if (currentTask.definition)
-                    currentTask.definition();
-                currentTask = null;
+                var current = tasks[name];
+                if (current.definition)
+                    current.definition();
             }
         }
         if (settings.get("logprefix") === "true") {
@@ -78,12 +75,6 @@ module.exports = function Tasks(settings) {
             console.log("- " + name);
         });
         throw new BuildError("No task named " + name);
-    };
-
-    /* Identify the task currently being defined.
-     */
-    this.current = function() {
-        return currentTask;
     };
 
     /* Execute the named tasks sequentially or in parallel

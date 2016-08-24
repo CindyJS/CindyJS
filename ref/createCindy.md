@@ -167,9 +167,19 @@ See the section “Lab” for details.
 A list of URLs which will be loaded.
 Whenever an image is ready, it can be used in the application instance.
 
-### autoplay
+### animation
 
-Setting this to true indicates that the animation should start immediately after startup of the instance.
+An object containing the following properties:
+
+* `autoplay` is a boolean value which indicates whether the animation should start immediately after startup of the instance.
+* `controls` is a boolean value which controls whether animation control buttons (play, pause, stop) are to be displayed.
+* `speed` is the animation speed, as a double value which defaults to 1.
+
+For the sake of backwards compatibility, `autoplay` may occur as
+a top level parameter instead of nested in the `animation` object.
+Likewise a top level `animcontrols` can be given instead of
+`animation.controls`.  But these are deprecated, and only being used
+if the `animation` object is not present at all.
 
 ### oninit
 

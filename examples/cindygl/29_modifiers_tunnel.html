@@ -45,7 +45,7 @@ var cdy = CindyJS({
   ports: [{id: "CSCanvas", transform: [{visibleRect: [-20, -20, 20, 20]}]}],
   scripts: "cs*",
   language: "en",
-  autoplay: true,
+  animation: {autoplay: true},
   images: {image:"tile.jpg"},
   defaultAppearance: {
   },
@@ -78,8 +78,8 @@ var check2=function(){
 <body style="font-family:Arial;">
   <div id="CSCanvas" style="width:800px; height:800px; border:2px solid black"></div>
   <p>
-    <input id="ch1" onclick="check1()" checked=true type="checkbox" >interpolate linear&nbsp;&nbsp;&nbsp;
-    <input id="ch2" onclick="check2()" checked=true type="checkbox" >mipmap 
+    <input id="ch1" onclick="check1()" checked type="checkbox" >interpolate linear&nbsp;&nbsp;&nbsp;
+    <input id="ch2" onclick="check2()" checked type="checkbox" >mipmap 
   </p>
 </body>
 

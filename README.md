@@ -22,7 +22,7 @@ inside the repository, demonstrating individual functions and operations.
 Developers can run these examples from their local development copy.
 Some examples may require a webserver-like environment to avoid
 triggering browser security measures associated with local files.
-To do so, one can run <code>npm_modules/.bin/st -nc</code>
+To do so, one can run <code>npm_modules/.bin/st -l -nc</code>
 in the root of the development tree, and then visit
 [the local copy of the examples directory](http://127.0.0.1:1337/examples/).
 

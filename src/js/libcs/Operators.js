@@ -465,7 +465,7 @@ eval_helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
     if (where.ctype === 'geo' && field) {
-        Accessor.setField(where.value, field, what);
+        Accessor.setField(where.value, field, evaluateAndVal(what));
     }
 
     return nada;
@@ -997,7 +997,7 @@ evaluator.div$2 = infix_div;
 function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    if (CSNumber._helper.isZero(v1))
+    if (v1.ctype === "number" && CSNumber._helper.isZero(v1))
         csconsole.err("WARNING: Division by zero!");
     var erg = General.div(v0, v1);
     if (v0.usage === "Angle" && !v1.usage)
@@ -1666,6 +1666,117 @@ evaluator.isundefined$1 = function(args, modifs) {
         'ctype': 'boolean',
         'value': false
     };
+};
+
+// See AlgoMap.java in the Cinderella codebase, but also geoMacros in GeoOps.js
+var cinderellaAlgoNames = {
+    ArcBy3: "Arc",
+    CenterOfConic: "Center",
+    ConicBy1p4l: "Conic1P4L",
+    ConicBy4p1l: "Conic4P1L",
+    ConicBy5lines: "Conic5L",
+    ConicBy2Foci1P: "ConicFoci", // sometimes "ConicFociH" instead
+    ConicFromPrincipalDirections: "ConicPrincipleDirs",
+    // Mid: "EuclideanMid", (only sometimes)
+    Free: "FreePoint",
+    PolarOfLine: "PolarLine",
+    PolarOfPoint: "PolarPoint",
+    PointOnSegment: "PointOnLine",
+    Button: "Text",
+    ToggleButton: "Text",
+    TrReflectionL: "TrReflection",
+    TrReflectionP: "TrReflection",
+    TrReflectionC: "TrReflection",
+    TrTranslation: "TrProjection", // or TrTranslationPP?
+    TrSimilarity: "TrProjection",
+    TrAffine: "TrProjection",
+    TransformP: "Transform",
+    TransformL: "Transform",
+    TransformSegment: "Transform",
+    TransformS: "Transform",
+    TransformPolygon: "Transform",
+    TransformArc: "Transform",
+    TransformConic: "Transform",
+    TransformC: "Transform",
+    TrMoebiusP: "Transform",
+    TrMoebiusL: "Transform",
+    TrMoebiusSegment: "Transform",
+    TrMoebiusS: "Transform",
+    TrMoebiusPolygon: "Transform",
+    TrMoebiusArc: "Transform",
+    TrMoebiusCircle: "Transform",
+    TrMoebiusC: "Transform",
+    TrInverseMoebius: "TrInverse",
+    Perp: "Orthogonal",
+    Para: "Parallel",
+    AngleBisector: "AngularBisector",
+    IntersectLC: "IntersectionConicLine",
+    IntersectCirCir: "IntersectionCircleCircle",
+    OtherPointOnCircle: "PointOnCircle",
+};
+
+evaluator.algorithm$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo") {
+        var el = v0.value;
+        var type = el.type;
+        var compat = evaluateAndVal(modifs.compatibility);
+        if (compat.ctype === "string" &&
+            (/^cinderella$/i).test(compat.value)) {
+            if (/^Select/.test(type)) {
+                el = csgeo.csnames[el.args[0]];
+                type = el.type;
+            }
+            if (cinderellaAlgoNames.hasOwnProperty(type))
+                type = cinderellaAlgoNames[type];
+            else if (type === "CircleMr")
+                type = el.pinned ? "CircleByFixedRadius" : "CircleByRadius";
+        }
+        return General.string(type);
+    }
+    return nada;
+};
+
+evaluator.inputs$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo") {
+        var el = v0.value;
+        var type = el.type;
+        var res = [];
+        if (el.args) res = el.args.map(function(name) {
+            return {
+                ctype: "geo",
+                value: csgeo.csnames[name]
+            };
+        });
+        if (/^Select/.test(type) || geoOps[type].isMovable) {
+            switch (el.kind) { // compare savePos in StateIO
+                case "P":
+                case "L":
+                    res.push(el.homog);
+                    break;
+                case "C":
+                    res.push(el.matrix);
+                    break;
+            }
+        }
+        return List.turnIntoCSList(res);
+    }
+    return nada;
+};
+
+evaluator.moveto$2 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    var v1 = evaluateAndVal(args[1]);
+    if (v0.ctype === "geo") {
+        var el = v0.value;
+        if (List._helper.isNumberVecN(v1, 2)) {
+            Accessor.setField(el, "xy", v1);
+        } else if (List._helper.isNumberVecN(v1, 3)) {
+            Accessor.setField(el, "homog", v1);
+        }
+    }
+    return nada;
 };
 
 evaluator.matrixrowcolumn$1 = function(args, modifs) {
@@ -2432,11 +2543,13 @@ evaluator.concat$2 = infix_concat;
 function infix_concat(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
-    if (v0.ctype === 'list' && v1.ctype === 'list') {
-        return List.concat(v0, v1);
-    }
     if (v0.ctype === 'shape' && v1.ctype === 'shape') {
         return eval_helper.shapeconcat(v0, v1);
+    }
+    var l0 = List.asList(v0);
+    var l1 = List.asList(v1);
+    if (l0.ctype === 'list' && l1.ctype === 'list') {
+        return List.concat(l0, l1);
     }
     return nada;
 }
@@ -3763,15 +3876,28 @@ evaluator.create$3 = function(args, modifs) {
     var type = evaluate(args[1]);
     var defs = evaluate(args[2]);
 
-    var name;
+    var name, el, i;
     if (names.ctype === "string") {
         name = names.value;
     } else if (names.ctype !== "list") {
         console.log("Names must be a string or a list of strings");
         return nada;
     } else if (names.value.length !== 1) {
-        console.log("multi-result compatibility operations not supported yet");
-        return nada;
+        // Create the compound object, then Select objects to split it up
+        name = General.string(names.value.map(function(name) {
+            return name.value;
+        }).join("__"));
+        el = evaluator.create$3([name, type, defs], modifs);
+        if (el !== nada) {
+            type = General.string(el.kind.replace(/^(.*)s$/, "Select$1"));
+            defs = List.turnIntoCSList([General.string(el.name)]);
+            for (i = 0; i < names.value.length; ++i) {
+                evaluator.create$3([names.value[i], type, defs], {
+                    index: CSNumber.real(i + 1)
+                });
+            }
+        }
+        return el;
     } else if (names.value[0].ctype !== "string") {
         console.log("Element of names list must be a string");
         return nada;
@@ -3787,7 +3913,8 @@ evaluator.create$3 = function(args, modifs) {
         return nada;
     }
 
-    if (geoOps[type.value] === undefined) {
+    if (!geoOps.hasOwnProperty(type.value) &&
+        !geoMacros.hasOwnProperty(type.value)) {
         console.log("Invalid geometric operation: '" + type.value + "'");
         return nada;
     }
@@ -3795,11 +3922,13 @@ evaluator.create$3 = function(args, modifs) {
     var a = [];
     var pos = null;
 
-    for (var i = 0; i < defs.value.length; i++) {
+    for (i = 0; i < defs.value.length; i++) {
         var def = defs.value[i];
 
         if (def.ctype === "string") {
             a.push(def.value);
+        } else if (def.ctype === "geo") {
+            a.push(def.value.name);
         } else {
             var vec = evaluateAndHomog(def);
             if (vec !== nada) {
@@ -3811,7 +3940,7 @@ evaluator.create$3 = function(args, modifs) {
         }
     }
 
-    var el = {
+    el = {
         name: name,
         type: type.value,
         labeled: true
@@ -3822,6 +3951,10 @@ evaluator.create$3 = function(args, modifs) {
 
     if (a.length > 0)
         el.args = a;
+
+    var index = evaluateAndVal(modifs.index);
+    if (index.ctype === "number")
+        el.index = index.value.real | 0;
 
     return addElement(el);
 };
@@ -3992,12 +4125,12 @@ evaluator.date$0 = function(args, modifs) {
     ]);
 };
 
-evaluator.setTimeout$2 = function(args, modifs) {
+evaluator.settimeout$2 = function(args, modifs) {
     var delay = evaluate(args[0]); // delay in seconds
     var code = args[1]; // code to execute, cannot refer to regional variables
     function callback() {
         evaluate(code);
-        updateCindy();
+        scheduleUpdate();
     }
     if (delay.ctype === "number") {
         if (typeof window !== "undefined") {
@@ -4379,64 +4512,146 @@ evaluator.setsimulationquality$1 = function(args, modifs) {
     return nada;
 };
 
-var activeButton;
+var activeButton = null;
+var statusbar = null;
 
-evaluator.createtool$3 = function(args, modifis) {
-    var name = evaluate(args[0]);
+evaluator.createtool$3 = function(args, modifs) {
+    var modif;
+    var xref = "left";
+    var yref = "top";
 
-    if (name.ctype === "string") {
-        addTool(name.value);
+    var space = null;
+    if (modifs.space) {
+        modif = evaluate(modifs.space);
+        if (modif.ctype === "number") {
+            space = modif.value.real / 2;
+        }
+    }
 
-    } else if (name.ctype === "list") {
-        for (var i = 0; i < name.value.length; i++) {
-            if (name.value[i].ctype === "string") {
-                addTool(name.value[i].value);
+    var toolbar = null;
+    if (modifs.toolbar) {
+        modif = evaluate(modifs.toolbar);
+        if (modif.ctype === "string") {
+            toolbar = document.getElementById(modif.value);
+            if (!toolbar)
+                console.warn("Element #" + modif.value + " not found");
+        }
+    }
+    if (!toolbar) {
+        if (modifs.reference) {
+            var ref = evaluate(modifs.reference);
+            if (ref.ctype === "string") {
+                switch (ref.value) {
+                    case "UR":
+                        xref = "right";
+                        break;
+                    case "LL":
+                        yref = "bottom";
+                        break;
+                    case "LR":
+                        xref = "right";
+                        yref = "bottom";
+                }
             }
         }
+        toolbar = document.createElement("div");
+        toolbar.className = "CindyJS-toolbar";
+        canvas.parentNode.appendChild(toolbar);
+        var x = evaluate(args[1]);
+        var y = evaluate(args[2]);
+        if (x.ctype === "number")
+            toolbar.style[xref] = x.value.real + "px";
+        if (y.ctype === "number")
+            toolbar.style[yref] = y.value.real + "px";
+        if (space !== null)
+            toolbar.style.margin = (-space) + "px";
+    }
 
+    var names = evaluate(args[0]);
+    if (names.ctype === "string") {
+        names = [
+            [names.value]
+        ];
+    } else if (names.ctype === "list") {
+        names = names.value.map(function(row) {
+            if (row.ctype === "string") {
+                return [row.value];
+            } else if (row.ctype === "list") {
+                return row.value.map(function(name) {
+                    if (name.ctype === "string") {
+                        return name.value;
+                    } else {
+                        return null;
+                    }
+                });
+            } else {
+                return [null];
+            }
+        });
     } else {
         console.log("Name must be a string or a list of strings");
+        return nada;
     }
+
+    if (modifs.flipped) {
+        modif = evaluate(modifs.flipped);
+        if (modif.ctype === "boolean" && modif.value) {
+            console.log("Flipping");
+            var ncols = 0;
+            var nrows = names.length;
+            names.forEach(function(row) {
+                if (row.length > ncols)
+                    ncols = row.length;
+            });
+            var flipped = [];
+            for (var i = 0; i < ncols; ++i) {
+                flipped[i] = [];
+                for (var j = 0; j < nrows; ++j) {
+                    flipped[i][j] = names[j][i] || null;
+                }
+            }
+            names = flipped;
+        }
+    }
+
+    if (yref === "bottom") names.reverse();
+    names.forEach(function(row) {
+        if (xref === "right") row.reverse();
+        var rowElt = document.createElement("div");
+        toolbar.appendChild(rowElt);
+        row.forEach(function(name) {
+            if (!tools.hasOwnProperty(name)) {
+                console.log("Tool '" + name + "' not implemented yet.");
+                name = null;
+            }
+            if (name === null) {
+                var spacer = document.createElement("span");
+                spacer.className = "CindyJS-spacer";
+                rowElt.appendChild(spacer);
+                return;
+            }
+            var button = document.createElement("button");
+            var img = document.createElement("img");
+            img.src = CindyJS.getBaseDir() + "images/" + name + ".png";
+            button.appendChild(img);
+
+            function click() {
+                if (activeButton)
+                    activeButton.classList.remove("CindyJS-active");
+                activeButton = button;
+                button.classList.add("CindyJS-active");
+                setActiveTool(name);
+            }
+
+            button.addEventListener("click", click);
+            if (!activeButton) click();
+            if (space !== null) button.style.margin = space + "px";
+            rowElt.appendChild(button);
+        });
+    });
 
     return nada;
 };
-
-function addTool(name) {
-    if (typeof tools[name] === "undefined") {
-        console.log("Tool '" + name + "' not implemented yet.");
-        return;
-    }
-
-    var toolbar = document.getElementById("toolbar");
-
-    if (document.getElementById("toolbar") === null) {
-        toolbar = document.createElement("div");
-        toolbar.id = "toolbar";
-
-        document.body.appendChild(toolbar);
-    }
-
-    if (document.getElementById("tooltip") === null) {
-        var tooltip = document.createElement("div");
-        tooltip.id = "tooltip";
-
-        document.body.appendChild(tooltip);
-    }
-
-    var button = document.createElement("button");
-    button.innerHTML = "<img src='" + CindyJS.getBaseDir() + "images/" + name + ".png'>";
-    button.onclick = function() {
-        if (typeof activeButton !== "undefined") {
-            activeButton.style.border = "";
-        }
-
-        activeButton = this;
-        activeButton.style.border = "1px solid black";
-        setActiveTool(name);
-    };
-
-    toolbar.appendChild(button);
-}
 
 evaluator.dropped$0 = function() {
     return dropped;
@@ -4445,4 +4660,75 @@ evaluator.dropped$0 = function() {
 
 evaluator.droppoint$0 = function() {
     return dropPoint;
+};
+
+evaluator.parsecsv$1 = function(args, modifs) {
+    var autoconvert = true;
+    var mcon = evaluateAndVal(modifs.autoconvert);
+    if (mcon.ctype === "boolean") autoconvert = mcon.value;
+
+    var delim = null;
+    var md = evaluateAndVal(modifs.delimiter);
+    if (md.ctype === "string" && /^[^\"\r\n]$/.test(md.value))
+        delim = md.value;
+
+    var str = evaluateAndVal(args[0]);
+    if (str.ctype !== "string") {
+        console.log("CSV data is not a string");
+        return nada;
+    }
+    str = str.value;
+
+    var re = '(?:"((?:[^"]+|"")*)"|([^]*?))(\r\n|(,)|[\r\n]|$)';
+    // captures:  1             1  2     2 3     4 4         3
+    if (delim) {
+        // see replace$3
+        delim = delim
+            .replace(/[^A-Za-z0-9]/g, "\\$&")
+            .replace(/\$/g, "$$$$");
+        re = re.replace(/,/g, delim);
+    }
+    re = new RegExp(re, "g");
+
+    var row = [];
+    var data = [];
+    var ncols = null;
+    while (re.lastIndex < str.length) {
+        var match = re.exec(str);
+        var itm = match[2];
+        if (typeof match[1] === "string")
+            itm = match[1].replace(/""/g, '"');
+        if (!autoconvert)
+            itm = General.string(itm);
+        else if (/^[Tt]rue$/.test(itm))
+            itm = General.bool(true);
+        else if (/^[Ff]alse$/.test(itm))
+            itm = General.bool(false);
+        else if (/^[\-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+|Infinity)$/.test(itm))
+            itm = CSNumber.real(Number(itm));
+        else
+            itm = General.string(itm);
+        row.push(itm);
+        if (match[4] && re.lastIndex === str.length) {
+            // last row ended with a delimiter
+            row.push(General.string(""));
+            match = {}; // fall through to end-of-input handling below
+        }
+        if (!match[4]) { // end of row
+            if (ncols === null)
+                ncols = row.length;
+            if (ncols < row.length) {
+                ncols = row.length;
+                for (var i = 0; i < data.length; ++i)
+                    for (var j = data[i].length; j < ncols; ++j)
+                        data[i][j] = nada;
+            } else if (ncols > row.length) {
+                for (var k = row.length; k < ncols; ++k)
+                    row[k] = nada;
+            }
+            data.push(row);
+            row = [];
+        }
+    }
+    return List.turnIntoCSList(data.map(List.turnIntoCSList));
 };

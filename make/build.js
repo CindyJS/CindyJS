@@ -23,7 +23,7 @@ module.exports = function build(settings, task) {
     var closure_zip = "compiler-" + settings.get("closure_version") + ".zip";
     var closure_url = settings.get("closure_urlbase") + "/" + closure_zip;
     var closure_archive = "download/arch/" + closure_zip;
-    var closure_jar = "download/closure-compiler/compiler-" +
+    var closure_jar = "download/closure-compiler/closure-compiler-v" +
         settings.get("closure_version") + ".jar";
 
     task("closure-zip", [], function() {
@@ -31,7 +31,8 @@ module.exports = function build(settings, task) {
     });
 
     task("closure-jar", ["closure-zip"], function() {
-        this.unzip(closure_archive, closure_jar, "compiler.jar");
+        this.unzip(closure_archive, closure_jar, "closure-compiler-v" +
+        settings.get("closure_version") + ".jar");
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -515,7 +516,7 @@ module.exports = function build(settings, task) {
     // Copy images to build directory
     //////////////////////////////////////////////////////////////////////
 
-    var images = glob.sync("images/*.{png,jpg}");
+    var images = glob.sync("images/*.{png,jpg,svg}");
 
     task("images", [], function() {
         this.parallel(function() {
