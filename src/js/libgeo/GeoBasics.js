@@ -119,6 +119,13 @@ function segmentDefault(el) {
     el.clip = General.string("end");
 }
 
+function textDefault(el) {
+    var size;
+    if (el.textsize !== undefined) el.size = el.textsize;
+    else if (el.size !== undefined) el.size = el.size;
+    else el.size = defaultAppearance.textsize;
+    el.size = CSNumber.real(+el.size);
+}
 
 function polygonDefault(el) {
     el.filled = (el.filled !== undefined ? General.bool(el.filled) : General.bool(true));
@@ -259,6 +266,7 @@ function addElementNoProof(el) {
     }
     if (el.kind === "Text") {
         csgeo.texts.push(el);
+        textDefault(el);
     }
     if (el.kind === "Poly") {
         csgeo.polygons.push(el);
