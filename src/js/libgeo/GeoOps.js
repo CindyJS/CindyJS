@@ -2522,7 +2522,7 @@ geoOps._helper.initializeLine = function(el) {
 
 geoOps.Poly = {};
 geoOps.Poly.kind = "Poly";
-geoOps.Poly.signature = "Ps";
+geoOps.Poly.signature = "P*";
 geoOps.Poly.updatePosition = noop;
 
 

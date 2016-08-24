@@ -252,7 +252,6 @@ function drawgeopolygon(el) {
     modifs.alpha = el.alpha;
     modifs.size = el.size;
 
-
     var args = List.turnIntoCSList(el.args.map(function(x) {
         return {
             ctype: "geo",

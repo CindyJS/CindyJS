@@ -121,7 +121,8 @@ function segmentDefault(el) {
 
 
 function polygonDefault(el) {
-    el.filled = (el.filled !== "undefined" ? General.bool(el.filled) : General.bool(true));
+    el.filled = (el.filled !== undefined ? General.bool(el.filled) : General.bool(true));
+
     lineDefault(el);
 }
 
@@ -162,8 +163,8 @@ function addElementNoProof(el) {
     // Detect unsupported operations or missing or incorrect arguments
     var op = geoOps[el.type];
     var isSet = false;
-    var getKind = function(el) {
-        return csgeo.csnames[el].kind;
+    var getKind = function(name) {
+        return csgeo.csnames[name].kind;
     };
 
     if (!op) {
@@ -173,7 +174,7 @@ function addElementNoProof(el) {
     }
     if (op.signature !== "**") {
         // check for sets
-        if (!Array.isArray(op.signature) && op.signature.charAt(1) === "s") {
+        if (!Array.isArray(op.signature) && op.signature.charAt(1) === "*") {
             isSet = true;
             el.args.forEach(function(val) {
                 if (csgeo.csnames[val].kind !== op.signature.charAt(0)) {
@@ -204,17 +205,14 @@ function addElementNoProof(el) {
                     " due to missing argument " + el.args[i]);
                 return null;
             }
-            if (op.signature !== "**") {
-                var opSigs;
-                if (isSet) {
-                    opSigs = el.args.map(getKind);
-                } // end isSet
-                else opSigs = op.signature;
+            if (op.signature !== "**" && !isSet) {
                 var argKind = csgeo.csnames[el.args[i]].kind;
-                if (!(opSigs[i] === argKind || (argKind === "S" && opSigs[i] === "L"))) {
-                    window.alert(
-                        "Wrong argument kind " + argKind + " as argument " + i +
-                        " to element " + el.name + " of type " + el.type);
+                if (!(op.signature[i] === argKind || (argKind === "S" &&
+                        op.signature[i] ===
+                        "L"))) {
+                    window.alert("Wrong argument kind " + argKind +
+                        " as argument " + i + " to element " +
+                        el.name + " of type " + el.type);
                     return null;
                 }
             }
