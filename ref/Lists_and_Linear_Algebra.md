@@ -57,33 +57,8 @@ This is sometimes convenient to have a more mathematical appealing notation in t
 A three-dimensional vector may then be written as follows:
 
 `(7.3,9.3,-14.3)`
- 
+
 ------
-
-###  Comparing Lists
-
-Lists can be compared element wise using [Boolean Operators](Boolean_Operators.md). For example one can test for equality like this: 
-
-    > a = [2, 5, 7, 3]
-    < [2, 5, 7, 3]
-    > b = [2, 5, 7, 3]
-    < [2, 5, 7, 3]
-    > a == b
-    < true
-    > b_1 = 0
-    < 0
-    > a == b
-    < false
-
-Or if two lists approximately equal:
-
-    > a = [2, 8, 7, 3]
-    < [2, 8, 7, 3]
-    > b = [2, 8, 7, 3.00000000001]
-    < [2, 8, 7, 3]
-    > a ~= b
-    < true
-
 
 #### Accessing Elements of Lists: `‹list›_‹int›`
 ##### Functional List Element Access: `take(‹list›,‹int›)`
@@ -166,4 +141,3 @@ Then a list corresponding to the specified list entries is returned.
     < [5, 7]
     > [2, 5, 7, 3]_[-1, 1, 1]
     < [3, 2, 2]
-

@@ -35,6 +35,19 @@ To be compared equal, two objects have to be of the same type.
     > "true" == true
     < false
 
+Lists are compared element-wise:
+
+    > a = [2, 5, 7, 3]
+    < [2, 5, 7, 3]
+    > b = [2, 5, 7, 2 + cos(0)]
+    < [2, 5, 7, 3]
+    > a == b
+    < true
+    > b_1 = 0
+    < 0
+    > a == b
+    < false
+
 ------
 
 #### Testing inequality: `‹expr1› != ‹expr2›`
@@ -219,6 +232,18 @@ Here for each operator the picture shows for which region of `b` (marked in red)
     < true
     > greaterThanEps ~= 0
     < false
+
+Lists are compared element-wise.  The maximal error determines the result
+of the comparison, so errors are not accumulated over the list.
+
+    > a = [2, 8, 7, 3]
+    < [2, 8, 7, 3]
+    > b = [2, 8, 7, 3.00000000001]
+    < [2, 8, 7, 3]
+    > a ~= b
+    < true
+    > [0, 0] ~= [lessThanEps, lessThanEps]
+    < true
 
 ##### Noticably different: `‹expr1› ~!= ‹expr2›`
 
