@@ -271,6 +271,10 @@ function render() {
 
     var i;
 
+    for (i = 0; i < csgeo.polygons.length; i++) {
+        drawgeopolygon(csgeo.polygons[i]);
+    }
+
     for (i = 0; i < csgeo.conics.length; i++) {
         if (csgeo.conics[i].isArc) drawgeoarc(csgeo.conics[i]);
         else drawgeoconic(csgeo.conics[i]);
@@ -288,10 +292,6 @@ function render() {
 
     for (i = 0; i < csgeo.texts.length; i++) {
         drawgeotext(csgeo.texts[i]);
-    }
-
-    for (i = 0; i < csgeo.polygons.length; i++) {
-        drawgeopolygon(csgeo.polygons[i]);
     }
 
 }
