@@ -363,6 +363,7 @@ module.exports = function build(settings, task) {
             dependency_mode: "LOOSE",
             create_source_map: "build/js/CindyGL.js.map",
             compilation_level: this.setting("cgl_closure_level"),
+            rewrite_polyfills: false,
             warning_level: this.setting("cgl_closure_warnings"),
             source_map_format: "V3",
             source_map_location_mapping: [
