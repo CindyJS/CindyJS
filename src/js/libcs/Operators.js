@@ -465,7 +465,7 @@ eval_helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
     if (where.ctype === 'geo' && field) {
-        Accessor.setField(where.value, field, what);
+        Accessor.setField(where.value, field, evaluateAndVal(what));
     }
 
     return nada;
@@ -1666,6 +1666,117 @@ evaluator.isundefined$1 = function(args, modifs) {
         'ctype': 'boolean',
         'value': false
     };
+};
+
+// See AlgoMap.java in the Cinderella codebase, but also geoMacros in GeoOps.js
+var cinderellaAlgoNames = {
+    ArcBy3: "Arc",
+    CenterOfConic: "Center",
+    ConicBy1p4l: "Conic1P4L",
+    ConicBy4p1l: "Conic4P1L",
+    ConicBy5lines: "Conic5L",
+    ConicBy2Foci1P: "ConicFoci", // sometimes "ConicFociH" instead
+    ConicFromPrincipalDirections: "ConicPrincipleDirs",
+    // Mid: "EuclideanMid", (only sometimes)
+    Free: "FreePoint",
+    PolarOfLine: "PolarLine",
+    PolarOfPoint: "PolarPoint",
+    PointOnSegment: "PointOnLine",
+    Button: "Text",
+    ToggleButton: "Text",
+    TrReflectionL: "TrReflection",
+    TrReflectionP: "TrReflection",
+    TrReflectionC: "TrReflection",
+    TrTranslation: "TrProjection", // or TrTranslationPP?
+    TrSimilarity: "TrProjection",
+    TrAffine: "TrProjection",
+    TransformP: "Transform",
+    TransformL: "Transform",
+    TransformSegment: "Transform",
+    TransformS: "Transform",
+    TransformPolygon: "Transform",
+    TransformArc: "Transform",
+    TransformConic: "Transform",
+    TransformC: "Transform",
+    TrMoebiusP: "Transform",
+    TrMoebiusL: "Transform",
+    TrMoebiusSegment: "Transform",
+    TrMoebiusS: "Transform",
+    TrMoebiusPolygon: "Transform",
+    TrMoebiusArc: "Transform",
+    TrMoebiusCircle: "Transform",
+    TrMoebiusC: "Transform",
+    TrInverseMoebius: "TrInverse",
+    Perp: "Orthogonal",
+    Para: "Parallel",
+    AngleBisector: "AngularBisector",
+    IntersectLC: "IntersectionConicLine",
+    IntersectCirCir: "IntersectionCircleCircle",
+    OtherPointOnCircle: "PointOnCircle",
+};
+
+evaluator.algorithm$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo") {
+        var el = v0.value;
+        var type = el.type;
+        var compat = evaluateAndVal(modifs.compatibility);
+        if (compat.ctype === "string" &&
+            (/^cinderella$/i).test(compat.value)) {
+            if (/^Select/.test(type)) {
+                el = csgeo.csnames[el.args[0]];
+                type = el.type;
+            }
+            if (cinderellaAlgoNames.hasOwnProperty(type))
+                type = cinderellaAlgoNames[type];
+            else if (type === "CircleMr")
+                type = el.pinned ? "CircleByFixedRadius" : "CircleByRadius";
+        }
+        return General.string(type);
+    }
+    return nada;
+};
+
+evaluator.inputs$1 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === "geo") {
+        var el = v0.value;
+        var type = el.type;
+        var res = [];
+        if (el.args) res = el.args.map(function(name) {
+            return {
+                ctype: "geo",
+                value: csgeo.csnames[name]
+            };
+        });
+        if (/^Select/.test(type) || geoOps[type].isMovable) {
+            switch (el.kind) { // compare savePos in StateIO
+                case "P":
+                case "L":
+                    res.push(el.homog);
+                    break;
+                case "C":
+                    res.push(el.matrix);
+                    break;
+            }
+        }
+        return List.turnIntoCSList(res);
+    }
+    return nada;
+};
+
+evaluator.moveto$2 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    var v1 = evaluateAndVal(args[1]);
+    if (v0.ctype === "geo") {
+        var el = v0.value;
+        if (List._helper.isNumberVecN(v1, 2)) {
+            Accessor.setField(el, "xy", v1);
+        } else if (List._helper.isNumberVecN(v1, 3)) {
+            Accessor.setField(el, "homog", v1);
+        }
+    }
+    return nada;
 };
 
 evaluator.matrixrowcolumn$1 = function(args, modifs) {
@@ -3765,15 +3876,28 @@ evaluator.create$3 = function(args, modifs) {
     var type = evaluate(args[1]);
     var defs = evaluate(args[2]);
 
-    var name;
+    var name, el, i;
     if (names.ctype === "string") {
         name = names.value;
     } else if (names.ctype !== "list") {
         console.log("Names must be a string or a list of strings");
         return nada;
     } else if (names.value.length !== 1) {
-        console.log("multi-result compatibility operations not supported yet");
-        return nada;
+        // Create the compound object, then Select objects to split it up
+        name = General.string(names.value.map(function(name) {
+            return name.value;
+        }).join("__"));
+        el = evaluator.create$3([name, type, defs], modifs);
+        if (el !== nada) {
+            type = General.string(el.kind.replace(/^(.*)s$/, "Select$1"));
+            defs = List.turnIntoCSList([General.string(el.name)]);
+            for (i = 0; i < names.value.length; ++i) {
+                evaluator.create$3([names.value[i], type, defs], {
+                    index: CSNumber.real(i + 1)
+                });
+            }
+        }
+        return el;
     } else if (names.value[0].ctype !== "string") {
         console.log("Element of names list must be a string");
         return nada;
@@ -3789,7 +3913,8 @@ evaluator.create$3 = function(args, modifs) {
         return nada;
     }
 
-    if (geoOps[type.value] === undefined) {
+    if (!geoOps.hasOwnProperty(type.value) &&
+        !geoMacros.hasOwnProperty(type.value)) {
         console.log("Invalid geometric operation: '" + type.value + "'");
         return nada;
     }
@@ -3797,11 +3922,13 @@ evaluator.create$3 = function(args, modifs) {
     var a = [];
     var pos = null;
 
-    for (var i = 0; i < defs.value.length; i++) {
+    for (i = 0; i < defs.value.length; i++) {
         var def = defs.value[i];
 
         if (def.ctype === "string") {
             a.push(def.value);
+        } else if (def.ctype === "geo") {
+            a.push(def.value.name);
         } else {
             var vec = evaluateAndHomog(def);
             if (vec !== nada) {
@@ -3813,7 +3940,7 @@ evaluator.create$3 = function(args, modifs) {
         }
     }
 
-    var el = {
+    el = {
         name: name,
         type: type.value,
         labeled: true
@@ -3824,6 +3951,10 @@ evaluator.create$3 = function(args, modifs) {
 
     if (a.length > 0)
         el.args = a;
+
+    var index = evaluateAndVal(modifs.index);
+    if (index.ctype === "number")
+        el.index = index.value.real | 0;
 
     return addElement(el);
 };

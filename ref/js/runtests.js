@@ -63,7 +63,10 @@ function runTestFile(filename) {
       var mark = line.substr(4, 2), rest = line.substr(6);
       if (mark === "> ") {
         if (ininput) {
-          curcase.cmd += "\n" + rest;
+          if (curcase.cmd === null)
+            curcase.cmd = rest;
+          else
+            curcase.cmd += "\n" + rest;
         } else {
           curcase = new TestCase(rest, filename, lineno + i);
           cases.push(curcase);
@@ -71,6 +74,17 @@ function runTestFile(filename) {
             curcase.pragma = pragmas.slice();
           ininput = true;
         }
+        continue;
+      } else if (mark === 'G ') {
+        if (!ininput) {
+          curcase = new TestCase(null, filename, lineno + i);
+          cases.push(curcase);
+          if (pragmas.length)
+            curcase.pragma = pragmas.slice();
+          ininput = true;
+        }
+        if (!curcase.geo) curcase.geo = [];
+        curcase.geo.push(rest);
         continue;
       } else if (mark === "- ") {
         if (rest.substr(0, 4) == "skip") {
@@ -106,6 +120,9 @@ function runTestFile(filename) {
   });
   if (!anythingToCheck)
       return;
+  cases.forEach(function(c) {
+    c.prepare();
+  });
   numtests += cases.length;
   if (exportJSON) {
     exportJSON.push(cases);
@@ -129,6 +146,7 @@ TestCase.prototype.output = null;
 TestCase.prototype.draw = null;
 TestCase.prototype.exception = null;
 TestCase.prototype.pragma = null;
+TestCase.prototype.geo = null;
 
 TestCase.prototype.expectResult = function(str) {
   if (this.expected !== null)
@@ -199,10 +217,24 @@ function sanityCheck(val) {
     break;
   case "undefined":
     break;
+  case "geo":
+    if (typeof val.value !== "object")
+      throw Error("not a geometric element object");
+    if (typeof val.value.type !== "string")
+      throw Error("type is not a string");
+    if (typeof val.value.kind !== "string")
+      throw Error("kind is not a string");
+    break;
   case "error":
     throw val;
   default:
     throw Error("Unknown ctype: " + val.ctype);
+  }
+};
+
+TestCase.prototype.prepare = function() {
+  if (this.geo) {
+    this.geo = eval("(" + this.geo.join("\n") + "\n)");
   }
 };
 
@@ -221,6 +253,14 @@ TestCase.prototype.run = function() {
   var conerr = console.error;
   console.log = function(str) { clog.push(str); };
   console.error = console.log;
+  if (this.geo) {
+    cjs = CindyJS({
+      "isNode": true,
+      "csconsole": null,
+      "canvas": fakeCanvas,
+      "geometry": JSON.parse(JSON.stringify(this.geo)),
+    });
+  }
   try {
     val = cjs.evalcs(this.cmd);
     sanityCheck(val);

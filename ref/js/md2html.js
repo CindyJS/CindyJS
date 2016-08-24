@@ -37,6 +37,7 @@ MyRenderer.prototype.code = function(code, lang) {
     "~ ": "regexp",
     "* ": "output",
     "D ": "draw2d",
+    "G ": "geo",
     "- ": "pragma",
   };
   var bcls = {
@@ -46,6 +47,7 @@ MyRenderer.prototype.code = function(code, lang) {
     "< ": "codeblock",
     "* ": "codeblock",
     "D ": "codeblock",
+    "G ": "codeblock",
     "~ ": "codeblock",
   };
   var outer = 'block', prevmark = '', res = '';
