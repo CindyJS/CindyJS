@@ -247,10 +247,13 @@ function drawgeopolygon(el) {
     if (!el.isshowing || el.visible === false)
         return;
 
-    var modifs = {};
-    modifs.color = el.color;
-    modifs.alpha = el.alpha;
-    modifs.size = el.size;
+    var modifs = {
+        color: el.color,
+        alpha: el.alpha,
+        fillcolor: el.fillcolor,
+        fillalpha: el.fillalpha,
+        size: el.size,
+    };
 
     var args = List.turnIntoCSList(el.args.map(function(x) {
         return {
@@ -259,9 +262,7 @@ function drawgeopolygon(el) {
         };
     }));
 
-    var filled = (el.filled.value === false) ? "D" : "F";
-
-    eval_helper.drawpolygon([args], modifs, filled, true);
+    eval_helper.drawpolygon([args], modifs, "D", true);
 
 
 }

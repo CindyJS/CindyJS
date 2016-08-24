@@ -862,6 +862,10 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     }
 
     if (df === "D") {
+        if (Render2D.fillColor) {
+            csctx.fillStyle = Render2D.fillColor;
+            csctx.fill();
+        }
         csctx.stroke();
     }
     if (df === "F") {
