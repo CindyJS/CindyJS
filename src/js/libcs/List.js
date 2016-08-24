@@ -413,7 +413,7 @@ List.almostequals = function(a1, a2) {
         var av2 = a2.value[i];
 
         if (av1.ctype === 'list' && av2.ctype === 'list') {
-            erg = erg && List.comp_almostequals(av1, av2).value;
+            erg = erg && List.almostequals(av1, av2).value;
         } else {
             erg = erg && comp_almostequals([av1, av2], []).value;
 
