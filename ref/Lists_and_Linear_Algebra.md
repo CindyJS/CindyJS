@@ -156,6 +156,21 @@ It is impossible for a list to contain itself, since the right hand side of an a
     > a
     < [[0]]
 
+## Comparing lists
+
+Lists can be compared element-wise for equality or almost-equality:
+
+    > [0, 1, 2] == [sin(0), cos(0), 1+1]
+    < true
+    > [0, 1, 2] != [sin(0), cos(0), 1+1]
+    < false
+    > [0, 1, 2] == [10^(-12), 1.00000000002, 2]
+    < false
+    > [0, 1, 2] ~= [10^(-12), 1.00000000002, 2]
+    < true
+
+For details please refer to the [Boolean Operators](Boolean_Operators.md) in question.
+
 ##  Advanced indexing
 ### Negative indices
 
