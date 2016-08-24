@@ -31,4 +31,4 @@ For further, more detailed information, you may refer to the following sections:
 *  **[MIDI Functions](MIDI_Functions.md):**
 Description of functions for playing tones and melodies, including a discussion of instruments, sound characteristics and timing.
 
-*  **[Sampled-Audio Functions](Sampled-Audio_Functions.md)**: Description of functions for generation of audio samples "from-scratch".
+*  **[Sampled-Audio Functions](Sampled-Audio_Functions.md)**: Description of functions for generation of audio samples "from scratch".

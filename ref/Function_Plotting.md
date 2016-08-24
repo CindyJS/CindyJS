@@ -119,7 +119,7 @@ The following three pictures demonstrate the use of these operators.
 #####  Dashing
 
 The Dashing options for a plot statement are identical to those for lines and circles.
-They can be controlled by the modifiers `dashing`, `dashtype` and ` dashpattern`.
+They can be controlled by the modifiers `dashing`, `dashtype` and `dashpattern`.
 
 * `dashtype` Can be an integer between 0 and 4 and selects one of four predefined dashing patterns.
 The value 0 creates a solid line.
@@ -588,8 +588,8 @@ Than can be used to change the appearance of the curves and to show additional i
 | `texts`     | `[‹text1›,‹text2›,…]`        | provide a caption for each curve                                                                       |
 | `showrange` | `‹bool›`                     | show the max and min values for each curve                                                             |
 | Rendering   |
-| `range`     | `‹string›`                   | "peek" scales to the absolute measured maximum, "auto" scales to the currently shown part of the curve |
-| `range`     | `[‹string1›,‹string2›,…]`    | individual "peek"/"auto" for each curve                                                                |
+| `range`     | `‹string›`                   | `"peek"` scales to the absolute measured maximum, `"auto"` scales to the currently shown part of the curve |
+| `range`     | `[‹string1›,‹string2›,…]`    | individual `"peek"`/`"auto"` for each curve                                                            |
 
 The following piece of code demonstrates the usage of the modifiers.
 It shows a weakly coupled pendulum and its energy behavior.

@@ -10,7 +10,7 @@ When first opened, the editor window looks as follows:
 This window contains several components that require explanation.
 The main part of the window is occupied by a large white space (the middle part of the right side).
 This is the text field in which you will enter your script later on.
-The left side of the window is occupied by a "tree view," in which you can select an occasion upon which a script should be executed.
+The left side of the window is occupied by a "tree view", in which you can select an occasion upon which a script should be executed.
 The first step in entering a script consists in choosing a suitable occasion.
 
 The lower part of the right side is reserved for console output, while the top part of the window contains some controls and a field in which you can enter a name for your script.
@@ -63,10 +63,10 @@ If a script is contained in this slot it will be executed whenever the internal 
 This slot is needed when one wants to implement user specific force potentials.
 
 * **Simulation Start:**
-This script is executed when the animation controller changes from "Stop" to "Play." It is a very good place to enter initial setups for animations.
+This script is executed when the animation controller changes from "Stop" to "Play". It is a very good place to enter initial setups for animations.
 
 * **Simulation Stop:**
-This script is executed when the animation controller changes from "Play" to "Stop." It is a very good place to evaluate the result of an animation.
+This script is executed when the animation controller changes from "Play" to "Stop". It is a very good place to evaluate the result of an animation.
 
 * **Mouse Down:**
 This slot and the following three slots are very useful for programming user interfaces in CindyScript.

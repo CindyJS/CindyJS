@@ -40,7 +40,8 @@ Depending on the evaluation of the condition, the `if` function returns the valu
 
 ### Side Effects
 
-If a function is evaluated in CindyScript, it may have "side effects." Side effects are important for all kinds of interactions between a CindyScript program and a Cinderella construction.
+If a function is evaluated in CindyScript, it may have "side effects".
+Side effects are important for all kinds of interactions between a CindyScript program and a Cinderella construction.
 Typical side effects are:
 
 *  **Drawing:**

@@ -268,7 +268,7 @@ The command has several modifiers, most of them are self-explanatory.
 | `amp`      | `0.0 … 1.0`    | identical to `velocity`                                |
 | `duration` | `‹real›`       | duration of the tone in seconds                        |
 | `channel`  | `0 … 15`       | selecting the channel that is played                   |
-| `reverb`   | `0.0 … 1.0 `   | reverb effect                                          |
+| `reverb`   | `0.0 … 1.0`    | reverb effect                                          |
 | `balance`  | `-1.0 … 1.0`   | left/right panorama of tone                            |
 | `bend`     | `-2.0 … 2.0`   | bending a tone up to a whole note down or up           |
 
@@ -543,7 +543,7 @@ In addition, the statement has modifiers for globally setting the channel, instr
 
 | Modifier     | Parameter       | Effect                               |
 | ------------ | --------------- | ------------------------------------ |
-| `channel`    | `0..15`         | selecting the channel that is played |
+| `channel`    | `0 … 15`        | selecting the channel that is played |
 | `instrument` | `1 … 123`       | selecting a specific instrument      |
 | `speed`      | `‹real›`        | speed in beats-per-minute            |
 | `loop`       | `0,1,2,3,4 …`   | repetition of the melody             |
@@ -576,10 +576,10 @@ The function supports the following modifiers:
 
 | Modifier     | Parameter                    | Effect                                                                                        |
 | ------------ | ---------------------------- | --------------------------------------------------------------------------------------------- |
-| `channel`    | `0..15`                      | selecting the channel that is played                                                          |
+| `channel`    | `0 … 15`                     | selecting the channel that is played                                                          |
 | `instrument` | `1 … 123`                    | selecting a specific instrument                                                               |
 | `speed`      | `‹real›`                     | speed in beats-per-minute                                                                     |
-| `track`      | `0..10`                      | selecting the track of the sequencer                                                          |
+| `track`      | `0 … 10`                     | selecting the track of the sequencer                                                          |
 | `start`      | `‹real›`                     | start position (in beats)                                                                     |
 | `mode`       | `"add", "replace", "append"` | the mode in which the track is added                                                          |
 | `stretch`    | `‹real›`                     | a factor that expands the beatlength in the added piece of melody (relative to the sequencer) |
@@ -683,8 +683,8 @@ This function supports various modifiers that influence the tone characteristics
 | `velocity` | `0.0 … 1.0`    | the volume of a tone (how fast a piano key is pressed) |
 | `duration` | `‹real›`       | duration of the tone in seconds                        |
 | `bend`     | `-2.0 … 2.0`   | bending a tone up to a whole note down or up           |
-| `channel`  | `0..15`        | selecting the channel that is played                   |
-| `reverb`   | `0.0 … 1.0 `   | reverb effect                                          |
+| `channel`  | `0 … 15`       | selecting the channel that is played                   |
+| `reverb`   | `0.0 … 1.0`    | reverb effect                                          |
 | `balance`  | `-1.0 … 1.0`   | left/right panorama of tone                            |
 
 Here the modifiers `velocity` and `duration` influence the default velocity (volume) and duration with which a tone is played (for instance by `playtone(…)`).
@@ -767,8 +767,8 @@ The modifiers here are very similar to the `instrument` modifiers.
 | `velocity`   | `0.0 … 1.0`    | the volume of a tone (how fast a piano key is pressed) |
 | `duration`   | `‹real›`       | duration of the tone in seconds                        |
 | `bend`       | `-2.0 … 2.0`   | bending a tone up to a whole note down or up           |
-| `instrument` | `0..15`        | selecting the instrument that is played                |
-| `reverb`     | `0.0 … 1.0 `   | reverb effect                                          |
+| `instrument` | `0 … 15`       | selecting the instrument that is played                |
+| `reverb`     | `0.0 … 1.0`    | reverb effect                                          |
 | `balance`    | `-1.0 … 1.0`   | left/right panorama of tone                            |
 
 ------
@@ -785,7 +785,7 @@ However, by modifiers one can select the affected channel.
 
 | Modifier  | Parameter           | Effect                |
 | --------- | ------------------- | --------------------- |
-| `channel` | `0 ..15` or `"all"` | the selected channel. |
+| `channel` | `0 … 15` or `"all"` | the selected channel. |
 
 The channel number is either explicitly specified or by using `"all"` all channels can be affected.
 
@@ -795,9 +795,9 @@ The channel number is either explicitly specified or by using `"all"` all channe
 
 **Description:**
 By this a specific MIDI controller of a channel can be set.
-The first parameter specifies the number of the controller (0..127), the second parameter (0..127) specifies the data set to the controller.
+The first parameter specifies the number of the controller (0…127), the second parameter (0…127) specifies the data set to the controller.
 Controllers may affect characteristics like *reverb*, *balance*, and other characteristics specific to the instruments.
-The data values are taken in the range 0..127.
+The data values are taken in the range 0…127.
 For more details see a manual on General MIDI.
 
 **Modifiers:**

@@ -24,7 +24,7 @@ Assume that in the file `LoadDemo.txt` contains the data
 
 `abc,gfdg;1,3,5.6,3.141;56,abc,xxx,yyy`
 
-The following code reads the data and creates a list by tokenizing it with respect to ";" and ",".
+The following code reads the data and creates a list by tokenizing it with respect to `;` and `,`.
 
     > x=load("LoadTest.txt");
     > y=tokenize(x,(";",","));

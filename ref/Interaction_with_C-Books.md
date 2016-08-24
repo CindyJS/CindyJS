@@ -121,10 +121,10 @@ Most Cinderella objects can be "pinned" to a fixed coordinate, i.e.
 they are not allowed to be moved using the mouse or anything else.
 
 So, what we have to do to be able to set the x-coordinates of B and C after the "initialization" is to
-1.
-set the pinning property to "false" for B and C (or even for all points) in the "initialization" event
-2.
-and to set it later (e.g., in the "draw" event) to "true".
+
+1. set the pinning property to "false" for B and C (or even for all points) in the "initialization" event
+
+2. and to set it later (e.g., in the "draw" event) to "true".
 
 This can be achieved using the following CindyScript code.
 Paste this into the "initialization" event part of the Cinderella "CindyScript Editor":

@@ -76,7 +76,7 @@ This operator produces a list that resembles the direct product of two given lis
 The direct products consists of all pairs whose first element is taken from `‹list1›` and whose second element is taken from `‹list2›`.
 
 **Modifiers:**
-The modifier `levels` can be set either to "all", which results in a complete recursive flattening, or it can be set to an integer, that specifies the maximal recursion level of flattening.
+The modifier `levels` can be set either to `"all"`, which results in a complete recursive flattening, or it can be set to an integer, that specifies the maximal recursion level of flattening.
 The statement `flatten(…,levels->1)` is equivalent to `flatten(…)`.
 
 **Example:**
