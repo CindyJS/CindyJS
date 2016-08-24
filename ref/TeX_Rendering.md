@@ -134,13 +134,9 @@ To introduce whitespace the commands `\`, `\;`, `\quad`, `\qquad`, `\!` are used
 They produce a whitespace measured in units of an "m" of the current font.
 
 *  `\qquad`: whitespace of 2.0 units
-
 *  `\quad`: whitespace of 1.0 unit
-
 *  `\;`: whitespace of 5/18 units
-
 *  `\,`: whitespace of 3/18 units
-
 *  `\!`: negative whitespace of -5/18 units
 
     > drawtext((0,0),size->16,"$A\!A A \,A\;A\quad A \qquad A$")
@@ -177,9 +173,7 @@ The second pair of curly brackets in the statement above contains formatting inf
 Here
 
 * `r` means right align,
-
 * `l` means left align,
-
 * `c` means center align.
 
 In the following example the `array` statement is combined with enclosing brakets to generate a matrix-like object.

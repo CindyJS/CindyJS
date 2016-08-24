@@ -6,11 +6,8 @@ They can be used to serve many different purposes, e.g.
 …
 
 *  …to enhance the appearance of usual Cinderella files
-
 *  …as an integral part of certain Cinderella files (games, physical simulations, etc.)
-
 *  …to demonstrate and study mathematical structures of music
-
 *  …to demonstrate and study mathematical and physical structures of sound
 
 The audio interface is subdivided into two essential parts:

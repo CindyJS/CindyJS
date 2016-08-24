@@ -17,11 +17,8 @@ The following sections will give you an overview of the global design of the pro
 The language design follows some guiding principles:
 
 *  The language should be easy to learn, write and read
-
 *  The language should have only minimal syntactic overhead
-
 *  The language should be fast in execution
-
 *  The language should interact seemlessly with Cinderella and [CindyLab](CindyLab.md)
 
 The following topics will give you an overview over the main language features:

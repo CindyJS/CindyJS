@@ -516,7 +516,8 @@ same as `channel`.
 *  **`["instrument",‹int›]`:**
 changes the instrument (1…128) that is associated to the channel.
 
-*  **`["inst",‹int›]`:**same as `instrument`.
+*  **`["inst",‹int›]`:**
+same as `instrument`.
 
 *  **`[‹int›,‹int›,‹int›,‹int›]`:**
 This statement (consisting simply of four integer numbers, gives access to other midi controls of instruments (consult a MIDI manual for details).
