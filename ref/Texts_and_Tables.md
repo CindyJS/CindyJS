@@ -150,8 +150,6 @@ It returns a boolean value.
 
 #### Drawing tables: `drawtable(‹vec›,‹list›)`
 
-**Not available in CindyJS yet!**
-
 One- and two-dimensional lists can be easily drawn in a geometric view as tables.
 In the simplest form one has only to provide the list and a position where the table should be drawn.
 Modifiers can be used to fine tune the appearance of the table.
@@ -159,7 +157,6 @@ Modifiers can be used to fine tune the appearance of the table.
 **Example:**
 The following code produces the picture below:
 
-    - skip test: drawtable not implemented yet
     > x=1..10;
     > table=apply(x,(#,#^2,#^3,#^4));
     > drawtable((0,0),table);
