@@ -333,14 +333,14 @@ function updateCindy() {
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
     var m = csport.drawingstate.matrix;
+    var d, a, b, i, p;
     // due to the csport.reset(), m is initial, i.e. a = d and b = c = 0
-    if (csgridsize !== 0) {
+    if (csgridsize !== 0) { // Square grid
         csctx.beginPath();
         csctx.strokeStyle = "rgba(0,0,0,0.1)";
         csctx.lineWidth = 1;
         csctx.lineCap = "butt";
-        var d = csgridsize * m.a;
-        var i, p;
+        d = csgridsize * m.a;
         i = Math.ceil(-m.tx / d);
         while ((p = i * d + m.tx) < csw) {
             if (i || !csaxes) {
@@ -349,6 +349,41 @@ function updateCindy() {
             }
             i++;
         }
+        i = Math.floor(m.ty / d);
+        while ((p = i * d - m.ty) < csh) {
+            if (i || !csaxes) {
+                csctx.moveTo(0, p);
+                csctx.lineTo(csw, p);
+            }
+            i++;
+        }
+        csctx.stroke();
+    }
+    if (cstgrid !== 0) { // Triangular grid
+        csctx.beginPath();
+        csctx.strokeStyle = "rgba(0,0,0,0.1)";
+        csctx.lineWidth = 1;
+        csctx.lineCap = "butt";
+        d = cstgrid * m.a;
+        var sqrt3 = Math.sqrt(3);
+        a = m.ty / sqrt3;
+        b = (csh + m.ty) / sqrt3;
+        // down slope first
+        i = Math.ceil(-(m.tx + b) / d);
+        while ((p = i * d + m.tx) + a < csw) {
+            csctx.moveTo(p + a, 0);
+            csctx.lineTo(p + b, csh);
+            i++;
+        }
+        // up slope second
+        i = Math.ceil(-(m.tx - a) / d);
+        while ((p = i * d + m.tx) - b < csw) {
+            csctx.moveTo(p - a, 0);
+            csctx.lineTo(p - b, csh);
+            i++;
+        }
+        // horizontal last
+        d *= 0.5 * sqrt3;
         i = Math.floor(m.ty / d);
         while ((p = i * d - m.ty) < csh) {
             if (i || !csaxes) {

@@ -9,6 +9,7 @@ var csanimating = false;
 var csstopped = true;
 var csscale = 1;
 var csgridsize = 0;
+var cstgrid = 0;
 var csgridscript;
 var cssnap = false;
 var csaxes = false;
@@ -195,6 +196,8 @@ function createCindyNow() {
                 trafos = port.transform;
             if (isFiniteNumber(port.grid) && port.grid > 0)
                 csgridsize = port.grid;
+            if (isFiniteNumber(port.tgrid) && port.tgrid > 0)
+                cstgrid = port.tgrid;
             if (port.snap)
                 cssnap = true;
             if (port.axes)

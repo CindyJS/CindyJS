@@ -9,6 +9,8 @@ Accessor.generalFields = { //Übersetungstafel der Feldnamen
     colorhsb: "",
     size: "size",
     alpha: "alpha",
+    fillcolor: "fillcolor",
+    fillalpha: "fillalpha",
     isshowing: "isshowing",
     visible: "visible",
     name: "name",
@@ -184,6 +186,12 @@ Accessor.setField = function(geo, field, value) {
     }
     if (field === "alpha" && value.ctype === "number") {
         geo.alpha = value;
+    }
+    if (field === "fillcolor" && List._helper.isNumberVecN(value, 3)) {
+        geo.fillcolor = value;
+    }
+    if (field === "fillalpha" && value.ctype === "number") {
+        geo.fillalpha = value;
     }
     if (field === "visible") {
         if (value.ctype === "boolean") {

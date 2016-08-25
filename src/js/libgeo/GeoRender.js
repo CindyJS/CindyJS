@@ -243,9 +243,27 @@ function drawgeotext(el) {
         evaluator.drawtext$2([pos, text], opts, htmlCallback);
 }
 
+function drawgeopolygon(el) {
+    if (!el.isshowing || el.visible === false)
+        return;
+    var modifs = {
+        color: el.color,
+        alpha: el.alpha,
+        fillcolor: el.fillcolor,
+        fillalpha: el.fillalpha,
+        size: el.size,
+        lineJoin: General.string("miter"),
+    };
+    eval_helper.drawpolygon([el.vertices], modifs, "D", true);
+}
+
 function render() {
 
     var i;
+
+    for (i = 0; i < csgeo.polygons.length; i++) {
+        drawgeopolygon(csgeo.polygons[i]);
+    }
 
     for (i = 0; i < csgeo.conics.length; i++) {
         if (csgeo.conics[i].isArc) drawgeoarc(csgeo.conics[i]);

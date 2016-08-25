@@ -53,6 +53,7 @@ function csinit(gslp) {
     csgeo.conics = [];
     csgeo.texts = [];
     csgeo.free = [];
+    csgeo.polygons = [];
 
     gslp.forEach(addElementNoProof);
     checkConjectures();
@@ -118,6 +119,24 @@ function segmentDefault(el) {
     el.clip = General.string("end");
 }
 
+function textDefault(el) {
+    var size;
+    if (el.textsize !== undefined) el.size = el.textsize;
+    else if (el.size !== undefined) el.size = el.size;
+    else el.size = defaultAppearance.textsize;
+    el.size = CSNumber.real(+el.size);
+}
+
+function polygonDefault(el) {
+    el.filled = (el.filled !== undefined ? General.bool(el.filled) : General.bool(true));
+    if (el.fillcolor === undefined) el.fillcolor = nada;
+    else el.fillcolor = List.realVector(el.fillcolor);
+    if (el.fillalpha === undefined) el.fillalpha = 0;
+    el.fillalpha = CSNumber.real(el.fillalpha);
+
+    lineDefault(el);
+}
+
 function addElement(el) {
     el = addElementNoProof(el);
     checkConjectures();
@@ -154,13 +173,33 @@ function addElementNoProof(el) {
 
     // Detect unsupported operations or missing or incorrect arguments
     var op = geoOps[el.type];
+    var isSet = false;
+    var getKind = function(name) {
+        return csgeo.csnames[name].kind;
+    };
+
     if (!op) {
         console.error(el);
         console.error("Operation " + el.type + " not implemented yet");
         return null;
     }
     if (op.signature !== "**") {
-        if (op.signature.length !== (el.args ? el.args.length : 0)) {
+        // check for sets
+        if (!Array.isArray(op.signature) && op.signature.charAt(1) === "*") {
+            isSet = true;
+            el.args.forEach(function(val) {
+                if (csgeo.csnames[val].kind !== op.signature.charAt(0)) {
+                    console.error(
+                        "Not all elements in set are of same type: " +
+                        el.name + " expects " + op.signature +
+                        " but " + val + " is of kind " +
+                        csgeo.csnames[val].kind);
+                    if (typeof window !== "undefined")
+                        window.alert("Not all elements in set are of same type: " + el.name);
+                    return null;
+                }
+            });
+        } else if (op.signature.length !== (el.args ? el.args.length : 0)) {
             console.error(
                 "Wrong number of arguments for " + el.name +
                 " of type " + el.type);
@@ -177,13 +216,14 @@ function addElementNoProof(el) {
                     " due to missing argument " + el.args[i]);
                 return null;
             }
-            if (op.signature !== "**") {
+            if (op.signature !== "**" && !isSet) {
                 var argKind = csgeo.csnames[el.args[i]].kind;
-                if (!(op.signature[i] === argKind ||
-                        (argKind === "S" && op.signature[i] === "L"))) {
-                    window.alert(
-                        "Wrong argument kind " + argKind + " as argument " + i +
-                        " to element " + el.name + " of type " + el.type);
+                if (!(op.signature[i] === argKind || (argKind === "S" &&
+                        op.signature[i] ===
+                        "L"))) {
+                    window.alert("Wrong argument kind " + argKind +
+                        " as argument " + i + " to element " +
+                        el.name + " of type " + el.type);
                     return null;
                 }
             }
@@ -226,6 +266,11 @@ function addElementNoProof(el) {
     }
     if (el.kind === "Text") {
         csgeo.texts.push(el);
+        textDefault(el);
+    }
+    if (el.kind === "Poly") {
+        csgeo.polygons.push(el);
+        polygonDefault(el);
     }
 
     if (true || op.stateSize !== 0) {
