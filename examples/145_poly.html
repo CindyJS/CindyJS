@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <title>Polygons</title>
     <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script type="text/x-cindyscript" id="csinit">
+      Poly3.fillcolor = [0.0, 0.0, 0.0];
+      Poly3.fillalpha = 0.4017094017094017;
+    </script>
+    <script type="text/x-cindyscript" id="csdraw">
+      drawtext((10, -2), Poly0.fillcolor);
+      drawtext((10, -3), Poly1.fillalpha);
+    </script>
     <script type="text/javascript">
 CindyJS({
+  scripts: "cs*",
   defaultAppearance: {
     dimDependent: 0.7,
     fontFamily: "sans-serif",
@@ -26,7 +35,7 @@ CindyJS({
     {name: "Poly0", type: "Poly", color: [0.0, 0.0, 0.0], fillcolor: [0.714, 1.0, 0.667], fillalpha: 1.0, args: ["A", "B", "C"]},
     {name: "Poly1", type: "Poly", color: [1.0, 1.0, 0.0], fillcolor: [1.0, 1.0, 0.0], fillalpha: 0.46153846153846156, args: ["A", "C", "D"], alpha: 0.0},
     {name: "Poly2", type: "Poly", color: [0.0, 0.0, 1.0], args: ["A", "D", "E"], size: 3},
-    {name: "Poly3", type: "Poly", color: [1.0, 1.0, 1.0], fillcolor: [0.0, 0.0, 0.0], fillalpha: 0.4017094017094017, args: ["A", "E", "F"]},
+    {name: "Poly3", type: "Poly", color: [1.0, 1.0, 1.0], fillcolor: [1.0, 0.0, 0.0], fillalpha: 1.0, args: ["A", "E", "F"]},
     {name: "Poly4", type: "Poly", color: [0.467, 0.0, 0.718], fillcolor: [0.0, 0.0, 0.0], fillalpha: 1.0, args: ["A", "F", "G"], alpha: 0.5811965811965812, size: 8},
     {name: "Poly5", type: "Poly", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 0.0], fillalpha: 1.0, args: ["A", "G", "H", "B"]},
     {name: "K", type: "Free", pos: [4.0, -0.0, 0.5], color: [1.0, 0.0, 0.0]},
