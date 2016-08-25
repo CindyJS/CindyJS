@@ -100,6 +100,16 @@ geoOps.Segment.updatePosition = function(el) {
     el.startpos = el1.homog;
     el.endpos = el2.homog;
     el.farpoint = List.cross(el.homog, List.linfty);
+    el.midpoint = geoOps._helper.midpoint(el1.homog, el2.homog);
+};
+
+geoOps._helper.crSegment = function(seg, p) {
+    var sh = seg.homog;
+    var tt = List.turnIntoCSList([sh.value[0], sh.value[1], CSNumber.zero]);
+    var far = List.turnIntoCSList([sh.value[1], CSNumber.neg(sh.value[0]), CSNumber.zero]);
+    var cr = List.crossratio3(
+        far, seg.startpos, seg.endpos, p, tt);
+    return cr;
 };
 
 
@@ -1865,6 +1875,29 @@ geoOps.TrMoebiusL.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
 
+geoOps.TrMoebiusS = {};
+geoOps.TrMoebiusS.kind = "C";
+geoOps.TrMoebiusS.signature = ["Mt", "S"];
+geoOps.TrMoebiusS.updatePosition = function(el) {
+    var tr = csgeo.csnames[(el.args[0])];
+    var s = csgeo.csnames[(el.args[1])];
+
+    var a1 = s.startpos;
+    var a2 = s.midpoint;
+    var a3 = s.endpos;
+
+    var b1 = geoOps._helper.TrMoebiusP(a1, tr);
+    var b2 = geoOps._helper.TrMoebiusP(a2, tr);
+    var b3 = geoOps._helper.TrMoebiusP(a3, tr);
+    el.startPoint = b1;
+    el.viaPoint = b2;
+    el.endPoint = b3;
+
+    el.isArc = true;
+    el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
+    el.matrix = General.withUsage(el.matrix, "Circle");
+};
+
 
 geoOps.TrMoebiusC = {};
 geoOps.TrMoebiusC.kind = "C";
@@ -2330,12 +2363,17 @@ geoOps.TransformS.signature = ["Tr", "S"];
 geoOps.TransformS.updatePosition = function(el) {
     var tr = csgeo.csnames[(el.args[0])];
     var s = csgeo.csnames[(el.args[1])];
-    el.homog = List.normalizeMax(List.productMV(tr.dualMatrix, s.homog));
+
+    var MVmax = function(M, p) {
+        return List.normalizeMax(List.productMV(M, p));
+    };
+
+    el.homog = MVmax(tr.dualMatrix, s.homog);
     el.homog = General.withUsage(el.homog, "Line");
-    el.startpos = List.normalizeMax(List.productMV(tr.matrix, s.startpos));
-    el.endpos = List.normalizeMax(List.productMV(tr.matrix, s.endpos));
-    el.farpoint = List.normalizeMax(List.productMV(tr.matrix, s.farpoint));
-    //console.log(niceprint(List.turnIntoCSList([el.homog, el.startpos, el.endpos])));
+    el.startpos = MVmax(tr.matrix, s.startpos);
+    el.endpos = MVmax(tr.matrix, s.endpos);
+    el.farpoint = MVmax(tr.matrix, s.farpoint);
+    el.midpoint = MVmax(tr.matrix, s.midpoint);
 };
 
 geoOps.TransformPolygon = {};
@@ -2637,6 +2675,11 @@ geoMacros.TransformConic = function(el) {
 
 geoMacros.TransformSegment = function(el) {
     el.type = "TransformS";
+    return [el];
+};
+
+geoMacros.TrMoebiusSegment = function(el) {
+    el.type = "TrMoebiusS";
     return [el];
 };
 

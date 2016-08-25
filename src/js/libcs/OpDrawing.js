@@ -188,7 +188,8 @@ eval_helper.drawarc = function(args, modifs, df) {
         csctx.translate(xx, yy);
 
         // use the canvas arc function -- buggy in Chrome at least in Okt 15
-        var useArc = false;
+        // looks fine in Sept 16
+        var useArc = true;
 
         if (useArc) {
             csctx.arc(0, 0, arcDist.value.real * m.sdet, startAngle, endAngle, cclock);
@@ -245,30 +246,9 @@ eval_helper.drawarc = function(args, modifs, df) {
         if (Bmiddle) {
             Render2D.drawsegcore(ptA, ptC);
         } else { // nasty case -- B not in the middle -- we have 2 ray to infinity
-
-            // flip the orientation to the right side 
             var sflip = dAB > dBC ? 1 : -1;
-
-            // first ray
-            // get direction and normalise
-            var dx = sflip * (ptA.x - ptB.x);
-            var dy = sflip * (ptA.y - ptB.y);
-            var norm = Math.sqrt(dx * dx + dy * dy);
-
-            // get points outside canvas (at "infinity")
-            var sc = csport.drawingstate.matrix.sdet;
-            var farAway = 25000 / sc; // 25000px in user coordinates
-            var factor = farAway / norm;
-            dx = dx * factor;
-            dy = dy * factor;
-            Render2D.drawsegcore(ptA, {
-                x: ptA.x + dx,
-                y: ptA.y + dy
-            });
-            Render2D.drawsegcore(ptC, {
-                x: ptC.x - dx,
-                y: ptC.y - dy
-            });
+            Render2D.drawRaySegment(a, b,
+                c, sflip);
         }
     }
 

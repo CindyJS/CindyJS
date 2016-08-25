@@ -619,6 +619,36 @@ Render2D.drawline = function(homog) {
     }
 };
 
+// draws a segment consisting of 2 rays
+Render2D.drawRaySegment = function(A, B, C, sflip) {
+    var ptA = eval_helper.extractPoint(A);
+    var ptB = eval_helper.extractPoint(B);
+    var ptC = eval_helper.extractPoint(C);
+    if (!ptA.ok || !ptB.ok || !ptC.ok) {
+        return;
+    }
+
+    var dx = sflip * (ptA.x - ptB.x);
+    var dy = sflip * (ptA.y - ptB.y);
+    var norm = Math.sqrt(dx * dx + dy * dy);
+
+    // get points outside canvas (at "infinity")
+    var sc = csport.drawingstate.matrix.sdet;
+    var farAway = 25000 / sc; // 25000px in user coordinates
+    var factor = farAway / norm;
+    dx = dx * factor;
+    dy = dy * factor;
+
+    Render2D.drawsegcore(ptA, {
+        x: ptA.x + dx,
+        y: ptA.y + dy
+    });
+    Render2D.drawsegcore(ptC, {
+        x: ptC.x - dx,
+        y: ptC.y - dy
+    });
+};
+
 Render2D.dashTypes = {
     "solid": [],
     "dashed": [10, 10],

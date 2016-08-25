@@ -74,21 +74,30 @@ function drawgeoline(el) {
         return;
 
     if (el.kind === "S") {
-        // Segments always join their endpoints.
-        evaluator.draw$2(
-            [el.startpos, el.endpos], {
-                overhang: el.overhang,
-                dashtype: el.dashtype,
-                size: el.size,
-                color: el.color,
-                alpha: el.alpha,
-                arrow: el.arrow,
-                arrowsize: el.arrowsize,
-                arrowposition: el.arrowposition,
-                arrowshape: el.arrowshape,
-                arrowsides: el.arrowsides,
-            });
-        return;
+        var modifs = {
+            overhang: el.overhang,
+            dashtype: el.dashtype,
+            size: el.size,
+            color: el.color,
+            alpha: el.alpha,
+            arrow: el.arrow,
+            arrowsize: el.arrowsize,
+            arrowposition: el.arrowposition,
+            arrowshape: el.arrowshape,
+            arrowsides: el.arrowsides,
+        };
+        var cr = geoOps._helper.crSegment(el, el.midpoint).value.real;
+        if (cr > 0 && cr < 1) { // normal case 
+            evaluator.draw$2(
+                [el.startpos, el.endpos], modifs);
+            return;
+        } else { // transformed segment with 2 rays
+            var flip = cr < 0 ? -1 : 1;
+            Render2D.handleModifs(modifs, Render2D.lineModifs);
+            Render2D.drawRaySegment(el.startpos, el.midpoint,
+                el.endpos, flip);
+            return;
+        }
     }
     if (el.clip.value === "end" && el.type === "Join") {
         // Lines clipped to their defining points join these.
