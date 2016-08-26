@@ -454,10 +454,9 @@ function cs_mouseclick(e) {
 }
 
 function cs_tick(e) {
-    if (csPhysicsInited) { //TODO: Check here if physics is required
-        if (typeof(lab) !== 'undefined') {
-            lab.tick();
-        }
+    simtime = simnow();
+    if (csPhysicsInited && typeof(lab) !== 'undefined') {
+        lab.tick();
     }
     if (csanimating) {
         evaluate(cscompiled.tick);

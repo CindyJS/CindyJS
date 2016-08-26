@@ -5,8 +5,16 @@ var cslib;
 
 var cscompiled = {};
 
+// Simulation settings
 var csanimating = false;
 var csstopped = true;
+var simoldtime = 0; // simtime from previous play-pause cycles
+var simstarttime = 0; // Date.now timestamp of last play
+var simspeed = 1.0; // the animation.speed setting
+var simfactor = 3e-4; // simtime units per millisecond at speed 1
+var simtime = 0; // set once for each tick, for consistency
+
+// Coordinate system settings
 var csscale = 1;
 var csgridsize = 0;
 var cstgrid = 0;
@@ -219,6 +227,8 @@ function createCindyNow() {
             csctx.setLineDash = function() {};
         if (data.animation ? data.animation.controls : data.animcontrols)
             setupAnimControls();
+        if (data.animation && isFiniteNumber(data.animation.speed))
+            setSpeed(data.animation.speed);
     }
     if (data.statusbar) {
         if (typeof data.statusbar === "string") {
@@ -399,19 +409,36 @@ var animcontrols = {
 };
 
 function setupAnimControls() {
-    var animContainer = document.createElement("div");
-    animContainer.className = "CindyJS-animcontrols";
-    canvas.parentNode.appendChild(animContainer);
+    var controls = document.createElement("div");
+    controls.className = "CindyJS-animcontrols";
+    canvas.parentNode.appendChild(controls);
+    var slider = document.createElement("div");
+    slider.className = "CindyJS-animspeed";
+    controls.appendChild(slider);
+    var knob = document.createElement("div");
+    slider.appendChild(knob);
+    addAutoCleaningEventListener(slider, "mousedown", speedDown);
+    addAutoCleaningEventListener(slider, "mousemove", speedDrag);
+    addAutoCleaningEventListener(canvas.parentNode, "mouseup", speedUp, true);
+    var buttons = document.createElement("div");
+    buttons.className = "CindyJS-animbuttons";
+    controls.appendChild(buttons);
     setupAnimButton("play", csplay);
     setupAnimButton("pause", cspause);
     setupAnimButton("stop", csstop);
     animcontrols.stop(true);
 
+    setSpeedKnob = function(speed) {
+        speed = Math.min(100, 50 * speed);
+        speed = Math.round(speed * 10) * 0.1;
+        knob.style.width = speed + "%";
+    };
+
     function setupAnimButton(id, ctrl) {
         var button = document.createElement("button");
         var img = document.createElement("img");
         button.appendChild(img);
-        animContainer.appendChild(button);
+        buttons.appendChild(button);
         loadSvgIcon(img, id);
         button.addEventListener("click", ctrl);
         animcontrols[id] = setActive;
@@ -421,6 +448,36 @@ function setupAnimControls() {
             else button.classList.remove("CindyJS-active");
         }
     }
+
+    var speedDragging = false;
+
+    function speedDown(event) {
+        speedDragging = true;
+        speedDrag(event);
+    }
+
+    function speedDrag(event) {
+        if (!speedDragging) return;
+        var rect = slider.getBoundingClientRect();
+        var x = event.clientX - rect.left - slider.clientLeft + 0.5;
+        setSpeed(2.0 * x / rect.width);
+    }
+
+    function speedUp(event) {
+        speedDragging = false;
+    }
+
+}
+
+var setSpeedKnob = null;
+
+function setSpeed(speed) {
+    if (csanimating) {
+        simoldtime = simnow();
+        simstarttime = Date.now();
+    }
+    simspeed = Math.max(0, speed);
+    if (setSpeedKnob) setSpeedKnob(speed);
 }
 
 /* Install layer ‹id› of Icons.svg as the src of the given img element.
@@ -603,6 +660,7 @@ function csplay() {
         } else {
             animcontrols.pause(false);
         }
+        simstarttime = Date.now();
         animcontrols.play(true);
         if (typeof csinitphys === 'function') {
             if (csPhysicsInited) {
@@ -616,8 +674,14 @@ function csplay() {
     }
 }
 
+function simnow() {
+    if (!csanimating) return simoldtime;
+    return simoldtime + (Date.now() - simstarttime) * simspeed * simfactor;
+}
+
 function cspause() {
     if (csanimating) {
+        simoldtime = simnow();
         animcontrols.play(false);
         animcontrols.pause(true);
         csanimating = false;

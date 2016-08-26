@@ -929,7 +929,8 @@ labObjects.Environment = {
         if (typeof(beh.friction) === 'undefined') beh.friction = 0;
         if (typeof(beh.springstrength) === 'undefined') beh.springstrength = 1;
         if (typeof(beh.accuracy) === 'undefined') beh.accuracy = 10;
-        if (typeof(beh.deltat) === 'undefined') beh.deltat = 0.3;
+        if (typeof(beh.deltat) === 'undefined') beh.deltat = 0.3 * simspeed;
+        else setSpeed(beh.deltat / 0.3);
         if (typeof(beh.charges) === 'undefined') beh.charges = false;
         if (typeof(beh.balls) === 'undefined') beh.balls = false;
         if (typeof(beh.newton) === 'undefined') beh.newton = false;
@@ -938,7 +939,6 @@ labObjects.Environment = {
         beh.errorbound = 0.001;
         beh.lowestdeltat = 0.0000001;
         beh.slowdownfactor = 2;
-
 
     },
 

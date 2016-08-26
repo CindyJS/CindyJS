@@ -7,27 +7,6 @@ evaluator.version$0 = function(args, modifs) {
     return List.turnIntoCSList(ver.map(General.wrap));
 };
 
-evaluator.timestamp$0 = function(args, modifs) {
-    return {
-        "ctype": "number",
-        "value": {
-            "real": new Date().getTime(),
-            "imag": 0
-        }
-    };
-};
-
-evaluator.seconds$0 = function(args, modifs) { //OK
-    return {
-        "ctype": "number",
-        "value": {
-            'real': (new Date().getTime() / 1000),
-            'imag': 0
-        }
-    };
-};
-
-
 evaluator.clearconsole$0 = function(args, modifs) {
     csconsole.clear();
 };
@@ -4095,14 +4074,12 @@ if (!Date.now) Date.now = function() {
 };
 var epoch = 0;
 
+evaluator.timestamp$0 = function(args, modifs) {
+    return CSNumber.real(Date.now());
+};
+
 evaluator.seconds$0 = function(args, modifs) { //OK
-    return {
-        "ctype": "number",
-        "value": {
-            'real': ((Date.now() - epoch) / 1000),
-            'imag': 0
-        }
-    };
+    return CSNumber.real((Date.now() - epoch) / 1000);
 };
 
 evaluator.resetclock$0 = function(args, modifs) {
@@ -4123,6 +4100,10 @@ evaluator.date$0 = function(args, modifs) {
     return List.realVector([
         now.getFullYear(), now.getMonth() + 1, now.getDate()
     ]);
+};
+
+evaluator.simulationtime$0 = function(args, modifs) {
+    return CSNumber.real(simtime);
 };
 
 evaluator.settimeout$2 = function(args, modifs) {
