@@ -91,6 +91,7 @@ function map(name, err, content) {
     var root = map.sourceRoot || ".";
     map.sourceRoot = "https://raw.githubusercontent.com/CindyJS/CindyJS/" + head + "/";
     map.sources = map.sources.map(function(src) {
+        if (/^ \[synthetic:.*\] $/.test(src)) return src;
         return ppath.normalize(ppath.join("build/js", root, src));
     });
     map.sourcesContent = map.sources.map(function(src) {
