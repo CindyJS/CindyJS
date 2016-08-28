@@ -121,6 +121,26 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Make sure all examples compile
+    //////////////////////////////////////////////////////////////////////
+
+    task("excomp", [], function() {
+        this.excomp(
+            "examples/**/*.html",
+            "src/js/libcs/Parser.js",
+            function(html, parser) {
+                var re = /<script[^>]*type *= *['"]text\/x-cindyscript['"][^>]*>([^]*?)<\/script>/g;
+                var match, count = 0;
+                while (match = re.exec(html)) {
+                    ++count;
+                    var res = parser.parse(match[1]);
+                    if (res.ctype === "error") throw res;
+                }
+                return count;
+            });
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Run test suite from reference manual using node
     //////////////////////////////////////////////////////////////////////
 
@@ -131,6 +151,7 @@ module.exports = function build(settings, task) {
     task("tests", [
         "nodetest",
         "unittests",
+        "excomp",
     ]);
 
     //////////////////////////////////////////////////////////////////////

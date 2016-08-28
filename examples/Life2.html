@@ -18,18 +18,21 @@ m=zeromatrix(n,n);
      );
    );
 
+mo(x):=mod(x-1,n)+1;
+
+mmo(i,j):=m_(mo(i))_(mo(j));
+
 neigh(i,j):=
-  m_mo(i-1)_mo(j-1)+
-  m_mo(i)_mo(j-1)+
-  m_mo(i+1)_mo(j-1)+
-  m_mo(i+1)_mo(j)+
-  m_mo(i+1)_mo(j+1)+
-  m_mo(i)_mo(j+1)+
-  m_mo(i-1)_mo(j+1)+
-  m_mo(i-1)_mo(j);
+  mmo(i-1,j-1)+
+  mmo(i,j-1)+
+  mmo(i+1,j-1)+
+  mmo(i+1,j)+
+  mmo(i+1,j+1)+
+  mmo(i,j+1)+
+  mmo(i-1,j+1)+
+  mmo(i-1,j);
 
 cf(i,j):=if(m_i_j==1,hue(neigh(i,j)/8)*.6,(1,1,1));
-mo(x):=mod(x-1,n)+1;
 
 drawm():=(
    repeat(n,i,

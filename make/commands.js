@@ -1,5 +1,6 @@
 "use strict";
 
+var chalk = require("chalk");
 var cp = require("child_process");
 var fs = require("fs");
 var glob = require("glob");
@@ -275,6 +276,46 @@ exports.forbidden = function(files, expressions) {
                     " detected");
             });
         });
+    });
+};
+
+exports.excomp = function(filesPattern, parserFile, checkfunc) {
+    var task = this;
+    this.addJob(function() {
+        // load parser without caching
+        var parser = qfs.read(parserFile)
+            .then(function(body) {
+                var exports = {};
+                var module = {exports: {}};
+                (new Function(
+                    "module", "exports", "require", body))(
+                    module, module.exports);
+                return module.exports;
+            });
+        return Q.all([Q.nfcall(glob, filesPattern, { nodir: true }), parser])
+            .spread(function(files, parser) {
+                var failed = 0;
+                var count = 0;
+                task.log(
+                    "Compiling example scripts from " +
+                        files.length + " examples");
+                return Q.all(files.map(function(file) {
+                    return qfs.read(file).then(function(html) {
+                        try {
+                            count += checkfunc(html, parser) | 0;
+                        } catch (err) {
+                            task.log(
+                                chalk.magenta(file) + ": " +
+                                chalk.red(err));
+                            failed++;
+                        }
+                    });
+                })).then(function() {
+                    task.log(count + " scripts compiled");
+                    if (failed) throw new BuildError(
+                        failed + " example script(s) failed to compile");
+                });
+            });
     });
 };
 
