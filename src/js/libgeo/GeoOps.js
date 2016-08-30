@@ -947,27 +947,27 @@ geoOps.SelectConic.updatePosition = function(el) {
 
 // conic by 4 Points and 1 line
 geoOps._helper.ConicBy4p1l = function(el, a, b, c, d, l) {
+    var al = List.scalproduct(a, l);
+    var bl = List.scalproduct(b, l);
+    var cl = List.scalproduct(c, l);
+    var dl = List.scalproduct(d, l);
+    var bcd = List.det3(b, c, d);
+    var abd = List.det3(a, b, d);
+    var acd = List.det3(a, c, d);
+    var abc = List.det3(a, b, c);
+    var mul = CSNumber.mult;
+    var r1 = CSNumber.sqrt(mul(mul(bl, dl), mul(bcd, abd)));
+    var r2 = CSNumber.sqrt(mul(mul(al, cl), mul(acd, abc)));
     var a1 = List.cross(List.cross(a, c), l);
     var a2 = List.cross(List.cross(b, d), l);
-    var b1 = List.cross(List.cross(a, b), l);
-    var b2 = List.cross(List.cross(c, d), l);
-    var o = List.realVector(csport.to(100 * Math.random(), 100 * Math.random()));
-
-    var r1 = CSNumber.mult(List.det3(o, a2, b1), List.det3(o, a2, b2));
-    r1 = CSNumber.sqrt(r1);
-    var r2 = CSNumber.mult(List.det3(o, a1, b1), List.det3(o, a1, b2));
-    r2 = CSNumber.sqrt(r2);
-
     var k1 = List.scalmult(r1, a1);
     var k2 = List.scalmult(r2, a2);
-
-    var x = List.add(k1, k2);
-    var y = List.sub(k1, k2);
-
-    var t1 = geoOps._helper.ConicBy5(el, a, b, c, d, x);
-    var t2 = geoOps._helper.ConicBy5(el, a, b, c, d, y);
-
-    return [t1, t2];
+    var x = List.normalizeMax(List.add(k1, k2));
+    var y = List.normalizeMax(List.sub(k1, k2));
+    var xy = tracing2(x, y);
+    var t1 = geoOps._helper.ConicBy5(el, a, b, c, d, xy.value[0]);
+    var t2 = geoOps._helper.ConicBy5(el, a, b, c, d, xy.value[1]);
+    return [List.normalizeMax(t1), List.normalizeMax(t2)];
 };
 
 geoOps.ConicBy4p1l = {};
@@ -986,6 +986,7 @@ geoOps.ConicBy4p1l.updatePosition = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy4p1l.stateSize = tracing2.stateSize;
 
 
 geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
@@ -1128,6 +1129,7 @@ geoOps.ConicBy1p4l.updatePosition = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy1p4l.stateSize = tracing2.stateSize;
 
 geoOps.ConicParabolaPL = {};
 geoOps.ConicParabolaPL.kind = "C";
