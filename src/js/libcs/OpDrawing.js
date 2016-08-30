@@ -246,9 +246,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         if (Bmiddle) {
             Render2D.drawsegcore(ptA, ptC);
         } else { // nasty case -- B not in the middle -- we have 2 ray to infinity
-            var sflip = dAB > dBC ? 1 : -1;
-            Render2D.drawRaySegment(a, b,
-                c, sflip);
+            Render2D.drawRaySegment(a, c);
         }
     }
 

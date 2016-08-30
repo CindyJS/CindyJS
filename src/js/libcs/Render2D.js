@@ -619,17 +619,16 @@ Render2D.drawline = function(homog) {
     }
 };
 
-// draws a segment consisting of 2 rays
-Render2D.drawRaySegment = function(A, B, C, sflip) {
+// draws a segment through infinity, consisting of 2 rays
+Render2D.drawRaySegment = function(A, B) {
     var ptA = eval_helper.extractPoint(A);
     var ptB = eval_helper.extractPoint(B);
-    var ptC = eval_helper.extractPoint(C);
-    if (!ptA.ok || !ptB.ok || !ptC.ok) {
+    if (!ptA.ok || !ptB.ok) {
         return;
     }
 
-    var dx = sflip * (ptA.x - ptB.x);
-    var dy = sflip * (ptA.y - ptB.y);
+    var dx = ptA.x - ptB.x;
+    var dy = ptA.y - ptB.y;
     var norm = Math.sqrt(dx * dx + dy * dy);
 
     // get points outside canvas (at "infinity")
@@ -643,9 +642,9 @@ Render2D.drawRaySegment = function(A, B, C, sflip) {
         x: ptA.x + dx,
         y: ptA.y + dy
     });
-    Render2D.drawsegcore(ptC, {
-        x: ptC.x - dx,
-        y: ptC.y - dy
+    Render2D.drawsegcore(ptB, {
+        x: ptB.x - dx,
+        y: ptB.y - dy
     });
 };
 

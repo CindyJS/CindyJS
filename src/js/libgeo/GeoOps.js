@@ -94,22 +94,21 @@ geoOps.Segment.signature = ["P", "P"];
 geoOps.Segment.updatePosition = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     var el2 = csgeo.csnames[(el.args[1])];
-    el.homog = List.cross(el1.homog, el2.homog);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Line");
-    el.startpos = el1.homog;
-    el.endpos = el2.homog;
-    el.farpoint = List.cross(el.homog, List.linfty);
-    el.midpoint = geoOps._helper.midpoint(el1.homog, el2.homog);
+    geoOps.Segment.setSegmentPos(el,
+        List.cross(el1.homog, el2.homog),
+        List.scalmult(el2.homog.value[2], el1.homog),
+        List.scalmult(el1.homog.value[2], el2.homog)
+    );
 };
-
-geoOps._helper.crSegment = function(seg, p) {
-    var sh = seg.homog;
-    var tt = List.turnIntoCSList([sh.value[0], sh.value[1], CSNumber.zero]);
-    var far = List.turnIntoCSList([sh.value[1], CSNumber.neg(sh.value[0]), CSNumber.zero]);
-    var cr = List.crossratio3(
-        far, seg.startpos, seg.endpos, p, tt);
-    return cr;
+geoOps.Segment.setSegmentPos = function(el, line, start, end) {
+    line = List.normalizeMax(line);
+    el.homog = General.withUsage(line, "Line");
+    var startend = List.turnIntoCSList([start, end]);
+    startend = List.normalizeMax(startend); // Normalize together!
+    el.startpos = startend.value[0];
+    el.endpos = startend.value[1];
+    // So  midpoint = startpos + endpos
+    // and farpoint = startpos - endpos
 };
 
 
@@ -598,8 +597,9 @@ geoOps.PointOnSegment.getParamForInput = function(el, pos) {
     var seg = csgeo.csnames[el.args[0]];
     var line = seg.homog;
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+    var farpoint = List.sub(seg.startpos, seg.endpos);
     var cr = List.crossratio3(
-        seg.farpoint, seg.startpos, seg.endpos, pos, tt);
+        farpoint, seg.startpos, seg.endpos, pos, tt);
     if (cr.value.real < 0)
         cr = CSNumber.complex(0, cr.value.imag);
     if (cr.value.real > 1)
@@ -616,11 +616,8 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     var param = getStateComplexNumber();
     putStateComplexNumber(param); // copy parameter
     var seg = csgeo.csnames[el.args[0]];
-    // TODO: Handle case where seg is the result of a projective transform,
-    // where seg.farpoint would not have z==0. Can't happen yet.
-    var start = List.scalmult(seg.endpos.value[2], seg.startpos);
-    var end = List.scalmult(seg.startpos.value[2], seg.endpos);
-    // now they have the same z coordinate, so their difference is far
+    var start = seg.startpos;
+    var end = seg.endpos;
     var far = List.sub(end, start);
     var homog = List.add(start, List.scalmult(param, far));
     homog = List.normalizeMax(homog);
@@ -1883,8 +1880,8 @@ geoOps.TrMoebiusS.updatePosition = function(el) {
     var s = csgeo.csnames[(el.args[1])];
 
     var a1 = s.startpos;
-    var a2 = s.midpoint;
     var a3 = s.endpos;
+    var a2 = List.add(a1, a3);
 
     var b1 = geoOps._helper.TrMoebiusP(a1, tr);
     var b2 = geoOps._helper.TrMoebiusP(a2, tr);
@@ -2363,17 +2360,11 @@ geoOps.TransformS.signature = ["Tr", "S"];
 geoOps.TransformS.updatePosition = function(el) {
     var tr = csgeo.csnames[(el.args[0])];
     var s = csgeo.csnames[(el.args[1])];
-
-    var MVmax = function(M, p) {
-        return List.normalizeMax(List.productMV(M, p));
-    };
-
-    el.homog = MVmax(tr.dualMatrix, s.homog);
-    el.homog = General.withUsage(el.homog, "Line");
-    el.startpos = MVmax(tr.matrix, s.startpos);
-    el.endpos = MVmax(tr.matrix, s.endpos);
-    el.farpoint = MVmax(tr.matrix, s.farpoint);
-    el.midpoint = MVmax(tr.matrix, s.midpoint);
+    geoOps.Segment.setSegmentPos(el,
+        List.productMV(tr.dualMatrix, s.homog),
+        List.productMV(tr.matrix, s.startpos),
+        List.productMV(tr.matrix, s.endpos)
+    );
 };
 
 geoOps.TransformPolygon = {};
