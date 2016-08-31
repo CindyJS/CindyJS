@@ -8,11 +8,12 @@ var cscompiled = {};
 // Simulation settings
 var csanimating = false;
 var csstopped = true;
-var simoldtime = 0; // simtime from previous play-pause cycles
-var simstarttime = 0; // Date.now timestamp of last play
+var simtime = 0; // accumulated simulation time since start
 var simspeed = 1.0; // the animation.speed setting
-var simfactor = 3e-4; // simtime units per millisecond at speed 1
-var simtime = 0; // set once for each tick, for consistency
+var simfactor = 0.022; // internal simtime units per millisecond at speed 1
+var simunit = 0.0127; // reported simulationtime per internal simtime
+var simcap = 1000/20; // max. ms between frames for fps-independent sim
+var simtick = 0; // Date.now of the most recent simulation tick
 
 // Coordinate system settings
 var csscale = 1;
@@ -472,10 +473,6 @@ function setupAnimControls() {
 var setSpeedKnob = null;
 
 function setSpeed(speed) {
-    if (csanimating) {
-        simoldtime = simnow();
-        simstarttime = Date.now();
-    }
     simspeed = Math.max(0, speed);
     if (setSpeedKnob) setSpeedKnob(speed);
 }
@@ -655,12 +652,13 @@ function csplay() {
     if (!csanimating) { // stop or pause state
         if (csstopped) { // stop state
             backupGeo();
+            simtime = 0;
             csstopped = false;
             animcontrols.stop(false);
         } else {
             animcontrols.pause(false);
         }
-        simstarttime = Date.now();
+        simtick = Date.now();
         animcontrols.play(true);
         if (typeof csinitphys === 'function') {
             if (csPhysicsInited) {
@@ -674,14 +672,8 @@ function csplay() {
     }
 }
 
-function simnow() {
-    if (!csanimating) return simoldtime;
-    return simoldtime + (Date.now() - simstarttime) * simspeed * simfactor;
-}
-
 function cspause() {
     if (csanimating) {
-        simoldtime = simnow();
         animcontrols.play(false);
         animcontrols.pause(true);
         csanimating = false;

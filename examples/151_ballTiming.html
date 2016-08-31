@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Physics simulation timing</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../build/js/CindyJS.css">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="cssimulationstart" type="text/x-cindyscript">
+resetclock();
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if (A.y > 0, t = seconds(); u = simulationtime());
+drawtext((-4, 3), format(t, 8));
+drawtext((-4, 2), format(u, 8));
+</script>
+    <script type="text/javascript">
+CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [1, 12], color: [1, 0, 0], labeled: true}
+  ],
+  behavior: [
+    {type: "Environment", gravity: 0.01},
+    {geo: ["A"], type: "Mass"}
+  ],
+  animation: {autoplay: false, controls: true, speed: 1.0},
+  autoplay: false,
+  animcontrols: true,
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 336,
+    transform: [{visibleRect: [-4.86, 13.1, 22.34, -0.34]}],
+    axes: true,
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1865, version: [2, 9, 1865]}
+});
+    </script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="border:2px solid black"></div>
+  <p>The example above shows a ball falling from a height of 12 units.
+    The upper time is real elapsed time in seconds, the lower is
+    simulation time.  The relation between these was tuned in an
+    attempt to resemble Cinderella on current (2016) hardware.</p>
+</body>
+
+</html>

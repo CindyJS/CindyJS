@@ -4103,7 +4103,7 @@ evaluator.date$0 = function(args, modifs) {
 };
 
 evaluator.simulationtime$0 = function(args, modifs) {
-    return CSNumber.real(simtime);
+    return CSNumber.real(simtime * simunit);
 };
 
 evaluator.settimeout$2 = function(args, modifs) {
@@ -4435,18 +4435,16 @@ evaluator.compileToWebGL$1 = function(args, modifs) {
 };
 
 
-/***********************************/
-/**********    PHYSIC    ***********/
-/***********************************/
+/************************************/
+/**********    PHYSICS    ***********/
+/************************************/
 
 
 evaluator.setsimulationspeed$1 = function(args, modifs) {
 
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'number') {
-        if (typeof(labObjects) !== "undefined" && typeof(labObjects.env) !== "undefined") {
-            labObjects.env.deltat = v0.value.real;
-        }
+        setSpeed(v0.value.real);
     }
     return nada;
 };
@@ -4456,7 +4454,7 @@ evaluator.setsimulationaccuracy$1 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'number') {
         if (typeof(labObjects) !== "undefined" && typeof(labObjects.env) !== "undefined") {
-            labObjects.env.accuracy = v0.value.real;
+            labObjects.env.accuracy = Math.max(1, v0.value.real | 0);
         }
     }
     return nada;
