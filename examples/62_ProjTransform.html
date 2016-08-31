@@ -5,33 +5,6 @@
 <title>Cindy JS</title>
 <link rel="stylesheet" href="../css/cindy.css">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
-n=10;
-
-// draw a bilinear grid in the original quadrilateral
-drawall(apply(0..n,i,(
-  a = (1/n*(i*A1.xy + (n-i)*A2.xy)) :> 1;
-  b = (1/n*(i*A4.xy + (n-i)*A3.xy)) :> 1;
-  [a,b]
-)));
-drawall(apply(0..n,i,(
-  a = (1/n*(i*A1.xy + (n-i)*A4.xy)) :> 1;
-  b = (1/n*(i*A2.xy + (n-i)*A3.xy)) :> 1;
-  [a,b]
-)));
-
-// draw its image under the projective transformation
-drawall(apply(0..n,i,(
-  a = (1/n*(i*A1.xy + (n-i)*A2.xy)) :> 1;
-  b = (1/n*(i*A4.xy + (n-i)*A3.xy)) :> 1;
-  [a,b]*transpose(Tr0.matrix)
-)));
-drawall(apply(0..n,i,(
-  a = (1/n*(i*A1.xy + (n-i)*A4.xy)) :> 1;
-  b = (1/n*(i*A2.xy + (n-i)*A3.xy)) :> 1;
-  [a,b]*transpose(Tr0.matrix)
-)));
-</script>
 <script type="text/javascript">
 var gslp = [
   {name:"A1", type:"Free", pos:[0,0], color:[255, 0, 0]},
@@ -45,7 +18,24 @@ var gslp = [
   {name:"Tr0", type:"TrProjection", args:["A1","B1","A2","B2","A3","B3","A4","B4"]},
   {name:"P", type:"Free", pos:[0.5,0.5], color:[255, 0, 255]},
   {name:"Q", type:"TransformP", args:["Tr0","P"], color:[0, 255, 255]},
+  {name:"S1", type:"Segment", args:["A1","A2"], color:[0,0,1]},
+  {name:"S2", type:"Segment", args:["A2","A3"], color:[0,0,1]},
+  {name:"S3", type:"Segment", args:["A3","A4"], color:[0,0,1]},
+  {name:"S4", type:"Segment", args:["A4","A1"], color:[0,0,1]},
 ];
+var n = 10;
+for (var i = 0; i <= n; ++i) {
+  gslp.push(
+    {name:"X1_"+i, type:"PointOnSegment", args:["S1"], pos:[i/n, 0], visible:false},
+    {name:"X2_"+i, type:"PointOnSegment", args:["S3"], pos:[i/n, 1], visible:false},
+    {name:"Y1_"+i, type:"PointOnSegment", args:["S4"], pos:[0, i/n], visible:false},
+    {name:"Y2_"+i, type:"PointOnSegment", args:["S2"], pos:[1, i/n], visible:false},
+    {name:"X_"+i, type:"Segment", args:["X1_"+i, "X2_"+i]},
+    {name:"Y_"+i, type:"Segment", args:["Y1_"+i, "Y2_"+i]},
+    {name:"tX_"+i, type:"TransformSegment", args:["Tr0", "X_"+i]},
+    {name:"tY_"+i, type:"TransformSegment", args:["Tr0", "Y_"+i]});
+}
+gslp.push({name:"Z", type:"PointOnSegment", args:["tY_"+(n>>1)], pos:[2.75,0.5], color:[1,1,0]});
 CindyJS({
   canvasname:"CSCanvas",
   scripts:"cs*",
