@@ -74,21 +74,29 @@ function drawgeoline(el) {
         return;
 
     if (el.kind === "S") {
-        // Segments always join their endpoints.
-        evaluator.draw$2(
-            [el.startpos, el.endpos], {
-                overhang: el.overhang,
-                dashtype: el.dashtype,
-                size: el.size,
-                color: el.color,
-                alpha: el.alpha,
-                arrow: el.arrow,
-                arrowsize: el.arrowsize,
-                arrowposition: el.arrowposition,
-                arrowshape: el.arrowshape,
-                arrowsides: el.arrowsides,
-            });
-        return;
+        var modifs = {
+            overhang: el.overhang,
+            dashtype: el.dashtype,
+            size: el.size,
+            color: el.color,
+            alpha: el.alpha,
+            arrow: el.arrow,
+            arrowsize: el.arrowsize,
+            arrowposition: el.arrowposition,
+            arrowshape: el.arrowshape,
+            arrowsides: el.arrowsides,
+        };
+        var zz = CSNumber.mult(el.startpos.value[2],
+            CSNumber.conjugate(el.endpos.value[2]));
+        if (zz.value.real >= 0) { // finite segment
+            evaluator.draw$2(
+                [el.startpos, el.endpos], modifs);
+            return;
+        } else { // transformed segment through infinity, consisting of 2 rays
+            Render2D.handleModifs(modifs, Render2D.lineModifs);
+            Render2D.drawRaySegment(el.startpos, el.endpos);
+            return;
+        }
     }
     if (el.clip.value === "end" && el.type === "Join") {
         // Lines clipped to their defining points join these.

@@ -619,6 +619,35 @@ Render2D.drawline = function(homog) {
     }
 };
 
+// draws a segment through infinity, consisting of 2 rays
+Render2D.drawRaySegment = function(A, B) {
+    var ptA = eval_helper.extractPoint(A);
+    var ptB = eval_helper.extractPoint(B);
+    if (!ptA.ok || !ptB.ok) {
+        return;
+    }
+
+    var dx = ptA.x - ptB.x;
+    var dy = ptA.y - ptB.y;
+    var norm = Math.sqrt(dx * dx + dy * dy);
+
+    // get points outside canvas (at "infinity")
+    var sc = csport.drawingstate.matrix.sdet;
+    var farAway = 25000 / sc; // 25000px in user coordinates
+    var factor = farAway / norm;
+    dx = dx * factor;
+    dy = dy * factor;
+
+    Render2D.drawsegcore(ptA, {
+        x: ptA.x + dx,
+        y: ptA.y + dy
+    });
+    Render2D.drawsegcore(ptB, {
+        x: ptB.x - dx,
+        y: ptB.y - dy
+    });
+};
+
 Render2D.dashTypes = {
     "solid": [],
     "dashed": [10, 10],
