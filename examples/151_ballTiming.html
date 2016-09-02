@@ -33,7 +33,13 @@ CindyJS({
     {type: "Environment", gravity: 0.01},
     {geo: ["A"], type: "Mass"}
   ],
-  animation: {autoplay: false, controls: true, speed: 1.0},
+  animation: {
+    autoplay: false,
+    controls: true,
+    speed: 0.5,
+    speedRange: [0, 1],
+    accuracy: 1
+  },
   autoplay: false,
   animcontrols: true,
   ports: [{

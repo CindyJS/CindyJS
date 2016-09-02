@@ -456,7 +456,6 @@ function cs_mouseclick(e) {
 function cs_tick(e) {
     var now = Date.now();
     var delta = Math.min(simcap, now - simtick) * simspeed * simfactor;
-    //console.log(delta, Math.min(simcap, now - simtick), simspeed, simfactor);
     simtick = now;
     var time = simtime + delta;
     if (csPhysicsInited && typeof(lab) !== 'undefined') {

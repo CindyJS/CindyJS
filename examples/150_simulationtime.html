@@ -36,7 +36,13 @@ CindyJS({
     textsize: 12.0
   },
   angleUnit: "°",
-  animation: {autoplay: false, controls: true, speed: 1.0},
+  animation: {
+    autoplay: false,
+    controls: true,
+    speed: 0.5,
+    speedRange: [0, 1],
+    accuracy: 1
+  },
   autoplay: false,
   animcontrols: true,
   ports: [{

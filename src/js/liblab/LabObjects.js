@@ -928,7 +928,7 @@ labObjects.Environment = {
         if (typeof(beh.gravity) === 'undefined') beh.gravity = 0;
         if (typeof(beh.friction) === 'undefined') beh.friction = 0;
         if (typeof(beh.springstrength) === 'undefined') beh.springstrength = 1;
-        if (typeof(beh.accuracy) === 'undefined') beh.accuracy = 10;
+        if (typeof(beh.accuracy) !== 'undefined') simaccuracy = beh.accuracy;
         if (typeof(beh.deltat) !== 'undefined') setSpeed(beh.deltat / 0.3);
         if (typeof(beh.charges) === 'undefined') beh.charges = false;
         if (typeof(beh.balls) === 'undefined') beh.balls = false;
