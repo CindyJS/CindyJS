@@ -257,8 +257,17 @@ function createCindyNow() {
             csctx.setLineDash = function() {};
         if (data.animation ? data.animation.controls : data.animcontrols)
             setupAnimControls(data);
-        if (data.animation && isFiniteNumber(data.animation.speed))
-            setSpeed(data.animation.speed);
+        if (data.animation && isFiniteNumber(data.animation.speed)) {
+            if (data.animation.accuracy === undefined &&
+                data.cinderella &&
+                data.cinderella.version &&
+                data.cinderella.version[0] === 2 &&
+                data.cinderella.version[1] === 9 &&
+                data.cinderella.version[2] < 1880)
+                setSpeed(data.animation.speed * 0.5);
+            else
+                setSpeed(data.animation.speed);
+        }
         if (data.animation && isFiniteNumber(data.animation.accuracy))
             simaccuracy = data.animation.accuracy;
     }
