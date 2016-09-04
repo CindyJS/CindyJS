@@ -24,6 +24,8 @@ var attributesToClone = [
     //"endPoint", // output for arc
     //"endpos", // output for segment
     //"farpoint", // output for segment
+    "fillalpha",
+    "fillcolor",
     "filled", // drawgeoarc
     //"homog", // save as pos
     //"incidences", // internal
