@@ -110,6 +110,10 @@ function saveGeoElement(el) {
         if (val !== null && val !== undefined)
             res[key] = val;
     });
+    if (el.kind === "P" && (!el.movable || el.pinned) && res.color) {
+        var undim = CSNumber.real(1 / defaultAppearance.dimDependent);
+        res.color = General.unwrap(List.scalmult(undim, el.color));
+    }
     var pos = savePos(el);
     if (pos) res.pos = pos;
     if (el.dock) res.dock = saveDockingInfo(el.dock);
