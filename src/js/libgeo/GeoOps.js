@@ -2601,7 +2601,6 @@ geoOps.Text.signature = "**";
 geoOps.Text.updatePosition = noop;
 geoOps.Text.initialize = function(el) {
     el.text = String(el.text);
-    el.size = CSNumber.real(el.size ? +el.size : defaultAppearance.textsize);
     if (el.pos) el.pos = geoOps._helper.initializePoint(el);
     if (el.dock) {
         if (el.dock.offset && el.dock.offset.length === 2)
