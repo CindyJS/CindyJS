@@ -167,4 +167,22 @@ var CindyJS = (function() {
                 console.log(JSON.stringify(state));
             };
 
+            CindyJS.debugState = function(index) {
+                // Call this to test how a widget handles a save & reload.
+                // You can paste javascript:CindyJS.debugState() into the
+                // address bar of your browser to achieve this.
+                CindyJS.instances.map(function(instance) {
+                    var cfg = instance.config;
+                    cfg = JSON.parse(JSON.stringify(cfg));
+                    var state = instance.saveState();
+                    console.log(JSON.stringify(state));
+                    for (var key in state)
+                        cfg[key] = state[key];
+                    instance.shutdown();
+                    return cfg;
+                }).forEach(function(cfg) {
+                    CindyJS(cfg);
+                });
+            };
+
             CindyJS.newInstance = function(instanceInvocationArguments) {
