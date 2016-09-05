@@ -47,12 +47,19 @@ Renderer.prototype.canvaswrapper
 /** @type {Object.<TextureReader>} */
 Renderer.prototype.texturereaders
 
+/**
+ * The generation of the current compiled myfunctions
+ * @type {Object.<number>}
+ */
+Renderer.prototype.generations
+
 
 Renderer.prototype.rebuild = function() {
     let cb = new CodeBuilder(this.api);
     let cpg = cb.generateColorPlotProgram(this.expression);
     this.cpguniforms = cpg.uniforms;
     this.texturereaders = cpg.texturereaders;
+    this.generations = cpg.generations;
 
     this.fragmentShaderCode =
         cgl_resources["standardFragmentHeader"] + cpg.code;
@@ -239,10 +246,24 @@ Renderer.prototype.loadTextures = function() {
 }
 
 /**
- * runs shaderProgram on gl. Will render to texture in canvaswrapper 
+ * checks whether the generation of the compiled myfunctions is still the current one
+ */
+Renderer.prototype.functionGenerationsOk = function() {
+    for (let fname in this.generations) {
+        if (this.api.getMyfunction(fname).generation > this.generations[fname]) {
+            console.log(fname + " is outdated; forcing rebuild.");
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * runs shaderProgram on gl. Will render to texture in canvaswrapper
  * or if argument canvaswrapper is not given, then to glcanvas
  */
 Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
+    if (!this.functionGenerationsOk()) this.rebuild();
     let alpha = sizeY / sizeX;
     let n = {
         x: -(b.y - a.y) * alpha,

@@ -7,7 +7,7 @@ function evaluate(a) {
         return nada;
     }
     if (a.ctype === 'infix') {
-        return a.impl(a.args, {});
+        return a.impl(a.args, {}, a);
     }
     if (a.ctype === 'variable') {
         return evaluate(namespace.getvar(a.name));
