@@ -14,6 +14,7 @@
     "concat-with-sourcemaps": "^1.0.4",
     "glob": "^7.0.3",
     "http-proxy": "^1.11.2",
+    "iphone-inline-video": "^1.9.3",
     "js-beautify": "^1.5.10",
     "jshint": "^2.8.0",
     "marked": "^0.3.5",
@@ -30,8 +31,7 @@
     "st": "^1.2.0",
     "touch": "^1.0.0",
     "whole-line-stream": "^0.1.0",
-    "yauzl": "^2.6.0",
-    "iphone-inline-video": "^1.9.3"
+    "yauzl": "^2.6.0"
   },
   "scripts": {
     "prepublish": "$NODE make/index.js call_npm=false parallel=true build=release all",
