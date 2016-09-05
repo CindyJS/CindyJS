@@ -13,7 +13,7 @@ The `drawtext(‹vec›,‹string›)` operator plots a text `‹string›` at a
 This position vector can be given either in Euclidean *xy*-coordinates or in homogeneous coordinates.
 
 **Example:**
-The line `drawtext(``(0,0),"Hello World")` prints the string "Hello World" with lower left corner at the position (0, 0).
+The line `drawtext((0,0),"Hello World")` prints the string “Hello World” with lower left corner at the position (0, 0).
 
 **Modifiers:**
 The `drawtext` operator supports several operators for the modification of appearance and position.

@@ -94,7 +94,7 @@ a three-dimensional vector
 a 3 by 3 matrix
 
 Some properties, like the current position, are only writable for free objects.
-We mark this by the word "free" in the corresponding column.
+We mark this by the word “free” in the corresponding column.
 
 #####  Properties Common to All Geometric Objects
 
@@ -333,7 +333,7 @@ The function
 creates a point labelled *A* at coordinates [4,6], unless there is already an element *A*.
 If it exists, it will be moved to the position given as second argument.
 The value of the function is the point or the already existing element *A*.
-This means that repeated executions of the function are not harmful to your code - if you need a free point at "*A*" you can ensure that it exists using the `createpoint`-command.
+This means that repeated executions of the function are not harmful to your code - if you need a free point at “*A*” you can ensure that it exists using the `createpoint`-command.
 
 Using the `removeelement` function you can also remove elements from your construction.
 Be aware that all dependent elements will be removed as well.
@@ -345,6 +345,6 @@ or
 
     > removeelement(element("A"))
 
-to remove the element named "*A*".
+to remove the element named “*A*”.
 
 More functions to create arbitrary elements are also available and discussed in the section [section on special operators](Interaction_with_Geometry#createandremove.md).

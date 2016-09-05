@@ -17,13 +17,11 @@ List.asList = function(x) {
     if (x.ctype === "list") {
         return x;
     }
-    if (x.ctype === "number" || x.ctype === "boolean") {
+    if (x.ctype === "number" || x.ctype === "boolean" || x.ctype === "geo") {
         return List.turnIntoCSList([x]);
     }
-    if (x.ctype === "string" || x.ctype === "undefined") {
-        return List.EMPTY;
-    }
-    return nada;
+    // else: string, undefined, shape, image
+    return List.EMPTY;
 };
 
 List.realVector = function(l) {

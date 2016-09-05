@@ -90,11 +90,11 @@ MyRenderer.prototype.heading = function(text, level, raw) {
       // other code constructs
       ids.push(cur
         .replace(/\s+/g, "")
-        .replace(/\$/g, "\\$24u")
-        .replace(/_/g, "\\$5fu")
+        .replace(/\$/g, "$$24u")
+        .replace(/_/g, "$$5fu")
         .replace(/‹[^‹›]*›/g, "_")
         .replace(/…/g, "__")
-        .replace(/\W/g, function(char) {
+        .replace(/[^\w$]/g, function(char) {
           return "$" + char.charCodeAt(0).toString(16) + "u";
         }));
     }
