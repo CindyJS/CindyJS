@@ -245,19 +245,23 @@ Renderer.prototype.loadTextures = function() {
         }
 }
 
+/**
+ * checks whether the generation of the compiled myfunctions is still the current one
+ */
 Renderer.prototype.functionGenerationsOk = function() {
-        for (let fname in this.generations) {
-            if (this.api.getMyfunction(fname).generation > this.generations[fname]) {
-                console.log(fname + " is outdated; forcing rebuild.");
-                return false;
-            }
+    for (let fname in this.generations) {
+        if (this.api.getMyfunction(fname).generation > this.generations[fname]) {
+            console.log(fname + " is outdated; forcing rebuild.");
+            return false;
         }
-        return true;
     }
-    /**
-     * runs shaderProgram on gl. Will render to texture in canvaswrapper
-     * or if argument canvaswrapper is not given, then to glcanvas
-     */
+    return true;
+}
+
+/**
+ * runs shaderProgram on gl. Will render to texture in canvaswrapper
+ * or if argument canvaswrapper is not given, then to glcanvas
+ */
 Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
     if (!this.functionGenerationsOk()) this.rebuild();
     let alpha = sizeY / sizeX;
