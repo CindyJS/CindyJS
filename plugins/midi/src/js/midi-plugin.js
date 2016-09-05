@@ -80,8 +80,10 @@ CindyJS.registerPlugin(1, "midi", function(api) {
                 var status = instrumentStatus[inst];
                 if (status !== STATUS.LOADED) {
                     allLoaded = false;
-                    if (!status)
+                    if (!status) {
                         instrumentStatus[inst] = STATUS.REQUESTED;
+                        triggerLoad();
+                    }
                 }
             }
         }
@@ -415,7 +417,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     var loadTimeout = null;
 
     function triggerLoad() {
-        if (loadTimeout === null) {
+        if (loadTimeout === null && !MIDI.isPlaceholder) {
             loadTimeout = setTimeout(doLoad, 0);
         }
     }
