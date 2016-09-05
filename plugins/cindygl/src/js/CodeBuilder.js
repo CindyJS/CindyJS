@@ -28,16 +28,16 @@ CodeBuilder.prototype.myfunctions;
 /** @dict @type {boolean} */
 CodeBuilder.prototype.precompileDone;
 
-/** list of names of variables 
+/** list of names of variables
  *@dict @type {Object} */
 CodeBuilder.prototype.variables;
 
-/** 
+/**
  * variables -> list of assigments in the form of {expr: expression, fun: in which functions this expression will be eval}
  * @dict @type {Object} */
 CodeBuilder.prototype.assigments;
 
-/** 
+/**
  * T: scope -> (variables -> types)
  * @dict @type {Object} */
 CodeBuilder.prototype.T;
@@ -88,7 +88,7 @@ CodeBuilder.prototype.castType = function(term, fromType, toType) {
  * It might consider the type of variables (T)
  */
 //@TODO: Consider stack of this.variables. e.g. repeat(3, i, e = 32+i);
-CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current function  
+CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current function
     if (expr['isuniform']) {
         return this.uniforms[expr['uvariable']].type;
     }
@@ -310,7 +310,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         if (expr['ctype'] === 'variable') {
             let vname = expr['name'];
 
-            if (variableDependendsOnPixel.hasOwnProperty(fun) && variableDependendsOnPixel[fun][vname]) { //local variable 
+            if (variableDependendsOnPixel.hasOwnProperty(fun) && variableDependendsOnPixel[fun][vname]) { //local variable
                 return expr["dependsOnPixel"] = true;
             }
             if (variables[fun].indexOf(vname) === -1) { //no regional function found
@@ -364,12 +364,12 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
       //iterate over all scopes, their variables(and functions), and their reassigments
       for(let s in assigments) for(let v in assigments[s]) for(let i in assigments[s][v]) {
         // variable  v (which lives in scope s) <- expression e in function f
-        let e = assigments[s][v][i].expr; 
+        let e = assigments[s][v][i].expr;
         let f = assigments[s][v][i].fun;
         if(!variableDependendsOnPixel.hasOwnProperty(s)) {
           variableDependendsOnPixel[s] = {}; //dict of dependent variables
         }
-        if(!variableDependendsOnPixel[s][v]) { 
+        if(!variableDependendsOnPixel[s][v]) {
           //try weather it actually is dependent
           if(dependsOnPixel(e, f)) {
             variableDependendsOnPixel[s][v] = true;
@@ -856,7 +856,7 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
     code += r.code;
     //console.log(r);
     if (!isvoid)
-        code += 'return ' + this.castType(r.term, r.type, this.T[''][fname]) + ';\n'; //TODO REPL 
+        code += 'return ' + this.castType(r.term, r.type, this.T[''][fname]) + ';\n'; //TODO REPL
     code += '}\n';
 
 
@@ -906,9 +906,14 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
 
     console.log(code);
 
+    let generations = {};
+    for (let fname in this.hasbeencompiled) {
+        generations[fname] = this.api.getMyfunction(fname).generation;
+    }
     return {
         code: code,
         uniforms: this.uniforms,
-        texturereaders: this.texturereaders
+        texturereaders: this.texturereaders,
+        generations: generations //all used functions with their generation
     };
 };

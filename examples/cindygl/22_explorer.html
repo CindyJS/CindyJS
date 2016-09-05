@@ -11,14 +11,14 @@
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/x-mathjax-config">
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-</script>              
+</script>
 
 <script id="csinit" type="text/x-cindyscript">
-f(z, a, b, c, d, e, A, B, C, D) := (1-a)*(1+a);
+f(z, a, b, c, d, e, A, B, C, D) := z^5-A^5;
 
-grid1=true;   
+grid1=true;
 grid2=true;
-linear=false;   
+linear=false;
 bw=false;
 webcam=false;
 camvideo=(;);
@@ -28,7 +28,7 @@ t0 = seconds();
 </script>
 <script id="csdraw" type="text/x-cindyscript">
 //UI
-  
+
 x=S.x;
 if(x<S1.x,x=S1.x);
 if(x>S2.x,x=S2.x);
@@ -72,8 +72,8 @@ if(B.x>1,B.size=6;drawtext(B+(.03,.03),"B"),B.size=4);
 if(C.x>1,C.size=6;drawtext(C+(.03,.03),"C"),C.size=4);
 if(D.x>1,D.size=6;drawtext(D+(.03,.03),"D"),D.size=4);
 
-drawtext((1.1,.8),"Variables for formula:",size->18);        
-drawtext((1.1,.7),"a=z-A, b=z-B, c=z-C, d=z-D, e",size->18);        
+drawtext((1.1,.8),"Variables for formula:",size->18);
+drawtext((1.1,.7),"a=z-A, b=z-B, c=z-C, d=z-D, e",size->18);
 
 drawtext(E+(.03,.03),"e");
 drawtext((1,E.y)+(.05,-.1),"-1");
@@ -86,12 +86,12 @@ drawtext((1,E.y)+(1.08,-.1),"+1");
 
 hsvToRGB(h, s, v) := (
   regional(j, p, q, t, f);
-  
+
   h = (h-floor(h))*6;
-  
+
   j = floor(h);
   f = h - j;
-  
+
   p = 1 - s;
   q = 1 - s*f;
   t = 1 - s*(1-f);
@@ -109,7 +109,7 @@ time = t0-seconds();
 
 if (webcam & isundefined(camvideo), camvideo=cameravideo());
 if (webcam & imageready(camvideo), (
-  if (!iscam, iscam=true; err("webcam on"); forcerecompile(););
+  if (!iscam, iscam=true; err("webcam on"););
   color(z) := ( //what color should be given to a complex number z?
     z = if(linear, z/5, log(z));
     z = z * (grid+1);
@@ -118,38 +118,38 @@ if (webcam & imageready(camvideo), (
     sat*c + (1-sat)*[b,b,b]
   );
 ), (
-  if (iscam, iscam=false; err("webcam off"); forcerecompile(););
+  if (iscam, iscam=false; err("webcam off"););
 color(z) := ( //what color should be given to a complex number z?
   regional(n, grey1, grey2);
-  
+
   n = 2*grid*if(bw, .5, 1)*if(linear, .5, 1);
   z = if(!linear, log(z), 2*i*z)/2/pi + i*time*speed;
-  
+
   zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
-  
+
   grey1 = if(grid1 & n>0, im(zfract), 1);
   grey2 = if(grid2 & n>0, re(zfract), 1);
-  
+
   if(bw,
     grey1 = if(grey1<0.5, 1, -1);
     grey2 = if(grey2<0.5, 1, -1);
   );
-  
+
   hsvToRGB(im(z), if(bw, 0, sat), .5+.5*if(bw, grey1*grey2, re(sqrt(grey1*grey2))))
 );
 ));
 
 colorplot(
   regional(z, ac, bc, cc, dc);
-  
-  z = complex(#)*5;
-  ac = complex(A)*5;
-  bc = complex(B)*5;
-  cc = complex(C)*5;
-  dc = complex(D)*5;
-  
+
+  z = complex(#)*1.2;
+  ac = complex(A)*1.2;
+  bc = complex(B)*1.2;
+  cc = complex(C)*1.2;
+  dc = complex(D)*1.2;
+
   fval = f(z, z-ac, z-bc, z-cc, z-dc, xx, ac, bc, cc, dc);
-  
+
   color(fval),
   (-1,-1), (1,1)
 );
@@ -164,11 +164,11 @@ var cdy = CindyJS({
     id: "CSCanvas",
       width: 820,
       height: 500,
-      transform: [ { visibleRect: [-1, -1, 2.2, 1] } ] 
+      transform: [ { visibleRect: [-1, -1, 2.2, 1] } ]
   }],
   scripts: "cs*",
   geometry: [
-    {name:"A", type:"Free", pos:[0.1,0.1],color:[1,0,0],pinned:false,size:4},
+    {name:"A", type:"Free", pos:[.8,0.1],color:[1,0,0],pinned:false,size:4},
     {name:"B", type:"Free", pos:[1.4,0.3],color:[0,1,0],pinned:false,size:4},
     {name:"C", type:"Free", pos:[1.6,0.3],color:[0,0,1],pinned:false,size:4},
     {name:"D", type:"Free", pos:[1.8,0.3],color:[1,1,0],pinned:false,size:4},
@@ -191,91 +191,25 @@ var cdy = CindyJS({
   images:{Rot:"uiImages/Rot.png",Sat:"uiImages/SSat.png",Grid:"uiImages/Grid.png"},
   use: ["CindyGL"]
 });
-
-
-
-var typ=function(e, b){
-  var chCode=e.which ? e.which:e.keyCode;
-  if(chCode==13){
-    console.log("*************");
-    console.log(b.value);
-    cdy.evokeCS('f(z, a, b, c, d, e, A, B, C, D) := (' + b.value + '); forcerecompile();');
-  }
-}
-
-var sel=function(e, b){
-  document.getElementById("inp").value = b.value;
-  cdy.evokeCS('f(z, a, b, c, d, e, A, B, C, D) := (' + b.value + '); forcerecompile();');
-}
-
-var check1=function(){
-       if(document.getElementById("ch1").checked){
-          cdy.evokeCS('grid1=true;');
-       } else {
-           cdy.evokeCS('grid1=false;');
-
-       }
-}
-
-var check2=function(){
-       if(document.getElementById("ch2").checked){
-          cdy.evokeCS('grid2=true;');
-       } else {
-           cdy.evokeCS('grid2=false;');
-
-       }
-}
-
-var check3=function(){
-       if(document.getElementById("ch3").checked){
-          cdy.evokeCS('linear=true;');
-       } else {
-           cdy.evokeCS('linear=false;');
-
-       }
-}
-
-    var check4=function(){
-       if(document.getElementById("ch4").checked){
-          cdy.evokeCS('bw=true;');
-       } else {
-           cdy.evokeCS('bw=false;');
-
-       }
-}
-
-    var check5=function(){
-       if(document.getElementById("ch5").checked){
-          cdy.evokeCS('webcam=true;');
-          document.getElementById("ch1").disabled = 
-          document.getElementById("ch2").disabled = 
-          document.getElementById("ch4").disabled = true;
-       } else {
-           cdy.evokeCS('webcam=false;');
-          document.getElementById("ch1").disabled = 
-          document.getElementById("ch2").disabled = 
-          document.getElementById("ch4").disabled = false;
-
-       }
-}
 </script>
 </head>
 
 <body style="font-family:Arial;">
-  
+
   <h1>Function Explorer</h1>
 <div  style="width:800px; line-height: 1.5">
 Here you can freely explore phase portraits of complex functions.
-Variables accessible in the freely editable formula are $a,b,c,d,e$
-Where $a,b,c,d$ depend on the position of the colored points
-$A,B,C,D$. The dependence is 
+Variables accessible in the freely editable formula are $z$, $A$, $B$, $C$, $D$, $a$, $b$, $c$ ,$d$, $e$.
+The complex number $z$ is the location in the image.
+The variables $a,b,c,d$ depend on the position of the colored points
+$A,B,C,D$. The dependence is
 \[
 a=z-A,
 b=z-B,
 c=z-C,
 d=z-D.
 \]
-Here $z$ is the location in the image. Varable $e$ is a real scalar that can be adjusted
+Varable $e$ is a real scalar that can be adjusted
 between $-1$ and $+1$.
 
 <br>
@@ -284,26 +218,30 @@ between $-1$ and $+1$.
 </div>
 
   <div id="CSCanvas" style="border:2px solid black"></div>
-<div style="position:absolute; top:815px;left:10px">
-  <input id="ch1" onclick="check1()" checked type="checkbox" >angles&nbsp;&nbsp;&nbsp;
-  <input id="ch2" onclick="check2()" checked type="checkbox" >radii&nbsp;&nbsp;&nbsp;
-  <input id="ch3" onclick="check3()" type="checkbox" >linear diagram&nbsp;&nbsp;&nbsp;
-  <input id="ch4" onclick="check4()" type="checkbox" >black/white&nbsp;&nbsp;&nbsp;
-  <input id="ch5" onclick="check5()" type="checkbox" >webcam<br>
+<div>
+  <input id="ch1" onclick="cdy.evokeCS('grid1 = ' + this.checked);" checked type="checkbox" >angles&nbsp;&nbsp;&nbsp;
+  <input id="ch2" onclick="cdy.evokeCS('grid2 = ' + this.checked);" checked type="checkbox" >radii&nbsp;&nbsp;&nbsp;
+  <input id="ch3" onclick="cdy.evokeCS('linear = ' + this.checked);" type="checkbox" >linear diagram&nbsp;&nbsp;&nbsp;
+  <input id="ch4" onclick="cdy.evokeCS('bw = ' + this.checked);" type="checkbox" >black/white&nbsp;&nbsp;&nbsp;
+  <input id="ch5" onclick="cdy.evokeCS('webcam = ' + this.checked);
+    document.getElementById('ch1').disabled =
+    document.getElementById('ch2').disabled =
+    document.getElementById('ch4').disabled = this.checked;" type="checkbox" >webcam<br>
   </div>
-<div style="position:absolute; top:770px; left:5px; display:inline;z-index:4">
-<input type="text" id="inp" value="(1-a)*(1+a)"  onkeypress="typ(event, this)" size="60" style="font-size:18px">
-<select id="sel" onchange="sel(event, this)" style="width:20em;">
+<div>
+<input type="text" id="inp" value="z^5-A^5"  onkeypress="if((event.which ? event.which : event.keyCode)==13) { cdy.evokeCS('f(z, a, b, c, d, e, A, B, C, D) := (' + this.value + ');'); }" size="60" style="font-size:18px">
+<select id="sel" onchange="document.getElementById('inp').value = this.value; cdy.evokeCS('f(z, a, b, c, d, e, A, B, C, D) := (' + this.value + ');');" style="width:20em;">
+  <option>z^5-A^5</option>
   <option>(1-a)*(1+a)</option>
   <option>(z-A)/(z-B)</option>
   <option>z^(1+i)</option>
   <option>z^A</option>
-  <option>(sin(a)/sin(b))^(1+i)</option>
-  <option value="z=z/4; repeat(7, z = z*z + A/5);">Julia set</option>
-  <option value="z = 0; repeat(11, z = z*z +a/4; z = z/abs(z)*min(abs(z),10));">Mandelbrot set</option>
-  <option value="z = a/3;(1-z^(20*e))/(1-z)">Convergence of Geometric series</option>
-  <option value="repeat(5, z = z - (z^3-A)/(3*z^2));">Newton</option>
-  <option value="z=a; repeat(11, z = z - (z^3-b*c*d)/(3*z^2));">Newton-like</option>
+  <option>(sin(3*a)/sin(3*b))^(1+i)</option>
+  <option value="repeat(7, z = z*z + A)">Julia set</option>
+  <option value="z = 0; repeat(11, z = z*z + a; z = z/abs(z)*min(abs(z),10))">Mandelbrot set</option>
+  <option value="(1-z^(20*e))/(1-z)">Convergence of Geometric series</option>
+  <option value="repeat(5, z = z - (z^3-A)/(3*z^2))">Newton</option>
+  <option value="z=a; repeat(11, z = z - (z^3-b*c*d)/(3*z^2))">Newton-like</option>
 </select>
 </div>
 </body>
