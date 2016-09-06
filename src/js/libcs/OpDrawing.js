@@ -880,8 +880,6 @@ evaluator.drawtext$2 = function(args, modifs, callback) {
         return nada;
     }
 
-    var m = csport.drawingstate.matrix;
-
     var col = csport.drawingstate.textcolor;
     Render2D.handleModifs(modifs, Render2D.textModifs);
     var size = csport.drawingstate.textsize;
@@ -889,6 +887,7 @@ evaluator.drawtext$2 = function(args, modifs, callback) {
     if (Render2D.size !== null) size = Render2D.size;
     csctx.fillStyle = Render2D.textColor;
 
+    var m = csport.drawingstate.matrix;
     var xx = pt.x * m.a - pt.y * m.b + m.tx + Render2D.xOffset;
     var yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset;
 
@@ -904,6 +903,111 @@ evaluator.drawtext$2 = function(args, modifs, callback) {
         textRendererCanvas(csctx, txt, xx, yy, Render2D.align);
     }
 
+    return nada;
+};
+
+evaluator.drawtable$2 = function(args, modifs, callback) {
+    var v0 = evaluateAndVal(args[0]);
+    var v1 = evaluateAndVal(args[1]);
+    var pt = eval_helper.extractPoint(v0);
+    if (!pt.ok) return nada;
+    if (v1.ctype !== "list") return nada;
+    var data = v1.value;
+    var nr = data.length;
+    var nc = -1;
+    var r, c;
+    for (r = 0; r < nr; ++r)
+        if (data[r].ctype === "list" && data[r].value.length > nc)
+            nc = data[r].value.length;
+    if (nc === -1) { // depth 1, no nested lists
+        data = data.map(function(row) {
+            return [row];
+        });
+        nc = 1;
+    } else {
+        data = data.map(function(row) {
+            return List.asList(row).value;
+        });
+    }
+
+    // Modifier handling
+    var sx = 100;
+    var sy = null;
+    var border = true;
+    var color = csport.drawingstate.textcolor;
+    Render2D.handleModifs(modifs, {
+        "size": true,
+        "color": function(v) {
+            if (List._helper.isNumberVecN(v, 3))
+                color = Render2D.makeColor([
+                    v.value[0].value.real,
+                    v.value[1].value.real,
+                    v.value[2].value.real
+                ]);
+        },
+        "alpha": true,
+        "bold": true,
+        "italics": true,
+        "family": true,
+        "align": true,
+        "x_offset": true,
+        "y_offset": true,
+        "offset": true,
+        "width": function(v) {
+            if (v.ctype === "number")
+                sx = v.value.real;
+        },
+        "height": function(v) {
+            if (v.ctype === "number")
+                sy = v.value.real;
+        },
+        "border": function(v) {
+            if (v.ctype === "boolean")
+                border = v.value;
+        },
+    });
+    var size = csport.drawingstate.textsize;
+    if (size === null) size = defaultAppearance.textsize;
+    if (Render2D.size !== null) size = Render2D.size;
+    if (sy === null) sy = 1.6 * size;
+
+    var font = (
+        Render2D.bold + Render2D.italics +
+        Math.round(size * 10) / 10 + "px " +
+        Render2D.family);
+    csctx.font = font;
+    var m = csport.drawingstate.matrix;
+    var ww = nc * sx;
+    var hh = nr * sy;
+    var xx = pt.x * m.a - pt.y * m.b + m.tx + Render2D.xOffset;
+    var yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset - hh;
+    if (border) {
+        Render2D.preDrawCurve();
+        csctx.strokeStyle = Render2D.lineColor;
+        csctx.beginPath();
+        for (r = 1; r < nr; ++r) {
+            csctx.moveTo(xx, yy + r * sy);
+            csctx.lineTo(xx + ww, yy + r * sy);
+        }
+        for (c = 1; c < nc; ++c) {
+            csctx.moveTo(xx + c * sx, yy);
+            csctx.lineTo(xx + c * sx, yy + hh);
+        }
+        csctx.stroke();
+        csctx.lineWidth = Render2D.lsize + 1;
+        csctx.beginPath();
+        csctx.rect(xx, yy, ww, hh);
+        csctx.stroke();
+    }
+    xx += Render2D.align * sx + (1 - 2 * Render2D.align) * sy * 0.3;
+    yy += sy * 0.7;
+    csctx.fillStyle = color;
+    for (r = 0; r < nr; ++r) {
+        for (c = 0; c < nc; ++c) {
+            var txt = niceprint(data[r][c]);
+            textRendererCanvas(csctx, txt, xx + c * sx, yy + r * sy, Render2D.align);
+        }
+    }
     return nada;
 };
 

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Drawing tables</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+  data = [[11,12,13],[21,22,23],[31,32,33],[41,42,43]];
+  drawtable((0,0), data);
+  drawtable((0,-4), data, align->"right", width->50, color->[1,0,0]);
+  linecolor([0,0.5,1]);
+  drawtable((0,-10), data, align->"mid", height->31);
+  drawtable((0,-15), data, border->false, height->25);
+
+
+</script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{
+    id: "CSCanvas",
+    width: 500,
+    height: 500,
+    grid: 1.0,
+    axes: true,
+    transform: [{translate: [-8, 5]}]
+  }],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+    textsize: 12, // like Cinderella
+  }
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="border:2px solid black"></div>
+</body>
+
+</html>
