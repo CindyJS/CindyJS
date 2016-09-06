@@ -14,6 +14,7 @@ var attributesToClone = [
     "arrowsides",
     "arrowsize",
     //"behavior", // needs dedicated code
+    //"calculation", // internal
     "clip",
     "color",
     "dashtype",

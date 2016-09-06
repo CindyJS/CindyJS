@@ -2610,6 +2610,57 @@ geoOps.Text.initialize = function(el) {
     }
 };
 
+geoOps.Calculation = {};
+geoOps.Calculation.kind = "Text";
+geoOps.Calculation.signature = "**";
+geoOps.Calculation.updatePosition = noop;
+geoOps.Calculation.initialize = function(el) {
+    geoOps.Text.initialize(el);
+    el.calculation = analyse(el.text);
+};
+geoOps.Calculation.getText = function(el) {
+    return niceprint(evaluate(el.calculation));
+};
+
+geoOps.Equation = {};
+geoOps.Equation.kind = "Text";
+geoOps.Equation.signature = "**";
+geoOps.Equation.updatePosition = noop;
+geoOps.Equation.initialize = function(el) {
+    geoOps.Text.initialize(el);
+    el.calculation = analyse(el.text);
+};
+geoOps.Equation.getText = function(el) {
+    return el.text + " = " + niceprint(evaluate(el.calculation));
+};
+
+geoOps.Evaluate = {};
+geoOps.Evaluate.kind = "Text";
+geoOps.Evaluate.signature = "**";
+geoOps.Evaluate.updatePosition = noop;
+geoOps.Evaluate.initialize = function(el) {
+    geoOps.Text.initialize(el);
+    el.calculation = analyse(el.text);
+};
+geoOps.Evaluate.getText = function(el) {
+    evaluate(el.calculation); // ugly: side effects in draw
+    return el.text;
+};
+
+geoOps.Plot = {};
+geoOps.Plot.kind = "Text";
+geoOps.Plot.signature = "**";
+geoOps.Plot.updatePosition = noop;
+geoOps.Plot.initialize = function(el) {
+    geoOps.Text.initialize(el);
+    // Parenthesize expression to avoid modifier injection
+    el.calculation = analyse("plot((" + el.text + "))");
+};
+geoOps.Plot.getText = function(el) {
+    evaluate(el.calculation);
+    return el.text;
+};
+
 function commonButton(el, event, button) {
     var outer = document.createElement("div");
     var img = document.createElement("img");
@@ -2792,11 +2843,6 @@ geoMacros.Pole = function(el) {
 geoMacros.Polar = function(el) {
     el.type = "PolarOfPoint";
     return [el];
-};
-
-geoMacros.Calculation = function(el) {
-    console.log("Calculation stripped from construction");
-    return [];
 };
 
 geoMacros.Arc = function(el) {
