@@ -27,7 +27,7 @@
          createimage("testcanvas", 100, 100);
          canvas(A, B, "testcanvas", fillcircle(A, |A,B|/2, alpha->0.5, color->(1,0,0)));
          drawimage(A, B, "testcanvas");
-         p = linereflect(line([0,-2, 100]))*map(A, B, (0, 0), (dim_1, 0))*D.homog; //pixel-coordinates starting from upper left corner
+         p = linereflect(line([0,-2, 100]))*map(A, B, (0, 0), (100, 0))*D.homog; //pixel-coordinates starting from upper left corner
          col = imagergb("testcanvas", p_1/p_3, p_2/p_3);
          D.color = (col_1, col_2, col_3)/255;
          D.alpha = .5*col_4+.5;
@@ -38,8 +38,8 @@
                    {name:"A", kind:"P", type:"Free", pos:[-4,-8,1]},
                    {name:"B", kind:"P", type:"Free", pos:[4,-8,1]},
                    {name:"C", kind:"P", type:"Free", pos:[0,3,1],size:10},
-         						{name:"D", kind:"P", type:"Free", pos:[-3,-7,1],size:10}
-                   ];
+         					 {name:"D", kind:"P", type:"Free", pos:[-3,-7,1],size:10}
+                  ];
 
          CindyJS({canvasname:"CSCanvas",
                      movescript:"csmove",

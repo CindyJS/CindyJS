@@ -285,12 +285,10 @@ This is a pair of integer values that refers to the pixel width and height of th
 
 ------
 
-#### Getting pixel data: `imagergb(‹imagename›,‹int›,‹int›)`
-
-**Not available in CindyJS yet!**
+#### Getting pixel data: `imagergba(‹imagename›,‹int›,‹int›)`
 
 **Description:**
-The function `imagergb(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position *(x,y)*.
+The function `imagergba(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position *(x,y)*.
 The operator returns a four-dimensional vector with the raw data of the color.
 The first three entries represent the *rgb*-value with each entry ranging from 0 to 255.
 The last entry represents the alpha value.
@@ -303,7 +301,7 @@ It plots a point with the corresponding color and opacity and by this creates a 
     > dim=imagesize("MyImage");
     > forall((0..dim_1/10)*10,i,err(i);
     >   forall((0..dim_2/10)*10,j,
-    >     col=imagergb("MyImage",i,j);
+    >     col=imagergba("MyImage",i,j);
     >     draw((i,-j)*.03,color->(col_1,col_2,col_3)/255,
     >                     alpha->col_4,
     >                     border->false)
@@ -311,6 +309,35 @@ It plots a point with the corresponding color and opacity and by this creates a 
     > )
 
 ![Image](img/RostS9.png)
+
+------
+
+#### Getting pixel data: `imagergb(‹imagename›,‹int›,‹int›)`
+
+**Description:**
+This function does the same as `imagergba(‹imagename›,‹int›,‹int›)`. In particular, it also delivers the alpha value in order to preserve backward compatibility.
+
+------
+
+#### Picking the color and alpha value of one point using two reference points: `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)`
+
+**Description:**
+ The function `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` returns the color and the alpha value of the at the coordinate given as forth argument while assuming that the lower left and right corner coincide with the first two arguments respectively. The result is encoded as a 4-component vector with each entry ranging from 0 to 1, representing the *rgb*-value and alpha value.
+
+ **Modifiers:**
+ The command supports two modifiers.
+
+ | Modifier        | Parameter | Effect                                                                      |
+ | --------------- | --------- | --------------------------------------------------------------------------- |
+ | `interpolation` | `boolean` | Use bilinear interpolation or access closes pixel                           |
+ | `repeat`        | `boolean` | Assume a repeating tiling when accessing coordinates outside the boundaries |
+
+------
+
+ #### Picking the color of one point using two reference points: `imagerga(‹pos›,‹pos›,‹imagename›,‹pos›)`
+
+ **Description:**
+ The function `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` behaves in the same way as `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` and supports the same modifiers, but `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` returns a 3-component vector representing the *rgb*-value.
 
 ------
 

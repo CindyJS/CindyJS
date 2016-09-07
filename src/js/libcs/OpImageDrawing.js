@@ -389,7 +389,7 @@ evaluator.cameravideo$0 = function() {
     return img;
 };
 
-var tmpcanvas; //temporary unvisible canvas.
+var helpercanvas; //invisible helper canvas.
 /**
  * reads a rectangular block of pixels from the upper left corner.
  * The colors are representent as a 4 component RGBA vector with entries in [0,1]
@@ -399,23 +399,21 @@ function readPixelsIndirection(img, x, y, width, height) {
     if (img.readPixels) {
         res = img.readPixels(x, y, width, height);
     } else { //use canvas-approach
-        var data;
+        var data, ctx;
         if (img.img.getContext) { //img is a canvas
-            var ctx = img.img.getContext('2d');
+            ctx = img.img.getContext('2d');
             data = ctx.getImageData(x, y, width, height).data;
         } else { //copy corresponding subimage of img.img to temporary canvas
-            if (!tmpcanvas) {
-                //creating tmpcanvas only once increases the running time
-                tmpcanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
-                tmpcanvas.style.display = "none";
-                document.body.appendChild(tmpcanvas);
+            if (!helpercanvas) {
+                //creating helpercanvas only once increases the running time
+                helpercanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
             }
-            tmpcanvas.width = width;
-            tmpcanvas.height = height;
+            helpercanvas.width = width;
+            helpercanvas.height = height;
 
-            var tmpctx = tmpcanvas.getContext('2d');
-            tmpctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
-            data = tmpctx.getImageData(0, 0, width, height).data;
+            ctx = helpercanvas.getContext('2d');
+            ctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
+            data = ctx.getImageData(0, 0, width, height).data;
         }
         for (var i in data) res.push(data[i] / 255);
     }
@@ -435,7 +433,7 @@ evaluator.imagergba$3 = function(args, modifs) {
 
     x = Math.round(x.value.real);
     y = Math.round(y.value.real);
-    if (isNaN(x) || isNaN(y)) return nada;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return nada;
 
     var rgba = readPixelsIndirection(img, x, y, 1, 1);
     return List.realVector([rgba[0] * 255, rgba[1] * 255, rgba[2] * 255, rgba[3]]);
@@ -504,47 +502,47 @@ evaluator.imagergba$4 = function(args, modifs) {
         coord.y = (coord.y % h + h) % h;
     }
 
-    var rgba = [0, 0, 0, 0];
+    var xi = Math.floor(coord.x); //integral part
+    var yi = Math.floor(coord.y);
 
+    if (!Number.isFinite(xi) || !Number.isFinite(yi)) return nada;
+
+    var rgba = [0, 0, 0, 0];
     if (interpolate) {
         var i, j;
 
-        var xf = (coord.x % 1 + 1) % 1; //fractional parts
-        var yf = (coord.y % 1 + 1) % 1;
-        var pixels = readPixelsIndirection(img, Math.floor(coord.x), Math.floor(coord.y), 2, 2);
+        var xf = coord.x - xi; //fractional part
+        var yf = coord.y - yi;
+
+        var pixels = readPixelsIndirection(img, xi, yi, 2, 2);
 
         //modify pixels for boundary cases:
         if (repeat) { //read pixels at boundary seperately
-            if (Math.floor(coord.x) === w - 1 || Math.floor(coord.y) === h - 1) {
-                var p10 = readPixelsIndirection(img, (Math.floor(coord.x) + 1) % w, Math.floor(coord.y), 1, 1);
-                var p01 = readPixelsIndirection(img, Math.floor(coord.x), (Math.floor(coord.y) + 1) % h, 1, 1);
-                var p11 = readPixelsIndirection(img, (Math.floor(coord.x) + 1) % w, (Math.floor(coord.y) + 1) % h, 1, 1);
+            if (xi === w - 1 || yi === h - 1) {
+                var p10 = readPixelsIndirection(img, (xi + 1) % w, yi, 1, 1);
+                var p01 = readPixelsIndirection(img, xi, (yi + 1) % h, 1, 1);
+                var p11 = readPixelsIndirection(img, (xi + 1) % w, (yi + 1) % h, 1, 1);
                 pixels = pixels.slice(0, 4).concat(p10).concat(p01).concat(p11);
             }
         } else { //clamp to boundary
-            if (Math.floor(coord.x) === -1 && xf >= 0.5)
+            if (xi === -1 && xf >= 0.5)
                 for (i = 0; i < 4; i++)
                     for (j = 0; j < 2; j++) pixels[8 * j + i] = pixels[8 * j + i + 4];
-            if (Math.floor(coord.x) === w - 1 && xf < 0.5)
+            if (xi === w - 1 && xf < 0.5)
                 for (i = 0; i < 4; i++)
                     for (j = 0; j < 2; j++) pixels[8 * j + i + 4] = pixels[8 * j + i];
-            if (Math.floor(coord.y) === -1 && yf >= 0.5)
+            if (yi === -1 && yf >= 0.5)
                 for (i = 0; i < 8; i++) pixels[i] = pixels[i + 8];
-            if (Math.floor(coord.y) === h - 1 && yf < 0.5)
+            if (yi === h - 1 && yf < 0.5)
                 for (i = 0; i < 8; i++) pixels[i + 8] = pixels[i];
         }
 
         //bilinear interpolation for each component i
         for (i = 0; i < 4; i++)
-            for (j = 0; j < 4; j++) {
-                rgba[i] += pixels[4 * j + i] * ((j < 2) ? (1 - yf) : yf) * ((j % 2 === 0) ? (1 - xf) : xf);
-            }
+            rgba[i] = (1 - yf) * ((1 - xf) * pixels[i] + xf * pixels[i + 4]) +
+            yf * ((1 - xf) * pixels[i + 8] + xf * pixels[i + 12]);
     } else {
-        var x = Math.floor(coord.x);
-        var y = Math.floor(coord.y);
-        if (isNaN(x) || isNaN(y)) return nada;
-
-        rgba = readPixelsIndirection(img, x, y, 1, 1);
+        rgba = readPixelsIndirection(img, xi, yi, 1, 1);
     }
     return List.realVector(rgba);
 };
