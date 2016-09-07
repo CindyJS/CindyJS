@@ -38,6 +38,46 @@ The resulting output is
 
 ------
 
+#### Loading data asynchroneously: `load(‹string›,‹var›,‹expr›)`
+
+**Description:**
+This version is supported by CindyJS.
+It loads a resource, identified by the HTTP or HTTPS URL `‹string›`.
+When the resource has finished loading,
+it will call execute `‹expr›` with the content of the resource
+treated as a string value and assigned to the variable `‹var›`.
+If loading the resource fails, `‹expr›` will get executed as well,
+but in this case `‹var›` is bound to the undefined value `___`.
+
+The function itself will return `true` if loading was started,
+or `___` if the `‹string›` argument was not a valid URL to be loaded.
+
+Note that the URL must be an absolute URL, at the time of this writing.
+
+**Example:**
+
+    > load("http://some.host/some/resource.txt", result,
+    >   if(isundefined(result),
+    >     err("Loading failed"),
+    >     err("Successfully loaded " + result)));
+
+------
+
+#### Loading data asynchroneously: `load(‹string›,‹expr›)`
+
+**Description:**
+This is a shorthand notation for `load(‹string›,#,‹expr›)`,
+using `#` as the variable referencing the result inside `‹expr›`.
+
+**Example:**
+
+    > load("http://some.host/some/resource.txt",
+    >   if(isundefined(#),
+    >     err("Loading failed"),
+    >     err("Successfully loaded " + #)));
+
+------
+
 #### Importing program code: `import(‹string›)`
 
 **Not available in CindyJS yet!**

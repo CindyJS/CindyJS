@@ -4747,3 +4747,47 @@ evaluator.parsecsv$1 = function(args, modifs) {
     }
     return List.turnIntoCSList(data.map(List.turnIntoCSList));
 };
+
+evaluator.load$2 = function(args, modifs) {
+    return evaluator.load$3([args[0], null, args[1]], modifs);
+};
+
+evaluator.load$3 = function(args, modifs) {
+    var varname = '#';
+    if (args[1] !== null) {
+        if (args[1].ctype === 'variable') {
+            varname = args[1].name;
+        }
+    }
+    var arg0 = evaluateAndVal(args[0]);
+    var url = null;
+    var req = null;
+    if (arg0.ctype === "string" && /^https?:\/\//.test(arg0.value)) {
+        url = arg0.value;
+    }
+    if (url !== null) {
+        req = new XMLHttpRequest();
+        req.onreadystatechange = handleStateChange;
+        req.open("GET", url);
+        req.send();
+        return General.bool(true);
+    }
+    return nada;
+
+    function handleStateChange() {
+        if (req.readyState !== XMLHttpRequest.DONE) return;
+        var value;
+        if (req.status === 200) {
+            value = General.string(String(req.responseText));
+        } else {
+            csconsole.err("Failed to load " + url + ": " + req.statusText);
+            value = nada;
+        }
+        namespace.newvar(varname);
+        namespace.setvar(varname, value);
+        evaluate(args[2]);
+        namespace.removevar(varname);
+        scheduleUpdate();
+    }
+
+};
