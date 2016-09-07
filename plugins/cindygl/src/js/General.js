@@ -292,6 +292,16 @@ function getPixelType() {
     else return gl.UNSIGNED_BYTE;
 }
 
+function toFloat(pixels) {
+    let res = [];
+    for (let i = 0; i < pixels.length; i++) {
+        if (can_use_texture_float) res.push(pixels[i]);
+        else if (can_use_texture_half_float) res.push(decodeFloat16(pixels[i]));
+        else res.push(pixels[i] / 255);
+    }
+    return res;
+}
+
 function smallestPowerOfTwoGreaterOrEqual(a) {
     let ans = 1;
     while (ans < a) ans <<= 1;

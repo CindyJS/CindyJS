@@ -388,3 +388,169 @@ evaluator.cameravideo$0 = function() {
     });
     return img;
 };
+
+var tmpcanvas; //temporary unvisible canvas.
+/**
+ * reads a rectangular block of pixels from the upper left corner.
+ * The colors are representent as a 4 component RGBA vector with entries in [0,1]
+ */
+function readPixelsIndirection(img, x, y, width, height) {
+    var res = [];
+    if (img.readPixels) {
+        res = img.readPixels(x, y, width, height);
+    } else { //use canvas-approach
+        var data;
+        if (img.img.getContext) { //img is a canvas
+            var ctx = img.img.getContext('2d');
+            data = ctx.getImageData(x, y, width, height).data;
+        } else { //copy corresponding subimage of img.img to temporary canvas
+            if (!tmpcanvas) {
+                //creating tmpcanvas only once increases the running time
+                tmpcanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
+                tmpcanvas.style.display = "none";
+                document.body.appendChild(tmpcanvas);
+            }
+            tmpcanvas.width = width;
+            tmpcanvas.height = height;
+
+            var tmpctx = tmpcanvas.getContext('2d');
+            tmpctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
+            data = tmpctx.getImageData(0, 0, width, height).data;
+        }
+        for (var i in data) res.push(data[i] / 255);
+    }
+    return res;
+}
+
+/**
+ * imagergba(‹image›,x,y) implements imagergb(‹imagename›,x,y) from Cinderella, i.e.
+ * returns a 4 component vector ranging from (0-255, 0-255, 0-255, 0-1)
+ */
+evaluator.imagergba$3 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    var x = evaluateAndVal(args[1]);
+    var y = evaluateAndVal(args[2]);
+
+    if (!img || x.ctype !== 'number' || y.ctype !== 'number') return nada;
+
+    x = Math.round(x.value.real);
+    y = Math.round(y.value.real);
+    if (isNaN(x) || isNaN(y)) return nada;
+
+    var rgba = readPixelsIndirection(img, x, y, 1, 1);
+    return List.realVector([rgba[0] * 255, rgba[1] * 255, rgba[2] * 255, rgba[3]]);
+};
+
+evaluator.imagergb$3 = evaluator.imagergba$3; //According to reference
+
+/**
+ * imagergba(<point1>, <point2>, ‹image›, <point3>) returns the color at the coordinate
+ * <point3> assuming that the left/right lower corner is <point1>/<point2> resp.
+ */
+evaluator.imagergba$4 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[2]));
+
+    var interpolate = true; //default values
+    var repeat = false;
+
+    function handleModifs() {
+        var erg;
+        if (modifs.interpolate !== undefined) {
+            erg = evaluate(modifs.interpolate);
+            if (erg.ctype === 'boolean') {
+                interpolate = (erg.value);
+            }
+        }
+
+        if (modifs.repeat !== undefined) {
+            erg = evaluate(modifs.repeat);
+            if (erg.ctype === 'boolean') {
+                repeat = (erg.value);
+            }
+        }
+    }
+    handleModifs();
+
+    if (!img) return nada;
+
+    var w = img.width;
+    var h = img.height;
+
+    var w0 = evaluateAndHomog(args[0]);
+    var w1 = evaluateAndHomog(args[1]);
+    var v0 = evaluateAndHomog(List.realVector([0, h, 1]));
+    var v1 = evaluateAndHomog(List.realVector([w, h, 1]));
+
+    if (w0 === nada || w1 === nada || p === nada) return nada;
+
+    //create an orientation-reversing similarity transformation that maps w0->v0, w1->v1
+    var ii = List.ii;
+    var jj = List.jj;
+
+    var m1 = eval_helper.basismap(v0, v1, ii, jj); //interchange I and J,
+    var m2 = eval_helper.basismap(w0, w1, jj, ii); //see Thm. 18.4 of Perspectives on Projective Geometry
+    var p = evaluateAndHomog(args[3]);
+    var coord = eval_helper.extractPoint(General.mult(m1, General.mult(List.adjoint3(m2), p)));
+
+    if (!coord.ok) return nada;
+
+    if (interpolate) {
+        coord.x -= 0.5; //center of pixels are in the middle of them.
+        coord.y -= 0.5; //Now pixel-centers have wlog integral coordinates
+    }
+
+    if (repeat) {
+        coord.x = (coord.x % w + w) % w;
+        coord.y = (coord.y % h + h) % h;
+    }
+
+    var rgba = [0, 0, 0, 0];
+
+    if (interpolate) {
+        var i, j;
+
+        var xf = (coord.x % 1 + 1) % 1; //fractional parts
+        var yf = (coord.y % 1 + 1) % 1;
+        var pixels = readPixelsIndirection(img, Math.floor(coord.x), Math.floor(coord.y), 2, 2);
+
+        //modify pixels for boundary cases:
+        if (repeat) { //read pixels at boundary seperately
+            if (Math.floor(coord.x) === w - 1 || Math.floor(coord.y) === h - 1) {
+                var p10 = readPixelsIndirection(img, (Math.floor(coord.x) + 1) % w, Math.floor(coord.y), 1, 1);
+                var p01 = readPixelsIndirection(img, Math.floor(coord.x), (Math.floor(coord.y) + 1) % h, 1, 1);
+                var p11 = readPixelsIndirection(img, (Math.floor(coord.x) + 1) % w, (Math.floor(coord.y) + 1) % h, 1, 1);
+                pixels = pixels.slice(0, 4).concat(p10).concat(p01).concat(p11);
+            }
+        } else { //clamp to boundary
+            if (Math.floor(coord.x) === -1 && xf >= 0.5)
+                for (i = 0; i < 4; i++)
+                    for (j = 0; j < 2; j++) pixels[8 * j + i] = pixels[8 * j + i + 4];
+            if (Math.floor(coord.x) === w - 1 && xf < 0.5)
+                for (i = 0; i < 4; i++)
+                    for (j = 0; j < 2; j++) pixels[8 * j + i + 4] = pixels[8 * j + i];
+            if (Math.floor(coord.y) === -1 && yf >= 0.5)
+                for (i = 0; i < 8; i++) pixels[i] = pixels[i + 8];
+            if (Math.floor(coord.y) === h - 1 && yf < 0.5)
+                for (i = 0; i < 8; i++) pixels[i + 8] = pixels[i];
+        }
+
+        //bilinear interpolation for each component i
+        for (i = 0; i < 4; i++)
+            for (j = 0; j < 4; j++) {
+                rgba[i] += pixels[4 * j + i] * ((j < 2) ? (1 - yf) : yf) * ((j % 2 === 0) ? (1 - xf) : xf);
+            }
+    } else {
+        var x = Math.floor(coord.x);
+        var y = Math.floor(coord.y);
+        if (isNaN(x) || isNaN(y)) return nada;
+
+        rgba = readPixelsIndirection(img, x, y, 1, 1);
+    }
+    return List.realVector(rgba);
+};
+
+evaluator.imagergb$4 = function(args, modifs) {
+    var rgba = evaluator.imagergba$4(args, modifs);
+    if (rgba === nada) return nada;
+    return List.turnIntoCSList(rgba.value.slice(0, 3));
+};
