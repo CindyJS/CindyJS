@@ -3,6 +3,7 @@
 exports.libcs = [
     "src/js/libcs/CSNumber.js",
     "src/js/libcs/List.js",
+    "src/js/libcs/Dict.js",
     "src/js/libcs/General.js",
     "src/js/libcs/Essentials.js",
     "src/js/libcs/Namespace.js",

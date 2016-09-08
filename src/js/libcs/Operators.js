@@ -2825,6 +2825,40 @@ evaluator.column$2 = function(args, modifs) {
 
 
 ///////////////////////////////
+//        DICTIONARIES       //
+///////////////////////////////
+
+evaluator.dict$0 = function(args, modifs) {
+    var d = Dict.create();
+    for (var key in modifs)
+        if (modifs.hasOwnProperty(key))
+            Dict.put(d, General.string(key), evaluate(modifs[key]));
+    return d;
+};
+
+evaluator.put$3 = function(args, modifs) {
+    var d = evaluate(args[0]);
+    var k = evaluate(args[1]);
+    var v = evaluate(args[2]);
+    if (d.ctype === "dict") {
+        d = Dict.clone(d);
+        Dict.put(d, k, v);
+        return d;
+    }
+    return nada;
+};
+
+evaluator.get$2 = function(args, modifs) {
+    var d = evaluate(args[0]);
+    var k = evaluate(args[1]);
+    if (d.ctype === "dict") {
+        return Dict.get(d, k, nada);
+    }
+    return nada;
+};
+
+
+///////////////////////////////
 //         COLOR OPS         //
 ///////////////////////////////
 

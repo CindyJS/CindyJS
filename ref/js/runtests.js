@@ -183,6 +183,11 @@ function myniceprint(val) {
     return JSON.stringify(val.value);
   if (val.ctype === "list")
     return "[" + val.value.map(myniceprint).join(", ") + "]";
+  if (val.ctype === "dict")
+    return "{" + Object.keys(val.value).sort().map(function(key) {
+      var kv = val.value[key];
+      return myniceprint(kv.key) + ":" + myniceprint(kv.value);
+    }).join(", ") + "}";
   return cjs.niceprint(val).toString();
 };
 
@@ -214,6 +219,10 @@ function sanityCheck(val) {
     if (!Array.isArray(val.value))
       throw Error("not an array");
     val.value.forEach(sanityCheck);
+    break;
+  case "dict":
+    if (typeof val.value !== "object")
+      throw Error("not a dict object");
     break;
   case "undefined":
     break;
