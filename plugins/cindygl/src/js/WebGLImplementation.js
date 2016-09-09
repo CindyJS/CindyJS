@@ -13,7 +13,7 @@ webgltype[type.color] = 'vec4';
 webgltype[type.point] = 'vec3'; //use homogenious coordinates
 webgltype[type.coordinate2d] = 'vec2';
 
-//(a, b) \in \C^4 \mapsto (re a, im a, re b, im b) \in \R^4 
+//(a, b) \in \C^4 \mapsto (re a, im a, re b, im b) \in \R^4
 webgltype[type.vec2complex] = 'vec4';
 
 // (a b)    (re a, -im a, re b, -im b)
@@ -333,7 +333,7 @@ webgltr["ceil"] = [
 ];
 
 webgltr["mod"] = [
-    [int_fun$2, (a, cb) => ('int(' + usefunction('mod')('float(' + a[0] + '), float(' + a[1] + ')', cb) + ')')], //useinfix('%') '%' : integer modulus operator supported in GLSL ES 3.00 only  
+    [int_fun$2, (a, cb) => ('int(' + usefunction('mod')('float(' + a[0] + '), float(' + a[1] + ')', cb) + ')')], //useinfix('%') '%' : integer modulus operator supported in GLSL ES 3.00 only
     [float_fun$2, usefunction('mod')],
     [complex_fun$2, usefunction('mod')] //or implement [complex_fun$2, useincludefunction('modc')], see https://github.com/CindyJS/CindyJS/issues/272
 ];
@@ -395,9 +395,7 @@ webgltr["pow"] = [
             args: [type.float, type.int],
             res: type.float
         },
-        function(args) {
-            return "pow(" + args[0] + ", float(" + args[1] + "))";
-        } //TODO: 0^0=1 in cindyjs
+        useincludefunction('powi')
     ],
     [{
         args: [type.complex, type.complex],
