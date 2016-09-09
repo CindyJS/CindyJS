@@ -27,10 +27,30 @@ For this see [Arithmetic Operators](Arithmetic_Operators.md).
 
 #### Conversion to string: `text(‹expr›)`
 
-**Not available in CindyJS yet!**
-
 **Description:**
 The operator `text(‹expr›)` evaluates the expression `‹expr›` and converts the result to a string representation.
+
+    > text(7.2)
+    < "7.2"
+    > text([true, "foo", (;)])
+    < "[true, foo, ___]"
+
+Undefined input yields undefined output in Cinderella:
+
+    - only Cinderella
+    > text(;)
+    < ___
+
+In CindyJS the output is still a string, in order to avoid corner cases.
+
+    - only CindyJS
+    > text(;)
+    < "___"
+
+Geometric objects get auto-coerced to mathematical values
+
+    > createpoint("A", [6, 4, 2]); text(A)
+    < "[3, 2]"
 
 ------
 
@@ -145,7 +165,7 @@ Number conversion without splitting can be achieved using an empty separator lis
 #### Replacing in strings: `replace(‹string1›,‹string2›,‹string3›)`
 
 **Description:**
-This operator replaces all (!) occurrences of &lt;string2&gt; in &lt;string1&gt; by &lt;string3&gt;.
+This operator replaces all (!) occurrences of ‹string2› in ‹string1› by ‹string3›.
 
 This operator is extremely useful for creating text replacement systems of the kind they are used in so called Lindenmeyer Systems.
 

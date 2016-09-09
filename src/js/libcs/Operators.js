@@ -3193,6 +3193,12 @@ evaluator.stopanimation$0 = function(args, modifs) {
 ///////////////////////////////
 
 
+evaluator.text$1 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]); // Cinderella compatible
+    // if (v0 === nada) return nada; // Cinderella compatible
+    return General.string(niceprint(v0));
+};
+
 evaluator.replace$3 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
