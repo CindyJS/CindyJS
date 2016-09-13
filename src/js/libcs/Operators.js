@@ -241,6 +241,10 @@ evaluator.forall$2 = function(args, modifs) { //OK
     return evaluator.forall$3([args[0], null, args[1]], modifs);
 };
 
+evaluator.spielchen$0 = function(args, modifs) {
+    return List.turnIntoCSList([CSNumber.real(5), CSNumber.real(3 * 2), General.string("fünf"), nada]);
+};
+
 evaluator.forall$3 = function(args, modifs) { //OK
 
     var v1 = evaluateAndVal(args[0]);
