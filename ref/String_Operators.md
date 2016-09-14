@@ -27,10 +27,30 @@ For this see [Arithmetic Operators](Arithmetic_Operators.md).
 
 #### Conversion to string: `text(‹expr›)`
 
-**Not available in CindyJS yet!**
-
 **Description:**
 The operator `text(‹expr›)` evaluates the expression `‹expr›` and converts the result to a string representation.
+
+    > text(7.2)
+    < "7.2"
+    > text([true, "foo", (;)])
+    < "[true, foo, ___]"
+
+Undefined input yields undefined output in Cinderella:
+
+    - only Cinderella
+    > text(;)
+    < ___
+
+In CindyJS the output is still a string, in order to avoid corner cases.
+
+    - only CindyJS
+    > text(;)
+    < "___"
+
+Geometric objects get auto-coerced to mathematical values
+
+    > createpoint("A", [6, 4, 2]); text(A)
+    < "[3, 2]"
 
 ------
 
@@ -145,7 +165,7 @@ Number conversion without splitting can be achieved using an empty separator lis
 #### Replacing in strings: `replace(‹string1›,‹string2›,‹string3›)`
 
 **Description:**
-This operator replaces all (!) occurrences of &lt;string2&gt; in &lt;string1&gt; by &lt;string3&gt;.
+This operator replaces all (!) occurrences of ‹string2› in ‹string1› by ‹string3›.
 
 This operator is extremely useful for creating text replacement systems of the kind they are used in so called Lindenmeyer Systems.
 
@@ -361,22 +381,21 @@ The following example illsustrates this:
 ## String Comparison and Sorting
 
 Like real numbers, strings admit a total ordering.
-Thus they can be compared using the operators `›`, `‹`, `›=`, `‹=`, `==`, and `!=`.
+Thus they can be compared using the operators `>`, `<`, `>=`, `<=`, `==`, and `!=`.
 Please refer to [Boolean Operators](Boolean_Operators.md) for the use of these relations.
 
 The order that is used for strings is lexicographic (dictionary) order.
 Thus, for example,
 
-`"a"‹"abd"‹"abe"‹"b"‹"blue"‹"blunt"‹"xxx"`
+`"a" < "abd" < "abe" < "b" < "blue" < "blunt" < "xxx"`
 
-#### Sorting of lists: `sort(‹list›)`
-
-#### Sorting of lists: `sort(‹list›,‹expr›)`
-
-#### Sorting of lists: `sort(‹list›,‹var›,‹expr›)`
+#### Sorting lists of strings
 
 **Description:**
-The various versions of the `sort`-operator can be used to sort lists that contain string values.
+
+The various versions of
+[the `sort` operator](Advanced_List_Operations.md#sort$1)
+can be used to sort lists that contain string values.
 The sorting order is usually taken to be the lexicographic order of the words.
 Alternatively, one can specify a user-defined sorting function such as the lengths of the strings.
 
@@ -386,7 +405,8 @@ Alternatively, one can specify a user-defined sorting function such as the lengt
     < ["one", "two", "four", "five", "three"]
 
 **See also:**
-[Lists and Linear Algebra](Lists_and_Linear_Algebra.md)
+[Lists and Linear Algebra](Lists_and_Linear_Algebra.md),
+[Advanced List Operations](Advanced_List_Operations.md)
 
 ------
 
@@ -402,7 +422,10 @@ Characters can be returned and set with this operator.
 
     > "CindyScript"_5
     < "y"
+    > "CindyScript"_[1, 6]
+    < ["C", "S"]
     > "CindyScript"_12
+    * WARNING: Index out of range!
     < ___
     > a="CindyScript";
     > a_5="erella";

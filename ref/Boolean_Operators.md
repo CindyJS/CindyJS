@@ -43,9 +43,17 @@ Lists are compared element-wise:
     < [2, 5, 7, 3]
     > a == b
     < true
+    > a != b
+    < false
     > b_1 = 0
     < 0
     > a == b
+    < false
+    > a != b
+    < true
+    > [1, 2, [3, 4, "foo"]] == [1, 2, [3, 4, "foo"]]
+    < true
+    > [1, 2, [3, 4, "bar"]] == [1, 2, [3, 4, "foo"]]
     < false
 
 ------
@@ -79,6 +87,17 @@ Objects of different types are always different from one another.
     < true
     > "true" != true
     < true
+
+Lists are compared element-wise.
+Many examples for this were already given [with the `==` operator](#_$3du$3du_)
+in order to make use of the same variables defined there.
+The others are just the negation of the respecive `==` answer as well:
+
+    > [1, 2, [3, 4, "foo"]] != [1, 2, [3, 4, "foo"]]
+    < false
+    > [1, 2, [3, 4, "bar"]] != [1, 2, [3, 4, "foo"]]
+    < true
+
 
 ------
 
@@ -240,10 +259,23 @@ of the comparison, so errors are not accumulated over the list.
     < [2, 8, 7, 3]
     > b = [2, 8, 7, 3.00000000001]
     < [2, 8, 7, 3]
+    > a == b
+    < false
     > a ~= b
     < true
     > [0, 0] ~= [lessThanEps, lessThanEps]
     < true
+    > [0, 0] ~= [0, greaterThanEps]
+    < false
+    > [0, [0, lessThanEps]] ~= [lessThanEps, [lessThanEps, 0]]
+    < true
+    > [0, [0, lessThanEps]] ~= [greaterThanEps, [lessThanEps, 0]]
+    < false
+
+Lists of different lengths are always unequal.
+
+    > [0, 0] ~= [0, 0, 0]
+    < false
 
 ##### Noticably different: `‹expr1› ~!= ‹expr2›`
 
@@ -256,6 +288,31 @@ of the comparison, so errors are not accumulated over the list.
     > lessThanEps ~!= 0
     < false
     > greaterThanEps ~!= 0
+    < true
+
+Lists are compared element-wise.  The maximal error determines the result
+of the comparison, so errors are not accumulated over the list.
+
+    > a = [2, 8, 7, 3]
+    < [2, 8, 7, 3]
+    > b = [2, 8, 7, 3.00000000001]
+    < [2, 8, 7, 3]
+    > a != b
+    < true
+    > a ~!= b
+    < false
+    > [0, 0] ~!= [lessThanEps, lessThanEps]
+    < false
+    > [0, 0] ~!= [0, greaterThanEps]
+    < true
+    > [0, [0, lessThanEps]] ~!= [lessThanEps, [lessThanEps, 0]]
+    < false
+    > [0, [0, lessThanEps]] ~!= [greaterThanEps, [lessThanEps, 0]]
+    < true
+
+Lists of different lengths are always unequal.
+
+    > [0, 0] ~!= [0, 0, 0]
     < true
 
 ##### Greater or approximately equal: `‹expr1› ~>= ‹expr2›`

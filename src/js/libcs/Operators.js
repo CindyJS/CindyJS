@@ -521,7 +521,7 @@ function infix_assign(args, modifs) {
 }
 
 
-function infix_define(args, modifs) {
+function infix_define(args, modifs, self) {
 
     var u0 = (args[0].ctype === 'undefined');
     var u1 = (args[1].ctype === 'undefined');
@@ -533,10 +533,22 @@ function infix_define(args, modifs) {
         var fname = args[0].oper;
         var ar = args[0].args;
         var body = args[1];
+        var generation = 1;
+        if (myfunctions.hasOwnProperty(fname)) {
+            var previous = myfunctions[fname];
+            if (previous.definer === self) {
+                // Redefinition using the same piece of code changes nothing.
+                // This needs some work once we have closures.
+                return nada;
+            }
+            generation = previous.generation + 1;
+        }
         myfunctions[fname] = {
             'oper': fname,
             'body': body,
-            'arglist': ar
+            'arglist': ar,
+            'definer': self,
+            'generation': generation
         };
     }
     if (args[0].ctype === 'variable') {
@@ -2448,25 +2460,28 @@ evaluator.mincostmatching$1 = function(args, modifs) {
 function infix_take(args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluateAndVal(args[1]);
+    if (v0.ctype !== 'string') {
+        v0 = List.asList(v0);
+    }
     if (v1.ctype === 'number') {
         var ind = Math.floor(v1.value.real);
-        if (v0.ctype === 'list' || v0.ctype === 'string') {
-            if (ind < 0) {
-                ind = v0.value.length + ind + 1;
+        if (ind < 0) {
+            ind = v0.value.length + ind + 1;
+        }
+        if (ind > 0 && ind < v0.value.length + 1) {
+            if (v0.ctype === 'list') {
+                return v0.value[ind - 1];
             }
-            if (ind > 0 && ind < v0.value.length + 1) {
-                if (v0.ctype === 'list') {
-                    return v0.value[ind - 1];
-                }
-                return {
-                    "ctype": "string",
-                    "value": v0.value.charAt(ind - 1)
-                };
-            }
+            return {
+                "ctype": "string",
+                "value": v0.value.charAt(ind - 1)
+            };
+        } else {
+            csconsole.err("WARNING: Index out of range!");
             return nada;
         }
     }
-    if (v1.ctype === 'list') { //Hab das jetzt mal rekursiv gemacht, ist anders als in Cindy
+    if (v1.ctype === 'list') { // This is recursive, different from Cinderella
         var li = [];
         for (var i = 0; i < v1.value.length; i++) {
             var v1i = evaluateAndVal(v1.value[i]);
@@ -2804,6 +2819,40 @@ evaluator.column$2 = function(args, modifs) {
     var v1 = evaluateAndVal(args[1]);
     if (v1.ctype === 'number' && v0.ctype === 'list' && List._helper.colNumb(v0) !== -1) {
         return List.column(v0, v1);
+    }
+    return nada;
+};
+
+
+///////////////////////////////
+//        DICTIONARIES       //
+///////////////////////////////
+
+evaluator.dict$0 = function(args, modifs) {
+    var d = Dict.create();
+    for (var key in modifs)
+        if (modifs.hasOwnProperty(key))
+            Dict.put(d, General.string(key), evaluate(modifs[key]));
+    return d;
+};
+
+evaluator.put$3 = function(args, modifs) {
+    var d = evaluate(args[0]);
+    var k = evaluate(args[1]);
+    var v = evaluate(args[2]);
+    if (d.ctype === "dict") {
+        d = Dict.clone(d);
+        Dict.put(d, k, v);
+        return d;
+    }
+    return nada;
+};
+
+evaluator.get$2 = function(args, modifs) {
+    var d = evaluate(args[0]);
+    var k = evaluate(args[1]);
+    if (d.ctype === "dict") {
+        return Dict.get(d, k, nada);
     }
     return nada;
 };
@@ -3177,6 +3226,12 @@ evaluator.stopanimation$0 = function(args, modifs) {
 //          String           //
 ///////////////////////////////
 
+
+evaluator.text$1 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]); // Cinderella compatible
+    // if (v0 === nada) return nada; // Cinderella compatible
+    return General.string(niceprint(v0));
+};
 
 evaluator.replace$3 = function(args, modifs) {
     var v0 = evaluate(args[0]);

@@ -339,7 +339,7 @@ will produce the output
     * 34
     * blonde
 
-A list of all keys of a geometric object may be accessed via the `keys(...)` operator.
+A list of all keys of a geometric object may be accessed via the `keys(…)` operator.
 So in the above example the code
 
     - skip test: keys not implemented.

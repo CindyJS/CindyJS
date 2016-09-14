@@ -177,7 +177,7 @@ Note that angles will be printed in degrees by default.
 This operator calculates the absolute value of an object.
 The object may be a simple number, a complex number, or a vector.
 
-It is not allowed to use the `|...|` operator in a nested way, since such expressions can be syntactically ambiguous.
+It is not allowed to use the `|…|` operator in a nested way, since such expressions can be syntactically ambiguous.
 
     > |-5|
     < 5
@@ -191,11 +191,11 @@ It is not allowed to use the `|...|` operator in a nested way, since such expres
 #### The distance operator: `|‹number›,‹number›|`
 
 **Description:**
-One can use `|...|` with two arguments, in which case this operator calculates the distance between the two objects.
+One can use `|…|` with two arguments, in which case this operator calculates the distance between the two objects.
 The objects may be simple numbers, complex numbers, or vectors.
 However, they must be of the same type.
 
-It is not allowed to use the `|...,...|` operator in a nested way, since such expressions can be syntactically ambiguous.
+It is not allowed to use the `|…,…|` operator in a nested way, since such expressions can be syntactically ambiguous.
 
     > |-5,8|
     < 13

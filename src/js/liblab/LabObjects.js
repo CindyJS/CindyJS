@@ -1054,7 +1054,7 @@ labObjects.Environment = {
             var m = masses[i];
 
             m.behavior.fx += 0;
-            m.behavior.fy += -beh.gravity;
+            m.behavior.fy += -beh.gravity * m.behavior.mass;
             m.behavior.fz += 0;
 
 

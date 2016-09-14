@@ -420,7 +420,7 @@ This operator clears variable `‹var›`.
 **Not available in CindyJS yet!**
 
 **Description:**
-Gives a list of all keys associated to an object via a ` ‹object›:‹key›=‹something›` declaration.
+Gives a list of all keys associated to an object via an `‹object›:‹key›=‹something›` declaration.
 
 **Example:**
 It is possible to associate a value under a freely chosen key to an object.

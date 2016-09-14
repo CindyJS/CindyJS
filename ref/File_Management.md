@@ -24,7 +24,7 @@ Assume that in the file `LoadDemo.txt` contains the data
 
 `abc,gfdg;1,3,5.6,3.141;56,abc,xxx,yyy`
 
-The following code reads the data and creates a list by tokenizing it with respect to ";" and ",".
+The following code reads the data and creates a list by tokenizing it with respect to `;` and `,`.
 
     > x=load("LoadTest.txt");
     > y=tokenize(x,(";",","));
@@ -46,7 +46,7 @@ The resulting output is
 This operator takes the argument `‹string›`, which is considered to be a file name (including directory information).
 If the file name is legitimate, then the whole content of the file is assumed to be able to be parsed by CindyScript code, and it is immediately executed.
 In this way, one can load libraries with predefined functionality.
-It is advisable to use the `import` operator only in the "Init" section of CindyScript, since otherwise, the file will be read for each move.
+It is advisable to use the `import` operator only in the “Init” section of CindyScript, since otherwise, the file will be read for each move.
 
 ------
 
@@ -84,7 +84,7 @@ The function returns a handle to the file that is needed for subsequent print op
 **Not available in CindyJS yet!**
 
 **Description:**
-Identical to the `println(...)` command.
+Identical to the `println(…)` command.
 However this command prints to the file specified by `‹file›`.
 
 ------
@@ -94,7 +94,7 @@ However this command prints to the file specified by `‹file›`.
 **Not available in CindyJS yet!**
 
 **Description:**
-Identical to the `print(...)` command.
+Identical to the `print(…)` command.
 However this command prints to the file specified by `‹file›`.
 
 ------
