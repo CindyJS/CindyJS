@@ -858,14 +858,34 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
 };
 
-// This is a hook: the following function may get replaced by a plugin.
-var textRendererCanvas = function(ctx, text, x, y, align) {
+function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight) {
+    if (text.indexOf("\n") !== -1) {
+        text.split("\n").forEach(function(row) {
+            defaultTextRendererCanvas(ctx, row, x, y, align, size);
+            y += lineHeight;
+        });
+        return;
+    }
     var width = ctx.measureText(text).width;
     ctx.fillText(text, x - width * align, y);
-};
+}
+
+// This is a hook: the following function may get replaced by a plugin.
+var textRendererCanvas = defaultTextRendererCanvas;
 
 // This is a hook: the following function may get replaced by a plugin.
 var textRendererHtml = function(element, text, font) {
+    if (text.indexOf("\n") !== -1) {
+        // TODO: find a way to align the element by its FIRST row
+        // as Cinderella does it, instead of by the last row as we do now.
+        var rows = text.split("\n");
+        element.textContent = rows[0];
+        for (var i = 1; i < rows.length; ++i) {
+            element.appendChild(document.createElement("br"));
+            element.appendChild(document.createTextNode(rows[i]));
+        }
+        return;
+    }
     element.textContent = text;
 };
 
@@ -898,9 +918,11 @@ evaluator.drawtext$2 = function(args, modifs, callback) {
         Render2D.family);
     csctx.font = font;
     if (callback) {
-        callback(txt, font, xx, yy, Render2D.align);
+        callback(txt, font, xx, yy, Render2D.align, size);
     } else {
-        textRendererCanvas(csctx, txt, xx, yy, Render2D.align);
+        textRendererCanvas(
+            csctx, txt, xx, yy, Render2D.align,
+            size, size * defaultAppearance.lineHeight);
     }
 
     return nada;
