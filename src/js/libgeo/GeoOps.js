@@ -2598,10 +2598,11 @@ geoOps.Angle.stateSize = 2;
 geoOps.Text = {};
 geoOps.Text.kind = "Text";
 geoOps.Text.signature = "**";
+geoOps.Text.isMovable = true;
 geoOps.Text.updatePosition = noop;
 geoOps.Text.initialize = function(el) {
     el.text = String(el.text);
-    if (el.pos) el.pos = geoOps._helper.initializePoint(el);
+    if (el.pos) el.homog = geoOps._helper.initializePoint(el);
     if (el.dock) {
         if (el.dock.offset && el.dock.offset.length === 2)
             el.dock.offset = List.realVector([+el.dock.offset[0], +el.dock.offset[1]]);
@@ -2640,6 +2641,7 @@ function commonButton(el, event, button) {
 geoOps.Button = {};
 geoOps.Button.kind = "Text";
 geoOps.Button.signature = "**";
+geoOps.Button.isMovable = true;
 geoOps.Button.updatePosition = noop;
 geoOps.Button.initialize = function(el) {
     var button = document.createElement("button");
@@ -2649,6 +2651,7 @@ geoOps.Button.initialize = function(el) {
 geoOps.ToggleButton = {};
 geoOps.ToggleButton.kind = "Text";
 geoOps.ToggleButton.signature = "**";
+geoOps.ToggleButton.isMovable = true;
 geoOps.ToggleButton.updatePosition = noop;
 geoOps.ToggleButton.initialize = function(el) {
     var id = generateId();

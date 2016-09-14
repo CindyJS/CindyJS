@@ -187,7 +187,7 @@ function drawgeotext(el) {
     var opts = {
         "size": el.size,
     };
-    var pos = el.pos;
+    var pos = el.homog;
     var text = el.text;
     text = text.replace(/@[$#]"([^"\\]|\\.)*"/g, function(match) {
         var name, el2;
