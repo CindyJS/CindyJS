@@ -182,8 +182,15 @@ var textCornerNames = {
 };
 
 function drawgeotext(el) {
-    if (!el.isshowing || el.visible === false)
+    if (!el.isshowing || el.visible === false) {
+        if (el.html) {
+            el.html.parentNode.parentNode.style.display = "none";
+            el._textCache = {
+                invisible: true
+            };
+        }
         return;
+    }
     var opts = {
         "size": el.size,
     };
@@ -217,6 +224,8 @@ function drawgeotext(el) {
         var inlinebox = label.parentNode;
         var outer = inlinebox.parentNode;
         htmlCallback = function(text, font, x, y, align) {
+            if (cache.invisible)
+                outer.style.removeProperty("display");
             if (text === cache.text && font === cache.font &&
                 x === cache.x && y === cache.y && align === cache.align)
                 return;
