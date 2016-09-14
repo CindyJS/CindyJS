@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Raycasting a surface of degree 4</h1>
+    This requires a 5x5 matrix for internal computations.
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      time = seconds()-t0;
+      alpha = .5+mouse().x;
+
+      rho = re(time/5+mouse().y);
+      theta = re(mouse().x+time/10);
+      
+      //mouselightpos = (ray(mouse(), min(getDistanceToObj(mouse())-1, 10)));
+      colorplot(computeColor(#));
+    </script>
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      oo = 1000; //"infinity"
+      t0 = seconds();
+      
+			F(p) := (
+				regional(x, y, z);
+				x = p.x/2;
+				y = p.y/2;
+				z = p.z/2;
+				a = .4+.1*sin(time);
+				(x^2+y^2+z^2-(0.5+2*a)^2)^2-(3*((0.5+2*a)^2)-1.0)/(3.0-((0.5+2*a)^2))
+				*(1-z-sqrt(2)*x)*(1-z+sqrt(2)*x)*(1+z+sqrt(2)*y)*(1+z-sqrt(2)*y);
+			);
+			eps = .01;
+			dF(p) := (
+					F(p+(eps,0,0))-F(p-(eps,0,0)),
+					F(p+(0,eps,0))-F(p-(0,eps,0)),
+					F(p+(0,0,eps))-F(p-(0,0,eps))
+				)/(2*eps);
+			
+      
+      S(r) := (r*r-4*4); //sphere with radius 4
+      
+      ray(pos, t) := (
+        ([[cos(theta), 0, sin(theta)],
+         [0, 1, 0],
+         [-sin(theta), 0, cos(theta)]]*
+        [[1, 0, 0],
+         [0, cos(rho), sin(rho)],
+         [0,-sin(rho), cos(rho)]])*
+          (t*(pos.x, pos.y, 1)+(0, 0, -9))
+      );
+      
+      eval(poly, t) := poly*(1,t,t*t,t*t*t, t*t*t*t);  //evals deg 4 poly at time t
+      //(((poly_4)*t+poly_3)*t+poly_2)*t+poly_1; //horner scheme, suitable for complex evaluation
+      
+      d(poly) := (poly_2, 2*poly_3, 3*poly_4, 4*poly_5, 0); //computes derivative of polynomial
+      
+      //finds root of poly in [x0, x1] using bisection. returns def if intermediate value theorem cannot be applied
+      bisect(poly, x0, x1, def) := ( 
+        regional(v0, v1, m, vm);
+        v0 = eval(poly, x0);
+        v1 = eval(poly, x1);
+        if(v0*v1<=0,
+          repeat(10,
+            m = (x0+x1)/2;
+            vm = eval(poly, m);
+            if(v0*vm<=0,
+              (x1 = m; v1 = vm;),
+              (x0 = m; v0 = vm;)
+            );
+          );
+          m,
+          def
+        )
+      );
+      
+			//finds first root of poly in interval (l, u). returns oo if there is none
+			firstroot(poly, l, u) := ( 
+				regional(p1, p2, p3, p4,
+					a0, 
+					b0, b1,
+					c0, c1, c2,
+					d0, d1, d2, d3
+				);
+					p4 = poly;  //quartic
+					p3 = d(p4); //cubic
+					p2 = d(p3); //quadratic
+					p1 = d(p2); //linear
+
+// Utilize Rolle's theorem: There is always a stationary point between two roots
+//     l   u
+//      \ /      <-bisection on p1
+//   l   a0  u   <-roots of p1
+//    \ / \ /    <-bisection on p2
+// l   b0  b1  u <-roots of p2
+//  \ / \ / \ /  <-bisection on p3
+//l  c0  c1  c2  <-roots of p3
+// \ / \ / \ / \ /
+// d0  d1  d2  d3 <-roots of p4
+
+					a0 = bisect(p1, l, u, u);
+					b0 = bisect(p2, l, a0, l);
+					c0 = bisect(p3, l, b0, l);
+					d0 = bisect(p4, l, c0, l);
+					
+					if(l < d0 & d0 < u, d0,
+					b1 = bisect(p2, a0, u, u);
+					c1 = bisect(p3, b0, b1, c0);
+					d1 = bisect(p4, c0, c1, d0);
+					if(l < d1 & d1 < u, d1,
+					c2 = bisect(p3, b1, u, u);
+					d2 = bisect(p4, c1, c2, d1);
+					if(l < d2 & d2 < u, d2,
+					d3 = bisect(p4, c2, u, u);
+					if(l < d3 & d3 < u, d3,
+						oo
+					))))
+			);
+			
+			//li = [-3,10,20,30,40];
+			li = apply(1..5, k, cos((2*k-1)/(2*5)*pi)*4+9); //Chebyshev nodes for interval (5, 13)
+      A = apply(li, c, apply(0..4,i,c^i));
+      // A sends polynomials [p0, p1, p2, p3, p4] = p0+p1*X+p2*X*X+p3*X*X*X+p4*X*X*X*X to [p(-2), p(-1), p(0), p(1), p(2)]
+      B = (inverse(A)); //B interpolates polynomials, given the values [p(-2), p(-1), p(0), p(1), p(2)]
+			B3 = inverse(apply([-1,0,1], c, apply(0..2,i,c^i))); //B3 interpolates quadratic polynomials, given the values [p(-1), p(0), p(1)]
+			
+      
+      addlight(oldcolor, lightcolor, lightdir, normal, gamma) := (
+        illumination = max(0,(lightdir/abs(lightdir))*normal);
+        oldcolor + (illumination^gamma)*lightcolor
+      );
+      
+      //traces the ray for the pixel at pos and returns the distance to the first intersection point of ray with (F^{-1}\{0\} intersected with ball with radius 4)
+      getDistanceToObj(pos) := (
+        spolyvalues = [S(ray(pos, -1)), S(ray(pos, 0)), S(ray(pos, 1))];
+        spoly = B3*spolyvalues; // interpolate
+        
+        D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
+        if(D>=0, //ray intersects ball
+          polyvalues = [F(ray(pos, li_1)), F(ray(pos, li_2)), F(ray(pos, li_3)), F(ray(pos, li_4)), F(ray(pos, li_5))];
+          poly = B*polyvalues; // interpolate
+          firstroot(poly,
+            (-spoly_2-re(sqrt(D)))/(2.*spoly_3), //intersection entering the ball
+            (-spoly_2+re(sqrt(D)))/(2.*spoly_3)  //intersection leaving the ball
+          )
+          ,
+          oo
+        )
+      );
+    
+      computeColor(pos) := (
+        dst = getDistanceToObj(pos);
+        if(dst == oo,
+          gray(1),
+          x = ray(pos, dst);
+          n = dF(x);
+          n = n/abs(n);
+          
+          lightdir0 = .6*(-10, 10, 0.)-x;
+          
+          //lightdir2 = (1.,0.,-1.);
+          mouselightpos = ray(mouse(), 7);
+          lightdir2 = mouselightpos-x;
+          lightdir3 = ray((.0,.0),-100.);
+          lightdir4 = ray((.0,.0),100.);
+          
+          color0 = .6*(1., .6,.3);
+          color1 = min(2.,1/(lightdir2*lightdir2))*(1.,.3,.3); //glowing mouse
+          color2 = min(2.,1/(lightdir2*lightdir2))*(.6,.4,2.); //glowing mouse
+          color3 = (.1,.3,.8);
+          color4 = (.9,.3,.0);
+          
+          addlight(addlight(addlight(addlight(addlight(
+          (0,0,0),
+            color0, lightdir0, n, 2),
+            color1, lightdir2, -n, 1),
+            color2, lightdir2, n, 1),
+            color3, lightdir3, n, 2),
+            color4, lightdir4, n, 2)
+        )
+      );
+      
+      
+    </script>
+    
+
+    <div  id="CSCanvas" style="border:0px"></div>
+    
+    <script type="text/javascript">
+        CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [ -0.5, -0.5, 0.5, 0.5 ] } ]
+                    }]
+        });
+    </script>
+    Using Rolle's theorem and bisection method for finding roots.
+	</body>
+</html>

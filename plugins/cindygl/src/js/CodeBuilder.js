@@ -6,21 +6,62 @@ function CodeBuilder(api) {
     this.assigments = {};
     this.T = {};
     this.uniforms = {};
-    this.hasbeenincluded = {};
-    this.includedfunctions = [];
-    this.hasbeencompiled = {};
-    this.compiledfunctions = [];
+
+    this.sections = {};
+
     this.precompileDone = false;
     this.myfunctions = {};
     this.api = api;
     this.texturereaders = {};
 }
 
-/** @dict @type {Object} */
-CodeBuilder.prototype.hasbeencompiled;
+/** @type {Object} */
+CodeBuilder.prototype.sections;
 
-/**  @type {Array.<string>} */
-CodeBuilder.prototype.compiledfunctions;
+/**
+ * adds a snipped of code to the header of the current code builder and marks the corresponding identifier
+ * Ignores call if code has already been added to the identifier in the given section.
+ * @param {string} section section to which the code is suppoed to be added
+ * @param {string} name an identifier for the corresponding code
+ * @param {string} code to be added (at the end of the corresponding section)
+ */
+CodeBuilder.prototype.add = function(section, name, code) {
+    this.mark(section, name);
+    if (!this.sections[section].codes[name]) {
+        //console.log(`adding ${name} to ${section}: ${code}`);
+        this.sections[section].codes[name] = code;
+        this.sections[section].marked[name] = true;
+        this.sections[section].order.push(name);
+    }
+};
+
+/**
+ * marks a given identifier in a given section.
+ * returns wheather code with a given identifier has been marked before
+ * @param {string} section section to which the code is suppoed to be marked
+ * @param {string} name an identifier
+ */
+CodeBuilder.prototype.mark = function(section, name) {
+    if (!this.sections[section]) this.sections[section] = {
+        order: [],
+        marked: {},
+        codes: {}
+    };
+    let r = this.sections[section].marked[name] || false;
+    this.sections[section].marked[name] = true;
+    return r;
+};
+
+/**
+ * returns the entire section code in correct order
+ * @param {string} section
+ * @return {string}
+ */
+CodeBuilder.prototype.generateSection = function(section) {
+    return this.sections[section] ?
+        this.sections[section].order.map(name => this.sections[section].codes[name]).join('\n') : '\n';
+};
+
 
 /** @dict @type {Object} */
 CodeBuilder.prototype.myfunctions;
@@ -37,6 +78,7 @@ CodeBuilder.prototype.variables;
  * @dict @type {Object} */
 CodeBuilder.prototype.assigments;
 
+
 /**
  * T: scope -> (variables -> types)
  * @dict @type {Object} */
@@ -44,12 +86,6 @@ CodeBuilder.prototype.T;
 
 /** @dict @type {Object} */
 CodeBuilder.prototype.uniforms;
-
-/** @dict @type {Object} */
-CodeBuilder.prototype.hasbeenincluded;
-
-/**  @type {Array.<string>} */
-CodeBuilder.prototype.includedfunctions;
 
 /** @type {CindyJS.pluginApi} */
 CodeBuilder.prototype.api;
@@ -63,22 +99,21 @@ CodeBuilder.prototype.texturereaders;
  * assert that fromType is a subtype of toType
  */
 CodeBuilder.prototype.castType = function(term, fromType, toType) {
-    if (!issubtypeof(fromType, toType)) {
-        console.error(typeToString(fromType) + " is no subtype of " + typeToString(toType) + " (trying to cast the term " + term + ")");
-        return term;
-    }
-
-    if (fromType === toType) return term;
+    if (typesareequal(fromType, toType)) return term;
     if (fromType === type.anytype) return term;
-    else {
-        let nextType = next[fromType][toType]; //use precomputed matrix
-        //   console.log(nextType);
-        if (!inclusionfunction.hasOwnProperty(fromType) || !inclusionfunction[fromType].hasOwnProperty(nextType)) {
-            console.error("CindyGL: No type-inclusion function for " + typeToString(fromType) + " to " +
-                typeToString(nextType) + " found. \n Using identity");
-            return this.castType(term, nextType, toType);
+
+    if (!issubtypeof(fromType, toType)) {
+        console.error(`${typeToString(fromType)} is no subtype of ${typeToString(toType)} (trying to cast the term ${term})`);
+        return term;
+    } else {
+        let implementation = inclusionfunction(toType)([fromType]);
+        if (!implementation) {
+            console.error(`cannot find an implementation for ${typeToString(fromType)} -> ${typeToString(toType)}, using identity`);
+            return term;
         }
-        return this.castType((inclusionfunction[fromType][nextType])(term, {}, this), nextType, toType);
+        let generator = implementation.generator;
+
+        return generator(this.castType(term, fromType, implementation.args[0]), {}, this);
     }
 };
 
@@ -131,12 +166,16 @@ CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current 
         //console.log(f);
         //console.log(argtypes);
         let f = getPlainName(expr['oper']);
-        let signature = matchSignature(f, argtypes);
+        //let signature = matchSignature(f, argtypes);
         //console.log(signature);
-        if (signature === undefined || signature === nada) return nada;
-        return signature.res;
+        //if (signature === undefined || !signature) return false;
+        //return signature.res;
+        let implementation = webgl[f] ? webgl[f](argtypes) : false;
+        if (!implementation && argtypes.every(a => a)) //no implementation found and all args are set
+            console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
+        return implementation ? implementation.res : false;
     }
-    return nada;
+    return false;
 };
 
 /**
@@ -194,7 +233,7 @@ CodeBuilder.prototype.determineVariables = function(expr) {
                 fun: fun
             });
             //rec(expr['args'][1], fun);
-        } else if (expr['oper'] !== undefined && getPlainName(expr['oper']) === 'regional') {
+        } else if (expr['oper'] && getPlainName(expr['oper']) === 'regional') {
             for (let i = 0; i < expr['args'].length; i++) {
                 if (expr['args'][i]['ctype'] === 'variable') {
                     let vname = expr['args'][i]['name'];
@@ -212,6 +251,7 @@ CodeBuilder.prototype.determineVariables = function(expr) {
             if (!assigments.hasOwnProperty(rfun)) {
                 assigments[rfun] = {}; //map variables -> list of expressions
             }
+
             for (let i in myfunctions[rfun]['arglist']) {
                 let a = myfunctions[rfun]['arglist'][i]['name'];
                 variables[rfun].push(a);
@@ -222,7 +262,10 @@ CodeBuilder.prototype.determineVariables = function(expr) {
                     fun: fun //the scope in which the function is called
                 });
             }
-            rec(myfunctions[rfun].body, rfun);
+            if (!myfunctions[rfun].visited) {
+                myfunctions[rfun].visited = true;
+                rec(myfunctions[rfun].body, rfun);
+            }
 
 
             //oh yes, the return variable of the function should be added as well
@@ -243,6 +286,12 @@ CodeBuilder.prototype.determineVariables = function(expr) {
  */
 CodeBuilder.prototype.determineTypes = function() {
     let changed = true;
+
+    for (let s in this.assigments) {
+        this.T[s] = {};
+        for (let v in this.assigments[s]) this.T[s][v] = false; //no type yet
+    }
+
     while (changed) {
         changed = false;
         //iterate over all scopes, their this.variables(and functions), and their rethis.assigments
@@ -254,23 +303,25 @@ CodeBuilder.prototype.determineTypes = function() {
                     let f = this.assigments[s][v][i].fun;
                     let othertype = this.getType(e, f); //type of expression e in function f
 
-                    let oldtype = nada;
+                    let oldtype = false;
                     if (this.T.hasOwnProperty(s) && this.T[s].hasOwnProperty(v)) oldtype = this.T[s][v];
                     let newtype = oldtype;
 
-                    if (othertype !== nada) {
-                        if (oldtype === nada) newtype = othertype;
+
+                    //  if (!othertype)//TODO: remove
+                    //      console.log(`Could not determine type of ${v} in scope ${s}. It has expression ${JSON.stringify(e)}`);
+
+                    if (othertype) {
+                        if (!oldtype) newtype = othertype;
                         else {
                             if (issubtypeof(othertype, oldtype)) newtype = oldtype; //dont change anything
                             else newtype = lca(oldtype, othertype);
                         }
-                        if (newtype !== nada && newtype !== oldtype) {
+                        if (newtype && newtype !== oldtype) {
                             if (!this.T.hasOwnProperty(s)) this.T[s] = {};
 
                             this.T[s][v] = newtype;
-                            console.log("variable " + v + " in scope " + s + " got type " + typeToString(newtype) + " (oltype/othertype is " + typeToString(oldtype) + "/" + typeToString(othertype) + ")");
-
-                            //console.log(this.T);
+                            console.log(`variable ${v} in scope ${s} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
                             changed = true;
                         }
                     }
@@ -440,7 +491,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
                 uname = generateUniqueHelperString();
                 uniforms[uname] = {
                     expr: expr,
-                    type: nada
+                    type: false
                 };
             }
 
@@ -469,7 +520,7 @@ CodeBuilder.prototype.determineUniformTypes = function() {
         this.uniforms[uname].type = guessTypeOfValue(tval);
 
         //TODO: list...    TODO: why are points evaluated to ints?
-        console.log("guessed type " + typeToString(this.uniforms[uname].type) + " for " + JSON.stringify(this.uniforms[uname].expr['name']));
+        console.log(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
     }
 };
 
@@ -495,7 +546,6 @@ CodeBuilder.prototype.precompile = function(expr) {
     this.determineVariables(expr);
     this.determineUniforms(expr);
     this.determineUniformTypes();
-
     this.determineTypes();
     this.precompileDone = true;
 };
@@ -563,7 +613,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
         let varname = expr['args'][0]['name']
             //console.log(scope);
             //console.log(varname);
-        let t = varname + ' = ' + this.castType(r.term, r.type, this.getType(expr['args'][0], scope));
+        let t = `${varname} = ${this.castType(r.term, r.type, this.getType(expr['args'][0], scope))}`;
         if (generateTerm) {
             return {
                 code: r.code,
@@ -572,13 +622,13 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             };
         } else {
             return {
-                code: r.code + t + ';\n'
+                code: `${r.code + t};\n`
             }
         }
     } else if (expr['oper'] === "repeat$2") {
         if (expr['args'][0]['ctype'] !== 'number') {
             console.error('repeat possible only for fixed constant number in GLSL');
-            return nada;
+            return false;
         }
         let it = generateUniqueHelperString();
         let n = (expr['args'][0]['value']['real'] | 0); //TODO use some internal function like evalCS etc.
@@ -590,12 +640,12 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
 
         if (generateTerm) {
             ansvar = generateUniqueHelperString();
-            code += webgltype[r.type] + ' ' + ansvar + ';'; //initial ansvar
+            code += `${webgltype(r.type)} ${ansvar};`; //initial ansvar
         }
-        code += 'for(int ' + it + '=0; ' + it + ' < ' + n + '; ' + it + '++) {\n';
+        code += `for(int ${it}=0; ${it} < ${n}; ${it}++) {\n`;
         code += r.code;
         if (generateTerm) {
-            code += ansvar + ' = ' + r.term + ';\n';
+            code += `${ansvar} = ${r.term};\n`;
         }
         code += '}\n';
         return (generateTerm ? {
@@ -620,13 +670,13 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
 
         if (generateTerm) {
             ansvar = generateUniqueHelperString();
-            code += webgltype[termtype] + ' ' + ansvar + ';'; //initial ansvar
+            code += `${webgltype(termtype)} ${ansvar};`; //initial ansvar
         }
         code += cond.code;
-        code += 'if(' + cond.term + ') {\n';
+        code += `if(${cond.term}) {\n`;
         code += ifbranch.code;
         if (generateTerm) {
-            code += ansvar + ' = ' + this.castType(ifbranch.term, ifbranch.type, termtype) + ';\n';
+            code += `${ansvar} = ${this.castType(ifbranch.term, ifbranch.type, termtype)};\n`;
         }
 
         if (expr['oper'] === "if$3") {
@@ -634,7 +684,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             code += '} else {\n';
             code += elsebranch.code;
             if (generateTerm) {
-                code += ansvar + ' = ' + this.castType(elsebranch.term, elsebranch.type, termtype) + ';\n';
+                code += `${ansvar} = ${this.castType(elsebranch.term, elsebranch.type, termtype)};\n`;
             }
         }
         code += '}\n';
@@ -699,10 +749,9 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
                 });
 
 
-            let signature = matchSignature(fname, currenttype);
-            if (signature === nada) {
-                console.error("Could not find a signature for " + fname + '(' + currenttype.map(typeToString).join(', ') + ').\n' +
-                    "Returning empty code");
+            let implementation = webgl[fname](currenttype);
+            if (!implementation) {
+                console.error(`Could not find an implementation for ${fname}(${currenttype.map(typeToString).join(', ')}).\nReturning empty code`);
                 return (generateTerm ? {
                     term: '',
                     type: type.voidt,
@@ -711,24 +760,10 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
                     code: ''
                 });
             }
-            //console.log("got the following signature for function " + fname + " and types " + typeToString(currenttype));
-            //console.log(signature);
-            targettype = signature.args;
-            restype = signature.res;
-            termGenerator = nada;
 
-            for (let i in webgltr[fname]) {
-                if (signaturesAreEqual(webgltr[fname][i][0], signature)) {
-                    termGenerator = webgltr[fname][i][1];
-                    break;
-                }
-            }
-            if (termGenerator === nada) {
-                console.error("There is no webgl-implementation for " + fname + '(' + signature.args.map(typeToString).join(', ') + ').\n' +
-                    'default: Try glsl-function with same name'
-                );
-                termGenerator = (args => fname + '(' + args.join(', ') + ')');
-            }
+            targettype = implementation.args;
+            restype = implementation.res;
+            termGenerator = implementation.generator;
         }
 
         let code = '';
@@ -751,7 +786,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             };
         else
             return {
-                code: code + term + ';\n'
+                code: `${code + term};\n`
             };
     } else if (expr['ctype'] === 'number') { //write numbers(int, float, complex) directly in code
         let termtype = this.getType(expr, scope);
@@ -759,14 +794,14 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
 
         if (termtype === type.int) term = (expr['value']['real'] | 0);
         else if (termtype === type.float) term = expr['value']['real'];
-        else if (termtype === type.complex) term = 'vec2( ' + expr['value']['real'] + ', ' + expr['value']['imag'] + ')';
+        else if (termtype === type.complex) term = `vec2( ${expr['value']['real']}, ${expr['value']['imag']})`;
 
         return (generateTerm ? {
             term: term,
             type: termtype,
             code: ''
         } : {
-            code: termtype + ';\n'
+            code: `${termtype};\n`
         });
     } else if (expr['ctype'] === 'string') { //just copy strings directly into glsl. Useful for example for names of textures
         /*let termtype = type.string;
@@ -779,13 +814,13 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
                 code: termtype + ';\n'
         });*/
         console.error("Cannot compile strings to WebGL.");
-        return nada;
+        return false;
     } else if (expr['ctype'] === "variable") {
         let termtype = this.getType(expr, scope);
 
         let term = expr['name'];
 
-        if (term === '#') { //TODO: This could be passed by some additional argument: Or # could be inside repeat-loop...
+        if (term === '#') { //TODO: This could be passed by some additional argument: Or # could be inside repeat-loop... Better use stack
             term = 'cgl_pixel';
         }
         return (generateTerm ? {
@@ -793,7 +828,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             type: termtype,
             code: ''
         } : {
-            code: term + ';\n'
+            code: `${term};\n`
         });
     } else if (expr['ctype'] === "void") {
         return (generateTerm ? {
@@ -807,20 +842,16 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
         //TODO: finish implementation once cindyJS got implementation
         let termtype = this.getType(expr, scope);
         let term = self.compile(expr['obj'], scope, true).term;
-        /*
-        if (term === '#') {
-          term = 'cgl_pixel';
-        }*/
-        term += '.' + expr['key']; //for .x .y. z .r .g .b things are same in cindyjs and glsl
+        term += `.${expr['key']}`; //for .x .y. z .r .g .b things are same in cindyjs and glsl
         return (generateTerm ? {
             term: term,
             type: termtype,
             code: ''
         } : {
-            code: term + ';\n'
+            code: `${term};\n`
         });
     }
-    console.error("dont know how to this.compile " + JSON.stringify(expr));
+    console.error(`dont know how to this.compile ${JSON.stringify(expr)}`);
 
 };
 
@@ -833,47 +864,41 @@ CodeBuilder.prototype.usemyfunction = function(fname) {
 
 CodeBuilder.prototype.compileFunction = function(fname, nargs) {
     var self = this;
-    if (this.hasbeencompiled.hasOwnProperty(fname)) return;
-    this.hasbeencompiled[fname] = true; //visited
+    if (this.mark('compiledfunctions', fname)) return; //visited
 
-    let m = this.myfunctions[fname]; // + '$' + nargs];
+    let m = this.myfunctions[fname];
 
     let vars = new Array(nargs);
     for (let i = 0; i < nargs; i++) {
         vars[i] = m['arglist'][i]['name'];
     }
-    let isvoid = (webgltype[this.T[''][fname]] === type.voidt);
+    let isvoid = (this.T[''][fname] === type.voidt);
 
-    let code = webgltype[this.T[''][fname]] /*TODO: mach das schoener*/ + ' ' + getPlainName(fname) +
-        '(' + vars.map(varname => webgltype[self.T[fname][varname]] + ' ' + varname).join(', ') + ')' + '{\n';
+    let code = `${webgltype(this.T[''][fname])} ${getPlainName(fname)}(${vars.map(varname => webgltype(self.T[fname][varname]) + ' ' + varname).join(', ')}){\n`;
     for (let i in this.variables[fname]) {
         let doprint = true;
         let varname = this.variables[fname][i];
         for (let j = 0; j < vars.length; j++) doprint &= (varname !== vars[j]);
-        if (doprint) code += webgltype[this.T[fname][varname]] + ' ' + varname + ';\n';
+        if (doprint) code += `${webgltype(this.T[fname][varname])} ${varname};\n`;
     }
     let r = self.compile(m.body, fname, !isvoid);
     code += r.code;
     //console.log(r);
     if (!isvoid)
-        code += 'return ' + this.castType(r.term, r.type, this.T[''][fname]) + ';\n'; //TODO REPL
+        code += `return ${this.castType(r.term, r.type, this.T[''][fname])};\n`; //TODO REPL
     code += '}\n';
 
-
-    this.compiledfunctions.push(code);
+    this.add('compiledfunctions', fname, code);
 };
 
 CodeBuilder.prototype.generateListOfUniforms = function() {
     let ans = [];
     for (let uname in this.uniforms)
         if (this.uniforms[uname].type != type.image)
-            ans.push('uniform ' + webgltype[this.uniforms[uname].type] + ' ' + uname + ';');
+            ans.push(`uniform ${webgltype(this.uniforms[uname].type)} ${uname};`);
     return ans.join('\n');
 };
 
-CodeBuilder.prototype.generateHeaderOfCompiledFunctions = function() {
-    return this.compiledfunctions.join('\n');
-};
 
 CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
     helpercnt = 0;
@@ -886,30 +911,29 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     if (!issubtypeof(r.type, type.color)) {
         console.error("expression does not generate a color");
     }
-    let code = this.generateListOfUniforms();
+    let code = this.generateSection('structs');
+    code += this.generateListOfUniforms();
     code += generateHeaderOfTextureReaders(this);
-    code += generateHeaderOfIncludedFunctions(this);
+    code += this.generateSection('functions');
+    code += this.generateSection('includedfunctions');
 
     for (let i in this.variables['']) { //global this.variables
         let varname = this.variables[''][i];
         if (this.myfunctions.hasOwnProperty(varname)) continue; //only consider real this.variables
-        code += webgltype[this.T[''][varname]] + ' ' + varname + ';\n';
+        code += `${webgltype(this.T[''][varname])} ${varname};\n`;
     }
 
-    code += this.generateHeaderOfCompiledFunctions();
+    code += this.generateSection('compiledfunctions');
 
-    code += 'void main(void) {\n' +
-        r.code +
-        'gl_FragColor = ' + colorterm + ';\n' +
-        //'gl_FragColor.a = 1.;\n' +
-        '}\n';
+    code += `void main(void) {\n${r.code}gl_FragColor = ${colorterm};\n}\n`;
 
     console.log(code);
 
     let generations = {};
-    for (let fname in this.hasbeencompiled) {
-        generations[fname] = this.api.getMyfunction(fname).generation;
-    }
+    if (this.sections['compiledfunctions'])
+        for (let fname in this.sections['compiledfunctions'].marked) {
+            generations[fname] = this.api.getMyfunction(fname).generation;
+        }
     return {
         code: code,
         uniforms: this.uniforms,

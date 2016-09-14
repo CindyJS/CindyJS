@@ -85,10 +85,6 @@ function expressionsAreEqual(a, b) {
 }
 
 
-function isprimitive(a) {
-    return (typeof(a) === 'number');
-}
-
 /** 
  * are two given signatures equal?
  */
@@ -144,28 +140,18 @@ function guessTypeOfValue(tval) {
             for (let i = 1; i < l.length; i++) {
                 ctype = lca(ctype, guessTypeOfValue(l[i]));
             }
-            //console.log("got lca " + typeToString(ctype));
-            if (issubtypeof(ctype, type.float)) {
-                if (l.length == 2) return type.vec2;
-                if (l.length == 3) return type.vec3;
-                if (l.length == 4) return type.vec4;
-            }
-
-            if (issubtypeof(ctype, type.complex)) {
-                if (l.length == 2) return type.vec2complex;
-            }
-
-            if (ctype === type.vec2 && l.length == 2) return type.mat2;
-            if (ctype === type.vec2complex && l.length == 2) return type.mat2complex;
-            if (ctype === type.vec3 && l.length == 3) return type.mat3;
-            if (ctype === type.vec4 && l.length == 4) return type.mat4;
-            //TODO: do all other lists and other matrices
+            if (ctype) return {
+                type: 'list',
+                length: l.length,
+                parameters: ctype
+            };
         }
     } else if (tval['ctype'] === 'string' || tval['ctype'] === 'image') {
         return type.image;
     }
-    console.error("Cannot guess type of " + JSON.stringify(tval));
-    return nada;
+    console.error(`Cannot guess type of the following type:`);
+    console.log(tval);
+    return false;
 }
 
 
@@ -173,7 +159,7 @@ var helpercnt = 0;
 
 function generateUniqueHelperString() {
     helpercnt++;
-    return '_helper' + helpercnt;
+    return `_helper${helpercnt}`;
 }
 
 function enlargeCanvasIfRequired(sizeX, sizeY) {
@@ -245,9 +231,7 @@ function toHalf(fval) {
         126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
 };
 
-var toByte = function(f) {
-    return f * 255;
-}
+var toByte = f => f * 255
 
 /**
  * converts a float array to an array encoded in the internal type
