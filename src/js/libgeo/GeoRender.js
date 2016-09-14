@@ -189,7 +189,9 @@ function drawgeotext(el) {
     };
     var pos = el.homog;
     var text = el.text;
-    text = text.replace(/@[$#]"([^"\\]|\\.)*"/g, function(match) {
+    var getText = geoOps[el.type].getText;
+    if (getText) text = getText(el);
+    else text = text.replace(/@[$#]"([^"\\]|\\.)*"/g, function(match) {
         var name, el2;
         try {
             name = JSON.parse(match.substring(2));
