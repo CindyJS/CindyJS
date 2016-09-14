@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+  color = [1, 1, 0];
+  load("http://sws.geonames.org/2921044/about.rdf", // should support CORS
+    if(isundefined(#), color = [1, 0, 0], color = [0, 0.8, 0]));
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+
+  fillcircle((0, 0), 5, color->color);
+  drawcircle((0, 0), 5, color->[0,0,0]);
+
+</script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", width: 500, height: 500}],
+  scripts: "cs*",
+  language: "en",
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="border:2px solid black"></div>
+  <p>This widget attempts to load <a href="http://sws.geonames.org/2921044/about.rdf">some remote resource</a> using a cross-origin XMLHttpRequest. While the load is in progress, the circle is filled yellow. After a successful load it turns green, in case of an error it will become red.</p>
+</body>
+
+</html>
