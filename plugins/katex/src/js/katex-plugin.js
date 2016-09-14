@@ -257,7 +257,6 @@
             if ((i & 1) === 0) {
                 if (text.indexOf("\n") !== -1) {
                     var rows = text.split("\n");
-                    console.log(rows);
                     element.appendChild(document.createTextNode(rows[0]));
                     for (var j = 1; j < rows.length; ++j) {
                         element.appendChild(document.createElement("br"));
