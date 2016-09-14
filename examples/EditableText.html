@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Editable Text</title>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script type="text/javascript">
+CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "Text0", type: "EditableText", pos: [0.0, -0.0, 4.0], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 123, text: "foo"},
+    {name: "Text1", type: "Text", pos: [0.0, -4.0, -4.0], color: [0.0, 0.0, 0.0], text: "foo"},
+    {name: "Text2", type: "Text", pos: [4.0, -0.0, -4.0], color: [0.0, 0.0, 0.0], text: "foo"}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 336,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.1]}],
+    axes: true,
+    grid: 1.0,
+    snap: true,
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1872, version: [2, 9, 1872]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
