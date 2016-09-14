@@ -673,3 +673,35 @@ tools.Intersection.actions[1].do = function() {
 
     return false;
 };
+
+// Polygon
+tools.Polygon = {};
+tools.Polygon.actions = [];
+tools.Polygon.actions[0] = {};
+tools.Polygon.actions[0].event = "mousedown";
+tools.Polygon.actions[0].tooltip = "Click on the points to define a polygon";
+tools.Polygon.actions[0].do = function() {
+    grabPoint();
+
+    if (elements.length >= 3 && elements[0].name === elements[idx - 1].name) { // First and last element must be the same
+        var names = [];
+
+        for (var i = 0; i < elements.length; i++) {
+            names.push(elements[i].name);
+        }
+
+        element = addElement({
+            type: "Poly",
+            name: getNextFreeName(),
+            color: [0.0, 0.0, 0.0],
+            fillcolor: [0.714, 1.0, 0.667],
+            fillalpha: 1.0,
+            labeled: false,
+            args: names
+        });
+
+        return true;
+    }
+
+    return false;
+};
