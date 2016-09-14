@@ -149,8 +149,6 @@ function canvasWithContainingDiv(elt) {
     if (position === "static")
         div.style.position = "relative"; // serve as a positioning root
     div.appendChild(canvas);
-    // TODO: implement component resizing detection, probably similar to
-    // github.com/marcj/css-element-queries/blob/bfa9a7f/src/ResizeSensor.js
     return canvas;
 }
 
