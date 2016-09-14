@@ -210,7 +210,9 @@ function drawgeotext(el) {
     });
     var htmlCallback = null;
     if (el.html) {
-        var cache = el._textCache || {};
+        var cache = el._textCache || {
+            text: false
+        };
         var label = el.html;
         var inlinebox = label.parentNode;
         var outer = inlinebox.parentNode;

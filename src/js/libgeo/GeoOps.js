@@ -2736,6 +2736,9 @@ geoOps.EditableText.initialize = function(el) {
         textbox.value = el.text;
     commonButton(el, "change", textbox);
 };
+geoOps.EditableText.getText = function(el) {
+    return false;
+};
 
 function noop() {}
 
