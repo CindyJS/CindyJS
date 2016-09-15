@@ -12,6 +12,13 @@ var chalk = require("chalk");
 var chokidar = require("chokidar");
 var browserSync = require("browser-sync");
 
+// The following files will not trigger a reload
+var exclude = [
+    "!**/.*", // hidden file, perhaps an editor lock or some such
+    "!**/*~", // backup file, created by some editors
+    "!**/#*#", // Emacs creates these for unsaved edits
+];
+
 // The following files and directories will trigger a build & reload
 var watchToBuild = [
     "images",
@@ -22,13 +29,13 @@ var watchToBuild = [
     "src",
     "tests",
     "tools",
-];
+].concat(exclude);
 
 // The following directories will trigger a reload only
 var watchToReload = [
     "examples",
     "private_examples",
-];
+].concat(exclude);
 
 module.exports = function watch(makeOnce, doClean) {
     var deferred = Q.defer();
