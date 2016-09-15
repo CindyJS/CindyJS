@@ -5,7 +5,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     //var soundfont = CindyJS.getBaseDir() + "soundfont/";
     var soundfont = "http://cindyjs.org/soundfont/";
 
-    var waiting = 2;
+    var midijsStatus = -2; // wait for two scripts to load
 
     // Preset midi channelinstruments like Cinderella does
     var chan2inst = [
@@ -30,6 +30,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     var instrumentStatus = [];
 
     var STATUS = {
+        INITIAL: 0,
         REQUESTED: 1,
         LOADING: 2,
         LOADED: 3
@@ -41,12 +42,12 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     CindyJS.loadScript("Base64Binary", "midi/Base64binary.js", someScriptLoaded);
 
     function someScriptLoaded() {
-        if (--waiting === 0) doLoad();
+        console.log("someScriptLoaded, status = " + midijsStatus);
+        if (++midijsStatus === STATUS.INITIAL) doLoad();
     }
 
     // Placeholder object while we wait for MIDI.js library to load
     var MIDI = {
-        isPlaceholder: true,
         getInstrument: function(ch) {
             return chan2inst[ch];
         },
@@ -417,7 +418,9 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     var loadTimeout = null;
 
     function triggerLoad() {
-        if (loadTimeout === null && !MIDI.isPlaceholder) {
+        if (loadTimeout === null &&
+            (midijsStatus === STATUS.INITIAL ||
+             midijsStatus === STATUS.LOADED)) {
             loadTimeout = setTimeout(doLoad, 0);
         }
     }
@@ -437,11 +440,12 @@ CindyJS.registerPlugin(1, "midi", function(api) {
             for (var i = 0; i < inst.length; ++i) {
                 instrumentStatus[inst[i]] = STATUS.LOADED;
             }
+            midijsStatus = STATUS.LOADED;
+            triggerLoad(); // in case more instruments got requested
             api.instance.evokeCS(""); // trigger repaint
         }
-        if (MIDI.isPlaceholder) {
-            if (MIDI.startetLoading) return;
-            MIDI.startedLoading = true;
+        if (midijsStatus === STATUS.INITIAL) {
+            midijsStatus = STATUS.LOADING;
 	    window.MIDI.loadPlugin({
 	        soundfontUrl: soundfont,
 	        instruments: inst.slice(),
@@ -455,6 +459,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
 	        }
 	    });
         } else {
+            midijsStatus = STATUS.LOADING;
             MIDI.loadResource({
                 instruments: inst.slice(),
                 onsuccess: success
