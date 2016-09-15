@@ -3,6 +3,7 @@ var element; // The constructed element
 var elements = []; // Contains all grabbed or temporary created elements (except the constructed "element" above)
 var idx = 0; // Next free index for the elements array
 var pIndex = 0; // Current element index
+var polyIndex = 0; // Current poly index
 var step = 0; // Current step
 
 /**
@@ -143,6 +144,17 @@ function setActiveTool(tool) {
  */
 function getNextFreeName() {
     return "P" + pIndex++;
+}
+
+/**
+ * Gets the next free name for a polygon
+ *
+ * TODO Rewrite
+ *
+ * @returns {string}
+ */
+function getNextFreePolyName() {
+    return "Poly" + polyIndex++;
 }
 
 /**
@@ -692,7 +704,7 @@ tools.Polygon.actions[0].do = function() {
 
         element = addElement({
             type: "Poly",
-            name: getNextFreeName(),
+            name: getNextFreePolyName(),
             color: [0.0, 0.0, 0.0],
             fillcolor: [0.714, 1.0, 0.667],
             fillalpha: 1.0,
