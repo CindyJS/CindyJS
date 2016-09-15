@@ -41,14 +41,12 @@ function getElementAtMouse(mouse) {
             var mid = csgeo.csnames[el.args[0]];
             var rad = 0;
 
-            //console.log(el.radius);
-
             if (typeof el.radius !== "undefined") {
                 rad = el.radius.value.real;
 
                 // For CircleMP
             } else if (el.args.length === 2) {
-                /*var p1 = csgeo.csnames[el.args[0]];
+                var p1 = csgeo.csnames[el.args[0]];
                 var p2 = csgeo.csnames[el.args[1]];
 
                 var p1xx = CSNumber.div(p1.homog.value[0], p1.homog.value[2]).value.real;
@@ -58,9 +56,6 @@ function getElementAtMouse(mouse) {
                 var p2yy = CSNumber.div(p2.homog.value[1], p2.homog.value[2]).value.real;
 
                 rad = Math.sqrt(Math.pow(p2xx - p1xx, 2) + Math.pow(p2yy - p1yy, 2));
-
-                console.log("radius");
-                console.log(rad);*/
             }
 
             var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
@@ -414,12 +409,34 @@ tools.Point.actions[0] = {};
 tools.Point.actions[0].event = "mousedown";
 tools.Point.actions[0].tooltip = "Add a single point with the mouse";
 tools.Point.actions[0].do = function() {
-    addElement({
-        type: "Free",
-        name: getNextFreeName(),
-        labeled: true,
-        pos: [csmouse[0], csmouse[1], 1]
-    });
+    var el = getElementAtMouse(mouse);
+
+    if (isLineAtMouse(el)) {
+        addElement({
+            type: "PointOnLine",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1],
+            args: [el.mover.name]
+        });
+
+    } else if (isConicAtMouse(el)) {
+        addElement({
+            type: "PointOnCircle",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1],
+            args: [el.mover.name]
+        });
+
+    } else {
+        addElement({
+            type: "Free",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1]
+        });
+    }
 
     return true;
 };
