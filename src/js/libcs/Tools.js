@@ -698,7 +698,7 @@ tools.Polygon.actions[0].do = function() {
     if (elements.length >= 3 && elements[0].name === elements[idx - 1].name) { // First and last element must be the same
         var names = [];
 
-        for (var i = 0; i < elements.length; i++) {
+        for (var i = 0; i < elements.length - 1; i++) {
             names.push(elements[i].name);
         }
 
