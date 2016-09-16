@@ -2261,7 +2261,7 @@ geoOps.TrMoebiusArc = {};
 geoOps.TrMoebiusArc.kind = "C";
 geoOps.TrMoebiusArc.signature = ["Mt", "C"];
 geoOps.TrMoebiusArc.signatureConstraints = function(el) {
-    return csgeo.csnames[el.args[0]].isArc;
+    return csgeo.csnames[el.args[1]].isArc;
 };
 geoOps.TrMoebiusArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
@@ -2564,6 +2564,9 @@ geoOps.ReflectCP.updatePosition = function(el) {
 geoOps.ReflectCArc = {};
 geoOps.ReflectCArc.kind = "C";
 geoOps.ReflectCArc.signature = ["Rc", "C"];
+geoOps.ReflectCArc.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[1]].isArc;
+};
 geoOps.ReflectCArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
     var Arc = csgeo.csnames[(el.args[1])];
