@@ -206,10 +206,10 @@ CindyJS.registerPlugin(1, "midi", function(api) {
                             if (vel > 127) vel = 127;
                             continue;
                         } else if (cmd === "goto" || cmd === "gt") {
-                            time = Math.min(0, va * timeUnit);
+                            time = Math.max(0, va * timeUnit);
                             continue;
                         } else if (cmd === "gorel" || cmd === "gr") {
-                            time = Math.min(0, time + va * timeUnit);
+                            time = Math.max(0, time + va * timeUnit);
                             continue;
                         } else if (cmd === "channel" || cmd === "ch") {
                             channel = Math.max(0, Math.min(15, va | 0));
@@ -236,9 +236,9 @@ CindyJS.registerPlugin(1, "midi", function(api) {
                     }
                     var duration = null;
                     if (length.ctype === "number") {
-                        if (!staccato && length.value.real !== 0) {
-                            duration = length.value.real * timeUnit - timeOff;
-                            duration = Math.max(duration, timeOff);
+                        length = length.value.real * timeUnit;
+                        if (!staccato && length !== 0) {
+                            duration = Math.max(length - timeOff, timeOff);
                         } else {
                             duration = timeOff;
                         }
@@ -266,7 +266,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
                                 instruments[inst] = true;
                             } // note 0 - 127
                         } // for all notes of this chord
-                        time += duration;
+                        time += length;
                         accent = false;
                     } // chord and duration
                 } // case distinction bases on length of nested list
