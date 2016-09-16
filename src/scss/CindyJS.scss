@@ -136,6 +136,18 @@ $focused-shadow: 0px 0px 3px #06f;
 
 } // end button
 
+.CindyJS-editabletext {
+
+    border: 1px solid #000;
+    margin: -4px -4px -1px;
+    padding: 4px 4px 1px;
+
+    &:focus {
+        box-shadow: $focused-shadow;
+    }
+
+} // end editabletext
+
 .CindyJS-toolbar {
     @extend %toggleButtonGrid;
 

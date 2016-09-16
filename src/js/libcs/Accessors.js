@@ -121,6 +121,11 @@ Accessor.getField = function(geo, field) {
                 return General.bool(false);
             }
         }
+        if (field === "text") {
+            if (geo.type === "EditableText") {
+                return General.string(String(geo.html.value));
+            }
+        }
     }
     if (field === "trace") {
         return General.bool(!!geo.drawtrace);
@@ -260,6 +265,11 @@ Accessor.setField = function(geo, field, value) {
     if (geo.kind === "Text") {
         if (field === "pressed" && value.ctype === "boolean" && geo.checkbox) {
             geo.checkbox.checked = value.value;
+        }
+        if (field === "text") {
+            if (geo.type === "EditableText") {
+                geo.html.value = niceprint(value);
+            }
         }
     }
     if (geo.behavior) {

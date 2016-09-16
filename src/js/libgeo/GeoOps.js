@@ -2717,6 +2717,32 @@ geoOps.ToggleButton.initialize = function(el) {
     commonButton(el, "change", checkbox, label);
 };
 
+geoOps.EditableText = {};
+geoOps.EditableText.kind = "Text";
+geoOps.EditableText.signature = [];
+geoOps.EditableText.updatePosition = noop;
+geoOps.EditableText.initialize = function(el) {
+    var textbox = document.createElement("input");
+    textbox.setAttribute("type", "text");
+    textbox.className = "CindyJS-editabletext";
+    if (el.fillcolor) {
+        var fill;
+        if (isFiniteNumber(el.fillalpha))
+            fill = Render2D.makeColor(el.fillcolor, el.fillalpha);
+        else
+            fill = Render2D.makeColor(el.fillcolor, 1.0);
+        textbox.style.backgroundColor = fill;
+    }
+    if (isFiniteNumber(el.minwidth))
+        textbox.style.width = (el.minwidth - 3) + "px";
+    if (typeof el.text === "string")
+        textbox.value = el.text;
+    commonButton(el, "change", textbox);
+};
+geoOps.EditableText.getText = function(el) {
+    return false;
+};
+
 function noop() {}
 
 geoOps._helper.initializePoint = function(el) {
