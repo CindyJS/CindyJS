@@ -308,7 +308,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     });
 
     function playMelody(t0, melody) {
-        var maxChunk = 100;
+        var maxChunk = 20;
         if (melody.length > maxChunk) {
             var delta = (melody[maxChunk].time + t0 - MIDI.now()) * 1000 - 200;
             if (delta < 0) delta = 0;
