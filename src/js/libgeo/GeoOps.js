@@ -607,9 +607,8 @@ geoOps._helper.projectPointToSegmentCR = function(seg, pos, infseg) {
     var cr = List.crossratio3(
         farpoint, seg.startpos, seg.endpos, pos, tt);
 
-    //handle case if we have infinite segment
+    //handle case if segment passes through infinity
     if (infseg) {
-        // 0 <  cr(FP, A, C, D) < 1 -> not in infinite segment 
         // probably needs tracing 
         if ((cr.value.real > 0) && (cr.value.real <= 0.5))
             cr = CSNumber.complex(0, cr.value.imag);
@@ -737,11 +736,10 @@ geoOps._helper.projectPointToArc = function(arc, P) {
             "homog": List.cross(A, C)
         };
 
-        // infinite segment?
+        // segment passing through infinity?
         var far = List.sub(AA, CC);
         var tmpcr = List.crossratio3(A, C, B, far, List.ii).value.real;
 
-        // cr(a,c,b,fp) is > 0 if B lies between A and C
         var infseg = tmpcr > 0;
 
         var cr = geoOps._helper.projectPointToSegmentCR(seg, P, infseg);
@@ -760,7 +758,6 @@ geoOps.PointOnArc.isMovable = true;
 geoOps.PointOnArc.initialize = function(el) {
     var arc = csgeo.csnames[el.args[0]];
     var p = geoOps._helper.initializePoint(el);
-    //p = geoOps._helper.projectPointToCircle(arc, p);
     p = geoOps._helper.projectPointToArc(arc, p);
 
     var cr = geoOps._helper.PointOnArcCr(arc, p);
