@@ -524,7 +524,7 @@ function setupAnimControls(data) {
 var setSpeedKnob = null;
 
 function setSpeed(speed) {
-    simspeed = Math.max(0, speed); // do we want to allow negative speed?
+    simspeed = speed;
     if (setSpeedKnob) setSpeedKnob(speed);
 }
 
