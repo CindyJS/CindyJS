@@ -664,30 +664,19 @@ geoOps.PointOnSegment.updatePosition = function(el) {
 geoOps.PointOnSegment.stateSize = 2;
 
 geoOps._helper.PointOnArcCr = function(arc, P) {
-    var A = arc.startPoint,
-        B = arc.viaPoint,
-        C = arc.endPoint;
+    var A = arc.startPoint;
+    var B = arc.viaPoint;
+    var C = arc.endPoint;
     var cr = List.crossratio3harm(P, A, B, C, List.ii);
 
+    cr = List.normalizeMax(cr);
     var m = cr.value[0];
     var n = cr.value[1];
 
-    if (!CSNumber._helper.isAlmostZero(m)) {
-        n = CSNumber.div(n, m);
-        m = CSNumber.real(1);
-    } else {
-        m = CSNumber.div(m, n);
-        n = CSNumber.real(1);
-    }
+    var tmpcr = n.value.real / m.value.real;
 
-
-    var prod = m.value.real * n.value.real;
-
-    if (prod >= 0 && prod <= 1) {
-        var d1 = List.projectiveDistMinScal(P, A);
-        var d2 = List.projectiveDistMinScal(P, C);
-
-        if (d1 < d2) {
+    if (tmpcr >= 0 && tmpcr <= 1) {
+        if (tmpcr > 0.5) {
             m = CSNumber.real(1);
             n = CSNumber.real(1);
         } else {
