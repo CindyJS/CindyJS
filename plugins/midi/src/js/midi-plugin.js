@@ -36,6 +36,8 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         LOADED: 3
     };
 
+    var currentChannel = 0;
+
     var RESOLUTION = 5 * 3 * 2 * 2 * 2;
 
     CindyJS.loadScript("MIDI", "midi/MIDI.js", someScriptLoaded);
@@ -94,13 +96,22 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         };
     });
 
+    api.defineFunction("instrument", 1, function(args, modifs) {
+        var inst = api.evaluate(args[0]);
+        var ch = Math.round(numModif(modifs.channel, currentChannel));
+        if (inst.ctype === "number") {
+            MIDI.setInstrument(ch, Math.round(inst.value.real) - 1);
+        }
+        return api.nada;
+    });
+
     api.defineFunction("playtone", 1, function(args, modifs) {
         var note = api.evaluate(args[0]);
         if (note.ctype !== "number") return api.nada;
         note = Math.round(note.value.real);
 
         var vel = numModif(modifs.velocity, 1) * 127;
-        var chan = Math.round(numModif(modifs.channel, 0));
+        var chan = Math.round(numModif(modifs.channel, currentChannel));
 
         var inst = MIDI.getInstrument(chan);
         var status = instrumentStatus[inst];
@@ -122,7 +133,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         var staccato = false;
         var accent = false;
         var time = 0;
-        var channel = 0;
+        var channel = currentChannel;
         var vel = 64;
         var dacapo = null;
         var adcapo = null;
@@ -133,7 +144,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         var chan2inst = [];
 
         if (modifs.channel) {
-            channel = Math.round(numModif(modifs.channel, 0));
+            channel = Math.round(numModif(modifs.channel, currentChannel));
             inst = MIDI.getInstrument(channel);
         }
         if (modifs.instrument) {
