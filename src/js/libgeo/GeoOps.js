@@ -744,8 +744,8 @@ geoOps.PointOnArc = {};
 geoOps.PointOnArc.kind = "P";
 geoOps.PointOnArc.signature = ["C"];
 geoOps.PointOnArc.signatureConstraints = function(el) {
-    return csgeo.csnames[el.args[0]].isArc; 
-}; 
+    return csgeo.csnames[el.args[0]].isArc;
+};
 geoOps.PointOnArc.isMovable = true;
 geoOps.PointOnArc.initialize = function(el) {
     var arc = csgeo.csnames[el.args[0]];
@@ -2307,8 +2307,8 @@ geoOps.TrMoebiusArc = {};
 geoOps.TrMoebiusArc.kind = "C";
 geoOps.TrMoebiusArc.signature = ["Mt", "C"];
 geoOps.TrMoebiusArc.signatureConstraints = function(el) {
-    return csgeo.csnames[el.args[0]].isArc; 
-}; 
+    return csgeo.csnames[el.args[0]].isArc;
+};
 geoOps.TrMoebiusArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
     var Arc = csgeo.csnames[(el.args[1])];
@@ -2568,8 +2568,8 @@ geoOps.TransformArc = {};
 geoOps.TransformArc.kind = "C";
 geoOps.TransformArc.signature = ["Tr", "C"];
 geoOps.TransformArc.signatureConstraints = function(el) {
-    return csgeo.csnames[el.args[0]].isArc; 
-}; 
+    return csgeo.csnames[el.args[0]].isArc;
+};
 geoOps.TransformArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])].matrix;
     var Arc = csgeo.csnames[(el.args[1])];
