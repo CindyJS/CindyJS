@@ -2307,7 +2307,7 @@ geoOps.TrMoebiusArc = {};
 geoOps.TrMoebiusArc.kind = "C";
 geoOps.TrMoebiusArc.signature = ["Mt", "C"];
 geoOps.TrMoebiusArc.signatureConstraints = function(el) {
-    return csgeo.csnames[el.args[0]].isArc;
+    return csgeo.csnames[el.args[1]].isArc;
 };
 geoOps.TrMoebiusArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
