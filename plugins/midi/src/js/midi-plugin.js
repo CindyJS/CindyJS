@@ -3,7 +3,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     "use strict";
 
     //var soundfont = CindyJS.getBaseDir() + "soundfont/";
-    var soundfont = "http://cindyjs.org/soundfont/";
+    var soundfont = "http://cindyjs.org/extras/midi-js-soundfonts/MusyngKite/";
 
     var midijsStatus = -2; // wait for two scripts to load
 
