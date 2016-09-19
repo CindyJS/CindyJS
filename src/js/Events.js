@@ -506,14 +506,11 @@ function cs_mouseclick(e) {
 }
 
 function cs_tick(e) {
-    var now = Date.now();
-    var delta = Math.min(simcap, now - simtick) * simspeed * simfactor;
-    simtick = now;
-    var time = simtime + delta;
-    if (csPhysicsInited && typeof(lab) !== 'undefined') {
-        lab.tick(delta);
+    if (csPhysicsInited) { //TODO: Check here if physics is required
+        if (typeof(lab) !== 'undefined') {
+            lab.tick();
+        }
     }
-    simtime = time;
     if (csanimating) {
         evaluate(cscompiled.tick);
     }

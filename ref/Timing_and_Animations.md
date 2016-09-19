@@ -64,6 +64,8 @@ Resets the value of the `seconds()` operator.
 
 #### Accessing the timestamp of a simulation: `simulationtime()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator gives a handle to the running time clock synchronized with the progression of an animation or simulation.
 
