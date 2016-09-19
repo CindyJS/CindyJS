@@ -675,8 +675,6 @@ tools.Orthogonal.actions[1].do = function() {
 };
 
 // Intersection
-//
-// TODO Conic, ...
 tools.Intersection = {};
 tools.Intersection.actions = [];
 tools.Intersection.actions[0] = {};
@@ -690,12 +688,26 @@ tools.Intersection.actions[1] = {};
 tools.Intersection.actions[1].event = "mousedown";
 tools.Intersection.actions[1].do = function() {
     if (grabLineOrConic()) {
-        element = addElement({
-            type: "Meet",
-            name: getNextFreeName(),
-            labeled: true,
-            args: [elements[0].name, elements[1].name]
-        });
+        if (elements[0].kind === "L" && elements[1].kind == "L") {
+            element = addElement({ type: "Meet", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name] });
+
+        } else if (elements[0].kind === "C" && elements[1].kind == "C") {
+            element = addElement({ type: "IntersectionCircleCircle", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name] });
+            addElement({ type: "SelectP", index: 1, name: getNextFreeName(), labeled: true, args: [element.name] });
+            addElement({ type: "SelectP", index: 2, name: getNextFreeName(), labeled: true, args: [element.name] });
+
+        } else if ((elements[0].kind === "L" && elements[1].kind == "C") || (elements[0].kind === "C" && elements[1].kind == "L") ) {
+            var args = [elements[0].name, elements[1].name];
+
+            if (elements[0].kind === "L") {
+                args = [elements[1].name, elements[0].name];
+            }
+
+            element = addElement({ type: "IntersectionConicLine", name: getNextFreeName(), labeled: true, args: args });
+            addElement({ type: "SelectP", index: 1, name: getNextFreeName(), labeled: true, args: [element.name] });
+            addElement({ type: "SelectP", index: 2, name: getNextFreeName(), labeled: true, args: [element.name] });
+
+        }
 
         return true;
     }
