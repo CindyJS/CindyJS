@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Construction.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="http://cindyjs.org/dist/v0.7/CindyJS.css">
+    <script type="text/javascript" src="http://cindyjs.org/dist/v0.7/Cindy.js"></script>
+    <script type="text/javascript">
+createCindy({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "Text0", type: "Text", pos: [3.48, 4.08, 1.0], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.29, 0.29], fillalpha: 0.5384615384615384, text: "Move Me!"},
+    {name: "Text1", type: "Button", pos: [3.8496240601503757, -4.0, -0.7518796992481203], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, script: "Text0.xy = Text0.xy + [1,1];", text: "Move diagonal"},
+    {name: "Text1'", type: "Button", pos: [2.9655172413793105, -4.0, -0.5747126436781609], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, script: "Text0.xy = [1,1];", text: "Move to [1,1]"},
+    {name: "Text2", type: "Calculation", pos: [4.0, -2.784, -0.8], color: [0.0, 0.0, 0.0], text: "Text0.xy"}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 285,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -2.06]}],
+    axes: true,
+    grid: 1.0,
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1872, version: [2, 9, 1872]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
