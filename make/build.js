@@ -198,9 +198,17 @@ module.exports = function build(settings, task) {
     ]);
     
     task("beautified", [], function() {
-        this.cmd("git", "diff", "--exit-code", "--name-only");
+        this.cmd("git", "diff", "--exit-code", "--name-only", {
+            errorMessages: {
+                "1": "Please stage the files listed above (e.g. using “git add -u”)"
+            }
+        });
         this.cmdscript("js-beautify", "--quiet", beautify_args);
-        this.cmd("git", "diff", "--exit-code");
+        this.cmd("git", "diff", "--exit-code", {
+            errorMessages: {
+                "1": "Your code has been beautified. Please review these changes."
+            }
+        });
     });
 
     //////////////////////////////////////////////////////////////////////

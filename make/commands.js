@@ -54,6 +54,8 @@ function cmdImpl(task, opts, command, args) {
                     res = Buffer.concat(output);
                 resolve(res);
             } else if (code !== null) {
+                if (opts.errorMessages && opts.errorMessages[code])
+                    reject(new BuildError(opts.errorMessages[code]));
                 reject(new BuildError(
                     cmdline + " exited with code " + code));
             } else {
@@ -84,10 +86,14 @@ function gitLsFiles(task) {
 exports.cmd = function(command) {
     var task = this;
     var args = Array.prototype.slice.call(arguments, 1);
+    var opts = {};
+    var last = args[args.length - 1];
+    if (typeof last === "object" && !Array.isArray(last))
+        opts = args.pop();
     args = Array.prototype.concat.apply([], args); // flatten one level
     args = Array.prototype.concat.apply([], args); // flatten a second level
     this.addJob(function() {
-        return cmdImpl(task, {}, command, args);
+        return cmdImpl(task, opts, command, args);
     });
 };
 
