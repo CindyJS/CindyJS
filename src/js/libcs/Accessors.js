@@ -47,7 +47,6 @@ Accessor.getField = function(geo, field) {
             return General.withUsage(geo.homog, "Point");
         }
 
-
         if (field === "x") {
             return CSNumber.div(geo.homog.value[0], geo.homog.value[2]);
         }
@@ -235,26 +234,26 @@ Accessor.setField = function(geo, field, value) {
         }
     }
 
-    if (geo.kind === "P" &&  geo.movable) {
-	    if (field === "xy" && List._helper.isNumberVecN(value, 2)) {
-	        movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
-	    }
+    if (geo.kind === "P" && geo.movable) {
+        if (field === "xy" && List._helper.isNumberVecN(value, 2)) {
+            movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
+        }
 
-	    if (field === "xy" && List._helper.isNumberVecN(value, 3)) {
-	        movepointscr(geo, value, "homog");
-	    }
+        if (field === "xy" && List._helper.isNumberVecN(value, 3)) {
+            movepointscr(geo, value, "homog");
+        }
 
-	    if (field === "x" && value.ctype === "number") {
-	        movepointscr(geo, List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]), "homog");
-	    }
+        if (field === "x" && value.ctype === "number") {
+            movepointscr(geo, List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]), "homog");
+        }
 
-	    if (field === "y" && value.ctype === "number") {
-	        movepointscr(geo, List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]), "homog");
-	    }
+        if (field === "y" && value.ctype === "number") {
+            movepointscr(geo, List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]), "homog");
+        }
 
-	    if (field === "homog" && List._helper.isNumberVecN(value, 3)) {
-	        movepointscr(geo, value, "homog");
-	    }   	
+        if (field === "homog" && List._helper.isNumberVecN(value, 3)) {
+            movepointscr(geo, value, "homog");
+        }
     }
 
     if (field === "homog" && geo.kind === "L" && geo.movable && List._helper.isNumberVecN(value, 3)) {
@@ -283,6 +282,21 @@ Accessor.setField = function(geo, field, value) {
         if (field === "text") {
             if (geo.type === "EditableText") {
                 geo.html.value = niceprint(value);
+            }
+        }
+        if (geo.movable) { // Texts may move without tracing
+            if (field === "xy") {
+                if (List._helper.isNumberVecN(value, 2)) {
+                    geo.homog = List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]);
+                } else if (List._helper.isNumberVecN(value, 3)) {
+                    geo.homog = value;
+                }
+            } else if (field === "homog" && List._helper.isNumberVecN(value, 3)) {
+                geo.homog = value;
+            } else if (field === "x" && value.ctype === "number") {
+                geo.homog = List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]);
+            } else if (field === "y" && value.ctype === "number") {
+                geo.homog = List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]);
             }
         }
     }
