@@ -138,7 +138,7 @@ Accessor.getField = function(geo, field) {
         }
         if (field === "y") {
             return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
-		}
+        }
     }
     if (field === "trace") {
         return General.bool(!!geo.drawtrace);
@@ -235,25 +235,26 @@ Accessor.setField = function(geo, field, value) {
         }
     }
 
-    if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 2)) {
-        movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
-    }
+    if (geo.kind === "P" &&  geo.movable) {
+	    if (field === "xy" && List._helper.isNumberVecN(value, 2)) {
+	        movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
+	    }
 
-    if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 3)) {
-        movepointscr(geo, value, "homog");
-    }
-	
-    if (field === "x" && geo.kind === "P" && geo.movable && value.ctype === "number") {
-        movepointscr(geo, List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]), "homog");
-    }
+	    if (field === "xy" && List._helper.isNumberVecN(value, 3)) {
+	        movepointscr(geo, value, "homog");
+	    }
 
-    if (field === "y" && geo.kind === "P" && geo.movable && value.ctype === "number") {
-        movepointscr(geo, List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]), "homog");
-    }
+	    if (field === "x" && value.ctype === "number") {
+	        movepointscr(geo, List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]), "homog");
+	    }
 
+	    if (field === "y" && value.ctype === "number") {
+	        movepointscr(geo, List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]), "homog");
+	    }
 
-    if (field === "homog" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 3)) {
-        movepointscr(geo, value, "homog");
+	    if (field === "homog" && List._helper.isNumberVecN(value, 3)) {
+	        movepointscr(geo, value, "homog");
+	    }   	
     }
 
     if (field === "homog" && geo.kind === "L" && geo.movable && List._helper.isNumberVecN(value, 3)) {
@@ -284,9 +285,6 @@ Accessor.setField = function(geo, field, value) {
                 geo.html.value = niceprint(value);
             }
         }
-		if (field === "xy") {
-			
-		}
     }
     if (geo.behavior) {
         if (field === "mass" && geo.behavior.type === "Mass" && value.ctype === "number") {
