@@ -126,6 +126,19 @@ Accessor.getField = function(geo, field) {
                 return General.string(String(geo.html.value));
             }
         }
+        if (field === "xy") {
+            erg = List.dehom(geo.homog);
+            return General.withUsage(erg, "Point");
+        }
+        if (field === "homog") {
+            return General.withUsage(geo.homog, "Point");
+        }
+        if (field === "x") {
+            return CSNumber.div(geo.homog.value[0], geo.homog.value[2]);
+        }
+        if (field === "y") {
+            return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
+		}
     }
     if (field === "trace") {
         return General.bool(!!geo.drawtrace);
@@ -229,7 +242,7 @@ Accessor.setField = function(geo, field, value) {
     if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 3)) {
         movepointscr(geo, value, "homog");
     }
-
+	
     if (field === "x" && geo.kind === "P" && geo.movable && value.ctype === "number") {
         movepointscr(geo, List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]), "homog");
     }
@@ -271,6 +284,9 @@ Accessor.setField = function(geo, field, value) {
                 geo.html.value = niceprint(value);
             }
         }
+		if (field === "xy") {
+			
+		}
     }
     if (geo.behavior) {
         if (field === "mass" && geo.behavior.type === "Mass" && value.ctype === "number") {
