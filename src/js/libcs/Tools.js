@@ -87,6 +87,9 @@ function getElementAtMouse(mouse) {
                 dist = -dist;
             }
             dist = dist + 1;
+
+        } else {
+            continue;
         }
 
         if (dist < adist + 0.2 / sc) { //A bit a dirty hack, prefers new points
