@@ -9,7 +9,7 @@ function includefunction(name, modifs, codebuilder) { //includes functions and d
         let f = requires[name][i];
         includefunction(f, modifs, codebuilder);
     }
-    codebuilder.add('includedfunctions', name, cgl_resources[name]); //load name.glsl...
+    codebuilder.add('includedfunctions', name, () => cgl_resources[name]); //load name.glsl...
 }
 
 function useincludefunction(name) {

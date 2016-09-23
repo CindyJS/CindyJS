@@ -251,12 +251,15 @@ Renderer.prototype.loadTextures = function() {
 
             cw.reloadIfRequired();
             cw.bindTexture();
-            this.shaderProgram.uniform[`_sampler${tname}`]([cnt]);
-            this.shaderProgram.uniform[`_ratio${tname}`]([cw.sizeX / cw.sizeY]);
-            this.shaderProgram.uniform[`_cropfact${tname}`]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
-            this.shaderProgram.uniform[`_repeat${tname}`]([properties.repeat]);
-            this.shaderProgram.uniform[`_mipmap${tname}`]([properties.mipmap]);
-
+            [
+                [`_sampler${tname}`, [cnt]],
+                [`_ratio${tname}`, [cw.sizeX / cw.sizeY]],
+                [`_cropfact${tname}`, [cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]],
+                [`_repeat${tname}`, [properties.repeat]],
+                [`_mipmap${tname}`, [properties.mipmap]]
+            ].map(
+                a => (this.shaderProgram.uniform[a[0]]) && this.shaderProgram.uniform[a[0]](a[1])
+            )
             cnt++;
         }
 }

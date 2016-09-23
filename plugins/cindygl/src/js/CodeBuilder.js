@@ -23,13 +23,13 @@ CodeBuilder.prototype.sections;
  * Ignores call if code has already been added to the identifier in the given section.
  * @param {string} section section to which the code is suppoed to be added
  * @param {string} name an identifier for the corresponding code
- * @param {string} code to be added (at the end of the corresponding section)
+ * @param {function():string} codegen is a callback that generates code to be added (at the end of the corresponding section)
  */
-CodeBuilder.prototype.add = function(section, name, code) {
+CodeBuilder.prototype.add = function(section, name, codegen) {
     this.mark(section, name);
     if (!this.sections[section].codes[name]) {
         //console.log(`adding ${name} to ${section}: ${code}`);
-        this.sections[section].codes[name] = code;
+        this.sections[section].codes[name] = codegen();
         this.sections[section].marked[name] = true;
         this.sections[section].order.push(name);
     }
@@ -888,7 +888,7 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
         code += `return ${this.castType(r.term, r.type, this.T[''][fname])};\n`; //TODO REPL
     code += '}\n';
 
-    this.add('compiledfunctions', fname, code);
+    this.add('compiledfunctions', fname, () => code);
 };
 
 CodeBuilder.prototype.generateListOfUniforms = function() {

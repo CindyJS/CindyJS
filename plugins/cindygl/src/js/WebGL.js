@@ -258,15 +258,15 @@ webgl["add"] = args => {
 
     let a = args[0];
     let b = args[1];
-    //DOT-product
-    if ([a, b].every(a => a.type === 'list' && issubtypeof(a.parameters, type.float)) && a.length === b.length) {
-        let vectorspace = getrvectorspace(a);
+
+    if ([a, b].every(a => isrvectorspace(a) || iscvectorspace(a)) && dimensionsmatch(a, b)) {
+        let vectorspace = lca(getrvectorspace(a), getrvectorspace(b)); //this might also be a C-vectorspace
         return {
             args: [vectorspace, vectorspace],
             res: vectorspace,
-            generator: useadd(vectorspace.length),
+            generator: useadd(vectorspace),
         };
-    } //TODO: complex vectorspaces
+    }
 };
 
 //var negate = v => `-(${v[1]})`
@@ -283,15 +283,15 @@ webgl["sub"] = args => {
 
     let a = args[0];
     let b = args[1];
-    //DOT-product
-    if ([a, b].every(a => a.type === 'list' && issubtypeof(a.parameters, type.float)) && a.length === b.length) {
-        let vectorspace = getrvectorspace(a);
+
+    if ([a, b].every(a => isrvectorspace(a) || iscvectorspace(a)) && dimensionsmatch(a, b)) {
+        let vectorspace = lca(getrvectorspace(a), getrvectorspace(b)); //this might also be a C-vectorspace
         return {
             args: [vectorspace, vectorspace],
             res: vectorspace,
-            generator: usesub(vectorspace.length),
+            generator: usesub(vectorspace),
         };
-    } //TODO: complex vectorspaces
+    }
 };
 
 webgl['+'] = webgl['add'];
@@ -357,38 +357,47 @@ webgl["mult"] = args => {
     }
 
     //real matrix-vector products (also non-quadratic)
-    if (a.type === 'list' && a.parameters.type === 'list' && issubtypeof(a.parameters.parameters, type.float) &&
-        b.type === 'list' && issubtypeof(b.parameters, type.float) && a.parameters.length === b.length) {
+    if (isrvectorspace(a) && depth(a) === 2 &&
+        isrvectorspace(b) && depth(b) === 1 && a.parameters.length === b.length) {
         return {
             args: [getrvectorspace(a), getrvectorspace(b)],
             res: type.vec(a.length),
-            generator: usemult(a.length, b.length)
+            generator: usemult(getrvectorspace(a))
         };
 
     }
 
     //complex matrix-vector products (also non-quadratic)
-    if (a.type === 'list' && a.parameters.type === 'list' && issubtypeof(a.parameters.parameters, type.complex) &&
-        b.type === 'list' && issubtypeof(b.parameters, type.complex) && a.parameters.length === b.length) {
+    if (iscvectorspace(a) && depth(a) === 2 &&
+        iscvectorspace(b) && depth(b) === 1 && a.parameters.length === b.length) {
         return {
             args: [getcvectorspace(a), getcvectorspace(b)],
             res: type.cvec(a.length),
-            generator: usecmult(a.length, b.length)
+            generator: usemult(getcvectorspace(a))
         };
 
     }
 
-    //R vectorspaces by scalar
-    for (let n = 2; n <= 4; n++)
-        for (let swap = 0; swap < 2; swap++)
-            if (issubtypeof(args[0 ^ swap], type.float) && issubtypeof(args[1 ^ swap], type.vec(n)))
-                return {
-                    args: swap ? [type.vec(n), type.float] : [type.float, type.vec(n)],
-                    res: type.vec(n),
-                    generator: useinfix('*')
-                };
-            //TODO: complex vectorspaces by complex scalar
-    return false;
+    for (let swap = 0; swap < 2; swap++) {
+        //R vectorspaces by scalar
+        if (issubtypeof(args[0 ^ swap], type.float) && (isrvectorspace(args[1 ^ swap]) || iscvectorspace(args[1 ^ swap]))) {
+            let vs = getrvectorspace(args[1 ^ swap]);
+            return {
+                args: swap ? [vs, type.float] : [type.float, vs],
+                res: vs,
+                generator: (a, modifs, codebuilder) => usescalarmult(vs)([a[0 ^ swap], a[1 ^ swap]], modifs, codebuilder)
+            };
+        }
+        //complex vectorspaces by complex scalar
+        else if (issubtypeof(args[0 ^ swap], type.complex) && (iscvectorspace(args[1 ^ swap]))) {
+            let vs = getcvectorspace(args[1 ^ swap]);
+            return {
+                args: swap ? [vs, type.complex] : [type.complex, vs],
+                res: vs,
+                generator: (a, modifs, codebuilder) => usecscalarmult(vs)([a[0 ^ swap], a[1 ^ swap]], modifs, codebuilder)
+            };
+        }
+    }
 };
 
 webgl['*'] = webgl['mult'];
@@ -571,6 +580,8 @@ webgl["im"] = first([
 
 webgl["genList"] = args => {
     let n = args.length;
+
+    //real list
     if (args.every(a => issubtypeof(a, type.float))) {
         return {
             args: Array(n).fill(type.float),
@@ -579,6 +590,7 @@ webgl["genList"] = args => {
         };
     }
 
+    //complex list
     if (args.every(a => issubtypeof(a, type.complex))) {
         return {
             args: Array(n).fill(type.complex),
@@ -586,8 +598,6 @@ webgl["genList"] = args => {
             generator: usecvec(n),
         };
     }
-
-    //TODO: complex lists
     return false;
 }
 

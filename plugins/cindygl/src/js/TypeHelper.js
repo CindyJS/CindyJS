@@ -5,7 +5,8 @@ let iscvectorspace = t => (t.type === 'list' && iscvectorspace(t.parameters)) ||
 
 /* depth of an list construct */
 let depth = t => (t.type === 'list') ? depth(t.parameters) + 1 : 0;
-let finalparameter = t => t.parameters ? finalparameter(t.parameters) : t.parameters;
+let finalparameter = t => t.parameters ? finalparameter(t.parameters) : t;
+let dimensionsmatch = (a, b) => (depth(a) === depth(b) && (depth(a) === 0 || (a.length === b.length && dimensionsmatch(a.parameters, b.parameters))));
 
 /* get the smallest R-vectorspace that contains t */
 let getrvectorspace = t => issubtypeof(t, type.float) ? type.float : issubtypeof(t, type.complex) ? type.complex : {
@@ -19,6 +20,12 @@ let getcvectorspace = t => issubtypeof(t, type.complex) ? type.complex : {
     type: 'list',
     length: t.length,
     parameters: getrvectorspace(t.parameters)
+};
+
+let replaceCbyR = t => t === type.complex ? type.float : {
+    type: 'list',
+    length: t.length,
+    parameters: replaceCbyR(t.parameters)
 };
 
 /* is t implementented in native glsl, as bool, float, int, vec2, vec3, vec4, mat2, mat3, mat4 */

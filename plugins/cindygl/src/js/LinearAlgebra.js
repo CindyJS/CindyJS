@@ -1,6 +1,7 @@
 /* returns [0, 1, ..., n-1] */
 let range = n => Array.from(Array(n).keys());
 
+/* How should a vecn be composed, e.g. sizes 7 = [3,4] i.e. struct vec7 {vec3 a0, vec4 a1} */
 let sizes = n => n <= 4 ? [n] : n == 5 ? [2, 3] : sizes(n - 4).concat([4]);
 
 let computeidx = (k, n) => {
@@ -15,62 +16,75 @@ let computeidx = (k, n) => {
     console.error('Accessing index out of range');
 };
 
-
-function createvecstruct(n, codebuilder) {
-    if (2 <= n && n <= 4) return;
-    let name = `vec${n}`;
-    codebuilder.add('structs', name, `struct vec${n} { ${
-        sizes(n).map((size,k) => `vec${size} a${k};`).join(' ')}};`);
+//get childs of types that are formed from structs
+function genchilds(t) {
+    let fp = finalparameter(t);
+    let d = depth(t);
+    if (fp === type.complex) {
+        let rt = replaceCbyR(t);
+        return (d === 0 ? ["x", "y"] : ["real", "imag"]).map(name => ({
+            type: rt,
+            name: name
+        }));
+    } else if (issubtypeof(fp, type.float)) {
+        if (d == 1) {
+            return sizes(t.length).map((k, i) => ({
+                type: type.vec(k),
+                name: `a${i}`
+            }));
+        } else if (d => 2) {
+            return range(t.length).map(i => ({
+                type: t.parameters,
+                name: `a${i}`
+            }));
+        }
+    }
+    return [];
 }
 
-function createcvecstruct(n, codebuilder) {
-    let name = `cvec${n}`;
-    createvecstruct(n, codebuilder);
-    codebuilder.add('structs', name, `struct cvec${n} {vec${n} real; vec${n} imag;};`);
+
+function createstruct(t, codebuilder) {
+    if (isnativeglsl(t)) return;
+    let name = webgltype(t);
+    codebuilder.add('structs', name, () => `struct ${name} { ${
+    genchilds(t).map(ch => createstruct(ch.type, codebuilder) || `${webgltype(ch.type)} ${ch.name};`).join('')
+  }};`);
+  
 }
 
-function createcmatstruct(n, m, codebuilder) {
-    let name = `cmat${n}_${m}`;
-    let realtype = webgltype(list(n, list(m, type.float)));
-    codebuilder.add('structs', name, `struct cmat${n}_${m} {${realtype} real; ${realtype} imag;};`);
-}
-
-function creatematstruct(n, m, codebuilder) {
-    if(n === m && 2 <= n && n <= 4) return;
-    createvecstruct(m, codebuilder);
-    let name = `mat${n}_${m}`;
-    codebuilder.add('structs', name, `struct mat${n}_${m} {` +
-        range(n).map(k => `vec${m} a${k};`).join('') +
-        '};');
-}
-
-function generatematmult(n, m, modifs, codebuilder) {
-    createvecstruct(m, codebuilder);
-    createvecstruct(n, codebuilder);
-    creatematstruct(n, m, codebuilder);
+function generatematmult(t, modifs, codebuilder) {
+  if(isnativeglsl(t)) return;
+  let n = t.length;
+  let m = t.parameters.length;
+    createstruct(type.vec(m), codebuilder);
+    createstruct(type.vec(n), codebuilder);
+    createstruct(t, codebuilder);
     let name = `mult${n}_${m}`;
-    codebuilder.add('functions', name, `vec${n} mult${n}_${m}(mat${n}_${m} a, vec${m} b){` +
+    codebuilder.add('functions', name, () =>  `vec${n} mult${n}_${m}(mat${n}_${m} a, vec${m} b){` +
         'return ' + usevec(n)(range(n).map(k => usedot(m)([`a.a${k}`, 'b'], modifs, codebuilder)), modifs, codebuilder) + ';' +
         '}');
 }
 
-function generatecmatmult(n, m, modifs, codebuilder) {
-  createcvecstruct(m, codebuilder);
-  createcvecstruct(n, codebuilder);
-  createcmatstruct(n, m, codebuilder);
+function generatecmatmult(t, modifs, codebuilder) {
+  let n = t.length;
+  let m = t.parameters.length;
+    createstruct(type.vec(m), codebuilder);
+    createstruct(type.vec(n), codebuilder);
+    createstruct(t, codebuilder);
+    let rt = replaceCbyR(t);
     let name = `cmult${n}_${m}`;
     //(A.real+i*A.imag)*(b.real+i*b.imag) = (A.real*b.real - A.imag*b.imag) + i *(A.real*b.imag+A.imag*b.real)
     // from measurements it turend that this is the fastest for 2x2 matrices (better than component wise complex multiplication or using [[a, -b], [b, a]] submatrices)
-    codebuilder.add('functions', name, `cvec${n} cmult${n}_${m}(cmat${n}_${m} a, cvec${m} b){
+    codebuilder.add('functions', name, () =>  `cvec${n} cmult${n}_${m}(cmat${n}_${m} a, cvec${m} b){
       return cvec${n}(${
-        usesub(m)([
-          usemult(n, m)(['a.real','b.real'], modifs, codebuilder),
-          usemult(n, m)(['a.imag','b.imag'], modifs, codebuilder)
+        usesub(rt.parameters)([
+          usemult(rt)(['a.real','b.real'], modifs, codebuilder),
+          usemult(rt)(['a.imag','b.imag'], modifs, codebuilder)
         ], modifs, codebuilder)
       },${
-        useadd(m)([
-          usemult(n, m)(['a.real','b.imag'], modifs, codebuilder),
-          usemult(n, m)(['a.imag','b.real'], modifs, codebuilder)
+        useadd(rt.parameters)([
+          usemult(rt)(['a.real','b.imag'], modifs, codebuilder),
+          usemult(rt)(['a.imag','b.real'], modifs, codebuilder)
         ], modifs, codebuilder)
       });
     }`);
@@ -78,52 +92,90 @@ function generatecmatmult(n, m, modifs, codebuilder) {
 
 function generatedot(n, codebuilder) {
     if((2 <= n && n<=4)) return;
+    createstruct(type.vec(n), codebuilder);
     let name = `dot${n}`;
-    codebuilder.add('functions', name, `float dot${n}(vec${n} a, vec${n} b) {
+    codebuilder.add('functions', name, () =>  `float dot${n}(vec${n} a, vec${n} b) {
     return ${ sizes(n).map((size, k) => `dot(a.a${k},b.a${k})`).join('+')}; }`);
 }
 
-function generateadd(n, codebuilder) {
-    if((2 <= n && n<=4)) return;
-    let name = `add${n}`;
-    codebuilder.add('functions', name, `vec${n} add${n}(vec${n} a, vec${n} b) {
-    return ${ sizes(n).map((size, k) => `vec${n}(a.a${k} + b.a${k})`).join(',')}; }`);
+function generateadd(t, modifs, codebuilder) {
+    let name = `add${webgltype(t)}`;
+    codebuilder.add('functions', name, () =>  `${webgltype(t)} ${name}(${webgltype(t)} a, ${webgltype(t)} b) {
+    return ${webgltype(t)}(${
+        genchilds(t).map(ch => `${webgltype(ch.type)}(${
+          useadd(ch.type)([`a.${ch.name}`,`b.${ch.name}`], modifs, codebuilder)
+        })`).join(',')
+      });
+    }`);
 }
 
-function generatesub(n, codebuilder) {
-    if((2 <= n && n<=4)) return;
-    let name = `sub${n}`;
-    codebuilder.sub('functions', name, `vec${n} sub${n}(vec${n} a, vec${n} b) {
-    return ${ sizes(n).map((size, k) => `vec${n}(a.a${k} - b.a${k})`).join(',')}; }`);
+function generatesub(t, modifs, codebuilder) {
+    let name = `sub${webgltype(t)}`;
+    codebuilder.add('functions', name, () =>  `${webgltype(t)} ${name}(${webgltype(t)} a, ${webgltype(t)} b) {
+    return ${webgltype(t)}(${
+        genchilds(t).map(ch => `${webgltype(ch.type)}(${
+          usesub(ch.type)([`a.${ch.name}`,`b.${ch.name}`], modifs, codebuilder)
+        })`).join(',')
+      });
+    }`);
 }
 
-function usemult(n, m) {
-  if (n==m && 2 <= n && n<=4) return useinfix('*');
-  else return (args, modifs, codebuilder) => generatematmult(n, m, modifs, codebuilder) || `mult${n}_${m}(${args.join(',')})`;
+function generatescalarmult(t, modifs, codebuilder) {
+    let name = `scalarmult${webgltype(t)}`;
+    codebuilder.add('functions', name, () =>  `${webgltype(t)} ${name}(float a, ${webgltype(t)} b) {
+    return ${webgltype(t)}(${
+          genchilds(t).map(ch => `${webgltype(ch.type)}(${
+            usescalarmult(ch.type)([`a`,`b.${ch.name}`], modifs, codebuilder)
+          })`).join(',')
+        });
+    }`);
 }
 
-function usecmult(n, m) {
-  return (args, modifs, codebuilder) => generatecmatmult(n, m, modifs, codebuilder) || `cmult${n}_${m}(${args.join(',')})`;
+function generatecscalarmult(t, modifs, codebuilder) {
+    let name = `cscalarmult${webgltype(t)}`;
+    let rt = replaceCbyR(t);
+
+    codebuilder.add('functions', name, () =>  `${webgltype(t)} ${name}(vec2 a, ${webgltype(t)} b) {
+    return ${webgltype(t)}(${
+      usesub(rt)([
+        usescalarmult(rt)(['a.x','b.real'], modifs, codebuilder),
+        usescalarmult(rt)(['a.y','b.imag'], modifs, codebuilder)
+      ], modifs, codebuilder)
+    },${
+      useadd(rt)([
+        usescalarmult(rt)(['a.x','b.imag'], modifs, codebuilder),
+        usescalarmult(rt)(['a.y','b.real'], modifs, codebuilder)
+      ], modifs, codebuilder)
+    });}`);
+}
+
+function usemult(t) {
+  if (isnativeglsl(t)) return useinfix('*');
+  return (args, modifs, codebuilder) => generatematmult(t, modifs, codebuilder) || `mult${t.length}_${t.parameters.length}(${args.join(',')})`;
+}
+
+function usecmult(t) {
+return (args, modifs, codebuilder) => generatematmult(t, modifs, codebuilder) || `cmult${t.length}_${t.parameters.length}(${args.join(',')})`;
 }
 
 function usedot(n) {
   return (args, modifs, codebuilder) => generatedot(n, codebuilder) || `dot${(2 <= n && n<=4) ? '' : n}(${args.join(',')})`;
 }
 
-function useadd(n) {
-  if(2 <= n && n<=4) return useinfix('+');
-  else return (args, modifs, codebuilder) => generateadd(n, codebuilder) || `add${n}(${args.join(',')})`;
+function useadd(t) {
+  if(isnativeglsl(t)) return useinfix('+');
+  else return (args, modifs, codebuilder) => generateadd(t, modifs, codebuilder) || `add${webgltype(t)}(${args.join(',')})`;
 }
 
-function usesub(n) {
-  if(2 <= n && n<=4) return useinfix('-');
-  else return (args, modifs, codebuilder) => generatesub(n, codebuilder) || `sub${n}(${args.join(',')})`;
+function usesub(t) {
+  if(isnativeglsl(t)) return useinfix('-');
+  else return (args, modifs, codebuilder) => generatesub(t, modifs, codebuilder) || `sub${webgltype(t)}(${args.join(',')})`;
 }
   
 function usevec(n) {
     if(2 <= n && n <= 4) return args => `vec${n}(${args.join(',')})`;
     let cum = 0;
-    return (args, modifs, codebuilder) => createvecstruct(n, codebuilder) ||
+    return (args, modifs, codebuilder) => createstruct(type.vec(n), codebuilder) ||
         `vec${n}(${
         sizes(n).map( s =>
           `vec${s}(${range(s).map(l => ++cum && args[cum-1]).join(',')})`
@@ -137,14 +189,14 @@ function usemat(n, m) { //create a nxm matrix by given n row-vectors of length m
       range(n).map(i => `${args[i]}[${k}]`).join(',') 
     })`).join(',')}`;
     let cum = 0;
-    return (args, modifs, codebuilder) => creatematstruct(n, m, codebuilder) ||
+    return (args, modifs, codebuilder) => createstruct(list(n, type.vec(m)), codebuilder) ||
       `cmat${n}_${m}(${
           args.join(',')
       })`;
 }
 
 function usecvec(n) {
-    return (args, modifs, codebuilder) => createcvecstruct(n, codebuilder) ||
+    return (args, modifs, codebuilder) => createstruct(type.cvec(n), codebuilder) ||
         `cvec${n}(${
           usevec(n)(args.map(a => `(${a}).x`), modifs, codebuilder)
         },${
@@ -155,7 +207,7 @@ function usecvec(n) {
 
 function accessvecbyshifted(n) {
   return (args, modifs, codebuilder) => { //works only for hardcoded glsl
-      createvecstruct(n, codebuilder);
+      createstruct(type.vec(n), codebuilder);
       let k = Number(args[1]) - 1;
       if(2 <= n && n <= 4)
           return `(${args[0]})[${k}]`;
@@ -172,4 +224,13 @@ function accesscvecbyshifted(n) {
         accessvecbyshifted(n)([args[0]+'.imag', args[1]], modifs, codebuilder)
       })`;
   };
+}
+
+function usescalarmult(t) { //assume t is a R or C-vectorspace
+  if(isnativeglsl(t)) return useinfix('*');
+  return (args, modifs, codebuilder) => generatescalarmult(t,modifs, codebuilder) || `scalarmult${webgltype(t)}(${args.join(',')})`;
+}
+
+function usecscalarmult(t) { //assume t is a C-vectorspace
+  return (args, modifs, codebuilder) => generatecscalarmult(t,modifs, codebuilder) || `cscalarmult${webgltype(t)}(${args.join(',')})`;
 }

@@ -20,10 +20,11 @@
             width: 100%;
         }
     </style>
-    <link rel="stylesheet" href="http://cindyjs.org/dist/v0.7/CindyJS.css">
-    <script type="text/javascript" src="http://cindyjs.org/dist/v0.7/Cindy.js"></script>
-    <script type="text/javascript" src="http://cindyjs.org/dist/v0.7/CindyGL.js"></script>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
 <script id="csdraw" type="text/x-cindyscript">
+A.xy = round(A.xy*100)/100;
 n=round(|D,F|*4);
 m=round(|O,M|*4);
 
@@ -49,7 +50,7 @@ drawtext((-3,-3),"$\left\{\;r_1\cdot e^{"+n+"i\phi}+r_2\cdot e^{"+m+"i\phi} \;\b
 
 </script>
     <script type="text/javascript">
-createCindy({
+CindyJS({
   scripts: "cs*",
   defaultAppearance: {
     dimDependent: 0.7,
