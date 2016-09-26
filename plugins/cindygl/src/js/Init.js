@@ -15,12 +15,6 @@ var tmpcanvas;
 var gl;
 
 var nada;
-//var myfunctions;
-
-var webgltype = {}; //which type identifier is used in WebGL to represent our internal type
-
-var webgltr = {};
-
 
 var can_use_texture_half_float = false;
 var halfFloat;
@@ -69,7 +63,7 @@ function initGLIfRequired() {
         gl = /** @type {WebGLRenderingContext} */ (
             glcanvas.getContext("experimental-webgl"));
     if (!gl)
-        throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
+        throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);

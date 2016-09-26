@@ -354,12 +354,12 @@ module.exports = function build(settings, task) {
         "CanvasWrapper",
         "Renderer",
         "Plugin",
-        "TypeInference",
-        "Types",
+        "TypeHelper",
         "IncludeFunctions",
+        "LinearAlgebra",
+        "WebGL",
         "CodeBuilder",
-        "TextureReader",
-        "WebGLImplementation"
+        "TextureReader"        
     ];
 
     var cgl_mods_from_c3d = [
