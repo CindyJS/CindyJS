@@ -860,14 +860,35 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
 function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight) {
     if (text.indexOf("\n") !== -1) {
+        var left = Infinity;
+        var right = -Infinity;
+        var top = Infinity;
+        var bottom = -Infinity;
         text.split("\n").forEach(function(row) {
-            defaultTextRendererCanvas(ctx, row, x, y, align, size);
+            var box = defaultTextRendererCanvas(ctx, row, x, y, align, size);
+            if (left > box.left) left = box.left;
+            if (right < box.right) right = box.right;
+            if (top > box.top) top = box.top;
+            if (bottom < box.bottom) bottom = box.bottom;
             y += lineHeight;
         });
-        return;
+        return {
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom
+        };
     }
-    var width = ctx.measureText(text).width;
-    ctx.fillText(text, x - width * align, y);
+    var m = ctx.measureText(text);
+    ctx.fillText(text, x - m.width * align, y);
+    // We can't rely on advanced text metrics due to lack of browser support,
+    // so we have to guess sizes, the vertical ones in particular.
+    return {
+        left: x - m.width * align,
+        right: x + m.width * (1 - align),
+        top: y - 0.7 * 1.2 * size,
+        bottom: y + 0.3 * 1.2 * size
+    };
 }
 
 // This is a hook: the following function may get replaced by a plugin.
@@ -889,15 +910,13 @@ var textRendererHtml = function(element, text, font) {
     element.textContent = text;
 };
 
-// This is a special function: when called internally, additional arguments
-// may be used which are not accessible from a script invocation.
-evaluator.drawtext$2 = function(args, modifs, callback) {
+eval_helper.drawtext = function(args, modifs, callback) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluate(args[1]);
     var pt = eval_helper.extractPoint(v0);
 
     if (!pt.ok) {
-        return nada;
+        return null;
     }
 
     var col = csport.drawingstate.textcolor;
@@ -918,17 +937,20 @@ evaluator.drawtext$2 = function(args, modifs, callback) {
         Render2D.family);
     csctx.font = font;
     if (callback) {
-        callback(txt, font, xx, yy, Render2D.align, size);
+        return callback(txt, font, xx, yy, Render2D.align, size);
     } else {
-        textRendererCanvas(
+        return textRendererCanvas(
             csctx, txt, xx, yy, Render2D.align,
             size, size * defaultAppearance.lineHeight);
     }
+};
 
+evaluator.drawtext$2 = function(args, modifs) {
+    eval_helper.drawtext(args, modifs, null);
     return nada;
 };
 
-evaluator.drawtable$2 = function(args, modifs, callback) {
+evaluator.drawtable$2 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     var pt = eval_helper.extractPoint(v0);

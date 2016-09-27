@@ -104,6 +104,10 @@
         };
     }
 
+    textBox.prototype.height = 0;
+
+    textBox.prototype.depth = 0;
+
     // Custom macros defined specifically for Cinderella / CindyJS
 
     var macros = {
@@ -218,6 +222,10 @@
             }
             haveToWait(this.instance);
         } else {
+            var left = Infinity;
+            var right = -Infinity;
+            var top = y - 0.7 * 1.2 * fontSize;
+            var bottom = -Infinity;
             for (i = 0; i < rows.length; ++i) {
                 var total = 0;
                 var pos = x;
@@ -228,11 +236,22 @@
                 var pos = x - align * total;
                 for (j = 0; j < n; ++j) {
                     row[j].renderAt(pos, y);
+                    if (left > pos) left = pos;
+                    if (top > y - row[j].height) top = y - row[j].height;
+                    if (bottom < y + row[j].depth) bottom = y + row[j].depth;
                     pos += row[j].width;
+                    if (right < pos) right = pos;
                 }
                 y += lineHeight;
                 // TODO: take vertical dimensions of formulas into account
             }
+            bottom = Math.max(bottom, y - lineHeight + 0.3 * 1.2 * fontSize);
+            return {
+                left: left,
+                right: right,
+                top: top,
+                bottom: bottom
+            };
         }
     };
 
