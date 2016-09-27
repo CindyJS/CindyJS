@@ -2619,12 +2619,11 @@ geoOps.Text.getParamFromState = function(el) {
 geoOps.Text.putParamToState = function(el, param) {
     el.homog = param;
 };
-geoOps.Text.updatePosition = function(el) {
-};
 
 geoOps.Calculation = {};
 geoOps.Calculation.kind = "Text";
 geoOps.Calculation.signature = "**";
+geoOps.Calculation.isMovable = true;
 geoOps.Calculation.updatePosition = noop;
 geoOps.Calculation.initialize = function(el) {
     geoOps.Text.initialize(el);
@@ -2633,9 +2632,13 @@ geoOps.Calculation.initialize = function(el) {
 geoOps.Calculation.getText = function(el) {
     return niceprint(evaluate(el.calculation));
 };
+geoOps.Calculation.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Calculation.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Calculation.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.Equation = {};
 geoOps.Equation.kind = "Text";
+geoOps.Equation.isMovable = true;
 geoOps.Equation.signature = "**";
 geoOps.Equation.updatePosition = noop;
 geoOps.Equation.initialize = function(el) {
@@ -2645,9 +2648,13 @@ geoOps.Equation.initialize = function(el) {
 geoOps.Equation.getText = function(el) {
     return el.text + " = " + niceprint(evaluate(el.calculation));
 };
+geoOps.Equation.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Equation.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Equation.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.Evaluate = {};
 geoOps.Evaluate.kind = "Text";
+geoOps.Evaluate.isMovable = true;
 geoOps.Evaluate.signature = "**";
 geoOps.Evaluate.updatePosition = noop;
 geoOps.Evaluate.initialize = function(el) {
@@ -2658,9 +2665,13 @@ geoOps.Evaluate.getText = function(el) {
     evaluate(el.calculation); // ugly: side effects in draw
     return el.text;
 };
+geoOps.Evaluate.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Evaluate.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Evaluate.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.Plot = {};
 geoOps.Plot.kind = "Text";
+geoOps.Plot.isMovable = true;
 geoOps.Plot.signature = "**";
 geoOps.Plot.updatePosition = noop;
 geoOps.Plot.initialize = function(el) {
@@ -2672,6 +2683,9 @@ geoOps.Plot.getText = function(el) {
     evaluate(el.calculation);
     return el.text;
 };
+geoOps.Plot.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Plot.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Plot.putParamToState = geoOps.Text.putParamToState;
 
 function commonButton(el, event, button) {
     var outer = document.createElement("div");
@@ -2709,6 +2723,9 @@ geoOps.Button.initialize = function(el) {
     var button = document.createElement("button");
     commonButton(el, "click", button);
 };
+geoOps.Button.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Button.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Button.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.ToggleButton = {};
 geoOps.ToggleButton.kind = "Text";
@@ -2727,9 +2744,13 @@ geoOps.ToggleButton.initialize = function(el) {
     el.checkbox = checkbox;
     commonButton(el, "change", checkbox, label);
 };
+geoOps.ToggleButton.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.ToggleButton.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.ToggleButton.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.EditableText = {};
 geoOps.EditableText.kind = "Text";
+geoOps.EditableText.isMovable = true;
 geoOps.EditableText.signature = [];
 geoOps.EditableText.updatePosition = noop;
 geoOps.EditableText.initialize = function(el) {
@@ -2751,6 +2772,9 @@ geoOps.EditableText.initialize = function(el) {
 geoOps.EditableText.getText = function(el) {
     return false;
 };
+geoOps.EditableText.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.EditableText.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.EditableText.putParamToState = geoOps.Text.putParamToState;
 
 function noop() {}
 
