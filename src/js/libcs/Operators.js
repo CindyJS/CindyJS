@@ -4114,7 +4114,7 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
         };
     }
     if ((v0.ctype === 'number' || v0.ctype === 'list') && v1.ctype === 'number') {
-        dec = Math.round(v1.value.real);
+        dec = Math.max(0, Math.min(20, Math.round(v1.value.real)));
         return fmt(v0);
     }
     return nada;
