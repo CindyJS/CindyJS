@@ -2725,13 +2725,11 @@ geoOps.EditableText.initialize = function(el) {
     var textbox = document.createElement("input");
     textbox.setAttribute("type", "text");
     textbox.className = "CindyJS-editabletext";
+    if (!isFiniteNumber(el.fillalpha))
+        el.fillalpha = 1.0;
     if (el.fillcolor) {
-        var fill;
-        if (isFiniteNumber(el.fillalpha))
-            fill = Render2D.makeColor(el.fillcolor, el.fillalpha);
-        else
-            fill = Render2D.makeColor(el.fillcolor, 1.0);
-        textbox.style.backgroundColor = fill;
+        textbox.style.backgroundColor =
+            Render2D.makeColor(el.fillcolor, el.fillalpha);
     }
     if (isFiniteNumber(el.minwidth))
         textbox.style.width = (el.minwidth - 3) + "px";
