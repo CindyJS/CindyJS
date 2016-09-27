@@ -233,7 +233,7 @@ function drawgeotext(el) {
                 label.style.font = font;
                 label.style.lineHeight = defaultAppearance.lineHeight;
             }
-            if (text !== cache.text)
+            if (text !== cache.text && text !== false)
                 if (textRendererHtml(label, text, font) === false)
                     text = false; // Do not cache, must re-run
             outer.style.left = x + "px";
