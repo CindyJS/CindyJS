@@ -2610,6 +2610,17 @@ geoOps.Text.initialize = function(el) {
             el.dock.offset = List.realVector([0, 0]);
     }
 };
+geoOps.Text.getParamForInput = function(el, pos, type) {
+    return geoOps.Free.getParamForInput(el, pos, type);
+};
+geoOps.Text.getParamFromState = function(el) {
+    return el.homog;
+};
+geoOps.Text.putParamToState = function(el, param) {
+    el.homog = param;
+};
+geoOps.Text.updatePosition = function(el) {
+};
 
 geoOps.Calculation = {};
 geoOps.Calculation.kind = "Text";

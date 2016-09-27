@@ -16,7 +16,7 @@ function getmover(mouse) {
 
         var dx, dy, dist;
         var sc = csport.drawingstate.matrix.sdet;
-        if (el.kind === "P") {
+        if (el.kind === "P" || el.kind === "Text") {
             var p = List.normalizeZ(el.homog);
             if (!List._helper.isAlmostReal(p))
                 continue;
