@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>EuklidRhythm4.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="../../build/js/CindyJS.css">
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script id="csmouseup" type="text/x-cindyscript">
+moving=[];
+
+
+;
+</script>
+<script id="cssimulationstart" type="text/x-cindyscript">
+t0=seconds();
+t=0;
+ot=-.0001;
+sq=[];
+
+to=-.0001;
+
+//-t0;
+
+seco=seconds();
+
+isrunning=true;
+
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+fill(polygon(screenbounds())--polygon((N,X,Y,Z))
+,color->(.6,.8,.8),alpha->1);
+
+draw(polygon((N,X,Y,Z)),color->(0,0,0),size->2);
+
+dir=(0,1);
+st=(0,0);
+L.xy=round(L);
+ll=round(L.xy);
+len=round(L.x);
+
+drawtext(L+(.5,.5),len,size->16);
+xx=movers_3;
+yy=movers_4;
+
+xx=(xx-F);
+xx=xx/|xx|;
+
+yy=(yy-M);
+yy=yy/|yy|;
+
+
+sh=arctan2(xx.x,xx.y)/360°;
+sh2=arctan2(yy.x,yy.y)/360°;
+
+sh=round(sh*len)/len;
+sh2=round(sh2*len)/len;
+
+xx=(cos(sh*2*pi),sin(sh*2*pi));
+yy=(cos(sh2*2*pi),sin(sh2*2*pi));
+
+xx=F+xx*2;
+yy=M+yy*2;
+
+vol1=|Q,U|/|Q,R|;
+vol2=|S,V|/|S,T|;
+vol3=|P1,P5|/|P1,P2|;
+vol4=|P3,P6|/|P3,P4|;
+
+
+bb=movers_1;
+bb_1=L.x;
+dd=movers_2;
+dd_1=L.x;
+if(bb_2<A.y,bb_2=A.y);
+if(bb_2>A.y+bb.x,bb_2=A.y+bb.x);
+if(dd.y<C.y,dd_2=C.y);
+if(dd.y>C.y+dd.x,dd_2=C.y+dd.x);
+
+apply(1..len,w=#/(len)*360°;
+  draw(F+2*(cos(w),sin(w)),color->(0,0,0),size->1.5);
+  draw(M+2*(cos(w),sin(w)),color->(0,0,0),size->1.5);
+);
+
+A.xy=round(A);
+bb=round(bb);
+dd=round(dd);
+del=bb.y/bb.x;
+del2=(dd.y-C.y)/(dd.x-C.x);
+draw(ll,bb,dashtype->3,color->(0,0,0),size->1.5);
+draw(A,(ll.x,A.y),color->(0,0,0),size->1.5);
+draw(bb,(ll.x,A.y),color->(0,0,0),size->1.5);
+draw(dd,(ll.x,C.y),color->(0,0,0),size->1.5);
+draw(C,(ll.x,C.y),color->(0,0,0),size->1.5);
+
+drawtext(bb+(.5,.5),bb.y,size->16);
+drawtext(dd+(.5,.5),dd.y-C.y,size->16);
+
+drawcircle(P0,4);
+drawcircle(P0,6);
+
+
+
+pat1=[];
+apply((A.x)..round(bb.x-1),
+  w1=floor(del*#+1+sh+.00000000001);
+  w2=floor(del*(#-1)+1+sh+.00000000001);
+  fillpolygon(((#,0),(#+1,0),(#+1,w1),(#,w1)),alpha->0.2);
+   if(w1>w2,
+    fillpolygon(((#,w2),(#+1,w2),(#+1,w1),(#,w1)),alpha->0.9,color->(.7,0,0));
+    pat1=pat1++[#];
+   );
+);
+
+B.xy=bb;
+D.xy=dd;
+
+pat2=[];
+apply((C.x)..round(dd.x-1),
+  w1=floor(del2*#+1+sh2+.00000000001);
+  w2=floor(del2*(#-1)+1+sh2+.00000000001);
+  fillpolygon(((#,0)+C,(#+1,0)+C,(#+1,w1)+C,(#,w1)+C),alpha->0.2);
+   if(w1>w2,
+    fillpolygon(((#,w2)+C,(#+1,w2)+C,(#+1,w1)+C,(#,w1)+C),alpha->0.9,color->(.7,0,0));
+    pat2=pat2++[#];
+   );
+);
+
+
+draw(bb,color->(1,1,1));
+draw(dd,color->(1,1,1));
+draw(A+(0,sh),bb+(0,sh),size->2,color->(0,0,0));
+draw(C+(0,sh2),dd+(0,sh2),size->2,color->(0,0,0));
+
+if(isrunning,
+  t=-(seco-seconds())*.4*|H,P|*4+t;
+);
+//-t0;
+
+seco=seconds();
+
+tt=((t/len)-floor(t/len))*len;
+
+if(isrunning,
+ if(to<=0&tt>=0&tt<1,
+   playtone(36,channel->9,velocity->vol3)
+ );
+
+
+ if(or((floor(to)!=floor(tt)&to>0),(to<=0&tt>=0&tt<1)),
+   beat=floor(tt);
+   playtone(76,channel->9,velocity->vol4*.4);
+   if(contains(pat1,beat),
+     sq=sq++[[A.xy+(beat,floor(del*beat+sh+.00000000001)),8]];
+ 
+      playtone(62,channel->9,velocity->vol1)
+   );
+   if(contains(pat2,beat),
+      sq=sq++[[C.xy+(beat,floor(del2*beat+sh2+.00000000001)),8]];
+ 
+      playtone(64,channel->9,velocity->vol2)
+   );
+ );
+
+ apply(1..length(sq),
+    pp=sq_#_1; 
+    fillpolygon((pp,pp+(0,1),pp+(1,1),pp+(1,0)),alpha->0.9,color->(.0,.7,0),
+    alpha->sq_#_2/8);
+    sq_#_2=sq_#_2-1;
+ );
+
+ sq=select(sq,#_2>0);
+
+
+
+);
+to=tt;
+
+if(to>len-1,to=to-len);
+//err(to+" "+tt);
+
+draw(A+(tt,0));
+draw(C+(tt,0));
+
+movers_1=bb;
+movers_2=dd;
+movers_3=xx;
+movers_4=yy;
+
+drawcircle(F,2,color->(0,0,0));
+drawcircle(M,2,color->(0,0,0));
+drawall(movers,size->4,color->(1,1,0));
+
+w=t/len*360°;
+draw(P0,P0+(cos(w),sin(w))*8,color->(0,0,0),size->3);
+
+apply(0..len-1,w=#/(len)*360°;
+  if(!contains(pat1,#),
+    draw(P0+4*(cos(w),sin(w)),color->(0,0,0),size->1.5),
+    draw(P0+4*(cos(w),sin(w)),color->(0,0,0),size->4,color->(0.7,0,0))
+  );
+  if(!contains(pat2,#),
+    draw(P0+6*(cos(w),sin(w)),color->(0,0,0),size->1.5),
+    draw(P0+6*(cos(w),sin(w)),color->(0,0,0),size->4,color->(0.7,0,0))
+  );
+);
+
+
+apply(sq,s,
+  w=s_1_1/len*360°;
+  if(s_1_2>-0.5,
+    draw(P0+4*(cos(w),sin(w)),size->6,color->(.0,.7,0),
+    alpha->s_2/8)
+   ,
+    draw(P0+6*(cos(w),sin(w)),size->6,color->(.0,.7,0),
+    alpha->s_2/8)
+  )
+);
+
+
+
+
+//drawtext((0,3),t,size->30);
+
+
+
+
+
+
+
+;
+</script>
+<script id="cstick" type="text/x-cindyscript">
+a
+
+
+
+;
+</script>
+<script id="csmousedown" type="text/x-cindyscript">
+mpos=mouse().xy;
+moving=select(1..4,|movers_#,mpos|<0.5);
+
+
+
+;
+</script>
+<script id="csmousedrag" type="text/x-cindyscript">
+if(moving!=[],
+  movers_(moving_1)_1=mouse().x;
+  movers_(moving_1)_2=mouse().y;
+);
+
+
+
+
+
+;
+</script>
+<script id="csinit" type="text/x-cindyscript">
+t0=seconds();
+t=0;
+ot=0;
+to=-.0001;
+
+
+//-t0;
+
+seco=seconds();
+
+
+isrunning=false;
+
+
+pa=(0,1);
+pb=(0,2);
+pc=(0,3);
+pd=(0,4);
+
+movers=(pa,pb,pc,pd);
+movers=((L.x,A.y+7),(L.x,C.y+10),F+(2,0),M+(2,0));
+
+
+
+
+;
+</script>
+<script id="cssimulationstop" type="text/x-cindyscript">
+isrunning=false;
+//seco=seconds();
+//t=0;
+
+
+
+
+;
+</script>
+    <script type="text/javascript">
+CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [0.0, 0.0, 4.0], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "F", type: "Free", pos: [-1.0909090909090908, -4.0, -0.36363636363636365], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "C", type: "Free", pos: [0.0, -4.0, 0.23529411764705882], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "E", type: "Free", pos: [0.2, -4.0, 0.2], color: [0.0, 0.0, 0.0], visible: false, size: 2.0},
+    {name: "K", type: "Free", pos: [3.2, -4.0, 0.2], color: [0.0, 0.0, 0.0], size: 2.0},
+    {name: "a", type: "Segment", color: [0.0, 0.0, 0.0], args: ["E", "K"], size: 2},
+    {name: "L", type: "PointOnSegment", pos: [3.2000000000000006, -4.0, 0.20000000000000004], color: [1.0, 1.0, 1.0], args: ["a"]},
+    {name: "M", type: "Free", pos: [1.7142857142857142, -4.0, 0.5714285714285714], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "H", type: "Free", pos: [4.0, -2.88, 0.16000000000000003], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "O", type: "Free", pos: [4.0, -2.0, 0.1111111111111111], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "b", type: "Segment", color: [0.0, 0.0, 0.0], args: ["H", "O"], size: 2},
+    {name: "P", type: "PointOnSegment", pos: [4.0, -2.4585068964365715, 0.13658371646869844], color: [1.0, 1.0, 1.0], args: ["b"]},
+    {name: "Q", type: "Free", pos: [4.0, -0.0, 0.21052631578947367], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "R", type: "Free", pos: [4.0, 2.1052631578947367, 0.21052631578947367], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "c", type: "Segment", color: [0.0, 0.0, 0.0], args: ["Q", "R"]},
+    {name: "S", type: "Free", pos: [4.0, -3.5789473684210527, 0.21052631578947367], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "T", type: "Free", pos: [4.0, -1.263157894736842, 0.21052631578947367], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "d", type: "Segment", color: [0.0, 0.0, 0.0], args: ["S", "T"]},
+    {name: "U", type: "PointOnSegment", pos: [4.0, 0.8421052631578947, 0.21052631578947367], color: [1.0, 1.0, 1.0], args: ["c"], size: 4.0},
+    {name: "V", type: "PointOnSegment", pos: [4.0, -2.654064751578948, 0.21052631578947367], color: [1.0, 1.0, 1.0], args: ["d"], size: 4.0},
+    {name: "W", type: "Free", pos: [0.0, -4.0, 0.2], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0},
+    {name: "e", type: "Segment", color: [0.0, 0.0, 0.0], args: ["E", "W"], size: 2},
+    {name: "B", type: "Free", pos: [4.0, 1.75, 0.25], color: [1.0, 1.0, 1.0], visible: false, size: 0.0},
+    {name: "D", type: "Free", pos: [4.0, -1.75, 0.25], color: [1.0, 1.0, 1.0], visible: false, size: 0.0},
+    {name: "N", type: "Free", pos: [-0.36363636363636365, -4.0, 0.18181818181818182], color: [1.0, 0.0, 0.0], visible: false, labeled: true},
+    {name: "X", type: "Free", pos: [3.8181818181818183, -4.0, 0.18181818181818182], color: [1.0, 0.0, 0.0], visible: false, labeled: true},
+    {name: "Y", type: "Free", pos: [4.0, 3.4285714285714284, 0.19047619047619047], color: [1.0, 0.0, 0.0], visible: false, labeled: true},
+    {name: "Z", type: "Free", pos: [0.4444444444444444, -4.0, -0.2222222222222222], color: [1.0, 0.0, 0.0], visible: false, labeled: true},
+    {name: "P0", type: "Free", pos: [4.0, 0.930648769574944, 0.12350842882115647], color: [0.0, 0.0, 0.0], pinned: true, size: 3.0, printname: "$P_{0}$"},
+    {name: "P1", type: "Free", pos: [4.0, -1.92, 0.16], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0, printname: "$P_{1}$"},
+    {name: "P2", type: "Free", pos: [4.0, -1.3333333333333333, 0.1111111111111111], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0, printname: "$P_{2}$"},
+    {name: "f", type: "Segment", color: [0.0, 0.0, 0.0], args: ["P1", "P2"], size: 2},
+    {name: "P3", type: "Free", pos: [4.0, -1.12, 0.16], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0, printname: "$P_{3}$"},
+    {name: "P4", type: "Free", pos: [4.0, -0.7777777777777778, 0.1111111111111111], color: [0.0, 0.0, 0.0], pinned: true, size: 2.0, printname: "$P_{4}$"},
+    {name: "g", type: "Segment", color: [0.0, 0.0, 0.0], args: ["P3", "P4"], size: 2},
+    {name: "P5", type: "PointOnSegment", pos: [4.0, -1.468956123330288, 0.12241301027752399], color: [1.0, 1.0, 1.0], args: ["f"], size: 4.0, printname: "$P_{5}$"},
+    {name: "P6", type: "PointOnSegment", pos: [4.0, -1.0169944028834066, 0.1452849146976295], color: [1.0, 1.0, 1.0], args: ["g"], size: 4.0, printname: "$P_{6}$"},
+    {name: "Text0", type: "Text", color: [0.0, 0.0, 0.0], args: ["H"], text: "Tempo", dock: {to: "H", offset: [0.9483269808941941, 9.437204573756162]}},
+    {name: "Text1", type: "Text", pos: [4.0, -1.7919075144508672, 0.15956146729207207], color: [0.0, 0.0, 0.0], text: "Bass Volume"},
+    {name: "Text2", type: "Text", pos: [4.0, -0.9942196531791908, 0.15956146729207207], color: [0.0, 0.0, 0.0], text: "Tick Volume"},
+    {name: "Text3", type: "Text", color: [0.0, 0.0, 0.0], args: ["W"], text: "Beats", dock: {to: "W", offset: [-1.0, -18.958661584715287]}},
+    {name: "Text4", type: "Text", pos: [0.1955555555555555, -4.0, -0.24537007859136414], color: [0.0, 0.0, 0.0], text: "Adjust rhythm with yellow points", textsize: 16.0}
+  ],
+  animation: {autoplay: false, controls: true, speed: 1.0},
+  autoplay: false,
+  animcontrols: true,
+  ports: [{
+    id: "CSCanvas",
+    width: 684,
+    height: 600,
+    transform: [{visibleRect: [-5.904912682127994, 20.540401783844004, 43.65288209794008, -24.83021344922452]}],
+    grid: 1.0,
+    snap: true,
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1871, version: [2, 9, 1871]},
+  images: {
+    stop: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAaCAYAAAA9rOU8AAADZklEQVR42s2WN05kQRCGCbkJnIEDEODtAbgEJAQIAsQAg/feeyv84CWMcMLEIJGSQYaEVLtfoert90DMskOwSJ+qurveX//MFOqXVFlZKZmZmUpGRsan8aszYjj39+Lp+c8lYSYrK0taW1tle3tbtra2ZGdnR2KxmK6BHDizGlv7Z5bb87HYVlw9YkdHh3pQM9nZ2VJTUyMzMzPK3Nycg/Xs7KzMz88rts/e4uKiRrDnbL2wsPC7Pr4eeUNDg3pQMzk5OVJWVib19fUSjUaltrbWxbq6OsVyTFNHTo3lto5EIm4/EonG1YPS0lLJzc19N5OXlyfl5eXS1NQkjY2NGv2cGMZq/FqgaXNzc+DZr/T4VioqKtSDmsnPz5eqqiqdmzBtbW0aE/ljNsJ60N7eLi0tLdobD2qmoKBAqqurpbOzU+nq6vqA/b29vX2Lx8dHKSkpUQ20GVYg7+np0chPi4ckXBUWFupv19/fL319fdLb2xuAh15fX+Xl5UUeHh6+xeHhoQ6nr0cPvw/zhQdnht9uYGBAsWLMGf9i5v7+3pkxHesBtkdvNcPPRMLQUTA0NCSDg4MfSNQMGmgPDw87TdbA3LhvpqioSAdrZGTEMTo66mCdqBnTxIyvzZpBxoMzw1CZkbGxMRkfH9doJGrG1/KhH70DZphqnFIwMTGhYMj4KTNhXfboHTDDvx6Fk5OTjqmpKZmenlYSNRPWNn3o7u7+Y6a4uFin2m8O3CM/ZSas62szzAEzbPgXGnCR2cWWqBn/MjVNyxliPDgzbHDTGtzIYDd1ombsA6IdzpnVgBmGaWlpSQ0QwyRqxteyD2pr5idgBodra2sBVlZWZHV1VcHM8/OzNvgOZsZ00PR7sEfvgBmccruG2dzcVJ6enuTm5kY2NjZkfX39r2Em0tPTnU4YetA7YGZ5eVlfCXlF9LFXRerS0tIkNTX1W6SkpEhycrLTCb960oPeATN8ir29Pdnf3w9wcHCgkTO+8vC51XBuz/vPfKZpZ7u7u5rTO2CGw5OTE8fx8bEcHR1pNNg/PT11udWE66h5P4+vBxgKmGHz/PxcLi8vNVp+cXHh1nB2dqaRff8svG/E0wOMBcxQeHt7q0NK9GHv7u5O86urK7m+vtY9IPfXVm9n8fTI6a1meJ8h+R/4BWttl2aLrSmzAAAAAElFTkSuQmCC",
+    play: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAaCAYAAAA9rOU8AAAEPUlEQVR42s1WR0tsMRR+f0jcuXAj6Mre96IblyKiGxFRQRx77733ggVn7GAvWHChYkEFFURBEVGU89535FySePVu38BHTs83yblJ/gQHBxMQFBRkO/7mw2jKqs2pnpqXlZVFf0JCQqiiooJmZmbI7XbT7OwseTwe1gHIAHwSI7rqE1nyPR63Yz2M1dXVBA5MJjQ0lPLy8qi/v58xODhoAfrAwAANDQ0xxA7byMgIj4DkiT48PPwv3rke5OLiYgIHJhMWFkZpaWlUWFhIRUVFlJ+fb40FBQUMkUEacZARI7LoLpfLsrtcRY71gNTUVAoPD/8iExERQenp6VRaWkolJSU8qjJGExKjxgKYtKysTMv9rR5WJTMzk8CByURGRlJ2djb3jYnKykpLrqqqsrWrcnl5uaY71UM85gYHJhMVFUW5ublUU1PDqK2ttYXqq6ur+xHw19fXM0SXfDQrABl+jNhacGAy0dHRvHdNTU3U2NhIDQ0NGpB0e3tLa2tr1NnZ+c0vQK5dvmkz49Bf4IAVYjLYu+bmZoYEg5xAfp+fn3R6ekrT09OaH5B8024Xo8Zhbo0Mmg4Bra2t1NLS8g1C5PHxkV5fX+nt7Y2enp7o4OCAxsbGOE9FW1sbo729neuihtilpsSib8CBtykmJoYbC4mCjo4OC9Df39/p+fmZLi4u6Orqiu7u7lj/+PhgYBvX19f53FBzJV9qgozqg45GBgdeGQhoKklCX3R1dfEoEDLn5+cWQOz6+pru7+/p5eWFSWH1YMepizxMqNYxgfkwt0YGXS2J3d3dDBAS2JFRcXl5STc3N0zs4eGBV+r4+NgiJTDrwoa5NTL49BDY09Njobe3l/r6+hg/kTk7O6OTkxM6PDzkbcI1gFM6NjaWAgICKCEhgT9ds7bUB/D5W2SQiK5WJwdwj9iRAQF8UUdHR7Szs0NTU1PchPHx8eTl5UV+fn6UlJRkW0d01YZm1sjAoF5oAC4yudhABl8PVmFvb4/m5+c5Jzk5mXx9fcnHx4fi4uL4X5p1zMtUaoqMJgYHiwwMWGIBbmRAbmp8zmhM+JAUGBjIq4BLFqc34tR8FeptD92U0asaGTTT6OgoE8BoAj2By9Tb25v8/f0pJSXFImyXJz6cQWYtNQ9A/2hkwHByclLD+Pg4TUxMMDIyMigxMZG3BnY1Dn70jeiQJQ9Q69jlYm6NDJji5WUCxz7wk90JTrHwY26NDJYTT0KcCyrkqSg+Vbd7Sqq236A+UTG3RgZLiy9kYWFBw+LiIo/wLS0tffNLDPySr+bY1RTf3Nwcy5hbIwPn6uqqhZWVFVpeXuZRADueESJLjBmHmC+/cz0AhMAhJyfniwyMm5ubtL29zaPIW1tblg5sbGzwCLvqM+0Cp3oAiGlkELi/v88HGkYVsOGpABkn7u7uLtsAyKou8eJzqgcZc2vb9D8A75m/2UNKaCf9M50AAAAASUVORK5CYII="
+  }
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

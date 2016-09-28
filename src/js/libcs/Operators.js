@@ -4007,14 +4007,18 @@ evaluator.javascript$1 = function(args, modifs) {
     return nada;
 };
 
+var loadedPlugins = {};
+
 evaluator.use$1 = function(args, modifs) {
     function defineFunction(name, arity, impl) {
         evaluator[name.toLowerCase() + "$" + arity] = impl;
     }
     var v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
-        var name = v0.value,
-            cb;
+        var name = v0.value;
+        if (loadedPlugins.hasOwnProperty(name) && loadedPlugins[name] === true)
+            return General.bool(true); // plugin already loaded
+        var cb;
         if (instanceInvocationArguments.plugins)
             cb = instanceInvocationArguments.plugins[name];
         if (!cb)
@@ -4056,16 +4060,11 @@ evaluator.use$1 = function(args, modifs) {
                     return myfunctions[name];
                 }
             });
-            return {
-                "ctype": "boolean",
-                "value": true
-            };
+            loadedPlugins[name] = true;
+            return General.bool(true);
         } else {
             console.log("Plugin " + name + " not found");
-            return {
-                "ctype": "boolean",
-                "value": false
-            };
+            return General.bool(false);
         }
     }
     return nada;

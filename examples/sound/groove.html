@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Groove</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/midi-plugin.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+use("midi");
+played = false;
+  
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+
+if (loadinstruments([0, 12]) & !played,
+  played = true;
+  g=.6;
+  mel=[[62,2-g],[67,2+g],[69,2-g],[71,2+g],[72,2-g],[74,2+g],
+       [71,2-g],[72,2+g],[74,2-g],[71,2+g],[67,3],[-1,9],
+       [62,2-g],[67,2+g],[69,2-g],[70,2+g],[72,2-g],[74,2+g],
+       [76,4],[77,4],[67,2-g],[69,2+g],[70,8],[74,2-g],
+       [72,2+g],[69,4],[65,2-g],[70,2+g],[68,2-g],[69,2+g],
+       [65,13],[-1,3]
+  ];
+
+  drum=44;
+  beat=[[-1,2-g]];
+  apply(1..11,beat=beat++[[-1,4],[drum,4]]);
+  beat=beat++[[-1,4],[drum,4-2+g]];
+  playmelody(
+    [["channel", 2]] ++ mel ++
+    [["goto", 0], ["channel", 9], ["vel", 0.5]] ++ beat,
+    speed->700);
+)
+
+</script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", width: 500, height: 500}],
+  scripts: "cs*",
+});
+
+</script>
+</head>
+
+<body>
+  <div id="CSCanvas"></div>
+</body>
+
+</html>
