@@ -3,7 +3,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     "use strict";
 
     //var soundfont = CindyJS.getBaseDir() + "soundfont/";
-    var soundfont = "http://cindyjs.org/soundfont/";
+    var soundfont = "http://cindyjs.org/extras/midi-js-soundfonts/MusyngKite/";
 
     var midijsStatus = -2; // wait for two scripts to load
 
@@ -308,7 +308,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     });
 
     function playMelody(t0, melody) {
-        var maxChunk = 100;
+        var maxChunk = 20;
         if (melody.length > maxChunk) {
             var delta = (melody[maxChunk].time + t0 - MIDI.now()) * 1000 - 200;
             if (delta < 0) delta = 0;
