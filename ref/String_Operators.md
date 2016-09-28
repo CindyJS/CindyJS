@@ -344,7 +344,7 @@ This expression is then represented as a string.
 **Description:**
 This operator takes a number as first arguments and an integer specifying the number of digits after the decimal point.
 A string is generated that corresponds to the number up to the specified precision.
-Up to 14 digits are possible.
+Up to 14 digits are possible in Cinderella, 20 in CindyJS.
 If the argument of format is a list of objects the format statement is applied to each of the objects recursively.
 
     > format(sqrt(2),4)
@@ -365,6 +365,11 @@ If, however, it is a list, and somewhere nested inside that list is a value whic
     < ___
     > format([2.339, "foo", [5.678, 1 < 2]], 2)
     < ["2.34", "foo", ["5.68", "true"]]
+
+Requesting more than 20 digits will never have any effect.
+
+    > format(1/3, 20) == format(1/3, 40)
+    < true
 
 **Warning:**
 The format statement should only produced to create formatted output elements.
