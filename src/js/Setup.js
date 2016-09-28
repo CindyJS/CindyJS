@@ -261,7 +261,7 @@ function createCindyNow() {
                 data.cinderella.version &&
                 data.cinderella.version[0] === 2 &&
                 data.cinderella.version[1] === 9 &&
-                data.cinderella.version[2] < 1880)
+                data.cinderella.version[2] < 1875)
                 setSpeed(data.animation.speed * 0.5);
             else
                 setSpeed(data.animation.speed);
