@@ -120,7 +120,7 @@ Accessor.getField = function(geo, field) {
                 return General.bool(false);
             }
         }
-        if (field === "text") {
+        if (field === "text" || field === "currenttext") {
             if (geo.type === "EditableText") {
                 return General.string(String(geo.html.value));
             }
@@ -287,7 +287,7 @@ Accessor.setField = function(geo, field, value) {
         if (field === "pressed" && value.ctype === "boolean" && geo.checkbox) {
             geo.checkbox.checked = value.value;
         }
-        if (field === "text") {
+        if (field === "text" || field === "currenttext") {
             if (geo.type === "EditableText") {
                 geo.html.value = niceprint(value);
             }
