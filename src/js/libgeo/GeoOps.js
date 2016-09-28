@@ -2767,6 +2767,10 @@ geoOps.EditableText.initialize = function(el) {
         textbox.style.width = (el.minwidth - 3) + "px";
     if (typeof el.text === "string")
         textbox.value = el.text;
+    textbox.addEventListener("keydown", function(event) {
+        if (event.keyCode === 13)
+            textbox.blur();
+    });
     commonButton(el, "change", textbox);
 };
 geoOps.EditableText.getText = function(el) {
