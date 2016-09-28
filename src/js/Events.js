@@ -14,10 +14,10 @@ function getmover(mouse) {
         if (el.pinned || el.visible === false || el.tmp === true)
             continue;
 
-        var dx, dy, dist;
+        var dx, dy, dist, p;
         var sc = csport.drawingstate.matrix.sdet;
         if (el.kind === "P") {
-            var p = List.normalizeZ(el.homog);
+            p = List.normalizeZ(el.homog);
             if (!List._helper.isAlmostReal(p))
                 continue;
             dx = p.value[0].value.real - mouse.x;
@@ -55,7 +55,23 @@ function getmover(mouse) {
             if (dist < 0) {
                 dist = -dist;
             }
-            dist = dist + 1;
+            dist = dist + 25 / sc;
+        } else if (el.kind === "Text") {
+            if (!el._bbox) continue;
+            p = csport.from(mouse.x, mouse.y, 1);
+            dx = Math.max(0, p[0] - el._bbox.right, el._bbox.left - p[0]);
+            dy = Math.max(0, p[1] - el._bbox.bottom, el._bbox.top - p[1]);
+            dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 20)
+                continue;
+            dist = dist / sc;
+            p = List.normalizeZ(el.homog);
+            if (!List._helper.isAlmostReal(p))
+                continue;
+            dx = p.value[0].value.real - mouse.x;
+            dy = p.value[1].value.real - mouse.y;
+        } else {
+            continue;
         }
 
         if (dist < adist + 0.2 / sc) { //A bit a dirty hack, prefers new points

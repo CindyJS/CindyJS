@@ -562,7 +562,11 @@ module.exports = function build(settings, task) {
     task("deploy", ["all", "closure"], function() {
         this.delete("build/deploy");
         this.mkdir("build/deploy");
-        this.node("tools/prepare-deploy.js");
+        this.node("tools/prepare-deploy.js", {
+            errorMessages: {
+                "2": "Unknown files; running “make clean” may help here"
+            }
+        });
     });
 
     //////////////////////////////////////////////////////////////////////

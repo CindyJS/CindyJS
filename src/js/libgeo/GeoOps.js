@@ -2610,10 +2610,20 @@ geoOps.Text.initialize = function(el) {
             el.dock.offset = List.realVector([0, 0]);
     }
 };
+geoOps.Text.getParamForInput = function(el, pos, type) {
+    return geoOps.Free.getParamForInput(el, pos, type);
+};
+geoOps.Text.getParamFromState = function(el) {
+    return el.homog;
+};
+geoOps.Text.putParamToState = function(el, param) {
+    el.homog = param;
+};
 
 geoOps.Calculation = {};
 geoOps.Calculation.kind = "Text";
 geoOps.Calculation.signature = "**";
+geoOps.Calculation.isMovable = true;
 geoOps.Calculation.updatePosition = noop;
 geoOps.Calculation.initialize = function(el) {
     geoOps.Text.initialize(el);
@@ -2622,9 +2632,13 @@ geoOps.Calculation.initialize = function(el) {
 geoOps.Calculation.getText = function(el) {
     return niceprint(evaluate(el.calculation));
 };
+geoOps.Calculation.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Calculation.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Calculation.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.Equation = {};
 geoOps.Equation.kind = "Text";
+geoOps.Equation.isMovable = true;
 geoOps.Equation.signature = "**";
 geoOps.Equation.updatePosition = noop;
 geoOps.Equation.initialize = function(el) {
@@ -2634,9 +2648,13 @@ geoOps.Equation.initialize = function(el) {
 geoOps.Equation.getText = function(el) {
     return el.text + " = " + niceprint(evaluate(el.calculation));
 };
+geoOps.Equation.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Equation.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Equation.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.Evaluate = {};
 geoOps.Evaluate.kind = "Text";
+geoOps.Evaluate.isMovable = true;
 geoOps.Evaluate.signature = "**";
 geoOps.Evaluate.updatePosition = noop;
 geoOps.Evaluate.initialize = function(el) {
@@ -2647,9 +2665,13 @@ geoOps.Evaluate.getText = function(el) {
     evaluate(el.calculation); // ugly: side effects in draw
     return el.text;
 };
+geoOps.Evaluate.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Evaluate.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Evaluate.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.Plot = {};
 geoOps.Plot.kind = "Text";
+geoOps.Plot.isMovable = true;
 geoOps.Plot.signature = "**";
 geoOps.Plot.updatePosition = noop;
 geoOps.Plot.initialize = function(el) {
@@ -2661,6 +2683,9 @@ geoOps.Plot.getText = function(el) {
     evaluate(el.calculation);
     return el.text;
 };
+geoOps.Plot.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Plot.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Plot.putParamToState = geoOps.Text.putParamToState;
 
 function commonButton(el, event, button) {
     var outer = document.createElement("div");
@@ -2692,17 +2717,20 @@ function commonButton(el, event, button) {
 geoOps.Button = {};
 geoOps.Button.kind = "Text";
 geoOps.Button.signature = "**";
-geoOps.Button.isMovable = true;
+geoOps.Button.isMovable = true; // not using mouse, only via scripts
 geoOps.Button.updatePosition = noop;
 geoOps.Button.initialize = function(el) {
     var button = document.createElement("button");
     commonButton(el, "click", button);
 };
+geoOps.Button.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Button.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Button.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.ToggleButton = {};
 geoOps.ToggleButton.kind = "Text";
 geoOps.ToggleButton.signature = "**";
-geoOps.ToggleButton.isMovable = true;
+geoOps.ToggleButton.isMovable = true; // not using mouse, only via scripts
 geoOps.ToggleButton.updatePosition = noop;
 geoOps.ToggleButton.initialize = function(el) {
     var id = generateId();
@@ -2716,32 +2744,41 @@ geoOps.ToggleButton.initialize = function(el) {
     el.checkbox = checkbox;
     commonButton(el, "change", checkbox, label);
 };
+geoOps.ToggleButton.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.ToggleButton.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.ToggleButton.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.EditableText = {};
 geoOps.EditableText.kind = "Text";
+geoOps.EditableText.isMovable = true; // not using mouse, only via scripts
 geoOps.EditableText.signature = [];
 geoOps.EditableText.updatePosition = noop;
 geoOps.EditableText.initialize = function(el) {
     var textbox = document.createElement("input");
     textbox.setAttribute("type", "text");
     textbox.className = "CindyJS-editabletext";
+    if (!isFiniteNumber(el.fillalpha))
+        el.fillalpha = 1.0;
     if (el.fillcolor) {
-        var fill;
-        if (isFiniteNumber(el.fillalpha))
-            fill = Render2D.makeColor(el.fillcolor, el.fillalpha);
-        else
-            fill = Render2D.makeColor(el.fillcolor, 1.0);
-        textbox.style.backgroundColor = fill;
+        textbox.style.backgroundColor =
+            Render2D.makeColor(el.fillcolor, el.fillalpha);
     }
     if (isFiniteNumber(el.minwidth))
         textbox.style.width = (el.minwidth - 3) + "px";
     if (typeof el.text === "string")
         textbox.value = el.text;
+    textbox.addEventListener("keydown", function(event) {
+        if (event.keyCode === 13)
+            textbox.blur();
+    });
     commonButton(el, "change", textbox);
 };
 geoOps.EditableText.getText = function(el) {
     return false;
 };
+geoOps.EditableText.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.EditableText.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.EditableText.putParamToState = geoOps.Text.putParamToState;
 
 function noop() {}
 

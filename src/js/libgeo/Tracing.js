@@ -221,7 +221,7 @@ function traceMover(mover, pos, type) {
 
         var stateTmp = stateOut;
         stateOut = stateIn;
-        opMover.putParamToState(el, param);
+        opMover.putParamToState(mover, param);
         stateOut = stateTmp;
         stateOutIdx = mover.stateIdx;
 

@@ -205,7 +205,15 @@ Accessor.setField = function(geo, field, value) {
         geo.alpha = value;
     }
     if (field === "fillcolor" && List._helper.isNumberVecN(value, 3)) {
-        geo.fillcolor = value;
+        if (geo.type === "EditableText") {
+            geo.fillcolor = value.value.map(function(i) {
+                return i.value.real;
+            });
+            geo.html.style.backgroundColor =
+                Render2D.makeColor(geo.fillcolor, geo.fillalpha);
+        } else {
+            geo.fillcolor = value;
+        }
     }
     if (field === "fillalpha" && value.ctype === "number") {
         geo.fillalpha = value;

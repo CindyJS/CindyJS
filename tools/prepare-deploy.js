@@ -41,6 +41,12 @@ var handlers = {
     "webfont.js": true,
 };
 
+var exitStatus = 0;
+
+process.once('beforeExit', function() {
+    process.exit(exitStatus);
+});
+
 child_process.execFile("git", ["rev-parse", "HEAD"], function(err, stdout, stderr) {
     if (err) {
         console.log(stdout);
@@ -59,8 +65,11 @@ function lsDir(err, files) {
     files.forEach(function(filename) {
         var inFile = path.join(inDir, filename);
         var handler = handlers[filename];
-        if (handler === undefined)
-            throw new Error("Don't know whether to keep " + filename);
+        if (handler === undefined) {
+            console.error("Don't know whether to keep " + filename);
+            exitStatus = 2;
+            return;
+        }
         if (handler === false)
             return;
         if (handler === true) {
