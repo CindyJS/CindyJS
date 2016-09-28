@@ -2717,7 +2717,7 @@ function commonButton(el, event, button) {
 geoOps.Button = {};
 geoOps.Button.kind = "Text";
 geoOps.Button.signature = "**";
-geoOps.Button.isMovable = true;
+geoOps.Button.isMovable = true; // not using mouse, only via scripts
 geoOps.Button.updatePosition = noop;
 geoOps.Button.initialize = function(el) {
     var button = document.createElement("button");
@@ -2730,7 +2730,7 @@ geoOps.Button.putParamToState = geoOps.Text.putParamToState;
 geoOps.ToggleButton = {};
 geoOps.ToggleButton.kind = "Text";
 geoOps.ToggleButton.signature = "**";
-geoOps.ToggleButton.isMovable = true;
+geoOps.ToggleButton.isMovable = true; // not using mouse, only via scripts
 geoOps.ToggleButton.updatePosition = noop;
 geoOps.ToggleButton.initialize = function(el) {
     var id = generateId();
@@ -2750,7 +2750,7 @@ geoOps.ToggleButton.putParamToState = geoOps.Text.putParamToState;
 
 geoOps.EditableText = {};
 geoOps.EditableText.kind = "Text";
-geoOps.EditableText.isMovable = true;
+geoOps.EditableText.isMovable = true; // not using mouse, only via scripts
 geoOps.EditableText.signature = [];
 geoOps.EditableText.updatePosition = noop;
 geoOps.EditableText.initialize = function(el) {
