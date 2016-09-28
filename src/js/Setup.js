@@ -190,6 +190,19 @@ function canvasWithContainingDiv(elt) {
     return canvas;
 }
 
+function isCinderellaBeforeVersion() {
+    var c = instanceInvocationArguments.cinderella;
+    if (!c || !c.version)
+        return false;
+    for (var i = 0; i < arguments.length; ++i) {
+        var x = c.version[i];
+        var y = arguments[i];
+        if (x !== y)
+            return (typeof x === typeof y) && (x < y);
+    }
+    return false;
+}
+
 function createCindyNow() {
     startupCalled = true;
     if (waitForPlugins !== 0) return;
@@ -257,11 +270,7 @@ function createCindyNow() {
             setupAnimControls(data);
         if (data.animation && isFiniteNumber(data.animation.speed)) {
             if (data.animation.accuracy === undefined &&
-                data.cinderella &&
-                data.cinderella.version &&
-                data.cinderella.version[0] === 2 &&
-                data.cinderella.version[1] === 9 &&
-                data.cinderella.version[2] < 1875)
+                isCinderellaBeforeVersion(2, 9, 1875))
                 setSpeed(data.animation.speed * 0.5);
             else
                 setSpeed(data.animation.speed);
@@ -318,12 +327,7 @@ function createCindyNow() {
             cscompiled[s] = cscode;
         }
     });
-    if (data.cinderella &&
-        data.cinderella.version &&
-        data.cinderella.version[0] === 2 &&
-        data.cinderella.version[1] === 9 &&
-        data.cinderella.version[2] < 1888 &&
-        !cscompiled.keydown) {
+    if (isCinderellaBeforeVersion(2, 9, 1888) && !cscompiled.keydown) {
         // Cinderella backwards-compatible naming of key events
         cscompiled.keydown = cscompiled.keytyped;
         cscompiled.keytyped = cscompiled.keytype;
