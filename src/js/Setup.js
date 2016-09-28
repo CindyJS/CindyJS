@@ -278,13 +278,14 @@ function createCindyNow() {
     }
 
     //Setup the scripts
-    var scripts = ["move", "keydown",
+    var scripts = ["move",
+        "keydown", "keyup", "keytyped", "keytype",
         "mousedown", "mouseup", "mousedrag", "mousemove", "mouseclick",
         "init", "tick", "draw",
         "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
-    var scriptconf = data.scripts,
-        scriptpat = null;
+    var scriptconf = data.scripts;
+    var scriptpat = null;
     if (typeof scriptconf === "string" && scriptconf.search(/\*/))
         scriptpat = scriptconf;
     if (typeof scriptconf !== "object")
@@ -317,6 +318,17 @@ function createCindyNow() {
             cscompiled[s] = cscode;
         }
     });
+    if (data.cinderella &&
+        data.cinderella.version &&
+        data.cinderella.version[0] === 2 &&
+        data.cinderella.version[1] === 9 &&
+        data.cinderella.version[2] < 1888 &&
+        !cscompiled.keydown) {
+        // Cinderella backwards-compatible naming of key events
+        cscompiled.keydown = cscompiled.keytyped;
+        cscompiled.keytyped = cscompiled.keytype;
+        cscompiled.keytype = undefined;
+    }
 
     if (isFiniteNumber(data.grid) && data.grid > 0) {
         csgridsize = data.grid;

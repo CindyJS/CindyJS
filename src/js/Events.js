@@ -146,20 +146,38 @@ function setuplisteners(canvas, data) {
 
     if (data.keylistener === true) {
         addAutoCleaningEventListener(document, "keydown", function(e) {
-            cs_keypressed(e);
+            cs_keydown(e);
             return false;
         });
-    } else if (cscompiled.keydown) {
+        addAutoCleaningEventListener(document, "keyup", function(e) {
+            cs_keyup(e);
+            return false;
+        });
+        addAutoCleaningEventListener(document, "keypress", function(e) {
+            cs_keytyped(e);
+            return false;
+        });
+    } else if (cscompiled.keydown || cscompiled.keyup || cscompiled.keytyped) {
         canvas.setAttribute("tabindex", "0");
         addAutoCleaningEventListener(canvas, "mousedown", function() {
             canvas.focus();
         });
         addAutoCleaningEventListener(canvas, "keydown", function(e) {
-            // console.log("Got key " + e.charCode + " / " + e.keyCode);
-            if (e.keyCode !== 9 /* tab */ ) {
-                cs_keypressed(e);
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keydown(e);
+            if (!cscompiled.keytyped) {
+                // this must bubble in order to trigger a keypress event
                 e.preventDefault();
             }
+        });
+        addAutoCleaningEventListener(canvas, "keyup", function(e) {
+            cs_keyup(e);
+            e.preventDefault();
+        });
+        addAutoCleaningEventListener(canvas, "keypress", function(e) {
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keytyped(e);
+            e.preventDefault();
         });
     }
 
@@ -491,14 +509,26 @@ function updateCindy() {
     csctx.restore();
 }
 
-function cs_keypressed(e) {
+function keyEvent(e, script) {
     var evtobj = window.event ? event : e;
     var unicode = evtobj.charCode ? evtobj.charCode : evtobj.keyCode;
     var actualkey = String.fromCharCode(unicode);
     cskey = actualkey;
     cskeycode = unicode;
-    evaluate(cscompiled.keydown);
+    evaluate(script);
     scheduleUpdate();
+}
+
+function cs_keydown(e) {
+    keyEvent(e, cscompiled.keydown);
+}
+
+function cs_keyup(e) {
+    keyEvent(e, cscompiled.keyup);
+}
+
+function cs_keytyped(e) {
+    keyEvent(e, cscompiled.keytyped);
 }
 
 function cs_mousedown(e) {
