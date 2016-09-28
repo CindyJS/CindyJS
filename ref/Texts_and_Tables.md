@@ -59,7 +59,7 @@ The code
     D fillStyle = "rgba(127,0,127,1)"
     D font = "bold 25px sans-serif"
     D fillText("Text", 375.5, 229.5)
-    D fillStyle = "rgba(101,0,153,1)"
+    D fillStyle = "rgba(102,0,153,1)"
     D font = "bold 27px sans-serif"
     D fillText("Text", 400.5, 229.5)
     D fillStyle = "rgba(76,0,178,1)"
