@@ -2711,6 +2711,20 @@ function commonButton(el, event, button) {
         };
     }
     button.addEventListener(event, onEvent);
+    if (!instanceInvocationArguments.keylistener &&
+        (cscompiled.keydown || cscompiled.keyup || cscompiled.keytyped)) {
+        button.addEventListener("keydown", function(e) {
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keydown(e);
+        });
+        button.addEventListener("keyup", function(e) {
+            cs_keyup(e);
+        });
+        button.addEventListener("keypress", function(e) {
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keytyped(e);
+        });
+    }
     geoOps.Text.initialize(el);
 }
 
