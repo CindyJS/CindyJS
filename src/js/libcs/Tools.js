@@ -41,14 +41,12 @@ function getElementAtMouse(mouse) {
             var mid = csgeo.csnames[el.args[0]];
             var rad = 0;
 
-            //console.log(el.radius);
-
             if (typeof el.radius !== "undefined") {
                 rad = el.radius.value.real;
 
                 // For CircleMP
             } else if (el.args.length === 2) {
-                /*var p1 = csgeo.csnames[el.args[0]];
+                var p1 = csgeo.csnames[el.args[0]];
                 var p2 = csgeo.csnames[el.args[1]];
 
                 var p1xx = CSNumber.div(p1.homog.value[0], p1.homog.value[2]).value.real;
@@ -58,9 +56,6 @@ function getElementAtMouse(mouse) {
                 var p2yy = CSNumber.div(p2.homog.value[1], p2.homog.value[2]).value.real;
 
                 rad = Math.sqrt(Math.pow(p2xx - p1xx, 2) + Math.pow(p2yy - p1yy, 2));
-
-                console.log("radius");
-                console.log(rad);*/
             }
 
             var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
@@ -92,6 +87,9 @@ function getElementAtMouse(mouse) {
                 dist = -dist;
             }
             dist = dist + 1;
+
+        } else {
+            continue;
         }
 
         if (dist < adist + 0.2 / sc) { //A bit a dirty hack, prefers new points
@@ -414,12 +412,34 @@ tools.Point.actions[0] = {};
 tools.Point.actions[0].event = "mousedown";
 tools.Point.actions[0].tooltip = "Add a single point with the mouse";
 tools.Point.actions[0].do = function() {
-    addElement({
-        type: "Free",
-        name: getNextFreeName(),
-        labeled: true,
-        pos: [csmouse[0], csmouse[1], 1]
-    });
+    var el = getElementAtMouse(mouse);
+
+    if (isLineAtMouse(el)) {
+        addElement({
+            type: "PointOnLine",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1],
+            args: [el.mover.name]
+        });
+
+    } else if (isConicAtMouse(el)) {
+        addElement({
+            type: "PointOnCircle",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1],
+            args: [el.mover.name]
+        });
+
+    } else {
+        addElement({
+            type: "Free",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1]
+        });
+    }
 
     return true;
 };
@@ -658,8 +678,6 @@ tools.Orthogonal.actions[1].do = function() {
 };
 
 // Intersection
-//
-// TODO Conic, ...
 tools.Intersection = {};
 tools.Intersection.actions = [];
 tools.Intersection.actions[0] = {};
@@ -673,12 +691,26 @@ tools.Intersection.actions[1] = {};
 tools.Intersection.actions[1].event = "mousedown";
 tools.Intersection.actions[1].do = function() {
     if (grabLineOrConic()) {
-        element = addElement({
-            type: "Meet",
-            name: getNextFreeName(),
-            labeled: true,
-            args: [elements[0].name, elements[1].name]
-        });
+        if (elements[0].kind === "L" && elements[1].kind == "L") {
+            element = addElement({ type: "Meet", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name] });
+
+        } else if (elements[0].kind === "C" && elements[1].kind == "C") {
+            element = addElement({ type: "IntersectionCircleCircle", name: getNextFreeName(), labeled: true, args: [elements[0].name, elements[1].name] });
+            addElement({ type: "SelectP", index: 1, name: getNextFreeName(), labeled: true, args: [element.name] });
+            addElement({ type: "SelectP", index: 2, name: getNextFreeName(), labeled: true, args: [element.name] });
+
+        } else if ((elements[0].kind === "L" && elements[1].kind == "C") || (elements[0].kind === "C" && elements[1].kind == "L") ) {
+            var args = [elements[0].name, elements[1].name];
+
+            if (elements[0].kind === "L") {
+                args = [elements[1].name, elements[0].name];
+            }
+
+            element = addElement({ type: "IntersectionConicLine", name: getNextFreeName(), labeled: true, args: args });
+            addElement({ type: "SelectP", index: 1, name: getNextFreeName(), labeled: true, args: [element.name] });
+            addElement({ type: "SelectP", index: 2, name: getNextFreeName(), labeled: true, args: [element.name] });
+
+        }
 
         return true;
     }
