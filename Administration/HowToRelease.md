@@ -154,5 +154,43 @@ Tell interested people about it.
 Feel free to link to the GitHub page of the release,
 and / or paste some or all of the change descriptions.
 
+## Update the website
+
+Consider whether the website should be updated.
+
+* Has the documentation been modified?
+  You can check this using a command like `git diff --stat v2.0.0..v2.1.0 ref`
+  or – more verbosely – `git log v2.0.0..v2.1.0 ref`.
+
+* Are there any new or improved examples?
+  Just substitute `examples` instead of `ref` in the above commands.
+
+* Do any of the existing examples benefit from some bug fix?
+  This requires a bit of knowledge about what examples we have,
+  and what functionality they use.
+
+If the answer to any of these questions is “yes”,
+then the website should be updated.
+Go to your checkout of [the website repository][website]
+and perform the following steps:
+
+```sh
+git checkout master
+git pull
+git checkout -b bump2.1.0
+git submodule update --init CindyJS  # just in case
+cd CindyJS
+git fetch origin
+git checkout v2.1.0  # substitute actual version number!
+npm start  # test site, make sure examples work and docs look all right
+cd ..
+git add CindyJS
+git commit -m "Update CindyJS to 2.1.0"
+git push -u myname HEAD  # substitute the name of your GitHub remote
+```
+
+Then create a pull request, asking for this bump to be reviewed.
+
 [tags]: https://github.com/CindyJS/CindyJS/tags
 [releases]: https://github.com/CindyJS/CindyJS/releases
+[website]: https://github.com/CindyJS/website
