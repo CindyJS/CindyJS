@@ -13,7 +13,10 @@ function evaluate(a) {
         return evaluate(namespace.getvar(a.name));
     }
     if (a.ctype === 'function') {
-        return eval_helper.evaluate(a.oper, a.args, a.modifs);
+        callStack.push(a);
+        a = eval_helper.evaluate(a.oper, a.args, a.modifs);
+        callStack.pop();
+        return a;
     }
     if (a.ctype === 'void') {
         return nada;
@@ -150,4 +153,30 @@ function analyse(code) {
     for (var name in parser.usedVariables)
         namespace.create(name);
     return res;
+}
+
+var callStack = [];
+
+function labelCode(code, label) {
+    function run() {
+        return evaluate(code);
+    }
+    return {
+        ctype: "infix",
+        args: [],
+        impl: function() {
+            callStack = [{
+                oper: label
+            }];
+            var res = evaluate(code);
+            callStack = [];
+            return res;
+        }
+    };
+}
+
+function printStackTrace(msg) {
+    csconsole.err(msg + "\n" + callStack.map(function(frame) {
+        return "  at " + frame.oper;
+    }).join("\n"));
 }
