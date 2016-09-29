@@ -314,7 +314,7 @@ function createCindyNow() {
                 cscode.message
             );
         } else {
-            cscompiled[s] = cscode;
+            cscompiled[s] = labelCode(cscode, s);
         }
     });
 
