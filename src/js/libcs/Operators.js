@@ -577,7 +577,7 @@ evaluator.if$3 = function(args, modifs) { //OK
             return evaluate(args[2]);
         }
     } else {
-        csconsole.err("Condition for if is not boolean");
+        printStackTrace("Condition for if is not boolean");
     }
 
     return nada;
