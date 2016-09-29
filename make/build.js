@@ -198,9 +198,17 @@ module.exports = function build(settings, task) {
     ]);
     
     task("beautified", [], function() {
-        this.cmd("git", "diff", "--exit-code", "--name-only");
+        this.cmd("git", "diff", "--exit-code", "--name-only", {
+            errorMessages: {
+                "1": "Please stage the files listed above (e.g. using “git add -u”)"
+            }
+        });
         this.cmdscript("js-beautify", "--quiet", beautify_args);
-        this.cmd("git", "diff", "--exit-code");
+        this.cmd("git", "diff", "--exit-code", {
+            errorMessages: {
+                "1": "Your code has been beautified. Please review these changes."
+            }
+        });
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -346,12 +354,12 @@ module.exports = function build(settings, task) {
         "CanvasWrapper",
         "Renderer",
         "Plugin",
-        "TypeInference",
-        "Types",
+        "TypeHelper",
         "IncludeFunctions",
+        "LinearAlgebra",
+        "WebGL",
         "CodeBuilder",
-        "TextureReader",
-        "WebGLImplementation"
+        "TextureReader"        
     ];
 
     var cgl_mods_from_c3d = [
@@ -554,7 +562,11 @@ module.exports = function build(settings, task) {
     task("deploy", ["all", "closure"], function() {
         this.delete("build/deploy");
         this.mkdir("build/deploy");
-        this.node("tools/prepare-deploy.js");
+        this.node("tools/prepare-deploy.js", {
+            errorMessages: {
+                "2": "Unknown files; running “make clean” may help here"
+            }
+        });
     });
 
     //////////////////////////////////////////////////////////////////////

@@ -14,7 +14,7 @@ function generateReadCanvasWrapperIfRequired(imageobject, api, properties) {
         imageobject['readcanvaswrappers'][idx] = new CanvasWrapper(imageobject, properties);
         if (!imageobject.ready) {
             console.error("Image not ready. Creating onload event.");
-            imageobject.whenReady(function() {
+            imageobject.whenReady(() => {
                 imageobject.generation = Math.max(imageobject.generation, imageobject['readcanvaswrappers'][idx].generation + 1);
             });
         }

@@ -26,7 +26,7 @@ function drawgeopoint(el) {
         if (dist > 0) {
             factor = 1.0 + el.size.value.real / Math.sqrt(dist);
         }
-        evaluator.drawtext$2(
+        eval_helper.drawtext(
             [el.homog, General.wrap(lbl)], {
                 'x_offset': General.wrap(factor * lpos.x),
                 'y_offset': General.wrap(factor * lpos.y),
@@ -182,6 +182,7 @@ var textCornerNames = {
 };
 
 function drawgeotext(el) {
+    el._bbox = null;
     if (!el.isshowing || el.visible === false) {
         if (el.html) {
             el.html.parentNode.parentNode.style.display = "none";
@@ -233,7 +234,7 @@ function drawgeotext(el) {
                 label.style.font = font;
                 label.style.lineHeight = defaultAppearance.lineHeight;
             }
-            if (text !== cache.text)
+            if (text !== cache.text && text !== false)
                 if (textRendererHtml(label, text, font) === false)
                     text = false; // Do not cache, must re-run
             outer.style.left = x + "px";
@@ -263,7 +264,7 @@ function drawgeotext(el) {
     if (el.align)
         opts.align = General.string(el.align);
     if (pos)
-        evaluator.drawtext$2([pos, text], opts, htmlCallback);
+        el._bbox = eval_helper.drawtext([pos, text], opts, htmlCallback);
 }
 
 function drawgeopolygon(el) {

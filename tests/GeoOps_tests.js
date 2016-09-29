@@ -166,3 +166,21 @@ describe("IntersectLC helper", function() {
     p2.value[1].value.imag.should.be.approximately(0, 1e-12);
   });
 });
+
+describe("All GeoOps", function() {
+  it("movable ops must have all required methods", function() {
+    for (var type in geoOps) {
+      var op = geoOps[type];
+      if (op && op.isMovable) {
+        [
+          "getParamFromState",
+          "getParamForInput",
+          "putParamToState",
+          "updatePosition",
+        ].forEach(function(meth) {
+          op.should.respondTo(meth, type + " should respond to " + meth);
+        });
+      }
+    }
+  });
+});

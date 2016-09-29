@@ -47,7 +47,6 @@ Accessor.getField = function(geo, field) {
             return General.withUsage(geo.homog, "Point");
         }
 
-
         if (field === "x") {
             return CSNumber.div(geo.homog.value[0], geo.homog.value[2]);
         }
@@ -121,10 +120,23 @@ Accessor.getField = function(geo, field) {
                 return General.bool(false);
             }
         }
-        if (field === "text") {
+        if (field === "text" || field === "currenttext") {
             if (geo.type === "EditableText") {
                 return General.string(String(geo.html.value));
             }
+        }
+        if (field === "xy") {
+            erg = List.dehom(geo.homog);
+            return General.withUsage(erg, "Point");
+        }
+        if (field === "homog") {
+            return General.withUsage(geo.homog, "Point");
+        }
+        if (field === "x") {
+            return CSNumber.div(geo.homog.value[0], geo.homog.value[2]);
+        }
+        if (field === "y") {
+            return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
         }
     }
     if (field === "trace") {
@@ -193,7 +205,15 @@ Accessor.setField = function(geo, field, value) {
         geo.alpha = value;
     }
     if (field === "fillcolor" && List._helper.isNumberVecN(value, 3)) {
-        geo.fillcolor = value;
+        if (geo.type === "EditableText") {
+            geo.fillcolor = value.value.map(function(i) {
+                return i.value.real;
+            });
+            geo.html.style.backgroundColor =
+                Render2D.makeColor(geo.fillcolor, geo.fillalpha);
+        } else {
+            geo.fillcolor = value;
+        }
     }
     if (field === "fillalpha" && value.ctype === "number") {
         geo.fillalpha = value;
@@ -222,25 +242,26 @@ Accessor.setField = function(geo, field, value) {
         }
     }
 
-    if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 2)) {
-        movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
-    }
+    if (geo.kind === "P" && geo.movable) {
+        if (field === "xy" && List._helper.isNumberVecN(value, 2)) {
+            movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
+        }
 
-    if (field === "xy" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 3)) {
-        movepointscr(geo, value, "homog");
-    }
+        if (field === "xy" && List._helper.isNumberVecN(value, 3)) {
+            movepointscr(geo, value, "homog");
+        }
 
-    if (field === "x" && geo.kind === "P" && geo.movable && value.ctype === "number") {
-        movepointscr(geo, List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]), "homog");
-    }
+        if (field === "x" && value.ctype === "number") {
+            movepointscr(geo, List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]), "homog");
+        }
 
-    if (field === "y" && geo.kind === "P" && geo.movable && value.ctype === "number") {
-        movepointscr(geo, List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]), "homog");
-    }
+        if (field === "y" && value.ctype === "number") {
+            movepointscr(geo, List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]), "homog");
+        }
 
-
-    if (field === "homog" && geo.kind === "P" && geo.movable && List._helper.isNumberVecN(value, 3)) {
-        movepointscr(geo, value, "homog");
+        if (field === "homog" && List._helper.isNumberVecN(value, 3)) {
+            movepointscr(geo, value, "homog");
+        }
     }
 
     if (field === "homog" && geo.kind === "L" && geo.movable && List._helper.isNumberVecN(value, 3)) {
@@ -266,9 +287,24 @@ Accessor.setField = function(geo, field, value) {
         if (field === "pressed" && value.ctype === "boolean" && geo.checkbox) {
             geo.checkbox.checked = value.value;
         }
-        if (field === "text") {
+        if (field === "text" || field === "currenttext") {
             if (geo.type === "EditableText") {
                 geo.html.value = niceprint(value);
+            }
+        }
+        if (geo.movable) { // Texts may move without tracing
+            if (field === "xy") {
+                if (List._helper.isNumberVecN(value, 2)) {
+                    geo.homog = List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]);
+                } else if (List._helper.isNumberVecN(value, 3)) {
+                    geo.homog = value;
+                }
+            } else if (field === "homog" && List._helper.isNumberVecN(value, 3)) {
+                geo.homog = value;
+            } else if (field === "x" && value.ctype === "number") {
+                geo.homog = List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]);
+            } else if (field === "y" && value.ctype === "number") {
+                geo.homog = List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]);
             }
         }
     }

@@ -130,85 +130,101 @@ Renderer.prototype.setTransformMatrix = function(a, b, c) {
 
 
 Renderer.prototype.setUniforms = function() {
-    for (let uname in this.cpguniforms) {
-        let val = this.api.evaluateAndVal(this.cpguniforms[uname].expr);
-        let t = this.cpguniforms[uname].type;
+    function setUniform(setter, t, val, part = 'real') {
+        if (!setter) return; //skip inactive uniforms
 
-        if (!issubtypeof(guessTypeOfValue(val), t)) {
-            console.log("Type of " + uname + " changed; forcing rebuild.");
-            this.rebuild();
-            this.shaderProgram.use(gl);
-            this.setUniforms();
-            return;
-        }
-
-        //@TODO: handle other types as well
-
-        let setter = this.shaderProgram.uniform[uname];
-
-        if (setter === undefined) continue;
-        switch (t) {
-            case type.complex:
-                setter([val['value']['real'], val['value']['imag']]);
-                break;
-            case type.bool:
-                if (val['value'])
-                    setter([1]);
-                else
-                    setter([0]);
-                break;
-            case type.int:
-            case type.float:
-                setter([val['value']['real']]);
-                break;
-            case type.vec2:
-            case type.vec3:
-            case type.vec4:
-                {
-                    let n = 0;
-                    if (t === type.vec2) n = 2;
-                    if (t === type.vec3) n = 3;
-                    if (t === type.vec4) n = 4;
-                    let v = [];
-                    for (let i = 0; i < n; i++) v.push(val['value'][i]['value']['real']);
-                    setter(v);
-                }
-                break;
-                //TODO: other non-quadratic matrices
-            case type.mat2:
-            case type.mat3:
-            case type.mat4:
-                {
-                    let l = 0;
-                    if (t === type.mat2) l = 2;
-                    if (t === type.mat3) l = 3;
-                    if (t === type.mat4) l = 4;
-                    let m = [];
-                    for (let i = 0; i < l; i++)
-                        for (let j = 0; j < l; j++) m.push(val['value'][j]['value'][i]['value']['real']);
-                    setter(m);
-                }
-                break;
-            case type.vec2complex:
-                setter([val['value'][0]['value']['real'], val['value'][0]['value']['imag'], val['value'][1]['value']['real'], val['value'][1]['value']['imag']]);
-                break;
-            case type.mat2complex:
-                let rm = Array(16);
-                for (let i = 0; i < 2; i++)
-                    for (let j = 0; j < 2; j++) {
-                        let tval = val['value'][i]['value'][j]['value'];
-                        rm[4 * (2 * j) + 2 * i] = tval['real'];
-                        rm[4 * (2 * j + 1) + 2 * i + 1] = tval['real'];
-                        rm[4 * (2 * j + 1) + 2 * i] = -tval['imag'];
-                        rm[4 * (2 * j) + 2 * i + 1] = tval['imag'];
+        if (typeof(setter) === 'function') {
+            switch (t) {
+                case type.complex:
+                    setter([val['value']['real'], val['value']['imag']]);
+                    break;
+                case type.bool:
+                    if (val['value'])
+                        setter([1]);
+                    else
+                        setter([0]);
+                    break;
+                case type.int:
+                case type.float:
+                    setter([val['value'][part]]);
+                    break;
+                default:
+                    if (t.type === 'list' && issubtypeof(t.parameters, type.float)) { //float-list
+                        setter(val['value'].map(x => x['value'][part]));
+                        break;
+                    } else if (t.type === 'list' && t.parameters.type === 'list' && issubtypeof(t.parameters.parameters, type.float)) { //float matrix
+                        //probably: if isnativeglsl?
+                        let m = [];
+                        for (let i = 0; i < t.parameters.length; i++)
+                            for (let j = 0; j < t.length; j++) m.push(val['value'][j]['value'][i]['value'][part]);
+                        setter(m);
+                        break;
                     }
-                setter(rm);
-                break;
-            default:
-                console.error("Don't know how to set uniform" + uname + ", which has the type " + typeToString(t) + ", to " + val);
-                break;
+
+                    console.error(`Don't know how to set uniform of type ${typeToString(t)}, to ${val}`);
+                    break;
+            }
+        } else {
+            if (isrvectorspace(t)) {
+                let d = depth(t);
+                if (d === 1) {
+                    let n = t.length;
+                    let s = sizes(n);
+
+                    let cum = 0;
+                    for (let k in s) {
+                        setUniform(setter[`a${k}`], type.vec(s[k]), {
+                            'ctype': 'list',
+                            'value': range(s[k]).map(l => val['value'][cum + l])
+                        });
+                        cum += s[k];
+                    }
+                    return;
+                } else if (d >= 2) {
+                    for (let k = 0; k < t.length; k++) {
+                        setUniform(setter[`a${k}`], t.parameters, {
+                            'ctype': 'list',
+                            'value': val['value'][k]['value']
+                        });
+                    }
+                    return;
+                }
+            } else if (iscvectorspace(t)) {
+                let converttofloat = t => issubtypeof(t, type.complex) ? type.float : list(t.length, converttofloat(t.parameters));
+                let st = converttofloat(t);
+
+                setUniform(setter['real'], st, val, part = 'real');
+                setUniform(setter['imag'], st, val, part = 'imag');
+                return;
+            }
+
+            console.error(`Don't know how to set uniform of type ${typeToString(t)}, to`);
+            console.log(val);
         }
     }
+
+    for (let uname in this.cpguniforms)
+        if (this.shaderProgram.uniform[uname]) {
+            let val = this.api.evaluateAndVal(this.cpguniforms[uname].expr);
+            let t = this.cpguniforms[uname].type;
+
+            if (!issubtypeof(guessTypeOfValue(val), t)) {
+                console.log(`Type of ${uname} changed; forcing rebuild.`);
+                this.rebuild();
+                this.shaderProgram.use(gl);
+                this.setUniforms();
+                return;
+            }
+
+            //@TODO: handle other types as well
+
+
+            let setter = this.shaderProgram.uniform[uname];
+
+
+            setUniform(setter, t, val);
+
+        }
     if (this.shaderProgram.uniform.hasOwnProperty('rnd_'))
         this.shaderProgram.uniform['rnd_']([Math.random()]);
 
@@ -235,12 +251,15 @@ Renderer.prototype.loadTextures = function() {
 
             cw.reloadIfRequired();
             cw.bindTexture();
-            this.shaderProgram.uniform['_sampler' + tname]([cnt]);
-            this.shaderProgram.uniform['_ratio' + tname]([cw.sizeX / cw.sizeY]);
-            this.shaderProgram.uniform['_cropfact' + tname]([cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]);
-            this.shaderProgram.uniform['_repeat' + tname]([properties.repeat]);
-            this.shaderProgram.uniform['_mipmap' + tname]([properties.mipmap]);
-
+            [
+                [`_sampler${tname}`, [cnt]],
+                [`_ratio${tname}`, [cw.sizeX / cw.sizeY]],
+                [`_cropfact${tname}`, [cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]],
+                [`_repeat${tname}`, [properties.repeat]],
+                [`_mipmap${tname}`, [properties.mipmap]]
+            ].map(
+                a => (this.shaderProgram.uniform[a[0]]) && this.shaderProgram.uniform[a[0]](a[1])
+            )
             cnt++;
         }
 }
@@ -251,7 +270,7 @@ Renderer.prototype.loadTextures = function() {
 Renderer.prototype.functionGenerationsOk = function() {
     for (let fname in this.generations) {
         if (this.api.getMyfunction(fname).generation > this.generations[fname]) {
-            console.log(fname + " is outdated; forcing rebuild.");
+            console.log(`${fname} is outdated; forcing rebuild.`);
             return false;
         }
     }
