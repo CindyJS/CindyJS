@@ -151,11 +151,12 @@ function generatecscalarmult(t, modifs, codebuilder) {
 
 function usemult(t) {
   if (isnativeglsl(t)) return useinfix('*');
-  return (args, modifs, codebuilder) => generatematmult(t, modifs, codebuilder) || `mult${t.length}_${t.parameters.length}(${args.join(',')})`;
-}
-
-function usecmult(t) {
-return (args, modifs, codebuilder) => generatematmult(t, modifs, codebuilder) || `cmult${t.length}_${t.parameters.length}(${args.join(',')})`;
+  let fp = finalparameter(t);
+  if(issubtypeof(fp, type.float))
+    return (args, modifs, codebuilder) => generatematmult(t, modifs, codebuilder) || `mult${t.length}_${t.parameters.length}(${args.join(',')})`;
+  else if(fp === type.complex)
+    return (args, modifs, codebuilder) => generatecmatmult(t, modifs, codebuilder) || `cmult${t.length}_${t.parameters.length}(${args.join(',')})`;
+  
 }
 
 function usedot(n) {
