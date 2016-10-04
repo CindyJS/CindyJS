@@ -221,42 +221,131 @@ function setuplisteners(canvas, data) {
         var y = e.clientY - rect.top - canvas.clientTop + 0.5;
         var pos = List.realVector(csport.to(x, y));
 
-        Array.prototype.forEach.call(files, function(file, i) {
-            var reader = new FileReader();
-            var type = file.type.replace(/;[^]*/, "");
-            if ((/^text\//).test(type)) {
-                reader.onload = function() {
-                    var value = General.string(reader.result);
-                    oneDone(i, value);
-                };
-                reader.readAsText(file);
-            } else if (type === "application/json") {
-                reader.onload = function() {
+        if (files.length > 0) {
+            Array.prototype.forEach.call(files, function(file, i) {
+                var reader = new FileReader();
+                if (textType(file.type)) {
+                    reader.onload = function() {
+                        textDone(i, reader.result);
+                    };
+                    reader.readAsText(file);
+                } else if ((/^image\//).test(tile.type)) {
+                    reader.onload = function() {
+                        imgDone(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    console.log("Unknown MIME type: " + file.type);
+                    oneDone(i, nada);
+                }
+            });
+        } else {
+            var data = dt.getData("text/uri-list");
+            if (data) {
+                data = data.split("\n").filter(function(line) {
+                    return !/^\s*(#|$)/.test(line);
+                });
+                countDown = data.length;
+                dropped = Array(countDown);
+                files = Array(countDown);
+                data.forEach(dropUri);
+            }
+        }
+
+        function dropUri(uri, i) {
+            var name = uri.replace(/[?#][^]*/, "");
+            name = name.replace(/[^]*\/([^\/])/, "$1");
+            files[i] = {
+                type: "",
+                name: name
+            };
+            var req = new XMLHttpRequest();
+            req.onreadystatechange = haveHead;
+            req.open("HEAD", uri);
+            req.send();
+
+            function haveHead() {
+                if (req.readyState !== XMLHttpRequest.DONE)
+                    return;
+                if (req.status !== 200) {
+                    console.error("HEAD request for " + uri + " failed: " +
+                        (req.responseText || "(no error message)"));
+                    oneDone(i, nada);
+                    return;
+                }
+                var type = req.getResponseHeader("Content-Type");
+                files[i].type = type;
+                if ((/^image\//).test(type)) {
+                    imgDone(i, uri);
+                } else if (textType(type)) {
+                    req = new XMLHttpRequest();
+                    req.onreadystatechange = haveText;
+                    req.open("GET", uri);
+                    req.send();
+                } else {
+                    oneDone(i, nada);
+                }
+            }
+
+            function haveText() {
+                if (req.readyState !== XMLHttpRequest.DONE)
+                    return;
+                if (req.status !== 200) {
+                    console.error("GET request for " + uri + " failed: " +
+                        (req.responseText || "(no error message)"));
+                    oneDone(i, nada);
+                    return;
+                }
+                textDone(i, req.responseText);
+            }
+
+        }
+
+        function textType(type) {
+            type = type.replace(/;[^]*/, "");
+            if ((/^text\//).test(type)) return 1;
+            if (type === "application/json") return 2;
+            return 0;
+        }
+
+        function textDone(i, text) {
+            switch (textType(files[i].type)) {
+                case 1:
+                    oneDone(i, General.string(text));
+                    break;
+                case 2:
                     var data, value;
                     try {
-                        data = JSON.parse(reader.result);
+                        data = JSON.parse(text);
                         value = General.wrapJSON(data);
                     } catch (err) {
                         console.error(err);
                         value = nada;
                     }
                     oneDone(i, value);
-                };
-                reader.readAsText(file);
-            } else if ((/^image\//).test(type)) {
-                reader.onload = function() {
-                    var img = new Image();
-                    img.onload = function() {
-                        oneDone(i, loadImage(img));
-                    };
-                    img.src = reader.result;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                console.log("Unknown MIME type: " + file.type);
-                oneDone(i, nada);
+                    break;
+                default:
+                    oneDone(i, nada);
+                    break;
             }
-        });
+        }
+
+        function imgDone(i, src) {
+            var img = new Image();
+            var reported = false;
+            img.onload = function() {
+                if (reported) return;
+                reported = true;
+                oneDone(i, loadImage(img));
+            };
+            img.onerror = function(err) {
+                if (reported) return;
+                reported = true;
+                console.error(err);
+                oneDone(i, nada);
+            };
+            img.src = src;
+        }
 
         function oneDone(i, value, type) {
             dropped[i] = List.turnIntoCSList([

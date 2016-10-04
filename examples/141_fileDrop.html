@@ -33,6 +33,7 @@ draw(point(dropPoint), color->[0,1,0], alpha->0.5);
 <script id="csondrop" type="text/x-cindyscript">
   dropped = dropped();
   dropPoint = droppoint();
+  err(dropped);
 </script>
 <script type="text/javascript">
 
@@ -53,6 +54,12 @@ var cdy = CindyJS({
 
 <body style="font-family:Arial;">
   <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+  <p>You can also drag and drop
+    <a href="../package.json" draggable="true">this link</a> (on some browsers)
+    or these images (on most browsers):<br>
+    <img src="rost.png" draggable="true">
+    <img src="boe.png" draggable="true">
+  </p>
 </body>
 
 
