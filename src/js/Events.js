@@ -223,13 +223,27 @@ function setuplisteners(canvas, data) {
 
         Array.prototype.forEach.call(files, function(file, i) {
             var reader = new FileReader();
-            if ((/^text\//).test(file.type)) {
+            var type = file.type.replace(/;[^]*/, "");
+            if ((/^text\//).test(type)) {
                 reader.onload = function() {
                     var value = General.string(reader.result);
                     oneDone(i, value);
                 };
                 reader.readAsText(file);
-            } else if ((/^image\//).test(file.type)) {
+            } else if (type === "application/json") {
+                reader.onload = function() {
+                    var data, value;
+                    try {
+                        data = JSON.parse(reader.result);
+                        value = General.wrapJSON(data);
+                    } catch (err) {
+                        console.error(err);
+                        value = nada;
+                    }
+                    oneDone(i, value);
+                };
+                reader.readAsText(file);
+            } else if ((/^image\//).test(type)) {
                 reader.onload = function() {
                     var img = new Image();
                     img.onload = function() {
@@ -239,6 +253,7 @@ function setuplisteners(canvas, data) {
                 };
                 reader.readAsDataURL(file);
             } else {
+                console.log("Unknown MIME type: " + file.type);
                 oneDone(i, nada);
             }
         });
