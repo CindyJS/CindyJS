@@ -1,6 +1,7 @@
 "use strict";
 
 var fs = require("fs");
+var os = require("os");
 var path = require("path");
 var util = require("util");
 var marked = require("marked");
@@ -188,8 +189,66 @@ function renderFileSync(infile, outfile) {
     });
 }
 
+function renderFile(infile, outfile, cb) {
+    fs.readFile(infile, function(err, buf) {
+        if (err) return cb(err);
+        var md = buf.toString();
+        renderHtml(md, function(err, html) {
+            if (err) return cb(err);
+            fs.writeFile(outfile, html, function(err) {
+                if (err) return cb(err);
+                cb();
+            });
+        });
+    });
+}
+
+function renderFiles(outdir, infiles, cb) {
+    var busy = 0;
+    function schedule() {
+        if (infiles.length === 0) {
+            if (busy === 0) {
+                busy = -1; // Don't call it a second time
+                return cb();
+            }
+            return;
+        }
+        ++busy;
+        var infile = infiles.shift();
+        var outfile = path.join(outdir, path.basename(infile, ".md") + ".html");
+        renderFile(infile, outfile, function(err) {
+            if (err) return cb(err);
+            --busy;
+            schedule();
+        });
+    }
+    for (var i = os.cpus().length; i > 0; --i)
+        schedule();
+}
+
+function main() {
+    var exitStatus = 3;
+    process.once("beforeExit", function() {
+        process.exit(exitStatus);
+    });
+    if (process.argv[2] === "-o") {
+        renderFiles(process.argv[3], process.argv.slice(4), done);
+    } else {
+        renderFile(process.argv[2], process.argv[3], done);
+    }
+
+    function done(err) {
+        if (err) {
+            console.error(err + "\n" + err.stack);
+            exitStatus = 1;
+        } else {
+            exitStatus = 0;
+        }
+    }
+}
+
 module.exports.renderBody = renderBody;
 module.exports.renderHtml = renderHtml;
 
 if (require.main === module)
-    renderFileSync(process.argv[2], process.argv[3]);
+    main();
