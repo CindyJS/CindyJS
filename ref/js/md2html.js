@@ -88,7 +88,7 @@ MyRenderer.prototype.heading = function(text, level, raw) {
       if (match[2] !== "")
         arity = match[2].split(",").length;
       ids.push(match[1] + "$" + arity);
-    } else if (match = /`‹\w*›\s*(\S+)\s*‹\w*›`/.exec(cur)) {
+    } else if (match = /‹\w*›\s*(\S+)\s*‹\w*›/.exec(cur)) {
       // infix operators
       ids.push(match[1].replace(/./g, function(char) {
         return "$" + char.charCodeAt(0).toString(16) + "u";
