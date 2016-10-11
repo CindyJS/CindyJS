@@ -303,19 +303,10 @@ InMemoryPipeline.prototype.checkLinks = function(pages) {
   });
   external = Object.keys(external);
   if (external.length) {
-    console.log("External links: ");
-    external.sort().forEach(function(href) {
-      console.log("  - " + href);
-    });
+    this.reportExternalLinks(external.sort());
   }
   if (Object.keys(broken).length) {
-    console.log("Broken internal links: ");
-    Object.keys(broken).sort().forEach(function(href) {
-      console.log("  - " + href + " used by");
-      broken[href].forEach(function(page) {
-        console.log("    * " + page.name);
-      });
-    });
+    this.reportBrokenLinks(broken);
   }
 };
 
@@ -367,6 +358,14 @@ InMemoryPipeline.prototype.createIndex = function(pages) {
     .thenResolve(indexPage);
 };
 
+InMemoryPipeline.prototype.reportExternalLinks = function(page) {
+  // no-op, may be overwitten by derived classes
+};
+
+InMemoryPipeline.prototype.reportBrokenLinks = function(page) {
+  // no-op, may be overwitten by derived classes
+};
+
 /**
  * The file-based pipeline adds file I/O and templating to the above.
  */
@@ -405,6 +404,24 @@ FileBasedPipeline.prototype.writePage = function(page) {
   return qfs.write(path.join(this.outdir, page.name), page.html);
 };
 
+FileBasedPipeline.prototype.reportExternalLinks = function(links) {
+  console.log("External links: ");
+  links.sort().forEach(function(href) {
+    console.log("  - " + href);
+  });
+};
+
+FileBasedPipeline.prototype.reportBrokenLinks = function(links) {
+  console.log("Broken internal links: ");
+  Object.keys(links).sort().forEach(function(href) {
+    console.log("  - " + href + " used by");
+    links[href].forEach(function(page) {
+      console.log("    * " + page.name);
+    });
+  });
+  throw Error("Broken links detected, please fix these!");
+};
+
 //////////////////////////////////////////////////////////////////////
 // Public API and command line
 
@@ -424,7 +441,10 @@ function main() {
   pipeline.processFiles(args).done(function() {
     exitStatus = 0;
   }, function(err) {
-    console.error(err + "\n" + err.stack);
+    if (/Broken links detected/.test(err.message))
+      console.error(err.message);
+    else
+      console.error(err.stack);
     exitStatus = 1;
   });
 }
