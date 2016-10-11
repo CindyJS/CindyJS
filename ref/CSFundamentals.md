@@ -19,7 +19,7 @@ The language design follows some guiding principles:
 *  The language should be easy to learn, write and read
 *  The language should have only minimal syntactic overhead
 *  The language should be fast in execution
-*  The language should interact seemlessly with Cinderella and [CindyLab](CindyLab.md)
+*  The language should interact seemlessly with Cinderella and CindyLab
 
 The following topics will give you an overview over the main language features:
 
@@ -33,7 +33,7 @@ How to write and edit a program
 Declearing, destroying and scope of variables and functions
 
 *  **[Accessing Geometric Elements](Accessing_Geometric_Elements.md):**
-How to interact with Cinderella and [CindyLab](CindyLab.md)
+How to interact with Cinderella and CindyLab
 
 *  **[Control Operators](Control_Operators.md):**
 How to create control structures with `if`, `repeat`, `while`, …

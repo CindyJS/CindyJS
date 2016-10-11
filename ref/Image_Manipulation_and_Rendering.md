@@ -18,7 +18,7 @@ Under this name the image can be accessed from within CindyScript.
 ![The Media Browser](img/Media.png)
 
 The images in the media browser can also be used as images for points and lines as well as background of the view port.
-This functionality is available via the [inspector](Inspector.md).
+This functionality is available via the inspector.
 
 ------
 

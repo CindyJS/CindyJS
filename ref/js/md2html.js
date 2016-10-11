@@ -93,10 +93,10 @@ MyRenderer.prototype.heading = function(text, level, raw) {
         args = args.split(",");
         arity = args.length;
         if (args[args.length - 1].indexOf("…") !== -1)
-          arity = "."; // variadic
+          arity = "v"; // variadic
       }
       id = match[1] + "$" + arity;
-    } else if (match = /‹\w*›\s*(\S+)\s*‹\w*›/.exec(cur)) {
+    } else if (match = /^‹\w*›\s*(\S+)\s*‹\w*›$/.exec(cur)) {
       // infix operators
       id = match[1].replace(/./g, function(char) {
         return "$" + char.charCodeAt(0).toString(16) + "u";
