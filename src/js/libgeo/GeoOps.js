@@ -482,7 +482,7 @@ geoOps.PointOnCircle.isMovable = true;
 geoOps.PointOnCircle.initialize = function(el) {
     var circle = csgeo.csnames[el.args[0]];
     var pos = List.normalizeZ(geoOps._helper.initializePoint(el));
-    var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+    var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
     var dir = List.sub(pos, mid);
     var param = List.turnIntoCSList([
         dir.value[1],
@@ -515,7 +515,7 @@ geoOps.PointOnCircle.getParamFromState = function(el) {
 };
 geoOps.PointOnCircle.getParamForInput = function(el, pos, type) {
     var circle = csgeo.csnames[el.args[0]];
-    var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+    var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
     var dir = List.sub(pos, mid);
     stateInIdx = el.stateIdx;
     var oldparam = getStateComplexVector(3);
@@ -691,7 +691,7 @@ geoOps._helper.PointOnArcCr = function(arc, P) {
 
 geoOps._helper.projectPointToCircle = function(cir, P) {
 
-    var cen = geoOps._helper.CenterOfConic(cir.matrix);
+    var cen = geoOps._helper.CenterOfCircle(cir.matrix);
     cen = List.normalizeMax(cen);
     var l = List.normalizeMax(List.cross(P, cen));
 
@@ -811,6 +811,16 @@ geoOps.PointOnArc.updatePosition = function(el) {
 };
 geoOps.PointOnArc.stateSize = 4;
 
+
+geoOps._helper.CenterOfCircle = function(c) {
+    // Treating this special case of CenterOfConic avoids some computation
+    // and also allows dealing with the degenerate case of center at infinity
+    return List.turnIntoCSList([
+        c.value[2].value[0],
+        c.value[2].value[1],
+        CSNumber.neg(c.value[0].value[0])
+    ]);
+};
 
 geoOps._helper.CenterOfConic = function(c) {
     // The center is the pole of the dual conic of the line at infinity
