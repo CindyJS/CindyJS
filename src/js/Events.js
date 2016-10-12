@@ -229,7 +229,7 @@ function setuplisteners(canvas, data) {
                         textDone(i, reader.result);
                     };
                     reader.readAsText(file);
-                } else if ((/^image\//).test(tile.type)) {
+                } else if ((/^image\//).test(file.type)) {
                     reader.onload = function() {
                         imgDone(reader.result);
                     };
