@@ -2,25 +2,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Buttons2.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
-
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
+    <title>Buttons2</title>
     <link rel="stylesheet" href="../build/js/CindyJS.css">
     <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script id="csinit" type="text/x-cindyscript">
+      Text2.fillcolor = [0.75, 0.75, 1];
+      Text5.fillcolor = [1, 1, 0];
+    </script>
     <script type="text/javascript">
 CindyJS({
   scripts: "cs*",
@@ -37,10 +25,10 @@ CindyJS({
     {name: "a", type: "VerticalLine", pos: [4.0, -0.0, 0.0], color: [0.0, 0.0, 1.0]},
     {name: "b", type: "VerticalLine", pos: [-0.4, -0.0, 4.0], color: [0.0, 0.0, 1.0]},
     {name: "Text0", type: "Button", pos: [0.0, -4.0, -1.0], color: [0.0, 0.0, 0.0], text: "Left push", align: "left"},
-    {name: "Text1", type: "Button", pos: [0.0, -4.0, -2.0], color: [0.0, 0.0, 0.0], text: "center | center", align: "mid"},
+    {name: "Text1", type: "Button", pos: [0.0, -4.0, -2.0], color: [0.0, 0.0, 0.0], text: "center | center", align: "mid", fillcolor: [0, 1, 0]},
     {name: "Text2", type: "Button", pos: [0.0, -0.0, 4.0], color: [0.0, 0.0, 0.0], text: "Right push", align: "right"},
     {name: "Text3", type: "ToggleButton", pos: [4.0, 1.6, 0.4], color: [0.0, 0.0, 0.0], text: "Left toggle", align: "left"},
-    {name: "Text4", type: "ToggleButton", pos: [4.0, 0.8, 0.4], color: [0.0, 0.0, 0.0], text: "mid | mid", align: "mid"},
+    {name: "Text4", type: "ToggleButton", pos: [4.0, 0.8, 0.4], color: [0.0, 0.0, 0.0], text: "mid | mid", align: "mid", fillcolor: [1, 0.75, 0], fillalpha: 0.27},
     {name: "Text5", type: "ToggleButton", pos: [4.0, -0.0, 0.4], color: [0.0, 0.0, 0.0], text: "Right toggle", align: "right"},
     {name: "c", type: "VerticalLine", pos: [-0.8, -0.0, 4.0], color: [0.0, 0.0, 1.0]},
     {name: "Text6", type: "Text", pos: [4.0, -0.0, 0.8], color: [0.0, 0.0, 0.0], text: "Right text", align: "right"},

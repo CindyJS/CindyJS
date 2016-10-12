@@ -120,11 +120,6 @@ Accessor.getField = function(geo, field) {
                 return General.bool(false);
             }
         }
-        if (field === "text" || field === "currenttext") {
-            if (geo.type === "EditableText") {
-                return General.string(String(geo.html.value));
-            }
-        }
         if (field === "xy") {
             erg = List.dehom(geo.homog);
             return General.withUsage(erg, "Point");
@@ -187,6 +182,10 @@ Accessor.getField = function(geo, field) {
         }
 
     }
+    var getter = geoOps[geo.type]["get_" + field];
+    if (typeof getter === "function") {
+        return getter(geo);
+    }
     return nada;
 
 
@@ -205,15 +204,7 @@ Accessor.setField = function(geo, field, value) {
         geo.alpha = value;
     }
     if (field === "fillcolor" && List._helper.isNumberVecN(value, 3)) {
-        if (geo.type === "EditableText") {
-            geo.fillcolor = value.value.map(function(i) {
-                return i.value.real;
-            });
-            geo.html.style.backgroundColor =
-                Render2D.makeColor(geo.fillcolor, geo.fillalpha);
-        } else {
-            geo.fillcolor = value;
-        }
+        geo.fillcolor = value;
     }
     if (field === "fillalpha" && value.ctype === "number") {
         geo.fillalpha = value;
@@ -268,29 +259,9 @@ Accessor.setField = function(geo, field, value) {
         movepointscr(geo, value, "homog");
     }
 
-    if (field === "angle" && geo.type === "Through" && value.ctype === "number") {
-        var cc = CSNumber.cos(value);
-        var ss = CSNumber.sin(value);
-        dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
-        movepointscr(geo, dir, "dir");
-    }
-    if (field === "slope" && geo.type === "Through" && value.ctype === "number") {
-        dir = List.turnIntoCSList([CSNumber.real(1), value, CSNumber.real(0)]);
-        movepointscr(geo, dir, "dir");
-    }
-    if (geo.kind === "C") {
-        if (field === "radius" && geo.type === "CircleMr" && value.ctype === "number") {
-            movepointscr(geo, value, "radius");
-        }
-    }
     if (geo.kind === "Text") {
         if (field === "pressed" && value.ctype === "boolean" && geo.checkbox) {
             geo.checkbox.checked = value.value;
-        }
-        if (field === "text" || field === "currenttext") {
-            if (geo.type === "EditableText") {
-                geo.html.value = niceprint(value);
-            }
         }
         if (geo.movable) { // Texts may move without tracing
             if (field === "xy") {
@@ -334,6 +305,10 @@ Accessor.setField = function(geo, field, value) {
             geo.behavior.vx = value.value[0].value.real;
             geo.behavior.vy = value.value[1].value.real;
         }
+    }
+    var setter = geoOps[geo.type]["set_" + field];
+    if (typeof setter === "function") {
+        return setter(geo, value);
     }
 
 
