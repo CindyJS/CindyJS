@@ -19,6 +19,12 @@ exports.libcs = [
     "src/js/libcs/Render2D.js",
     "src/js/libcs/RenderBackends.js",
     "src/js/libcs/Tools.js",
+    "src/js/quick-hull-3d/vector.js",
+    "src/js/quick-hull-3d/vertex.js",
+    "src/js/quick-hull-3d/vertex-list.js",
+    "src/js/quick-hull-3d/half-edge.js",
+    "src/js/quick-hull-3d/face.js",
+    "src/js/quick-hull-3d/quick-hull-3d.js",
 ];
 
 exports.libgeo = [
