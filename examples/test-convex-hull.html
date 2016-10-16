@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../build/js/quickhull3d/quickhull3d.nocache.js"></script>
+
+<script id='mouseDrag' type='text/x-cindyscript'>
+errc("Draw");
+xx=mouse().x;
+yy=mouse().y;
+wy=(startx-xx)*.3;
+wx=-(starty-yy)*.3;
+
+mmmx=[
+  [1,0,0],
+  [0,cos(wx),sin(wx)],
+  [0,-sin(wx),cos(wx)]
+];
+
+mmmy=[
+  [cos(wy),0,-sin(wy)],
+  [0,1,0],
+  [sin(wy),0,cos(wy)]
+];
+
+mat=mmmx*mmmy*mat;
+
+startx=mouse().x;
+starty=mouse().y;
+</script>
+
+<script id='mouseUp' type='text/x-cindyscript'>
+errc("Up");
+
+xx=mouse().x;
+yy=mouse().y;
+wy=(startx-xx)*.3;
+wx=-(starty-yy)*.3;
+
+mmmx=[
+  [1,0,0],
+  [0,cos(wx),sin(wx)],
+  [0,-sin(wx),cos(wx)]
+];
+
+mmmy=[
+  [cos(wy),0,-sin(wy)],
+  [0,1,0],
+  [sin(wy),0,cos(wy)]
+];
+
+mat=mmmx*mmmy*mat;
+</script>
+
+<script id='mouseDown' type='text/x-cindyscript'>
+errc("DOWN");
+
+startx=mouse().x;
+starty=mouse().y;
+</script>
+
+<script id='csinit' type='text/x-cindyscript'>
+mat=[
+  [1,0,0],
+  [0,1,0],
+  [0,0,1]
+];
+
+mat0=[
+  [1,0,0],
+  [0,1,0],
+  [0,0,1]
+];
+
+mmmx=mat0;
+mmmy=mat0;
+gg=(1-sqrt(5))/2 ;
+
+obj1=(
+   (1,gg,0),
+   (1,-gg,0),
+   (-1,gg,0),
+   (-1,-gg,0),
+   (0,1,gg),
+   (0,1,-gg),
+   (0,-1,gg),
+   (0,-1,-gg),
+   (gg,0,1),
+   (-gg,0,1),
+   (gg,0,-1),
+   (-gg,0,-1)
+ );
+num=5;
+
+ma(p):=[p_1,p_2];
+
+pos1=(10,-10,-10);
+pos1=pos1/|pos1|;
+pos2=(-10,-10,-10);
+pos2=pos2/|pos2|;
+ col1=(1,0,0);
+ col2=(0,0,1);
+
+drawface(f,nn):=(
+   if(area(f_1,f_2,f_3)>0,
+      col=pos1*nn*col1+pos2*nn*col2;
+      ff=f++[f_1];
+      apply(1..(length(ff)-1),
+                fillpoly(f,color->col);
+
+          draw(ff_#,ff_(#+1),size->1,color->(0,0,0))
+      )
+
+   )
+)
+
+</script>
+
+<script id='tick' type='text/x-cindyscript'>
+errc("HALLO");
+</script>
+
+<script id='csmove-js' type='text/x-cindyscript'>
+
+a=convexhull3d1(obj1*3);
+points=a_1*transpose(mat);
+faces=a_2;
+
+println("==== JS Hull ====");
+println(points);
+println(faces);
+
+apply(faces,f,
+    fa=points_f;
+    nn=cross( fa_2-fa_1,fa_2-fa_3);
+    nn=nn/|nn|;
+    erg=apply(fa,p,ma(p));
+    drawface(erg,nn);
+);
+
+</script>
+
+<script id='csmove-java' type='text/x-cindyscript'>
+
+a=convexhull3d(obj1*3);
+points=a_1*transpose(mat);
+faces=a_2;
+
+println("==== Java Hull ====");
+println(points);
+println(faces);
+
+apply(faces,f,
+    fa=points_f;
+    nn=cross( fa_2-fa_1,fa_2-fa_3);
+    nn=nn/|nn|;
+    erg=apply(fa,p,ma(p));
+    drawface(erg,nn);
+);
+
+</script>
+
+<script type="text/javascript">
+
+var gslp=[ {name:"A", kind:"P", type:"Free",alpha:0, pos:[-1000,-1000,1]} ];
+
+var cdyJS = CindyJS({ // See ref/createCindy documentation for details.
+  canvasname: "CSCanvas-js",
+//  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {},
+movescript:"csmove-js",
+mousedownscript:"mouseDown", 
+mouseupscript:"mouseUp",
+mousedragscript:"mouseDrag",
+initscript:"csinit",
+geometry: gslp
+});
+
+var cdyJAVA = CindyJS({
+ports: [{id: "CSCanvas-java", width: 500, height: 500}],
+language: "en",
+defaultAppearence:{},
+movescript:"csmove-java",
+mousedownscript:"mouseDown", 
+mouseupscript:"mouseUp",
+mousedragscript:"mouseDrag",
+initscript:"csinit",
+geometry: gslp
+});
+</script>
+
+</head>
+
+<body style="font-family:Arial;">
+<div style="display: inline-block;">
+<h2 style="width:100%;">JS</h2>
+<div id="CSCanvas-js" style="width:500px; height:500px; border:2px solid black;"></div>
+</div>
+<div style="display: inline-block;">
+<h2 style="width:100%;">Java</h2>
+<div id="CSCanvas-java"  style="border:2px solid #000000"></div>
+</div>
+</body>
+
+</html>
