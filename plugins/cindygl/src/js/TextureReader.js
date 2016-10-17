@@ -126,15 +126,13 @@ function useimagergb4(args, modifs, codebuilder) {
 }
 
 function useimagergba2(args, modifs, codebuilder) {
-    let a = computeLowerLeftCorner(codebuilder.api);
-    let b = computeLowerRightCorner(codebuilder.api);
-    return ['_imagergba', generateTextureReaderIfRequired(args[0], modifs, codebuilder), '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ')'].join('');
+    codebuilder.add('uniforms', 'corners', () => 'uniform vec2 _lowerleft, _lowerright;');
+    return ['_imagergba', generateTextureReaderIfRequired(args[0], modifs, codebuilder), '(_lowerleft, _lowerright, ', args[1], ')'].join('');
 }
 
 function useimagergb2(args, modifs, codebuilder) {
-    let a = computeLowerLeftCorner(codebuilder.api);
-    let b = computeLowerRightCorner(codebuilder.api);
-    return ['(_imagergba', generateTextureReaderIfRequired(args[0], modifs, codebuilder), '(vec2(', a.x, ',', a.y, '),vec2(', b.x, ',', b.y, '), ', args[1], ').rgb)'].join('');
+    codebuilder.add('uniforms', 'corners', () => 'uniform vec2 _lowerleft, _lowerright;');
+    return ['(_imagergba', generateTextureReaderIfRequired(args[0], modifs, codebuilder), '(_lowerleft, _lowerright, ', args[1], ').rgb)'].join('');
 }
 
 
