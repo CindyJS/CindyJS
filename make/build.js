@@ -58,6 +58,11 @@ module.exports = function build(settings, task) {
         this.concat(src.srcs, "build/js/Cindy.plain.js");
     });
 
+    task("ifs", [], function() {
+        version(this);
+        this.concat(src.ifs, "build/js/ifs.js");
+    });
+
     task("ours", ["cs2js"], function() {
         version(this);
         this.concat(src.ours, "build/js/ours.js");
@@ -587,6 +592,7 @@ module.exports = function build(settings, task) {
 
     task("all", [
         "Cindy.js",
+        "ifs",
         "cindy3d",
         "cindygl",
         "katex",

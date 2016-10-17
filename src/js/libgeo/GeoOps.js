@@ -12,7 +12,8 @@ geoOps._helper = {};
  * V  - (numeric) value
  * Text - Text
  * "**" - arbitrary number of arguments with arbitrary types
- * Poly - Polygons
+ * Poly - Polygon
+ * IFS  - Iterated Function System
  */
 
 
@@ -2793,7 +2794,6 @@ geoOps._helper.initializeLine = function(el) {
     return pos;
 };
 
-
 geoOps.Poly = {};
 geoOps.Poly.kind = "Poly";
 geoOps.Poly.signature = "P*";
@@ -2801,6 +2801,99 @@ geoOps.Poly.updatePosition = function(el) {
     el.vertices = List.turnIntoCSList(el.args.map(function(x) {
         return csgeo.csnames[x].homog;
     }));
+};
+
+geoOps.IFS = {};
+geoOps.IFS.kind = "IFS";
+geoOps.IFS.signature = "**";
+geoOps.IFS.signatureConstraints = function(el) {
+    for (var i = 0; i < el.args.length; ++i) {
+        var kind = csgeo.csnames[el.args[i]].kind;
+        if (kind !== "Tr" && kind !== "Mt")
+            return false;
+    }
+    return el.args.length > 0;
+};
+geoOps.IFS.initialize = function(el) {
+    var baseDir = CindyJS.getBaseDir();
+    if (baseDir === false)
+        return;
+    var worker = el._worker = new Worker(baseDir + "ifs.js");
+    worker.onmessage = function(msg) {
+        if (el._img)
+            el._img.close();
+        el._img = msg.data;
+        worker.postMessage({
+            cmd: "next"
+        });
+        scheduleUpdate();
+    };
+    shutdownHooks.push(worker.terminate.bind(worker));
+};
+geoOps.IFS.updatePosition = function(el) {
+    if (!el._worker)
+        return;
+    var supersampling = 4;
+    var msg = {
+        cmd: "init",
+        width: csw * supersampling,
+        height: csh * supersampling,
+        trafos: []
+    };
+    var sum = 0;
+    var i;
+    for (i = 0; i < el.args.length; ++i)
+        sum += el["ifs.prob" + i];
+    var scale = List.realMatrix([
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, supersampling]
+    ]);
+    var px2hom = List.productMM(csport.toMat(), scale);
+    for (i = 0; i < el.args.length; ++i) {
+        var trel = csgeo.csnames[el.args[i]];
+        var kind = trel.kind;
+        var tr = msg.trafos[i] = {
+            prob: el["ifs.prob" + i] / sum,
+            color: el["ifs.color" + i],
+            kind: kind
+        };
+        if (kind === "Mt") {
+            var mat1 = List.productMM(
+                List.transpose(px2hom), List.productMM(trel.mat1, px2hom));
+            var mat2 = List.productMM(
+                List.transpose(px2hom), List.productMM(trel.mat2, px2hom));
+            var moeb = List.normalizeMax(List.turnIntoCSList([
+                mat1.value[2].value[0], // ar
+                mat2.value[2].value[0], // ai
+                mat1.value[2].value[2], // br
+                mat2.value[2].value[2], // bi
+                CSNumber.neg(mat1.value[0].value[0]), // cr
+                CSNumber.neg(mat2.value[0].value[0]), // ci
+                CSNumber.neg(mat1.value[0].value[2]), // dr
+                CSNumber.neg(mat2.value[0].value[2]) // di
+            ]));
+            if (!List._helper.isAlmostReal(moeb)) {
+                tr.kind = 999;
+                continue;
+            }
+            moeb = moeb.value;
+            tr.moebius = {
+                ar: moeb[0].value.real,
+                ai: moeb[1].value.real,
+                br: moeb[2].value.real,
+                bi: moeb[3].value.real,
+                cr: moeb[4].value.real,
+                ci: moeb[5].value.real,
+                dr: moeb[6].value.real,
+                di: moeb[7].value.real,
+                sign: trel.moebius.anti ? -1 : 1
+            };
+        }
+    }
+    console.log(msg);
+    el._worker.postMessage(msg);
+    el._img = null;
 };
 
 

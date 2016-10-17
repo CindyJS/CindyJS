@@ -1,3 +1,5 @@
+*.c             text
+*.cc            text
 *.conf          text
 *.cs            text
 *.css           text

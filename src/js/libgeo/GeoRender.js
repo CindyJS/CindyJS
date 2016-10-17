@@ -281,6 +281,11 @@ function drawgeopolygon(el) {
     eval_helper.drawpolygon([el.vertices], modifs, "D", true);
 }
 
+function drawgeoifs(el) {
+    if (!el._img) return;
+    csctx.drawImage(el._img, 0, 0, csw, csh);
+}
+
 function render() {
 
     var i;
@@ -306,6 +311,10 @@ function render() {
 
     for (i = 0; i < csgeo.texts.length; i++) {
         drawgeotext(csgeo.texts[i]);
+    }
+
+    for (i = 0; i < csgeo.ifs.length; i++) {
+        drawgeoifs(csgeo.ifs[i]);
     }
 
 }

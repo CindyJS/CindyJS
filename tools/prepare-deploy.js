@@ -31,6 +31,8 @@ var handlers = {
     "cglres.js": false,
     "exposed.js": false,
     "exposed.js.map": false,
+    "ifs.js": true,
+    "ifs.js.map": true,
     "images": true,
     "katex": true,
     "katex-plugin.js": true,
