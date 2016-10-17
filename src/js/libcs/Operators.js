@@ -3948,6 +3948,7 @@ evaluator.create$3 = function(args, modifs) {
     }
 
     if (!geoOps.hasOwnProperty(type.value) &&
+        !geoAliases.hasOwnProperty(type.value) &&
         !geoMacros.hasOwnProperty(type.value)) {
         console.log("Invalid geometric operation: '" + type.value + "'");
         return nada;

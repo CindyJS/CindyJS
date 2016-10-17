@@ -2897,6 +2897,23 @@ geoOps.Poly.updatePosition = function(el) {
 };
 
 
+var geoAliases = {
+    "CircleByRadius": "CircleMr",
+    "IntersectionCircleCircle": "IntersectCirCir",
+    "IntersectionConicConic": "IntersectConicConic",
+    "FreePoint": "Free",
+    "Orthogonal": "Perp",
+    "Parallel": "Para",
+    "Pole": "PolarOfLine",
+    "Polar": "PolarOfPoint",
+    "Arc": "ArcBy3",
+    "EuclideanMid": "Mid",
+    "AngularBisector": "AngleBisector",
+    "TransformConic": "TransformC",
+    "TransformSegment": "TransformS",
+    "TrMoebiusSegment": "TrMoebiusS"
+};
+
 var geoMacros = {};
 
 /* Note: currently the expansion of a macro is simply included in the
@@ -2918,79 +2935,9 @@ geoMacros.CircleByFixedRadius = function(el) {
     return [el];
 };
 
-geoMacros.CircleByRadius = function(el) {
-    el.type = "CircleMr";
-    return [el];
-};
-
 geoMacros.IntersectionConicLine = function(el) {
     el.args = [el.args[1], el.args[0]];
     el.type = "IntersectLC";
-    return [el];
-};
-
-geoMacros.IntersectionCircleCircle = function(el) {
-    el.type = "IntersectCirCir";
-    return [el];
-};
-
-geoMacros.IntersectionConicConic = function(el) {
-    el.type = "IntersectConicConic";
-    return [el];
-};
-
-geoMacros.FreePoint = function(el) {
-    el.type = "Free";
-    return [el];
-};
-
-geoMacros.Orthogonal = function(el) {
-    el.type = "Perp";
-    return [el];
-};
-
-geoMacros.Parallel = function(el) {
-    el.type = "Para";
-    return [el];
-};
-
-geoMacros.Pole = function(el) {
-    el.type = "PolarOfLine";
-    return [el];
-};
-
-geoMacros.Polar = function(el) {
-    el.type = "PolarOfPoint";
-    return [el];
-};
-
-geoMacros.Arc = function(el) {
-    el.type = "ArcBy3";
-    return [el];
-};
-
-geoMacros.EuclideanMid = function(el) {
-    el.type = "Mid";
-    return [el];
-};
-
-geoMacros.AngularBisector = function(el) {
-    el.type = "AngleBisector";
-    return [el];
-};
-
-geoMacros.TransformConic = function(el) {
-    el.type = "TransformC";
-    return [el];
-};
-
-geoMacros.TransformSegment = function(el) {
-    el.type = "TransformS";
-    return [el];
-};
-
-geoMacros.TrMoebiusSegment = function(el) {
-    el.type = "TrMoebiusS";
     return [el];
 };
 

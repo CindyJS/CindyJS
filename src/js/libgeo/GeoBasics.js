@@ -168,6 +168,11 @@ function addElementNoProof(el) {
         };
     }
 
+    // Recursively apply aliases
+    while (geoAliases.hasOwnProperty(el.type)) {
+        el.type = geoAliases[el.type];
+    }
+
     // Expand macros
     var macro = geoMacros[el.type];
     if (macro) {
