@@ -2014,6 +2014,27 @@ geoOps._helper.moebiusPair = function(el) {
     ]));
 };
 
+geoOps.TrInverseMoebius = {};
+geoOps.TrInverseMoebius.kind = "Mt";
+geoOps.TrInverseMoebius.signature = ["Mt"];
+geoOps.TrInverseMoebius.updatePosition = function(el) {
+    var m = csgeo.csnames[el.args[0]].moebius;
+    var neg = CSNumber.neg;
+    var flip = m.anti ? neg : General.identity;
+    el.moebius = {
+        sign: m.sign,
+        ar: m.dr,
+        ai: flip(m.di),
+        br: neg(m.br),
+        bi: neg(flip(m.bi)),
+        cr: neg(m.cr),
+        ci: neg(flip(m.ci)),
+        dr: m.ar,
+        di: flip(m.ai)
+    };
+    geoOps._helper.moebiusPair(el);
+};
+
 geoOps.TrMoebiusP = {};
 geoOps.TrMoebiusP.kind = "P";
 geoOps.TrMoebiusP.signature = ["Mt", "P"];
