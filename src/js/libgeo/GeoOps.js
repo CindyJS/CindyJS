@@ -2002,16 +2002,17 @@ geoOps._helper.moebiusPair = function(el) {
     var m = el.moebius;
     var neg = CSNumber.neg;
     var flip = m.anti ? neg : General.identity;
-    el.mat1 = List.normalizeMax(List.matrix([
+    var mats = List.normalizeMax(List.turnIntoCSList([List.matrix([
         [neg(m.cr), flip(m.ci), neg(m.dr)],
         [m.ci, flip(m.cr), m.di],
         [m.ar, neg(flip(m.ai)), m.br]
-    ]));
-    el.mat2 = List.normalizeMax(List.matrix([
+    ]), List.matrix([
         [neg(m.ci), neg(flip(m.cr)), neg(m.di)],
         [neg(m.cr), flip(m.ci), neg(m.dr)],
         [m.ai, flip(m.ar), m.bi]
-    ]));
+    ])]));
+    el.mat1 = mats.value[0];
+    el.mat2 = mats.value[1];
 };
 
 geoOps.TrInverseMoebius = {};
