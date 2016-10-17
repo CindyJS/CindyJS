@@ -912,6 +912,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
         console.error("expression does not generate a color");
     }
     let code = this.generateSection('structs');
+    code += this.generateSection('uniforms');
     code += this.generateListOfUniforms();
     code += generateHeaderOfTextureReaders(this);
     code += this.generateSection('functions');
