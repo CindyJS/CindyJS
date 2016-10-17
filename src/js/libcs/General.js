@@ -267,3 +267,7 @@ General.wrapJSON = function(data) {
             return nada;
     }
 };
+
+General.identity = function(x) {
+    return x;
+};
