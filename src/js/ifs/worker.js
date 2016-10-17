@@ -1,3 +1,4 @@
+var nextInit = null;
 var asm = null;
 var buffer = null;
 var imgData = null;
@@ -18,8 +19,11 @@ if (!Math.imul || Math.imul(0xffffffff, 5) !== -5)
 
 onmessage = function(event) {
     var d = event.data;
-    if (d.cmd === "init")
-        init(d);
+    if (d.cmd === "init") {
+        nextInit = d;
+        if (!generation)
+            next();
+    }
     if (d.cmd === "next")
         next();
 }
@@ -65,10 +69,13 @@ function init(d) {
         }
     }
     asm._real(1000, 1);
-    next();
 }
 
 function next() {
+    if (nextInit) {
+        init(nextInit);
+        nextInit = null;
+    }
     asm._real(1e5, 0);
     createImageBitmap(imgData).then(function(bmp) {
         postMessage(bmp, [bmp]);
