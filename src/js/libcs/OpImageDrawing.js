@@ -349,21 +349,34 @@ evaluator.allimages$0 = function() {
 
 evaluator.cameravideo$0 = function() {
     var openVideoStream = null;
-    var constraints = {
+    // As per https://bugs.chromium.org/p/chromium/issues/detail?id=543997#c47,
+    // Chrome 54 doesn't actually honor ideal constraints yet, so we need
+    // to explicitely list some common widths to control resolution selection.
+    var constraints = [320, 640, 1024, 1280, 1920, 2560];
+    constraints = constraints.map(function(w) {
+        return {
+            width: {
+                min: w
+            }
+        };
+    });
+    // We'd like to also minimize aspect ratio i.e. maximize height for a given
+    // width, but Chrome again appears to have a problem with this. See also
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=657145
+    if (false) {
+        constraints = constraints.concat([1.34, 1.59, 1.78].map(function(a) {
+            return {
+                aspectRatio: {
+                    max: a
+                }
+            };
+        }));
+    }
+    constraints = {
         video: {
-            optional: [{
-                minWidth: 320
-            }, {
-                minWidth: 640
-            }, {
-                minWidth: 1024
-            }, {
-                minWidth: 1280
-            }, {
-                minWidth: 1920
-            }, {
-                minWidth: 2560
-            }, ]
+            width: 16000, // ideal dimensions, will
+            height: 9000, // prefer big resolutions
+            advanced: constraints
         },
         audio: false
     };
