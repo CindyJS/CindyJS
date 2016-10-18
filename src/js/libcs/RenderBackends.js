@@ -868,3 +868,9 @@ globalInstance.exportPDF = function() {
         exportWith(PdfWriterContext, wnd);
     });
 };
+
+globalInstance.exportPNG = function() {
+    var data = csctx.canvas.toDataURL();
+    var wnd = window.open('about:blank', '_blank');
+    wnd.location.href = data;
+};
