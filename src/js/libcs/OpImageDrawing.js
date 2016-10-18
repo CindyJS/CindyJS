@@ -350,7 +350,21 @@ evaluator.allimages$0 = function() {
 evaluator.cameravideo$0 = function() {
     var openVideoStream = null;
     var constraints = {
-        video: true,
+        video: {
+            optional: [{
+                minWidth: 320
+            }, {
+                minWidth: 640
+            }, {
+                minWidth: 1024
+            }, {
+                minWidth: 1280
+            }, {
+                minWidth: 1920
+            }, {
+                minWidth: 2560
+            }, ]
+        },
         audio: false
     };
     var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
