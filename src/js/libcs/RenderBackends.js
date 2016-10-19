@@ -849,11 +849,9 @@ function exportWith(Context) {
             csctx.height = csh;
             updateCindy();
             var blob = csctx.toBlob();
-            releaseExportedObject();
             exportedCanvasURL = window.URL.createObjectURL(blob);
 
             downloadHelper(exportedCanvasURL);
-            window.URL.revokeObjectURL(exportedCanvasURL);
         } finally {
             csctx = origctx;
         }
@@ -882,5 +880,8 @@ var downloadHelper = function(data) {
     a.href = data;
     a.download = "CindyJSExport";
     a.click();
-    document.body.removeChild(a);
+    setTimeout(function() {
+        document.body.removeChild(a);
+        releaseExportedObject();
+    }, 100);
 };
