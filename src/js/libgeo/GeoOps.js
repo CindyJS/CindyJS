@@ -2827,15 +2827,37 @@ geoOps.IFS.initialize = function(el) {
     worker.onmessage = function(msg) {
         if (el._cache.img && typeof el._cache.img.close === "function")
             el._cache.img.close();
-        if (msg.data.generation === el._cache.params.generation) {
-            el._cache.img = msg.data.img;
+        var d = msg.data;
+        if (d.generation === el._cache.params.generation) {
+            if (d.buffer) {
+                if (!el._cache.canvas) {
+                    el._cache.canvas = document.createElement("canvas");
+                    el._cache.ctx = el._cache.canvas.getContext("2d");
+                }
+                el._cache.canvas.width = d.width;
+                el._cache.canvas.height = d.height;
+                var imgSize = d.width * d.height * 4;
+                var imgBytes = new Uint8ClampedArray(d.buffer, d.imgPtr, imgSize);
+                var imgData = new ImageData(imgBytes, d.width, d.height);
+                el._cache.ctx.putImageData(imgData, 0, 0);
+                el._cache.img = el._cache.canvas;
+            } else {
+                el._cache.img = d.img;
+            }
             scheduleUpdate();
         } else {
             el._cache.img = null;
         }
-        worker.postMessage({
-            cmd: "next"
-        });
+        if (d.buffer) {
+            worker.postMessage({
+                cmd: "next",
+                buffer: d.buffer
+            }, [d.buffer]);
+        } else {
+            worker.postMessage({
+                cmd: "next",
+            });
+        }
     };
     shutdownHooks.push(worker.terminate.bind(worker));
 };
