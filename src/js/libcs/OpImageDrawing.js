@@ -347,39 +347,102 @@ evaluator.allimages$0 = function() {
     return List.turnIntoCSList(lst);
 };
 
-evaluator.cameravideo$0 = function() {
-    var openVideoStream = null;
-    // As per https://bugs.chromium.org/p/chromium/issues/detail?id=543997#c47,
-    // Chrome 54 doesn't actually honor ideal constraints yet, so we need
-    // to explicitely list some common widths to control resolution selection.
-    var constraints = [320, 640, 1024, 1280, 1920, 2560];
-    constraints = constraints.map(function(w) {
-        return {
-            width: {
-                min: w
+evaluator.cameravideo$0 = function(args, modifs) {
+    var maximal = true; //use maximal as default (if no other modifier is given)
+    var constraints = {};
+
+    if (modifs.resolution !== undefined) {
+        maximal = false;
+        var val = evaluate(modifs.resolution);
+        if (val.ctype === 'string' && val.value === 'maximal') maximal = true;
+        else {
+            var width = null;
+            var heightorratio = null;
+
+            if (val.ctype === 'number') {
+                width = val.value.real;
+            } else if (List.isNumberVector(val).value && (val.value.length === 2)) {
+                width = val.value[0].value.real;
+                heightorratio = val.value[1].value.real;
+            } else return nada;
+
+            constraints = {
+                video: {
+                    width: width,
+                    advanced: [{
+                        width: {
+                            max: width, //ideal or exact seem not be supported by Chrome yet
+                            min: width
+                        }
+                    }, {
+                        width: {
+                            ideal: width
+                        }
+                    }]
+                },
+                audio: false
+            };
+            if (heightorratio) {
+                if (heightorratio < 10 || !Number.isInteger(heightorratio)) {
+                    constraints.video.aspectRatio = heightorratio;
+                    constraints.video.advanced[0].aspectRatio = {
+                        min: heightorratio,
+                        max: heightorratio
+                    };
+                    constraints.video.advanced[1].aspectRatio = {
+                        ideal: heightorratio,
+                    };
+                } else {
+                    constraints.video.height = heightorratio;
+                    constraints.video.advanced[0].height = {
+                        min: heightorratio,
+                        max: heightorratio
+                    };
+                    constraints.video.advanced[1].height = {
+                        ideal: heightorratio,
+                    };
+                }
             }
-        };
-    });
-    // We'd like to also minimize aspect ratio i.e. maximize height for a given
-    // width, but Chrome again appears to have a problem with this. See also
-    // https://bugs.chromium.org/p/chromium/issues/detail?id=657145
-    if (false) {
-        constraints = constraints.concat([1.34, 1.59, 1.78].map(function(a) {
+        }
+    }
+    if (maximal) {
+        // As per https://bugs.chromium.org/p/chromium/issues/detail?id=543997#c47,
+        // Chrome 54 doesn't actually honor ideal constraints yet, so we need
+        // to explicitely list some common widths to control resolution selection.
+        constraints = [320, 640, 1024, 1280, 1920, 2560];
+        constraints = constraints.map(function(w) {
             return {
-                aspectRatio: {
-                    max: a
+                width: {
+                    min: w
                 }
             };
-        }));
+        });
+        // We'd like to also minimize aspect ratio i.e. maximize height for a given
+        // width, but Chrome again appears to have a problem with this. See also
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=657145
+        if (false) {
+            constraints = constraints.concat([1.34, 1.59, 1.78].map(function(a) {
+                return {
+                    aspectRatio: {
+                        max: a
+                    }
+                };
+            }));
+        }
+        constraints = {
+            video: {
+                width: 16000, // ideal dimensions, will
+                height: 9000, // prefer big resolutions
+                advanced: constraints
+            },
+            audio: false
+        };
     }
-    constraints = {
-        video: {
-            width: 16000, // ideal dimensions, will
-            height: 9000, // prefer big resolutions
-            advanced: constraints
-        },
-        audio: false
-    };
+
+    console.log(constraints);
+
+    var openVideoStream = null;
+
     var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     if (gum) {
         openVideoStream = function(success, failure) {
