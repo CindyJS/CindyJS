@@ -271,3 +271,19 @@ General.wrapJSON = function(data) {
 General.identity = function(x) {
     return x;
 };
+
+General.deeplyEqual = function(a, b) {
+    if (typeof a !== "object" || typeof b !== "object" ||
+        a === null || b === null)
+        return a === b;
+    var cnt = 0;
+    var k;
+    for (k in a) {
+        ++cnt;
+        if (!(k in b && General.deeplyEqual(a[k], b[k])))
+            return false;
+    }
+    for (k in b)
+        --cnt;
+    return cnt === 0;
+};

@@ -282,8 +282,12 @@ function drawgeopolygon(el) {
 }
 
 function drawgeoifs(el) {
-    if (!el._img) return;
-    csctx.drawImage(el._img, 0, 0, csw, csh);
+    if (!General.deeplyEqual(el._cache.mat, csport.drawingstate.matrix)) {
+        geoOps.IFS.updateParameters(el);
+    }
+    if (el._cache.img) {
+        csctx.drawImage(el._cache.img, 0, 0, csw, csh);
+    }
 }
 
 function render() {

@@ -2818,24 +2818,37 @@ geoOps.IFS.initialize = function(el) {
     var baseDir = CindyJS.getBaseDir();
     if (baseDir === false)
         return;
+    el._cache = {
+        params: {
+            generation: 0
+        },
+    };
     var worker = el._worker = new Worker(baseDir + "ifs.js");
     worker.onmessage = function(msg) {
-        if (el._img)
-            el._img.close();
-        el._img = msg.data;
+        if (el._cache.img && typeof el._cache.img.close === "function")
+            el._cache.img.close();
+        if (msg.data.generation === el._cache.params.generation) {
+            el._cache.img = msg.data.img;
+            scheduleUpdate();
+        } else {
+            el._cache.img = null;
+        }
         worker.postMessage({
             cmd: "next"
         });
-        scheduleUpdate();
     };
     shutdownHooks.push(worker.terminate.bind(worker));
 };
 geoOps.IFS.updatePosition = function(el) {
+    geoOps.IFS.updateParameters(el);
+};
+geoOps.IFS.updateParameters = function(el) {
     if (!el._worker)
-        return;
+        return; // no worker, nothing we can do
     var supersampling = 4;
     var msg = {
         cmd: "init",
+        generation: el._cache.params.generation,
         width: csw * supersampling,
         height: csh * supersampling,
         trafos: []
@@ -2891,9 +2904,16 @@ geoOps.IFS.updatePosition = function(el) {
             };
         }
     }
-    console.log(msg);
+    if (General.deeplyEqual(msg, el._cache.params)) {
+        // console.log("IFS not modified");
+        return;
+    }
+    ++msg.generation;
+    el._cache.img = null;
+    el._cache.params = msg;
+    el._cache.mat = csport.drawingstate.matrix;
+    // console.log(msg);
     el._worker.postMessage(msg);
-    el._img = null;
 };
 
 
