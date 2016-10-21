@@ -49,16 +49,20 @@ function init(d) {
     width = d.width;
     height = d.height;
     var n = d.trafos.length;
+    var fixedSize = 96;
     var imgSize = width * height * 4;
     var trafoSize = (112 + 4) * n;
     if (trafoSize % 8) trafoSize += 8 - (trafoSize % 8);
-    var bufferSize = 96 + trafoSize + imgSize;
+    var minSize = fixedSize + trafoSize + imgSize;
+    var bufferSize = 1 << 16;
+    while (bufferSize < minSize)
+        bufferSize <<= 1;
     if (asm === null || buffer.byteLength < bufferSize) {
         buffer = new ArrayBuffer(bufferSize);
         link();
     }
     imgPtr = asm._init(n, width, height);
-    if (bufferSize !== imgPtr + imgSize)
+    if (imgPtr !== fixedSize + trafoSize)
         throw Error("Buffer size calculation out of sync.");
     var imgBytes = new Uint8ClampedArray(buffer, imgPtr, imgSize);
     if (typeof imgBytes.fill === "function")
