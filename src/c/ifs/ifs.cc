@@ -1,8 +1,8 @@
 /*
  * This file is part of CindyJS.
- * It can be compiled with the following command to produce the IFS worker core:
- * em++ --std=c++11 -O3 -g1 -s ONLY_MY_CODE=1 --separate-asm -o ifs.js ifs.cc \
- *      -s EXPORTED_FUNCTIONS='["_real","_init","_setProj","_setMoebius"]'
+ *
+ * If you modify it, make sure you have emscripten installed, then run
+ * “node make em=1” to rebuild the ifs.asm.js file from this.
  */
 
 #include <cmath>

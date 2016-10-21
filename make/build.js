@@ -16,6 +16,12 @@ module.exports = function build(settings, task) {
         return "plain";
     }
 
+    function emDep() {
+        if (settings.get("em"))
+            return Array.prototype.slice.call(arguments);
+        return [];
+    }
+
     //////////////////////////////////////////////////////////////////////
     // Download Closure Compiler
     //////////////////////////////////////////////////////////////////////
@@ -58,9 +64,27 @@ module.exports = function build(settings, task) {
         this.concat(src.srcs, "build/js/Cindy.plain.js");
     });
 
-    task("ifs", [], function() {
-        version(this);
+    task("ifs", emDep("em.ifs"), function() {
         this.concat(src.ifs, "build/js/ifs.js");
+    });
+
+    task("em.ifs", [], function() {
+        var settings = {
+            ONLY_MY_CODE: 1,
+            EXPORTED_FUNCTIONS: ["_real", "_init", "_setProj", "_setMoebius"],
+        };
+        var args = [
+            "--std=c++11",
+            "-O3",
+            "-g1",
+            "--separate-asm",
+            "-o", this.output("src/js/ifs/ifs.js"),
+            this.input("src/c/ifs/ifs.cc")
+        ];
+        for (var key in settings) {
+            args.push("-s", key + "=" + JSON.stringify(settings[key]));
+        }
+        this.cmd("em++", args);
     });
 
     task("ours", ["cs2js"], function() {
