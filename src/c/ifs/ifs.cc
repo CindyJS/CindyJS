@@ -45,12 +45,13 @@ struct RGBA {
   std::uint8_t r, g, b, a;
 
   void composite(double alpha, Vec3 color) {
-    double beta = (1 - alpha) * (a / 255.);
-    r = beta * r + alpha * color.x + 0.5;
-    g = beta * g + alpha * color.y + 0.5;
-    b = beta * b + alpha * color.z + 0.5;
-    a = (beta + alpha) * 255 + 0.5;
-    // TODO: This is premultiplied, I think. How to tell the recipient?
+    double beta = (1 - alpha) * a * (1/255.);
+    double gamma = alpha + beta;
+    double delta = 1 / gamma; // undo premultiplication
+    r = (beta * r + alpha * color.x) * delta + 0.5;
+    g = (beta * g + alpha * color.y) * delta + 0.5;
+    b = (beta * b + alpha * color.z) * delta + 0.5;
+    a = gamma * 255 + 0.5;
   }
 
 };
