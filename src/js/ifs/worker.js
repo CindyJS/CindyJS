@@ -12,6 +12,7 @@ var width = 0;
 var height = 0;
 var Module = {};
 var generation = null;
+var age = 0;
 
 // check for imul support, and also for correctness
 // ( https://bugs.webkit.org/show_bug.cgi?id=126345 )
@@ -45,6 +46,7 @@ function link() {
 }
 
 function init(d) {
+    age = 2; // start with 100 points
     generation = d.generation;
     width = d.width;
     height = d.height;
@@ -102,7 +104,8 @@ function next(d) {
         init(nextInit);
         nextInit = null;
     }
-    asm._real(1e5, 0);
+    asm._real(Math.pow(10, age) | 0, 0);
+    if (age < 5) ++age;
     if (typeof createImageBitmap === "function") {
         createImageBitmap(imgData).then(function(bmp) {
             postMessage({

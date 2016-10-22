@@ -2827,6 +2827,7 @@ geoOps.IFS.initialize = function(el) {
     worker.onmessage = function(msg) {
         if (el._cache.img && typeof el._cache.img.close === "function")
             el._cache.img.close();
+        if (isShutDown) return;
         var d = msg.data;
         if (d.generation === el._cache.params.generation) {
             if (d.buffer) {
