@@ -92,7 +92,7 @@ melody = [["fis'",1],["e'",1],["d'",1],["cis'",1],["h",1],["a",1],["h",1],["cis'
 
 ];
 
-bass = flatten(apply(1..28,([["D",1],["A'",1],["H'",1],["F#'",1],["G'",1],["D'",1],["G'",1],["A'",1]])),levels->1)++[["D",2]];
+bass = flatten(apply(1..28,([["D",1],["A'",1],["H'",1],["Fis'",1],["G'",1],["D'",1],["G'",1],["A'",1]])),levels->1)++[["D",2]];
 
 tune = [["channel",0]]++bass++[["channel",1],["goto",8]]++melody++[["channel",2],["goto",16]]++melody++[["channel",3],["goto",24]]++melody;
 
@@ -103,10 +103,10 @@ instrument(12, channel->3); // Vibraphone
 
 notes = [
   [-1],
-  ["C", "CIS"],
+  ["C", "Cis"],
   ["D"],
   ["E"],
-  ["FIS"],
+  ["Fis"],
   ["G"],
   ["A"],
   ["H"],
