@@ -40,6 +40,9 @@ CindyJS.registerPlugin(1, "midi", function(api) {
 
     var RESOLUTION = 5 * 3 * 2 * 2 * 2;
 
+    var bpm = 60;
+    var melodyStartTime = 0;
+
     CindyJS.loadScript("MIDI", "midi/MIDI.js", someScriptLoaded);
     CindyJS.loadScript("Base64Binary", "midi/Base64binary.js", someScriptLoaded);
 
@@ -140,7 +143,6 @@ CindyJS.registerPlugin(1, "midi", function(api) {
         var melody = [];
         var instruments = [];
         var inst = MIDI.getInstrument(channel);
-        var bpm = 60;
         var chan2inst = [];
 
         if (modifs.channel) {
@@ -308,6 +310,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     });
 
     function playMelody(t0, melody) {
+        var melodyStartTime = t0;
         var maxChunk = 20;
         if (melody.length > maxChunk) {
             var delta = (melody[maxChunk].time + t0 - MIDI.now()) * 1000 - 200;
@@ -477,5 +480,16 @@ CindyJS.registerPlugin(1, "midi", function(api) {
             });
         }
     }
+
+    api.defineFunction("midiposition", 0, function(args, modifs) {
+        var timeUnit = 60 / bpm;
+        return {
+            ctype: "number",
+            value: {
+                real: (MIDI.now() - melodyStartTime) / timeUnit,
+                imag: 0
+            }
+        };
+    });
 
 });
