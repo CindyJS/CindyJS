@@ -188,8 +188,9 @@
                     }
                 } else {
                     try {
-                        row.push(katex.canvasBox(parts[i], ctx, opts));
-                        for (var font in parts[i].fontsUsed) {
+                        box = katex.canvasBox(parts[i], ctx, opts);
+                        row.push(box);
+                        for (var font in box.fontsUsed) {
                             var fontState = fonts[font];
                             if (fontState !== true) {
                                 fontsMissing = true;
