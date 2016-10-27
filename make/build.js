@@ -359,7 +359,7 @@ module.exports = function build(settings, task) {
         "LinearAlgebra",
         "WebGL",
         "CodeBuilder",
-        "TextureReader"        
+        "TextureReader"
     ];
 
     var cgl_mods_from_c3d = [
@@ -416,6 +416,47 @@ module.exports = function build(settings, task) {
         this.node(process.argv[1], "cindygl", "cindygl-dbg=true");
     });
     
+    //////////////////////////////////////////////////////////////////////
+    // Build JavaScript version of Quick Hull 3D
+    //////////////////////////////////////////////////////////////////////
+
+    var fileNames = [
+        "QuickHull3D",
+        "Vector",
+        "HalfEdge",
+        "Vertex",
+        "VertexList",
+        "Face",
+        "Plugin"
+    ];
+
+    var srcs = fileNames.map(function(fileName) {
+        return "plugins/QuickHull3D/src/js/" + fileName + ".js";
+    });
+
+    task("quickhull3d1", ["closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            create_source_map: "build/js/QuickHull3D.js.map",
+            compilation_level: this.setting("qh3d_closure_level"),
+            warning_level: this.setting("qh3d_closure_warnings"),
+            source_map_format: "V3",
+            source_map_location_mapping: [
+                "build/js/|",
+                "plugins/|../../plugins/",
+            ],
+            output_wrapper_file: "plugins/QuickHull3D/src/js/QuickHull3D.js.wrapper",
+            js_output_file: "build/js/QuickHull3D.js",
+            externs: "plugins/cindyjs.externs",
+            js: srcs
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+
+
     //////////////////////////////////////////////////////////////////////
     // Run js-beautify for consistent coding style
     //////////////////////////////////////////////////////////////////////
@@ -589,6 +630,7 @@ module.exports = function build(settings, task) {
         "Cindy.js",
         "cindy3d",
         "cindygl",
+        "quickhull3d1",
         "katex",
         "xlibs",
         "images",

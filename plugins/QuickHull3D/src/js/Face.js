@@ -80,7 +80,7 @@ Face.prototype.computeNormal = function(minArea) {
         u = VectorOperations.scaldiv(lenMax, VectorOperations.sub(headPoint, tailPoint));
         dot = VectorOperations.scalproduct(u, this.normal);
 
-        this.normal = VectorOperations.sub(this.normal, VectorOperations.scalmul(dot, u));
+        this.normal = VectorOperations.sub(this.normal, VectorOperations.scalmult(dot, u));
     }
 };
 
@@ -113,7 +113,7 @@ Face.prototype.findEdge = function(tailVertex, headVertex) {
         }
 
         halfEdge = halfEdge.next;
-    } while (halfEdge !== this.halfEdge);
+    } while (halfEdge !== this.halfEdge0);
 
     return null;
 };
@@ -309,7 +309,7 @@ Face.prototype.triangulate = function(newFaces, minArea) {
     hedge.next = this.halfEdge0.previous;
     hedge.next.previous = hedge;
 
-    this.computeNormalAndCentroid(minArea);
+    this._computeNormalAndCentroid(minArea);
     this.checkConsistency();
 
     for (face = face0; face !== null; face = face.next) {
@@ -428,4 +428,3 @@ Face.create = function(vertices, indices) {
     return face;
 };
 
-new Face();

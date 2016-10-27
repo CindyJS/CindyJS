@@ -85,3 +85,4 @@ VectorOperations.zerovector = function() {
 VectorOperations.copy = function(vector) {
     return new Vector(vector.x, vector.y, vector.z);
 };
+

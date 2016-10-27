@@ -25,6 +25,8 @@ module.exports = function Settings() {
         c3d_closure_warnings: "VERBOSE",
         cgl_closure_level: "ADVANCED",
         cgl_closure_warnings: "VERBOSE",
+        qh3d_closure_warnings: "VERBOSE",
+        qh3d_closure_level: "ADVANCED",
         gwt_version: "2.7.0",
         gwt_urlbase: "http://storage.googleapis.com/gwt-releases",
         gwt_args: "",

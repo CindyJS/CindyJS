@@ -78,3 +78,4 @@ VertexList.prototype.length = function() {
 
     return result;
 };
+

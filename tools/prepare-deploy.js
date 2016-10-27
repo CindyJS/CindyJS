@@ -22,6 +22,8 @@ var handlers = {
     "Cindy3D.js.map": map,
     "CindyGL.js": true,
     "CindyGL.js.map": map,
+    "QuickHull3D.js": true,
+    "QuickHull3D.js.map": map,
     "CindyJS.css": true,
     "CindyJS.css.map": map,
     "Compiled.js": false,

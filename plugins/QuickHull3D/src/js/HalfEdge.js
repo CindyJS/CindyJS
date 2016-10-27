@@ -28,8 +28,9 @@ HalfEdge.prototype.length = function() {
     return (tail !== null) ? VectorOperations.abs(VectorOperations.sub(this.head.point, tail.point)) : -1;
 };
 
-HalfEdge.prototype.lengthSquared = function() {
+HalfEdge.prototype.lengthSqr = function() {
     var tail = this.tail();
 
     return (tail !== null) ? VectorOperations.abs2(VectorOperations.sub(this.head.point, tail.point)) : -1;
 };
+

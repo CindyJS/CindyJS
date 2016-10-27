@@ -1,5 +1,3 @@
-var t0, t1;
-
 /**
  * Creates a convex hull object.
  * If set of points is specialized initializes it to the convex hull.
@@ -91,11 +89,14 @@ QuickHull3D.prototype.build = function(points, numberOfPoints) {
 QuickHull3D.prototype.getVertices = function() {
     return this.vertexPointIndices.map(function(index) {
         var vertex = this.pointBuffer[index];
-        return List.turnIntoCSList([
-            CSNumber.real(vertex.point.x),
-            CSNumber.real(vertex.point.y),
-            CSNumber.real(vertex.point.z)
-        ]);
+        return {
+            ctype: "list",
+            value: [
+                { ctype: "number", value: { real: vertex.point.x, imag: 0 } },
+                { ctype: "number", value: { real: vertex.point.y, imag: 0 } },
+                { ctype: "number", value: { real: vertex.point.z, imag: 0 } }
+            ]
+        };
     }, this);
 };
 
@@ -392,11 +393,21 @@ QuickHull3D.prototype._getFaceIndices = function(face, flags) {
             index++;
         }
 
-        indices.push(CSNumber.real(index));
+        indices.push({
+            ctype: "number",
+            value: {
+                real: index,
+                imag: 0
+            }
+        });
+
         halfEdge = clockwise ? halfEdge.next : halfEdge.previous;
     } while (halfEdge !== face.halfEdge0);
 
-    return List.turnIntoCSList(indices);
+    return {
+        ctype: "list",
+        value: indices
+    };
 };
 
 QuickHull3D.prototype._resolveUnclaimedPoints = function(newFaces) {
