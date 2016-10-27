@@ -2022,7 +2022,7 @@ geoOps.TrInverseMoebius.updatePosition = function(el) {
     var neg = CSNumber.neg;
     var flip = m.anti ? neg : General.identity;
     el.moebius = {
-        sign: m.sign,
+        anti: m.anti,
         ar: m.dr,
         ai: flip(m.di),
         br: neg(m.br),
