@@ -111,89 +111,119 @@ struct XorShift128 {
     z = 0xf7e2a0b9u;
     w = 0x994e4c3bu;
   }
-} xorshift128;
+};
 
-double compositeAlpha;
-Vec3 pt;
-Vec3 color;
-unsigned width;
-unsigned height;
-RGBA *img;
-unsigned nTrafos;
-Trafo *trafos[1];
+struct IFS {
+  Vec3 p1;
+  Vec3 col;
+  unsigned nTrafos;
+  Trafo **trafos;
 
-extern "C"
-void real(unsigned nIter, bool skip) {
-  Vec3 p1 = pt;
-  Vec3 col = color;
-  while (nIter--) {
-    unsigned i;
-    std::uint32_t r = xorshift128();
-    for (i = 0; i < nTrafos; ++i)
-      if (r <= trafos[i]->cutpoint)
-        break;
-    if (i == nTrafos)
-      continue;
-    const Trafo *tr = trafos[i];
-    Vec3 p2;
-    if (tr->kind == 0) {
-      p2 = tr->proj * p1;
-    } else if (tr->kind == 1) {
-      p2 = tr->moebius * p1;
-    } else {
-      continue;
-    }
-    col = tr->prob * col + (1 - tr->prob) * tr->color;
-    p1 = p2.normalizeMax();
+  void init(unsigned nTrafos);
+  void step(bool skip);
+};
 
-    if (skip) continue;
-    double x3 = p2.x / p2.z + 0.5;
-    if (x3 < 0 || x3 > 0xffffffffu) continue;
-    double y3 = -p2.y / p2.z + 0.5; // apparenty flipped by default?
-    if (y3 < 0 || y3 > 0xffffffffu) continue;
-    unsigned x4 = (unsigned) x3;
-    if (x4 >= width) continue;
-    unsigned y4 = (unsigned) y3;
-    if (y4 >= height) continue;
-    img[y4 * width + x4].composite(compositeAlpha, col);
+struct {
+  XorShift128 xorshift128;
+  double compositeAlpha;
+  unsigned width;
+  unsigned height;
+  RGBA *img;
+  unsigned nIFS;
+  Trafo **trafoList;
+  IFS ifsList[1];
+} globals;
+
+inline void IFS::step(bool skip) __attribute__((always_inline)) {
+  unsigned i;
+  std::uint32_t r = globals.xorshift128();
+  for (i = 0; i < nTrafos; ++i)
+    if (r <= trafos[i]->cutpoint)
+      break;
+  if (i == nTrafos)
+    return;
+  const Trafo *tr = trafos[i];
+  Vec3 p2;
+  if (tr->kind == 0) {
+    p2 = tr->proj * p1;
+  } else if (tr->kind == 1) {
+    p2 = tr->moebius * p1;
+  } else {
+    return;
   }
-  pt = p1;
-  color = col;
+  col = tr->prob * col + (1 - tr->prob) * tr->color;
+  p1 = p2.normalizeMax();
+
+  if (skip) return;
+  double x3 = p2.x / p2.z + 0.5;
+  if (x3 < 0 || x3 > 0xffffffffu) return;
+  double y3 = -p2.y / p2.z + 0.5; // apparenty flipped by default?
+  if (y3 < 0 || y3 > 0xffffffffu) return;
+  unsigned x4 = (unsigned) x3;
+  if (x4 >= globals.width) return;
+  unsigned y4 = (unsigned) y3;
+  if (y4 >= globals.height) return;
+  globals.img[y4 * globals.width + x4].composite(globals.compositeAlpha, col);
 }
 
 extern "C"
-void* init(unsigned n, unsigned w, unsigned h) {
-  xorshift128.init();
-  compositeAlpha = 0.5;
-  pt = { 0, 0, 1 };
-  color = { 1, 1, 1 };
-  width = w;
-  height = h;
-  nTrafos = n;
-  std::uintptr_t endTrafos = reinterpret_cast<std::uintptr_t>(&trafos[n]);
-  if (endTrafos % 8) endTrafos += 8 - (endTrafos % 8);
-  Trafo *trs = reinterpret_cast<Trafo*>(endTrafos);
-  for (int i = 0; i < n; ++i)
-    trafos[i] = &trs[i];
-  img = reinterpret_cast<RGBA*>(&trs[n]);
-  return img;
+void real(unsigned nIter, bool skip) {
+  while (nIter--)
+    for (unsigned i = 0; i < globals.nIFS; ++i)
+      globals.ifsList[i].step(skip);
+}
+
+template<typename T>
+static inline T* align(void* ptr) {
+  std::size_t align = alignof(T);
+  std::uintptr_t addr = reinterpret_cast<std::uintptr_t>(ptr);
+  if (addr % align) addr += align - (addr % align);
+  return reinterpret_cast<T*>(addr);
+}
+
+extern "C"
+void* init(unsigned numIFS, unsigned numTrafos, unsigned w, unsigned h) {
+  globals.xorshift128.init();
+  globals.compositeAlpha = 0.5;
+  globals.nIFS = numIFS;
+  globals.width = w;
+  globals.height = h;
+  globals.trafoList = align<Trafo*>(&globals.ifsList[numIFS]);
+  Trafo* trafos = align<Trafo>(&globals.trafoList[numTrafos]);
+  for (unsigned i = 0; i < numTrafos; ++i)
+    globals.trafoList[i] = &trafos[i];
+  globals.img = align<RGBA>(&trafos[numTrafos]);
+  return globals.img;
+}
+
+inline void IFS::init(unsigned numTrafos) {
+  p1 = { 0, 0, 1 };
+  col = { 1, 1, 1 };
+  nTrafos = numTrafos;
+  trafos = globals.trafoList;
+  globals.trafoList += numTrafos;
+}
+
+extern "C"
+void setIFS(unsigned index, unsigned numTrafos) {
+  globals.ifsList[index].init(numTrafos);
 }
 
 extern "C"
 void setProj(
-    unsigned i,
+    unsigned indexIFS, unsigned indexTrafo,
     double prob,
     double red, double green, double blue,
     double xx, double xy, double xz,
     double yx, double yy, double yz,
     double zx, double zy, double zz) {
-  Trafo* tr = trafos[i];
+  Trafo* tr = globals.ifsList[indexIFS].trafos[indexTrafo];
   tr->kind = 0;
   tr->prob = prob;
   tr->color = { red, green, blue };
   double sum = 0;
-  for (int j = 0; j <= i; ++j)
-    sum += trafos[j]->prob;
+  for (int j = 0; j <= indexTrafo; ++j)
+    sum += globals.ifsList[indexIFS].trafos[j]->prob;
   tr->cutpoint = sum * 4294967296.0 - 0.5;
   tr->proj.xx = xx;
   tr->proj.xy = xy;
@@ -208,19 +238,19 @@ void setProj(
 
 extern "C"
 void setMoebius(
-    unsigned i,
+    unsigned indexIFS, unsigned indexTrafo,
     double prob,
     double red, double green, double blue,
     double sign,
     double ar, double ai, double br, double bi,
     double cr, double ci, double dr, double di) {
-  Trafo* tr = trafos[i];
+  Trafo* tr = globals.ifsList[indexIFS].trafos[indexTrafo];
   tr->kind = 1;
   tr->prob = prob;
   tr->color = { red, green, blue };
   double sum = 0;
-  for (int j = 0; j <= i; ++j)
-    sum += trafos[j]->prob;
+  for (int j = 0; j <= indexTrafo; ++j)
+    sum += globals.ifsList[indexIFS].trafos[j]->prob;
   tr->cutpoint = sum * 4294967296.0 - 0.5;
   tr->moebius.sign = sign;
   tr->moebius.ar = ar;

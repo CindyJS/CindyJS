@@ -52,12 +52,17 @@ function init(d) {
     generation = d.generation;
     width = d.width;
     height = d.height;
-    var n = d.trafos.length;
-    var fixedSize = 96;
-    imgSize = width * height * 4;
-    var trafoSize = (112 + 4) * n;
+    var numIFS = d.systems.length;
+    var numTrafos = 0;
+    var i, j;
+    for (i = 0; i < numIFS; ++i)
+        numTrafos += d.systems[i].trafos.length;
+    var fixedSize = 8 + 48;
+    var ifsSize = 56 * numIFS;
+    var trafoSize = (112 + 4) * numTrafos;
     if (trafoSize % 8) trafoSize += 8 - (trafoSize % 8);
-    var minSize = fixedSize + trafoSize + imgSize;
+    imgSize = width * height * 4;
+    var minSize = fixedSize + ifsSize + trafoSize + imgSize;
     var bufferSize = 1 << 16;
     while (bufferSize < minSize)
         bufferSize <<= 1;
@@ -65,32 +70,40 @@ function init(d) {
         buffer = new ArrayBuffer(bufferSize);
         link();
     }
-    imgPtr = asm._init(n, width, height);
-    if (imgPtr !== fixedSize + trafoSize)
-        throw Error("Buffer size calculation out of sync.");
+    imgPtr = asm._init(numIFS, numTrafos, width, height);
+    if (imgPtr !== fixedSize + ifsSize + trafoSize)
+        throw Error(
+            "Buffer size calculation out of sync: expected " +
+            fixedSize + " + " + ifsSize + " + " + trafoSize + " = " +
+            (fixedSize + ifsSize + trafoSize) + " but got " + imgPtr
+        );
     var imgBytes = new Uint8ClampedArray(buffer, imgPtr, imgSize);
     if (typeof imgBytes.fill === "function")
         imgBytes.fill(0); // clear image
     else for (var addr = 0; addr < imgBytes.length; ++addr)
         imgBytes[addr] = 0;
     imgData = new ImageData(imgBytes, width, height);
-    for (var i = 0; i < n; ++i) {
-        var tr = d.trafos[i];
-        if (tr.kind === "Mt") {
-            asm._setMoebius(
-                i, tr.prob,
-                tr.color[0] * 255,
-                tr.color[1] * 255,
-                tr.color[2] * 255,
-                tr.moebius.sign,
-                tr.moebius.ar,
-                tr.moebius.ai,
-                tr.moebius.br,
-                tr.moebius.bi,
-                tr.moebius.cr,
-                tr.moebius.ci,
-                tr.moebius.dr,
-                tr.moebius.di);
+    for (i = 0; i < numIFS; ++i) {
+        var trafos = d.systems[i].trafos;
+        asm._setIFS(i, trafos.length);
+        for (j = 0; j < trafos.length; ++j) {
+            var tr = trafos[j];
+            if (tr.kind === "Mt") {
+                asm._setMoebius(
+                    i, j, tr.prob,
+                    tr.color[0] * 255,
+                    tr.color[1] * 255,
+                    tr.color[2] * 255,
+                    tr.moebius.sign,
+                    tr.moebius.ar,
+                    tr.moebius.ai,
+                    tr.moebius.br,
+                    tr.moebius.bi,
+                    tr.moebius.cr,
+                    tr.moebius.ci,
+                    tr.moebius.dr,
+                    tr.moebius.di);
+            }
         }
     }
     asm._real(1000, 1);

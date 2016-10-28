@@ -71,10 +71,17 @@ module.exports = function build(settings, task) {
     task("em.ifs", [], function() {
         var settings = {
             ONLY_MY_CODE: 1,
-            EXPORTED_FUNCTIONS: ["_real", "_init", "_setProj", "_setMoebius"],
+            EXPORTED_FUNCTIONS: [
+                "_real",
+                "_init",
+                "_setIFS",
+                "_setProj",
+                "_setMoebius",
+            ],
         };
         var args = [
             "--std=c++11",
+            "-Wall",
             "-O3",
             "-g1",
             "--separate-asm",

@@ -281,12 +281,12 @@ function drawgeopolygon(el) {
     eval_helper.drawpolygon([el.vertices], modifs, "D", true);
 }
 
-function drawgeoifs(el) {
-    if (!General.deeplyEqual(el._cache.mat, csport.drawingstate.matrix)) {
-        geoOps.IFS.updateParameters(el);
+function drawgeoifs() {
+    if (!General.deeplyEqual(ifs.mat, csport.drawingstate.matrix)) {
+        geoOps.IFS.updateParameters();
     }
-    if (el._cache.img) {
-        csctx.drawImage(el._cache.img, 0, 0, csw, csh);
+    if (ifs.img) {
+        csctx.drawImage(ifs.img, 0, 0, csw, csh);
     }
 }
 
@@ -317,8 +317,8 @@ function render() {
         drawgeotext(csgeo.texts[i]);
     }
 
-    for (i = 0; i < csgeo.ifs.length; i++) {
-        drawgeoifs(csgeo.ifs[i]);
+    if (csgeo.ifs.length) {
+        drawgeoifs();
     }
 
 }
