@@ -3352,8 +3352,8 @@ evaluator.tokenize$2 = function(args, modifs) {
                     convert = erg.value;
                 }
             }
-            if (convert) {
-                var fl = parseFloat(str);
+            if (convert && str !== "") {
+                var fl = Number(str);
                 if (!isNaN(fl)) {
                     return CSNumber.real(fl);
                 }

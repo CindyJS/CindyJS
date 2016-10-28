@@ -840,7 +840,7 @@ shutdownHooks.push(releaseExportedObject);
 // result in a new tab.  Note that Firefox fails to show images embedded
 // into an SVG.  So in the long run, saving is probably better than opening.
 // Note: See https://github.com/eligrey/FileSaver.js/ for saving Blobs
-function exportWith(Context, wnd) {
+function exportWith(Context) {
     cacheImages(function() {
         var origctx = csctx;
         try {
@@ -849,9 +849,9 @@ function exportWith(Context, wnd) {
             csctx.height = csh;
             updateCindy();
             var blob = csctx.toBlob();
-            releaseExportedObject();
             exportedCanvasURL = window.URL.createObjectURL(blob);
-            wnd.location.href = exportedCanvasURL;
+
+            downloadHelper(exportedCanvasURL);
         } finally {
             csctx = origctx;
         }
@@ -859,12 +859,29 @@ function exportWith(Context, wnd) {
 }
 
 globalInstance.exportSVG = function() {
-    exportWith(SvgWriterContext, window.open('about:blank', '_blank'));
+    exportWith(SvgWriterContext);
 };
 
 globalInstance.exportPDF = function() {
-    var wnd = window.open('about:blank', '_blank');
     CindyJS.loadScript('pako', 'pako.min.js', function() {
-        exportWith(PdfWriterContext, wnd);
+        exportWith(PdfWriterContext);
     });
+};
+
+globalInstance.exportPNG = function() {
+    downloadHelper(csctx.canvas.toDataURL());
+};
+
+
+var downloadHelper = function(data) {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    a.href = data;
+    a.download = "CindyJSExport";
+    a.click();
+    setTimeout(function() {
+        document.body.removeChild(a);
+        releaseExportedObject();
+    }, 100);
 };

@@ -133,6 +133,8 @@ that represents the subdivision of `‹string›` recursively by the tokens in t
     < [["one", "two"], [""], ["three", "four"]]
     > tokenize("one:two..three:four", ["..",":"])
     < [["one", "two"], ["three", "four"]]
+    > tokenize("(1;2)", ";")
+    < ["(1", "2)"]
 
 `tokenize` usually converts string representations of numbers to number objects.
 This can lead to information loss.

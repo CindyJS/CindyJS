@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Live Code with CodeMirror</title>
+<meta charset="UTF-8">
+
+<script src="https://codemirror.net/lib/codemirror.js"></script>
+<script src="https://codemirror.net/mode/clike/clike.js"></script>
+<script src="https://codemirror.net/addon/edit/matchbrackets.js"></script>
+<script src="https://codemirror.net/addon/edit/closebrackets.js"></script>
+<link rel="stylesheet" href="https://codemirror.net/lib/codemirror.css">
+<link rel="stylesheet" href="https://codemirror.net/theme/base16-dark.css">
+
+
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+
+<style type="text/css">
+  #outer { width: 600px; height: 600px; }
+  #code {position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 100;
+  }
+  #applet { width: 100%; height: 100%; }
+  #CSCanvas { width: 100%; height: 100%; }
+  .CodeMirror {
+    background: rgba(0,0,0,.5) !important;
+    height: auto;
+  }
+</style>
+</head>
+
+<script id="csinit" type="text/x-cindyscript">
+camera = camera video();
+plotcmd() := (
+  f(z) := z^2; //complex squaring
+  
+gamma(c, g) := (re(c_1^g), re(c_2^g), re(c_3^g));
+
+colorplot(
+  z = complex(#)-complex(A); //complex coordinate
+  .05*hue(seconds()/4)+.95*gamma(imagergb(camera, f(z)),1.0); //read pixel from camera
+);
+)
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if (image ready(camera),
+  plotcmd();
+);
+</script>
+
+<body>
+  <div id="outer">
+    <div id="applet">
+      <div id="code"></div>
+      <div id="CSCanvas"></div>
+    </div>
+  </div>
+
+  <button id="fs">Fullscreen</button>
+  <script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{
+    id: "CSCanvas",
+    transform: [{visibleRect:[-1,1,1,-1]}],
+    background: "rgb(0,0,0)"
+  }],
+  scripts: "cs*",
+  autoplay: true,
+  use: ["CindyGL"],
+  language: "en",
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0]}
+  ]
+});
+
+var btn = document.getElementById("fs");
+var div = document.getElementById("applet");
+btn.onclick = function() {
+  (div.requestFullscreen ||
+   div.webkitRequestFullscreen ||
+   div.mozRequestFullScreen ||
+   div.msRequestFullscreen ||
+   function(){}).call(div);
+};
+
+var myCodeMirror = CodeMirror(document.getElementById("code"), {
+  value: `f(z) := z^2; //complex squaring
+  
+gamma(c, g) := (re(c_1^g), re(c_2^g), re(c_3^g));
+
+colorplot(
+  z = complex(#)-complex(A); //complex coordinate
+  .05*hue(seconds()/4)+.95*gamma(imagergb(camera, f(z)),1.0); //read pixel from camera
+);
+`,
+  autoCloseBrackets: true,
+  matchBrackets: true,
+  theme: "base16-dark"
+});
+
+myCodeMirror.on("change", function(cm, change) {
+  console.log("something changed! (" + change.origin + ")");
+  cdy.evokeCS(`
+    plotcmd() := (
+      ${cm.getValue()}
+    )
+    `);
+});
+  </script>
+</body>
+</html>

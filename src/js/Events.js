@@ -146,20 +146,38 @@ function setuplisteners(canvas, data) {
 
     if (data.keylistener === true) {
         addAutoCleaningEventListener(document, "keydown", function(e) {
-            cs_keypressed(e);
+            cs_keydown(e);
             return false;
         });
-    } else if (cscompiled.keydown) {
+        addAutoCleaningEventListener(document, "keyup", function(e) {
+            cs_keyup(e);
+            return false;
+        });
+        addAutoCleaningEventListener(document, "keypress", function(e) {
+            cs_keytyped(e);
+            return false;
+        });
+    } else if (cscompiled.keydown || cscompiled.keyup || cscompiled.keytyped) {
         canvas.setAttribute("tabindex", "0");
         addAutoCleaningEventListener(canvas, "mousedown", function() {
             canvas.focus();
         });
         addAutoCleaningEventListener(canvas, "keydown", function(e) {
-            // console.log("Got key " + e.charCode + " / " + e.keyCode);
-            if (e.keyCode !== 9 /* tab */ ) {
-                cs_keypressed(e);
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keydown(e);
+            if (!cscompiled.keytyped) {
+                // this must bubble in order to trigger a keypress event
                 e.preventDefault();
             }
+        });
+        addAutoCleaningEventListener(canvas, "keyup", function(e) {
+            cs_keyup(e);
+            e.preventDefault();
+        });
+        addAutoCleaningEventListener(canvas, "keypress", function(e) {
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keytyped(e);
+            e.preventDefault();
         });
     }
 
@@ -221,27 +239,131 @@ function setuplisteners(canvas, data) {
         var y = e.clientY - rect.top - canvas.clientTop + 0.5;
         var pos = List.realVector(csport.to(x, y));
 
-        Array.prototype.forEach.call(files, function(file, i) {
-            var reader = new FileReader();
-            if ((/^text\//).test(file.type)) {
-                reader.onload = function() {
-                    var value = General.string(reader.result);
-                    oneDone(i, value);
-                };
-                reader.readAsText(file);
-            } else if ((/^image\//).test(file.type)) {
-                reader.onload = function() {
-                    var img = new Image();
-                    img.onload = function() {
-                        oneDone(i, loadImage(img));
+        if (files.length > 0) {
+            Array.prototype.forEach.call(files, function(file, i) {
+                var reader = new FileReader();
+                if (textType(file.type)) {
+                    reader.onload = function() {
+                        textDone(i, reader.result);
                     };
-                    img.src = reader.result;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                oneDone(i, nada);
+                    reader.readAsText(file);
+                } else if ((/^image\//).test(file.type)) {
+                    reader.onload = function() {
+                        imgDone(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    console.log("Unknown MIME type: " + file.type);
+                    oneDone(i, nada);
+                }
+            });
+        } else {
+            var data = dt.getData("text/uri-list");
+            if (data) {
+                data = data.split("\n").filter(function(line) {
+                    return !/^\s*(#|$)/.test(line);
+                });
+                countDown = data.length;
+                dropped = Array(countDown);
+                files = Array(countDown);
+                data.forEach(dropUri);
             }
-        });
+        }
+
+        function dropUri(uri, i) {
+            var name = uri.replace(/[?#][^]*/, "");
+            name = name.replace(/[^]*\/([^\/])/, "$1");
+            files[i] = {
+                type: "",
+                name: name
+            };
+            var req = new XMLHttpRequest();
+            req.onreadystatechange = haveHead;
+            req.open("HEAD", uri);
+            req.send();
+
+            function haveHead() {
+                if (req.readyState !== XMLHttpRequest.DONE)
+                    return;
+                if (req.status !== 200) {
+                    console.error("HEAD request for " + uri + " failed: " +
+                        (req.responseText || "(no error message)"));
+                    oneDone(i, nada);
+                    return;
+                }
+                var type = req.getResponseHeader("Content-Type");
+                files[i].type = type;
+                if ((/^image\//).test(type)) {
+                    imgDone(i, uri);
+                } else if (textType(type)) {
+                    req = new XMLHttpRequest();
+                    req.onreadystatechange = haveText;
+                    req.open("GET", uri);
+                    req.send();
+                } else {
+                    oneDone(i, nada);
+                }
+            }
+
+            function haveText() {
+                if (req.readyState !== XMLHttpRequest.DONE)
+                    return;
+                if (req.status !== 200) {
+                    console.error("GET request for " + uri + " failed: " +
+                        (req.responseText || "(no error message)"));
+                    oneDone(i, nada);
+                    return;
+                }
+                textDone(i, req.responseText);
+            }
+
+        }
+
+        function textType(type) {
+            type = type.replace(/;[^]*/, "");
+            if ((/^text\//).test(type)) return 1;
+            if (type === "application/json") return 2;
+            return 0;
+        }
+
+        function textDone(i, text) {
+            switch (textType(files[i].type)) {
+                case 1:
+                    oneDone(i, General.string(text));
+                    break;
+                case 2:
+                    var data, value;
+                    try {
+                        data = JSON.parse(text);
+                        value = General.wrapJSON(data);
+                    } catch (err) {
+                        console.error(err);
+                        value = nada;
+                    }
+                    oneDone(i, value);
+                    break;
+                default:
+                    oneDone(i, nada);
+                    break;
+            }
+        }
+
+        function imgDone(i, src) {
+            var img = new Image();
+            var reported = false;
+            img.onload = function() {
+                if (reported) return;
+                reported = true;
+                oneDone(i, loadImage(img));
+            };
+            img.onerror = function(err) {
+                if (reported) return;
+                reported = true;
+                console.error(err);
+                oneDone(i, nada);
+            };
+            img.src = src;
+        }
 
         function oneDone(i, value, type) {
             dropped[i] = List.turnIntoCSList([
@@ -491,14 +613,26 @@ function updateCindy() {
     csctx.restore();
 }
 
-function cs_keypressed(e) {
+function keyEvent(e, script) {
     var evtobj = window.event ? event : e;
     var unicode = evtobj.charCode ? evtobj.charCode : evtobj.keyCode;
     var actualkey = String.fromCharCode(unicode);
     cskey = actualkey;
     cskeycode = unicode;
-    evaluate(cscompiled.keydown);
+    evaluate(script);
     scheduleUpdate();
+}
+
+function cs_keydown(e) {
+    keyEvent(e, cscompiled.keydown);
+}
+
+function cs_keyup(e) {
+    keyEvent(e, cscompiled.keyup);
+}
+
+function cs_keytyped(e) {
+    keyEvent(e, cscompiled.keytyped);
 }
 
 function cs_mousedown(e) {

@@ -225,9 +225,20 @@ Renderer.prototype.setUniforms = function() {
             setUniform(setter, t, val);
 
         }
-    if (this.shaderProgram.uniform.hasOwnProperty('rnd_'))
-        this.shaderProgram.uniform['rnd_']([Math.random()]);
 
+        [
+            ['rnd_', () => [Math.random()]],
+            [`_lowerleft`, () => {
+                let pt = computeLowerLeftCorner(this.api);
+                return [pt.x, pt.y];
+            }],
+            [`_lowerright`, () => {
+                let pt = computeLowerRightCorner(this.api);
+                return [pt.x, pt.y];
+            }],
+        ].map(
+        a => (this.shaderProgram.uniform[a[0]]) && this.shaderProgram.uniform[a[0]](a[1]())
+    )
 };
 
 /**
