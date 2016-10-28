@@ -598,42 +598,6 @@ geoOps.OtherPointOnCircle.updatePosition = function(el) {
     el.homog = General.withUsage(pos, "Point");
 };
 
-
-// start and end assumed to be normalized at once!
-geoOps._helper.projectPointToSegmentCR = function(seg, pos, infseg) {
-    var line = seg.homog;
-    var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
-    var farpoint = List.sub(seg.startpos, seg.endpos);
-    var cr = List.crossratio3(
-        farpoint, seg.startpos, seg.endpos, pos, tt);
-
-    //handle case if segment passes through infinity
-    if (infseg) {
-        // probably needs tracing 
-        if ((cr.value.real > 0) && (cr.value.real <= 0.5))
-            cr = CSNumber.complex(0, cr.value.imag);
-        if ((cr.value.real < 1) && (cr.value.real > 0.5))
-            cr = CSNumber.complex(1, cr.value.imag);
-    }
-    // normal case
-    else {
-        if (cr.value.real < 0)
-            cr = CSNumber.complex(0, cr.value.imag);
-        if (cr.value.real > 1)
-            cr = CSNumber.complex(1, cr.value.imag);
-    }
-
-    return cr;
-};
-
-geoOps._helper.projectPointToSegment = function(seg, param) {
-    var start = seg.startpos;
-    var end = seg.endpos;
-    var far = List.sub(end, start);
-    var homog = List.add(start, List.scalmult(param, far));
-    return List.normalizeMax(homog);
-};
-
 geoOps.PointOnSegment = {};
 geoOps.PointOnSegment.kind = "P";
 geoOps.PointOnSegment.signature = ["S"];
@@ -645,7 +609,16 @@ geoOps.PointOnSegment.initialize = function(el) {
 };
 geoOps.PointOnSegment.getParamForInput = function(el, pos) {
     var seg = csgeo.csnames[el.args[0]];
-    return geoOps._helper.projectPointToSegmentCR(seg, pos);
+    var line = seg.homog;
+    var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+    var farpoint = List.sub(seg.startpos, seg.endpos);
+    var cr = List.crossratio3(
+        farpoint, seg.startpos, seg.endpos, pos, tt);
+    if (cr.value.real < 0)
+        cr = CSNumber.complex(0, cr.value.imag);
+    if (cr.value.real > 1)
+        cr = CSNumber.complex(1, cr.value.imag);
+    return cr;
 };
 geoOps.PointOnSegment.getParamFromState = function(el) {
     return getStateComplexNumber();
@@ -657,88 +630,25 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     var param = getStateComplexNumber();
     putStateComplexNumber(param); // copy parameter
     var seg = csgeo.csnames[el.args[0]];
-
-    var homog = geoOps._helper.projectPointToSegment(seg, param);
+    var start = seg.startpos;
+    var end = seg.endpos;
+    var far = List.sub(end, start);
+    var homog = List.add(start, List.scalmult(param, far));
+    homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Point");
 };
 geoOps.PointOnSegment.stateSize = 2;
 
-geoOps._helper.PointOnArcCr = function(arc, P) {
-    var A = arc.startPoint;
-    var B = arc.viaPoint;
-    var C = arc.endPoint;
-    var cr = List.crossratio3harm(P, A, B, C, List.ii);
-
-    cr = List.normalizeMax(cr);
-    var m = cr.value[0];
-    var n = cr.value[1];
-
-    var tmpcr = n.value.real / m.value.real;
-
-    if (tmpcr >= 0 && tmpcr <= 1) {
-        if (tmpcr > 0.5) {
-            m = CSNumber.real(1);
-            n = CSNumber.real(1);
-        } else {
-            m = CSNumber.real(1);
-            n = CSNumber.real(0);
-        }
-
-    }
-
-    return List.turnIntoCSList([m, n]);
-};
-
 geoOps._helper.projectPointToCircle = function(cir, P) {
-
     var cen = geoOps._helper.CenterOfCircle(cir.matrix);
     cen = List.normalizeMax(cen);
     var l = List.normalizeMax(List.cross(P, cen));
-
     var isec = geoOps._helper.IntersectLC(l, cir.matrix);
-
     var d1 = List.projectiveDistMinScal(P, isec[0]);
     var d2 = List.projectiveDistMinScal(P, isec[1]);
-
     var erg = d1 < d2 ? isec[0] : isec[1];
-
     return erg;
 };
-
-geoOps._helper.projectPointToArc = function(arc, P) {
-    var A = arc.startPoint;
-    var C = arc.endPoint;
-    var B = arc.viaPoint;
-
-    var det = List.det(List.turnIntoCSList([A, B, C]));
-
-    if (CSNumber._helper.isAlmostZero(det)) {
-        // arc is segment
-        var AA = List.scalmult(C.value[2], A);
-        var CC = List.scalmult(A.value[2], C);
-        var startend = List.turnIntoCSList([AA, CC]);
-        startend = List.normalizeMax(startend); // Normalize together!
-
-        var seg = {
-            "startpos": startend.value[0],
-            "endpos": startend.value[1],
-            "homog": List.cross(A, C)
-        };
-
-        // segment passing through infinity?
-        var far = List.sub(AA, CC);
-        var tmpcr = List.crossratio3(A, C, B, far, List.ii).value.real;
-
-        var infseg = tmpcr > 0;
-
-        var cr = geoOps._helper.projectPointToSegmentCR(seg, P, infseg);
-        return geoOps._helper.projectPointToSegment(seg, cr);
-
-    } else {
-        return geoOps._helper.projectPointToCircle(arc, P);
-    }
-};
-
 
 geoOps.PointOnArc = {};
 geoOps.PointOnArc.kind = "P";
@@ -748,19 +658,27 @@ geoOps.PointOnArc.signatureConstraints = function(el) {
 };
 geoOps.PointOnArc.isMovable = true;
 geoOps.PointOnArc.initialize = function(el) {
-    var arc = csgeo.csnames[el.args[0]];
-    var p = geoOps._helper.initializePoint(el);
-    p = geoOps._helper.projectPointToArc(arc, p);
-
-    var cr = geoOps._helper.PointOnArcCr(arc, p);
+    var pos = geoOps._helper.initializePoint(el);
+    var cr = geoOps.PointOnArc.getParamForInput(el, pos);
     putStateComplexVector(cr);
 };
 geoOps.PointOnArc.getParamForInput = function(el, pos) {
     var arc = csgeo.csnames[el.args[0]];
-    var npos = geoOps._helper.projectPointToArc(arc, pos);
-    var cr = geoOps._helper.PointOnArcCr(arc, npos);
-
-    return cr;
+    var P = geoOps._helper.projectPointToCircle(arc, pos);
+    var A = arc.startPoint;
+    var B = arc.viaPoint;
+    var C = arc.endPoint;
+    var crh = List.normalizeMax(List.crossratio3harm(A, C, B, P, List.ii));
+    // Now restrict cross ratio to the range [0,∞]
+    var cr = CSNumber.div(crh.value[0], crh.value[1]);
+    if (cr.value.real < 0) {
+        if (cr.value.real < -1) {
+            crh = List.realVector([1, 0]); // ∞, use end point
+        } else {
+            crh = List.realVector([0, 1]); // 0, use start point
+        }
+    }
+    return crh;
 };
 geoOps.PointOnArc.getParamFromState = function(el) {
     return getStateComplexVector(2);
@@ -771,46 +689,33 @@ geoOps.PointOnArc.putParamToState = function(el, param) {
 geoOps.PointOnArc.updatePosition = function(el) {
     var arc = csgeo.csnames[el.args[0]];
     var A = arc.startPoint;
-    var C = arc.endPoint;
     var B = arc.viaPoint;
-    var II = List.ii;
-
-    var conic = arc.matrix;
-
-    var cr = getStateComplexVector(2);
-    putStateComplexVector(cr);
-    var cr1 = cr.value[0];
-    var cr2 = cr.value[1];
-
-
-    var erg;
-
-    // l = ([A,C,I]*B-cr*[A,B,I]*C) x I
-    var aciB = List.det(List.turnIntoCSList([A, C, II]));
-    aciB = CSNumber.mult(cr2, aciB);
-    aciB = List.scalmult(aciB, B);
-
-    var dabiC = List.det(List.turnIntoCSList([A, B, II]));
-    dabiC = CSNumber.mult(cr1, dabiC);
-    dabiC = List.scalmult(dabiC, C);
-
-    var ll = List.sub(aciB, dabiC);
-    ll = List.normalizeMax(ll);
-    ll = List.cross(ll, List.ii);
-    ll = List.normalizeMax(ll);
-
-
-    erg = geoOps._helper.IntersectLC(ll, arc.matrix);
-    var d1 = List.projectiveDistMinScal(erg[0], II);
-    var d2 = List.projectiveDistMinScal(erg[1], II);
-
-    erg = d1 < d2 ? erg[1] : erg[0];
-    erg = List.normalizeMax(erg);
-
-    el.homog = General.withUsage(erg, "Point");
+    var C = arc.endPoint;
+    var I = List.ii;
+    var AI = List.cross(A, I);
+    var BI = List.cross(B, I);
+    var CI = List.cross(C, I);
+    // Now we want to scale AI and CI such that λ⋅BI = AI + CI.
+    // a*AI + c*CI = BI => [AI, CI]*(a,c) = BI but [AI, CI] is not square so
+    // we solve this least-squares-style (see Moore-Penrose pseudoinverse),
+    // multiplying both sides by M2x3c and then using the adjoint to solve.
+    var M2x3 = List.turnIntoCSList([AI, CI]);
+    var M3x2 = List.transpose(M2x3);
+    var M2x3c = List.conjugate(M2x3);
+    var M2x2 = List.productMM(M2x3c, M3x2);
+    var v2x1 = List.productMV(M2x3c, BI);
+    var ab = List.productMV(List.adjoint2(M2x2), v2x1);
+    var a = ab.value[0];
+    var c = ab.value[1];
+    var crh = getStateComplexVector(2);
+    putStateComplexVector(crh);
+    var Q = List.normalizeMax(List.add(
+        List.scalmult(CSNumber.mult(a, crh.value[0]), A),
+        List.scalmult(CSNumber.mult(c, crh.value[1]), C)));
+    var P = geoOps._helper.conicOtherIntersection(arc.matrix, I, Q);
+    el.homog = General.withUsage(P, "Point");
 };
 geoOps.PointOnArc.stateSize = 4;
-
 
 geoOps._helper.CenterOfCircle = function(c) {
     // Treating this special case of CenterOfConic avoids some computation
