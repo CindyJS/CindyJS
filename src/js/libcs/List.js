@@ -1061,6 +1061,10 @@ List.projectiveDistMinScal = function(a, b) {
 
 };
 
+List.euclideanDist = function(a, b) {
+    return List.abs(List.sub(List.normalizeZ(a), List.normalizeZ(b))).value.real;
+};
+
 function conicMat2Vec(m) {
     var v = m.value;
     var r0 = v[0].value;

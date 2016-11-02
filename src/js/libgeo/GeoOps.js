@@ -475,6 +475,68 @@ geoOps.PointOnLine.putParamToState = function(el, param) {
 };
 geoOps.PointOnLine.stateSize = 12;
 
+geoOps.PointOnConic = {};
+geoOps.PointOnConic.kind = "P";
+geoOps.PointOnConic.signature = ["C"];
+geoOps.PointOnConic.isMovable = true;
+geoOps.PointOnConic.initialize = function(el) {
+    var pos = geoOps._helper.initializePoint(el);
+    putStateComplexVector(pos);
+};
+geoOps.PointOnConic.getParamForInput = function(el, pos, type) {
+    var m = csgeo.csnames[(el.args[0])].matrix;
+    if (type === "mouse" || true) { // Don't have a different implementation yet
+        // Orthogonal projection to conic (Euclidean, non-homogeneous!)
+        // We want to solve [fundDual*m*q, q, pos] = 0 for q
+        var a = m.value[0].value[0];
+        var b = m.value[0].value[1];
+        var c = m.value[0].value[2];
+        var d = m.value[1].value[1];
+        var e = m.value[1].value[2];
+        var f = m.value[2].value[2];
+        var x = pos.value[0];
+        var y = pos.value[1];
+        var z = pos.value[2];
+        var add = CSNumber.add;
+        var sub = CSNumber.sub;
+        var rm = CSNumber.realmult;
+        var mul = CSNumber.mult;
+        var neg = CSNumber.neg;
+        var zero = CSNumber.zero;
+        var n = List.matrix([
+            [neg(mul(b, z)), mul(sub(a, d), z), sub(mul(b, x), mul(a, y))],
+            [zero, mul(b, z), sub(mul(d, x), mul(b, y))],
+            [neg(mul(e, z)), mul(c, z), sub(mul(e, x), mul(c, y))]
+        ]);
+        n = List.normalizeMax(List.add(List.transpose(n), n));
+        var candidates = geoOps._helper.IntersectConicConic(m, n);
+        var res = List.realVector([0, 0, 0]);
+        var dist = Infinity;
+        for (var i = 0; i < 4; ++i) {
+            if (!List._helper.isAlmostReal(candidates[i]))
+                continue;
+            var d = List.euclideanDist(pos, candidates[i]);
+            if (d < dist) {
+                dist = d;
+                res = candidates[i];
+            }
+        }
+        return res;
+    }
+};
+geoOps.PointOnConic.getParamFromState = function(el) {
+    return getStateComplexVector(3);
+};
+geoOps.PointOnConic.putParamToState = function(el, param) {
+    putStateComplexVector(param);
+};
+geoOps.PointOnConic.updatePosition = function(el) {
+    var pos = getStateComplexVector(3);
+    pos = geoOps.PointOnConic.getParamForInput(el, pos, "update");
+    putStateComplexVector(pos);
+    el.homog = General.withUsage(pos, "Point");
+};
+geoOps.PointOnConic.stateSize = 6;
 
 geoOps.PointOnCircle = {};
 geoOps.PointOnCircle.kind = "P";

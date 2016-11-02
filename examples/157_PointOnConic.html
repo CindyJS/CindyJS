@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Point on Conic</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../build/js/CindyJS.css">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 335,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.06]}],
+    grid: 1.0
+  }],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name: "A", type: "Free", pos: [3.414634146341464, -4.0, -1.2195121951219514], color: [1.0, 0.0, 0.0], labeled: false},
+    {name: "B", type: "Free", pos: [-3.52, -1.92, 4.0], color: [1.0, 0.0, 0.0], labeled: false},
+    {name: "C", type: "Free", pos: [4.0, -0.7213114754098361, 0.5464480874316939], color: [1.0, 0.0, 0.0], labeled: false},
+    {name: "D", type: "Free", pos: [4.0, 1.2355212355212357, 0.3861003861003861], color: [1.0, 0.0, 0.0], labeled: false},
+    {name: "E", type: "Free", pos: [4.0, 1.2686084142394822, 0.32362459546925565], color: [1.0, 0.0, 0.0], labeled: false},
+    {name: "C0", type: "ConicBy5", color: [0.0, 0.0, 1.0], args: ["A", "B", "C", "D", "E"], printname: "$C_{0}$"},
+    {name: "F", type: "PointOnConic", pos: [4.0, 0.9629575165087866, 0.7169297989808624], color: [1.0, 1.0, 0.0], args: ["C0"], labeled: false}
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="border:2px solid black"></div>
+</body>
+
+</html>
