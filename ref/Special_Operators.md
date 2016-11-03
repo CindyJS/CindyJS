@@ -16,4 +16,4 @@ Some of them are even necessary for the interaction of Cinderella and CindyScrip
 
 *  [System Information](System_Information.md): Obtaining information about the runtime system
 
-*  [Interaction with CindyLab](Interaction_with_CindyLab.md): How [CindyLab](CindyLab.md) and CindyScript can influence each other
+*  [Interaction with CindyLab](Interaction_with_CindyLab.md): How CindyLab and CindyScript can influence each other

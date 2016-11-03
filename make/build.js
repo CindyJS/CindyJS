@@ -233,20 +233,13 @@ module.exports = function build(settings, task) {
     ];
 
     task("refhtml", [], function() {
-        var cached = null;
-        function lazy() {
-            return (cached || (cached = Q.denodeify(
-                require("../ref/js/md2html").renderHtml)))
-                .apply(null, arguments);
-        }
         this.input(["ref/js/template.html", "ref/js/md2html.js"]);
-        this.parallel(function() {
-            refmd.forEach(function(input) {
-                var output = path.join(
-                    "build", input.replace(/\.md$/, ".html"));
-                return this.process(input, output, lazy);
-            }, this);
-        });
+        this.input(refmd);
+        this.output(refmd.map(function(input) {
+            return path.join("build", input.replace(/\.md$/, ".html"));
+        }));
+        this.mkdir("build/ref");
+        this.node("ref/js/md2html", "-o", "build/ref", refmd);
     });
 
     task("refres", [], function() {

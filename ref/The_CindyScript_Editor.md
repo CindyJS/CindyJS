@@ -20,7 +20,7 @@ Cinderella is highly interactive, and that is the reason for many “occasions�
 On the left side of the script editor you see the available occasions.
 
 Usually, you write scripts for the “Draw” occasion.
-These are executed whenever the [view](Views.md) is rendered.
+These are executed whenever the view is rendered.
 To edit a script, first click on “Draw”.
 
 ![Entering scripts for the draw occasion.](img/ScriptEditor-draw.png)
@@ -72,7 +72,7 @@ Checking the Script Editor reveals the automatically generated draw occasion scr
 
 ###  CindyScript and the Inspector
 
-Many text input fields of the [Inspector](Inspector.md) window accept CindyScript code as input.
+Many text input fields of the Inspector window accept CindyScript code as input.
 The script will only be evaluated once – if you want to make permanent changes you have to use either the command line or the draw occasion in the Script Editor.
 After pressing enter, you can still see your CindyScript code, but if the input field looses the input focus its value will be replaced with the evaluation result.
 
@@ -90,6 +90,6 @@ As the field for script code is very small we recommend to just call functions d
 
 You can choose the programming language used to interpret a script using the choice box in the top panel.
 Available languages are CindyScript, Python, JRuby and CDY, the internal language that is used to store constructions.
-However, currently we only support CindyScript, and this is also the only language you can use in [Cinderella applets](HTML_Export.md).
+However, currently we only support CindyScript, and this is also the only language you can use in Cinderella applets.
 
 ![Image](img/ScriptEditor-languages.png)
