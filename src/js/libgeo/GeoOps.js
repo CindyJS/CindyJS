@@ -488,26 +488,9 @@ geoOps.PointOnConic.getParamForInput = function(el, pos, type) {
     if (type === "mouse" || true) { // Don't have a different implementation yet
         // Orthogonal projection to conic (Euclidean, non-homogeneous!)
         // We want to solve [fundDual*m*q, q, pos] = 0 for q
-        var a = m.value[0].value[0];
-        var b = m.value[0].value[1];
-        var c = m.value[0].value[2];
-        var d = m.value[1].value[1];
-        var e = m.value[1].value[2];
-        var f = m.value[2].value[2];
-        var x = pos.value[0];
-        var y = pos.value[1];
-        var z = pos.value[2];
-        var add = CSNumber.add;
-        var sub = CSNumber.sub;
-        var rm = CSNumber.realmult;
-        var mul = CSNumber.mult;
-        var neg = CSNumber.neg;
-        var zero = CSNumber.zero;
-        var n = List.matrix([
-            [neg(mul(b, z)), mul(sub(a, d), z), sub(mul(b, x), mul(a, y))],
-            [zero, mul(b, z), sub(mul(d, x), mul(b, y))],
-            [neg(mul(e, z)), mul(c, z), sub(mul(e, x), mul(c, y))]
-        ]);
+        var n = List.productMM(
+            List.crossOperator(pos),
+            List.productMM(List.fundDual, m));
         n = List.normalizeMax(List.add(List.transpose(n), n));
         var candidates = geoOps._helper.IntersectConicConic(m, n);
         var res = List.realVector([0, 0, 0]);
