@@ -206,10 +206,11 @@ function usecvec(n) {
 }
 
 
-function accessvecbyshifted(n) {
+function accessvecbyshifted(n, k) {
   return (args, modifs, codebuilder) => { //works only for hardcoded glsl
       createstruct(type.vec(n), codebuilder);
-      let k = Number(args[1]) - 1;
+      //let k = Number(args[1]) - 1;
+      //console.log(`k = ${k};`);
       if(2 <= n && n <= 4)
           return `(${args[0]})[${k}]`;
       let idx = computeidx(k, n);
@@ -217,12 +218,12 @@ function accessvecbyshifted(n) {
   };
 }
 
-function accesscvecbyshifted(n) {
+function accesscvecbyshifted(n, k) {
   return (args, modifs, codebuilder) => { //works only for hardcoded glsl
       return `vec2(${
-        accessvecbyshifted(n)([args[0]+'.real', args[1]], modifs, codebuilder)
+        accessvecbyshifted(n, k)([args[0]+'.real', args[1]], modifs, codebuilder)
       },${
-        accessvecbyshifted(n)([args[0]+'.imag', args[1]], modifs, codebuilder)
+        accessvecbyshifted(n, k)([args[0]+'.imag', args[1]], modifs, codebuilder)
       })`;
   };
 }

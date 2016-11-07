@@ -3,6 +3,12 @@ let isrvectorspace = t => (t.type === 'list' && isrvectorspace(t.parameters)) ||
 /* checks wheather t can be embedded into an C-vectorspace*/
 let iscvectorspace = t => (t.type === 'list' && iscvectorspace(t.parameters)) || issubtypeof(t, type.complex);
 
+/* checks whether t is a constant integer */
+let isconstantint = t => (t.type === 'constant' && issubtypeof(t, type.int));
+
+/*generalizes constants to non-constant types and leaves other types unaffected */
+let generalize = t => t.type === 'constant' ? guessTypeOfValue(t.value) : t;
+
 /* depth of an list construct */
 let depth = t => (t.type === 'list') ? depth(t.parameters) + 1 : 0;
 let finalparameter = t => t.parameters ? finalparameter(t.parameters) : t;
@@ -36,7 +42,12 @@ let isnativeglsl = t =>
 
 let isprimitive = a => [type.bool, type.int, type.float, type.complex].indexOf(a) !== -1;
 
-let typesareequal = (a, b) => (a === b) || (a.type === 'list' && b.type === 'list' && a.length === b.length && typesareequal(a.parameters, b.parameters));
+let typesareequal = (a, b) => (a === b) ||
+    (a.type === 'constant' && b.type === 'constant' && a.value['ctype'] === b.value['ctype'] && (
+        (a.value['ctype'] === 'number' && a.value['value']['real'] === b.value['value']['real'] && a.value['value']['imag'] === b.value['value']['imag']) ||
+        (a.value['ctype'] === 'boolean' && a.value['value'] === b.value['value'])
+    )) ||
+    (a.type === 'list' && b.type === 'list' && a.length === b.length && typesareequal(a.parameters, b.parameters));
 
 
 function issubtypeof(a, b) {
@@ -49,6 +60,8 @@ function issubtypeof(a, b) {
         //return (subtype[a][b] < oo);
         return a <= b;
     }
+    if (b.type === 'constant') return false; //if a is a subtype of b then typesareequal(a, b), which we already checked
+    if (a.type === 'constant') return (issubtypeof(guessTypeOfValue(a.value), b));
 
     if (b === type.coordinate2d) return issubtypeof(a, type.complex) || issubtypeof(a, type.vec2) || issubtypeof(a, type.point);
     if (b === type.point) return issubtypeof(a, type.vec3);
@@ -66,9 +79,16 @@ function issubtypeof(a, b) {
 function lca(a, b) {
     if (!a) return b;
     if (!b) return a;
+    if (typesareequal(a, b)) {
+        return a;
+    }
+    if (a.type === 'constant') a = guessTypeOfValue(a.value);
+    if (b.type === 'constant') b = guessTypeOfValue(b.value);
+
     if (isprimitive(a) && isprimitive(b)) {
         return Math.max(a, b);
     }
+
     if (a.type === 'list' && b.type === 'list' && a.length === b.length) {
         let st = lca(a.parameters, b.parameters);
         if (!st) return false;
@@ -269,3 +289,21 @@ function webgltype(ctype) {
 
     console.error(`No WebGL implementation for type ${typeToString(ctype)} found`);
 }
+
+function pastevalue(val, toType) {
+    switch (toType) {
+        case type.bool:
+            return `${webgltype(toType)}(${val['value']})`;
+        case type.int:
+            return `${webgltype(toType)}(${val['value']['real'] | 0})`;
+        case type.float:
+            return `${webgltype(toType)}(${val['value']['real']})`;
+        case type.complex:
+            return `${webgltype(toType)}(${val['value']['real']}, ${val['value']['imag']})`;
+        case type.color:
+            let f = val['value']['real'];
+            return `vec4(${f},${f},${f},1.)`;
+        default:
+            console.error(`Dont know how to paste values of Type ${typeToString(toType)} yet.`);
+    }
+};

@@ -105,6 +105,8 @@ CodeBuilder.prototype.castType = function(term, fromType, toType) {
     if (!issubtypeof(fromType, toType)) {
         console.error(`${typeToString(fromType)} is no subtype of ${typeToString(toType)} (trying to cast the term ${term})`);
         return term;
+    } else if (fromType.type === "constant") {
+        return pastevalue(fromType.value, toType);
     } else {
         let implementation = inclusionfunction(toType)([fromType]);
         if (!implementation) {
@@ -148,10 +150,7 @@ CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current 
     } else if (expr['ctype'] === 'function' && this.myfunctions.hasOwnProperty(expr['oper'])) {
         if (this.T.hasOwnProperty('') && this.T[''].hasOwnProperty(expr['oper'])) return this.T[''][expr['oper']];
     } else if (expr['ctype'] === 'number') {
-        if (expr['value']['imag'] !== 0) return type.complex;
-        //number is real
-        if ((expr['value']['real'] | 0) === expr['value']['real']) return type.int; //MAX.Int?
-        return type.float;
+        return constant(expr);
     } else if (expr['ctype'] === 'void') {
         return type.voidt;
     } else if (expr['ctype'] === 'field') {
@@ -301,16 +300,11 @@ CodeBuilder.prototype.determineTypes = function() {
                     // variable  v (which lives in scope s) <- expression e in function f
                     let e = this.assigments[s][v][i].expr;
                     let f = this.assigments[s][v][i].fun;
-                    let othertype = this.getType(e, f); //type of expression e in function f
+                    let othertype = generalize(this.getType(e, f)); //type of expression e in function f
 
                     let oldtype = false;
                     if (this.T.hasOwnProperty(s) && this.T[s].hasOwnProperty(v)) oldtype = this.T[s][v];
                     let newtype = oldtype;
-
-
-                    //  if (!othertype)//TODO: remove
-                    //      console.log(`Could not determine type of ${v} in scope ${s}. It has expression ${JSON.stringify(e)}`);
-
                     if (othertype) {
                         if (!oldtype) newtype = othertype;
                         else {
@@ -321,7 +315,7 @@ CodeBuilder.prototype.determineTypes = function() {
                             if (!this.T.hasOwnProperty(s)) this.T[s] = {};
 
                             this.T[s][v] = newtype;
-                            console.log(`variable ${v} in scope ${s} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
+                            //console.log(`variable ${v} in scope ${s} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
                             changed = true;
                         }
                     }
@@ -448,15 +442,16 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 
     let uniforms = {};
     //now find use those elements in expression trees that have no expr["dependsOnPixel"] and as high as possible having that property
-    function computeUniforms(expr, fun) {
+    function computeUniforms(expr, fun, forceconstant) {
         if (dependsOnPixel(expr, fun)) {
             //then run recursively on all childs
             for (let i in expr['args']) {
-                computeUniforms(expr['args'][i], fun);
+                let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "_" && i == 1);
+                computeUniforms(expr['args'][i], fun, needtobeconstant);
             }
 
             if (expr['ctype'] === 'field') {
-                computeUniforms(expr['obj'], fun);
+                computeUniforms(expr['obj'], fun, forceconstant);
             }
 
             //Oh yes, it also might be a user-defined function!
@@ -464,14 +459,15 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
                 let rfun = expr['oper'];
                 if (!visitedFunctions.hasOwnProperty(rfun)) { //only do this once per function
                     visitedFunctions[rfun] = true;
-                    computeUniforms(myfunctions[rfun].body, rfun);
+                    computeUniforms(myfunctions[rfun].body, rfun, forceconstant);
                 }
             }
         } else {
-            //assert that parent node was dependent on uniform
+            //assert that parent node was dependent on pixel
             //we found a highest child that is not dependent -> this will be a candidate for a uniform!
 
             //To pass constant numbers as uniforms is overkill
+            //TODO better: if it does not contain variables or functions
             if (expr['ctype'] === 'number') return;
 
             //nothing to pass
@@ -491,36 +487,24 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
                 uname = generateUniqueHelperString();
                 uniforms[uname] = {
                     expr: expr,
-                    type: false
+                    type: false,
+                    forceconstant: forceconstant
                 };
             }
-
             expr["isuniform"] = true;
             expr["uvariable"] = uname;
-
         }
     }
-
-
-    computeUniforms(expr, '');
+    computeUniforms(expr, '', false);
     this.uniforms = uniforms;
 };
 
 
 CodeBuilder.prototype.determineUniformTypes = function() {
     for (let uname in this.uniforms) {
-        //Default value
-        this.uniforms[uname].type = type.float; //every cindyJS number can be interpreted as complex.
-
-        //TODO: check wether type was specified by modifier?
-
         let tval = this.api.evaluateAndVal(this.uniforms[uname].expr);
-
-
-        this.uniforms[uname].type = guessTypeOfValue(tval);
-
-        //TODO: list...    TODO: why are points evaluated to ints?
-        console.log(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
+        this.uniforms[uname].type = this.uniforms[uname].forceconstant ? constant(tval) : guessTypeOfValue(tval);
+        //console.log(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
     }
 };
 
@@ -566,7 +550,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
         let ctype = uniforms[uname].type;
         return generateTerm ? {
             code: '',
-            term: uname,
+            term: ctype.type === 'constant' ? pastevalue(ctype.value, generalize(ctype)) : uname,
             type: ctype
         } : {
             code: ''
@@ -626,12 +610,13 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             }
         }
     } else if (expr['oper'] === "repeat$2") {
-        if (expr['args'][0]['ctype'] !== 'number') {
+        let number = this.compile(expr['args'][0], scope, true);
+        if (number.type.type !== 'constant') {
             console.error('repeat possible only for fixed constant number in GLSL');
             return false;
         }
         let it = generateUniqueHelperString();
-        let n = (expr['args'][0]['value']['real'] | 0); //TODO use some internal function like evalCS etc.
+        let n = number.term;
         let r = this.compile(expr['args'][1], scope, generateTerm);
 
         let code = '';
@@ -790,12 +775,7 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             };
     } else if (expr['ctype'] === 'number') { //write numbers(int, float, complex) directly in code
         let termtype = this.getType(expr, scope);
-        let term;
-
-        if (termtype === type.int) term = (expr['value']['real'] | 0);
-        else if (termtype === type.float) term = expr['value']['real'];
-        else if (termtype === type.complex) term = `vec2( ${expr['value']['real']}, ${expr['value']['imag']})`;
-
+        let term = pastevalue(expr, guessTypeOfValue(expr));
         return (generateTerm ? {
             term: term,
             type: termtype,
@@ -894,7 +874,7 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
 CodeBuilder.prototype.generateListOfUniforms = function() {
     let ans = [];
     for (let uname in this.uniforms)
-        if (this.uniforms[uname].type != type.image)
+        if (this.uniforms[uname].type.type != 'constant' && this.uniforms[uname].type != type.image)
             ans.push(`uniform ${webgltype(this.uniforms[uname].type)} ${uname};`);
     return ans.join('\n');
 };
