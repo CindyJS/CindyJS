@@ -203,40 +203,36 @@ Renderer.prototype.setUniforms = function() {
         }
     }
 
-    for (let uname in this.cpguniforms)
-        if (this.shaderProgram.uniform[uname]) {
-            let val = this.api.evaluateAndVal(this.cpguniforms[uname].expr);
-            let t = this.cpguniforms[uname].type;
+    for (let uname in this.cpguniforms) {
 
-            if (!issubtypeof(guessTypeOfValue(val), t)) {
-                console.log(`Type of ${uname} changed; forcing rebuild.`);
-                this.rebuild();
-                this.shaderProgram.use(gl);
-                this.setUniforms();
-                return;
-            }
+        let val = this.api.evaluateAndVal(this.cpguniforms[uname].expr);
+        let t = this.cpguniforms[uname].type;
 
-            //@TODO: handle other types as well
-
-
-            let setter = this.shaderProgram.uniform[uname];
-
-
-            setUniform(setter, t, val);
-
+        if (!issubtypeof(constant(val), t)) {
+            console.log(`Type of ${uname} changed (${typeToString(constant(val))} is no subtype of  ${typeToString(t)}); forcing rebuild.`);
+            this.rebuild();
+            this.shaderProgram.use(gl);
+            this.setUniforms();
+            return;
         }
 
-        [
-            ['rnd_', () => [Math.random()]],
-            [`_lowerleft`, () => {
-                let pt = computeLowerLeftCorner(this.api);
-                return [pt.x, pt.y];
-            }],
-            [`_lowerright`, () => {
-                let pt = computeLowerRightCorner(this.api);
-                return [pt.x, pt.y];
-            }],
-        ].map(
+        if (this.shaderProgram.uniform[uname]) {
+            let setter = this.shaderProgram.uniform[uname];
+            setUniform(setter, t, val);
+        }
+    }
+
+    [
+        ['rnd_', () => [Math.random()]],
+        [`_lowerleft`, () => {
+            let pt = computeLowerLeftCorner(this.api);
+            return [pt.x, pt.y];
+        }],
+        [`_lowerright`, () => {
+            let pt = computeLowerRightCorner(this.api);
+            return [pt.x, pt.y];
+        }],
+    ].map(
         a => (this.shaderProgram.uniform[a[0]]) && this.shaderProgram.uniform[a[0]](a[1]())
     )
 };
