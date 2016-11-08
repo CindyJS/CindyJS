@@ -88,7 +88,22 @@ function init(d) {
         asm._setIFS(i, trafos.length);
         for (j = 0; j < trafos.length; ++j) {
             var tr = trafos[j];
-            if (tr.kind === "Mt") {
+            if (tr.kind === "Tr") {
+                asm._setProj(
+                    i, j, tr.prob,
+                    tr.color[0] * 255,
+                    tr.color[1] * 255,
+                    tr.color[2] * 255,
+                    tr.mat[0][0],
+                    tr.mat[0][1],
+                    tr.mat[0][2],
+                    tr.mat[1][0],
+                    tr.mat[1][1],
+                    tr.mat[1][2],
+                    tr.mat[2][0],
+                    tr.mat[2][1],
+                    tr.mat[2][2]);
+            } else if (tr.kind === "Mt") {
                 asm._setMoebius(
                     i, j, tr.prob,
                     tr.color[0] * 255,

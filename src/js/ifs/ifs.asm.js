@@ -100,7 +100,7 @@ Module["asm"] = (function(global, env, buffer) {
       if (!e) {
        j = j / k + .5;
        if (!(j < 0.0 | j > 4294967295.0)) {
-        k = -n / k + .5;
+        k = n / k + .5;
         if (!(k < 0.0 | k > 4294967295.0)) {
          g = ~~j >>> 0;
          i = c[8] | 0;

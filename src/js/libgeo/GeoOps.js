@@ -2807,7 +2807,7 @@ var ifs = null;
 
 geoOps.IFS = {};
 geoOps.IFS.kind = "IFS";
-geoOps.IFS.signature = "**";
+geoOps.IFS.signature = "**"; // (Tr|Mt)*
 geoOps.IFS.signatureConstraints = function(el) {
     for (var i = 0; i < el.args.length; ++i) {
         var kind = csgeo.csnames[el.args[i]].kind;
@@ -2899,7 +2899,20 @@ geoOps.IFS.updateParameters = function() {
                 color: el["ifs.color" + i],
                 kind: kind
             };
-            if (kind === "Mt") {
+            if (kind === "Tr") {
+                var mat = List.normalizeMax(List.productMM(
+                    List.adjoint3(px2hom),
+                    List.productMM(trel.matrix, px2hom)));
+                if (!List._helper.isAlmostReal(mat)) {
+                    tr.kind = "cplx";
+                    continue;
+                }
+                tr.mat = mat.value.map(function(row) {
+                    return row.value.map(function(entry) {
+                        return entry.value.real;
+                    });
+                });
+            } else if (kind === "Mt") {
                 var mat1 = List.productMM(
                     List.transpose(px2hom), List.productMM(trel.mat1, px2hom));
                 var mat2 = List.productMM(
@@ -2915,7 +2928,7 @@ geoOps.IFS.updateParameters = function() {
                     CSNumber.neg(mat2.value[0].value[2]) // di
                 ]));
                 if (!List._helper.isAlmostReal(moeb)) {
-                    tr.kind = 999;
+                    tr.kind = "cplx";
                     continue;
                 }
                 moeb = moeb.value;

@@ -157,7 +157,7 @@ inline void IFS::step(bool skip) __attribute__((always_inline)) {
   if (skip) return;
   double x3 = p2.x / p2.z + 0.5;
   if (x3 < 0 || x3 > 0xffffffffu) return;
-  double y3 = -p2.y / p2.z + 0.5; // apparenty flipped by default?
+  double y3 = p2.y / p2.z + 0.5;
   if (y3 < 0 || y3 > 0xffffffffu) return;
   unsigned x4 = (unsigned) x3;
   if (x4 >= globals.width) return;
