@@ -2964,6 +2964,16 @@ geoOps.IFS.updateParameters = function() {
     // console.log(msg);
     ifs.worker.postMessage(msg);
 };
+geoOps.IFS.probSetter = function(i, el, value) {
+    if (value.ctype === "number") {
+        el["ifs.prob" + i] = value.value.real;
+        ifs.dirty = true;
+    }
+};
+(function() {
+    for (var i = 0; i < 10; ++i)
+        geoOps.IFS["set_prob" + i] = geoOps.IFS.probSetter.bind(null, i);
+})();
 
 
 var geoAliases = {
