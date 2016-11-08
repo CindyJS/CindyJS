@@ -2817,11 +2817,15 @@ geoOps.IFS.signatureConstraints = function(el) {
     return el.args.length > 0;
 };
 geoOps.IFS.initialize = function(el) {
-    if (ifs) return;
+    if (ifs) {
+        ifs.dirty = true;
+        return;
+    }
     var baseDir = CindyJS.getBaseDir();
     if (baseDir === false)
         return;
     ifs = {
+        dirty: false,
         params: {
             generation: 0
         },
@@ -2867,7 +2871,7 @@ geoOps.IFS.initialize = function(el) {
     shutdownHooks.push(worker.terminate.bind(worker));
 };
 geoOps.IFS.updatePosition = function(el) {
-    geoOps.IFS.updateParameters(el);
+    ifs.dirty = true;
 };
 geoOps.IFS.updateParameters = function() {
     if (!ifs.worker)
