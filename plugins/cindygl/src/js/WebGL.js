@@ -132,10 +132,10 @@ webgl[';'] = (argtypes) => ({ //generator not used yet
     generator: args => `${args[0]} ; ${args[1]};`
 });
 
-webgl['repeat'] = argtypes => isconstantint(argtypes[0]) ? ({ //generator not used yet
+webgl['repeat'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && isconstantint(argtypes[0]) ? ({ //generator not used yet
     args: argtypes,
-    res: argtypes[1],
-    generator: args => `${args[0]} ; ${args[1]};`
+    res: argtypes[argtypes.length - 1],
+    generator: args => ''
 }) : false;
 
 webgl['regional'] = argtypes => ({ //generator not used yet
