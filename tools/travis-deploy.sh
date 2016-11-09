@@ -49,6 +49,10 @@ if ! git diff --staged --quiet; then
     git config --local user.email "travis-ci@cinderella.de"
     git commit -m "Build of CindyJS ${name}"
     git push origin "HEAD:${branch}"
+    if [[ ${TRAVIS_TAG} ]]; then
+        git tag "${TRAVIS_TAG}"
+        git push origin tag "${TRAVIS_TAG}"
+    fi
 fi
 rm -rf ../prevdeploy "${preserve[@]}"
 
