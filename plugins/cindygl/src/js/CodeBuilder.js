@@ -536,7 +536,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             ansvar = generateUniqueHelperString();
             code += `${webgltype(r.type)} ${ansvar};`; //initial ansvar
         }
-        code += `for(int ${it}=0; ${it} < ${n}; ${it}++) {\n`;
+        code += `for(int ${it}=1; ${it} <= ${n}; ${it}++) {\n`;
         code += r.code;
         if (generateTerm) {
             code += `${ansvar} = ${r.term};\n`;
