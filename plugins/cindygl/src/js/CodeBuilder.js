@@ -204,7 +204,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
 
             self.initvariable(vname, true);
             variables[vname].assigments.push(expr['args'][1]);
-        } else if (expr['oper'] && getPlainName(expr['oper']) === 'regional') {
+        } else if (expr['oper'] && getPlainName(expr['oper']) === 'regional' && scope != 'global') {
             for (let i in expr['args']) {
                 let vname = expr['args'][i]['name'];
                 let iname = generateUniqueHelperString();
