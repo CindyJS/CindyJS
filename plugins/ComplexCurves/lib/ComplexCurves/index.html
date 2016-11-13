@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Complex Curves</title>
+<link rel="shortcut icon" href="favicon.ico" />
+<script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="node_modules/semantic-ui-css/semantic.css" />
+<script type="text/javascript" src="node_modules/semantic-ui-css/semantic.min.js"></script>
+<script type="text/javascript" src="build/ComplexCurves.js"></script>
+<link rel="stylesheet" type="text/css" href="index.css" />
+<script type="text/javascript" src="index.js"></script>
+</head>
+<body class="basic minimal">
+<a href="https://github.com/kranich/ComplexCurves">
+    <img style="position: absolute; top: 0; right: 0; border: 0;"
+    src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"
+    alt="Fork me on GitHub">
+</a>
+<div class="main ui container">
+    <div class="ui fluid search">
+        <div id="largeSearch" class="ui centered grid">
+            <div class="ten wide center aligned column">
+                <a href="#"><h1 class="ui image header">
+                    <img class="image" src="images/Folium.png" alt="Folium" />
+                    <span class="content">Complex Curves</span>
+                </h1></a>
+                <div class="ui raised padded segment">
+                    <form class="ui large form">
+                        <h3 class="field">
+                            Visualize complex plane algebraic curves
+                        </h3>
+                        <div id="searchField" class="field">
+                            <div class="ui icon input">
+                                <input id="searchInput" class="prompt"
+                                placeholder="Name or equation of curve"
+                                type="search">
+                                <i class="search icon"></i>
+                            </div>
+                        </div>
+                        <div class="field">
+                        for example <a href="#Folium">Folium</a> or 
+                        <a href="#Custom?equation=y%5E3-3*x*y%2Bx%5E3">
+                            y^3 - 3 * x * y + x^3
+                        </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="ui four cards results"></div>
+    </div>
+    <div id="ComplexCurves" class="ui stackable grid" style="display: none;">
+        <div class="ui twelve wide column">
+            <div class="ui 1:1 embed">
+                <canvas width="800" height="800"></canvas>
+            </div>
+        </div>
+        <div class="ui four wide column">
+            <div class="ui large form">
+                <div class="grouped fields">
+                    <label>View</label>
+                    <div class="field">
+                        <select id="viewDropdown" class="ui fluid dropdown">
+                            <option selected>Default</option>
+                            <option>Front</option>
+                            <option>Back</option>
+                            <option>Left</option>
+                            <option>Right</option>
+                            <option>Top</option>
+                            <option>Bottom</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grouped fields">
+                    <label>Options</label>
+                    <div class="field">
+                        <div id="autorotateCheckbox" class="ui toggle checkbox">
+                            <input name="autorotate" type="checkbox">
+                            <label>autorotation</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div id="clippingCheckbox" class="ui toggle checkbox">
+                            <input name="clip" type="checkbox">
+                            <label>clipping</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div id="orthoCheckbox" class="ui toggle checkbox">
+                            <input name="ortho" type="checkbox">
+                            <label>orthogonal</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div id="transparencyCheckbox"
+                        class="ui toggle checkbox">
+                            <input name="transparency" type="checkbox">
+                            <label>transparency</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="grouped fields">
+                    <label>Downloads</label>
+                    <div class="field" style="display: none">
+                        <button id="surfaceButton" class="ui fluid button">
+                            3D model
+                        </button>
+                    </div>
+                    <div class="field">
+                        <button id="screenshotButton" class="ui fluid button">
+                            Image
+                        </button>
+                    </div>
+                    <div class="field">
+                        <button id="domainColouringButton"
+                        class="ui fluid button">
+                            Sheets
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

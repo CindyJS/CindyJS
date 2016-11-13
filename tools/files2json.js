@@ -4,6 +4,7 @@ var fs = require("fs"), path = require("path");
 var settings = {
   "varname": "resources",
   "strip": "yes",
+  "preserve_file_names": "no",
   "output": null
 };
 var data = {};
@@ -57,8 +58,10 @@ function readFile(name) {
     if (err) throw err;
     var n = path.basename(name);
     var ext = n.replace(/.*\./, "");
-    n = n.replace(/\.[^.]+$/, "");
-    n = n.replace(/[^A-Za-z0-9_]/g, "_");
+    if (settings.preserve_file_names !== "yes" && settings.preserve_file_names !== "true") {
+        n = n.replace(/\.[^.]+$/, "");
+        n = n.replace(/[^A-Za-z0-9_]/g, "_");
+    }
     content = content.toString();
     if (settings.strip !== "no" && settings.strip !== "false" && strip.hasOwnProperty(ext))
       content = strip[ext](content);

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Square root</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/ComplexCurves.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+use("ComplexCurves");
+ComplexCurves("CCCanvas", "y^2-x");
+</script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [],
+  scripts: "cs*",
+  geometry: []
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas">
+  <canvas id="CCCanvas" width="800" height="800"
+    style="border: 2px solid black; width: 500px; height: 500px;"></canvas>
+  </div>
+</body>
+
+</html>

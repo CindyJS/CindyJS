@@ -1,0 +1,162 @@
+[
+    {
+        "id": "Circle",
+        "cached": true,
+        "image": "images/Circle.png",
+        "title": "Circle",
+        "equation": "x^2+y^2-1",
+        "zoom": 1.2
+    },
+    {
+        "id": "Cissoid",
+        "cached": true,
+        "image": "images/Cissoid.png",
+        "title": "Cissoid",
+        "equation": "x*(x^2+y^2)-(1-x)^3",
+        "zoom": 1.4
+    },
+    {
+        "id": "Conchoid",
+        "cached": true,
+        "image": "images/Conchoid.png",
+        "title": "Conchoid",
+        "equation": "(y+1)^2*(x^2+y^2)-2^2*y^2",
+        "depth": 9,
+        "zoom": 1.2
+    },
+    {
+        "id": "Ellipse",
+        "cached": true,
+        "image": "images/Ellipse.png",
+        "title": "Ellipse",
+        "equation": "x^2+4*y^2-4"
+    },
+    {
+        "id": "FigureEight",
+        "cached": true,
+        "image": "images/FigureEight.png",
+        "title": "Figure eight",
+        "equation": "y^4-y^2+x^2",
+        "depth": 11
+    },
+    {
+        "id": "Folium",
+        "cached": true,
+        "image": "images/Folium.png",
+        "title": "Folium of Descartes",
+        "equation": "x^3+y^3-3*x*y",
+        "zoom": 1.3
+    },
+    {
+        "id": "Hyperbola",
+        "cached": true,
+        "image": "images/Hyperbola.png",
+        "title": "Hyperbola",
+        "equation": "x^2-y^2-1",
+        "zoom": 1.2
+    },
+    {
+        "id": "Limacon",
+        "cached": true,
+        "image": "images/Limacon.png",
+        "title": "Limaçon",
+        "equation": "4*(x^2+y^2-3*x)^2-9*(x^2+y^2)",
+        "zoom": 1.3
+    },
+    {
+        "id": "Nephroid",
+        "cached": true,
+        "image": "images/Nephroid.png",
+        "title": "Nephroid",
+        "equation": "(x^2+y^2-4)^3-108*y^2",
+        "depth": 7,
+        "zoom": 1.4
+    },
+    {
+        "id": "Parabola",
+        "cached": true,
+        "image": "images/Parabola.png",
+        "title": "Parabola",
+        "equation": "y^2-x"
+    },
+    {
+        "id": "PearShapedQuartic",
+        "cached": true,
+        "image": "images/PearShapedQuartic.png",
+        "title": "Pear-shaped quartic",
+        "equation": "y^4-2*y^3+1^2*x^2"
+    },
+    {
+        "id": "RightStrophoid",
+        "cached": true,
+        "image": "images/RightStrophoid.png",
+        "title": "Right strophoid",
+        "equation": "x^3+x*y^2+y^2-x^2",
+        "zoom": 1.2
+    },
+    {
+        "id": "SemicubicalParabola",
+        "cached": true,
+        "image": "images/SemicubicalParabola.png",
+        "title": "Semicubical parabola",
+        "equation": "y^3-x^2"
+    },
+    {
+        "id": "SquareRoot",
+        "cached": true,
+        "image": "images/SquareRoot.png",
+        "title": "Square root",
+        "equation": "y^2-x"
+    },
+    {
+        "id": "Tricuspoid",
+        "cached": true,
+        "image": "images/Tricuspoid.png",
+        "title": "Tricuspoid",
+        "equation": "y^4+2*x^2*y^2+x^4+24*x*y^2-8*x^3+18*y^2+18*x^2-27",
+        "depth": 7,
+        "zoom": 1.8
+    },
+    {
+        "id": "Trifolium",
+        "cached": true,
+        "image": "images/Trifolium.png",
+        "title": "Trifolium",
+        "equation": "y^4+2*x^2*y^2+x^4-3*x*y^2+x^3",
+        "zoom": 1.5
+    },
+    {
+        "id": "TrisectrixOfMaclaurin",
+        "cached": true,
+        "image": "images/TrisectrixOfMaclaurin.png",
+        "title": "Trisectrix of Maclaurin",
+        "equation": "x*y^2+x^3+y^2-3*x^2",
+        "zoom": 1.2
+    },
+    {
+        "id": "TschirnhausCubic",
+        "cached": true,
+        "image": "images/TschirnhausCubic.png",
+        "title": "Tschirnhaus cubic",
+        "equation": "-x^3+3*y^2+2*x^2-x",
+        "zoom": 1.5
+    },
+    {
+        "id": "WattCurve",
+        "cached": true,
+        "image": "images/WattCurve.png",
+        "title": "Watt curve",
+        "equation": "(x^2+y^2)*(x^2+y^2-2^2-2.5^2+1.5^2)^2+4*2^2*y^2*(x^2+y^2-2.5^2)",
+        "depth": 8,
+        "zoom": 1.2
+    },
+    {
+        "id": "WattCurveReducible",
+        "cached": true,
+        "image": "images/WattCurveReducible.png",
+        "title": "Watt curve (reducible)",
+        "equation": "(x^2+y^2-9)*(x^4+2*x^2*y^2+y^4-9*x^2+7*y^2)",
+        "depth": 8,
+        "zoom": 1.2
+    }
+]

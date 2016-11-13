@@ -1,0 +1,58 @@
+.ui.menu {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+a.item:hover {
+    background: transparent !important;
+}
+.ui.menu input {
+    width: 20em !important;
+}
+.ui.header .content {
+    padding-left: 0 !important;
+}
+.ui.cards.results {
+	border: none;
+	border-radius: 0;
+	box-shadow: none;
+	display: flex;
+}
+.ui.cards.results > .card {
+	display: flex;
+	padding: 0;
+}
+.ui.cards.results > .result > .content {
+	margin: 0 !important;
+}
+.ui.cards.results > .result > .image {
+	height: auto;
+	width: auto;
+}
+.ui.cards.results > .result > .image img {
+    height: initial;
+    width: initial;
+}
+.ui.embed[class*="1:1"] {
+    position: relative;
+    background-color: #002b36 !important;
+    margin: 0;
+    width: 100%;
+    height: 0;
+    padding-bottom: 100%;
+}
+.ui.fluid.search {
+    margin: 1.75em 0;
+}
+.field a {
+    font-weight: bold;
+    margin: 0 0.2em;
+}
+canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}

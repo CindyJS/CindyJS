@@ -1,0 +1,41 @@
+{
+  "name": "complexcurves",
+  "version": "0.1.0",
+  "description": "A JavaScript library for visualization of complex plane algebraic curves",
+  "dependencies": {
+    "jquery": "^3.0.0",
+    "semantic-ui-css": "^2.2.3"
+  },
+  "devDependencies": {
+    "js-beautify": "^1.6.3",
+    "jshint": "^2.9.2"
+  },
+  "main": "index.js",
+  "scripts": {
+    "prepublish": "make",
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kranich/ComplexCurves.git"
+  },
+  "author": "Stefan Kranich <kranich@ma.tum.de>",
+  "license": "Apache-2.0",
+  "main": "build/ComplexCurves.js",
+  "files": [
+    "build/js",
+    "examples.json",
+    "favicon.ico",
+    "images",
+    "index.css",
+    "index.html",
+    "index.js",
+    "LICENSE",
+    "models",
+    "README.md"
+  ],
+  "bugs": {
+    "url": "https://github.com/kranich/ComplexCurves/issues"
+  },
+  "homepage": "https://github.com/kranich/ComplexCurves#readme"
+}
