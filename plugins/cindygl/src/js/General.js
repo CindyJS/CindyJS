@@ -231,6 +231,21 @@ function toHalf(fval) {
         126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
 };
 
+//from http://stackoverflow.com/questions/5678432/decompressing-half-precision-floats-in-javascript
+function decodeFloat16(binary) {
+    let exponent = (binary & 0x7C00) >> 10;
+    let fraction = binary & 0x03FF;
+    return (binary >> 15 ? -1 : 1) * (
+        exponent ?
+        (
+            exponent === 0x1F ?
+            fraction ? NaN : Infinity :
+            Math.pow(2, exponent - 15) * (1 + fraction / 0x400)
+        ) :
+        6.103515625e-5 * (fraction / 0x400)
+    );
+};
+
 var toByte = f => f * 255
 
 /**
