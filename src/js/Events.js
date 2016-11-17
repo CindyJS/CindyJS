@@ -57,7 +57,7 @@ function getmover(mouse) {
             }
             dist = dist + 25 / sc;
         } else if (el.kind === "Text") {
-            if (!el._bbox) continue;
+            if (!el.homog || el.dock || !el._bbox) continue;
             p = csport.from(mouse.x, mouse.y, 1);
             dx = Math.max(0, p[0] - el._bbox.right, el._bbox.left - p[0]);
             dy = Math.max(0, p[1] - el._bbox.bottom, el._bbox.top - p[1]);
