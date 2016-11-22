@@ -140,6 +140,7 @@ function guessTypeOfValue(tval) {
             for (let i = 1; i < l.length; i++) {
                 ctype = lca(ctype, guessTypeOfValue(l[i]));
             }
+            if (isprimitive(ctype)) ctype = lca(ctype, type.float); // we do not have vectors of bool/float
             if (ctype) return {
                 type: 'list',
                 length: l.length,
@@ -159,7 +160,7 @@ var helpercnt = 0;
 
 function generateUniqueHelperString() {
     helpercnt++;
-    return `_helper${helpercnt}`;
+    return `_h${helpercnt}`;
 }
 
 function enlargeCanvasIfRequired(sizeX, sizeY) {

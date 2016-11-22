@@ -145,8 +145,8 @@ CodeBuilder.prototype.computeType = function(expr) { //expression, current funct
         }
         let f = getPlainName(expr['oper']);
         let implementation = webgl[f] ? webgl[f](argtypes) : false;
-        if (!implementation && argtypes.every(a => a)) //no implementation found and all args are set
-            console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
+        //if (!implementation && argtypes.every(a => a)) //no implementation found and all args are set
+        //    console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
         return implementation ? implementation.res : false;
     }
     console.error("Don't know how to compute type of");
@@ -190,11 +190,14 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
     //dfs over executed code
     function rec(expr, bindings, scope) {
         expr.bindings = bindings;
-        bindings = (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
-            (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
-            bindings;
-
-        for (let i in expr['args']) rec(expr['args'][i], bindings, scope);
+        for (let i in expr['args'])
+            rec(expr['args'][i],
+                i >= 1 && (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
+                i >= 1 && (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
+                i >= 1 && (expr['oper'] === "forall$2" || expr['oper'] === "apply$2") ? addvar(bindings, '#', false) :
+                i >= 1 && (expr['oper'] === "forall$3" || expr['oper'] === "apply$3") ? addvar(bindings, expr['args'][1]['name'], false) :
+                bindings,
+                scope);
         if (expr['ctype'] === 'field') rec(expr['obj'], bindings, scope);
 
         //was there something happening to the (return)variables?
@@ -214,6 +217,20 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 myfunctions[scope].variables.push(iname);
                 self.initvariable(iname, false);
             }
+        } else if (expr['oper'] === "forall$2" || expr['oper'] === "apply$2" || expr['oper'] === "forall$3" || expr['oper'] === "apply$3") {
+            let it = (expr['args'].length === 2) ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
+            variables[it].assigments.push({ //add function that accesses first element of array for type detection
+                "ctype": "infix",
+                "oper": "_",
+                "args": [expr['args'][0], {
+                    "ctype": "number",
+                    "value": {
+                        "real": 1,
+                        "imag": 0
+                    }
+                }],
+                bindings: expr['args'][0].bindings
+            });
         } else if (expr['ctype'] === 'function' && myfunctions.hasOwnProperty(expr['oper'])) { // call of user defined function
             let rfun = expr['oper'];
             let pname = rfun.replace('$', '_'); //remove $
@@ -330,12 +347,12 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         }
 
         //repeat is pixel dependent iff it's code is pixel dependent. Then it also makes the running variable pixel dependent.
-        if (expr['oper'] === "repeat$2") {
+        if (expr['oper'] === "repeat$2" || expr['oper'] === "forall$2" || expr['oper'] === "apply$2") {
             if (dependsOnPixel(expr['args'][1])) {
                 variableDependendsOnPixel[expr['args'][1].bindings['#']] = true;
                 return expr["dependsOnPixel"] = true;
             } else return expr["dependsOnPixel"] = false;
-        } else if (expr['oper'] === "repeat$3") {
+        } else if (expr['oper'] === "repeat$3" || expr['oper'] === "forall$3" || expr['oper'] === "apply$3") {
             if (dependsOnPixel(expr['args'][2])) {
                 variableDependendsOnPixel[expr['args'][2].bindings[expr['args'][1]['name']]] = true;
                 expr['args'][1]["dependsOnPixel"] = true;
@@ -451,7 +468,12 @@ CodeBuilder.prototype.precompile = function(expr, bindings) {
     this.determineVariables(expr, bindings);
     this.determineUniforms(expr);
     this.determineUniformTypes();
+
     this.determineTypes();
+    for (let u in this.uniforms)
+        if (this.uniforms[u].type.type === 'list') createstruct(this.uniforms[u].type, this);
+    for (let v in this.variables)
+        if (this.variables[v].T.type === 'list') createstruct(this.variables[v].T, this);
     this.precompileDone = true;
 };
 
@@ -522,14 +544,11 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             console.error('repeat possible only for fixed constant number in GLSL');
             return false;
         }
-        let it = (expr['oper'] === "repeat$2") ? expr['args'][1].bindings['#'] :
-            expr['args'][2].bindings[expr['args'][1]['name']] //(expr['oper'] === "repeat$3")
-        ;
+        let it = (expr['oper'] === "repeat$2") ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
         let n = number.term;
         let r = this.compile(expr['args'][(expr['oper'] === "repeat$2") ? 1 : 2], generateTerm);
 
         let code = '';
-        let ans = '';
         let ansvar = '';
 
         if (generateTerm) {
@@ -549,12 +568,65 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         } : {
             code: code
         });
+    } else if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3" || expr['oper'] === "apply$2" || expr['oper'] === "apply$3") {
+        let array = this.compile(expr['args'][0], true);
+        if (array.type.type !== 'list') {
+            console.error(`${expr['oper']} only possible for lists`);
+            return false;
+        }
+        let it = (expr['args'].length === 2) ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
+        let ittype = this.variables[it].T;
+
+        let r = this.compile(expr['args'][(expr['args'].length === 2) ? 1 : 2], generateTerm);
+
+        let code = '';
+        let ansvar = '';
+        let ctype = false;
+
+        if (generateTerm) {
+            ctype = (expr['oper'] === "forall$2" || expr['oper'] === "forall$3") ? r.type : list(array.type.length, r.type);
+            ansvar = generateUniqueHelperString();
+            code += `${webgltype(ctype)} ${ansvar};`;
+        }
+        code += array.code;
+        let sterm = array.term;
+
+        //evaluate array.term to new variable sterm if it is complicated and it used at least twice
+        if (!this.variables[sterm] && !this.uniforms[sterm] && array.type.length >= 2) {
+            sterm = generateUniqueHelperString();
+            code += `${webgltype(array.type)} ${sterm} = ${array.term};\n`;
+        }
+
+
+        code += `${webgltype(ittype)} ${it};\n`
+            //unroll forall/apply because dynamic access of arrays would require branching
+        for (let i = 0; i < array.type.length; i++) {
+            code += `${it} = ${accesslist(array.type, i)([sterm], [], this)};\n`
+            code += r.code;
+            if (generateTerm) {
+                if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3") {
+                    if (i === array.type.length - 1) {
+                        code += `${ansvar} = ${r.term};\n`;
+                    }
+                } else code += `${accesslist(ctype, i)([ansvar], [], this)} = ${r.term};\n`;
+            }
+        }
+
+        if (ittype.type === 'list') createstruct(ittype, this);
+        if (ctype.type === 'list') createstruct(ctype, this);
+
+        return (generateTerm ? {
+            code: code,
+            term: ansvar,
+            type: ctype
+        } : {
+            code: code
+        });
     } else if (expr['oper'] === "if$2" || expr['oper'] === "if$3") {
         let cond = this.compile(expr['args'][0], true);
         let ifbranch = this.compile(expr['args'][1], generateTerm);
 
         let code = '';
-        let ans = '';
         let ansvar = '';
 
         let termtype = this.getType(expr);
@@ -787,8 +859,9 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     code += this.generateSection('uniforms');
     code += this.generateListOfUniforms();
     code += generateHeaderOfTextureReaders(this);
-    code += this.generateSection('functions');
     code += this.generateSection('includedfunctions');
+    code += this.generateSection('functions');
+
 
     for (let iname in this.variables)
         if (this.variables[iname]['global']) {
