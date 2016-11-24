@@ -45,8 +45,6 @@ Removes all text from the console.
 
 #### Conditional print: `assert(‹bool›,‹expr›)`
 
-**Not available in CindyJS yet!**
-
 **Description:**
 This operator is mainly meant for convenience purpose when generating own error mesages.
 it is equivalent to `if(!‹bool›,println(‹expr›))`.
@@ -55,7 +53,6 @@ It can be used to test wheter a condition is met and otherwise generate an error
 **Example:**
 A typical usage of this operator is the following:
 
-    - skip test: "assert" is not implemented yet.
     > assert(isinteger(k),"k is not an integer");
 
 ------
