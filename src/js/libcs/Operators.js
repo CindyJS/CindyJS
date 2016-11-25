@@ -52,6 +52,17 @@ evaluator.println$1 = function(args, modifs) {
     return nada;
 };
 
+evaluator.assert$2 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === 'boolean') {
+        if (v0.value === false)
+            return evaluator.println$1([args[1]], modifs);
+    } else {
+        csconsole.err("Condition for assert is not boolean");
+    }
+    return nada;
+};
+
 evaluator.dump$1 = function(args, modifs) {
 
     dump(args[0]);
