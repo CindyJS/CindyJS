@@ -1781,6 +1781,12 @@ evaluator.moveto$2 = function(args, modifs) {
     return nada;
 };
 
+evaluator.continuefromhere$0 = function(args, modifs) {
+    stateContinueFromHere();
+    tracingFailed = false;
+    return nada;
+};
+
 evaluator.matrixrowcolumn$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
     var n = List._helper.colNumb(v0);

@@ -354,3 +354,24 @@ As `repaint` but with a time delay of as many milliseconds as given by he parame
 
 **Description:**
 This operator returns a list of points in *xy*-coordinates that are all on a locus given by the name `‹locus›` of a geometric element.
+
+------
+
+------
+
+#### Creating a continuity checkpoint: `continuefromhere()`
+
+**Description:**
+
+Usually if a mouse moves a geometric element, and then a script moves
+the same element to another position (and does not move any other
+element), then both of these moves are combined.  If one of them
+encounters a singular situation, then the whole operation will be
+considered singular, and subsequent moves will continue from the last
+non-singular situation before that move.
+
+Sometimes however it is desirable for a script to deliberately split
+that operation: move to some (preferrably non-singular) situation in a
+controlled way, then create a checkpoint there so that subsequent
+moves will start from this situation instead of the one before the
+mouse move to some singular situation.
