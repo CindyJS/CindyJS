@@ -1783,7 +1783,6 @@ evaluator.moveto$2 = function(args, modifs) {
 
 evaluator.continuefromhere$0 = function(args, modifs) {
     stateContinueFromHere();
-    tracingFailed = false;
     return nada;
 };
 

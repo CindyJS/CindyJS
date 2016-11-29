@@ -51,6 +51,7 @@ function stateAlloc(newSize) {
  */
 function stateContinueFromHere() {
     stateLastGood.set(stateIn);
+    tracingFailed = false;
     tracingStateReport(false);
 
     // Make numbers which are almost real totally real. This avoids
@@ -96,7 +97,6 @@ function traceMouseAndScripts() {
         traceLog.currentMouseAndScripts = [];
     }
     inMouseMove = true;
-    tracingFailed = false;
     if (move) {
         var mover = move.mover;
         var sx = mouse.x + move.offset.x;
@@ -126,16 +126,9 @@ function traceMouseAndScripts() {
 }
 
 function movepointscr(mover, pos, type) {
-    if (inMouseMove) {
-        // traceMouseAndScripts will handle tracingFailed
-        traceMover(mover, pos, type);
-    } else {
-        tracingFailed = false;
-        traceMover(mover, pos, type);
-        if (!tracingFailed) {
-            stateContinueFromHere();
-        }
-    }
+    traceMover(mover, pos, type);
+    if (!inMouseMove && !tracingFailed)
+        stateContinueFromHere();
 }
 
 // Remember the last point which got moved.
@@ -151,10 +144,10 @@ function traceMover(mover, pos, type) {
     }
     if (mover === previousMover) {
         stateIn.set(stateLastGood); // copy stateLastGood and use it as input
+        tracingFailed = false;
     } else {
         previousMover = mover;
         stateContinueFromHere(); // make changes up to now permanent
-        tracingFailed = false; // can't handle previous failure any more
     }
     stateOut.set(stateIn); // copy in to out, for elements we don't recalc
     var traceLimit = 10000; // keep UI responsive in evil situations

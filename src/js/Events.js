@@ -193,7 +193,6 @@ function setuplisteners(canvas, data) {
     addAutoCleaningEventListener(canvas, "mouseup", function(e) {
         mouse.down = false;
         cindy_cancelmove();
-        stateContinueFromHere();
         cs_mouseup();
         manage("mouseup");
         scheduleUpdate();
@@ -439,7 +438,6 @@ function setuplisteners(canvas, data) {
         activeTouchID = -1;
         mouse.down = false;
         cindy_cancelmove();
-        stateContinueFromHere();
         cs_mouseup();
         manage("mouseup");
         scheduleUpdate();
