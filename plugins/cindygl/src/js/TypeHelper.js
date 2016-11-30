@@ -25,7 +25,7 @@ let getrvectorspace = t => issubtypeof(t, type.float) ? type.float : issubtypeof
 let getcvectorspace = t => issubtypeof(t, type.complex) ? type.complex : {
     type: 'list',
     length: t.length,
-    parameters: getrvectorspace(t.parameters)
+    parameters: getcvectorspace(t.parameters)
 };
 
 let replaceCbyR = t => t === type.complex ? type.float : {
@@ -37,7 +37,7 @@ let replaceCbyR = t => t === type.complex ? type.float : {
 /* is t implementented in native glsl, as bool, float, int, vec2, vec3, vec4, mat2, mat3, mat4 */
 let isnativeglsl = t =>
     t === type.bool || t === type.int || t === type.float || t === type.complex ||
-    (t.type === 'list' && t.parameters === type.float && 2 <= t.length && t.length <= 4) ||
+    (t.type === 'list' && t.parameters === type.float && 1 <= t.length && t.length <= 4) ||
     (t.type === 'list' && t.parameters.type === 'list' && t.parameters.parameters === type.float && t.length === t.parameters.length && 2 <= t.length && t.length <= 4);
 
 let isprimitive = a => [type.bool, type.int, type.float, type.complex].indexOf(a) !== -1;
@@ -186,57 +186,36 @@ function inclusionfunction(toType) {
                 ]
             ]);
         default:
-            //real list
-            if (toType.type === 'list' && issubtypeof(toType.parameters, type.float)) return args => {
-                let fromType = args[0];
-                if (fromType.type === 'list' && issubtypeof(fromType.parameters, type.float) && fromType.length === toType.length) {
-                    return {
-                        args: args,
-                        res: toType,
-                        generator: identity
+            if (toType.type === 'list') {
+                let fp = finalparameter(toType);
+                if (issubtypeof(fp, type.float)) { //real list
+                    return args => {
+                        let fromType = args[0];
+                        if (issubtypeof(fromType, toType)) {
+                            return {
+                                args: args,
+                                res: toType,
+                                generator: identity
+                            };
+                        }
                     };
+                } else {
+                    return args => {
+                        let fromType = args[0];
+                        let rec = inclusionfunction(toType.parameters)([fromType.parameters]).generator;
+                        return {
+                            args: args,
+                            res: toType,
+                            generator: (list, modifs, codebuilder) => uselist(toType)([
+                                range(toType.length).map(k => rec(
+                                    [accesslist(fromType, k)([list], modifs, codebuilder)],
+                                    modifs, codebuilder))
+                            ], modifs, codebuilder)
+                        };
+                    }
                 }
-            };
-            //complex list
-            else if (toType.type === 'list' && toType.parameters === type.complex) return args => {
-                let fromType = args[0];
-                if (fromType.type === 'list' && issubtypeof(fromType.parameters, type.float) && fromType.length === toType.length) {
-                    let n = toType.length;
-                    return {
-                        args: [list(n, type.float)],
-                        res: toType,
-                        generator: list => `cvec${n}(${list}, ${usevec(n)(Array(n).fill('0.'))})`
-                    };
-                }
-            };
-            //real matrix
-            else if (toType.type === 'list' && toType.parameters === 'list' && issubtypeof(toType.parameters.parameters, type.float)) return args => {
-                let fromType = args[0];
-                if (fromType.type === 'list' && fromType.parameters === 'list' && issubtypeof(fromType.parameters.parameters, type.float) && fromType.length === toType.length && fromType.parameters.length === toType.parameters.length) {
-                    return {
-                        args: args,
-                        res: toType,
-                        generator: identity
-                    };
-                }
-            };
-            //complex matrix
-            else if (toType.type === 'list' && toType.parameters === 'list' && toType.parameters.parameters === type.complex) return args => {
-                let fromType = args[0];
-                if (fromType.type === 'list' && fromType.parameters === 'list' && issubtypeof(fromType.parameters.parameters, type.float) && fromType.length === toType.length && fromType.parameters.length === toType.parameters.length) {
-                    let n = toType.length;
-                    let m = toType.parameters.length;
-                    return {
-                        args: [list(n, list(m, type.float))],
-                        res: toType,
-                        generator: list => `cmat${n}_${m}(${list}, ${usemat(n, m)(Array(n).fill(
-                          usevec(m)(Array(m).fill('0.'))
-                        ))})`
-                    };
-                }
-            };
+            }
     }
-
 
     console.log(`no inclusionfunction ->${typeToString(toType)} implemented yet; using identity...`);
     return args => ({
@@ -267,7 +246,9 @@ function webgltype(ctype) {
             return 'vec3';
     }
     if (ctype.type === 'list' && issubtypeof(ctype.parameters, type.float)) {
-        return `vec${ctype.length}`;
+        if (ctype.length == 1) return 'float';
+        else
+            return `vec${ctype.length}`;
     } else if (ctype.type === 'list' && issubtypeof(ctype.parameters, type.complex)) {
         return `cvec${ctype.length}`;
     } else if (ctype.type === 'list' && ctype.parameters.type === 'list' && ctype.length === ctype.parameters.length && issubtypeof(ctype.parameters.parameters, type.float)) {
@@ -286,6 +267,11 @@ function webgltype(ctype) {
     if (ctype.type === 'list' && ctype.parameters.type === 'list' && issubtypeof(ctype.parameters.parameters, type.complex)) {
         return `cmat${ctype.length}_${ctype.parameters.length}`;
     }
+
+    if (ctype.type === 'list') {
+        return `l${ctype.length}_${webgltype(ctype.parameters)}`;
+    }
+
 
     console.error(`No WebGL implementation for type ${typeToString(ctype)} found`);
 }

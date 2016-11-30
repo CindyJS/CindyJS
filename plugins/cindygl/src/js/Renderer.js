@@ -130,7 +130,7 @@ Renderer.prototype.setTransformMatrix = function(a, b, c) {
 
 
 Renderer.prototype.setUniforms = function() {
-    function setUniform(setter, t, val, part = 'real') {
+    function setUniform(setter, t, val) {
         if (!setter) return; //skip inactive uniforms
 
         if (typeof(setter) === 'function') {
@@ -146,17 +146,17 @@ Renderer.prototype.setUniforms = function() {
                     break;
                 case type.int:
                 case type.float:
-                    setter([val['value'][part]]);
+                    setter([val['value']['real']]);
                     break;
                 default:
                     if (t.type === 'list' && issubtypeof(t.parameters, type.float)) { //float-list
-                        setter(val['value'].map(x => x['value'][part]));
+                        setter(val['value'].map(x => x['value']['real']));
                         break;
                     } else if (t.type === 'list' && t.parameters.type === 'list' && issubtypeof(t.parameters.parameters, type.float)) { //float matrix
                         //probably: if isnativeglsl?
                         let m = [];
                         for (let i = 0; i < t.parameters.length; i++)
-                            for (let j = 0; j < t.length; j++) m.push(val['value'][j]['value'][i]['value'][part]);
+                            for (let j = 0; j < t.length; j++) m.push(val['value'][j]['value'][i]['value']['real']);
                         setter(m);
                         break;
                     }
@@ -164,44 +164,36 @@ Renderer.prototype.setUniforms = function() {
                     console.error(`Don't know how to set uniform of type ${typeToString(t)}, to ${val}`);
                     break;
             }
-        } else {
-            if (isrvectorspace(t)) {
-                let d = depth(t);
-                if (d === 1) {
-                    let n = t.length;
-                    let s = sizes(n);
+        } else if (t.type === 'list') {
 
-                    let cum = 0;
-                    for (let k in s) {
-                        setUniform(setter[`a${k}`], type.vec(s[k]), {
-                            'ctype': 'list',
-                            'value': range(s[k]).map(l => val['value'][cum + l])
-                        });
-                        cum += s[k];
-                    }
-                    return;
-                } else if (d >= 2) {
-                    for (let k = 0; k < t.length; k++) {
-                        setUniform(setter[`a${k}`], t.parameters, {
-                            'ctype': 'list',
-                            'value': val['value'][k]['value']
-                        });
-                    }
-                    return;
+            let d = depth(t);
+            if (d === 1 && isrvectorspace(t)) {
+                let n = t.length;
+                let s = sizes(n);
+
+                let cum = 0;
+                for (let k in s) {
+                    setUniform(setter[`a${k}`], type.vec(s[k]), {
+                        'ctype': 'list',
+                        'value': range(s[k]).map(l => val['value'][cum + l])
+                    });
+                    cum += s[k];
                 }
-            } else if (iscvectorspace(t)) {
-                let converttofloat = t => issubtypeof(t, type.complex) ? type.float : list(t.length, converttofloat(t.parameters));
-                let st = converttofloat(t);
-
-                setUniform(setter['real'], st, val, part = 'real');
-                setUniform(setter['imag'], st, val, part = 'imag');
                 return;
             }
-
+            for (let k = 0; k < t.length; k++) {
+                setUniform(setter[`a${k}`], t.parameters, {
+                    'ctype': 'list',
+                    'value': val['value'][k]['value']
+                });
+            }
+            return;
+        } else {
             console.error(`Don't know how to set uniform of type ${typeToString(t)}, to`);
             console.log(val);
         }
     }
+
 
     for (let uname in this.cpguniforms) {
 
