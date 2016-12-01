@@ -391,13 +391,13 @@ evaluator.cameravideo$0 = function() {
 
 var helpercanvas; //invisible helper canvas.
 function getHelperCanvas(width, height) {
-  if (!helpercanvas) {
-      //creating helpercanvas only once increases the running time
-      helpercanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
-  }
-  helpercanvas.width = width;
-  helpercanvas.height = height;
-  return helpercanvas;
+    if (!helpercanvas) {
+        //creating helpercanvas only once increases the running time
+        helpercanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
+    }
+    helpercanvas.width = width;
+    helpercanvas.height = height;
+    return helpercanvas;
 }
 
 /**
@@ -437,7 +437,7 @@ evaluator.imagergba$3 = function(args, modifs) {
 
     x = Math.round(x.value.real);
     y = Math.round(y.value.real);
-    if (!Number.isFinite(x) || !Number.isFinite(y)) return nada;
+    if (!isFiniteNumber(x) || !isFiniteNumber(y)) return nada;
 
     var rgba = readPixelsIndirection(img, x, y, 1, 1);
     return List.realVector([rgba[0] * 255, rgba[1] * 255, rgba[2] * 255, rgba[3]]);
@@ -509,7 +509,7 @@ evaluator.imagergba$4 = function(args, modifs) {
     var xi = Math.floor(coord.x); //integral part
     var yi = Math.floor(coord.y);
 
-    if (!Number.isFinite(xi) || !Number.isFinite(yi)) return nada;
+    if (!isFiniteNumber(xi) || !isFiniteNumber(yi)) return nada;
 
     var rgba = [0, 0, 0, 0];
     if (interpolate) {
