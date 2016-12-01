@@ -351,38 +351,36 @@ evaluator.cameravideo$0 = function(args, modifs) {
     var maximal = true; //use maximal as default (if no other modifier is given)
     var constraints = {};
 
+    function makeconstraints(width) {
+        return {
+            video: {
+                width: width,
+                advanced: [{
+                    width: {
+                        max: width, //see below for details
+                        min: width
+                    }
+                }, {
+                    width: {
+                        ideal: width
+                    }
+                }]
+            },
+            audio: false
+        };
+    }
+
     if (modifs.resolution !== undefined) {
-        maximal = false;
         var val = evaluate(modifs.resolution);
         if (val.ctype === 'string' && val.value === 'maximal') maximal = true;
         else {
-            var width = null;
-            var heightorratio = null;
-
             if (val.ctype === 'number') {
-                width = val.value.real;
-            } else if (List.isNumberVector(val).value && (val.value.length === 2)) {
-                width = val.value[0].value.real;
-                heightorratio = val.value[1].value.real;
-            } else return nada;
-
-            constraints = {
-                video: {
-                    width: width,
-                    advanced: [{
-                        width: {
-                            max: width, //ideal or exact seem not be supported by Chrome yet
-                            min: width
-                        }
-                    }, {
-                        width: {
-                            ideal: width
-                        }
-                    }]
-                },
-                audio: false
-            };
-            if (heightorratio) {
+                maximal = false;
+                constraints = makeconstraints(val.value.real);
+            } else if (List._helper.isNumberVecN(val, 2)) {
+                maximal = false;
+                constraints = makeconstraints(val.value[0].value.real);
+                var heightorratio = val.value[1].value.real;
                 if (heightorratio < 10 || !Number.isInteger(heightorratio)) {
                     constraints.video.aspectRatio = heightorratio;
                     constraints.video.advanced[0].aspectRatio = {
@@ -438,8 +436,6 @@ evaluator.cameravideo$0 = function(args, modifs) {
             audio: false
         };
     }
-
-    console.log(constraints);
 
     var openVideoStream = null;
 
