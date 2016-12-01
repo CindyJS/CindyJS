@@ -288,10 +288,13 @@ This is a pair of integer values that refers to the pixel width and height of th
 #### Getting pixel data: `imagergba(‹imagename›,‹int›,‹int›)`
 
 **Description:**
-The function `imagergba(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position *(x,y)*.
+The function `imagergba(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position *(x,y)*. The coordinate is given left to right and top to bottom. Non-integer values are rounded to closest integers. 
+
 The operator returns a four-dimensional vector with the raw data of the color.
 The first three entries represent the *rgb*-value with each entry ranging from 0 to 255.
 The last entry represents the alpha value.
+
+If the given coordinates are outside of the image, the vector `[0,0,0,0]` is returned.
 
 **Example:**
 The following piece of (slightly elaborate) code first asks for the dimensions of an image and then samples the image in both directions.
@@ -329,8 +332,8 @@ This function does the same as `imagergba(‹imagename›,‹int›,‹int›)`.
 
  | Modifier        | Parameter | Effect                                                                      |
  | --------------- | --------- | --------------------------------------------------------------------------- |
- | `interpolation` | `boolean` | Use bilinear interpolation or access closes pixel                           |
- | `repeat`        | `boolean` | Assume a repeating tiling when accessing coordinates outside the boundaries |
+ | `interpolation` | `boolean` | Use bilinear interpolation.                                                 |
+ | `repeat`        | `boolean` | Assume a repeating tiling when accessing coordinates outside the boundaries. If not set, `[0,0,0,0]` is returned. |
 
 ------
 
