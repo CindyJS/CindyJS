@@ -526,19 +526,11 @@ evaluator.imagergba$4 = function(args, modifs) {
                 var p10 = readPixelsIndirection(img, (xi + 1) % w, yi, 1, 1);
                 var p01 = readPixelsIndirection(img, xi, (yi + 1) % h, 1, 1);
                 var p11 = readPixelsIndirection(img, (xi + 1) % w, (yi + 1) % h, 1, 1);
-                pixels = pixels.slice(0, 4).concat(p10).concat(p01).concat(p11);
+                pixels = pixels.slice(0, 4).concat(p10, p01, p11);
             }
         } else { //clamp to boundary
-            if (xi === -1 && xf >= 0.5)
-                for (i = 0; i < 4; i++)
-                    for (j = 0; j < 2; j++) pixels[8 * j + i] = pixels[8 * j + i + 4];
-            if (xi === w - 1 && xf < 0.5)
-                for (i = 0; i < 4; i++)
-                    for (j = 0; j < 2; j++) pixels[8 * j + i + 4] = pixels[8 * j + i];
-            if (yi === -1 && yf >= 0.5)
-                for (i = 0; i < 8; i++) pixels[i] = pixels[i + 8];
-            if (yi === h - 1 && yf < 0.5)
-                for (i = 0; i < 8; i++) pixels[i + 8] = pixels[i];
+          if (xi === -1 || xi === w - 1) xf = Math.round(xf);
+          if (yi === -1 || yi === h - 1) yf = Math.round(yf);
         }
 
         //bilinear interpolation for each component i
