@@ -390,6 +390,16 @@ evaluator.cameravideo$0 = function() {
 };
 
 var helpercanvas; //invisible helper canvas.
+function getHelperCanvas(width, height) {
+  if (!helpercanvas) {
+      //creating helpercanvas only once increases the running time
+      helpercanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
+  }
+  helpercanvas.width = width;
+  helpercanvas.height = height;
+  return helpercanvas;
+}
+
 /**
  * reads a rectangular block of pixels from the upper left corner.
  * The colors are representent as a 4 component RGBA vector with entries in [0,1]
@@ -404,13 +414,7 @@ function readPixelsIndirection(img, x, y, width, height) {
             ctx = img.img.getContext('2d');
             data = ctx.getImageData(x, y, width, height).data;
         } else { //copy corresponding subimage of img.img to temporary canvas
-            if (!helpercanvas) {
-                //creating helpercanvas only once increases the running time
-                helpercanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
-            }
-            helpercanvas.width = width;
-            helpercanvas.height = height;
-
+            var helpercanvas = getHelperCanvas(width, height);
             ctx = helpercanvas.getContext('2d');
             ctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
             data = ctx.getImageData(0, 0, width, height).data;
