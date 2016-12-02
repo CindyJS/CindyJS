@@ -326,6 +326,8 @@ This function does the same as `imagergba(‹imagename›,‹int›,‹int›)`.
 
 **Description:**
  The function `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` returns the color and the alpha value of the at the coordinate given as forth argument while assuming that the lower left and right corner coincide with the first two arguments respectively. The result is encoded as a 4-component vector with each entry ranging from 0 to 1, representing the *rgb*-value and alpha value.
+ 
+ The command returns an empty vector if the image is from a different origin.
 
  **Modifiers:**
  The command supports two modifiers.
@@ -333,7 +335,7 @@ This function does the same as `imagergba(‹imagename›,‹int›,‹int›)`.
  | Modifier        | Parameter | Effect                                                                      |
  | --------------- | --------- | --------------------------------------------------------------------------- |
  | `interpolation` | `boolean` | Use bilinear interpolation.                                                 |
- | `repeat`        | `boolean` | Assume a repeating tiling when accessing coordinates outside the boundaries. If not set, `[0,0,0,0]` is returned. |
+ | `repeat`        | `boolean` | Assume a repeating tiling when accessing coordinates outside the boundaries. If not set, `[0,0,0,0]` is returned if the specified coordinate is outside of the image. |
 
 ------
 

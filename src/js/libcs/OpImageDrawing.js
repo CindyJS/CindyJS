@@ -414,10 +414,15 @@ function readPixelsIndirection(img, x, y, width, height) {
             ctx = img.img.getContext('2d');
             data = ctx.getImageData(x, y, width, height).data;
         } else { //copy corresponding subimage of img.img to temporary canvas
-            var helpercanvas = getHelperCanvas(width, height);
-            ctx = helpercanvas.getContext('2d');
-            ctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
-            data = ctx.getImageData(0, 0, width, height).data;
+            try {
+                var helpercanvas = getHelperCanvas(width, height);
+                ctx = helpercanvas.getContext('2d');
+                ctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
+                data = ctx.getImageData(0, 0, width, height).data;
+            } catch (exception) {
+                console.log(exception);
+            }
+
         }
         for (var i in data) res.push(data[i] / 255);
     }
@@ -529,8 +534,8 @@ evaluator.imagergba$4 = function(args, modifs) {
                 pixels = pixels.slice(0, 4).concat(p10, p01, p11);
             }
         } else { //clamp to boundary
-          if (xi === -1 || xi === w - 1) xf = Math.round(xf);
-          if (yi === -1 || yi === h - 1) yf = Math.round(yf);
+            if (xi === -1 || xi === w - 1) xf = Math.round(xf);
+            if (yi === -1 || yi === h - 1) yf = Math.round(yf);
         }
 
         //bilinear interpolation for each component i
