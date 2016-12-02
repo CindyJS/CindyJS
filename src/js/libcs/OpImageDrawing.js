@@ -438,7 +438,7 @@ evaluator.imagergba$3 = function(args, modifs) {
     var x = evaluateAndVal(args[1]);
     var y = evaluateAndVal(args[2]);
 
-    if (!img || x.ctype !== 'number' || y.ctype !== 'number') return nada;
+    if (!img || x.ctype !== 'number' || y.ctype !== 'number' || !img.ready) return nada;
 
     x = Math.round(x.value.real);
     y = Math.round(y.value.real);
@@ -529,7 +529,7 @@ function readimgatcoord(img, coord, modifs) {
  */
 evaluator.imagergba$4 = function(args, modifs) {
     var img = imageFromValue(evaluateAndVal(args[2]));
-    if (!img) return nada;
+    if (!img || !img.ready) return nada;
 
     var w = img.width;
     var h = img.height;
