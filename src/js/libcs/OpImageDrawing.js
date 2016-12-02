@@ -450,12 +450,11 @@ evaluator.imagergba$3 = function(args, modifs) {
 
 evaluator.imagergb$3 = evaluator.imagergba$3; //According to reference
 
-/**
- * imagergba(<point1>, <point2>, ‹image›, <point3>) returns the color at the coordinate
- * <point3> assuming that the left/right lower corner is <point1>/<point2> resp.
- */
-evaluator.imagergba$4 = function(args, modifs) {
-    var img = imageFromValue(evaluateAndVal(args[2]));
+function readimgatcoord(img, coord, modifs) {
+    if (!coord.ok) return nada;
+
+    var w = img.width;
+    var h = img.height;
 
     var interpolate = true; //default values
     var repeat = false;
@@ -477,30 +476,6 @@ evaluator.imagergba$4 = function(args, modifs) {
         }
     }
     handleModifs();
-
-    if (!img) return nada;
-
-    var w = img.width;
-    var h = img.height;
-
-    var w0 = evaluateAndHomog(args[0]);
-    var w1 = evaluateAndHomog(args[1]);
-    var v0 = evaluateAndHomog(List.realVector([0, h, 1]));
-    var v1 = evaluateAndHomog(List.realVector([w, h, 1]));
-
-    if (w0 === nada || w1 === nada || p === nada) return nada;
-
-    //create an orientation-reversing similarity transformation that maps w0->v0, w1->v1
-    var ii = List.ii;
-    var jj = List.jj;
-
-    var m1 = eval_helper.basismap(v0, v1, ii, jj); //interchange I and J,
-    var m2 = eval_helper.basismap(w0, w1, jj, ii); //see Thm. 18.4 of Perspectives on Projective Geometry
-    var p = evaluateAndHomog(args[3]);
-    var coord = eval_helper.extractPoint(General.mult(m1, General.mult(List.adjoint3(m2), p)));
-
-    if (!coord.ok) return nada;
-
     if (interpolate) {
         coord.x -= 0.5; //center of pixels are in the middle of them.
         coord.y -= 0.5; //Now pixel-centers have wlog integral coordinates
@@ -546,7 +521,37 @@ evaluator.imagergba$4 = function(args, modifs) {
         rgba = readPixelsIndirection(img, xi, yi, 1, 1);
     }
     return List.realVector(rgba);
+}
+
+/**
+ * imagergba(<point1>, <point2>, ‹image›, <point3>) returns the color at the coordinate
+ * <point3> assuming that the left/right lower corner is <point1>/<point2> resp.
+ */
+evaluator.imagergba$4 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[2]));
+    if (!img) return nada;
+
+    var w = img.width;
+    var h = img.height;
+
+    var w0 = evaluateAndHomog(args[0]);
+    var w1 = evaluateAndHomog(args[1]);
+    var v0 = evaluateAndHomog(List.realVector([0, h, 1]));
+    var v1 = evaluateAndHomog(List.realVector([w, h, 1]));
+
+    if (w0 === nada || w1 === nada || p === nada) return nada;
+
+    //create an orientation-reversing similarity transformation that maps w0->v0, w1->v1
+    var ii = List.ii;
+    var jj = List.jj;
+
+    var m1 = eval_helper.basismap(v0, v1, ii, jj); //interchange I and J,
+    var m2 = eval_helper.basismap(w0, w1, jj, ii); //see Thm. 18.4 of Perspectives on Projective Geometry
+    var p = evaluateAndHomog(args[3]);
+    var coord = eval_helper.extractPoint(General.mult(m1, General.mult(List.adjoint3(m2), p)));
+    return readimgatcoord(img, coord, modifs);
 };
+
 
 evaluator.imagergb$4 = function(args, modifs) {
     var rgba = evaluator.imagergba$4(args, modifs);
