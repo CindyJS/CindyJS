@@ -1570,30 +1570,12 @@ evaluator.isgeometric$1 = function(args, modifs) {
 
 evaluator.isnumbermatrix$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
-    if ((List.isNumberMatrix(v0)).value) {
-        return {
-            'ctype': 'boolean',
-            'value': true
-        };
-    }
-    return {
-        'ctype': 'boolean',
-        'value': false
-    };
+    return List.isNumberMatrix(v0);
 };
 
 evaluator.isnumbervector$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
-    if ((List.isNumberVector(v0)).value) {
-        return {
-            'ctype': 'boolean',
-            'value': true
-        };
-    }
-    return {
-        'ctype': 'boolean',
-        'value': false
-    };
+    return List.isNumberVector(v0);
 };
 
 
@@ -2414,7 +2396,7 @@ function hungarianMethod(w) {
 
 evaluator.mincostmatching$1 = function(args, modifs) {
     var costMatrix = evaluate(args[0]);
-    if (List.isNumberMatrix(costMatrix)) {
+    if (List.isNumberMatrix(costMatrix).value) {
         var nr = costMatrix.value.length;
         var nc = List._helper.colNumb(costMatrix);
         var size = (nr < nc ? nc : nr);

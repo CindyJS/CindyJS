@@ -1029,7 +1029,7 @@ List.mult = function(a, b) {
         return List.productVM(a, b);
     }
 
-    if (List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length === a.value[0].value.length) {
+    if (List.isNumberMatrix(a).value && List.isNumberMatrix(b).value && b.value.length === a.value[0].value.length) {
         return List.productMM(a, b);
     }
 
