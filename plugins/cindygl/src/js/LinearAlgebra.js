@@ -21,7 +21,7 @@ function genchilds(t) {
     let fp = finalparameter(t);
     let d = depth(t);
 
-    if (d == 1 && issubtypeof(fp, type.float)) {
+    if (d == 1 && fp === type.float) {
         return sizes(t.length).map((k, i) => ({
             type: type.vec(k),
             name: `a${i}`
@@ -50,7 +50,7 @@ function generatematmult(t, modifs, codebuilder) {
   let n = t.length;
   let m = t.parameters.length;
     let name = `mult${n}_${m}`;
-    codebuilder.add('functions', name, () =>  `vec${n} mult${n}_${m}(mat${n}_${m} a, vec${m} b){` +
+    codebuilder.add('functions', name, () =>  `${webgltype(type.vec(n))} mult${n}_${m}(${webgltype(t)} a, ${webgltype(type.vec(m))} b){` +
         'return ' + usevec(n)(range(n).map(k => usedot(m)([`a.a${k}`, 'b'], modifs, codebuilder)), modifs, codebuilder) + ';' +
         '}');
 }
@@ -64,9 +64,9 @@ function generatesum(t, modifs, codebuilder) {
       `${webgltype(t.parameters)} res = ${constantreallist(t.parameters, 0)([],modifs,codebuilder)};
       ${
         range(n).map(k =>
-          useadd(t.parameters)(['res',
+          'res = ' + useadd(t.parameters)(['res',
           accesslist(t, k)(['a',k], modifs, codebuilder)
-        ],modifs,codebuilder)
+        ],modifs,codebuilder) + ';'
         ).join('\n')
       }
         return res;
@@ -77,7 +77,7 @@ function generatecmatmult(t, modifs, codebuilder) {
   let n = t.length;
   let m = t.parameters.length;
     let name = `multc${n}_${m}`;
-    codebuilder.add('functions', name, () =>  `cvec${n} multc${n}_${m}(cmat${n}_${m} a, cvec${m} b){
+    codebuilder.add('functions', name, () =>  `${webgltype(type.cvec(n))} multc${n}_${m}(${webgltype(t)} a, ${webgltype(type.cvec(m))} b){
         return cvec${n}(${
           range(n).map(k => usecdot(m)([`a.a${k}`, 'b'], modifs, codebuilder))
         });
@@ -150,7 +150,7 @@ function generatecscalarmult(t, modifs, codebuilder) {
 
 function usemult(t) {
   if(t === type.complex) return useincludefunction('multc');
-  if (isnativeglsl(t)) return useinfix('*');
+  if (isnativeglsl(t)) return (args, modifs, codebuilder) => useinfix('*')([args[1],args[0]]); //swap multiplication order as matrices are interpreted as list of columns in glsl
   let fp = finalparameter(t);
   if(issubtypeof(fp, type.float))
     return (args, modifs, codebuilder) => generatematmult(t, modifs, codebuilder) || `mult${t.length}_${t.parameters.length}(${args.join(',')})`;
@@ -196,13 +196,6 @@ function usevec(n) {
 function uselist(t) {
   let d = depth(t);
   if(isnativeglsl(t)) {
-    if(d==2) {
-       let n = t.length, m = t.parameters.length;
-      if(n == m && 2 <= n && n <= 4) //transpose by hand as it is not supported in WebGL
-        return args => `mat${n}(${range(n).map(k => `vec${n}(${ //col k
-          range(n).map(i => `${args[i]}[${k}]`).join(',') 
-        })`).join(',')}`;
-      }
     return (args, modifs, codebuilder) => `${webgltype(t)}(${args.join(',')})`;
   }
   if(d == 1 && isrvectorspace(t)) return usevec(t.length);  
@@ -211,8 +204,11 @@ function uselist(t) {
 
 function accesslist(t, k) {
   let d = depth(t);
-  if(d==1 && isrvectorspace(t)) {
+  let fp = finalparameter(t);
+  if(d==1 && fp === type.float) {
     return accessvecbyshifted(t.length, k);
+  } else if(isnativeglsl(t)) {
+    return (args, modifs, codebuilder) => `(${args[0]})[${k}]`;
   }
   return (args, modifs, codebuilder) => `(${args[0]}).a${k}`;
 }
@@ -230,21 +226,11 @@ function constantreallist(t, val) {
 function accessvecbyshifted(n, k) {
   return (args, modifs, codebuilder) => { //works only for hardcoded glsl
       if(n == 1)
-          return `(${args[0]})`;
+          return args[0];
       if(2 <= n && n <= 4)
           return `(${args[0]})[${k}]`;
       let idx = computeidx(k, n);
       return `(${args[0]}).a${idx.first}[${idx.second}]`;
-  };
-}
-
-function accesscvecbyshifted(n, k) {
-  return (args, modifs, codebuilder) => { //works only for hardcoded glsl
-      return `vec2(${
-        accessvecbyshifted(n, k)([args[0]+'.real', args[1]], modifs, codebuilder)
-      },${
-        accessvecbyshifted(n, k)([args[0]+'.imag', args[1]], modifs, codebuilder)
-      })`;
   };
 }
 

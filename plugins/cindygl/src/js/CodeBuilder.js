@@ -8,7 +8,7 @@ function CodeBuilder(api) {
 
     this.sections = {};
 
-    this.precompileDone = false;
+    this.typetime = 0; //the last time when a type got changed
     this.myfunctions = {};
     this.api = api;
     this.texturereaders = {};
@@ -65,8 +65,8 @@ CodeBuilder.prototype.generateSection = function(section) {
 /** @dict @type {Object} */
 CodeBuilder.prototype.myfunctions;
 
-/** @dict @type {boolean} */
-CodeBuilder.prototype.precompileDone;
+/** @dict @type {number} */
+CodeBuilder.prototype.typetime;
 
 /** @dict @type {Object} */
 CodeBuilder.prototype.variables;
@@ -120,7 +120,7 @@ CodeBuilder.prototype.initvariable = function(vname, declareglobal) {
  * computes the type of the expr, assuming it is evaluated with the given variable-bindings
  * It might consider the type of variables (variables[name].T)
  */
-CodeBuilder.prototype.computeType = function(expr) { //expression, current function
+CodeBuilder.prototype.computeType = function(expr) { //expression
     let bindings = expr.bindings;
     if (expr['isuniform']) {
         return this.uniforms[expr['uvariable']].type;
@@ -135,19 +135,38 @@ CodeBuilder.prototype.computeType = function(expr) { //expression, current funct
     } else if (expr['ctype'] === 'void') {
         return type.voidt;
     } else if (expr['ctype'] === 'field') {
-        return type.float; //so far we only have field indexes vor vec2, vec3, vec4
+        let t = generalize(this.getType(expr['obj']));
+        if (t.type === 'list') return t.parameters;
+        if (!t) return false;
     } else if (expr['ctype'] === 'string') {
         return type.image;
     } else if (expr['ctype'] === 'function' || expr['ctype'] === 'infix') {
         var argtypes = new Array(expr['args'].length);
+        let allconstant = true;
         for (let i = 0; i < expr['args'].length; i++) {
             argtypes[i] = this.getType(expr['args'][i]);
+            allconstant &= (argtypes[i].type === 'constant');
         }
-        let f = getPlainName(expr['oper']);
-        let implementation = webgl[f] ? webgl[f](argtypes) : false;
-        //if (!implementation && argtypes.every(a => a)) //no implementation found and all args are set
-        //    console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
-        return implementation ? implementation.res : false;
+        if (allconstant && expr['impl']) { //use api.evaluateAndVal to compute type of constant expression
+            let constantexpression = {
+                "ctype": expr['ctype'],
+                "oper": expr['oper'],
+                "impl": expr['impl'],
+                "args": argtypes.map(a => a.value)
+            };
+            let val = this.api.evaluateAndVal(constantexpression);
+            return constant(val);
+        } else { //if there is something non-constant, we will the functions specified in WebGL.js
+            let f = getPlainName(expr['oper']);
+            let implementation = webgl[f] ? webgl[f](argtypes) : false;
+            if (!implementation && argtypes.every(a => finalparameter(a))) { //no implementation found and all args are set
+                console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
+                console.log(expr);
+                throw ("error");
+
+            }
+            return implementation ? implementation.res : false;
+        }
     }
     console.error("Don't know how to compute type of");
     console.log(expr);
@@ -158,9 +177,11 @@ CodeBuilder.prototype.computeType = function(expr) { //expression, current funct
  * gets the type of the expr, trying to use cached results. Otherwise it will call computeType
  */
 CodeBuilder.prototype.getType = function(expr) { //expression, current function
-    if (!this.precompileDone || !expr.hasOwnProperty("computedType"))
-        expr["computedType"] = this.computeType(expr);
-    return expr["computedType"];
+    if (!expr.computedType || !expr.typetime || this.typetime > expr.typetime) {
+        expr.computedType = this.computeType(expr);
+        expr.typetime = this.typetime;
+    }
+    return expr.computedType;
 };
 
 /**
@@ -173,7 +194,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
     let myfunctions = this.myfunctions;
     var self = this;
 
-    rec(expr, bindings, 'global');
+    rec(expr, bindings, 'global', false);
 
     //clones the a bindings-dict and addes one variable of given type to it
     function addvar(bindings, varname, type) {
@@ -188,18 +209,30 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
     }
 
     //dfs over executed code
-    function rec(expr, bindings, scope) {
+    function rec(expr, bindings, scope, forceconstant) {
         expr.bindings = bindings;
-        for (let i in expr['args'])
-            rec(expr['args'][i],
-                i >= 1 && (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
+        for (let i in expr['args']) {
+            let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
+            let nbindings = i >= 1 && (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
                 i >= 1 && (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
                 i >= 1 && (expr['oper'] === "forall$2" || expr['oper'] === "apply$2") ? addvar(bindings, '#', false) :
                 i >= 1 && (expr['oper'] === "forall$3" || expr['oper'] === "apply$3") ? addvar(bindings, expr['args'][1]['name'], false) :
-                bindings,
-                scope);
-        if (expr['ctype'] === 'field') rec(expr['obj'], bindings, scope);
+                bindings;
+            rec(expr['args'][i],
+                nbindings,
+                scope,
+                needtobeconstant);
+        }
+        if (expr['ctype'] === 'field') rec(expr['obj'], bindings, scope, forceconstant);
 
+        if (expr['ctype'] === 'variable') {
+            let vname = expr['name'];
+            vname = bindings[vname] || vname;
+            if (forceconstant && self.variables[vname]) {
+                //console.log(`mark ${vname} as constant iteration variable`);
+                self.variables[vname].forceconstant = true;
+            }
+        }
         //was there something happening to the (return)variables?
         if (expr['oper'] === '=') { //assignment to variable
             let vname = expr['args'][0]['name'];
@@ -248,7 +281,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             }
             if (!myfunctions[rfun].visited) {
                 myfunctions[rfun].visited = true;
-                rec(myfunctions[rfun]['body'], localbindungs, rfun);
+                rec(myfunctions[rfun]['body'], localbindungs, rfun, forceconstant);
 
                 //the return variable of the function should be added as well
                 variables[pname].assigments.push(myfunctions[rfun]['body']); //the expression will be evalueted in scope of rfun
@@ -265,30 +298,37 @@ CodeBuilder.prototype.determineTypes = function() {
 
     for (let v in this.variables) {
         this.variables[v].T = this.variables[v].T || false; //false corresponds no type yet
+
+        if (this.variables[v].forceconstant) {
+            this.variables[v].T = constint(1);
+            this.typetime++;
+        }
     }
 
     while (changed) { //TODO: implement queue to make this faster
         changed = false;
-        for (let v in this.variables) {
-            for (let i in this.variables[v].assigments) {
-                let e = this.variables[v].assigments[i];
-                let othertype = generalize(this.getType(e)); //type of expression e in function f
-                let oldtype = this.variables[v].T || false;
-                let newtype = oldtype;
-                if (othertype) {
-                    if (!oldtype) newtype = othertype;
-                    else {
-                        if (issubtypeof(othertype, oldtype)) newtype = oldtype; //dont change anything
-                        else newtype = lca(oldtype, othertype);
-                    }
-                    if (newtype && newtype !== oldtype) {
-                        this.variables[v].T = newtype;
-                        //console.log(`variable ${v} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
-                        changed = true;
+        for (let v in this.variables)
+            if (!this.variables[v].forceconstant) {
+                for (let i in this.variables[v].assigments) {
+                    let e = this.variables[v].assigments[i];
+                    let othertype = generalize(this.getType(e)); //type of expression e in function f
+                    let oldtype = this.variables[v].T || false;
+                    let newtype = oldtype;
+                    if (othertype) {
+                        if (!oldtype) newtype = othertype;
+                        else {
+                            if (issubtypeof(othertype, oldtype)) newtype = oldtype; //dont change anything
+                            else newtype = lca(oldtype, othertype);
+                        }
+                        if (newtype && newtype !== oldtype) {
+                            this.variables[v].T = newtype;
+                            //console.log(`variable ${v} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
+                            this.typetime++;
+                            changed = true;
+                        }
                     }
                 }
             }
-        }
     }
 };
 
@@ -414,6 +454,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             //nothing to pass
             if (expr['ctype'] === 'void') return;
 
+            if (expr['oper'] === '..') forceconstant = true; //if this would vary, then also its length, ergo its type. Hence we can assume that it is constant :-)
             //check whether uniform with same expression has already been generated. Note this causes O(n^2) running time :/ One might use a hashmap if it becomes relevant
             let found = false;
             let uname;
@@ -463,7 +504,6 @@ CodeBuilder.prototype.copyRequiredFunctions = function(expr) {
 
 
 CodeBuilder.prototype.precompile = function(expr, bindings) {
-    this.precompileDone = false;
     this.copyRequiredFunctions(expr);
     this.determineVariables(expr, bindings);
     this.determineUniforms(expr);
@@ -474,7 +514,6 @@ CodeBuilder.prototype.precompile = function(expr, bindings) {
         if (this.uniforms[u].type.type === 'list') createstruct(this.uniforms[u].type, this);
     for (let v in this.variables)
         if (this.variables[v].T.type === 'list') createstruct(this.variables[v].T, this);
-    this.precompileDone = true;
 };
 
 
@@ -487,26 +526,26 @@ CodeBuilder.prototype.precompile = function(expr, bindings) {
 
 CodeBuilder.prototype.compile = function(expr, generateTerm) {
     var self = this; //for some reason recursion on this does not work, hence we create a copy; see http://stackoverflow.com/questions/18994712/recursive-call-within-prototype-function
+
+    let ctype = this.getType(expr);
     if (expr['isuniform']) {
         let uname = expr['uvariable'];
         let uniforms = this.uniforms;
-        let ctype = uniforms[uname].type;
         return generateTerm ? {
             code: '',
             term: ctype.type === 'constant' ? pastevalue(ctype.value, generalize(ctype)) : uname,
-            type: ctype
         } : {
             code: ''
         };
     } else if (expr['oper'] === ";") {
         let r = {
-            type: type.voidt,
             term: ''
         }; //default return value
         let code = '';
         let lastindex = expr['args'].length - 1;
+
         for (let i = lastindex; i >= 0; i--) {
-            if (expr['args'][i]['ctype'] === 'void') lastindex--; //take last non-void entry
+            if (expr['args'][i]['ctype'] === 'void') lastindex = i - 1; //take last non-void entry
         }
 
         for (let i = 0; i <= lastindex; i++) {
@@ -517,21 +556,26 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         return generateTerm ? {
             code: code,
             term: r.term,
-            type: r.type
         } : {
             code: code
         };
 
+    }
+    if (ctype.type === 'constant') {
+        return generateTerm ? {
+            term: pastevalue(ctype.value, generalize(ctype)),
+            code: ''
+        } : {
+            code: ''
+        };
     } else if (expr['oper'] === "=") {
         let r = this.compile(expr['args'][1], true);
-        let varname = expr['args'][0]['name']
-        varname = expr.bindings[varname] || varname;
-        let t = `${varname} = ${this.castType(r.term, r.type, this.getType(expr['args'][0]))}`;
+        let varexpr = this.compile(expr['args'][0], true).term; //note: this migth be also a field access
+        let t = `${varexpr} = ${this.castType(r.term, this.getType(expr['args'][1]), this.getType(expr['args'][0]))}`;
         if (generateTerm) {
             return {
                 code: r.code,
                 term: t,
-                type: this.variables[varname].T
             };
         } else {
             return {
@@ -540,88 +584,140 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         }
     } else if (expr['oper'] === "repeat$2" || expr['oper'] === "repeat$3") {
         let number = this.compile(expr['args'][0], true);
-        if (number.type.type !== 'constant') {
+        let ntype = this.getType(expr['args'][0]);
+        if (ntype.type !== 'constant') {
             console.error('repeat possible only for fixed constant number in GLSL');
             return false;
         }
         let it = (expr['oper'] === "repeat$2") ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
-        let n = number.term;
-        let r = this.compile(expr['args'][(expr['oper'] === "repeat$2") ? 1 : 2], generateTerm);
 
+        let n = Number(number.term);
         let code = '';
-        let ansvar = '';
 
-        if (generateTerm) {
-            ansvar = generateUniqueHelperString();
-            code += `${webgltype(r.type)} ${ansvar};`; //initial ansvar
+        if (this.variables[it].T.type === 'constant') {
+            for (let k = 1; k <= n; k++) { //unroll
+                this.variables[it].T = constint(k); //overwrites binding
+                this.typetime++;
+                let r = this.compile(expr['args'][(expr['oper'] === "repeat$2") ? 1 : 2], (k === n) && generateTerm);
+                code += r.code;
+                if ((k === n) && generateTerm) {
+                    return {
+                        code: code,
+                        term: r.term,
+                    };
+                }
+            }
+        } else { //non constant running variable
+            let ansvar = '';
+            let r = this.compile(expr['args'][(expr['oper'] === "repeat$2") ? 1 : 2], generateTerm);
+            let rtype = this.getType(expr['args'][(expr['oper'] === "repeat$2") ? 1 : 2]);
+            if (generateTerm) {
+                ansvar = generateUniqueHelperString();
+                if (!this.variables[ansvar]) {
+                    this.initvariable(ansvar, true);
+                    this.variables[ansvar].T = rtype;
+                }
+            }
+            code += `for(int ${it}=1; ${it} <= ${n}; ${it}++) {\n`;
+            code += r.code;
+            if (generateTerm) {
+                code += `${ansvar} = ${r.term};\n`;
+            }
+            code += '}\n';
+            if (generateTerm) {
+                return {
+                    code: code,
+                    term: ansvar,
+                };
+            }
         }
-        code += `for(int ${it}=1; ${it} <= ${n}; ${it}++) {\n`;
-        code += r.code;
-        if (generateTerm) {
-            code += `${ansvar} = ${r.term};\n`;
-        }
-        code += '}\n';
-        return (generateTerm ? {
-            code: code,
-            term: ansvar,
-            type: r.type
-        } : {
+        //generateTerm == false
+        return ({
             code: code
         });
     } else if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3" || expr['oper'] === "apply$2" || expr['oper'] === "apply$3") {
-        let array = this.compile(expr['args'][0], true);
-        if (array.type.type !== 'list') {
+        let arraytype = this.getType(expr['args'][0]);
+
+        if (!(arraytype.type === 'list' || (arraytype.type === 'constant' && arraytype.value['ctype'] === 'list'))) {
             console.error(`${expr['oper']} only possible for lists`);
             return false;
         }
+
+        let n = arraytype.length || arraytype.value["value"].length;
+        let r;
+
         let it = (expr['args'].length === 2) ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
         let ittype = this.variables[it].T;
 
-        let r = this.compile(expr['args'][(expr['args'].length === 2) ? 1 : 2], generateTerm);
 
         let code = '';
-        let ansvar = '';
-        let ctype = false;
+        let ans = '';
 
         if (generateTerm) {
-            ctype = (expr['oper'] === "forall$2" || expr['oper'] === "forall$3") ? r.type : list(array.type.length, r.type);
-            ansvar = generateUniqueHelperString();
-            code += `${webgltype(ctype)} ${ansvar};`;
-        }
-        code += array.code;
-        let sterm = array.term;
-
-        //evaluate array.term to new variable sterm if it is complicated and it used at least twice
-        if (!this.variables[sterm] && !this.uniforms[sterm] && array.type.length >= 2) {
-            sterm = generateUniqueHelperString();
-            code += `${webgltype(array.type)} ${sterm} = ${array.term};\n`;
+            ans = generateUniqueHelperString();
+            code += `${webgltype(ctype)} ${ans};\n`;
         }
 
-
-        code += `${webgltype(ittype)} ${it};\n`
-            //unroll forall/apply because dynamic access of arrays would require branching
-        for (let i = 0; i < array.type.length; i++) {
-            code += `${it} = ${accesslist(array.type, i)([sterm], [], this)};\n`
-            code += r.code;
-            if (generateTerm) {
-                if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3") {
-                    if (i === array.type.length - 1) {
-                        code += `${ansvar} = ${r.term};\n`;
-                    }
-                } else code += `${accesslist(ctype, i)([ansvar], [], this)} = ${r.term};\n`;
-            }
-        }
-
-        if (ittype.type === 'list') createstruct(ittype, this);
         if (ctype.type === 'list') createstruct(ctype, this);
 
+
+        if (this.variables[it].T.type === 'constant' || arraytype.type === 'constant') {
+            let arrayval = this.api.evaluateAndVal(expr['args'][0]);
+            for (let i = 0; i < n; i++) {
+                this.variables[it].T = constant(arrayval['value'][i]); //overwrites binding
+                this.typetime++;
+                //console.log(`current binding: ${it} -> ${typeToString(this.variables[it].T)}`);
+                r = this.compile(expr['args'][(expr['args'].length === 2) ? 1 : 2], generateTerm);
+                code += r.code;
+
+                if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3") {
+                    if ((i + 1 === n) && generateTerm) {
+                        code += `${ans} = ${r.term};\n`;
+                    }
+                } else { //apply
+                    if (generateTerm) {
+                        code += `${accesslist(ctype, i)([ans], [], this)} = ${r.term};\n`;
+                    }
+                }
+            }
+        } else { //assume that array is non-constant
+            r = this.compile(expr['args'][(expr['args'].length === 2) ? 1 : 2], generateTerm);
+            let array = this.compile(expr['args'][0], true);
+
+
+            code += array.code;
+            let sterm = array.term;
+
+            //evaluate array.term to new variable sterm if it is complicated and it used at least twice
+            if (!this.variables[sterm] && !this.uniforms[sterm] && arraytype.length >= 2) {
+                sterm = generateUniqueHelperString();
+                code += `${webgltype(arraytype)} ${sterm} = ${array.term};\n`;
+            }
+
+
+            code += `${webgltype(ittype)} ${it};\n`
+                //unroll forall/apply because dynamic access of arrays would require branching
+            for (let i = 0; i < n; i++) {
+                code += `${it} = ${accesslist(arraytype, i)([sterm], [], this)};\n`
+                code += r.code;
+                if (generateTerm) {
+                    if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3") {
+                        if (i === n - 1) {
+                            code += `${ans} = ${r.term};\n`;
+                        }
+                    } else code += `${accesslist(ctype, i)([ans], [], this)} = ${r.term};\n`;
+                }
+            }
+
+            if (ittype.type === 'list') createstruct(ittype, this);
+        }
         return (generateTerm ? {
             code: code,
-            term: ansvar,
-            type: ctype
+            term: ans,
         } : {
             code: code
         });
+
     } else if (expr['oper'] === "if$2" || expr['oper'] === "if$3") {
         let cond = this.compile(expr['args'][0], true);
         let ifbranch = this.compile(expr['args'][1], generateTerm);
@@ -629,17 +725,18 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let code = '';
         let ansvar = '';
 
-        let termtype = this.getType(expr);
-
         if (generateTerm) {
             ansvar = generateUniqueHelperString();
-            code += `${webgltype(termtype)} ${ansvar};`; //initial ansvar
+            if (!this.variables[ansvar]) {
+                this.initvariable(ansvar, true);
+                this.variables[ansvar].T = ctype;
+            }
         }
         code += cond.code;
         code += `if(${cond.term}) {\n`;
         code += ifbranch.code;
         if (generateTerm) {
-            code += `${ansvar} = ${this.castType(ifbranch.term, ifbranch.type, termtype)};\n`;
+            code += `${ansvar} = ${this.castType(ifbranch.term, this.getType(expr['args'][1]), ctype)};\n`;
         }
 
         if (expr['oper'] === "if$3") {
@@ -647,18 +744,16 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             code += '} else {\n';
             code += elsebranch.code;
             if (generateTerm) {
-                code += `${ansvar} = ${this.castType(elsebranch.term, elsebranch.type, termtype)};\n`;
+                code += `${ansvar} = ${this.castType(elsebranch.term, this.getType(expr['args'][2]), ctype)};\n`;
             }
         }
         code += '}\n';
         return (generateTerm ? {
             code: code,
             term: ansvar,
-            type: termtype
         } : {
             code: code
         });
-        //@TODO implement if$2
     } else if (expr['ctype'] === "function" || expr['ctype'] === "infix") {
         let fname = expr['oper'];
 
@@ -666,7 +761,6 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             let glsl = this.api.evaluateAndVal(expr['args'][0]).value;
             return (generateTerm ? {
                 term: glsl,
-                type: type.anytype,
                 code: ''
             } : {
                 code: glsl
@@ -677,9 +771,8 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
 
         let termGenerator;
 
-        let currenttype = r.map(c => c.type);
+        let currenttype = expr['args'].map(e => self.getType(e)); //recursion on all arguments
         let targettype;
-        let restype;
 
         if (this.myfunctions.hasOwnProperty(fname)) { //user defined function
             termGenerator = this.usemyfunction(fname);
@@ -687,13 +780,11 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             for (let i = 0; i < r.length; i++) {
                 targettype[i] = this.variables[this.myfunctions[fname].body.bindings[this.myfunctions[fname]['arglist'][i]['name']]].T;
             }
-            restype = this.variables[expr.bindings[fname]].T;
         } else { //cindyscript-function
             fname = getPlainName(fname);
             if (fname === 'regional')
                 return (generateTerm ? {
                     term: '',
-                    type: type.voidt,
                     code: ''
                 } : {
                     code: ''
@@ -705,7 +796,6 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
                 console.error(`Could not find an implementation for ${fname}(${currenttype.map(typeToString).join(', ')}).\nReturning empty code`);
                 return (generateTerm ? {
                     term: '',
-                    type: type.voidt,
                     code: ''
                 } : {
                     code: ''
@@ -713,7 +803,6 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             }
 
             targettype = implementation.args;
-            restype = implementation.res;
             termGenerator = implementation.generator;
         }
 
@@ -730,42 +819,17 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         if (generateTerm)
             return {
                 term: term,
-                type: restype,
                 code: code
             };
         else
             return {
                 code: `${code + term};\n`
             };
-    } else if (expr['ctype'] === 'number') { //write numbers(int, float, complex) directly in code
-        let termtype = this.getType(expr);
-        let term = pastevalue(expr, guessTypeOfValue(expr));
-        return (generateTerm ? {
-            term: term,
-            type: termtype,
-            code: ''
-        } : {
-            code: `${termtype};\n`
-        });
-    } else if (expr['ctype'] === 'string') { //just copy strings directly into glsl. Useful for example for names of textures
-        /*let termtype = type.string;
-            let term = expr['value'];
-            return (generateTerm ? {
-                term: term,
-                type: termtype,
-                code: ''
-            } : {
-                code: termtype + ';\n'
-        });*/
-        console.error("Cannot compile strings to WebGL.");
-        return false;
     } else if (expr['ctype'] === "variable") {
-        let termtype = this.getType(expr);
         let term = expr['name'];
         term = expr.bindings[term] || term;
         return (generateTerm ? {
             term: term,
-            type: termtype,
             code: ''
         } : {
             code: `${term};\n`
@@ -773,26 +837,31 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
     } else if (expr['ctype'] === "void") {
         return (generateTerm ? {
             term: '',
-            type: type.voidt,
             code: ''
         } : {
             code: ''
         });
     } else if (expr['ctype'] === 'field') {
-        //TODO: finish implementation once cindyJS got implementation
-        let termtype = this.getType(expr);
-        let term = self.compile(expr['obj'], true).term;
-        term += `.${expr['key']}`; //for .x .y. z .r .g .b things are same in cindyjs and glsl
-        return (generateTerm ? {
-            term: term,
-            type: termtype,
-            code: ''
-        } : {
-            code: `${term};\n`
-        });
+        let index = {
+            'x': 0,
+            'y': 1,
+            'z': 2,
+            'r': 0,
+            'g': 1,
+            'b': 2,
+            'a': 3
+        }[expr['key']];
+        if (index != undefined) {
+            let term = accesslist(this.getType(expr['obj']), index)([self.compile(expr['obj'], true).term], null, this);
+            return (generateTerm ? {
+                term: term,
+                code: ''
+            } : {
+                code: `${term};\n`
+            });
+        }
     }
     console.error(`dont know how to this.compile ${JSON.stringify(expr)}`);
-
 };
 
 
@@ -822,9 +891,10 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
         code += `${webgltype(this.variables[iname].T)} ${iname};\n`;
     }
     let r = self.compile(m.body, !isvoid);
+    let rtype = self.getType(m.body);
     code += r.code;
     if (!isvoid)
-        code += `return ${this.castType(r.term, r.type, this.variables[pname].T)};\n`; //TODO REPL
+        code += `return ${this.castType(r.term, rtype, this.variables[pname].T)};\n`; //TODO REPL
     code += '}\n';
 
     this.add('compiledfunctions', fname, () => code);
@@ -850,9 +920,10 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     }
     this.precompile(expr, bindings); //determine this.variables, types etc.
     let r = this.compile(expr, true);
-    let colorterm = this.castType(r.term, r.type, type.color);
+    let rtype = this.getType(expr);
+    let colorterm = this.castType(r.term, rtype, type.color);
 
-    if (!issubtypeof(r.type, type.color)) {
+    if (!issubtypeof(rtype, type.color)) {
         console.error("expression does not generate a color");
     }
     let code = this.generateSection('structs');
