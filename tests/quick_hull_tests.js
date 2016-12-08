@@ -3,10 +3,20 @@ var expect = require('chai').expect;
 
 var cindyJS = rewire("../build/js/exposed.js");
 
-var Vector = cindyJS.__get__("Vector");
 var CSNumber = cindyJS.__get__("CSNumber");
 var List = cindyJS.__get__("List");
-var QuickHull3D = cindyJS.__get__("QuickHull3D");
+
+var VL = rewire('../plugins/QuickHull3D/src/js/VertexList.js');
+var VertexList = VL.__get__("VertexList");
+
+var VOps = rewire('../plugins/QuickHull3D/src/js/Vector.js');
+var Vector = VOps.__get__("Vector"); 
+var VO = VOps.__get__("VectorOperations"); 
+
+
+var QH = rewire('../plugins/QuickHull3D/src/js/QuickHull3D.js');
+var QuickHull3D = QH.__get__("QuickHull3D");
+
 
 describe('Quick hull', function() {
     var hull;
