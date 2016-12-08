@@ -1,12 +1,11 @@
 var Vertex = function(x, y, z, index) {
     if (arguments.length === 0) {
-        this.point = { type: "list", value: []};
+        this.point = List.turnIntoCSList([]);
     } else {
-        this.point = { type: "list", value: [x, y, z]};
+        this.point = List.turnIntoCSList([x, y, z]);
         this.index = index;
     }
 
     this.next = null;
     this.previous = null;
 };
-

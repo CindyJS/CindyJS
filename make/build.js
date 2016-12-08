@@ -416,10 +416,12 @@ module.exports = function build(settings, task) {
     var fileNames = [
         "QuickHull3D",
         "Vector",
+        "VertexList",
         "HalfEdge",
         "Vertex",
         "VertexList",
         "Face",
+        "FaceList",
         "Plugin"
     ];
 
