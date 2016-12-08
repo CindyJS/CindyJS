@@ -429,7 +429,7 @@ module.exports = function build(settings, task) {
         return "plugins/QuickHull3D/src/js/" + fileName + ".js";
     });
 
-    task("quickhull3d1", ["closure-jar"], function() {
+    task("quickhull3d", ["closure-jar"], function() {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
@@ -625,7 +625,7 @@ module.exports = function build(settings, task) {
         "Cindy.js",
         "cindy3d",
         "cindygl",
-        "quickhull3d1",
+        "quickhull3d",
         "katex",
         "xlibs",
         "images",
