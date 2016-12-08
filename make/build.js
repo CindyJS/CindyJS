@@ -174,6 +174,7 @@ module.exports = function build(settings, task) {
             /.*firstDrawing.*/g, // excessive copy & paste of old example
             /.*(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js.*/g, // remote
             /<canvas[^>]+id=['"]CSCanvas/g,                    // use <div>
+            /quickhull3d.nocache.js/g,                         // use of JAVA-Version of quickhull
         ]);
         this.forbidden("ref/**/*.md", [
             /^#.*`.*<[A-Za-z0-9]+>.*?`/mg, // use ‹…› instead
