@@ -1,4 +1,5 @@
 var rewire = require("rewire");
+var expect = require('chai').expect;
 
 var cindyJS = rewire("../build/js/exposed.js");
 
@@ -146,7 +147,7 @@ describe('Quick hull', function() {
                    });
 
                    expected = test.expected.vertices; 
-                   result.should.deepEqual(expected);
+                   expect(result).to.deep.equal(expected);
 
                });
 
