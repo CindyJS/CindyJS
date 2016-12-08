@@ -1,3 +1,22 @@
+var turnIntoCSList = function(l) {
+  return {
+    'ctype': 'list',
+    'value': l
+  };
+};
+
+var realCSNumber = function(r) {
+  return {
+    "ctype": "number",
+    "value": {
+      'real': r,
+      'imag': 0
+    }
+  };
+};
+
+
+
 var t0, t1;
 
 function p(name) {
@@ -137,10 +156,10 @@ QuickHull3D.prototype.triangulate = function() {
 QuickHull3D.prototype.getVertices = function() {
     return this.vertexPointIndices.map(function(index) {
         var vertex = this.pointBuffer[index];
-        return List.turnIntoCSList([
-            CSNumber.real(vertex.point.x),
-            CSNumber.real(vertex.point.y),
-            CSNumber.real(vertex.point.z)
+        return turnIntoCSList([
+            realCSNumber(vertex.point.x),
+            realCSNumber(vertex.point.y),
+            realCSNumber(vertex.point.z)
         ]);
     }, this);
 };
@@ -485,11 +504,11 @@ QuickHull3D.prototype._getFaceIndices = function(face, flags) {
             index++;
         }
 
-        indices.push(CSNumber.real(index));
+        indices.push(realCSNumber(index));
         halfEdge = clockwise ? halfEdge.next : halfEdge.previous;
     } while (halfEdge !== face.halfEdge0);
 
-    return List.turnIntoCSList(indices);
+    return turnIntoCSList(indices);
 };
 
 QuickHull3D.prototype._resolveUnclaimedPoints = function(newFaces) {

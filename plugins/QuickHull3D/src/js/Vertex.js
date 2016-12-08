@@ -1,8 +1,8 @@
 var Vertex = function(x, y, z, index) {
     if (arguments.length === 0) {
-        this.point = List.turnIntoCSList([]);
+        this.point = turnIntoCSList([]);
     } else {
-        this.point = List.turnIntoCSList([x, y, z]);
+        this.point = turnIntoCSList([x, y, z]);
         this.index = index;
     }
 
