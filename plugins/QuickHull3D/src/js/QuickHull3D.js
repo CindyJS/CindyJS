@@ -776,7 +776,7 @@ QuickHull3D.prototype._addPointToHull = function(eyeVertex) {
 
     this.newFaces.forEach(function(face) {
         if (face.mark === FO.VISIBLE) {
-            while (this._doAdjacentMerge(face, this.constructor.NONCONVEX_WRT_LARGER_FACE));
+            while (this._doAdjacentMerge(face, this.constructor.NONCONVEX_WRT_LARGER_FACE)) {};
         }
     }, this);
 
@@ -785,7 +785,7 @@ QuickHull3D.prototype._addPointToHull = function(eyeVertex) {
     this.newFaces.forEach(function(face) {
         if (face.mark === FO.NON_CONVEX) {
             face.mark = FO.VISIBLE;
-            while (this._doAdjacentMerge(face, this.constructor.NONCONVEX));
+            while (this._doAdjacentMerge(face, this.constructor.NONCONVEX)) {};
         }
     }, this);
 
