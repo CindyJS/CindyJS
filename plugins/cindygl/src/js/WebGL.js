@@ -138,6 +138,25 @@ webgl['repeat'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && 
     generator: args => ''
 }) : false;
 
+
+webgl['forall'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && (argtypes[0].type === 'list') ? ({ //generator not used
+    args: argtypes,
+    res: argtypes[argtypes.length - 1],
+    generator: args => ''
+}) : false;
+
+webgl['apply'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && (argtypes[0].type === 'list') ? ({ //generator not used
+    args: argtypes,
+    res: list(argtypes[0].length, argtypes[argtypes.length - 1]),
+    generator: args => ''
+}) : false;
+
+webgl['sum'] = argtypes => (argtypes.length == 1) && (isrvectorspace(argtypes[0]) || iscvectorspace(argtypes[0])) ? ({
+    args: argtypes,
+    res: argtypes[0].parameters,
+    generator: usesum(argtypes[0]),
+}) : false;
+
 webgl['regional'] = argtypes => ({ //generator not used yet
     args: argtypes,
     res: type.voidt,
@@ -307,22 +326,18 @@ let rings = [type.int, type.float, type.complex, type.vec2, type.vec3, type.vec4
 
 
 webgl["_"] = args => {
-    let a = args[0];
-    if (a.type === 'list' && issubtypeof(a.parameters, type.float) && isconstantint(args[1])) {
-        let vectorspace = getrvectorspace(a);
-        return {
-            args: [vectorspace, args[1]],
-            res: type.float,
-            generator: accessvecbyshifted(vectorspace.length, Number(args[1].value["value"]["real"] - 1)),
-        };
-    }
-    if (a.type === 'list' && issubtypeof(a.parameters, type.complex) && isconstantint(args[1])) {
-        let vectorspace = getcvectorspace(a);
-        return {
-            args: [vectorspace, args[1]],
-            res: type.complex,
-            generator: accesscvecbyshifted(vectorspace.length, Number(args[1].value["value"]["real"] - 1)),
-        };
+    let t = args[0];
+    if (t.type === 'list' && isconstantint(args[1])) {
+        let k = Number(args[1].value["value"]["real"]);
+        if (1 <= Math.abs(k) && Math.abs(k) <= t.length) {
+            if (k > 0) k = k - 1;
+            if (k < 0) k = t.length - k;
+            return {
+                args: args,
+                res: t.parameters,
+                generator: accesslist(t, k),
+            };
+        }
     }
     return false;
 };
@@ -359,8 +374,20 @@ webgl["mult"] = args => {
                 res: type.float,
                 generator: usedot(a.length)
             };
-        } //TODO: complex scalar products
+        }
     }
+
+    if ([a, b].every(a => a.type === 'list' && issubtypeof(a.parameters, type.complex)) && a.length === b.length) {
+        let vectorspace = getcvectorspace(a);
+
+        return {
+            args: [vectorspace, vectorspace],
+            res: type.complex,
+            generator: usecdot(a.length)
+        };
+
+    }
+
 
     //real matrix-vector products (also non-quadratic)
     if (isrvectorspace(a) && depth(a) === 2 &&
@@ -385,7 +412,7 @@ webgl["mult"] = args => {
     }
 
     for (let swap = 0; swap < 2; swap++) {
-        //R vectorspaces by scalar
+        //R/C vectorspaces with real scalar
         if (issubtypeof(args[0 ^ swap], type.float) && (isrvectorspace(args[1 ^ swap]) || iscvectorspace(args[1 ^ swap]))) {
             let vs = getrvectorspace(args[1 ^ swap]);
             return {
@@ -586,23 +613,19 @@ webgl["im"] = first([
 
 webgl["genList"] = args => {
     let n = args.length;
-
-    //real list
-    if (args.every(a => issubtypeof(a, type.float))) {
-        return {
-            args: Array(n).fill(type.float),
-            res: type.vec(n),
-            generator: usevec(n),
-        };
-    }
-
-    //complex list
-    if (args.every(a => issubtypeof(a, type.complex))) {
-        return {
-            args: Array(n).fill(type.complex),
-            res: type.cvec(n),
-            generator: usecvec(n),
-        };
+    if (n > 0) {
+        let l = false;
+        for (let i in args) {
+            l = lca(l, args[i]);
+        }
+        if (l) {
+            let t = list(n, l);
+            return {
+                args: Array(n).fill(l),
+                res: t,
+                generator: uselist(t),
+            };
+        }
     }
     return false;
 }
@@ -654,7 +677,6 @@ webgl["imagergba"] = first([
 Object.freeze(webgl);
 
 //depends on glsl-implementation
-requires['divc'] = ['multc'];
 requires['powc'] = ['expc', 'multc', 'logc'];
 requires['sqrtc'] = ['expc', 'multc', 'logc'];
 requires['arccosc'] = ['multc', 'negc', 'sqrtc', 'addc', 'logc'];

@@ -47,6 +47,7 @@ function generateWriteCanvasWrapperIfRequired(imageobject, api) {
         }
         imageobject['writecanvaswrapper'] = imageobject['readcanvaswrappers'][idx];
     }
+    imageobject['readPixels'] = imageobject['writecanvaswrapper'].readPixels.bind(imageobject['writecanvaswrapper']);
     return imageobject['writecanvaswrapper'];
 }
 
@@ -72,6 +73,7 @@ function CanvasWrapper(canvas, properties) {
     this.bindTexture();
 
     canvas['drawTo'] = this.drawTo.bind(this);
+    canvas['readPixels'] = this.readPixels.bind(this);
     canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
 
 
@@ -164,7 +166,7 @@ CanvasWrapper.prototype.bindTexture = function() {
 };
 
 /**
- * runs a gl.bindFramebuffer (required before rendering) and updates 
+ * runs a gl.bindFramebuffer (required before rendering) and updates
  */
 CanvasWrapper.prototype.bindFramebuffer = function() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it ^ 1]);
@@ -261,8 +263,28 @@ CanvasWrapper.prototype.drawTo = function(context, x, y) {
 };
 
 /**
+ * reads a rectangular block of pixels from the upper left corner.
+ * The colors are representent as a 4 component RGBA vector with entries in [0,1]
+ */
+CanvasWrapper.prototype.readPixels = function(x, y, width, height) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it]);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures[this.it], 0);
+
+    var pixels = createPixelArray(width * height * 4);
+
+    //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); does not affect readPixels :(, hence this mess:
+    gl.readPixels(x, this.sizeY - y - height, width, height, gl.RGBA, getPixelType(), pixels);
+
+    //reverse row order
+    let res = [];
+    for (let i = height - 1; i >= 0; i--)
+        res = res.concat(toFloat(pixels.slice(i * width * 4, (i + 1) * width * 4)));
+    return res;
+};
+
+/**
  * sets pixel at absolute coordinate x and y to color; both on canvas and on this.textures[this.it]
- * 
+ *
  */
 CanvasWrapper.prototype.setPixel = function(x, y, color) {
     this.bindTexture();

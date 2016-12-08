@@ -27,6 +27,8 @@ var handlers = {
     "CindyJS.css": true,
     "CindyJS.css.map": map,
     "Compiled.js": false,
+    "ComplexCurves.js": true,
+    "ComplexCurves.glsl.js": false,
     "Version.js": false,
     "WEB-INF": false,
     "c3dres.js": false,

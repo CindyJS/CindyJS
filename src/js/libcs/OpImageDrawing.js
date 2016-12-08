@@ -347,12 +347,98 @@ evaluator.allimages$0 = function() {
     return List.turnIntoCSList(lst);
 };
 
-evaluator.cameravideo$0 = function() {
+evaluator.cameravideo$0 = function(args, modifs) {
+    var maximal = true; //use maximal as default (if no other modifier is given)
+    var constraints = {};
+
+    function makeconstraints(width) {
+        return {
+            video: {
+                width: width,
+                advanced: [{
+                    width: {
+                        max: width, //see below for details
+                        min: width
+                    }
+                }, {
+                    width: {
+                        ideal: width
+                    }
+                }]
+            },
+            audio: false
+        };
+    }
+
+    if (modifs.resolution !== undefined) {
+        var val = evaluate(modifs.resolution);
+        if (val.ctype === 'string' && val.value === 'maximal') maximal = true;
+        else {
+            if (val.ctype === 'number') {
+                maximal = false;
+                constraints = makeconstraints(val.value.real);
+            } else if (List._helper.isNumberVecN(val, 2)) {
+                maximal = false;
+                constraints = makeconstraints(val.value[0].value.real);
+                var heightorratio = val.value[1].value.real;
+                if (heightorratio < 10 || !Number.isInteger(heightorratio)) {
+                    constraints.video.aspectRatio = heightorratio;
+                    constraints.video.advanced[0].aspectRatio = {
+                        min: heightorratio,
+                        max: heightorratio
+                    };
+                    constraints.video.advanced[1].aspectRatio = {
+                        ideal: heightorratio,
+                    };
+                } else {
+                    constraints.video.height = heightorratio;
+                    constraints.video.advanced[0].height = {
+                        min: heightorratio,
+                        max: heightorratio
+                    };
+                    constraints.video.advanced[1].height = {
+                        ideal: heightorratio,
+                    };
+                }
+            }
+        }
+    }
+    if (maximal) {
+        // As per https://bugs.chromium.org/p/chromium/issues/detail?id=543997#c47,
+        // Chrome 54 doesn't actually honor ideal constraints yet, so we need
+        // to explicitely list some common widths to control resolution selection.
+        constraints = [320, 640, 1024, 1280, 1920, 2560];
+        constraints = constraints.map(function(w) {
+            return {
+                width: {
+                    min: w
+                }
+            };
+        });
+        // We'd like to also minimize aspect ratio i.e. maximize height for a given
+        // width, but Chrome again appears to have a problem with this. See also
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=657145
+        if (false) {
+            constraints = constraints.concat([1.34, 1.59, 1.78].map(function(a) {
+                return {
+                    aspectRatio: {
+                        max: a
+                    }
+                };
+            }));
+        }
+        constraints = {
+            video: {
+                width: 16000, // ideal dimensions, will
+                height: 9000, // prefer big resolutions
+                advanced: constraints
+            },
+            audio: false
+        };
+    }
+
     var openVideoStream = null;
-    var constraints = {
-        video: true,
-        audio: false
-    };
+
     var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     if (gum) {
         openVideoStream = function(success, failure) {
@@ -387,4 +473,174 @@ evaluator.cameravideo$0 = function() {
         console.error("Could not get user video:", String(err), err);
     });
     return img;
+};
+
+var helpercanvas; //invisible helper canvas.
+function getHelperCanvas(width, height) {
+    if (!helpercanvas) {
+        //creating helpercanvas only once increases the running time
+        helpercanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
+    }
+    helpercanvas.width = width;
+    helpercanvas.height = height;
+    return helpercanvas;
+}
+
+/**
+ * reads a rectangular block of pixels from the upper left corner.
+ * The colors are representent as a 4 component RGBA vector with entries in [0,1]
+ */
+function readPixelsIndirection(img, x, y, width, height) {
+    var res = [];
+    if (img.readPixels) {
+        res = img.readPixels(x, y, width, height);
+    } else { //use canvas-approach
+        var data, ctx;
+        if (img.img.getContext) { //img is a canvas
+            ctx = img.img.getContext('2d');
+            data = ctx.getImageData(x, y, width, height).data;
+        } else { //copy corresponding subimage of img.img to temporary canvas
+            try {
+                var helpercanvas = getHelperCanvas(width, height);
+                ctx = helpercanvas.getContext('2d');
+                ctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
+                data = ctx.getImageData(0, 0, width, height).data;
+            } catch (exception) {
+                console.log(exception);
+            }
+
+        }
+        for (var i in data) res.push(data[i] / 255);
+    }
+    return res;
+}
+
+/**
+ * imagergba(‹image›,x,y) implements imagergb(‹imagename›,x,y) from Cinderella, i.e.
+ * returns a 4 component vector ranging from (0-255, 0-255, 0-255, 0-1)
+ */
+evaluator.imagergba$3 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    var x = evaluateAndVal(args[1]);
+    var y = evaluateAndVal(args[2]);
+
+    if (!img || x.ctype !== 'number' || y.ctype !== 'number' || !img.ready) return nada;
+
+    x = Math.round(x.value.real);
+    y = Math.round(y.value.real);
+    if (!isFiniteNumber(x) || !isFiniteNumber(y)) return nada;
+
+    var rgba = readPixelsIndirection(img, x, y, 1, 1);
+    return List.realVector([rgba[0] * 255, rgba[1] * 255, rgba[2] * 255, rgba[3]]);
+};
+
+evaluator.imagergb$3 = evaluator.imagergba$3; //According to reference
+
+function readimgatcoord(img, coord, modifs) {
+    if (!coord.ok) return nada;
+
+    var w = img.width;
+    var h = img.height;
+
+    var interpolate = true; //default values
+    var repeat = false;
+
+    function handleModifs() {
+        var erg;
+        if (modifs.interpolate !== undefined) {
+            erg = evaluate(modifs.interpolate);
+            if (erg.ctype === 'boolean') {
+                interpolate = (erg.value);
+            }
+        }
+
+        if (modifs.repeat !== undefined) {
+            erg = evaluate(modifs.repeat);
+            if (erg.ctype === 'boolean') {
+                repeat = (erg.value);
+            }
+        }
+    }
+    handleModifs();
+    if (interpolate) {
+        coord.x -= 0.5; //center of pixels are in the middle of them.
+        coord.y -= 0.5; //Now pixel-centers have wlog integral coordinates
+    }
+
+    if (repeat) {
+        coord.x = (coord.x % w + w) % w;
+        coord.y = (coord.y % h + h) % h;
+    }
+
+    var xi = Math.floor(coord.x); //integral part
+    var yi = Math.floor(coord.y);
+
+    if (!isFiniteNumber(xi) || !isFiniteNumber(yi)) return nada;
+
+    var rgba = [0, 0, 0, 0];
+    if (interpolate) {
+        var i, j;
+
+        var xf = coord.x - xi; //fractional part
+        var yf = coord.y - yi;
+
+        var pixels = readPixelsIndirection(img, xi, yi, 2, 2);
+
+        //modify pixels for boundary cases:
+        if (repeat) { //read pixels at boundary seperately
+            if (xi === w - 1 || yi === h - 1) {
+                var p10 = readPixelsIndirection(img, (xi + 1) % w, yi, 1, 1);
+                var p01 = readPixelsIndirection(img, xi, (yi + 1) % h, 1, 1);
+                var p11 = readPixelsIndirection(img, (xi + 1) % w, (yi + 1) % h, 1, 1);
+                pixels = pixels.slice(0, 4).concat(p10, p01, p11);
+            }
+        } else { //clamp to boundary
+            if (xi === -1 || xi === w - 1) xf = Math.round(xf);
+            if (yi === -1 || yi === h - 1) yf = Math.round(yf);
+        }
+
+        //bilinear interpolation for each component i
+        for (i = 0; i < 4; i++)
+            rgba[i] = (1 - yf) * ((1 - xf) * pixels[i] + xf * pixels[i + 4]) +
+            yf * ((1 - xf) * pixels[i + 8] + xf * pixels[i + 12]);
+    } else {
+        rgba = readPixelsIndirection(img, xi, yi, 1, 1);
+    }
+    return List.realVector(rgba);
+}
+
+/**
+ * imagergba(<point1>, <point2>, ‹image›, <point3>) returns the color at the coordinate
+ * <point3> assuming that the left/right lower corner is <point1>/<point2> resp.
+ */
+evaluator.imagergba$4 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[2]));
+    if (!img || !img.ready) return nada;
+
+    var w = img.width;
+    var h = img.height;
+
+    var w0 = evaluateAndHomog(args[0]);
+    var w1 = evaluateAndHomog(args[1]);
+    var v0 = evaluateAndHomog(List.realVector([0, h, 1]));
+    var v1 = evaluateAndHomog(List.realVector([w, h, 1]));
+
+    if (w0 === nada || w1 === nada || p === nada) return nada;
+
+    //create an orientation-reversing similarity transformation that maps w0->v0, w1->v1
+    var ii = List.ii;
+    var jj = List.jj;
+
+    var m1 = eval_helper.basismap(v0, v1, ii, jj); //interchange I and J,
+    var m2 = eval_helper.basismap(w0, w1, jj, ii); //see Thm. 18.4 of Perspectives on Projective Geometry
+    var p = evaluateAndHomog(args[3]);
+    var coord = eval_helper.extractPoint(General.mult(m1, General.mult(List.adjoint3(m2), p)));
+    return readimgatcoord(img, coord, modifs);
+};
+
+
+evaluator.imagergb$4 = function(args, modifs) {
+    var rgba = evaluator.imagergba$4(args, modifs);
+    if (rgba === nada) return nada;
+    return List.turnIntoCSList(rgba.value.slice(0, 3));
 };
