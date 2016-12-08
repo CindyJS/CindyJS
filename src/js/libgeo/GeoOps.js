@@ -8,8 +8,7 @@ geoOps._helper = {};
  * C  - Conic (including circle)
  * *s - Set of *
  * Tr - Projective transformation
- * Mt - Moebius transformation
- * Rc - Reflection in a circle
+ * Mt - Moebius transformation (or anti-Moebius)
  * V  - (numeric) value
  * Text - Text
  * "**" - arbitrary number of arguments with arbitrary types
@@ -483,7 +482,7 @@ geoOps.PointOnCircle.isMovable = true;
 geoOps.PointOnCircle.initialize = function(el) {
     var circle = csgeo.csnames[el.args[0]];
     var pos = List.normalizeZ(geoOps._helper.initializePoint(el));
-    var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+    var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
     var dir = List.sub(pos, mid);
     var param = List.turnIntoCSList([
         dir.value[1],
@@ -516,7 +515,7 @@ geoOps.PointOnCircle.getParamFromState = function(el) {
 };
 geoOps.PointOnCircle.getParamForInput = function(el, pos, type) {
     var circle = csgeo.csnames[el.args[0]];
-    var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+    var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
     var dir = List.sub(pos, mid);
     stateInIdx = el.stateIdx;
     var oldparam = getStateComplexVector(3);
@@ -640,6 +639,93 @@ geoOps.PointOnSegment.updatePosition = function(el) {
 };
 geoOps.PointOnSegment.stateSize = 2;
 
+geoOps._helper.projectPointToCircle = function(cir, P) {
+    var cen = geoOps._helper.CenterOfCircle(cir.matrix);
+    cen = List.normalizeMax(cen);
+    var l = List.normalizeMax(List.cross(P, cen));
+    var isec = geoOps._helper.IntersectLC(l, cir.matrix);
+    var d1 = List.projectiveDistMinScal(P, isec[0]);
+    var d2 = List.projectiveDistMinScal(P, isec[1]);
+    var erg = d1 < d2 ? isec[0] : isec[1];
+    return erg;
+};
+
+geoOps.PointOnArc = {};
+geoOps.PointOnArc.kind = "P";
+geoOps.PointOnArc.signature = ["C"];
+geoOps.PointOnArc.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[0]].isArc;
+};
+geoOps.PointOnArc.isMovable = true;
+geoOps.PointOnArc.initialize = function(el) {
+    var pos = geoOps._helper.initializePoint(el);
+    var cr = geoOps.PointOnArc.getParamForInput(el, pos);
+    putStateComplexVector(cr);
+};
+geoOps.PointOnArc.getParamForInput = function(el, pos) {
+    var arc = csgeo.csnames[el.args[0]];
+    var P = geoOps._helper.projectPointToCircle(arc, pos);
+    var A = arc.startPoint;
+    var B = arc.viaPoint;
+    var C = arc.endPoint;
+    var crh = List.normalizeMax(List.crossratio3harm(A, C, B, P, List.ii));
+    // Now restrict cross ratio to the range [0,∞]
+    var cr = CSNumber.div(crh.value[0], crh.value[1]);
+    if (cr.value.real < 0) {
+        if (cr.value.real < -1) {
+            crh = List.realVector([1, 0]); // ∞, use end point
+        } else {
+            crh = List.realVector([0, 1]); // 0, use start point
+        }
+    }
+    return crh;
+};
+geoOps.PointOnArc.getParamFromState = function(el) {
+    return getStateComplexVector(2);
+};
+geoOps.PointOnArc.putParamToState = function(el, param) {
+    putStateComplexVector(param);
+};
+geoOps.PointOnArc.updatePosition = function(el) {
+    var arc = csgeo.csnames[el.args[0]];
+    var A = arc.startPoint;
+    var B = arc.viaPoint;
+    var C = arc.endPoint;
+    var I = List.ii;
+    var AI = List.cross(A, I);
+    var BI = List.cross(B, I);
+    var CI = List.cross(C, I);
+    // Now we want to scale AI and CI such that λ⋅BI = AI + CI.
+    // a*AI + c*CI = BI => [AI, CI]*(a,c) = BI but [AI, CI] is not square so
+    // we solve this least-squares-style (see Moore-Penrose pseudoinverse),
+    // multiplying both sides by M2x3c and then using the adjoint to solve.
+    var M2x3 = List.turnIntoCSList([AI, CI]);
+    var M3x2 = List.transpose(M2x3);
+    var M2x3c = List.conjugate(M2x3);
+    var M2x2 = List.productMM(M2x3c, M3x2);
+    var v2x1 = List.productMV(M2x3c, BI);
+    var ab = List.productMV(List.adjoint2(M2x2), v2x1);
+    var a = ab.value[0];
+    var c = ab.value[1];
+    var crh = getStateComplexVector(2);
+    putStateComplexVector(crh);
+    var Q = List.normalizeMax(List.add(
+        List.scalmult(CSNumber.mult(a, crh.value[0]), A),
+        List.scalmult(CSNumber.mult(c, crh.value[1]), C)));
+    var P = geoOps._helper.conicOtherIntersection(arc.matrix, I, Q);
+    el.homog = General.withUsage(P, "Point");
+};
+geoOps.PointOnArc.stateSize = 4;
+
+geoOps._helper.CenterOfCircle = function(c) {
+    // Treating this special case of CenterOfConic avoids some computation
+    // and also allows dealing with the degenerate case of center at infinity
+    return List.turnIntoCSList([
+        c.value[2].value[0],
+        c.value[2].value[1],
+        CSNumber.neg(c.value[0].value[0])
+    ]);
+};
 
 geoOps._helper.CenterOfConic = function(c) {
     // The center is the pole of the dual conic of the line at infinity
@@ -1974,18 +2060,24 @@ geoOps.TrMoebius.updatePosition = function(el) {
         [neg(A[2]), A[0]],
         [neg(A[3]), A[1]]
     ]));
-    var C = List.productMM(mB, mAa);
+    var C = List.normalizeMax(List.productMM(mB, mAa));
 
     // Read from that the (doubly) complex matrix [[a, b], [c, d]]
-    var ar = C.value[0].value[0];
-    var ai = C.value[1].value[0];
-    var br = C.value[0].value[1];
-    var bi = C.value[1].value[1];
-    var cr = C.value[2].value[0];
-    var ci = C.value[3].value[0];
-    var dr = C.value[2].value[1];
-    var di = C.value[3].value[1];
+    el.moebius = {
+        anti: false,
+        ar: C.value[0].value[0],
+        ai: C.value[1].value[0],
+        br: C.value[0].value[1],
+        bi: C.value[1].value[1],
+        cr: C.value[2].value[0],
+        ci: C.value[3].value[0],
+        dr: C.value[2].value[1],
+        di: C.value[3].value[1]
+    };
+    geoOps._helper.moebiusPair(el);
+};
 
+geoOps._helper.moebiusPair = function(el) {
     /*
     Build two matrices with the interesting property that for pxy = px + i*py
     this essentially encodes a Möbius transformation including division:
@@ -1994,16 +2086,40 @@ geoOps.TrMoebius.updatePosition = function(el) {
     cross(mat1 * p, mat2 * p) = ⎜Im((a*pxy + b*pz)*conj(c*pxy + d*pz))⎟
                                 ⎝   (c*pxy + d*pz)*conj(c*pxy + d*pz) ⎠
     */
+    var m = el.moebius;
+    var neg = CSNumber.neg;
+    var flip = m.anti ? neg : General.identity;
     el.mat1 = List.normalizeMax(List.matrix([
-        [neg(cr), ci, neg(dr)],
-        [ci, cr, di],
-        [ar, neg(ai), br]
+        [neg(m.cr), flip(m.ci), neg(m.dr)],
+        [m.ci, flip(m.cr), m.di],
+        [m.ar, neg(flip(m.ai)), m.br]
     ]));
     el.mat2 = List.normalizeMax(List.matrix([
-        [neg(ci), neg(cr), neg(di)],
-        [neg(cr), ci, neg(dr)],
-        [ai, ar, bi]
+        [neg(m.ci), neg(flip(m.cr)), neg(m.di)],
+        [neg(m.cr), flip(m.ci), neg(m.dr)],
+        [m.ai, flip(m.ar), m.bi]
     ]));
+};
+
+geoOps.TrInverseMoebius = {};
+geoOps.TrInverseMoebius.kind = "Mt";
+geoOps.TrInverseMoebius.signature = ["Mt"];
+geoOps.TrInverseMoebius.updatePosition = function(el) {
+    var m = csgeo.csnames[el.args[0]].moebius;
+    var neg = CSNumber.neg;
+    var flip = m.anti ? neg : General.identity;
+    el.moebius = {
+        anti: m.anti,
+        ar: m.dr,
+        ai: flip(m.di),
+        br: neg(m.br),
+        bi: neg(flip(m.bi)),
+        cr: neg(m.cr),
+        ci: neg(flip(m.ci)),
+        dr: m.ar,
+        di: flip(m.ai)
+    };
+    geoOps._helper.moebiusPair(el);
 };
 
 geoOps.TrMoebiusP = {};
@@ -2075,39 +2191,39 @@ geoOps.TrMoebiusS.updatePosition = function(el) {
 geoOps.TrMoebiusC = {};
 geoOps.TrMoebiusC.kind = "C";
 geoOps.TrMoebiusC.signature = ["Mt", "C"];
+geoOps.TrMoebiusC.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[1]].matrix.usage === "Circle";
+};
 geoOps.TrMoebiusC.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
     var cir = csgeo.csnames[(el.args[1])].matrix;
 
-    if (cir.usage !== "Circle") {
-        console.log("applying Moebius transform to conics is not implemented yet");
-        var th = CSNumber.real(3);
-        el.matrix = List.zeromatrix(th, th);
-    } else {
-        var getRandLine = function() {
-            var rline = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
-            return List.normalizeMax(rline);
-        };
+    var getRandLine = function() {
+        var rline = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
+        return List.normalizeMax(rline);
+    };
 
-        var pts1 = geoOps._helper.IntersectLC(getRandLine(), cir);
-        var pts2 = geoOps._helper.IntersectLC(getRandLine(), cir);
+    var pts1 = geoOps._helper.IntersectLC(getRandLine(), cir);
+    var pts2 = geoOps._helper.IntersectLC(getRandLine(), cir);
 
-        var a1 = pts1[0],
-            a2 = pts1[1],
-            a3 = pts2[1];
+    var a1 = pts1[0];
+    var a2 = pts1[1];
+    var a3 = pts2[1];
 
-        var b1 = geoOps._helper.TrMoebiusP(a1, t);
-        var b2 = geoOps._helper.TrMoebiusP(a2, t);
-        var b3 = geoOps._helper.TrMoebiusP(a3, t);
+    var b1 = geoOps._helper.TrMoebiusP(a1, t);
+    var b2 = geoOps._helper.TrMoebiusP(a2, t);
+    var b3 = geoOps._helper.TrMoebiusP(a3, t);
 
-        el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
-    }
+    el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
 
 geoOps.TrMoebiusArc = {};
 geoOps.TrMoebiusArc.kind = "C";
 geoOps.TrMoebiusArc.signature = ["Mt", "C"];
+geoOps.TrMoebiusArc.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[1]].isArc;
+};
 geoOps.TrMoebiusArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
     var Arc = csgeo.csnames[(el.args[1])];
@@ -2313,151 +2429,31 @@ geoOps.TrReflectionS.updatePosition = geoOps.TrReflectionL.updatePosition;
 
 // Define a reflective transformation given a circle (not a general conic)
 geoOps.TrReflectionC = {};
-geoOps.TrReflectionC.kind = "Rc";
+geoOps.TrReflectionC.kind = "Mt";
 geoOps.TrReflectionC.signature = ["C"];
+geoOps.TrReflectionC.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[0]].matrix.usage === "Circle";
+};
 geoOps.TrReflectionC.updatePosition = function(el) {
-    var m1 = csgeo.csnames[(el.args[0])].matrix;
-    if (m1.usage !== "Circle") {
-        console.log("reflection in general conics is not defined");
-        el.sclRsq = CSNumber.zero;
-        el.matrix = List.fund;
-    } else {
-        var add = CSNumber.add;
-        var sub = CSNumber.sub;
-        var mult = CSNumber.mult;
-        var m1r3 = m1.value[2].value;
-        var nx1 = m1r3[0];
-        var ny1 = m1r3[1];
-        var zz1 = m1r3[2];
-        var z1 = m1.value[0].value[0];
-        el.sclRsq = CSNumber.sub(add(mult(nx1, nx1), mult(ny1, ny1)), mult(z1, zz1));
-    }
-    el.dualMatrix = el.matrix = m1;
-};
-
-geoOps._helper.ReflectC = function(Tr, m2) {
-    var add = CSNumber.add;
-    var sub = CSNumber.sub;
-    var mult = CSNumber.mult;
-    var scalmult = List.scalmult;
-    var m1 = Tr.matrix;
-    var z1 = m1.value[0].value[0];
-    var m1r3 = m1.value[2].value;
-    var nx1 = m1r3[0];
-    var ny1 = m1r3[1];
-    var zz1 = m1r3[2];
-    var z2 = m2.value[0].value[0];
-    var m2r3 = m2.value[2].value;
-    var nx2 = m2r3[0];
-    var ny2 = m2r3[1];
-    var zz2 = m2r3[2];
-    var u = sub(CSNumber.realmult(2, add(mult(nx1, nx2), mult(ny1, ny2))), add(mult(z1, zz2), mult(z2, zz1)));
-    return General.withUsage(List.normalizeMax(List.sub(scalmult(u, m1), scalmult(Tr.sclRsq, m2))), "Circle");
-};
-
-// Reflect a circle (not a general conic) in a circle
-geoOps.ReflectCC = {};
-geoOps.ReflectCC.kind = "C";
-geoOps.ReflectCC.signature = ["Rc", "C"];
-geoOps.ReflectCC.updatePosition = function(el) {
-    var cir = csgeo.csnames[(el.args[1])];
-    if (cir.matrix.usage !== "Circle") {
-        console.log("reflecting general conics in circles is not defined");
-        el.matrix = General.withUsage(List.fund, "Circle");
-    } else {
-        el.matrix = geoOps._helper.ReflectC(csgeo.csnames[(el.args[0])], cir.matrix);
-    }
-};
-
-// Reflect a line in a circle
-geoOps.ReflectCL = {};
-geoOps.ReflectCL.kind = "C";
-geoOps.ReflectCL.signature = ["Rc", "L"];
-geoOps.ReflectCL.updatePosition = function(el) {
-    /*
-        Define the line as this circle matrix when l is [x, y, z]:
-        ⎛  0   0   x ⎞
-        ⎜  0   0   y ⎟
-        ⎝  x   y  2*z⎠
-    */
-    var z = CSNumber.zero;
-    var l = csgeo.csnames[(el.args[1])].homog.value;
-    var c = geoOps._helper.buildConicMatrix([z, z, z, l[0], l[1], CSNumber.realmult(2, l[2])]);
-    el.matrix = geoOps._helper.ReflectC(csgeo.csnames[(el.args[0])], c);
-};
-
-geoOps._helper.ReflectCP = function(p, Tr) {
-    var m1 = Tr.matrix;
-    var m1r3 = m1.value[2].value;
-    var center = List.turnIntoCSList([m1r3[0], m1r3[1], CSNumber.neg(m1.value[0].value[0])]);
-    var cc = List.cross;
-    // Returns intersection of polar of p and line thru center and p
-    return List.normalizeMax(cc(List.productMV(m1, p), cc(center, p)));
-};
-
-// Reflect a point in a circle
-geoOps.ReflectCP = {};
-geoOps.ReflectCP.kind = "P";
-geoOps.ReflectCP.signature = ["Rc", "P"];
-geoOps.ReflectCP.updatePosition = function(el) {
-    el.homog = General.withUsage(
-        geoOps._helper.ReflectCP(csgeo.csnames[(el.args[1])].homog,
-            csgeo.csnames[(el.args[0])]), "Point");
-};
-
-// Reflect an arc in a circle
-geoOps.ReflectCArc = {};
-geoOps.ReflectCArc.kind = "C";
-geoOps.ReflectCArc.signature = ["Rc", "C"];
-geoOps.ReflectCArc.updatePosition = function(el) {
-    var t = csgeo.csnames[(el.args[0])];
-    var Arc = csgeo.csnames[(el.args[1])];
-
-    var a1 = Arc.startPoint;
-    var a2 = Arc.viaPoint;
-    var a3 = Arc.endPoint;
-
-    var b1 = geoOps._helper.ReflectCP(a1, t);
-    var b2 = geoOps._helper.ReflectCP(a2, t);
-    var b3 = geoOps._helper.ReflectCP(a3, t);
-    el.startPoint = b1;
-    el.viaPoint = b2;
-    el.endPoint = b3;
-
-    el.isArc = true;
-    el.matrix = geoOps._helper.ReflectC(t, Arc.matrix);
-};
-
-// Reflect a segment in a circle
-geoOps.ReflectCS = {};
-geoOps.ReflectCS.kind = "C";
-geoOps.ReflectCS.signature = ["Rc", "S"];
-geoOps.ReflectCS.updatePosition = function(el) {
-    var t = csgeo.csnames[(el.args[0])];
-    var Segment = csgeo.csnames[(el.args[1])];
-
-    var a1 = Segment.startpos;
-    var a3 = Segment.endpos;
-    var a2 = geoOps._helper.midpoint(a1, a3);
-
-    var b1 = geoOps._helper.ReflectCP(a1, t);
-    var b2 = geoOps._helper.ReflectCP(a2, t);
-    var b3 = geoOps._helper.ReflectCP(a3, t);
-    el.startPoint = b1;
-    el.viaPoint = b2;
-    el.endPoint = b3;
-
-    el.isArc = true;
-    /*
-        Define the line as this circle matrix when l is [x, y, z]:
-        ⎛  0   0   x ⎞
-        ⎜  0   0   y ⎟
-        ⎝  x   y  2*z⎠
-    */
-    var z = CSNumber.zero;
-    var l = Segment.homog.value;
-    var c = geoOps._helper.buildConicMatrix([z, z, z, l[0], l[1], CSNumber.realmult(2, l[2])]);
-    el.matrix = geoOps._helper.ReflectC(t, c);
+    var m = csgeo.csnames[(el.args[0])].matrix;
+    // m = [[a, 0, b], [0, a, c], [b, c, d]]
+    var a = m.value[0].value[0];
+    var b = m.value[0].value[2];
+    var c = m.value[1].value[2];
+    var d = m.value[2].value[2];
+    var neg = CSNumber.neg;
+    el.moebius = {
+        anti: true,
+        ar: b,
+        ai: c,
+        br: d,
+        bi: CSNumber.zero,
+        cr: neg(a),
+        ci: CSNumber.zero,
+        dr: neg(b),
+        di: c
+    };
+    geoOps._helper.moebiusPair(el);
 };
 
 geoOps.TrInverse = {};
@@ -2486,6 +2482,9 @@ geoOps.TransformC.updatePosition = function(el) {
 geoOps.TransformArc = {};
 geoOps.TransformArc.kind = "C";
 geoOps.TransformArc.signature = ["Tr", "C"];
+geoOps.TransformArc.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[0]].isArc;
+};
 geoOps.TransformArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])].matrix;
     var Arc = csgeo.csnames[(el.args[1])];
@@ -2897,6 +2896,29 @@ geoOps.Poly.updatePosition = function(el) {
 };
 
 
+var geoAliases = {
+    "CircleByRadius": "CircleMr",
+    "IntersectionCircleCircle": "IntersectCirCir",
+    "IntersectionConicConic": "IntersectConicConic",
+    "FreePoint": "Free",
+    "Orthogonal": "Perp",
+    "Parallel": "Para",
+    "Pole": "PolarOfLine",
+    "Polar": "PolarOfPoint",
+    "Arc": "ArcBy3",
+    "EuclideanMid": "Mid",
+    "AngularBisector": "AngleBisector",
+    "TransformConic": "TransformC",
+    "TransformSegment": "TransformS",
+    "TrMoebiusSegment": "TrMoebiusS",
+    "ReflectCC": "TrMoebiusC",
+    "ReflectCL": "TrMoebiusL",
+    "ReflectCP": "TrMoebiusP",
+    "ReflectCArc": "TrMoebiusArc",
+    "ReflectCS": "TrMoebiusS",
+    "TrMoebiusCircle": "TrMoebiusC"
+};
+
 var geoMacros = {};
 
 /* Note: currently the expansion of a macro is simply included in the
@@ -2918,79 +2940,9 @@ geoMacros.CircleByFixedRadius = function(el) {
     return [el];
 };
 
-geoMacros.CircleByRadius = function(el) {
-    el.type = "CircleMr";
-    return [el];
-};
-
 geoMacros.IntersectionConicLine = function(el) {
     el.args = [el.args[1], el.args[0]];
     el.type = "IntersectLC";
-    return [el];
-};
-
-geoMacros.IntersectionCircleCircle = function(el) {
-    el.type = "IntersectCirCir";
-    return [el];
-};
-
-geoMacros.IntersectionConicConic = function(el) {
-    el.type = "IntersectConicConic";
-    return [el];
-};
-
-geoMacros.FreePoint = function(el) {
-    el.type = "Free";
-    return [el];
-};
-
-geoMacros.Orthogonal = function(el) {
-    el.type = "Perp";
-    return [el];
-};
-
-geoMacros.Parallel = function(el) {
-    el.type = "Para";
-    return [el];
-};
-
-geoMacros.Pole = function(el) {
-    el.type = "PolarOfLine";
-    return [el];
-};
-
-geoMacros.Polar = function(el) {
-    el.type = "PolarOfPoint";
-    return [el];
-};
-
-geoMacros.Arc = function(el) {
-    el.type = "ArcBy3";
-    return [el];
-};
-
-geoMacros.EuclideanMid = function(el) {
-    el.type = "Mid";
-    return [el];
-};
-
-geoMacros.AngularBisector = function(el) {
-    el.type = "AngleBisector";
-    return [el];
-};
-
-geoMacros.TransformConic = function(el) {
-    el.type = "TransformC";
-    return [el];
-};
-
-geoMacros.TransformSegment = function(el) {
-    el.type = "TransformS";
-    return [el];
-};
-
-geoMacros.TrMoebiusSegment = function(el) {
-    el.type = "TrMoebiusS";
     return [el];
 };
 
@@ -3014,8 +2966,7 @@ geoMacros.Transform = function(el) {
 
     var map = {
         Tr: "Transform",
-        Mt: "TrMoebius",
-        Rc: "ReflectC"
+        Mt: "TrMoebius"
     };
     var op = map[tr.kind] + akind;
     if (geoOps.hasOwnProperty(op)) {

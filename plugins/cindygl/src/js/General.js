@@ -117,7 +117,7 @@ function getPlainName(oper) {
 
 
 /**
- * guesses the type of an concrete value
+ * guesses the general(non-constant) type of an concrete value
  */
 function guessTypeOfValue(tval) {
     if (tval['ctype'] === 'boolean') {

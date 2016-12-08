@@ -27,6 +27,8 @@ Without arguments, this creates an empty dictionary.
     > dict()
     < {}
 
+## Constructing a dict using modifiers: `dict(‹modif1›,‹modif2›,…)`
+
 It is however possible to add elements to this dictionary
 by using modifiers in the function invocation.
 The names of the modifiers will be used as string keys.

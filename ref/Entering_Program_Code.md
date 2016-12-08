@@ -54,7 +54,7 @@ A script in this slot is executed whenever the parse button of the script editor
 This slot is very useful for resetting variables or points to an initial state or position.
 
 * **Timer Tick:**
-A script in this slot causes an [animation](Animation.md) controller to be shown in geometric view (if not already present).
+A script in this slot causes an animation controller to be shown in geometric view (if not already present).
 When the play button of the animation controller is pressed, a script in this slot will be regularly executed every few milliseconds.
 
 * **Integration Tick:**

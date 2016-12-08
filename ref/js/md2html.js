@@ -1,7 +1,10 @@
 "use strict";
 
 var fs = require("fs");
+var os = require("os");
 var path = require("path");
+var Q = require("q");
+var qfs = require("q-io/fs");
 var util = require("util");
 var marked = require("marked");
 
@@ -14,7 +17,11 @@ function escape(str) {
     .replace(/'/g, '&#39;');
 }
 
-function MyRenderer() {
+//////////////////////////////////////////////////////////////////////
+// My Renderer: customize Markdown rendering
+
+function MyRenderer(page) {
+  this.cjsPage = page;
   this.cjsUsedAnchors = {};
 }
 
@@ -70,25 +77,33 @@ MyRenderer.prototype.code = function(code, lang) {
 };
 
 MyRenderer.prototype.heading = function(text, level, raw) {
-  var ids = [];
+  var targets = [];
   var re, match, cur, arity;
+  var targetText = text.replace(/: <code[\s>][^]*<\/code>$/, "");
   re = /`([^`]*)`/g;
   while (match = re.exec(raw)) {
     cur = match[1];
+    var id;
     if (match = /(\w+)\(([^)]*)\)/.exec(cur)) {
       // normal named functions
       arity = 0;
-      if (match[2] !== "")
-        arity = match[2].split(",").length;
-      ids.push(match[1] + "$" + arity);
-    } else if (match = /`‹\w*›\s*(\S+)\s*‹\w*›`/.exec(cur)) {
+      var args = match[2];
+      args = args.replace(/,?(\s*‹modif\w*›\s*,)+\s*…$/, ""); // eval, dict
+      if (args !== "") {
+        args = args.split(",");
+        arity = args.length;
+        if (args[args.length - 1].indexOf("…") !== -1)
+          arity = "v"; // variadic
+      }
+      id = match[1] + "$" + arity;
+    } else if (match = /^‹\w*›\s*(\S+)\s*‹\w*›$/.exec(cur)) {
       // infix operators
-      ids.push(match[1].replace(/./g, function(char) {
+      id = match[1].replace(/./g, function(char) {
         return "$" + char.charCodeAt(0).toString(16) + "u";
-      }));
+      });
     } else {
       // other code constructs
-      ids.push(cur
+      id = cur
         .replace(/\s+/g, "")
         .replace(/\$/g, "$$24u")
         .replace(/_/g, "$$5fu")
@@ -96,41 +111,50 @@ MyRenderer.prototype.heading = function(text, level, raw) {
         .replace(/…/g, "__")
         .replace(/[^\w$]/g, function(char) {
           return "$" + char.charCodeAt(0).toString(16) + "u";
-        }));
+        });
     }
+    targets.push({
+      id: id,
+      signature: cur,
+      text: targetText
+    });
   }
-  if (!ids.length && (match = /(\w+)\(([^)]*)\)/.exec(raw))) {
+  if (!targets.length && (match = /(\w+)\(([^)]*)\)/.exec(raw))) {
     // normal named functions but not formatted as code
     arity = 0;
     if (match[2] !== "")
       arity = match[2].split(",").length;
-    ids.push(match[1] + "$" + arity);
+    targets.push({id: match[1] + "$" + arity});
   }
-  if (!ids.length && (match = /([\w.]+)\s*=.*‹/.exec(raw))) {
+  if (!targets.length && (match = /([\w.]+)\s*=.*‹/.exec(raw))) {
     // Named settings with structure specification
-    ids.push(match[1]);
+    targets.push({id: match[1]});
   }
-  if (!ids.length && (match = /‹/.exec(raw))) {
+  if (!targets.length && (match = /‹/.exec(raw))) {
     throw Error("Don't know how to create an ID for: " + raw);
   }
-  if (!ids.length) {
+  if (!targets.length) {
     // Final fallback
-    ids.push(raw.toLowerCase().replace(/[^\w.]+/g, '-'));
+    targets.push({id: raw.toLowerCase().replace(/[^\w.]+/g, '-')});
   }
   var usedAnchors = this.cjsUsedAnchors;
-  ids = ids.map(function(id) {
-    if (usedAnchors.hasOwnProperty(id)) {
-      var idx = 9, id2;
+  var ids = targets.map(function(target) {
+    if (usedAnchors.hasOwnProperty(target.id)) {
+      var idx = 9, id;
       do {
         ++idx;
-        id2 = id + idx.toString(36); // append a, b, …
-      } while (usedAnchors.hasOwnProperty(id2));
-      id = id2;
+        id = target.id + idx.toString(36); // append a, b, …
+      } while (usedAnchors.hasOwnProperty(id));
+      target.id = id;
     }
-    //console.log(id);
-    usedAnchors[id] = raw;
-    return id;
+    usedAnchors[target.id] = raw;
+    return target.id;
   });
+  targets.forEach(function(target) {
+    target.page = this.cjsPage;
+    if (target.signature)
+      this.cjsPage.functions.push(target);
+  }, this);
   var id0 = ids[0];
   ids = ids.slice(1).map(function(id) {
     return '<a class="hlink" id="' + id + '" href="#' + id + '"></a>';
@@ -151,45 +175,293 @@ MyRenderer.prototype.table = function() {
   return html.replace(/<thead>\n<tr>\n(<th><\/th>\n)*<\/tr>\n<\/thead>/, "");
 };
 
-function makeOpts() {
+//////////////////////////////////////////////////////////////////////
+// Page objects represent one MD or HTML page each
+
+function Page(name) {
+  this.name = name;
+  this.functions = [];
+};
+
+Page.prototype.toString = function() {
+  return "[Page " + this.name + "]";
+};
+
+Page.prototype.makeOpts = function() {
   return {
-    renderer: new MyRenderer()
+    renderer: new MyRenderer(this)
   };
+};
+
+Page.prototype.renderBody = function() {
+  var self = this;
+  return Q.nfcall(marked, this.md, this.makeOpts())
+    .then(function(html) {
+      self.html = html;
+      return self;
+    });
+};
+
+Page.template = function(errorCallback) {
+    var tpath = require.resolve("../template.html");
+    var tmpl = fs.readFileSync(tpath, "utf-8");
+    Page.template = function(errorCallback) {
+        return tmpl;
+    };
+    return tmpl;
+};
+
+//////////////////////////////////////////////////////////////////////
+// Pipelines: perform operations on a set of pages
+
+/**
+ * The in-memory pipeline does bare bones conversion,
+ * with no file I/O and no templates applied to the documents.
+ *
+ * For each page:
+ *   addPage(‹string›, ‹string›) called by external code, returns a promise
+ *   pageRendered(‹Page›) called after marked is done, may change HTML
+ *   writePage(‹Page›) to write a page to output file or similar
+ * Global:
+ *   done() called by external code after all pages were added, returns promise
+ *   postprocess(‹Array of Page objects›) called after all pages are rendered
+ */
+
+function InMemoryPipeline() {
+  this.pages = [];
 }
 
-function renderBody(md, cb) {
-    marked(md, makeOpts(), cb);
-}
+InMemoryPipeline.prototype.createPage = function(name) {
+  return new Page(name);
+};
 
-var tmpl = null;
+InMemoryPipeline.prototype.addPage = function(name, md) {
+  var self = this;
+  var page = this.createPage(name);
+  var res = Q(md)
+      .then(function(md) {
+        page.md = md;
+        return page.renderBody();
+      })
+      .then(this.pageRendered.bind(this, page))
+      .then(this.writePage.bind(this, page))
+      .thenResolve(page);
+  this.pages.push(res);
+  return res;
+};
 
-function renderHtml(md, cb) {
-    if (tmpl === null) {
-        try {
-            var tpath = require.resolve("../template.html");
-            tmpl = fs.readFileSync(tpath).toString();
-        } catch(err) {
-            return cb(err, null);
-        }
+InMemoryPipeline.prototype.pageRendered = function(page) {
+  // no-op, may be overwritten by derived classes
+};
+
+InMemoryPipeline.prototype.writePage = function(page) {
+  // no-op, may be overwitten by derived classes
+};
+
+InMemoryPipeline.prototype.done = function() {
+  return Q.all(this.pages)
+    .then(this.postprocess.bind(this));
+};
+
+InMemoryPipeline.prototype.postprocess = function(pages) {
+  this.checkLinks(pages);
+  return this.createIndex(pages);
+};
+
+InMemoryPipeline.prototype.checkLinks = function(pages) {
+  var targets = {
+    "ref.css": true,
+  };
+  pages.forEach(function(page) {
+    targets[page.name] = true;
+    var re = /<[^>]+\sid=(["'])([^"'<>]+)\1[\s>]/g;
+    var match;
+    while (match = re.exec(page.html))
+      targets[page.name + "#" + match[2]] = true;
+  });
+  var internal = {};
+  var external = {};
+  var broken = {};
+  pages.forEach(function(page) {
+    var re = /<[^>]+\shref\s*=\s*(["'])([^"'<>]+)\1[\s>]/g;
+    var match;
+    while (match = re.exec(page.html)) {
+      var href = match[2];
+      if (/^#/.test(href))
+        href = page.name + href;
+      if (targets.hasOwnProperty(href)) {
+        internal[href] = true;
+        continue;
+      }
+      var kind = broken;
+      if (/^[a-z]+:\/\//.test(href))
+        kind = external;
+      if (!kind.hasOwnProperty(href))
+        kind[href] = [];
+      kind[href].push(page);
     }
-    renderBody(md, function(err, html) {
-        if (err) return cb(err, null);
-        html = html.replace(/\$/g, "$$$$"); // to be used in String.replace
-        html = tmpl.replace(/<div id="content"><\/div>/, html);
-        cb(null, html);
-    });
+  });
+  external = Object.keys(external);
+  if (external.length) {
+    this.reportExternalLinks(external.sort());
+  }
+  if (Object.keys(broken).length) {
+    this.reportBrokenLinks(broken);
+  }
+};
+
+InMemoryPipeline.prototype.createIndex = function(pages) {
+  var indexPage = new Page("Alphabetical_Function_Index.html");
+  var index = Array.prototype.concat.apply(
+    [], pages.map(function(page) { return page.functions; }));
+  index.forEach(function(target) {
+    var key = target.id;
+    if (/^(\$[0-9a-fA-F]+u)+$/.test(key)) // infix operator
+      key = "_" + key + "_";
+    target.key = key = key + ":" + target.page.name;
+    var href =  target.page.name + "#" + target.id;
+    target.html = '<tr><td><a href="' + href + '"><code>' +
+      escape(target.signature) + '</code></a></td>' +
+      '<td><a href="' + href + '">' + target.text + '</a></td></tr>';
+  });
+  index.sort(function(a, b) {
+    return a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+  });
+  var prevLetter = "";
+  var letters = [];
+  for (var i = 0; i < index.length; ++i) {
+    var letter = index[i].key.charAt(0).toUpperCase();
+    if (!/[A-Z]/.test(letter))
+      letter = "Symbols";
+    if (letter !== prevLetter) {
+      prevLetter = letter;
+      letters.push(
+        '<a href="#' + letter.toLowerCase() + '">' + letter + '</a>');
+      index.splice(i, 0, {
+        html: '<tr><th colspan="2"><a id="' + letter.toLowerCase() +
+          '" href="#letters">' + letter + '</a></th></tr>'
+      });
+    }
+  }
+
+  var body = index.map(function(a) {
+    return a.html;
+  }).join("\n");
+  indexPage.html = ['<h1>Alphabetical Function Index</h1>'].concat(
+    '<div class="index">',
+    '<p id="letters">', letters, '</p>',
+    '<table>', index.map(function(a) { return a.html; }), '</table>',
+    '</div>').join('\n');
+  return Q(this.pageRendered(indexPage))
+    .then(this.writePage.bind(this, indexPage))
+    .delay(500)
+    .thenResolve(indexPage);
+};
+
+InMemoryPipeline.prototype.reportExternalLinks = function(page) {
+  // no-op, may be overwitten by derived classes
+};
+
+InMemoryPipeline.prototype.reportBrokenLinks = function(page) {
+  // no-op, may be overwitten by derived classes
+};
+
+/**
+ * The file-based pipeline adds file I/O and templating to the above.
+ */
+
+function FileBasedPipeline(outdir) {
+  InMemoryPipeline.call(this);
+  this.outdir = outdir;
+  this.tmpl = this.template();
 }
 
-function renderFileSync(infile, outfile) {
-    var md = fs.readFileSync(infile).toString();
-    renderHtml(md, function(err, html) {
-        if (err) throw err;
-        fs.writeFileSync(outfile, html);
+util.inherits(FileBasedPipeline, InMemoryPipeline);
+
+FileBasedPipeline.prototype.processFiles = function(names) {
+  names.forEach(this.addFile, this);
+  return this.done();
+};
+
+FileBasedPipeline.prototype.addFile = function(file) {
+  var name = path.basename(file, ".md") + ".html";
+  return this.addPage(name, qfs.read(file));
+};
+
+FileBasedPipeline.prototype.template = function() {
+  var tpath = require.resolve("../template.html");
+  return fs.readFileSync(tpath, "utf-8");
+};
+
+FileBasedPipeline.prototype.pageRendered = function(page) {
+  var html = page.html;
+  html = html.replace(/\$/g, "$$$$"); // to be used in String.replace
+  html = this.tmpl.replace(/<div id="content"><\/div>/, html);
+  page.html = html;
+};
+
+FileBasedPipeline.prototype.writePage = function(page) {
+  return qfs.write(path.join(this.outdir, page.name), page.html);
+};
+
+FileBasedPipeline.prototype.reportExternalLinks = function(links) {
+  console.log("External links: ");
+  links.sort().forEach(function(href) {
+    console.log("  - " + href);
+  });
+};
+
+FileBasedPipeline.prototype.reportBrokenLinks = function(links) {
+  console.log("Broken internal links: ");
+  Object.keys(links).sort().forEach(function(href) {
+    console.log("  - " + href + " used by");
+    links[href].forEach(function(page) {
+      console.log("    * " + page.name);
     });
+  });
+  throw Error("Broken links detected, please fix these!");
+};
+
+//////////////////////////////////////////////////////////////////////
+// Public API and command line
+
+function main() {
+  var exitStatus = 3;
+  process.once("beforeExit", function() {
+    process.exit(exitStatus);
+  });
+
+  var args = process.argv.slice(2);
+  var outDir = "build/ref";
+  if (args[0] === "-o") {
+    outDir = args[1];
+    args.splice(0, 2);
+  }
+  var pipeline = new FileBasedPipeline(outDir);
+  pipeline.processFiles(args).done(function() {
+    exitStatus = 0;
+  }, function(err) {
+    if (/Broken links detected/.test(err.message))
+      console.error(err.message);
+    else
+      console.error(err.stack);
+    exitStatus = 1;
+  });
 }
 
-module.exports.renderBody = renderBody;
-module.exports.renderHtml = renderHtml;
+// Backwards-compatibility since this was used in website creation
+module.exports.renderBody = function(md, cb) {
+  var page = new Page(null, md);
+  page.then(function() {
+    cb(null, page.html);
+  }, function(err) {
+    cb(err, null);
+  });
+}
+
+module.exports.Page = Page;
+module.exports.InMemoryPipeline = InMemoryPipeline;
+module.exports.FileBasedPipeline = FileBasedPipeline;
 
 if (require.main === module)
-    renderFileSync(process.argv[2], process.argv[3]);
+    main();

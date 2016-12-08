@@ -6,12 +6,12 @@
 <title>Live Code with CodeMirror</title>
 <meta charset="UTF-8">
 
-<script src="http://codemirror.net/lib/codemirror.js"></script>
-<script src="http://codemirror.net/mode/clike/clike.js"></script>
-<script src="http://codemirror.net/addon/edit/matchbrackets.js"></script>
-<script src="http://codemirror.net/addon/edit/closebrackets.js"></script>
-<link rel="stylesheet" href="http://codemirror.net/lib/codemirror.css">
-<link rel="stylesheet" href="http://codemirror.net/theme/base16-dark.css">
+<script src="https://codemirror.net/lib/codemirror.js"></script>
+<script src="https://codemirror.net/mode/clike/clike.js"></script>
+<script src="https://codemirror.net/addon/edit/matchbrackets.js"></script>
+<script src="https://codemirror.net/addon/edit/closebrackets.js"></script>
+<link rel="stylesheet" href="https://codemirror.net/lib/codemirror.css">
+<link rel="stylesheet" href="https://codemirror.net/theme/base16-dark.css">
 
 
 <script type="text/javascript" src="../../build/js/Cindy.js"></script>
@@ -22,24 +22,32 @@
   #code {position: absolute;
     left: 10px;
     top: 10px;
+    z-index: 100;
   }
   #applet { width: 100%; height: 100%; }
   #CSCanvas { width: 100%; height: 100%; }
+  .CodeMirror {
+    background: rgba(0,0,0,.5) !important;
+    height: auto;
+  }
 </style>
 </head>
 
 <script id="csinit" type="text/x-cindyscript">
-video = camera video();
+camera = camera video();
 plotcmd() := (
-  colorplot(
-    z = complex(#)-complex(A);
-    pos = z*z;
-    imagergb(video, pos)
-  );
+  f(z) := z^2; //complex squaring
+  
+gamma(c, g) := (re(c_1^g), re(c_2^g), re(c_3^g));
+
+colorplot(
+  z = complex(#)-complex(A); //complex coordinate
+  .05*hue(seconds()/4)+.95*gamma(imagergb(camera, f(z)),1.0); //read pixel from camera
+);
 )
 </script>
 <script id="csdraw" type="text/x-cindyscript">
-if (image ready(video),
+if (image ready(camera),
   plotcmd();
 );
 </script>
@@ -81,11 +89,15 @@ btn.onclick = function() {
 };
 
 var myCodeMirror = CodeMirror(document.getElementById("code"), {
-  value: `colorplot(
-    z = complex(#)-complex(A); //complex coordinate
-    pos = z^2; //complex squaring
-    imagergb(video, pos) //read pixel from webcam
-);`,
+  value: `f(z) := z^2; //complex squaring
+  
+gamma(c, g) := (re(c_1^g), re(c_2^g), re(c_3^g));
+
+colorplot(
+  z = complex(#)-complex(A); //complex coordinate
+  .05*hue(seconds()/4)+.95*gamma(imagergb(camera, f(z)),1.0); //read pixel from camera
+);
+`,
   autoCloseBrackets: true,
   matchBrackets: true,
   theme: "base16-dark"

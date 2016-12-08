@@ -5,6 +5,11 @@ let list = (n, type) => ({
     parameters: type
 });
 
+let constant = (value) => ({ /* variables that are constant in GLSL */
+    type: 'constant',
+    value: value
+});
+
 const type = { //assert all indices are different
     bool: 1,
     int: 2,
@@ -44,11 +49,12 @@ function typeToString(t) {
             'point',
             'line',
             'coordinate2d',
-            'image'
+            'image',
         ];
         return l[t - 1];
     } else {
         if (t.type === 'list') return `${typeToString(t.parameters)}[${t.length}]`;
+        if (t.type === 'constant') return `const[${JSON.stringify(t.value['value'])}]`;
         return JSON.stringify(t); //TODO
     }
 }
@@ -126,10 +132,10 @@ webgl[';'] = (argtypes) => ({ //generator not used yet
     generator: args => `${args[0]} ; ${args[1]};`
 });
 
-webgl['repeat'] = argtypes => (argtypes[0] === type.int) ? ({ //generator not used yet
+webgl['repeat'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && isconstantint(argtypes[0]) ? ({ //generator not used yet
     args: argtypes,
-    res: argtypes[1],
-    generator: args => `${args[0]} ; ${args[1]};`
+    res: argtypes[argtypes.length - 1],
+    generator: args => ''
 }) : false;
 
 webgl['regional'] = argtypes => ({ //generator not used yet
@@ -302,20 +308,20 @@ let rings = [type.int, type.float, type.complex, type.vec2, type.vec3, type.vec4
 
 webgl["_"] = args => {
     let a = args[0];
-    if (a.type === 'list' && issubtypeof(a.parameters, type.float) && issubtypeof(args[1], type.int)) {
+    if (a.type === 'list' && issubtypeof(a.parameters, type.float) && isconstantint(args[1])) {
         let vectorspace = getrvectorspace(a);
         return {
-            args: [vectorspace, type.int],
+            args: [vectorspace, args[1]],
             res: type.float,
-            generator: accessvecbyshifted(vectorspace.length),
+            generator: accessvecbyshifted(vectorspace.length, Number(args[1].value["value"]["real"] - 1)),
         };
     }
-    if (a.type === 'list' && issubtypeof(a.parameters, type.complex) && issubtypeof(args[1], type.int)) {
+    if (a.type === 'list' && issubtypeof(a.parameters, type.complex) && isconstantint(args[1])) {
         let vectorspace = getcvectorspace(a);
         return {
-            args: [vectorspace, type.int],
+            args: [vectorspace, args[1]],
             res: type.complex,
-            generator: accesscvecbyshifted(vectorspace.length),
+            generator: accesscvecbyshifted(vectorspace.length, Number(args[1].value["value"]["real"] - 1)),
         };
     }
     return false;
