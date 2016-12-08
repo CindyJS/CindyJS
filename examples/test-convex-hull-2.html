@@ -253,14 +253,14 @@ mati=transpose(mat);
 
 minmax(obj):= (
  if(length(obj)>3,
-  ch=convexhull3d1(obj);
+  ch=convexhull3d(obj);
   obj=ch_1;
   maxval=1/(-sort(apply(ch_1,-|#|))_1);
   ff=ch_2;
   dual=apply(ff,f,
     linearsolve((obj_(f_1),obj_(f_2),obj_(f_3)),(1,1,1));
   );
-  ch=convexhull3d1(dual);
+  ch=convexhull3d(dual);
   minval=-sort(apply(ch_1,-|#|))_1;
   (minval,maxval);
   ,
@@ -9665,7 +9665,7 @@ ss=apply(ss,
 );
 
 objx=apply(ss,(#*n2,#*n3,#*n4))*.5;
- ch=convexhull3d1(objx);
+ ch=convexhull3d(objx);
  obj=ch_1;
  ff=ch_2;
 
@@ -9712,7 +9712,7 @@ if(length(objx)>3,
 
 
 
- ch=convexhull3d1(objx);
+ ch=convexhull3d(objx);
 
  obj=ch_1;
  ff=ch_2;

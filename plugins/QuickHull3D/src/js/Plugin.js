@@ -1,5 +1,5 @@
 CindyJS.registerPlugin(1, "QuickHull3D", function(api) {
-    api.defineFunction("convexhull3d1", 1, function(args) {
+    api.defineFunction("convexhull3d", 1, function(args) {
         var pointsList = api.evaluateAndVal(args[0]);
         var length = pointsList.value.length;
         var points = [];
@@ -32,4 +32,3 @@ CindyJS.registerPlugin(1, "QuickHull3D", function(api) {
         };
     });
 });
-

@@ -5,7 +5,6 @@
 <title>Cindy JS Example</title>
 <meta charset="UTF-8">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../build/js/quickhull3d/quickhull3d.nocache.js"></script>
 
 <script id="csdraw" type="text/x-cindyscript">
 
@@ -117,7 +116,7 @@ errc("HALLO");
 
 <script id='csmove-js' type='text/x-cindyscript'>
 
-a=convexhull3d1(obj1*8);
+a=convexhull3d(obj1*8);
 points=a_1*transpose(mat);
 faces=a_2;
 
@@ -135,25 +134,6 @@ apply(faces,f,
 
 </script>
 
-<script id='csmove-java' type='text/x-cindyscript'>
-
-a=convexhull3d(obj1*8);
-points=a_1*transpose(mat);
-faces=a_2;
-//
-//println("==== Java Hull ====");
-//println(points);
-//println(faces);
-//
-apply(faces,f,
-    fa=points_f;
-    nn=cross( fa_2-fa_1,fa_2-fa_3);
-    nn=nn/|nn|;
-    erg=apply(fa,p,ma(p));
-    drawface(erg,nn);
-);
-
-</script>
 
 <script type="text/javascript">
 
@@ -168,17 +148,6 @@ defaultAppearence:{},
         mouseupscript:"mouseUp",
         mousedragscript:"mouseDrag",
         geometry:gslp});
-
-CindyJS({
-ports: [{id:"CSCanvas-java", width: 500, height: 500}],
-language: "en",
-defaultAppearence:{},
-        movescript:"csmove-java",
-        initscript:"init",
-        mousedownscript:"mouseDown",
-        mouseupscript:"mouseUp",
-        mousedragscript:"mouseDrag",
-        geometry:gslp});
 </script>
 
 </head>
@@ -188,11 +157,6 @@ defaultAppearence:{},
 <h2 style="width:100%;">JS</h2>
 <div id="CSCanvas-js" style="border:2px solid black"></div>
 </div>
-<div style="display: inline-block;">
-<h2 style="width:100%;">Java</h2>
-<div id="CSCanvas-java" style="border:2px solid #000000"></div>
-</div>
 </body>
 
 </html>
-
