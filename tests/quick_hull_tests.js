@@ -15,7 +15,7 @@ var VO = VOps.__get__("VectorOperations");
 
 
 var QH = rewire('../plugins/QuickHull3D/src/js/QuickHull3D.js');
-var QuickHull3D = QH.__get__("QuickHull3D");
+    var QuickHull3D = QH.__get__("QuickHull3D");
 
 
 describe('Quick hull', function() {
@@ -24,6 +24,7 @@ describe('Quick hull', function() {
     describe('build from points', function() {
         var gg = (1 - Math.sqrt(5)) / 2;
         var vertices, faces;
+        console.log("qh", QH);
 
         beforeEach(function() {
             hull = new QuickHull3D();
