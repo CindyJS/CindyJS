@@ -1304,9 +1304,13 @@ geoOps.ConicBy2Foci1L.updatePosition = function(el) {
     var m = List.productMM(List.transpose(mat([F1])), mat([F2]));
     var s = CSNumber.realmult(2, CSNumber.mult(sp(F1, l), sp(F2, l)));
     var zero = CSNumber.zero;
-    var matrix = List.sub(List.scalmult(sp(dir, dir),
-        List.add(List.transpose(m), m)),
-        List.matrix([[s, zero, zero], [zero, s, zero], [zero, zero, zero]]));
+    var matrix = List.sub(
+        List.scalmult(sp(dir, dir), List.add(List.transpose(m), m)),
+        List.matrix([
+            [s, zero, zero],
+            [zero, s, zero],
+            [zero, zero, zero]
+        ]));
     matrix = List.normalizeMax(List.adjoint3(matrix));
     el.matrix = General.withUsage(matrix, "Conic");
 };
