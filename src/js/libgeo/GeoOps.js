@@ -1289,6 +1289,28 @@ geoOps.ConicParabolaPL.updatePosition = function(el) {
     el.matrix = General.withUsage(m, "Conic");
 };
 
+geoOps.ConicBy2Foci1L = {};
+geoOps.ConicBy2Foci1L.kind = "C";
+geoOps.ConicBy2Foci1L.signature = ["P", "P", "L"];
+geoOps.ConicBy2Foci1L.updatePosition = function(el) {
+    var F1 = csgeo.csnames[(el.args[0])].homog;
+    var F2 = csgeo.csnames[(el.args[1])].homog;
+    var l = csgeo.csnames[(el.args[2])].homog;
+
+    var sp = List.scalproduct;
+    var mat = List.turnIntoCSList;
+
+    var dir = List.cross(List.cross(List.linfty, l), List.linfty);
+    var m = List.productMM(List.transpose(mat([F1])), mat([F2]));
+    var s = CSNumber.realmult(2, CSNumber.mult(sp(F1, l), sp(F2, l)));
+    var zero = CSNumber.zero;
+    var matrix = List.sub(List.scalmult(sp(dir, dir),
+        List.add(List.transpose(m), m)),
+        List.matrix([[s, zero, zero], [zero, s, zero], [zero, zero, zero]]));
+    matrix = List.normalizeMax(List.adjoint3(matrix));
+    el.matrix = General.withUsage(matrix, "Conic");
+};
+
 geoOps.ConicBy2Foci1P = {};
 geoOps.ConicBy2Foci1P.kind = "Cs";
 geoOps.ConicBy2Foci1P.signature = ["P", "P", "P"];
