@@ -1519,26 +1519,6 @@ geoOps.ConicBy1Pol3L.updatePosition = function(el) {
     el.matrix = M;
 };
 
-geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
-    var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
-
-    var ix = List.det3(poi, b1, a1);
-    var jx = List.det3(poi, b1, a2);
-    var iy = List.det3(poi, b2, a1);
-    var jy = List.det3(poi, b2, a2);
-
-    var sqj = CSNumber.sqrt(CSNumber.mult(jy, jx));
-    var sqi = CSNumber.sqrt(CSNumber.mult(iy, ix));
-
-    var mui = General.mult(a1, sqj);
-    var tauj = General.mult(a2, sqi);
-
-    var out1 = List.add(mui, tauj);
-    var out2 = List.sub(mui, tauj);
-
-    return [out1, out2];
-};
-
 geoOps.ConicInSquare = {};
 geoOps.ConicInSquare.kind = "C";
 geoOps.ConicInSquare.signature = ["P", "P", "P", "P"];
