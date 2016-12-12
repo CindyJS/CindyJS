@@ -165,7 +165,7 @@ function lca(a, b) {
             parameters: st
         };
     }
-    
+
     return false;
 }
 
