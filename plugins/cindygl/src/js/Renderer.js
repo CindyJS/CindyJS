@@ -149,14 +149,15 @@ Renderer.prototype.setUniforms = function() {
                     setter([val['value']['real']]);
                     break;
                 default:
-                    if (t.type === 'list' && issubtypeof(t.parameters, type.float)) { //float-list
+                    if (t.type === 'list' && t.parameters === type.float) { //float-list
                         setter(val['value'].map(x => x['value']['real']));
                         break;
-                    } else if (t.type === 'list' && t.parameters.type === 'list' && issubtypeof(t.parameters.parameters, type.float)) { //float matrix
+                    } else if (t.type === 'list' && t.parameters.type === 'list' && t.parameters.parameters === type.float) { //float matrix
                         //probably: if isnativeglsl?
                         let m = [];
-                        for (let i = 0; i < t.parameters.length; i++)
-                            for (let j = 0; j < t.length; j++) m.push(val['value'][j]['value'][i]['value']['real']);
+                        for (let j = 0; j < t.length; j++)
+                            for (let i = 0; i < t.parameters.length; i++)
+                                m.push(val['value'][j]['value'][i]['value']['real']);
                         setter(m);
                         break;
                     }
@@ -167,7 +168,8 @@ Renderer.prototype.setUniforms = function() {
         } else if (t.type === 'list') {
 
             let d = depth(t);
-            if (d === 1 && isrvectorspace(t)) {
+            let fp = finalparameter(t);
+            if (d === 1 && fp === type.float) {
                 let n = t.length;
                 let s = sizes(n);
 
