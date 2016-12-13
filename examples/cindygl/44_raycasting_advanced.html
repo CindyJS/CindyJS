@@ -69,12 +69,12 @@
         (10, -8, 3.)
     ];
 
-    gamma = [1, 20, 1, 20, 1, 10, 1, 10];
+    gamma = [2, 20, 2, 20, 1, 10, 1, 10];
 
     colors = [
-        (.2, .4, 1.),
+        (.3, .5, 1.),
         (1, 2, 2) / 2,
-        (.8, 0.3, 0),
+        (1., 0.2, 0.1),
         (2, 2, 1) / 2,
         .4 * (.7, .8, .3),
         .9 * (.7, .8, .3),
@@ -124,13 +124,20 @@
         fun(p.x / zoom, p.y / zoom, p.z / zoom);
     );
 
+    helpfun(s, x) := log(|F(s*x)|)/log(s*|x|); //is approx. degree+log(leadingcoeff)/log(s*|x|) for large s
+    
     guessdeg() := max(apply(1 .. 10,
-        x = [random(), random(), random()]; r = [random(), random(), random()]; v = [F(x)];
-        while ( | v_(-1) | > .01 & length(v) < 100,
-            x = x + r; nv = [F(x)]++v; forall(2..length(nv),
-                nv_# = nv_(#-1) - v_(#-1);
-            ); v = nv;
-        ); length(v) - 2
+      x = [random(), random(), random()];
+      s = 1;
+      l = 1;
+      best = 1;
+      
+      while(l<100 & s < 1e50, //throw away Infinity
+        best = round(l);
+        s = 4*s;
+        l = 2*helpfun(s*s, x)-helpfun(s,x); //remove error caused by log(leadingcoeff)
+      );
+      best        
     ));
 
 
@@ -190,6 +197,21 @@
         )
     );
 
+    updatecolor(pos, dst, color) := (
+        if (dst > l & dst < u & dst < odst,
+            color = (1 - alpha) * color;
+
+            odst = dst; x = ray(pos, dst); normal = dF(x); normal = normal / abs(normal);
+
+
+
+            forall(1..length(lightdirs),
+                illumination = max(0, (lightdirs_# / abs(lightdirs_#)) * normal);
+                color = color + alpha * (illumination ^ gamma_#) * colors_#;
+            );
+        );
+        color
+    );
 
     computeColor(pos) := (
         spolyvalues = apply([-2, 0, 2], S(ray(pos, #))); spoly = B3 * spolyvalues; // interpolate
@@ -203,34 +225,30 @@
             l = (-spoly_2 - re(sqrt(D))) / (2. * spoly_3); //intersection entering the ballu
             u = (-spoly_2 + re(sqrt(D))) / (2. * spoly_3); //intersection leaving the ball
 
-            p = apply(1..N, poly); forall(reverse(1.. N-1), p_# = d(p_(#+1))); //p_k has degree k
+            p = apply(1..N, poly);
+            forall(reverse(1.. N-1), p_# = d(p_(#+1))); //p_k has degree k
 
-            roots = apply(1..N, u); oroots = roots; forall(1.. N-1, i,
-                roots_1 = bisect(p_i, l, oroots_1, l); forall(2.. N-1, j,
-                    roots_j = bisect(p_i, oroots_j, oroots_(j + 1), roots_(j - 1));
-                ); roots_N = bisect(p_i, oroots_N, u, roots_( N-1)); oroots = roots;
+            roots = oroots = apply(1..N, u);
+            forall(1 .. N-1, i,
+                roots_1 = bisect(p_i, l, oroots_1, l);
+                repeat(i, j,
+                  roots_(j+1) = bisect(p_i, oroots_j, oroots_(j + 1), roots_j);
+                );
+                oroots = roots;
             );
 
 
-            roots_1 = bisectf(pos, l, oroots_1, l); forall(2.. N-1, j,
+            roots_1 = bisectf(pos, l, oroots_1, l);
+            forall(2.. N-1, j,
                 roots_j = bisectf(pos, oroots_j, oroots_(j + 1), roots_(j - 1));
-            ); roots_N = bisectf(pos, oroots_N, u, roots_(N-1));
+            );
+            roots_N = bisectf(pos, oroots_N, u, roots_(N-1));
 
             odst = u + 1;
 
             forall(reverse(1..N),
                 dst = roots_#;
-                if (dst > l & dst < u & dst < odst,
-                    color = (1 - alpha) * color;
-
-                    odst = dst; x = ray(pos, dst); normal = dF(x); normal = normal / abs(normal);
-
-
-
-                    forall(1..length(lightdirs),
-                        illumination = max(0, (lightdirs_# / abs(lightdirs_#)) * normal); color = color + alpha * (illumination ^ gamma_#) * colors_#;
-                    );
-                )
+                color = updatecolor(pos, dst, color);
             );
         ); color
     );
@@ -243,7 +261,7 @@
         var cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     animation: {autoplay: true},
-                    geometry: [ { name:"PA", kind:"P", type:"Free", pos: [.5,.4/1.1,1], narrow: true, color: [1,1,1], size:8 },
+                    geometry: [ { name:"PA", kind:"P", type:"Free", pos: [.5,.3,1], narrow: true, color: [1,1,1], size:8 },
                                 { name:"PB", kind:"P", type:"Free", pos: [.5,.2,1], narrow: true, color: [1,1,1], size:8 },
                                 { name:"PC", kind:"P", type:"Free", pos: [.5,.1,1], narrow: true, color: [1,1,1], size:8 } ],
                     ports: [{
@@ -265,6 +283,7 @@
     Endraß Octic
   </option>
   <option value="x^2+y^2+z^2-1">Ball</option>
+  <option value="k = 6; x^k+y^k+z^k-1">Cube</option>
   <option value="x^2+z^2-1/3*(1+y)^3*(1-y)^3">Citric</option>
   <option value="x^2+y^2+z^3-z^2">Ding Dong</option>
   <option value="x^3+x^2*z^2-y^2">Hummingbird</option>

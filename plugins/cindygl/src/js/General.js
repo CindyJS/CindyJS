@@ -124,7 +124,7 @@ function guessTypeOfValue(tval) {
         return type.bool;
     } else if (tval['ctype'] === 'number') {
         let z = tval['value'];
-        if (Math.abs(z['imag']) < 1e-10) { //eps test. for some reasons sin(1) might have some imag part of order e-17
+        if (Math.abs(z['imag']) < 1e-5) { //eps test. for some reasons sin(1) might have some imag part of order e-17
             if ((z['real'] | 0) === z['real']) {
                 return type.int;
             } else {
