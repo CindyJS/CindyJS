@@ -415,6 +415,7 @@ FakeCanvas.prototype.measureText = function(txt) {
   "bezierCurveTo",
   "clearRect",
   "clip",
+  "closePath",
   "fill",
   "getContext",
   "lineTo",

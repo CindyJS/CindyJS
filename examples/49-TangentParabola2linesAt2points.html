@@ -27,7 +27,7 @@ draw((0,-4.66),(0,9.34),arrow->true,size->2,color->(128/255,128/255,128/255));//
 </head>
 <body>
   <p><a href="http://www.amazon.com/dp/141818358X">Constructive geometry of plane curves</a>, pg.75, Problem 49</p>
-  <canvas id="CSCanvas"></canvas>
+  <div id="CSCanvas"></div>
         <div>
           <button id="save">Write to console</button>
         </div>
@@ -50,7 +50,7 @@ var gslp = [
 		{ name: "e", type: "Join", color: [ 0.098039225, 0.61960787, 0.30588236 ], args: [ "H", "K" ], visible: false, labeled: true }, 
 		{ name: "C0", type: "ConicBy5lines", color: [0.0, 0.0, 1.0], args: ["a", "b", "c", "d", "e"], printname: "$C_{0}$" },
 ];
-var cdy = createCindy({ 
+var cdy = CindyJS({ 
     scripts: "cs*", grid: 1, snap: true,
 	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, textsize: 12.0 }, 
 	angleUnit: "°", 
