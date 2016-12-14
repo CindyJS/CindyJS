@@ -4,9 +4,6 @@ let vec4Length = 4;
 /** @constant @type {number} */
 let float32ByteCount = 4;
 
-/** @constant @type {number} */
-let indexByteCount = 2;
-
 /**
  * @param {Array.<string>} attributes  names of vec4-typed attributes
  * @param {Array.<number>} elements  order of vertices in the drawn elements
@@ -23,7 +20,8 @@ function PrimitiveRenderer(attributes, elements) {
   this.itemLength = vec4Length * numVertices * numAttributes;
   this.vertexByteCount = vec4Length * float32ByteCount * numAttributes;
   this.itemAttribByteCount = tmp = numVertices * this.vertexByteCount;
-  this.itemTotalByteCount = tmp + numElements * indexByteCount;
+  this.itemTotalByteCount = tmp + numElements * this.indexByteCount;
+  this.maxCount = Math.floor((1 << 16) / tmp);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -77,6 +75,12 @@ PrimitiveRenderer.prototype.itemLength;
 PrimitiveRenderer.prototype.vertexByteCount;
 
 /**
+ * Number of bytes per index
+ * @type {number}
+ */
+PrimitiveRenderer.prototype.indexByteCount = 2;
+
+/**
  * Number of bytes per item, attribute use only
  * @type {number}
  */
@@ -87,6 +91,12 @@ PrimitiveRenderer.prototype.itemAttribByteCount;
  * @type {number}
  */
 PrimitiveRenderer.prototype.itemTotalByteCount;
+
+/**
+ * Maximum number of elements that can be indexed
+ * @type {number}
+ */
+PrimitiveRenderer.prototype.maxCount;
 
 /**
  * Whether to make use of the fragment depth extension
@@ -168,7 +178,7 @@ PrimitiveRenderer.prototype.dataAttribs;
 
 /**
  * Indices describing the order of vertices of all items
- * @type {Uint16Array}
+ * @type {Uint16Array|Uint32Array}
  */
 PrimitiveRenderer.prototype.dataIndices;
 
@@ -219,9 +229,22 @@ PrimitiveRenderer.prototype.addPrimitive = function(attributes) {
     throw new GlError("Wrong number of attributes given");
   if (this.count == this.capacity) {
     let c = this.capacity*2, nd, nda, ndi, i, j, k, o, e = this.elements;
+    if (c > this.maxCount) {
+      if (this.capacity < this.maxCount) {
+        c = this.maxCount;
+      } else {
+        this.indexByteCount = 4;
+        this.itemTotalByteCount = this.itemAttribByteCount +
+          this.numElements * this.indexByteCount;
+        this.maxCount = Math.floor((1 << 31) / this.itemAttribByteCount);
+      }
+    }
     nd = new ArrayBuffer(c * this.itemTotalByteCount);
     nda = new Float32Array(nd, 0, c * this.itemLength);
-    ndi = new Uint16Array(nd, c * this.itemAttribByteCount);
+    if (this.indexByteCount === 2)
+      ndi = new Uint16Array(nd, c * this.itemAttribByteCount);
+    else
+      ndi = new Uint32Array(nd, c * this.itemAttribByteCount);
     nda.set(this.dataAttribs);
     ndi.set(this.dataIndices);
     k = this.dataIndices.length;
@@ -263,8 +286,12 @@ PrimitiveRenderer.prototype.renderPrimitives = function(gl, setUniforms) {
       loc, vec4Length, gl.FLOAT, /* normalized */ false,
       this.vertexByteCount, vec4Length*float32ByteCount*i);
   }
-  gl.drawElements(this.mode, this.numElements * this.count,
-                  gl.UNSIGNED_SHORT, 0);
+  let type = gl.UNSIGNED_SHORT;
+  if (this.dataIndices instanceof Uint32Array) {
+    type = gl.UNSIGNED_INT;
+    gl.getExtension("OES_element_index_uint");
+  }
+  gl.drawElements(this.mode, this.numElements * this.count, type, 0);
   for (i = 0; i < this.numAttributes; ++i) {
     gl.disableVertexAttribArray(this.attribLocations[i]);
   }
