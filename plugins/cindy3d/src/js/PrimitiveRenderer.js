@@ -236,7 +236,7 @@ PrimitiveRenderer.prototype.addPrimitive = function(attributes) {
         this.indexByteCount = 4;
         this.itemTotalByteCount = this.itemAttribByteCount +
           this.numElements * this.indexByteCount;
-        this.maxCount = Math.floor((1 << 31) / this.itemAttribByteCount);
+        this.maxCount = Math.floor(Math.pow(2, 32) / this.itemAttribByteCount);
       }
     }
     nd = new ArrayBuffer(c * this.itemTotalByteCount);
