@@ -382,32 +382,75 @@ function solveRealQuadratic(a, b, c) {
     return [hom[0][0] / hom[0][1], hom[1][0] / hom[1][1]];
 }
 
-function inRange(x, a, b) {
-    return x >= Math.min(a, b) && x <= Math.max(a, b);
+function DbgCtx() {
+    this.delegate = csctx;
+    this.special = [];
+    this.lines = [];
 }
-
-// Pick some arbitrary directions approximately 30° apart and not aligned
-var arbitraryDirections = [0.13, 0.65, 1.18].map(function(angle) {
-    var cos = Math.cos(angle);
-    var sin = Math.sin(angle);
-    // (cos, sin) in the original coordinate system corresponds to (1, 0)
-    // in the rotated one.  So the basis vectors of the new system
-    // expressed in coordinates of the old are
-    var v1 = List.realVector([cos, sin, 0]);
-    var v2 = List.realVector([-sin, cos, 0]);
-    // The matrix composed from these transforms row vectors from
-    // rotated to original, and column vectors from original to rotated.
-    var mat = List.turnIntoCSList([v1, v2, List.ez]);
-    return mat;
-});
+DbgCtx.prototype = {
+    beginPath: function() {
+        console.log("beginPath()");
+        this.pts = [];
+        this.ctls = [];
+        this.delegate.beginPath();
+    },
+    moveTo: function(x, y) {
+        console.log("moveTo(" + x + ", " + y + ")");
+        this.pts.push([x, y]);
+        this.delegate.moveTo(x, y);
+    },
+    lineTo: function(x, y) {
+        console.log("lineTo(" + x + ", " + y + ")");
+        this.pts.push([x, y]);
+        this.delegate.lineTo(x, y);
+    },
+    quadraticCurveTo: function(x1, y1, x, y) {
+        console.log("quadratocCurveTo(" + x1 + ", " + y1 + ", " + x + ", " + y + ")");
+        this.ctls.push([x1, y1]);
+        this.pts.push([x, y]);
+        this.delegate.quadraticCurveTo(x1, y1, x, y);
+    },
+    closePath: function() {
+        console.log("closePath()");
+        this.delegate.closePath();
+    },
+    fillCircle: function(p) {
+        this.delegate.beginPath();
+        this.delegate.arc(p[0], p[1], 3, 0, 2 * Math.PI);
+        this.delegate.fill();
+    },
+    stroke: function() {
+        console.log("stroke()");
+        this.delegate.stroke();
+        var oldFill = this.delegate.fillStyle;
+        this.delegate.fillStyle = "rgb(255,0,255)";
+        this.pts.forEach(this.fillCircle, this);
+        this.delegate.fillStyle = "rgb(0,255,255)";
+        this.ctls.forEach(this.fillCircle, this);
+        this.delegate.fillStyle = "rgb(64,0,255)";
+        this.special.forEach(this.fillCircle, this);
+        this.delegate.strokeStyle = "rgb(0,255,0)";
+        this.lines.forEach(function(line) {
+            this.delegate.beginPath();
+            this.delegate.moveTo(line[0], line[1]);
+            this.delegate.lineTo(line[2], line[3]);
+            this.delegate.stroke();
+        }, this);
+        if (oldFill)
+            this.delegate.fillStyle = oldFill;
+    },
+};
 
 eval_helper.drawconic = function(conicMatrix, modifs) {
+    var csctx = new DbgCtx();
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     if (Render2D.lsize === 0)
         return;
     Render2D.preDrawCurve();
 
+    var maxError = 0.04; // squared distance in px^2
     var eps = 1e-14;
+    var sol, x, y, i;
 
     // Transform matrix of conic to match canvas coordinate system
     var mat = List.normalizeMax(conicMatrix);
@@ -445,6 +488,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     // Sign 1 means inside, i.e. polar has complex points of intersection.
     // Sign -1 means outside, i.e. polar has real points of intersection.
     // Sign 0 would be on conic, but numeric noise will drown those out.
+    // Note that this distinction is arbitrary for degenerate conics.
     function sign(x, y) {
         var s = (c20 * x + c11 * y + c10) * x + (c02 * y + c01) * y + c00;
         if (s >= 0) return 1;
@@ -482,11 +526,11 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         return;
     var boundary = [];
 
-    function doBoundary(sign1, sign2, sol, x, y, axis, sort) {
+    function doBoundary(sign1, sign2, sol, x, y, axis, sort, extent) {
         if (sign1 !== sign2) { // we need exactly one point of intersection
             if (sol === null)
                 return false;
-            var center = (lo + hi) * 0.5;
+            var center = extent * 0.5;
             var dist0 = Math.abs(center - sol[0]);
             var dist1 = Math.abs(center - sol[1]);
             var coord = sol[dist0 < dist1 ? 0 : 1];
@@ -495,6 +539,8 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             if (sol === null) // have zero intersections
                 return true;
             var coord = 0.5 * (sol[0] + sol[1]);
+            if (coord < 0 || coord > extent)
+                return true;
             var signMid = sign((1 - axis) * coord + x, axis * coord + y);
             if (signMid === sign1) // intersections outside segment
                 return true;
@@ -510,11 +556,103 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         return true;
     }
 
-    if (!(doBoundary(tl, bl, yLeft, 0, 0, 1, 1) &&
-          doBoundary(bl, br, xBottom, 0, csh, 0, 1) &&
-          doBoundary(tr, br, yRight, csw, 0, 1, -1) &&
-          doBoundary(tl, tr, xTop, 0, 0, 0, -1)))
+    if (!(doBoundary(tl, bl, yLeft, 0, 0, 1, 1, csh) &&
+            doBoundary(bl, br, xBottom, 0, csh, 0, 1, csw) &&
+            doBoundary(tr, br, yRight, csw, 0, 1, -1, csh) &&
+            doBoundary(tl, tr, xTop, 0, 0, 0, -1, csw)))
         return;
+
+    var closedEllipse = null;
+    if (boundary.length === 0 || discr > eps) {
+        if (discr < 0) // hyperbola
+            return; // doesn't intersect, so there is nothing to draw
+        // Might be ellipse fully contained in drawing area; segment it
+        closedEllipse = [null, null, null, null];
+
+        // Compute the roots of the y discriminant
+        // for points with vertical tangents
+        sol = solveRealQuadratic(
+            discr,
+            4 * c10 * c02 - 2 * c01 * c11,
+            4 * c00 * c02 - c01 * c01);
+        console.log(sol);
+        if (!sol)
+            return;
+        if (sol[0] > sol[1])
+            sol = [sol[1], sol[0]];
+        /*
+        if (!(sol[0] >= 0 && sol[1] <= csw))
+            return;
+        */
+        for (i = 0; i < 2; ++i)
+            closedEllipse[2 * i] =
+            mkp(sol[i], -0.5 * (c11 * sol[i] + c01) / c02);
+        console.log(closedEllipse);
+
+        // Compute the roots of the x discriminant
+        // for points with horizontal tangents
+        sol = solveRealQuadratic(
+            discr,
+            4 * c01 * c20 - 2 * c10 * c11,
+            4 * c00 * c20 - c10 * c10);
+        console.log(sol);
+        if (!sol)
+            return;
+        if (sol[0] > sol[1])
+            sol = [sol[1], sol[0]];
+        /*
+        if (!(sol[0] >= 0 && sol[1] <= csh))
+            return;
+        */
+        for (i = 0; i < 2; ++i)
+            closedEllipse[2 * i + 1] =
+            mkp(-0.5 * (c11 * sol[i] + c10) / c20, sol[i]);
+        console.log(closedEllipse);
+    }
+
+    csctx.beginPath();
+    if (closedEllipse) {
+        csctx.moveTo(closedEllipse[0].px, closedEllipse[0].py);
+        for (i = 0; i < 4; ++i)
+            refine(closedEllipse[i], closedEllipse[(i + 1) & 3], 0);
+        csctx.closePath();
+    } else if (boundary.length === 2) {
+        csctx.moveTo(boundary[0].px, boundary[0].py);
+        refine(boundary[0], boundary[1], 0);
+    } else if (boundary.length > 4) {
+        // Ellipse; we always connect points spanning an outside segment.
+        for (i = (tl === 1 ? 0 : 1); i < boundary.length; i += 2) {
+            csctx.moveTo(boundary[i].px, boundary[i].py);
+            refine(boundary[i], boundary[(i + 1) % boundary.length], 0);
+        }
+    } else {
+        // Cyclically iterate over each pair of subsequent boundary points.
+        // Join them and intersect them with the line at infinity.
+        // The sign of that intersection... TODO
+        var ptA = boundary[3];
+        var best = 0;
+        for (i = 0; i < 4; ++i) {
+            var ptB = boundary[i];
+            var dx = ptB.px - ptA.px;
+            var dy = ptB.py - ptA.py;
+            // compute sign at infinity
+            var s = (c20 * dx + c11 * dy) * dx + c02 * dy * dy;
+            // factor in sign of current arc
+            s *= tl * (1 - 2 * (i & 1));
+            if (Math.abs(s) > Math.abs(best))
+                best = s;
+            ptA = ptB;
+        }
+        if (isNaN(best))
+            return;
+        best *= tl;
+        for (i = (best >= 0 ? 0 : 1); i < 4; i += 2) {
+            csctx.moveTo(boundary[i].px, boundary[i].py);
+            refine(boundary[i], boundary[(i + 1) & 3], 0);
+        }
+    }
+    csctx.stroke();
+
 
     // Find the control points of a quadratic Bézier which at the
     // endpoints agrees with the conic in position and tangent direction.
@@ -530,67 +668,63 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         var cy = (pt1.gx * pt2.dot - pt2.gx * pt1.dot) * denom;
         if (!(isFinite(cx) && isFinite(cy))) // Probably already linear
             return csctx.lineTo(pt2.px, pt2.py);
-        if (depth < 10) {
-            // Compute pt3 as the intersection of the segment (hx|hy) & (cx|cy) and the conic
+        do { // so break defaults to single curve and return skips that
+            if (depth > 10)
+                break;
+            // Compute pt3 as the intersection of the segment h-c and the conic
             var hx = 0.5 * (pt1.px + pt2.px);
             var hy = 0.5 * (pt1.py + pt2.py);
-            var rdx = cx - hx;
-            var rdy = cy - hy;
-            if (rdx * rdx + rdy * rdy > 0.25) { // compare to the distance in pixels squared
-                var ua = c20 * rdx * rdx + c11 * rdx * rdy + c02 * rdy * rdy;
-                var hrxy = hy * rdx - hx * rdy;
-                var sol, pt3 = null;
-                if (Math.abs(rdy) < Math.abs(rdx)) { // Avoids divide by zero
-                    sol = solveRealQuadraticX(ua,
-                        rdx * (c10 * rdx + c01 * rdy) + (c11 * rdx + 2 * c02 * rdy) * hrxy,
-                        c00 * rdx * rdx + (c01 * rdx + c02 * hrxy) * hrxy);
-                    if (sol) {
-                        var x3 = sol.length > 1 && inRange(sol[1], hx, cx) ? sol[1] : sol[0];
-                        pt3 = mkp(x3, hy + rdy * (x3 - hx) / rdx);
-                    }
-                } else {
-                    sol = solveRealQuadraticX(ua,
-                        rdy * (c10 * rdx + c01 * rdy) - (c11 * rdy + 2 * c20 * rdx) * hrxy,
-                        c00 * rdy * rdy - (c10 * rdy - c20 * hrxy) * hrxy);
-                    if (sol) {
-                        var y3 = sol.length > 1 && inRange(sol[1], hy, cy) ? sol[1] : sol[0];
-                        pt3 = mkp(hx + rdx * (y3 - hy) / rdy, y3);
-                    }
-                }
-                if (pt3) {
-                    // The midpoint (mx|my) of the control point (cx|cy) and the
-                    // midpoint of pt1 and pt2 (hx|hy) lies on the Bézier curve
-                    var mx = 0.5 * (cx + hx);
-                    var my = 0.5 * (cy + hy);
-                    var dx = pt3.px - mx;
-                    var dy = pt3.py - my;
-                    if (dx * dx + dy * dy > 0.25) { // compare to the distance in pixels squared
-                        refine(pt1, pt3, sign, depth + 1);
-                        refine(pt3, pt2, sign, depth + 1);
-                        return;
-                    }
-                }
+            var dx = cx - hx;
+            var dy = cy - hy;
+            if (dx * dx + dy * dy < maxError)
+                break;
+            // using d=(dx,dy,0) and h=(hx,hy,1) compute bilinear forms
+            var dMd = c20 * dx * dx + c11 * dx * dy + c02 * dy * dy;
+            var dMh = 2 * c20 * dx * hx + c11 * (dx * hy + dy * hx) +
+                2 * c02 * dy * hy + c10 * dx + c01 * dy;
+            var hMh = (c20 * hx + c11 * hy + c10) * hx +
+                (c02 * hy + c01) * hy + c00;
+            var sol = solveRealQuadratic(dMd, dMh, hMh);
+            if (!sol) {
+                // discriminant is probably slightly negative due to error.
+                // The following values SHOULD be pretty much identical now.
+                sol = [-0.5 * dMh / dMd, -2 * hMh / dMh];
             }
-        }
+            // Now we have to points, h + sol[i] * d, and have to pick one.
+            if (sol[0] > sol[1])
+                sol = [sol[1], sol[0]];
+            var between = 0.5 * (sol[0] + sol[1]);
+            var signBetween = sign(hx + between * dx, hy + between * dy);
+            var signH = sign(hx, hy);
+            if (signBetween * signH === -1) {
+                // h is outside the pair of roots, so both of these
+                // should be positive and we pick the one which is closer
+                sol = sol[0];
+            } else if (signBetween * signH === 1) {
+                // h is between, so one root should be negative and
+                // one positiv, and we pick the positive as it's the
+                // one in the right direction
+                sol = sol[1];
+            } else { // signs messed up, got a NaN somewhere in there
+                break;
+            }
+            var x3 = hx + sol * dx;
+            var y3 = hy + sol * dy;
+            // The point m = (c+h)/2 lies on the Bézier curve
+            var mx = 0.5 * (cx + hx);
+            var my = 0.5 * (cy + hy);
+            var ex = x3 - mx;
+            var ey = y3 - my;
+            if (ex * ex + ey * ey < maxError)
+                break;
+            var pt3 = mkp(x3, y3);
+            refine(pt1, pt3, depth + 1);
+            refine(pt3, pt2, depth + 1);
+            return;
+        } while (false);
         csctx.quadraticCurveTo(cx, cy, pt2.px, pt2.py);
     }
 
-    csctx.beginPath();
-    for (i = 0; i < starts.length; ++i) {
-        var pt0 = (pt = starts[i]);
-        if (!pt.next) continue;
-        csctx.moveTo(pt.px, pt.py);
-        while (pt.next) {
-            refine(pt, pt.next, pt.sign, 0);
-            pt = pt.next;
-            if (pt === pt0) {
-                // completed the cycle
-                csctx.closePath();
-                break;
-            }
-        }
-    }
-    csctx.stroke();
 }; // end eval_helper.drawconic
 
 evaluator.drawall$1 = function(args, modifs) {
