@@ -629,16 +629,14 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         // Cyclically iterate over each pair of subsequent boundary points.
         // Join them and intersect them with the line at infinity.
         // The sign of that intersection... TODO
-        var ptA = boundary[3];
         var best = 0;
-        for (i = 0; i < 4; ++i) {
-            var ptB = boundary[i];
+        for (i = 0; i < 2; ++i) {
+            var ptA = boundary[i];
+            var ptB = boundary[i + 2];
             var dx = ptB.px - ptA.px;
             var dy = ptB.py - ptA.py;
             // compute sign at infinity
             var s = (c20 * dx + c11 * dy) * dx + c02 * dy * dy;
-            // factor in sign of current arc
-            s *= tl * (1 - 2 * (i & 1));
             if (Math.abs(s) > Math.abs(best))
                 best = s;
             ptA = ptB;
@@ -646,7 +644,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         if (isNaN(best))
             return;
         best *= tl;
-        for (i = (best >= 0 ? 0 : 1); i < 4; i += 2) {
+        for (i = (best >= 0 ? 1 : 0); i < 4; i += 2) {
             csctx.moveTo(boundary[i].px, boundary[i].py);
             refine(boundary[i], boundary[(i + 1) & 3], 0);
         }
