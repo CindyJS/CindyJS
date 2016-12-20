@@ -470,9 +470,21 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     var c02 = mat.value[1].value[1].value.real;
     var c01 = mat.value[1].value[2].value.real * 2;
     var c00 = mat.value[2].value[2].value.real;
-    var discr = c20 * c02 * 4 - c11 * c11;
-    var det = discr * c00 + c11 * c01 * c10 -
-        c20 * c01 * c01 - c02 * c10 * c10;
+
+    // The adjoint matrix k## values
+    var k20 = 4 * c00 * c02 - c01 * c01;
+    var k11 = c01 * c10 - 2 * c00 * c11;
+    var k10 = c01 * c11 - 2 * c02 * c10;
+    var k02 = 4 * c00 * c20 - c10 * c10;
+    var k01 = c10 * c11 - 2 * c01 * c20;
+    var k00 = 4 * c02 * c20 - c11 * c11;
+
+    var discr = k00;
+    var det = c02 * k02 + c11 * k11 + c20 * k20 - c00 * k00;
+
+    // conic center
+    var ccx = k10 / k00;
+    var ccy = k01 / k00;
 
     if (det < 0) {
         c20 = -c20;
@@ -571,10 +583,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
 
         // Compute the roots of the y discriminant
         // for points with vertical tangents
-        sol = solveRealQuadratic(
-            discr,
-            4 * c10 * c02 - 2 * c01 * c11,
-            4 * c00 * c02 - c01 * c01);
+        sol = solveRealQuadratic(k00, -2 * k10, k20);
         if (sol) {
             for (i = 0; i < 2; ++i)
                 if (sol[i] >= 0 && sol[i] <= csw)
@@ -584,10 +593,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
 
         // Compute the roots of the x discriminant
         // for points with horizontal tangents
-        sol = solveRealQuadratic(
-            discr,
-            4 * c01 * c20 - 2 * c10 * c11,
-            4 * c00 * c20 - c10 * c10);
+        sol = solveRealQuadratic(k00, -2 * k01, k02);
         if (sol) {
             for (i = 0; i < 2; ++i)
                 if (sol[i] >= 0 && sol[i] <= csh)
@@ -598,18 +604,14 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         if (boundary.length === initialLength)
             return false;
 
-        // center: [2*c20, c11, c10] x [c11, 2*c02, c01]
-        var z = 4 * c20 * c02 - c11 * c11;
-        x = (c11 * c01 - 2 * c10 * c02) / z;
-        y = (c10 * c11 - 2 * c20 * c01) / z;
         if (csctx.special) { // begin DEBUG code
-            csctx.special.push([x, y]);
+            csctx.special.push([ccx, ccy]);
             for (i = initialLength; i < boundary.length; ++i)
                 csctx.special.push([boundary[i].px, boundary[i].py]);
         } // end DEBUG code
         for (i = 0; i < boundary.length; ++i)
             boundary[i].angle = Math.atan2(
-                boundary[i].py - y, boundary[i].px - x);
+                boundary[i].py - ccy, boundary[i].px - ccx);
         boundary.sort(function(a, b) {
             return b.angle - a.angle; // counter-clockwise in y is down cosy
         });
@@ -693,16 +695,18 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     // Find the control points of a quadratic Bézier which at the
     // endpoints agrees with the conic in position and tangent direction.
     function refine(pt1, pt2, depth) {
-        // (x - pt1.px) * pt1.gx + (y - pt1.py) * pt1.gy = 0
-        // x * pt1.gx + y * pt1.gy = pt1.dot
-        // x * pt2.gx + y * pt2.gy = pt2.dot
-        // Solve using Cramer's rule
-        var denom = 1 / (pt1.gx * pt2.gy - pt2.gx * pt1.gy);
-        if (Math.abs(denom) > 1e12)
+        // u is the line joining pt1 and pt2
+        var ux = pt1.py - pt2.py;
+        var uy = pt2.px - pt1.px;
+        var uz = pt1.px * pt2.py - pt1.py * pt2.px;
+        // c is the proposed control point, computed as pole of u
+        var cz = k10 * ux + k01 * uy + k00 * uz;
+        if (Math.abs(cz) < eps)
             return csctx.lineTo(pt2.px, pt2.py);
-        var cx = (pt1.dot * pt2.gy - pt2.dot * pt1.gy) * denom;
-        var cy = (pt1.gx * pt2.dot - pt2.gx * pt1.dot) * denom;
-        if (!(isFinite(cx) && isFinite(cy))) // Probably already linear
+        var cx = (k20 * ux + k11 * uy + k10 * uz) / cz;
+        var cy = (k11 * ux + k02 * uy + k01 * uz) / cz;
+        if (!(isFinite(cx) && isFinite(cy))) // probably already linear
+            return csctx.lineTo(pt2.px, pt2.py);
             return csctx.lineTo(pt2.px, pt2.py);
         do { // so break defaults to single curve and return skips that
             if (depth > 10)
