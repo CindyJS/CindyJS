@@ -563,7 +563,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         return;
 
     var closedEllipse = null;
-    if (boundary.length === 0 || discr > eps) {
+    if (boundary.length === 0) {
         if (discr < 0) // hyperbola
             return; // doesn't intersect, so there is nothing to draw
         // Might be ellipse fully contained in drawing area; segment it
@@ -580,10 +580,8 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             return;
         if (sol[0] > sol[1])
             sol = [sol[1], sol[0]];
-        /*
-        if (!(sol[0] >= 0 && sol[1] <= csw))
+        if (!(sol[0] >= -eps && sol[1] <= csw + eps))
             return;
-        */
         for (i = 0; i < 2; ++i)
             closedEllipse[2 * i] =
             mkp(sol[i], -0.5 * (c11 * sol[i] + c01) / c02);
@@ -600,14 +598,11 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             return;
         if (sol[0] > sol[1])
             sol = [sol[1], sol[0]];
-        /*
-        if (!(sol[0] >= 0 && sol[1] <= csh))
+        if (!(sol[0] >= -eps && sol[1] <= csh + eps))
             return;
-        */
         for (i = 0; i < 2; ++i)
             closedEllipse[2 * i + 1] =
             mkp(-0.5 * (c11 * sol[i] + c10) / c20, sol[i]);
-        console.log(closedEllipse);
     }
 
     csctx.beginPath();
@@ -617,8 +612,61 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             refine(closedEllipse[i], closedEllipse[(i + 1) & 3], 0);
         csctx.closePath();
     } else if (boundary.length === 2) {
+        if (discr > 0) {
+            // Compute the roots of the y discriminant
+            // for points with vertical tangents
+            sol = solveRealQuadratic(
+                discr,
+                4 * c10 * c02 - 2 * c01 * c11,
+                4 * c00 * c02 - c01 * c01);
+            if (sol)
+                for (i = 0; i < 2; ++i)
+                    if (sol[i] >= 0 && sol[i] <= csw)
+                        boundary.push(
+                            mkp(sol[i], -0.5 * (c11 * sol[i] + c01) / c02));
+
+            // Compute the roots of the x discriminant
+            // for points with horizontal tangents
+            sol = solveRealQuadratic(
+                discr,
+                4 * c01 * c20 - 2 * c10 * c11,
+                4 * c00 * c20 - c10 * c10);
+            if (sol)
+                for (i = 0; i < 2; ++i)
+                    if (sol[i] >= 0 && sol[i] <= csh)
+                        boundary.push(
+                            mkp(-0.5 * (c11 * sol[i] + c10) / c20, sol[i]));
+
+            if (boundary.length > 2) {
+                // center: [2*c20, c11, c10] x [c11, 2*c02, c01]
+                var z = 4 * c20 * c02 - c11 * c11;
+                x = (c11 * c01 - 2 * c10 * c02) / z;
+                y = (c10 * c11 - 2 * c20 * c01) / z;
+                if (csctx.special) csctx.special.push([x, y]);
+                for (i = 0; i < boundary.length; ++i)
+                    boundary[i].angle = Math.atan2(
+                        boundary[i].py - y, boundary[i].px - x);
+                var p0 = boundary[0];
+                var p1 = boundary[1];
+                boundary.sort(function(a, b) {
+                    return b.angle - a.angle;
+                });
+                var i0 = boundary.indexOf(p0);
+                var i1 = boundary.indexOf(p1);
+                var iMin = Math.min(i0, i1);
+                var iMax = Math.max(i0, i1);
+                if (!(iMin === 0 && iMax === boundary.length - 1))
+                    boundary = boundary.slice(iMax).concat(
+                        boundary.slice(0, iMin + 1));
+            }
+        }
+        if (csctx.special)
+            boundary.forEach(function(pt) {
+                csctx.special.push([pt.px, pt.py]);
+            });
         csctx.moveTo(boundary[0].px, boundary[0].py);
-        refine(boundary[0], boundary[1], 0);
+        for (i = 1; i < boundary.length; ++i)
+            refine(boundary[i - 1], boundary[i], 0);
     } else if (boundary.length > 4) {
         // Ellipse; we always connect points spanning an outside segment.
         for (i = (tl === 1 ? 0 : 1); i < boundary.length; i += 2) {
