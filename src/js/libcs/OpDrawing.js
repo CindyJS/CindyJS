@@ -508,11 +508,10 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         return NaN;
     }
 
-    // Represent point on conic including gradient directions
     function mkp(x, y) {
         return {
-            px: x,
-            py: y,
+            x: x,
+            y: y,
         };
     }
 
@@ -600,11 +599,11 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         if (csctx.special) { // begin DEBUG code
             csctx.special.push([ccx, ccy]);
             for (i = initialLength; i < boundary.length; ++i)
-                csctx.special.push([boundary[i].px, boundary[i].py]);
+                csctx.special.push([boundary[i].x, boundary[i].y]);
         } // end DEBUG code
         for (i = 0; i < boundary.length; ++i)
             boundary[i].angle = Math.atan2(
-                boundary[i].py - ccy, boundary[i].px - ccx);
+                boundary[i].y - ccy, boundary[i].x - ccx);
         boundary.sort(function(a, b) {
             return b.angle - a.angle; // counter-clockwise in y is down cosy
         });
@@ -616,15 +615,15 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         segmentEllipse();
         if (boundary.length !== 4)
             return;
-        csctx.moveTo(boundary[0].px, boundary[0].py);
+        csctx.moveTo(boundary[0].x, boundary[0].y);
         for (i = 0; i < 4; ++i)
-            refine(boundary[i], boundary[(i + 1) & 3], 0);
+            drawArc(boundary[i], boundary[(i + 1) & 3]);
         csctx.closePath();
     } else if (boundary.length > 4) {
         // Ellipse; we always connect points spanning an outside segment.
         for (i = (tl === 1 ? 0 : 1); i < boundary.length; i += 2) {
-            csctx.moveTo(boundary[i].px, boundary[i].py);
-            refine(boundary[i], boundary[(i + 1) % boundary.length], 0);
+            csctx.moveTo(boundary[i].x, boundary[i].y);
+            drawArc(boundary[i], boundary[(i + 1) % boundary.length]);
         }
     } else if (boundary.length === 2) {
         var p0 = boundary[0];
@@ -638,9 +637,9 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
                 boundary = boundary.slice(iMax).concat(
                     boundary.slice(0, iMin + 1));
         }
-        csctx.moveTo(boundary[0].px, boundary[0].py);
+        csctx.moveTo(boundary[0].x, boundary[0].y);
         for (i = 1; i < boundary.length; ++i)
-            refine(boundary[i - 1], boundary[i], 0);
+            drawArc(boundary[i - 1], boundary[i]);
     } else { // 4 points of intersection
         // We have 4 points of intersection.  For a hyperbola, these
         // may belong to different branches.  If the line joining them
@@ -655,8 +654,8 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         for (i = 0; i < 2; ++i) {
             var ptA = boundary[i];
             var ptB = boundary[i + 2];
-            var dx = ptB.px - ptA.px;
-            var dy = ptB.py - ptA.py;
+            var dx = ptB.x - ptA.x;
+            var dy = ptB.y - ptA.y;
             // compute sign at infinity
             var s = (c20 * dx + c11 * dy) * dx + c02 * dy * dy;
             if (Math.abs(s) > Math.abs(best))
@@ -677,40 +676,43 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             var end = start.end;
             if (!end)
                 continue;
-            csctx.moveTo(start.px, start.py);
+            csctx.moveTo(start.x, start.y);
             for (var j = i; boundary[j] !== end; ++j)
-                refine(boundary[j], boundary[j + 1], 0);
+                drawArc(boundary[j], boundary[j + 1]);
         }
     }
     csctx.stroke();
 
+    function drawArc(pt1, pt2) {
+        refine(pt1.x, pt1.y, pt2.x, pt2.y, 0);
+    }
 
     // Find the control points of a quadratic Bézier which at the
     // endpoints agrees with the conic in position and tangent direction.
-    function refine(pt1, pt2, depth) {
+    function refine(x1, y1, x2, y2, depth) {
         // u is the line joining pt1 and pt2
-        var ux = pt1.py - pt2.py;
-        var uy = pt2.px - pt1.px;
-        var uz = pt1.px * pt2.py - pt1.py * pt2.px;
+        var ux = y1 - y2;
+        var uy = x2 - x1;
+        var uz = x1 * y2 - y1 * x2;
         // c is the proposed control point, computed as pole of u
         var cz = k10 * ux + k01 * uy + k00 * uz;
         if (Math.abs(cz) < eps)
-            return csctx.lineTo(pt2.px, pt2.py);
+            return csctx.lineTo(x2, y2);
         var cx = (k20 * ux + k11 * uy + k10 * uz) / cz;
         var cy = (k11 * ux + k02 * uy + k01 * uz) / cz;
         if (!(isFinite(cx) && isFinite(cy))) // probably already linear
-            return csctx.lineTo(pt2.px, pt2.py);
+            return csctx.lineTo(x2, y2);
         var area = Math.abs(
-            pt1.px * cy + cx * pt2.py + pt2.px * pt1.py -
-                pt2.px * cy - cx * pt1.py - pt1.px * pt2.py);
+            x1 * cy + cx * y2 + x2 * y1 -
+                x2 * cy - cx * y1 - x1 * y2);
         if (area < maxError) // looks linear, too
-            return csctx.lineTo(pt2.px, pt2.py);
+            return csctx.lineTo(x2, y2);
         do { // so break defaults to single curve and return skips that
             if (depth > 10)
                 break;
             // Compute pt3 as the intersection of the segment h-c and the conic
-            var hx = 0.5 * (pt1.px + pt2.px);
-            var hy = 0.5 * (pt1.py + pt2.py);
+            var hx = 0.5 * (x1 + x2);
+            var hy = 0.5 * (y1 + y2);
             var dx = cx - hx;
             var dy = cy - hy;
             if (dx * dx + dy * dy < maxError)
@@ -754,12 +756,11 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             var ey = y3 - my;
             if (ex * ex + ey * ey < maxError)
                 break;
-            var pt3 = mkp(x3, y3);
-            refine(pt1, pt3, depth + 1);
-            refine(pt3, pt2, depth + 1);
+            refine(x1, y1, x3, y3, depth + 1);
+            refine(x3, y3, x2, y2, depth + 1);
             return;
         } while (false);
-        csctx.quadraticCurveTo(cx, cy, pt2.px, pt2.py);
+        csctx.quadraticCurveTo(cx, cy, x2, y2);
     }
 
 }; // end eval_helper.drawconic
