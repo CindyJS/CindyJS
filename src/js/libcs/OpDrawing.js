@@ -563,12 +563,11 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             doBoundary(tl, tr, xTop, 0, 0, 0, -1, csw)))
         return;
 
-    var closedEllipse = null;
-    if (boundary.length === 0) {
-        if (discr < 0) // hyperbola
-            return; // doesn't intersect, so there is nothing to draw
-        // Might be ellipse fully contained in drawing area; segment it
-        closedEllipse = [null, null, null, null];
+    function segmentEllipse() {
+        if (discr <= 0)
+            return false;
+
+        var initialLength = boundary.length;
 
         // Compute the roots of the y discriminant
         // for points with vertical tangents
@@ -576,17 +575,12 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             discr,
             4 * c10 * c02 - 2 * c01 * c11,
             4 * c00 * c02 - c01 * c01);
-        console.log(sol);
-        if (!sol)
-            return;
-        if (sol[0] > sol[1])
-            sol = [sol[1], sol[0]];
-        if (!(sol[0] >= -eps && sol[1] <= csw + eps))
-            return;
-        for (i = 0; i < 2; ++i)
-            closedEllipse[2 * i] =
-            mkp(sol[i], -0.5 * (c11 * sol[i] + c01) / c02);
-        console.log(closedEllipse);
+        if (sol) {
+            for (i = 0; i < 2; ++i)
+                if (sol[i] >= 0 && sol[i] <= csw)
+                    boundary.push(
+                        mkp(sol[i], -0.5 * (c11 * sol[i] + c01) / c02));
+        }
 
         // Compute the roots of the x discriminant
         // for points with horizontal tangents
@@ -594,89 +588,65 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             discr,
             4 * c01 * c20 - 2 * c10 * c11,
             4 * c00 * c20 - c10 * c10);
-        console.log(sol);
-        if (!sol)
-            return;
-        if (sol[0] > sol[1])
-            sol = [sol[1], sol[0]];
-        if (!(sol[0] >= -eps && sol[1] <= csh + eps))
-            return;
-        for (i = 0; i < 2; ++i)
-            closedEllipse[2 * i + 1] =
-            mkp(-0.5 * (c11 * sol[i] + c10) / c20, sol[i]);
+        if (sol) {
+            for (i = 0; i < 2; ++i)
+                if (sol[i] >= 0 && sol[i] <= csh)
+                    boundary.push(
+                        mkp(-0.5 * (c11 * sol[i] + c10) / c20, sol[i]));
+        }
+
+        if (boundary.length === initialLength)
+            return false;
+
+        // center: [2*c20, c11, c10] x [c11, 2*c02, c01]
+        var z = 4 * c20 * c02 - c11 * c11;
+        x = (c11 * c01 - 2 * c10 * c02) / z;
+        y = (c10 * c11 - 2 * c20 * c01) / z;
+        if (csctx.special) { // begin DEBUG code
+            csctx.special.push([x, y]);
+            for (i = initialLength; i < boundary.length; ++i)
+                csctx.special.push([boundary[i].px, boundary[i].py]);
+        } // end DEBUG code
+        for (i = 0; i < boundary.length; ++i)
+            boundary[i].angle = Math.atan2(
+                boundary[i].py - y, boundary[i].px - x);
+        boundary.sort(function(a, b) {
+            return b.angle - a.angle; // counter-clockwise in y is down cosy
+        });
+        return true;
     }
 
     csctx.beginPath();
-    if (closedEllipse) {
-        csctx.moveTo(closedEllipse[0].px, closedEllipse[0].py);
-        for (i = 0; i < 4; ++i)
-            refine(closedEllipse[i], closedEllipse[(i + 1) & 3], 0);
-        csctx.closePath();
-    } else if (boundary.length === 2) {
-        if (discr > 0) {
-            // Compute the roots of the y discriminant
-            // for points with vertical tangents
-            sol = solveRealQuadratic(
-                discr,
-                4 * c10 * c02 - 2 * c01 * c11,
-                4 * c00 * c02 - c01 * c01);
-            if (sol) {
-                for (i = 0; i < 2; ++i)
-                    if (sol[i] >= 0 && sol[i] <= csw)
-                        boundary.push(
-                            mkp(sol[i], -0.5 * (c11 * sol[i] + c01) / c02));
-            }
-
-            // Compute the roots of the x discriminant
-            // for points with horizontal tangents
-            sol = solveRealQuadratic(
-                discr,
-                4 * c01 * c20 - 2 * c10 * c11,
-                4 * c00 * c20 - c10 * c10);
-            if (sol) {
-                for (i = 0; i < 2; ++i)
-                    if (sol[i] >= 0 && sol[i] <= csh)
-                        boundary.push(
-                            mkp(-0.5 * (c11 * sol[i] + c10) / c20, sol[i]));
-            }
-
-            if (boundary.length > 2) {
-                // center: [2*c20, c11, c10] x [c11, 2*c02, c01]
-                var z = 4 * c20 * c02 - c11 * c11;
-                x = (c11 * c01 - 2 * c10 * c02) / z;
-                y = (c10 * c11 - 2 * c20 * c01) / z;
-                if (csctx.special) csctx.special.push([x, y]);
-                for (i = 0; i < boundary.length; ++i)
-                    boundary[i].angle = Math.atan2(
-                        boundary[i].py - y, boundary[i].px - x);
-                var p0 = boundary[0];
-                var p1 = boundary[1];
-                boundary.sort(function(a, b) {
-                    return b.angle - a.angle;
-                });
-                var i0 = boundary.indexOf(p0);
-                var i1 = boundary.indexOf(p1);
-                var iMin = Math.min(i0, i1);
-                var iMax = Math.max(i0, i1);
-                if (!(iMin === 0 && iMax === boundary.length - 1))
-                    boundary = boundary.slice(iMax).concat(
-                        boundary.slice(0, iMin + 1));
-            }
-        }
-        if (csctx.special)
-            boundary.forEach(function(pt) {
-                csctx.special.push([pt.px, pt.py]);
-            });
+    if (boundary.length === 0) {
+        segmentEllipse();
+        if (boundary.length !== 4)
+            return;
         csctx.moveTo(boundary[0].px, boundary[0].py);
-        for (i = 1; i < boundary.length; ++i)
-            refine(boundary[i - 1], boundary[i], 0);
+        for (i = 0; i < 4; ++i)
+            refine(boundary[i], boundary[(i + 1) & 3], 0);
+        csctx.closePath();
     } else if (boundary.length > 4) {
         // Ellipse; we always connect points spanning an outside segment.
         for (i = (tl === 1 ? 0 : 1); i < boundary.length; i += 2) {
             csctx.moveTo(boundary[i].px, boundary[i].py);
             refine(boundary[i], boundary[(i + 1) % boundary.length], 0);
         }
-    } else {
+    } else if (boundary.length === 2) {
+        var p0 = boundary[0];
+        var p1 = boundary[1];
+        if (segmentEllipse()) {
+            var i0 = boundary.indexOf(p0);
+            var i1 = boundary.indexOf(p1);
+            var iMin = Math.min(i0, i1);
+            var iMax = Math.max(i0, i1);
+            if (!(iMin === 0 && iMax === boundary.length - 1))
+                boundary = boundary.slice(iMax).concat(
+                    boundary.slice(0, iMin + 1));
+        }
+        csctx.moveTo(boundary[0].px, boundary[0].py);
+        for (i = 1; i < boundary.length; ++i)
+            refine(boundary[i - 1], boundary[i], 0);
+    } else { // 4 points of intersection
         // We have 4 points of intersection.  For a hyperbola, these
         // may belong to different branches.  If the line joining them
         // intersects the line at infinity on the inside, they belong
@@ -701,9 +671,20 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         if (isNaN(best))
             return;
         best *= tl;
-        for (i = (best >= 0 ? 1 : 0); i < 4; i += 2) {
-            csctx.moveTo(boundary[i].px, boundary[i].py);
-            refine(boundary[i], boundary[(i + 1) & 3], 0);
+        for (i = (best >= 0 ? 1 : 0); i < 4; i += 2)
+            boundary[i].end = boundary[(i + 1) & 3];
+
+        segmentEllipse();
+        var n = boundary.length;
+        boundary = boundary.concat(boundary); // wrap around
+        for (i = 0; i < n; ++i) {
+            var start = boundary[i];
+            var end = start.end;
+            if (!end)
+                continue;
+            csctx.moveTo(start.px, start.py);
+            for (var j = i; boundary[j] !== end; ++j)
+                refine(boundary[j], boundary[j + 1], 0);
         }
     }
     csctx.stroke();
