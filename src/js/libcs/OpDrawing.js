@@ -510,16 +510,9 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
 
     // Represent point on conic including gradient directions
     function mkp(x, y) {
-        var gx = 2 * c20 * x + c11 * y + c10; // dQ/dx
-        var gy = 2 * c02 * y + c11 * x + c01; // dQ/dy
         return {
             px: x,
             py: y,
-            gx: gx,
-            gy: gy,
-            dot: x * gx + y * gy,
-            finite: isFinite(x) && isFinite(y) &&
-                isFinite(gx) && isFinite(gy)
         };
     }
 
@@ -707,6 +700,10 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         var cy = (k11 * ux + k02 * uy + k01 * uz) / cz;
         if (!(isFinite(cx) && isFinite(cy))) // probably already linear
             return csctx.lineTo(pt2.px, pt2.py);
+        var area = Math.abs(
+            pt1.px * cy + cx * pt2.py + pt2.px * pt1.py -
+                pt2.px * cy - cx * pt1.py - pt1.px * pt2.py);
+        if (area < maxError) // looks linear, too
             return csctx.lineTo(pt2.px, pt2.py);
         do { // so break defaults to single curve and return skips that
             if (depth > 10)
