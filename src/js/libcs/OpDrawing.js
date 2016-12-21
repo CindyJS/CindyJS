@@ -540,13 +540,13 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             if (sol === null) // have zero intersections
                 return true;
             coord = 0.5 * (sol[0] + sol[1]);
-            if (coord < 0 || coord > extent)
+            if (!(coord > 0 && coord < extent))
                 return true;
             var signMid = sign((1 - axis) * coord + x, axis * coord + y);
             if (signMid === sign1) // intersections outside segment
                 return true;
             if (isNaN(signMid))
-                return false;
+                return true;
             // Have two points of solution
             sort = sort * (sol[1] - sol[0]) > 0 ? 0 : 1;
             coord = sol[sort];
