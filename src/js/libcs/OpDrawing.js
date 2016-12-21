@@ -677,9 +677,15 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             refine(boundary[i], boundary[(i + 1) % boundary.length], 0);
         }
     } else {
-        // Cyclically iterate over each pair of subsequent boundary points.
-        // Join them and intersect them with the line at infinity.
-        // The sign of that intersection... TODO
+        // We have 4 points of intersection.  For a hyperbola, these
+        // may belong to different branches.  If the line joining them
+        // intersects the line at infinity on the inside, they belong
+        // to different branches and the boundary between the points
+        // we want to connect is on the inside es well.  If the line
+        // intersects infinity on the outside, they belong to the same
+        // branch and we want to connect points which have some
+        // outside boundary between them.  We do the computation twice
+        // and take the stronger signal, i.e. larger absolute value.
         var best = 0;
         for (i = 0; i < 2; ++i) {
             var ptA = boundary[i];
