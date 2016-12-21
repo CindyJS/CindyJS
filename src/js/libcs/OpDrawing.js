@@ -442,7 +442,7 @@ DbgCtx.prototype = {
 };
 
 eval_helper.drawconic = function(conicMatrix, modifs) {
-    var csctx = new DbgCtx();
+    //var csctx = new DbgCtx();
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     if (Render2D.lsize === 0)
         return;
