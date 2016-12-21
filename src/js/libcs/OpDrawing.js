@@ -527,18 +527,19 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     var boundary = [];
 
     function doBoundary(sign1, sign2, sol, x, y, axis, sort, extent) {
+        var coord;
         if (sign1 !== sign2) { // we need exactly one point of intersection
             if (sol === null)
                 return false;
             var center = extent * 0.5;
             var dist0 = Math.abs(center - sol[0]);
             var dist1 = Math.abs(center - sol[1]);
-            var coord = sol[dist0 < dist1 ? 0 : 1];
+            coord = sol[dist0 < dist1 ? 0 : 1];
             boundary.push(mkp((1 - axis) * coord + x, axis * coord + y));
         } else { // we need zero or two points of intersection
             if (sol === null) // have zero intersections
                 return true;
-            var coord = 0.5 * (sol[0] + sol[1]);
+            coord = 0.5 * (sol[0] + sol[1]);
             if (coord < 0 || coord > extent)
                 return true;
             var signMid = sign((1 - axis) * coord + x, axis * coord + y);
@@ -619,11 +620,12 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
                 discr,
                 4 * c10 * c02 - 2 * c01 * c11,
                 4 * c00 * c02 - c01 * c01);
-            if (sol)
+            if (sol) {
                 for (i = 0; i < 2; ++i)
                     if (sol[i] >= 0 && sol[i] <= csw)
                         boundary.push(
                             mkp(sol[i], -0.5 * (c11 * sol[i] + c01) / c02));
+            }
 
             // Compute the roots of the x discriminant
             // for points with horizontal tangents
@@ -631,11 +633,12 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
                 discr,
                 4 * c01 * c20 - 2 * c10 * c11,
                 4 * c00 * c20 - c10 * c10);
-            if (sol)
+            if (sol) {
                 for (i = 0; i < 2; ++i)
                     if (sol[i] >= 0 && sol[i] <= csh)
                         boundary.push(
                             mkp(-0.5 * (c11 * sol[i] + c10) / c20, sol[i]));
+            }
 
             if (boundary.length > 2) {
                 // center: [2*c20, c11, c10] x [c11, 2*c02, c01]
