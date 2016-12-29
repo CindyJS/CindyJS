@@ -735,19 +735,15 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             // Now we have to points, h + sol[i] * d, and have to pick one.
             if (sol[0] > sol[1])
                 sol = [sol[1], sol[0]];
-            var between = 0.5 * (sol[0] + sol[1]);
-            var signBetween = sign(hx + between * dx, hy + between * dy);
-            var signH = sign(hx, hy);
-            if (signBetween * signH === -1) {
-                // h is outside the pair of roots, so both of these
-                // should be positive and we pick the one which is closer
+            if (sol[0] > 0) {
+                // both roots positive, so we pick the one which is closer
                 sol = sol[0];
-            } else if (signBetween * signH === 1) {
-                // h is between, so one root should be negative and
-                // one positiv, and we pick the positive as it's the
-                // one in the right direction
+            } else if (sol[1] >= 0) {
+                // one root negative one positive, so we pick the one
+                // in the positive direction
                 sol = sol[1];
-            } else { // signs messed up, got a NaN somewhere in there
+            } else {
+                // signs messed up somehow, so try to recover gracefully
                 break;
             }
             var x3 = hx + sol * dx;
