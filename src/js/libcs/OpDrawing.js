@@ -531,14 +531,30 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
     var boundary = [];
 
     function doBoundary(sign1, sign2, sol, x, y, axis, sort, extent) {
-        var coord;
+        var coord, signMid;
         if (sign1 !== sign2) { // we need exactly one point of intersection
             if (sol === null)
                 return false;
-            var center = extent * 0.5;
-            var dist0 = Math.abs(center - sol[0]);
-            var dist1 = Math.abs(center - sol[1]);
-            coord = sol[dist0 < dist1 ? 0 : 1];
+            coord = 0.5 * (sol[0] + sol[1]);
+            if (coord > 0 && coord < extent) {
+                // solutions might be close to opposite corners,
+                // so we use the sign to pick the appropriate one
+                if (sol[0] > sol[1])
+                    sol = [sol[1], sol[0]];
+                signMid = sign((1 - axis) * coord + x, axis * coord + y);
+                // We have two possible arrangements or corners and crossings:
+                //          sign1 == signMid != sign2
+                //    sol[0]               sol[1]
+                // sign1 != signMid == sign2
+                coord = sol[signMid === sign2 ? 0 : 1];
+            } else {
+                // solutions will be off to one side, so we pick the
+                // one which is closer to the center of this egde
+                var center = extent * 0.5;
+                var dist0 = Math.abs(center - sol[0]);
+                var dist1 = Math.abs(center - sol[1]);
+                coord = sol[dist0 < dist1 ? 0 : 1];
+            }
             boundary.push(mkp((1 - axis) * coord + x, axis * coord + y));
         } else { // we need zero or two points of intersection
             if (sol === null) // have zero intersections
@@ -546,7 +562,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             coord = 0.5 * (sol[0] + sol[1]);
             if (!(coord > 0 && coord < extent))
                 return true;
-            var signMid = sign((1 - axis) * coord + x, axis * coord + y);
+            signMid = sign((1 - axis) * coord + x, axis * coord + y);
             if (signMid === sign1) // intersections outside segment
                 return true;
             if (isNaN(signMid))
