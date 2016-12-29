@@ -572,26 +572,29 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             return false;
 
         var initialLength = boundary.length;
+        var x, y;
 
         // Compute the roots of the y discriminant
         // for points with vertical tangents
         sol = solveRealQuadratic(k00, -2 * k10, k20);
-        if (sol) {
-            for (i = 0; i < 2; ++i)
-                if (sol[i] >= 0 && sol[i] <= csw)
-                    boundary.push(
-                        mkp(sol[i], -0.5 * (c11 * sol[i] + c01) / c02));
-        }
+        if (sol)
+            for (i = 0; i < 2; ++i) {
+                x = sol[i];
+                y = -0.5 * (c11 * x + c01) / c02;
+                if (x >= 0 && x <= csw && y >= 0 && y <= csh)
+                    boundary.push(mkp(x, y));
+            }
 
         // Compute the roots of the x discriminant
         // for points with horizontal tangents
         sol = solveRealQuadratic(k00, -2 * k01, k02);
-        if (sol) {
-            for (i = 0; i < 2; ++i)
-                if (sol[i] >= 0 && sol[i] <= csh)
-                    boundary.push(
-                        mkp(-0.5 * (c11 * sol[i] + c10) / c20, sol[i]));
-        }
+        if (sol)
+            for (i = 0; i < 2; ++i) {
+                y = sol[i];
+                x = -0.5 * (c11 * y + c10) / c20;
+                if (x >= 0 && x <= csw && y >= 0 && y <= csh)
+                    boundary.push(mkp(x, y));
+            }
 
         if (boundary.length === initialLength)
             return false;
@@ -704,7 +707,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             return csctx.lineTo(x2, y2);
         var area = Math.abs(
             x1 * cy + cx * y2 + x2 * y1 -
-                x2 * cy - cx * y1 - x1 * y2);
+            x2 * cy - cx * y1 - x1 * y2);
         if (area < maxError) // looks linear, too
             return csctx.lineTo(x2, y2);
         do { // so break defaults to single curve and return skips that
