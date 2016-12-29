@@ -530,7 +530,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         return;
     var boundary = [];
 
-    function doBoundary(sign1, sign2, sol, x, y, axis, sort, extent) {
+    function doBoundary(sign1, sign2, sol, other, vert, sort, extent) {
         var coord, signMid;
         if (sign1 !== sign2) { // we need exactly one point of intersection
             if (sol === null)
@@ -541,7 +541,7 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
                 // so we use the sign to pick the appropriate one
                 if (sol[0] > sol[1])
                     sol = [sol[1], sol[0]];
-                signMid = sign((1 - axis) * coord + x, axis * coord + y);
+                signMid = vert ? sign(other, coord) : sign(coord, other);
                 // We have two possible arrangements or corners and crossings:
                 //          sign1 == signMid != sign2
                 //    sol[0]               sol[1]
@@ -555,14 +555,14 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
                 var dist1 = Math.abs(center - sol[1]);
                 coord = sol[dist0 < dist1 ? 0 : 1];
             }
-            boundary.push(mkp((1 - axis) * coord + x, axis * coord + y));
+            boundary.push(vert ? mkp(other, coord) : mkp(coord, other));
         } else { // we need zero or two points of intersection
             if (sol === null) // have zero intersections
                 return true;
             coord = 0.5 * (sol[0] + sol[1]);
             if (!(coord > 0 && coord < extent))
                 return true;
-            signMid = sign((1 - axis) * coord + x, axis * coord + y);
+            signMid = vert ? sign(other, coord) : sign(coord, other);
             if (signMid === sign1) // intersections outside segment
                 return true;
             if (isNaN(signMid))
@@ -570,17 +570,17 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
             // Have two points of solution
             sort = sort * (sol[1] - sol[0]) > 0 ? 0 : 1;
             coord = sol[sort];
-            boundary.push(mkp((1 - axis) * coord + x, axis * coord + y));
+            boundary.push(vert ? mkp(other, coord) : mkp(coord, other));
             coord = sol[1 - sort];
-            boundary.push(mkp((1 - axis) * coord + x, axis * coord + y));
+            boundary.push(vert ? mkp(other, coord) : mkp(coord, other));
         }
         return true;
     }
 
-    if (!(doBoundary(tl, bl, yLeft, 0, 0, 1, 1, csh) &&
-            doBoundary(bl, br, xBottom, 0, csh, 0, 1, csw) &&
-            doBoundary(tr, br, yRight, csw, 0, 1, -1, csh) &&
-            doBoundary(tl, tr, xTop, 0, 0, 0, -1, csw)))
+    if (!(doBoundary(tl, bl, yLeft, 0, true, 1, csh) &&
+            doBoundary(bl, br, xBottom, csh, false, 1, csw) &&
+            doBoundary(tr, br, yRight, csw, true, -1, csh) &&
+            doBoundary(tl, tr, xTop, 0, false, -1, csw)))
         return;
 
     function segmentEllipse() {
