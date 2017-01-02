@@ -310,9 +310,6 @@ eval_helper.drawcircle = function(args, modifs, df) {
 };
 
 evaluator.drawconic$1 = function(args, modifs) {
-    var Conic = {};
-    Conic.usage = "conic";
-
     var arr = evaluateAndVal(args[0]);
 
     if (arr.ctype !== "list" || arr.value.length !== 3 && arr.value.length !== 6) {
@@ -340,415 +337,379 @@ evaluator.drawconic$1 = function(args, modifs) {
         e = CSNumber.mult(e, half);
         var f = arr.value[5];
 
-        var mat = List.turnIntoCSList([
+        arr = List.turnIntoCSList([
             List.turnIntoCSList([a, b, d]),
             List.turnIntoCSList([b, c, e]),
             List.turnIntoCSList([d, e, f])
         ]);
-        Conic.matrix = mat;
     } else { // matrix case
 
-        for (var ii = 0; ii < 3; ii++) // check for faulty arrays
-            for (var jj = 0; jj < 3; jj++)
-            if (arr.value[ii].value[jj].ctype !== "number") {
-                console.error("could not parse conic");
-                return nada;
-            }
+        if (!(List.isNumberMatrix(arr).value &&
+                arr.value.length === 3 &&
+                arr.value[0].value.length === 3))
+            return nada;
 
-        if (!List.equals(arr, List.transpose(arr)).value) { // not symm case
-            var aa = General.mult(arr, CSNumber.real(0.5));
-            var bb = General.mult(List.transpose(arr), CSNumber.real(0.5));
-            arr = List.add(aa, bb);
-            Conic.matrix = arr;
-        } else {
-            Conic.matrix = arr;
+        var tarr = List.transpose(arr);
+        if (!List.equals(arr, tarr).value) { // not symm case
+            arr = List.add(tarr, arr);
         }
 
-
     }
-    Conic.matrix = List.normalizeMax(Conic.matrix);
-    return eval_helper.drawconic(Conic.matrix, modifs);
+    return eval_helper.drawconic(arr, modifs);
 };
 
-eval_helper.drawconic = function(conicMatrix, modifs) {
+// See also eval_helper.quadratic_roots for the complex case
+// Returns either null (if solutions would be complex or NaN)
+// or two pairs [x, y] satisfying ax^2 + bxy + cy^2 = 0
+function solveRealQuadraticHomog(a, b, c) {
+    var d = b * b - 4 * a * c;
+    /*jshint -W018 */
+    if (!(d >= 0)) return null; // also return null if d is NaN
+    /*jshint +W018 */
+    var r = Math.sqrt(d);
+    if (b > 0) r = -r;
+    return [
+        [r - b, 2 * a],
+        [2 * c, r - b]
+    ];
+}
 
+// Returns either null (if solutions would be complex or NaN)
+// or two values x satisfying ax^2 + bx + c = 0
+function solveRealQuadratic(a, b, c) {
+    var hom = solveRealQuadraticHomog(a, b, c);
+    if (hom === null) return null;
+    return [hom[0][0] / hom[0][1], hom[1][0] / hom[1][1]];
+}
+
+function inRange(x, a, b) {
+    return x >= Math.min(a, b) && x <= Math.max(a, b);
+}
+
+// Pick some arbitrary directions approximately 30° apart and not aligned
+var arbitraryDirections = [0.13, 0.65, 1.18].map(function(angle) {
+    var cos = Math.cos(angle);
+    var sin = Math.sin(angle);
+    // (cos, sin) in the original coordinate system corresponds to (1, 0)
+    // in the rotated one.  So the basis vectors of the new system
+    // expressed in coordinates of the old are
+    var v1 = List.realVector([cos, sin, 0]);
+    var v2 = List.realVector([-sin, cos, 0]);
+    // The matrix composed from these transforms row vectors from
+    // rotated to original, and column vectors from original to rotated.
+    var mat = List.turnIntoCSList([v1, v2, List.ez]);
+    return mat;
+});
+
+eval_helper.drawconic = function(conicMatrix, modifs) {
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     if (Render2D.lsize === 0)
         return;
     Render2D.preDrawCurve();
 
-    var eps = 1e-14; //JRG Hab ih von 1e-16 runtergesetzt
+    var eps = 1e-14;
+
+    // Transform matrix of conic to match canvas coordinate system
     var mat = List.normalizeMax(conicMatrix);
-    var origmat = mat;
+    if (!List._helper.isAlmostReal(mat))
+        return;
+    var tmat = csport.toMat();
+    mat = List.mult(List.transpose(tmat), mat);
+    mat = List.mult(mat, tmat);
+    mat = List.normalizeMax(mat);
 
-    // check for complex values
-    for (var i = 0; i < 2; i++)
-        for (var j = 0; j < 2; j++) {
-            if (Math.abs(mat.value[i].value[j].value.imag) > CSNumber.eps) return;
+    // Pick an arbitrary direction far away from asymptotic to avoid
+    // special cases
+    var maxDirection = -1;
+    var bestDirection = null;
+    arbitraryDirections.forEach(function(dir) {
+        var q1 = List.mult(dir.value[0], List.mult(mat, dir.value[0]));
+        var q2 = List.mult(dir.value[1], List.mult(mat, dir.value[1]));
+        var q = CSNumber.abs2(q1).value.real * CSNumber.abs2(q2).value.real;
+        if (q > maxDirection) {
+            maxDirection = q;
+            bestDirection = dir;
         }
+    });
+    var dirCos = bestDirection.value[0].value[0].value.real;
+    var dirSin = bestDirection.value[0].value[1].value.real;
+    mat = List.mult(List.mult(bestDirection, mat),
+        List.transpose(bestDirection));
 
-    // transform matrix to canvas coordiantes
-    var tMatrix1 = List.turnIntoCSList([ // inverse of homog points (0,0), (1,0), (0, 1)
-        List.realVector([-1, -1, 1]),
-        List.realVector([1, 0, 0]),
-        List.realVector([0, 1, 0])
-    ]);
+    // Using polynomial coefficients instead of matrix
+    // since it generalizes to higher degrees more easily.
+    // cij is the coefficient of the monomial x^i * y^j.
+    var c20 = mat.value[0].value[0].value.real;
+    var c11 = mat.value[0].value[1].value.real * 2;
+    var c10 = mat.value[0].value[2].value.real * 2;
+    var c02 = mat.value[1].value[1].value.real;
+    var c01 = mat.value[1].value[2].value.real * 2;
+    var c00 = mat.value[2].value[2].value.real;
+    var discr = c20 * c02 * 4 - c11 * c11;
 
-    // get canvas coordiantes
-    var pt0 = csport.from(0, 0, 1);
-    pt0[2] = 1;
-    var pt1 = csport.from(1, 0, 1);
-    pt1[2] = 1;
-    var pt2 = csport.from(0, 1, 1);
-    pt2[2] = 1;
-
-    var tMatrix2 = List.turnIntoCSList([
-        List.realVector(pt0),
-        List.realVector(pt1),
-        List.realVector(pt2)
-    ]);
-    tMatrix2 = List.transpose(tMatrix2);
-
-    var ttMatrix = General.mult(tMatrix2, tMatrix1); // get transformation matrix
-
-    var ittMatrix = List.inverse(ttMatrix);
-
-    // transform Conic
-    mat = General.mult(List.transpose(ittMatrix), mat);
-    mat = General.mult(mat, ittMatrix);
-
-
-    var a = mat.value[0].value[0].value.real;
-    var b = mat.value[1].value[0].value.real;
-    var c = mat.value[1].value[1].value.real;
-    var d = mat.value[2].value[0].value.real;
-    var e = mat.value[2].value[1].value.real;
-    var f = mat.value[2].value[2].value.real;
-
-    var myMat = [
-        [a, b, d],
-        [b, c, e],
-        [d, e, f]
-    ];
-
-
-    var det = a * c * f - a * e * e - b * b * f + 2 * b * d * e - c * d * d;
-    var degen = Math.abs(det) < eps;
-
-    // check for circles with very large radius 
-    if (degen && conicMatrix.usage === "Circle") {
-        var cen = General.mult(List.adjoint3(origmat), List.linfty);
-        var zabs = CSNumber.abs(cen.value[2]).value.real;
-        // we are not a degenrate circle if our center is finite
-        if (zabs > CSNumber.eps) degen = false;
+    // Find the control points of a quadratic Bézier which at the
+    // endpoints agrees with the conic in position and tangent direction.
+    // sign is -1 for the lower branch and +1 for the upper.
+    function refine(pt1, pt2, sign, depth) {
+        // (x - pt1.px) * pt1.gx + (y - pt1.py) * pt1.gy = 0
+        // x * pt1.gx + y * pt1.gy = pt1.dot
+        // x * pt2.gx + y * pt2.gy = pt2.dot
+        // Solve using Cramer's rule
+        var denom = 1 / (pt1.gx * pt2.gy - pt2.gx * pt1.gy);
+        if (Math.abs(denom) > 1e12)
+            return csctx.lineTo(
+                dirCos * pt2.px - dirSin * pt2.py,
+                dirCos * pt2.py + dirSin * pt2.px);
+        var cx = (pt1.dot * pt2.gy - pt2.dot * pt1.gy) * denom;
+        var cy = (pt1.gx * pt2.dot - pt2.gx * pt1.dot) * denom;
+        if (!(isFinite(cx) && isFinite(cy))) {
+            // Probably already linear
+            csctx.lineTo(
+                dirCos * pt2.px - dirSin * pt2.py,
+                dirCos * pt2.py + dirSin * pt2.px);
+            return;
+        }
+        var area = Math.abs(
+            pt1.px * cy + cx * pt2.py + pt2.px * pt1.py -
+            pt2.px * cy - cx * pt1.py - pt1.px * pt2.py);
+        if (area > 1 && depth < 10) {
+            var mx = 0.5 * cx + 0.25 * (pt1.px + pt2.px);
+            var my = 0.5 * cy + 0.25 * (pt1.py + pt2.py);
+            var gx = 2 * c20 * mx + c11 * my + c10;
+            var gy = 2 * c02 * my + c11 * mx + c01;
+            // Now solve polynomial p(m + t*g) = 0 for t
+            // (m + tg)M(m + tg) = mMm + 2tmMg + t²gMg
+            var sol = solveRealQuadratic(
+                (c02 * gy + c11 * gx) * gy +
+                c20 * gx * gx,
+                (2 * c02 * gy + c11 * gx) * my +
+                (c11 * mx + c01) * gy +
+                2 * c20 * gx * mx + c10 * gx,
+                (c02 * my + (c11 * mx + c01)) * my +
+                (c20 * mx + c10) * mx + c00);
+            if (sol) {
+                var x1 = mx + sol[0] * gx;
+                var y1 = my + sol[0] * gy;
+                var x2 = mx + sol[1] * gx;
+                var y2 = my + sol[1] * gy;
+                var v1 = inRange(x1, pt1.px, pt2.px) &&
+                    inRange(y1, pt1.py, pt2.py);
+                var v2 = inRange(x2, pt1.px, pt2.px) &&
+                    inRange(y2, pt1.py, pt2.py);
+                var pt3 = null;
+                if (v1 && v2) {
+                    var s1 = y1 - secondPoint(x1, y1);
+                    var s2 = y2 - secondPoint(x2, y2);
+                    if (s1 * s2 < 0) { // different order, so we choose by that
+                        if (sign * s1 > 0) {
+                            pt3 = mkp(x1, y1);
+                        } else {
+                            pt3 = mkp(x2, y2);
+                        }
+                    }
+                } else if (v1) {
+                    pt3 = mkp(x1, y1);
+                } else if (v2) {
+                    pt3 = mkp(x2, y2);
+                }
+                if (pt3) {
+                    refine(pt1, pt3, sign, depth + 1);
+                    refine(pt3, pt2, sign, depth + 1);
+                    return;
+                }
+            }
+        }
+        csctx.quadraticCurveTo(
+            dirCos * cx - dirSin * cy,
+            dirCos * cy + dirSin * cx,
+            dirCos * pt2.px - dirSin * pt2.py,
+            dirCos * pt2.py + dirSin * pt2.px);
     }
 
-    var cswh_max = csw > csh ? csw : csh;
-
-    var x_zero = -1.5 * cswh_max;
-    var x_w = 1.5 * cswh_max; //2 * cswh_max;
-    var y_zero = -1.5 * cswh_max;
-    var y_h = 1.5 * cswh_max;
-
-    var useRot = 1;
-    if (degen) { // since we split then - rotation unnecessary
-        useRot = 0;
+    // Assuming [x, y] is a point on the conic, return the second
+    // point with the same x coordinate.
+    // With conic matrix M and points p=(x,y,1), q=(0,1,0) we want
+    // r = (q*M*q)*p - 2*(p*M*q)*q  or rather its coordinates,
+    // ry = (2*c02)*y - 2*(x*c11 + y*(2*c02) + c01)  and
+    // rz = 2*c02  so
+    // ry/rz = - x*c11/c02 - y - c01/c02
+    function secondPoint(x, y) {
+        return -((x * c11 + c01) / c02 + y);
     }
 
-
-    if (useRot) {
-        var C = [a, b, c, d, e, f];
-        var A = [
-            [C[0], C[1]],
-            [C[1], C[2]]
-        ];
-        var angle = 0;
-        if (Math.abs(a - b) > eps) {
-            angle = Math.atan(b / a - c) / 2;
-        } else {
-            angle = Math.PI / 4;
-        }
-        var get_rMat = function(angle) {
-            var acos = Math.cos(angle);
-            var asin = Math.sin(angle);
-            return [
-                [acos, -asin, 0],
-                [asin, acos, 0],
-                [0, 0, 1]
-            ];
+    // Construct a point with given coordinates and gradient directions.
+    function mkpg(px, py, gx, gy) {
+        return {
+            px: px,
+            py: py,
+            gx: gx,
+            gy: gy,
+            dot: px * gx + py * gy,
+            finite: isFinite(px) && isFinite(py) &&
+                isFinite(gx) && isFinite(gy),
         };
-
-
-        var rMat = get_rMat(angle);
-        rMat = List.realMatrix(rMat);
-        var TrMat = List.transpose(rMat);
-        var tmp = General.mult(List.realMatrix(myMat), rMat);
-        tmp = General.mult(TrMat, tmp);
-        a = tmp.value[0].value[0].value.real;
-        b = tmp.value[1].value[0].value.real;
-        c = tmp.value[1].value[1].value.real;
-        d = tmp.value[2].value[0].value.real;
-        e = tmp.value[2].value[1].value.real;
-        f = tmp.value[2].value[2].value.real;
-
     }
 
-    var Conic = [a, b, c, d, e, f];
-
-    // split degenerate conic into 1 or 2 lines
-    var split_degen = function() {
-
-        //modifs.size= CSNumber.real(2); // TODO fix this
-        var erg = geoOps._helper.splitDegenConic(origmat);
-        if (erg === nada) return;
-        var lg = erg[0];
-        var lh = erg[1];
-
-        var arg = [lg];
-        evaluator.draw$1(arg, modifs);
-        arg[0] = lh;
-        evaluator.draw$1(arg, modifs);
-
-    };
-
-    var get_concic_type = function(C) {
-        if (C === 'undefined' || C.length !== 6) {
-            console.error("this does not define a Conic");
-        }
-
-        if (degen) return "degenerate";
-
-        var det = C[0] * C[2] - C[1] * C[1];
-
-        if (Math.abs(det) < eps) {
-            return "parabola";
-        } else if (det > eps) {
-            return "ellipsoid";
-        } else {
-            return "hyperbola";
-        }
-
-    }; // end get_concic_type
-
-    var type = get_concic_type(Conic);
-
-    var norm = function(x0, y0, x1, y1) {
-        var norm = Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2);
-        return Math.sqrt(norm);
-    };
-
-    var is_inside = function(x, y) {
-        return (x > 0 && x < csw && y > 0 && y < csh);
-    };
-
-    var drawRect = function(x, y, col) {
-        csctx.strokeStyle = 'red';
-        if (col !== 'undefined') csctx.strokeStyle = col;
-        csctx.beginPath();
-        csctx.rect(x, y, 10, 10);
-        csctx.stroke();
-    };
-    // arrays to save points on conic
-    var arr_x1 = [];
-    var arr_x2 = [];
-    var arr_y1 = [];
-    var arr_y2 = [];
-    var arr_xg = [];
-    var arr_yg = [];
-
-    var resetArrays = function() {
-        arr_x1 = [];
-        arr_x2 = [];
-        arr_y1 = [];
-        arr_y2 = [];
-        arr_xg = [];
-        arr_yg = [];
-    };
-
-    var drawArray = function(x, y) {
-        csctx.beginPath();
-        csctx.moveTo(x[0], y[0]);
-        for (var i = 1; i < x.length; i++) {
-            //csctx.moveTo(x[i - 1], y[i - 1]);
-            //csctx.fillRect(x[i],y[i],5,5);
-            csctx.lineTo(x[i], y[i]);
-        }
-        csctx.stroke();
-    }; // end drawArray
-
-
-    var eval_conic_x = function(C, ymin, ymax) {
-        var x1, x2;
-        var type = get_concic_type(C);
-
-        if (C.length !== 6) {
-            console.error("Conic needs 6 Parameters");
-            return;
-        }
-
-        var a = C[0];
-        var b = C[1];
-        var c = C[2];
-        var d = C[3];
-        var e = C[4];
-        var f = C[5];
-
-
-        var step;
-        var perc = 0.1;
-        var diff = ymax - ymin;
-        var ssmall = perc * diff + ymin;
-        var slarge = ymax - perc * diff;
-        for (var y = ymin; y <= ymax; y += step) {
-            if (y < ssmall || y > slarge || Math.abs(ymax - ymin) < 100) {
-                step = 1 / 2;
-            } else if (y < 0 || y > csh) {
-                step = 10;
-            } else {
-                step = 3;
-            }
-
-            var inner = -a * c * y * y - 2 * a * e * y - a * f + b * b * y * y + 2 * b * d * y + d * d;
-            inner = Math.sqrt(inner);
-
-
-            x1 = 1 / a * (-b * y - d + inner);
-            x2 = -1 / a * (b * y + d + inner);
-
-
-            var ya, yb, y1, y2;
-            if (useRot) {
-                var r1 = [x1, y, 1];
-                var r2 = [x2, y, 1];
-                r1 = General.mult(rMat, List.realVector(r1));
-                r2 = General.mult(rMat, List.realVector(r2));
-                x1 = r1.value[0].value.real;
-                x2 = r2.value[0].value.real;
-                y1 = r1.value[1].value.real;
-                y2 = r2.value[1].value.real;
-            } else {
-                y1 = y;
-                y2 = y;
-            }
-
-
-            // for ellipsoids we go out of canvas
-            if (!isNaN(x1) && type === "ellipsoid") {
-                arr_x1.push(x1);
-                arr_y1.push(y1);
-            } else if (!isNaN(x1) && x1 >= x_zero && x1 <= x_w) {
-                arr_x1.push(x1);
-                arr_y1.push(y1);
-            }
-
-            if (!isNaN(x2) && type === "ellipsoid") {
-                arr_x2.push(x2);
-                arr_y2.push(y2);
-            } else if (!isNaN(x2) && x2 >= x_zero && x2 <= x_w) {
-                arr_x2.push(x2);
-                arr_y2.push(y2);
-            }
-        }
-    }; // end eval_conic_x
-
-    // calc and draw conic
-    var calc_draw = function(C) {
-        var ymin, ymax, y0, y1;
-        var ttemp;
-
-        var type = get_concic_type(C);
-
-
-        if (C.length !== 6) {
-            console.error("Conic needs 6 Parameters");
-            return;
-        }
-
-        var a = C[0];
-        var b = C[1];
-        var c = C[2];
-        var d = C[3];
-        var e = C[4];
-        var f = C[5];
-
-        // these are the actual formulas - we use variables to speed up
-        //y0 = (-a*e + b*d - Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
-        //y1 = (-a*e + b*d + Math.sqrt(a*(-a*c*f + a*Math.pow(e, 2) + Math.pow(b, 2)*f - 2*b*d*e + c*Math.pow(d,2))))/(a*c - Math.pow(b, 2));
-
-        var aebd = -a * e + b * d;
-        var largeSqrt = Math.sqrt(a * (-a * c * f + a * Math.pow(e, 2) + Math.pow(b, 2) * f - 2 * b * d * e + c * Math.pow(d, 2)));
-        var deNom = a * c - Math.pow(b, 2);
-
-        if (Math.abs(deNom) > eps) {
-            y0 = (aebd - largeSqrt) / deNom;
-            y1 = (aebd + largeSqrt) / deNom;
-        } else {
-            y0 = (-a * f + d * d) / (2 * a * e - 2 * b * d);
-            y1 = y0;
-        }
-
-        if (!isNaN(y0) && y0 > y_zero && y0 < y_h) { // ungly but works
-        } else {
-            y0 = y_zero;
-        }
-
-        if (!isNaN(y1) && y1 > y_zero && y1 < y_h) {} else {
-            y1 = y_zero;
-        }
-
-        ymin = (y0 < y1 ? y0 : y1);
-        ymax = (y0 > y1 ? y0 : y1);
-
-
-        eval_conic_x(C, y_zero, ymin);
-        arr_xg = arr_x1.concat(arr_x2.reverse());
-        arr_yg = arr_y1.concat(arr_y2.reverse());
-        drawArray(arr_xg, arr_yg);
-        resetArrays();
-
-
-        eval_conic_x(C, ymax, y_h);
-        drawArray(arr_x1, arr_y1);
-        //drawRect(arr_x1[0], arr_y1[0], "red");
-        //console.log(arr_x1, arr_y1);
-        //drawRect(arr_x2[0], arr_y2[0], "green");
-        // bridge branches
-        if (is_inside(arr_x1[0], arr_y1[1]) || is_inside(arr_x2[0], arr_y2[0])) { // drawing bug fix
-            csctx.beginPath();
-            csctx.moveTo(arr_x1[0], arr_y1[0]);
-            csctx.lineTo(arr_x2[0], arr_y2[0]);
-            csctx.stroke();
-        }
-        drawArray(arr_x2, arr_y2);
-        resetArrays();
-
-
-        eval_conic_x(C, ymin, ymax);
-        drawArray(arr_x1, arr_y1);
-        // bridge branches
-        // if (type === "ellipsoid") {
-        csctx.beginPath();
-        csctx.moveTo(arr_x1[0], arr_y1[0]);
-        csctx.lineTo(arr_x2[0], arr_y2[0]);
-        csctx.stroke();
-        csctx.beginPath();
-        csctx.moveTo(arr_x1[arr_x1.length - 1], arr_y1[arr_y1.length - 1]);
-        csctx.lineTo(arr_x2[arr_x2.length - 1], arr_y2[arr_y2.length - 1]);
-        csctx.stroke();
-        //}
-        // }
-        drawArray(arr_x2, arr_y2);
-        resetArrays();
-    }; // end calc_draw
-
-
-    // actually start drawing
-    if (!degen) {
-        calc_draw(Conic);
-    } else {
-        split_degen();
+    // Compute gradient directions for a given point on the conic.
+    function mkp(x, y) {
+        var dx = 2 * c20 * x + c11 * y + c10; // dQ/dx
+        var dy = 2 * c02 * y + c11 * x + c01; // dQ/dy
+        return mkpg(x, y, dx, dy);
     }
 
+    // Special points is a list of points on the conic which we want to match
+    // in order to correctly connect them. Each entry is a list of points
+    // sharing the same x coordinate, formatted by mkpg.
+    var specialPoints = [];
+
+    var i, j, x, y, y2, pt, sol;
+
+    // Find points with horizontal or vertical tangents
+    // (in rotated coordinate system)
+
+    // Compute the roots of the y discriminant
+    // for points with vertical tangents
+    sol = solveRealQuadratic(
+        discr,
+        4 * c10 * c02 - 2 * c01 * c11,
+        4 * c00 * c02 - c01 * c01);
+    if (sol) {
+        for (i = 0; i < 2; ++i) {
+            x = sol[i];
+            y = -0.5 * (c11 * x + c01) / c02;
+            pt = mkpg(x, y, 1, 0);
+            specialPoints.push([pt, pt]); // This is a double point
+        }
+    }
+
+    // Compute the roots of the x discriminant
+    // for points with horizontal tangents
+    sol = solveRealQuadratic(
+        discr,
+        4 * c01 * c20 - 2 * c10 * c11,
+        4 * c00 * c20 - c10 * c10);
+    if (sol) {
+        for (i = 0; i < sol.length; ++i) {
+            y = sol[i];
+            x = -0.5 * (c11 * y + c10) / c20;
+            y2 = secondPoint(x, y);
+            specialPoints.push([
+                mkpg(x, y, 0, 1),
+                mkp(x, y2)
+            ]);
+        }
+    }
+
+    // Intersect the conic with the boundaries of the canvas
+    function boundary(x1, y1, x2, y2) {
+        // Transform coordinates to rotated coordinate system
+        var x0 = dirCos * x1 + dirSin * y1;
+        var y0 = dirCos * y1 - dirSin * x1;
+        var xd = dirCos * x2 + dirSin * y2 - x0;
+        var yd = dirCos * y2 - dirSin * x2 - y0;
+        var sol = solveRealQuadratic(
+            c20 * xd * xd + c02 * yd * yd + c11 * xd * yd,
+            (2 * c20 * x0 + c10) * xd + (2 * c02 * y0 + c01) * yd + c11 * (x0 * yd + xd * y0),
+            (c20 * x0 + c10) * x0 + (c02 * y0 + c01 + c11 * x0) * y0 + c00);
+        if (sol) {
+            for (i = 0; i < 2; ++i) {
+                var x = x0 + sol[i] * xd;
+                var y = y0 + sol[i] * yd;
+                var yy = secondPoint(x, y);
+                specialPoints.push([mkp(x, y), mkp(x, yy)]);
+            }
+        }
+    }
+    boundary(0, 0, 0, csh); // left
+    boundary(csw, 0, csw, csh); // right
+    boundary(0, 0, csw, 0); // top
+    boundary(0, csh, csw, csh); // bottom
+
+    function sortByX(a, b) {
+        return a[0].px - b[0].px;
+    }
+
+    function sortByY(a, b) {
+        return a.py - b.py;
+    }
+    specialPoints.sort(sortByX);
+    // TODO: detect and handle situations where x values lie
+    // REALLY close together, leading to inconsistent ordering.
+
+    // Drop out-of-canvas portions, including x = NaN
+    var maxX = dirCos * csw + dirSin * csh;
+    /*jshint -W018 */
+    while (specialPoints.length && !(specialPoints[0][0].px >= 0))
+        specialPoints.shift();
+    while (specialPoints.length &&
+        !(specialPoints[specialPoints.length - 1][0].px <= maxX))
+        specialPoints.pop();
+    /*jshint +W018 */
+
+    if (specialPoints.length < 2) return; // nothing to draw
+    specialPoints[0].sort(sortByY);
+    var starts = [];
+    for (i = 1; i < specialPoints.length; ++i) {
+        specialPoints[i].sort(sortByY);
+        var p11 = specialPoints[i - 1][0];
+        var p12 = specialPoints[i - 1][1];
+        var p21 = specialPoints[i][0];
+        var p22 = specialPoints[i][1];
+        if (p11 === p12 && p21 === p22) {
+            // gap region in hyperbola
+            continue;
+        }
+        var xsum = p11.px + p21.px;
+        var ysum = p11.py + p21.py;
+        var xorig = (dirCos * xsum - dirSin * ysum) * 0.5;
+        var yorig = (dirCos * ysum + dirSin * xsum) * 0.5;
+        if (xorig >= 0 && xorig <= csw &&
+            yorig >= 0 && yorig <= csh &&
+            p11.finite && p21.finite) {
+            p11.next = p21;
+            p21.prev = p11;
+            p11.sign = -1;
+        } else {
+            starts.push(p21);
+        }
+        xsum = p22.px + p12.px;
+        ysum = p22.py + p12.py;
+        xorig = (dirCos * xsum - dirSin * ysum) * 0.5;
+        yorig = (dirCos * ysum + dirSin * xsum) * 0.5;
+        if (xorig >= 0 && xorig <= csw &&
+            yorig >= 0 && yorig <= csh &&
+            p22.finite && p12.finite) {
+            p22.next = p12;
+            p12.prev = p22;
+            p22.sign = 1;
+        } else {
+            starts.push(p12);
+        }
+    }
+    pt = specialPoints[specialPoints.length - 1];
+    if (pt[0] !== pt[1])
+        starts.push(pt[1]);
+    pt = specialPoints[0];
+    if (pt[0] !== pt[1] || (starts.length === 0 && pt[0].next))
+        starts.push(pt[0]);
+    csctx.beginPath();
+    for (i = 0; i < starts.length; ++i) {
+        var pt0 = (pt = starts[i]);
+        if (!pt.next) continue;
+        csctx.moveTo(
+            dirCos * pt.px - dirSin * pt.py,
+            dirCos * pt.py + dirSin * pt.px);
+        while (pt.next) {
+            refine(pt, pt.next, pt.sign, 0);
+            pt = pt.next;
+            if (pt === pt0) {
+                // completed the cycle
+                csctx.closePath();
+                break;
+            }
+        }
+    }
+    csctx.stroke();
 }; // end eval_helper.drawconic
 
 evaluator.drawall$1 = function(args, modifs) {
