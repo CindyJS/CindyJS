@@ -893,6 +893,13 @@ List.isNumberMatrix = function(a) {
 };
 
 
+List._helper.isNumberMatrixMN = function(a, m, n) {
+    return List.isNumberMatrix(a).value &&
+        a.value.length === m &&
+        a.value[0].value.length === n;
+};
+
+
 List.scalproduct = function(a1, a2) {
     if (a1.value.length !== a2.value.length) {
         return nada;
