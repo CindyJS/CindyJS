@@ -209,9 +209,9 @@ List.consecutive = function(a) {
 };
 
 List.reverse = function(a) {
-    var erg = [];
-    for (var i = a.value.length - 1; i >= 0; i--) {
-        erg.push(a.value[i]);
+    var erg = new Array(a.value.length);
+    for (var i = a.value.length - 1, j = 0; i >= 0; i--, j++) {
+        erg[j] = a.value[i];
     }
 
     return {

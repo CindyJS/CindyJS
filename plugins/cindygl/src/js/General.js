@@ -124,7 +124,7 @@ function guessTypeOfValue(tval) {
         return type.bool;
     } else if (tval['ctype'] === 'number') {
         let z = tval['value'];
-        if (Math.abs(z['imag']) < 1e-10) { //eps test. for some reasons sin(1) might have some imag part of order e-17
+        if (Math.abs(z['imag']) < 1e-5) { //eps test. for some reasons sin(1) might have some imag part of order e-17
             if ((z['real'] | 0) === z['real']) {
                 return type.int;
             } else {
@@ -140,7 +140,6 @@ function guessTypeOfValue(tval) {
             for (let i = 1; i < l.length; i++) {
                 ctype = lca(ctype, guessTypeOfValue(l[i]));
             }
-            if (isprimitive(ctype)) ctype = lca(ctype, type.float); // we do not have vectors of bool/float
             if (ctype) return {
                 type: 'list',
                 length: l.length,

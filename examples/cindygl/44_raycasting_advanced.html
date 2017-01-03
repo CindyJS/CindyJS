@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+  <body style="font-family:Arial;">
+    
+    <h1>CindyJS: Raycasting arbitrary algebraic surfaces</h1>
+    
+    <script id="csmousedown" type="text/x-cindyscript">
+    sx = mouse().x;
+    sy = mouse().y;
+    dragging = sx < .5;
+    </script>
+    <script id="csmouseup" type="text/x-cindyscript">
+    dragging = false;
+    </script>
+    <script id="csdraw" type="text/x-cindyscript">
+    time = seconds() - t0;
+
+    if (dragging,
+        dx = 3 * (sx - mouse().x); dy = 3 * (sy - mouse().y);,
+        dx = .005 * cos(time * .1); dy = .003 * sin(time * .1);
+    );
+
+    mat = mat * (
+        (1, 0, 0),
+        (0, cos(dy), -sin(dy)),
+        (0, sin(dy), cos(dy))
+    ) * (
+        (cos(dx), 0, -sin(dx)),
+        (0, 1, 0),
+        (sin(dx), 0, cos(dx))
+    );
+
+
+    sx = mouse().x;
+    sy = mouse().y;
+
+
+    PA.x = 0.55;
+    if (PA.y > .4, PA.y = .4);
+    if (PA.y < -.4, PA.y = -.4);
+    a = (.4 + PA.y) / .8 * 1.1;
+
+    PB.x = 0.6;
+    if (PB.y > .4, PB.y = .4);
+    if (PB.y < -.4, PB.y = -.4);
+    alpha = ((.4 + PB.y) / .8) * .7 + .3;
+
+    PC.x = 0.65;
+    if (PC.y > .4, PC.y = .4);
+    if (PC.y < -.4, PC.y = -.4);
+    zoom = exp(3 * PC.y - 1);
+
+    lightdirs = [
+        ray((.0, .0), -100),
+        ray((.0, .0), -100),
+        ray((.0, .0), 100),
+        ray((.0, .0), 100),
+        (-10, 10, -2.),
+        (-10, 10, -2.),
+        (10, -8, 3.),
+        (10, -8, 3.)
+    ];
+
+    gamma = [2, 20, 2, 20, 1, 10, 1, 10];
+
+    colors = [
+        (.3, .5, 1.),
+        (1, 2, 2) / 2,
+        (1., 0.2, 0.1),
+        (2, 2, 1) / 2,
+        .4 * (.7, .8, .3),
+        .9 * (.7, .8, .3),
+        .4 * (.6, .1, .6),
+        .9 * (.6, .1, .6)
+    ];
+
+
+    colorplot(computeColor(#));
+    drawtext((-.65, -.45), "degree: " + ( N-1));
+
+    draw((.55, .4), (.55, -.4), color -> (0, 0, 0));
+    draw((.6, .4), (.6, -.4), color -> (0, 0, 0));
+    draw((.65, .4), (.65, -.4), color -> (0, 0, 0));
+    </script>
+               
+    <script id="csinit" type="text/x-cindyscript">
+    mat = [
+        [0.3513, -0.4908, -0.7973],
+        [-0.8171, -0.5765, -0.0051],
+        [-0.4571, 0.6533, -0.6036]
+    ];
+    sx = mouse().x;
+    sy = mouse().y;
+    dragging = false;
+
+    use("CindyGL");
+    oo = 1000; //"infinity"
+    t0 = seconds();
+
+
+    ray(pos, t) := mat * ((t + 2.2) * (pos.x, pos.y, 1) + (0, 0, -2.2));
+
+    fun(x, y, z) := (x ^ 2 + y ^ 2 + z ^ 2 - (0.5 + a) ^ 2) ^ 2 - (3.0 * ((0.5 + a) ^ 2) - 1.0) / (3.0 - ((0.5 + a) ^ 2)) * (1 - z - sqrt(2) * x) * (1 - z + sqrt(2) * x) * (1 + z + sqrt(2) * y) * (1 + z - sqrt(2) * y);
+    N = 5;
+    zoom = 2.2;
+    a = 0.3;
+
+    errc(N);
+
+    eps = .04;
+
+    alpha = .7;
+
+
+    F(p) := (
+        fun(p.x / zoom, p.y / zoom, p.z / zoom);
+    );
+
+    helpfun(s, x) := log(|F(s*x)|)/log(s*|x|); //is approx. degree+log(leadingcoeff)/log(s*|x|) for large s
+    
+    guessdeg() := max(apply(1 .. 10,
+      x = [random(), random(), random()];
+      s = 1;
+      l = 1;
+      best = 1;
+      
+      while(l<100 & s < 1e50, //throw away Infinity
+        best = round(l);
+        s = 4*s;
+        l = 2*helpfun(s*s, x)-helpfun(s,x); //remove error caused by log(leadingcoeff)
+      );
+      best        
+    ));
+
+
+    init() := (
+        N = guessdeg() + 1; errc(N); li = apply(1..N, k, cos((2 * k - 1) / (2 * N) * pi)); //Chebyshev nodes for interval (-1, 1)
+        //li = apply(1..N, (#-1)/(N-1)*2-1);
+        A = apply(li, c, apply(0.. N-1, i, c ^ i));
+        // A sends polynomials [a0, a1, a2...] = a0+a1*X+a2*X*X+... to [p(li_1), p(li_2), ...]
+        B = (inverse(A)); //B interpolates polynomials, given the values [p(li_1), p(li_2), ...]
+        B3 = inverse(apply([-2, 0, 2], c, apply(0 .. 2, i, c ^ i))); //B3 interpolates quadratic polynomials, given the values [p(-1), p(0), p(1)]
+    );
+    init();
+
+    dF(p) := (
+        (F(p + [eps, 0, 0]) - F(p - [eps, 0, 0])),
+        (F(p + [0, eps, 0]) - F(p - [0, eps, 0])),
+        (F(p + [0, 0, eps]) - F(p - [0, 0, eps]))
+    ) / (2 * eps);
+
+
+    S(r) := (r * r - 1); //sphere with radius 1
+
+    eval(poly, t) := ( //evals poly at time t by evaluating horner scheme         
+        ans = poly_N; forall(reverse(1 .. N-1), ans = ans * t + poly_#); ans
+    );
+
+    //computes derivative of polynomial
+    d(poly) := (forall(1 .. N-1, poly_# = # * poly_(#+1)); poly_N = 0; poly);
+
+    //finds root of poly in [x0, x1] using bisection.
+    //returns def if intermediate value theorem cannot be applied
+    bisect(poly, x0, x1, def) := (
+        regional(v0, v1, m, vm); v0 = eval(poly, x0); v1 = eval(poly, x1);
+        if (v0 * v1 <= 0,
+            repeat(10,
+                m = (x0 + x1) / 2; vm = eval(poly, m);
+                if (v0 * vm <= 0,
+                    (x1 = m; v1 = vm;),
+                    (x0 = m; v0 = vm;)
+                );
+            ); m,
+            def
+        )
+    );
+
+    bisectf(pos, x0, x1, def) := (
+        regional(v0, v1, m, vm); v0 = F(ray(pos, x0)); v1 = F(ray(pos, x1));
+        if (v0 * v1 <= 0,
+            repeat(12,
+                m = (x0 + x1) / 2; vm = F(ray(pos, m));
+                if (v0 * vm <= 0,
+                    (x1 = m; v1 = vm;),
+                    (x0 = m; v0 = vm;)
+                );
+            ); m,
+            def
+        )
+    );
+
+    updatecolor(pos, dst, color) := (
+        if (dst > l & dst < u & dst < odst,
+            color = (1 - alpha) * color;
+
+            odst = dst; x = ray(pos, dst); normal = dF(x); normal = normal / abs(normal);
+
+
+
+            forall(1..length(lightdirs),
+                illumination = max(0, (lightdirs_# / abs(lightdirs_#)) * normal);
+                color = color + alpha * (illumination ^ gamma_#) * colors_#;
+            );
+        );
+        color
+    );
+
+    computeColor(pos) := (
+        spolyvalues = apply([-2, 0, 2], S(ray(pos, #))); spoly = B3 * spolyvalues; // interpolate
+
+        D = (spoly_2 * spoly_2) - 4. * spoly_3 * spoly_1; //discriminant of spoly
+        color = gray(.7);
+
+
+        if (D >= 0, //ray intersects ball
+            polyvalues = apply(li, F(ray(pos, #))); poly = B * polyvalues; //interpolate
+            l = (-spoly_2 - re(sqrt(D))) / (2. * spoly_3); //intersection entering the ballu
+            u = (-spoly_2 + re(sqrt(D))) / (2. * spoly_3); //intersection leaving the ball
+
+            p = apply(1..N, poly);
+            forall(reverse(1.. N-1), p_# = d(p_(#+1))); //p_k has degree k
+
+            roots = oroots = apply(1..N, u);
+            forall(1 .. N-1, i,
+                roots_1 = bisect(p_i, l, oroots_1, l);
+                repeat(i, j,
+                  roots_(j+1) = bisect(p_i, oroots_j, oroots_(j + 1), roots_j);
+                );
+                oroots = roots;
+            );
+
+
+            roots_1 = bisectf(pos, l, oroots_1, l);
+            forall(2.. N-1, j,
+                roots_j = bisectf(pos, oroots_j, oroots_(j + 1), roots_(j - 1));
+            );
+            roots_N = bisectf(pos, oroots_N, u, roots_(N-1));
+
+            odst = u + 1;
+
+            forall(reverse(1..N),
+                dst = roots_#;
+                color = updatecolor(pos, dst, color);
+            );
+        ); color
+    );
+    </script>
+    
+
+    <div  id="CSCanvas" style="border:0px"></div>
+    
+    <script type="text/javascript">
+        var cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    animation: {autoplay: true},
+                    geometry: [ { name:"PA", kind:"P", type:"Free", pos: [.5,.3,1], narrow: true, color: [1,1,1], size:8 },
+                                { name:"PB", kind:"P", type:"Free", pos: [.5,.2,1], narrow: true, color: [1,1,1], size:8 },
+                                { name:"PC", kind:"P", type:"Free", pos: [.5,.1,1], narrow: true, color: [1,1,1], size:8 } ],
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 700,
+                      height: 500,
+                      transform: [ { visibleRect: [ -0.7, -0.5, 0.7, 0.5 ] } ]
+                    }]
+        });
+    </script>
+    
+    <div>
+<input type="text" id="inp" value="(x^2+y^2+z^2-(0.5+a)^2)^2-(3*((0.5+a)^2)-1)/(3-((0.5+a)^2))*(1-z-sqrt(2)*x)*(1-z+sqrt(2)*x)*(1+z+sqrt(2)*y)*(1+z-sqrt(2)*y)"  onkeypress="if((event.which ? event.which : event.keyCode)==13) { cdy.evokeCS('fun(x,y,z) := (' + this.value + '); init();'); }" size="80" style="font-size:18px">
+<select id="sel" onchange="document.getElementById('inp').value = this.value; cdy.evokeCS('fun(x,y,z) := (' + this.value + '); init();');" style="width:20em;">  
+  <option value="(x^2+y^2+z^2-(0.5+a)^2)^2-(3*((0.5+a)^2)-1)/(3-((0.5+a)^2))*(1-z-sqrt(2)*x)*(1-z+sqrt(2)*x)*(1+z+sqrt(2)*y)*(1+z-sqrt(2)*y)">Kummer Quartic</option>
+  <option value="4*((a*(1+sqrt(5))/2)^2*x^2-y^2)*((a*(1+sqrt(5))/2)^2*y^2-z^2)*((a*(1+sqrt(5))/2)^2*z^2-x^2)-1*(1+2*(a*(1+sqrt(5))/2))*(x^2+y^2+z^2-1)^2">Barth Sextic</option>
+  <option value="-2*a/125+x^8+y^8+z^8-2*x^6-2*y^6-2*z^6+1.25*x^4+1.25*y^4+1.25*z^4-0.25*x^2-0.25*y^2-0.25*z^2+0.03125">Chmutov Octic</option>
+  <option value="a*(-1/4*(1-sqrt(2))*(x^2+y^2)^2+(x^2+y^2)*((1-1/sqrt(2))*z^2+1/8*(2-7*sqrt(2)))-z^4+(0.5+sqrt(2))*z^2-1/16*(1-12*sqrt(2)))^2-(cos(0*pi/4)*x+sin(0*pi/4)*y-1)*(cos(pi/4)*x+sin(pi/4)*y-1)*(cos(2*pi/4)*x+sin(2*pi/4)*y-1)*(cos(3*pi/4)*x+sin(3*pi/4)*y-1)*(cos(4*pi/4)*x+sin(4*pi/4)*y-1)*(cos(5*pi/4)*x+sin(5*pi/4)*y-1)*(cos(6*pi/4)*x+sin(6*pi/4)*y-1)*(cos(7*pi/4)*x+sin(7*pi/4)*y-1)">
+    Endraß Octic
+  </option>
+  <option value="x^2+y^2+z^2-1">Ball</option>
+  <option value="k = 6; x^k+y^k+z^k-1">Cube</option>
+  <option value="x^2+z^2-1/3*(1+y)^3*(1-y)^3">Citric</option>
+  <option value="x^2+y^2+z^3-z^2">Ding Dong</option>
+  <option value="x^3+x^2*z^2-y^2">Hummingbird</option>
+  <option value="x^2-x^3+y^2+y^4+z^3-z^4">Vis a Vis</option>
+  <option value="(x^2+9/4*y^2+z^2-1)^3-x^2*z^3-9/80*y^2*z^3">Sweet</option>
+</select>
+</div>
+    Internally, Rolle's theorem and bisection method is used for finding roots.
+  </body>
+</html>
