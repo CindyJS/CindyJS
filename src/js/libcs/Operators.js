@@ -73,6 +73,17 @@ evaluator.println$1 = function(args, modifs) {
     return nada;
 };
 
+evaluator.assert$2 = function(args, modifs) {
+    var v0 = evaluate(args[0]);
+    if (v0.ctype === 'boolean') {
+        if (v0.value === false)
+            return evaluator.println$1([args[1]], modifs);
+    } else {
+        csconsole.err("Condition for assert is not boolean");
+    }
+    return nada;
+};
+
 evaluator.dump$1 = function(args, modifs) {
 
     dump(args[0]);
@@ -1580,30 +1591,12 @@ evaluator.isgeometric$1 = function(args, modifs) {
 
 evaluator.isnumbermatrix$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
-    if ((List.isNumberMatrix(v0)).value) {
-        return {
-            'ctype': 'boolean',
-            'value': true
-        };
-    }
-    return {
-        'ctype': 'boolean',
-        'value': false
-    };
+    return List.isNumberMatrix(v0);
 };
 
 evaluator.isnumbervector$1 = function(args, modifs) {
     var v0 = evaluate(args[0]);
-    if ((List.isNumberVector(v0)).value) {
-        return {
-            'ctype': 'boolean',
-            'value': true
-        };
-    }
-    return {
-        'ctype': 'boolean',
-        'value': false
-    };
+    return List.isNumberVector(v0);
 };
 
 
@@ -1788,6 +1781,11 @@ evaluator.moveto$2 = function(args, modifs) {
             Accessor.setField(el, "homog", v1);
         }
     }
+    return nada;
+};
+
+evaluator.continuefromhere$0 = function(args, modifs) {
+    stateContinueFromHere();
     return nada;
 };
 
@@ -2424,7 +2422,7 @@ function hungarianMethod(w) {
 
 evaluator.mincostmatching$1 = function(args, modifs) {
     var costMatrix = evaluate(args[0]);
-    if (List.isNumberMatrix(costMatrix)) {
+    if (List.isNumberMatrix(costMatrix).value) {
         var nr = costMatrix.value.length;
         var nc = List._helper.colNumb(costMatrix);
         var size = (nr < nc ? nc : nr);
@@ -3969,6 +3967,7 @@ evaluator.create$3 = function(args, modifs) {
     }
 
     if (!geoOps.hasOwnProperty(type.value) &&
+        !geoAliases.hasOwnProperty(type.value) &&
         !geoMacros.hasOwnProperty(type.value)) {
         console.log("Invalid geometric operation: '" + type.value + "'");
         return nada;

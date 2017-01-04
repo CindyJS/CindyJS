@@ -159,13 +159,19 @@ function addElementNoProof(el) {
         console.log("Element name '" + el.name + "' already exists");
 
         var existingEl = csgeo.csnames[el.name];
-        if (geoOps[existingEl.type].isMovable)
+        if (geoOps[existingEl.type].isMovable &&
+            geoOps[existingEl.type].kind === "P")
             movepointscr(existingEl, el.pos, "homog");
 
         return {
             'ctype': 'geo',
             'value': existingEl
         };
+    }
+
+    // Recursively apply aliases
+    while (geoAliases.hasOwnProperty(el.type)) {
+        el.type = geoAliases[el.type];
     }
 
     // Expand macros

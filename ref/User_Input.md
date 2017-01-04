@@ -43,7 +43,7 @@ Codes for 'shift', 'crtl' and 'alt' are usually 16, 17, 18.
 
 **Description:**
 This operator returns a list of the codes of all pressed keys.
-An interesting application of the keydown list id given in the chapter on MIDI functions, where you find an example [keyboard piano](MIDI_Functions#piano.md).
+An interesting application of the keydown list id given in the chapter on MIDI functions, where you find an example [keyboard piano](MIDI_Functions.md#a-keyboard-piano).
 
 ------
 
@@ -82,7 +82,6 @@ Very often it is desirable not only to export an interactive construction but al
 By using the following set of CindyScript operations it is easily possible to create (and remove) custom toolbars that reside within an applet window.
 
 Toolbars are in particular important for creating interactive student exercises.
-An example for this is given in [Interactive Exercises](Interactive_Exercises.md).
 
 ------
 

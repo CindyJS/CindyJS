@@ -99,7 +99,7 @@ The following code produces an acoustic jingle.
 
 **Description:**
 This statement starts the animation.
-Also physics simulation in [CindyLab](CindyLab.md) depend on running animations.
+Also physics simulation in CindyLab depend on running animations.
 
 ------
 

@@ -175,9 +175,9 @@ If `A.caption` is the empty string the name is shown, otherwise the caption.
 ####  Properties of CindyLab Objects
 
 It is not only geometric properties that can be accessed by CindyScript.
-The simulation parameters of [CindyLab](CindyLab.md) constructions can also be read and sometimes set via CindyScript.
+The simulation parameters of CindyLab constructions can also be read and sometimes set via CindyScript.
 
-#####  Properties of All [CindyLab](CindyLab.md) Elements
+#####  Properties of All CindyLab Elements
 
 | Name       | Writeable | Type | Purpose                                                                 |
 | ---------- | --------- | ---- | ----------------------------------------------------------------------- |
@@ -274,7 +274,7 @@ The following slots of the environment can be accessed:
 
 ### Inspecting Elements
 
-You can also use the generic CindyScript function `inspect(‹element›)` to access all the attributes that are available in the [Inspector](Inspector.md).
+You can also use the generic CindyScript function `inspect(‹element›)` to access all the attributes that are available in the Inspector.
 For example, if a point *A* exists in the construction, the function
 
     > inspect(A)
@@ -319,7 +319,7 @@ Sets the user attribute of ‹geo› identified by ‹string1› to the value �
 **Description:**
 Returns the user attribute identified by ‹string› of the geometric element ‹geo› .
 
-Both versions of the attribute function are mainly used for interaction with the [Visage Extension](Visage.md).
+Both versions of the attribute function are mainly used for interaction with the Visage Extension of Cinderella, which has not been ported to CindyJS yet.
 
 ------
 
@@ -347,4 +347,4 @@ or
 
 to remove the element named “*A*”.
 
-More functions to create arbitrary elements are also available and discussed in the section [section on special operators](Interaction_with_Geometry#createandremove.md).
+More functions to create arbitrary elements are also available and discussed in the [section on special operators](Interaction_with_Geometry.md#create$3).

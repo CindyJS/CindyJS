@@ -44,6 +44,15 @@ The following table summarizes the different admissible uses of the multiplicati
 | vector of length *n* | *n* × *r* matrix     | vector of length *r* | vector × matrix               |
 | *n* × *r* matrix     | *r*× *m* matrix      | *n* × *m* matrix     | matrix multiplication         |
 
+If some of the elements of a matrix are not numbers, the result will be `___`.
+
+    > [[1,2],[3,4],[5,6]] * [[1,2,3,4],[5,6,7,8]]
+    < [[11, 14, 17, 20], [23, 30, 37, 44], [35, 46, 57, 68]]
+    > [[1,2],[3,4],[5,6]] * [[1,2,3,4],[5,6,7,"8"]]
+    < ___
+    > [[1,2],[3,4],[5,false]] * [[1,2,3,4],[5,6,7,8]]
+    < ___
+
 ------
 
 ------

@@ -1,5 +1,6 @@
 "use strict";
 
+var fs = require("fs");
 var glob = require("glob");
 var path = require("path");
 var Q = require("q");
@@ -233,20 +234,13 @@ module.exports = function build(settings, task) {
     ];
 
     task("refhtml", [], function() {
-        var cached = null;
-        function lazy() {
-            return (cached || (cached = Q.denodeify(
-                require("../ref/js/md2html").renderHtml)))
-                .apply(null, arguments);
-        }
         this.input(["ref/js/template.html", "ref/js/md2html.js"]);
-        this.parallel(function() {
-            refmd.forEach(function(input) {
-                var output = path.join(
-                    "build", input.replace(/\.md$/, ".html"));
-                return this.process(input, output, lazy);
-            }, this);
-        });
+        this.input(refmd);
+        this.output(refmd.map(function(input) {
+            return path.join("build", input.replace(/\.md$/, ".html"));
+        }));
+        this.mkdir("build/ref");
+        this.node("ref/js/md2html", "-o", "build/ref", refmd);
     });
 
     task("refres", [], function() {
@@ -415,6 +409,92 @@ module.exports = function build(settings, task) {
     task("cindygl-dbg", [], function() {
         this.node(process.argv[1], "cindygl", "cindygl-dbg=true");
     });
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Build ComplexCurves plugin
+    //////////////////////////////////////////////////////////////////////
+
+    var cc_get_commit = function() {
+        var commit = fs.readFileSync(
+            "plugins/ComplexCurves/lib/ComplexCurves.commit", "utf8");
+        commit = commit.replace(/\s+/, "");
+        cc_get_commit = function() { // cache result
+            return commit;
+        }
+        return commit;
+    }
+    var cc_lib_dir = "plugins/ComplexCurves/lib/ComplexCurves/";
+    var cc_shaders = Array.prototype.concat.apply(
+        ["Common.glsl", "Textures.glsl"], [
+            "Assembly", "CachedSurface", "DomainColouring", "Export", "FXAA",
+            "Initial", "Subdivision", "SubdivisionPre", "Surface",
+        ].map(function(name) { return [name + ".vert", name + ".frag"]; }))
+        .map(function(name) { return cc_lib_dir + "src/glsl/" + name; });
+    var cc_mods = [
+        "Assembly", "CachedSurface", "Complex", "ComplexCurves", "Export",
+        "GLSL", "Initial", "Matrix", "Mesh", "Misc", "Monomial", "Parser",
+        "Polynomial", "PolynomialParser", "Quaternion", "Stage", "State3D",
+        "StateGL", "Subdivision", "SubdivisionPre", "Surface", "Term",
+        "Tokenizer"
+    ];
+    var cc_mods_from_c3d = [
+        "Interface"
+    ];
+
+    task("ComplexCurves.get", [], function() {
+        var id = cc_get_commit();
+        this.download(
+            "https://github.com/kranich/ComplexCurves/archive/" + id + ".zip",
+            "download/arch/ComplexCurves-" + id + ".zip"
+        );
+    });
+
+    task("ComplexCurves.unzip", ["ComplexCurves.get"], function() {
+        var id = cc_get_commit();
+        this.input("plugins/ComplexCurves/lib/ComplexCurves.commit");
+        this.delete("plugins/ComplexCurves/lib/ComplexCurves");
+        this.unzip(
+            "download/arch/ComplexCurves-" + id + ".zip",
+            "plugins/ComplexCurves/lib/ComplexCurves",
+            "ComplexCurves-" + id + "/"
+        );
+    });
+
+    task("ComplexCurves.glsl.js", ["ComplexCurves.unzip"], function() {
+        this.input(cc_shaders);
+        this.node(
+            "tools/files2json.js",
+            "-varname=resources",
+            "-preserve_file_names=yes",
+            "-strip=no",
+            "-output=" + this.output("build/js/ComplexCurves.glsl.js"),
+            cc_shaders);
+    });
+
+    task("ComplexCurves", ["ComplexCurves.glsl.js", "closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            compilation_level: this.setting("cc_closure_level"),
+            rewrite_polyfills: false,
+            warning_level: this.setting("cc_closure_warnings"),
+            output_wrapper_file: cc_lib_dir + "src/js/ComplexCurves.js.wrapper",
+            js_output_file: "build/js/ComplexCurves.js",
+            externs: "plugins/cindyjs.externs",
+            js: ["build/js/ComplexCurves.glsl.js"].concat(cc_mods.map(function(name) {
+                return cc_lib_dir + "src/js/" + name + ".js";
+            })).concat(cc_mods_from_c3d.map(function(name) {
+                return "plugins/cindy3d/src/js/" + name + ".js";
+            })).concat([
+                "plugins/ComplexCurves/src/js/Plugin.js"
+            ])
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+
     
     //////////////////////////////////////////////////////////////////////
     // Run js-beautify for consistent coding style
@@ -593,6 +673,7 @@ module.exports = function build(settings, task) {
         "xlibs",
         "images",
         "sass",
+        "ComplexCurves"
     ].concat(gwt_modules));
 
 };

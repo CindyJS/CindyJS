@@ -209,9 +209,9 @@ List.consecutive = function(a) {
 };
 
 List.reverse = function(a) {
-    var erg = [];
-    for (var i = a.value.length - 1; i >= 0; i--) {
-        erg.push(a.value[i]);
+    var erg = new Array(a.value.length);
+    for (var i = a.value.length - 1, j = 0; i >= 0; i--, j++) {
+        erg[j] = a.value[i];
     }
 
     return {
@@ -893,6 +893,13 @@ List.isNumberMatrix = function(a) {
 };
 
 
+List._helper.isNumberMatrixMN = function(a, m, n) {
+    return List.isNumberMatrix(a).value &&
+        a.value.length === m &&
+        a.value[0].value.length === n;
+};
+
+
 List.scalproduct = function(a1, a2) {
     if (a1.value.length !== a2.value.length) {
         return nada;
@@ -1029,7 +1036,7 @@ List.mult = function(a, b) {
         return List.productVM(a, b);
     }
 
-    if (List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length === a.value[0].value.length) {
+    if (List.isNumberMatrix(a).value && List.isNumberMatrix(b).value && b.value.length === a.value[0].value.length) {
         return List.productMM(a, b);
     }
 
