@@ -149,7 +149,7 @@ You will be asked to edit a message for the tag.
 The suggested form is the following:
 
 ```
-CindyJS v1.19.0
+CindyJS 1.19.0
 
 Like CindyJS 2.1.0 but without the breaking changes from 2.0.0.
 ```
@@ -235,7 +235,7 @@ and paste the description you wrote above.
 (You can also click on the “…” link next to the tag name in the list of tags
 to expand the message so you can copy it from there.)
 
-Move the first line (“CindyJS v2.1.0”) from the description text area
+Move the first line (“CindyJS 2.1.0”) from the description text area
 to the release title form field.
 Remove the empty line that follows it, so the description text
 starts with the title of the first section of changes.
