@@ -219,10 +219,11 @@ git push --follow-tags origin master v1 v1.16 v1.15
 A push that includes version tags triggers the deployment process,
 since Travis will react to this new tag
 by building the files for deployment and pushing them to the cindyjs.org server.
-Look at [the Travis build status](https://travis-ci.org/CindyJS/CindyJS)
+Look at [the Travis build status][travis-builds]
 to see this progressing (and to investigate any problems that might occur).
 
 [CJS]: https://github.com/CindyJS/CindyJS
+[travis-builds]: https://travis-ci.org/CindyJS/CindyJS/builds
 
 ## Editing the release notes
 
