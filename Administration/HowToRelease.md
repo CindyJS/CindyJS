@@ -68,6 +68,10 @@ Cinderella compatibility:
 * Support foobars (#444)
 * Added function baz(‹list›) (#531)
 
+Improvements:
+
+* Increased frobenication performance (#432)
+
 Bug fixes:
 
 * Avoided bit overflow in fubb (#111, #112)
@@ -94,6 +98,17 @@ The breaking changes section should only occur for major version changes,
 the features and Cinderella compatibility only for minor or major
 version changes.
 The section on bug fixes should take this form for backported bug fixes, too.
+
+The line between features and improvements is blurry.
+The general rule is that making something possible that wasn't possible before
+is a feature, while making something that was already possible work better now
+is an improvement.
+However, sometimes an improvement will make a feature more widely applicable,
+to larger input or specific corner cases not covered before.
+That is still an improvement until the newly covered cases are of such high
+relevance that handling them does qualify as a new feature.
+Changes to plugins may be listed as improvements in order to not distract
+too much from the list of features of the core implementation.
 
 You will need this text in several places later on,
 so keep the editor window ready to copy and paste this text.
