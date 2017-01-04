@@ -42,6 +42,62 @@ All the examples below will be built on this.
 Adjust version numbers as needed, and in case of `0.x.y` releases,
 also shift the meaning of what is a major and what a minor bump.
 
+## Writing the message
+
+Later on there will be several occasions where we need a list of changes,
+or part of it, so it makes sense to start by writing that list in an editor.
+The most notable use case is the tag message, which is like a commit message.
+For release 2.1.0 this tag message should be formatted like this:
+
+```markdown
+CindyJS 2.1.0
+
+Breaking changes:
+
+* Changed unit of time from microfortnights to centiseconds (#666)
+  (This section should only be needed for MAJOR version changes!)
+
+Features:
+
+* Added some new feature (#123)
+* Implemented another required thing, consisting of several subcomponents
+  so that describing all of them requires more than one line (#345)
+
+Cinderella compatibility:
+
+* Support foobars (#444)
+* Added function baz(‹list›) (#531)
+
+Bug fixes:
+
+* Avoided bit overflow in fubb (#111, #112)
+
+Other:
+
+* Revised some examples (#543)
+```
+
+The first line should give the project name and version number,
+separated from the rest by an empty line.
+Then you list the major changes since the previous release.
+You can read them off the list of changes mentioned at the beginning
+of this document.
+Concentrate on the merges, but make sure you capture all relevant commits.
+Also name relevant GitHub tickets for pull requests and issues.
+
+The different sections above are a guideline to help categorize things
+and make it easier for readers to go over longer lists of changes
+in a systematic way.
+If you feel like adding a section, consider adding them to this manual as well.
+If one of the sections is empty, it can be omitted completely.
+The breaking changes section should only occur for major version changes,
+the features and Cinderella compatibility only for minor or major
+version changes.
+The section on bug fixes should take this form for backported bug fixes, too.
+
+You will need this text in several places later on,
+so keep the editor window ready to copy and paste this text.
+
 ## Backporting features
 
 Features should also be ported into older major version branches
@@ -107,7 +163,8 @@ replace the `--sign` (abbreviated `-s`) with `--annotate` (abbreviated `-a`).
 If there are bug fixes or internal improvements
 and you can be fairly sure that they won't break anything,
 these should be included in a new patch release for existing minor releases.
-For each version `x.y` that is still actively maintained,
+For each version `x.y` that is still actively maintained
+and affected by at least one of the bug fixes of the upcoming release,
 create or check out the corresponding branch:
 
 ```sh
@@ -117,8 +174,8 @@ git checkout v1.15            # existing branch from previous patch releases
 
 Then use [`git cherry-pick`][git-cherry-pick]
 to selectively choose the bug fixes to go into this specific branch.
-Create a signed tag like above, but use the message to list the bug fixes
-in a format similar to that described below.
+Create a signed tag like above, but use the bug fixes section from the
+tag message described above to explicitely list the picked fixes.
 
 Cherry-picking bug fixes may cause similar conflicts in several versions.
 Consider enabling [`git rerere`][git-rerere] in order to record your
@@ -135,64 +192,11 @@ git checkout master
 git tag --sign v2.1.0
 ```
 
-After entering a description (see next section),
-this will ask for the password to your GPG key.
+When asked to enter a description, copy and paste the message described above.
+After entering the description,
+you will be asked for the password to your GPG key.
 If for some reason you don't want to sign the release,
 replace the `--sign` (abbreviated `-s`) with `--annotate` (abbreviated `-a`).
-
-## Writing the message
-
-For release 2.1.0 the tag message (which is like a commit message)
-should be formatted like this:
-
-```markdown
-CindyJS 2.1.0
-
-Breaking changes:
-
-* Changed unit of time from microfortnights to centiseconds (#666)
-  (This section should only be needed for MAJOR version changes!)
-
-Features:
-
-* Added some new feature (#123)
-* Implemented another required thing, consisting of several subcomponents
-  so that describing all of them requires more than one line (#345)
-
-Cinderella compatibility:
-
-* Support foobars (#444)
-* Added function baz(‹list›) (#531)
-
-Bug fixes:
-
-* Avoided bit overflow in fubb (#111, #112)
-
-Other:
-
-* Revised some examples (#543)
-```
-
-The first line should give the project name and version number,
-separated from the rest by an empty line.
-Then you list the major changes since the previous release.
-You can read them off the list of changes mentioned at the beginning
-of this document.
-Concentrate on the merges, but make sure you capture all relevant commits.
-Also name relevant GitHub tickets for pull requests and issues.
-
-The different sections above are a guideline to help categorize things
-and make it easier for readers to go over longer lists of changes
-in a systematic way.
-If you feel like adding a section, consider adding them to this manual as well.
-If one of the sections is empty, it can be omitted completely.
-The breaking changes section should only occur for major version changes,
-the features and Cinderella compatibility only for minor or major
-version changes.
-The section on bug fixes should take this form for backported bug fixes, too.
-
-You will need this description text again later on,
-so consider copying it to the clipboard.
 
 ## Pushing the tags
 
@@ -227,9 +231,8 @@ and one on [releases][releases].
 After pushing a tag as described, it will appear in both of these.
 In the tags list you click a link “Add release notes”
 and paste the description you wrote above.
-(If you did not copy the description to your clipboard as suggested,
-clicking on the “…” link next to the tag name in the list of tags
-will expand the message so you can copy it from there.)
+(You can also click on the “…” link next to the tag name in the list of tags
+to expand the message so you can copy it from there.)
 
 Move the first line (“CindyJS v2.1.0”) from the description text area
 to the release title form field.
