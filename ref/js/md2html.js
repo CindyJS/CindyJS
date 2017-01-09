@@ -235,9 +235,10 @@ InMemoryPipeline.prototype.createPage = function(name) {
   return new Page(name);
 };
 
-InMemoryPipeline.prototype.addPage = function(name, md) {
+InMemoryPipeline.prototype.addPage = function(name, md, extra) {
   var self = this;
   var page = this.createPage(name);
+  page.extra = extra;
   var res = Q(md)
       .then(function(md) {
         page.md = md;
