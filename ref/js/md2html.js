@@ -451,8 +451,9 @@ function main() {
 
 // Backwards-compatibility since this was used in website creation
 module.exports.renderBody = function(md, cb) {
-  var page = new Page(null, md);
-  page.then(function() {
+  var page = new Page(null);
+  page.md = md;
+  page.renderBody().then(function() {
     cb(null, page.html);
   }, function(err) {
     cb(err, null);
