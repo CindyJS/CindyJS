@@ -25,7 +25,7 @@ fi
 # Deploy via rsync to cindyjs.org
 mkdir -p "${HOME}/.ssh"
 cat tools/cindyjs.org.pub >> "${HOME}/.ssh/known_hosts"
-rsync --delete-delay -rci --rsh='ssh -l travis' \
+rsync --delete-delay -rci --rsh='ssh -l deploy -p 7723' \
     build/deploy/ "cindyjs.org::CindyJS/${dir}/"
 
 # Deploy via git commit to “deploy” repository

@@ -350,7 +350,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
     for (let v in variables)
         if (variables[v].assigments.length >= 1 || variables[v].iterationvariable)
             variableDependendsOnPixel[v] = true;
-        //run expression to get all expr["dependsOnPixel"]
+    //run expression to get all expr["dependsOnPixel"]
     dependsOnPixel(expr);
 
 
@@ -696,7 +696,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
 
 
             code += `${webgltype(ittype)} ${it};\n`
-                //unroll forall/apply because dynamic access of arrays would require branching
+            //unroll forall/apply because dynamic access of arrays would require branching
             for (let i = 0; i < n; i++) {
                 code += `${it} = ${accesslist(arraytype, i)([sterm], [], this)};\n`
                 code += r.code;
