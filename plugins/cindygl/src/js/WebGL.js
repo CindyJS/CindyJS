@@ -502,23 +502,43 @@ webgl['arctan2'] = first([
 webgl["grey"] = webgl["gray"];
 
 
-webgl["min"] = first([
-    [
-        [type.int, type.int], type.int, usefunction('min')
-    ],
-    [
-        [type.float, type.float], type.float, usefunction('min')
-    ]
-]);
+webgl["min"] = args => {
+    let match = first([
+        [
+            [type.int, type.int], type.int, usefunction('min')
+        ],
+        [
+            [type.float, type.float], type.float, usefunction('min')
+        ]
+    ])(args);
+    if (match) return match;
 
-webgl["max"] = first([
-    [
-        [type.int, type.int], type.int, usefunction('max')
-    ],
-    [
-        [type.float, type.float], type.float, usefunction('max')
-    ]
-]);
+    if (args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]))
+        return {
+            args: args,
+            res: args[0].parameters,
+            generator: usemin(args[0]),
+        };
+}
+
+webgl["max"] = args => {
+    let match = first([
+        [
+            [type.int, type.int], type.int, usefunction('max')
+        ],
+        [
+            [type.float, type.float], type.float, usefunction('max')
+        ]
+    ])(args);
+    if (match) return match;
+
+    if (args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]))
+        return {
+            args: args,
+            res: args[0].parameters,
+            generator: usemax(args[0]),
+        };
+}
 
 
 webgl["complex"] = first([
@@ -617,6 +637,19 @@ webgl["imagergba"] = first([
         [type.coordinate2d, type.coordinate2d, type.image, type.coordinate2d], type.vec4, useimagergba4
     ]
 ]);
+
+webgl["reverse"] = args => args.length === 1 && args[0].type === 'list' ? ({
+    args: args,
+    res: args[0],
+    generator: usereverse(args[0]),
+}) : false;
+
+
+webgl["sort"] = args => args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]) ? ({
+    args: args,
+    res: args[0],
+    generator: usesort(args[0]),
+}) : false;
 
 
 Object.freeze(webgl);

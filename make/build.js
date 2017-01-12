@@ -351,6 +351,7 @@ module.exports = function build(settings, task) {
         "TypeHelper",
         "IncludeFunctions",
         "LinearAlgebra",
+        "Sorter",
         "WebGL",
         "CodeBuilder",
         "TextureReader"        

@@ -720,10 +720,13 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
 
     } else if (expr['oper'] === "if$2" || expr['oper'] === "if$3") {
         let cond = this.compile(expr['args'][0], true);
-        let ifbranch = this.compile(expr['args'][1], generateTerm);
+        let condt = this.getType(expr['args'][0]);
 
         let code = '';
         let ansvar = '';
+
+        let ifbranch = this.compile(expr['args'][1], generateTerm);
+
 
         if (generateTerm) {
             ansvar = generateUniqueHelperString();
@@ -732,22 +735,36 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
                 this.variables[ansvar].T = ctype;
             }
         }
-        code += cond.code;
-        code += `if(${cond.term}) {\n`;
-        code += ifbranch.code;
-        if (generateTerm) {
-            code += `${ansvar} = ${this.castType(ifbranch.term, this.getType(expr['args'][1]), ctype)};\n`;
+
+
+        if (condt.type != 'constant') {
+            code += cond.code;
+            code += `if(${cond.term}) {\n`;
+        }
+
+
+        if (condt.type != 'constant' || (condt.type == 'constant' && condt.value["value"])) {
+            code += ifbranch.code;
+            if (generateTerm) {
+                code += `${ansvar} = ${this.castType(ifbranch.term, this.getType(expr['args'][1]), ctype)};\n`;
+            }
         }
 
         if (expr['oper'] === "if$3") {
             let elsebranch = this.compile(expr['args'][2], generateTerm);
-            code += '} else {\n';
-            code += elsebranch.code;
-            if (generateTerm) {
-                code += `${ansvar} = ${this.castType(elsebranch.term, this.getType(expr['args'][2]), ctype)};\n`;
+            if (condt.type != 'constant')
+                code += '} else {\n';
+
+
+            if (condt.type != 'constant' || (condt.type == 'constant' && !condt.value["value"])) {
+                code += elsebranch.code;
+                if (generateTerm) {
+                    code += `${ansvar} = ${this.castType(elsebranch.term, this.getType(expr['args'][2]), ctype)};\n`;
+                }
             }
         }
-        code += '}\n';
+        if (condt.type != 'constant')
+            code += '}\n';
         return (generateTerm ? {
             code: code,
             term: ansvar,
