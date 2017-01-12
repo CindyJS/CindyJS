@@ -49,6 +49,9 @@
 			n = 5;
 			
 			lastf = "";
+			
+			zoom = 1;
+			lzoom = zoom;
 
     </script>
 		
@@ -59,23 +62,24 @@
 		);
 	
 		
+		
 		factorial(n) := if(n==0, 1, n*factorial(n-1));
 		
-		coeff = autodiff(f(z), [complex(A)], n)_1;
+		coeff = autodiff(f(z), [complex(A*zoom)], n)_1;
 		forall(0..n, k, coeff_(k+1)=coeff_(k+1)/factorial(k));
 		
-		t(z) := coeff*apply(0..n, k, (z-complex(A))^k);
+		t(z) := coeff*apply(0..n, k, (z-complex(A*zoom))^k);
 		
 
     colorplot(
-			z = complex(#);
+			z = zoom*complex(#);
 			color(t(z));
 			,
 			(-2,-2),(2,2)
 		);
 		
 		colorplot(
-			z = complex(#)+4;
+			z = zoom*(complex(#)+4);
 			color(f(z));
 			,
 			(-6,-2),(-2,2)
@@ -90,22 +94,42 @@
 		n = round(5*(N.y+1.8));
 		n = max(1, n);
 		N.y = n/5-1.8;
+		
+		draw((-5,-1.8),(1,-1.8), color->[0,0,0]);
+		drawtext((1.1,N.y),"$n = " + n + "$");
+		Zoom.y = -1.8;
+		
+		Zoom.x = max(Zoom.x, -5);
+		Zoom.x = min(Zoom.x, 1);
+		
+		zoom = exp(.5*(Zoom.x+3));
+		
+		if(lzoom!=zoom,
+			A.xy = A.xy*lzoom/zoom;
+		);
+		lzoom = zoom;
+		
     </script>
                
+		<select size="5" id="sel" onchange="cdy.evokeCS(this.value);" style="width:10em;">  
+			<option value='Input.text = "1/z";'>1/z</option>
+			<option value='Input.text = "z^(1/2)";'>square root</option>
+			<option value='Input.text = "log(z)";'>logarithm</option>
+			<option value='Input.text = "sin(z)";'>sine</option>
+			<option value='Input.text = "sin(z)/cos(z)";'>tangens</option>
+			<option value='Input.text = "exp(z)";'>exponential function</option>
+		</select>
 
-    
-    <div  id="CSCanvas"></div>
+    <div id="CSCanvas"></div>
 		
     <script type="text/javascript">
-        CindyJS({canvasname:"CSCanvas",
+        var cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry: [
 											{name:"A", type:"Free", pos:[1.1, 0.1],color:[1,0,0]},
-	    								{name:"N", type:"Free", pos:[1, -.3],color:[1,1,1], size:8},
-											
-											{name: "Input", type: "EditableText", pos: [-5.2, 1.7], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 123, text: "1/(z^2+1)"},										
-											{name: "sqrt", type: "Button", pos: [-3.8, 1.7], color: [0.0, 0.0, 0.0], text: "z^(1/2)", align: "left", alpha: 0.5, script: 'Input.text = "z^(1/2)"'},
-											{name: "log", type: "Button", pos: [-3, 1.7], color: [0.0, 0.0, 0.0], text: "log(z)", align: "left", script: 'Input.text = "log(z)"'},
+	    								{name:"N", type:"Free", pos:[1, 0],color:[1,1,1], size:8},
+											{name:"Zoom", type:"Free", pos:[-2, -.3],color:[1,1,1], size:8},
+											{name: "Input", type: "EditableText", pos: [-5.2, 1.7], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 300, text: "1/(z^2+1)"}
 										],
                     animation: {autoplay: true},
                     ports: [{
