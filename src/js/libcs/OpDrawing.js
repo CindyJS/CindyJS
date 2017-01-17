@@ -379,7 +379,9 @@ function solveRealQuadraticHomog(a, b, c) {
 function solveRealQuadratic(a, b, c) {
     var hom = solveRealQuadraticHomog(a, b, c);
     if (hom === null) return null;
-    return [hom[0][0] / hom[0][1], hom[1][0] / hom[1][1]];
+    var s1 = hom[0][0] / hom[0][1];
+    var s2 = hom[1][0] / hom[1][1];
+    return s2 < s1 ? [s2, s1] : [s1, s2];
 }
 
 function DbgCtx() {
@@ -515,151 +517,164 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         };
     }
 
-    // Intersect conic with boundary of canvas
-    var yLeft = solveRealQuadratic(c02, c01, c00); // x = 0
-    var yRight = solveRealQuadratic( // x = csw
-        c02, c11 * csw + c01, (c20 * csw + c10) * csw + c00);
-    var xTop = solveRealQuadratic(c20, c10, c00); // y = 0
-    var xBottom = solveRealQuadratic(
-        c20, c11 * csh + c10, (c02 * csh + c01) * csh + c00);
-    var tl = sign(0, 0);
-    var tr = sign(csw, 0);
-    var bl = sign(0, csh);
-    var br = sign(csw, csh);
-    if (!isFinite(tl * tr * bl * br))
-        return;
+    var margin = Render2D.lsize;
+    var minx = -margin;
+    var miny = -margin;
+    var maxx = csw + margin;
+    var maxy = csh + margin;
     var boundary = [];
+    var dummy = {};
+    var prev = dummy;
 
-    function doBoundary(sign1, sign2, sol, other, vert, sort, extent) {
-        var coord, signMid;
+    function link(pt) {
+        prev.next = pt;
+        pt.prev = prev;
+        prev = pt;
+        return pt;
+    }
+
+    function verticalBoundary(x, y1, y2, index) {
+        return {
+            a: x,
+            b1: y1,
+            b2: y2,
+            vertical: true,
+            index: index,
+            sign: function(y) {
+                return sign(x, y);
+            },
+            mkp: function(y) {
+                return mkp(x, y);
+            },
+            sol: solveRealQuadratic(
+                c02, c11 * x + c01, (c20 * x + c10) * x + c00),
+            discr: function() {
+                // Compute the roots of the y discriminant
+                // for points with vertical tangents
+                return solveRealQuadratic(k00, -2 * k10, k20);
+            },
+            tpt: function(x) {
+                // y coordinate of point with vertical tangent
+                return mkp(x, -0.5 * (c11 * x + c01) / c02);
+            },
+        };
+    }
+
+    function horizontalBoundary(y, x1, x2, index) {
+        return {
+            a: y,
+            b1: x1,
+            b2: x2,
+            vertical: false,
+            index: index,
+            sign: function(x) {
+                return sign(x, y);
+            },
+            mkp: function(x) {
+                return mkp(x, y);
+            },
+            sol: solveRealQuadratic(
+                c20, c11 * y + c10, (c02 * y + c01) * y + c00),
+            discr: function() {
+                // Compute the roots of the x discriminant
+                // for points with horizontal tangents
+                return solveRealQuadratic(k00, -2 * k01, k02);
+            },
+            tpt: function(y) {
+                // x coordinate of point with horizontal tangent
+                return mkp(-0.5 * (c11 * y + c10) / c20, y);
+            },
+        };
+    }
+
+    function doBoundary(bd) {
+        var bMin = Math.min(bd.b1, bd.b2);
+        var bMax = Math.max(bd.b1, bd.b2);
+        var sign1 = bd.sign(bMin);
+        var sign2 = bd.sign(bMax);
+        if (!isFinite(sign1 * sign2))
+            return false;
+        var sol = bd.sol;
+        var b, signMid;
         if (sign1 !== sign2) { // we need exactly one point of intersection
             if (sol === null)
-                return false;
-            coord = 0.5 * (sol[0] + sol[1]);
-            if (coord > 0 && coord < extent) {
+                return false; // don't have one, give up and don't draw
+            b = 0.5 * (sol[0] + sol[1]);
+            if (b > bMin && b < bMax) {
                 // solutions might be close to opposite corners,
                 // so we use the sign to pick the appropriate one
-                if (sol[0] > sol[1])
-                    sol = [sol[1], sol[0]];
-                signMid = vert ? sign(other, coord) : sign(coord, other);
+                signMid = bd.sign(b);
                 // We have two possible arrangements or corners and crossings:
                 //          sign1 == signMid != sign2
                 //    sol[0]               sol[1]
                 // sign1 != signMid == sign2
-                coord = sol[signMid === sign2 ? 0 : 1];
+                b = sol[signMid === sign2 ? 0 : 1];
             } else {
                 // solutions will be off to one side, so we pick the
                 // one which is closer to the center of this egde
-                var center = extent * 0.5;
+                var center = (bMin + bMax) * 0.5;
                 var dist0 = Math.abs(center - sol[0]);
                 var dist1 = Math.abs(center - sol[1]);
-                coord = sol[dist0 < dist1 ? 0 : 1];
+                b = sol[dist0 < dist1 ? 0 : 1];
             }
-            boundary.push(vert ? mkp(other, coord) : mkp(coord, other));
+            boundary.push(link(bd.mkp(b)));
         } else { // we need zero or two points of intersection
-            if (sol === null) // have zero intersections
+            if (sol === null) { // have zero intersections
+                if (discr <= 0) // not an ellipse
+                    return true;
+                sol = bd.discr();
+                if (sol === null)
+                    return true; // an ellipse without tangent?
+                var pt = bd.tpt(sol[bd.index]);
+                if (pt.x >= minx && pt.x <= maxx &&
+                    pt.y >= miny && pt.y <= maxy)
+                    link(pt); // link but don't add to boundary
                 return true;
-            coord = 0.5 * (sol[0] + sol[1]);
-            if (!(coord > 0 && coord < extent))
-                return true;
-            signMid = vert ? sign(other, coord) : sign(coord, other);
-            if (signMid === sign1) // intersections outside segment
-                return true;
+            }
+            // have two points of intersection with line
+            b = 0.5 * (sol[0] + sol[1]);
+            if (!(b > bMin && b < bMax))
+                return true; // both intersections off to one end
+            signMid = bd.sign(b);
+            if (signMid === sign1)
+                return true; // one intersection outside each end
             if (isNaN(signMid))
                 return true;
-            // Have two points of solution
-            sort = sort * (sol[1] - sol[0]) > 0 ? 0 : 1;
-            coord = sol[sort];
-            boundary.push(vert ? mkp(other, coord) : mkp(coord, other));
-            coord = sol[1 - sort];
-            boundary.push(vert ? mkp(other, coord) : mkp(coord, other));
+            // have two points of intersection with segment
+            if (bd.b1 > bd.b2)
+                sol = [sol[1], sol[0]];
+            boundary.push(link(bd.mkp(sol[0])));
+            boundary.push(link(bd.mkp(sol[1])));
         }
         return true;
     }
 
-    if (!(doBoundary(tl, bl, yLeft, 0, true, 1, csh) &&
-            doBoundary(bl, br, xBottom, csh, false, 1, csw) &&
-            doBoundary(tr, br, yRight, csw, true, -1, csh) &&
-            doBoundary(tl, tr, xTop, 0, false, -1, csw)))
+    if (!(doBoundary(verticalBoundary(minx, miny, maxy, 0)) &&
+            doBoundary(horizontalBoundary(maxy, minx, maxx, 1)) &&
+            doBoundary(verticalBoundary(maxx, maxy, miny, 1)) &&
+            doBoundary(horizontalBoundary(miny, maxx, minx, 0))))
         return;
 
-    function segmentEllipse() {
-        if (discr <= 0)
-            return false;
-
-        var initialLength = boundary.length;
-        var x, y;
-
-        // Compute the roots of the y discriminant
-        // for points with vertical tangents
-        sol = solveRealQuadratic(k00, -2 * k10, k20);
-        if (sol)
-            for (i = 0; i < 2; ++i) {
-                x = sol[i];
-                y = -0.5 * (c11 * x + c01) / c02;
-                if (x >= 0 && x <= csw && y >= 0 && y <= csh)
-                    boundary.push(mkp(x, y));
-            }
-
-        // Compute the roots of the x discriminant
-        // for points with horizontal tangents
-        sol = solveRealQuadratic(k00, -2 * k01, k02);
-        if (sol)
-            for (i = 0; i < 2; ++i) {
-                y = sol[i];
-                x = -0.5 * (c11 * y + c10) / c20;
-                if (x >= 0 && x <= csw && y >= 0 && y <= csh)
-                    boundary.push(mkp(x, y));
-            }
-
-        if (boundary.length === initialLength)
-            return false;
-
-        if (csctx.special) { // begin DEBUG code
-            csctx.special.push([ccx, ccy]);
-            for (i = initialLength; i < boundary.length; ++i)
-                csctx.special.push([boundary[i].x, boundary[i].y]);
-        } // end DEBUG code
-        for (i = 0; i < boundary.length; ++i)
-            boundary[i].angle = Math.atan2(
-                boundary[i].y - ccy, boundary[i].x - ccx);
-        boundary.sort(function(a, b) {
-            return b.angle - a.angle; // counter-clockwise in y is down cosy
-        });
-        return true;
-    }
+    if (prev === dummy)
+        return; // no boundary or tangent points at all, nothing to draw
+    // close the cycle
+    prev.next = dummy.next;
+    dummy.next.prev = prev;
 
     csctx.beginPath();
+    var pt1, pt2, pt3;
     if (boundary.length === 0) {
-        segmentEllipse();
-        if (boundary.length !== 4)
-            return;
-        csctx.moveTo(boundary[0].x, boundary[0].y);
-        for (i = 0; i < 4; ++i)
-            drawArc(boundary[i], boundary[(i + 1) & 3]);
+        pt1 = prev;
+        csctx.moveTo(pt1.x, pt1.y);
+        do {
+            pt2 = pt1.next;
+            drawArc(pt1, pt2);
+            pt1 = pt2;
+        } while (pt1 !== prev);
         csctx.closePath();
-    } else if (boundary.length > 4) {
-        // Ellipse; we always connect points spanning an outside segment.
-        for (i = (tl === 1 ? 0 : 1); i < boundary.length; i += 2) {
-            csctx.moveTo(boundary[i].x, boundary[i].y);
-            drawArc(boundary[i], boundary[(i + 1) % boundary.length]);
-        }
-    } else if (boundary.length === 2) {
-        var p0 = boundary[0];
-        var p1 = boundary[1];
-        if (segmentEllipse()) {
-            var i0 = boundary.indexOf(p0);
-            var i1 = boundary.indexOf(p1);
-            var iMin = Math.min(i0, i1);
-            var iMax = Math.max(i0, i1);
-            if (!(iMin === 0 && iMax === boundary.length - 1))
-                boundary = boundary.slice(iMax).concat(
-                    boundary.slice(0, iMin + 1));
-        }
-        csctx.moveTo(boundary[0].x, boundary[0].y);
-        for (i = 1; i < boundary.length; ++i)
-            drawArc(boundary[i - 1], boundary[i]);
-    } else { // 4 points of intersection
+    }
+    var startIndex = (sign(minx, miny) === 1 ? 0 : 1);
+    if (boundary.length === 4) {
         // We have 4 points of intersection.  For a hyperbola, these
         // may belong to different branches.  If the line joining them
         // intersects the line at infinity on the inside, they belong
@@ -671,33 +686,27 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
         // and take the stronger signal, i.e. larger absolute value.
         var best = 0;
         for (i = 0; i < 2; ++i) {
-            var ptA = boundary[i];
-            var ptB = boundary[i + 2];
-            var dx = ptB.x - ptA.x;
-            var dy = ptB.y - ptA.y;
+            pt1 = boundary[i];
+            pt2 = boundary[i + 2];
+            var dx = pt2.x - pt1.x;
+            var dy = pt2.y - pt1.y;
             // compute sign at infinity
             var s = (c20 * dx + c11 * dy) * dx + c02 * dy * dy;
             if (Math.abs(s) > Math.abs(best))
                 best = s;
-            ptA = ptB;
         }
         if (isNaN(best))
             return;
-        best *= tl;
-        for (i = (best >= 0 ? 1 : 0); i < 4; i += 2)
-            boundary[i].end = boundary[(i + 1) & 3];
+        if (best >= 0)
+            startIndex = 1 - startIndex;
+    }
 
-        segmentEllipse();
-        var n = boundary.length;
-        boundary = boundary.concat(boundary); // wrap around
-        for (i = 0; i < n; ++i) {
-            var start = boundary[i];
-            var end = start.end;
-            if (!end)
-                continue;
-            csctx.moveTo(start.x, start.y);
-            for (var j = i; boundary[j] !== end; ++j)
-                drawArc(boundary[j], boundary[j + 1]);
+    for (i = startIndex; i < boundary.length; i += 2) {
+        pt1 = boundary[i];
+        pt3 = boundary[(i + 1) % boundary.length];
+        csctx.moveTo(pt1.x, pt1.y);
+        for (pt2 = pt1.next; pt1 !== pt3; pt2 = (pt1 = pt2).next) {
+            drawArc(pt1, pt2);
         }
     }
     csctx.stroke();
@@ -749,8 +758,6 @@ eval_helper.drawconic = function(conicMatrix, modifs) {
                 sol = [-0.5 * dMh / dMd, -2 * hMh / dMh];
             }
             // Now we have to points, h + sol[i] * d, and have to pick one.
-            if (sol[0] > sol[1])
-                sol = [sol[1], sol[0]];
             if (sol[0] > 0) {
                 // both roots positive, so we pick the one which is closer
                 sol = sol[0];
