@@ -197,31 +197,24 @@
             
             polyvalues = apply(li, F(ray(pos, #)));
             poly = B * polyvalues; //interpolate
-            //poly = 1/(poly_N)*poly;
             dpoly = d(poly);
+          
+            z = apply(1..(N-1), l+#*(u-l)/(N-1)); //take real roots as starting value
             
-            //z = apply(1..(N-1), random()+i*random());
-            z = apply(1..(N-1), re(sqrt(#/N))*exp(i*#*137.508°)); //sunflower spiral in D_1
-            
-            //z = apply(1..(N-1), -(poly_(N-1))/(poly_N*(N-1))+exp(2*pi*i*#/(N-1)));
-            //z = apply(1..(N-1), (2*#/(N-1))-.5);
-            
-            repeat(12,
+            repeat(15,
               forall(1..(N-1), k,
                 su = 0;
                 forall(1..(N-1), j, if(j!=k, su = su+1/(z_k-z_j)));
-                newton = eval(poly, z_k)/eval(dpoly, z_k);
+                newton = F(ray(pos, z_k))/eval(dpoly, z_k);
                 z_k = z_k-newton/(1-newton*su)
               );
             );
             
             forall(
-             reverse(sort(apply(z, if(|im(#)|<0.01, re(#), oo)))), //only take real roots
+             reverse(sort(apply(z, if(|F(ray(pos, #))|<0.001, re(#), oo)))), //only take real roots
              color = updatecolor(pos, #, color); );
             
-        );
-      //  color_1 = color_1+1/exp(|poly_(N)|);
-        color
+        ); color
     );
     </script>
     

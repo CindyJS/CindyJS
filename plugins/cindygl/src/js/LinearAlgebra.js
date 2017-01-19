@@ -197,7 +197,7 @@ function uselist(t) {
     if (isnativeglsl(t)) {
         return (args, modifs, codebuilder) => `${webgltype(t)}(${args.join(',')})`;
     }
-    if (d == 1 && isrvectorspace(t)) return usevec(t.length);
+    if (d == 1 && t.parameters === type.float) return usevec(t.length);
     return (args, modifs, codebuilder) => createstruct(t, codebuilder) || `${webgltype(t)}(${args.join(',')})`;
 }
 
