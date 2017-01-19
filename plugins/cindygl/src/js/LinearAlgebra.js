@@ -242,3 +242,62 @@ function usecscalarmult(t) { //assume t is a R or C-vectorspace, multiply with c
     if (t === type.complex) return useincludefunction('multc');
     return (args, modifs, codebuilder) => generatecscalarmult(t, modifs, codebuilder) || `cscalarmult${webgltype(t)}(${args.join(',')})`;
 }
+
+
+// Build reverse function
+function generatereverse(t, modifs, codebuilder) {
+    let name = `reverse${webgltype(t)}`;
+    codebuilder.add('functions', name, () => `${webgltype(t)} ${name}(${webgltype(t)} a){` +
+        `${webgltype(t.parameters)} m;\n` +
+        range(Math.floor(t.length / 2)).map(function(i) {
+            let a = accesslist(t, i)(['a', i], modifs, codebuilder);
+            let b = accesslist(t, t.length - 1 - i)(['a', t.length - 1 - i], modifs, codebuilder);
+            //swap a<->b
+            return `m = ${a}; ${a} = ${b}; ${b} = m;`;
+        }).join('\n') +
+        `return a;
+      }`);
+}
+
+
+function usereverse(t) {
+    return (args, modifs, codebuilder) => generatereverse(t, modifs, codebuilder) || `reverse${webgltype(t)}(${args.join(',')})`;
+}
+
+
+// Build max function
+function generatemax(t, modifs, codebuilder) {
+    let name = `max${webgltype(t)}`;
+    codebuilder.add('functions', name, () => `${webgltype(t.parameters)} ${name}(${webgltype(t)} a){` +
+        `${webgltype(t.parameters)} m;\n` +
+        range(t.length).map(function(i) {
+            let a = accesslist(t, i)(['a', i], modifs, codebuilder);
+            //update m to max
+            return `m = max(m,${a});`;
+        }).join('\n') +
+        `return m;
+      }`);
+}
+
+function usemax(t) {
+    return (args, modifs, codebuilder) => generatemax(t, modifs, codebuilder) || `max${webgltype(t)}(${args.join(',')})`;
+}
+
+
+// Build min function
+function generatemin(t, modifs, codebuilder) {
+    let name = `min${webgltype(t)}`;
+    codebuilder.add('functions', name, () => `${webgltype(t.parameters)} ${name}(${webgltype(t)} a){` +
+        `${webgltype(t.parameters)} m;\n` +
+        range(t.length).map(function(i) {
+            let a = accesslist(t, i)(['a', i], modifs, codebuilder);
+            //update m to min
+            return `m = min(m,${a});`;
+        }).join('\n') +
+        `return m;
+      }`);
+}
+
+function usemin(t) {
+    return (args, modifs, codebuilder) => generatemin(t, modifs, codebuilder) || `min${webgltype(t)}(${args.join(',')})`;
+}
