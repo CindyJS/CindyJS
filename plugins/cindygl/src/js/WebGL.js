@@ -297,6 +297,12 @@ webgl["mult"] = args => {
             [type.float, type.float], type.float, useinfix('*')
         ],
         [
+            [type.complex, type.float], type.complex, useinfix('*')
+        ],
+        [
+            [type.float, type.complex], type.complex, useinfix('*')
+        ],
+        [
             [type.complex, type.complex], type.complex, useincludefunction('multc')
         ],
     ])(args);
@@ -384,6 +390,12 @@ webgl["div"] = args => {
     let match = first([
         [
             [type.float, type.float], type.float, useinfix('/')
+        ],
+        [
+            [type.float, type.complex], type.complex, useincludefunction('divfc')
+        ],
+        [
+            [type.complex, type.float], type.complex, useinfix('/')
         ],
         [
             [type.complex, type.complex], type.complex, useincludefunction('divc')

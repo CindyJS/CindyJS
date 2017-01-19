@@ -213,11 +213,17 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
         expr.bindings = bindings;
         for (let i in expr['args']) {
             let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
-            let nbindings = i >= 1 && (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
-                i >= 1 && (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
-                i >= 1 && (expr['oper'] === "forall$2" || expr['oper'] === "apply$2") ? addvar(bindings, '#', false) :
-                i >= 1 && (expr['oper'] === "forall$3" || expr['oper'] === "apply$3") ? addvar(bindings, expr['args'][1]['name'], false) :
-                bindings;
+            let nbindings = bindings;
+            if (["repeat", "forall", "apply"].indexOf(getPlainName(expr['oper'])) != -1) {
+                if (i == 1) {
+                    nbindings = (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
+                        (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
+                        (expr['oper'] === "forall$2" || expr['oper'] === "apply$2") ? addvar(bindings, '#', false) :
+                        (expr['oper'] === "forall$3" || expr['oper'] === "apply$3") ? addvar(bindings, expr['args'][1]['name'], false) : bindings;
+                } else if (i == 2) { //take same bindings as for second argument
+                    nbindings = expr['args'][1].bindings;
+                }
+            }
             rec(expr['args'][i],
                 nbindings,
                 scope,
@@ -694,8 +700,8 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
                 code += `${webgltype(arraytype)} ${sterm} = ${array.term};\n`;
             }
 
+            this.variables[it]['global'] = true;
 
-            code += `${webgltype(ittype)} ${it};\n`
             //unroll forall/apply because dynamic access of arrays would require branching
             for (let i = 0; i < n; i++) {
                 code += `${it} = ${accesslist(arraytype, i)([sterm], [], this)};\n`
@@ -952,7 +958,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
 
 
     for (let iname in this.variables)
-        if (this.variables[iname]['global']) {
+        if (this.variables[iname].T && this.variables[iname]['global']) {
             code += `${webgltype(this.variables[iname].T)} ${iname};\n`;
         }
 
