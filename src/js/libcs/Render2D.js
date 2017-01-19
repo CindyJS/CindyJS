@@ -6,7 +6,7 @@ Render2D.handleModifs = function(modifs, handlers) {
         Render2D.unSetDash();
     Render2D.colorraw = null;
     Render2D.fillcolorraw = null;
-    Render2D.fillrule = "evenodd";
+    Render2D.fillrule = "nonzero";
     Render2D.size = null;
     if (Render2D.psize <= 0) Render2D.psize = 0;
     if (Render2D.lsize <= 0) Render2D.lsize = 0;
