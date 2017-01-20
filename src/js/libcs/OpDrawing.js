@@ -789,7 +789,7 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     Render2D.preDrawCurve();
-    csctx.mozFillRule = 'evenodd';
+
 
     var m = csport.drawingstate.matrix;
 
@@ -842,13 +842,13 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     if (df === "D") {
         if (Render2D.fillColor) {
             csctx.fillStyle = Render2D.fillColor;
-            csctx.fill();
+            csctx.fill(Render2D.fillrule);
         }
         csctx.stroke();
     }
     if (df === "F") {
         csctx.fillStyle = Render2D.lineColor;
-        csctx.fill();
+        csctx.fill(Render2D.fillrule);
     }
     if (df === "C") {
         csctx.clip();
