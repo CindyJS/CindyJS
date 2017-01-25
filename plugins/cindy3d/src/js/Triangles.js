@@ -151,7 +151,7 @@ Triangles.prototype.addPolygonWithNormalsAndColors = function(pos, n, c, appeara
   console.error("addPolygonWithNormalsAndColors not supported for more than 4 corners");
 };
 
-/** @type {?createCindy.img} */
+/** @type {?CindyJS.image} */
 Triangles.prototype.texture = null;
 
 /** @type {?WebGLTexture} */
@@ -175,7 +175,7 @@ Triangles.prototype.render = function(viewer) {
                      gl.LINEAR_MIPMAP_LINEAR);
     gl.hint(gl.GENERATE_MIPMAP_HINT, gl.NICEST);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
-                  this.texture);
+                  this.texture.img);
     gl.generateMipmap(gl.TEXTURE_2D);
     this.renderPrimitives(gl, u => {
       viewer.setUniforms(u);
