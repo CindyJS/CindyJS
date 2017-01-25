@@ -73,8 +73,7 @@ Triangles.prototype.addWithNormalsAndColors = function(
  * @param {Appearance} appearance
  */
 Triangles.prototype.addAutoNormal = function(pos1, pos2, pos3, appearance) {
-  let p1 = dehom3(pos1), v = sub3(dehom3(pos2), p1), w = sub3(dehom3(pos3), p1);
-  let n = normalized3(cross3(v, w));
+  let n = triangleNormal(pos1, pos2, pos3);
   this.addWithNormals(pos1, pos2, pos3, n, n, n, appearance);
 };
 
@@ -170,7 +169,7 @@ Triangles.prototype.render = function(viewer) {
     gl.bindTexture(gl.TEXTURE_2D, this.textureObj);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
                      gl.LINEAR_MIPMAP_LINEAR);
     gl.hint(gl.GENERATE_MIPMAP_HINT, gl.NICEST);
