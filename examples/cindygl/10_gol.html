@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Game of Life on GPU</h1>
+    
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      
+      
+      L = [0, 0]; //bottom left corner
+      R = [128, 0]; //bottom right corner
+      
+      createimage("gol", 128, 128);
+      
+      animate = true;
+      colorplot(L, R, "gol", if(random()>.6,1,0)); //random stuff as starting image
+    </script>
+    
+    <script id="csmousedown" type="text/x-cindyscript">
+      animate = false;
+    </script>
+    <script id="csmouseup" type="text/x-cindyscript">
+      animate = true;
+    </script>
+    
+    <script id="cskeydown" type="text/x-cindyscript">
+      print("pressed key" + keycode());
+      if(keycode()==32, colorplot(L, R, "gol", 0)); //space -> black
+      if(keycode()==82, colorplot(L, R, "gol", if(random()>.6,1,0))); //R -> random image
+    </script>
+
+    <script id="csdraw" type="text/x-cindyscript">
+      if(!animate, setpixel("gol", floor(mouse().x), floor(mouse().y), (1,1,1)));
+      
+      get(x, y) :=  imagergb((0,0), (128,0), "gol", (mod(x,128),mod(y,128)), interpolate->false).r; //Tourus world
+      
+      newstate(x, y) := (
+        regional(number);
+        number =
+          get(x-1, y+1) + get(x, y+1) + get(x+1, y+1) +
+          get(x-1, y) +                 get(x+1, y) +
+          get(x-1, y-1) + get(x, y-1) + get(x+1, y-1);
+        if(get(x,y)==1,
+        
+          //if the cell lives then it will die if it has less than 2 neigbours or more than 3 neighbours
+          if((number < 2) % (number > 3), 0, 1),
+          
+          //if cell was dead then 3 are required to be born
+          if(number==3, 1, 0)
+        )
+      );
+      
+      if(animate, colorplot(L, R, "gol", newstate(#.x, #.y)));
+      
+      //plots to canvas using no interpolation
+      colorplot(imagergb(L, R, "gol", #, interpolate->false));
+    </script>
+    
+   <ul>
+     <li>
+    Click on canvas to interact!
+     </li>
+      <li>
+    Press R to reset to some random configuration.
+      </li>
+      <li>
+    Press SPACE to reset to blank configuration.
+      </li>
+    </ul>
+  <div id="CSCanvas" style="position:relative; top:10px;"></div>
+    
+
+    
+    <script type="text/javascript">     
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:[],
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 512,
+                      height: 512,
+                      transform: [ { visibleRect: [0, 0, 128, 128] } ]
+                    }]
+                  });
+        
+        var canvas = document.getElementById("CSCanvas");
+        canvas.focus();
+          
+    </script>              
+	</body>
+</html>

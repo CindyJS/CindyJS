@@ -18,7 +18,7 @@ drawtext([-5,-3],"$A=\begin{pmatrix}" + format(A.x, 4) +
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({ // See ref/createCindy documentation for details.
+var cdy = CindyJS({ // See ref/createCindy documentation for details.
   ports: [{id: "CSCanvas"}],
   scripts: "cs*",
   language: "en",
@@ -40,9 +40,8 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="500" height="500"
-          style="border:2px solid black"></canvas>
-  <p id="nofonts">If you don't see any labels, and are using Firefox, please enable the <a href="http://kb.mozillazine.org/Security.fileuri.strict_origin_policy">security.fileuri.strict_origin_policy setting</a> to allow local access to the required fonts.</p>
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+  <p id="nofonts">If you don't see any labels, and are using Firefox, please enable the <a href="http://kb.mozillazine.org/Security.fileuri.strict_origin_policy">security.fileuri.strict_origin_policy setting</a> to allow local access to the required fonts.  Or use the <code>st</code> module to serve the example via HTTP, as described in the README.</p>
 </body>
 
 </html>

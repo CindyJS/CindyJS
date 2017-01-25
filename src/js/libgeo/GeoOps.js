@@ -8,7 +8,11 @@ geoOps._helper = {};
  * C  - Conic (including circle)
  * *s - Set of *
  * Tr - Projective transformation
- * Mt - Moebius transformation
+ * Mt - Moebius transformation (or anti-Moebius)
+ * V  - (numeric) value
+ * Text - Text
+ * "**" - arbitrary number of arguments with arbitrary types
+ * Poly - Polygons
  */
 
 
@@ -30,12 +34,19 @@ geoOps.FreeLine.kind = "L";
 geoOps.FreeLine.signature = [];
 geoOps.FreeLine.isMovable = true;
 geoOps.FreeLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     putStateComplexVector(pos);
 };
 geoOps.FreeLine.getParamForInput = function(el, pos, type) {
-    var homog = List.cross(pos, List.ez);
-    homog = List.cross(homog, pos);
+    var homog;
+    if (type === "mouse") {
+        homog = List.cross(pos, List.ez);
+        homog = List.cross(homog, pos);
+    } else if (type === "homog") {
+        homog = pos;
+    } else {
+        homog = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
+    }
     return List.normalizeMax(homog);
 };
 geoOps.FreeLine.getParamFromState = function(el) {
@@ -82,12 +93,21 @@ geoOps.Segment.signature = ["P", "P"];
 geoOps.Segment.updatePosition = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     var el2 = csgeo.csnames[(el.args[1])];
-    el.homog = List.cross(el1.homog, el2.homog);
-    el.homog = List.normalizeMax(el.homog);
-    el.homog = General.withUsage(el.homog, "Line");
-    el.startpos = el1.homog;
-    el.endpos = el2.homog;
-    el.farpoint = List.cross(el.homog, List.linfty);
+    geoOps.Segment.setSegmentPos(el,
+        List.cross(el1.homog, el2.homog),
+        List.scalmult(el2.homog.value[2], el1.homog),
+        List.scalmult(el1.homog.value[2], el2.homog)
+    );
+};
+geoOps.Segment.setSegmentPos = function(el, line, start, end) {
+    line = List.normalizeMax(line);
+    el.homog = General.withUsage(line, "Line");
+    var startend = List.turnIntoCSList([start, end]);
+    startend = List.normalizeMax(startend); // Normalize together!
+    el.startpos = startend.value[0];
+    el.endpos = startend.value[1];
+    // So  midpoint = startpos + endpos
+    // and farpoint = startpos - endpos
 };
 
 
@@ -107,10 +127,10 @@ geoOps.Meet.visiblecheck = function(el) {
     var el1 = csgeo.csnames[(el.args[0])];
     var el2 = csgeo.csnames[(el.args[1])];
 
-    if (el1.type === "Segment") {
+    if (el1.kind === "S") {
         visible = onSegment(el, el1);
     }
-    if (visible && el1.type === "Segment") {
+    if (visible && el2.kind === "S") {
         visible = onSegment(el, el2);
     }
     el.isshowing = visible;
@@ -176,14 +196,23 @@ geoOps.HorizontalLine.kind = "L";
 geoOps.HorizontalLine.signature = [];
 geoOps.HorizontalLine.isMovable = true;
 geoOps.HorizontalLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([CSNumber.zero, pos.value[1], pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
 };
 geoOps.HorizontalLine.getParamForInput = function(el, pos, type) {
-    var homog = List.cross(pos, List.ex);
-    return List.normalizeMax(homog);
+    if (type === "mouse") {
+        pos = List.cross(pos, List.ex);
+    } else if (type === "homog") {
+        if (pos.value[0].real !== 0 || pos.value[0].imag !== 0)
+            pos = List.turnIntoCSList([
+                CSNumber.zero, pos.value[1], pos.value[2]
+            ]);
+    } else {
+        pos = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
+    }
+    return List.normalizeMax(pos);
 };
 geoOps.HorizontalLine.getParamFromState = function(el) {
     return getStateComplexVector(3);
@@ -217,14 +246,23 @@ geoOps.VerticalLine.kind = "L";
 geoOps.VerticalLine.signature = [];
 geoOps.VerticalLine.isMovable = true;
 geoOps.VerticalLine.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([pos.value[0], CSNumber.zero, pos.value[2]]);
     pos = List.normalizeMax(pos);
     putStateComplexVector(pos);
 };
 geoOps.VerticalLine.getParamForInput = function(el, pos, type) {
-    var homog = List.cross(pos, List.ey);
-    return List.normalizeMax(homog);
+    if (type === "mouse") {
+        pos = List.cross(pos, List.ey);
+    } else if (type === "homog") {
+        if (pos.value[1].real !== 0 || pos.value[1].imag !== 0)
+            pos = List.turnIntoCSList([
+                pos.value[0], CSNumber.zero, pos.value[2]
+            ]);
+    } else {
+        pos = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
+    }
+    return List.normalizeMax(pos);
 };
 geoOps.VerticalLine.getParamFromState = function(el) {
     return getStateComplexVector(3);
@@ -282,7 +320,7 @@ geoOps.Through.initialize = function(el) {
 };
 geoOps.Through.getParamForInput = function(el, pos, type) {
     var l;
-    if (type === "mouse") {
+    if (type === "dir" || type === "mouse") {
         var p1 = csgeo.csnames[(el.args[0])].homog;
         l = List.cross(p1, pos);
     } else if (type === "homog") {
@@ -309,6 +347,21 @@ geoOps.Through.updatePosition = function(el) {
     el.homog = General.withUsage(homog, "Line");
 };
 geoOps.Through.stateSize = 6;
+geoOps.Through.set_angle = function(el, value) {
+    if (value.ctype === "number") {
+        var cc = CSNumber.cos(value);
+        var ss = CSNumber.sin(value);
+        var dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
+        movepointscr(el, dir, "dir");
+    }
+};
+geoOps.Through.set_slope = function(el, value) {
+    if (value.ctype === "number") {
+        var dir = List.turnIntoCSList(
+            [CSNumber.real(1), value, CSNumber.real(0)]);
+        movepointscr(el, dir, "dir");
+    }
+};
 
 
 geoOps.Free = {};
@@ -429,7 +482,7 @@ geoOps.PointOnCircle.isMovable = true;
 geoOps.PointOnCircle.initialize = function(el) {
     var circle = csgeo.csnames[el.args[0]];
     var pos = List.normalizeZ(geoOps._helper.initializePoint(el));
-    var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+    var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
     var dir = List.sub(pos, mid);
     var param = List.turnIntoCSList([
         dir.value[1],
@@ -462,7 +515,7 @@ geoOps.PointOnCircle.getParamFromState = function(el) {
 };
 geoOps.PointOnCircle.getParamForInput = function(el, pos, type) {
     var circle = csgeo.csnames[el.args[0]];
-    var mid = List.normalizeZ(geoOps._helper.CenterOfConic(circle.matrix));
+    var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
     var dir = List.sub(pos, mid);
     stateInIdx = el.stateIdx;
     var oldparam = getStateComplexVector(3);
@@ -558,8 +611,9 @@ geoOps.PointOnSegment.getParamForInput = function(el, pos) {
     var seg = csgeo.csnames[el.args[0]];
     var line = seg.homog;
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+    var farpoint = List.sub(seg.startpos, seg.endpos);
     var cr = List.crossratio3(
-        seg.farpoint, seg.startpos, seg.endpos, pos, tt);
+        farpoint, seg.startpos, seg.endpos, pos, tt);
     if (cr.value.real < 0)
         cr = CSNumber.complex(0, cr.value.imag);
     if (cr.value.real > 1)
@@ -576,11 +630,8 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     var param = getStateComplexNumber();
     putStateComplexNumber(param); // copy parameter
     var seg = csgeo.csnames[el.args[0]];
-    // TODO: Handle case where seg is the result of a projective transform,
-    // where seg.farpoint would not have z==0. Can't happen yet.
-    var start = List.scalmult(seg.endpos.value[2], seg.startpos);
-    var end = List.scalmult(seg.startpos.value[2], seg.endpos);
-    // now they have the same z coordinate, so their difference is far
+    var start = seg.startpos;
+    var end = seg.endpos;
     var far = List.sub(end, start);
     var homog = List.add(start, List.scalmult(param, far));
     homog = List.normalizeMax(homog);
@@ -588,10 +639,103 @@ geoOps.PointOnSegment.updatePosition = function(el) {
 };
 geoOps.PointOnSegment.stateSize = 2;
 
+geoOps._helper.projectPointToCircle = function(cir, P) {
+    var cen = geoOps._helper.CenterOfCircle(cir.matrix);
+    cen = List.normalizeMax(cen);
+    var l = List.normalizeMax(List.cross(P, cen));
+    var isec = geoOps._helper.IntersectLC(l, cir.matrix);
+    var d1 = List.projectiveDistMinScal(P, isec[0]);
+    var d2 = List.projectiveDistMinScal(P, isec[1]);
+    var erg = d1 < d2 ? isec[0] : isec[1];
+    return erg;
+};
+
+geoOps.PointOnArc = {};
+geoOps.PointOnArc.kind = "P";
+geoOps.PointOnArc.signature = ["C"];
+geoOps.PointOnArc.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[0]].isArc;
+};
+geoOps.PointOnArc.isMovable = true;
+geoOps.PointOnArc.initialize = function(el) {
+    var pos = geoOps._helper.initializePoint(el);
+    var cr = geoOps.PointOnArc.getParamForInput(el, pos);
+    putStateComplexVector(cr);
+};
+geoOps.PointOnArc.getParamForInput = function(el, pos) {
+    var arc = csgeo.csnames[el.args[0]];
+    var P = geoOps._helper.projectPointToCircle(arc, pos);
+    var A = arc.startPoint;
+    var B = arc.viaPoint;
+    var C = arc.endPoint;
+    var crh = List.normalizeMax(List.crossratio3harm(A, C, B, P, List.ii));
+    // Now restrict cross ratio to the range [0,∞]
+    var cr = CSNumber.div(crh.value[0], crh.value[1]);
+    if (cr.value.real < 0) {
+        if (cr.value.real < -1) {
+            crh = List.realVector([1, 0]); // ∞, use end point
+        } else {
+            crh = List.realVector([0, 1]); // 0, use start point
+        }
+    }
+    return crh;
+};
+geoOps.PointOnArc.getParamFromState = function(el) {
+    return getStateComplexVector(2);
+};
+geoOps.PointOnArc.putParamToState = function(el, param) {
+    putStateComplexVector(param);
+};
+geoOps.PointOnArc.updatePosition = function(el) {
+    var arc = csgeo.csnames[el.args[0]];
+    var A = arc.startPoint;
+    var B = arc.viaPoint;
+    var C = arc.endPoint;
+    var I = List.ii;
+    var AI = List.cross(A, I);
+    var BI = List.cross(B, I);
+    var CI = List.cross(C, I);
+    // Now we want to scale AI and CI such that λ⋅BI = AI + CI.
+    // a*AI + c*CI = BI => [AI, CI]*(a,c) = BI but [AI, CI] is not square so
+    // we solve this least-squares-style (see Moore-Penrose pseudoinverse),
+    // multiplying both sides by M2x3c and then using the adjoint to solve.
+    var M2x3 = List.turnIntoCSList([AI, CI]);
+    var M3x2 = List.transpose(M2x3);
+    var M2x3c = List.conjugate(M2x3);
+    var M2x2 = List.productMM(M2x3c, M3x2);
+    var v2x1 = List.productMV(M2x3c, BI);
+    var ab = List.productMV(List.adjoint2(M2x2), v2x1);
+    var a = ab.value[0];
+    var c = ab.value[1];
+    var crh = getStateComplexVector(2);
+    putStateComplexVector(crh);
+    var Q = List.normalizeMax(List.add(
+        List.scalmult(CSNumber.mult(a, crh.value[0]), A),
+        List.scalmult(CSNumber.mult(c, crh.value[1]), C)));
+    var P = geoOps._helper.conicOtherIntersection(arc.matrix, I, Q);
+    el.homog = General.withUsage(P, "Point");
+};
+geoOps.PointOnArc.stateSize = 4;
+
+geoOps._helper.CenterOfCircle = function(c) {
+    // Treating this special case of CenterOfConic avoids some computation
+    // and also allows dealing with the degenerate case of center at infinity
+    return List.turnIntoCSList([
+        c.value[2].value[0],
+        c.value[2].value[1],
+        CSNumber.neg(c.value[0].value[0])
+    ]);
+};
 
 geoOps._helper.CenterOfConic = function(c) {
-    // The center is the pole of the line at infinity.
-    return General.mult(List.adjoint3(c), List.linfty);
+    // The center is the pole of the dual conic of the line at infinity
+    var adj = List.adjoint3(c);
+    // return General.mult(adj, List.linfty);
+    // do not use matrix vector multiplication, we know the result
+    return {
+        'ctype': 'list',
+        'value': [adj.value[2].value[0], adj.value[2].value[1], adj.value[2].value[2]]
+    };
 };
 
 geoOps.CenterOfConic = {};
@@ -603,8 +747,6 @@ geoOps.CenterOfConic.updatePosition = function(el) {
     el.homog = erg;
     el.homog = List.normalizeMax(el.homog);
     el.homog = General.withUsage(el.homog, "Point");
-
-
 };
 
 geoOps._helper.CircleMP = function(m, p) {
@@ -646,7 +788,8 @@ geoOps.CircleMr.isMovable = true;
 geoOps.CircleMr.initialize = function(el) {
     putStateComplexNumber(CSNumber.real(el.radius));
 };
-geoOps.CircleMr.getParamForInput = function(el, pos) {
+geoOps.CircleMr.getParamForInput = function(el, pos, type) {
+    if (type === "radius") return pos;
     var m = csgeo.csnames[(el.args[0])].homog;
     m = List.normalizeZ(m);
     pos = List.normalizeZ(pos);
@@ -664,35 +807,68 @@ geoOps.CircleMr.updatePosition = function(el) {
     var r = getStateComplexNumber();
     putStateComplexNumber(r); // copy param
     var m = csgeo.csnames[(el.args[0])].homog;
-    m = List.normalizeZ(m);
-    var p = List.turnIntoCSList([r, CSNumber.zero, CSNumber.zero]);
-    p = List.add(p, m);
-    var matrix = geoOps._helper.CircleMP(m, p);
-    matrix = List.normalizeMax(matrix);
+    /*
+    The circle's radius value may take on values from zero to infinity.
+    However since the squared radius value appears in the circle's matrix,
+    a radius value of 2E+154 or more could also end up as an infinite value.
+    Using List.normalizeMax elsewhere will limit the coordinate values of m
+    to no more than 1.0, so that scaling the radius value by m's z-coordinate
+    first here will not make the radius value any larger. Then by squaring the
+    radius value, any infinity value produced can be caught here.
+    */
+    var sr = CSNumber.mult(m.value[2], r);
+    var sr2 = CSNumber.mult(sr, sr);
+    if (!CSNumber._helper.isFinite(sr2) && !CSNumber._helper.isNaN(sr2)) return List.fund;
+    var matrix = geoOps._helper.ScaledCircleMrr(m, sr2);
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
 };
 geoOps.CircleMr.stateSize = 2;
+geoOps.CircleMr.set_radius = function(el, value) {
+    if (value.ctype === "number") {
+        movepointscr(el, value, "radius");
+    }
+};
 
 
-//TODO Must be redone for Points at infinity
-//Original Cindy Implementation is not correct either
+geoOps._helper.ScaledCircleMrr = function(M, rr) {
+    /*
+    Given M as the circle's homogeneous center point coordinates [x, y, z] and
+    rr as the circle's radius value squared scaled by M's z-coordinate squared,
+    build the following matrix:
+        ⎛   z*z      0      -z*x   ⎞
+        ⎜    0      z*z     -z*y   ⎟
+        ⎝  -z*x    -z*y  x*x+y*y-rr⎠
+    */
+    var x = M.value[0];
+    var y = M.value[1];
+    var mz = CSNumber.neg(M.value[2]); // minus z
+    var v = List.scalmult(mz, List.turnIntoCSList([x, y, mz])).value;
+    var vxy = List.turnIntoCSList([x, y]);
+    var zz = CSNumber.sub(List.scalproduct(vxy, vxy), rr);
+    var matrix = geoOps._helper.buildConicMatrix([v[2], CSNumber.zero, v[2], v[0], v[1], zz]);
+    return List.normalizeMax(matrix);
+};
+
+
 geoOps.Compass = {};
 geoOps.Compass.kind = "C";
 geoOps.Compass.signature = ["P", "P", "P"];
 geoOps.Compass.updatePosition = function(el) {
-    var m = csgeo.csnames[(el.args[2])].homog;
+    var a = csgeo.csnames[(el.args[0])].homog;
     var b = csgeo.csnames[(el.args[1])].homog;
-    var c = csgeo.csnames[(el.args[0])].homog;
-    m = List.normalizeZ(m);
-    b = List.normalizeZ(b);
-    c = List.normalizeZ(c);
-    var diff = List.sub(b, c);
-    var p = List.add(diff, m);
-    p = List.normalizeZ(p);
-
-    var matrix = geoOps._helper.CircleMP(m, p);
-    matrix = List.normalizeMax(matrix);
+    var m = csgeo.csnames[(el.args[2])].homog;
+    // Scale each point's homogeneous coordinates by the other two
+    // point's z-value to allow addtion and subtraction to be valid.
+    var aZ = a.value[2];
+    var bZ = b.value[2];
+    var mZ = m.value[2];
+    a = List.scalmult(CSNumber.mult(bZ, mZ), a);
+    b = List.scalmult(CSNumber.mult(aZ, mZ), b);
+    m = List.scalmult(CSNumber.mult(aZ, bZ), m);
+    // Setup circle's matrix with m as center and segment ab length as radius
+    var d = List.sub(b, a);
+    var matrix = geoOps._helper.ScaledCircleMrr(m, List.scalproduct(d, d));
     el.matrix = General.withUsage(matrix, "Circle");
 };
 
@@ -726,7 +902,6 @@ geoOps._helper.ConicBy5 = function(el, a, b, c, d, p) {
     var v14 = List.turnIntoCSList([List.cross(a, d)]);
     var v12 = List.turnIntoCSList([List.cross(a, b)]);
     var v34 = List.turnIntoCSList([List.cross(c, d)]);
-    var deg1 = General.mult(List.transpose(v14), v23);
 
     var erg = geoOps._helper.conicFromTwoDegenerates(v23, v14, v12, v34, p);
     return erg;
@@ -763,6 +938,41 @@ geoOps.ConicBy5.updatePosition = function(el) {
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
 };
+
+geoOps.FreeConic = {};
+geoOps.FreeConic.kind = "C";
+geoOps.FreeConic.signature = [];
+geoOps.FreeConic.initialize = function(el) {
+    var pos;
+    if (el.pos)
+        pos = geoOps._helper.inputConic(el.pos);
+    else
+        pos = List.zeromatrix(CSNumber.real(3), CSNumber.real(3));
+    geoOps.FreeConic.putParamToState(el, pos);
+};
+geoOps.FreeConic.getParamForInput = function(el, pos, type) {
+    return List.normalizeMax(pos);
+};
+geoOps.FreeConic.getParamFromState = function(el) {
+    return geoOps._helper.buildConicMatrix(getStateComplexVector(6).value);
+};
+geoOps.FreeConic.putParamToState = function(el, param) {
+    for (var i = 0; i < 3; ++i)
+        for (var j = 0; j <= i; ++j)
+            putStateComplexNumber(param.value[i].value[j]);
+};
+geoOps.FreeConic.updatePosition = function(el) {
+    var pos = getStateComplexVector(6);
+    putStateComplexVector(pos);
+    el.matrix = geoOps._helper.buildConicMatrix(pos.value);
+    el.matrix = List.normalizeMax(el.matrix);
+    el.matrix = General.withUsage(el.matrix, "Conic");
+};
+geoOps.FreeConic.set_matrix = function(el, value) {
+    if (List._helper.isNumberMatrixMN(value, 3, 3))
+        movepointscr(el, List.add(value, List.transpose(value)), "matrix");
+};
+geoOps.FreeConic.stateSize = 6 * 2;
 
 geoOps._helper.buildConicMatrix = function(arr) {
     var a = arr[0];
@@ -847,23 +1057,22 @@ geoOps._helper.splitDegenConic = function(mat) {
     return [lg, lh];
 };
 
+geoOps._helper.inputConic = function(pos) {
+    var v = "xx xy yy xz yz zz".split(" ").map(function(name) {
+        var num = CSNumber._helper.input(pos[name]);
+        if (name[0] !== name[1]) num = CSNumber.realmult(0.5, num);
+        return num;
+    });
+    return geoOps._helper.buildConicMatrix(v);
+};
+
 geoOps.SelectConic = {};
 geoOps.SelectConic.kind = "C";
 geoOps.SelectConic.signature = ["Cs"];
 geoOps.SelectConic.initialize = function(el) {
     if (el.index !== undefined)
         return el.index - 1;
-    var xx = CSNumber._helper.input(el.pos.xx);
-    var yy = CSNumber._helper.input(el.pos.yy);
-    var zz = CSNumber._helper.input(el.pos.zz);
-    var xy = CSNumber.realmult(0.5, CSNumber._helper.input(el.pos.xy));
-    var xz = CSNumber.realmult(0.5, CSNumber._helper.input(el.pos.xz));
-    var yz = CSNumber.realmult(0.5, CSNumber._helper.input(el.pos.yz));
-    var pos = List.turnIntoCSList([
-        List.turnIntoCSList([xx, xy, xz]),
-        List.turnIntoCSList([xy, yy, yz]),
-        List.turnIntoCSList([xz, yz, zz])
-    ]);
+    var pos = geoOps._helper.inputConic(el.pos);
     var set = csgeo.csnames[(el.args[0])].results;
     var d1 = List.conicDist(pos, set[0]);
     var best = 0;
@@ -885,27 +1094,27 @@ geoOps.SelectConic.updatePosition = function(el) {
 
 // conic by 4 Points and 1 line
 geoOps._helper.ConicBy4p1l = function(el, a, b, c, d, l) {
+    var al = List.scalproduct(a, l);
+    var bl = List.scalproduct(b, l);
+    var cl = List.scalproduct(c, l);
+    var dl = List.scalproduct(d, l);
+    var bcd = List.det3(b, c, d);
+    var abd = List.det3(a, b, d);
+    var acd = List.det3(a, c, d);
+    var abc = List.det3(a, b, c);
+    var mul = CSNumber.mult;
+    var r1 = CSNumber.sqrt(mul(mul(bl, dl), mul(bcd, abd)));
+    var r2 = CSNumber.sqrt(mul(mul(al, cl), mul(acd, abc)));
     var a1 = List.cross(List.cross(a, c), l);
     var a2 = List.cross(List.cross(b, d), l);
-    var b1 = List.cross(List.cross(a, b), l);
-    var b2 = List.cross(List.cross(c, d), l);
-    var o = List.realVector(csport.to(100 * Math.random(), 100 * Math.random()));
-
-    var r1 = CSNumber.mult(List.det3(o, a2, b1), List.det3(o, a2, b2));
-    r1 = CSNumber.sqrt(r1);
-    var r2 = CSNumber.mult(List.det3(o, a1, b1), List.det3(o, a1, b2));
-    r2 = CSNumber.sqrt(r2);
-
     var k1 = List.scalmult(r1, a1);
     var k2 = List.scalmult(r2, a2);
-
-    var x = List.add(k1, k2);
-    var y = List.sub(k1, k2);
-
-    var t1 = geoOps._helper.ConicBy5(el, a, b, c, d, x);
-    var t2 = geoOps._helper.ConicBy5(el, a, b, c, d, y);
-
-    return [t1, t2];
+    var x = List.normalizeMax(List.add(k1, k2));
+    var y = List.normalizeMax(List.sub(k1, k2));
+    var xy = tracing2(x, y);
+    var t1 = geoOps._helper.ConicBy5(el, a, b, c, d, xy.value[0]);
+    var t2 = geoOps._helper.ConicBy5(el, a, b, c, d, xy.value[1]);
+    return [List.normalizeMax(t1), List.normalizeMax(t2)];
 };
 
 geoOps.ConicBy4p1l = {};
@@ -924,6 +1133,7 @@ geoOps.ConicBy4p1l.updatePosition = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy4p1l.stateSize = tracing2.stateSize;
 
 
 geoOps._helper.ConicBy3p2l = function(a, b, c, g, h) {
@@ -1066,6 +1276,7 @@ geoOps.ConicBy1p4l.updatePosition = function(el) {
     el.results = erg;
 
 };
+geoOps.ConicBy1p4l.stateSize = tracing2.stateSize;
 
 geoOps.ConicParabolaPL = {};
 geoOps.ConicParabolaPL.kind = "C";
@@ -1164,6 +1375,160 @@ geoOps.ConicBy2Foci1P.updatePosition = function(el) {
     var erg = [co1, co2];
     el.results = erg;
 
+};
+
+// Given (A, a, B, b, C), compute conic such that
+// 1. (A, a) and (B, b) are pole-polar pairs and
+// 2. C is incident with the conic
+geoOps.ConicBy2Pol1P = {};
+geoOps.ConicBy2Pol1P.kind = "C";
+geoOps.ConicBy2Pol1P.signature = ["P", "L", "P", "L", "P"];
+geoOps.ConicBy2Pol1P.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var b = csgeo.csnames[(el.args[3])].homog;
+    var C = csgeo.csnames[(el.args[4])].homog;
+
+    var sp = List.scalproduct;
+    var sm = List.scalmult;
+    var sub = List.sub;
+    var mm = List.productMM;
+    var rm = CSNumber.realmult;
+    var transpose = List.transpose;
+    var asList = List.turnIntoCSList;
+
+    // D = ⟨a,A⟩⋅C − 2⟨a,C⟩⋅A, E = ⟨b,B⟩⋅C − 2⟨b,C⟩⋅B
+    var D = sub(sm(sp(a, A), C), sm(rm(2, sp(a, C)), A));
+    var E = sub(sm(sp(b, B), C), sm(rm(2, sp(b, C)), B));
+    var AC = asList([List.cross(A, C)]);
+    var BC = asList([List.cross(B, C)]);
+    var M1 = mm(transpose(AC), asList([List.cross(A, E)]));
+    var M2 = mm(transpose(BC), asList([List.cross(B, D)]));
+    var M3 = mm(transpose(AC), BC);
+    var Ab = sp(A, b);
+    var Ba = sp(B, a);
+    // M = Ba * M1 + Ab * M2 - 2 * Ab * Ba * M3
+    var M = List.add(sm(Ba, M1), sm(Ab, M2));
+    M = sub(M, sm(rm(2, CSNumber.mult(Ab, Ba)), M3));
+    M = List.add(M, transpose(M));
+    M = List.normalizeMax(M);
+    M = General.withUsage(M, "Conic");
+    el.matrix = M;
+};
+
+// Given (A, a, B, b, c), compute conic such that
+// 1. (A, a) and (B, b) are pole-polar pairs and
+// 2. c is a tangent to the conic
+geoOps.ConicBy2Pol1L = {};
+geoOps.ConicBy2Pol1L.kind = "C";
+geoOps.ConicBy2Pol1L.signature = ["P", "L", "P", "L", "L"];
+geoOps.ConicBy2Pol1L.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var b = csgeo.csnames[(el.args[3])].homog;
+    var c = csgeo.csnames[(el.args[4])].homog;
+
+    var sp = List.scalproduct;
+    var sm = List.scalmult;
+    var mm = List.productMM;
+    var mul = CSNumber.mult;
+    var rm = CSNumber.realmult;
+    var transpose = List.transpose;
+    var asList = List.turnIntoCSList;
+
+    var aA = sp(a, A);
+    var aB = sp(a, B);
+    var bA = sp(b, A);
+    var bB = sp(b, B);
+    var cA = sp(c, A);
+    var cB = sp(c, B);
+    var v = asList([List.sub(sm(mul(bA, cB), a), sm(mul(aB, cA), b))]);
+
+    var M = List.add(
+        mm(
+            transpose(asList([sm(mul(bA, aB), c)])),
+            asList([List.sub(
+                List.add(
+                    sm(CSNumber.sub(mul(aA, cB), mul(aB, cA)), b),
+                    sm(CSNumber.sub(mul(bB, cA), mul(bA, cB)), a)
+                ),
+                sm(List.det3(a, b, c), List.cross(A, B))
+            )])
+        ),
+        mm(transpose(v), v)
+    );
+    M = List.add(M, transpose(M));
+    M = List.normalizeMax(M);
+    M = General.withUsage(M, "Conic");
+    el.matrix = M;
+};
+
+// Conic by one polar pair and three incident flats
+geoOps._helper.conic1Pol3Inc = function(A, a, B, C, D) {
+    var sp = List.scalproduct;
+    var sm = List.scalmult;
+    var mm = List.productMM;
+    var cp = List.cross;
+    var rm = CSNumber.realmult;
+    var mult = CSNumber.mult;
+    var transpose = List.transpose;
+    var asList = List.turnIntoCSList;
+    var det3 = List.det3;
+
+    var ABC = det3(A, B, C);
+    var BD = asList([cp(B, D)]);
+    var AD = asList([cp(A, D)]);
+    var BC = asList([cp(B, C)]);
+    var aA = sp(a, A);
+    var aB = sp(a, B);
+    var aD = sp(a, D);
+    var v = asList([cp(C, List.sub(sm(aA, D), sm(rm(2, aD), A)))]);
+    var M = sm(ABC, mm(transpose(BD), v));
+    var f = rm(2, CSNumber.add(mult(det3(A, C, D), aB), mult(ABC, aD)));
+    f = CSNumber.sub(mult(det3(B, C, D), aA), f);
+    M = List.add(M, sm(f, mm(transpose(AD), BC)));
+    M = List.add(M, transpose(M));
+    M = List.normalizeMax(M);
+    return M;
+};
+
+// Given (A, a, B, C, D), compute conic such that
+// 1. (A, a) is a pole-polar pair and
+// 2. B, C, D are incident with the conic
+geoOps.ConicBy1Pol3P = {};
+geoOps.ConicBy1Pol3P.kind = "C";
+geoOps.ConicBy1Pol3P.signature = ["P", "L", "P", "P", "P"];
+geoOps.ConicBy1Pol3P.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var C = csgeo.csnames[(el.args[3])].homog;
+    var D = csgeo.csnames[(el.args[4])].homog;
+
+    var M = geoOps._helper.conic1Pol3Inc(A, a, B, C, D);
+    M = General.withUsage(M, "Conic");
+    el.matrix = M;
+};
+
+// Given (A, a, b, c, d), compute conic such that
+// 1. (A, a) is a pole-polar pair and
+// 2. b, c, d are tangents to the conic
+geoOps.ConicBy1Pol3L = {};
+geoOps.ConicBy1Pol3L.kind = "C";
+geoOps.ConicBy1Pol3L.signature = ["P", "L", "L", "L", "L"];
+geoOps.ConicBy1Pol3L.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var b = csgeo.csnames[(el.args[2])].homog;
+    var c = csgeo.csnames[(el.args[3])].homog;
+    var d = csgeo.csnames[(el.args[4])].homog;
+
+    var M = geoOps._helper.conic1Pol3Inc(a, A, b, c, d);
+    M = List.normalizeMax(List.adjoint3(M));
+    M = General.withUsage(M, "Conic");
+    el.matrix = M;
 };
 
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
@@ -1302,68 +1667,30 @@ geoOps.PolarOfLine.updatePosition = function(el) {
 };
 
 
-geoOps.angleBisector = {};
-geoOps.angleBisector.kind = "Ls";
-geoOps.angleBisector.signature = ["L", "L"];
-geoOps.angleBisector.updatePosition = function(el) {
-    var xx = csgeo.csnames[(el.args[0])];
-    var yy = csgeo.csnames[(el.args[1])];
-
-    var poi = List.normalizeMax(List.cross(xx.homog, yy.homog));
-
-    var myI = List.normalizeMax(List.cross(List.ii, poi));
-    var myJ = List.normalizeMax(List.cross(List.jj, poi));
-
-    var sqi = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myI), List.det3(poi, xx.homog, myI)));
-    var sqj = CSNumber.sqrt(CSNumber.mult(List.det3(poi, yy.homog, myJ), List.det3(poi, xx.homog, myJ)));
-
-    var mui = General.mult(myI, sqj);
-    var tauj = General.mult(myJ, sqi);
-
-    var erg1 = List.add(mui, tauj);
-    var erg2 = List.sub(mui, tauj);
-
-    var erg1zero = List.abs(erg1).value.real < CSNumber.eps;
-    var erg2zero = List.abs(erg2).value.real < CSNumber.eps;
-
-    if (!erg1zero && !erg2zero) {
-        erg1 = List.normalizeMax(erg1);
-        erg2 = List.normalizeMax(erg2);
-    } else if (erg1zero) {
-        erg2 = List.normalizeMax(erg2);
-    } else if (erg2zero) {
-        erg1 = List.normalizeMax(erg1);
-    }
-
-    // degenrate case
-    if ((List.almostequals(erg1, List.linfty).value && erg2zero) || (List.almostequals(erg2, List.linfty).value && erg1zero)) {
-        var mu, tau, mux, tauy;
-        if (List.abs(erg1).value.real < List.abs(erg2).value.real) {
-            mu = List.det3(poi, yy.homog, erg2);
-            tau = List.det3(poi, xx.homog, erg2);
-
-            mux = General.mult(xx.homog, mu);
-            tauy = General.mult(yy.homog, tau);
-
-            erg1 = List.add(mux, tauy);
-
-        } else {
-            mu = List.det3(poi, yy.homog, erg1);
-            tau = List.det3(poi, xx.homog, erg1);
-
-            mux = General.mult(xx.homog, mu);
-            tauy = General.mult(yy.homog, tau);
-
-            erg2 = List.add(mux, tauy);
-        }
-    }
-
-    erg1 = List.normalizeMax(erg1);
-    erg2 = List.normalizeMax(erg2);
-
-    el.results = tracing2(erg1, erg2);
+geoOps.AngleBisector = {};
+geoOps.AngleBisector.kind = "Ls";
+geoOps.AngleBisector.signature = ["L", "L", "P"];
+geoOps.AngleBisector.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    var p = csgeo.csnames[el.args[2]].homog;
+    var add = List.add;
+    var sub = List.sub;
+    var abs = List.abs;
+    var cross = List.cross;
+    var sm = List.scalmult;
+    var nm = List.normalizeMax;
+    var isAlmostZero = List._helper.isAlmostZero;
+    var linfty = List.linfty;
+    var na = sm(abs(cross(cross(linfty, b), linfty)), a);
+    var nb = sm(abs(cross(cross(linfty, a), linfty)), b);
+    var res1 = sub(na, nb);
+    var res2 = add(na, nb);
+    if (isAlmostZero(res1)) res1 = cross(cross(cross(linfty, res2), linfty), p);
+    if (isAlmostZero(res2)) res2 = cross(cross(cross(linfty, res1), linfty), p);
+    el.results = tracing2(nm(res1), nm(res2));
 };
-geoOps.angleBisector.stateSize = tracing2.stateSize;
+geoOps.AngleBisector.stateSize = tracing2.stateSize;
 
 geoOps._helper.IntersectLC = function(l, c) {
 
@@ -1643,9 +1970,25 @@ geoOps.SelectP.updatePosition = function(el) {
 geoOps.SelectL = {};
 geoOps.SelectL.kind = "L";
 geoOps.SelectL.signature = ["Ls"];
+geoOps.SelectL.initialize = function(el) {
+    if (el.index !== undefined)
+        return el.index - 1;
+    var set = csgeo.csnames[(el.args[0])].results.value;
+    var pos = geoOps._helper.initializeLine(el);
+    var d1 = List.projectiveDistMinScal(pos, set[0]);
+    var best = 0;
+    for (var i = 1; i < set.length; ++i) {
+        var d2 = List.projectiveDistMinScal(pos, set[i]);
+        if (d2 < d1) {
+            d1 = d2;
+            best = i;
+        }
+    }
+    return best;
+};
 geoOps.SelectL.updatePosition = function(el) {
     var set = csgeo.csnames[(el.args[0])];
-    el.homog = set.results.value[el.index - 1];
+    el.homog = set.results.value[el.param];
     el.homog = General.withUsage(el.homog, "Line");
 };
 
@@ -1751,18 +2094,24 @@ geoOps.TrMoebius.updatePosition = function(el) {
         [neg(A[2]), A[0]],
         [neg(A[3]), A[1]]
     ]));
-    var C = List.productMM(mB, mAa);
+    var C = List.normalizeMax(List.productMM(mB, mAa));
 
     // Read from that the (doubly) complex matrix [[a, b], [c, d]]
-    var ar = C.value[0].value[0];
-    var ai = C.value[1].value[0];
-    var br = C.value[0].value[1];
-    var bi = C.value[1].value[1];
-    var cr = C.value[2].value[0];
-    var ci = C.value[3].value[0];
-    var dr = C.value[2].value[1];
-    var di = C.value[3].value[1];
+    el.moebius = {
+        anti: false,
+        ar: C.value[0].value[0],
+        ai: C.value[1].value[0],
+        br: C.value[0].value[1],
+        bi: C.value[1].value[1],
+        cr: C.value[2].value[0],
+        ci: C.value[3].value[0],
+        dr: C.value[2].value[1],
+        di: C.value[3].value[1]
+    };
+    geoOps._helper.moebiusPair(el);
+};
 
+geoOps._helper.moebiusPair = function(el) {
     /*
     Build two matrices with the interesting property that for pxy = px + i*py
     this essentially encodes a Möbius transformation including division:
@@ -1771,16 +2120,40 @@ geoOps.TrMoebius.updatePosition = function(el) {
     cross(mat1 * p, mat2 * p) = ⎜Im((a*pxy + b*pz)*conj(c*pxy + d*pz))⎟
                                 ⎝   (c*pxy + d*pz)*conj(c*pxy + d*pz) ⎠
     */
+    var m = el.moebius;
+    var neg = CSNumber.neg;
+    var flip = m.anti ? neg : General.identity;
     el.mat1 = List.normalizeMax(List.matrix([
-        [neg(cr), ci, neg(dr)],
-        [ci, cr, di],
-        [ar, neg(ai), br]
+        [neg(m.cr), flip(m.ci), neg(m.dr)],
+        [m.ci, flip(m.cr), m.di],
+        [m.ar, neg(flip(m.ai)), m.br]
     ]));
     el.mat2 = List.normalizeMax(List.matrix([
-        [neg(ci), neg(cr), neg(di)],
-        [neg(cr), ci, neg(dr)],
-        [ai, ar, bi]
+        [neg(m.ci), neg(flip(m.cr)), neg(m.di)],
+        [neg(m.cr), flip(m.ci), neg(m.dr)],
+        [m.ai, flip(m.ar), m.bi]
     ]));
+};
+
+geoOps.TrInverseMoebius = {};
+geoOps.TrInverseMoebius.kind = "Mt";
+geoOps.TrInverseMoebius.signature = ["Mt"];
+geoOps.TrInverseMoebius.updatePosition = function(el) {
+    var m = csgeo.csnames[el.args[0]].moebius;
+    var neg = CSNumber.neg;
+    var flip = m.anti ? neg : General.identity;
+    el.moebius = {
+        anti: m.anti,
+        ar: m.dr,
+        ai: flip(m.di),
+        br: neg(m.br),
+        bi: neg(flip(m.bi)),
+        cr: neg(m.cr),
+        ci: neg(flip(m.ci)),
+        dr: m.ar,
+        di: flip(m.ai)
+    };
+    geoOps._helper.moebiusPair(el);
 };
 
 geoOps.TrMoebiusP = {};
@@ -1825,43 +2198,66 @@ geoOps.TrMoebiusL.updatePosition = function(el) {
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
 
+geoOps.TrMoebiusS = {};
+geoOps.TrMoebiusS.kind = "C";
+geoOps.TrMoebiusS.signature = ["Mt", "S"];
+geoOps.TrMoebiusS.updatePosition = function(el) {
+    var tr = csgeo.csnames[(el.args[0])];
+    var s = csgeo.csnames[(el.args[1])];
+
+    var a1 = s.startpos;
+    var a3 = s.endpos;
+    var a2 = List.add(a1, a3);
+
+    var b1 = geoOps._helper.TrMoebiusP(a1, tr);
+    var b2 = geoOps._helper.TrMoebiusP(a2, tr);
+    var b3 = geoOps._helper.TrMoebiusP(a3, tr);
+    el.startPoint = b1;
+    el.viaPoint = b2;
+    el.endPoint = b3;
+
+    el.isArc = true;
+    el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
+    el.matrix = General.withUsage(el.matrix, "Circle");
+};
+
 
 geoOps.TrMoebiusC = {};
 geoOps.TrMoebiusC.kind = "C";
 geoOps.TrMoebiusC.signature = ["Mt", "C"];
+geoOps.TrMoebiusC.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[1]].matrix.usage === "Circle";
+};
 geoOps.TrMoebiusC.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
     var cir = csgeo.csnames[(el.args[1])].matrix;
 
-    if (cir.usage !== "Circle") {
-        console.log("applying Moebius transform to conics is not implemented yet");
-        var th = CSNumber.real(3);
-        el.matrix = List.zeromatrix(th, th);
-    } else {
-        var getRandLine = function() {
-            var rline = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
-            return List.normalizeMax(rline);
-        };
+    var getRandLine = function() {
+        var rline = List.realVector([Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5]);
+        return List.normalizeMax(rline);
+    };
 
-        var pts1 = geoOps._helper.IntersectLC(getRandLine(), cir);
-        var pts2 = geoOps._helper.IntersectLC(getRandLine(), cir);
+    var pts1 = geoOps._helper.IntersectLC(getRandLine(), cir);
+    var pts2 = geoOps._helper.IntersectLC(getRandLine(), cir);
 
-        var a1 = pts1[0],
-            a2 = pts1[1],
-            a3 = pts2[1];
+    var a1 = pts1[0];
+    var a2 = pts1[1];
+    var a3 = pts2[1];
 
-        var b1 = geoOps._helper.TrMoebiusP(a1, t);
-        var b2 = geoOps._helper.TrMoebiusP(a2, t);
-        var b3 = geoOps._helper.TrMoebiusP(a3, t);
+    var b1 = geoOps._helper.TrMoebiusP(a1, t);
+    var b2 = geoOps._helper.TrMoebiusP(a2, t);
+    var b3 = geoOps._helper.TrMoebiusP(a3, t);
 
-        el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
-    }
+    el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
     el.matrix = General.withUsage(el.matrix, "Circle");
 };
 
 geoOps.TrMoebiusArc = {};
 geoOps.TrMoebiusArc.kind = "C";
 geoOps.TrMoebiusArc.signature = ["Mt", "C"];
+geoOps.TrMoebiusArc.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[1]].isArc;
+};
 geoOps.TrMoebiusArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])];
     var Arc = csgeo.csnames[(el.args[1])];
@@ -2001,6 +2397,99 @@ geoOps.TrTranslation.updatePosition = function(el) {
     el.dualMatrix = m;
 };
 
+// Define a reflective transformation given a point
+geoOps.TrReflectionP = {};
+geoOps.TrReflectionP.kind = "Tr";
+geoOps.TrReflectionP.signature = ["P"];
+geoOps.TrReflectionP.updatePosition = function(el) {
+    /*
+        Build this matrix when p is [x, y, z]:
+
+        ⎛-z/2  0   x ⎞
+        ⎜  0 -z/2  y ⎟
+        ⎝  0   0  z/2⎠
+    */
+    var p = csgeo.csnames[el.args[0]].homog.value;
+    var n = CSNumber.realmult(-0.5, p[2]);
+    var zero = CSNumber.zero;
+    var m = List.turnIntoCSList([
+        List.turnIntoCSList([n, zero, p[0]]),
+        List.turnIntoCSList([zero, n, p[1]]),
+        List.turnIntoCSList([zero, zero, CSNumber.neg(n)])
+    ]);
+    m = List.normalizeMax(m);
+    el.matrix = m;
+    el.dualMatrix = List.transpose(m);
+};
+
+// Define a reflective transformation given a line
+geoOps.TrReflectionL = {};
+geoOps.TrReflectionL.kind = "Tr";
+geoOps.TrReflectionL.signature = ["L"];
+geoOps.TrReflectionL.updatePosition = function(el) {
+    /*
+        Build this matrix when l is [x, y, z]:
+
+        ⎛(x^2-y^2)/2     x*y         x*z    ⎞
+        ⎜    x*y    -(x^2-y^2)/2     y*z    ⎟
+        ⎝     0           0     -(x^2+y^2)/2⎠
+    */
+    var mult = CSNumber.mult,
+        realmult = CSNumber.realmult,
+        zero = CSNumber.zero,
+        l = csgeo.csnames[el.args[0]].homog.value,
+        x = l[0],
+        y = l[1],
+        z = l[2],
+        xx = mult(x, x),
+        yy = mult(y, y),
+        pm = realmult(-0.5, CSNumber.sub(xx, yy)),
+        txy = mult(x, y),
+        m = List.turnIntoCSList([
+            List.turnIntoCSList([CSNumber.neg(pm), txy, mult(x, z)]),
+            List.turnIntoCSList([txy, pm, mult(y, z)]),
+            List.turnIntoCSList([zero, zero, realmult(-0.5, CSNumber.add(xx, yy))])
+        ]);
+    m = List.normalizeMax(m);
+    el.matrix = m;
+    el.dualMatrix = List.transpose(m);
+};
+
+// Define a reflective transformation given a segment
+geoOps.TrReflectionS = {};
+geoOps.TrReflectionS.kind = "Tr";
+geoOps.TrReflectionS.signature = ["S"];
+geoOps.TrReflectionS.updatePosition = geoOps.TrReflectionL.updatePosition;
+
+// Define a reflective transformation given a circle (not a general conic)
+geoOps.TrReflectionC = {};
+geoOps.TrReflectionC.kind = "Mt";
+geoOps.TrReflectionC.signature = ["C"];
+geoOps.TrReflectionC.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[0]].matrix.usage === "Circle";
+};
+geoOps.TrReflectionC.updatePosition = function(el) {
+    var m = csgeo.csnames[(el.args[0])].matrix;
+    // m = [[a, 0, b], [0, a, c], [b, c, d]]
+    var a = m.value[0].value[0];
+    var b = m.value[0].value[2];
+    var c = m.value[1].value[2];
+    var d = m.value[2].value[2];
+    var neg = CSNumber.neg;
+    el.moebius = {
+        anti: true,
+        ar: b,
+        ai: c,
+        br: d,
+        bi: CSNumber.zero,
+        cr: neg(a),
+        ci: CSNumber.zero,
+        dr: neg(b),
+        di: c
+    };
+    geoOps._helper.moebiusPair(el);
+};
+
 geoOps.TrInverse = {};
 geoOps.TrInverse.kind = "Tr";
 geoOps.TrInverse.signature = ["Tr"];
@@ -2027,6 +2516,9 @@ geoOps.TransformC.updatePosition = function(el) {
 geoOps.TransformArc = {};
 geoOps.TransformArc.kind = "C";
 geoOps.TransformArc.signature = ["Tr", "C"];
+geoOps.TransformArc.signatureConstraints = function(el) {
+    return csgeo.csnames[el.args[0]].isArc;
+};
 geoOps.TransformArc.updatePosition = function(el) {
     var t = csgeo.csnames[(el.args[0])].matrix;
     var Arc = csgeo.csnames[(el.args[1])];
@@ -2077,12 +2569,24 @@ geoOps.TransformS.signature = ["Tr", "S"];
 geoOps.TransformS.updatePosition = function(el) {
     var tr = csgeo.csnames[(el.args[0])];
     var s = csgeo.csnames[(el.args[1])];
-    el.homog = List.normalizeMax(List.productMV(tr.dualMatrix, s.homog));
-    el.homog = General.withUsage(el.homog, "Line");
-    el.startpos = List.normalizeMax(List.productMV(tr.matrix, s.startpos));
-    el.endpos = List.normalizeMax(List.productMV(tr.matrix, s.endpos));
-    el.farpoint = List.normalizeMax(List.productMV(tr.matrix, s.farpoint));
-    //console.log(niceprint(List.turnIntoCSList([el.homog, el.startpos, el.endpos])));
+    geoOps.Segment.setSegmentPos(el,
+        List.productMV(tr.dualMatrix, s.homog),
+        List.productMV(tr.matrix, s.startpos),
+        List.productMV(tr.matrix, s.endpos)
+    );
+};
+
+geoOps.TransformPolygon = {};
+geoOps.TransformPolygon.kind = "Poly";
+geoOps.TransformPolygon.signature = ["Tr", "Poly"];
+geoOps.TransformPolygon.updatePosition = function(el) {
+    var m = csgeo.csnames[(el.args[0])].matrix;
+    var ps = csgeo.csnames[(el.args[1])].vertices.value;
+    el.vertices = List.turnIntoCSList(ps.map(function(p) {
+        var homog = List.normalizeMax(List.productMV(m, p));
+        homog = General.withUsage(homog, "Point");
+        return homog;
+    }));
 };
 
 geoOps._helper.pointReflection = function(center, point) {
@@ -2107,6 +2611,262 @@ geoOps._helper.conicOtherIntersection = function(conic, a, b) {
     res = List.normalizeMax(res);
     return res;
 };
+
+geoOps.Dist = {};
+geoOps.Dist.kind = "V";
+geoOps.Dist.signature = ["P", "P"];
+geoOps.Dist.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    el.value = List.abs(List.sub(List.normalizeZ(a), List.normalizeZ(b)));
+};
+
+geoOps.Angle = {};
+geoOps.Angle.kind = "V";
+geoOps.Angle.signature = ["L", "L", "P"];
+geoOps.Angle.initialize = function(el) {
+    if (el.angle === undefined)
+        el.angle = 0.5 * Math.PI;
+    putStateComplexNumber(CSNumber._helper.input(el.angle));
+};
+geoOps.Angle.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]].homog;
+    var b = csgeo.csnames[el.args[1]].homog;
+    var p = csgeo.csnames[el.args[2]].homog;
+    var ap = List.cross(a, List.linfty);
+    var bp = List.cross(b, List.linfty);
+    var cr = List.crossratio3(ap, bp, List.ii, List.jj, p);
+    var ang = CSNumber.mult(CSNumber.complex(0, 0.5), CSNumber.log(cr));
+    var prev = getStateComplexNumber();
+    var diff = (prev.value.real - ang.value.real) / Math.PI;
+    var winding = Math.round(diff);
+    if (!tracingInitial && Math.abs(winding - diff) > 1e-2)
+        requestRefinement();
+    ang = CSNumber.complex(winding * Math.PI + ang.value.real, ang.value.imag);
+    putStateComplexNumber(ang);
+    el.value = General.withUsage(ang, "Angle");
+};
+geoOps.Angle.stateSize = 2;
+
+geoOps.Text = {};
+geoOps.Text.kind = "Text";
+geoOps.Text.signature = "**";
+geoOps.Text.isMovable = true;
+geoOps.Text.updatePosition = noop;
+geoOps.Text.initialize = function(el) {
+    el.text = String(el.text);
+    if (el.pos) el.homog = geoOps._helper.initializePoint(el);
+    if (el.dock) {
+        if (el.dock.offset && el.dock.offset.length === 2)
+            el.dock.offset = List.realVector([+el.dock.offset[0], +el.dock.offset[1]]);
+        else
+            el.dock.offset = List.realVector([0, 0]);
+    }
+};
+geoOps.Text.getParamForInput = function(el, pos, type) {
+    return geoOps.Free.getParamForInput(el, pos, type);
+};
+geoOps.Text.getParamFromState = function(el) {
+    return el.homog;
+};
+geoOps.Text.putParamToState = function(el, param) {
+    el.homog = param;
+};
+
+geoOps.Calculation = {};
+geoOps.Calculation.kind = "Text";
+geoOps.Calculation.signature = "**";
+geoOps.Calculation.isMovable = true;
+geoOps.Calculation.updatePosition = noop;
+geoOps.Calculation.initialize = function(el) {
+    geoOps.Text.initialize(el);
+    el.calculation = analyse(el.text);
+};
+geoOps.Calculation.getText = function(el) {
+    return niceprint(evaluate(el.calculation));
+};
+geoOps.Calculation.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Calculation.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Calculation.putParamToState = geoOps.Text.putParamToState;
+
+geoOps.Equation = {};
+geoOps.Equation.kind = "Text";
+geoOps.Equation.isMovable = true;
+geoOps.Equation.signature = "**";
+geoOps.Equation.updatePosition = noop;
+geoOps.Equation.initialize = function(el) {
+    geoOps.Text.initialize(el);
+    el.calculation = analyse(el.text);
+};
+geoOps.Equation.getText = function(el) {
+    return el.text + " = " + niceprint(evaluate(el.calculation));
+};
+geoOps.Equation.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Equation.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Equation.putParamToState = geoOps.Text.putParamToState;
+
+geoOps.Evaluate = {};
+geoOps.Evaluate.kind = "Text";
+geoOps.Evaluate.isMovable = true;
+geoOps.Evaluate.signature = "**";
+geoOps.Evaluate.updatePosition = noop;
+geoOps.Evaluate.initialize = function(el) {
+    geoOps.Text.initialize(el);
+    el.calculation = analyse(el.text);
+};
+geoOps.Evaluate.getText = function(el) {
+    evaluate(el.calculation); // ugly: side effects in draw
+    return el.text;
+};
+geoOps.Evaluate.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Evaluate.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Evaluate.putParamToState = geoOps.Text.putParamToState;
+
+geoOps.Plot = {};
+geoOps.Plot.kind = "Text";
+geoOps.Plot.isMovable = true;
+geoOps.Plot.signature = "**";
+geoOps.Plot.updatePosition = noop;
+geoOps.Plot.initialize = function(el) {
+    geoOps.Text.initialize(el);
+    // Parenthesize expression to avoid modifier injection
+    el.calculation = analyse("plot((" + el.text + "))");
+};
+geoOps.Plot.getText = function(el) {
+    evaluate(el.calculation);
+    return el.text;
+};
+geoOps.Plot.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Plot.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Plot.putParamToState = geoOps.Text.putParamToState;
+
+function commonButton(el, event, button) {
+    var outer = document.createElement("div");
+    var img = document.createElement("img");
+    img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUh" +
+        "EUgAAAAEAAAPoCAQAAAC1v1zVAAAAGklEQVR42u3BMQEAAA" +
+        "DCoPVPbQ0PoAAAgHcDC7gAAVI8ZnwAAAAASUVORK5CYII=";
+    outer.className = "CindyJS-baseline";
+    outer.appendChild(img);
+    var inlinebox = document.createElement("div");
+    inlinebox.className = "CindyJS-button";
+    outer.appendChild(inlinebox);
+    for (var i = 2; i < arguments.length; ++i)
+        inlinebox.appendChild(arguments[i]);
+    canvas.parentNode.appendChild(outer);
+    el.html = arguments[arguments.length - 1];
+    if (!isFiniteNumber(el.fillalpha))
+        el.fillalpha = 1.0;
+    if (el.fillcolor) {
+        el.html.style.backgroundColor =
+            Render2D.makeColor(el.fillcolor, el.fillalpha);
+    }
+    var onEvent = scheduleUpdate;
+    if (el.script) {
+        var code = analyse(el.script);
+        onEvent = function() {
+            evaluate(code);
+            scheduleUpdate();
+        };
+    }
+    button.addEventListener(event, onEvent);
+    if (!instanceInvocationArguments.keylistener &&
+        (cscompiled.keydown || cscompiled.keyup || cscompiled.keytyped)) {
+        button.addEventListener("keydown", function(e) {
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keydown(e);
+        });
+        button.addEventListener("keyup", function(e) {
+            cs_keyup(e);
+        });
+        button.addEventListener("keypress", function(e) {
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keytyped(e);
+        });
+    }
+    geoOps.Text.initialize(el);
+}
+
+geoOps.Button = {};
+geoOps.Button.kind = "Text";
+geoOps.Button.signature = "**";
+geoOps.Button.isMovable = true; // not using mouse, only via scripts
+geoOps.Button.updatePosition = noop;
+geoOps.Button.initialize = function(el) {
+    var button = document.createElement("button");
+    commonButton(el, "click", button);
+};
+geoOps.Button.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.Button.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.Button.putParamToState = geoOps.Text.putParamToState;
+geoOps.Button.set_fillcolor = function(el, value) {
+    if (List._helper.isNumberVecN(value, 3)) {
+        el.fillcolor = value.value.map(function(i) {
+            return i.value.real;
+        });
+        el.html.style.backgroundColor =
+            Render2D.makeColor(el.fillcolor, el.fillalpha);
+    }
+};
+
+geoOps.ToggleButton = {};
+geoOps.ToggleButton.kind = "Text";
+geoOps.ToggleButton.signature = "**";
+geoOps.ToggleButton.isMovable = true; // not using mouse, only via scripts
+geoOps.ToggleButton.updatePosition = noop;
+geoOps.ToggleButton.initialize = function(el) {
+    var id = generateId();
+    var checkbox = document.createElement("input");
+    var label = document.createElement("label");
+    checkbox.setAttribute("id", id);
+    label.setAttribute("for", id);
+    checkbox.setAttribute("type", "checkbox");
+    if (el.pressed)
+        checkbox.checked = true;
+    el.checkbox = checkbox;
+    commonButton(el, "change", checkbox, label);
+};
+geoOps.ToggleButton.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.ToggleButton.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.ToggleButton.putParamToState = geoOps.Text.putParamToState;
+geoOps.ToggleButton.set_fillcolor = geoOps.Button.set_fillcolor;
+
+geoOps.EditableText = {};
+geoOps.EditableText.kind = "Text";
+geoOps.EditableText.isMovable = true; // not using mouse, only via scripts
+geoOps.EditableText.signature = [];
+geoOps.EditableText.updatePosition = noop;
+geoOps.EditableText.initialize = function(el) {
+    var textbox = document.createElement("input");
+    textbox.setAttribute("type", "text");
+    textbox.className = "CindyJS-editabletext";
+    if (isFiniteNumber(el.minwidth))
+        textbox.style.width = (el.minwidth - 3) + "px";
+    if (typeof el.text === "string")
+        textbox.value = el.text;
+    textbox.addEventListener("keydown", function(event) {
+        if (event.keyCode === 13)
+            textbox.blur();
+    });
+    commonButton(el, "change", textbox);
+};
+geoOps.EditableText.getText = function(el) {
+    return false;
+};
+geoOps.EditableText.getParamForInput = geoOps.Text.getParamForInput;
+geoOps.EditableText.getParamFromState = geoOps.Text.getParamFromState;
+geoOps.EditableText.putParamToState = geoOps.Text.putParamToState;
+geoOps.EditableText.set_fillcolor = geoOps.Button.set_fillcolor;
+geoOps.EditableText.get_currenttext = function(el) {
+    return General.string(String(el.html.value));
+};
+geoOps.EditableText.set_currenttext = function(el, value) {
+    el.html.value = niceprint(value);
+};
+geoOps.EditableText.get_text = geoOps.EditableText.get_currenttext;
+geoOps.EditableText.set_text = geoOps.EditableText.set_currenttext;
+
+function noop() {}
 
 geoOps._helper.initializePoint = function(el) {
     var sx = 0;
@@ -2136,6 +2896,62 @@ geoOps._helper.initializePoint = function(el) {
     return pos;
 };
 
+geoOps._helper.initializeLine = function(el) {
+    var sx = 0;
+    var sy = 0;
+    var sz = 0;
+    if (el.pos) {
+        if (el.pos.ctype === "list" && List.isNumberVector(el.pos)) {
+            return el.pos;
+        }
+        if (el.pos.length === 3) {
+            sx = el.pos[0];
+            sy = el.pos[1];
+            sz = el.pos[2];
+        }
+    }
+    var pos = List.turnIntoCSList([
+        CSNumber._helper.input(sx),
+        CSNumber._helper.input(sy),
+        CSNumber._helper.input(sz)
+    ]);
+    pos = List.normalizeMax(pos);
+    return pos;
+};
+
+
+geoOps.Poly = {};
+geoOps.Poly.kind = "Poly";
+geoOps.Poly.signature = "P*";
+geoOps.Poly.updatePosition = function(el) {
+    el.vertices = List.turnIntoCSList(el.args.map(function(x) {
+        return csgeo.csnames[x].homog;
+    }));
+};
+
+
+var geoAliases = {
+    "CircleByRadius": "CircleMr",
+    "IntersectionCircleCircle": "IntersectCirCir",
+    "IntersectionConicConic": "IntersectConicConic",
+    "FreePoint": "Free",
+    "Orthogonal": "Perp",
+    "Parallel": "Para",
+    "Pole": "PolarOfLine",
+    "Polar": "PolarOfPoint",
+    "Arc": "ArcBy3",
+    "EuclideanMid": "Mid",
+    "AngularBisector": "AngleBisector",
+    "TransformConic": "TransformC",
+    "TransformSegment": "TransformS",
+    "TrMoebiusSegment": "TrMoebiusS",
+    "ReflectCC": "TrMoebiusC",
+    "ReflectCL": "TrMoebiusL",
+    "ReflectCP": "TrMoebiusP",
+    "ReflectCArc": "TrMoebiusArc",
+    "ReflectCS": "TrMoebiusS",
+    "TrMoebiusCircle": "TrMoebiusC"
+};
 
 var geoMacros = {};
 
@@ -2152,7 +2968,8 @@ geoMacros.CircleMFixedr = function(el) {
     return [el];
 };
 
-geoMacros.CircleByRadius = function(el) {
+geoMacros.CircleByFixedRadius = function(el) {
+    el.pinned = true;
     el.type = "CircleMr";
     return [el];
 };
@@ -2163,49 +2980,16 @@ geoMacros.IntersectionConicLine = function(el) {
     return [el];
 };
 
-geoMacros.IntersectionCircleCircle = function(el) {
-    el.type = "IntersectCirCir";
-    return [el];
-};
-
-geoMacros.IntersectionConicConic = function(el) {
-    el.type = "IntersectConicConic";
-    return [el];
-};
-
-geoMacros.FreePoint = function(el) {
-    el.type = "Free";
-    return [el];
-};
-
-geoMacros.Orthogonal = function(el) {
-    el.type = "Perp";
-    return [el];
-};
-
-geoMacros.Parallel = function(el) {
-    el.type = "Para";
-    return [el];
-};
-
-geoMacros.Pole = function(el) {
-    el.type = "PolarOfLine";
-    return [el];
-};
-
-geoMacros.Polar = function(el) {
-    el.type = "PolarOfPoint";
-    return [el];
-};
-
-geoMacros.Calculation = function(el) {
-    console.log("Calculation stripped from construction");
-    return [];
-};
-
-geoMacros.Arc = function(el) {
-    el.type = "ArcBy3";
-    return [el];
+geoMacros.angleBisector = function(el) {
+    var point = {
+        name: el.name + "_Intersection",
+        type: "Meet",
+        args: el.args,
+        visible: false
+    };
+    el.type = "AngleBisector";
+    el.args = [el.args[0], el.args[1], point.name];
+    return [point, el];
 };
 
 geoMacros.Transform = function(el) {
@@ -2219,6 +3003,17 @@ geoMacros.Transform = function(el) {
         Mt: "TrMoebius"
     };
     var op = map[tr.kind] + akind;
+    if (geoOps.hasOwnProperty(op)) {
+        el.type = op;
+        return [el];
+    } else {
+        console.log(op + " not implemented yet");
+        return [];
+    }
+};
+
+geoMacros.TrReflection = function(el) {
+    var op = "TrReflection" + csgeo.csnames[el.args[0]].kind;
     if (geoOps.hasOwnProperty(op)) {
         el.type = op;
         return [el];

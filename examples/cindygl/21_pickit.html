@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+animate(a1, a2, a3) := (
+    A0 = A.xy;
+    B0 = B.xy;
+    C0 = C.xy;
+    a0 = complex(A0);
+    b0 = complex(B0);
+    c0 = complex(C0);
+    permutations = [[a1, a2, a3], [a1, a3, a2], [a2, a1, a3], [a2, a3, a1],
+        [a3, a1, a2], [a3, a2, a1]];
+    matching = sort(permutations, abs(#_1 - a0) + abs(#_2 - b0) + abs(#_3 - c0))_1;
+    A1 = gauss(matching_1);
+    B1 = gauss(matching_2);
+    C1 = gauss(matching_3);
+    resetclock();
+    animating = true;
+);
+
+arg(z) := arctan2(z) + pi;
+
+blaschkeProduct(a1, a2, a3, z) := (
+    blaschkeFactor(z, a1) * blaschkeFactor(z, a2) * blaschkeFactor(z, a3);
+);
+
+blaschkeFactor(z, a) := (z - a) / (1 - conjugate(a) * z);
+
+color(z) := hueToRGB(arg(z));
+
+hueToRGB(hue) := (
+    hue = mod(hue / pi * 180, 360) / 60;
+    h = floor(hue);
+    f = hue - h;
+    col = [1,f,0];
+    if(h == 1, col = [1-f,1,0]);
+    if(h == 2, col = [0,1,f]);
+    if(h == 3, col = [0,1-f,1]);
+    if(h == 4, col = [f,0,1]);
+    if(h == 5, col = [1,0,1-f]);
+    col;
+);
+
+qualityString(quality) := (
+    regional(pc, spaces);
+    pc = round(quality * 100);
+    spaces = if(pc < 10, "  ", if(pc < 100, " ", ""));
+    spaces + pc + "%";
+);
+
+randomComplexNumbersInUnitDisk(n) := (
+    regional(numbers, z);
+    numbers = [];
+    while(length(numbers) < n,
+        z = 0.9 * (random(2 * (1 + i)) - (1 + i));
+        if(abs(z) > 0.81, z = 0.81 * z / abs(z));
+        numbers = append(numbers, z);
+    );
+    numbers;
+);
+
+rootsOfUnity(n) := apply(1..n, exp(2 * pi * i * # / n));
+
+restart() := (
+    pointsOnUnitCircle = i * rootsOfUnity(7);
+    solutions = randomComplexNumbersInUnitDisk(3);
+    positions = 0.33 * 0.5 * (sqrt(3) + i) * rootsOfUnity(3);
+);
+
+solve() := animate(solutions_1, solutions_2, solutions_3);
+
+restart();
+animate(0.3 * exp(i*pi/6), 0.3 * exp(i*5/6*pi), 0.3 * exp(-i*pi/2));
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if(animating,
+    t = min(seconds(), 1);
+    A.xy = (1 - t) * A0 + t * A1;
+    B.xy = (1 - t) * B0 + t * B1;
+    C.xy = (1 - t) * C0 + t * C1;
+    if(t == 1, animating = false);
+);
+
+if(abs(complex(A)) > 0.9, A.xy = gauss(0.9 * complex(A) / abs(complex(A))));
+if(abs(complex(B)) > 0.9, B.xy = gauss(0.9 * complex(B) / abs(complex(B))));
+if(abs(complex(C)) > 0.9, C.xy = gauss(0.9 * complex(C) / abs(complex(C))));
+
+colorplot(if(abs(#) > 1,
+    [1, 1, 1]
+,
+    color(blaschkeProduct(complex(A), complex(B), complex(C), complex(#)))
+));
+
+drawcircle([0,0], 1, color->[0, 0, 0], size->3);
+
+totalQuality = 0;
+forall(1..length(pointsOnUnitCircle), j,
+    p = pointsOnUnitCircle_j;
+    optimal = blaschkeProduct(solutions_1, solutions_2, solutions_3, p);
+    actual = blaschkeProduct(complex(A), complex(B), complex(C), p);
+    quality = abs(1 - abs(arg(optimal) - arg(actual)) / pi)^5;
+    totalQuality = totalQuality + quality;
+    fillcircle(gauss(p), 0.1 * (1 - quality), color->color(optimal));
+    drawcircle(gauss(p), 0.1 * (1 - quality), color->[0, 0, 0], size->2);
+);
+totalQuality = totalQuality / length(pointsOnUnitCircle);
+drawtext([-0.15, -1.25], qualityString(totalQuality));
+</script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform: [ { visibleRect: [-1.5, 1.5, 1.5, -1.5] }]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0]},
+    {name:"B", type:"Free", pos:[0,0]},
+    {name:"C", type:"Free", pos:[0,0]}
+  ],
+  animation: {autoplay: true},
+  use: ["CindyGL"]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+<div><button onclick="cdy.evokeCS('solve()')" type="button">Solve</button></div>
+</body>
+
+</html>

@@ -76,8 +76,8 @@ This operator produces a list that resembles the direct product of two given lis
 The direct products consists of all pairs whose first element is taken from `‹list1›` and whose second element is taken from `‹list2›`.
 
 **Modifiers:**
-The modifier `levels` can be set either to "all", which results in a complete recursive flattening, or it can be set to an integer, that specifies the maximal recursion level of flattening.
-The statement `flatten(...,levels->1)` is equivalent to `flatten(...)`.
+The modifier `levels` can be set either to `"all"`, which results in a complete recursive flattening, or it can be set to an integer, that specifies the maximal recursion level of flattening.
+The statement `flatten(…,levels->1)` is equivalent to `flatten(…)`.
 
 **Example:**
 Let us assume that we set
@@ -186,6 +186,7 @@ Note that set operations have linear time complexity.
 
 Returns all combinations with the given number of elements chosen from the given list.
 
+    - only CindyJS
     > combinations(1..5, 3)
     < [[1, 2, 3], [1, 2, 4], [1, 2, 5], [1, 3, 4], [1, 3, 5], [1, 4, 5], [2, 3, 4], [2, 3, 5], [2, 4, 5], [3, 4, 5]]
     > combinations(1..5, 0)
@@ -199,6 +200,7 @@ The first argument may also be a number.
 In that case, only the number of combinations is returned.
 It will be correct even in many cases where a computation using naive factorials would overflow.
 
+    - only CindyJS
     > combinations(30, 12)
     < 86493225
     > combinations(30, 0)

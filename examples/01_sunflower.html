@@ -25,16 +25,16 @@
 
 
 
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
         <script type="text/javascript">
 
             var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[0,0,1]},
-                      {name:"B", kind:"P", type:"Free", pos:[0,9,1]},
+                      {name:"A", kind:"P", type:"Free", pos:[0,0]},
+                      {name:"B", kind:"P", type:"Free", pos:[0,9]},
                       ];
 
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         defaultAppearance: {pointColor: [1,0.7,0]},
                         movescript:"csmove",
                         geometry:gslp});

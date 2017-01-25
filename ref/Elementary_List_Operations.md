@@ -48,7 +48,7 @@ There are more elegant ways.
 #### Testing for containment: `contains(‹list›,‹expr›)`
 
 **Description:**
-This operator returns either `true` or `false` depending on whether `‹list›` contains the element &lt;expr&gt;.
+This operator returns either `true` or `false` depending on whether `‹list›` contains the element `‹expr›`.
 
     > contains([1,3,4,5],4)
     < true
@@ -57,28 +57,50 @@ This operator returns either `true` or `false` depending on whether `‹list›`
     > contains([1,3,4,5],2*2)
     < true
 
+    - CindyScript >=3.0
+    > 4 ∈ [1,3,4,5]
+    < true
+    > 7 ∈ [1,3,4,5]
+    < false
+    > 4 ∉ [1,3,4,5]
+    < false
+    > 7 ∉ [1,3,4,5]
+    < true
+
 ------
 
 ------
 
 ###  List Manipulation
 
-#### Concatenation of lists: `concat(‹list1›,‹list2›)`
+#### Concatenation of lists: `‹list1› ++ ‹list2›`, `‹list1› ∪ ‹list2›` or `concat(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list by concatenation of two other lists.
-This operator can equivalently be written as `‹list1›++‹list2›`.
 
     > concat(["a", "b"], ["c", "d"])
     < ["a", "b", "c", "d"]
 
+Thanks to auto-coercion, numbers and boolean values will get
+converted to singleton lists.
+
+    > concat(2, true)
+    < [2, true]
+
+Strings and `___` auto-coerce to the empty list.
+
+    > concat("foo", [2])
+    < [2]
+    > concat([1], (;))
+    < [1]
+
 ------
 
-#### Removing elements from lists: `remove(‹list1›,‹list2›)`
+#### Removing elements from lists: `‹list1› -- ‹list2›`, `‹list1› ∖ ‹list2›` or `remove(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list by removing all elements that occur in `‹list2›` from `‹list1›`.
-This operator can equivalently be written as `‹list1› -- ‹list2›`.
+Note that `∖` is not a plain backslash, but the Unicode symbol ‘set minus’.
 
     > remove([1,3,4,5,1,5,6], [1,3,7])
     < [4, 5, 5, 6]
@@ -87,12 +109,11 @@ This operator can equivalently be written as `‹list1› -- ‹list2›`.
 
 ------
 
-#### Intersection of lists: `common(‹list1›,‹list2›)`
+#### Intersection of lists: `‹list1› ~~ ‹list2›`, `‹list1› ∩ ‹list2›` or `common(‹list1›,‹list2›)`
 
 **Description:**
 This operator creates a list collecting all elements that are in both `‹list1›` and `‹list1›`.
 In the returned list the elements are sorted and each element occurs at most once.
-This operator can equivalently be written as `‹list1›~~‹list2›`.
 
     > common([1,3,4,5,1,5,6], [1,3,7])
     < [1, 3]
@@ -101,11 +122,10 @@ This operator can equivalently be written as `‹list1›~~‹list2›`.
 
 ------
 
-#### Appending an element: `append(‹list›,‹expr›)`
+#### Appending an element: `‹list› :> ‹expr›` or `append(‹list›,‹expr›)`
 
 **Description:**
 This operator returns a list that is created by appending `‹expr›` to the list `‹list›` as its last element.
-This operator can equivalently be written as `‹list›:>‹expr›`.
 
     > append(["a", "b", "c"], "d")
     < ["a", "b", "c", "d"]
@@ -114,11 +134,10 @@ This operator can equivalently be written as `‹list›:>‹expr›`.
 
 ------
 
-#### Prepending an element: `prepend(‹expr›,‹list›)`
+#### Prepending an element: `‹expr› <: ‹list›` or `prepend(‹expr›,‹list›)`
 
 **Description:**
 This operator returns a list that is created by prepending `‹expr›` to the list `‹list›` as its first element.
-This operator can equivalently be written as `‹expr›<:‹list›`.
 
     > prepend("d",["a", "b", "c"])
     < ["d", "a", "b", "c"]
@@ -228,7 +247,7 @@ These numbers are the primes.
 #### Selecting elements of a list: `select(‹list›,‹var›,‹boolexpr›)`
 
 **Description:**
-Similar to `select(‹list›,‹boolexpr›)`, but the run variable is now named &lt;var&gt;.
+Similar to `select(‹list›,‹boolexpr›)`, but the run variable is now named ‹var›.
 The variable is local to the expression.
 
     > v = 996;

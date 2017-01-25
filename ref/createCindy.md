@@ -1,14 +1,14 @@
 # The public interface to CindyJS
 
-Except for some legacy stuff which is now deprecated, CindyJS exports a single object into the global namespace, which is called `createCindy`.
+Except for some legacy stuff which is now deprecated, CindyJS exports a single object into the global namespace, which is called `CindyJS`.
 This method expects a single object as an argument, which in turn contains various parameters.
 
 Example:
 
-    J createCindy({ports:[{id:"CindyCanvas"}],
-    J              scripts:"cs*",
-    J              csconsole:null
-    J             });
+    J CindyJS({ports:[{id:"CindyCanvas"}],
+    J          scripts:"cs*",
+    J          csconsole:null
+    J         });
 
 ## Parameters
 
@@ -31,6 +31,12 @@ Each port description is a dictionary which may contain the following items:
   `innerWidth` and `innerHeight` of the window.
   This overrides the `width` and `height` attributes of the canvas element.
   At the moment this still doesn't accomodate dynamic changes to window size.
+* `grid` is a numeric value which specified the grid size in user units.
+  A missing or zero value indicates that no grid is to be drawn.
+* `snap` is a boolean value and indicates that points being moved
+  should snap to nearby grid points. Defaults to `false`.
+* `axes` is a boolean value which indicates
+  whether coordinate axes are to be drawn. Defaults to `false`.
 
 Either `id` or `element` must be given, with the latter taking precedence.
 The element identified in this way must be a `HTMLCanvasElement`.
@@ -113,11 +119,14 @@ The default is defined as follows:
     J   pointColor: [1,0,0],
     J   lineColor: [0,0,1],
     J   pointSize: 5,
-    J   lineSize: 2,
+    J   lineSize: 1,
     J   alpha: 1,
-    J   overhangLine: 1.1,
+    J   overhangLine: 1,
     J   overhangSeg: 1,
-    J   dimDependent: 1
+    J   dimDependent: 0.7,
+    J   fontFamily: "sans-serif",
+    J   textsize: 20,
+    J   lineHeight: 1.45
     J }
 
 Any parameter which stays at this default value doesn't have to be specified at all.
@@ -136,11 +145,15 @@ but that was more annyoing than useful in most environments.
 
 ### grid
 
-To draw a grid behind the scene, set this to an integer specifying the grid size.
+Backwards-compatibility setting.
+`grid:2` is equivalent to `ports:[{…, grid:2}]`,
+i.e. to that property being specified inside each port.
 
 ### snap
 
-Set this to true to enable snapping to the grid.
+Backwards-compatibility setting.
+`snap:true` is equivalent to `ports:[{…, snap:true}]`,
+i.e. to that property being specified inside each port.
 
 ### geomety
 
@@ -157,9 +170,19 @@ See the section “Lab” for details.
 A list of URLs which will be loaded.
 Whenever an image is ready, it can be used in the application instance.
 
-### autoplay
+### animation
 
-Setting this to true indicates that the animation should start immediately after startup of the instance.
+An object containing the following properties:
+
+* `autoplay` is a boolean value which indicates whether the animation should start immediately after startup of the instance.
+* `controls` is a boolean value which controls whether animation control buttons (play, pause, stop) are to be displayed.
+* `speed` is the animation speed, as a double value which defaults to 1.
+
+For the sake of backwards compatibility, `autoplay` may occur as
+a top level parameter instead of nested in the `animation` object.
+Likewise a top level `animcontrols` can be given instead of
+`animation.controls`.  But these are deprecated, and only being used
+if the `animation` object is not present at all.
 
 ### oninit
 
@@ -173,7 +196,7 @@ If set to `true`, this will cause all previous instances of the application to b
 
 ### plugins
 
-An object providing plugins in addition to those registered by `createCindy.registerPlugin`.
+An object providing plugins in addition to those registered by `CindyJS.registerPlugin`.
 The key is the plugin name, the value a plugin initialization callback.
 
 ### language
@@ -191,9 +214,21 @@ The outer key is the two-letter language abbreviation.
 The inner key is the string passed to the `tr` function.
 The corresponding value will be returned in response.
 
+### angleUnit
+
+The unit to use when printing angles, given as a string.
+Supported values include `rad`, `°`=`deg`=`degree`,
+`gra`=`grad`, `turn`=`cyc`=`rev`=`rot`, `π`=`pi` and `quad`.
+The given name is also be printed as the unit,
+so the settings described as equal will print the same value
+but with a different notation for the unit. The default is `°`.
+An empty string will cause angles to be printed in radians with no unit.
+To enter the special symbols when editing the data in a non-Unicode environment,
+you can enter `°` as `\u00b0` and `π` as `\u03c0`.
+
 ## Instance Methods
 
-The object returned from a call to `createCindy` has a number of methods which may be of use.
+The object returned from a call to `CindyJS` has a number of methods which may be of use.
 
 ### startup
 
@@ -231,18 +266,29 @@ The next call to `start` will resume the animation from the current position.
 Stop the animation.
 The configuration will be reset to the situation where `play` was invoked.
 
+## saveState
+
+Saves the state of the widget.
+Currently only the geometric elements are stored,
+but it is well conceivable that a future version might store state
+for script variables and the likes as well.
+Each stored portion of the widget is represented as one property
+of the returned object, so currently that object will contain a property
+called `geometry` representing the geometric elements,
+formatted the same way as the corresponding input property.
+
 ## Static Functions
 
-The `createCindy` function has a number of additional functions defined as its members.
+The `CindyJS` function has a number of additional functions defined as its members.
 
 ### newInstance
 
-The `createCindy.newInstance` function behaves mostly like `createCindy` itself, but it will not automatically invoke the `startup` method of the newly created instance.
+The `CindyJS.newInstance` function behaves mostly like `CindyJS` itself, but it will not automatically invoke the `startup` method of the newly created instance.
 Use this in special cases where custom control over startup and shutdown is required.
 
 ### waitFor
 
-The `createCindy.waitFor` function will return a function which can be used as a callback.
+The `CindyJS.waitFor` function will return a function which can be used as a callback.
 Created instances will only be started automatically after all callbacks created in this way have been executed.
 This method must be called in the header of the HTML document, before the `DOMContentLoaded` event has been triggered.
 That is because internally there is one such wait for that event, and once all events have been waited for it is an error to specify additional waiting conditions.
@@ -256,6 +302,23 @@ The second parameter is the name of the plugin.
 The third is a callback function.
 It will be called when the `init` script of some content requests that plugin using the `use` operation of CindyScript.
 The details of the Plugin API will one day be described in some other document.
+
+### dumpState
+
+This logs the geometric state of the widget to the web development console.
+An optional integer argument can be used to specify the index of the widget
+in case there is more than one.
+It is suggested to call this function and save its output
+if a specific geometric configuration exposes some kind of bug,
+so that the problematic situation can be reproduced more easily.
+
+### debugState
+
+In theory it should be possible for most widgets to save the state
+and then restart the widget using that state in order to reproduce
+the same situation again.
+This function helps verifying this by doing exactly such a
+save then reload cycle for each widget in the current document.
 
 # Specifying non-script construction elements
 

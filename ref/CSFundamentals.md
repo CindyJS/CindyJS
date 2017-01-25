@@ -13,16 +13,13 @@ Here, one can specify the occasion on which the program will be executed.
 For instance, it can be executed whenever the user moves the construction or after any mouse click.
 Thus one can easily add functional behavior and graphical enhancements to an existing construction.
 
-The following sections will give you an overview of the global design of the programming language [CindyScript](CindyScript.md).
+The following sections will give you an overview of the global design of the programming language CindyScript.
 The language design follows some guiding principles:
 
 *  The language should be easy to learn, write and read
-
 *  The language should have only minimal syntactic overhead
-
 *  The language should be fast in execution
-
-*  The language should interact seemlessly with Cinderella and [CindyLab](CindyLab.md)
+*  The language should interact seemlessly with Cinderella and CindyLab
 
 The following topics will give you an overview over the main language features:
 
@@ -36,10 +33,10 @@ How to write and edit a program
 Declearing, destroying and scope of variables and functions
 
 *  **[Accessing Geometric Elements](Accessing_Geometric_Elements.md):**
-How to interact with Cinderella and [CindyLab](CindyLab.md)
+How to interact with Cinderella and CindyLab
 
 *  **[Control Operators](Control_Operators.md):**
-How to create control structures with `if, repeat, while,...`
+How to create control structures with `if`, `repeat`, `while`, …
 
 *  **[Arithmetic Operators](Arithmetic_Operators.md):**
 Dealing with numbers (+, -, *, /, sin(), cos(), …)
@@ -51,4 +48,4 @@ Logic statements
 Dealing with strings of characters
 
 For a detailed description of the language it is necessary to consult the documentation on specific parameters.
-We recommend to browse over the [CindyScript](CindyScript.md) manual at least once to get an impression of various possibilities of the language.
+We recommend to browse over the CindyScript manual at least once to get an impression of various possibilities of the language.

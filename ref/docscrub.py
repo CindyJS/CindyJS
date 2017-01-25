@@ -248,6 +248,7 @@ names = [
     "MIDI+Functions",
     "Sampled-Audio+Functions",
     "Special+Operators",
+    "System+Information",
     "Interaction+with+Geometry",
     "File+Management",
     "Console+Output",

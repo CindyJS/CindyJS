@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Implementation of complex arctan2</h1>
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+    </script>
+    <script id="csmove" type="text/x-cindyscript">
+      f(z) := arctan2(z,complex(A)); //arctan2 with complex arguments
+      colorplot(hue(arctan2(f(complex(#)))/2/pi)); //standard phase portrait of function f, arctan2 with complex number as argument
+    </script>
+    
+
+    <div  id="CSCanvas" style="width:500px; height:400px;"></div>
+    
+    <script type="text/javascript">
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[-2,-1.5]},
+                ];
+        CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp
+                    }
+        );
+    </script>              
+	</body>
+</html>

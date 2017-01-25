@@ -41,7 +41,7 @@
 
 
 
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
         <script type="text/javascript">
            	var gslp=[
@@ -61,7 +61,7 @@
                       {name:"N", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
                       ];
 
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         defaultAppearance: {pointSize: 4, pointColor: [1,0.7,0]},
                         movescript:"csmove",
                         geometry:gslp});

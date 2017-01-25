@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Julia Feedbackloop: Conjugated</h1>
+    The internal computations are done on exp-log-conjugated texture. The center of this conformal conjugation is a fixed point of z*z+c.
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      
+      f(z, c) := z*z+c;
+      fp(c) := (1-sqrt(1-c*4))/2; //Fixpoint of f
+      
+      createimage("juliaconj", 1024, 512);
+      createimage("julia",     512, 512);
+      
+      
+      L = [-2*pi, -pi];
+      R = [2*pi,- pi];
+      
+    </script>
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      c = complex(mouse());
+      if(re(c)>1.5, c = c - 3);
+      d = fp(c);
+      
+      //min(continious escape time, 1)
+      cesc(z) := (
+        l0 = abs(z);
+        l1 = abs(f(z,c));   
+        if(l0<4,
+          if(l1 < 4,
+			1,
+            re(log(3/l0))/re(log(l1/l0))
+          ), 0
+        )
+      );
+      
+      color(z) := (
+		z = exp(z)+d;
+        r = log(f(z, c) - d);
+        if(abs(z)<4, if(re(r) > L.x+.01, imagergb(L, R, "juliaconj", r) + cesc(z)/255*(1,2,3), (1,.7,0)), (0,0,0));
+      );
+      
+      colorplot(L, R, "juliaconj", (color(complex(#))));
+      drawimage([1.5,-1.5], [7.5,-1.5], "juliaconj");
+      
+      colorplot([-1.5,-1.5], [1.5,-1.5], "julia", imagergb(L, R, "juliaconj", log(if( # * (re(d), im(d)) > 0, complex(#), complex(-#))-d)));
+      drawimage([-1.5,-1.5], [1.5,-1.5], "julia");
+      
+      draw([1.5,-1.5],[1.5,1.5], color->(1,1,1));
+    </script>
+
+    <div  id="CSCanvas"></div>
+    <script type="text/javascript">
+        
+        var gslp=[];
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 1280,
+                      height: 512,
+                      transform: [ { visibleRect: [-1.5, -1.5, 6, 1.5] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

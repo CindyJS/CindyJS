@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Raytracer (root tracing by homotopy)</h1>
+    
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      time = seconds()-t0;
+      alpha = .5+mouse().x;
+      
+      
+    
+    //  ind = -10..10;
+    //  forall(ind, x,
+    //    forall(ind, y,
+    //     draw((x, y), size->10, color->computeColor((x, y)));
+    //    )
+    //  );
+      
+    //  X.color = computeColor(X.xy/20);
+      
+      colorplot(computeColor(#));
+    </script>
+               
+    <script id="csinit" type="text/x-cindyscript">
+      alpha = .8;
+      F(p) := (
+        regional(x, y, z);
+        x = p.x;
+        y = p.y;
+        z = p.z;
+        alpha = 2.3+.35*sin(time);
+        x*x+y*y+z*z+alpha*x*y*z-1.
+      );
+      
+      dF(p) := (
+        regional(x, y, z);
+        x = p.x;
+        y = p.y;
+        z = p.z;
+        (
+          2.*x+alpha*y*z,
+          2.*y+alpha*x*z,
+          2.*z+alpha*x*y
+        )
+      );
+      
+      S(r) := (r*r-4*4); //sphere with radius 4
+      
+      ray(pos, t) := (
+        ([[cos(time/5+mouse().y/3),0.,sin(time/5+mouse().y/3)],
+         [0.,1.,0.],
+         [-sin(time/5+mouse().y/3),0.,cos(time/5+mouse().y/3)]]*
+        [[1.,0,0.],
+         [0,cos(mouse().x/3),sin(mouse().x/3)],
+         [0,-sin(mouse().x/3),cos(mouse().x/3)]])*
+          (t*(pos.x, pos.y, 1)+(0, 0, -9))
+      );
+      
+      eval(poly, t) := (((poly_4)*t+poly_3)*t+poly_2)*t+poly_1; //evals deg 3 poly at time t, using horner scheme
+      
+      d(poly) := (poly_2, 2*poly_3, 3*poly_4, 0); //computes derivative of polynomial
+      
+      path0(t) := ((1-t)*(1-t)*(1-t)*(t-1))*i; //a non-trivial path connecting i and 0 in C, See "Accelerating Polynomial Homotopy Continuation on a Graphics Processing Unit with Double Double and Quad Double Arithmetic" for example
+      path1(t) := t*t*t*t;       //a (non-trivial) path connecting 0 and 1 in C
+      
+      traceroot(p0, p1, r) := (
+        //traces the root r of p0 to a root of p1 using homotopy p0->p1
+        regional(t, dp0, dp1);
+        dp0 = d(p0);
+        dp1 = d(p1);
+        t = 0;
+        repeat(32,
+          t = t + 1/32;
+          a1 = path1(t);
+          a0 = path0(t);
+          r = r - (a0*eval(p0,r)+a1*eval(p1,r))/(a0*eval(dp0,r)+a1*eval(dp1,r)); // complex newton step on function homoptopy ((f0*f0+a1*f1)
+        );
+        repeat(4,
+          r = r - eval(p1,r)/eval(dp1,r);
+        );
+        r
+      );
+      
+      
+      makebetter(old, newr, l, u) := if(abs(im(newr))<0.01 & l< re(newr) & re(newr) < u,
+          min(re(newr), old),
+      old);
+      
+      // makebetter(old, new) := min(re(new), old);
+      oo = 1000;
+      
+      firstroot(poly, l, u) := ( //finds first root of poly in interval [l, u]. returns oo if there is none
+          
+        p0 = [-1,0,0,1]; //c*(x^3 - 1) has roots 1, exp(1 * 2 * pi i/3), exp(2 * 2 * pi i/3)
+        res = oo;
+        res = makebetter(res, traceroot(p0, poly, exp(0*2*pi*i/3)), l, u);
+        res = makebetter(res, traceroot(p0, poly, exp(1*2*pi*i/3)), l, u);
+        res = makebetter(res, traceroot(p0, poly, exp(2*2*pi*i/3)), l, u);
+        
+    //    p1 = [0,-1,0,1]; //x^3 - x has roots -1, 0, 1
+    //    res = makebetter(res, traceroot(p1, poly, 0), l, u);
+    //    res = makebetter(res, traceroot(p1, poly, -1), l, u);
+    //    res = makebetter(res, traceroot(p1, poly, 1), l, u);
+        
+        res
+      );
+      
+      //A = transpose([
+      //  [1, 1, 1, 1],
+      //  [0, 5, 10, 15],
+      //  [0, 5*5, 10*10, 15*15],
+      //  [0, 5*5*5, 10*10*10, 15*15*15]
+      //]); 
+      
+      A = apply(0..3,c,apply(0..3,i,(5*c)^i));
+      // A sends polynomials [p0, p1, p2, p3] = p0+p1*X+p2*X*X+p3*X*X*X to [p(0), p(5), p(10), p(15)]
+      B = inverse(A); //B interpolates polynomials, given the values [p(0), p(5), p(10), p(15)]
+      
+      addlight(oldcolor, lightcolor, lightpos, normal) := (
+        illumination = max(0,(lightpos/abs(lightpos))*normal);
+        oldcolor + (illumination*illumination)*lightcolor
+      );
+
+
+      computeColor(pos) := (
+        polyvalues = [F(ray(pos, 0)), F(ray(pos, 5)), F(ray(pos, 10)), F(ray(pos, 15))];
+        poly = B*polyvalues;
+        
+        spolyvalues = [S(ray(pos, 0)), S(ray(pos, 5)), S(ray(pos, 10)), S(ray(pos, 15))];
+        spoly = B*spolyvalues;
+        //print(poly);
+        
+        D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
+        froot = if(D>=0,
+          firstroot(poly,
+            (-spoly_2-re(sqrt(D)))/(2.*spoly_3),
+            (-spoly_2+re(sqrt(D)))/(2.*spoly_3)
+          ),
+          oo
+        );
+       // print(froot);
+        if(froot == oo,
+          gray(.1),
+          n = dF(ray(pos, froot));
+          n = n/abs(n);
+          
+          lightpos0 = (-1.,1.,0.);
+          lightpos1 = (0.,-1.,1.);
+          lightpos2 = (1.,0.,-1.);
+          lightpos3 = ray((.0,.0),-10.);
+          lightpos4 = ray((.0,.0),10.); //for other side of n
+          
+          color0 = .6*(1.,.6,.3);
+          color1 = .6*(.3,1.,.6);
+          color2 = .6*(.6,.3,1.);
+          color3 = (.0,.8,.8);
+          color4 = (.9,.3,.0);
+          
+          color = (0,0,0);
+          color = addlight(color, color0, lightpos0, n);
+          color = addlight(color, color1, lightpos1, n);
+          color = addlight(color, color2, lightpos2, n);
+          color = addlight(color, color3, lightpos3, n);
+          color = addlight(color, color4, lightpos4, n);
+          color 
+        )
+      );
+      
+      use("CindyGL");
+      t0 = seconds();
+    </script>
+    
+
+    <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+    
+    <script type="text/javascript">
+        CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [ -0.5, -0.5, 0.5, 0.5 ] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

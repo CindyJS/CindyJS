@@ -10,6 +10,8 @@ This section illustrates the use of these two functions.
 
 #### Calculating a derivative: `d(‹function›,‹var›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator creates a function that is the derivative of another function, which is passed as a first argument.
 The variable of `‹function›` with respect to which the derivative should be calculated has to be the standard run variable `#`.
@@ -55,6 +57,8 @@ This value can be altered using the modifier `eps->‹number›`.
 
 #### Tangent: `tangent(‹function›,‹var›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator is very similar to the operator that calculates the derivative of a function.
 However, instead of calculating the value of the derivative, this operator calculates the homogeneous coordinates of a tangent to the function at a point.
@@ -86,6 +90,8 @@ In addition, the line attribute of this vector is set (see [Geometric Operators]
 
 #### Guessing the value of a real number: `guess(‹number›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 The guess operator is perhaps one of the most sophisticated and powerful operators of CindyScript.
 It can be used to recover a symbolic meaning from a numerical floating-point value.
@@ -104,7 +110,7 @@ Thus it is possible to use the guess operator to discover whether a number is ra
 **Examples:**
 This operator is sometimes extremely useful for finding hidden properties of geometric constructions.
 We illustrate this with a few examples.
-The first picture shows a construction in which the slope of the line and the coordinates of the intersection of two circles are "guessed":
+The first picture shows a construction in which the slope of the line and the coordinates of the intersection of two circles are “guessed”:
 
 ![Values guessed from geometric construction](img/GuessX.png)
 
@@ -145,8 +151,34 @@ The code below calculates and draws the roots of a cubic polynomial given by its
     > d=-1;
     > f(x):=a*x^3+b*x^2+c*x+d;
     > r=roots([d,c,b,a]);
-    > r
+    > sort(r)
     < [-2.0562, -0.3563, 3.4125]
+
+    > sort(roots([-1, 0, 1]));
+    < [-1, 1]
+
+    > sort(roots([0, -1, 0, 1]));
+    < [-1, 0, 1]
+
+    - only CindyJS
+    > sort(roots([-1, 0, 1, 0]));
+    < [-1, 1, Infinity + i*Infinity]
+
+    - only Cinderella
+    > sort(roots([-1, 0, 1, 0]));
+    < [-1, 1, NaN]
+
+    > roots([]);
+    < []
+
+    > roots([0]);
+    < []
+
+    > roots([1]);
+    < []
+
+    > roots([0, 0, 0, 0, 1]);
+    < [0, 0, 0, 0]
 
     - skip test: can't do drawing in the test suite.
     > plot(f(x),size->2);

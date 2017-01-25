@@ -15,10 +15,14 @@
 
 
         <script id='csmove' type='text/x-cindyscript'>
+	println(Co.matrix);
+	println(Co.center);
+	println(Co.dualMatrix);
+	println(Co.size);
         </script>
 
 
-        <canvas  id="CSCanvas" width=600 height=600 style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
 
 
         <script type="text/javascript">
@@ -32,7 +36,7 @@
 		              {name:"Co", type:"ConicBy5", args:["A","B","C","D","E"],color:[0,0,1],alpha:1,size:1},
 //		     {name:"l", type:"Join", args:["A", "D"]}
                       ];
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         movescript:"csmove",
                         grid:1,
                         snap:true,

@@ -1,4 +1,4 @@
-var createCindy = (function() {
+var CindyJS = (function() {
             "use strict";
 
             var debugStartup = false;
@@ -43,8 +43,8 @@ var createCindy = (function() {
                 document.addEventListener("DOMContentLoaded", waitFor("DOMContentLoaded"));
             }
 
-            function createCindy(data) {
-                var instance = createCindy.newInstance(data);
+            function CindyJS(data) {
+                var instance = CindyJS.newInstance(data);
                 if (waitCount <= 0) instance.startup();
                 else if (data.autostart !== false) toStart.push(instance);
                 return instance;
@@ -54,7 +54,7 @@ var createCindy = (function() {
             var cindyJsScriptElement = null;
             var waitingForLoad = {};
 
-            createCindy.getBaseDir = function() {
+            CindyJS.getBaseDir = function() {
                 if (baseDir !== null)
                     return baseDir;
                 var scripts = document.getElementsByTagName("script");
@@ -75,9 +75,9 @@ var createCindy = (function() {
                 return baseDir;
             };
 
-            createCindy.addNewScript = function(path, onerror) {
+            CindyJS.addNewScript = function(path, onerror) {
                 if (!onerror) onerror = console.error.bind(console);
-                var baseDir = createCindy.getBaseDir();
+                var baseDir = CindyJS.getBaseDir();
                 if (baseDir === false) {
                     return false;
                 }
@@ -92,7 +92,7 @@ var createCindy = (function() {
                 return elt;
             };
 
-            createCindy.loadScript = function(name, path, onload, onerror) {
+            CindyJS.loadScript = function(name, path, onload, onerror) {
                 if (window[name]) {
                     onload();
                     return true;
@@ -100,7 +100,7 @@ var createCindy = (function() {
                 if (!onerror) onerror = console.error.bind(console);
                 var elt = waitingForLoad[name];
                 if (!elt) {
-                    elt = createCindy.addNewScript(path, onerror);
+                    elt = CindyJS.addNewScript(path, onerror);
                     if (elt === false) {
                         onerror("Can't load additional components.");
                         return false;
@@ -112,18 +112,18 @@ var createCindy = (function() {
                 return null;
             };
 
-            createCindy._autoLoadingPlugin = {};
+            CindyJS._autoLoadingPlugin = {};
 
-            createCindy.autoLoadPlugin = function(name, path, onload) {
-                if (createCindy._pluginRegistry[name]) {
+            CindyJS.autoLoadPlugin = function(name, path, onload) {
+                if (CindyJS._pluginRegistry[name]) {
                     onload();
                     return true;
                 }
-                var listeners = createCindy._autoLoadingPlugin[name];
+                var listeners = CindyJS._autoLoadingPlugin[name];
                 if (!listeners) {
                     if (!path) path = name + "-plugin.js";
-                    listeners = createCindy._autoLoadingPlugin[name] = [];
-                    var elt = createCindy.addNewScript(path);
+                    listeners = CindyJS._autoLoadingPlugin[name] = [];
+                    var elt = CindyJS.addNewScript(path);
                     if (elt === false) {
                         return false;
                     }
@@ -133,18 +133,56 @@ var createCindy = (function() {
                 return null;
             };
 
-            createCindy.waitFor = waitFor;
-            createCindy._pluginRegistry = {};
-            createCindy.instances = [];
-            createCindy.registerPlugin = function(apiVersion, pluginName, initCallback) {
+            var nada = {
+                ctype: 'undefined'
+            };
+
+            CindyJS.waitFor = waitFor;
+            CindyJS._pluginRegistry = {};
+            CindyJS.instances = [];
+            CindyJS.registerPlugin = function(apiVersion, pluginName, initCallback) {
                 if (apiVersion !== 1) {
                     console.error("Plugin API version " + apiVersion + " not supported");
                     return false;
                 }
-                createCindy._pluginRegistry[pluginName] = initCallback;
-                var listeners = createCindy._autoLoadingPlugin[pluginName] || [];
+                CindyJS._pluginRegistry[pluginName] = initCallback;
+                var listeners = CindyJS._autoLoadingPlugin[pluginName] || [];
                 listeners.forEach(function(callback) {
                     callback();
                 });
             };
-            createCindy.newInstance = function(instanceInvocationArguments) {
+
+            var idCounter = 0;
+
+            function generateId(prefix) {
+                if (prefix === undefined)
+                    prefix = "CindyJSid";
+                return prefix + (++idCounter);
+            }
+
+            CindyJS.dumpState = function(index) {
+                // Call this if you find a rendering bug you'd like to reproduce.
+                // The save the printed JSON to a file and include it in your report.
+                var state = CindyJS.instances[index || 0].saveState();
+                console.log(JSON.stringify(state));
+            };
+
+            CindyJS.debugState = function(index) {
+                // Call this to test how a widget handles a save & reload.
+                // You can paste javascript:CindyJS.debugState() into the
+                // address bar of your browser to achieve this.
+                CindyJS.instances.map(function(instance) {
+                    var cfg = instance.config;
+                    cfg = JSON.parse(JSON.stringify(cfg));
+                    var state = instance.saveState();
+                    console.log(JSON.stringify(state));
+                    for (var key in state)
+                        cfg[key] = state[key];
+                    instance.shutdown();
+                    return cfg;
+                }).forEach(function(cfg) {
+                    CindyJS(cfg);
+                });
+            };
+
+            CindyJS.newInstance = function(instanceInvocationArguments) {

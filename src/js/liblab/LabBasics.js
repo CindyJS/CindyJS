@@ -45,13 +45,15 @@ fehlberg78.size = 13;
 var rk = doPri45;
 var behaviors;
 var masses = [];
+var springs = [];
 var csPhysicsInited = false;
 
-function csreinitphys(behavs) {
+function csresetphys() {
     behaviors.forEach(function(beh) {
-        var geoname = beh.name;
-        labObjects[beh.behavior.type].init(beh.behavior, csgeo.csnames[geoname]);
-
+        var geo = (beh.geo || []).map(function(name) {
+            return csgeo.csnames[name];
+        });
+        labObjects[beh.type].reset(beh, geo[0], geo);
     });
 }
 
@@ -60,37 +62,55 @@ function csinitphys(behavs) {
     csPhysicsInited = (behavs.length !== 0);
     //console.log(csPhysicsInited);
 
-    behaviors = behavs;
+    behaviors = [];
     masses = [];
+    springs = [];
 
-
-    behaviors.forEach(function(beh) {
+    labObjects.Environment.init({}); // Set defaults
+    behavs.forEach(function(beh) {
+        if (beh.behavior) { // Legacy format
             if (beh.name) {
-                var geoname = beh.name;
-                if (csgeo.csnames[geoname]) {
-                    csgeo.csnames[geoname].behavior = beh.behavior;
-                    labObjects[beh.behavior.type].init(beh.behavior, csgeo.csnames[geoname]);
-                    if (beh.behavior.type === "Mass") {
-                        masses.push(csgeo.csnames[geoname]);
-                    }
-
-
-                }
-            } else {
-                labObjects[beh.behavior.type].init(beh.behavior);
+                beh.behavior.geo = [beh.name];
+            }
+            beh = beh.behavior;
+            if (beh.gravity) {
+                beh.gravity = -beh.gravity; // positive was up but now is down
+            }
+        } else {
+            geo = beh.geo;
+        }
+        var geo = (beh.geo || []).map(function(name) {
+            return csgeo.csnames[name];
+        });
+        var mainGeo = geo[0]; // may be undefined!
+        var op = labObjects[beh.type];
+        if (!op) {
+            console.error(beh);
+            console.error("Behavior " + beh.type + " not implemented yet");
+            return;
+        }
+        if (op.init) {
+            op.init(beh, mainGeo, geo);
+        }
+        if (mainGeo) {
+            mainGeo.behavior = beh;
+            if (beh.type === "Mass") {
+                masses.push(mainGeo);
+            } else if (beh.type === "Spring") {
+                springs.push(mainGeo);
             }
         }
-
-
-    );
+        behaviors.push(beh);
+    });
 
 }
 
 
-lab.tick = function() {
-
-    for (var i = 0; i < labObjects.env.accuracy; i++) {
-        lab.tick1(labObjects.env.deltat / labObjects.env.accuracy);
+lab.tick = function(deltat) {
+    deltat = deltat / simaccuracy;
+    for (var i = 0; i < simaccuracy; i++) {
+        lab.tick1(deltat);
+        simtime += deltat;
         cs_simulationstep();
     }
 };
@@ -120,8 +140,7 @@ lab.tick1 = function(deltat) {
 };
 
 lab.restorePosition = function() {
-    behaviors.forEach(function(b) {
-        var beh = b.behavior;
+    behaviors.forEach(function(beh) {
         labObjects[beh.type].restorePos(beh, rk.size + 2);
     });
     //for (Behavior beh : all) {
@@ -132,16 +151,14 @@ lab.restorePosition = function() {
 };
 
 lab.doCollisions = function() {
-    behaviors.forEach(function(b) {
-        var beh = b.behavior;
+    behaviors.forEach(function(beh) {
         labObjects[beh.type].doCollisions(beh);
     });
 
 };
 
 lab.calculateForces = function() {
-    behaviors.forEach(function(b) {
-        var beh = b.behavior;
+    behaviors.forEach(function(beh) {
         labObjects[beh.type].calculateForces(beh);
     });
     //dispatcher.callScriptsForOccasion(Assignments.OCCASION_STEP);
@@ -152,8 +169,7 @@ lab.calculateForces = function() {
     //}
 };
 lab.moveToFinalPos = function() {
-    behaviors.forEach(function(b) {
-        var beh = b.behavior;
+    behaviors.forEach(function(beh) {
         labObjects[beh.type].move(beh);
     });
     //for (Behavior beh : all) {
@@ -168,8 +184,7 @@ lab.oneRKStep = function(mydeltat) {
 
     var initRKTimeStep = function(deltat) {
 
-        behaviors.forEach(function(b) {
-            var beh = b.behavior;
+        behaviors.forEach(function(beh) {
             labObjects[beh.type].initRK(beh, deltat);
             labObjects[beh.type].storePosition(beh);
         });
@@ -182,8 +197,7 @@ lab.oneRKStep = function(mydeltat) {
     };
 
     var setToTimestep = function(j) {
-        behaviors.forEach(function(b) {
-            var beh = b.behavior;
+        behaviors.forEach(function(beh) {
             labObjects[beh.type].setToTimestep(beh, rk.dt[j]);
         });
         //   for (Behavior anAll : all) {
@@ -194,8 +208,7 @@ lab.oneRKStep = function(mydeltat) {
     };
 
     var proceedMotion = function(j) {
-        behaviors.forEach(function(b) {
-            var beh = b.behavior;
+        behaviors.forEach(function(beh) {
             labObjects[beh.type].proceedMotion(beh, rk.dt[j], j, rk.a[j]);
         });
         //for (Behavior anAll : all) {
@@ -207,8 +220,7 @@ lab.oneRKStep = function(mydeltat) {
     };
 
     var resetForces = function() {
-        behaviors.forEach(function(b) {
-            var beh = b.behavior;
+        behaviors.forEach(function(beh) {
             labObjects[beh.type].resetForces(beh);
         });
         //for (Behavior anAll : all) {
@@ -219,8 +231,7 @@ lab.oneRKStep = function(mydeltat) {
     };
 
     var calculateDelta = function(j) {
-        behaviors.forEach(function(b) {
-            var beh = b.behavior;
+        behaviors.forEach(function(beh) {
             labObjects[beh.type].calculateDelta(beh, j);
         });
         //for (Behavior anAll : all) {
@@ -233,8 +244,7 @@ lab.oneRKStep = function(mydeltat) {
 
     var calculateError = function(j) {
         var error = 0;
-        behaviors.forEach(function(b) {
-            var beh = b.behavior;
+        behaviors.forEach(function(beh) {
             var j = rk.size;
             labObjects[beh.type].proceedMotion(beh, rk.dt[j - 1], j, rk.b1);
             labObjects[beh.type].savePos(beh, j + 1);
@@ -262,8 +272,7 @@ lab.oneRKStep = function(mydeltat) {
     };
 
     var recallInitialPosition = function(j) {
-        behaviors.forEach(function(b) {
-            var beh = b.behavior;
+        behaviors.forEach(function(beh) {
             labObjects[beh.type].recallPosition(beh);
         });
 

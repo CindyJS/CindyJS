@@ -156,7 +156,7 @@ drawtext((-9,-9),"Reset");
 </script>
 
 
-<canvas  id="CSCanvas"  width=500 height=500  style="border:2px solid #000000"></canvas>
+<div  id="CSCanvas"  style="width:500px; height:500px; border:2px solid #000000"></div>
 
 <script>
 
@@ -167,7 +167,7 @@ for(var i=0;i<30;i++){
 
     gslp.push({name:"A"+i, type:"Free", pos:[-7+i*0.5,0],color:[1,1,1]});
 }
-createCindy({canvasname:"CSCanvas",
+CindyJS({canvasname:"CSCanvas",
 defaultAppearance: {clip: "inci", overhangLine: 1.2},
 movescript:"csmove",
 initscript:"init",

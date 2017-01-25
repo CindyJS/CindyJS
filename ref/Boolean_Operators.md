@@ -23,7 +23,7 @@ The result of this operator is either `true` or `false`.
 Note that `NaN` (Not a Number) compares not equal even to itself:
 
     > a = 0/0
-    * DIVISION BY ZERO
+    * WARNING: Division by zero!
     > a == a
     < false
 
@@ -33,6 +33,27 @@ To be compared equal, two objects have to be of the same type.
     > 0 == "0"
     < false
     > "true" == true
+    < false
+
+Lists are compared element-wise:
+
+    > a = [2, 5, 7, 3]
+    < [2, 5, 7, 3]
+    > b = [2, 5, 7, 2 + cos(0)]
+    < [2, 5, 7, 3]
+    > a == b
+    < true
+    > a != b
+    < false
+    > b_1 = 0
+    < 0
+    > a == b
+    < false
+    > a != b
+    < true
+    > [1, 2, [3, 4, "foo"]] == [1, 2, [3, 4, "foo"]]
+    < true
+    > [1, 2, [3, 4, "bar"]] == [1, 2, [3, 4, "foo"]]
     < false
 
 ------
@@ -56,7 +77,7 @@ It is the logical negation of `‹expr1› == ‹expr2›`.
 Note that `NaN` (Not a Number) compares different from itself:
 
     > a = 0/0
-    * DIVISION BY ZERO
+    * WARNING: Division by zero!
     > a != a
     < true
 
@@ -66,6 +87,17 @@ Objects of different types are always different from one another.
     < true
     > "true" != true
     < true
+
+Lists are compared element-wise.
+Many examples for this were already given [with the `==` operator](#$3du$3du)
+in order to make use of the same variables defined there.
+The others are just the negation of the respecive `==` answer as well:
+
+    > [1, 2, [3, 4, "foo"]] != [1, 2, [3, 4, "foo"]]
+    < false
+    > [1, 2, [3, 4, "bar"]] != [1, 2, [3, 4, "foo"]]
+    < true
+
 
 ------
 
@@ -94,12 +126,12 @@ If both expressions are **strings**, then the order is the lexicographic (dictio
     > "aa" > "a" + "a"
     < false
 
-In all other cases (if the values are not comparable) the value `_?_` is returned.
+In all other cases (if the values are not comparable) the value `___` is returned.
 
     > 1 > 1 + i
-    < _?_
+    < ___
     > "2" > 1
-    < _?_
+    < ___
 
 ------
 
@@ -123,9 +155,9 @@ This operator is similar to **&gt;** but tests for **less than**.
     > "aa" < "a" + "a"
     < false
     > 1 < 1 + i
-    < _?_
+    < ___
     > "2" < 1
-    < _?_
+    < ___
 
 ------
 
@@ -149,9 +181,9 @@ This operator is similar to **&gt;** but tests for **greater than or equal to**.
     > "aa" >= "a" + "a"
     < true
     > 1 >= 1 + i
-    < _?_
+    < ___
     > "2" >= 1
-    < _?_
+    < ___
 
 ------
 
@@ -175,13 +207,13 @@ This operator is similar to **&gt;** but tests for **less than or equal to**.
     > "aa" <= "a" + "a"
     < true
     > 1 <= 1 + i
-    < _?_
+    < ___
     > "2" <= 1
-    < _?_
+    < ___
 
 ------
 
-#####  Fuzzy comparisons: `~=`, `~!=`, `~<`, `~>`, `~>=`, `~<=`
+####  Fuzzy comparisons:
 
 **Description:**
 CindyScript provides a *fuzzy* variant for each comparison operator.
@@ -194,6 +226,146 @@ The exact semantics of the exact and the fuzzy operators can be read off from th
 Here for each operator the picture shows for which region of `b` (marked in red) the operator evaluates to true.
 
 ![Illustration of fuzzy comparisons](img/Comparisons.png)
+
+    > // The value of epsilon can't be represented exactly
+    > scaleFactor = 1;
+    > repeat(86, scaleFactor = 0.5 * scaleFactor);
+    > greaterThanEps = 7737125245533627 * scaleFactor;
+    > lessThanEps = 7737125245533626 * scaleFactor;
+    > greaterThanEps * 10^10
+    < 1
+    > lessThanEps * 10^10
+    < 1
+    > greaterThanEps == lessThanEps
+    < false
+
+##### Approximately equal: `‹expr1› ~= ‹expr2›`
+
+    > -greaterThanEps ~= 0
+    < false
+    > -lessThanEps ~= 0
+    < true
+    > 0 ~= 0
+    < true
+    > lessThanEps ~= 0
+    < true
+    > greaterThanEps ~= 0
+    < false
+
+Lists are compared element-wise.  The maximal error determines the result
+of the comparison, so errors are not accumulated over the list.
+
+    > a = [2, 8, 7, 3]
+    < [2, 8, 7, 3]
+    > b = [2, 8, 7, 3.00000000001]
+    < [2, 8, 7, 3]
+    > a == b
+    < false
+    > a ~= b
+    < true
+    > [0, 0] ~= [lessThanEps, lessThanEps]
+    < true
+    > [0, 0] ~= [0, greaterThanEps]
+    < false
+    > [0, [0, lessThanEps]] ~= [lessThanEps, [lessThanEps, 0]]
+    < true
+    > [0, [0, lessThanEps]] ~= [greaterThanEps, [lessThanEps, 0]]
+    < false
+
+Lists of different lengths are always unequal.
+
+    > [0, 0] ~= [0, 0, 0]
+    < false
+
+##### Noticably different: `‹expr1› ~!= ‹expr2›`
+
+    > -greaterThanEps ~!= 0
+    < true
+    > -lessThanEps ~!= 0
+    < false
+    > 0 ~!= 0
+    < false
+    > lessThanEps ~!= 0
+    < false
+    > greaterThanEps ~!= 0
+    < true
+
+Lists are compared element-wise.  The maximal error determines the result
+of the comparison, so errors are not accumulated over the list.
+
+    > a = [2, 8, 7, 3]
+    < [2, 8, 7, 3]
+    > b = [2, 8, 7, 3.00000000001]
+    < [2, 8, 7, 3]
+    > a != b
+    < true
+    > a ~!= b
+    < false
+    > [0, 0] ~!= [lessThanEps, lessThanEps]
+    < false
+    > [0, 0] ~!= [0, greaterThanEps]
+    < true
+    > [0, [0, lessThanEps]] ~!= [lessThanEps, [lessThanEps, 0]]
+    < false
+    > [0, [0, lessThanEps]] ~!= [greaterThanEps, [lessThanEps, 0]]
+    < true
+
+Lists of different lengths are always unequal.
+
+    > [0, 0] ~!= [0, 0, 0]
+    < true
+
+##### Greater or approximately equal: `‹expr1› ~>= ‹expr2›`
+
+    > -greaterThanEps ~>= 0
+    < false
+    > -lessThanEps ~>= 0
+    < true
+    > 0 ~>= 0
+    < true
+    > lessThanEps ~>= 0
+    < true
+    > greaterThanEps ~>= 0
+    < true
+
+##### Less or approximately equal: `‹expr1› ~<= ‹expr2›`
+
+    > -greaterThanEps ~<= 0
+    < true
+    > -lessThanEps ~<= 0
+    < true
+    > 0 ~<= 0
+    < true
+    > lessThanEps ~<= 0
+    < true
+    > greaterThanEps ~<= 0
+    < false
+
+##### Noticably less: `‹expr1› ~< ‹expr2›`
+
+    > -greaterThanEps ~< 0
+    < true
+    > -lessThanEps ~< 0
+    < false
+    > 0 ~< 0
+    < false
+    > lessThanEps ~< 0
+    < false
+    > greaterThanEps ~< 0
+    < false
+
+##### Noticably greater: `‹expr1› ~> ‹expr2›`
+
+    > -greaterThanEps ~> 0
+    < false
+    > -lessThanEps ~> 0
+    < false
+    > 0 ~> 0
+    < false
+    > lessThanEps ~> 0
+    < false
+    > greaterThanEps ~> 0
+    < true
 
 ------
 
@@ -209,7 +381,7 @@ Logical **and** of two Boolean values defined by the following truth table:
 | `true`  | `false` | `false` |
 | `true`  | `true`  | `true`  |
 
-If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
+If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
 ------
 
@@ -225,7 +397,7 @@ Logical **or** of two Boolean values defined by the following truth table:
 | `true`  | `false` | `true`  |
 | `true`  | `true`  | `true`  |
 
-If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
+If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
 ------
 
@@ -239,14 +411,14 @@ Logical **not** of one Boolean value defined by the following truth table:
 | `false` | `true`  |
 | `true`  | `false` |
 
-If the argument is not a Boolean expression, the operator returns `_?_`.
+If the argument is not a Boolean expression, the operator returns `___`.
 
     > !(1 < 0)
     < true
     > !(1 > 0)
     < false
     > !1
-    < _?_
+    < ___
 
 ------
 
@@ -278,7 +450,7 @@ If the argument is not a Boolean expression, the operator returns `_?_`.
     > not(1 > 0)
     < false
     > not(1)
-    < _?_
+    < ___
 
 ------
 
@@ -294,7 +466,7 @@ Logical **exclusive or** of two Boolean values defined by the following truth ta
 | `true`  | `false` | `true`     |
 | `true`  | `true`  | `false`    |
 
-If one of the two arguments is not a Boolean expression, the operator returns `_?_`.
+If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
 ------
 
@@ -391,6 +563,8 @@ This operator tests whether the expression `‹expr›` represents a geometric e
 
 #### Is selected: `isselected(‹expr›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator tests whether the expression `‹expr›` represents a geometric element and is selected.
 For a geometric element you can also use the .selected property to check this.
@@ -428,31 +602,31 @@ This operator tests whether the expression `‹expr›` represents a geometric c
 #### Is a mass: `ismass(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) mass.
+This operator tests whether the expression `‹expr›` represents a CindyLab mass.
 
 ------
 
 #### Is a sun: `issun(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) sun.
+This operator tests whether the expression `‹expr›` represents a CindyLab sun.
 
 ------
 
 #### Is a spring: `isspring(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) spring.
+This operator tests whether the expression `‹expr›` represents a CindyLab spring.
 
 ------
 
 #### Is a bouncer: `isbouncer(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab) bouncer.
+This operator tests whether the expression `‹expr›` represents a CindyLab bouncer.
 
 ------
 #### Is undefined: `isundefined(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` returns an undefined element (`_?_`).
+This operator tests whether the expression `‹expr›` returns an undefined element (`___`).

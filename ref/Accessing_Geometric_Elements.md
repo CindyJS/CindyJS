@@ -63,9 +63,7 @@ The following program changes the color of the points depending on their positio
 
 The following picture shows the application of the code to a random collection of points.
 
-| ![Image](img/ProgList1X.png)     |
-| -------------------------------- |
-| **Working with lists of points** |
+![Working with lists of points](img/ProgList1X.png)
 
 ### Properties of Geometric Objects
 
@@ -96,7 +94,7 @@ a three-dimensional vector
 a 3 by 3 matrix
 
 Some properties, like the current position, are only writable for free objects.
-We mark this by the word "free" in the corresponding column.
+We mark this by the word “free” in the corresponding column.
 
 #####  Properties Common to All Geometric Objects
 
@@ -149,6 +147,7 @@ If `A.caption` is the empty string the name is shown, otherwise the caption.
 | `center` | no        | real | The center of the circle                                        |
 | `radius` | free      | real | The radius of the circle                                        |
 | `matrix` | no        | real | The matrix describing the quadratic form of the circle or conic |
+| `dualMatrix` | no        | real | The matrix describing the dual (=adjoint) matrix of the conic  |
 | `size`   | yes       | int  | The size of the border line (0..10)                             |
 
 #####  Properties of Texts
@@ -176,9 +175,9 @@ If `A.caption` is the empty string the name is shown, otherwise the caption.
 ####  Properties of CindyLab Objects
 
 It is not only geometric properties that can be accessed by CindyScript.
-The simulation parameters of [CindyLab](CindyLab.md) constructions can also be read and sometimes set via CindyScript.
+The simulation parameters of CindyLab constructions can also be read and sometimes set via CindyScript.
 
-#####  Properties of All [CindyLab](CindyLab.md) Elements
+#####  Properties of All CindyLab Elements
 
 | Name       | Writeable | Type | Purpose                                                                 |
 | ---------- | --------- | ---- | ----------------------------------------------------------------------- |
@@ -275,7 +274,7 @@ The following slots of the environment can be accessed:
 
 ### Inspecting Elements
 
-You can also use the generic CindyScript function `inspect(‹element›)` to access all the attributes that are available in the [Inspector](Inspector.md).
+You can also use the generic CindyScript function `inspect(‹element›)` to access all the attributes that are available in the Inspector.
 For example, if a point *A* exists in the construction, the function
 
     > inspect(A)
@@ -308,15 +307,19 @@ Also, it gives you fine grained control over all properties.
 
 #### Set a user attribute: `attribute(‹geo›,‹string1›,‹string2›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
-Sets the user attribute of &lt;geo&gt; identified by &lt;string1&gt; to the value &lt;string2&gt;.
+Sets the user attribute of ‹geo› identified by ‹string1› to the value ‹string2›.
 
 #### Read a user attribute: `attribute(‹geo›,‹string›)`
 
-**Description:**
-Returns the user attribute identified by &lt;string&gt; of the geometric element &lt;geo&gt; .
+**Not available in CindyJS yet!**
 
-Both versions of the attribute function are mainly used for interaction with the [Visage Extension](Visage.md).
+**Description:**
+Returns the user attribute identified by ‹string› of the geometric element ‹geo› .
+
+Both versions of the attribute function are mainly used for interaction with the Visage Extension of Cinderella, which has not been ported to CindyJS yet.
 
 ------
 
@@ -330,7 +333,7 @@ The function
 creates a point labelled *A* at coordinates [4,6], unless there is already an element *A*.
 If it exists, it will be moved to the position given as second argument.
 The value of the function is the point or the already existing element *A*.
-This means that repeated executions of the function are not harmful to your code - if you need a free point at "*A*" you can ensure that it exists using the `createpoint`-command.
+This means that repeated executions of the function are not harmful to your code - if you need a free point at “*A*” you can ensure that it exists using the `createpoint`-command.
 
 Using the `removeelement` function you can also remove elements from your construction.
 Be aware that all dependent elements will be removed as well.
@@ -342,6 +345,6 @@ or
 
     > removeelement(element("A"))
 
-to remove the element named "*A*".
+to remove the element named “*A*”.
 
-More functions to create arbitrary elements are also available and discussed in the section [section on special operators](Interaction_with_Geometry#createandremove.md).
+More functions to create arbitrary elements are also available and discussed in the [section on special operators](Interaction_with_Geometry.md#create$3).

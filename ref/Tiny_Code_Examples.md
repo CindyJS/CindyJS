@@ -10,9 +10,7 @@ Each example presents a small task and a CindyScript implementation that handles
 Setting a point *D* to the center of gravity of three other points.
 Changing its color on a condition.
 
-| ![Image](img/Ex1.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex1.png)
 
     > //in draw
     > D.xy=(A+B+C)/3;
@@ -31,9 +29,7 @@ The conditional at the end returns color values depending on the position of *D*
 
 Separating points above and below the *x*-axis, and drawing the two clusters.
 
-| ![Image](img/Ex2.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex2.png)
 
     > //in draw
     > pts=allpoints();
@@ -55,9 +51,7 @@ The lines collecting the two clusters can be easily calculated by using the `pai
 Calculate the convex hull of all points in a drawing.
 Observe the use of the `~›` operator to deal with numeric instabilities.
 
-| ![Image](img/Ex3.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex3.png)
 
     > //in draw
     > pts=allpoints();
@@ -94,9 +88,7 @@ For this, draw a few arrows whose endpoints have appropriate names and enter the
     > 
     > drawtext((3,5),t);
 
-| ![Image](img/Ex4.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex4.png)
 
 The dots are drawn by the script.
 The circle was drawn using a geometric object.
@@ -110,9 +102,7 @@ The calculations are done in a way that the second hand jumps, while the other t
 
 Mark the point closest to *A* by a large green dot.
 
-| ![Image](img/Ex5.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex5.png)
 
     > //in draw
     > pts=allpoints();
@@ -136,9 +126,7 @@ Another solution would be to remove *A* from the list before sorting it:
 Draw a simple ornament by moving points.
 The color of the strokes should resemble the color of the points.
 
-| ![Image](img/Ex6.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex6.png)
 
     > //in draw
     > forall(pts,p,
@@ -173,9 +161,7 @@ By changing the values (and number) of the matrices one can easily crete much mo
 Calculate and draw the line of linear regression to all points.
 Mark the squares corresponding to the underlying least square approximation.
 
-| ![Image](img/Ex7.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex7.png)
 
     > //in draw
     > 
@@ -209,9 +195,7 @@ By almost literally the same code it is even possible to calculate approximation
 
 Create a nice version of the sunflower applet from the tutorial.
 
-| ![Image](img/Ex8.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex8.png)
 
     > //in draw
     > n=round(100*|B,E|);
@@ -235,9 +219,7 @@ The example also illustrates that disturbing this angle a bit immediately leads 
 
 Implement a function plotter with a freely enterable function and adjustable parameters.
 
-| ![Image](img/Ex9.png) |
-| --------------------- |
-| ****                  |
+![Image](img/Ex9.png)
 
     > //in draw
     > 
@@ -266,9 +248,7 @@ The parameters are taken from the geometrically drawn sliders.
 Simulate additive color mixing of three light bulbs (red, green and blue).
 The lamps are be represented by geometric points *A*, *B* and *C*.
 
-| ![Image](img/Ex10.png) |
-| ---------------------- |
-| ****                   |
+![Image](img/Ex10.png)
 
     > //in draw
     > 
@@ -289,9 +269,7 @@ The `colorplot` command does essentially all the rest of the work.
 
 Calculate and draw the Julia set, a well known fractal, determined by the complex number represented by the point *C*.
 
-| ![Image](img/Ex11.png) |
-| ---------------------- |
-| ****                   |
+![Image](img/Ex11.png)
 
     > //in draw
     > 
@@ -321,11 +299,9 @@ Simulate a swarm of fish.
 Each fish should try to swim in the same direction as its neighbors and try to swim to the approximate place where the neighbors are.
 All fish should avoid an obstacle given by a point *U*.
 To try this create some masses and make sure that one is labelled *U* or change the according line in the script.
-Also build a fence with bouncers around the "aquarium."
+Also build a fence with bouncers around the “aquarium”.
 
-| ![Image](img/Ex12.png) |
-| ---------------------- |
-| ****                   |
+![Image](img/Ex12.png)
 
     > //in draw
     > 

@@ -51,6 +51,7 @@ function stateAlloc(newSize) {
  */
 function stateContinueFromHere() {
     stateLastGood.set(stateIn);
+    tracingFailed = false;
     tracingStateReport(false);
 
     // Make numbers which are almost real totally real. This avoids
@@ -96,8 +97,6 @@ function traceMouseAndScripts() {
         traceLog.currentMouseAndScripts = [];
     }
     inMouseMove = true;
-    tracingFailed = false;
-    stateIn.set(stateLastGood); // copy stateLastGood and use it as input
     if (move) {
         var mover = move.mover;
         var sx = mouse.x + move.offset.x;
@@ -127,15 +126,14 @@ function traceMouseAndScripts() {
 }
 
 function movepointscr(mover, pos, type) {
-    if (inMouseMove) {
-        traceMover(mover, pos, type);
-        return;
-    }
-    stateContinueFromHere();
-    tracingFailed = false;
     traceMover(mover, pos, type);
-    stateContinueFromHere();
+    if (!inMouseMove && !tracingFailed)
+        stateContinueFromHere();
 }
+
+// Remember the last point which got moved.
+// @todo: be careful with this variable when doing automatic proving.
+var previousMover = null;
 
 /*
  * traceMover moves mover from current param to param for pos along a complex detour.
@@ -143,6 +141,13 @@ function movepointscr(mover, pos, type) {
 function traceMover(mover, pos, type) {
     if (traceLog && traceLog.currentMouseAndScripts) {
         traceLog.currentMover = [];
+    }
+    if (mover === previousMover) {
+        stateIn.set(stateLastGood); // copy stateLastGood and use it as input
+        tracingFailed = false;
+    } else {
+        previousMover = mover;
+        stateContinueFromHere(); // make changes up to now permanent
     }
     stateOut.set(stateIn); // copy in to out, for elements we don't recalc
     var traceLimit = 10000; // keep UI responsive in evil situations
@@ -221,7 +226,7 @@ function traceMover(mover, pos, type) {
 
         var stateTmp = stateOut;
         stateOut = stateIn;
-        opMover.putParamToState(el, param);
+        opMover.putParamToState(mover, param);
         stateOut = stateTmp;
         stateOutIdx = mover.stateIdx;
 

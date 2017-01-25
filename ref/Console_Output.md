@@ -29,6 +29,8 @@ This operator prints the result of evaluating `‹expr›` to the console and ad
 
 #### Printing a newline: `println()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator prints a newline character to the console.
 
@@ -51,12 +53,13 @@ It can be used to test wheter a condition is met and otherwise generate an error
 **Example:**
 A typical usage of this operator is the following:
 
-    - skip test: "assert" is not implemented yet.
     > assert(isinteger(k),"k is not an integer");
 
 ------
 
 #### Output a status message: `message(‹expr›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator shows the result of evaluating `‹expr›` in the status line of the application, or in the status line of the browser for Cinderella applets.

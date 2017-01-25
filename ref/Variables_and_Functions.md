@@ -6,7 +6,7 @@ This is in sharp contrast to many other programming languages.
 In this section you will learn under what circumstances one can create functions and variables.
 You will also learn how to destroy or clear variables and about their scope.
 
-### Defining Functions
+### Defining Functions: `‹fun›(‹args…›) := ‹expr›`
 
 Defining a function in CindyScript is very easy.
 One simply has to specify the name of a function, provide a parameter list, and write down the body of the function.
@@ -53,6 +53,51 @@ Thus the following function calculates the arithmetic mean of three entries.
 Since functions are not explicitly typed, it is also possible to pass more complex objects as a function's arguments.
 The function is automatically as polymorphic as possible, restricted only by the generality of the operations used in the function.
 For instance, `mean([3,4],[2,7],[4,7])` evaluates to `[3,6]`.
+
+### Redefining functions
+
+It is possible to arbitrarily re-define any function.
+
+    > f(x) := x + 1; f(3)
+    < 4
+    > f(x) := 3 * x; f(3)
+    < 9
+
+Redefinitions take arity into account,
+so multiple definitions which differ in the number of arguments
+can co-exist simultaneously.
+
+    > f(x, y) := x + y; f(3, 4)
+    < 7
+    > f(7)
+    < 21
+
+Even built-in functions may be re-defined.
+
+    > repeat(2, 3)
+    < 3
+    > repeat(x, y) := [x, y, x, y]; repeat(2, 3)
+    < [2, 3, 2, 3]
+
+### Undefining functions: `‹fun›(‹args…›) := _`
+
+It is possible to undefine a function explicitely.
+
+    > f(z):=_;
+    > f(7)
+    * Called undefined function f (as f$1)
+    < ___
+
+Again this only affects a single arity.
+
+    > f(1, 2)
+    < 3
+
+Undefining a built-in function restores its built-in definition.
+
+    - CindyScript >=3.0: see Cinderella bug #144
+    > repeat(a, b) := _; repeat(2, 3)
+    < 3
 
 ### Recursive Functions
 
@@ -197,6 +242,21 @@ This program fragment produces the following output
     * 6
     * 20
 
+### Deferred evaluation: `‹var› := ‹expr›`
+
+One can also use the `:=` operator to define a variable.
+In this case, the expression in the right hand side will not be
+evaluated once during assignment, but whenever the variable is used.
+This can also be seen as a function which does not need parentheses
+when called.
+
+    > count = 0;
+    > x := (count = count + 1; count);
+    > [x, x, x]
+    < [1, 2, 3]
+    > x*10 + x
+    < 45
+
 ### Predefined Constants
 
 In mathematics it is often necessary to use mathematical constants like `pi` or the imaginary unit `i`.
@@ -220,7 +280,24 @@ It produces the following output:
     * 0 + i*1
 
 If, for instance, the complex unit is needed but the variable `i` is overwritten, then it is still possible to access the complex unit using the function `complex([0,1])`.
-Other predefined variables are `true` and `false` for the logical constants, as well as the empty list, `nil`.
+Other predefined variables are `true` and `false` for the logical constants, as well as the empty list, `nil`, and the strings `newline` and `tab`.
+
+    > pi
+    < 3.1416
+    > π
+    < 3.1416
+    > i
+    < 0 + i*1
+    > true
+    < true
+    > false
+    < false
+    > nil
+    < []
+    > newline
+    < "\n"
+    > tab
+    < "\t"
 
 There is another important type of predefined variable.
 Any geometric element in a construction may be referred to as a predefined variable of the corresponding name.
@@ -262,7 +339,7 @@ will produce the output
     * 34
     * blonde
 
-A list of all keys of a geometric object may be accessed via the `keys(...)` operator.
+A list of all keys of a geometric object may be accessed via the `keys(…)` operator.
 So in the above example the code
 
     - skip test: keys not implemented.

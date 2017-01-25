@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../build/js/CindyJS.css">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", width: 500, height: 500}],
+  scripts: "cs*",
+  language: "en",
+  animation: {controls: true},
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[-5,2], color:[1,.5,.5]},
+    {name:"B", type:"Free", pos:[2,1], color:[1,.8,0], size:9}
+  ],
+  behavior: [
+    {type:"Environment", deltat:.2, accuracy:10},
+    {type:"Mass", geo:["A"], vy:.7},
+    {type:"Sun", geo:["B"]}
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="border:2px solid black"></div>
+</body>
+
+</html>

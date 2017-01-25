@@ -13,7 +13,7 @@ The `drawtext(‹vec›,‹string›)` operator plots a text `‹string›` at a
 This position vector can be given either in Euclidean *xy*-coordinates or in homogeneous coordinates.
 
 **Example:**
-The line `drawtext(``(0,0),"Hello World")` prints the string "Hello World" with lower left corner at the position (0, 0).
+The line `drawtext((0,0),"Hello World")` prints the string “Hello World” with lower left corner at the position (0, 0).
 
 **Modifiers:**
 The `drawtext` operator supports several operators for the modification of appearance and position.
@@ -45,43 +45,41 @@ The code
     >   color->(1-i/10,0,i/10))
     > )
     D fillStyle = "rgba(229,0,25,1)"
-    D font = "bold 17px Arial"
+    D font = "bold 17px sans-serif"
     D fillText("Text", 275.5, 229.5)
     D fillStyle = "rgba(204,0,51,1)"
-    D font = "bold 19px Arial"
+    D font = "bold 19px sans-serif"
     D fillText("Text", 300.5, 229.5)
     D fillStyle = "rgba(178,0,76,1)"
-    D font = "bold 21px Arial"
+    D font = "bold 21px sans-serif"
     D fillText("Text", 325.5, 229.5)
     D fillStyle = "rgba(153,0,102,1)"
-    D font = "bold 23px Arial"
+    D font = "bold 23px sans-serif"
     D fillText("Text", 350.5, 229.5)
     D fillStyle = "rgba(127,0,127,1)"
-    D font = "bold 25px Arial"
+    D font = "bold 25px sans-serif"
     D fillText("Text", 375.5, 229.5)
-    D fillStyle = "rgba(101,0,153,1)"
-    D font = "bold 27px Arial"
+    D fillStyle = "rgba(102,0,153,1)"
+    D font = "bold 27px sans-serif"
     D fillText("Text", 400.5, 229.5)
     D fillStyle = "rgba(76,0,178,1)"
-    D font = "bold 29px Arial"
+    D font = "bold 29px sans-serif"
     D fillText("Text", 425.5, 229.5)
     D fillStyle = "rgba(50,0,204,1)"
-    D font = "bold 31px Arial"
+    D font = "bold 31px sans-serif"
     D fillText("Text", 450.5, 229.5)
     D fillStyle = "rgba(25,0,229,1)"
-    D font = "bold 33px Arial"
+    D font = "bold 33px sans-serif"
     D fillText("Text", 475.5, 229.5)
     D fillStyle = "rgba(0,0,255,1)"
-    D font = "bold 35px Arial"
+    D font = "bold 35px sans-serif"
     D fillText("Text", 500.5, 229.5)
 
 produces the picture below.
 
-| ![Image](img/TextX.png) |
-| ----------------------- |
-| ****                    |
+![Image](img/TextX.png)
 
-If the string expression contains a &lt;newline&gt; chacracter then this line-break is literally interpreted.
+If the string expression contains a newline chacracter then this line-break is literally interpreted.
 By this it is easy to produce multilined text, as the following piece of code shows.
 
     > drawtext((0,0),size->18,
@@ -90,16 +88,19 @@ By this it is easy to produce multilined text, as the following piece of code sh
     > So this text will appear as a
     > multilined text.")
     D fillStyle = "rgb(0,0,0)"
-    D font = "18px Arial"
-    D fillText("In Cinderella 'newlines' in Text\nare really used as line terminators.\nSo this text will appear as a\nmultilined text.", 250.5, 229.5)
+    D font = "18px sans-serif"
+    D fillText("In Cinderella 'newlines' in Text", 250.5, 229.5)
+    D fillText("are really used as line terminators.", 250.5, 255.6)
+    D fillText("So this text will appear as a", 250.5, 281.7)
+    D fillText("multilined text.", 250.5, 307.8)
 
-| ![Image](img/Newlines.png) |
-| -------------------------- |
-| ****                       |
+![Image](img/Newlines.png)
 
 ------
 
 #### Available font families: `fontfamilies()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator produces a list of all font families that are available on your computer.
@@ -113,9 +114,7 @@ The following piece of code displays the names of some of these font families in
     >    drawtext((mod(i,5)*7,round(i/5)),families_i,family->families_i);
     > )
 
-| ![Image](img/Fonts.png) |
-| ----------------------- |
-| ****                    |
+![Image](img/Fonts.png)
 
 ------
 
@@ -144,6 +143,8 @@ The base of the unicode description can be changed with the `base` modifier.
 
 #### Test whether a string can be displayed: `candisplay(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator tests, whether a given string can be displayed in the currently chosen font.
 It returns a boolean value.
@@ -159,14 +160,11 @@ Modifiers can be used to fine tune the appearance of the table.
 **Example:**
 The following code produces the picture below:
 
-    - skip test: drawtable not implemented yet
     > x=1..10;
     > table=apply(x,(#,#^2,#^3,#^4));
     > drawtable((0,0),table);
 
-| ![Image](img/Table1X.png) |
-| ------------------------- |
-| ****                      |
+![Image](img/Table1X.png)
 
 **Modifiers:**
 The `drawtable` operator supports several modifiers to control the graphical appearance of the table.
@@ -216,6 +214,4 @@ A second table is used to create a heading for the table.
     >   color->(1,1,1)
     > );
 
-| ![Image](img/Table2X.png) |
-| ------------------------- |
-| ****                      |
+![Image](img/Table2X.png)

@@ -25,11 +25,11 @@ This code fragment prints a message on the console, if `x` has a negative value.
     * x is now negative
 
 **Return value:**
-In this case the return value of the `if`-function is &lt;expr&gt;.
-Otherwise, `_?_` is returned.
+In this case the return value of the `if`-function is ‹expr›.
+Otherwise, `___` is returned.
 
     > x = 5; if(x<0, -1);
-    < _?_
+    < ___
     > x = -3; if(x<0, -1);
     < -1
 
@@ -85,11 +85,13 @@ This code fragment takes a geometric element *A* (most probably a point) and set
 
 #### The trigger operator: `trigger(‹bool›,‹expr›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 The `trigger` operator is very similar to the `if` operator.
 In contrast to `if`, the `trigger` operator has a dynamic flavor.
 The expression `‹expr›` is evaluated whenever `‹bool›` changes from `false` to `true`.
-This means that during the dragging of a construction, &lt;expr&gt; is evaluated, if &lt;bool&gt; was `false` in the previous instance and is now `true`.
+This means that during the dragging of a construction, ‹expr› is evaluated, if &lt;bool&gt; was `false` in the previous instance and is now `true`.
 The purpose of this operator is to trigger side effects whenever some event occurs while the construction is being dragged.
 The following code fragment demonstrates this behavior.
 
@@ -202,7 +204,7 @@ This code fragment will draw a 3 × 3 array of points.
     D lineWidth = 1.2
     D beginPath()
     D arc(275.5, 204.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(275.5, 204.5, 4.6, 0, 6.283185307179586)
@@ -211,7 +213,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(275.5, 179.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(275.5, 179.5, 4.6, 0, 6.283185307179586)
@@ -219,7 +221,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(275.5, 154.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(275.5, 154.5, 4.6, 0, 6.283185307179586)
@@ -227,7 +229,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(300.5, 204.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(300.5, 204.5, 4.6, 0, 6.283185307179586)
@@ -235,7 +237,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(300.5, 179.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(300.5, 179.5, 4.6, 0, 6.283185307179586)
@@ -243,7 +245,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(300.5, 154.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(300.5, 154.5, 4.6, 0, 6.283185307179586)
@@ -251,7 +253,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(325.5, 204.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(325.5, 204.5, 4.6, 0, 6.283185307179586)
@@ -259,7 +261,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(325.5, 179.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(325.5, 179.5, 4.6, 0, 6.283185307179586)
@@ -267,7 +269,7 @@ This code fragment will draw a 3 × 3 array of points.
     D stroke()
     D beginPath()
     D arc(325.5, 154.5, 4, 0, 6.283185307179586)
-    D fillStyle = "rgb(255,200,0)"
+    D fillStyle = "rgb(0,255,0)"
     D fill()
     D beginPath()
     D arc(325.5, 154.5, 4.6, 0, 6.283185307179586)
@@ -323,8 +325,10 @@ Again the variable is local to the expression.
 
 #### Forcing evaluation: `eval(‹expr›,‹modif1›,‹modif2›,…)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
-This operator forces the evaluation of the expression &lt;expr&gt;.
+This operator forces the evaluation of the expression ‹expr›.
 Free variables of the expression can be substituted using a list of modifiers.
 The variables for the substitution are assigned only locally.
 Afterwards, the variables are set to the values they had before the evaluation.
@@ -377,7 +381,7 @@ This code fragment produces the output
 
 ------
 
-#### Creating many local variables for a function: `regional(name1,name2,...)`
+#### Creating many local variables for a function: `regional(‹name1›,‹name2›,…)`
 
 **Description:**
 This statement can be used at the beginning of a function.
@@ -395,12 +399,16 @@ Often it is useful to put a `clear()` statement under the `init` event of the pr
 
 #### Clear all variables: `clear()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator clears all variables.
 
 ------
 
 #### Clear a specific variable: `clear(‹var›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator clears variable `‹var›`.
@@ -409,8 +417,10 @@ This operator clears variable `‹var›`.
 
 #### Handles to key variables of objects: `keys(‹var›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
-Gives a list of all keys associated to an object via a ` ‹object›:‹key›=‹something›` declaration.
+Gives a list of all keys associated to an object via an `‹object›:‹key›=‹something›` declaration.
 
 **Example:**
 It is possible to associate a value under a freely chosen key to an object.

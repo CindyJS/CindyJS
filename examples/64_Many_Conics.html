@@ -18,7 +18,7 @@
         </script>
 
 
-        <canvas  id="CSCanvas" width=600 height=600 style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
 
 
         <script type="text/javascript">
@@ -42,7 +42,7 @@
 		      {name:"Co9", type:"ConicBy5", args:["A","G","C","E","F"]},
 		     //{name:"l", type:"Join", args:["A", "B"]}
                       ];
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         movescript:"csmove",
                         grid:1,
                         snap:true,

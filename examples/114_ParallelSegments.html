@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>5697373741252608_3.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+var g,cdy=CindyJS({ csconsole:true,
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
+	angleUnit: "°", 
+	geometry: g=[ 
+		{ name: "A", type: "Free", pos: [ 4.0, 2.6804123711340204, -0.5154639175257733 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
+		{ name: "B", type: "Free", pos: [ 4.0, -1.2709359605911332, 0.2463054187192118 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
+		{ name: "a", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "B" ] }, 
+		{ name: "C", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "A", "B" ], size: 4.0 }, 
+		{ name: "dist0", type: "Dist", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "B" ] }, 
+		{ name: "b", type: "Orthogonal", color: [ 0.0, 0.0, 1.0 ], args: [ "a", "A" ], visible: false, labeled: true }, 
+		{ name: "c", type: "Orthogonal", color: [ 0.0, 0.0, 1.0 ], args: [ "a", "B" ], visible: false, labeled: true }, 
+		{ name: "d", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "C" ] }, 
+		{ name: "e", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "C" ] }, 
+		{ name: "D", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "B", "C" ], size: 4.0 }, 
+		{ name: "dist1", type: "Dist", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "C" ] }, 
+		{ name: "E", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "A", "C" ], size: 4.0 }, 
+		{ name: "f", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "D" ] }, 
+		{ name: "g", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "D", "C" ] }, 
+		{ name: "h", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "E" ] }, 
+		{ name: "k", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "E", "C" ] }, 
+		{ name: "F", type: "PointOnLine", pos: [ 4.0, -3.783279660158458, -0.5140772162404192 ], color: [ 1.0, 0.0, 0.0 ], args: [ "b" ], pinned: true, labeled: true }, 
+		{ name: "G", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "A", "F" ], size: 0.0 }, 
+		{ name: "dist2", type: "Dist", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "F" ] }, 
+		{ name: "l", type: "Orthogonal", color: [ 0.0, 0.0, 1.0 ], args: [ "b", "F" ], visible: false, labeled: true }, 
+		{ name: "H", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "c", "l" ], labeled: true }, 
+		{ name: "m", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "F", "A" ] }, 
+		{ name: "n", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "H", "B" ] }, 
+		{ name: "o", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "F", "H" ] }, 
+		{ name: "K", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "A", "E" ], labeled: true }, 
+		{ name: "L", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "E", "C" ], labeled: true }, 
+		{ name: "M", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "C", "D" ], labeled: true }, 
+		{ name: "N", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "D", "B" ], labeled: true }, 
+		{ name: "p", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "F", "K" ] }, 
+		{ name: "O", type: "EuclideanMid", color: [ 1.0, 0.0, 0.0 ], args: [ "A", "K" ], size: 0.0 }, 
+		{ name: "dist3", type: "Dist", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "K" ] }, 
+		{ name: "q", type: "Parallel", color: [ 0.0, 0.0, 1.0 ], args: [ "p", "E" ], visible: false, labeled: true }, 
+		{ name: "r", type: "Parallel", color: [ 0.0, 0.0, 1.0 ], args: [ "q", "L" ], visible: false }, 
+		{ name: "s", type: "Parallel", color: [ 0.0, 0.0, 1.0 ], args: [ "r", "C" ], visible: false, labeled: true }, 
+		{ name: "t", type: "Parallel", color: [ 0.0, 0.0, 1.0 ], args: [ "s", "M" ], visible: false, labeled: true }, 
+		{ name: "u", type: "Parallel", color: [ 0.0, 0.0, 1.0 ], args: [ "t", "D" ], visible: false, labeled: true }, 
+		{ name: "v", type: "Parallel", color: [ 0.0, 0.0, 1.0 ], args: [ "u", "N" ], visible: false, labeled: true }, 
+		{ name: "w", type: "Parallel", color: [ 0.0, 0.0, 1.0 ], args: [ "v", "B" ], visible: false, labeled: true }, 
+		{ name: "P", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "o", "w" ], labeled: true }, 
+		{ name: "Q", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "o", "q" ], labeled: true }, 
+		{ name: "R", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "o", "r" ], labeled: true }, 
+		{ name: "S", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "o", "s" ], labeled: true }, 
+		{ name: "T", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "o", "t" ], labeled: true }, 
+		{ name: "U", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "o", "u" ], labeled: true }, 
+		{ name: "V", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "o", "v" ], labeled: true }, 
+		{ name: "W", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "r", "s" ], labeled: true }, 
+		{ name: "y", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "R", "L" ] }, 
+		{ name: "x", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "Q", "E" ] }, 
+		{ name: "z", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "S", "C" ] }, 
+		{ name: "S0", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "T", "M" ], printname: "$S_{0}$" }, 
+		{ name: "S1", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "U", "D" ], printname: "$S_{1}$" }, 
+		{ name: "S2", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "V", "N" ], printname: "$S_{2}$" }, 
+		{ name: "S3", type: "Segment", color: [ 0.0, 0.0, 1.0 ], args: [ "P", "B" ], printname: "$S_{3}$" }, 
+		{ name: "Text0", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "dist0" ], text: "|@$\"A\"@$\"B\"|= @#\"dist0\"" }, 
+		{ name: "Text2", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "dist3" ], text: "|@$\"A\"@$\"K\"|= @#\"dist3\"" }, 
+		{ name: "Text3", type: "Text", color: [ 0.0, 0.0, 0.0 ], text: "Μήκος AF=2πRγια R=2" } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 1245, height: 500, transform: [ { visibleRect: [ -9.06, 8.62, 40.74, -11.38 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1820, version: [ 2, 9, 1820 ] } });
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

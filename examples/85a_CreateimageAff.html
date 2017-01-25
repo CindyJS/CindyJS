@@ -57,7 +57,7 @@ createimage("test",400,400);
                       {name:"F", kind:"P", type:"Free", pos:[-4,2,1],color:[1,1,1]},
                       {name:"EX", kind:"P", type:"Free", pos:[-9,5,1],color:[1,1,1]}
                       ];
-createCindy({
+CindyJS({
   canvasname: "cindy",
   scripts: "cs*",
   geometry:gslp,
@@ -69,10 +69,7 @@ createCindy({
 </head>
 
 <body style="font-family:Arial;">
-  <pre>
-    <canvas id="cindy" width="500" height="500"
-            style="border:2px solid black"></canvas>
-  </pre>
+  <div id="cindy" style="width:500px; height:500px; border:2px solid black"></div>
 </body>
 
 </html>

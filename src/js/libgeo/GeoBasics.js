@@ -5,10 +5,19 @@ defaultAppearance.lineColor = [0, 0, 1];
 defaultAppearance.pointSize = 5;
 defaultAppearance.lineSize = 1;
 defaultAppearance.alpha = 1;
-defaultAppearance.overhangLine = 1.1;
+defaultAppearance.overhangLine = 1;
 defaultAppearance.overhangSeg = 1;
-defaultAppearance.dimDependent = 1;
+defaultAppearance.dimDependent = 0.7;
 defaultAppearance.fontFamily = "sans-serif";
+defaultAppearance.textsize = 20; // Cinderella uses 12 by default
+
+defaultAppearance.lineHeight = 1.45;
+/* The value of 1.45 for the line height agrees reasonably well with
+ * the default font and size in Cinderella on OS X, but it might well
+ * be that the Java line height is read from the font file, so that
+ * other fonts should use other line heights.
+ * Not sure whether we can reasonably reproduce this.
+ */
 
 function setDefaultAppearance(obj) {
     var key;
@@ -50,19 +59,30 @@ function csinit(gslp) {
     csgeo.points = [];
     csgeo.lines = [];
     csgeo.conics = [];
+    csgeo.texts = [];
     csgeo.free = [];
+    csgeo.polygons = [];
 
-    gslp.forEach(addElement);
-    guessIncidences();
+    gslp.forEach(addElementNoProof);
+    checkConjectures();
 }
 
 // Setzen der Default appearance
+
+function setupTraceDrawing(el) {
+    if (typeof el.tracedim === "undefined") el.tracedim = 1;
+    if (typeof el.tracelength === "undefined") el.tracelength = 100;
+    if (typeof el.traceskip === "undefined") el.traceskip = 1;
+    el._traces = new Array(el.tracelength);
+    el._traces_index = 0;
+    el._traces_tick = 0;
+}
 
 function pointDefault(el) {
 
     if (el.size === undefined) el.size = defaultAppearance.pointSize;
     el.size = CSNumber.real(el.size);
-    if (el.type !== "Free") {
+    if (!el.movable || el.pinned) {
         el.color = List.realVector(el.color || defaultAppearance.pointColor);
         el.color = List.scalmult(CSNumber.real(defaultAppearance.dimDependent), el.color);
     } else {
@@ -72,12 +92,7 @@ function pointDefault(el) {
     el.alpha = CSNumber.real(el.alpha);
 
     if (el.drawtrace) {
-        if (typeof el.tracedim === "undefined") el.tracedim = 1;
-        if (typeof el.tracelength === "undefined") el.tracelength = 100;
-        if (typeof el.traceskip === "undefined") el.traceskip = 1;
-        el._traces = new Array(el.tracelength);
-        el._traces_index = 0;
-        el._traces_tick = 0;
+        setupTraceDrawing(el);
     }
 }
 
@@ -112,7 +127,31 @@ function segmentDefault(el) {
     el.clip = General.string("end");
 }
 
+function textDefault(el) {
+    var size;
+    if (el.textsize !== undefined) el.size = el.textsize;
+    else if (el.size !== undefined) el.size = el.size;
+    else el.size = defaultAppearance.textsize;
+    el.size = CSNumber.real(+el.size);
+}
+
+function polygonDefault(el) {
+    el.filled = (el.filled !== undefined ? General.bool(el.filled) : General.bool(true));
+    if (el.fillcolor === undefined) el.fillcolor = nada;
+    else el.fillcolor = List.realVector(el.fillcolor);
+    if (el.fillalpha === undefined) el.fillalpha = 0;
+    el.fillalpha = CSNumber.real(el.fillalpha);
+
+    lineDefault(el);
+}
+
 function addElement(el) {
+    el = addElementNoProof(el);
+    checkConjectures();
+    return el;
+}
+
+function addElementNoProof(el) {
     var i;
 
     // Adding an existing element moves that element to the given position
@@ -120,13 +159,19 @@ function addElement(el) {
         console.log("Element name '" + el.name + "' already exists");
 
         var existingEl = csgeo.csnames[el.name];
-        if (geoOps[existingEl.type].isMovable)
+        if (geoOps[existingEl.type].isMovable &&
+            geoOps[existingEl.type].kind === "P")
             movepointscr(existingEl, el.pos, "homog");
 
         return {
             'ctype': 'geo',
             'value': existingEl
         };
+    }
+
+    // Recursively apply aliases
+    while (geoAliases.hasOwnProperty(el.type)) {
+        el.type = geoAliases[el.type];
     }
 
     // Expand macros
@@ -142,14 +187,40 @@ function addElement(el) {
 
     // Detect unsupported operations or missing or incorrect arguments
     var op = geoOps[el.type];
+    var isSet = false;
+    var getKind = function(name) {
+        return csgeo.csnames[name].kind;
+    };
+
     if (!op) {
         console.error(el);
         console.error("Operation " + el.type + " not implemented yet");
         return null;
     }
-    if (op.signature.length !== (el.args ? el.args.length : 0)) {
-        window.alert("Wrong number of arguments for " + el.name);
-        return null;
+    if (op.signature !== "**") {
+        // check for sets
+        if (!Array.isArray(op.signature) && op.signature.charAt(1) === "*") {
+            isSet = true;
+            el.args.forEach(function(val) {
+                if (csgeo.csnames[val].kind !== op.signature.charAt(0)) {
+                    console.error(
+                        "Not all elements in set are of same type: " +
+                        el.name + " expects " + op.signature +
+                        " but " + val + " is of kind " +
+                        csgeo.csnames[val].kind);
+                    if (typeof window !== "undefined")
+                        window.alert("Not all elements in set are of same type: " + el.name);
+                    return null;
+                }
+            });
+        } else if (op.signature.length !== (el.args ? el.args.length : 0)) {
+            console.error(
+                "Wrong number of arguments for " + el.name +
+                " of type " + el.type);
+            if (typeof window !== "undefined")
+                window.alert("Wrong number of arguments for " + el.name);
+            return null;
+        }
     }
     if (el.args) {
         for (i = 0; i < el.args.length; ++i) {
@@ -159,13 +230,16 @@ function addElement(el) {
                     " due to missing argument " + el.args[i]);
                 return null;
             }
-            var argKind = csgeo.csnames[el.args[i]].kind;
-            if (!(op.signature[i] === argKind ||
-                    (argKind === "S" && op.signature[i] === "L"))) {
-                window.alert(
-                    "Wrong argument kind " + argKind + " as argument " + i +
-                    " to element " + el.name + " of type " + el.type);
-                return null;
+            if (op.signature !== "**" && !isSet) {
+                var argKind = csgeo.csnames[el.args[i]].kind;
+                if (!(op.signature[i] === argKind || (argKind === "S" &&
+                        op.signature[i] ===
+                        "L"))) {
+                    window.alert("Wrong argument kind " + argKind +
+                        " as argument " + i + " to element " +
+                        el.name + " of type " + el.type);
+                    return null;
+                }
             }
         }
     }
@@ -204,6 +278,14 @@ function addElement(el) {
         csgeo.lines.push(el);
         segmentDefault(el);
     }
+    if (el.kind === "Text") {
+        csgeo.texts.push(el);
+        textDefault(el);
+    }
+    if (el.kind === "Poly") {
+        csgeo.polygons.push(el);
+        polygonDefault(el);
+    }
 
     if (true || op.stateSize !== 0) {
         stateAlloc(totalStateSize);
@@ -233,7 +315,65 @@ function addElement(el) {
     isShowing(el, op);
 
     geoDependantsCache = {};
-    //guessIncidences();
+    guessIncidences(el);
+
+    return csgeo.csnames[el.name];
+}
+
+// TODO Remove dependencies also
+function removeElement(name) {
+    var i, el;
+    console.log("Remove element " + name);
+
+    // TODO Check if name exists
+    delete csgeo.csnames[name];
+
+    for (i = 0; i < csgeo.gslp.length; i++) {
+        el = csgeo.gslp[i];
+
+        if (el.name === name) {
+            console.log("Removed element from gslp " + name);
+            csgeo.gslp.splice(i, 1);
+        }
+    }
+
+    for (i = 0; i < csgeo.free.length; i++) {
+        el = csgeo.free[i];
+
+        if (el.name === name) {
+            console.log("Removed element from free " + name);
+            csgeo.free.splice(i, 1);
+        }
+    }
+
+    for (i = 0; i < csgeo.points.length; i++) {
+        el = csgeo.points[i];
+
+        if (el.name === name) {
+            console.log("Removed element from points " + name);
+            csgeo.points.splice(i, 1);
+        }
+    }
+
+    for (i = 0; i < csgeo.lines.length; i++) {
+        el = csgeo.lines[i];
+
+        if (el.name === name) {
+            console.log("Removed element from lines " + name);
+            csgeo.lines.splice(i, 1);
+        }
+    }
+
+    for (i = 0; i < csgeo.conics.length; i++) {
+        el = csgeo.conics[i];
+
+        if (el.name === name) {
+            console.log("Removed element from conics " + name);
+            csgeo.conics.splice(i, 1);
+        }
+    }
+
+    geoDependantsCache = {};
 }
 
 function onSegment(p, s) { //TODO was ist mit Fernpunkten
@@ -325,26 +465,4 @@ function getGeoDependants(mover) {
                 deps.map(function(el) { return el.name; }).join(",") + "]");
     */
     return deps;
-}
-
-function guessIncidences() {
-
-    var gslp = csgeo.gslp;
-    for (var i = 0; i < csgeo.lines.length; i++) {
-        var l = csgeo.lines[i];
-        for (var j = 0; j < csgeo.points.length; j++) {
-            var p = csgeo.points[j];
-            var pn = List.scaldiv(List.abs(p.homog), p.homog);
-            var ln = List.scaldiv(List.abs(l.homog), l.homog);
-            var prod = CSNumber.abs(List.scalproduct(pn, ln));
-            if (prod.value.real < 0.0000000000001) {
-                p.incidences.push(l.name);
-                l.incidences.push(p.name);
-
-            }
-
-        }
-    }
-
-
 }

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+N = 512;
+
+createimage("x", N, 1);
+createimage("outputimg", 512, 50);
+
+encodealpha = 8;
+encodedelta = .5+.5*i;
+
+complex2color(c) := (
+  c = c/encodealpha+encodedelta;
+  (re(c), im(c), 0, 1)
+);
+
+readcomplex(x) := (
+  color = imagergba((0,0),(N,0),"x", (x,.5), interpolate->false, repeat->true); //circular domain
+  encodealpha*(color.x + i*color.y-encodedelta);
+);
+
+plot(y) := (
+  colorplot((0,-25), (512,-25), "outputimg", 
+    val = readcomplex(floor((#.x)/512*N));
+    l = .8+.2*exp(-abs(val)*(25-abs(#.y))/25);
+    gray(l)-(.5*max(2-|#.y,im(val)*12|,0), .5*max(2-|#.y,re(val)*12|,0),0)
+  );
+  drawimage((0,y), (512,y), "outputimg");
+);
+
+
+FFT():=(
+  step = N/2;
+
+  while(step>=1,
+    colorplot((0,0),(N,0),"x",
+      l = #.x; //global index
+      delta = mod(l,step); //shift
+      k = (l-delta)/step; //local index (within recursion)
+      ek = readcomplex(2*l - delta); //even, step*(2*k)+delta
+      ok = readcomplex(2*l - delta + step); //odd, step*(2*k+1)+delta
+      
+      complex2color(sqrt(1/2)*(ek + exp((-2*pi*i/N*step)*k)*ok));
+    );
+    
+    step = step/2;
+  );
+);
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+lambda = A.x/512*pi/16;
+mu = A.y/512*pi/16;
+colorplot((0,0), (512,0),"x", complex2color(sin(#.x*lambda)+sin(#.x*mu)));
+
+
+plot(200);
+drawtext((-10,225), "$f$", align->"right");
+FFT();
+drawtext((-10,175), "$\mathcal{F} \{f\}$",align->"right");
+plot(150);
+FFT();
+drawtext((-10,125), "$\mathcal{F^2} \{f\} = \mathcal{R}\{f\} $",align->"right");
+plot(100);
+FFT();
+drawtext((-10,75), "$\mathcal{F^3} \{f\} = \mathcal{R} \{\mathcal{F} \{ f\}\}$",align->"right");
+plot(50);
+FFT();
+drawtext((-10,25), "$\mathcal{F^4} \{f\} = f$",align->"right");
+plot(0);
+
+
+drawtext((0,290),"$f(x) = \sin("+lambda+"\,x)+\sin("+mu+"\,x)$");
+</script>
+
+
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform: [{visibleRect: [-200, 0, 512, 330]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[50,175]}
+  ],
+  use: ["CindyGL", "katex"]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <h1>CindyJS: FFT by iterating a texture operation</h1>
+  This is an inplace implementation of the Cooley-Tukey FFT algorithm. It can be considered as a sequence of consecutive texture operations.
+
+  <div id="CSCanvas" style="width:712px; height:330px; border:2px solid black"></div>
+</body>
+
+
+</html>

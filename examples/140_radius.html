@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Programmatically setting the radius</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {},
+  geometry: [
+    {name:"A", type:"Free", pos:[-3,0]},
+    {name:"B", type:"Free", pos:[5,0]},
+    {name:"C", type:"CircleMr", args:["A"], radius:5},
+    {name:"D", type:"CircleMr", args:["B"], radius:4},
+    {name:"Es", type:"IntersectCirCir", args:["C", "D"]},
+    {name:"E", type:"SelectP", args:["Es"], pos:[5,1]},
+  ]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+  <p>
+    <button onclick="cdy.evokeCS('C.radius=3')">r=3</button>
+    <button onclick="cdy.evokeCS('C.radius=5')">r=5</button>
+  </p>
+</body>
+
+</html>

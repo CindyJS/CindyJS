@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ReflectionInThreePointCircle.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+CindyJS({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, dimDependent: 0.7 },
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 1.0, -4.0, -0.5 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "a", type: "FreeLine", pos: [ 0.48, -0.64, 4.0 ], color: [ 0.0, 0.0, 1.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ 4.0, -4.0, -0.6666666666666667 ], color: [ 0.0, 1.0, 0.0 ], labeled: true, size: 3.0 }, 
+		{ name: "C0", type: "CircleByRadius", color: [ 0.0, 1.0, 0.0 ], radius: 2.0, args: [ "B" ], printname: "$C_{0}$" }, 
+		{ name: "C", type: "Free", pos: [ 4.0, -2.0, -1.0 ], color: [ 1.0, 1.0, 0.0 ], labeled: true, size: 3.0 }, 
+		{ name: "D", type: "Free", pos: [ 4.0, -4.0, -4.0 ], color: [ 1.0, 1.0, 0.0 ], labeled: true, size: 3.0 }, 
+		{ name: "b", type: "Segment", pos: [ -1.3333333333333333, -4.0, 2.6666666666666667 ], color: [ 1.0, 1.0, 0.0 ], args: [ "C", "D" ], labeled: true }, 
+		{ name: "E", type: "Free", pos: [ 4.0, -0.0, -0.5714285714285714 ], color: [ 0.0, 1.0, 1.0 ], labeled: true, size: 3.0 }, 
+		{ name: "F", type: "Free", pos: [ 4.0, 1.6, -0.8 ], color: [ 0.0, 1.0, 1.0 ], labeled: true, size: 3.0 }, 
+		{ name: "G", type: "Free", pos: [ 4.0, 1.3333333333333333, -1.3333333333333333 ], color: [ 0.0, 1.0, 1.0 ], labeled: true, size: 3.0 }, 
+		{ name: "C1", type: "ArcBy3", color: [ 0.0, 1.0, 1.0 ], args: [ "E", "F", "G" ], printname: "$C_{1}$" }, 
+		{ name: "H", type: "Free", pos: [ -1.7142857142857142, -4.0, -0.5714285714285714 ], color: [ 0.5019608, 0.5019608, 0.5019608 ], labeled: true }, 
+		{ name: "K", type: "Free", pos: [ 4.0, 4.0, 1.3333333333333333 ], color: [ 0.5019608, 0.5019608, 0.5019608 ], labeled: true }, 
+		{ name: "L", type: "Free", pos: [ 4.0, -1.3333333333333333, 1.3333333333333333 ], color: [ 0.5019608, 0.5019608, 0.5019608 ], labeled: true }, 
+		{ name: "C2", type: "CircleBy3", color: [ 0.5019608, 0.5019608, 0.5019608 ], args: [ "H", "K", "L" ], size: 2, printname: "$C_{2}$" }, 
+		{ name: "Tr0", type: "TrReflection", color: [ 0.0, 0.0, 1.0 ], args: [ "C2" ] }, 
+		{ name: "M", type: "Transform", pos: [ 0.0, -0.0, 0.0 ], color: [ 1.0, 0.0, 0.0 ], args: [ "Tr0", "A" ], labeled: true }, 
+		{ name: "C3", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "a" ], printname: "$C_{3}$", labeled: true }, 
+		{ name: "C4", type: "Transform", color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "b" ], printname: "$C_{4}$", labeled: true }, 
+		{ name: "C5", type: "Transform", color: [ 0.0, 1.0, 0.0 ], args: [ "Tr0", "C0" ], printname: "$C_{5}$" }, 
+		{ name: "C6", type: "Transform", color: [ 0.0, 1.0, 1.0 ], args: [ "Tr0", "C1" ], printname: "$C_{6}$" } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], grid: 1, snap: true, background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

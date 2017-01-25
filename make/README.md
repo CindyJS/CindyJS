@@ -4,7 +4,7 @@
 
 Run `node make [SETTINGS] [TASKS]` to build the project.
 
-Example: `node make js_compiler=plain Cindy.js`
+Example: `node make build=release Cindy.js`
 
 ### Settings
 
@@ -52,9 +52,14 @@ Contributors are encouraged to run these before creating a pull request.
 Travis CI will run the same tests on every pull requests,
 so addressing any issues before will save some time for everybody involved.
 
-There is also ca task called **clean** which removes the `build` directory.
+There is also a task called **clean** which removes the `build` directory.
 It is somewhat special because it will get executed first,
 no matter the order of tasks on the command line.
+
+Another special task is called **live**.
+It will open a browser at startup,
+rebuild the named targets on every change to one of the source files,
+and reload all connected browser windows in case of a successful build.
 
 ## Internals
 
@@ -111,10 +116,17 @@ The file [`cli.js`](cli.js) is responsible for command line parsing.
 
 It also ties in most of the other parts of the system:
 it instantiates a [`Settings`](Settings.js) object
-and configures it with the settings given on the command line,
-it instantiates a [`Tasks`](Tasks.js) registry and
-calls to [`build.js`](build.js) to fill it with task definitions
-before delegating to [`make.js`](make.js) to run the selected tasks.
+and configures it with the settings given on the command line.
+It also sets up some machinery to ensure the correct exit code.
+It then delegates to either [`make.js`](make.js) to run the selected tasks
+or to [`watch.js`](watch.js) to repeatedly run selected tasks.
+
+### Live reloading
+
+If the **live** target was named on the command line,
+its functionality is implemented by the file [`watch.js`](watch.js).
+It handles watching source files for changes, triggering a rebuild,
+and reloading browser windows after a successful build.
 
 ### Handling of settings
 
@@ -275,12 +287,26 @@ Here is a list of important commands.
   In that case, or if `files` is omitted altogether,
   `dst` should name a directory.
 
+### Version determination
+
+The file [`getversion.js`](getversion.js) provides a function
+which launces `git` to build a file called `Version.js`.
+However, unlike a regular command, this operation is not tied to a single task.
+Instead there are multiple tasks which need an up-to-date `Version.js`.
+Creation of that file can't be a task by itself, though, since
+it should only be created if one of the tasks that need it get run.
+So it's a mix between a task (since it is a shared dependency run only once)
+and a command (since it adds a job to the current task).
+
 ### Build logic
 
-Once all tasks have been defined, [`make.js`](make.js)
-controls the overall logic of the build.
+Once all settings and the build description have been loaded,
+[`make.js`](make.js) controls the overall logic of the build.
+
 It performs the following steps in order:
 
+* Instantiate a [`Tasks`](Tasks.js) registry and populate it
+  by executing the code from [`build.js`](build.js).
 * Execute the `clean` target (i.e. remove the `build` directory) if requested.
 * Make sure the `build` directory exists,
   since that is where we will try to save our settings at the end.
@@ -288,6 +314,10 @@ It performs the following steps in order:
 * Report the final result of the build.
 * Save the settings.
 * Ensure an appropriate return value.
+
+In live mode, these are the steps which will be repeated for every reload.
+So a change to e.g. [`build.js`](build.js) may trigger a recompile,
+but that will still use the previously loaded build script and settings.
 
 ### Task logic
 

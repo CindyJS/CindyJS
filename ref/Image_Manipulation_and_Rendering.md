@@ -15,12 +15,10 @@ Once an image is loaded you see its internal name and a preview of the image.
 By default, the image name is the original file name, but you can change the internal name by double clicking and editing it.
 Under this name the image can be accessed from within CindyScript.
 
-| ![Image](img/Media.png) |
-| ----------------------- |
-| **The Media Browser**   |
+![The Media Browser](img/Media.png)
 
 The images in the media browser can also be used as images for points and lines as well as background of the view port.
-This functionality is available via the [inspector](Inspector.md).
+This functionality is available via the inspector.
 
 ------
 
@@ -46,9 +44,7 @@ It creates the graphics given below.
     > drawimage(B,"myimage",scale->1.5,angle->30°);
     > drawimage(C,"myimage",ref->"lb");
 
-| ![Image](img/RostS1.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/RostS1.png)
 
 **Reference points:**
 Reference points can be specified using the modifiers `ref`, `refx`, `refy`.
@@ -67,16 +63,14 @@ So the lower left corner may be specified either by `ref->"lb"` or by `ref->["l"
 All the position information can be used separately for the horizontal and vertical direction, for example with `refx->"l"`, `refx->100` or `refx->"10%"`.
 The following picture exemplifies the positions of a few reference points.
 
-| ![Image](img/Positions.png) |
-| --------------------------- |
-| ****                        |
+![Image](img/Positions.png)
 
 **Modifiers:**
 The modifiers of this function are listed below.
 
 | Modifier    | Parameter          | Effect                                    |
 | ----------- | ------------------ | ----------------------------------------- |
-| `alpha`     | `0.0 ... 1.0`      | opacity of the image                      |
+| `alpha`     | `0.0 … 1.0`        | opacity of the image                      |
 | `angle`     | `real`             | rotation angle around the reference point |
 | `rotation`  | `real`             | same as `angle`                           |
 | `scale`     | `real`             | scaling                                   |
@@ -114,15 +108,13 @@ Observe how in the third row the two reference points are specified individually
     > drawimage(E,F,"MyImage",flipx->true);
     > drawimage(G,H,"MyImage",refx1->"20%",refy1->"50%",ref2->"rt");
 
-| ![Image](img/RostS2.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/RostS2.png)
 
 **Modifiers:**
 
 | Modifier    | Parameter          | Effect                               |
 | ----------- | ------------------ | ------------------------------------ |
-| `alpha`     | `0.0 ... 1.0`      | opacity of the image                 |
+| `alpha`     | `0.0 … 1.0`        | opacity of the image                 |
 | `flipx`     | `boolean`          | vertical reflection                  |
 | `flipy`     | `boolean`          | horicontal reflection                |
 | `aspect`    | `real`             | specify the aspect ratio             |
@@ -156,9 +148,7 @@ By default it is set to prefer the *nice* rendering.
     >  b=m*b;
     > );
 
-| ![Image](img/RostS3.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/RostS3.png)
 
 ------
 
@@ -182,9 +172,7 @@ An example of this technique is given in the code below
     > drawimage(A,B,C,"MyImage"))
     > drawimage(A',B',C',"MyImage"))
 
-| ![Image](img/RostS8.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/RostS8.png)
 
 **Modifiers:**
 The command supports the same modifiers as the previous one and the following additional ones.
@@ -199,6 +187,8 @@ The command supports the same modifiers as the previous one and the following ad
 
 #### Drawing an image: `drawimage(‹pos›,‹pos›,‹pos›,‹pos›,‹imagename›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Again this command is more general than the previous one.
 This time the four corners (or more generally reference points) are used to specify a projective transformation of the image.
@@ -212,9 +202,7 @@ The simplest usage is given by the following piece of code.
 The following picture shows the result of this statement.
 For clarity a projective grid has been added to the picture.
 
-| ![Image](img/RostS4.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/RostS4.png)
 
 **Modifiers:**
 The command supports the same modifiers as the previous one and the following additional ones.
@@ -228,6 +216,8 @@ The command supports the same modifiers as the previous one and the following ad
 ------
 
 #### Deforming an image: `mapimage(‹imagename›,‹function›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This command is extremely powerful for deforming images by functions.
@@ -255,9 +245,7 @@ For better reference a grid has been added to drawing that illustrates the defor
     > yrange->(0,pi),resolution->30
     > );
 
-| ![Image](img/RostS5.png)   |
-| -------------------------- |
-| **A diet for Ritter Rost** |
+![A diet for Ritter Rost](img/RostS5.png)
 
 This example is similar to the previous one but now a complex function is used to
 specify the mapping.
@@ -274,16 +262,14 @@ specify the mapping.
     > xrange->(0,1),yrange->(0,pi),color->(0,0,0),alpha->0.5
     > ,resolutiony->30,resolutionx->10,step->10,size->1);
 
-| ![Image](img/RostS7.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/RostS7.png)
 
 **Modifiers:**
 The function supports the following modifiers.
 
 | Modifier     | Parameter     | Effect                           |
 | ------------ | ------------- | -------------------------------- |
-| `alpha`      | `0.0 ... 1.0` | opacity of the image             |
+| `alpha`      | `0.0 … 1.0`   | opacity of the image             |
 | `xrange`     | `vec`         | start and end in *x*-direction   |
 | `yrange`     | `vec`         | start and end in *y*-direction   |
 | `complex`    | `boolean`     | use a complex function           |
@@ -299,13 +285,16 @@ This is a pair of integer values that refers to the pixel width and height of th
 
 ------
 
-#### Getting pixel data: `imagergb(‹imagename›,‹int›,‹int›)`
+#### Getting pixel data: `imagergba(‹imagename›,‹int›,‹int›)`
 
 **Description:**
-The function `imagergb(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position *(x,y)*.
+The function `imagergba(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position *(x,y)*. The coordinate is given left to right and top to bottom. Non-integer values are rounded to closest integers. 
+
 The operator returns a four-dimensional vector with the raw data of the color.
 The first three entries represent the *rgb*-value with each entry ranging from 0 to 255.
 The last entry represents the alpha value.
+
+If the given coordinates are outside of the image, the vector `[0,0,0,0]` is returned.
 
 **Example:**
 The following piece of (slightly elaborate) code first asks for the dimensions of an image and then samples the image in both directions.
@@ -315,16 +304,45 @@ It plots a point with the corresponding color and opacity and by this creates a 
     > dim=imagesize("MyImage");
     > forall((0..dim_1/10)*10,i,err(i);
     >   forall((0..dim_2/10)*10,j,
-    >     col=imagergb("MyImage",i,j);
+    >     col=imagergba("MyImage",i,j);
     >     draw((i,-j)*.03,color->(col_1,col_2,col_3)/255,
     >                     alpha->col_4,
     >                     border->false)
     >   )
     > )
 
-| ![Image](img/RostS9.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/RostS9.png)
+
+------
+
+#### Getting pixel data: `imagergb(‹imagename›,‹int›,‹int›)`
+
+**Description:**
+This function does the same as `imagergba(‹imagename›,‹int›,‹int›)`. In particular, it also delivers the alpha value in order to preserve backward compatibility.
+
+------
+
+#### Picking the color and alpha value of one point using two reference points: `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)`
+
+**Description:**
+ The function `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` returns the color and the alpha value of the at the coordinate given as forth argument while assuming that the lower left and right corner coincide with the first two arguments respectively. The result is encoded as a 4-component vector with each entry ranging from 0 to 1, representing the *rgb*-value and alpha value.
+ 
+ The command returns an empty vector if the image is from a different origin.
+
+ **Modifiers:**
+ The command supports two modifiers.
+
+ | Modifier        | Parameter | Effect                                                                      |
+ | --------------- | --------- | --------------------------------------------------------------------------- |
+ | `interpolation` | `boolean` | Use bilinear interpolation.                                                 |
+ | `repeat`        | `boolean` | Assume a repeating tiling when accessing coordinates outside the boundaries. If not set, `[0,0,0,0]` is returned if the specified coordinate is outside of the image. |
+
+------
+
+ #### Picking the color of one point using two reference points: `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)`
+
+ **Description:**
+ The function `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` behaves in the same way as `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` and supports the same modifiers, but `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` returns a 3-component vector representing the *rgb*-value.
 
 ------
 
@@ -348,7 +366,7 @@ This concept is extremely powerful and in the context of this manual we will onl
 **Description:**
 The operator `createimage(‹imagename›,width,height)` creates an image buffer of the specified dimensions.
 Initially such an image is fully transparent and contains no drawings.
-The image buffer is accessible under the specified name in the Media Browser and can furtheron be used by `drawimage(...)` operations.
+The image buffer is accessible under the specified name in the Media Browser and can furtheron be used by `drawimage(…)` operations.
 
 ------
 
@@ -362,6 +380,8 @@ It is completely transparent.
 ------
 
 #### Removing an image: `removeimage(‹imagename›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator removes the image from the Media Browser.
@@ -401,14 +421,14 @@ In our example we do so by drawing a rectangle with certain corner points.
 The code for drawing on the canvas is included as an argument to a `canvas` function in the following way:
 
     > canvas(F,G,E,"image",
-    >     //....here comes the drawing code....
+    >     //…here comes the drawing code…
     > )
 
 The position of the canvas is specified as a parallelogram generated by the corner points *F*, *G* and *E*.
 The picture above on the right illustrates which part of the original drawing will be captured by the canvas.
 Actually, all the drawing operations that are inside the `canvas` will not have any directly visible effect, so the above picture on the right is just for illustration purposes.
 
-Next, the image can be painted at any location using a `drawimage(...)` command.
+Next, the image can be painted at any location using a `drawimage(…)` command.
 The complete resulting code may look like
 
     > clearimage("image");
@@ -422,7 +442,7 @@ The complete resulting code may look like
     > );
     > drawimage(A,B,C,D,"image");
 
-The `drawimage(...)` command used here produces a projective transformation of the generated canvas.
+The `drawimage(…)` command used here produces a projective transformation of the generated canvas.
 It results in the picture shown below on the left
 
 ![Image](img/Canvas2.png)
@@ -441,13 +461,13 @@ This is illustrated by the following piece of code and the corresponding image.
     > drawimage(D,R,M,O,"image");
     > drawimage(C,R,M,Q,"image");
 
-| ![Image](img/Canvas4.png) |
-| ------------------------- |
-| ****                      |
+![Image](img/Canvas4.png)
 
 ------
 
 #### Painting on a canvas with one reference point: `canvas(‹pos›,‹imagename›,‹drawing code›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator uses `‹imagename›` as a canvas and positions it with respect to one reference point identically to the rules of the `drawimage(‹pos›,‹imagename›)` operator.

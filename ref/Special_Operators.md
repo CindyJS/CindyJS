@@ -14,4 +14,6 @@ Some of them are even necessary for the interaction of Cinderella and CindyScrip
 
 *  [User Input](User_Input.md): Keyboard and mouse handling
 
-*  [Interaction with CindyLab](Interaction_with_CindyLab.md): How [CindyLab](CindyLab.md) and CindyScript can influence each other
+*  [System Information](System_Information.md): Obtaining information about the runtime system
+
+*  [Interaction with CindyLab](Interaction_with_CindyLab.md): How CindyLab and CindyScript can influence each other

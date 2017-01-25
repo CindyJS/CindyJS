@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+err(a.homog);
+a.homog = [1, 0, 0];
+err(a.homog);
+a.angle = pi/4;
+err(a.homog);
+</script>
+<script type="text/javascript">
+
+var cdy = CindyJS({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas", width: 500, height: 500, transform: [ { visibleRect: [ -5, 5, 5, -5 ] } ], background: "rgb(168,176,192)" } ],
+  scripts: "cs*",
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0], color: [ 1.0, 0.0, 0.0 ], labeled: true},
+    {name:"a", type:"Through", pos:[0,1,0], args: ["A"], color: [ 0.0, 0.0, 1.0 ], labeled: true}
+  ]
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+</body>
+
+</html>
+

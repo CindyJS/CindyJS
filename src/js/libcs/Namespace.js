@@ -2,191 +2,119 @@
 //      Namespace and Vars
 //==========================================
 
+var namespace = {};
 
-/** @constructor */
-function Nada() {
-    this.ctype = 'undefined';
-}
-/** @constructor */
-function Void() {
-    this.ctype = 'void';
-}
-/** @constructor */
-function CError(msg) {
-    this.ctype = 'error';
-    this.message = msg;
-}
-var nada = new Nada();
-var unset = new Nada(); // to distinguish variables set to nada from those which were never set
-
-/** @constructor */
-function Namespace() {
-    this.vars = {
-        'pi': {
-            'ctype': 'variable',
-            'stack': [{
-                'ctype': 'number',
-                'value': {
-                    'real': Math.PI,
-                    'imag': 0
-                }
-            }],
-            'name': 'pi'
-        },
-        'i': {
-            'ctype': 'variable',
-            'stack': [{
-                'ctype': 'number',
-                'value': {
-                    'real': 0,
-                    'imag': 1
-                }
-            }],
-            'name': 'i'
-        },
-        'true': {
-            'ctype': 'variable',
-            'stack': [{
-                'ctype': 'boolean',
-                'value': true
-            }],
-            'name': 'true'
-        },
-        'false': {
-            'ctype': 'variable',
-            'stack': [{
-                'ctype': 'boolean',
-                'value': false
-            }],
-            'name': 'false'
-        },
-        '#': {
-            'ctype': 'variable',
-            'stack': [nada],
-            'name': '#'
-        }
+// Initialize preset variables
+namespace.vars = (function() {
+    var preset = {
+        pi: CSNumber.real(Math.PI),
+        'π': CSNumber.real(Math.PI),
+        i: CSNumber.complex(0, 1),
+        'true': General.bool(true),
+        'false': General.bool(false),
+        '#': nada,
+        'nil': List.turnIntoCSList([]),
+        'newline': General.string('\n'),
+        'tab': General.string('\t'),
     };
-    this.isVariable = function(a) {
-        return this.vars[a] !== undefined;
+    var vars = [];
+    for (var name in preset)
+        vars[name] = [preset[name]];
+    return vars;
+})();
 
-    };
+namespace.isVariable = function(name) {
+    return this.vars.hasOwnProperty(name);
+};
 
-    this.isVariableName = function(a) { //TODO will man das so? Den ' noch dazu machen
+namespace.create = function(name) {
+    if (this.vars.hasOwnProperty(name))
+        return this.vars[name];
+    var v = [null];
+    this.vars[name] = v;
+    return v;
+};
 
-        if (a === '#') return true;
-        if (a === '#1') return true;
-        if (a === '#2') return true;
+namespace.newvar = function(name) {
+    var v = this.vars[name];
+    v.push(nada); // nada not null for deeper levels
+    return v;
+};
 
-        var b0 = /^[a-z,A-Z]+$/.test(a[0]);
-        var b1 = /^[0-9,a-z,A-Z]+$/.test(a);
-        return b0 && b1;
-    };
-
-    this.create = function(code) {
-        var v = {
-            'ctype': 'variable',
-            'stack': [unset],
-            'name': code
-        };
-        this.vars[code] = v;
-        return v;
-    };
-
-    this.newvar = function(code) {
-        var v = this.vars[code];
-        v.stack.push(nada); // nada not unset for deeper levels
-        return v;
-    };
-
-    this.removevar = function(code) {
-        var stack = this.vars[code].stack;
-        if (stack.length === 0) console.error("Removing non-existing " + code);
-        stack.pop();
-        if (stack.length === 0) console.warn("Removing last " + code);
-    };
+namespace.removevar = function(name) {
+    var stack = this.vars[name];
+    if (stack.length === 0) console.error("Removing non-existing " + name);
+    stack.pop();
+    if (stack.length === 0) console.warn("Removing last " + name);
+};
 
 
-    this.setvar = function(code, val) {
-        var stack = this.vars[code].stack;
-        if (stack.length === 0) console.error("Setting non-existing variable " + code);
-        if (val === undefined) {
-            console.error("Setting variable " + code + " to undefined value");
-            val = nada;
-        }
-        if (val.ctype === 'undefined') {
-            stack[stack.length - 1] = val;
-            return;
-        }
-        var erg = val;
-        if (erg === unset) erg = nada; // explicite setting does lift unset state
-        stack[stack.length - 1] = erg;
-    };
+namespace.setvar = function(name, val) {
+    var stack = this.vars[name];
+    if (stack.length === 0) console.error("Setting non-existing variable " + name);
+    if (val === undefined) {
+        console.error("Setting variable " + name + " to undefined value");
+        val = nada;
+    }
+    if (val.ctype === 'undefined') {
+        stack[stack.length - 1] = val;
+        return;
+    }
+    var erg = val;
+    if (erg === null) erg = nada; // explicit setting does lift unset state
+    stack[stack.length - 1] = erg;
+};
 
-    /* // Apparently unused
-    this.setvarnocopy= function(code,val) {
-        var stack=this.vars[code].stack;
-        if (stack.length === 0) console.error("Setting non-existing variable " + code);
-        stack[stack.length-1]=val;
-    };
-    */
+namespace.undefinedWarning = {};
 
-    this.undefinedWarning = {};
+namespace.getvar = function(name) {
 
-    this.getvar = function(code) {
-
-        var stack = this.vars[code].stack;
-        if (stack.length === 0) console.error("Getting non-existing variable " + code);
-        var erg = stack[stack.length - 1];
-        if (erg === unset) {
-            if (csgeo.csnames[code] !== undefined) {
-                return {
-                    'ctype': 'geo',
-                    'value': csgeo.csnames[code]
-                };
-            } else {
-                if (console && console.log && this.undefinedWarning[code] === undefined) {
-                    this.undefinedWarning[code] = true;
-                    console.log("Warning: Accessing undefined variable: " + code);
-                }
+    var stack = this.vars[name];
+    if (stack.length === 0) console.error("Getting non-existing variable " + name);
+    var erg = stack[stack.length - 1];
+    if (erg === null) {
+        if (csgeo.csnames.hasOwnProperty(name)) {
+            return {
+                'ctype': 'geo',
+                'value': csgeo.csnames[name]
+            };
+        } else {
+            if (console && console.log && this.undefinedWarning[name] === undefined) {
+                this.undefinedWarning[name] = true;
+                console.log("Warning: Accessing undefined variable: " + name);
             }
-            return nada;
         }
-        return erg;
-    };
+        return nada;
+    }
+    return erg;
+};
 
-    this.dump = function(code) {
-        var stack = this.vars[code].stack;
-        console.log("*** Dump " + code);
+namespace.dump = function(name) {
+    var stack = this.vars[name];
+    console.log("*** Dump " + name);
 
-        for (var i = 0; i < stack.length; i++) {
-            console.log(i + ":> " + niceprint(stack[i]));
+    for (var i = 0; i < stack.length; i++) {
+        console.log(i + ":> " + niceprint(stack[i]));
+    }
+};
 
-        }
+namespace.vstack = [];
 
-    };
+namespace.pushVstack = function(v) {
+    this.vstack.push(v);
 
-    this.vstack = [];
+};
+namespace.popVstack = function() {
+    this.vstack.pop();
+};
 
-    this.pushVstack = function(v) {
-        this.vstack.push(v);
-
-    };
-    this.popVstack = function() {
-        this.vstack.pop();
-    };
-
-    this.cleanVstack = function() {
-        var st = this.vstack;
-        while (st.length > 0 && st[st.length - 1] !== "*") {
-            this.removevar(st[st.length - 1]);
-            st.pop();
-        }
-        if (st.length > 0) {
-            st.pop();
-        }
-    };
-
-
-}
-
-var namespace = new Namespace();
+namespace.cleanVstack = function() {
+    var st = this.vstack;
+    while (st.length > 0 && st[st.length - 1] !== "*") {
+        this.removevar(st[st.length - 1]);
+        st.pop();
+    }
+    if (st.length > 0) {
+        st.pop();
+    }
+};

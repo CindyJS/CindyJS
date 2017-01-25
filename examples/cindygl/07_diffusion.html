@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Heat Diffusion</h1>
+    
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      t0 = seconds();
+      
+      sol(x, t, c) := (
+        da = (x - c); //diff of vec2
+        exp(-(da*da)/4/t) //scalar prod
+      );
+      
+      heat(f) := (
+        if(20*f<1,20*f,1)*hue(.4*(arctan(5*f)-arctan(1.)))
+      );
+      
+      u(x, t) := (
+        heat(1/(4*pi*t)*(
+         sol(x,t,A.xy)
+        +sol(x,t,B.xy)
+        +sol(x,t,C.xy)
+        -sol(x,t,[A.y,A.x])
+        -sol(x,t,[B.y,B.x])
+        -sol(x,t,[C.y,C.x])
+        ))
+      );
+    </script>
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      t = (seconds()-t0)*.2;
+      
+      
+      colorplot(u(#, t));
+    </script>
+    
+
+    <div  id="CSCanvas" onclick="cdy.evokeCS('t0 = seconds();')"></div>
+    
+    <script type="text/javascript">
+        
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[7,8,1]},
+                  {name:"B", kind:"P", type:"Free", pos:[1,6,1]},
+                  {name:"C", kind:"P", type:"Free", pos:[3,5,1]},
+                  ];
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [ 0,0,10,10 ] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

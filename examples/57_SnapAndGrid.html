@@ -20,7 +20,7 @@
         </script>
 
 
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
         <script type="text/javascript">
 
@@ -66,14 +66,18 @@
                        {name:"Y", kind:"P", type:"Free", pos:[-8,.8,1]},
                        {name:"Z", kind:"P", type:"Free", pos:[-6,0,1]}*/
                       ];
-            createCindy({canvasname:"CSCanvas",
-                        defaultAppearance: {clip: "inci", overhangLine: 1.2},
-                        movescript:"csmove",
-                        geometry:gslp,
-                        transform:[{scale:1}],
-                        grid:2,
-                        snap:true
-                        });
+            CindyJS({
+                defaultAppearance: {clip: "inci", overhangLine: 1.2},
+                movescript:"csmove",
+                geometry:gslp,
+                ports:[{
+                    id:"CSCanvas",
+                    transform:[{scale:1}],
+                    grid:2,
+                    snap:true,
+                    axes:true
+                }]
+            });
 
         </script>
 

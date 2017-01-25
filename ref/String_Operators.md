@@ -30,6 +30,28 @@ For this see [Arithmetic Operators](Arithmetic_Operators.md).
 **Description:**
 The operator `text(‹expr›)` evaluates the expression `‹expr›` and converts the result to a string representation.
 
+    > text(7.2)
+    < "7.2"
+    > text([true, "foo", (;)])
+    < "[true, foo, ___]"
+
+Undefined input yields undefined output in Cinderella:
+
+    - only Cinderella
+    > text(;)
+    < ___
+
+In CindyJS the output is still a string, in order to avoid corner cases.
+
+    - only CindyJS
+    > text(;)
+    < "___"
+
+Geometric objects get auto-coerced to mathematical values
+
+    > createpoint("A", [6, 4, 2]); text(A)
+    < "[3, 2]"
+
 ------
 
 #### Length of a string: `length(‹string›)`
@@ -96,9 +118,10 @@ This operator is very useful for parsing input.
 It creates a list of substrings of `‹string›`.
 The second argument `‹expr›` must be either a string or a list of strings.
 If `‹expr›` is a string, then the operator searches for occurrences of this string in `‹string›`.
-These occurrences serve as markers for breaking up &lt;string&gt; into a list of pieces.
+These occurrences serve as markers for breaking up ‹string› into a list of pieces.
 
-If &lt;expr&gt; is a list of strings, then a hierarchical list is generated that represents the subdivision of `‹string›` recursively by the tokens in the list.
+If ‹expr› is a list of strings, then a hierarchical list is generated
+that represents the subdivision of `‹string›` recursively by the tokens in the list.
 
     > tokenize("one:two..three:four", ":")
     < ["one", "two..three", "four"]
@@ -110,17 +133,20 @@ If &lt;expr&gt; is a list of strings, then a hierarchical list is generated that
     < [["one", "two"], [""], ["three", "four"]]
     > tokenize("one:two..three:four", ["..",":"])
     < [["one", "two"], ["three", "four"]]
+    > tokenize("(1;2)", ";")
+    < ["(1", "2)"]
 
 `tokenize` usually converts string representations of numbers to number objects.
 This can lead to information loss.
 In the Java version, the conversion looks like this:
 
-    - skip test: this is only for comparison with the Java version
+    - only Cinderella
     > tokenize("77777777777777777",":")
     < [77777777777777776]
 
 In JavaScript, however, the [rounding rules of ECMAScript](http://www.ecma-international.org/ecma-262/5.1/#sec-9.3.1) force trailing zeros instead:
 
+    - only CindyJS
     > tokenize("77777777777777777",":")
     < [77777777777777780]
 
@@ -129,12 +155,19 @@ To turn off this behavior, use the `autoconvert` modifier and set it to `false`.
     > tokenize("77777777777777777",":",autoconvert->false)
     < ["77777777777777777"]
 
+Number conversion without splitting can be achieved using an empty separator list:
+
+    > tokenize("1234", []) + 1
+    < 1235
+    > tokenize("x1234", []) + 1
+    < "x12341"
+
 ------
 
 #### Replacing in strings: `replace(‹string1›,‹string2›,‹string3›)`
 
 **Description:**
-This operator replaces all (!) occurrences of &lt;string2&gt; in &lt;string1&gt; by &lt;string3&gt;.
+This operator replaces all (!) occurrences of ‹string2› in ‹string1› by ‹string3›.
 
 This operator is extremely useful for creating text replacement systems of the kind they are used in so called Lindenmeyer Systems.
 
@@ -183,7 +216,114 @@ defines the function `f(x)` to be `sin(x)+cos(x)`.
 
 ------
 
+#### Parsing a CSV string: `parseCSV(‹string›)`
+
+**Description:**
+This operator parses a comma-separated values (CSV) string to a list of lists.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("Foo,1.0
+    > Bar,2.3
+    > true,5.0.7
+    > ")
+    < [["Foo", 1], ["Bar", 2.3], [true, "5.0.7"]]
+
+All rows in a CSV file should have the same number of columns.
+If this is not the case, short rows are padded with `___`.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("11,12
+    > 21,22,23,24,
+    > 31,32, 33
+    > 41")
+    < [[11, 12, ___, ___, ___], [21, 22, 23, 24, ""], [31, 32, " 33", ___, ___], [41, ___, ___, ___, ___]]
+
+Numbers and Booleans are converted to their respective CindyScript counterparts.
+If this is not the desired behavior the `autoconvert` modifier can be set to `false`.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("Foo,1.0,true,bar", autoconvert->false)
+    < [["Foo", "1.0", "true", "bar"]]
+
+Boolean values may have their first letter in upper case, but the rest must be lower case.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("true,True,TRUE,true ,false,False,fAlse, false,fALSE")
+    < [[true, true, "TRUE", "true ", false, false, "fAlse", " false", "fALSE"]]
+
+The current implementation does not auto-convert scientific notation.
+It does however handle infinite values.
+This may however change in a future release, so don't rely on this.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("1e2,1e+2,1e-2
+    > Infinity,+Infinity,-Infinity
+    > 100,+100,-100")
+    < [["1e2", "1e+2", "1e-2"], [Infinity, Infinity, -Infinity], [100, 100, -100]]
+
+Strings may be enclosed in double quotes.
+Inside such a quoted string, occurrences of double quotes have to be doubled.
+The following example writes `'` to represent `"`, then uses `unicode("22")`
+to replace that by an actual `"` character.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV(replace("a,'b,c''d'''',e',f
+    > g,h'i'j,'k
+    > l,m,n'", "'", unicode("22")))
+    < [["a", "b,c\"d\"\",e", "f"], ["g", "h\"i\"j", "k\nl,m,n"]]
+
+Lines may be terminated by carriage return, line feed,
+or a carriage return followed by a line feed.
+The input may use a mixture of end of line conventions.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV(replace(replace("1,2\n3,4\r5,6\n\r7,8\r\n9,10",
+    >     "\r", unicode("0D")), "\n", unicode("0A")))
+    < [[1, 2], [3, 4], [5, 6], ["", ___], [7, 8], [9, 10]]
+
+The line terminator is optional for the last line.
+This is even true if the last line ends in an empty field,
+which may be tricky for reasons internal to the implementation.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("1,2
+    > 11,")
+    < [[1, 2], [11, ""]]
+    > parseCSV("1,2,3
+    > 11,")
+    < [[1, 2, 3], [11, "", ___]]
+    > parseCSV("1,")
+    < [[1, ""]]
+    > parseCSV("1
+    > 11,")
+    < [[1, ___], [11, ""]]
+
+The modifier `delimiter` can be used to set the column-separating character.
+The argument to that modifier has to be a single character,
+excluding `"`, newline and carriage return.
+The default delimiter is the comma (as the name CSV suggests).
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("1;2,3;4.5", delimiter->";")
+    < [[1, "2,3", 4.5]]
+
+Some delimiters warrant extra checks due to possible special meanings
+in the internal implementation, so these are checked here.
+
+    - only CindyJS: parseCSV isn't implemented for Cinderella yet
+    > parseCSV("1,2d3", delimiter->"d")
+    < [["1,2", 3]]
+    > parseCSV("1,2.3", delimiter->".")
+    < [["1,2", 3]]
+    > parseCSV("1,2$3", delimiter->"$")
+    < [["1,2", 3]]
+
+------
+
+
 #### Guessing a good representation of a number: `guess(‹number›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This very powerful operator is described in detail in the section [Calculus](Calculus.md).
@@ -206,7 +346,7 @@ This expression is then represented as a string.
 **Description:**
 This operator takes a number as first arguments and an integer specifying the number of digits after the decimal point.
 A string is generated that corresponds to the number up to the specified precision.
-Up to 14 digits are possible.
+Up to 14 digits are possible in Cinderella, 20 in CindyJS.
 If the argument of format is a list of objects the format statement is applied to each of the objects recursively.
 
     > format(sqrt(2),4)
@@ -218,15 +358,20 @@ If the argument of format is a list of objects the format statement is applied t
     > format([sin(30°),cos(30°)],3)
     < ["0.5", "0.866"]
 
-If the first argument is neither a number nor a list, then the result is `_?_`.
+If the first argument is neither a number nor a list, then the result is `___`.
 If, however, it is a list, and somewhere nested inside that list is a value which is neither a number nor a list, then that value will be turned into a string representation of itself.
 
     > format("foo",4)
-    < _?_
+    < ___
     > format(1 < 2,4)
-    < _?_
+    < ___
     > format([2.339, "foo", [5.678, 1 < 2]], 2)
     < ["2.34", "foo", ["5.68", "true"]]
+
+Requesting more than 20 digits will never have any effect.
+
+    > format(1/3, 20) == format(1/3, 40)
+    < true
 
 **Warning:**
 The format statement should only produced to create formatted output elements.
@@ -243,22 +388,21 @@ The following example illsustrates this:
 ## String Comparison and Sorting
 
 Like real numbers, strings admit a total ordering.
-Thus they can be compared using the operators `›`, `‹`, `›=`, `‹=`, `==`, and `!=`.
+Thus they can be compared using the operators `>`, `<`, `>=`, `<=`, `==`, and `!=`.
 Please refer to [Boolean Operators](Boolean_Operators.md) for the use of these relations.
 
 The order that is used for strings is lexicographic (dictionary) order.
 Thus, for example,
 
-`"a"‹"abd"‹"abe"‹"b"‹"blue"‹"blunt"‹"xxx"`
+`"a" < "abd" < "abe" < "b" < "blue" < "blunt" < "xxx"`
 
-#### Sorting of lists: `sort(‹list›)`
-
-#### Sorting of lists: `sort(‹list›,‹expr›)`
-
-#### Sorting of lists: `sort(‹list›,‹var›,‹expr›)`
+#### Sorting lists of strings
 
 **Description:**
-The various versions of the `sort`-operator can be used to sort lists that contain string values.
+
+The various versions of
+[the `sort` operator](Advanced_List_Operations.md#sort$1)
+can be used to sort lists that contain string values.
 The sorting order is usually taken to be the lexicographic order of the words.
 Alternatively, one can specify a user-defined sorting function such as the lengths of the strings.
 
@@ -268,7 +412,8 @@ Alternatively, one can specify a user-defined sorting function such as the lengt
     < ["one", "two", "four", "five", "three"]
 
 **See also:**
-[Lists and Linear Algebra](Lists_and_Linear_Algebra.md)
+[Lists and Linear Algebra](Lists_and_Linear_Algebra.md),
+[Advanced List Operations](Advanced_List_Operations.md)
 
 ------
 
@@ -284,8 +429,11 @@ Characters can be returned and set with this operator.
 
     > "CindyScript"_5
     < "y"
+    > "CindyScript"_[1, 6]
+    < ["C", "S"]
     > "CindyScript"_12
-    < _?_
+    * WARNING: Index out of range!
+    < ___
     > a="CindyScript";
     > a_5="erella";
     > a
@@ -301,5 +449,7 @@ These two forms can be combined, both for reading and for writing.
     > a_1_5="erella";
     > a
     < ["Cinderella", "Script"]
+
+    - only CindyJS: known Cinderella bug #83
     > b
     < "Cindy"

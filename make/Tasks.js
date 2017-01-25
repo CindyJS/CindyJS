@@ -5,6 +5,7 @@
  * Tasks are identified by name.
  */
 
+var chalk = require("chalk");
 var Q = require("q");
 
 var BuildError = require("./BuildError");
@@ -16,8 +17,6 @@ module.exports = function Tasks(settings) {
 
     var tasks = {};
 
-    var currentTask = null;
-
     /* Define a new task. The definition is a function which describes the
      * task, without executing it yet. It should call the addJob method
      * and may also call input and output methods.
@@ -27,12 +26,41 @@ module.exports = function Tasks(settings) {
             throw Error("Invalid arguments for " + name);
         if (tasks.hasOwnProperty(name))
             throw Error("Dulicate name " + name);
-        var res = currentTask = new Task(settings, self, name, deps);
-        if (definition)
-            definition.call(res);
+        var res = new Task(settings, self, name, deps, definition);
         tasks[name] = res;
-        currentTask = null;
         return res;
+    };
+
+    /* Called when all tasks have been defined.
+     */
+    this.complete = function() {
+        for (name in tasks) {
+            if (tasks.hasOwnProperty(name)) {
+                var current = tasks[name];
+                if (current.definition)
+                    current.definition();
+            }
+        }
+        if (settings.get("logprefix") === "true") {
+            var name;
+            var len = 0;
+            for (name in tasks) {
+                if (tasks.hasOwnProperty(name)) {
+                    name = tasks[name].abbr || name;
+                    if (len < name.length)
+                        len = name.length;
+                }
+            }
+            for (name in tasks) {
+                if (tasks.hasOwnProperty(name)) {
+                    var task = tasks[name];
+                    name = task.abbr || name;
+                    while (name.length < len)
+                        name += " ";
+                    task.prefix = chalk.blue("[" + name + "]") + " ";
+                }
+            }
+        }
     };
 
     /* Retrieve a task by name. Thows an error if no match is found.
@@ -40,13 +68,13 @@ module.exports = function Tasks(settings) {
     this.get = function(name) {
         if(tasks.hasOwnProperty(name))
             return tasks[name];
+        var names = Object.keys(tasks);
+        names.sort();
+        console.log("Valid task names:");
+        names.forEach(function(name) {
+            console.log("- " + name);
+        });
         throw new BuildError("No task named " + name);
-    };
-
-    /* Identify the task currently being defined.
-     */
-    this.current = function() {
-        return currentTask;
     };
 
     /* Execute the named tasks sequentially or in parallel

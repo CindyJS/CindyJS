@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+            <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+
+<style type="text/css">
+    * {
+      border: 0;
+      margin: 0;
+      padding: 0;
+    }
+</style>
+            </head>
+
+	<body>
+        <script id='csinit' type='text/x-cindyscript'>
+
+createimage("texture", 1000, 1000);
+
+an = true;
+
+inv(p, m, r) := (
+  z = (p - m)/r;
+  conjugate(1/z)*r+m
+);
+
+der(p, m, r) := (
+  z = (p - m)/r;
+  1/abs(z)/abs(z)
+);
+
+drawstep() := (
+  colorplot("texture",
+  if(|#,A|<c1r,
+  imagergb("texture", inv(complex(#), complex(A), c1r))*der(complex(#), complex(A), c1r),
+  if(|#,B|<c2r,
+  imagergb("texture", inv(complex(#), complex(B), c2r))*der(complex(#), complex(B), c2r),
+  if(|#,C|<c3r,
+  imagergb("texture", inv(complex(#), complex(C), c3r))*der(complex(#), complex(C), c3r),
+  if(|#,D|<c4r,
+  imagergb("texture", inv(complex(#), complex(D), c4r))*der(complex(#), complex(D), c4r),
+   .01*[1,1,1]
+  ))))*.8
+  );
+);
+
+</script>
+    <script id="cskeydown" type="text/x-cindyscript">
+      print("pressed key" + keycode());
+      if(keycode()==32, colorplot("texture", 1)); //space -> white
+      if(keycode()==82, an = !an); //R -> start/stop animation
+      if(keycode()==83, drawstep()); //S -> step
+      if(keycode()==73, colorplot((-10,-10), (10,-10), "texture", p = log(complex(#)); sin(8*im(p))+6>abs(#) )); //I -> Image
+      drawimage((-10,-10), (10,-10), "texture");
+    </script>
+        <script id='csdraw' type='text/x-cindyscript'>
+
+
+d1=|A,B|;
+d2=|B,C|;
+d3=|C,A|;
+c3r=(-d1+d2+d3)/2;
+c1r=(+d1-d2+d3)/2;
+c2r=(+d1+d2-d3)/2;
+
+k1=1/c1r;
+k2=1/c2r;
+k3=1/c3r;
+//see https://en.wikipedia.org/wiki/Descartes%27_theorem
+k4 = k1+k2+k3+2*sqrt(k1*k2+k2*k3+k3*k1);
+
+c4r=1/k4;
+
+z1 = complex(A);
+z2 = complex(B);
+z3 = complex(C);
+
+z4 = (z1*k1+z2*k2+z3*k3-2*sqrt(k1*k2*z1*z2+k2*k3*z2*z3+k1*k3*z1*z3))/k4;
+if( !(abs(z4-z1)~=c1r+c4r),
+  z4 = (z1*k1+z2*k2+z3*k3+2*sqrt(k1*k2*z1*z2+k2*k3*z2*z3+k1*k3*z1*z3))/k4;
+);
+D = (re(z4), im(z4));
+
+if(an,
+  drawstep();
+);
+
+drawimage((-10,-10), (10,-10), "texture");
+
+drawcircle(A, c1r);
+drawcircle(B, c2r);
+drawcircle(C, c3r);
+drawcircle(D, c4r);
+        </script>
+
+
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+
+        <script type="text/javascript">
+
+            var gslp=[
+                      {name:"A", type:"Free", pos:[-8,8]},
+                      {name:"B", type:"Free", pos:[9.5,2]},
+                      {name:"C", type:"Free", pos:[-9,-9]}
+                      ];
+            CindyJS({canvasname:"CSCanvas",
+                        scripts: "cs*",
+                        geometry:gslp,
+                        animation:{autoplay:true},
+                        use:["CindyGL"]}
+                        );
+
+        </script>
+
+	</body>
+</html>

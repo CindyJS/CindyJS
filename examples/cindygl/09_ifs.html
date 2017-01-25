@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: IFS Feedbackloop</h1>
+    
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      
+      createimage("ifs", 512, 512);
+    </script>
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      L = [-2,-2]; //bottom left corner
+      R = [2,-2]; //bottom right corner
+
+      f1=map(A,D,A,B);
+      f2=map(A,D,B,C);
+      f3=map(A,D,C,D);
+      
+      colorplot(L, R, "ifs",
+        imagergb(f1*L.homog, f1*R.homog, "ifs", #) +
+        imagergb(f2*L.homog, f2*R.homog, "ifs", #) +
+        imagergb(f3*L.homog, f3*R.homog, "ifs", #) +
+        if(abs(#)<2, 0.01*(1,2,3), (0,0,0))
+      );
+      drawimage(L, R, "ifs");
+    </script>
+
+    <div  id="CSCanvas"></div>
+    <script type="text/javascript">
+        
+        var gslp=[
+          {name:"A", kind:"P", type:"Free", pos:[-1.75,0]},
+          {name:"B", kind:"P", type:"Free", pos:[-1,1]},
+          {name:"C", kind:"P", type:"Free", pos:[1,-1]},
+          {name:"D", kind:"P", type:"Free", pos:[1.75,0]},
+        ];
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 512,
+                      height: 512,
+                      transform: [ { visibleRect: [-2, -2, 2, 2] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

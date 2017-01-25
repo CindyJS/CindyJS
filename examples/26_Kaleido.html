@@ -88,7 +88,7 @@
         </script>
 
 
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
         <script type="text/javascript">
 
@@ -100,7 +100,7 @@
                       {name:"E", type:"Free", pos:[-5,7.5],color:[1,1,1],color:[1,.7,0],size:3},
                       {name:"G", type:"Free", pos:[7.5,-7.5],color:[1,1,1],color:[1,.7,0],size:3},
                                            ];
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         movescript:"csmove",
                         geometry:gslp,
                         images:{bild:"bild.png"}}

@@ -4,18 +4,19 @@
 var CSNumber = {};
 CSNumber._helper = {};
 CSNumber._helper.roundingfactor = 1e4;
+CSNumber._helper.angleroundingfactor = 1e1;
 
-CSNumber._helper.niceround = function(a) {
-    return Math.round(a * CSNumber._helper.roundingfactor) /
-        CSNumber._helper.roundingfactor;
+CSNumber._helper.niceround = function(a, roundingfactor) {
+    return Math.round(a * roundingfactor) / roundingfactor;
 };
 
-CSNumber.niceprint = function(a) {
+CSNumber.niceprint = function(a, roundingfactor) {
+    roundingfactor = roundingfactor || CSNumber._helper.roundingfactor;
     if (a.usage === "Angle") {
         return CSNumber._helper.niceangle(a);
     }
-    var real = CSNumber._helper.niceround(a.value.real);
-    var imag = CSNumber._helper.niceround(a.value.imag);
+    var real = CSNumber._helper.niceround(a.value.real, roundingfactor);
+    var imag = CSNumber._helper.niceround(a.value.imag, roundingfactor);
     if (imag === 0) {
         return "" + real;
     }
@@ -53,7 +54,9 @@ CSNumber._helper.niceangle = function(a) {
         return CSNumber.niceprint(General.withUsage(a, null));
     if (typeof unit === "function")
         return unit(a);
-    var num = CSNumber.niceprint(CSNumber.realmult(unit * PERTWOPI, a));
+    var num = CSNumber.niceprint(
+        CSNumber.realmult(unit * PERTWOPI, a),
+        unit > 200 ? CSNumber._helper.angleroundingfactor : null);
     if (num.indexOf("i*") === -1)
         return num + angleUnit;
     return "(" + num + ")" + angleUnit;
@@ -82,6 +85,10 @@ CSNumber.real = function(r) {
 CSNumber.zero = CSNumber.real(0);
 
 CSNumber.one = CSNumber.real(1);
+
+CSNumber.infinity = CSNumber.complex(Infinity, Infinity);
+
+CSNumber.nan = CSNumber.complex(NaN, NaN);
 
 CSNumber._helper.input = function(a) {
     if (typeof a === "object")
@@ -264,14 +271,6 @@ CSNumber.abs = function(a1) {
 
 CSNumber.inv = function(a) {
     var s = a.value.real * a.value.real + a.value.imag * a.value.imag;
-    // BUG?
-    // perhaps we should not only check for 0
-    // if(Math.abs(s) < 1e32) {
-    if (s === 0) {
-        console.error("DIVISION BY ZERO");
-        //        halt=immediately;
-
-    }
     return {
         "ctype": "number",
         "value": {
@@ -283,10 +282,22 @@ CSNumber.inv = function(a) {
 
 
 CSNumber.div = function(a, b) {
-    return CSNumber.mult(a, CSNumber.inv(b));
+    var ar = a.value.real;
+    var ai = a.value.imag;
+    var br = b.value.real;
+    var bi = b.value.imag;
+    var s = br * br + bi * bi;
+    return {
+        "ctype": "number",
+        "value": {
+            'real': (ar * br + ai * bi) / s,
+            'imag': (ai * br - ar * bi) / s
+        }
+    };
 };
 
-CSNumber.eps = 0.0000001;
+CSNumber.eps = 1e-10;
+CSNumber.epsbig = 1e-6;
 
 CSNumber.snap = function(a) {
     var r = a.value.real;
@@ -394,11 +405,17 @@ CSNumber.arctan = function(a) { //OK hässlich aber tuts.
 };
 
 
-//Das ist jetzt genau so wie in Cindy.
-//Da wurde das aber niemals voll auf complexe Zahlen umgestellt
-//Bei Beiden Baustellen machen!!!
-CSNumber.arctan2 = function(a, b) { //OK
-    var erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
+CSNumber.arctan2 = function(a, b) {
+    var erg;
+    if (b === undefined)
+        erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
+    else if (CSNumber._helper.isReal(a) && CSNumber._helper.isReal(b))
+        erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
+    else {
+        var z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
+        var r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
+        erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
+    }
     return General.withUsage(erg, "Angle");
 };
 
@@ -419,7 +436,7 @@ CSNumber.sqrt = function(a) {
     };
 };
 
-CSNumber.pow2 = function(a, b) {
+CSNumber.powRealExponent = function(a, b) {
     var rr = a.value.real;
     var ii = a.value.imag;
     var n = Math.pow(Math.sqrt(rr * rr + ii * ii), b);
@@ -465,30 +482,13 @@ CSNumber.log = function(a) {
 
 
 CSNumber.pow = function(a, b) {
-
-    //    if(a.value.real === 0 && a.value.imag === 0){
-    //        return CSNumber.real(0);
-    //    };
-
-    if (b.value.real === Math.round(b.value.real) && b.value.imag === 0) { //TODO später mal effizienter machen
-        var erg = {
-            "ctype": "number",
-            "value": {
-                'real': 1,
-                'imag': 0
-            }
-        };
-        for (var i = 0; i < Math.abs(b.value.real); i++) {
-            erg = CSNumber.mult(erg, a);
-        }
-        if (b.value.real < 0) {
-            return CSNumber.inv(erg);
-        }
-        return (erg);
-
-    }
-    var res = CSNumber.exp(CSNumber.mult(CSNumber.log(a), b));
-    return res;
+    if (CSNumber._helper.isZero(b))
+        return CSNumber.one;
+    if (CSNumber._helper.isZero(a))
+        return CSNumber.zero;
+    if (CSNumber._helper.isReal(b))
+        return CSNumber.powRealExponent(a, b.value.real);
+    return CSNumber.exp(CSNumber.mult(CSNumber.log(a), b));
 };
 
 
@@ -515,8 +515,6 @@ CSNumber.mod = function(a, b) {
 
 
 CSNumber._helper.seed = 'NO';
-CSNumber.eps = 0.0000000001;
-CSNumber.epsbig = 0.000001;
 
 CSNumber._helper.seedrandom = function(a) {
     a = a - Math.floor(a);
@@ -589,7 +587,8 @@ CSNumber._helper.isReal = function(a) {
 
 CSNumber._helper.isAlmostReal = function(a) {
     var i = a.value.imag;
-    return (i < CSNumber.epsbig) && (i > -CSNumber.epsbig); //So gemacht wie in Cindy
+    // This implementation follows Cinderella
+    return (i < CSNumber.epsbig) && (i > -CSNumber.epsbig);
 };
 
 CSNumber._helper.isNaN = function(a) {
@@ -603,7 +602,8 @@ CSNumber._helper.isFinite = function(z) {
 
 CSNumber._helper.isAlmostImag = function(a) {
     var r = a.value.real;
-    return (r < CSNumber.epsbig) && (r > -CSNumber.epsbig); //So gemacht wie in Cindy
+    // This implementation follows Cinderella
+    return (r < CSNumber.epsbig) && (r > -CSNumber.epsbig);
 };
 
 CSNumber._helper.z3a = CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
@@ -830,7 +830,7 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
 //        var T0 = CSNumber.multiMult([CSNumber.real(-1), signum(dbar), CSNumber.abs(abar), CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), ldel))]);
 //        var T1 = CSNumber.add(CSNumber.mult(CSNumber.real(-1), dbar), T0);
 //    
-//        var pp = CSNumber.pow2(CSNumber.mult(T1, CSNumber.real(0.5)), 1/3);
+//        var pp = CSNumber.powRealExponent(CSNumber.mult(T1, CSNumber.real(0.5)), 1/3);
 //    
 //        var qq;
 //        if(CSNumber.abs(T1, T0).value.real < 0.00000001){

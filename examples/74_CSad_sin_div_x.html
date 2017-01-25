@@ -39,14 +39,14 @@ draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
 
         </script>
 
-        <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000;"></canvas>
+        <div  id="CSCanvas" style="width:800px; height:500px; border:2px solid #000000;"></div>
         <script type="text/javascript">
 
             var gslp=[
                       {name:"C", type:"Free", pos:[1,0],color:[1,1,0],size:5},
                       ];
 
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         movescript:"csmove",
                         grid:1,
                         snap:true,

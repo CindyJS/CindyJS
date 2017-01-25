@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Polygons</title>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script type="text/x-cindyscript" id="csinit">
+      Poly3.fillcolor = [0.0, 0.0, 0.0];
+      Poly3.fillalpha = 0.4017094017094017;
+    </script>
+    <script type="text/x-cindyscript" id="csdraw">
+      drawtext((10, -2), Poly0.fillcolor);
+      drawtext((10, -3), Poly1.fillalpha);
+    </script>
+    <script type="text/javascript">
+CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [0.0, -0.0, 4.0], color: [1.0, 0.0, 0.0]},
+    {name: "B", type: "Free", pos: [4.0, -0.0, 1.0], color: [1.0, 0.0, 0.0]},
+    {name: "C", type: "Free", pos: [-2.3094010767585034, -4.0, -1.1547005383792517], color: [1.0, 0.0, 0.0]},
+    {name: "D", type: "Free", pos: [2.3094010767585034, -4.0, -1.1547005383792517], color: [1.0, 0.0, 0.0]},
+    {name: "E", type: "Free", pos: [4.0, -0.0, -1.0], color: [1.0, 0.0, 0.0]},
+    {name: "F", type: "Free", pos: [-2.3094010767585034, -4.0, 1.1547005383792517], color: [1.0, 0.0, 0.0], size: 1.0},
+    {name: "G", type: "Free", pos: [2.3094010767585034, -4.0, 1.1547005383792517], color: [1.0, 0.0, 0.0]},
+    {name: "H", type: "Free", pos: [4.0, -2.309401076758503, 0.6666666666666666], color: [1.0, 0.0, 0.0]},
+    {name: "Poly0", type: "Poly", color: [0.0, 0.0, 0.0], fillcolor: [0.714, 1.0, 0.667], fillalpha: 1.0, args: ["A", "B", "C"]},
+    {name: "Poly1", type: "Poly", color: [1.0, 1.0, 0.0], fillcolor: [1.0, 1.0, 0.0], fillalpha: 0.46153846153846156, args: ["A", "C", "D"], alpha: 0.0},
+    {name: "Poly2", type: "Poly", color: [0.0, 0.0, 1.0], args: ["A", "D", "E"], size: 3},
+    {name: "Poly3", type: "Poly", color: [1.0, 1.0, 1.0], fillcolor: [1.0, 0.0, 0.0], fillalpha: 1.0, args: ["A", "E", "F"]},
+    {name: "Poly4", type: "Poly", color: [0.467, 0.0, 0.718], fillcolor: [0.0, 0.0, 0.0], fillalpha: 1.0, args: ["A", "F", "G"], alpha: 0.5811965811965812, size: 8},
+    {name: "Poly5", type: "Poly", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 0.0], fillalpha: 1.0, args: ["A", "G", "H", "B"]},
+    {name: "K", type: "Free", pos: [4.0, -0.0, 0.5], color: [1.0, 0.0, 0.0]},
+    {name: "L", type: "Free", pos: [4.0, 1.7320508075688772, 0.5], color: [1.0, 0.0, 0.0]},
+    {name: "M", type: "Free", pos: [4.0, 1.259673314595547, 0.36363636363636365], color: [1.0, 0.0, 0.0]},
+    {name: "N", type: "Free", pos: [4.0, -0.0, 0.36363636363636365], color: [1.0, 0.0, 0.0]},
+    {name: "Tr0", type: "TrProjection", color: [0.0, 0.0, 1.0], args: ["G", "K", "H", "N", "A", "M", "B", "L"], dock: {offset: [0.0, -0.0]}},
+    {name: "Poly6", type: "TransformPolygon", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 0.0], fillalpha: 1.0, args: ["Tr0", "Poly5"]}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 500,
+    height: 286,
+    transform: [{visibleRect: [-4.54, 4.78, 15.46, -6.66]}],
+    axes: true,
+    tgrid: 1.0,
+    snap: true,
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1865, version: [2, 9, 1865]}
+});
+    </script>
+</head>
+<body>
+  <div id="CSCanvas" style="border:2px solid black"></div>
+</body>
+</html>

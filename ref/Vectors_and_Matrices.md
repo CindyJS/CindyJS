@@ -9,8 +9,10 @@ Several arithmetic operations serve the particular purpose of calculating direct
 
 ###  Definition of Vectors and Matrices
 
-Any list can be considered as a "vector of objects." However, of particular interest are vectors of numbers.
-Such a vector will be called a "number vector." Whether a certain list is a number vector can be tested with the operator `isnumbervector(‹expr›)`.
+Any list can be considered as a “vector of objects”.
+However, of particular interest are vectors of numbers.
+Such a vector will be called a “number vector”.
+Whether a certain list is a number vector can be tested with the operator `isnumbervector(‹expr›)`.
 
 If the elements of a list are again lists, and if all these lists have the same length, then such a list is called a *matrix*.
 Whether a list is a matrix can be tested with the operator `ismatrix(‹expr›)`.
@@ -41,6 +43,15 @@ The following table summarizes the different admissible uses of the multiplicati
 | *n* × *r* matrix     | vector of length *r* | vector of length *n* | matrix × vector               |
 | vector of length *n* | *n* × *r* matrix     | vector of length *r* | vector × matrix               |
 | *n* × *r* matrix     | *r*× *m* matrix      | *n* × *m* matrix     | matrix multiplication         |
+
+If some of the elements of a matrix are not numbers, the result will be `___`.
+
+    > [[1,2],[3,4],[5,6]] * [[1,2,3,4],[5,6,7,8]]
+    < [[11, 14, 17, 20], [23, 30, 37, 44], [35, 46, 57, 68]]
+    > [[1,2],[3,4],[5,6]] * [[1,2,3,4],[5,6,7,"8"]]
+    < ___
+    > [[1,2],[3,4],[5,false]] * [[1,2,3,4],[5,6,7,8]]
+    < ___
 
 ------
 
@@ -181,7 +192,7 @@ This operator finds the maximum value in a list of entries.
 The maximum of an empty list is not defined.
 
     > max([])
-    < _?_
+    < ___
 
 ------
 
@@ -206,7 +217,7 @@ The two-argument form can however also be used to obtain the maximum of two numb
 The maximum of an empty list is not defined.
 
     > max([], 99)
-    < _?_
+    < ___
 
 ------
 
@@ -224,7 +235,7 @@ This operator is similar to the last one, except that the running variable is lo
 The maximum of an empty list is not defined.
 
     > max([], x, 99)
-    < _?_
+    < ___
 
 ------
 
@@ -239,7 +250,7 @@ This operator finds the minimum of a list of entries.
 The minimum of an empty list is not defined.
 
     > min([])
-    < _?_
+    < ___
 
 ------
 
@@ -263,7 +274,7 @@ The two-argument form can however also be used to obtain the minimum of two numb
 The minimum of an empty list is not defined.
 
     > min([], 99)
-    < _?_
+    < ___
 
 ------
 
@@ -281,7 +292,7 @@ This operator is similar to the last one, except that the running variable is lo
 The minimum of an empty list is not defined.
 
     > min([], x, 99)
-    < _?_
+    < ___
 
 ------
 
@@ -292,6 +303,8 @@ The minimum of an empty list is not defined.
 Besides addition and multiplication, as described earlier in this section, there are several operators responsible for vector and matrix administration.
 
 #### Dimensions of a matrix: `matrixrowcolum(‹matrix›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 If the argument is a matrix, this operator returns the number of rows and the number of columns of the matrix, encoded as a two-element list.
@@ -436,6 +449,8 @@ This operator is also very useful for geometric calculations.
 
 #### The Hermitian scalar product: `hermiteanproduct(‹vec1›,‹vec2›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator returns the Hermitian scalar product of two vectors.
 It is similar to the dot product `‹vec1›*‹vec2›`.
@@ -470,6 +485,8 @@ If the matrix *A* does change often it is more preferable to use the `linearsolv
 ------
 
 #### Adjunct of a square matrix: `adj(‹matrix›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator calculates the adjunct of a square matrix.
@@ -549,6 +566,7 @@ the sum of the matrix elements corresponding to that matching is minimized.
 The result is a list with one entry for each row of the matrix,
 indicating the index of the column matched to that row.
 
+    - only CindyJS
     > a = [
     > [ 2,  1,  5,  1,  1],
     > [ 2,  4, -8,  6,  0],
@@ -563,6 +581,7 @@ indicating the index of the column matched to that row.
 If the matrix has more columns than it has rows,
 some columns will remain unmatched.
 
+    - only CindyJS
     > a = [
     > [14,  0,  1,  1,  3,  9],
     > [-4, -3, -2, -1,  8,  1],
@@ -577,6 +596,7 @@ If the matrix has more rows than columns,
 then some rows will remain unmatched,
 indicated by a zero in the matching.
 
+    - only CindyJS
     > m = mincostmatching(transpose(a))
     < [2, 1, 0, 0, 3, 4]
     > sum(select(1..6, m_# > 0), a_(m_#)_#)
@@ -616,7 +636,7 @@ Applying the convex hull operator to this list produces the following output:
 Observe that the interior point has been properly removed, and that the convex hull operator can nicely handle coplanarities.
 
 The convex hull operator is remarkably robust to degenerate situations.
-The following image has been computed under usage of the `convexhull3d(...)` operator.
+The following image has been computed under usage of the `convexhull3d(…)` operator.
 It shows the section of a 4-dimensional polytope (a 600-cell) with a 3-dimensional space.
 
 ![A section of a 600-cell rendered with CindyScript](img/ConvexHullX.png)

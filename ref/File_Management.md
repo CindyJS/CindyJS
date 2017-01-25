@@ -11,6 +11,8 @@ Please note that these commands will not work with applets in HTML pages.
 
 #### Loading data: `load(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This operator takes the argument `‹string›`, which is considered to be a file name (possibly preceded by directory information).
 If the file name is legitimate, then the entire information contained in the file will be returned as a string.
@@ -22,7 +24,7 @@ Assume that in the file `LoadDemo.txt` contains the data
 
 `abc,gfdg;1,3,5.6,3.141;56,abc,xxx,yyy`
 
-The following code reads the data and creates a list by tokenizing it with respect to ";" and ",".
+The following code reads the data and creates a list by tokenizing it with respect to `;` and `,`.
 
     > x=load("LoadTest.txt");
     > y=tokenize(x,(";",","));
@@ -36,17 +38,61 @@ The resulting output is
 
 ------
 
+#### Loading data asynchroneously: `load(‹string›,‹var›,‹expr›)`
+
+**Description:**
+This version is supported by CindyJS.
+It loads a resource, identified by the HTTP or HTTPS URL `‹string›`.
+When the resource has finished loading,
+it will call execute `‹expr›` with the content of the resource
+treated as a string value and assigned to the variable `‹var›`.
+If loading the resource fails, `‹expr›` will get executed as well,
+but in this case `‹var›` is bound to the undefined value `___`.
+
+The function itself will return `true` if loading was started,
+or `___` if the `‹string›` argument was not a valid URL to be loaded.
+
+Note that the URL must be an absolute URL, at the time of this writing.
+
+**Example:**
+
+    > load("http://some.host/some/resource.txt", result,
+    >   if(isundefined(result),
+    >     err("Loading failed"),
+    >     err("Successfully loaded " + result)));
+
+------
+
+#### Loading data asynchroneously: `load(‹string›,‹expr›)`
+
+**Description:**
+This is a shorthand notation for `load(‹string›,#,‹expr›)`,
+using `#` as the variable referencing the result inside `‹expr›`.
+
+**Example:**
+
+    > load("http://some.host/some/resource.txt",
+    >   if(isundefined(#),
+    >     err("Loading failed"),
+    >     err("Successfully loaded " + #)));
+
+------
+
 #### Importing program code: `import(‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator takes the argument `‹string›`, which is considered to be a file name (including directory information).
 If the file name is legitimate, then the whole content of the file is assumed to be able to be parsed by CindyScript code, and it is immediately executed.
 In this way, one can load libraries with predefined functionality.
-It is advisable to use the `import` operator only in the "Init" section of CindyScript, since otherwise, the file will be read for each move.
+It is advisable to use the `import` operator only in the “Init” section of CindyScript, since otherwise, the file will be read for each move.
 
 ------
 
 #### Setting the directory: `setdirectory(‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This operator sets the directory for all subsequent file operations.
@@ -65,6 +111,8 @@ This can be done using the following commands.
 
 #### Opening a file: `openfile(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Opens a file with the specified name.
 The function returns a handle to the file that is needed for subsequent print operations.
@@ -73,21 +121,27 @@ The function returns a handle to the file that is needed for subsequent print op
 
 #### Println to a file: `println(‹file›,‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
-Identical to the `println(...)` command.
+Identical to the `println(…)` command.
 However this command prints to the file specified by `‹file›`.
 
 ------
 
 #### Print to a file: `print(‹file›,‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
-Identical to the `print(...)` command.
+Identical to the `print(…)` command.
 However this command prints to the file specified by `‹file›`.
 
 ------
 
 #### Print to a file: `closefile(‹file›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This command finally closes the file.
@@ -114,8 +168,10 @@ This code generates a file with the following content:
 
 #### Opening a web page: `openurl(‹string›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
-Opens a browser with the webpage given in &lt;string&gt;.
+Opens a browser with the webpage given in ‹string›.
 
 ------
 
@@ -144,6 +200,8 @@ You should be able to send and retrieve data over the internet.
 
 #### Open a TCP port: `openconnection(‹string›,‹int›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Opens a bidirectional tcp connection to the server specified by the first argument and the port specified by the second argument.
 The return value is a handle to this network connection.
@@ -161,7 +219,11 @@ In the following example we open a connection to a web server and read the HTML 
 
 #### Write to a TCP connection: `print(‹handle›,‹string›)`
 
+**Not available in CindyJS yet!**
+
 #### Write to a TCP connection: `println(‹handle›,‹string›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 The `print` and `println` functions not only support writing to a file, but also to a network connection created by `openconnection`.
@@ -170,12 +232,16 @@ The `print` and `println` functions not only support writing to a file, but also
 
 #### Flush output to a TCP port: `flush(‹handle›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Flushes the output buffer of the given connection.
 
 ------
 
 #### Read from a TCP connection: `readln(‹handle›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Reads a line from the given connection.
@@ -184,6 +250,8 @@ If no data can be read, this command times out after 5 seconds.
 ------
 
 #### Close a TCP connection: `closeconnection(‹handle›)`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 Closes the connection given by the handle.

@@ -4,14 +4,14 @@ var csport = {};
 csport.drawingstate = {};
 csport.drawingstate.linecolor = "rgb(0,0,255)";
 csport.drawingstate.linecolorraw = [0, 0, 1];
-csport.drawingstate.pointcolor = "rgb(255,200,0)";
-csport.drawingstate.pointcolorraw = [1, 0.78, 0];
+csport.drawingstate.pointcolor = "rgb(0,255,0)";
+csport.drawingstate.pointcolorraw = [0, 1, 0];
 csport.drawingstate.textcolor = "rgb(0,0,0)";
 csport.drawingstate.textcolorraw = [0, 0, 0];
 csport.drawingstate.alpha = 1.0;
 csport.drawingstate.pointsize = 4.0;
 csport.drawingstate.linesize = 1.0;
-csport.drawingstate.textsize = 20;
+csport.drawingstate.textsize = null; // use defaultAppearance.textsize
 
 csport.drawingstate.matrix = {};
 csport.drawingstate.matrix.a = 25;
@@ -82,6 +82,16 @@ csport.to = function(px, py) { //Rechnet Pixelkoordinaten in Homogene Koordinate
     return [x, y, 1];
 };
 
+// Homogeneous matrix representation of csport.to
+csport.toMat = function() {
+    var m = csport.drawingstate.matrix;
+    return List.realMatrix([
+        [m.d, -m.b, -m.tx * m.d - m.ty * m.b],
+        [m.c, -m.a, -m.tx * m.c - m.ty * m.a],
+        [0, 0, m.det]
+    ]);
+};
+
 csport.dumpTrafo = function() {
 
     function r(x) {
@@ -141,10 +151,6 @@ csport.applyMat = function(a, b, c, d, tx, ty) {
         m.b * c + m.d * d,
         m.a * tx + m.c * ty + m.tx,
         m.b * tx + m.d * ty + m.ty);
-    var tl = csport.to(0, -csh);
-    var br = csport.to(csw, 0);
-    console.log("{visibleRect: [" +
-        tl[0] + "," + tl[1] + "," + br[0] + "," + br[1] + "]}");
 };
 
 csport.translate = function(tx, ty) {

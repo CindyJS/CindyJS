@@ -36,7 +36,7 @@ module.exports = {
       }
       prevfile = file;
 
-      if (smc) {
+      if (smc && line >= 1) {
         var orig = smc.originalPositionFor({
           line: line,
           column: col

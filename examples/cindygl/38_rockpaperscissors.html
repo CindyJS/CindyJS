@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Rock–paper–scissors in RGB</h1>
+		An almost continious celluar automaton where red beats green, green beats blue and blue beats red. The parameters vary over the area.
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+			pressed = false;
+    </script>
+		
+		<script id="csmousedown" type="text/x-cindyscript">
+			pressed = true;
+		</script>
+		
+		<script id="csmouseup" type="text/x-cindyscript">
+			pressed = false;
+		</script>
+		
+    <script id="csdraw" type="text/x-cindyscript">
+    if(imageready("image"),
+       L = [0, 0];
+       R = [imagesize("image")_1, 0];
+       
+       read(p) := imagergb(L, R, "image", p, interpolate->false);
+       colorplot(L, R, "image",
+				p = (#.x /imagesize("image")_1, #.y / imagesize("image")_2);
+				f = p.y/3; //feed
+				d = p.x+.1;	//killing
+			  nbh = .5*read(# + (-1, 1)) +
+        			read(# + (0,  1)) +
+        			.5*read(# + (1,  1)) +
+        			read(# + (-1, 0)) +
+        			read(# + (1,  0)) +
+        			.5*read(# + (-1,-1)) +
+        			read(# + (0, -1)) +
+        			.5*read(# + (1, -1));
+							
+				nbh = nbh/6;
+				nc = if(pressed & |p, mouse()| < .02, (0, 0, 0), 
+        	read(#) + f*nbh - d*(nbh.b, nbh.r, nbh.g);
+				);
+				(min(1, max(nc.r, 0)), min(1, max(nc.g, 0)), min(1, max(nc.b, 0))); //clamp
+       );
+			 
+       
+       drawimage([0, 0], [1, 0], "image");
+     );
+    </script>
+    
+		<script id="cskeydown" type="text/x-cindyscript">
+			if(keycode()==32 % keycode()==82, colorplot("image", (random(), random(), random()))); //space or R -> random image
+		</script>
+
+    <div  id="CSCanvas" style="position:relative; top:0px;"></div>
+    
+    <script type="text/javascript">
+        var gslp=[];
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    animation: {autoplay: true},
+                    geometry: gslp,
+                    images: {image: "image.png"},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 600,
+                      height: 600,
+                      transform: [ { visibleRect: [0, 0, 1, 1] } ]
+                    }]
+                    }
+        );
+    </script>
+
+
+	</body>
+</html>

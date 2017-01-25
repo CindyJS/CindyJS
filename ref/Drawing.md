@@ -4,7 +4,7 @@ In addition to its computing facilities, one of the most important features of C
 This section is about the output part.
 One can easily draw points and lines by invoking a graphics operator within CindyScript.
 It is important to mention that these drawings of points or lines are not geometric objects of the Cinderella construction.
-These elements serve purely "decorative" purposes, and it is impossible to apply geometric Cinderella construction steps to them.
+These elements serve purely “decorative” purposes, and it is impossible to apply geometric Cinderella construction steps to them.
 Nevertheless, they are extremely useful, since often one wants to create complicated-looking output that is not directly constructible by geometric means.
 Then it is often very easy to write a few lines of CindyScript code that generate the output.
 In particular, CindyScript is very useful if generation of the output requires repetitive application of constructions.

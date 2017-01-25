@@ -19,7 +19,7 @@ public class JavaScriptBindings implements EntryPoint {
     }
 
     private native void register() /*-{
-        $wnd.createCindy.registerPlugin(1, "quickhull3d", function(api) {
+        $wnd.CindyJS.registerPlugin(1, "quickhull3d", function(api) {
             var impl = $entry(@cindyjs.quickhull3d.JavaScriptBindings::convexhull(Lcindyjs/CjsValue;));
             api.defineFunction("convexhull3d", 1, function(args, modifs) {
                 var v0 = api.evaluate(args[0]);

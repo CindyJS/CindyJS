@@ -24,8 +24,8 @@ See http://mc2dme.appspot.com/dwo/dwo.jsp?profile=78&language=en&scoViewNr=56868
 
 Here, we also give some written explanations of how to do this.
 At first, notice that after having added a widget to a c-book which uses scores in edit mode, you will have to click on the widget in order to open up the widget editor window.
-There you have to make sure the "include in grading" ("teltMee" in Dutch) check box on top of the window is checked, and that the max score is set to a positive number.
-Moreover, you either have to check the "add check button" checkbox or not, depending on how the widget interacts with the CBE.
+There you have to make sure the “include in grading” (“teltMee” in Dutch) check box on top of the window is checked, and that the max score is set to a positive number.
+Moreover, you either have to check the “add check button” checkbox or not, depending on how the widget interacts with the CBE.
 
 In order to produce your own widget which supports scores, you may use the following functions which are described in more detail below:
 
@@ -41,6 +41,8 @@ In order to produce your own widget which supports scores, you may use the follo
 
 #### Setting the current max score: `setmaxscore(‹newmaxscore›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This function sets the internal version of maxscore to the value newmaxscore.
 newmaxscore has to be a non-negative integer.
@@ -49,11 +51,15 @@ So, this function is just for testing purposes as long as the widget is still ru
 
 #### Getting the maximum possible score of the widget from the CBE: `getmaxscore()`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This function returns the maximum possible score of the current widget which was specified in the widget editor.
 In the CBE, this is usually a non-negative integer.
 
 #### Getting the current score: `getscore()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This function returns the current score of the current widget.
@@ -62,11 +68,15 @@ It is usually a non-negative integer.
 
 #### Setting the current score: `setscore(‹newscore›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 This function set the current score of the current widget to the value newscore.
 Newscore has to be a non-negative integer.
 
 #### Tell the CBE to read this widget's current score: `check()`
+
+**Not available in CindyJS yet!**
 
 **Description:**
 This function tells the CBE to ask this widget for the current score (which has been set be setscore() earlier).
@@ -101,28 +111,28 @@ Actually, this is the most natural thing.
 E.g., based on the following code, it might pass to the widget the code:
 B.x=3
 C.x=-4
-The Cinderella widget simply takes these lines of code and executes them, after having executed the Cinderella widget "initialization".
+The Cinderella widget simply takes these lines of code and executes them, after having executed the Cinderella widget “initialization”.
 
 Thus, if B and C are free points, everything is fine.
 
 However, we do not want to allow the user to move B and C.
-For this, we may use Cinderella's "pinning" property.
-Most Cinderella objects can be "pinned" to a fixed coordinate, i.e.
+For this, we may use Cinderella's “pinning” property.
+Most Cinderella objects can be “pinned” to a fixed coordinate, i.e.
 they are not allowed to be moved using the mouse or anything else.
 
-So, what we have to do to be able to set the x-coordinates of B and C after the "initialization" is to
-1.
-set the pinning property to "false" for B and C (or even for all points) in the "initialization" event
-2.
-and to set it later (e.g., in the "draw" event) to "true".
+So, what we have to do to be able to set the x-coordinates of B and C after the “initialization” is to
 
-This can be achieved using the following [CindyScript](CindyScript.md) code.
-Paste this into the "initialization" event part of the Cinderella "[CindyScript](CindyScript.md) Editor":
+1. set the pinning property to “false” for B and C (or even for all points) in the “initialization” event
+
+2. and to set it later (e.g., in the “draw” event) to “true”.
+
+This can be achieved using the following CindyScript code.
+Paste this into the “initialization” event part of the Cinderella "CindyScript Editor":
 
 forall(allpoints(), inspect(,"pinning", false));
 
 In order to pinn the points after having changed the x-coordinates of B and C,
-paste this into the "draw" event part of the Cinderella "[CindyScript](CindyScript.md) Editor":
+paste this into the "draw" event part of the Cinderella "CindyScript Editor":
 
 forall(allpoints(), inspect(,"pinning", true));
 
@@ -135,12 +145,12 @@ We will not go into this here.
 
 Moreover, not only coordinates of points can be set via the random parameters feature.
 
-You may change any other numerical property of a Cinderella object which is changeable from [CindyScript](CindyScript.md) via the syntax
+You may change any other numerical property of a Cinderella object which is changeable from CindyScript via the syntax
 
 ...
 = integer number
 
-E.g., points also have a y-coordinate, so if you type the following into the "variables for random parameters"
+E.g., points also have a y-coordinate, so if you type the following into the “variables for random parameters”
 textarea in the DME at the bottom right of a page
 A.x = -5..5
 A.y=-3..3

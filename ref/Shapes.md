@@ -43,10 +43,20 @@ This operator creates a rectangular shape that is large enough to cover all acti
 
 Primitive shapes can be combined to form new shapes using three logical operators.
 
-| `‹shape1›++‹shape2›` | creates the union of two shapes        |
-| -------------------- | -------------------------------------- |
-| `‹shape1›~~‹shape2›` | creates the intersection of two shapes |
-| `‹shape1›--‹shape2›` | creates the difference of two shapes   |
+#### Union of shapes: `‹shape1›++‹shape2›`
+
+Creates the union of two shapes.
+Its interior is any point inside either ‹shape1› or ‹shape2›.
+
+#### Intersection of shapes: `‹shape1›~~‹shape2›`
+
+Creates the intersection of two shapes.
+Its interior is any point inside both ‹shape1› and ‹shape2›.
+
+#### Difference of shapes: `‹shape1›--‹shape2›`
+
+Creates the (asymmetric) difference of two shapes.
+Its interior is any point inside ‹shape1› which is outside ‹shape2›.
 
 ------
 
@@ -112,13 +122,12 @@ The original shapes are outlined by a thinner line.
 The resulting image is shown as the first picture below.
 The other three images are created using other combinations of the shapes.
 
-| ![Image](img/Shape1X.png) | ![Image](img/Shape3X.png) |
+|                           |                           |
 | ------------------------- | ------------------------- |
-|
-| shape1++shape2++shape3    | shape1~~shape2~~shape3    |
-|                           |
+| ![Image](img/Shape1X.png) | ![Image](img/Shape3X.png) |
+| `shape1++shape2++shape3`  | `shape1~~shape2~~shape3`  |
 | ![Image](img/Shape2X.png) | ![Image](img/Shape4X.png) |
-| shape1++shape2--shape3    | shape1++shape2~~shape3    |
+| `shape1++shape2--shape3`  | `shape1++shape2~~shape3`  |
 
 The following code snippet demonstrates the usage of shapes as a clipping path.
 First of all, four circles and their union are defined as a shape.
@@ -133,9 +142,7 @@ Then this shape is used as a clipping path for another drawing (concentric circl
     > greset();
     > draw(shape,color->(1,1,1),size->2);
 
-| ![Image](img/Shape5.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/Shape5.png)
 
 Shapes can become rather complicated objects, as the following iterative example shows.
 A word of caution may be appropriate here: The more complicated shape become, the more computational resources they consume.
@@ -153,6 +160,4 @@ The use of overly complex shapes can slow down Cinderella considerably.
     > fill(shape,color->(1,0.7,0));
     > draw(shape,color->(0,0,0),size->2);
 
-| ![Image](img/Shape6.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/Shape6.png)

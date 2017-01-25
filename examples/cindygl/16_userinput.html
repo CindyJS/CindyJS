@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+
+	<body style="font-family:Arial;">
+
+    <h1>CindyJS: Complex Function Plot with user input</h1>
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+       f(z) := (
+        z/(z-a)
+      );
+
+      t0 = seconds();
+    </script>
+    <script id="csdraw" type="text/x-cindyscript">
+     t = seconds()-t0;
+     a = complex(A.xy);
+     colorplot(hue(im(log(f(complex(#))))/2/pi));
+     //plot(f(#));
+    </script>
+
+
+    <div  id="CSCanvas" style="width:500px; height:400px; position:relative; top:0px;"></div>
+
+    <script type="text/javascript">
+        var gslp=[{name:"A", kind:"P", type:"Free", pos:[-2,2]}];
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    animation: {autoplay: true},
+                    geometry:gslp
+                    }
+        );
+
+
+
+var typ=function(e, b){
+  var chCode=e.which ? e.which:e.keyCode;
+  if(chCode==13){
+    console.log("*************");
+
+    console.log(b.value);
+    cdy.evokeCS('f(z) := (' + b.value + ');');
+  }
+}
+
+</script>
+
+    <p>
+      f(z) := <input type="text" name="inp" value="z/(z-a)" onkeypress="typ(event, this);" size="50" style="font-size:18px">
+    </p>
+    <p>
+      You can use variables <i>t</i> or <i>a</i> for the time or the position of the point respectively.
+    </p>
+	</body>
+</html>

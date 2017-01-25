@@ -35,11 +35,11 @@ drawtext((3,-5.5),fmt(d_3,2)+"."+fmt(d_2,2)+"."+d_1);
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({
+var cdy = CindyJS({
   canvasname: "CSCanvas",
   scripts: "cs*",
   language: "en",
-  autoplay: true,
+  animation: {autoplay: true},
   defaultAppearance: {}
 });
 
@@ -47,8 +47,7 @@ var cdy = createCindy({
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="500" height="500"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
 </body>
 
 </html>

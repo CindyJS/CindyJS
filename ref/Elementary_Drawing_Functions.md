@@ -16,7 +16,7 @@ For the first two we assume that `x`, `y`, and `z` are numbers.
 | `draw([x,y,z])` | Draws a point with homogenous coordinates given by `[x,y,z]` |
 
 A word on homogeneous coordinates: If `[x,y,z]` are the homogeneous coordinates of a point, then the corresponding point that will be drawn has *xy*-coordinates `[x/z,y/z]`.
-Points that have homogeneous coordinates with `z=0` correspond to "points at infinity." You won't see them in a usual Cinderella Euclidean view.
+Points that have homogeneous coordinates with `z=0` correspond to “points at infinity”. You won't see them in a usual Cinderella Euclidean view.
 However, they will be drawn in spherical view (or when a local projective basis is set (see [Script Coordinate System](Script_Coordinate_System.md)).
 
 **Drawing a segment:**
@@ -45,9 +45,7 @@ Furthermore, the segments appear in front of the points, since their drawing ope
     > draw([C,D]);draw([D,A]);
     > draw([C,E]);draw([B,E]);
 
-| ![Image](img/HouseX.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/HouseX.png)
 
 **Drawing a line:**
 Homogeneous coordinates can also be used to represent lines.
@@ -105,9 +103,7 @@ The following piece of code illustrates the effect of the dashing modifiers.
     > draw((13,0),(13,6),dashpattern->[0,4,2,4]);
     > draw((14,0),(14,6),dashpattern->[4,2,1,2]);
 
-| ![Image](img/Dashing.png) |
-| ------------------------- |
-| ****                      |
+![Image](img/Dashing.png)
 
 **See also:**
 [Script Coordinate System](Script_Coordinate_System.md) and [Geometric Operators](Geometric_Operators.md)
@@ -151,9 +147,7 @@ In the final two lines the `draw` operator is used to draw these lists of object
     > drawall(segs,alpha->0.9);
     > drawall(pts,size->4);
 
-| ![Image](img/CompleteGraphX.png) |
-| -------------------------------- |
-| ****                             |
+![Image](img/CompleteGraphX.png)
 
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
@@ -175,9 +169,7 @@ Finally, the `connect` operator connects these points in the given sequential or
     > sortpts=sort(pts,#.x);
     > connect(sortpts);
 
-| ![Image](img/ConnectTheDotsX.png) |
-| --------------------------------- |
-| ****                              |
+![Image](img/ConnectTheDotsX.png)
 
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
@@ -215,9 +207,7 @@ In each iteration step of the `repeat` loop the square is drawn, and after this 
     >   scale(0.95);
     > )
 
-| ![Image](img/DrawPolyX.png) |
-| --------------------------- |
-| ****                        |
+![Image](img/DrawPolyX.png)
 
 **Modifiers:**
 This operator can handle the following modifiers:
@@ -233,7 +223,7 @@ This operator can handle the following modifiers:
 
 **Description:**
 Draws a circle at `‹point›` with radius given by a number `‹radius›`.
-The point may be given either in euclidean or in homogeneous coordinates.
+The point may be given either in Euclidean or in homogeneous coordinates.
 
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
@@ -244,7 +234,7 @@ This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
 **Description:**
 Draws the interior of a circle at `‹point›` with radius given by a number `‹radius›`.
-The point may be given either in euclidean or in homogeneous coordinates.
+The point may be given either in Euclidean or in homogeneous coordinates.
 
 **Modifiers:**
 This operator can handle the following modifiers:
@@ -263,9 +253,7 @@ The following piece of code shows a combined usage of the `drawcircle` and the `
     >  translate((1.5,0));rotate(26°);scale(.95);
     > );
 
-| ![Image](img/FillCircleX.png) |
-| ----------------------------- |
-| ****                          |
+![Image](img/FillCircleX.png)
 
 ------
 
@@ -274,7 +262,7 @@ The following piece of code shows a combined usage of the `drawcircle` and the `
 **Description:**
 Draws a circular arc from `‹point1›` to `‹point3›` via `‹point2›`.
 
-The points may be given either in euclidean or in homogeneous coordinates.
+The points may be given either in Euclidean or in homogeneous coordinates.
 
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
@@ -285,7 +273,7 @@ This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
 **Description:**
 Draws the interior of a circular arc `‹point1›` to `‹point3›` via `‹point2›`.
-The points may be given either in euclidean or in homogeneous coordinates.
+The points may be given either in Euclidean or in homogeneous coordinates.
 
 **Modifiers:**
 This operator can handle the following modifiers:

@@ -5,7 +5,7 @@ var labObjects = {};
 
 labObjects.Mass = {
 
-    init: function(beh, elem) {
+    reset: function(beh, elem) {
         beh.vel = [0, 0, 0]; //TODO: Das wird später mal die Velocity
         beh.pos = [0, 0, 0, 0]; //Position (homogen) 
 
@@ -383,7 +383,7 @@ labObjects.Mass = {
 
 labObjects.Sun = {
 
-    init: function(beh, elem) {
+    reset: function(beh, elem) {
         beh.vel = [0, 0, 0]; //TODO: Das wird später mal die Velocity
         beh.pos = [0, 0, 0, 0]; //Position (homogen) 
 
@@ -485,12 +485,71 @@ labObjects.Sun = {
 };
 
 
+/*-------------------------VELOCITY-----------------------*/
+labObjects.Velocity = {
+
+
+    reset: function(beh) {
+        var mass = csgeo.csnames[beh.geo[1]];
+        console.log(mass);
+        var base = eval_helper.extractPoint(mass.homog);
+        var tip = eval_helper.extractPoint(csgeo.csnames[beh.geo[2]].homog);
+        var bb = mass.behavior;
+        labObjects[bb.type].setVelocity(bb, tip.x - base.x, tip.y - base.y, 0);
+    },
+
+    resetForces: function(beh) {},
+
+    getBlock: false,
+
+    setToTimestep: function(beh, j, a) {},
+
+    initRK: function(beh, dt) {},
+
+    setVelocity: function(beh, vx, vy, vz) {},
+
+    move: function(beh) {
+        var tip = csgeo.csnames[beh.geo[2]];
+        if (move && mouse.down && tip === move.mover) return;
+        var mass = csgeo.csnames[beh.geo[1]];
+        var base = eval_helper.extractPoint(mass.homog);
+        var bb = mass.behavior;
+        var pos = List.realVector([base.x + bb.vx, base.y + bb.vy, 1]);
+        movepointscr(tip, pos, "homog");
+    },
+
+    proceedMotion: function(beh, dt, i, a) {},
+
+    calculateForces: function(beh) {},
+
+    calculateDelta: function(beh, i) {},
+
+    savePos: function(beh, i) {},
+
+    restorePos: function(beh, i) {},
+
+    sqDist: function(beh, i, j) {
+        return 0;
+    },
+
+    kineticEnergy: function(beh) {},
+
+    storePosition: function(beh) {},
+
+    recallPosition: function(beh) {},
+
+    doCollisions: function(beh) {}
+
+
+};
+
+
 /*----------------------------GRAVITY--------------------------*/
 
 
 labObjects.Gravity = {
 
-    init: function(beh, elem) {
+    reset: function(beh, elem) {
         beh.vel = [0, 0, 0]; //TODO: Das wird später mal die Velocity
         beh.pos = [0, 0, 0, 0]; //Position (homogen) 
 
@@ -573,7 +632,7 @@ labObjects.Gravity = {
 /*-------------------------SPRING-----------------------*/
 labObjects.Spring = {
 
-    init: function(beh, elem) {
+    reset: function(beh, elem) {
 
         beh.el = elem;
         if (typeof(beh.strength) === 'undefined') beh.strength = 1;
@@ -708,7 +767,7 @@ labObjects.det = function(x1, y1, x2, y2, x3, y3) {
 labObjects.Bouncer = {
 
 
-    init: function(beh, elem) {
+    reset: function(beh, elem) {
 
         beh.el = elem;
         if (typeof(beh.xdamp) === 'undefined') beh.xdamp = 0;
@@ -869,8 +928,8 @@ labObjects.Environment = {
         if (typeof(beh.gravity) === 'undefined') beh.gravity = 0;
         if (typeof(beh.friction) === 'undefined') beh.friction = 0;
         if (typeof(beh.springstrength) === 'undefined') beh.springstrength = 1;
-        if (typeof(beh.accuracy) === 'undefined') beh.accuracy = 10;
-        if (typeof(beh.deltat) === 'undefined') beh.deltat = 0.3;
+        if (typeof(beh.accuracy) !== 'undefined') simaccuracy = beh.accuracy;
+        if (typeof(beh.deltat) !== 'undefined') setSpeed(beh.deltat / 0.6);
         if (typeof(beh.charges) === 'undefined') beh.charges = false;
         if (typeof(beh.balls) === 'undefined') beh.balls = false;
         if (typeof(beh.newton) === 'undefined') beh.newton = false;
@@ -880,8 +939,9 @@ labObjects.Environment = {
         beh.lowestdeltat = 0.0000001;
         beh.slowdownfactor = 2;
 
-
     },
+
+    reset: function(beh) {},
 
     resetForces: function(beh) {},
 
@@ -993,7 +1053,7 @@ labObjects.Environment = {
             var m = masses[i];
 
             m.behavior.fx += 0;
-            m.behavior.fy += beh.gravity;
+            m.behavior.fy += -beh.gravity * m.behavior.mass;
             m.behavior.fz += 0;
 
 

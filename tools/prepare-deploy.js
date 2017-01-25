@@ -20,17 +20,41 @@ var handlers = {
     "Cindy.plain.js.map": false,
     "Cindy3D.js": true,
     "Cindy3D.js.map": map,
+    "CindyGL.js": true,
+    "CindyGL.js.map": map,
+    "CindyJS.css": true,
+    "CindyJS.css.map": map,
+    "Compiled.js": false,
+    "ComplexCurves.js": true,
+    "ComplexCurves.glsl.js": false,
+    "Version.js": false,
     "WEB-INF": false,
     "c3dres.js": false,
+    "cglres.js": false,
     "exposed.js": false,
     "exposed.js.map": false,
+    "images": true,
     "katex": true,
     "katex-plugin.js": true,
     "ours.js": false,
     "ours.js.map": false,
+    "pako.min.js": true,
     "quickhull3d": true,
     "webfont.js": true,
 };
+
+var exitStatus = 0;
+
+process.once('beforeExit', function() {
+    process.exit(exitStatus);
+});
+
+function check(err) {
+    if (err) {
+        console.error(err.stack);
+        exitStatus = 1;
+    }
+}
 
 child_process.execFile("git", ["rev-parse", "HEAD"], function(err, stdout, stderr) {
     if (err) {
@@ -50,8 +74,11 @@ function lsDir(err, files) {
     files.forEach(function(filename) {
         var inFile = path.join(inDir, filename);
         var handler = handlers[filename];
-        if (handler === undefined)
-            throw new Error("Don't know whether to keep " + filename);
+        if (handler === undefined) {
+            console.error("Don't know whether to keep " + filename);
+            exitStatus = 2;
+            return;
+        }
         if (handler === false)
             return;
         if (handler === true) {
@@ -66,10 +93,10 @@ function subst(name, err, content) {
     if (err) throw err;
     content = content.toString();
     content = content.replace(/\$gitid\$/, head);
-    fs.writeFile(path.join(outDir, name), content);
+    fs.writeFile(path.join(outDir, name), content, check);
 }
 
-var mapKeys = ["version", "file", "sourceRoot", "sources", "names", "mappings"];
+var mapKeys = ["version", "file", "sourceRoot", "sources", "sourcesContent", "names", "mappings"];
 mapKeys.reverse(); // so that missing keys (indexOf returns -1) go to the end
 
 function map(name, err, content) {
@@ -82,7 +109,12 @@ function map(name, err, content) {
     var root = map.sourceRoot || ".";
     map.sourceRoot = "https://raw.githubusercontent.com/CindyJS/CindyJS/" + head + "/";
     map.sources = map.sources.map(function(src) {
+        if (/^ \[synthetic:.*\] $/.test(src)) return src;
         return ppath.normalize(ppath.join("build/js", root, src));
+    });
+    map.sourcesContent = map.sources.map(function(src) {
+        if (!/^build/.test(src)) return null;
+        return fs.readFileSync(src, "utf-8");
     });
     var keys = Object.keys(map);
     keys.sort(function(a, b) {
@@ -91,7 +123,7 @@ function map(name, err, content) {
     content = "{" + keys.map(function(key) {
         return JSON.stringify(key) + ":" + JSON.stringify(map[key]);
     }).join(",\n ") + "}\n";
-    fs.writeFile(path.join(outDir, name), content);
+    fs.writeFile(path.join(outDir, name), content, check);
 }
 
 function copy(inPath, outPath, err, stats) {

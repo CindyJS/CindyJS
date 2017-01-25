@@ -1,82 +1,63 @@
 /*jshint -W069 */
 
-var operators = {};
-operators[':'] = 20; //Colon: Feldzugriff auf Selbstdefinierte Felder
-operators['.'] = 25; //Dot: Feldzugriff
-operators['\u00b0'] = 25; //Degree
-operators['_'] = 50; //x_i i-tes Element von x
-operators['^'] = 50; //hoch
-operators['*'] = 100; //Multiplikation (auch für Vectoren, Scalarmul)
-operators['/'] = 100; //Division (auch für Vectoren, Scalerdiv)
-operators['+'] = 200; //Addition (auch für Vectoren, Vectorsumme)
-operators['-'] = 200; //Subtraktion (auch für Vectoren, Vectordiff)
-operators['!'] = 200; //Logisches Not (einstellig)
-operators['=='] = 300; //Equals
-operators['~='] = 300; //approx Equals
-operators['~<'] = 300; //approx smaller
-operators['~>'] = 300; //approx greater
-operators['=:='] = 300; //Equals after evaluation
-operators['>='] = 300; //Größergleich
-operators['<='] = 300; //Kleinergleich
-operators['~>='] = 300; //ungefähr Größergleich
-operators['~<='] = 300; //ungefähr Kleinergleich
-operators['>'] = 300; //Größer
-operators['<'] = 300; //Kleiner
-operators['<>'] = 300; //Ungleich
-operators['&'] = 350; //Logisches Und
-operators['%'] = 350; //Logisches Oder
-operators['!='] = 350; //Ungleich
-operators['~!='] = 350; //ungefähr Ungleich
-operators['..'] = 350; //Aufzählung 1..5=(1,2,3,4,5)
-operators['++'] = 370; //Listen Aneinanderhängen
-operators['--'] = 370; //Listen wegnehmen
-operators['~~'] = 370; //Gemeinsame Elemente
-operators[':>'] = 370; //Append List
-operators['<:'] = 370; //Prepend List
-operators['='] = 400; //Zuweisung
-operators[':='] = 400; //Definition
-operators[':=_'] = 400; //Definition
-operators['::='] = 400; //Definition
-operators['->'] = 400; //Modifier
-operators[','] = 500; //Listen und Vektoren Separator
-operators[';'] = 500; //Befehlsseparator
-
+var myfunctions = {};
 
 var infixmap = {};
+infixmap[':'] = operator_not_implemented(':');
+// infixmap['.'] not needed thanks to definitionDot special handling
+infixmap['°'] = postfix_numb_degree;
+infixmap['_'] = infix_take;
+infixmap['^'] = infix_pow;
+infixmap['√'] = infix_sqrt;
+infixmap['*'] = infix_mult;
+infixmap['×'] = infix_cross;
+infixmap['/'] = infix_div;
 infixmap['+'] = infix_add;
 infixmap['-'] = infix_sub;
-infixmap['*'] = infix_mult;
-infixmap['/'] = infix_div;
-infixmap['^'] = infix_pow;
-infixmap['°'] = postfix_numb_degree;
-infixmap[';'] = infix_semicolon;
-infixmap['='] = infix_assign;
-infixmap['..'] = infix_sequence;
-infixmap[':='] = infix_define;
+infixmap['!'] = prefix_not;
 infixmap['=='] = comp_equals;
-infixmap['!='] = comp_notequals;
 infixmap['~='] = comp_almostequals;
-infixmap['~!='] = comp_notalmostequals;
-infixmap['>'] = comp_gt;
-infixmap['<'] = comp_lt;
+infixmap['~<'] = comp_ult;
+infixmap['~>'] = comp_ugt;
+infixmap['=:='] = operator_not_implemented('=:=');
 infixmap['>='] = comp_ge;
 infixmap['<='] = comp_le;
-infixmap['~>'] = comp_ugt;
-infixmap['~<'] = comp_ult;
 infixmap['~>='] = comp_uge;
 infixmap['~<='] = comp_ule;
+infixmap['>'] = comp_gt;
+infixmap['<'] = comp_lt;
+infixmap['<>'] = comp_notequals;
+infixmap['∈'] = infix_in;
+infixmap['∉'] = infix_nin;
 infixmap['&'] = infix_and;
 infixmap['%'] = infix_or;
-infixmap['!'] = prefix_not;
-infixmap['_'] = infix_take;
+infixmap['!='] = comp_notequals;
+infixmap['~!='] = comp_notalmostequals;
+infixmap['..'] = infix_sequence;
 infixmap['++'] = infix_concat;
-infixmap['~~'] = infix_common;
 infixmap['--'] = infix_remove;
+infixmap['~~'] = infix_common;
 infixmap[':>'] = infix_append;
 infixmap['<:'] = infix_prepend;
+infixmap['='] = infix_assign;
+infixmap[':='] = infix_define;
+infixmap[':=_'] = postfix_undefine;
+infixmap['::='] = operator_not_implemented('::=');
+// infixmap['->'] not needed thanks to modifierOp special handling
+infixmap[';'] = infix_semicolon;
 
 /*jshint +W069 */
 
+function operator_not_implemented(name) {
+    var first = true;
+    return function(args, modifs) {
+        if (first) {
+            console.error("Operator " + name + " is not supported yet.");
+            first = false;
+        }
+        return nada;
+    };
+}
 
 //****************************************************************
 // this function is responsible for evaluation an expression tree
@@ -86,8 +67,11 @@ function niceprint(a) {
     if (typeof a === 'undefined') {
         return '_??_';
     }
+    if (a === null) {
+        return '_???_';
+    }
     if (a.ctype === 'undefined') {
-        return '_?_';
+        return '___';
     }
     if (a.ctype === 'number') {
         return CSNumber.niceprint(a);
@@ -109,6 +93,9 @@ function niceprint(a) {
         }
         return erg + "]";
     }
+    if (a.ctype === 'dict') {
+        return Dict.niceprint(a);
+    }
     if (a.ctype === 'function') {
         return 'FUNCTION';
 
@@ -127,16 +114,18 @@ function niceprint(a) {
         return "Error: " + a.message;
     }
     if (a.ctype === 'variable') {
-        console.log("HALLO");
-        return niceprint(a.stack[length.stack]);
+        return niceprint(namespace.getvar(a.name));
     }
 
     if (a.ctype === 'geo') {
         return a.value.name;
     }
+    if (a.ctype === 'image') {
+        return "IMAGE";
+    }
 
 
-    return "__";
+    return "_?_";
 
 }
 
@@ -146,7 +135,7 @@ function niceprint(a) {
 //this is the container for self-defined functions
 //Distinct form evaluator for code clearness :-)
 //*******************************************************
-function myfunctions(name, args, modifs) {
+function evalmyfunctions(name, args, modifs) {
     var tt = myfunctions[name];
     if (tt === undefined) {
         return nada;
@@ -180,7 +169,7 @@ var eval_helper = {};
 
 eval_helper.evaluate = function(name, args, modifs) {
     if (myfunctions.hasOwnProperty(name))
-        return myfunctions(name, args, modifs);
+        return evalmyfunctions(name, args, modifs);
     var f = evaluator[name];
     if (f)
         return f(args, modifs);
@@ -222,6 +211,12 @@ eval_helper.equals = function(v0, v1) { //Und nochmals un-OO
     if (v0.ctype === 'list' && v1.ctype === 'list') {
         var erg = List.equals(v0, v1);
         return erg;
+    }
+    if (v0.ctype === 'geo' && v1.ctype === 'geo') {
+        return {
+            'ctype': 'boolean',
+            'value': (v0.value === v1.value)
+        };
     }
     return {
         'ctype': 'boolean',

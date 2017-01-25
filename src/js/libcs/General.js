@@ -60,6 +60,15 @@ General.compare = function(a, b) {
     if (a.ctype === 'list') {
         return List._helper.compare(a, b);
     }
+    if (a.ctype === 'geo') {
+        if (a.value.name === b.value.name) {
+            return 0;
+        }
+        if (a.value.name < b.value.name) {
+            return -1;
+        }
+        return 1;
+    }
     if (a.ctype === 'string') {
         if (a.value === b.value) {
             return 0;
@@ -82,10 +91,12 @@ General.compare = function(a, b) {
 };
 
 General.add = function(v0, v1) {
-    if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Plus
+    if (v0.ctype === 'void' && v1.ctype === 'number') { // unary plus
         return v1;
     }
-
+    if (v0.ctype === 'void' && v1.ctype === 'list') { // unary plus
+        return v1;
+    }
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return CSNumber.add(v0, v1);
     }
@@ -103,10 +114,10 @@ General.add = function(v0, v1) {
 };
 
 General.sub = function(v0, v1) {
-    if (v0.ctype === 'void' && v1.ctype === 'number') { //Monadisches Minus
+    if (v0.ctype === 'void' && v1.ctype === 'number') { // unary minus
         return CSNumber.neg(v1);
     }
-    if (v0.ctype === 'void' && v1.ctype === 'list') { //Monadisches Plus
+    if (v0.ctype === 'void' && v1.ctype === 'list') { // unary minus
         return List.neg(v1);
     }
     if (v0.ctype === 'number' && v1.ctype === 'number') {
@@ -199,6 +210,31 @@ General.wrap = function(v) {
     return nada;
 };
 
+General.unwrap = function(v) {
+    if (typeof v !== "object" || v === null) {
+        return v;
+    }
+    if (Array.isArray(v)) {
+        return v.map(General.unwrap);
+    }
+    switch (v.ctype) {
+        case "string":
+        case "boolean":
+            return v.value;
+        case "number":
+            if (v.value.imag === 0)
+                return v.value.real;
+            return {
+                r: v.value.real,
+                i: v.value.imag
+            };
+        case "list":
+            return v.value.map(General.unwrap);
+        default:
+            return null;
+    }
+};
+
 General.withUsage = function(v, usage) {
     // shallow copy with possibly new usage
     return {
@@ -206,4 +242,32 @@ General.withUsage = function(v, usage) {
         "value": v.value,
         "usage": usage
     };
+};
+
+General.wrapJSON = function(data) {
+    switch (typeof data) {
+        case "number":
+            return CSNumber.real(data);
+        case "string":
+            return General.string(data);
+        case "boolean":
+            return General.bool(data);
+        case "object":
+            if (data === null)
+                return nada;
+            if (Array.isArray(data))
+                return List.turnIntoCSList(data.map(General.wrapJSON));
+            var d = Dict.create();
+            for (var k in data)
+                Dict.put(d, General.string(k), General.wrapJSON(data[k]));
+            return d;
+        default:
+            console.log(
+                "Failed to convert " + (typeof data) + " to CindyJS data type");
+            return nada;
+    }
+};
+
+General.identity = function(x) {
+    return x;
 };

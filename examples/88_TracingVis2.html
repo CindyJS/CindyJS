@@ -7,7 +7,7 @@
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script type="text/javascript">
 
-var cdy1 = createCindy({
+var cdy1 = CindyJS({
   canvasname: "CSCanvas1",
   scripts: "cs1*",
   language: "en",
@@ -41,12 +41,12 @@ var cdy1 = createCindy({
   ] // End of geometry array.
 });
 
-var cdy2 = createCindy({
+var cdy2 = CindyJS({
   canvasname: "CSCanvas2",
   scripts: "cs2*",
   language: "en",
   defaultAppearance: {},
-  autoplay: false,
+  animation: {autoplay: false},
   geometry: [
   {name:"C1", type:"Free", pos:[0,0], color:[0,0,0], size:2},
   {name:"CCost", type:"Free", pos:[0,0], color:[1,1,1], size:1},
@@ -113,10 +113,8 @@ if(tracingX_6 >0.001,CCost.xy=[0, scale*3*tracingX_6],);
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas1" width="500" height="500"
-          style="border:2px solid black"></canvas>
-  <canvas id="CSCanvas2" width="500" height="500"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas1" style="width:500px; height:500px; border:2px solid black"></div>
+  <div id="CSCanvas2" style="width:500px; height:500px; border:2px solid black"></div>
   <p>
     <button onclick="location.href=cdy1.formatTraceLog(false)">View log</button>
     <button onclick="location.href=cdy1.formatTraceLog(true)">Save log</button>

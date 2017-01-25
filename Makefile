@@ -30,16 +30,31 @@ NODE_BASENAME:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH)
 NODE_TAR:=$(NODE_BASENAME).tar.gz
 NODE_URL:=$(NODE_URLBASE)/v$(NODE_VERSION)/$(NODE_TAR)
 
+ifeq ($(CURDIR),)
+CURDIR:=$(shell pwd)
+endif
 NODE:=node
 NPM:=npm
 cmd_needed=$(shell $(1) >/dev/null 2>&1 || echo needed)
-NODE_NEEDED:=$(call cmd_needed,$(NODE) tools/check-node-version.js)
+NODE_NEEDED:=$(call cmd_needed,$(NODE) make/check-node-version.js)
+
+ifeq ($(NODE_NEEDED),needed)
+ifeq ($(call cmd_needed,nodejs make/check-node-version.js),)
+NODE:=nodejs
+NODE_NEEDED:=
+endif
+endif
 NPM_NEEDED:=$(call cmd_needed,$(NPM) -version)
-NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),download/$(NODE_BASENAME)/bin/npm,)
-NODE_PATH:=PATH=node_modules/.bin:$(if $(NPM_DEP),$(dir $(NPM_DEP)):,)$$PATH
+NPM_DOWNLOADED:=download/$(NODE_BASENAME)/bin/npm
+NPM_WRAPPER:=
+ifneq ($(NODE),node)
+NPM_WRAPPER:=build/bin/node
+endif
+NPM_DEP:=$(if $(NODE_NEEDED)$(NPM_NEEDED),$(NPM_DOWNLOADED),$(NPM_WRAPPER))
+NODE_PATH:=PATH=$(if $(NPM_DEP),$(CURDIR)/$(dir $(NPM_DEP)):,)$$PATH
 NPM_CMD:=$(if $(NPM_DEP),$(NODE_PATH) npm,$(NPM))
 NODE_CMD:=$(if $(NPM_DEP),$(NODE_PATH) node,$(NODE))
-JS_MAKE=$(NODE_CMD) make/index.js js_compiler=$(js_compiler)
+JS_MAKE=$(NODE_CMD) make/index.js build=$(build)
 
 download/arch/$(NODE_TAR):
 	mkdir -p $(@D)
@@ -51,7 +66,13 @@ download/$(NODE_BASENAME)/bin/npm: download/arch/$(NODE_TAR)
 	test -e $@
 	touch $@
 
-js_make:
+build/bin/node:
+	mkdir -p $(@D)
+	echo '#!/bin/sh' >> $@
+	echo 'exec $(NODE) "$$@"' >> $@
+	chmod a+x $@
+
+js_make: $(NPM_DEP)
 
 .PHONY: js_make
 
@@ -59,12 +80,8 @@ js_make:
 ## Build different flavors of Cindy.js
 ######################################################################
 
-#by default use closure compiler
-js_compiler = closure
-
-ifeq ($(plain),1)
-	js_compiler = plain
-endif
+# Specify build=release on the command line to run closure compiler
+build=debug
 
 build/js/Cindy.plain.js: js_make
 	$(JS_MAKE) plain
@@ -91,10 +108,14 @@ fwdtargets = \
 	beautify \
 	cindy3d \
 	cindy3d-dbg \
+	cindygl \
+	cindygl-dbg \
+	ComplexCurves \
 	deploy \
 	forbidden \
 	jshint \
 	katex \
+	live \
 	nodetest \
 	proxy \
 	ref \

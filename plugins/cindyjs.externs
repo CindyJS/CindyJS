@@ -1,0 +1,62 @@
+//////////////////////////////////////////////////////////////////////
+// Type definitions to shorten some things
+
+function td() {};
+
+/** @typedef {EventListener|function(!Event):(boolean|undefined)} */
+td.EventCallback;
+
+/** @typedef {function(EventTarget, string, td.EventCallback, boolean=)} */
+td.EventManager;
+
+//////////////////////////////////////////////////////////////////////
+// Externs for CindyJS bindings
+
+function CindyJS() {}
+
+/** @typedef {{ctype:string}} */
+CindyJS.anyval;
+
+/** @typedef {function(Array.<CindyJS.anyval>, Object):
+ *            CindyJS.anyval} */
+CindyJS.op;
+
+/** @typedef {{
+ *    img: (HTMLImageElement|HTMLCanvasElement|HTMLVideoElement),
+ *    width: number,
+ *    height: number,
+ *    ready: boolean,
+ *    live: boolean,
+ *    generation: number,
+ *    whenReady: function(function()),
+ *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number)),
+ *    readPixels: (undefined|function(number,number,number,number))
+ *  }}
+ */
+CindyJS.image;
+
+/** @typedef {{
+ *    instance: Object,
+ *    config: Object,
+ *    nada: CindyJS.anyval,
+ *    evaluate: function(CindyJS.anyval):CindyJS.anyval,
+ *    extractPoint: function(CindyJS.anyval):{ok: boolean, x:number, y:number},
+ *    evaluateAndVal: function(CindyJS.anyval):CindyJS.anyval,
+ *    defineFunction: function(string,number,CindyJS.op),
+ *    addShutdownHook: function(function()),
+ *    addAutoCleaningEventListener: td.EventManager,
+ *    getVariable: function(string):CindyJS.anyval,
+ *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
+ *      tx:number,ty:number,det:number,sdet:number},
+ *    getImage: function((string|CindyJS.anyval),boolean=):CindyJS.image,
+ *    getMyfunction: function(string)
+ *  }}
+ */
+CindyJS.pluginApi;
+
+/**
+ * @param {number} apiVersion
+ * @param {string} pluginName
+ * @param {function(CindyJS.pluginApi)} initCallback
+ */
+CindyJS.registerPlugin;

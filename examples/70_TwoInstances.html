@@ -16,10 +16,10 @@
         draw(p,size->sqrt(i)*.4,color->hue(i/34));
       );
     </script>
-    <canvas  id="sunflowerCanvas" width="500" height="500" style="border:2px solid #000000"></canvas>
+    <div  id="sunflowerCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
     <script type="text/javascript">
-      createCindy({
+      CindyJS({
         canvasname:"sunflowerCanvas",
         movescript:"sunflowerMove",
         defaultAppearance:{pointColor:[1,.7,0]},
@@ -31,7 +31,7 @@
 
     <h1>CindyJS: Complex Spiral</h1>
 
-    <canvas id="spiral" width="600" height="600" style="border:2px solid #000000"></canvas>
+    <div id="spiral" style="width:600px; height:600px; border:2px solid #000000"></div>
 
     <script type="text/javascript">
 var gslp=[
@@ -45,7 +45,7 @@ repeat(1000,draw(gauss(a)*5,size->abs(a)*10,\
                  color->(re(a)*2,im(a)*2,-re(a)),alpha->.7);\
              a=a*c;);\
 draw(A);draw(C);";
-createCindy({canvasname:"spiral",scripts:{move:move},geometry:gslp});
+CindyJS({canvasname:"spiral",scripts:{move:move},geometry:gslp});
     </script>
 
   </body>

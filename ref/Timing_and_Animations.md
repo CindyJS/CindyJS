@@ -10,14 +10,14 @@ Furthermore, an operator is provided that is synchronized with the current times
 
 **Description:**
 This operator returns a list `[h,m,s,ms]` of four integers.
-The four values correspond to "hour," "minute," "second," "millisecond" on the computer's clock.
+The four values correspond to “hour”, “minute”, “second”, “millisecond” on the computer's clock.
 
 **Example:**
 The following code produces a simple clock on a Cinderella view.
 The variable `t` contains the time information.
 The subsequent code is used to produce a clocklike drawing on the view.
 An auxiliary function `p(w)` is defined that produces points on the unit circle.
-The code must be placed in the "Tick" section of CindyScript in order for it to run continuously.
+The code must be placed in the “Tick” section of CindyScript in order for it to run continuously.
 
     > t=time();
     > 
@@ -34,9 +34,7 @@ The code must be placed in the "Tick" section of CindyScript in order for it to 
     > 
     > drawtext((3,5),t);
 
-| ![Image](img/ClockX.png) |
-| ------------------------ |
-| ****                     |
+![Image](img/ClockX.png)
 
 ------
 
@@ -44,7 +42,7 @@ The code must be placed in the "Tick" section of CindyScript in order for it to 
 
 **Description:**
 This operator returns a list `[y,m,d]` of three integers.
-The three values correspond to "year," "month," and "day" on the computer's calendar.
+The three values correspond to “year”, “month”, and “day” on the computer's calendar.
 
 ------
 
@@ -76,6 +74,8 @@ This operator is still experimental.
 
 #### Pause the script for a specified time: `wait(‹real›)`
 
+**Not available in CindyJS yet!**
+
 **Description:**
 Will completely halt every script execution for a number of milliseconds as given by the parameter.
 
@@ -97,7 +97,7 @@ The following code produces an acoustic jingle.
 
 **Description:**
 This statement starts the animation.
-Also physics simulation in [CindyLab](CindyLab.md) depend on running animations.
+Also physics simulation in CindyLab depend on running animations.
 
 ------
 
