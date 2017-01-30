@@ -3,6 +3,7 @@ uniform mat4 uModelViewMatrix;
 
 varying vec4 vColor;
 varying float vShininess;
+varying float vSpecularReflectiveness;
 
 vec3 gPos;
 vec3 gEye;
@@ -24,7 +25,7 @@ void commonLight(in vec4 lightPos, out vec3 lightDir,
   if (diffuseFactor == 0.0)
     specularFactor = 0.0;
   else
-    specularFactor = pow(specularDot, vShininess);
+    specularFactor = pow(specularDot, vShininess) * vSpecularReflectiveness;
 }
 
 vec4 flipY(in vec4 v) {

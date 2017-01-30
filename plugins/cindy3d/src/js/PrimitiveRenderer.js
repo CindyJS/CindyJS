@@ -207,6 +207,7 @@ PrimitiveRenderer.prototype.recompileShader = function(viewer) {
   let vs = [
     "precision mediump float;",
     "varying float vShininess;",
+    "varying float vSpecularReflectiveness;",
     this.vertexShaderCode
   ].join("\n");
   let fs = [
