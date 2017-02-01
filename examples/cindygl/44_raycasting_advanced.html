@@ -121,7 +121,7 @@
 
 
     F(p) := (
-        fun(p.x / zoom, p.y / zoom, p.z / zoom);
+        zoom^(N-1)*fun(p.x / zoom, p.y / zoom, p.z / zoom);
     );
 
     helpfun(s, x) := log(|F(s*x)|)/log(s*|x|); //is approx. degree+log(leadingcoeff)/log(s*|x|) for large s

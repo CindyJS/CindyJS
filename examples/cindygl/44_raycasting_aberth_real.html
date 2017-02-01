@@ -121,7 +121,7 @@
 
 
     F(p) := (
-        fun(p.x / zoom, p.y / zoom, p.z / zoom);
+        zoom^(N-1)*fun(p.x / zoom, p.y / zoom, p.z / zoom);
     );
 
     helpfun(s, x) := log(|F(s*x)|)/log(s*|x|); //is approx. degree+log(leadingcoeff)/log(s*|x|) for large s
@@ -197,6 +197,8 @@
             
             polyvalues = apply(li, F(ray(pos, #)));
             poly = B * polyvalues; //interpolate
+            
+            //poly = 1/(poly_N)*poly;
             dpoly = d(poly);
           
             z = apply(1..(N-1), l+#*(u-l)/(N-1)); //take real roots as starting value
@@ -211,7 +213,7 @@
             );
             
             forall(
-             reverse(sort(apply(z, if(|F(ray(pos, #))|<0.001, re(#), oo)))), //only take real roots
+             reverse(sort(apply(z, if(|F(ray(pos, #))|<0.00001, re(#), oo)))), //only take real roots
              color = updatecolor(pos, #, color); );
             
         ); color

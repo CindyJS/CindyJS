@@ -269,8 +269,8 @@ function usereverse(t) {
 function generatemax(t, modifs, codebuilder) {
     let name = `max${webgltype(t)}`;
     codebuilder.add('functions', name, () => `${webgltype(t.parameters)} ${name}(${webgltype(t)} a){` +
-        `${webgltype(t.parameters)} m;\n` +
-        range(t.length).map(function(i) {
+      `${webgltype(t.parameters)} m = ${accesslist(t, t.length-1)(['a', t.length-1], modifs, codebuilder)};\n` +
+      range(t.length-1).map(function(i) {
             let a = accesslist(t, i)(['a', i], modifs, codebuilder);
             //update m to max
             return `m = max(m,${a});`;
@@ -288,8 +288,8 @@ function usemax(t) {
 function generatemin(t, modifs, codebuilder) {
     let name = `min${webgltype(t)}`;
     codebuilder.add('functions', name, () => `${webgltype(t.parameters)} ${name}(${webgltype(t)} a){` +
-        `${webgltype(t.parameters)} m;\n` +
-        range(t.length).map(function(i) {
+        `${webgltype(t.parameters)} m = ${accesslist(t, t.length-1)(['a', t.length-1], modifs, codebuilder)};\n` +
+        range(t.length-1).map(function(i) {
             let a = accesslist(t, i)(['a', i], modifs, codebuilder);
             //update m to min
             return `m = min(m,${a});`;
