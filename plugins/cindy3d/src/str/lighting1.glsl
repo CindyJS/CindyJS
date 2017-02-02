@@ -4,6 +4,7 @@ uniform mat4 uModelViewMatrix;
 varying vec4 vColor;
 varying float vShininess;
 
+vec4 gColor;
 vec3 gPos;
 vec3 gEye;
 vec3 gNormal;

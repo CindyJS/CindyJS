@@ -23,6 +23,8 @@ vec3 endcaps(in float mu, inout vec3 pos) {
 // Fragment shader for cylinder rendering
 // ----------------------------------------------------------------------------
 void main() {
+  gColor = vColor;
+
   /* A point P lies on the infinite cylinder around axis AB with radius r iff
    * |(P-A) - ⟨P-A,B-A⟩/⟨B-A,B-A⟩*(B-A)| = r
    * writing BA for B-A
