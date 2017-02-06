@@ -363,7 +363,7 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
     let topology = "open";
     let colors = null;
     let uv = null;
-    let texture = null;
+    let /** @type {?CindyJS.image} */ texture = null;
     let appearance = handleModifsAppearance(
       currentInstance.surfaceAppearance, modifs, {
         "normaltype": (a => normaltype =
@@ -376,21 +376,16 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
           elt => coerce.toColor(elt))),
         "uv": (a => uv = coerce.toList(a).map(
           elt => coerce.toHomog(elt, [0, 0, 0], 2))),
-        "texture": (a => texture = coerce.toString(a)),
+        "texture": (a => texture = api.getImage(a, /*lazy=*/ true)),
       });
     if (pos.length !== m*n) return nada;
     if (texture !== null && uv != null) {
-      const img = api.getImage(/** @type {string} */(texture));
-      if (!img) {
-        console.log("No such texture image: " + texture);
-        return nada;
-      }
 
       // TODO: EVIL HACK!!!!! Fix version if you use this!
       // This sets the texture for all meshes in the instance,
       // even though the modifier is just on a single mesh primitive.
       // Will cause terribly wrong results if more than one mesh is drawn.
-      currentInstance.triangles.texture = img;
+      currentInstance.triangles.texture = texture;
       currentInstance.triangles.opaque = false;
 
       colors = uv; // Re-use the same object

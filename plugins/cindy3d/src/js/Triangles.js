@@ -156,14 +156,26 @@ Triangles.prototype.texture = null;
 /** @type {?WebGLTexture} */
 Triangles.prototype.textureObj = null;
 
+/** @type {?HTMLCanvasElement} */
+Triangles.prototype.textureScaler = null;
+
 /**
  * @param {Viewer} viewer
  */
 Triangles.prototype.render = function(viewer) {
   const gl = viewer.gl;
   if (this.texture) {
+    if (!this.texture.ready)
+      return;
+    if (this.texture.cdyUpdate)
+      this.texture.cdyUpdate();
     if (this.textureObj === null) {
       this.textureObj = gl.createTexture();
+    }
+    let w = this.texture.width, h = this.texture.height;
+    if (true) {
+      w = nextPowerOfTwo(w);
+      h = nextPowerOfTwo(h);
     }
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.textureObj);
@@ -173,8 +185,22 @@ Triangles.prototype.render = function(viewer) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
                      gl.LINEAR_MIPMAP_LINEAR);
     gl.hint(gl.GENERATE_MIPMAP_HINT, gl.NICEST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
-                  this.texture.img);
+    let /** @type {HTMLImageElement|HTMLCanvasElement|HTMLVideoElement} */ img
+        = this.texture.img;
+    if (w !== this.texture.width || h !== this.texture.height) {
+      if (!this.textureScaler) {
+        this.textureScaler = /** @type {HTMLCanvasElement} */
+          (document.createElement("canvas"));
+        this.textureScaler.width = w;
+        this.textureScaler.height = h;
+      }
+      let ctx = this.textureScaler.getContext("2d");
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(this.texture.img, 0, 0, w, h);
+      img = this.textureScaler;
+    }
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
+                  gl.UNSIGNED_BYTE, img);
     gl.generateMipmap(gl.TEXTURE_2D);
     this.renderPrimitives(gl, u => {
       viewer.setUniforms(u);
@@ -189,3 +215,12 @@ Triangles.prototype.render = function(viewer) {
     });
   }
 };
+
+function nextPowerOfTwo(x) {
+  if ((x & (x - 1)) === 0)
+    return x;
+  let y = 1;
+  while (y < x)
+    y *= 2;
+  return y;
+}
