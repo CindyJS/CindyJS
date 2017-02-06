@@ -17,7 +17,9 @@ Accessor.generalFields = { //Übersetungstafel der Feldnamen
     caption: "caption",
     trace: "",
     tracelength: "",
-    selected: ""
+    selected: "",
+    labeled: "labeled",
+    labelled: "labeled",
 };
 
 Accessor.getGeoField = function(geoname, field) {
@@ -138,7 +140,7 @@ Accessor.getField = function(geo, field) {
         return General.bool(!!geo.drawtrace);
     }
 
-    if (Accessor.generalFields[field]) { //must be defined an an actual string
+    if (Accessor.generalFields[field]) { //must be defined as an actual string
         erg = geo[Accessor.generalFields[field]];
         if (erg && erg.ctype) {
             return erg;
@@ -217,6 +219,11 @@ Accessor.setField = function(geo, field, value) {
     if (field === "pinned") {
         if (value.ctype === "boolean") {
             geo.pinned = value.value;
+        }
+    }
+    if (field === "labeled" || field === "labelled") {
+        if (value.ctype === "boolean") {
+            geo.labeled = value.value;
         }
     }
     if (field === "printlabel") {
