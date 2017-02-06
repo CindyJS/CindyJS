@@ -105,7 +105,7 @@ We mark this by the word “free” in the corresponding column.
 | `isshowing`   | yes       | bool     | Whether the object is shown (this is inherited by all elements that depend on the object) |
 | `visible`     | yes       | bool     | Whether the object is shown (not inherited by dependent objects)                          |
 | `alpha`       | yes       | real     | The opacity of the object (between 0.0 and 1.0)                                           |
-| `labelled`    | yes       | bool     | Whether the object shows its label                                                        |
+| `labeled`     | yes       | bool     | Whether the object shows its label                                                        |
 | `name`        | no        | string   | The label of the object                                                                   |
 | `caption`     | yes       | string   | A caption that may replace the name                                                       |
 | `trace`       | yes       | bool     | Whether the object leaves a trace                                                         |
@@ -330,7 +330,7 @@ The function
 
     > p = createpoint("A",[4,6])
 
-creates a point labelled *A* at coordinates [4,6], unless there is already an element *A*.
+creates a point labeled *A* at coordinates [4,6], unless there is already an element *A*.
 If it exists, it will be moved to the position given as second argument.
 The value of the function is the point or the already existing element *A*.
 This means that repeated executions of the function are not harmful to your code - if you need a free point at “*A*” you can ensure that it exists using the `createpoint`-command.
