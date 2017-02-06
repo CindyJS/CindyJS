@@ -6,38 +6,27 @@
 <meta charset="UTF-8">
 <link rel="stylesheet" href="../build/js/CindyJS.css">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csinit" type="text/x-cindyscript">
 
-// Initialization code, executed once up front.
-
-</script>
 <script id="csdraw" type="text/x-cindyscript">
 fillcircle((0,0),5, color->(1,1,0), alpha->0.2);
 drawtext((0,1.5), "labeled");
 drawtext((0,-6), "unlabeled");
-drawtext((-8,-8), "labeled:" + A.labelled);
-if(|A.xy| < 5,  A.labelled = true, A.labelled = false);
-// Drawing code, executed whenever the canvas gets redrawn.
-
+drawtext((-8,-8), "labeled:" + A.labeled);
+if(|A.xy| < 5,  A.labeled = true, A.labelled = false);
 </script>
+
 <script type="text/javascript">
 
-var cdy = CindyJS({ // See ref/createCindy documentation for details.
+var cdy = CindyJS({   
   ports: [{id: "CSCanvas", width: 500, height: 500}],
   scripts: "cs*",
   language: "en",
   defaultAppearance: {
-    // See GeoBasics.js for possible attributes.
   },
   geometry: [
     {name:"A", type:"Free", pos:[0,0], labeled:true}
-    // For allowed types, see GeoOps.js.
-    // For allowed properties, see csinit in GeoBasics.js.
-  ] // End of geometry array.
+  ]
 });
-
-// Remove all comments after adjusting this template for your use case.
-
 </script>
 </head>
 
