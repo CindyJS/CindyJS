@@ -4,7 +4,7 @@
 
 var Accessor = {};
 
-Accessor.generalFields = { //Übersetungstafel der Feldnamen 
+Accessor.generalFields = { // fieldname translation
     color: "color",
     colorhsb: "",
     size: "size",
@@ -139,7 +139,6 @@ Accessor.getField = function(geo, field) {
     if (field === "trace") {
         return General.bool(!!geo.drawtrace);
     }
-
     if (Accessor.generalFields[field]) { //must be defined as an actual string
         erg = geo[Accessor.generalFields[field]];
         if (erg && erg.ctype) {
