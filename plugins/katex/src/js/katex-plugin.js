@@ -192,7 +192,8 @@
                     }
                 } else {
                     try {
-                        box = katex.canvasBox(parts[i], ctx, opts);
+                        var tex = parts[i].replace(/°/g, "\\degree");
+                        box = katex.canvasBox(tex, ctx, opts);
                         row.push(box);
                         for (var font in box.fontsUsed) {
                             var fontState = fonts[font];
