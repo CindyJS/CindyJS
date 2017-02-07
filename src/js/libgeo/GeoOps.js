@@ -2301,6 +2301,7 @@ geoOps.TrProjection.updatePosition = function(el) {
             csgeo.csnames[el.args[6 + offset]].homog
         );
     });
+    el.isEuclidean = 0;
 };
 
 // Define an affine transformation given three points and their images
@@ -2347,6 +2348,7 @@ geoOps.TrAffine.updatePosition = function(el) {
         sm(mult(z1[0], u[2]), w[1]),
         sm(mult(z1[1], u[0]), w[2])
     ])));
+    el.isEuclidean = 0;
 };
 
 // Define a similarity transformation given two points and their images
@@ -2359,6 +2361,7 @@ geoOps.TrSimilarity.updatePosition = function(el) {
             b = csgeo.csnames[el.args[2 + offset]].homog;
         return eval_helper.basismap(a, b, List.ii, List.jj);
     });
+    el.isEuclidean = 1;
 };
 
 // Define a translation transformation given one point and its image
@@ -2395,6 +2398,7 @@ geoOps.TrTranslation.updatePosition = function(el) {
         mat([m.value[0].value[2], m.value[1].value[2], n])
     ]);
     el.dualMatrix = m;
+    el.isEuclidean = 1;
 };
 
 // Define a reflective transformation given a point
@@ -2420,6 +2424,7 @@ geoOps.TrReflectionP.updatePosition = function(el) {
     m = List.normalizeMax(m);
     el.matrix = m;
     el.dualMatrix = List.transpose(m);
+    el.isEuclidean = 1;
 };
 
 // Define a reflective transformation given a line
@@ -2453,6 +2458,7 @@ geoOps.TrReflectionL.updatePosition = function(el) {
     m = List.normalizeMax(m);
     el.matrix = m;
     el.dualMatrix = List.transpose(m);
+    el.isEuclidean = -1;
 };
 
 // Define a reflective transformation given a segment
@@ -2498,6 +2504,7 @@ geoOps.TrInverse.updatePosition = function(el) {
     var m = tr.matrix;
     el.dualMatrix = List.transpose(tr.matrix);
     el.matrix = List.transpose(tr.dualMatrix);
+    el.isEuclidean = tr.isEuclidean;
 };
 
 // Apply a projective transformation to a conic
@@ -2597,6 +2604,7 @@ geoOps.TrComposeTrTr.updatePosition = function(el) {
     var b = csgeo.csnames[el.args[1]];
     el.matrix = List.normalizeMax(List.productMM(b.matrix, a.matrix));
     el.dualMatrix = List.normalizeMax(List.productMM(b.dualMatrix, a.dualMatrix));
+    el.isEuclidean = a.isEuclidean * b.isEuclidean;
 };
 
 geoOps._helper.composeMtMt = function(el, m, n) {
@@ -2648,7 +2656,7 @@ geoOps._helper.euc2moeb = function(el) {
         CSNumber.mult(m[0].value[0], m[1].value[1]),
         CSNumber.mult(m[1].value[0], m[0].value[1]));
     return {
-        anti: d.value.real < 0, // DANGER!!! This feels non-analytic!
+        anti: el.isEuclidean < 0,
         ar: m[0].value[0],
         ai: m[1].value[0],
         br: m[0].value[2],
@@ -2673,6 +2681,9 @@ geoOps.TrComposeMtMt.updatePosition = function(el) {
 geoOps.TrComposeTrMt = {};
 geoOps.TrComposeTrMt.kind = "Mt";
 geoOps.TrComposeTrMt.signature = ["Tr", "Mt"];
+geoOps.TrComposeTrMt.signatureConstraints = function(el) {
+    return !!csgeo.csnames[el.args[0]].isEuclidean;
+};
 geoOps.TrComposeTrMt.updatePosition = function(el) {
     geoOps._helper.composeMtMt(
         el,
@@ -2683,6 +2694,9 @@ geoOps.TrComposeTrMt.updatePosition = function(el) {
 geoOps.TrComposeMtTr = {};
 geoOps.TrComposeMtTr.kind = "Mt";
 geoOps.TrComposeMtTr.signature = ["Mt", "Tr"];
+geoOps.TrComposeMtTr.signatureConstraints = function(el) {
+    return !!csgeo.csnames[el.args[1]].isEuclidean;
+};
 geoOps.TrComposeMtTr.updatePosition = function(el) {
     geoOps._helper.composeMtMt(
         el,
