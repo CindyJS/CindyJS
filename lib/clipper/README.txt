@@ -2,6 +2,57 @@
 Javascript Clipper Change Log
 ============================================================
 
+v6.2.1.2 (27 November 2016)
+* use_xyz directive changed to ClipperLib.use_xyz and use_lines 
+  directive changed to ClipperLib.use_lines, so they can be set
+  runtime.
+* use_int32 removed, because in Javascript there is no such integer.
+* When copying IntPoints, Z-member was missing when use_xyz is true.
+
+v6.2.1.1 (19 November 2016)
+* Line 3282: Changed ZFillFunction to this.ZFillFunction.
+
+v6.2.1.0 (17 June 2016)
+* Updates from C# Clipper upto 6.2.1 Rev 482 (31 October 2014).
+
+  * Updates from C# Clipper v6.2.1 (31 October 2014) Rev 482:
+  - Bugfix in ClipperOffset.Execute where the Polytree.IsHole property 
+    was returning incorrect values with negative offsets
+  - Very minor improvement to join rounding in ClipperOffset
+
+  * Updates from C# Clipper v6.2.0 (17 October 2014) Rev 477:
+  - Numerous minor bugfixes, too many to list. 
+    (See revisions 454-475 in Sourceforge Repository)
+  - The ZFillFunction (custom callback function) has had its parameters 
+    changed. 
+  - Deprecated functions have been removed. 
+
+  * Updates from C# Clipper v6.1.5 (26 February 2014) Rev 460
+  - Improved the joining of output polygons sharing a common edge 
+    when those common edges are horizontal.
+  - Fixed a bug in ClipperOffset.AddPath() which would produce
+    incorrect solutions when open paths were added before closed paths.
+  - Minor code tidy and performance improvement
+
+  * Updates from C# Clipper v6.1.4 (6 February 2014)
+  - Fixed bugs in MinkowskiSum
+  - Fixed minor bug when using Clipper.ForceSimplify.
+  - Modified use_xyz callback so that all 4 vertices around an
+  intersection point are now passed to the callback function.
+
+v6.1.3.2 (1 February 2014)
+* Update: Unnecessary closures removed around ref/out calls and major
+  speedup and code cleanliness achieved. Intersection operation speedup 
+  in newest Chrome is 2.3x (from 2530 ms to 1107 ms) and in newest 
+  Firefox 1.7x (from 7186 ms to 4164 ms).
+
+v6.1.3.1 (21 January 2014)
+* Fixed potential endless loop condition when adding open 
+  paths to Clipper.
+* Added PointInPolygon function.
+* Overloaded MinkowskiSum function to accommodate multi-contour 
+  paths.
+  
 v6.1.2.1 (15 December 2013)
 * Minor improvement to joining polygons.
 
