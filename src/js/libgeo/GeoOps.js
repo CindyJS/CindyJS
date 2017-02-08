@@ -2137,14 +2137,10 @@ geoOps._helper.moebiusPair = function(el) {
     el.mat2 = mats.value[1];
 };
 
-geoOps.TrInverseMoebius = {};
-geoOps.TrInverseMoebius.kind = "Mt";
-geoOps.TrInverseMoebius.signature = ["Mt"];
-geoOps.TrInverseMoebius.updatePosition = function(el) {
-    var m = csgeo.csnames[el.args[0]].moebius;
+geoOps._helper.inverseMoebius = function(m) {
     var neg = CSNumber.neg;
     var flip = m.anti ? neg : General.identity;
-    el.moebius = {
+    return {
         anti: m.anti,
         ar: m.dr,
         ai: flip(m.di),
@@ -2155,6 +2151,14 @@ geoOps.TrInverseMoebius.updatePosition = function(el) {
         dr: m.ar,
         di: flip(m.ai)
     };
+};
+
+geoOps.TrInverseMoebius = {};
+geoOps.TrInverseMoebius.kind = "Mt";
+geoOps.TrInverseMoebius.signature = ["Mt"];
+geoOps.TrInverseMoebius.updatePosition = function(el) {
+    var m = csgeo.csnames[el.args[0]].moebius;
+    el.moebius = geoOps._helper.inverseMoebius(m);
     geoOps._helper.moebiusPair(el);
 };
 
@@ -3159,20 +3163,36 @@ geoOps.IFS.updateParameters = function() {
                     });
                 });
             } else if (kind === "Mt") {
-                var mat1 = List.productMM(
-                    List.transpose(px2hom), List.productMM(trel.mat1, px2hom));
-                var mat2 = List.productMM(
-                    List.transpose(px2hom), List.productMM(trel.mat2, px2hom));
-                var moeb = List.normalizeMax(List.turnIntoCSList([
-                    mat1.value[2].value[0], // ar
-                    mat2.value[2].value[0], // ai
-                    mat1.value[2].value[2], // br
-                    mat2.value[2].value[2], // bi
-                    CSNumber.neg(mat1.value[0].value[0]), // cr
-                    CSNumber.neg(mat2.value[0].value[0]), // ci
-                    CSNumber.neg(mat1.value[0].value[2]), // dr
-                    CSNumber.neg(mat2.value[0].value[2]) // di
-                ]));
+                // drawingstate matrix as a Möbius transformation
+                // from homogeneous coordinates to pixels
+                var view = csport.drawingstate.matrix;
+                view = {
+                    anti: view.det > 0,
+                    ar: CSNumber.real(view.a),
+                    ai: CSNumber.real(view.c),
+                    br: CSNumber.real(view.tx),
+                    bi: CSNumber.real(-view.ty),
+                    cr: CSNumber.zero,
+                    ci: CSNumber.zero,
+                    dr: CSNumber.real(1 / supersampling),
+                    di: CSNumber.zero
+                };
+                // now compose view * trel * view^{-1}
+                var elLike = {};
+                geoOps._helper.composeMtMt(elLike, trel.moebius, view);
+                view = geoOps._helper.inverseMoebius(view);
+                geoOps._helper.composeMtMt(elLike, view, elLike.moebius);
+                var moeb = elLike.moebius;
+                moeb = List.turnIntoCSList([
+                    moeb.ar,
+                    moeb.ai,
+                    moeb.br,
+                    moeb.bi,
+                    moeb.cr,
+                    moeb.ci,
+                    moeb.dr,
+                    moeb.di
+                ]);
                 if (!List._helper.isAlmostReal(moeb)) {
                     tr.kind = "cplx";
                     continue;
