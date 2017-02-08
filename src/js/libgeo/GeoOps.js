@@ -3132,23 +3132,28 @@ geoOps.IFS.updateParameters = function() {
     msg.systems = csgeo.ifs.map(function(el) {
         var sum = 0;
         var i;
-        for (i = 0; i < el.args.length; ++i)
-            sum += el["ifs.prob" + i];
+        var params = el.ifs || [];
+        var trs = el.args.map(function(name, i) {
+            var p = params[i] || {};
+            return {
+                prob: p.prob || 1,
+                color: p.color || [0, 0, 0]
+            };
+        });
+        for (i = 0; i < trs.length; ++i)
+            sum += trs[i].prob;
         var scale = List.realMatrix([
             [1, 0, 0],
             [0, 1, 0],
             [0, 0, supersampling]
         ]);
         var px2hom = List.productMM(csport.toMat(), scale);
-        var trs = [];
         for (i = 0; i < el.args.length; ++i) {
             var trel = csgeo.csnames[el.args[i]];
             var kind = trel.kind;
-            var tr = trs[i] = {
-                prob: el["ifs.prob" + i] / sum,
-                color: el["ifs.color" + i],
-                kind: kind
-            };
+            var tr = trs[i];
+            tr.kind = kind;
+            tr.prob /= sum;
             if (kind === "Tr") {
                 var mat = List.normalizeMax(List.productMM(
                     List.adjoint3(px2hom),

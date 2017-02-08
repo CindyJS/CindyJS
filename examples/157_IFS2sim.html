@@ -90,7 +90,7 @@ var cdy = CindyJS({
     {name: "G", type: "Free", pos: [4.0, -1.3333333333333333, 0.26666666666666666], color: [0.0, 0.0, 0.0], alpha: 0.8999999761581421, pinned: true, size: 2.0},
     {name: "d", type: "Segment", color: [0.0, 0.0, 1.0], args: ["F", "G"], alpha: 0.0, labeled: true},
     {name: "H", type: "PointOnSegment", pos: [4.0, -1.4792899430167012, 0.2958579886033403], color: [1.0, 1.0, 1.0], args: ["d"], alpha: 0.8999999761581421, size: 4.0},
-    {name: "IFS0", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1"], alpha: 0.20000000298023224, "ifs.prob0": 0.7533333299999997, "ifs.color0": [0.0, 0.0, 1.0], "ifs.prob1": 0.2466666700000003, "ifs.color1": [1.0, 0.0, 0.0], dock: {offset: [0.0, -0.0]}},
+    {name: "IFS0", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1"], alpha: 0.20000000298023224, ifs: [{prob: 0.7533333299999997, color: [0.0, 0.0, 1.0]}, {prob: 0.2466666700000003, color: [1.0, 0.0, 0.0]}], dock: {offset: [0.0, -0.0]}},
     {name: "e", type: "Segment", color: [0.0, 0.0, 1.0], args: ["F", "H"], alpha: 0.8999999761581421, size: 5},
     {name: "f", type: "Segment", color: [0.757, 0.0, 0.0], args: ["H", "G"], alpha: 0.8999999761581421, size: 5},
     {name: "g", type: "Segment", color: [0.0, 0.0, 1.0], args: ["B", "C"], alpha: 0.5, arrowshape: "jet", arrowsides: "==>", arrowsize: 1.2000000000000002, arrowposition: 1.0},

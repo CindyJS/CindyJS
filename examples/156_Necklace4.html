@@ -68,8 +68,8 @@ var cdy = CindyJS({
     {name: "Tr1", type: "TrMoebius", color: [0.0, 0.0, 1.0], args: ["D", "N", "M", "K", "O", "P"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
     {name: "Tr2", type: "TrInverseMoebius", color: [0.0, 0.0, 1.0], args: ["Tr0"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
     {name: "Tr3", type: "TrInverseMoebius", color: [0.0, 0.0, 1.0], args: ["Tr1"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
-    {name: "IFS0", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1", "Tr2", "Tr3"], alpha: 0.30000001192092896, "ifs.prob0": 0.463302752293578, "ifs.color0": [1.0, 0.0, 0.0], "ifs.prob1": 0.04128440366972477, "ifs.color1": [1.0, 0.784, 0.0], "ifs.prob2": 0.44495412844036697, "ifs.color2": [1.0, 0.0, 0.0], "ifs.prob3": 0.05045871559633027, "ifs.color3": [1.0, 0.784, 0.0], dock: {offset: [0.0, -0.0]}},
-    {name: "IFS1", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1", "Tr2", "Tr3"], alpha: 0.30000001192092896, "ifs.prob0": 0.1263498920086393, "ifs.color0": [1.0, 0.0, 0.0], "ifs.prob1": 0.35853131749460043, "ifs.color1": [1.0, 0.784, 0.0], "ifs.prob2": 0.1263498920086393, "ifs.color2": [1.0, 0.0, 0.0], "ifs.prob3": 0.38876889848812096, "ifs.color3": [1.0, 0.784, 0.0], dock: {offset: [0.0, -0.0]}}
+    {name: "IFS0", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1", "Tr2", "Tr3"], alpha: 0.30000001192092896, ifs: [{prob: 0.463302752293578, color: [1.0, 0.0, 0.0]}, {prob: 0.04128440366972477, color: [1.0, 0.784, 0.0]}, {prob: 0.44495412844036697, color: [1.0, 0.0, 0.0]}, {prob: 0.05045871559633027, color: [1.0, 0.784, 0.0]}], dock: {offset: [0.0, -0.0]}},
+    {name: "IFS1", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1", "Tr2", "Tr3"], alpha: 0.30000001192092896, ifs: [{prob: 0.1263498920086393, color: [1.0, 0.0, 0.0]}, {prob: 0.35853131749460043, color: [1.0, 0.784, 0.0]}, {prob: 0.1263498920086393, color: [1.0, 0.0, 0.0]}, {prob: 0.38876889848812096, color: [1.0, 0.784, 0.0]}], dock: {offset: [0.0, -0.0]}}
   ],
   ports: [{
     id: "CSCanvas",
