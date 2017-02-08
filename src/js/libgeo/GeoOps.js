@@ -3233,7 +3233,7 @@ geoOps.IFS.updateParameters = function() {
 };
 geoOps.IFS.probSetter = function(i, el, value) {
     if (value.ctype === "number") {
-        el["ifs.prob" + i] = value.value.real;
+        el.ifs[i].prob = value.value.real;
         ifs.dirty = true;
     }
 };
