@@ -105,7 +105,7 @@ We mark this by the word “free” in the corresponding column.
 | `isshowing`   | yes       | bool     | Whether the object is shown (this is inherited by all elements that depend on the object) |
 | `visible`     | yes       | bool     | Whether the object is shown (not inherited by dependent objects)                          |
 | `alpha`       | yes       | real     | The opacity of the object (between 0.0 and 1.0)                                           |
-| `labelled`    | yes       | bool     | Whether the object shows its label                                                        |
+| `labeled`     | yes       | bool     | Whether the object shows its label                                                        |
 | `name`        | no        | string   | The label of the object                                                                   |
 | `caption`     | yes       | string   | A caption that may replace the name                                                       |
 | `trace`       | yes       | bool     | Whether the object leaves a trace                                                         |
@@ -175,9 +175,9 @@ If `A.caption` is the empty string the name is shown, otherwise the caption.
 ####  Properties of CindyLab Objects
 
 It is not only geometric properties that can be accessed by CindyScript.
-The simulation parameters of [CindyLab](CindyLab.md) constructions can also be read and sometimes set via CindyScript.
+The simulation parameters of CindyLab constructions can also be read and sometimes set via CindyScript.
 
-#####  Properties of All [CindyLab](CindyLab.md) Elements
+#####  Properties of All CindyLab Elements
 
 | Name       | Writeable | Type | Purpose                                                                 |
 | ---------- | --------- | ---- | ----------------------------------------------------------------------- |
@@ -274,7 +274,7 @@ The following slots of the environment can be accessed:
 
 ### Inspecting Elements
 
-You can also use the generic CindyScript function `inspect(‹element›)` to access all the attributes that are available in the [Inspector](Inspector.md).
+You can also use the generic CindyScript function `inspect(‹element›)` to access all the attributes that are available in the Inspector.
 For example, if a point *A* exists in the construction, the function
 
     > inspect(A)
@@ -319,7 +319,7 @@ Sets the user attribute of ‹geo› identified by ‹string1› to the value �
 **Description:**
 Returns the user attribute identified by ‹string› of the geometric element ‹geo› .
 
-Both versions of the attribute function are mainly used for interaction with the [Visage Extension](Visage.md).
+Both versions of the attribute function are mainly used for interaction with the Visage Extension of Cinderella, which has not been ported to CindyJS yet.
 
 ------
 
@@ -330,7 +330,7 @@ The function
 
     > p = createpoint("A",[4,6])
 
-creates a point labelled *A* at coordinates [4,6], unless there is already an element *A*.
+creates a point labeled *A* at coordinates [4,6], unless there is already an element *A*.
 If it exists, it will be moved to the position given as second argument.
 The value of the function is the point or the already existing element *A*.
 This means that repeated executions of the function are not harmful to your code - if you need a free point at “*A*” you can ensure that it exists using the `createpoint`-command.
@@ -347,4 +347,4 @@ or
 
 to remove the element named “*A*”.
 
-More functions to create arbitrary elements are also available and discussed in the section [section on special operators](Interaction_with_Geometry#createandremove.md).
+More functions to create arbitrary elements are also available and discussed in the [section on special operators](Interaction_with_Geometry.md#create$3).

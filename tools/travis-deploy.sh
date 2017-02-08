@@ -25,7 +25,7 @@ fi
 # Deploy via rsync to cindyjs.org
 mkdir -p "${HOME}/.ssh"
 cat tools/cindyjs.org.pub >> "${HOME}/.ssh/known_hosts"
-rsync --delete-delay -rci --rsh='ssh -l travis' \
+rsync --delete-delay -rci --rsh='ssh -l deploy -p 7723' \
     build/deploy/ "cindyjs.org::CindyJS/${dir}/"
 
 # Deploy via git commit to “deploy” repository
@@ -49,6 +49,10 @@ if ! git diff --staged --quiet; then
     git config --local user.email "travis-ci@cinderella.de"
     git commit -m "Build of CindyJS ${name}"
     git push origin "HEAD:${branch}"
+    if [[ ${TRAVIS_TAG} ]]; then
+        git tag "${TRAVIS_TAG}"
+        git push origin tag "${TRAVIS_TAG}"
+    fi
 fi
 rm -rf ../prevdeploy "${preserve[@]}"
 

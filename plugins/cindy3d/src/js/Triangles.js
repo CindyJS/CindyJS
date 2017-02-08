@@ -73,8 +73,7 @@ Triangles.prototype.addWithNormalsAndColors = function(
  * @param {Appearance} appearance
  */
 Triangles.prototype.addAutoNormal = function(pos1, pos2, pos3, appearance) {
-  let p1 = dehom3(pos1), v = sub3(dehom3(pos2), p1), w = sub3(dehom3(pos3), p1);
-  let n = normalized3(cross3(v, w));
+  let n = triangleNormal(pos1, pos2, pos3);
   this.addWithNormals(pos1, pos2, pos3, n, n, n, appearance);
 };
 
@@ -151,9 +150,42 @@ Triangles.prototype.addPolygonWithNormalsAndColors = function(pos, n, c, appeara
   console.error("addPolygonWithNormalsAndColors not supported for more than 4 corners");
 };
 
+/** @type {?CindyJS.image} */
+Triangles.prototype.texture = null;
+
+/** @type {?WebGLTexture} */
+Triangles.prototype.textureObj = null;
+
 /**
  * @param {Viewer} viewer
  */
 Triangles.prototype.render = function(viewer) {
-  this.renderPrimitives(viewer.gl, viewer.setUniforms.bind(viewer));
+  const gl = viewer.gl;
+  if (this.texture) {
+    if (this.textureObj === null) {
+      this.textureObj = gl.createTexture();
+    }
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.textureObj);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                     gl.LINEAR_MIPMAP_LINEAR);
+    gl.hint(gl.GENERATE_MIPMAP_HINT, gl.NICEST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE,
+                  this.texture.img);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    this.renderPrimitives(gl, u => {
+      viewer.setUniforms(u);
+      u["uTextured"]([true]);
+      u["uTexture"]([0]);
+    });
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  } else {
+    this.renderPrimitives(gl, u => {
+      viewer.setUniforms(u);
+      u["uTextured"]([false]);
+    });
+  }
 };

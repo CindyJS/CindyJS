@@ -1,5 +1,6 @@
 #ifdef GL_ES
 precision highp float;
+precision highp int;
 #endif
 
 #define pi 3.141592653589793

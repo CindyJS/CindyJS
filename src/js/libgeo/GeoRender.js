@@ -277,6 +277,7 @@ function drawgeopolygon(el) {
         fillalpha: el.fillalpha,
         size: el.size,
         lineJoin: General.string("miter"),
+        fillrule: General.string(el.fillrule),
     };
     eval_helper.drawpolygon([el.vertices], modifs, "D", true);
 }

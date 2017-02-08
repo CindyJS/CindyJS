@@ -188,12 +188,12 @@
       
       //traces the ray for the pixel at pos and returns the distance to the first intersection point of ray with (F^{-1}\{0\} intersected with ball with radius 4)
       getDistanceToObj(pos) := (
-        spolyvalues = [S(ray(pos, -1)), S(ray(pos, 0)), S(ray(pos, 1))];
+        spolyvalues =  apply([-1,0,1], S(ray(pos, #)));
         spoly = B3*spolyvalues; // interpolate
         
         D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
         if(D>=0, //ray intersects ball
-          polyvalues = [F(ray(pos, li_1)), F(ray(pos, li_2)), F(ray(pos, li_3)), F(ray(pos, li_4)), F(ray(pos, li_5))];
+          polyvalues = apply(li, F(ray(pos, #)));
           poly = B*polyvalues; // interpolate
           firstroot(poly,
             (-spoly_2-re(sqrt(D)))/(2.*spoly_3), //intersection entering the ball

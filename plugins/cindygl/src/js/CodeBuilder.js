@@ -3,13 +3,12 @@
  */
 function CodeBuilder(api) {
     this.variables = {};
-    this.assigments = {};
-    this.T = {};
     this.uniforms = {};
+    this.scopes = {};
 
     this.sections = {};
 
-    this.precompileDone = false;
+    this.typetime = 0; //the last time when a type got changed
     this.myfunctions = {};
     this.api = api;
     this.texturereaders = {};
@@ -66,23 +65,11 @@ CodeBuilder.prototype.generateSection = function(section) {
 /** @dict @type {Object} */
 CodeBuilder.prototype.myfunctions;
 
-/** @dict @type {boolean} */
-CodeBuilder.prototype.precompileDone;
+/** @dict @type {number} */
+CodeBuilder.prototype.typetime;
 
-/** list of names of variables
- *@dict @type {Object} */
+/** @dict @type {Object} */
 CodeBuilder.prototype.variables;
-
-/**
- * variables -> list of assigments in the form of {expr: expression, fun: in which functions this expression will be eval}
- * @dict @type {Object} */
-CodeBuilder.prototype.assigments;
-
-
-/**
- * T: scope -> (variables -> types)
- * @dict @type {Object} */
-CodeBuilder.prototype.T;
 
 /** @dict @type {Object} */
 CodeBuilder.prototype.uniforms;
@@ -105,6 +92,8 @@ CodeBuilder.prototype.castType = function(term, fromType, toType) {
     if (!issubtypeof(fromType, toType)) {
         console.error(`${typeToString(fromType)} is no subtype of ${typeToString(toType)} (trying to cast the term ${term})`);
         return term;
+    } else if (fromType.type === "constant") {
+        return pastevalue(fromType.value, toType);
     } else {
         let implementation = inclusionfunction(toType)([fromType]);
         if (!implementation) {
@@ -117,165 +106,191 @@ CodeBuilder.prototype.castType = function(term, fromType, toType) {
     }
 };
 
+/**
+ * Initializes the entry in this.variables for the variable with given name if it is not initialized yet.
+ */
+CodeBuilder.prototype.initvariable = function(vname, declareglobal) {
+    if (!this.variables[vname]) this.variables[vname] = {};
+    if (!this.variables[vname].assigments) this.variables[vname].assigments = [];
+    if (!this.variables[vname].T) this.variables[vname].T = false;
+    if (!this.hasOwnProperty('global')) this.variables[vname]['global'] = declareglobal;
+};
 
 /**
- * computes the type of the expr, assuming it is evaluated in the scope of fun.
- * It might consider the type of variables (T)
+ * computes the type of the expr, assuming it is evaluated with the given variable-bindings
+ * It might consider the type of variables (variables[name].T)
  */
-//@TODO: Consider stack of this.variables. e.g. repeat(3, i, e = 32+i);
-CodeBuilder.prototype.computeType = function(expr, fun) { //expression, current function
+CodeBuilder.prototype.computeType = function(expr) { //expression
+    let bindings = expr.bindings;
     if (expr['isuniform']) {
         return this.uniforms[expr['uvariable']].type;
-    }
-
-    if (expr['ctype'] === 'variable') {
+    } else if (expr['ctype'] === 'variable') {
         let name = expr['name'];
-
-        //@rethink: use stack instead of scopes? # # #...
-        if (name === '#') {
-            /*if(modifs[generatecomplexresult]) { //better as uniform type handling
-              return type.complex;
-            }*/
-            return type.vec2; //type.complex if complex->true
-
-        }
-
-        if (this.T.hasOwnProperty(fun) && this.T[fun].hasOwnProperty(name)) { //is there some local variable
-            return this.T[fun][name];
-        } else if (this.T.hasOwnProperty('') && this.T[''].hasOwnProperty(name)) { //interpret as global variable
-            return this.T[''][name];
-        }
+        name = bindings[name] || name;
+        return this.variables[name].T;
     } else if (expr['ctype'] === 'function' && this.myfunctions.hasOwnProperty(expr['oper'])) {
-        if (this.T.hasOwnProperty('') && this.T[''].hasOwnProperty(expr['oper'])) return this.T[''][expr['oper']];
+        return this.variables[bindings[expr['oper']]].T;
     } else if (expr['ctype'] === 'number') {
-        if (expr['value']['imag'] !== 0) return type.complex;
-        //number is real
-        if ((expr['value']['real'] | 0) === expr['value']['real']) return type.int; //MAX.Int?
-        return type.float;
+        return constant(expr);
     } else if (expr['ctype'] === 'void') {
         return type.voidt;
     } else if (expr['ctype'] === 'field') {
-        return type.float; //so far we only have field indexes vor vec2, vec3, vec4
+        let t = generalize(this.getType(expr['obj']));
+        if (t.type === 'list') return t.parameters;
+        if (!t) return false;
     } else if (expr['ctype'] === 'string') {
         return type.image;
-    } else {
+    } else if (expr['ctype'] === 'function' || expr['ctype'] === 'infix') {
         var argtypes = new Array(expr['args'].length);
+        let allconstant = true;
         for (let i = 0; i < expr['args'].length; i++) {
-            argtypes[i] = this.getType(expr['args'][i], fun);
+            argtypes[i] = this.getType(expr['args'][i]);
+            allconstant &= (argtypes[i].type === 'constant');
         }
-        //console.log(f);
-        //console.log(argtypes);
-        let f = getPlainName(expr['oper']);
-        //let signature = matchSignature(f, argtypes);
-        //console.log(signature);
-        //if (signature === undefined || !signature) return false;
-        //return signature.res;
-        let implementation = webgl[f] ? webgl[f](argtypes) : false;
-        if (!implementation && argtypes.every(a => a)) //no implementation found and all args are set
-            console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
-        return implementation ? implementation.res : false;
+        if (allconstant && expr['impl']) { //use api.evaluateAndVal to compute type of constant expression
+            let constantexpression = {
+                "ctype": expr['ctype'],
+                "oper": expr['oper'],
+                "impl": expr['impl'],
+                "args": argtypes.map(a => a.value)
+            };
+            let val = this.api.evaluateAndVal(constantexpression);
+            return constant(val);
+        } else { //if there is something non-constant, we will the functions specified in WebGL.js
+            let f = getPlainName(expr['oper']);
+            let implementation = webgl[f] ? webgl[f](argtypes) : false;
+            if (!implementation && argtypes.every(a => finalparameter(a))) { //no implementation found and all args are set
+                console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
+                console.log(expr);
+                throw ("error");
+
+            }
+            return implementation ? implementation.res : false;
+        }
     }
+    console.error("Don't know how to compute type of");
+    console.log(expr);
     return false;
 };
 
 /**
  * gets the type of the expr, trying to use cached results. Otherwise it will call computeType
  */
-//@TODO: Consider stack of this.variables. e.g. repeat(3, i, e = 32+i);
-CodeBuilder.prototype.getType = function(expr, fun) { //expression, current function
-    //return computeType(expr, fun);
-    /////TODO: update expr["computedType"] in determineVariables
-    if (!this.precompileDone || !expr.hasOwnProperty("computedType"))
-        expr["computedType"] = this.computeType(expr, fun);
-    return expr["computedType"];
+CodeBuilder.prototype.getType = function(expr) { //expression, current function
+    if (!expr.computedType || !expr.typetime || this.typetime > expr.typetime) {
+        expr.computedType = this.computeType(expr);
+        expr.typetime = this.typetime;
+    }
+    return expr.computedType;
 };
 
 /**
- * finds the occuring variables, saves them to this.variables and its occuring assigments to this.assigments
+ * finds the occuring variables, saves them to this.variables with their occuring assigmets.
+ * Furthermore attaches an bindings-dictionary to each expression that is tranversed.
  */
-CodeBuilder.prototype.determineVariables = function(expr) {
-
+CodeBuilder.prototype.determineVariables = function(expr, bindings) {
     //for some reason this reference does not work in local function. Hence generate local variables
-    let variables = {}; //functionname -> list of variables occuring in this scope. global corresponds to ''-function
-    let assigments = {};
+    let variables = this.variables; //functionname -> list of variables occuring in this scope. global corresponds to ''-function
     let myfunctions = this.myfunctions;
+    var self = this;
 
-    rec(expr, ''); //global
-    this.variables = variables;
-    this.assigments = assigments;
+    rec(expr, bindings, 'global', false);
 
-    function rec(expr, fun) { //dfs over executed code
-        if (!variables.hasOwnProperty(fun)) {
-            variables[fun] = []; //list of variables
-        }
-        if (!assigments.hasOwnProperty(fun)) {
-            assigments[fun] = {}; //map variables -> list of expressions
-        }
+    //clones the a bindings-dict and addes one variable of given type to it
+    function addvar(bindings, varname, type) {
+        let ans = {}; //clone bindings
+        for (let i in bindings) ans[i] = bindings[i];
+        let ivar = generateUniqueHelperString();
+        self.initvariable(ivar, false);
+        variables[ivar].T = type;
+        variables[ivar].iterationvariable = true;
+        ans[varname] = ivar;
+        return ans;
+    }
 
+    //dfs over executed code
+    function rec(expr, bindings, scope, forceconstant) {
+        expr.bindings = bindings;
         for (let i in expr['args']) {
-            rec(expr['args'][i], fun);
+            let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
+            let nbindings = bindings;
+            if (["repeat", "forall", "apply"].indexOf(getPlainName(expr['oper'])) != -1) {
+                if (i == 1) {
+                    nbindings = (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
+                        (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
+                        (expr['oper'] === "forall$2" || expr['oper'] === "apply$2") ? addvar(bindings, '#', false) :
+                        (expr['oper'] === "forall$3" || expr['oper'] === "apply$3") ? addvar(bindings, expr['args'][1]['name'], false) : bindings;
+                } else if (i == 2) { //take same bindings as for second argument
+                    nbindings = expr['args'][1].bindings;
+                }
+            }
+            rec(expr['args'][i],
+                nbindings,
+                scope,
+                needtobeconstant);
         }
+        if (expr['ctype'] === 'field') rec(expr['obj'], bindings, scope, forceconstant);
 
+        if (expr['ctype'] === 'variable') {
+            let vname = expr['name'];
+            vname = bindings[vname] || vname;
+            if (forceconstant && self.variables[vname]) {
+                //console.log(`mark ${vname} as constant iteration variable`);
+                self.variables[vname].forceconstant = true;
+            }
+        }
         //was there something happening to the (return)variables?
         if (expr['oper'] === '=') { //assignment to variable
             let vname = expr['args'][0]['name'];
-            var scope = fun;
-            if (variables[fun].indexOf(vname) === -1) { //no regional function found
-                scope = ''; //consider global variable
-                if (variables[scope].indexOf(vname) === -1) {
-                    variables[scope].push(vname);
-                    assigments[scope][vname] = [];
-                }
+            vname = bindings[vname] || vname;
+
+            self.initvariable(vname, true);
+            variables[vname].assigments.push(expr['args'][1]);
+        } else if (expr['oper'] && getPlainName(expr['oper']) === 'regional' && scope != 'global') {
+            for (let i in expr['args']) {
+                let vname = expr['args'][i]['name'];
+                let iname = generateUniqueHelperString();
+                bindings[vname] = iname;
+
+                if (!myfunctions[scope].variables) myfunctions[scope].variables = [];
+                myfunctions[scope].variables.push(iname);
+                self.initvariable(iname, false);
             }
-            //the scope of vname is scope
-            assigments[scope][vname].push({
-                expr: expr['args'][1], //variable in expr will interpreted in the scope of fun
-                fun: fun
-            });
-            //rec(expr['args'][1], fun);
-        } else if (expr['oper'] && getPlainName(expr['oper']) === 'regional') {
-            for (let i = 0; i < expr['args'].length; i++) {
-                if (expr['args'][i]['ctype'] === 'variable') {
-                    let vname = expr['args'][i]['name'];
-                    if (variables[fun].indexOf(vname) === -1) {
-                        variables[fun].push(vname);
-                        assigments[fun][vname] = [];
+        } else if (expr['oper'] === "forall$2" || expr['oper'] === "apply$2" || expr['oper'] === "forall$3" || expr['oper'] === "apply$3") {
+            let it = (expr['args'].length === 2) ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
+            variables[it].assigments.push({ //add function that accesses first element of array for type detection
+                "ctype": "infix",
+                "oper": "_",
+                "args": [expr['args'][0], {
+                    "ctype": "number",
+                    "value": {
+                        "real": 1,
+                        "imag": 0
                     }
-                }
-            }
+                }],
+                bindings: expr['args'][0].bindings
+            });
         } else if (expr['ctype'] === 'function' && myfunctions.hasOwnProperty(expr['oper'])) { // call of user defined function
-            let rfun = expr['oper']; //@TODO: Remove $...?
-            if (!variables.hasOwnProperty(rfun)) {
-                variables[rfun] = []; //list of variables
-            }
-            if (!assigments.hasOwnProperty(rfun)) {
-                assigments[rfun] = {}; //map variables -> list of expressions
-            }
+            let rfun = expr['oper'];
+            let pname = rfun.replace('$', '_'); //remove $
+            self.initvariable(pname, false);
+            bindings[rfun] = pname;
 
+            let localbindungs = {};
             for (let i in myfunctions[rfun]['arglist']) {
-                let a = myfunctions[rfun]['arglist'][i]['name'];
-                variables[rfun].push(a);
-                if (!assigments[rfun].hasOwnProperty(a)) assigments[rfun][a] = [];
+                let localname = myfunctions[rfun]['arglist'][i]['name'];
+                let a = pname + '_' + localname;
+                localbindungs[localname] = a;
 
-                assigments[rfun][a].push({
-                    expr: expr['args'][i],
-                    fun: fun //the scope in which the function is called
-                });
+                self.initvariable(a, false);
+                variables[a].assigments.push(expr['args'][i]);
             }
             if (!myfunctions[rfun].visited) {
                 myfunctions[rfun].visited = true;
-                rec(myfunctions[rfun].body, rfun);
-            }
+                rec(myfunctions[rfun]['body'], localbindungs, rfun, forceconstant);
 
-
-            //oh yes, the return variable of the function should be added as well
-            //functions are always global
-            if (variables[''].indexOf(rfun) === -1) {
-                variables[''].push(rfun);
-                assigments[''][rfun] = [{
-                    expr: myfunctions[rfun]['body'],
-                    fun: rfun //the expression above will be evalueted in scope of rfun
-                }];
+                //the return variable of the function should be added as well
+                variables[pname].assigments.push(myfunctions[rfun]['body']); //the expression will be evalueted in scope of rfun
             }
         }
     }
@@ -287,30 +302,24 @@ CodeBuilder.prototype.determineVariables = function(expr) {
 CodeBuilder.prototype.determineTypes = function() {
     let changed = true;
 
-    for (let s in this.assigments) {
-        this.T[s] = {};
-        for (let v in this.assigments[s]) this.T[s][v] = false; //no type yet
+    for (let v in this.variables) {
+        this.variables[v].T = this.variables[v].T || false; //false corresponds no type yet
+
+        if (this.variables[v].forceconstant) {
+            this.variables[v].T = constint(1);
+            this.typetime++;
+        }
     }
 
-    while (changed) {
+    while (changed) { //TODO: implement queue to make this faster
         changed = false;
-        //iterate over all scopes, their this.variables(and functions), and their rethis.assigments
-        for (let s in this.assigments)
-            for (let v in this.assigments[s])
-                for (let i in this.assigments[s][v]) {
-                    // variable  v (which lives in scope s) <- expression e in function f
-                    let e = this.assigments[s][v][i].expr;
-                    let f = this.assigments[s][v][i].fun;
-                    let othertype = this.getType(e, f); //type of expression e in function f
-
-                    let oldtype = false;
-                    if (this.T.hasOwnProperty(s) && this.T[s].hasOwnProperty(v)) oldtype = this.T[s][v];
+        for (let v in this.variables)
+            if (!this.variables[v].forceconstant) {
+                for (let i in this.variables[v].assigments) {
+                    let e = this.variables[v].assigments[i];
+                    let othertype = generalize(this.getType(e)); //type of expression e in function f
+                    let oldtype = this.variables[v].T || false;
                     let newtype = oldtype;
-
-
-                    //  if (!othertype)//TODO: remove
-                    //      console.log(`Could not determine type of ${v} in scope ${s}. It has expression ${JSON.stringify(e)}`);
-
                     if (othertype) {
                         if (!oldtype) newtype = othertype;
                         else {
@@ -318,14 +327,14 @@ CodeBuilder.prototype.determineTypes = function() {
                             else newtype = lca(oldtype, othertype);
                         }
                         if (newtype && newtype !== oldtype) {
-                            if (!this.T.hasOwnProperty(s)) this.T[s] = {};
-
-                            this.T[s][v] = newtype;
-                            console.log(`variable ${v} in scope ${s} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
+                            this.variables[v].T = newtype;
+                            //console.log(`variable ${v} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
+                            this.typetime++;
                             changed = true;
                         }
                     }
                 }
+            }
     }
 };
 
@@ -336,38 +345,41 @@ CodeBuilder.prototype.determineTypes = function() {
  * for all terms that have no child dependent on # or any variable dependent on #
  */
 CodeBuilder.prototype.determineUniforms = function(expr) {
-    var variableDependendsOnPixel = {
-        '': {
-            '#': true
-        }
-    }; //scope -> dict of this.variables being dependent on #
-
-    //@rethink: include this.variables that change during plot call(like running this.variables in loops) as well.
-    //variableDependendsOnPixel -> varyingVariable
-
-    //@simplefix: assume wlog that every variable that appears on left sign of assigment is dependent on varying this.variables (if might be called or not, depending on #)
-
     let variables = this.variables;
     let myfunctions = this.myfunctions;
 
+    var variableDependendsOnPixel = {
+        'cgl_pixel': true
+    }; //dict of this.variables being dependent on #
 
-    function dependsOnPixel(expr, fun) {
+    //KISS-Fix: every variable appearing on left side of assigment is varying
+    for (let v in variables)
+        if (variables[v].assigments.length >= 1 || variables[v].iterationvariable)
+            variableDependendsOnPixel[v] = true;
+    //run expression to get all expr["dependsOnPixel"]
+    dependsOnPixel(expr);
+
+
+    let visitedFunctions = {
+        '': true
+    };
+
+    let uniforms = this.uniforms;
+    computeUniforms(expr, false);
+
+
+    function dependsOnPixel(expr) {
         //Have we already found out that expr depends on pixel?
-        if (expr.hasOwnProperty("dependsOnPixel") && expr["dependsOnPixel"] === true) {
-            return true;
+        if (expr.hasOwnProperty("dependsOnPixel")) {
+            return expr["dependsOnPixel"];
         }
 
         //Is expr a variable that depends on pixel? (according the current variableDependendsOnPixel)
         if (expr['ctype'] === 'variable') {
             let vname = expr['name'];
-
-            if (variableDependendsOnPixel.hasOwnProperty(fun) && variableDependendsOnPixel[fun][vname]) { //local variable
+            vname = expr.bindings[vname] || vname;
+            if (variableDependendsOnPixel[vname]) {
                 return expr["dependsOnPixel"] = true;
-            }
-            if (variables[fun].indexOf(vname) === -1) { //no regional function found
-                if ((variableDependendsOnPixel.hasOwnProperty('') && variableDependendsOnPixel[''][vname])) { //global variable
-                    return expr["dependsOnPixel"] = true;
-                }
             }
             return expr["dependsOnPixel"] = false;
         }
@@ -380,83 +392,53 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             return expr["dependsOnPixel"] = true;
         }
 
+        //repeat is pixel dependent iff it's code is pixel dependent. Then it also makes the running variable pixel dependent.
+        if (expr['oper'] === "repeat$2" || expr['oper'] === "forall$2" || expr['oper'] === "apply$2") {
+            if (dependsOnPixel(expr['args'][1])) {
+                variableDependendsOnPixel[expr['args'][1].bindings['#']] = true;
+                return expr["dependsOnPixel"] = true;
+            } else return expr["dependsOnPixel"] = false;
+        } else if (expr['oper'] === "repeat$3" || expr['oper'] === "forall$3" || expr['oper'] === "apply$3") {
+            if (dependsOnPixel(expr['args'][2])) {
+                variableDependendsOnPixel[expr['args'][2].bindings[expr['args'][1]['name']]] = true;
+                expr['args'][1]["dependsOnPixel"] = true;
+                return expr["dependsOnPixel"] = true;
+            } else return expr["dependsOnPixel"] = false;
+        }
+
         //run recursion on all dependent arguments
         for (let i in expr['args']) {
-            if (dependsOnPixel(expr['args'][i], fun)) {
+            if (dependsOnPixel(expr['args'][i])) {
                 return expr["dependsOnPixel"] = true;
             }
         }
 
-
         //Oh yes, it also might be a user-defined function!
         if (expr['ctype'] === 'function' && myfunctions.hasOwnProperty(expr['oper'])) {
             let rfun = expr['oper'];
-            if (!variableDependendsOnPixel.hasOwnProperty(rfun)) {
-                variableDependendsOnPixel[rfun] = {}; //dict of dependent variables
-            }
-            if (dependsOnPixel(myfunctions[rfun].body, rfun)) {
+            if (dependsOnPixel(myfunctions[rfun].body)) {
                 return expr["dependsOnPixel"] = true;
             }
         }
 
         //p.x
         if (expr['ctype'] === 'field') {
-            return expr["dependsOnPixel"] = dependsOnPixel(expr['obj'], fun);
+            return expr["dependsOnPixel"] = dependsOnPixel(expr['obj']);
         }
-        return false;
+        return expr["dependsOnPixel"] = false;
     }
 
-
-    /*
-    //try to expand the set of variablesDependentOnPixel as long as possible
-    var changed = true;
-    while(changed) {
-      changed = false;
-      //iterate over all scopes, their variables(and functions), and their reassigments
-      for(let s in assigments) for(let v in assigments[s]) for(let i in assigments[s][v]) {
-        // variable  v (which lives in scope s) <- expression e in function f
-        let e = assigments[s][v][i].expr;
-        let f = assigments[s][v][i].fun;
-        if(!variableDependendsOnPixel.hasOwnProperty(s)) {
-          variableDependendsOnPixel[s] = {}; //dict of dependent variables
-        }
-        if(!variableDependendsOnPixel[s][v]) {
-          //try weather it actually is dependent
-          if(dependsOnPixel(e, f)) {
-            variableDependendsOnPixel[s][v] = true;
-            changed = true;
-          }
-        }
-      }
-    }
-    */
-    //KISS-Fix: every variable appearing on left side of assigment is varying
-    for (let s in this.assigments)
-        for (let v in this.assigments[s]) { //scope s, variable v
-            if (!variableDependendsOnPixel.hasOwnProperty(s)) {
-                variableDependendsOnPixel[s] = {}; //dict of dependent variables
-            }
-            variableDependendsOnPixel[s][v] = true;
-        }
-
-    //run expression to get all expr["dependsOnPixel"]
-    dependsOnPixel(expr, '');
-
-    let visitedFunctions = {
-        '': true
-    };
-
-    let uniforms = {};
     //now find use those elements in expression trees that have no expr["dependsOnPixel"] and as high as possible having that property
-    function computeUniforms(expr, fun) {
-        if (dependsOnPixel(expr, fun)) {
+    function computeUniforms(expr, forceconstant) {
+        if (dependsOnPixel(expr)) {
             //then run recursively on all childs
             for (let i in expr['args']) {
-                computeUniforms(expr['args'][i], fun);
+                let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
+                computeUniforms(expr['args'][i], needtobeconstant);
             }
 
             if (expr['ctype'] === 'field') {
-                computeUniforms(expr['obj'], fun);
+                computeUniforms(expr['obj'], forceconstant);
             }
 
             //Oh yes, it also might be a user-defined function!
@@ -464,19 +446,21 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
                 let rfun = expr['oper'];
                 if (!visitedFunctions.hasOwnProperty(rfun)) { //only do this once per function
                     visitedFunctions[rfun] = true;
-                    computeUniforms(myfunctions[rfun].body, rfun);
+                    computeUniforms(myfunctions[rfun].body, forceconstant);
                 }
             }
         } else {
-            //assert that parent node was dependent on uniform
+            //assert that parent node was dependent on pixel
             //we found a highest child that is not dependent -> this will be a candidate for a uniform!
 
             //To pass constant numbers as uniforms is overkill
+            //TODO better: if it does not contain variables or functions
             if (expr['ctype'] === 'number') return;
 
             //nothing to pass
             if (expr['ctype'] === 'void') return;
 
+            if (expr['oper'] === '..') forceconstant = true; //if this would vary, then also its length, ergo its type. Hence we can assume that it is constant :-)
             //check whether uniform with same expression has already been generated. Note this causes O(n^2) running time :/ One might use a hashmap if it becomes relevant
             let found = false;
             let uname;
@@ -491,36 +475,22 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
                 uname = generateUniqueHelperString();
                 uniforms[uname] = {
                     expr: expr,
-                    type: false
+                    type: false,
+                    forceconstant: forceconstant
                 };
             }
-
             expr["isuniform"] = true;
             expr["uvariable"] = uname;
-
         }
     }
-
-
-    computeUniforms(expr, '');
-    this.uniforms = uniforms;
 };
 
 
 CodeBuilder.prototype.determineUniformTypes = function() {
     for (let uname in this.uniforms) {
-        //Default value
-        this.uniforms[uname].type = type.float; //every cindyJS number can be interpreted as complex.
-
-        //TODO: check wether type was specified by modifier?
-
         let tval = this.api.evaluateAndVal(this.uniforms[uname].expr);
-
-
-        this.uniforms[uname].type = guessTypeOfValue(tval);
-
-        //TODO: list...    TODO: why are points evaluated to ints?
-        console.log(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
+        this.uniforms[uname].type = this.uniforms[uname].forceconstant ? constant(tval) : guessTypeOfValue(tval);
+        //console.log(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
     }
 };
 
@@ -539,15 +509,17 @@ CodeBuilder.prototype.copyRequiredFunctions = function(expr) {
 }
 
 
-CodeBuilder.prototype.precompile = function(expr) {
-    this.precompileDone = false;
-
+CodeBuilder.prototype.precompile = function(expr, bindings) {
     this.copyRequiredFunctions(expr);
-    this.determineVariables(expr);
+    this.determineVariables(expr, bindings);
     this.determineUniforms(expr);
     this.determineUniformTypes();
+
     this.determineTypes();
-    this.precompileDone = true;
+    for (let u in this.uniforms)
+        if (this.uniforms[u].type.type === 'list') createstruct(this.uniforms[u].type, this);
+    for (let v in this.variables)
+        if (this.variables[v].T.type === 'list') createstruct(this.variables[v].T, this);
 };
 
 
@@ -558,191 +530,284 @@ CodeBuilder.prototype.precompile = function(expr) {
  * [if generateTerm then also with the additional keys] term: expression in webgl, type: type of expression }
  */
 
-CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
+CodeBuilder.prototype.compile = function(expr, generateTerm) {
     var self = this; //for some reason recursion on this does not work, hence we create a copy; see http://stackoverflow.com/questions/18994712/recursive-call-within-prototype-function
+
+    let ctype = this.getType(expr);
     if (expr['isuniform']) {
         let uname = expr['uvariable'];
         let uniforms = this.uniforms;
-        let ctype = uniforms[uname].type;
         return generateTerm ? {
             code: '',
-            term: uname,
-            type: ctype
+            term: ctype.type === 'constant' ? pastevalue(ctype.value, generalize(ctype)) : uname,
         } : {
             code: ''
         };
-    }
-    if (expr['oper'] === ";") {
-        /*
-        let r0 = this.compile(expr['args'][0], scope, false);
-        let r1 = this.compile(expr['args'][1], scope, generateTerm);
-        let code = r0.code + r1.code;// + ((c.hasOwnProperty(expr)) ? '' : (c.expr + ';\n'));
-        //let r = generateTerm ? this.compile(expr['args'][1], true) : this.compile(expr['args'][1], false);
-        return generateTerm ? {code: code, term: r1.term, type:r1.type} : {code: code};
-        */
-
-
-        //arbitrary number of arguments, e.g. only 1
-
-        //let r = new Array(expr['args'].length);
+    } else if (expr['oper'] === ";") {
         let r = {
-            type: type.voidt,
             term: ''
         }; //default return value
         let code = '';
         let lastindex = expr['args'].length - 1;
+
         for (let i = lastindex; i >= 0; i--) {
-            if (expr['args'][i]['ctype'] === 'void') lastindex--; //take last non-void entry
+            if (expr['args'][i]['ctype'] === 'void') lastindex = i - 1; //take last non-void entry
         }
 
         for (let i = 0; i <= lastindex; i++) {
-            r = this.compile(expr['args'][i], scope, generateTerm && (i === lastindex)); //last one is responsible to generate term if required
+            r = this.compile(expr['args'][i], generateTerm && (i === lastindex)); //last one is responsible to generate term if required
             code += r.code;
         }
 
         return generateTerm ? {
             code: code,
             term: r.term,
-            type: r.type
         } : {
             code: code
         };
 
+    }
+    if (ctype.type === 'constant') {
+        return generateTerm ? {
+            term: pastevalue(ctype.value, generalize(ctype)),
+            code: ''
+        } : {
+            code: ''
+        };
     } else if (expr['oper'] === "=") {
-        let r = this.compile(expr['args'][1], scope, true);
-        let varname = expr['args'][0]['name']
-            //console.log(scope);
-            //console.log(varname);
-        let t = `${varname} = ${this.castType(r.term, r.type, this.getType(expr['args'][0], scope))}`;
+        let r = this.compile(expr['args'][1], true);
+        let varexpr = this.compile(expr['args'][0], true).term; //note: this migth be also a field access
+        let t = `${varexpr} = ${this.castType(r.term, this.getType(expr['args'][1]), this.getType(expr['args'][0]))}`;
         if (generateTerm) {
             return {
                 code: r.code,
                 term: t,
-                type: this.T[scope][varname]
             };
         } else {
             return {
                 code: `${r.code + t};\n`
             }
         }
-    } else if (expr['oper'] === "repeat$2") {
-        if (expr['args'][0]['ctype'] !== 'number') {
+    } else if (expr['oper'] === "repeat$2" || expr['oper'] === "repeat$3") {
+        let number = this.compile(expr['args'][0], true);
+        let ntype = this.getType(expr['args'][0]);
+        if (ntype.type !== 'constant') {
             console.error('repeat possible only for fixed constant number in GLSL');
             return false;
         }
-        let it = generateUniqueHelperString();
-        let n = (expr['args'][0]['value']['real'] | 0); //TODO use some internal function like evalCS etc.
-        let r = this.compile(expr['args'][1], scope, generateTerm);
+        let it = (expr['oper'] === "repeat$2") ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
+
+        let n = Number(number.term);
+        let code = '';
+
+        if (this.variables[it].T.type === 'constant') {
+            for (let k = 1; k <= n; k++) { //unroll
+                this.variables[it].T = constint(k); //overwrites binding
+                this.typetime++;
+                let r = this.compile(expr['args'][(expr['oper'] === "repeat$2") ? 1 : 2], (k === n) && generateTerm);
+                code += r.code;
+                if ((k === n) && generateTerm) {
+                    return {
+                        code: code,
+                        term: r.term,
+                    };
+                }
+            }
+        } else { //non constant running variable
+            let ansvar = '';
+            let r = this.compile(expr['args'][(expr['oper'] === "repeat$2") ? 1 : 2], generateTerm);
+            let rtype = this.getType(expr['args'][(expr['oper'] === "repeat$2") ? 1 : 2]);
+            if (generateTerm) {
+                ansvar = generateUniqueHelperString();
+                if (!this.variables[ansvar]) {
+                    this.initvariable(ansvar, true);
+                    this.variables[ansvar].T = rtype;
+                }
+            }
+            code += `for(int ${it}=1; ${it} <= ${n}; ${it}++) {\n`;
+            code += r.code;
+            if (generateTerm) {
+                code += `${ansvar} = ${r.term};\n`;
+            }
+            code += '}\n';
+            if (generateTerm) {
+                return {
+                    code: code,
+                    term: ansvar,
+                };
+            }
+        }
+        //generateTerm == false
+        return ({
+            code: code
+        });
+    } else if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3" || expr['oper'] === "apply$2" || expr['oper'] === "apply$3") {
+        let arraytype = this.getType(expr['args'][0]);
+
+        if (!(arraytype.type === 'list' || (arraytype.type === 'constant' && arraytype.value['ctype'] === 'list'))) {
+            console.error(`${expr['oper']} only possible for lists`);
+            return false;
+        }
+
+        let n = arraytype.length || arraytype.value["value"].length;
+        let r;
+
+        let it = (expr['args'].length === 2) ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
+        let ittype = this.variables[it].T;
+
 
         let code = '';
         let ans = '';
-        let ansvar = '';
 
         if (generateTerm) {
-            ansvar = generateUniqueHelperString();
-            code += `${webgltype(r.type)} ${ansvar};`; //initial ansvar
+            ans = generateUniqueHelperString();
+            code += `${webgltype(ctype)} ${ans};\n`;
         }
-        code += `for(int ${it}=0; ${it} < ${n}; ${it}++) {\n`;
-        code += r.code;
-        if (generateTerm) {
-            code += `${ansvar} = ${r.term};\n`;
+
+        if (ctype.type === 'list') createstruct(ctype, this);
+
+
+        if (this.variables[it].T.type === 'constant' || arraytype.type === 'constant') {
+            let arrayval = this.api.evaluateAndVal(expr['args'][0]);
+            for (let i = 0; i < n; i++) {
+                this.variables[it].T = constant(arrayval['value'][i]); //overwrites binding
+                this.typetime++;
+                //console.log(`current binding: ${it} -> ${typeToString(this.variables[it].T)}`);
+                r = this.compile(expr['args'][(expr['args'].length === 2) ? 1 : 2], generateTerm);
+                code += r.code;
+
+                if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3") {
+                    if ((i + 1 === n) && generateTerm) {
+                        code += `${ans} = ${r.term};\n`;
+                    }
+                } else { //apply
+                    if (generateTerm) {
+                        code += `${accesslist(ctype, i)([ans], [], this)} = ${r.term};\n`;
+                    }
+                }
+            }
+        } else { //assume that array is non-constant
+            r = this.compile(expr['args'][(expr['args'].length === 2) ? 1 : 2], generateTerm);
+            let array = this.compile(expr['args'][0], true);
+
+
+            code += array.code;
+            let sterm = array.term;
+
+            //evaluate array.term to new variable sterm if it is complicated and it used at least twice
+            if (!this.variables[sterm] && !this.uniforms[sterm] && arraytype.length >= 2) {
+                sterm = generateUniqueHelperString();
+                code += `${webgltype(arraytype)} ${sterm} = ${array.term};\n`;
+            }
+
+            this.variables[it]['global'] = true;
+
+            //unroll forall/apply because dynamic access of arrays would require branching
+            for (let i = 0; i < n; i++) {
+                code += `${it} = ${accesslist(arraytype, i)([sterm], [], this)};\n`
+                code += r.code;
+                if (generateTerm) {
+                    if (expr['oper'] === "forall$2" || expr['oper'] === "forall$3") {
+                        if (i === n - 1) {
+                            code += `${ans} = ${r.term};\n`;
+                        }
+                    } else code += `${accesslist(ctype, i)([ans], [], this)} = ${r.term};\n`;
+                }
+            }
+
+            if (ittype.type === 'list') createstruct(ittype, this);
         }
-        code += '}\n';
         return (generateTerm ? {
             code: code,
-            term: ansvar,
-            type: r.type
+            term: ans,
         } : {
             code: code
         });
-    } else if (expr['oper'] === "repeat$3") {
-        console.error("TODO");
-        //@TODO implement with manual variable
+
     } else if (expr['oper'] === "if$2" || expr['oper'] === "if$3") {
-        let cond = this.compile(expr['args'][0], scope, true);
-        let ifbranch = this.compile(expr['args'][1], scope, generateTerm);
+        let cond = this.compile(expr['args'][0], true);
+        let condt = this.getType(expr['args'][0]);
 
         let code = '';
-        let ans = '';
         let ansvar = '';
 
-        let termtype = this.getType(expr, scope);
+        let ifbranch = this.compile(expr['args'][1], generateTerm);
+
 
         if (generateTerm) {
             ansvar = generateUniqueHelperString();
-            code += `${webgltype(termtype)} ${ansvar};`; //initial ansvar
+            if (!this.variables[ansvar]) {
+                this.initvariable(ansvar, true);
+                this.variables[ansvar].T = ctype;
+            }
         }
-        code += cond.code;
-        code += `if(${cond.term}) {\n`;
-        code += ifbranch.code;
-        if (generateTerm) {
-            code += `${ansvar} = ${this.castType(ifbranch.term, ifbranch.type, termtype)};\n`;
+
+
+        if (condt.type != 'constant') {
+            code += cond.code;
+            code += `if(${cond.term}) {\n`;
+        }
+
+
+        if (condt.type != 'constant' || (condt.type == 'constant' && condt.value["value"])) {
+            code += ifbranch.code;
+            if (generateTerm) {
+                code += `${ansvar} = ${this.castType(ifbranch.term, this.getType(expr['args'][1]), ctype)};\n`;
+            }
         }
 
         if (expr['oper'] === "if$3") {
-            let elsebranch = this.compile(expr['args'][2], scope, generateTerm);
-            code += '} else {\n';
-            code += elsebranch.code;
-            if (generateTerm) {
-                code += `${ansvar} = ${this.castType(elsebranch.term, elsebranch.type, termtype)};\n`;
+            let elsebranch = this.compile(expr['args'][2], generateTerm);
+            if (condt.type != 'constant')
+                code += '} else {\n';
+
+
+            if (condt.type != 'constant' || (condt.type == 'constant' && !condt.value["value"])) {
+                code += elsebranch.code;
+                if (generateTerm) {
+                    code += `${ansvar} = ${this.castType(elsebranch.term, this.getType(expr['args'][2]), ctype)};\n`;
+                }
             }
         }
-        code += '}\n';
+        if (condt.type != 'constant')
+            code += '}\n';
         return (generateTerm ? {
             code: code,
             term: ansvar,
-            type: termtype
         } : {
             code: code
         });
-        //@TODO implement if$2
     } else if (expr['ctype'] === "function" || expr['ctype'] === "infix") {
         let fname = expr['oper'];
-
-        //console.log(JSON.stringify(expr));
-        //console.log("this:" + JSON.stringify(this));
-
 
         if (getPlainName(fname) === 'verbatimglsl') {
             let glsl = this.api.evaluateAndVal(expr['args'][0]).value;
             return (generateTerm ? {
                 term: glsl,
-                type: type.anytype,
                 code: ''
             } : {
                 code: glsl
             });
         }
 
-        let r = expr['args'].map(e => self.compile(e, scope, true)); //recursion on all arguments
+        let r = expr['args'].map(e => self.compile(e, true)); //recursion on all arguments
 
         let termGenerator;
 
-
-        //console.log('recursion in scope ' + scope);
-        //console.log(expr);
-        //console.log(fname);
-        //console.log(r);//TODO remove
-
-        let currenttype = r.map(c => c.type);
+        let currenttype = expr['args'].map(e => self.getType(e)); //recursion on all arguments
         let targettype;
-        let restype;
 
         if (this.myfunctions.hasOwnProperty(fname)) { //user defined function
             termGenerator = this.usemyfunction(fname);
             targettype = new Array(r.length)
             for (let i = 0; i < r.length; i++) {
-                targettype[i] = this.T[fname][this.myfunctions[fname]['arglist'][i]['name']];
+                targettype[i] = this.variables[this.myfunctions[fname].body.bindings[this.myfunctions[fname]['arglist'][i]['name']]].T;
             }
-
-            restype = this.T[''][fname];
-
         } else { //cindyscript-function
             fname = getPlainName(fname);
             if (fname === 'regional')
                 return (generateTerm ? {
                     term: '',
-                    type: type.voidt,
                     code: ''
                 } : {
                     code: ''
@@ -754,7 +819,6 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
                 console.error(`Could not find an implementation for ${fname}(${currenttype.map(typeToString).join(', ')}).\nReturning empty code`);
                 return (generateTerm ? {
                     term: '',
-                    type: type.voidt,
                     code: ''
                 } : {
                     code: ''
@@ -762,7 +826,6 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
             }
 
             targettype = implementation.args;
-            restype = implementation.res;
             termGenerator = implementation.generator;
         }
 
@@ -775,57 +838,21 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
         }
         //console.log("Running Term Generator with arguments" + JSON.stringify(argterms) + " and this: " + JSON.stringify(this));
         let term = termGenerator(argterms, expr['modifs'], this);
-        //console.log(termGenerator);
-        //console.log(termGenerator([1]));
         //console.log("generated the following term:" + term);
         if (generateTerm)
             return {
                 term: term,
-                type: restype,
                 code: code
             };
         else
             return {
                 code: `${code + term};\n`
             };
-    } else if (expr['ctype'] === 'number') { //write numbers(int, float, complex) directly in code
-        let termtype = this.getType(expr, scope);
-        let term;
-
-        if (termtype === type.int) term = (expr['value']['real'] | 0);
-        else if (termtype === type.float) term = expr['value']['real'];
-        else if (termtype === type.complex) term = `vec2( ${expr['value']['real']}, ${expr['value']['imag']})`;
-
-        return (generateTerm ? {
-            term: term,
-            type: termtype,
-            code: ''
-        } : {
-            code: `${termtype};\n`
-        });
-    } else if (expr['ctype'] === 'string') { //just copy strings directly into glsl. Useful for example for names of textures
-        /*let termtype = type.string;
-            let term = expr['value'];
-            return (generateTerm ? {
-                term: term,
-                type: termtype,
-                code: ''
-            } : {
-                code: termtype + ';\n'
-        });*/
-        console.error("Cannot compile strings to WebGL.");
-        return false;
     } else if (expr['ctype'] === "variable") {
-        let termtype = this.getType(expr, scope);
-
         let term = expr['name'];
-
-        if (term === '#') { //TODO: This could be passed by some additional argument: Or # could be inside repeat-loop... Better use stack
-            term = 'cgl_pixel';
-        }
+        term = expr.bindings[term] || term;
         return (generateTerm ? {
             term: term,
-            type: termtype,
             code: ''
         } : {
             code: `${term};\n`
@@ -833,32 +860,37 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
     } else if (expr['ctype'] === "void") {
         return (generateTerm ? {
             term: '',
-            type: type.voidt,
             code: ''
         } : {
             code: ''
         });
     } else if (expr['ctype'] === 'field') {
-        //TODO: finish implementation once cindyJS got implementation
-        let termtype = this.getType(expr, scope);
-        let term = self.compile(expr['obj'], scope, true).term;
-        term += `.${expr['key']}`; //for .x .y. z .r .g .b things are same in cindyjs and glsl
-        return (generateTerm ? {
-            term: term,
-            type: termtype,
-            code: ''
-        } : {
-            code: `${term};\n`
-        });
+        let index = {
+            'x': 0,
+            'y': 1,
+            'z': 2,
+            'r': 0,
+            'g': 1,
+            'b': 2,
+            'a': 3
+        }[expr['key']];
+        if (index != undefined) {
+            let term = accesslist(this.getType(expr['obj']), index)([self.compile(expr['obj'], true).term], null, this);
+            return (generateTerm ? {
+                term: term,
+                code: ''
+            } : {
+                code: `${term};\n`
+            });
+        }
     }
     console.error(`dont know how to this.compile ${JSON.stringify(expr)}`);
-
 };
 
 
 CodeBuilder.prototype.usemyfunction = function(fname) {
     this.compileFunction(fname, this.myfunctions[fname]['arglist'].length);
-    return usefunction(fname);
+    return usefunction(fname.replace('$', '_'));
 };
 
 
@@ -867,25 +899,25 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
     if (this.mark('compiledfunctions', fname)) return; //visited
 
     let m = this.myfunctions[fname];
+    let pname = fname.replace('$', '_'); //remove $
+    let bindings = m.body.bindings;
 
     let vars = new Array(nargs);
     for (let i = 0; i < nargs; i++) {
         vars[i] = m['arglist'][i]['name'];
     }
-    let isvoid = (this.T[''][fname] === type.voidt);
+    let isvoid = (this.variables[pname].T === type.voidt);
 
-    let code = `${webgltype(this.T[''][fname])} ${getPlainName(fname)}(${vars.map(varname => webgltype(self.T[fname][varname]) + ' ' + varname).join(', ')}){\n`;
-    for (let i in this.variables[fname]) {
-        let doprint = true;
-        let varname = this.variables[fname][i];
-        for (let j = 0; j < vars.length; j++) doprint &= (varname !== vars[j]);
-        if (doprint) code += `${webgltype(this.T[fname][varname])} ${varname};\n`;
+    let code = `${webgltype(this.variables[pname].T)} ${pname}(${vars.map(varname => webgltype(self.variables[bindings[varname]].T) + ' ' + bindings[varname]).join(', ')}){\n`;
+    for (let i in m.variables) {
+        let iname = m.variables[i];
+        code += `${webgltype(this.variables[iname].T)} ${iname};\n`;
     }
-    let r = self.compile(m.body, fname, !isvoid);
+    let r = self.compile(m.body, !isvoid);
+    let rtype = self.getType(m.body);
     code += r.code;
-    //console.log(r);
     if (!isvoid)
-        code += `return ${this.castType(r.term, r.type, this.T[''][fname])};\n`; //TODO REPL
+        code += `return ${this.castType(r.term, rtype, this.variables[pname].T)};\n`; //TODO REPL
     code += '}\n';
 
     this.add('compiledfunctions', fname, () => code);
@@ -894,7 +926,7 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
 CodeBuilder.prototype.generateListOfUniforms = function() {
     let ans = [];
     for (let uname in this.uniforms)
-        if (this.uniforms[uname].type != type.image)
+        if (this.uniforms[uname].type.type != 'constant' && this.uniforms[uname].type != type.image)
             ans.push(`uniform ${webgltype(this.uniforms[uname].type)} ${uname};`);
     return ans.join('\n');
 };
@@ -904,25 +936,31 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     helpercnt = 0;
     expr = cloneExpression(expr); //then we can write dirty things on expr...
 
-    this.precompile(expr); //determine this.variables, types etc.
-    let r = this.compile(expr, '', true);
-    let colorterm = this.castType(r.term, r.type, type.color);
+    this.initvariable('cgl_pixel', false);
+    this.variables['cgl_pixel'].T = type.vec2;
+    let bindings = {
+        '#': 'cgl_pixel'
+    }
+    this.precompile(expr, bindings); //determine this.variables, types etc.
+    let r = this.compile(expr, true);
+    let rtype = this.getType(expr);
+    let colorterm = this.castType(r.term, rtype, type.color);
 
-    if (!issubtypeof(r.type, type.color)) {
+    if (!issubtypeof(rtype, type.color)) {
         console.error("expression does not generate a color");
     }
     let code = this.generateSection('structs');
     code += this.generateSection('uniforms');
     code += this.generateListOfUniforms();
     code += generateHeaderOfTextureReaders(this);
-    code += this.generateSection('functions');
     code += this.generateSection('includedfunctions');
+    code += this.generateSection('functions');
 
-    for (let i in this.variables['']) { //global this.variables
-        let varname = this.variables[''][i];
-        if (this.myfunctions.hasOwnProperty(varname)) continue; //only consider real this.variables
-        code += `${webgltype(this.T[''][varname])} ${varname};\n`;
-    }
+
+    for (let iname in this.variables)
+        if (this.variables[iname].T && this.variables[iname]['global']) {
+            code += `${webgltype(this.variables[iname].T)} ${iname};\n`;
+        }
 
     code += this.generateSection('compiledfunctions');
 

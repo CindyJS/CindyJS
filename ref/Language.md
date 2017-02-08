@@ -166,7 +166,7 @@ by a second dot, since the latter represents a range.
 
 Identifiers are used both for
 [variables](Variables_and_Functions.md#defining-variables) and for
-[user-defined functions](Variables_and_Functions.md#defining-functions),
+[user-defined functions](Variables_and_Functions.md#_$28u_$29u$3au$3du_),
 as well as for arguments to such functions and to name
 [modifiers](General_Concepts.md#modifiers).
 
@@ -179,7 +179,7 @@ Identifiers may contain one or more of the following symbols:
   with [General category](http://www.unicode.org/reports/tr44/tr44-16.html#General_Category_Values)
   `L` (i.e. Letters).
 
-In addition to these, [`#`](General_Concepts.md#local-variables-the-variable)
+In addition to these, [`#`](General_Concepts.md#$23u)
 and `#1` through `#9` are also valid variable names.
 Multiple digits are not permissible, though.
 
@@ -350,7 +350,7 @@ CindyJS knows about the following operators, in order of precedence:
 1. [`=`](Variables_and_Functions.md#defining-variables),
    [`:=`](Variables_and_Functions.html#_$28u_$29u$3au$3du_),
    [`::=`](Variables_and_Functions.md#binding-variables-to-functions),
-   [`:=_`](Variables_and_Functions.html#_$28u_$29u$3au$3du$5cu$24u5fu)
+   [`:=_`](Variables_and_Functions.html#_$28u_$29u$3au$3du$5fu)
    [`->`](General_Concepts.md#modifiers)
 1. [`;`](General_Concepts.md#control-flow)
 

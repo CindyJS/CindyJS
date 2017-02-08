@@ -89,7 +89,7 @@ Objects of different types are always different from one another.
     < true
 
 Lists are compared element-wise.
-Many examples for this were already given [with the `==` operator](#_$3du$3du_)
+Many examples for this were already given [with the `==` operator](#$3du$3du)
 in order to make use of the same variables defined there.
 The others are just the negation of the respecive `==` answer as well:
 
@@ -602,28 +602,28 @@ This operator tests whether the expression `‹expr›` represents a geometric c
 #### Is a mass: `ismass(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) mass.
+This operator tests whether the expression `‹expr›` represents a CindyLab mass.
 
 ------
 
 #### Is a sun: `issun(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) sun.
+This operator tests whether the expression `‹expr›` represents a CindyLab sun.
 
 ------
 
 #### Is a spring: `isspring(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) spring.
+This operator tests whether the expression `‹expr›` represents a CindyLab spring.
 
 ------
 
 #### Is a bouncer: `isbouncer(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab) bouncer.
+This operator tests whether the expression `‹expr›` represents a CindyLab bouncer.
 
 ------
 #### Is undefined: `isundefined(‹expr›)`

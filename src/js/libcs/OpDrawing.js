@@ -350,10 +350,10 @@ evaluator.drawconic$1 = function(args, modifs) {
 
         for (var ii = 0; ii < 3; ii++) // check for faulty arrays
             for (var jj = 0; jj < 3; jj++)
-            if (arr.value[ii].value[jj].ctype !== "number") {
-                console.error("could not parse conic");
-                return nada;
-            }
+                if (arr.value[ii].value[jj].ctype !== "number") {
+                    console.error("could not parse conic");
+                    return nada;
+                }
 
         if (!List.equals(arr, List.transpose(arr)).value) { // not symm case
             var aa = General.mult(arr, CSNumber.real(0.5));
@@ -789,7 +789,7 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     Render2D.preDrawCurve();
-    csctx.mozFillRule = 'evenodd';
+
 
     var m = csport.drawingstate.matrix;
 
@@ -842,13 +842,13 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     if (df === "D") {
         if (Render2D.fillColor) {
             csctx.fillStyle = Render2D.fillColor;
-            csctx.fill();
+            csctx.fill(Render2D.fillrule);
         }
         csctx.stroke();
     }
     if (df === "F") {
         csctx.fillStyle = Render2D.lineColor;
-        csctx.fill();
+        csctx.fill(Render2D.fillrule);
     }
     if (df === "C") {
         csctx.clip();

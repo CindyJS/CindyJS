@@ -171,7 +171,7 @@ The following table gives you an overview of the instruments associated to the k
 
 By this it is relatively easy to create a rhythm track that accompanies your music.
 The percussion instruments are also very useful to create sound effects in other Cinderella applications.
-For instance if you use [CindyLab](CindyLab.md) to create a Ping-Pong game, you can use the *Wood Blocks* (key 76 and 77) to create click effects when hitting the ball.
+For instance if you use CindyLab to create a Ping-Pong game, you can use the *Wood Blocks* (key 76 and 77) to create click effects when hitting the ball.
 
 The following code shows a simple implementation of a Rock rhythm by using the sequencer.
 Observe that this program also uses the `"goto"` statement in `playmelody(…)` to rewind the track to the beginning.
@@ -839,7 +839,7 @@ On a contemporary computer this code is quite free of latency and can be used as
 
 Our next example is really very tiny and uses just one `playtone(…)` statement in the right place.
 We want to create a Ping-Pong game with sound effects.
-By using the physics simulation facilities of [CindyLab](CindyLab.md) it is very easy to construct a physically reasonable interactive Ping-Pong table.
+By using the physics simulation facilities of CindyLab it is very easy to construct a physically reasonable interactive Ping-Pong table.
 The boundary of the table is created by physical **bouncers**.
 In the Inspector each of these bouncers can be associated with a script that is executed at the moment when a mass hits the bouncer.
 There we have to simply place a `playtone` statement that produces a “click” sound.
