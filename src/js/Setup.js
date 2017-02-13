@@ -333,7 +333,10 @@ function loadImage(obj, video) {
             img = document.createElement("video");
             img.preload = "auto";
             img.loop = true; //loop videos as default
-            img.setAttribute("webkit-playsinline", ""); //https://www.npmjs.com/package/iphone-inline-video#notes-about-ios-10
+
+            //https://www.npmjs.com/package/iphone-inline-video
+            img.setAttribute("playsinline", "");
+            enableInlineVideo(img);
         } else {
             img = new Image();
         }

@@ -561,8 +561,8 @@ CodeBuilder.prototype.compile = function(expr, scope, generateTerm) {
     } else if (expr['oper'] === "=") {
         let r = this.compile(expr['args'][1], scope, true);
         let varname = expr['args'][0]['name']
-            //console.log(scope);
-            //console.log(varname);
+        //console.log(scope);
+        //console.log(varname);
         let t = varname + ' = ' + this.castType(r.term, r.type, this.getType(expr['args'][0], scope));
         if (generateTerm) {
             return {

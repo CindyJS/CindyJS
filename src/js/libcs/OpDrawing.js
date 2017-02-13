@@ -372,10 +372,10 @@ evaluator.drawconic$1 = function(args, modifs) {
 
         for (var ii = 0; ii < 3; ii++) // check for faulty arrays
             for (var jj = 0; jj < 3; jj++)
-            if (arr.value[ii].value[jj].ctype !== "number") {
-                console.error("could not parse conic");
-                return nada;
-            }
+                if (arr.value[ii].value[jj].ctype !== "number") {
+                    console.error("could not parse conic");
+                    return nada;
+                }
 
         if (!List.equals(arr, List.transpose(arr)).value) { // not symm case
             var aa = General.mult(arr, CSNumber.real(0.5));
