@@ -353,7 +353,9 @@ function setuplisteners(canvas, data) {
             img.onload = function() {
                 if (reported) return;
                 reported = true;
-                oneDone(i, loadImage(img));
+                oneDone(i,
+
+                    (img));
             };
             img.onerror = function(err) {
                 if (reported) return;
