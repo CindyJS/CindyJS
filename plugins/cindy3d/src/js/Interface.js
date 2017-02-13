@@ -19,20 +19,21 @@ coerce.toList = function(arg, def=null) {
 /**
  * @param {CindyJS.anyval} arg
  * @param {Array.<number>=} def
+ * @param {number=} dim
  * @return {Array.<number>}
  */
-coerce.toHomog = function(arg, def=[0,0,0,0]) {
+coerce.toHomog = function(arg, def=[0,0,0,0], dim=3) {
   let lst1 = coerce.toList(arg);
   if (lst1 === null)
     return def;
   let lst = lst1.map(coerce.toReal);
-  if (lst.length > 4) {
+  if (lst.length > dim + 1) {
     console.log("Coordinate vector too long.");
-    lst = lst.slice(0, 4);
+    lst = lst.slice(0, dim + 1);
   }
-  while (lst.length < 3)
+  while (lst.length < dim)
     lst.push(0);
-  if (lst.length === 3)
+  if (lst.length === dim)
     lst.push(1);
   return lst;
 };

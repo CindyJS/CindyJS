@@ -1,4 +1,4 @@
-CindyJS.registerPlugin(1, "CindyGL", function(api) {
+CindyJS.registerPlugin(1, "CindyGL", api => {
 
     //////////////////////////////////////////////////////////////////////
     // API bindings
@@ -6,7 +6,7 @@ CindyJS.registerPlugin(1, "CindyGL", function(api) {
 
     //myfunctions = api.getMyfunctions();
 
-    api.defineFunction("compile", 1, function(args, modifs) {
+    api.defineFunction("compile", 1, (args, modifs) => {
         let expr = args[0];
         let cb = new CodeBuilder(api);
         let code = cb.generateColorPlotProgram(expr);
@@ -37,7 +37,7 @@ CindyJS.registerPlugin(1, "CindyGL", function(api) {
     }
 
 
-    api.defineFunction("forcerecompile", 0, function(args, modifs) {
+    api.defineFunction("forcerecompile", 0, (args, modifs) => {
         requiredcompiletime++;
         return nada;
     });
@@ -45,7 +45,7 @@ CindyJS.registerPlugin(1, "CindyGL", function(api) {
     /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      */
-    api.defineFunction("colorplot", 1, function(args, modifs) {
+    api.defineFunction("colorplot", 1, (args, modifs) => {
         initGLIfRequired();
 
         var prog = args[0];
@@ -68,7 +68,7 @@ CindyJS.registerPlugin(1, "CindyGL", function(api) {
     /**
      * plots colorplot on main canvas in CindyJS coordinates in the rectangle bounded by two points (as in Cinderella: coloplot(<expr>, <vec>, <vec>))
      */
-    api.defineFunction("colorplot", 3, function(args, modifs) {
+    api.defineFunction("colorplot", 3, (args, modifs) => {
         initGLIfRequired();
 
         var prog = args[0];
@@ -117,7 +117,7 @@ CindyJS.registerPlugin(1, "CindyGL", function(api) {
     /**
      * plots on a given canvas and assumes that it lies on CindyJS-table with corners having coordinates a and b.
      */
-    api.defineFunction("colorplot", 4, function(args, modifs) {
+    api.defineFunction("colorplot", 4, (args, modifs) => {
         initGLIfRequired();
 
         var a = api.extractPoint(api.evaluateAndVal(args[0]));
@@ -140,7 +140,7 @@ CindyJS.registerPlugin(1, "CindyGL", function(api) {
     /**
      * plots on a given canvas and assumes that it lies on CindyJS-table sharing the two bottom corners of main canvas
      */
-    api.defineFunction("colorplot", 2, function(args, modifs) {
+    api.defineFunction("colorplot", 2, (args, modifs) => {
         initGLIfRequired();
 
         var a = computeLowerLeftCorner(api);
@@ -162,7 +162,7 @@ CindyJS.registerPlugin(1, "CindyGL", function(api) {
         return nada;
     });
 
-    api.defineFunction("setpixel", 4, function(args, modifs) {
+    api.defineFunction("setpixel", 4, (args, modifs) => {
 
         var name = coerce.toString(api.evaluateAndVal(args[0]));
         var x = coerce.toInt(api.evaluateAndVal(args[1]));

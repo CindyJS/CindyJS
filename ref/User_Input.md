@@ -1,7 +1,7 @@
 ##  User Input
 
 Sometimes it is necessary to handle user input by mouse or the keyboard explicitly.
-There are special evaluation times "Mouse Down," "Mouse Up," "Mouse Click," "Mouse Drag," and "Key Typed" for this (see [Entering Program Code](Entering_Program_Code.md)).
+There are special evaluation times “Mouse Down”, “Mouse Up”, “Mouse Click”, “Mouse Drag”, and “Key Typed” for this (see [Entering Program Code](Entering_Program_Code.md)).
 These evaluation times are captured exactly when the corresponding events occur.
 If one wants to react to the corresponding event data, there are several operators that read the input data.
 
@@ -31,8 +31,8 @@ Returns a string that contains the last typed character.
 This operator returns a boolean value that is true if a certain key is pressed.
 The key in question is specified by the integer in the argument.
 This operator can be used to determine for instance the *shift* key is pressed.
-The codes for keys are usually 65, 66, 66, ....
-for 'A', 'B', 'C',...
+The codes for keys are usually 65, 66, 66, …
+for 'A', 'B', 'C',…
 Codes for 'shift', 'crtl' and 'alt' are usually 16, 17, 18.
 
 ------
@@ -43,7 +43,7 @@ Codes for 'shift', 'crtl' and 'alt' are usually 16, 17, 18.
 
 **Description:**
 This operator returns a list of the codes of all pressed keys.
-An interesting application of the keydown list id given in the chapter on MIDI functions, where you find an example [keyboard piano](MIDI_Functions#piano.md).
+An interesting application of the keydown list id given in the chapter on MIDI functions, where you find an example [keyboard piano](MIDI_Functions.md#a-keyboard-piano).
 
 ------
 
@@ -82,7 +82,6 @@ Very often it is desirable not only to export an interactive construction but al
 By using the following set of CindyScript operations it is easily possible to create (and remove) custom toolbars that reside within an applet window.
 
 Toolbars are in particular important for creating interactive student exercises.
-An example for this is given in [Interactive Exercises](Interactive_Exercises.md).
 
 ------
 
@@ -199,7 +198,7 @@ More complicated examples that create toolbars with several tools are given belo
 ![Image](img/Tool5.png)
 
     > createtool(
-    > ...same as example above...
+    > …same as example above…
     > ,reference->"LR");
 
 ![Image](img/Tool6.png)

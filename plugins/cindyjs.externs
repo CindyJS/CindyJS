@@ -29,7 +29,8 @@ CindyJS.op;
  *    live: boolean,
  *    generation: number,
  *    whenReady: function(function()),
- *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number))
+ *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number)),
+ *    readPixels: (undefined|function(number,number,number,number))
  *  }}
  */
 CindyJS.image;

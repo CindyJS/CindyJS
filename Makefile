@@ -110,6 +110,7 @@ fwdtargets = \
 	cindy3d-dbg \
 	cindygl \
 	cindygl-dbg \
+	ComplexCurves \
 	deploy \
 	forbidden \
 	jshint \

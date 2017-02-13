@@ -19,9 +19,9 @@ void shade(in vec3 position, in vec3 normal) {
  
   // Modulate pure lighting color at intersection point with
   // intersection point material
-  vec3 color = (uAmbient + gAccumDiffuse) * vColor.xyz
+  vec3 color = (uAmbient + gAccumDiffuse) * gColor.xyz
     + gAccumSpecular;
 
   color = clamp(color, 0.0, 1.0);
-  gl_FragColor = vec4(color.xyz, vColor.w);
+  gl_FragColor = vec4(color.xyz, gColor.w);
 }

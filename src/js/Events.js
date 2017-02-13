@@ -14,10 +14,10 @@ function getmover(mouse) {
         if (el.pinned || el.visible === false || el.tmp === true)
             continue;
 
-        var dx, dy, dist;
+        var dx, dy, dist, p;
         var sc = csport.drawingstate.matrix.sdet;
         if (el.kind === "P") {
-            var p = List.normalizeZ(el.homog);
+            p = List.normalizeZ(el.homog);
             if (!List._helper.isAlmostReal(p))
                 continue;
             dx = p.value[0].value.real - mouse.x;
@@ -55,7 +55,23 @@ function getmover(mouse) {
             if (dist < 0) {
                 dist = -dist;
             }
-            dist = dist + 1;
+            dist = dist + 25 / sc;
+        } else if (el.kind === "Text") {
+            if (!el.homog || el.dock || !el._bbox) continue;
+            p = csport.from(mouse.x, mouse.y, 1);
+            dx = Math.max(0, p[0] - el._bbox.right, el._bbox.left - p[0]);
+            dy = Math.max(0, p[1] - el._bbox.bottom, el._bbox.top - p[1]);
+            dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 20)
+                continue;
+            dist = dist / sc;
+            p = List.normalizeZ(el.homog);
+            if (!List._helper.isAlmostReal(p))
+                continue;
+            dx = p.value[0].value.real - mouse.x;
+            dy = p.value[1].value.real - mouse.y;
+        } else {
+            continue;
         }
 
         if (dist < adist + 0.2 / sc) { //A bit a dirty hack, prefers new points
@@ -130,20 +146,38 @@ function setuplisteners(canvas, data) {
 
     if (data.keylistener === true) {
         addAutoCleaningEventListener(document, "keydown", function(e) {
-            cs_keypressed(e);
+            cs_keydown(e);
             return false;
         });
-    } else if (cscompiled.keydown) {
+        addAutoCleaningEventListener(document, "keyup", function(e) {
+            cs_keyup(e);
+            return false;
+        });
+        addAutoCleaningEventListener(document, "keypress", function(e) {
+            cs_keytyped(e);
+            return false;
+        });
+    } else if (cscompiled.keydown || cscompiled.keyup || cscompiled.keytyped) {
         canvas.setAttribute("tabindex", "0");
         addAutoCleaningEventListener(canvas, "mousedown", function() {
             canvas.focus();
         });
         addAutoCleaningEventListener(canvas, "keydown", function(e) {
-            // console.log("Got key " + e.charCode + " / " + e.keyCode);
-            if (e.keyCode !== 9 /* tab */ ) {
-                cs_keypressed(e);
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keydown(e);
+            if (!cscompiled.keytyped) {
+                // this must bubble in order to trigger a keypress event
                 e.preventDefault();
             }
+        });
+        addAutoCleaningEventListener(canvas, "keyup", function(e) {
+            cs_keyup(e);
+            e.preventDefault();
+        });
+        addAutoCleaningEventListener(canvas, "keypress", function(e) {
+            if (e.keyCode === 9 /* tab */ ) return;
+            cs_keytyped(e);
+            e.preventDefault();
         });
     }
 
@@ -159,7 +193,6 @@ function setuplisteners(canvas, data) {
     addAutoCleaningEventListener(canvas, "mouseup", function(e) {
         mouse.down = false;
         cindy_cancelmove();
-        stateContinueFromHere();
         cs_mouseup();
         manage("mouseup");
         scheduleUpdate();
@@ -174,6 +207,12 @@ function setuplisteners(canvas, data) {
             cs_mousemove();
         }
         manage("mousemove");
+        e.preventDefault();
+    });
+
+    addAutoCleaningEventListener(canvas, "click", function(e) {
+        updatePostition(e);
+        cs_mouseclick();
         e.preventDefault();
     });
 
@@ -199,27 +238,133 @@ function setuplisteners(canvas, data) {
         var y = e.clientY - rect.top - canvas.clientTop + 0.5;
         var pos = List.realVector(csport.to(x, y));
 
-        Array.prototype.forEach.call(files, function(file, i) {
-            var reader = new FileReader();
-            if ((/^text\//).test(file.type)) {
-                reader.onload = function() {
-                    var value = General.string(reader.result);
-                    oneDone(i, value);
-                };
-                reader.readAsText(file);
-            } else if ((/^image\//).test(file.type)) {
-                reader.onload = function() {
-                    var img = new Image();
-                    img.onload = function() {
-                        oneDone(i, loadImage(img, false));
+        if (files.length > 0) {
+            Array.prototype.forEach.call(files, function(file, i) {
+                var reader = new FileReader();
+                if (textType(file.type)) {
+                    reader.onload = function() {
+                        textDone(i, reader.result);
                     };
-                    img.src = reader.result;
-                };
-                reader.readAsDataURL(file);
-            } else {
-                oneDone(i, nada);
+                    reader.readAsText(file);
+                } else if ((/^image\//).test(file.type)) {
+                    reader.onload = function() {
+                        imgDone(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    console.log("Unknown MIME type: " + file.type);
+                    oneDone(i, nada);
+                }
+            });
+        } else {
+            var data = dt.getData("text/uri-list");
+            if (data) {
+                data = data.split("\n").filter(function(line) {
+                    return !/^\s*(#|$)/.test(line);
+                });
+                countDown = data.length;
+                dropped = Array(countDown);
+                files = Array(countDown);
+                data.forEach(dropUri);
             }
-        });
+        }
+
+        function dropUri(uri, i) {
+            var name = uri.replace(/[?#][^]*/, "");
+            name = name.replace(/[^]*\/([^\/])/, "$1");
+            files[i] = {
+                type: "",
+                name: name
+            };
+            var req = new XMLHttpRequest();
+            req.onreadystatechange = haveHead;
+            req.open("HEAD", uri);
+            req.send();
+
+            function haveHead() {
+                if (req.readyState !== XMLHttpRequest.DONE)
+                    return;
+                if (req.status !== 200) {
+                    console.error("HEAD request for " + uri + " failed: " +
+                        (req.responseText || "(no error message)"));
+                    oneDone(i, nada);
+                    return;
+                }
+                var type = req.getResponseHeader("Content-Type");
+                files[i].type = type;
+                if ((/^image\//).test(type)) {
+                    imgDone(i, uri);
+                } else if (textType(type)) {
+                    req = new XMLHttpRequest();
+                    req.onreadystatechange = haveText;
+                    req.open("GET", uri);
+                    req.send();
+                } else {
+                    oneDone(i, nada);
+                }
+            }
+
+            function haveText() {
+                if (req.readyState !== XMLHttpRequest.DONE)
+                    return;
+                if (req.status !== 200) {
+                    console.error("GET request for " + uri + " failed: " +
+                        (req.responseText || "(no error message)"));
+                    oneDone(i, nada);
+                    return;
+                }
+                textDone(i, req.responseText);
+            }
+
+        }
+
+        function textType(type) {
+            type = type.replace(/;[^]*/, "");
+            if ((/^text\//).test(type)) return 1;
+            if (type === "application/json") return 2;
+            return 0;
+        }
+
+        function textDone(i, text) {
+            switch (textType(files[i].type)) {
+                case 1:
+                    oneDone(i, General.string(text));
+                    break;
+                case 2:
+                    var data, value;
+                    try {
+                        data = JSON.parse(text);
+                        value = General.wrapJSON(data);
+                    } catch (err) {
+                        console.error(err);
+                        value = nada;
+                    }
+                    oneDone(i, value);
+                    break;
+                default:
+                    oneDone(i, nada);
+                    break;
+            }
+        }
+
+        function imgDone(i, src) {
+            var img = new Image();
+            var reported = false;
+            img.onload = function() {
+                if (reported) return;
+                reported = true;
+                oneDone(i, 
+                        
+                        (img));
+            };
+            img.onerror = function(err) {
+                if (reported) return;
+                reported = true;
+                console.error(err);
+                oneDone(i, nada);
+            };
+            img.src = src;
+        }
 
         function oneDone(i, value, type) {
             dropped[i] = List.turnIntoCSList([
@@ -236,6 +381,18 @@ function setuplisteners(canvas, data) {
 
 
     function touchMove(e) {
+
+        var activeTouchIDList = e.changedTouches;
+        var gotit = false;
+        for (var i = 0; i < activeTouchIDList.length; i++) {
+            if (activeTouchIDList[i].identifier === activeTouchID) {
+                gotit = true;
+            }
+        }
+        if (!gotit) {
+            return;
+        }
+
         updatePostition(e.targetTouches[0]);
         if (mouse.down) {
             cs_mousedrag();
@@ -247,8 +404,19 @@ function setuplisteners(canvas, data) {
 
         e.preventDefault();
     }
+    var activeTouchID = -1;
 
     function touchDown(e) {
+        if (activeTouchID !== -1) {
+            return;
+        }
+
+        var activeTouchIDList = e.changedTouches;
+        if (activeTouchIDList.length === 0) {
+            return;
+        }
+        activeTouchID = activeTouchIDList[0].identifier;
+
         updatePostition(e.targetTouches[0]);
         cs_mousedown();
         mouse.down = true;
@@ -258,9 +426,20 @@ function setuplisteners(canvas, data) {
     }
 
     function touchUp(e) {
+        var activeTouchIDList = e.changedTouches;
+        var gotit = false;
+        for (var i = 0; i < activeTouchIDList.length; i++) {
+            if (activeTouchIDList[i].identifier === activeTouchID) {
+                gotit = true;
+            }
+        }
+
+        if (!gotit) {
+            return;
+        }
+        activeTouchID = -1;
         mouse.down = false;
         cindy_cancelmove();
-        stateContinueFromHere();
         cs_mouseup();
         manage("mouseup");
         scheduleUpdate();
@@ -283,8 +462,60 @@ function setuplisteners(canvas, data) {
             });
         }, false);
     }
+    resizeSensor(canvas.parentNode);
 
     scheduleUpdate();
+}
+
+function mkdiv(parent, style) {
+    var div = document.createElement("div");
+    div.setAttribute("style", style);
+    parent.appendChild(div);
+    return div;
+}
+
+// Inspired by
+// github.com/marcj/css-element-queries/blob/bfa9a7f/src/ResizeSensor.js
+// written by Marc J. Schmidt and others, licensed under the MIT license.
+function resizeSensor(element) {
+    if (typeof document === "undefined") return;
+    var styleChild = "position: absolute; transition: 0s; left: 0; top: 0;";
+    var style = styleChild + " right: 0; bottom: 0; overflow: hidden;" +
+        " z-index: -1; visibility: hidden;";
+    var expand = mkdiv(element, style);
+    var expandChild = mkdiv(
+        expand, styleChild + " width: 100000px; height: 100000px");
+    var shrink = mkdiv(element, style);
+    mkdiv(shrink, styleChild + " width: 200%; height: 200%");
+
+    function reset() {
+        expand.scrollLeft = expand.scrollTop =
+            shrink.scrollLeft = shrink.scrollTop = 100000;
+    }
+
+    reset();
+    var w = element.clientWidth;
+    var h = element.clientHeight;
+    var scheduled = false;
+
+    function onScroll() {
+        if (w !== element.clientWidth || h !== element.clientHeight) {
+            w = element.clientWidth;
+            h = element.clientHeight;
+            if (!scheduled) {
+                scheduled = true;
+                requestAnimFrame(function() {
+                    scheduled = false;
+                    updateCanvasDimensions();
+                    scheduleUpdate();
+                });
+            }
+        }
+        reset();
+    }
+
+    expand.addEventListener("scroll", onScroll);
+    shrink.addEventListener("scroll", onScroll);
 }
 
 var requestAnimFrame;
@@ -327,14 +558,14 @@ function updateCindy() {
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
     var m = csport.drawingstate.matrix;
+    var d, a, b, i, p;
     // due to the csport.reset(), m is initial, i.e. a = d and b = c = 0
-    if (csgridsize !== 0) {
+    if (csgridsize !== 0) { // Square grid
         csctx.beginPath();
         csctx.strokeStyle = "rgba(0,0,0,0.1)";
         csctx.lineWidth = 1;
         csctx.lineCap = "butt";
-        var d = csgridsize * m.a;
-        var i, p;
+        d = csgridsize * m.a;
         i = Math.ceil(-m.tx / d);
         while ((p = i * d + m.tx) < csw) {
             if (i || !csaxes) {
@@ -343,6 +574,41 @@ function updateCindy() {
             }
             i++;
         }
+        i = Math.floor(m.ty / d);
+        while ((p = i * d - m.ty) < csh) {
+            if (i || !csaxes) {
+                csctx.moveTo(0, p);
+                csctx.lineTo(csw, p);
+            }
+            i++;
+        }
+        csctx.stroke();
+    }
+    if (cstgrid !== 0) { // Triangular grid
+        csctx.beginPath();
+        csctx.strokeStyle = "rgba(0,0,0,0.1)";
+        csctx.lineWidth = 1;
+        csctx.lineCap = "butt";
+        d = cstgrid * m.a;
+        var sqrt3 = Math.sqrt(3);
+        a = m.ty / sqrt3;
+        b = (csh + m.ty) / sqrt3;
+        // down slope first
+        i = Math.ceil(-(m.tx + b) / d);
+        while ((p = i * d + m.tx) + a < csw) {
+            csctx.moveTo(p + a, 0);
+            csctx.lineTo(p + b, csh);
+            i++;
+        }
+        // up slope second
+        i = Math.ceil(-(m.tx - a) / d);
+        while ((p = i * d + m.tx) - b < csw) {
+            csctx.moveTo(p - a, 0);
+            csctx.lineTo(p - b, csh);
+            i++;
+        }
+        // horizontal last
+        d *= 0.5 * sqrt3;
         i = Math.floor(m.ty / d);
         while ((p = i * d - m.ty) < csh) {
             if (i || !csaxes) {
@@ -382,14 +648,26 @@ function updateCindy() {
     csctx.restore();
 }
 
-function cs_keypressed(e) {
+function keyEvent(e, script) {
     var evtobj = window.event ? event : e;
     var unicode = evtobj.charCode ? evtobj.charCode : evtobj.keyCode;
     var actualkey = String.fromCharCode(unicode);
     cskey = actualkey;
     cskeycode = unicode;
-    evaluate(cscompiled.keydown);
+    evaluate(script);
     scheduleUpdate();
+}
+
+function cs_keydown(e) {
+    keyEvent(e, cscompiled.keydown);
+}
+
+function cs_keyup(e) {
+    keyEvent(e, cscompiled.keyup);
+}
+
+function cs_keytyped(e) {
+    keyEvent(e, cscompiled.keytyped);
 }
 
 function cs_mousedown(e) {
@@ -408,12 +686,19 @@ function cs_mousemove(e) {
     evaluate(cscompiled.mousemove);
 }
 
+function cs_mouseclick(e) {
+    evaluate(cscompiled.mouseclick);
+}
+
 function cs_tick(e) {
-    if (csPhysicsInited) { //TODO: Check here if physics is required
-        if (typeof(lab) !== 'undefined') {
-            lab.tick();
-        }
+    var now = Date.now();
+    var delta = Math.min(simcap, now - simtick) * simspeed * simfactor;
+    simtick = now;
+    var time = simtime + delta;
+    if (csPhysicsInited && typeof(lab) !== 'undefined') {
+        lab.tick(delta);
     }
+    simtime = time;
     if (csanimating) {
         evaluate(cscompiled.tick);
     }

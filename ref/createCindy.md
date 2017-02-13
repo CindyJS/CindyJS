@@ -119,11 +119,14 @@ The default is defined as follows:
     J   pointColor: [1,0,0],
     J   lineColor: [0,0,1],
     J   pointSize: 5,
-    J   lineSize: 2,
+    J   lineSize: 1,
     J   alpha: 1,
-    J   overhangLine: 1.1,
+    J   overhangLine: 1,
     J   overhangSeg: 1,
-    J   dimDependent: 1
+    J   dimDependent: 0.7,
+    J   fontFamily: "sans-serif",
+    J   textsize: 20,
+    J   lineHeight: 1.45
     J }
 
 Any parameter which stays at this default value doesn't have to be specified at all.
@@ -263,6 +266,17 @@ The next call to `start` will resume the animation from the current position.
 Stop the animation.
 The configuration will be reset to the situation where `play` was invoked.
 
+## saveState
+
+Saves the state of the widget.
+Currently only the geometric elements are stored,
+but it is well conceivable that a future version might store state
+for script variables and the likes as well.
+Each stored portion of the widget is represented as one property
+of the returned object, so currently that object will contain a property
+called `geometry` representing the geometric elements,
+formatted the same way as the corresponding input property.
+
 ## Static Functions
 
 The `CindyJS` function has a number of additional functions defined as its members.
@@ -288,6 +302,23 @@ The second parameter is the name of the plugin.
 The third is a callback function.
 It will be called when the `init` script of some content requests that plugin using the `use` operation of CindyScript.
 The details of the Plugin API will one day be described in some other document.
+
+### dumpState
+
+This logs the geometric state of the widget to the web development console.
+An optional integer argument can be used to specify the index of the widget
+in case there is more than one.
+It is suggested to call this function and save its output
+if a specific geometric configuration exposes some kind of bug,
+so that the problematic situation can be reproduced more easily.
+
+### debugState
+
+In theory it should be possible for most widgets to save the state
+and then restart the widget using that state in order to reproduce
+the same situation again.
+This function helps verifying this by doing exactly such a
+save then reload cycle for each widget in the current document.
 
 # Specifying non-script construction elements
 

@@ -243,3 +243,31 @@ General.withUsage = function(v, usage) {
         "usage": usage
     };
 };
+
+General.wrapJSON = function(data) {
+    switch (typeof data) {
+        case "number":
+            return CSNumber.real(data);
+        case "string":
+            return General.string(data);
+        case "boolean":
+            return General.bool(data);
+        case "object":
+            if (data === null)
+                return nada;
+            if (Array.isArray(data))
+                return List.turnIntoCSList(data.map(General.wrapJSON));
+            var d = Dict.create();
+            for (var k in data)
+                Dict.put(d, General.string(k), General.wrapJSON(data[k]));
+            return d;
+        default:
+            console.log(
+                "Failed to convert " + (typeof data) + " to CindyJS data type");
+            return nada;
+    }
+};
+
+General.identity = function(x) {
+    return x;
+};

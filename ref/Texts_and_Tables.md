@@ -13,7 +13,7 @@ The `drawtext(‹vec›,‹string›)` operator plots a text `‹string›` at a
 This position vector can be given either in Euclidean *xy*-coordinates or in homogeneous coordinates.
 
 **Example:**
-The line `drawtext(``(0,0),"Hello World")` prints the string "Hello World" with lower left corner at the position (0, 0).
+The line `drawtext((0,0),"Hello World")` prints the string “Hello World” with lower left corner at the position (0, 0).
 
 **Modifiers:**
 The `drawtext` operator supports several operators for the modification of appearance and position.
@@ -59,7 +59,7 @@ The code
     D fillStyle = "rgba(127,0,127,1)"
     D font = "bold 25px sans-serif"
     D fillText("Text", 375.5, 229.5)
-    D fillStyle = "rgba(101,0,153,1)"
+    D fillStyle = "rgba(102,0,153,1)"
     D font = "bold 27px sans-serif"
     D fillText("Text", 400.5, 229.5)
     D fillStyle = "rgba(76,0,178,1)"
@@ -89,7 +89,10 @@ By this it is easy to produce multilined text, as the following piece of code sh
     > multilined text.")
     D fillStyle = "rgb(0,0,0)"
     D font = "18px sans-serif"
-    D fillText("In Cinderella 'newlines' in Text\nare really used as line terminators.\nSo this text will appear as a\nmultilined text.", 250.5, 229.5)
+    D fillText("In Cinderella 'newlines' in Text", 250.5, 229.5)
+    D fillText("are really used as line terminators.", 250.5, 255.6)
+    D fillText("So this text will appear as a", 250.5, 281.7)
+    D fillText("multilined text.", 250.5, 307.8)
 
 ![Image](img/Newlines.png)
 
@@ -150,8 +153,6 @@ It returns a boolean value.
 
 #### Drawing tables: `drawtable(‹vec›,‹list›)`
 
-**Not available in CindyJS yet!**
-
 One- and two-dimensional lists can be easily drawn in a geometric view as tables.
 In the simplest form one has only to provide the list and a position where the table should be drawn.
 Modifiers can be used to fine tune the appearance of the table.
@@ -159,7 +160,6 @@ Modifiers can be used to fine tune the appearance of the table.
 **Example:**
 The following code produces the picture below:
 
-    - skip test: drawtable not implemented yet
     > x=1..10;
     > table=apply(x,(#,#^2,#^3,#^4));
     > drawtable((0,0),table);

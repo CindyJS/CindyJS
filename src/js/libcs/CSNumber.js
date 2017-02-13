@@ -282,7 +282,18 @@ CSNumber.inv = function(a) {
 
 
 CSNumber.div = function(a, b) {
-    return CSNumber.mult(a, CSNumber.inv(b));
+    var ar = a.value.real;
+    var ai = a.value.imag;
+    var br = b.value.real;
+    var bi = b.value.imag;
+    var s = br * br + bi * bi;
+    return {
+        "ctype": "number",
+        "value": {
+            'real': (ar * br + ai * bi) / s,
+            'imag': (ai * br - ar * bi) / s
+        }
+    };
 };
 
 CSNumber.eps = 1e-10;

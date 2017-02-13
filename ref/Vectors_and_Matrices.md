@@ -9,8 +9,10 @@ Several arithmetic operations serve the particular purpose of calculating direct
 
 ###  Definition of Vectors and Matrices
 
-Any list can be considered as a "vector of objects." However, of particular interest are vectors of numbers.
-Such a vector will be called a "number vector." Whether a certain list is a number vector can be tested with the operator `isnumbervector(‹expr›)`.
+Any list can be considered as a “vector of objects”.
+However, of particular interest are vectors of numbers.
+Such a vector will be called a “number vector”.
+Whether a certain list is a number vector can be tested with the operator `isnumbervector(‹expr›)`.
 
 If the elements of a list are again lists, and if all these lists have the same length, then such a list is called a *matrix*.
 Whether a list is a matrix can be tested with the operator `ismatrix(‹expr›)`.
@@ -41,6 +43,15 @@ The following table summarizes the different admissible uses of the multiplicati
 | *n* × *r* matrix     | vector of length *r* | vector of length *n* | matrix × vector               |
 | vector of length *n* | *n* × *r* matrix     | vector of length *r* | vector × matrix               |
 | *n* × *r* matrix     | *r*× *m* matrix      | *n* × *m* matrix     | matrix multiplication         |
+
+If some of the elements of a matrix are not numbers, the result will be `___`.
+
+    > [[1,2],[3,4],[5,6]] * [[1,2,3,4],[5,6,7,8]]
+    < [[11, 14, 17, 20], [23, 30, 37, 44], [35, 46, 57, 68]]
+    > [[1,2],[3,4],[5,6]] * [[1,2,3,4],[5,6,7,"8"]]
+    < ___
+    > [[1,2],[3,4],[5,false]] * [[1,2,3,4],[5,6,7,8]]
+    < ___
 
 ------
 
@@ -625,7 +636,7 @@ Applying the convex hull operator to this list produces the following output:
 Observe that the interior point has been properly removed, and that the convex hull operator can nicely handle coplanarities.
 
 The convex hull operator is remarkably robust to degenerate situations.
-The following image has been computed under usage of the `convexhull3d(...)` operator.
+The following image has been computed under usage of the `convexhull3d(…)` operator.
 It shows the section of a 4-dimensional polytope (a 600-cell) with a 3-dimensional space.
 
 ![A section of a 600-cell rendered with CindyScript](img/ConvexHullX.png)

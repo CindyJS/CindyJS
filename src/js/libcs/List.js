@@ -11,6 +11,19 @@ List.turnIntoCSList = function(l) {
     };
 };
 
+List.EMPTY = List.turnIntoCSList([]);
+
+List.asList = function(x) {
+    if (x.ctype === "list") {
+        return x;
+    }
+    if (x.ctype === "number" || x.ctype === "boolean" || x.ctype === "geo") {
+        return List.turnIntoCSList([x]);
+    }
+    // else: string, undefined, shape, image
+    return List.EMPTY;
+};
+
 List.realVector = function(l) {
     var erg = [];
     for (var i = 0; i < l.length; i++) {
@@ -196,9 +209,9 @@ List.consecutive = function(a) {
 };
 
 List.reverse = function(a) {
-    var erg = [];
-    for (var i = a.value.length - 1; i >= 0; i--) {
-        erg.push(a.value[i]);
+    var erg = new Array(a.value.length);
+    for (var i = a.value.length - 1, j = 0; i >= 0; i--, j++) {
+        erg[j] = a.value[i];
     }
 
     return {
@@ -398,7 +411,7 @@ List.almostequals = function(a1, a2) {
         var av2 = a2.value[i];
 
         if (av1.ctype === 'list' && av2.ctype === 'list') {
-            erg = erg && List.comp_almostequals(av1, av2).value;
+            erg = erg && List.almostequals(av1, av2).value;
         } else {
             erg = erg && comp_almostequals([av1, av2], []).value;
 
@@ -880,6 +893,13 @@ List.isNumberMatrix = function(a) {
 };
 
 
+List._helper.isNumberMatrixMN = function(a, m, n) {
+    return List.isNumberMatrix(a).value &&
+        a.value.length === m &&
+        a.value[0].value.length === n;
+};
+
+
 List.scalproduct = function(a1, a2) {
     if (a1.value.length !== a2.value.length) {
         return nada;
@@ -1016,7 +1036,7 @@ List.mult = function(a, b) {
         return List.productVM(a, b);
     }
 
-    if (List.isNumberMatrix(a).value && List.isNumberMatrix(b) && b.value.length === a.value[0].value.length) {
+    if (List.isNumberMatrix(a).value && List.isNumberMatrix(b).value && b.value.length === a.value[0].value.length) {
         return List.productMM(a, b);
     }
 

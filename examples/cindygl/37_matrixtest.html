@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: 3 x 6 matrix test</h1>
+    
+    
+    <script id="csmove" type="text/x-cindyscript">
+      colorplot([[1,2,-1,-2,0,0], [-2,1,0,0,2,-1], [0,10,4.1,1,2,3]]*[#.x, #.y, A.x,A.y,B.x,B.y])
+    </script>
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+    </script>
+    
+
+    <div  id="CSCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
+    
+    <script type="text/javascript">
+        
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[-7,0,1]},
+                  {name:"B", kind:"P", type:"Free", pos:[10,1,1]},
+                  ];
+        CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp
+                  });
+    </script>              
+	</body>
+</html>

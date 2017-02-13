@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Simulation time and animation speed</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../build/js/CindyJS.css">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+t = 0;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+textsize(26);
+drawtext((0,2),"t = ", align->"right");
+drawtext((0,0),"speed = ", align->"right");
+drawtext((0,2),t);
+drawtext((0,0),if(t == 0, 0, t / seconds()));
+</script>
+<script id="cssimulationstart" type="text/x-cindyscript">
+resetclock();
+</script>
+<script id="cstick" type="text/x-cindyscript">
+t = simulationtime();
+</script>
+<script id="cssimulationstop" type="text/x-cindyscript">
+t = 0;
+</script>
+    <script type="text/javascript">
+CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  animation: {
+    autoplay: false,
+    controls: true,
+    speed: 0.5,
+    speedRange: [0, 1],
+    accuracy: 1
+  },
+  autoplay: false,
+  animcontrols: true,
+  ports: [{
+    id: "CSCanvas",
+    width: 294,
+    height: 224,
+    transform: [{visibleRect: [-7.18, 4.94, 4.58, -4.02]}],
+    background: "rgb(168,176,192)"
+  }],
+  geometry: [
+    {name:"A", type:"Free", pos:[-4.5,-2]}
+  ],
+  cinderella: {build: 1865, version: [2, 9, 1865]}
+});
+    </script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="border:2px solid black"></div>
+</body>
+
+</html>

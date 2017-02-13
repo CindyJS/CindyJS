@@ -1,5 +1,6 @@
 "use strict";
 
+var chalk = require("chalk");
 var cp = require("child_process");
 var fs = require("fs");
 var glob = require("glob");
@@ -53,6 +54,8 @@ function cmdImpl(task, opts, command, args) {
                     res = Buffer.concat(output);
                 resolve(res);
             } else if (code !== null) {
+                if (opts.errorMessages && opts.errorMessages[code])
+                    reject(new BuildError(opts.errorMessages[code]));
                 reject(new BuildError(
                     cmdline + " exited with code " + code));
             } else {
@@ -83,10 +86,14 @@ function gitLsFiles(task) {
 exports.cmd = function(command) {
     var task = this;
     var args = Array.prototype.slice.call(arguments, 1);
+    var opts = {};
+    var last = args[args.length - 1];
+    if (typeof last === "object" && !Array.isArray(last))
+        opts = args.pop();
     args = Array.prototype.concat.apply([], args); // flatten one level
     args = Array.prototype.concat.apply([], args); // flatten a second level
     this.addJob(function() {
-        return cmdImpl(task, {}, command, args);
+        return cmdImpl(task, opts, command, args);
     });
 };
 
@@ -175,7 +182,7 @@ exports.sass = function(src, dst) {
     this.addJob(function() {
         task.log(src + " \u219d " + dst);
         var basename = path.basename(dst);
-        return Q.ninvoke(require("node-sass"), "render", {
+        return Q.fcall(require, "node-sass").ninvoke("render", {
             file: src,
             outFile: basename,
             sourceMap: basename + ".map",
@@ -278,6 +285,46 @@ exports.forbidden = function(files, expressions) {
     });
 };
 
+exports.excomp = function(filesPattern, parserFile, checkfunc) {
+    var task = this;
+    this.addJob(function() {
+        // load parser without caching
+        var parser = qfs.read(parserFile)
+            .then(function(body) {
+                var exports = {};
+                var module = {exports: {}};
+                (new Function(
+                    "module", "exports", "require", body))(
+                    module, module.exports);
+                return module.exports;
+            });
+        return Q.all([Q.nfcall(glob, filesPattern, { nodir: true }), parser])
+            .spread(function(files, parser) {
+                var failed = 0;
+                var count = 0;
+                task.log(
+                    "Compiling example scripts from " +
+                        files.length + " examples");
+                return Q.all(files.map(function(file) {
+                    return qfs.read(file).then(function(html) {
+                        try {
+                            count += checkfunc(html, parser) | 0;
+                        } catch (err) {
+                            task.log(
+                                chalk.magenta(file) + ": " +
+                                chalk.red(err));
+                            failed++;
+                        }
+                    });
+                })).then(function() {
+                    task.log(count + " scripts compiled");
+                    if (failed) throw new BuildError(
+                        failed + " example script(s) failed to compile");
+                });
+            });
+    });
+};
+
 exports.download = function(url, dst) {
     var task = this;
     this.output(dst);
@@ -300,12 +347,25 @@ exports.unzip = function(src, dst, files) {
     var task = this;
     this.input(src);
     var outFile = path.join.bind(path, dst);
+    var listed = function() { return true; }
     if (files) {
+        listed = function(file) { return files.indexOf(file) !== -1; }
         if (typeof files === "string") {
-            // Passing a single file instead of an array means
-            // that dst is the target file, not a directory
+            // Passing a single name instead of an array means
+            // that the named file or subtree is extracted to dst,
+            // possibly renaming it in the process
+            if (files[files.length - 1] === "/") {
+                // rename named subdirectory to dst
+                outFile = function(file) {
+                    return path.join(dst, file.substr(files[0].length));
+                }
+                listed = function(file) {
+                    return file.substr(0, files[0].length) === files[0];
+                }
+            } else {
+                outFile = function() { return dst; }
+            }
             files = [files];
-            outFile = function() { return dst; }
         }
         files.forEach(function(name) {
             this.output(outFile(name));
@@ -329,7 +389,7 @@ exports.unzip = function(src, dst, files) {
                 });
             });
         function handleEntry(entry) {
-            if (files && files.indexOf(entry.fileName) === -1)
+            if (!listed(entry.fileName))
                 return Q(); // skip this file
             var dst = outFile(entry.fileName);
             if (entry.fileName[entry.fileName.length - 1] === "/")
@@ -343,4 +403,16 @@ exports.unzip = function(src, dst, files) {
                 });
         }
     });
+};
+
+exports.git_submodule = function(path) {
+    var task = this;
+    this.addCondition(function() {
+        var args = ["submodule", "status", path];
+        return cmdImpl(task, {returnOutput: true}, "git", args)
+            .then(function(buf) {
+                return buf[0] !== 32;
+            });
+    });
+    this.cmd("git", "submodule", "update", "--init", path);
 };

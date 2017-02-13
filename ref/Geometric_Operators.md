@@ -44,7 +44,7 @@ This operator takes a point and a line as input (no matter in which order) and c
 The line that is returned by the operator is again represented in homogeneous coordinates.
 This operator refers to Euclidean geometry.
 Hyperbolic and spherical computations are not supported.
-This operator can also be abbreviated by `para(...)`.
+This operator can also be abbreviated by `para(…)`.
 
 ------
 
@@ -57,7 +57,7 @@ This operator takes a point and a line as input (no matter in which order) and c
 The line that is returned by the operator is again represented in homogeneous coordinates.
 This operator refers to Euclidean geometry.
 Hyperbolic and spherical computations are not supported.
-This operator can also be abbreviated by `perp(...)`.
+This operator can also be abbreviated by `perp(…)`.
 
 **Combined example:**
 The following code creates the picture below.
@@ -146,8 +146,8 @@ It returns a string that is either `"POINT"`, `"LINE"`, or `"NONE"`.
 Applying this operator to a list of two numbers will always return `"Point"`.
 Applying this operator to a list of three numbers will return `"Point"`, `"Line"`, or `"None"`, depending on whether the internal meaning of this list is set to `"Point"` or `"Line"`.
 Values that come from geometric objects of a Cinderella construction will always be assigned the corresponding geometric type.
-The output of the `meet` operator is always a "Point".
-The output of the operators `join`, `parallel`, and `perpendicular` is always a "Line".
+The output of the `meet` operator is always a “Point”.
+The output of the operators `join`, `parallel`, and `perpendicular` is always a “Line”.
 Furthermore, the geometric meaning can be explicitly set using the operators `line` and `point`.
 
 ------

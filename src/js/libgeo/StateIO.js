@@ -4,6 +4,7 @@ var attributesToClone = [
     //"_traces", // internal
     //"_traces_index", // internal
     //"_traces_tick", // internal
+    "align",
     "alpha",
     "angle", // LineByFixedAngle, may need update once we have inspect
     //"antipodalPoint", // internal, PointOnCircle to OtherPointOnCircle
@@ -14,6 +15,7 @@ var attributesToClone = [
     "arrowsides",
     "arrowsize",
     //"behavior", // needs dedicated code
+    //"calculation", // internal
     "clip",
     "color",
     "dashtype",
@@ -24,6 +26,8 @@ var attributesToClone = [
     //"endPoint", // output for arc
     //"endpos", // output for segment
     //"farpoint", // output for segment
+    "fillalpha",
+    "fillcolor",
     "filled", // drawgeoarc
     //"homog", // save as pos
     //"incidences", // internal
@@ -51,6 +55,7 @@ var attributesToClone = [
     //"startPoint", // output for arc
     //"startpos", // output for segment
     //"stateIdx", // internal
+    "text",
     "text_fontfamily",
     "textbold",
     "textitalics",
@@ -73,6 +78,7 @@ function savePos(el) {
     switch (el.kind) {
         case "P":
         case "L":
+        case "Text":
             return unwrap(el.homog);
         case "C":
             var mat = el.matrix.value;
@@ -105,6 +111,10 @@ function saveGeoElement(el) {
         if (val !== null && val !== undefined)
             res[key] = val;
     });
+    if (el.kind === "P" && (!el.movable || el.pinned) && res.color) {
+        var undim = CSNumber.real(1 / defaultAppearance.dimDependent);
+        res.color = General.unwrap(List.scalmult(undim, el.color));
+    }
     var pos = savePos(el);
     if (pos) res.pos = pos;
     if (el.dock) res.dock = saveDockingInfo(el.dock);

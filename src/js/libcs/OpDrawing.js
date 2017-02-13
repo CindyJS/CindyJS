@@ -188,7 +188,8 @@ eval_helper.drawarc = function(args, modifs, df) {
         csctx.translate(xx, yy);
 
         // use the canvas arc function -- buggy in Chrome at least in Okt 15
-        var useArc = false;
+        // looks fine in Sept 16
+        var useArc = true;
 
         if (useArc) {
             csctx.arc(0, 0, arcDist.value.real * m.sdet, startAngle, endAngle, cclock);
@@ -245,30 +246,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         if (Bmiddle) {
             Render2D.drawsegcore(ptA, ptC);
         } else { // nasty case -- B not in the middle -- we have 2 ray to infinity
-
-            // flip the orientation to the right side 
-            var sflip = dAB > dBC ? 1 : -1;
-
-            // first ray
-            // get direction and normalise
-            var dx = sflip * (ptA.x - ptB.x);
-            var dy = sflip * (ptA.y - ptB.y);
-            var norm = Math.sqrt(dx * dx + dy * dy);
-
-            // get points outside canvas (at "infinity")
-            var sc = csport.drawingstate.matrix.sdet;
-            var farAway = 25000 / sc; // 25000px in user coordinates
-            var factor = farAway / norm;
-            dx = dx * factor;
-            dy = dy * factor;
-            Render2D.drawsegcore(ptA, {
-                x: ptA.x + dx,
-                y: ptA.y + dy
-            });
-            Render2D.drawsegcore(ptC, {
-                x: ptC.x - dx,
-                y: ptC.y - dy
-            });
+            Render2D.drawRaySegment(a, c);
         }
     }
 
@@ -809,10 +787,9 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 
 
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
-
     Render2D.handleModifs(modifs, Render2D.conicModifs);
     Render2D.preDrawCurve();
-    csctx.mozFillRule = 'evenodd';
+
 
     var m = csport.drawingstate.matrix;
 
@@ -853,6 +830,7 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     }
 
     var v0 = evaluate(args[0]);
+
     csctx.beginPath();
     if (v0.ctype === 'list') {
         drawpoly();
@@ -862,11 +840,15 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
     }
 
     if (df === "D") {
+        if (Render2D.fillColor) {
+            csctx.fillStyle = Render2D.fillColor;
+            csctx.fill(Render2D.fillrule);
+        }
         csctx.stroke();
     }
     if (df === "F") {
         csctx.fillStyle = Render2D.lineColor;
-        csctx.fill();
+        csctx.fill(Render2D.fillrule);
     }
     if (df === "C") {
         csctx.clip();
@@ -876,29 +858,66 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
 };
 
+function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight) {
+    if (text.indexOf("\n") !== -1) {
+        var left = Infinity;
+        var right = -Infinity;
+        var top = Infinity;
+        var bottom = -Infinity;
+        text.split("\n").forEach(function(row) {
+            var box = defaultTextRendererCanvas(ctx, row, x, y, align, size);
+            if (left > box.left) left = box.left;
+            if (right < box.right) right = box.right;
+            if (top > box.top) top = box.top;
+            if (bottom < box.bottom) bottom = box.bottom;
+            y += lineHeight;
+        });
+        return {
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom
+        };
+    }
+    var m = ctx.measureText(text);
+    ctx.fillText(text, x - m.width * align, y);
+    // We can't rely on advanced text metrics due to lack of browser support,
+    // so we have to guess sizes, the vertical ones in particular.
+    return {
+        left: x - m.width * align,
+        right: x + m.width * (1 - align),
+        top: y - 0.7 * 1.2 * size,
+        bottom: y + 0.3 * 1.2 * size
+    };
+}
+
 // This is a hook: the following function may get replaced by a plugin.
-var textRendererCanvas = function(ctx, text, x, y, align) {
-    var width = ctx.measureText(text).width;
-    ctx.fillText(text, x - width * align, y);
-};
+var textRendererCanvas = defaultTextRendererCanvas;
 
 // This is a hook: the following function may get replaced by a plugin.
 var textRendererHtml = function(element, text, font) {
+    if (text.indexOf("\n") !== -1) {
+        // TODO: find a way to align the element by its FIRST row
+        // as Cinderella does it, instead of by the last row as we do now.
+        var rows = text.split("\n");
+        element.textContent = rows[0];
+        for (var i = 1; i < rows.length; ++i) {
+            element.appendChild(document.createElement("br"));
+            element.appendChild(document.createTextNode(rows[i]));
+        }
+        return;
+    }
     element.textContent = text;
 };
 
-// This is a special function: when called internally, additional arguments
-// may be used which are not accessible from a script invocation.
-evaluator.drawtext$2 = function(args, modifs, callback) {
+eval_helper.drawtext = function(args, modifs, callback) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluate(args[1]);
     var pt = eval_helper.extractPoint(v0);
 
     if (!pt.ok) {
-        return nada;
+        return null;
     }
-
-    var m = csport.drawingstate.matrix;
 
     var col = csport.drawingstate.textcolor;
     Render2D.handleModifs(modifs, Render2D.textModifs);
@@ -907,6 +926,7 @@ evaluator.drawtext$2 = function(args, modifs, callback) {
     if (Render2D.size !== null) size = Render2D.size;
     csctx.fillStyle = Render2D.textColor;
 
+    var m = csport.drawingstate.matrix;
     var xx = pt.x * m.a - pt.y * m.b + m.tx + Render2D.xOffset;
     var yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset;
 
@@ -917,11 +937,121 @@ evaluator.drawtext$2 = function(args, modifs, callback) {
         Render2D.family);
     csctx.font = font;
     if (callback) {
-        callback(txt, font, xx, yy, Render2D.align);
+        return callback(txt, font, xx, yy, Render2D.align, size);
     } else {
-        textRendererCanvas(csctx, txt, xx, yy, Render2D.align);
+        return textRendererCanvas(
+            csctx, txt, xx, yy, Render2D.align,
+            size, size * defaultAppearance.lineHeight);
+    }
+};
+
+evaluator.drawtext$2 = function(args, modifs) {
+    eval_helper.drawtext(args, modifs, null);
+    return nada;
+};
+
+evaluator.drawtable$2 = function(args, modifs) {
+    var v0 = evaluateAndVal(args[0]);
+    var v1 = evaluateAndVal(args[1]);
+    var pt = eval_helper.extractPoint(v0);
+    if (!pt.ok) return nada;
+    if (v1.ctype !== "list") return nada;
+    var data = v1.value;
+    var nr = data.length;
+    var nc = -1;
+    var r, c;
+    for (r = 0; r < nr; ++r)
+        if (data[r].ctype === "list" && data[r].value.length > nc)
+            nc = data[r].value.length;
+    if (nc === -1) { // depth 1, no nested lists
+        data = data.map(function(row) {
+            return [row];
+        });
+        nc = 1;
+    } else {
+        data = data.map(function(row) {
+            return List.asList(row).value;
+        });
     }
 
+    // Modifier handling
+    var sx = 100;
+    var sy = null;
+    var border = true;
+    var color = csport.drawingstate.textcolor;
+    Render2D.handleModifs(modifs, {
+        "size": true,
+        "color": function(v) {
+            if (List._helper.isNumberVecN(v, 3))
+                color = Render2D.makeColor([
+                    v.value[0].value.real,
+                    v.value[1].value.real,
+                    v.value[2].value.real
+                ]);
+        },
+        "alpha": true,
+        "bold": true,
+        "italics": true,
+        "family": true,
+        "align": true,
+        "x_offset": true,
+        "y_offset": true,
+        "offset": true,
+        "width": function(v) {
+            if (v.ctype === "number")
+                sx = v.value.real;
+        },
+        "height": function(v) {
+            if (v.ctype === "number")
+                sy = v.value.real;
+        },
+        "border": function(v) {
+            if (v.ctype === "boolean")
+                border = v.value;
+        },
+    });
+    var size = csport.drawingstate.textsize;
+    if (size === null) size = defaultAppearance.textsize;
+    if (Render2D.size !== null) size = Render2D.size;
+    if (sy === null) sy = 1.6 * size;
+
+    var font = (
+        Render2D.bold + Render2D.italics +
+        Math.round(size * 10) / 10 + "px " +
+        Render2D.family);
+    csctx.font = font;
+    var m = csport.drawingstate.matrix;
+    var ww = nc * sx;
+    var hh = nr * sy;
+    var xx = pt.x * m.a - pt.y * m.b + m.tx + Render2D.xOffset;
+    var yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset - hh;
+    if (border) {
+        Render2D.preDrawCurve();
+        csctx.strokeStyle = Render2D.lineColor;
+        csctx.beginPath();
+        for (r = 1; r < nr; ++r) {
+            csctx.moveTo(xx, yy + r * sy);
+            csctx.lineTo(xx + ww, yy + r * sy);
+        }
+        for (c = 1; c < nc; ++c) {
+            csctx.moveTo(xx + c * sx, yy);
+            csctx.lineTo(xx + c * sx, yy + hh);
+        }
+        csctx.stroke();
+        csctx.lineWidth = Render2D.lsize + 1;
+        csctx.beginPath();
+        csctx.rect(xx, yy, ww, hh);
+        csctx.stroke();
+    }
+    xx += Render2D.align * sx + (1 - 2 * Render2D.align) * sy * 0.3;
+    yy += sy * 0.7;
+    csctx.fillStyle = color;
+    for (r = 0; r < nr; ++r) {
+        for (c = 0; c < nc; ++c) {
+            var txt = niceprint(data[r][c]);
+            textRendererCanvas(csctx, txt, xx + c * sx, yy + r * sy, Render2D.align);
+        }
+    }
     return nada;
 };
 
@@ -999,7 +1129,7 @@ evaluator.plot$2 = function(args, modifs) {
     var stroking = false;
     var start = -10; //TODO Anpassen auf PortScaling
     var stop = 10;
-    var step = 1;
+    var step = 0.1;
     var steps = 1000;
 
     var v1 = args[0];

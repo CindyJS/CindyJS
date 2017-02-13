@@ -30,6 +30,12 @@ var watchToReload = [
     "private_examples",
 ];
 
+var ignored = [
+    "**/.*", // hidden files, e.g. lock files or similar
+    "**/*~", // backup files, used by some editors
+    "**/#*#", // used by Emacs to autosave while editing
+];
+
 module.exports = function watch(makeOnce, doClean) {
     var deferred = Q.defer();
     var watcher;
@@ -43,6 +49,9 @@ module.exports = function watch(makeOnce, doClean) {
         port: 1337,
         startPath: "/examples/",
         files: watchToReload,
+        watchOptions: {
+            ignored: ignored,
+        },
     }, function(err, instance) {
         if (err) return deferred.reject(err);
     });
@@ -66,6 +75,7 @@ module.exports = function watch(makeOnce, doClean) {
         if (!watcher) {
             watcher = chokidar.watch(watchToBuild, {
                 ignoreInitial: true,
+                ignored: ignored,
             });
             watcher.on("error", deferred.reject);
             watcher.on("all", onChange);

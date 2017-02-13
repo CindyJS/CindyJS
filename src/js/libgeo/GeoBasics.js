@@ -5,11 +5,19 @@ defaultAppearance.lineColor = [0, 0, 1];
 defaultAppearance.pointSize = 5;
 defaultAppearance.lineSize = 1;
 defaultAppearance.alpha = 1;
-defaultAppearance.overhangLine = 1.1;
+defaultAppearance.overhangLine = 1;
 defaultAppearance.overhangSeg = 1;
 defaultAppearance.dimDependent = 0.7;
 defaultAppearance.fontFamily = "sans-serif";
 defaultAppearance.textsize = 20; // Cinderella uses 12 by default
+
+defaultAppearance.lineHeight = 1.45;
+/* The value of 1.45 for the line height agrees reasonably well with
+ * the default font and size in Cinderella on OS X, but it might well
+ * be that the Java line height is read from the font file, so that
+ * other fonts should use other line heights.
+ * Not sure whether we can reasonably reproduce this.
+ */
 
 function setDefaultAppearance(obj) {
     var key;
@@ -53,6 +61,7 @@ function csinit(gslp) {
     csgeo.conics = [];
     csgeo.texts = [];
     csgeo.free = [];
+    csgeo.polygons = [];
 
     gslp.forEach(addElementNoProof);
     checkConjectures();
@@ -118,6 +127,24 @@ function segmentDefault(el) {
     el.clip = General.string("end");
 }
 
+function textDefault(el) {
+    var size;
+    if (el.textsize !== undefined) el.size = el.textsize;
+    else if (el.size !== undefined) el.size = el.size;
+    else el.size = defaultAppearance.textsize;
+    el.size = CSNumber.real(+el.size);
+}
+
+function polygonDefault(el) {
+    el.filled = (el.filled !== undefined ? General.bool(el.filled) : General.bool(true));
+    if (el.fillcolor === undefined) el.fillcolor = nada;
+    else el.fillcolor = List.realVector(el.fillcolor);
+    if (el.fillalpha === undefined) el.fillalpha = 0;
+    el.fillalpha = CSNumber.real(el.fillalpha);
+
+    lineDefault(el);
+}
+
 function addElement(el) {
     el = addElementNoProof(el);
     checkConjectures();
@@ -132,13 +159,19 @@ function addElementNoProof(el) {
         console.log("Element name '" + el.name + "' already exists");
 
         var existingEl = csgeo.csnames[el.name];
-        if (geoOps[existingEl.type].isMovable)
+        if (geoOps[existingEl.type].isMovable &&
+            geoOps[existingEl.type].kind === "P")
             movepointscr(existingEl, el.pos, "homog");
 
         return {
             'ctype': 'geo',
             'value': existingEl
         };
+    }
+
+    // Recursively apply aliases
+    while (geoAliases.hasOwnProperty(el.type)) {
+        el.type = geoAliases[el.type];
     }
 
     // Expand macros
@@ -154,14 +187,38 @@ function addElementNoProof(el) {
 
     // Detect unsupported operations or missing or incorrect arguments
     var op = geoOps[el.type];
+    var isSet = false;
+    var getKind = function(name) {
+        return csgeo.csnames[name].kind;
+    };
+
     if (!op) {
         console.error(el);
         console.error("Operation " + el.type + " not implemented yet");
         return null;
     }
     if (op.signature !== "**") {
-        if (op.signature.length !== (el.args ? el.args.length : 0)) {
-            window.alert("Wrong number of arguments for " + el.name);
+        // check for sets
+        if (!Array.isArray(op.signature) && op.signature.charAt(1) === "*") {
+            isSet = true;
+            el.args.forEach(function(val) {
+                if (csgeo.csnames[val].kind !== op.signature.charAt(0)) {
+                    console.error(
+                        "Not all elements in set are of same type: " +
+                        el.name + " expects " + op.signature +
+                        " but " + val + " is of kind " +
+                        csgeo.csnames[val].kind);
+                    if (typeof window !== "undefined")
+                        window.alert("Not all elements in set are of same type: " + el.name);
+                    return null;
+                }
+            });
+        } else if (op.signature.length !== (el.args ? el.args.length : 0)) {
+            console.error(
+                "Wrong number of arguments for " + el.name +
+                " of type " + el.type);
+            if (typeof window !== "undefined")
+                window.alert("Wrong number of arguments for " + el.name);
             return null;
         }
     }
@@ -173,13 +230,14 @@ function addElementNoProof(el) {
                     " due to missing argument " + el.args[i]);
                 return null;
             }
-            if (op.signature !== "**") {
+            if (op.signature !== "**" && !isSet) {
                 var argKind = csgeo.csnames[el.args[i]].kind;
-                if (!(op.signature[i] === argKind ||
-                        (argKind === "S" && op.signature[i] === "L"))) {
-                    window.alert(
-                        "Wrong argument kind " + argKind + " as argument " + i +
-                        " to element " + el.name + " of type " + el.type);
+                if (!(op.signature[i] === argKind || (argKind === "S" &&
+                        op.signature[i] ===
+                        "L"))) {
+                    window.alert("Wrong argument kind " + argKind +
+                        " as argument " + i + " to element " +
+                        el.name + " of type " + el.type);
                     return null;
                 }
             }
@@ -222,6 +280,11 @@ function addElementNoProof(el) {
     }
     if (el.kind === "Text") {
         csgeo.texts.push(el);
+        textDefault(el);
+    }
+    if (el.kind === "Poly") {
+        csgeo.polygons.push(el);
+        polygonDefault(el);
     }
 
     if (true || op.stateSize !== 0) {

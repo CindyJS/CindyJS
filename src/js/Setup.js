@@ -5,10 +5,49 @@ var cslib;
 
 var cscompiled = {};
 
+// Simulation settings
 var csanimating = false;
 var csstopped = true;
+var simtime = 0; // accumulated simulation time since start
+var simspeed = 0.5; // global speed setting, will get scaled for applications
+var simcap = 1000 / 20; // max. ms between frames for fps-independent sim
+var simtick = 0; // Date.now of the most recent simulation tick
+var simaccuracy = 10; // number of sub-steps per frame
+
+var simunit = 5 / 360; // reported simulationtime() per internal simtime unit
+/* Cinderella has a factor 5 for its internal animation clock,
+ * and the division by 360 is in the simulationtime function implementation.
+ */
+
+// internal simtime units per millisecond at simspeed 1
+var simfactor = 0.32 / simunit / 1000 * 2;
+/*              ^^^^ simulationtime per second, observed in Cinderella
+ *                     ^^^^^^^ simulationtime per simtime unit
+ *                               ^^^^ milliseconds per second
+ *                                      ^ default accuracy factor
+ *
+ * Cinderella does timing different from CindyJS, so here are some notes.
+ * The default in Cinderella is speed=1.0, accuracy=2, frames=1 in its terms,
+ * which in CindyJS terminology would mean speed=0.5, accuracy=1.
+ * It schedules animation frames with 20ms between, so the actual framerate
+ * depends on the time each such frame takes to compute.
+ * The step in simulated time for each such job is computed in Cinderella
+ * as speed * 2^(frames - accuracy), so it's 0.5 units by default.
+ * This amount is internal only; the simulationtime() divides the accumulated
+ * time by 360.  Using its output, one can observe the amount of simulated
+ * time for each second of wall time.  It will vary with hardware, but
+ * on current desktops was observed to be close to 0.32 per second,
+ * corresponding to 23.04ms between consecutive frames on average.
+ * So that's where all the magic values in the simfactor computation come from.
+ *
+ * Should these values (simunit and simfactor) be different for widgets
+ * which were not exported from Cinderella? (gagern, 2016-09-02)
+ */
+
+// Coordinate system settings
 var csscale = 1;
 var csgridsize = 0;
+var cstgrid = 0;
 var csgridscript;
 var cssnap = false;
 var csaxes = false;
@@ -148,9 +187,20 @@ function canvasWithContainingDiv(elt) {
     if (position === "static")
         div.style.position = "relative"; // serve as a positioning root
     div.appendChild(canvas);
-    // TODO: implement component resizing detection, probably similar to
-    // github.com/marcj/css-element-queries/blob/bfa9a7f/src/ResizeSensor.js
     return canvas;
+}
+
+function isCinderellaBeforeVersion() {
+    var c = instanceInvocationArguments.cinderella;
+    if (!c || !c.version)
+        return false;
+    for (var i = 0; i < arguments.length; ++i) {
+        var x = c.version[i];
+        var y = arguments[i];
+        if (x !== y)
+            return (typeof x === typeof y) && (x < y);
+    }
+    return false;
 }
 
 function createCindyNow() {
@@ -195,6 +245,8 @@ function createCindyNow() {
                 trafos = port.transform;
             if (isFiniteNumber(port.grid) && port.grid > 0)
                 csgridsize = port.grid;
+            if (isFiniteNumber(port.tgrid) && port.tgrid > 0)
+                cstgrid = port.tgrid;
             if (port.snap)
                 cssnap = true;
             if (port.axes)
@@ -215,7 +267,16 @@ function createCindyNow() {
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
         if (data.animation ? data.animation.controls : data.animcontrols)
-            setupAnimControls();
+            setupAnimControls(data);
+        if (data.animation && isFiniteNumber(data.animation.speed)) {
+            if (data.animation.accuracy === undefined &&
+                isCinderellaBeforeVersion(2, 9, 1875))
+                setSpeed(data.animation.speed * 0.5);
+            else
+                setSpeed(data.animation.speed);
+        }
+        if (data.animation && isFiniteNumber(data.animation.accuracy))
+            simaccuracy = data.animation.accuracy;
     }
     if (data.statusbar) {
         if (typeof data.statusbar === "string") {
@@ -226,13 +287,14 @@ function createCindyNow() {
     }
 
     //Setup the scripts
-    var scripts = ["move", "keydown",
-        "mousedown", "mouseup", "mousedrag", "mousemove",
+    var scripts = ["move",
+        "keydown", "keyup", "keytyped", "keytype",
+        "mousedown", "mouseup", "mousedrag", "mousemove", "mouseclick",
         "init", "tick", "draw",
         "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
-    var scriptconf = data.scripts,
-        scriptpat = null;
+    var scriptconf = data.scripts;
+    var scriptpat = null;
     if (typeof scriptconf === "string" && scriptconf.search(/\*/))
         scriptpat = scriptconf;
     if (typeof scriptconf !== "object")
@@ -265,6 +327,12 @@ function createCindyNow() {
             cscompiled[s] = cscode;
         }
     });
+    if (isCinderellaBeforeVersion(2, 9, 1888) && !cscompiled.keydown) {
+        // Cinderella backwards-compatible naming of key events
+        cscompiled.keydown = cscompiled.keytyped;
+        cscompiled.keytyped = cscompiled.keytype;
+        cscompiled.keytype = undefined;
+    }
 
     if (isFiniteNumber(data.grid) && data.grid > 0) {
         csgridsize = data.grid;
@@ -411,20 +479,48 @@ var animcontrols = {
     stop: noop
 };
 
-function setupAnimControls() {
-    var animContainer = document.createElement("div");
-    animContainer.className = "CindyJS-animcontrols";
-    canvas.parentNode.appendChild(animContainer);
+function setupAnimControls(data) {
+    var controls = document.createElement("div");
+    controls.className = "CindyJS-animcontrols";
+    canvas.parentNode.appendChild(controls);
+    var speedLo = 0;
+    var speedHi = 1;
+    var speedScale = 1;
+    if (data.animation && data.animation.speedRange &&
+        isFiniteNumber(data.animation.speedRange[0]) &&
+        isFiniteNumber(data.animation.speedRange[1])) {
+        speedLo = data.animation.speedRange[0];
+        speedHi = data.animation.speedRange[1];
+        speedScale = speedHi - speedLo;
+    }
+    var slider = document.createElement("div");
+    slider.className = "CindyJS-animspeed";
+    controls.appendChild(slider);
+    var knob = document.createElement("div");
+    slider.appendChild(knob);
+    addAutoCleaningEventListener(slider, "mousedown", speedDown);
+    addAutoCleaningEventListener(slider, "mousemove", speedDrag);
+    addAutoCleaningEventListener(canvas.parentNode, "mouseup", speedUp, true);
+    var buttons = document.createElement("div");
+    buttons.className = "CindyJS-animbuttons";
+    controls.appendChild(buttons);
     setupAnimButton("play", csplay);
     setupAnimButton("pause", cspause);
     setupAnimButton("stop", csstop);
     animcontrols.stop(true);
 
+    setSpeedKnob = function(speed) {
+        speed = (speed - speedLo) / speedScale;
+        speed = Math.max(0, Math.min(1, speed));
+        speed = Math.round(speed * 1000) * 0.1; // avoid scientific notation
+        knob.style.width = speed + "%";
+    };
+
     function setupAnimButton(id, ctrl) {
         var button = document.createElement("button");
         var img = document.createElement("img");
         button.appendChild(img);
-        animContainer.appendChild(button);
+        buttons.appendChild(button);
         loadSvgIcon(img, id);
         button.addEventListener("click", ctrl);
         animcontrols[id] = setActive;
@@ -434,6 +530,32 @@ function setupAnimControls() {
             else button.classList.remove("CindyJS-active");
         }
     }
+
+    var speedDragging = false;
+
+    function speedDown(event) {
+        speedDragging = true;
+        speedDrag(event);
+    }
+
+    function speedDrag(event) {
+        if (!speedDragging) return;
+        var rect = slider.getBoundingClientRect();
+        var x = event.clientX - rect.left - slider.clientLeft + 0.5;
+        setSpeed(speedScale * x / rect.width + speedLo);
+    }
+
+    function speedUp(event) {
+        speedDragging = false;
+    }
+
+}
+
+var setSpeedKnob = null;
+
+function setSpeed(speed) {
+    simspeed = speed;
+    if (setSpeedKnob) setSpeedKnob(speed);
 }
 
 /* Install layer ‹id› of Icons.svg as the src of the given img element.
@@ -611,11 +733,13 @@ function csplay() {
     if (!csanimating) { // stop or pause state
         if (csstopped) { // stop state
             backupGeo();
+            simtime = 0;
             csstopped = false;
             animcontrols.stop(false);
         } else {
             animcontrols.pause(false);
         }
+        simtick = Date.now();
         animcontrols.play(true);
         if (typeof csinitphys === 'function') {
             if (csPhysicsInited) {

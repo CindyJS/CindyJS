@@ -85,10 +85,6 @@ function expressionsAreEqual(a, b) {
 }
 
 
-function isprimitive(a) {
-    return (typeof(a) === 'number');
-}
-
 /** 
  * are two given signatures equal?
  */
@@ -121,14 +117,14 @@ function getPlainName(oper) {
 
 
 /**
- * guesses the type of an concrete value
+ * guesses the general(non-constant) type of an concrete value
  */
 function guessTypeOfValue(tval) {
     if (tval['ctype'] === 'boolean') {
         return type.bool;
     } else if (tval['ctype'] === 'number') {
         let z = tval['value'];
-        if (Math.abs(z['imag']) < 1e-10) { //eps test. for some reasons sin(1) might have some imag part of order e-17
+        if (Math.abs(z['imag']) < 1e-5) { //eps test. for some reasons sin(1) might have some imag part of order e-17
             if ((z['real'] | 0) === z['real']) {
                 return type.int;
             } else {
@@ -144,28 +140,18 @@ function guessTypeOfValue(tval) {
             for (let i = 1; i < l.length; i++) {
                 ctype = lca(ctype, guessTypeOfValue(l[i]));
             }
-            //console.log("got lca " + typeToString(ctype));
-            if (issubtypeof(ctype, type.float)) {
-                if (l.length == 2) return type.vec2;
-                if (l.length == 3) return type.vec3;
-                if (l.length == 4) return type.vec4;
-            }
-
-            if (issubtypeof(ctype, type.complex)) {
-                if (l.length == 2) return type.vec2complex;
-            }
-
-            if (ctype === type.vec2 && l.length == 2) return type.mat2;
-            if (ctype === type.vec2complex && l.length == 2) return type.mat2complex;
-            if (ctype === type.vec3 && l.length == 3) return type.mat3;
-            if (ctype === type.vec4 && l.length == 4) return type.mat4;
-            //TODO: do all other lists and other matrices
+            if (ctype) return {
+                type: 'list',
+                length: l.length,
+                parameters: ctype
+            };
         }
     } else if (tval['ctype'] === 'string' || tval['ctype'] === 'image') {
         return type.image;
     }
-    console.error("Cannot guess type of " + JSON.stringify(tval));
-    return nada;
+    console.error(`Cannot guess type of the following type:`);
+    console.log(tval);
+    return false;
 }
 
 
@@ -173,7 +159,7 @@ var helpercnt = 0;
 
 function generateUniqueHelperString() {
     helpercnt++;
-    return '_helper' + helpercnt;
+    return `_h${helpercnt}`;
 }
 
 function enlargeCanvasIfRequired(sizeX, sizeY) {
@@ -245,51 +231,64 @@ function toHalf(fval) {
         126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
 };
 
-var toByte = function(f) {
-    return f * 255;
-}
+//from http://stackoverflow.com/questions/5678432/decompressing-half-precision-floats-in-javascript
+function decodeFloat16(binary) {
+    let exponent = (binary & 0x7C00) >> 10;
+    let fraction = binary & 0x03FF;
+    return (binary >> 15 ? -1 : 1) * (
+        exponent ?
+        (
+            exponent === 0x1F ?
+            fraction ? NaN : Infinity :
+            Math.pow(2, exponent - 15) * (1 + fraction / 0x400)
+        ) :
+        6.103515625e-5 * (fraction / 0x400)
+    );
+};
+
+var toByte = f => f * 255
 
 /**
  * converts a float array to an array encoded in the internal type
- * @param {Array<number>} pixels
+ * @param {Array<number>} samples
  */
-function createPixelArrayFromFloat(pixels) {
-    if (can_use_texture_float) return new Float32Array(pixels);
-    if (can_use_texture_half_float) { //return new Uint16Array(pixels.map(toHalf)); <- does not work in recent safari
-        let newpixels = new Uint16Array(pixels.length);
-        for (let i = 0; i < pixels.length; i++) {
-            newpixels[i] = toHalf(pixels[i]);
+function createPixelArrayFromFloat(samples) {
+    if (can_use_texture_float) return new Float32Array(samples);
+    if (can_use_texture_half_float) { //return new Uint16Array(samples.map(toHalf)); <- does not work in recent safari
+        let newsamples = new Uint16Array(samples.length);
+        for (let i = 0; i < samples.length; i++) {
+            newsamples[i] = toHalf(samples[i]);
         }
-        return newpixels;
-    } else { //return new Uint8Array(pixels.map(toByte)); <- does not work in recent safari
-        let newpixels = new Uint8Array(pixels.length);
-        for (let i = 0; i < pixels.length; i++) {
-            newpixels[i] = toByte(pixels[i]);
+        return newsamples;
+    } else { //return new Uint8Array(samples.map(toByte)); <- does not work in recent safari
+        let newsamples = new Uint8Array(samples.length);
+        for (let i = 0; i < samples.length; i++) {
+            newsamples[i] = toByte(samples[i]);
         }
-        return newpixels;
+        return newsamples;
     }
 }
 
 /**
  * converts a float array to an array encoded in the internal type
- * @param {Array<number>} pixels
+ * @param {Array<number>} samples
  */
-function createPixelArrayFromUint8(pixels) {
-    if (can_use_texture_float) { //return (new Float32Array(pixels)).map(x => x / 255.); <- does not work in recent safari
-        let newpixels = new Float32Array(pixels.length);
-        for (let i = 0; i < pixels.length; i++) {
-            newpixels[i] = pixels[i] / 255.;
+function createPixelArrayFromUint8(samples) {
+    if (can_use_texture_float) { //return (new Float32Array(samples)).map(x => x / 255.); <- does not work in recent safari
+        let newsamples = new Float32Array(samples.length);
+        for (let i = 0; i < samples.length; i++) {
+            newsamples[i] = samples[i] / 255.;
         }
-        return newpixels;
+        return newsamples;
     }
 
-    if (can_use_texture_half_float) { //return new Uint16Array((new Float32Array(pixels)).map(x => x / 255.)); <- does not work in recent safari
-        let newpixels = new Uint16Array(pixels.length);
-        for (let i = 0; i < pixels.length; i++) {
-            newpixels[i] = toHalf(pixels[i] / 255.);
+    if (can_use_texture_half_float) { //return new Uint16Array((new Float32Array(samples)).map(x => x / 255.)); <- does not work in recent safari
+        let newsamples = new Uint16Array(samples.length);
+        for (let i = 0; i < samples.length; i++) {
+            newsamples[i] = toHalf(samples[i] / 255.);
         }
-        return newpixels;
-    } else return new Uint8Array(pixels);
+        return newsamples;
+    } else return new Uint8Array(samples);
 }
 
 /**
@@ -306,6 +305,16 @@ function getPixelType() {
     if (can_use_texture_float) return gl.FLOAT;
     if (can_use_texture_half_float) return halfFloat.HALF_FLOAT_OES
     else return gl.UNSIGNED_BYTE;
+}
+
+function toFloat(samples) {
+    let res = [];
+    for (let i = 0; i < samples.length; i++) {
+        if (can_use_texture_float) res.push(samples[i]);
+        else if (can_use_texture_half_float) res.push(decodeFloat16(samples[i]));
+        else res.push(samples[i] / 255);
+    }
+    return res;
 }
 
 function smallestPowerOfTwoGreaterOrEqual(a) {

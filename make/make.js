@@ -29,7 +29,10 @@ module.exports = function make(settings, tasksToRun, doClean) {
     .then(function() {
         if (!doClean) return;
         console.log("Deleting build directory");
-        return Q.nfcall(rimraf, "build");
+        return Q.nfcall(rimraf, "build")
+        .then(function() {
+            return Q.nfcall(rimraf, "plugins/ComplexCurves/lib/ComplexCurves")
+        });
     })
     .then(function() {
         return qfs.makeTree("build", 7*8*8 + 7*8 + 7)
