@@ -61,8 +61,6 @@ This operator gives a handle to the element that is currently moved by the mouse
 
 #### Elements close to the mouse: `elementsatmouse()`
 
-**Not available in CindyJS yet!**
-
 **Description:**
 This operator gives a list with handles to all the elements that are close to the current mouse position.
 
