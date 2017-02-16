@@ -176,7 +176,7 @@ function labelCode(code, label) {
 }
 
 function printStackTrace(msg) {
-    csconsole.err(msg + "\n" + callStack.map(function(frame) {
-        return "  at " + frame.oper;
+    csconsole.err(msg + callStack.map(function(frame) {
+        return "\n  at " + frame.oper;
     }).join("\n"));
 }
