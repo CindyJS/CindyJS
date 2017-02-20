@@ -560,7 +560,9 @@ webgl["complex"] = first([
 ]);
 
 let createraise = (k, codebuilder) => {
-    if (k == 2) {
+    if (k <= 1) {
+        return;
+    } else if (k == 2) {
         codebuilder.add('functions', 'raise2', () => `float raise2(float a) { return a*a; }`);
     } else {
 
@@ -570,7 +572,7 @@ let createraise = (k, codebuilder) => {
         codebuilder.add('functions', name, () => `float ${name}(float a) { return ${raise('a', k)};}`);
     }
 }
-let useraise = k => ((args, modifs, codebuilder) => createraise(k, codebuilder) || `raise${k}(${args[0]})`);
+let useraise = k => ((args, modifs, codebuilder) => k == 0 ? '1.' : k == 1 ? args[0] : createraise(k, codebuilder) || `raise${k}(${args[0]})`);
 
 webgl["pow"] = args => {
     if (isconstantint(args[1]) && issubtypeof(args[0], type.float)) {
