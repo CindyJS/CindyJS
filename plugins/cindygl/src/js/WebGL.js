@@ -559,14 +559,40 @@ webgl["complex"] = first([
     ]
 ]);
 
-webgl["pow"] = first([
-    [
-        [type.float, type.int], type.float, useincludefunction('powi')
-    ],
-    [
-        [type.complex, type.complex], type.complex, useincludefunction('powc')
-    ]
-]);
+let createraise = (k, codebuilder) => {
+    if (k <= 1) {
+        return;
+    } else if (k == 2) {
+        codebuilder.add('functions', 'raise2', () => `float raise2(float a) { return a*a; }`);
+    } else {
+
+        createraise(2, codebuilder);
+        let raise = (a, k) => k == 1 ? a : k & 1 ? raise(a, k - 1) + '*a' : `raise2(${raise(a,k/2)})`;
+        let name = `raise${k}`;
+        codebuilder.add('functions', name, () => `float ${name}(float a) { return ${raise('a', k)};}`);
+    }
+}
+let useraise = k => ((args, modifs, codebuilder) => k == 0 ? '1.' : k == 1 ? args[0] : createraise(k, codebuilder) || `raise${k}(${args[0]})`);
+
+webgl["pow"] = args => {
+    if (isconstantint(args[1]) && issubtypeof(args[0], type.float)) {
+        let k = Number(args[1].value["value"]["real"]);
+        if (k >= 0)
+            return {
+                args: [type.float, args[1]],
+                res: type.float,
+                generator: useraise(k),
+            };
+    }
+    return first([
+        [
+            [type.float, type.int], type.float, useincludefunction('powi')
+        ],
+        [
+            [type.complex, type.complex], type.complex, useincludefunction('powc')
+        ]
+    ])(args);
+};
 
 webgl["^"] = webgl["pow"];
 
