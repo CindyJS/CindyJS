@@ -339,7 +339,7 @@ This function does the same as `imagergba(‹imagename›,‹int›,‹int›)`.
 
 ------
 
- #### Picking the color of one point using two reference points: `imagerga(‹pos›,‹pos›,‹imagename›,‹pos›)`
+ #### Picking the color of one point using two reference points: `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)`
 
  **Description:**
  The function `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` behaves in the same way as `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` and supports the same modifiers, but `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` returns a 3-component vector representing the *rgb*-value.

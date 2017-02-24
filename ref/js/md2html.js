@@ -235,9 +235,10 @@ InMemoryPipeline.prototype.createPage = function(name) {
   return new Page(name);
 };
 
-InMemoryPipeline.prototype.addPage = function(name, md) {
+InMemoryPipeline.prototype.addPage = function(name, md, extra) {
   var self = this;
   var page = this.createPage(name);
+  page.extra = extra;
   var res = Q(md)
       .then(function(md) {
         page.md = md;
@@ -451,8 +452,9 @@ function main() {
 
 // Backwards-compatibility since this was used in website creation
 module.exports.renderBody = function(md, cb) {
-  var page = new Page(null, md);
-  page.then(function() {
+  var page = new Page(null);
+  page.md = md;
+  page.renderBody().then(function() {
     cb(null, page.html);
   }, function(err) {
     cb(err, null);

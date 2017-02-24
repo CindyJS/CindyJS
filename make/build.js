@@ -339,8 +339,6 @@ module.exports = function build(settings, task) {
     // Build JavaScript version of CindyGL
     //////////////////////////////////////////////////////////////////////
 
-    var cgl_primitives = "sphere cylinder triangle texq".split(" ");
-
     var cgl_str_res = glob.sync("plugins/cindygl/src/str/*.glsl");
     
     var cgl_mods = [
@@ -352,6 +350,7 @@ module.exports = function build(settings, task) {
         "TypeHelper",
         "IncludeFunctions",
         "LinearAlgebra",
+        "Sorter",
         "WebGL",
         "CodeBuilder",
         "TextureReader"

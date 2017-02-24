@@ -1,64 +1,3 @@
-/* types */
-let list = (n, type) => ({
-    type: 'list',
-    length: n,
-    parameters: type
-});
-
-let constant = (value) => ({ /* variables that are constant in GLSL */
-    type: 'constant',
-    value: value
-});
-
-const type = { //assert all indices are different
-    bool: 1,
-    int: 2,
-    float: 3,
-    complex: 4,
-    voidt: 5,
-    color: 6, //color is the color type of glsl. CindyJS-colors are vec3
-    point: 7,
-    line: 8,
-    coordinate2d: 9, //for accessing 2D textures
-    image: 10,
-
-    vec2: list(2, 3),
-    vec3: list(3, 3),
-    vec4: list(4, 3),
-    vec: n => list(n, 3),
-    cvec: n => list(n, 4),
-
-    mat2: list(2, list(2, 3)),
-    mat3: list(3, list(3, 3)),
-    mat4: list(4, list(4, 3)),
-    anytype: 18, // is subtype of any other type
-    // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
-    // nonnegativefloat: 15 //@TODO: negative float...
-};
-Object.freeze(type);
-
-function typeToString(t) {
-    if (1 <= t && t <= 10) {
-        let l = [
-            'bool',
-            'int',
-            'float',
-            'complex',
-            'voidt',
-            'color',
-            'point',
-            'line',
-            'coordinate2d',
-            'image',
-        ];
-        return l[t - 1];
-    } else {
-        if (t.type === 'list') return `${typeToString(t.parameters)}[${t.length}]`;
-        if (t.type === 'constant') return `const[${JSON.stringify(t.value['value'])}]`;
-        return JSON.stringify(t); //TODO
-    }
-}
-
 function usefunction(name) {
     return args => { //args?
         if (typeof 'args' === 'string')
@@ -139,15 +78,15 @@ webgl['repeat'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && 
 }) : false;
 
 
-webgl['forall'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && (argtypes[0].type === 'list') ? ({ //generator not used
+webgl['forall'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && (generalize(argtypes[0]).type === 'list') ? ({ //generator not used
     args: argtypes,
     res: argtypes[argtypes.length - 1],
     generator: args => ''
 }) : false;
 
-webgl['apply'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && (argtypes[0].type === 'list') ? ({ //generator not used
+webgl['apply'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && (generalize(argtypes[0]).type === 'list') ? ({ //generator not used
     args: argtypes,
-    res: list(argtypes[0].length, argtypes[argtypes.length - 1]),
+    res: list(generalize(argtypes[0]).length, argtypes[argtypes.length - 1]),
     generator: args => ''
 }) : false;
 
@@ -326,7 +265,7 @@ let rings = [type.int, type.float, type.complex, type.vec2, type.vec3, type.vec4
 
 
 webgl["_"] = args => {
-    let t = args[0];
+    let t = generalize(args[0]);
     if (t.type === 'list' && isconstantint(args[1])) {
         let k = Number(args[1].value["value"]["real"]);
         if (1 <= Math.abs(k) && Math.abs(k) <= t.length) {
@@ -336,6 +275,12 @@ webgl["_"] = args => {
                 args: args,
                 res: t.parameters,
                 generator: accesslist(t, k),
+            };
+        } else { //if the certain value is not clear yet.
+            return {
+                args: args,
+                res: t.parameters,
+                generator: x => console.error(`try to access ${k}-th Element of ${t.length}-list ${JSON.stringify(args[0])}`)
             };
         }
     }
@@ -350,6 +295,12 @@ webgl["mult"] = args => {
         ],
         [
             [type.float, type.float], type.float, useinfix('*')
+        ],
+        [
+            [type.complex, type.float], type.complex, useinfix('*')
+        ],
+        [
+            [type.float, type.complex], type.complex, useinfix('*')
         ],
         [
             [type.complex, type.complex], type.complex, useincludefunction('multc')
@@ -439,6 +390,12 @@ webgl["div"] = args => {
     let match = first([
         [
             [type.float, type.float], type.float, useinfix('/')
+        ],
+        [
+            [type.float, type.complex], type.complex, useincludefunction('divfc')
+        ],
+        [
+            [type.complex, type.float], type.complex, useinfix('/')
         ],
         [
             [type.complex, type.complex], type.complex, useincludefunction('divc')
@@ -557,23 +514,43 @@ webgl['arctan2'] = first([
 webgl["grey"] = webgl["gray"];
 
 
-webgl["min"] = first([
-    [
-        [type.int, type.int], type.int, usefunction('min')
-    ],
-    [
-        [type.float, type.float], type.float, usefunction('min')
-    ]
-]);
+webgl["min"] = args => {
+    let match = first([
+        [
+            [type.int, type.int], type.int, usefunction('min')
+        ],
+        [
+            [type.float, type.float], type.float, usefunction('min')
+        ]
+    ])(args);
+    if (match) return match;
 
-webgl["max"] = first([
-    [
-        [type.int, type.int], type.int, usefunction('max')
-    ],
-    [
-        [type.float, type.float], type.float, usefunction('max')
-    ]
-]);
+    if (args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]))
+        return {
+            args: args,
+            res: args[0].parameters,
+            generator: usemin(args[0]),
+        };
+}
+
+webgl["max"] = args => {
+    let match = first([
+        [
+            [type.int, type.int], type.int, usefunction('max')
+        ],
+        [
+            [type.float, type.float], type.float, usefunction('max')
+        ]
+    ])(args);
+    if (match) return match;
+
+    if (args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]))
+        return {
+            args: args,
+            res: args[0].parameters,
+            generator: usemax(args[0]),
+        };
+}
 
 
 webgl["complex"] = first([
@@ -582,14 +559,40 @@ webgl["complex"] = first([
     ]
 ]);
 
-webgl["pow"] = first([
-    [
-        [type.float, type.int], type.float, useincludefunction('powi')
-    ],
-    [
-        [type.complex, type.complex], type.complex, useincludefunction('powc')
-    ]
-]);
+let createraise = (k, codebuilder) => {
+    if (k <= 1) {
+        return;
+    } else if (k == 2) {
+        codebuilder.add('functions', 'raise2', () => `float raise2(float a) { return a*a; }`);
+    } else {
+
+        createraise(2, codebuilder);
+        let raise = (a, k) => k == 1 ? a : k & 1 ? raise(a, k - 1) + '*a' : `raise2(${raise(a,k/2)})`;
+        let name = `raise${k}`;
+        codebuilder.add('functions', name, () => `float ${name}(float a) { return ${raise('a', k)};}`);
+    }
+}
+let useraise = k => ((args, modifs, codebuilder) => k == 0 ? '1.' : k == 1 ? args[0] : createraise(k, codebuilder) || `raise${k}(${args[0]})`);
+
+webgl["pow"] = args => {
+    if (isconstantint(args[1]) && issubtypeof(args[0], type.float)) {
+        let k = Number(args[1].value["value"]["real"]);
+        if (k >= 0)
+            return {
+                args: [type.float, args[1]],
+                res: type.float,
+                generator: useraise(k),
+            };
+    }
+    return first([
+        [
+            [type.float, type.int], type.float, useincludefunction('powi')
+        ],
+        [
+            [type.complex, type.complex], type.complex, useincludefunction('powc')
+        ]
+    ])(args);
+};
 
 webgl["^"] = webgl["pow"];
 
@@ -643,7 +646,7 @@ webgl["%"] = first([
 ]);
 
 
-[">", "<", ">=", "<=", "=="].forEach(oper => {
+[">", "<", ">=", "<=", "==", "!="].forEach(oper => {
     webgl[oper] = first([
         [
             [type.int, type.int], type.bool, useinfix(oper)
@@ -672,6 +675,19 @@ webgl["imagergba"] = first([
         [type.coordinate2d, type.coordinate2d, type.image, type.coordinate2d], type.vec4, useimagergba4
     ]
 ]);
+
+webgl["reverse"] = args => args.length === 1 && args[0].type === 'list' ? ({
+    args: args,
+    res: args[0],
+    generator: usereverse(args[0]),
+}) : false;
+
+
+webgl["sort"] = args => args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]) ? ({
+    args: args,
+    res: args[0],
+    generator: usesort(args[0]),
+}) : false;
 
 
 Object.freeze(webgl);

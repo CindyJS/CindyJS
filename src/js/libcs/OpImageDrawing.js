@@ -463,7 +463,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
     }
     var video = document.createElement("video");
     video.autoplay = true;
-    var img = loadImage(video);
+    var img = loadImage(video, true);
     console.log("Opening stream.");
     openVideoStream(function success(stream) {
         var url = window.URL.createObjectURL(stream);
@@ -473,6 +473,22 @@ evaluator.cameravideo$0 = function(args, modifs) {
         console.error("Could not get user video:", String(err), err);
     });
     return img;
+};
+
+evaluator.playvideo$1 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (img.live && img.img.play) {
+        img.img.play();
+    }
+    return nada;
+};
+
+evaluator.pausevideo$1 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (img.live && img.img.pause) {
+        img.img.pause();
+    }
+    return nada;
 };
 
 var helpercanvas; //invisible helper canvas.
