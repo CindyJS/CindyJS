@@ -84,11 +84,6 @@ function checkConjectures() {
     if (debug) console.log("conjectures", conjectures.length);
     if (conjectures.length === 0) return;
 
-    //backupGeo
-    stateArrays.prover.set(stateIn);
-    // proverTmp holds temporary good configurations
-    stateArrays.proverTmp.set(stateIn);
-
     var nummoves = 3;
 
     // filter free objects which are involved in conjectures

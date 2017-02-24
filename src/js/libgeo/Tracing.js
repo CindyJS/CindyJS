@@ -9,7 +9,7 @@ function assert(condition, message) {
 
 var totalStateSize = 0;
 // prover: prover is the backup for the state before we start proving, proverTmp will hold states which have been sucessfully traced
-var stateArrayNames = ["in", "out", "good", "backup", "prover", "proverTmp"];
+var stateArrayNames = ["in", "out", "good", "backup"];
 // Initialize all state to zero-length arrays, can be reallocated later on
 var stateMasterArray = new Float64Array(0);
 var stateArrays = {};
