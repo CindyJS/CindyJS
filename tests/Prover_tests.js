@@ -1,7 +1,7 @@
 var should = require("chai").should();
 var rewire = require("rewire");
 
-var createCindy = require("../build/js/Cindy.plain.js");
+var CindyJS = require("../build/js/Cindy.plain.js");
 var cindyJS = rewire("../build/js/exposed.js");
 var geoOps = cindyJS.__get__("geoOps");
 
@@ -35,7 +35,7 @@ describe("Prover: angle bisector test", function() {
 
     before(function() {
         // See examples/141_a_bisectors.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
 	geometry: [ 
@@ -63,7 +63,7 @@ describe("Prover: angle bisector test", function() {
 describe("Prover: Pappos", function() {
 
     before(function() {
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
   geometry: [
@@ -96,7 +96,7 @@ describe("Prover: free points", function() {
 
     before(function() {
         // See examples/141_b_false_conjecture_freepoint.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
 	geometry: [ 
@@ -116,7 +116,7 @@ describe("Prover: free line", function() {
 
     before(function() {
         // See examples/141_c_false_conjecture_freeline.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
 	geometry: [ 
@@ -140,7 +140,7 @@ describe("Prover: CircleMR", function() {
 
     before(function() {
         // See examples/141_d_false_conjecture_circle.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
 	geometry: [ 
@@ -159,7 +159,7 @@ describe("Prover: HorizontalLine VerticalLine", function() {
 
     before(function() {
         // See examples/141_e_horizontal_vertical.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
 	geometry: [ 
@@ -179,7 +179,7 @@ describe("Prover: Through", function() {
 
     before(function() {
         // See examples/141_f_through.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
 	geometry: [ 
@@ -198,7 +198,7 @@ describe("Prover: points on l_infty", function() {
 
     before(function() {
         // See examples/141_f_through.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
 
@@ -219,7 +219,7 @@ describe("Prover: PointOn*", function() {
 
     before(function() {
         // See examples/141_f_through.html
-        cdy = createCindy({
+        cdy = CindyJS({
             isNode: true,
             csconsole: null,
 	geometry: [ 
