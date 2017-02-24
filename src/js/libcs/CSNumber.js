@@ -776,14 +776,17 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
     ]);
 };
 
+CSNumber._helper.getRangeRand = function(min, max){
+    return Math.random() * (mmax - mmin + 1) + mmin;
+};
+
 CSNumber.getRandReal = function(min, max) {
-    var mmin = min || 0;
-    var mmax = max || 1;
-    return CSNumber.real(Math.random() * (mmax - mmin) + mmin);
+    var real = CSNumber._helper.getRangeRand(min,max);
+    return CSNumber.real(real);
 };
 
 CSNumber.getRandComplex = function(min, max) {
-    var mmin = min || 0;
-    var mmax = max || 1;
-    return CSNumber.complex(Math.random() * (mmax - mmin) + mmin, Math.random() * (mmax - mmin) + mmin);
+    var real =  CSNumber._helper.getRangeRand(min,max);
+    var imag =  CSNumber._helper.getRangeRand(min,max);
+    return CSNumber.complex(real,imag);
 };
