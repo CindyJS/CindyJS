@@ -111,13 +111,6 @@ function checkConjectures() {
                         if (involved.indexOf(i) < 0) {
                                 // push the element 
                                 involved.push(i);
-                                // also push the defining elements
-                                i.args.forEach(function(kk) {
-                                        // if it is a valid type to add and not added then add defining element
-                                        if((validTypes.indexOf(kk.type) >= 0 ) && (involved.indexOf(kk) < 0))
-                                        involved.push(kk);
-                                }
-                                );
                         }
                     });
                 }
@@ -149,6 +142,17 @@ function checkConjectures() {
     var checkCon = function(con) {
         return con.holds();
     };
+
+    // add defining elements 
+    involved.forEach(function(inv){
+            var n = inv.args;
+            if(typeof(n) === 'undefined') return;
+            n.forEach(function(name){
+                       if(involved.indexOf(csgeo.csnames[name]) < 0);
+                    involved.push(csgeo.csnames[name]);
+            }
+            );
+    });
 
     var emove, nconject = conjectures.length;
     for (var kk = 0; kk < nummoves; kk++) {
