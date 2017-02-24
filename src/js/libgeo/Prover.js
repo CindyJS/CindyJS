@@ -80,7 +80,7 @@ function incidentPC(p, c) {
 }
 
 function checkConjectures() {
-    var debug = false;
+    var debug = true;
     if (debug) console.log("conjectures", conjectures.length);
     if (conjectures.length === 0) return;
 
@@ -93,19 +93,32 @@ function checkConjectures() {
 
     // filter free objects which are involved in conjectures
     var involved;
+    
+    // valid types of objects which might be added to involved objects
+    var validTypes = ["P", "L", "C", "S"];
 
     var recalcInvolved = function() {
         involved = [];
         conjectures.forEach(function(con) {
             var invs = con.getInvolved();
             var incis;
-            invs = invs.forEach(function(el) {
+            invs.forEach(function(el) {
                 if (involved.indexOf(el) < 0) {
                     involved.push(el);
                     // also add incidences of involved objects
                     incis = findAllIncis(el, []);
                     incis.forEach(function(i) {
-                        if (involved.indexOf(i) < 0) involved.push(i);
+                        if (involved.indexOf(i) < 0) {
+                                // push the element 
+                                involved.push(i);
+                                // also push the defining elements
+                                i.args.forEach(function(kk) {
+                                        // if it is a valid type to add and not added then add defining element
+                                        if((validTypes.indexOf(kk.type) >= 0 ) && (involved.indexOf(kk) < 0))
+                                        involved.push(kk);
+                                }
+                                );
+                        }
                     });
                 }
             });
