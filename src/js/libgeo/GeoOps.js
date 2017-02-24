@@ -30,7 +30,7 @@ geoOps.RandomLine.updatePosition = function(el) {
 
 geoOps._helper.getRandMove = function(el) {
     var l = el.homog;
-    var rand = List.getRandComplexVec(-0.05, 0.05);
+    var rand = List.getRandComplexVec3(-0.05, 0.05);
     var move = List.add(l, rand);
 
     return {
