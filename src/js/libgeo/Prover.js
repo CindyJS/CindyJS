@@ -94,9 +94,6 @@ function checkConjectures() {
     // filter free objects which are involved in conjectures
     var involved;
 
-    // valid types of objects which might be added to involved objects
-    var validTypes = ["P", "L", "C", "S"];
-
     var recalcInvolved = function() {
         involved = [];
         conjectures.forEach(function(con) {
