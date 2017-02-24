@@ -159,10 +159,6 @@ function checkConjectures() {
                 // get random move and move free element
                 emove = geoOps[el.type].getRandomMove(el);
                 movepointscr(el, emove.value, emove.type);
-                // backup configuration if tracing succeeded 
-                if (!tracingFailed) stateArrays.proverTmp.set(stateLastGood);
-                // restore last good configuration if not
-                else stateIn.set(stateArrays.proverTmp);
                 // check if conjecture still holds
                 conjectures = conjectures.filter(checkCon);
             }
