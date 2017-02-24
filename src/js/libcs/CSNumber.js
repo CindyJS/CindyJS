@@ -787,6 +787,6 @@ CSNumber.getRandReal = function(min, max) {
 
 CSNumber.getRandComplex = function(min, max) {
     var real = CSNumber._helper.getRangeRand(min, max);
-    var imag =  CSNumber._helper.getRangeRand(min,max);
+    var imag = CSNumber._helper.getRangeRand(min, max);
     return CSNumber.complex(real, imag);
 };
