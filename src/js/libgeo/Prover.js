@@ -108,10 +108,7 @@ function checkConjectures() {
                     // also add incidences of involved objects
                     incis = findAllIncis(el, []);
                     incis.forEach(function(i) {
-                        if (involved.indexOf(i) < 0) {
-                            // push the element 
-                            involved.push(i);
-                        }
+                        if (involved.indexOf(i) < 0) involved.push(i);
                     });
                 }
             });
