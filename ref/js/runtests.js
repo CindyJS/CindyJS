@@ -1,7 +1,8 @@
 "use strict";
 
 var fs = require("fs"), path = require("path");
-var createCindy = require("../../build/js/Cindy.plain.js");
+global.navigator = {};
+var CindyJS = require("../../build/js/Cindy.plain.js");
 
 var refdir = path.dirname(__dirname);
 var println = console.log.bind(console);
@@ -36,7 +37,7 @@ function runTestFile(filename) {
   // println("File: " + filename);
   // println("");
   fakeCanvas = new FakeCanvas();
-  cjs = createCindy({
+  cjs = CindyJS({
     "isNode": true,
     "csconsole": null,
     "canvas": fakeCanvas,
@@ -63,7 +64,10 @@ function runTestFile(filename) {
       var mark = line.substr(4, 2), rest = line.substr(6);
       if (mark === "> ") {
         if (ininput) {
-          curcase.cmd += "\n" + rest;
+          if (curcase.cmd === null)
+            curcase.cmd = rest;
+          else
+            curcase.cmd += "\n" + rest;
         } else {
           curcase = new TestCase(rest, filename, lineno + i);
           cases.push(curcase);
@@ -71,6 +75,17 @@ function runTestFile(filename) {
             curcase.pragma = pragmas.slice();
           ininput = true;
         }
+        continue;
+      } else if (mark === 'G ') {
+        if (!ininput) {
+          curcase = new TestCase(null, filename, lineno + i);
+          cases.push(curcase);
+          if (pragmas.length)
+            curcase.pragma = pragmas.slice();
+          ininput = true;
+        }
+        if (!curcase.geo) curcase.geo = [];
+        curcase.geo.push(rest);
         continue;
       } else if (mark === "- ") {
         if (rest.substr(0, 4) == "skip") {
@@ -106,6 +121,9 @@ function runTestFile(filename) {
   });
   if (!anythingToCheck)
       return;
+  cases.forEach(function(c) {
+    c.prepare();
+  });
   numtests += cases.length;
   if (exportJSON) {
     exportJSON.push(cases);
@@ -129,6 +147,7 @@ TestCase.prototype.output = null;
 TestCase.prototype.draw = null;
 TestCase.prototype.exception = null;
 TestCase.prototype.pragma = null;
+TestCase.prototype.geo = null;
 
 TestCase.prototype.expectResult = function(str) {
   if (this.expected !== null)
@@ -165,6 +184,11 @@ function myniceprint(val) {
     return JSON.stringify(val.value);
   if (val.ctype === "list")
     return "[" + val.value.map(myniceprint).join(", ") + "]";
+  if (val.ctype === "dict")
+    return "{" + Object.keys(val.value).sort().map(function(key) {
+      var kv = val.value[key];
+      return myniceprint(kv.key) + ":" + myniceprint(kv.value);
+    }).join(", ") + "}";
   return cjs.niceprint(val).toString();
 };
 
@@ -197,12 +221,30 @@ function sanityCheck(val) {
       throw Error("not an array");
     val.value.forEach(sanityCheck);
     break;
+  case "dict":
+    if (typeof val.value !== "object")
+      throw Error("not a dict object");
+    break;
   case "undefined":
+    break;
+  case "geo":
+    if (typeof val.value !== "object")
+      throw Error("not a geometric element object");
+    if (typeof val.value.type !== "string")
+      throw Error("type is not a string");
+    if (typeof val.value.kind !== "string")
+      throw Error("kind is not a string");
     break;
   case "error":
     throw val;
   default:
     throw Error("Unknown ctype: " + val.ctype);
+  }
+};
+
+TestCase.prototype.prepare = function() {
+  if (this.geo) {
+    this.geo = eval("(" + this.geo.join("\n") + "\n)");
   }
 };
 
@@ -221,6 +263,14 @@ TestCase.prototype.run = function() {
   var conerr = console.error;
   console.log = function(str) { clog.push(str); };
   console.error = console.log;
+  if (this.geo) {
+    cjs = CindyJS({
+      "isNode": true,
+      "csconsole": null,
+      "canvas": fakeCanvas,
+      "geometry": JSON.parse(JSON.stringify(this.geo)),
+    });
+  }
   try {
     val = cjs.evalcs(this.cmd);
     sanityCheck(val);
@@ -332,10 +382,14 @@ TestCase.prototype.asJSON = function() {
 };
 
 function FakeCanvas() {
-  this.width = 640;
-  this.height = 480;
+  this.width = this.clientWidth = this.scrollWidth = 640;
+  this.height = this.clientHeight = this.scrollHeight = 480;
   this._log = [];
-  this._unchanged = {width: this.width, height: this.height};
+  this._unchanged = {}
+  Object.keys(this).forEach(function(k) {
+    if (k.substr(0,1) !== "_")
+      this._unchanged[k] = this[k];
+  }, this);
 };
 FakeCanvas.prototype.addEventListener = function() { };
 FakeCanvas.prototype.removeEventListener = function() { };
@@ -365,8 +419,11 @@ FakeCanvas.prototype.measureText = function(txt) {
   "getContext",
   "lineTo",
   "moveTo",
+  "rect",
   "restore",
   "save",
+  "setTransform",
+  "setLineDash",
   "stroke",
   "strokeText",
   "fillText",

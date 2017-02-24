@@ -169,7 +169,7 @@ function utf8Decode(bytes) {
     }).join(""));
 }
 
-createCindy.registerPlugin(1, "imgmeta", function(api) {
+CindyJS.registerPlugin(1, "imgmeta", function(api) {
     api.defineFunction("xmpdescription", 1, function(args, modifs) {
         var img = api.evaluate(args[0]);
         console.log(img);
@@ -245,7 +245,7 @@ createCindy.registerPlugin(1, "imgmeta", function(api) {
     });
 });
 
-var cdy = createCindy({
+var cdy = CindyJS({
   ports: [{id: "CSCanvas"}],
   scripts: "cs*",
   language: "en",
@@ -257,10 +257,10 @@ var cdy = createCindy({
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="850" height="600"
-          style="border:2px solid black"></canvas>
- <button onclick="cdy.exportSVG()" type="button" >SVG</button>
+  <div id="CSCanvas" style="width:850px; height:600px; border:2px solid black"></div>
+        <button onclick="cdy.exportSVG()" type="button" >SVG</button>
         <button onclick="cdy.exportPDF()" type="button" >PDF</button>
+        <button onclick="cdy.exportPNG()" type="button" >PNG</button>
 </body>
 
 

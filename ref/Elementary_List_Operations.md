@@ -81,6 +81,19 @@ This operator creates a list by concatenation of two other lists.
     > concat(["a", "b"], ["c", "d"])
     < ["a", "b", "c", "d"]
 
+Thanks to auto-coercion, numbers and boolean values will get
+converted to singleton lists.
+
+    > concat(2, true)
+    < [2, true]
+
+Strings and `___` auto-coerce to the empty list.
+
+    > concat("foo", [2])
+    < [2]
+    > concat([1], (;))
+    < [1]
+
 ------
 
 #### Removing elements from lists: `‹list1› -- ‹list2›`, `‹list1› ∖ ‹list2›` or `remove(‹list1›,‹list2›)`

@@ -92,16 +92,16 @@
       drawimage([-2, -2], [2, -2], "Nb");
     </script>
 
-    <canvas  id="CSCanvas" style="position:relative; top:10px;"></canvas>
+    <div  id="CSCanvas" style="position:relative; top:10px;"></div>
     <script type="text/javascript">
         
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:[
 																					{name:"A", kind:"P", type:"Free", pos:[.5  ,.5],size:3},
 																					{name:"B", kind:"P", type:"Free", pos:[-.5 ,-.5],size:3}
                     ],
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 512,

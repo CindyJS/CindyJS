@@ -5,25 +5,16 @@
 /** @type {boolean} */
 var isinitialized = false;
 
-/** @type {HTMLCanvasElement|Element} */
+/** @type {HTMLCanvasElement} */
 var glcanvas;
+
+/** @type {HTMLCanvasElement} */
+var tmpcanvas;
 
 /** @type {WebGLRenderingContext} */
 var gl;
 
-/**
- * Functions to call before rendering
- * @type {Array.<function()>}
- */
-var updateBeforeRendering = [];
-
 var nada;
-//var myfunctions;
-
-var webgltype = {}; //which type identifier is used in WebGL to represent our internal type
-
-var webgltr = {};
-
 
 var can_use_texture_half_float = false;
 var halfFloat;
@@ -41,11 +32,17 @@ var next = []; //next[i][j]=k if i->k->...->j is shortest path of primitive subt
 function initGLIfRequired() {
     if (isinitialized)
         return;
-    glcanvas = document.createElement("canvas");
+    glcanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
     glcanvas.id = "glcanvas";
     glcanvas.style.display = "none";
     glcanvas.width = glcanvas.height = 0;
     document.body.appendChild(glcanvas);
+
+    tmpcanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
+    tmpcanvas.id = "tmpcanvas";
+    tmpcanvas.style.display = "none";
+    tmpcanvas.width = tmpcanvas.height = 0;
+    document.body.appendChild(tmpcanvas);
 
     let errorInfo = "Unknown";
 
@@ -60,17 +57,16 @@ function initGLIfRequired() {
         "webglcontextcreationerror",
         onContextCreationError, false);
 
-    gl = (
+    gl = /** @type {WebGLRenderingContext} */ (
         glcanvas.getContext("webgl"));
     if (!gl)
-        gl = (
+        gl = /** @type {WebGLRenderingContext} */ (
             glcanvas.getContext("experimental-webgl"));
     if (!gl)
-        throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
+        throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);
-
 
     can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
     if (!can_use_texture_float) {
@@ -80,5 +76,18 @@ function initGLIfRequired() {
         if (!can_use_texture_half_float)
             console.error("Your browser does not suppert OES_texture_half_float, will use 8-bit textures.");
     }
+
+    if (navigator.userAgent.match(/(iPad|iPhone)/i)) { //TODO: detect this better by checking wheather building a toy shader fails...
+        console.log("You are  using an iPhone/iPad.");
+        can_use_texture_float = can_use_texture_half_float = false;
+        if (gl.getExtension('OES_texture_half_float') && gl.getExtension('OES_texture_half_float_linear') && gl.getExtension('EXT_color_buffer_half_float')) {
+            can_use_texture_half_float = true;
+        } else {
+            console.error("Your browser does not suppert writing to half_float textures, we will use 8-bit textures.");
+        }
+
+
+    }
+
     isinitialized = true;
 }

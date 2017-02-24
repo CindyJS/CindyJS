@@ -3,6 +3,7 @@
 exports.libcs = [
     "src/js/libcs/CSNumber.js",
     "src/js/libcs/List.js",
+    "src/js/libcs/Dict.js",
     "src/js/libcs/General.js",
     "src/js/libcs/Essentials.js",
     "src/js/libcs/Namespace.js",
@@ -37,6 +38,7 @@ exports.liblab = [
 ];
 
 exports.lib = [
+    "node_modules/iphone-inline-video/dist/iphone-inline-video.min.js",
     "lib/clipper/clipper.js",
 ];
 
@@ -46,10 +48,13 @@ exports.cssrc = [
 exports.inclosure = [
     "src/js/Setup.js",
     "src/js/Events.js",
-    "src/js/Timer.js",
     "build/js/Version.js",
 ].concat(exports.libcs, exports.libgeo, exports.liblab);
 
 exports.ours = ["src/js/Head.js"].concat(exports.inclosure, "src/js/Tail.js");
 
 exports.srcs = exports.lib.concat(exports.ours);
+
+exports.scss = [
+    "src/scss/CindyJS.scss",
+];

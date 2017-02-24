@@ -179,14 +179,14 @@ nn=nn/|nn|;
         </script>
 
 
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
         <script type="text/javascript">
 
             var gslp=[
                       {name:"A", kind:"P", type:"Free",alpha:0, pos:[-1000,-1000,1]}                      ];
 
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         movescript:"csmove",
                         initscript:"init",
                         mousedownscript:"mouseDown",

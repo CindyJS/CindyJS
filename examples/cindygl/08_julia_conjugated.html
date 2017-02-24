@@ -59,14 +59,14 @@
       draw([1.5,-1.5],[1.5,1.5], color->(1,1,1));
     </script>
 
-    <canvas  id="CSCanvas"></canvas>
+    <div  id="CSCanvas"></div>
     <script type="text/javascript">
         
         var gslp=[];
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 1280,

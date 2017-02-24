@@ -1,15 +1,53 @@
-var createCindy = this; // since this will be turned into a method
+var CindyJS = this; // since this will be turned into a method
 
 var csconsole;
 var cslib;
 
 var cscompiled = {};
 
+// Simulation settings
 var csanimating = false;
 var csstopped = true;
-var csticking = false;
+var simtime = 0; // accumulated simulation time since start
+var simspeed = 0.5; // global speed setting, will get scaled for applications
+var simcap = 1000 / 20; // max. ms between frames for fps-independent sim
+var simtick = 0; // Date.now of the most recent simulation tick
+var simaccuracy = 10; // number of sub-steps per frame
+
+var simunit = 5 / 360; // reported simulationtime() per internal simtime unit
+/* Cinderella has a factor 5 for its internal animation clock,
+ * and the division by 360 is in the simulationtime function implementation.
+ */
+
+// internal simtime units per millisecond at simspeed 1
+var simfactor = 0.32 / simunit / 1000 * 2;
+/*              ^^^^ simulationtime per second, observed in Cinderella
+ *                     ^^^^^^^ simulationtime per simtime unit
+ *                               ^^^^ milliseconds per second
+ *                                      ^ default accuracy factor
+ *
+ * Cinderella does timing different from CindyJS, so here are some notes.
+ * The default in Cinderella is speed=1.0, accuracy=2, frames=1 in its terms,
+ * which in CindyJS terminology would mean speed=0.5, accuracy=1.
+ * It schedules animation frames with 20ms between, so the actual framerate
+ * depends on the time each such frame takes to compute.
+ * The step in simulated time for each such job is computed in Cinderella
+ * as speed * 2^(frames - accuracy), so it's 0.5 units by default.
+ * This amount is internal only; the simulationtime() divides the accumulated
+ * time by 360.  Using its output, one can observe the amount of simulated
+ * time for each second of wall time.  It will vary with hardware, but
+ * on current desktops was observed to be close to 0.32 per second,
+ * corresponding to 23.04ms between consecutive frames on average.
+ * So that's where all the magic values in the simfactor computation come from.
+ *
+ * Should these values (simunit and simfactor) be different for widgets
+ * which were not exported from Cinderella? (gagern, 2016-09-02)
+ */
+
+// Coordinate system settings
 var csscale = 1;
 var csgridsize = 0;
+var cstgrid = 0;
 var csgridscript;
 var cssnap = false;
 var csaxes = false;
@@ -37,11 +75,18 @@ function evokeCS(code) {
     var parsed = analyse(code, false);
     console.log(parsed);
     evaluate(parsed);
-    updateCindy();
+    scheduleUpdate();
 }
 
 
-function initialTransformation(trafos) {
+var canvas;
+var trafos;
+
+function updateCanvasDimensions() {
+    canvas.width = csw = canvas.clientWidth;
+    canvas.height = csh = canvas.clientHeight;
+    csctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+    csport.setMat(25, 0, 0, 25, 250.5, 250.5); // reset
     if (trafos) {
         for (var i = 0; i < trafos.length; i++) {
             var trafo = trafos[i];
@@ -62,7 +107,24 @@ function initialTransformation(trafos) {
                 csscale = csport.drawingstate.initialmatrix.a / 25;
             }
         }
-        csport.createnewbackup();
+    }
+    csport.createnewbackup();
+    csport.greset();
+    var devicePixelRatio = 1;
+    if (typeof window !== "undefined" && window.devicePixelRatio)
+        devicePixelRatio = window.devicePixelRatio;
+    var backingStoreRatio =
+        csctx.webkitBackingStorePixelRatio ||
+        csctx.mozBackingStorePixelRatio ||
+        csctx.msBackingStorePixelRatio ||
+        csctx.oBackingStorePixelRatio ||
+        csctx.backingStorePixelRatio ||
+        1;
+    if (devicePixelRatio !== backingStoreRatio) {
+        var ratio = devicePixelRatio / backingStoreRatio;
+        canvas.width = csw * ratio;
+        canvas.height = csh * ratio;
+        csctx.scale(ratio, ratio);
     }
 }
 
@@ -75,33 +137,107 @@ var isFiniteNumber = Number.isFinite || function(x) {
     return (typeof x === 'number') && isFinite(x);
 };
 
-var csmouse, csctx, csw, csh, csgeo, images, dropped = nada;
+var csmouse, csctx, csw, csh, csgeo, images, dropped = nada,
+    dropPoint = nada;
+
+function canvasWithContainingDiv(elt) {
+    var div;
+    if (elt.tagName.toLowerCase() !== "canvas") {
+        // we have a div or something like that, nest a canvas inside that
+        div = elt;
+        canvas = document.createElement("canvas");
+        while (div.firstChild) {
+            div.removeChild(div.firstChild);
+        }
+    } else {
+        // we have a canvas; build a div around it
+        canvas = elt;
+        div = document.createElement("div");
+        var attrs = Array.prototype.slice.call(canvas.attributes);
+        var width = null;
+        var height = null;
+        attrs.forEach(function(attr) {
+            if (attr.name === "width") {
+                width = attr.value;
+            } else if (attr.name === "height") {
+                height = attr.value;
+            } else {
+                div.setAttributeNodeNS(canvas.removeAttributeNode(attr));
+            }
+        });
+        if (width !== null && !div.style.width) {
+            div.style.width = width + "px";
+        }
+        if (height !== null && !div.style.height) {
+            div.style.height = height + "px";
+        }
+        canvas.parentNode.replaceChild(div, canvas);
+    }
+    div.classList.add("CindyJS-widget");
+    var style = canvas.style;
+    style.position = "absolute";
+    style.border = "none";
+    style.margin = style.padding = style.left = style.top = "0px";
+    style.width = style.height = "100%";
+    var position = "static";
+    if (window.getComputedStyle) {
+        position = window.getComputedStyle(div).getPropertyValue("position");
+        position = String(position || "static");
+    }
+    if (position === "static")
+        div.style.position = "relative"; // serve as a positioning root
+    div.appendChild(canvas);
+    return canvas;
+}
+
+function isCinderellaBeforeVersion() {
+    var c = instanceInvocationArguments.cinderella;
+    if (!c || !c.version)
+        return false;
+    for (var i = 0; i < arguments.length; ++i) {
+        var x = c.version[i];
+        var y = arguments[i];
+        if (x !== y)
+            return (typeof x === typeof y) && (x < y);
+    }
+    return false;
+}
 
 function createCindyNow() {
     startupCalled = true;
     if (waitForPlugins !== 0) return;
+
     var data = instanceInvocationArguments;
+    if (data.exclusive) {
+        i = CindyJS.instances.length;
+        while (i > 0)
+            CindyJS.instances[--i].shutdown();
+    }
+
     if (data.csconsole !== undefined)
         csconsole = data.csconsole;
-
     setupConsole();
 
     csmouse = [100, 100];
     var c = null;
-    var trafos = data.transform;
+    trafos = data.transform;
     if (data.ports) {
         if (data.ports.length > 0) {
             var port = data.ports[0];
             c = port.element;
             if (!c)
                 c = document.getElementById(port.id);
+            c = canvasWithContainingDiv(c);
+            var divStyle = c.parentNode.style;
             if (port.fill === "window") {
-                c.setAttribute("width", window.innerWidth);
-                c.setAttribute("height", window.innerHeight);
-                // TODO: dynamic resizing on window change
+                divStyle.width = "100vw";
+                divStyle.height = "100vh";
+            } else if (port.fill === "parent") {
+                divStyle.width = "100%";
+                divStyle.height = "100%";
             } else if (port.width && port.height) {
-                c.setAttribute("width", port.width);
-                c.setAttribute("height", port.height);
+                divStyle.width = port.width + "px";
+                divStyle.height = port.height + "px";
             }
             if (port.background)
                 c.style.backgroundColor = port.background;
@@ -109,6 +245,8 @@ function createCindyNow() {
                 trafos = port.transform;
             if (isFiniteNumber(port.grid) && port.grid > 0)
                 csgridsize = port.grid;
+            if (isFiniteNumber(port.tgrid) && port.tgrid > 0)
+                cstgrid = port.tgrid;
             if (port.snap)
                 cssnap = true;
             if (port.axes)
@@ -117,24 +255,46 @@ function createCindyNow() {
     }
     if (!c) {
         c = data.canvas;
-        if (!c && typeof document !== "undefined")
+        if (!c && typeof document !== "undefined") {
             c = document.getElementById(data.canvasname);
+            if (c) c = canvasWithContainingDiv(c);
+        }
     }
     if (c) {
-        c = haveCanvas(c);
+        canvas = c = haveCanvas(c);
         csctx = c.getContext("2d");
+        updateCanvasDimensions();
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
+        if (data.animation ? data.animation.controls : data.animcontrols)
+            setupAnimControls(data);
+        if (data.animation && isFiniteNumber(data.animation.speed)) {
+            if (data.animation.accuracy === undefined &&
+                isCinderellaBeforeVersion(2, 9, 1875))
+                setSpeed(data.animation.speed * 0.5);
+            else
+                setSpeed(data.animation.speed);
+        }
+        if (data.animation && isFiniteNumber(data.animation.accuracy))
+            simaccuracy = data.animation.accuracy;
+    }
+    if (data.statusbar) {
+        if (typeof data.statusbar === "string") {
+            statusbar = document.getElementById(data.statusbar);
+        } else {
+            statusbar = data.statusbar;
+        }
     }
 
     //Setup the scripts
-    var scripts = ["move", "keydown",
-        "mousedown", "mouseup", "mousedrag",
+    var scripts = ["move",
+        "keydown", "keyup", "keytyped", "keytype",
+        "mousedown", "mouseup", "mousedrag", "mousemove", "mouseclick",
         "init", "tick", "draw",
         "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
-    var scriptconf = data.scripts,
-        scriptpat = null;
+    var scriptconf = data.scripts;
+    var scriptpat = null;
     if (typeof scriptconf === "string" && scriptconf.search(/\*/))
         scriptpat = scriptconf;
     if (typeof scriptconf !== "object")
@@ -167,40 +327,18 @@ function createCindyNow() {
             cscompiled[s] = cscode;
         }
     });
+    if (isCinderellaBeforeVersion(2, 9, 1888) && !cscompiled.keydown) {
+        // Cinderella backwards-compatible naming of key events
+        cscompiled.keydown = cscompiled.keytyped;
+        cscompiled.keytyped = cscompiled.keytype;
+        cscompiled.keytype = undefined;
+    }
 
     if (isFiniteNumber(data.grid) && data.grid > 0) {
         csgridsize = data.grid;
     }
     if (data.snap) {
         cssnap = true;
-    }
-
-    if (c) {
-        csw = c.width;
-        csh = c.height;
-        initialTransformation(trafos);
-        csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty - csh;
-        csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty - csh;
-        var devicePixelRatio = 1;
-        if (typeof window !== "undefined" && window.devicePixelRatio)
-            devicePixelRatio = window.devicePixelRatio;
-        var backingStoreRatio =
-            csctx.webkitBackingStorePixelRatio ||
-            csctx.mozBackingStorePixelRatio ||
-            csctx.msBackingStorePixelRatio ||
-            csctx.oBackingStorePixelRatio ||
-            csctx.backingStorePixelRatio ||
-            1;
-        if (devicePixelRatio !== backingStoreRatio) {
-            var ratio = devicePixelRatio / backingStoreRatio;
-            c.width = csw * ratio;
-            c.height = csh * ratio;
-            if (!c.style.width)
-                c.style.width = csw + "px";
-            if (!c.style.height)
-                c.style.height = csh + "px";
-            csctx.scale(ratio, ratio);
-        }
     }
 
     csgeo = {};
@@ -214,7 +352,7 @@ function createCindyNow() {
     }
     csinit(data.geometry);
 
-    //Read Geometry
+    //Read Physics
     if (!data.behavior) {
         data.behavior = [];
     }
@@ -222,9 +360,15 @@ function createCindyNow() {
         csinitphys(data.behavior);
 
     for (var k in data.images) {
-        var img = loadImage(data.images[k]);
+        var img = loadImage(data.images[k], false);
         if (img !== nada)
             images[k] = img;
+    }
+
+    for (var l in data.videos) {
+        var video = loadImage(data.videos[l], true);
+        if (video !== nada)
+            images[l] = video;
     }
 
     globalInstance.canvas = c;
@@ -233,12 +377,7 @@ function createCindyNow() {
     if (data.oninit)
         data.oninit(globalInstance);
 
-    if (data.exclusive) {
-        i = createCindy.instances.length;
-        while (i > 0)
-            createCindy.instances[--i].shutdown();
-    }
-    createCindy.instances.push(globalInstance);
+    CindyJS.instances.push(globalInstance);
     if (instanceInvocationArguments.use)
         instanceInvocationArguments.use.forEach(function(name) {
             evaluator.use$1([General.wrap(name)], {});
@@ -253,11 +392,22 @@ function createCindyNow() {
  * width, height: dimensions of the image
  * ready: boolean indicating whether the image been loaded already
  * live: boolean indicating whether the image is expected to change continuously
+ * generation: A counter that is increased once the drawable is changed.
  */
-function loadImage(obj) {
+function loadImage(obj, video) {
     var img;
     if (typeof obj === "string") {
-        img = new Image();
+        if (video) {
+            img = document.createElement("video");
+            img.preload = "auto";
+            img.loop = true; //loop videos as default
+
+            //https://www.npmjs.com/package/iphone-inline-video
+            img.setAttribute("playsinline", "");
+            enableInlineVideo(img);
+        } else {
+            img = new Image();
+        }
         img.src = obj;
     } else {
         img = obj;
@@ -272,6 +422,7 @@ function loadImage(obj) {
         height: NaN,
         ready: true,
         live: false,
+        generation: 0,
         whenReady: callFunctionNow,
     };
     var tag = img.tagName.toLowerCase();
@@ -288,7 +439,7 @@ function loadImage(obj) {
                 value.ready = true;
                 value.whenReady = callFunctionNow;
                 callWhenReady.forEach(callFunctionNow);
-                updateCindy();
+                scheduleUpdate();
             });
             value.whenReady = callWhenReady.push.bind(callWhenReady);
         }
@@ -305,7 +456,7 @@ function loadImage(obj) {
                 value.ready = true;
                 value.whenReady = callFunctionNow;
                 callWhenReady.forEach(callFunctionNow);
-                updateCindy();
+                scheduleUpdate();
             });
             value.whenReady = callWhenReady.push.bind(callWhenReady);
         }
@@ -321,6 +472,167 @@ function loadImage(obj) {
         value: value,
     };
 }
+
+var animcontrols = {
+    play: noop,
+    pause: noop,
+    stop: noop
+};
+
+function setupAnimControls(data) {
+    var controls = document.createElement("div");
+    controls.className = "CindyJS-animcontrols";
+    canvas.parentNode.appendChild(controls);
+    var speedLo = 0;
+    var speedHi = 1;
+    var speedScale = 1;
+    if (data.animation && data.animation.speedRange &&
+        isFiniteNumber(data.animation.speedRange[0]) &&
+        isFiniteNumber(data.animation.speedRange[1])) {
+        speedLo = data.animation.speedRange[0];
+        speedHi = data.animation.speedRange[1];
+        speedScale = speedHi - speedLo;
+    }
+    var slider = document.createElement("div");
+    slider.className = "CindyJS-animspeed";
+    controls.appendChild(slider);
+    var knob = document.createElement("div");
+    slider.appendChild(knob);
+    addAutoCleaningEventListener(slider, "mousedown", speedDown);
+    addAutoCleaningEventListener(slider, "mousemove", speedDrag);
+    addAutoCleaningEventListener(canvas.parentNode, "mouseup", speedUp, true);
+    var buttons = document.createElement("div");
+    buttons.className = "CindyJS-animbuttons";
+    controls.appendChild(buttons);
+    setupAnimButton("play", csplay);
+    setupAnimButton("pause", cspause);
+    setupAnimButton("stop", csstop);
+    animcontrols.stop(true);
+
+    setSpeedKnob = function(speed) {
+        speed = (speed - speedLo) / speedScale;
+        speed = Math.max(0, Math.min(1, speed));
+        speed = Math.round(speed * 1000) * 0.1; // avoid scientific notation
+        knob.style.width = speed + "%";
+    };
+
+    function setupAnimButton(id, ctrl) {
+        var button = document.createElement("button");
+        var img = document.createElement("img");
+        button.appendChild(img);
+        buttons.appendChild(button);
+        loadSvgIcon(img, id);
+        button.addEventListener("click", ctrl);
+        animcontrols[id] = setActive;
+
+        function setActive(active) {
+            if (active) button.classList.add("CindyJS-active");
+            else button.classList.remove("CindyJS-active");
+        }
+    }
+
+    var speedDragging = false;
+
+    function speedDown(event) {
+        speedDragging = true;
+        speedDrag(event);
+    }
+
+    function speedDrag(event) {
+        if (!speedDragging) return;
+        var rect = slider.getBoundingClientRect();
+        var x = event.clientX - rect.left - slider.clientLeft + 0.5;
+        setSpeed(speedScale * x / rect.width + speedLo);
+    }
+
+    function speedUp(event) {
+        speedDragging = false;
+    }
+
+}
+
+var setSpeedKnob = null;
+
+function setSpeed(speed) {
+    simspeed = speed;
+    if (setSpeedKnob) setSpeedKnob(speed);
+}
+
+/* Install layer ‹id› of Icons.svg as the src of the given img element.
+ * Since Safari has problems honoring the :target SVG selector
+ * to make the selected layer visible, we achieve the same effect manually:
+ * We load the SVG once, then remove all layers from its DOM but keep them
+ * in a dictionary.  Then when an icon gets requested, we re-add that layer
+ * to the SVG DOM, serialize the resulting XML and use it as a data: URI.
+ *
+ * There are three phases, and during each the loadSvgIcon variable refers
+ * to a fifferent function.
+ * The first request triggers loading of the SVG, and changes the function
+ * to a version which simply enqueues subsequent requests.
+ * Once the SVG has arrived, the function gets changes to the one that actually
+ * sets the src attribute to the icon in question.
+ * That function is then applied to all the enqueued requests as well.
+ */
+var loadSvgIcon = function(img, id) {
+    var iconsToLoad = [];
+    loadSvgIcon = function cacheRequest(img, id) {
+        // subsequent requests get enqueued while we load the SVG
+        iconsToLoad.push({
+            img: img,
+            id: id
+        });
+    };
+    loadSvgIcon(img, id); // cache the first request as well
+    var url = CindyJS.getBaseDir() + "images/Icons.svg";
+    var req = new XMLHttpRequest();
+    req.onreadystatechange = handleStateChange;
+    req.responseType = "document";
+    req.open("GET", url);
+    req.send();
+
+    function handleStateChange() {
+        if (req.readyState !== XMLHttpRequest.DONE) return;
+        if (req.status !== 200) {
+            console.error(
+                "Failed to load CindyJS Icons.svg from " + url +
+                ": " + req.statusText);
+            return;
+        }
+        var svg = req.responseXML;
+        var docElt = svg.documentElement;
+        var layers = {};
+        var node, next;
+        for (node = docElt.firstChild; node; node = next) {
+            next = node.nextSibling;
+            if (node.nodeType !== Node.ELEMENT_NODE ||
+                node.namespaceURI !== "http://www.w3.org/2000/svg" ||
+                node.localName.toLowerCase() !== "g")
+                continue;
+            docElt.removeChild(node);
+            node.setAttribute("style", "display:inline");
+            layers[node.getAttribute("id")] = node;
+        }
+        var serializer = new XMLSerializer();
+        loadSvgIcon = function(img, id) {
+            // now that the SVG is loaded, requests get handled straight away
+            if (!layers.hasOwnProperty(id)) return;
+            var layer = layers[id];
+            docElt.appendChild(layer);
+            var str;
+            try {
+                str = serializer.serializeToString(svg);
+            } finally {
+                docElt.removeChild(layer);
+            }
+            img.src = "data:image/svg+xml;charset=utf-8," +
+                encodeURIComponent(str);
+        };
+        iconsToLoad.forEach(function(icon) {
+            loadSvgIcon(icon.img, icon.id);
+        });
+        iconsToLoad = null;
+    }
+};
 
 function callFunctionNow(f) {
     return f();
@@ -338,13 +650,13 @@ function loadExtraPlugin(name, path) {
     if (instanceInvocationArguments.plugins)
         cb = instanceInvocationArguments.plugins[name];
     if (!cb)
-        cb = createCindy._pluginRegistry[name];
+        cb = CindyJS._pluginRegistry[name];
     if (cb) {
         evaluator.use$1([General.wrap(name)], {});
         return;
     }
     ++modulesToLoad;
-    createCindy.autoLoadPlugin(name, path, function() {
+    CindyJS.autoLoadPlugin(name, path, function() {
         evaluator.use$1([General.wrap(name)], {});
         doneLoadingModule();
     });
@@ -352,7 +664,7 @@ function loadExtraPlugin(name, path) {
 
 function loadExtraModule(name, path) {
     ++modulesToLoad;
-    createCindy.loadScript(name, path, doneLoadingModule, function() {
+    CindyJS.loadScript(name, path, doneLoadingModule, function() {
         console.error(
             "Failed to load " + path + ", can't start CindyJS instance");
         shutdown();
@@ -366,7 +678,8 @@ function doneLoadingModule() {
     //Evaluate Init script
     evaluate(cscompiled.init);
 
-    if (instanceInvocationArguments.autoplay)
+    if ((instanceInvocationArguments.animation ||
+            instanceInvocationArguments).autoplay)
         csplay();
 
     if (globalInstance.canvas)
@@ -420,22 +733,30 @@ function csplay() {
     if (!csanimating) { // stop or pause state
         if (csstopped) { // stop state
             backupGeo();
+            simtime = 0;
             csstopped = false;
+            animcontrols.stop(false);
+        } else {
+            animcontrols.pause(false);
         }
+        simtick = Date.now();
+        animcontrols.play(true);
         if (typeof csinitphys === 'function') {
             if (csPhysicsInited) {
-                csreinitphys(behaviors);
+                csresetphys();
             }
         }
 
         csanimating = true;
         cs_simulationstart();
-        startit();
+        scheduleUpdate();
     }
 }
 
 function cspause() {
     if (csanimating) {
+        animcontrols.play(false);
+        animcontrols.pause(true);
         csanimating = false;
     }
 }
@@ -445,7 +766,11 @@ function csstop() {
         if (csanimating) {
             cs_simulationstop();
             csanimating = false;
+            animcontrols.play(false);
+        } else {
+            animcontrols.pause(false);
         }
+        animcontrols.stop(true);
         csstopped = true;
         restoreGeo();
     }
@@ -461,10 +786,10 @@ function shutdown() {
     // console.log("Shutting down");
 
     // Remove this from the list of all running instances
-    var n = createCindy.instances.length;
+    var n = CindyJS.instances.length;
     while (n > 0) {
-        if (createCindy.instances[--n] === globalInstance) {
-            createCindy.instances.splice(n, 1);
+        if (CindyJS.instances[--n] === globalInstance) {
+            CindyJS.instances.splice(n, 1);
             break;
         }
     }
@@ -480,7 +805,7 @@ function shutdown() {
     }
 }
 
-// The following object will be returned from the public createCindy function.
+// The following object will be returned from the public CindyJS function.
 // Its startup method will be called automatically unless specified otherwise.
 var globalInstance = {
     "config": instanceInvocationArguments,
@@ -508,11 +833,11 @@ if (instanceInvocationArguments.use) {
         if (instanceInvocationArguments.plugins)
             cb = instanceInvocationArguments.plugins[name];
         if (!cb)
-            cb = createCindy._pluginRegistry[name];
+            cb = CindyJS._pluginRegistry[name];
         if (!cb) {
             ++waitForPlugins;
             console.log("Loading script for plugin " + name);
-            createCindy.loadScript(name + "-plugin", name + "-plugin.js", function() {
+            CindyJS.loadScript(name + "-plugin", name + "-plugin.js", function() {
                 console.log("Successfully loaded plugin " + name);
                 if (--waitForPlugins === 0 && startupCalled) createCindyNow();
             }, function() {

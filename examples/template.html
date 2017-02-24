@@ -4,6 +4,7 @@
 <head>
 <title>Cindy JS Example</title>
 <meta charset="UTF-8">
+<link rel="stylesheet" href="../build/js/CindyJS.css">
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csinit" type="text/x-cindyscript">
 
@@ -17,8 +18,8 @@
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({ // See ref/createCindy documentation for details.
-  ports: [{id: "CSCanvas"}],
+var cdy = CindyJS({ // See ref/createCindy documentation for details.
+  ports: [{id: "CSCanvas", width: 500, height: 500}],
   scripts: "cs*",
   language: "en",
   defaultAppearance: {
@@ -37,8 +38,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="500" height="500"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="border:2px solid black"></div>
 </body>
 
 </html>

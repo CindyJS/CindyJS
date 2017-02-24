@@ -23,8 +23,7 @@
     
     <script id="csdraw" type="text/x-cindyscript">
       c = complex(mouse());
-      
-      
+
       color(z) := (
         z = f(z, c);
         if(abs(z)<1.5,
@@ -37,14 +36,14 @@
       drawimage([-1.5,-1.5], [1.5,-1.5], "julia");
     </script>
 
-    <canvas  id="CSCanvas"></canvas>
+    <div  id="CSCanvas"></div>
     <script type="text/javascript">
         
         var gslp=[];
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 500,

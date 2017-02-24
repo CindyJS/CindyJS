@@ -42,7 +42,7 @@
     <script id="csdraw" type="text/x-cindyscript">
       if(!animate, setpixel("gol", floor(mouse().x), floor(mouse().y), (1,1,1)));
       
-      get(x, y) :=  imagergb((0,0), (128,0), "gol", (mod(x,128),mod(y,128))).r; //Tourus world
+      get(x, y) :=  imagergb((0,0), (128,0), "gol", (mod(x,128),mod(y,128)), interpolate->false).r; //Tourus world
       
       newstate(x, y) := (
         regional(number);
@@ -63,10 +63,10 @@
       if(animate, colorplot(L, R, "gol", newstate(#.x, #.y)));
       
       //plots to canvas using no interpolation
-      colorplot(imagergb(L, R, "gol", (floor(#.x)+.5, floor(#.y)+.5)));
+      colorplot(imagergb(L, R, "gol", #, interpolate->false));
     </script>
     
-   <list>
+   <ul>
      <li>
     Click on canvas to interact!
      </li>
@@ -76,16 +76,16 @@
       <li>
     Press SPACE to reset to blank configuration.
       </li>
-    </list>
-  <canvas id="CSCanvas" style="position:relative; top:10px;"></canvas>
+    </ul>
+  <div id="CSCanvas" style="position:relative; top:10px;"></div>
     
 
     
     <script type="text/javascript">     
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:[],
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 512,

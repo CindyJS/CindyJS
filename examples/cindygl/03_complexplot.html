@@ -28,7 +28,7 @@
     </script>
     
 
-    <canvas  id="CSCanvas" width="500" height="400"></canvas>
+    <div  id="CSCanvas" style="width:500px; height:400px;"></div>
     
     <script type="text/javascript">
         var gslp=[
@@ -36,7 +36,7 @@
                   {name:"B", kind:"P", type:"Free", pos:[.8,-1.5]},
                   {name:"C", kind:"P", type:"Free", pos:[.1,.1]},
                 ];
-        createCindy({canvasname:"CSCanvas",
+        CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp
                     }

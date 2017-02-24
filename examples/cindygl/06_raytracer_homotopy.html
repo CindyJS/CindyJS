@@ -181,12 +181,12 @@
     </script>
     
 
-    <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+    <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
     
     <script type="text/javascript">
-        createCindy({canvasname:"CSCanvas",
+        CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 500,

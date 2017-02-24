@@ -1,5 +1,6 @@
 "use strict";
 
+var fs = require("fs");
 var glob = require("glob");
 var path = require("path");
 var Q = require("q");
@@ -23,7 +24,7 @@ module.exports = function build(settings, task) {
     var closure_zip = "compiler-" + settings.get("closure_version") + ".zip";
     var closure_url = settings.get("closure_urlbase") + "/" + closure_zip;
     var closure_archive = "download/arch/" + closure_zip;
-    var closure_jar = "download/closure-compiler/compiler-" +
+    var closure_jar = "download/closure-compiler/closure-compiler-v" +
         settings.get("closure_version") + ".jar";
 
     task("closure-zip", [], function() {
@@ -31,7 +32,8 @@ module.exports = function build(settings, task) {
     });
 
     task("closure-jar", ["closure-zip"], function() {
-        this.unzip(closure_archive, closure_jar, "compiler.jar");
+        this.unzip(closure_archive, closure_jar, "closure-compiler-v" +
+        settings.get("closure_version") + ".jar");
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -120,6 +122,26 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Make sure all examples compile
+    //////////////////////////////////////////////////////////////////////
+
+    task("excomp", [], function() {
+        this.excomp(
+            "examples/**/*.html",
+            "src/js/libcs/Parser.js",
+            function(html, parser) {
+                var re = /<script[^>]*type *= *['"]text\/x-cindyscript['"][^>]*>([^]*?)<\/script>/g;
+                var match, count = 0;
+                while (match = re.exec(html)) {
+                    ++count;
+                    var res = parser.parse(match[1]);
+                    if (res.ctype === "error") throw res;
+                }
+                return count;
+            });
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Run test suite from reference manual using node
     //////////////////////////////////////////////////////////////////////
 
@@ -130,6 +152,7 @@ module.exports = function build(settings, task) {
     task("tests", [
         "nodetest",
         "unittests",
+        "excomp",
     ]);
 
     //////////////////////////////////////////////////////////////////////
@@ -151,9 +174,13 @@ module.exports = function build(settings, task) {
             /<script[^>]*type *= *["']text\/cindyscript["']/g, // requires x-
             /.*firstDrawing.*/g, // excessive copy & paste of old example
             /.*(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js.*/g, // remote
+            /<canvas[^>]+id=['"]CSCanvas/g,                    // use <div>
         ]);
         this.forbidden("ref/**/*.md", [
             /^#.*`.*<[A-Za-z0-9]+>.*?`/mg, // use ‹…› instead
+        ]);
+        this.forbidden(null, [
+            /createCind[y](?!\.md[)#])[.(]/g, // use CindyJS instead
         ]);
     });
 
@@ -170,11 +197,19 @@ module.exports = function build(settings, task) {
         "forbidden",
         "ref",
     ]);
-
+    
     task("beautified", [], function() {
-        this.cmd("git", "diff", "--exit-code", "--name-only");
+        this.cmd("git", "diff", "--exit-code", "--name-only", {
+            errorMessages: {
+                "1": "Please stage the files listed above (e.g. using “git add -u”)"
+            }
+        });
         this.cmdscript("js-beautify", "--quiet", beautify_args);
-        this.cmd("git", "diff", "--exit-code");
+        this.cmd("git", "diff", "--exit-code", {
+            errorMessages: {
+                "1": "Your code has been beautified. Please review these changes."
+            }
+        });
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -199,20 +234,13 @@ module.exports = function build(settings, task) {
     ];
 
     task("refhtml", [], function() {
-        var cached = null;
-        function lazy() {
-            return (cached || (cached = Q.denodeify(
-                require("../ref/js/md2html").renderHtml)))
-                .apply(null, arguments);
-        }
         this.input(["ref/js/template.html", "ref/js/md2html.js"]);
-        this.parallel(function() {
-            refmd.forEach(function(input) {
-                var output = path.join(
-                    "build", input.replace(/\.md$/, ".html"));
-                return this.process(input, output, lazy);
-            }, this);
-        });
+        this.input(refmd);
+        this.output(refmd.map(function(input) {
+            return path.join("build", input.replace(/\.md$/, ".html"));
+        }));
+        this.mkdir("build/ref");
+        this.node("ref/js/md2html", "-o", "build/ref", refmd);
     });
 
     task("refres", [], function() {
@@ -310,8 +338,6 @@ module.exports = function build(settings, task) {
     // Build JavaScript version of CindyGL
     //////////////////////////////////////////////////////////////////////
 
-    var cgl_primitives = "sphere cylinder triangle texq".split(" ");
-
     var cgl_str_res = glob.sync("plugins/cindygl/src/str/*.glsl");
     
     var cgl_mods = [
@@ -320,12 +346,13 @@ module.exports = function build(settings, task) {
         "CanvasWrapper",
         "Renderer",
         "Plugin",
-        "TypeInference",
-        "Types",
+        "TypeHelper",
         "IncludeFunctions",
+        "LinearAlgebra",
+        "Sorter",
+        "WebGL",
         "CodeBuilder",
-        "TextureReader",
-        "WebGLImplementation"
+        "TextureReader"        
     ];
 
     var cgl_mods_from_c3d = [
@@ -381,6 +408,92 @@ module.exports = function build(settings, task) {
     task("cindygl-dbg", [], function() {
         this.node(process.argv[1], "cindygl", "cindygl-dbg=true");
     });
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Build ComplexCurves plugin
+    //////////////////////////////////////////////////////////////////////
+
+    var cc_get_commit = function() {
+        var commit = fs.readFileSync(
+            "plugins/ComplexCurves/lib/ComplexCurves.commit", "utf8");
+        commit = commit.replace(/\s+/, "");
+        cc_get_commit = function() { // cache result
+            return commit;
+        }
+        return commit;
+    }
+    var cc_lib_dir = "plugins/ComplexCurves/lib/ComplexCurves/";
+    var cc_shaders = Array.prototype.concat.apply(
+        ["Common.glsl", "Textures.glsl"], [
+            "Assembly", "CachedSurface", "DomainColouring", "Export", "FXAA",
+            "Initial", "Subdivision", "SubdivisionPre", "Surface",
+        ].map(function(name) { return [name + ".vert", name + ".frag"]; }))
+        .map(function(name) { return cc_lib_dir + "src/glsl/" + name; });
+    var cc_mods = [
+        "Assembly", "CachedSurface", "Complex", "ComplexCurves", "Export",
+        "GLSL", "Initial", "Matrix", "Mesh", "Misc", "Monomial", "Parser",
+        "Polynomial", "PolynomialParser", "Quaternion", "Stage", "State3D",
+        "StateGL", "Subdivision", "SubdivisionPre", "Surface", "Term",
+        "Tokenizer"
+    ];
+    var cc_mods_from_c3d = [
+        "Interface"
+    ];
+
+    task("ComplexCurves.get", [], function() {
+        var id = cc_get_commit();
+        this.download(
+            "https://github.com/kranich/ComplexCurves/archive/" + id + ".zip",
+            "download/arch/ComplexCurves-" + id + ".zip"
+        );
+    });
+
+    task("ComplexCurves.unzip", ["ComplexCurves.get"], function() {
+        var id = cc_get_commit();
+        this.input("plugins/ComplexCurves/lib/ComplexCurves.commit");
+        this.delete("plugins/ComplexCurves/lib/ComplexCurves");
+        this.unzip(
+            "download/arch/ComplexCurves-" + id + ".zip",
+            "plugins/ComplexCurves/lib/ComplexCurves",
+            "ComplexCurves-" + id + "/"
+        );
+    });
+
+    task("ComplexCurves.glsl.js", ["ComplexCurves.unzip"], function() {
+        this.input(cc_shaders);
+        this.node(
+            "tools/files2json.js",
+            "-varname=resources",
+            "-preserve_file_names=yes",
+            "-strip=no",
+            "-output=" + this.output("build/js/ComplexCurves.glsl.js"),
+            cc_shaders);
+    });
+
+    task("ComplexCurves", ["ComplexCurves.glsl.js", "closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            compilation_level: this.setting("cc_closure_level"),
+            rewrite_polyfills: false,
+            warning_level: this.setting("cc_closure_warnings"),
+            output_wrapper_file: cc_lib_dir + "src/js/ComplexCurves.js.wrapper",
+            js_output_file: "build/js/ComplexCurves.js",
+            externs: "plugins/cindyjs.externs",
+            js: ["build/js/ComplexCurves.glsl.js"].concat(cc_mods.map(function(name) {
+                return cc_lib_dir + "src/js/" + name + ".js";
+            })).concat(cc_mods_from_c3d.map(function(name) {
+                return "plugins/cindy3d/src/js/" + name + ".js";
+            })).concat([
+                "plugins/ComplexCurves/src/js/Plugin.js"
+            ])
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+
     
     //////////////////////////////////////////////////////////////////////
     // Run js-beautify for consistent coding style
@@ -413,7 +526,7 @@ module.exports = function build(settings, task) {
         "validation-api-1.0.0.GA-sources",
     ];
     var gwt_jars = gwt_parts.map(function(name) {
-        return "download/gwt-" + settings.get("gwt_version") + "/" +
+        return "gwt-" + settings.get("gwt_version") + "/" +
             name + ".jar";
     });
     var gwt_modules = glob.sync("src/java/cindyjs/*.gwt.xml")
@@ -426,12 +539,7 @@ module.exports = function build(settings, task) {
     });
 
     task("gwt-jars", ["gwt-zip"], function() {
-        this.unzip(gwt_archive, "download");
-        this.parallel(function() {
-            gwt_jars.forEach(function(name) {
-                this.touch(name);
-            }, this);
-        });
+        this.unzip(gwt_archive, "download", gwt_jars);
     });
 
     function extra_args(args) {
@@ -446,7 +554,9 @@ module.exports = function build(settings, task) {
                 gwt_module + ".nocache.js";
             this.delete("build/js/" + gwt_module);
             this.output(mainFile);
-            var cp = ["src/java/"].concat(gwt_jars).join(path.delimiter);
+            var cp = ["src/java/"].concat(gwt_jars.map(function(name) {
+                return "download/" + name;
+            })).join(path.delimiter);
             this.java(
                 "-cp", cp,
                 "com.google.gwt.dev.Compiler",
@@ -481,6 +591,19 @@ module.exports = function build(settings, task) {
     task("katex", ["katex_src", "katex-plugin"]);
 
     //////////////////////////////////////////////////////////////////////
+    // Compile SASS to CSS
+    //////////////////////////////////////////////////////////////////////
+
+    task("sass", [], function() {
+        this.parallel(function() {
+            src.scss.forEach(function(input) {
+                var name = path.basename(input, ".scss") + ".css";
+                this.sass(input, path.join("build", "js", name));
+            }, this);
+        });
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Copy additional libraries used for some features
     //////////////////////////////////////////////////////////////////////
 
@@ -501,7 +624,7 @@ module.exports = function build(settings, task) {
     // Copy images to build directory
     //////////////////////////////////////////////////////////////////////
 
-    var images = glob.sync("images/*.{png,jpg}");
+    var images = glob.sync("images/*.{png,jpg,svg}");
 
     task("images", [], function() {
         this.parallel(function() {
@@ -518,7 +641,11 @@ module.exports = function build(settings, task) {
     task("deploy", ["all", "closure"], function() {
         this.delete("build/deploy");
         this.mkdir("build/deploy");
-        this.node("tools/prepare-deploy.js");
+        this.node("tools/prepare-deploy.js", {
+            errorMessages: {
+                "2": "Unknown files; running “make clean” may help here"
+            }
+        });
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -544,6 +671,8 @@ module.exports = function build(settings, task) {
         "katex",
         "xlibs",
         "images",
+        "sass",
+        "ComplexCurves"
     ].concat(gwt_modules));
 
 };

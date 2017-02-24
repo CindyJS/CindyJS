@@ -22,7 +22,7 @@
                       {name:"A", kind:"P", type:"Free", pos:[0,0,1]},
                       {name:"B", kind:"P", type:"Free", pos:[0,9,1]},
                       ];
-            var cdy = createCindy({canvasname:"CSCanvas",
+            var cdy = CindyJS({canvasname:"CSCanvas",
                         defaultAppearance:{pointColor:[1,.7,0]},
                         scripts:"cs*",
                         geometry:gslp});
@@ -50,7 +50,7 @@
   <body style="font-family:Arial;">
     <h1>CindyJS: Focus behavior</h1>
     <div>
-      <canvas  id="CSCanvas" width="500" height="500" tabindex="0"></canvas>
+      <div  id="CSCanvas" style="width:500px; height:500px;" tabindex="0"></div>
     </div>
     <p>Text: <input type="text"></p>
   </body>

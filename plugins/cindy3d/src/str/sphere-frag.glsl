@@ -12,6 +12,7 @@ varying float vRadius;
 // Fragment shader for sphere rendering
 // ----------------------------------------------------------------------------
 void main() {
+  gColor = vColor;
   vec3 pointOnSphere =
     sphere(vViewSpacePos, vViewSpaceCenter, vRadius, sphereMode);
   vec3 normal = normalize(pointOnSphere - vViewSpaceCenter);

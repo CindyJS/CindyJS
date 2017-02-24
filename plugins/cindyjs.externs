@@ -12,14 +12,14 @@ td.EventManager;
 //////////////////////////////////////////////////////////////////////
 // Externs for CindyJS bindings
 
-function createCindy() {}
+function CindyJS() {}
 
 /** @typedef {{ctype:string}} */
-createCindy.anyval;
+CindyJS.anyval;
 
-/** @typedef {function(Array.<createCindy.anyval>, Object):
- *            createCindy.anyval} */
-createCindy.op;
+/** @typedef {function(Array.<CindyJS.anyval>, Object):
+ *            CindyJS.anyval} */
+CindyJS.op;
 
 /** @typedef {{
  *    img: (HTMLImageElement|HTMLCanvasElement|HTMLVideoElement),
@@ -27,34 +27,36 @@ createCindy.op;
  *    height: number,
  *    ready: boolean,
  *    live: boolean,
+ *    generation: number,
  *    whenReady: function(function()),
- *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number))
+ *    drawTo: (undefined|function(CanvasRenderingContext2D,number,number)),
+ *    readPixels: (undefined|function(number,number,number,number))
  *  }}
  */
-createCindy.image;
+CindyJS.image;
 
 /** @typedef {{
  *    instance: Object,
  *    config: Object,
- *    nada: createCindy.anyval,
- *    evaluate: function(createCindy.anyval):createCindy.anyval,
- *    extractPoint: function(createCindy.anyval):{ok: boolean, x:number, y:number},
- *    evaluateAndVal: function(createCindy.anyval):createCindy.anyval,
- *    defineFunction: function(string,number,createCindy.op),
+ *    nada: CindyJS.anyval,
+ *    evaluate: function(CindyJS.anyval):CindyJS.anyval,
+ *    extractPoint: function(CindyJS.anyval):{ok: boolean, x:number, y:number},
+ *    evaluateAndVal: function(CindyJS.anyval):CindyJS.anyval,
+ *    defineFunction: function(string,number,CindyJS.op),
  *    addShutdownHook: function(function()),
  *    addAutoCleaningEventListener: td.EventManager,
- *    getVariable: function(string):createCindy.anyval,
+ *    getVariable: function(string):CindyJS.anyval,
  *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
  *      tx:number,ty:number,det:number,sdet:number},
- *    getImage: function((string|createCindy.anyval),boolean=):createCindy.image,
+ *    getImage: function((string|CindyJS.anyval),boolean=):CindyJS.image,
  *    getMyfunction: function(string)
  *  }}
  */
-createCindy.pluginApi;
+CindyJS.pluginApi;
 
 /**
  * @param {number} apiVersion
  * @param {string} pluginName
- * @param {function(createCindy.pluginApi)} initCallback
+ * @param {function(CindyJS.pluginApi)} initCallback
  */
-createCindy.registerPlugin;
+CindyJS.registerPlugin;

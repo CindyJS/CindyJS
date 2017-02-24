@@ -7,7 +7,7 @@
 <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script type="text/javascript">
 
-var cdy = createCindy({
+var cdy = CindyJS({
   ports: [{id: "CSCanvas", snap: true, grid: 1}],
   scripts: "cs*",
   language: "en",
@@ -24,11 +24,11 @@ var cdy = createCindy({
     {name:"AA", type:"Free", pos:[-6,1]},
     {name:"BB", type:"Free", pos:[0,-4]},
     {name:"CC", type:"Free", pos:[-2,-4]},
-    {name:"Arc", type:"ArcBy3", args:["AA", "BB", "CC"], color: [0,1,0]},
+    {name:"Arc", type:"ArcBy3", args:["AA", "BB", "CC"], color:[0,0.75,0], size:2},
 	
 
     {name:"Tr0", type:"TrMoebius", args:["A1","B1","A2","B2","A3","B3"]},
-    {name:"ArcTr", type:"TrMoebiusArc", args:["Tr0","Arc"], color:[0, 1, 1]},
+    {name:"ArcTr", type:"TrMoebiusArc", args:["Tr0","Arc"], color:[0, 0, 1], size:2},
 
   ]
 });
@@ -37,8 +37,7 @@ var cdy = createCindy({
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="500" height="500"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
 </body>
 
 </html>

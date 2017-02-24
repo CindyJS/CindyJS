@@ -25,7 +25,7 @@ drawtext([-2,7], format(x/(2*pi), 2));
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({
+var cdy = CindyJS({
   canvasname: "CSCanvas",
   scripts: "cs*",
   language: "en",
@@ -39,8 +39,7 @@ var cdy = createCindy({
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="500" height="500"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
 </body>
 
 </html>

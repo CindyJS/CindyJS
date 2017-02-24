@@ -46,7 +46,7 @@
     </script>
     
 
-    <canvas  id="CSCanvas" onclick="cdy.evokeCS('t0 = seconds();')"></canvas>
+    <div  id="CSCanvas" onclick="cdy.evokeCS('t0 = seconds();')"></div>
     
     <script type="text/javascript">
         
@@ -55,10 +55,10 @@
                   {name:"B", kind:"P", type:"Free", pos:[1,6,1]},
                   {name:"C", kind:"P", type:"Free", pos:[3,5,1]},
                   ];
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 500,

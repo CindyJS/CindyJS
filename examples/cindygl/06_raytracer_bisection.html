@@ -179,12 +179,12 @@
     </script>
     
 
-    <canvas  id="CSCanvas" style="border:0px"></canvas>
+    <div  id="CSCanvas" style="border:0px"></div>
     
     <script type="text/javascript">
-        createCindy({canvasname:"CSCanvas",
+        CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 500,

@@ -46,11 +46,11 @@ It should be called in the `Integration Tick` slot.
 **Not available in CindyJS yet!**
 
 **Description:**
-The operator `force` is closely related to physics simulations in [CindyLab](CindyLab.md).
+The operator `force` is closely related to physics simulations in CindyLab.
 It can be used for testing the force that would affect a mass particle at a specific position.
 The vector `‹vector›` represents the position.
 The operator returns a two-dimensional vector that is the force at this position.
-If no modifiers are used, the operator assumes that the probe particle has `mass=1`, `charge=1` and `radius=1` (see [Free Mass](Free_Mass.md)).
+If no modifiers are used, the operator assumes that the probe particle has `mass=1`, `charge=1` and `radius=1`.
 
 **Example:**
 The following picture was generated using the `drawforces` operator and a color plot of the `force` operator.

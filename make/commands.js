@@ -1,5 +1,6 @@
 "use strict";
 
+var chalk = require("chalk");
 var cp = require("child_process");
 var fs = require("fs");
 var glob = require("glob");
@@ -8,11 +9,73 @@ var Q = require("q");
 var qfs = require("q-io/fs");
 var request = require("request");
 var rimraf = require("rimraf");
+var stream = require("stream");
 var touch = require("touch");
-var unzip = require("unzip");
 var WholeLineStream = require("whole-line-stream");
 
 var BuildError = require("./BuildError");
+var util = require("./util");
+
+function cmdImpl(task, opts, command, args) {
+    return Q.Promise(function(resolve, reject) {
+        var cmdline = [command || "node"].concat(args).join(" ");
+        task.log(cmdline);
+        var spawnOpts = { stdio: ["ignore", "pipe", "pipe"] };
+        if (!command) command = process.argv[0]; // node
+        var child = cp.spawn(command, args, spawnOpts);
+        var output = null;
+        var wls = new WholeLineStream(task.prefix);
+        wls.pipe(process.stdout);
+        child.stderr.pipe(wls);
+        if (!opts.returnOutput) {
+            child.stdout.pipe(wls);
+        } else {
+            output = [];
+            var collector = new stream.Writable();
+            collector._write = function(chunk, encoding, callback) {
+                output.push(chunk);
+                if (typeof callback === "function")
+                    callback();
+            }
+            child.stdout.pipe(collector);
+        }
+        child.on("error", function(err) {
+            if (err.code === "ENOENT") {
+                reject(new BuildError(
+                    "Command " + JSON.stringify(command) + " not found"));
+            } else {
+                reject(err);
+            }
+        });
+        child.on("exit", function(code, signal) {
+            if (code === 0) {
+                var res = true;
+                if (opts.returnOutput)
+                    res = Buffer.concat(output);
+                resolve(res);
+            } else if (code !== null) {
+                if (opts.errorMessages && opts.errorMessages[code])
+                    reject(new BuildError(opts.errorMessages[code]));
+                reject(new BuildError(
+                    cmdline + " exited with code " + code));
+            } else {
+                reject(BuildError(
+                    cmdline + " exited with signal " + signal));
+            }
+        });
+    });
+}
+
+function gitLsFiles(task) {
+    var args = ["ls-files", "-z"];
+    return cmdImpl(task, {returnOutput: true}, "git", args)
+        .then(function(buf) {
+            var lst = buf.toString().split("\0");
+            if (lst.length && lst[lst.length - 1] === "")
+                lst.pop();
+            return lst;
+        });
+}
 
 /**
  * Adds a job for running a node module or other command.
@@ -23,39 +86,14 @@ var BuildError = require("./BuildError");
 exports.cmd = function(command) {
     var task = this;
     var args = Array.prototype.slice.call(arguments, 1);
+    var opts = {};
+    var last = args[args.length - 1];
+    if (typeof last === "object" && !Array.isArray(last))
+        opts = args.pop();
     args = Array.prototype.concat.apply([], args); // flatten one level
     args = Array.prototype.concat.apply([], args); // flatten a second level
-    var cmdline = [command || "node"].concat(args).join(" ");
     this.addJob(function() {
-        return Q.Promise(function(resolve, reject) {
-            task.log(cmdline);
-            var opts = { stdio: ["ignore", "pipe", "pipe"] };
-            if (!command) command = process.argv[0]; // node
-            var child = cp.spawn(command, args, opts);
-            var stream = new WholeLineStream(task.prefix);
-            stream.pipe(process.stdout);
-            child.stdout.pipe(stream);
-            child.stderr.pipe(stream);
-            child.on("error", function(err) {
-                if (err.code === "ENOENT") {
-                    reject(new BuildError(
-                        "Command " + JSON.stringify(command) + " not found"));
-                } else {
-                    reject(err);
-                }
-            });
-            child.on("exit", function(code, signal) {
-                if (code === 0) {
-                    resolve(true);
-                } else if (code !== null) {
-                    reject(new BuildError(
-                        cmdline + " exited with code " + code));
-                } else {
-                    reject(BuildError(
-                        cmdline + " exited with signal " + signal));
-                }
-            });
-        });
+        return cmdImpl(task, opts, command, args);
     });
 };
 
@@ -136,6 +174,31 @@ exports.applySourceMap = function(maps, dst) {
         "-o", this.output(dst + ".map"));
 };
 
+exports.sass = function(src, dst) {
+    var task = this;
+    this.input(src);
+    this.output(dst);
+    this.output(dst + ".map");
+    this.addJob(function() {
+        task.log(src + " \u219d " + dst);
+        var basename = path.basename(dst);
+        return Q.fcall(require, "node-sass").ninvoke("render", {
+            file: src,
+            outFile: basename,
+            sourceMap: basename + ".map",
+            sourceMapRoot: path.relative(path.dirname(dst), ".")
+        }).then(function(res) {
+            return Q.all([
+                qfs.write(dst, res.css),
+                qfs.write(dst + ".map", res.map)
+            ]);
+        }, function(err) {
+            throw new BuildError(
+                "Error applying SASS to " + src + ": " + err.message);
+        });
+    });
+}
+
 exports.touch = function(dst) {
     this.output(dst);
     this.addJob(function() { return Q.nfcall(touch, dst); });
@@ -181,9 +244,16 @@ exports.forbidden = function(files, expressions) {
     var task = this;
     this.addJob(function() {
         var opts = { nodir: true };
+        var listFiles;
+        if (files === null) {
+            listFiles = gitLsFiles(task);
+            files = "all versioned files"
+        } else {
+            listFiles = Q.nfcall(glob, files, opts);
+        }
         task.log("Looking for " + expressions.length + " forbidden pattern" +
                  (expressions.length === 1 ? "" : "s") + " in " + files);
-        return Q.nfcall(glob, files, opts).then(function(files) {
+        return listFiles.then(function(files) {
             var errors = 0;
             return Q.all(files.map(function(path) {
                 return qfs.read(path).then(function(content) {
@@ -198,6 +268,13 @@ exports.forbidden = function(files, expressions) {
                             if (!expression.global) break;
                         }
                     });
+                }, function(err) {
+                    if (err.code !== "ENOENT")
+                        throw err;
+                    return Q.nfcall(fs.lstat, path).then(function(stats) {
+                        if (!stats.isSymbolicLink())
+                            throw err;
+                    });
                 });
             })).then(function() {
                 if (errors !== 0) throw new BuildError(
@@ -205,6 +282,46 @@ exports.forbidden = function(files, expressions) {
                     " detected");
             });
         });
+    });
+};
+
+exports.excomp = function(filesPattern, parserFile, checkfunc) {
+    var task = this;
+    this.addJob(function() {
+        // load parser without caching
+        var parser = qfs.read(parserFile)
+            .then(function(body) {
+                var exports = {};
+                var module = {exports: {}};
+                (new Function(
+                    "module", "exports", "require", body))(
+                    module, module.exports);
+                return module.exports;
+            });
+        return Q.all([Q.nfcall(glob, filesPattern, { nodir: true }), parser])
+            .spread(function(files, parser) {
+                var failed = 0;
+                var count = 0;
+                task.log(
+                    "Compiling example scripts from " +
+                        files.length + " examples");
+                return Q.all(files.map(function(file) {
+                    return qfs.read(file).then(function(html) {
+                        try {
+                            count += checkfunc(html, parser) | 0;
+                        } catch (err) {
+                            task.log(
+                                chalk.magenta(file) + ": " +
+                                chalk.red(err));
+                            failed++;
+                        }
+                    });
+                })).then(function() {
+                    task.log(count + " scripts compiled");
+                    if (failed) throw new BuildError(
+                        failed + " example script(s) failed to compile");
+                });
+            });
     });
 };
 
@@ -230,47 +347,72 @@ exports.unzip = function(src, dst, files) {
     var task = this;
     this.input(src);
     var outFile = path.join.bind(path, dst);
+    var listed = function() { return true; }
     if (files) {
+        listed = function(file) { return files.indexOf(file) !== -1; }
         if (typeof files === "string") {
-            // Passing a single file instead of an array means
-            // that dst is the target file, not a directory
+            // Passing a single name instead of an array means
+            // that the named file or subtree is extracted to dst,
+            // possibly renaming it in the process
+            if (files[files.length - 1] === "/") {
+                // rename named subdirectory to dst
+                outFile = function(file) {
+                    return path.join(dst, file.substr(files[0].length));
+                }
+                listed = function(file) {
+                    return file.substr(0, files[0].length) === files[0];
+                }
+            } else {
+                outFile = function() { return dst; }
+            }
             files = [files];
-            outFile = function() { return dst; }
         }
         files.forEach(function(name) {
             this.output(outFile(name));
         }, this);
     }
     this.addJob(function() {
-        return Q.Promise(function(resolve, reject) {
-            task.log("unzip " + src + " to " + dst);
-            var countdown = 1;
-            function done() {
-                if (--countdown === 0)
-                    resolve();
-            }
-            var out;
-            if (files) {
-                out = unzip.Parse({ path: dst })
-                    .on("entry", function(entry) {
-                        if (files.indexOf(entry.path) === -1) {
-                            entry.autodrain();
-                        } else {
-                            ++countdown;
-                            var out = fs.createWriteStream(
-                                outFile(entry.path))
-                                .on("error", reject)
-                                .on("finish", done);
-                            entry.on("error", reject).pipe(out);
-                        }
+        task.log("unzip " + src + " to " + dst);
+        var yauzl = require("yauzl"); // load lazily, only when needed
+        var zipFile, readNext;
+        return Q.nfcall(yauzl.open, src, {lazyEntries: true})
+            .then(function(zf) {
+                zipFile = zf;
+                readNext = zipFile.readEntry.bind(zipFile);
+                process.nextTick(readNext);
+                return Q.Promise(function(resolve, reject) {
+                    zipFile.on("error", reject);
+                    zipFile.on("end", resolve);
+                    zipFile.on("entry", function(entry) {
+                        handleEntry(entry).then(readNext).catch(reject).done();
                     });
-            } else {
-                out = unzip.Extract({ path: dst });
-            }
-            out.on("error", reject).on("close", done);
-            fs.createReadStream(src)
-                .on("error", reject)
-                .pipe(out);
-        });
+                });
+            });
+        function handleEntry(entry) {
+            if (!listed(entry.fileName))
+                return Q(); // skip this file
+            var dst = outFile(entry.fileName);
+            if (entry.fileName[entry.fileName.length - 1] === "/")
+                return qfs.makeTree(dst, 7*8*8 + 7*8 + 7);
+            return qfs
+                .makeTree(path.dirname(dst), 7*8*8 + 7*8 + 7)
+                .then(function() {
+                    return Q.ninvoke(zipFile, "openReadStream", entry);
+                }).then(function(inStream) {
+                    return util.qpipe(inStream, fs.createWriteStream(dst));
+                });
+        }
     });
+};
+
+exports.git_submodule = function(path) {
+    var task = this;
+    this.addCondition(function() {
+        var args = ["submodule", "status", path];
+        return cmdImpl(task, {returnOutput: true}, "git", args)
+            .then(function(buf) {
+                return buf[0] !== 32;
+            });
+    });
+    this.cmd("git", "submodule", "update", "--init", path);
 };

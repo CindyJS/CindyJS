@@ -4,7 +4,7 @@
  */
 function Lighting() {
   this.ambient = [0, 0, 0];
-  this.lights = [new PointLight([0, 0, 0], [1, 1, 1], [1, 1, 1])];
+  this.lights = [new CameraPointLight([0, 0, 0, 1], [1, 1, 1], [1, 1, 1])];
   this.modified = false;
 }
 
@@ -71,9 +71,8 @@ Light.prototype.args;
 Light.prototype.typeMap = {
   "uDiffuse": "vec3",
   "uSpecular": "vec3",
-  "uLightPos": "vec3",
-  "uLightDir": "vec3",
-  "uSpotDir": "vec3",
+  "uLightPos": "vec4",
+  "uSpotPos": "vec4",
   "uSpotCosCutoff": "float",
   "uSpotExponent": "float",
 };
@@ -107,42 +106,100 @@ Light.prototype.setUniforms = function(u, i) {
 /**
  * @constructor
  * @extends Light
+ * @param {Array.<number>} pos
+ * @param {Array.<number>} diffuse
+ * @param {Array.<number>} specular
  */
-function PointLight(pos, diffuse, specular) {
+function CameraPointLight(pos, diffuse, specular) {
   this["uLightPos"] = pos;
   this["uDiffuse"] = diffuse;
   this["uSpecular"] = specular;
 }
 
-PointLight.prototype = new Light(
-  "pointLight", ["uLightPos", "uDiffuse", "uSpecular"]);
+CameraPointLight.prototype = new Light(
+  "cameraPointLight", ["uLightPos", "uDiffuse", "uSpecular"]);
 
 /**
  * @constructor
  * @extends Light
+ * @param {Array.<number>} pos
+ * @param {Array.<number>} diffuse
+ * @param {Array.<number>} specular
  */
-function DirectionalLight(dir, diffuse, specular) {
-  this["uLightDir"] = dir;
+function WorldPointLight(pos, diffuse, specular) {
+  this["uLightPos"] = pos;
   this["uDiffuse"] = diffuse;
   this["uSpecular"] = specular;
 }
 
-DirectionalLight.prototype = new Light(
-  "directionalLight", ["uLightDir", "uDiffuse", "uSpecular"]);
+WorldPointLight.prototype = new Light(
+  "worldPointLight", ["uLightPos", "uDiffuse", "uSpecular"]);
+
+/**
+ * @enum {function(new:Light, Array.<number>, Array.<number>, Array.<number>)}
+ */
+const PointLights = {
+  "camera": CameraPointLight,
+  "world": WorldPointLight,
+};
 
 /**
  * @constructor
  * @extends Light
+ * @param {Array.<number>} lightPos
+ * @param {Array.<number>} spotPos
+ * @param {number} cutoff
+ * @param {number} exponent
+ * @param {Array.<number>} diffuse
+ * @param {Array.<number>} specular
  */
-function SpotLight(pos, dir, cutoff, exponent, diffuse, specular) {
-  this["uLightPos"] = pos;
-  this["uSpotDir"] = dir;
+function CameraSpotLight(
+  lightPos, spotPos, cutoff, exponent, diffuse, specular)
+{
+  this["uLightPos"] = lightPos;
+  this["uSpotPos"] = spotPos;
   this["uSpotCosCutoff"] = [cutoff];
   this["uSpotExponent"] = [exponent];
   this["uDiffuse"] = diffuse;
   this["uSpecular"] = specular;
 }
 
-SpotLight.prototype = new Light(
-  "spotLight", ["uLightPos", "uSpotDir", "uSpotCosCutoff", "uSpotExponent",
-                "uDiffuse", "uSpecular"]);
+CameraSpotLight.prototype = new Light(
+  "cameraSpotLight", [
+    "uLightPos", "uSpotPos", "uSpotCosCutoff", "uSpotExponent",
+    "uDiffuse", "uSpecular"]);
+
+/**
+ * @constructor
+ * @extends Light
+ * @param {Array.<number>} lightPos
+ * @param {Array.<number>} spotPos
+ * @param {number} cutoff
+ * @param {number} exponent
+ * @param {Array.<number>} diffuse
+ * @param {Array.<number>} specular
+ */
+function WorldSpotLight(
+  lightPos, spotPos, cutoff, exponent, diffuse, specular)
+{
+  this["uLightPos"] = lightPos;
+  this["uSpotPos"] = spotPos;
+  this["uSpotCosCutoff"] = [cutoff];
+  this["uSpotExponent"] = [exponent];
+  this["uDiffuse"] = diffuse;
+  this["uSpecular"] = specular;
+}
+
+WorldSpotLight.prototype = new Light(
+  "worldSpotLight", [
+    "uLightPos", "uSpotPos", "uSpotCosCutoff", "uSpotExponent",
+    "uDiffuse", "uSpecular"]);
+
+/**
+ * @enum {function(new:Light, Array.<number>, Array.<number>, number, number,
+ *                 Array.<number>, Array.<number>)}
+ */
+const SpotLights = {
+  "camera": CameraSpotLight,
+  "world": WorldSpotLight,
+};

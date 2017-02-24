@@ -17,7 +17,7 @@ if (image ready(video),
 );
 </script>
 <script type="text/javascript">
-var cdy = createCindy({
+var cdy = CindyJS({
   ports: [{id: "CSCanvas", transform:[{visibleRect:[-0.1,15.1,20.1,-0.1]}]}],
   scripts: "cs*",
   language: "en",
@@ -33,8 +33,7 @@ var cdy = createCindy({
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="804" height="604"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="width:804px; height:604px; border:2px solid black"></div>
 </body>
 
 </html>

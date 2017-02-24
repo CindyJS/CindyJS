@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+		<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+		<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Interference</h1>
+    
+    
+    <script id="csdraw" type="text/x-cindyscript">
+      A.x=55;
+      B.x=65;
+      C.x=75;
+      if(A.y<-40,A.y=-40);
+      if(A.y>40,A.y=40);
+      if(B.y<-40,B.y=-40);
+      if(B.y>40,B.y=40);
+      if(C.y<-40,C.y=-40);
+      if(C.y>40,C.y=40);
+      zoom=(C.y+40)/40+.1;
+      t = seconds()-t0;
+      n=round((A.y+40)/80*8+1);
+      amp=(B.y+40)/80*3;
+      k=if(mod(n,2)==0,1,2);
+
+      waves(z) := (
+         sum(
+					 apply(1..n, l,
+ 						sin(t+re(z*exp(l*k*pi*i/n)))
+ 					);
+				)*amp/2 +.5;
+      );
+      
+      colorplot(col(waves(complex(#*zoom))));
+      fillpoly([[50,-50],[80,-50],[80,50],[50,50]],color->(0,0,0),alpha->.5); 
+      draw((55,-40),(55,40),color->(1,1,1),size->2);
+      draw((65,-40),(65,40),color->(1,1,1),size->2);
+      draw((75,-40),(75,40),color->(1,1,1),size->2);
+      drawtext((54,45),n,color->(1,1,1));
+    </script>
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+      t0 = seconds();
+      col(x):=(sin(x)*.5+.5,sin(x),sin(x)^3*.3);
+      //col(x):=hue(x);
+    </script>
+    
+
+    <div  id="CSCanvas"></div>
+    
+    <script type="text/javascript">
+        
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[-20,-1,1],color:[1,1,1]},
+                  {name:"B", kind:"P", type:"Free", pos:[20,5,1],color:[1,1,1]},
+                  {name:"C", kind:"P", type:"Free", pos:[20,5,1],color:[1,1,1]},
+                  ];
+        CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 780,
+                      height: 600,
+                      transform: [ { visibleRect: [-50,-50, 80, 50] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

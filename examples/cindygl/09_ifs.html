@@ -36,7 +36,7 @@
       drawimage(L, R, "ifs");
     </script>
 
-    <canvas  id="CSCanvas"></canvas>
+    <div  id="CSCanvas"></div>
     <script type="text/javascript">
         
         var gslp=[
@@ -45,10 +45,10 @@
           {name:"C", kind:"P", type:"Free", pos:[1,-1]},
           {name:"D", kind:"P", type:"Free", pos:[1.75,0]},
         ];
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 512,

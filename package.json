@@ -7,15 +7,19 @@
     "test": "tests"
   },
   "devDependencies": {
+    "browser-sync": "^2.13.0",
     "chai": "^3.5.0",
     "chalk": "^1.1.1",
+    "chokidar": "^1.6.0",
     "concat-with-sourcemaps": "^1.0.4",
     "glob": "^7.0.3",
     "http-proxy": "^1.11.2",
-    "js-beautify": "^1.5.10",
+    "iphone-inline-video": "2.0.2",
+    "js-beautify": "1.6.8",
     "jshint": "^2.8.0",
     "marked": "^0.3.5",
-    "mocha": "^2.3.2",
+    "mocha": "^3.1.2",
+    "node-sass": "^3.7.0",
     "pako": "^1.0.0",
     "q": "^1.4.1",
     "q-io": "^1.13.1",
@@ -24,10 +28,10 @@
     "rimraf": "^2.4.4",
     "source-map": "^0.5.1",
     "source-map-dummy": "^1.0.0",
-    "st": "^1.1.0",
+    "st": "^1.2.0",
     "touch": "^1.0.0",
-    "unzip": "^0.1.11",
-    "whole-line-stream": "^0.1.0"
+    "whole-line-stream": "^0.1.0",
+    "yauzl": "^2.6.0"
   },
   "scripts": {
     "prepublish": "$NODE make/index.js call_npm=false parallel=true build=release all",

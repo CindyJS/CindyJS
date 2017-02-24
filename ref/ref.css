@@ -2,12 +2,13 @@ div.codeblock { border: 1px solid #66cc66; padding: 3px; margin: 0ex 3em; backgr
 div.jsblock { border: 1px solid #66cc66; padding: 3px; margin: 0ex 3em; background: #ddffff; }
 pre { margin: 0px; padding: 2px; }
 pre.code { color: #000066; margin-top: 1em; padding: 0px; }
-pre.code.fst { margin-top: 0px; }
+pre.code.fst,pre.geo.fst  { margin-top: 0px; }
 pre.result { color: #006600; background: #ddffdd; }
 pre.regexp { color: #99ccaa; background: #eeffdd; }
 pre.output { color: #993333; background: #dddddd; }
 pre.draw2d { color: #aa9999; background: #ddeedd; }
 pre.pragma { color: #996600; background: #ffffcc; }
+pre.geo    { color: #660000; background: #9999ff; margin-top: 1em; }
 code { background: #ddddff; }
 pre.block>code { background: inherit; }
 pre.block {

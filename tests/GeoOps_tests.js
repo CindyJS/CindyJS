@@ -1,7 +1,8 @@
 var should = require("chai").should();
 var rewire = require("rewire");
 
-var createCindy = require("../build/js/Cindy.plain.js");
+global.navigator = {};
+var CindyJS = require("../build/js/Cindy.plain.js");
 var cindyJS = rewire("../build/js/exposed.js");
 
 var List = cindyJS.__get__("List");
@@ -61,7 +62,7 @@ function testGeo(geometry, verifier, done) {
     scripts: { init: initscript },
     plugins: { verify: plugin }
   };
-  createCindy(data);
+  CindyJS(data);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -164,5 +165,23 @@ describe("IntersectLC helper", function() {
     p2.value[0].value.imag.should.be.approximately(0, 1e-12);
     p2.value[1].value.real.should.be.approximately(-3, 1e-12);
     p2.value[1].value.imag.should.be.approximately(0, 1e-12);
+  });
+});
+
+describe("All GeoOps", function() {
+  it("movable ops must have all required methods", function() {
+    for (var type in geoOps) {
+      var op = geoOps[type];
+      if (op && op.isMovable) {
+        [
+          "getParamFromState",
+          "getParamForInput",
+          "putParamToState",
+          "updatePosition",
+        ].forEach(function(meth) {
+          op.should.respondTo(meth, type + " should respond to " + meth);
+        });
+      }
+    }
   });
 });

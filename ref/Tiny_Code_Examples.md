@@ -298,8 +298,8 @@ Using `startres` and `pxlres` ensures a fluent user experience.
 Simulate a swarm of fish.
 Each fish should try to swim in the same direction as its neighbors and try to swim to the approximate place where the neighbors are.
 All fish should avoid an obstacle given by a point *U*.
-To try this create some masses and make sure that one is labelled *U* or change the according line in the script.
-Also build a fence with bouncers around the "aquarium."
+To try this create some masses and make sure that one is labeled *U* or change the according line in the script.
+Also build a fence with bouncers around the “aquarium”.
 
 ![Image](img/Ex12.png)
 

@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Cindy JS Example</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+
+<script id="csinit" type="text/x-cindyscript">
+createimage("test", 400, 300);
+</script>
+
+<script id="csdraw" type="text/x-cindyscript">
+  
+  
+  
+  clearimage("test");
+  canvas(A, B, "test",
+      draw(C, color->green(1), size->20);
+      draw(A, C);
+      draw(B, C);
+  );
+  
+  colorplot(A, B, "test", d = [sin(#.x),sin(#.y)]/2; imagergba(A, B, "test", #+d)+[d.x*d.y,-d.x*d.y,0,.3]);
+  drawimage(A, B, "test");
+</script>
+
+
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[-8,-7]},
+    {name:"B", type:"Free", pos:[8,-4.2]},
+    {name:"C", type:"Free", pos:[-1, 1]},
+  ],
+  use: ["CindyGL"]
+});
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+</body>
+
+
+</html>

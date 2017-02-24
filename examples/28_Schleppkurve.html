@@ -132,7 +132,7 @@ connect(pts,color->(1,1,1)*0,size->3);
 </script>
 
 
-<canvas  id="CSCanvas" width="500" height="500" style="border:2px solid #000000"></canvas>
+<div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
 <script>
 
@@ -144,7 +144,7 @@ for(var i=0;i<30;i++){
 }
    // gslp.push({name:"B", type:"Free", pos:[-7,1],color:[1,.9,0]});
 
-var cdy = createCindy({canvasname:"CSCanvas",
+var cdy = CindyJS({canvasname:"CSCanvas",
 defaultAppearance: {clip: "inci", overhangLine: 1.2},
 movescript:"csmove",
 initscript:"init",

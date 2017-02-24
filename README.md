@@ -22,7 +22,7 @@ inside the repository, demonstrating individual functions and operations.
 Developers can run these examples from their local development copy.
 Some examples may require a webserver-like environment to avoid
 triggering browser security measures associated with local files.
-To do so, one can run <code>npm_modules/.bin/st -nc</code>
+To do so, one can run <code>npm_modules/.bin/st -l -nc</code>
 in the root of the development tree, and then visit
 [the local copy of the examples directory](http://127.0.0.1:1337/examples/).
 
@@ -39,6 +39,7 @@ and installed inside the project directory tree.
 One exception is a Java Runtime Environment, which has to be installed before
 (because users have to manually accept the terms and conditions before
 being allowed to download a JRE).
+
 If `npm` resp. `make` terminated successfully, then `build/js` will contain
 the artefacts which you'd likely want to include in your web site.
 If you are building from an official commit, then `make build=release deploy`
@@ -78,7 +79,7 @@ and are accompanied by a suitable test case or demonstrating example
 
 ## Documentation
 
-[The `createCindy` documentation]
+[The CindyJS API documentation]
 (https://github.com/CindyJS/CindyJS/blob/master/ref/createCindy.md)
 describes how to create a widget on an HTML page using this framework.
 

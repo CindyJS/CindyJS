@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Toggeling trace drawing dynamically</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+toggle(elt) := (elt.trace = !elt.trace);
+</script>
+<script type="text/javascript">
+
+var gslp = [
+    {name:"A", type:"Free", pos:[-5,0], color:[0,1,1], labeled:true, drawtrace:true},
+    {name:"B", type:"Free", pos:[5,0], color:[1,0,1], labeled:true}
+  ];
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas"}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {},
+  geometry: gslp
+});
+
+function toggle(name) {
+  cdy.evokeCS("toggle(" + name + ")");
+}
+
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+  <p>
+    <button onclick="toggle('A')">Toggle A</button>
+    <button onclick="toggle('B')">Toggle B</button>
+  </p>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 ##  TeX Rendering
 
 Starting with version 2.4 of Cinderella the text rendering became significantly more powerful.
-It is now also possible to render formulas using a variant of the TeX typesetting language [[Knu93]](References.md).
+It is now also possible to render formulas using a variant of the TeX typesetting language.
 This language is standard for mathematical documents and allows for the description of very complex formulas.
 Currently Cinderella covers about 95% of the formatting capabilities of the TeX formula language.
 We here only report on the most important formatting issues.
@@ -11,7 +11,7 @@ TeX rendering can also be used in texts for element captions and in usual geomet
 
 ###  Activating TeX Rendering
 
-Within a usual string the TeX formula rendering can be activated by enclosing the formula by dollar signs: `$...here is the formula text...$`.
+Within a usual string the TeX formula rendering can be activated by enclosing the formula by dollar signs: `$…here is the formula text…$`.
 The following statement produces a formula that already covers some interesting features of TeX rendering:
 
     > drawtext(
@@ -131,16 +131,12 @@ Their usage is shown in the next example:
 
 Usual blanks and newlines are only used as syntactic separators in formulas and do not have any influence on the layout of the formula.
 To introduce whitespace the commands `\`, `\;`, `\quad`, `\qquad`, `\!` are used.
-They produce a whitespace measured in units of an "m" of the current font.
+They produce a whitespace measured in units of an “m” of the current font.
 
 *  `\qquad`: whitespace of 2.0 units
-
 *  `\quad`: whitespace of 1.0 unit
-
 *  `\;`: whitespace of 5/18 units
-
 *  `\,`: whitespace of 3/18 units
-
 *  `\!`: negative whitespace of -5/18 units
 
     > drawtext((0,0),size->16,"$A\!A A \,A\;A\quad A \qquad A$")
@@ -170,16 +166,14 @@ Here are a few formulas that use these features:
 
 Matrices and Vectors are essential for mathematical formulas.
 They can also be rendered by Cinderella's TeX implementation.
-The most basic way to introduce a matrix (or a vector) is by using the `\begin{array}{...}.....\end{array}` statement.
+The most basic way to introduce a matrix (or a vector) is by using the `\begin{array}{…}…\end{array}` statement.
 An array consists of a sequence of rows seperated by `\\`.
 Each row consists of the entries of the row separated by `&`.
 The second pair of curly brackets in the statement above contains formatting information for each column.
 Here
 
 * `r` means right align,
-
 * `l` means left align,
-
 * `c` means center align.
 
 In the following example the `array` statement is combined with enclosing brakets to generate a matrix-like object.
@@ -230,7 +224,7 @@ The five types of admissible matrices are illustrated in the code below:
 
 ###  Color
 
-Cinderellas TeX supports colored text via a special command `\color{...}`.
+Cinderellas TeX supports colored text via a special command `\color{…}`.
 The currently predefined colors are:
 
 `white, black, red, green, blue, darkred, darkgreen, darkblue, magenta, yellow, cyan, orange`
@@ -249,7 +243,7 @@ Using the color statement influences color of the subformula in which it it used
 ###  Plain Text
 
 Sometimes it may be useful to use a passage of normal text within a formula.
-This can be done by the `\mbox{....}` statement.
+This can be done by the `\mbox{…}` statement.
 The following example illustrates its usage:
 
     > drawtext((0,0),size->20,color->(0,0,0),
@@ -385,10 +379,10 @@ The following list gives an overview of all characters that are associated to sp
 ####  Unicode
 
 In the rare case that a certain character is not provided by the standard TeX commands there is also a way to include a unicode character in a TeX formula.
-This can be done by using one of the two TeX statements `\unicode{...}` or `\unicodex{...}`.
+This can be done by using one of the two TeX statements `\unicode{…}` or `\unicodex{…}`.
 The first of these statements expects a decimal number that specifies the unicode character.
 The second statement expects a hexadecimal number.
-The following (slightly advanced) example first composes a string of unicode statements using the `sum(...)` function.
+The following (slightly advanced) example first composes a string of unicode statements using the `sum(…)` function.
 Then it renders the resulting string as a TeX formula
 
     > chess=sum(0..11,i,"\;\unicode{"+(9812+i)+"}");

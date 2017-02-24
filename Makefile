@@ -110,10 +110,12 @@ fwdtargets = \
 	cindy3d-dbg \
 	cindygl \
 	cindygl-dbg \
+	ComplexCurves \
 	deploy \
 	forbidden \
 	jshint \
 	katex \
+	live \
 	nodetest \
 	proxy \
 	ref \

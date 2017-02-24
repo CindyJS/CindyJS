@@ -93,7 +93,7 @@ renderEq(inpa, inpb, inpc);
         <script type="text/javascript">
         </script>
         <div style="position:relative">
-        <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000;position:absolute; top:0px; left:0px;"></canvas>
+        <div  id="CSCanvas" style="width:800px; height:500px; border:2px solid #000000;position:absolute; top:0px; left:0px;"></div>
 <div style="position:absolute; top:80px; left:450px; display:inline;z-index:4">
          <div id="tex" style="font-size: 110%;" ></div>
 </div>
@@ -136,7 +136,7 @@ renderEq(inpa, inpb, inpc);
 
 
                        ];
-            var cdy = createCindy({canvasname:"CSCanvas",
+            var cdy = CindyJS({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
                         movescript:"csmove",
                         initscript:"init",

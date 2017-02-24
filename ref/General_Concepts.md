@@ -40,7 +40,8 @@ Depending on the evaluation of the condition, the `if` function returns the valu
 
 ### Side Effects
 
-If a function is evaluated in CindyScript, it may have "side effects." Side effects are important for all kinds of interactions between a CindyScript program and a Cinderella construction.
+If a function is evaluated in CindyScript, it may have “side effects”.
+Side effects are important for all kinds of interactions between a CindyScript program and a Cinderella construction.
 Typical side effects are:
 
 *  **Drawing:**
@@ -167,7 +168,7 @@ The number type is particularly powerful, since it can contain integers, floatin
 
 ### Variables and Their Scope
 
-Since CindyScript does not have explicit typing for variables, it allows variables to be created "on the fly" as needed.
+Since CindyScript does not have explicit typing for variables, it allows variables to be created “on the fly” as needed.
 A variable is created when it is assigned for the first time.
 If `x` is not already being used, the statement
 
@@ -195,7 +196,7 @@ even for code outside the body of the function.
     > a
     < 10
 
-One can also produce additional local variables with the [`regional(…)`](Control_Operators.md#regional$3) operator.
+One can also produce additional local variables with the [`regional(…)`](Control_Operators.md#regional$v) operator.
 This uses dynamic scoping, too.
 
     > g(x) := (regional(a); a = x + 1; f(2) + a);
@@ -207,7 +208,7 @@ This uses dynamic scoping, too.
 ### Access to Geometric Elements and Their Properties
 
 Variables are also used as a kind of handle to geometric objects.
-They form a major link of CindyScript to Cinderella and [CindyLab](CindyLab.md).
+They form a major link of CindyScript to Cinderella and CindyLab.
 If a variable has a name that is identical to the label of a geometric object, it provides a link to that geometric object.
 The value of the variable can still be overloaded by an explicit assignment of a value to the variable.
 The different properties of a geometric object (position, color, size, etc.) are accessible via the . operator.

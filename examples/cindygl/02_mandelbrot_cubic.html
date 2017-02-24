@@ -53,7 +53,7 @@
     </script>
     
 
-    <canvas  id="CSCanvas"></canvas>
+    <div  id="CSCanvas"></div>
     
     <script type="text/javascript">
         
@@ -71,7 +71,7 @@
                   {name:"C", kind:"P", type:"Free", pos:[0.2,1.8]},
                   {name:"Z0", kind:"P", type:"Free", pos:[5, 0.001]}
                   ];
-        createCindy({canvasname:"CSCanvas",
+        CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
                     ports: [{

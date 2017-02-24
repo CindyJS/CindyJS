@@ -7,7 +7,7 @@ function evaluate(a) {
         return nada;
     }
     if (a.ctype === 'infix') {
-        return a.impl(a.args, {});
+        return a.impl(a.args, {}, a);
     }
     if (a.ctype === 'variable') {
         return evaluate(namespace.getvar(a.name));
@@ -40,6 +40,9 @@ function evaluateAndVal(a) {
         var val = x.value;
         if (val.kind === "P") {
             return Accessor.getField(val, "xy");
+        }
+        if (val.kind === "V") {
+            return val.value;
         }
 
     }

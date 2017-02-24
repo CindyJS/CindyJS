@@ -35,6 +35,27 @@ To be compared equal, two objects have to be of the same type.
     > "true" == true
     < false
 
+Lists are compared element-wise:
+
+    > a = [2, 5, 7, 3]
+    < [2, 5, 7, 3]
+    > b = [2, 5, 7, 2 + cos(0)]
+    < [2, 5, 7, 3]
+    > a == b
+    < true
+    > a != b
+    < false
+    > b_1 = 0
+    < 0
+    > a == b
+    < false
+    > a != b
+    < true
+    > [1, 2, [3, 4, "foo"]] == [1, 2, [3, 4, "foo"]]
+    < true
+    > [1, 2, [3, 4, "bar"]] == [1, 2, [3, 4, "foo"]]
+    < false
+
 ------
 
 #### Testing inequality: `‹expr1› != ‹expr2›`
@@ -66,6 +87,17 @@ Objects of different types are always different from one another.
     < true
     > "true" != true
     < true
+
+Lists are compared element-wise.
+Many examples for this were already given [with the `==` operator](#$3du$3du)
+in order to make use of the same variables defined there.
+The others are just the negation of the respecive `==` answer as well:
+
+    > [1, 2, [3, 4, "foo"]] != [1, 2, [3, 4, "foo"]]
+    < false
+    > [1, 2, [3, 4, "bar"]] != [1, 2, [3, 4, "foo"]]
+    < true
+
 
 ------
 
@@ -220,6 +252,31 @@ Here for each operator the picture shows for which region of `b` (marked in red)
     > greaterThanEps ~= 0
     < false
 
+Lists are compared element-wise.  The maximal error determines the result
+of the comparison, so errors are not accumulated over the list.
+
+    > a = [2, 8, 7, 3]
+    < [2, 8, 7, 3]
+    > b = [2, 8, 7, 3.00000000001]
+    < [2, 8, 7, 3]
+    > a == b
+    < false
+    > a ~= b
+    < true
+    > [0, 0] ~= [lessThanEps, lessThanEps]
+    < true
+    > [0, 0] ~= [0, greaterThanEps]
+    < false
+    > [0, [0, lessThanEps]] ~= [lessThanEps, [lessThanEps, 0]]
+    < true
+    > [0, [0, lessThanEps]] ~= [greaterThanEps, [lessThanEps, 0]]
+    < false
+
+Lists of different lengths are always unequal.
+
+    > [0, 0] ~= [0, 0, 0]
+    < false
+
 ##### Noticably different: `‹expr1› ~!= ‹expr2›`
 
     > -greaterThanEps ~!= 0
@@ -231,6 +288,31 @@ Here for each operator the picture shows for which region of `b` (marked in red)
     > lessThanEps ~!= 0
     < false
     > greaterThanEps ~!= 0
+    < true
+
+Lists are compared element-wise.  The maximal error determines the result
+of the comparison, so errors are not accumulated over the list.
+
+    > a = [2, 8, 7, 3]
+    < [2, 8, 7, 3]
+    > b = [2, 8, 7, 3.00000000001]
+    < [2, 8, 7, 3]
+    > a != b
+    < true
+    > a ~!= b
+    < false
+    > [0, 0] ~!= [lessThanEps, lessThanEps]
+    < false
+    > [0, 0] ~!= [0, greaterThanEps]
+    < true
+    > [0, [0, lessThanEps]] ~!= [lessThanEps, [lessThanEps, 0]]
+    < false
+    > [0, [0, lessThanEps]] ~!= [greaterThanEps, [lessThanEps, 0]]
+    < true
+
+Lists of different lengths are always unequal.
+
+    > [0, 0] ~!= [0, 0, 0]
     < true
 
 ##### Greater or approximately equal: `‹expr1› ~>= ‹expr2›`
@@ -520,28 +602,28 @@ This operator tests whether the expression `‹expr›` represents a geometric c
 #### Is a mass: `ismass(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) mass.
+This operator tests whether the expression `‹expr›` represents a CindyLab mass.
 
 ------
 
 #### Is a sun: `issun(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) sun.
+This operator tests whether the expression `‹expr›` represents a CindyLab sun.
 
 ------
 
 #### Is a spring: `isspring(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab.md) spring.
+This operator tests whether the expression `‹expr›` represents a CindyLab spring.
 
 ------
 
 #### Is a bouncer: `isbouncer(‹expr›)`
 
 **Description:**
-This operator tests whether the expression `‹expr›` represents a [CindyLab](CindyLab) bouncer.
+This operator tests whether the expression `‹expr›` represents a CindyLab bouncer.
 
 ------
 #### Is undefined: `isundefined(‹expr›)`

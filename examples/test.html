@@ -20,7 +20,7 @@
             </script>
 
 
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
         <script type="text/javascript">
 
@@ -36,7 +36,7 @@
                       {name:"E", type:"PointOnCircle", args:["c"],angle:Math.PI/4,color:[1,0,0]},
 
                       ];
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         movescript:"csmove",
                         geometry:gslp});
 

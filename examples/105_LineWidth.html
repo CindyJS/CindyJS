@@ -30,7 +30,7 @@ linecolor([1,0,0]);
 testcase(8,5);
     </script>
     <script type="text/javascript">
-createCindy({csconsole:true,
+CindyJS({csconsole:true,
   scripts: "cs*",
   defaultAppearance: { alpha: 0.5, lineColor: [0.25, 0, 0.5] },
   angleUnit: "°",
@@ -50,7 +50,7 @@ createCindy({csconsole:true,
     </script>
 </head>
 <body>
-    <canvas id="CSCanvas"></canvas>
+    <div id="CSCanvas"></div>
     <p>There should be three times the same figure, consisting of
     a circle, four lines through it, an arc and a polygon.
     All strokes of each figure should have the same width, color and alpha.

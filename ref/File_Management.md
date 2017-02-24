@@ -24,7 +24,7 @@ Assume that in the file `LoadDemo.txt` contains the data
 
 `abc,gfdg;1,3,5.6,3.141;56,abc,xxx,yyy`
 
-The following code reads the data and creates a list by tokenizing it with respect to ";" and ",".
+The following code reads the data and creates a list by tokenizing it with respect to `;` and `,`.
 
     > x=load("LoadTest.txt");
     > y=tokenize(x,(";",","));
@@ -38,6 +38,46 @@ The resulting output is
 
 ------
 
+#### Loading data asynchroneously: `load(‹string›,‹var›,‹expr›)`
+
+**Description:**
+This version is supported by CindyJS.
+It loads a resource, identified by the HTTP or HTTPS URL `‹string›`.
+When the resource has finished loading,
+it will call execute `‹expr›` with the content of the resource
+treated as a string value and assigned to the variable `‹var›`.
+If loading the resource fails, `‹expr›` will get executed as well,
+but in this case `‹var›` is bound to the undefined value `___`.
+
+The function itself will return `true` if loading was started,
+or `___` if the `‹string›` argument was not a valid URL to be loaded.
+
+Note that the URL must be an absolute URL, at the time of this writing.
+
+**Example:**
+
+    > load("http://some.host/some/resource.txt", result,
+    >   if(isundefined(result),
+    >     err("Loading failed"),
+    >     err("Successfully loaded " + result)));
+
+------
+
+#### Loading data asynchroneously: `load(‹string›,‹expr›)`
+
+**Description:**
+This is a shorthand notation for `load(‹string›,#,‹expr›)`,
+using `#` as the variable referencing the result inside `‹expr›`.
+
+**Example:**
+
+    > load("http://some.host/some/resource.txt",
+    >   if(isundefined(#),
+    >     err("Loading failed"),
+    >     err("Successfully loaded " + #)));
+
+------
+
 #### Importing program code: `import(‹string›)`
 
 **Not available in CindyJS yet!**
@@ -46,7 +86,7 @@ The resulting output is
 This operator takes the argument `‹string›`, which is considered to be a file name (including directory information).
 If the file name is legitimate, then the whole content of the file is assumed to be able to be parsed by CindyScript code, and it is immediately executed.
 In this way, one can load libraries with predefined functionality.
-It is advisable to use the `import` operator only in the "Init" section of CindyScript, since otherwise, the file will be read for each move.
+It is advisable to use the `import` operator only in the “Init” section of CindyScript, since otherwise, the file will be read for each move.
 
 ------
 
@@ -84,7 +124,7 @@ The function returns a handle to the file that is needed for subsequent print op
 **Not available in CindyJS yet!**
 
 **Description:**
-Identical to the `println(...)` command.
+Identical to the `println(…)` command.
 However this command prints to the file specified by `‹file›`.
 
 ------
@@ -94,7 +134,7 @@ However this command prints to the file specified by `‹file›`.
 **Not available in CindyJS yet!**
 
 **Description:**
-Identical to the `print(...)` command.
+Identical to the `print(…)` command.
 However this command prints to the file specified by `‹file›`.
 
 ------

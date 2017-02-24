@@ -1,0 +1,209 @@
+// This stylesheet contains styling which is relevant to the
+// functionality of the CindyJS user interface.
+// See http://sass-lang.com/ for SASS language documentation.
+
+//////////////////////////////////////////////////////////////////////
+// Some definitions to be reused in the rules below
+
+@mixin naked {
+    margin: 0px;
+    padding: 0px;
+    border: none;
+}
+
+$button-shadow: inset 1px 1px 2px #fff, inset -1px -1px 2px #aaa;
+$checked-shadow: inset 1px 1px 2px #999, inset -1px -1px 2px #ccc;
+$focused-shadow: 0px 0px 3px #06f;
+
+//////////////////////////////////////////////////////////////////////
+// Some @extend-only names (like abstract classes) to be used later on
+
+%button {
+    background-color: #bfc4d0;
+    border: 1px solid #d0d0d0;
+    box-shadow: $button-shadow;
+    outline: none;
+}
+
+%button:active {
+    background-color: #aaafbb;
+    box-shadow: $checked-shadow;
+}
+
+%toggleButtonGrid {
+    line-height: 0px;
+
+    button {
+        @extend %button;
+        display: inline-block;
+        margin: 0px;
+        padding: 0px;
+    }
+
+    button.CindyJS-active {
+        @extend %button:active;
+    }
+
+    button:focus {
+        border-color: #06f;
+    }
+
+    img {
+        margin: 0px;
+        border: none;
+        display: block;
+    }
+} // end %toggleButtonGrid
+
+//////////////////////////////////////////////////////////////////////
+// Actual rules
+
+.CindyJS-widget {
+    overflow: hidden;
+    z-index: 0;
+
+    canvas {
+        z-index: 1;
+    }
+
+    .CindyJS-baseline {
+        @include naked;
+        position: absolute;
+        white-space: nowrap;
+        margin-top: -1000px;
+
+        & > img {
+            @include naked;
+            display: inline;
+            position: static;
+            vertical-align: baseline;
+            visibility: hidden;
+            margin-right: -1px;
+        }
+
+        .CindyJS-button {
+            display: inline-block;
+        }
+
+    } // end baseline
+
+    .CindyJS-button {
+        position: relative;
+        z-index: 2;
+    }
+
+    %toggleButtonGrid {
+        position: absolute;
+        button {
+            position: relative;
+            z-index: 3;
+        }
+    }
+
+    .CindyJS-animspeed {
+        position: relative;
+        z-index: 3;
+    }
+
+    .CindyJS-animcontrols {
+        bottom: 5px;
+        left: 5px;
+    }
+
+} // end widget
+
+.CindyJS-button {
+
+    input[type=checkbox] {
+        position: absolute;
+        left: -10000px;
+    }
+
+    button, label {
+        @extend %button;
+        margin: -6px -7px; // compensate padding + border
+        padding: 5px 6px;
+        border-radius: 4px;
+    }
+
+    button:focus, input[type=checkbox]:focus + label {
+        box-shadow: $focused-shadow, $button-shadow;
+    }
+
+    input[type=checkbox]:checked + label {
+        @extend %button:active;
+    }
+
+    button:focus:active, input[type=checkbox]:focus:checked + label {
+        background-color: #aaafbb;
+        box-shadow: $focused-shadow, $checked-shadow;
+    }
+
+} // end button
+
+.CindyJS-editabletext {
+
+    border: 1px solid #000;
+    margin: -4px -4px -1px;
+    padding: 4px 4px 1px;
+
+    &:focus {
+        box-shadow: $focused-shadow;
+    }
+
+} // end editabletext
+
+.CindyJS-toolbar {
+    @extend %toggleButtonGrid;
+
+    div {
+        line-height: 0px;
+    }
+
+    span.CindyJS-spacer {
+        display: inline-block;
+        margin: 0px;
+        padding: 1px; // to match border of actual buttons
+        width: 32px;
+        height: 24px;
+    }
+
+} // end toolbar
+
+.CindyJS-animcontrols {
+    position: absolute;
+    background-color: #00f;
+    height: 26px + 10px;
+    width: 3*34px;
+
+    .CindyJS-animspeed {
+        height: 10px;
+        width: 100%;
+        border-radius: 4px;
+        background-color: #ff7f7f;
+        box-shadow: $checked-shadow;
+
+        div {
+            width: 50%;
+            height: 100%;
+            border-radius: 4px;
+            background-color: #cc0000;
+            box-shadow: $button-shadow;
+        }
+    }
+
+    .CindyJS-animbuttons {
+        white-space: nowrap;
+    }
+} // end animcontrols
+
+.CindyJS-animbuttons {
+    @extend %toggleButtonGrid;
+
+    button {
+        border-radius: 4px;
+        width: 34px;
+        height: 26px;
+        box-sizing: border-box;
+    }
+} // end animbuttons

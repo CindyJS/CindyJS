@@ -17,7 +17,7 @@ function drawgeopoint(el) {
             'x': 3,
             'y': 3
         };
-        var textsize = el.textsize || 12;
+        var textsize = el.textsize || defaultAppearance.textsize;
         var bold = (el.textbold === true);
         var italics = (el.textitalics === true);
         var family = el.text_fontfamily || defaultAppearance.fontFamily;
@@ -26,7 +26,7 @@ function drawgeopoint(el) {
         if (dist > 0) {
             factor = 1.0 + el.size.value.real / Math.sqrt(dist);
         }
-        evaluator.drawtext$2(
+        eval_helper.drawtext(
             [el.homog, General.wrap(lbl)], {
                 'x_offset': General.wrap(factor * lpos.x),
                 'y_offset': General.wrap(factor * lpos.y),
@@ -74,21 +74,29 @@ function drawgeoline(el) {
         return;
 
     if (el.kind === "S") {
-        // Segments always join their endpoints.
-        evaluator.draw$2(
-            [el.startpos, el.endpos], {
-                overhang: el.overhang,
-                dashtype: el.dashtype,
-                size: el.size,
-                color: el.color,
-                alpha: el.alpha,
-                arrow: el.arrow,
-                arrowsize: el.arrowsize,
-                arrowposition: el.arrowposition,
-                arrowshape: el.arrowshape,
-                arrowsides: el.arrowsides,
-            });
-        return;
+        var modifs = {
+            overhang: el.overhang,
+            dashtype: el.dashtype,
+            size: el.size,
+            color: el.color,
+            alpha: el.alpha,
+            arrow: el.arrow,
+            arrowsize: el.arrowsize,
+            arrowposition: el.arrowposition,
+            arrowshape: el.arrowshape,
+            arrowsides: el.arrowsides,
+        };
+        var zz = CSNumber.mult(el.startpos.value[2],
+            CSNumber.conjugate(el.endpos.value[2]));
+        if (zz.value.real >= 0) { // finite segment
+            evaluator.draw$2(
+                [el.startpos, el.endpos], modifs);
+            return;
+        } else { // transformed segment through infinity, consisting of 2 rays
+            Render2D.handleModifs(modifs, Render2D.lineModifs);
+            Render2D.drawRaySegment(el.startpos, el.endpos);
+            return;
+        }
     }
     if (el.clip.value === "end" && el.type === "Join") {
         // Lines clipped to their defining points join these.
@@ -174,12 +182,24 @@ var textCornerNames = {
 };
 
 function drawgeotext(el) {
+    el._bbox = null;
+    if (!el.isshowing || el.visible === false) {
+        if (el.html) {
+            el.html.parentNode.parentNode.style.display = "none";
+            el._textCache = {
+                invisible: true
+            };
+        }
+        return;
+    }
     var opts = {
         "size": el.size,
     };
-    var pos = el.pos;
+    var pos = el.homog;
     var text = el.text;
-    text = text.replace(/@[$#]"([^"\\]|\\.)*"/g, function(match) {
+    var getText = geoOps[el.type].getText;
+    if (getText) text = getText(el);
+    else text = text.replace(/@[$#]"([^"\\]|\\.)*"/g, function(match) {
         var name, el2;
         try {
             name = JSON.parse(match.substring(2));
@@ -196,6 +216,41 @@ function drawgeotext(el) {
                 return niceprint(el2.value);
         }
     });
+    var htmlCallback = null;
+    if (el.html) {
+        var cache = el._textCache || {
+            text: false
+        };
+        var label = el.html;
+        var inlinebox = label.parentNode;
+        var outer = inlinebox.parentNode;
+        htmlCallback = function(text, font, x, y, align) {
+            if (cache.invisible)
+                outer.style.removeProperty("display");
+            if (text === cache.text && font === cache.font &&
+                x === cache.x && y === cache.y && align === cache.align)
+                return;
+            if (font !== cache.font) {
+                label.style.font = font;
+                label.style.lineHeight = defaultAppearance.lineHeight;
+            }
+            if (text !== cache.text && text !== false)
+                if (textRendererHtml(label, text, font) === false)
+                    text = false; // Do not cache, must re-run
+            outer.style.left = x + "px";
+            outer.style.top = y + "px";
+            if (align || inlinebox.style.transform)
+                inlinebox.style.transform =
+                "translateX(" + (-100 * align) + "%)";
+            el._textCache = {
+                text: text,
+                font: font,
+                x: x,
+                y: y,
+                align: align
+            };
+        };
+    }
     text = General.string(text);
     if (el.dock) {
         if (el.dock.to) {
@@ -206,13 +261,34 @@ function drawgeotext(el) {
         }
         opts.offset = el.dock.offset;
     }
+    if (el.align)
+        opts.align = General.string(el.align);
     if (pos)
-        evaluator.drawtext$2([pos, text], opts);
+        el._bbox = eval_helper.drawtext([pos, text], opts, htmlCallback);
+}
+
+function drawgeopolygon(el) {
+    if (!el.isshowing || el.visible === false)
+        return;
+    var modifs = {
+        color: el.color,
+        alpha: el.alpha,
+        fillcolor: el.fillcolor,
+        fillalpha: el.fillalpha,
+        size: el.size,
+        lineJoin: General.string("miter"),
+        fillrule: General.string(el.fillrule),
+    };
+    eval_helper.drawpolygon([el.vertices], modifs, "D", true);
 }
 
 function render() {
 
     var i;
+
+    for (i = 0; i < csgeo.polygons.length; i++) {
+        drawgeopolygon(csgeo.polygons[i]);
+    }
 
     for (i = 0; i < csgeo.conics.length; i++) {
         if (csgeo.conics[i].isArc) drawgeoarc(csgeo.conics[i]);

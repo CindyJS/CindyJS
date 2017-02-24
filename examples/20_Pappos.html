@@ -19,7 +19,7 @@
         </script>
 
 
-        <canvas  id="CSCanvas" width=500 height=500  style="border:2px solid #000000"></canvas>
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
 
         <script type="text/javascript">
@@ -45,7 +45,7 @@
                       {name:"I", type:"Meet", args:["i", "h"]}
 
                       ];
-            createCindy({canvasname:"CSCanvas",
+            CindyJS({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
                         movescript:"csmove",
                         geometry:gslp});

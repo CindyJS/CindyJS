@@ -28,6 +28,7 @@ function Task(settings, tasks, name, deps, definition) {
     this.definition = definition;
     this.outputs = [];
     this.inputs = [];
+    this.conditions = [];
     this.mySettings = {};
     this.jobs = [];
     this.prefix = "";
@@ -70,6 +71,15 @@ Task.prototype.addJob = function(job) {
     this.jobs.push(job);
 };
 
+/* Add a new condition. The provided function will be called when the task
+ * dependencies are calculated, and should return a promise.
+ * The jobs of this task will only be executed if at least one condition
+ * evaluates to true.
+ */
+Task.prototype.addCondition = function(condition) {
+    this.conditions.push(condition);
+};
+
 /* Run a bunch of jobs in parallel. This collects all job definitions
  * which occur from within the callback and executes those jobs in
  * parallel.
@@ -93,7 +103,7 @@ Task.prototype.parallel = function(callback) {
  */
 Task.prototype.input = function(file) {
     if (Array.isArray(file)) {
-        file.forEach(this.input.bind(this));
+        file.forEach(this.input, this);
     } else if (this.outputs.indexOf(file) === -1) {
         this.inputs.push(file);
     }
@@ -105,7 +115,7 @@ Task.prototype.input = function(file) {
  */
 Task.prototype.output = function(file) {
     if (Array.isArray(file)) {
-        file.forEach(this.output.bind(this));
+        file.forEach(this.output, this);
     } else {
         this.outputs.push(file);
     }
@@ -149,7 +159,9 @@ Task.prototype.mustRun = function() {
         log = function(msg) {
             console.log(chalk.gray(task.name + " " + msg));
         };
-    if (this.outputs.length === 0 && this.jobs.length !== 0) {
+    if (this.outputs.length === 0 &&
+        this.conditions.length === 0 &&
+        this.jobs.length !== 0) {
         // There are no outputs, so this task runs for its side effects.
         // This avoids having to declare all such tasks as PHONY.
         log("has no outputs; run it");
@@ -168,6 +180,21 @@ Task.prototype.mustRun = function() {
                 log("has a running dependency; run it");
                 return true;
             }
+            if (task.conditions.length === 0) {
+                return false; // check times
+            }
+            return Q.all(task.conditions.map(function(condition) {
+                return condition();
+            })).then(function(conditionResults) {
+                if (conditionResults.indexOf(true) !== -1) {
+                    log("has a positive check; run it");
+                    return true;
+                } else {
+                    return false; // check times
+                }
+            });
+        }).then(function(runByCondition) {
+            if (runByCondition) return true;
             return Q.all([times(task.inputs), times(task.outputs)])
                 .spread(function(inTimes, outTimes) {
                     if (outTimes.indexOf(null) !== -1) {

@@ -16,7 +16,7 @@ drawpoly(apply(pts, # + [3, 0]), lineJoin -> "miter", size->7);
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({
+var cdy = CindyJS({
   ports: [{id: "CSCanvas", visibleRect: [-5, 5, 5, -5], width: 500, height: 500 }],
   scripts: "cs*"
 });
@@ -25,8 +25,7 @@ var cdy = createCindy({
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="500" height="500"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
 </body>
 
 </html>

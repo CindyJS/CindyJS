@@ -13,7 +13,7 @@
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({ // See ref/createCindy documentation for details.
+var cdy = CindyJS({ // See ref/createCindy documentation for details.
   ports: [{
     id: "CSCanvas",
     width: 881,
@@ -31,7 +31,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="border:2px solid black"></div>
   <p>Chrome in HiDPI mode used to draw the two large circles as
     rotated squares until we changed the linejoin to miter and closed
     the path.</p>

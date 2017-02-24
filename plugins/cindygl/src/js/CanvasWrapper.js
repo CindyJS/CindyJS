@@ -1,47 +1,81 @@
 /**
- * adds a canvasWrapper to an image object. A reference will be added to imageobject. If argument is a image that was not loaded, this will be done as onload-event.
- * @param {createCindy.image} imageobject
+ * adds a canvasWrapper to an image object for reading access. A reference will in the 'readcanvaswrappers' list. If argument is an image that was not loaded, this will be done as onload-event.
+ * @param {CindyJS.image} imageobject
  * @return {CanvasWrapper}
  */
-function generateCanvasWrapperIfRequired(imageobject, api) {
-    if (!imageobject.hasOwnProperty('canvaswrapper')) {
+function generateReadCanvasWrapperIfRequired(imageobject, api, properties) {
+    if (!imageobject.hasOwnProperty('readcanvaswrappers')) {
+        imageobject['readcanvaswrappers'] = Array(4);
+    }
+    let idx = properties.mipmap * 2 + properties.interpolate;
+    if (!imageobject['readcanvaswrappers'].hasOwnProperty(idx)) {
+        if (imageobject['writecanvaswrapper'] && imageobject['writecanvaswrapper'].generation > imageobject.generation) imageobject['writecanvaswrapper'].copyTextureToCanvas();
 
-        imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
+        imageobject['readcanvaswrappers'][idx] = new CanvasWrapper(imageobject, properties);
         if (!imageobject.ready) {
             console.error("Image not ready. Creating onload event.");
-            imageobject.whenReady(function() {
-                imageobject['canvaswrapper'] = new CanvasWrapper(imageobject);
-                console.log("Image has been loaded now");
-                requiredcompiletime++; //force recompile //TODO: check
+            imageobject.whenReady(() => {
+                imageobject.generation = Math.max(imageobject.generation, imageobject['readcanvaswrappers'][idx].generation + 1);
             });
         }
     }
-    return imageobject['canvaswrapper'];
+    if (imageobject['writecanvaswrapper']) imageobject['writecanvaswrapper'] = imageobject['readcanvaswrappers'][idx]; //It makes sense to write to that canvaswrapper that is used to read. It is necessary to copy textures if there are multiple readers
+    return imageobject['readcanvaswrappers'][idx];
 }
+
+/**
+ * adds a canvasWrapper that is supposed to be written to an image object. A reference 'writecanvaswrapper' will be added to imageobject. If it already exists, take it. If none exists, try to find the canvaswrapper of some existing texturereader
+ * @param {CindyJS.image} imageobject
+ * @return {CanvasWrapper}
+ */
+function generateWriteCanvasWrapperIfRequired(imageobject, api) {
+    if (!imageobject.hasOwnProperty('writecanvaswrapper')) {
+        let idx = -1;
+        if (imageobject['readcanvaswrappers']) {
+            for (let i = 3; i >= 0; i--) {
+                if (imageobject['readcanvaswrappers'].hasOwnProperty(idx)) idx = i;
+            }
+        } else imageobject['readcanvaswrappers'] = Array(4);
+        if (idx == -1) {
+            let properties = {
+                interpolate: true,
+                mipmap: false,
+                repeat: false
+            }
+            idx = properties.mipmap * 2 + properties.interpolate;
+            imageobject['readcanvaswrappers'][idx] = new CanvasWrapper(imageobject, properties);
+        }
+        imageobject['writecanvaswrapper'] = imageobject['readcanvaswrappers'][idx];
+    }
+    imageobject['readPixels'] = imageobject['writecanvaswrapper'].readPixels.bind(imageobject['writecanvaswrapper']);
+    return imageobject['writecanvaswrapper'];
+}
+
 
 /**
  * Note that CanvasWrapper might also wrap an image instead of a canvas
  * @constructor
- * @param canvas {createCindy.image}
+ * @param canvas {CindyJS.image}
  */
-function CanvasWrapper(canvas) {
+function CanvasWrapper(canvas, properties) {
     this.canvas = canvas;
+    this.properties = properties;
     this.sizeX = canvas.width;
     this.sizeY = canvas.height;
-    this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX);
-    this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY);
+    this.updateInternalTextureMeasures();
     this.ratio = canvas.height / canvas.width;
     this.it = 0;
-    if (canvas.live)
-        updateBeforeRendering.push(this.reload.bind(this));
-
     this.textures = [];
     this.framebuffers = [];
+    this.generation = -1;
+
 
     this.bindTexture();
 
     canvas['drawTo'] = this.drawTo.bind(this);
+    canvas['readPixels'] = this.readPixels.bind(this);
     canvas['cdyUpdate'] = this.copyTextureToCanvas.bind(this);
+
 
     let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
 
@@ -49,16 +83,13 @@ function CanvasWrapper(canvas) {
         this.textures[j] = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
-        if (this.canvas.ready)
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+        if (properties.mipmap)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_LINEAR); //always interpolate between 2 mipmap levels NEAREST_MIPMAP_LINEAR
+        else
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
 
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
-
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
 
         this.framebuffers[j] = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[j]);
@@ -104,8 +135,15 @@ CanvasWrapper.prototype.sizeY;
 /** @type {number} */
 CanvasWrapper.prototype.ratio;
 
-/** @type {createCindy.image} */
+/** @type {CindyJS.image} */
 CanvasWrapper.prototype.canvas;
+
+/**
+ * What was the generation of the imageobject when it was copied to the internal textures.
+ * It should be canvas.generation whenever the internal texture is read.
+ * @type {number} */
+CanvasWrapper.prototype.generation;
+
 
 /** What is the current index of the rendered frame
  *@type {number} */
@@ -113,6 +151,12 @@ CanvasWrapper.prototype.it;
 
 /** @type {ShaderProgram} */
 CanvasWrapper.prototype.shaderProgram;
+
+
+CanvasWrapper.prototype.updateInternalTextureMeasures = function() {
+    this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX + (this.sizeX / 2) * (this.properties.mipmap && this.properties.repeat));
+    this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY + (this.sizeY / 2) * (this.properties.mipmap && this.properties.repeat));
+};
 
 /**
  * runs a gl.bindTexture(  gl.TEXTURE_2D,...) for sampling purposes
@@ -122,7 +166,7 @@ CanvasWrapper.prototype.bindTexture = function() {
 };
 
 /**
- * runs a gl.bindFramebuffer (required before rendering) and updates 
+ * runs a gl.bindFramebuffer (required before rendering) and updates
  */
 CanvasWrapper.prototype.bindFramebuffer = function() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it ^ 1]);
@@ -131,22 +175,75 @@ CanvasWrapper.prototype.bindFramebuffer = function() {
 
 
 CanvasWrapper.prototype.copyTextureToCanvas = function() {
-    let context = this.canvas.img.getContext('2d');
+    let context = null;
+    if (this.canvas.img.hasOwnProperty('getContext'))
+        context = this.canvas.img.getContext('2d');
+    else {
+        this.canvas.img = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
+        this.canvas.img.style.display = "none";
+        this.canvas.img.width = this.sizeX;
+        this.canvas.img.height = this.sizeY;
+        context = this.canvas.img.getContext('2d');
+    }
 
     //Copy things from glcanvas to the cindyjs-canvas representing that canvas
     context.clearRect(0, 0, this.sizeX, this.sizeY);
     this.drawTo(context, 0, 0);
+    this.canvas.img.generation++;
 }
 
 
 /**
  * Reload texture data from input element (e.g. HTML video)
  */
-CanvasWrapper.prototype.reload = function() {
+CanvasWrapper.prototype.reloadIfRequired = function() {
+    if (!this.canvas.live && (!this.canvas.ready || this.generation >= this.canvas.generation)) {
+        return;
+    }
+
+    if (this.sizeX != this.canvas.width || this.sizeY != this.canvas.height) {
+        this.sizeX = this.canvas.width;
+        this.sizeY = this.canvas.height;
+        this.updateInternalTextureMeasures();
+        let rawData = createPixelArray(this.sizeXP * this.sizeYP * 4);
+
+        for (let j = 0; j < 2; j++) {
+            gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+        }
+    }
+
     this.bindTexture();
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+
+    if (!this.properties.repeat)
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+    else {
+        /*  We want something like, but this unfortunately does not work because texture is to small
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), this.canvas.img);
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, this.sizeX, 0, gl.RGBA, getPixelType(), this.canvas.img);
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, this.sizeY, gl.RGBA, getPixelType(), this.canvas.img);
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, this.sizeX, this.sizeY, gl.RGBA, getPixelType(), this.canvas.img);
+          */
+
+        tmpcanvas.width = this.sizeXP;
+        tmpcanvas.height = this.sizeYP;
+
+        let ctx = tmpcanvas.getContext('2d');
+
+        ctx.drawImage(this.canvas.img, 0, this.sizeYP - this.sizeY);
+        ctx.drawImage(this.canvas.img, this.sizeX, this.sizeYP - this.sizeY);
+        ctx.drawImage(this.canvas.img, 0, this.sizeYP - 2 * this.sizeY);
+        ctx.drawImage(this.canvas.img, this.sizeX, this.sizeYP - 2 * this.sizeY);
+
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, getPixelType(), tmpcanvas);
+    };
+
+    if (this.properties.mipmap) gl.generateMipmap(gl.TEXTURE_2D);
+
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+    this.generation = this.canvas.generation;
+    console.log("Image has been loaded to GPU");
 };
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
@@ -166,8 +263,28 @@ CanvasWrapper.prototype.drawTo = function(context, x, y) {
 };
 
 /**
+ * reads a rectangular block of pixels from the upper left corner.
+ * The colors are representent as a 4 component RGBA vector with entries in [0,1]
+ */
+CanvasWrapper.prototype.readPixels = function(x, y, width, height) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it]);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures[this.it], 0);
+
+    var pixels = createPixelArray(width * height * 4);
+
+    //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); does not affect readPixels :(, hence this mess:
+    gl.readPixels(x, this.sizeY - y - height, width, height, gl.RGBA, getPixelType(), pixels);
+
+    //reverse row order
+    let res = [];
+    for (let i = height - 1; i >= 0; i--)
+        res = res.concat(toFloat(pixels.slice(i * width * 4, (i + 1) * width * 4)));
+    return res;
+};
+
+/**
  * sets pixel at absolute coordinate x and y to color; both on canvas and on this.textures[this.it]
- * 
+ *
  */
 CanvasWrapper.prototype.setPixel = function(x, y, color) {
     this.bindTexture();

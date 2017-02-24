@@ -5,6 +5,8 @@ Render2D.handleModifs = function(modifs, handlers) {
     if (Render2D.dashing)
         Render2D.unSetDash();
     Render2D.colorraw = null;
+    Render2D.fillcolorraw = null;
+    Render2D.fillrule = "nonzero";
     Render2D.size = null;
     if (Render2D.psize <= 0) Render2D.psize = 0;
     if (Render2D.lsize <= 0) Render2D.lsize = 0;
@@ -16,6 +18,7 @@ Render2D.handleModifs = function(modifs, handlers) {
     Render2D.headlen = 10; // arrow head length - perhaps set this relative to canvas size
     Render2D.arrowShape = Render2D.arrowShapes.line;
     Render2D.alpha = csport.drawingstate.alpha;
+    Render2D.fillalpha = 0;
     Render2D.bold = "";
     Render2D.italics = "";
     Render2D.family = "sans-serif";
@@ -73,6 +76,12 @@ Render2D.handleModifs = function(modifs, handlers) {
     } else {
         Render2D.black = "rgba(0,0,0," + Render2D.alpha + ")";
     }
+    if (Render2D.fillcolorraw && Render2D.fillalpha > 0) {
+        Render2D.fillColor =
+            Render2D.makeColor(Render2D.fillcolorraw, Render2D.fillalpha);
+    } else {
+        Render2D.fillColor = null;
+    }
 
 };
 
@@ -95,9 +104,25 @@ Render2D.modifHandlers = {
         }
     },
 
+    "fillcolor": function(v) {
+        if (List.isNumberVector(v).value && v.value.length === 3) {
+            Render2D.fillcolorraw = [
+                v.value[0].value.real,
+                v.value[1].value.real,
+                v.value[2].value.real
+            ];
+        }
+    },
+
     "alpha": function(v) {
         if (v.ctype === "number") {
             Render2D.alpha = v.value.real;
+        }
+    },
+
+    "fillalpha": function(v) {
+        if (v.ctype === "number") {
+            Render2D.fillalpha = v.value.real;
         }
     },
 
@@ -225,6 +250,7 @@ Render2D.modifHandlers = {
     "align": function(v) {
         if (v.ctype === "string") {
             var s = v.value;
+            // TODO: Use values suitable for csctx.textAlign here
             if (s === "left")
                 Render2D.align = 0;
             if (s === "right")
@@ -260,6 +286,10 @@ Render2D.modifHandlers = {
     "lineJoin": function(v) {
         if (v.ctype === "string" && (v.value === "round" || v.value === "bevel" || v.value === "miter"))
             Render2D.lineJoin = v.value;
+    },
+    "fillrule": function(v) {
+        if (v.ctype === "string" && (v.value === "nonzero" || v.value === "evenodd"))
+            Render2D.fillrule = v.value;
     },
 
     "miterLimit": function(v) {
@@ -299,6 +329,9 @@ Render2D.conicModifs = {
     "size": true,
     "color": true,
     "alpha": true,
+    "fillcolor": true,
+    "fillrule": true,
+    "fillalpha": true,
     "lineCap": true,
     "lineJoin": true,
     "miterLimit": true
@@ -318,8 +351,8 @@ Render2D.textModifs = {
 };
 
 
-Render2D.makeColor = function(colorraw) {
-    var alpha = Render2D.alpha;
+Render2D.makeColor = function(colorraw, alpha) {
+    if (alpha === undefined) alpha = Render2D.alpha;
     var r = Math.floor(colorraw[0] * 255);
     var g = Math.floor(colorraw[1] * 255);
     var b = Math.floor(colorraw[2] * 255);
@@ -330,6 +363,8 @@ Render2D.preDrawCurve = function() {
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = Render2D.lineCap;
     csctx.lineJoin = Render2D.lineJoin;
+    csctx.mozFillRule = Render2D.fillrule;
+    csctx.fillrule = Render2D.fillrule;
     csctx.miterLimit = Render2D.miterLimit;
     csctx.strokeStyle = Render2D.lineColor;
 };
@@ -590,6 +625,35 @@ Render2D.drawline = function(homog) {
         csctx.lineTo(res[1].x, res[1].y);
         csctx.stroke();
     }
+};
+
+// draws a segment through infinity, consisting of 2 rays
+Render2D.drawRaySegment = function(A, B) {
+    var ptA = eval_helper.extractPoint(A);
+    var ptB = eval_helper.extractPoint(B);
+    if (!ptA.ok || !ptB.ok) {
+        return;
+    }
+
+    var dx = ptA.x - ptB.x;
+    var dy = ptA.y - ptB.y;
+    var norm = Math.sqrt(dx * dx + dy * dy);
+
+    // get points outside canvas (at "infinity")
+    var sc = csport.drawingstate.matrix.sdet;
+    var farAway = 25000 / sc; // 25000px in user coordinates
+    var factor = farAway / norm;
+    dx = dx * factor;
+    dy = dy * factor;
+
+    Render2D.drawsegcore(ptA, {
+        x: ptA.x + dx,
+        y: ptA.y + dy
+    });
+    Render2D.drawsegcore(ptB, {
+        x: ptB.x - dx,
+        y: ptB.y - dy
+    });
 };
 
 Render2D.dashTypes = {

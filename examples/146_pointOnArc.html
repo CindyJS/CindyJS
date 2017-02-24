@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="http://cindyjs.org/dist/v0.7/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script type="text/javascript">
+CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, -0.0, -1.3333333333333333], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "B", type: "Free", pos: [0.0, -4.0, -1.3333333333333333], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C", type: "Free", pos: [4.0, -0.0, 1.0], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C0", type: "ArcBy3", color: [0.0, 0.0, 1.0], args: ["A", "B", "C"], printname: "$C_{0}$"},
+    {name: "D", type: "PointOnArc", pos: [4.0, {r: 3.5919057321475005, i: -3.897695342403635E-15}, {r: 1.5350177749681453, i: -1.0630078206555368E-15}], color: [1.0, 0.0, 0.0], args: ["C0"], labeled: true}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 335,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.06]}],
+    axes: true,
+    grid: 1.0,
+    snap: true,
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1872, version: [2, 9, 1872]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

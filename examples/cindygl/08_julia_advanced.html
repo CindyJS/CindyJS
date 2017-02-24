@@ -64,14 +64,14 @@
       colorplot(timetocolor(imagergb("julia", #).b));   
     </script>
 
-    <canvas  id="CSCanvas"></canvas>
+    <div  id="CSCanvas"></div>
     <script type="text/javascript">
         
         var gslp=[];
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 1024,

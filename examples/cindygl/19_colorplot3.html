@@ -20,7 +20,7 @@
       colorplot(sin(#*#)+random(), A, B);
     </script>
 
-    <canvas  id="CSCanvas" width=600 height=600  style="border:2px solid #000000"></canvas>
+    <div  id="CSCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
     
     <script type="text/javascript">
         
@@ -28,7 +28,7 @@
                   {name:"A", kind:"P", type:"Free", pos:[-7,-4,1]},
                   {name:"B", kind:"P", type:"Free", pos:[10,5,1]},
                   ];
-        createCindy({canvasname:"CSCanvas",
+        CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp
                   });

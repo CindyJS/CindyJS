@@ -18,7 +18,7 @@
 
         createimage("state", 512, 512);
 
-        initialimage(x) := if(abs(#.x-256)<30 &abs(#.y-256)<30 ,.7*(random(),random(),0),(1,0,0));
+        initialimage(x) := if(abs(x.x-256)<30 &abs(x.y-256)<30 ,.7*(random(),random(),0),(1,0,0));
         colorplot(L, R, "state", initialimage(#));
 
         pressed=false;
@@ -66,14 +66,14 @@
         draw((500,200),(500,450),color->(0,0,0),size->2);
       </script>
 
-    <canvas  id="CSCanvas"></canvas>
+    <div  id="CSCanvas"></div>
     <script type="text/javascript">
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
           scripts: "cs*",
           geometry:[
             {name:"CA", type:"Free", pos:[500,350],color:[1,0,0],pinned:false,size:6},
           ],
-          autoplay: true,
+          animation: {autoplay: true},
           ports: [{
             id: "CSCanvas",
             width: 512,

@@ -202,7 +202,7 @@ drawtext((28,1),"γ="+format(gamma,2));
 </script>
 
 
-<canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000"></canvas>
+<div  id="CSCanvas" style="width:800px; height:500px; border:2px solid #000000"></div>
 
 <script type="text/javascript">
 
@@ -225,7 +225,7 @@ var gslp=[
     //    {name:"bb", type:"Through", args:["A"],dir:[0,1,0],color:[0,0,0],size:2},
     ];
 
-createCindy({canvasname:"CSCanvas",
+CindyJS({canvasname:"CSCanvas",
 movescript:"csmove",
 mousedownscript:"down",
 initscript:"init",

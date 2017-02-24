@@ -74,7 +74,7 @@
       drawimage(m0, m1, "mandel");
       drawimage(j0, j1, "julia");
     </script>
-    <canvas  id="CSCanvas"></canvas>
+    <div  id="CSCanvas"></div>
     
     <script type="text/javascript">
         
@@ -93,10 +93,10 @@
                   {name:"Z0", kind:"P", type:"Free", pos:[5., 0.01]}
                   ];
                   
-        createCindy({canvasname:"CSCanvas",
+        CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
                     geometry:gslp,
-                    autoplay: true,
+                    animation: {autoplay: true},
                     ports: [{
                       id: "CSCanvas",
                       width: 1024,

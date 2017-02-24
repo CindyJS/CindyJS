@@ -114,7 +114,7 @@ drawtext([-0.15, -1.25], qualityString(totalQuality));
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({
+var cdy = CindyJS({
   ports: [{id: "CSCanvas", transform: [ { visibleRect: [-1.5, 1.5, 1.5, -1.5] }]}],
   scripts: "cs*",
   language: "en",
@@ -125,7 +125,7 @@ var cdy = createCindy({
     {name:"B", type:"Free", pos:[0,0]},
     {name:"C", type:"Free", pos:[0,0]}
   ],
-  autoplay: true,
+  animation: {autoplay: true},
   use: ["CindyGL"]
 });
 
@@ -133,8 +133,7 @@ var cdy = createCindy({
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="500" height="500"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
 <div><button onclick="cdy.evokeCS('solve()')" type="button">Solve</button></div>
 </body>
 

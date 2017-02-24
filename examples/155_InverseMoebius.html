@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Inverse Möbius Transformation</title>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, -0.8, -0.8], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "B", type: "Free", pos: [4.0, -0.0, -1.0], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C", type: "Free", pos: [4.0, -0.0, 1.0], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C0", type: "CircleBy3", color: [0.0, 0.0, 1.0], args: ["A", "B", "C"], printname: "$C_{0}$"},
+    {name: "D", type: "Free", pos: [4.0, 0.6153846153846154, 0.3076923076923077], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "E", type: "Free", pos: [4.0, 2.0, 0.4], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "F", type: "Free", pos: [4.0, 2.4615384615384617, 0.3076923076923077], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "G", type: "Free", pos: [-0.973913043478261, -4.0, -0.8695652173913044], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "a", type: "Through", pos: [2.9999999999999973, -1.5999999999999996, 4.0], color: [0.0, 0.0, 1.0], args: ["G"], labeled: true},
+    {name: "Tr0", type: "TrMoebius", color: [0.0, 0.0, 1.0], args: ["D", "A", "E", "B", "F", "C"], dock: {offset: [0.0, -0.0]}},
+    {name: "Tr1", type: "TrInverseMoebius", color: [0.0, 0.0, 1.0], args: ["Tr0"], dock: {offset: [0.0, -0.0]}},
+    {name: "C1", type: "TrMoebiusCircle", color: [0.0, 0.0, 1.0], args: ["Tr1", "C0"], printname: "$C_{1}$"},
+    {name: "Collection__1", type: "IntersectionConicLine", args: ["C0", "a"]},
+    {name: "H", type: "SelectP", pos: [4.0, 2.302158273381293, -2.07913669064748], color: [1.0, 0.0, 0.0], args: ["Collection__1"], labeled: true},
+    {name: "K", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr1", "H"], labeled: true},
+    {name: "L", type: "CenterOfConic", color: [1.0, 0.0, 0.0], args: ["C1"], labeled: true},
+    {name: "b", type: "Join", color: [0.0, 0.0, 1.0], args: ["L", "K"], labeled: true},
+    {name: "M", type: "OtherIntersectionCL", color: [1.0, 0.0, 0.0], args: ["C1", "b", "K"], labeled: true},
+    {name: "N", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr0", "M"], labeled: true}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 350,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.66]}],
+    axes: true,
+    grid: 1.0,
+    snap: true,
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1892, version: [2, 9, 1892]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

@@ -7,32 +7,32 @@
     <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
     <link rel="stylesheet" href="../../css/cindy.css">
   </head>
-    
+
 	<body style="font-family:Arial;">
-    
+
     <h1>CindyJS: Loading Images</h1>
     <script id="csinit" type="text/x-cindyscript">
       use("CindyGL");
        f(z) := (
         2*(z-a)*exp(i*t/3)
        );
-      
-      t0 = seconds();       
+
+      t0 = seconds();
     </script>
     <script id="csdraw" type="text/x-cindyscript">
      t = seconds()-t0;
-     a = complex(A.xy);    
+     a = complex(A.xy);
      colorplot(imagergb([-3,-3],[3,-3], "image", f(complex(#))));
     </script>
-    
 
-    <canvas  id="CSCanvas" style="position:relative; top:0px;"></canvas>
-    
+
+    <div  id="CSCanvas" style="position:relative; top:0px;"></div>
+
     <script type="text/javascript">
         var gslp=[{name:"A", kind:"P", type:"Free", pos:[0.1, 0.1]}];
-        cdy = createCindy({canvasname:"CSCanvas",
+        cdy = CindyJS({canvasname:"CSCanvas",
                     scripts: "cs*",
-                    autoplay: true,
+                    animation: {autoplay: true},
                     geometry: gslp,
                     images: {image:"image.png"},
                     ports: [{
@@ -43,16 +43,16 @@
                     }]
                     }
         );
-        
-        
-    
+
+
+
 var typ=function(e, b){
   var chCode=e.which ? e.which:e.keyCode;
   if(chCode==13){
     console.log("*************");
 
     console.log(b.value);
-    cdy.evokeCS('f(z) := (' + b.value + '); forcerecompile();');
+    cdy.evokeCS('f(z) := (' + b.value + ');');
   }
 }
 

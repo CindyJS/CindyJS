@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Webcam in Cindy JS</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+
+<style type="text/css">
+  html,body { margin: 0px; padding: 0px; }
+</style>
+</head>
+
+<script id="csinit" type="text/x-cindyscript">
+video = camera video();
+mirror = false;
+</script>
+
+<script id="cskeydown" type="text/x-cindyscript">
+  print("pressed key" + keycode());
+  if(keycode()==77, mirror = !mirror); //m -> toggle mirror
+</script>
+    
+<script id="csdraw" type="text/x-cindyscript">
+if (image ready(video),
+  colorplot(
+  h = .05*(10.1+mouse().y);
+  z = complex(#);
+  if(mirror, z = -re(z)+i*im(z));  
+  h*imagergb(video, z*z*.1*(10.1+mouse().x)));
+);
+</script>
+
+</head>
+
+<body>
+  <div id="CSCanvas" style="width:100vw; height:100vh"></div>
+
+
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  use: ["CindyGL"]
+});
+</script>
+
+</body>
+
+</html>

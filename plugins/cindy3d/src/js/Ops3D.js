@@ -1,15 +1,15 @@
-createCindy.registerPlugin(1, "Cindy3D", function(api) {
+CindyJS.registerPlugin(1, "Cindy3D", function(api) {
 
   //////////////////////////////////////////////////////////////////////
   // API bindings
 
-  /** @type {createCindy.anyval} */
+  /** @type {CindyJS.anyval} */
   let nada = api.nada;
 
-  /** @type {function(createCindy.anyval):createCindy.anyval} */
+  /** @type {function(CindyJS.anyval):CindyJS.anyval} */
   let evaluate = api.evaluate;
 
-  /** @type {function(string,number,createCindy.op)} */
+  /** @type {function(string,number,CindyJS.op)} */
   let defOp = api.defineFunction;
 
   //////////////////////////////////////////////////////////////////////
@@ -362,6 +362,8 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     let colortype = "pervertex";
     let topology = "open";
     let colors = null;
+    let uv = null;
+    let /** @type {?CindyJS.image} */ texture = null;
     let appearance = handleModifsAppearance(
       currentInstance.surfaceAppearance, modifs, {
         "normaltype": (a => normaltype =
@@ -369,10 +371,26 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
         "colortype": (a => colortype =
                        coerce.toString(a, colortype).toLowerCase()),
         "topology": (a => topology =
-                       coerce.toString(a, normaltype).toLowerCase()),
-        "colors": (a => colors = coerce.toList(a).map(elt => coerce.toColor(elt))),
+                       coerce.toString(a, topology).toLowerCase()),
+        "colors": (a => colors = coerce.toList(a).map(
+          elt => coerce.toColor(elt))),
+        "uv": (a => uv = coerce.toList(a).map(
+          elt => coerce.toHomog(elt, [0, 0, 0], 2))),
+        "texture": (a => texture = api.getImage(a, /*lazy=*/ true)),
       });
     if (pos.length !== m*n) return nada;
+    if (texture !== null && uv != null) {
+
+      // TODO: EVIL HACK!!!!! Fix version if you use this!
+      // This sets the texture for all meshes in the instance,
+      // even though the modifier is just on a single mesh primitive.
+      // Will cause terribly wrong results if more than one mesh is drawn.
+      currentInstance.triangles.texture = texture;
+      currentInstance.triangles.opaque = false;
+
+      colors = uv; // Re-use the same object
+      colortype = "pervertex";
+    }
     if (colors !== null && colors.length !== m*n) return nada;
     let tcr = (topology === "closerows" || topology === "closeboth");
     let tcc = (topology === "closecolumns" || topology === "closeboth");
@@ -426,6 +444,50 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
     return mesh3dImpl(args, modifs);
   });
 
+  defOp("triangle3d", 1, function(args, modifs) {
+    let pos = coerce.toList(evaluate(args[0])).map(elt => coerce.toHomog(elt));
+    let uv = null;
+    let texture = null;
+    let normals = null;
+    let colors = null;
+    let appearance = handleModifsAppearance(
+      currentInstance.surfaceAppearance, modifs, {
+        "colors": (a => colors = coerce.toList(a).map(
+          elt => coerce.toColor(elt))),
+        "uv": (a => uv = coerce.toList(a).map(
+          elt => coerce.toHomog(elt, [0, 0, 0], 2))),
+        "texture": (a => texture = coerce.toString(a)),
+        "normals": (a => normals = coerce.toList(a).map(
+          elt => coerce.toDirection(elt))),
+      });
+    if (!pos || pos.length !== 3) return nada;
+    if (texture !== null && uv !== null) {
+      const img = api.getImage(/** @type {string} */(texture));
+      if (!img) {
+        console.log("No such texture image: " + texture);
+        return nada;
+      }
+      // TODO: EVIL HACK!!!!! See similar situation above for details!
+      currentInstance.triangles.texture = img;
+      currentInstance.triangles.opaque = false;
+      colors = uv; // Re-use the same object
+    }
+    if (colors !== null && colors.length !== 3) return nada;
+    if (normals !== null && normals.length !== 3) return nada;
+    if (!colors)
+      colors = [appearance.color, appearance.color, appearance.color];
+    if (!normals) {
+      let n = triangleNormal(pos[0], pos[1], pos[2]);
+      normals = [n, n, n];
+    }
+    currentInstance.triangles.addWithNormalsAndColors(
+      pos[0], pos[1], pos[2],
+      normals[0], normals[1], normals[2],
+      colors[0], colors[1], colors[2],
+      appearance);
+    return nada;
+  });
+
   //////////////////////////////////////////////////////////////////////
   // Lighting and scene appearance
 
@@ -449,7 +511,7 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
   });
 
   defOp("fieldofview3d", 1, function(args, modifs) {
-    let fov = coerce.toInterval(1, 179, evaluate(args[0]), 0);
+    let fov = coerce.toInterval(0.01, 3.13, evaluate(args[0]), 0);
     if (fov > 0) {
       currentInstance.camera.fieldOfView = fov;
       currentInstance.camera.updatePerspective();
@@ -475,45 +537,51 @@ createCindy.registerPlugin(1, "Cindy3D", function(api) {
   defOp("pointlight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
     let position = [0, 0, 0, 1], diffuse = [1, 1, 1], specular = [1, 1, 1];
+    let frame = "camera";
     handleModifs(modifs, {
       "position": a => position = coerce.toHomog(a, position),
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
       "specular": a => specular = coerce.toColor(a, specular),
+      "frame": a => frame = coerce.toEnum(["camera", "world"], a, frame),
     });
     currentInstance.lighting.setLight(
-      index, new PointLight(dehom3(position), diffuse, specular));
+      index, new (PointLights[frame])(position, diffuse, specular));
     return nada;
   });
 
   defOp("directionallight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
-    let direction = [0, -1, 0], diffuse = [1, 1, 1], specular = [1, 1, 1];
+    let direction = [0, -1, 0, 0], diffuse = [1, 1, 1], specular = [1, 1, 1];
+    let frame = "camera";
     handleModifs(modifs, {
-      "direction": a => direction = coerce.toDirection(a, direction),
+      "direction": a => direction = coerce.toDirectionPoint(a, direction),
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
       "specular": a => specular = coerce.toColor(a, specular),
+      "frame": a => frame = coerce.toEnum(["camera", "world"], a, frame),
     });
     currentInstance.lighting.setLight(
-      index, new DirectionalLight(direction, diffuse, specular));
+      index, new (PointLights[frame])(direction, diffuse, specular));
     return nada;
   });
 
   defOp("spotlight3d", 1, function(args, modifs) {
     let index = coerce.toInt(evaluate(args[0]), 0);
-    let position = [0, 0, 0, 1], direction = [0, -1, 0];
+    let position = [0, 0, 0, 1], direction = [0, -1, 0, 0];
     let cutoff = Math.PI/4, exponent = 0;
     let diffuse = [1, 1, 1], specular = [1, 1, 1];
+    let frame = "camera";
     handleModifs(modifs, {
       "position": a => position = coerce.toHomog(a, position),
-      "direction": a => direction = coerce.toDirection(a, direction),
+      "direction": a => direction = coerce.toDirectionPoint(a, direction),
       "cutoffangle": a => cutoff = coerce.toInterval(0, Math.PI, a, cutoff),
       "exponent": a => exponent = coerce.toReal(a, exponent),
       "diffuse": a => diffuse = coerce.toColor(a, diffuse),
       "specular": a => specular = coerce.toColor(a, specular),
+      "frame": a => frame = coerce.toEnum(["camera", "world"], a, frame),
     });
     currentInstance.lighting.setLight(
-      index, new SpotLight(dehom3(position), direction, Math.cos(cutoff),
-                           exponent, diffuse, specular));
+      index, new SpotLights[frame](
+        position, direction, Math.cos(cutoff), exponent, diffuse, specular));
     return nada;
   });
 

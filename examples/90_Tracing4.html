@@ -12,7 +12,7 @@ B.xy = A.xy - (0, 5);
 </script>
 <script type="text/javascript">
 
-var cdy = createCindy({ // See ref/createCindy documentation for details.
+var cdy = CindyJS({ // See ref/createCindy documentation for details.
   canvasname: "CSCanvas",
   scripts: "cs*",
   language: "en",
@@ -39,8 +39,7 @@ var cdy = createCindy({ // See ref/createCindy documentation for details.
 </head>
 
 <body style="font-family:Arial;">
-  <canvas id="CSCanvas" width="500" height="500"
-          style="border:2px solid black"></canvas>
+  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
   <p>
     <button onclick="location.href=cdy.formatTraceLog(false)">View log</button>
     <button onclick="location.href=cdy.formatTraceLog(true)">Save log</button>

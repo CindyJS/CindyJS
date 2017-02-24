@@ -16,16 +16,16 @@ type) scripts, and a smaller text area that shows any output from the scripts.
 
 ####  Occasions
 
-Cinderella is highly interactive, and that is the reason for many "occasions" that are suited for triggering the execution of CindyScript commands.
+Cinderella is highly interactive, and that is the reason for many “occasions” that are suited for triggering the execution of CindyScript commands.
 On the left side of the script editor you see the available occasions.
 
-Usually, you write scripts for the "Draw" occasion.
-These are executed whenever the [view](Views.md) is rendered.
-To edit a script, first click on "Draw".
+Usually, you write scripts for the “Draw” occasion.
+These are executed whenever the view is rendered.
+To edit a script, first click on “Draw”.
 
 ![Entering scripts for the draw occasion.](img/ScriptEditor-draw.png)
 
-The edit area will display the message "Enter your script here".
+The edit area will display the message “Enter your script here”.
 Click there, and start entering text.
 
 ![Image](img/ScriptEditor-example.png)
@@ -39,7 +39,7 @@ You find an overview over all occasions in [the introduction to CindyScript](CSF
 ###  The Shell
 
 You can also enter CindyScript commands and have them executed immediately.
-Just choose the "Shell" item from the left panel, and type the commands into the text area on the right.
+Just choose the “Shell” item from the left panel, and type the commands into the text area on the right.
 Pressing shift+enter will execute the command you typed, and you will see the in- and output in the lower text area.
 You can use shift-up and shift-down to scroll through a history of commands entered.
 
@@ -49,7 +49,7 @@ You can use shift-up and shift-down to scroll through a history of commands ente
 
 Sometimes it is very convenient to manipulate constructions using CindyScript commands.
 You can either do this using the shell window as described above, or, for short commands, you can use the command line integrated into the construction view.
-To enable it, choose "Scripting/Command Line" from the menu, or press the corresponding keyboard shortcut Ctrl-Enter (Windows and Unix) or CMD-Enter (Mac OS X).
+To enable it, choose “Scripting/Command Line” from the menu, or press the corresponding keyboard shortcut Ctrl-Enter (Windows and Unix) or CMD-Enter (Mac OS X).
 
 ![Using the command line to move a point](img/CindyScriptCommandline.png)
 
@@ -72,7 +72,7 @@ Checking the Script Editor reveals the automatically generated draw occasion scr
 
 ###  CindyScript and the Inspector
 
-Many text input fields of the [Inspector](Inspector.md) window accept CindyScript code as input.
+Many text input fields of the Inspector window accept CindyScript code as input.
 The script will only be evaluated once – if you want to make permanent changes you have to use either the command line or the draw occasion in the Script Editor.
 After pressing enter, you can still see your CindyScript code, but if the input field looses the input focus its value will be replaced with the evaluation result.
 
@@ -90,6 +90,6 @@ As the field for script code is very small we recommend to just call functions d
 
 You can choose the programming language used to interpret a script using the choice box in the top panel.
 Available languages are CindyScript, Python, JRuby and CDY, the internal language that is used to store constructions.
-However, currently we only support CindyScript, and this is also the only language you can use in [Cinderella applets](HTML_Export.md).
+However, currently we only support CindyScript, and this is also the only language you can use in Cinderella applets.
 
 ![Image](img/ScriptEditor-languages.png)

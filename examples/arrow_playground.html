@@ -85,7 +85,7 @@ draw(H,K,size->2,alpha->0.5, arrow->true, arrowshape->"full", arrowsides->"==>",
 
 
         <div style="position:relative">
-        <canvas  id="CSCanvas" width=800 height=500  style="border:2px solid #000000; top:0px; left:0px;"></canvas>
+        <div  id="CSCanvas" style="width:800px; height:500px; border:2px solid #000000; top:0px; left:0px;"></div>
 </div>
 
         <script type="text/javascript">
@@ -126,7 +126,7 @@ draw(H,K,size->2,alpha->0.5, arrow->true, arrowshape->"full", arrowsides->"==>",
 
 
                     ];
-                     createCindy({canvasname:"CSCanvas",
+                     CindyJS({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
                         movescript:"csmove",
                         initscript:"init",
