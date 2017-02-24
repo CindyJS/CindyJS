@@ -93,7 +93,7 @@ function checkConjectures() {
 
     // filter free objects which are involved in conjectures
     var involved;
-    
+
     // valid types of objects which might be added to involved objects
     var validTypes = ["P", "L", "C", "S"];
 
@@ -109,8 +109,8 @@ function checkConjectures() {
                     incis = findAllIncis(el, []);
                     incis.forEach(function(i) {
                         if (involved.indexOf(i) < 0) {
-                                // push the element 
-                                involved.push(i);
+                            // push the element 
+                            involved.push(i);
                         }
                     });
                 }
@@ -144,14 +144,13 @@ function checkConjectures() {
     };
 
     // add defining elements 
-    involved.forEach(function(inv){
-            var n = inv.args;
-            if(typeof(n) === 'undefined') return;
-            n.forEach(function(name){
-                       if(involved.indexOf(csgeo.csnames[name]) < 0);
-                    involved.push(csgeo.csnames[name]);
-            }
-            );
+    involved.forEach(function(inv) {
+        var n = inv.args;
+        if (typeof(n) === 'undefined') return;
+        n.forEach(function(name) {
+            if (involved.indexOf(csgeo.csnames[name]) < 0);
+            involved.push(csgeo.csnames[name]);
+        });
     });
 
     var emove, nconject = conjectures.length;
