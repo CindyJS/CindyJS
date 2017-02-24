@@ -10,8 +10,12 @@ var cdy;
 describe("Prover: test free objects for random moves", function() {
     var frees = Object.keys(geoOps).filter(function(opName){
             return geoOps[opName].isMovable;
-        }
-        );
+        });
+    // some objects are not required to have a random move
+    var exeptions = ["Text", "Calculation", "Equation", "Evaluate", "Plot",
+                    "Button", "ToggleButton", "EditableText"];
+
+    frees = frees.filter(function(n) { return exeptions.indexOf(n) < 0});
 
     frees.forEach(function(OpName){
     it(OpName, function(){
