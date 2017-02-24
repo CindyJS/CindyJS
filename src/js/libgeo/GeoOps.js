@@ -757,7 +757,7 @@ geoOps.PointOnArc.updatePosition = function(el) {
     var P = geoOps._helper.conicOtherIntersection(arc.matrix, I, Q);
     el.homog = General.withUsage(P, "Point");
 };
-geoOps.PointOnLine.getRandomMove = geoOps._helper.getRandPointMove;
+geoOps.PointOnArc.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnArc.stateSize = 4;
 
 geoOps._helper.CenterOfCircle = function(c) {
