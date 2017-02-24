@@ -777,7 +777,7 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
 };
 
 CSNumber._helper.getRangeRand = function(min, max){
-    return Math.random() * (mmax - mmin + 1) + mmin;
+    return Math.random() * (max - min + 1) + min;
 };
 
 CSNumber.getRandReal = function(min, max) {
@@ -787,6 +787,7 @@ CSNumber.getRandReal = function(min, max) {
 
 CSNumber.getRandComplex = function(min, max) {
     var real =  CSNumber._helper.getRangeRand(min,max);
-    var imag =  CSNumber._helper.getRangeRand(min,max);
+    //var imag =  CSNumber._helper.getRangeRand(min,max);
+    var imag =  0;
     return CSNumber.complex(real,imag);
 };
