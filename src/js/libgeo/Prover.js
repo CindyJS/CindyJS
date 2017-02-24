@@ -143,7 +143,7 @@ function checkConjectures() {
         if (typeof(n) === 'undefined') return;
         n.forEach(function(name) {
             if (involved.indexOf(csgeo.csnames[name]) < 0)
-            involved.push(csgeo.csnames[name]);
+                involved.push(csgeo.csnames[name]);
         });
     });
 
