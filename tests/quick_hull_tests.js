@@ -1,21 +1,30 @@
 var rewire = require("rewire");
 var expect = require('chai').expect;
+var should = require("chai").should();
 
 var cindyJS = rewire("../build/js/exposed.js");
 
 var CSNumber = cindyJS.__get__("CSNumber");
 var List = cindyJS.__get__("List");
 
+var QH = rewire('../plugins/QuickHull3D/src/js/QuickHull3D.js');
 var VL = rewire('../plugins/QuickHull3D/src/js/VertexList.js');
-var VertexList = VL.__get__("VertexList");
-
+var V = rewire('../plugins/QuickHull3D/src/js/Vertex.js');
+V.__set__("turnIntoCSList", QH.__get__("turnIntoCSList"));
+var F = rewire('../plugins/QuickHull3D/src/js/Face.js');
+var HE = rewire('../plugins/QuickHull3D/src/js/HalfEdge.js');
 var VOps = rewire('../plugins/QuickHull3D/src/js/Vector.js');
 var Vector = VOps.__get__("Vector"); 
 var VO = VOps.__get__("VectorOperations"); 
 
+QH.__set__("VertexList", VL.__get__("VertexList"));
+QH.__set__("Vertex", V.__get__("Vertex"));
+QH.__set__("VectorOperations", VO);
+QH.__set__("FO", F.__get__("FO"));
+QH.__set__("HalfEdge", HE.__get__("HalfEdge"));
+QH.__set__("HEO", HE.__get__("HEO"));
 
-var QH = rewire('../plugins/QuickHull3D/src/js/QuickHull3D.js');
-    var QuickHull3D = QH.__get__("QuickHull3D");
+var QuickHull3D = QH.__get__("QuickHull3D");
 
 
 describe('Quick hull', function() {
