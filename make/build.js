@@ -493,6 +493,28 @@ module.exports = function build(settings, task) {
         };
         this.closureCompiler(closure_jar, opts);
     });
+    
+    
+    
+    //////////////////////////////////////////////////////////////////////
+    // Build symbolic-plugin
+    //////////////////////////////////////////////////////////////////////
+    task("symbolic", ["closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            compilation_level: "SIMPLE",
+            rewrite_polyfills: false,
+            warning_level: "DEFAULT",
+            output_wrapper_file: "plugins/symbolic/src/js/symbolic.js.wrapper",
+            js_output_file: "build/js/symbolic.js",
+            externs: "plugins/cindyjs.externs",
+            js: ["plugins/symbolic/src/js/symbolic.js"]
+        };
+        this.closureCompiler(closure_jar, opts);
+    });    
 
     
     //////////////////////////////////////////////////////////////////////
@@ -672,7 +694,8 @@ module.exports = function build(settings, task) {
         "xlibs",
         "images",
         "sass",
-        "ComplexCurves"
+        "ComplexCurves",
+        "symbolic"
     ].concat(gwt_modules));
 
 };
