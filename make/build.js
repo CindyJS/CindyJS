@@ -168,7 +168,7 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     task("forbidden", [], function() {
-        this.forbidden("examples/**/*", [
+        this.forbidden("examples/**/*.html", [
             // Correct MIME type is "text/x-cindyscript"
             /<script[^>]*type *= *["'][^"'\/]*["']/g,          // requires /
             /<script[^>]*type *= *["']text\/cindyscript["']/g, // requires x-
