@@ -4809,28 +4809,3 @@ evaluator.load$3 = function(args, modifs) {
     }
 
 };
-
-/**
- * @todo
- */
-evaluator.convexhull3d1$1 = function(args) {
-    var pointsList = evaluateAndVal(args[0]);
-    var length = pointsList.value.length;
-    var points = [];
-    var hull, coordinates, point;
-
-    for (var i = 0; i < length; i++) {
-        coordinates = pointsList.value[i].value;
-
-        points.push(new Vector(coordinates[0].value.real,
-            coordinates[1].value.real,
-            coordinates[2].value.real));
-    }
-
-    hull = new QuickHull3D();
-    hull.build(points);
-    var vertices = List.turnIntoCSList(hull.getVertices());
-    var faces = List.turnIntoCSList(hull.getFaces());
-
-    return List.turnIntoCSList([vertices, faces]);
-};
