@@ -453,8 +453,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             //assert that parent node was dependent on pixel
             //we found a highest child that is not dependent -> this will be a candidate for a uniform!
 
-            //To pass constant numbers as uniforms is overkill
+            //To pass constant numbers or constant booleans as uniforms is overkill
             //TODO better: if it does not contain variables or functions
+            if (expr['ctype'] === 'boolean') return;
+
             if (expr['ctype'] === 'number') return;
 
             //nothing to pass
@@ -489,6 +491,11 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 CodeBuilder.prototype.determineUniformTypes = function() {
     for (let uname in this.uniforms) {
         let tval = this.api.evaluateAndVal(this.uniforms[uname].expr);
+        if (!tval["ctype"] || tval["ctype"] === "undefined") {
+            console.error("can not evaluate:");
+            console.log(this.uniforms[uname].expr);
+            return false;
+        }
         this.uniforms[uname].type = this.uniforms[uname].forceconstant ? constant(tval) : guessTypeOfValue(tval);
         //console.log(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
     }
