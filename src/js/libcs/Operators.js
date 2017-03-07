@@ -3722,7 +3722,7 @@ evaluator.halfplane$2 = function(args, modifs) {
         var l = w1;
         if (u0 === "Line" || u1 === "Point") {
             p = w1;
-            l = v0;
+            l = w0;
         }
         //OK im Folgenden lässt sich viel optimieren
         var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
