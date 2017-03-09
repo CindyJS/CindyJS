@@ -248,7 +248,7 @@ function setuplisteners(canvas, data) {
                     reader.readAsText(file);
                 } else if ((/^image\//).test(file.type)) {
                     reader.onload = function() {
-                        imgDone(reader.result);
+                        imgDone(i, reader.result);
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -355,7 +355,7 @@ function setuplisteners(canvas, data) {
                 reported = true;
                 oneDone(i,
 
-                    (img));
+                    loadImage(img, false));
             };
             img.onerror = function(err) {
                 if (reported) return;
