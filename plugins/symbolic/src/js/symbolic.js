@@ -48,6 +48,7 @@ CindyJS.registerPlugin(1, "symbolic", function(api) {
   var difffun = {
     "sin$1": x => [fun("cos$1", [x[0]])],
     "cos$1": x => [fun("sub$2", [real(0), fun("sin$1", [x[0]])])],
+    "exp$1": x => [fun("exp$1", [x[0]])],
     "add$2": x => [real(1), real(1)],
     "sub$2": x => [real(1), real(-1)],
     "mult$2": x => [x[1], x[0]],
@@ -57,7 +58,7 @@ CindyJS.registerPlugin(1, "symbolic", function(api) {
     ],
     "pow$2": x => [
       fun("mult$2", [x[1], fun("pow$2", [x[0], fun("sub$2", [x[1], real(1)])])]),
-      fun("mult$2", [fun("log$1", [x[0], fun("pow$2", [x[0], x[1]])])])
+      fun("mult$2", [fun("log$1", [x[0]]), fun("pow$2", [x[0], x[1]])])
     ],
     ";": x => (x[1].ctype == "void") ? [real(1), real(0)] : [real(0), real(1)],
   };
@@ -65,6 +66,7 @@ CindyJS.registerPlugin(1, "symbolic", function(api) {
   var degfun = {
     "sin$1": (x, vmap) => Infinity,
     "cos$1": (x, vmap) => Infinity,
+    "exp$1": (x, vmap) => Infinity,
     "add$2": (x, vmap) => Math.max(degree(x[0], vmap), degree(x[1], vmap)),
     "sub$2": (x, vmap) => Math.max(degree(x[0], vmap), degree(x[1], vmap)),
     "mult$2": (x, vmap) => degree(x[0], vmap) + degree(x[1], vmap),
