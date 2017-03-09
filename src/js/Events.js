@@ -355,7 +355,7 @@ function setuplisteners(canvas, data) {
                 reported = true;
                 oneDone(i,
 
-                    (img));
+                    loadImage(img, false));
             };
             img.onerror = function(err) {
                 if (reported) return;
