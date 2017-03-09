@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Oh, Susanna</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/midi-plugin.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+use("midi");
+played = false;
+  
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+
+if (loadinstruments(1) & !played,
+  played = true;
+  playmelody([
+    ["c",.5],["d",.5],
+    ["||:"],["e",1],["g",1],["g",1.5],["a",.5],
+            ["g",1],["e",1],["c",1.5],["d",.5],
+    ["1."],["e",1],["e",1],["d",1],["c",1],["d",3],
+            ["c",.5],["d",.5],[":||"],
+    ["2."],["e",1],["e",1],["d",1],["d",1],["c",4]
+  ],speed->200)
+)
+
+</script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", width: 500, height: 500}],
+  scripts: "cs*",
+});
+
+</script>
+</head>
+
+<body>
+  <div id="CSCanvas"></div>
+</body>
+
+</html>
