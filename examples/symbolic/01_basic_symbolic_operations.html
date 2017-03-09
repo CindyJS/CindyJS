@@ -9,7 +9,7 @@
           f(x) := x*x+1;
           print("f(x) := x*x+1");
           
-          symdiff(f(x), x, df(x):=#);
+          diff(f(x), x, df(x):=#);
           
           println("f(5) = " + f(5));
           println("df(5) = " + df(5));

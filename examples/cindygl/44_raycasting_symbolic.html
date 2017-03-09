@@ -87,9 +87,9 @@
       //this function has to be called whenever fun changes
       init() := (
         dx = .05; dy =.02;
-        symdiff(fun(x,y,z), x, dxF(x,y,z) := #);
-        symdiff(fun(x,y,z), y, dyF(x,y,z) := #);
-        symdiff(fun(x,y,z), z, dzF(x,y,z) := #);
+        diff(fun(x,y,z), x, dxF(x,y,z) := #);
+        diff(fun(x,y,z), y, dyF(x,y,z) := #);
+        diff(fun(x,y,z), z, dzF(x,y,z) := #);
         
           newN = degree(fun(x,y,z), x, y, z);
           if(newN==-1, newN=1000);

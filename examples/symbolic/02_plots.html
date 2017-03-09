@@ -11,8 +11,8 @@
       
       updatefun(str) := (
           parse("f(x) :=" + str);
-          symdiff(f(x), x, df(x):=#);
-          symdiff(df(x), x, ddf(x):=#);
+          diff(f(x), x, df(x):=#);
+          diff(df(x), x, ddf(x):=#);
       );
       updatefun(lastf);
     </script>

@@ -212,8 +212,8 @@ CindyJS.registerPlugin(1, "symbolic", function(api) {
   };
 
   //this computes the symbolic differentation of a function and inserts its symbolic expreassion as # in the third argument, which then will be evaluated.
-  //usual usage symdiff(x^5, x, dxf(x,y,z):=#);
-  api.defineFunction("symdiff", 3, function(args, modifs) {
+  //usual usage diff(x^5, x, dxf(x,y,z):=#);
+  api.defineFunction("diff", 3, function(args, modifs) {
     let vmap = {};
     if(!args[1].name) return api.nada;
     vmap[args[1].name] = real(1);
