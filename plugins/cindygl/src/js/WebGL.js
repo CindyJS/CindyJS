@@ -657,6 +657,16 @@ webgl["%"] = first([
     ]);
 });
 
+webgl["!"] = first([
+    [
+        [type.bool], type.bool, usefunction('!')
+    ],
+    [
+        [type.voidt, type.bool], type.bool, args => usefunction('!')([args[1]])
+    ]
+]);
+
+webgl["not"] = webgl["!"];
 
 webgl["imagergb"] = first([
     [

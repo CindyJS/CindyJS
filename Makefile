@@ -119,6 +119,7 @@ fwdtargets = \
 	nodetest \
 	proxy \
 	ref \
+	symbolic \
 	tests \
 	textattr \
 	unittests
