@@ -164,7 +164,7 @@ CindyJS.registerPlugin(1, "symbolic", function(api) {
             let vname = myfun.arglist[i].name;
             let nvmap = {};
             nvmap[vname] = real(1);
-            df = recreplace(symdiff(cloneExpression(myfun.body), nvmap), rmap);
+            df = recreplace(cloneExpression(symdiff(cloneExpression(myfun.body), nvmap)), rmap);
           } else if (difffun[opmap[ex.oper] || ex.oper]) {
             df = difffun[opmap[ex.oper] || ex.oper](ex.args)[i];
           }
