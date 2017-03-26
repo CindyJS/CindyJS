@@ -168,12 +168,12 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     task("forbidden", [], function() {
-        this.forbidden("examples/**/*", [
+        this.forbidden("examples/**/*.html", [
             // Correct MIME type is "text/x-cindyscript"
             /<script[^>]*type *= *["'][^"'\/]*["']/g,          // requires /
             /<script[^>]*type *= *["']text\/cindyscript["']/g, // requires x-
-            /.*firstDrawing.*/g, // excessive copy & paste of old example
-            /.*(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js.*/g, // remote
+            /firstDrawing/g, // excessive copy & paste of old example
+            /(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js/g, // remote
             /<canvas[^>]+id=['"]CSCanvas/g,                    // use <div>
             /quickhull3d\.nocache\.js/g,                         // use of JAVA-Version of quickhull
         ]);
