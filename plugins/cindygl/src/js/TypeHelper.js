@@ -39,7 +39,6 @@ const type = { //assert all indices are different
     mat2: list(2, list(2, 3)),
     mat3: list(3, list(3, 3)),
     mat4: list(4, list(4, 3)),
-    anytype: 18, // is subtype of any other type
     // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
     // nonnegativefloat: 15 //@TODO: negative float...
 };
@@ -119,7 +118,6 @@ let typesareequal = (a, b) => (a === b) ||
 
 function issubtypeof(a, b) {
     if (typesareequal(a, b)) return true;
-    if (a === type.anytype) return true;
     if (!a) return false; //unset/false is not subtype of any type
 
     if (isprimitive(a) && isprimitive(b)) {

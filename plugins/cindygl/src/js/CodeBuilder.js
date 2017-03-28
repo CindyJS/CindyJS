@@ -87,7 +87,6 @@ CodeBuilder.prototype.texturereaders;
  */
 CodeBuilder.prototype.castType = function(term, fromType, toType) {
     if (typesareequal(fromType, toType)) return term;
-    if (fromType === type.anytype) return term;
 
     if (!issubtypeof(fromType, toType)) {
         console.error(`${typeToString(fromType)} is no subtype of ${typeToString(toType)} (trying to cast the term ${term})`);
