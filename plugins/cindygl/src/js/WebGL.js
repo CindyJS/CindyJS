@@ -517,9 +517,6 @@ webgl["grey"] = webgl["gray"];
 webgl["min"] = args => {
     let match = first([
         [
-            [type.int, type.int], type.int, usefunction('min')
-        ],
-        [
             [type.float, type.float], type.float, usefunction('min')
         ]
     ])(args);
