@@ -211,7 +211,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
     function rec(expr, bindings, scope, forceconstant) {
         expr.bindings = bindings;
         for (let i in expr['args']) {
-            let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);z
+            let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
             let nbindings = bindings;
             if (["repeat", "forall", "apply"].indexOf(getPlainName(expr['oper'])) != -1) {
                 if (i == 1) {
