@@ -313,9 +313,15 @@ function createCindyNow() {
         csinitphys(data.behavior);
 
     for (var k in data.images) {
-        var img = loadImage(data.images[k]);
+        var img = loadImage(data.images[k], false);
         if (img !== nada)
             images[k] = img;
+    }
+
+    for (var l in data.videos) {
+        var video = loadImage(data.videos[l], true);
+        if (video !== nada)
+            images[l] = video;
     }
 
     globalInstance.canvas = c;
@@ -341,10 +347,20 @@ function createCindyNow() {
  * live: boolean indicating whether the image is expected to change continuously
  * generation: A counter that is increased once the drawable is changed.
  */
-function loadImage(obj) {
+function loadImage(obj, video) {
     var img;
     if (typeof obj === "string") {
-        img = new Image();
+        if (video) {
+            img = document.createElement("video");
+            img.preload = "auto";
+            img.loop = true; //loop videos as default
+
+            //https://www.npmjs.com/package/iphone-inline-video
+            img.setAttribute("playsinline", "");
+            enableInlineVideo(img);
+        } else {
+            img = new Image();
+        }
         img.src = obj;
     } else {
         img = obj;
@@ -522,8 +538,9 @@ function callFunctionNow(f) {
 }
 
 function loadExtraModules() {
-    if (usedFunctions.convexhull3d$1)
-        loadExtraPlugin("quickhull3d", "quickhull3d/quickhull3d.nocache.js");
+    if (usedFunctions.convexhull3d$1) {
+        loadExtraPlugin("QuickHull3D", "QuickHull3D.js");
+    }
 }
 
 var modulesToLoad = 1;

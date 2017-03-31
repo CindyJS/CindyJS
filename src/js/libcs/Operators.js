@@ -3018,7 +3018,7 @@ eval_helper.shapeop = function(a, b, op) {
     var solution_paths = new ClipperLib.Paths();
     cpr.Execute(clipType, solution_paths, subject_fillType, clip_fillType);
     ClipperLib.JS.ScaleDownPaths(solution_paths, scale);
-    //    console.log(JSON.stringify(solution_paths));    
+    //    console.log(JSON.stringify(solution_paths));
     return {
         ctype: "shape",
         type: "polygon",
@@ -3277,7 +3277,7 @@ evaluator.replace$2 = function(args, modifs) {
         return s;
     }
 
-    //////////////// 
+    ////////////////
 
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
@@ -3743,7 +3743,7 @@ evaluator.halfplane$2 = function(args, modifs) {
         var l = w1;
         if (u0 === "Line" || u1 === "Point") {
             p = w1;
-            l = v0;
+            l = w0;
         }
         //OK im Folgenden lässt sich viel optimieren
         var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);

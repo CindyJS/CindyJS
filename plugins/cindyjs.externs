@@ -14,7 +14,7 @@ td.EventManager;
 
 function CindyJS() {}
 
-/** @typedef {{ctype:string}} */
+/** @typedef {{ctype:string}|{ctype:string, name:string}} */
 CindyJS.anyval;
 
 /** @typedef {function(Array.<CindyJS.anyval>, Object):

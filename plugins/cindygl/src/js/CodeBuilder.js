@@ -213,11 +213,17 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
         expr.bindings = bindings;
         for (let i in expr['args']) {
             let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
-            let nbindings = i >= 1 && (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
-                i >= 1 && (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
-                i >= 1 && (expr['oper'] === "forall$2" || expr['oper'] === "apply$2") ? addvar(bindings, '#', false) :
-                i >= 1 && (expr['oper'] === "forall$3" || expr['oper'] === "apply$3") ? addvar(bindings, expr['args'][1]['name'], false) :
-                bindings;
+            let nbindings = bindings;
+            if (["repeat", "forall", "apply"].indexOf(getPlainName(expr['oper'])) != -1) {
+                if (i == 1) {
+                    nbindings = (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
+                        (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
+                        (expr['oper'] === "forall$2" || expr['oper'] === "apply$2") ? addvar(bindings, '#', false) :
+                        (expr['oper'] === "forall$3" || expr['oper'] === "apply$3") ? addvar(bindings, expr['args'][1]['name'], false) : bindings;
+                } else if (i == 2) { //take same bindings as for second argument
+                    nbindings = expr['args'][1].bindings;
+                }
+            }
             rec(expr['args'][i],
                 nbindings,
                 scope,
@@ -350,7 +356,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
     for (let v in variables)
         if (variables[v].assigments.length >= 1 || variables[v].iterationvariable)
             variableDependendsOnPixel[v] = true;
-        //run expression to get all expr["dependsOnPixel"]
+    //run expression to get all expr["dependsOnPixel"]
     dependsOnPixel(expr);
 
 
@@ -447,8 +453,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             //assert that parent node was dependent on pixel
             //we found a highest child that is not dependent -> this will be a candidate for a uniform!
 
-            //To pass constant numbers as uniforms is overkill
+            //To pass constant numbers or constant booleans as uniforms is overkill
             //TODO better: if it does not contain variables or functions
+            if (expr['ctype'] === 'boolean') return;
+
             if (expr['ctype'] === 'number') return;
 
             //nothing to pass
@@ -483,6 +491,11 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 CodeBuilder.prototype.determineUniformTypes = function() {
     for (let uname in this.uniforms) {
         let tval = this.api.evaluateAndVal(this.uniforms[uname].expr);
+        if (!tval["ctype"] || tval["ctype"] === "undefined") {
+            console.error("can not evaluate:");
+            console.log(this.uniforms[uname].expr);
+            return false;
+        }
         this.uniforms[uname].type = this.uniforms[uname].forceconstant ? constant(tval) : guessTypeOfValue(tval);
         //console.log(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
     }
@@ -694,9 +707,9 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
                 code += `${webgltype(arraytype)} ${sterm} = ${array.term};\n`;
             }
 
+            this.variables[it]['global'] = true;
 
-            code += `${webgltype(ittype)} ${it};\n`
-                //unroll forall/apply because dynamic access of arrays would require branching
+            //unroll forall/apply because dynamic access of arrays would require branching
             for (let i = 0; i < n; i++) {
                 code += `${it} = ${accesslist(arraytype, i)([sterm], [], this)};\n`
                 code += r.code;
@@ -720,10 +733,13 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
 
     } else if (expr['oper'] === "if$2" || expr['oper'] === "if$3") {
         let cond = this.compile(expr['args'][0], true);
-        let ifbranch = this.compile(expr['args'][1], generateTerm);
+        let condt = this.getType(expr['args'][0]);
 
         let code = '';
         let ansvar = '';
+
+        let ifbranch = this.compile(expr['args'][1], generateTerm);
+
 
         if (generateTerm) {
             ansvar = generateUniqueHelperString();
@@ -732,22 +748,36 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
                 this.variables[ansvar].T = ctype;
             }
         }
-        code += cond.code;
-        code += `if(${cond.term}) {\n`;
-        code += ifbranch.code;
-        if (generateTerm) {
-            code += `${ansvar} = ${this.castType(ifbranch.term, this.getType(expr['args'][1]), ctype)};\n`;
+
+
+        if (condt.type != 'constant') {
+            code += cond.code;
+            code += `if(${cond.term}) {\n`;
+        }
+
+
+        if (condt.type != 'constant' || (condt.type == 'constant' && condt.value["value"])) {
+            code += ifbranch.code;
+            if (generateTerm) {
+                code += `${ansvar} = ${this.castType(ifbranch.term, this.getType(expr['args'][1]), ctype)};\n`;
+            }
         }
 
         if (expr['oper'] === "if$3") {
             let elsebranch = this.compile(expr['args'][2], generateTerm);
-            code += '} else {\n';
-            code += elsebranch.code;
-            if (generateTerm) {
-                code += `${ansvar} = ${this.castType(elsebranch.term, this.getType(expr['args'][2]), ctype)};\n`;
+            if (condt.type != 'constant')
+                code += '} else {\n';
+
+
+            if (condt.type != 'constant' || (condt.type == 'constant' && !condt.value["value"])) {
+                code += elsebranch.code;
+                if (generateTerm) {
+                    code += `${ansvar} = ${this.castType(elsebranch.term, this.getType(expr['args'][2]), ctype)};\n`;
+                }
             }
         }
-        code += '}\n';
+        if (condt.type != 'constant')
+            code += '}\n';
         return (generateTerm ? {
             code: code,
             term: ansvar,
@@ -935,7 +965,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
 
 
     for (let iname in this.variables)
-        if (this.variables[iname]['global']) {
+        if (this.variables[iname].T && this.variables[iname]['global']) {
             code += `${webgltype(this.variables[iname].T)} ${iname};\n`;
         }
 
