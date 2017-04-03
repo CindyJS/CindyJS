@@ -666,7 +666,7 @@ evaluator.readpixels$1 = function(args, modifs) {
     var data = readPixelsIndirection(img, 0, 0, img.width, img.height);
     var pixels = [];
     for (var i = 0; i + 3 < data.length; i += 4) {
-        pixels.push(List.turnIntoCSList([CSNumber.real(data[i + 0]), CSNumber.real(data[i + 1]), CSNumber.real(data[i + 2]), CSNumber.real(data[i + 3])]))
+        pixels.push(List.turnIntoCSList([CSNumber.real(data[i + 0]), CSNumber.real(data[i + 1]), CSNumber.real(data[i + 2]), CSNumber.real(data[i + 3])]));
     }
-    return List.turnIntoCSList(pixels)
+    return List.turnIntoCSList(pixels);
 };
