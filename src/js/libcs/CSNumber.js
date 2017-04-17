@@ -425,6 +425,8 @@ CSNumber.sqrt = function(a) {
     var ii = a.value.imag;
     var n = Math.sqrt(Math.sqrt(rr * rr + ii * ii));
     var w = Math.atan2(ii, rr);
+    if (w < 0)
+        w += 2 * Math.PI;
     var i = n * Math.sin(w / 2);
     var r = n * Math.cos(w / 2);
     return {
