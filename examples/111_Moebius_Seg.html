@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+    <script type="text/javascript">
+createCindy({ 
+	scripts: "cs*", 
+	defaultAppearance: {}, 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 4.0, -1.846153846153846, -1.0989010989010988 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ 4.0, 1.4956521739130435, 0.8695652173913044 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "a", type: "Segment", pos: [ 0.01143772160585606, -2.3561706508063596, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "A", "B" ], labeled: true, size: 1 }, 
+		{ name: "C", type: "Free", pos: [ 4.0, 3.3404255319148937, 0.5319148936170213 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "D", type: "Free", pos: [ 4.0, 2.6887966804979255, 0.41493775933609955 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "E", type: "Free", pos: [ 4.0, 2.9411764705882355, 0.5882352941176471 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "F", type: "Free", pos: [ 4.0, 1.947826086956522, 0.4347826086956522 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "G", type: "Free", pos: [ 4.0, 2.0240963855421685, 0.6024096385542169 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "H", type: "Free", pos: [ 4.0, 0.6812227074235807, 0.43668122270742354 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "Tr0", type: "TrMoebius", color: [ 0.0, 0.0, 1.0 ], args: [ "C", "D", "E", "F", "G", "H" ] }, 
+		{ name: "C0", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "a" ], size: 1, printname: "$C_{0}$", labeled: true }, 
+		{ name: "C1", type: "Transform", color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "a" ], size: 1, printname: "$C_{1}$", labeled: true } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 335, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.08 ] } ], background: "rgb(168,176,192)" } ] });
+    </script>
+</head>
+<body>
+    <canvas id="CSCanvas"></canvas>
+</body>
+</html>

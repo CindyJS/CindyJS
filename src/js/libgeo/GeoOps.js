@@ -2222,6 +2222,31 @@ geoOps.TrMoebiusS.updatePosition = function(el) {
 };
 
 
+geoOps.TrMoebiusS = {};
+geoOps.TrMoebiusS.kind = "C";
+geoOps.TrMoebiusS.signature = ["Mt", "S"];
+geoOps.TrMoebiusS.updatePosition = function(el) {
+    var tr = csgeo.csnames[(el.args[0])];
+    var s = csgeo.csnames[(el.args[1])];
+
+    var a1 = s.startpos;
+    var a3 = s.endpos;
+    // gen further point on segment -- farpoint isn't really useful here
+    var a2 = geoOps._helper.midpoint(a1, a3);
+
+    var b1 = geoOps._helper.TrMoebiusP(a1, tr);
+    var b2 = geoOps._helper.TrMoebiusP(a2, tr);
+    var b3 = geoOps._helper.TrMoebiusP(a3, tr);
+    el.startPoint = b1;
+    el.viaPoint = b2;
+    el.endPoint = b3;
+
+    el.isArc = true;
+    el.matrix = List.normalizeMax(geoOps._helper.ConicBy5(null, b1, b2, b3, List.ii, List.jj));
+    el.matrix = General.withUsage(el.matrix, "Circle");
+};
+
+
 geoOps.TrMoebiusC = {};
 geoOps.TrMoebiusC.kind = "C";
 geoOps.TrMoebiusC.signature = ["Mt", "C"];
