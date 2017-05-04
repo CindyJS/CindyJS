@@ -252,7 +252,7 @@ CSNumber.multiMult = function(arr) {
     return erg;
 };
 
-CSNumber.abs2 = function (a) {
+CSNumber.abs2 = function(a) {
     return {
         "ctype": "number",
         "value": {
