@@ -270,7 +270,7 @@ webgl["_"] = args => {
         let k = Number(args[1].value["value"]["real"]);
         if (1 <= Math.abs(k) && Math.abs(k) <= t.length) {
             if (k > 0) k = k - 1;
-            if (k < 0) k = t.length - k;
+            if (k < 0) k = t.length + k;
             return {
                 args: args,
                 res: t.parameters,
@@ -657,6 +657,16 @@ webgl["%"] = first([
     ]);
 });
 
+webgl["!"] = first([
+    [
+        [type.bool], type.bool, usefunction('!')
+    ],
+    [
+        [type.voidt, type.bool], type.bool, args => usefunction('!')([args[1]])
+    ]
+]);
+
+webgl["not"] = webgl["!"];
 
 webgl["imagergb"] = first([
     [

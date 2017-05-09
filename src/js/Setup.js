@@ -639,8 +639,9 @@ function callFunctionNow(f) {
 }
 
 function loadExtraModules() {
-    if (usedFunctions.convexhull3d$1)
-        loadExtraPlugin("quickhull3d", "quickhull3d/quickhull3d.nocache.js");
+    if (usedFunctions.convexhull3d$1) {
+        loadExtraPlugin("QuickHull3D", "QuickHull3D.js");
+    }
 }
 
 var modulesToLoad = 1;

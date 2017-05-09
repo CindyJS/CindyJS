@@ -252,9 +252,7 @@ CSNumber.multiMult = function(arr) {
     return erg;
 };
 
-// BUG?
-// why do we have two argument but throw away the second argument?
-CSNumber.abs2 = function(a, b) {
+CSNumber.abs2 = function(a) {
     return {
         "ctype": "number",
         "value": {
@@ -264,8 +262,8 @@ CSNumber.abs2 = function(a, b) {
     };
 };
 
-CSNumber.abs = function(a1) {
-    return CSNumber.sqrt(CSNumber.abs2(a1));
+CSNumber.abs = function(a) {
+    return CSNumber.sqrt(CSNumber.abs2(a));
 };
 
 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CindyScript command line</title>
+    <meta charset="utf-8"/>
+    <script src="../../build/js/Cindy.js"></script>
+    <script src="../../build/js/symbolic.js"></script>
+    <link rel="stylesheet" href="../../build/js/CindyJS.css">
+    <script id='csinit' type='text/x-cindyscript'>
+      lastf = "x*sin(x)";
+      
+      updatefun(str) := (
+          parse("f(x) :=" + str);
+          diff(f(x), x, df(x):=#);
+          diff(df(x), x, ddf(x):=#);
+      );
+      updatefun(lastf);
+    </script>
+    
+    <script id='csdraw' type='text/x-cindyscript'>
+      if(Input.text!=lastf & Input.text!="", 
+        updatefun(Input.text);
+        lastf = Input.text;
+      );
+      draw((-10,0),(10,0),color->gray(0));
+      
+      plot(ddf(x), color->green(.5), size->1);
+      plot(df(x), color->red(1), size->3);
+      plot(f(x), size->5);
+      
+      drawtext((-2.8,-2),"f(x) = ");
+      drawtext((-2.8,-2.5),"degree = " + degree(f(x), x));
+    </script>
+    <script>
+      var cindy = CindyJS({
+        canvasname:"CSCanvas",
+        scripts: "cs*",
+        csconsole: false,
+        grid: 1,
+        use: ["symbolic"],
+        geometry: [
+          {name: "Input", type: "EditableText", pos: [-2, -2], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 300, text: "x*sin(x)"}
+        ],
+        ports: [{
+          id: "CSCanvas",
+          width: 700,
+          height: 500,
+          transform: [ { visibleRect: [ -5, -5, 5, 5 ] } ]
+        }]
+      });
+    </script>
+  </head>
+  <body>
+    <div id="CSCanvas"></div>
+  </body>
+</html>

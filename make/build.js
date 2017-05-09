@@ -168,13 +168,14 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     task("forbidden", [], function() {
-        this.forbidden("examples/**/*", [
+        this.forbidden("examples/**/*.html", [
             // Correct MIME type is "text/x-cindyscript"
             /<script[^>]*type *= *["'][^"'\/]*["']/g,          // requires /
             /<script[^>]*type *= *["']text\/cindyscript["']/g, // requires x-
-            /.*firstDrawing.*/g, // excessive copy & paste of old example
-            /.*(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js.*/g, // remote
+            /firstDrawing/g, // excessive copy & paste of old example
+            /(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js/g, // remote
             /<canvas[^>]+id=['"]CSCanvas/g,                    // use <div>
+            /quickhull3d\.nocache\.js/g,                         // use of JAVA-Version of quickhull
         ]);
         this.forbidden("ref/**/*.md", [
             /^#.*`.*<[A-Za-z0-9]+>.*?`/mg, // use ‹…› instead
@@ -352,7 +353,7 @@ module.exports = function build(settings, task) {
         "Sorter",
         "WebGL",
         "CodeBuilder",
-        "TextureReader"        
+        "TextureReader"
     ];
 
     var cgl_mods_from_c3d = [
@@ -493,8 +494,72 @@ module.exports = function build(settings, task) {
         };
         this.closureCompiler(closure_jar, opts);
     });
+    
+    
+    
+    //////////////////////////////////////////////////////////////////////
+    // Build symbolic-plugin
+    //////////////////////////////////////////////////////////////////////
+    task("symbolic", ["closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            compilation_level: "SIMPLE",
+            rewrite_polyfills: false,
+            warning_level: "DEFAULT",
+            output_wrapper_file: "plugins/symbolic/src/js/symbolic.js.wrapper",
+            js_output_file: "build/js/symbolic.js",
+            externs: "plugins/cindyjs.externs",
+            js: ["plugins/symbolic/src/js/symbolic.js"]
+        };
+        this.closureCompiler(closure_jar, opts);
+    });    
 
     
+    //////////////////////////////////////////////////////////////////////
+    // Build JavaScript version of Quick Hull 3D
+    //////////////////////////////////////////////////////////////////////
+
+    var fileNames = [
+        "QuickHull3D",
+        "Vector",
+        "HalfEdge",
+        "Vertex",
+        "VertexList",
+        "Face",
+        "FaceList",
+        "Plugin"
+    ];
+
+    var srcs = fileNames.map(function(fileName) {
+        return "plugins/QuickHull3D/src/js/" + fileName + ".js";
+    });
+
+    task("quickhull3d", ["closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            create_source_map: "build/js/QuickHull3D.js.map",
+            compilation_level: this.setting("qh3d_closure_level"),
+            warning_level: this.setting("qh3d_closure_warnings"),
+            source_map_format: "V3",
+            source_map_location_mapping: [
+                "build/js/|",
+                "plugins/|../../plugins/",
+            ],
+            output_wrapper_file: "plugins/QuickHull3D/src/js/QuickHull3D.js.wrapper",
+            js_output_file: "build/js/QuickHull3D.js",
+            externs: "plugins/cindyjs.externs",
+            js: srcs
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+
+
     //////////////////////////////////////////////////////////////////////
     // Run js-beautify for consistent coding style
     //////////////////////////////////////////////////////////////////////
@@ -668,11 +733,13 @@ module.exports = function build(settings, task) {
         "Cindy.js",
         "cindy3d",
         "cindygl",
+        "quickhull3d",
         "katex",
         "xlibs",
         "images",
         "sass",
-        "ComplexCurves"
+        "ComplexCurves",
+        "symbolic"
     ].concat(gwt_modules));
 
 };
