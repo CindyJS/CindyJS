@@ -2292,6 +2292,9 @@ geoOps._helper.trBuildMatrix = function(el, oneStep) {
 geoOps.TrProjection = {};
 geoOps.TrProjection.kind = "Tr";
 geoOps.TrProjection.signature = ["P", "P", "P", "P", "P", "P", "P", "P"];
+geoOps.TrProjection.initialize = function(el) {
+    el.isEuclidean = 0;
+};
 geoOps.TrProjection.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
         return eval_helper.basismap(
@@ -2310,6 +2313,9 @@ geoOps.TrProjection.updatePosition = function(el) {
 geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
 geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
+geoOps.TrAffine.initialize = function(el) {
+    el.isEuclidean = 0;
+};
 geoOps.TrAffine.updatePosition = function(el) {
     var mult = CSNumber.mult;
     var sm = List.scalmult;
@@ -2353,6 +2359,9 @@ geoOps.TrAffine.updatePosition = function(el) {
 geoOps.TrSimilarity = {};
 geoOps.TrSimilarity.kind = "Tr";
 geoOps.TrSimilarity.signature = ["P", "P", "P", "P"];
+geoOps.TrSimilarity.initialize = function(el) {
+    el.isEuclidean = 1;
+};
 geoOps.TrSimilarity.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
         var a = csgeo.csnames[el.args[0 + offset]].homog,
@@ -2365,6 +2374,9 @@ geoOps.TrSimilarity.updatePosition = function(el) {
 geoOps.TrTranslation = {};
 geoOps.TrTranslation.kind = "Tr";
 geoOps.TrTranslation.signature = ["P", "P"];
+geoOps.TrTranslation.initialize = function(el) {
+    el.isEuclidean = 1;
+};
 geoOps.TrTranslation.updatePosition = function(el) {
     /*
         Build this matrix when a is [aX, aY, aZ] and  b is [bX, bY, bZ]:
@@ -2401,6 +2413,9 @@ geoOps.TrTranslation.updatePosition = function(el) {
 geoOps.TrReflectionP = {};
 geoOps.TrReflectionP.kind = "Tr";
 geoOps.TrReflectionP.signature = ["P"];
+geoOps.TrReflectionP.initialize = function(el) {
+    el.isEuclidean = 1;
+};
 geoOps.TrReflectionP.updatePosition = function(el) {
     /*
         Build this matrix when p is [x, y, z]:
@@ -2426,6 +2441,9 @@ geoOps.TrReflectionP.updatePosition = function(el) {
 geoOps.TrReflectionL = {};
 geoOps.TrReflectionL.kind = "Tr";
 geoOps.TrReflectionL.signature = ["L"];
+geoOps.TrReflectionL.initialize = function(el) {
+    el.isEuclidean = -1;
+};
 geoOps.TrReflectionL.updatePosition = function(el) {
     /*
         Build this matrix when l is [x, y, z]:
@@ -2493,6 +2511,10 @@ geoOps.TrReflectionC.updatePosition = function(el) {
 geoOps.TrInverse = {};
 geoOps.TrInverse.kind = "Tr";
 geoOps.TrInverse.signature = ["Tr"];
+geoOps.TrInverse.initialize = function(el) {
+    var tr = csgeo.csnames[(el.args[0])];
+    el.isEuclidean = tr.isEuclidean;
+};
 geoOps.TrInverse.updatePosition = function(el) {
     var tr = csgeo.csnames[(el.args[0])];
     var m = tr.matrix;
@@ -2587,6 +2609,115 @@ geoOps.TransformPolygon.updatePosition = function(el) {
         homog = General.withUsage(homog, "Point");
         return homog;
     }));
+};
+
+geoOps.TrComposeTrTr = {};
+geoOps.TrComposeTrTr.kind = "Tr";
+geoOps.TrComposeTrTr.signature = ["Tr", "Tr"];
+geoOps.TrComposeTrTr.initialize = function(el) {
+    var a = csgeo.csnames[el.args[0]];
+    var b = csgeo.csnames[el.args[1]];
+    el.isEuclidean = a.isEuclidean * b.isEuclidean;
+};
+geoOps.TrComposeTrTr.updatePosition = function(el) {
+    var a = csgeo.csnames[el.args[0]];
+    var b = csgeo.csnames[el.args[1]];
+    el.matrix = List.normalizeMax(List.productMM(b.matrix, a.matrix));
+    el.dualMatrix = List.normalizeMax(List.productMM(b.dualMatrix, a.dualMatrix));
+};
+
+geoOps._helper.composeMtMt = function(el, m, n) {
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var mult = CSNumber.mult;
+
+    function f1(a, b, c, d) { // a*b + c*d
+        return add(mult(a, b), mult(c, d));
+    }
+
+    function f2(a, b, c, d, e, f, g, h) {
+        return add(f1(a, b, c, d), f1(e, f, g, h));
+    }
+
+    function f3(a, b, c, d, e, f, g, h) {
+        return sub(f1(a, b, c, d), f1(e, f, g, h));
+    }
+
+    var addsub = n.anti ? f3 : f2;
+    var subadd = n.anti ? f2 : f3;
+    var v = List.normalizeMax(List.turnIntoCSList([
+        subadd(m.ar, n.ar, m.cr, n.br, m.ai, n.ai, m.ci, n.bi),
+        addsub(m.ar, n.ai, m.cr, n.bi, m.ai, n.ar, m.ci, n.br),
+        subadd(m.br, n.ar, m.dr, n.br, m.bi, n.ai, m.di, n.bi),
+        addsub(m.br, n.ai, m.dr, n.bi, m.bi, n.ar, m.di, n.br),
+        subadd(m.ar, n.cr, m.cr, n.dr, m.ai, n.ci, m.ci, n.di),
+        addsub(m.ar, n.ci, m.cr, n.di, m.ai, n.cr, m.ci, n.dr),
+        subadd(m.br, n.cr, m.dr, n.dr, m.bi, n.ci, m.di, n.di),
+        addsub(m.br, n.ci, m.dr, n.di, m.bi, n.cr, m.di, n.dr)
+    ])).value;
+    el.moebius = {
+        anti: m.anti !== n.anti,
+        ar: v[0],
+        ai: v[1],
+        br: v[2],
+        bi: v[3],
+        cr: v[4],
+        ci: v[5],
+        dr: v[6],
+        di: v[7]
+    };
+    geoOps._helper.moebiusPair(el);
+};
+
+geoOps._helper.euc2moeb = function(el) {
+    var m = el.matrix.value;
+    return {
+        anti: el.isEuclidean < 0,
+        ar: m[0].value[0],
+        ai: m[1].value[0],
+        br: m[0].value[2],
+        bi: m[1].value[2],
+        cr: CSNumber.zero,
+        ci: CSNumber.zero,
+        dr: m[2].value[2],
+        di: CSNumber.zero
+    };
+};
+
+geoOps.TrComposeMtMt = {};
+geoOps.TrComposeMtMt.kind = "Mt";
+geoOps.TrComposeMtMt.signature = ["Mt", "Mt"];
+geoOps.TrComposeMtMt.updatePosition = function(el) {
+    geoOps._helper.composeMtMt(
+        el,
+        csgeo.csnames[el.args[0]].moebius,
+        csgeo.csnames[el.args[1]].moebius);
+};
+
+geoOps.TrComposeTrMt = {};
+geoOps.TrComposeTrMt.kind = "Mt";
+geoOps.TrComposeTrMt.signature = ["Tr", "Mt"];
+geoOps.TrComposeTrMt.signatureConstraints = function(el) {
+    return !!csgeo.csnames[el.args[0]].isEuclidean;
+};
+geoOps.TrComposeTrMt.updatePosition = function(el) {
+    geoOps._helper.composeMtMt(
+        el,
+        geoOps._helper.euc2moeb(csgeo.csnames[el.args[0]]),
+        csgeo.csnames[el.args[1]].moebius);
+};
+
+geoOps.TrComposeMtTr = {};
+geoOps.TrComposeMtTr.kind = "Mt";
+geoOps.TrComposeMtTr.signature = ["Mt", "Tr"];
+geoOps.TrComposeMtTr.signatureConstraints = function(el) {
+    return !!csgeo.csnames[el.args[1]].isEuclidean;
+};
+geoOps.TrComposeMtTr.updatePosition = function(el) {
+    geoOps._helper.composeMtMt(
+        el,
+        csgeo.csnames[el.args[0]].moebius,
+        geoOps._helper.euc2moeb(csgeo.csnames[el.args[1]]));
 };
 
 geoOps._helper.pointReflection = function(center, point) {
@@ -3014,6 +3145,19 @@ geoMacros.Transform = function(el) {
 
 geoMacros.TrReflection = function(el) {
     var op = "TrReflection" + csgeo.csnames[el.args[0]].kind;
+    if (geoOps.hasOwnProperty(op)) {
+        el.type = op;
+        return [el];
+    } else {
+        console.log(op + " not implemented yet");
+        return [];
+    }
+};
+
+geoMacros.TrCompose = function(el) {
+    var op = "TrCompose" + el.args.map(function(name) {
+        return csgeo.csnames[name].kind;
+    }).join("");
     if (geoOps.hasOwnProperty(op)) {
         el.type = op;
         return [el];
