@@ -480,6 +480,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
                     forceconstant: forceconstant
                 };
             }
+            uniforms[uname].forceconstant = uniforms[uname].forceconstant || forceconstant;
             expr["isuniform"] = true;
             expr["uvariable"] = uname;
         }
