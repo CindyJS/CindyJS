@@ -144,7 +144,7 @@ drawit() := (
   translate((0, -3));
   forall(1..5, draw((-100, #), (100, #), color->[0,0,0]));
   forall(-1..1, draw((8*xscale*#, -2), (8*xscale*#, 8), color->[0,0,1]));
-  now = if(played, midiposition() - 2, 0);
+  now = if(played, midiposition(), 0);
   translate((xscale*(16 - now), 0));
   forall(score, note,
     if (note_2 > 1,

@@ -3,7 +3,10 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     "use strict";
 
     //var soundfont = CindyJS.getBaseDir() + "soundfont/";
-    var soundfont = "http://cindyjs.org/extras/midi-js-soundfonts/MusyngKite/";
+    //var soundfont = "http://cindyjs.org/extras/midi-js-soundfonts/MusyngKite/"; //does not have percussion-ogg.js 
+    var soundfont = "http://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/"; //we would like to have that on cindyjs.org
+    
+    console.log(soundfont);
 
     var midijsStatus = -2; // wait for two scripts to load
 
@@ -310,7 +313,7 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     });
 
     function playMelody(t0, melody) {
-        var melodyStartTime = t0;
+        melodyStartTime = t0;
         var maxChunk = 20;
         if (melody.length > maxChunk) {
             var delta = (melody[maxChunk].time + t0 - MIDI.now()) * 1000 - 200;
