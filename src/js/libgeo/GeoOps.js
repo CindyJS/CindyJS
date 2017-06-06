@@ -619,9 +619,25 @@ geoOps.PointOnSegment.initialize = function(el) {
     var cr = geoOps.PointOnSegment.getParamForInput(el, pos);
     putStateComplexNumber(cr);
 };
-geoOps.PointOnSegment.getParamForInput = function(el, pos) {
+geoOps.PointOnSegment.getParamForInput = function(el, pos, type) {
     var seg = csgeo.csnames[el.args[0]];
     var line = seg.homog;
+
+    // snap to grid
+    if (type === "mouse" && cssnap && csgridsize !== 0) {
+        pos = List.normalizeZ(pos);
+        var sx = pos.value[0].value.real;
+        var sy = pos.value[1].value.real;
+        var rx = Math.round(sx / csgridsize) * csgridsize;
+        var ry = Math.round(sy / csgridsize) * csgridsize;
+        var newpos = List.realVector([rx, ry, 1]);
+        if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2 && 
+            CSNumber.abs(List.scalproduct(line,newpos)).value.real < CSNumber.eps)
+             {
+                 pos = newpos;
+        }
+    }
+
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
     var farpoint = List.sub(seg.startpos, seg.endpos);
     var cr = List.crossratio3(
