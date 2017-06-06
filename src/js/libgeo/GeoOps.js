@@ -3069,8 +3069,10 @@ geoOps.Poly.updatePosition = function(el) {
 };
 
 geoOps._helper.snapPointToLine = function(pos, line){
+        // fail safe for far points
+        if(CSNumber._helper.isAlmostZero(pos.value[2])) return pos;
         // project point to line - useful for semi free elements
-        var projPos = geoOps._helper.projectPointToLine(pos, line)
+        var projPos = geoOps._helper.projectPointToLine(pos, line);
         projPos = List.normalizeZ(projPos);
 
         var sx = projPos.value[0].value.real;
