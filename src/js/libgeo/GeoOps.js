@@ -464,7 +464,7 @@ geoOps.PointOnLine.getParamForInput = function(el, pos, type) {
     var line = csgeo.csnames[(el.args[0])].homog;
     pos = geoOps._helper.projectPointToLine(pos, line);
     if (type === "mouse" && cssnap && csgridsize !== 0) {
-       pos = geoOps._helper.snapPointToLine(pos, line);
+        pos = geoOps._helper.snapPointToLine(pos, line);
     }
     return pos;
 };
@@ -615,7 +615,7 @@ geoOps.PointOnSegment.getParamForInput = function(el, pos, type) {
 
     // snap to grid
     if (type === "mouse" && cssnap && csgridsize !== 0) {
-       pos = geoOps._helper.snapPointToLine(pos, line);
+        pos = geoOps._helper.snapPointToLine(pos, line);
     }
 
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
@@ -3068,23 +3068,22 @@ geoOps.Poly.updatePosition = function(el) {
     }));
 };
 
-geoOps._helper.snapPointToLine = function(pos, line){
-        // fail safe for far points
-        if(CSNumber._helper.isAlmostZero(pos.value[2])) return pos;
-        // project point to line - useful for semi free elements
-        var projPos = geoOps._helper.projectPointToLine(pos, line);
-        projPos = List.normalizeZ(projPos);
+geoOps._helper.snapPointToLine = function(pos, line) {
+    // fail safe for far points
+    if (CSNumber._helper.isAlmostZero(pos.value[2])) return pos;
+    // project point to line - useful for semi free elements
+    var projPos = geoOps._helper.projectPointToLine(pos, line);
+    projPos = List.normalizeZ(projPos);
 
-        var sx = projPos.value[0].value.real;
-        var sy = projPos.value[1].value.real;
-        var rx = Math.round(sx / csgridsize) * csgridsize;
-        var ry = Math.round(sy / csgridsize) * csgridsize;
-        var newpos = List.realVector([rx, ry, 1]);
-        if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2 && 
-            CSNumber.abs(List.scalproduct(line,newpos)).value.real < CSNumber.eps)
-             {
-                 pos = newpos;
-        }
+    var sx = projPos.value[0].value.real;
+    var sy = projPos.value[1].value.real;
+    var rx = Math.round(sx / csgridsize) * csgridsize;
+    var ry = Math.round(sy / csgridsize) * csgridsize;
+    var newpos = List.realVector([rx, ry, 1]);
+    if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2 &&
+        CSNumber.abs(List.scalproduct(line, newpos)).value.real < CSNumber.eps) {
+        pos = newpos;
+    }
     return pos;
 };
 
