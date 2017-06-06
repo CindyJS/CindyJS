@@ -463,7 +463,19 @@ geoOps.PointOnLine.updatePosition = function(el, isMover) {
 geoOps.PointOnLine.getParamForInput = function(el, pos, type) {
     var line = csgeo.csnames[(el.args[0])].homog;
     pos = geoOps._helper.projectPointToLine(pos, line);
-    // TODO: snap to grid
+    if (type === "mouse" && cssnap && csgridsize !== 0) {
+        pos = List.normalizeZ(pos);
+        var sx = pos.value[0].value.real;
+        var sy = pos.value[1].value.real;
+        var rx = Math.round(sx / csgridsize) * csgridsize;
+        var ry = Math.round(sy / csgridsize) * csgridsize;
+        var newpos = List.realVector([rx, ry, 1]);
+        if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2 && 
+            CSNumber.abs(List.scalproduct(line,newpos)).value.real < CSNumber.eps)
+             {
+                 pos = newpos;
+        }
+    }
     return pos;
 };
 geoOps.PointOnLine.getParamFromState = function(el) {
