@@ -3081,8 +3081,9 @@ geoOps._helper.snapPointToLine = function(pos, line) {
     var ry = Math.round(sy / csgridsize) * csgridsize;
     var newpos = List.realVector([rx, ry, 1]);
     if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2 &&
-        CSNumber.abs(List.scalproduct(line, newpos)).value.real < CSNumber.eps) {
-        pos = newpos;
+        CSNumber._helper.isAlmostZero(List.scalproduct(line, newpos)))
+         {
+        pos = geoOps._helper.projectPointToLine(newpos, line);
     }
     return pos;
 };
