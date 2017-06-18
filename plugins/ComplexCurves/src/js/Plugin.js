@@ -135,9 +135,11 @@ CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
                         ComplexCurves$1([args[0]], modifs);
                     });
         } else {
-            instances[canvasId] = ComplexCurvesFromEquation(canvas, equationOrFile,
-                depth);
-            ComplexCurves$1([args[0]], modifs);
+            let cc = ComplexCurvesFromEquation(canvas, equationOrFile, depth);
+            if (!!cc) {
+                instances[canvasId] = cc;
+                ComplexCurves$1([args[0]], modifs);
+            }
         }
         return nada;
     });
