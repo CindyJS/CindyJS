@@ -284,6 +284,7 @@ module.exports = function build(settings, task) {
         "Camera",
         "Appearance",
         "Viewer",
+        "Controls",
         "Lighting",
         "PrimitiveRenderer",
         "Spheres",
