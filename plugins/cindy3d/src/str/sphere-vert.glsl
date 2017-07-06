@@ -30,6 +30,7 @@ void main() {
   // Copy attributes to varyings for use in the fragment shader
   vColor = aColor;
   vShininess = aRelativeShininessRadius.z;
+  vSpecularReflectiveness = (1.0 - pow(0.95, vShininess));
   vRadius = aRelativeShininessRadius.w;
 
   // Cover sphere by quad in front of the real sphere
