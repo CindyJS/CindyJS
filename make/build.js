@@ -284,6 +284,7 @@ module.exports = function build(settings, task) {
         "Camera",
         "Appearance",
         "Viewer",
+        "Controls",
         "Lighting",
         "PrimitiveRenderer",
         "Spheres",
@@ -425,18 +426,13 @@ module.exports = function build(settings, task) {
         return commit;
     }
     var cc_lib_dir = "plugins/ComplexCurves/lib/ComplexCurves/";
-    var cc_shaders = Array.prototype.concat.apply(
-        ["Common.glsl", "Textures.glsl"], [
-            "Assembly", "CachedSurface", "DomainColouring", "Export", "FXAA",
-            "Initial", "Subdivision", "SubdivisionPre", "Surface",
-        ].map(function(name) { return [name + ".vert", name + ".frag"]; }))
-        .map(function(name) { return cc_lib_dir + "src/glsl/" + name; });
+    var cc_shaders = glob.sync(cc_lib_dir + "src/glsl/" + "*.{frag,vert,glsl}");
     var cc_mods = [
         "Assembly", "CachedSurface", "Complex", "ComplexCurves", "Export",
         "GLSL", "Initial", "Matrix", "Mesh", "Misc", "Monomial", "Parser",
         "Polynomial", "PolynomialParser", "Quaternion", "Stage", "State3D",
         "StateGL", "Subdivision", "SubdivisionPre", "Surface", "Term",
-        "Tokenizer"
+        "Tokenizer", "TransformFeedback"
     ];
     var cc_mods_from_c3d = [
         "Interface"

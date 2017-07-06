@@ -3877,6 +3877,94 @@ evaluator.allelements$1 = function(args, modifs) {
     });
 };
 
+evaluator.elementsatmouse$0 = function(args, modifs) {
+    var eps = 0.5;
+    var mouse = List.realVector([csmouse[0], csmouse[1], 1]);
+
+    var distMouse = function(p) {
+        if (CSNumber._helper.isAlmostZero(p.value[2])) return Infinity;
+        var pz = List.normalizeZ(p);
+        return List.abs(List.sub(pz, mouse)).value.real;
+    };
+
+    var getPerp = function(l) {
+        var fp = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
+        return List.normalizeMax(List.cross(mouse, fp));
+    };
+
+    var inciPP = function(p) {
+        return (distMouse(p.homog) < eps);
+    };
+
+    var inciPL = function(l) {
+        var perp = getPerp(l.homog);
+        var pp = List.normalizeMax(List.cross(l.homog, perp));
+        var d = distMouse(pp);
+        return (d < eps);
+    };
+
+    var inciPC = function(c) {
+        var l = General.mult(c.matrix, mouse);
+        var perp = getPerp(l);
+        var sect = geoOps._helper.IntersectLC(perp, c.matrix);
+        var dists = sect.map(function(el) {
+            return distMouse(el);
+        });
+
+        var erg = Math.min(dists[0], dists[1]);
+
+        return (erg < eps);
+    };
+
+    var points = csgeo.points.filter(inciPP);
+
+    var lines = csgeo.lines.filter(function(el) {
+        var val = inciPL(el);
+        // fetch segment
+        if (val && el.kind === "S") {
+            var line = el.homog;
+            var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+            var cr = List.crossratio3(
+                el.farpoint, el.startpos, el.endpos, mouse, tt).value.real;
+            if (cr < 0 || cr > 1) val = false;
+        }
+
+        return val;
+    });
+
+    var conics = csgeo.conics.filter(function(el) {
+        var val = inciPC(el);
+        // fetch arc
+        if (val && el.isArc) {
+            var cr = List.crossratio3harm(el.startPoint, el.endPoint,
+                el.viaPoint, mouse, List.ii);
+            var m = cr.value[0];
+            var n = cr.value[1];
+            if (!CSNumber._helper.isAlmostZero(m)) {
+                n = CSNumber.div(n, m);
+                m = CSNumber.real(1);
+            } else {
+                m = CSNumber.div(m, n);
+                n = CSNumber.real(1);
+            }
+            var nor = List.abs(List.turnIntoCSList([n, m]));
+            m = CSNumber.div(m, nor);
+            n = CSNumber.div(n, nor);
+
+            var prod = CSNumber.mult(n, m);
+            if (m.value.real < 0) prod = CSNumber.neg(prod);
+
+            if (prod.value.real < 0) val = false;
+        }
+        return val;
+    });
+
+
+    var elts = points.concat(lines, conics);
+
+    return List.ofGeos(elts);
+};
+
 evaluator.incidences$1 = evaluator.allelements$1;
 
 evaluator.createpoint$2 = function(args, modifs) {

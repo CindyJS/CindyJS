@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="mousemove" type="text/x-cindyscript">
+apply(allelements(),#.alpha=1);
+apply(elementsatmouse(),#.alpha=0);
+repaint();
+</script>
+    <script type="text/javascript">
+CindyJS({
+  scripts: "mousemove",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, 3.393939393939394, 0.7575757575757576], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "B", type: "Free", pos: [4.0, 1.0683229813664596, 0.6211180124223602], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C", type: "Free", pos: [4.0, 1.9104477611940296, 1.4925373134328357], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "D", type: "Free", pos: [-0.7567567567567569, -4.0, -1.3513513513513513], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "E", type: "Free", pos: [1.7142857142857142, -4.0, -1.0204081632653061], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "F", type: "Free", pos: [4.0, -2.1212121212121207, 1.5151515151515151], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "G", type: "Free", pos: [4.0, 0.26168224299065423, -0.9345794392523364], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "H", type: "Free", pos: [2.538922155688623, -4.0, -0.5988023952095808], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "a", type: "Join", color: [0.0, 0.0, 1.0], args: ["G", "H"], labeled: true},
+    {name: "seg", type: "Segment", color: [0.0, 0.0, 1.0], args: ["E", "F"], labeled: true},
+    {name: "Arc", type: "Arc", color: [0.0, 0.0, 1.0], args: ["A", "B", "C"], labeled: true},
+    {name: "K", type: "Free", pos: [4.0, 1.8181818181818181, 0.36363636363636365], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C0", type: "CircleByRadius", pos: {xx: 0.007115452485854481, yy: 0.007115452485854481, zz: 1.0, xy: 0.0, xz: -0.15653995468879858, yz: 0.07115452485854482}, color: [0.0, 0.0, 1.0], radius: 2.336835467036565, args: ["K"], printname: "$C_{0}$"}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 335,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.06]}],
+    axes: true,
+    grid: 1.0,
+    snap: true,
+    background: "rgb(168,176,192)"
+  }],
+  cinderella: {build: 1869, version: [2, 9, 1869]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

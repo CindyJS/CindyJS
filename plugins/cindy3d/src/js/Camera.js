@@ -221,7 +221,7 @@ Camera.prototype.translateZ = function(dy) {
  * @param {number} dy
  */
 Camera.prototype.rotateZ = function(dy) {
-  let a = Camera.ROTATE_SENSITIVITY*dy;
+  let a = dy;
   let c = Math.cos(a), s = Math.sin(a);
   let m = [
     c, -s, 0, 0,
