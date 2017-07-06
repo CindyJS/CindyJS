@@ -348,7 +348,9 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
     let myfunctions = this.myfunctions;
 
     var variableDependendsOnPixel = {
-        'cgl_pixel': true
+        'cgl_pixel': true,
+        'cgl_pixel.x': true,
+        'cgl_pixel.y': true
     }; //dict of this.variables being dependent on #
 
     //KISS-Fix: every variable appearing on left side of assigment is varying
@@ -516,9 +518,87 @@ CodeBuilder.prototype.copyRequiredFunctions = function(expr) {
 }
 
 
-CodeBuilder.prototype.precompile = function(expr, bindings) {
+CodeBuilder.prototype.generatePixelBindings = function(expr) {
+    let bindings = {};
+    let free = {};
+
+    function clone(a) {
+        let c = {};
+        for (let i in a) c[i] = a[i];
+        return c;
+    };
+
+    function rec(expr, bounded) {
+        if (expr['oper'] === "repeat$2" || expr['oper'] === "forall$2" || expr['oper'] === "apply$2") {
+            bounded = clone(bounded);
+            bounded['#'] = true;
+        } else if (expr['oper'] === "repeat$3" || expr['oper'] === "forall$3" || expr['oper'] === "apply$3") {
+            bounded = clone(bounded);
+            bounded[expr['args'][1]['name']] = true;
+        } else if (expr['oper'] === "=") {
+            bounded[expr['args'][0]['name']] = true;
+        }
+
+        for (let i in expr['args']) {
+            rec(expr['args'][i], bounded);
+        }
+
+        if (expr['ctype'] === 'field') {
+            rec(expr['obj'], bounded);
+        }
+
+        if (expr['ctype'] === 'variable') {
+            let vname = expr['name'];
+            if (!bounded[vname]) free[vname] = true;
+        }
+    }
+
+    rec(expr, {});
+
+    this.initvariable('cgl_pixel', false);
+    this.variables['cgl_pixel'].T = type.vec2;
+    if (Object.keys(free).length == 1) {
+        bindings[Object.keys(free)[0]] = 'cgl_pixel';
+    } else if (free['#']) {
+        bindings['#'] = 'cgl_pixel';
+    } else if (free['x'] && free['y']) {
+        this.initvariable('cgl_pixel.x', false);
+        this.variables['cgl_pixel.x'].T = type.float;
+        bindings['x'] = 'cgl_pixel.x';
+
+        this.initvariable('cgl_pixel.y', false);
+        this.variables['cgl_pixel.y'].T = type.float;
+        bindings['y'] = 'cgl_pixel.y';
+    } else {
+        //generate list of not assigned. if length =1 .
+        let notassigned = [];
+
+        for (let v in free) {
+            if (this.api.nada == this.api.evaluateAndVal({
+                    "ctype": 'variable',
+                    "name": v
+                })) notassigned.push(v);
+        }
+
+        if (notassigned.length == 1) {
+            bindings[notassigned[0]] = 'cgl_pixel';
+        } else if (free['p']) {
+            bindings['p'] = 'cgl_pixel';
+        } else if (free['z']) {
+            bindings['z'] = 'cgl_pixel';
+        }
+    }
+
+    if (bindings['z'] === 'cgl_pixel') {
+        this.variables['cgl_pixel'].T = type.complex;
+    }
+
+    return bindings;
+}
+
+CodeBuilder.prototype.precompile = function(expr) {
     this.copyRequiredFunctions(expr);
-    this.determineVariables(expr, bindings);
+    this.determineVariables(expr, this.generatePixelBindings(expr));
     this.determineUniforms(expr);
     this.determineUniformTypes();
 
@@ -943,12 +1023,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     helpercnt = 0;
     expr = cloneExpression(expr); //then we can write dirty things on expr...
 
-    this.initvariable('cgl_pixel', false);
-    this.variables['cgl_pixel'].T = type.vec2;
-    let bindings = {
-        '#': 'cgl_pixel'
-    }
-    this.precompile(expr, bindings); //determine this.variables, types etc.
+    this.precompile(expr); //determine this.variables, types etc.
     let r = this.compile(expr, true);
     let rtype = this.getType(expr);
     let colorterm = this.castType(r.term, rtype, type.color);

@@ -234,59 +234,57 @@ This statement supports exactly the same modifiers as `fillplot(…)`.
 ###  Colorplots
 
 Colorplots are useful to create visual information about functions defined in the entire plane.
-They can associate a color value to every point in a rectangle.
+They can associate a color value to every point within a specified area.
 
-#### Creating a colorplot: `colorplot(‹expr›,‹vec›,‹vec›)`
+In the Cinderella, colorplots will be computed on the CPU. In CindyJS, colorplots are compiled to WebGL at the first time when the command is called on a given expression. For consecutive calls of colorplot applied to the same expression, the compiled program is re-used as long as the occurring types have not changed. If the types have changed in the meantime, a recompilation is forced.
 
-**Not available in CindyJS yet!**
+Due to the compilation to WebGL, there are some restrictions for the expressions that can be used for `colorplot`.
+For example, the `while`-operator and recursive functions must not be used.
+
+For every variable that appears on the left side of an assignment within a `colorplot`-expression, it must be possible to determine its type in advance. Also, the type signature of a user defined functions must be determinable.
+
+The only allowed types are boolean values, integers, real numbers, complex numbers, points, vectors, and lists of fixed length. All members of a list must be of the same type and this type must be one of the allowed types. 
+
+In CindyJS, there are limitations for the terms that can be used within `colorplot`:
+  * Every CindyJS operation is allowed if the term does not depend on the pixel coordinate and does not contain an internal assignment of a variable.
+  * For all other terms, only the following operations are allowed:  `^`, `<`, `<=`, `=`, `==`, `>`, `>=`, `_`, `-`, `;`, `!=`, `/`, `&`, `%`, `+`, `abs`, `abs_infix`, `add`, `apply`, `arctan`, `arctan2`, `blue`, `ceil`, `complex`, `conjugate`, `cos`, `dist`, `dist_infix`, `div`, `exp`, `floor`, `forall`, `genList`, `green`, `grey`, `hue`, `if`, `im`, `imagergb`, `imagergba`, `join`, `log`, `max`, `meet`, `min`, `mod`, `mult`, `pow`, `random`, `re`, `red`, `regional`, `repeat`, `round`, `sin`, `sqrt`, `sub`, `sum`, `tan`.
+
+For technical reasons, both `repeat` (the number of iterations) and `_` (the index of the accessed field) require a constant argument. A term is considered to be constant if it is either a number or a function of constant terms. If an expression within a loop (`repeat`, `forall` or `apply`) that depends on the running variable is required to be constant, CindyJS tries to unroll the corresponding loop.
+
+#### Creating a colorplot on the entire drawing canvas `colorplot(‹expr›)`
 
 **Description:**
 The `colorplot` operator makes it possible to give a visualization of a planar function.
-To each point of a rectangle a color value can be assigned by a function.
+To each point of the entire drawing canvas a color value can be assigned by a function.
 In the function `‹expr›` the running variable may be chosen as `#` (for more on running variables, see below).
-However, it is important to notice that this variable describes now a point in the plane (this is a variable two dimensional coordinates).
-The return value of `‹expr›` should be either a real number (in which case a gray value is assigned) or a vector of three real numbers (in which case an RGB color value is assigned).
+However, it is important to notice that this variable describes now a point in the plane (this is a variable in two-dimensional coordinates).
+The return value of `‹expr›` should be either a real number (in which case a gray value is assigned) or a vector of three real numbers (in which case an RGB color value is assigned) or a vector of four real numbers (in which case an RGBA value is assigned -- The fourth component represents the alpha value).
 In any case, the values of the real numbers should lie between 0 and 1.
-The second and third argument determine the lower left and the upper right corners of the drawing area.
-
-**Example:**
-The following code and two points A and B produce the picture below.
-In the first line, a real-valued function is defined that assigns to two points the sine of the distance between them (shifted and scaled to fit into the interval [0, 1]).
-The first argument of the `colorplot` operator is now a vector of three numbers depending on the run variable `#` (the red part is a circular wave around A, the green part is zero, and the blue part is a circular wave around B).
-Finally, C and D mark the corners of the rectangle.
-
-    > f(A,B):=((1+sin(2*dist(A,B)))/2);
-    > colorplot(
-    >    (f(A,#),0,f(B,#)),
-    >    C,D
-    > )
-
-![Image](img/ColPlot2X.png)
 
 **Running Variables:**
 Usually `#` is a good choice for the running variable in the `colorplot` function.
-However also other choices are possible.
-The possibilites for running variables are checked in the following order:
+However, also other choices are possible.
+The possibilities for running variables are checked in the following order:
 
-*  If there is only one free variable in `‹expr›` then this variable is taken as running variable and interpreted as a two dimensional vector.
+*  If there is only one free variable in `‹expr›` then this variable is taken as running variable and interpreted as a two-dimensional vector (as long as it is different from `z`).
 
-*  If `‹expr›` contains `#` the `#` is taken as running variable (again as a two dimensional vector)
+*  If `‹expr›` contains `#` the `#` is taken as running variable (again as a two-dimensional vector)
 
-*  If `‹expr›` contains both `x` and `y` as free varaibles the these two variables can be used as running variables the together represent the vector `(x,y)`.
+*  If `‹expr›` contains both `x` and `y` as free variables the these two variables can be used as running variables the together represent the vector `(x,y)`.
 
 *  If exactly one free variable is not assigned yet, then this variable is taken (as vector)
 
 *  if none of the above happens also `p` (for point) and `z` (for complex number) are checked as running variables.
 
-For instance the following line
+*  In any case, if `z` is the running variable, it will be interpreted as complex number (instead of a two-dimensional vector).
 
-    > colorplot((sin(2*x),sin(2*y),0),A,B)
 
-produces the following picture:
 
-![Image](img/ColPlot4X.png)
 
 **Modifiers:**
+
+**Not available in CindyJS yet!**
+
 The `colorplot` operator supports three modifiers.
 The modifier `pxlres` can be set to an integer that determines the size in pixels of the elementary quadrangles of the color plot.
 The picture above was taken with `pxlres->2` which is the default value.
@@ -317,6 +315,50 @@ The picture below was generated by the following code, which is only a slight mo
 
 ![Image](img/ColPlot3X.png)
 
+
+#### Creating a colorplot on a rectangular area: `colorplot(‹expr›,‹vec›,‹vec›)`
+
+To each point of a rectangle a color value can be assigned by a function.
+The second and third argument determine the lower left and the upper right corners of the drawing area.
+
+**Example:**
+The following code and two points A and B produce the picture below.
+In the first line, a real-valued function is defined that assigns to two points the sine of the distance between them (shifted and scaled to fit into the interval [0, 1]).
+The first argument of the `colorplot` operator is now a vector of three numbers depending on the run variable `#` (the red part is a circular wave around A, the green part is zero, and the blue part is a circular wave around B).
+Finally, C and D mark the corners of the rectangle.
+
+    > f(A,B):=((1+sin(2*dist(A,B)))/2);
+    > colorplot(
+    >    (f(A,#),0,f(B,#)),
+    >    C,D
+    > )
+
+![Image](img/ColPlot2X.png)
+
+
+**Running Variables:**
+
+For `colorplot(‹expr›,‹vec›,‹vec›)` the same rules for the running variable apply as to `colorplot(‹expr›)`. For instance the following line
+
+  > colorplot((sin(2*x),sin(2*y),0),A,B)
+
+produces the following picture:
+
+![Image](img/ColPlot4X.png)
+
+
+#### Creating a colorplot on a canvas with two reference points: `colorplot(‹pos›,‹pos›,‹imagename›,‹expr›)`
+
+ This operator uses `‹imagename›` as a canvas and positions it with respect to two reference point identical to the rules of the `drawimage(‹pos›,‹pos›,‹imagename›)` operator. Then the two-dimensional function described by the expression in the last argument will be plotted to the canvas.
+ 
+ The rules for choosing the running variable within the expressions are the same as for `colorplot(‹expr›)`.
+
+#### Creating a colorplot on a canvas with no reference points: `colorplot(‹imagename›,‹expr›)`
+
+  This operator uses `‹imagename›` as a canvas. Then the two-dimensional function described by the expression in the second will be plotted to the canvas. For the coordinates, CindyJS will assume that the two lower corners of the given canvas and the main drawing area coincide.
+  
+  The rules for choosing the running variable within the expressions are the same as for `colorplot(‹expr›)`.
+  
 ------
 
 ------
