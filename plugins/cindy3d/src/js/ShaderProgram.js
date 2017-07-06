@@ -25,6 +25,17 @@ GlError.prototype.toString = function() {
  */
 function ShaderProgram(gl, vertexShaderCode, fragmentShaderCode) {
   this.handle = gl.createProgram();
+  if(gl.webgl2) {
+    vertexShaderCode = "#version 300 es\n" +
+      vertexShaderCode.replace(/attribute/g, 'in')
+       .replace(/varying/g, 'out');
+    fragmentShaderCode = "#version 300 es\n" +
+      fragmentShaderCode.replace(/varying/g, 'in')
+       .replace(/gl_FragColor/g, 'FragColor')
+       .replace(/texture2D/g, 'texture')
+       .replace(/precision highp float;/g, "precision highp float;\n#define webgl2 true\nout vec4 FragColor;")
+       .replace(/gl_FragDepthEXT/g, "gl_FragDepth");
+  }
   this.vs = this.createShader(gl, gl.VERTEX_SHADER, vertexShaderCode);
   this.fs = this.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderCode);
   this.link(gl);

@@ -29,4 +29,8 @@ void finish(in vec3 pos, in vec3 normal) {
   vec4 projPoint = uProjectionMatrix * vec4(pos, 1);
   gl_FragDepthEXT = (projPoint.z / projPoint.w + 1.0) / 2.0;
 #endif
+#ifdef webgl2
+  vec4 projPoint = uProjectionMatrix * vec4(pos, 1);
+  gl_FragDepthEXT = (projPoint.z / projPoint.w + 1.0) / 2.0;
+#endif
 }
