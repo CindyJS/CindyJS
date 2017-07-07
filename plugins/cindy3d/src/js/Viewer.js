@@ -30,6 +30,28 @@ function Viewer(name, ccOpts, opts, addEventListener) {
       canvas.getContext("experimental-webgl", ccOpts));
   if (!gl)
     throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
+
+  if (/[?&]frag_depth=0/.test(window.location.search)) {
+    this.glExtFragDepth = null;
+  }
+  else {
+    this.glExtFragDepth = gl.getExtension("EXT_frag_depth");
+    if (!this.glExtFragDepth) {
+      console.log("EXT_frag_depth extension not supported, " +
+                  "will try webgl 2.0.");
+      let gl2 = /** @type {WebGLRenderingContext} */(
+        canvas.getContext("webgl2", ccOpts));
+      if (gl2) {
+        gl = gl2;
+        gl.webgl2 = true;
+        console.log("Loaded Webgl 2.0!");
+      } else {
+        console.log("Webgl 2.0 is not availible, " +
+                    "render in reduced quality.");
+      }
+    }
+  }
+
   canvas.removeEventListener(
     "webglcontextcreationerror",
     onContextCreationError, false);
@@ -40,15 +62,6 @@ function Viewer(name, ccOpts, opts, addEventListener) {
   this.width = canvas.width;
   this.height = canvas.height;
   this.gl = gl;
-  if (/[?&]frag_depth=0/.test(window.location.search)) {
-    this.glExtFragDepth = null;
-  }
-  else {
-    this.glExtFragDepth = gl.getExtension("EXT_frag_depth");
-    if (!this.glExtFragDepth)
-      console.log("EXT_frag_depth extension not supported, " +
-                  "will render with reduced quality.");
-  }
 
   this.ssFactor = 1;
   if (opts && opts.superSample) {
