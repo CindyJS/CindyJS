@@ -33,8 +33,7 @@ function ShaderProgram(gl, vertexShaderCode, fragmentShaderCode) {
       fragmentShaderCode.replace(/varying/g, 'in')
        .replace(/gl_FragColor/g, 'FragColor')
        .replace(/texture2D/g, 'texture')
-       .replace(/precision highp float;/g, "precision highp float;\n#define webgl2 true\nout vec4 FragColor;")
-       .replace(/gl_FragDepthEXT/g, "gl_FragDepth");
+       .replace(/precision highp float;/g, "precision highp float;\n#define webgl2 true\nout vec4 FragColor;");
   }
   this.vs = this.createShader(gl, gl.VERTEX_SHADER, vertexShaderCode);
   this.fs = this.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderCode);
