@@ -463,7 +463,9 @@ geoOps.PointOnLine.updatePosition = function(el, isMover) {
 geoOps.PointOnLine.getParamForInput = function(el, pos, type) {
     var line = csgeo.csnames[(el.args[0])].homog;
     pos = geoOps._helper.projectPointToLine(pos, line);
-    // TODO: snap to grid
+    if (type === "mouse" && cssnap && csgridsize !== 0) {
+        pos = geoOps._helper.snapPointToLine(pos, line);
+    }
     return pos;
 };
 geoOps.PointOnLine.getParamFromState = function(el) {
@@ -607,9 +609,15 @@ geoOps.PointOnSegment.initialize = function(el) {
     var cr = geoOps.PointOnSegment.getParamForInput(el, pos);
     putStateComplexNumber(cr);
 };
-geoOps.PointOnSegment.getParamForInput = function(el, pos) {
+geoOps.PointOnSegment.getParamForInput = function(el, pos, type) {
     var seg = csgeo.csnames[el.args[0]];
     var line = seg.homog;
+
+    // snap to grid
+    if (type === "mouse" && cssnap && csgridsize !== 0) {
+        pos = geoOps._helper.snapPointToLine(pos, line);
+    }
+
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
     var farpoint = List.sub(seg.startpos, seg.endpos);
     var cr = List.crossratio3(
@@ -3058,6 +3066,25 @@ geoOps.Poly.updatePosition = function(el) {
     el.vertices = List.turnIntoCSList(el.args.map(function(x) {
         return csgeo.csnames[x].homog;
     }));
+};
+
+geoOps._helper.snapPointToLine = function(pos, line) {
+    // fail safe for far points
+    if (CSNumber._helper.isAlmostZero(pos.value[2])) return pos;
+    // project point to line - useful for semi free elements
+    var projPos = geoOps._helper.projectPointToLine(pos, line);
+    projPos = List.normalizeZ(projPos);
+
+    var sx = projPos.value[0].value.real;
+    var sy = projPos.value[1].value.real;
+    var rx = Math.round(sx / csgridsize) * csgridsize;
+    var ry = Math.round(sy / csgridsize) * csgridsize;
+    var newpos = List.realVector([rx, ry, 1]);
+    if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2 &&
+        CSNumber._helper.isAlmostZero(List.scalproduct(line, newpos))) {
+        pos = geoOps._helper.projectPointToLine(newpos, line);
+    }
+    return pos;
 };
 
 
