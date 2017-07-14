@@ -426,17 +426,6 @@ module.exports = function build(settings, task) {
         return commit;
     }
     var cc_lib_dir = "plugins/ComplexCurves/lib/ComplexCurves/";
-    var cc_shaders = glob.sync(cc_lib_dir + "src/glsl/" + "*.{frag,vert,glsl}");
-    var cc_mods = [
-        "Assembly", "CachedSurface", "Complex", "ComplexCurves", "Export",
-        "GLSL", "Initial", "Matrix", "Mesh", "Misc", "Monomial", "Parser",
-        "Polynomial", "PolynomialParser", "Quaternion", "Stage", "State3D",
-        "StateGL", "Subdivision", "SubdivisionPre", "Surface", "Term",
-        "Tokenizer", "TransformFeedback"
-    ];
-    var cc_mods_from_c3d = [
-        "Interface"
-    ];
 
     task("ComplexCurves.get", [], function() {
         var id = cc_get_commit();
@@ -457,41 +446,41 @@ module.exports = function build(settings, task) {
         );
     });
 
-    task("ComplexCurves.glsl.js", ["ComplexCurves.unzip"], function() {
-        this.input(cc_shaders);
-        this.node(
-            "tools/files2json.js",
-            "-varname=resources",
-            "-preserve_file_names=yes",
-            "-strip=no",
-            "-output=" + this.output("build/js/ComplexCurves.glsl.js"),
-            cc_shaders);
+    task("ComplexCurves.lib", ["ComplexCurves.unzip"], function() {
+        this.sh("cd " + cc_lib_dir + "; npm install");
+        this.output(cc_lib_dir + "build/ComplexCurves.js");
     });
 
-    task("ComplexCurves", ["ComplexCurves.glsl.js", "closure-jar"], function() {
+    task("ComplexCurves.plugin", ["closure-jar"], function() {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
-            dependency_mode: "LOOSE",
             compilation_level: this.setting("cc_closure_level"),
             rewrite_polyfills: false,
             warning_level: this.setting("cc_closure_warnings"),
-            output_wrapper_file: cc_lib_dir + "src/js/ComplexCurves.js.wrapper",
-            js_output_file: "build/js/ComplexCurves.js",
-            externs: "plugins/cindyjs.externs",
-            js: ["build/js/ComplexCurves.glsl.js"].concat(cc_mods.map(function(name) {
-                return cc_lib_dir + "src/js/" + name + ".js";
-            })).concat(cc_mods_from_c3d.map(function(name) {
-                return "plugins/cindy3d/src/js/" + name + ".js";
-            })).concat([
-                "plugins/ComplexCurves/src/js/Plugin.js"
-            ])
+            output_wrapper_file: "plugins/ComplexCurves/src/js/Plugin.js.wrapper",
+            js_output_file: "build/js/ComplexCurves.plugin.js",
+            externs: [
+                "plugins/cindyjs.externs",
+                "plugins/ComplexCurves/ComplexCurves.externs"
+            ],
+            js: [
+                "plugins/ComplexCurves/src/js/Plugin.js",
+                "plugins/cindy3d/src/js/Interface.js"
+            ]
         };
         this.closureCompiler(closure_jar, opts);
     });
     
-    
+
+    task("ComplexCurves", ["ComplexCurves.lib", "ComplexCurves.plugin"], function() {
+        this.concat([
+            cc_lib_dir + "build/ComplexCurves.js",
+            "build/js/ComplexCurves.plugin.js"
+        ], "build/js/ComplexCurves.js");
+    });
+
     
     //////////////////////////////////////////////////////////////////////
     // Build symbolic-plugin

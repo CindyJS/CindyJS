@@ -24,7 +24,7 @@ module.exports = function Settings() {
         c3d_closure_level: "ADVANCED",
         c3d_closure_warnings: "VERBOSE",
         cc_closure_level: "ADVANCED",
-        cc_closure_warnings: "VERBOSE",
+        cc_closure_warnings: "DEFAULT",
         cgl_closure_level: "ADVANCED",
         cgl_closure_warnings: "VERBOSE",
         qh3d_closure_warnings: "DEFAULT",

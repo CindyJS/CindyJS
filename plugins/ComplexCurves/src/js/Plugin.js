@@ -1,8 +1,3 @@
-import {
-    ComplexCurvesFromEquation,
-    ComplexCurvesFromFile
-}
-from "../../lib/ComplexCurves/src/js/ComplexCurves";
 CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
 
     //////////////////////////////////////////////////////////////////////
@@ -103,8 +98,7 @@ CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
                 cc.setZoom(coerce.toReal(a, 1));
             }
         });
-        cc.stategl.gl.clearColor(bg[0], bg[1], bg[2], alpha);
-        cc.renderSurface();
+        cc.setBackground(bg[0], bg[1], bg[2], alpha);
         return nada;
     }
 
@@ -128,14 +122,14 @@ CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
             instances[canvasId].unregisterEventHandlers();
         if (equationOrFile.substr(-4, 4) === ".bin") {
             let cc =
-                ComplexCurvesFromFile(canvas, equationOrFile, "", undefined,
+                ComplexCurves.fromFile(canvas, equationOrFile, "", undefined,
                     undefined, undefined,
                     function() {
                         instances[canvasId] = cc;
                         ComplexCurves$1([args[0]], modifs);
                     });
         } else {
-            let cc = ComplexCurvesFromEquation(canvas, equationOrFile, depth);
+            let cc = ComplexCurves.fromEquation(canvas, equationOrFile, depth);
             if (!!cc) {
                 instances[canvasId] = cc;
                 ComplexCurves$1([args[0]], modifs);
