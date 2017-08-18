@@ -642,6 +642,9 @@ function loadExtraModules() {
     if (usedFunctions.convexhull3d$1) {
         loadExtraPlugin("QuickHull3D", "QuickHull3D.js");
     }
+    if (usedFunctions.colorplot$1 || usedFunctions.colorplot$2 || usedFunctions.colorplot$3 || usedFunctions.colorplot$4) {
+        loadExtraPlugin("CindyGL", "CindyGL.js");
+    }
 }
 
 var modulesToLoad = 1;
