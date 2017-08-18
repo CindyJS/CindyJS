@@ -1,6 +1,7 @@
 "use strict";
 
 var fs = require("fs"), path = require("path");
+global.navigator = {};
 var CindyJS = require("../../build/js/Cindy.plain.js");
 
 var refdir = path.dirname(__dirname);

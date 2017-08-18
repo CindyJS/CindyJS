@@ -463,7 +463,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
     }
     var video = document.createElement("video");
     video.autoplay = true;
-    var img = loadImage(video);
+    var img = loadImage(video, true);
     console.log("Opening stream.");
     openVideoStream(function success(stream) {
         var url = window.URL.createObjectURL(stream);
@@ -473,6 +473,22 @@ evaluator.cameravideo$0 = function(args, modifs) {
         console.error("Could not get user video:", String(err), err);
     });
     return img;
+};
+
+evaluator.playvideo$1 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (img.live && img.img.play) {
+        img.img.play();
+    }
+    return nada;
+};
+
+evaluator.pausevideo$1 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    if (img.live && img.img.pause) {
+        img.img.pause();
+    }
+    return nada;
 };
 
 var helpercanvas; //invisible helper canvas.
@@ -643,4 +659,14 @@ evaluator.imagergb$4 = function(args, modifs) {
     var rgba = evaluator.imagergba$4(args, modifs);
     if (rgba === nada) return nada;
     return List.turnIntoCSList(rgba.value.slice(0, 3));
+};
+
+evaluator.readpixels$1 = function(args, modifs) {
+    var img = imageFromValue(evaluateAndVal(args[0]));
+    var data = readPixelsIndirection(img, 0, 0, img.width, img.height);
+    var pixels = [];
+    for (var i = 0; i + 3 < data.length; i += 4) {
+        pixels.push(List.turnIntoCSList([CSNumber.real(data[i + 0]), CSNumber.real(data[i + 1]), CSNumber.real(data[i + 2]), CSNumber.real(data[i + 3])]));
+    }
+    return List.turnIntoCSList(pixels);
 };

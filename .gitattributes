@@ -16,6 +16,7 @@
 *.json          text
 *.js            text
 *.md            text
+*.mp4           -text
 *.pages         -text
 *.pl            text
 *.png           -text
@@ -35,6 +36,7 @@
 *.gwt.xml       text
 *.vert          text
 *.yml           text
+*.webm          -text
 
 .git*           text
 .jshintrc       text

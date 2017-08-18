@@ -150,6 +150,7 @@ exports.closureCompiler = function(jar, opts) {
         }
         if ([
             "output_wrapper_file",
+            "externs",
         ].indexOf(key) !== -1)
             this.input(val);
         if ([

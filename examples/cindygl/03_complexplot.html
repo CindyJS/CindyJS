@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
+  <head>
+    <meta charset="utf-8">
     <title>Cindy JS</title>
     <script type="text/javascript" src="../../build/js/Cindy.js"></script>
     <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
     <link rel="stylesheet" href="../../css/cindy.css">
   </head>
     
-	<body style="font-family:Arial;">
+  <body style="font-family:Arial;">
     
     <h1>CindyJS: Complex Function Plot</h1>
     <script id="csinit" type="text/x-cindyscript">
@@ -19,12 +19,40 @@
         (z-complex(A))*(z-complex(B))*(z-complex(C))
       );
       
-      color(z) := (
-        z = log(z);
-        h = mod(re(z),1);
-        exp(-.1*re(z))*(.8+.2*h)*hue(im(z)/(2*pi));
+      hsvToRGB(h, s, v) := (
+        regional(j, p, q, t, f);
+
+        h = (h-floor(h))*6;
+
+        j = floor(h);
+        f = h - j;
+
+        p = 1 - s;
+        q = 1 - s*f;
+        t = 1 - s*(1-f);
+
+        if(j == 0, [1, t, p],
+        if(j == 1, [q, 1, p],
+        if(j == 2, [p, 1, t],
+        if(j == 3, [p, q, 1],
+        if(j == 4, [t, p, 1],
+        if(j == 5, [1, p, q]))))))*v
       );
-      colorplot(color(f(complex(#))));
+
+      color(z) := ( //what color should be given to a complex number z?
+        regional(n, grey1, grey2);
+        n = 12;
+        z = log(z)/2/pi;
+
+        zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
+
+        grey1 = im(zfract);
+        grey2 = re(zfract);
+
+        hsvToRGB(im(z), 1., .5+.5*re(sqrt(grey1*grey2)))
+      );
+      
+      colorplot(color(f(z)));
     </script>
     
 
@@ -42,5 +70,5 @@
                     }
         );
     </script>              
-	</body>
+  </body>
 </html>

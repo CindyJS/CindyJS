@@ -464,7 +464,9 @@ geoOps.PointOnLine.updatePosition = function(el, isMover) {
 geoOps.PointOnLine.getParamForInput = function(el, pos, type) {
     var line = csgeo.csnames[(el.args[0])].homog;
     pos = geoOps._helper.projectPointToLine(pos, line);
-    // TODO: snap to grid
+    if (type === "mouse" && cssnap && csgridsize !== 0) {
+        pos = geoOps._helper.snapPointToLine(pos, line);
+    }
     return pos;
 };
 geoOps.PointOnLine.getParamFromState = function(el) {
@@ -608,9 +610,15 @@ geoOps.PointOnSegment.initialize = function(el) {
     var cr = geoOps.PointOnSegment.getParamForInput(el, pos);
     putStateComplexNumber(cr);
 };
-geoOps.PointOnSegment.getParamForInput = function(el, pos) {
+geoOps.PointOnSegment.getParamForInput = function(el, pos, type) {
     var seg = csgeo.csnames[el.args[0]];
     var line = seg.homog;
+
+    // snap to grid
+    if (type === "mouse" && cssnap && csgridsize !== 0) {
+        pos = geoOps._helper.snapPointToLine(pos, line);
+    }
+
     var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
     var farpoint = List.sub(seg.startpos, seg.endpos);
     var cr = List.crossratio3(
@@ -2298,6 +2306,9 @@ geoOps._helper.trBuildMatrix = function(el, oneStep) {
 geoOps.TrProjection = {};
 geoOps.TrProjection.kind = "Tr";
 geoOps.TrProjection.signature = ["P", "P", "P", "P", "P", "P", "P", "P"];
+geoOps.TrProjection.initialize = function(el) {
+    el.isEuclidean = 0;
+};
 geoOps.TrProjection.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
         return eval_helper.basismap(
@@ -2307,7 +2318,6 @@ geoOps.TrProjection.updatePosition = function(el) {
             csgeo.csnames[el.args[6 + offset]].homog
         );
     });
-    el.isEuclidean = 0;
 };
 
 // Define an affine transformation given three points and their images
@@ -2317,6 +2327,9 @@ geoOps.TrProjection.updatePosition = function(el) {
 geoOps.TrAffine = {};
 geoOps.TrAffine.kind = "Tr";
 geoOps.TrAffine.signature = ["P", "P", "P", "P", "P", "P"];
+geoOps.TrAffine.initialize = function(el) {
+    el.isEuclidean = 0;
+};
 geoOps.TrAffine.updatePosition = function(el) {
     var mult = CSNumber.mult;
     var sm = List.scalmult;
@@ -2354,26 +2367,30 @@ geoOps.TrAffine.updatePosition = function(el) {
         sm(mult(z1[0], u[2]), w[1]),
         sm(mult(z1[1], u[0]), w[2])
     ])));
-    el.isEuclidean = 0;
 };
 
 // Define a similarity transformation given two points and their images
 geoOps.TrSimilarity = {};
 geoOps.TrSimilarity.kind = "Tr";
 geoOps.TrSimilarity.signature = ["P", "P", "P", "P"];
+geoOps.TrSimilarity.initialize = function(el) {
+    el.isEuclidean = 1;
+};
 geoOps.TrSimilarity.updatePosition = function(el) {
     geoOps._helper.trBuildMatrix(el, function(offset) {
         var a = csgeo.csnames[el.args[0 + offset]].homog,
             b = csgeo.csnames[el.args[2 + offset]].homog;
         return eval_helper.basismap(a, b, List.ii, List.jj);
     });
-    el.isEuclidean = 1;
 };
 
 // Define a translation transformation given one point and its image
 geoOps.TrTranslation = {};
 geoOps.TrTranslation.kind = "Tr";
 geoOps.TrTranslation.signature = ["P", "P"];
+geoOps.TrTranslation.initialize = function(el) {
+    el.isEuclidean = 1;
+};
 geoOps.TrTranslation.updatePosition = function(el) {
     /*
         Build this matrix when a is [aX, aY, aZ] and  b is [bX, bY, bZ]:
@@ -2404,13 +2421,15 @@ geoOps.TrTranslation.updatePosition = function(el) {
         mat([m.value[0].value[2], m.value[1].value[2], n])
     ]);
     el.dualMatrix = m;
-    el.isEuclidean = 1;
 };
 
 // Define a reflective transformation given a point
 geoOps.TrReflectionP = {};
 geoOps.TrReflectionP.kind = "Tr";
 geoOps.TrReflectionP.signature = ["P"];
+geoOps.TrReflectionP.initialize = function(el) {
+    el.isEuclidean = 1;
+};
 geoOps.TrReflectionP.updatePosition = function(el) {
     /*
         Build this matrix when p is [x, y, z]:
@@ -2430,13 +2449,15 @@ geoOps.TrReflectionP.updatePosition = function(el) {
     m = List.normalizeMax(m);
     el.matrix = m;
     el.dualMatrix = List.transpose(m);
-    el.isEuclidean = 1;
 };
 
 // Define a reflective transformation given a line
 geoOps.TrReflectionL = {};
 geoOps.TrReflectionL.kind = "Tr";
 geoOps.TrReflectionL.signature = ["L"];
+geoOps.TrReflectionL.initialize = function(el) {
+    el.isEuclidean = -1;
+};
 geoOps.TrReflectionL.updatePosition = function(el) {
     /*
         Build this matrix when l is [x, y, z]:
@@ -2464,7 +2485,6 @@ geoOps.TrReflectionL.updatePosition = function(el) {
     m = List.normalizeMax(m);
     el.matrix = m;
     el.dualMatrix = List.transpose(m);
-    el.isEuclidean = -1;
 };
 
 // Define a reflective transformation given a segment
@@ -2505,12 +2525,15 @@ geoOps.TrReflectionC.updatePosition = function(el) {
 geoOps.TrInverse = {};
 geoOps.TrInverse.kind = "Tr";
 geoOps.TrInverse.signature = ["Tr"];
+geoOps.TrInverse.initialize = function(el) {
+    var tr = csgeo.csnames[(el.args[0])];
+    el.isEuclidean = tr.isEuclidean;
+};
 geoOps.TrInverse.updatePosition = function(el) {
     var tr = csgeo.csnames[(el.args[0])];
     var m = tr.matrix;
     el.dualMatrix = List.transpose(tr.matrix);
     el.matrix = List.transpose(tr.dualMatrix);
-    el.isEuclidean = tr.isEuclidean;
 };
 
 // Apply a projective transformation to a conic
@@ -2605,12 +2628,16 @@ geoOps.TransformPolygon.updatePosition = function(el) {
 geoOps.TrComposeTrTr = {};
 geoOps.TrComposeTrTr.kind = "Tr";
 geoOps.TrComposeTrTr.signature = ["Tr", "Tr"];
+geoOps.TrComposeTrTr.initialize = function(el) {
+    var a = csgeo.csnames[el.args[0]];
+    var b = csgeo.csnames[el.args[1]];
+    el.isEuclidean = a.isEuclidean * b.isEuclidean;
+};
 geoOps.TrComposeTrTr.updatePosition = function(el) {
     var a = csgeo.csnames[el.args[0]];
     var b = csgeo.csnames[el.args[1]];
     el.matrix = List.normalizeMax(List.productMM(b.matrix, a.matrix));
     el.dualMatrix = List.normalizeMax(List.productMM(b.dualMatrix, a.dualMatrix));
-    el.isEuclidean = a.isEuclidean * b.isEuclidean;
 };
 
 geoOps._helper.composeMtMt = function(el, m, n) {
@@ -2658,9 +2685,6 @@ geoOps._helper.composeMtMt = function(el, m, n) {
 
 geoOps._helper.euc2moeb = function(el) {
     var m = el.matrix.value;
-    var d = CSNumber.sub( // determinant of upper left 2x2 block
-        CSNumber.mult(m[0].value[0], m[1].value[1]),
-        CSNumber.mult(m[1].value[0], m[0].value[1]));
     return {
         anti: el.isEuclidean < 0,
         ar: m[0].value[0],
@@ -3241,6 +3265,26 @@ geoOps.IFS.probSetter = function(i, el, value) {
     for (var i = 0; i < 10; ++i)
         geoOps.IFS["set_prob" + i] = geoOps.IFS.probSetter.bind(null, i);
 })();
+
+geoOps._helper.snapPointToLine = function(pos, line) {
+    // fail safe for far points
+    if (CSNumber._helper.isAlmostZero(pos.value[2])) return pos;
+    // project point to line - useful for semi free elements
+    var projPos = geoOps._helper.projectPointToLine(pos, line);
+    projPos = List.normalizeZ(projPos);
+
+    var sx = projPos.value[0].value.real;
+    var sy = projPos.value[1].value.real;
+    var rx = Math.round(sx / csgridsize) * csgridsize;
+    var ry = Math.round(sy / csgridsize) * csgridsize;
+    var newpos = List.realVector([rx, ry, 1]);
+    if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2 &&
+        CSNumber._helper.isAlmostZero(List.scalproduct(line, newpos))) {
+        pos = geoOps._helper.projectPointToLine(newpos, line);
+    }
+    return pos;
+};
+
 
 
 var geoAliases = {

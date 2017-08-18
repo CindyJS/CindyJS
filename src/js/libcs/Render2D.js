@@ -255,7 +255,7 @@ Render2D.modifHandlers = {
                 Render2D.align = 0;
             if (s === "right")
                 Render2D.align = 1;
-            if (s === "mid")
+            if (s === "mid" || s === "center")
                 Render2D.align = 0.5;
         }
     },

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script id="csinit" type="text/x-cindyscript">use("Cindy3D")</script>
+<script id="csdraw" type="text/x-cindyscript">
+begin3d();
+background3d([0,0,0]);
+pointsize3d(5);
+pointcolor3d([.5,.4,.7]);
+directionallight3d(0, direction->[1,1,-5], frame->"world");
+draw3d([1,1,0], shininess->1);
+draw3d([0,1,0], shininess->5);
+draw3d([-1,1,0], shininess->10);
+draw3d([-1,0,0], shininess->20);
+draw3d([-1,-1,0], shininess->50);
+draw3d([0,-1,0], shininess->100);
+draw3d([1,-1,0], shininess->500);
+draw3d([1,0,0], shininess->0);
+end3d();
+</script>
+<script type="text/javascript">
+CindyJS({canvasname:"CSCanvas",scripts:"cs*"});
+</script>
+</head>
+
+<body>
+  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+  <div id="CSCanvas" style="width:50px; height:50px; border:none"></div>
+</body>
+
+</html>

@@ -204,13 +204,14 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     task("forbidden", [], function() {
-        this.forbidden("examples/**/*", [
+        this.forbidden("examples/**/*.html", [
             // Correct MIME type is "text/x-cindyscript"
             /<script[^>]*type *= *["'][^"'\/]*["']/g,          // requires /
             /<script[^>]*type *= *["']text\/cindyscript["']/g, // requires x-
-            /.*firstDrawing.*/g, // excessive copy & paste of old example
-            /.*(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js.*/g, // remote
+            /firstDrawing/g, // excessive copy & paste of old example
+            /(cinderella\.de|cindyjs\.org)\/.*\/Cindy.*\.js/g, // remote
             /<canvas[^>]+id=['"]CSCanvas/g,                    // use <div>
+            /quickhull3d\.nocache\.js/g,                         // use of JAVA-Version of quickhull
         ]);
         this.forbidden("ref/**/*.md", [
             /^#.*`.*<[A-Za-z0-9]+>.*?`/mg, // use ‹…› instead
@@ -319,6 +320,7 @@ module.exports = function build(settings, task) {
         "Camera",
         "Appearance",
         "Viewer",
+        "Controls",
         "Lighting",
         "PrimitiveRenderer",
         "Spheres",
@@ -388,7 +390,7 @@ module.exports = function build(settings, task) {
         "Sorter",
         "WebGL",
         "CodeBuilder",
-        "TextureReader"        
+        "TextureReader"
     ];
 
     var cgl_mods_from_c3d = [
@@ -460,22 +462,6 @@ module.exports = function build(settings, task) {
         return commit;
     }
     var cc_lib_dir = "plugins/ComplexCurves/lib/ComplexCurves/";
-    var cc_shaders = Array.prototype.concat.apply(
-        ["Common.glsl", "Textures.glsl"], [
-            "Assembly", "CachedSurface", "DomainColouring", "Export", "FXAA",
-            "Initial", "Subdivision", "SubdivisionPre", "Surface",
-        ].map(function(name) { return [name + ".vert", name + ".frag"]; }))
-        .map(function(name) { return cc_lib_dir + "src/glsl/" + name; });
-    var cc_mods = [
-        "Assembly", "CachedSurface", "Complex", "ComplexCurves", "Export",
-        "GLSL", "Initial", "Matrix", "Mesh", "Misc", "Monomial", "Parser",
-        "Polynomial", "PolynomialParser", "Quaternion", "Stage", "State3D",
-        "StateGL", "Subdivision", "SubdivisionPre", "Surface", "Term",
-        "Tokenizer"
-    ];
-    var cc_mods_from_c3d = [
-        "Interface"
-    ];
 
     task("ComplexCurves.get", [], function() {
         var id = cc_get_commit();
@@ -496,41 +482,105 @@ module.exports = function build(settings, task) {
         );
     });
 
-    task("ComplexCurves.glsl.js", ["ComplexCurves.unzip"], function() {
-        this.input(cc_shaders);
-        this.node(
-            "tools/files2json.js",
-            "-varname=resources",
-            "-preserve_file_names=yes",
-            "-strip=no",
-            "-output=" + this.output("build/js/ComplexCurves.glsl.js"),
-            cc_shaders);
+    task("ComplexCurves.lib", ["ComplexCurves.unzip"], function() {
+        this.sh("cd " + cc_lib_dir + "; npm run-script prepare");
+        this.output(cc_lib_dir + "build/ComplexCurves.js");
     });
 
-    task("ComplexCurves", ["ComplexCurves.glsl.js", "closure-jar"], function() {
+    task("ComplexCurves.plugin", ["closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            compilation_level: this.setting("cc_closure_level"),
+            rewrite_polyfills: false,
+            warning_level: this.setting("cc_closure_warnings"),
+            output_wrapper_file: "plugins/ComplexCurves/src/js/Plugin.js.wrapper",
+            js_output_file: "build/js/ComplexCurves.plugin.js",
+            externs: [
+                "plugins/cindyjs.externs",
+                "plugins/ComplexCurves/ComplexCurves.externs"
+            ],
+            js: [
+                "plugins/ComplexCurves/src/js/Plugin.js",
+                "plugins/cindy3d/src/js/Interface.js"
+            ]
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+    
+
+    task("ComplexCurves", ["ComplexCurves.lib", "ComplexCurves.plugin"], function() {
+        this.concat([
+            cc_lib_dir + "build/ComplexCurves.js",
+            "build/js/ComplexCurves.plugin.js"
+        ], "build/js/ComplexCurves.js");
+    });
+
+    
+    //////////////////////////////////////////////////////////////////////
+    // Build symbolic-plugin
+    //////////////////////////////////////////////////////////////////////
+    task("symbolic", ["closure-jar"], function() {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
             dependency_mode: "LOOSE",
-            compilation_level: this.setting("cc_closure_level"),
+            compilation_level: "SIMPLE",
             rewrite_polyfills: false,
-            warning_level: this.setting("cc_closure_warnings"),
-            output_wrapper_file: cc_lib_dir + "src/js/ComplexCurves.js.wrapper",
-            js_output_file: "build/js/ComplexCurves.js",
+            warning_level: "DEFAULT",
+            output_wrapper_file: "plugins/symbolic/src/js/symbolic.js.wrapper",
+            js_output_file: "build/js/symbolic.js",
             externs: "plugins/cindyjs.externs",
-            js: ["build/js/ComplexCurves.glsl.js"].concat(cc_mods.map(function(name) {
-                return cc_lib_dir + "src/js/" + name + ".js";
-            })).concat(cc_mods_from_c3d.map(function(name) {
-                return "plugins/cindy3d/src/js/" + name + ".js";
-            })).concat([
-                "plugins/ComplexCurves/src/js/Plugin.js"
-            ])
+            js: ["plugins/symbolic/src/js/symbolic.js"]
+        };
+        this.closureCompiler(closure_jar, opts);
+    });    
+
+    
+    //////////////////////////////////////////////////////////////////////
+    // Build JavaScript version of Quick Hull 3D
+    //////////////////////////////////////////////////////////////////////
+
+    var fileNames = [
+        "QuickHull3D",
+        "Vector",
+        "HalfEdge",
+        "Vertex",
+        "VertexList",
+        "Face",
+        "FaceList",
+        "Plugin"
+    ];
+
+    var srcs = fileNames.map(function(fileName) {
+        return "plugins/QuickHull3D/src/js/" + fileName + ".js";
+    });
+
+    task("quickhull3d", ["closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            create_source_map: "build/js/QuickHull3D.js.map",
+            compilation_level: this.setting("qh3d_closure_level"),
+            warning_level: this.setting("qh3d_closure_warnings"),
+            source_map_format: "V3",
+            source_map_location_mapping: [
+                "build/js/|",
+                "plugins/|../../plugins/",
+            ],
+            output_wrapper_file: "plugins/QuickHull3D/src/js/QuickHull3D.js.wrapper",
+            js_output_file: "build/js/QuickHull3D.js",
+            externs: "plugins/cindyjs.externs",
+            js: srcs
         };
         this.closureCompiler(closure_jar, opts);
     });
 
-    
+
     //////////////////////////////////////////////////////////////////////
     // Run js-beautify for consistent coding style
     //////////////////////////////////////////////////////////////////////
@@ -705,11 +755,13 @@ module.exports = function build(settings, task) {
         "ifs",
         "cindy3d",
         "cindygl",
+        "quickhull3d",
         "katex",
         "xlibs",
         "images",
         "sass",
-        "ComplexCurves"
+        "ComplexCurves",
+        "symbolic"
     ].concat(gwt_modules));
 
 };

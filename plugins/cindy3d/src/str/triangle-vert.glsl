@@ -14,5 +14,6 @@ void main() {
   gl_Position = uProjectionMatrix * vPos;
   vNormal = uModelViewMatrix * vec4(aNormalAndShininess.xyz, 0.0);
   vShininess = aNormalAndShininess.w;
+  vSpecularReflectiveness = (1.0 - pow(0.95, vShininess));
   vColor = aColor;
 }

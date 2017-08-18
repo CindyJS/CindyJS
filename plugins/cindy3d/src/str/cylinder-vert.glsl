@@ -49,6 +49,7 @@ void main() {
   // Copy attributes to varyings for use in the fragment shader
   vColor = aColor;
   vShininess = aShininess.x;
+  vSpecularReflectiveness = (1.0 - pow(0.95, vShininess));
   vRadius = aRelativeRadius.w;
 
   // Transform position into screen space
