@@ -3286,7 +3286,6 @@ geoOps._helper.snapPointToLine = function(pos, line) {
 };
 
 
-
 var geoAliases = {
     "CircleByRadius": "CircleMr",
     "IntersectionCircleCircle": "IntersectCirCir",
