@@ -1,5 +1,6 @@
 *.commit        text
 *.conf          text
+*.cdy           -text
 *.cs            text
 *.css           text
 *.enc           -text
