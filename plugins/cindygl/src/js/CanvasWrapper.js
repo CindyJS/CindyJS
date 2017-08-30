@@ -135,6 +135,9 @@ CanvasWrapper.prototype.sizeY;
 /** @type {number} */
 CanvasWrapper.prototype.ratio;
 
+/** @type {number} */
+CanvasWrapper.prototype.lastframecount;
+
 /** @type {CindyJS.image} */
 CanvasWrapper.prototype.canvas;
 
@@ -197,6 +200,10 @@ CanvasWrapper.prototype.copyTextureToCanvas = function() {
  * Reload texture data from input element (e.g. HTML video)
  */
 CanvasWrapper.prototype.reloadIfRequired = function() {
+    if (this.canvas.live && (this.canvas.img.webkitDecodedFrameCount || this.canvas.img.mozDecodedFrames) && this.lastframecount >= (this.canvas.img.webkitDecodedFrameCount || this.canvas.img.mozDecodedFrames)) {
+        return;
+    }
+
     if (!this.canvas.live && (!this.canvas.ready || this.generation >= this.canvas.generation)) {
         return;
     }
@@ -243,7 +250,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
 
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
     this.generation = this.canvas.generation;
-    console.log("Image has been loaded to GPU");
+    this.lastframecount = (this.canvas.img.webkitDecodedFrameCount || this.canvas.img.mozDecodedFrames);
 };
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
