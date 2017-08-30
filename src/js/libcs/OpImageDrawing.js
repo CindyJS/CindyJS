@@ -419,7 +419,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
         // width, but Chrome again appears to have a problem with this. See also
         // https://bugs.chromium.org/p/chromium/issues/detail?id=657145
         if (false) {
-            constraints = constraints.concat([1.34, 1.59, 1.78].map(function(a) {
+            constraints = constraints.concat([1.34, 1.59, 1.78, 2].map(function(a) {
                 return {
                     aspectRatio: {
                         max: a
