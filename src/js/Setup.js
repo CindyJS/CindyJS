@@ -324,7 +324,7 @@ function createCindyNow() {
                 cscode.message
             );
         } else {
-            cscompiled[s] = cscode;
+            cscompiled[s] = labelCode(cscode, s);
         }
     });
     if (isCinderellaBeforeVersion(2, 9, 1888) && !cscompiled.keydown) {
