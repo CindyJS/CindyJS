@@ -250,7 +250,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
 
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
     this.generation = this.canvas.generation;
-    this.lastframecount = (this.canvas.img.webkitDecodedFrameCount || this.canvas.img.mozDecodedFrames);
+    this.lastframecount = Math.min(this.lastframecount + 1, this.canvas.img.webkitDecodedFrameCount || this.canvas.img.mozDecodedFrames);
 };
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
