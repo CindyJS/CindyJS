@@ -466,8 +466,15 @@ evaluator.cameravideo$0 = function(args, modifs) {
     var img = loadImage(video, true);
     console.log("Opening stream.");
     openVideoStream(function success(stream) {
+        /* does not work in Safari 11.0 (beta)
         var url = window.URL.createObjectURL(stream);
         video.src = url;
+        */
+        video.srcObject = stream;
+        video.setAttribute('autoplay', '');
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.play();
         video.addEventListener("loadeddata", csplay);
     }, function failure(err) {
         console.error("Could not get user video:", String(err), err);
