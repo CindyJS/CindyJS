@@ -62,6 +62,7 @@ function csinit(gslp) {
     csgeo.texts = [];
     csgeo.free = [];
     csgeo.polygons = [];
+    csgeo.ifs = [];
 
     gslp.forEach(addElementNoProof);
     checkConjectures();
@@ -285,6 +286,9 @@ function addElementNoProof(el) {
     if (el.kind === "Poly") {
         csgeo.polygons.push(el);
         polygonDefault(el);
+    }
+    if (el.kind === "IFS") {
+        csgeo.ifs.push(el);
     }
 
     if (true || op.stateSize !== 0) {

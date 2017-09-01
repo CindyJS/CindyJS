@@ -159,3 +159,16 @@ function transform4to3(m, v) {
   let f = 1/(m[12]*v[0] + m[13]*v[1] + m[14]*v[2] + m[15]*v[3]);
   return [x*f, y*f, z*f];
 }
+
+/**
+ * @param {Array.<number>} pos1
+ * @param {Array.<number>} pos2
+ * @param {Array.<number>} pos3
+ */
+function triangleNormal(pos1, pos2, pos3) {
+  let p1 = dehom3(pos1);
+  let v = sub3(dehom3(pos2), p1);
+  let w = sub3(dehom3(pos3), p1);
+  let n = normalized3(cross3(v, w));
+  return n;
+}

@@ -38,6 +38,7 @@ exports.liblab = [
 ];
 
 exports.lib = [
+    "node_modules/iphone-inline-video/dist/iphone-inline-video.min.js",
     "lib/clipper/clipper.js",
 ];
 
@@ -56,4 +57,9 @@ exports.srcs = exports.lib.concat(exports.ours);
 
 exports.scss = [
     "src/scss/CindyJS.scss",
+];
+
+exports.ifs = [
+    "src/js/ifs/worker.js",
+    "src/js/ifs/ifs.asm.js",
 ];

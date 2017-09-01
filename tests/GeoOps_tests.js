@@ -1,6 +1,7 @@
 var should = require("chai").should();
 var rewire = require("rewire");
 
+global.navigator = {};
 var CindyJS = require("../build/js/Cindy.plain.js");
 var cindyJS = rewire("../build/js/exposed.js");
 
@@ -52,6 +53,37 @@ function testGeo(geometry, verifier, done) {
       } catch (err) {
         done(err);
       }
+    });
+  }
+  plugin.apiVersion = 1;
+  var data = {
+    isNode: true,
+    geometry: geometry,
+    scripts: { init: initscript },
+    plugins: { verify: plugin }
+  };
+  CindyJS(data);
+}
+
+function testEqualPoints(geometry, equalities, done) {
+  var initscript = 'use("verify");\n' +
+      equalities.map(function(eq) {
+        return "same(" + eq.replace("=", ", ") + ");\n"
+      }).join("") +
+      "done()";
+  var error = null;
+  function plugin(api) {
+    api.defineFunction("same", 2, function(args, modifs) {
+      if (error) return; // only report first error
+      var el1 = api.evaluate(args[0]).value;
+      var el2 = api.evaluate(args[1]).value;
+      if (!almostEqualVector(el1.homog, el2.homog))
+        error = new Error(
+          el1.name + niceprint(el1.homog) + " != " +
+          el2.name + niceprint(el2.homog));
+    });
+    api.defineFunction("done", 0, function(args, modifs) {
+      done(error);
     });
   }
   plugin.apiVersion = 1;
@@ -164,6 +196,159 @@ describe("IntersectLC helper", function() {
     p2.value[0].value.imag.should.be.approximately(0, 1e-12);
     p2.value[1].value.real.should.be.approximately(-3, 1e-12);
     p2.value[1].value.imag.should.be.approximately(0, 1e-12);
+  });
+});
+
+describe("Möbius Transformations", function() {
+  it("TrMoebius", function(done) {
+    testEqualPoints([
+      {name: "A1", type: "RandomPoint"},
+      {name: "B1", type: "RandomPoint"},
+      {name: "C1", type: "RandomPoint"},
+      {name: "A2", type: "RandomPoint"},
+      {name: "B2", type: "RandomPoint"},
+      {name: "C2", type: "RandomPoint"},
+      {name: "Tr1", type: "TrMoebius", args: ["A1", "A2", "B1", "B2", "C1", "C2"]},
+      {name: "A3", type: "TrMoebiusP", args: ["Tr1", "A1"]},
+      {name: "B3", type: "TrMoebiusP", args: ["Tr1", "B1"]},
+      {name: "C3", type: "TrMoebiusP", args: ["Tr1", "C1"]},
+    ], ["A2=A3", "B2=B3", "C2=C3"], done);
+  });
+  it("TrInverseMoebius", function(done) {
+    testEqualPoints([
+      {name: "A1", type: "RandomPoint"},
+      {name: "B1", type: "RandomPoint"},
+      {name: "C1", type: "RandomPoint"},
+      {name: "A2", type: "RandomPoint"},
+      {name: "B2", type: "RandomPoint"},
+      {name: "C2", type: "RandomPoint"},
+      {name: "Tr1", type: "TrMoebius", args: ["A1", "A2", "B1", "B2", "C1", "C2"]},
+      {name: "Tr2", type: "TrInverseMoebius", args: ["Tr1"]},
+      {name: "A4", type: "TrMoebiusP", args: ["Tr2", "A2"]},
+      {name: "B4", type: "TrMoebiusP", args: ["Tr2", "B2"]},
+      {name: "C4", type: "TrMoebiusP", args: ["Tr2", "C2"]},
+    ], ["A1=A4", "B1=B4", "C1=C4"], done);
+  });
+  it("TrReflectionC", function(done) {
+    testEqualPoints([
+      {name: "M", type: "RandomPoint"},
+      {name: "A", type: "RandomPoint"},
+      {name: "C", type: "CircleMP", args: ["M", "A"]},
+      {name: "Tr", type: "TrReflectionC", args: ["C"]},
+      {name: "P1", type: "RandomPoint"},
+      {name: "P2", type: "TrMoebiusP", args: ["Tr", "P1"]},
+      {name: "P3", type: "TrMoebiusP", args: ["Tr", "P2"]},
+      {name: "g1", type: "Join", args: ["M", "P1"]},
+      {name: "g2", type: "Join", args: ["P1", "P2"]},
+    ], ["P1=P3", "g1=g2"], done);
+  });
+});
+
+describe("TrCompose", function() {
+
+  function directMoebiusTrafo(name) {
+    var P = [0, 1, 2, 3].map(function(i) {
+      return name + "_P" + i;
+    });
+    return [
+      {name: P[0], type: "RandomPoint"},
+      {name: P[1], type: "RandomPoint"},
+      {name: P[2], type: "RandomPoint"},
+      {name: P[3], type: "RandomPoint"},
+      {name: name, type: "TrMoebius", args: [P[0], P[0], P[1], P[1], P[2], P[3]]}
+    ];
+  }
+
+  function reverseMoebiusTrafo(name) {
+    return [
+      {name: name + "_M", type: "RandomPoint"},
+      {name: name + "_P", type: "RandomPoint"},
+      {name: name + "_C", type: "CircleMP", args: [name + "_M", name + "_P"]},
+      {name: name, type: "TrReflectionC", args: [name + "_C"]}
+    ];
+  }
+
+  function directEuclideanTrafo(name) {
+    var P = [0, 1, 2, 3].map(function(i) {
+      return name + "_P" + i;
+    });
+    return [
+      {name: P[0], type: "RandomPoint"},
+      {name: P[1], type: "RandomPoint"},
+      {name: P[2], type: "RandomPoint"},
+      {name: P[3], type: "RandomPoint"},
+      {name: name, type: "TrSimilarity", args: P}
+    ];
+  }
+
+  function reverseEuclideanTrafo(name) {
+    return [
+      {name: name + "_L", type: "RandomLine"},
+      {name: name, type: "TrReflectionL", args: [name + "_L"]}
+    ];
+  }
+
+  function testTrCompose(gen1, gen2, done) {
+    var geometry = gen1("Tr1").concat(gen2("Tr2"), [
+      {name: "Tr3", type: "TrCompose", args: ["Tr1", "Tr2"]},
+      {name: "P1", type: "RandomPoint"},
+      {name: "P2", type: "Transform", args: ["Tr1", "P1"]},
+      {name: "P3", type: "Transform", args: ["Tr2", "P2"]},
+      {name: "P4", type: "Transform", args: ["Tr3", "P1"]},
+    ]);
+    testEqualPoints(geometry, ["P3=P4"], done);
+  }
+
+  it("TrComposeTrTr direct direct", function(done) {
+    testTrCompose(directEuclideanTrafo, directEuclideanTrafo, done);
+  });
+  it("TrComposeTrTr direct reverse", function(done) {
+    testTrCompose(directEuclideanTrafo, reverseEuclideanTrafo, done);
+  });
+  it("TrComposeTrTr reverse direct", function(done) {
+    testTrCompose(reverseEuclideanTrafo, directEuclideanTrafo, done);
+  });
+  it("TrComposeTrTr reverse reverse", function(done) {
+    testTrCompose(reverseEuclideanTrafo, reverseEuclideanTrafo, done);
+  });
+
+  it("TrComposeMtMt direct direct", function(done) {
+    testTrCompose(directMoebiusTrafo, directMoebiusTrafo, done);
+  });
+  it("TrComposeMtMt direct reverse", function(done) {
+    testTrCompose(directMoebiusTrafo, reverseMoebiusTrafo, done);
+  });
+  it("TrComposeMtMt reverse direct", function(done) {
+    testTrCompose(reverseMoebiusTrafo, directMoebiusTrafo, done);
+  });
+  it("TrComposeMtMt reverse reverse", function(done) {
+    testTrCompose(reverseMoebiusTrafo, reverseMoebiusTrafo, done);
+  });
+
+  it("TrComposeTrMt direct direct", function(done) {
+    testTrCompose(directEuclideanTrafo, directMoebiusTrafo, done);
+  });
+  it("TrComposeTrMt direct reverse", function(done) {
+    testTrCompose(directEuclideanTrafo, reverseMoebiusTrafo, done);
+  });
+  it("TrComposeTrMt reverse direct", function(done) {
+    testTrCompose(reverseEuclideanTrafo, directMoebiusTrafo, done);
+  });
+  it("TrComposeTrMt reverse reverse", function(done) {
+    testTrCompose(reverseEuclideanTrafo, reverseMoebiusTrafo, done);
+  });
+
+  it("TrComposeMtTr direct direct", function(done) {
+    testTrCompose(directMoebiusTrafo, directEuclideanTrafo, done);
+  });
+  it("TrComposeMtTr direct reverse", function(done) {
+    testTrCompose(directMoebiusTrafo, reverseEuclideanTrafo, done);
+  });
+  it("TrComposeMtTr reverse direct", function(done) {
+    testTrCompose(reverseMoebiusTrafo, directEuclideanTrafo, done);
+  });
+  it("TrComposeMtTr reverse reverse", function(done) {
+    testTrCompose(reverseMoebiusTrafo, reverseEuclideanTrafo, done);
   });
 });
 

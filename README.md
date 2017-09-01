@@ -15,8 +15,7 @@ but also from various other fields.
 
 Examples on the web can be seen [here](http://science-to-touch.com/CJS/).
 
-There is also [an `examples` directory]
-(https://github.com/CindyJS/CindyJS/tree/master/examples)
+There is also [an `examples` directory](https://github.com/CindyJS/CindyJS/tree/master/examples)
 inside the repository, demonstrating individual functions and operations.
 
 Developers can run these examples from their local development copy.
@@ -79,16 +78,13 @@ and are accompanied by a suitable test case or demonstrating example
 
 ## Documentation
 
-[The CindyJS API documentation]
-(https://github.com/CindyJS/CindyJS/blob/master/ref/createCindy.md)
+[The CindyJS API documentation](https://github.com/CindyJS/CindyJS/blob/master/ref/createCindy.md)
 describes how to create a widget on an HTML page using this framework.
 
-Other documentation in [the `ref` directory]
-(https://github.com/CindyJS/CindyJS/tree/master/ref) describes
+Other documentation in [the `ref` directory](https://github.com/CindyJS/CindyJS/tree/master/ref) describes
 large portions of the CindyScript programming language. This
 documentation, however, started as a copy of
-[the corresponding Cinderella documentation]
-(http://doc.cinderella.de/tiki-index.php?page=CindyScript). It
+[the corresponding Cinderella documentation](http://doc.cinderella.de/tiki-index.php?page=CindyScript). It
 is currently meant as a goal of what functionality *should* be
 supported, while actual support might still be lagging behind. If there
 is a particular feature you'd need for your work, don't hesitate to

@@ -1,0 +1,79 @@
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {number=} lat
+ * @param {number=} lon
+ * @param {boolean=} ortho
+ * @param {string=} contextType
+ * @constructor
+ */
+function ComplexCurves(canvas, lat, lon, ortho, contextType) {}
+
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} equation
+ * @param {number} depth
+ * @param {number=} lat
+ * @param {number=} lon
+ * @param {boolean=} ortho
+ * @return {ComplexCurves}
+ */
+ComplexCurves.fromEquation;
+
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {string} file
+ * @param {string=} equation
+ * @param {number=} lat
+ * @param {number=} lon
+ * @param {boolean=} ortho
+ * @param {function()=} onload
+ * @return {ComplexCurves}
+ */
+ComplexCurves.fromFile;
+
+/** @type {function(bool)} */
+ComplexCurves.prototype.setAutorotate;
+
+/** @type {function(bool)} */
+ComplexCurves.prototype.setClipping;
+
+/** @type {function(bool)} */
+ComplexCurves.prototype.setOrtho;
+
+/** @type {function(bool)} */
+ComplexCurves.prototype.setTransparency;
+
+/** @type {function} */
+ComplexCurves.prototype.rotateBack;
+
+/** @type {function} */
+ComplexCurves.prototype.rotateBottom;
+
+/** @type {function} */
+ComplexCurves.prototype.rotateDefault;
+
+/** @type {function} */
+ComplexCurves.prototype.rotateFront;
+
+/** @type {function} */
+ComplexCurves.prototype.rotateLeft;
+
+/** @type {function} */
+ComplexCurves.prototype.rotateRight;
+
+/** @type {function} */
+ComplexCurves.prototype.rotateTop;
+
+/** @type {function(number)} */
+ComplexCurves.prototype.setZoom;
+
+/**
+ * @param {number} r
+ * @param {number} g
+ * @param {number} b
+ * @param {number} a
+ */
+ComplexCurves.prototype.setBackground;
+
+/** @type {function} */
+ComplexCurves.prototype.renderSurface;

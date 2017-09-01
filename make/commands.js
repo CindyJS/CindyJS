@@ -150,6 +150,7 @@ exports.closureCompiler = function(jar, opts) {
         }
         if ([
             "output_wrapper_file",
+            "externs",
         ].indexOf(key) !== -1)
             this.input(val);
         if ([
@@ -182,7 +183,7 @@ exports.sass = function(src, dst) {
     this.addJob(function() {
         task.log(src + " \u219d " + dst);
         var basename = path.basename(dst);
-        return Q.ninvoke(require("node-sass"), "render", {
+        return Q.fcall(require, "node-sass").ninvoke("render", {
             file: src,
             outFile: basename,
             sourceMap: basename + ".map",

@@ -6,6 +6,7 @@ Render2D.handleModifs = function(modifs, handlers) {
         Render2D.unSetDash();
     Render2D.colorraw = null;
     Render2D.fillcolorraw = null;
+    Render2D.fillrule = "nonzero";
     Render2D.size = null;
     if (Render2D.psize <= 0) Render2D.psize = 0;
     if (Render2D.lsize <= 0) Render2D.lsize = 0;
@@ -254,7 +255,7 @@ Render2D.modifHandlers = {
                 Render2D.align = 0;
             if (s === "right")
                 Render2D.align = 1;
-            if (s === "mid")
+            if (s === "mid" || s === "center")
                 Render2D.align = 0.5;
         }
     },
@@ -285,6 +286,10 @@ Render2D.modifHandlers = {
     "lineJoin": function(v) {
         if (v.ctype === "string" && (v.value === "round" || v.value === "bevel" || v.value === "miter"))
             Render2D.lineJoin = v.value;
+    },
+    "fillrule": function(v) {
+        if (v.ctype === "string" && (v.value === "nonzero" || v.value === "evenodd"))
+            Render2D.fillrule = v.value;
     },
 
     "miterLimit": function(v) {
@@ -325,6 +330,7 @@ Render2D.conicModifs = {
     "color": true,
     "alpha": true,
     "fillcolor": true,
+    "fillrule": true,
     "fillalpha": true,
     "lineCap": true,
     "lineJoin": true,
@@ -357,6 +363,8 @@ Render2D.preDrawCurve = function() {
     csctx.lineWidth = Render2D.lsize;
     csctx.lineCap = Render2D.lineCap;
     csctx.lineJoin = Render2D.lineJoin;
+    csctx.mozFillRule = Render2D.fillrule;
+    csctx.fillrule = Render2D.fillrule;
     csctx.miterLimit = Render2D.miterLimit;
     csctx.strokeStyle = Render2D.lineColor;
 };

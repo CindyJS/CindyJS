@@ -43,7 +43,7 @@ evaluator.err$1 = function(args, modifs) { //OK
     }
     s = varname + " ===> " + niceprint(evaluate(s));
 
-    csconsole.err(s);
+    printStackTrace(s);
 
     return nada;
 };
@@ -79,7 +79,7 @@ evaluator.assert$2 = function(args, modifs) {
         if (v0.value === false)
             return evaluator.println$1([args[1]], modifs);
     } else {
-        csconsole.err("Condition for assert is not boolean");
+        printStackTrace("Condition for assert is not boolean");
     }
     return nada;
 };
@@ -515,7 +515,7 @@ function infix_assign(args, modifs) {
             // Copy on write
             eval_helper.assigntake(args[0], v1);
         } else {
-            console.error("Can't use infix expression as lvalue");
+            printStackTrace("Can't use infix expression as lvalue");
         }
     } else if (args[0].ctype === 'field') {
         eval_helper.assigndot(args[0], v1);
@@ -523,10 +523,10 @@ function infix_assign(args, modifs) {
         if (v1.ctype === "list") {
             eval_helper.assignlist(args[0].args, v1.value);
         } else {
-            console.error("Expected list in rhs of assignment");
+            printStackTrace("Expected list in rhs of assignment");
         }
     } else {
-        console.error("Left hand side of assignment is not a recognized lvalue");
+        printStackTrace("Left hand side of assignment is not a recognized lvalue");
     }
     return v1;
 }
@@ -598,7 +598,7 @@ evaluator.if$3 = function(args, modifs) { //OK
             return evaluate(args[2]);
         }
     } else {
-        csconsole.err("Condition for if is not boolean");
+        printStackTrace("Condition for if is not boolean");
     }
 
     return nada;
@@ -1021,7 +1021,7 @@ function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v1.ctype === "number" && CSNumber._helper.isZero(v1))
-        csconsole.err("WARNING: Division by zero!");
+        printStackTrace("WARNING: Division by zero!");
     var erg = General.div(v0, v1);
     if (v0.usage === "Angle" && !v1.usage)
         erg = General.withUsage(erg, "Angle");
@@ -1210,14 +1210,14 @@ evaluator.autodiff$3 = function(args, modifs) {
     } else if (typeof(args[0].impl) === "function")
         ffunc = args[0];
     else {
-        console.log("could not parse function");
+        printStackTrace("could not parse function");
         return nada;
     }
     var xarr = evaluateAndVal(args[1]);
     var grade = evaluateAndVal(args[2]);
 
     if (grade.value.real < 1) {
-        console.log("grade cant be < 1");
+        printStackTrace("grade cant be < 1");
         return nada;
     }
 
@@ -2475,7 +2475,7 @@ function infix_take(args, modifs) {
                 "value": v0.value.charAt(ind - 1)
             };
         } else {
-            csconsole.err("WARNING: Index out of range!");
+            printStackTrace("WARNING: Index out of range!");
             return nada;
         }
     }
@@ -3018,7 +3018,7 @@ eval_helper.shapeop = function(a, b, op) {
     var solution_paths = new ClipperLib.Paths();
     cpr.Execute(clipType, solution_paths, subject_fillType, clip_fillType);
     ClipperLib.JS.ScaleDownPaths(solution_paths, scale);
-    //    console.log(JSON.stringify(solution_paths));    
+    //    console.log(JSON.stringify(solution_paths));
     return {
         ctype: "shape",
         type: "polygon",
@@ -3277,7 +3277,7 @@ evaluator.replace$2 = function(args, modifs) {
         return s;
     }
 
-    //////////////// 
+    ////////////////
 
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
@@ -3743,7 +3743,7 @@ evaluator.halfplane$2 = function(args, modifs) {
         var l = w1;
         if (u0 === "Line" || u1 === "Point") {
             p = w1;
-            l = v0;
+            l = w0;
         }
         //OK im Folgenden lässt sich viel optimieren
         var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
@@ -3898,6 +3898,94 @@ evaluator.allelements$1 = function(args, modifs) {
     });
 };
 
+evaluator.elementsatmouse$0 = function(args, modifs) {
+    var eps = 0.5;
+    var mouse = List.realVector([csmouse[0], csmouse[1], 1]);
+
+    var distMouse = function(p) {
+        if (CSNumber._helper.isAlmostZero(p.value[2])) return Infinity;
+        var pz = List.normalizeZ(p);
+        return List.abs(List.sub(pz, mouse)).value.real;
+    };
+
+    var getPerp = function(l) {
+        var fp = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
+        return List.normalizeMax(List.cross(mouse, fp));
+    };
+
+    var inciPP = function(p) {
+        return (distMouse(p.homog) < eps);
+    };
+
+    var inciPL = function(l) {
+        var perp = getPerp(l.homog);
+        var pp = List.normalizeMax(List.cross(l.homog, perp));
+        var d = distMouse(pp);
+        return (d < eps);
+    };
+
+    var inciPC = function(c) {
+        var l = General.mult(c.matrix, mouse);
+        var perp = getPerp(l);
+        var sect = geoOps._helper.IntersectLC(perp, c.matrix);
+        var dists = sect.map(function(el) {
+            return distMouse(el);
+        });
+
+        var erg = Math.min(dists[0], dists[1]);
+
+        return (erg < eps);
+    };
+
+    var points = csgeo.points.filter(inciPP);
+
+    var lines = csgeo.lines.filter(function(el) {
+        var val = inciPL(el);
+        // fetch segment
+        if (val && el.kind === "S") {
+            var line = el.homog;
+            var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+            var cr = List.crossratio3(
+                el.farpoint, el.startpos, el.endpos, mouse, tt).value.real;
+            if (cr < 0 || cr > 1) val = false;
+        }
+
+        return val;
+    });
+
+    var conics = csgeo.conics.filter(function(el) {
+        var val = inciPC(el);
+        // fetch arc
+        if (val && el.isArc) {
+            var cr = List.crossratio3harm(el.startPoint, el.endPoint,
+                el.viaPoint, mouse, List.ii);
+            var m = cr.value[0];
+            var n = cr.value[1];
+            if (!CSNumber._helper.isAlmostZero(m)) {
+                n = CSNumber.div(n, m);
+                m = CSNumber.real(1);
+            } else {
+                m = CSNumber.div(m, n);
+                n = CSNumber.real(1);
+            }
+            var nor = List.abs(List.turnIntoCSList([n, m]));
+            m = CSNumber.div(m, nor);
+            n = CSNumber.div(n, nor);
+
+            var prod = CSNumber.mult(n, m);
+            if (m.value.real < 0) prod = CSNumber.neg(prod);
+
+            if (prod.value.real < 0) val = false;
+        }
+        return val;
+    });
+
+
+    var elts = points.concat(lines, conics);
+
+    return List.ofGeos(elts);
+};
+
 evaluator.incidences$1 = evaluator.allelements$1;
 
 evaluator.createpoint$2 = function(args, modifs) {
@@ -3905,12 +3993,12 @@ evaluator.createpoint$2 = function(args, modifs) {
     var pos = evaluateAndHomog(args[1]);
 
     if (name.ctype !== "string") {
-        console.log("Name must be a string");
+        printStackTrace("Name must be a string");
         return nada;
     }
 
     if (pos.ctype !== "list" && List.isNumberVector(pos)) {
-        console.log("Position must be a number vector");
+        printStackTrace("Position must be a number vector");
         return nada;
     }
 
@@ -3933,7 +4021,7 @@ evaluator.create$3 = function(args, modifs) {
     if (names.ctype === "string") {
         name = names.value;
     } else if (names.ctype !== "list") {
-        console.log("Names must be a string or a list of strings");
+        printStackTrace("Names must be a string or a list of strings");
         return nada;
     } else if (names.value.length !== 1) {
         // Create the compound object, then Select objects to split it up
@@ -3952,24 +4040,24 @@ evaluator.create$3 = function(args, modifs) {
         }
         return el;
     } else if (names.value[0].ctype !== "string") {
-        console.log("Element of names list must be a string");
+        printStackTrace("Element of names list must be a string");
         return nada;
     } else {
         name = names.value[0].value;
     }
     if (type.ctype !== "string") {
-        console.log("Type must be a string");
+        printStackTrace("Type must be a string");
         return nada;
     }
     if (defs.ctype !== "list") {
-        console.log("Arguments must be a list");
+        printStackTrace("Arguments must be a list");
         return nada;
     }
 
     if (!geoOps.hasOwnProperty(type.value) &&
         !geoAliases.hasOwnProperty(type.value) &&
         !geoMacros.hasOwnProperty(type.value)) {
-        console.log("Invalid geometric operation: '" + type.value + "'");
+        printStackTrace("Invalid geometric operation: '" + type.value + "'");
         return nada;
     }
 
@@ -3988,7 +4076,7 @@ evaluator.create$3 = function(args, modifs) {
             if (vec !== nada) {
                 pos = vec;
             } else {
-                console.log("Unknown argument type");
+                printStackTrace("Unknown argument type");
                 return nada;
             }
         }
@@ -4081,7 +4169,7 @@ evaluator.use$1 = function(args, modifs) {
                 "value": true
             };
         } else {
-            console.log("Plugin " + name + " not found");
+            printStackTrace("Plugin " + name + " not found");
             return {
                 "ctype": "boolean",
                 "value": false
@@ -4643,14 +4731,14 @@ evaluator.createtool$3 = function(args, modifs) {
             }
         });
     } else {
-        console.log("Name must be a string or a list of strings");
+        printStackTrace("Name must be a string or a list of strings");
         return nada;
     }
 
     if (modifs.flipped) {
         modif = evaluate(modifs.flipped);
         if (modif.ctype === "boolean" && modif.value) {
-            console.log("Flipping");
+            printStackTrace("Flipping");
             var ncols = 0;
             var nrows = names.length;
             names.forEach(function(row) {
@@ -4675,7 +4763,7 @@ evaluator.createtool$3 = function(args, modifs) {
         toolbar.appendChild(rowElt);
         row.forEach(function(name) {
             if (!tools.hasOwnProperty(name)) {
-                console.log("Tool '" + name + "' not implemented yet.");
+                printStackTrace("Tool '" + name + "' not implemented yet.");
                 name = null;
             }
             if (name === null) {
@@ -4728,7 +4816,7 @@ evaluator.parsecsv$1 = function(args, modifs) {
 
     var str = evaluateAndVal(args[0]);
     if (str.ctype !== "string") {
-        console.log("CSV data is not a string");
+        printStackTrace("CSV data is not a string");
         return nada;
     }
     str = str.value;
@@ -4819,7 +4907,7 @@ evaluator.load$3 = function(args, modifs) {
         if (req.status === 200) {
             value = General.string(String(req.responseText));
         } else {
-            csconsole.err("Failed to load " + url + ": " + req.statusText);
+            printStackTrace("Failed to load " + url + ": " + req.statusText);
             value = nada;
         }
         namespace.newvar(varname);

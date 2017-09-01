@@ -22,12 +22,29 @@ let getImag = c => `(${c}).y`
 var webgl = {};
 
 webgl['join'] = first([
-    [type.point, type.point], type.line, usefunction('cross')
+    [
+        [type.point, type.point], type.line, usefunction('cross')
+    ]
 ]);
 
 webgl['meet'] = first([
-    [type.line, type.line], type.point, usefunction('cross')
+    [
+        [type.line, type.line], type.point, usefunction('cross')
+    ]
 ]);
+
+webgl['gauss'] = first([
+    [
+        [type.complex], type.vec2, identity
+    ]
+]);
+
+webgl['complex'] = first([
+    [
+        [type.vec2], type.complex, identity
+    ]
+]);
+
 
 webgl['if'] = (argtypes) => { //generator is not used yet
     if (!argtypes.every(a => a)) return false;
@@ -270,7 +287,7 @@ webgl["_"] = args => {
         let k = Number(args[1].value["value"]["real"]);
         if (1 <= Math.abs(k) && Math.abs(k) <= t.length) {
             if (k > 0) k = k - 1;
-            if (k < 0) k = t.length - k;
+            if (k < 0) k = t.length + k;
             return {
                 args: args,
                 res: t.parameters,
@@ -295,6 +312,12 @@ webgl["mult"] = args => {
         ],
         [
             [type.float, type.float], type.float, useinfix('*')
+        ],
+        [
+            [type.complex, type.float], type.complex, useinfix('*')
+        ],
+        [
+            [type.float, type.complex], type.complex, useinfix('*')
         ],
         [
             [type.complex, type.complex], type.complex, useincludefunction('multc')
@@ -384,6 +407,12 @@ webgl["div"] = args => {
     let match = first([
         [
             [type.float, type.float], type.float, useinfix('/')
+        ],
+        [
+            [type.float, type.complex], type.complex, useincludefunction('divfc')
+        ],
+        [
+            [type.complex, type.float], type.complex, useinfix('/')
         ],
         [
             [type.complex, type.complex], type.complex, useincludefunction('divc')
@@ -502,39 +531,76 @@ webgl['arctan2'] = first([
 webgl["grey"] = webgl["gray"];
 
 
-webgl["min"] = first([
-    [
-        [type.int, type.int], type.int, usefunction('min')
-    ],
-    [
-        [type.float, type.float], type.float, usefunction('min')
-    ]
-]);
+webgl["min"] = args => {
+    let match = first([
+        [
+            [type.float, type.float], type.float, usefunction('min')
+        ]
+    ])(args);
+    if (match) return match;
 
-webgl["max"] = first([
-    [
-        [type.int, type.int], type.int, usefunction('max')
-    ],
-    [
-        [type.float, type.float], type.float, usefunction('max')
-    ]
-]);
+    if (args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]))
+        return {
+            args: args,
+            res: args[0].parameters,
+            generator: usemin(args[0]),
+        };
+}
+
+webgl["max"] = args => {
+    let match = first([
+        [
+            [type.int, type.int], type.int, usefunction('max')
+        ],
+        [
+            [type.float, type.float], type.float, usefunction('max')
+        ]
+    ])(args);
+    if (match) return match;
+
+    if (args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]))
+        return {
+            args: args,
+            res: args[0].parameters,
+            generator: usemax(args[0]),
+        };
+}
 
 
-webgl["complex"] = first([
-    [
-        [type.vec2], type.complex, identity
-    ]
-]);
+let createraise = (k, codebuilder) => {
+    if (k <= 1) {
+        return;
+    } else if (k == 2) {
+        codebuilder.add('functions', 'raise2', () => `float raise2(float a) { return a*a; }`);
+    } else {
 
-webgl["pow"] = first([
-    [
-        [type.float, type.int], type.float, useincludefunction('powi')
-    ],
-    [
-        [type.complex, type.complex], type.complex, useincludefunction('powc')
-    ]
-]);
+        createraise(2, codebuilder);
+        let raise = (a, k) => k == 1 ? a : k & 1 ? raise(a, k - 1) + '*a' : `raise2(${raise(a,k/2)})`;
+        let name = `raise${k}`;
+        codebuilder.add('functions', name, () => `float ${name}(float a) { return ${raise('a', k)};}`);
+    }
+}
+let useraise = k => ((args, modifs, codebuilder) => k == 0 ? '1.' : k == 1 ? args[0] : createraise(k, codebuilder) || `raise${k}(${args[0]})`);
+
+webgl["pow"] = args => {
+    if (isconstantint(args[1]) && issubtypeof(args[0], type.float)) {
+        let k = Number(args[1].value["value"]["real"]);
+        if (k >= 0)
+            return {
+                args: [type.float, args[1]],
+                res: type.float,
+                generator: useraise(k),
+            };
+    }
+    return first([
+        [
+            [type.float, type.int], type.float, useincludefunction('powi')
+        ],
+        [
+            [type.complex, type.complex], type.complex, useincludefunction('powc')
+        ]
+    ])(args);
+};
 
 webgl["^"] = webgl["pow"];
 
@@ -599,6 +665,16 @@ webgl["%"] = first([
     ]);
 });
 
+webgl["!"] = first([
+    [
+        [type.bool], type.bool, usefunction('!')
+    ],
+    [
+        [type.voidt, type.bool], type.bool, args => usefunction('!')([args[1]])
+    ]
+]);
+
+webgl["not"] = webgl["!"];
 
 webgl["imagergb"] = first([
     [
@@ -617,6 +693,19 @@ webgl["imagergba"] = first([
         [type.coordinate2d, type.coordinate2d, type.image, type.coordinate2d], type.vec4, useimagergba4
     ]
 ]);
+
+webgl["reverse"] = args => args.length === 1 && args[0].type === 'list' ? ({
+    args: args,
+    res: args[0],
+    generator: usereverse(args[0]),
+}) : false;
+
+
+webgl["sort"] = args => args.length === 1 && depth(args[0]) === 1 && isrvectorspace(args[0]) ? ({
+    args: args,
+    res: args[0],
+    generator: usesort(args[0]),
+}) : false;
 
 
 Object.freeze(webgl);

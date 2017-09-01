@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Vorhersage BL 2017.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+	<link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+
+w=100;
+l=1500;
+
+
+lambda=round(20*(|A,C|/|A,B|))/20;
+C.xy=A+lambda*(B-A);
+
+//drawtable((800,0),width->180,apply(otabelle,(#_1,#_2+":"+#_3+"  |  "+#_4+"  |  "+#_5+" Mio. €")));
+drawtabelle();
+drawwkeiten();
+drawtext((l-w,-100),(n+"-fache Simulation. Berücksichtigung von Torverhältnis (HR/R-Verhältnis "+lambda+"), Hinspielergebnissen und Mannschaftswert."),bold->false);
+drawtext((l-w,-50),"Quelle: Ulrich Kortenkamp, Uni Potsdam & Matthias Ludwig, Uni Frankfurt, Stand:"+date()_3+"."+date()_2+"."+date()_1);
+if (hsvergeb+koeergeb >= 0, 
+drawtext((l+17*w,-50),align->"right",("Unter der zusätzlichen Annahme "+hsvergeb+":"+koeergeb+" für das Spiel HSV-KOE."),bold->true);
+);
+;
+</script>
+<script id="csinit" type="text/x-cindyscript">
+
+lambda=round(20*(|A,C|/|A,B|))/20;
+C.xy=A+lambda*(B-A);
+
+reset():=(
+//mannschaft_1 = name
+//mannschaft_2= Tore geschossen
+//mannschaft_3= Tore kassiert
+//mannschaft_4 = Punkte?
+//mannschaft_5 =  Wert
+//mannschaft_6 = Platzierung
+//mannschaft_7 = Tore geschossen Rückrunde
+//mannschaft_8 = Tore kassiert Rückrunde
+
+// Originaltabelle
+otabelle = [["FC Bayern",61,13,62,556,1,21,3],
+["RB Leipzig",43,28,49,111,2,9,13],
+["Borussia Dortmund",54,27,46,378,3,17,7],
+["TSG 1899 Hoffenheim",46,25,45,100,4,15,8],
+["Hertha BSC",34,30,40,85,5,9,11],
+["1. FC Köln",37,29,37,94,6,16,14],
+["Eintracht Frankfurt",26,27,36,68,7,4,12],
+["SC Freiburg",32,42,35,52,8,10,13],
+["FC Schalke 04",32,27,33,210,9,11,8],
+["Borussia Mönchengladbach",30,34,32,161,10,15,9],
+["Bayer 04 Leverkusen",37,40,31,272,11,11,15],
+["FSV Mainz",33,41,29,77,12,7,11],
+["SV Werder Bremen",34,44,29,69,13,13,8],
+["FC Augsburg",24,34,29,62,14,11,15],
+["VfL Wolfsburg",23,34,29,157,15,7,10],
+["Hamburger SV",24,46,27,77,16,10,14],
+["FC Ingolstadt",23,42,19,35,17,9,14],
+["SV Darmstadt 98",17,47,15,22,18,6,17]
+];
+
+n=1;
+err(time());
+
+haeufigkeit=apply(1..18,apply(1..18,0));
+punktefuerplatz=apply(1..18,0);
+platzpunkte=apply(1..18,apply(1..(61+3*9),0));
+
+
+zaehler=1;
+forall(otabelle,eintrag,
+if(eintrag_1 == "FC Bayern", MUE = zaehler);
+if(eintrag_1 == "RB Leipzig", RBL = zaehler);
+if(eintrag_1 == "Borussia Dortmund", BVB = zaehler);
+if(eintrag_1 == "TSG 1899 Hoffenheim", TSG = zaehler);
+if(eintrag_1 == "Hertha BSC", BSC = zaehler);
+if(eintrag_1 == "Eintracht Frankfurt", SGE = zaehler);
+if(eintrag_1 == "1. FC Köln", KOE = zaehler);
+if(eintrag_1 == "SC Freiburg", SCF = zaehler);
+if(eintrag_1 == "Borussia Mönchengladbach", BMG = zaehler);
+if(eintrag_1 == "Bayer 04 Leverkusen", LEV = zaehler);
+if(eintrag_1 == "FC Schalke 04", FCS = zaehler);
+if(eintrag_1 == "FSV Mainz", FSV = zaehler);
+if(eintrag_1 == "FC Augsburg", FCA = zaehler);
+if(eintrag_1 == "VfL Wolfsburg", WOL = zaehler);
+if(eintrag_1 == "SV Werder Bremen", BRE = zaehler);
+if(eintrag_1 == "Hamburger SV", HSV = zaehler);
+if(eintrag_1 == "FC Ingolstadt", FCI = zaehler);
+if(eintrag_1 == "SV Darmstadt 98", DAR = zaehler);
+zaehler=zaehler+1;
+);
+
+hsvergeb = parse(Text5.text);
+koeergeb = parse(Text6.text);
+
+if(isundefined(hsvergeb+koeergeb),
+spieltage=[
+//[[BVB,FCI,[3,3]],[TSG,LEV,[3,0]],[KOE,BSC,[1,2]],[WOL,DAR,[1,3]],[BRE,RBL,[1,3]],[FCA,SCF,[1,2]],[SGE,HSV,[3,0]],[FSV,FCS,[0,3]],[BMG,MUE,[0,2]]], //25.
+[[BSC,TSG,[0,1]],[FCS,BVB,[0,0]],[HSV,KOE,[0,3]],[MUE,FCA,[3,1]],[SCF,BRE,[3,1]],[RBL,DAR,[2,0]],[SGE,BMG,[0,0]],[FCI,FSV,[0,2]],[LEV,WOL,[2,1]]], //26.
+[[TSG,MUE,[1,1]],[BRE,FCS,[1,3]],[BVB,HSV,[5,2]],[KOE,SGE,[0,1]],[DAR,LEV,[2,3]],[BMG,BSC,[0,3]],[FCA,FCI,[2,0]],[WOL,SCF,[3,0]],[FSV,RBL,[1,3]]], //27.
+[[SGE,BRE,[2,1]],[RBL,LEV,[3,2]],[KOE,BMG,[2,1]],[SCF,FSV,[4,2]],[FCS,WOL,[1,0]],[HSV,TSG,[2,2]],[MUE,BVB,[0,1]],[BSC,FCA,[0,0]],[FCI,DAR,[1,0]]], //28.
+[[TSG,BMG,[1,1]],[FSV,BSC,[1,2]],[FCA,KOE,[0,0]],[WOL,FCI,[1,1]],[BVB,SGE,[1,2]],[RBL,SCF,[4,1]],[LEV,MUE,[1,2]],[BRE,HSV,[2,2]],[DAR,FCS,[1,3]]], //29.
+[[KOE,TSG,[0,4]],[MUE,FSV,[3,1]],[BSC,WOL,[3,2]],[SGE,FCA,[1,1]],[FCI,BRE,[1,2]],[HSV,DAR,[2,0]],[BMG,BVB,[1,4]],[SCF,LEV,[1,1]],[FCS,RBL,[1,2]]], //30.
+[[LEV,FCS,[1,0]],[FSV,BMG,[0,1]],[BRE,BSC,[1,0]],[BVB,KOE,[1,1]],[RBL,FCI,[0,1]],[DAR,SCF,[0,1]],[WOL,MUE,[0,5]],[FCA,HSV,[0,1]],[TSG,SGE,[0,0]]], //31.
+[[KOE,BRE,[1,1]],[FCI,LEV,[2,1]],[SGE,WOL,[0,1]],[BMG,FCA,[0,1]],[MUE,DAR,[1,0]],[BVB,TSG,[0,1]],[BSC,RBL,[0,2]],[HSV,FSV,[1,3]],[SCF,FCS,[1,1]]], //32.
+[[RBL,MUE,[0,3]],[FCA,BVB,[1,1]],[WOL,BMG,[2,1]],[DAR,BSC,[0,2]],[LEV,KOE,[1,1]],[FCS,HSV,[1,2]],[SCF,FCI,[2,1]],[BRE,TSG,[1,1]],[FSV,SGE,[0,3]]], //33.
+[[BSC,LEV,[1,3]],[FCI,FCS,[0,1]],[KOE,FSV,[0,0]],[HSV,WOL,[0,1]],[TSG,FCA,[2,0]],[BVB,BRE,[2,1]],[BMG,DAR,[0,0]],[MUE,SCF,[2,1]],[SGE,RBL,[0,3]]] //34.
+], //else
+spieltage=[
+//[[BVB,FCI,[3,3]],[TSG,LEV,[3,0]],[KOE,BSC,[1,2]],[WOL,DAR,[1,3]],[BRE,RBL,[1,3]],[FCA,SCF,[1,2]],[SGE,HSV,[3,0]],[FSV,FCS,[0,3]],[BMG,MUE,[0,2]]], //25.
+[[BSC,TSG,[0,1]],[FCS,BVB,[0,0]],[MUE,FCA,[3,1]],[SCF,BRE,[3,1]],[RBL,DAR,[2,0]],[SGE,BMG,[0,0]],[FCI,FSV,[0,2]],[LEV,WOL,[2,1]]], //26.
+[[TSG,MUE,[1,1]],[BRE,FCS,[1,3]],[BVB,HSV,[5,2]],[KOE,SGE,[0,1]],[DAR,LEV,[2,3]],[BMG,BSC,[0,3]],[FCA,FCI,[2,0]],[WOL,SCF,[3,0]],[FSV,RBL,[1,3]]], //27.
+[[SGE,BRE,[2,1]],[RBL,LEV,[3,2]],[KOE,BMG,[2,1]],[SCF,FSV,[4,2]],[FCS,WOL,[1,0]],[HSV,TSG,[2,2]],[MUE,BVB,[0,1]],[BSC,FCA,[0,0]],[FCI,DAR,[1,0]]], //28.
+[[TSG,BMG,[1,1]],[FSV,BSC,[1,2]],[FCA,KOE,[0,0]],[WOL,FCI,[1,1]],[BVB,SGE,[1,2]],[RBL,SCF,[4,1]],[LEV,MUE,[1,2]],[BRE,HSV,[2,2]],[DAR,FCS,[1,3]]], //29.
+[[KOE,TSG,[0,4]],[MUE,FSV,[3,1]],[BSC,WOL,[3,2]],[SGE,FCA,[1,1]],[FCI,BRE,[1,2]],[HSV,DAR,[2,0]],[BMG,BVB,[1,4]],[SCF,LEV,[1,1]],[FCS,RBL,[1,2]]], //30.
+[[LEV,FCS,[1,0]],[FSV,BMG,[0,1]],[BRE,BSC,[1,0]],[BVB,KOE,[1,1]],[RBL,FCI,[0,1]],[DAR,SCF,[0,1]],[WOL,MUE,[0,5]],[FCA,HSV,[0,1]],[TSG,SGE,[0,0]]], //31.
+[[KOE,BRE,[1,1]],[FCI,LEV,[2,1]],[SGE,WOL,[0,1]],[BMG,FCA,[0,1]],[MUE,DAR,[1,0]],[BVB,TSG,[0,1]],[BSC,RBL,[0,2]],[HSV,FSV,[1,3]],[SCF,FCS,[1,1]]], //32.
+[[RBL,MUE,[0,3]],[FCA,BVB,[1,1]],[WOL,BMG,[2,1]],[DAR,BSC,[0,2]],[LEV,KOE,[1,1]],[FCS,HSV,[1,2]],[SCF,FCI,[2,1]],[BRE,TSG,[1,1]],[FSV,SGE,[0,3]]], //33.
+[[BSC,LEV,[1,3]],[FCI,FCS,[0,1]],[KOE,FSV,[0,0]],[HSV,WOL,[0,1]],[TSG,FCA,[2,0]],[BVB,BRE,[2,1]],[BMG,DAR,[0,0]],[MUE,SCF,[2,1]],[SGE,RBL,[0,3]]] //34.
+];
+(otabelle_KOE)_2=(otabelle_KOE)_2+koeergeb;
+(otabelle_HSV)_2=(otabelle_HSV)_2+hsvergeb;
+(otabelle_KOE)_3=(otabelle_KOE)_3+hsvergeb;
+(otabelle_HSV)_3=(otabelle_HSV)_3+koeergeb;
+
+(otabelle_KOE)_7=(otabelle_KOE)_7+koeergeb;
+(otabelle_HSV)_7=(otabelle_HSV)_7+hsvergeb;
+(otabelle_KOE)_8=(otabelle_KOE)_8+hsvergeb;
+(otabelle_HSV)_8=(otabelle_HSV)_8+koeergeb;
+
+if(koeergeb>hsvergeb, 
+  (otabelle_KOE)_4=(otabelle_KOE)_4+3;
+);
+
+if(koeergeb==hsvergeb, 
+  (otabelle_KOE)_4=(otabelle_KOE)_4+1;
+  (otabelle_HSV)_4=(otabelle_HSV)_4+1;
+);
+
+if(koeergeb<hsvergeb, 
+  (otabelle_HSV)_4=(otabelle_HSV)_4+3;
+);
+
+);
+
+//initialisierung
+tabelle=otabelle;
+tabelle=sort(tabelle,-#_4*10000-(#_2-#_3)*100-#_2);
+
+);
+
+reset();
+
+
+anfang(s) := (
+s_1+s_2+s_3+s_(indexof(s," ")+1)+s_(indexof(s," ")+2);
+);
+
+
+//Torverhältnis gesamt gewichtet.
+wtform(mannschaft) := (
+
+(1-lambda)*(mannschaft_2)/(mannschaft_2+mannschaft_3)*3;   //gewichtet hinrunde
++lambda*(mannschaft_7)/(mannschaft_7+mannschaft_8)*3   //gewichtet rückrunde
+
+
+);
+
+wthinspiel(spiel) := (
+3*(spiel_1+1)/(sum(spiel)+2)
+);
+
+wtwert(heim,gast) := (
+1.5+0.5*0.85*log(heim_5/gast_5)
+);
+
+simulation(spieltage):=(
+tabelle=otabelle;
+forall(spieltage, spiele,
+forall(spiele, spiel,
+heim=(tabelle_(spiel_1));
+gast=(tabelle_(spiel_2));
+
+// Welches Spiel?
+//println(heim_1+" - "+gast_1+" (Hinspiel "+(spiel_3)_1+":"+(spiel_3)_2+")");
+
+// Torschusswahrscheinlichkeit aus Form (Tabelle)
+// Heimmannschaft
+WtHeim = (wtform(heim) + wthinspiel(spiel_3) + wtwert(heim,gast))/3/9;
+//err(WtHeim);
+WtGast = (wtform(gast) + wthinspiel((spiel_3)_(2,1)) + wtwert(gast,heim))/3/9;
+//err(WtGast);
+
+ergebnis=(0,0);
+repeat(9,
+ergebnis=ergebnis+(if(random()<WtHeim,1,0),if(random()<WtGast,1,0));
+
+);
+//println("zufälliges Ergebnis: "+ergebnis);
+if(ergebnis_1==ergebnis_2,
+	//unentschieden
+	(tabelle_(spiel_1))_4=heim_4+1;
+  (tabelle_(spiel_2))_4=gast_4+1;
+	);
+if(ergebnis_1>ergebnis_2,
+	//Heimsieg
+	(tabelle_(spiel_1))_4=heim_4+3;
+  (tabelle_(spiel_2))_4=gast_4;
+	);
+if(ergebnis_1<ergebnis_2,
+	//Auswärtssieg
+	(tabelle_(spiel_1))_4=heim_4;
+  (tabelle_(spiel_2))_4=gast_4+3;
+	);
+(tabelle_(spiel_1))_2=heim_2+ergebnis_1;
+(tabelle_(spiel_2))_2=gast_2+ergebnis_2;
+tabelle_(spiel_1)_3=heim_3+ergebnis_2;
+tabelle_(spiel_2)_3=gast_3+ergebnis_1;
+
+(tabelle_(spiel_1))_7=(tabelle_(spiel_1))_7+ergebnis_1;
+(tabelle_(spiel_2))_7=(tabelle_(spiel_2))_7+ergebnis_2;
+tabelle_(spiel_1)_8=(tabelle_(spiel_1))_8+ergebnis_2;
+tabelle_(spiel_2)_8=(tabelle_(spiel_2))_7+ergebnis_1;
+);
+);
+tabelle=sort(tabelle,-#_4*10000-(#_2-#_3)*100-#_2);
+
+// Statistik mitführen
+platz=1;
+forall(tabelle,mannschaft,
+(haeufigkeit_(mannschaft_6))_platz=haeufigkeit_(mannschaft_6)_platz+1;
+(platzpunkte_platz)_(mannschaft_4)=((platzpunkte_platz)_(mannschaft_4))+1;
+punktefuerplatz_platz = punktefuerplatz_platz + mannschaft_4;
+platz=platz+1);
+// ende Statistik mitführen
+
+);
+
+printtabelle():=(
+repeat(18,print(otabelle_#_1);forall(apply((haeufigkeit_#)/n,x,";"+replace(format(x*100,5),".",",")+"%"),print(#));println());
+err(punktefuerplatz/n););
+
+rect(lu,ro):=(lu,(ro.x,lu.y),ro,(lu.x,ro.y));
+
+;
+repeat(n,
+simulation(spieltage);
+);
+
+
+printtabelle();
+err(time());
+
+
+run():=(
+m=parse(Text1.text);
+
+repeat(m,n=n+1;
+simulation(spieltage);
+if( //mod(#,100)==0,
+time()_3 != lastsec,
+lastsec=time()_3;
+drawtabelle();
+drawwkeiten();
+repaint(););
+);
+
+printtabelle();
+);drawwkeiten():=(
+layer(2);
+autoclearlayer(2,false);
+clearlayer();
+reindex=apply(1..18,(#,sum((haeufigkeit_#)*(1..18))));
+reindex=sort(reindex,#_2);
+repeat(18,i,
+ri=(reindex_i)_1;
+spalte=rect((l+w*(i-2),0)+(5,-5),(l+w*(i-1),900)+(5,-5));
+fillpoly(spalte,alpha->.5,color->grey(1));
+//err(spalte);
+drawpoly(spalte,color->grey(0),size->3);
+repeat(18,j,
+if(haeufigkeit_ri_j>0,
+proz=((haeufigkeit_ri)_j)/if(n>1,n,1);
+maximum=(max(haeufigkeit_ri)==(haeufigkeit_ri)_j);
+fillpoly(rect((l+w*(i-1),50*(18-j))+(5,-5),(l+w*(i-2),50*(19-j))+(5,-5)),color->red((sqrt(proz)))+gray(1-(sqrt(proz))),alpha->.5);
+drawtext((l+w*(i-1),50*(18-j)),align->"right",bold->maximum,font->"Helvetica",format(100*proz,1)+"%");
+);
+);
+
+
+startpos=(l-16*w);
+pos=startpos;
+mmi=max(platzpunkte_i);
+forall(17..(61+3*9),j,
+  if(platzpunkte_i_j>0,
+    if (pos==startpos, 
+			    drawtext((pos,50*(18-i)),align->"right",font->"Helvetica", j+" P");
+    			pos=pos+w*0.5;
+		);
+    proz=((platzpunkte_i)_j)/if(n>1,n,1);
+    fillpoly(rect((pos-.25*w,50*(18-i))+(0,-5),(pos+w*0.25,50*(18-i))+(0,45)),color->blue((sqrt(proz)))+gray(1-(sqrt(proz))),alpha->.5);
+    drawtext((pos,50*(18-i)+20),align->"center",bold->(platzpunkte_i)_j==mmi,font->"Helvetica",round(100*(((platzpunkte_i)_j)/if(n>1,n,1)))+"%");
+    drawtext((pos,50*(18-i)),align->"center",bold->(platzpunkte_i)_j==mmi,font->"Helvetica",j,size->8);    pos=pos+w*0.5;
+    lastj=j;
+  );
+);
+pos=pos+w*0.25;
+drawtext((pos,50*(18-i)),align->"center",font->"Helvetica", lastj+" P");
+
+drawtext((l-w,50*(18-i)),align->"right",font->"Helvetica",i+".");
+drawtext((l-3*w,50*(18-i)),align->"left",font->"Helvetica","ø "+(punktefuerplatz_i)/n+" Pkte");
+drawtext((l+w*(i-1),50*18),align->"right",font->"Helvetica",anfang(((otabelle_ri)_1)));
+);
+
+drawtext((350,925),(34-length(spieltage))+". Spieltag - Simulationen:"+n+"$\quad\lambda$="+lambda,font->"Helvetica",size->24);
+forall([3,4,6,15,16],draw( (l-16.5*w,50*(18-#)-5), (l+17*w,50*(18-#)-5),size->2,color->grey(.2)));
+layer(0);
+);
+
+
+drawtabelle():= (
+layer(1);
+autoclearlayer(1,false);
+clearlayer();
+//fillpoly(rect((0,0),(180/screenresolution()*2,180/5*18)),color->(1,1,1));
+//drawtable((0,0),width->180,apply(tabelle,(#_1,#_2+":"+#_3+"  |  "+#_4+"  |  "+#_5+" Mio. €")),size->12);
+layer(0);
+);
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "Text1", type: "EditableText", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 50, text: "1000", dock: {corner: "UL", offset: [100.0, -40.0]}},
+    {name: "A", type: "Free", pos: [-0.42105263157894735, -4.0, -0.004210526315789474], color: [0.0, 0.0, 0.0], pinned: true, size: 3.0},
+    {name: "B", type: "Free", pos: [-1.2553606237816766, -4.0, -0.004208109023422092], color: [0.0, 0.0, 0.0], pinned: true, size: 3.0},
+    {name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "B"]},
+    {name: "C", type: "PointOnSegment", pos: [-0.4210526315789475, -4.0, -0.004210526315789474], color: [1.0, 1.0, 1.0], args: ["a"], size: 4.0},
+    {name: "Text0", type: "Button", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, script: "run();", text: "Run", dock: {corner: "UL", offset: [46.0, -40.0]}},
+    {name: "Text2", type: "Text", pos: [-0.37431707582174273, -4.0, -0.004339225858328979], color: [0.0, 0.0, 0.0], pinned: true, text: "H+R", textbold: true},
+    {name: "Text3", type: "Text", pos: [-1.2635814889336014, -4.0, -0.004343581346107713], color: [0.0, 0.0, 0.0], pinned: true, text: "R", textbold: true},
+    {name: "Text5", type: "EditableText", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 30, dock: {corner: "LL", offset: [247.0, 22.0]}},
+    {name: "Text6", type: "EditableText", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 30, dock: {corner: "LL", offset: [302.0, 22.0]}},
+    {name: "Text7", type: "Text", color: [0.0, 0.0, 0.0], text: "Zusatzannahme: HSV - KOE", dock: {corner: "LL", offset: [71.0, 22.0]}},
+    {name: "Text8", type: "Button", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, script: "reset();\nrepeat(n,\nsimulation(spieltage);\n);", text: "Neue Berechnung", dock: {corner: "LL", offset: [391.0, 22.0]}}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 1862,
+    height: 622,
+    transform: [{visibleRect: [-217.71758576894453, 1020.0300507727998, 3232.4113053099895, -132.48346708493222]}],
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  use: ["katex"],
+  cinderella: {build: 1898, version: [2, 9, 1898]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

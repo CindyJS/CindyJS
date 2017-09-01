@@ -7,32 +7,12 @@
 		<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
     <link rel="stylesheet" href="../../build/js/CindyJS.css">
   </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Taylor series of complex functions</h1>
-    
-		<script id="csinit" type="text/x-cindyscript">			
-			hsvToRGB(h, s, v) := (
-			  regional(j, p, q, t, f);
-
-			  h = (h-floor(h))*6;
-
-			  j = floor(h);
-			  f = h - j;
-
-			  p = 1 - s;
-			  q = 1 - s*f;
-			  t = 1 - s*(1-f);
-
-			  if(j == 0, [1, t, p],
-			  if(j == 1, [q, 1, p],
-			  if(j == 2, [p, 1, t],
-			  if(j == 3, [p, q, 1],
-			  if(j == 4, [t, p, 1],
-			  if(j == 5, [1, p, q]))))))*v
-			);
-
+	
+		<body style="font-family:Arial;">
+			
+			<h1>CindyJS: Taylor series of complex functions</h1>
+			
+			<script id="csinit" type="text/x-cindyscript">			
 			color(z) := ( //what color should be given to a complex number z?
 			  regional(n, grey1, grey2);
 			  n = 12;
@@ -42,80 +22,112 @@
 
 			  grey1 = im(zfract);
 			  grey2 = re(zfract);
+				
+			  hue(im(z))*(.6+.4*re(sqrt(grey1*grey2)));
+		  );
+				n = 5;
+				
+				lastf = "";
+				
+				zoom = 1;
+				lzoom = zoom;
 
-			  hsvToRGB(im(z), 1., .5+.5*re(sqrt(grey1*grey2)))
-			);
-
-			n = 5;
+			</script>
 			
-			lastf = "";
+			<script id="csdraw" type="text/x-cindyscript">
+			if(Input.text!=lastf & Input.text!="", 
+				parse("f(z) :=" + Input.text);
+				lastf = Input.text;
+			);
+			
+			factorial(n) := if(n==0, 1, n*factorial(n-1));
+			
+			coeff = autodiff(f(z), [complex(A*zoom)], n)_1;
+			forall(0..n, k, coeff_(k+1)=coeff_(k+1)/factorial(k));
+			
+			t(z) := coeff*apply(0..n, k, (z-complex(A*zoom))^k);
+			
 
-    </script>
-		
-    <script id="csdraw" type="text/x-cindyscript">
-		if(Input.text!=lastf & Input.text!="", 
-			parse("f(z) :=" + Input.text);
-			lastf = Input.text;
-		);
-	
-		
-		factorial(n) := if(n==0, 1, n*factorial(n-1));
-		
-		coeff = autodiff(f(z), [complex(A)], n)_1;
-		forall(0..n, k, coeff_(k+1)=coeff_(k+1)/factorial(k));
-		
-		t(z) := coeff*apply(0..n, k, (z-complex(A))^k);
-		
-
-    colorplot(
-			z = complex(#);
-			color(t(z));
-			,
-			(-2,-2),(2,2)
-		);
-		
-		colorplot(
-			z = complex(#)+4;
-			color(f(z));
-			,
-			(-6,-2),(-2,2)
-		);
-		
-		drawtext((-5.9,1.7), "$f(z) =$");
-		
-		drawtext((-1.7,1.7), "$\sum_{k=0}^{"+n+"} \frac{f^{(k)}(a)}{k!} (z-a)^k$");
-		
-		draw((1.8,-1.8),(1.8,1.8), color->[0,0,0]);
-		N.x = 1.8;
-		n = round(5*(N.y+1.8));
-		n = max(1, n);
-		N.y = n/5-1.8;
-    </script>
-               
-
-    
-    <div  id="CSCanvas"></div>
-		
-    <script type="text/javascript">
-        CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry: [
-											{name:"A", type:"Free", pos:[1.1, 0.1],color:[1,0,0]},
-	    								{name:"N", type:"Free", pos:[1, -.3],color:[1,1,1], size:8},
-											
-											{name: "Input", type: "EditableText", pos: [-5.2, 1.7], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 123, text: "1/(z^2+1)"},										
-											{name: "sqrt", type: "Button", pos: [-3.8, 1.7], color: [0.0, 0.0, 0.0], text: "z^(1/2)", align: "left", alpha: 0.5, script: 'Input.text = "z^(1/2)"'},
-											{name: "log", type: "Button", pos: [-3, 1.7], color: [0.0, 0.0, 0.0], text: "log(z)", align: "left", script: 'Input.text = "log(z)"'},
-										],
-                    animation: {autoplay: true},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 800,
-                      height: 400,
-                      transform: [ { visibleRect: [-6,-2, 2, 2] } ]
-                    }],
-										use: ["CindyGL", "katex"]
-                  });
-    </script>              
-	</body>
-</html>
+			colorplot(
+				z = zoom*complex(#);
+				color(t(z));
+				,
+				(-2,-2),(2,2)
+			);
+			
+			colorplot(
+				z = zoom*(complex(#)+4);
+				color(f(z));
+				,
+				(-6,-2),(-2,2)
+			);
+			
+			drawtext((-5.9,1.7), "$f(z) =$");
+			
+			drawtext((-1.7,1.7), "$\sum_{k=0}^{"+n+"} \frac{f^{(k)}(a)}{k!} (z-a)^k$");
+			
+			draw((1.8,-1.8),(1.8,1.8), color->[0,0,0]);
+			N.x = 1.8;
+			n = round(5*(N.y+1.8));
+			n = max(1, n);
+			N.y = n/5-1.8;
+			
+			draw((-5,-1.8),(1,-1.8), color->[0,0,0]);
+			drawtext((1.1,N.y),"$n = " + n + "$");
+			Zoom.y = -1.8;
+			
+			Zoom.x = max(Zoom.x, -5);
+			Zoom.x = min(Zoom.x, 1);
+			
+			zoom = exp(.5*(Zoom.x+3));
+			
+			if(lzoom!=zoom,
+				A.xy = A.xy*lzoom/zoom;
+			);
+			lzoom = zoom;
+			
+			</script>
+			<div>
+			<select size="5" id="sel" onchange="cdy.evokeCS(this.value);" style="width:10em;">  
+				<option value='Input.text = "1/z";'>1/z</option>
+				<option value='Input.text = "z^(1/2)";'>square root</option>
+				<option value='Input.text = "log(z)";'>logarithm</option>
+				<option value='Input.text = "sin(z)";'>sine</option>
+				<option value='Input.text = "sin(z)/cos(z)";'>tangent</option>
+				<option value='Input.text = "exp(z)";'>exponential function</option>
+			</select>
+			</div>
+			<div id="CSCanvas"></div>
+			
+			<script type="text/javascript">
+					var cdy = CindyJS({canvasname:"CSCanvas",
+											scripts: "cs*",
+											geometry: [
+												{name:"A", type:"Free", pos:[1.1, 0.1],color:[1,0,0]},
+												{name:"N", type:"Free", pos:[1, 0],color:[1,1,1], size:8},
+												{name:"Zoom", type:"Free", pos:[-2, -.3],color:[1,1,1], size:8},
+												{name: "Input", type: "EditableText", pos: [-5.2, 1.7], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, minwidth: 300, text: "1/(z^2+1)"}
+											],
+											animation: {autoplay: true},
+											ports: [{
+												id: "CSCanvas",
+												width: 800,
+												height: 400,
+												transform: [ { visibleRect: [-6,-2, 2, 2] } ]
+											}],
+											use: ["CindyGL", "katex"]
+										});
+			</script>
+			
+			<div>
+				On the left, a phase portrait of a complex function is displayed.
+			</div>
+			<div>
+			On the right, one can see the approximation of the function through it's Taylor polynomials at the red base point.
+			</div>
+			<div>
+			The complex function, the base point, the order of the polynomial and the zoom can be modified.
+			</div>
+	       
+		</body>
+	</html>

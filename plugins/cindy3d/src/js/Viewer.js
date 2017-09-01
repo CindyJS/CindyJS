@@ -30,6 +30,28 @@ function Viewer(name, ccOpts, opts, addEventListener) {
       canvas.getContext("experimental-webgl", ccOpts));
   if (!gl)
     throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
+
+  if (/[?&]frag_depth=0/.test(window.location.search)) {
+    this.glExtFragDepth = null;
+  }
+  else {
+    this.glExtFragDepth = gl.getExtension("EXT_frag_depth");
+    if (!this.glExtFragDepth) {
+      console.log("EXT_frag_depth extension not supported, " +
+                  "will try webgl 2.0.");
+      let gl2 = /** @type {WebGLRenderingContext} */(
+        canvas.getContext("webgl2", ccOpts));
+      if (gl2) {
+        gl = gl2;
+        gl.webgl2 = true;
+        console.log("Loaded Webgl 2.0!");
+      } else {
+        console.log("Webgl 2.0 is not availible, " +
+                    "render in reduced quality.");
+      }
+    }
+  }
+
   canvas.removeEventListener(
     "webglcontextcreationerror",
     onContextCreationError, false);
@@ -40,15 +62,6 @@ function Viewer(name, ccOpts, opts, addEventListener) {
   this.width = canvas.width;
   this.height = canvas.height;
   this.gl = gl;
-  if (/[?&]frag_depth=0/.test(window.location.search)) {
-    this.glExtFragDepth = null;
-  }
-  else {
-    this.glExtFragDepth = gl.getExtension("EXT_frag_depth");
-    if (!this.glExtFragDepth)
-      console.log("EXT_frag_depth extension not supported, " +
-                  "will render with reduced quality.");
-  }
 
   this.ssFactor = 1;
   if (opts && opts.superSample) {
@@ -130,7 +143,7 @@ function Viewer(name, ccOpts, opts, addEventListener) {
       target, name, listener, useCapture) {
       target.addEventListener(name, listener, !!useCapture);
     });
-  this.setupListeners(addEventListener);
+  new Controls(addEventListener, this.canvas, this.camera, this);
 }
 
 /** @const @type {Appearance.Triple} */
@@ -217,59 +230,6 @@ Viewer.prototype.backgroundColor;
 
 /** @type {?number} */
 Viewer.prototype.renderTimeout;
-
-/**
- * @param {td.EventManager} addEventListener
- */
-Viewer.prototype.setupListeners = function(addEventListener) {
-  let canvas = this.canvas, mx = Number.NaN, my = Number.NaN, mdown = false;
-  let camera = this.camera, render = this.scheduleRender.bind(this);
-  addEventListener(canvas, "mousedown", function(/** MouseEvent */ evnt) {
-    if (evnt.button === 0) {
-      mdown = true;
-    }
-    if (evnt.buttons === undefined ? mdown : (evnt.buttons & 1)) {
-      mx = evnt.screenX;
-      my = evnt.screenY;
-    }
-  });
-  addEventListener(canvas, "mousemove", function(/** MouseEvent */ evnt) {
-    if (evnt.buttons === undefined ? mdown : (evnt.buttons & 1)) {
-      if (!isNaN(mx)) {
-        let dx = evnt.screenX - mx, dy = evnt.screenY - my;
-        if (evnt.shiftKey)
-          camera.rotateXY(dx, dy);
-        else if (evnt.altKey || evnt.ctrlKey || evnt.metaKey)
-          camera.translateXY(dx, dy);
-        else
-          camera.orbitXY(dx, dy);
-        render();
-      }
-      mx = evnt.screenX;
-      my = evnt.screenY;
-    }
-  });
-  addEventListener(canvas, "mouseup", function(/** MouseEvent */ evnt) {
-    if (evnt.button === 0) mdown = false;
-  });
-  addEventListener(canvas, "mouseleave", function(/** MouseEvent */ evnt) {
-    mdown = false;
-    mx = my = Number.NaN;
-  });
-  addEventListener(canvas, "wheel", function(/** WheelEvent */ evnt) {
-    let d = evnt.deltaY;
-    if (d) {
-      if (evnt.shiftKey)
-        camera.rotateZ(d);
-      else if (evnt.altKey || evnt.ctrlKey || evnt.metaKey)
-        camera.translateZ(d);
-      else
-        camera.zoom(d);
-      render();
-    }
-    evnt.preventDefault();
-  });
-};
 
 Viewer.prototype.clear = function() {
   this.spheres.clear();

@@ -22,17 +22,22 @@ var handlers = {
     "Cindy3D.js.map": map,
     "CindyGL.js": true,
     "CindyGL.js.map": map,
+    "QuickHull3D.js": true,
+    "QuickHull3D.js.map": map,
     "CindyJS.css": true,
     "CindyJS.css.map": map,
     "Compiled.js": false,
     "ComplexCurves.js": true,
-    "ComplexCurves.glsl.js": false,
+    "ComplexCurves.js.map": false,
+    "ComplexCurves.plugin.js": false,
     "Version.js": false,
     "WEB-INF": false,
     "c3dres.js": false,
     "cglres.js": false,
     "exposed.js": false,
     "exposed.js.map": false,
+    "ifs.js": true,
+    "ifs.js.map": true,
     "images": true,
     "katex": true,
     "katex-plugin.js": true,
@@ -40,6 +45,7 @@ var handlers = {
     "ours.js.map": false,
     "pako.min.js": true,
     "quickhull3d": true,
+    "symbolic.js": true,
     "webfont.js": true,
 };
 
@@ -48,6 +54,13 @@ var exitStatus = 0;
 process.once('beforeExit', function() {
     process.exit(exitStatus);
 });
+
+function check(err) {
+    if (err) {
+        console.error(err.stack);
+        exitStatus = 1;
+    }
+}
 
 child_process.execFile("git", ["rev-parse", "HEAD"], function(err, stdout, stderr) {
     if (err) {
@@ -86,7 +99,7 @@ function subst(name, err, content) {
     if (err) throw err;
     content = content.toString();
     content = content.replace(/\$gitid\$/, head);
-    fs.writeFile(path.join(outDir, name), content);
+    fs.writeFile(path.join(outDir, name), content, check);
 }
 
 var mapKeys = ["version", "file", "sourceRoot", "sources", "sourcesContent", "names", "mappings"];
@@ -116,7 +129,7 @@ function map(name, err, content) {
     content = "{" + keys.map(function(key) {
         return JSON.stringify(key) + ":" + JSON.stringify(map[key]);
     }).join(",\n ") + "}\n";
-    fs.writeFile(path.join(outDir, name), content);
+    fs.writeFile(path.join(outDir, name), content, check);
 }
 
 function copy(inPath, outPath, err, stats) {
