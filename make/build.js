@@ -483,7 +483,7 @@ module.exports = function build(settings, task) {
     });
 
     task("ComplexCurves.lib", ["ComplexCurves.unzip"], function() {
-        this.sh("cd " + cc_lib_dir + "; npm run-script prepare");
+        this.sh("cd " + cc_lib_dir + "; npm install; npm run-script prepare");
         this.output(cc_lib_dir + "build/ComplexCurves.js");
     });
 
