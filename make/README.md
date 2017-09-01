@@ -29,6 +29,8 @@ line include
 * **closure_version**
 * **gwt_version**
 * **gwt_args** which could be set to e.g. `-style PRETTY`.
+* **em** can be set to some non-empty string if emscripten is available,
+  so that emscripten-compiled code will be included in dependency checks.
 
 ### Tasks
 

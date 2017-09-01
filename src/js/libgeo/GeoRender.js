@@ -282,6 +282,17 @@ function drawgeopolygon(el) {
     eval_helper.drawpolygon([el.vertices], modifs, "D", true);
 }
 
+function drawgeoifs() {
+    if (ifs.dirty ||
+        !General.deeplyEqual(ifs.mat, csport.drawingstate.matrix)) {
+        geoOps.IFS.updateParameters();
+        ifs.dirty = false;
+    }
+    if (ifs.img) {
+        csctx.drawImage(ifs.img, 0, 0, csw, csh);
+    }
+}
+
 function render() {
 
     var i;
@@ -307,6 +318,10 @@ function render() {
 
     for (i = 0; i < csgeo.texts.length; i++) {
         drawgeotext(csgeo.texts[i]);
+    }
+
+    if (csgeo.ifs.length) {
+        drawgeoifs();
     }
 
 }

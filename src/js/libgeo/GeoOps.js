@@ -12,7 +12,8 @@ geoOps._helper = {};
  * V  - (numeric) value
  * Text - Text
  * "**" - arbitrary number of arguments with arbitrary types
- * Poly - Polygons
+ * Poly - Polygon
+ * IFS  - Iterated Function System
  */
 
 
@@ -2131,26 +2132,23 @@ geoOps._helper.moebiusPair = function(el) {
     var m = el.moebius;
     var neg = CSNumber.neg;
     var flip = m.anti ? neg : General.identity;
-    el.mat1 = List.normalizeMax(List.matrix([
+    var mats = List.normalizeMax(List.turnIntoCSList([List.matrix([
         [neg(m.cr), flip(m.ci), neg(m.dr)],
         [m.ci, flip(m.cr), m.di],
         [m.ar, neg(flip(m.ai)), m.br]
-    ]));
-    el.mat2 = List.normalizeMax(List.matrix([
+    ]), List.matrix([
         [neg(m.ci), neg(flip(m.cr)), neg(m.di)],
         [neg(m.cr), flip(m.ci), neg(m.dr)],
         [m.ai, flip(m.ar), m.bi]
-    ]));
+    ])]));
+    el.mat1 = mats.value[0];
+    el.mat2 = mats.value[1];
 };
 
-geoOps.TrInverseMoebius = {};
-geoOps.TrInverseMoebius.kind = "Mt";
-geoOps.TrInverseMoebius.signature = ["Mt"];
-geoOps.TrInverseMoebius.updatePosition = function(el) {
-    var m = csgeo.csnames[el.args[0]].moebius;
+geoOps._helper.inverseMoebius = function(m) {
     var neg = CSNumber.neg;
     var flip = m.anti ? neg : General.identity;
-    el.moebius = {
+    return {
         anti: m.anti,
         ar: m.dr,
         ai: flip(m.di),
@@ -2161,6 +2159,14 @@ geoOps.TrInverseMoebius.updatePosition = function(el) {
         dr: m.ar,
         di: flip(m.ai)
     };
+};
+
+geoOps.TrInverseMoebius = {};
+geoOps.TrInverseMoebius.kind = "Mt";
+geoOps.TrInverseMoebius.signature = ["Mt"];
+geoOps.TrInverseMoebius.updatePosition = function(el) {
+    var m = csgeo.csnames[el.args[0]].moebius;
+    el.moebius = geoOps._helper.inverseMoebius(m);
     geoOps._helper.moebiusPair(el);
 };
 
@@ -3058,7 +3064,6 @@ geoOps._helper.initializeLine = function(el) {
     return pos;
 };
 
-
 geoOps.Poly = {};
 geoOps.Poly.kind = "Poly";
 geoOps.Poly.signature = "P*";
@@ -3067,6 +3072,199 @@ geoOps.Poly.updatePosition = function(el) {
         return csgeo.csnames[x].homog;
     }));
 };
+
+var ifs = null;
+
+geoOps.IFS = {};
+geoOps.IFS.kind = "IFS";
+geoOps.IFS.signature = "**"; // (Tr|Mt)*
+geoOps.IFS.signatureConstraints = function(el) {
+    for (var i = 0; i < el.args.length; ++i) {
+        var kind = csgeo.csnames[el.args[i]].kind;
+        if (kind !== "Tr" && kind !== "Mt")
+            return false;
+    }
+    return el.args.length > 0;
+};
+geoOps.IFS.initialize = function(el) {
+    if (ifs) {
+        ifs.dirty = true;
+        return;
+    }
+    var baseDir = CindyJS.getBaseDir();
+    if (baseDir === false)
+        return;
+    ifs = {
+        dirty: false,
+        params: {
+            generation: 0
+        },
+    };
+    var worker = ifs.worker = new Worker(baseDir + "ifs.js");
+    worker.onmessage = function(msg) {
+        if (ifs.img && typeof ifs.img.close === "function")
+            ifs.img.close();
+        if (isShutDown) return;
+        var d = msg.data;
+        if (d.generation === ifs.params.generation) {
+            if (d.buffer) {
+                if (!ifs.canvas) {
+                    ifs.canvas = document.createElement("canvas");
+                    ifs.ctx = ifs.canvas.getContext("2d");
+                }
+                ifs.canvas.width = d.width;
+                ifs.canvas.height = d.height;
+                var imgSize = d.width * d.height * 4;
+                var imgBytes = new Uint8ClampedArray(
+                    d.buffer, d.imgPtr, imgSize);
+                var imgData = new ImageData(imgBytes, d.width, d.height);
+                ifs.ctx.putImageData(imgData, 0, 0);
+                ifs.img = ifs.canvas;
+            } else {
+                ifs.img = d.img;
+            }
+            scheduleUpdate();
+        } else {
+            ifs.img = null;
+        }
+        if (d.buffer) {
+            worker.postMessage({
+                cmd: "next",
+                buffer: d.buffer
+            }, [d.buffer]);
+        } else {
+            worker.postMessage({
+                cmd: "next",
+            });
+        }
+    };
+    shutdownHooks.push(worker.terminate.bind(worker));
+};
+geoOps.IFS.updatePosition = function(el) {
+    ifs.dirty = true;
+};
+geoOps.IFS.updateParameters = function() {
+    if (!ifs.worker)
+        return; // no worker, nothing we can do
+    var supersampling = 4;
+    var msg = {
+        cmd: "init",
+        generation: ifs.params.generation,
+        width: csw * supersampling,
+        height: csh * supersampling
+    };
+    msg.systems = csgeo.ifs.map(function(el) {
+        var sum = 0;
+        var i;
+        var params = el.ifs || [];
+        var trs = el.args.map(function(name, i) {
+            var p = params[i] || {};
+            return {
+                prob: p.prob || 1,
+                color: p.color || [0, 0, 0]
+            };
+        });
+        for (i = 0; i < trs.length; ++i)
+            sum += trs[i].prob;
+        var scale = List.realMatrix([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, supersampling]
+        ]);
+        var px2hom = List.productMM(csport.toMat(), scale);
+        for (i = 0; i < el.args.length; ++i) {
+            var trel = csgeo.csnames[el.args[i]];
+            var kind = trel.kind;
+            var tr = trs[i];
+            tr.kind = kind;
+            tr.prob /= sum;
+            if (kind === "Tr") {
+                var mat = List.normalizeMax(List.productMM(
+                    List.adjoint3(px2hom),
+                    List.productMM(trel.matrix, px2hom)));
+                if (!List._helper.isAlmostReal(mat)) {
+                    tr.kind = "cplx";
+                    continue;
+                }
+                tr.mat = mat.value.map(function(row) {
+                    return row.value.map(function(entry) {
+                        return entry.value.real;
+                    });
+                });
+            } else if (kind === "Mt") {
+                // drawingstate matrix as a Möbius transformation
+                // from homogeneous coordinates to pixels
+                var view = csport.drawingstate.matrix;
+                view = {
+                    anti: view.det > 0,
+                    ar: CSNumber.real(view.a),
+                    ai: CSNumber.real(view.c),
+                    br: CSNumber.real(view.tx),
+                    bi: CSNumber.real(-view.ty),
+                    cr: CSNumber.zero,
+                    ci: CSNumber.zero,
+                    dr: CSNumber.real(1 / supersampling),
+                    di: CSNumber.zero
+                };
+                // now compose view * trel * view^{-1}
+                var elLike = {};
+                geoOps._helper.composeMtMt(elLike, trel.moebius, view);
+                view = geoOps._helper.inverseMoebius(view);
+                geoOps._helper.composeMtMt(elLike, view, elLike.moebius);
+                var moeb = elLike.moebius;
+                moeb = List.turnIntoCSList([
+                    moeb.ar,
+                    moeb.ai,
+                    moeb.br,
+                    moeb.bi,
+                    moeb.cr,
+                    moeb.ci,
+                    moeb.dr,
+                    moeb.di
+                ]);
+                if (!List._helper.isAlmostReal(moeb)) {
+                    tr.kind = "cplx";
+                    continue;
+                }
+                moeb = moeb.value;
+                tr.moebius = {
+                    ar: moeb[0].value.real,
+                    ai: moeb[1].value.real,
+                    br: moeb[2].value.real,
+                    bi: moeb[3].value.real,
+                    cr: moeb[4].value.real,
+                    ci: moeb[5].value.real,
+                    dr: moeb[6].value.real,
+                    di: moeb[7].value.real,
+                    sign: trel.moebius.anti ? -1 : 1
+                };
+            }
+        }
+        return {
+            trafos: trs
+        };
+    });
+    if (General.deeplyEqual(msg, ifs.params)) {
+        // console.log("IFS not modified");
+        return;
+    }
+    ++msg.generation;
+    ifs.img = null;
+    ifs.params = msg;
+    ifs.mat = csport.drawingstate.matrix;
+    // console.log(msg);
+    ifs.worker.postMessage(msg);
+};
+geoOps.IFS.probSetter = function(i, el, value) {
+    if (value.ctype === "number") {
+        el.ifs[i].prob = value.value.real;
+        ifs.dirty = true;
+    }
+};
+(function() {
+    for (var i = 0; i < 10; ++i)
+        geoOps.IFS["set_prob" + i] = geoOps.IFS.probSetter.bind(null, i);
+})();
 
 geoOps._helper.snapPointToLine = function(pos, line) {
     // fail safe for far points

@@ -324,7 +324,7 @@ function createCindyNow() {
                 cscode.message
             );
         } else {
-            cscompiled[s] = cscode;
+            cscompiled[s] = labelCode(cscode, s);
         }
     });
     if (isCinderellaBeforeVersion(2, 9, 1888) && !cscompiled.keydown) {
@@ -641,6 +641,9 @@ function callFunctionNow(f) {
 function loadExtraModules() {
     if (usedFunctions.convexhull3d$1) {
         loadExtraPlugin("QuickHull3D", "QuickHull3D.js");
+    }
+    if (usedFunctions.colorplot$1 || usedFunctions.colorplot$2 || usedFunctions.colorplot$3 || usedFunctions.colorplot$4) {
+        loadExtraPlugin("CindyGL", "CindyGL.js");
     }
 }
 

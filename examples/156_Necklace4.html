@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Necklace4.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [-1.7142857142857142, -4.0, -0.5714285714285714], color: [1.0, 1.0, 1.0], pinned: true, size: 3.0},
+    {name: "B", type: "Free", pos: [4.0, 2.6666666666666665, 1.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.0, pinned: true, size: 3.0},
+    {name: "a", type: "Join", color: [0.0, 0.0, 1.0], args: ["A", "B"], alpha: 0.0, labeled: true},
+    {name: "C0", type: "CircleMP", color: [0.757, 0.0, 0.0], args: ["B", "A"], alpha: 0.6000000238418579},
+    {name: "C", type: "PointOnLine", pos: [-3.506600660066007, -4.0, -1.168866886688669], color: [1.0, 1.0, 1.0], args: ["a"], size: 3.0},
+    {name: "C1", type: "CircleMP", color: [0.757, 0.0, 0.0], args: ["C", "A"], alpha: 0.6000000238418579},
+    {name: "D", type: "PointOnCircle", pos: [{r: 1.5020056427961124, i: -1.3064987129224223E-16}, -4.0, {r: 1.5584901099541684, i: 2.7262988360316856E-17}], color: [1.0, 1.0, 1.0], args: ["C0"], size: 3.0},
+    {name: "", type: "OtherPointOnCircle", pos: [{r: -3.0677996316622465, i: 8.231042792974627E-17}, -4.0, {r: -0.6091444730978796, i: 4.164913375681932E-18}], color: [1.0, 1.0, 1.0], args: ["D"], pinned: true, size: 3.0},
+    {name: "b", type: "Join", color: [0.0, 0.0, 1.0], args: ["B", "D"], alpha: 0.0, labeled: true},
+    {name: "c", type: "Orthogonal", color: [0.0, 0.0, 1.0], args: ["a", "A"], alpha: 0.0, labeled: true},
+    {name: "d", type: "Orthogonal", color: [0.0, 0.0, 1.0], args: ["b", "D"], alpha: 0.0, labeled: true},
+    {name: "E", type: "Meet", color: [1.0, 1.0, 1.0], args: ["c", "d"], size: 3.0},
+    {name: "C2", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["E", "A"], alpha: 0.8999999761581421},
+    {name: "e", type: "RandomLine", color: [1.0, 1.0, 1.0], size: 0},
+    {name: "Collection__1", type: "IntersectionConicLine", args: ["C2", "e"]},
+    {name: "F", type: "SelectP", pos: [{r: -2.178271013175727, i: 3.219392176663801}, -4.0, {r: 0.12230307475875637, i: 0.03941028093769949}], color: [1.0, 1.0, 1.0], args: ["Collection__1"], size: 3.0},
+    {name: "C3", type: "CircleMP", color: [1.0, 1.0, 1.0], args: ["A", "E"], size: 0},
+    {name: "G", type: "OtherIntersectionCL", color: [1.0, 1.0, 1.0], args: ["C3", "c", "E"], size: 3.0},
+    {name: "C4", type: "Compass", color: [0.0, 0.0, 1.0], args: ["E", "F", "G"], alpha: 0.8999999761581421},
+    {name: "H", type: "Meet", color: [1.0, 1.0, 1.0], args: ["a", "d"], alpha: 0.0, size: 3.0},
+    {name: "C5", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["H", "D"], alpha: 0.8999999761581421},
+    {name: "K", type: "OtherIntersectionCC", color: [1.0, 1.0, 1.0], args: ["C1", "C4", "A"], size: 3.0},
+    {name: "f", type: "Join", color: [0.0, 0.0, 1.0], args: ["C", "K"], alpha: 0.0, labeled: true},
+    {name: "g", type: "Orthogonal", color: [0.0, 0.0, 1.0], args: ["f", "K"], alpha: 0.0, labeled: true},
+    {name: "L", type: "Meet", color: [1.0, 1.0, 1.0], args: ["a", "g"], alpha: 0.0, size: 3.0},
+    {name: "C6", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["L", "K"], alpha: 0.8999999761581421},
+    {name: "M", type: "OtherIntersectionCC", color: [1.0, 1.0, 1.0], args: ["C0", "C4", "A"], size: 3.0},
+    {name: "N", type: "OtherIntersectionCC", color: [1.0, 1.0, 1.0], args: ["C1", "C2", "A"], size: 3.0},
+    {name: "O", type: "PointOnCircle", pos: [4.0, {r: -1.645384462463449, i: -1.7020930772535588E-17}, {r: 1.3213693348549864, i: 9.976816536362178E-17}], color: [1.0, 1.0, 1.0], args: ["C5"], size: 3.0},
+    {name: "P", type: "PointOnCircle", pos: [4.0, {r: -1.8231292492589861, i: -9.15768436418764E-15}, {r: 1.272833373802196, i: -1.0170882826978038E-15}], color: [1.0, 1.0, 1.0], args: ["C6"], size: 3.0},
+    {name: "Tr0", type: "TrMoebius", color: [0.0, 0.0, 1.0], args: ["A", "A", "D", "M", "N", "K"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
+    {name: "Tr1", type: "TrMoebius", color: [0.0, 0.0, 1.0], args: ["D", "N", "M", "K", "O", "P"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
+    {name: "Tr2", type: "TrInverseMoebius", color: [0.0, 0.0, 1.0], args: ["Tr0"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
+    {name: "Tr3", type: "TrInverseMoebius", color: [0.0, 0.0, 1.0], args: ["Tr1"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
+    {name: "IFS0", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1", "Tr2", "Tr3"], alpha: 0.30000001192092896, ifs: [{prob: 0.463302752293578, color: [1.0, 0.0, 0.0]}, {prob: 0.04128440366972477, color: [1.0, 0.784, 0.0]}, {prob: 0.44495412844036697, color: [1.0, 0.0, 0.0]}, {prob: 0.05045871559633027, color: [1.0, 0.784, 0.0]}], dock: {offset: [0.0, -0.0]}},
+    {name: "IFS1", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1", "Tr2", "Tr3"], alpha: 0.30000001192092896, ifs: [{prob: 0.1263498920086393, color: [1.0, 0.0, 0.0]}, {prob: 0.35853131749460043, color: [1.0, 0.784, 0.0]}, {prob: 0.1263498920086393, color: [1.0, 0.0, 0.0]}, {prob: 0.38876889848812096, color: [1.0, 0.784, 0.0]}], dock: {offset: [0.0, -0.0]}}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 768,
+    height: 496,
+    transform: [{visibleRect: [-4.645999999999999, 7.40270588235294, 13.605294117647057, -4.384588235294117]}],
+    background: "rgb(0,0,0)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1894, version: [2, 9, 1894]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

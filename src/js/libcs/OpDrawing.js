@@ -1563,6 +1563,9 @@ evaluator.clearimage$1 = function(args, modifs) {
     }
 
     var image = imageFromValue(name);
+    if (!image)
+        return nada;
+
     var localcanvas = image.img;
 
     if (typeof(localcanvas) === "undefined" || localcanvas === null) {

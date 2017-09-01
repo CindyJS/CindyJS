@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>IFS from two similarities</title>
+    <style type="text/css">
+        #CSButtons {
+            margin: 1em 5%;
+        }
+        #CSButtons button {
+            width: 30%;
+        }
+    </style>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+w1=|F,H|/|F,G|;
+w2=1-w1;
+
+IFS0.prob0=w1;
+IFS0.prob1=w2;
+// this forces a recompute for Cinderella, but causes repaint loops for CindyJS
+//E.x=E.x+0.0001;
+//E.x=E.x-0.0001;
+
+drawtext((9,-2),"Probabilities",color->(0,0,0),size->16);
+drawtext((9,-3),"$p_1$="+format(w1,2),color->(0,0,0.8),size->16);
+drawtext((9,-4),"$p_2$="+format(w2,2),color->(0.8,0,0),size->16);
+</script>
+    <script type="text/javascript">
+var btns = [
+    {A: [0,0], B: [5,0], C: [3.5,2.6], D: [4.24,4], E: [5.84,3], H: [13.5,-5]},
+    {A: [0,0], B: [5,0], C: [3.5,2.6], D: [7.72,2.65], E: [5.84,3], H: [13.76,-5]},
+    {A: [0,0], B: [5,0], C: [0.08,4.48], D: [0.84,6.6], E: [1.8,4.68], H: [13.9,-5]},
+    {A: [0,0], B: [5,0], C: [-1.88,3.08], D: [4.32,4.84], E: [6.24,2.84], H: [13.9,-5]},
+    {A: [0,0], B: [5,0], C: [-2.56,3.8], D: [4.04,2.96], E: [6.24,2.84], H: [13,-5]},
+    {A: [0,0], B: [5,0], C: [-2.5,4.33], D: [-0.68,4.68], E: [1.8,4.68], H: [13.88,-5]},
+    {A: [0,0], B: [5,0], C: [-2.44,4.32], D: [-0.68,4.68], E: [1.8,4.68], H: [13.88,-5]},
+    {A: [0,0], B: [5,0], C: [0,5], D: [2.8,4.48], E: [5.08,4.48], H: [14.44,-5]},
+    {A: [-6,0], B: [6,0], C: [-5.08,2.24], D: [6,0], E: [-5.08,2.24], H: [9.64,-5]},
+];
+function doMove(button, btn) {
+    var script = ";";
+    for (var name in btn) {
+        if (btn.hasOwnProperty(name) && name.length === 1)
+            script += "\n" + name + ".xy = (1-t)*" + name + ".xy + t*[" + btn[name].join(",") + "];";
+    }
+    var n = 30;
+    var i = 0;
+    step();
+    function step() {
+        var t1 = i / n;
+        ++i;
+        var t2 = i / n;
+        // To turn (1-t1)*A+t1*B into (1-t2)*A+t2*B we need
+        // (1-t)*((1-t1)*A+t1*B)+t*B with t2 = (1-t)*t1+t = t1+(1-t1)*t
+        var t = (t2 - t1) / (1 - t1);
+        cdy.evokeCS("t = " + t + script);
+        if (i !== n) requestAnimationFrame(step);
+    }
+}
+document.addEventListener("DOMContentLoaded", function() {
+    var buttons = document.getElementById("CSButtons").getElementsByTagName("button");
+    for (var i = 0; i < buttons.length; ++i)
+        buttons[i].onclick = doMove.bind(null, buttons[i], btns[i]);
+});
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [0.0, -0.0, 4.0], color: [1.0, 1.0, 1.0], alpha: 0.8999999761581421, labeled: true, size: 3.0},
+    {name: "B", type: "Free", pos: [4.0, -0.0, 0.8], color: [1.0, 1.0, 1.0], alpha: 0.8999999761581421, labeled: true, size: 3.0},
+    {name: "a", type: "Segment", color: [0.0, 0.0, 0.0], args: ["A", "B"], alpha: 0.8999999761581421},
+    {name: "C", type: "Free", pos: [4.0, 2.969229955832361, 1.1428571428571428], color: [1.0, 1.0, 1.0], alpha: 0.8999999761581421, labeled: true, size: 3.0},
+    {name: "b", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "C"], alpha: 0.8999999761581421},
+    {name: "D", type: "Free", pos: [4.0, 3.8113207547169807, 0.9433962264150942], color: [1.0, 1.0, 1.0], alpha: 0.8999999761581421, labeled: true, size: 3.0},
+    {name: "E", type: "Free", pos: [4.0, 2.082191780821919, 0.6849315068493154], color: [1.0, 1.0, 1.0], alpha: 0.8999999761581421, labeled: true, size: 3.0},
+    {name: "c", type: "Segment", color: [0.757, 0.0, 0.0], args: ["D", "E"], alpha: 0.8999999761581421},
+    {name: "Tr0", type: "TrSimilarity", color: [0.0, 0.0, 1.0], args: ["B", "C", "A", "A"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
+    {name: "Tr1", type: "TrSimilarity", color: [0.0, 0.0, 1.0], args: ["A", "D", "B", "E"], alpha: 0.8999999761581421, dock: {offset: [0.0, -0.0]}},
+    {name: "F", type: "Free", pos: [4.0, -2.2222222222222223, 0.4444444444444444], color: [0.0, 0.0, 0.0], alpha: 0.8999999761581421, pinned: true, size: 2.0},
+    {name: "G", type: "Free", pos: [4.0, -1.3333333333333333, 0.26666666666666666], color: [0.0, 0.0, 0.0], alpha: 0.8999999761581421, pinned: true, size: 2.0},
+    {name: "d", type: "Segment", color: [0.0, 0.0, 1.0], args: ["F", "G"], alpha: 0.0, labeled: true},
+    {name: "H", type: "PointOnSegment", pos: [4.0, -1.4792899430167012, 0.2958579886033403], color: [1.0, 1.0, 1.0], args: ["d"], alpha: 0.8999999761581421, size: 4.0},
+    {name: "IFS0", type: "IFS", color: [0.0, 0.0, 1.0], args: ["Tr0", "Tr1"], alpha: 0.20000000298023224, ifs: [{prob: 0.7533333299999997, color: [0.0, 0.0, 1.0]}, {prob: 0.2466666700000003, color: [1.0, 0.0, 0.0]}], dock: {offset: [0.0, -0.0]}},
+    {name: "e", type: "Segment", color: [0.0, 0.0, 1.0], args: ["F", "H"], alpha: 0.8999999761581421, size: 5},
+    {name: "f", type: "Segment", color: [0.757, 0.0, 0.0], args: ["H", "G"], alpha: 0.8999999761581421, size: 5},
+    {name: "g", type: "Segment", color: [0.0, 0.0, 1.0], args: ["B", "C"], alpha: 0.5, arrowshape: "jet", arrowsides: "==>", arrowsize: 1.2000000000000002, arrowposition: 1.0},
+    {name: "h", type: "Segment", color: [0.757, 0.0, 0.0], args: ["B", "E"], alpha: 0.5, arrowshape: "jet", arrowsides: "==>", arrowsize: 1.2000000000000002, arrowposition: 1.0},
+    {name: "k", type: "Segment", color: [0.757, 0.0, 0.0], args: ["A", "D"], alpha: 0.5, arrowshape: "jet", arrowsides: "==>", arrowsize: 1.2000000000000002, arrowposition: 1.0}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 630,
+    height: 475,
+    transform: [{visibleRect: [-9.1, 10.82, 16.1, -8.18]}],
+    axes: true,
+    snap: true,
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  use: ["katex"],
+  cinderella: {build: 1894, version: [2, 9, 1894]}
+});
+    </script>
+</head>
+<body>
+  <div id="CSButtons">
+    <div>
+      <button>Snail</button>
+      <button>Anti-Snail</button>
+      <button>Dendrite</button>
+    </div>
+    <div>
+      <button>Flash</button>
+      <button>Triangle twist</button>
+      <button>Sierpinski</button>
+    </div>
+    <div>
+      <button>Fast Sierpinski</button>
+      <button>Checkers</button>
+      <button>Filigranissimo</button>
+    </div>
+  </div>
+  <div id="CSCanvas"></div>
+</body>
+</html>

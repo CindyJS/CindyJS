@@ -58,3 +58,8 @@ exports.srcs = exports.lib.concat(exports.ours);
 exports.scss = [
     "src/scss/CindyJS.scss",
 ];
+
+exports.ifs = [
+    "src/js/ifs/worker.js",
+    "src/js/ifs/ifs.asm.js",
+];

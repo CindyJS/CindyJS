@@ -22,12 +22,29 @@ let getImag = c => `(${c}).y`
 var webgl = {};
 
 webgl['join'] = first([
-    [type.point, type.point], type.line, usefunction('cross')
+    [
+        [type.point, type.point], type.line, usefunction('cross')
+    ]
 ]);
 
 webgl['meet'] = first([
-    [type.line, type.line], type.point, usefunction('cross')
+    [
+        [type.line, type.line], type.point, usefunction('cross')
+    ]
 ]);
+
+webgl['gauss'] = first([
+    [
+        [type.complex], type.vec2, identity
+    ]
+]);
+
+webgl['complex'] = first([
+    [
+        [type.vec2], type.complex, identity
+    ]
+]);
+
 
 webgl['if'] = (argtypes) => { //generator is not used yet
     if (!argtypes.every(a => a)) return false;
@@ -549,12 +566,6 @@ webgl["max"] = args => {
         };
 }
 
-
-webgl["complex"] = first([
-    [
-        [type.vec2], type.complex, identity
-    ]
-]);
 
 let createraise = (k, codebuilder) => {
     if (k <= 1) {
