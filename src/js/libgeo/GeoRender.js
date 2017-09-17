@@ -9,7 +9,9 @@ function drawgeopoint(el) {
     evaluator.draw$1([el.homog], {
         size: el.size,
         color: col,
-        alpha: el.alpha
+        alpha: el.alpha,
+        noborder: el.noborder,
+        border: el.border,
     });
     if (el.labeled && !el.tmp) {
         var lbl = el.printname || el.name || "P";
