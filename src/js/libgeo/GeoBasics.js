@@ -9,6 +9,7 @@ defaultAppearance.overhangLine = 1;
 defaultAppearance.overhangSeg = 1;
 defaultAppearance.dimDependent = 0.7;
 defaultAppearance.fontFamily = "sans-serif";
+defaultAppearance.textColor = [0, 0, 0];
 defaultAppearance.textsize = 20; // Cinderella uses 12 by default
 defaultAppearance.noborder = false;
 
