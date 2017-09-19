@@ -28,6 +28,7 @@ Render2D.handleModifs = function(modifs, handlers) {
     Render2D.lineCap = "round";
     Render2D.lineJoin = "round";
     Render2D.miterLimit = 10;
+    Render2D.noborder = false;
 
     // Process handlers
     var key, handler;
@@ -296,6 +297,20 @@ Render2D.modifHandlers = {
         if (v.ctype === "number" && v.value.real > 0) {
             Render2D.miterLimit = Math.round(v.value.real);
         }
+    },
+    "noborder": function(v) {
+        if (v.ctype === 'boolean') {
+            Render2D.noborder = v.value;
+        } else {
+            console.error("noborder needs to be of type boolean");
+        }
+    },
+    "border": function(v) {
+        if (v.ctype === 'boolean') {
+            Render2D.noborder = !(v.value);
+        } else {
+            console.error("border needs to be of type boolean");
+        }
     }
 };
 
@@ -321,6 +336,8 @@ Render2D.pointModifs = {
     "size": true,
     "color": true,
     "alpha": true,
+    "noborder": true,
+    "border": true,
 };
 
 Render2D.pointAndLineModifs = Render2D.lineModifs;
@@ -561,12 +578,13 @@ Render2D.drawpoint = function(pt) {
     csctx.fillStyle = Render2D.pointColor;
 
     csctx.fill();
-
-    csctx.beginPath();
-    csctx.arc(xx, yy, Render2D.psize * 1.15, 0, 2 * Math.PI);
-    csctx.fillStyle = Render2D.black;
-    csctx.strokeStyle = Render2D.black;
-    csctx.stroke();
+    if (!Render2D.noborder) {
+        csctx.beginPath();
+        csctx.arc(xx, yy, Render2D.psize * 1.15, 0, 2 * Math.PI);
+        csctx.fillStyle = Render2D.black;
+        csctx.strokeStyle = Render2D.black;
+        csctx.stroke();
+    }
 };
 
 Render2D.clipLineCore = function(a, b, c) {
