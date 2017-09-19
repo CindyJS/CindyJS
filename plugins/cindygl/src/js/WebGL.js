@@ -215,6 +215,25 @@ webgl['arctan'] = first([
     ]
 ]);
 
+webgl['arcsin'] = first([
+    [
+        [type.float], type.complex, useincludefunction('arcsinf')
+    ],
+    [
+        [type.complex], type.complex, useincludefunction('arcsinc')
+    ]
+]);
+
+webgl['arccos'] = first([
+    [
+        [type.float], type.complex, useincludefunction('arccosf')
+    ],
+    [
+        [type.complex], type.complex, useincludefunction('arccosc')
+    ]
+]);
+
+
 webgl['log'] = first([
     [
         [type.float], type.complex, useincludefunction('logr')

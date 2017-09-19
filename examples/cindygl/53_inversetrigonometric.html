@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Implementation of inverse trigonometric functions</h1>
+    <script id="csinit" type="text/x-cindyscript">
+			f(z) := arcsin(z); //arctan2 with complex arguments
+    </script>
+    <script id="csmove" type="text/x-cindyscript">
+      
+      colorplot(
+				hue(arctan2(f(complex(#)))/2/pi)*
+				min(5*|re(f(#_1))-#_2|,1)*
+				min(5*|im(f(#_1))-#_2|,1)
+			); //standard phase portrait of function f, arctan2 with complex number as argument
+    </script>
+    
+
+    <div  id="CSCanvas" style="width:500px; height:400px;"></div>
+    
+    <script type="text/javascript">
+        var cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:[]
+                    }
+        );
+    </script>
+		<select id="sel" onchange="cdy.evokeCS('f(z) := (' + this.value + ');');" style="width:20em;" size="7">
+			<option>z</option>
+		  <option selected>arcsin(z)</option>
+		  <option>arcsin(re(z))</option>
+		  <option>arccos(z)</option>
+		  <option>arccos(re(z))</option>
+			<option>arctan(z)</option>
+			<option>arctan(re(z))</option>
+		</select> 
+	</body>
+</html>
