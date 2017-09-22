@@ -165,19 +165,13 @@ function setuplisteners(canvas, data) {
         addAutoCleaningEventListener(canvas, "keydown", function(e) {
             if (e.keyCode === 9 /* tab */ ) return;
             cs_keydown(e);
-            if (!cscompiled.keytyped) {
-                // this must bubble in order to trigger a keypress event
-                e.preventDefault();
-            }
         });
         addAutoCleaningEventListener(canvas, "keyup", function(e) {
             cs_keyup(e);
-            e.preventDefault();
         });
         addAutoCleaningEventListener(canvas, "keypress", function(e) {
             if (e.keyCode === 9 /* tab */ ) return;
             cs_keytyped(e);
-            e.preventDefault();
         });
     }
 
