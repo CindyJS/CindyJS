@@ -999,6 +999,17 @@ geoOps._helper.buildConicMatrix = function(arr) {
     return M;
 };
 
+geoOps._helper.flattenConicMatrix = function(mat) {
+    return List.turnIntoCSList([
+        mat.value[0].value[0],
+        mat.value[0].value[1],
+        mat.value[1].value[1],
+        mat.value[0].value[2],
+        mat.value[1].value[2],
+        mat.value[2].value[2]
+    ]);
+};
+
 geoOps._helper.splitDegenConic = function(mat) {
     var adj_mat = List.adjoint3(mat);
 
@@ -1539,6 +1550,146 @@ geoOps.ConicBy1Pol3L.updatePosition = function(el) {
     M = General.withUsage(M, "Conic");
     el.matrix = M;
 };
+
+// Given (A, a, B, C, d), compute conic such that
+// 1. (A, a) is a pole-polar pair,
+// 2. B, C are incident with the conic and
+// 3. d is a tangent to the conic
+geoOps.ConicBy1Pol2P1L = {};
+geoOps.ConicBy1Pol2P1L.kind = "Cs";
+geoOps.ConicBy1Pol2P1L.signature = ["P", "L", "P", "P", "L"];
+geoOps.ConicBy1Pol2P1L.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var C = csgeo.csnames[(el.args[3])].homog;
+    var d = csgeo.csnames[(el.args[4])].homog;
+
+    var add = CSNumber.add;
+    var asList = List.turnIntoCSList;
+    var cp = List.cross;
+    var mm = List.productMM;
+    var mul = CSNumber.mult;
+    var rm = CSNumber.realmult;
+    var sm = List.scalmult;
+    var sp = List.scalproduct;
+    var sub = CSNumber.sub;
+    var transpose = List.transpose;
+
+    var aA = sp(a, A);
+    var aB = sp(a, B);
+    var aC = sp(a, C);
+    var dA = sp(d, A);
+    var dB = sp(d, B);
+    var dC = sp(d, C);
+    var AB = asList([cp(A, B)]);
+    var AC = asList([cp(A, C)]);
+    var BC = asList([cp(B, C)]);
+    var r = CSNumber.sqrt(mul(mul(dB, dC), mul(
+        sub(mul(aA, dB), rm(2, mul(dA, aB))),
+        sub(mul(aA, dC), rm(2, mul(dA, aC))))));
+    var ABAC = mm(transpose(AB), AC);
+    var M1 = sm(r, List.add(ABAC, transpose(ABAC)));
+    var M2 = sm(
+        sub(mul(aA, mul(dB, dC)),
+            add(mul(dA, mul(aB, dC)),
+                mul(dA, mul(dB, aC)))),
+        ABAC);
+    var v = List.add(
+        List.sub(sm(aC, AB), sm(aB, AC)),
+        sm(rm(0.5, aA), BC));
+    M2 = List.add(M2, sm(mul(dA, dA), mm(transpose(BC), v)));
+    M2 = List.add(M2, transpose(M2));
+    var res1 = List.normalizeMax(List.add(M1, M2));
+    var res2 = List.normalizeMax(List.sub(M1, M2));
+    el.results = tracing2Conics(res1, res2).value;
+};
+geoOps.ConicBy1Pol2P1L.stateSize = tracing2Conics.stateSize;
+
+// Given (A, a, B, c, d), compute conic such that
+// 1. (A, a) is a pole-polar pair,
+// 2. B is incident with the conic and
+// 3. c, d are tangents to the conic
+geoOps.ConicBy1Pol1P2L = {};
+geoOps.ConicBy1Pol1P2L.kind = "Cs";
+geoOps.ConicBy1Pol1P2L.signature = ["P", "L", "P", "L", "L"];
+geoOps.ConicBy1Pol1P2L.updatePosition = function(el) {
+    var A = csgeo.csnames[(el.args[0])].homog;
+    var a = csgeo.csnames[(el.args[1])].homog;
+    var B = csgeo.csnames[(el.args[2])].homog;
+    var c = csgeo.csnames[(el.args[3])].homog;
+    var d = csgeo.csnames[(el.args[4])].homog;
+
+    var add = CSNumber.add;
+    var asList = List.turnIntoCSList;
+    var cp = List.cross;
+    var mm = List.productMM;
+    var mul = CSNumber.mult;
+    var rm = CSNumber.realmult;
+    var sm = List.scalmult;
+    var sp = List.scalproduct;
+    var sub = CSNumber.sub;
+    var transpose = List.transpose;
+
+    var aA = sp(a, A);
+    var aB = sp(a, B);
+    var cA = sp(c, A);
+    var cB = sp(c, B);
+    var dA = sp(d, A);
+    var dB = sp(d, B);
+    var aAA = mul(aA, aA);
+    var aAB = mul(aA, aB);
+    var aBB = mul(aB, aB);
+    var cAA = mul(cA, cA);
+    var cAB = mul(cA, cB);
+    var cBB = mul(cB, cB);
+    var dAA = mul(dA, dA);
+    var dAB = mul(dA, dB);
+    var dBB = mul(dB, dB);
+    var fa = mul(mul(aAA, cBB), dBB);
+    fa = sub(fa, rm(2, mul(mul(aAB, cAB), dBB)));
+    fa = sub(fa, rm(2, mul(mul(aAB, cBB), dAB)));
+    fa = add(fa, rm(0.5, mul(mul(aBB, cAA), dBB)));
+    fa = add(fa, rm(3, mul(mul(aBB, cAB), dAB)));
+    fa = add(fa, rm(0.5, mul(mul(aBB, cBB), dAA)));
+    var fc = mul(mul(aA, cB), dB);
+    fc = sub(fc, mul(mul(aB, cA), dB));
+    fc = sub(fc, mul(mul(aB, cB), dA));
+    fc = mul(fc, mul(aBB, dA));
+    var fd = sub(mul(aA, cB), rm(2, mul(aB, cA)));
+    fd = mul(fd, mul(aBB, mul(cB, dA)));
+    var M1 = mm(transpose(asList([a])), asList([List.add(List.add(
+        sm(fa, a), sm(fc, c)), sm(fd, d))]));
+    var cv = asList([c]);
+    M1 = List.add(M1, sm(
+        rm(0.5, mul(mul(aBB, aBB), dAA)), mm(transpose(cv), cv)));
+    M1 = List.add(M1, sm(aBB, mm(transpose(asList([d])), asList([
+        List.add(
+            sm(sub(
+                sub(rm(2, mul(aAB, cAB)), mul(aAA, cBB)),
+                rm(0.5, mul(aBB, cAA))), d),
+            sm(
+                mul(List.det3(a, c, d), sub(mul(aA, cB), mul(aB, cA))),
+                cp(A, B)))
+    ]))));
+    M1 = List.add(M1, transpose(M1));
+    var r = CSNumber.sqrt(mul(mul(cB, dB), mul(
+        sub(mul(aA, cB), rm(2, mul(aB, cA))),
+        sub(mul(aA, dB), rm(2, mul(aB, dA))))));
+    var M2 = mm(transpose(asList([a])), asList([List.sub(
+        sm(sub(
+            mul(aB, add(mul(cA, dB), mul(cB, dA))),
+            mul(aA, mul(cB, dB))), a),
+        sm(aBB, List.add(sm(dA, c), sm(cA, d))))]));
+    M2 = List.add(M2, sm(mul(aA, aBB), mm(
+        transpose(asList([c])), asList([d]))));
+    M2 = sm(r, M2);
+    M2 = List.add(M2, transpose(M2));
+    var res1 = List.normalizeMax(List.add(M1, M2));
+    var res2 = List.normalizeMax(List.sub(M1, M2));
+    el.results = tracing2Conics(res1, res2).value;
+};
+geoOps.ConicBy1Pol1P2L.stateSize = tracing2Conics.stateSize;
 
 geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
     var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
