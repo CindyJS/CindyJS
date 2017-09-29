@@ -64,7 +64,8 @@ csport.reset = function() {
     csport.drawingstate.matrix.sdet = csport.drawingstate.initialmatrix.sdet;
 };
 
-csport.from = function(x, y, z) { //Rechnet Homogene Koordinaten in Pixelkoordinaten um
+// Convert homogeneous user coordinates to Euclidean pixel coordinates
+csport.from = function(x, y, z) {
     var xx = x / z;
     var yy = y / z;
     var m = csport.drawingstate.matrix;
@@ -73,7 +74,8 @@ csport.from = function(x, y, z) { //Rechnet Homogene Koordinaten in Pixelkoordin
     return [xxx, yyy];
 };
 
-csport.to = function(px, py) { //Rechnet Pixelkoordinaten in Homogene Koordinaten um
+// Convert Euclidean pixel coordinates to homogeneous user coordinates
+csport.to = function(px, py) {
     var m = csport.drawingstate.matrix;
     var xx = px - m.tx;
     var yy = py + m.ty;
