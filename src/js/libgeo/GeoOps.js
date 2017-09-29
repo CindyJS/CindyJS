@@ -1332,6 +1332,32 @@ geoOps.ConicParabolaPL.updatePosition = function(el) {
     el.matrix = General.withUsage(m, "Conic");
 };
 
+geoOps.ConicBy2Foci1L = {};
+geoOps.ConicBy2Foci1L.kind = "C";
+geoOps.ConicBy2Foci1L.signature = ["P", "P", "L"];
+geoOps.ConicBy2Foci1L.updatePosition = function(el) {
+    var F1 = csgeo.csnames[(el.args[0])].homog;
+    var F2 = csgeo.csnames[(el.args[1])].homog;
+    var l = csgeo.csnames[(el.args[2])].homog;
+
+    var sp = List.scalproduct;
+    var mat = List.turnIntoCSList;
+
+    var dir = List.cross(List.cross(List.linfty, l), List.linfty);
+    var m = List.productMM(List.transpose(mat([F1])), mat([F2]));
+    var s = CSNumber.realmult(2, CSNumber.mult(sp(F1, l), sp(F2, l)));
+    var zero = CSNumber.zero;
+    var matrix = List.sub(
+        List.scalmult(sp(dir, dir), List.add(List.transpose(m), m)),
+        List.matrix([
+            [s, zero, zero],
+            [zero, s, zero],
+            [zero, zero, zero]
+        ]));
+    matrix = List.normalizeMax(List.adjoint3(matrix));
+    el.matrix = General.withUsage(matrix, "Conic");
+};
+
 geoOps.ConicBy2Foci1P = {};
 geoOps.ConicBy2Foci1P.kind = "Cs";
 geoOps.ConicBy2Foci1P.signature = ["P", "P", "P"];
@@ -1340,33 +1366,33 @@ geoOps.ConicBy2Foci1P.updatePosition = function(el) {
     var F2 = csgeo.csnames[(el.args[1])].homog;
     var PP = csgeo.csnames[(el.args[2])].homog;
 
-    // i and j
-    var II = List.ii;
-    var JJ = List.jj;
+    var sp = List.scalproduct;
+    var cross = List.cross;
+    var linfty = List.linfty;
+    var mat = List.turnIntoCSList;
 
-    var b1 = List.normalizeMax(List.cross(F1, PP));
-    var b2 = List.normalizeMax(List.cross(F2, PP));
-    var a1 = List.normalizeMax(List.cross(PP, II));
-    var a2 = List.normalizeMax(List.cross(PP, JJ));
-
-    var har = geoOps._helper.coHarmonic(a1, a2, b1, b2);
-    var e1 = List.normalizeMax(har[0]);
-    var e2 = List.normalizeMax(har[1]);
-
-    // lists for transposed
-    var lII = List.turnIntoCSList([II]);
-    var lJJ = List.turnIntoCSList([JJ]);
-    var lF1 = List.turnIntoCSList([F1]);
-    var lF2 = List.turnIntoCSList([F2]);
-
-    var co1 = geoOps._helper.conicFromTwoDegenerates(lII, lJJ, lF1, lF2, e1);
-    co1 = List.normalizeMax(co1);
-    var co2 = geoOps._helper.conicFromTwoDegenerates(lII, lJJ, lF1, lF2, e2);
-    co2 = List.normalizeMax(co2);
+    var a = cross(cross(linfty, cross(F1, PP)), linfty);
+    var b = cross(cross(linfty, cross(F2, PP)), linfty);
+    var z = sp(linfty, PP);
+    var m = List.productMM(List.transpose(mat([F1])), mat([F2]));
+    var w = List.scalmult(CSNumber.mult(z, z), List.add(List.transpose(m), m));
+    var ab = sp(a, b);
+    var r = CSNumber.sqrt(CSNumber.mult(sp(a, a), sp(b, b)));
+    var zero = CSNumber.zero;
 
     // adjoint
-    co1 = List.normalizeMax(List.adjoint3(co1));
-    co2 = List.normalizeMax(List.adjoint3(co2));
+    var s = CSNumber.add(ab, r);
+    var co1 = List.normalizeMax(List.adjoint3(List.sub(w, List.matrix([
+        [s, zero, zero],
+        [zero, s, zero],
+        [zero, zero, zero]
+    ]))));
+    s = CSNumber.sub(ab, r);
+    var co2 = List.normalizeMax(List.adjoint3(List.sub(w, List.matrix([
+        [s, zero, zero],
+        [zero, s, zero],
+        [zero, zero, zero]
+    ]))));
 
     // return ellipsoid first 
     if (geoOps._helper.getConicType(co1) !== "ellipsoid") {
@@ -1538,26 +1564,6 @@ geoOps.ConicBy1Pol3L.updatePosition = function(el) {
     M = List.normalizeMax(List.adjoint3(M));
     M = General.withUsage(M, "Conic");
     el.matrix = M;
-};
-
-geoOps._helper.coHarmonic = function(a1, a2, b1, b2) {
-    var poi = List.realVector([100 * Math.random(), 100 * Math.random(), 1]);
-
-    var ix = List.det3(poi, b1, a1);
-    var jx = List.det3(poi, b1, a2);
-    var iy = List.det3(poi, b2, a1);
-    var jy = List.det3(poi, b2, a2);
-
-    var sqj = CSNumber.sqrt(CSNumber.mult(jy, jx));
-    var sqi = CSNumber.sqrt(CSNumber.mult(iy, ix));
-
-    var mui = General.mult(a1, sqj);
-    var tauj = General.mult(a2, sqi);
-
-    var out1 = List.add(mui, tauj);
-    var out2 = List.sub(mui, tauj);
-
-    return [out1, out2];
 };
 
 geoOps.ConicInSquare = {};
