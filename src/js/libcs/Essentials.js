@@ -40,6 +40,7 @@ infixmap['~~'] = infix_common;
 infixmap[':>'] = infix_append;
 infixmap['<:'] = infix_prepend;
 infixmap['='] = infix_assign;
+infixmap['<<-'] = infix_universalassign;
 infixmap[':='] = infix_define;
 infixmap[':=_'] = postfix_undefine;
 infixmap['::='] = operator_not_implemented('::=');

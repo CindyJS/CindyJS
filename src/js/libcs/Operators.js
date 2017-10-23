@@ -510,6 +510,22 @@ function infix_assign(args, modifs) {
     return v1;
 }
 
+function infix_universalassign(args, modifs) {
+
+    var u0 = (args[0].ctype === 'undefined');
+    var u1 = (args[1].ctype === 'undefined');
+    var v1 = evaluate(args[1]);
+    if (u0 || u1) {
+        return nada;
+    }
+
+    var v0 = evaluate(args[0]);
+
+    v0.ctype = v1.ctype;
+    v0.value = v1.value; //overwrite value everywhere!
+    return v1;
+}
+
 
 function infix_define(args, modifs, self) {
 

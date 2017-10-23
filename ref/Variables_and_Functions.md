@@ -257,7 +257,49 @@ when called.
     > x*10 + x
     < 45
 
+### Universal assignment of values
+
+If one uses exclusively standard operations, one can think of CindyJS handling all variables by-value. However, CindyJS internally refers to every variable by a reference. Instead of duplicating values (which might be slow if huge data structures are used) only references are used when a variable gets assigned to another value or when a variable is passed as an argument. The value of a particular reference can be changed via the `<<-` operator (think of an arrow pointing to the left). Whenever `<<-` is applied, then the value is changed everywhere where the same internal reference is used.
+
+    > a = 2;
+    > b = a; // internally a and b refer to the same value
+    > a <<- 10;
+    > b
+    < 10
+
+If an entry of a list is changed via `<<-`, the corresponding value is changed everywhere where the same internal reference is used:
+
+    > a = [1, 2, 3];
+    > b = a;
+    > c = a_1;
+    > a_1 <<- 10;
+    > b
+    < [10, 2, 3]
+    > c
+    < 10
+
+The operator `<<-` can also used to mimic a call-by-reference function. In the following example, the function `change` modifies the passed argument:
+
+    > change(x) := (x <<- 42);
+    > a = 5;
+    > change(a);
+    > a
+    < 42
+    
+Another use of `<<-` can be the acceleration of list-operations.
+The internal CindyJS referring technology makes it fast to assign variables to new values and passing variables to functions because in these cases only references are copied instead of the entire possible large data-structure. Additional costs for this behavior occur when changing a single field of a long list: Then CindyJS duplicates the entire object instead of modifying a particular entry. By using `<<-`, this slow behavior can be avoided. For instance, the following implementation of the Sieve of Eratosthenes runs fast in CindyJS also for large values of N:
+
+    > N = 10;
+    > prime = apply(1..N, #!=1);
+    > forall(1..N, p, if(prime_p, forall(2..N/p, k,
+    >  prime_(p*k) <<- false; //goes in O(1); prime_(p*k) = false would take O(N)
+    > )));
+    > prime
+    < [false, true, true, false, true, false, true, false, false, false]
+
 ### Predefined Constants
+
+
 
 In mathematics it is often necessary to use mathematical constants like `pi` or the imaginary unit `i`.
 These constants are predefined as variables in CindyScript.

@@ -63,6 +63,7 @@ var operatorLevels = [{
 }, {
     rassoc: true,
     assign: ['='],
+    universalassign: ['<<-'],
     define: [':='],
     undefine: [':=_'],
     bdefine: ['::='],
