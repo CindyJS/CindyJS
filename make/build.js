@@ -466,7 +466,7 @@ module.exports = function build(settings, task) {
     task("ComplexCurves.get", [], function() {
         var id = cc_get_commit();
         this.download(
-            "https://github.com/kranich/ComplexCurves/archive/" + id + ".zip",
+            "https://github.com/ComplexCurves/ComplexCurves/archive/" + id + ".zip",
             "download/arch/ComplexCurves-" + id + ".zip"
         );
     });
