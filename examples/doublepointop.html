@@ -12,8 +12,13 @@
 
 </script>
 <script id="csdraw" type="text/x-cindyscript">
+lst = [1,2,3];
 A:"age"=17;
+A:"list"=lst;
+A:"pt" = B;
 println(A:"age");
+println(A:"list");
+println(A:"pt");
 // Drawing code, executed whenever the canvas gets redrawn.
 
 </script>
@@ -27,7 +32,8 @@ var cdy = CindyJS({ // See ref/createCindy documentation for details.
     // See GeoBasics.js for possible attributes.
   },
   geometry: [
-    {name:"A", type:"Free", pos:[0,0]}
+    {name:"A", type:"Free", pos:[0,0]},
+    {name:"B", type:"Free", pos:[1,1]},
     // For allowed types, see GeoOps.js.
     // For allowed properties, see csinit in GeoBasics.js.
   ] // End of geometry array.
