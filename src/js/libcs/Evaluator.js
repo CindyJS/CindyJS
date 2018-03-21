@@ -31,6 +31,16 @@ function evaluate(a) {
         }
         return nada;
     }
+    if (a.ctype === 'userdata') {
+        var uobj = evaluate(a.obj);
+        if (uobj.ctype === "geo") {
+            return Accessor.getuserData(uobj.value, a.key);
+        }
+        //        if (obj.ctype === "list") { // TODO implement
+        //           return List.getField(obj, a.key);
+        //        }
+        return nada;
+    }
     return a;
 }
 

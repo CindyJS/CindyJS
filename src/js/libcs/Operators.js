@@ -454,12 +454,25 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
 eval_helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
+
     if (where.ctype === 'geo' && field) {
         Accessor.setField(where.value, field, evaluateAndVal(what));
     }
 
     return nada;
+};
 
+eval_helper.assigndoubledot = function(data, what) {
+    var where = evaluate(data.obj);
+    var field = data.key;
+
+    if (where.ctype === 'geo' && field) {
+        Accessor.setuserData(where.value, field, evaluateAndVal(what));
+    } else if (where.ctype !== 'geo') {
+        console.log("User data can only be assigned to geo objects.");
+    }
+
+    return nada;
 };
 
 
@@ -498,6 +511,8 @@ function infix_assign(args, modifs) {
         }
     } else if (args[0].ctype === 'field') {
         eval_helper.assigndot(args[0], v1);
+    } else if (args[0].ctype === 'userdata') {
+        eval_helper.assigndoubledot(args[0], v1);
     } else if (args[0].ctype === 'function' && args[0].oper === 'genList') {
         if (v1.ctype === "list") {
             eval_helper.assignlist(args[0].args, v1.value);

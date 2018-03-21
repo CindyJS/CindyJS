@@ -665,6 +665,15 @@ Parser.prototype.postprocess = function(expr) {
                 expr.key = expr.args[1].name;
                 delete expr.args;
             }
+            if (expr.oper === ':') {
+                if (!(expr.args[1] && expr.args[1].ctype === 'string'))
+                    throw ParseError(
+                        'Data keys must be type of string and operate on variables', expr.start, expr.text);
+                expr.ctype = 'userdata';
+                expr.obj = expr.args[0];
+                expr.key = expr.args[1].value;
+                delete expr.args;
+            }
             if (this.infixmap)
                 expr.impl = this.infixmap[expr.oper];
         } else if (expr.ctype === 'variable') {
@@ -722,6 +731,13 @@ Parser.prototype.postprocess = function(expr) {
     if (expr.ctype === 'field') {
         return {
             ctype: 'field',
+            obj: expr.obj,
+            key: String(expr.key),
+        };
+    }
+    if (expr.ctype === 'userdata') {
+        return {
+            ctype: 'userdata',
             obj: expr.obj,
             key: String(expr.key),
         };
