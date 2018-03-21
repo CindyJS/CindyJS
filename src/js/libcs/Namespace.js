@@ -69,7 +69,7 @@ namespace.undefinedWarning = {};
 
 namespace.getvar = function(name) {
 
-    var stack = this.vars[name];
+    var stack = this.vars[name] || [];
     if (stack.length === 0) console.error("Getting non-existing variable " + name);
     var erg = stack[stack.length - 1];
     if (erg === null) {
