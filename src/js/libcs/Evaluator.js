@@ -36,9 +36,9 @@ function evaluate(a) {
         if (uobj.ctype === "geo") {
             return Accessor.getuserData(uobj.value, a.key);
         }
-        //        if (obj.ctype === "list") { // TODO implement
-        //           return List.getField(obj, a.key);
-        //        }
+        if (uobj.ctype === "list") {
+            return Accessor.getuserData(uobj, a.key);
+        }
         return nada;
     }
     return a;

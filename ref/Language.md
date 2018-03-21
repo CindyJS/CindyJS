@@ -239,7 +239,7 @@ a number ending in a decimal dot and followed by the operator `.`.
     > x:"12.3"
     * Can't use infix expression as lvalue
     * Operator : is not supported yet.
-    < ___
+    < 4.56 
 
 There may be no spaces within operator symbols.
 

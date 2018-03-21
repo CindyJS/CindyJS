@@ -468,8 +468,10 @@ eval_helper.assigndoubledot = function(data, what) {
 
     if (where.ctype === 'geo' && field) {
         Accessor.setuserData(where.value, field, evaluateAndVal(what));
-    } else if (where.ctype !== 'geo') {
-        console.log("User data can only be assigned to geo objects.");
+    } else if (where.ctype === 'list' && field) {
+        Accessor.setuserData(where, field, evaluateAndVal(what));
+    } else if (where.ctype !== 'geo' || where.ctype !== 'list') {
+        console.log("User data can only be assigned to geo objects and lists.");
     }
 
     return nada;

@@ -12,13 +12,28 @@
 
 </script>
 <script id="csdraw" type="text/x-cindyscript">
+println("=== lists ===");
 lst = [1,2,3];
+lst:"age"=17;
+lst:"list"=lst;
+lst:"pt" = B;
+println(lst:"age");
+println(lst:"list");
+println(lst:"pt");
+println(lst:"age");
+
+println(lst:"undef");
+
+
+println("=== geo ===");
 A:"age"=17;
 A:"list"=lst;
 A:"pt" = B;
 println(A:"age");
 println(A:"list");
 println(A:"pt");
+
+println(A:"undef");
 // Drawing code, executed whenever the canvas gets redrawn.
 
 </script>
