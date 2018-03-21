@@ -233,13 +233,10 @@ longes portion of input at that position, with the
 literal, which gets parsed as an operator in its own right instead of
 a number ending in a decimal dot and followed by the operator `.`.
 
-    - only CindyJS
     > x = [];
     > x:12.3 = 4.56;
     > x:"12.3"
-    * Can't use infix expression as lvalue
-    * Operator : is not supported yet.
-    < 4.56 
+    < 4.56
 
 There may be no spaces within operator symbols.
 
