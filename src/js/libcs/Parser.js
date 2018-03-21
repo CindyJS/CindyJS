@@ -666,12 +666,17 @@ Parser.prototype.postprocess = function(expr) {
                 delete expr.args;
             }
             if (expr.oper === ':') {
-                if (!(expr.args[1] && expr.args[1].ctype === 'string'))
+                if (!(expr.args[1])) {
                     throw ParseError(
-                        'Data keys must be type of string and operate on variables', expr.start, expr.text);
+                        'Data key undefined', expr.start, expr.text);
+                }
                 expr.ctype = 'userdata';
                 expr.obj = expr.args[0];
-                expr.key = expr.args[1].value;
+
+                // convert key to string 
+                var val = evaluate(expr.args[1]).value;
+                expr.key = typeof(val) === 'undefined' ? undefined : String(val);
+
                 delete expr.args;
             }
             if (this.infixmap)
