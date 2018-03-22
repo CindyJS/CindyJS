@@ -24,7 +24,7 @@ DOWNLOAD=$(if $(CURL_CMD),$(CURL_CMD),$(if $(WGET_CMD),$(WGET_CMD),$(error curl 
 
 NODE_OS:=$(subst Darwin,darwin,$(subst Linux,linux,$(shell uname -s)))
 NODE_ARCH:=$(subst x86_64,x64,$(subst i386,x86,$(subst i686,x86,$(shell uname -m))))
-NODE_VERSION:=8.4.0
+NODE_VERSION:=4.8.4
 NODE_URLBASE:=http://nodejs.org/dist
 NODE_BASENAME:=node-v$(NODE_VERSION)-$(NODE_OS)-$(NODE_ARCH)
 NODE_TAR:=$(NODE_BASENAME).tar.gz
