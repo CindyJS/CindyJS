@@ -52,6 +52,10 @@ TextureReader.prototype.evaluateProperties = function() {
         mipmap: modifs.hasOwnProperty("mipmap") ? api.evaluateAndVal(modifs['mipmap'])['value'] : false,
         repeat: modifs.hasOwnProperty("repeat") ? api.evaluateAndVal(modifs['repeat'])['value'] : false
     };
+    if (this.properties && (this.properties.mipmap != properties.mipmap || this.properties.repeat != properties.repeat)) {
+        console.log("enfore recompilation because texture modifiers changed.");
+        requiredcompiletime++;
+    }
     this.properties = properties;
 }
 /**
