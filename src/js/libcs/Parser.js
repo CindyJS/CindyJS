@@ -671,15 +671,17 @@ Parser.prototype.postprocess = function(expr) {
                         'Data key undefined', expr.start, expr.text);
                 }
                 expr.ctype = 'userdata';
+                debugger;
                 expr.obj = expr.args[0];
+                expr.key = expr.args[1];
 
                 // convert key to string 
-                var val = evaluate(expr.args[1]);
-                if (val.ctype === 'number') val = val.value.real;
-                else val = val.value;
+                //var val = evaluate(expr.args[1]);
+                //if (val.ctype === 'number') val = val.value.real;
+                //else val = val.value;
 
-                if (typeof(val) === "object") val = undefined;
-                expr.key = typeof(val) === 'undefined' ? undefined : String(val);
+                //if (typeof(val) === "object") val = undefined;
+                //expr.key = typeof(val) === 'undefined' ? undefined : String(val);
 
 
                 delete expr.args;
@@ -746,10 +748,11 @@ Parser.prototype.postprocess = function(expr) {
         };
     }
     if (expr.ctype === 'userdata') {
+        debugger;
         return {
             ctype: 'userdata',
             obj: expr.obj,
-            key: String(expr.key),
+            key: expr.key,
         };
     }
     throw Error("Unsupported AST node of type " + expr.ctype);

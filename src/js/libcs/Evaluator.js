@@ -32,11 +32,19 @@ function evaluate(a) {
         return nada;
     }
     if (a.ctype === 'userdata') {
+        debugger;
         var uobj = evaluate(a.obj);
-        if (uobj.ctype === "geo") {
-            return Accessor.getuserData(uobj.value, a.key);
-        }
-        if (uobj.ctype === "list") {
+
+       if (uobj.ctype === 'number') val = val.value.real;
+       else val = val.value;
+
+       //if (typeof(val) === "object") val = undefined;
+       //expr.key = typeof(val) === 'undefined' ? undefined : String(val);
+        var ct = uobj.ctype;
+        //if (uobj.ctype === "geo") {
+        //    return Accessor.getuserData(uobj.value, a.key);
+        //}
+        if (ct === "list" || ct === "geo") {
             return Accessor.getuserData(uobj, a.key);
         }
         return nada;

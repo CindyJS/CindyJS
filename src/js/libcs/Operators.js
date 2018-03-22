@@ -463,8 +463,16 @@ eval_helper.assigndot = function(data, what) {
 };
 
 eval_helper.assigndoubledot = function(data, what) {
+    debugger;
     var where = evaluate(data.obj);
-    var field = data.key;
+
+    // convert key to string 
+    var key = field;//evaluate(expr.args[1]);
+    if (val.ctype === 'number') val = val.value.real;
+    else val = val.value;
+    
+    if (typeof(val) === "object") val = undefined;
+    field = typeof(val) === 'undefined' ? undefined : String(val);
 
     if (where.ctype === 'geo' && field) {
         Accessor.setuserData(where.value, field, evaluateAndVal(what));
