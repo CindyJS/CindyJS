@@ -31,6 +31,7 @@ function generateReadCanvasWrapperIfRequired(imageobject, api, properties) {
 function generateWriteCanvasWrapperIfRequired(imageobject, api) {
     if (!imageobject.hasOwnProperty('writecanvaswrapper')) {
         let idx = -1;
+        console.log(imageobject);
         if (imageobject['readcanvaswrappers']) {
             for (let i = 3; i >= 0; i--) {
                 if (imageobject['readcanvaswrappers'].hasOwnProperty(idx)) idx = i;
@@ -51,6 +52,34 @@ function generateWriteCanvasWrapperIfRequired(imageobject, api) {
     return imageobject['writecanvaswrapper'];
 }
 
+function generateCanvasWrapperIfRequired(imageobject, api, properties) {
+    properties = properties || {
+        interpolate: true,
+        mipmap: false,
+        repeat: false
+    };
+
+    if (imageobject['canvaswrapper']) {
+        //console.log(imageobject['canvaswrapper']);
+        //TODO: update properties if req.
+
+
+    } else {
+        imageobject['canvaswrapper'] = new CanvasWrapper(imageobject, properties);
+        
+
+        if (!imageobject.ready) {
+            console.error("Image not ready. Creating onload event.");
+            imageobject.whenReady(() => {
+                imageobject.generation = Math.max(imageobject.generation, imageobject['canvaswrapper'].generation + 1);
+            });
+        }
+    }
+    imageobject['readPixels'] = imageobject['canvaswrapper'].readPixels.bind(imageobject['canvaswrapper']);
+    if (imageobject['canvaswrapper'] && imageobject['canvaswrapper'].generation > imageobject.generation) imageobject['canvaswrapper'].copyTextureToCanvas();
+
+    return imageobject['canvaswrapper'];
+}
 
 /**
  * Note that CanvasWrapper might also wrap an image instead of a canvas

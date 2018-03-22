@@ -6,20 +6,20 @@ function TextureReader(name, expr, modifs, api) {
     this.expr = expr;
     this.api = api;
     this.modifs = modifs;
-    console.log(modifs);
 
     let properties = {
         interpolate: modifs.hasOwnProperty("interpolate") ? api.evaluateAndVal(modifs['interpolate'])['value'] : true,
         mipmap: modifs.hasOwnProperty("mipmap") ? api.evaluateAndVal(modifs['mipmap'])['value'] : false,
         repeat: modifs.hasOwnProperty("repeat") ? api.evaluateAndVal(modifs['repeat'])['value'] : false
     };
+    this.properties = properties;
 
     this.name = name;
-    this.code = 
-`uniform sampler2D _sampler${name};
+    this.code =
+        `uniform sampler2D _sampler${name};
 uniform float _ratio${name};
 uniform vec2 _cropfact${name};
-vec4 _imagergba${name} (vec2 A, vec2 B, vec2 p) {
+vec4 _imagergba${name}(vec2 A, vec2 B, vec2 p) {
   p -= A; B -= A;
   float b = dot(B,B);
   p = vec2(dot(p,B),_ratio${name}*dot(p,vec2(-B.y,B.x)))/b;
@@ -81,7 +81,8 @@ TextureReader.prototype.returnCanvaswrapper = function(properties) {
         return nada;
     }
 
-    return generateReadCanvasWrapperIfRequired(imageobject, this.api, properties);
+    //return generateReadCanvasWrapperIfRequired(imageobject, this.api, properties);
+    return generateCanvasWrapperIfRequired(imageobject, this.api, properties);
 }
 
 /**
@@ -100,28 +101,9 @@ function getNameFromImage(image) {
 
 function generateTextureReaderIfRequired(uname, modifs, codebuilder) {
     if (!codebuilder.texturereaders.hasOwnProperty(uname)) {
-        codebuilder.texturereaders[uname] = [];
+        codebuilder.texturereaders[uname] = new TextureReader(uname, codebuilder.uniforms[uname].expr, modifs, codebuilder.api);
     }
-
-    let idx = codebuilder.texturereaders[uname].length;
-    for (let i in codebuilder.texturereaders[uname])
-        if (idx == codebuilder.texturereaders[uname].length) {
-            let othermodifs = codebuilder.texturereaders[uname][i].modifs;
-            let iscandidate = true;
-            for (let prop in ["interpolation", "mipmap", "repeat"])
-                if (iscandidate) {
-                    if (!expressionsAreEqual(othermodifs, modifs)) iscandidate = false;
-                }
-            if (iscandidate) idx = i;
-        }
-
-    let tname = `${uname}_${idx}`; //the glsl name of the texture having the uname as image and a set of modifs
-
-    if (idx == codebuilder.texturereaders[uname].length) {
-        codebuilder.texturereaders[uname].push(new TextureReader(tname, codebuilder.uniforms[uname].expr, modifs, codebuilder.api));
-    }
-
-    return tname;
+    return uname;
 }
 
 function useimagergba4(args, modifs, codebuilder) {
@@ -147,8 +129,7 @@ function useimagergb2(args, modifs, codebuilder) {
 function generateHeaderOfTextureReaders(codebuilder) {
     let ans = '';
     for (let t in codebuilder.texturereaders)
-        for (let i in codebuilder.texturereaders[t]) {
-            ans += `${codebuilder.texturereaders[t][i].code}\n`;
-        }
+        ans += `${codebuilder.texturereaders[t].code}\n`;
+
     return ans;
 };
