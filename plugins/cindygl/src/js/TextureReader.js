@@ -7,12 +7,8 @@ function TextureReader(name, expr, modifs, api) {
     this.api = api;
     this.modifs = modifs;
 
-    let properties = {
-        interpolate: modifs.hasOwnProperty("interpolate") ? api.evaluateAndVal(modifs['interpolate'])['value'] : true,
-        mipmap: modifs.hasOwnProperty("mipmap") ? api.evaluateAndVal(modifs['mipmap'])['value'] : false,
-        repeat: modifs.hasOwnProperty("repeat") ? api.evaluateAndVal(modifs['repeat'])['value'] : false
-    };
-    this.properties = properties;
+    this.evaluateProperties();
+    let properties = this.properties;
 
     this.name = name;
     this.code =
@@ -48,7 +44,16 @@ vec4 _imagergba${name}(vec2 A, vec2 B, vec2 p) {
   }`;
 }
 
-
+TextureReader.prototype.evaluateProperties = function() {
+    let modifs = this.modifs;
+    let api = this.api;
+    let properties = {
+        interpolate: modifs.hasOwnProperty("interpolate") ? api.evaluateAndVal(modifs['interpolate'])['value'] : true,
+        mipmap: modifs.hasOwnProperty("mipmap") ? api.evaluateAndVal(modifs['mipmap'])['value'] : false,
+        repeat: modifs.hasOwnProperty("repeat") ? api.evaluateAndVal(modifs['repeat'])['value'] : false
+    };
+    this.properties = properties;
+}
 /**
  * GLSL name of texture
  * @type {string}
@@ -72,7 +77,7 @@ TextureReader.prototype.expr;
  */
 TextureReader.prototype.api;
 
-TextureReader.prototype.returnCanvaswrapper = function(properties) {
+TextureReader.prototype.returnCanvaswrapper = function() {
     let nameorimageobject = this.api.evaluateAndVal(this.expr)['value'];
     let imageobject = (typeof nameorimageobject === "string") ? this.api.getImage(nameorimageobject, true) : nameorimageobject;
 
@@ -80,9 +85,10 @@ TextureReader.prototype.returnCanvaswrapper = function(properties) {
         console.error(`Could not find image ${nameorimageobject}.`);
         return nada;
     }
+    this.evaluateProperties();
 
     //return generateReadCanvasWrapperIfRequired(imageobject, this.api, properties);
-    return generateCanvasWrapperIfRequired(imageobject, this.api, properties);
+    return generateCanvasWrapperIfRequired(imageobject, this.api, this.properties);
 }
 
 /**

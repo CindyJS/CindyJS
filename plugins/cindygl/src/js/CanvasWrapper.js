@@ -1,72 +1,12 @@
-/**
- * adds a canvasWrapper to an image object for reading access. A reference will in the 'readcanvaswrappers' list. If argument is an image that was not loaded, this will be done as onload-event.
- * @param {CindyJS.image} imageobject
- * @return {CanvasWrapper}
- */
-function generateReadCanvasWrapperIfRequired(imageobject, api, properties) {
-    if (!imageobject.hasOwnProperty('readcanvaswrappers')) {
-        imageobject['readcanvaswrappers'] = Array(4);
-    }
-    let idx = properties.mipmap * 2 + properties.interpolate;
-    if (!imageobject['readcanvaswrappers'].hasOwnProperty(idx)) {
-        if (imageobject['writecanvaswrapper'] && imageobject['writecanvaswrapper'].generation > imageobject.generation) imageobject['writecanvaswrapper'].copyTextureToCanvas();
-
-        imageobject['readcanvaswrappers'][idx] = new CanvasWrapper(imageobject, properties);
-        if (!imageobject.ready) {
-            console.error("Image not ready. Creating onload event.");
-            imageobject.whenReady(() => {
-                imageobject.generation = Math.max(imageobject.generation, imageobject['readcanvaswrappers'][idx].generation + 1);
-            });
-        }
-    }
-    if (imageobject['writecanvaswrapper']) imageobject['writecanvaswrapper'] = imageobject['readcanvaswrappers'][idx]; //It makes sense to write to that canvaswrapper that is used to read. It is necessary to copy textures if there are multiple readers
-    return imageobject['readcanvaswrappers'][idx];
-}
-
-/**
- * adds a canvasWrapper that is supposed to be written to an image object. A reference 'writecanvaswrapper' will be added to imageobject. If it already exists, take it. If none exists, try to find the canvaswrapper of some existing texturereader
- * @param {CindyJS.image} imageobject
- * @return {CanvasWrapper}
- */
-function generateWriteCanvasWrapperIfRequired(imageobject, api) {
-    if (!imageobject.hasOwnProperty('writecanvaswrapper')) {
-        let idx = -1;
-        console.log(imageobject);
-        if (imageobject['readcanvaswrappers']) {
-            for (let i = 3; i >= 0; i--) {
-                if (imageobject['readcanvaswrappers'].hasOwnProperty(idx)) idx = i;
-            }
-        } else imageobject['readcanvaswrappers'] = Array(4);
-        if (idx == -1) {
-            let properties = {
-                interpolate: true,
-                mipmap: false,
-                repeat: false
-            }
-            idx = properties.mipmap * 2 + properties.interpolate;
-            imageobject['readcanvaswrappers'][idx] = new CanvasWrapper(imageobject, properties);
-        }
-        imageobject['writecanvaswrapper'] = imageobject['readcanvaswrappers'][idx];
-    }
-    imageobject['readPixels'] = imageobject['writecanvaswrapper'].readPixels.bind(imageobject['writecanvaswrapper']);
-    return imageobject['writecanvaswrapper'];
-}
-
 function generateCanvasWrapperIfRequired(imageobject, api, properties) {
-    properties = properties || {
-        interpolate: true,
-        mipmap: false,
-        repeat: false
-    };
-
     if (imageobject['canvaswrapper']) {
-        //console.log(imageobject['canvaswrapper']);
-        //TODO: update properties if req.
-
-
+        if (properties) imageobject['canvaswrapper'].updateReadingProperties(properties);
     } else {
-        imageobject['canvaswrapper'] = new CanvasWrapper(imageobject, properties);
-        
+        imageobject['canvaswrapper'] = new CanvasWrapper(imageobject, properties || {
+            interpolate: true,
+            mipmap: false,
+            repeat: false
+        });
 
         if (!imageobject.ready) {
             console.error("Image not ready. Creating onload event.");
@@ -75,8 +15,8 @@ function generateCanvasWrapperIfRequired(imageobject, api, properties) {
             });
         }
     }
-    imageobject['readPixels'] = imageobject['canvaswrapper'].readPixels.bind(imageobject['canvaswrapper']);
-    if (imageobject['canvaswrapper'] && imageobject['canvaswrapper'].generation > imageobject.generation) imageobject['canvaswrapper'].copyTextureToCanvas();
+    //imageobject['readPixels'] = imageobject['canvaswrapper'].readPixels.bind(imageobject['canvaswrapper']);
+    //if (imageobject['canvaswrapper'] && imageobject['canvaswrapper'].generation > imageobject.generation) imageobject['canvaswrapper'].copyTextureToCanvas();
 
     return imageobject['canvaswrapper'];
 }
@@ -184,6 +124,31 @@ CanvasWrapper.prototype.it;
 /** @type {ShaderProgram} */
 CanvasWrapper.prototype.shaderProgram;
 
+CanvasWrapper.prototype.updateReadingProperties = function(properties) {
+    let oldproperties = this.properties;
+    if (properties &&
+        (
+            properties.repeat != oldproperties.repeat ||
+            properties.mipmap != oldproperties.mipmap ||
+            properties.interpolate != oldproperties.interpolate
+        )
+    ) {
+        this.properties = properties;
+        for (let j = 0; j < 2; j++) {
+            gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
+            if (properties.mipmap)
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_LINEAR); //always interpolate between 2 mipmap levels NEAREST_MIPMAP_LINEAR
+            else
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
+
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
+        }
+        if (properties.repeat != oldproperties.repeat ||
+            properties.mipmap != oldproperties.mipmap) {
+            requiredcompiletime++;
+        }
+    }
+};
 
 CanvasWrapper.prototype.updateInternalTextureMeasures = function() {
     this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX + (this.sizeX / 2) * (this.properties.mipmap && this.properties.repeat));

@@ -243,7 +243,7 @@ Renderer.prototype.loadTextures = function() {
         let tname = tr.name;
 
         let properties = tr.properties;
-        let cw = tr.returnCanvaswrapper(properties);
+        let cw = tr.returnCanvaswrapper();
 
         cw.reloadIfRequired();
         cw.bindTexture();
