@@ -674,15 +674,6 @@ Parser.prototype.postprocess = function(expr) {
                 expr.obj = expr.args[0];
                 expr.key = expr.args[1];
 
-                // convert key to string 
-                //var val = evaluate(expr.args[1]);
-                //if (val.ctype === 'number') val = val.value.real;
-                //else val = val.value;
-
-                //if (typeof(val) === "object") val = undefined;
-                //expr.key = typeof(val) === 'undefined' ? undefined : String(val);
-
-
                 delete expr.args;
             }
             if (this.infixmap)
