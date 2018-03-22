@@ -462,7 +462,7 @@ eval_helper.assigndot = function(data, what) {
     return nada;
 };
 
-eval_helper.assigndoubledot = function(data, what) {
+eval_helper.assigncolon = function(data, what) {
     debugger;
     var where = evaluate(data.obj);
 
@@ -522,7 +522,7 @@ function infix_assign(args, modifs) {
     } else if (args[0].ctype === 'field') {
         eval_helper.assigndot(args[0], v1);
     } else if (args[0].ctype === 'userdata') {
-        eval_helper.assigndoubledot(args[0], v1);
+        eval_helper.assigncolon(args[0], v1);
     } else if (args[0].ctype === 'function' && args[0].oper === 'genList') {
         if (v1.ctype === "list") {
             eval_helper.assignlist(args[0].args, v1.value);
