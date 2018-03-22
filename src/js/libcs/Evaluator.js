@@ -33,12 +33,14 @@ function evaluate(a) {
     }
     if (a.ctype === 'userdata') {
         var uobj = evaluate(a.obj);
+        var key = niceprint(evaluate(a.key));
+        if (key === "_?_") key = undefined;
 
         if (uobj.ctype === "geo") {
-            return Accessor.getuserData(uobj.value, a.key.value);
+            return Accessor.getuserData(uobj.value, key);
         }
         if (uobj.ctype === "list") {
-            return Accessor.getuserData(uobj, a.key.value);
+            return Accessor.getuserData(uobj, key);
         }
         return nada;
     }
