@@ -255,9 +255,7 @@ Renderer.prototype.loadTextures = function() {
             [
                 [`_sampler${tname}`, [cnt]],
                 [`_ratio${tname}`, [cw.sizeX / cw.sizeY]],
-                [`_cropfact${tname}`, [cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]],
-                [`_repeat${tname}`, [properties.repeat]],
-                [`_mipmap${tname}`, [properties.mipmap]]
+                [`_cropfact${tname}`, [cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]]
             ].map(
                 a => (this.shaderProgram.uniform[a[0]]) && this.shaderProgram.uniform[a[0]](a[1])
             )

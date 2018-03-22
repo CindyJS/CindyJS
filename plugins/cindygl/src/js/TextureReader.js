@@ -6,20 +6,26 @@ function TextureReader(name, expr, modifs, api) {
     this.expr = expr;
     this.api = api;
     this.modifs = modifs;
+    console.log(modifs);
+
+    let properties = {
+        interpolate: modifs.hasOwnProperty("interpolate") ? api.evaluateAndVal(modifs['interpolate'])['value'] : true,
+        mipmap: modifs.hasOwnProperty("mipmap") ? api.evaluateAndVal(modifs['mipmap'])['value'] : false,
+        repeat: modifs.hasOwnProperty("repeat") ? api.evaluateAndVal(modifs['repeat'])['value'] : false
+    };
 
     this.name = name;
-    this.code = `uniform sampler2D _sampler${name};
+    this.code = 
+`uniform sampler2D _sampler${name};
 uniform float _ratio${name};
 uniform vec2 _cropfact${name};
-uniform bool _repeat${name};
-uniform bool _mipmap${name};
 vec4 _imagergba${name} (vec2 A, vec2 B, vec2 p) {
   p -= A; B -= A;
   float b = dot(B,B);
   p = vec2(dot(p,B),_ratio${name}*dot(p,vec2(-B.y,B.x)))/b;
-  if(_repeat${name}) p = mod(p, vec2(1.));
-  if(_repeat${name} && _mipmap${name}) {
-    vec4 color = vec4(0.);
+  ${properties.repeat ? 'p = mod(p, vec2(1.));' : ''}
+  ${properties.repeat && properties.mipmap ? 
+    `vec4 color = vec4(0.);
     float totalWeight = 0.;
     for(int dx=0; dx<2; dx++) for(int dy=0; dy<2; dy++) {
       vec2 delta = .5*vec2(dx, dy);
@@ -31,12 +37,14 @@ vec4 _imagergba${name} (vec2 A, vec2 B, vec2 p) {
       color += w * texture2D(_sampler${name}, tc*_cropfact${name});
       totalWeight += w;
     }
-    return color/totalWeight;
+    return color/totalWeight;` : (
+      properties.repeat ?
+      `return texture2D(_sampler${name}, p*_cropfact${name});` :
+      `if(0. <= p.x && p.x <= 1. && 0. <= p.y && p.y <= 1.)
+          return texture2D(_sampler${name}, p*_cropfact${name});
+       else
+          return vec4(0.);`)
   }
-  if(0. <= p.x && p.x <= 1. && 0. <= p.y && p.y <= 1.)
-    return texture2D(_sampler${name}, p*_cropfact${name});
-  else
-    return vec4(0.);
   }`;
 }
 
