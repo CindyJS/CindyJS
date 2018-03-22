@@ -465,8 +465,7 @@ eval_helper.assigndot = function(data, what) {
 eval_helper.assigncolon = function(data, what) {
     var where = evaluate(data.obj);
 
-    var key = evaluate(data.key);
-    key = niceprint(key);
+    var key = niceprint(evaluate(data.key));
     if (key === "_?_") key = undefined;
 
 
