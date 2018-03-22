@@ -143,10 +143,6 @@ CanvasWrapper.prototype.updateReadingProperties = function(properties) {
 
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
         }
-        if (properties.repeat != oldproperties.repeat ||
-            properties.mipmap != oldproperties.mipmap) {
-            requiredcompiletime++;
-        }
     }
 };
 
