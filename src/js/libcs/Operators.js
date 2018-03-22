@@ -463,23 +463,20 @@ eval_helper.assigndot = function(data, what) {
 };
 
 eval_helper.assigncolon = function(data, what) {
-    debugger;
     var where = evaluate(data.obj);
 
-    // convert key to string 
-    var key = field;//evaluate(expr.args[1]);
-    if (val.ctype === 'number') val = val.value.real;
-    else val = val.value;
-    
-    if (typeof(val) === "object") val = undefined;
-    field = typeof(val) === 'undefined' ? undefined : String(val);
+    var key = evaluate(data.key);
+    key = niceprint(key);
+    if (key === "_?_") key = undefined;
 
-    if (where.ctype === 'geo' && field) {
-        Accessor.setuserData(where.value, field, evaluateAndVal(what));
-    } else if (where.ctype === 'list' && field) {
-        Accessor.setuserData(where, field, evaluateAndVal(what));
-    } else if (where.ctype !== 'geo' || where.ctype !== 'list') {
-        console.log("User data can only be assigned to geo objects and lists.");
+
+    if (where.ctype === 'geo' && key) {
+        Accessor.setuserData(where.value, key, evaluateAndVal(what));
+    } else if (where.ctype === 'list' && key) {
+        Accessor.setuserData(where, key, evaluateAndVal(what));
+    } else {
+        if (!key) console.log("Key is undefined");
+        else console.log("User data can only be assigned to geo objects and lists.");
     }
 
     return nada;

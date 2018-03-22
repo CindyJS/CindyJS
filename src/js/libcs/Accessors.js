@@ -324,7 +324,6 @@ Accessor.setField = function(geo, field, value) {
 };
 
 Accessor.getuserData = function(obj, key) {
-    debugger;
     var val;
     if (obj.userData && obj.userData[key]) val = obj.userData[key];
 
@@ -338,7 +337,6 @@ Accessor.getuserData = function(obj, key) {
 };
 
 Accessor.setuserData = function(obj, key, value) {
-    debugger;
     if (!obj.userData) obj.userData = {};
     obj.userData[key] = value;
 };

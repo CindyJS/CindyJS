@@ -671,7 +671,6 @@ Parser.prototype.postprocess = function(expr) {
                         'Data key undefined', expr.start, expr.text);
                 }
                 expr.ctype = 'userdata';
-                debugger;
                 expr.obj = expr.args[0];
                 expr.key = expr.args[1];
 
@@ -748,7 +747,6 @@ Parser.prototype.postprocess = function(expr) {
         };
     }
     if (expr.ctype === 'userdata') {
-        debugger;
         return {
             ctype: 'userdata',
             obj: expr.obj,
