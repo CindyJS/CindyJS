@@ -20,6 +20,8 @@ var can_use_texture_half_float = false;
 var halfFloat;
 var can_use_texture_float = false;
 
+var use8bittextures = false;
+
 const oo = 1 << 30; //infinity, but oo + oo should be > 0, hence not MaxInt
 
 var requiredcompiletime = 1;
@@ -67,27 +69,27 @@ function initGLIfRequired() {
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);
-
-    can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
-    if (!can_use_texture_float) {
-        console.error("Your browser does not suppert OES_texture_float, trying OES_texture_half_float...");
-        halfFloat = gl.getExtension('OES_texture_half_float');
-        can_use_texture_half_float = halfFloat && gl.getExtension('OES_texture_half_float_linear');
-        if (!can_use_texture_half_float)
-            console.error("Your browser does not suppert OES_texture_half_float, will use 8-bit textures.");
-    }
-
-    if (navigator.userAgent.match(/(iPad|iPhone)/i)) { //TODO: detect this better by checking wheather building a toy shader fails...
-        console.log("You are  using an iPhone/iPad.");
-        can_use_texture_float = can_use_texture_half_float = false;
-        if (gl.getExtension('OES_texture_half_float') && gl.getExtension('OES_texture_half_float_linear') && gl.getExtension('EXT_color_buffer_half_float')) {
-            can_use_texture_half_float = true;
-        } else {
-            console.error("Your browser does not suppert writing to half_float textures, we will use 8-bit textures.");
+    if (!use8bittextures) {
+        can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
+        if (!can_use_texture_float) {
+            console.error("Your browser does not suppert OES_texture_float, trying OES_texture_half_float...");
+            halfFloat = gl.getExtension('OES_texture_half_float');
+            can_use_texture_half_float = halfFloat && gl.getExtension('OES_texture_half_float_linear');
+            if (!can_use_texture_half_float)
+                console.error("Your browser does not suppert OES_texture_half_float, will use 8-bit textures.");
         }
 
+        if (navigator.userAgent.match(/(iPad|iPhone)/i)) { //TODO: detect this better by checking wheather building a toy shader fails...
+            console.log("You are  using an iPhone/iPad.");
+            can_use_texture_float = can_use_texture_half_float = false;
+            if (gl.getExtension('OES_texture_half_float') && gl.getExtension('OES_texture_half_float_linear') && gl.getExtension('EXT_color_buffer_half_float')) {
+                can_use_texture_half_float = true;
+            } else {
+                console.error("Your browser does not suppert writing to half_float textures, we will use 8-bit textures.");
+            }
 
+
+        }
     }
-
     isinitialized = true;
 }

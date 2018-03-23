@@ -18,6 +18,14 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
         //console.log(myfunctions);
     });
 
+    api.defineFunction("use8bittextures", 0, (args, modifs) => {
+        use8bittextures = true;
+        can_use_texture_float = can_use_texture_half_float = false;
+        console.log("Switching to 8-bit textures mode.");
+        return api.nada;
+    });
+
+
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
