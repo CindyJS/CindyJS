@@ -51,6 +51,15 @@ a:[1,2,3] = 10;
 a:[3,4,5] = 34;
 errc(a:[1,2,3]); //gives 34, Cinderella gives 10
 
+// assigntake
+a = [1,2,3];
+a:"bla" = 23;
+
+errc(a:"bla");
+
+a_2 = 34;
+errc(a:"bla");
+
 // Drawing code, executed whenever the canvas gets redrawn.
 
 </script>

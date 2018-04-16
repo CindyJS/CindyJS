@@ -438,6 +438,8 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
                 var lst = where.value.slice();
                 lst[ind1 - 1] = evaluate(what);
                 rhs = List.turnIntoCSList(lst);
+                // update colon op
+                if (where.userData) rhs.userData = where.userData;
             } else {
                 var str = where.value;
                 str = str.substring(0, ind1 - 1) +
