@@ -106,11 +106,17 @@ function drawgeoline(el) {
                 [el.startpos, el.endpos], modifs);
             if (el.labeled && !el.tmp) {
                 var lbl = el.printname || el.name || "S";
-                var l = List.cross(el.startpos, el.endpos);
+                var orientedline = List.scalmult(
+                  CSNumber.real(Math.sign(el.startpos.value[2].value.real)*Math.sign(el.endpos.value[2].value.real)),
+                  List.cross(el.startpos, el.endpos)
+                );
+
                 var npos = {
-                    'x': l.value[0].value.real,
-                    'y': l.value[1].value.real
+                    'x': orientedline.value[0].value.real,
+                    'y': orientedline.value[1].value.real
                 };
+
+                //normalize npos
                 var nposlength = Math.sqrt(npos.x * npos.x + npos.y * npos.y);
                 
                 // TODO: synchronize these constants with Cinderella
