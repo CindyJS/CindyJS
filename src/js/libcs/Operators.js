@@ -475,9 +475,16 @@ eval_helper.assigncolon = function(data, what) {
         Accessor.setuserData(where.value, key, evaluateAndVal(what));
     } else if (where.ctype === 'list' || where.ctype === 'string' && key) {
         // copy object
-        var rhs = General.DeepCloneJSON(where);
+        var rhs = {};
+        for(var i in where) rhs[i] = where[i];
 
-        if (!rhs.userData) rhs.userData = {};
+        if (!rhs.userData) rhs.userData = {}
+        else { // avoid reference copy
+            var tmpObj = {};
+            for(var i in rhs.userData) tmpObj[i] = rhs.userData[i];
+            rhs.userData = tmpObj;
+        }
+
         rhs.userData[key] = evaluateAndVal(what);
 
         infix_assign([lhs, rhs]);
