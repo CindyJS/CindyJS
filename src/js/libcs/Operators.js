@@ -475,8 +475,7 @@ eval_helper.assigncolon = function(data, what) {
         Accessor.setuserData(where.value, key, evaluateAndVal(what));
     } else if (where.ctype === 'list' || where.ctype === 'string' && key) {
         // copy object
-        var rhs = {};
-        for (var i in where) rhs[i] = where[i];
+        var rhs = General.DeepCloneJSON(where);
 
         if (!rhs.userData) rhs.userData = {};
         rhs.userData[key] = evaluateAndVal(what);
