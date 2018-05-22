@@ -39,7 +39,7 @@ function evaluate(a) {
         if (uobj.ctype === "geo") {
             return Accessor.getuserData(uobj.value, key);
         }
-        if (uobj.ctype === "list") {
+        if (uobj.ctype === "list" || uobj.ctype === "string") {
             return Accessor.getuserData(uobj, key);
         }
         return nada;

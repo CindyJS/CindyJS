@@ -465,16 +465,23 @@ eval_helper.assigndot = function(data, what) {
 };
 
 eval_helper.assigncolon = function(data, what) {
-    var where = evaluate(data.obj);
+    var lhs = data.obj;
+    var where = evaluate(lhs);
 
     var key = niceprint(evaluate(data.key));
     if (key === "_?_") key = undefined;
 
-
     if (where.ctype === 'geo' && key) {
         Accessor.setuserData(where.value, key, evaluateAndVal(what));
-    } else if (where.ctype === 'list' && key) {
-        Accessor.setuserData(where, key, evaluateAndVal(what));
+    } else if (where.ctype === 'list' || where.ctype === 'string' && key) {
+        // copy object
+        var rhs = {}
+        for (var i in where) rhs[i] = where[i];
+
+        if (!rhs.userData) rhs.userData = {};
+        rhs.userData[key] = evaluateAndVal(what);
+
+        infix_assign([lhs, rhs])
     } else {
         if (!key) console.log("Key is undefined");
         else console.log("User data can only be assigned to geo objects and lists.");
