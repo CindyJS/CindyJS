@@ -62,6 +62,14 @@ errc(a:"bla");
 
 // Drawing code, executed whenever the canvas gets redrawn.
 
+thing1=[-54,12];
+thing1:"color"="red";
+
+thing2=thing1;
+thing2:"color"="blue";
+
+errc(thing1:"color"); //should be red, but it gives blue
+
 </script>
 <script type="text/javascript">
 
