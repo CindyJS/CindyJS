@@ -45,7 +45,7 @@ describe("ColonOp: Lists", function(){
 
     // references
     itCmd('t1:"color"', 'red');
-   // itCmd('t2:"color"', 'blue');
+    itCmd('t2:"color"', 'blue');
 });
 
 

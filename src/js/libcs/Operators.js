@@ -476,12 +476,12 @@ eval_helper.assigncolon = function(data, what) {
     } else if (where.ctype === 'list' || where.ctype === 'string' && key) {
         // copy object
         var rhs = {};
-        for(var i in where) rhs[i] = where[i];
+        for (var i in where) rhs[i] = where[i];
 
-        if (!rhs.userData) rhs.userData = {}
+        if (!rhs.userData) rhs.userData = {};
         else { // avoid reference copy
             var tmpObj = {};
-            for(var i in rhs.userData) tmpObj[i] = rhs.userData[i];
+            for (var j in rhs.userData) tmpObj[j] = rhs.userData[j];
             rhs.userData = tmpObj;
         }
 
