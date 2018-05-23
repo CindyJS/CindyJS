@@ -12,6 +12,7 @@
   t0 = seconds();
   mipmap = true;
   interpolate = true;
+  repeat = true;
 </script>
 <script id="csdraw" type="text/x-cindyscript">
   t = seconds()-t0+.001;
@@ -19,7 +20,7 @@
   colorplot(imagergb([0,0], [2*pi,0], image,
     e = round(A.x)*ratio+i*round(A.y);
     -t+e*log(complex(#)); //=log(complex(#^e)) (mod 2 pi i)
-  , repeat->true, mipmap->mipmap, interpolate->interpolate));
+  , repeat->repeat, mipmap->mipmap, interpolate->interpolate));
   if (isundefined(dropped), drawtext((-18, 0), "Drag and drop an image into this area"));
 </script>
 
@@ -72,6 +73,14 @@ var check2=function(){
   }
 }
 
+var check3=function(){
+  if(document.getElementById("ch3").checked){
+    cdy.evokeCS('repeat=true;');
+  } else {
+    cdy.evokeCS('repeat=false;');
+  }
+}
+
 </script>
 </head>
 
@@ -79,7 +88,8 @@ var check2=function(){
   <div id="CSCanvas" style="width:800px; height:800px; border:2px solid black"></div>
   <p>
     <input id="ch1" onclick="check1()" checked type="checkbox" >interpolate linear&nbsp;&nbsp;&nbsp;
-    <input id="ch2" onclick="check2()" checked type="checkbox" >mipmap 
+    <input id="ch2" onclick="check2()" checked type="checkbox" >mipmap &nbsp;&nbsp;&nbsp;
+    <input id="ch3" onclick="check3()" checked type="checkbox" >repeat
   </p>
 </body>
 

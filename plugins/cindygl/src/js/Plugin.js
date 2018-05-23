@@ -18,6 +18,14 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
         //console.log(myfunctions);
     });
 
+    api.defineFunction("use8bittextures", 0, (args, modifs) => {
+        use8bittextures = true;
+        can_use_texture_float = can_use_texture_half_float = false;
+        console.log("Switching to 8-bit textures mode.");
+        return api.nada;
+    });
+
+
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
@@ -129,7 +137,8 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
             return nada;
         }
         let imageobject = api.getImage(name.value, true);
-        let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
+        //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
+        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
         compileAndRender(prog, a, b, cw, ch, canvaswrapper);
@@ -153,7 +162,8 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
         }
 
         let imageobject = api.getImage(name.value, true);
-        let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
+        //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
+        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
         compileAndRender(prog, a, b, cw, ch, canvaswrapper);
@@ -171,7 +181,8 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
         var color = coerce.toColor(api.evaluateAndVal(args[3]));
         if (!name) return nada;
         let imageobject = api.getImage(name, true);
-        let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
+        //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
+        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
 
         if (isFinite(x) && isFinite(y) && name && canvaswrapper && color) {
             canvaswrapper.setPixel(x, y, color);

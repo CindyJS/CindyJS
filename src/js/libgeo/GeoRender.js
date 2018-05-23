@@ -9,7 +9,9 @@ function drawgeopoint(el) {
     evaluator.draw$1([el.homog], {
         size: el.size,
         color: col,
-        alpha: el.alpha
+        alpha: el.alpha,
+        noborder: el.noborder,
+        border: el.border,
     });
     if (el.labeled && !el.tmp) {
         var lbl = el.printname || el.name || "P";
@@ -26,6 +28,10 @@ function drawgeopoint(el) {
         if (dist > 0) {
             factor = 1.0 + el.size.value.real / Math.sqrt(dist);
         }
+        var color = Render2D.makeColor(defaultAppearance.textColor);
+        if (el.noborder.value === true || el.border.value === false) color = col;
+
+        var alpha = el.alpha || CSNumber.real(defaultAppearance.alpha);
         eval_helper.drawtext(
             [el.homog, General.wrap(lbl)], {
                 'x_offset': General.wrap(factor * lpos.x),
@@ -33,7 +39,9 @@ function drawgeopoint(el) {
                 'size': General.wrap(textsize),
                 'bold': General.wrap(bold),
                 'italics': General.wrap(italics),
-                'family': General.wrap(family)
+                'family': General.wrap(family),
+                'color': color,
+                'alpha': alpha
             });
     }
 }

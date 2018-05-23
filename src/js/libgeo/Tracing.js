@@ -777,3 +777,18 @@ function tracingSesq(newVecs) {
     }
     return res;
 }
+
+function tracing2Conics(c1, c2) {
+    var n1 = geoOps._helper.flattenConicMatrix(c1);
+    var n2 = geoOps._helper.flattenConicMatrix(c2);
+    var o1 = getStateComplexVector(6);
+    var o2 = getStateComplexVector(6);
+    var res = tracing2core(n1, n2, o1, o2);
+    putStateComplexVector(res[0]);
+    putStateComplexVector(res[1]);
+    var r1 = geoOps._helper.buildConicMatrix(res[0].value);
+    var r2 = geoOps._helper.buildConicMatrix(res[1].value);
+    return List.turnIntoCSList([r1, r2]);
+}
+
+tracing2Conics.stateSize = 24;

@@ -4,35 +4,6 @@ var rewire = require("rewire");
 global.navigator = {};
 var CindyJS = require("../build/js/Cindy.plain.js");
 
-function FakeCanvas() {
-  this.width = 640;
-  this.height = 480;
-};
-FakeCanvas.prototype.measureText = function(txt) {
-  return { width: 8*txt.length };
-};
-function dummy() { return this; }
-[
-    "addEventListener",
-    "removeEventListener",
-    "arc",
-    "beginPath",
-    "clearRect",
-    "clip",
-    "fill",
-    "getContext",
-    "lineTo",
-    "moveTo",
-    "restore",
-    "save",
-    "setTransform",
-    "stroke",
-    "strokeText",
-    "fillText",
-].forEach(function(m) {
-    FakeCanvas.prototype[m] = dummy;
-});
-
 var cdy;
 
 function itCmd(command, expected) {
@@ -48,7 +19,6 @@ describe("all* operations", function() {
         cdy = CindyJS({
             isNode: true,
             csconsole: null,
-            canvas: new FakeCanvas(),
             geometry: [
 	        { name: "A", type: "Free", pos: [ 2.6486486486486487, -4.0, -0.6756756756756757 ], color: [ 1.0, 0.0, 0.0 ], labeled: true },
 	        { name: "B", type: "Free", pos: [ 4.0, -3.183673469387755, -1.0204081632653061 ], color: [ 1.0, 0.0, 0.0 ], labeled: true },

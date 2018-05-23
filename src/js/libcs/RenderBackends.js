@@ -771,10 +771,10 @@ function pngChunks(bytes) {
 
 function parseColor(spec, cb) {
     var match;
-    if ((match = /^rgba\(([0-9]+), *([0-9]+), *([0-9]+), *([0-9]+)\)$/
+    if ((match = /^rgba\(([0-9.]+), *([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/
             .exec(spec))) {
         cb(+match[1], +match[2], +match[3], +match[4]);
-    } else if ((match = /^rgb\(([0-9]+), *([0-9]+), *([0-9]+)\)$/
+    } else if ((match = /^rgb\(([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/
             .exec(spec))) {
         cb(+match[1], +match[2], +match[3], 1);
     } else {

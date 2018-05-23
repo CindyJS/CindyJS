@@ -236,13 +236,13 @@ module.exports = function build(settings, task) {
     ]);
     
     task("beautified", [], function() {
-        this.cmd("git", "diff", "--exit-code", "--name-only", {
+        this.cmd("git", "diff", "--exit-code", "--name-only", "\":(excluded)*!package-lock.json\"", {
             errorMessages: {
                 "1": "Please stage the files listed above (e.g. using “git add -u”)"
             }
         });
         this.cmdscript("js-beautify", "--quiet", beautify_args);
-        this.cmd("git", "diff", "--exit-code", {
+        this.cmd("git", "diff", "--exit-code", "\":(excluded)*!package-lock.json\"", {
             errorMessages: {
                 "1": "Your code has been beautified. Please review these changes."
             }
@@ -466,7 +466,7 @@ module.exports = function build(settings, task) {
     task("ComplexCurves.get", [], function() {
         var id = cc_get_commit();
         this.download(
-            "https://github.com/kranich/ComplexCurves/archive/" + id + ".zip",
+            "https://github.com/ComplexCurves/ComplexCurves/archive/" + id + ".zip",
             "download/arch/ComplexCurves-" + id + ".zip"
         );
     });
@@ -483,7 +483,7 @@ module.exports = function build(settings, task) {
     });
 
     task("ComplexCurves.lib", ["ComplexCurves.unzip"], function() {
-        this.sh("cd " + cc_lib_dir + "; npm run-script prepare");
+        this.sh("cd " + cc_lib_dir + "; npm install; npm run-script prepare");
         this.output(cc_lib_dir + "build/ComplexCurves.js");
     });
 
