@@ -956,9 +956,9 @@ eval_helper.drawtext = function(args, modifs, callback) {
     }
 
     // check if we need KaTex 
-    if(!(CindyJS._pluginRegistry.katex) && args[1].ctype === "string"){
+    if (!(CindyJS._pluginRegistry.katex) && args[1].ctype === "string") {
         // split string by "$", if we have latex $...$ then the length is >=3
-        if(args[1].value.split("$").length >= 3) loadExtraPlugin("katex", "katex-plugin.js");
+        if (args[1].value.split("$").length >= 3) loadExtraPlugin("katex", "katex-plugin.js");
     }
 
     var col = csport.drawingstate.textcolor;
