@@ -322,3 +322,21 @@ Accessor.setField = function(geo, field, value) {
 
 
 };
+
+Accessor.getuserData = function(obj, key) {
+    var val;
+    if (obj.userData && obj.userData[key]) val = obj.userData[key];
+
+    if (val && val.ctype) {
+        return val;
+    } else if (typeof val !== "object") {
+        return General.wrap(val);
+    } else {
+        return nada;
+    }
+};
+
+Accessor.setuserData = function(obj, key, value) {
+    if (!obj.userData) obj.userData = {};
+    obj.userData[key] = value;
+};

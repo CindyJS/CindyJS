@@ -31,6 +31,19 @@ function evaluate(a) {
         }
         return nada;
     }
+    if (a.ctype === 'userdata') {
+        var uobj = evaluate(a.obj);
+        var key = niceprint(evaluate(a.key));
+        if (key === "_?_") key = undefined;
+
+        if (uobj.ctype === "geo") {
+            return Accessor.getuserData(uobj.value, key);
+        }
+        if (uobj.ctype === "list" || uobj.ctype === "string") {
+            return Accessor.getuserData(uobj, key);
+        }
+        return nada;
+    }
     return a;
 }
 

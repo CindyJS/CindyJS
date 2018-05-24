@@ -665,6 +665,17 @@ Parser.prototype.postprocess = function(expr) {
                 expr.key = expr.args[1].name;
                 delete expr.args;
             }
+            if (expr.oper === ':') {
+                if (!(expr.args[1])) {
+                    throw ParseError(
+                        'Data key undefined', expr.start, expr.text);
+                }
+                expr.ctype = 'userdata';
+                expr.obj = expr.args[0];
+                expr.key = expr.args[1];
+
+                delete expr.args;
+            }
             if (this.infixmap)
                 expr.impl = this.infixmap[expr.oper];
         } else if (expr.ctype === 'variable') {
@@ -724,6 +735,13 @@ Parser.prototype.postprocess = function(expr) {
             ctype: 'field',
             obj: expr.obj,
             key: String(expr.key),
+        };
+    }
+    if (expr.ctype === 'userdata') {
+        return {
+            ctype: 'userdata',
+            obj: expr.obj,
+            key: expr.key,
         };
     }
     throw Error("Unsupported AST node of type " + expr.ctype);

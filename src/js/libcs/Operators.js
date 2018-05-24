@@ -438,6 +438,8 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
                 var lst = where.value.slice();
                 lst[ind1 - 1] = evaluate(what);
                 rhs = List.turnIntoCSList(lst);
+                // update colon op
+                if (where.userData) rhs.userData = where.userData;
             } else {
                 var str = where.value;
                 str = str.substring(0, ind1 - 1) +
@@ -454,12 +456,44 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
 eval_helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
+
     if (where.ctype === 'geo' && field) {
         Accessor.setField(where.value, field, evaluateAndVal(what));
     }
 
     return nada;
+};
 
+eval_helper.assigncolon = function(data, what) {
+    var lhs = data.obj;
+    var where = evaluate(lhs);
+
+    var key = niceprint(evaluate(data.key));
+    if (key === "_?_") key = undefined;
+
+    if (where.ctype === 'geo' && key) {
+        Accessor.setuserData(where.value, key, evaluateAndVal(what));
+    } else if (where.ctype === 'list' || where.ctype === 'string' && key) {
+        // copy object
+        var rhs = {};
+        for (var i in where) rhs[i] = where[i];
+
+        if (!rhs.userData) rhs.userData = {};
+        else { // avoid reference copy
+            var tmpObj = {};
+            for (var j in rhs.userData) tmpObj[j] = rhs.userData[j];
+            rhs.userData = tmpObj;
+        }
+
+        rhs.userData[key] = evaluateAndVal(what);
+
+        infix_assign([lhs, rhs]);
+    } else {
+        if (!key) console.log("Key is undefined");
+        else console.log("User data can only be assigned to geo objects and lists.");
+    }
+
+    return nada;
 };
 
 
@@ -498,6 +532,8 @@ function infix_assign(args, modifs) {
         }
     } else if (args[0].ctype === 'field') {
         eval_helper.assigndot(args[0], v1);
+    } else if (args[0].ctype === 'userdata') {
+        eval_helper.assigncolon(args[0], v1);
     } else if (args[0].ctype === 'function' && args[0].oper === 'genList') {
         if (v1.ctype === "list") {
             eval_helper.assignlist(args[0].args, v1.value);
