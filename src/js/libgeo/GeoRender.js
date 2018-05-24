@@ -106,10 +106,7 @@ function drawgeoline(el) {
                 [el.startpos, el.endpos], modifs);
             if (el.labeled && !el.tmp) {
                 var lbl = el.printname || el.name || "S";
-                var orientedline = List.scalmult(
-                  CSNumber.real(Math.sign(el.startpos.value[2].value.real)*Math.sign(el.endpos.value[2].value.real)),
-                  List.cross(el.startpos, el.endpos)
-                );
+                var orientedline = List.cross(List.normalizeZ(el.startpos), List.normalizeZ(el.endpos));
 
                 var npos = {
                     'x': orientedline.value[0].value.real,
@@ -118,7 +115,7 @@ function drawgeoline(el) {
 
                 //normalize npos
                 var nposlength = Math.sqrt(npos.x * npos.x + npos.y * npos.y);
-                
+
                 // TODO: synchronize these constants with Cinderella
                 npos = {
                     'x': 8 * npos.x / nposlength - 3,
@@ -126,7 +123,7 @@ function drawgeoline(el) {
                 };
                 var lpos = el.labelpos || npos;
                 var color = Render2D.makeColor(defaultAppearance.textColor);
-                
+
                 // TODO: synchronize these constants with Cinderella
                 var pos = geoOps._helper.midpoint(geoOps._helper.midpoint(el.startpos, el.endpos), el.endpos);
                 drawlabel(el, lbl, pos, lpos, color);
