@@ -42,6 +42,10 @@ function getmover(mouse) {
             }
             dist = dist + 30 / sc;
 
+            if (el.narrow && dist > ((typeof el.narrow === "number" ?
+                    el.narrow : 20) + 30) / sc)
+                continue;
+
         } else if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
             var l = el.homog;
             var N = CSNumber;
