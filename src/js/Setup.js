@@ -680,14 +680,16 @@ function doneLoadingModule(skipInit) {
         return;
 
     //Evaluate Init script
-    if (!skipInit) evaluate(cscompiled.init);
+    if (!skipInit) {
+        evaluate(cscompiled.init);
 
-    if ((instanceInvocationArguments.animation ||
-            instanceInvocationArguments).autoplay)
-        csplay();
+        if ((instanceInvocationArguments.animation ||
+                instanceInvocationArguments).autoplay)
+            csplay();
 
-    if (globalInstance.canvas)
-        setuplisteners(globalInstance.canvas, instanceInvocationArguments);
+        if (globalInstance.canvas)
+            setuplisteners(globalInstance.canvas, instanceInvocationArguments);
+    }
 }
 
 var backup = null;
