@@ -680,7 +680,7 @@ function doneLoadingModule(skipInit) {
         return;
 
     //Evaluate Init script
-    if(!skipInit) evaluate(cscompiled.init);
+    if (!skipInit) evaluate(cscompiled.init);
 
     if ((instanceInvocationArguments.animation ||
             instanceInvocationArguments).autoplay)

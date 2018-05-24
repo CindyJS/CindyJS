@@ -970,9 +970,9 @@ eval_helper.drawtext = function(args, modifs, callback) {
 
     if (!(CindyJS._pluginRegistry.katex) && typeof(txt) === "string") {
         // split string by "$", if we have latex $...$ then the length is >=3
-        if (txt.split("$").length >= 3){ 
-         loadExtraPlugin("katex", "katex-plugin.js", true /*skipInit*/);
-    }
+        if (txt.split("$").length >= 3) {
+            loadExtraPlugin("katex", "katex-plugin.js", true /*skipInit*/ );
+        }
     }
 
     var font = (
