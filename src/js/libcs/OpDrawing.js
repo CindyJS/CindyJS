@@ -955,12 +955,6 @@ eval_helper.drawtext = function(args, modifs, callback) {
         return null;
     }
 
-    // check if we need KaTex 
-    if (!(CindyJS._pluginRegistry.katex) && args[1].ctype === "string") {
-        // split string by "$", if we have latex $...$ then the length is >=3
-        if (args[1].value.split("$").length >= 3) loadExtraPlugin("katex", "katex-plugin.js");
-    }
-
     var col = csport.drawingstate.textcolor;
     Render2D.handleModifs(modifs, Render2D.textModifs);
     var size = csport.drawingstate.textsize;
@@ -973,6 +967,14 @@ eval_helper.drawtext = function(args, modifs, callback) {
     var yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset;
 
     var txt = niceprint(v1);
+
+    if (!(CindyJS._pluginRegistry.katex) && typeof(txt) === "string") {
+        // split string by "$", if we have latex $...$ then the length is >=3
+        if (txt.split("$").length >= 3){ 
+         loadExtraPlugin("katex", "katex-plugin.js", true /*skipInit*/);
+    }
+    }
+
     var font = (
         Render2D.bold + Render2D.italics +
         Math.round(size * 10) / 10 + "px " +

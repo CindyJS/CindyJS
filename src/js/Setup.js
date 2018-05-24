@@ -649,7 +649,7 @@ function loadExtraModules() {
 
 var modulesToLoad = 1;
 
-function loadExtraPlugin(name, path) {
+function loadExtraPlugin(name, path, skipInit) {
     var cb = null;
     if (instanceInvocationArguments.plugins)
         cb = instanceInvocationArguments.plugins[name];
@@ -662,7 +662,7 @@ function loadExtraPlugin(name, path) {
     ++modulesToLoad;
     CindyJS.autoLoadPlugin(name, path, function() {
         evaluator.use$1([General.wrap(name)], {});
-        doneLoadingModule();
+        doneLoadingModule(skipInit);
     });
 }
 
@@ -675,12 +675,12 @@ function loadExtraModule(name, path) {
     });
 }
 
-function doneLoadingModule() {
+function doneLoadingModule(skipInit) {
     if (--modulesToLoad !== 0)
         return;
 
     //Evaluate Init script
-    evaluate(cscompiled.init);
+    if(!skipInit) evaluate(cscompiled.init);
 
     if ((instanceInvocationArguments.animation ||
             instanceInvocationArguments).autoplay)
