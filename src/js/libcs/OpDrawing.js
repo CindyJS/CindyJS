@@ -967,6 +967,14 @@ eval_helper.drawtext = function(args, modifs, callback) {
     var yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset;
 
     var txt = niceprint(v1);
+
+    if (!(CindyJS._pluginRegistry.katex) && typeof(txt) === "string") {
+        // split string by "$", if we have latex $...$ then the length is >=3
+        if (txt.split("$").length >= 3) {
+            loadExtraPlugin("katex", "katex-plugin.js", true /*skipInit*/ );
+        }
+    }
+
     var font = (
         Render2D.bold + Render2D.italics +
         Math.round(size * 10) / 10 + "px " +
