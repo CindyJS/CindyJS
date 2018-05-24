@@ -35,8 +35,13 @@ function getmover(mouse) {
             dy = yy - mouse.y;
             var ref = Math.sqrt(dx * dx + dy * dy);
             dist = ref - rad.value.real;
-            dx = 0;
-            dy = 0;
+
+            var length = Math.sqrt(dx * dx + dy * dy);
+            if (length > 0) {
+                dx = dx - dx / length * rad.value.real; //(dx, dy) is based on the to mouse projected on the circle
+                dy = dy - dy / length * rad.value.real;
+            }
+
             if (dist < 0) {
                 dist = -dist;
             }

@@ -19,7 +19,7 @@ var cdy = CindyJS({
   angleUnit: "°",
   geometry: [
     {name: "A", type: "Free", pos: [4.0, -0.26373626373626374, 1.0989010989010988], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "C0", narrow: true, type: "CircleByRadius", pos: {xx: -0.050370728562217935, yy: -0.050370728562217935, zz: 1.0, xy: 0.0, xz: 0.3666989039329466, yz: 0.02417794970986461}, color: [0.0, 0.0, 1.0], radius: 5.758472019555187, args: ["A"], printname: "$C_{0}$"},
+    {name: "C0", type: "CircleByRadius", pos: {xx: -0.050370728562217935, yy: -0.050370728562217935, zz: 1.0, xy: 0.0, xz: 0.3666989039329466, yz: 0.02417794970986461}, color: [0.0, 0.0, 1.0], radius: 5.758472019555187, args: ["A"], printname: "$C_{0}$"},
     {name: "B", type: "PointOnCircle", pos: [4.0, {r: -0.051103549338784506, i: -6.332738291533889E-18}, {r: 0.4256576760067057, i: -1.4043210009419717E-20}], color: [1.0, 0.0, 0.0], args: ["C0"], labeled: true},
     {name: "C1", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["B", "A"], printname: "$C_{1}$"},
     {name: "Collection__1", type: "IntersectionCircleCircle", args: ["C0", "C1"]},
