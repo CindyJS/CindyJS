@@ -3141,8 +3141,10 @@ geoOps.EditableText.initialize = function(el) {
     if (typeof el.text === "string")
         textbox.value = el.text;
     textbox.addEventListener("keydown", function(event) {
-        if (event.keyCode === 13)
+        if (event.keyCode === 13) {
+            el.text = el.html.value;
             textbox.blur();
+        }
     });
     commonButton(el, "change", textbox);
 };
