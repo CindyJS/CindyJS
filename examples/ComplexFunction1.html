@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>ComplexFunction1.cdy</title>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+sc=false;
+sx=false;
+sy=false;
+
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+e=exp(1);
+
+n=|B.xy|;
+if(n>0.9 & n<1.1 & (!sx) & (!sy),B.xy=B.xy/n;sc=true;sx=false;sy=false,sc=false);
+if(B.y<.1 & B.y>-0.1 & (!sc)& (!sx),B.y=0;sy=true;sx=false;sc=false,sy=false);
+if(B.x<.1 & B.x>-0.1 & (!sc)& (!sy),B.x=0;sx=true;sy=false;sc=false,sx=false);
+
+
+f(z):=parse(Text0.val);
+C.xy=gauss(f(complex(B.xy)));
+
+;
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [0.0, -0.0, 4.0], color: [0.0, 0.0, 0.0], alpha: 0.8999999761581421, pinned: true, size: 2.0},
+    {name: "B", type: "Free", pos: [4.0, 2.4210526315789473, 3.6105263157894734], color: [1.0, 0.0, 0.0], alpha: 0.8999999761581421, labeled: true, textsize: 17.0, size: 1.0, printname: "z"},
+    {name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "B"], alpha: 0.8999999761581421, size: 3, arrowshape: "jet", arrowsides: "==>", arrowsize: 1.0, arrowposition: 1.0},
+    {name: "C", type: "Free", pos: [-2.0938215102974835, -4.0, -2.6921967963386724], color: [1.0, 0.0, 0.0], alpha: 0.8999999761581421, labeled: true, textsize: 17.0, size: 1.0, printname: "f(z)"},
+    {name: "b", type: "Segment", color: [0.757, 0.0, 0.0], args: ["A", "C"], alpha: 0.8999999761581421, size: 3, arrowshape: "jet", arrowsides: "==>", arrowsize: 1.0, arrowposition: 1.0},
+    {name: "Text0", type: "EditableText", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 0.784, 0.0], fillalpha: 0.5, alpha: 0.8999999761581421, minwidth: 300, text: "z^2", textsize: 21.0, dock: {corner: "UL", offset: [66.0, -40.0]}},
+    {name: "C0", type: "CircleByRadius", pos: {xx: 1.0, yy: 1.0, zz: -0.99639606, xy: 0.0, xz: -0.0, yz: -0.0}, color: [0.0, 0.0, 1.0], radius: 0.9981964035198685, args: ["A"], alpha: 0.8999999761581421},
+    {name: "Text2", type: "Text", color: [0.0, 0.0, 0.0], alpha: 0.8999999761581421, text: "f(z)=", textsize: 20.0, dock: {corner: "UL", offset: [10.0, -40.0]}},
+    {name: "Text1", type: "Text", color: [0.0, 0.0, 0.0], fillcolor: [0.98, 1.0, 0.62], fillalpha: 0.6000000238418579, alpha: 0.8999999761581421, text: "Der Punkt z ist bewegbar. \nMan kann das Verhalten \nvon f(z) beobachten.\n\nf(z) kann frei editiert werden.", textsize: 14.0, dock: {corner: "UL", offset: [10.0, -100.0]}}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 665,
+    height: 476,
+    transform: [{visibleRect: [-4.905247813411079, 3.8265306122448983, 4.788629737609329, -3.112244897959184]}],
+    axes: true,
+    grid: 1.0,
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
