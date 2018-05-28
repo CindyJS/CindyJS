@@ -724,7 +724,7 @@ module.exports = function build(settings, task) {
     // Copy things which constitute a release
     //////////////////////////////////////////////////////////////////////
 
-    task("deploy", ["all", "closure"], function() {
+    task("deploy", ["all", "ComplexCurves", "closure"], function() {
         this.delete("build/deploy");
         this.mkdir("build/deploy");
         this.node("tools/prepare-deploy.js", {
@@ -760,7 +760,6 @@ module.exports = function build(settings, task) {
         "xlibs",
         "images",
         "sass",
-        "ComplexCurves",
         "symbolic"
     ].concat(gwt_modules));
 
