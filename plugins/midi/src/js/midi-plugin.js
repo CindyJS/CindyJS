@@ -3,8 +3,9 @@ CindyJS.registerPlugin(1, "midi", function(api) {
     "use strict";
 
     //var soundfont = CindyJS.getBaseDir() + "soundfont/";
-    //var soundfont = "http://cindyjs.org/extras/midi-js-soundfonts/MusyngKite/"; //does not have percussion-ogg.js 
-    var soundfont = "http://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/"; //we would like to have that on cindyjs.org
+    //var soundfont = "http://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/";
+    var soundfont = "http://cindyjs.org/extras/midi-js-soundfonts/MusyngKite/";
+    
     
     console.log(soundfont);
 
