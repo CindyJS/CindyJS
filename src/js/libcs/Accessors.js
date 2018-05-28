@@ -135,12 +135,6 @@ Accessor.getField = function(geo, field) {
         if (field === "y") {
             return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
         }
-        if (field === "val" || field === "text") {
-            return General.string(String(geo.text));
-        }
-        if (field === "currenttext") {
-            return General.string(String(geo.html.value));
-        }
     }
     if (field === "trace") {
         return General.bool(!!geo.drawtrace);
