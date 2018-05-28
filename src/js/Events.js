@@ -27,23 +27,30 @@ function getmover(mouse) {
                     el.narrow : 20) / sc)
                 continue;
         } else if (el.kind === "C") { //Must be CircleMr
-            var mid = csgeo.csnames[el.args[0]];
+            var normalizedmid = List.normalizeZ(csgeo.csnames[el.args[0]].homog);
             var rad = el.radius;
-            var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
-            var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
-            dx = xx - mouse.x;
-            dy = yy - mouse.y;
-            var ref = Math.sqrt(dx * dx + dy * dy);
-            dist = ref - rad.value.real;
 
-            if (ref > 0) {
-                dx = dx - dx / ref * rad.value.real; //(dx, dy) is based on the to mouse projected on the circle
-                dy = dy - dy / ref * rad.value.real;
-            }
+            if (!List._helper.isAlmostReal(normalizedmid) || !CSNumber._helper.isAlmostReal(rad))
+                continue;
 
-            if (dist < 0) {
-                dist = -dist;
-            }
+            var midx = normalizedmid.value[0].value.real; //center of circle
+            var midy = normalizedmid.value[1].value.real;
+
+            var vx = mouse.x - midx; //vector from center to mouse
+            var vy = mouse.y - midy;
+
+            var vlength = Math.sqrt(vx * vx + vy * vy);
+            if (vlength === 0)
+                continue;
+
+            var refx = midx + vx / vlength * rad.value.real; //reference point: the to mouse projected on the circle
+            var refy = midy + vy / vlength * rad.value.real;
+
+            dx = refx - mouse.x; //vector from mouse to reference point
+            dy = refy - mouse.y;
+
+            dist = Math.sqrt(dx * dx + dy * dy);
+
             dist = dist + 30 / sc;
 
             if (el.narrow && dist > ((typeof el.narrow === "number" ?
