@@ -3142,6 +3142,7 @@ geoOps.EditableText.initialize = function(el) {
         textbox.value = el.text;
     textbox.addEventListener("keydown", function(event) {
         if (event.keyCode === 13) {
+            el.text = el.html.value;
             textbox.blur();
         }
     });
@@ -3157,13 +3158,20 @@ geoOps.EditableText.set_fillcolor = geoOps.Button.set_fillcolor;
 geoOps.EditableText.get_currenttext = function(el) {
     return General.string(String(el.html.value));
 };
-geoOps.EditableText.set_currenttext = function(el, value) {
-    el.html.value = niceprint(value);
+
+geoOps.EditableText.get_text = function(el) {
+    return General.string(String(el.text));
 };
-geoOps.EditableText.get_text = geoOps.EditableText.get_currenttext;
+
+geoOps.EditableText.set_currenttext = function(el, value) {
+    el.html.value = el.text = niceprint(value);
+};
+geoOps.EditableText.get_text = geoOps.EditableText.get_text;
 geoOps.EditableText.set_text = geoOps.EditableText.set_currenttext;
-geoOps.EditableText.get_val = geoOps.EditableText.get_currenttext;
+geoOps.EditableText.get_val = geoOps.EditableText.get_text;
 geoOps.EditableText.set_val = geoOps.EditableText.set_currenttext;
+geoOps.EditableText.get_currenttext = geoOps.EditableText.get_currenttext;
+geoOps.EditableText.set_currenttext = geoOps.EditableText.set_currenttext;
 
 function noop() {}
 
