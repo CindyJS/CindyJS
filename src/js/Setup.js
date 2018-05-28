@@ -73,7 +73,6 @@ function evalcs(a) {
 
 function evokeCS(code) {
     var parsed = analyse(code, false);
-    console.log(parsed);
     evaluate(parsed);
     scheduleUpdate();
 }
@@ -679,8 +678,8 @@ function doneLoadingModule(skipInit) {
     if (--modulesToLoad !== 0)
         return;
 
-    //Evaluate Init script
     if (!skipInit) {
+        //Evaluate Init script
         evaluate(cscompiled.init);
 
         if ((instanceInvocationArguments.animation ||
@@ -689,7 +688,7 @@ function doneLoadingModule(skipInit) {
 
         if (globalInstance.canvas)
             setuplisteners(globalInstance.canvas, instanceInvocationArguments);
-    }
+    } else scheduleUpdate();
 }
 
 var backup = null;
