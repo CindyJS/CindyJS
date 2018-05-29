@@ -512,10 +512,10 @@ webgl["random"] = first([
         [], type.float, useincludefunction('random')
     ],
     [
-        [type.float], type.float, (a, cb) => (`${useincludefunction('random')([], cb)}*${a[0]}`)
+        [type.float], type.float, (a, modifs, cb) => (`${useincludefunction('random')([], modifs, cb)}*${a[0]}`)
     ],
     [
-        [type.complex], type.complex, (a, cb) => (`vec2(${useincludefunction('random')([], cb)},${useincludefunction('random')([], cb)})*${a[0]}`)
+        [type.complex], type.complex, (a, modifs, cb) => (`vec2(${useincludefunction('random')([], modifs, cb)},${useincludefunction('random')([], modifs, cb)})*${a[0]}`)
     ]
 
 ]);
