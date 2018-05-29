@@ -539,7 +539,7 @@ webgl["randombool"] = first([
 
 webgl["randomnormal"] = first([
     [
-        [], type.float, (a, modifs, cb) => (`(sqrt(-2. * log(${useincludefunction('random')([], modifs, cb)})) * cos(6.283185307179586 * ${useincludefunction('random')([], modifs, cb)}))`)
+        [], type.float, useincludefunction('randomnormal')
     ]
 ]);
 
@@ -761,6 +761,7 @@ requires['arctanc'] = ['logc', 'addc', 'multc', 'subc'];
 requires['arctan2c'] = ['logc', 'divc', 'sqrtc', 'multc'];
 requires['arctan2vec2c'] = ['arctan2c'];
 requires['hue'] = ['hsv2rgb'];
+requires['randomnormal'] = ['random'];
 
 
 Object.freeze(requires);
