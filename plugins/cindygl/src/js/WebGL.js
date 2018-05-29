@@ -537,6 +537,12 @@ webgl["randombool"] = first([
     ]
 ]);
 
+webgl["randomnormal"] = first([
+    [
+        [], type.float, (a, modifs, cb) => (`(sqrt(-2. * log(${useincludefunction('random')([], modifs, cb)})) * cos(6.283185307179586 * ${useincludefunction('random')([], modifs, cb)}))`)
+    ]
+]);
+
 webgl['arctan2'] = first([
     [
         [type.float, type.float], type.float, args => (`atan(${args[1]}, ${args[0]})`) //reverse order

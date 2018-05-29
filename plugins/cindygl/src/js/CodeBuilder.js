@@ -390,6 +390,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             'randomint',
             'randominteger',
             'randombool',
+            'randomnormal',
             'verbatimglsl' //we dont analyse verbatimglsl functions
         ];
         if (expr['ctype'] === 'function' && alwaysPixelDependent.indexOf(getPlainName(expr['oper'])) != -1) {
