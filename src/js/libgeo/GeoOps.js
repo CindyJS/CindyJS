@@ -3146,6 +3146,9 @@ geoOps.EditableText.initialize = function(el) {
             textbox.blur();
         }
     });
+    textbox.addEventListener("change", function(event) {
+        el.text = el.html.value;
+    });
     commonButton(el, "change", textbox);
 };
 geoOps.EditableText.getText = function(el) {
