@@ -11,6 +11,8 @@ Together, these components make it very easy to visualize various
 concepts, from geometry in particular and mathematics in general,
 but also from various other fields.
 
+See also our [project page](https://cindyjs.org).
+
 ## Examples
 
 Examples on the web can be seen [here](https://cindyjs.org/gallery/main/).
