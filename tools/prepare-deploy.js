@@ -41,10 +41,13 @@ var handlers = {
     "images": true,
     "katex": true,
     "katex-plugin.js": true,
+    "midi": true,
+    "midi-plugin.js": true,
     "ours.js": false,
     "ours.js.map": false,
     "pako.min.js": true,
     "quickhull3d": true,
+    "soundfonts": true,
     "symbolic.js": true,
     "webfont.js": true,
 };

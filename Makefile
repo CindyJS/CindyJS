@@ -119,6 +119,7 @@ fwdtargets = \
 	nodetest \
 	proxy \
 	ref \
+	soundfonts \
 	symbolic \
 	tests \
 	textattr \
