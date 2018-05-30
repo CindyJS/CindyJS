@@ -512,14 +512,36 @@ webgl["random"] = first([
         [], type.float, useincludefunction('random')
     ],
     [
-        [type.float], type.float, (a, cb) => (`${useincludefunction('random')([], cb)}*${a[0]}`)
+        [type.float], type.float, (a, modifs, cb) => (`${useincludefunction('random')([], modifs, cb)}*${a[0]}`)
     ],
     [
-        [type.complex], type.complex, (a, cb) => (`vec2(${useincludefunction('random')([], cb)},${useincludefunction('random')([], cb)})*${a[0]}`)
+        [type.complex], type.complex, (a, modifs, cb) => (`vec2(${useincludefunction('random')([], modifs, cb)},${useincludefunction('random')([], modifs, cb)})*${a[0]}`)
     ]
 
 ]);
 
+webgl["randomint"] = first([
+    [
+        [type.int], type.int, (a, modifs, cb) => (`int(floor(${useincludefunction('random')([], modifs, cb)}*float(${a[0]})))`)
+    ],
+    [
+        [type.float], type.int, (a, modifs, cb) => (`int(floor(${useincludefunction('random')([], modifs, cb)}*floor(${a[0]})))`)
+    ]
+]);
+
+webgl["randominteger"] = webgl["randomint"];
+
+webgl["randombool"] = first([
+    [
+        [], type.bool, (a, modifs, cb) => (`(${useincludefunction('random')([], modifs, cb)}>.5)`)
+    ]
+]);
+
+webgl["randomnormal"] = first([
+    [
+        [], type.float, useincludefunction('randomnormal')
+    ]
+]);
 
 webgl['arctan2'] = first([
     [
@@ -739,6 +761,7 @@ requires['arctanc'] = ['logc', 'addc', 'multc', 'subc'];
 requires['arctan2c'] = ['logc', 'divc', 'sqrtc', 'multc'];
 requires['arctan2vec2c'] = ['arctan2c'];
 requires['hue'] = ['hsv2rgb'];
+requires['randomnormal'] = ['random'];
 
 
 Object.freeze(requires);

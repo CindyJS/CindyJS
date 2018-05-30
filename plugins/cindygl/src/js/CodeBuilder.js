@@ -387,6 +387,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 
         let alwaysPixelDependent = [ //Operators that are supposed to be interpreted as pixel dependent;
             'random', //our random function is dependent on pixel!
+            'randomint',
+            'randominteger',
+            'randombool',
+            'randomnormal',
             'verbatimglsl' //we dont analyse verbatimglsl functions
         ];
         if (expr['ctype'] === 'function' && alwaysPixelDependent.indexOf(getPlainName(expr['oper'])) != -1) {
