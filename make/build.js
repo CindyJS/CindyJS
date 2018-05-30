@@ -9,6 +9,8 @@ var qfs = require("q-io/fs");
 var getversion = require("./getversion");
 var src = require("./sources");
 
+var soundfonts = require("./soundfonts");
+
 module.exports = function build(settings, task) {
 
     function jsCompiler() {
@@ -702,7 +704,7 @@ module.exports = function build(settings, task) {
     
     task("soundfonts.get", [], function() {
         this.download(
-            "https://github.com/gleitz/midi-js-soundfonts/archive/gh-pages.zip",
+            soundfonts.url,
             "download/arch/midi-js-soundfonts.zip"
         );
     });
@@ -711,18 +713,18 @@ module.exports = function build(settings, task) {
         //this.delete("download/midi-js-soundfonts");
         this.unzip(
             "download/arch/midi-js-soundfonts.zip",
-            "download/midi-js-soundfonts"
+            "download/midi-js-soundfonts",
+            soundfonts.files.map(function(file){
+              return soundfonts.basepath + file
+            })
         );
     });
     
     task("soundfonts", ["soundfonts.unzip"], function() {
-      var files = glob.sync("download/midi-js-soundfonts/midi-js-soundfonts-gh-pages/MusyngKite/*.js")
-        .concat("download/midi-js-soundfonts/midi-js-soundfonts-gh-pages/LICENSE.txt")
-        .concat( glob.sync("download/midi-js-soundfonts/midi-js-soundfonts-gh-pages/FluidR3_GM/percussion*.js"));
-        
+
       this.parallel(function() {
-          files.forEach(function(input) {
-              this.copy(input, path.join("build", "js", "soundfonts", path.basename(input)));
+          soundfonts.files.forEach(function(file) {
+              this.copy("download/midi-js-soundfonts/" + soundfonts.basepath + file, path.join("build", "js", "soundfonts", path.basename(file)));
           }, this);
       });
 
@@ -813,7 +815,6 @@ module.exports = function build(settings, task) {
         "xlibs",
         "images",
         "sass",
-        "ComplexCurves",
         "symbolic"
     ].concat(gwt_modules));
 

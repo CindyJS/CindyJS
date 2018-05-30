@@ -47,6 +47,7 @@ var handlers = {
     "ours.js.map": false,
     "pako.min.js": true,
     "quickhull3d": true,
+    "soundfonts": true,
     "symbolic.js": true,
     "webfont.js": true,
 };
