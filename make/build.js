@@ -695,6 +695,38 @@ module.exports = function build(settings, task) {
     });
 
     task("midi", ["midi_src", "midi-plugin"]);
+    
+    //////////////////////////////////////////////////////////////////////
+    // Download the soundfonts
+    //////////////////////////////////////////////////////////////////////
+    
+    task("soundfonts.get", [], function() {
+        this.download(
+            "https://github.com/gleitz/midi-js-soundfonts/archive/gh-pages.zip",
+            "download/arch/midi-js-soundfonts.zip"
+        );
+    });
+
+    task("soundfonts.unzip", ["soundfonts.get"], function() {
+        //this.delete("download/midi-js-soundfonts");
+        this.unzip(
+            "download/arch/midi-js-soundfonts.zip",
+            "download/midi-js-soundfonts"
+        );
+    });
+    
+    task("soundfonts", ["soundfonts.unzip"], function() {
+      var files = glob.sync("download/midi-js-soundfonts/midi-js-soundfonts-gh-pages/MusyngKite/*.js")
+        .concat("download/midi-js-soundfonts/midi-js-soundfonts-gh-pages/LICENSE.txt")
+        .concat( glob.sync("download/midi-js-soundfonts/midi-js-soundfonts-gh-pages/FluidR3_GM/percussion*.js"));
+        
+      this.parallel(function() {
+          files.forEach(function(input) {
+              this.copy(input, path.join("build", "js", "soundfonts", path.basename(input)));
+          }, this);
+      });
+
+    });
 
     //////////////////////////////////////////////////////////////////////
     // Compile SASS to CSS
@@ -744,7 +776,7 @@ module.exports = function build(settings, task) {
     // Copy things which constitute a release
     //////////////////////////////////////////////////////////////////////
 
-    task("deploy", ["all", "ComplexCurves", "closure"], function() {
+    task("deploy", ["all", "ComplexCurves", "soundfonts", "closure"], function() {
         this.delete("build/deploy");
         this.mkdir("build/deploy");
         this.node("tools/prepare-deploy.js", {
@@ -781,6 +813,7 @@ module.exports = function build(settings, task) {
         "xlibs",
         "images",
         "sass",
+        "ComplexCurves",
         "symbolic"
     ].concat(gwt_modules));
 
