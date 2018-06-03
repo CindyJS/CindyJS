@@ -2,11 +2,6 @@ uniform float rnd_;
 
 float last_rnd = .1231;
 float random() {
-  float a = fract(sin(mod(dot(plain_pixel,           vec2(12.9898,78.233) ), 3.1415)) * 43758.5453);
-  float b = fract(sin(mod(dot(plain_pixel, 12345.678*vec2(last_rnd, rnd_) ), 3.1415)) * 21231.1231221);
-  float c = rnd_+last_rnd;
-  last_rnd = fract(a+b+c);
+  last_rnd = fract(rnd_+fract(132422.21*sin(dot(plain_pixel, 343433.671228*vec2(.176574+last_rnd, .1131+rnd_)))));
   return last_rnd;
-  
-  //return mod(a+b+rnd_, 1.);
 }
