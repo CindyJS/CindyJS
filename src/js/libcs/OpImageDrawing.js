@@ -159,9 +159,6 @@ evaluator.drawimage$2 = function(args, modifs) {
         var sc = Math.sqrt(xx1 * xx1 + yy1 * yy1) / Math.sqrt(ixx1 * ixx1 + iyy1 * iyy1);
         var ang = -Math.atan2(xx1, yy1) + Math.atan2(ixx1, iyy1);
 
-        var viewScale = csport.drawingstate.matrix.sdet / 72;
-        scax *= viewScale;
-        scay *= viewScale;
 
         if (alpha !== 1)
             csctx.globalAlpha = alpha;
