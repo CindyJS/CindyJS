@@ -181,9 +181,6 @@ Accessor.getField = function(geo, field) {
         if (field === "f" && geo.behavior.type === "Mass") {
             return List.realVector([geo.behavior.fx, geo.behavior.fy]);
         }
-        if (field === "ldiff" && geo.behavior.type === "Spring") {
-            return CSNumber.real(geo.behavior.ldiff);
-        }
 
     }
     var getter = geoOps[geo.type]["get_" + field];

@@ -654,7 +654,7 @@ labObjects.Spring = {
             beh.l0 = (Math.sqrt((pta.x - ptb.x) * (pta.x - ptb.x) + (pta.y - ptb.y) * (pta.y - ptb.y)));
         }
         beh.env = labObjects.env; //TODO Environment
-        beh.ldiff = 0;
+
 
     },
 
@@ -695,7 +695,6 @@ labObjects.Spring = {
         var l = (Math.sqrt((xa - xb) * (xa - xb) + (ya - yb) * (ya - yb)));
 
         var lact = beh.l0; //TODO Motor
-        beh.ldiff = l - lact;
         var mytype = beh.stype;
 
         if (mytype === 1) {
