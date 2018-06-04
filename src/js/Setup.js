@@ -5,46 +5,8 @@ var cslib;
 
 var cscompiled = {};
 
-// Simulation settings
 var csanimating = false;
 var csstopped = true;
-var simtime = 0; // accumulated simulation time since start
-var simspeed = 0.5; // global speed setting, will get scaled for applications
-var simcap = 1000 / 20; // max. ms between frames for fps-independent sim
-var simtick = 0; // Date.now of the most recent simulation tick
-var simaccuracy = 10; // number of sub-steps per frame
-
-var simunit = 5 / 360; // reported simulationtime() per internal simtime unit
-/* Cinderella has a factor 5 for its internal animation clock,
- * and the division by 360 is in the simulationtime function implementation.
- */
-
-// internal simtime units per millisecond at simspeed 1
-var simfactor = 0.32 / simunit / 1000 * 2;
-/*              ^^^^ simulationtime per second, observed in Cinderella
- *                     ^^^^^^^ simulationtime per simtime unit
- *                               ^^^^ milliseconds per second
- *                                      ^ default accuracy factor
- *
- * Cinderella does timing different from CindyJS, so here are some notes.
- * The default in Cinderella is speed=1.0, accuracy=2, frames=1 in its terms,
- * which in CindyJS terminology would mean speed=0.5, accuracy=1.
- * It schedules animation frames with 20ms between, so the actual framerate
- * depends on the time each such frame takes to compute.
- * The step in simulated time for each such job is computed in Cinderella
- * as speed * 2^(frames - accuracy), so it's 0.5 units by default.
- * This amount is internal only; the simulationtime() divides the accumulated
- * time by 360.  Using its output, one can observe the amount of simulated
- * time for each second of wall time.  It will vary with hardware, but
- * on current desktops was observed to be close to 0.32 per second,
- * corresponding to 23.04ms between consecutive frames on average.
- * So that's where all the magic values in the simfactor computation come from.
- *
- * Should these values (simunit and simfactor) be different for widgets
- * which were not exported from Cinderella? (gagern, 2016-09-02)
- */
-
-// Coordinate system settings
 var csscale = 1;
 var csgridsize = 0;
 var cstgrid = 0;
@@ -479,13 +441,6 @@ function setupAnimControls() {
     setupAnimButton("stop", csstop);
     animcontrols.stop(true);
 
-    setSpeedKnob = function(speed) {
-        speed = (speed - speedLo) / speedScale;
-        speed = Math.max(0, Math.min(1, speed));
-        speed = Math.round(speed * 1000) * 0.1; // avoid scientific notation
-        knob.style.width = speed + "%";
-    };
-
     function setupAnimButton(id, ctrl) {
         var button = document.createElement("button");
         var img = document.createElement("img");
@@ -500,32 +455,6 @@ function setupAnimControls() {
             else button.classList.remove("CindyJS-active");
         }
     }
-
-    var speedDragging = false;
-
-    function speedDown(event) {
-        speedDragging = true;
-        speedDrag(event);
-    }
-
-    function speedDrag(event) {
-        if (!speedDragging) return;
-        var rect = slider.getBoundingClientRect();
-        var x = event.clientX - rect.left - slider.clientLeft + 0.5;
-        setSpeed(speedScale * x / rect.width + speedLo);
-    }
-
-    function speedUp(event) {
-        speedDragging = false;
-    }
-
-}
-
-var setSpeedKnob = null;
-
-function setSpeed(speed) {
-    simspeed = speed;
-    if (setSpeedKnob) setSpeedKnob(speed);
 }
 
 /* Install layer ‹id› of Icons.svg as the src of the given img element.
@@ -709,13 +638,11 @@ function csplay() {
     if (!csanimating) { // stop or pause state
         if (csstopped) { // stop state
             backupGeo();
-            simtime = 0;
             csstopped = false;
             animcontrols.stop(false);
         } else {
             animcontrols.pause(false);
         }
-        simtick = Date.now();
         animcontrols.play(true);
         if (typeof csinitphys === 'function') {
             if (csPhysicsInited) {
