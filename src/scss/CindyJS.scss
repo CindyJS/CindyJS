@@ -100,11 +100,6 @@ $focused-shadow: 0px 0px 3px #06f;
         }
     }
 
-    .CindyJS-animspeed {
-        position: relative;
-        z-index: 3;
-    }
-
     .CindyJS-animcontrols {
         bottom: 5px;
         left: 5px;
@@ -171,39 +166,10 @@ $focused-shadow: 0px 0px 3px #06f;
 } // end toolbar
 
 .CindyJS-animcontrols {
-    position: absolute;
-    background-color: #00f;
-    height: 26px + 10px;
-    width: 3*34px;
-
-    .CindyJS-animspeed {
-        height: 10px;
-        width: 100%;
-        border-radius: 4px;
-        background-color: #ff7f7f;
-        box-shadow: $checked-shadow;
-
-        div {
-            width: 50%;
-            height: 100%;
-            border-radius: 4px;
-            background-color: #cc0000;
-            box-shadow: $button-shadow;
-        }
-    }
-
-    .CindyJS-animbuttons {
-        white-space: nowrap;
-    }
-} // end animcontrols
-
-.CindyJS-animbuttons {
     @extend %toggleButtonGrid;
 
     button {
         border-radius: 4px;
-        width: 34px;
-        height: 26px;
-        box-sizing: border-box;
     }
-} // end animbuttons
+
+} // end animcontrols

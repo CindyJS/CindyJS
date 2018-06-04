@@ -106,11 +106,10 @@ function csinitphys(behavs) {
 }
 
 
-lab.tick = function(deltat) {
-    deltat = deltat / simaccuracy;
-    for (var i = 0; i < simaccuracy; i++) {
-        lab.tick1(deltat);
-        simtime += deltat;
+lab.tick = function() {
+
+    for (var i = 0; i < labObjects.env.accuracy; i++) {
+        lab.tick1(labObjects.env.deltat / labObjects.env.accuracy);
         cs_simulationstep();
     }
 };

@@ -7,6 +7,27 @@ evaluator.version$0 = function(args, modifs) {
     return List.turnIntoCSList(ver.map(General.wrap));
 };
 
+evaluator.timestamp$0 = function(args, modifs) {
+    return {
+        "ctype": "number",
+        "value": {
+            "real": new Date().getTime(),
+            "imag": 0
+        }
+    };
+};
+
+evaluator.seconds$0 = function(args, modifs) { //OK
+    return {
+        "ctype": "number",
+        "value": {
+            'real': (new Date().getTime() / 1000),
+            'imag': 0
+        }
+    };
+};
+
+
 evaluator.clearconsole$0 = function(args, modifs) {
     csconsole.clear();
 };
@@ -4252,12 +4273,14 @@ if (!Date.now) Date.now = function() {
 };
 var epoch = 0;
 
-evaluator.timestamp$0 = function(args, modifs) {
-    return CSNumber.real(Date.now());
-};
-
 evaluator.seconds$0 = function(args, modifs) { //OK
-    return CSNumber.real((Date.now() - epoch) / 1000);
+    return {
+        "ctype": "number",
+        "value": {
+            'real': ((Date.now() - epoch) / 1000),
+            'imag': 0
+        }
+    };
 };
 
 evaluator.resetclock$0 = function(args, modifs) {
@@ -4278,10 +4301,6 @@ evaluator.date$0 = function(args, modifs) {
     return List.realVector([
         now.getFullYear(), now.getMonth() + 1, now.getDate()
     ]);
-};
-
-evaluator.simulationtime$0 = function(args, modifs) {
-    return CSNumber.real(simtime * simunit);
 };
 
 evaluator.settimeout$2 = function(args, modifs) {
@@ -4613,16 +4632,18 @@ evaluator.compileToWebGL$1 = function(args, modifs) {
 };
 
 
-/************************************/
-/**********    PHYSICS    ***********/
-/************************************/
+/***********************************/
+/**********    PHYSIC    ***********/
+/***********************************/
 
 
 evaluator.setsimulationspeed$1 = function(args, modifs) {
 
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'number') {
-        setSpeed(v0.value.real);
+        if (typeof(labObjects) !== "undefined" && typeof(labObjects.env) !== "undefined") {
+            labObjects.env.deltat = v0.value.real;
+        }
     }
     return nada;
 };
@@ -4632,7 +4653,7 @@ evaluator.setsimulationaccuracy$1 = function(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === 'number') {
         if (typeof(labObjects) !== "undefined" && typeof(labObjects.env) !== "undefined") {
-            labObjects.env.accuracy = Math.max(1, v0.value.real | 0);
+            labObjects.env.accuracy = v0.value.real;
         }
     }
     return nada;

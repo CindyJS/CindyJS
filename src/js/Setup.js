@@ -73,6 +73,7 @@ function evalcs(a) {
 
 function evokeCS(code) {
     var parsed = analyse(code, false);
+    console.log(parsed);
     evaluate(parsed);
     scheduleUpdate();
 }
@@ -266,16 +267,7 @@ function createCindyNow() {
         if (!csctx.setLineDash)
             csctx.setLineDash = function() {};
         if (data.animation ? data.animation.controls : data.animcontrols)
-            setupAnimControls(data);
-        if (data.animation && isFiniteNumber(data.animation.speed)) {
-            if (data.animation.accuracy === undefined &&
-                isCinderellaBeforeVersion(2, 9, 1875))
-                setSpeed(data.animation.speed * 0.5);
-            else
-                setSpeed(data.animation.speed);
-        }
-        if (data.animation && isFiniteNumber(data.animation.accuracy))
-            simaccuracy = data.animation.accuracy;
+            setupAnimControls();
     }
     if (data.statusbar) {
         if (typeof data.statusbar === "string") {
@@ -292,8 +284,8 @@ function createCindyNow() {
         "init", "tick", "draw",
         "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
-    var scriptconf = data.scripts;
-    var scriptpat = null;
+    var scriptconf = data.scripts,
+        scriptpat = null;
     if (typeof scriptconf === "string" && scriptconf.search(/\*/))
         scriptpat = scriptconf;
     if (typeof scriptconf !== "object")
@@ -323,7 +315,7 @@ function createCindyNow() {
                 cscode.message
             );
         } else {
-            cscompiled[s] = labelCode(cscode, s);
+            cscompiled[s] = cscode;
         }
     });
     if (isCinderellaBeforeVersion(2, 9, 1888) && !cscompiled.keydown) {
@@ -478,31 +470,10 @@ var animcontrols = {
     stop: noop
 };
 
-function setupAnimControls(data) {
-    var controls = document.createElement("div");
-    controls.className = "CindyJS-animcontrols";
-    canvas.parentNode.appendChild(controls);
-    var speedLo = 0;
-    var speedHi = 1;
-    var speedScale = 1;
-    if (data.animation && data.animation.speedRange &&
-        isFiniteNumber(data.animation.speedRange[0]) &&
-        isFiniteNumber(data.animation.speedRange[1])) {
-        speedLo = data.animation.speedRange[0];
-        speedHi = data.animation.speedRange[1];
-        speedScale = speedHi - speedLo;
-    }
-    var slider = document.createElement("div");
-    slider.className = "CindyJS-animspeed";
-    controls.appendChild(slider);
-    var knob = document.createElement("div");
-    slider.appendChild(knob);
-    addAutoCleaningEventListener(slider, "mousedown", speedDown);
-    addAutoCleaningEventListener(slider, "mousemove", speedDrag);
-    addAutoCleaningEventListener(canvas.parentNode, "mouseup", speedUp, true);
-    var buttons = document.createElement("div");
-    buttons.className = "CindyJS-animbuttons";
-    controls.appendChild(buttons);
+function setupAnimControls() {
+    var animContainer = document.createElement("div");
+    animContainer.className = "CindyJS-animcontrols";
+    canvas.parentNode.appendChild(animContainer);
     setupAnimButton("play", csplay);
     setupAnimButton("pause", cspause);
     setupAnimButton("stop", csstop);
@@ -519,7 +490,7 @@ function setupAnimControls(data) {
         var button = document.createElement("button");
         var img = document.createElement("img");
         button.appendChild(img);
-        buttons.appendChild(button);
+        animContainer.appendChild(button);
         loadSvgIcon(img, id);
         button.addEventListener("click", ctrl);
         animcontrols[id] = setActive;
