@@ -11,7 +11,7 @@
 
 	<body style="font-family:Arial;">
 
-        <h1>Fish Swarm</h1>
+        <h1>CindyJS: First Physics</h1>
 
 
                <script id='init' type='text/x-cindyscript'>
@@ -44,8 +44,8 @@ forall(pts,p,
 nn=length(pts);
 forall(1..nn,p=pts_#;
 ang=arctan2(p.vx,-p.vy);
-drawimage(p,"fishr",angle->ang,scale->sizes_#,alpha->colors_#);
-drawimage(p,"fishb",angle->ang,scale->sizes_#,alpha->1-colors_#);
+drawimage(p,"fishr",angle->ang,scale->sizes_#*.3,alpha->colors_#);
+drawimage(p,"fishb",angle->ang,scale->sizes_#*.3,alpha->1-colors_#);
 
 
 );
