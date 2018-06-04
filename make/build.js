@@ -9,8 +9,6 @@ var qfs = require("q-io/fs");
 var getversion = require("./getversion");
 var src = require("./sources");
 
-var soundfonts = require("./soundfonts");
-
 module.exports = function build(settings, task) {
 
     function jsCompiler() {
@@ -679,58 +677,6 @@ module.exports = function build(settings, task) {
     task("katex", ["katex_src", "katex-plugin"]);
 
     //////////////////////////////////////////////////////////////////////
-    // Copy MIDI to build directory
-    //////////////////////////////////////////////////////////////////////
-
-    var midi_src = glob.sync("lib/midi/*.*");
-
-    task("midi_src", [], function() {
-        this.parallel(function() {
-            midi_src.forEach(function(input) {
-                this.copy(input, path.join("build", "js", input.substr(4)));
-            }, this);
-        });
-    });
-
-    task("midi-plugin", [], function() {
-        this.copy("plugins/midi/src/js/midi-plugin.js", "build/js/midi-plugin.js");
-    });
-
-    task("midi", ["midi_src", "midi-plugin"]);
-    
-    //////////////////////////////////////////////////////////////////////
-    // Download the soundfonts
-    //////////////////////////////////////////////////////////////////////
-    
-    task("soundfonts.get", [], function() {
-        this.download(
-            soundfonts.url,
-            "download/arch/midi-js-soundfonts.zip"
-        );
-    });
-
-    task("soundfonts.unzip", ["soundfonts.get"], function() {
-        //this.delete("download/midi-js-soundfonts");
-        this.unzip(
-            "download/arch/midi-js-soundfonts.zip",
-            "download/midi-js-soundfonts",
-            soundfonts.files.map(function(file){
-              return soundfonts.basepath + file
-            })
-        );
-    });
-    
-    task("soundfonts", ["soundfonts.unzip"], function() {
-
-      this.parallel(function() {
-          soundfonts.files.forEach(function(file) {
-              this.copy("download/midi-js-soundfonts/" + soundfonts.basepath + file, path.join("build", "js", "soundfonts", path.basename(file)));
-          }, this);
-      });
-
-    });
-
-    //////////////////////////////////////////////////////////////////////
     // Compile SASS to CSS
     //////////////////////////////////////////////////////////////////////
 
@@ -778,7 +724,7 @@ module.exports = function build(settings, task) {
     // Copy things which constitute a release
     //////////////////////////////////////////////////////////////////////
 
-    task("deploy", ["all", "ComplexCurves", "soundfonts", "closure"], function() {
+    task("deploy", ["all", "ComplexCurves", "closure"], function() {
         this.delete("build/deploy");
         this.mkdir("build/deploy");
         this.node("tools/prepare-deploy.js", {
@@ -811,7 +757,6 @@ module.exports = function build(settings, task) {
         "cindygl",
         "quickhull3d",
         "katex",
-        "midi",
         "xlibs",
         "images",
         "sass",

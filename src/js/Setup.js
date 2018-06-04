@@ -644,9 +644,6 @@ function loadExtraModules() {
     if (usedFunctions.colorplot$1 || usedFunctions.colorplot$2 || usedFunctions.colorplot$3 || usedFunctions.colorplot$4) {
         loadExtraPlugin("CindyGL", "CindyGL.js");
     }
-    if (usedFunctions.playtone$1 || usedFunctions.playmelody$1) {
-        loadExtraPlugin("midi", "midi-plugin.js");
-    }
 }
 
 var modulesToLoad = 1;
