@@ -4024,7 +4024,10 @@ evaluator.createpoint$2 = function(args, modifs) {
         pos: pos
     };
 
-    return addElement(el);
+    return {
+        'ctype': 'geo',
+        'value': addElement(el)
+    };
 };
 
 evaluator.create$3 = function(args, modifs) {
@@ -4045,8 +4048,8 @@ evaluator.create$3 = function(args, modifs) {
         }).join("__"));
         el = evaluator.create$3([name, type, defs], modifs);
         if (el !== nada) {
-            type = General.string(el.kind.replace(/^(.*)s$/, "Select$1"));
-            defs = List.turnIntoCSList([General.string(el.name)]);
+            type = General.string(el.value.kind.replace(/^(.*)s$/, "Select$1"));
+            defs = List.turnIntoCSList([General.string(el.value.name)]);
             for (i = 0; i < names.value.length; ++i) {
                 evaluator.create$3([names.value[i], type, defs], {
                     index: CSNumber.real(i + 1)
@@ -4113,7 +4116,10 @@ evaluator.create$3 = function(args, modifs) {
     if (index.ctype === "number")
         el.index = index.value.real | 0;
 
-    return addElement(el);
+    return {
+        'ctype': 'geo',
+        'value': addElement(el)
+    };
 };
 
 ///////////////////////////////
