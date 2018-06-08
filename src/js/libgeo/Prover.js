@@ -1,5 +1,72 @@
 var conjectures = [];
 
+
+function guessDuplicate(el) {
+    if (guessDuplicate.hasOwnProperty(el.kind))
+        guessDuplicate[el.kind](el);
+}
+
+// check if point-point or line-line p/q are duplicates
+function duplicatePPLL(p, q) {
+    return {
+        getInvolved: function() {
+            return [p, q];
+        },
+        toString: function() {
+            var nameMap = {
+                "P": "point",
+                "L": "line"
+            };
+            return nameMap[p.kind] + " " + p.name + " is duplicate of " + q.name;
+        },
+        apply: markAsDuplicate(p, q),
+        holds: function() {
+            var pn = List.scaldiv(List.abs(p.homog), p.homog);
+            var qn = List.scaldiv(List.abs(q.homog), q.homog);
+            var norm = List.abs(List.cross(pn, qn));
+            return (norm.value.real < 0.0000000000001);
+        }
+    };
+}
+
+
+// check if point-point or line-line p/q are duplicates
+function duplicateCC(C0, C1) {
+    return {
+        getInvolved: function() {
+            return [C0, C1];
+        },
+        toString: function() {
+            return "Conic " + C0.name + " is duplicate of " + C1.name;
+        },
+        apply: markAsDuplicate(C0, C1),
+        holds: function() {
+            return List.conicDist(C0.matrix, C1.matrix);
+        }
+    };
+}
+
+
+guessDuplicate.P = function(p) {
+    csgeo.points.forEach(function(q) {
+        if (p === q) return;
+        var conjecture = duplicatePPLL(p, q);
+        if (conjecture.holds()) {
+            conjectures.push(conjecture);
+        }
+    });
+};
+
+guessDuplicate.L = function(p) {
+    csgeo.lines.forEach(function(q) {
+        if (p === q) return;
+        var conjecture = duplicatePPLL(p, q);
+        if (conjecture.holds()) {
+            conjectures.push(conjecture);
+        }
+    });
+};
+
 function guessIncidences(el) {
     if (guessIncidences.hasOwnProperty(el.kind))
         guessIncidences[el.kind](el);
@@ -43,6 +110,13 @@ function applyIncidence(a, b) {
     };
 }
 
+// mark p as duplicate of q
+function markAsDuplicate(p, q) {
+    return function() {
+        p.Duplicate = q;
+    };
+}
+
 function incidentPL(p, l) {
     return {
         getInvolved: function() {
@@ -81,7 +155,6 @@ function incidentPC(p, c) {
 
 function checkConjectures() {
     var debug = false;
-    if (debug) console.log("conjectures", conjectures.length);
     if (conjectures.length === 0) return;
     //backupGeo
     stateArrays.prover.set(stateIn);

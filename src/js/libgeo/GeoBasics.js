@@ -157,6 +157,14 @@ function polygonDefault(el) {
 function addElement(el) {
     el = addElementNoProof(el);
     checkConjectures();
+
+    // remove element if it's a proven duplicate
+    if (el.Duplicate) {
+        var dup = el.Duplicate;
+        removeElement(el.name);
+        return dup;
+    }
+
     return el;
 }
 
@@ -327,6 +335,7 @@ function addElementNoProof(el) {
     isShowing(el, op);
 
     geoDependantsCache = {};
+    guessDuplicate(el);
     guessIncidences(el);
 
     return csgeo.csnames[el.name];
