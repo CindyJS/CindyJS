@@ -4122,6 +4122,76 @@ evaluator.create$3 = function(args, modifs) {
     };
 };
 
+evaluator.create$2 = function(args, modifs) {
+    var type = evaluate(args[0]);
+    var defs = evaluate(args[1]);
+
+    if (!geoOps.hasOwnProperty(type.value) &&
+        !geoAliases.hasOwnProperty(type.value) &&
+        !geoMacros.hasOwnProperty(type.value)) {
+        printStackTrace("Invalid geometric operation: '" + type.value + "'");
+        return nada;
+    }
+
+    // Recursively apply aliases
+    while (geoAliases.hasOwnProperty(type.value)) {
+        type.value = geoAliases[type.value];
+    }
+
+    // Detect unsupported operations or missing or incorrect arguments
+    var op = geoOps[type.value];
+
+
+    var length = 1;
+
+    if (op.kind[1] == 's') { //Ps, Ls, etc.
+        //TODO: is there a better way to decide this?
+        if (op.stateSize == tracing2.stateSize) {
+            length = 2;
+        } else if (op.stateSize == tracing4.stateSize) {
+            length = 4;
+        }
+    }
+
+
+    var marked = [];
+
+    function getFirstFreeName(kind) {
+        var ans = false;
+
+        function useiffree(name) {
+            if (!marked[name] && !csgeo.csnames[name]) {
+                ans = name;
+                marked[ans] = true;
+            }
+        }
+
+        var name, i;
+
+        if (kind === 'P') {
+            for (i = 0; i < 26 & !ans; i++) {
+                useiffree(String.fromCharCode(65 + i)); //A, B, C...
+            }
+        } else if (kind === 'L' || kind === 'S') {
+            for (i = 0; i < 26 & !ans; i++) {
+                useiffree(String.fromCharCode(97 + i)); //a, b, c...
+            }
+        }
+
+        for (i = 1; !ans; i++) {
+            useiffree(kind + i);
+        }
+
+        return ans;
+    }
+
+    var names = [];
+    for (var i = 0; i < length; i++) {
+        names.push(General.string(getFirstFreeName(op.kind[0])));
+    }
+    return evaluator.create$3([List.turnIntoCSList(names), args[0], args[1]], modifs);
+};
+
 ///////////////////////////////
 //   Calling external code   //
 ///////////////////////////////
