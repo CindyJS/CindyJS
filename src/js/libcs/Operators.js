@@ -4047,16 +4047,19 @@ evaluator.create$3 = function(args, modifs) {
             return name.value;
         }).join("__"));
         el = evaluator.create$3([name, type, defs], modifs);
+        var ellist = [];
         if (el !== nada) {
             type = General.string(el.value.kind.replace(/^(.*)s$/, "Select$1"));
             defs = List.turnIntoCSList([General.string(el.value.name)]);
             for (i = 0; i < names.value.length; ++i) {
-                evaluator.create$3([names.value[i], type, defs], {
-                    index: CSNumber.real(i + 1)
-                });
+                ellist.push(
+                    evaluator.create$3([names.value[i], type, defs], {
+                        index: CSNumber.real(i + 1)
+                    })
+                );
             }
         }
-        return el;
+        return List.turnIntoCSList(ellist);
     } else if (names.value[0].ctype !== "string") {
         printStackTrace("Element of names list must be a string");
         return nada;
