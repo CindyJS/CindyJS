@@ -4144,13 +4144,14 @@ evaluator.create$2 = function(args, modifs) {
 
     var length = 1;
 
-    if (op.kind[1] == 's') { //Ps, Ls, etc.
+    if (op.kind[1] === 's') { //Ps, Ls, etc.
         //TODO: is there a better way to decide this?
-        if (op.stateSize == tracing2.stateSize) {
+        if (op.stateSize === tracing2.stateSize) {
             length = 2;
-        } else if (op.stateSize == tracing4.stateSize) {
+        } else if (op.stateSize === tracing4.stateSize) {
             length = 4;
         }
+        //TODO: other possible lenghts...
     }
 
 
