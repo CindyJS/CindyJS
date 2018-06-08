@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Cindy JS</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            CindyJS({ 
+        	scripts: "cs*", 
+        	defaultAppearance: {}, 
+        	geometry: [], 
+          csconsole: true,
+        	ports: [ 
+        		{ id: "CSCanvas", width: 680, height: 336, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.12 ] } ], background: "rgb(168,176,192)" } ] });
+            </script>
+        </script>
+    </head>
+    <body>
+    <script id="csinit" type="text/x-cindyscript">
+        A = create("Free",[[1,1,1]]);
+        B = create("Free",[[4,3,1]]);
+        a = create("Join",[A,B]);
+        X = create("CircleMP",[A,B]);
+
+
+        Y = create("CircleMP",[B,A]);
+
+        [P, Q] = create("IntersectionCircleCircle",[X,Y]);
+        b = create("Join",[P,Q]);
+        M = create("Meet",[a,b]);
+    </script>
+    <div id="CSCanvas" style="width:500px; height:500px;"></div>        
+	</body>
+</html>
