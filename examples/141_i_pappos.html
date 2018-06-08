@@ -21,9 +21,28 @@
 
         <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
 
+        <p>
+        We will use 
+        create(["II"], "Meet", ["g", "h"]);
+        to generate a point which is already present ("I"). The prover will drop it.
+        </p>
+        <pre id="log"></pre>
 
         <script type="text/javascript">
 
+        (function () {
+    var old = console.log;
+    var logger = document.getElementById('log');
+    console.log = function () {
+      for (var i = 0; i < arguments.length; i++) {
+        if (typeof arguments[i] == 'object') {
+            logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(arguments[i], undefined, 2) : arguments[i]) + '<br />';
+        } else {
+            logger.innerHTML += arguments[i] + '<br />';
+        }
+      }
+    }
+})();
             var gslp=[
                       {name:"A", type:"Free", pos:[-5,6]},
                       {name:"B", type:"Free", pos:[6,5]},
