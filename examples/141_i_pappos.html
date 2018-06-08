@@ -14,8 +14,10 @@
         <h1>CindyJS: Pappos's Theorem</h1>
 
 
-        <script id='csmove' type='text/x-cindyscript'>
-        create(["II"], "Meet", ["g", "h"]);
+        <script id='csinit' type='text/x-cindyscript'>
+        buttonClicked():=(
+         create(["II"], "Meet", ["g", "h"]);
+        );
         </script>
 
 
@@ -25,7 +27,10 @@
         We will use 
         create(["II"], "Meet", ["g", "h"]);
         to generate a point which is already present ("I"). The prover will drop it.
+        <br>
+        <button onclick="cdy.evokeCS('buttonClicked()')" type="button">generate duplicate</button>
         </p>
+
         <pre id="log"></pre>
 
         <script type="text/javascript">
@@ -64,9 +69,9 @@
                       {name:"I", type:"Meet", args:["i", "h"], color: [0,1,0]}
 
                       ];
-            CindyJS({canvasname:"CSCanvas",
+            var cdy = CindyJS({canvasname:"CSCanvas",
                         defaultAppearance: {dimDependent: 0.7},
-                        movescript:"csmove",
+                        scripts: "cs*",
                         geometry:gslp});
 
         </script>
