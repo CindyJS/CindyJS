@@ -4115,9 +4115,16 @@ evaluator.create$3 = function(args, modifs) {
     if (a.length > 0)
         el.args = a;
 
+    //TODO: think of some smart way to handle all possible modifiers
     var index = evaluateAndVal(modifs.index);
     if (index.ctype === "number")
         el.index = index.value.real | 0;
+
+    var radius = evaluateAndVal(modifs.radius);
+    if (radius.ctype === "number") {
+        el.radius = radius.value.real | 0;
+    }
+
 
     return {
         'ctype': 'geo',
