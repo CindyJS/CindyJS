@@ -4115,16 +4115,11 @@ evaluator.create$3 = function(args, modifs) {
     if (a.length > 0)
         el.args = a;
 
-    //TODO: think of some smart way to handle all possible modifiers
-    var index = evaluateAndVal(modifs.index);
-    if (index.ctype === "number")
-        el.index = index.value.real | 0;
-
-    var radius = evaluateAndVal(modifs.radius);
-    if (radius.ctype === "number") {
-        el.radius = radius.value.real | 0;
+    for (var field in modifs) {
+        var value = evaluateAndVal(modifs[field]);
+        el[field] = General.unwrap(value);
+        //Accessor.setField(el, field, value) does assume that element is already traced
     }
-
 
     return {
         'ctype': 'geo',
