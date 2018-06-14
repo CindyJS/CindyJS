@@ -587,6 +587,17 @@ geoOps.PointOnCircle.updatePosition = function(el) {
     el.antipodalPoint = candidates.value[1];
 };
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
+geoOps.PointOnCircle.get_angle = function(el) {
+    var circle = csgeo.csnames[el.args[0]];
+    var pos = List.normalizeZ(el.homog);
+    var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
+    var dir = List.sub(pos, mid);
+    var angle = CSNumber.arctan2(dir.value[0], dir.value[1]); //lives in [-pi, pi)
+    //technically, we are here. But we like to have the same behavior as Cinderella:
+    var twpopi = CSNumber.real(TWOPI);
+    angle = CSNumber.mod(CSNumber.add(angle, twpopi), twpopi); //lives in [0, 2*pi)
+    return General.withUsage(angle, "Angle");
+};
 
 geoOps.OtherPointOnCircle = {};
 geoOps.OtherPointOnCircle.kind = "P";
