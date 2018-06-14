@@ -598,6 +598,16 @@ geoOps.PointOnCircle.get_angle = function(el) {
     angle = CSNumber.mod(CSNumber.add(angle, twpopi), twpopi); //lives in [0, 2*pi)
     return General.withUsage(angle, "Angle");
 };
+geoOps.PointOnCircle.set_angle = function(el, value) {
+    if (value.ctype === "number") {
+        var cc = CSNumber.cos(value);
+        var ss = CSNumber.sin(value);
+        var dir = List.turnIntoCSList([cc, ss, CSNumber.real(0)]);
+        var circle = csgeo.csnames[el.args[0]];
+        var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
+        movepointscr(el, List.add(mid, dir), "dir");
+    }
+};
 
 geoOps.OtherPointOnCircle = {};
 geoOps.OtherPointOnCircle.kind = "P";
