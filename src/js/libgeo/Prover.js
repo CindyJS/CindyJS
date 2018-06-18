@@ -100,9 +100,9 @@ function checkConjectures() {
                 if (!involved[el.name]) {
                     involved[el.name] = true;
                     // also add incidences of involved objects
-                    incis = findAllIncis(el, []);
-                    incis.forEach(function(i) {
-                        involved[i.name] = true;
+                    incis = findAllIncis(el, {});
+                    incis.forEach(function(name) {
+                        involved[name] = true;
                     });
                 }
             });
@@ -110,21 +110,22 @@ function checkConjectures() {
     };
 
     // recursively find all incidences to an geo object
-    var findAllIncis = function(el, list) {
+    var findAllIncis = function(el, map) {
         // get all incidences we don't already know
-        var nincis = el.incidences.filter(function(iels) {
-            return list.indexOf(csgeo.csnames[iels]) < 0;
+        var nincis = {};
+        el.incidences.forEach(function(iels) {
+            if (!map[iels]) nincis[iels] = true;
         });
-        if (nincis.length === 0) return list;
+        if (Object.keys(nincis).length === 0) return Object.keys(map);
+
         // add new incidences
-        nincis.forEach(function(ii) {
-            list.push(csgeo.csnames[ii]);
-        });
+        for (var name in nincis) map[name] = true;
+
         // recursive call
-        nincis.forEach(function(nel) {
-            return findAllIncis(csgeo.csnames[nel], list);
+        Object.keys(nincis).forEach(function(nel) {
+            return findAllIncis(csgeo.csnames[nel], map);
         });
-        return list;
+        return Object.keys(map);
     };
 
     recalcInvolved();
