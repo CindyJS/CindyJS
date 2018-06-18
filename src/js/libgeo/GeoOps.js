@@ -589,8 +589,13 @@ geoOps.PointOnCircle.updatePosition = function(el) {
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 geoOps.PointOnCircle.get_angle = function(el) {
     var circle = csgeo.csnames[el.args[0]];
+    var mid = geoOps._helper.CenterOfCircle(circle.matrix);
+
+    var isFP = List._helper.isAlmostFarpoint;
+    if (isFP(el.homog) || isFP(mid)) return nada;
+
     var pos = List.normalizeZ(el.homog);
-    var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
+    mid = List.normalizeZ(mid);
     var dir = List.sub(pos, mid);
     var angle = CSNumber.arctan2(dir.value[0], dir.value[1]); //lives in [-pi, pi)
     //technically, we are done here. But we like to have the same behavior as Cinderella:
@@ -601,13 +606,17 @@ geoOps.PointOnCircle.get_angle = function(el) {
 geoOps.PointOnCircle.set_angle = function(el, value) {
     if (value.ctype === "number") {
         var circle = csgeo.csnames[el.args[0]];
-        var mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
+        var mid = geoOps._helper.CenterOfCircle(circle.matrix);
 
-        var cc = CSNumber.cos(value);
-        var ss = CSNumber.sin(value);
-        var dir = List.turnIntoCSList([CSNumber.mult(cc, circle.radius), CSNumber.mult(ss, circle.radius), CSNumber.real(0)]);
+        if (!List._helper.isAlmostFarpoint(mid)) {
+            mid = List.normalizeZ(mid);
 
-        movepointscr(el, List.add(mid, dir), "homog");
+            var cc = CSNumber.cos(value);
+            var ss = CSNumber.sin(value);
+            var dir = List.turnIntoCSList([CSNumber.mult(cc, circle.radius), CSNumber.mult(ss, circle.radius), CSNumber.real(0)]);
+
+            movepointscr(el, List.add(mid, dir), "homog");
+        }
     }
     return nada;
 };
