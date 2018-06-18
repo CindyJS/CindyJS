@@ -155,6 +155,7 @@ function incidentPC(p, c) {
 
 function checkConjectures() {
     var debug = false;
+    if (debug) console.log("conjectures", conjectures.length);
     if (conjectures.length === 0) return;
     //backupGeo
     stateArrays.prover.set(stateIn);
