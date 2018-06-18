@@ -36,12 +36,11 @@
         M = create("Meet",[a,b]);
         
         circ1 = create("CircleMr",[E], radius->1, color->[1,0,0], size->10);
-        circ2 = create("CircleMr",[B], radius->1.5, color->[1,0,0], size->10);
+        circ2 = create("CircleMr",[A], radius->1.5, color->[1,0,0], size->10);
+        circ3 = create("CircleMr",[B], radius->1.5, color->[1,0,0], size->10);
         
-        onepoint = create("IntersectionCircleCircle",[X,Y, D], color->[1,0.5,0.5], size->6); //the point that is closer to d
-        
-        
-        
+        singlepont = create("IntersectionCircleCircle",[circ1, circ2], pos->D, color->[1,0.5,1], size->6); //the point that is closer to D
+        anothersinglepoint = create("IntersectionCircleCircle",[circ1, circ3, D], color->[1,0.5,1], size->6); //the point that is closer to D
     </script>
     <div id="CSCanvas" style="width:500px; height:500px;"></div>        
 	</body>

@@ -4170,24 +4170,40 @@ evaluator.create$2 = function(args, modifs) {
         }
 
         for (i = 1; !ans; i++) {
-            useiffree(kind + i);
+            useiffree(kind + i); //P1, P2, ...
         }
 
         return ans;
     }
 
     var name = General.string(getFirstFreeName(op.kind));
-    var el = evaluator.create$3([name, args[0], args[1]], modifs);
-    if (el != nada && el.value.kind[1] === 's' && el.value.results) { //Ps, Ls, etc.
+
+    if (defs.value.length > op.signature.length) {
+        if (!modifs.pos)
+            modifs.pos = defs.value[defs.value.length - 1]; //interpret last argument as pos
+        defs = List.turnIntoCSList(defs.value.slice(0, op.signature.length)); //ignore additional defs
+    }
+
+    var el = evaluator.create$3([name, type, defs], modifs);
+    if (el !== nada && el.value.kind[1] === 's' && el.value.results) { //Ps, Ls, etc.
         type = General.string("Select" + el.value.kind[0]);
         defs = List.turnIntoCSList([General.string(el.value.name)]);
-        var ellist = [];
-        for (var i = 0; i < el.value.results.value.length; i++) {
-            modifs.index = CSNumber.real(i + 1);
-            var elementname = General.string(getFirstFreeName(el.value.kind[0]));
-            ellist.push(evaluator.create$3([elementname, type, defs], modifs));
+
+        if (modifs.pos) {
+            //if there is a pos attribute (or the defs list is to long), then select only the given point
+            name = General.string(getFirstFreeName(el.value.kind[0]));
+            return evaluator.create$3([name, type, defs], modifs);
+        } else {
+            //if a compound is generated with no pos specified, then the list of all points is returned.
+            var ellist = [];
+            for (var i = 0; i < el.value.results.value.length; i++) {
+                modifs.index = CSNumber.real(i + 1);
+                name = General.string(getFirstFreeName(el.value.kind[0]));
+                ellist.push(evaluator.create$3([name, type, defs], modifs));
+            }
+            return List.turnIntoCSList(ellist);
         }
-        return List.turnIntoCSList(ellist);
+
     } else {
         return el;
     }
