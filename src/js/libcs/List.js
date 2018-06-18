@@ -2531,3 +2531,13 @@ List.ofGeos = function(geos) {
         };
     }));
 };
+
+List.getRandRealVec3 = function(min, max) {
+    var RR = CSNumber.getRandReal;
+    return List.turnIntoCSList([RR(min, max), RR(min, max), RR(min, max)]);
+};
+
+List.getRandComplexVec3 = function(min, max) {
+    var RC = CSNumber.getRandComplex;
+    return List.turnIntoCSList([RC(min, max), RC(min, max), RC(min, max)]);
+};

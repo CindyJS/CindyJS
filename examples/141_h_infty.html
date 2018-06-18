@@ -14,21 +14,22 @@
 
 // Drawing code, executed whenever the canvas gets redrawn.
 
-fillarc(A,B,C, color-> [142/255, 214/255, 1], alpha->0.5);
 </script>
 <script type="text/javascript">
 
 var cdy = CindyJS({ // See ref/CindyJS documentation for details.
-  ports: [{id: "CSCanvas", snap: true, grid: 1}],
+  ports: [{id: "CSCanvas"}],
   scripts: "cs*",
   language: "en",
   defaultAppearance: {
     // See GeoBasics.js for possible attributes.
   },
   geometry: [
-  {name:"A", type:"Free", pos:[3,0], color:[1,0,0], labeled: true} ,
-    {name:"B", type:"Free", pos:[0,-4], color:[0,1,0], labeled: true},
-    {name:"C", type:"Free", pos:[0,4], color:[0,0,1], labeled: true},
+    {name:"A", type:"Free", pos:[1,0,0], pinned:true},
+    {name:"B", type:"Free", pos:[1,1,0], pinned:true},
+    {name:"l", type:"Join", args:["A", "B"]},
+
+    {name:"C", type:"Free", pos:[1,2,0]},
     // For allowed types, see GeoOps.js.
     // For allowed properties, see csinit in GeoBasics.js.
   ] // End of geometry array.
@@ -40,7 +41,7 @@ var cdy = CindyJS({ // See ref/CindyJS documentation for details.
 </head>
 
 <body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
+  <div id="CSCanvas" style="border:2px solid black"></div>
 </body>
 
 </html>

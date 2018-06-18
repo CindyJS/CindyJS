@@ -29,6 +29,40 @@ geoOps.RandomLine.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+geoOps._helper.getRandMove = function(el) {
+    var l = el.homog;
+    var rand = List.getRandComplexVec3(-0.05, 0.05);
+    var move = List.add(l, rand);
+
+    return {
+        type: "homog",
+        value: move
+    };
+};
+
+geoOps._helper.getRandPointMove = function(el) {
+    var oldpos = List.normalizeMax(el.homog);
+    var oz = oldpos.value[2];
+    var ozabs = CSNumber.abs(oz).value.real;
+
+    var rZ = CSNumber.real(0);
+    // far points 
+    if (ozabs < CSNumber.eps) {
+        rZ = CSNumber.getRandComplex(-0.05, 0.05);
+        oz = CSNumber.real(1);
+    }
+
+    var rvect = List.turnIntoCSList([CSNumber.getRandComplex(-0.1, 0.1), CSNumber.getRandComplex(-0.1, 0.1), rZ]);
+
+    var move = List.scalmult(oz, rvect);
+
+    move = List.add(oldpos, move);
+    return {
+        type: "homog",
+        value: move
+    };
+};
+
 
 geoOps.FreeLine = {};
 geoOps.FreeLine.kind = "L";
@@ -61,6 +95,7 @@ geoOps.FreeLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
+geoOps.FreeLine.getRandomMove = geoOps._helper.getRandMove;
 geoOps.FreeLine.stateSize = 6;
 
 
@@ -190,7 +225,6 @@ geoOps.Horizontal.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
-
 // Cinderella's freely movable HorizontalLine (Cinderella semantics)
 geoOps.HorizontalLine = {};
 geoOps.HorizontalLine.kind = "L";
@@ -226,6 +260,7 @@ geoOps.HorizontalLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
+geoOps.HorizontalLine.getRandomMove = geoOps._helper.getRandMove;
 geoOps.HorizontalLine.stateSize = 6;
 
 
@@ -276,6 +311,7 @@ geoOps.VerticalLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
+geoOps.VerticalLine.getRandomMove = geoOps._helper.getRandMove;
 geoOps.VerticalLine.stateSize = 6;
 
 
@@ -347,6 +383,7 @@ geoOps.Through.updatePosition = function(el) {
     homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Line");
 };
+geoOps.Through.getRandomMove = geoOps._helper.getRandMove;
 geoOps.Through.stateSize = 6;
 geoOps.Through.set_angle = function(el, value) {
     if (value.ctype === "number") {
@@ -397,6 +434,8 @@ geoOps.Free.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Point");
 };
+geoOps.Free.getRandomMove = geoOps._helper.getRandPointMove;
+
 geoOps.Free.stateSize = 6;
 
 geoOps._helper.projectPointToLine = function(point, line) {
@@ -475,6 +514,7 @@ geoOps.PointOnLine.getParamFromState = function(el) {
 geoOps.PointOnLine.putParamToState = function(el, param) {
     return putStateComplexVector(param);
 };
+geoOps.PointOnLine.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnLine.stateSize = 12;
 
 
@@ -586,6 +626,7 @@ geoOps.PointOnCircle.updatePosition = function(el) {
     el.homog = General.withUsage(pos, "Point");
     el.antipodalPoint = candidates.value[1];
 };
+geoOps.PointOnCircle.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
 
 geoOps.OtherPointOnCircle = {};
@@ -646,6 +687,7 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Point");
 };
+geoOps.PointOnSegment.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnSegment.stateSize = 2;
 
 geoOps._helper.projectPointToCircle = function(cir, P) {
@@ -724,6 +766,7 @@ geoOps.PointOnArc.updatePosition = function(el) {
     var P = geoOps._helper.conicOtherIntersection(arc.matrix, I, Q);
     el.homog = General.withUsage(P, "Point");
 };
+geoOps.PointOnArc.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnArc.stateSize = 4;
 
 geoOps._helper.CenterOfCircle = function(c) {
@@ -831,6 +874,26 @@ geoOps.CircleMr.updatePosition = function(el) {
     var matrix = geoOps._helper.ScaledCircleMrr(m, sr2);
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
+};
+geoOps.CircleMr.getRandomMove = function(el) {
+    // radius 
+    var r;
+    var oldr = el.radius;
+    var oabs = CSNumber.abs(oldr).value.real;
+
+    // if radius was small we want something larger and if not we scale the old one
+    if (oabs < CSNumber.eps) {
+        r = CSNumber.getRandComplex(0.05, 0.10);
+    } else {
+        r = CSNumber.mult(oldr, CSNumber.getRandReal(0.95, 1.05));
+    }
+
+    var rad = {
+        type: "radius",
+        value: r
+    };
+
+    return rad;
 };
 geoOps.CircleMr.stateSize = 2;
 geoOps.CircleMr.set_radius = function(el, value) {
