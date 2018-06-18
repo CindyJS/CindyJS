@@ -4023,8 +4023,8 @@ evaluator.createpoint$2 = function(args, modifs) {
         labeled: true,
         pos: pos
     };
-
-    return addElement(el);
+    // addElement(el, removeDuplicates) 
+    return addElement(el, true);
 };
 
 
@@ -4114,7 +4114,8 @@ evaluator.create$3 = function(args, modifs) {
     if (index.ctype === "number")
         el.index = index.value.real | 0;
 
-    return addElement(el);
+    // addElement(el, removeDuplicates) 
+    return addElement(el, true);
 };
 
 ///////////////////////////////

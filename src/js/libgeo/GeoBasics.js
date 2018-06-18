@@ -154,12 +154,12 @@ function polygonDefault(el) {
     lineDefault(el);
 }
 
-function addElement(el) {
+function addElement(el, removeDuplicates) {
     el = addElementNoProof(el);
     checkConjectures();
 
     // remove element if it's a proven duplicate
-    if (el.Duplicate) {
+    if (typeof removeDuplicates === 'boolean' && removeDuplicates && el.Duplicate) {
         var dup = el.Duplicate;
         removeElement(el.name);
         return dup;
