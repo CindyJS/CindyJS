@@ -161,6 +161,7 @@ function addElement(el, removeDuplicates) {
     // remove element if it's a proven duplicate
     if (typeof removeDuplicates === 'boolean' && removeDuplicates && el.Duplicate) {
         var dup = el.Duplicate;
+        console.log("duplication detected: removing " + el.name + " (duplicate of " + dup.name + ").");
         removeElement(el.name);
         return dup;
     }
@@ -343,8 +344,8 @@ function addElementNoProof(el) {
 
 // TODO Remove dependencies also
 function removeElement(name) {
-    var i, el;
-    console.log("Remove element " + name);
+    var i, el, debug = false;
+    if (debug) console.log("Remove element " + name);
 
     // TODO Check if name exists
     delete csgeo.csnames[name];
@@ -353,7 +354,7 @@ function removeElement(name) {
         el = csgeo.gslp[i];
 
         if (el.name === name) {
-            console.log("Removed element from gslp " + name);
+            if (debug) console.log("Removed element from gslp " + name);
             csgeo.gslp.splice(i, 1);
         }
     }
@@ -362,7 +363,7 @@ function removeElement(name) {
         el = csgeo.free[i];
 
         if (el.name === name) {
-            console.log("Removed element from free " + name);
+            if (debug) console.log("Removed element from free " + name);
             csgeo.free.splice(i, 1);
         }
     }
@@ -371,7 +372,7 @@ function removeElement(name) {
         el = csgeo.points[i];
 
         if (el.name === name) {
-            console.log("Removed element from points " + name);
+            if (debug) console.log("Removed element from points " + name);
             csgeo.points.splice(i, 1);
         }
     }
@@ -380,7 +381,7 @@ function removeElement(name) {
         el = csgeo.lines[i];
 
         if (el.name === name) {
-            console.log("Removed element from lines " + name);
+            if (debug) console.log("Removed element from lines " + name);
             csgeo.lines.splice(i, 1);
         }
     }
@@ -389,7 +390,7 @@ function removeElement(name) {
         el = csgeo.conics[i];
 
         if (el.name === name) {
-            console.log("Removed element from conics " + name);
+            if (debug) console.log("Removed element from conics " + name);
             csgeo.conics.splice(i, 1);
         }
     }
