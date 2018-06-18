@@ -15,7 +15,7 @@
         	scripts: "cs*", 
         	defaultAppearance: {}, 
         	geometry: [], 
-          csconsole: true,
+          //csconsole: true,
         	ports: [ 
         		{ id: "CSCanvas", width: 680, height: 336, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.12 ] } ], background: "rgb(168,176,192)" } ] });
             </script>
@@ -35,7 +35,13 @@
         b = create("Join",[P,Q]);
         M = create("Meet",[a,b]);
         
-        circ = create("CircleMr",[E], radius->1, color->[1,0,0], size->10);
+        circ1 = create("CircleMr",[E], radius->1, color->[1,0,0], size->10);
+        circ2 = create("CircleMr",[B], radius->1.5, color->[1,0,0], size->10);
+        
+        onepoint = create("IntersectionCircleCircle",[X,Y, D], color->[1,0.5,0.5], size->6); //the point that is closer to d
+        
+        
+        
     </script>
     <div id="CSCanvas" style="width:500px; height:500px;"></div>        
 	</body>
