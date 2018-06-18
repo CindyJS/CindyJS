@@ -4145,20 +4145,6 @@ evaluator.create$2 = function(args, modifs) {
     // Detect unsupported operations or missing or incorrect arguments
     var op = geoOps[type.value];
 
-
-    var length = 1;
-
-    if (op.kind[1] === 's') { //Ps, Ls, etc.
-        //TODO: is there a better way to decide this?
-        if (op.stateSize === tracing2.stateSize) {
-            length = 2;
-        } else if (op.stateSize === tracing4.stateSize) {
-            length = 4;
-        }
-        //TODO: other possible lenghts...
-    }
-
-
     var marked = [];
 
     function getFirstFreeName(kind) {
@@ -4190,11 +4176,22 @@ evaluator.create$2 = function(args, modifs) {
         return ans;
     }
 
-    var names = [];
-    for (var i = 0; i < length; i++) {
-        names.push(General.string(getFirstFreeName(op.kind[0])));
+    var name = General.string(getFirstFreeName(op.kind));
+    var el = evaluator.create$3([name, args[0], args[1]], modifs);
+    if (el != nada && el.value.kind[1] === 's' && el.value.results) { //Ps, Ls, etc.
+        type = General.string("Select" + el.value.kind[0]);
+        defs = List.turnIntoCSList([General.string(el.value.name)]);
+        var ellist = [];
+        for (var i = 0; i < el.value.results.value.length; i++) {
+            modifs.index = CSNumber.real(i + 1);
+            var elementname = General.string(getFirstFreeName(el.value.kind[0]));
+            ellist.push(evaluator.create$3([elementname, type, defs], modifs));
+        }
+        return List.turnIntoCSList(ellist);
+    } else {
+        return el;
     }
-    return evaluator.create$3([List.turnIntoCSList(names), args[0], args[1]], modifs);
+
 };
 
 ///////////////////////////////
