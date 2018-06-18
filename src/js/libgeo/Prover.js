@@ -56,7 +56,7 @@ function incidentPL(p, l) {
             var pn = List.scaldiv(List.abs(p.homog), p.homog);
             var ln = List.scaldiv(List.abs(l.homog), l.homog);
             var prod = CSNumber.abs(List.scalproduct(pn, ln));
-            return (prod.value.real < 0.0000000000001);
+            return (prod.value.real < CSNumber.eps);
         }
     };
 }
@@ -74,7 +74,7 @@ function incidentPC(p, c) {
             var erg = General.mult(c.matrix, p.homog);
             erg = General.mult(p.homog, erg);
             erg = CSNumber.abs(erg);
-            return (erg.value.real < 0.0000000000001);
+            return (erg.value.real < CSNumber.eps);
         }
     };
 }

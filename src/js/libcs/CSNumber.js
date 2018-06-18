@@ -775,7 +775,7 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
 };
 
 CSNumber._helper.getRangeRand = function(min, max) {
-    return Math.random() * (max - min + 1) + min;
+    return Math.random() * (max - min) + min;
 };
 
 CSNumber.getRandReal = function(min, max) {
