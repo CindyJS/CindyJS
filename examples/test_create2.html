@@ -34,6 +34,8 @@
         [P, Q] = create("IntersectionCircleCircle",[X,Y]);
         b = create("Join",[P,Q]);
         M = create("Meet",[a,b]);
+        
+        circ = create("CircleMr",[E], radius->1, color->[1,0,0], size->10);
     </script>
     <div id="CSCanvas" style="width:500px; height:500px;"></div>        
 	</body>
