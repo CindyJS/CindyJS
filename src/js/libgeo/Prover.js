@@ -92,17 +92,17 @@ function checkConjectures() {
     var involved;
 
     var recalcInvolved = function() {
-        involved = [];
+        involved = {};
         conjectures.forEach(function(con) {
             var invs = con.getInvolved();
             var incis;
             invs.forEach(function(el) {
-                if (involved.indexOf(el) < 0) {
-                    involved.push(el);
+                if (!involved[el.name]) {
+                    involved[el.name] = true;
                     // also add incidences of involved objects
                     incis = findAllIncis(el, []);
                     incis.forEach(function(i) {
-                        if (involved.indexOf(i) < 0) involved.push(i);
+                        involved[i.name] = true;
                     });
                 }
             });
@@ -135,19 +135,18 @@ function checkConjectures() {
     };
 
     // add defining elements 
-    involved.forEach(function(inv) {
-        var n = inv.args;
+    Object.keys(involved).forEach(function(inv) {
+        var n = csgeo.csnames[inv].args;
         if (typeof(n) === 'undefined') return;
         n.forEach(function(name) {
-            if (involved.indexOf(csgeo.csnames[name]) < 0)
-                involved.push(csgeo.csnames[name]);
+            involved[name] = true;
         });
     });
 
     var emove, nconject = conjectures.length;
     for (var kk = 0; kk < nummoves; kk++) {
-        for (var oo = 0; oo < involved.length; oo++) {
-            var el = involved[oo];
+        for (var name in involved) {
+            var el = csgeo.csnames[name];
             if (!el.pinned && geoOps[el.type].isMovable) {
                 if (debug) console.log("prover: moving element", el.name);
                 // get random move and move free element
