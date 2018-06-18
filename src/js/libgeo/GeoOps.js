@@ -628,6 +628,39 @@ geoOps.PointOnCircle.updatePosition = function(el) {
 };
 geoOps.PointOnCircle.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
+geoOps.PointOnCircle.get_angle = function(el) {
+    var circle = csgeo.csnames[el.args[0]];
+    var mid = geoOps._helper.CenterOfCircle(circle.matrix);
+
+    var isFP = List._helper.isAlmostFarpoint;
+    if (isFP(el.homog) || isFP(mid)) return nada;
+
+    var pos = List.normalizeZ(el.homog);
+    mid = List.normalizeZ(mid);
+    var dir = List.sub(pos, mid);
+    var angle = CSNumber.arctan2(dir.value[0], dir.value[1]); //lives in [-pi, pi)
+    //technically, we are done here. But we like to have the same behavior as Cinderella:
+    var twpopi = CSNumber.real(TWOPI);
+    angle = CSNumber.mod(CSNumber.add(angle, twpopi), twpopi); //lives in [0, 2*pi)
+    return General.withUsage(angle, "Angle");
+};
+geoOps.PointOnCircle.set_angle = function(el, value) {
+    if (value.ctype === "number") {
+        var circle = csgeo.csnames[el.args[0]];
+        var mid = geoOps._helper.CenterOfCircle(circle.matrix);
+
+        if (!List._helper.isAlmostFarpoint(mid)) {
+            mid = List.normalizeZ(mid);
+
+            var cc = CSNumber.cos(value);
+            var ss = CSNumber.sin(value);
+            var dir = List.turnIntoCSList([CSNumber.mult(cc, circle.radius), CSNumber.mult(ss, circle.radius), CSNumber.real(0)]);
+
+            movepointscr(el, List.add(mid, dir), "homog");
+        }
+    }
+    return nada;
+};
 
 geoOps.OtherPointOnCircle = {};
 geoOps.OtherPointOnCircle.kind = "P";

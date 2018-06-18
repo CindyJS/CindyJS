@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Construction.cdy</title>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+B.angle = pi;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+drawtext((A+B)/2, B.angle);
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [1.6888888888888889, -4.0, -1.1111111111111112], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C0", type: "CircleByRadius", pos: {xx: 0.10229132569558103, yy: 0.10229132569558103, zz: 1.0, xy: 0.0, xz: 0.3109656301145663, yz: 0.7364975450081833}, color: [0.0, 0.0, 1.0], radius: 2.3440136518373773, args: ["A"], printname: "$C_{0}$"},
+    {name: "B", type: "PointOnCircle", pos: [{r: 1.022877866056143, i: 8.417988288639916E-17}, -4.0, {r: -0.6729459645106205, i: 3.85159335898281E-32}], color: [1.0, 0.0, 0.0], args: ["C0"], labeled: true}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 350,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.66]}],
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
