@@ -111,19 +111,11 @@ function checkConjectures() {
 
     // recursively find all incidences to an geo object
     var findAllIncis = function(el, map) {
-        // get all incidences we don't already know
-        var nincis = {};
         el.incidences.forEach(function(iels) {
-            if (!map[iels]) nincis[iels] = true;
-        });
-        if (Object.keys(nincis).length === 0) return Object.keys(map);
-
-        // add new incidences
-        for (var name in nincis) map[name] = true;
-
-        // recursive call
-        Object.keys(nincis).forEach(function(nel) {
-            return findAllIncis(csgeo.csnames[nel], map);
+            if (!map[iels]) {
+                map[iels] = true;
+                findAllIncis(csgeo.csnames[iels], map);
+            }
         });
         return Object.keys(map);
     };
