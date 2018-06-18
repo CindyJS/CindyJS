@@ -4052,10 +4052,9 @@ evaluator.create$3 = function(args, modifs) {
             type = General.string(el.value.kind.replace(/^(.*)s$/, "Select$1"));
             defs = List.turnIntoCSList([General.string(el.value.name)]);
             for (i = 0; i < names.value.length; ++i) {
+                modifs.index = CSNumber.real(i + 1);
                 ellist.push(
-                    evaluator.create$3([names.value[i], type, defs], {
-                        index: CSNumber.real(i + 1)
-                    })
+                    evaluator.create$3([names.value[i], type, defs], modifs)
                 );
             }
         }

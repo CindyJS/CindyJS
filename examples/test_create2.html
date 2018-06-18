@@ -31,7 +31,7 @@
 
         Y = create("CircleMP",[B,A]);
 
-        [P, Q] = create("IntersectionCircleCircle",[X,Y]);
+        [P, Q] = create("IntersectionCircleCircle",[X,Y], color->[0,1,0]);
         b = create("Join",[P,Q]);
         M = create("Meet",[a,b]);
         
