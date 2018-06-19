@@ -21,10 +21,8 @@ function duplicatePPLL(p, q) {
         },
         apply: markAsDuplicate(p, q),
         holds: function() {
-            var pn = List.scaldiv(List.abs(p.homog), p.homog);
-            var qn = List.scaldiv(List.abs(q.homog), q.homog);
-            var norm = List.abs(List.cross(pn, qn));
-            return (norm.value.real < 0.0000000000001);
+            var dist = List.projectiveDistMinScal(p,q);
+            return dist.value.real < CSNumber.eps;
         }
     };
 }
