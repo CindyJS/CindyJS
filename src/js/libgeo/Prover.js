@@ -21,8 +21,8 @@ function duplicatePPLL(p, q) {
         },
         apply: markAsDuplicate(p, q),
         holds: function() {
-            var dist = List.projectiveDistMinScal(p,q);
-            return dist.value.real < CSNumber.eps;
+            var dist = List.projectiveDistMinScal(p.homog,q.homog);
+            return dist < CSNumber.eps;
         }
     };
 }
