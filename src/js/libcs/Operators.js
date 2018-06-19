@@ -4181,7 +4181,10 @@ evaluator.create$2 = function(args, modifs) {
 
     if (defs.value.length > op.signature.length) {
         if (!emodifs.pos) {
-            emodifs.pos = evaluateAndVal(defs.value[defs.value.length - 1]); //interpret last argument as pos
+            var pos = evaluateAndHomog(defs.value[defs.value.length - 1]); //interpret last argument as pos
+            if (pos !== nada) {
+                emodifs.pos = pos;
+            }
         }
         defs = List.turnIntoCSList(defs.value.slice(0, op.signature.length)); //ignore additional defs
     }
