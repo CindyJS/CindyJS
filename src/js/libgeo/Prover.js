@@ -40,7 +40,8 @@ guessDuplicate._helper.duplicateCC = function(C0, C1) {
         },
         apply: markAsDuplicate(C0, C1),
         holds: function() {
-            return List.conicDist(C0.matrix, C1.matrix);
+            var dist = List.conicDist(C0.matrix, C1.matrix);
+            return dist < CSNumber.eps;
         }
     };
 }
