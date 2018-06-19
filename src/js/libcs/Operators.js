@@ -4172,8 +4172,8 @@ evaluator.create$2 = function(args, modifs) {
                 useiffree(String.fromCharCode(97 + i)); //a, b, c...
             }
         }
-        for (i = 1; !ans; i++) {
-            useiffree(kind + i); //P1, P2, ...
+        for (i = 0; !ans; i++) {
+            useiffree(kind + i); //P0, P1, P2, ...
         }
         return ans;
     }
