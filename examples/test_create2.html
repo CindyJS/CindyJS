@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Cindy JS</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            CindyJS({ 
+        	scripts: "cs*", 
+        	defaultAppearance: {}, 
+        	geometry: [], 
+          //csconsole: true,
+        	ports: [ 
+        		{ id: "CSCanvas", width: 680, height: 336, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.12 ] } ] } ] });
+            </script>
+        </script>
+    </head>
+    <body>
+    <script id="csinit" type="text/x-cindyscript">
+        A = create("Free",[[1,1,1]]);
+        B = create("Free", [], pos->[4,3]);
+        a = create("Join",[A,B]);
+        X = create("CircleMP",[A,B]);
+
+
+        Y = create("CircleMP",[B,A]);
+
+        [P, Q] = create("IntersectionCircleCircle",[X,Y], color->[0,1,0]);
+        b = create("Join",[P,Q]);
+        M = create("Meet",[a,b]);
+        
+        circ1 = create("CircleMr",[E], radius->1, color->[1,0,0], size->10);
+        circ2 = create("CircleMr",[A], radius->1.5, color->[1,0,0], size->10);
+        circ3 = create("CircleMr",[B], radius->1.5, color->[1,0,0], size->10);
+        
+        singlepont = create("IntersectionCircleCircle",[circ1, circ2], pos->D, color->[1,0.5,1], size->6); //the point that is closer to D
+        anothersinglepoint = create("IntersectionCircleCircle",[circ1, circ3, D], color->[1,0.5,1], size->6); //the point that is closer to D
+    </script>
+    <div id="CSCanvas" style="width:500px; height:500px;"></div>        
+	</body>
+</html>
