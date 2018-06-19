@@ -4151,20 +4151,16 @@ evaluator.create$2 = function(args, modifs) {
     // Detect unsupported operations or missing or incorrect arguments
     var op = geoOps[type.value];
 
-    var marked = [];
 
     function getFirstFreeName(kind) {
         var ans = false;
 
         function useiffree(name) {
-            if (!marked[name] && !csgeo.csnames[name]) {
+            if (!csgeo.csnames[name]) {
                 ans = name;
-                marked[ans] = true;
             }
         }
-
         var name, i;
-
         if (kind === 'P') {
             for (i = 0; i < 26 & !ans; i++) {
                 useiffree(String.fromCharCode(65 + i)); //A, B, C...
@@ -4174,11 +4170,9 @@ evaluator.create$2 = function(args, modifs) {
                 useiffree(String.fromCharCode(97 + i)); //a, b, c...
             }
         }
-
         for (i = 1; !ans; i++) {
             useiffree(kind + i); //P1, P2, ...
         }
-
         return ans;
     }
 
