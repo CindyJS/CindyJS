@@ -4,6 +4,7 @@ var conjectures = [];
 function guessDuplicate(el) {
     if (guessDuplicate.hasOwnProperty(el.kind))
         guessDuplicate[el.kind](el);
+    else debugger;
 }
 guessDuplicate._helper = {};
 
@@ -57,6 +58,20 @@ guessDuplicate.P = function(p) {
     });
 };
 
+guessDuplicate.Ps = function(ps) {
+    csgeo.sets.points.forEach(function(qs) {
+        if (ps === qs) return;
+
+        var pv = ps.results.value;
+        var qv = qs.results.value;
+
+        var conjecture = guessDuplicate._helper.isSetEq(pv, qv, List.projectiveDistMinScal);
+        if (conjecture.holds()) {
+            conjectures.push(conjecture);
+        }
+    });
+};
+
 guessDuplicate.L = function(p) {
     csgeo.lines.forEach(function(q) {
         if (p === q) return;
@@ -76,6 +91,26 @@ guessDuplicate.C = function(p) {
             conjectures.push(conjecture);
         }
     });
+};
+
+// checks if two arrays are permutations of each other 
+// elements are compares using the 'cmp' using JavaScript's native number types
+guessDuplicate._helper.isSetEq = function(arrA, arrB, cmp) {
+    var A = arrA.slice(),
+        B = arrB.slice();
+
+    if (A.length !== B.length) return false;
+    if (A.length === 0 && B.length === 0) return true;
+    var Afront = A.shift();
+    // find best matching index
+    var idx = B.reduce(function(iMax, x, i, arr) {
+        cmp(x, Afront) <
+            cmp(arr[iMax], Afront) ? i : iMax, 0
+    }, 0); // initial value
+    if (cmp(B[idx], Afront) < CSnumber.eps) {
+        B.splice(idx, 1);
+        return isEq(A, B, cmp);
+    } else return false;
 };
 
 function guessIncidences(el) {

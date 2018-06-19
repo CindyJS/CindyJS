@@ -67,7 +67,11 @@ function csinit(gslp) {
     csgeo.ifs = [];
 
     // sets
-    csgeo.sets = {"points" : [], "lines" : [], "conics" : []};
+    csgeo.sets = {
+        "points": [],
+        "lines": [],
+        "conics": []
+    };
 
     gslp.forEach(addElementNoProof);
     checkConjectures();
@@ -311,7 +315,12 @@ function addElementNoProof(el) {
     // collect sets
     var setsRe = new RegExp("^[P|L|S|C]s$"); // Ps, Ls, ...
     if (setsRe.test(el.kind)) {
-        var nameMap = {"P" : "points", "L" : "lines", "S": "lines", "C" : "conics"};
+        var nameMap = {
+            "P": "points",
+            "L": "lines",
+            "S": "lines",
+            "C": "conics"
+        };
         var name = nameMap[el.kind[0]];
         csgeo.sets[name].push(el);
     }
