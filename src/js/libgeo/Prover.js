@@ -5,9 +5,10 @@ function guessDuplicate(el) {
     if (guessDuplicate.hasOwnProperty(el.kind))
         guessDuplicate[el.kind](el);
 }
+guessDuplicate._helper = {};
 
 // check if point-point or line-line p/q are duplicates
-function duplicatePPLL(p, q) {
+guessDuplicate._helper.duplicatePPLL = function(p, q) {
     return {
         getInvolved: function() {
             return [p, q];
@@ -29,7 +30,7 @@ function duplicatePPLL(p, q) {
 
 
 // check if point-point or line-line p/q are duplicates
-function duplicateCC(C0, C1) {
+guessDuplicate._helper.duplicateCC = function(C0, C1) {
     return {
         getInvolved: function() {
             return [C0, C1];
@@ -48,7 +49,7 @@ function duplicateCC(C0, C1) {
 guessDuplicate.P = function(p) {
     csgeo.points.forEach(function(q) {
         if (p === q) return;
-        var conjecture = duplicatePPLL(p, q);
+        var conjecture = guessDuplicate._helper.duplicatePPLL(p, q);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
         }
@@ -58,7 +59,18 @@ guessDuplicate.P = function(p) {
 guessDuplicate.L = function(p) {
     csgeo.lines.forEach(function(q) {
         if (p === q) return;
-        var conjecture = duplicatePPLL(p, q);
+        var conjecture = guessDuplicate._helper.duplicatePPLL(p, q);
+        if (conjecture.holds()) {
+            conjectures.push(conjecture);
+        }
+    });
+};
+
+
+guessDuplicate.C = function(p) {
+    csgeo.conics.forEach(function(q) {
+        if (p === q) return;
+        var conjecture = guessDuplicate._helper.duplicateCC(p, q);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
         }
