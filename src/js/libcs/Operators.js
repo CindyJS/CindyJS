@@ -4023,8 +4023,11 @@ evaluator.createpoint$2 = function(args, modifs) {
         labeled: true,
         pos: pos
     };
-    // addElement(el, removeDuplicates) 
-    return addElement(el, true);
+
+    return {
+        'ctype': 'geo',
+        'value': addElement(el, true)
+    };
 };
 
 
@@ -4032,6 +4035,10 @@ evaluator.create$3 = function(args, modifs) {
     var names = evaluate(args[0]);
     var type = evaluate(args[1]);
     var defs = evaluate(args[2]);
+    var emodifs = {};
+    for (var key in modifs) {
+        emodifs[key] = evaluateAndVal(modifs[key]);
+    }
 
     var name, el, i;
     if (names.ctype === "string") {
@@ -4044,17 +4051,19 @@ evaluator.create$3 = function(args, modifs) {
         name = General.string(names.value.map(function(name) {
             return name.value;
         }).join("__"));
-        el = evaluator.create$3([name, type, defs], modifs);
+        el = evaluator.create$3([name, type, defs], emodifs);
+        var ellist = [];
         if (el !== nada) {
-            type = General.string(el.kind.replace(/^(.*)s$/, "Select$1"));
-            defs = List.turnIntoCSList([General.string(el.name)]);
+            type = General.string(el.value.kind.replace(/^(.*)s$/, "Select$1"));
+            defs = List.turnIntoCSList([General.string(el.value.name)]);
             for (i = 0; i < names.value.length; ++i) {
-                evaluator.create$3([names.value[i], type, defs], {
-                    index: CSNumber.real(i + 1)
-                });
+                emodifs.index = CSNumber.real(i + 1);
+                ellist.push(
+                    evaluator.create$3([names.value[i], type, defs], emodifs)
+                );
             }
         }
-        return el;
+        return List.turnIntoCSList(ellist);
     } else if (names.value[0].ctype !== "string") {
         printStackTrace("Element of names list must be a string");
         return nada;
@@ -4110,12 +4119,104 @@ evaluator.create$3 = function(args, modifs) {
     if (a.length > 0)
         el.args = a;
 
-    var index = evaluateAndVal(modifs.index);
-    if (index.ctype === "number")
-        el.index = index.value.real | 0;
+    for (var field in emodifs) {
+        el[field] = General.unwrap(emodifs[field]);
+    }
 
-    // addElement(el, removeDuplicates) 
-    return addElement(el, true);
+    return {
+        'ctype': 'geo',
+        'value': addElement(el, true)
+    };
+};
+
+evaluator.create$2 = function(args, modifs) {
+    var type = evaluate(args[0]);
+    var defs = evaluate(args[1]);
+    var emodifs = {};
+    for (var key in modifs) {
+        emodifs[key] = evaluateAndVal(modifs[key]);
+    }
+
+    if (!geoOps.hasOwnProperty(type.value) &&
+        !geoAliases.hasOwnProperty(type.value) &&
+        !geoMacros.hasOwnProperty(type.value)) {
+        printStackTrace("Invalid geometric operation: '" + type.value + "'");
+        return nada;
+    }
+
+    // Recursively apply aliases
+    while (geoAliases.hasOwnProperty(type.value)) {
+        type.value = geoAliases[type.value];
+    }
+
+    // Detect unsupported operations or missing or incorrect arguments
+    var op = geoOps[type.value];
+
+
+    function getFirstFreeName(kind) {
+        var ans = false;
+
+        function useiffree(name) {
+            if (!csgeo.csnames[name]) {
+                ans = name;
+            }
+        }
+        var name, i;
+        if (kind === 'P') {
+            for (i = 0; i < 26 & !ans; i++) {
+                useiffree(String.fromCharCode(65 + i)); //A, B, C...
+            }
+        } else if (kind === 'L' || kind === 'S') {
+            for (i = 0; i < 26 & !ans; i++) {
+                useiffree(String.fromCharCode(97 + i)); //a, b, c...
+            }
+        }
+        for (i = 1; !ans; i++) {
+            useiffree(kind + i); //P1, P2, ...
+        }
+        return ans;
+    }
+
+    var name = General.string(getFirstFreeName(op.kind));
+
+
+    if (defs.value.length > op.signature.length) {
+        var warning = "Operation " + type.value + " requieres only " + op.signature.length + " argument" + (op.signature.length === 1 ? '' : 's') + " (" + defs.value.length + " argument" + (defs.value.length === 1 ? '' : 's') + " given) to create " + name.value + ". Ignoring the last arguments.";
+        if (!emodifs.pos) {
+            var pos = evaluateAndHomog(defs.value[defs.value.length - 1]); //interpret last argument as pos
+            if (pos !== nada) {
+                warning = warning + " Use the last argument as modifier `pos`.";
+                emodifs.pos = pos;
+            }
+        }
+        printStackTrace(warning);
+        defs = List.turnIntoCSList(defs.value.slice(0, op.signature.length)); //ignore additional defs
+    }
+
+    var el = evaluator.create$3([name, type, defs], emodifs);
+    if (el !== nada && el.value.kind[1] === 's' && el.value.results) { //Ps, Ls, etc.
+        type = General.string("Select" + el.value.kind[0]);
+        defs = List.turnIntoCSList([General.string(el.value.name)]);
+
+        if (emodifs.pos) {
+            //if there is a pos attribute (or the defs list is to long), then select only the given point
+            name = General.string(getFirstFreeName(el.value.kind[0]));
+            return evaluator.create$3([name, type, defs], emodifs);
+        } else {
+            //if a compound is generated with no pos specified, then the list of all points is returned.
+            var ellist = [];
+            for (var i = 0; i < el.value.results.value.length; i++) {
+                emodifs.index = CSNumber.real(i + 1);
+                name = General.string(getFirstFreeName(el.value.kind[0]));
+                ellist.push(evaluator.create$3([name, type, defs], emodifs));
+            }
+            return List.turnIntoCSList(ellist);
+        }
+
+    } else {
+        return el;
+    }
+
 };
 
 ///////////////////////////////

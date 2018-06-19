@@ -152,13 +152,16 @@ However, if there already exists a free point with this name, then this point is
 #### Creating a geometric element: `create(‹list1›,‹string›,‹list2›)`
 
 **Description:**
-With this operator it is possible to generate arbitrary geometric elements that are functional in a geometric construction.
+With this operator, it is possible to generate arbitrary geometric elements that are functional in a geometric construction.
 Due to the fact that algorithms may create multiple outputs several subtleties arise.
 This function is meant for expert use only.
 
 The first list contains a list `‹list1›` of element names for the generated output objects of the algorithm.
 `‹string›` is the internal name of the geometric algorithm.
 The second list `‹list2›` is a list of the parameters that are needed for the definition.
+Through modifiers, it is possible to specify attributes of the geometric elements.
+The corresponding geometric element is returned. If `‹list1›` contained multiple entries, then also a list of geometric elements is returned.
+
 The following table shows a few possible creation statements.
 
     - only CindyJS: Cinderella uses different names for its algorithms
@@ -182,6 +185,15 @@ Internally there is yet another element (names `P__Q` as can be seen from the li
 ![Image](img/CreateX.png)
 
 You can find the valid parameters for elements by constructing them manually and using the [`algorithm`](#algorithm$1) and [`inputs`](#inputs$1) functions described below.
+
+------
+
+#### Creating a geometric element with no given name: `create(‹string›,‹list2›)`
+
+Behaves as the 3-arity `create`, but the list of element names as first arguments is not given and the names of the elements are chosen by CindyJS.
+If an algorithm (such as `"IntersectionCircleCircle"`) gives multiple geometric objects then a list of the created elements is returned instead of a single element. However, if a modifier `pos` is specified, then only the point closest to `pos` is created and returned.
+
+If too many arguments are given in `‹list2›`, then those arguments are ignored and the last given argument will be interpreted as a modifier `pos`, if `pos` has not been defined yet.
 
 ------
 

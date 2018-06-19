@@ -181,10 +181,7 @@ function addElementNoProof(el) {
             geoOps[existingEl.type].kind === "P")
             movepointscr(existingEl, el.pos, "homog");
 
-        return {
-            'ctype': 'geo',
-            'value': existingEl
-        };
+        return existingEl;
     }
 
     // Recursively apply aliases

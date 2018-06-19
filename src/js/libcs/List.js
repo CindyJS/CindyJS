@@ -2532,6 +2532,11 @@ List.ofGeos = function(geos) {
     }));
 };
 
+List._helper.isAlmostFarpoint = function(a) {
+    var z = List.normalizeMax(a).value[2];
+    return CSNumber.abs(z).value.real < CSNumber.eps;
+};
+
 List.getRandRealVec3 = function(min, max) {
     var RR = CSNumber.getRandReal;
     return List.turnIntoCSList([RR(min, max), RR(min, max), RR(min, max)]);
