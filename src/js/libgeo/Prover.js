@@ -22,11 +22,11 @@ guessDuplicate._helper.duplicatePPLL = function(p, q) {
         },
         apply: markAsDuplicate(p, q),
         holds: function() {
-            var dist = List.projectiveDistMinScal(p.homog,q.homog);
+            var dist = List.projectiveDistMinScal(p.homog, q.homog);
             return dist < CSNumber.eps;
         }
     };
-}
+};
 
 
 // check if point-point or line-line p/q are duplicates
@@ -44,7 +44,7 @@ guessDuplicate._helper.duplicateCC = function(C0, C1) {
             return dist < CSNumber.eps;
         }
     };
-}
+};
 
 
 guessDuplicate.P = function(p) {
