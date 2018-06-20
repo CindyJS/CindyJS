@@ -85,7 +85,7 @@ guessDuplicate._helper.duplicateCs = function(Cs0, Cs1) {
 };
 
 // unpack conic matrix
-guessDuplicate._helper.ConicDistHelper = function(C0, C1){
+guessDuplicate._helper.ConicDistHelper = function(C0, C1) {
     return List.ConicDist(C0.matrix, C1.matrix);
 };
 
