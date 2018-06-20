@@ -29,6 +29,27 @@ guessDuplicate._helper.duplicatePPLL = function(p, q) {
 };
 
 
+// check if point/line sets are duplicates
+guessDuplicate._helper.duplicatePsLs = function(p, q) {
+    return {
+        getInvolved: function() {
+            return [p, q];
+        },
+        toString: function() {
+            var nameMap = {
+                "Ps": "point set",
+                "Ls": "line set"
+            };
+            return nameMap[p.kind] + " " + p.name + " is duplicate of " + q.name;
+        },
+        apply: markAsDuplicate(p, q),
+        holds: function() {
+            return guessDuplicate._helper.isSetEq(p.results.value, q.results.value, List.projectiveDistMinScal);
+        }
+    };
+};
+
+
 // check if point-point or line-line p/q are duplicates
 guessDuplicate._helper.duplicateCC = function(C0, C1) {
     return {
@@ -61,10 +82,10 @@ guessDuplicate.Ps = function(ps) {
     csgeo.sets.points.forEach(function(qs) {
         if (ps === qs) return;
 
-        var pv = ps.results.value;
-        var qv = qs.results.value;
+        var pv = ps;
+        var qv = qs;
 
-        var conjecture = guessDuplicate._helper.isSetEq(pv, qv, List.projectiveDistMinScal);
+        var conjecture = guessDuplicate._helper.duplicatePsLs(pv, qv);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
         }
@@ -103,8 +124,8 @@ guessDuplicate._helper.isSetEq = function(arrA, arrB, cmp) {
     var Afront = A.shift();
     // find best matching index
     var idx = B.reduce(function(iMax, x, i, arr) {
-        return cmp(x, Afront) < cmp(arr[iMax], Afront) ? i : iMax
-    ;}, 0); // initial value
+        return cmp(x, Afront) < cmp(arr[iMax], Afront) ? i : iMax;
+    }, 0); // initial value
 
     if (cmp(B[idx], Afront) < CSNumber.eps) {
         B.splice(idx, 1);
