@@ -83,7 +83,7 @@ guessDuplicate._helper.duplicateCs = function(Cs0, Cs1) {
         holds: function() {
             var res0 = Cs0.results;
             var res1 = Cs1.results;
-            return guessDuplicate._helper.isSetEq(res1, res2, List.conicDist);
+            return guessDuplicate._helper.isSetEq(res0, res1, List.conicDist);
         }
     };
 };
