@@ -50,7 +50,7 @@ guessDuplicate._helper.duplicatePsLs = function(p, q) {
 };
 
 
-// check if point-point or line-line p/q are duplicates
+// check if two conics are duplicates
 guessDuplicate._helper.duplicateCC = function(C0, C1) {
     return {
         getInvolved: function() {
@@ -68,6 +68,22 @@ guessDuplicate._helper.duplicateCC = function(C0, C1) {
 };
 
 
+// check if two sets of conics are duplicates
+guessDuplicate._helper.duplicateCs = function(Cs0, Cs1) {
+    return {
+        getInvolved: function() {
+            return [Cs0, Cs1];
+        },
+        toString: function() {
+            return "Conic set" + Cs0.name + " is duplicate of " + Cs1.name;
+        },
+        apply: markAsDuplicate(Cs0, Cs1),
+        holds: function() {
+            return guessDuplicate._helper.isSetEq(Cs0.results, Cs1.results, List.ConicDist);
+        }
+    };
+};
+
 guessDuplicate.P = function(p) {
     csgeo.points.forEach(function(q) {
         if (p === q) return;
@@ -80,6 +96,20 @@ guessDuplicate.P = function(p) {
 
 guessDuplicate.Ps = function(ps) {
     csgeo.sets.points.forEach(function(qs) {
+        if (ps === qs) return;
+
+        var pv = ps;
+        var qv = qs;
+
+        var conjecture = guessDuplicate._helper.duplicatePsLs(pv, qv);
+        if (conjecture.holds()) {
+            conjectures.push(conjecture);
+        }
+    });
+};
+
+guessDuplicate.Ls = function(ps) {
+    csgeo.sets.lines.forEach(function(qs) {
         if (ps === qs) return;
 
         var pv = ps;
