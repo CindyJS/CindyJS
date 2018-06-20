@@ -88,6 +88,35 @@ guessDuplicate._helper.duplicateCs = function(Cs0, Cs1) {
     };
 };
 
+
+// segments
+guessDuplicate._helper.duplicateSS = function(p, q) {
+    return {
+        getInvolved: function() {
+            return [p, q];
+        },
+        toString: function() {
+            return "Segment " + p.name + " is duplicate of " + q.name;
+        },
+        apply: markAsDuplicate(p, q),
+        holds: function() {
+            var p0 = csgeo.csnames[p.args[0]];
+            var p1 = csgeo.csnames[p.args[1]];
+
+            var q0 = csgeo.csnames[q.args[0]];
+            var q1 = csgeo.csnames[q.args[1]];
+
+            var dist1 = List.projectiveDistMinScal(p0.homog, q0.homog);
+            dist1 = dist1 + List.projectiveDistMinScal(p1.homog, q1.homog);
+
+            var dist2 = List.projectiveDistMinScal(p1.homog, q0.homog);
+            dist2 = dist2 + List.projectiveDistMinScal(p0.homog, q1.homog);
+
+            return Math.min(dist1, dist2) < CSNumber.eps;
+        }
+    };
+};
+
 guessDuplicate.P = function(p) {
     csgeo.points.forEach(function(q) {
         if (p === q) return;
@@ -143,7 +172,18 @@ guessDuplicate.L = function(p) {
         }
     });
 };
-guessDuplicate.S = guessDuplicate.L;
+
+guessDuplicate.S = function(p) {
+    csgeo.lines.forEach(function(q) {
+        if (p === q) return;
+        if (p.kind !== "S") return;
+
+        var conjecture = guessDuplicate._helper.duplicateSS(p, q);
+        if (conjecture.holds()) {
+            conjectures.push(conjecture);
+        }
+    });
+};
 
 
 guessDuplicate.C = function(p) {

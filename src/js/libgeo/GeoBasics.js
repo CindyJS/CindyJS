@@ -168,7 +168,7 @@ function addElement(el, removeDuplicates) {
     // remove element if it's a proven duplicate
     if (typeof removeDuplicates === 'boolean' && removeDuplicates && el.Duplicate) {
         var dup = el.Duplicate;
-        console.log("duplication detected: removing " + el.name + " (duplicate of " + dup.name + ").");
+        console.log("duplication detected: removing " + el.name + " (type " + el.kind + ") (duplicate of " + dup.name + ").");
         removeElement(el.name);
         return dup;
     }
