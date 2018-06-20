@@ -97,11 +97,7 @@ guessDuplicate.P = function(p) {
 guessDuplicate.Ps = function(ps) {
     csgeo.sets.points.forEach(function(qs) {
         if (ps === qs) return;
-
-        var pv = ps;
-        var qv = qs;
-
-        var conjecture = guessDuplicate._helper.duplicatePsLs(pv, qv);
+        var conjecture = guessDuplicate._helper.duplicatePsLs(ps, qs);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
         }
@@ -111,11 +107,7 @@ guessDuplicate.Ps = function(ps) {
 guessDuplicate.Ls = function(ps) {
     csgeo.sets.lines.forEach(function(qs) {
         if (ps === qs) return;
-
-        var pv = ps;
-        var qv = qs;
-
-        var conjecture = guessDuplicate._helper.duplicatePsLs(pv, qv);
+        var conjecture = guessDuplicate._helper.duplicatePsLs(ps, qs);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
         }
@@ -127,10 +119,7 @@ guessDuplicate.Cs = function(ps) {
     csgeo.sets.conics.forEach(function(qs) {
         if (ps === qs) return;
 
-        var pv = ps;
-        var qv = qs;
-
-        var conjecture = guessDuplicate._helper.duplicateCs(pv, qv);
+        var conjecture = guessDuplicate._helper.duplicateCs(ps, qs);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
         }
