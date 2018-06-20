@@ -176,7 +176,7 @@ guessDuplicate.L = function(p) {
 guessDuplicate.S = function(p) {
     csgeo.lines.forEach(function(q) {
         if (p === q) return;
-        if (p.kind !== "S") return;
+        if (q.kind !== "S") return; // only compare segments
 
         var conjecture = guessDuplicate._helper.duplicateSS(p, q);
         if (conjecture.holds()) {
