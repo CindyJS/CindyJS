@@ -79,14 +79,9 @@ guessDuplicate._helper.duplicateCs = function(Cs0, Cs1) {
         },
         apply: markAsDuplicate(Cs0, Cs1),
         holds: function() {
-            return guessDuplicate._helper.isSetEq(Cs0.results, Cs1.results, guessDuplicate._helper.ConicDistHelper);
+            return guessDuplicate._helper.isSetEq(Cs0.results, Cs1.results, List.conicDist);
         }
     };
-};
-
-// unpack conic matrix
-guessDuplicate._helper.ConicDistHelper = function(C0, C1) {
-    return List.ConicDist(C0.matrix, C1.matrix);
 };
 
 guessDuplicate.P = function(p) {
@@ -121,6 +116,21 @@ guessDuplicate.Ls = function(ps) {
         var qv = qs;
 
         var conjecture = guessDuplicate._helper.duplicatePsLs(pv, qv);
+        if (conjecture.holds()) {
+            conjectures.push(conjecture);
+        }
+    });
+};
+
+
+guessDuplicate.Cs = function(ps) {
+    csgeo.sets.conics.forEach(function(qs) {
+        if (ps === qs) return;
+
+        var pv = ps;
+        var qv = qs;
+
+        var conjecture = guessDuplicate._helper.duplicateCs(pv, qv);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
         }
