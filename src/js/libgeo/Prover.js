@@ -44,7 +44,9 @@ guessDuplicate._helper.duplicatePsLs = function(p, q) {
         },
         apply: markAsDuplicate(p, q),
         holds: function() {
-            return guessDuplicate._helper.isSetEq(p.results.value, q.results.value, List.projectiveDistMinScal);
+            var pv = p.results.value;
+            var qv = q.results.value;
+            return guessDuplicate._helper.isSetEq(pv, qv, List.projectiveDistMinScal);
         }
     };
 };
@@ -79,7 +81,9 @@ guessDuplicate._helper.duplicateCs = function(Cs0, Cs1) {
         },
         apply: markAsDuplicate(Cs0, Cs1),
         holds: function() {
-            return guessDuplicate._helper.isSetEq(Cs0.results, Cs1.results, List.conicDist);
+            var res0 = Cs0.results;
+            var res1 = Cs1.results;
+            return guessDuplicate._helper.isSetEq(res1, res2, List.conicDist);
         }
     };
 };
@@ -97,6 +101,7 @@ guessDuplicate.P = function(p) {
 guessDuplicate.Ps = function(ps) {
     csgeo.sets.points.forEach(function(qs) {
         if (ps === qs) return;
+
         var conjecture = guessDuplicate._helper.duplicatePsLs(ps, qs);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
@@ -107,6 +112,7 @@ guessDuplicate.Ps = function(ps) {
 guessDuplicate.Ls = function(ps) {
     csgeo.sets.lines.forEach(function(qs) {
         if (ps === qs) return;
+
         var conjecture = guessDuplicate._helper.duplicatePsLs(ps, qs);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
