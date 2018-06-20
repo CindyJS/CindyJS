@@ -23,7 +23,7 @@ guessDuplicate._helper.duplicatePPLL = function(p, q) {
         apply: markAsDuplicate(p, q),
         holds: function() {
             var dist = List.projectiveDistMinScal(p.homog, q.homog);
-            return dist < CSNumber.eps;
+            return dist < CSNumber.epsbig;
         }
     };
 };
@@ -64,7 +64,7 @@ guessDuplicate._helper.duplicateCC = function(C0, C1) {
         apply: markAsDuplicate(C0, C1),
         holds: function() {
             var dist = List.conicDist(C0.matrix, C1.matrix);
-            return dist < CSNumber.eps;
+            return dist < CSNumber.epsbig;
         }
     };
 };
@@ -112,14 +112,14 @@ guessDuplicate._helper.duplicateSS = function(p, q) {
             var dist2 = List.projectiveDistMinScal(p1.homog, q0.homog);
             dist2 = dist2 + List.projectiveDistMinScal(p0.homog, q1.homog);
 
-            return Math.min(dist1, dist2) < CSNumber.eps;
+            return Math.min(dist1, dist2) < CSNumber.epsbig;
         }
     };
 };
 
 guessDuplicate.P = function(p) {
     csgeo.points.forEach(function(q) {
-        if (p === q) return;
+        if (p.name === q.name) return;
         var conjecture = guessDuplicate._helper.duplicatePPLL(p, q);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
@@ -129,7 +129,7 @@ guessDuplicate.P = function(p) {
 
 guessDuplicate.Ps = function(ps) {
     csgeo.sets.points.forEach(function(qs) {
-        if (ps === qs) return;
+        if (ps.name === qs.name) return;
 
         var conjecture = guessDuplicate._helper.duplicatePsLs(ps, qs);
         if (conjecture.holds()) {
@@ -140,7 +140,7 @@ guessDuplicate.Ps = function(ps) {
 
 guessDuplicate.Ls = function(ps) {
     csgeo.sets.lines.forEach(function(qs) {
-        if (ps === qs) return;
+        if (ps.name === qs.name) return;
 
         var conjecture = guessDuplicate._helper.duplicatePsLs(ps, qs);
         if (conjecture.holds()) {
@@ -152,7 +152,7 @@ guessDuplicate.Ls = function(ps) {
 
 guessDuplicate.Cs = function(ps) {
     csgeo.sets.conics.forEach(function(qs) {
-        if (ps === qs) return;
+        if (ps.name === qs.name) return;
 
         var conjecture = guessDuplicate._helper.duplicateCs(ps, qs);
         if (conjecture.holds()) {
@@ -163,7 +163,7 @@ guessDuplicate.Cs = function(ps) {
 
 guessDuplicate.L = function(p) {
     csgeo.lines.forEach(function(q) {
-        if (p === q) return;
+        if (p.name === q.name) return;
         if (p.kind !== q.kind) return; // Don't compare lines and segments
 
         var conjecture = guessDuplicate._helper.duplicatePPLL(p, q);
@@ -175,7 +175,7 @@ guessDuplicate.L = function(p) {
 
 guessDuplicate.S = function(p) {
     csgeo.lines.forEach(function(q) {
-        if (p === q) return;
+        if (p.name === q.name) return;
         if (q.kind !== "S") return; // only compare segments
 
         var conjecture = guessDuplicate._helper.duplicateSS(p, q);
@@ -188,7 +188,7 @@ guessDuplicate.S = function(p) {
 
 guessDuplicate.C = function(p) {
     csgeo.conics.forEach(function(q) {
-        if (p === q) return;
+        if (p.name === q.name) return;
         var conjecture = guessDuplicate._helper.duplicateCC(p, q);
         if (conjecture.holds()) {
             conjectures.push(conjecture);
@@ -210,7 +210,7 @@ guessDuplicate._helper.isSetEq = function(arrA, arrB, cmp) {
         return cmp(x, Afront) < cmp(arr[iMax], Afront) ? i : iMax;
     }, 0); // initial value
 
-    if (cmp(B[idx], Afront) < CSNumber.eps) {
+    if (cmp(B[idx], Afront) < CSNumber.epsbig) {
         B.splice(idx, 1);
         return guessDuplicate._helper.isSetEq(A, B, cmp);
     } else return false;
@@ -279,7 +279,7 @@ function incidentPL(p, l) {
             var pn = List.scaldiv(List.abs(p.homog), p.homog);
             var ln = List.scaldiv(List.abs(l.homog), l.homog);
             var prod = CSNumber.abs(List.scalproduct(pn, ln));
-            return (prod.value.real < CSNumber.eps);
+            return (prod.value.real < CSNumber.epsbig);
         }
     };
 }
@@ -297,7 +297,7 @@ function incidentPC(p, c) {
             var erg = General.mult(c.matrix, p.homog);
             erg = General.mult(p.homog, erg);
             erg = CSNumber.abs(erg);
-            return (erg.value.real < CSNumber.eps);
+            return (erg.value.real < CSNumber.epsbig);
         }
     };
 }
