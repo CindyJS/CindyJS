@@ -4,7 +4,6 @@ var conjectures = [];
 function guessDuplicate(el) {
     if (guessDuplicate.hasOwnProperty(el.kind))
         guessDuplicate[el.kind](el);
-    else debugger;
 }
 guessDuplicate._helper = {};
 
@@ -104,12 +103,12 @@ guessDuplicate._helper.isSetEq = function(arrA, arrB, cmp) {
     var Afront = A.shift();
     // find best matching index
     var idx = B.reduce(function(iMax, x, i, arr) {
-        cmp(x, Afront) <
-            cmp(arr[iMax], Afront) ? i : iMax, 0
-    }, 0); // initial value
-    if (cmp(B[idx], Afront) < CSnumber.eps) {
+        return cmp(x, Afront) < cmp(arr[iMax], Afront) ? i : iMax
+    ;}, 0); // initial value
+
+    if (cmp(B[idx], Afront) < CSNumber.eps) {
         B.splice(idx, 1);
-        return isEq(A, B, cmp);
+        return guessDuplicate._helper.isSetEq(A, B, cmp);
     } else return false;
 };
 
