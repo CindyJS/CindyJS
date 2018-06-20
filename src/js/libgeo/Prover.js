@@ -46,7 +46,9 @@ guessDuplicate._helper.duplicatePsLs = function(p, q) {
         holds: function() {
             var pv = p.results.value;
             var qv = q.results.value;
-            return guessDuplicate._helper.isSetEq(pv, qv, List.projectiveDistMinScal);
+            var truth = guessDuplicate._helper.isSetEq(pv, qv, List.projectiveDistMinScal);
+            console.log([truth, p.name, q.name])
+            return truth;
         }
     };
 };
