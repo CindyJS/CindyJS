@@ -79,9 +79,14 @@ guessDuplicate._helper.duplicateCs = function(Cs0, Cs1) {
         },
         apply: markAsDuplicate(Cs0, Cs1),
         holds: function() {
-            return guessDuplicate._helper.isSetEq(Cs0.results, Cs1.results, List.ConicDist);
+            return guessDuplicate._helper.isSetEq(Cs0.results, Cs1.results, guessDuplicate._helper.ConicDistHelper);
         }
     };
+};
+
+// unpack conic matrix
+guessDuplicate._helper.ConicDistHelper = function(C0, C1){
+    return List.ConicDist(C0.matrix, C1.matrix);
 };
 
 guessDuplicate.P = function(p) {
