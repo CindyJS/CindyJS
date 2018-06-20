@@ -412,6 +412,22 @@ function removeElement(name) {
         }
     }
 
+    // remove from sets
+    //
+    // define function with closure which compares the name
+    var nameCmp = function(cmpName) {
+        return function(setel) {
+            if (setel.name === cmpName) {
+                if (debug) console.log("Removed element " + name + " from set of " + sname);
+                return true;
+            } else return false;
+        };
+    };
+
+    for (var sname in csgeo.sets) {
+        csgeo.sets[sname] = csgeo.sets[sname].filter(nameCmp(name));
+    }
+
     geoDependantsCache = {};
 }
 
