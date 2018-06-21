@@ -166,7 +166,7 @@ var CindyJS = (function() {
 
             CindyJS.dumpState = function(index) {
                 // Call this if you find a rendering bug you'd like to reproduce.
-                // The save the printed JSON to a file and include it in your report.
+                // Then save the printed JSON to a file and include it in your report.
                 var state = CindyJS.instances[index || 0].saveState();
                 console.log(JSON.stringify(state));
             };
