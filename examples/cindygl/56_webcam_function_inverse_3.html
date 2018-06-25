@@ -38,7 +38,7 @@ repeat(25,start->0,step->.2,draw((0,#),(12.8,#)));
 
 	// get current definition of f and redefine if it changed
 	if(Inputf.text!=lastf & Inputf.text!="",
-		parse("f(x) :=" + Inputf.text);
+		parse("f(x) := re(round(" + Inputf.text+"))");
 		lastf = Inputf.text;
 	//	colorplot(G,H,"f", if(mod(floor(f(#.x*100-207)),256)==mod(floor(#.y*100+350),256),1,0));
 	colorplot([-.5,-.5],[255.5,-.5],"f", if(mod(floor(f(#.x)),256)==mod(floor(#.y),256),1,0));
@@ -93,7 +93,7 @@ var cdy = CindyJS({
 </script>
 </head>
 
-<body style="font-family:Arial;">
+<body style="font-family:Arial,sans-serif;">
   <h1>Applying a function to the webcam data</h1>
   <div id="CSCanvas" style="width: 1024px; height: 630px; border:0;margin: 0;"></div>
   <p>Every pixel is represented by a value between 0 and 255. Applying a function to the image on the left results
