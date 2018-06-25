@@ -17,14 +17,15 @@ create image("output", width, height);
 create image("input", width, height);
 create image("inverse", width, height);
 create image("f", 256,256);
-create image("g", 256,1);
+create image("g", 256,256);
+create image("ginv", 256,1);
 colorplot("output", 0);
 colorplot("inverse", 0);
 colorplot("input", 0);
 
 bw(x):=(.35*x_1+.45*x_2+.2*x_3);
 f(x):=x*2;
-g(x):=imagergb([0,0], [255,0], "g", (x,0), interpolate->false);
+g(x):=255*(imagergb([0,0], [255,0], "ginv", (x,0), interpolate->false))_1;
 
 </script>
 <script id="csdraw" type="text/x-cindyscript">
@@ -42,9 +43,13 @@ repeat(25,start->0,step->.2,draw((0,#),(12.8,#)));
 		lastf = Inputf.text;
 	//	colorplot(G,H,"f", if(mod(floor(f(#.x*100-207)),256)==mod(floor(#.y*100+350),256),1,0));
 	colorplot([-.5,-.5],[255.5,-.5],"f", if(mod(floor(f(#.x)),256)==mod(floor(#.y),256),1,0));
-	finv = apply(1..256,0);
-	repeat(256, finv_(mod(f(#),256)+1)=#);
-	err(finv);
+    colorplot([-.5,-.5],[255.5,-.5],"ginv",
+    index=0;
+    repeat(256, i, stop->255,start->0, if(mod(f(round(i)),256)==#.x, index=i));
+    index/255;
+    );
+    			colorplot([-.5,-.5],[255.5,-.5],"g", if(mod(floor(g(#.x)),256)==mod(floor(#.y),256),1,0));
+
 	);
 
 
