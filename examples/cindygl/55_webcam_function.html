@@ -32,7 +32,7 @@ repeat(25,start->0,step->.2,draw((0,#),(12.8,#)));
 
 	// get current definition of f and redefine if it changed
 	if(Input.text!=lastf & Input.text!="",
-		parse("f(x) :=" + Input.text);
+		parse("f(x) := re(round(" + Input.text+"))");
 		lastf = Input.text;
 	);
 
@@ -70,11 +70,13 @@ var cdy = CindyJS({
 </script>
 </head>
 
-<body style="font-family:Arial;">
+<body style="font-family:Arial,serif;">
   <h1>Applying a function to the webcam data</h1>
   <div id="CSCanvas" style="width: 1024px; height: 240px; border:0;margin: 0;"></div>
-  <p>Every pixel is represented by a value between 0 and 255. Applying a function to the image on the left results
-  in the image on the right. The function is calculated modulo 256.</p>
+  <p>Every pixel is represented by a value between 0 and 255.
+      Applying a function to the image on the left results
+      in the image on the right.</p>
+  <p> The function is calculated modulo 256.</p>
 </body>
 
 </html>
