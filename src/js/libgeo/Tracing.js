@@ -79,6 +79,19 @@ var RefineException = {
     }
 };
 
+var DegenerateException = {
+    toString: function() {
+        return "DegenerateException";
+    }
+};
+
+var mayThrowDegenerateException = false;
+
+function degenerateSituationDetected() {
+    if (mayThrowDegenerateException)
+        throw DegenerateException;
+}
+
 function requestRefinement() {
     // Call this whenever you would need exra refinement.
     // Possible outcomes: either an exception will be thrown to
@@ -165,13 +178,16 @@ function traceMover(mover, pos, type) {
     //console.log("Tracing from " + niceprint(originParam) + " to " + niceprint(targetParam));
     var t = last + step;
     while (last !== t) {
+        if (traceLimit === 0)
+            t = 1;
+
         // Rational parametrization of semicircle,
         // see http://jsperf.com/half-circle-parametrization
         var t2 = t * t;
         var dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex((2 * t) * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = (last + 0.5 * step <= last || traceLimit === 0);
-        if (traceLimit === 0) console.log("tracing limit Reached");
+        mayThrowDegenerateException = (t < 1);
         var refining = false;
 
         if (traceLog && traceLog.currentMouseAndScripts) {
@@ -180,11 +196,20 @@ function traceMover(mover, pos, type) {
         try {
             traceOneStep();
         } catch (e) {
+            if (e === DegenerateException) {
+                console.log(e.toString());
+                tracingFailed = true;
+                traceLimit = 0; // triggers noMoreRefinements
+                t = 1; // no more steps, go straight to the end
+                continue; // doesn't add to log! TODO!
+            }
             if (e !== RefineException)
                 throw e;
             step *= 0.5; // reduce step size
             t = last + step;
             --traceLimit;
+            if (traceLimit === 0)
+                console.log("tracing limit reached");
             refining = true;
         }
         if (traceLog && traceLog.currentMouseAndScripts) {
@@ -199,6 +224,7 @@ function traceMover(mover, pos, type) {
             traceLog.currentParam = null;
         }
     }
+    mayThrowDegenerateException = false;
     tracingStateReport(tracingFailed);
     for (i = 0; i < deps.length; ++i) {
         el = deps[i];
@@ -405,11 +431,11 @@ function tracing2core(n1, n2, o1, o2) {
             // Evil: modify can break copy on write! But it's safe here.
         };
     }
-    if (List._helper.isNaN(n1) || List._helper.isNaN(n2)) {
+    if (!(List._helper.isFinite(n1) && List._helper.isFinite(n2))) {
         // Something went very wrong, numerically speaking. We have no
         // clue whether refining will make things any better, so we
         // assume it won't and give up.
-        debug("Tracing failed due to NaNs.");
+        debug("Tracing failed due to NaNs or Infinity.");
         tracingFailed = true;
     } else if (do1o2 > cost * safety && dn1n2 > cost * safety) {
         // Distance within matching considerably smaller than distance
@@ -528,11 +554,11 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
 
     for (i = 0; i < 4; i++) {
         if (need_refine) break;
-        if (List._helper.isNaN(new_el[i])) {
+        if (!List._helper.isFinite(new_el[i])) {
             // Something went very wrong, numerically speaking. We have no
             // clue whether refining will make things any better, so we
             // assume it won't and give up.
-            debug("Tracing failed due to NaNs.");
+            debug("Tracing failed due to NaNs or Infinity.");
             tracingFailed = true;
             return res;
         }

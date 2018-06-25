@@ -465,6 +465,20 @@ List._helper.isNaN = function(a1) {
     return erg;
 };
 
+List._helper.isFinite = function(a1) {
+    var erg = true;
+    for (var i = 0; i < a1.value.length; i++) {
+        var av1 = a1.value[i];
+
+        if (av1.ctype === 'list') {
+            erg = erg && List._helper.isFinite(av1);
+        } else {
+            erg = erg && CSNumber._helper.isFinite(av1);
+        }
+    }
+    return erg;
+};
+
 
 List.set = function(a1) {
     var erg = [];
@@ -534,6 +548,12 @@ List.maxIndex = function(lst, fun, startIdx) {
 List.normalizeMax = function(a) {
     var s = CSNumber.inv(List.maxval(a));
     if (!CSNumber._helper.isFinite(s)) return a;
+    var r = s.value.real;
+    var i = s.value.imag;
+    if (r * r + i * i > 1e17) {
+        degenerateSituationDetected();
+        s = CSNumber.zero;
+    }
     return List.scalmult(s, a);
 };
 
