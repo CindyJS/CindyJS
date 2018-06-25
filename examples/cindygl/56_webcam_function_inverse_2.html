@@ -38,7 +38,7 @@ repeat(25,start->0,step->.2,draw((0,#),(12.8,#)));
 
 	// get current definition of f and redefine if it changed
 	if(Inputf.text!=lastf & Inputf.text!="",
-		parse("f(x) :=" + Inputf.text);
+		parse("f(x) := re(round(" + Inputf.text+"))");
 		lastf = Inputf.text;
 	//	colorplot(G,H,"f", if(mod(floor(f(#.x*100-207)),256)==mod(floor(#.y*100+350),256),1,0));
 	colorplot([-.5,-.5],[255.5,-.5],"f", if(mod(floor(f(#.x)),256)==mod(floor(#.y),256),1,0));
@@ -46,7 +46,7 @@ repeat(25,start->0,step->.2,draw((0,#),(12.8,#)));
 
     // get current definition of g and redefine if it changed
 	if(Inputg.text!=lastg & Inputg.text!="",
-		parse("g(x) :=" + Inputg.text);
+		parse("g(x) := re(round(" + Inputg.text+"))");
 		lastg = Inputg.text;
 			colorplot([-.5,-.5],[255.5,-.5],"g", if(mod(floor(g(#.x)),256)==mod(floor(#.y),256),1,0));
 
