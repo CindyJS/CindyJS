@@ -13,7 +13,9 @@
 
         <h1>CindyJS: Image Spiral</h1>
 
-
+				<script id='csinit' type='text/x-cindyscript'>
+						interpolate = true;
+				</script>
         <script id='csmove' type='text/x-cindyscript'>
             a=0;
             s=1;
@@ -32,7 +34,7 @@
                    erg;
             );
             forall(reverse(li),
-                   drawimage(#_1,#_2,"rost",angle->#_3,scale->#_4,alpha->#_5);
+                   drawimage(#_1,#_2,"rost",angle->#_3,scale->#_4,alpha->#_5, interpolate->interpolate);
 
                    );
             draw(A);
@@ -41,36 +43,19 @@
         </script>
 
         <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
-
-
-
-
-        <script type="text/javascript">
-
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[4,0,1],size:3,color:[1,.7,0]},
-                      {name:"B", kind:"P", type:"Free", pos:[8,0,1],size:3,color:[1,.7,0]},
-                      {name:"C", kind:"P", type:"Free", pos:[8,3,1],size:4}
-                      ];
-
-
-
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp,
-                        images:{rost:"rost.png",boe:"boe.png"}
-                        });
-
-
-
-
-
-            </script>
-
-
-
-
-
+				<script type="text/javascript">
+						var gslp=[
+											{name:"A", kind:"P", type:"Free", pos:[4,0,1],size:3,color:[1,.7,0]},
+											{name:"B", kind:"P", type:"Free", pos:[8,0,1],size:3,color:[1,.7,0]},
+											{name:"C", kind:"P", type:"Free", pos:[8,3,1],size:4}
+											];
+						var cdy = CindyJS({canvasname:"CSCanvas",
+												scripts: "cs*",
+												geometry:gslp,
+												images:{rost:"rost.png",boe:"boe.png"}
+												});
+					</script>
+					<input onclick="cdy.evokeCS('interpolate =' + this.checked)" checked type="checkbox" >interpolate linear
 
 	</body>
 </html>

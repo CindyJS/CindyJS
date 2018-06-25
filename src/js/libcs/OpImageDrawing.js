@@ -108,6 +108,14 @@ evaluator.drawimage$2 = function(args, modifs) {
 
             }
 
+            csctx.imageSmoothingEnabled = true;
+            if (modifs.interpolate !== undefined) {
+                erg = evaluate(modifs.interpolate);
+                if (erg.ctype === 'boolean') {
+                    csctx.imageSmoothingEnabled = erg.value;
+                }
+            }
+
 
         }
 
@@ -225,6 +233,14 @@ evaluator.drawimage$2 = function(args, modifs) {
                     if (erg.value) {
                         flipy = -1;
                     }
+                }
+            }
+
+            csctx.imageSmoothingEnabled = true;
+            if (modifs.interpolate !== undefined) {
+                erg = evaluate(modifs.interpolate);
+                if (erg.ctype === 'boolean') {
+                    csctx.imageSmoothingEnabled = erg.value;
                 }
             }
 
