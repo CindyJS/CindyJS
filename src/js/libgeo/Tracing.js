@@ -102,7 +102,7 @@ function traceMouseAndScripts() {
         var mover = move.mover;
         var sx = mouse.x + move.offset.x;
         var sy = mouse.y + move.offset.y;
-        var pos = List.realVector([sx, sy, 1]);
+        var pos = List.realVector(move.reversed ? [-sx, -sy, -1] : [sx, sy, 1]);
         traceMover(mover, pos, "mouse");
         move.prev.x = mouse.x;
         move.prev.y = mouse.y;

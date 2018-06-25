@@ -101,9 +101,19 @@ function getmover(mouse) {
     console.log("Moving " + (mov ? mov.name : "nothing"));
     if (mov === null)
         return null;
+    var reversed = false;
+    if (mov.kind === "L" && mov.type === "Through") {
+        var sx = mouse.x + diff.x;
+        var sy = mouse.y + diff.y;
+        var pos = List.realVector([sx, sy, 1]);
+        var p1 = csgeo.csnames[(mov.args[0])].homog;
+        var sign = List.scalproduct(List.cross(pos, p1), mov.homog);
+        reversed = CSNumber._helper.isLessThan(sign, CSNumber.zero) !== CSNumber._helper.isLessThan(p1.value[2], CSNumber.zero);
+    }
     return {
         mover: mov,
         offset: diff,
+        reversed: reversed,
         prev: {
             x: mouse.x,
             y: mouse.y

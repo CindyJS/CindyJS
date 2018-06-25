@@ -76,6 +76,11 @@ Accessor.getField = function(geo, field) {
             return geo.matrix;
         }
     }
+    if (geo.kind === "A") {
+        if (field === "angle") {
+            return geo.angle;
+        }
+    }
     if (geo.kind === "C") {
         if (field === "radius") { //Assumes that we have a circle
             var s = geo.matrix;
