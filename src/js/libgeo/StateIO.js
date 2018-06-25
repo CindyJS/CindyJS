@@ -19,6 +19,7 @@ var attributesToClone = [
     "clip",
     "color",
     "dashtype",
+    "dimDependent",
     //"dir", // Through, not needed if we export pos
     //"dock", // needs dedicated code
     "drawtrace",
