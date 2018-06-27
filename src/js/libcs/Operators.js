@@ -4194,7 +4194,7 @@ evaluator.create$2 = function(args, modifs) {
     }
 
     var el = evaluator.create$3([name, type, defs], emodifs);
-    if (el !== nada && el.value.kind[1] === 's' && el.value.results) { //Ps, Ls, etc.
+    if (el !== nada && el.value.kind[1] === 's' && el.value.results&& !(el.isDuplicate)) { //Ps, Ls, etc.
         type = General.string("Select" + el.value.kind[0]);
         defs = List.turnIntoCSList([General.string(el.value.name)]);
 
@@ -4214,6 +4214,7 @@ evaluator.create$2 = function(args, modifs) {
         }
 
     } else {
+        if(el.isDuplicate) delete el.isDuplicate;
         return el;
     }
 
