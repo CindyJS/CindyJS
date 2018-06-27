@@ -31,37 +31,37 @@ ComplexCurves.fromEquation;
  */
 ComplexCurves.fromFile;
 
-/** @type {function(bool)} */
+/** @type {function(boolean)} */
 ComplexCurves.prototype.setAutorotate;
 
-/** @type {function(bool)} */
+/** @type {function(boolean)} */
 ComplexCurves.prototype.setClipping;
 
-/** @type {function(bool)} */
+/** @type {function(boolean)} */
 ComplexCurves.prototype.setOrtho;
 
-/** @type {function(bool)} */
+/** @type {function(boolean)} */
 ComplexCurves.prototype.setTransparency;
 
-/** @type {function} */
+/** @type {function()} */
 ComplexCurves.prototype.rotateBack;
 
-/** @type {function} */
+/** @type {function()} */
 ComplexCurves.prototype.rotateBottom;
 
-/** @type {function} */
+/** @type {function()} */
 ComplexCurves.prototype.rotateDefault;
 
-/** @type {function} */
+/** @type {function()} */
 ComplexCurves.prototype.rotateFront;
 
-/** @type {function} */
+/** @type {function()} */
 ComplexCurves.prototype.rotateLeft;
 
-/** @type {function} */
+/** @type {function()} */
 ComplexCurves.prototype.rotateRight;
 
-/** @type {function} */
+/** @type {function()} */
 ComplexCurves.prototype.rotateTop;
 
 /** @type {function(number)} */
@@ -75,5 +75,5 @@ ComplexCurves.prototype.setZoom;
  */
 ComplexCurves.prototype.setBackground;
 
-/** @type {function} */
+/** @type {function()} */
 ComplexCurves.prototype.renderSurface;
