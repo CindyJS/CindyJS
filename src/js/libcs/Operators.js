@@ -4164,15 +4164,17 @@ evaluator.create$2 = function(args, modifs) {
         var name, i;
         if (kind === 'P') {
             for (i = 0; i < 26 & !ans; i++) {
+                if (i === 8 || i === 9) continue; //skip I and J
                 useiffree(String.fromCharCode(65 + i)); //A, B, C...
             }
         } else if (kind === 'L' || kind === 'S') {
             for (i = 0; i < 26 & !ans; i++) {
+                if (i === 8 || i === 9) continue; //skip i and j
                 useiffree(String.fromCharCode(97 + i)); //a, b, c...
             }
         }
-        for (i = 1; !ans; i++) {
-            useiffree(kind + i); //P1, P2, ...
+        for (i = 0; !ans; i++) {
+            useiffree(kind + i); //P0, P1, P2, ...
         }
         return ans;
     }
