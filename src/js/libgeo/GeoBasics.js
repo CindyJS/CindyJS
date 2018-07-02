@@ -361,7 +361,7 @@ function addElementNoProof(el) {
 
 // TODO Remove dependencies also
 function removeElement(name) {
-    var i, el, debug = true;
+    var i, el, debug = false;
     if (debug) console.log("Remove element " + name);
 
     // TODO Check if name exists

@@ -4216,7 +4216,7 @@ evaluator.create$2 = function(args, modifs) {
         }
 
     } else {
-        if(el.isDuplicate) delete el.isDuplicate;
+        if (el.isDuplicate) delete el.isDuplicate;
         return el;
     }
 
