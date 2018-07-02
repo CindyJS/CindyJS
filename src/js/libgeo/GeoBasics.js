@@ -421,8 +421,8 @@ function removeElement(name) {
         return function(setel) {
             if (setel.name === cmpName) {
                 if (debug) console.log("Removed element " + name + " from set of " + sname);
-                return true;
-            } else return false;
+                return false; 
+            } else return true;
         };
     };
 
