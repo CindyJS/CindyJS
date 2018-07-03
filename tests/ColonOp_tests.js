@@ -50,7 +50,7 @@ describe("ColonOp: Lists", function(){
     itCmd('t2:"color"', 'blue');
 
     // keys
-    itCmd('keys(a)', '["bla"]');
+    itCmd('keys(a)', '[bla]');
     itCmd('keys(b)', '[]');
 });
 
@@ -69,6 +69,6 @@ describe("ColonOp: GeoOps", function(){
     itCmd('lst:"undef"', '___');
     itCmd('lst:pii', '___');
 
-    itCmd('keys(A)', '["age", "list", "pt"]');
+    itCmd('keys(A)', '[age, list, pt]');
     itCmd('keys(C)', '[]');
 });

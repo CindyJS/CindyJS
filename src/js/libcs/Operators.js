@@ -505,9 +505,7 @@ evaluator.keys$1 = function(args, modifs) {
 
         var data = ctype === "geo" ? obj.value.userData : obj.userData;
         if (data) {
-            keys = Object.keys(data).map(function(k) {
-                return General.string('"' + k + '"');
-            });
+            keys = Object.keys(data).map(General.string);
         }
         return List.turnIntoCSList(keys);
     }
