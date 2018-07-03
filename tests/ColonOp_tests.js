@@ -10,6 +10,7 @@ var cdy = CindyJS({
             geometry: [
                 {name:"A", type:"Free", pos:[0,0]},
                 {name:"B", type:"Free", pos:[1,1]},
+                {name:"C", type:"Free", pos:[1,1]},
             ],
         });
 
@@ -24,6 +25,7 @@ describe("ColonOp: Lists", function(){
         cdy.evalcs('lst = [1,2,3]; lst:"age"=17; lst:"list"=lst; lst:"pt" = B; lst:12.3 = 4.56; lst:1 = 1; lst:(1+i) = 2; lst:[1,2,3] = 10;');
         cdy.evalcs('a = [1,2,3]; a:"bla"=23; a_2 = 34'); // assigntake
         cdy.evalcs('t1=[-54,12];t1:"color"="red";t2=t1;t2:"color"="blue";'); // assigntake
+        cdy.evalcs('b = [1,2,3];'); // no userdata 
     }
     );
 
@@ -46,6 +48,10 @@ describe("ColonOp: Lists", function(){
     // references
     itCmd('t1:"color"', 'red');
     itCmd('t2:"color"', 'blue');
+
+    // keys
+    itCmd('keys(a)', '["bla"]');
+    itCmd('keys(b)', '[]');
 });
 
 
@@ -62,4 +68,7 @@ describe("ColonOp: GeoOps", function(){
 
     itCmd('lst:"undef"', '___');
     itCmd('lst:pii', '___');
+
+    itCmd('keys(A)', '["age", "list", "pt"]');
+    itCmd('keys(C)', '[]');
 });
