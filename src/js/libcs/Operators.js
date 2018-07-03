@@ -497,6 +497,23 @@ eval_helper.assigncolon = function(data, what) {
 };
 
 
+evaluator.keys$1 = function(args, modifs) {
+    var obj = evaluate(args[0]);
+    var ctype = obj.ctype;
+    if (ctype === "geo" || ctype === "list") {
+        var keys = [];
+
+        var data = ctype === "geo" ? obj.value.userData : obj.userData;
+        if (data) {
+            keys = Object.keys(data).map(General.string);
+        }
+        return List.turnIntoCSList(keys);
+    }
+
+    return nada;
+};
+
+
 eval_helper.assignlist = function(vars, vals) {
     var n = vars.length;
     var m = vals.length;
