@@ -218,8 +218,11 @@ guessDuplicate._helper.isSetEq = function(arrA, arrB, cmp) {
 };
 
 function guessIncidences(el) {
-    if (guessIncidences.hasOwnProperty(el.kind))
+    if (guessIncidences.hasOwnProperty(el.kind)){
+        // reset incidences
+        el.incidences = [];
         guessIncidences[el.kind](el);
+    }
 }
 
 guessIncidences.P = function(p) {
