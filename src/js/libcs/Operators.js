@@ -5054,3 +5054,11 @@ evaluator.load$3 = function(args, modifs) {
     }
 
 };
+
+evaluator.lastpointertype$0 = function(args, modifs) {
+    if (typeof(mouse.pointerType) === 'string') {
+        return General.string(mouse.pointerType);
+    }
+
+    return nada;
+};
