@@ -465,9 +465,10 @@ function setuplisteners(canvas, data) {
     addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
     addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
 
-    addAutoCleaningEventListener(window, "pointerover", function(e) {
+    addAutoCleaningEventListener(canvas, "pointerover", function(e) {
         mouse.pointerType = e.pointerType;
     });
+
     if (typeof document !== "undefined" && document.body) {
         addAutoCleaningEventListener(document.body, "touchcancel", touchUp, false);
         // addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);
