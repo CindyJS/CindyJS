@@ -313,7 +313,8 @@ function addElementNoProof(el) {
     }
 
     // collect sets
-    var setsRe = new RegExp("^[P|L|S|C]s$"); // Ps, Ls, ...
+    var setsRe = /^[P|L|S|C]s$/; // Ps, Ls, ...
+
     if (setsRe.test(el.kind)) {
         var nameMap = {
             "P": "points",
