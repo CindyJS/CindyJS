@@ -4043,9 +4043,10 @@ evaluator.createpoint$2 = function(args, modifs) {
 
     return {
         'ctype': 'geo',
-        'value': addElement(el)
+        'value': addElement(el, true)
     };
 };
+
 
 evaluator.create$3 = function(args, modifs) {
     var names = evaluate(args[0]);
@@ -4141,7 +4142,7 @@ evaluator.create$3 = function(args, modifs) {
 
     return {
         'ctype': 'geo',
-        'value': addElement(el)
+        'value': addElement(el, true)
     };
 };
 
@@ -4232,6 +4233,7 @@ evaluator.create$2 = function(args, modifs) {
         }
 
     } else {
+        if (el.isDuplicate) delete el.isDuplicate;
         return el;
     }
 
