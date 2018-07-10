@@ -360,8 +360,48 @@ function addElementNoProof(el) {
     return csgeo.csnames[el.name];
 }
 
-// TODO Remove dependencies also
 function removeElement(name) {
+    // build dependency tree
+    var depTree = {};
+    var cskeys = Object.keys(csgeo.csnames);
+    cskeys.forEach(function(name) {
+        var el = csgeo.csnames[name];
+        if (!el.hasOwnProperty("args")) return;
+        var args = el.args;
+
+        args.forEach(function(argn) {
+            if (!depTree.hasOwnProperty(argn)) {
+                depTree[argn] = {};
+            }
+            depTree[argn][name] = true;
+        });
+    });
+
+    // recursively find all dependencies
+    var recFind = function(elname, map) {
+        map[elname] = true;
+        if (!depTree.hasOwnProperty(elname)) return map;
+
+        var deps = Object.keys(depTree[elname]);
+        deps.forEach(function(dn) {
+            if (!map[dn]) {
+                map[dn] = true;
+                return recFind(dn, map);
+            }
+        });
+        return map;
+    };
+
+    // collect all objects to delete
+    var delArr = Object.keys(recFind(name, {}));
+
+    // delete every single object
+    delArr.forEach(function(e) {
+        removeOneElement(e);
+    });
+}
+
+function removeOneElement(name) {
     var i, el, debug = true;
     if (debug) console.log("Remove element " + name);
 
