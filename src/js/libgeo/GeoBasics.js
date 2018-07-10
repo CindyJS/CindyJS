@@ -402,7 +402,7 @@ function removeElement(name) {
 }
 
 function removeOneElement(name) {
-    var i, el, debug = true;
+    var i, el, debug = false;
     if (debug) console.log("Remove element " + name);
 
     // TODO Check if name exists
