@@ -405,7 +405,7 @@ function removeElement(name) {
 }
 
 function removeAllElements(nameMap) {
-    var i, el, debug = true;
+    var i, el, debug = false;
     var keys = Object.keys(nameMap);
     if (debug) console.log("Remove elements: " + String(keys));
 
