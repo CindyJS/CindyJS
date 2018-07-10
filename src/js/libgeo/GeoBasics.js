@@ -398,50 +398,54 @@ function removeElement(name) {
     };
 
     // collect all objects to delete
-    var delArr = Object.keys(recFind(name, {}));
+    var delArr = recFind(name, {});
 
-    // delete every single object
-    delArr.forEach(function(e) {
-        removeOneElement(e);
-    });
+    removeAllElements(delArr);
 
 }
 
-function removeOneElement(name) {
-    var i, el, debug = false;
-    if (debug) console.log("Remove element " + name);
+function removeAllElements(nameMap) {
+    var i, el, debug = true;
+    var keys = Object.keys(nameMap);
+    if (debug) console.log("Remove elements: " + String(keys));
 
 
-    var nameCmp = function(cmpName, arrn) {
+    var nameCmp = function(cmpMap, arrn) {
         return function(setel) {
-            if (setel.name === cmpName) {
-                if (debug) console.log("Removed element " + name + " from " + arrn);
+            if (cmpMap[setel.name]) {
+                if (debug) console.log("Removed element " + setel.name + " from " + arrn);
                 return false;
             } else return true;
         };
     };
 
     // update incidences
-    var allIncis = csgeo.csnames[name].incidences;
-    allIncis.forEach(function(iname) {
-        var incis = csgeo.csnames[iname].incidences;
-        csgeo.csnames[iname].incidences = incis.filter(function(n) {
-            return n !== name;
+    keys.forEach(function(name) {
+        var allIncis = csgeo.csnames[name].incidences;
+        allIncis.forEach(function(iname) {
+            var incis = csgeo.csnames[iname].incidences;
+            csgeo.csnames[iname].incidences = incis.filter(function(n) {
+                return !(nameMap[n]);
+            });
         });
     });
 
     // process GeoArrays
     var geoArrs = ["conics", "free", "gslp", "ifs", "lines", "points", "polygons", "texts"];
     geoArrs.map(function(arrn) {
-        csgeo[arrn] = csgeo[arrn].filter(nameCmp(name, arrn));
+        csgeo[arrn] = csgeo[arrn].filter(nameCmp(nameMap, arrn));
     });
 
     // remove from sets of geos -- PointSet (Ps), LineSet (Ls)...
     for (var sname in csgeo.sets) {
-        csgeo.sets[sname] = csgeo.sets[sname].filter(nameCmp(name, "set of " + sname));
+        csgeo.sets[sname] = csgeo.sets[sname].filter(nameCmp(nameMap, "set of " + sname));
     }
 
-    delete csgeo.csnames[name];
+
+    keys.forEach(function(name) {
+        delete csgeo.csnames[name];
+    });
+
     geoDependantsCache = {};
 }
 
