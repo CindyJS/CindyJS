@@ -362,71 +362,30 @@ function addElementNoProof(el) {
 
 // TODO Remove dependencies also
 function removeElement(name) {
-    var i, el, debug = false;
+    var i, el, debug = true;
     if (debug) console.log("Remove element " + name);
 
     // TODO Check if name exists
     delete csgeo.csnames[name];
 
-    for (i = 0; i < csgeo.gslp.length; i++) {
-        el = csgeo.gslp[i];
-
-        if (el.name === name) {
-            if (debug) console.log("Removed element from gslp " + name);
-            csgeo.gslp.splice(i, 1);
-        }
-    }
-
-    for (i = 0; i < csgeo.free.length; i++) {
-        el = csgeo.free[i];
-
-        if (el.name === name) {
-            if (debug) console.log("Removed element from free " + name);
-            csgeo.free.splice(i, 1);
-        }
-    }
-
-    for (i = 0; i < csgeo.points.length; i++) {
-        el = csgeo.points[i];
-
-        if (el.name === name) {
-            if (debug) console.log("Removed element from points " + name);
-            csgeo.points.splice(i, 1);
-        }
-    }
-
-    for (i = 0; i < csgeo.lines.length; i++) {
-        el = csgeo.lines[i];
-
-        if (el.name === name) {
-            if (debug) console.log("Removed element from lines " + name);
-            csgeo.lines.splice(i, 1);
-        }
-    }
-
-    for (i = 0; i < csgeo.conics.length; i++) {
-        el = csgeo.conics[i];
-
-        if (el.name === name) {
-            if (debug) console.log("Removed element from conics " + name);
-            csgeo.conics.splice(i, 1);
-        }
-    }
-
-    // remove from sets
-    //
-    // define function with closure which compares the name
-    var nameCmp = function(cmpName) {
+    var nameCmp = function(cmpName, arrn) {
         return function(setel) {
             if (setel.name === cmpName) {
-                if (debug) console.log("Removed element " + name + " from set of " + sname);
+                if (debug) console.log("Removed element " + name + " from " + arrn);
                 return false;
             } else return true;
         };
     };
 
+    // process GeoArrays
+    var geoArrs = ["conics", "free", "gslp", "ifs", "lines", "points", "polygons", "texts"];
+    geoArrs.map(function(arrn) {
+        csgeo[arrn] = csgeo[arrn].filter(nameCmp(name, arrn));
+    });
+
+    // remove from sets of geos -- PointSet (Ps), LineSet (Ls)...
     for (var sname in csgeo.sets) {
-        csgeo.sets[sname] = csgeo.sets[sname].filter(nameCmp(name));
+        csgeo.sets[sname] = csgeo.sets[sname].filter(nameCmp(name, "set of " + sname));
     }
 
     geoDependantsCache = {};
