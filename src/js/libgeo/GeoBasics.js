@@ -361,6 +361,11 @@ function addElementNoProof(el) {
 }
 
 function removeElement(name) {
+    if(!csgeo.csnames.hasOwnProperty(name)){
+        console.log("removeElement: name " + name + "does not exist.");
+        return;
+    }
+
     // build dependency tree
     var depTree = {};
     var cskeys = Object.keys(csgeo.csnames);
@@ -405,7 +410,6 @@ function removeOneElement(name) {
     var i, el, debug = false;
     if (debug) console.log("Remove element " + name);
 
-    // TODO Check if name exists
     delete csgeo.csnames[name];
 
     var nameCmp = function(cmpName, arrn) {
