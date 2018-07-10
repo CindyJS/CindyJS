@@ -361,7 +361,7 @@ function addElementNoProof(el) {
 }
 
 function removeElement(name) {
-    if(!csgeo.csnames.hasOwnProperty(name)){
+    if (!csgeo.csnames.hasOwnProperty(name)) {
         console.log("removeElement: name " + name + "does not exist.");
         return;
     }
