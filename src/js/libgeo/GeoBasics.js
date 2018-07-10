@@ -404,13 +404,13 @@ function removeElement(name) {
     delArr.forEach(function(e) {
         removeOneElement(e);
     });
+
 }
 
 function removeOneElement(name) {
     var i, el, debug = false;
     if (debug) console.log("Remove element " + name);
 
-    delete csgeo.csnames[name];
 
     var nameCmp = function(cmpName, arrn) {
         return function(setel) {
@@ -420,6 +420,15 @@ function removeOneElement(name) {
             } else return true;
         };
     };
+
+    // update incidences
+    var allIncis = csgeo.csnames[name].incidences;
+    allIncis.forEach(function(iname) {
+        var incis = csgeo.csnames[iname].incidences;
+        csgeo.csnames[iname].incidences = incis.filter(function(n) {
+            return n !== name;
+        });
+    });
 
     // process GeoArrays
     var geoArrs = ["conics", "free", "gslp", "ifs", "lines", "points", "polygons", "texts"];
@@ -432,6 +441,7 @@ function removeOneElement(name) {
         csgeo.sets[sname] = csgeo.sets[sname].filter(nameCmp(name, "set of " + sname));
     }
 
+    delete csgeo.csnames[name];
     geoDependantsCache = {};
 }
 
