@@ -86,9 +86,9 @@ var Inspector = {
         var undim = CSNumber.real(1 / defaultAppearance.dimDependent);
         res.color = General.unwrap(List.scalmult(undim, el.color));
         */
-        let f = .7;
-        if(configuration.defaultAppearance && configuration.defaultAppearance.dimDependent) f = configuration.defaultAppearance.dimDependent;
-        value = [f*value[0], f*value[1], f*value[2]];
+        //let f = .7;
+        //if(configuration.defaultAppearance && configuration.defaultAppearance.dimDependent) f = configuration.defaultAppearance.dimDependent;
+        //value = [f*value[0], f*value[1], f*value[2]];
         
         if (this.colorwheel) this.colorwheel.evokeCS(`activate([${value}])`);
       } else {
