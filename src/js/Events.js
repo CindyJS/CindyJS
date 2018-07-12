@@ -417,6 +417,8 @@ function setuplisteners(canvas, data) {
 
         updatePosition(e.targetTouches[0]);
         if (mouse.down) {
+            if (mousedownevent && (Math.abs(mousedownevent.clientX - e.targetTouches[0].clientX) > 2 || Math.abs(mousedownevent.clientY - e.targetTouches[0].clientY) > 2))
+                hasmoved = true;
             cs_mousedrag();
         } else {
             cs_mousemove();
@@ -442,6 +444,8 @@ function setuplisteners(canvas, data) {
         updatePosition(e.targetTouches[0]);
         cs_mousedown();
         mouse.down = true;
+        mousedownevent = e.targetTouches[0];
+        hasmoved = false;
         //move = getmover(mouse);
         manage("mousedown");
         e.preventDefault();
@@ -464,6 +468,8 @@ function setuplisteners(canvas, data) {
         cindy_cancelmove();
         cs_mouseup();
         manage("mouseup");
+        if (!hasmoved)
+            cs_mouseclick();
         scheduleUpdate();
         e.preventDefault();
     }
