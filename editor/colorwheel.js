@@ -39,7 +39,6 @@ generateColorwheel = function() {
   );
   
   activate(color) := (
-    if(max(color)>1, color=color/max(color));//I do not understand why this sometimes happen
     active = true;
     hsl = rgb2hsl(color);
     B.xy = (cos(hsl_1*2*pi),sin(hsl_1*2*pi));
