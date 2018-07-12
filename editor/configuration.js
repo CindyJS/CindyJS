@@ -133,7 +133,7 @@ var Configuration = {
 
     document.getElementById('configuration-change-size-button').onclick = function() {
       cdy.evokeCS(`stopvisiblerect()`);
-      configuration.geometry = yieldgslp(); //copy gslp
+      configuration.geometry = cdy.saveState().geometry; //copy gslp
       if (document.getElementById('configuration-fullscreen').checked) {
         configuration.fullscreenmode = true;
         if (configuration.ports && configuration.ports[0]) {

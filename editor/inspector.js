@@ -41,7 +41,7 @@ var Inspector = {
       return;
 
     selected = str.slice(1, str.length - 1).split(',').map(el => el.trim());
-    var gslp = yieldgslp();
+    var gslp = cdy.saveState().geometry;
 
     var els = gslp.filter(el => selected.indexOf(el.name) != -1);
 
