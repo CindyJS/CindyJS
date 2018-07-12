@@ -123,6 +123,8 @@ function addAutoCleaningEventListener(target, type, listener, useCapture) {
 function setuplisteners(canvas, data) {
 
     var MO = null;
+    var mousedownevent = null;
+    var hasmoved = false;
     if (typeof MutationObserver !== "undefined")
         MO = MutationObserver;
     if (!MO && typeof WebKitMutationObserver !== "undefined")
@@ -197,6 +199,8 @@ function setuplisteners(canvas, data) {
     }
 
     addAutoCleaningEventListener(canvas, "mousedown", function(e) {
+        mousedownevent = e;
+        hasmoved = false;
         mouse.button = e.which;
         updatePosition(e);
         cs_mousedown();
@@ -217,6 +221,8 @@ function setuplisteners(canvas, data) {
     addAutoCleaningEventListener(canvas, "mousemove", function(e) {
         updatePosition(e);
         if (mouse.down) {
+            if (mousedownevent && (Math.abs(mousedownevent.clientX - e.clientX) > 2 || Math.abs(mousedownevent.clientY - e.clientY) > 2))
+                hasmoved = true;
             cs_mousedrag();
         } else {
             cs_mousemove();
@@ -227,7 +233,8 @@ function setuplisteners(canvas, data) {
 
     addAutoCleaningEventListener(canvas, "click", function(e) {
         updatePosition(e);
-        cs_mouseclick();
+        if (!hasmoved)
+            cs_mouseclick();
         e.preventDefault();
     });
 
