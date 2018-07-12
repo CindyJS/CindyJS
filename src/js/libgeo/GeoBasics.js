@@ -387,13 +387,12 @@ function removeElement(name) {
         map[elname] = true;
         if (!depTree.hasOwnProperty(elname)) return map;
 
-        var deps = Object.keys(depTree[elname]);
-        deps.forEach(function(dn) {
+        for (var dn in depTree[elname]) {
             if (!map[dn]) {
-                map[dn] = true;
-                return recFind(dn, map);
+                recFind(dn, map);
             }
-        });
+        }
+
         return map;
     };
 
