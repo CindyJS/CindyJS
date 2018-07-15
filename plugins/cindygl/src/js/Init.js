@@ -11,6 +11,11 @@ var glcanvas;
 /** @type {HTMLCanvasElement} */
 var tmpcanvas;
 
+/** @type {HTMLCanvasElement} */
+var dummycanvas;
+
+var dummyimage;
+
 /** @type {WebGLRenderingContext} */
 var gl;
 
@@ -45,6 +50,27 @@ function initGLIfRequired() {
     tmpcanvas.style.display = "none";
     tmpcanvas.width = tmpcanvas.height = 0;
     document.body.appendChild(tmpcanvas);
+
+    dummycanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
+    dummycanvas.id = "dummycanvas";
+    dummycanvas.style.display = "none";
+    dummycanvas.width = dummycanvas.height = 1;
+    document.body.appendChild(dummycanvas);
+    dummyimage = {
+        "ctype": "image",
+        "value": {
+            "img": dummycanvas,
+            "width": 1,
+            "height": 1,
+            "ready": true,
+            "live": false,
+            "generation": 0,
+            "whenReady": function(f) {
+                return;
+            },
+        },
+    };
+
 
     let errorInfo = "Unknown";
 

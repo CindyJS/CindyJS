@@ -1,23 +1,21 @@
 function generateCanvasWrapperIfRequired(imageobject, api, properties) {
     if (imageobject['canvaswrapper']) {
+        if (imageobject.ready && (imageobject['canvaswrapper'].canvas == dummyimage || (imageobject['canvaswrapper'].sizeX != imageobject.width) || (imageobject['canvaswrapper'].sizeY != imageobject.height))) {
+            delete imageobject['canvaswrapper'];
+            imageobject['canvaswrapper'] = generateCanvasWrapperIfRequired(imageobject, api, properties);
+        }
         if (properties) imageobject['canvaswrapper'].updateReadingProperties(properties);
     } else {
-        imageobject['canvaswrapper'] = new CanvasWrapper(imageobject, properties || {
+        imageobject['canvaswrapper'] = new CanvasWrapper(imageobject.ready ? imageobject : dummyimage, properties || {
             interpolate: true,
             mipmap: false,
             repeat: false
         });
 
         if (!imageobject.ready) {
-            console.error("Image not ready. Creating onload event.");
-            imageobject.whenReady(() => {
-                imageobject.generation = Math.max(imageobject.generation, imageobject['canvaswrapper'].generation + 1);
-            });
+            console.log("Image is not ready yet.");
         }
     }
-    //imageobject['readPixels'] = imageobject['canvaswrapper'].readPixels.bind(imageobject['canvaswrapper']);
-    //if (imageobject['canvaswrapper'] && imageobject['canvaswrapper'].generation > imageobject.generation) imageobject['canvaswrapper'].copyTextureToCanvas();
-
     return imageobject['canvaswrapper'];
 }
 
