@@ -5056,3 +5056,9 @@ evaluator.load$3 = function(args, modifs) {
     }
 
 };
+
+evaluator.removeelement$1 = function(args, modifs) {
+    var arg = evaluate(args[0]);
+    if (arg.ctype === "geo") removeElement(arg.value.name);
+    else console.log("argument of removeelement is undefined or not of type <geo>");
+};
