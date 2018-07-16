@@ -419,13 +419,16 @@ function removeAllElements(nameMap) {
     };
 
     // update incidences
+    var isFiltered = {}; // track filtered arrays
     keys.forEach(function(name) {
         var allIncis = csgeo.csnames[name].incidences;
         allIncis.forEach(function(iname) {
+            if (isFiltered[iname]) return;
             var incis = csgeo.csnames[iname].incidences;
             csgeo.csnames[iname].incidences = incis.filter(function(n) {
                 return !(nameMap[n]);
             });
+            isFiltered[iname] = true;
         });
     });
 
