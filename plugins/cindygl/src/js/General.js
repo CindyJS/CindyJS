@@ -148,6 +148,8 @@ function guessTypeOfValue(tval) {
         }
     } else if (tval['ctype'] === 'string' || tval['ctype'] === 'image') {
         return type.image;
+    } else if (tval['ctype'] === 'geo' && tval['value']['kind'] === 'L') {
+        return type.line;
     }
     console.error(`Cannot guess type of the following type:`);
     console.log(tval);

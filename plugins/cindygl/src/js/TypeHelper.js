@@ -129,7 +129,7 @@ function issubtypeof(a, b) {
     if (a.type === 'constant') return (issubtypeof(guessTypeOfValue(a.value), b));
 
     if (b === type.coordinate2d) return issubtypeof(a, type.complex) || issubtypeof(a, type.vec2) || issubtypeof(a, type.point);
-    if (b === type.point) return issubtypeof(a, type.vec3);
+    if (b === type.point) return issubtypeof(a, type.vec3) || issubtypeof(a, type.vec2);
     if (b === type.line) return issubtypeof(a, type.vec3);
     if (b === type.color) return (issubtypeof(a, type.float) || (a.type === 'list' && (a.length === 3 || a.length === 4) && issubtypeof(a.parameters, type.float)));
 

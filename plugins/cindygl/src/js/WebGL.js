@@ -252,6 +252,10 @@ webgl["add"] = args => {
     let match = first(
         glslsupportop.map(t => [
             [t, t], t, useinfix('+')
+        ]).concat([
+            [
+                [type.point, type.point], type.vec2, useincludefunction('addpoints')
+            ]
         ])
     )(args);
     if (match) return match;
@@ -278,6 +282,11 @@ webgl["sub"] = args => {
         .concat(glslsupportop.map(t => [
             [type.voidt, t], t, useinfix('-')
         ]))
+        .concat([
+            [
+                [type.point, type.point], type.vec2, useincludefunction('subpoints')
+            ]
+        ])
     )(args);
     if (match) return match;
 
@@ -762,6 +771,8 @@ requires['arctan2c'] = ['logc', 'divc', 'sqrtc', 'multc'];
 requires['arctan2vec2c'] = ['arctan2c'];
 requires['hue'] = ['hsv2rgb'];
 requires['randomnormal'] = ['random'];
+requires['subpoints'] = ['dehomogenize'];
+requires['addpoints'] = ['dehomogenize'];
 
 
 Object.freeze(requires);

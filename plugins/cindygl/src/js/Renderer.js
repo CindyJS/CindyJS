@@ -148,6 +148,9 @@ Renderer.prototype.setUniforms = function() {
                 case type.float:
                     setter([val['value']['real']]);
                     break;
+                case type.line:
+                    setter(val['value']['homog']['value'].map(x => x['value']['real']));
+                    break;
                 default:
                     if (t.type === 'list' && t.parameters === type.float) { //float-list
                         setter(val['value'].map(x => x['value']['real']));
