@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>exported from UIExperiments.html</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            
+            
+            #CSCanvas {
+                width: 100vw; height: 100vh;
+            }
+        </style>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        
+      <script id="csdraw" type="text/x-cindyscript">
+almostequal(a, b) := exp(-30*|a-b|)*[1,0,0,1];
+
+colorplot(
+	c = join(C, p);
+	d = meet(c, a);
+	almostequal(|p-d|, C0.radius)
+);
+      </script>
+    
+        <script type="text/javascript">
+          var cdy = CindyJS({
+  "scripts": "cs*",
+  "angleUnit": "°",
+  "exclusive": "true",
+  "geometry": [
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "A",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        0.9999999999999999,
+        -0.140625,
+        -0.3571875
+      ]
+    },
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "B",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        0.9999999999999999,
+        -0.2732558139534883,
+        -0.6645348837209302
+      ]
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "A",
+        "B"
+      ],
+      "clip": "none",
+      "color": [
+        0,
+        0,
+        1
+      ],
+      "labeled": true,
+      "name": "a",
+      "overhang": 1,
+      "pinned": false,
+      "size": 1,
+      "type": "Join"
+    },
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "C",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        -0.6218244043701462,
+        1,
+        0.9629064104251681
+      ]
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "a"
+      ],
+      "color": [
+        1,
+        0.4875,
+        0.5172
+      ],
+      "labeled": true,
+      "name": "D",
+      "pinned": false,
+      "size": 5,
+      "type": "PointOnLine",
+      "pos": [
+        1,
+        0.3353566218878505,
+        0.7458118847265255
+      ]
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "D"
+      ],
+      "clip": "none",
+      "color": [
+        0,
+        0,
+        1
+      ],
+      "labeled": true,
+      "name": "C0",
+      "overhang": 1,
+      "pinned": false,
+      "radius": 1.4492388066023998,
+      "size": 1,
+      "type": "CircleMr",
+      "pos": {
+        "xx": -0.7458118847265255,
+        "yy": -0.7458118847265255,
+        "zz": 0.07480874433402787,
+        "xy": 0,
+        "xz": 2.0000000000000004,
+        "yz": 0.670713243775701
+      }
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "D",
+        "C"
+      ],
+      "clip": "none",
+      "color": [
+        0,
+        0,
+        1
+      ],
+      "labeled": true,
+      "name": "b",
+      "overhang": 1,
+      "pinned": false,
+      "size": 1,
+      "type": "Join"
+    },
+    {
+      "args": [
+        "b",
+        "C0"
+      ],
+      "labeled": true,
+      "name": "Ps0",
+      "pinned": false,
+      "type": "IntersectLC"
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "Ps0"
+      ],
+      "color": [
+        1.4285714285714286,
+        0.6964285714285714,
+        0.7388571428571429
+      ],
+      "labeled": true,
+      "name": "E",
+      "pinned": false,
+      "size": 5,
+      "type": "SelectP",
+      "pos": [
+        -0.048659607041545413,
+        0.8615240022438281,
+        0.9999999999999999
+      ]
+    }
+  ],
+  "ports": [
+    {
+      "id": "CSCanvas",
+      "transform": [
+        {
+          "visibleRect": [
+            -5,
+            -5,
+            5,
+            5
+          ]
+        }
+      ],
+      "background": "rgb(168,176,192)"
+    }
+  ],
+  "csconsole": false,
+  "use": [
+    "CindyGL"
+  ],
+  "autoplay": true,
+  "behavior": []
+});
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
+    </html>
+  
