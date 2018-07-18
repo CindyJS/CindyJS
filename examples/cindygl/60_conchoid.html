@@ -3,28 +3,25 @@
     <head>
         <meta charset="UTF-8">
         
-        <title>exported from UIExperiments.html</title>
-        <style type="text/css">
-            body {
-                margin: 0px;
-                padding: 0px;
-            }
-            
-            
-            #CSCanvas {
-                width: 100vw; height: 100vh;
-            }
-        </style>
+        <title>Conchoid of Nicomedes</title>
         <script type="text/javascript" src="../../build/js/Cindy.js"></script>
         <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
         
       <script id="csdraw" type="text/x-cindyscript">
-almostequal(a, b) := exp(-30*|a-b|)*[1,0,0,1];
+f(P) := (
+  l = join(C, P);
+  M = meet(l, a);
+  |P-M|-C0.radius
+);
+
+tinyhexagon = apply(1..6, gauss(exp(i*#/6*2*pi)))*.02;
 
 colorplot(
-	c = join(C, p);
-	d = meet(c, a);
-	almostequal(|p-d|, C0.radius)
+	list = apply(tinyhexagon, delta, f(#+delta));
+  if(min(list)<0 & 0 < max(list),
+    [1,0,0,1],
+    [0,0,0,0]
+  )
 );
       </script>
     
@@ -118,7 +115,7 @@ colorplot(
         0.5172
       ],
       "labeled": true,
-      "name": "D",
+      "name": "M",
       "pinned": false,
       "size": 5,
       "type": "PointOnLine",
@@ -131,13 +128,13 @@ colorplot(
     {
       "alpha": 1,
       "args": [
-        "D"
+        "M"
       ],
       "clip": "none",
       "color": [
-        0,
-        0,
-        1
+        0.3,
+        0.3,
+        0.3
       ],
       "labeled": true,
       "name": "C0",
@@ -158,14 +155,14 @@ colorplot(
     {
       "alpha": 1,
       "args": [
-        "D",
+        "M",
         "C"
       ],
       "clip": "none",
       "color": [
-        0,
-        0,
-        1
+        0.3,
+        0.3,
+        0.3
       ],
       "labeled": true,
       "name": "b",
@@ -195,7 +192,7 @@ colorplot(
         0.7388571428571429
       ],
       "labeled": true,
-      "name": "E",
+      "name": "P",
       "pinned": false,
       "size": 5,
       "type": "SelectP",
@@ -204,7 +201,27 @@ colorplot(
         0.8615240022438281,
         0.9999999999999999
       ]
-    }
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "P",
+        "M"
+      ],
+      "clip": "end",
+      "color": [
+        0,
+        0,
+        0.2024
+      ],
+      "alpha": .5,
+      "labeled": false,
+      "name": "s",
+      "overhang": 1,
+      "pinned": false,
+      "size": 4.89,
+      "type": "Segment"
+    },
   ],
   "ports": [
     {
@@ -213,13 +230,15 @@ colorplot(
         {
           "visibleRect": [
             -5,
-            -5,
+            -2.5,
             5,
-            5
+            2.5
           ]
         }
       ],
-      "background": "rgb(168,176,192)"
+      "background": "rgb(168,176,192)",
+      "width": "1000",
+      "height": "500"
     }
   ],
   "csconsole": false,
@@ -232,7 +251,9 @@ colorplot(
         </script>
     </head>
     <body>
+        <h1>Conchoid of Nicomedes</h1>
         <div id="CSCanvas"></div>
+        <p>The displayed locus set is computed on the GPU</p>
     </body>
     </html>
   
