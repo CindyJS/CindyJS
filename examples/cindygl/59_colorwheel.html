@@ -70,16 +70,28 @@ U.color = readcolor(barycentric(U.xy));
       <script id="colorwheelmove" type="text/x-cindyscript">
 if(mover()==B,
    U.homog = invbarycentric(prevbarycentric);
-  );
+);
 
 if(mover()==U,
    b = barycentric(U.xy);
    b = apply(b, max(0, min(1, #)));
-
    U.homog = invbarycentric(b);
   );
 
 prevbarycentric = barycentric(U.xy);
+      </script>
+      
+      <script id="colorwheelmouseclick" type="text/x-cindyscript">
+p = mouse();
+if(.9 < |p| & |p|<1.1,
+ B.xy = p;
+ U.homog = invbarycentric(prevbarycentric);
+ ,
+ b = barycentric(p);
+ if(max(b)<=1 & min(b)>=0,
+   U.homog = invbarycentric(b);
+ )
+);
       </script>
     
         <script type="text/javascript">
