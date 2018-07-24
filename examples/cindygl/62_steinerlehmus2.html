@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>Generalizing the Steiner-Lehmus Theorem</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        
+      <script id="csinit" type="text/x-cindyscript">  
+  homog(z) := [re(z), im(z), 1];
+  dehomog(p) := [p_1, p_2]/p_3;
+
+  bisectors(A, B, C) := (
+    //compute the bisectors at point A
+    a = complex(A);
+    b = complex(B);
+    c = complex(C);
+    w = sqrt((c-a)*(b-a));
+    [join(A,homog(a+w)), join(A,homog(a+i*w))]
+  );
+
+
+  f(C) := (
+    Alines = bisectors(A, B, C);
+    Apts = apply(Alines, l, dehomog(meet(l, join(B,C))));
+    Alen = apply(Apts, P, |P-A|)/|B-A|;
+
+    Blines = bisectors(B, C, A);
+    Bpts = apply(Blines, l, dehomog(meet(l, join(A,C))));
+    Blen = apply(Bpts, P, |P-B|)/|B-A|;
+    
+    Clines = bisectors(C, A, B);
+    Cpts = apply(Clines, l, dehomog(meet(l, join(A,B))));
+    Clen = apply(Cpts, P, |P-C|)/|B-A|;
+    //v = (Alen_1-Blen_1)*(Alen_2-Blen_1)*(Alen_1-Blen_2)*(Alen_2-Blen_2);
+  );      
+      </script>
+      <script id="csdraw" type="text/x-cindyscript">
+colorplot(
+  f(#);
+  exp(-40*min(|(Clen_1-Alen_1)|,|(Clen_1-Blen_1)|))*[1,1,1] +
+  exp(-20*min(|(Clen_1-Alen_2)|,|(Clen_1-Blen_2)|))*[1,1,0] +
+  exp(-20*min(|(Clen_2-Alen_1)|,|(Clen_2-Blen_1)|))*[1,0,1] +
+  exp(-10*min(|(Clen_2-Alen_2)|,|(Clen_2-Blen_2)|))*[1,0,0] +
+  
+  exp(-20*min(|(Alen_1-Blen_1)|,|(Alen_2-Blen_2)|))*[0,1,0] +
+  exp(-15*min(|(Alen_2-Blen_1)|,|(Alen_1-Blen_2)|))*[0,0,1] 
+  
+);
+
+f(C);
+draw(join(A, C), color->[1,1,1], alpha->.5);
+draw(join(B, C), color->[1,1,1], alpha->.5);
+draw(join(A, B), color->[1,1,1], alpha->.5);
+
+draw(A, C);
+draw(B, C);
+draw(A, B);
+
+pt2len(p) := (
+  if(p==A,Alen,
+    if(p==B,Blen,
+      Clen
+    )
+  )
+);
+
+pt2pts(p) := (
+  if(p==A,Apts,
+    if(p==B,Bpts,
+      Cpts
+    )
+  )
+);
+
+forall([[1,1],[1,2],[2,1],[2,2]], idx,
+  forall([[A,B],[B,C],[C,A]], pts,
+    if(|pt2len(pts_1)_(idx_1)-pt2len(pts_2)_(idx_2)|<.1,
+      draw(pts_1, pt2pts(pts_1)_(idx_1), color->[1,1,1], size->6, alpha->.7);
+      draw(pts_2, pt2pts(pts_2)_(idx_2), color->[1,1,1], size->6, alpha->.7);
+    );
+  );
+);
+</script>
+    
+        <script type="text/javascript">
+          var cdy = CindyJS({
+  "scripts": "cs*",
+  "defaultAppearance": {
+    "dimDependent": 0.7,
+    "fontFamily": "sans-serif",
+    "lineSize": 1,
+    "pointSize": 5,
+    "textsize": 12
+  },
+  "angleUnit": "°",
+  "exclusive": "true",
+  "geometry": [
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "A",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        2,0
+      ]
+    },
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "B",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        -2,0
+      ]
+    },
+    
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "C",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        .5,2
+      ]
+    }
+  ],
+  "ports": [
+    {
+      "id": "CSCanvas",
+      width: 800,
+      height: 600,
+      "transform": [
+        {
+          "visibleRect": [
+            -5,
+            -5,
+            5,
+            5
+          ]
+        }
+      ],
+      "background": "rgb(168,176,192)"
+    }
+  ],
+  "csconsole": false,
+  "use": [
+    "CindyGL"
+  ],
+  "autoplay": false,
+  "behavior": []
+});
+        </script>
+    </head>
+    <body>
+      <h1>Generalizing the Steiner-Lehmus Theorem</h1>
+      Adapted from <a href="http://geogebra.es/color_dinamico/color_dinamico.html">http://geogebra.es/color_dinamico/color_dinamico.html</a>. 
+        <div id="CSCanvas"></div>
+    </body>
+    </html>
+  
