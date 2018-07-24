@@ -15,8 +15,8 @@ function useinfix(inf) {
 //subtype inclusion function in WebGL
 let identity = x => x;
 
-let getReal = c => `(${c}).x`
-let getImag = c => `(${c}).y`
+let getReal = c => `(${c}).x`;
+let getImag = c => `(${c}).y`;
 
 
 var webgl = {};
@@ -311,6 +311,7 @@ let rings = [type.int, type.float, type.complex, type.vec2, type.vec3, type.vec4
 
 webgl["_"] = args => {
     let t = generalize(args[0]);
+    if (t === type.point || t === type.line) t = type.vec3;
     if (t.type === 'list' && isconstantint(args[1])) {
         let k = Number(args[1].value["value"]["real"]);
         if (1 <= Math.abs(k) && Math.abs(k) <= t.length) {
