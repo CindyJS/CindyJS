@@ -126,7 +126,7 @@ var Import = {
     if (!configuration.use)
       configuration.use = [];
 
-    let plugins = ["geometryeditor", "visiblerect", "user"];
+    let plugins = ["dimensions", "geometryeditor", "visiblerect", "user"];
 
     for (var i in plugins) {
       if (configuration.use.indexOf(plugins[i]) == -1) {
