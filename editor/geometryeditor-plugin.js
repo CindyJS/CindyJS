@@ -45,7 +45,7 @@ var geometrycodes = {
     iscircle(c):=contains(circs,c);
     issegment(s):=contains(segments,s);
 
-    ishotp(pos,p):=|pos,p|<.5;
+    ishotp(pos,p):=|pos,p|<.2;
 
     ishotli(pos,l):=(
        regional(p);
@@ -118,20 +118,23 @@ var geometrycodes = {
     );
 
     dodrag():=(
-     if(inaction,
+      if(inaction,
         pos=mouse().xy;
         parse(mode+"Drag(pos)");
-       );
+      );
     );
 
     doup():=(
       if(inaction,
         pos=mouse().xy;
         parse(mode+"Up(pos)");
-
      );
      dopinning();
-     javascript("Inspector.update('" + (selpts++sellns++selcns) + "')");
+    );
+    
+    doclick():=(
+      pos=mouse().xy;
+      parse(mode+"Click(pos)");
     );
 
 adjoint(m):=(
@@ -246,15 +249,7 @@ toggleset(a,b):=(a--b)++(b--a);
 
 
 //=======  MOVE  ==============
-    moveDown(pos):=(
-        movedown=true;
-        perhapsclick=true;
-        movedownpos=mouse().xy;   
-    );
-
-    moveUp(pos):=(
-       if(|movedownpos,mouse().xy|>.1,perhapsclick=false);
-       if(perhapsclick,
+    moveClick(pos):=(
             (spts,slns,scns)=elementsAtPos(pos);
             if((spts,slns,scns)==([],[],[]),
               (selpts,sellns,selcns)=([],[],[]);
@@ -263,16 +258,33 @@ toggleset(a,b):=(a--b)++(b--a);
               sellns=toggleset(sellns,slns);
               selcns=toggleset(selcns,scns);
             );
-
-       );
+            
+            javascript("Inspector.update('" + (selpts++sellns++selcns) + "')");
     );
 
-    moveDrag(pos):=(
-      if(|movedownpos,mouse().xy|>.1,perhapsclick=false);
-
-    );
 //==============================
 
+
+//=======  DELETE  ==============
+  deleteDown(pos) := (
+    (selpts,sellns,selcns)=elementsAtPos(pos);
+  );
+  
+  deleteDrag(pos) := (
+    (spts,slns,scns)=elementsAtPos(pos);
+    selpts=(selpts ∩ spts);
+    sellns=(sellns ∩ slns);
+    selcns=(selcns ∩ scns);
+  );
+    
+    
+  deleteUp(pos) := (
+    forall(selpts ++ sellns ++ selcns, e, removeelement(e));
+    selpts = sellns = selcns = [];
+  );
+
+
+//==============================
 
 createSinglePoint(pos):=(
       regional(pt,prepare);
@@ -688,9 +700,11 @@ dodown();
   "mousedrag": `
 dodrag();
 `,
-
   "mouseup": `
 doup();
+`,
+  "mouseclick": `
+doclick();
 `
 };
 

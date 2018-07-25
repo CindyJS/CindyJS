@@ -7,6 +7,7 @@ var Geometry = {
   id: "geometry",
   buttons: [
     ["move", 'images/move.png'],
+    ["delete", 'images/delete.png'],
     ["singlepoint", 'images/single-add.png'],
     ["middle", 'images/multi-add-middle.png'],
     ["singleline", 'images/multi-add-line.png'],
