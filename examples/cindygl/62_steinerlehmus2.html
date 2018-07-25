@@ -33,20 +33,35 @@
     Clines = bisectors(C, A, B);
     Cpts = apply(Clines, l, dehomog(meet(l, join(A,B))));
     Clen = apply(Cpts, P, |P-C|)/|B-A|;
-    //v = (Alen_1-Blen_1)*(Alen_2-Blen_1)*(Alen_1-Blen_2)*(Alen_2-Blen_2);
   );      
       </script>
       <script id="csdraw" type="text/x-cindyscript">
 colorplot(
   f(#);
+  /*
   exp(-40*min(|(Clen_1-Alen_1)|,|(Clen_1-Blen_1)|))*[1,1,1] +
   exp(-20*min(|(Clen_1-Alen_2)|,|(Clen_1-Blen_2)|))*[1,1,0] +
   exp(-20*min(|(Clen_2-Alen_1)|,|(Clen_2-Blen_1)|))*[1,0,1] +
   exp(-10*min(|(Clen_2-Alen_2)|,|(Clen_2-Blen_2)|))*[1,0,0] +
   
   exp(-20*min(|(Alen_1-Blen_1)|,|(Alen_2-Blen_2)|))*[0,1,0] +
-  exp(-15*min(|(Alen_2-Blen_1)|,|(Alen_1-Blen_2)|))*[0,0,1] 
-  
+  exp(-15*min(|(Alen_2-Blen_1)|,|(Alen_1-Blen_2)|))*[0,0,1] */
+  terms = [
+    10*|(Alen_1-Blen_1)|,
+    |(Alen_1-Blen_2)|,
+    |(Alen_2-Blen_1)|,
+    |(Alen_2-Blen_2)|,
+    5*|(Blen_1-Clen_1)|,
+    5*|(Blen_1-Clen_2)|,
+    |(Blen_2-Clen_1)|,
+    |(Blen_2-Clen_2)|,
+    5*|(Clen_1-Alen_1)|,
+    |(Clen_1-Alen_2)|,
+    5*|(Clen_2-Alen_1)|,
+    |(Clen_2-Alen_2)|
+  ];
+  m = min(terms);
+  (exp(-15*m));
 );
 
 f(C);
@@ -74,12 +89,36 @@ pt2pts(p) := (
   )
 );
 
+lencpdcnt = 0;
+lencpds = [];
+
+addcpd(cpd) := (
+  added = false;
+  forall(1..length(lencpds), k,
+    if(!added & length(cpd ∩ lencpds_k)>0,
+      lencpds_k = lencpds_k ∪ cpd;
+      added = true;
+    );
+  );
+  if(!added,
+    lencpds = lencpds :> cpd;
+  );
+);
+
 forall([[1,1],[1,2],[2,1],[2,2]], idx,
   forall([[A,B],[B,C],[C,A]], pts,
-    if(|pt2len(pts_1)_(idx_1)-pt2len(pts_2)_(idx_2)|<.1,
-      draw(pts_1, pt2pts(pts_1)_(idx_1), color->[1,1,1], size->6, alpha->.7);
-      draw(pts_2, pt2pts(pts_2)_(idx_2), color->[1,1,1], size->6, alpha->.7);
+    if(|pt2len(pts_1)_(idx_1)/pt2len(pts_2)_(idx_2)-1|<.05,
+      addcpd([
+        [pts_1, pt2pts(pts_1)_(idx_1)],
+        [pts_2, pt2pts(pts_2)_(idx_2)]
+      ]);
     );
+  );
+);
+
+forall(1..length(lencpds), k,
+  forall(lencpds_k, l,
+    draw(l_1, l_2, color->[.5,.5,.5]+hue(k/4), size->6, alpha->.8);
   );
 );
 </script>
@@ -110,7 +149,7 @@ forall([[1,1],[1,2],[2,1],[2,2]], idx,
       "size": 5,
       "type": "Free",
       "pos": [
-        2,0
+        2,-2
       ]
     },
     {
@@ -126,7 +165,7 @@ forall([[1,1],[1,2],[2,1],[2,2]], idx,
       "size": 5,
       "type": "Free",
       "pos": [
-        -2,0
+        -2,-2
       ]
     },
     
@@ -143,7 +182,7 @@ forall([[1,1],[1,2],[2,1],[2,2]], idx,
       "size": 5,
       "type": "Free",
       "pos": [
-        .5,2
+        0,1
       ]
     }
   ],
@@ -176,7 +215,8 @@ forall([[1,1],[1,2],[2,1],[2,2]], idx,
     </head>
     <body>
       <h1>Generalizing the Steiner-Lehmus Theorem</h1>
-      Adapted from <a href="http://geogebra.es/color_dinamico/color_dinamico.html">http://geogebra.es/color_dinamico/color_dinamico.html</a>. 
+        <div>This is an implementation of the dynamic picture from Losada, R., T. Recio, and J. L. Valcarce. <a href="http://www.geogebra.es/pub/adg2010def1.pdf">"On the automatic discovery of Steiner-Lehmus generalizations."</a> Proceedings of ADG. 2010.</div>
+        <div>The point C is on the white curve iff there is a pair of bisectors with the same length.</div>
         <div id="CSCanvas"></div>
     </body>
     </html>

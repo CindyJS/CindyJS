@@ -23,22 +23,22 @@
 
   f(C) := (
     Alines = bisectors(A, B, C);
-    Apts = apply(Alines, l, meet(l, join(B,C)));
-    Alengths = apply(Apts, p, |dehomog(p)-A|)/|B-A|;
+    Apts = apply(Alines, l, dehomog(meet(l, join(B,C))));
+    Alen = apply(Apts, P, |P-A|)/|B-A|;
 
     Blines = bisectors(B, C, A);
-    Bpts = apply(Blines, l, meet(l, join(A,C)));
-    Blengths = apply(Bpts, p, |dehomog(p)-B|)/|B-A|;
-    //v = (Alengths_1-Blengths_1)*(Alengths_2-Blengths_1)*(Alengths_1-Blengths_2)*(Alengths_2-Blengths_2);
+    Bpts = apply(Blines, l, dehomog(meet(l, join(A,C))));
+    Blen = apply(Bpts, P, |P-B|)/|B-A|;
+    //v = (Alen_1-Blen_1)*(Alen_2-Blen_1)*(Alen_1-Blen_2)*(Alen_2-Blen_2);
   );      
       </script>
       <script id="csdraw" type="text/x-cindyscript">
 colorplot(
   f(#);
-  exp(-8*|(Alengths_1-Blengths_1)|)*[1,0,0] +
-  exp(-8*|(Alengths_2-Blengths_1)|)*[0,1,0] +
-  exp(-8*|(Alengths_1-Blengths_2)|)*[0,0,1] +
-  exp(-10*|(Alengths_2-Blengths_2)|)*[1,1,1]
+  exp(-8*|(Alen_1-Blen_1)|)*[1,0,0] +
+  exp(-8*|(Alen_2-Blen_1)|)*[0,1,0] +
+  exp(-8*|(Alen_1-Blen_2)|)*[0,0,1] +
+  exp(-10*|(Alen_2-Blen_2)|)*[1,1,1]
 );
 
 f(C);
@@ -46,27 +46,27 @@ draw(join(A, C), color->[1,1,1], alpha->.5);
 draw(join(B, C), color->[1,1,1], alpha->.5);
 draw(join(A, B), color->[1,1,1], alpha->.5);
 
-draw(A, C);
-draw(B, C);
-draw(A, B);
+draw(A, C, color->[1,1,1]);
+draw(B, C, color->[1,1,1]);
+draw(A, B, color->[1,1,1]);
 
 
-if(|Alengths_1-Blengths_1|<.1,
+if(|Alen_1-Blen_1|<.1,
   draw(A, Apts_1, color->[1,.5,.5], size->6, alpha->.7);
   draw(B, Bpts_1, color->[1,.5,.5], size->6, alpha->.7);
 );
 
-if(|Alengths_2-Blengths_1|<.1,
+if(|Alen_2-Blen_1|<.1,
   draw(A, Apts_2, color->[.5,1,.5], size->6, alpha->.7);
   draw(B, Bpts_1, color->[.5,1,.5], size->6, alpha->.7);
 );
 
-if(|Alengths_1-Blengths_2|<.1,
+if(|Alen_1-Blen_2|<.1,
   draw(A, Apts_1, color->[.5,.5,1], size->6, alpha->.7);
   draw(B, Bpts_2, color->[.5,.5,1], size->6, alpha->.7);
 );
 
-if(|Alengths_2-Blengths_2|<.1,
+if(|Alen_2-Blen_2|<.1,
   draw(A, Apts_2, color->[1,1,1], size->6, alpha->.7);
   draw(B, Bpts_2, color->[1,1,1], size->6, alpha->.7);
 );
