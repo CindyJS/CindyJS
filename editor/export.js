@@ -55,7 +55,7 @@ var Export = {
     cconfiguration.geometry = cdy.saveState().geometry;
 
     //remove uneeded plugins
-    let removeplugins = ["geometryeditor", "visiblerect", "user"];
+    let removeplugins = ["geometryeditor", "dimensions", "visiblerect", "user"];
     cconfiguration.use = configuration.use.filter(p => removeplugins.indexOf(p) == -1);
 
     //remove editor stuff

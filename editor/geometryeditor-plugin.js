@@ -45,18 +45,18 @@ var geometrycodes = {
     iscircle(c):=contains(circs,c);
     issegment(s):=contains(segments,s);
 
-    ishotp(pos,p):=|pos,p|<.2;
+    ishotp(pos,p):=|pos,p|<25*pixelwidth();
 
     ishotli(pos,l):=(
        regional(p);
        p=meet(l.homog,perp(line(l.homog),pos));
-       |p.xy,pos|<.4;
+       |p.xy,pos|<20*pixelwidth();
     );
 
     ishotseg(pos,l):=(
        regional(p,a,b,test1,test2);
        p=meet(l.homog,perp(line(l.homog),pos));
-       test1=(|p.xy,pos|<.4);
+       test1=(|p.xy,pos|<20*pixelwidth());
        (a,b)=inputs(l);
        test2=or((a.x-p.x)*(p.x-b.x)>0,(a.y-p.y)*(p.y-b.y)>0);
        test1&test2;
