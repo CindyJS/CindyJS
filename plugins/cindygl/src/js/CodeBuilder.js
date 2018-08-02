@@ -974,21 +974,20 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             'a': 3
         }[expr['key']];
         let term = false;
+        let objterm = self.compile(expr['obj'], true).term;
         if (index != undefined && objt.type === "list") {
-            term = accesslist(objt, index)([self.compile(expr['obj'], true).term], null, this);
-        }
-        if (issubtypeof(objt, type.point)) {
+            term = accesslist(objt, index)([objterm], null, this);
+        } else if (expr['key']==="xy" && objt.type === "list") {
+            if(objt.length === 2) term = objterm;
+            if(objt.length === 3) term = useincludefunction('dehomogenize')([self.castType(objterm, objt, type.point)], null, this);
+        } else if (objt === type.point) {
             let funs = {
                 'xy': 'dehomogenize',
                 'x': 'dehomogenizex',
                 'y': 'dehomogenizey',
             };
             if (funs[expr['key']])
-                term = useincludefunction(funs[expr['key']])([
-                    self.castType(
-                        self.compile(expr['obj'], true).term,
-                        objt, type.point)
-                ], null, this);
+                term = useincludefunction(funs[expr['key']])([self.castType(objterm, objt, type.point)], null, this);
         }
 
         if (term) {
