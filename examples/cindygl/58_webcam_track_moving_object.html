@@ -9,6 +9,7 @@
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 <script id="csinit" type="text/x-cindyscript">
 video = camera video();
+use8bittextures(); //the CPU imagergb command works in Safari only for 8-bit textures
 createimage("history", 480, 320);
 createimage("moving", 480, 320);
 
@@ -53,7 +54,7 @@ pavg = (.5,.5);
 </script>
 <script id="csdraw" type="text/x-cindyscript">
 alpha = .05;
-beta = .02;
+beta = .1;
 if (imageready(video),
   colorplot((0,0),(1,0),"history",
     alpha*imagergb((0,0),(1,0),video, #)+(1-alpha)*imagergb((0,0),(1,0),"history", #)
