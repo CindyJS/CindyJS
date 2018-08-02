@@ -136,7 +136,7 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
         if (!a.ok || !b.ok || name.ctype !== 'string') {
             return nada;
         }
-        let imageobject = api.getImage(name.value, true);
+        let imageobject = api.getImage(name['value'], true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
@@ -161,7 +161,7 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
             return nada;
         }
 
-        let imageobject = api.getImage(name.value, true);
+        let imageobject = api.getImage(name['value'], true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;

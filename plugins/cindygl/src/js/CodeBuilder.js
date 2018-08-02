@@ -879,7 +879,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let fname = expr['oper'];
 
         if (getPlainName(fname) === 'verbatimglsl') {
-            let glsl = this.api.evaluateAndVal(expr['args'][0]).value;
+            let glsl = this.api.evaluateAndVal(expr['args'][0])['value'];
             return (generateTerm ? {
                 term: glsl,
                 code: ''
@@ -977,9 +977,9 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let objterm = self.compile(expr['obj'], true).term;
         if (index != undefined && objt.type === "list") {
             term = accesslist(objt, index)([objterm], null, this);
-        } else if (expr['key']==="xy" && objt.type === "list") {
-            if(objt.length === 2) term = objterm;
-            if(objt.length === 3) term = useincludefunction('dehomogenize')([self.castType(objterm, objt, type.point)], null, this);
+        } else if (expr['key'] === "xy" && objt.type === "list") {
+            if (objt.length === 2) term = objterm;
+            if (objt.length === 3) term = useincludefunction('dehomogenize')([self.castType(objterm, objt, type.point)], null, this);
         } else if (objt === type.point) {
             let funs = {
                 'xy': 'dehomogenize',
