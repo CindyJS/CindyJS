@@ -135,7 +135,14 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
         return type.voidt;
     } else if (expr['ctype'] === 'field') {
         let t = generalize(this.getType(expr['obj']));
-        if (t.type === 'list') return t.parameters;
+        if (expr['key'].length == 1) {
+            if (t.type === 'list')
+                return t.parameters;
+            else if (issubtypeof(t, type.point))
+                return type.float;
+        } else if (expr['key'] == 'xy' && issubtypeof(t, type.point))
+            return type.vec2;
+
         if (!t) return false;
     } else if (expr['ctype'] === 'string') {
         return type.image;
@@ -956,6 +963,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             code: ''
         });
     } else if (expr['ctype'] === 'field') {
+        let objt = this.getType(expr['obj']);
         let index = {
             'x': 0,
             'y': 1,
@@ -965,8 +973,25 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             'b': 2,
             'a': 3
         }[expr['key']];
-        if (index != undefined) {
-            let term = accesslist(this.getType(expr['obj']), index)([self.compile(expr['obj'], true).term], null, this);
+        let term = false;
+        if (index != undefined && objt.type === "list") {
+            term = accesslist(objt, index)([self.compile(expr['obj'], true).term], null, this);
+        }
+        if (issubtypeof(objt, type.point)) {
+            let funs = {
+                'xy': 'dehomogenize',
+                'x': 'dehomogenizex',
+                'y': 'dehomogenizey',
+            };
+            if (funs[expr['key']])
+                term = useincludefunction(funs[expr['key']])([
+                    self.castType(
+                        self.compile(expr['obj'], true).term,
+                        objt, type.point)
+                ], null, this);
+        }
+
+        if (term) {
             return (generateTerm ? {
                 term: term,
                 code: ''

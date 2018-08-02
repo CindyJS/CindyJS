@@ -11,7 +11,7 @@
 f(P) := (
   l = join(C, P);
   M = meet(l, a);
-  |P-M|-C0.radius
+  |P.xy-M.xy|-C0.radius
 );
 
 tinyhexagon = apply(1..6, gauss(exp(i*#/6*2*pi)))*.02;

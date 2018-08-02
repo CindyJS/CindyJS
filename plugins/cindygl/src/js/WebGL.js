@@ -42,6 +42,9 @@ webgl['gauss'] = first([
 webgl['complex'] = first([
     [
         [type.vec2], type.complex, identity
+    ],
+    [
+        [type.point], type.complex, useincludefunction('dehomogenize')
     ]
 ]);
 

@@ -135,6 +135,12 @@ function guessTypeOfValue(tval) {
         }
     } else if (tval['ctype'] === 'list') {
         let l = tval['value'];
+        if (l.length === 3) {
+            if (tval["usage"] === "Point")
+                return type.point;
+            else if (tval["usage"] === "Line")
+                return type.line
+        }
         if (l.length > 0) {
             let ctype = guessTypeOfValue(l[0]);
             for (let i = 1; i < l.length; i++) {

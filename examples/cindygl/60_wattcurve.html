@@ -77,7 +77,7 @@ f(E) := (
   intersect = true;
   Circ = circlepr(E, C2.radius/2);
   intersection = intersectcircir(C1.matrix, Circ);
-  opposite = apply(intersection, homog, P = (homog_1, homog_2)/homog_3; E-(P-E));
+  opposite = apply(intersection, I, E-(I.xy-E));
   (|opposite_1-A|-C0.radius)*(|opposite_2-A|-C0.radius)
 );
 

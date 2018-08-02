@@ -8,26 +8,23 @@
         <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
         
       <script id="csinit" type="text/x-cindyscript">  
-  homog(z) := [re(z), im(z), 1];
-  dehomog(p) := [p_1, p_2]/p_3;
-
   bisectors(A, B, C) := (
     //compute the bisectors at point A
     a = complex(A);
     b = complex(B);
     c = complex(C);
     w = sqrt((c-a)*(b-a));
-    [join(A,homog(a+w)), join(A,homog(a+i*w))]
+    [join(A,gauss(a+w)), join(A,gauss(a+i*w))]
   );
 
 
   f(C) := (
     Alines = bisectors(A, B, C);
-    Apts = apply(Alines, l, dehomog(meet(l, join(B,C))));
+    Apts = apply(Alines, l, meet(l, join(B,C)).xy);
     Alen = apply(Apts, P, |P-A|)/|B-A|;
 
     Blines = bisectors(B, C, A);
-    Bpts = apply(Blines, l, dehomog(meet(l, join(A,C))));
+    Bpts = apply(Blines, l, meet(l, join(A,C)).xy);
     Blen = apply(Bpts, P, |P-B|)/|B-A|;
     //v = (Alen_1-Blen_1)*(Alen_2-Blen_1)*(Alen_1-Blen_2)*(Alen_2-Blen_2);
   );      
@@ -164,8 +161,10 @@ if(|Alen_2-Blen_2|<.1,
     </head>
     <body>
       <h1>Generalizing the Steiner-Lehmus Theorem</h1>
-      Adapted from <a href="http://geogebra.es/color_dinamico/color_dinamico.html">http://geogebra.es/color_dinamico/color_dinamico.html</a>. 
+      <div>Adapted from <a href="http://geogebra.es/color_dinamico/color_dinamico.html">http://geogebra.es/color_dinamico/color_dinamico.html</a>.</div> 
+      <div>The point C is on the curve iff there there are bisectors at A and B having the same length.</div>
         <div id="CSCanvas"></div>
+        <div>See also <a href="62_steinerlehmus2.html">the version</a>, where the bisectors at every point are considered</div>
     </body>
     </html>
   
