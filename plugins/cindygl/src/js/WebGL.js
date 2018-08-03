@@ -362,6 +362,24 @@ webgl["mult"] = args => {
         ],
         [
             [type.mat4, type.mat4], type.mat4, useinfix('*')
+        ],
+        [
+            [type.mat2, type.vec2], type.vec2, useinfix('*')
+        ],
+        [
+            [type.mat3, type.vec3], type.vec3, useinfix('*')
+        ],
+        [
+            [type.mat4, type.vec4], type.vec4, useinfix('*')
+        ],
+        [
+            [type.vec2, type.mat2], type.vec2, useinfix('*')
+        ],
+        [
+            [type.vec3, type.mat3], type.vec3, useinfix('*')
+        ],
+        [
+            [type.vec4, type.mat4], type.vec4, useinfix('*')
         ]
     ])(args);
     if (match) return match;
