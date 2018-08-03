@@ -8,13 +8,6 @@
         <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 
 <script id="csinit" type="text/x-cindyscript">        
-//TODO: implement general transpose in CindyGL
-transpose3(m) :=[
-    [m_1_1,m_2_1,m_3_1],
-    [m_1_2,m_2_2,m_3_2],
-    [m_1_3,m_2_3,m_3_3]
-];
-
 //TODO: implement general det in CindyGL
 det2(a) := (
   (a_1_1*a_2_2-a_2_1*a_1_2)
@@ -48,7 +41,7 @@ intersectcircir(c1,c2):=(
 
 intersectcl(c,l):=(
     l1 = crossop(l);
-    l2=transpose3(l1);
+    l2=transpose(l1);
     s=[l2*(c*l1_1),l2*(c*l1_2),l2*(c*l1_3)];
   //s = c;
   /*
@@ -68,7 +61,7 @@ intersectcl(c,l):=(
   
     erg=s+alp*l1;
     //TODO select col row
-    [erg_1, transpose3(erg)_1];
+    [erg_1, transpose(erg)_1];
 );
 </script>
         

@@ -762,6 +762,12 @@ webgl["sort"] = args => args.length === 1 && depth(args[0]) === 1 && isrvectorsp
 }) : false;
 
 
+webgl["transpose"] = args => args.length === 1 && depth(args[0]) >= 2 ? ({
+    args: args,
+    res: list(args[0].parameters.length, list(args[0].length, args[0].parameters.parameters)),
+    generator: usetranspose(args[0]),
+}) : false;
+
 Object.freeze(webgl);
 
 //depends on glsl-implementation
