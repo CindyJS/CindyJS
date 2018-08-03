@@ -36,7 +36,6 @@ intersectcl(c,l):=(
     l1 = crossop(l);
     l2=transpose(l1);
     s = l2*c*l1;
-  //s = c;
   /*
     maxidx=sort(1..3,-|l_#|)_1;
     idx=(1..3)--[maxidx];
@@ -53,7 +52,6 @@ intersectcl(c,l):=(
   	alp = re(sqrt(D))/b;
   
     erg=s+alp*l1;
-    //TODO select col row
     [erg_1, transpose(erg)_1];
 );
 </script>

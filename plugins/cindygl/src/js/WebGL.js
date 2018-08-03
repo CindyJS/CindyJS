@@ -12,6 +12,11 @@ function useinfix(inf) {
         `(${args.join(inf)})`;
 }
 
+function useswapinfix(inf) {
+    return args => //args?
+        `(${args.reverse().join(inf)})`;
+}
+
 //subtype inclusion function in WebGL
 let identity = x => x;
 
@@ -355,31 +360,31 @@ webgl["mult"] = args => {
             [type.complex, type.complex], type.complex, useincludefunction('multc')
         ],
         [
-            [type.mat2, type.mat2], type.mat2, useinfix('*')
+            [type.mat2, type.mat2], type.mat2, useswapinfix('*') //CindyGL/JS interprets matrixes as lists of rows. Unlike GLSL, where matrices are lists of columns
         ],
         [
-            [type.mat3, type.mat3], type.mat3, useinfix('*')
+            [type.mat3, type.mat3], type.mat3, useswapinfix('*')
         ],
         [
-            [type.mat4, type.mat4], type.mat4, useinfix('*')
+            [type.mat4, type.mat4], type.mat4, useswapinfix('*')
         ],
         [
-            [type.mat2, type.vec2], type.vec2, useinfix('*')
+            [type.mat2, type.vec2], type.vec2, useswapinfix('*')
         ],
         [
-            [type.mat3, type.vec3], type.vec3, useinfix('*')
+            [type.mat3, type.vec3], type.vec3, useswapinfix('*')
         ],
         [
-            [type.mat4, type.vec4], type.vec4, useinfix('*')
+            [type.mat4, type.vec4], type.vec4, useswapinfix('*')
         ],
         [
-            [type.vec2, type.mat2], type.vec2, useinfix('*')
+            [type.vec2, type.mat2], type.vec2, useswapinfix('*')
         ],
         [
-            [type.vec3, type.mat3], type.vec3, useinfix('*')
+            [type.vec3, type.mat3], type.vec3, useswapinfix('*')
         ],
         [
-            [type.vec4, type.mat4], type.vec4, useinfix('*')
+            [type.vec4, type.mat4], type.vec4, useswapinfix('*')
         ]
     ])(args);
     if (match) return match;
