@@ -12,6 +12,11 @@ function useinfix(inf) {
         `(${args.join(inf)})`;
 }
 
+function useswapinfix(inf) {
+    return args => //args?
+        `(${args.reverse().join(inf)})`;
+}
+
 //subtype inclusion function in WebGL
 let identity = x => x;
 
@@ -354,6 +359,33 @@ webgl["mult"] = args => {
         [
             [type.complex, type.complex], type.complex, useincludefunction('multc')
         ],
+        [
+            [type.mat2, type.mat2], type.mat2, useswapinfix('*') //CindyGL/JS interprets matrixes as lists of rows. Unlike GLSL, where matrices are lists of columns
+        ],
+        [
+            [type.mat3, type.mat3], type.mat3, useswapinfix('*')
+        ],
+        [
+            [type.mat4, type.mat4], type.mat4, useswapinfix('*')
+        ],
+        [
+            [type.mat2, type.vec2], type.vec2, useswapinfix('*')
+        ],
+        [
+            [type.mat3, type.vec3], type.vec3, useswapinfix('*')
+        ],
+        [
+            [type.mat4, type.vec4], type.vec4, useswapinfix('*')
+        ],
+        [
+            [type.vec2, type.mat2], type.vec2, useswapinfix('*')
+        ],
+        [
+            [type.vec3, type.mat3], type.vec3, useswapinfix('*')
+        ],
+        [
+            [type.vec4, type.mat4], type.vec4, useswapinfix('*')
+        ]
     ])(args);
     if (match) return match;
     if (args.length !== 2) return false;
@@ -762,6 +794,26 @@ webgl["sort"] = args => args.length === 1 && depth(args[0]) === 1 && isrvectorsp
 }) : false;
 
 
+webgl["transpose"] = args => args.length === 1 && depth(args[0]) >= 2 ? ({
+    args: args,
+    res: list(args[0].parameters.length, list(args[0].length, args[0].parameters.parameters)),
+    generator: usetranspose(args[0]),
+}) : false;
+
+webgl["det"] = first([
+    [
+        [type.mat2], type.float, useincludefunction('det2')
+    ],
+    [
+        [type.mat3], type.float, useincludefunction('det3')
+    ],
+    [
+        [type.mat4], type.float, useincludefunction('det4')
+    ],
+    [
+        [type.point, type.point, type.point], type.float, useincludefunction('det3v')
+    ]
+]);
 Object.freeze(webgl);
 
 //depends on glsl-implementation

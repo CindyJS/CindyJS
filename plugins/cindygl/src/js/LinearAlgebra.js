@@ -301,3 +301,26 @@ function generatemin(t, modifs, codebuilder) {
 function usemin(t) {
     return (args, modifs, codebuilder) => generatemin(t, modifs, codebuilder) || `min${webgltype(t)}(${args.join(',')})`;
 }
+
+
+// Build transpose function
+function generatetranspose(t, modifs, codebuilder) {
+    let name = `transpose${webgltype(t)}`;
+    let anst = list(t.parameters.length, list(t.length, t.parameters.parameters));
+    codebuilder.add('functions', name, () => `${webgltype(anst)} ${name}(${webgltype(t)} a){` +
+        'return ' + uselist(anst)(
+            range(anst.length).map(
+                i => uselist(anst.parameters)(
+                    range(anst.parameters.length).map(
+                        j => accesslist(t.parameters, i)(
+                            [accesslist(t, j)(['a', j], modifs, codebuilder), i], modifs, codebuilder
+                        )
+                    ), modifs, codebuilder
+                )), modifs, codebuilder
+        ) + ';}');
+}
+
+
+function usetranspose(t) {
+    return (args, modifs, codebuilder) => generatetranspose(t, modifs, codebuilder) || `transpose${webgltype(t)}(${args.join(',')})`;
+}
