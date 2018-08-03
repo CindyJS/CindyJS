@@ -312,11 +312,11 @@ function generatetranspose(t, modifs, codebuilder) {
             range(anst.length).map(
                 i => uselist(anst.parameters)(
                     range(anst.parameters.length).map(
-                        j => accesslist(t, i)(
-                            [accesslist(t.parameters, j)(['a', j], modifs, codebuilder), i], modifs, codebuilder
+                        j => accesslist(t.parameters, i)(
+                            [accesslist(t, j)(['a', j], modifs, codebuilder), i], modifs, codebuilder
                         )
-                    )
-                ), modifs, codebuilder)
+                    ), modifs, codebuilder
+                )), modifs, codebuilder
         ) + ';}');
 }
 
