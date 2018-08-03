@@ -148,8 +148,14 @@ Renderer.prototype.setUniforms = function() {
                 case type.float:
                     setter([val['value']['real']]);
                     break;
+                case type.point:
                 case type.line:
-                    setter(val['value']['homog']['value'].map(x => x['value']['real']));
+                    if (val.ctype === 'geo')
+                        setter(val['value']['homog']['value'].map(x => x['value']['real']));
+                    else if (val.ctype === 'list' && val['value'].length === 2)
+                        setter(val['value'].map(x => x['value']['real']).concat([1]));
+                    else if (val.ctype === 'list' && val['value'].length === 3)
+                        setter(val['value'].map(x => x['value']['real']));
                     break;
                 default:
                     if (t.type === 'list' && t.parameters === type.float) { //float-list
