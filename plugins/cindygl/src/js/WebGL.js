@@ -354,6 +354,15 @@ webgl["mult"] = args => {
         [
             [type.complex, type.complex], type.complex, useincludefunction('multc')
         ],
+        [
+            [type.mat2, type.mat2], type.mat2, useinfix('*')
+        ],
+        [
+            [type.mat3, type.mat3], type.mat3, useinfix('*')
+        ],
+        [
+            [type.mat4, type.mat4], type.mat4, useinfix('*')
+        ]
     ])(args);
     if (match) return match;
     if (args.length !== 2) return false;
