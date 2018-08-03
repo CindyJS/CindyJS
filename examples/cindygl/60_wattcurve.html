@@ -8,10 +8,6 @@
         <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 
 <script id="csinit" type="text/x-cindyscript">        
-//TODO: implement general det in CindyGL
-det2(a) := (
-  (a_1_1*a_2_2-a_2_1*a_1_2)
-);
 crossop(l):=((0,l_3,-l_2),
              (-l_3,0,l_1),
              (l_2,-l_1,0));
@@ -37,8 +33,6 @@ intersectcircir(c1,c2):=(
 );
 
 
-
-
 intersectcl(c,l):=(
     l1 = crossop(l);
     l2=transpose(l1);
@@ -55,7 +49,7 @@ intersectcl(c,l):=(
     alp=sqrt(-det(((a11,a12),(a21,a22))))/b;*/
   
     b = l_3;
-  	D = -det2(((s_1_1,s_1_2),(s_2_1,s_2_2)));
+  	D = -det(((s_1_1,s_1_2),(s_2_1,s_2_2)));
   	if(D<0, intersect = false);
   	alp = re(sqrt(D))/b;
   

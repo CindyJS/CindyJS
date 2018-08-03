@@ -768,6 +768,20 @@ webgl["transpose"] = args => args.length === 1 && depth(args[0]) >= 2 ? ({
     generator: usetranspose(args[0]),
 }) : false;
 
+webgl["det"] = first([
+    [
+        [type.mat2], type.float, useincludefunction('det2')
+    ],
+    [
+        [type.mat3], type.float, useincludefunction('det3')
+    ],
+    [
+        [type.mat4], type.float, useincludefunction('det4')
+    ],
+    [
+        [type.point, type.point, type.point], type.float, useincludefunction('det3v')
+    ]
+]);
 Object.freeze(webgl);
 
 //depends on glsl-implementation
