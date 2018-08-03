@@ -481,6 +481,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
     }
     if (!openVideoStream) {
         console.warn("getUserMedia call not supported");
+        cameravideo[constraintsstr] = nada;
         return nada;
     }
     var video = document.createElement("video");
