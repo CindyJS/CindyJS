@@ -104,7 +104,8 @@ var cdy = CindyJS({
   <h1>TensorFlow.js in CindyJS: An IFS with PoseNet</h1>
   <div id="CSCanvas"></div>
   <div>Poses are detected with the <a href="https://github.com/tensorflow/tfjs-models/tree/master/posenet">PoseNet Model using TensorFlow.js</a></div>
-  <div>An IFS with two similarities based on the pose of the pose of a person is applied using CindyGL.</div>
+  <div>Due to WebGL precision problems, TensorFlow.js works less accurate in Safari. Currently, best results are obtained with Firefox or Chrome.</div>
+  <div>The applet shows an IFS with two similarities based (each mapping the segment shoulder-elbow to the trunk) on the pose of the pose of a person. A Feedback loop-approach renders the IFS in CindyGL.</div>
   <div>Idea from <a href="https://momath.org/">MoMath</a></div>
 </body>
 

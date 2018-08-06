@@ -92,6 +92,16 @@ CindyJS.registerPlugin(1, "posenet", function(api) {
     }
     return defaultvalue;
   };
+  
+  function replaceNanByZero(o) {
+    if (typeof o === "number") {
+      return isNaN(o) ? 0 : o;
+    }
+    if (typeof o === "object" && o.length !== undefined)
+      return o.map(replaceNanByZero);
+    return o;
+  }
+  
 
   async function getpose(img, cdycallback, px2coord, modifs) {
     if (processrunning) return;
@@ -108,7 +118,7 @@ CindyJS.registerPlugin(1, "posenet", function(api) {
 
     //console.log(pose);
     cdypose = wrap(
-      pose.keypoints.map(k => [k.part, k.score, px2coord(k.position)])
+      replaceNanByZero(pose.keypoints.map(k => [k.part, k.score, px2coord(k.position)]))
     );
     api.evaluate(
       recreplace(cdycallback, {
