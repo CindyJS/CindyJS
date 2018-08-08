@@ -38,6 +38,11 @@ moeb(M, z) := (
 
 saved = false;
 </script>
+<script id="csmove" type="text/x-cindyscript">
+fix_1 = complex(A.xy);
+fix_2 = complex(B.xy);
+fix_3 = complex(C.xy);
+</script>
 <script id="csmouseclick" type="text/x-cindyscript">
 saved = false;
 </script>
@@ -72,6 +77,9 @@ if (imageready(video),
     if(!saved,
       fix = cur;
       avg = cur;
+      A.xy = gauss(fix_1);
+      B.xy = gauss(fix_2);
+      C.xy = gauss(fix_3);
       saved = true;
     );
     
@@ -79,7 +87,7 @@ if (imageready(video),
     avg = .9*avg+.1*cur;
     M = inverse(genmoeb(avg_1, avg_2, avg_3, fix_1, fix_2, fix_3));
     colorplot(imagergb((0,0),(1,0),video, moeb(M, z)));
-    forall(fix, f, draw(gauss(f), alpha->.3));
+    //forall(fix, f, draw(gauss(f), alpha->.3));
     ,
     colorplot(imagergb((0,0),(1,0),video, z));
   );
@@ -96,7 +104,11 @@ var cdy = CindyJS({
   language: "en",
   defaultAppearance: {
   },
-  geometry: [],
+  geometry: [
+    {name:"A", kind:"P", type:"Free", pos:[0,0], color:[1,0,0], alpha:.3},
+    {name:"B", kind:"P", type:"Free", pos:[0,0], color:[0,1,0], alpha:.3},
+    {name:"C", kind:"P", type:"Free", pos:[0,0], color:[0,0,1], alpha:.3}
+  ],
   use: ["CindyGL", "posenet"]
 });
 </script>
