@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>TensorFlow.js in CindyJS: Fix eyes and nose with moebius-transformation</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+<!-- Load TensorFlow.js -->
+<script src="https://unpkg.com/@tensorflow/tfjs"></script>
+<!-- Load Posenet -->
+<script src="https://unpkg.com/@tensorflow-models/posenet"></script>
+<script type="text/javascript" src="posenet-plugin.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+video = camera video();
+
+fix = [0, i+1, i-1];
+avg = fix;
+cur = fix;
+
+//0 -> a, oo -> b, 1 -> c
+moebhelp(a, b, c) := (
+  alpha = (c-b)/(a-b);
+  beta = (c-a)/(b-a);
+  [[alpha*a, beta*b],[alpha, beta]]
+);
+
+genmoeb(v0, v1, v2, w0, w1, w2) := (
+  moebhelp(w0, w1, w2)*inverse(moebhelp(v0, v1, v2))
+);
+
+moeb(M, z) := (
+  regional(w);
+  w = M*[z, 1];
+  w_1/w_2
+);
+
+saved = false;
+</script>
+<script id="csmove" type="text/x-cindyscript">
+fix_1 = complex(A.xy);
+fix_2 = complex(B.xy);
+fix_3 = complex(C.xy);
+</script>
+<script id="csmouseclick" type="text/x-cindyscript">
+saved = false;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if (imageready(video),
+  estimateSinglePose((0,0),(1,0), video, imagescalefactor->.35, multiplier->0.5,
+    pose=#;
+    errc(pose);
+  );
+  
+  if(!isundefined(pose),
+    /*
+    1: nose
+    2: leftEye
+    3: rightEye
+    4: leftEar
+    5: rightEar
+    6: leftShoulder
+    7: rightShoulder
+    8: leftElbow
+    9: rightElbow
+    10: leftWrist
+    11: rightWrist
+    12: leftHip
+    13: rightHip
+    14: leftKnee
+    15: rightKnee
+    16: leftAnkle
+    17: rightAnkle
+    */
+    cur = [complex(pose_1_3), complex(pose_2_3), complex(pose_3_3)];
+    if(!saved,
+      fix = cur;
+      avg = cur;
+      A.xy = gauss(fix_1);
+      B.xy = gauss(fix_2);
+      C.xy = gauss(fix_3);
+      saved = true;
+    );
+    
+    //avg = cur;
+    avg = .9*avg+.1*cur;
+    M = inverse(genmoeb(avg_1, avg_2, avg_3, fix_1, fix_2, fix_3));
+    colorplot(imagergb((0,0),(1,0),video, moeb(M, z)));
+    //forall(fix, f, draw(gauss(f), alpha->.3));
+    ,
+    colorplot(imagergb((0,0),(1,0),video, z));
+  );
+
+);
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", 
+    width: 1280,
+    height: 720,
+    transform:[{visibleRect:[0, 0,1,9/16]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", kind:"P", type:"Free", pos:[0,0], color:[1,0,0], alpha:.3},
+    {name:"B", kind:"P", type:"Free", pos:[0,0], color:[0,1,0], alpha:.3},
+    {name:"C", kind:"P", type:"Free", pos:[0,0], color:[0,0,1], alpha:.3}
+  ],
+  use: ["CindyGL", "posenet"]
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <h1>TensorFlow.js in CindyJS: Fix eyes and nose with moebius-transformation</h1>
+  <div id="CSCanvas"></div>
+  <div>Poses are detected with the <a href="https://github.com/tensorflow/tfjs-models/tree/master/posenet">PoseNet Model using TensorFlow.js</a></div>
+  <div>Due to WebGL precision problems, TensorFlow.js works less accurate in Safari. Currently, best results are obtained with Firefox or Chrome.</div>
+  <div>While running the applet, the position of eyes and nose should be moved to the original position.</div>
+  <div>Click on the canvas to reset the position of nose and eyes.</div>
+</body>
+
+</html>
