@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Sine</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+
+<script id="csinit" type="text/x-cindyscript">
+
+
+playsin(330,damp->1,amp->0.2,duration->2);
+//plot(330*pi*x,x);
+//playfunction(sin(330*x*2*pi));
+//playfunction(random());
+
+
+</script>
+<script type="text/javascript">
+
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", width: 500, height: 500}],
+  scripts: "cs*",
+});
+
+</script>
+</head>
+
+<body>
+  <div id="CSCanvas"></div>
+</body>
+
+</html>
