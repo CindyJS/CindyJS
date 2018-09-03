@@ -84,7 +84,7 @@ if (imageready(video),
     );
     
     //avg = cur;
-    avg = .9*avg+.1*cur;
+    avg = .8*avg+.2*cur;
     M = inverse(genmoeb(avg_1, avg_2, avg_3, fix_1, fix_2, fix_3));
     colorplot(imagergb((0,0),(1,0),video, moeb(M, z)));
     //forall(fix, f, draw(gauss(f), alpha->.3));
