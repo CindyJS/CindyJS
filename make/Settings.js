@@ -14,7 +14,7 @@ var prevSettingsFile = "build/prev-settings.json";
 module.exports = function Settings() {
 
     var configSettings = {
-        build: "debug",
+        build: "release",
         closure_urlbase: "http://dl.google.com/closure-compiler",
         closure_language_in: "ECMASCRIPT6_STRICT",
         closure_language_out: "ECMASCRIPT5_STRICT",
