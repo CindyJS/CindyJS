@@ -45,8 +45,8 @@ createCindy({
 		{ name: "A", type: "Free", pos: [ 4.0, -3.0, 1.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
 		{ name: "B", type: "Free", pos: [ 4.0, -3.0, 1.0 ], color: [ 1.0, 0.0, 1.0 ], labeled: true }, 
 		{ name: "a", type: "Through", pos: [ 0.0, 1.3333333333333333, 4.0 ], color: [ 1.0, 0.0, 0.0 ], args: [ "B" ], labeled: true }, 
-		{ name: "b", type: "Through", pos: [ 0.43496451734786623, -0.7533806435361785, -4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "B" ], labeled: true }, 
-		{ name: "a0", type: "Angle", color: [ 0.0, 0.0, 1.0 ], args: [ "a", "b", "A" ] }, // "?0" is "α0"; "@alpha 0" U+03B1: Greek Small Letter Alpha
+		{ name: "b", type: "Through", pos: [ -0.43496451734786623, 0.7533806435361785, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "B" ], labeled: true }, 
+		{ name: "a0", type: "Angle", color: [ 0.0, 0.0, 1.0 ], args: [ "a", "b", "A" ], angle: -150/180*Math.PI }, // "?0" is "α0"; "@alpha 0" U+03B1: Greek Small Letter Alpha
 		//{ name: "Text0", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "a0", "B" ], text: "<)@$\"a\"@$\"b\"= @#\"a0\"" }, // "?0" is "α0"; "@alpha 0" U+03B1: Greek Small Letter Alpha
 		{ name: "Tr0", type: "TrRotationPNumb", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "a0" ] }, // "?0" is "α0"; "@alpha 0" U+03B1: Greek Small Letter Alpha
 		{ name: "C", type: "Free", pos: [ 4.0, -0.0, 0.3076923076923077 ], color: [ 0.0, 1.0, 0.0 ], labeled: true }, 
