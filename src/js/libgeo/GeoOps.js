@@ -2670,6 +2670,57 @@ geoOps.TrTranslation.updatePosition = function(el) {
     el.dualMatrix = m;
 };
 
+// Define a rotation transformation given the center of rotation point and an angle
+geoOps.TrRotationPNumb = {};
+geoOps.TrRotationPNumb.kind = "Tr";
+geoOps.TrRotationPNumb.signature = ["P", "V"];
+geoOps.TrRotationPNumb.updatePosition = function(el) {
+    /*
+        Given a point p as [x, y, z] and an angle θ, where c is cos(θ)
+        and s is sin(θ), build this matrix:
+        ⎛    c*z        -s*z     (1-c)*x+s*y⎞
+        ⎜    s*z         c*z     (1-c)*y-s*x⎟
+        ⎝     0           0           z     ⎠
+        and its dual:
+        ⎛    c*z        -s*z          0     ⎞
+        ⎜    s*z         c*z          0     ⎟
+        ⎝(1-c)*x-s*y (1-c)*y+s*x      z     ⎠
+        Based on the matrix formula in terms of θ and pivot [x/z, y/z, 1]:
+        z*translate([x/z, y/z, 1])·rotate(θ)·translate([-x/z, -y/z, 1]).
+    */
+    var p = csgeo.csnames[el.args[0]].homog.value;
+    var th = csgeo.csnames[el.args[1]].value;
+    var mult = CSNumber.mult;
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var mat = List.turnIntoCSList;
+    var nm = List.normalizeMax;
+    var zero = CSNumber.zero;
+    var x = p[0];
+    var y = p[1];
+    var z = p[2];
+    var c = CSNumber.cos(th);
+    var s = CSNumber.sin(th);
+    var t = sub(CSNumber.real(1), c);
+    var tx = mult(t, x);
+    var ty = mult(t, y);
+    var sx = mult(s, x);
+    var sy = mult(s, y);
+    var cz = mult(c, z);
+    var sz = mult(s, z);
+    var nsz = CSNumber.neg(sz);
+    el.matrix = nm(mat([
+        mat([cz, nsz, add(tx, sy)]),
+        mat([sz, cz, sub(ty, sx)]),
+        mat([zero, zero, z])
+    ]));
+    el.dualMatrix = nm(mat([
+        mat([cz, nsz, zero]),
+        mat([sz, cz, zero]),
+        mat([sub(tx, sy), add(ty, sx), z])
+    ]));
+};
+
 // Define a reflective transformation given a point
 geoOps.TrReflectionP = {};
 geoOps.TrReflectionP.kind = "Tr";
