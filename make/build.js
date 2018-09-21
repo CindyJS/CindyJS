@@ -112,7 +112,8 @@ module.exports = function build(settings, task) {
     task("closure", ["plain", "closure-jar"], function() {
         this.setting("closure_version");
         this.closureCompiler(closure_jar, {
-            language_in: this.setting("closure_language"),
+            language_in: this.setting("closure_language_in"),
+            language_out: this.setting("closure_language_out"),
             compilation_level: this.setting("closure_level"),
             js_output_file: "build/js/Cindy.closure.js",
             js: ["build/js/Cindy.plain.js"],
@@ -188,6 +189,7 @@ module.exports = function build(settings, task) {
     });
 
     task("tests", [
+        "closure",
         "nodetest",
         "unittests",
         "excomp",
