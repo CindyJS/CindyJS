@@ -7,15 +7,19 @@
 <script type="text/javascript" src="../../build/js/Cindy.js"></script>
 
 <script id="csinit" type="text/x-cindyscript">
+ 
 
 
 //playsin(330,damp->1,amp->0.2,duration->0.3);
-//plot(330*pi*x,x);
-playfunction(sin(330*x*2*pi));
+
+//draw((0,mouse().y),size->13);
+//w=playfunction(sin(330*x*2*pi),export->true,silent->true);
+//playwave(w);
 //playfunction(random());
-//playfunction(sin(mouse().y*x))
+draw((0,0)); draw((0,5));
+//playfunction(sin(330*x*mouse().y));
+playmouse();
 //stereo
-//damp: exp*(-a*t)
 
 
 </script>

@@ -1,7 +1,7 @@
 //*******************************************************
 // and here are the definitions of the sound operators
 //*******************************************************
-
+ 
 evaluator.playsin$1 = function(args, modifs) {
 
     function handleModifs() {
@@ -115,13 +115,13 @@ evaluator.playfunction$1 = function(args, modifs) {
         if (modifs.silent !== undefined) {
             erg = evaluate(modifs.silent);
             if (erg.ctype === 'boolean') {
-                silent = erg.value.real;
+                silent = erg.value;
             }
         }
         if (modifs.export !== undefined) {
             erg = evaluate(modifs.export);
             if (erg.ctype === 'boolean') {
-                //export = erg.value.real; EXPORT doesnt work as variable
+                exprt = erg.value;
             }
         }
     }
@@ -174,33 +174,180 @@ evaluator.playfunction$1 = function(args, modifs) {
       namespace.newvar(runv);
     }
 
-    var amp = 0.2;
-    var damp = 1; //TODO
-    var start = 0; //TODO
-    var duration = 1;
-    var silent; //TODO
+    var amp = 0.5;
+    var damp = 0;
+    var start = 0;
+    var duration = 0.3;
+    var silent;
     var line; //TODO
-    var exprt; //TODO
+    var exprt;
 
     handleModifs();
 
-    var arr = []
-
-
+    var wave = []
 
     for (var i = 0; i < context.sampleRate * duration; i++) {
         if(runv !== nada){
           namespace.setvar(runv, CSNumber.real(i/context.sampleRate));
         }
         var erg = evaluate(v0);
-        arr[i] = erg.value.real * amp;
-
+        wave[i] = erg.value.real * amp * Math.exp(-damp * i/context.sampleRate);
+    }
+    if(!silent){
+      playSound(wave);
     }
 
-    playSound(arr)
     if(runv !== nada){
       namespace.removevar(runv);
     }
+
+    if(exprt === true){
+      return wave;
+    }
     return nada;
+
+
+};
+
+
+evaluator.playwave$1 = function(args, modifs) {
+
+    function handleModifs() {
+        var erg;
+        if (modifs.amp !== undefined) {
+            erg = evaluate(modifs.amp);
+            if (erg.ctype === 'number') {
+                amp = erg.value.real;
+            }
+        }
+        if (modifs.damp !== undefined) {
+            erg = evaluate(modifs.damp);
+            if (erg.ctype === 'number') {
+                damp = erg.value.real;
+            }
+        }
+        if (modifs.duration !== undefined) {
+            erg = evaluate(modifs.duration);
+            if (erg.ctype === 'number') {
+                duration = erg.value.real;
+            }
+        }
+    }
+
+    function playSound(arr) {
+            var buf = new Float32Array(arr.length)
+            for (var i = 0; i < arr.length; i++) buf[i] = arr[i]
+            var buffer = context.createBuffer(1, buf.length, context.sampleRate)
+            buffer.copyToChannel(buf, 0)
+            var source = context.createBufferSource();
+            source.buffer = buffer;
+            source.connect(context.destination);
+            source.start(0);
+        }
+
+    var context = new AudioContext();
+
+    var v0 = args[0];
+
+    var amp = 0.5;
+    var damp = 0;
+    var duration = 0.3;
+
+    handleModifs();
+    var wave = evaluate(args[0]);
+    //change to CindyList?
+
+      playSound(wave);
+
+
+    return nada;
+
+
+};
+
+
+evaluator.playmouse$0 = function(args, modifs) {
+
+    function handleModifs() {
+
+    }
+
+    function playSound(arr) {
+            var buf = new Float32Array(arr.length)
+            for (var i = 0; i < arr.length; i++) buf[i] = arr[i]
+            var buffer = context.createBuffer(1, buf.length, context.sampleRate)
+            buffer.copyToChannel(buf, 0)
+            var source = context.createBufferSource();
+            source.buffer = buffer;
+            source.connect(context.destination);
+            source.start(0);
+        }
+
+
+
+    var context = new AudioContext();
+
+    var v0 = args[0];
+    var amp = 0.5;
+    var duration = 1;
+
+
+    handleModifs();
+
+    var wave = []
+    var mou = 5;
+    var j = 0;
+
+    //hoert sich so an als ob beide gleichzeitig klingen!
+    // for (var i = 0; i < context.sampleRate * duration; i++) {
+    //   var one = Math.sin(330*mou*(i)/context.sampleRate) * amp;
+    //   var two = Math.sin(380*mou*i/context.sampleRate) * amp;
+    //   if(i<context.sampleRate/2-5000){
+    //     wave[i]=one;
+    //   }
+    //   else if(i>context.sampleRate/2+5000){
+    //     wave[i]=two;
+    //   }
+    //   else{
+    //     wave[i] = i/context.sampleRate*one + (1-i)/context.sampleRate*two;
+    //   }
+    // }
+    for (var i = 0; i < context.sampleRate * 2; i++) {
+        if( i % 2500 === 0 && i !== 0){
+          j = 0;
+          var goal = wave[i-1];
+          var direction = Math.sign(goal-wave[i-2]);
+          //debugger;
+          mou += 0.2;
+          var cur = Math.sin(330*mou*i/context.sampleRate) * amp;
+          var pre = Math.sin(330*mou*(i-1)/context.sampleRate) * amp;
+          if(direction === 1){
+            //debugger;
+            while(Math.abs(goal-cur) > 0.00001 || cur-pre < 0){
+              //debugger;
+              j += 1;
+              cur = pre;
+              pre = Math.sin(330*mou*(i-j-1)/context.sampleRate) * amp;
+            }
+          }
+          if(direction === -1){
+            //debugger;
+            while(Math.abs(goal-cur) > 0.00001 || cur-pre > 0){
+              j += 1;
+              pre = cur;
+              cur = Math.sin(330*mou*(i-j-1)/context.sampleRate) * amp;
+            }
+          }
+          //debugger;
+        }
+        wave[i] = Math.sin(330*mou*(i-j)/context.sampleRate) * amp;
+    }
+
+
+
+    playSound(wave);
+    //plot?
+
+    return wave;
 
 };
