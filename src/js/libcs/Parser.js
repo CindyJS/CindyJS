@@ -141,7 +141,7 @@ operatorSymbols.sort(function(a, b) {
 var brackets = '[](){}||';
 
 var inTokenWhitespace = '[ \t]*';
-var whitespaceToken = '[ \t\n]+';
+var whitespaceToken = '[ \t\n\r]+';
 
 // Allow spaces in tokens. Any occurrence of ' ' is replaced by '[…]*',
 // with […] matching the class of allowed in-token whitespace.
@@ -453,7 +453,7 @@ function parseRec(tokens, closing) {
                 var op = operators[tok.text];
                 if (op.sym === '_' &&
                     seq.length && !(seq.length & 1) && // preceding op
-                    seq[seq.length - 1].toktype === 'OP' && // 
+                    seq[seq.length - 1].toktype === 'OP' && //
                     seq[seq.length - 1].op.sym === ':=') {
                     seq.pop();
                     op = operators[':=_'];

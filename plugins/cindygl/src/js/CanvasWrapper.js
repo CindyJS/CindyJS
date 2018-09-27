@@ -242,7 +242,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
 };
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
-    enlargeCanvasIfRequired(this.sizeX, this.sizeY);
+    enlargeCanvasIfRequired(this.sizeXP, this.sizeYP);
     gl.viewport(0, 0, this.sizeXP, this.sizeYP);
 
     this.shaderProgram.use(gl);

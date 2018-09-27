@@ -85,7 +85,7 @@ function expressionsAreEqual(a, b) {
 }
 
 
-/** 
+/**
  * are two given signatures equal?
  */
 function signaturesAreEqual(a, b) {
