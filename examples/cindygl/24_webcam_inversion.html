@@ -16,12 +16,14 @@
 video = camera video();
 mirror = false;
 inv = false;
+circle = false;
 </script>
 
 <script id="cskeydown" type="text/x-cindyscript">
   print("pressed key" + keycode());
   if(keycode()==77, mirror = !mirror); //m -> toggle mirror
   if(keycode()==73, inv = !inv); //i -> toggle inv
+  if(keycode()==67, circle = !circle); //c -> toggle circle
 </script>
 
 <script id="csdraw" type="text/x-cindyscript">
@@ -30,8 +32,8 @@ if (image ready(video),
   z = complex(#);
   if(mirror, z = -re(z)+i*im(z));
   if(inv, z = 1.0/z, z = z/5.0);
-  imagergb(video, z*(10.1+mouse().y)));
-);
+  imagergb(video, z*(10.1+mouse().y))));
+if (circle, fillcircle([0,0],2.23,color->(1,0,0.3),alpha->0.3));
 </script>
 
 </head>
@@ -40,7 +42,7 @@ if (image ready(video),
   <div id="Text" style="width:100vw; height:3vh; text-align:center; line-height:3vh;">
     <a href="https://en.wikipedia.org/wiki/Inversive_geometry#Circle_inversion" target="_blank">Inversion</a> + Webcam in
     <a href="https://cindyjs.org/" target="_blank">Cindy JS</a>.
-Press I to toggle inversion. Press M to toggle mirroring. Move mouse up and down to zoom.</div>
+Press <b>I</b> to toggle inversion, <b>C</b> to toggle showing the reference circle, <b>M</b> to toggle mirroring. Move mouse up and down to zoom.</div>
   <div id="CSCanvas" style="width:100vw; height:97vh"></div>
 
 
