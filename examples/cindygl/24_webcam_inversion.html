@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Inversion + Webcam in Cindy JS</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+
+<style type="text/css">
+  html,body { margin: 0px; padding: 0px; }
+</style>
+</head>
+
+<script id="csinit" type="text/x-cindyscript">
+video = camera video();
+mirror = false;
+inv = false;
+circle = false;
+</script>
+
+<script id="cskeydown" type="text/x-cindyscript">
+  print("pressed key" + keycode());
+  if(keycode()==77, mirror = !mirror); //m -> toggle mirror
+  if(keycode()==73, inv = !inv); //i -> toggle inv
+  if(keycode()==67, circle = !circle); //c -> toggle circle
+</script>
+
+<script id="csdraw" type="text/x-cindyscript">
+if (image ready(video),
+  colorplot(
+  z = complex(#);
+  if(mirror, z = -re(z)+i*im(z));
+  if(inv, z = 1.0/z, z = z/5.0);
+  imagergb(video, z*(10.1+mouse().y))));
+if (circle, fillcircle([0,0],2.23,color->(1,0,0.3),alpha->0.3));
+</script>
+
+</head>
+
+<body>
+  <div id="Text" style="width:100vw; height:3vh; text-align:center; line-height:3vh;">
+    <a href="https://en.wikipedia.org/wiki/Inversive_geometry#Circle_inversion" target="_blank">Inversion</a> + Webcam in
+    <a href="https://cindyjs.org/" target="_blank">Cindy JS</a>.
+Press <b>I</b> to toggle inversion, <b>C</b> to toggle showing the reference circle, <b>M</b> to toggle mirroring. Move mouse up and down to zoom.</div>
+  <div id="CSCanvas" style="width:100vw; height:97vh"></div>
+
+
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
+  scripts: "cs*",
+  language: "en",
+  keylistener: true,
+  defaultAppearance: {
+  },
+  use: ["CindyGL"]
+});
+
+var canvas = document.getElementById('CSCanvas');
+canvas.focus()
+
+</script>
+
+</body>
+
+</html>
