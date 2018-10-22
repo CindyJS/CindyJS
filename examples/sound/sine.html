@@ -4,11 +4,19 @@
 <head>
 <title>Sine</title>
 <meta charset="UTF-8">
+
 <script type="text/javascript" src="../../build/js/Cindy.js"></script>
 
 <script id="csinit" type="text/x-cindyscript">
- 
+</script>
 
+<script id="csdraw" type="text/x-cindyscript">
+playosc(mouse().y);
+
+
+A.y=5;
+if(A.x<5,A.x=5);
+if(A.x>25,A.x=25);
 
 //playsin(330,damp->1,amp->0.2,duration->0.3);
 
@@ -16,18 +24,22 @@
 //w=playfunction(sin(330*x*2*pi),export->true,silent->true);
 //playwave(w);
 //playfunction(random());
-draw((0,0)); draw((0,5));
 //playfunction(sin(330*x*mouse().y));
-playmouse();
+
+draw((0,mouse().y),size->13);
 //stereo
 
 
 </script>
 <script type="text/javascript">
 
-var cdy = CindyJS({
+createCindy({
   ports: [{id: "CSCanvas", width: 500, height: 500}],
   scripts: "cs*",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, 3.9999999999999996, 0.8],
+    color: [0.757, 0.0, 0.0], alpha: 0.8999999761581421, textsize: 0.0, size: 3.0},
+  ],
 });
 
 </script>
