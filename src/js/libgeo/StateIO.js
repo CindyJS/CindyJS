@@ -106,7 +106,11 @@ function saveDockingInfo(dock) {
 function saveGeoElement(el) {
     var res = {};
 
-    var defel = {};
+    var defel = {
+        pinned: false,
+        movable: true
+    };
+
     if (el.kind === "P") {
         pointDefault(defel);
     }
