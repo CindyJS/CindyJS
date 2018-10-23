@@ -14,36 +14,39 @@ var Import = {
           If an HTML-file is uploaded, the CindyJS widget is tried to be extracted and imported.
         </div>
         <!-- Needs 'Access-Control-Allow-Origin' header on the requested resource :-/-->
-        <!--<h5>Import an external CindyJS from URL</h5>
+        <h5>Import an external CindyJS from URL</h5>
         <div>
-          <label for="import-url">URL: </label><input type="text" id="import-url" name="import-url" value="https://cindyjs.org/gallery/main/PythN-Eck/">
+          <label for="import-url">URL: </label><input type="text" id="import-url" name="import-url" value="../examples/25_Lagrange.html">
           <button type="button" id="button-import-url">Load HTML from URL</button>
         </div>
         <div>
           You can load an external HTML-File from a given URL. The editor will try to find and import a CindyJS widget.
+          For security reasons, the URL must be from the same server, or 'Access-Control-Allow-Origin' must be configured to allow this host.
         </div>
-        -->
+        <div id="import-error" class="error"></div>
       </div>
     </div>
   </div>
   `,
   init: function() {
-    /*
+    
     document.getElementById("button-import-url").onclick = function() {
+      
       let url = document.getElementById("import-url").value;
-      console.log(`Load content from ${url}`);
+      document.getElementById("import-error").innerHTML = (`Load content from ${url}`);
       
       let xmlHttp = new XMLHttpRequest();
       xmlHttp.withCredentials = true;
       xmlHttp.onreadystatechange = function() { 
           if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
               Import.fromsource(xmlHttp.responseText);
+          else
+            document.getElementById("import-error").innerHTML = "could not load URL";
       };
       xmlHttp.open("GET", url, true); // true for asynchronous 
       xmlHttp.send(null);
       
     };
-    */
   },
 
   fromfile: function(file) {

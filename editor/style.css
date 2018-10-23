@@ -104,3 +104,6 @@ body{
      height: 200px;
 }
  
+.error{
+  color: rgb(255,0,0);
+}
