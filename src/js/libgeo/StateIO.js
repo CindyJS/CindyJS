@@ -105,11 +105,36 @@ function saveDockingInfo(dock) {
 
 function saveGeoElement(el) {
     var res = {};
+
+    var defel = {};
+    if (el.kind === "P") {
+        pointDefault(defel);
+    }
+    if (el.kind === "L") {
+        lineDefault(defel);
+    }
+    if (el.kind === "C") {
+        lineDefault(defel);
+    }
+    if (el.kind === "S") {
+        segmentDefault(defel);
+    }
+    if (el.kind === "Text") {
+        textDefault(defel);
+    }
+    if (el.kind === "Poly") {
+        polygonDefault(defel);
+    }
+
+
     attributesToClone.forEach(function(key) {
         if (!el.hasOwnProperty(key)) return;
         var val = General.unwrap(el[key]);
-        if (val !== null && val !== undefined)
+        var defval = General.unwrap(defel[key]);
+        if (val !== null && val !== undefined && val !== defval && JSON.stringify(val) !== JSON.stringify(defval)) {
             res[key] = val;
+        }
+
     });
     if (el.kind === "P" && (!el.movable || el.pinned) && res.color) {
         var undim = CSNumber.real(1 / defaultAppearance.dimDependent);
