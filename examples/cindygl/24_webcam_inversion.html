@@ -31,9 +31,12 @@ if (image ready(video),
   colorplot(
   z = complex(#);
   if(mirror, z = -re(z)+i*im(z));
-  if(inv, z = 1.0/z, z = z/5.0);
+  if(inv, z = 1.0/(re(z)-i*im(z)), z = z/5.0);
   imagergb(video, z*(10.1+mouse().y))));
-if (circle, fillcircle([0,0],2.23,color->(1,0,0.3),alpha->0.3));
+if (circle,
+  fillcircle([0,0],2.23,color->(1,0,0.3),alpha->0.3);
+  fillcircle([0,0],0.05,color->(1,0,0),alpha->0.8);
+);
 </script>
 
 </head>
