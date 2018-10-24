@@ -3101,8 +3101,6 @@ evaluator.mover$0 = function(args, modifs) { //OK
             ctype: "geo",
             value: move.mover
         };
-    else
-        console.log("Not moving anything at the moment");
     return nada;
 };
 
