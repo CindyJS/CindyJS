@@ -1,4 +1,49 @@
 /*jshint esversion: 6 */
+
+makepluginfromcscode({
+    init: `
+    inspecting = false;
+    join(list) := (
+      if(length(list)==0,
+        "",
+        str = list_1;
+        forall(2..length(list),k,
+          str = str + ", " + list_k;
+        );
+        str
+      )
+    );
+    
+    properties(el) := (
+      ["color", "alpha", "labeled", "trace", "pinned"] ++
+      if(ispoint(el),
+        ["x","y", "xy", "homog", "size"],
+        if(isline(el) % issegment(el),
+          ["homog", "size", "slope"],
+          if(isconic(el),
+            ["center","radius", "size"],
+            []
+          )
+        )
+      )
+    );
+    
+    inspectselected(pts, lns, cns) := (
+      json = "{"+join(
+        apply(pts++lns++cns, el,
+         el.name+": {" +
+          join(apply(properties(el), key, key+": " + parse(el.name + "." + key)))+ "}"
+         )
+        )+"}";
+      errc(json);
+      javascript("Inspector.update('" + json + "')");
+      
+    );
+    `
+  },
+  "inspector"
+);
+
 var Inspector = {
   id: "inspector",
   name: "Inspector",
@@ -27,39 +72,36 @@ var Inspector = {
       this.colorwheel = generateColorwheel();
     }
 
-    cdy.evokeCS(`javascript("Inspector.update('" + (selpts++sellns++selcns) + "')")`);
+    cdy.evokeCS(`inspecting = true;
+      inspectselected(selpts, sellns, selcns);`);
   },
 
   leave: function() {
     if (this.colorwheel) {
       this.colorwheel.evokeCS('deactivate()');
     }
+    cdy.evokeCS(`inspecting = false;`);
   },
 
-  update: function(str) {
+  update: function(jsonstr) {
     if (document.getElementById('inspector-window').style.display == "none")
       return;
-
-    selected = str.slice(1, str.length - 1).split(',').map(el => el.trim());
-    var gslp = cdy.saveState().geometry;
-
-    var els = gslp.filter(el => selected.indexOf(el.name) != -1);
-
-
+    console.log(jsonstr)
+    var els = JSON.parse(jsonstr.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, '"$2": '));
+    console.log(els);
     let innerhtml = "";
-    if (els.length > 0) {
-      document.getElementById("inspector-window-header").innerHTML = "Inspecting " + els.map(el => el.name).join(', ');
+    if (Object.keys(els).length > 0) {
+      document.getElementById("inspector-window-header").innerHTML = "Inspecting " + Object.keys(els).join(', ');
     } else {
       document.getElementById("inspector-window-header").innerHTML = "Inspector";
       innerhtml = "Select an element for inspection by clicking on it.";
     }
 
     let elementswithkey = {};
-    for (var i in els) {
-      var el = els[i];
-      for (var key in el) {
+    for (var el in els) {
+      for (var key in els[el]) {
         if (!elementswithkey[key]) elementswithkey[key] = [];
-        elementswithkey[key].push(i);
+        elementswithkey[key].push(el);
       }
     }
 
@@ -68,9 +110,7 @@ var Inspector = {
         this.colorwheel.evokeCS('deactivate()');
       }
     };
-
     for (let key in elementswithkey) {
-      if (key == "type" || key == "args" || key == "name") continue;
       if (elementswithkey[key].length == 0) continue;
       let firstel = els[elementswithkey[key][0]];
       let value = firstel[key];
@@ -78,21 +118,16 @@ var Inspector = {
       for (let j = 1; allequal && j < elementswithkey[key].length; j++) {
         if (JSON.stringify(els[elementswithkey[key][j]][key]) != JSON.stringify(value)) allequal = false;
       }
-      let elnames = elementswithkey[key].map(i => els[i].name);
+      let elnames = elementswithkey[key];
       if (key == "color") {
         this.colorelements = elnames;
-        
-        /* Reverse of StateIO.js
-        var undim = CSNumber.real(1 / defaultAppearance.dimDependent);
-        res.color = General.unwrap(List.scalmult(undim, el.color));
-        */
-        //let f = .7;
-        //if(configuration.defaultAppearance && configuration.defaultAppearance.dimDependent) f = configuration.defaultAppearance.dimDependent;
-        //value = [f*value[0], f*value[1], f*value[2]];
-        
         if (this.colorwheel) this.colorwheel.evokeCS(`activate([${value}])`);
+        if (allequal)
+          document.getElementById("colorwheel").classList.remove('different');
+        else
+          document.getElementById("colorwheel").classList.add('different');
       } else {
-        innerhtml += `<div><span style="color:rgb(150,150,150)">${elnames}</span> <label for="${key}">${key}: </label>${this.createinput(key, value, elnames, allequal)}`;
+        innerhtml += `<div class=${allequal ? "equal" : "different"}><span style="color:rgb(150,150,150)">${elnames}</span> <label for="${key}">${key}: </label>${this.createinput(key, value, elnames, allequal)}`;
       }
 
     }
@@ -120,6 +155,7 @@ var Inspector = {
     let cmd = elements.map(name => `${name}.${key} = ${value}`).join(';');
     console.log(cmd);
     cdy.evokeCS(cmd);
+    cdy.evokeCS("inspectselected(selpts, sellns, selcns);");
   },
 
   createinput: function(key, value, elements, allequal) {
@@ -127,7 +163,7 @@ var Inspector = {
     keystr = `'${key}'`;
     if (typeof(value) == 'boolean') {
       return `<input type="checkbox" name="${key}" ${value ? 'checked' : ''} onchange="Inspector.modifygslp(${elstr}, ${keystr}, this.checked)"></div>`;
-    } else if (typeof(value) == 'number') {
+    } else if (typeof(value) == 'number' && key != "x" && key != "y") {
       var min = 0;
       var max = 20;
       if (key == 'alpha') {

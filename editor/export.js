@@ -46,6 +46,28 @@ var Export = {
     };
   },
 
+  stringify: function(depth, obj) {
+    let str = "";
+    let spaces = "";
+    if (depth <= 1) {
+      spaces = "          ";
+      for (let i = 0; i < depth; i++)
+        spaces += "  ";
+    }
+    if (Array.isArray(obj)) {
+      str = "[" + (depth <= 1 ? "\n" : "");
+      str += Object.keys(obj).map(k => spaces + (depth <= 1 ? "  " : "") + this.stringify(depth + 1, obj[k])).join("," + (depth <= 1 ? "\n" : " "));
+      str += (depth <= 1 ? "\n" + spaces : "") + "]";
+    } else if (typeof(obj) === 'object') {
+      str = "{" + (depth <= 1 ? "\n" : "");
+      str += Object.keys(obj).map(k => spaces + (depth <= 1 ? "  " : "") + k + ": " + this.stringify(depth + 1, obj[k])).join("," + (depth <= 1 ? "\n" : " "));
+      str += (depth <= 1 ? "\n" + spaces : "") + "}";
+    } else {
+      str = JSON.stringify(obj);
+    }
+    return str;
+  },
+
   buildhtml: function() {
     //document.getElementById('move').onclick();
     //yield copy of configuration
@@ -55,7 +77,7 @@ var Export = {
     cconfiguration.geometry = cdy.saveState().geometry;
 
     //remove uneeded plugins
-    let removeplugins = ["geometryeditor", "dimensions", "visiblerect", "user"];
+    let removeplugins = ["geometryeditor", "inspector", "dimensions", "visiblerect", "user"];
     cconfiguration.use = configuration.use.filter(p => removeplugins.indexOf(p) == -1);
 
     //remove editor stuff
@@ -100,7 +122,7 @@ var Export = {
         ${csscripts}
     
         <script type="text/javascript">
-          var cdy = CindyJS(${JSON.stringify(cconfiguration, null, "  ")});
+          var cdy = CindyJS(${this.stringify(0,cconfiguration)});
         </script>
     </head>
     <body>
@@ -108,7 +130,6 @@ var Export = {
     </body>
     </html>
   `;
-
 
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(source));

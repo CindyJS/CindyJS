@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 var geometrycodes = {
-  "init": `
+  init: `
         //======CODE FOR BUTTONS==========
  
         setmode(m):=(
@@ -258,8 +258,9 @@ toggleset(a,b):=(a--b)++(b--a);
               sellns=toggleset(sellns,slns);
               selcns=toggleset(selcns,scns);
             );
-            
-            javascript("Inspector.update('" + (selpts++sellns++selcns) + "')");
+            if(inspecting,
+              inspectselected(selpts, sellns, selcns);
+            );
     );
 
 //==============================
@@ -657,7 +658,7 @@ finalizetmps():=(
     );
 //==============================
 `,
-  "draw": `
+  draw: `
 /*
 data = apply(allelements(),([[#.name],algorithm(#),inputs(#),#.alpha]));
 c=0;
@@ -693,17 +694,17 @@ forall(data, drawtext((-14,17-c*.5),#_(1..3),size->10,alpha->if(#_4==0,.3,1));c=
       drawconic(#_1,size->1,color->(0,0,1));
     );
 `,
-  "mousedown": `
+  mousedown: `
 pos=mouse().xy;
 dodown();
 `,
-  "mousedrag": `
+  mousedrag: `
 dodrag();
 `,
-  "mouseup": `
+  mouseup: `
 doup();
 `,
-  "mouseclick": `
+  mouseclick: `
 doclick();
 `
 };
