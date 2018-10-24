@@ -34,17 +34,10 @@ makepluginfromcscode({
     );
     stopvisiblerect() := (
       if(visiblerectactive,
-        //remove element is not implemented yet :-(
-        TL.alpha = 0; 
-        TR.alpha = 0;
-        BL.alpha = 0;
-        BR.alpha = 0;
-        //TODO: remove above lines once removeelement is implemented
-        //removeelement(TL); 
-        //removeelement(TR);
-        //removeelement(BL);
-        //removeelement(BR);
-        
+        removeelement(TL); 
+        removeelement(TR);
+        removeelement(BL);
+        removeelement(BR);
         visiblerectactive = false;
       );
     );
