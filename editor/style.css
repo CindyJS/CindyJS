@@ -107,3 +107,14 @@ body{
 .error{
   color: rgb(255,0,0);
 }
+
+.equal{
+}
+
+.different{
+  border-color: rgba(0,0,0,.4);
+  border-width: 2px;
+  border-style: dotted;
+  margin: 2px 0px 2px 0px;
+  background-color: rgba(0,0,0,.1);
+}
