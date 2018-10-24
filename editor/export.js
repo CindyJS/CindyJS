@@ -103,13 +103,12 @@ var Export = {
     <head>
         <meta charset="UTF-8">
         
-        <title>exported from UIExperiments.html</title>
+        <title>Exported from ${window.location.href}</title>
         <style type="text/css">
             body {
                 margin: 0px;
                 padding: 0px;
             }
-            
             ${configuration.fullscreenmode ? `
             #CSCanvas {
                 width: 100vw; height: 100vh;

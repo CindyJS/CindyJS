@@ -34,17 +34,10 @@ makepluginfromcscode({
     );
     stopvisiblerect() := (
       if(visiblerectactive,
-        //remove element is not implemented yet :-(
-        TL.alpha = 0; 
-        TR.alpha = 0;
-        BL.alpha = 0;
-        BR.alpha = 0;
-        //TODO: remove above lines once removeelement is implemented
-        //removeelement(TL); 
-        //removeelement(TR);
-        //removeelement(BL);
-        //removeelement(BR);
-        
+        removeelement(TL); 
+        removeelement(TR);
+        removeelement(BL);
+        removeelement(BR);
         visiblerectactive = false;
       );
     );
@@ -83,6 +76,8 @@ makepluginfromcscode({
       draw(BL,BR,color->[1,1,1], size->3);
       draw(BR,TR,color->[1,1,1], size->3);
       draw(TR,TL,color->[1,1,1], size->3);
+      drawtext([min(BL.x,TR.x),min(BL.y,TR.y)], [min(BL.x,TR.x),min(BL.y,TR.y)], align->"right");
+      drawtext([max(BL.x,TR.x),max(BL.y,TR.y)], [max(BL.x,TR.x),max(BL.y,TR.y)]);
     );
   `
   },
