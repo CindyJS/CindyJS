@@ -76,6 +76,8 @@ makepluginfromcscode({
       draw(BL,BR,color->[1,1,1], size->3);
       draw(BR,TR,color->[1,1,1], size->3);
       draw(TR,TL,color->[1,1,1], size->3);
+      drawtext([min(BL.x,TR.x),min(BL.y,TR.y)], [min(BL.x,TR.x),min(BL.y,TR.y)], align->"right");
+      drawtext([max(BL.x,TR.x),max(BL.y,TR.y)], [max(BL.x,TR.x),max(BL.y,TR.y)]);
     );
   `
   },
