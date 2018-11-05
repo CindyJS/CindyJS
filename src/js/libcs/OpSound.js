@@ -5,6 +5,12 @@ var sound = {};
 sound.lines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var lines = [];
 
+evaluator.stopsound$0 = function(){
+  for(var i = 0; i < lines.length; i++){
+    lines[i][0].stop(0);
+  }
+};
+
 evaluator.playsin$1 = function(args, modifs) {
 
     function handleModifs() {
@@ -39,46 +45,52 @@ evaluator.playsin$1 = function(args, modifs) {
                 harmonics = erg.value.real;
             }
         }
+        if (modifs.line !== undefined) {
+            erg = evaluate(modifs.line);
+            if (erg.ctype === 'number') {
+                line = erg.value.real;
+            }
+        }
     }
 
-    function playSound(arr) {
-            var buf = new Float32Array(arr.length)
-            for (var i = 0; i < arr.length; i++) buf[i] = arr[i]
-            var buffer = context.createBuffer(1, buf.length, context.sampleRate)
-            buffer.copyToChannel(buf, 0)
-            var source = context.createBufferSource();
-            source.buffer = buffer;
-            source.connect(context.destination);
-            source.start(0);
-        }
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
 
-
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
-    var context = new AudioContext();
-
-    var v0 = evaluateAndVal(args[0]);
-    var freq = v0.value.real;
-    var amp = 1;
-    var damp = 1; //TODO
+    var freq = evaluate(args[0]).value.real;
+    var amp = 0.5;
+    var damp = 0;
     var duration = 1;
     var harmonics; //TODO
-    var line; //TODO
-
+    var line = 0;
 
     handleModifs();
 
-
-    var arr = [];
-
-    for (var i = 0; i < context.sampleRate * duration; i++) {
-        arr[i] = Math.sin(i / (context.sampleRate / freq / (Math.PI*2))) * amp;
+    if(lines[line] === undefined){
+      var audioCtx = new AudioContext();
+      var oscNode = audioCtx.createOscillator();
+      var gainNode = audioCtx.createGain();
+      lines[line] = [oscNode,gainNode];
+      oscNode.type = 'sine';
+      oscNode.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      gainNode.gain.value = amp;
+      if(damp > 0){
+        gainNode.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp)); //lazy dampening
+      }else if(damp < 0){
+        gainNode.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
+      }
+      oscNode.frequency.value = freq;
+      oscNode.detune.value = 0;
+      oscNode.start(0);
+      if(duration > 0){
+        oscNode.stop(duration);
+      }
+    }
+    else {
+      //lines[line][1].gain.value -= damp*Math.exp(damp*lines[line][1].gain.value/2000);
+      lines[line][0].frequency.value = freq;
     }
 
-    playSound(arr)
-
     return nada;
-
 };
 
 evaluator.playfunction$1 = function(args, modifs) {
@@ -290,91 +302,5 @@ evaluator.playosc$1 = function(args, modifs) {
     var CurY = y;
     lines[0].frequency.value = (CurY/HEIGHT*5) * maxFreq;
 
-  }
-}
-
-
-evaluator.playmouse$0 = function(args, modifs) {
-  let audioCtx;
-
-  try {
-    audioCtx =
-      new (window.AudioContext || window.webkitAudioContext)();
-  } catch (error) {
-    window.alert(
-      `Sorry, but your browser doesn't support the Web Audio API!`
-    );
-  }
-  if (audioCtx !== undefined) {
-
-
-
-    function handleModifs() {
-
-    }
-
-    function playSound(buffer) {
-      var source = audioCtx.createBufferSource(); // creates a sound source
-      source.buffer = buffer;                    // tell the source which sound to play
-      source.connect(audioCtx.destination);       // connect the source to the context's destination (the speakers)
-      source.start(0);
-    }
-
-    var v0 = args[0];
-    var amp = 0.5;
-    var duration = 1;
-
-    handleModifs();
-
-    var wave = []
-    var mou = 5;
-    var j = 0;
-    var freq = 440;
-
-    // new
-    for (var i = 0; i < audioCtx.sampleRate * duration; i++) {
-        wave[i] = Math.sin(i / (audioCtx.sampleRate / freq / (Math.PI*2))) * amp;
-    }
-
-    playSound(wave)
-
-
-    // for (var i = 0; i < context.sampleRate * 2; i++) {
-    //     if( i % 2500 === 0 && i !== 0){
-    //       j = 0;
-    //       var goal = wave[i-1];
-    //       var direction = Math.sign(goal-wave[i-2]);
-    //       //debugger;
-    //       mou += 0.2;
-    //       var cur = Math.sin(330*mou*i/context.sampleRate) * amp;
-    //       var pre = Math.sin(330*mou*(i-1)/context.sampleRate) * amp;
-    //       if(direction === 1){
-    //         //debugger;
-    //         while(Math.abs(goal-cur) > 0.00001 || cur-pre < 0){
-    //           //debugger;
-    //           j += 1;
-    //           cur = pre;
-    //           pre = Math.sin(330*mou*(i-j-1)/context.sampleRate) * amp;
-    //         }
-    //       }
-    //       if(direction === -1){
-    //         //debugger;
-    //         while(Math.abs(goal-cur) > 0.00001 || cur-pre > 0){
-    //           j += 1;
-    //           pre = cur;
-    //           cur = Math.sin(330*mou*(i-j-1)/context.sampleRate) * amp;
-    //         }
-    //       }
-    //       //debugger;
-    //     }
-    //     wave[i] = Math.sin(330*mou*(i-j)/context.sampleRate) * amp;
-    // }
-    //
-    //
-    //
-    // playSound(wave);
-    //plot?
-
-    return wave;
   }
 };
