@@ -2,12 +2,20 @@
 // and here are the definitions of the sound operators
 //*******************************************************
 var sound = {};
-sound.lines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var lines = [];
+var lines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 evaluator.stopsound$0 = function(){
   for(var i = 0; i < lines.length; i++){
-    lines[i][0].stop(0);
+    if(lines[i] !== 0){
+      if(Array.isArray(lines[i])){
+        for(var h=0;h<lines[i].length;h++){
+          lines[i][h].oscNode.stop(0);
+        }
+      }
+      else{
+        lines[i].oscNode.stop(0);
+      }
+    }
   }
 };
 
@@ -42,7 +50,7 @@ evaluator.playsin$1 = function(args, modifs) {
         if (modifs.harmonics !== undefined) {
             erg = evaluate(modifs.harmonics);
             if (erg.ctype === 'list') {
-                harmonics = erg.value.real;
+                harmonics = erg.value;
             }
         }
         if (modifs.line !== undefined) {
@@ -59,35 +67,72 @@ evaluator.playsin$1 = function(args, modifs) {
     var amp = 0.5;
     var damp = 0;
     var duration = 1;
-    var harmonics; //TODO
+    var harmonics = 0;
     var line = 0;
 
     handleModifs();
-
-    if(lines[line] === undefined){
-      var audioCtx = new AudioContext();
-      var oscNode = audioCtx.createOscillator();
-      var gainNode = audioCtx.createGain();
-      lines[line] = [oscNode,gainNode];
-      oscNode.type = 'sine';
-      oscNode.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      gainNode.gain.value = amp;
-      if(damp > 0){
-        gainNode.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp)); //lazy dampening
-      }else if(damp < 0){
-        gainNode.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
+    if(harmonics === 0){ // Version without harmonics sounds better
+      if(lines[line] === 0){
+        var audioCtx = new AudioContext();
+        var oscNode = audioCtx.createOscillator();
+        var gainNode = audioCtx.createGain();
+        lines[line] = {oscNode: oscNode,gainNode: gainNode};
+        oscNode.type = 'sine';
+        oscNode.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        gainNode.gain.value = amp;
+        if(damp > 0){
+          gainNode.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp)); //lazy dampening
+        }else if(damp < 0){
+          gainNode.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
+        }
+        oscNode.frequency.value = freq;
+        oscNode.detune.value = 0;
+        oscNode.start(0);
+        if(duration > 0){
+          oscNode.stop(duration);
+        }
       }
-      oscNode.frequency.value = freq;
-      oscNode.detune.value = 0;
-      oscNode.start(0);
-      if(duration > 0){
-        oscNode.stop(duration);
+      else {
+        lines[line].oscNode.frequency.value = freq;
       }
     }
-    else {
-      //lines[line][1].gain.value -= damp*Math.exp(damp*lines[line][1].gain.value/2000);
-      lines[line][0].frequency.value = freq;
+    else{
+      if(lines[line] === 0){
+        var audioCtx = new AudioContext();
+        var oscNodes = [];
+        var masterGain = audioCtx.createGain();
+        for(var i=0; i < harmonics.length; i++){
+          var oscNode = audioCtx.createOscillator();
+          var gainNode = audioCtx.createGain();
+          oscNode.type = 'sine';
+          oscNode.frequency.value = (i+1)*freq;
+          oscNode.connect(gainNode);
+          gainNode.connect(masterGain);
+          gainNode.gain.value = harmonics[i].value.real;
+          oscNode.start(0);
+          if(duration > 0){
+            oscNode.stop(duration);
+          }
+          oscNodes.push({oscNode: oscNode, gainNode: gainNode});
+        }
+        lines[line] = oscNodes;
+        masterGain.connect(audioCtx.destination);
+        masterGain.gain.value = amp;
+        if(damp > 0){
+          masterGain.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp)); //lazy dampening
+        }else if(damp < 0){
+          masterGain.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
+        }
+
+      }
+      else{
+        for(var i=0;i<harmonics.length;i++){
+          lines[line][i].oscNode.frequency.value = (i+1)*freq;
+          lines[line][i].gainNode.gain.value = harmonics[i].value.real;
+        }
+      }
+
     }
 
     return nada;
