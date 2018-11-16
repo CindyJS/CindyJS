@@ -709,7 +709,10 @@ List.abs2 = function(a1) {
 };
 
 List.abs = function(a1) {
-    return CSNumber.sqrt(List.abs2(a1));
+    var anssquared = List.abs2(a1);
+    if (anssquared !== nada)
+        return CSNumber.sqrt(anssquared);
+    return nada;
 };
 
 
