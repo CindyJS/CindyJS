@@ -56,7 +56,7 @@ function generatematmult(t, modifs, codebuilder) {
 }
 
 function generatesum(t, modifs, codebuilder) {
-    if (isnativeglsl(t)) return;
+    if (isnativeglsl(t) && depth(t) <= 1) return;
     let n = t.length;
     let name = `sum${webgltype(t)}`;
 
