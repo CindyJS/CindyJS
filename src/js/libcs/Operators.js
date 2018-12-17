@@ -4327,7 +4327,11 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
             erg1 = erg;
             erg = erg.substring(0, erg.length - 1);
         } while (erg !== "" && erg !== "-" && +erg === +erg1);
-        return "" + erg1;
+        var tmp = "" + erg1;
+        if (modifs.delimiter && modifs.delimiter.ctype === "string") {
+            tmp = tmp.replace(".", modifs.delimiter.value);
+        }
+        return tmp;
     }
 
     function fmt(v) {
