@@ -547,6 +547,7 @@ geoOps.PointOnConic.updatePosition = function(el, isMover) {
     el.homog = General.withUsage(pos, "Point");
     geoOps.PointOnConic.putFarpoint(el, pos);
 };
+geoOps.PointOnConic.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnConic.stateSize = 12;
 
 geoOps.PointOnCircle = {};
