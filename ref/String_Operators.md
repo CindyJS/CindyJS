@@ -368,10 +368,10 @@ If, however, it is a list, and somewhere nested inside that list is a value whic
     > format([2.339, "foo", [5.678, 1 < 2]], 2)
     < ["2.34", "foo", ["5.68", "true"]]
 
-The modifier `delimiter` can be used to set decimal seperator.
+The modifier `locale` can be used specify localication. The default is `en-US`, for German use `de-DE`.
 
-    - only CindyJS: the `delimiter` modifier is not available in Cinderella.
-    > format(1.23456, 2, delimiter->",")
+    - only CindyJS: the `locale` modifier is not available in Cinderella.
+    > format(1.23456, 2, locale->"de-DE")
     < "1,23"
 
 The modifier `truncate` can be used to prevent truncation of the output.
