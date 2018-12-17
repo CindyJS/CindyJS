@@ -370,10 +370,6 @@ If, however, it is a list, and somewhere nested inside that list is a value whic
 
 The modifier `locale` can be used specify localication. The default is `en-US`, for German use `de-DE`.
 
-    - only CindyJS: the `locale` modifier is not available in Cinderella.
-    > format(1.23456, 2, locale->"de-DE")
-    < "1,23"
-
 The modifier `truncate` can be used to prevent truncation of the output.
 
     - only CindyJS: the `truncate` modifier is not available in Cinderella.

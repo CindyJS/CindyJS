@@ -4319,7 +4319,6 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     var dec;
-    var options = {};
 
     // check if we want to truncate - do so by default
     var truncate = true;
@@ -4332,15 +4331,11 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     // default locale to en-US
     var locale = modifs.locale && modifs.locale.ctype === "string" ? modifs.locale.value : "en-US";
 
-    function fmtNumber(n) {
-        return n.toLocaleString(locale, options);
-    }
-
-    function fmt(v) {
+    function fmt(v, locale, options) {
         var r, i, erg;
         if (v.ctype === 'number') {
-            r = fmtNumber(v.value.real);
-            i = fmtNumber(v.value.imag);
+            r = (v.value.real).toLocaleString(locale, options);
+            i = (v.value.imag).toLocaleString(locale, options);
             // check if we have imag part
             if (Math.abs(v.value.imag) < Math.pow(10, -options.maximumFractionDigits))
                 erg = r;
@@ -4356,7 +4351,7 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
         if (v.ctype === 'list') {
             return {
                 "ctype": "list",
-                "value": v.value.map(fmt)
+                "value": v.value.map(v => fmt(v, locale, options))
             };
         }
         return {
@@ -4367,12 +4362,12 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     if ((v0.ctype === 'number' || v0.ctype === 'list') && v1.ctype === 'number') {
         dec = Math.max(0, Math.min(20, Math.round(v1.value.real)));
         // generate locale options
-        options = {
+        var options = {
             "minimumFractionDigits": truncate ? 0 : dec,
             "maximumFractionDigits": dec,
             "useGrouping": false
         };
-        return fmt(v0, options);
+        return fmt(v0, locale, options);
     }
     return nada;
 };
