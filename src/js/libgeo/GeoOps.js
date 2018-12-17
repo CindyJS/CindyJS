@@ -480,25 +480,52 @@ geoOps.PointOnConic.kind = "P";
 geoOps.PointOnConic.signature = ["C"];
 geoOps.PointOnConic.isMovable = true;
 geoOps.PointOnConic.initialize = function(el) {
-    var pos = geoOps._helper.initializePoint(el);
+    var pos = List.normalizeZ(geoOps._helper.initializePoint(el));
     putStateComplexVector(pos);
+    geoOps.PointOnConic.putFarpoint(el, pos);
 };
+
+geoOps.PointOnConic.putFarpoint = function(el, pos) {
+    var conic = csgeo.csnames[el.args[0]];
+    var mid = geoOps._helper.CenterOfConic(conic.matrix);
+    var farpoint = List.cross(List.cross(mid, pos), List.linfty);
+    putStateComplexVector(farpoint);
+};
+
 geoOps.PointOnConic.getParamForInput = function(el, pos, type) {
     var m = csgeo.csnames[(el.args[0])].matrix;
-    if (type === "mouse" || true) { // Don't have a different implementation yet
+    var farpoint = getStateComplexVector(3);
+    var candidates, res = List.realVector([0, 0, 0]), dist = Infinity, d, i;
+    if (type === "mouse") {
         // Orthogonal projection to conic (Euclidean, non-homogeneous!)
         // We want to solve [fundDual*m*q, q, pos] = 0 for q
         var n = List.productMM(
             List.crossOperator(pos),
             List.productMM(List.fundDual, m));
         n = List.normalizeMax(List.add(List.transpose(n), n));
-        var candidates = geoOps._helper.IntersectConicConic(m, n);
-        var res = List.realVector([0, 0, 0]);
-        var dist = Infinity;
-        for (var i = 0; i < 4; ++i) {
+        candidates = geoOps._helper.IntersectConicConic(m, n);
+        for (i = 0; i < 4; ++i) {
             if (!List._helper.isAlmostReal(candidates[i]))
                 continue;
-            var d = List.euclideanDist(pos, candidates[i]);
+            d = List.euclideanDist(pos, candidates[i]);
+            if (d < dist) {
+                dist = d;
+                res = candidates[i];
+            }
+        }
+        return res;
+    } else if (type === "update" || true) { // Don't have a different implementation yet
+        var conic = csgeo.csnames[el.args[0]];
+        var mid = List.normalizeZ(geoOps._helper.CenterOfConic(conic.matrix));
+        var direction = List.cross(mid, farpoint);
+        candidates = geoOps._helper.IntersectLC(direction, conic.matrix);
+        for (i = 0; i < 2; ++i) {
+            candidates[i] = List.normalizeZ(candidates[i]);
+        }
+        for (i = 0; i < 2; ++i) {
+            //if (!List._helper.isAlmostReal(candidates[i]))
+            //    continue;
+            d = List.euclideanDist(pos, candidates[i]);
             if (d < dist) {
                 dist = d;
                 res = candidates[i];
@@ -508,18 +535,19 @@ geoOps.PointOnConic.getParamForInput = function(el, pos, type) {
     }
 };
 geoOps.PointOnConic.getParamFromState = function(el) {
-    return getStateComplexVector(3);
+    return getStateComplexVector(3); // pos is first state element
 };
 geoOps.PointOnConic.putParamToState = function(el, param) {
     putStateComplexVector(param);
 };
-geoOps.PointOnConic.updatePosition = function(el) {
+geoOps.PointOnConic.updatePosition = function(el, isMover) {
     var pos = getStateComplexVector(3);
-    pos = geoOps.PointOnConic.getParamForInput(el, pos, "update");
+    pos = geoOps.PointOnConic.getParamForInput(el, pos, isMover ? "mouse" : "update");
     putStateComplexVector(pos);
     el.homog = General.withUsage(pos, "Point");
+    geoOps.PointOnConic.putFarpoint(el, pos);
 };
-geoOps.PointOnConic.stateSize = 6;
+geoOps.PointOnConic.stateSize = 12;
 
 geoOps.PointOnCircle = {};
 geoOps.PointOnCircle.kind = "P";
