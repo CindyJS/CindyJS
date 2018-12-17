@@ -374,6 +374,12 @@ The modifier `delimiter` can be used to set decimal seperator.
     > format(1.23456, 2, delimiter->",")
     < "1,23"
 
+The modifier `truncate` can be used to prevent truncation of the output.
+
+    - only CindyJS: the `truncate` modifier is not available in Cinderella.
+    > format(1, 2, truncate->false)
+    < "1.00"
+
 Requesting more than 20 digits will never have any effect.
 
     > format(1/3, 20) == format(1/3, 40)
