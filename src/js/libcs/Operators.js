@@ -4320,22 +4320,39 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     var v1 = evaluateAndVal(args[1]);
     var dec;
 
-    function fmtNumber(n) {
+    // check if we want to truncate - do so by default
+    var truncate = true;
+    if (modifs.truncate) {
+        var modif = evaluate(modifs.truncate);
+        if (modif.ctype === "boolean")
+            truncate = modif.value;
+    }
+
+
+    function fmtNumber(n, trunc) {
         var erg = n.toFixed(dec),
             erg1;
+
         do {
             erg1 = erg;
             erg = erg.substring(0, erg.length - 1);
-        } while (erg !== "" && erg !== "-" && +erg === +erg1);
-        return "" + erg1;
+        } while (trunc && erg !== "" && erg !== "-" && +erg === +erg1);
+
+        var tmp = "" + erg1;
+        // switch delimiter if needed
+        if (modifs.delimiter && modifs.delimiter.ctype === "string") {
+            tmp = tmp.replace(".", modifs.delimiter.value);
+        }
+        return tmp;
     }
 
-    function fmt(v) {
+    function fmt(v, dec) {
         var r, i, erg;
         if (v.ctype === 'number') {
-            r = fmtNumber(v.value.real);
-            i = fmtNumber(v.value.imag);
-            if (i === "0")
+            r = fmtNumber(v.value.real, truncate);
+            i = fmtNumber(v.value.imag, truncate);
+            // check if we have imag part
+            if (Math.abs(v.value.imag) < Math.pow(10, -dec))
                 erg = r;
             else if (i.substring(0, 1) === "-")
                 erg = r + " - i*" + i.substring(1);
@@ -4359,7 +4376,7 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     }
     if ((v0.ctype === 'number' || v0.ctype === 'list') && v1.ctype === 'number') {
         dec = Math.max(0, Math.min(20, Math.round(v1.value.real)));
-        return fmt(v0);
+        return fmt(v0, dec);
     }
     return nada;
 };
