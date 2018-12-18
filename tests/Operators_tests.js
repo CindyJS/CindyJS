@@ -29,4 +29,8 @@ describe("Operators: format", function(){
     itCmd('format(exp(2*pi*i), 2, locale->"de", truncate->true)', '1');
     itCmd('format(1234567.89, 1, locale->"de")', '1234567,9');
     itCmd('format(123456.000, 2, truncate->false)', '123456.00');
+
+    // fancy stuff
+    itCmd('format(123456.789, 3, locale->"zh-Hans-CN-u-nu-hanidec")', '一二三四五六.七八九');
+    itCmd('format(123456.789, 3, locale->"ar")', '١٢٣٤٥٦٫٧٨٩');
 });
