@@ -4329,7 +4329,8 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     }
 
     // default locale to en-US
-    var locale = modifs.locale && modifs.locale.ctype === "string" ? modifs.locale.value : "en-US";
+    var language = instanceInvocationArguments.language || "en";
+    var locale = modifs.locale && modifs.locale.ctype === "string" ? modifs.locale.value : language;
 
     function fmt(v, locale, options) {
         var r, i, erg;
