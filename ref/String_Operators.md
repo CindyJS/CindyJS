@@ -368,7 +368,7 @@ If, however, it is a list, and somewhere nested inside that list is a value whic
     > format([2.339, "foo", [5.678, 1 < 2]], 2)
     < ["2.34", "foo", ["5.68", "true"]]
 
-The modifier `locale` can be used specify localisation. The default is `en`, for German use `de`. If instantiation language is set then this will be the default setting.
+The modifier `locale` can be used specify localisation. The default is `en`, for German use `de`. If instantiation language is set then this will be the default setting. For possible values look up the `Intl` object of the ECMAScript Internationalization API.
 
     > format(1.23456, 2, locale->"de")
     < "1,23"

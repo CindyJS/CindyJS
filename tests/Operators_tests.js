@@ -32,5 +32,5 @@ describe("Operators: format", function(){
 
     // fancy stuff
     itCmd('format(123456.789, 3, locale->"zh-Hans-CN-u-nu-hanidec")', '一二三四五六.七八九');
-    itCmd('format(123456.789, 3, locale->"ar")', '١٢٣٤٥٦٫٧٨٩');
+    itCmd('format(123456.789, 3, locale->"ar-EG")', '١٢٣٤٥٦٫٧٨٩');
 });
