@@ -480,7 +480,7 @@ geoOps.PointOnConic.kind = "P";
 geoOps.PointOnConic.signature = ["C"];
 geoOps.PointOnConic.isMovable = true;
 geoOps.PointOnConic.initialize = function(el) {
-    var pos = List.normalizeZ(geoOps._helper.initializePoint(el));
+    var pos = geoOps._helper.initializePoint(el);
     putStateComplexVector(pos);
     geoOps.PointOnConic.putFarpoint(el, pos);
 };
@@ -495,7 +495,9 @@ geoOps.PointOnConic.putFarpoint = function(el, pos) {
 geoOps.PointOnConic.getParamForInput = function(el, pos, type) {
     var m = csgeo.csnames[(el.args[0])].matrix;
     var farpoint = getStateComplexVector(3);
-    var candidates, res = List.realVector([0, 0, 0]), dist = Infinity, d, i;
+    var candidates, res = List.realVector([0, 0, 0]),
+        dist = Infinity,
+        d, i;
     if (type === "mouse") {
         // Orthogonal projection to conic (Euclidean, non-homogeneous!)
         // We want to solve [fundDual*m*q, q, pos] = 0 for q
@@ -507,7 +509,7 @@ geoOps.PointOnConic.getParamForInput = function(el, pos, type) {
         for (i = 0; i < 4; ++i) {
             if (!List._helper.isAlmostReal(candidates[i]))
                 continue;
-            d = List.euclideanDist(pos, candidates[i]);
+            d = List.projectiveDistMinScal(pos, candidates[i]);
             if (d < dist) {
                 dist = d;
                 res = candidates[i];
@@ -516,16 +518,13 @@ geoOps.PointOnConic.getParamForInput = function(el, pos, type) {
         return res;
     } else if (type === "update" || true) { // Don't have a different implementation yet
         var conic = csgeo.csnames[el.args[0]];
-        var mid = List.normalizeZ(geoOps._helper.CenterOfConic(conic.matrix));
+        var mid = geoOps._helper.CenterOfConic(conic.matrix);
         var direction = List.cross(mid, farpoint);
         candidates = geoOps._helper.IntersectLC(direction, conic.matrix);
         for (i = 0; i < 2; ++i) {
-            candidates[i] = List.normalizeZ(candidates[i]);
-        }
-        for (i = 0; i < 2; ++i) {
             //if (!List._helper.isAlmostReal(candidates[i]))
             //    continue;
-            d = List.euclideanDist(pos, candidates[i]);
+            d = List.projectiveDistMinScal(pos, candidates[i]);
             if (d < dist) {
                 dist = d;
                 res = candidates[i];
