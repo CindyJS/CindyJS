@@ -23,6 +23,7 @@ Render2D.handleModifs = function(modifs, handlers) {
     Render2D.italics = "";
     Render2D.family = "sans-serif";
     Render2D.align = 0;
+    Render2D.angle = 0;
     Render2D.xOffset = 0;
     Render2D.yOffset = 0;
     Render2D.lineCap = "round";
@@ -261,6 +262,13 @@ Render2D.modifHandlers = {
         }
     },
 
+    "angle": function(v) {
+        if (v.ctype === "number") {
+            Render2D.angle = v.value.real;
+        }
+    },
+
+
     "x_offset": function(v) {
         if (v.ctype === "number")
             Render2D.xOffset = v.value.real;
@@ -362,6 +370,7 @@ Render2D.textModifs = {
     "italics": true,
     "family": true,
     "align": true,
+    "angle": true,
     "x_offset": true,
     "y_offset": true,
     "offset": true,

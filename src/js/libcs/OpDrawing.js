@@ -894,7 +894,7 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
 };
 
-function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight) {
+function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle=0) {
     if (text.indexOf("\n") !== -1) {
         var left = Infinity;
         var right = -Infinity;
@@ -916,7 +916,11 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight) {
         };
     }
     var m = ctx.measureText(text);
-    ctx.fillText(text, x - m.width * align, y);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(-angle);
+    ctx.fillText(text, - m.width * align, 0);
+    ctx.restore();
     // We can't rely on advanced text metrics due to lack of browser support,
     // so we have to guess sizes, the vertical ones in particular.
     return {
@@ -985,7 +989,7 @@ eval_helper.drawtext = function(args, modifs, callback) {
     } else {
         return textRendererCanvas(
             csctx, txt, xx, yy, Render2D.align,
-            size, size * defaultAppearance.lineHeight);
+            size, size * defaultAppearance.lineHeight, Render2D.angle);
     }
 };
 
