@@ -354,8 +354,14 @@ function addElementNoProof(el) {
     isShowing(el, op);
 
     geoDependantsCache = {};
-    guessDuplicate(el);
-    guessIncidences(el);
+    // Guess Duplicates and Incidences
+    // use try/catch since this is not mission critical
+    try {
+        guessDuplicate(el);
+        guessIncidences(el);
+    } catch (e) {
+        console.error(e);
+    }
 
     return csgeo.csnames[el.name];
 }
