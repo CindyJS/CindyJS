@@ -101,17 +101,17 @@ guessDuplicate._helper.duplicateSS = function(p, q) {
         },
         apply: markAsDuplicate(p, q),
         holds: function() {
-            var p0 = csgeo.csnames[p.args[0]];
-            var p1 = csgeo.csnames[p.args[1]];
+            var p0 = p.startpos;
+            var p1 = p.endpos;
 
-            var q0 = csgeo.csnames[q.args[0]];
-            var q1 = csgeo.csnames[q.args[1]];
+            var q0 = q.startpos;
+            var q1 = q.endpos;
 
-            var dist1 = List.projectiveDistMinScal(p0.homog, q0.homog);
-            dist1 = dist1 + List.projectiveDistMinScal(p1.homog, q1.homog);
+            var dist1 = List.projectiveDistMinScal(p0, q0);
+            dist1 = dist1 + List.projectiveDistMinScal(p1, q1);
 
-            var dist2 = List.projectiveDistMinScal(p1.homog, q0.homog);
-            dist2 = dist2 + List.projectiveDistMinScal(p0.homog, q1.homog);
+            var dist2 = List.projectiveDistMinScal(p1, q0);
+            dist2 = dist2 + List.projectiveDistMinScal(p0, q1);
 
             return Math.min(dist1, dist2) < CSNumber.epsbig;
         }
