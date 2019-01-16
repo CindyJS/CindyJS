@@ -8,6 +8,9 @@ var cdy = CindyJS({
             isNode: true,
             csconsole: null,
             geometry: [
+                {name:"A", type:"Free", pos:[0,0,1]},
+                {name:"B", type:"Free", pos:[1,0,0]},
+                {name:"a", type:"Join", args:["A","B"]},
             ],
         });
 
@@ -27,4 +30,12 @@ describe("Operators: format", function(){
     itCmd('format(1.23456, 2, delimiter->",")', '1,23');
     itCmd('format(exp(2*pi*i), 2, delimiter->",", truncate->false)', '1,00');
     itCmd('format(exp(2*pi*i), 2, delimiter->",", truncate->true)', '1');
+});
+
+describe("Operators: halfplane", function(){
+    itCmd('halfplane(A,a)', 'polygon');
+    // farpoint input
+    itCmd('halfplane(B,a)', '___');
+    // nada input
+    itCmd('halfplane(BBB,a)', '___');
 });

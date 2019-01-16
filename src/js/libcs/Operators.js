@@ -3762,47 +3762,85 @@ evaluator.screen$0 = function(args, modifs) {
 };
 
 evaluator.halfplane$2 = function(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var w0 = evaluateAndHomog(v0);
-    var w1 = evaluateAndHomog(v1);
-    if (v0 === nada || v1 == nada) return nada;
+    var definingPoint, definingLine;
+    var foot, diffVec, normOfDiffVec;
 
-    var u0 = v0.usage;
-    var u1 = v1.usage;
-    var definingPoint = w0;
-    var definingLine = w1;
+    try {
+        var pointAndLine = evaluateArgs();
+        definingPoint = pointAndLine.defPoint;
+        definingLine = pointAndLine.defLine;
 
-    if (u0 === "Line" || u1 === "Point") {
-        definingPoint = w1;
-        definingLine = w0;
+        foot = calcFoot();
+        diffVec = calcDiffVec();
+        normOfDiffVec = List.abs(diffVec);
+
+        return calcPolygon();
+    } catch (e) {
+        // TODO: e could be piped through a logger
+        return nada;
     }
-    if (CSNumber._helper.isAlmostZero(definingPoint.value[2])) return nada;
 
-    //OK im Folgenden lässt sich viel optimieren
-    var farPointOfDefLine = List.turnIntoCSList([definingLine.value[0], definingLine.value[1], CSNumber.zero]);
-    var perpThroughP = List.cross(farPointOfDefLine, definingPoint);
-    var foot = List.cross(definingLine, perpThroughP);
+    function evaluateArgs() {
+        var w0 = evaluateAndHomog(args[0]);
+        var w1 = evaluateAndHomog(args[1]);
+        if (w0 === nada || w1 === nada) {
+            throw new TypeError("halfplane: one argument is nada");
+        }
+        var u0 = w0.usage;
+        var u1 = w1.usage;
+        var tmpDefPt = w0;
+        var tmpDefLine = w1;
 
-    foot = List.normalizeZ(foot);
-    definingPoint = List.normalizeZ(definingPoint);
+        if (u0 === "Line" || u1 === "Point") {
+            tmpDefPt = w1;
+            tmpDefLine = w0;
+        }
+        if (List._helper.isAlmostFarpoint(tmpDefPt)) {
+            throw new RangeError("halfplane: farpoint does not define halfplane.");
+        }
+        tmpDefPt = List.normalizeZ(tmpDefPt);
 
-    var diffVec = List.sub(definingPoint, foot);
-    var normOfDiffVec = List.abs(diffVec);
+        return {
+            defPoint: tmpDefPt,
+            defLine: tmpDefLine
+        };
+    }
 
-    var pp1, pp2, pp3, pp4;
-    if (CSNumber._helper.isAlmostZero(normOfDiffVec)) {
+
+    function calcFoot() {
+        var farPointOfDefLine = List.turnIntoCSList([definingLine.value[0], definingLine.value[1], CSNumber.zero]);
+        var perpThroughP = List.cross(farPointOfDefLine, definingPoint);
+        var foot = List.cross(definingLine, perpThroughP);
+
+        return List.normalizeZ(foot);
+    }
+
+
+    function calcDiffVec() {
+        return List.sub(definingPoint, foot);
+    }
+
+
+    function calcPolygon() {
+        if (CSNumber._helper.isAlmostZero(normOfDiffVec)) {
+            return calcDegenCase();
+        } else {
+            return calcProperCase();
+        }
+    }
+
+    function calcDegenCase() {
         var largeRadius = CSNumber.real(1000);
         var circleAroundDefiningPoint = geoOps._helper.ScaledCircleMrr(definingPoint, largeRadius);
         var equiDistPointsOnDefniningLine = geoOps._helper.IntersectLC(definingLine, circleAroundDefiningPoint);
         var p1 = List.normalizeZ(equiDistPointsOnDefniningLine[0]);
         var p2 = List.normalizeZ(equiDistPointsOnDefniningLine[1]);
 
-        pp1 = {
+        var pp1 = {
             X: p1.value[0].value.real,
             Y: p1.value[1].value.real
         };
-        pp2 = {
+        var pp2 = {
             X: p2.value[0].value.real,
             Y: p2.value[1].value.real
         };
@@ -3814,27 +3852,29 @@ evaluator.halfplane$2 = function(args, modifs) {
                 [pp1, pp2]
             ]
         };
-    } else {
-        diffVec = General.div(diffVec, normOfDiffVec);
+    }
+
+    function calcProperCase() {
+        var diffVecNorm = General.div(diffVec, normOfDiffVec);
 
         var footX = foot.value[0].value.real;
         var footY = foot.value[1].value.real;
-        var dx = diffVec.value[0].value.real * 1000;
-        var dy = diffVec.value[1].value.real * 1000;
+        var dx = diffVecNorm.value[0].value.real * 1000;
+        var dy = diffVecNorm.value[1].value.real * 1000;
 
-        pp1 = {
+        var pp1 = {
             X: footX + dy / 2,
             Y: footY - dx / 2
         };
-        pp2 = {
+        var pp2 = {
             X: footX + dy / 2 + dx,
             Y: footY - dx / 2 + dy
         };
-        pp3 = {
+        var pp3 = {
             X: footX - dy / 2 + dx,
             Y: footY + dx / 2 + dy
         };
-        pp4 = {
+        var pp4 = {
             X: footX - dy / 2,
             Y: footY + dx / 2
         };
@@ -3846,8 +3886,6 @@ evaluator.halfplane$2 = function(args, modifs) {
             ]
         };
     }
-
-
 };
 
 ///////////////////////////////
