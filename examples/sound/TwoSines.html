@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Sine</title>
+<meta charset="UTF-8">
+
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+
+<script id="csinit" type="text/x-cindyscript">
+</script>
+
+<script id="csmousedown" type="text/x-cindyscript">
+stopsound();
+</script>
+
+<script id="csdraw" type="text/x-cindyscript">
+playsin(min(mouse().x*100,1500), duration->0, line->0, damp->0.2);
+playsin(min(mouse().y*100,1500), duration->0, line->1, damp->0.2);
+
+
+drawtext((4,15), "Move the Mouse to hear two different Sine Waves");
+drawtext((7,10),  "(Left Mouse Click to Stop Sound)");
+
+drawtext((18,6), "$\downarrow$ for $\infty$ duration");
+drawtext((0,5), "Calling playsin(min(mouse().x*100,1500), duration->0, line->0, damp->0.2);");
+drawtext((0,4), "and playsin(min(mouse().y*100,1500), duration->0, line->1, damp->0.2);");
+
+
+drawtext((mouse()), mouse().x*100 + " Hz, " + mouse().y*100 + " Hz");
+
+
+</script>
+<script type="text/javascript">
+
+createCindy({
+  ports: [{id: "CSCanvas", width: 1000, height: 800}],
+  scripts: "cs*",
+  geometry: [],
+});
+
+</script>
+</head>
+
+<body>
+  <div id="CSCanvas"></div>
+</body>
+
+</html>
