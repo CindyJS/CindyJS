@@ -3766,78 +3766,78 @@ evaluator.halfplane$2 = function(args, modifs) {
     var v1 = evaluateAndVal(args[1]);
     var w0 = evaluateAndHomog(v0);
     var w1 = evaluateAndHomog(v1);
-    if (v0 !== nada && v1 !== nada) {
-        var u0 = v0.usage;
-        var u1 = v1.usage;
-        var p = w0;
-        var l = w1;
-        if (u0 === "Line" || u1 === "Point") {
-            p = w1;
-            l = w0;
-        }
-        if (CSNumber._helper.isAlmostZero(p.value[2])) return nada;
+    if (v0 === nada || v1 == nada) return nada;
 
-        //OK im Folgenden lässt sich viel optimieren
-        var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
-        var erg = List.cross(tt, p);
-        var foot = List.cross(l, erg);
+    var u0 = v0.usage;
+    var u1 = v1.usage;
+    var definingPoint = w0;
+    var definingLine = w1;
 
-        foot = General.div(foot, foot.value[2]);
-        p = General.div(p, p.value[2]);
-        var diff = List.sub(p, foot);
-        var nn = List.abs(diff);
+    if (u0 === "Line" || u1 === "Point") {
+        definingPoint = w1;
+        definingLine = w0;
+    }
+    if (CSNumber._helper.isAlmostZero(definingPoint.value[2])) return nada;
 
-        var pp1, pp2, pp3, pp4;
-        if (CSNumber._helper.isAlmostZero(nn)) {
-            var radius = CSNumber.real(1000);
-            var circle = geoOps._helper.ScaledCircleMrr(p, radius);
-            var pointsOfIntersection = geoOps._helper.IntersectLC(l, circle);
-            var p1 = List.normalizeZ(pointsOfIntersection[0]);
-            var p2 = List.normalizeZ(pointsOfIntersection[1]);
+    //OK im Folgenden lässt sich viel optimieren
+    var farPointOfDefLine = List.turnIntoCSList([definingLine.value[0], definingLine.value[1], CSNumber.zero]);
+    var perpThroughP = List.cross(farPointOfDefLine, definingPoint);
+    var foot = List.cross(definingLine, perpThroughP);
 
-            pp1 = {
-                X: p1.value[0].value.real,
-                Y: p1.value[1].value.real
-            };
-            pp2 = {
-                X: p2.value[0].value.real,
-                Y: p2.value[1].value.real
-            };
+    foot = List.normalizeZ(foot);
+    definingPoint = List.normalizeZ(definingPoint);
 
-            return {
-                ctype: "shape",
-                type: "polygon",
-                value: [
-                    [pp1, pp2]
-                ]
-            };
-        } else {
-            diff = General.div(diff, nn);
+    var diffVec = List.sub(definingPoint, foot);
+    var normOfDiffVec = List.abs(diffVec);
 
-            var sx = foot.value[0].value.real;
-            var sy = foot.value[1].value.real;
-            var dx = diff.value[0].value.real * 1000;
-            var dy = diff.value[1].value.real * 1000;
+    var pp1, pp2, pp3, pp4;
+    if (CSNumber._helper.isAlmostZero(normOfDiffVec)) {
+        var largeRadius = CSNumber.real(1000);
+        var circleAroundDefiningPoint = geoOps._helper.ScaledCircleMrr(definingPoint, largeRadius);
+        var equiDistPointsOnDefniningLine = geoOps._helper.IntersectLC(definingLine, circleAroundDefiningPoint);
+        var p1 = List.normalizeZ(equiDistPointsOnDefniningLine[0]);
+        var p2 = List.normalizeZ(equiDistPointsOnDefniningLine[1]);
 
-            pp1 = {
-                X: sx + dy / 2,
-                Y: sy - dx / 2
-            };
-            pp2 = {
-                X: sx + dy / 2 + dx,
-                Y: sy - dx / 2 + dy
-            };
-            pp3 = {
-                X: sx - dy / 2 + dx,
-                Y: sy + dx / 2 + dy
-            };
-            pp4 = {
-                X: sx - dy / 2,
-                Y: sy + dx / 2
-            };
-        }
+        pp1 = {
+            X: p1.value[0].value.real,
+            Y: p1.value[1].value.real
+        };
+        pp2 = {
+            X: p2.value[0].value.real,
+            Y: p2.value[1].value.real
+        };
 
+        return {
+            ctype: "shape",
+            type: "polygon",
+            value: [
+                [pp1, pp2]
+            ]
+        };
+    } else {
+        diffVec = General.div(diffVec, normOfDiffVec);
 
+        var footX = foot.value[0].value.real;
+        var footY = foot.value[1].value.real;
+        var dx = diffVec.value[0].value.real * 1000;
+        var dy = diffVec.value[1].value.real * 1000;
+
+        pp1 = {
+            X: footX + dy / 2,
+            Y: footY - dx / 2
+        };
+        pp2 = {
+            X: footX + dy / 2 + dx,
+            Y: footY - dx / 2 + dy
+        };
+        pp3 = {
+            X: footX - dy / 2 + dx,
+            Y: footY + dx / 2 + dy
+        };
+        pp4 = {
+            X: footX - dy / 2,
+            Y: footY + dx / 2
+        };
         return {
             ctype: "shape",
             type: "polygon",
@@ -3846,7 +3846,8 @@ evaluator.halfplane$2 = function(args, modifs) {
             ]
         };
     }
-    return nada;
+
+
 };
 
 ///////////////////////////////
