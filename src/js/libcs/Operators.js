@@ -3795,6 +3795,9 @@ evaluator.halfplane$2 = function(args, modifs) {
             tmpDefPt = w1;
             tmpDefLine = w0;
         }
+        if (List.projectiveDistMinScal(tmpDefLine, List.linfty) < CSNumber.eps) {
+            throw new RangeError("halfplane: Line at infinity cannot be used to define a halfplane.");
+        }
         if (List._helper.isAlmostFarpoint(tmpDefPt)) {
             throw new RangeError("halfplane: farpoint does not define halfplane.");
         }

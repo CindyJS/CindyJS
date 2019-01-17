@@ -11,6 +11,7 @@ var cdy = CindyJS({
                 {name:"A", type:"Free", pos:[0,0,1]},
                 {name:"B", type:"Free", pos:[1,0,0]},
                 {name:"a", type:"Join", args:["A","B"]},
+                {name:"linf", type:"FreeLine", pos:[0,0,4]},
             ],
         });
 
@@ -36,6 +37,8 @@ describe("Operators: halfplane", function(){
     itCmd('halfplane(A,a)', 'polygon');
     // farpoint input
     itCmd('halfplane(B,a)', '___');
+    // farpoint input
+    itCmd('halfplane(A,linf)', '___');
     // nada input
     itCmd('halfplane(BBB,a)', '___');
 });
