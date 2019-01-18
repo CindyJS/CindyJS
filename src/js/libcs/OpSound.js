@@ -73,7 +73,6 @@ evaluator.playsin$1 = function(args, modifs) {
 
     handleModifs();
 
-
     function playOscillator(line, freq, gain) {
       const oscNode = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
@@ -109,6 +108,11 @@ evaluator.playsin$1 = function(args, modifs) {
     }
     else{ //update
       if(damp === 0){
+        if(duration === 0){
+          for(var i=0; i<lines[line].oscNodes.length; i++){
+            lines[line].oscNodes[i].oscNode.stop(); //helps
+          }
+        }
         for(var i=0; i<harmonics.length; i++){
           lines[line].oscNodes[i].oscNode.frequency.setValueAtTime((i+1)*freq, audioCtx.currentTime);
           lines[line].oscNodes[i].gainNode.gain.setValueAtTime(harmonics[i].value.real, audioCtx.currentTime);
