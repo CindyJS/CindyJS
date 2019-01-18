@@ -2,21 +2,24 @@
 // and here are the definitions of the sound operators
 //*******************************************************
 var sound = {};
-var lines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var lines = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-evaluator.stopsound$0 = function(){
-  for(var i = 0; i < lines.length; i++){
-    if(lines[i] !== 0){
-      if(Array.isArray(lines[i])){
-        for(var h=0;h<lines[i].length;h++){
-          lines[i][h].oscNode.stop(0);
-        }
-      }
-      else{
-        lines[i].oscNode.stop(0);
-      }
-    }
+var getAudioContext = function() {
+  var ac = null;
+  if ( !window.AudioContext && !window.webkitAudioContext ) {
+    console.warn('Web Audio API not supported in this browser');
+  } else {
+    ac = new ( window.AudioContext || window.webkitAudioContext )();
   }
+  return function() {
+    return ac;
+  };
+}();
+
+var audioCtx = getAudioContext();
+
+evaluator.stopsound$0 = function(){ // not clean
+    audioCtx.close();
 };
 
 evaluator.playsin$1 = function(args, modifs) {
@@ -61,80 +64,77 @@ evaluator.playsin$1 = function(args, modifs) {
         }
     }
 
-    var AudioContext = window.AudioContext || window.webkitAudioContext;
-
     var freq = evaluate(args[0]).value.real;
     var amp = 0.5;
     var damp = 0;
     var duration = 1;
-    var harmonics = 0;
+    var harmonics = List.asList(CSNumber.real(1)).value;
     var line = 0;
 
     handleModifs();
-    if(harmonics === 0){ // Version without harmonics sounds better
-      if(lines[line] === 0){
-        var audioCtx = new AudioContext();
-        var oscNode = audioCtx.createOscillator();
-        var gainNode = audioCtx.createGain();
-        lines[line] = {oscNode: oscNode,gainNode: gainNode};
-        oscNode.type = 'sine';
-        oscNode.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        gainNode.gain.value = amp;
-        if(damp > 0){
-          gainNode.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp)); //lazy dampening
-        }else if(damp < 0){
-          gainNode.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
-        }
-        oscNode.frequency.value = freq;
-        oscNode.detune.value = 0;
-        oscNode.start(0);
-        if(duration > 0){
-          oscNode.stop(duration);
-        }
+
+
+    function playOscillator(line, freq, gain) {
+      const oscNode = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      gainNode.connect(lines[line].masterGain);
+      oscNode.type = 'sine';
+      oscNode.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      oscNode.start(0);
+      oscNode.connect(gainNode);
+      gainNode.gain.setValueAtTime(gain, audioCtx.currentTime);
+      if(duration >= 0){
+        gainNode.gain.setValueAtTime(0,audioCtx.currentTime + duration);
+        oscNode.onended = function (){
+          lines[line] = 0;
+        };
       }
-      else {
-        lines[line].oscNode.frequency.value = freq;
+      return {oscNode: oscNode, gainNode: gainNode};
+    }
+
+    if(lines[line] === 0){ //initialize
+      const masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(amp, audioCtx.currentTime);
+      masterGain.connect(audioCtx.destination);
+      lines[line] = {oscNodes: [], masterGain: masterGain};
+      for(var i=0; i < harmonics.length; i++){
+        lines[line].oscNodes.push(playOscillator(line, (i+1)*freq, harmonics[i].value.real));
+      }
+      if(damp > 0){ //not properly mathematically but does the job
+        masterGain.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp));
+      }
+      else if(damp < 0){
+        masterGain.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
       }
     }
-    else{
-      if(lines[line] === 0){
-        var audioCtx = new AudioContext();
-        var oscNodes = [];
-        var masterGain = audioCtx.createGain();
-        for(var i=0; i < harmonics.length; i++){
-          var oscNode = audioCtx.createOscillator();
-          var gainNode = audioCtx.createGain();
-          oscNode.type = 'sine';
-          oscNode.frequency.value = (i+1)*freq;
-          oscNode.connect(gainNode);
-          gainNode.connect(masterGain);
-          gainNode.gain.value = harmonics[i].value.real;
-          oscNode.start(0);
-          if(duration > 0){
-            oscNode.stop(duration);
-          }
-          oscNodes.push({oscNode: oscNode, gainNode: gainNode});
+    else{ //update
+      if(damp === 0){
+        for(var i=0; i<harmonics.length; i++){
+          lines[line].oscNodes[i].oscNode.frequency.setValueAtTime((i+1)*freq, audioCtx.currentTime);
+          lines[line].oscNodes[i].gainNode.gain.setValueAtTime(harmonics[i].value.real, audioCtx.currentTime);
         }
-        lines[line] = oscNodes;
-        masterGain.connect(audioCtx.destination);
-        masterGain.gain.value = amp;
-        if(damp > 0){
-          masterGain.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp)); //lazy dampening
-        }else if(damp < 0){
-          masterGain.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
-        }
-
       }
       else{
-        for(var i=0;i<harmonics.length;i++){
-          lines[line][i].oscNode.frequency.value = (i+1)*freq;
-          lines[line][i].gainNode.gain.value = harmonics[i].value.real;
+        for(var i=0; i<lines[line].oscNodes.length; i++){
+          lines[line].oscNodes[i].oscNode.stop(); //helps
+        }
+        for(var i=0; i<harmonics.length; i++){
+          if(i<lines[line].oscNodes.length){
+            lines[line].oscNodes[i] = playOscillator(line, (i+1)*freq, harmonics[i].value.real);
+          }
+        else {
+          lines[line].oscNodes.push(playOscillator(line, (i+1)*freq, harmonics[i].value.real));
+        }
+        }
+        lines[line].masterGain.gain.setValueAtTime(amp, audioCtx.currentTime);
+        if(damp > 0){
+          lines[line].masterGain.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp));
+        }
+        else if(damp < 0){
+          lines[line].masterGain.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
         }
       }
-
     }
-
     return nada;
 };
 
@@ -326,8 +326,7 @@ evaluator.playwave$1 = function(args, modifs) {
 };
 
 evaluator.playosc$1 = function(args, modifs) {
-  if(lines[0] === undefined){
-    var audioCtx = new AudioContext();
+  if(lines[0] === 0){
     var oscNode = audioCtx.createOscillator();
     lines[0] = oscNode;
     oscNode.type = 'sine';
