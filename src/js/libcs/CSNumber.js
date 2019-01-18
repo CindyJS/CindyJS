@@ -17,6 +17,10 @@ CSNumber.niceprint = function(a, roundingfactor) {
     }
     var real = CSNumber._helper.niceround(a.value.real, roundingfactor);
     var imag = CSNumber._helper.niceround(a.value.imag, roundingfactor);
+    if(real === Infinity || imag === Infinity){
+        return "∞";
+    }
+
     if (imag === 0) {
         return "" + real;
     }
@@ -285,6 +289,17 @@ CSNumber.div = function(a, b) {
     var br = b.value.real;
     var bi = b.value.imag;
     var s = br * br + bi * bi;
+    if(s === 0)
+    {
+        console.log("Warning! Division by zero!");
+        return {
+            "ctype": "number",
+            "value": {
+                'real': ar / 0,
+                'imag': ai / 0 
+            }
+        };
+    }
     return {
         "ctype": "number",
         "value": {
