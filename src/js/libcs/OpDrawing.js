@@ -134,7 +134,7 @@ eval_helper.drawarc = function(args, modifs, df) {
     if (!List._helper.isAlmostReal(List.turnIntoCSList([a, b, c]))) return nada;
 
     // modifs handling
-    Render2D.handleModifs(modifs, df === "D" ? Render2D.lineModifs : Render2D.conicModifs);
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
     Render2D.preDrawCurve();
 
     var abcdet = List.det3(a, b, c);
@@ -271,7 +271,7 @@ eval_helper.drawcircle = function(args, modifs, df) {
     var xx = pt.x * m.a - pt.y * m.b + m.tx;
     var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
-    Render2D.handleModifs(modifs, df === "D" ? Render2D.lineModifs : Render2D.conicModifs);
+    Render2D.handleModifs(modifs, Render2D.conicModifs);
     Render2D.preDrawCurve();
 
     csctx.lineJoin = "miter";
@@ -823,7 +823,7 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 
 
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
-    Render2D.handleModifs(modifs, (df === "D" & !cycle) ? Render2D.lineModifs : Render2D.conicModifs);
+    Render2D.handleModifs(modifs, cycle ? Render2D.conicModifs : Render2D.lineModifs);
     Render2D.preDrawCurve();
 
 
