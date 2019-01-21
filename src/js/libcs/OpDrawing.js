@@ -823,7 +823,7 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 
 
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
-    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    Render2D.handleModifs(modifs, cycle ? Render2D.conicModifs : Render2D.lineModifs);
     Render2D.preDrawCurve();
 
 
