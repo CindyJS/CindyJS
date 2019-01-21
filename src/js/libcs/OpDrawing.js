@@ -134,7 +134,7 @@ eval_helper.drawarc = function(args, modifs, df) {
     if (!List._helper.isAlmostReal(List.turnIntoCSList([a, b, c]))) return nada;
 
     // modifs handling
-    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    Render2D.handleModifs(modifs, df === "D" ? Render2D.lineModifs : Render2D.conicModifs);
     Render2D.preDrawCurve();
 
     var abcdet = List.det3(a, b, c);
