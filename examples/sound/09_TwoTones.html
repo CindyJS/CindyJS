@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>TwoTones7.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cindyjs.org/dist/v0.8/CindyJS.css">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+play():=(
+
+  playfunction(f(x),stop->4);
+);
+
+
+looping=true;
+
+inited=false;
+
+  on=false;
+
+
+
+
+
+guess(a):=(
+    p=guess(a,10);
+    p_1+"/"+p_2;
+);
+
+guess(a,n):=(
+   regional(pp,fl,fr);
+   fl=floor(a+0.000001);
+
+   fr=a-fl;
+   if(n==0,(fl,1),
+     if(|a-round(a)|<0.0001,(fl,1),
+         pp=guess(1/fr,n-1);
+         [fl*pp_1+pp_2,pp_1];
+
+     );
+   );
+
+);
+
+
+
+
+
+
+
+
+
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+A.y=5;
+B.y=7;
+if(A.x<5,A.x=5);
+if(B.x<5,B.x=5);
+
+if(A.x>25,A.x=25);
+if(B.x>25,B.x=25);
+
+a=25*(A.x-5);
+b=25*(B.x-5);
+
+if(a~>0&b~>0,
+  drawtext((2.6,3),"Verhältnis = "+guess(a/b),size->16,color->(1,1,1));
+);
+
+drawtext((2.6,6.8),"Ton 1",size->16,color->(1,1,1));
+drawtext((2.6,4.8),"Ton 2",size->16,color->(1,1,1));
+
+
+drawtext((5,6.2),"0Hz",size->10,align->"center",color->(.5,1,.5));
+drawtext((25,6.2),"500Hz",size->10,align->"center",color->(.5,1,0.5));
+
+drawtext((5,4.2),"0Hz",size->10,align->"center",color->(1,.8,.8));
+drawtext((25,4.2),"500Hz",size->10,align->"center",color->(1,.8,.8));
+
+
+//drawtext((1,-4),"Ton an/aus mit 'space' Taste",size->16,color->(1,1,1));
+
+fr1=a;
+fr2=b;
+
+
+
+drawtext((26,6.8),fr2+"Hz",size->16,color->(.5,1,.5));
+drawtext((26,4.8),fr1+"Hz",size->16,color->(.5,1,0.5));
+
+drawtext(A+(0.2,0.2),a,color->(1,1,1));
+drawtext(B+(0.2,0.2),b,color->(1,1,1));
+
+draw((5,5),(25,5),color->(1,1,1));
+draw((5,4.8),(5,5.2),color->(1,1,1));
+draw((25,4.8),(25,5.2),color->(1,1,1));
+
+if(b~>0&Text0.pressed,
+  s=b;
+  while(s<500,
+
+    draw((5+s/25,4.85),(5+s/25,5.15),color->(.5,1,.5));
+    if(s>20,drawtext((5+s/25,4.2),s+"Hz",size->10,align->"center",color->(.5,1,.5)));
+    s=s*2;
+
+  );
+);
+
+
+
+draw((5,7),(25,7),color->(1,1,1));
+draw((5,6.8),(5,7.2),color->(1,1,1));
+draw((25,6.8),(25,7.2),color->(1,1,1));
+
+
+f1(x):=sin(fr1*x*2*π);
+f2(x):=sin(fr2*x*2*π);
+
+f(x):=(f1(x)+f2(x))/2;
+
+s=if(looping,10,0);
+
+
+if(fr1<1,ff1=10,ff1=25*5/fr1);
+if(fr2<1,ff2=10,ff2=25*5/fr2);
+
+
+
+if(inited,
+if(on,
+playsin(fr1,stop->10,amp->0.5,line->0);
+playsin(fr2,stop->10,amp->0.5,line->1);,
+playsin(fr1,stop->0,amp->0.5,line->0);
+playsin(fr2,stop->0,amp->0.5,line->1);
+);
+);
+
+drawimage((-10,-7),(-8,-7),if(on,"on","off"));
+
+
+
+plot(f1(x/60)/2+1,alpha->0.7,pxlres->ff1,start->0,stop->30,color->(1,.5,.5),size->1);
+plot(f2(x/60)/2-1,alpha->0.7,pxlres->ff2,start->0,stop->30,color->(.5,1,.5),size->1);
+
+
+
+
+
+
+
+
+drawimage((1,-4),(3,-4),if(on,"on","off"));
+
+
+
+
+
+
+
+;
+</script>
+<script id="cskeydown" type="text/x-cindyscript">
+if(key()==" ",looping=!looping);
+
+
+;
+</script>
+
+<script id="csmousedown" type="text/x-cindyscript">
+  if(|mouse().xy,(2,-3)|<2,on=!on;inited=true;);
+
+if(on,
+playsin(fr1,stop->10,amp->0.5,line->0);
+playsin(fr2,stop->10,amp->0.5,line->1);,
+playsin(fr1,stop->0,amp->0.5,line->0);
+playsin(fr2,stop->0,amp->0.5,line->1);
+);
+</script>
+
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, 3.9999999999999996, 0.8], color: [0.757, 0.0, 0.0], alpha: 0.8999999761581421, textsize: 0.0, size: 3.0},
+    {name: "B", type: "Free", pos: [-2.8571428571428577, -4.0, -0.5714285714285714], color: [0.098, 0.62, 0.306], alpha: 0.8999999761581421, textsize: 0.0, size: 3.0},
+    {name: "Text0", type: "ToggleButton", color: [1,1,1], fillcolor: [.9,.9,.9], fillalpha: 0.8, alpha: 0.8999999761581421, text: "Oktaven einblenden", textsize: 16.0, dock: {corner: "LL", offset: [499.0, 39.0]}}
+  ],
+    images:{on:"common/speakerOn.png", off:"common/speakerOff.png"},
+
+  ports: [{
+    id: "CSCanvas",
+    width: 798,
+    height: 379,
+    transform: [{visibleRect: [-0.98, 10.02, 30.94, -5.14]}],
+    grid: 1.0,
+    background: "rgb(30,30,30)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

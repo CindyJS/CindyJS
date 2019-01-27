@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>HamonizerGridScales6.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cindyjs.org/dist/v0.8/CindyJS.css">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+
+
+
+els=allelements()--[AA,BB,CC,S99];
+labs=apply(allpoints(),#.name);
+//apply(els,e,println(inputs(e)));
+colfac=1;
+
+ht=2^(1/12);
+qnui=ht^7;
+ll(x):=log(x)/log(ht);
+g=220*(2/3)^3*4;
+g=261;
+
+
+diff(x):=ll(x)-round(ll(x)+0.2);
+diffabs(x):=ll(x);
+
+ints=(3/2,4/3,5/4,8/5,6/5,10/6);
+ints=(3/2,5/4,6/5);ints=(3/2,5/4,6/5);
+
+
+diff2(x):=(
+  if(x<1,x=1/x);
+  if(x>sqrt(2),x=1/x*2);
+  if(x>sqrt(5/4*4/3),x=1/x*2);
+//err(x+" "+" "+3/2+" "+5/4+" "+6/5);
+
+  xx=apply(ints,round(100000*diffabs(x/#))/100000);
+
+//err(apply(ints,x/#));
+//err(xx);
+  xx=sort(xx,|#|);
+//err(xx);
+  xx_1;
+);
+
+colorf(x):=(x=x*2;if(x>0,(1,1-x*colfac,1-x*colfac),(1+x*colfac,1+x*colfac,1)));
+colorg(x):=(x=x*2;if(x>0,(1,1-x*colfac,1-x*colfac),(1+x*colfac,1+x*colfac,1)));
+
+closeto(u,v):=();
+
+colorinterval(u):=(
+
+
+);
+
+
+
+
+pp=[];
+
+tones=[];
+texts=[];
+prints=[];
+
+rr=0;
+
+frac(t):="$"+replace(t,"/","\over ")+"$";
+
+split=0.69;
+norm(x):=(while(x>=2*split,x=x/2);while(x<split,x=x*2);x);
+
+norm(x,split):=(while(x>=2*split,x=x/2);while(x<split,x=x*2);x);
+
+table1=("Fisx1","Cis1","Gis1","Es1","B1","F1","C1","G1","D1","A1","E1","H1","Fis1");
+
+table2=("Bx2","F2","C2","G2","D2","A2","E2","H2","Fis2","Cis2","Gis2","Es2","B2");
+
+table3=("Dx3","A3","E3","H3","Fis3","Cis3","Gis3","Es3","B3","F3","C3","G3","D3");
+
+table4=("Fisx4","Cis4","Gis4","Es4","B4","F4","C4","G4","D4","A4","E4","H4","Fis4");
+
+
+
+
+
+
+
+
+
+//Mitteltönig
+mittel:=(
+
+k=81/80;
+notes1=(729/64/(k^(3/2))/8,2187/128/(k^(7/4))/16,25/16,8/27*k^(3/4)*4,4/9*k^(1/2)*4,2/3*k^(1/4)*4,1,3/2/(k^(1/4)),9/4/(k^(1/2))/2,27/8/(k^(3/4))/2,5/4,243/32/(k^(5/4))/4,729/64/(k^(3/2))/8);
+
+notes2=apply(5..13,notes1_#)++apply(2..5,notes1_#);
+notes3=apply(5..13,notes2_#)++apply(2..5,notes2_#);
+notes4=apply(5..13,notes3_#)++apply(2..5,notes3_#);
+
+);
+
+
+
+
+//Reine Klänge
+
+
+reinint:=(
+notes1=((2/3)^6*8,(2/3)^5*4,(2/3)^4*4,(2/3)^3*2,(2/3)^2*2,(2/3)^1,1,3/2/2,(3/2)^2/2,(3/2)^3/4,(3/2)^4/4,(3/2)^5/8,(3/2)^6/16);
+
+notes2=notes1*5/4;
+notes3=notes2*5/4;
+notes4=notes3*5/4;
+);
+
+//Pyth
+
+pyth:=(
+notes1=((3/2)^6/16,(2/3)^5*4,(2/3)^4*4,(2/3)^3*2,(2/3)^2*2,(2/3)^1,1,3/2/2,(3/2)^2/2,(3/2)^3/4,(3/2)^4/4,(3/2)^5/8,(3/2)^6/16);
+
+notes2=apply(5..13,notes1_#)++apply(2..5,notes1_#);
+notes3=apply(5..13,notes2_#)++apply(2..5,notes2_#);
+notes4=apply(5..13,notes3_#)++apply(2..5,notes3_#);
+);
+
+
+//Gleichstufig
+gleich:=
+(
+k=81/80;
+notes1=(qnui^6,qnui^7,qnui^8,qnui^9,qnui^10,qnui^11,1,qnui,qnui^2,qnui^3,qnui^4,qnui^5,qnui^6);
+notes2=apply(5..13,notes1_#)++apply(2..5,notes1_#);
+notes3=apply(5..13,notes2_#)++apply(2..5,notes2_#);
+notes4=apply(5..13,notes3_#)++apply(2..5,notes3_#);
+
+);
+
+
+//Reine
+
+
+rein:=(
+notes1=(45/32,16/15,8/5,6/5,16/9,4/3,1,3/2,9/8,5/3,5/4,15/8,45/32);
+notes2=apply(5..13,notes1_#)++apply(2..5,notes1_#);
+notes3=apply(5..13,notes2_#)++apply(2..5,notes2_#);
+notes4=apply(5..13,notes3_#)++apply(2..5,notes3_#);
+);
+
+
+refresh:=(
+
+  apply(1..13,i,
+    notes1_i=norm(notes1_i,0.95)/2;
+    notes2_i=norm(notes2_i,0.95)/2;
+    notes3_i=norm(notes3_i,0.95)/2;
+    notes4_i=norm(notes4_i,0.95)/2;
+  );
+
+
+  repeat(13,i,
+    tones:(table1_i)=g*notes1_i;
+    tones:(table2_i)=g*notes2_i;
+    tones:(table3_i)=g*notes3_i;
+    tones:(table4_i)=g*notes4_i;
+  );
+
+  apply(allpoints(),p,pp:(p.name)=p.xy);
+
+  apply(els,q,
+   def=q;
+   if(ispoint(def),out=[def],
+    // def=""+inspect(def,"definition");
+     out=inputs(def);
+   );
+   q:"notes"=out;
+ //  prints:(def.label)=frac(guess(tones:(def.label)/g*2))
+  );
+);
+
+
+gleich;
+pyth;
+//mittel;
+//reinint;
+//rein;
+
+refresh;
+
+err(notes1);
+err(notes2);
+err(notes3);
+err(notes4);
+
+
+
+//apply(table2,t,pt=(select(els,#.label==t)_1);pt.xy=(cos(w),sin(w))*7;w=w-30°);
+
+
+
+texts:"F1"="F";
+texts:"C1"="C";
+texts:"G1"="G";
+texts:"D1"="D";
+texts:"A1"="A";
+texts:"E1"="E";
+texts:"H1"="H";
+texts:"Fis1"="$F\sharp";
+texts:"Fisx1"="$F\sharp";
+texts:"Cis1"="$C\sharp";
+texts:"Gis1"="$G\sharp";
+texts:"Es1"="$E\flat$";
+texts:"B1"="$B\flat$";
+
+texts:"Bx2"="$B\flat$";
+texts:"F2"="F";
+texts:"C2"="C";
+texts:"G2"="G";
+texts:"D2"="D";
+texts:"A2"="A";
+texts:"E2"="E";
+texts:"H2"="H";
+texts:"Fis2"="$F\sharp";
+texts:"Cis2"="$C\sharp";
+texts:"Gis2"="$G\sharp";
+texts:"Es2"="$E\flat$";
+texts:"B2"="$B\flat$";
+
+texts:"Dx3"="$D$";
+texts:"F3"="F";
+texts:"C3"="C";
+texts:"G3"="G";
+texts:"D3"="D";
+texts:"A3"="A";
+texts:"E3"="E";
+texts:"H3"="H";
+texts:"Fis3"="$F\sharp";
+texts:"Cis3"="$C\sharp";
+texts:"Gis3"="$G\sharp";
+texts:"Es3"="$E\flat$";
+texts:"B3"="$B\flat$";
+
+texts:"F4"="F";
+texts:"C4"="C";
+texts:"G4"="G";
+texts:"D4"="D";
+texts:"A4"="A";
+texts:"E4"="E";
+texts:"H4"="H";
+texts:"Fis4"="$F\sharp";
+texts:"Fisx4"="$F\sharp";
+texts:"Cis4"="$C\sharp";
+texts:"Gis4"="$G\sharp";
+texts:"Es4"="$E\flat$";
+texts:"B4"="$B\flat$";
+
+
+
+
+box1=([[-12,-4],[-8,-4],[-8,-3],[-12,-3]]);
+box2=([[-7,-4],[-3,-4],[-3,-3],[-7,-3]]);
+box3=([[-2,-4],[2,-4],[2,-3],[-2,-3]]);
+box4=([[-12,-6],[-8,-6],[-8,-5],[-12,-5]]);
+box5=([[-7,-6],[-3,-6],[-3,-5],[-7,-5]]);
+box6=([[6,-4],[10,-4],[10,-3],[6,-3]]);
+
+inbox(b,p):=(p.x>b_1_1 &  p.x<b_2_1 & p.y>b_1_2 & p.y<b_3_2);
+cem=false;
+
+drawbox(b,t,text):=(
+   fillpoly(b,color->if(t,(1,1,1)*.5,(1,1,1)*.8));
+   drawpoly(b,size->if(t,2,1),color->(1,1,1)*0);
+   drawtext((b_1+b_3)/2-(0,.15),text,align->"center",size->16);
+);
+sel=1;
+
+
+;
+</script>
+<script id="csmouseclick" type="text/x-cindyscript">
+
+  clicked=false;
+if(inbox(box1,mouse().xy),sel=1;clicked=true);
+if(inbox(box2,mouse().xy),sel=2;clicked=true);
+if(inbox(box3,mouse().xy),sel=3;clicked=true);
+if(inbox(box4,mouse().xy),sel=4;clicked=true);
+if(inbox(box5,mouse().xy),sel=5;clicked=true);
+if(inbox(box6,mouse().xy),cem=!cem;clicked=true);
+
+if(sel==1,rein;refresh);
+if(sel==2,reinint;refresh);
+if(sel==3,pyth;refresh);
+if(sel==4,mittel;refresh);
+if(sel==5,gleich;refresh);
+
+labs=apply(allpoints(),#.name);
+sps=select(allpoints(),p,|p,mouse().xy|<0.8);
+
+
+q=[];
+if(sps!=[],q=sps,
+  apply(els,e,
+    inp=inputs(e);
+    if(length(inp)==2,
+      mid=sum(inp,#.xy)/2;
+      if(|mid,mouse().xy|<.5,q=[e]);
+      );
+    );
+
+);
+
+println(q);
+
+if(q==[],
+  apply(els,e,
+    inp=inputs(e);
+    if(length(inp)==3,
+      mid=sum(inp,#.xy)/3;
+      if(|mid,mouse().xy|<.5,q=[e]);
+      );
+    );
+
+);
+
+println(q);
+if(cem,
+  ha=apply(1..8,1/#)*0.3,
+  ha=[1];
+);
+
+if(q!=[],
+  def=q_1;
+  out=def:"notes";
+  if(length(out)==1,playsin(tones:(out_1),amp->0.3,damp->4,line->4,stop->3));
+
+  if(length(out)>0,playsin(harmonics->ha,tones:(out_1)*2,amp->0.3,damp->4,stop->3,line->1));
+  if(length(out)>1,playsin(harmonics->ha,tones:(out_2)*2,amp->0.3,damp->4,stop->3,line->2));
+  if(length(out)>2,playsin(harmonics->ha,tones:(out_3)*2,amp->0.3,damp->4,stop->3,line->3));
+  rr=0.3;
+);
+
+apply(els,e,e.selected=false);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+colfac=2^|AA.xy,BB.xy|/2-1;
+
+//colfac=|AA.xy,BB.xy|*4;
+linesize(0);
+apply(els,e,
+   //if(length(e:"notes")==3,fillpolygon(apply(e:"notes",pp:#),color->e.fillcolor));
+   if(length(e:"notes")==3,fillpolygon(apply(e:"notes",pp:#),color->e.color));
+);
+
+apply(els,e,
+
+   if(length(e:"notes")==2,
+               col=(colorf(diff2(tones:((e:"notes")_1)/tones:((e:"notes")_2))));
+               draw(pp:((e:"notes")_1),pp:((e:"notes")_2),size->7,color->(0,0,0));
+               draw(pp:((e:"notes")_1),pp:((e:"notes")_2),size->5,color->col)
+   );
+);
+apply(els,e,
+
+   if(length(e:"notes")==1,
+      r=0.5;
+      if(contains(out,e),println(e);r=r+rr);
+col=(colorf(diff(tones:((e:"notes")_1)/g)));
+//err(e:"notes"+"  "+diff(tones:((e:"notes")_1)/g)+" "+col);
+
+      fillcircle(pp:((e:"notes")_1),r,color->col);
+      drawcircle(pp:((e:"notes")_1),r,size->3,color->(0,0,0));
+      drawtext(pp:((e:"notes")_1)-(0,0.2),texts:((e:"notes")_1),size->14,align->"center");
+    //  drawtext(pp:((e:"notes")_1)+(0.6,0.2),format(tones:((e:"notes")_1),1),size->8);
+//      drawtext(pp:((e:"notes")_1)+(0.6,0.3),prints:((e:"notes")_1),size->8);
+
+
+   );
+
+);
+
+
+
+
+
+drawbox(box1,sel==1,"Reine Akkorde");
+drawbox(box2,sel==2,"Reine Stimmung");
+drawbox(box3,sel==3,"Pythagoräisch");
+drawbox(box4,sel==4,"Mitteltönig");
+drawbox(box5,sel==5,"Gleichstufig");
+drawbox(box6,cem,"Cembalo");
+
+
+
+
+
+
+
+;
+</script>
+<script id="cstick" type="text/x-cindyscript">
+rr=max(0,rr-0.05);
+
+
+
+
+
+
+
+
+;
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "G1", type: "Free", pos: [4.0, -0.0, 2.008489061541607], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "D1", type: "Free", pos: [4.0, -0.0, 1.0042445307708034], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "a", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G1", "D1"], alpha: 0.20000000298023224, size: 0},
+    {name: "H2", type: "Free", pos: [-2.6666666666666665, -4.0, -1.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "b", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D1", "H2"], alpha: 0.20000000298023224, size: 0},
+    {name: "c", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H2", "G1"], alpha: 0.20000000298023224, size: 0},
+    {name: "C1", type: "Free", pos: [0.0, -0.0, 4.0], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "d", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G1", "C1"], alpha: 0.20000000298023224, size: 0},
+    {name: "E2", type: "Free", pos: [0.0, -4.0, -1.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "e", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C1", "E2"], alpha: 0.20000000298023224, size: 0},
+    {name: "f", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E2", "G1"], alpha: 0.20000000298023224, size: 0},
+    {name: "g", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E2", "H2"], alpha: 0.20000000298023224, size: 0},
+    {name: "Fis2", type: "Free", pos: [4.0, 3.0, 1.0], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "h", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H2", "Fis2"], alpha: 0.20000000298023224, size: 0},
+    {name: "k", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis2", "D1"], alpha: 0.20000000298023224, size: 0},
+    {name: "A1", type: "Free", pos: [4.0, 0.0, 0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "l", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D1", "A1"], alpha: 0.20000000298023224, size: 0},
+    {name: "m", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A1", "Fis2"], alpha: 0.20000000298023224, size: 0},
+    {name: "Cis2", type: "Free", pos: [4.0, 2.0, 0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "n", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis2", "Cis2"], alpha: 0.20000000298023224, size: 0},
+    {name: "o", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis2", "A1"], alpha: 0.20000000298023224, size: 0},
+    {name: "E1", type: "Free", pos: [4.0, 0.0, 0.5], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "p", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A1", "E1"], alpha: 0.20000000298023224, size: 0},
+    {name: "Gis2", type: "Free", pos: [4.0, 1.5, 0.5], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "q", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E1", "Gis2"], alpha: 0.20000000298023224, size: 0},
+    {name: "r", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis2", "Cis2"], alpha: 0.20000000298023224, size: 0},
+    {name: "s", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis2", "E1"], alpha: 0.20000000298023224, size: 0},
+    {name: "Poly0", type: "Poly", color: [1.0, 0.8, .1], args: ["E2", "C1", "G1"], alpha: 0.10000000149011612},
+    {name: "Poly1", type: "Poly", color: [1.0, 0.8, .1], args: ["H2", "G1", "D1"], alpha: 0.10000000149011612},
+    {name: "Poly2", type: "Poly", color: [1.0, 0.8, .1], args: ["Fis2", "D1", "A1"], alpha: 0.10000000149011612},
+    {name: "Poly3", type: "Poly", color: [1.0, 0.8, .1], args: ["Cis2", "A1", "E1"], alpha: 0.10000000149011612},
+    {name: "Poly4", type: "Poly", color: [0.0, 0.8, .3], args: ["E2", "G1", "H2"], alpha: 0.10000000149011612},
+    {name: "Poly5", type: "Poly", color: [0.0, 0.8, .3], args: ["H2", "D1", "Fis2"], alpha: 0.10000000149011612},
+    {name: "Poly6", type: "Poly", color: [0.0, 0.8, .1], args: ["Fis2", "A1", "Cis2"], alpha: 0.10000000149011612},
+    {name: "Poly7", type: "Poly", color: [0.0, 0.8, .3], args: ["Cis2", "E1", "Gis2"], alpha: 0.10000000149011612},
+    {name: "A2", type: "Free", pos: [2.6666666666666665, -4.0, -1.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "F1", type: "Free", pos: [4.0, -0.0, -2.0], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "t", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F1", "C1"], alpha: 0.20000000298023224, size: 0},
+    {name: "u", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A2", "F1"], alpha: 0.20000000298023224, size: 0},
+    {name: "v", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A2", "C1"], alpha: 0.20000000298023224, size: 0},
+    {name: "w", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A2", "E2"], alpha: 0.20000000298023224, size: 0},
+    {name: "Poly8", type: "Poly", color: [1.0, 0.8, .1], args: ["A2", "F1", "C1"], alpha: 0.10000000149011612},
+    {name: "Poly9", type: "Poly", color: [0.0, 0.8, .3], args: ["A2", "C1", "E2"], alpha: 0.10000000149011612},
+    {name: "H1", type: "Free", pos: [4.0, -0.0, 0.4], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Fis1", type: "Free", pos: [4.0, -0.0, 0.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Gis1", type: "Free", pos: [4.0, -0.0, -0.5], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Es1", type: "Free", pos: [4.0, -0.0, -0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "B1", type: "Free", pos: [4.0, -0.0, -1.0], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Es2", type: "Free", pos: [4.0, 1.2, 0.4], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "B2", type: "Free", pos: [4.0, 1.0, 0.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "F2", type: "Free", pos: [4.0, -1.2, -0.4], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "C2", type: "Free", pos: [4.0, -1.5, -0.5], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "G2", type: "Free", pos: [4.0, -2.0, -0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "D2", type: "Free", pos: [4.0, -3.0, -1.0], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Cis1", type: "Free", pos: [4.0, -0.0, -0.4], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "x", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A2", "D2"], alpha: 0.20000000298023224, size: 0},
+    {name: "y", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D2", "G2"], alpha: 0.20000000298023224, size: 0},
+    {name: "z", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G2", "C2"], alpha: 0.20000000298023224, size: 0},
+    {name: "S0", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C2", "F2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{0}$"},
+    {name: "S2", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B2", "Es2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{2}$"},
+    {name: "S3", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es2", "Gis2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{3}$"},
+    {name: "S4", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis2", "H1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{4}$"},
+    {name: "S5", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H1", "Es2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{5}$"},
+    {name: "S6", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es2", "Fis1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{6}$"},
+    {name: "S7", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis1", "B2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{7}$"},
+    {name: "S9", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis1", "F2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{9}$"},
+    {name: "S10", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F2", "Gis1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{10}$"},
+    {name: "S11", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis1", "C2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{11}$"},
+    {name: "S12", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C2", "Es1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{12}$"},
+    {name: "S13", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es1", "G2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{13}$"},
+    {name: "S14", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G2", "B1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{14}$"},
+    {name: "S15", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B1", "D2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{15}$"},
+    {name: "S16", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D2", "F1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{16}$"},
+    {name: "S17", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F1", "B1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{17}$"},
+    {name: "S18", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B1", "Es1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{18}$"},
+    {name: "S19", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es1", "Gis1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{19}$"},
+    {name: "S20", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis1", "Cis1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{20}$"},
+    {name: "S22", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis1", "H1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{22}$"},
+    {name: "S23", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H1", "E1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{23}$"},
+    {name: "Poly10", type: "Poly", color: [1.0, 0.8, .1], args: ["E1", "Gis2", "H1"], alpha: 0.10000000149011612},
+    {name: "Poly11", type: "Poly", color: [1.0, 0.8, .1], args: ["H1", "Fis1", "Es2"], alpha: 0.10000000149011612},
+    {name: "Poly13", type: "Poly", color: [1.0, 0.8, .1], args: ["Cis1", "F2", "Gis1"], alpha: 0.10000000149011612},
+    {name: "Poly14", type: "Poly", color: [1.0, 0.8, .1], args: ["Es1", "Gis1", "C2"], alpha: 0.10000000149011612},
+    {name: "Poly15", type: "Poly", color: [1.0, 0.8, .1], args: ["Es1", "G2", "B1"], alpha: 0.10000000149011612},
+    {name: "Poly16", type: "Poly", color: [1.0, 0.8, .1], args: ["F1", "B1", "D2"], alpha: 0.10000000149011612},
+    {name: "Poly17", type: "Poly", color: [0.0, 0.8, .3], args: ["A2", "F1", "D2"], alpha: 0.10000000149011612},
+    {name: "Poly18", type: "Poly", color: [0.0, 0.8, .3], args: ["D2", "B1", "G2"], alpha: 0.10000000149011612},
+    {name: "Poly19", type: "Poly", color: [0.0, 0.8, .3], args: ["Es1", "C2", "G2"], alpha: 0.10000000149011612},
+    {name: "Poly20", type: "Poly", color: [0.0, 0.8, .3], args: ["Gis1", "F2", "C2"], alpha: 0.10000000149011612},
+    {name: "Poly22", type: "Poly", color: [0.0, 0.8, .3], args: ["Fis1", "Es2", "B2"], alpha: 0.10000000149011612},
+    {name: "Poly23", type: "Poly", color: [0.0, 0.8, .3], args: ["H1", "Gis2", "Es2"], alpha: 0.10000000149011612},
+    {name: "Bx2", type: "Free", pos: [4.0, -1.0, -0.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Fisx1", type: "Free", pos: [4.0, -0.0, -0.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "S1", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Bx2", "F2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{1}$"},
+    {name: "S8", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Bx2", "Fisx1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{8}$"},
+    {name: "S21", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fisx1", "Cis1"], alpha: 0.20000000298023224, size: 0, printname: "$S_{21}$"},
+    {name: "S24", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis1", "Bx2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{24}$"},
+    {name: "Poly12", type: "Poly", color: [1.0, 0.8, 0.1], args: ["Bx2", "Fisx1", "Cis1"], alpha: 0.10000000149011612},
+    {name: "Poly21", type: "Poly", color: [0.0, 0.8, 0.1], args: ["Bx2", "Cis1", "F2"], alpha: 0.10000000149011612},
+    {name: "Dx3", type: "Free", pos: [4.0, -2.0, -0.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "A3", type: "Free", pos: [4.0, -2.4, -0.4], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "E3", type: "Free", pos: [4.0, -3.0, -0.5], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "H3", type: "Free", pos: [4.0, -4.0, -0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Fis3", type: "Free", pos: [2.6666666666666665, -4.0, -0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Cis3", type: "Free", pos: [1.3333333333333333, -4.0, -0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Gis3", type: "Free", pos: [0.0, -4.0, -0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Es3", type: "Free", pos: [-1.3333333333333333, -4.0, -0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "B3", type: "Free", pos: [-2.6666666666666665, -4.0, -0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "F3", type: "Free", pos: [4.0, 4.0, 0.6666666666666666], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "C3", type: "Free", pos: [4.0, 3.0, 0.5], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "G3", type: "Free", pos: [4.0, 2.4, 0.4], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "D3", type: "Free", pos: [4.0, 2.0, 0.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Fisx4", type: "Free", pos: [4.0, -3.0, -0.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Cis4", type: "Free", pos: [4.0, -3.6, -0.4], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Gis4", type: "Free", pos: [3.5555555555555554, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Es4", type: "Free", pos: [2.6666666666666665, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "B4", type: "Free", pos: [1.7777777777777777, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "F4", type: "Free", pos: [0.8888888888888888, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "C4", type: "Free", pos: [0.0, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "G4", type: "Free", pos: [-0.8888888888888888, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "D4", type: "Free", pos: [-1.7777777777777777, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "A4", type: "Free", pos: [-2.6666666666666665, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "E4", type: "Free", pos: [-3.5555555555555554, -4.0, -0.4444444444444444], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "H4", type: "Free", pos: [4.0, 3.6, 0.4], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "Fis4", type: "Free", pos: [4.0, 3.0, 0.3333333333333333], color: [1.0, 1.0, 1.0], alpha: 0.20000000298023224, size: 0.0},
+    {name: "S25", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fisx4", "Dx3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{25}$"},
+    {name: "S26", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Dx3", "Bx2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{26}$"},
+    {name: "S27", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fisx4", "Cis4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{27}$"},
+    {name: "S28", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis4", "Gis4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{28}$"},
+    {name: "S29", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis4", "Es4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{29}$"},
+    {name: "S30", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es4", "B4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{30}$"},
+    {name: "S31", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B4", "F4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{31}$"},
+    {name: "S32", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F4", "C4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{32}$"},
+    {name: "S33", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C4", "G4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{33}$"},
+    {name: "S34", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G4", "D4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{34}$"},
+    {name: "S35", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D4", "A4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{35}$"},
+    {name: "S36", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A4", "E4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{36}$"},
+    {name: "S37", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E4", "H4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{37}$"},
+    {name: "S38", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H4", "Fis4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{38}$"},
+    {name: "S39", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis4", "D3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{39}$"},
+    {name: "S40", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D3", "B2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{40}$"},
+    {name: "S41", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B2", "G3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{41}$"},
+    {name: "S42", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G3", "E4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{42}$"},
+    {name: "S43", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E4", "C3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{43}$"},
+    {name: "S44", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C3", "Gis2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{44}$"},
+    {name: "S45", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis2", "F3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{45}$"},
+    {name: "S46", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F3", "D4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{46}$"},
+    {name: "S47", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D4", "B3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{47}$"},
+    {name: "S48", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B3", "Fis2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{48}$"},
+    {name: "S49", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis2", "Es3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{49}$"},
+    {name: "S50", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es3", "C4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{50}$"},
+    {name: "S51", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C4", "Gis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{51}$"},
+    {name: "S52", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis3", "E2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{52}$"},
+    {name: "S53", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E2", "Cis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{53}$"},
+    {name: "S54", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis3", "B4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{54}$"},
+    {name: "S55", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B4", "Fis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{55}$"},
+    {name: "S56", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis3", "D2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{56}$"},
+    {name: "S57", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D2", "H3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{57}$"},
+    {name: "S58", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H3", "Gis4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{58}$"},
+    {name: "S59", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis4", "E3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{59}$"},
+    {name: "S60", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E3", "C2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{60}$"},
+    {name: "S61", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C2", "A3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{61}$"},
+    {name: "S62", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A3", "Fisx4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{62}$"},
+    {name: "S63", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H4", "G3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{63}$"},
+    {name: "S64", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G3", "Es2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{64}$"},
+    {name: "S65", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es2", "C3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{65}$"},
+    {name: "S66", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C3", "A4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{66}$"},
+    {name: "S67", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A4", "F3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{67}$"},
+    {name: "S68", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F3", "Cis2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{68}$"},
+    {name: "S71", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G4", "Es3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{71}$"},
+    {name: "S72", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es3", "H2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{72}$"},
+    {name: "S69", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G4", "B3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{69}$"},
+    {name: "S70", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B3", "Cis2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{70}$"},
+    {name: "S73", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H2", "Gis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{73}$"},
+    {name: "S74", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis3", "F4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{74}$"},
+    {name: "S75", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F4", "Cis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{75}$"},
+    {name: "S76", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis3", "A2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{76}$"},
+    {name: "S77", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A2", "Fis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{77}$"},
+    {name: "S78", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis3", "Es4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{78}$"},
+    {name: "S79", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es4", "H3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{79}$"},
+    {name: "S80", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H3", "G2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{80}$"},
+    {name: "S81", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G2", "E3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{81}$"},
+    {name: "S82", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E3", "Cis4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{82}$"},
+    {name: "S83", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis4", "A3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{83}$"},
+    {name: "S84", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A3", "F2"], alpha: 0.20000000298023224, size: 0, printname: "$S_{84}$"},
+    {name: "S85", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F2", "Dx3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{85}$"},
+    {name: "S86", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Dx3", "A3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{86}$"},
+    {name: "S87", type: "Segment", color: [1.0, 1.0, 1.0], args: ["A3", "E3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{87}$"},
+    {name: "S88", type: "Segment", color: [1.0, 1.0, 1.0], args: ["E3", "H3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{88}$"},
+    {name: "S89", type: "Segment", color: [1.0, 1.0, 1.0], args: ["H3", "Fis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{89}$"},
+    {name: "S90", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Fis3", "Cis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{90}$"},
+    {name: "S91", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Cis3", "Gis3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{91}$"},
+    {name: "S92", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Gis3", "Es3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{92}$"},
+    {name: "S93", type: "Segment", color: [1.0, 1.0, 1.0], args: ["Es3", "B3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{93}$"},
+    {name: "S94", type: "Segment", color: [1.0, 1.0, 1.0], args: ["B3", "F3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{94}$"},
+    {name: "S95", type: "Segment", color: [1.0, 1.0, 1.0], args: ["F3", "C3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{95}$"},
+    {name: "S96", type: "Segment", color: [1.0, 1.0, 1.0], args: ["C3", "G3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{96}$"},
+    {name: "S97", type: "Segment", color: [1.0, 1.0, 1.0], args: ["G3", "D3"], alpha: 0.20000000298023224, size: 0, printname: "$S_{97}$"},
+    {name: "S98", type: "Segment", color: [1.0, 1.0, 1.0], args: ["D3", "H4"], alpha: 0.20000000298023224, size: 0, printname: "$S_{98}$"},
+    {name: "Poly24", type: "Poly", color: [1.0, 0.8, .1], args: ["Dx3", "Bx2", "F2"], alpha: 0.10000000149011612},
+    {name: "Poly25", type: "Poly", color: [0.0, 0.8, .3], args: ["Dx3", "F2", "A3"], alpha: 0.10000000149011612},
+    {name: "Poly26", type: "Poly", color: [1.0, 0.8, .1], args: ["A3", "F2", "C2"], alpha: 0.10000000149011612},
+    {name: "Poly27", type: "Poly", color: [0.0, 0.8, .3], args: ["A3", "C2", "E3"], alpha: 0.10000000149011612},
+    {name: "Poly28", type: "Poly", color: [1.0, 0.8, .1], args: ["E3", "C2", "G2"], alpha: 0.10000000149011612},
+    {name: "Poly29", type: "Poly", color: [0.0, 0.8, .3], args: ["E3", "G2", "H3"], alpha: 0.10000000149011612},
+    {name: "Poly30", type: "Poly", color: [1.0, 0.8, .1], args: ["H3", "G2", "D2"], alpha: 0.10000000149011612},
+    {name: "Poly31", type: "Poly", color: [0.0, 0.8, .3], args: ["H3", "D2", "Fis3"], alpha: 0.10000000149011612},
+    {name: "Poly32", type: "Poly", color: [1.0, 0.8, .1], args: ["Fis3", "D2", "A2"], alpha: 0.10000000149011612},
+    {name: "Poly33", type: "Poly", color: [0.0, 0.8, .3], args: ["Fis3", "A2", "Cis3"], alpha: 0.10000000149011612},
+    {name: "Poly34", type: "Poly", color: [1.0, 0.8, .1], args: ["Cis3", "A2", "E2"], alpha: 0.10000000149011612},
+    {name: "Poly35", type: "Poly", color: [0.0, 0.8, .3], args: ["Cis3", "E2", "Gis3"], alpha: 0.10000000149011612},
+    {name: "Poly36", type: "Poly", color: [1.0, 0.8, .1], args: ["Gis3", "E2", "H2"], alpha: 0.10000000149011612},
+    {name: "Poly37", type: "Poly", color: [0.0, 0.8, .3], args: ["Gis3", "H2", "Es3"], alpha: 0.10000000149011612},
+    {name: "Poly38", type: "Poly", color: [1.0, 0.8, .1], args: ["Es3", "H2", "Fis2"], alpha: 0.10000000149011612},
+    {name: "Poly39", type: "Poly", color: [0.0, 0.8, .3], args: ["Es3", "Fis2", "B3"], alpha: 0.10000000149011612},
+    {name: "Poly40", type: "Poly", color: [1.0, 0.8, .1], args: ["B3", "Fis2", "Cis2"], alpha: 0.10000000149011612},
+    {name: "Poly41", type: "Poly", color: [0.0, 0.8, .3], args: ["B3", "Cis2", "F3"], alpha: 0.10000000149011612},
+    {name: "Poly42", type: "Poly", color: [1.0, 0.8, .1], args: ["F3", "Cis2", "Gis2"], alpha: 0.10000000149011612},
+    {name: "Poly43", type: "Poly", color: [0.0, 0.8, .3], args: ["F3", "C3", "Gis2"], alpha: 0.10000000149011612},
+    {name: "Poly44", type: "Poly", color: [1.0, 0.8, .1], args: ["C3", "Gis2", "Es2"], alpha: 0.10000000149011612},
+    {name: "Poly45", type: "Poly", color: [0.0, 0.8, .3], args: ["Es2", "G3", "C3"], alpha: 0.10000000149011612},
+    {name: "Poly46", type: "Poly", color: [1.0, 0.8, .1], args: ["Es2", "G3", "B2"], alpha: 0.10000000149011612},
+    {name: "Poly47", type: "Poly", color: [0.0, 0.8, .3], args: ["G3", "B2", "D3"], alpha: 0.10000000149011612},
+    {name: "Poly48", type: "Poly", color: [1.0, 0.8, .1], args: ["Fisx4", "Dx3", "A3"], alpha: 0.10000000149011612},
+    {name: "Poly49", type: "Poly", color: [0.0, 0.8, .3], args: ["Fisx4", "A3", "Cis4"], alpha: 0.10000000149011612},
+    {name: "Poly50", type: "Poly", color: [1.0, 0.8, .1], args: ["Cis4", "A3", "E3"], alpha: 0.10000000149011612},
+    {name: "Poly51", type: "Poly", color: [0.0, 0.8, .3], args: ["Cis4", "E3", "Gis4"], alpha: 0.10000000149011612},
+    {name: "Poly52", type: "Poly", color: [1.0, 0.8, .1], args: ["Gis4", "E3", "H3"], alpha: 0.10000000149011612},
+    {name: "Poly53", type: "Poly", color: [0.0, 0.8, .3], args: ["Gis4", "H3", "Es4"], alpha: 0.10000000149011612},
+    {name: "Poly54", type: "Poly", color: [1.0, 0.8, .1], args: ["Es4", "H3", "Fis3"], alpha: 0.10000000149011612},
+    {name: "Poly55", type: "Poly", color: [0.0, 0.8, .3], args: ["Es4", "Fis3", "B4"], alpha: 0.10000000149011612},
+    {name: "Poly56", type: "Poly", color: [1.0, 0.8, .1], args: ["B4", "Fis3", "Cis3"], alpha: 0.10000000149011612},
+    {name: "Poly57", type: "Poly", color: [0.0, 0.8, .3], args: ["B4", "Cis3", "F4"], alpha: 0.10000000149011612},
+    {name: "Poly58", type: "Poly", color: [1.0, 0.8, .1], args: ["F4", "Cis3", "Gis3"], alpha: 0.10000000149011612},
+    {name: "Poly59", type: "Poly", color: [0.0, 0.8, .3], args: ["Gis3", "C4", "F4"], alpha: 0.10000000149011612},
+    {name: "Poly60", type: "Poly", color: [1.0, 0.8, .1], args: ["Gis3", "C4", "Es3"], alpha: 0.10000000149011612},
+    {name: "Poly61", type: "Poly", color: [0.0, 0.8, .3], args: ["Es3", "G4", "C4"], alpha: 0.10000000149011612},
+    {name: "Poly62", type: "Poly", color: [1.0, 0.8, .1], args: ["Es3", "B3", "G4"], alpha: 0.10000000149011612},
+    {name: "Poly63", type: "Poly", color: [0.0, 0.8, .3], args: ["G4", "B3", "D4"], alpha: 0.10000000149011612},
+    {name: "Poly64", type: "Poly", color: [1.0, 0.8, .1], args: ["D4", "B3", "F3"], alpha: 0.10000000149011612},
+    {name: "Poly65", type: "Poly", color: [0.0, 0.8, .3], args: ["D4", "F3", "A4"], alpha: 0.10000000149011612},
+    {name: "Poly66", type: "Poly", color: [1.0, 0.8, .1], args: ["A4", "F3", "C3"], alpha: 0.10000000149011612},
+    {name: "Poly67", type: "Poly", color: [0.0, 0.8, .3], args: ["A4", "C3", "E4"], alpha: 0.10000000149011612},
+    {name: "Poly68", type: "Poly", color: [1.0, 0.8, .1], args: ["E4", "C3", "G3"], alpha: 0.10000000149011612},
+    {name: "Poly69", type: "Poly", color: [0.0, 0.8, .3], args: ["E4", "G3", "H4"], alpha: 0.10000000149011612},
+    {name: "Poly70", type: "Poly", color: [1.0, 0.8, .1], args: ["H4", "G3", "D3"], alpha: 0.10000000149011612},
+    {name: "Poly71", type: "Poly", color: [0.0, 0.8, .3], args: ["H4", "D3", "Fis4"], alpha: 0.10000000149011612},
+    {name: "AA", type: "Free", pos: [4.0, -1.3333333333333333, 0.6666666666666666], color: [0.0, 0.0, 0.0], alpha: 0.8999999761581421, pinned: true, size: 2.0},
+    {name: "CC", type: "Free", pos: [4.0, -0.6666666666666666, 0.3333333333333333], color: [0.0, 0.0, 0.0], alpha: 0.8999999761581421, pinned: true, size: 2.0},
+    {name: "S99", type: "Segment", color: [1,1,1], args: ["AA", "CC"], alpha: 0.8999999761581421, printname: "$S_{99}$"},
+    {name: "BB", type: "PointOnSegment", pos: [4.0, -0.9931274315499267, 0.49656371577496333], color: [1.0, 1.0, 1.0], args: ["S99"], alpha: 0.8999999761581421},
+    {name: "Text0", type: "ToggleButton", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, text: "Cembalo", dock: {corner: "LL", offset: [398.0, 26.0]}}
+  ],
+  animation: {
+    autoplay: true,
+    controls: false,
+    speed: 0.5,
+    speedRange: [0.0, 1.0],
+    accuracy: 1
+  },
+  autoplay: true,
+  animcontrols: false,
+  ports: [{
+    id: "CSCanvas",
+    width: 926,
+    height: 546,
+    transform: [{visibleRect: [-14, 10, 14, -7]}],
+    grid: 1.0,
+    snap: false,
+    background: "rgb(30,30,30)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
