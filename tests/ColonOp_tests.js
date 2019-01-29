@@ -1,3 +1,4 @@
+"use strict";
 var should = require("chai").should();
 var rewire = require("rewire");
 
@@ -52,6 +53,7 @@ describe("ColonOp: Lists", function(){
     // keys
     itCmd('keys(a)', '[bla]');
     itCmd('keys(b)', '[]');
+    itCmd('keys(lst)', '[1, age, list, pt, 12.3, 1 + i*1, [1, 2, 3]]');
 });
 
 

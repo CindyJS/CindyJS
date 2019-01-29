@@ -493,17 +493,21 @@ These always denote a list, even if they contain exactly one expression.
 
 #### Curly braces `{…}`
 
-Curly braces are reserved for future applications.
+Curly braces denote JSON objects. JavaScript Object Notation (JSON) is a text format for the serialization of structured data. Please see RFC 4627 for a detailed documentation. CindyScript (currently) only allows strings as keys, but this might change in the future.
 
     - CindyScript >=3.0
     > 7 * {1 + 2}
-    ! CindyScriptParseError: {…} reserved for future use at 1:4
+    * Error: JSON keys have to be strings.
     > 7 * {1, 2}
-    ! CindyScriptParseError: {…} reserved for future use at 1:4
+    * Error: JSON keys have to be strings.
+    * Error: JSON keys have to be strings.
+    < ___
+    > 7 * {"key" : 1 }
+    < ___
     > 7 * {}
-    ! CindyScriptParseError: {…} reserved for future use at 1:4
+    < ___
     > sin{30°}
-    ! CindyScriptParseError: {…} reserved for future use at 1:3
+    ! CindyScriptParseError: {…} not yet defined for operators. at 1:3
 
 #### Function invocation
 

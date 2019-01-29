@@ -29,12 +29,23 @@ function evaluate(a) {
         if (obj.ctype === "list") {
             return List.getField(obj, a.key);
         }
+        if (obj.ctype === "JSONAtom") {
+            if (a.key === "key") {
+                return General.string(obj.value.key);
+            }
+            if (a.key === "value") {
+                return obj.value.value;
+            }
+        }
+        if (obj.ctype === "JSON") {
+            return Json.getField(obj, a.key);
+        }
         return nada;
     }
     if (a.ctype === 'userdata') {
         var uobj = evaluate(a.obj);
-        var key = niceprint(evaluate(a.key));
-        if (key === "_?_") key = undefined;
+        var key = General.string(niceprint(evaluate(a.key)));
+        if (key.value === "_?_") key = nada;
 
         if (uobj.ctype === "geo") {
             return Accessor.getuserData(uobj.value, key);
