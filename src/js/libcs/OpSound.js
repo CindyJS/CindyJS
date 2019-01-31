@@ -83,18 +83,29 @@ evaluator.playsin$1 = function(args, modifs) {
               line = linesDict[val];
             }
         }
+        if (modifs.partials !== undefined) {
+          erg = evaluate(modifs.partials);
+          if (erg.ctype === 'list') {
+              partials = erg.value;
+          }
+        }
     }
-
+    //should i read lists as cslist or jslist?
     var freq = evaluate(args[0]).value.real;
     var amp = 0.5;
     var damp = 0;
     var duration = 1;
     var harmonics = List.asList(CSNumber.real(1)).value;
     var line = 0;
+    var partials = Array(harmonics.length).fill(CSNumber.real(1));
     var attack = 0.01;
     var release = 0.01;
 
     handleModifs();
+    if (harmonics.length>partials.length){
+      partials = Array(harmonics.length).fill(CSNumber.real(1))
+    }
+
 
     function playOscillator(line, freq, gain) {
       var oscNode = audioCtx.createOscillator();
@@ -123,7 +134,7 @@ evaluator.playsin$1 = function(args, modifs) {
       masterGain.gain.value = 0;
       lines[line] = {oscNodes: [], masterGain: masterGain};
       for(var i=0; i < harmonics.length; i++){
-        lines[line].oscNodes.push(playOscillator(line, (i+1)*freq, harmonics[i].value.real));
+        lines[line].oscNodes.push(playOscillator(line, partials[i].value.real*(i+1)*freq, harmonics[i].value.real));
       }
       masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime+attack);
       masterGain.connect(audioCtx.destination);
@@ -156,10 +167,10 @@ evaluator.playsin$1 = function(args, modifs) {
         }
         for(var i=0; i<harmonics.length; i++){
           if(i<lines[line].oscNodes.length){
-            lines[line].oscNodes[i] = playOscillator(line, (i+1)*freq, harmonics[i].value.real);
+            lines[line].oscNodes[i] = playOscillator(line, partials[i].value.real*(i+1)*freq, harmonics[i].value.real);
           }
         else {
-          lines[line].oscNodes.push(playOscillator(line, (i+1)*freq, harmonics[i].value.real));
+          lines[line].oscNodes.push(playOscillator(line, partials[i].value.real*(i+1)*freq, harmonics[i].value.real));
           }
         }
         lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release +attack);
