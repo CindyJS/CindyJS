@@ -21,11 +21,13 @@ var getAudioContext = function() {
 var audioCtx = getAudioContext();
 
 
-evaluator.stopsound$0 = function(){ // not clean
+evaluator.stopsound$0 = function(){
     audioCtx.close();
+    audioCtx = null;
 };
 
 evaluator.playsin$1 = function(args, modifs) {
+
     function handleModifs() {
         var erg;
         if (modifs.amp !== undefined) {
@@ -89,20 +91,28 @@ evaluator.playsin$1 = function(args, modifs) {
     var duration = 1;
     var harmonics = List.asList(CSNumber.real(1)).value;
     var line = 0;
+    var attack = 0.01;
+    var release = 0.01;
 
     handleModifs();
 
     function playOscillator(line, freq, gain) {
       var oscNode = audioCtx.createOscillator();
+      oscNode.type = 'sine';
+      oscNode.frequency.value = freq;
       var gainNode = audioCtx.createGain();
       gainNode.connect(lines[line].masterGain);
-      oscNode.type = 'sine';
-      oscNode.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      oscNode.start(0);
+      gainNode.gain.value = 0;
       oscNode.connect(gainNode);
-      gainNode.gain.setValueAtTime(gain, audioCtx.currentTime);
+      //gainNode.gain.value = gain;
+      gainNode.gain.linearRampToValueAtTime(gain, audioCtx.currentTime+attack);
+      oscNode.start(0);
+      oscNode.onended = function () {//maybe delete
+        //gainNode.disconnect();
+        //gainNode = null;
+      }
       if(duration >= 0){
-        gainNode.gain.setValueAtTime(0,audioCtx.currentTime + duration);
+        gainNode.gain.setValueAtTime(0,audioCtx.currentTime + duration+attack);
 
       }
       return {oscNode: oscNode, gainNode: gainNode};
@@ -110,17 +120,18 @@ evaluator.playsin$1 = function(args, modifs) {
 
     if(lines[line] === 0){ //initialize
       var masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0;
       lines[line] = {oscNodes: [], masterGain: masterGain};
       for(var i=0; i < harmonics.length; i++){
         lines[line].oscNodes.push(playOscillator(line, (i+1)*freq, harmonics[i].value.real));
       }
-      masterGain.gain.setValueAtTime(amp, audioCtx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime+attack);
       masterGain.connect(audioCtx.destination);
       if(damp > 0){ //not properly mathematically but does the job
-        masterGain.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp));
+        masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime+attack,(1/damp));
       }
       else if(damp < 0){
-        masterGain.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
+        masterGain.gain.setTargetAtTime(1, audioCtx.currentTime+attack,(-damp));
       }
     }
     else{ //update
@@ -128,16 +139,20 @@ evaluator.playsin$1 = function(args, modifs) {
         if(duration === 0){
           for(var i=0; i<lines[line].oscNodes.length; i++){
             lines[line].oscNodes[i].oscNode.stop(); //helps
+            //delete lines[line].oscNodes[i];
           }
         }
+
         for(var i=0; i<harmonics.length; i++){
           lines[line].oscNodes[i].oscNode.frequency.setValueAtTime((i+1)*freq, audioCtx.currentTime);
           lines[line].oscNodes[i].gainNode.gain.setValueAtTime(harmonics[i].value.real, audioCtx.currentTime);
         }
       }
       else{ //damp != 0
+        lines[line].masterGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + release);
         for(var i=0; i<lines[line].oscNodes.length; i++){
-          lines[line].oscNodes[i].oscNode.stop(); //helps
+          lines[line].oscNodes[i].oscNode.stop(audioCtx.currentTime+release); //helps
+
         }
         for(var i=0; i<harmonics.length; i++){
           if(i<lines[line].oscNodes.length){
@@ -147,13 +162,13 @@ evaluator.playsin$1 = function(args, modifs) {
           lines[line].oscNodes.push(playOscillator(line, (i+1)*freq, harmonics[i].value.real));
           }
         }
-        lines[line].masterGain.gain.setValueAtTime(amp, audioCtx.currentTime);
+        lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release +attack);
 
         if(damp > 0){
-          lines[line].masterGain.gain.setTargetAtTime(0, audioCtx.currentTime,(1/damp));
+          lines[line].masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime+release+attack,(1/damp));
         }
         else if(damp < 0){
-          lines[line].masterGain.gain.setTargetAtTime(1, audioCtx.currentTime,(-damp));
+          lines[line].masterGain.gain.setTargetAtTime(1, audioCtx.currentTime+release+attack,(-damp));
         }
       }
     }
