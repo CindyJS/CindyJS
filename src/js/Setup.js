@@ -121,6 +121,8 @@ function updateCanvasDimensions() {
             vscale = virtualheight / canvas.height;
         csctx.scale(1 / vscale, 1 / vscale);
         csport.scale(vscale);
+        csport.drawingstate.matrix.tx = vscale * csport.drawingstate.matrix.tx;
+        csport.drawingstate.initialmatrix.tx = vscale * csport.drawingstate.initialmatrix.tx;
         csport.drawingstate.matrix.ty = vscale * csport.drawingstate.matrix.ty;
         csport.drawingstate.initialmatrix.ty = vscale * csport.drawingstate.initialmatrix.ty;
         csw = vscale * canvas.clientWidth;
