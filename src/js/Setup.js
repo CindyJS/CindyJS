@@ -52,6 +52,10 @@ var csgridscript;
 var cssnap = false;
 var csaxes = false;
 
+//virtual resolution
+var virtualwidth = 0;
+var virtualheight = 0;
+
 function dump(a) {
     console.log(JSON.stringify(a));
 }
@@ -107,6 +111,21 @@ function updateCanvasDimensions() {
             }
         }
     }
+
+    if (virtualwidth || virtualheight) {
+        var vscale = 1;
+        if (virtualwidth)
+            vscale = virtualwidth / canvas.width;
+        else if (virtualheight)
+            vscale = virtualheight / canvas.height;
+        csctx.scale(1 / vscale, 1 / vscale);
+        csport.scale(vscale);
+
+        // undo voodoo from csport.greset and redo it according to vscale
+        csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty + (1 - vscale) * csh;
+        csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty + (1 - vscale) * csh;
+    }
+
     csport.createnewbackup();
     csport.greset();
     var devicePixelRatio = 1;
@@ -238,6 +257,11 @@ function createCindyNow() {
                 divStyle.width = port.width + "px";
                 divStyle.height = port.height + "px";
             }
+            if (port.virtualwidth)
+                virtualwidth = port.virtualwidth;
+            if (port.virtualheight)
+                virtualheight = port.virtualheight;
+
             if (port.background)
                 c.style.backgroundColor = port.background;
             if (port.transform !== undefined)
