@@ -151,7 +151,7 @@ function setuplisteners(canvas, data) {
         var rect = canvas.getBoundingClientRect();
         var x = event.clientX - rect.left - canvas.clientLeft + 0.5;
         var y = event.clientY - rect.top - canvas.clientTop + 0.5;
-        var pos = csport.to(x, y);
+        var pos = csport.to(x * vscale, y * vscale);
         mouse.prevx = mouse.x;
         mouse.prevy = mouse.y;
         mouse.x = pos[0];

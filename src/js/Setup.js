@@ -55,6 +55,7 @@ var csaxes = false;
 //virtual resolution
 var virtualwidth = 0;
 var virtualheight = 0;
+var vscale = 1;
 
 function dump(a) {
     console.log(JSON.stringify(a));
@@ -112,8 +113,8 @@ function updateCanvasDimensions() {
         }
     }
 
+    vscale = 1;
     if (virtualwidth || virtualheight) {
-        var vscale = 1;
         if (virtualwidth)
             vscale = virtualwidth / canvas.width;
         else if (virtualheight)
