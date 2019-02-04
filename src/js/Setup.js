@@ -120,10 +120,8 @@ function updateCanvasDimensions() {
             vscale = virtualheight / canvas.height;
         csctx.scale(1 / vscale, 1 / vscale);
         csport.scale(vscale);
-
-        // undo voodoo from csport.greset and redo it according to vscale
-        csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty + (1 - vscale) * csh;
-        csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty + (1 - vscale) * csh;
+        csw = vscale * canvas.clientWidth;
+        csh = vscale * canvas.clientHeight;
     }
 
     csport.createnewbackup();

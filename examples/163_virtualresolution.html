@@ -23,6 +23,7 @@
 						N = 100;
 						zigzag = apply(1..N, k, (2-(k/N)^2,.5+.4*(-1)^k));
 						connect(zigzag, size->1);
+            errc(screenbounds());
         </script>
 
     This is a canvas of size 200 times 100 pixels:
