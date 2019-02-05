@@ -4,6 +4,8 @@ var move;
 var cskey = "";
 var cskeycode = 0;
 
+var multiid = -1;
+var multipos = [];
 
 function getmover(mouse) {
     var mov = null;
@@ -145,6 +147,18 @@ function setuplisteners(canvas, data) {
     } else {
         addAutoCleaningEventListener(canvas, "DOMNodeRemovedFromDocument", shutdown);
         addAutoCleaningEventListener(canvas, "DOMNodeRemoved", shutdown);
+    }
+
+    function updateMultiPositions(event) {
+        for (let i = 0; i < event.changedTouches.length; i++) {
+            let touch = event.changedTouches[i];
+            let id = touch.identifier;
+            var rect = canvas.getBoundingClientRect();
+            var x = touch.clientX - rect.left - canvas.clientLeft + 0.5;
+            var y = touch.clientY - rect.top - canvas.clientTop + 0.5;
+            var pos = csport.to(x, y);
+            multipos[id] = [pos[0], pos[1]];
+        }
     }
 
     function updatePosition(event) {
@@ -403,8 +417,14 @@ function setuplisteners(canvas, data) {
 
 
     function touchMove(e) {
+        updateMultiPositions(e);
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            multiid = e.changedTouches[i].identifier;
+            cs_multidrag();
+        }
 
         var activeTouchIDList = e.changedTouches;
+        cs_multidrag();
         var gotit = false;
         for (var i = 0; i < activeTouchIDList.length; i++) {
             if (activeTouchIDList[i].identifier === activeTouchID) {
@@ -431,15 +451,23 @@ function setuplisteners(canvas, data) {
     var activeTouchID = -1;
 
     function touchDown(e) {
+        updateMultiPositions(e);
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            multiid = e.changedTouches[i].identifier;
+            cs_multidown();
+        }
+
         if (activeTouchID !== -1) {
             return;
         }
 
         var activeTouchIDList = e.changedTouches;
+
         if (activeTouchIDList.length === 0) {
             return;
         }
         activeTouchID = activeTouchIDList[0].identifier;
+
 
         updatePosition(e.targetTouches[0]);
         cs_mousedown();
@@ -453,6 +481,13 @@ function setuplisteners(canvas, data) {
 
     function touchUp(e) {
         var activeTouchIDList = e.changedTouches;
+        updateMultiPositions(e);
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            multiid = e.changedTouches[i].identifier;
+            cs_multiup();
+            delete multipos[multiid];
+        }
+
         var gotit = false;
         for (var i = 0; i < activeTouchIDList.length; i++) {
             if (activeTouchIDList[i].identifier === activeTouchID) {
@@ -708,6 +743,18 @@ function cs_mouseup(e) {
 
 function cs_mousedrag(e) {
     evaluate(cscompiled.mousedrag);
+}
+
+function cs_multidown(e) {
+    evaluate(cscompiled.multidown);
+}
+
+function cs_multiup(e) {
+    evaluate(cscompiled.multiup);
+}
+
+function cs_multidrag(e) {
+    evaluate(cscompiled.multidrag);
 }
 
 function cs_mousemove(e) {
