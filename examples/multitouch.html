@@ -22,7 +22,7 @@ drawtext((0,0), multiidlist());
 
 al = 1;
 forall(events, e,
-  dim = if(e_3=="down" % e_3=="up", .7, 1);
+  dim = if(e_3=="down" % e_3=="up", drawtext(e_1, e_3 + " of " + e_2, alpha->al);.7, 1);
   draw(e_1, color->hue(e_2/sqrt(20))*dim, alpha->al);
   al = al*.95;
 );
