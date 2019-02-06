@@ -12,16 +12,20 @@ T = [[1,0,0],[0,1,0],[0,0,1]];
 down = dict();
 cur = dict();
 
+usedfingers = [];
 updateT() := (
   cur = put(cur, multiid(), mouse(id->multiid()));
   
   start = [];
   end = [];
-  forall(multiidlist(), id,
+  
+  usedfingers = usedfingers ++ (multiidlist() -- usedfingers);//enlarge set of usedfingers
+  errc(usedfingers);
+  forall(usedfingers, id,
     start = start :> get(down, id);
     end = end :> get(cur, id);
   );
-  n = length(multiidlist());
+  n = length(usedfingers);
   T = [[1,0,0],[0,1,0],[0,0,1]];
   if(n == 1,
     T = map(start_1, end_1);
@@ -52,8 +56,9 @@ forall(1..length(start), k,
 );
 </script>
 <script id="csmultidown" type="text/x-cindyscript">
+usedfingers = [];
 down = put(down, multiid(), mouse(id->multiid()));
-
+updateT();
 </script>
 
 <script id="csmultidrag" type="text/x-cindyscript">
