@@ -160,6 +160,7 @@ function setuplisteners(canvas, data) {
             var pos = csport.to(x, y);
             multipos[id] = [pos[0], pos[1]];
         }
+        scheduleUpdate();
     }
 
     function updatePosition(event) {
