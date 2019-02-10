@@ -174,7 +174,7 @@ evaluator.playsin$1 = function(args, modifs) {
                 lines[line] = 0;
             } else {
                 for (var i = 0; i < harmonics.length; i++) {
-                    lines[line].oscNodes[i].oscNode.frequency.setValueAtTime((i + 1) * freq, audioCtx.currentTime);
+                    lines[line].oscNodes[i].oscNode.frequency.setValueAtTime(partials[i]*(i + 1) * freq, audioCtx.currentTime);
                     lines[line].oscNodes[i].gainNode.gain.setValueAtTime(harmonics[i].value.real, audioCtx.currentTime);
                 }
             }
@@ -199,7 +199,7 @@ evaluator.playsin$1 = function(args, modifs) {
                     lines[line].masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + release + attack, (-damp));
                 }
             } else { //restart -> false so just change damp & timbre
-                for (var i = 0; i < lines[line].oscNodes.length; i++) {
+                for (var i = 0; i < harmonics.length; i++) {
                     lines[line].oscNodes[i].oscNode.frequency.value = partials[i].value.real * (i + 1) * freq;
                     lines[line].oscNodes[i].gainNode.gain.value = harmonics[i].value.real;
                 }
