@@ -975,13 +975,12 @@ eval_helper.drawtext = function(args, modifs, callback) {
         }
     }
 
-    var font = (
+    csctx.font = (
         Render2D.bold + Render2D.italics +
         Math.round(size * 10) / 10 + "px " +
         Render2D.family);
-    csctx.font = font;
     if (callback) {
-        return callback(txt, font, xx, yy, Render2D.align, size);
+        return callback(txt, xx, yy, Render2D.align, size);
     } else {
         return textRendererCanvas(
             csctx, txt, xx, yy, Render2D.align,
