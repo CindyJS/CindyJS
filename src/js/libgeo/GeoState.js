@@ -71,14 +71,14 @@ csport.from = function(x, y, z) {
     var m = csport.drawingstate.matrix;
     var xxx = xx * m.a - yy * m.b + m.tx;
     var yyy = xx * m.c - yy * m.d - m.ty;
-    return [xxx, yyy];
+    return [xxx / vscale, yyy / vscale];
 };
 
 // Convert Euclidean pixel coordinates to homogeneous user coordinates
 csport.to = function(px, py) {
     var m = csport.drawingstate.matrix;
-    var xx = px - m.tx;
-    var yy = py + m.ty;
+    var xx = px * vscale - m.tx;
+    var yy = py * vscale + m.ty;
     var x = (xx * m.d - yy * m.b) / m.det;
     var y = -(-xx * m.c + yy * m.a) / m.det;
     return [x, y, 1];
@@ -88,8 +88,8 @@ csport.to = function(px, py) {
 csport.toMat = function() {
     var m = csport.drawingstate.matrix;
     return List.realMatrix([
-        [m.d, -m.b, -m.tx * m.d - m.ty * m.b],
-        [m.c, -m.a, -m.tx * m.c - m.ty * m.a],
+        [vscale * m.d, -vscale * m.b, -m.tx * m.d - m.ty * m.b],
+        [vscale * m.c, -vscale * m.a, -m.tx * m.c - m.ty * m.a],
         [0, 0, m.det]
     ]);
 };

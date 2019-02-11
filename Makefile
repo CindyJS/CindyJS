@@ -81,7 +81,7 @@ js_make: $(NPM_DEP)
 ######################################################################
 
 # Specify build=release on the command line to run closure compiler
-build=release
+build=debug
 
 build/js/Cindy.plain.js: js_make
 	$(JS_MAKE) plain

@@ -89,8 +89,19 @@ var trafos;
 function updateCanvasDimensions() {
     canvas.width = csw = canvas.clientWidth;
     canvas.height = csh = canvas.clientHeight;
-    csctx.setTransform(1, 0, 0, 1, 0, 0); // reset
-    csport.setMat(25, 0, 0, 25, 250.5, 250.5); // reset
+
+    vscale = 1;
+    if (virtualwidth || virtualheight) {
+        if (virtualwidth)
+            vscale = virtualwidth / canvas.width;
+        else if (virtualheight)
+            vscale = virtualheight / canvas.height;
+        csw = vscale * canvas.clientWidth;
+        csh = vscale * canvas.clientHeight;
+    }
+
+    csctx.setTransform(1 / vscale, 0, 0, 1 / vscale, 0, 0); // reset
+    csport.setMat(25 * vscale, 0, 0, 25 * vscale, 250.5 * vscale, 250.5 * vscale); // reset
     if (trafos) {
         for (var i = 0; i < trafos.length; i++) {
             var trafo = trafos[i];
@@ -111,22 +122,6 @@ function updateCanvasDimensions() {
                 csscale = csport.drawingstate.initialmatrix.a / 25;
             }
         }
-    }
-
-    vscale = 1;
-    if (virtualwidth || virtualheight) {
-        if (virtualwidth)
-            vscale = virtualwidth / canvas.width;
-        else if (virtualheight)
-            vscale = virtualheight / canvas.height;
-        csctx.scale(1 / vscale, 1 / vscale);
-        csport.scale(vscale);
-        csport.drawingstate.matrix.tx = vscale * csport.drawingstate.matrix.tx;
-        csport.drawingstate.initialmatrix.tx = vscale * csport.drawingstate.initialmatrix.tx;
-        csport.drawingstate.matrix.ty = vscale * csport.drawingstate.matrix.ty;
-        csport.drawingstate.initialmatrix.ty = vscale * csport.drawingstate.initialmatrix.ty;
-        csw = vscale * canvas.clientWidth;
-        csh = vscale * canvas.clientHeight;
     }
 
     csport.createnewbackup();
