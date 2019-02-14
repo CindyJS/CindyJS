@@ -63,7 +63,7 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
 
         compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
         let csctx = api.instance['canvas'].getContext('2d');
-        
+
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
         csctx.drawImage(glcanvas, 0, 0, iw, ih);
@@ -113,9 +113,9 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
             y: Math.max(a.y, b.y)
         };
         let m = api.getInitialMatrix();
-        
-        var xx = iw*(ul.x- cul.x)/(clr.x - cul.x);
-        var yy = ih*(ul.y- cul.y)/(clr.y - cul.y);
+
+        var xx = iw * (ul.x - cul.x) / (clr.x - cul.x);
+        var yy = ih * (ul.y - cul.y) / (clr.y - cul.y);
 
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
