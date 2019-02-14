@@ -4,7 +4,7 @@ var move;
 var cskey = "";
 var cskeycode = 0;
 
-var multiid = -1;
+var multiid = 0;
 var multipos = {};
 var multiiddict = {};
 
@@ -219,10 +219,8 @@ function setuplisteners(canvas, data) {
         hasmoved = false;
         mouse.button = e.which;
         updatePosition(e);
-        multiid = 0;
-        multipos[0] = csmouse;
+        cs_multidown(0);
         cs_mousedown();
-        cs_multidown();
         manage("mousedown");
         mouse.down = true;
         e.preventDefault();
@@ -231,9 +229,8 @@ function setuplisteners(canvas, data) {
     addAutoCleaningEventListener(canvas, "mouseup", function(e) {
         mouse.down = false;
         cindy_cancelmove();
-        multiid = 0;
         cs_mouseup();
-        cs_multiup();
+        cs_multiup(0);
         manage("mouseup");
         delete multipos[0];
         scheduleUpdate();
@@ -246,10 +243,8 @@ function setuplisteners(canvas, data) {
             if (mousedownevent && (Math.abs(mousedownevent.clientX - e.clientX) > 2 || Math.abs(mousedownevent.clientY - e.clientY) > 2))
                 hasmoved = true;
             cs_mousedrag();
-            if (multipos[0]) { //the mouse indeed is down
-                multiid = 0;
-                multipos[0] = csmouse;
-                cs_multidrag();
+            if (multipos[0]) { //the physical mouse (not a finger acting as mouse) indeed is down
+                cs_multidrag(0);
             }
         } else {
             cs_mousemove();
@@ -453,7 +448,7 @@ function setuplisteners(canvas, data) {
         updateMultiPositions(e);
         for (let i = 0; i < e.changedTouches.length; i++) {
             multiid = getmultiid(e.changedTouches[i].identifier);
-            cs_multidrag();
+            cs_multidrag(multiid);
         }
 
         var activeTouchIDList = e.changedTouches;
@@ -486,8 +481,7 @@ function setuplisteners(canvas, data) {
     function touchDown(e) {
         updateMultiPositions(e);
         for (let i = 0; i < e.changedTouches.length; i++) {
-            multiid = getmultiid(e.changedTouches[i].identifier);
-            cs_multidown();
+            cs_multidown(getmultiid(e.changedTouches[i].identifier));
         }
 
         if (activeTouchID !== -1) {
@@ -517,9 +511,8 @@ function setuplisteners(canvas, data) {
         updateMultiPositions(e);
         for (let i = 0; i < e.changedTouches.length; i++) {
             multiid = getmultiid(e.changedTouches[i].identifier);
-            cs_multiup();
+            cs_multiup(multiid);
             delete multiiddict[e.changedTouches[i].identifier];
-            delete multipos[multiid];
         }
 
         var gotit = false;
@@ -779,16 +772,25 @@ function cs_mousedrag(e) {
     evaluate(cscompiled.mousedrag);
 }
 
-function cs_multidown(e) {
+function cs_multidown(id) {
+    multiid = id;
+    if (id == 0)
+        multipos[0] = csmouse;
     evaluate(cscompiled.multidown);
+    multiid = 0;
 }
 
-function cs_multiup(e) {
+function cs_multiup(id) {
+    multiid = id;
     evaluate(cscompiled.multiup);
+    delete multipos[id];
+    multiid = 0;
 }
 
-function cs_multidrag(e) {
+function cs_multidrag(id) {
+    multiid = id;
     evaluate(cscompiled.multidrag);
+    multiid = 0;
 }
 
 function cs_mousemove(e) {
