@@ -6,7 +6,7 @@
     <title>Multitouch scripting</title>
     <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csinit" type="text/x-cindyscript">
-O = [(0,0,1),(1,0,1),(0,1,1),(2,2,1)];
+O = [(0,0,1),(2,0,1),(0,2,1),(1,1,1),(2,2,1)] ++ apply(1..50, gauss(exp(2*pi*i*#/50)).homog);
 T = [[1,0,0],[0,1,0],[0,0,1]];
 
 down = dict();
@@ -68,7 +68,7 @@ updateT();
 <script id="csmultiup" type="text/x-cindyscript">
 updateT();
 </script>
-Multitouch gestures can be used to define a transformation.
+Multitouch gestures can be used to define a transformation, i.e. one finger for translations, two fingers for similarities, three fingers for affine transformations and four fingers for projective transformations.
     <script type="text/javascript">
 var cdy = CindyJS({
   scripts: "cs*",
@@ -82,9 +82,9 @@ var cdy = CindyJS({
   angleUnit: "°",
   ports: [{
     id: "CSCanvas",
-    width: 680,
-    height: 350,
-    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.66]}],
+    width: 800,
+    height: 600,
+    transform: [{visibleRect: [-8,-6,8,6]}],
     background: "rgb(168,176,192)"
   }],
   csconsole: false,
