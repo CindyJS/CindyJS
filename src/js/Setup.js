@@ -101,7 +101,7 @@ function updateCanvasDimensions() {
     }
 
     csctx.setTransform(1 / vscale, 0, 0, 1 / vscale, 0, 0); // reset
-    csport.setMat(25 * vscale, 0, 0, 25 * vscale, 250.5 * vscale, 250.5 * vscale); // reset
+    csport.setMat(25, 0, 0, 25, 250.5, 250.5); // reset
     if (trafos) {
         for (var i = 0; i < trafos.length; i++) {
             var trafo = trafos[i];
