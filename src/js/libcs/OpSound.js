@@ -1,9 +1,8 @@
 //*******************************************************
 // and here are the definitions of the sound operators
 //*******************************************************
-var lines = [];
-var linesDict = {};
-var linesCounter = 0;
+var lines = [0];
+var linesDict = {0: 0};
 
 var getAudioContext = function() {
     var ac = null;
@@ -174,7 +173,7 @@ evaluator.playsin$1 = function(args, modifs) {
                 lines[line] = 0;
             } else {
                 for (var i = 0; i < harmonics.length; i++) {
-                    lines[line].oscNodes[i].oscNode.frequency.setValueAtTime(partials[i]*(i + 1) * freq, audioCtx.currentTime);
+                    lines[line].oscNodes[i].oscNode.frequency.setValueAtTime(partials[i].value.real*(i + 1) * freq, audioCtx.currentTime);
                     lines[line].oscNodes[i].gainNode.gain.setValueAtTime(harmonics[i].value.real, audioCtx.currentTime);
                 }
             }
