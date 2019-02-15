@@ -105,7 +105,8 @@ let replaceCbyR = t => t === type.complex ? type.float : {
 
 /* is t implementented in native glsl, as bool, float, int, vec2, vec3, vec4, mat2, mat3, mat4 */
 let isnativeglsl = t =>
-    t === type.bool || t === type.int || t === type.float || t === type.complex ||
+    (t.type === 'constant' && isnativeglsl(generalize(t))) ||
+    t === type.bool || t === type.int || t === type.float || t === type.complex || t === type.point || t === type.line ||
     (t.type === 'list' && t.parameters === type.float && 1 <= t.length && t.length <= 4) ||
     (t.type === 'list' && t.parameters.type === 'list' && t.parameters.parameters === type.float && t.length === t.parameters.length && 2 <= t.length && t.length <= 4);
 
@@ -129,7 +130,7 @@ function issubtypeof(a, b) {
     if (a.type === 'constant') return (issubtypeof(guessTypeOfValue(a.value), b));
 
     if (b === type.coordinate2d) return issubtypeof(a, type.complex) || issubtypeof(a, type.vec2) || issubtypeof(a, type.point);
-    if (b === type.point) return issubtypeof(a, type.vec3);
+    if (b === type.point) return issubtypeof(a, type.vec3) || issubtypeof(a, type.vec2);
     if (b === type.line) return issubtypeof(a, type.vec3);
     if (b === type.color) return (issubtypeof(a, type.float) || (a.type === 'list' && (a.length === 3 || a.length === 4) && issubtypeof(a.parameters, type.float)));
 
@@ -281,6 +282,7 @@ function inclusionfunction(toType) {
 
 
 function webgltype(ctype) {
+    ctype = generalize(ctype);
     switch (ctype) {
         case type.bool:
             return 'bool';

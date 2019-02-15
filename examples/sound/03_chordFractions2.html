@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>GraphicIntervals9HT.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cindyjs.org/dist/v0.8/CindyJS.css">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+rein=(1,9/8,5/4,4/3,3/2,5/3,15/8,2,2*9/8,2*5/4,2*4/3,2*3/2);
+u=2^(1/12);
+gleich=(u^0,u^1,u^2,u^3,u^4,u^5,u^6,u^7,u^8,u^9,u^10,u^11,u^12,u^13,u^14,u^15,u^16,u^17,u^18,u^19);
+
+
+pyth=[1,256/243,9/8,32/27,81/64,4/3,729/512,3/2,128/81,27/16,16/9,243/128] ;
+pyth=apply(1..20,(pyth++2*pyth)_#);
+
+s=gleich;
+sel=3;
+
+g=260;
+
+
+box1=([[0,-5],[4,-5],[4,-4],[0,-4]]);
+box2=([[5,-5],[9,-5],[9,-4],[5,-4]]);
+box3=([[5,-5],[9,-5],[9,-4],[5,-4]]);
+box4=([[20,-5],[24,-5],[24,-4],[20,-4]]);
+inbox(b,p):=(p.x>b_1_1 &  p.x<b_2_1 & p.y>b_1_2 & p.y<b_3_2);
+cem=false;
+
+drawbox(b,t,text):=(
+   fillpoly(b,color->if(t,(1,1,1)*.5,(1,1,1)*.8));
+   drawpoly(b,size->if(t,2,1));
+   drawtext((b_1+b_3)/2-(0,.15),text,align->"center",size->18,color->(0,0,0));
+);
+
+;
+</script>
+<script id="csmouseclick" type="text/x-cindyscript">
+  clicked=false;
+if(inbox(box1,mouse().xy),sel=1;clicked=true);
+//if(inbox(box2,mouse().xy),sel=2;clicked=true);
+if(inbox(box3,mouse().xy),sel=3;clicked=true);
+if(inbox(box4,mouse().xy),cem=!cem;clicked=true);
+if(sel==1,s=pyth);
+if(sel==2,s=rein);
+if(sel==3,s=gleich);
+if(!clicked,
+mm=mouse().xy;
+nearest=sort(apply(pos,p,(p,0)),|mm,#|)_1;
+  h=[1];
+  if(cem,
+   h=apply(1..8,1/#)*0.3;
+  );
+
+if(|nearest,mm|<0.4,
+  playsin(g/(px(nearest.x)),harmonics->h,damp->4,stop->3,line->i,amp->0.3),
+
+  tones=apply(pp,p,px(p));
+
+  i=1;
+  //err(apply(tones,t,guess(t)));
+  apply(tones,t,playsin(g/t,harmonics->h,damp->2,stop->4,line->i,amp->0.3);i=i+1);
+);
+
+)
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+pts=allpoints();
+apply(pts,p,p.y=2);
+
+drawtext((-0.3,-2.5),"Gelbe Punkte sind zum Ausmessen einstellbar --- Klang kann durch Mausklick hörbar gemacht werden",size->12,color->(1,1,1));
+
+t=("C","$C^\sharp$","D","$E^\flat$","E","F","$F^\sharp$","G","$A^\flat$","A","$B^\flat$","H","c","$c^\sharp$","d","$e^\flat$","e","f","$f^\sharp$","g");
+
+
+cf(x,n):=(
+
+  if(n==0,["*"],
+   if(round(x*1000)==round(x)*1000,
+     [x],
+     [floor(x)]++cf(1/(x-floor(x)),n-1)
+   );
+ );
+);
+
+bruch1(cf):=(
+
+   if(length(cf)==1,
+    [cf_1,1]
+   ,
+    zw=bruch1(cf_(2..length(cf)));
+    [zw_1*cf_1+zw_2,zw_1];
+   )
+);
+
+
+bruch(x,cf):=
+if(cf_(-1)=="*",
+  "$"+format(x,2)+"$",
+  erg=bruch1(cf);
+  "$"+erg_1+"\over"+erg_2+"$";
+);
+
+myguess(x):=(
+   cf=cf(x,10);
+   bruch(x,cf);
+);
+
+
+
+n=length(s);
+pos=apply(s,x,16*(log(x)/log(2)));
+
+px(r):=exp(-log(2)*r/16);
+
+
+
+apply(pts,p,p.x=sort(pos,|p.x-#|)_1);
+pp=set(apply(pts,#.x));
+
+
+
+
+
+linecolor((0,0,0));
+linesize(2);
+
+pr(i):=(
+  a=i_1;
+  b=i_2;
+  h=i_3;
+  m=(pos_a+pos_b)/2;
+  draw((pos_a,h),(m-.45,h),color->(1,1,1));
+  draw((m+.45,h),(pos_b,h),color->(1,1,1));
+  draw((pos_a,h),(pos_a,0),color->(1,1,1));
+  draw((pos_b,h),(pos_b,0),color->(1,1,1));
+  drawtext((m,h-0.1),myguess(s_b/s_a),align->"center",color->(.8,.8,1),size->14);
+
+);
+
+pr1(i):=(
+  a=i_1;
+  b=i_2;
+  h=i_3;
+  m=(a+b)/2;
+  draw((a,h),(m-.45,h),color->(1,1,1));
+  draw((m+.45,h),(b,h),color->(1,1,1));
+  draw((a,h),(a,0),color->(1,1,1));
+  draw((b,h),(b,0),color->(1,1,1));
+  drawtext((m,h-0.2),myguess(px(a)/px(b)),align->"center",color->(.8,.8,1),size->14);
+
+);
+linecolor((0,0,0.8));
+apply(1..length(pp)-1,i,pr1((pp_i,pp_(i+1),2)));
+apply(1..length(pp)-2,i,pr1((pp_i,pp_(i+2),3)));
+
+linecolor((0,0,0));
+ints=((1,2,1),(2,3,1),(3,4,1),(4,5,1),(5,6,1),(6,7,1),(7,8,1),(1,3,2),(3,5,2),(1,5,3),(5,8,3));
+
+ints=apply(1..19,i,(i,i+1,1));
+
+
+
+apply(ints,pr(#));
+
+apply(1..n,i,col=if(indexof(t_i,"$")==0,(1,1,1),(0,0,0));fillcircle((pos_i,0),0.38,color->col,size->1));
+apply(1..n,i,drawcircle((pos_i,0),0.38,color->if(indexof(t_i,"$")!=0,(1,1,1)*.6,(0,0,0))));
+apply(1..n,i,col=if(indexof(t_i,"$")!=0,(1,1,1),(0,0,0));drawtext((pos_i,-.2),t_i,color->col,align->"center",size->16,family->font));
+apply(1..n,i,drawtext((pos_i,-1.2),myguess(s_i),color->(1,.8,.8),size->18,align->"center"));
+
+
+drawbox(box1,sel==1,"Pythagoräisch");
+//drawbox(box2,sel==2,"Rein");
+drawbox(box3,sel==3,"Gleichmäßig");
+drawbox(box4,cem,"Cembalo");
+
+;
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, 0.8571428571428568, 0.4285714285714284], color: [1.0, 1.0, 0.0]},
+    {name: "C", type: "Free", pos: [4.0, 1.4999999999999998, 0.7499999999999999], color: [1.0, 1.0, 0.0]},
+    {name: "D", type: "Free", pos: [-0.0, -4.0, -2.0], color: [1.0, 1.0, 0.0]},
+  ],
+  ports: [{
+    id: "CSCanvas",
+     width: 1074,
+    height: 380,
+    transform: [{visibleRect: [-1.2, 4.2, 26, -6]}],
+    background: "rgb(30,30,30)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

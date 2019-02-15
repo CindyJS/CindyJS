@@ -85,7 +85,7 @@ function expressionsAreEqual(a, b) {
 }
 
 
-/** 
+/**
  * are two given signatures equal?
  */
 function signaturesAreEqual(a, b) {
@@ -135,6 +135,12 @@ function guessTypeOfValue(tval) {
         }
     } else if (tval['ctype'] === 'list') {
         let l = tval['value'];
+        if (l.length === 3) {
+            if (tval["usage"] === "Point")
+                return type.point;
+            else if (tval["usage"] === "Line")
+                return type.line
+        }
         if (l.length > 0) {
             let ctype = guessTypeOfValue(l[0]);
             for (let i = 1; i < l.length; i++) {
@@ -148,6 +154,8 @@ function guessTypeOfValue(tval) {
         }
     } else if (tval['ctype'] === 'string' || tval['ctype'] === 'image') {
         return type.image;
+    } else if (tval['ctype'] === 'geo' && tval['value']['kind'] === 'L') {
+        return type.line;
     }
     console.error(`Cannot guess type of the following type:`);
     console.log(tval);

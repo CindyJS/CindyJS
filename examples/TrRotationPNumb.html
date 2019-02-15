@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TrRotationPNumb.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+scale=1;//1 in CindyJS and 4 in Cinderella
+drawtext((11,6),"mouse"+mouse(),color->(0,0,0),size->20);
+drawtext((-9,8),"A"+A.homog/scale,color->(1,0,0),size->20);
+drawtext((-9,7),"B"+B.homog/scale,color->(1,0,1),size->20);
+drawtext((-9,6),"a"+a.homog/scale,color->(1,0,0),size->20);
+drawtext((-9,5),"b"+b.homog/scale,color->(0,0,1),size->20);
+drawtext((-9,4),"C"+C.homog/scale,color->(0,1,0),size->20);
+drawtext((-9,3),"C'"+CP.homog/scale,color->(0,1,1),size->20);
+drawtext((-9,2),"C''"+CPP.homog/scale,color->(1,1,0),size->20);
+drawtext((-9,1),"α0="+a0,color->(1,1,0),size->20);
+draw((-9.06,0),(18.14,0),arrow->true,size->2,color->(128/255,128/255,128/255));//x-axis
+draw((0,-13.22),(0,9.34),arrow->true,size->2,color->(128/255,128/255,128/255));//y-axis
+drawcircle(A,sqrt((C-A)*(C-A)),color->(128/255,128/255,128/255));
+</script>
+
+    <script type="text/javascript">
+CindyJS({ 
+    scripts: "cs*", grid: 1, snap: true, 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, dimDependent: 0.7 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 4.0, -3.0, 1.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ 4.0, -3.0, 1.0 ], color: [ 1.0, 0.0, 1.0 ], labeled: true }, 
+		{ name: "a", type: "Through", pos: [ 0.0, 1.3333333333333333, 4.0 ], color: [ 1.0, 0.0, 0.0 ], args: [ "B" ], labeled: true }, 
+		{ name: "b", type: "Through", pos: [ -0.43496451734786623, 0.7533806435361785, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "B" ], labeled: true }, 
+		{ name: "a0", type: "Angle", color: [ 0.0, 0.0, 1.0 ], args: [ "a", "b", "A" ] }, // "?0" is "α0"; "@alpha 0" U+03B1: Greek Small Letter Alpha
+		//{ name: "Text0", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "a0", "B" ], text: "<)@$\"a\"@$\"b\"= @#\"a0\"" }, // "?0" is "α0"; "@alpha 0" U+03B1: Greek Small Letter Alpha
+		{ name: "Tr0", type: "TrRotationPNumb", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "a0" ] }, // "?0" is "α0"; "@alpha 0" U+03B1: Greek Small Letter Alpha
+		{ name: "C", type: "Free", pos: [ 4.0, -0.0, 0.3076923076923077 ], color: [ 0.0, 1.0, 0.0 ], labeled: true }, 
+		{ name: "C0", type: "CircleByRadius", color: [ 0.0, 1.0, 0.0 ], radius: 2.45, args: [ "C" ], printname: "$C_{0}$" }, 
+		{ name: "CP", type: "Transform", pos: [ 4.0, 1.5923781594647068, 0.388567239197061 ], color: [ 0.0, 1.0, 1.0 ], args: [ "Tr0", "C" ], labeled: true, printname: "C'" }, 
+		{ name: "C1", type: "Transform", color: [ 0.0, 1.0, 1.0 ], args: [ "Tr0", "C0" ], printname: "$C_{1}$" }, 
+		{ name: "CPP", type: "Transform", pos: [ -3.750689167349033, -4.0, -0.6355028125852985 ], color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "CP" ], labeled: true, printname: "C''" }, 
+		{ name: "C2", type: "Transform", color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "C1" ], printname: "$C_{2}$" }], 
+    ports: [ 
+		{ id: "CSCanvas", width: 680, height: 564, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -13.22 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

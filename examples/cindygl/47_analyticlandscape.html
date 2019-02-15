@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <script type="text/javascript" src="../../plugins/symbolic/src/js/symbolic.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+  <body style="font-family:Arial;">
+  <h1>Complex Analytic Landscapes</h1>
+  <div style="float: left; padding:20px">
+      
+      <script id="csmousedown" type="text/x-cindyscript">
+      sx = mouse().x;
+      sy = mouse().y;
+      dragging = sx < .5;
+      </script>
+      <script id="csmouseup" type="text/x-cindyscript">
+      dragging = false;
+      </script>
+      
+      <script id="csinit" type="text/x-cindyscript">
+      dx = .05; dy =.0;
+      speciala = .5;
+      smootha(x) := if(x<speciala,
+        (-1/(speciala+.01))*(x-speciala)^2+speciala,
+        (1/(1.01-speciala))*(x-speciala)^2+speciala      
+      );
+      
+      seta(na) := (
+        a = na;
+        speciala = na;
+        PA.y = (na-.5)*.7;
+      );
+      
+      setzoom(zoom) := (
+        PC.y = (zoom);
+      );
+      
+      mat = [[0,0,1],[1,0,0],[0,1,0]] * (
+          (1, 0, 0),
+          (0, cos(.3), -sin(.3)),
+          (0, sin(.3), cos(.3))
+      );
+
+      sx = mouse().x;
+      sy = mouse().y;
+      dragging = false;
+    
+      zoom = 2.2;
+      a = 0.3;
+      alpha = .7;
+      
+      //we stand at position mat*(1, 0, -5) and watch to (0,0,0).
+      //ray(pixel, t) is the point in R^3 that lies at position t the ray behind the pixel at location pixel(vec2)
+      //t=0 is corresponds to points within the interesting area near (0,0,0)
+      ray(t) := t*mrd+mv;//mat * (t * rd + (0, 0, -5));
+      
+      //fun is the user defined function
+      fun(z) := (z-1)/(z^3+1-i);
+      
+      
+      F(z) := fun(z/zoom)*zoom;
+    
+      color(z) := ( //what color should be given to a complex number z?
+			  regional(n, grey1, grey2);
+			  n = 12;
+			  z = log(z)/2/pi;
+
+			  zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
+
+			  grey1 = im(zfract);
+			  grey2 = re(zfract);
+				
+			  hue(im(z))*(.7+.3*re(sqrt(grey1*grey2)));
+		  );
+      
+      //casteljau algorithm to evaluate and subdivide polynomials in Bernstein form.
+      //poly is a vector containing the coefficients, i.e. p(x) = sum(0..N, i, poly_(i+1) * b_(i,N)(x)) where b_(i,N)(x) = choose(N, i)*x^i*(1-x)^(N-1)
+      casteljau(poly, x) := (
+        regional(alpha, beta);
+        alpha = 1-x;
+        beta = x;
+        forall(0..N, k,
+          repeat(N-k,
+            poly_# = alpha*poly_# + beta*poly_(#+1);
+          );
+        );
+        poly //the bernstein-coefficients of the polynomial in the interval [x,1]
+      );
+
+      //evaluates a polynomial, represented as vector of coefficients in bernstein-form
+      eval(poly, x) := casteljau(poly, x)_1;
+      
+      
+      init() := (
+        
+        N = 11;
+        
+        //N+1 Chebyshev nodes for interval (0, 1)
+        li = apply(1..(N+1), k, (cos((2 * k - 1) / (2 * (N+1)) * pi)+1)/2);
+        
+        //A is the matrix of the linear map that evaluates a polynomial in bernstein-form at the Chebyshev nodes
+        A = apply(li, node,
+          //the i-th column contains the values of the (i,N) bernstein polynomial evaluated at the Chebyshev nodes
+          apply(0..N, i, eval(
+            apply(0..N, if(#==i,1,0)), // e_i = [0,0,0,1,0,0]
+            node //evaluate  b_(i,N)(node)
+          )) 
+        );
+        
+        B = (inverse(A)); //B interpolates polynomials (in Bernstein basis), given the values [p(li_1), p(li_2), ...]
+        
+        
+        phi = -.1;
+        lambda = pi/3;
+        dx = .05; dy =-.02;
+        diff(F(z), z, dF(z) := #);
+        normal(z) := (dz = dF(z); fz = F(z); dabs = dz/fz*|fz|; v = (re(dabs), -im(dabs), -1); v/|v|);//
+      );
+      init();
+      
+      
+    
+      //id encodes a node in a binary tree using heap-indices
+      //1 is root node and node v has children 2*v and 2*v+1
+      
+      //computes s=2^depth of a node id: Compute floor(log_2(id));
+      //purpose: id corresponds interval [id-s,id+1-s]/s
+      gets(id) := (
+        s = 1;
+        repeat(12,
+          if(2*s<=id,
+            s = 2*s;
+          )
+        );
+        s //return value
+      );
+      
+      //determines the next node in the binary tree that would be visited by a regular in DFS
+      //if the children of id are not supposed to be visited
+      //In interval logic: finds the biggest unvisited interval directly right of the interval of id.
+      next(id) := (
+        id = id+1;
+        //now: remove zeros from right (in binary representation) while(id&1) id=id>>1;
+        repeat(12,
+          if(mod(id,2)==0, 
+            id = floor(id/2);
+          )
+        );
+        if(id==1, 0, id) //return value - id 0 means we stop our DFS
+      );
+      
+      </script>
+      
+      <script id="csdraw" type="text/x-cindyscript">
+      //the following is executed for every rendered frame
+      if (dragging,
+          dx = 3 * (sx - mouse().x); dy = 3 * (sy - mouse().y);,
+          dx = .9*dx; dy = .9*dy;
+      );
+      
+      sx = mouse().x;
+      sy = mouse().y;
+      
+      //the rotation matrix: It is modified either if the user is dragging or time passes
+      phi = phi + dx;
+      lambda = lambda + dy;
+      mat =  
+      (
+        (1,0,0),
+        (0,0,1),
+        (0,1,0)
+      )*
+      (
+          (cos(phi), 0, -sin(phi)),
+          (0, 1, 0),
+          (sin(phi), 0, cos(phi))
+      )*
+      (
+          (1, 0, 0),
+          (0, cos(lambda), -sin(lambda)),
+          (0, sin(lambda), cos(lambda))
+      );
+      
+      
+      //the 3 sliders at the left.
+      PA.x = 0.55;
+      if (PA.y > .4, PA.y = .4);
+      if (PA.y < -.4, PA.y = -.4);
+      a = smootha((.5 + PA.y/.7));
+
+
+      PC.x = 0.65;
+      if (PC.y > .4, PC.y = .4);
+      if (PC.y < -.4, PC.y = -.4);
+      zoom = exp(3 * PC.y - 1);
+      
+      
+      height(t) := (
+        regional(cp, cf, acf);
+        cp = ray(t);
+        cf = F(cp.x+i*cp.y);
+        acf = |cf|-.68;
+        cp.z-acf
+      );
+      
+      bisectf(x0, x1) := (
+          regional(v0, v1, m, vm);
+          v0 = height(x0);
+          v1 = height(x1);
+          repeat(12,
+              m = (x0 + x1) / 2; vm = height(m);
+              if (min(v0,vm) <= 0 & 0 <= max(v0, vm), //sgn(v0)!=sgn(vm); avoid products due numerics
+                  (x1 = m; v1 = vm;),
+                  (x0 = m; v0 = vm;)
+              );
+          );
+          m //return value   
+      );
+      
+      
+      nsign(a, b) := ( //Descartes rule of sign for the interval (a,b)
+        //obtain the coefficients in bernstein basis of F along the ray in interval (a,b) by interpolation within this interval
+        poly = B * apply(li,
+          height(a+#*(b-a)) //evaluate F(ray(pixel, ·)) along Chebyshev nodes for (a,b)
+          //h/|(h,1)| //homogenious coordinates (actually assume that we interpolate with rational function. We simply do not care about the denominator)
+        );
+        //count the number of sign changes
+        ans = 0;
+        //last = poly_1;
+        forall(2..(N+1), k,
+          //if(last == 0, last = poly_k;); this (almost) never happens
+          if(min(poly_(k-1), poly_k) < 0 & 0 < max(poly_(k-1), poly_k), //sign switch; avoid products due numerics
+            ans = ans + 1;
+          );
+        );
+        ans //return value   
+      );
+      
+      rd = (0,0,1);
+      colorplot(
+        rd = (sin(.5*#.x), sin(.5*#.y), cos(.5*#.x)*cos(.5*#.y)); //unit length vector of ray direction
+        mrd = mat*rd;
+        mv = mat*(0, 0, -5);
+
+        l = max([
+          min((1-mv.x)/mrd.x, (-1-mv.x)/mrd.x),
+          min((1-mv.y)/mrd.y, (-1-mv.y)/mrd.y),
+          min((1-mv.z)/mrd.z, (-.7-mv.z)/mrd.z)
+        ]);
+        
+        u = min([
+          max((1-mv.x)/mrd.x, (-1-mv.x)/mrd.x),
+          max((1-mv.y)/mrd.y, (-1-mv.y)/mrd.y),
+          max((1-mv.z)/mrd.z, (-.7-mv.z)/mrd.z)
+        ]);
+        
+        
+        if(l<u,
+          id = 1;
+          intersect = false;
+          repeat(20,
+            //id=0 means we are done; do only a DFS-step if we are not finished yet
+            if(id>0,
+              s = gets(id); //s = floor(log_2(id))
+              
+              //the intervals [a,b] are chossen such that (id in binary notation)
+              //id = 1   => [a,b]=[l,u]
+              //id = 10  => [a,b]=[l,(u+l)/2]
+              //id = 101 => [a,b]=[l,(u+3*l)/4]
+              //id = 11  => [a,b]=[(u+l)/2,u]
+              //...
+              x1 = l + (u-l)*((id+0)/s-1);
+              x0 = l + (u-l)*((id+1)/s-1);
+              
+              //how many sign changes has F(ray(pixel, ·)) in (a,b)?
+              cnt = nsign(x0, x1);
+              if(cnt == 1, //in this case we found a root (or it is likely to have a multiple root)
+                //=>colorize and break DFS
+                intersect = true;
+                id = 0,
+              if(cnt == 0 % x0-x1<1e-2, //there is no root
+                id = next(id), //break DFS
+                
+                //otherwise cnt>=2: there are cnt - 2*k roots.
+                id = 2*id;  //visit first child within DFS
+              )
+            );  
+          ));
+                
+          if(intersect,
+            t = bisectf(x0, x1);
+            cp = ray(t);
+            n =  normal(cp.x+i*cp.y);
+            color(F(cp.x+i*cp.y))*(.5+.2*abs(n*(.3,.5,.6)) + .3*abs(n*(ray(0)/|ray(0)|)))
+            + .5*[1,1,1]*(n*(ray(0)/|ray(0)|))^16
+            ,
+            grey(0.7)
+          ),
+          grey(0.7)
+        )
+      );
+    
+      //lines for the sliders
+      draw((.55, .4), (.55, -.4), color -> (0, 0, 0));
+      
+      draw((.65, .4), (.65, -.4), color -> (0, 0, 0));    
+      </script>
+
+      <div  id="CSCanvas" style="border:0px"></div>
+      
+      <script type="text/javascript">
+          var cdy = CindyJS({canvasname:"CSCanvas",
+                      scripts: "cs*",
+                      animation: {autoplay: true},
+                      csconsole: false,
+                      use : ["CindyGL", "symbolic"],
+                      geometry: [ { name:"PA", kind:"P", type:"Free", pos: [.5,.37,1], narrow: true, color: [1,1,1], size:8 },
+                                  { name:"PC", kind:"P", type:"Free", pos: [.5,.1,1], narrow: true, color: [1,1,1], size:8 } ],
+                      ports: [{
+                        id: "CSCanvas",
+                        width: 700,
+                        height: 500,
+                        transform: [ { visibleRect: [ -0.7, -0.5, 0.7, 0.5 ] } ]
+                      }]
+          });
+      </script>
+      <span style="font-size:18px">f(z) = </span><input type="text" id="inp" value="(z-1)/(z^3+1-i)"  onkeypress="if((event.which ? event.which : event.keyCode)==13) { cdy.evokeCS('fun(z) := (' + this.value + '); init();'); }" size="75" style="font-size:18px">
+      </div>
+  
+  <p>You can select one function of the following list:</p>
+  <p><select id="sel" size="15" style="width:20em;">
+    <option data-a="1">z</option>
+    <option data-zoom=".15">z^2</option>
+    <option data-a="1" data-zoom="0.1">1/z</option>
+    <option data-zoom="0.1">z^7+z+2</option>
+    <option data-a="1" data-zoom="0.1">1/(z^5-1)</option>
+    <option data-a="1">z^a</option>
+    <option data-a="1">z^(i*a)</option>
+    <option data-a="1">(z-1)/(z*z+1)</option>
+    <option data-a="1">sqrt(z)</option>
+    <option data-a="1">log(z)</option>
+    <option data-a="1">(z*z+1)/(z*z-1)</option>
+    <option data-a="1">sin(z)</option>
+    <option data-a="1">exp(z)</option>
+    <option data-a="1">sqrt(1-z*z)</option>
+    <option data-a="1" data-zoom="0">tan(z)</option>
+    <option data-a=".2">sin(z+3*a)/sin(z+i)</option>
+    <option data-a="1">1/(z^round(20*a-10)-1)</option>
+    <option data-a="1/3" data-zoom="0.1">1/sin(pi*a+z^3)</option>
+    <option data-a="1" data-zoom="0.1">1/sin((z+1)/(z-1))</option>
+    <option data-a="1" data-zoom="-.2">z^z</option>
+    <option data-a="1" data-zoom="-.2">log(z^z)/z</option>
+    
+  </select></p>
+  <script type="text/javascript">
+  var select = document.getElementById("sel");
+  select.addEventListener('change', function(event) {
+    document.getElementById('inp').value = this.value;
+    cdy.evokeCS('fun(z) := (' + this.value + '); init();');
+
+    var a = this.options[this.selectedIndex].getAttribute("data-a") || .5;
+    cdy.evokeCS('seta(' + a + ')');
+
+    var zoom = this.options[this.selectedIndex].getAttribute("data-zoom");
+    if(zoom) cdy.evokeCS('setzoom(' + zoom + ')');
+
+  }, false);
+  </script>
+
+  </body>
+</html>

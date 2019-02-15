@@ -363,6 +363,8 @@ evaluator.allimages$0 = function() {
     return List.turnIntoCSList(lst);
 };
 
+
+var cameravideo = {};
 evaluator.cameravideo$0 = function(args, modifs) {
     var maximal = true; //use maximal as default (if no other modifier is given)
     var constraints = {};
@@ -452,6 +454,10 @@ evaluator.cameravideo$0 = function(args, modifs) {
             audio: false
         };
     }
+    var constraintsstr = JSON.stringify(constraints);
+
+    if (cameravideo[constraintsstr])
+        return cameravideo[constraintsstr];
 
     var openVideoStream = null;
 
@@ -475,11 +481,12 @@ evaluator.cameravideo$0 = function(args, modifs) {
     }
     if (!openVideoStream) {
         console.warn("getUserMedia call not supported");
+        cameravideo[constraintsstr] = nada;
         return nada;
     }
     var video = document.createElement("video");
     video.autoplay = true;
-    var img = loadImage(video, true);
+    cameravideo[constraintsstr] = loadImage(video, true);
     console.log("Opening stream.");
     openVideoStream(function success(stream) {
         /* does not work in Safari 11.0 (beta)
@@ -495,7 +502,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
     }, function failure(err) {
         console.error("Could not get user video:", String(err), err);
     });
-    return img;
+    return cameravideo[constraintsstr];
 };
 
 evaluator.playvideo$1 = function(args, modifs) {

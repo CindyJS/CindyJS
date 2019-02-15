@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>Fermat point</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            
+            #CSCanvas {
+                width: 90vw; height: 80vh;
+            }
+        </style>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        
+        
+      <script id="csdraw" type="text/x-cindyscript">
+colorplot(
+  a = complex(A);
+  b = complex(B);
+  c = complex(C);
+  
+  [
+    exp(-|arctan2((z-a)/(z-b))-arctan2((z-b)/(z-c))|),
+    exp(-|arctan2((z-a)/(z-c))-arctan2((z-c)/(z-b))|),
+    exp(-|arctan2((z-b)/(z-a))-arctan2((z-a)/(z-c))|)
+  ]
+);
+      </script>
+    
+        <script type="text/javascript">
+          var cdy = CindyJS({
+  "scripts": "cs*",
+  "angleUnit": "°",
+  "exclusive": false,
+  "geometry": [
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        1,
+        1
+      ],
+      "labeled": true,
+      "name": "A",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        1,
+        -0.14504596527068436,
+        -0.3922369765066394
+      ]
+    },
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        1,
+        1
+      ],
+      "labeled": true,
+      "name": "B",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        -0.643229166666667,
+        -0.5312500000000002,
+        1
+      ]
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "A",
+        "B"
+      ],
+      "clip": "end",
+      "color": [
+        0.6438,
+        0.6438,
+        0.6438
+      ],
+      "labeled": false,
+      "name": "a",
+      "overhang": 1,
+      "pinned": false,
+      "size": 1,
+      "type": "Segment"
+    },
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        1,
+        1
+      ],
+      "labeled": true,
+      "name": "C",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        -0.18444444444444422,
+        1,
+        0.8533333333333337
+      ]
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "B",
+        "C"
+      ],
+      "clip": "end",
+      "color": [
+        0.6438,
+        0.6438,
+        0.6438
+      ],
+      "labeled": false,
+      "name": "b",
+      "overhang": 1,
+      "pinned": false,
+      "size": 1,
+      "type": "Segment"
+    },
+    {
+      "alpha": 1,
+      "args": [
+        "C",
+        "A"
+      ],
+      "clip": "end",
+      "color": [
+        0.6438,
+        0.6438,
+        0.6438
+      ],
+      "labeled": false,
+      "name": "c",
+      "overhang": 1,
+      "pinned": false,
+      "size": 1,
+      "type": "Segment"
+    }
+  ],
+  "ports": [
+    {
+      "id": "CSCanvas",
+      "transform": [
+        {
+          "visibleRect": [
+            -5,
+            -5,
+            5,
+            5
+          ]
+        }
+      ],
+      "background": "rgb(168,176,192)"
+    }
+  ],
+  "csconsole": false,
+  "use": [
+    "CindyGL"
+  ],
+  "autoplay": true,
+  "behavior": []
+});
+        </script>
+    </head>
+    <body>
+      <h1>The Fermat point</h1>
+        <div id="CSCanvas"></div>
+        An example from <a href="http://geogebra.es/color_dinamico/color_dinamico.html">http://geogebra.es/color_dinamico/color_dinamico.html</a>.
+        The colored lines descibe the sets of points that "see" two sides of the triangle at the same angle. Where they coincide, the three angles coincide. 
+    </body>
+    </html>
+  

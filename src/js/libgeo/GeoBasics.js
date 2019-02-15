@@ -66,6 +66,13 @@ function csinit(gslp) {
     csgeo.polygons = [];
     csgeo.ifs = [];
 
+    // sets
+    csgeo.sets = {
+        "points": [],
+        "lines": [],
+        "conics": []
+    };
+
     gslp.forEach(addElementNoProof);
     checkConjectures();
 }
@@ -154,9 +161,18 @@ function polygonDefault(el) {
     lineDefault(el);
 }
 
-function addElement(el) {
+function addElement(el, removeDuplicates) {
     el = addElementNoProof(el);
     checkConjectures();
+
+    // remove element if it's a proven duplicate
+    if (typeof removeDuplicates === 'boolean' && removeDuplicates && el.Duplicate) {
+        var dup = el.Duplicate;
+        console.log("duplication detected: removing " + el.name + " (type " + el.kind + ") (duplicate of " + dup.name + ").");
+        removeElement(el.name);
+        return dup;
+    }
+
     return el;
 }
 
@@ -296,6 +312,20 @@ function addElementNoProof(el) {
         csgeo.ifs.push(el);
     }
 
+    // collect sets
+    var setsRe = /^[P|L|S|C]s$/; // Ps, Ls, ...
+
+    if (setsRe.test(el.kind)) {
+        var nameMap = {
+            "P": "points",
+            "L": "lines",
+            "S": "lines",
+            "C": "conics"
+        };
+        var name = nameMap[el.kind[0]];
+        csgeo.sets[name].push(el);
+    }
+
     if (true || op.stateSize !== 0) {
         stateAlloc(totalStateSize);
         stateIn = stateOut = stateLastGood;
@@ -324,63 +354,105 @@ function addElementNoProof(el) {
     isShowing(el, op);
 
     geoDependantsCache = {};
-    guessIncidences(el);
+    // Guess Duplicates and Incidences
+    // use try/catch since this is not mission critical
+    try {
+        guessDuplicate(el);
+        guessIncidences(el);
+    } catch (e) {
+        console.error(e);
+    }
 
     return csgeo.csnames[el.name];
 }
 
-// TODO Remove dependencies also
 function removeElement(name) {
-    var i, el;
-    console.log("Remove element " + name);
-
-    // TODO Check if name exists
-    delete csgeo.csnames[name];
-
-    for (i = 0; i < csgeo.gslp.length; i++) {
-        el = csgeo.gslp[i];
-
-        if (el.name === name) {
-            console.log("Removed element from gslp " + name);
-            csgeo.gslp.splice(i, 1);
-        }
+    if (!csgeo.csnames.hasOwnProperty(name)) {
+        console.log("removeElement: name " + name + "does not exist.");
+        return;
     }
 
-    for (i = 0; i < csgeo.free.length; i++) {
-        el = csgeo.free[i];
+    // build dependency tree
+    var depTree = {};
+    var cskeys = Object.keys(csgeo.csnames);
+    cskeys.forEach(function(name) {
+        var el = csgeo.csnames[name];
+        if (!el.hasOwnProperty("args")) return;
+        var args = el.args;
 
-        if (el.name === name) {
-            console.log("Removed element from free " + name);
-            csgeo.free.splice(i, 1);
+        args.forEach(function(argn) {
+            if (!depTree.hasOwnProperty(argn)) {
+                depTree[argn] = {};
+            }
+            depTree[argn][name] = true;
+        });
+    });
+
+    // recursively find all dependencies
+    var recFind = function(elname, map) {
+        map[elname] = true;
+        if (!depTree.hasOwnProperty(elname)) return map;
+
+        for (var dn in depTree[elname]) {
+            if (!map[dn]) {
+                recFind(dn, map);
+            }
         }
+
+        return map;
+    };
+
+    // collect all objects to delete
+    var delArr = recFind(name, {});
+
+    removeAllElements(delArr);
+
+}
+
+function removeAllElements(nameMap) {
+    var i, el, debug = false;
+    var keys = Object.keys(nameMap);
+    if (debug) console.log("Remove elements: " + String(keys));
+
+
+    var nameCmp = function(cmpMap, arrn) {
+        return function(setel) {
+            if (cmpMap[setel.name]) {
+                if (debug) console.log("Removed element " + setel.name + " from " + arrn);
+                return false;
+            } else return true;
+        };
+    };
+
+    // update incidences
+    var isFiltered = {}; // track filtered arrays
+    keys.forEach(function(name) {
+        var allIncis = csgeo.csnames[name].incidences;
+        allIncis.forEach(function(iname) {
+            if (isFiltered[iname]) return;
+            var incis = csgeo.csnames[iname].incidences;
+            csgeo.csnames[iname].incidences = incis.filter(function(n) {
+                return !(nameMap[n]);
+            });
+            isFiltered[iname] = true;
+        });
+    });
+
+    // process GeoArrays
+    var geoArrs = ["conics", "free", "gslp", "ifs", "lines", "points", "polygons", "texts"];
+    geoArrs.map(function(arrn) {
+        csgeo[arrn] = csgeo[arrn].filter(nameCmp(nameMap, arrn));
+    });
+
+    // remove from sets of geos -- PointSet (Ps), LineSet (Ls)...
+    for (var sname in csgeo.sets) {
+        csgeo.sets[sname] = csgeo.sets[sname].filter(nameCmp(nameMap, "set of " + sname));
     }
 
-    for (i = 0; i < csgeo.points.length; i++) {
-        el = csgeo.points[i];
 
-        if (el.name === name) {
-            console.log("Removed element from points " + name);
-            csgeo.points.splice(i, 1);
-        }
-    }
-
-    for (i = 0; i < csgeo.lines.length; i++) {
-        el = csgeo.lines[i];
-
-        if (el.name === name) {
-            console.log("Removed element from lines " + name);
-            csgeo.lines.splice(i, 1);
-        }
-    }
-
-    for (i = 0; i < csgeo.conics.length; i++) {
-        el = csgeo.conics[i];
-
-        if (el.name === name) {
-            console.log("Removed element from conics " + name);
-            csgeo.conics.splice(i, 1);
-        }
-    }
+    keys.forEach(function(name) {
+        delete csgeo.csnames[name];
+    });
 
     geoDependantsCache = {};
 }
