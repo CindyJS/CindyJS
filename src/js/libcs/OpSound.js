@@ -302,30 +302,21 @@ evaluator.playfunction$1 = function(args, modifs) {
     var context = new AudioContext();
 
     function searchVar(tree) {
-        var stack = [];
-        var run = 5;
-        while (tree.args !== undefined && tree.args.length > 0) {
-            tree = tree.args[0];
-            if (tree.ctype === "variable" && evaluate(tree) === nada) {
-                stack.push(tree.name);
-            }
-            if (tree.args !== undefined) {
-                if (tree.args.length > 0) {
-                    if (tree.args[0].ctype === "variable" && evaluate(tree.args[0]) === nada) {
-                        stack.push(tree.args[0].name);
-                    }
-                }
-                if (tree.args.length > 1) {
-                    if (tree.args[1].ctype === "variable" && evaluate(tree.args[1]) === nada) {
-                        stack.push(tree.args[1].name);
-                    }
-                }
-            }
+      var stack = [];
+      stack.push(tree);
+      while(stack.length!=0) { //DFS with handwritten stack.
+        var v = stack.pop();
+        if(v.ctype === "variable" && evaluate(v) === nada){
+          if(["x", "y", "t"].indexOf(v.name)!=-1)
+            return v.name;
         }
-        if (stack.includes("x")) return "x";
-        if (stack.includes("y")) return "y";
-        if (stack.includes("t")) return "t";
-        return nada;
+        if(v.args) {
+          for(var i in v.args) {
+            stack.push(v.args[i]);
+          }
+        }
+      }
+      return nada;
     }
 
     var v0 = args[0];
