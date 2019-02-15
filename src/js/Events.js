@@ -774,7 +774,7 @@ function cs_mousedrag(e) {
 
 function cs_multidown(id) {
     multiid = id;
-    if (id == 0)
+    if (id === 0)
         multipos[0] = csmouse;
     evaluate(cscompiled.multidown);
     multiid = 0;
