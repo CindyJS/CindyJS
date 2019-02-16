@@ -143,8 +143,9 @@ evaluator.playsin$1 = function(args, modifs) {
         };
     }
 
-    if (lines[line] === 0) { //initialize
+    if (lines[line] === 0 || lines[line].lineType !== 'sin') { //initialize
         lines[line] = {
+            lineType: 'sin',
             oscNodes: [],
             masterGain: 0
         };
@@ -240,6 +241,9 @@ evaluator.playsin$0 = function(args, modifs) {
 
 
 evaluator.playfunction$1 = function(args, modifs) {
+    if (!audioCtx) {
+        audioCtx = getAudioContext();
+    }
 
     function handleModifs() {
         var erg;
@@ -285,21 +289,49 @@ evaluator.playfunction$1 = function(args, modifs) {
                 exprt = erg.value;
             }
         }
+        if (modifs.line !== undefined) {
+            erg = evaluate(modifs.line);
+            if (erg.ctype === 'number') {
+                var val = erg.value.real;
+            } else if (erg.ctype === 'string') {
+                var val = erg.value;
+            } else {
+                var val = 0;
+            }
+            if (!linesDict.hasOwnProperty(val)) {
+                line = Object.keys(linesDict).length;
+                linesDict[val] = line;
+                lines.push(0);
+            } else {
+                line = linesDict[val];
+            }
+        }
+        if (modifs.attack !== undefined) {
+            erg = evaluate(modifs.attack);
+            if (erg.ctype === 'number') {
+                attack = erg.value.real;
+            }
+        }
+        if (modifs.release !== undefined) {
+            erg = evaluate(modifs.release);
+            if (erg.ctype === 'number') {
+                release = erg.value.real;
+            }
+        }
     }
 
-    function playSound(arr) {
+    function getBufferNode(arr) {
         var buf = new Float32Array(arr.length)
-        for (var i = 0; i < arr.length; i++) buf[i] = arr[i]
-        var buffer = context.createBuffer(1, buf.length, context.sampleRate)
-        buffer.copyToChannel(buf, 0)
-        var source = context.createBufferSource();
-        source.buffer = buffer;
-        source.connect(context.destination);
-        source.start(start);
+        for (var i = 0; i < arr.length; i++) {
+          buf[i] = arr[i];
+        }
+        var buffer = audioCtx.createBuffer(1, buf.length, audioCtx.sampleRate);
+        buffer.copyToChannel(buf, 0);
+        var bufferNode = audioCtx.createBufferSource();
+        bufferNode.buffer = buffer;
+        return bufferNode;
     }
 
-
-    var context = new AudioContext();
 
     function searchVar(tree) {
       var stack = [];
@@ -320,6 +352,7 @@ evaluator.playfunction$1 = function(args, modifs) {
     }
 
     var v0 = args[0];
+
     var runv = searchVar(v0);
     if (runv !== nada) {
         namespace.newvar(runv);
@@ -328,40 +361,62 @@ evaluator.playfunction$1 = function(args, modifs) {
     var amp = 0.5;
     var damp = 0;
     var start = 0;
-    var duration = 0.3;
+    var duration = 0.7;
     var silent;
-    var line; //TODO
+    var line = 0;
     var exprt;
+    var attack = 0.01;
+    var release = 0.01;
 
     handleModifs();
 
     var wave = []
 
-    for (var i = 0; i < context.sampleRate * duration; i++) {
+    for (var i = 0; i < audioCtx.sampleRate * duration; i++) {
         if (runv !== nada) {
-            namespace.setvar(runv, CSNumber.real(i / context.sampleRate));
+            namespace.setvar(runv, CSNumber.real(i / audioCtx.sampleRate));
         }
         var erg = evaluate(v0);
-        wave[i] = erg.value.real * amp * Math.exp(-damp * i / context.sampleRate);
+        wave[i] = erg.value.real * amp * Math.exp( -damp * i / audioCtx.sampleRate);
     }
+
     if (!silent) {
-        playSound(wave);
+      if (lines[line] === 0 || lines[line].lineType !== 'function' ) { //initialize
+          lines[line] = {
+              lineType: 'function',
+              bufferNode: getBufferNode(wave),
+              masterGain: audioCtx.createGain()
+          };
+          lines[line].masterGain.gain.value = 0;
+          lines[line].masterGain.connect(audioCtx.destination);
+          lines[line].bufferNode.connect(lines[line].masterGain);
+          lines[line].bufferNode.start(start);
+          lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + attack);
+      }
+      else {
+          lines[line].masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
+          lines[line].bufferNode.stop(audioCtx.currentTime + release);
+          lines[line].bufferNode = getBufferNode(wave);
+          lines[line].bufferNode.connect(lines[line].masterGain);
+          lines[line].bufferNode.start(start + release);
+          lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
+      }
     }
 
     if (runv !== nada) {
         namespace.removevar(runv);
     }
-
-    if (exprt === true) {
+    if (exprt) {
         return wave;
     }
     return nada;
-
-
 };
 
 
 evaluator.playwave$1 = function(args, modifs) {
+    if (!audioCtx) {
+        audioCtx = getAudioContext();
+    }
 
     function handleModifs() {
         var erg;
@@ -383,58 +438,96 @@ evaluator.playwave$1 = function(args, modifs) {
                 duration = erg.value.real;
             }
         }
+        if (modifs.line !== undefined) {
+            erg = evaluate(modifs.line);
+            if (erg.ctype === 'number') {
+                var val = erg.value.real;
+            } else if (erg.ctype === 'string') {
+                var val = erg.value;
+            } else {
+                var val = 0;
+            }
+            if (!linesDict.hasOwnProperty(val)) {
+                line = Object.keys(linesDict).length;
+                linesDict[val] = line;
+                lines.push(0);
+            } else {
+                line = linesDict[val];
+            }
+        }
+        if (modifs.attack !== undefined) {
+            erg = evaluate(modifs.attack);
+            if (erg.ctype === 'number') {
+                attack = erg.value.real;
+            }
+        }
+        if (modifs.release !== undefined) {
+            erg = evaluate(modifs.release);
+            if (erg.ctype === 'number') {
+                release = erg.value.real;
+            }
+        }
     }
 
-    function playSound(arr) {
+
+    function getBufferNode(arr) {
         var buf = new Float32Array(arr.length)
-        for (var i = 0; i < arr.length; i++) buf[i] = arr[i]
-        var buffer = context.createBuffer(1, buf.length, context.sampleRate)
-        buffer.copyToChannel(buf, 0)
-        var source = context.createBufferSource();
-        source.buffer = buffer;
-        source.connect(context.destination);
-        source.start(0);
+        for (var i = 0; i < arr.length; i++) {
+          if (cdylist){
+            buf[i] = arr[i].value.real;
+          }
+          else {
+            buf[i] = arr[i];
+          }
+        }
+        var buffer = audioCtx.createBuffer(1, buf.length, audioCtx.sampleRate);
+        buffer.copyToChannel(buf, 0);
+        var bufferNode = audioCtx.createBufferSource();
+        bufferNode.buffer = buffer;
+        return bufferNode;
     }
 
-    var context = new AudioContext();
-
-    var v0 = args[0];
-
+    var wave = evaluate(args[0]);
     var amp = 0.5;
     var damp = 0;
     var duration = 0.3;
+    var line = 0;
+    var attack = 0.01;
+    var release = 0.01;
+    var cdylist = false;
 
     handleModifs();
-    var wave = evaluate(args[0]);
-    //change to CindyList?
 
-    playSound(wave);
+    if (wave.ctype === 'list'){
+      wave = wave.value;
+      cdylist = true;
+    }
+
+    //change output of playfunction to CindyList?
+
+    if (lines[line] === 0 || lines[line].lineType !== 'wave' ) { //initialize
+        lines[line] = {
+            lineType: 'wave',
+            bufferNode: getBufferNode(wave),
+            masterGain: audioCtx.createGain()
+        };
+        lines[line].masterGain.gain.value = 0;
+        lines[line].masterGain.connect(audioCtx.destination);
+        lines[line].bufferNode.connect(lines[line].masterGain);
+        lines[line].bufferNode.start(0);
+        lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + attack);
+    }
+    else {
+        lines[line].masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
+        lines[line].bufferNode.stop(audioCtx.currentTime + release);
+        lines[line].bufferNode = getBufferNode(wave);
+        lines[line].bufferNode.connect(lines[line].masterGain);
+        lines[line].bufferNode.start(start + release);
+        lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
+    }
 
 
     return nada;
 
 
-};
-
-evaluator.playosc$1 = function(args, modifs) {
-    if (lines[0] === 0) {
-        var oscNode = audioCtx.createOscillator();
-        lines[0] = oscNode;
-        oscNode.type = 'sine';
-        var gainNode = audioCtx.createGain();
-        oscNode.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        gainNode.gain.value = 0.2;
-        oscNode.detune.value = 0;
-        oscNode.start(0);
-        oscNode.stop(10);
-
-    } else {
-        var HEIGHT = window.innerHeight;
-        var maxFreq = 6000;
-        var y = evaluate(args[0]).value.real;
-        var CurY = y;
-        lines[0].frequency.value = (CurY / HEIGHT * 5) * maxFreq;
-
-    }
 };
