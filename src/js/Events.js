@@ -150,10 +150,12 @@ function setuplisteners(canvas, data) {
         addAutoCleaningEventListener(canvas, "DOMNodeRemoved", shutdown);
     }
 
-    function updateMultiPositions(event) {
+    function updateMultiPositions(event, initialize) {
         for (let i = 0; i < event.changedTouches.length; i++) {
             let touch = event.changedTouches[i];
             let id = getmultiid(touch.identifier);
+            if (!initialize & !multipos[id])
+                continue;
             var rect = canvas.getBoundingClientRect();
             var x = touch.clientX - rect.left - canvas.clientLeft + 0.5;
             var y = touch.clientY - rect.top - canvas.clientTop + 0.5;
@@ -445,7 +447,7 @@ function setuplisteners(canvas, data) {
 
 
     function touchMove(e) {
-        updateMultiPositions(e);
+        updateMultiPositions(e, false);
         for (let i = 0; i < e.changedTouches.length; i++) {
             multiid = getmultiid(e.changedTouches[i].identifier);
             cs_multidrag(multiid);
@@ -479,7 +481,7 @@ function setuplisteners(canvas, data) {
     var activeTouchID = -1;
 
     function touchDown(e) {
-        updateMultiPositions(e);
+        updateMultiPositions(e, true);
         for (let i = 0; i < e.changedTouches.length; i++) {
             cs_multidown(getmultiid(e.changedTouches[i].identifier));
         }
@@ -508,7 +510,7 @@ function setuplisteners(canvas, data) {
 
     function touchUp(e) {
         var activeTouchIDList = e.changedTouches;
-        updateMultiPositions(e);
+        updateMultiPositions(e, false);
         for (let i = 0; i < e.changedTouches.length; i++) {
             multiid = getmultiid(e.changedTouches[i].identifier);
             cs_multiup(multiid);
