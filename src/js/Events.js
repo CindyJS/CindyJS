@@ -154,7 +154,7 @@ function setuplisteners(canvas, data) {
         for (let i = 0; i < event.changedTouches.length; i++) {
             let touch = event.changedTouches[i];
             let id = getmultiid(touch.identifier);
-            if (!initialize & !multipos[id])
+            if (!initialize && !multipos[id])
                 continue;
             var rect = canvas.getBoundingClientRect();
             var x = touch.clientX - rect.left - canvas.clientLeft + 0.5;
