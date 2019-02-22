@@ -10,9 +10,12 @@ If one wants to react to the corresponding event data, there are several operato
 #### Mouse position: `mouse()`
 
 **Description:**
-Returns a vector that represents the current position of the mouse if the mouse is pressed.
-The vector is given in homogeneous coordinates (this allows also for access of infinite objects).
-If one needs the two-dimensional Euclidean coordinates of the mouse position one can access them via `mouse().xy`.
+Returns a vector that represents the current position of the mouse or of a single contact on a touch-capable device.
+The vector is given in two-dimensional Euclidean coordinates.
+
+The modifier `id` can be used to access the position of a particular multi-touch-event. Hence, `mouse(id->multiid())` returns the position of the current touch. See also the section on [Single and multi-touch](#single-and-multi-touch)
+
+------
 
 ------
 
@@ -44,6 +47,33 @@ Codes for 'shift', 'crtl' and 'alt' are usually 16, 17, 18.
 **Description:**
 This operator returns a list of the codes of all pressed keys.
 An interesting application of the keydown list id given in the chapter on MIDI functions, where you find an example [keyboard piano](MIDI_Functions.md#a-keyboard-piano).
+
+------
+
+------
+
+### Single and multi-touch
+
+Single-touch events are accessible [as it was a mouse](#mouse$0). On multi-touch devices, only contacts that were initialized as unique single touches are handled as the mouse with the corresponding `mousedown`, possible multiple `mousedrag` and `mouseup`-events. Subsequent contacts are ignored as corresponding mouse-events. This guarantees that the mouse-events always appear in this order.
+
+CindyJS can also handle inputs from touch-based devices through scripting. The modification of geometric objects, if not manually scripted, is currently not implemented in a multi-touch way.
+
+Any contact with the surface gives rise to a sequence of a single *multidown*-event, possible multiple *multidown*-events, and a final *multiup*-event. Possibly with multiple fingers involved, there is no guarantee on the order of all fired events anymore. However, every particular contact is associated with an id that is unique during the contact. This id can be accessed through `multiid()`. The mouse with a pressed button also triggers the sequence of these multi-events and will always have the id 0.
+The `multidown`-script is invoked after a finger got down (or the mouse got pressed). `multidrag` is invoked when a finger on the screen (or the mouse with a pressed button) moves and `multiup` is invoked if a finger (or the mouse button) is released. The scripts are invoked in this sequence for a particular touch with fixed id.
+ 
+#### Getting the current multi-id: `multiid()`
+
+This function returns the unique id of the current touch. For the mouse and during the executions from scripts different from the `multidown`, `multidrag` and `multiup` it will be `0`.
+For any contact with the screen, the id is initialized to the unique smallest positive integer that is not used for any other touch at the moment. The id will remain constant and until the corresponding finger is released. `multiid()` returns the id of the current contact.
+
+------
+
+#### Obtain a list of all  active touch events: `multiidlist()`
+
+`multiidlist()` returns the list of the ids of all active touch events. If the (physical) mouse is down, then `0` is contained in the list.
+
+The positions of the touches can be read through [mouse()](#mouse$0) with the modifier `id`.
+ 
 
 ------
 

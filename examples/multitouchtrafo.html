@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Multitouch scripting</title>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+O = [(0,0,1),(2,0,1),(0,2,1),(1,1,1),(2,2,1)] ++ apply(1..50, gauss(exp(2*pi*i*#/50)).homog);
+T = [[1,0,0],[0,1,0],[0,0,1]];
+
+down = dict();
+cur = dict();
+
+usedfingers = [];
+updateT() := (
+  cur = put(cur, multiid(), mouse(id->multiid()));
+  
+  start = [];
+  end = [];
+  
+  usedfingers = usedfingers ++ (multiidlist() -- usedfingers);//enlarge set of usedfingers
+  errc(usedfingers);
+  forall(usedfingers, id,
+    start = start :> get(down, id);
+    end = end :> get(cur, id);
+  );
+  n = length(usedfingers);
+  T = [[1,0,0],[0,1,0],[0,0,1]];
+  if(n == 1,
+    T = map(start_1, end_1);
+  );
+  if(n == 2,
+    T = map(start_1, start_2, end_1, end_2);
+  );
+  if(n == 3,
+    T = map(start_1, start_2, start_3, end_1, end_2, end_3);
+  );
+  if(n >= 4,
+    T = map(start_1, start_2, start_3, start_4, end_1, end_2, end_3, end_4);
+  );
+);
+</script>
+
+
+<script id="csdraw" type="text/x-cindyscript">
+drawtext((0,0), multiidlist());
+
+forall(O, o,
+  draw(o, color->[0.5,0.5,0.5]);
+  draw(T*o, color->[0,0,0]);
+);
+
+forall(1..length(start), k,
+  draw(start_k, end_k, arrow->true);
+);
+</script>
+<script id="csmultidown" type="text/x-cindyscript">
+usedfingers = [];
+down = put(down, multiid(), mouse(id->multiid()));
+updateT();
+</script>
+
+<script id="csmultidrag" type="text/x-cindyscript">
+updateT();
+</script>
+
+<script id="csmultiup" type="text/x-cindyscript">
+updateT();
+</script>
+Multitouch gestures can be used to define a transformation, i.e. one finger for translations, two fingers for similarities, three fingers for affine transformations and four fingers for projective transformations.
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  ports: [{
+    id: "CSCanvas",
+    width: 800,
+    height: 600,
+    transform: [{visibleRect: [-8,-6,8,6]}],
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  autoplay: true,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
