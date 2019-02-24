@@ -66,7 +66,7 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
 
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
-        csctx.drawImage(glcanvas, 0, 0, iw, ih);
+        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
         csctx.restore();
 
         return nada;
