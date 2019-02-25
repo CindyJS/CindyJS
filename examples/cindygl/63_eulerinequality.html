@@ -1,0 +1,110 @@
+
+
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>Exported from https://cindyjs.org/editor/</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            
+            #CSCanvas {
+                width: 100vw; height: 100vh;
+            }
+        </style>
+        <link rel="stylesheet" href="https://cindyjs.org/dist/snapshot/CindyJS.css">
+        <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/Cindy.js"></script>
+        <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/CindyGL.js"></script>
+        
+        
+      <script id="csdraw" type="text/x-cindyscript">
+      angularbisectors(A, B, C) := (
+  //compute the bisectors at point A
+  a = complex(A);
+  b = complex(B);
+  c = complex(C);
+  w = sqrt((c-a)*(b-a));
+  [join(A,gauss(a+w)), join(A,gauss(a+i*w))]
+);
+
+dist(P, l) := ( //distance from P to line l
+  |P_1*l_1+P_2*l_2+P_3*l_3|/(|(l_1,l_2)|*|P_3|);
+);
+
+perpbisector(A,B):= (
+  a = complex(A);
+  b = complex(B);
+  mid = (a+b)/2;
+  join(gauss(mid), gauss(mid+i*(b-a)))
+);
+
+f(C) := (
+  b1 = angularbisectors(A,B,C)_1;
+  b2 = angularbisectors(B,C,A)_1;
+  incenter = meet(b1, b2);
+  r = dist(incenter,join(A,B));
+
+  p1 = perpbisector(A,B);
+  p2 = perpbisector(B,C);
+  circumcenter = meet(p1,p2);
+  R = |circumcenter.xy-A.xy|;
+
+  // 0.02/(R/r-2) //return value
+  levels = 30; floor(0.01/(R/r-2)*levels)/levels
+);
+
+colorplot(
+  exp(-2*|f(#)|)
+);
+
+f(C);
+
+//draw(b1, color->[0,1,0], alpha->.3);
+//draw(b2, color->[0,1,0], alpha->.3);
+drawcircle(incenter,r, color->[0,1,0]);
+drawtext(incenter, "r = " + r, color->[0,1,0]);
+
+//draw(p1, color->[1,0,0], alpha->.3);
+//draw(p2, color->[1,0,0], alpha->.3);
+drawcircle(circumcenter,R, color->[1,0,0]);
+drawtext(circumcenter,"R = " + R, color->[1,0,0]);
+drawtext(C,"R/r = " + R/r, color->[1,.5,0], align->"right");
+
+      </script>
+    
+        <script type="text/javascript">
+          var cdy = CindyJS({
+            scripts: "cs*",
+            angleUnit: "°",
+            exclusive: false,
+            geometry: [
+              {labeled: true, name: "A", type: "Free", pos: [1, 0.07155980005039807, -0.6517744250560875]},
+              {labeled: true, name: "B", type: "Free", pos: [-0.352108370122084, -0.1468467271637236, 1]},
+              {labeled: true, name: "C", type: "Free", pos: [0.009334779332023162, 1, 0.8633876808264246]},
+              {args: ["A", "B"], labeled: true, name: "a", type: "Segment"},
+              {args: ["B", "C"], labeled: true, name: "b", type: "Segment"},
+              {args: ["C", "A"], labeled: true, name: "c", type: "Segment"}
+            ],
+            ports: [
+              {id: "CSCanvas", transform: [{visibleRect: [-5, -5, 5, 5]}], background: "rgb(168,176,192)"}
+            ],
+            csconsole: false,
+            use: [
+              "CindyGL"
+            ],
+            autoplay: true,
+            behavior: [
+
+            ]
+          });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
+    </html>
+  
