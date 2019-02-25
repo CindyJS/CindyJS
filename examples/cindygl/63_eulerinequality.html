@@ -16,9 +16,9 @@
                 width: 100vw; height: 100vh;
             }
         </style>
-        <link rel="stylesheet" href="https://cindyjs.org/dist/snapshot/CindyJS.css">
-        <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/Cindy.js"></script>
-        <script type="text/javascript" src="https://cindyjs.org/dist/snapshot/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../build/js/CindyJS.css">
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
         
         
       <script id="csdraw" type="text/x-cindyscript">
@@ -53,12 +53,12 @@ f(C) := (
   circumcenter = meet(p1,p2);
   R = |circumcenter.xy-A.xy|;
 
-  // 0.02/(R/r-2) //return value
-  levels = 30; floor(0.01/(R/r-2)*levels)/levels
+  R/r  //return value
 );
 
 colorplot(
-  exp(-2*|f(#)|)
+  val = f(#);
+  gray(1-.6*(mod(10*val,1)+mod(val,1)+mod(val/10,1))/val)
 );
 
 f(C);
