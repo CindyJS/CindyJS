@@ -92,10 +92,8 @@ function updateCanvasDimensions() {
 
     vscale = 1;
     if (virtualwidth || virtualheight) {
-        if (virtualwidth)
-            vscale = virtualwidth / canvas.width;
-        else if (virtualheight)
-            vscale = virtualheight / canvas.height;
+        vscale = Math.max(virtualwidth ? virtualwidth / canvas.width : 0, virtualheight ? virtualheight / canvas.height : 0);
+
         csw = vscale * canvas.clientWidth;
         csh = vscale * canvas.clientHeight;
     }
