@@ -84,12 +84,12 @@ csport.to = function(px, py) {
     return [x, y, 1];
 };
 
-// Homogeneous matrix representation of csport.to
+// Homogeneous matrix representation of csport.to (without vscale)
 csport.toMat = function() {
     var m = csport.drawingstate.matrix;
     return List.realMatrix([
-        [vscale * m.d, -vscale * m.b, -m.tx * m.d - m.ty * m.b],
-        [vscale * m.c, -vscale * m.a, -m.tx * m.c - m.ty * m.a],
+        [m.d, -m.b, -m.tx * m.d - m.ty * m.b],
+        [m.c, -m.a, -m.tx * m.c - m.ty * m.a],
         [0, 0, m.det]
     ]);
 };
