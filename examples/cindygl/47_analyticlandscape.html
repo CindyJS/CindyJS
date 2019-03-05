@@ -131,6 +131,7 @@
       //this function has to be called whenever fun changes
       init() := (
         framesdelay=0;
+        playanimation();
         dx = .05; dy = -.02;
         
         phi = -.1;
@@ -270,7 +271,7 @@
       //purpose: id corresponds interval [id-s,id+1-s]/s
       gets(id) := (
         s = 1;
-        repeat(12,
+        repeat(15,
           if(2*s<=id,
             s = 2*s;
           )
@@ -284,7 +285,7 @@
       next(id) := (
         id = id+1;
         //now: remove zeros from right (in binary representation) while(id&1) id=id>>1;
-        repeat(12,
+        repeat(15,
           if(mod(id,2)==0, 
             id = floor(id/2);
           )
