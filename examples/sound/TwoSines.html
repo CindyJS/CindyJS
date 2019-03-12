@@ -8,6 +8,16 @@
 <script type="text/javascript" src="../../build/js/Cindy.js"></script>
 
 <script id="csinit" type="text/x-cindyscript">
+N=22000;
+l = 0..N;
+
+repeat(N+1, i,
+  l_i = sin(220*2*pi*i/44100);
+);
+playfunction(sin(330*x*pi*2));
+playsin(440);
+playwave(l);
+playsin(460);
 </script>
 
 <script id="csmousedown" type="text/x-cindyscript">
@@ -15,8 +25,8 @@ stopsound();
 </script>
 
 <script id="csdraw" type="text/x-cindyscript">
-playsin(min(mouse().x*100,1500), duration->0, line->0, damp->0.2);
-playsin(min(mouse().y*100,1500), duration->0, line->1, damp->0.2);
+//playsin(min(mouse().x*100,500), duration->100, line->0, amp->0.3);
+//playsin(min(mouse().y*100,500), duration->100, line->1, amp->0.3);
 
 
 drawtext((4,15), "Move the Mouse to hear two different Sine Waves");
