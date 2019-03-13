@@ -9,7 +9,9 @@ var OpSound = {
         if (!window.AudioContext && !window.webkitAudioContext) {
             console.warn('Web Audio API not supported in this browser');
         } else {
-            this.audioCtx = new window.AudioContext() || new window.webkitAudioContext();
+            //this.audioCtx = new window.AudioContext() || new window.webkitAudioContext();
+            let a = window.AudioContext || window.webkitAudioContext;
+            this.audioCtx = new a();
         }
         return this.audioCtx;
     },
@@ -101,10 +103,9 @@ evaluator.playsin$1 = function(args, modifs) {
         OpSound.lines[line] = {
             lineType: 'sin',
             oscNodes: [],
-            masterGain: 0
+            masterGain: audioCtx.createGain()
         };
         let curline = OpSound.lines[line];
-        curline.masterGain = audioCtx.createGain();
         curline.masterGain.gain.value = 0;
         for (let i = 0; i < harmonics.length; i++) {
             curline.oscNodes.push(playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i]));
@@ -151,6 +152,9 @@ evaluator.playsin$1 = function(args, modifs) {
 
                 if (damp > 0) {
                     curline.masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime + release + attack, (1 / damp));
+                    for (let i = 0; i < harmonics.length; i++) {
+                        curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
+                    }
                 } else if (damp < 0) {
                     curline.masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + release + attack, (-damp));
                 }
