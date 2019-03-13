@@ -92,6 +92,7 @@ evaluator.playsin$1 = function(args, modifs) {
         };
         if (duration >= 0) {
             gainNode.gain.setValueAtTime(0, audioCtx.currentTime + duration + attack);
+            oscNode.stop(audioCtx.currentTime + duration + attack);
         }
         return {
             oscNode: oscNode,
