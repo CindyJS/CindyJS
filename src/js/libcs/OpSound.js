@@ -1,8 +1,9 @@
 //*******************************************************
 // and here are the definitions of the sound operators
 //*******************************************************
-var lines = [0];
-var linesDict = {0: 0};
+
+var lines = {};
+
 var audioCtx = null;
 
 var getAudioContext = function() {
@@ -10,62 +11,39 @@ var getAudioContext = function() {
     if (!window.AudioContext && !window.webkitAudioContext) {
         console.warn('Web Audio API not supported in this browser');
     } else {
-        ac = new(window.AudioContext || window.webkitAudioContext)();
+        ac = new window.AudioContext() || new window.webkitAudioContext();
     }
-    return function() {
-        return ac;
-    };
-}();
+    return ac;
+};
 
 function handleModifs(modif, modifType, defaultValue) {
     if (modif !== undefined) {
         var erg = evaluate(modif);
         if (erg.ctype === modifType) {
-          if (erg.ctype === 'number') {
-            return erg.value.real;
-          }
-          else if (erg.ctype === 'list') {
-            var cslist = erg.value;
-            var jslist = [];
-            for (var i = 0; i < cslist.length; i++) {
-              jslist[i] = cslist[i].value.real;
+            if (erg.ctype === 'number') {
+                return erg.value.real;
+            } else if (erg.ctype === 'list') {
+                var cslist = erg.value;
+                var jslist = [];
+                for (var i = 0; i < cslist.length; i++) {
+                    jslist[i] = cslist[i].value.real;
+                }
+                return jslist;
+            } else {
+                return erg.value;
             }
-            return jslist;
-          }
-          else {
-            return erg.value;
-          }
         }
-    }
-    else {
-      return defaultValue;
+    } else {
+        return defaultValue;
     }
 }
 
 function handleLineModif(modif, defaultValue) {
-  if (modif !== undefined) {
-      var line;
-      var erg = evaluate(modif);
-      if (erg.ctype === 'number') {
-          var val = erg.value.real;
-      }
-      else if (erg.ctype === 'string') {
-          var val = erg.value;
-      }
-      else {
-          var val = 0;
-      }
-      if (!linesDict.hasOwnProperty(val)) {
-          line = Object.keys(linesDict).length;
-          linesDict[val] = line;
-          lines.push(0);
-      }
-      else {
-          line = linesDict[val];
-      }
-      return line;
-  }
-  return defaultValue;
+    if (modif !== undefined) {
+        var erg = evaluate(modif);
+        return niceprint(erg);
+    }
+    return defaultValue;
 }
 
 
@@ -81,7 +59,7 @@ evaluator.playsin$1 = function(args, modifs) {
 
 
     var freq = evaluate(args[0]).value.real;
-    var line = handleLineModif(modifs.line, 0);
+    var line = handleLineModif(modifs.line, "0");
     var amp = handleModifs(modifs.amp, 'number', 0.5);
     var damp = handleModifs(modifs.damp, 'number', 0);
     var duration = handleModifs(modifs.duration, 'number', 1);
@@ -119,7 +97,7 @@ evaluator.playsin$1 = function(args, modifs) {
         };
     }
 
-    if (lines[line] === 0 || lines[line].lineType !== 'sin') { //initialize
+    if (!lines[line] || lines[line].lineType !== 'sin') { //initialize
         lines[line] = {
             lineType: 'sin',
             oscNodes: [],
@@ -137,12 +115,10 @@ evaluator.playsin$1 = function(args, modifs) {
             for (var i = 0; i < harmonics.length; i++) {
                 lines[line].oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
             }
-        }
-        else if (damp < 0) {
+        } else if (damp < 0) {
             lines[line].masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + attack, (-damp));
         }
-    }
-    else { //update
+    } else { //update
         if (damp === 0) {
             if (duration === 0) { //users can call playsin(...,duration->0) to stop a tone
                 lines[line].masterGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + release);
@@ -156,8 +132,7 @@ evaluator.playsin$1 = function(args, modifs) {
                     lines[line].oscNodes[i].gainNode.gain.setValueAtTime(harmonics[i], audioCtx.currentTime);
                 }
             }
-        }
-        else { //damp != 0
+        } else { //damp != 0
             if (restart) {
                 lines[line].masterGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + release);
                 for (var i = 0; i < lines[line].oscNodes.length; i++) {
@@ -166,8 +141,7 @@ evaluator.playsin$1 = function(args, modifs) {
                 for (var i = 0; i < harmonics.length; i++) {
                     if (i < lines[line].oscNodes.length) {
                         lines[line].oscNodes[i] = playOscillator(line, partials[i] * (i + 1) * freq, harmonics[i]);
-                    }
-                    else {
+                    } else {
                         lines[line].oscNodes.push(playOscillator(line, partials[i] * (i + 1) * freq, harmonics[i]));
                     }
                 }
@@ -175,20 +149,17 @@ evaluator.playsin$1 = function(args, modifs) {
 
                 if (damp > 0) {
                     lines[line].masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime + release + attack, (1 / damp));
-                }
-                else if (damp < 0) {
+                } else if (damp < 0) {
                     lines[line].masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + release + attack, (-damp));
                 }
-            }
-            else { //restart -> false so just change damp & timbre
+            } else { //restart -> false so just change damp & timbre
                 for (var i = 0; i < harmonics.length; i++) {
                     lines[line].oscNodes[i].oscNode.frequency.value = partials[i] * (i + 1) * freq;
                     lines[line].oscNodes[i].gainNode.gain.value = harmonics[i];
                 }
                 if (damp > 0) {
                     lines[line].masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime, (1 / damp));
-                }
-                else if (damp < 0) {
+                } else if (damp < 0) {
                     lines[line].masterGain.gain.setTargetAtTime(1, audioCtx.currentTime, (-damp));
                 }
             }
@@ -201,7 +172,7 @@ evaluator.playsin$1 = function(args, modifs) {
 evaluator.playsin$0 = function(args, modifs) {
     var erg;
     if (modifs.line !== undefined) {
-        var line = handleLineModif(modifs.line, 0);
+        var line = handleLineModif(modifs.line, "0");
         evaluator.playsin$1([CSNumber.real(lines[line].oscNodes[0].oscNode.frequency.value)], modifs);
     }
     return nada;
@@ -216,7 +187,7 @@ evaluator.playfunction$1 = function(args, modifs) {
     function getBufferNode(arr) {
         var buf = new Float32Array(arr.length)
         for (var i = 0; i < arr.length; i++) {
-          buf[i] = arr[i];
+            buf[i] = arr[i];
         }
         var buffer = audioCtx.createBuffer(1, buf.length, audioCtx.sampleRate);
         buffer.copyToChannel(buf, 0);
@@ -226,21 +197,21 @@ evaluator.playfunction$1 = function(args, modifs) {
     }
 
     function searchVar(tree) {
-      var stack = [];
-      stack.push(tree);
-      while(stack.length!=0) { //DFS with handwritten stack.
-        var v = stack.pop();
-        if(v.ctype === "variable" && evaluate(v) === nada){
-          if(["x", "y", "t"].indexOf(v.name)!=-1)
-            return v.name;
+        var stack = [];
+        stack.push(tree);
+        while (stack.length != 0) { //DFS with handwritten stack.
+            var v = stack.pop();
+            if (v.ctype === "variable" && evaluate(v) === nada) {
+                if (["x", "y", "t"].indexOf(v.name) != -1)
+                    return v.name;
+            }
+            if (v.args) {
+                for (var i in v.args) {
+                    stack.push(v.args[i]);
+                }
+            }
         }
-        if(v.args) {
-          for(var i in v.args) {
-            stack.push(v.args[i]);
-          }
-        }
-      }
-      return nada;
+        return nada;
     }
 
     var v0 = args[0];
@@ -251,7 +222,7 @@ evaluator.playfunction$1 = function(args, modifs) {
     }
 
     var freq = evaluate(args[0]).value.real;
-    var line = handleLineModif(modifs.line, 0);
+    var line = handleLineModif(modifs.line, "0");
     var start = handleModifs(modifs.start, 'number', 0);
     var amp = handleModifs(modifs.amp, 'number', 0.5);
     var damp = handleModifs(modifs.damp, 'number', 0);
@@ -268,30 +239,29 @@ evaluator.playfunction$1 = function(args, modifs) {
             namespace.setvar(runv, CSNumber.real(i / audioCtx.sampleRate));
         }
         var erg = evaluate(v0);
-        wave[i] = erg.value.real * amp * Math.exp( -damp * i / audioCtx.sampleRate);
+        wave[i] = erg.value.real * amp * Math.exp(-damp * i / audioCtx.sampleRate);
     }
 
     if (!silent) {
-      if (lines[line] === 0 || lines[line].lineType !== 'function' ) { //initialize
-          lines[line] = {
-              lineType: 'function',
-              bufferNode: getBufferNode(wave),
-              masterGain: audioCtx.createGain()
-          };
-          lines[line].masterGain.gain.value = 0;
-          lines[line].masterGain.connect(audioCtx.destination);
-          lines[line].bufferNode.connect(lines[line].masterGain);
-          lines[line].bufferNode.start(start);
-          lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + attack);
-      }
-      else {
-          lines[line].masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
-          lines[line].bufferNode.stop(audioCtx.currentTime + release);
-          lines[line].bufferNode = getBufferNode(wave);
-          lines[line].bufferNode.connect(lines[line].masterGain);
-          lines[line].bufferNode.start(start + release);
-          lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
-      }
+        if (!lines[line] || lines[line].lineType !== 'function') { //initialize
+            lines[line] = {
+                lineType: 'function',
+                bufferNode: getBufferNode(wave),
+                masterGain: audioCtx.createGain()
+            };
+            lines[line].masterGain.gain.value = 0;
+            lines[line].masterGain.connect(audioCtx.destination);
+            lines[line].bufferNode.connect(lines[line].masterGain);
+            lines[line].bufferNode.start(start);
+            lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + attack);
+        } else {
+            lines[line].masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
+            lines[line].bufferNode.stop(audioCtx.currentTime + release);
+            lines[line].bufferNode = getBufferNode(wave);
+            lines[line].bufferNode.connect(lines[line].masterGain);
+            lines[line].bufferNode.start(start + release);
+            lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
+        }
     }
 
     if (runv !== nada) {
@@ -312,12 +282,11 @@ evaluator.playwave$1 = function(args, modifs) {
     function getBufferNode(arr) {
         var buf = new Float32Array(arr.length)
         for (var i = 0; i < arr.length; i++) {
-          if (cdylist){
-            buf[i] = arr[i].value.real;
-          }
-          else {
-            buf[i] = arr[i];
-          }
+            if (cdylist) {
+                buf[i] = arr[i].value.real;
+            } else {
+                buf[i] = arr[i];
+            }
         }
         var buffer = audioCtx.createBuffer(1, buf.length, audioCtx.sampleRate);
         buffer.copyToChannel(buf, 0);
@@ -327,7 +296,7 @@ evaluator.playwave$1 = function(args, modifs) {
     }
 
     var wave = evaluate(args[0]);
-    var line = handleLineModif(modifs.line, 0);
+    var line = handleLineModif(modifs.line, "0");
     var amp = handleModifs(modifs.amp, 'number', 0.5);
     var damp = handleModifs(modifs.damp, 'number', 0);
     var duration = handleModifs(modifs.duration, 'number', 1);
@@ -335,14 +304,14 @@ evaluator.playwave$1 = function(args, modifs) {
     var release = handleModifs(modifs.release, 'number', 0.01);
     var cdylist = false;
 
-    if (wave.ctype === 'list'){
-      wave = wave.value;
-      cdylist = true;
+    if (wave.ctype === 'list') {
+        wave = wave.value;
+        cdylist = true;
     }
 
     //change output of playfunction to CindyList?
 
-    if (lines[line] === 0 || lines[line].lineType !== 'wave' ) { //initialize
+    if (!lines[line] || lines[line].lineType !== 'wave') { //initialize
         lines[line] = {
             lineType: 'wave',
             bufferNode: getBufferNode(wave),
@@ -353,8 +322,7 @@ evaluator.playwave$1 = function(args, modifs) {
         lines[line].bufferNode.connect(lines[line].masterGain);
         lines[line].bufferNode.start(0);
         lines[line].masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + attack);
-    }
-    else {
+    } else {
         lines[line].masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
         lines[line].bufferNode.stop(audioCtx.currentTime + release);
         lines[line].bufferNode = getBufferNode(wave);
