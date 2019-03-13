@@ -142,11 +142,7 @@ evaluator.playsin$1 = function(args, modifs) {
                     curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + release); //helps & gain gets auto disconnected!
                 }
                 for (let i = 0; i < harmonics.length; i++) {
-                    if (i < curline.oscNodes.length) {
-                        curline.oscNodes[i] = playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i]);
-                    } else {
-                        curline.oscNodes.push(playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i]));
-                    }
+                    curline.oscNodes[i] = playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i]);
                 }
                 curline.masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
 
@@ -165,6 +161,9 @@ evaluator.playsin$1 = function(args, modifs) {
                 }
                 if (damp > 0) {
                     curline.masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime, (1 / damp));
+                    for (let i = 0; i < curline.oscNodes.length; i++) {
+                        curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
+                    }
                 } else if (damp < 0) {
                     curline.masterGain.gain.setTargetAtTime(1, audioCtx.currentTime, (-damp));
                 }
