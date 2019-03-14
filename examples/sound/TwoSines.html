@@ -8,43 +8,51 @@
 <script type="text/javascript" src="../../build/js/Cindy.js"></script>
 
 <script id="csinit" type="text/x-cindyscript">
-N=22000;
-l = 0..N;
 
-repeat(N+1, i,
-  l_i = sin(220*2*pi*i/44100);
+a = 1;
+x = 1;
+y = 2;
+playsound() := (
+    playsin(x, duration->100, line->0, amp->0.3);
+    playsin(y, duration->100, line->1, amp->0.3);
 );
-playfunction(sin(330*x*pi*2));
-playsin(440);
-playwave(l);
-playsin(460);
+playsound();
 </script>
 
 <script id="csmousedown" type="text/x-cindyscript">
-stopsound();
+if(a==1,
+    stopsound();
+    a=0;
+    ,
+    playsound();
+    a=1;
+);
 </script>
 
 <script id="csdraw" type="text/x-cindyscript">
-//playsin(min(mouse().x*100,500), duration->100, line->0, amp->0.3);
-//playsin(min(mouse().y*100,500), duration->100, line->1, amp->0.3);
+p = (5,12);
+maxfreq = 1000;
+xdiff = abs(mouse().x-p.x);
+ydiff = abs(mouse().y-p.y);
+x = min(max(maxfreq-xdiff*100,0),maxfreq);
+y = min(max(maxfreq-ydiff*100,0),maxfreq);
+
+if (a==1,
+playsound();,);
+
+draw((5,12));
+drawtext((-5,15), "Move the mouse to hear two different Sine Waves");
+drawtext((-2,14),  "(Left mouse click to start/stop sound)");
 
 
-drawtext((4,15), "Move the Mouse to hear two different Sine Waves");
-drawtext((7,10),  "(Left Mouse Click to Stop Sound)");
-
-drawtext((18,6), "$\downarrow$ for $\infty$ duration");
-drawtext((0,5), "Calling playsin(min(mouse().x*100,1500), duration->0, line->0, damp->0.2);");
-drawtext((0,4), "and playsin(min(mouse().y*100,1500), duration->0, line->1, damp->0.2);");
-
-
-drawtext((mouse()), mouse().x*100 + " Hz, " + mouse().y*100 + " Hz");
+drawtext((mouse()), x + " Hz, " + y + " Hz");
 
 
 </script>
 <script type="text/javascript">
 
-createCindy({
-  ports: [{id: "CSCanvas", width: 1000, height: 800}],
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", width: 800, height: 800}],
   scripts: "cs*",
   geometry: [],
 });

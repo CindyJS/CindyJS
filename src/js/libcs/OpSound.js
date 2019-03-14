@@ -55,8 +55,13 @@ var OpSound = {
 };
 
 evaluator.stopsound$0 = function() {
-    OpSound.audioCtx.close();
-    OpSound.audioCtx = null;
+    if (OpSound.audioCtx) {
+        OpSound.audioCtx.close();
+        OpSound.audioCtx = null;
+        for (let line in OpSound.lines) {
+            delete OpSound.lines[line];
+        }
+    }
 };
 
 evaluator.playsin$1 = function(args, modifs) {
@@ -75,7 +80,39 @@ evaluator.playsin$1 = function(args, modifs) {
 
     if (harmonics.length > partials.length) {
         partials = Array(harmonics.length).fill(1);
-        console.log("Ignoring modifier partials, because the length of partials does not match the length of harmonics");
+    }
+
+    function dampening(curline) {
+        if (damp > 0) {
+            curline.masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime + release + attack, (1 / damp));
+            for (let i = 0; i < harmonics.length; i++) {
+                curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
+            }
+        } else if (damp < 0) {
+            curline.masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + release + attack, (-damp));
+        }
+    }
+
+    function startOscillators(curline, release) {
+        for (let i = 0; i < harmonics.length; i++) {
+            curline.oscNodes[i] = playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i]);
+        }
+        curline.masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
+        dampening(curline);
+    }
+
+    function stopOscillators(curline) {
+        curline.masterGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + release);
+        for (let i = 0; i < curline.oscNodes.length; i++) {
+            curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + release); //helps
+        }
+    }
+
+    function updateFrequencyAndGain(curline) {
+        for (let i = 0; i < harmonics.length; i++) {
+            curline.oscNodes[i].oscNode.frequency.value = partials[i] * (i + 1) * freq;
+            curline.oscNodes[i].gainNode.gain.value = harmonics[i];
+        }
     }
 
     function playOscillator(curline, freq, gain) {
@@ -101,74 +138,38 @@ evaluator.playsin$1 = function(args, modifs) {
         };
     }
 
+    let newLine = false;
+
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'sin') { //initialize
         OpSound.lines[line] = {
             lineType: 'sin',
             oscNodes: [],
             masterGain: audioCtx.createGain()
         };
-        let curline = OpSound.lines[line];
-        curline.masterGain.gain.value = 0;
-        for (let i = 0; i < harmonics.length; i++) {
-            curline.oscNodes.push(playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i]));
-        }
-        curline.masterGain.connect(audioCtx.destination);
-        curline.masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + attack);
-        if (damp > 0) {
-            curline.masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime + attack, (1 / damp));
-            for (let i = 0; i < harmonics.length; i++) {
-                curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
-            }
-        } else if (damp < 0) {
-            curline.masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + attack, (-damp));
-        }
-    } else { //update
-        let curline = OpSound.lines[line];
-        if (damp === 0) {
-            if (duration === 0) { //users can call playsin(...,duration->0) to stop a tone
-                curline.masterGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + release);
-                for (let i = 0; i < curline.oscNodes.length; i++) {
-                    curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + release); //helps
-                }
-                delete OpSound.lines[line];
-            } else {
-                for (let i = 0; i < harmonics.length; i++) {
-                    curline.oscNodes[i].oscNode.frequency.setValueAtTime(partials[i] * (i + 1) * freq, audioCtx.currentTime);
-                    curline.oscNodes[i].gainNode.gain.setValueAtTime(harmonics[i], audioCtx.currentTime);
-                }
-            }
-        } else { //damp != 0
-            if (restart) {
-                curline.masterGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + release);
-                for (let i = 0; i < curline.oscNodes.length; i++) {
-                    curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + release); //helps & gain gets auto disconnected!
-                }
-                for (let i = 0; i < harmonics.length; i++) {
-                    curline.oscNodes[i] = playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i]);
-                }
-                curline.masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
+        OpSound.lines[line].masterGain.gain.value = 0;
+        OpSound.lines[line].masterGain.connect(audioCtx.destination);
+        newLine = true;
+    }
+    let curline = OpSound.lines[line];
 
-                if (damp > 0) {
-                    curline.masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime + release + attack, (1 / damp));
-                    for (let i = 0; i < harmonics.length; i++) {
-                        curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
-                    }
-                } else if (damp < 0) {
-                    curline.masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + release + attack, (-damp));
-                }
-            } else { //restart -> false so just change damp & timbre
-                for (let i = 0; i < harmonics.length; i++) {
-                    curline.oscNodes[i].oscNode.frequency.value = partials[i] * (i + 1) * freq;
-                    curline.oscNodes[i].gainNode.gain.value = harmonics[i];
-                }
-                if (damp > 0) {
-                    curline.masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime, (1 / damp));
-                    for (let i = 0; i < curline.oscNodes.length; i++) {
-                        curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
-                    }
-                } else if (damp < 0) {
-                    curline.masterGain.gain.setTargetAtTime(1, audioCtx.currentTime, (-damp));
-                }
+    if (duration === 0) { //users can call playsin(...,duration->0) to stop a tone
+        stopOscillators(curline);
+        delete OpSound.lines[line];
+        return nada;
+    }
+
+    if (newLine) {
+        startOscillators(curline, 0);
+    } else {
+        if (damp === 0) {
+            updateFrequencyAndGain(curline);
+        } else {
+            if (restart) {
+                stopOscillators(curline);
+                startOscillators(curline, release);
+            } else {
+                updateFrequencyAndGain(curline);
+                dampening(curline);
             }
         }
     }
