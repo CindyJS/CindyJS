@@ -43,12 +43,20 @@ var OpSound = {
         }
         return defaultValue;
     },
-    getBufferNode: function(arr) {
-        let buf = new Float32Array(arr);
-        let ctx = this.getAudioContext();
-        let buffer = ctx.createBuffer(1, buf.length, ctx.sampleRate);
+    getBufferNode: function(wave, duration) {
+        let audioCtx = this.getAudioContext();
+        if (duration * audioCtx.sampleRate > wave.length) {
+            let newwave = [];
+            for (let i = 0, j = 0; i < audioCtx.sampleRate * duration; i++, j++) {
+                if (j > wave.length) j = 0;
+                newwave[i] = wave[j];
+            }
+            wave = newwave;
+        }
+        let buf = new Float32Array(wave);
+        let buffer = audioCtx.createBuffer(1, buf.length, audioCtx.sampleRate);
         buffer.copyToChannel(buf, 0);
-        let bufferNode = ctx.createBufferSource();
+        let bufferNode = audioCtx.createBufferSource();
         bufferNode.buffer = buffer;
         return bufferNode;
     }
@@ -215,13 +223,12 @@ evaluator.playfunction$1 = function(args, modifs) {
         namespace.newvar(runv);
     }
 
-    let freq = evaluate(args[0]).value.real;
     let line = OpSound.handleLineModif(modifs.line, "0");
     let start = OpSound.handleModifs(modifs.start, 'number', 0);
     let amp = OpSound.handleModifs(modifs.amp, 'number', 0.5);
     let damp = OpSound.handleModifs(modifs.damp, 'number', 0);
     let stop = OpSound.handleModifs(modifs.stop, 'number', 1);
-    let duration = OpSound.handleModifs(modifs.duration, 'number', stop);
+    let duration = OpSound.handleModifs(modifs.duration, 'number', 1);
     let attack = OpSound.handleModifs(modifs.attack, 'number', 0.01);
     let release = OpSound.handleModifs(modifs.release, 'number', 0.01);
     let exprt = OpSound.handleModifs(modifs.export, 'boolean', false);
@@ -241,7 +248,7 @@ evaluator.playfunction$1 = function(args, modifs) {
         if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'function') { //initialize
             OpSound.lines[line] = {
                 lineType: 'function',
-                bufferNode: OpSound.getBufferNode(wave),
+                bufferNode: OpSound.getBufferNode(wave, duration),
                 masterGain: audioCtx.createGain()
             };
             let curline = OpSound.lines[line];
@@ -254,19 +261,16 @@ evaluator.playfunction$1 = function(args, modifs) {
             let curline = OpSound.lines[line];
             curline.masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
             curline.bufferNode.stop(audioCtx.currentTime + release);
-            curline.bufferNode = OpSound.getBufferNode(wave);
+            curline.bufferNode = OpSound.getBufferNode(wave, duration);
             curline.bufferNode.connect(curline.masterGain);
             curline.bufferNode.start(start + release);
             curline.masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
         }
     }
 
-    if (runv !== nada) {
-        namespace.removevar(runv);
-    }
-    if (exprt) {
-        return wave;
-    }
+    if (runv !== nada) namespace.removevar(runv);
+    if (exprt) return wave;
+
     return nada;
 };
 
@@ -287,12 +291,10 @@ evaluator.playwave$1 = function(args, modifs) {
         return nada;
     }
 
-    //change output of playfunction to CindyList?
-
-    if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'wave') { //initialize
+    if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'wave') {
         OpSound.lines[line] = {
             lineType: 'wave',
-            bufferNode: OpSound.getBufferNode(General.unwrap(wave)),
+            bufferNode: OpSound.getBufferNode(General.unwrap(wave), duration),
             masterGain: audioCtx.createGain()
         };
         let curline = OpSound.lines[line];
@@ -305,7 +307,7 @@ evaluator.playwave$1 = function(args, modifs) {
         let curline = OpSound.lines[line];
         curline.masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
         curline.bufferNode.stop(audioCtx.currentTime + release);
-        curline.bufferNode = OpSound.getBufferNode(General.unwrap(wave));
+        curline.bufferNode = OpSound.getBufferNode(General.unwrap(wave), duration);
         curline.bufferNode.connect(curline.masterGain);
         curline.bufferNode.start(start + release);
         curline.masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
