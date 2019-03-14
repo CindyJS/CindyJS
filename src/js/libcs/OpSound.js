@@ -278,6 +278,7 @@ evaluator.playwave$1 = function(args, modifs) {
     let duration = OpSound.handleModifs(modifs.duration, 'number', 1);
     let attack = OpSound.handleModifs(modifs.attack, 'number', 0.01);
     let release = OpSound.handleModifs(modifs.release, 'number', 0.01);
+    let start = OpSound.handleModifs(modifs.start, 'number', 0);
 
     if (wave.ctype !== 'list') {
         return nada;
