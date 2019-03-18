@@ -138,23 +138,25 @@ evaluator.playsin$1 = function(args, modifs) {
 
     function setPhaseShift(oscNode) {
         //set coefficients of the fourier transform
+        let real, imag;
         if (noPartialsGiven) {
-            var real = new Float32Array(harmonics.length);
-            var imag = new Float32Array(harmonics.length);
-            imag[1] = harmonics[0]*Math.cos(phaseshift);
-            real[1] = harmonics[0]*Math.sin(phaseshift);
+            real = new Float32Array(harmonics.length);
+            imag = new Float32Array(harmonics.length);
+            imag[1] = harmonics[0] * Math.cos(phaseshift);
+            real[1] = harmonics[0] * Math.sin(phaseshift);
             for (let i = 1; i < harmonics.length; i++) {
-                imag[i+1] = harmonics[i];
+                imag[i + 1] = harmonics[i];
             }
-        }
-        else {
-            var real = new Float32Array(2);
-            var imag = new Float32Array(2);
+        } else {
+            real = new Float32Array(2);
+            imag = new Float32Array(2);
             real[1] = Math.sin(phaseshift);
             imag[1] = Math.cos(phaseshift);
         }
 
-        var wave = audioCtx.createPeriodicWave(real, imag, {disableNormalization: true});
+        let wave = audioCtx.createPeriodicWave(real, imag, {
+            disableNormalization: true
+        });
         oscNode.setPeriodicWave(wave);
     }
 
