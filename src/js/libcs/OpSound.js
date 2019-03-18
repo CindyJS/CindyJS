@@ -88,6 +88,8 @@ evaluator.playsin$1 = function(args, modifs) {
     let phaseshift = OpSound.handleModifs(modifs.phaseshift, 'number', 0);
     let pan = OpSound.handleModifs(modifs.pan, 'number', 0);
 
+    let noPartialsGiven = harmonics.length > partials.length;
+
     if (harmonics.length > partials.length) {
         partials = Array(harmonics.length).fill(1);
     }
@@ -95,8 +97,12 @@ evaluator.playsin$1 = function(args, modifs) {
     function dampening(curline) {
         if (damp > 0) {
             curline.masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime + release + attack, (1 / damp));
-            for (let i = 0; i < harmonics.length; i++) {
-                curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
+            if (noPartialsGiven) {
+                curline.oscNodes[0].oscNode.stop(audioCtx.currentTime + (6 / damp));
+            } else {
+                for (let i = 0; i < harmonics.length; i++) {
+                    curline.oscNodes[i].oscNode.stop(audioCtx.currentTime + (6 / damp));
+                }
             }
         } else if (damp < 0) {
             curline.masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + release + attack, (-damp));
@@ -104,8 +110,12 @@ evaluator.playsin$1 = function(args, modifs) {
     }
 
     function startOscillators(curline, release, phaseshift) {
-        for (let i = 0; i < harmonics.length; i++) {
-            curline.oscNodes[i] = playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i], phaseshift);
+        if (noPartialsGiven) {
+            curline.oscNodes[0] = playOscillator(curline, freq, 1, phaseshift);
+        } else {
+            for (let i = 0; i < harmonics.length; i++) {
+                curline.oscNodes[i] = playOscillator(curline, partials[i] * (i + 1) * freq, harmonics[i], phaseshift);
+            }
         }
         curline.panNode.pan.value = pan;
         curline.masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
@@ -126,20 +136,35 @@ evaluator.playsin$1 = function(args, modifs) {
         }
     }
 
-    function setPhaseShift(oscNode, phaseshift) {
+    function setPhaseShift(oscNode) {
         //set coefficients of the fourier transform
-        var real = new Float32Array(2);
-        var imag = new Float32Array(2);
-        real[1] = Math.sin(phaseshift);
-        imag[1] = Math.cos(phaseshift);
+        if (noPartialsGiven) {
+            var real = new Float32Array(harmonics.length);
+            var imag = new Float32Array(harmonics.length);
+            imag[1] = harmonics[0]*Math.cos(phaseshift);
+            real[1] = harmonics[0]*Math.sin(phaseshift);
+            for (let i = 1; i < harmonics.length; i++) {
+                imag[i+1] = harmonics[i];
+            }
+        }
+        else {
+            var real = new Float32Array(2);
+            var imag = new Float32Array(2);
+            real[1] = Math.sin(phaseshift);
+            imag[1] = Math.cos(phaseshift);
+        }
+
         var wave = audioCtx.createPeriodicWave(real, imag, {disableNormalization: true});
         oscNode.setPeriodicWave(wave);
-        return oscNode;
     }
 
-    function playOscillator(curline, freq, gain, phaseshift) {
+    function playOscillator(curline, freq, gain) {
         let oscNode = audioCtx.createOscillator();
-        oscNode = setPhaseShift(oscNode, phaseshift);
+        if (phaseshift === 0 && !noPartialsGiven) {
+            oscNode.type = 'sine';
+        } else {
+            setPhaseShift(oscNode, phaseshift);
+        }
         oscNode.frequency.value = freq;
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
