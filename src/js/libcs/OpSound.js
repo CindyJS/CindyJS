@@ -350,6 +350,8 @@ evaluator.playfunction$1 = function(args, modifs) {
 
     if (!silent) {
         if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'function') { //initialize
+            if (OpSound.lines[line])
+                OpSound.lines[line].stop();
             OpSound.lines[line] = {
                 lineType: 'function',
                 bufferNode: OpSound.getBufferNode(wave, duration),
@@ -399,6 +401,9 @@ evaluator.playwave$1 = function(args, modifs) {
     }
 
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'wave') {
+        if (OpSound.lines[line])
+            OpSound.lines[line].stop();
+
         OpSound.lines[line] = {
             lineType: 'wave',
             bufferNode: OpSound.getBufferNode(General.unwrap(wave), duration),
