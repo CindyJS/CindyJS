@@ -109,11 +109,10 @@ evaluator.playsin$1 = function(args, modifs) {
     let pan = OpSound.handleModif(modifs.pan, 'number', 0);
     let precalculate = OpSound.handleModif(modifs.precalculate, 'boolean', false);
 
-    if (partials.length === harmonics.length) {
-        precalculate = false;
-    }else if (partials.length < harmonics.length) {
+    if (partials.length < harmonics.length) {
         partials = Array(harmonics.length).fill(1);
     }
+    precalculate &= partials.every(p => Math.abs(p-1)<1e-10 );
 
     if (phaseshift.length < harmonics.length) {
         phaseshift = Array(harmonics.length).fill(0);
@@ -157,7 +156,7 @@ evaluator.playsin$1 = function(args, modifs) {
     }
 
     function updateFrequencyAndGain(curline) {
-        if (curline.oscNodes.length !== harmonics.length) {
+        if (curline.oscNodes.length === harmonics.length) {
             for (let i = 0; i < harmonics.length; i++) {
                 curline.oscNodes[i].oscNode.frequency.value = partials[i] * (i + 1) * freq;
                 curline.oscNodes[i].gainNode.gain.value = harmonics[i];
@@ -300,9 +299,7 @@ evaluator.playfunction$1 = function(args, modifs) {
     let v0 = args[0];
 
     let runv = searchVar(v0);
-    if (runv !== nada) {
-        namespace.newvar(runv);
-    }
+    if (runv !== nada) namespace.newvar(runv);
 
     let line = OpSound.handleLineModif(modifs.line, "0");
     let start = OpSound.handleModif(modifs.start, 'number', 0);
@@ -313,7 +310,7 @@ evaluator.playfunction$1 = function(args, modifs) {
     let attack = OpSound.handleModif(modifs.attack, 'number', 0.01);
     let release = OpSound.handleModif(modifs.release, 'number', 0.01);
     let exprt = OpSound.handleModif(modifs.export, 'boolean', false);
-    let silent;
+    let silent = OpSound.handleModif(modifs.silent, 'boolean', false);
 
     let wave = [];
 

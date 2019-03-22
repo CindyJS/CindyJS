@@ -75,12 +75,20 @@ The command has several modifiers.
 
 | Modifier    | Parameter              | Effect                                  |
 | ----------- | ---------------------- | --------------------------------------- |
-| `amp`       | `0.0 … 1.0`          | global amplitude (volume) of the sample |
+| `amp`       | `0.0 … 1.0`            | global amplitude (volume) of the sample |
 | `damp`      | `‹real›`               | factor for exponential damping          |
 | `harmonics` | `‹list›`               | spectrum of the tone                    |
 | `duration`  | `‹real›`               | duration for playing                    |
 | `stop`      | `‹real›`               | same as duration                        |
 | `line`      | `‹number› or ‹string›` | a sound-line associated to the tone     |
+| `partials`  | `‹list›`               | scale each harmonic by a factor         |
+| `attack`    | `‹number›`             | time in seconds for tone to fade in     |
+| `release`   | `‹number›`             | time in seconds for tone to fade out    |
+| `restart`   | `‹boolean›`            | set this to false to only adjust frequency and gain of playing tone |
+| `pan`       | `‹number›`             | panning between left (-1) or right (+1) |
+| `phaseshift` | `‹list›`               | shift each harmonic wave by value in [0,2*pi] |
+| `precalculate` | `‹boolean›`          | play all harmonics on one Web Audio Node to save resources, only works without partials |
+
 
 **Examples:**
 The simplest usage of `playsin` is for instance given by
