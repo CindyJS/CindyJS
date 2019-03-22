@@ -15,6 +15,7 @@ var OpSound = {
         }
         return this.audioCtx;
     },
+
     handleModif: function(modif, modifType, defaultValue) {
         if (modif !== undefined) {
             let erg = evaluate(modif);
@@ -36,6 +37,7 @@ var OpSound = {
             return defaultValue;
         }
     },
+
     handlePhaseshiftModif: function(modif, harmonicsLength) {
         if (modif !== undefined) {
             let erg = evaluate(modif);
@@ -56,6 +58,7 @@ var OpSound = {
             return Array(harmonicsLength).fill(0);
         }
     },
+
     handleLineModif: function(modif, defaultValue) {
         if (modif !== undefined) {
             let erg = evaluate(modif);
@@ -63,6 +66,7 @@ var OpSound = {
         }
         return defaultValue;
     },
+
     getBufferNode: function(wave, duration) {
         let audioCtx = this.getAudioContext();
         if (duration * audioCtx.sampleRate > wave.length) {
@@ -80,42 +84,42 @@ var OpSound = {
         bufferNode.buffer = buffer;
         return bufferNode;
     },
-    
-    createMonoOscillator: function(freq, phaseshift) {
-      let oscNode = this.getAudioContext().createOscillator();
-      if (phaseshift !== 0) {
-        let real = new Float32Array(2);
-        let imag = new Float32Array(2);
-        real[1] = Math.sin(phaseshift);
-        imag[1] = Math.cos(phaseshift);
 
+    createMonoOscillator: function(freq, phaseshift) {
+        let oscNode = this.getAudioContext().createOscillator();
+        if (phaseshift !== 0) {
+            let real = new Float32Array(2);
+            let imag = new Float32Array(2);
+            real[1] = Math.sin(phaseshift);
+            imag[1] = Math.cos(phaseshift);
+
+            let wave = this.getAudioContext().createPeriodicWave(real, imag, {
+                disableNormalization: true
+            });
+            oscNode.setPeriodicWave(wave);
+        } else {
+            oscNode.type = 'sine';
+        }
+        oscNode.frequency.value = freq;
+        return oscNode;
+    },
+
+    createWaveOscillator: function(freq, harmonics, phaseshiftarr) {
+        let oscNode = this.getAudioContext().createOscillator();
+        let real = new Float32Array(harmonics.length + 1);
+        let imag = new Float32Array(harmonics.length + 1);
+        for (let i = 0; i < harmonics.length; i++) {
+            imag[i + 1] = harmonics[i] * Math.cos(phaseshiftarr[i]);
+            real[i + 1] = harmonics[i] * Math.sin(phaseshiftarr[i]);
+        }
         let wave = this.getAudioContext().createPeriodicWave(real, imag, {
             disableNormalization: true
         });
         oscNode.setPeriodicWave(wave);
-      } else {
-          oscNode.type = 'sine';
-      }
-      oscNode.frequency.value = freq;
-      return oscNode;
+        oscNode.frequency.value = freq;
+        return oscNode;
     },
-    
-    createWaveOscillator: function(freq, harmonics, phaseshiftarr) {
-      let oscNode = this.getAudioContext().createOscillator();
-      let real = new Float32Array(harmonics.length + 1);
-      let imag = new Float32Array(harmonics.length + 1);
-      for (let i = 0; i < harmonics.length; i++) {
-          imag[i + 1] = harmonics[i] * Math.cos(phaseshiftarr[i]);
-          real[i + 1] = harmonics[i] * Math.sin(phaseshiftarr[i]);
-      }
-      let wave = this.getAudioContext().createPeriodicWave(real, imag, {
-          disableNormalization: true
-      });
-      oscNode.setPeriodicWave(wave);
-      oscNode.frequency.value = freq;
-      return oscNode;
-    },
-    
+
     playOscillator: function(oscNode, masterGain, gain, attack, duration) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
@@ -150,7 +154,7 @@ evaluator.stopsound$0 = function() {
 
 evaluator.playsin$1 = function(args, modifs) {
     let audioCtx = OpSound.getAudioContext();
-    
+
     let freq = evaluate(args[0]).value.real;
     let line = OpSound.handleLineModif(modifs.line, "0");
     let amp = OpSound.handleModif(modifs.amp, 'number', 0.5);
@@ -169,25 +173,25 @@ evaluator.playsin$1 = function(args, modifs) {
     if (partials.length < harmonics.length) {
         partials = Array(harmonics.length).fill(1);
     }
-    
+
     if (phaseshift.length < harmonics.length) {
         phaseshift = Array(harmonics.length).fill(0);
     }
-    
+
     //precalculate is not possible if singal is non-periodic
-    precalculate &= partials.every(p => Math.abs(p-1)<1e-8);
+    precalculate &= partials.every(p => Math.abs(p - 1) < 1e-8);
 
     let newLine = false;
 
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'sin') { //initialize
-        if(OpSound.lines[line]) {
-          OpSound.lines[line].stop();
-        }
+        if (OpSound.lines[line])
+            OpSound.lines[line].stop();
+
         OpSound.lines[line] = {
             lineType: 'sin',
             oscNodes: [],
             masterGain: audioCtx.createGain(),
-            
+
             dampit: function() {
                 if (damp > 0) {
                     this.masterGain.gain.setTargetAtTime(0.0, audioCtx.currentTime + release + attack, (1 / damp));
@@ -202,42 +206,46 @@ evaluator.playsin$1 = function(args, modifs) {
                     this.masterGain.gain.setTargetAtTime(1, audioCtx.currentTime + release + attack, (-damp));
                 }
             },
-            
+
             startOscillators: function() {
                 if (precalculate) {
                     this.oscNodes[0] = OpSound.playOscillator(
-                      OpSound.createWaveOscillator(freq, harmonics, phaseshift), this.masterGain, 1, attack, duration
+                        OpSound.createWaveOscillator(freq, harmonics, phaseshift), this.masterGain, 1, attack, duration
                     );
                 } else {
                     for (let i = 0; i < harmonics.length; i++) {
                         curline.oscNodes[i] = OpSound.playOscillator(
-                          OpSound.createMonoOscillator(partials[i] * (i + 1) * freq, phaseshift[i]), this.masterGain, harmonics[i], attack, duration
+                            OpSound.createMonoOscillator(partials[i] * (i + 1) * freq, phaseshift[i]), this.masterGain, harmonics[i], attack, duration
                         );
                     }
                 }
                 this.masterGain.gain.linearRampToValueAtTime(amp, audioCtx.currentTime + release + attack);
                 this.dampit();
             },
-            
+
             stopOscillators: function() {
                 this.masterGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + release);
                 for (let i = 0; i < this.oscNodes.length; i++) {
                     this.oscNodes[i].oscNode.stop(audioCtx.currentTime + release); //helps
                 }
             },
-            
-            updateFrequencyAndGain: function(curline) {
+
+            stop: function() {
+                this.stopOscillators();
+            },
+
+            updateFrequencyAndGain: function() {
                 if (!this.precalculate & this.oscNodes.length === harmonics.length) {
                     for (let i = 0; i < harmonics.length; i++) {
                         this.oscNodes[i].oscNode.frequency.value = partials[i] * (i + 1) * freq;
                         this.oscNodes[i].gainNode.gain.value = harmonics[i];
                     }
                 } else {
-                    this.stopOscillators(curline);
-                    this.startOscillators(curline);
+                    this.stopOscillators();
+                    this.startOscillators();
                 }
             }
-            
+
         };
         OpSound.lines[line].masterGain.gain.value = 0;
         if (pan === 0) {
@@ -254,7 +262,7 @@ evaluator.playsin$1 = function(args, modifs) {
     if (curline.panNode) {
         curline.panNode.pan.value = pan;
     }
-    
+
     if (duration === 0) { //users can call playsin(...,duration->0) to stop a tone
         curline.stopOscillators(curline);
         delete OpSound.lines[line];
@@ -345,7 +353,10 @@ evaluator.playfunction$1 = function(args, modifs) {
             OpSound.lines[line] = {
                 lineType: 'function',
                 bufferNode: OpSound.getBufferNode(wave, duration),
-                masterGain: audioCtx.createGain()
+                masterGain: audioCtx.createGain(),
+                stop: function() {
+                    this.bufferNode.stop();
+                }
             };
             let curline = OpSound.lines[line];
             curline.masterGain.gain.value = 0;
@@ -391,7 +402,10 @@ evaluator.playwave$1 = function(args, modifs) {
         OpSound.lines[line] = {
             lineType: 'wave',
             bufferNode: OpSound.getBufferNode(General.unwrap(wave), duration),
-            masterGain: audioCtx.createGain()
+            masterGain: audioCtx.createGain(),
+            stop: function() {
+                this.bufferNode.stop();
+            }
         };
         let curline = OpSound.lines[line];
         curline.masterGain.gain.value = 0;
