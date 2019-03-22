@@ -235,7 +235,7 @@ evaluator.playsin$1 = function(args, modifs) {
             },
 
             updateFrequencyAndGain: function() {
-                if (!this.precalculate & this.oscNodes.length === harmonics.length) {
+                if (!precalculate & this.oscNodes.length === harmonics.length) {
                     for (let i = 0; i < harmonics.length; i++) {
                         this.oscNodes[i].oscNode.frequency.value = partials[i] * (i + 1) * freq;
                         this.oscNodes[i].gainNode.gain.value = harmonics[i];
