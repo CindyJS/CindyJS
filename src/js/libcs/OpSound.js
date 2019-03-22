@@ -264,7 +264,7 @@ evaluator.playsin$1 = function(args, modifs) {
     }
 
     if (duration === 0) { //users can call playsin(...,duration->0) to stop a tone
-        curline.stopOscillators(curline);
+        curline.stopOscillators();
         delete OpSound.lines[line];
         return nada;
     }
@@ -280,8 +280,8 @@ evaluator.playsin$1 = function(args, modifs) {
                 curline.stopOscillators();
                 curline.startOscillators();
             } else {
-                curline.updateFrequencyAndGain(curline);
-                curline.dampit(curline);
+                curline.updateFrequencyAndGain();
+                curline.dampit();
             }
         }
     }
