@@ -49,25 +49,25 @@ play8() := (
 
 play9() := (
     forall(1..10,k,
-        playsin(440+k,line->k, phaseshift->2*pi*random(), duration->6, damp->1, restart->true);
+        playsin(440+k,line->k, phaseshift->2*pi*random(), duration->6, amp->0.3, damp->1, precalculate->true);
     );
 );
 
 play10() := (
     forall(1..10,k,
-        playsin(440+k,line->k, phaseshift->0, duration->6, damp->1, restart->true);
+        playsin(440+k,line->k, phaseshift->0, duration->6, amp->0.3, damp->1);
     );
 );
 
 play11() := (
     forall(1..10,k,
-        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, damp->1, phaseshift->2*pi*random());
+        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->2*pi*random());
     );
 );
 
 play12() := (
     forall(1..10,k,
-        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, damp->1, phaseshift->apply(1..10,l,2*pi*random()));
+        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->apply(1..10,l,2*pi*random()));
     );
 );
 
