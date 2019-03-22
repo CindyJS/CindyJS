@@ -157,7 +157,7 @@ evaluator.playsin$1 = function(args, modifs) {
     }
 
     function updateFrequencyAndGain(curline) {
-        if (curline.oscNodes.length >= harmonics.length) {
+        if (curline.oscNodes.length !== harmonics.length) {
             for (let i = 0; i < harmonics.length; i++) {
                 curline.oscNodes[i].oscNode.frequency.value = partials[i] * (i + 1) * freq;
                 curline.oscNodes[i].gainNode.gain.value = harmonics[i];
