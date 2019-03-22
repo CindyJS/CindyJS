@@ -109,11 +109,13 @@ evaluator.playsin$1 = function(args, modifs) {
     let pan = OpSound.handleModif(modifs.pan, 'number', 0);
     let precalculate = OpSound.handleModif(modifs.precalculate, 'boolean', false);
 
-    if (harmonics.length > partials.length) {
+    if (partials.length === harmonics.length) {
+        precalculate = false;
+    }else if (partials.length < harmonics.length) {
         partials = Array(harmonics.length).fill(1);
     }
 
-    if (phaseshift.length !== harmonics.length) {
+    if (phaseshift.length < harmonics.length) {
         phaseshift = Array(harmonics.length).fill(0);
     }
 
