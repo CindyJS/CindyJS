@@ -157,7 +157,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         var cc = List.normalizeZ(General.mult(mat, c));
 
 
-        // get angles of A and C 
+        // get angles of A and C
         var startAngle = -Math.atan2(aa.value[1].value.real, aa.value[0].value.real);
         var endAngle = -Math.atan2(cc.value[1].value.real, cc.value[0].value.real);
 
@@ -181,7 +181,7 @@ eval_helper.drawarc = function(args, modifs, df) {
 
         csctx.save();
 
-        // canvas circle radius 
+        // canvas circle radius
         var rad = arcDist.value.real * m.sdet;
 
         csctx.beginPath();
