@@ -1,6 +1,3 @@
-//*******************************************************
-// and here are the definitions of the sound operators
-//*******************************************************
 var OpSound = {
     lines: {},
     audioCtx: null,
@@ -242,16 +239,16 @@ class SinusLine {
         this.stopOscillators();
     }
 
-    updateFrequencyAndGain(precompute) {
+    updateFrequencyAndGain(precompute, sameharmonics) {
         if (!precompute) {
             //use all needed oscillators
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
-                    if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying) {
+                    if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.type === 'sine') {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
                         this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.duration); //overwrites other triggered stops
-                    } else { //the oscillator has been stopped or has never been created
+                    } else { //the oscillator has been stopped or has never been created (or is created through createWave)
                         this.oscNodes[i] = OpSound.playOscillator(
                             OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
                         );
@@ -267,8 +264,13 @@ class SinusLine {
                 }
             }
         } else {
-            this.stopOscillators();
-            this.startOscillators(precompute);
+            if (sameharmonics && this.oscNodes[0] && this.oscNodes[0].oscNode.isplaying && this.oscNodes[0].oscNode.type === "custom") {
+                this.oscNodes[0].oscNode.frequency.value = this.freq;
+                this.oscNodes[0].oscNode.stop(this.audioCtx.currentTime + this.duration);
+            } else {
+                this.stopOscillators();
+                this.startOscillators(precompute);
+            }
         }
     }
 }
@@ -313,15 +315,26 @@ evaluator.playsin$1 = function(args, modifs) {
 
     curline.cleanparameters(modifs);
 
+
+    let restart = OpSound.handleModif(modifs.restart, 'boolean', true);
+    let precompute = OpSound.handleModif(modifs.precompute, 'boolean', false);
+
+    let sameharmonics = true;
+    if (!curline.lastharmonics) {
+        sameharmonics = false;
+    } else {
+        sameharmonics &= (curline.lastharmonics.length === curline.harmonics.length);
+        for (let i in curline.harmonics)
+            if (sameharmonics)
+                sameharmonics &= (curline.harmonics[i] === curline.lastharmonics[i]);
+    }
+    curline.lastharmonics = curline.harmonics;
+
     if (curline.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
         curline.stop();
         delete OpSound.lines[line];
         return nada;
     }
-
-    let restart = OpSound.handleModif(modifs.restart, 'boolean', true);
-    let precompute = OpSound.handleModif(modifs.precompute, 'boolean', false);
-
 
     //precompute is not possible if singal is non-periodic
     precompute &= curline.partials.every(p => Math.abs(p - 1) < 1e-8);
@@ -333,14 +346,14 @@ evaluator.playsin$1 = function(args, modifs) {
         curline.dampit();
     } else {
         if (curline.damp === 0) {
-            curline.updateFrequencyAndGain(precompute);
+            curline.updateFrequencyAndGain(precompute, sameharmonics);
         } else {
             if (restart) {
                 curline.stopOscillators();
                 curline.startOscillators(precompute);
                 curline.dampit();
             } else {
-                curline.updateFrequencyAndGain(precompute);
+                curline.updateFrequencyAndGain(precompute, sameharmonics);
                 curline.dampit();
             }
         }
