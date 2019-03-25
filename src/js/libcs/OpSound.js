@@ -223,12 +223,11 @@ var OpSound = {
                 }
             }
             this.masterGain.gain.linearRampToValueAtTime(this.amp, this.audioCtx.currentTime + this.release + this.attack);
-            this.dampit();
         }
 
         stopOscillators() {
             this.masterGain.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
-            for (let i = 0; i < this.oscNodes.length; i++) {
+            for (let i in this.oscNodes) {
                 this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release); //helps
                 delete this.oscNodes[i];
             }
@@ -239,9 +238,7 @@ var OpSound = {
         }
 
         updateFrequencyAndGain(precalculate) {
-            console.log("updateFrequencyAndGain");
             if (!precalculate && (this.oscNodes.length >= this.harmonics.length)) {
-                console.log("through real update, freq:" + this.freq);
                 for (let i in this.oscNodes) {
                   if(this.harmonics[i]) {
                     this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
@@ -253,7 +250,6 @@ var OpSound = {
                   }
                 }
             } else {
-                console.log("through stop&start");
                 this.stopOscillators();
                 this.startOscillators(precalculate);
             }
@@ -308,8 +304,6 @@ evaluator.playsin$1 = function(args, modifs) {
         return nada;
     }
     
-    console.log("freq: " + curline.freq);
-    
     let restart = OpSound.handleModif(modifs.restart, 'boolean', true);
     let precalculate = OpSound.handleModif(modifs.precalculate, 'boolean', false);
 
@@ -321,6 +315,7 @@ evaluator.playsin$1 = function(args, modifs) {
 
     if (newLine) {
         curline.startOscillators(precalculate);
+        curline.dampit();
     } else {
         if (curline.damp === 0) {
             curline.updateFrequencyAndGain(precalculate);
@@ -328,6 +323,7 @@ evaluator.playsin$1 = function(args, modifs) {
             if (restart) {
                 curline.stopOscillators();
                 curline.startOscillators(precalculate);
+                curline.dampit();
             } else {
                 curline.updateFrequencyAndGain(precalculate);
                 curline.dampit();
