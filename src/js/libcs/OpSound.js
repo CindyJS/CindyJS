@@ -233,7 +233,7 @@ var OpSound = {
             }
         }
 
-        stopit() {
+        stop() {
             this.stopOscillators();
         }
 
@@ -260,7 +260,7 @@ var OpSound = {
 evaluator.stopsound$0 = function() {
     if (OpSound.audioCtx) {
         for (let line in OpSound.lines) {
-            OpSound.lines.stopit();
+            OpSound.lines.stop();
             delete OpSound.lines[line];
         }
         OpSound.audioCtx.close();
@@ -278,7 +278,7 @@ evaluator.playsin$1 = function(args, modifs) {
 
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'sin') { //initialize
         if (OpSound.lines[line])
-            OpSound.lines[line].stopit();
+            OpSound.lines[line].stop();
         OpSound.lines[line] = new OpSound.SinusLine(audioCtx);
         newLine = true;
     }
@@ -287,8 +287,7 @@ evaluator.playsin$1 = function(args, modifs) {
     curline.freq = evaluate(args[0]).value.real;
     curline.handleModif(modifs, "amp", 'number', 0.5);
     curline.handleModif(modifs, "damp", 'number', 0);
-    curline.handleModif(modifs, "stop", 'number', 1);
-    curline.handleModif(modifs, "duration", 'number', stop);
+    curline.handleModif(modifs, "duration", 'number', OpSound.handleModif(modifs.stop, 'number', 1));
     curline.handleModif(modifs, "harmonics", 'list', [1]);
     curline.handleModif(modifs, "partials", 'list', [1]);
     curline.handleModif(modifs, "attack", 'number', 0.01);
@@ -299,7 +298,7 @@ evaluator.playsin$1 = function(args, modifs) {
     curline.cleanparameters(modifs);
     
     if (curline.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
-        curline.stopit();
+        curline.stop();
         delete OpSound.lines[line];
         return nada;
     }
@@ -396,12 +395,12 @@ evaluator.playfunction$1 = function(args, modifs) {
     if (!silent) {
         if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'function') { //initialize
             if (OpSound.lines[line])
-                OpSound.lines[line].stopit();
+                OpSound.lines[line].stop();
             OpSound.lines[line] = {
                 lineType: 'function',
                 bufferNode: OpSound.getBufferNode(wave, duration),
                 masterGain: audioCtx.createGain(),
-                stopit: function() {
+                stop: function() {
                     this.bufferNode.stop();
                 }
             };
@@ -447,13 +446,13 @@ evaluator.playwave$1 = function(args, modifs) {
 
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'wave') {
         if (OpSound.lines[line])
-            OpSound.lines[line].stopit();
+            OpSound.lines[line].stop();
 
         OpSound.lines[line] = {
             lineType: 'wave',
             bufferNode: OpSound.getBufferNode(General.unwrap(wave), duration),
             masterGain: audioCtx.createGain(),
-            stopit: function() {
+            stop: function() {
                 this.bufferNode.stop();
             }
         };
