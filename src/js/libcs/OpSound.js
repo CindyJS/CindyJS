@@ -234,7 +234,7 @@ var OpSound = {
             }
         }
 
-        stop() {
+        stopit() {
             this.stopOscillators();
         }
 
@@ -264,7 +264,7 @@ var OpSound = {
 evaluator.stopsound$0 = function() {
     if (OpSound.audioCtx) {
         for (let line in OpSound.lines) {
-            OpSound.lines.stop();
+            OpSound.lines.stopit();
             delete OpSound.lines[line];
         }
         OpSound.audioCtx.close();
@@ -282,7 +282,7 @@ evaluator.playsin$1 = function(args, modifs) {
 
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'sin') { //initialize
         if (OpSound.lines[line])
-            OpSound.lines[line].stop();
+            OpSound.lines[line].stopit();
         OpSound.lines[line] = new OpSound.SinusLine(audioCtx);
         newLine = true;
     }
@@ -303,7 +303,7 @@ evaluator.playsin$1 = function(args, modifs) {
     curline.cleanparameters(modifs);
     
     if (curline.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
-        curline.stop();
+        curline.stopit();
         delete OpSound.lines[line];
         return nada;
     }
@@ -400,12 +400,12 @@ evaluator.playfunction$1 = function(args, modifs) {
     if (!silent) {
         if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'function') { //initialize
             if (OpSound.lines[line])
-                OpSound.lines[line].stop();
+                OpSound.lines[line].stopit();
             OpSound.lines[line] = {
                 lineType: 'function',
                 bufferNode: OpSound.getBufferNode(wave, duration),
                 masterGain: audioCtx.createGain(),
-                stop: function() {
+                stopit: function() {
                     this.bufferNode.stop();
                 }
             };
@@ -451,13 +451,13 @@ evaluator.playwave$1 = function(args, modifs) {
 
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'wave') {
         if (OpSound.lines[line])
-            OpSound.lines[line].stop();
+            OpSound.lines[line].stopit();
 
         OpSound.lines[line] = {
             lineType: 'wave',
             bufferNode: OpSound.getBufferNode(General.unwrap(wave), duration),
             masterGain: audioCtx.createGain(),
-            stop: function() {
+            stopit: function() {
                 this.bufferNode.stop();
             }
         };
