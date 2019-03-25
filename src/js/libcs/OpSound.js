@@ -260,7 +260,7 @@ var OpSound = {
 evaluator.stopsound$0 = function() {
     if (OpSound.audioCtx) {
         for (let line in OpSound.lines) {
-            OpSound.lines.stop();
+            OpSound.lines[line].stop();
             delete OpSound.lines[line];
         }
         OpSound.audioCtx.close();
