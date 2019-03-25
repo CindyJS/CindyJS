@@ -246,7 +246,8 @@ class SinusLine {
 
     updateFrequencyAndGain(precalculate) {
         if (!precalculate) {
-            for (let i in this.harmonics) {
+            //use all needed oscillators
+            for (let i=0; i<this.harmonics.length; i++) {
                 if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying) {
                     this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                     this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
@@ -257,14 +258,15 @@ class SinusLine {
                     );
                 }
             }
-            for (let i in this.oscNodes)
+            //stop all unneeded oscillators from  this.oscNodes \ this.harmonics
+            for (let i in this.oscNodes) {
                 if (!this.harmonics[i]) {
                     //there is no harmonics for this oscillator => stop the corresponding oscillator
                     this.oscNodes[i].gainNode.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
                     this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release); //overwrites other triggered stops
                     delete this.oscNodes[i];
-
                 }
+            }
         } else {
             this.stopOscillators();
             this.startOscillators(precalculate);
