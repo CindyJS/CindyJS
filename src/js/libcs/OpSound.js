@@ -65,6 +65,7 @@ var OpSound = {
     },
 
     createMonoOscillator: function(freq, phaseshift) {
+        console.warn("createMonoOscillator ");
         let oscNode = this.getAudioContext().createOscillator();
         if (phaseshift !== 0) {
             let real = new Float32Array(2);
@@ -107,13 +108,18 @@ var OpSound = {
         oscNode.connect(gainNode);
         gainNode.gain.linearRampToValueAtTime(gain, audioCtx.currentTime + attack);
         oscNode.start(0);
+        oscNode.isplaying = true;
         oscNode.onended = function() {
+            console.warn("an oscNode has ended");
+            this.isplaying = false;
             gainNode.disconnect();
         };
+
         if (duration >= 0) {
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime + duration + attack);
+            //can be overwritten by other triggered stop events
             oscNode.stop(audioCtx.currentTime + duration + attack);
         }
+
         return {
             oscNode: oscNode,
             gainNode: gainNode
@@ -171,19 +177,19 @@ var OpSound = {
             }
             return this.phaseshift;
         }
-        
-        cleanparameters(modifs) {
-          if (this.partials.length < this.harmonics.length) {
-              this.partials = Array(this.harmonics.length).fill(1);
-              if(modifs.partials)
-                console.warn("Ignore partials because the given length does not match with the length of harmonics");
-          }
 
-          if (this.phaseshift.length < this.harmonics.length) {
-              this.phaseshift = Array(this.harmonics.length).fill(0);
-              if(modifs.phaseshift)
-                console.warn("Ignore phaseshift because the given length does not match with the length of harmonics");
-          }
+        cleanparameters(modifs) {
+            if (this.partials.length < this.harmonics.length) {
+                this.partials = Array(this.harmonics.length).fill(1);
+                if (modifs.partials)
+                    console.warn("Ignore partials because the given length does not match with the length of harmonics");
+            }
+
+            if (this.phaseshift.length < this.harmonics.length) {
+                this.phaseshift = Array(this.harmonics.length).fill(0);
+                if (modifs.phaseshift)
+                    console.warn("Ignore phaseshift because the given length does not match with the length of harmonics");
+            }
         }
 
         panit() {
@@ -240,14 +246,23 @@ var OpSound = {
         updateFrequencyAndGain(precalculate) {
             if (!precalculate && (this.oscNodes.length >= this.harmonics.length)) {
                 for (let i in this.oscNodes) {
-                  if(this.harmonics[i]) {
-                    this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
-                    this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
-                  } else {
-                    this.oscNodes[i].oscNode.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
-                    this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release);
-                    delete this.oscNodes[i];
-                  }
+                    if (this.harmonics[i]) {
+                        if (this.oscNodes[i].oscNode.isplaying) {
+                            this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
+                            this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
+                            //overwrites other triggered stops
+                            this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.duration);
+                        } else {
+                            this.oscNodes[i] = OpSound.playOscillator(
+                                OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
+                            );
+                        }
+                    } else {
+                        this.oscNodes[i].gainNode.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
+                        //overwrites other triggered stops
+                        this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release);
+                        delete this.oscNodes[i];
+                    }
                 }
             } else {
                 this.stopOscillators();
@@ -271,7 +286,7 @@ evaluator.stopsound$0 = function() {
 evaluator.playsin$1 = function(args, modifs) {
     let audioCtx = OpSound.getAudioContext();
 
-    
+
     let line = OpSound.handleLineModif(modifs.line, "0");
 
     let newLine = false;
@@ -296,13 +311,13 @@ evaluator.playsin$1 = function(args, modifs) {
     curline.handleModif(modifs, "phaseshift", 'phaseshift', Array(curline.harmonics.length).fill(0));
 
     curline.cleanparameters(modifs);
-    
+
     if (curline.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
         curline.stop();
         delete OpSound.lines[line];
         return nada;
     }
-    
+
     let restart = OpSound.handleModif(modifs.restart, 'boolean', true);
     let precalculate = OpSound.handleModif(modifs.precalculate, 'boolean', false);
 
