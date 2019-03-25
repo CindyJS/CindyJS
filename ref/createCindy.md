@@ -71,11 +71,15 @@ At the moment the following events are defined:
 * `init` is invoked immediately after startup
 * `move` when some element got moved
 * `draw` for drawing the scene
-* `mousedown` invoked after a mouse button got pressed
-* `mousedrag` invoked when the mouse is moved
+* `mousedown` invoked after a mouse button (or a single finger) got pressed
+* `mousemove` invoked when the mouse (or a single finger) is moved
+* `mousedrag` invoked when the mouse (or a single finger) is moved and the mouse button is pressed
 * `mouseup` invoked if the mouse button is released
 * `keydown` invoked when a key is pressed, see the `keylistener` parameter
 * `tick` to perform a timed animation
+* `multidown` invoked after a finger got down (or the mouse got pressed). More details are discussed in the reference on [multi-touch events](User_Input.html#single-and-multi-touch)
+* `multidrag` invoked when the mouse (with pressed button) or a finger on the screen moves
+* `multiup` invoked if the mouse button or a finger is released
 
 ### keylistener
 

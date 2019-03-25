@@ -823,7 +823,7 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 
 
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
-    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    Render2D.handleModifs(modifs, cycle ? Render2D.conicModifs : Render2D.lineModifs);
     Render2D.preDrawCurve();
 
 
@@ -975,13 +975,12 @@ eval_helper.drawtext = function(args, modifs, callback) {
         }
     }
 
-    var font = (
+    csctx.font = (
         Render2D.bold + Render2D.italics +
         Math.round(size * 10) / 10 + "px " +
         Render2D.family);
-    csctx.font = font;
     if (callback) {
-        return callback(txt, font, xx, yy, Render2D.align, size);
+        return callback(txt, xx, yy, Render2D.align, size);
     } else {
         return textRendererCanvas(
             csctx, txt, xx, yy, Render2D.align,
@@ -1565,9 +1564,9 @@ evaluator.repaint$0 = function(args, modifs) {
 
 evaluator.screenbounds$0 = function(args, modifs) {
     var pt1 = General.withUsage(List.realVector(csport.to(0, 0)), "Point");
-    var pt2 = General.withUsage(List.realVector(csport.to(csw, 0)), "Point");
-    var pt3 = General.withUsage(List.realVector(csport.to(csw, csh)), "Point");
-    var pt4 = General.withUsage(List.realVector(csport.to(0, csh)), "Point");
+    var pt2 = General.withUsage(List.realVector(csport.to(canvas.clientWidth, 0)), "Point");
+    var pt3 = General.withUsage(List.realVector(csport.to(canvas.clientWidth, canvas.clientHeight)), "Point");
+    var pt4 = General.withUsage(List.realVector(csport.to(0, canvas.clientHeight)), "Point");
     return (List.turnIntoCSList([pt1, pt2, pt3, pt4]));
 };
 

@@ -3090,9 +3090,17 @@ evaluator.keycode$0 = function(args, modifs) { //OK
 
 
 evaluator.mouse$0 = function(args, modifs) { //OK
-    var x = csmouse[0];
-    var y = csmouse[1];
-    return List.realVector([x, y]);
+    if (modifs.id) {
+        let k = evaluate(modifs.id);
+        if (k.ctype === 'number') {
+            let id = k.value.real;
+            if (multipos[id])
+                return List.realVector(multipos[id]);
+        }
+        return nada;
+    } else {
+        return List.realVector(csmouse);
+    }
 };
 
 evaluator.mover$0 = function(args, modifs) { //OK
@@ -3102,6 +3110,18 @@ evaluator.mover$0 = function(args, modifs) { //OK
             value: move.mover
         };
     return nada;
+};
+
+evaluator.multiid$0 = function(args, modifs) {
+    return CSNumber.real(multiid);
+};
+
+evaluator.multiidlist$0 = function(args, modifs) {
+    let l = [];
+    for (let id in multipos) {
+        l.push(id);
+    }
+    return List.realVector(l);
 };
 
 
