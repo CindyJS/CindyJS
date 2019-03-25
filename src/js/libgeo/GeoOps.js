@@ -3462,8 +3462,8 @@ geoOps.IFS.updateParameters = function() {
     var msg = {
         cmd: "init",
         generation: ifs.params.generation,
-        width: csw * supersampling,
-        height: csh * supersampling
+        width: Math.round(csw * supersampling),
+        height: Math.round(csh * supersampling)
     };
     msg.systems = csgeo.ifs.map(function(el) {
         var sum = 0;

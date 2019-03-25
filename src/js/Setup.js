@@ -52,6 +52,11 @@ var csgridscript;
 var cssnap = false;
 var csaxes = false;
 
+//virtual resolution
+var virtualwidth = 0;
+var virtualheight = 0;
+var vscale = 1;
+
 function dump(a) {
     console.log(JSON.stringify(a));
 }
@@ -84,7 +89,16 @@ var trafos;
 function updateCanvasDimensions() {
     canvas.width = csw = canvas.clientWidth;
     canvas.height = csh = canvas.clientHeight;
-    csctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+
+    vscale = 1;
+    if (virtualwidth || virtualheight) {
+        vscale = Math.max(virtualwidth ? virtualwidth / canvas.width : 0, virtualheight ? virtualheight / canvas.height : 0);
+
+        csw = vscale * canvas.clientWidth;
+        csh = vscale * canvas.clientHeight;
+    }
+
+    csctx.setTransform(1 / vscale, 0, 0, 1 / vscale, 0, 0); // reset
     csport.setMat(25, 0, 0, 25, 250.5, 250.5); // reset
     if (trafos) {
         for (var i = 0; i < trafos.length; i++) {
@@ -107,6 +121,7 @@ function updateCanvasDimensions() {
             }
         }
     }
+
     csport.createnewbackup();
     csport.greset();
     var devicePixelRatio = 1;
@@ -238,6 +253,11 @@ function createCindyNow() {
                 divStyle.width = port.width + "px";
                 divStyle.height = port.height + "px";
             }
+            if (port.virtualwidth)
+                virtualwidth = port.virtualwidth;
+            if (port.virtualheight)
+                virtualheight = port.virtualheight;
+
             if (port.background)
                 c.style.backgroundColor = port.background;
             if (port.transform !== undefined)
@@ -289,6 +309,7 @@ function createCindyNow() {
     var scripts = ["move",
         "keydown", "keyup", "keytyped", "keytype",
         "mousedown", "mouseup", "mousedrag", "mousemove", "mouseclick",
+        "multidown", "multiup", "multidrag",
         "init", "tick", "draw",
         "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
