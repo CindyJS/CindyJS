@@ -65,7 +65,6 @@ var OpSound = {
     },
 
     createMonoOscillator: function(freq, phaseshift) {
-        console.warn("createMonoOscillator ");
         let oscNode = this.getAudioContext().createOscillator();
         if (phaseshift !== 0) {
             let real = new Float32Array(2);
@@ -110,7 +109,6 @@ var OpSound = {
         oscNode.start(0);
         oscNode.isplaying = true;
         oscNode.onended = function() {
-            console.warn("an oscNode has ended");
             this.isplaying = false;
             gainNode.disconnect();
         };
@@ -247,20 +245,21 @@ class SinusLine {
     updateFrequencyAndGain(precalculate) {
         if (!precalculate) {
             //use all needed oscillators
-            for (let i=0; i<this.harmonics.length; i++) {
-                if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying) {
-                    this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
-                    this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
-                    this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.duration); //overwrites other triggered stops
-                } else { //the oscillator has been stopped or has never been created
-                    this.oscNodes[i] = OpSound.playOscillator(
-                        OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
-                    );
+            for (let i = 0; i < this.harmonics.length; i++)
+                if (this.harmonics[i] > 0) {
+                    if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying) {
+                        this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
+                        this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
+                        this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.duration); //overwrites other triggered stops
+                    } else { //the oscillator has been stopped or has never been created
+                        this.oscNodes[i] = OpSound.playOscillator(
+                            OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
+                        );
+                    }
                 }
-            }
             //stop all unneeded oscillators from  this.oscNodes \ this.harmonics
             for (let i in this.oscNodes) {
-                if (!this.harmonics[i]) {
+                if (!this.harmonics[i]) { //!this.harmonics[i] also includes this.harmonics[i]===0
                     //there is no harmonics for this oscillator => stop the corresponding oscillator
                     this.oscNodes[i].gainNode.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
                     this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release); //overwrites other triggered stops
