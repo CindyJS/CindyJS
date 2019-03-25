@@ -87,7 +87,7 @@ The command has several modifiers.
 | `restart`   | `‹boolean›`            | set this to false to only adjust frequency and gain of playing tone |
 | `pan`       | `‹number›`             | panning between left (-1) or right (+1) |
 | `phaseshift` | `‹list›`               | shift each harmonic wave by value in [0,2*pi] |
-| `precalculate` | `‹boolean›`          | play all harmonics on one Web Audio Node to save resources, only works without partials |
+| `precompute` | `‹boolean›`          | play all harmonics on one Web Audio Node to save resources, only works without partials |
 
 
 **Examples:**

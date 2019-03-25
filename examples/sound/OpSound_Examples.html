@@ -61,13 +61,13 @@ play10() := (
 
 play11() := (
     forall(1..10,k,
-        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->2*pi*random(), precalculate->true);
+        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->2*pi*random(), precompute->true);
     );
 );
 
 play12() := (
     forall(1..10,k,
-        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->apply(1..10,l,2*pi*random()), precalculate->true);
+        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->apply(1..10,l,2*pi*random()), precompute->true);
     );
 );
 

@@ -215,8 +215,8 @@ class SinusLine {
         }
     }
 
-    startOscillators(precalculate) {
-        if (precalculate) {
+    startOscillators(precompute) {
+        if (precompute) {
             this.oscNodes[0] = OpSound.playOscillator(
                 OpSound.createWaveOscillator(this.freq, this.harmonics, this.phaseshift), this.masterGain, 1, this.attack, this.duration
             );
@@ -242,8 +242,8 @@ class SinusLine {
         this.stopOscillators();
     }
 
-    updateFrequencyAndGain(precalculate) {
-        if (!precalculate) {
+    updateFrequencyAndGain(precompute) {
+        if (!precompute) {
             //use all needed oscillators
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
@@ -268,7 +268,7 @@ class SinusLine {
             }
         } else {
             this.stopOscillators();
-            this.startOscillators(precalculate);
+            this.startOscillators(precompute);
         }
     }
 }
@@ -320,27 +320,27 @@ evaluator.playsin$1 = function(args, modifs) {
     }
 
     let restart = OpSound.handleModif(modifs.restart, 'boolean', true);
-    let precalculate = OpSound.handleModif(modifs.precalculate, 'boolean', false);
+    let precompute = OpSound.handleModif(modifs.precompute, 'boolean', false);
 
 
-    //precalculate is not possible if singal is non-periodic
-    precalculate &= curline.partials.every(p => Math.abs(p - 1) < 1e-8);
+    //precompute is not possible if singal is non-periodic
+    precompute &= curline.partials.every(p => Math.abs(p - 1) < 1e-8);
 
     curline.panit();
 
     if (newLine) {
-        curline.startOscillators(precalculate);
+        curline.startOscillators(precompute);
         curline.dampit();
     } else {
         if (curline.damp === 0) {
-            curline.updateFrequencyAndGain(precalculate);
+            curline.updateFrequencyAndGain(precompute);
         } else {
             if (restart) {
                 curline.stopOscillators();
-                curline.startOscillators(precalculate);
+                curline.startOscillators(precompute);
                 curline.dampit();
             } else {
-                curline.updateFrequencyAndGain(precalculate);
+                curline.updateFrequencyAndGain(precompute);
                 curline.dampit();
             }
         }
