@@ -76,6 +76,7 @@ var OpSound = {
         } else {
             oscNode.type = 'sine';
         }
+        oscNode.mono = true;
         oscNode.frequency.value = freq;
         return oscNode;
     },
@@ -244,12 +245,12 @@ class SinusLine {
             //use all needed oscillators
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
-                    if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.type === 'sine') {
+                    if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.mono) {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
                         this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.duration); //overwrites other triggered stops
                     } else { //the oscillator has been stopped or has never been created (or is created through createWaveOscillator)
-                        if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying)
+                        if (this.oscNodes[i] && !this.oscNodes[i].oscNode.mono)
                           this.oscNodes[i].oscNode.stop();
                         this.oscNodes[i] = OpSound.playOscillator(
                             OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
