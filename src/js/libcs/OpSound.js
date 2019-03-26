@@ -123,22 +123,22 @@ var OpSound = {
             gainNode: gainNode
         };
     },
-    
+
     softStop: function(oscGainPair, release) {
-      let audioCtx = this.getAudioContext();
-      oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-      oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime );
-      oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
-      oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrites other triggered stops
+        let audioCtx = this.getAudioContext();
+        oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+        oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
+        oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
+        oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrites other triggered stops
     },
-    
+
     extendDuration: function(oscGainPair, duration, release) {
-      let audioCtx = this.getAudioContext();
-      oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-      oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime );
-      oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime + duration); //constant gain until given time
-      oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration + release);
-      oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrites other triggered stops
+        let audioCtx = this.getAudioContext();
+        oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+        oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
+        oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime + duration); //constant gain until given time
+        oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration + release);
+        oscGainPair.oscNode.stop(audioCtx.currentTime + duration + release); //overwrites other triggered stops
     }
 };
 
@@ -268,7 +268,7 @@ class OscillatorLine {
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
                         OpSound.extendDuration(this.oscNodes[i], this.duration, this.release);
                     } else { //the oscillator has been stopped or has never been created (or is created through createWaveOscillator)
-                        if (this.oscNodes[i] && !this.oscNodes[i].oscNode.mono)
+                        if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && !this.oscNodes[i].oscNode.mono)
                             OpSound.softStop(this.oscNodes[i], this.release);
                         this.oscNodes[i] = OpSound.playOscillator(
                             OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration, this.release
@@ -284,7 +284,7 @@ class OscillatorLine {
                 }
             }
         } else {
-            if (sameharmonics && this.oscNodes[0] && this.oscNodes[0].oscNode.isplaying && this.oscNodes[0].oscNode.type === "custom") {
+            if (sameharmonics && this.oscNodes[0] && this.oscNodes[0].oscNode.isplaying && !this.oscNodes[0].oscNode.mono) {
                 this.oscNodes[0].oscNode.frequency.value = this.freq;
                 OpSound.extendDuration(this.oscNodes[0], this.duration, this.release);
             } else {
