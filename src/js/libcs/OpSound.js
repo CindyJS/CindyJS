@@ -97,7 +97,7 @@ var OpSound = {
         return oscNode;
     },
 
-    playOscillator: function(oscNode, masterGain, gain, attack, duration) {
+    playOscillator: function(oscNode, masterGain, gain, attack, duration, release) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
@@ -112,8 +112,10 @@ var OpSound = {
         };
 
         if (duration >= 0) {
-            //can be overwritten by other triggered stop events
-            oscNode.stop(audioCtx.currentTime + duration + attack);
+            //the folloing can be overwritten by softStop or extendDuration
+            gainNode.gain.setValueAtTime(gain, audioCtx.currentTime + attack + duration); //constant gain until given time
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + attack + duration + release);
+            oscNode.stop(audioCtx.currentTime + duration + attack + release);
         }
 
         return {
@@ -121,9 +123,26 @@ var OpSound = {
             gainNode: gainNode
         };
     },
+    
+    softStop: function(oscGainPair, release) {
+      let audioCtx = this.getAudioContext();
+      oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+      oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime );
+      oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
+      oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrites other triggered stops
+    },
+    
+    extendDuration: function(oscGainPair, duration, release) {
+      let audioCtx = this.getAudioContext();
+      oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+      oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime );
+      oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime + duration); //constant gain until given time
+      oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration + release);
+      oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrites other triggered stops
+    }
 };
 
-class SinusLine {
+class OscillatorLine {
     constructor(audioCtx) {
         this.audioCtx = audioCtx;
         this.lineType = 'sin';
@@ -216,22 +235,21 @@ class SinusLine {
     startOscillators(precompute) {
         if (precompute) {
             this.oscNodes[0] = OpSound.playOscillator(
-                OpSound.createWaveOscillator(this.freq, this.harmonics, this.phaseshift), this.masterGain, 1, this.attack, this.duration
+                OpSound.createWaveOscillator(this.freq, this.harmonics, this.phaseshift), this.masterGain, 1, this.attack, this.duration, this.release
             );
         } else {
             for (let i = 0; i < this.harmonics.length; i++) {
                 this.oscNodes[i] = OpSound.playOscillator(
-                    OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
+                    OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration, this.release
                 );
             }
         }
-        this.masterGain.gain.linearRampToValueAtTime(this.amp, this.audioCtx.currentTime + this.release + this.attack);
+        this.masterGain.gain.linearRampToValueAtTime(this.amp, this.audioCtx.currentTime + this.attack);
     }
 
     stopOscillators() {
-        this.masterGain.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
         for (let i in this.oscNodes) {
-            this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release); //helps
+            OpSound.softStop(this.oscNodes[i], this.release);
             delete this.oscNodes[i];
         }
     }
@@ -248,12 +266,12 @@ class SinusLine {
                     if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.mono) {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
-                        this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.duration); //overwrites other triggered stops
+                        OpSound.extendDuration(this.oscNodes[i], this.duration, this.release);
                     } else { //the oscillator has been stopped or has never been created (or is created through createWaveOscillator)
                         if (this.oscNodes[i] && !this.oscNodes[i].oscNode.mono)
-                          this.oscNodes[i].oscNode.stop();
+                            OpSound.softStop(this.oscNodes[i], this.release);
                         this.oscNodes[i] = OpSound.playOscillator(
-                            OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
+                            OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration, this.release
                         );
                     }
                 }
@@ -261,15 +279,14 @@ class SinusLine {
             for (let i in this.oscNodes) {
                 if (!this.harmonics[i]) { //!this.harmonics[i] also includes this.harmonics[i]===0
                     //there is no harmonics for this oscillator => stop the corresponding oscillator
-                    this.oscNodes[i].gainNode.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
-                    this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release); //overwrites other triggered stops
+                    OpSound.softStop(this.oscNodes[i], this.release);
                     delete this.oscNodes[i];
                 }
             }
         } else {
             if (sameharmonics && this.oscNodes[0] && this.oscNodes[0].oscNode.isplaying && this.oscNodes[0].oscNode.type === "custom") {
                 this.oscNodes[0].oscNode.frequency.value = this.freq;
-                this.oscNodes[0].oscNode.stop(this.audioCtx.currentTime + this.duration);
+                OpSound.extendDuration(this.oscNodes[0], this.duration, this.release);
             } else {
                 this.stopOscillators();
                 this.startOscillators(precompute);
@@ -300,7 +317,7 @@ evaluator.playsin$1 = function(args, modifs) {
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'sin') { //initialize
         if (OpSound.lines[line])
             OpSound.lines[line].stop();
-        OpSound.lines[line] = new SinusLine(audioCtx);
+        OpSound.lines[line] = new OscillatorLine(audioCtx);
         newLine = true;
     }
     let curline = OpSound.lines[line];
