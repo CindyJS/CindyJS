@@ -97,6 +97,17 @@ var OpSound = {
         return oscNode;
     },
 
+    cleanup: function() {
+        for (let id in this.lines) {
+            if (this.lines[id].lineType === 'sin') {
+                if (this.lines[id].oscNodes.every(oscGainPair => !oscGainPair.oscNode.isplaying)) {
+                    this.lines[id].masterGain.disconnect();
+                    delete this.lines[id];
+                }
+            }
+        }
+    },
+
     playOscillator: function(oscNode, masterGain, gain, attack, duration, release) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
@@ -109,6 +120,7 @@ var OpSound = {
         oscNode.onended = function() {
             this.isplaying = false;
             gainNode.disconnect();
+            OpSound.cleanup();
         };
 
         if (duration >= 0) {
