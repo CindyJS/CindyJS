@@ -248,7 +248,9 @@ class SinusLine {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
                         this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.duration); //overwrites other triggered stops
-                    } else { //the oscillator has been stopped or has never been created (or is created through createWave)
+                    } else { //the oscillator has been stopped or has never been created (or is created through createWaveOscillator)
+                        if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying)
+                          this.oscNodes[i].oscNode.stop();
                         this.oscNodes[i] = OpSound.playOscillator(
                             OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
                         );
