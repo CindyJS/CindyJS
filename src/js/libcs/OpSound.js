@@ -124,7 +124,7 @@ var OpSound = {
         oscNode.onended = function() {
             this.isplaying = false;
             gainNode.disconnect();
-            if (masterGain.numberOfInputs == 0) {
+            if (masterGain.numberOfInputs === 0) {
                 masterGain.disconnect();
             }
             OpSound.cleanup();
@@ -343,7 +343,7 @@ class OscillatorLine {
         }
 
         this.panit();
-        if (newLine || (restart && this.damp != 0)) {
+        if (newLine || (restart && this.damp !== 0)) {
             if (restart) {
                 this.stopOscillators();
             }
