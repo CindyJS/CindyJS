@@ -76,6 +76,7 @@ var OpSound = {
         } else {
             oscNode.type = 'sine';
         }
+        oscNode.mono = true;
         oscNode.frequency.value = freq;
         return oscNode;
     },
@@ -96,23 +97,44 @@ var OpSound = {
         return oscNode;
     },
 
-    playOscillator: function(oscNode, masterGain, gain, attack, duration) {
+    cleanup: function() {
+        for (let id in this.lines) {
+            if (this.lines[id].lineType === 'sin') {
+                if (this.lines[id].oscNodes.every(oscGainPair => !oscGainPair.oscNode.isplaying)) {
+                    this.lines[id].masterGain.disconnect();
+                    delete this.lines[id];
+                } else {
+                    for (let i = 0; i < this.lines[id].oscNodes.length; i++) {
+                        if (this.lines[id].oscNodes[i] && !this.lines[id].oscNodes[i].oscNode.isplaying)
+                            delete this.lines[id].oscNodes[i];
+                    }
+                }
+            }
+        }
+    },
+
+    playOscillator: function(oscNode, masterGain, gain, attack, duration, release) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
         gainNode.connect(masterGain);
         oscNode.connect(gainNode);
-        gainNode.gain.linearRampToValueAtTime(gain, audioCtx.currentTime + attack);
         oscNode.start(0);
         oscNode.isplaying = true;
         oscNode.onended = function() {
             this.isplaying = false;
             gainNode.disconnect();
+            if (masterGain.numberOfInputs === 0) {
+                masterGain.disconnect();
+            }
+            OpSound.cleanup();
         };
-
+        gainNode.gain.linearRampToValueAtTime(gain, audioCtx.currentTime + attack);
         if (duration >= 0) {
-            //can be overwritten by other triggered stop events
-            oscNode.stop(audioCtx.currentTime + duration + attack);
+            //the folloing can be overwritten by softStop or extendDuration
+            gainNode.gain.setValueAtTime(gain, audioCtx.currentTime + attack + duration); //constant gain until given time
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + attack + duration + release);
+            oscNode.stop(audioCtx.currentTime + duration + attack + release);
         }
 
         return {
@@ -120,9 +142,26 @@ var OpSound = {
             gainNode: gainNode
         };
     },
+
+    softStop: function(oscGainPair, release) {
+        let audioCtx = this.getAudioContext();
+        oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+        oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
+        oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
+        oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrites other triggered stops
+    },
+
+    extendDuration: function(oscGainPair, duration, release) {
+        let audioCtx = this.getAudioContext();
+        oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+        oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
+        oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime + duration); //constant gain until given time
+        oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration + release);
+        oscGainPair.oscNode.stop(audioCtx.currentTime + duration + release); //overwrites other triggered stops
+    }
 };
 
-class SinusLine {
+class OscillatorLine {
     constructor(audioCtx) {
         this.audioCtx = audioCtx;
         this.lineType = 'sin';
@@ -186,6 +225,7 @@ class SinusLine {
             if (modifs.phaseshift)
                 console.warn("Ignore phaseshift because the given length does not match with the length of harmonics");
         }
+        this.precompute &= this.partials.every(p => Math.abs(p - 1) < 1e-8);
     }
 
     panit() {
@@ -202,8 +242,10 @@ class SinusLine {
     }
 
     dampit() {
+        this.masterGain.gain.cancelScheduledValues(this.audioCtx.currentTime);
+        this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, this.audioCtx.currentTime);
         if (this.damp > 0) {
-            this.masterGain.gain.setTargetAtTime(0.0, this.audioCtx.currentTime + this.release + this.attack, (1 / this.damp));
+            this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.release + this.attack, (1 / this.damp));
             for (let i = 0; i < this.oscNodes[i].length; i++) {
                 this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + (6 / this.damp));
             }
@@ -212,45 +254,52 @@ class SinusLine {
         }
     }
 
-    startOscillators(precompute) {
-        if (precompute) {
+    startOscillators() {
+        if (this.precompute) {
             this.oscNodes[0] = OpSound.playOscillator(
-                OpSound.createWaveOscillator(this.freq, this.harmonics, this.phaseshift), this.masterGain, 1, this.attack, this.duration
+                OpSound.createWaveOscillator(this.freq, this.harmonics, this.phaseshift),
+                this.masterGain, 1, this.attack, this.duration, this.release
             );
         } else {
             for (let i = 0; i < this.harmonics.length; i++) {
                 this.oscNodes[i] = OpSound.playOscillator(
-                    OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
+                    OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]),
+                    this.masterGain, this.harmonics[i], this.attack, this.duration, this.release
                 );
             }
         }
-        this.masterGain.gain.linearRampToValueAtTime(this.amp, this.audioCtx.currentTime + this.release + this.attack);
     }
 
     stopOscillators() {
-        this.masterGain.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
         for (let i in this.oscNodes) {
-            this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release); //helps
+            OpSound.softStop(this.oscNodes[i], this.release);
             delete this.oscNodes[i];
         }
+        //replace masterGain with a new one (the old one is still needed for smooth fading)
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.gain.value = 0;
+        this.masterGain.connect(this.audioCtx.destination);
     }
 
     stop() {
         this.stopOscillators();
     }
 
-    updateFrequencyAndGain(precompute, sameharmonics) {
-        if (!precompute) {
+    updateFrequencyAndGain() {
+        if (!this.precompute) {
             //use all needed oscillators
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
-                    if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.type === 'sine') {
+
+                    if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.mono) {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
-                        this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.duration); //overwrites other triggered stops
-                    } else { //the oscillator has been stopped or has never been created (or is created through createWave)
+                        OpSound.extendDuration(this.oscNodes[i], this.duration, this.release);
+                    } else { //the oscillator has been stopped or has never been created (or is created through createWaveOscillator)
+                        if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && !this.oscNodes[i].oscNode.mono)
+                            OpSound.softStop(this.oscNodes[i], this.release);
                         this.oscNodes[i] = OpSound.playOscillator(
-                            OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration
+                            OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration, this.release
                         );
                     }
                 }
@@ -258,20 +307,53 @@ class SinusLine {
             for (let i in this.oscNodes) {
                 if (!this.harmonics[i]) { //!this.harmonics[i] also includes this.harmonics[i]===0
                     //there is no harmonics for this oscillator => stop the corresponding oscillator
-                    this.oscNodes[i].gainNode.gain.linearRampToValueAtTime(0.0, this.audioCtx.currentTime + this.release);
-                    this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + this.release); //overwrites other triggered stops
+                    OpSound.softStop(this.oscNodes[i], this.release);
                     delete this.oscNodes[i];
                 }
             }
         } else {
-            if (sameharmonics && this.oscNodes[0] && this.oscNodes[0].oscNode.isplaying && this.oscNodes[0].oscNode.type === "custom") {
+            if (this.harmonicsdidnotchange() && this.oscNodes[0] && this.oscNodes[0].oscNode.isplaying && !this.oscNodes[0].oscNode.mono) {
                 this.oscNodes[0].oscNode.frequency.value = this.freq;
-                this.oscNodes[0].oscNode.stop(this.audioCtx.currentTime + this.duration);
+                OpSound.extendDuration(this.oscNodes[0], this.duration, this.release);
             } else {
                 this.stopOscillators();
-                this.startOscillators(precompute);
+                this.startOscillators();
             }
         }
+    }
+
+    harmonicsdidnotchange() {
+        let sameharmonics = true;
+        if (!this.lastharmonics) {
+            sameharmonics = false;
+        } else {
+            sameharmonics &= (this.lastharmonics.length === this.harmonics.length);
+            for (let i in this.harmonics)
+                if (sameharmonics)
+                    sameharmonics &= (this.harmonics[i] === this.lastharmonics[i]);
+        }
+        return sameharmonics;
+    }
+
+    evokeplaysin(newLine, restart, modifs) {
+        this.cleanparameters(modifs);
+        if (this.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
+            this.stop();
+            return nada;
+        }
+
+        this.panit();
+        if (newLine || (restart && this.damp !== 0)) {
+            if (restart) {
+                this.stopOscillators();
+            }
+            this.masterGain.gain.value = this.amp;
+            this.startOscillators();
+        } else {
+            this.updateFrequencyAndGain();
+        }
+        this.dampit();
+        this.lastharmonics = this.harmonics;
     }
 }
 
@@ -297,7 +379,7 @@ evaluator.playsin$1 = function(args, modifs) {
     if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'sin') { //initialize
         if (OpSound.lines[line])
             OpSound.lines[line].stop();
-        OpSound.lines[line] = new SinusLine(audioCtx);
+        OpSound.lines[line] = new OscillatorLine(audioCtx);
         newLine = true;
     }
     let curline = OpSound.lines[line];
@@ -311,53 +393,11 @@ evaluator.playsin$1 = function(args, modifs) {
     curline.handleModif(modifs, "attack", 'number', 0.01);
     curline.handleModif(modifs, "release", 'number', 0.01);
     curline.handleModif(modifs, "pan", 'number', 0);
+    curline.handleModif(modifs, "precompute", 'boolean', false);
     curline.handleModif(modifs, "phaseshift", 'phaseshift', Array(curline.harmonics.length).fill(0));
-
-    curline.cleanparameters(modifs);
-
-
     let restart = OpSound.handleModif(modifs.restart, 'boolean', true);
-    let precompute = OpSound.handleModif(modifs.precompute, 'boolean', false);
 
-    let sameharmonics = true;
-    if (!curline.lastharmonics) {
-        sameharmonics = false;
-    } else {
-        sameharmonics &= (curline.lastharmonics.length === curline.harmonics.length);
-        for (let i in curline.harmonics)
-            if (sameharmonics)
-                sameharmonics &= (curline.harmonics[i] === curline.lastharmonics[i]);
-    }
-    curline.lastharmonics = curline.harmonics;
-
-    if (curline.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
-        curline.stop();
-        delete OpSound.lines[line];
-        return nada;
-    }
-
-    //precompute is not possible if singal is non-periodic
-    precompute &= curline.partials.every(p => Math.abs(p - 1) < 1e-8);
-
-    curline.panit();
-
-    if (newLine) {
-        curline.startOscillators(precompute);
-        curline.dampit();
-    } else {
-        if (curline.damp === 0) {
-            curline.updateFrequencyAndGain(precompute, sameharmonics);
-        } else {
-            if (restart) {
-                curline.stopOscillators();
-                curline.startOscillators(precompute);
-                curline.dampit();
-            } else {
-                curline.updateFrequencyAndGain(precompute, sameharmonics);
-                curline.dampit();
-            }
-        }
-    }
+    curline.evokeplaysin(newLine, restart, modifs);
     return nada;
 };
 
@@ -366,7 +406,28 @@ evaluator.playsin$0 = function(args, modifs) {
     let erg;
     if (modifs.line !== undefined) {
         let line = OpSound.handleLineModif(modifs.line, "0");
-        evaluator.playsin$1([CSNumber.real(OpSound.lines[line].oscNodes[0].oscNode.frequency.value)], modifs);
+        let curline = OpSound.lines[line];
+        //evaluator.playsin$1([CSNumber.real(OpSound.lines[line].oscNodes[0].oscNode.frequency.value)], modifs);
+        if (curline) {
+            //overwrite parameters if given
+            curline.handleModif(modifs, "freq", 'number', curline.freq);
+            curline.handleModif(modifs, "amp", 'number', curline.amp);
+            curline.handleModif(modifs, "damp", 'number', curline.damp);
+            curline.handleModif(modifs, "duration", 'number', OpSound.handleModif(modifs.stop, 'number', curline.duration));
+            curline.handleModif(modifs, "harmonics", 'list', curline.harmonics);
+            curline.handleModif(modifs, "partials", 'list', curline.partials);
+            curline.handleModif(modifs, "attack", 'number', curline.attack);
+            curline.handleModif(modifs, "release", 'number', curline.release);
+            curline.handleModif(modifs, "pan", 'number', curline.pan);
+            curline.handleModif(modifs, "precompute", 'boolean', curline.precompute);
+            curline.handleModif(modifs, "phaseshift", 'phaseshift', curline.phaseshift);
+
+            let restart = OpSound.handleModif(modifs.restart, 'boolean', false);
+
+            curline.evokeplaysin(false, restart, modifs);
+            return nada;
+
+        }
     }
     return nada;
 };
