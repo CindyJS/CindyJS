@@ -290,7 +290,7 @@ class OscillatorLine {
             //use all needed oscillators
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
-                  
+
                     if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.mono) {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
@@ -334,26 +334,26 @@ class OscillatorLine {
         }
         return sameharmonics;
     }
-    
-    evokeplaysin(newLine, restart, modifs) {
-      this.cleanparameters(modifs);
-      if (this.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
-          this.stop();
-          return nada;
-      }
 
-      this.panit();
-      if (newLine || (restart && this.damp!=0)) {
-          if (restart) {
-              this.stopOscillators();
-          }
-          this.masterGain.gain.value = this.amp;
-          this.startOscillators();
-      } else {
-          this.updateFrequencyAndGain();
-      }
-      this.dampit();
-      this.lastharmonics = this.harmonics;
+    evokeplaysin(newLine, restart, modifs) {
+        this.cleanparameters(modifs);
+        if (this.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
+            this.stop();
+            return nada;
+        }
+
+        this.panit();
+        if (newLine || (restart && this.damp != 0)) {
+            if (restart) {
+                this.stopOscillators();
+            }
+            this.masterGain.gain.value = this.amp;
+            this.startOscillators();
+        } else {
+            this.updateFrequencyAndGain();
+        }
+        this.dampit();
+        this.lastharmonics = this.harmonics;
     }
 }
 
@@ -396,7 +396,7 @@ evaluator.playsin$1 = function(args, modifs) {
     curline.handleModif(modifs, "precompute", 'boolean', false);
     curline.handleModif(modifs, "phaseshift", 'phaseshift', Array(curline.harmonics.length).fill(0));
     let restart = OpSound.handleModif(modifs.restart, 'boolean', true);
-    
+
     curline.evokeplaysin(newLine, restart, modifs);
     return nada;
 };
