@@ -101,9 +101,6 @@ var OpSound = {
         for (let id in this.lines) {
             if (this.lines[id].lineType === 'sin') {
                 if (this.lines[id].oscNodes.every(oscGainPair => !oscGainPair.oscNode.isplaying)) {
-                    this.lines[id].masterGain.disconnect();
-                    if (this.lines[id].panNode)
-                        this.lines[id].panNode.disconnect();
                     delete this.lines[id];
                 } else {
                     for (let i = 0; i < this.lines[id].oscNodes.length; i++) {
@@ -128,6 +125,9 @@ var OpSound = {
             gainNode.disconnect();
             if (masterGain.numberOfInputs === 0) {
                 masterGain.disconnect();
+                if (masterGain.panNode) {
+                    masterGain.panNode.disconnect();
+                }
             }
             OpSound.cleanup();
         };
@@ -244,15 +244,15 @@ class OscillatorLine {
 
     panit() {
         //insert pannode in between if necessary
-        if (this.pan !== 0 & !this.panNode) {
+        if (this.pan !== 0 && !this.masterGain.panNode) {
             this.masterGain.disconnect(this.audioCtx.destination);
-            this.panNode = this.audioCtx.createStereoPanner();
-            this.masterGain.connect(this.panNode);
-            this.panNode.connect(this.audioCtx.destination);
+            this.masterGain.panNode = this.audioCtx.createStereoPanner();
+            this.masterGain.connect(this.masterGain.panNode);
+            this.masterGain.panNode.connect(this.audioCtx.destination);
         }
         //update pan value
-        if (this.panNode)
-            this.panNode.pan.value = this.pan;
+        if (this.masterGain.panNode)
+            this.masterGain.panNode.pan.value = this.pan;
     }
 
     dampit() {
