@@ -344,7 +344,7 @@ class OscillatorLine {
 
         this.panit();
         if (newLine || (restart && this.damp !== 0)) {
-            if (restart) {
+            if (restart && !newLine) {
                 this.stopOscillators();
             }
             this.masterGain.gain.value = this.amp;
