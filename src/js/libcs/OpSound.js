@@ -333,9 +333,6 @@ class OscillatorLine {
     }
 
     generateNewMasterGain(amp) {
-        if (this.masterGain && this.masterGain.numberOfInputs == 0) {
-            this.masterGain.disconnect();
-        }
         //replace masterGain with a new one (the old one is still needed for smooth fading)
         this.masterGain = this.audioCtx.createGain();
         this.masterGain.connect(this.audioCtx.destination);
