@@ -136,7 +136,8 @@ var OpSound = {
             //the folloing can be overwritten by softStop or extendDuration
             gainNode.gain.setValueAtTime(gain, audioCtx.currentTime + attack + duration); //constant gain until given time
             gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + attack + duration + release);
-            oscNode.stop(audioCtx.currentTime + duration + attack + release);
+            //oscNode.stop(audioCtx.currentTime + duration + attack + release);
+            this.triggerStop(oscNode, duration + attack + release);
         }
 
         return {
@@ -150,7 +151,8 @@ var OpSound = {
         oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
         oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
-        oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrites other triggered stops
+        //oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrite does not work for Safari
+        this.triggerStop(oscGainPair.oscNode, release);
     },
 
     extendDuration: function(oscGainPair, duration, release) {
@@ -159,7 +161,20 @@ var OpSound = {
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime + duration); //constant gain until given time
         oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration + release);
-        oscGainPair.oscNode.stop(audioCtx.currentTime + duration + release); //overwrites other triggered stops
+        //oscGainPair.oscNode.stop(audioCtx.currentTime + duration + release); //overwrite does not work for Safari
+        this.triggerStop(oscGainPair.oscNode, duration + release);
+    },
+
+    triggerStop: function(oscNode, time) {
+        //this method overwrites also other triggered stops
+        //According to https://webaudio.github.io/web-audio-api/#dom-audioscheduledsourcenode-stop this should also be done by oscNode.stop(audioCtx.currentTime + time)
+        //However, in March 2019, Safari apperantly did not support this behaviour.
+        if (oscNode.timeoutId) {
+            clearTimeout(oscNode.timeoutId);
+        }
+        oscNode.timeoutId = setTimeout(function() {
+            oscNode.stop(0);
+        }, 1000 * time + 10);
     }
 };
 
@@ -246,7 +261,8 @@ class OscillatorLine {
         if (this.damp > 0) {
             this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.release + this.attack, (1 / this.damp));
             for (let i = 0; i < this.oscNodes[i].length; i++) {
-                this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + (6 / this.damp));
+                //this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + (6 / this.damp));
+                OpSound.triggerStop(this.oscNodes[i].oscNode, 6 / this.damp);
             }
         } else if (this.damp < 0) {
             this.masterGain.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.release + this.attack, (-this.damp));
@@ -315,15 +331,15 @@ class OscillatorLine {
             }
         }
     }
-    
+
     generateNewMasterGain(amp) {
-      if(this.masterGain && this.masterGain.numberOfInputs==0) {
-        this.masterGain.disconnect();
-      }
-      //replace masterGain with a new one (the old one is still needed for smooth fading)
-      this.masterGain = this.audioCtx.createGain();
-      this.masterGain.connect(this.audioCtx.destination);
-      this.masterGain.gain.value = amp;
+        if (this.masterGain && this.masterGain.numberOfInputs == 0) {
+            this.masterGain.disconnect();
+        }
+        //replace masterGain with a new one (the old one is still needed for smooth fading)
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.connect(this.audioCtx.destination);
+        this.masterGain.gain.value = amp;
     }
 
     harmonicsdidnotchange() {
@@ -429,8 +445,6 @@ evaluator.playsin$0 = function(args, modifs) {
             let restart = OpSound.handleModif(modifs.restart, 'boolean', false);
 
             curline.evokeplaysin(false, restart, modifs);
-            return nada;
-
         }
     }
     return nada;
