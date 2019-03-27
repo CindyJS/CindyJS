@@ -102,6 +102,8 @@ var OpSound = {
             if (this.lines[id].lineType === 'sin') {
                 if (this.lines[id].oscNodes.every(oscGainPair => !oscGainPair.oscNode.isplaying)) {
                     this.lines[id].masterGain.disconnect();
+                    if (this.lines[id].panNode)
+                        this.lines[id].panNode.disconnect();
                     delete this.lines[id];
                 } else {
                     for (let i = 0; i < this.lines[id].oscNodes.length; i++) {
@@ -166,9 +168,6 @@ class OscillatorLine {
         this.audioCtx = audioCtx;
         this.lineType = 'sin';
         this.oscNodes = [];
-        this.masterGain = audioCtx.createGain();
-        this.masterGain.gain.value = 0;
-        this.masterGain.connect(audioCtx.destination);
     }
 
     handleModif(modifs, modifName, modifType, defaultValue) {
@@ -275,10 +274,6 @@ class OscillatorLine {
             OpSound.softStop(this.oscNodes[i], this.release);
             delete this.oscNodes[i];
         }
-        //replace masterGain with a new one (the old one is still needed for smooth fading)
-        this.masterGain = this.audioCtx.createGain();
-        this.masterGain.gain.value = 0;
-        this.masterGain.connect(this.audioCtx.destination);
     }
 
     stop() {
@@ -290,7 +285,6 @@ class OscillatorLine {
             //use all needed oscillators
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
-
                     if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.mono) {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
@@ -321,6 +315,16 @@ class OscillatorLine {
             }
         }
     }
+    
+    generateNewMasterGain(amp) {
+      if(this.masterGain && this.masterGain.numberOfInputs==0) {
+        this.masterGain.disconnect();
+      }
+      //replace masterGain with a new one (the old one is still needed for smooth fading)
+      this.masterGain = this.audioCtx.createGain();
+      this.masterGain.connect(this.audioCtx.destination);
+      this.masterGain.gain.value = amp;
+    }
 
     harmonicsdidnotchange() {
         let sameharmonics = true;
@@ -342,16 +346,16 @@ class OscillatorLine {
             return nada;
         }
 
-        this.panit();
         if (newLine || (restart && this.damp !== 0)) {
             if (restart && !newLine) {
                 this.stopOscillators();
             }
-            this.masterGain.gain.value = this.amp;
+            this.generateNewMasterGain(this.amp);
             this.startOscillators();
         } else {
             this.updateFrequencyAndGain();
         }
+        this.panit();
         this.dampit();
         this.lastharmonics = this.harmonics;
     }
