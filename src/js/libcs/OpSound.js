@@ -112,18 +112,35 @@ var OpSound = {
         }
     },
 
+    registerInput: function(audioNode) {
+        if (!audioNode.cnt)
+            audioNode.cnt = 1;
+        else
+            audioNode.cnt++;
+    },
+
+    deregisterInput: function(audioNode) {
+        if (audioNode.cnt)
+            audioNode.cnt--;
+    },
+
+    hasRegisteredInput: function(audioNode) {
+        return (audioNode.cnt && audioNode.cnt !== 0);
+    },
+
     playOscillator: function(oscNode, masterGain, gain, attack, duration, release) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
-        gainNode.connect(masterGain);
-        oscNode.connect(gainNode);
+        oscNode.connect(gainNode).connect(masterGain);
+        OpSound.registerInput(masterGain);
         oscNode.start(0);
         oscNode.isplaying = true;
         oscNode.onended = function() {
             this.isplaying = false;
             gainNode.disconnect();
-            if (masterGain.numberOfInputs === 0) {
+            OpSound.deregisterInput(masterGain);
+            if (!OpSound.hasRegisteredInput(masterGain)) {
                 masterGain.disconnect();
                 if (masterGain.panNode) {
                     masterGain.panNode.disconnect();
