@@ -240,6 +240,10 @@ class OscillatorLine {
                 console.warn("Ignore phaseshift because the given length does not match with the length of harmonics");
         }
         this.precompute &= this.partials.every(p => Math.abs(p - 1) < 1e-8);
+
+        if (this.damp > 0) {
+            this.duration = Math.min(this.duration, 6 / this.damp); //exp(-6)<0.003, thus unhearable
+        }
     }
 
     panit() {
@@ -259,13 +263,9 @@ class OscillatorLine {
         this.masterGain.gain.cancelScheduledValues(this.audioCtx.currentTime);
         this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, this.audioCtx.currentTime);
         if (this.damp > 0) {
-            this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.release + this.attack, (1 / this.damp));
-            for (let i = 0; i < this.oscNodes[i].length; i++) {
-                //this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + (6 / this.damp));
-                OpSound.triggerStop(this.oscNodes[i].oscNode, 6 / this.damp);
-            }
+            this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.attack, (1 / this.damp));
         } else if (this.damp < 0) {
-            this.masterGain.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.release + this.attack, (-this.damp));
+            this.masterGain.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.attack, (-this.damp));
         }
     }
 
