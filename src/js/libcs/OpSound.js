@@ -101,7 +101,6 @@ var OpSound = {
         for (let id in this.lines) {
             if (this.lines[id].lineType === 'sin') {
                 if (this.lines[id].oscNodes.every(oscGainPair => !oscGainPair.oscNode.isplaying)) {
-                    this.lines[id].masterGain.disconnect();
                     delete this.lines[id];
                 } else {
                     for (let i = 0; i < this.lines[id].oscNodes.length; i++) {
@@ -113,19 +112,39 @@ var OpSound = {
         }
     },
 
+    registerInput: function(audioNode) {
+        if (!audioNode.cnt)
+            audioNode.cnt = 1;
+        else
+            audioNode.cnt++;
+    },
+
+    deregisterInput: function(audioNode) {
+        if (audioNode.cnt)
+            audioNode.cnt--;
+    },
+
+    hasRegisteredInput: function(audioNode) {
+        return (audioNode.cnt && audioNode.cnt !== 0);
+    },
+
     playOscillator: function(oscNode, masterGain, gain, attack, duration, release) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
-        gainNode.connect(masterGain);
-        oscNode.connect(gainNode);
+        oscNode.connect(gainNode).connect(masterGain);
+        OpSound.registerInput(masterGain);
         oscNode.start(0);
         oscNode.isplaying = true;
         oscNode.onended = function() {
             this.isplaying = false;
             gainNode.disconnect();
-            if (masterGain.numberOfInputs === 0) {
+            OpSound.deregisterInput(masterGain);
+            if (!OpSound.hasRegisteredInput(masterGain)) {
                 masterGain.disconnect();
+                if (masterGain.panNode) {
+                    masterGain.panNode.disconnect();
+                }
             }
             OpSound.cleanup();
         };
@@ -134,7 +153,8 @@ var OpSound = {
             //the folloing can be overwritten by softStop or extendDuration
             gainNode.gain.setValueAtTime(gain, audioCtx.currentTime + attack + duration); //constant gain until given time
             gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + attack + duration + release);
-            oscNode.stop(audioCtx.currentTime + duration + attack + release);
+            //oscNode.stop(audioCtx.currentTime + duration + attack + release);
+            this.triggerStop(oscNode, duration + attack + release);
         }
 
         return {
@@ -148,7 +168,8 @@ var OpSound = {
         oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
         oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + release);
-        oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrites other triggered stops
+        //oscGainPair.oscNode.stop(audioCtx.currentTime + release); //overwrite does not work for Safari
+        this.triggerStop(oscGainPair.oscNode, release);
     },
 
     extendDuration: function(oscGainPair, duration, release) {
@@ -157,7 +178,20 @@ var OpSound = {
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime + duration); //constant gain until given time
         oscGainPair.gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration + release);
-        oscGainPair.oscNode.stop(audioCtx.currentTime + duration + release); //overwrites other triggered stops
+        //oscGainPair.oscNode.stop(audioCtx.currentTime + duration + release); //overwrite does not work for Safari
+        this.triggerStop(oscGainPair.oscNode, duration + release);
+    },
+
+    triggerStop: function(oscNode, time) {
+        //this method overwrites also other triggered stops
+        //According to https://webaudio.github.io/web-audio-api/#dom-audioscheduledsourcenode-stop this should also be done by oscNode.stop(audioCtx.currentTime + time)
+        //However, in March 2019, Safari apperantly did not support this behaviour.
+        if (oscNode.timeoutId) {
+            clearTimeout(oscNode.timeoutId);
+        }
+        oscNode.timeoutId = setTimeout(function() {
+            oscNode.stop(0);
+        }, 1000 * time + 10);
     }
 };
 
@@ -166,9 +200,6 @@ class OscillatorLine {
         this.audioCtx = audioCtx;
         this.lineType = 'sin';
         this.oscNodes = [];
-        this.masterGain = audioCtx.createGain();
-        this.masterGain.gain.value = 0;
-        this.masterGain.connect(audioCtx.destination);
     }
 
     handleModif(modifs, modifName, modifType, defaultValue) {
@@ -226,31 +257,32 @@ class OscillatorLine {
                 console.warn("Ignore phaseshift because the given length does not match with the length of harmonics");
         }
         this.precompute &= this.partials.every(p => Math.abs(p - 1) < 1e-8);
+
+        if (this.damp > 0) {
+            this.duration = Math.min(this.duration, 6 / this.damp); //exp(-6)<0.003, thus unhearable
+        }
     }
 
     panit() {
         //insert pannode in between if necessary
-        if (this.pan !== 0 & !this.panNode) {
+        if (this.pan !== 0 && !this.masterGain.panNode) {
             this.masterGain.disconnect(this.audioCtx.destination);
-            this.panNode = this.audioCtx.createStereoPanner();
-            this.masterGain.connect(this.panNode);
-            this.panNode.connect(this.audioCtx.destination);
+            this.masterGain.panNode = this.audioCtx.createStereoPanner();
+            this.masterGain.connect(this.masterGain.panNode);
+            this.masterGain.panNode.connect(this.audioCtx.destination);
         }
         //update pan value
-        if (this.panNode)
-            this.panNode.pan.value = this.pan;
+        if (this.masterGain.panNode)
+            this.masterGain.panNode.pan.value = this.pan;
     }
 
     dampit() {
         this.masterGain.gain.cancelScheduledValues(this.audioCtx.currentTime);
         this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, this.audioCtx.currentTime);
         if (this.damp > 0) {
-            this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.release + this.attack, (1 / this.damp));
-            for (let i = 0; i < this.oscNodes[i].length; i++) {
-                this.oscNodes[i].oscNode.stop(this.audioCtx.currentTime + (6 / this.damp));
-            }
+            this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.attack, (1 / this.damp));
         } else if (this.damp < 0) {
-            this.masterGain.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.release + this.attack, (-this.damp));
+            this.masterGain.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.attack, (-this.damp));
         }
     }
 
@@ -275,10 +307,6 @@ class OscillatorLine {
             OpSound.softStop(this.oscNodes[i], this.release);
             delete this.oscNodes[i];
         }
-        //replace masterGain with a new one (the old one is still needed for smooth fading)
-        this.masterGain = this.audioCtx.createGain();
-        this.masterGain.gain.value = 0;
-        this.masterGain.connect(this.audioCtx.destination);
     }
 
     stop() {
@@ -290,7 +318,6 @@ class OscillatorLine {
             //use all needed oscillators
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
-
                     if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.mono) {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
@@ -322,6 +349,13 @@ class OscillatorLine {
         }
     }
 
+    generateNewMasterGain(amp) {
+        //replace masterGain with a new one (the old one is still needed for smooth fading)
+        this.masterGain = this.audioCtx.createGain();
+        this.masterGain.connect(this.audioCtx.destination);
+        this.masterGain.gain.value = amp;
+    }
+
     harmonicsdidnotchange() {
         let sameharmonics = true;
         if (!this.lastharmonics) {
@@ -342,16 +376,17 @@ class OscillatorLine {
             return nada;
         }
 
-        this.panit();
         if (newLine || (restart && this.damp !== 0)) {
-            if (restart) {
+            if (restart && !newLine) {
                 this.stopOscillators();
             }
-            this.masterGain.gain.value = this.amp;
+            this.generateNewMasterGain(this.amp);
             this.startOscillators();
         } else {
+            if (!this.masterGain) this.generateNewMasterGain(this.amp);
             this.updateFrequencyAndGain();
         }
+        this.panit();
         this.dampit();
         this.lastharmonics = this.harmonics;
     }
@@ -425,8 +460,6 @@ evaluator.playsin$0 = function(args, modifs) {
             let restart = OpSound.handleModif(modifs.restart, 'boolean', false);
 
             curline.evokeplaysin(false, restart, modifs);
-            return nada;
-
         }
     }
     return nada;
