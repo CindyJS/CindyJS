@@ -383,6 +383,7 @@ class OscillatorLine {
             this.generateNewMasterGain(this.amp);
             this.startOscillators();
         } else {
+            if (!this.masterGain) this.generateNewMasterGain(this.amp);
             this.updateFrequencyAndGain();
         }
         this.panit();
