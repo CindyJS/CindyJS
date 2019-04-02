@@ -87,7 +87,7 @@ The command has several modifiers.
 | `restart`    | `‹boolean›`            | set this to false to only adjust frequency and gain of playing tone |
 | `pan`        | `‹number›`             | panning between left (-1) or right (+1) |
 | `phaseshift` | `‹number› or ‹list›`   | shift phase of each harmonic wave by value in [0,2*pi] |
-| `precompute` | `‹boolean›`            | play all harmonics with one Oscillator (with precomputed Wave) to save resources, only works without partials |
+| `precompute` | `‹boolean›`            | play all harmonics with one oscillator (with precomputed wave) to save resources, only works without partials and constant harmonics |
 
 
 **Examples:**
