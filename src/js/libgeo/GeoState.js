@@ -64,7 +64,7 @@ csport.reset = function() {
     csport.drawingstate.matrix.sdet = csport.drawingstate.initialmatrix.sdet;
 };
 
-// Convert homogeneous user coordinates to Euclidean (CSS) pixel coordinates. Scaling due virtualwidth/virtualheight is taking in consideration. Usable for inputs
+// Convert homogeneous user coordinates to Euclidean (CSS) pixel coordinates. Scaling due virtualwidth/virtualheight is taken in consideration. Usable for inputs
 csport.from = function(x, y, z) {
     var xx = x / z;
     var yy = y / z;
@@ -74,7 +74,7 @@ csport.from = function(x, y, z) {
     return [xxx / vscale, yyy / vscale];
 };
 
-// Convert Euclidean (CSS) pixel coordinates to homogeneous user coordinates. Scaling due virtualwidth/virtualheight is taking in consideration. Usable for inputs
+// Convert Euclidean (CSS) pixel coordinates to homogeneous user coordinates. Scaling due virtualwidth/virtualheight is taken in consideration. Usable for inputs
 csport.to = function(px, py) {
     var m = csport.drawingstate.matrix;
     var xx = px * vscale - m.tx;
