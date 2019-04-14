@@ -11,20 +11,28 @@
 <body style="font-family:Arial;">
     <h1>CindyJS: Virtual resolutions</h1>
 
+    <script id='csinit' type='text/x-cindyscript'>
+        createimage("canvas", 50,100);
+    </script>
     <script id='csdraw' type='text/x-cindyscript'>
         fillcircle((0,0),5,color->[1,1,.7]);
-						fillcircle((0,0),1,color->[1,.7,.7]);
-						drawtext((0,.85),"test1");
-            drawtext((0,0),"test2");
-						draw((1,-100),(1,100));
-						draw((0,0.12),(2,0.12));
-						
-						draw(A,B);
-						N = 100;
-						zigzag = apply(1..N, k, (2-(k/N)^2,.5+.4*(-1)^k));
-						connect(zigzag, size->1);
-            errc(screenbounds());
-            draw(mouse());
+				fillcircle((0,0),1,color->[1,.7,.7]);
+				drawtext((0,.85),"test1");
+        drawtext((0,0),"test2");
+				draw((1,-100),(1,100));
+				draw((0,0.12),(2,0.12));
+				
+				draw(A,B);
+				N = 100;
+				zigzag = apply(1..N, k, (2-(k/N)^2,.5+.4*(-1)^k));
+				connect(zigzag, size->1);
+        errc(screenbounds());
+        draw(mouse());
+        canvas(A, B, "canvas",
+          fillcircle((0,0),.8, color->[0,.9,.4]);
+          fillcircle((0,0),.6, color->[0,.5,.3]);
+        );
+        drawimage(A, B, "canvas");
         </script>
 
     This is a canvas of size 200 times 100 pixels:

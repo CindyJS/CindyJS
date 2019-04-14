@@ -75,6 +75,7 @@ At the moment the following events are defined:
 * `mousemove` invoked when the mouse (or a single finger) is moved
 * `mousedrag` invoked when the mouse (or a single finger) is moved and the mouse button is pressed
 * `mouseup` invoked if the mouse button is released
+* `mouseclick` invoked if the mouse button is clicked
 * `keydown` invoked when a key is pressed, see the `keylistener` parameter
 * `tick` to perform a timed animation
 * `multidown` invoked after a finger got down (or the mouse got pressed). More details are discussed in the reference on [multi-touch events](User_Input.html#single-and-multi-touch)
