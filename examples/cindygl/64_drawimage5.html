@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>Emulated drawimage$5</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+        </style>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        
+        
+      <script id="csinit" type="text/x-cindyscript">
+        drawimage(A, B, C, D, img) := (
+          if(imageready(img),
+            size = imagesize(img);
+            a = (0, 0);
+            b = (size.x, 0);
+            c = (size.x, size.y);
+            d = (0, size.y);
+            M = map(A, B, C, D, a, b, c, d);
+            colorplot(
+              imagergba(a, b, img, M*[#.x,#.y,1])
+            );
+          );
+        );
+      </script>
+      <script id="csdraw" type="text/x-cindyscript">
+        drawimage(A, B, C, D, "image");
+      </script>
+    
+        <script type="text/javascript">
+          var cdy = CindyJS({
+            scripts: "cs*",
+            geometry: [
+              {labeled: true, name: "A", type: "Free", pos: [1, 0.5884114876487063, -0.45694112985293717]},
+              {labeled: true, name: "B", type: "Free", pos: [-0.5313210649938332, 1, -0.7293615039401091]},
+              {labeled: true, name: "C", type: "Free", pos: [0.13377822275479312, 0.7802685103430878, 1]},
+              {labeled: true, name: "D", type: "Free", pos: [1, -0.3907823827683023, -0.4252541591585299]}
+            ],
+            ports: [
+              {id: "CSCanvas", transform: [{visibleRect: [-5, -5, 5, 5]}], background: "rgb(168,176,192)", fill: "window"}
+            ],
+            images: {"image": "image.png"},
+            use: ["CindyGL"]
+          });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
+    </html>
+  
