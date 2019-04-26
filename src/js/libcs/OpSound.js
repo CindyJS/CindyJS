@@ -279,7 +279,7 @@ class OscillatorLine {
 
     dampit() {
         this.masterGain.gain.cancelScheduledValues(this.audioCtx.currentTime);
-        this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, this.audioCtx.currentTime);
+        this.masterGain.gain.linearRampToValueAtTime(this.amp, this.audioCtx.currentTime + this.attack);
         if (this.damp > 0) {
             this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.attack, (1 / this.damp));
         } else if (this.damp < 0) {
