@@ -16,7 +16,7 @@ The following statement produces a formula that already covers some interesting 
 
     > drawtext(
     >   (0,0),
-    >   "Sum formula: $\sum_{i=1}^n i^2 = { 2\cdot n^3+ 4\cdot n^2 +n\over 6 }
+    >   "Sum formula: $\sum_{i=1}^n i^2 = { 2\cdot n^3+ 4\cdot n^2 +n\over 6 }$"
     > );
 
 ![Image](img/TeX1X.png)
