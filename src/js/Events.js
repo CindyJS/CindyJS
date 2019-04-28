@@ -431,7 +431,7 @@ function setuplisteners(canvas, data) {
         let used = Object.values(multiiddict);
 
         //find the smallest integer >= 1 that is not already used in O(n log n)
-        used = used.sort();
+        used = used.sort((a, b) => a - b); //https://alligator.io/js/array-sort-numbers/
         let isset = false;
         for (let k in used) {
             if (!isset && used[k] > (k | 0) + 1) {
