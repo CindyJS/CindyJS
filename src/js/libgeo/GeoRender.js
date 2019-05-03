@@ -264,7 +264,14 @@ function drawgeotext(el) {
         var label = el.html;
         var inlinebox = label.parentNode;
         var outer = inlinebox.parentNode;
-        htmlCallback = function(text, font, x, y, align) {
+        htmlCallback = function(text, x, y, align, size) {
+            x /= vscale;
+            y /= vscale;
+            var font = (
+                Render2D.bold + Render2D.italics +
+                Math.round(size / vscale * 10) / 10 + "px " +
+                Render2D.family);
+
             if (cache.invisible)
                 outer.style.removeProperty("display");
             if (text === cache.text && font === cache.font &&

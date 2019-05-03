@@ -56,6 +56,9 @@ Accessor.getField = function(geo, field) {
         if (field === "y") {
             return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
         }
+        if (field === "narrow") {
+            return General.wrap(geo.narrow);
+        }
     }
     if (geo.kind === "L" || geo.kind === "S") {
         if (field === "homog") {
@@ -112,6 +115,10 @@ Accessor.getField = function(geo, field) {
 
         if (field === "dualMatrix") {
             return List.normalizeMax(List.adjoint3(geo.matrix));
+        }
+
+        if (field === "narrow") {
+            return General.wrap(geo.narrow);
         }
     }
     if (geo.kind === "Text") {
@@ -318,6 +325,12 @@ Accessor.setField = function(geo, field, value) {
             geo.behavior.vy = value.value[1].value.real;
         }
     }
+
+    if (field === "narrow" && ["P", "C"].includes(geo.kind)) {
+        if (value.ctype === "boolean") geo.narrow = value.value;
+        if (value.ctype === "number" && CSNumber._helper.isAlmostReal(value)) geo.narrow = value.value.real;
+    }
+
     var setter = geoOps[geo.type]["set_" + field];
     if (typeof setter === "function") {
         return setter(geo, value);
