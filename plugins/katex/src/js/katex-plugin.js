@@ -237,11 +237,15 @@
                     total += row[j].width;
                 var pos = x - align * total;
                 for (j = 0; j < n; ++j) {
-                    ctx.save();
-                    ctx.translate(x, y);
-                    ctx.rotate(-angle);
-                    row[j].renderAt(-align*total, 0);
-                    ctx.restore();
+                    if(angle) {
+                      ctx.save();
+                      ctx.translate(x, y);
+                      ctx.rotate(-angle);
+                      row[j].renderAt(-align*total, 0);
+                      ctx.restore();
+                    } else {
+                      row[j].renderAt(pos, y);
+                    }
                     if (left > pos) left = pos;
                     if (top > y - row[j].height) top = y - row[j].height;
                     if (bottom < y + row[j].depth) bottom = y + row[j].depth;

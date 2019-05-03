@@ -894,7 +894,7 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
 };
 
-function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle=0) {
+function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0) {
     if (text.indexOf("\n") !== -1) {
         var left = Infinity;
         var right = -Infinity;
@@ -916,11 +916,15 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, ang
         };
     }
     var m = ctx.measureText(text);
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(-angle);
-    ctx.fillText(text, - m.width * align, 0);
-    ctx.restore();
+    if (angle) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-angle);
+        ctx.fillText(text, -m.width * align, 0);
+        ctx.restore();
+    } else {
+        ctx.fillText(text, x - m.width * align, y);
+    }
     // We can't rely on advanced text metrics due to lack of browser support,
     // so we have to guess sizes, the vertical ones in particular.
     return {
