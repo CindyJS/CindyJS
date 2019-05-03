@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "devDependencies": {
-    "browser-sync": "^2.13.0",
+    "browser-sync": "^2.26.5",
     "chai": "^3.5.0",
     "chalk": "^1.1.1",
     "chokidar": "^1.6.0",
@@ -18,7 +18,7 @@
     "http-proxy": "^1.11.2",
     "iphone-inline-video": "2.0.2",
     "js-beautify": "1.6.8",
-    "jshint": "^2.8.0",
+    "jshint": "^2.10.2",
     "marked": ">=0.3.5 <=0.3.12",
     "mocha": "^5.2.0",
     "node-sass": "^4.12.0",
