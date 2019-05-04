@@ -132,8 +132,7 @@ var OpSound = {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
-        oscNode.connect(gainNode);
-        gainNode.connect(masterGain);
+        oscNode.connect(gainNode).connect(masterGain);
         OpSound.registerInput(masterGain);
         oscNode.start(0);
         oscNode.isplaying = true;
@@ -278,12 +277,29 @@ class OscillatorLine {
     }
 
     dampit() {
-        this.masterGain.gain.cancelScheduledValues(this.audioCtx.currentTime);
-        this.masterGain.gain.linearRampToValueAtTime(this.amp, this.audioCtx.currentTime + this.attack);
-        if (this.damp > 0) {
-            this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.attack, (1 / this.damp));
-        } else if (this.damp < 0) {
-            this.masterGain.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.attack, (-this.damp));
+        //insert dampNode in between if necessary
+        if (this.damp !== 0) {
+            if (!this.masterGain.dampNode) {
+                if (this.masterGain.panNode) {
+                    this.masterGain.disconnect(this.masterGain.panNode);
+                    this.masterGain.dampNode = this.audioCtx.createGain();
+                    this.masterGain.connect(this.masterGain.dampNode);
+                    this.masterGain.dampNode.connect(this.masterGain.panNode);
+                    this.masterGain.panNode.pan.value = this.pan;
+                } else {
+                    this.masterGain.disconnect(this.audioCtx.destination);
+                    this.masterGain.dampNode = this.audioCtx.createGain();
+                    this.masterGain.connect(this.masterGain.dampNode);
+                    this.masterGain.dampNode.connect(this.audioCtx.destination);
+                }
+            }
+            this.masterGain.dampNode.gain.cancelScheduledValues(this.audioCtx.currentTime);
+            this.masterGain.dampNode.gain.setValueAtTime(this.masterGain.dampNode.gain.value, this.audioCtx.currentTime);
+            if (this.damp > 0) {
+                this.masterGain.dampNode.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.attack, (1 / this.damp));
+            } else if (this.damp < 0) {
+                this.masterGain.dampNode.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.attack, (-this.damp));
+            }
         }
     }
 
@@ -317,6 +333,8 @@ class OscillatorLine {
     updateFrequencyAndGain() {
         if (!this.precompute) {
             //use all needed oscillators
+            this.masterGain.gain.cancelScheduledValues(this.audioCtx.currentTime);
+            this.masterGain.gain.linearRampToValueAtTime(this.amp, this.audioCtx.currentTime + this.attack);
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
                     if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.mono) {
