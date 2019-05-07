@@ -132,7 +132,8 @@ var OpSound = {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
-        oscNode.connect(gainNode).connect(masterGain);
+        oscNode.connect(gainNode)
+        gainNode.connect(masterGain);
         OpSound.registerInput(masterGain);
         oscNode.start(0);
         oscNode.isplaying = true;
@@ -144,6 +145,9 @@ var OpSound = {
                 masterGain.disconnect();
                 if (masterGain.panNode) {
                     masterGain.panNode.disconnect();
+                }
+                if (masterGain.dampNode) {
+                    masterGain.dampNode.disconnect();
                 }
             }
             OpSound.cleanup();
@@ -285,7 +289,6 @@ class OscillatorLine {
                     this.masterGain.dampNode = this.audioCtx.createGain();
                     this.masterGain.connect(this.masterGain.dampNode);
                     this.masterGain.dampNode.connect(this.masterGain.panNode);
-                    this.masterGain.panNode.pan.value = this.pan;
                 } else {
                     this.masterGain.disconnect(this.audioCtx.destination);
                     this.masterGain.dampNode = this.audioCtx.createGain();
