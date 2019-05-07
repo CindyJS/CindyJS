@@ -132,7 +132,7 @@ var OpSound = {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
-        oscNode.connect(gainNode)
+        oscNode.connect(gainNode);
         gainNode.connect(masterGain);
         OpSound.registerInput(masterGain);
         oscNode.start(0);
