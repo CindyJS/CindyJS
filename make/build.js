@@ -204,6 +204,22 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Benchmarking
+    //////////////////////////////////////////////////////////////////////
+
+    task("benchmarks", ["exposed", "plain"], function() {
+	const benchdir = './benchmarks/';
+	
+	fs.readdir(benchdir, (err, files) => {
+  	files.forEach(file => {
+	if(path.extname(file) !== ".js") return;
+    	this.node(benchdir + file);
+	  });
+	});
+    });
+
+
+    //////////////////////////////////////////////////////////////////////
     // Check for forbidden patterns in certain files
     //////////////////////////////////////////////////////////////////////
 
