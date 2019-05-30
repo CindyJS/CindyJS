@@ -8,6 +8,7 @@ exports.libcs = [
     "src/js/libcs/Essentials.js",
     "src/js/libcs/Namespace.js",
     "build/js/Compiled.js",
+    "build/js/TSCompiled.js",
     "src/js/libcs/Accessors.js",
     "src/js/libcs/Operators.js",
     "src/js/libcs/OpDrawing.js",
@@ -64,4 +65,9 @@ exports.scss = [
 exports.ifs = [
     "src/js/ifs/worker.js",
     "src/js/ifs/ifs.asm.js",
+];
+
+// TypeScript sources
+exports.tssrc = [
+    //"src/ts/example.ts",
 ];

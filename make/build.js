@@ -5,6 +5,7 @@ var glob = require("glob");
 var path = require("path");
 var Q = require("q");
 var qfs = require("q-io/fs");
+var tsc = require("typescript-compiler");
 
 var getversion = require("./getversion");
 var src = require("./sources");
@@ -62,7 +63,17 @@ module.exports = function build(settings, task) {
         });
     });
 
-    task("plain", ["cs2js"], function() {
+    // TypeScript
+    task("ts2js", [], function() {
+        let tssrc = this.input(src.tssrc);
+        var dst = this.output("build/js/TSCompiled.js");
+        this.addJob(function() {
+	    return tsc.compile(tssrc, '--module commonjs --sourceMap -t ES5 --out ' + dst, null,
+	    function(e) { console.log(e.formattedMessage); throw e})
+	});
+    });
+
+    task("plain", ["cs2js", "ts2js"], function() {
         version(this);
         this.concat(src.srcs, "build/js/Cindy.plain.js");
     });

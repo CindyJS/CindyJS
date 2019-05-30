@@ -32,6 +32,7 @@
     "source-map-dummy": "^1.0.0",
     "st": "^1.2.0",
     "touch": "^1.0.0",
+    "typescript-compiler": "^1.4.1-2",
     "whole-line-stream": "^0.1.0",
     "yauzl": "^2.6.0"
   },
