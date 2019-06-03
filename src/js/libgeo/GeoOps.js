@@ -3286,8 +3286,6 @@ geoOps.ToggleButton.set_fillcolor = geoOps.Button.set_fillcolor;
 geoOps.ToggleButton.set_text = geoOps.ToggleButton.set_currenttext;
 geoOps.ToggleButton.get_val = geoOps.ToggleButton.get_text;
 geoOps.ToggleButton.set_val = geoOps.ToggleButton.set_currenttext;
-geoOps.ToggleButton.get_currenttext = geoOps.ToggleButton.get_currenttext;
-geoOps.ToggleButton.set_currenttext = geoOps.ToggleButton.set_currenttext;
 
 geoOps.EditableText = {};
 geoOps.EditableText.kind = "Text";
@@ -3329,8 +3327,6 @@ geoOps.EditableText.set_currenttext = geoOps.ToggleButton.set_currenttext;
 geoOps.EditableText.set_text = geoOps.EditableText.set_currenttext;
 geoOps.EditableText.get_val = geoOps.EditableText.get_text;
 geoOps.EditableText.set_val = geoOps.EditableText.set_currenttext;
-geoOps.EditableText.get_currenttext = geoOps.EditableText.get_currenttext;
-geoOps.EditableText.set_currenttext = geoOps.EditableText.set_currenttext;
 
 function noop() {}
 
