@@ -25,6 +25,8 @@
     <script id="csdraw" type="text/x-cindyscript">
         draw([2, if(Text0.pressed, 4, 6)]);
         draw([7, if(Text3.pressed, 1.5, 3.5)]);
+	Text0.text = if(Text0.pressed, "Button1 Pressed", "Button1");
+	Text3.text = if(Text3.pressed, "Button4 Pressed", "Button4");
     </script>
     <script type="text/javascript">
 CindyJS({

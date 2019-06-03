@@ -3269,10 +3269,25 @@ geoOps.ToggleButton.initialize = function(el) {
     el.checkbox = checkbox;
     commonButton(el, "change", checkbox, label);
 };
+geoOps.ToggleButton.get_text = function(el) {
+    return General.string(String(el.text));
+};
+
+geoOps.ToggleButton.set_currenttext = function(el, value) {
+    el.html.value = el.text = niceprint(value);
+};
+
 geoOps.ToggleButton.getParamForInput = geoOps.Text.getParamForInput;
 geoOps.ToggleButton.getParamFromState = geoOps.Text.getParamFromState;
 geoOps.ToggleButton.putParamToState = geoOps.Text.putParamToState;
 geoOps.ToggleButton.set_fillcolor = geoOps.Button.set_fillcolor;
+
+
+geoOps.ToggleButton.set_text = geoOps.ToggleButton.set_currenttext;
+geoOps.ToggleButton.get_val = geoOps.ToggleButton.get_text;
+geoOps.ToggleButton.set_val = geoOps.ToggleButton.set_currenttext;
+geoOps.ToggleButton.get_currenttext = geoOps.ToggleButton.get_currenttext;
+geoOps.ToggleButton.set_currenttext = geoOps.ToggleButton.set_currenttext;
 
 geoOps.EditableText = {};
 geoOps.EditableText.kind = "Text";
@@ -3309,14 +3324,8 @@ geoOps.EditableText.get_currenttext = function(el) {
     return General.string(String(el.html.value));
 };
 
-geoOps.EditableText.get_text = function(el) {
-    return General.string(String(el.text));
-};
-
-geoOps.EditableText.set_currenttext = function(el, value) {
-    el.html.value = el.text = niceprint(value);
-};
-geoOps.EditableText.get_text = geoOps.EditableText.get_text;
+geoOps.EditableText.get_text = geoOps.ToggleButton.get_text;
+geoOps.EditableText.set_currenttext = geoOps.ToggleButton.set_currenttext;
 geoOps.EditableText.set_text = geoOps.EditableText.set_currenttext;
 geoOps.EditableText.get_val = geoOps.EditableText.get_text;
 geoOps.EditableText.set_val = geoOps.EditableText.set_currenttext;
