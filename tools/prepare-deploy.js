@@ -27,6 +27,8 @@ var handlers = {
     "CindyJS.css": true,
     "CindyJS.css.map": map,
     "Compiled.js": false,
+    "TSCompiled.js": false,
+    "TSCompiled.js.map": false,
     "ComplexCurves.js": true,
     "ComplexCurves.js.map": false,
     "ComplexCurves.plugin.js": false,
