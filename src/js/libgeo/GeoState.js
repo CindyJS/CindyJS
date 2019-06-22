@@ -132,10 +132,16 @@ csport.visibleRect = function(left, top, right, bottom) {
     var width = right - left;
     var height = top - bottom;
     var flipY = false;
+    var flipX = false;
     if(height < 0) {
       height = -height;
       flipY = true;
     }
+    if(width < 0) {
+      width = -width;
+      flipX = true;
+    }
+
     var scale;
     if (csw * height < csh * width)
         scale = csw / width;
@@ -146,12 +152,17 @@ csport.visibleRect = function(left, top, right, bottom) {
 
     // Handle Axis Flipping
     var scaleY = scale;
+    var scaleX = scale;
     if(flipY) {
       scaleY = -scaleY;
       originY = csh - originY;
     }
+    if(flipX) {
+      scaleX = -scaleX;
+      originX = csw - originX;
+    }
 
-    csport.setMat(scale, 0, 0, scaleY, originX, originY);
+    csport.setMat(scaleX, 0, 0, scaleY, originX, originY);
 };
 
 // TODO: This function looks broken. It seems as if the linear
