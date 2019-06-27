@@ -424,11 +424,13 @@ FakeCanvas.prototype.measureText = function(txt) {
   "quadraticCurveTo",
   "rect",
   "restore",
+  "rotate",
   "save",
   "setTransform",
   "setLineDash",
   "stroke",
   "strokeText",
+  "translate",
   "fillText",
 ].forEach(function(m) {
   FakeCanvas.prototype[m] = function() {

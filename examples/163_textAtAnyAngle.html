@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Cindy JS Example</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../build/js/CindyJS.css">
+
+  <script type="text/javascript" src="../build/js/Cindy.js"></script>
+  <script id="csinit" type="text/x-cindyscript">
+    // Initialization code, executed once up front.
+  </script>
+
+  <script id="csdraw" type="text/x-cindyscript">
+  // Drawing code, executed whenever the canvas gets redrawn.
+
+  eps = 1e-4;
+  f(x) := 10/(0.2*x^2+1)*sin(x);
+  plot(f(#));
+
+  f1(x) := (f(x+eps)-f(x-eps))/(2*eps);
+  // f2(x) := (f1(x+eps)-f1(x-eps))/(2*eps);
+  // plot(f1(#), color->(0.18, 0.69, 0.4));
+  // plot(f2(#), color->(1,0,0));
+
+  N = 4;
+  x = 9*(-N..N)/N;
+
+  forall(x, #,
+    y = f(#);
+    angle = arctan( f1(#) );
+
+    // LaTex (KaTex)
+    drawtext( (#,y), "$("+format(#,2)+","+format(y,2)+")$", size->13, align->"mid", angle->angle);
+
+    // Normal Text
+    // drawtext( (#,y), "("+format(#,2)+","+format(y,2)+")", size->13, align->"mid", angle->angle);
+  );
+
+</script>
+  <script type="text/javascript">
+    var cdy = CindyJS({ // See ref/createCindy documentation for details.
+      ports: [{
+        id: "CSCanvas",
+        // axes:true,
+        grid: 1.0,
+        transform: [{
+          visibleRect: [-10, 10, 10, -10]
+        }],
+        width: 500,
+        height: 500
+      }],
+      scripts: "cs*",
+      language: "en",
+      defaultAppearance: {
+      },
+    });
+
+  </script>
+</head>
+
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="border:2px solid black"></div>
+</body>
+
+</html>
