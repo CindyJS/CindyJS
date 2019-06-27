@@ -267,35 +267,51 @@ class OscillatorLine {
         }
     }
 
-    panit() {
-        //insert pannode in between if necessary
-        if (this.pan !== 0 && !this.masterGain.panNode) {
-            this.masterGain.disconnect(this.audioCtx.destination);
+    updateChain() {
+        //insert pannode and dampnode in between if necessary
+        let needsDamping = this.damp !== 0 && !this.masterGain.dampNode;
+        let needsPanning = this.pan !== 0 && !this.masterGain.panNode;
+        if (needsDamping && needsPanning){
             this.masterGain.panNode = this.audioCtx.createStereoPanner();
-            this.masterGain.connect(this.masterGain.panNode);
+            this.masterGain.dampNode = this.audioCtx.createGain();
+            this.masterGain.disconnect(this.audioCtx.destination);
+            this.masterGain.connect(this.masterGain.dampNode);
+            this.masterGain.dampNode.connect(this.masterGain.panNode);
             this.masterGain.panNode.connect(this.audioCtx.destination);
         }
-        //update pan value
-        if (this.masterGain.panNode)
-            this.masterGain.panNode.pan.value = this.pan;
+        else if (needsPanning){
+            if (this.masterGain.dampNode){
+                this.masterGain.panNode = this.audioCtx.createStereoPanner();
+                this.masterGain.dampNode.disconnect(this.audioCtx.destination);
+                this.masterGain.dampNode.connect(this.masterGain.panNode);
+                this.masterGain.panNode.connect(this.audioCtx.destination);
+            }
+            else {
+                this.masterGain.panNode = this.audioCtx.createStereoPanner();
+                this.masterGain.disconnect(this.audioCtx.destination);
+                this.masterGain.connect(this.masterGain.panNode);
+                this.masterGain.panNode.connect(this.audioCtx.destination);
+            }
+        }
+        else if (needsDamping){
+            if (this.masterGain.panNode){
+                this.masterGain.dampNode = this.audioCtx.createGain();
+                this.masterGain.disconnect(this.masterGain.panNode);
+                this.masterGain.connect(this.masterGain.dampNode);
+                this.masterGain.dampNode.connect(this.masterGain.panNode);
+            }
+            else {
+                this.masterGain.dampNode = this.audioCtx.createGain();
+                this.masterGain.disconnect(this.audioCtx.destination);
+                this.masterGain.connect(this.masterGain.dampNode);
+                this.masterGain.dampNode.connect(this.audioCtx.destination);
+            }
+        }
     }
 
-    dampit() {
-        //insert dampNode in between if necessary
-        if (this.damp !== 0) {
-            if (!this.masterGain.dampNode) {
-                if (this.masterGain.panNode) {
-                    this.masterGain.disconnect(this.masterGain.panNode);
-                    this.masterGain.dampNode = this.audioCtx.createGain();
-                    this.masterGain.connect(this.masterGain.dampNode);
-                    this.masterGain.dampNode.connect(this.masterGain.panNode);
-                } else {
-                    this.masterGain.disconnect(this.audioCtx.destination);
-                    this.masterGain.dampNode = this.audioCtx.createGain();
-                    this.masterGain.connect(this.masterGain.dampNode);
-                    this.masterGain.dampNode.connect(this.audioCtx.destination);
-                }
-            }
+    dampAndPanIt(){
+        //update damp value
+        if (this.damp!==0 && this.masterGain.dampNode){
             this.masterGain.dampNode.gain.cancelScheduledValues(this.audioCtx.currentTime);
             this.masterGain.dampNode.gain.setValueAtTime(this.masterGain.dampNode.gain.value, this.audioCtx.currentTime);
             if (this.damp > 0) {
@@ -304,6 +320,10 @@ class OscillatorLine {
                 this.masterGain.dampNode.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.attack, (-this.damp));
             }
         }
+
+        //update pan value
+        if (this.masterGain.panNode)
+            this.masterGain.panNode.pan.value = this.pan;
     }
 
     startOscillators() {
@@ -408,8 +428,8 @@ class OscillatorLine {
             if (!this.masterGain) this.generateNewMasterGain(this.amp);
             this.updateFrequencyAndGain();
         }
-        this.panit();
-        this.dampit();
+        this.updateChain();
+        this.dampAndPanIt();
         this.lastharmonics = this.harmonics;
     }
 }
