@@ -46,7 +46,7 @@ geoOps._helper.getRandPointMove = function(el) {
     var ozabs = CSNumber.abs(oz).value.real;
 
     var rZ = CSNumber.real(0);
-    // far points 
+    // far points
     if (ozabs < CSNumber.eps) {
         rZ = CSNumber.getRandComplex(-0.05, 0.05);
         oz = CSNumber.real(1);
@@ -909,7 +909,7 @@ geoOps.CircleMr.updatePosition = function(el) {
     el.radius = r;
 };
 geoOps.CircleMr.getRandomMove = function(el) {
-    // radius 
+    // radius
     var r;
     var oldr = el.radius;
     var oabs = CSNumber.abs(oldr).value.real;
@@ -1475,7 +1475,7 @@ geoOps.ConicBy2Foci1P.updatePosition = function(el) {
     co1 = List.normalizeMax(List.adjoint3(co1));
     co2 = List.normalizeMax(List.adjoint3(co2));
 
-    // return ellipsoid first 
+    // return ellipsoid first
     if (geoOps._helper.getConicType(co1) !== "ellipsoid") {
         var temp = co1;
         co1 = co2;
@@ -3097,6 +3097,16 @@ geoOps.Text.signature = "**";
 geoOps.Text.isMovable = true;
 geoOps.Text.updatePosition = noop;
 geoOps.Text.initialize = function(el) {
+    var textbox = document.createElement("div");
+    textbox.setAttribute("type", "text");
+    textbox.className = "CindyJS-text";
+    if (isFiniteNumber(el.minwidth))
+        textbox.style.width = (el.minwidth - 3) + "px";
+    if (typeof el.text === "string")
+        textbox.value = el.text;
+    commonText(el, "none", textbox);
+};
+geoOps.Text.initializeText = function(el) {
     el.text = String(el.text);
     if (el.pos) el.homog = geoOps._helper.initializePoint(el);
     if (el.dock) {
@@ -3115,6 +3125,25 @@ geoOps.Text.getParamFromState = function(el) {
 geoOps.Text.putParamToState = function(el, param) {
     el.homog = param;
 };
+geoOps.Text.set_fillcolor = function(el, value) {
+    if (List._helper.isNumberVecN(value, 3)) {
+        el.fillcolor = value.value.map(function(i) {
+            return i.value.real;
+        });
+        el.html.style.backgroundColor =
+            Render2D.makeColor(el.fillcolor, el.fillalpha);
+    }
+};
+geoOps.Text.set_color = function(el, value) {
+    if (List._helper.isNumberVecN(value, 3)) {
+        el.color = value.value.map(function(i) {
+            return i.value.real;
+        });
+        if (el.alpha === undefined) el.alpha = 1.0;
+        el.html.style.color =
+            Render2D.makeColor(el.color, el.alpha);
+    }
+};
 
 geoOps.Calculation = {};
 geoOps.Calculation.kind = "Text";
@@ -3122,7 +3151,7 @@ geoOps.Calculation.signature = "**";
 geoOps.Calculation.isMovable = true;
 geoOps.Calculation.updatePosition = noop;
 geoOps.Calculation.initialize = function(el) {
-    geoOps.Text.initialize(el);
+    geoOps.Text.initializeText(el);
     el.calculation = analyse(el.text);
 };
 geoOps.Calculation.getText = function(el) {
@@ -3138,7 +3167,7 @@ geoOps.Equation.isMovable = true;
 geoOps.Equation.signature = "**";
 geoOps.Equation.updatePosition = noop;
 geoOps.Equation.initialize = function(el) {
-    geoOps.Text.initialize(el);
+    geoOps.Text.initializeText(el);
     el.calculation = analyse(el.text);
 };
 geoOps.Equation.getText = function(el) {
@@ -3154,7 +3183,7 @@ geoOps.Evaluate.isMovable = true;
 geoOps.Evaluate.signature = "**";
 geoOps.Evaluate.updatePosition = noop;
 geoOps.Evaluate.initialize = function(el) {
-    geoOps.Text.initialize(el);
+    geoOps.Text.initializeText(el);
     el.calculation = analyse(el.text);
 };
 geoOps.Evaluate.getText = function(el) {
@@ -3171,7 +3200,7 @@ geoOps.Plot.isMovable = true;
 geoOps.Plot.signature = "**";
 geoOps.Plot.updatePosition = noop;
 geoOps.Plot.initialize = function(el) {
-    geoOps.Text.initialize(el);
+    geoOps.Text.initializeText(el);
     // Parenthesize expression to avoid modifier injection
     el.calculation = analyse("plot((" + el.text + "))");
 };
@@ -3182,6 +3211,36 @@ geoOps.Plot.getText = function(el) {
 geoOps.Plot.getParamForInput = geoOps.Text.getParamForInput;
 geoOps.Plot.getParamFromState = geoOps.Text.getParamFromState;
 geoOps.Plot.putParamToState = geoOps.Text.putParamToState;
+
+function commonText(el, event, textbox) {
+    var outer = document.createElement("div");
+    var img = document.createElement("img");
+    img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUh" +
+        "EUgAAAAEAAAPoCAQAAAC1v1zVAAAAGklEQVR42u3BMQEAAA" +
+        "DCoPVPbQ0PoAAAgHcDC7gAAVI8ZnwAAAAASUVORK5CYII=";
+    outer.className = "CindyJS-baseline";
+    outer.appendChild(img);
+    var inlinebox = document.createElement("div");
+    inlinebox.className = "CindyJS-text";
+    outer.appendChild(inlinebox);
+    for (var i = 2; i < arguments.length; ++i)
+        inlinebox.appendChild(arguments[i]);
+    canvas.parentNode.appendChild(outer);
+    el.html = arguments[arguments.length - 1];
+    if (!isFiniteNumber(el.fillalpha))
+        el.fillalpha = 1.0;
+    if (el.fillcolor) {
+        el.html.style.backgroundColor =
+            Render2D.makeColor(el.fillcolor, el.fillalpha);
+    }
+    if (!isFiniteNumber(el.alpha))
+        el.alpha = 1.0;
+    if (el.color) {
+        el.html.style.color =
+            Render2D.makeColor(el.color, el.alpha);
+    }
+    geoOps.Text.initializeText(el);
+}
 
 function commonButton(el, event, button) {
     var outer = document.createElement("div");
@@ -3203,6 +3262,12 @@ function commonButton(el, event, button) {
     if (el.fillcolor) {
         el.html.style.backgroundColor =
             Render2D.makeColor(el.fillcolor, el.fillalpha);
+    }
+    if (!isFiniteNumber(el.alpha))
+        el.alpha = 1.0;
+    if (el.color) {
+        el.html.style.color =
+            Render2D.makeColor(el.color, el.alpha);
     }
     var onEvent = scheduleUpdate;
     if (el.script) {
@@ -3227,8 +3292,10 @@ function commonButton(el, event, button) {
             cs_keytyped(e);
         });
     }
-    geoOps.Text.initialize(el);
+    geoOps.Text.initializeText(el);
 }
+
+
 
 geoOps.Button = {};
 geoOps.Button.kind = "Text";
@@ -3273,6 +3340,7 @@ geoOps.ToggleButton.getParamForInput = geoOps.Text.getParamForInput;
 geoOps.ToggleButton.getParamFromState = geoOps.Text.getParamFromState;
 geoOps.ToggleButton.putParamToState = geoOps.Text.putParamToState;
 geoOps.ToggleButton.set_fillcolor = geoOps.Button.set_fillcolor;
+geoOps.ToggleButton.set_color = geoOps.Text.set_color;
 
 geoOps.EditableText = {};
 geoOps.EditableText.kind = "Text";
@@ -3305,6 +3373,7 @@ geoOps.EditableText.getParamForInput = geoOps.Text.getParamForInput;
 geoOps.EditableText.getParamFromState = geoOps.Text.getParamFromState;
 geoOps.EditableText.putParamToState = geoOps.Text.putParamToState;
 geoOps.EditableText.set_fillcolor = geoOps.Button.set_fillcolor;
+geoOps.EditableText.set_color = geoOps.Text.set_color;
 geoOps.EditableText.get_currenttext = function(el) {
     return General.string(String(el.html.value));
 };
