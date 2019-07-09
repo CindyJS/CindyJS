@@ -417,7 +417,7 @@ geoOps.Free.getParamForInput = function(el, pos, type) {
         var sy = pos.value[1].value.real;
         var rx = Math.round(sx / csgridsize) * csgridsize;
         var ry = Math.round(sy / csgridsize) * csgridsize;
-        if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2) {
+        if (Math.abs(rx - sx) < cssnapDistance && Math.abs(ry - sy) < cssnapDistance) {
             pos = List.realVector([rx, ry, 1]);
         }
     }
@@ -3590,7 +3590,7 @@ geoOps._helper.snapPointToLine = function(pos, line) {
     var rx = Math.round(sx / csgridsize) * csgridsize;
     var ry = Math.round(sy / csgridsize) * csgridsize;
     var newpos = List.realVector([rx, ry, 1]);
-    if (Math.abs(rx - sx) < 0.2 && Math.abs(ry - sy) < 0.2 &&
+    if (Math.abs(rx - sx) < cssnapDistance && Math.abs(ry - sy) < cssnapDistance &&
         CSNumber._helper.isAlmostZero(List.scalproduct(line, newpos))) {
         pos = geoOps._helper.projectPointToLine(newpos, line);
     }
