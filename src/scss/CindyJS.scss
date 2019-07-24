@@ -147,12 +147,8 @@ $focused-shadow: 0px 0px 3px #06f;
     z-index: 2;
 
      border: none;
-    margin: -4px -4px -1px;
-    padding: 4px 4px 1px;
 
-     &:focus {
-        box-shadow: $focused-shadow;
-    }
+     pointer-events: none;
 
  } // end editabletext
 
