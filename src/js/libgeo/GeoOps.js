@@ -3318,6 +3318,7 @@ geoOps.Button.set_fillcolor = function(el, value) {
             Render2D.makeColor(el.fillcolor, el.fillalpha);
     }
 };
+geoOps.Button.set_color = geoOps.Text.set_color;
 
 geoOps.ToggleButton = {};
 geoOps.ToggleButton.kind = "Text";
@@ -3374,6 +3375,7 @@ geoOps.EditableText.getParamFromState = geoOps.Text.getParamFromState;
 geoOps.EditableText.putParamToState = geoOps.Text.putParamToState;
 geoOps.EditableText.set_fillcolor = geoOps.Button.set_fillcolor;
 geoOps.EditableText.set_color = geoOps.Text.set_color;
+
 geoOps.EditableText.get_currenttext = function(el) {
     return General.string(String(el.html.value));
 };
