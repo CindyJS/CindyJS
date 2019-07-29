@@ -55,12 +55,13 @@
   ],
   "author": "Jürgen Richter-Gebert <richter@ma.tum.de>",
   "contributors": [
-    "Aaron Montag <aaron.montag@tum.de>",
     "Alexander Elkins",
     "Martin von Gagern <gagern@ma.tum.de>",
     "Ulrich Kortenkamp <kortenkamp@cinderella.de>",
     "Stefan Kranich <stefan.kranich@ma.tum.de>",
+    "Aaron Montag <aaron.montag@tum.de>",
     "Michael Strobel <strobel@ma.tum.de>",
+    "Patrick Wilson <patrick.wilson@tum.de>",
     "Jens Wurster <jw@tophostingteam.de>"
   ],
   "license": "Apache-2.0",
