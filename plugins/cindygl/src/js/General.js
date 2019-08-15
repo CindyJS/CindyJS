@@ -177,12 +177,15 @@ function enlargeCanvasIfRequired(sizeX, sizeY) {
     }
 }
 
-var parsecache = {};
 
 function realfromCindyScriptCommand(api, cscmd) {
-    if (!parsecache[cscmd])
-        parsecache[cscmd] = api.instance.parse(cscmd);
-    let val = api.evaluate(parsecache[cscmd]);
+    if (!api.instance.parsecache)
+        api.instance.parsecache = {};
+
+    if (!api.instance.parsecache[cscmd])
+        api.instance.parsecache[cscmd] = api.instance.parse(cscmd);
+
+    let val = api.evaluate(api.instance.parsecache[cscmd]);
     if (val["ctype"] && val["ctype"] === "number") {
         return val["value"]["real"];
     } else {
