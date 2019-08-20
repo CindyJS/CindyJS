@@ -131,6 +131,18 @@ csport.scaleAndOrigin = function(scale, originX, originY) {
 csport.visibleRect = function(left, top, right, bottom) {
     var width = right - left;
     var height = top - bottom;
+    if(height < 0 || width < 0) { // Warn the user when height or width < 0
+      var negative_dim = "";
+      if(height < 0 && width < 0) {
+        negative_dim = "width and height";
+      } else if(height < 0) {
+        negative_dim = "height";
+      } else if(width < 0) {
+        negative_dim = "width";
+      }
+      console.warn("Given visibleRect has negative " + negative_dim +
+        ". This might result in unintended scaling behavior.");
+    }
     var scale;
     if (csw * height < csh * width)
         scale = csw / width;
