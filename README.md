@@ -11,9 +11,11 @@ Together, these components make it very easy to visualize various
 concepts, from geometry in particular and mathematics in general,
 but also from various other fields.
 
+See also our [project page](https://cindyjs.org).
+
 ## Examples
 
-Examples on the web can be seen [here](http://science-to-touch.com/CJS/).
+Examples on the web can be seen [here](https://cindyjs.org/gallery/main/).
 
 There is also [an `examples` directory](https://github.com/CindyJS/CindyJS/tree/master/examples)
 inside the repository, demonstrating individual functions and operations.
@@ -21,7 +23,7 @@ inside the repository, demonstrating individual functions and operations.
 Developers can run these examples from their local development copy.
 Some examples may require a webserver-like environment to avoid
 triggering browser security measures associated with local files.
-To do so, one can run <code>npm_modules/.bin/st -l -nc</code>
+To do so, one can run <code>node_modules/.bin/st -l -nc</code>
 in the root of the development tree, and then visit
 [the local copy of the examples directory](http://127.0.0.1:1337/examples/).
 

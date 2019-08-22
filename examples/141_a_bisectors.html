@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Construction.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+//println("D is defined as meet(d,e) and is incident to f (which should be found by the proover)");
+</script>
+
+    <script type="text/javascript">
+CindyJS({ 
+	scripts: "cs*", 
+	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, textsize: 12.0 }, 
+	angleUnit: "°", 
+	geometry: [ 
+		{ name: "A", type: "Free", pos: [ 2.2941176470588234, -4.0, -1.4705882352941175 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "B", type: "Free", pos: [ -2.0387096774193547, -4.0, -0.6451612903225806 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "C", type: "Free", pos: [ 4.0, 1.2071005917159765, 0.591715976331361 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
+		{ name: "a", type: "Join", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "C" ], labeled: true }, 
+		{ name: "b", type: "Join", color: [ 0.0, 0.0, 1.0 ], args: [ "A", "C" ], labeled: true }, 
+		{ name: "c", type: "Join", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "A" ], labeled: true }, 
+		{ name: "Collection__1", type: "AngularBisector", args: [ "b", "c", "A" ] }, 
+		{ name: "d", type: "SelectL", pos: [ 0.35934685894347934, -1.2644922426647693, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "Collection__1" ], labeled: true }, 
+		{ name: "", type: "SelectL", pos: [ 4.0, 1.1367309242995318, 3.1480918859052696 ], color: [ 1.0, 1.0, 1.0 ], args: [ "Collection__1" ], size: 0 }, 
+		{ name: "Collection__2", type: "AngularBisector", args: [ "a", "b", "C" ] }, 
+		{ name: "e", type: "SelectL", pos: [ -0.37102114600759273, -0.7313220847983691, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "Collection__2" ], labeled: true }, 
+		{ name: "D", type: "Meet", color: [ 1.0, 0.0, 0.0 ], args: [ "d", "e" ], labeled: true }, 
+		{ name: "Collection__3", type: "AngularBisector", args: [ "a", "c", "B" ] }, 
+		{ name: "f", type: "SelectL", pos: [ -1.6203679158952222, 0.18070364745627465, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "Collection__3" ], labeled: true } ], 
+	ports: [ 
+		{ id: "CSCanvas", width: 680, height: 320, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -3.46 ] } ], background: "rgb(168,176,192)" } ], 
+	cinderella: { build: 1835, version: [ 2, 9, 1835 ] } });
+    </script>
+</head>
+<body style="font-family:Arial;">
+  <div id="CSCanvas" style="border:2px solid black"></div>
+</body>
+</html>

@@ -58,16 +58,16 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
 
         var prog = args[0];
 
-        let cw = api.instance['canvas']['clientWidth']; //CSS pixels
-        let ch = api.instance['canvas']['clientHeight'];
-
-        let iw = api.instance['canvas']['width']; //internal measures. might be twice as cw on HiDPI-Displays
+        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ih = api.instance['canvas']['height'];
 
         compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
         let csctx = api.instance['canvas'].getContext('2d');
-        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, cw, ch);
 
+        csctx.save();
+        csctx.setTransform(1, 0, 0, 1, 0, 0);
+        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
+        csctx.restore();
 
         return nada;
     });
@@ -91,34 +91,36 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
             x: Math.max(a.x, b.x),
             y: Math.min(a.y, b.y)
         }; //lower right pt
+        var ul = {
+            x: Math.min(a.x, b.x),
+            y: Math.max(a.y, b.y)
+        }; //upper left pt
 
-        let cw = api.instance['canvas']['clientWidth']; //CSS pixels
-        let ch = api.instance['canvas']['clientHeight'];
-
-        let iw = api.instance['canvas']['width']; //internal measures. might be twice as cw on HiDPI-Displays
+        let iw = api.instance['canvas']['width']; //internal measures. (works also on HiDPI-Displays)
         let ih = api.instance['canvas']['height'];
 
         let cul = computeUpperLeftCorner(api);
-        let cll = computeLowerLeftCorner(api);
         let clr = computeLowerRightCorner(api);
 
-        let fx = Math.abs((a.x - b.x) / (cll.x - clr.x)); //x-ratio of screen that is used
-        let fy = Math.abs((a.y - b.y) / (cul.y - cll.y)); //y-ratio of screen that is used
+        let fx = Math.abs((a.x - b.x) / (clr.x - cul.x)); //x-ratio of screen that is used
+        let fy = Math.abs((a.y - b.y) / (clr.y - cul.y)); //y-ratio of screen that is used
 
         compileAndRender(prog, ll, lr, iw * fx, ih * fy, null);
         let csctx = api.instance['canvas'].getContext('2d');
-        //csctx.drawImage(glcanvas, 0, 0, iw*fx, ih*fy, ll.x, ll.y, cw, ch);
 
         let pt = {
             x: Math.min(a.x, b.x),
             y: Math.max(a.y, b.y)
         };
         let m = api.getInitialMatrix();
-        var xx = pt.x * m.a - pt.y * m.b + m.tx;
-        var yy = pt.x * m.c - pt.y * m.d - m.ty;
 
-        //csctx.drawImage(glcanvas, 0, glcanvas.height - ih * fy, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
-        csctx.drawImage(glcanvas, 0, 0, iw * fx, ih * fy, xx, yy, fx * cw, fy * ch);
+        var xx = iw * (ul.x - cul.x) / (clr.x - cul.x);
+        var yy = ih * (ul.y - cul.y) / (clr.y - cul.y);
+
+        csctx.save();
+        csctx.setTransform(1, 0, 0, 1, 0, 0);
+        csctx.drawImage(glcanvas, 0, 0, iw * fx, ih * fy, xx, yy, iw * fx, ih * fy);
+        csctx.restore();
         return nada;
     });
 
@@ -136,7 +138,7 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
         if (!a.ok || !b.ok || name.ctype !== 'string') {
             return nada;
         }
-        let imageobject = api.getImage(name.value, true);
+        let imageobject = api.getImage(name['value'], true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
@@ -161,7 +163,7 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
             return nada;
         }
 
-        let imageobject = api.getImage(name.value, true);
+        let imageobject = api.getImage(name['value'], true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;

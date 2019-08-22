@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+            <title>Cindy JS</title>
+            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            <link rel="stylesheet" href="../css/cindy.css">
+
+
+            </head>
+
+	<body style="font-family:Arial;">
+
+        <h1>CindyJS: Pappos's Theorem</h1>
+
+
+        <script id='csinit' type='text/x-cindyscript'>
+        buttonClicked():=(
+         create(["II"], "Meet", ["g", "h"]);
+        );
+        </script>
+
+
+        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+
+        <p>
+        We will use 
+        create(["II"], "Meet", ["g", "h"]);
+        to generate a point which is already present ("I"). The prover will drop it.
+        <br>
+        <button onclick="cdy.evokeCS('buttonClicked()')" type="button">generate duplicate</button>
+        </p>
+
+        <pre id="log"></pre>
+
+        <script type="text/javascript">
+
+        (function () {
+    var old = console.log;
+    var logger = document.getElementById('log');
+    console.log = function () {
+      for (var i = 0; i < arguments.length; i++) {
+        if (typeof arguments[i] == 'object') {
+            logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(arguments[i], undefined, 2) : arguments[i]) + '<br />';
+        } else {
+            logger.innerHTML += arguments[i] + '<br />';
+        }
+      }
+    }
+})();
+            var gslp=[
+                      {name:"A", type:"Free", pos:[-5,6]},
+                      {name:"B", type:"Free", pos:[6,5]},
+                      {name:"C", type:"Free", pos:[-5,-5]},
+                      {name:"D", type:"Free", pos:[5,-7]},
+                      {name:"a", type:"Join", args:["A","B"]},
+                      {name:"b", type:"Join", args:["C","D"]},
+                      {name:"E", type:"Free", pos:[2,0]},
+                      {name:"c", type:"Join", args:["B", "E"]},
+                      {name:"d", type:"Join", args:["D", "E"]},
+                      {name:"F", type:"Meet", args:["b", "c"]},
+                      {name:"G", type:"Meet", args:["a", "d"]},
+                      {name:"e", type:"Join", args:["G", "C"]},
+                      {name:"f", type:"Join", args:["F", "A"]},
+                      {name:"H", type:"Meet", args:["f", "e"]},
+                      {name:"g", type:"Join", args:["A", "D"]}, // this
+                      {name:"h", type:"Join", args:["C", "B"], color: [0,1,0]},
+                      {name:"i", type:"Join", args:["H", "E"], color: [0,1,0]},
+                      {name:"I", type:"Meet", args:["i", "h"], color: [0,1,0]}
+
+                      ];
+            var cdy = CindyJS({canvasname:"CSCanvas",
+                        defaultAppearance: {dimDependent: 0.7},
+                        scripts: "cs*",
+                        geometry:gslp});
+
+        </script>
+
+	</body>
+</html>

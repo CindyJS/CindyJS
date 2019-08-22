@@ -10,3 +10,4 @@
 /private_examples/
 /src/js/ifs/ifs.js
 /plugins/ComplexCurves/lib/ComplexCurves/
+.package-lock.json

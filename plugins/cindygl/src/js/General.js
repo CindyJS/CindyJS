@@ -85,7 +85,7 @@ function expressionsAreEqual(a, b) {
 }
 
 
-/** 
+/**
  * are two given signatures equal?
  */
 function signaturesAreEqual(a, b) {
@@ -135,6 +135,12 @@ function guessTypeOfValue(tval) {
         }
     } else if (tval['ctype'] === 'list') {
         let l = tval['value'];
+        if (l.length === 3) {
+            if (tval["usage"] === "Point")
+                return type.point;
+            else if (tval["usage"] === "Line")
+                return type.line
+        }
         if (l.length > 0) {
             let ctype = guessTypeOfValue(l[0]);
             for (let i = 1; i < l.length; i++) {
@@ -148,6 +154,8 @@ function guessTypeOfValue(tval) {
         }
     } else if (tval['ctype'] === 'string' || tval['ctype'] === 'image') {
         return type.image;
+    } else if (tval['ctype'] === 'geo' && tval['value']['kind'] === 'L') {
+        return type.line;
     }
     console.error(`Cannot guess type of the following type:`);
     console.log(tval);
@@ -169,31 +177,41 @@ function enlargeCanvasIfRequired(sizeX, sizeY) {
     }
 }
 
-function transf(api, px, py) { //copied from Operators.js
-    let m = api.getInitialMatrix();
-    let xx = px - m.tx;
-    let yy = py + m.ty;
-    let x = (xx * m.d - yy * m.b) / m.det;
-    let y = -(-xx * m.c + yy * m.a) / m.det;
-    return {
-        x: x,
-        y: y
-    };
-};
+
+function realfromCindyScriptCommand(api, cscmd) {
+    if (!api.instance.parsecache)
+        api.instance.parsecache = {};
+
+    if (!api.instance.parsecache[cscmd])
+        api.instance.parsecache[cscmd] = api.instance.parse(cscmd);
+
+    let val = api.evaluate(api.instance.parsecache[cscmd]);
+    if (val["ctype"] && val["ctype"] === "number") {
+        return val["value"]["real"];
+    } else {
+        return 0;
+    }
+}
 
 function computeLowerLeftCorner(api) {
-    let ch = api.instance['canvas']['clientHeight'];
-    return transf(api, 0, ch);
+    return {
+        x: realfromCindyScriptCommand(api, "(screenbounds()_4).x"),
+        y: realfromCindyScriptCommand(api, "(screenbounds()_4).y")
+    };
 }
 
 function computeLowerRightCorner(api) {
-    let cw = api.instance['canvas']['clientWidth'];
-    let ch = api.instance['canvas']['clientHeight'];
-    return transf(api, cw, ch);
+    return {
+        x: realfromCindyScriptCommand(api, "(screenbounds()_3).x"),
+        y: realfromCindyScriptCommand(api, "(screenbounds()_3).y")
+    };
 }
 
 function computeUpperLeftCorner(api) {
-    return transf(api, 0, 0);
+    return {
+        x: realfromCindyScriptCommand(api, "(screenbounds()_1).x"),
+        y: realfromCindyScriptCommand(api, "(screenbounds()_1).y")
+    };
 }
 
 //from http://stackoverflow.com/questions/6162651/half-precision-floating-point-in-java/6162687#6162687

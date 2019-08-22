@@ -4,6 +4,9 @@ var move;
 var cskey = "";
 var cskeycode = 0;
 
+var multiid = 0;
+var multipos = {};
+var multiiddict = {};
 
 function getmover(mouse) {
     var mov = null;
@@ -27,20 +30,35 @@ function getmover(mouse) {
                     el.narrow : 20) / sc)
                 continue;
         } else if (el.kind === "C") { //Must be CircleMr
-            var mid = csgeo.csnames[el.args[0]];
+            var normalizedmid = List.normalizeZ(csgeo.csnames[el.args[0]].homog);
             var rad = el.radius;
-            var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
-            var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
-            dx = xx - mouse.x;
-            dy = yy - mouse.y;
-            var ref = Math.sqrt(dx * dx + dy * dy);
-            dist = ref - rad.value.real;
-            dx = 0;
-            dy = 0;
-            if (dist < 0) {
-                dist = -dist;
-            }
+
+            if (!List._helper.isAlmostReal(normalizedmid) || !CSNumber._helper.isAlmostReal(rad))
+                continue;
+
+            var midx = normalizedmid.value[0].value.real; //center of circle
+            var midy = normalizedmid.value[1].value.real;
+
+            var vx = mouse.x - midx; //vector from center to mouse
+            var vy = mouse.y - midy;
+
+            var vlength = Math.sqrt(vx * vx + vy * vy);
+            if (vlength === 0)
+                continue;
+
+            var refx = midx + vx / vlength * rad.value.real; //reference point: the to mouse projected on the circle
+            var refy = midy + vy / vlength * rad.value.real;
+
+            dx = refx - mouse.x; //vector from mouse to reference point
+            dy = refy - mouse.y;
+
+            dist = Math.sqrt(dx * dx + dy * dy);
+
             dist = dist + 30 / sc;
+
+            if (el.narrow && dist > ((typeof el.narrow === "number" ?
+                    el.narrow : 20) + 30) / sc)
+                continue;
 
         } else if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
             var l = el.homog;
@@ -108,6 +126,8 @@ function addAutoCleaningEventListener(target, type, listener, useCapture) {
 function setuplisteners(canvas, data) {
 
     var MO = null;
+    var mousedownevent = null;
+    var hasmoved = false;
     if (typeof MutationObserver !== "undefined")
         MO = MutationObserver;
     if (!MO && typeof WebKitMutationObserver !== "undefined")
@@ -128,6 +148,21 @@ function setuplisteners(canvas, data) {
     } else {
         addAutoCleaningEventListener(canvas, "DOMNodeRemovedFromDocument", shutdown);
         addAutoCleaningEventListener(canvas, "DOMNodeRemoved", shutdown);
+    }
+
+    function updateMultiPositions(event, initialize) {
+        for (let i = 0; i < event.changedTouches.length; i++) {
+            let touch = event.changedTouches[i];
+            let id = getmultiid(touch.identifier);
+            if (!initialize && !multipos[id])
+                continue;
+            var rect = canvas.getBoundingClientRect();
+            var x = touch.clientX - rect.left - canvas.clientLeft + 0.5;
+            var y = touch.clientY - rect.top - canvas.clientTop + 0.5;
+            var pos = csport.to(x, y);
+            multipos[id] = [pos[0], pos[1]];
+        }
+        scheduleUpdate();
     }
 
     function updatePosition(event) {
@@ -182,8 +217,11 @@ function setuplisteners(canvas, data) {
     }
 
     addAutoCleaningEventListener(canvas, "mousedown", function(e) {
+        mousedownevent = e;
+        hasmoved = false;
         mouse.button = e.which;
         updatePosition(e);
+        cs_multidown(0);
         cs_mousedown();
         manage("mousedown");
         mouse.down = true;
@@ -194,15 +232,22 @@ function setuplisteners(canvas, data) {
         mouse.down = false;
         cindy_cancelmove();
         cs_mouseup();
+        cs_multiup(0);
         manage("mouseup");
+        delete multipos[0];
         scheduleUpdate();
         e.preventDefault();
     });
 
     addAutoCleaningEventListener(canvas, "mousemove", function(e) {
         updatePosition(e);
-        if (mouse.down) {
+        if (mouse.down) { // this might be also a touchdown
+            if (mousedownevent && (Math.abs(mousedownevent.clientX - e.clientX) > 2 || Math.abs(mousedownevent.clientY - e.clientY) > 2))
+                hasmoved = true;
             cs_mousedrag();
+            if (multipos[0]) { //the physical mouse (not a finger acting as mouse) indeed is down
+                cs_multidrag(0);
+            }
         } else {
             cs_mousemove();
         }
@@ -212,7 +257,8 @@ function setuplisteners(canvas, data) {
 
     addAutoCleaningEventListener(canvas, "click", function(e) {
         updatePosition(e);
-        cs_mouseclick();
+        if (!hasmoved)
+            cs_mouseclick();
         e.preventDefault();
     });
 
@@ -379,8 +425,33 @@ function setuplisteners(canvas, data) {
         }
     });
 
+    function getmultiid(identifier) {
+        if (multiiddict.hasOwnProperty(identifier))
+            return multiiddict[identifier];
+        let used = Object.values(multiiddict);
+
+        //find the smallest integer >= 1 that is not already used in O(n log n)
+        used = used.sort((a, b) => a - b); //https://alligator.io/js/array-sort-numbers/
+        let isset = false;
+        for (let k in used) {
+            if (!isset && used[k] > (k | 0) + 1) {
+                //used differs from [1, 2, 3,...]
+                multiiddict[identifier] = (k | 0) + 1;
+                isset = true;
+            }
+        }
+        if (!isset)
+            multiiddict[identifier] = used.length + 1;
+        return multiiddict[identifier];
+    }
+
 
     function touchMove(e) {
+        updateMultiPositions(e, false);
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            multiid = getmultiid(e.changedTouches[i].identifier);
+            cs_multidrag(multiid);
+        }
 
         var activeTouchIDList = e.changedTouches;
         var gotit = false;
@@ -395,6 +466,9 @@ function setuplisteners(canvas, data) {
 
         updatePosition(e.targetTouches[0]);
         if (mouse.down) {
+            if (mousedownevent && (Math.abs(mousedownevent.clientX - e.targetTouches[0].clientX) > 2 || Math.abs(mousedownevent.clientY - e.targetTouches[0].clientY) > 2))
+                hasmoved = true;
+            multiid = getmultiid(activeTouchID);
             cs_mousedrag();
         } else {
             cs_mousemove();
@@ -407,19 +481,28 @@ function setuplisteners(canvas, data) {
     var activeTouchID = -1;
 
     function touchDown(e) {
+        updateMultiPositions(e, true);
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            cs_multidown(getmultiid(e.changedTouches[i].identifier));
+        }
+
         if (activeTouchID !== -1) {
             return;
         }
 
         var activeTouchIDList = e.changedTouches;
+
         if (activeTouchIDList.length === 0) {
             return;
         }
         activeTouchID = activeTouchIDList[0].identifier;
 
+
         updatePosition(e.targetTouches[0]);
         cs_mousedown();
         mouse.down = true;
+        mousedownevent = e.targetTouches[0];
+        hasmoved = false;
         //move = getmover(mouse);
         manage("mousedown");
         e.preventDefault();
@@ -427,6 +510,13 @@ function setuplisteners(canvas, data) {
 
     function touchUp(e) {
         var activeTouchIDList = e.changedTouches;
+        updateMultiPositions(e, false);
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            multiid = getmultiid(e.changedTouches[i].identifier);
+            cs_multiup(multiid);
+            delete multiiddict[e.changedTouches[i].identifier];
+        }
+
         var gotit = false;
         for (var i = 0; i < activeTouchIDList.length; i++) {
             if (activeTouchIDList[i].identifier === activeTouchID) {
@@ -442,6 +532,8 @@ function setuplisteners(canvas, data) {
         cindy_cancelmove();
         cs_mouseup();
         manage("mouseup");
+        if (!hasmoved)
+            cs_mouseclick();
         scheduleUpdate();
         e.preventDefault();
     }
@@ -680,6 +772,27 @@ function cs_mouseup(e) {
 
 function cs_mousedrag(e) {
     evaluate(cscompiled.mousedrag);
+}
+
+function cs_multidown(id) {
+    multiid = id;
+    if (id === 0)
+        multipos[0] = csmouse;
+    evaluate(cscompiled.multidown);
+    multiid = 0;
+}
+
+function cs_multiup(id) {
+    multiid = id;
+    evaluate(cscompiled.multiup);
+    delete multipos[id];
+    multiid = 0;
+}
+
+function cs_multidrag(id) {
+    multiid = id;
+    evaluate(cscompiled.multidrag);
+    multiid = 0;
 }
 
 function cs_mousemove(e) {

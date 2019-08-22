@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>Generalizing the Steiner-Lehmus Theorem</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        
+      <script id="csinit" type="text/x-cindyscript">  
+  bisectors(A, B, C) := (
+    //compute the bisectors at point A
+    a = complex(A);
+    b = complex(B);
+    c = complex(C);
+    w = sqrt((c-a)*(b-a));
+    [join(A,gauss(a+w)), join(A,gauss(a+i*w))]
+  );
+
+
+  f(C) := (
+    Alines = bisectors(A, B, C);
+    Apts = apply(Alines, l, meet(l, join(B,C)).xy);
+    Alen = apply(Apts, P, |P-A|)/|B-A|;
+
+    Blines = bisectors(B, C, A);
+    Bpts = apply(Blines, l, meet(l, join(A,C)).xy);
+    Blen = apply(Bpts, P, |P-B|)/|B-A|;
+    //v = (Alen_1-Blen_1)*(Alen_2-Blen_1)*(Alen_1-Blen_2)*(Alen_2-Blen_2);
+  );      
+      </script>
+      <script id="csdraw" type="text/x-cindyscript">
+colorplot(
+  f(#);
+  exp(-8*|(Alen_1-Blen_1)|)*[1,0,0] +
+  exp(-8*|(Alen_2-Blen_1)|)*[0,1,0] +
+  exp(-8*|(Alen_1-Blen_2)|)*[0,0,1] +
+  exp(-10*|(Alen_2-Blen_2)|)*[1,1,1]
+);
+
+f(C);
+draw(join(A, C), color->[1,1,1], alpha->.5);
+draw(join(B, C), color->[1,1,1], alpha->.5);
+draw(join(A, B), color->[1,1,1], alpha->.5);
+
+draw(A, C, color->[1,1,1]);
+draw(B, C, color->[1,1,1]);
+draw(A, B, color->[1,1,1]);
+
+
+if(|Alen_1-Blen_1|<.1,
+  draw(A, Apts_1, color->[1,.5,.5], size->6, alpha->.7);
+  draw(B, Bpts_1, color->[1,.5,.5], size->6, alpha->.7);
+);
+
+if(|Alen_2-Blen_1|<.1,
+  draw(A, Apts_2, color->[.5,1,.5], size->6, alpha->.7);
+  draw(B, Bpts_1, color->[.5,1,.5], size->6, alpha->.7);
+);
+
+if(|Alen_1-Blen_2|<.1,
+  draw(A, Apts_1, color->[.5,.5,1], size->6, alpha->.7);
+  draw(B, Bpts_2, color->[.5,.5,1], size->6, alpha->.7);
+);
+
+if(|Alen_2-Blen_2|<.1,
+  draw(A, Apts_2, color->[1,1,1], size->6, alpha->.7);
+  draw(B, Bpts_2, color->[1,1,1], size->6, alpha->.7);
+);
+      </script>
+    
+        <script type="text/javascript">
+          var cdy = CindyJS({
+  "scripts": "cs*",
+  "defaultAppearance": {
+    "dimDependent": 0.7,
+    "fontFamily": "sans-serif",
+    "lineSize": 1,
+    "pointSize": 5,
+    "textsize": 12
+  },
+  "angleUnit": "°",
+  "exclusive": "true",
+  "geometry": [
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "A",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        2,0
+      ]
+    },
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "B",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        -2,0
+      ]
+    },
+    
+    {
+      "alpha": 1,
+      "color": [
+        1,
+        0,
+        0
+      ],
+      "labeled": true,
+      "name": "C",
+      "pinned": false,
+      "size": 5,
+      "type": "Free",
+      "pos": [
+        .5,2
+      ]
+    }
+  ],
+  "ports": [
+    {
+      "id": "CSCanvas",
+      width: 800,
+      height: 600,
+      "transform": [
+        {
+          "visibleRect": [
+            -5,
+            -5,
+            5,
+            5
+          ]
+        }
+      ],
+      "background": "rgb(168,176,192)"
+    }
+  ],
+  "csconsole": false,
+  "use": [
+    "CindyGL"
+  ],
+  "autoplay": false,
+  "behavior": []
+});
+        </script>
+    </head>
+    <body>
+      <h1>Generalizing the Steiner-Lehmus Theorem</h1>
+      <div>Adapted from <a href="http://geogebra.es/color_dinamico/color_dinamico.html">http://geogebra.es/color_dinamico/color_dinamico.html</a>.</div> 
+      <div>The point C is on the curve iff there there are bisectors at A and B having the same length.</div>
+        <div id="CSCanvas"></div>
+        <div>See also <a href="62_steinerlehmus2.html">the version</a>, where the bisectors at every point are considered</div>
+    </body>
+    </html>
+  

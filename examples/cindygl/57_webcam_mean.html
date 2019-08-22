@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Applying a function to the Webcam</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../build/js/CindyJS.css">
+<script id="csinit" type="text/x-cindyscript">
+drawgrid=false;
+width=256;
+height=256;
+video = camera video(resolution -> [1280,16/9]);
+create image("input", width, height);
+create image("output1", width/2, height/2);
+create image("output2", width/4, height/4);
+create image("output3", width/8, height/8);
+create image("output4", width/16, height/16);
+create image("output5", width/32, height/32);
+create image("output6", width/64, height/64);
+create image("output7", width/128, height/128);
+create image("output8", width/256, height/256);
+
+
+bw(x):=(.35*x_1+.45*x_2+.2*x_3);
+
+f(x):=x*2;
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if(drawgrid,
+linecolor((.5,.5,.5));
+repeat(65,start->0,step->.2,draw((#,0),(#,4.8)));
+repeat(25,start->0,step->.2,draw((0,#),(12.8,#)));
+);
+	draw((3.2,1.25),(3.5,1.25),color->(0,0,0),size->3);
+	draw((6.70,1.25),(7.0,1.25),color->(0,0,0),size->3, arrow->true, arrowshape->"full", arrowsides->"==>", arrowsize->1.5, arrowposition->1);
+
+	// get current definition of f and redefine if it changed
+	if(Inputf.text!=lastf & Inputf.text!="",
+		parse("f(x) :=" + Inputf.text);
+		lastf = Inputf.text;
+	);
+
+
+if (image ready(video),
+  colorplot("input", (imagergb(video, #*9/16+(180,0))));
+  colorplot("output1", imagergb("input",#));
+  colorplot("output2", imagergb("output1",#));
+  colorplot("output3", imagergb("output2",#));
+  colorplot("output4", imagergb("output3",#));
+  colorplot("output5", imagergb("output4",#));
+  colorplot("output6", imagergb("output5",#));
+  colorplot("output7", imagergb("output6",#));
+  colorplot("output8", imagergb("output7",#));
+);
+
+w=width;
+m1=30;
+m2=10;
+
+cp(L,R,image):=drawimage(L,R,image,interpolate->false);
+
+cp([0,2*w+2*m2], [w,2*w+2*m2], "input");
+cp([(w+m1),2*w+2*m2], [(2*w+m1),2*w+2*m2], "output1");
+cp([(2*w+2*m1),2*w+2*m2], [(3*w+2*m1),2*w+2*m2], "output2");
+
+cp([0,w+m2], [w,w+m2], "output3");
+cp([(w+m1),w+m2], [(2*w+m1),w+m2], "output4");
+cp([(2*w+2*m1),w+m2], [(3*w+2*m1),w+m2], "output5");
+
+cp([0,0], [w,0], "output6");
+cp([(w+m1),0], [(2*w+m1),0], "output7");
+cp([(2*w+2*m1),0], [(3*w+2*m1),0], "output8");
+
+
+
+
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform:[{visibleRect:[0,0,828,788]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0], visible:false},
+      {name:"B", type:"Free", pos:[255,0], visible:false}
+
+  ],
+  use: ["CindyGL" /*,"katex"*/]
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <h1>Calculating the Mean Color of an Image</h1>
+  <div id="CSCanvas" style="align:left; width: 828px; height: 788px; border:0;margin: 0;"></div>
+  <p>By calculating the mean for quadruples of pixels, every image will have half the resolution in each direction. After log2(width) steps
+  the mean color of the original image is found.
+  </p>
+</body>
+
+</html>

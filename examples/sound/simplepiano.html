@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <title>A simple piano</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        
+        <script id="csinit" type="text/x-cindyscript">
+          n = 10;
+          harm = apply(1..n,k,1/k);       
+        </script>
+        
+        <script id="csmousedown" type="text/x-cindyscript">
+          freq = 100*exp(mouse().x*log(2));
+          beating = (mouse().y)^3*5;
+          apply(1..3,k,
+            playsin(freq+beating*randomnormal(), line->k, harmonics->harm, precompute->true, damp->3, duration->3*6, phaseshift->apply(1..n,2*pi*random()));   
+          );
+        </script>
+        
+        
+        <script id="csmouseup" type="text/x-cindyscript">
+          apply(1..3,k,
+            playsin(line->k, damp->9);   
+          );
+        </script>
+        
+        
+    
+        <script type="text/javascript">
+          var cdy = CindyJS({
+            scripts: "cs*",
+            ports: [
+              {id: "CSCanvas", transform: [{visibleRect: [0, 0, 3, 1]}], background: "rgb(200,200,200)", grid:1, width: "600", height: "200"}
+            ],
+            csconsole: false,
+            autoplay: true,
+            behavior: [
+
+            ]
+          });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+        <div>
+        Click on the widget to play a tone. 
+        The damp parameter is adjusted when the mouse is released.
+        </div>
+    </body>
+    </html>
+  

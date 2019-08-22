@@ -157,7 +157,7 @@ eval_helper.drawarc = function(args, modifs, df) {
         var cc = List.normalizeZ(General.mult(mat, c));
 
 
-        // get angles of A and C 
+        // get angles of A and C
         var startAngle = -Math.atan2(aa.value[1].value.real, aa.value[0].value.real);
         var endAngle = -Math.atan2(cc.value[1].value.real, cc.value[0].value.real);
 
@@ -181,7 +181,7 @@ eval_helper.drawarc = function(args, modifs, df) {
 
         csctx.save();
 
-        // canvas circle radius 
+        // canvas circle radius
         var rad = arcDist.value.real * m.sdet;
 
         csctx.beginPath();
@@ -823,7 +823,7 @@ evaluator.fillpolygon$1 = function(args, modifs) {
 
 
 eval_helper.drawpolygon = function(args, modifs, df, cycle) {
-    Render2D.handleModifs(modifs, Render2D.conicModifs);
+    Render2D.handleModifs(modifs, cycle ? Render2D.conicModifs : Render2D.lineModifs);
     Render2D.preDrawCurve();
 
 
@@ -894,7 +894,7 @@ eval_helper.drawpolygon = function(args, modifs, df, cycle) {
 
 };
 
-function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight) {
+function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0) {
     if (text.indexOf("\n") !== -1) {
         var left = Infinity;
         var right = -Infinity;
@@ -916,7 +916,15 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight) {
         };
     }
     var m = ctx.measureText(text);
-    ctx.fillText(text, x - m.width * align, y);
+    if (angle) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-angle);
+        ctx.fillText(text, -m.width * align, 0);
+        ctx.restore();
+    } else {
+        ctx.fillText(text, x - m.width * align, y);
+    }
     // We can't rely on advanced text metrics due to lack of browser support,
     // so we have to guess sizes, the vertical ones in particular.
     return {
@@ -967,17 +975,24 @@ eval_helper.drawtext = function(args, modifs, callback) {
     var yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset;
 
     var txt = niceprint(v1);
-    var font = (
+
+    if (!(CindyJS._pluginRegistry.katex) && typeof(txt) === "string") {
+        // split string by "$", if we have latex $...$ then the length is >=3
+        if (txt.split("$").length >= 3) {
+            loadExtraPlugin("katex", "katex-plugin.js", true /*skipInit*/ );
+        }
+    }
+
+    csctx.font = (
         Render2D.bold + Render2D.italics +
         Math.round(size * 10) / 10 + "px " +
         Render2D.family);
-    csctx.font = font;
     if (callback) {
-        return callback(txt, font, xx, yy, Render2D.align, size);
+        return callback(txt, xx, yy, Render2D.align, size);
     } else {
         return textRendererCanvas(
             csctx, txt, xx, yy, Render2D.align,
-            size, size * defaultAppearance.lineHeight);
+            size, size * defaultAppearance.lineHeight, Render2D.angle);
     }
 };
 
@@ -1557,9 +1572,9 @@ evaluator.repaint$0 = function(args, modifs) {
 
 evaluator.screenbounds$0 = function(args, modifs) {
     var pt1 = General.withUsage(List.realVector(csport.to(0, 0)), "Point");
-    var pt2 = General.withUsage(List.realVector(csport.to(csw, 0)), "Point");
-    var pt3 = General.withUsage(List.realVector(csport.to(csw, csh)), "Point");
-    var pt4 = General.withUsage(List.realVector(csport.to(0, csh)), "Point");
+    var pt2 = General.withUsage(List.realVector(csport.to(canvas.clientWidth, 0)), "Point");
+    var pt3 = General.withUsage(List.realVector(csport.to(canvas.clientWidth, canvas.clientHeight)), "Point");
+    var pt4 = General.withUsage(List.realVector(csport.to(0, canvas.clientHeight)), "Point");
     return (List.turnIntoCSList([pt1, pt2, pt3, pt4]));
 };
 
@@ -1650,12 +1665,12 @@ evaluator.canvas$4 = function(args, modifs) {
     var cvc = csport.from(ptcx, ptcy, 1);
     var cvd = csport.from(ptdx, ptdy, 1);
 
-    var x11 = cva[0];
-    var x12 = cva[1];
-    var x21 = cvc[0];
-    var x22 = cvc[1];
-    var x31 = cvd[0];
-    var x32 = cvd[1];
+    var x11 = cva[0] * vscale;
+    var x12 = cva[1] * vscale;
+    var x21 = cvc[0] * vscale;
+    var x22 = cvc[1] * vscale;
+    var x31 = cvd[0] * vscale;
+    var x32 = cvd[1] * vscale;
     var y11 = 0;
     var y12 = ch;
     var y21 = 0;
@@ -1713,12 +1728,12 @@ evaluator.canvas$5 = function(args, modifs) {
     var cvb = csport.from(ptb.x, ptb.y, 1);
     var cvc = csport.from(ptc.x, ptc.y, 1);
 
-    var x11 = cva[0];
-    var x12 = cva[1];
-    var x21 = cvb[0];
-    var x22 = cvb[1];
-    var x31 = cvc[0];
-    var x32 = cvc[1];
+    var x11 = cva[0] * vscale;
+    var x12 = cva[1] * vscale;
+    var x21 = cvb[0] * vscale;
+    var x22 = cvb[1] * vscale;
+    var x31 = cvc[0] * vscale;
+    var x32 = cvc[1] * vscale;
     var y11 = 0;
     var y12 = ch;
     var y21 = cw;

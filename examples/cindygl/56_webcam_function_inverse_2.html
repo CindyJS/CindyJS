@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Applying a function to the Webcam</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../build/js/CindyJS.css">
+<script id="csinit" type="text/x-cindyscript">
+drawgrid=false;
+width=640;
+height=640/4*3;
+video = camera video(resolution -> [640,4/3]);
+create image("output", width, height);
+create image("input", width, height);
+create image("inverse", width, height);
+create image("f", 256,256);
+create image("g", 256,256);
+colorplot("output", 0);
+colorplot("inverse", 0);
+colorplot("input", 0);
+
+bw(x):=(.35*x_1+.45*x_2+.2*x_3);
+f(x):=x*2;
+g(x):=x/2;
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if(drawgrid,
+linecolor((.5,.5,.5));
+repeat(65,start->0,step->.2,draw((#,0),(#,4.8)));
+repeat(25,start->0,step->.2,draw((0,#),(12.8,#)));
+);
+	draw((3.2,1.25),(3.5,1.25),color->(0,0,0),size->3);
+	draw((6.70,1.25),(7.0,1.25),color->(0,0,0),size->3, arrow->true, arrowshape->"full", arrowsides->"==>", arrowsize->1.5, arrowposition->1);
+
+	// get current definition of f and redefine if it changed
+	if(Inputf.text!=lastf & Inputf.text!="",
+		parse("f(x) := re(round(" + Inputf.text+"))");
+		lastf = Inputf.text;
+	//	colorplot(G,H,"f", if(mod(floor(f(#.x*100-207)),256)==mod(floor(#.y*100+350),256),1,0));
+	colorplot([-.5,-.5],[255.5,-.5],"f", if(mod(floor(f(#.x)),256)==mod(floor(#.y),256),1,0));
+	);
+
+    // get current definition of g and redefine if it changed
+	if(Inputg.text!=lastg & Inputg.text!="",
+		parse("g(x) := re(round(" + Inputg.text+"))");
+		lastg = Inputg.text;
+			colorplot([-.5,-.5],[255.5,-.5],"g", if(mod(floor(g(#.x)),256)==mod(floor(#.y),256),1,0));
+
+	);
+
+if (image ready(video),
+  colorplot("input", bw(imagergb(video, #)));
+  colorplot("output",              mod(floor(f(floor(255*bw(imagergb("input",#))))),256)/255);
+  colorplot("inverse", mod(floor(g(mod(floor(f(floor(255*bw(imagergb("input",#))))),256))),256)/255);
+);
+
+
+draw image (A, B, "input");
+draw image (C, D, "output");
+draw image (E, F, "inverse");
+draw image (G, H, "f");
+draw image (K, L, "g");
+
+
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", transform:[{visibleRect:[0,-3.5,10.24,2.8]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0], visible:false},
+      {name:"B", type:"Free", pos:[320/100,0], visible:false},
+      {name:"C", type:"Free", pos:[350/100,0], visible:false},
+      {name:"D", type:"Free", pos:[670/100,0], visible:false},
+      {name:"E", type:"Free", pos:[700/100,0], visible:false},
+      {name:"F", type:"Free", pos:[1020/100,0], visible:false},
+      {name:"G", type:"Free", pos:[207/100,-3.5], visible:false},
+      {name:"H", type:"Free", pos:[463/100,-3.5], visible:false},
+      {name:"K", type:"Free", pos:[561/100,-3.5], visible:false},
+      {name:"L", type:"Free", pos:[813/100,-3.5], visible:false},
+      {name: "Inputf", type: "EditableText", pos: [1.55, -0.4],
+          color: [0.0, 0.0, 0.0],
+          fillcolor: [1.0, 0.784, 0.0],
+          fillalpha: 0.5, minwidth: 310, text: "x+125"},
+      {name: "Inputg", type: "EditableText", pos: [5.55, -0.4],
+          color: [0.0, 0.0, 0.0],
+          fillcolor: [1.0, 0.784, 0.0],
+          fillalpha: 0.5, minwidth: 310, text: "x-125"}
+
+  ],
+  use: ["CindyGL" /*,"katex"*/]
+});
+</script>
+</head>
+
+<body style="font-family:Arial,sans-serif;">
+  <h1>Applying a function to the webcam data</h1>
+  <div id="CSCanvas" style="width: 1024px; height: 630px; border:0;margin: 0;"></div>
+  <p>Here the graph of both f and g is shown in addition to the effect of the function on the image.</p>
+</body>
+
+</html>

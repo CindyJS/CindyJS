@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Multitouch scripting</title>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+events = [];
+
+addevent(pos, id, kind) := (
+  events = [pos, id, kind] <: events;
+  if(length(events)>=200,
+    events = events_(1..200);
+  );
+);
+</script>
+
+
+<script id="csdraw" type="text/x-cindyscript">
+drawtext((0,0), multiidlist());
+
+al = 1;
+forall(events, e,
+  dim = if(e_3=="down" % e_3=="up", drawtext(e_1, e_3 + " of " + e_2, alpha->al);.7, 1);
+  draw(e_1, color->hue(e_2/sqrt(20))*dim, alpha->al);
+  al = al*.95;
+);
+
+</script>
+<script id="csmultidown" type="text/x-cindyscript">
+addevent(mouse(id->multiid()), multiid(), "down");
+</script>
+
+<script id="csmultidrag" type="text/x-cindyscript">
+addevent(mouse(id->multiid()), multiid(), "draw");
+</script>
+
+<script id="csmultiup" type="text/x-cindyscript">
+addevent(mouse(id->multiid()), multiid(), "up");
+</script>
+
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 350,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.66]}],
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  autoplay: true,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

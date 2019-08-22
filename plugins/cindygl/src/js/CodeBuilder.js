@@ -135,7 +135,14 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
         return type.voidt;
     } else if (expr['ctype'] === 'field') {
         let t = generalize(this.getType(expr['obj']));
-        if (t.type === 'list') return t.parameters;
+        if (expr['key'].length == 1) {
+            if (t.type === 'list')
+                return t.parameters;
+            else if (issubtypeof(t, type.point))
+                return type.float;
+        } else if (expr['key'] == 'xy' && issubtypeof(t, type.point))
+            return type.vec2;
+
         if (!t) return false;
     } else if (expr['ctype'] === 'string') {
         return type.image;
@@ -387,6 +394,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 
         let alwaysPixelDependent = [ //Operators that are supposed to be interpreted as pixel dependent;
             'random', //our random function is dependent on pixel!
+            'randomint',
+            'randominteger',
+            'randombool',
+            'randomnormal',
             'verbatimglsl' //we dont analyse verbatimglsl functions
         ];
         if (expr['ctype'] === 'function' && alwaysPixelDependent.indexOf(getPlainName(expr['oper'])) != -1) {
@@ -868,7 +879,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let fname = expr['oper'];
 
         if (getPlainName(fname) === 'verbatimglsl') {
-            let glsl = this.api.evaluateAndVal(expr['args'][0]).value;
+            let glsl = this.api.evaluateAndVal(expr['args'][0])['value'];
             return (generateTerm ? {
                 term: glsl,
                 code: ''
@@ -952,6 +963,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             code: ''
         });
     } else if (expr['ctype'] === 'field') {
+        let objt = this.getType(expr['obj']);
         let index = {
             'x': 0,
             'y': 1,
@@ -961,8 +973,24 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             'b': 2,
             'a': 3
         }[expr['key']];
-        if (index != undefined) {
-            let term = accesslist(this.getType(expr['obj']), index)([self.compile(expr['obj'], true).term], null, this);
+        let term = false;
+        let objterm = self.compile(expr['obj'], true).term;
+        if (index != undefined && objt.type === "list") {
+            term = accesslist(objt, index)([objterm], null, this);
+        } else if (expr['key'] === "xy" && objt.type === "list") {
+            if (objt.length === 2) term = objterm;
+            if (objt.length === 3) term = useincludefunction('dehomogenize')([self.castType(objterm, objt, type.point)], null, this);
+        } else if (objt === type.point) {
+            let funs = {
+                'xy': 'dehomogenize',
+                'x': 'dehomogenizex',
+                'y': 'dehomogenizey',
+            };
+            if (funs[expr['key']])
+                term = useincludefunction(funs[expr['key']])([self.castType(objterm, objt, type.point)], null, this);
+        }
+
+        if (term) {
             return (generateTerm ? {
                 term: term,
                 code: ''

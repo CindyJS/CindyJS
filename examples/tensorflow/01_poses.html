@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>TensorFlow.js in CindyJS: PoseNet</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<!-- Load TensorFlow.js -->
+<script src="https://unpkg.com/@tensorflow/tfjs"></script>
+<!-- Load Posenet -->
+<script src="https://unpkg.com/@tensorflow-models/posenet"></script>
+<script type="text/javascript" src="posenet-plugin.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+video = camera video();
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+if (imageready(video),
+  drawimage((0,0),(1,0),video);
+  estimateSinglePose((0,0),(1,0), video, imagescalefactor->.35, multiplier->0.75,
+    //callback when pose estimated
+    pose=#;
+    errc(pose);
+  );
+  if(!isundefined(pose),
+    forall(pose, p, draw(p_3, alpha->p_2));
+    forall(pose, p, drawtext(p_3, p_1, alpha->p_2));
+    /*
+    1: nose
+    2: leftEye
+    3: rightEye
+    4: leftEar
+    5: rightEar
+    6: leftShoulder
+    7: rightShoulder
+    8: leftElbow
+    9: rightElbow
+    10: leftWrist
+    11: rightWrist
+    12: leftHip
+    13: rightHip
+    14: leftKnee
+    15: rightKnee
+    16: leftAnkle
+    17: rightAnkle
+    */
+    lines = [[6,8],[8,10],[6,12],[12,14],[14,16]];
+    lines = lines ++ apply(lines, l, l+[1,1]);
+    lines = lines ++ [[6,7],[12,13]];
+    forall(lines, l, if(pose_(l_1)_2>.6 & pose_(l_2)_2>.6, draw(pose_(l_1)_3, pose_(l_2)_3)));
+  );
+);
+
+
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", 
+    width: 1280,
+    height: 720,
+    transform:[{visibleRect:[0,0,1,9/16]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [],
+  use: ["posenet"]
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <h1>TensorFlow.js in CindyJS: PoseNet</h1>
+  <div id="CSCanvas"></div>
+  <div>Poses are detected with the <a href="https://github.com/tensorflow/tfjs-models/tree/master/posenet">PoseNet Model using TensorFlow.js</a></div>
+  <div>Due to WebGL precision problems, TensorFlow.js works less accurate in Safari. Currently, best results are obtained with Firefox or Chrome.</div>
+</body>
+
+</html>

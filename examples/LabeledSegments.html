@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Construction.cdy</title>
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, -3.181102362204724, -0.7874015748031497], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "B", type: "Free", pos: [4.0, 3.177982339756716, 0.611584043658574], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "B"], labeled: true},
+    {name: "C", type: "Free", pos: [4.0, -1.7564198626052345, -0.8299431888612019], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "D", type: "Free", pos: [4.0, 2.156071278050449, 0.5864764681648155], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "b", type: "Segment", color: [0.0, 0.0, 1.0], args: ["C", "D"], labeled: true, arrowshape: "jet", arrowsides: "==>", arrowsize: 1.6, arrowposition: 1.0}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 350,
+    transform: [{visibleRect: [-8.079606996821745, 9.016313364792218, 19.120393003178247, -4.983686635207778]}],
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  cinderella: {build: 1901, version: [2, 9, 1901]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

@@ -9,11 +9,13 @@
 Text0.text = "foo";
     </script>
     <script id="csdraw" type="text/x-cindyscript">
+drawtext((0,2), Text0.currenttext);
 drawtext((0,1), Text0.text);
     </script>
     <script type="text/javascript">
 CindyJS({
   scripts: "cs*",
+  autoplay: true,
   defaultAppearance: {
     dimDependent: 0.7,
     fontFamily: "sans-serif",

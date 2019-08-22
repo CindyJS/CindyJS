@@ -49,3 +49,5 @@ Makefile        text
 
 *.iml           -text
 .idea/**        -text
+
+examples/162_sunflower_crlf.html  eol=crlf

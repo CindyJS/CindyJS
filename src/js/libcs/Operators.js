@@ -438,6 +438,8 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
                 var lst = where.value.slice();
                 lst[ind1 - 1] = evaluate(what);
                 rhs = List.turnIntoCSList(lst);
+                // update colon op
+                if (where.userData) rhs.userData = where.userData;
             } else {
                 var str = where.value;
                 str = str.substring(0, ind1 - 1) +
@@ -454,12 +456,61 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
 eval_helper.assigndot = function(data, what) {
     var where = evaluate(data.obj);
     var field = data.key;
+
     if (where.ctype === 'geo' && field) {
         Accessor.setField(where.value, field, evaluateAndVal(what));
     }
 
     return nada;
+};
 
+eval_helper.assigncolon = function(data, what) {
+    var lhs = data.obj;
+    var where = evaluate(lhs);
+
+    var key = niceprint(evaluate(data.key));
+    if (key === "_?_") key = undefined;
+
+    if (where.ctype === 'geo' && key) {
+        Accessor.setuserData(where.value, key, evaluateAndVal(what));
+    } else if (where.ctype === 'list' || where.ctype === 'string' && key) {
+        // copy object
+        var rhs = {};
+        for (var i in where) rhs[i] = where[i];
+
+        if (!rhs.userData) rhs.userData = {};
+        else { // avoid reference copy
+            var tmpObj = {};
+            for (var j in rhs.userData) tmpObj[j] = rhs.userData[j];
+            rhs.userData = tmpObj;
+        }
+
+        rhs.userData[key] = evaluateAndVal(what);
+
+        infix_assign([lhs, rhs]);
+    } else {
+        if (!key) console.log("Key is undefined");
+        else console.log("User data can only be assigned to geo objects and lists.");
+    }
+
+    return nada;
+};
+
+
+evaluator.keys$1 = function(args, modifs) {
+    var obj = evaluate(args[0]);
+    var ctype = obj.ctype;
+    if (ctype === "geo" || ctype === "list") {
+        var keys = [];
+
+        var data = ctype === "geo" ? obj.value.userData : obj.userData;
+        if (data) {
+            keys = Object.keys(data).map(General.string);
+        }
+        return List.turnIntoCSList(keys);
+    }
+
+    return nada;
 };
 
 
@@ -498,6 +549,8 @@ function infix_assign(args, modifs) {
         }
     } else if (args[0].ctype === 'field') {
         eval_helper.assigndot(args[0], v1);
+    } else if (args[0].ctype === 'userdata') {
+        eval_helper.assigncolon(args[0], v1);
     } else if (args[0].ctype === 'function' && args[0].oper === 'genList') {
         if (v1.ctype === "list") {
             eval_helper.assignlist(args[0].args, v1.value);
@@ -3037,9 +3090,17 @@ evaluator.keycode$0 = function(args, modifs) { //OK
 
 
 evaluator.mouse$0 = function(args, modifs) { //OK
-    var x = csmouse[0];
-    var y = csmouse[1];
-    return List.realVector([x, y]);
+    if (modifs.id) {
+        let k = evaluate(modifs.id);
+        if (k.ctype === 'number') {
+            let id = k.value.real;
+            if (multipos[id])
+                return List.realVector(multipos[id]);
+        }
+        return nada;
+    } else {
+        return List.realVector(csmouse);
+    }
 };
 
 evaluator.mover$0 = function(args, modifs) { //OK
@@ -3048,9 +3109,19 @@ evaluator.mover$0 = function(args, modifs) { //OK
             ctype: "geo",
             value: move.mover
         };
-    else
-        console.log("Not moving anything at the moment");
     return nada;
+};
+
+evaluator.multiid$0 = function(args, modifs) {
+    return CSNumber.real(multiid);
+};
+
+evaluator.multiidlist$0 = function(args, modifs) {
+    let l = [];
+    for (let id in multipos) {
+        l.push(id);
+    }
+    return List.realVector(l);
 };
 
 
@@ -3988,13 +4059,21 @@ evaluator.createpoint$2 = function(args, modifs) {
         pos: pos
     };
 
-    return addElement(el);
+    return {
+        'ctype': 'geo',
+        'value': addElement(el, true)
+    };
 };
+
 
 evaluator.create$3 = function(args, modifs) {
     var names = evaluate(args[0]);
     var type = evaluate(args[1]);
     var defs = evaluate(args[2]);
+    var emodifs = {};
+    for (var key in modifs) {
+        emodifs[key] = evaluateAndVal(modifs[key]);
+    }
 
     var name, el, i;
     if (names.ctype === "string") {
@@ -4007,17 +4086,19 @@ evaluator.create$3 = function(args, modifs) {
         name = General.string(names.value.map(function(name) {
             return name.value;
         }).join("__"));
-        el = evaluator.create$3([name, type, defs], modifs);
+        el = evaluator.create$3([name, type, defs], emodifs);
+        var ellist = [];
         if (el !== nada) {
-            type = General.string(el.kind.replace(/^(.*)s$/, "Select$1"));
-            defs = List.turnIntoCSList([General.string(el.name)]);
+            type = General.string(el.value.kind.replace(/^(.*)s$/, "Select$1"));
+            defs = List.turnIntoCSList([General.string(el.value.name)]);
             for (i = 0; i < names.value.length; ++i) {
-                evaluator.create$3([names.value[i], type, defs], {
-                    index: CSNumber.real(i + 1)
-                });
+                emodifs.index = CSNumber.real(i + 1);
+                ellist.push(
+                    evaluator.create$3([names.value[i], type, defs], emodifs)
+                );
             }
         }
-        return el;
+        return List.turnIntoCSList(ellist);
     } else if (names.value[0].ctype !== "string") {
         printStackTrace("Element of names list must be a string");
         return nada;
@@ -4073,11 +4154,107 @@ evaluator.create$3 = function(args, modifs) {
     if (a.length > 0)
         el.args = a;
 
-    var index = evaluateAndVal(modifs.index);
-    if (index.ctype === "number")
-        el.index = index.value.real | 0;
+    for (var field in emodifs) {
+        el[field] = General.unwrap(emodifs[field]);
+    }
 
-    return addElement(el);
+    return {
+        'ctype': 'geo',
+        'value': addElement(el, true)
+    };
+};
+
+evaluator.create$2 = function(args, modifs) {
+    var type = evaluate(args[0]);
+    var defs = evaluate(args[1]);
+    var emodifs = {};
+    for (var key in modifs) {
+        emodifs[key] = evaluateAndVal(modifs[key]);
+    }
+
+    if (!geoOps.hasOwnProperty(type.value) &&
+        !geoAliases.hasOwnProperty(type.value) &&
+        !geoMacros.hasOwnProperty(type.value)) {
+        printStackTrace("Invalid geometric operation: '" + type.value + "'");
+        return nada;
+    }
+
+    // Recursively apply aliases
+    while (geoAliases.hasOwnProperty(type.value)) {
+        type.value = geoAliases[type.value];
+    }
+
+    // Detect unsupported operations or missing or incorrect arguments
+    var op = geoOps[type.value];
+
+
+    function getFirstFreeName(kind) {
+        var ans = false;
+
+        function useiffree(name) {
+            if (!csgeo.csnames[name]) {
+                ans = name;
+            }
+        }
+        var name, i;
+        if (kind === 'P') {
+            for (i = 0; i < 26 & !ans; i++) {
+                if (i === 8 || i === 9) continue; //skip I and J
+                useiffree(String.fromCharCode(65 + i)); //A, B, C...
+            }
+        } else if (kind === 'L' || kind === 'S') {
+            for (i = 0; i < 26 & !ans; i++) {
+                if (i === 8 || i === 9) continue; //skip i and j
+                useiffree(String.fromCharCode(97 + i)); //a, b, c...
+            }
+        }
+        for (i = 0; !ans; i++) {
+            useiffree(kind + i); //P0, P1, P2, ...
+        }
+        return ans;
+    }
+
+    var name = General.string(getFirstFreeName(op.kind));
+
+
+    if (defs.value.length > op.signature.length) {
+        var warning = "Operation " + type.value + " requieres only " + op.signature.length + " argument" + (op.signature.length === 1 ? '' : 's') + " (" + defs.value.length + " argument" + (defs.value.length === 1 ? '' : 's') + " given) to create " + name.value + ". Ignoring the last arguments.";
+        if (!emodifs.pos) {
+            var pos = evaluateAndHomog(defs.value[defs.value.length - 1]); //interpret last argument as pos
+            if (pos !== nada) {
+                warning = warning + " Use the last argument as modifier `pos`.";
+                emodifs.pos = pos;
+            }
+        }
+        printStackTrace(warning);
+        defs = List.turnIntoCSList(defs.value.slice(0, op.signature.length)); //ignore additional defs
+    }
+
+    var el = evaluator.create$3([name, type, defs], emodifs);
+    if (el !== nada && el.value.kind[1] === 's' && el.value.results) { //Ps, Ls, etc.
+        type = General.string("Select" + el.value.kind[0]);
+        defs = List.turnIntoCSList([General.string(el.value.name)]);
+
+        if (emodifs.pos) {
+            //if there is a pos attribute (or the defs list is to long), then select only the given point
+            name = General.string(getFirstFreeName(el.value.kind[0]));
+            return evaluator.create$3([name, type, defs], emodifs);
+        } else {
+            //if a compound is generated with no pos specified, then the list of all points is returned.
+            var ellist = [];
+            for (var i = 0; i < el.value.results.value.length; i++) {
+                emodifs.index = CSNumber.real(i + 1);
+                name = General.string(getFirstFreeName(el.value.kind[0]));
+                ellist.push(evaluator.create$3([name, type, defs], emodifs));
+            }
+            return List.turnIntoCSList(ellist);
+        }
+
+    } else {
+        if (el.isDuplicate) delete el.isDuplicate;
+        return el;
+    }
+
 };
 
 ///////////////////////////////
@@ -4163,22 +4340,39 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     var v1 = evaluateAndVal(args[1]);
     var dec;
 
-    function fmtNumber(n) {
+    // check if we want to truncate - do so by default
+    var truncate = true;
+    if (modifs.truncate) {
+        var modif = evaluate(modifs.truncate);
+        if (modif.ctype === "boolean")
+            truncate = modif.value;
+    }
+
+
+    function fmtNumber(n, trunc) {
         var erg = n.toFixed(dec),
             erg1;
+
         do {
             erg1 = erg;
             erg = erg.substring(0, erg.length - 1);
-        } while (erg !== "" && erg !== "-" && +erg === +erg1);
-        return "" + erg1;
+        } while (trunc && erg !== "" && erg !== "-" && +erg === +erg1);
+
+        var tmp = "" + erg1;
+        // switch delimiter if needed
+        if (modifs.delimiter && modifs.delimiter.ctype === "string") {
+            tmp = tmp.replace(".", modifs.delimiter.value);
+        }
+        return tmp;
     }
 
-    function fmt(v) {
+    function fmt(v, dec) {
         var r, i, erg;
         if (v.ctype === 'number') {
-            r = fmtNumber(v.value.real);
-            i = fmtNumber(v.value.imag);
-            if (i === "0")
+            r = fmtNumber(v.value.real, truncate);
+            i = fmtNumber(v.value.imag, truncate);
+            // check if we have imag part
+            if (Math.abs(v.value.imag) < Math.pow(10, -dec))
                 erg = r;
             else if (i.substring(0, 1) === "-")
                 erg = r + " - i*" + i.substring(1);
@@ -4202,7 +4396,7 @@ evaluator.format$2 = function(args, modifs) { //TODO Angles
     }
     if ((v0.ctype === 'number' || v0.ctype === 'list') && v1.ctype === 'number') {
         dec = Math.max(0, Math.min(20, Math.round(v1.value.real)));
-        return fmt(v0);
+        return fmt(v0, dec);
     }
     return nada;
 };
@@ -4896,4 +5090,10 @@ evaluator.load$3 = function(args, modifs) {
         scheduleUpdate();
     }
 
+};
+
+evaluator.removeelement$1 = function(args, modifs) {
+    var arg = evaluate(args[0]);
+    if (arg.ctype === "geo") removeElement(arg.value.name);
+    else console.log("argument of removeelement is undefined or not of type <geo>");
 };

@@ -52,6 +52,11 @@ var csgridscript;
 var cssnap = false;
 var csaxes = false;
 
+//virtual resolution
+var virtualwidth = 0;
+var virtualheight = 0;
+var vscale = 1;
+
 function dump(a) {
     console.log(JSON.stringify(a));
 }
@@ -73,7 +78,6 @@ function evalcs(a) {
 
 function evokeCS(code) {
     var parsed = analyse(code, false);
-    console.log(parsed);
     evaluate(parsed);
     scheduleUpdate();
 }
@@ -85,7 +89,16 @@ var trafos;
 function updateCanvasDimensions() {
     canvas.width = csw = canvas.clientWidth;
     canvas.height = csh = canvas.clientHeight;
-    csctx.setTransform(1, 0, 0, 1, 0, 0); // reset
+
+    vscale = 1;
+    if (virtualwidth || virtualheight) {
+        vscale = Math.max(virtualwidth ? virtualwidth / canvas.width : 0, virtualheight ? virtualheight / canvas.height : 0);
+
+        csw = vscale * canvas.clientWidth;
+        csh = vscale * canvas.clientHeight;
+    }
+
+    csctx.setTransform(1 / vscale, 0, 0, 1 / vscale, 0, 0); // reset
     csport.setMat(25, 0, 0, 25, 250.5, 250.5); // reset
     if (trafos) {
         for (var i = 0; i < trafos.length; i++) {
@@ -108,6 +121,7 @@ function updateCanvasDimensions() {
             }
         }
     }
+
     csport.createnewbackup();
     csport.greset();
     var devicePixelRatio = 1;
@@ -239,6 +253,11 @@ function createCindyNow() {
                 divStyle.width = port.width + "px";
                 divStyle.height = port.height + "px";
             }
+            if (port.virtualwidth)
+                virtualwidth = port.virtualwidth;
+            if (port.virtualheight)
+                virtualheight = port.virtualheight;
+
             if (port.background)
                 c.style.backgroundColor = port.background;
             if (port.transform !== undefined)
@@ -290,6 +309,7 @@ function createCindyNow() {
     var scripts = ["move",
         "keydown", "keyup", "keytyped", "keytype",
         "mousedown", "mouseup", "mousedrag", "mousemove", "mouseclick",
+        "multidown", "multiup", "multidrag",
         "init", "tick", "draw",
         "simulationstep", "simulationstart", "simulationstop", "ondrop"
     ];
@@ -645,11 +665,14 @@ function loadExtraModules() {
     if (usedFunctions.colorplot$1 || usedFunctions.colorplot$2 || usedFunctions.colorplot$3 || usedFunctions.colorplot$4) {
         loadExtraPlugin("CindyGL", "CindyGL.js");
     }
+    if (usedFunctions.playtone$1 || usedFunctions.playmelody$1) {
+        loadExtraPlugin("midi", "midi-plugin.js");
+    }
 }
 
 var modulesToLoad = 1;
 
-function loadExtraPlugin(name, path) {
+function loadExtraPlugin(name, path, skipInit) {
     var cb = null;
     if (instanceInvocationArguments.plugins)
         cb = instanceInvocationArguments.plugins[name];
@@ -662,7 +685,7 @@ function loadExtraPlugin(name, path) {
     ++modulesToLoad;
     CindyJS.autoLoadPlugin(name, path, function() {
         evaluator.use$1([General.wrap(name)], {});
-        doneLoadingModule();
+        doneLoadingModule(skipInit);
     });
 }
 
@@ -675,19 +698,21 @@ function loadExtraModule(name, path) {
     });
 }
 
-function doneLoadingModule() {
+function doneLoadingModule(skipInit) {
     if (--modulesToLoad !== 0)
         return;
 
-    //Evaluate Init script
-    evaluate(cscompiled.init);
+    if (!skipInit) {
+        //Evaluate Init script
+        evaluate(cscompiled.init);
 
-    if ((instanceInvocationArguments.animation ||
-            instanceInvocationArguments).autoplay)
-        csplay();
+        if ((instanceInvocationArguments.animation ||
+                instanceInvocationArguments).autoplay)
+            csplay();
 
-    if (globalInstance.canvas)
-        setuplisteners(globalInstance.canvas, instanceInvocationArguments);
+        if (globalInstance.canvas)
+            setuplisteners(globalInstance.canvas, instanceInvocationArguments);
+    } else scheduleUpdate();
 }
 
 var backup = null;

@@ -287,3 +287,13 @@ General.deeplyEqual = function(a, b) {
         --cnt;
     return cnt === 0;
 };
+
+General.DeepCloneJSON = function(o) {
+    var out, v, key;
+    out = Array.isArray(o) ? [] : {};
+    for (key in o) {
+        v = o[key];
+        out[key] = (typeof v === "object" && v !== null) ? General.DeepCloneJSON(v) : v;
+    }
+    return out;
+};

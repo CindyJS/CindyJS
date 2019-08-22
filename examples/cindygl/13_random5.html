@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: Random Operator on GPU</h1>
+    
+               
+    <script id="csinit" type="text/x-cindyscript">
+      use("CindyGL");
+			N = 100;
+    </script>
+    
+    <script id="csdraw" type="text/x-cindyscript">
+		
+		randomexperiment():= (
+			E = 0;
+			V = 0; 
+			repeat(N,
+				r = random();
+				E = E + r;
+				V = V + (r-.5)^2
+			);
+			E = E/N;
+			V = V/N;
+			[E, V, 0]
+		);
+		
+			
+      colorplot(
+				randomexperiment()
+			);
+			
+			forall((0..20)/10, x, forall((-20..20)/10,y,
+				draw((x,y),color->randomexperiment(), border->false);
+			));
+    </script>
+
+    <div  id="CSCanvas"></div>
+    <script type="text/javascript">
+        
+        var gslp=[];
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    animation: {autoplay: false},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 512,
+                      height: 512,
+                      transform: [ { visibleRect: [-2, -2, 2, 2] } ]
+                    }]
+                  });
+    </script>              
+	</body>
+</html>

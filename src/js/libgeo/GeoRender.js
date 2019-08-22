@@ -1,3 +1,29 @@
+function drawlabel(el, lbl, pos, lpos, color) {
+    var textsize = el.textsize || defaultAppearance.textsize;
+    var bold = (el.textbold === true);
+    var italics = (el.textitalics === true);
+    var family = el.text_fontfamily || defaultAppearance.fontFamily;
+    var dist = lpos.x * lpos.x + lpos.y * lpos.y;
+    var factor = 1.0;
+    if (dist > 0) {
+        factor = 1.0 + el.size.value.real / Math.sqrt(dist);
+    }
+
+
+    var alpha = el.alpha || CSNumber.real(defaultAppearance.alpha);
+    eval_helper.drawtext(
+        [pos, General.wrap(lbl)], {
+            'x_offset': General.wrap(factor * lpos.x),
+            'y_offset': General.wrap(factor * lpos.y),
+            'size': General.wrap(textsize),
+            'bold': General.wrap(bold),
+            'italics': General.wrap(italics),
+            'family': General.wrap(family),
+            'color': color,
+            'alpha': alpha
+        });
+}
+
 function drawgeopoint(el) {
     if (!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog))
         return;
@@ -19,30 +45,9 @@ function drawgeopoint(el) {
             'x': 3,
             'y': 3
         };
-        var textsize = el.textsize || defaultAppearance.textsize;
-        var bold = (el.textbold === true);
-        var italics = (el.textitalics === true);
-        var family = el.text_fontfamily || defaultAppearance.fontFamily;
-        var dist = lpos.x * lpos.x + lpos.y * lpos.y;
-        var factor = 1.0;
-        if (dist > 0) {
-            factor = 1.0 + el.size.value.real / Math.sqrt(dist);
-        }
         var color = Render2D.makeColor(defaultAppearance.textColor);
         if (el.noborder.value === true || el.border.value === false) color = col;
-
-        var alpha = el.alpha || CSNumber.real(defaultAppearance.alpha);
-        eval_helper.drawtext(
-            [el.homog, General.wrap(lbl)], {
-                'x_offset': General.wrap(factor * lpos.x),
-                'y_offset': General.wrap(factor * lpos.y),
-                'size': General.wrap(textsize),
-                'bold': General.wrap(bold),
-                'italics': General.wrap(italics),
-                'family': General.wrap(family),
-                'color': color,
-                'alpha': alpha
-            });
+        drawlabel(el, lbl, el.homog, lpos, color);
     }
 }
 
@@ -99,6 +104,33 @@ function drawgeoline(el) {
         if (zz.value.real >= 0) { // finite segment
             evaluator.draw$2(
                 [el.startpos, el.endpos], modifs);
+            if (el.labeled && !el.tmp) {
+                var lbl = el.printname || el.name || "S";
+                var orientedline = List.scalmult(
+                    CSNumber.real(Math.sign(el.startpos.value[2].value.real) * Math.sign(el.endpos.value[2].value.real)),
+                    List.cross(el.startpos, el.endpos)
+                );
+
+                var npos = {
+                    'x': orientedline.value[0].value.real,
+                    'y': orientedline.value[1].value.real
+                };
+
+                //normalize npos
+                var nposlength = Math.sqrt(npos.x * npos.x + npos.y * npos.y);
+
+                // TODO: synchronize these constants with Cinderella
+                npos = {
+                    'x': 8 * npos.x / nposlength - 3,
+                    'y': 8 * npos.y / nposlength - 3
+                };
+                var lpos = el.labelpos || npos;
+                var color = Render2D.makeColor(defaultAppearance.textColor);
+
+                // TODO: synchronize these constants with Cinderella
+                var pos = geoOps._helper.midpoint(geoOps._helper.midpoint(el.startpos, el.endpos), el.endpos);
+                drawlabel(el, lbl, pos, lpos, color);
+            }
             return;
         } else { // transformed segment through infinity, consisting of 2 rays
             Render2D.handleModifs(modifs, Render2D.lineModifs);
@@ -232,7 +264,14 @@ function drawgeotext(el) {
         var label = el.html;
         var inlinebox = label.parentNode;
         var outer = inlinebox.parentNode;
-        htmlCallback = function(text, font, x, y, align) {
+        htmlCallback = function(text, x, y, align, size) {
+            x /= vscale;
+            y /= vscale;
+            var font = (
+                Render2D.bold + Render2D.italics +
+                Math.round(size / vscale * 10) / 10 + "px " +
+                Render2D.family);
+
             if (cache.invisible)
                 outer.style.removeProperty("display");
             if (text === cache.text && font === cache.font &&

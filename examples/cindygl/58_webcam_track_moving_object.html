@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Webcam in Cindy JS</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+video = camera video();
+use8bittextures(); //the CPU imagergb command works in Safari only for 8-bit textures
+createimage("history", 480, 320);
+createimage("moving", 480, 320);
+
+forall(0..8, i,
+  createimage("tmp"+i, 2^i, 2^i);
+);
+
+getmax(image) := (
+  //copy image to tmp8
+  colorplot((0,0),(1,0), "tmp8",
+    value = imagergb((0,0),(1,0), image, #).r;
+    [value, #.x, #.y]
+  );
+  
+  
+  //recursively bring value down
+  forall(reverse(0..7),i,
+    colorplot((0,0),(2^i,0),"tmp"+i,
+      v0 = imagergb((0,0),(2^(i+1),0), "tmp"+(i+1), 2*# , repeat->true, interpolate->false);
+      v1 = imagergb((0,0),(2^(i+1),0), "tmp"+(i+1), 2*#+(0,1), repeat->true, interpolate->false);
+      v2 = imagergb((0,0),(2^(i+1),0), "tmp"+(i+1), 2*#+(1,0), repeat->true, interpolate->false);
+      v3 = imagergb((0,0),(2^(i+1),0), "tmp"+(i+1), 2*#+(1,1), repeat->true, interpolate->false);
+      maxval = max([v0.r, v1.r, v2.r, v3.r]);
+      if(maxval == v0.r,
+        v0,
+        if(maxval == v1.r,
+          v1,
+          if(maxval == v2.r,
+            v2,
+            v3
+          )
+        )
+      )
+    );
+  );
+  
+  lastvalue = imagergb((0,0),(0,1), "tmp0", (0.5,0.5), interpolate->false, repeat->true);
+  [lastvalue_2, lastvalue_3]
+);
+
+pavg = (.5,.5);
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+alpha = .05;
+beta = .1;
+if (imageready(video),
+  colorplot((0,0),(1,0),"history",
+    alpha*imagergb((0,0),(1,0),video, #)+(1-alpha)*imagergb((0,0),(1,0),"history", #)
+  );
+  
+  colorplot((0,0),(1,0),"moving",
+    diff = imagergb((0,0),(1,0),video, #)-imagergb((0,0),(1,0),"history", #);
+    diff*diff
+  );
+  
+  drawimage((0,0),(1,0),video);
+  p = getmax("moving");
+  
+  pavg = beta*p+(1-beta)*pavg;
+  draw(p, color->[1,1,1], alpha->.7);
+  draw(pavg, color->[1,0,0], size->8);
+  
+);
+
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({
+  ports: [{id: "CSCanvas", 
+    width: 1000,
+    height: 700,
+    transform:[{visibleRect:[0,0,1,.7]}]}],
+  scripts: "cs*",
+  language: "en",
+  defaultAppearance: {
+  },
+  geometry: [
+    {name:"A", type:"Free", pos:[0,0]},
+    {name:"B", type:"Free", pos:[20,0]}
+  ],
+  use: ["CindyGL"]
+});
+</script>
+</head>
+
+<body style="font-family:Arial;">
+  <h1>Track a moving object</h1>
+  <div id="CSCanvas"></div>
+</body>
+
+</html>

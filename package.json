@@ -7,23 +7,25 @@
     "test": "tests"
   },
   "devDependencies": {
-    "browser-sync": "^2.13.0",
+    "browser-sync": "^2.26.5",
     "chai": "^3.5.0",
     "chalk": "^1.1.1",
     "chokidar": "^1.6.0",
     "concat-with-sourcemaps": "^1.0.4",
+    "es6-shim": "^0.35.3",
+    "es7-shim": "^6.0.0",
     "glob": "^7.0.3",
     "http-proxy": "^1.11.2",
     "iphone-inline-video": "2.0.2",
     "js-beautify": "1.6.8",
-    "jshint": "^2.8.0",
+    "jshint": "^2.10.2",
     "marked": ">=0.3.5 <=0.3.12",
     "mocha": "^5.2.0",
-    "node-sass": "^4.9.0",
+    "node-sass": "^4.12.0",
     "pako": "^1.0.0",
     "q": "^1.4.1",
     "q-io": "^1.13.1",
-    "request": "^2.67.0",
+    "request": "2.88.0",
     "rewire": "^2.3.4",
     "rimraf": "^2.4.4",
     "source-map": "^0.5.1",
@@ -34,8 +36,8 @@
     "yauzl": "^2.6.0"
   },
   "scripts": {
-    "prepublish": "$NODE make/index.js call_npm=false parallel=true build=release all",
-    "test": "$NODE make/index.js call_npm=false alltests"
+    "prepublish": "node make/index.js call_npm=false parallel=true build=release all",
+    "test": "node make/index.js call_npm=false alltests"
   },
   "repository": {
     "type": "git",
@@ -53,12 +55,13 @@
   ],
   "author": "Jürgen Richter-Gebert <richter@ma.tum.de>",
   "contributors": [
-    "Aaron Montag <aaron.montag@tum.de>",
     "Alexander Elkins",
     "Martin von Gagern <gagern@ma.tum.de>",
     "Ulrich Kortenkamp <kortenkamp@cinderella.de>",
     "Stefan Kranich <stefan.kranich@ma.tum.de>",
+    "Aaron Montag <aaron.montag@tum.de>",
     "Michael Strobel <strobel@ma.tum.de>",
+    "Patrick Wilson <patrick.wilson@tum.de>",
     "Jens Wurster <jw@tophostingteam.de>"
   ],
   "license": "Apache-2.0",

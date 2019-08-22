@@ -1086,7 +1086,7 @@ function conicMat2Vec(m) {
 List.conicDist = function(mat1, mat2) {
     var vec1 = conicMat2Vec(mat1);
     var vec2 = conicMat2Vec(mat2);
-    console.log(niceprint(vec1), niceprint(vec2));
+    //    console.log(niceprint(vec1), niceprint(vec2));
     return List.projectiveDistMinScal(vec1, vec2);
 };
 
@@ -2530,4 +2530,19 @@ List.ofGeos = function(geos) {
             value: geo
         };
     }));
+};
+
+List._helper.isAlmostFarpoint = function(a) {
+    var z = List.normalizeMax(a).value[2];
+    return CSNumber.abs(z).value.real < CSNumber.eps;
+};
+
+List.getRandRealVec3 = function(min, max) {
+    var RR = CSNumber.getRandReal;
+    return List.turnIntoCSList([RR(min, max), RR(min, max), RR(min, max)]);
+};
+
+List.getRandComplexVec3 = function(min, max) {
+    var RC = CSNumber.getRandComplex;
+    return List.turnIntoCSList([RC(min, max), RC(min, max), RC(min, max)]);
 };

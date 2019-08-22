@@ -29,6 +29,40 @@ geoOps.RandomLine.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
+geoOps._helper.getRandMove = function(el) {
+    var l = el.homog;
+    var rand = List.getRandComplexVec3(-0.05, 0.05);
+    var move = List.add(l, rand);
+
+    return {
+        type: "homog",
+        value: move
+    };
+};
+
+geoOps._helper.getRandPointMove = function(el) {
+    var oldpos = List.normalizeMax(el.homog);
+    var oz = oldpos.value[2];
+    var ozabs = CSNumber.abs(oz).value.real;
+
+    var rZ = CSNumber.real(0);
+    // far points
+    if (ozabs < CSNumber.eps) {
+        rZ = CSNumber.getRandComplex(-0.05, 0.05);
+        oz = CSNumber.real(1);
+    }
+
+    var rvect = List.turnIntoCSList([CSNumber.getRandComplex(-0.1, 0.1), CSNumber.getRandComplex(-0.1, 0.1), rZ]);
+
+    var move = List.scalmult(oz, rvect);
+
+    move = List.add(oldpos, move);
+    return {
+        type: "homog",
+        value: move
+    };
+};
+
 
 geoOps.FreeLine = {};
 geoOps.FreeLine.kind = "L";
@@ -61,6 +95,7 @@ geoOps.FreeLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
+geoOps.FreeLine.getRandomMove = geoOps._helper.getRandMove;
 geoOps.FreeLine.stateSize = 6;
 
 
@@ -190,7 +225,6 @@ geoOps.Horizontal.updatePosition = function(el) {
     el.homog = General.withUsage(el.homog, "Line");
 };
 
-
 // Cinderella's freely movable HorizontalLine (Cinderella semantics)
 geoOps.HorizontalLine = {};
 geoOps.HorizontalLine.kind = "L";
@@ -226,6 +260,7 @@ geoOps.HorizontalLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
+geoOps.HorizontalLine.getRandomMove = geoOps._helper.getRandMove;
 geoOps.HorizontalLine.stateSize = 6;
 
 
@@ -276,6 +311,7 @@ geoOps.VerticalLine.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
+geoOps.VerticalLine.getRandomMove = geoOps._helper.getRandMove;
 geoOps.VerticalLine.stateSize = 6;
 
 
@@ -347,6 +383,7 @@ geoOps.Through.updatePosition = function(el) {
     homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Line");
 };
+geoOps.Through.getRandomMove = geoOps._helper.getRandMove;
 geoOps.Through.stateSize = 6;
 geoOps.Through.set_angle = function(el, value) {
     if (value.ctype === "number") {
@@ -397,6 +434,8 @@ geoOps.Free.updatePosition = function(el) {
     putStateComplexVector(param); // copy param
     el.homog = General.withUsage(param, "Point");
 };
+geoOps.Free.getRandomMove = geoOps._helper.getRandPointMove;
+
 geoOps.Free.stateSize = 6;
 
 geoOps._helper.projectPointToLine = function(point, line) {
@@ -475,6 +514,7 @@ geoOps.PointOnLine.getParamFromState = function(el) {
 geoOps.PointOnLine.putParamToState = function(el, param) {
     return putStateComplexVector(param);
 };
+geoOps.PointOnLine.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnLine.stateSize = 12;
 
 
@@ -586,7 +626,41 @@ geoOps.PointOnCircle.updatePosition = function(el) {
     el.homog = General.withUsage(pos, "Point");
     el.antipodalPoint = candidates.value[1];
 };
+geoOps.PointOnCircle.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnCircle.stateSize = 6 + tracing2.stateSize;
+geoOps.PointOnCircle.get_angle = function(el) {
+    var circle = csgeo.csnames[el.args[0]];
+    var mid = geoOps._helper.CenterOfCircle(circle.matrix);
+
+    var isFP = List._helper.isAlmostFarpoint;
+    if (isFP(el.homog) || isFP(mid)) return nada;
+
+    var pos = List.normalizeZ(el.homog);
+    mid = List.normalizeZ(mid);
+    var dir = List.sub(pos, mid);
+    var angle = CSNumber.arctan2(dir.value[0], dir.value[1]); //lives in [-pi, pi)
+    //technically, we are done here. But we like to have the same behavior as Cinderella:
+    var twpopi = CSNumber.real(TWOPI);
+    angle = CSNumber.mod(CSNumber.add(angle, twpopi), twpopi); //lives in [0, 2*pi)
+    return General.withUsage(angle, "Angle");
+};
+geoOps.PointOnCircle.set_angle = function(el, value) {
+    if (value.ctype === "number") {
+        var circle = csgeo.csnames[el.args[0]];
+        var mid = geoOps._helper.CenterOfCircle(circle.matrix);
+
+        if (!List._helper.isAlmostFarpoint(mid)) {
+            mid = List.normalizeZ(mid);
+
+            var cc = CSNumber.cos(value);
+            var ss = CSNumber.sin(value);
+            var dir = List.turnIntoCSList([CSNumber.mult(cc, circle.radius), CSNumber.mult(ss, circle.radius), CSNumber.real(0)]);
+
+            movepointscr(el, List.add(mid, dir), "homog");
+        }
+    }
+    return nada;
+};
 
 geoOps.OtherPointOnCircle = {};
 geoOps.OtherPointOnCircle.kind = "P";
@@ -646,6 +720,7 @@ geoOps.PointOnSegment.updatePosition = function(el) {
     homog = List.normalizeMax(homog);
     el.homog = General.withUsage(homog, "Point");
 };
+geoOps.PointOnSegment.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnSegment.stateSize = 2;
 
 geoOps._helper.projectPointToCircle = function(cir, P) {
@@ -724,6 +799,7 @@ geoOps.PointOnArc.updatePosition = function(el) {
     var P = geoOps._helper.conicOtherIntersection(arc.matrix, I, Q);
     el.homog = General.withUsage(P, "Point");
 };
+geoOps.PointOnArc.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnArc.stateSize = 4;
 
 geoOps._helper.CenterOfCircle = function(c) {
@@ -831,6 +907,26 @@ geoOps.CircleMr.updatePosition = function(el) {
     var matrix = geoOps._helper.ScaledCircleMrr(m, sr2);
     el.matrix = General.withUsage(matrix, "Circle");
     el.radius = r;
+};
+geoOps.CircleMr.getRandomMove = function(el) {
+    // radius
+    var r;
+    var oldr = el.radius;
+    var oabs = CSNumber.abs(oldr).value.real;
+
+    // if radius was small we want something larger and if not we scale the old one
+    if (oabs < CSNumber.eps) {
+        r = CSNumber.getRandComplex(0.05, 0.10);
+    } else {
+        r = CSNumber.mult(oldr, CSNumber.getRandReal(0.95, 1.05));
+    }
+
+    var rad = {
+        type: "radius",
+        value: r
+    };
+
+    return rad;
 };
 geoOps.CircleMr.stateSize = 2;
 geoOps.CircleMr.set_radius = function(el, value) {
@@ -1379,7 +1475,7 @@ geoOps.ConicBy2Foci1P.updatePosition = function(el) {
     co1 = List.normalizeMax(List.adjoint3(co1));
     co2 = List.normalizeMax(List.adjoint3(co2));
 
-    // return ellipsoid first 
+    // return ellipsoid first
     if (geoOps._helper.getConicType(co1) !== "ellipsoid") {
         var temp = co1;
         co1 = co2;
@@ -2574,6 +2670,57 @@ geoOps.TrTranslation.updatePosition = function(el) {
     el.dualMatrix = m;
 };
 
+// Define a rotation transformation given the center of rotation point and an angle
+geoOps.TrRotationPNumb = {};
+geoOps.TrRotationPNumb.kind = "Tr";
+geoOps.TrRotationPNumb.signature = ["P", "V"];
+geoOps.TrRotationPNumb.updatePosition = function(el) {
+    /*
+        Given a point p as [x, y, z] and an angle θ, where c is cos(θ)
+        and s is sin(θ), build this matrix:
+        ⎛    c*z        -s*z     (1-c)*x+s*y⎞
+        ⎜    s*z         c*z     (1-c)*y-s*x⎟
+        ⎝     0           0           z     ⎠
+        and its dual:
+        ⎛    c*z        -s*z          0     ⎞
+        ⎜    s*z         c*z          0     ⎟
+        ⎝(1-c)*x-s*y (1-c)*y+s*x      z     ⎠
+        Based on the matrix formula in terms of θ and pivot [x/z, y/z, 1]:
+        z*translate([x/z, y/z, 1])·rotate(θ)·translate([-x/z, -y/z, 1]).
+    */
+    var p = csgeo.csnames[el.args[0]].homog.value;
+    var th = csgeo.csnames[el.args[1]].value;
+    var mult = CSNumber.mult;
+    var add = CSNumber.add;
+    var sub = CSNumber.sub;
+    var mat = List.turnIntoCSList;
+    var nm = List.normalizeMax;
+    var zero = CSNumber.zero;
+    var x = p[0];
+    var y = p[1];
+    var z = p[2];
+    var c = CSNumber.cos(th);
+    var s = CSNumber.sin(th);
+    var t = sub(CSNumber.real(1), c);
+    var tx = mult(t, x);
+    var ty = mult(t, y);
+    var sx = mult(s, x);
+    var sy = mult(s, y);
+    var cz = mult(c, z);
+    var sz = mult(s, z);
+    var nsz = CSNumber.neg(sz);
+    el.matrix = nm(mat([
+        mat([cz, nsz, add(tx, sy)]),
+        mat([sz, cz, sub(ty, sx)]),
+        mat([zero, zero, z])
+    ]));
+    el.dualMatrix = nm(mat([
+        mat([cz, nsz, zero]),
+        mat([sz, cz, zero]),
+        mat([sub(tx, sy), add(ty, sx), z])
+    ]));
+};
+
 // Define a reflective transformation given a point
 geoOps.TrReflectionP = {};
 geoOps.TrReflectionP.kind = "Tr";
@@ -3057,6 +3204,12 @@ function commonButton(el, event, button) {
         el.html.style.backgroundColor =
             Render2D.makeColor(el.fillcolor, el.fillalpha);
     }
+    if (!isFiniteNumber(el.alpha))
+        el.alpha = 1.0;
+    if (el.color) {
+        el.html.style.color =
+            Render2D.makeColor(el.color, el.alpha);
+    }
     var onEvent = scheduleUpdate;
     if (el.script) {
         var code = analyse(el.script);
@@ -3104,6 +3257,15 @@ geoOps.Button.set_fillcolor = function(el, value) {
             Render2D.makeColor(el.fillcolor, el.fillalpha);
     }
 };
+geoOps.Button.set_color = function(el, value) {
+    if (List._helper.isNumberVecN(value, 3)) {
+        el.color = value.value.map(function(i) {
+            return i.value.real;
+        });
+        el.html.style.color =
+            Render2D.makeColor(el.color, el.alpha);
+    }
+};
 
 geoOps.ToggleButton = {};
 geoOps.ToggleButton.kind = "Text";
@@ -3122,10 +3284,24 @@ geoOps.ToggleButton.initialize = function(el) {
     el.checkbox = checkbox;
     commonButton(el, "change", checkbox, label);
 };
+geoOps.ToggleButton.get_text = function(el) {
+    return General.string(String(el.text));
+};
+
+geoOps.ToggleButton.set_currenttext = function(el, value) {
+    el.html.value = el.text = niceprint(value);
+};
+
 geoOps.ToggleButton.getParamForInput = geoOps.Text.getParamForInput;
 geoOps.ToggleButton.getParamFromState = geoOps.Text.getParamFromState;
 geoOps.ToggleButton.putParamToState = geoOps.Text.putParamToState;
 geoOps.ToggleButton.set_fillcolor = geoOps.Button.set_fillcolor;
+geoOps.ToggleButton.set_color = geoOps.Button.set_color;
+
+
+geoOps.ToggleButton.set_text = geoOps.ToggleButton.set_currenttext;
+geoOps.ToggleButton.get_val = geoOps.ToggleButton.get_text;
+geoOps.ToggleButton.set_val = geoOps.ToggleButton.set_currenttext;
 
 geoOps.EditableText = {};
 geoOps.EditableText.kind = "Text";
@@ -3141,8 +3317,13 @@ geoOps.EditableText.initialize = function(el) {
     if (typeof el.text === "string")
         textbox.value = el.text;
     textbox.addEventListener("keydown", function(event) {
-        if (event.keyCode === 13)
+        if (event.keyCode === 13) {
+            el.text = el.html.value;
             textbox.blur();
+        }
+    });
+    textbox.addEventListener("change", function(event) {
+        el.text = el.html.value;
     });
     commonButton(el, "change", textbox);
 };
@@ -3153,14 +3334,16 @@ geoOps.EditableText.getParamForInput = geoOps.Text.getParamForInput;
 geoOps.EditableText.getParamFromState = geoOps.Text.getParamFromState;
 geoOps.EditableText.putParamToState = geoOps.Text.putParamToState;
 geoOps.EditableText.set_fillcolor = geoOps.Button.set_fillcolor;
+geoOps.EditableText.set_color = geoOps.Button.set_color;
 geoOps.EditableText.get_currenttext = function(el) {
     return General.string(String(el.html.value));
 };
-geoOps.EditableText.set_currenttext = function(el, value) {
-    el.html.value = niceprint(value);
-};
-geoOps.EditableText.get_text = geoOps.EditableText.get_currenttext;
+
+geoOps.EditableText.get_text = geoOps.ToggleButton.get_text;
+geoOps.EditableText.set_currenttext = geoOps.ToggleButton.set_currenttext;
 geoOps.EditableText.set_text = geoOps.EditableText.set_currenttext;
+geoOps.EditableText.get_val = geoOps.EditableText.get_text;
+geoOps.EditableText.set_val = geoOps.EditableText.set_currenttext;
 
 function noop() {}
 
@@ -3301,8 +3484,8 @@ geoOps.IFS.updateParameters = function() {
     var msg = {
         cmd: "init",
         generation: ifs.params.generation,
-        width: csw * supersampling,
-        height: csh * supersampling
+        width: Math.round(csw * supersampling),
+        height: Math.round(csh * supersampling)
     };
     msg.systems = csgeo.ifs.map(function(el) {
         var sum = 0;

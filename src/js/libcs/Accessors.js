@@ -56,6 +56,9 @@ Accessor.getField = function(geo, field) {
         if (field === "y") {
             return CSNumber.div(geo.homog.value[1], geo.homog.value[2]);
         }
+        if (field === "narrow") {
+            return General.wrap(geo.narrow);
+        }
     }
     if (geo.kind === "L" || geo.kind === "S") {
         if (field === "homog") {
@@ -113,6 +116,10 @@ Accessor.getField = function(geo, field) {
         if (field === "dualMatrix") {
             return List.normalizeMax(List.adjoint3(geo.matrix));
         }
+
+        if (field === "narrow") {
+            return General.wrap(geo.narrow);
+        }
     }
     if (geo.kind === "Text") {
         if (field === "pressed") {
@@ -138,6 +145,9 @@ Accessor.getField = function(geo, field) {
     }
     if (field === "trace") {
         return General.bool(!!geo.drawtrace);
+    }
+    if (field === "pinned") {
+        return General.bool(!!geo.pinned);
     }
     if (Accessor.generalFields[field]) { //must be defined as an actual string
         erg = geo[Accessor.generalFields[field]];
@@ -315,10 +325,34 @@ Accessor.setField = function(geo, field, value) {
             geo.behavior.vy = value.value[1].value.real;
         }
     }
+
+    if (field === "narrow" && ["P", "C"].includes(geo.kind)) {
+        if (value.ctype === "boolean") geo.narrow = value.value;
+        if (value.ctype === "number" && CSNumber._helper.isAlmostReal(value)) geo.narrow = value.value.real;
+    }
+
     var setter = geoOps[geo.type]["set_" + field];
     if (typeof setter === "function") {
         return setter(geo, value);
     }
 
 
+};
+
+Accessor.getuserData = function(obj, key) {
+    var val;
+    if (obj.userData && obj.userData[key]) val = obj.userData[key];
+
+    if (val && val.ctype) {
+        return val;
+    } else if (typeof val !== "object") {
+        return General.wrap(val);
+    } else {
+        return nada;
+    }
+};
+
+Accessor.setuserData = function(obj, key, value) {
+    if (!obj.userData) obj.userData = {};
+    obj.userData[key] = value;
 };
