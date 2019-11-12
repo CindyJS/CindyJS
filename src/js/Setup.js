@@ -269,7 +269,7 @@ function createCindyNow() {
                 cstgrid = port.tgrid;
             if (port.snap)
                 cssnap = true;
-            if (port.snapdistance && Number.isFinite(port.snapdistance))
+            if (Number.isFinite(port.snapdistance))
                 cssnapDistance = Math.max(port.snapdistance, 0);
             if (port.axes)
                 csaxes = true;
@@ -363,7 +363,7 @@ function createCindyNow() {
     if (data.snap) {
         cssnap = true;
     }
-    if (data.snapdistance && Number.isFinite(data.snapdistance)) {
+    if (Number.isFinite(data.snapdistance)) {
         cssnapDistance = Math.max(data.snapdistance, 0);
     }
 
