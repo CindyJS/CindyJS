@@ -161,14 +161,6 @@ function anyOfGroup(lst) {
     return '(' + lst.map(rescape).join('|') + ')';
 }
 
-// Either an integer part, possibly followed by a possibly empty
-// fractional part, possibly followed by an exponent, or a leading dot
-// followed by a non-empty fractional part, possibly followed by an
-// exponent.
-var reNumber = expandSpaces(
-    '(?:[0-9](?: [0-9])*(?: \\.(?! \\.)(?: [0-9])*)?|\\.(?: [0-9])+)' +
-    '(?: [Ee](?: [+-])?(?: [0-9])+)?'
-);
 
 var supDigit = '[⁰¹²³⁴⁵⁶⁷⁸⁹]';
 var subDigit = '[₀₁₂₃₄₅₆₇₈₉]';
@@ -231,6 +223,21 @@ var unicodeLetters = (function(dict, str, hiRanges) {
 
 var reIdentifier = expandSpaces(
     "#(?: [1-9])?|(?:'|" + unicodeLetters + ")(?: (?:[0-9']|" + unicodeLetters + "))*"
+);
+
+var reExponent = '(?: [Ee](?: [+-])?(?: [0-9])+)';
+
+// Either an integer part, possibly followed by a possibly empty
+// fractional part, possibly followed by an exponent, or a leading dot
+// followed by a non-empty fractional part, possibly followed by an
+// exponent.
+var reNumber = expandSpaces(
+    '(?:[0-9](?: [0-9])*(?: \\.' +
+    // exclude certain expressions after a potential occuring '.',
+    // for instance, 1..5, allpoints()_1.xy, but still allow exponents
+    '(?! \\.)(?:(?! ' + reIdentifier + ')|(?= ' + reExponent + '))' +
+    '(?: [0-9])*)?|\\.(?: [0-9])+)' +
+    reExponent + '?'
 );
 
 var reNextToken = [ //                 token text

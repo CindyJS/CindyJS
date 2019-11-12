@@ -63,6 +63,9 @@ describe("JSON basic getter / setter", function(){
     // copy by reference
     itCmd('json1 = {"a":1}; json2=json1; json2.a=2; json1.a', '2');
     itCmd('json1 = {"a":1}; json2=json1; myvar = "a"; json2_myvar=2; json1.a', '2');
+    
+    //JSON and lists mixed
+    itCmd('json = {"a":[1,{"b":2},3]}; json.a_2.b=34; json', '{a:[1, {b:34}, 3]}');
 });
 
 describe("JSON geo objects", function(){
@@ -103,5 +106,3 @@ describe("JSON operations", function(){
     itCmd('Jason = {"age":13};Jasonica = {"age":15};Jason.sister = Jasonica; Jasonica.brother = Jason; Jason;', cycleString());
 
 });
-
-
