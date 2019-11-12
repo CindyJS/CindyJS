@@ -57,7 +57,8 @@ describe("JSON basic getter / setter", function(){
     // dynamic access
     itCmd('myvar = "name"; json_myvar = "Bob"; json.name', 'Bob');
     itCmd('json_undef', '___');
-    itCmd('json1 = {"1":2}; json_1', '___');
+    itCmd('json1 = {"1":2}; json1_1', '2');
+    itCmd('json1 = {"1":2}; json1_"1"', '2');
 
     // copy by reference
     itCmd('json1 = {"a":1}; json2=json1; json2.a=2; json1.a', '2');

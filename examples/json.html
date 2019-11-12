@@ -76,6 +76,11 @@ json4=apply(json3, v, k, k=k+1; v=v+2);
 print(json3, JSON->true);
 print(json3, JSON->false);
 print(json3);
+G = {};
+G_1 = 3; //works
+G_2 = 2; //works
+errc(G); //G ===> {1:3, 2:2}
+errc(G_1); //gives __
 </script>
 <script type="text/javascript">
 

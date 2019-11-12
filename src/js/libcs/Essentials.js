@@ -139,6 +139,7 @@ function niceprint(a, modifs) {
     return "_?_";
 
 }
+niceprint.errorTypes = ['_?_', '_??_', '_???_', '___'];
 
 
 //TODO Eventuell auslagern
