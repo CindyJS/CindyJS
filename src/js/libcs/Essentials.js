@@ -94,7 +94,11 @@ function niceprint(a, modifs) {
         return erg + "]";
     }
     if (a.ctype === 'JSON' && a.isJSONAtom) {
-        return Json.Atomniceprint(a);
+        try {
+            return Json.Atomniceprint(a);
+        } catch (e) {
+            return Json._helper.handlePrintException(e);
+        }
     }
     if (a.ctype === 'JSON') {
         // try catch to avoid bad situations with cyclic dicts

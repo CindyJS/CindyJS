@@ -86,6 +86,11 @@ forall({"a":2, "b":3}, x, iterator->"pair",
       x.value=x.value^2;
       print(x.value)
 );
+
+forall({"a":2, "b":3}, x, iterator->"pair",
+       x.value = x;
+      print(x)
+);
 </script>
 <script type="text/javascript">
 
