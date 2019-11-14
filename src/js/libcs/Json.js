@@ -64,7 +64,8 @@ Json.GenFromUserDataEl = function(el) {
 
 Json._helper.GenJSONAtom = function(key, val) {
     return {
-        "ctype": "JSONAtom",
+        "ctype": "JSON",
+        "isJSONAtom" : true,
         "value": {
             'key': key,
             'value': val

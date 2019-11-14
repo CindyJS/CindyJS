@@ -29,7 +29,7 @@ function evaluate(a) {
         if (obj.ctype === "list") {
             return List.getField(obj, a.key);
         }
-        if (obj.ctype === "JSONAtom") {
+        if (obj.ctype === "JSON" && obj.isJSONAtom) {
             if (a.key === "key") {
                 return General.string(obj.value.key);
             }

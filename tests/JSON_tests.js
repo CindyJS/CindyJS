@@ -93,6 +93,8 @@ describe("JSON operations", function(){
 
     itCmd('v=123;apply(json3,v, v^2); v', '123');
 
+    itCmd('li=[];forall({"a":2, "b":3}, x, iterator->"pair",x.value=x.value^2;li=li++x.value;);li', '[4, 9]');
+
 
     // 4ary apply
     itCmd('apply(json3, v, k, v+k)', '{a:1a, b:2b, c:10c, d:stringd}');
