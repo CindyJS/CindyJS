@@ -146,6 +146,7 @@ Json.niceprint = function(el, modifs, options) {
         options.printedWarning = false;
         // track depth
         options.visitedMap = {};
+        options.visitedMap.tracker = new WeakMap();
         options.visitedMap.level = 0;
         options.visitedMap.maxLevel = 1000;
         options.visitedMap.maxElVisit = 5000;
@@ -171,8 +172,8 @@ Json.niceprint = function(el, modifs, options) {
     var jsonString = "{" + keys.map(function(key) {
         // update visitedMap
         let elValKey = el.value[key];
-        if (!visitedMap[elValKey]) {
-            visitedMap[elValKey] = 1;
+        if (!visitedMap.tracker.has(elValKey)) {
+            visitedMap.tracker.set(elValKey, 1);
         } else {
             if (visitedMap[elValKey] > visitedMap.maxElVisit || visitedMap.level > visitedMap.maxLevel) {
                 //console.log([visitedMap[elValKey], visitedMap.level]);
@@ -188,7 +189,7 @@ Json.niceprint = function(el, modifs, options) {
             }
             // update only once a recursive call
             if (visitedMap.newLevel) {
-                visitedMap[elValKey] += 1;
+                visitedMap.tracker.set(elValKey, visitedMap.tracker.get(elValKey) + 1);
                 // update only once each function call
                 visitedMap.newLevel = false;
             }
