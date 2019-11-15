@@ -120,7 +120,7 @@ Json._helper.niceprint = function(a, modifs, options) {
         if (a.ctype === 'list') {
             var erg = "[";
             for (var i = 0; i < a.value.length; i++) {
-                erg = erg + Json._helper.niceprint(evaluate(a.value[i]));
+                erg = erg + Json._helper.niceprint(evaluate(a.value[i]), modifs, options);
                 if (i !== a.value.length - 1) {
                     erg = erg + ', ';
                 }
