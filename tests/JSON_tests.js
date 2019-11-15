@@ -95,6 +95,8 @@ describe("JSON operations", function(){
 
     itCmd('li=[];forall({"a":2, "b":3}, x, iterator->"pair",x.value=x.value^2;li=li++x.value;);li', '[4, 9]');
 
+    itCmd('li=[];forall({"a":2,"b":3},x,iterator->"pair",x.key=x.key;li=li++[x]);','[{key:a, value:2}, {key:b, value:3}]')
+
 
     // 4ary apply
     itCmd('apply(json3, v, k, v+k)', '{a:1a, b:2b, c:10c, d:stringd}');
