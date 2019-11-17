@@ -203,10 +203,12 @@ Json.niceprint = function(el, modifs, options) {
 
 
     // pretty print 
-    // to be valid JSON we need to replace single with double quotes
     if (options.printValidJSON) {
-        jsonString = jsonString.replace(/'/g, '"');
-        jsonString = JSON.stringify(JSON.parse(jsonString), null, 0);
+        try {
+            jsonString = JSON.stringify(JSON.parse(jsonString), null, 0);
+        } catch (e) {
+            console.log("Could not parse JSON string.");
+        }
     }
 
     return jsonString;
