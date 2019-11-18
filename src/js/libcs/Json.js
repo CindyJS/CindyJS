@@ -100,35 +100,12 @@ Json._helper.niceprint = function(a, modifs, options) {
         return Json.niceprint(a, modifs, options);
     }
 
-    if (options.printValidJSON) {
-        if (a.ctype === "number" && a.value.imag === 0) {
-            return a.value.real;
-        }
-        if ("boolean" === a.ctype) {
-            return a.value;
-        }
-        if (a.ctype === 'list') {
-            var erg = "[";
-            for (var i = 0; i < a.value.length; i++) {
-                erg = erg + Json._helper.niceprint(evaluate(a.value[i]), modifs, options);
-                if (i !== a.value.length - 1) {
-                    erg = erg + ', ';
-                }
-
-            }
-            return erg + "]";
-        }
-
-        return "\"" + String(niceprint(a)) + "\"";
-    }
-
     return niceprint(a);
 };
 
 Json.niceprint = function(el, modifs, options) {
     if (!options) {
         options = {};
-        options.printValidJSON = false;
         options.printedWarning = false;
         // track depth
         options.visitedMap = {};
@@ -138,10 +115,6 @@ Json.niceprint = function(el, modifs, options) {
         options.visitedMap.maxElVisit = 5000;
 
         if (modifs) {
-            if (modifs.JSON) {
-                let jmodif = evaluate(modifs.JSON);
-                if (jmodif.ctype === "boolean") options.printValidJSON = jmodif.value;
-            }
             if (modifs.maxDepth) {
                 let depth = evaluate(modifs.maxDepth);
                 if (depth.ctype === "number") options.visitedMap.maxLevel = depth.value.real;
@@ -167,11 +140,8 @@ Json.niceprint = function(el, modifs, options) {
                     console.log("Warning: We visited a key-value pair very often or encountered a very deeply nested dictionary. Dictionary is probably cyclic. Output will be probably incomplete.");
                     options.printedWarning = true;
                 }
-                if (options.printValidJSON) {
-                    return "\"" + key + "\"" + ":" + '"..."';
-                } else {
-                    return key + ":" + '...';
-                }
+
+                return key + ":" + '...';
             }
             // update only once a recursive call
             if (visitedMap.newLevel) {
@@ -180,22 +150,9 @@ Json.niceprint = function(el, modifs, options) {
                 visitedMap.newLevel = false;
             }
         }
-        if (options.printValidJSON) {
-            return "\"" + key + "\"" + ":" + Json._helper.niceprint(elValKey, modifs, options);
-        } else {
-            return key + ":" + Json._helper.niceprint(elValKey, modifs, options);
-        }
+        return key + ":" + Json._helper.niceprint(elValKey, modifs, options);
     }).join(", ") + "}";
 
-
-    // pretty print 
-    if (options.printValidJSON) {
-        try {
-            jsonString = JSON.stringify(JSON.parse(jsonString), null, 0);
-        } catch (e) {
-            console.log("Could not parse JSON string.");
-        }
-    }
 
     return jsonString;
 };

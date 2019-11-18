@@ -25,10 +25,10 @@ The expression `{"key1" : val, ...}` created a basic dictionary.
 ### Printing a dictionary
 
 **Description:**
-As usual the function `print` will output the object. This will generally be not a valid JSON object: therefore one can use the modifier `JSON`. The output then can be used by a JSON parser.
+As usual the function `print` will output the object. This will generally be not a valid JSON object, since CindyJS uses different data types than JavaScript.
 
-    > print({"a" : 1, "b" : false, "c": "mystring"}, JSON->true);
-    * {"a":1,"b":false,"c":"mystring"}
+    > print({"a" : 1, "b" : false, "c": "mystring"});
+    * {a:1, b:false, c:mystring}
 
 **Circular Dictionaries**
 Circular objects are allowed, but a printout will be shortened. The default recursion depth is 1000 but can be adjusted with the modifier `maxDepth`:
