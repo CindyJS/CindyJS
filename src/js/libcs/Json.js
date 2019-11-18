@@ -20,16 +20,6 @@ Json._helper.ShallowClone = function(o) {
     return out;
 };
 
-Json._helper.DeepClone = function(o) {
-    var out, v, key;
-    out = Array.isArray(o) ? [] : {};
-    for (key in o) {
-        v = o[key];
-        out[key] = (typeof v === "object" && v !== null) ? Json._helper.DeepClone(v) : v;
-    }
-    return out;
-};
-
 Json.getField = function(obj, key) {
     if (obj.value && obj.value[key]) {
         return obj.value[key];
@@ -133,10 +123,6 @@ Json._helper.niceprint = function(a, modifs, options) {
     }
 
     return niceprint(a);
-};
-
-Json.Atomniceprint = function(el) {
-    return "\{" + el.value.key + ":" + niceprint(el.value.value) + "\}";
 };
 
 Json.niceprint = function(el, modifs, options) {
