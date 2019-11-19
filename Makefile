@@ -117,6 +117,7 @@ fwdtargets = \
 	katex \
 	live \
 	nodetest \
+	benchmarks \
 	proxy \
 	ref \
 	soundfonts \
