@@ -205,6 +205,21 @@ The variable is local to the expression.
 
 ------
 
+
+### Deleting keys from a dictionary:
+
+A key-value pair can be deleted from a dictionary by setting its value to an undefined value.
+
+    > json = {"a":1, "b": 2};
+    > json.a = nada;
+    * Warning: Accessing undefined variable: nada
+    > forall(json, k, println(k));
+    * 2
+    > keys(json)
+    < ["b"]
+
+------
+
 # Deprecated `dict`
 
 This should not be used anymore.

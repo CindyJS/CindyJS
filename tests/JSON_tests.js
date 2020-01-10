@@ -108,5 +108,8 @@ describe("JSON operations", function(){
     }
     // cycles 
     itCmd('Jason = {"age":13};Jasonica = {"age":15};Jason.sister = Jasonica; Jasonica.brother = Jason; Jason;', cycleString());
+    
+    //deleting keys from a dictionary
+    itCmd('json = {"a":1, "b": 2}; json.a = nada; keys(json)','[b]');
 
 });

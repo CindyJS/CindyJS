@@ -28,7 +28,11 @@ Json.getField = function(obj, key) {
 };
 
 Json.setField = function(where, field, what) {
-    where[field] = what;
+    if (what.ctype === 'undefined' && where[field]) {
+        delete where[field];
+    } else {
+        where[field] = what;
+    }
 };
 
 Json.GenFromUserDataEl = function(el) {
