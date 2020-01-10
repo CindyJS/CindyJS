@@ -63,7 +63,7 @@ function operator_not_implemented(name) {
 // this function is responsible for evaluation an expression tree
 //****************************************************************
 
-function niceprint(a) {
+function niceprint(a, modifs) {
     if (typeof a === 'undefined') {
         return '_??_';
     }
@@ -92,6 +92,14 @@ function niceprint(a) {
 
         }
         return erg + "]";
+    }
+    if (a.ctype === 'JSON') {
+        // try catch to avoid bad situations with cyclic dicts
+        try {
+            return Json.niceprint(a, modifs);
+        } catch (e) {
+            return Json._helper.handlePrintException(e);
+        }
     }
     if (a.ctype === 'dict') {
         return Dict.niceprint(a);
@@ -128,6 +136,7 @@ function niceprint(a) {
     return "_?_";
 
 }
+niceprint.errorTypes = ['_?_', '_??_', '_???_', '___'];
 
 
 //TODO Eventuell auslagern

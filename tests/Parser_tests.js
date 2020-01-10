@@ -111,7 +111,6 @@ describe('CindyScript parser error reporting', function() {
     badCase('1 + || * 2', "Don't support |…| with 0 arguments at 1:4");
     badCase('|x,y,z|', "Don't support |…| with 3 arguments at 1:0");
     badCase('1 + 2)', 'Closing bracket never opened. at 1:5: ‘)’');
-    badCase('{1,2}', '{…} reserved for future use at 1:0');
     badCase('17()', 'Function name must be an identifier at 1:0');
     badCase('f(7->8)', 'Modifier name must be an identifier at 1:3');
     badCase('f(x.y->8)', 'Modifier name must be an identifier at 1:5');

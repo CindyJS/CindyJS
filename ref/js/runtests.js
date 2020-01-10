@@ -225,6 +225,10 @@ function sanityCheck(val) {
     if (typeof val.value !== "object")
       throw Error("not a dict object");
     break;
+  case "JSON":
+    if (typeof val.value !== "object")
+      throw Error("not a JSON object");
+    break;
   case "undefined":
     break;
   case "geo":

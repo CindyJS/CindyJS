@@ -161,14 +161,6 @@ function anyOfGroup(lst) {
     return '(' + lst.map(rescape).join('|') + ')';
 }
 
-// Either an integer part, possibly followed by a possibly empty
-// fractional part, possibly followed by an exponent, or a leading dot
-// followed by a non-empty fractional part, possibly followed by an
-// exponent.
-var reNumber = expandSpaces(
-    '(?:[0-9](?: [0-9])*(?: \\.(?! \\.)(?: [0-9])*)?|\\.(?: [0-9])+)' +
-    '(?: [Ee](?: [+-])?(?: [0-9])+)?'
-);
 
 var supDigit = '[⁰¹²³⁴⁵⁶⁷⁸⁹]';
 var subDigit = '[₀₁₂₃₄₅₆₇₈₉]';
@@ -231,6 +223,21 @@ var unicodeLetters = (function(dict, str, hiRanges) {
 
 var reIdentifier = expandSpaces(
     "#(?: [1-9])?|(?:'|" + unicodeLetters + ")(?: (?:[0-9']|" + unicodeLetters + "))*"
+);
+
+var reExponent = '(?: [Ee](?: [+-])?(?: [0-9])+)';
+
+// Either an integer part, possibly followed by a possibly empty
+// fractional part, possibly followed by an exponent, or a leading dot
+// followed by a non-empty fractional part, possibly followed by an
+// exponent.
+var reNumber = expandSpaces(
+    '(?:[0-9](?: [0-9])*(?: \\.' +
+    // exclude certain expressions after a potential occuring '.',
+    // for instance, 1..5, allpoints()_1.xy, but still allow exponents
+    '(?! \\.)(?:(?! ' + reIdentifier + ')|(?= ' + reExponent + '))' +
+    '(?: [0-9])*)?|\\.(?: [0-9])+)' +
+    reExponent + '?'
 );
 
 var reNextToken = [ //                 token text
@@ -545,7 +552,12 @@ function parseRec(tokens, closing) {
                                 ' arguments', tok.start);
                         }
                     } else if (pair === '{}') {
-                        throw ParseError('{…} reserved for future use', tok.start);
+                        seq.push({
+                            ctype: 'function',
+                            oper: 'genJSON',
+                            args: lst,
+                            modifs: {},
+                        });
                     } else if (pair !== '[]' && lst.length === 1) {
                         seq.push({
                             ctype: 'paren',
@@ -566,7 +578,7 @@ function parseRec(tokens, closing) {
                     }
                 } else { // operator position, so it's a function call
                     if (pair === '{}')
-                        throw ParseError('{…} reserved for future use', tok.start);
+                        throw ParseError('{…} not yet defined for operators.', tok.start);
                     var fname = seq[seq.length - 1];
                     if (fname.ctype !== 'variable')
                         throw ParseError(
@@ -668,7 +680,7 @@ Parser.prototype.postprocess = function(expr) {
             if (expr.oper === ':') {
                 if (!(expr.args[1])) {
                     throw ParseError(
-                        'Data key undefined', expr.start, expr.text);
+                        'UserData/JSON: Key or Value undefined', expr.start, expr.text);
                 }
                 expr.ctype = 'userdata';
                 expr.obj = expr.args[0];
