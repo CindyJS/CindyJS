@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    
+<title>Exported from https://cindyjs.org/editor/</title>
+<style type="text/css">
+    html, body { margin: 0px; padding: 0px; background-color: rgb(0,0,0); 
+        font-family: Trebuchet MS, Tahoma, Arial, Helvetica, sans-serif;
+    }
+    #overlay{
+        position: absolute;
+        z-index:1;
+        background: rgba(250,250,250,0.7);
+        border-radius: 10px;
+        padding: 10px;
+        left: 10px;
+        top: 10px;
+    }
+    #CSCanvas {
+        width: 100vw; height: 100vh;
+    }
+</style>
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+<script type="text/javascript" src="../../build/js/CindyXR.js"></script>
+
+<script id="csinit" type="text/x-cindyscript">
+    /**
+     * Widget created by Christian Kluge with CindyJS.
+     * Ported to WebXR by Christoph Neuhauser.
+     * Published under CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/).
+     */
+
+    initxrcindygl();
+    setxrscalingfactor(0.5);
+
+    resolutionX=4000;
+
+    lowResFactor=.25;
+    resetclock();
+    //small functions
+    normalize(v):=v/|v|;
+    mix(r,a,b) := (1-r)*a + r*b;
+    lerp(r,a,b):= (1-r)*a + r*b;
+    clamp(x) := max(0,min(1,x));
+    vclamp(v):= apply(v,clamp(#));
+    vmul(a,b):= [a_1*b_1,a_2*b_2,a_3*b_3];
+    vcos(v) := apply(v,cos(#));
+
+    //COLOR PALETTE
+    CPA=[.5,.5,.5];
+    CPB=[.5,.5,.5];
+    CPC=[1.0,1.0,1.0];
+    CPD=[.2,.1,.0];
+
+    //CONSTANTS
+    sunDir=normalize([-.5,.5,1]);
+    sunColor=[1,1,.8]*2;
+    ambColor=[135, 206, 235]/256 *1;
+    pixelRad =.5/(resolutionX*lowResFactor);
+    epsmin = .0005;	//minimal epsilon step for secondary rays
+
+    zm=1;
+
+    //VARIABLES
+    moving=false;
+    rendered=false;
+    fastmove=true;
+    lam=0;
+    phi=0;
+    rayOrig=[0,1,.5];
+    rayDir=[1,0,0];
+    v=[0,1,0];
+    w=[0,0,1];
+    //FUNCTIONS:
+
+    //RAYMARCHING AND SHADING FOR FRACTAL
+    sqrt3 = sqrt(3);
+    triangles(p):=(
+        p.x=p.x-sqrt3*(p.y+.5)/3;
+        p=[mod(p.x+sqrt3/2,sqrt3)-sqrt3/2, mod(p.y+.5,1.5)-.5 , mod(p.z+.5*zm,zm)-.5*zm];
+        p=[p.x/sqrt3, (p.y+.5)*2/3 -.5 , p.z];
+        p=if(p.y>-p.x,[-p.y,-p.x , p.z],p);
+        p=[p.x*sqrt3, (p.y+.5)*3/2-.5 , p.z];
+        [p.x+sqrt3*(p.y+.5)/3, p.y , p.z];
+    );
+    sdf(p):=(
+        regional(scale,s,r2,k);
+        scale=1;
+        s=1/3;
+        repeat(16, // 16
+            p = triangles(p);
+            r2= p*p;
+            k = if(r2==0,10^6,s/r2);
+            p = p * k;
+            scale=scale*k;
+            );
+        .3*(|p|)/scale		-.001/re(sqrt(scale));	//
+    );
+    fasdf(p):=(
+        regional(scale,s,r2,k);
+        scale=1;
+        s=1/3;
+        repeat(8, // 8
+            p = triangles(p);
+            r2= p*p;
+            k = if(r2==0,10^6,s/r2);
+            p = p * k;
+            scale=scale*k;
+            );
+        .3*(|p|)/scale		-.0002;	//
+    );
+    colorpalette(t):= CPA + vmul(CPB,vcos(2*pi*(t*CPC + CPD)));
+    getColor(p):=(
+        /*regional(s,r2,k,min);
+        s=1.2;
+        min=1;
+        repeat(8,
+            p = triangles(p);
+            r2= p*p;
+            k = if(r2==0,10^6,s/r2);
+            p = p * k;
+            min=min(min, |p,[0,0,.5]|);
+            );*/
+        //colorpalette(p_3);
+        [.8,.8,.8]
+    );
+    fpIter(ro,t,rd):=(	//discontinuity reduction //not really needed for this
+        /*repeat(0,
+            t=t+sdf(ro+t*rd)
+        );*/
+        ro+t*rd
+    );
+    march(ro,rd):=(
+        regional(t,dt,c,Merr,Mt);
+        t=0.01; dt=1; c=0; Merr=10^6;
+        repeat(256,
+            if(|dt|>t*pixelRad,
+                dt=sdf(ro+t*rd);
+                if(|dt/t|<Merr,Merr=|dt/t|;Mt=t);
+                t=t+dt;
+                c=c+1;
+            )
+        );
+        if(Merr*.9<pixelRad,
+            fpIter(ro,Mt,rd),
+            9001*[0,0,1]
+        );
+    );
+    shortmarch(ro,rd):=(
+        regional(t,dt,c,Merr,Mt);
+        t=0.01; dt=1; c=0; Merr=10^6;
+        repeat(128, // Normal: 128
+            if(|dt|>t*pixelRad,
+                dt=fasdf(ro+t*rd);
+                if(|dt/t|<Merr,Merr=|dt/t|;Mt=t);
+                t=t+dt;
+                c=c+1;
+            )
+        );
+        if(Merr*.9<pixelRad,
+            ro+Mt*rd,
+            9001*[0,0,1]
+        );
+    );
+    getNormal(p):=(
+        regional(h);
+        h=pixelRad*|p,rayOrig|;
+        normalize(
+        [1,-1,-1]*sdf(p+h*[1,-1,-1])+
+        [-1,-1,1]*sdf(p+h*[-1,-1,1])+
+        [-1,1,-1]*sdf(p+h*[-1,1,-1])+
+        [1,1,1]*sdf(p+h*[1,1,1])
+        );
+    );
+    ao(p,n):=(
+        regional(t,r);
+        r=0;t=0;
+        repeat(3,
+            t=t+.01;
+            r=r + sdf(p+n*t)/t;
+        );
+        clamp(r/3);
+    );
+    shadowRay(p,n,ld):=(
+        regional(eps, t, mD, lD, dt);
+        lD=sdf(p);
+        eps=2*max(epsmin, |lD|);
+        p=p+n*eps;
+        t=lD;
+        mD=8;
+        repeat(4, // Normal: 64
+        if(t<1,
+            dt=fasdf(p+t*ld);
+            t=t+dt;
+            if(dt<lD & dt<mD, mD=dt);
+            lD=dt;
+        ));
+        if(t>1,1,0)*mix(clamp(mD/.002),0,1)
+    );
+    F(F0, l,n):= F0 + ([1,1,1]-F0)*(1-(l*n))^5;	//Schlick approximation of fresnel
+    D(H,N,m):=(									//Beckmann distribution of microfacets
+        regional(a);
+        a=(N*H)^2;
+        exp(-(1-a)/(a*m^2))/(pi*m^2*a^2)
+    );
+    G(N,L,V,H):=min(1, min(V*N,L*N)*2*(H*N)/(V*H));	//Shadowing-Masking-Term
+    specBRDF(N,L,V,h,sCol,roughS):=					//hopefully implements Cook-Torrance specular BRDF
+            F(sCol,L,h) * D(h,N,roughS) * G(N,L,V,h)/(4*(V*N)*(N*L));
+    diffBRDF(N,L,V,sCol,dCol,roughD):=				//completely improvised diffuse BRDF
+        vmul(dCol, [1,1,1]-(1-roughD)*vmul(F(sCol,L,N),F(sCol,V,N)));
+    improv(N,L,V,sCol,dCol,lightCol,roughS,roughD):=(//direct lighting
+        regional(h,spec,diff);
+        h=normalize(L+V);	//half vector
+        spec=specBRDF(N,L,V,h,sCol,roughS);
+        diff=diffBRDF(N,L,V,sCol,dCol,roughD);
+        vmul((spec + diff),lightCol) * max(0,N*L);
+    );
+    shade(p):=(
+        regional(n,v,R,Dcolor,Scolor, direct, ambient,sR,dR);
+        if(p_3>9000,ambColor,
+            n=getNormal(p);
+            v=normalize(rayOrig-p);
+            R=2*(v*n)*n-v;
+            
+            Dcolor=getColor(p)*.8;
+            Scolor=[1,1,1]*.05;
+            sR=.2;
+            dR=0;
+            
+            //direct = (1,0,0);//improv(n,sunDir,v,Scolor,Dcolor,sunColor, sR,dR);
+            //ambient = (0,1,0);
+            direct = improv(n,sunDir,v,Scolor,Dcolor,sunColor, sR,dR);
+            ambient= ao(p,n)*(vmul(ambColor,Scolor + vmul(([1,1,1]-Scolor),Dcolor)));
+            shadowRay(p,n,sunDir)*direct + ambient;				//shadow looks better than no shadow in my opinion
+        );
+    );
+    fog(p,density,rgb):=(
+        lerp(1-exp(-|p,rayOrig|*density),rgb,[.8,.8,.9]);
+    );
+    compositeRender():=(
+        regional(P, RM);
+        P	= if(moving,shortmarch(rayOrig,rayDir),march(rayOrig,rayDir));
+        RM	= shade(P);
+        RM	= fog(P,.1,RM);
+        RM;
+    );
+
+    normalizedDirection(a, b) := (
+        (a - b) / dist(a, b)
+    );
+
+
+    xrrenderfunction() := (
+        rayDir=normalize([cos(lam)*cos(phi),sin(lam)*cos(phi),sin(phi)]);
+        v=normalize(cross([0,0,-1],rayDir));
+        w=normalize(cross(v,rayDir));
+
+        numViews = getxrnumviews();
+    
+        repeat(numViews, i,
+            viewIndex = i - 1;
+            viewportSize = getxrviewportsize(viewIndex);
+            aspectRatio = viewportSize.x/viewportSize.y;
+    
+            invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
+            invViewMatrix = inverse(getxrviewmatrix(viewIndex));
+            invViewProjMatrix = invViewMatrix * invProjectionMatrix;
+    
+            colorplotxr(viewIndex,
+                moving = true;
+                // Coordinates in NDC space
+                ndcPixelNearCoord = [#.x, #.y, -1, 1];
+                ndcPixelFarCoord = [#.x, #.y, 1, 1];
+        
+                // Multiply with inverse view-projection matrix to get world space coordinates.
+                nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
+                farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
+
+                // Dehomogenize the homogeneous coordinates.
+                nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
+                farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
+
+                rayOrig = nearPointWorldDehom;
+                rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
+
+                compositeRender();
+            );
+        );
+    );
+    xr(xrrenderfunction());
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+</script>
+<script id="csmousedown" type="text/x-cindyscript">
+    moving=true;
+    rendered=false;
+    lastmouse = mouse();
+</script>
+<script id="csmouseup" type="text/x-cindyscript">
+    moving=false;
+    rendered=false;
+</script>
+<script id="csmousedrag" type="text/x-cindyscript">
+    moving=true;
+    rendered=false;
+    d = mouse()-lastmouse;
+    lam = lam-d.x;
+    phi = phi+d.y;
+    lastmouse = mouse();
+</script>
+<script id="cskeydown" type="text/x-cindyscript">
+    moving=true;
+    rendered=false;
+    //37-40 are arrow keys
+    if(keycode()==37, rayOrig=rayOrig-if(fastmove,.1,.5*sdf(rayOrig))*v);
+    if(keycode()==38, rayOrig=rayOrig+if(fastmove,.1,.5*sdf(rayOrig))*rayDir);
+    if(keycode()==39, rayOrig=rayOrig+if(fastmove,.1,.5*sdf(rayOrig))*v);
+    if(keycode()==40, rayOrig=rayOrig-if(fastmove,.1,.5*sdf(rayOrig))*rayDir);
+    if(keycode()==16, fastmove=!fastmove);
+</script>
+<script id="cskeyup" type="text/x-cindyscript">
+    moving=false;
+    rendered=false;
+</script>
+
+<script type="text/javascript">
+    var cdy = CindyJS({
+        scripts: "cs*",
+        angleUnit: "°",
+        exclusive: "true",
+        geometry: [
+            {alpha: 0, color: [1, 0, 0], labeled: false, name: "A", pinned: true, type: "Free", pos: [-5,-2.8,1]},
+            {alpha: 0, color: [1, 0, 0], labeled: false, name: "B", pinned: true, type: "Free", pos: [5,-2.8,1]}
+        ],
+        ports: [
+            {id: "CSCanvas", transform: [{visibleRect: [-5, -5, 5, 5]}], background: "rgb(200,176,192)"}
+        ],
+        csconsole: false,
+        use: [
+            "CindyGL", "CindyXR"
+        ],
+        autoplay: false,
+        behavior: []
+    });
+</script>
+</head>
+<body>
+    <div id="overlay">
+        Widget created by Christian Kluge with <a href="https://cindyjs.org">CindyJS</a>. Ported to WebXR by Christoph Neuhauser. Published under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.
+    </div>
+    <div id="CSCanvas" width="200" height="200"></div>
+</body>
+</html>

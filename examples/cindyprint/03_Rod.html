@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script type="text/javascript" src="../../build/js/CindyPrint.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+use("Cindy3D");
+use("Cindy3DPrint");
+addcindy3dprintui("mesh.stl");
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+begin3d();
+background3d([0,0,0]);
+draw3d([0,0,1],[0,0,-1],color->[0.5,0.75,0.75],size->10);
+end3d();
+
+drawprintpreview();
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({canvasname:"CSCanvas",scripts:"cs*"});
+</script>
+</head>
+
+<body>
+  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+  <div id="CSCanvas" style="width:50px; height:50px; border:none"></div>
+</body>
+
+</html>
