@@ -41,25 +41,25 @@
     repeat(length(hands), i,
         // Draw individual finger bones.
         hand = hands_i;
-        fingers = get(hand, "fingers");
+        fingers = hand.fingers;
         repeat(length(fingers), j,
             finger = fingers_j;
-            bones = get(finger, "bones");
+            bones = finger.bones;
             repeat(length(bones), k,
                 bone = bones_k;
-                prevJoint = leapnormalizeposition(get(bone, "prevJoint"));
-                nextJoint = leapnormalizeposition(get(bone, "nextJoint"));    
+                prevJoint = leapnormalizeposition(bone.prevJoint);
+                nextJoint = leapnormalizeposition(bone.nextJoint);    
                 drawbone(prevJoint, nextJoint, i);
             );
         );
 
         // Draw the arm.
-        arm = get(hand, "arm");
-        armHalfWidth = 0.3 * get(arm, "width");
-        armBasis = get(arm, "basis");
+        arm = hand.arm;
+        armHalfWidth = 0.3 * arm.width;
+        armBasis = arm.basis;
         armRightVector = armBasis_1;
-        prevJoint = get(arm, "prevJoint");
-        nextJoint = get(arm, "nextJoint");
+        prevJoint = arm.prevJoint;
+        nextJoint = arm.nextJoint;
         prevJointLeft = leapnormalizeposition(prevJoint - armHalfWidth * armRightVector);
         prevJointRight = leapnormalizeposition(prevJoint + armHalfWidth * armRightVector);
         nextJointLeft = leapnormalizeposition(nextJoint - armHalfWidth * armRightVector);
@@ -73,16 +73,16 @@
         repeat(length(fingers)-1, j,
             prevFinger = fingers_j;
             nextFinger = fingers_(j+1);
-            bones = get(finger, "bones");
+            bones = finger.bones;
 
             // Top end of hand body.
-            prevJoint = leapnormalizeposition(get(prevFinger, "mcpPosition"));
-            nextJoint = leapnormalizeposition(get(nextFinger, "mcpPosition"));    
+            prevJoint = leapnormalizeposition(prevFinger.mcpPosition);
+            nextJoint = leapnormalizeposition(nextFinger.mcpPosition);    
             drawbone(prevJoint, nextJoint, i);
 
             // Bottom end of hand body.
-            prevJoint = leapnormalizeposition(get(prevFinger, "carpPosition"));
-            nextJoint = leapnormalizeposition(get(nextFinger, "carpPosition"));    
+            prevJoint = leapnormalizeposition(prevFinger.carpPosition);
+            nextJoint = leapnormalizeposition(nextFinger.carpPosition);    
             drawbone(prevJoint, nextJoint, i);
         );
     );

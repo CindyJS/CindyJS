@@ -51,28 +51,28 @@ CindyJS.registerPlugin(1, "CindyLeap", function(api) {
 	};
 	
 	/**
-	 * Converts a JavaScript object to a CindyScript dictionary.
+	 * Converts a JavaScript object to a CindyScript JSON dictionary.
 	 * Strings, numbers, boolean values and arrays are also handled correctly.
 	 * Functions, as well as null and undefined values, are removed.
 	 * @param {object|string|number|boolean|function|null|undefined|Array} obj An arbitrary JavaScript object.
 	 * @param {Set<string>} blacklistNames A blacklist of properties to omit.
 	 * This is used for removing a reference to the frame data when converting the hand data.
-	 * @param {Set<object>} convertedObjectSet A set of already converted objects.
+	 * @param {Map<object, object>} convertedObjectMap A map of already converted objects.
 	 * These are excluded when converting child properties/objects, i.e., to remove cyclic dependencies.
 	 * @return {object} A CindyScript object representing "obj".
 	 */
-	function convertObjectToCindyDict(obj, blacklistNames, convertedObjectSet) {
+	function convertObjectToCindyDict(obj, blacklistNames, convertedObjectMap) {
 		if (obj instanceof Object) {
 			// Cyclic dependency detected -> stop.
-			if (convertedObjectSet.has(obj)) {
-				return null;
+			if (convertedObjectMap.has(obj)) {
+				return convertedObjectMap.get(obj);
 			}
 		}
 
 		if (Array.isArray(obj)) {
 			let cindyObjectList = [];
 			obj.forEach(function(entry) {
-				let cindyEntry = convertObjectToCindyDict(entry, blacklistNames, convertedObjectSet);
+				let cindyEntry = convertObjectToCindyDict(entry, blacklistNames, convertedObjectMap);
 				if (cindyEntry != null) {
 					cindyObjectList.push(cindyEntry);
 				}
@@ -109,8 +109,8 @@ CindyJS.registerPlugin(1, "CindyLeap", function(api) {
 			// The CindyScript dictionary object.
 			let dictionary = {};
 			// Add this object to the set of the already converted objects visible for its properties.
-			let convertedObjectSetChild = new Set(convertedObjectSet);
-			convertedObjectSetChild.add(obj);
+			let convertedObjectMapChild = new Map(convertedObjectMap);
+			convertedObjectMapChild.set(obj, dictionary);
 
 			// Probably this is an object with key-value pairs.
 			for (let key in obj) {
@@ -118,22 +118,16 @@ CindyJS.registerPlugin(1, "CindyLeap", function(api) {
 					continue;
 				}
 
+				// No prototype?
 				if (obj.hasOwnProperty(key)) {
 					let value = obj[key];
-					let cindyStringKey = "s" + key.length + ":" + key + ";";
-					let cindyKey = convertObjectToCindyDict(key, blacklistNames, convertedObjectSetChild);
-					let cindyValue = convertObjectToCindyDict(value, blacklistNames, convertedObjectSetChild);
-					if (cindyValue != null) {
-						dictionary[cindyStringKey] = {
-							key : cindyKey,
-							value : cindyValue
-						};
-					}
+					let cindyValue = convertObjectToCindyDict(value, blacklistNames, convertedObjectMapChild);
+					dictionary[key] = cindyValue;
 				}
 			}
 
 			return {
-				ctype : "dict",
+				ctype : "JSON",
 				value : dictionary
 			}		
 		}
@@ -251,7 +245,7 @@ CindyJS.registerPlugin(1, "CindyLeap", function(api) {
 	defOp("getleaphandsdata", 0, function(args, modifs) {
 		let blacklistNames = new Set(["frame"]);
 		let handsData = getLeapHandsData();
-		let cindyScriptHandsData = convertObjectToCindyDict(handsData, blacklistNames, new Set());
+		let cindyScriptHandsData = convertObjectToCindyDict(handsData, blacklistNames, new Map());
 		return cindyScriptHandsData;
 	});
 
@@ -263,7 +257,7 @@ CindyJS.registerPlugin(1, "CindyLeap", function(api) {
 	defOp("getleapgesturedata", 0, function(args, modifs) {
 		let blacklistNames = new Set(["frame"]);
 		let jsonHands = getJsonHandsData();
-		let cindyScriptHands = convertObjectToCindyDict(jsonHands, blacklistNames, new Set());
+		let cindyScriptHands = convertObjectToCindyDict(jsonHands, blacklistNames, new Map());
 		return cindyScriptHands;
 	});
 
