@@ -67,7 +67,8 @@
     "Michael Strobel <strobel@ma.tum.de>",
     "Patrick Wilson <patrick.wilson@tum.de>",
     "Jens Wurster <jw@tophostingteam.de>",
-    "Christoph Neuhauser"
+    "Christoph Neuhauser",
+    "Stefan Haas"
   ],
   "license": "Apache-2.0",
   "main": "build/js/Cindy.js",
