@@ -2,7 +2,7 @@
 
 CindyPrint is a plug-in that enables the user to print three-dimensional objects from Cindy3D and CindyGL. For this, triangle meshes of the objects can be exported.
 
-For Cindy3D, there are the options to print either the whole scene as the union of all objects (constructive solid geometry, CSG) or print tubes constructed around a path in space.
+For Cindy3D, there are the options to print either the whole scene as the union of all objects (constructive solid geometry, CSG) or print tubes constructed around a path in space. For the former, the JavaScript library csg.js is used (https://github.com/jscad/csg.js/).
 
 For CindyGL, iso surfaces of scalar functions can be created and printed using the Marching Cubes or SnapMC algorithms.
 

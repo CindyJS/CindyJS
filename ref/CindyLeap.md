@@ -9,13 +9,13 @@
 
 The Leap Motion controller (https://www.leapmotion.com/) is a device that allows the tracking of hands and fingers for virtual and augmented reality applications. The plug-in CindyLeap is able to use the Leap Motion controller to track hands and fingers and generate gesture events. For this, it contains three major features.
 
-1. Getting raw tracking data from hands and its finger bones. Using `getleaphandsdata` (for more details see the API documentation below), the user can get a list of tracked hands. The returned hand objects use the JSON notation and follow the JavaScript format described on https://developer-archive.leapmotion.com/documentation/v2/javascript/index.html. `leapdebugprinthands` can be used to print the data returned by `getleaphandsdata` on the console in a hierarchic format. This way, the user can interactively explore what data to use.
+1. Getting raw tracking data from hands and their finger bones. Using `getleaphandsdata`, the user can get a list of tracked hands. The returned hand objects use the JSON notation and follow the JavaScript format described on https://developer-archive.leapmotion.com/documentation/v2/javascript/index.html. `leapdebugprinthands` can be used to print the data returned by `getleaphandsdata` on the console in a hierarchic format. This way, the user can interactively explore what data to use.
 
 NOTE: All coordinates are given in cm (see https://developer-archive.leapmotion.com/documentation/v2/javascript/devguide/Leap_Coordinate_Mapping.html) measured from the origin of the controller. In order to get coordinates normalized to [-1, 1] in a so-called interaction box (see website above), `leapnormalizeposition` can be used to normalize a raw position value.
 
 2. Getting gesture data using `getleapgesturedata`. For this to work, `enablegestures` needs to be enabled when calling `initleapmotion` (see below). Again, the format closely follows the LeapMotion JavaScript documentation mentioned above. `leapdebugprintgestures` can be used to print the data on the console in a hierarchic format.
 
-3. Finally, the CindyScript application developer may also let the user move and rotate a Cindy3D or CindyGL scene using their hand(s). For this, the functions  `getleapmotionmodelmatrix`, `getleapmotionrotationmatrix`, `getleapmotiontranslationvector` and `getleapmotiontransformhaschanged` were added. In CindyGL, an application developer can use this functions to transform a scene depending on the returned data (for examples please refer to `examples/cindyleap/`). In Cindy3D, the transformation data is used automatically to transform the scene if `usehandtransformcdy3d` is set to true in `initleapmotion`.
+3. Finally, the CindyScript application developer may also let the user move and rotate a Cindy3D or CindyGL scene using their hand(s). For this, the functions  `getleapmotionmodelmatrix`, `getleapmotionrotationmatrix`, `getleapmotiontranslationvector` and `getleapmotiontransformhaschanged` were added. In CindyGL, an application developer can use these functions to transform a scene depending on the returned data (for examples please refer to `examples/cindyleap/`). In Cindy3D, the transformation data is used automatically to transform the scene if `usehandtransformcdy3d` is set to true in `initleapmotion`.
 
 To be able to use the Leap Motion controller together with CindyLeap, the user also needs to install the Leap Motion SDK on their system. The SDK can be found on the website https://developer.leapmotion.com/sdk/v2.
 
@@ -53,4 +53,3 @@ Initializes the Leap Motion controller.
 	// ...
 </script>
 ```
-For examples of different render function callbacks, please visit the directory `examples/cindyxr`.
