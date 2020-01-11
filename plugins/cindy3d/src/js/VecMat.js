@@ -152,6 +152,20 @@ function mul3mv(m, v) {
  * @param {Array.<number>} v
  * @return {Array.<number>}
  */
+function mul4mv(m, v) {
+  return [
+    m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3]*v[3],
+    m[4]*v[0] + m[5]*v[1] + m[6]*v[2] + m[7]*v[3],
+    m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11]*v[3],
+    m[12]*v[0] + m[13]*v[1] + m[14]*v[2] + m[15]*v[3]
+  ];
+}
+
+/**
+ * @param {Array.<number>} m
+ * @param {Array.<number>} v
+ * @return {Array.<number>}
+ */
 function transform4to3(m, v) {
   let x = m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3]*v[3];
   let y = m[4]*v[0] + m[5]*v[1] + m[6]*v[2] + m[7]*v[3];
@@ -172,3 +186,21 @@ function triangleNormal(pos1, pos2, pos3) {
   let n = normalized3(cross3(v, w));
   return n;
 }
+
+// Export
+window["norm3"] = norm3;
+window["normalized3"] = normalized3;
+window["dehom3"] = dehom3;
+window["scale3"] = scale3;
+window["transpose3"] = transpose3;
+window["transpose4"] = transpose4;
+window["adj3"] = adj3;
+window["sub3"] = sub3;
+window["add3"] = add3;
+window["add4"] = add4;
+window["cross3"] = cross3;
+window["mul4mm"] = mul4mm;
+window["mul3mv"] = mul3mv;
+window["mul4mv"] = mul4mv;
+window["transform4to3"] = transform4to3;
+window["triangleNormal"] = triangleNormal;

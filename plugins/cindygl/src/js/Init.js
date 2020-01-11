@@ -85,13 +85,19 @@ function initGLIfRequired() {
         "webglcontextcreationerror",
         onContextCreationError, false);
 
+    let contextAttributes = {};
+    let useWebXR = typeof xrGetNumViews !== 'undefined';
+    if (useWebXR) {
+        contextAttributes['xrCompatible'] = true;
+    }
     gl = /** @type {WebGLRenderingContext} */ (
-        glcanvas.getContext("webgl"));
+        glcanvas.getContext("webgl", contextAttributes));
     if (!gl)
         gl = /** @type {WebGLRenderingContext} */ (
-            glcanvas.getContext("experimental-webgl"));
+            glcanvas.getContext("experimental-webgl", contextAttributes));
     if (!gl)
         throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
+    window['gl'] = gl; // Export
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);
@@ -119,3 +125,4 @@ function initGLIfRequired() {
     }
     isinitialized = true;
 }
+window['initGLIfRequired'] = initGLIfRequired; // Export

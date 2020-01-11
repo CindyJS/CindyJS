@@ -9,7 +9,8 @@ function generateCanvasWrapperIfRequired(imageobject, api, properties) {
         imageobject['canvaswrapper'] = new CanvasWrapper(imageobject.ready ? imageobject : dummyimage, properties || {
             interpolate: true,
             mipmap: false,
-            repeat: false
+            repeat: false,
+            clamptoedge: false
         });
 
         if (!imageobject.ready) {
@@ -18,6 +19,7 @@ function generateCanvasWrapperIfRequired(imageobject, api, properties) {
     }
     return imageobject['canvaswrapper'];
 }
+window['generateCanvasWrapperIfRequired'] = generateCanvasWrapperIfRequired; // Export
 
 /**
  * Note that CanvasWrapper might also wrap an image instead of a canvas
@@ -57,6 +59,11 @@ function CanvasWrapper(canvas, properties) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
+
+        if (properties.clamptoedge) {
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        }
 
         this.framebuffers[j] = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[j]);
@@ -122,11 +129,25 @@ CanvasWrapper.prototype.it;
 /** @type {ShaderProgram} */
 CanvasWrapper.prototype.shaderProgram;
 
+CanvasWrapper.prototype.resetAttribLocations = function() {
+    var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
+    gl.enableVertexAttribArray(aPosLoc);
+
+    var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
+    gl.enableVertexAttribArray(aTexLoc);
+
+    var texCoordOffset = 4 * 3 * 4; // 4 vertices, 3 entries, 4 bytes per entry
+
+    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+}
+
 CanvasWrapper.prototype.updateReadingProperties = function(properties) {
     let oldproperties = this.properties;
     if (properties &&
         (
             properties.repeat != oldproperties.repeat ||
+            properties.clamptoedge != oldproperties.clamptoedge ||
             properties.mipmap != oldproperties.mipmap ||
             properties.interpolate != oldproperties.interpolate
         )
@@ -140,13 +161,24 @@ CanvasWrapper.prototype.updateReadingProperties = function(properties) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
 
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, properties.interpolate ? gl.LINEAR : gl.NEAREST);
+
+            if (properties.clamptoedge) {
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            }
         }
     }
 };
 
 CanvasWrapper.prototype.updateInternalTextureMeasures = function() {
-    this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX + (this.sizeX / 2) * (this.properties.mipmap && this.properties.repeat));
-    this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY + (this.sizeY / 2) * (this.properties.mipmap && this.properties.repeat));
+    // WebGL 1 only supports NPOT textures in certain configurations.
+    if (this.properties.clamptoedge && this.properties.interpolate && !this.properties.repeat && !this.properties.mipmap) {
+        this.sizeXP = this.sizeX;
+        this.sizeYP = this.sizeY;
+    } else {
+        this.sizeXP = smallestPowerOfTwoGreaterOrEqual(this.sizeX + (this.sizeX / 2) * (this.properties.mipmap && this.properties.repeat));
+        this.sizeYP = smallestPowerOfTwoGreaterOrEqual(this.sizeY + (this.sizeY / 2) * (this.properties.mipmap && this.properties.repeat));
+    }
 };
 
 /**

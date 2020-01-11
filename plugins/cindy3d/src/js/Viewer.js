@@ -22,12 +22,19 @@ function Viewer(name, ccOpts, opts, addEventListener) {
   canvas.addEventListener(
     "webglcontextcreationerror",
     onContextCreationError, false);
+
+  let contextAttributes = ccOpts;
+  let useWebXR = typeof xrGetNumViews !== 'undefined';
+  if (useWebXR) {
+    contextAttributes['xrCompatible'] = true;
+  }
+
   /** @type {WebGLRenderingContext} */
   let gl = /** @type {WebGLRenderingContext} */(
-    canvas.getContext("webgl", ccOpts));
+    canvas.getContext("webgl", contextAttributes));
   if (!gl)
     gl = /** @type {WebGLRenderingContext} */(
-      canvas.getContext("experimental-webgl", ccOpts));
+      canvas.getContext("experimental-webgl", contextAttributes));
   if (!gl)
     throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
 
@@ -40,7 +47,7 @@ function Viewer(name, ccOpts, opts, addEventListener) {
       console.log("EXT_frag_depth extension not supported, " +
                   "will try webgl 2.0.");
       let gl2 = /** @type {WebGLRenderingContext} */(
-        canvas.getContext("webgl2", ccOpts));
+        canvas.getContext("webgl2", contextAttributes));
       if (gl2) {
         gl = gl2;
         gl.webgl2 = true;
@@ -279,29 +286,65 @@ Viewer.prototype.renderAntiAliased = function() {
 
 Viewer.prototype.renderAliased = function() {
   let gl = this.gl;
-  gl.viewport(0, 0, this.ssWidth, this.ssHeight);
+  let useLeapMotionController = typeof leapPreRender !== 'undefined';
+  let useWebXR = typeof xrGetNumViews !== 'undefined';
+  if (!useWebXR) {
+	  gl.viewport(0, 0, this.ssWidth, this.ssHeight);
+  }
   gl.clearColor.apply(gl, this.backgroundColor);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // Setup for rendering
   if (this.spheres.opaque && this.cylinders.opaque && this.triangles.opaque) {
     gl.disable(gl.BLEND);
     gl.depthMask(true);
     gl.enable(gl.DEPTH_TEST);
-    this.renderPrimitives(true);
-  }
-  else {
+  } else {
     gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     gl.depthMask(false);
-    this.renderPrimitives(false);
-    this.renderPrimitives(false);
-    gl.depthMask(true);
-    gl.enable(gl.DEPTH_TEST);
-    /*
-    gl.disable(gl.BLEND);
-    this.renderPrimitives(true);
-    gl.enable(gl.BLEND);
-    */
-    this.renderPrimitives(false);
+  }
+
+  let numRenderPasses = 1;
+  if (useLeapMotionController) {
+    leapPreRender(this.camera);
+  } else if (useWebXR) {
+    numRenderPasses = xrGetNumViews();
+    xrPreRender(gl, this.camera);
+  }
+  for (let renderPass = 0; renderPass < numRenderPasses; renderPass++) {
+    // If a display with multiple views is used: Set the viewport for the current rendering area.
+    if (useWebXR) {
+      xrUpdateCindy3DCamera(gl, renderPass, this.camera);
+    }
+
+    // Rendering pass
+    if (this.spheres.opaque && this.cylinders.opaque && this.triangles.opaque) {
+      gl.disable(gl.BLEND);
+      gl.depthMask(true);
+      gl.enable(gl.DEPTH_TEST);
+      this.renderPrimitives(true);
+    }
+    else {
+      gl.disable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+      gl.depthMask(false);
+      this.renderPrimitives(false);
+      this.renderPrimitives(false);
+      gl.depthMask(true);
+      gl.enable(gl.DEPTH_TEST);
+      this.renderPrimitives(false);
+    }
+  }
+  if (useLeapMotionController) {
+    leapPostRender(this.camera);
+  } else if (useWebXR) {
+    xrPostRender(gl, this.camera);
+  }
+
+  let externalRenderHook = this['externalRenderHook'];
+  if (typeof externalRenderHook !== 'undefined') {
+    externalRenderHook(gl);
   }
 };
 

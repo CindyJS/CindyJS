@@ -726,7 +726,8 @@ module.exports = function build(settings, task) {
 
     var fileNamesLeap = [
         "CindyLeap",
-        "LeapMotion"
+        "LeapMotion",
+        "leap-0.6.4"
     ];
 
     var srcsLeap = fileNamesLeap.map(function(fileName) {
