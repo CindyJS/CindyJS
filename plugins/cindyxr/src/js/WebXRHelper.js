@@ -189,7 +189,7 @@ function xrSetReferenceMode(referenceMode) {
  * @return {string} The WebXR reference space. 
  */
 function xrGetReferenceSpace() {
-    let refSpace = session.isImmersive ? xrImmersiveRefSpace : inlineViewerHelper.referenceSpace;
+    let refSpace = xrLastFrame.session.isImmersive ? xrImmersiveRefSpace : inlineViewerHelper.referenceSpace;
     return refSpace;
 }
 

@@ -393,17 +393,30 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 	 * }
 	 */
 	defOp("getxrinputsources", 0, function(args, modifs) {
-		// Helper function
+		// Helper function for extracting transforms from XR spaces
+		let identityTransform = {
+			position: [0, 0, 0, 1],
+			orientation: [0, 0, 0, 1],
+			matrix: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+		};
 		let extractTransform = function(xrSpace) {
-			let xrTransform = xrLastFrame.getPose(xrSpace, xrGetReferenceSpace()).transform;
+			if (xrSpace == null) {
+				return identityTransform;
+			}
+			let xrPose = xrLastFrame.getPose(xrSpace, xrGetReferenceSpace());
+			if (xrPose == null) {
+				return identityTransform;
+			}
+			let xrTransform = xrPose.transform;
 			let filteredTransform = {
 				position: xrTransform.position,
 				orientation: xrTransform.orientation,
-				matrix: xrTransform.matrix
+				matrix: flatMatrix4ToNestedMatrix4(xrTransform.matrix)
 			};
 			return filteredTransform;
 		}
 
+		// Finally, extract all necessary information from the JavaScript objects.
 		let inputSources = xrGetInputSources();
 		let filteredInputSources = [];
 		for (let i = 0; i < inputSources.length; i++) {
@@ -415,7 +428,7 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 				gripSpaceTransform: extractTransform(inputSource.gripSpace),
 				profiles: inputSource.profiles
 			};
-			if (typeof inputSource.gamepad !== "undefined") {
+			if (typeof inputSource.gamepad !== "undefined" && inputSource.gamepad != null) {
 				let gamepad = inputSource.gamepad;
 				let filteredGamepad = {
 					id: gamepad.id,
@@ -429,6 +442,7 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 			}
 			filteredInputSources.push(filteredInputSource);
 		}
+
 		return convertObjectToCindyDict(filteredInputSources, new Set([]), new Map());
 	});
 });
