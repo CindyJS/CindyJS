@@ -344,10 +344,91 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 	// Input API.
 
 	/**
-	 * Returns a list of WebXR input devices as a list of CindyScript dictionaries (still experimental).
-	 * @see https://www.w3.org/TR/webxr/#xrinputsource-interface
+	 * Returns a list of XRInputSource entries as CindyScript JSON dictionaries.
+	 * 
+	 * // @see https://www.w3.org/TR/webxr/#xrinputsource-interface
+	 * XRInputSource := {
+	 * 	// Whether the input source is associated with a handedness
+	 * 	handedness: ("none" | "left" | "right"),
+	 * 	// For more details see: https://www.w3.org/TR/webxr/#xrinputsource-interface
+	 * 	targetRayMode: ("gaze" | "tracked-pointer" | "screen"),
+	 * 
+	 * 	// For tracking the input source in space
+	 * 	targetRaySpaceTransform: <XRRigidTransform>,
+	 * 	gripSpaceTransform: <XRRigidTransform>,
+	 * 
+	 * 	// For getting gamepad button presses, ...	
+	 * 	gamepad: ?<Gamepad>,
+	 * 
+	 * 	// Example for profile: ["valve-index", "htc-vive", "generic-trigger-squeeze-touchpad-thumbstick"]
+	 * 	profiles: [
+	 * 		// ... list of strings ...
+	 * 	]
+	 * }
+	 * 
+	 * XRRigidTransform := {
+	 *	// The position in homogeneous coordinates
+	 *  position: [ x, y, z, w ],
+	 * 	// The orientation as a quaternion
+	 * 	orientation: [ x, y, z, w ],
+	 * 	// The total transform as a 4x4 matrix
+	 * 	matrix: [[ a_11, ...], ...]
+	 * }
+	 * 
+	 * // @see https://w3c.github.io/gamepad/#dom-gamepad
+	 * Gamepad := {
+	 * 	id: <string>,
+	 * 	index: <number>,
+	 * 	connected: <boolean>,
+	 * 	mapping: ("" | "standard" | "xr-standard"),
+	 * 	axes: list<number>,
+	 * 	buttons: list<GamepadButton>
+	 * }
+	 * 
+	 * // @see https://w3c.github.io/gamepad/#dom-gamepadbutton
+	 * GamepadButton := {
+	 * 	pressed: <boolean>,
+	 * 	touched: <boolean>,
+	 * 	value: double
+	 * }
 	 */
 	defOp("getxrinputsources", 0, function(args, modifs) {
-		return convertObjectToCindyDict(xrGetInputSources(), new Set(["targetRaySpace", "gripSpace"]), new Map());
+		// Helper function
+		let extractTransform = function(xrSpace) {
+			let xrTransform = xrLastFrame.getPose(xrSpace, xrGetReferenceSpace()).transform;
+			let filteredTransform = {
+				position: xrTransform.position,
+				orientation: xrTransform.orientation,
+				matrix: xrTransform.matrix
+			};
+			return filteredTransform;
+		}
+
+		let inputSources = xrGetInputSources();
+		let filteredInputSources = [];
+		for (let i = 0; i < inputSources.length; i++) {
+			let inputSource = inputSources[i];
+			let filteredInputSource = {
+				handedness: inputSource.handedness,
+				targetRayMode: inputSource.targetRayMode,
+				targetRaySpaceTransform: extractTransform(inputSource.targetRaySpace),
+				gripSpaceTransform: extractTransform(inputSource.gripSpace),
+				profiles: inputSource.profiles
+			};
+			if (typeof inputSource.gamepad !== "undefined") {
+				let gamepad = inputSource.gamepad;
+				let filteredGamepad = {
+					id: gamepad.id,
+					index: gamepad.index,
+					connected: gamepad.connected,
+					mapping: gamepad.mapping,
+					axes: gamepad.axes,
+					buttons: gamepad.buttons
+				};
+				filteredInputSource.gamepad = filteredGamepad;
+			}
+			filteredInputSources.push(filteredInputSource);
+		}
+		return convertObjectToCindyDict(filteredInputSources, new Set([]), new Map());
 	});
 });

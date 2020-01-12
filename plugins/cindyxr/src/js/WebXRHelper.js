@@ -185,6 +185,14 @@ function xrSetReferenceMode(referenceMode) {
     xrReferenceMode = referenceMode;
 }
 
+/**
+ * @return {string} The WebXR reference space. 
+ */
+function xrGetReferenceSpace() {
+    let refSpace = session.isImmersive ? xrImmersiveRefSpace : inlineViewerHelper.referenceSpace;
+    return refSpace;
+}
+
 
 /**
  * Transposes a flat 4x4 matrix.
@@ -508,36 +516,6 @@ function onXRFrame(t, frame) {
 
     session.requestAnimationFrame(onXRFrame);
     drawXRFrame(frame, pose);
-
-    /*let inputSources = session.inputSources;
-    console.log(session.inputSources);
-
-    if (inputSources.length > 0 && inputSources[0].gamepad != null && inputSources[0].axis.length >= 2) {
-        let gamepad = inputSources[0].gamepad;
-        console.log("Axes: " + gamepad.axis[0] + ", " + gamepad.axis[1]);
-    }*/
-
-    // DEBUG OUTPUT for monitoring the resolution and number of frames per second (FPS).
-    /*let fps = 1000 / (t - lastTimestamp);
-    lastTimestamp = t;
-    console.log("FPS: " + fps);
-    let viewportSize = {
-        x: 0, y: 0
-    };
-    let numViews = xrGetNumViews();
-    if (!useRenderTargetHelpers) {
-        for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-            let currentViewportSize = xrGetViewportSize(viewIndex);
-            viewportSize.x += currentViewportSize[2];
-            viewportSize.y += currentViewportSize[3];
-        }
-    } else {
-        for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-            viewportSize.x += renderTargetHelpers[viewIndex].width;
-            viewportSize.y += renderTargetHelpers[viewIndex].height;
-        }
-    }
-    console.log("Resolution: " + viewportSize.x + ", " + viewportSize.y);*/
 }
 
 /**

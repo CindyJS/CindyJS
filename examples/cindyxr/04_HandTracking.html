@@ -31,12 +31,6 @@
             draw3d(f(w1), f(w2));
         );
 
-        xrinputsources = getxrinputsources();
-        repeat(length(hands), i,
-            inputsource = xrinputsources_i;
-            draw3d(inputsource.gripSpaceTransform.position);
-        );
-
         end3d();
     );
     xr(xrrenderfunction());

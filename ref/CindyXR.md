@@ -122,4 +122,52 @@ If the user is unfamiliar with the terms view matrix and projection matrix, we r
 
 ### Using WebXR Input Sources
 
-Using `getxrinputsources`, the user can get a list of available input sources. An input source of a VR device is typically something like a gamepad-like controller tracked in space. The input source objects in CindyScript have exactly the same structure as described in the WebXR JavaScript specification: https://www.w3.org/TR/webxr/#xrinputsource-interface. Please note that the WebXR input API integration is still work-in-progress, as it currently only supports typical gamepad-like features (buttons and axes). Supporting reference space tracking of input devices would also require support for computing offset reference spaces in CindyScript, which is currently beyond the scope of CindyXR.
+Using `getxrinputsources`, the user can get a list of available input sources. An input source of a VR device is typically something like a gamepad-like controller tracked in space. The input source objects in CindyScript have a similar structure to what is described in the WebXR JavaScript specification: https://www.w3.org/TR/webxr/#xrinputsource-interface. `getxrinputsources` returns a list of XRInputSource entries as CindyScript JSON dictionaries as described in the pseudo-code-like format below.
+
+```
+// @see https://www.w3.org/TR/webxr/#xrinputsource-interface
+XRInputSource := {
+	// Whether the input source is associated with a handedness
+	handedness: ("none" | "left" | "right"),
+	// For more details see: https://www.w3.org/TR/webxr/#xrinputsource-interface
+	targetRayMode: ("gaze" | "tracked-pointer" | "screen"),
+
+	// For tracking the input source in space
+	targetRaySpaceTransform: <XRRigidTransform>,
+	gripSpaceTransform: <XRRigidTransform>,
+
+	// For getting gamepad button presses, ...	
+	gamepad: ?<Gamepad>,
+
+	// Example for profile: ["valve-index", "htc-vive", "generic-trigger-squeeze-touchpad-thumbstick"]
+	profiles: [
+		// ... list of strings ...
+	]
+}
+
+XRRigidTransform := {
+	// The position in homogeneous coordinates
+    position: [ x, y, z, w ],
+	// The orientation as a quaternion
+	orientation: [ x, y, z, w ],
+	// The total transform as a 4x4 matrix
+	matrix: [[ a_11, ...], ...]
+}
+
+// @see https://w3c.github.io/gamepad/#dom-gamepad
+Gamepad := {
+	id: <string>,
+	index: <number>,
+	connected: <boolean>,
+	mapping: ("" | "standard" | "xr-standard"),
+	axes: list<number>,
+	buttons: list<GamepadButton>
+}
+
+// @see https://w3c.github.io/gamepad/#dom-gamepadbutton
+GamepadButton := {
+	pressed: <boolean>,
+	touched: <boolean>,
+	value: double
+}
+```
