@@ -794,7 +794,7 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindyxr/src/js/CindyXR.js.wrapper",
             js_output_file: "build/js/CindyXR.js",
             externs: "plugins/cindyjs.externs",
-            js: ["plugins/cindy3d/src/js/Interface.js", "node_modules/gl-matrix/gl-matrix.js",
+            js: ["plugins/cindy3d/src/js/Interface.js", "node_modules/gl-matrix/dist/gl-matrix.js",
                  "node_modules/webxr-polyfill/build/webxr-polyfill.js"].concat(srcsXR)
         };
         this.closureCompiler(closure_jar, opts);

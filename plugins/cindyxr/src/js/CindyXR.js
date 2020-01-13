@@ -147,16 +147,30 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 	}
 
 	/**
-	 * Converts a flat 4x4 matrix to a nested 4x4 matrix.
+	 * Converts a flat row-major 4x4 matrix to a nested 4x4 matrix.
 	 * @param {number[16]} m A flat 4x4 matrix.
 	 * @return {number[4][4]} The nested 4x4 matrix.
 	 */
-	function flatMatrix4ToNestedMatrix4(m) {
+	function flatMatrix4ToNestedMatrix4RowMajor(m) {
 		return [
 			[m[0], m[1], m[2], m[3]],
 			[m[4], m[5], m[6], m[7]],
 			[m[8], m[9], m[10], m[11]],
 			[m[12], m[13], m[14], m[15]]
+		];
+	}
+
+	/**
+	 * Converts a flat column-major 4x4 matrix to a nested 4x4 matrix.
+	 * @param {number[16]} m A flat 4x4 matrix.
+	 * @return {number[4][4]} The nested 4x4 matrix.
+	 */
+	function flatMatrix4ToNestedMatrix4ColumnMajor(m) {
+		return [
+			[m[0], m[4], m[8], m[12]],
+			[m[1], m[5], m[9], m[13]],
+			[m[2], m[6], m[10], m[14]],
+			[m[3], m[7], m[11], m[15]]
 		];
 	}
 
@@ -311,7 +325,7 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 	 */
 	defOp("getxrviewmatrix", 1, function(args, modifs) {
 		let viewIndex = api.evaluate(args[0]).value.real;
-		return nestedArrayToCSList(flatMatrix4ToNestedMatrix4(xrGetViewMatrix(viewIndex)));
+		return nestedArrayToCSList(flatMatrix4ToNestedMatrix4RowMajor(xrGetViewMatrix(viewIndex)));
 	});
 
 	/**
@@ -327,7 +341,7 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 	 */
 	defOp("getxrprojectionmatrix", 1, function(args, modifs) {
 		let viewIndex = api.evaluate(args[0]).value.real;
-		return nestedArrayToCSList(flatMatrix4ToNestedMatrix4(transpose4(xrGetProjectionMatrix(viewIndex))));
+		return nestedArrayToCSList(flatMatrix4ToNestedMatrix4ColumnMajor(xrGetProjectionMatrix(viewIndex)));
 	});
 
 	/**
@@ -392,6 +406,7 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 	 * 	value: double
 	 * }
 	 */
+	let gCounter = 0;
 	defOp("getxrinputsources", 0, function(args, modifs) {
 		// Helper function for extracting transforms from XR spaces
 		let identityTransform = {
@@ -409,9 +424,9 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 			}
 			let xrTransform = xrPose.transform;
 			let filteredTransform = {
-				position: xrTransform.position,
-				orientation: xrTransform.orientation,
-				matrix: flatMatrix4ToNestedMatrix4(xrTransform.matrix)
+				position: [xrTransform.position.x, xrTransform.position.y, xrTransform.position.z, xrTransform.position.w],
+				orientation: [xrTransform.orientation.x, xrTransform.orientation.y, xrTransform.orientation.z, xrTransform.orientation.w],
+				matrix: flatMatrix4ToNestedMatrix4ColumnMajor(xrTransform.matrix)
 			};
 			return filteredTransform;
 		}

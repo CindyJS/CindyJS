@@ -34,7 +34,14 @@
         xrinputsources = getxrinputsources();
         repeat(length(xrinputsources), i,
             inputsource = xrinputsources_i;
-            draw3d(inputsource.gripSpaceTransform.position);
+            // We only want input sources regarding tracked controllers.
+            if (inputsource.targetRayMode == "tracked-pointer",
+                // Draw a ball at the position of the controller and color it depending on whether button 1 is pressed.
+                isbuttonpressed = inputsource.gamepad.buttons_1.pressed;
+                color = if(isbuttonpressed, hue(0.1), hue(0.5));
+                color3d(color);
+                draw3d(inputsource.gripSpaceTransform.position);
+            );
         );
 
         end3d();
