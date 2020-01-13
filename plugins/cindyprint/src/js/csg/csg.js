@@ -200,5 +200,5 @@ function cindyTrianglePointsToIndexedMesh(trianglePointsCindy3D, epsilon) {
 		return new vec3(p[0], p[1], p[2]);
 	});
 	// Convert triangle vertex list to indexed triangle mesh (using code from IndexMesh.js)
-	return trianglePointsToIndexedMesh(trianglePoints, epsilon);
+	return trianglePointsToIndexedMesh(trianglePoints, undefined, epsilon);
 }
