@@ -268,7 +268,7 @@ CindyJS.registerPlugin(1, "CindyXR", function(api) {
 
 		// Call to CindyGL API to initialize WebGL if it is not yet loaded.
 		initGLIfRequired();
-		let gl = window['gl'];
+		let gl = window['cindygl-gl'];
 		initXR(gl, canvasWidth, canvasHeight);
 		isGLInitialized = true;
 		return nada;

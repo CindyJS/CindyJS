@@ -97,7 +97,7 @@ function initGLIfRequired() {
             glcanvas.getContext("experimental-webgl", contextAttributes));
     if (!gl)
         throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
-    window['gl'] = gl; // Export
+    window['cindygl-gl'] = gl; // Export
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);
