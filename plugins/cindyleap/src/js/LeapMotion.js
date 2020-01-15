@@ -95,7 +95,7 @@ function initLeapMotion(api, enableGestures) {
 	gesturesEnabled = enableGestures;
     var controller = new Leap.Controller({enableGestures: enableGestures});
     controller.on('frame', function(frame) {
-		onLeapMotionControllerFrame(controller, frame);
+		onLeapMotionControllerFrame(api, controller, frame);
     });
 	controller.connect();
 }
