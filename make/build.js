@@ -664,7 +664,8 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
             js_output_file: "build/js/CindyPrint.js",
             externs: "plugins/cindyjs.externs",
-            js: ["plugins/cindy3d/src/js/Interface.js", "build/js/csg.js"].concat(srcsPrint)
+            js: ["plugins/cindy3d/src/js/Interface.js", "plugins/cindy3d/src/js/VecMat.js",
+                    "plugins/cindy3d/src/js/ShaderProgram.js", "build/js/csg.js"].concat(srcsPrint)
         };
         this.closureCompiler(closure_jar, opts);
     });
@@ -714,7 +715,8 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
             js_output_file: "build/js/CindyPrintWorker.js",
             externs: "plugins/cindyjs.externs",
-            js: ["build/js/csg.js"].concat(srcsPrintWorker)
+            js: ["plugins/cindy3d/src/js/VecMat.js", "plugins/cindy3d/src/js/ShaderProgram.js",
+                    "build/js/csg.js"].concat(srcsPrintWorker)
         };
         this.closureCompiler(closure_jar, opts);
     });

@@ -41,7 +41,6 @@ function ShaderProgram(gl, vertexShaderCode, fragmentShaderCode) {
   this.detectUniforms(gl);
   // this.detectAttributes(gl);
 };
-window["ShaderProgram"] = ShaderProgram; // Export
 
 /** @type {WebGLProgram} */
 ShaderProgram.prototype.handle;
