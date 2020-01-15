@@ -632,7 +632,6 @@ function scheduleUpdate() {
         requestedAnimFrame = requestAnimFrame(doit);
     }
 }
-window["scheduleUpdate"] = scheduleUpdate; // Export for CindyLeap
 
 function doit() {
     requestedAnimFrame = null; // so we can schedule a new one

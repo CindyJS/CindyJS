@@ -88,9 +88,10 @@ function leapPostRender(cindy3DCamera) {
 /**
  * Initializes the Leap Motion controller. This requires that the Leap Motion SDK v2 or v3 is installed.
  * Unfortunately, the Orion v4 SDK no longer supports JavaScript.
+ * @param {CindyJS.pluginApi} api CindyJS API object
  * @param {boolean} enableGestures Whether to enable gesture recognition (default: off).
  */
-function initLeapMotion(enableGestures) {
+function initLeapMotion(api, enableGestures) {
 	gesturesEnabled = enableGestures;
     var controller = new Leap.Controller({enableGestures: enableGestures});
     controller.on('frame', function(frame) {
@@ -102,12 +103,13 @@ function initLeapMotion(enableGestures) {
 /**
  * This function is called when a new Leap Motion tracking frame is available.
  * A tracking frame contains tracking data of tracked hands and fingers.
+ * @param {CindyJS.pluginApi} api CindyJS API object
  * @param {Leap.Controller} controller For more details see
  * https://developer-archive.leapmotion.com/documentation/javascript/devguide/Leap_Controllers.html
  * @param {Leap.Frame} frame For more details see
  * https://developer-archive.leapmotion.com/documentation/javascript/devguide/Leap_Frames.html
  */
-function onLeapMotionControllerFrame(controller, frame) {
+function onLeapMotionControllerFrame(api, controller, frame) {
 	let crossProduct = function(a, b) {
 		return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 	}
@@ -214,7 +216,7 @@ function onLeapMotionControllerFrame(controller, frame) {
 	
 		// Request repaint in CindyJS.
 		leapMotionTransformHasChanged = true;
-		scheduleUpdate();
+		api.scheduleUpdate();
 	}
 }
 

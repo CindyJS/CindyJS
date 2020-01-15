@@ -49,7 +49,8 @@ CindyJS.image;
  *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
  *      tx:number,ty:number,det:number,sdet:number},
  *    getImage: function((string|CindyJS.anyval),boolean=):CindyJS.image,
- *    getMyfunction: function(string)
+ *    getMyfunction: function(string),
+ *    scheduleUpdate: function()
  *  }}
  */
 CindyJS.pluginApi;
@@ -83,11 +84,6 @@ CindyJS._pluginRegistry.Cindy3D;
  * }}
  */
 CindyJS.PrimitiveRenderer;
-
-/**
- * @typedef {number}
- */
-var count;
 
 /**
  * @typedef {number}
@@ -172,9 +168,6 @@ CindyJS.CanvasWrapper.canvas.img.generation;
  * @dict
  */
 CindyJS._pluginRegistry.Cindy3D.instances;
-
-// CindyScript function
-function scheduleUpdate() {}
 
 /**
  * User interface functions for CindyPrint plugin.

@@ -185,7 +185,7 @@ CindyJS.registerPlugin(1, "CindyLeap", function(api) {
 			"translationfactor": (a => setLeapMotionTranslationFactor(coerce.toReal(a, 1)))
 		});
 
-		initLeapMotion(enableGestures);
+		initLeapMotion(api, enableGestures);
 		return nada;
 	});
 
