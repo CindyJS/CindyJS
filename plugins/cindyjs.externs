@@ -166,7 +166,6 @@ CindyJS.CanvasWrapper.reloadIfRequired;
 CindyJS.CanvasWrapper.canvas;
 CindyJS.CanvasWrapper.canvas.img;
 CindyJS.CanvasWrapper.canvas.img.generation;
-CindyJS.CanvasWrapper.resetAttribLocations;
 
 
 /**

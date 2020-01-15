@@ -129,19 +129,6 @@ CanvasWrapper.prototype.it;
 /** @type {ShaderProgram} */
 CanvasWrapper.prototype.shaderProgram;
 
-CanvasWrapper.prototype.resetAttribLocations = function() {
-    var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
-    gl.enableVertexAttribArray(aPosLoc);
-
-    var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
-    gl.enableVertexAttribArray(aTexLoc);
-
-    var texCoordOffset = 4 * 3 * 4; // 4 vertices, 3 entries, 4 bytes per entry
-
-    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
-}
-
 CanvasWrapper.prototype.updateReadingProperties = function(properties) {
     let oldproperties = this.properties;
     if (properties &&
