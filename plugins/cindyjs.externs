@@ -109,10 +109,10 @@ CindyJS.PrimitiveRenderer;
 /**
  * @typedef {number}
  */
-var interpolate;
-var mipmap;
-var repeat;
-var clamptoedge;
+CindyJS.interpolate;
+CindyJS.mipmap;
+CindyJS.repeat;
+CindyJS.clamptoedge;
 
 /**
  * @typedef {CindyJS.Spheres}
