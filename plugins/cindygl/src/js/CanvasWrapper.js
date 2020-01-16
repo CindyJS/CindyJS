@@ -19,7 +19,6 @@ function generateCanvasWrapperIfRequired(imageobject, api, properties) {
     }
     return imageobject['canvaswrapper'];
 }
-window['generateCanvasWrapperIfRequired'] = generateCanvasWrapperIfRequired; // Export
 
 /**
  * Note that CanvasWrapper might also wrap an image instead of a canvas
