@@ -143,19 +143,20 @@ self['cindyPrintUpdateReconstructionAlgorithm'] = cindyPrintUpdateReconstruction
  * Print preview UI HTML code for use with Cindy3D when exporting CSG meshes.
  */
 function uiStringCindy3D(meshFilename) {
-	return "<input type=\"checkbox\" id=\"exportSpheres\" onclick=\"cindyPrintUpdateExportSpheres()\" checked> Spheres <image class='smallimg' src='img/SphereHighRes.png'/>" +
-		"<input type=\"checkbox\" id=\"exportCylinders\" onclick=\"cindyPrintUpdateExportCylinders()\" checked> Cylinders <image class='smallimg' src='img/CylinderHighRes.png'/>" +
-		"<input type=\"checkbox\" id=\"exportTriangles\" onclick=\"cindyPrintUpdateExportTriangles()\" checked> Triangles  <image class='smallimg' src='img/Triangles.png'/>" +
+	let imageFolder = CindyJS.getBaseDir() + "images/cindyprint/";
+	return "<input type=\"checkbox\" id=\"exportSpheres\" onclick=\"cindyPrintUpdateExportSpheres()\" checked> Spheres <image class='smallimg' src='" + imageFolder + "SphereHighRes.png'/>" +
+		"<input type=\"checkbox\" id=\"exportCylinders\" onclick=\"cindyPrintUpdateExportCylinders()\" checked> Cylinders <image class='smallimg' src='" + imageFolder + "CylinderHighRes.png'/>" +
+		"<input type=\"checkbox\" id=\"exportTriangles\" onclick=\"cindyPrintUpdateExportTriangles()\" checked> Triangles  <image class='smallimg' src='" + imageFolder + "Triangles.png'/>" +
 		"<br>" +
 		"<table>" +
-		"    <tr><th>Sphere quality</th><th><image src='img/SphereLowRes.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"8\" max=\"64\" value=\"16\" class=\"slider\" id=\"sphereQuality\" oninput=\"cindyPrintUpdateSphereQuality()\"></th><th><image src='img/SphereHighRes.png'/></th></tr>" +
-		"    <tr><th>Cylinder quality</th><th><image src='img/CylinderLowRes.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"8\" max=\"64\" value=\"16\" class=\"slider\" id=\"cylinderQuality\" oninput=\"cindyPrintUpdateCylinderQuality()\"></th><th><image src='img/CylinderHighRes.png'/></th></tr>" +
-		"    <tr><th>Radius factor</th><th><image src='img/SphereSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"radiusFactor\" oninput=\"cindyPrintUpdateRadiusFactor()\"></th><th><image src='img/SphereHighRes.png'/></th></tr>" +
-		"    <tr><th>Model scale</th><th><image src='img/SizeSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"10\" class=\"slider\" id=\"modelScale\" oninput=\"cindyPrintUpdateModelScale()\"></th><th><image src='img/SizeLarge.png'/></th></tr>" +
+		"    <tr><th>Sphere quality</th><th><image src='" + imageFolder + "SphereLowRes.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"8\" max=\"64\" value=\"16\" class=\"slider\" id=\"sphereQuality\" oninput=\"cindyPrintUpdateSphereQuality()\"></th><th><image src='" + imageFolder + "SphereHighRes.png'/></th></tr>" +
+		"    <tr><th>Cylinder quality</th><th><image src='" + imageFolder + "CylinderLowRes.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"8\" max=\"64\" value=\"16\" class=\"slider\" id=\"cylinderQuality\" oninput=\"cindyPrintUpdateCylinderQuality()\"></th><th><image src='" + imageFolder + "CylinderHighRes.png'/></th></tr>" +
+		"    <tr><th>Radius factor</th><th><image src='" + imageFolder + "SphereSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"radiusFactor\" oninput=\"cindyPrintUpdateRadiusFactor()\"></th><th><image src='" + imageFolder + "SphereHighRes.png'/></th></tr>" +
+		"    <tr><th>Model scale</th><th><image src='" + imageFolder + "SizeSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"10\" class=\"slider\" id=\"modelScale\" oninput=\"cindyPrintUpdateModelScale()\"></th><th><image src='" + imageFolder + "SizeLarge.png'/></th></tr>" +
 		"</table>" +
 		"<input type=\"checkbox\" id=\"extrudeSurfaces\" onclick=\"cindyPrintUpdateExtrudeSurfaces()\" checked> Extrude the triangle surfaces" +
 		"<table>" +
-		"    <tr><th>Extrusion radius</th><th><image src='img/ExtrudeSurfaceSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"0\" max=\"100\" value=\"10\" class=\"slider\" id=\"extrusionRadius\" oninput=\"cindyPrintUpdateExtrusionRadius()\"></th><th><image src='img/ExtrudeSurfaceLarge.png'/></th></tr>" +
+		"    <tr><th>Extrusion radius</th><th><image src='" + imageFolder + "ExtrudeSurfaceSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"0\" max=\"100\" value=\"10\" class=\"slider\" id=\"extrusionRadius\" oninput=\"cindyPrintUpdateExtrusionRadius()\"></th><th><image src='" + imageFolder + "ExtrudeSurfaceLarge.png'/></th></tr>" +
 		"</table>" +
 		"<input type=\"checkbox\" id=\"smoothEdges\" onclick=\"cindyPrintUpdateSmoothEdges()\" checked> Smooth extrusion edges<br>" +
 		"<button onclick=\"cdy.evokeCS('savecsgmesh(&quot;" + meshFilename + "&quot;)');\">Export mesh</button>" +
@@ -166,15 +167,16 @@ function uiStringCindy3D(meshFilename) {
  * Print preview UI HTML code for use with Cindy3D when exporting tube meshes.
  */
 function uiStringTubes(meshFilename, computeTubePointsFunctionName, numTubePointsString, radiusString, tubeClosed) {
+	let imageFolder = CindyJS.getBaseDir() + "images/cindyprint/";
 	let tubeClosedString = "true";
 	if (!tubeClosed) {
 		tubeClosedString = "false";
 	}
 	return "<table>" +
-		"    <tr><th>Cylinder quality</th><th><image src='img/CylinderLowRes.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"8\" max=\"64\" value=\"16\" class=\"slider\" id=\"cylinderQuality\" oninput=\"cindyPrintUpdateCylinderQuality()\"></th><th><image src='img/CylinderHighRes.png'/></th></tr>" +
-		"    <tr><th>Line subdivisions</th><th><image src='img/LineSubdivisionLow.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"lineSubdivisions\" oninput=\"cindyPrintUpdateLineSubdivisions()\"></th><th><image src='img/LineSubdivisionHigh.png'/></th></tr>" +
-		"    <tr><th>Radius factor</th><th><image src='img/TubeThin.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"radiusFactor\" oninput=\"cindyPrintUpdateRadiusFactor()\"></th><th><image src='img/TubeThick.png'/></th></tr>" +
-		"    <tr><th>Model scale</th><th><image src='img/SizeSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"10\" class=\"slider\" id=\"modelScale\" oninput=\"cindyPrintUpdateModelScale()\"></th><th><image src='img/SizeLarge.png'/></th></tr>" +
+		"    <tr><th>Cylinder quality</th><th><image src='" + imageFolder + "CylinderLowRes.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"8\" max=\"64\" value=\"16\" class=\"slider\" id=\"cylinderQuality\" oninput=\"cindyPrintUpdateCylinderQuality()\"></th><th><image src='" + imageFolder + "CylinderHighRes.png'/></th></tr>" +
+		"    <tr><th>Line subdivisions</th><th><image src='" + imageFolder + "LineSubdivisionLow.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"lineSubdivisions\" oninput=\"cindyPrintUpdateLineSubdivisions()\"></th><th><image src='" + imageFolder + "LineSubdivisionHigh.png'/></th></tr>" +
+		"    <tr><th>Radius factor</th><th><image src='" + imageFolder + "TubeThin.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"radiusFactor\" oninput=\"cindyPrintUpdateRadiusFactor()\"></th><th><image src='" + imageFolder + "TubeThick.png'/></th></tr>" +
+		"    <tr><th>Model scale</th><th><image src='" + imageFolder + "SizeSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"10\" class=\"slider\" id=\"modelScale\" oninput=\"cindyPrintUpdateModelScale()\"></th><th><image src='" + imageFolder + "SizeLarge.png'/></th></tr>" +
 		"</table>" +
 		/*
 		 * For radius scaling factor 1/20 see Appearance.POINT_SCALE in Cindy3D.
@@ -187,17 +189,18 @@ function uiStringTubes(meshFilename, computeTubePointsFunctionName, numTubePoint
  * Print preview UI HTML code for use with CindyGL/iso surface generation from scalar functions.
  */
 function uiStringCindyGL(meshFilename, updatepreviewcdyglArguments) {
+	let imageFolder = CindyJS.getBaseDir() + "images/cindyprint/";
 	return "<input type=\"checkbox\" id=\"extrudeSurfaces\" onclick=\"cindyPrintUpdateExtrudeSurfaces()\" checked> Extrude the triangle surfaces" +
 		"<table>" +
-		"    <tr><th>Extrusion radius</th><th><image src='img/ExtrudeSurfaceSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"0\" max=\"100\" value=\"10\" class=\"slider\" id=\"extrusionRadius\" oninput=\"cindyPrintUpdateExtrusionRadius()\"></th><th><image src='img/ExtrudeSurfaceLarge.png'/></th></tr>" +
+		"    <tr><th>Extrusion radius</th><th><image src='" + imageFolder + "ExtrudeSurfaceSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"0\" max=\"100\" value=\"10\" class=\"slider\" id=\"extrusionRadius\" oninput=\"cindyPrintUpdateExtrusionRadius()\"></th><th><image src='" + imageFolder + "ExtrudeSurfaceLarge.png'/></th></tr>" +
 		"</table>" +
 		"<input type=\"checkbox\" id=\"smoothEdges\" onclick=\"cindyPrintUpdateSmoothEdges()\" checked> Smooth extrusion edges" +
 		"<input type=\"checkbox\" id=\"clipToSphere\" onclick=\"cindyPrintUpdateClipToSphere()\"> Clip geometry to sphere" +
 		"<table>" +
-		"    <tr><th>Sphere quality</th><th><image src='img/SphereLowRes.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"8\" max=\"32\" value=\"16\" class=\"slider\" id=\"sphereQuality\" oninput=\"cindyPrintUpdateSphereQuality()\"></th><th><image src='img/SphereHighRes.png'/></th></tr>" +
-		"    <tr><th>Model scale</th><th><image src='img/SizeSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"10\" class=\"slider\" id=\"modelScale\" oninput=\"cindyPrintUpdateModelScale()\"></th><th><image src='img/SizeLarge.png'/></th></tr>" +
-		"    <tr><th>Iso offset</th><th><image src='img/IsoA.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"0\" max=\"100\" value=\"0\" class=\"slider\" id=\"isoOffset\" oninput=\"cindyPrintUpdateIsoOffset()\"></th><th><image src='img/IsoB.png'/></tr>" +
-		"    <tr><th>Grid resolution</th><th><image src='img/GridResLow.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"16\" max=\"128\" value=\"50\" class=\"slider\" id=\"gridResolution\" oninput=\"cindyPrintUpdateGridResolution()\"></th><th><image src='img/ExtrudeSurfaceSmall.png'/></th></tr>" +
+		"    <tr><th>Sphere quality</th><th><image src='" + imageFolder + "SphereLowRes.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"8\" max=\"32\" value=\"16\" class=\"slider\" id=\"sphereQuality\" oninput=\"cindyPrintUpdateSphereQuality()\"></th><th><image src='" + imageFolder + "SphereHighRes.png'/></th></tr>" +
+		"    <tr><th>Model scale</th><th><image src='" + imageFolder + "SizeSmall.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"1\" max=\"100\" value=\"10\" class=\"slider\" id=\"modelScale\" oninput=\"cindyPrintUpdateModelScale()\"></th><th><image src='" + imageFolder + "SizeLarge.png'/></th></tr>" +
+		"    <tr><th>Iso offset</th><th><image src='" + imageFolder + "IsoA.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"0\" max=\"100\" value=\"0\" class=\"slider\" id=\"isoOffset\" oninput=\"cindyPrintUpdateIsoOffset()\"></th><th><image src='" + imageFolder + "IsoB.png'/></tr>" +
+		"    <tr><th>Grid resolution</th><th><image src='" + imageFolder + "GridResLow.png'/></th><th><div class=\"slidecontainer\"><input type=\"range\" min=\"16\" max=\"128\" value=\"50\" class=\"slider\" id=\"gridResolution\" oninput=\"cindyPrintUpdateGridResolution()\"></th><th><image src='" + imageFolder + "ExtrudeSurfaceSmall.png'/></th></tr>" +
 		"</table>" +
 		"Implicit surface reconstruction algorithm <select name=\"reconstructionAlgorithm\" id=\"reconstructionAlgorithm\" onchange=\"cindyPrintUpdateReconstructionAlgorithm()\"> <option value=\"marchingCubes\">Marching Cubes</option><option value=\"snapmc0.0\">SnapMC (&gamma;=0.0)</option><option selected value=\"snapmc0.1\">SnapMC (&gamma;=0.1)</option><option value=\"snapmc0.2\">SnapMC (&gamma;=0.2)</option><option value=\"snapmc0.3\">SnapMC (&gamma;=0.3)</option><option value=\"snapmc0.4\">SnapMC (&gamma;=0.4)</option><option value=\"snapmc0.5\">SnapMC (&gamma;=0.5)</option></select><br>" +
 		"<button onclick=\"cdy.evokeCS('saveisomeshtofile(&quot;" + meshFilename + "&quot;, " + updatepreviewcdyglArguments + ");');\">Export Mesh</button>" +

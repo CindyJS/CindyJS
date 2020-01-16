@@ -994,7 +994,7 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     var images = glob.sync("images/*.{png,jpg,svg}");
-    var imagesCindyPrint = glob.sync("images/cindyprint/*.{png,jpg,svg}");
+    var imagesCindyPrint = glob.sync("plugins/cindyprint/images/*.{png,jpg,svg}");
 
     task("images", [], function() {
         this.parallel(function() {
@@ -1002,7 +1002,7 @@ module.exports = function build(settings, task) {
                 this.copy(input, path.join("build", "js", input));
             }, this);
             imagesCindyPrint.forEach(function(input) {
-                this.copy(input, path.join("build", "js", input));
+                this.copy(input, path.join("build", "js", "images", "cindyprint", path.basename(input)));
             }, this);
         });
     });
