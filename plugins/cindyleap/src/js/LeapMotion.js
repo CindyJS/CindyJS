@@ -427,9 +427,3 @@ function setLeapMotionRotationFactor(factor) {
 function setLeapMotionTranslationFactor(factor) {
 	leapMotionTranslationFactor = factor;
 }
-
-
-// Exports for use in Cindy3D.
-window['leapPreRender'] = leapPreRender;
-window['leapPostRender'] = leapPostRender;
-window['getLeapMotionModelMatrix'] = getLeapMotionModelMatrix;

@@ -537,15 +537,3 @@ function drawXRFrame(frame, pose) {
 function xrGetInputSources() {
     return xrLastFrame.session.inputSources;
 }
-
-
-// Exports for use in Cindy3D and CindyGL.
-window['xrGetNumViews'] = xrGetNumViews;
-window['xrGetFramebuffer'] = xrGetFramebuffer;
-window['xrGetViewportSize'] = xrGetViewportSize;
-window['xrGetViewMatrix'] = xrGetViewMatrix;
-window['xrGetProjectionMatrix'] = xrGetProjectionMatrix;
-window['xrPreRender'] = xrPreRender;
-window['xrPostRender'] = xrPostRender;
-window['xrUpdateCindy3DCamera'] = xrUpdateCindy3DCamera;
-window['xrUpdateCindyGLView'] = xrUpdateCindyGLView;

@@ -664,8 +664,10 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
             js_output_file: "build/js/CindyPrint.js",
             externs: "plugins/cindyjs.externs",
-            js: ["plugins/cindy3d/src/js/Interface.js", "plugins/cindy3d/src/js/VecMat.js",
-                    "plugins/cindy3d/src/js/ShaderProgram.js", "build/js/csg.js"].concat(srcsPrint)
+            js: ["plugins/cindy3d/src/js/Interface.js",
+                "plugins/cindy3d/src/js/VecMat.js",
+                "plugins/cindy3d/src/js/ShaderProgram.js",
+                "build/js/csg.js"].concat(srcsPrint)
         };
         this.closureCompiler(closure_jar, opts);
     });
@@ -715,8 +717,9 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
             js_output_file: "build/js/CindyPrintWorker.js",
             externs: "plugins/cindyjs.externs",
-            js: ["plugins/cindy3d/src/js/VecMat.js", "plugins/cindy3d/src/js/ShaderProgram.js",
-                    "build/js/csg.js"].concat(srcsPrintWorker)
+            js: ["plugins/cindy3d/src/js/VecMat.js",
+                "plugins/cindy3d/src/js/ShaderProgram.js",
+                "build/js/csg.js"].concat(srcsPrintWorker)
         };
         this.closureCompiler(closure_jar, opts);
     });
@@ -748,7 +751,8 @@ module.exports = function build(settings, task) {
             dependency_mode: "LOOSE",
             create_source_map: "build/js/CindyLeap.js.map",
             compilation_level: "SIMPLE",
-            warning_level: "DEFAULT",
+            // leap.js compilation throws lots of warnings not in our responsibility
+            warning_level: "QUIET",
             source_map_format: "V3",
             source_map_location_mapping: [
                 "build/js/|",
@@ -757,7 +761,9 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindyleap/src/js/CindyLeap.js.wrapper",
             js_output_file: "build/js/CindyLeap.js",
             externs: "plugins/cindyjs.externs",
-            js: ["plugins/cindy3d/src/js/Interface.js", "build/js/leap-0.6.4.js"].concat(srcsLeap)
+            js: ["plugins/cindy3d/src/js/Interface.js",
+                "plugins/cindyxr/src/js/CindyScriptConversion.js",
+                "build/js/leap-0.6.4.js"].concat(srcsLeap)
         };
         this.closureCompiler(closure_jar, opts);
     });
@@ -768,6 +774,7 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     var fileNamesXR = [
+        "CindyScriptConversion",
         "CindyXR",
         "webxr-button",
         "inline-viewer-helper",
@@ -796,8 +803,10 @@ module.exports = function build(settings, task) {
             output_wrapper_file: "plugins/cindyxr/src/js/CindyXR.js.wrapper",
             js_output_file: "build/js/CindyXR.js",
             externs: "plugins/cindyjs.externs",
-            js: ["plugins/cindy3d/src/js/Interface.js", "node_modules/gl-matrix/dist/gl-matrix.js",
-                 "node_modules/webxr-polyfill/build/webxr-polyfill.js"].concat(srcsXR)
+            js: ["plugins/cindy3d/src/js/Interface.js",
+                "plugins/cindy3d/src/js/VecMat.js",
+                "node_modules/gl-matrix/dist/gl-matrix.js",
+                "node_modules/webxr-polyfill/build/webxr-polyfill.js"].concat(srcsXR)
         };
         this.closureCompiler(closure_jar, opts);
     });

@@ -342,6 +342,6 @@ function drawPrintPreview(api) {
     let evokeCS = api.instance.evokeCS;
     evokeCS('begin3d(name->"' + printPreviewInstanceName + '");');
     evokeCS('depthrange3d(0.2, 1000.0);');
-    CindyJS._pluginRegistry.Cindy3D.instances[printPreviewInstanceName]['externalRenderHook'] = renderPrintPreview;
+    CindyJS._pluginRegistry.Cindy3D.instances[printPreviewInstanceName].externalRenderHook = renderPrintPreview;
     evokeCS('end3d();');
 }

@@ -352,7 +352,7 @@ Renderer.prototype.renderXR = function(viewIndex) {
     this.loadTextures();
 
     // Binds the necessary framebuffer object.
-    xrUpdateCindyGLView(gl, viewIndex);
+    CindyJS._pluginRegistry.CindyXR.xrUpdateCindyGLView(gl, viewIndex);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.flush(); //renders stuff to canvaswrapper

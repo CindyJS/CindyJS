@@ -1,4 +1,4 @@
-let Cindy3D = function(api) {
+let CindyGL = function(api) {
 
     //////////////////////////////////////////////////////////////////////
     // API bindings
@@ -217,6 +217,7 @@ let Cindy3D = function(api) {
 }
 
 // Exports for CindyXR
-CindyGL.gl = gl;
+CindyGL.gl = null;
 CindyGL.generateCanvasWrapperIfRequired = generateCanvasWrapperIfRequired;
+CindyGL.initGLIfRequired = initGLIfRequired;
 CindyJS.registerPlugin(1, "CindyGL", CindyGL);

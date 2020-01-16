@@ -24,7 +24,7 @@ function Viewer(name, ccOpts, opts, addEventListener) {
     onContextCreationError, false);
 
   let contextAttributes = ccOpts;
-  let useWebXR = typeof xrGetNumViews !== 'undefined';
+  let useWebXR = typeof CindyJS._pluginRegistry.CindyXR !== 'undefined';
   if (useWebXR) {
     contextAttributes['xrCompatible'] = true;
   }
@@ -286,8 +286,8 @@ Viewer.prototype.renderAntiAliased = function() {
 
 Viewer.prototype.renderAliased = function() {
   let gl = this.gl;
-  let useLeapMotionController = typeof leapPreRender !== 'undefined';
-  let useWebXR = typeof xrGetNumViews !== 'undefined';
+  let useLeapMotionController = typeof CindyJS._pluginRegistry.CindyLeap !== 'undefined';
+  let useWebXR = typeof CindyJS._pluginRegistry.CindyXR !== 'undefined';
   if (!useWebXR) {
 	  gl.viewport(0, 0, this.ssWidth, this.ssHeight);
   }
@@ -307,15 +307,15 @@ Viewer.prototype.renderAliased = function() {
 
   let numRenderPasses = 1;
   if (useLeapMotionController) {
-    leapPreRender(this.camera);
+    CindyJS._pluginRegistry.CindyLeap.leapPreRender(this.camera);
   } else if (useWebXR) {
-    numRenderPasses = xrGetNumViews();
-    xrPreRender(gl, this.camera);
+    numRenderPasses = CindyJS._pluginRegistry.CindyXR.xrGetNumViews();
+    CindyJS._pluginRegistry.CindyXR.xrPreRender(gl, this.camera);
   }
   for (let renderPass = 0; renderPass < numRenderPasses; renderPass++) {
     // If a display with multiple views is used: Set the viewport for the current rendering area.
     if (useWebXR) {
-      xrUpdateCindy3DCamera(gl, renderPass, this.camera);
+      CindyJS._pluginRegistry.CindyXR.xrUpdateCindy3DCamera(gl, renderPass, this.camera);
     }
 
     // Rendering pass
@@ -337,14 +337,13 @@ Viewer.prototype.renderAliased = function() {
     }
   }
   if (useLeapMotionController) {
-    leapPostRender(this.camera);
+    CindyJS._pluginRegistry.CindyLeap.leapPostRender(this.camera);
   } else if (useWebXR) {
-    xrPostRender(gl, this.camera);
+    CindyJS._pluginRegistry.CindyXR.xrPostRender(gl, this.camera);
   }
 
-  let externalRenderHook = this['externalRenderHook'];
-  if (typeof externalRenderHook !== 'undefined') {
-    externalRenderHook(gl);
+  if (typeof this.externalRenderHook !== 'undefined') {
+    this.externalRenderHook(gl);
   }
 };
 

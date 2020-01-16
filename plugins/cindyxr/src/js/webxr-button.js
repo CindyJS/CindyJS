@@ -272,7 +272,6 @@ const generateCSS = (options, fontSize=18)=> {
 class EnterXRButton {
   /**
    * Construct a new Enter XR Button
-   * @constructor
    * @param {HTMLCanvasElement} sourceCanvas the canvas that you want to present with WebXR
    * @param {Object} [options] optional parameters
    * @param {HTMLElement} [options.domElement] provide your own domElement to bind to
