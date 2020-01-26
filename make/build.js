@@ -806,6 +806,7 @@ module.exports = function build(settings, task) {
             externs: "plugins/cindyjs.externs",
             js: ["plugins/cindy3d/src/js/Interface.js",
                 "plugins/cindy3d/src/js/VecMat.js",
+                "plugins/cindy3d/src/js/ShaderProgram.js",
                 "node_modules/gl-matrix/dist/gl-matrix.js",
                 "node_modules/webxr-polyfill/build/webxr-polyfill.js"].concat(srcsXR)
         };

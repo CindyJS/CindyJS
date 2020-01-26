@@ -188,8 +188,7 @@ function createFullscreenBlitShader(gl) {
 		"uniform sampler2D readTexture;" +
         "varying vec2 iUv;" +
 
-        "void main()" +
-		"{" +
+        "void main() {" +
             "gl_FragColor = texture2D(readTexture, iUv);" +
         "}"
     ;
