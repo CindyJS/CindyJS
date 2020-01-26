@@ -762,6 +762,7 @@ module.exports = function build(settings, task) {
             js_output_file: "build/js/CindyLeap.js",
             externs: "plugins/cindyjs.externs",
             js: ["plugins/cindy3d/src/js/Interface.js",
+                "plugins/cindy3d/src/js/VecMat.js",
                 "plugins/cindyxr/src/js/CindyScriptConversion.js",
                 "build/js/leap-0.6.4.js"].concat(srcsLeap)
         };

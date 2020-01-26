@@ -29,6 +29,7 @@ Initializes WebXR for use with Cindy3D.
 | `scaling` | `‹real›` | The scaling factor specifies what fraction the rendering resolution is of the screen/canvas resolution. The standard is 1 (i.e., full resolution). This can be used to get better performance in complex scenes. |
 | `canvaswidth` | `‹real›` | The width of the WebXR preview canvas in pixels. |
 | `canvasheight` | `‹real›` | The height of the WebXR preview canvas in pixels. |
+| `hidecanvas` | `‹boolean›` | Whether to hide or show the main (non-WebGL) CindyJS canvas (default: true, i.e., hide). |
 
 
 VR and AR devices might have a different screen refresh rate than the main monitor the rest of the browser is running on. Thus, we unfortunately can't use `'csdraw'` for rendering to the canvas, as it is internally tied to `window.requestAnimationFrame` in CindyJS. However, to get the right refresh rate for WebXR, `XRSession.requestAnimationFrame` needs to be used. Thus, the user needs to manually specify a CindyScript rendering callback function that is then called by `XRSession.requestAnimationFrame`.

@@ -82,10 +82,22 @@ let xrCanvasWidth = 800;
  */
 let xrCanvasHeight = 600;
 /**
+ * Whether to hide or show the main (non-WebGL) CindyJS canvas.
+ * @type {number}
+ */
+let xrHideCanvas = true;
+/**
  * Whether WebXR was already initialized.
  * @type {boolean}
  */
 let xrInitialized = false;
+
+/**
+ * CindyJS API object.
+ * @type {CindyJS.pluginApi}
+ */
+let xrCindyApi = null;
+
 
 /**
  * Necessary until more browsers natively support WebXR.
@@ -95,6 +107,9 @@ if ('xr' in navigator === false) {
     console.log("WebXR polyfill loaded.")
     xrPolyfill = new WebXRPolyfill(); // {allowCardboardOnDesktop: true}
 }
+
+
+
 
 /**
  * A temporary copy of the camera view matrix when the real matrix is modified for use with WebXR.
@@ -361,11 +376,13 @@ function xrPostRenderCindyGL() {
  * @param {WebGLRenderingContext} gl The WebGL rendering context.
  * @param {number} canvasWidth The width of the preview canvas in pixels.
  * @param {number} canvasHeight The height of the preview canvas in pixels.
+ * @param {boolean} hideCanvas Whether to hide or show the main (non-WebGL) CindyJS canvas.
  */
-function initXR(gl, canvasWidth, canvasHeight) {
+function initXR(gl, canvasWidth, canvasHeight, hideCanvas) {
     xrgl = gl;
     xrCanvasWidth = canvasWidth;
     xrCanvasHeight = canvasHeight;
+    xrHideCanvas = hideCanvas;
 
     xrButton = new XRDeviceButton({
         onRequestSession: onRequestSession,
@@ -419,7 +436,10 @@ function initGL() {
         xrgl.canvas.width = xrCanvasWidth;
         xrgl.canvas.height = xrCanvasHeight;
         xrgl.canvas.style.display = 'block';
-        document.getElementById('CSCanvas').style.display = 'none';
+        // Hide the main (non-WebGL) CindyJS canvas (default: true)?
+        if (xrHideCanvas) {
+            xrCindyApi.instance.canvas.parentNode.style.display = 'none';
+        }
     }
 
     /*function onResize() {

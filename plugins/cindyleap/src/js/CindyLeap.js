@@ -152,7 +152,7 @@ let CindyLeap = function(api) {
 	 */
 	defOp("getleapgesturedata", 0, function(args, modifs) {
 		let blacklistNames = new Set(["frame"]);
-		let jsonHands = getJsonHandsData();
+		let jsonHands = getLeapGestureData();
 		let cindyScriptHands = convertObjectToCindyDict(jsonHands, blacklistNames, new Map());
 		return cindyScriptHands;
 	});

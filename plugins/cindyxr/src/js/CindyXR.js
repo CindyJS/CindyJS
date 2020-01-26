@@ -4,6 +4,7 @@
  */
 
 let CindyXR = function(api) {
+	xrCindyApi = api;
 	
 	//////////////////////////////////////////////////////////////////////
 	// API bindings
@@ -99,17 +100,21 @@ let CindyXR = function(api) {
 	 * - The scaling factor specifies what fraction the rendering resolution is of the
 	 *   screen/canvas resolution. The standard is 1 (i.e., full resolution).
 	 *   This can be used to get better performance in complex scenes.
+	 * 
+	 * - Whether to hide or show the main (non-WebGL) CindyJS canvas (default: true).
 	 */
 	defOp("initxrcindy3d", 0, function(args, modifs) {
 		cindyPluginMode = "Cindy3D";
 		let canvasWidth = 800;
 		let canvasHeight = 600;
+		let hideCanvas = true;
 		handleModifs(modifs, {
 			"instancename": (a => instanceName = coerce.toString(a, 'Cindy3D')),
 			"referencemode": (a => xrSetReferenceMode(coerce.toString(a, 'local-floor'))),
 			"scaling": (a => xrSetScalingFactor(coerce.toReal(a, 1))),
 			"canvaswidth": (a => canvasWidth = coerce.toReal(a, 800)),
-			"canvasHeight": (a => canvasWidth = coerce.toReal(a, 600))
+			"canvasheight": (a => canvasWidth = coerce.toReal(a, 600)),
+			"hidecanvas": (a => hideCanvas = coerce.toBool(a, true))
 		});
 		
 		api.evaluate({
@@ -120,7 +125,7 @@ let CindyXR = function(api) {
 		});
 
 		let gl = CindyJS._pluginRegistry.Cindy3D.instances[instanceName].gl;
-		initXR(gl, canvasWidth, canvasHeight);
+		initXR(gl, canvasWidth, canvasHeight, hideCanvas);
 
 		api.evaluate({
 			ctype : "function",
@@ -148,22 +153,26 @@ let CindyXR = function(api) {
 	 * - The scaling factor specifies what fraction the rendering resolution is of the
 	 *   screen/canvas resolution. The standard is 1 (i.e., full resolution).
 	 *   This can be used to get better performance in complex scenes.
+	 * 
+	 * - Whether to hide or show the main (non-WebGL) CindyJS canvas (default: true).
 	 */
 	defOp("initxrcindygl", 0, function(args, modifs) {
 		cindyPluginMode = "CindyGL";
 		let canvasWidth = 800;
 		let canvasHeight = 600;
+		let hideCanvas = true;
 		handleModifs(modifs, {
 			"referencemode": (a => xrSetReferenceMode(coerce.toString(a, 'local-floor'))),
 			"scaling": (a => xrSetScalingFactor(coerce.toReal(a, 1))),
 			"canvaswidth": (a => canvasWidth = coerce.toReal(a, 800)),
-			"canvasHeight": (a => canvasWidth = coerce.toReal(a, 600))
+			"canvasheight": (a => canvasWidth = coerce.toReal(a, 600)),
+			"hidecanvas": (a => hideCanvas = coerce.toBool(a, true))
 		});
 
 		// Call to CindyGL API to initialize WebGL if it is not yet loaded.
 		CindyJS._pluginRegistry.CindyGL.initGLIfRequired();
 		let gl = CindyJS._pluginRegistry.CindyGL.gl;
-		initXR(gl, canvasWidth, canvasHeight);
+		initXR(gl, canvasWidth, canvasHeight, hideCanvas);
 		isGLInitialized = true;
 		return nada;
 	});

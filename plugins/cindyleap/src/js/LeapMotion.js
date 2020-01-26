@@ -88,7 +88,7 @@ function leapPostRender(cindy3DCamera) {
 /**
  * Initializes the Leap Motion controller. This requires that the Leap Motion SDK v2 or v3 is installed.
  * Unfortunately, the Orion v4 SDK no longer supports JavaScript.
- * @param {CindyJS.pluginApi} api CindyJS API object
+ * @param {CindyJS.pluginApi} api CindyJS API object.
  * @param {boolean} enableGestures Whether to enable gesture recognition (default: off).
  */
 function initLeapMotion(api, enableGestures) {
@@ -103,7 +103,7 @@ function initLeapMotion(api, enableGestures) {
 /**
  * This function is called when a new Leap Motion tracking frame is available.
  * A tracking frame contains tracking data of tracked hands and fingers.
- * @param {CindyJS.pluginApi} api CindyJS API object
+ * @param {CindyJS.pluginApi} api CindyJS API object.
  * @param {Leap.Controller} controller For more details see
  * https://developer-archive.leapmotion.com/documentation/javascript/devguide/Leap_Controllers.html
  * @param {Leap.Frame} frame For more details see
@@ -112,34 +112,6 @@ function initLeapMotion(api, enableGestures) {
 function onLeapMotionControllerFrame(api, controller, frame) {
 	let crossProduct = function(a, b) {
 		return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-	}
-	let transpose4 = function(m) {
-		return [
-			m[0], m[4], m[8], m[12],
-			m[1], m[5], m[9], m[13],
-			m[2], m[6], m[10], m[14],
-			m[3], m[7], m[11], m[15]
-		];
-	};
-	let mul4mm = function(a, b) {
-		return [
-			a[0]*b[0] + a[1]*b[4] + a[2]*b[8] + a[3]*b[12],
-			a[0]*b[1] + a[1]*b[5] + a[2]*b[9] + a[3]*b[13],
-			a[0]*b[2] + a[1]*b[6] + a[2]*b[10] + a[3]*b[14],
-			a[0]*b[3] + a[1]*b[7] + a[2]*b[11] + a[3]*b[15],
-			a[4]*b[0] + a[5]*b[4] + a[6]*b[8] + a[7]*b[12],
-			a[4]*b[1] + a[5]*b[5] + a[6]*b[9] + a[7]*b[13],
-			a[4]*b[2] + a[5]*b[6] + a[6]*b[10] + a[7]*b[14],
-			a[4]*b[3] + a[5]*b[7] + a[6]*b[11] + a[7]*b[15],
-			a[8]*b[0] + a[9]*b[4] + a[10]*b[8] + a[11]*b[12],
-			a[8]*b[1] + a[9]*b[5] + a[10]*b[9] + a[11]*b[13],
-			a[8]*b[2] + a[9]*b[6] + a[10]*b[10] + a[11]*b[14],
-			a[8]*b[3] + a[9]*b[7] + a[10]*b[11] + a[11]*b[15],
-			a[12]*b[0] + a[13]*b[4] + a[14]*b[8] + a[15]*b[12],
-			a[12]*b[1] + a[13]*b[5] + a[14]*b[9] + a[15]*b[13],
-			a[12]*b[2] + a[13]*b[6] + a[14]*b[10] + a[15]*b[14],
-			a[12]*b[3] + a[13]*b[7] + a[14]*b[11] + a[15]*b[15]
-		];
 	}
 	
 	// Is a hand we can track currently visible?
