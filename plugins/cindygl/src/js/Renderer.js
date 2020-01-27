@@ -330,6 +330,7 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
 
 Renderer.prototype.renderXR = function(viewIndex) {
     if (viewIndex == 0) {
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         // Attribute locations might be changed by OpenXR.
         this.resetAttribLocations();
     }

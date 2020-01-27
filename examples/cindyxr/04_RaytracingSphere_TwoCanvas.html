@@ -21,7 +21,7 @@
 <script id="csinit" type="text/x-cindyscript">
     resetclock();
 
-    initxrcindygl();
+    initxrcindygl(hidecanvas->false);
 
     ray(t) := rayOrig + t*rayDir;
 
@@ -115,6 +115,8 @@
     xr(xrrenderfunction());
 </script>
 <script id="csdraw" type="text/x-cindyscript">
+colorplot(sin(10*|#|));
+drawtext((0,0), "test");
 </script>
 
 <script type="text/javascript">
