@@ -432,14 +432,12 @@ function initGL() {
         return;
     }
 
-    if (xrgl.canvas.width == 0 || xrgl.canvas.height == 0) {
-        xrgl.canvas.width = xrCanvasWidth;
-        xrgl.canvas.height = xrCanvasHeight;
-        xrgl.canvas.style.display = 'block';
-        // Hide the main (non-WebGL) CindyJS canvas (default: true)?
-        if (xrHideCanvas) {
-            xrCindyApi.instance.canvas.parentNode.style.display = 'none';
-        }
+    xrgl.canvas.width = xrCanvasWidth;
+    xrgl.canvas.height = xrCanvasHeight;
+    xrgl.canvas.style.display = 'block';
+    // Hide the main (non-WebGL) CindyJS canvas (default: true)?
+    if (xrHideCanvas) {
+        xrCindyApi.instance.canvas.parentNode.style.display = 'none';
     }
 
     /*function onResize() {
