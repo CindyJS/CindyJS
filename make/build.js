@@ -269,7 +269,7 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     var refmd = glob.sync("ref/*.md");
-    var refimg = glob.sync("ref/img/*.png");
+    var refimg = glob.sync("ref/img/**/*.png");
     var refres = [
         "ref/ref.css"
     ];
