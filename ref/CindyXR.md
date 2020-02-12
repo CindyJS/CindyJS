@@ -75,13 +75,13 @@ If the user is unfamiliar with the terms view matrix and projection matrix, we r
 <script id="csinit" type="text/x-cindyscript">
     initxrcindygl();
     ray(t) := rayOrig + t*rayDir;
-
+    
     // ...
-
+    
     normalizedDirection(a, b) := (
         (a - b) / dist(a, b)
     );
-
+    
     xrrenderfunction() := (
         light = [cos(seconds())+2,2, sin(seconds())];
         numViews = getxrnumviews();
@@ -90,11 +90,11 @@ If the user is unfamiliar with the terms view matrix and projection matrix, we r
             viewIndex = i - 1;
             viewportSize = getxrviewportsize(viewIndex);
             aspectRatio = viewportSize.x/viewportSize.y;
-
+            
             invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
             invViewMatrix = inverse(getxrviewmatrix(viewIndex));
             invViewProjMatrix = invViewMatrix * invProjectionMatrix;
-
+            
             colorplotxr(viewIndex,
                 moving = true;
                 // Coordinates in NDC space
@@ -104,14 +104,14 @@ If the user is unfamiliar with the terms view matrix and projection matrix, we r
                 // Multiply with inverse view-projection matrix to get world space coordinates.
                 nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
                 farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
-
+                
                 // Dehomogenize the homogeneous coordinates.
                 nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
                 farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
-
+                
                 camPos = nearPointWorldDehom;
                 rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
-
+                
                 computeColor();
             );
         );
