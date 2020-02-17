@@ -4447,7 +4447,8 @@ evaluator.use$1 = function(args, modifs) {
                     if (!myfunctions.hasOwnProperty(name))
                         return null;
                     return myfunctions[name];
-                }
+                },
+                "scheduleUpdate": scheduleUpdate
             });
             return {
                 "ctype": "boolean",

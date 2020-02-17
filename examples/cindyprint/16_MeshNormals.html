@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script type="text/javascript" src="../../build/js/CindyPrint.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+use("Cindy3D");
+use("Cindy3DPrint");
+addcindy3dprintui("mesh.stl");
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+m = 50;
+n = 20;
+r1 = 1;
+r2 = 0.3;
+begin3d();
+coords = apply(1..(m+1), i, apply(1..(n+1), j, (
+  a = i/m*360°;
+  b = j/n*360°;
+  p = [cos(a), sin(a), 0];
+  q = cos(b)*[0,0,1] + sin(b)*p;
+  pos = r1*p + r2*q;
+  dp = [-sin(a), cos(a), 0];
+  dq = -sin(b)*[0,0,1] + cos(b)*p;
+  normal = cross(dp, dq);
+  [pos, normal]
+)));
+err("x");
+err(coords);
+err("y");
+forall(1..m, i, forall(1..n, j, (
+  corners = [coords_i_j, coords_i_(j+1), coords_(i+1)_j, coords_(i+1)_(j+1)];
+  cpos = apply(corners, #_1);
+  cnorm = apply(corners, #_2);
+  mesh3d(2, 2, cpos, cnorm, color->0.25*sum(cpos))
+)));
+end3d();
+
+drawprintpreview();
+</script>
+<script type="text/javascript">
+var cdy = CindyJS({canvasname:"CSCanvas",scripts:"cs*"});
+</script>
+</head>
+
+<body>
+  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+  <div id="CSCanvas" style="width:50px; height:50px; border:none"></div>
+</body>
+
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/CindyLeap.js"></script>
+<link rel="stylesheet" href="../../css/cindy.css">
+<script id="csinit" type="text/x-cindyscript">
+    use("CindyLeap");
+    initleapmotion(enablegestures->true, translationfactor->2);
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+    // Prints the gestures in the console.
+    //  Alternatively, this can be done with leapdebugprintgestures();
+    d = getleapgesturedata();
+    if(length(d)>0,
+      print(d);
+    );
+</script>
+<script type="text/javascript">
+    CindyJS({canvasname:"CSCanvas",scripts:"cs*", csconsole:true});
+</script>
+</head>
+
+<body>
+    <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+    <div id="CSCanvas" style="width:50px; height:50px; border:none"></div>
+</body>
+
+</html>

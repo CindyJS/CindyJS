@@ -269,7 +269,7 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     var refmd = glob.sync("ref/*.md");
-    var refimg = glob.sync("ref/img/*.png");
+    var refimg = glob.sync("ref/img/**/*.png");
     var refres = [
         "ref/ref.css"
     ];
@@ -586,6 +586,235 @@ module.exports = function build(settings, task) {
 
 
     //////////////////////////////////////////////////////////////////////
+    // Build JavaScript version of CindyPrint
+    //////////////////////////////////////////////////////////////////////
+
+    var fileNamesPrint = [
+        "BinaryFileWriter",
+        "Cindy3DPrintData",
+        "Cindy3DPrint",
+        "CindyGLPrint",
+        "DownloadFile",
+        "IndexMesh",
+        "KDTree",
+        "MeshGraph",
+        "PrintPreview",
+        "PrintSettings",
+        "TriangleMesh",
+        "Vector",
+        "csg/csg",
+        "csg/SimpleShell",
+        "csg/Tube",
+        "isosurface/IsoSurface",
+        "isosurface/MarchingCubes",
+        "isosurface/SnapMC"
+    ];
+
+    var srcsPrint = fileNamesPrint.map(function(fileName) {
+        return "plugins/cindyprint/src/js/" + fileName + ".js";
+    });
+
+    function browserify(o, standaloneName, inFile, outFile) {
+        let browserifySrc = !fs.existsSync(outFile);
+        if (!browserifySrc) {
+            let timeModifiedSrc = fs.statSync(inFile).mtime;
+            let timeModifiedBuild = fs.statSync(outFile).mtime;
+            if (timeModifiedSrc > timeModifiedBuild) {
+                browserifySrc = true;
+            }
+        }
+        if (browserifySrc) {
+            if (standaloneName) {
+                o.node(
+                    "node_modules/browserify/bin/cmd.js",
+                    inFile,
+                    "--standalone",
+                    standaloneName,
+                    "-o",
+                    outFile);
+            } else {
+                o.node(
+                    "node_modules/browserify/bin/cmd.js",
+                    inFile,
+                    "-o",
+                    outFile);    
+            }
+        }
+    }
+
+    task("browserify-csg", [], function() {
+        browserify(this, "csg", "node_modules/@jscad/csg/csg.js", "build/js/csg.js");
+    });
+
+    task("cindyprint", ["closure-jar", "browserify-csg"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT_2018",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            create_source_map: "build/js/CindyPrint.js.map",
+            compilation_level: "SIMPLE",
+            warning_level: "DEFAULT",
+            source_map_format: "V3",
+            source_map_location_mapping: [
+                "build/js/|",
+                "plugins/|../../plugins/",
+            ],
+            source_map_input: "Cindy3D.js|Cindy3D.js.map",
+            output_wrapper_file: "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
+            js_output_file: "build/js/CindyPrint.js",
+            externs: "plugins/cindyjs.externs",
+            js: ["plugins/cindy3d/src/js/Interface.js",
+                "plugins/cindy3d/src/js/VecMat.js",
+                "plugins/cindy3d/src/js/ShaderProgram.js",
+                "build/js/csg.js"].concat(srcsPrint)
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Build JavaScript version of certain files from CindyPrint for web workers
+    //////////////////////////////////////////////////////////////////////
+
+    var fileNamesPrintWorker = [
+        "BinaryFileWriter",
+        "Cindy3DPrintData",
+        "IndexMesh",
+        "KDTree",
+        "MeshGraph",
+        "PrintSettings",
+        "TriangleMesh",
+        "Vector",
+        "PrintWorker",
+        "csg/csg",
+        "csg/SimpleShell",
+        "csg/Tube",
+        "isosurface/IsoSurface",
+        "isosurface/MarchingCubes",
+        "isosurface/SnapMC"
+    ];
+
+    var srcsPrintWorker = fileNamesPrintWorker.map(function(fileName) {
+        return "plugins/cindyprint/src/js/" + fileName + ".js";
+    });
+
+    task("cindyprintworker", ["closure-jar", "browserify-csg"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT_2018",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            create_source_map: "build/js/CindyPrintWorker.js.map",
+            compilation_level: "SIMPLE",
+            warning_level: "DEFAULT",
+            source_map_format: "V3",
+            source_map_location_mapping: [
+                "build/js/|",
+                "plugins/|../../plugins/",
+            ],
+            source_map_input: "Cindy3D.js|Cindy3D.js.map",
+            output_wrapper_file: "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
+            js_output_file: "build/js/CindyPrintWorker.js",
+            externs: "plugins/cindyjs.externs",
+            js: ["plugins/cindy3d/src/js/VecMat.js",
+                "plugins/cindy3d/src/js/ShaderProgram.js",
+                "build/js/csg.js"].concat(srcsPrintWorker)
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Build JavaScript version of CindyLeap
+    //////////////////////////////////////////////////////////////////////
+
+    var fileNamesLeap = [
+        "CindyLeap",
+        "LeapMotion",
+        "leap-0.6.4"
+    ];
+
+    var srcsLeap = fileNamesLeap.map(function(fileName) {
+        return "plugins/cindyleap/src/js/" + fileName + ".js";
+    });
+
+    task("browserify-leapjs", [], function() {
+        browserify(this, "Leap", "node_modules/leapjs/lib/index.js", "build/js/leap-0.6.4.js");
+    });
+
+    task("cindyleap", ["closure-jar", "browserify-leapjs"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT6_STRICT",
+            language_out: "ECMASCRIPT5_STRICT",
+            dependency_mode: "LOOSE",
+            create_source_map: "build/js/CindyLeap.js.map",
+            compilation_level: "SIMPLE",
+            // leap.js compilation throws lots of warnings not in our responsibility
+            warning_level: "QUIET",
+            source_map_format: "V3",
+            source_map_location_mapping: [
+                "build/js/|",
+                "plugins/|../../plugins/",
+            ],
+            output_wrapper_file: "plugins/cindyleap/src/js/CindyLeap.js.wrapper",
+            js_output_file: "build/js/CindyLeap.js",
+            externs: "plugins/cindyjs.externs",
+            js: ["plugins/cindy3d/src/js/Interface.js",
+                "plugins/cindy3d/src/js/VecMat.js",
+                "plugins/cindyxr/src/js/CindyScriptConversion.js",
+                "build/js/leap-0.6.4.js"].concat(srcsLeap)
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Build JavaScript version of CindyXR
+    //////////////////////////////////////////////////////////////////////
+
+    var fileNamesXR = [
+        "CindyScriptConversion",
+        "CindyXR",
+        "webxr-button",
+        "inline-viewer-helper",
+        "WebXRHelper",
+        "WebXRScalingHelper"
+    ];
+
+    var srcsXR = fileNamesXR.map(function(fileName) {
+        return "plugins/cindyxr/src/js/" + fileName + ".js";
+    });
+
+    task("cindyxr", ["closure-jar"], function() {
+        this.setting("closure_version");
+        var opts = {
+            language_in: "ECMASCRIPT_2018",
+            language_out: "ECMASCRIPT_2018",
+            dependency_mode: "LOOSE",
+            create_source_map: "build/js/CindyXR.js.map",
+            compilation_level: "SIMPLE",
+            warning_level: "DEFAULT",
+            source_map_format: "V3",
+            source_map_location_mapping: [
+                "build/js/|",
+                "plugins/|../../plugins/",
+            ],
+            output_wrapper_file: "plugins/cindyxr/src/js/CindyXR.js.wrapper",
+            js_output_file: "build/js/CindyXR.js",
+            externs: "plugins/cindyjs.externs",
+            js: ["plugins/cindy3d/src/js/Interface.js",
+                "plugins/cindy3d/src/js/VecMat.js",
+                "plugins/cindy3d/src/js/ShaderProgram.js",
+                "node_modules/gl-matrix/dist/gl-matrix.js",
+                "node_modules/webxr-polyfill/build/webxr-polyfill.js"].concat(srcsXR)
+        };
+        this.closureCompiler(closure_jar, opts);
+    });
+	
+	
+    //////////////////////////////////////////////////////////////////////
     // Run js-beautify for consistent coding style
     //////////////////////////////////////////////////////////////////////
 
@@ -767,11 +996,15 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     var images = glob.sync("images/*.{png,jpg,svg}");
+    var imagesCindyPrint = glob.sync("plugins/cindyprint/images/*.{png,jpg,svg}");
 
     task("images", [], function() {
         this.parallel(function() {
             images.forEach(function(input) {
                 this.copy(input, path.join("build", "js", input));
+            }, this);
+            imagesCindyPrint.forEach(function(input) {
+                this.copy(input, path.join("build", "js", "images", "cindyprint", path.basename(input)));
             }, this);
         });
     });
@@ -811,6 +1044,10 @@ module.exports = function build(settings, task) {
         "ifs",
         "cindy3d",
         "cindygl",
+        "cindyprint",
+        "cindyprintworker",
+        "cindyleap",
+        "cindyxr",
         "quickhull3d",
         "katex",
         "midi",

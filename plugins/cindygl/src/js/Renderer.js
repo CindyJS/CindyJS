@@ -322,3 +322,53 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
 	gl.flush();
   */
 }
+
+
+/**
+ * For use with CindyXR.
+ */
+
+Renderer.prototype.renderXR = function(viewIndex) {
+    if (viewIndex == 0) {
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // Attribute locations might be changed by OpenXR.
+        this.resetAttribLocations();
+    }
+
+    if (!this.functionGenerationsOk()) this.rebuild();
+
+    this.shaderProgram.use(gl);
+    this.setUniforms();
+    // Transform texture coordinates to [-1,1]^2.
+    this.setTransformMatrix({
+        x: -1,
+        y: -1
+    }, {
+        x: 1,
+        y: -1
+    }, {
+        x: -1,
+        y: 1
+    });
+    this.loadTextures();
+
+    // Binds the necessary framebuffer object.
+    CindyJS._pluginRegistry.CindyXR.xrUpdateCindyGLView(gl, viewIndex);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.flush(); //renders stuff to canvaswrapper
+}
+
+Renderer.prototype.resetAttribLocations = function() {
+    var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
+    gl.enableVertexAttribArray(aPosLoc);
+
+    var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
+    gl.enableVertexAttribArray(aTexLoc);
+
+    var texCoordOffset = 4 * 3 * 4; // 4 vertices, 3 entries, 4 bytes per entry
+
+    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+}

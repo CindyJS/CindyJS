@@ -7,18 +7,22 @@
     "test": "tests"
   },
   "devDependencies": {
+    "@jscad/csg": "^0.7.0",
     "browser-sync": "^2.26.5",
+    "browserify": "^16.5.0",
     "chai": "^3.5.0",
     "chalk": "^1.1.1",
     "chokidar": "^1.6.0",
     "concat-with-sourcemaps": "^1.0.4",
     "es6-shim": "^0.35.3",
     "es7-shim": "^6.0.0",
+    "gl-matrix": "^2.8.1",
     "glob": "^7.0.3",
     "http-proxy": "^1.11.2",
     "iphone-inline-video": "2.0.2",
     "js-beautify": "1.6.8",
     "jshint": "^2.10.2",
+    "leapjs": "^0.6.4",
     "marked": ">=0.3.5 <=0.3.12",
     "mocha": "^5.2.0",
     "node-sass": "^4.12.0",
@@ -32,6 +36,7 @@
     "source-map-dummy": "^1.0.0",
     "st": "^1.2.0",
     "touch": "^1.0.0",
+    "webxr-polyfill": "^2.0.1",
     "whole-line-stream": "^0.1.0",
     "yauzl": "^2.6.0"
   },
@@ -62,7 +67,9 @@
     "Aaron Montag <aaron.montag@tum.de>",
     "Michael Strobel <strobel@ma.tum.de>",
     "Patrick Wilson <patrick.wilson@tum.de>",
-    "Jens Wurster <jw@tophostingteam.de>"
+    "Jens Wurster <jw@tophostingteam.de>",
+    "Christoph Neuhauser",
+    "Stefan Haas"
   ],
   "license": "Apache-2.0",
   "main": "build/js/Cindy.js",

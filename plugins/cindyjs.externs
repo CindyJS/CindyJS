@@ -49,7 +49,8 @@ CindyJS.image;
  *    getInitialMatrix: function():{a:number,b:number,c:number,d:number,
  *      tx:number,ty:number,det:number,sdet:number},
  *    getImage: function((string|CindyJS.anyval),boolean=):CindyJS.image,
- *    getMyfunction: function(string)
+ *    getMyfunction: function(string),
+ *    scheduleUpdate: function()
  *  }}
  */
 CindyJS.pluginApi;
@@ -60,3 +61,170 @@ CindyJS.pluginApi;
  * @param {function(CindyJS.pluginApi)} initCallback
  */
 CindyJS.registerPlugin;
+
+
+//////////////////////////////////////////////////////////////////////
+// Externs for Cindy3D <-> CindyPrint, CindyLeap, CindyXR interaction
+
+CindyJS._pluginRegistry;
+CindyJS._pluginRegistry.Cindy3D;
+CindyJS._pluginRegistry.CindyGL;
+
+/**
+ * @dict
+ */
+CindyJS._pluginRegistry.Cindy3D.instances;
+
+/**
+ * @type {WebGLRenderingContext}
+ */
+CindyJS._pluginRegistry.Cindy3D.gl;
+
+/**
+ * @type {function()}
+ */
+CindyJS._pluginRegistry.Cindy3D.generateCanvasWrapperIfRequired;
+
+/**
+ * @type {function()}
+ */
+CindyJS._pluginRegistry.Cindy3D.initGLIfRequired;
+
+/**
+ * @typedef {{
+ *    numAttributes: number,
+ *    numVertices: number,
+ *    numElements: number,
+ *    itemLength: number,
+ *    vertexByteCount: number,
+ *    itemAttribByteCount: number,
+ *    itemTotalByteCount: number,
+ *    maxCount: number,
+ *    count: number,
+ *    dataAttribs: Float32Array
+ * }}
+ */
+CindyJS.PrimitiveRenderer;
+
+/**
+ * @typedef {number}
+ */
+CindyJS.interpolate;
+CindyJS.mipmap;
+CindyJS.repeat;
+CindyJS.clamptoedge;
+
+/**
+ * @typedef {CindyJS.Spheres}
+ * @augments {CindyJS.PrimitiveRenderer}
+ */
+CindyJS.Spheres;
+CindyJS.Spheres.count;
+/**
+ * @typedef {CindyJS.Cylinders}
+ * @augments {CindyJS.PrimitiveRenderer}
+ */
+CindyJS.Cylinders;
+CindyJS.Cylinders.count;
+/**
+ * @typedef {CindyJS.Triangles}
+ * @augments {CindyJS.PrimitiveRenderer}
+ */
+CindyJS.Triangles;
+CindyJS.Triangles.count;
+
+/**
+ * @typedef {{
+ *    spheres: CindyJS.Spheres,
+ *    cylinders: CindyJS.Cylinders,
+ *    triangles: CindyJS.Triangles
+ * }}
+ */
+CindyJS.Viewer;
+CindyJS.Viewer.gl;
+CindyJS.Viewer.camera;
+CindyJS.Viewer.externalRenderHook;
+
+CindyJS.ShaderProgram;
+CindyJS.ShaderProgram.handle;
+CindyJS.ShaderProgram.uniform;
+CindyJS.ShaderProgram.use;
+
+CindyJS.Camera;
+/** @type {number} */
+CindyJS.Camera.width;
+/** @type {number} */
+CindyJS.Camera.height;
+/** @type {number} */
+CindyJS.Camera.fieldOfView;
+/** @type {number} */
+CindyJS.Camera.zNear;
+/** @type {number} */
+CindyJS.Camera.zFar;
+/** @type {number} */
+CindyJS.Camera.viewDist;
+/** @type {Array.<number>} */
+CindyJS.Camera.projectionMatrix;
+/** @type {Array.<number>} */
+CindyJS.Camera.modelMatrix;
+/** @type {Array.<number>} */
+CindyJS.Camera.viewMatrix;
+/** @type {Array.<number>} */
+CindyJS.Camera.mvMatrix;
+CindyJS.Camera.setCamera;
+CindyJS.Camera.updatePerspective;
+
+/**
+ * CindyGL functionality used in CindyXR.
+ */
+CindyJS.CanvasWrapper;
+CindyJS.CanvasWrapper.it;
+CindyJS.CanvasWrapper.textures;
+CindyJS.CanvasWrapper.reloadIfRequired;
+CindyJS.CanvasWrapper.canvas;
+CindyJS.CanvasWrapper.canvas.img;
+CindyJS.CanvasWrapper.canvas.img.generation;
+
+
+/**
+ * User interface functions for CindyPrint plugin.
+ */
+function cindyPrintUpdateExportSpheres() {}
+function cindyPrintUpdateExportCylinders() {}
+function cindyPrintUpdateExportTriangles() {}
+function cindyPrintUpdateSphereQuality() {}
+function cindyPrintUpdateRadiusFactor() {}
+function cindyPrintUpdateCylinderQuality() {}
+function cindyPrintUpdateModelScale() {}
+function cindyPrintUpdateExtrudeSurface() {}
+function cindyPrintUpdateExtrusionRadius() {}
+function cindyPrintUpdateSmoothEdges() {}
+function cindyPrintUpdateClipToSphere() {}
+function cindyPrintUpdateIsoOffset() {}
+
+
+/// CindyLeap functionality used in Cindy3D.
+CindyJS._pluginRegistry.CindyLeap;
+CindyJS._pluginRegistry.CindyLeap.leapPreRender;
+CindyJS._pluginRegistry.CindyLeap.leapPostRender;
+
+
+/// CindyXR functionality used in Cindy3D and CindyGL.
+CindyJS._pluginRegistry.CindyXR;
+/** @type {function():number} */
+CindyJS._pluginRegistry.CindyXR.xrGetNumViews;
+/** @type {function():WebGLFramebuffer} */
+CindyJS._pluginRegistry.CindyXR.xrGetFramebuffer;
+/** @type {function(number):Array.<number>} */
+CindyJS._pluginRegistry.CindyXR.xrGetViewportSize;
+/** @type {function(number):Array.<number>} */
+CindyJS._pluginRegistry.CindyXR.xrGetViewMatrix;
+/** @type {function(number):Array.<number>} */
+CindyJS._pluginRegistry.CindyXR.xrGetProjectionMatrix;
+CindyJS._pluginRegistry.CindyXR.xrPreRender;
+CindyJS._pluginRegistry.CindyXR.xrPostRender;
+CindyJS._pluginRegistry.CindyXR.xrUpdateCindy3DCamera;
+/** @type {function(WebGLRenderingContext)} */
+CindyJS._pluginRegistry.CindyXR.xrPostRenderCindyGL;
+/** @type {function(WebGLRenderingContext, number)} */
+CindyJS._pluginRegistry.CindyXR.xrUpdateCindyGLView;

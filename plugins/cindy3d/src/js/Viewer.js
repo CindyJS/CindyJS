@@ -22,35 +22,50 @@ function Viewer(name, ccOpts, opts, addEventListener) {
   canvas.addEventListener(
     "webglcontextcreationerror",
     onContextCreationError, false);
-  /** @type {WebGLRenderingContext} */
-  let gl = /** @type {WebGLRenderingContext} */(
-    canvas.getContext("webgl", ccOpts));
-  if (!gl)
-    gl = /** @type {WebGLRenderingContext} */(
-      canvas.getContext("experimental-webgl", ccOpts));
-  if (!gl)
-    throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
 
-  if (/[?&]frag_depth=0/.test(window.location.search)) {
-    this.glExtFragDepth = null;
+  let contextAttributes = ccOpts;
+  let useWebXR = typeof CindyJS._pluginRegistry.CindyXR !== 'undefined';
+  if (useWebXR) {
+    contextAttributes['xrCompatible'] = true;
   }
-  else {
-    this.glExtFragDepth = gl.getExtension("EXT_frag_depth");
-    if (!this.glExtFragDepth) {
-      console.log("EXT_frag_depth extension not supported, " +
-                  "will try webgl 2.0.");
-      let gl2 = /** @type {WebGLRenderingContext} */(
-        canvas.getContext("webgl2", ccOpts));
-      if (gl2) {
-        gl = gl2;
-        gl.webgl2 = true;
-        console.log("Loaded Webgl 2.0!");
-      } else {
-        console.log("Webgl 2.0 is not availible, " +
-                    "render in reduced quality.");
+
+  /** @type {WebGLRenderingContext|WebGL2RenderingContext} */
+  let gl = null;
+
+  var testcanvas = document.createElement('canvas');
+  if (window.WebGL2RenderingContext && testcanvas.getContext('webgl2')) {
+    gl = /** @type {WebGL2RenderingContext} */(
+      canvas.getContext("webgl2", contextAttributes));
+    gl.webgl2 = true;
+    console.log("Loaded WebGL 2.0.");
+  }
+
+  if (!gl) {
+    testcanvas = document.createElement('canvas');
+    if (window.WebGLRenderingContext && canvas.getContext('webgl')) {
+      gl = /** @type {WebGLRenderingContext} */(
+        canvas.getContext("webgl", contextAttributes));
+      console.log("Loaded WebGL 1.0.");
+
+      if (/[?&]frag_depth=0/.test(window.location.search)) {
+        this.glExtFragDepth = null;
       }
+      else {
+        this.glExtFragDepth = gl.getExtension("EXT_frag_depth");
+        if (!this.glExtFragDepth) {
+          console.log("EXT_frag_depth extension not supported.");
+        }
+      }    
     }
   }
+
+  if (!gl) {
+    gl = /** @type {WebGLRenderingContext} */(
+      canvas.getContext("experimental-webgl", contextAttributes));
+  }
+
+  if (!gl)
+    throw new GlError("Could not obtain a WebGL context.\nReason: " + errorInfo);
 
   canvas.removeEventListener(
     "webglcontextcreationerror",
@@ -279,29 +294,64 @@ Viewer.prototype.renderAntiAliased = function() {
 
 Viewer.prototype.renderAliased = function() {
   let gl = this.gl;
-  gl.viewport(0, 0, this.ssWidth, this.ssHeight);
+  let useLeapMotionController = typeof CindyJS._pluginRegistry.CindyLeap !== 'undefined';
+  let useWebXR = typeof CindyJS._pluginRegistry.CindyXR !== 'undefined';
+  if (!useWebXR) {
+	  gl.viewport(0, 0, this.ssWidth, this.ssHeight);
+  }
   gl.clearColor.apply(gl, this.backgroundColor);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // Setup for rendering
   if (this.spheres.opaque && this.cylinders.opaque && this.triangles.opaque) {
     gl.disable(gl.BLEND);
     gl.depthMask(true);
     gl.enable(gl.DEPTH_TEST);
-    this.renderPrimitives(true);
-  }
-  else {
+  } else {
     gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     gl.depthMask(false);
-    this.renderPrimitives(false);
-    this.renderPrimitives(false);
-    gl.depthMask(true);
-    gl.enable(gl.DEPTH_TEST);
-    /*
-    gl.disable(gl.BLEND);
-    this.renderPrimitives(true);
-    gl.enable(gl.BLEND);
-    */
-    this.renderPrimitives(false);
+  }
+
+  let numRenderPasses = 1;
+  if (useLeapMotionController) {
+    CindyJS._pluginRegistry.CindyLeap.leapPreRender(this.camera);
+  } else if (useWebXR) {
+    numRenderPasses = CindyJS._pluginRegistry.CindyXR.xrGetNumViews();
+    CindyJS._pluginRegistry.CindyXR.xrPreRender(gl, this.camera);
+  }
+  for (let renderPass = 0; renderPass < numRenderPasses; renderPass++) {
+    // If a display with multiple views is used: Set the viewport for the current rendering area.
+    if (useWebXR) {
+      CindyJS._pluginRegistry.CindyXR.xrUpdateCindy3DCamera(gl, renderPass, this.camera);
+    }
+
+    // Rendering pass
+    if (this.spheres.opaque && this.cylinders.opaque && this.triangles.opaque) {
+      gl.disable(gl.BLEND);
+      gl.depthMask(true);
+      gl.enable(gl.DEPTH_TEST);
+      this.renderPrimitives(true);
+    }
+    else {
+      gl.disable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+      gl.depthMask(false);
+      this.renderPrimitives(false);
+      this.renderPrimitives(false);
+      gl.depthMask(true);
+      gl.enable(gl.DEPTH_TEST);
+      this.renderPrimitives(false);
+    }
+  }
+  if (useLeapMotionController) {
+    CindyJS._pluginRegistry.CindyLeap.leapPostRender(this.camera);
+  } else if (useWebXR) {
+    CindyJS._pluginRegistry.CindyXR.xrPostRender(gl, this.camera);
+  }
+
+  if (typeof this.externalRenderHook !== 'undefined') {
+    this.externalRenderHook(gl);
   }
 };
 

@@ -1,4 +1,4 @@
-CindyJS.registerPlugin(1, "CindyGL", api => {
+let CindyGL = function(api) {
 
     //////////////////////////////////////////////////////////////////////
     // API bindings
@@ -192,4 +192,32 @@ CindyJS.registerPlugin(1, "CindyGL", api => {
         return nada;
     });
 
-});
+
+    // --- CindyXR support ---
+
+    /**
+     * Plots colorplot on one view of the main canvas in CindyJS coordinates.
+     */
+    api.defineFunction("colorplotxr", 2, (args, modifs) => {
+        initGLIfRequired();
+
+        let viewIndex = api.evaluate(args[0])["value"]["real"];
+        var prog = args[1];
+
+        if (!prog.iscompiled || prog.compiletime < requiredcompiletime) {
+            //console.log("Program is not compiled. So we will do that");
+            prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
+            prog.compiletime = requiredcompiletime;
+            prog.renderer = new Renderer(api, prog);
+        }
+        prog.renderer.renderXR(viewIndex);
+
+        return nada;
+    });
+}
+
+// Exports for CindyXR
+CindyGL.gl = null;
+CindyGL.generateCanvasWrapperIfRequired = generateCanvasWrapperIfRequired;
+CindyGL.initGLIfRequired = initGLIfRequired;
+CindyJS.registerPlugin(1, "CindyGL", CindyGL);

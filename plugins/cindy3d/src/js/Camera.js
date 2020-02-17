@@ -51,7 +51,7 @@ Camera.prototype.updatePerspective = function() {
   let nearMinusFar = this.zNear - this.zFar;
   // Near plane is actually at -zNear, far plane at -zFar.
   // This is in sync with the glFrustrum call of legacy OpenGL 2.
-  // This matrix is already tranposed.
+  // This matrix is already transposed.
   this.projectionMatrix = [
     f*this.height/this.width, 0, 0, 0,
     0, f, 0, 0,

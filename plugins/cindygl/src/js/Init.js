@@ -85,13 +85,19 @@ function initGLIfRequired() {
         "webglcontextcreationerror",
         onContextCreationError, false);
 
+    let contextAttributes = {};
+    let useWebXR = typeof CindyJS._pluginRegistry.CindyXR !== 'undefined';
+    if (useWebXR) {
+        contextAttributes['xrCompatible'] = true;
+    }
     gl = /** @type {WebGLRenderingContext} */ (
-        glcanvas.getContext("webgl"));
+        glcanvas.getContext("webgl", contextAttributes));
     if (!gl)
         gl = /** @type {WebGLRenderingContext} */ (
-            glcanvas.getContext("experimental-webgl"));
+            glcanvas.getContext("experimental-webgl", contextAttributes));
     if (!gl)
         throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
+    CindyGL.gl = gl;
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);
@@ -106,7 +112,7 @@ function initGLIfRequired() {
         }
 
         if (navigator.userAgent.match(/(iPad|iPhone)/i)) { //TODO: detect this better by checking wheather building a toy shader fails...
-            console.log("You are  using an iPhone/iPad.");
+            console.log("You are using an iPhone/iPad.");
             can_use_texture_float = can_use_texture_half_float = false;
             if (gl.getExtension('OES_texture_half_float') && gl.getExtension('OES_texture_half_float_linear') && gl.getExtension('EXT_color_buffer_half_float')) {
                 can_use_texture_half_float = true;

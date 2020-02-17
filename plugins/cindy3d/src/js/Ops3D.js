@@ -1,4 +1,6 @@
-CindyJS.registerPlugin(1, "Cindy3D", function(api) {
+let instances = {}; // Export for print plugin
+
+let Cindy3D = function(api) {
 
   //////////////////////////////////////////////////////////////////////
   // API bindings
@@ -58,7 +60,6 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
   //////////////////////////////////////////////////////////////////////
   // Almost global variables
 
-  let instances = {};
   let currentInstance;
 
   //////////////////////////////////////////////////////////////////////
@@ -599,4 +600,7 @@ CindyJS.registerPlugin(1, "Cindy3D", function(api) {
     return nada;
   });
 
-});
+}
+
+Cindy3D.instances = instances;
+CindyJS.registerPlugin(1, "Cindy3D", Cindy3D);
