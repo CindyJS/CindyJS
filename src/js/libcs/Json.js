@@ -74,7 +74,7 @@ Json._helper.forall = function(li, runVar, fct, modifs) { // JSON
     if (modifs.iterator !== undefined) {
         let it = evaluate(modifs.iterator);
         let iterTypes = ["key", "value", "pair"];
-        if (it.ctype === 'string' && iterTypes.includes(it.value)) {
+        if (it.ctype === 'string' && iterTypes.indexOf(it.value) !== -1) {
             iteratorType = it.value;
         }
     }

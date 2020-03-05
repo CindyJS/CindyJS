@@ -59,10 +59,10 @@ function MeshGraph(triangleMesh, orderIndices = true) {
  * Adds an (undirected) edge between the nodes i and j.
  */
 MeshGraph.prototype.addEdge = function(i, j) {
-	if (this.nodes[i].neighbors.includes(j)) {
+	if (this.nodes[i].neighbors.indexOf(j) !== -1) {
 		// Edge exists already. Just increase count of the edge.
 		for (let edgeIndex = 0; edgeIndex < this.nodes[i].edges.length; edgeIndex++) {
-			if (this.nodes[i].edges[edgeIndex].connectedNodes.includes(j)) {
+			if (this.nodes[i].edges[edgeIndex].connectedNodes.indexOf(j) !== -1) {
 				this.nodes[i].edges[edgeIndex].meshEdgeCount += 1;
 			}
 		}
@@ -118,7 +118,7 @@ MeshGraph.prototype.isFullyConnected = function() {
 
 		for (let i = 0; i < currentNode.neighbors.length; i++) {
 			let neighborIndex = currentNode.neighbors[i];
-			if (!closedSet.has(neighborIndex) && !bfsQueue.includes(neighborIndex)) {
+			if (!closedSet.has(neighborIndex) && !bfsQueue.indexOf(neighborIndex) !== -1) {
 				bfsQueue.push(neighborIndex);
 			}
 		}

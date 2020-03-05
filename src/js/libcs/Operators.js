@@ -532,7 +532,7 @@ eval_helper.assigntake = function(data, what) { //TODO: Bin nicht ganz sicher ob
     }
     if (where.ctype === 'JSON') {
         const key = niceprint(ind);
-        if (!niceprint.errorTypes.includes(key)) {
+        if (!niceprint.errorTypes.indexOf(key) !== -1) {
             rhs = Json._helper.ShallowClone(where);
             rhs.value[key] = evaluate(what);
         }
@@ -2633,7 +2633,7 @@ function infix_take(args, modifs) {
         }
     } else if (v0.ctype === "JSON") {
         let np = niceprint(v1);
-        if (niceprint.errorTypes.includes(np)) {
+        if (niceprint.errorTypes.indexOf(np) !== -1) {
             return nada;
         }
         let val = v0.value[np];

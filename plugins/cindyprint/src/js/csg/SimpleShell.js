@@ -146,7 +146,7 @@ function getBorderEdgeLoops(meshGraph) {
 				let nextEdge = null;
 				for (let j = 0; j < meshGraph.edges.length; j++) {
 					if (meshGraph.edges[j].meshEdgeCount == 1
-							&& meshGraph.edges[j].connectedNodes.includes(i1)
+							&& meshGraph.edges[j].connectedNodes.indexOf(i1) !== -1
 							&& !visitedEdges.has(meshGraph.edges[j])) {
 						nextEdge = meshGraph.edges[j];
 						break;
