@@ -41,8 +41,7 @@ exports.liblab = [
 exports.lib = [
     "node_modules/iphone-inline-video/dist/iphone-inline-video.min.js",
     "lib/clipper/clipper.js",
-    "node_modules/es6-shim/es6-shim.min.js",
-    "node_modules/es7-shim/dist/es7-shim.min.js",
+    "node_modules/es6-shim/es6-shim.min.js"
 ];
 
 exports.cssrc = [

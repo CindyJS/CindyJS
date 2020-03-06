@@ -476,7 +476,7 @@ evaluator.playfunction$1 = function(args, modifs) {
         while (stack.length !== 0) { //DFS with handwritten stack.
             let v = stack.pop();
             if (v.ctype === "variable" && evaluate(v) === nada) {
-                if (["x", "y", "t"].includes(v.name))
+                if (["x", "y", "t"].indexOf(v.name) !== -1)
                     return v.name;
             }
             if (v.args) {

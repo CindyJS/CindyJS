@@ -116,7 +116,7 @@ var Export = {
         </style>
         <link rel="stylesheet" href="https://cindyjs.org/dist/latest/CindyJS.css">
         <script type="text/javascript" src="https://cindyjs.org/dist/latest/Cindy.js"></script>
-        ${(configuration.use.indexOf("CindyGL")!=-1) ? '<script type="text/javascript" src="https://cindyjs.org/dist/latest/CindyGL.js"></script>' : ''}
+        ${(configuration.use.indexOf("CindyGL") !== -1) ? '<script type="text/javascript" src="https://cindyjs.org/dist/latest/CindyGL.js"></script>' : ''}
         
         ${csscripts}
     

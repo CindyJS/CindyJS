@@ -1050,7 +1050,7 @@ Controller.plugins = function() {
 
 var setPluginCallbacks = function(pluginName, type, callback){
   
-  if ( ['beforeFrameCreated', 'afterFrameCreated'].indexOf(type) != -1 ){
+  if ( ['beforeFrameCreated', 'afterFrameCreated'].indexOf(type) !== -1 ){
     
       // todo - not able to "unuse" a plugin currently
       this.on(type, callback);
@@ -8397,7 +8397,7 @@ if(typeof(exports) !== 'undefined') {
   // Aliased as `include`.
   _.contains = _.include = function(obj, target) {
     if (obj == null) return false;
-    if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
+    if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) !== -1;
     return any(obj, function(value) {
       return value === target;
     });

@@ -220,7 +220,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
         for (let i in expr['args']) {
             let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
             let nbindings = bindings;
-            if (["repeat", "forall", "apply"].indexOf(getPlainName(expr['oper'])) != -1) {
+            if (["repeat", "forall", "apply"].indexOf(getPlainName(expr['oper'])) !== -1) {
                 if (i == 1) {
                     nbindings = (expr['oper'] === "repeat$2") ? addvar(bindings, '#', type.int) :
                         (expr['oper'] === "repeat$3") ? addvar(bindings, expr['args'][1]['name'], type.int) :
@@ -400,7 +400,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             'randomnormal',
             'verbatimglsl' //we dont analyse verbatimglsl functions
         ];
-        if (expr['ctype'] === 'function' && alwaysPixelDependent.indexOf(getPlainName(expr['oper'])) != -1) {
+        if (expr['ctype'] === 'function' && alwaysPixelDependent.indexOf(getPlainName(expr['oper'])) !== -1) {
             return expr["dependsOnPixel"] = true;
         }
 
