@@ -37,8 +37,8 @@ Json.setField = function(where, field, what) {
 
 Json.GenFromUserDataEl = function(el) {
     // key/obj are reversed due to the semantics of the ":" operator in CindyScript
-    var key = el.obj;
-    var obj = el.key;
+    var key = evaluate(el.obj);
+    var obj = evaluate(el.key);
 
     if (!key || key.ctype !== "string") {
         console.log("Error: JSON keys have to be strings.");

@@ -4,7 +4,6 @@
 
 // All operators, sorted by precedence level
 var operatorLevels = [{
-    key: [':'],
     field: ['.'],
     deg: ['°'],
     take: ['_'],
@@ -60,6 +59,7 @@ var operatorLevels = [{
     remove: ['--', '∖'],
     common: ['~~', '∩'],
     append: [':>'],
+    key: [':'],
 }, {
     rassoc: true,
     assign: ['='],

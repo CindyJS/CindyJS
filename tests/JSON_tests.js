@@ -68,6 +68,15 @@ describe("JSON basic getter / setter", function(){
     itCmd('json = {"a":[1,{"b":2},3]}; json.a_2.b=34; json', '{a:[1, {b:34}, 3]}');
 });
 
+describe("JSON dynanic def", function(){
+    before(function(){
+        cdy.evalcs('geojson = {"a"+"b" : 1+1};');
+        }
+    );
+
+    itCmd('geojson.ab', '2');
+});
+
 describe("JSON geo objects", function(){
     before(function(){
         cdy.evalcs('geojson = {"pt1": A, "pt2": B, "pt3" : C};');
