@@ -59,6 +59,7 @@ var operatorLevels = [{
     remove: ['--', '∖'],
     common: ['~~', '∩'],
     append: [':>'],
+}, {
     key: [':'],
 }, {
     rassoc: true,
