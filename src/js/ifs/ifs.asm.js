@@ -1,15 +1,34 @@
-Module["asm"] = (function(global, env, buffer) {
+Module["asm"] = ((global, env, buffer) => {
  "use asm";
- var a = new global.Int8Array(buffer);
- var c = new global.Int32Array(buffer);
- var d = new global.Uint8Array(buffer);
- var h = new global.Float64Array(buffer);
- var M = global.Math.abs;
- var Z = global.Math.imul;
+ const a = new global.Int8Array(buffer);
+ const c = new global.Int32Array(buffer);
+ const d = new global.Uint8Array(buffer);
+ const h = new global.Float64Array(buffer);
+ const M = global.Math.abs;
+ const Z = global.Math.imul;
  function da(b, e) {
   b = b | 0;
   e = e | 0;
-  var f = 0, g = 0, i = 0, j = 0.0, k = 0.0, l = 0, m = 0, n = 0.0, o = 0.0, p = 0.0, q = 0.0, r = 0, s = 0.0, t = 0.0, u = 0.0, v = 0.0, w = 0.0, x = 0.0, y = 0, z = 0;
+  let f = 0;
+  let g = 0;
+  let i = 0;
+  let j = 0.0;
+  let k = 0.0;
+  let l = 0;
+  let m = 0;
+  let n = 0.0;
+  let o = 0.0;
+  let p = 0.0;
+  let q = 0.0;
+  let r = 0;
+  let s = 0.0;
+  let t = 0.0;
+  let u = 0.0;
+  let v = 0.0;
+  let w = 0.0;
+  let x = 0.0;
+  let y = 0;
+  let z = 0;
   if (!b) return;
   f = c[11] | 0;
   do {
@@ -150,7 +169,8 @@ Module["asm"] = (function(global, env, buffer) {
   o = +o;
   p = +p;
   q = +q;
-  var r = 0, s = 0;
+  let r = 0;
+  let s = 0;
   a = 56 + (a * 56 | 0) + 52 | 0;
   s = c[(c[a >> 2] | 0) + (b << 2) >> 2] | 0;
   c[s + 4 >> 2] = 1;
@@ -193,7 +213,8 @@ Module["asm"] = (function(global, env, buffer) {
   o = +o;
   p = +p;
   q = +q;
-  var r = 0, s = 0;
+  let r = 0;
+  let s = 0;
   a = 56 + (a * 56 | 0) + 52 | 0;
   s = c[(c[a >> 2] | 0) + (b << 2) >> 2] | 0;
   c[s + 4 >> 2] = 0;
@@ -255,7 +276,7 @@ Module["asm"] = (function(global, env, buffer) {
  function fa(a, b) {
   a = a | 0;
   b = b | 0;
-  var d = 0;
+  let d = 0;
   d = 56 + (a * 56 | 0) | 0;
   c[d >> 2] = 0;
   c[d + 4 >> 2] = 0;
