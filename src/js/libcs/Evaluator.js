@@ -22,7 +22,7 @@ function evaluate(a) {
         return nada;
     }
     if (a.ctype === 'field') {
-        var obj = evaluate(a.obj);
+        const obj = evaluate(a.obj);
         if (obj.ctype === "geo") {
             return Accessor.getField(obj.value, a.key);
         }
@@ -35,8 +35,8 @@ function evaluate(a) {
         return nada;
     }
     if (a.ctype === 'userdata') {
-        var uobj = evaluate(a.obj);
-        var key = General.string(niceprint(evaluate(a.key)));
+        const uobj = evaluate(a.obj);
+        let key = General.string(niceprint(evaluate(a.key)));
         if (key.value === "_?_") key = nada;
 
         if (uobj.ctype === "geo") {
@@ -54,9 +54,9 @@ function evaluate(a) {
 function evaluateAndVal(a) {
 
 
-    var x = evaluate(a);
+    const x = evaluate(a);
     if (x.ctype === 'geo') {
-        var val = x.value;
+        const val = x.value;
         if (val.kind === "P") {
             return Accessor.getField(val, "xy");
         }
@@ -69,9 +69,9 @@ function evaluateAndVal(a) {
 }
 
 function evaluateAndHomog(a) {
-    var x = evaluate(a);
+    const x = evaluate(a);
     if (x.ctype === 'geo') {
-        var val = x.value;
+        const val = x.value;
         if (val.kind === "P") {
             return Accessor.getField(val, "homog");
         }
@@ -85,7 +85,7 @@ function evaluateAndHomog(a) {
     }
 
     if (List._helper.isNumberVecN(x, 2)) {
-        var y = List.turnIntoCSList([
+        let y = List.turnIntoCSList([
             x.value[0], x.value[1], CSNumber.real(1)
         ]);
         if (x.usage)
@@ -102,8 +102,9 @@ function evaluateAndHomog(a) {
 //*******************************************************
 
 function report(a, i) {
-    var prep = new Array(i + 1).join('.'),
-        els, j;
+    const prep = new Array(i + 1).join('.');
+    let els;
+    let j;
     if (a.ctype === 'infix') {
         console.log(prep + "INFIX: " + a.oper);
         console.log(prep + "ARG 1 ");
@@ -148,7 +149,7 @@ function report(a, i) {
             report(els[j], i + 1);
         }
         els = a.modifs;
-        for (var name in els) {
+        for (const name in els) {
             console.log(prep + "MODIF:" + name);
             report(els[name], i + 1);
         }
@@ -156,17 +157,16 @@ function report(a, i) {
     if (a.ctype === 'error') {
         console.log(prep + "ERROR: " + a.message);
     }
-
 }
 
-var usedFunctions = {};
+const usedFunctions = {};
 
 function analyse(code) {
-    var parser = new Parser();
+    const parser = new Parser();
     parser.usedFunctions = usedFunctions;
     parser.infixmap = infixmap;
-    var res = parser.parse(code);
-    for (var name in parser.usedVariables)
+    const res = parser.parse(code);
+    for (const name in parser.usedVariables)
         namespace.create(name);
     return res;
 }
@@ -180,11 +180,11 @@ function labelCode(code, label) {
     return {
         ctype: "infix",
         args: [],
-        impl: function() {
+        impl() {
             callStack = [{
                 oper: label
             }];
-            var res = evaluate(code);
+            const res = evaluate(code);
             callStack = [];
             return res;
         }
@@ -192,7 +192,5 @@ function labelCode(code, label) {
 }
 
 function printStackTrace(msg) {
-    csconsole.err(msg + callStack.map(function(frame) {
-        return "\n  at " + frame.oper;
-    }).join("\n"));
+    csconsole.err(msg + callStack.map(frame => "\n  at " + frame.oper).join("\n"));
 }

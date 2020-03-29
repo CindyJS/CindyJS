@@ -1,8 +1,8 @@
 /*jshint -W069 */
 
-var myfunctions = {};
+const myfunctions = {};
 
-var infixmap = {};
+const infixmap = {};
 infixmap[':'] = operator_not_implemented(':');
 // infixmap['.'] not needed thanks to definitionDot special handling
 infixmap['°'] = postfix_numb_degree;
@@ -49,8 +49,8 @@ infixmap[';'] = infix_semicolon;
 /*jshint +W069 */
 
 function operator_not_implemented(name) {
-    var first = true;
-    return function(args, modifs) {
+    let first = true;
+    return (args, modifs) => {
         if (first) {
             console.error("Operator " + name + " is not supported yet.");
             first = false;
@@ -83,8 +83,8 @@ function niceprint(a, modifs) {
         return a.value;
     }
     if (a.ctype === 'list') {
-        var erg = "[";
-        for (var i = 0; i < a.value.length; i++) {
+        let erg = "[";
+        for (let i = 0; i < a.value.length; i++) {
             erg = erg + niceprint(evaluate(a.value[i]));
             if (i !== a.value.length - 1) {
                 erg = erg + ', ';
@@ -145,13 +145,13 @@ niceprint.errorTypes = ['_?_', '_??_', '_???_', '___'];
 //Distinct form evaluator for code clearness :-)
 //*******************************************************
 function evalmyfunctions(name, args, modifs) {
-    var tt = myfunctions[name];
+    const tt = myfunctions[name];
     if (tt === undefined) {
         return nada;
     }
 
-    var set = [],
-        i;
+    const set = [];
+    let i;
 
     for (i = 0; i < tt.arglist.length; i++) {
         set[i] = evaluate(args[i]);
@@ -161,7 +161,7 @@ function evalmyfunctions(name, args, modifs) {
         namespace.setvar(tt.arglist[i].name, set[i]);
     }
     namespace.pushVstack("*");
-    var erg = evaluate(tt.body);
+    const erg = evaluate(tt.body);
     namespace.cleanVstack();
     for (i = 0; i < tt.arglist.length; i++) {
         namespace.removevar(tt.arglist[i].name);
@@ -173,19 +173,19 @@ function evalmyfunctions(name, args, modifs) {
 //*******************************************************
 //this function evaluates a concrete function
 //*******************************************************
-var evaluator = {};
-var eval_helper = {};
+const evaluator = {};
+const eval_helper = {};
 
-eval_helper.evaluate = function(name, args, modifs) {
+eval_helper.evaluate = (name, args, modifs) => {
     if (myfunctions.hasOwnProperty(name))
         return evalmyfunctions(name, args, modifs);
-    var f = evaluator[name];
+    let f = evaluator[name];
     if (f)
         return f(args, modifs);
     // This following is legacy code, and should be removed
     // once all functions are converted to their arity-aware form.
     // Unless we introduce something like variadic functions.
-    var n = name.lastIndexOf("$");
+    let n = name.lastIndexOf("$");
     if (n !== -1) {
         n = name.substr(0, n);
         f = evaluator[n];
@@ -197,7 +197,7 @@ eval_helper.evaluate = function(name, args, modifs) {
 };
 
 
-eval_helper.equals = function(v0, v1) { //Und nochmals un-OO
+eval_helper.equals = (v0, v1) => { //Und nochmals un-OO
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return {
             'ctype': 'boolean',
@@ -218,7 +218,7 @@ eval_helper.equals = function(v0, v1) { //Und nochmals un-OO
         };
     }
     if (v0.ctype === 'list' && v1.ctype === 'list') {
-        var erg = List.equals(v0, v1);
+        const erg = List.equals(v0, v1);
         return erg;
     }
     if (v0.ctype === 'geo' && v1.ctype === 'geo') {

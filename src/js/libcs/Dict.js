@@ -9,9 +9,9 @@
  * To keep overhead low, avoid deeply nested data structures as keys.
  */
 
-var Dict = {};
+const Dict = {};
 
-Dict.key = function(x) {
+Dict.key = x => {
     if (x.ctype === "string")
         return "s" + x.value.length + ":" + x.value + ";";
     if (x.ctype === "number")
@@ -22,7 +22,7 @@ Dict.key = function(x) {
     if (x.ctype === "boolean")
         return "b" + x.value + ";";
     if (x.ctype === "dict") {
-        var keys = Object.keys(x.value).sort();
+        const keys = Object.keys(x.value).sort();
         return "d" + keys.length + ":" + keys.join(",") + ";";
     }
     if (x.ctype !== "undefined")
@@ -37,38 +37,36 @@ Dict.key = function(x) {
 // is complete and other code gains access to the dictionary,
 // the dictionary is considered immutable.
 
-Dict.create = function() {
-    return {
-        ctype: "dict",
-        value: {} // or Map or Object.create(null)?
-    };
-};
+Dict.create = () => ({
+    ctype: "dict",
 
-Dict.clone = function(dict) {
-    var res = Dict.create();
-    for (var key in dict.value)
+    // or Map or Object.create(null)?
+    value: {}
+});
+
+Dict.clone = dict => {
+    const res = Dict.create();
+    for (const key in dict.value)
         if (dict.value.hasOwnProperty(key))
             res.value[key] = dict.value[key];
     return res;
 };
 
 // Modifying operation
-Dict.put = function(dict, key, value) {
+Dict.put = (dict, key, value) => {
     dict.value[Dict.key(key)] = {
-        key: key,
-        value: value
+        key,
+        value
     };
 };
 
-Dict.get = function(dict, key, dflt) {
-    var kv = dict.value[Dict.key(key)];
+Dict.get = (dict, key, dflt) => {
+    const kv = dict.value[Dict.key(key)];
     if (kv) return kv.value; // check kv.key?
     return dflt;
 };
 
-Dict.niceprint = function(dict) {
-    return "{" + Object.keys(dict.value).sort().map(function(key) {
-        var kv = dict.value[key];
-        return niceprint(kv.key) + ":" + niceprint(kv.value);
-    }).join(", ") + "}";
-};
+Dict.niceprint = dict => "{" + Object.keys(dict.value).sort().map(key => {
+    const kv = dict.value[key];
+    return niceprint(kv.key) + ":" + niceprint(kv.value);
+}).join(", ") + "}";
