@@ -1,24 +1,27 @@
-var mouse = {};
-var move;
+const mouse = {};
+let move;
 
-var cskey = "";
-var cskeycode = 0;
+let cskey = "";
+let cskeycode = 0;
 
-var multiid = 0;
-var multipos = {};
-var multiiddict = {};
+let multiid = 0;
+const multipos = {};
+const multiiddict = {};
 
 function getmover(mouse) {
-    var mov = null;
-    var adist = 1000000;
-    var diff;
-    for (var i = 0; i < csgeo.free.length; i++) {
-        var el = csgeo.free[i];
+    let mov = null;
+    let adist = 1000000;
+    let diff;
+    for (let i = 0; i < csgeo.free.length; i++) {
+        const el = csgeo.free[i];
         if (el.pinned || el.visible === false || el.tmp === true)
             continue;
 
-        var dx, dy, dist, p;
-        var sc = csport.drawingstate.matrix.sdet;
+        let dx;
+        let dy;
+        let dist;
+        let p;
+        const sc = csport.drawingstate.matrix.sdet;
         if (el.kind === "P") {
             p = List.normalizeZ(el.homog);
             if (!List._helper.isAlmostReal(p))
@@ -30,24 +33,24 @@ function getmover(mouse) {
                     el.narrow : 20) / sc)
                 continue;
         } else if (el.kind === "C") { //Must be CircleMr
-            var normalizedmid = List.normalizeZ(csgeo.csnames[el.args[0]].homog);
-            var rad = el.radius;
+            const normalizedmid = List.normalizeZ(csgeo.csnames[el.args[0]].homog);
+            const rad = el.radius;
 
             if (!List._helper.isAlmostReal(normalizedmid) || !CSNumber._helper.isAlmostReal(rad))
                 continue;
 
-            var midx = normalizedmid.value[0].value.real; //center of circle
-            var midy = normalizedmid.value[1].value.real;
+            const midx = normalizedmid.value[0].value.real; //center of circle
+            const midy = normalizedmid.value[1].value.real;
 
-            var vx = mouse.x - midx; //vector from center to mouse
-            var vy = mouse.y - midy;
+            const vx = mouse.x - midx; //vector from center to mouse
+            const vy = mouse.y - midy;
 
-            var vlength = Math.sqrt(vx * vx + vy * vy);
+            const vlength = Math.sqrt(vx * vx + vy * vy);
             if (vlength === 0)
                 continue;
 
-            var refx = midx + vx / vlength * rad.value.real; //reference point: the to mouse projected on the circle
-            var refy = midy + vy / vlength * rad.value.real;
+            const refx = midx + vx / vlength * rad.value.real; //reference point: the to mouse projected on the circle
+            const refy = midy + vy / vlength * rad.value.real;
 
             dx = refx - mouse.x; //vector from mouse to reference point
             dy = refy - mouse.y;
@@ -61,11 +64,11 @@ function getmover(mouse) {
                 continue;
 
         } else if (el.kind === "L") { //Must be ThroughPoint(Horizontal/Vertical not treated yet)
-            var l = el.homog;
-            var N = CSNumber;
-            var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])),
+            const l = el.homog;
+            const N = CSNumber;
+            const nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])),
                 N.mult(l.value[1], N.conjugate(l.value[1])));
-            var ln = List.scaldiv(N.sqrt(nn), l);
+            const ln = List.scaldiv(N.sqrt(nn), l);
             dist = ln.value[0].value.real * mouse.x + ln.value[1].value.real * mouse.y + ln.value[2].value.real;
             dx = -ln.value[0].value.real * dist;
             dy = -ln.value[1].value.real * dist;
@@ -117,7 +120,7 @@ function getmover(mouse) {
 function addAutoCleaningEventListener(target, type, listener, useCapture) {
     if (useCapture === undefined)
         useCapture = false;
-    shutdownHooks.push(function() {
+    shutdownHooks.push(() => {
         target.removeEventListener(type, listener, useCapture);
     });
     target.addEventListener(type, listener, useCapture);
@@ -125,15 +128,15 @@ function addAutoCleaningEventListener(target, type, listener, useCapture) {
 
 function setuplisteners(canvas, data) {
 
-    var MO = null;
-    var mousedownevent = null;
-    var hasmoved = false;
+    let MO = null;
+    let mousedownevent = null;
+    let hasmoved = false;
     if (typeof MutationObserver !== "undefined")
         MO = MutationObserver;
     if (!MO && typeof WebKitMutationObserver !== "undefined")
         MO = WebKitMutationObserver; // jshint ignore: line
     if (MO) {
-        MO = new MO(function(mutations) {
+        MO = new MO(mutations => {
             // Browsers which support MutationObserver likely support contains
             if (!document.body.contains(canvas))
                 shutdown();
@@ -142,7 +145,7 @@ function setuplisteners(canvas, data) {
             "childList": true,
             "subtree": true
         });
-        shutdownHooks.push(function() {
+        shutdownHooks.push(() => {
             MO.disconnect();
         });
     } else {
@@ -156,20 +159,20 @@ function setuplisteners(canvas, data) {
             let id = getmultiid(touch.identifier);
             if (!initialize && !multipos[id])
                 continue;
-            var rect = canvas.getBoundingClientRect();
-            var x = touch.clientX - rect.left - canvas.clientLeft + 0.5;
-            var y = touch.clientY - rect.top - canvas.clientTop + 0.5;
-            var pos = csport.to(x, y);
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left - canvas.clientLeft + 0.5;
+            const y = touch.clientY - rect.top - canvas.clientTop + 0.5;
+            const pos = csport.to(x, y);
             multipos[id] = [pos[0], pos[1]];
         }
         scheduleUpdate();
     }
 
     function updatePosition(event) {
-        var rect = canvas.getBoundingClientRect();
-        var x = event.clientX - rect.left - canvas.clientLeft + 0.5;
-        var y = event.clientY - rect.top - canvas.clientTop + 0.5;
-        var pos = csport.to(x, y);
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left - canvas.clientLeft + 0.5;
+        const y = event.clientY - rect.top - canvas.clientTop + 0.5;
+        const pos = csport.to(x, y);
         mouse.prevx = mouse.x;
         mouse.prevy = mouse.y;
         mouse.x = pos[0];
@@ -180,24 +183,24 @@ function setuplisteners(canvas, data) {
     }
 
     if (data.keylistener === true) {
-        addAutoCleaningEventListener(document, "keydown", function(e) {
+        addAutoCleaningEventListener(document, "keydown", e => {
             cs_keydown(e);
             return false;
         });
-        addAutoCleaningEventListener(document, "keyup", function(e) {
+        addAutoCleaningEventListener(document, "keyup", e => {
             cs_keyup(e);
             return false;
         });
-        addAutoCleaningEventListener(document, "keypress", function(e) {
+        addAutoCleaningEventListener(document, "keypress", e => {
             cs_keytyped(e);
             return false;
         });
     } else if (cscompiled.keydown || cscompiled.keyup || cscompiled.keytyped) {
         canvas.setAttribute("tabindex", "0");
-        addAutoCleaningEventListener(canvas, "mousedown", function() {
+        addAutoCleaningEventListener(canvas, "mousedown", () => {
             canvas.focus();
         });
-        addAutoCleaningEventListener(canvas, "keydown", function(e) {
+        addAutoCleaningEventListener(canvas, "keydown", e => {
             if (e.keyCode === 9 /* tab */ ) return;
             cs_keydown(e);
             if (!cscompiled.keytyped) {
@@ -205,18 +208,18 @@ function setuplisteners(canvas, data) {
                 e.preventDefault();
             }
         });
-        addAutoCleaningEventListener(canvas, "keyup", function(e) {
+        addAutoCleaningEventListener(canvas, "keyup", e => {
             cs_keyup(e);
             e.preventDefault();
         });
-        addAutoCleaningEventListener(canvas, "keypress", function(e) {
+        addAutoCleaningEventListener(canvas, "keypress", e => {
             if (e.keyCode === 9 /* tab */ ) return;
             cs_keytyped(e);
             e.preventDefault();
         });
     }
 
-    addAutoCleaningEventListener(canvas, "mousedown", function(e) {
+    addAutoCleaningEventListener(canvas, "mousedown", e => {
         mousedownevent = e;
         hasmoved = false;
         mouse.button = e.which;
@@ -228,7 +231,7 @@ function setuplisteners(canvas, data) {
         e.preventDefault();
     });
 
-    addAutoCleaningEventListener(canvas, "mouseup", function(e) {
+    addAutoCleaningEventListener(canvas, "mouseup", e => {
         mouse.down = false;
         cindy_cancelmove();
         cs_mouseup();
@@ -239,7 +242,7 @@ function setuplisteners(canvas, data) {
         e.preventDefault();
     });
 
-    addAutoCleaningEventListener(canvas, "mousemove", function(e) {
+    addAutoCleaningEventListener(canvas, "mousemove", e => {
         updatePosition(e);
         if (mouse.down) { // this might be also a touchdown
             if (mousedownevent && (Math.abs(mousedownevent.clientX - e.clientX) > 2 || Math.abs(mousedownevent.clientY - e.clientY) > 2))
@@ -255,45 +258,45 @@ function setuplisteners(canvas, data) {
         e.preventDefault();
     });
 
-    addAutoCleaningEventListener(canvas, "click", function(e) {
+    addAutoCleaningEventListener(canvas, "click", e => {
         updatePosition(e);
         if (!hasmoved)
             cs_mouseclick();
         e.preventDefault();
     });
 
-    addAutoCleaningEventListener(canvas, "dragenter", function(e) {
+    addAutoCleaningEventListener(canvas, "dragenter", e => {
         e.preventDefault();
     });
 
-    addAutoCleaningEventListener(canvas, "dragover", function(e) {
+    addAutoCleaningEventListener(canvas, "dragover", e => {
         e.preventDefault();
     });
 
-    addAutoCleaningEventListener(canvas, "drop", function(e) {
+    addAutoCleaningEventListener(canvas, "drop", e => {
         e.preventDefault();
 
         // get data
-        var dt = e.dataTransfer;
-        var files = dt.files;
-        var dropped = Array(files.length);
-        var countDown = files.length;
+        const dt = e.dataTransfer;
+        let files = dt.files;
+        let dropped = Array(files.length);
+        let countDown = files.length;
         // drop position
-        var rect = e.currentTarget.getBoundingClientRect();
-        var x = e.clientX - rect.left - canvas.clientLeft + 0.5;
-        var y = e.clientY - rect.top - canvas.clientTop + 0.5;
-        var pos = List.realVector(csport.to(x, y));
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left - canvas.clientLeft + 0.5;
+        const y = e.clientY - rect.top - canvas.clientTop + 0.5;
+        const pos = List.realVector(csport.to(x, y));
 
         if (files.length > 0) {
-            Array.prototype.forEach.call(files, function(file, i) {
-                var reader = new FileReader();
+            Array.prototype.forEach.call(files, (file, i) => {
+                const reader = new FileReader();
                 if (textType(file.type)) {
-                    reader.onload = function() {
+                    reader.onload = () => {
                         textDone(i, reader.result);
                     };
                     reader.readAsText(file);
                 } else if ((/^image\//).test(file.type)) {
-                    reader.onload = function() {
+                    reader.onload = () => {
                         imgDone(i, reader.result);
                     };
                     reader.readAsDataURL(file);
@@ -303,11 +306,9 @@ function setuplisteners(canvas, data) {
                 }
             });
         } else {
-            var data = dt.getData("text/uri-list");
+            let data = dt.getData("text/uri-list");
             if (data) {
-                data = data.split("\n").filter(function(line) {
-                    return !/^\s*(#|$)/.test(line);
-                });
+                data = data.split("\n").filter(line => !/^\s*(#|$)/.test(line));
                 countDown = data.length;
                 dropped = Array(countDown);
                 files = Array(countDown);
@@ -316,13 +317,13 @@ function setuplisteners(canvas, data) {
         }
 
         function dropUri(uri, i) {
-            var name = uri.replace(/[?#][^]*/, "");
+            let name = uri.replace(/[?#][^]*/, "");
             name = name.replace(/[^]*\/([^\/])/, "$1");
             files[i] = {
                 type: "",
-                name: name
+                name
             };
-            var req = new XMLHttpRequest();
+            let req = new XMLHttpRequest();
             req.onreadystatechange = haveHead;
             req.open("HEAD", uri);
             req.send();
@@ -336,7 +337,7 @@ function setuplisteners(canvas, data) {
                     oneDone(i, nada);
                     return;
                 }
-                var type = req.getResponseHeader("Content-Type");
+                const type = req.getResponseHeader("Content-Type");
                 files[i].type = type;
                 if ((/^image\//).test(type)) {
                     imgDone(i, uri);
@@ -377,7 +378,8 @@ function setuplisteners(canvas, data) {
                     oneDone(i, General.string(text));
                     break;
                 case 2:
-                    var data, value;
+                    let data;
+                    let value;
                     try {
                         data = JSON.parse(text);
                         value = General.wrapJSON(data);
@@ -394,16 +396,16 @@ function setuplisteners(canvas, data) {
         }
 
         function imgDone(i, src) {
-            var img = new Image();
-            var reported = false;
-            img.onload = function() {
+            const img = new Image();
+            let reported = false;
+            img.onload = () => {
                 if (reported) return;
                 reported = true;
                 oneDone(i,
 
                     loadImage(img, false));
             };
-            img.onerror = function(err) {
+            img.onerror = err => {
                 if (reported) return;
                 reported = true;
                 console.error(err);
@@ -453,8 +455,8 @@ function setuplisteners(canvas, data) {
             cs_multidrag(multiid);
         }
 
-        var activeTouchIDList = e.changedTouches;
-        var gotit = false;
+        const activeTouchIDList = e.changedTouches;
+        let gotit = false;
         for (var i = 0; i < activeTouchIDList.length; i++) {
             if (activeTouchIDList[i].identifier === activeTouchID) {
                 gotit = true;
@@ -490,7 +492,7 @@ function setuplisteners(canvas, data) {
             return;
         }
 
-        var activeTouchIDList = e.changedTouches;
+        const activeTouchIDList = e.changedTouches;
 
         if (activeTouchIDList.length === 0) {
             return;
@@ -509,7 +511,7 @@ function setuplisteners(canvas, data) {
     }
 
     function touchUp(e) {
-        var activeTouchIDList = e.changedTouches;
+        const activeTouchIDList = e.changedTouches;
         updateMultiPositions(e, false);
         for (let i = 0; i < e.changedTouches.length; i++) {
             multiid = getmultiid(e.changedTouches[i].identifier);
@@ -517,7 +519,7 @@ function setuplisteners(canvas, data) {
             delete multiiddict[e.changedTouches[i].identifier];
         }
 
-        var gotit = false;
+        let gotit = false;
         for (var i = 0; i < activeTouchIDList.length; i++) {
             if (activeTouchIDList[i].identifier === activeTouchID) {
                 gotit = true;
@@ -547,8 +549,8 @@ function setuplisteners(canvas, data) {
     }
 
     if (typeof window !== "undefined") {
-        addAutoCleaningEventListener(window, "resize", function() {
-            requestAnimFrame(function() {
+        addAutoCleaningEventListener(window, "resize", () => {
+            requestAnimFrame(() => {
                 updateCanvasDimensions();
                 scheduleUpdate();
             });
@@ -560,7 +562,7 @@ function setuplisteners(canvas, data) {
 }
 
 function mkdiv(parent, style) {
-    var div = document.createElement("div");
+    const div = document.createElement("div");
     div.setAttribute("style", style);
     parent.appendChild(div);
     return div;
@@ -571,13 +573,13 @@ function mkdiv(parent, style) {
 // written by Marc J. Schmidt and others, licensed under the MIT license.
 function resizeSensor(element) {
     if (typeof document === "undefined") return;
-    var styleChild = "position: absolute; transition: 0s; left: 0; top: 0;";
-    var style = styleChild + " right: 0; bottom: 0; overflow: hidden;" +
+    const styleChild = "position: absolute; transition: 0s; left: 0; top: 0;";
+    const style = styleChild + " right: 0; bottom: 0; overflow: hidden;" +
         " z-index: -1; visibility: hidden;";
-    var expand = mkdiv(element, style);
-    var expandChild = mkdiv(
+    const expand = mkdiv(element, style);
+    const expandChild = mkdiv(
         expand, styleChild + " width: 100000px; height: 100000px");
-    var shrink = mkdiv(element, style);
+    const shrink = mkdiv(element, style);
     mkdiv(shrink, styleChild + " width: 200%; height: 200%");
 
     function reset() {
@@ -586,9 +588,9 @@ function resizeSensor(element) {
     }
 
     reset();
-    var w = element.clientWidth;
-    var h = element.clientHeight;
-    var scheduled = false;
+    let w = element.clientWidth;
+    let h = element.clientHeight;
+    let scheduled = false;
 
     function onScroll() {
         if (w !== element.clientWidth || h !== element.clientHeight) {
@@ -596,7 +598,7 @@ function resizeSensor(element) {
             h = element.clientHeight;
             if (!scheduled) {
                 scheduled = true;
-                requestAnimFrame(function() {
+                requestAnimFrame(() => {
                     scheduled = false;
                     updateCanvasDimensions();
                     scheduleUpdate();
@@ -620,12 +622,12 @@ if (instanceInvocationArguments.isNode) {
         window.mozRequestAnimationFrame ||
         window.oRequestAnimationFrame ||
         window.msRequestAnimationFrame ||
-        function(callback) {
+        (callback => {
             window.setTimeout(callback, 0);
-        };
+        });
 }
 
-var requestedAnimFrame = null;
+let requestedAnimFrame = null;
 
 function scheduleUpdate() {
     if (!requestedAnimFrame) {
@@ -649,8 +651,12 @@ function updateCindy() {
     csport.reset();
     csctx.save();
     csctx.clearRect(0, 0, csw, csh);
-    var m = csport.drawingstate.matrix;
-    var d, a, b, i, p;
+    const m = csport.drawingstate.matrix;
+    let d;
+    let a;
+    let b;
+    let i;
+    let p;
     // due to the csport.reset(), m is initial, i.e. a = d and b = c = 0
     if (csgridsize !== 0) { // Square grid
         csctx.beginPath();
@@ -682,7 +688,7 @@ function updateCindy() {
         csctx.lineWidth = 1;
         csctx.lineCap = "butt";
         d = cstgrid * m.a;
-        var sqrt3 = Math.sqrt(3);
+        const sqrt3 = Math.sqrt(3);
         a = m.ty / sqrt3;
         b = (csh + m.ty) / sqrt3;
         // down slope first
@@ -741,9 +747,9 @@ function updateCindy() {
 }
 
 function keyEvent(e, script) {
-    var evtobj = window.event ? event : e;
-    var unicode = evtobj.charCode ? evtobj.charCode : evtobj.keyCode;
-    var actualkey = String.fromCharCode(unicode);
+    const evtobj = window.event ? event : e;
+    const unicode = evtobj.charCode ? evtobj.charCode : evtobj.keyCode;
+    const actualkey = String.fromCharCode(unicode);
     cskey = actualkey;
     cskeycode = unicode;
     evaluate(script);
@@ -804,10 +810,10 @@ function cs_mouseclick(e) {
 }
 
 function cs_tick(e) {
-    var now = Date.now();
-    var delta = Math.min(simcap, now - simtick) * simspeed * simfactor;
+    const now = Date.now();
+    const delta = Math.min(simcap, now - simtick) * simspeed * simfactor;
     simtick = now;
-    var time = simtime + delta;
+    const time = simtime + delta;
     if (csPhysicsInited && typeof(lab) !== 'undefined') {
         lab.tick(delta);
     }
