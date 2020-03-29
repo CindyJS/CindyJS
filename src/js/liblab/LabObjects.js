@@ -1,11 +1,11 @@
-var labObjects = {};
+const labObjects = {};
 
 /*----------------------------MASS--------------------------*/
 
 
 labObjects.Mass = {
 
-    reset: function(beh, elem) {
+    reset(beh, elem) {
         beh.vel = [0, 0, 0]; //TODO: Das wird später mal die Velocity
         beh.pos = [0, 0, 0, 0]; //Position (homogen) 
 
@@ -29,15 +29,15 @@ labObjects.Mass = {
 
         beh.mtype = 0; // TODO: Free, Online, OnCircle
 
-        var x = 0;
-        var y = 0;
-        var z = 0;
-        var xo = 0;
-        var yo = 0;
-        var zo = 0;
-        var vxo = 0;
-        var vyo = 0;
-        var vzo = 0;
+        const x = 0;
+        const y = 0;
+        const z = 0;
+        const xo = 0;
+        const yo = 0;
+        const zo = 0;
+        const vxo = 0;
+        const vyo = 0;
+        const vzo = 0;
         /*  var x,y,z,xo,yo,zo,vxo,vyo,vzo,oldx,oldy,oldz;
         var oldx1,oldy1,oldz1;
         var oldx2,oldy2,oldz2;
@@ -70,7 +70,7 @@ labObjects.Mass = {
 
     },
 
-    resetForces: function(beh) {
+    resetForces(beh) {
         beh.fx = 0;
         beh.fy = 0;
         beh.fz = 0;
@@ -79,10 +79,10 @@ labObjects.Mass = {
 
     getBlock: false,
 
-    setToTimestep: function(beh, j, a) {},
+    setToTimestep(beh, j, a) {},
 
-    initRK: function(beh, dt) {
-        var pt = eval_helper.extractPoint(beh.el.homog);
+    initRK(beh, dt) {
+        const pt = eval_helper.extractPoint(beh.el.homog);
 
         beh.x = pt.x;
         beh.y = pt.y;
@@ -117,7 +117,7 @@ labObjects.Mass = {
         */
     },
 
-    setVelocity: function(beh, vx, vy, vz) {
+    setVelocity(beh, vx, vy, vz) {
         if (!vz) vz = 0;
         //if (type === TYPE_FREE) {
         if (true) {
@@ -160,7 +160,7 @@ labObjects.Mass = {
     },
 
 
-    move: function(beh) {
+    move(beh) {
         // if (type === TYPE_FREE) {
         if (true) {
             beh.pos = [beh.x, beh.y, 1.0];
@@ -237,7 +237,7 @@ labObjects.Mass = {
          */
     },
 
-    proceedMotion: function(beh, dt, i, a) {
+    proceedMotion(beh, dt, i, a) {
 
         if (!beh.fixed
             //&& !associatedPoint.appearance.isPinned()   //TODO
@@ -251,7 +251,7 @@ labObjects.Mass = {
                 beh.vx = beh.mvx;
                 beh.vy = beh.mvy;
                 beh.vz = beh.mvz;
-                for (var j = 0; j < i; j++) {
+                for (let j = 0; j < i; j++) {
                     beh.x += a[j] * beh.dx[j] * beh.deltat;
                     beh.y += a[j] * beh.dy[j] * beh.deltat;
                     beh.z += a[j] * beh.dz[j] * beh.deltat;
@@ -267,10 +267,10 @@ labObjects.Mass = {
         }
     },
 
-    calculateForces: function(beh) {
-        var bv = Math.sqrt(beh.vx * beh.vx + beh.vy * beh.vy + beh.vz * beh.vz);
-        var bvv = (bv > 0.1 && beh.limitSpeed) ? 0.1 / bv : 1;
-        var fri = (1 - beh.env.friction) * bvv;
+    calculateForces(beh) {
+        const bv = Math.sqrt(beh.vx * beh.vx + beh.vy * beh.vy + beh.vz * beh.vz);
+        const bvv = (bv > 0.1 && beh.limitSpeed) ? 0.1 / bv : 1;
+        const fri = (1 - beh.env.friction) * bvv;
         beh.lnfrict = -Math.log((1 - beh.friction) * fri);
 
         //        if (Double.isInfinite(lnfrict)) lnfrict = 10000000000000.0; TODO
@@ -280,7 +280,7 @@ labObjects.Mass = {
 
     },
 
-    calculateDelta: function(beh, i) {
+    calculateDelta(beh, i) {
 
         //  if (type === TYPE_FREE) {
         if (true) {
@@ -316,7 +316,7 @@ labObjects.Mass = {
 
     },
 
-    savePos: function(beh, i) {
+    savePos(beh, i) {
         beh.dx[i] = beh.x;
         beh.dy[i] = beh.y;
         beh.dz[i] = beh.z;
@@ -325,7 +325,7 @@ labObjects.Mass = {
         beh.dvz[i] = beh.vz;
     },
 
-    restorePos: function(beh, i) {
+    restorePos(beh, i) {
 
         if (!beh.fixed) {
             beh.x = beh.dx[i];
@@ -338,8 +338,8 @@ labObjects.Mass = {
     },
 
 
-    sqDist: function(beh, i, j) {
-        var dist = (beh.dx[i] - beh.dx[j]) * (beh.dx[i] - beh.dx[j]);
+    sqDist(beh, i, j) {
+        let dist = (beh.dx[i] - beh.dx[j]) * (beh.dx[i] - beh.dx[j]);
         dist += (beh.dy[i] - beh.dy[j]) * (beh.dy[i] - beh.dy[j]);
         dist += (beh.dz[i] - beh.dz[j]) * (beh.dz[i] - beh.dz[j]);
         dist += (beh.dvx[i] - beh.dvx[j]) * (beh.dvx[i] - beh.dvx[j]);
@@ -348,12 +348,12 @@ labObjects.Mass = {
         return dist;
     },
 
-    kineticEnergy: function(beh) {
-        var vsq = beh.vx * beh.vx + beh.vy * beh.vy + beh.vz * beh.vz;
+    kineticEnergy(beh) {
+        const vsq = beh.vx * beh.vx + beh.vy * beh.vy + beh.vz * beh.vz;
         return 0.5 * beh.mass * vsq;
     },
 
-    storePosition: function(beh) {
+    storePosition(beh) {
         beh.mx = beh.x;
         beh.my = beh.y;
         beh.mz = beh.z;
@@ -362,7 +362,7 @@ labObjects.Mass = {
         beh.mvz = beh.vz;
     },
 
-    recallPosition: function(beh) {
+    recallPosition(beh) {
         if (!beh.fixed) {
             beh.x = beh.mx;
             beh.y = beh.my;
@@ -373,7 +373,7 @@ labObjects.Mass = {
         }
     },
 
-    doCollisions: function(beh) {}
+    doCollisions(beh) {}
 
 
 };
@@ -383,7 +383,7 @@ labObjects.Mass = {
 
 labObjects.Sun = {
 
-    reset: function(beh, elem) {
+    reset(beh, elem) {
         beh.vel = [0, 0, 0]; //TODO: Das wird später mal die Velocity
         beh.pos = [0, 0, 0, 0]; //Position (homogen) 
 
@@ -398,46 +398,46 @@ labObjects.Sun = {
 
     },
 
-    resetForces: function(beh) {},
+    resetForces(beh) {},
 
     getBlock: false,
 
-    setToTimestep: function(beh, j, a) {},
+    setToTimestep(beh, j, a) {},
 
-    initRK: function(beh, dt) {
-        var pt = eval_helper.extractPoint(beh.el.homog);
+    initRK(beh, dt) {
+        const pt = eval_helper.extractPoint(beh.el.homog);
 
         beh.x = pt.x;
         beh.y = pt.y;
         beh.z = 0;
     },
 
-    setVelocity: function(beh, vx, vy, vz) {},
+    setVelocity(beh, vx, vy, vz) {},
 
 
-    move: function(beh) {},
+    move(beh) {},
 
-    proceedMotion: function(beh, dt, i, a) {},
+    proceedMotion(beh, dt, i, a) {},
 
-    calculateDelta: function(beh, i) {},
+    calculateDelta(beh, i) {},
 
 
-    calculateForces: function(beh) {
+    calculateForces(beh) {
 
-        var x1 = beh.x;
-        var y1 = beh.y;
-        var z1 = beh.z;
-        for (var i = 0; i < masses.length; i++) {
-            var m = masses[i];
-            var x2 = m.behavior.x;
-            var y2 = m.behavior.y;
-            var z2 = m.behavior.z;
-            var l = Math.sqrt(
+        const x1 = beh.x;
+        const y1 = beh.y;
+        const z1 = beh.z;
+        for (let i = 0; i < masses.length; i++) {
+            const m = masses[i];
+            const x2 = m.behavior.x;
+            const y2 = m.behavior.y;
+            const z2 = m.behavior.z;
+            const l = Math.sqrt(
                 (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2)
             );
-            var fx = (x1 - x2) * beh.mass * m.behavior.mass / (l * l * l);
-            var fy = (y1 - y2) * beh.mass * m.behavior.mass / (l * l * l);
-            var fz = (z1 - z2) * beh.mass * m.behavior.mass / (l * l * l);
+            const fx = (x1 - x2) * beh.mass * m.behavior.mass / (l * l * l);
+            const fy = (y1 - y2) * beh.mass * m.behavior.mass / (l * l * l);
+            const fz = (z1 - z2) * beh.mass * m.behavior.mass / (l * l * l);
             m.behavior.fx += fx * m.behavior.mass;
             m.behavior.fy += fy * m.behavior.mass;
             m.behavior.fz += fz * m.behavior.mass;
@@ -464,22 +464,22 @@ labObjects.Sun = {
 
     },
 
-    savePos: function(beh, i) {},
+    savePos(beh, i) {},
 
-    restorePos: function(beh, i) {},
+    restorePos(beh, i) {},
 
 
-    sqDist: function(beh, i, j) {
+    sqDist(beh, i, j) {
         return 0;
     },
 
-    kineticEnergy: function(beh) {},
+    kineticEnergy(beh) {},
 
-    storePosition: function(beh) {},
+    storePosition(beh) {},
 
-    recallPosition: function(beh) {},
+    recallPosition(beh) {},
 
-    doCollisions: function(beh) {}
+    doCollisions(beh) {}
 
 
 };
@@ -489,56 +489,56 @@ labObjects.Sun = {
 labObjects.Velocity = {
 
 
-    reset: function(beh) {
-        var mass = csgeo.csnames[beh.geo[1]];
+    reset(beh) {
+        const mass = csgeo.csnames[beh.geo[1]];
         console.log(mass);
-        var base = eval_helper.extractPoint(mass.homog);
-        var tip = eval_helper.extractPoint(csgeo.csnames[beh.geo[2]].homog);
-        var bb = mass.behavior;
+        const base = eval_helper.extractPoint(mass.homog);
+        const tip = eval_helper.extractPoint(csgeo.csnames[beh.geo[2]].homog);
+        const bb = mass.behavior;
         labObjects[bb.type].setVelocity(bb, tip.x - base.x, tip.y - base.y, 0);
     },
 
-    resetForces: function(beh) {},
+    resetForces(beh) {},
 
     getBlock: false,
 
-    setToTimestep: function(beh, j, a) {},
+    setToTimestep(beh, j, a) {},
 
-    initRK: function(beh, dt) {},
+    initRK(beh, dt) {},
 
-    setVelocity: function(beh, vx, vy, vz) {},
+    setVelocity(beh, vx, vy, vz) {},
 
-    move: function(beh) {
-        var tip = csgeo.csnames[beh.geo[2]];
+    move(beh) {
+        const tip = csgeo.csnames[beh.geo[2]];
         if (move && mouse.down && tip === move.mover) return;
-        var mass = csgeo.csnames[beh.geo[1]];
-        var base = eval_helper.extractPoint(mass.homog);
-        var bb = mass.behavior;
-        var pos = List.realVector([base.x + bb.vx, base.y + bb.vy, 1]);
+        const mass = csgeo.csnames[beh.geo[1]];
+        const base = eval_helper.extractPoint(mass.homog);
+        const bb = mass.behavior;
+        const pos = List.realVector([base.x + bb.vx, base.y + bb.vy, 1]);
         movepointscr(tip, pos, "homog");
     },
 
-    proceedMotion: function(beh, dt, i, a) {},
+    proceedMotion(beh, dt, i, a) {},
 
-    calculateForces: function(beh) {},
+    calculateForces(beh) {},
 
-    calculateDelta: function(beh, i) {},
+    calculateDelta(beh, i) {},
 
-    savePos: function(beh, i) {},
+    savePos(beh, i) {},
 
-    restorePos: function(beh, i) {},
+    restorePos(beh, i) {},
 
-    sqDist: function(beh, i, j) {
+    sqDist(beh, i, j) {
         return 0;
     },
 
-    kineticEnergy: function(beh) {},
+    kineticEnergy(beh) {},
 
-    storePosition: function(beh) {},
+    storePosition(beh) {},
 
-    recallPosition: function(beh) {},
+    recallPosition(beh) {},
 
-    doCollisions: function(beh) {}
+    doCollisions(beh) {}
 
 
 };
@@ -549,7 +549,7 @@ labObjects.Velocity = {
 
 labObjects.Gravity = {
 
-    reset: function(beh, elem) {
+    reset(beh, elem) {
         beh.vel = [0, 0, 0]; //TODO: Das wird später mal die Velocity
         beh.pos = [0, 0, 0, 0]; //Position (homogen) 
 
@@ -563,40 +563,40 @@ labObjects.Gravity = {
 
     },
 
-    resetForces: function(beh) {},
+    resetForces(beh) {},
 
     getBlock: false,
 
-    setToTimestep: function(beh, j, a) {},
+    setToTimestep(beh, j, a) {},
 
-    initRK: function(beh, dt) {
+    initRK(beh, dt) {
 
     },
 
-    setVelocity: function(beh, vx, vy, vz) {},
+    setVelocity(beh, vx, vy, vz) {},
 
-    move: function(beh) {},
+    move(beh) {},
 
-    proceedMotion: function(beh, dt, i, a) {},
+    proceedMotion(beh, dt, i, a) {},
 
-    calculateDelta: function(beh, i) {},
+    calculateDelta(beh, i) {},
 
 
-    calculateForces: function(beh) {
+    calculateForces(beh) {
 
-        var pta = eval_helper.extractPoint(beh.ma.homog);
-        var ptb = eval_helper.extractPoint(beh.mb.homog);
+        const pta = eval_helper.extractPoint(beh.ma.homog);
+        const ptb = eval_helper.extractPoint(beh.mb.homog);
 
-        var xa = pta.x;
-        var ya = pta.y;
-        var xb = ptb.x;
-        var yb = ptb.y;
+        const xa = pta.x;
+        const ya = pta.y;
+        const xb = ptb.x;
+        const yb = ptb.y;
 
-        var fx = (xb - xa) * beh.strength;
-        var fy = (yb - ya) * beh.strength;
-        var fz = 0;
-        for (var i = 0; i < masses.length; i++) {
-            var m = masses[i];
+        const fx = (xb - xa) * beh.strength;
+        const fy = (yb - ya) * beh.strength;
+        const fz = 0;
+        for (let i = 0; i < masses.length; i++) {
+            const m = masses[i];
 
             m.behavior.fx += fx * m.behavior.mass;
             m.behavior.fy += fy * m.behavior.mass;
@@ -608,22 +608,22 @@ labObjects.Gravity = {
 
     },
 
-    savePos: function(beh, i) {},
+    savePos(beh, i) {},
 
-    restorePos: function(beh, i) {},
+    restorePos(beh, i) {},
 
 
-    sqDist: function(beh, i, j) {
+    sqDist(beh, i, j) {
         return 0;
     },
 
-    kineticEnergy: function(beh) {},
+    kineticEnergy(beh) {},
 
-    storePosition: function(beh) {},
+    storePosition(beh) {},
 
-    recallPosition: function(beh) {},
+    recallPosition(beh) {},
 
-    doCollisions: function(beh) {}
+    doCollisions(beh) {}
 
 
 };
@@ -632,7 +632,7 @@ labObjects.Gravity = {
 /*-------------------------SPRING-----------------------*/
 labObjects.Spring = {
 
-    reset: function(beh, elem) {
+    reset(beh, elem) {
 
         beh.el = elem;
         if (typeof(beh.strength) === 'undefined') beh.strength = 1;
@@ -648,8 +648,8 @@ labObjects.Spring = {
         beh.nameb = elem.args[1];
         beh.ma = csgeo.csnames[beh.namea];
         beh.mb = csgeo.csnames[beh.nameb];
-        var pta = eval_helper.extractPoint(beh.ma.homog);
-        var ptb = eval_helper.extractPoint(beh.mb.homog);
+        const pta = eval_helper.extractPoint(beh.ma.homog);
+        const ptb = eval_helper.extractPoint(beh.mb.homog);
         if (true) {
             beh.l0 = (Math.sqrt((pta.x - ptb.x) * (pta.x - ptb.x) + (pta.y - ptb.y) * (pta.y - ptb.y)));
         }
@@ -658,27 +658,30 @@ labObjects.Spring = {
 
     },
 
-    resetForces: function(beh) {},
+    resetForces(beh) {},
 
     getBlock: false,
 
-    setToTimestep: function(beh, j, a) {},
+    setToTimestep(beh, j, a) {},
 
-    initRK: function(beh, dt) {},
+    initRK(beh, dt) {},
 
-    setVelocity: function(beh, vx, vy, vz) {},
+    setVelocity(beh, vx, vy, vz) {},
 
-    move: function(beh) {},
+    move(beh) {},
 
-    proceedMotion: function(beh, dt, i, a) {},
+    proceedMotion(beh, dt, i, a) {},
 
-    calculateForces: function(beh) {
-        var xa, xb, ya, yb;
+    calculateForces(beh) {
+        let xa;
+        let xb;
+        let ya;
+        let yb;
         if (beh.ma.behavior && (!move || !mouse.down || beh.ma !== move.mover)) {
             xa = beh.ma.behavior.x;
             ya = beh.ma.behavior.y;
         } else {
-            var pta = eval_helper.extractPoint(beh.ma.homog);
+            const pta = eval_helper.extractPoint(beh.ma.homog);
             xa = pta.x;
             ya = pta.y;
         }
@@ -686,23 +689,23 @@ labObjects.Spring = {
             xb = beh.mb.behavior.x;
             yb = beh.mb.behavior.y;
         } else {
-            var ptb = eval_helper.extractPoint(beh.mb.homog);
+            const ptb = eval_helper.extractPoint(beh.mb.homog);
             xb = ptb.x;
             yb = ptb.y;
         }
 
 
-        var l = (Math.sqrt((xa - xb) * (xa - xb) + (ya - yb) * (ya - yb)));
+        const l = (Math.sqrt((xa - xb) * (xa - xb) + (ya - yb) * (ya - yb)));
 
-        var lact = beh.l0; //TODO Motor
+        let lact = beh.l0; //TODO Motor
         beh.ldiff = l - lact;
-        var mytype = beh.stype;
+        const mytype = beh.stype;
 
         if (mytype === 1) {
             lact = 0;
         }
 
-        var factor = 0;
+        let factor = 0;
 
         if (mytype === 2 || mytype === 3) {
             factor = beh.ma.behavior.mass * beh.mb.behavior.mass * beh.strength;
@@ -710,12 +713,13 @@ labObjects.Spring = {
 
         if (mytype === 2) factor = -factor; //NEWTON
 
-        var fx, fy;
+        let fx;
+        let fy;
         if (l !== 0.0 && (mytype === 0 || mytype === 1)) {
             fx = -(xa - xb) * beh.strength * (l - lact) / l * beh.env.springstrength;
             fy = -(ya - yb) * beh.strength * (l - lact) / l * beh.env.springstrength;
         } else if (beh.ma.behavior && beh.mb.behavior && l !== 0.0) {
-            var l3 = (l * l * l);
+            const l3 = (l * l * l);
             if (mytype === 2 || mytype === 3) { //NEWTON //ELECTRO
                 fx = (xa - xb) * factor / l3;
                 fy = (ya - yb) * factor / l3;
@@ -734,41 +738,38 @@ labObjects.Spring = {
             beh.mb.behavior.fx -= fx;
             beh.mb.behavior.fy -= fy;
         }
-
     },
 
-    calculateDelta: function(beh, i) {},
+    calculateDelta(beh, i) {},
 
-    savePos: function(beh, i) {},
+    savePos(beh, i) {},
 
-    restorePos: function(beh, i) {},
+    restorePos(beh, i) {},
 
-    sqDist: function(beh, i, j) {
+    sqDist(beh, i, j) {
         return 0;
     },
 
-    kineticEnergy: function(beh) {},
+    kineticEnergy(beh) {},
 
-    storePosition: function(beh) {},
+    storePosition(beh) {},
 
-    recallPosition: function(beh) {},
+    recallPosition(beh) {},
 
-    doCollisions: function(beh) {}
+    doCollisions(beh) {}
 
 
 };
 
 
 /*-------------------------Bouncer-----------------------*/
-labObjects.det = function(x1, y1, x2, y2, x3, y3) {
-    return x2 * y3 - x3 * y2 + x3 * y1 - x1 * y3 + x1 * y2 - x2 * y1;
-};
+labObjects.det = (x1, y1, x2, y2, x3, y3) => x2 * y3 - x3 * y2 + x3 * y1 - x1 * y3 + x1 * y2 - x2 * y1;
 
 
 labObjects.Bouncer = {
 
 
-    reset: function(beh, elem) {
+    reset(beh, elem) {
 
         beh.el = elem;
         if (typeof(beh.xdamp) === 'undefined') beh.xdamp = 0;
@@ -779,8 +780,8 @@ labObjects.Bouncer = {
         beh.nameb = elem.args[1];
         beh.ma = csgeo.csnames[beh.namea];
         beh.mb = csgeo.csnames[beh.nameb];
-        var pta = eval_helper.extractPoint(beh.ma.homog);
-        var ptb = eval_helper.extractPoint(beh.mb.homog);
+        const pta = eval_helper.extractPoint(beh.ma.homog);
+        const ptb = eval_helper.extractPoint(beh.mb.homog);
         beh.x1o = pta.x * 1.01 - ptb.x * 0.01;
         beh.y1o = pta.y * 1.01 - ptb.y * 0.01;
         beh.x2o = ptb.x * 1.01 - pta.x * 0.01;
@@ -791,63 +792,63 @@ labObjects.Bouncer = {
 
     },
 
-    resetForces: function(beh) {},
+    resetForces(beh) {},
 
     getBlock: false,
 
-    setToTimestep: function(beh, j, a) {},
+    setToTimestep(beh, j, a) {},
 
-    initRK: function(beh, dt) {
+    initRK(beh, dt) {
         beh.deltat = dt;
     },
 
-    setVelocity: function(beh, vx, vy, vz) {},
+    setVelocity(beh, vx, vy, vz) {},
 
-    move: function(beh) {},
+    move(beh) {},
 
-    proceedMotion: function(beh, dt, i, a) {},
+    proceedMotion(beh, dt, i, a) {},
 
-    calculateForces: function(beh) {},
+    calculateForces(beh) {},
 
-    calculateDelta: function(beh, i) {},
+    calculateDelta(beh, i) {},
 
-    savePos: function(beh, i) {},
+    savePos(beh, i) {},
 
-    restorePos: function(beh, i) {},
+    restorePos(beh, i) {},
 
-    sqDist: function(beh, i, j) {
+    sqDist(beh, i, j) {
         return 0;
     },
 
-    kineticEnergy: function(beh) {},
+    kineticEnergy(beh) {},
 
-    storePosition: function(beh) {},
+    storePosition(beh) {},
 
-    recallPosition: function(beh) {},
+    recallPosition(beh) {},
 
-    doCollisions: function(beh) {
-
-
-        var pta = eval_helper.extractPoint(beh.ma.homog);
-        var ptb = eval_helper.extractPoint(beh.mb.homog);
-        var x1 = pta.x;
-        var y1 = pta.y;
-        var x2 = ptb.x;
-        var y2 = ptb.y;
-
-        var x1o = beh.x1o;
-        var y1o = beh.y1o;
-        var x2o = beh.x2o;
-        var y2o = beh.y2o;
-
-        var n = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        var nx = (x1 - x2) / n;
-        var ny = (y1 - y2) / n;
+    doCollisions(beh) {
 
 
-        for (var i = 0; i < masses.length; i++) {
+        const pta = eval_helper.extractPoint(beh.ma.homog);
+        const ptb = eval_helper.extractPoint(beh.mb.homog);
+        const x1 = pta.x;
+        const y1 = pta.y;
+        const x2 = ptb.x;
+        const y2 = ptb.y;
 
-            var mass = masses[i];
+        const x1o = beh.x1o;
+        const y1o = beh.y1o;
+        const x2o = beh.x2o;
+        const y2o = beh.y2o;
+
+        const n = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        const nx = (x1 - x2) / n;
+        const ny = (y1 - y2) / n;
+
+
+        for (let i = 0; i < masses.length; i++) {
+
+            const mass = masses[i];
 
             //a1=x1o+i*y1o
             //b1=x2o+i*y2o
@@ -869,13 +870,13 @@ labObjects.Bouncer = {
             */
 
 
-            var mxo = mass.behavior.xo;
-            var myo = mass.behavior.yo;
-            var mx = mass.behavior.x;
-            var my = mass.behavior.y;
+            const mxo = mass.behavior.xo;
+            const myo = mass.behavior.yo;
+            const mx = mass.behavior.x;
+            const my = mass.behavior.y;
 
-            var aa = CSNumber.mult(CSNumber.complex(x1o, y1o), CSNumber.complex(x2, y2));
-            var bb = CSNumber.mult(CSNumber.complex(x2o, y2o), CSNumber.complex(x1, y1));
+            let aa = CSNumber.mult(CSNumber.complex(x1o, y1o), CSNumber.complex(x2, y2));
+            let bb = CSNumber.mult(CSNumber.complex(x2o, y2o), CSNumber.complex(x1, y1));
 
             aa = CSNumber.sub(aa, bb);
             bb = CSNumber.mult(CSNumber.complex(mxo, myo), CSNumber.complex(x1, y1));
@@ -895,11 +896,11 @@ labObjects.Bouncer = {
                 //TODO                if (motorChanger)
                 //                    kernel.simulation.motor.dir *= -1;
 
-                var vvx = mass.behavior.mvx + beh.deltat * (-aa.value.real + mass.behavior.xo);
-                var vvy = mass.behavior.mvy + beh.deltat * (-aa.value.imag + mass.behavior.yo);
+                const vvx = mass.behavior.mvx + beh.deltat * (-aa.value.real + mass.behavior.xo);
+                const vvy = mass.behavior.mvy + beh.deltat * (-aa.value.imag + mass.behavior.yo);
 
-                var ss1 = nx * vvx + ny * vvy;
-                var ss2 = ny * vvx - nx * vvy;
+                const ss1 = nx * vvx + ny * vvy;
+                const ss2 = ny * vvx - nx * vvy;
                 //TODO Nächsten zwei zeilen sind gepfuscht, erhalten aber die Energie
 
                 mass.behavior.x = aa.value.real;
@@ -925,7 +926,7 @@ labObjects.Bouncer = {
 labObjects.Environment = {
 
 
-    init: function(beh) {
+    init(beh) {
         if (typeof(beh.gravity) === 'undefined') beh.gravity = 0;
         if (typeof(beh.friction) === 'undefined') beh.friction = 0;
         if (typeof(beh.springstrength) === 'undefined') beh.springstrength = 1;
@@ -942,24 +943,36 @@ labObjects.Environment = {
 
     },
 
-    reset: function(beh) {},
+    reset(beh) {},
 
-    resetForces: function(beh) {},
+    resetForces(beh) {},
 
     getBlock: false,
 
-    setToTimestep: function(beh, j, a) {},
+    setToTimestep(beh, j, a) {},
 
-    initRK: function(beh, dt) {},
+    initRK(beh, dt) {},
 
-    setVelocity: function(beh, vx, vy, vz) {},
+    setVelocity(beh, vx, vy, vz) {},
 
-    move: function(beh) {},
+    move(beh) {},
 
-    proceedMotion: function(beh, dt, i, a) {},
+    proceedMotion(beh, dt, i, a) {},
 
-    calculateForces: function(beh) {
-        var i, m1, x1, y1, j, m2, x2, y2, k, fx, fy, r, l;
+    calculateForces(beh) {
+        let i;
+        let m1;
+        let x1;
+        let y1;
+        let j;
+        let m2;
+        let x2;
+        let y2;
+        let k;
+        let fx;
+        let fy;
+        let r;
+        let l;
         if (beh.newton) {
             for (i = 0; i < masses.length - 1; i++) {
                 m1 = masses[i];
@@ -1051,7 +1064,7 @@ labObjects.Environment = {
 
 
         for (i = 0; i < masses.length; i++) {
-            var m = masses[i];
+            const m = masses[i];
 
             m.behavior.fx += 0;
             m.behavior.fy += -beh.gravity * m.behavior.mass;
@@ -1061,23 +1074,23 @@ labObjects.Environment = {
         }
     },
 
-    calculateDelta: function(beh, i) {},
+    calculateDelta(beh, i) {},
 
-    savePos: function(beh, i) {},
+    savePos(beh, i) {},
 
-    restorePos: function(beh, i) {},
+    restorePos(beh, i) {},
 
-    sqDist: function(beh, i, j) {
+    sqDist(beh, i, j) {
         return 0;
     },
 
-    kineticEnergy: function(beh) {},
+    kineticEnergy(beh) {},
 
-    storePosition: function(beh) {},
+    storePosition(beh) {},
 
-    recallPosition: function(beh) {},
+    recallPosition(beh) {},
 
-    doCollisions: function(beh) {}
+    doCollisions(beh) {}
 
 
 };
