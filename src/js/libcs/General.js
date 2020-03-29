@@ -1,7 +1,7 @@
 //==========================================
 //      Things that apply to several types
 //==========================================
-var General = {};
+const General = {};
 General._helper = {};
 
 General.order = {
@@ -16,41 +16,27 @@ General.order = {
     list: 8
 };
 
-General.string = function(s) {
-    return {
-        ctype: "string",
-        value: s
-    };
-};
+General.string = s => ({
+    ctype: "string",
+    value: s
+});
 
-General.bool = function(b) {
-    return {
-        ctype: "boolean",
-        value: b
-    };
-};
+General.bool = b => ({
+    ctype: "boolean",
+    value: b
+});
 
-General.not = function(v) {
-    return General.bool(!v.value);
-};
+General.not = v => General.bool(!v.value);
 
-General.isLessThan = function(a, b) {
-    return General.compare(a, b) === -1;
-
-};
+General.isLessThan = (a, b) => General.compare(a, b) === -1;
 
 
-General.isEqual = function(a, b) {
-    return General.compare(a, b) === 0;
-
-};
+General.isEqual = (a, b) => General.compare(a, b) === 0;
 
 
-General.compareResults = function(a, b) {
-    return General.compare(a.result, b.result);
-};
+General.compareResults = (a, b) => General.compare(a.result, b.result);
 
-General.compare = function(a, b) {
+General.compare = (a, b) => {
     if (a.ctype !== b.ctype) {
         return (General.order[a.ctype] - General.order[b.ctype]);
     }
@@ -90,7 +76,7 @@ General.compare = function(a, b) {
 
 };
 
-General.add = function(v0, v1) {
+General.add = (v0, v1) => {
     if (v0.ctype === 'void' && v1.ctype === 'number') { // unary plus
         return v1;
     }
@@ -113,7 +99,7 @@ General.add = function(v0, v1) {
     return nada;
 };
 
-General.sub = function(v0, v1) {
+General.sub = (v0, v1) => {
     if (v0.ctype === 'void' && v1.ctype === 'number') { // unary minus
         return CSNumber.neg(v1);
     }
@@ -129,7 +115,7 @@ General.sub = function(v0, v1) {
     return nada;
 };
 
-General.mult = function(v0, v1) {
+General.mult = (v0, v1) => {
 
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return CSNumber.mult(v0, v1);
@@ -147,7 +133,7 @@ General.mult = function(v0, v1) {
 
 };
 
-General.div = function(v0, v1) {
+General.div = (v0, v1) => {
 
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return CSNumber.div(v0, v1);
@@ -159,7 +145,7 @@ General.div = function(v0, v1) {
 };
 
 
-General.max = function(v0, v1) {
+General.max = (v0, v1) => {
 
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return CSNumber.max(v0, v1);
@@ -172,7 +158,7 @@ General.max = function(v0, v1) {
 };
 
 
-General.min = function(v0, v1) {
+General.min = (v0, v1) => {
 
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return CSNumber.min(v0, v1);
@@ -184,13 +170,13 @@ General.min = function(v0, v1) {
 
 };
 
-General.wrap = function(v) {
+General.wrap = v => {
     if (typeof v === "number") {
         return CSNumber.real(v);
     }
     if (typeof v === "object" && v.length !== undefined) { //evtl in List ziehen
-        var li = [];
-        for (var i = 0; i < v.length; i++) {
+        const li = [];
+        for (let i = 0; i < v.length; i++) {
             li[i] = General.wrap(v[i]);
         }
         return List.turnIntoCSList(li);
@@ -210,7 +196,7 @@ General.wrap = function(v) {
     return nada;
 };
 
-General.unwrap = function(v) {
+General.unwrap = v => {
     if (typeof v !== "object" || v === null) {
         return v;
     }
@@ -235,16 +221,14 @@ General.unwrap = function(v) {
     }
 };
 
-General.withUsage = function(v, usage) {
-    // shallow copy with possibly new usage
-    return {
+General.withUsage = (v, usage) => // shallow copy with possibly new usage
+    ({
         "ctype": v.ctype,
         "value": v.value,
         "usage": usage
-    };
-};
+    });
 
-General.wrapJSON = function(data) {
+General.wrapJSON = data => {
     switch (typeof data) {
         case "number":
             return CSNumber.real(data);
@@ -257,27 +241,25 @@ General.wrapJSON = function(data) {
                 return nada;
             if (Array.isArray(data))
                 return List.turnIntoCSList(data.map(General.wrapJSON));
-            var d = Dict.create();
-            for (var k in data)
+            const d = Dict.create();
+            for (const k in data)
                 Dict.put(d, General.string(k), General.wrapJSON(data[k]));
             return d;
         default:
             console.log(
-                "Failed to convert " + (typeof data) + " to CindyJS data type");
+                `Failed to convert ${typeof data} to CindyJS data type`);
             return nada;
     }
 };
 
-General.identity = function(x) {
-    return x;
-};
+General.identity = x => x;
 
-General.deeplyEqual = function(a, b) {
+General.deeplyEqual = (a, b) => {
     if (typeof a !== "object" || typeof b !== "object" ||
         a === null || b === null)
         return a === b;
-    var cnt = 0;
-    var k;
+    let cnt = 0;
+    let k;
     for (k in a) {
         ++cnt;
         if (!(k in b && General.deeplyEqual(a[k], b[k])))

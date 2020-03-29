@@ -12,16 +12,16 @@ function imageFromValue(val) {
     return null;
 }
 
-evaluator.imagesize$1 = function(args, modifs) {
-    var img = imageFromValue(evaluateAndVal(args[0]));
+evaluator.imagesize$1 = (args, modifs) => {
+    const img = imageFromValue(evaluateAndVal(args[0]));
     if (!img) {
         return nada;
     }
     return List.realVector([+img.width, +img.height]);
 };
 
-evaluator.imageready$1 = function(args, modifs) {
-    var img = imageFromValue(evaluateAndVal(args[0]));
+evaluator.imageready$1 = (args, modifs) => {
+    const img = imageFromValue(evaluateAndVal(args[0]));
     return General.bool(!!(img && img.ready));
 };
 
@@ -33,13 +33,12 @@ function drawImageIndirection(img, x, y) {
     }
 }
 
-evaluator.drawimage$2 = function(args, modifs) {
-
+evaluator.drawimage$2 = (args, modifs) => {
     function drawimg1() {
 
 
         function handleModifs() {
-            var erg;
+            let erg;
             if (modifs.angle !== undefined) {
                 erg = evaluate(modifs.angle);
                 if (erg.ctype === 'number') {
@@ -127,7 +126,7 @@ evaluator.drawimage$2 = function(args, modifs) {
         var rot = 0;
         var alpha = 1;
 
-        var pt = eval_helper.extractPoint(v0);
+        const pt = eval_helper.extractPoint(v0);
 
         if (!pt.ok) {
             return nada;
@@ -142,32 +141,32 @@ evaluator.drawimage$2 = function(args, modifs) {
         handleModifs();
 
 
-        var m = csport.drawingstate.matrix;
-        var initm = csport.drawingstate.initialmatrix;
+        const m = csport.drawingstate.matrix;
+        const initm = csport.drawingstate.initialmatrix;
 
 
-        var w = img.width;
-        var h = img.height;
+        const w = img.width;
+        const h = img.height;
 
         //TODO das ist für die Drehungen im lokaen koordinatensystem
         //sollte eigentlich einfacher gehen
 
-        var xx = pt.x * m.a - pt.y * m.b + m.tx;
-        var yy = pt.x * m.c - pt.y * m.d - m.ty;
+        const xx = pt.x * m.a - pt.y * m.b + m.tx;
+        const yy = pt.x * m.c - pt.y * m.d - m.ty;
 
-        var xx1 = (pt.x + 1) * m.a - pt.y * m.b + m.tx - xx;
-        var yy1 = (pt.x + 1) * m.c - pt.y * m.d - m.ty - yy;
+        const xx1 = (pt.x + 1) * m.a - pt.y * m.b + m.tx - xx;
+        const yy1 = (pt.x + 1) * m.c - pt.y * m.d - m.ty - yy;
 
-        var ixx = pt.x * initm.a - pt.y * initm.b + initm.tx;
-        var iyy = pt.x * initm.c - pt.y * initm.d - initm.ty;
+        const ixx = pt.x * initm.a - pt.y * initm.b + initm.tx;
+        const iyy = pt.x * initm.c - pt.y * initm.d - initm.ty;
 
-        var ixx1 = (pt.x + 1) * initm.a - pt.y * initm.b + initm.tx - ixx;
-        var iyy1 = (pt.x + 1) * initm.c - pt.y * initm.d - initm.ty - iyy;
+        const ixx1 = (pt.x + 1) * initm.a - pt.y * initm.b + initm.tx - ixx;
+        const iyy1 = (pt.x + 1) * initm.c - pt.y * initm.d - initm.ty - iyy;
 
-        var sc = Math.sqrt(xx1 * xx1 + yy1 * yy1) / Math.sqrt(ixx1 * ixx1 + iyy1 * iyy1);
-        var ang = -Math.atan2(xx1, yy1) + Math.atan2(ixx1, iyy1);
+        const sc = Math.sqrt(xx1 * xx1 + yy1 * yy1) / Math.sqrt(ixx1 * ixx1 + iyy1 * iyy1);
+        const ang = -Math.atan2(xx1, yy1) + Math.atan2(ixx1, iyy1);
 
-        var viewScale = csport.drawingstate.matrix.sdet / 72;
+        const viewScale = csport.drawingstate.matrix.sdet / 72;
         scax *= viewScale;
         scay *= viewScale;
 
@@ -194,13 +193,13 @@ evaluator.drawimage$2 = function(args, modifs) {
 
 
     function drawimg3() {
-        var alpha = 1;
-        var flipx = 1;
-        var flipy = 1;
-        var aspect = 1;
+        let alpha = 1;
+        let flipx = 1;
+        let flipy = 1;
+        let aspect = 1;
 
         function handleModifs() {
-            var erg;
+            let erg;
 
             if (modifs.alpha !== undefined) {
                 erg = evaluate(modifs.alpha);
@@ -247,9 +246,9 @@ evaluator.drawimage$2 = function(args, modifs) {
         }
 
 
-        var pt1 = eval_helper.extractPoint(v0);
-        var pt2 = eval_helper.extractPoint(v1);
-        var pt3;
+        const pt1 = eval_helper.extractPoint(v0);
+        const pt2 = eval_helper.extractPoint(v1);
+        let pt3;
 
 
         if (!pt1.ok || !pt2.ok) {
@@ -261,8 +260,8 @@ evaluator.drawimage$2 = function(args, modifs) {
             return nada;
         }
 
-        var w = img.width;
-        var h = img.height;
+        const w = img.width;
+        const h = img.height;
 
 
         if (v2 === 0) {
@@ -281,21 +280,21 @@ evaluator.drawimage$2 = function(args, modifs) {
         handleModifs();
 
 
-        var m = csport.drawingstate.matrix;
-        var initm = csport.drawingstate.initialmatrix;
+        const m = csport.drawingstate.matrix;
+        const initm = csport.drawingstate.initialmatrix;
 
 
         if (alpha !== 1)
             csctx.globalAlpha = alpha;
 
-        var xx1 = pt1.x * m.a - pt1.y * m.b + m.tx;
-        var yy1 = pt1.x * m.c - pt1.y * m.d - m.ty;
+        const xx1 = pt1.x * m.a - pt1.y * m.b + m.tx;
+        const yy1 = pt1.x * m.c - pt1.y * m.d - m.ty;
 
-        var xx2 = pt2.x * m.a - pt2.y * m.b + m.tx;
-        var yy2 = pt2.x * m.c - pt2.y * m.d - m.ty;
+        const xx2 = pt2.x * m.a - pt2.y * m.b + m.tx;
+        const yy2 = pt2.x * m.c - pt2.y * m.d - m.ty;
 
-        var xx3 = pt3.x * m.a - pt3.y * m.b + m.tx;
-        var yy3 = pt3.x * m.c - pt3.y * m.d - m.ty;
+        const xx3 = pt3.x * m.a - pt3.y * m.b + m.tx;
+        const yy3 = pt3.x * m.c - pt3.y * m.d - m.ty;
 
         csctx.transform(xx2 - xx1, yy2 - yy1, xx3 - xx1, yy3 - yy1, xx1, yy1);
         csctx.scale(1 / w, -1 / h * aspect);
@@ -316,7 +315,10 @@ evaluator.drawimage$2 = function(args, modifs) {
     }
 
 
-    var v0, v1, v2, img;
+    var v0;
+    var v1;
+    var v2;
+    var img;
 
     if (args.length === 2) {
         v0 = evaluateAndVal(args[0]);
@@ -351,10 +353,10 @@ evaluator.drawimage$2 = function(args, modifs) {
 evaluator.drawimage$3 = evaluator.drawimage$2;
 evaluator.drawimage$4 = evaluator.drawimage$2;
 
-evaluator.allimages$0 = function() {
-    var lst = [];
-    var keys = Object.keys(images);
-    keys.forEach(function(e) {
+evaluator.allimages$0 = () => {
+    const lst = [];
+    const keys = Object.keys(images);
+    keys.forEach(e => {
         lst.push({
             ctype: "string",
             value: e
@@ -364,15 +366,15 @@ evaluator.allimages$0 = function() {
 };
 
 
-var cameravideo = {};
-evaluator.cameravideo$0 = function(args, modifs) {
-    var maximal = true; //use maximal as default (if no other modifier is given)
-    var constraints = {};
+const cameravideo = {};
+evaluator.cameravideo$0 = (args, modifs) => {
+    let maximal = true; //use maximal as default (if no other modifier is given)
+    let constraints = {};
 
     function makeconstraints(width) {
         return {
             video: {
-                width: width,
+                width,
                 advanced: [{
                     width: {
                         max: width, //see below for details
@@ -389,7 +391,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
     }
 
     if (modifs.resolution !== undefined) {
-        var val = evaluate(modifs.resolution);
+        const val = evaluate(modifs.resolution);
         if (val.ctype === 'string' && val.value === 'maximal') maximal = true;
         else {
             if (val.ctype === 'number') {
@@ -398,7 +400,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
             } else if (List._helper.isNumberVecN(val, 2)) {
                 maximal = false;
                 constraints = makeconstraints(val.value[0].value.real);
-                var heightorratio = val.value[1].value.real;
+                const heightorratio = val.value[1].value.real;
                 if (heightorratio < 10 || !Number.isInteger(heightorratio)) {
                     constraints.video.aspectRatio = heightorratio;
                     constraints.video.advanced[0].aspectRatio = {
@@ -426,24 +428,20 @@ evaluator.cameravideo$0 = function(args, modifs) {
         // Chrome 54 doesn't actually honor ideal constraints yet, so we need
         // to explicitely list some common widths to control resolution selection.
         constraints = [320, 640, 1024, 1280, 1920, 2560];
-        constraints = constraints.map(function(w) {
-            return {
-                width: {
-                    min: w
-                }
-            };
-        });
+        constraints = constraints.map(w => ({
+            width: {
+                min: w
+            }
+        }));
         // We'd like to also minimize aspect ratio i.e. maximize height for a given
         // width, but Chrome again appears to have a problem with this. See also
         // https://bugs.chromium.org/p/chromium/issues/detail?id=657145
         if (false) {
-            constraints = constraints.concat([1.34, 1.59, 1.78, 2].map(function(a) {
-                return {
-                    aspectRatio: {
-                        max: a
-                    }
-                };
-            }));
+            constraints = constraints.concat([1.34, 1.59, 1.78, 2].map(a => ({
+                aspectRatio: {
+                    max: a
+                }
+            })));
         }
         constraints = {
             video: {
@@ -454,16 +452,16 @@ evaluator.cameravideo$0 = function(args, modifs) {
             audio: false
         };
     }
-    var constraintsstr = JSON.stringify(constraints);
+    const constraintsstr = JSON.stringify(constraints);
 
     if (cameravideo[constraintsstr])
         return cameravideo[constraintsstr];
 
-    var openVideoStream = null;
+    let openVideoStream = null;
 
-    var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+    let gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     if (gum) {
-        openVideoStream = function(success, failure) {
+        openVideoStream = (success, failure) => {
             navigator.mediaDevices
                 .getUserMedia(constraints)
                 .then(success, failure);
@@ -474,7 +472,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
             navigator.mozGetUserMedia ||
             navigator.msGetUserMedia;
         if (gum) {
-            openVideoStream = function(success, failure) {
+            openVideoStream = (success, failure) => {
                 gum.call(navigator, constraints, success, failure);
             };
         }
@@ -484,7 +482,7 @@ evaluator.cameravideo$0 = function(args, modifs) {
         cameravideo[constraintsstr] = nada;
         return nada;
     }
-    var video = document.createElement("video");
+    const video = document.createElement("video");
     video.autoplay = true;
     cameravideo[constraintsstr] = loadImage(video, true);
     console.log("Opening stream.");
@@ -505,23 +503,23 @@ evaluator.cameravideo$0 = function(args, modifs) {
     return cameravideo[constraintsstr];
 };
 
-evaluator.playvideo$1 = function(args, modifs) {
-    var img = imageFromValue(evaluateAndVal(args[0]));
+evaluator.playvideo$1 = (args, modifs) => {
+    const img = imageFromValue(evaluateAndVal(args[0]));
     if (img.live && img.img.play) {
         img.img.play();
     }
     return nada;
 };
 
-evaluator.pausevideo$1 = function(args, modifs) {
-    var img = imageFromValue(evaluateAndVal(args[0]));
+evaluator.pausevideo$1 = (args, modifs) => {
+    const img = imageFromValue(evaluateAndVal(args[0]));
     if (img.live && img.img.pause) {
         img.img.pause();
     }
     return nada;
 };
 
-var helpercanvas; //invisible helper canvas.
+let helpercanvas; //invisible helper canvas.
 function getHelperCanvas(width, height) {
     if (!helpercanvas) {
         //creating helpercanvas only once increases the running time
@@ -537,17 +535,20 @@ function getHelperCanvas(width, height) {
  * The colors are representent as a 4 component RGBA vector with entries in [0,1]
  */
 function readPixelsIndirection(img, x, y, width, height) {
-    var res = [];
+    let res = [];
     if (img.readPixels) {
         res = img.readPixels(x, y, width, height);
-    } else { //use canvas-approach
-        var data, ctx;
+    } else {
+        //use canvas-approach
+        let data;
+
+        let ctx;
         if (img.img.getContext) { //img is a canvas
             ctx = img.img.getContext('2d');
             data = ctx.getImageData(x, y, width, height).data;
         } else { //copy corresponding subimage of img.img to temporary canvas
             try {
-                var helpercanvas = getHelperCanvas(width, height);
+                const helpercanvas = getHelperCanvas(width, height);
                 ctx = helpercanvas.getContext('2d');
                 ctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
                 data = ctx.getImageData(0, 0, width, height).data;
@@ -556,7 +557,7 @@ function readPixelsIndirection(img, x, y, width, height) {
             }
 
         }
-        for (var i in data) res.push(data[i] / 255);
+        for (const i in data) res.push(data[i] / 255);
     }
     return res;
 }
@@ -565,10 +566,10 @@ function readPixelsIndirection(img, x, y, width, height) {
  * imagergba(‹image›,x,y) implements imagergb(‹imagename›,x,y) from Cinderella, i.e.
  * returns a 4 component vector ranging from (0-255, 0-255, 0-255, 0-1)
  */
-evaluator.imagergba$3 = function(args, modifs) {
-    var img = imageFromValue(evaluateAndVal(args[0]));
-    var x = evaluateAndVal(args[1]);
-    var y = evaluateAndVal(args[2]);
+evaluator.imagergba$3 = (args, modifs) => {
+    const img = imageFromValue(evaluateAndVal(args[0]));
+    let x = evaluateAndVal(args[1]);
+    let y = evaluateAndVal(args[2]);
 
     if (!img || x.ctype !== 'number' || y.ctype !== 'number' || !img.ready) return nada;
 
@@ -576,7 +577,7 @@ evaluator.imagergba$3 = function(args, modifs) {
     y = Math.round(y.value.real);
     if (!isFiniteNumber(x) || !isFiniteNumber(y)) return nada;
 
-    var rgba = readPixelsIndirection(img, x, y, 1, 1);
+    const rgba = readPixelsIndirection(img, x, y, 1, 1);
     return List.realVector([rgba[0] * 255, rgba[1] * 255, rgba[2] * 255, rgba[3]]);
 };
 
@@ -585,14 +586,14 @@ evaluator.imagergb$3 = evaluator.imagergba$3; //According to reference
 function readimgatcoord(img, coord, modifs) {
     if (!coord.ok) return nada;
 
-    var w = img.width;
-    var h = img.height;
+    const w = img.width;
+    const h = img.height;
 
-    var interpolate = true; //default values
-    var repeat = false;
+    let interpolate = true; //default values
+    let repeat = false;
 
     function handleModifs() {
-        var erg;
+        let erg;
         if (modifs.interpolate !== undefined) {
             erg = evaluate(modifs.interpolate);
             if (erg.ctype === 'boolean') {
@@ -618,26 +619,27 @@ function readimgatcoord(img, coord, modifs) {
         coord.y = (coord.y % h + h) % h;
     }
 
-    var xi = Math.floor(coord.x); //integral part
-    var yi = Math.floor(coord.y);
+    const xi = Math.floor(coord.x); //integral part
+    const yi = Math.floor(coord.y);
 
     if (!isFiniteNumber(xi) || !isFiniteNumber(yi)) return nada;
 
-    var rgba = [0, 0, 0, 0];
+    let rgba = [0, 0, 0, 0];
     if (interpolate) {
-        var i, j;
+        let i;
+        let j;
 
-        var xf = coord.x - xi; //fractional part
-        var yf = coord.y - yi;
+        let xf = coord.x - xi; //fractional part
+        let yf = coord.y - yi;
 
-        var pixels = readPixelsIndirection(img, xi, yi, 2, 2);
+        let pixels = readPixelsIndirection(img, xi, yi, 2, 2);
 
         //modify pixels for boundary cases:
         if (repeat) { //read pixels at boundary seperately
             if (xi === w - 1 || yi === h - 1) {
-                var p10 = readPixelsIndirection(img, (xi + 1) % w, yi, 1, 1);
-                var p01 = readPixelsIndirection(img, xi, (yi + 1) % h, 1, 1);
-                var p11 = readPixelsIndirection(img, (xi + 1) % w, (yi + 1) % h, 1, 1);
+                const p10 = readPixelsIndirection(img, (xi + 1) % w, yi, 1, 1);
+                const p01 = readPixelsIndirection(img, xi, (yi + 1) % h, 1, 1);
+                const p11 = readPixelsIndirection(img, (xi + 1) % w, (yi + 1) % h, 1, 1);
                 pixels = pixels.slice(0, 4).concat(p10, p01, p11);
             }
         } else { //clamp to boundary
@@ -659,43 +661,43 @@ function readimgatcoord(img, coord, modifs) {
  * imagergba(<point1>, <point2>, ‹image›, <point3>) returns the color at the coordinate
  * <point3> assuming that the left/right lower corner is <point1>/<point2> resp.
  */
-evaluator.imagergba$4 = function(args, modifs) {
-    var img = imageFromValue(evaluateAndVal(args[2]));
+evaluator.imagergba$4 = (args, modifs) => {
+    const img = imageFromValue(evaluateAndVal(args[2]));
     if (!img || !img.ready) return nada;
 
-    var w = img.width;
-    var h = img.height;
+    const w = img.width;
+    const h = img.height;
 
-    var w0 = evaluateAndHomog(args[0]);
-    var w1 = evaluateAndHomog(args[1]);
-    var v0 = evaluateAndHomog(List.realVector([0, h, 1]));
-    var v1 = evaluateAndHomog(List.realVector([w, h, 1]));
+    const w0 = evaluateAndHomog(args[0]);
+    const w1 = evaluateAndHomog(args[1]);
+    const v0 = evaluateAndHomog(List.realVector([0, h, 1]));
+    const v1 = evaluateAndHomog(List.realVector([w, h, 1]));
 
     if (w0 === nada || w1 === nada || p === nada) return nada;
 
     //create an orientation-reversing similarity transformation that maps w0->v0, w1->v1
-    var ii = List.ii;
-    var jj = List.jj;
+    const ii = List.ii;
+    const jj = List.jj;
 
-    var m1 = eval_helper.basismap(v0, v1, ii, jj); //interchange I and J,
-    var m2 = eval_helper.basismap(w0, w1, jj, ii); //see Thm. 18.4 of Perspectives on Projective Geometry
+    const m1 = eval_helper.basismap(v0, v1, ii, jj); //interchange I and J,
+    const m2 = eval_helper.basismap(w0, w1, jj, ii); //see Thm. 18.4 of Perspectives on Projective Geometry
     var p = evaluateAndHomog(args[3]);
-    var coord = eval_helper.extractPoint(General.mult(m1, General.mult(List.adjoint3(m2), p)));
+    const coord = eval_helper.extractPoint(General.mult(m1, General.mult(List.adjoint3(m2), p)));
     return readimgatcoord(img, coord, modifs);
 };
 
 
-evaluator.imagergb$4 = function(args, modifs) {
-    var rgba = evaluator.imagergba$4(args, modifs);
+evaluator.imagergb$4 = (args, modifs) => {
+    const rgba = evaluator.imagergba$4(args, modifs);
     if (rgba === nada) return nada;
     return List.turnIntoCSList(rgba.value.slice(0, 3));
 };
 
-evaluator.readpixels$1 = function(args, modifs) {
-    var img = imageFromValue(evaluateAndVal(args[0]));
-    var data = readPixelsIndirection(img, 0, 0, img.width, img.height);
-    var pixels = [];
-    for (var i = 0; i + 3 < data.length; i += 4) {
+evaluator.readpixels$1 = (args, modifs) => {
+    const img = imageFromValue(evaluateAndVal(args[0]));
+    const data = readPixelsIndirection(img, 0, 0, img.width, img.height);
+    const pixels = [];
+    for (let i = 0; i + 3 < data.length; i += 4) {
         pixels.push(List.turnIntoCSList([CSNumber.real(data[i + 0]), CSNumber.real(data[i + 1]), CSNumber.real(data[i + 2]), CSNumber.real(data[i + 3])]));
     }
     return List.turnIntoCSList(pixels);

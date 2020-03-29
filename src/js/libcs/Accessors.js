@@ -2,7 +2,7 @@
 // and here are the accessors for properties and elements
 //*************************************************************
 
-var Accessor = {};
+const Accessor = {};
 
 Accessor.generalFields = { // fieldname translation
     color: "color",
@@ -22,7 +22,7 @@ Accessor.generalFields = { // fieldname translation
     labelled: "labeled",
 };
 
-Accessor.getGeoField = function(geoname, field) {
+Accessor.getGeoField = (geoname, field) => {
     if (typeof csgeo.csnames[geoname] !== 'undefined') {
         return Accessor.getField(csgeo.csnames[geoname], field);
     }
@@ -30,15 +30,15 @@ Accessor.getGeoField = function(geoname, field) {
 };
 
 
-Accessor.setGeoField = function(geoname, field, value) {
+Accessor.setGeoField = (geoname, field, value) => {
     if (typeof csgeo.csnames[geoname] !== 'undefined') {
         return Accessor.setField(csgeo.csnames[geoname], field, value);
     }
     return nada;
 };
 
-Accessor.getField = function(geo, field) {
-    var erg;
+Accessor.getField = (geo, field) => {
+    let erg;
     if (geo.kind === "P") {
         if (field === "xy") {
             erg = List.dehom(geo.homog);
@@ -81,17 +81,17 @@ Accessor.getField = function(geo, field) {
     }
     if (geo.kind === "C") {
         if (field === "radius") { //Assumes that we have a circle
-            var s = geo.matrix;
-            var ax = s.value[0].value[0];
-            var az = s.value[0].value[2];
-            var bz = s.value[1].value[2];
-            var cz = s.value[2].value[2];
+            const s = geo.matrix;
+            const ax = s.value[0].value[0];
+            const az = s.value[0].value[2];
+            const bz = s.value[1].value[2];
+            const cz = s.value[2].value[2];
 
 
-            var n = CSNumber.mult(ax, ax);
-            var aa = CSNumber.div(az, ax);
-            var bb = CSNumber.div(bz, ax);
-            var cc = CSNumber.div(cz, ax);
+            const n = CSNumber.mult(ax, ax);
+            const aa = CSNumber.div(az, ax);
+            const bb = CSNumber.div(bz, ax);
+            const cc = CSNumber.div(cz, ax);
             erg = CSNumber.sqrt(CSNumber.sub(CSNumber.add(CSNumber.mult(aa, aa),
                     CSNumber.mult(bb, bb)),
                 cc));
@@ -108,7 +108,7 @@ Accessor.getField = function(geo, field) {
         }
 
         if (field === "center") {
-            var cen = geoOps._helper.CenterOfConic(geo.matrix);
+            let cen = geoOps._helper.CenterOfConic(geo.matrix);
             cen = List.dehom(cen);
             return General.withUsage(cen, "Point");
         }
@@ -196,7 +196,7 @@ Accessor.getField = function(geo, field) {
         }
 
     }
-    var getter = geoOps[geo.type]["get_" + field];
+    const getter = geoOps[geo.type][`get_${field}`];
     if (typeof getter === "function") {
         return getter(geo);
     }
@@ -205,8 +205,8 @@ Accessor.getField = function(geo, field) {
 
 };
 
-Accessor.setField = function(geo, field, value) {
-    var dir;
+Accessor.setField = (geo, field, value) => {
+    let dir;
 
     if (field === "color" && List._helper.isNumberVecN(value, 3)) {
         geo.color = value;
@@ -331,7 +331,7 @@ Accessor.setField = function(geo, field, value) {
         if (value.ctype === "number" && CSNumber._helper.isAlmostReal(value)) geo.narrow = value.value.real;
     }
 
-    var setter = geoOps[geo.type]["set_" + field];
+    const setter = geoOps[geo.type][`set_${field}`];
     if (typeof setter === "function") {
         return setter(geo, value);
     }
@@ -339,8 +339,8 @@ Accessor.setField = function(geo, field, value) {
 
 };
 
-Accessor.getuserData = function(obj, key) {
-    var val;
+Accessor.getuserData = (obj, key) => {
+    let val;
     if (key.ctype === "string" && obj.userData && obj.userData[key.value]) val = obj.userData[key.value];
 
     if (val && val.ctype) {
@@ -352,7 +352,7 @@ Accessor.getuserData = function(obj, key) {
     }
 };
 
-Accessor.setuserData = function(obj, key, value) {
+Accessor.setuserData = (obj, key, value) => {
     if (!(key && key.ctype === "string" && obj && value)) {
         return;
     }
