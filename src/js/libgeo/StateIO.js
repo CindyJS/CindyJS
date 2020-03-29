@@ -1,6 +1,6 @@
 // Functions to save and restore geometric state
 
-var attributesToClone = [
+const attributesToClone = [
     //"_traces", // internal
     //"_traces_index", // internal
     //"_traces_tick", // internal
@@ -73,15 +73,15 @@ var attributesToClone = [
 function savePos(el) {
     if (!(/^Select/.test(el.type) || geoOps[el.type].isMovable))
         return null; // Fully determined by arguments, no position needed
-    var unwrap = General.unwrap;
-    var sum = CSNumber.add;
+    const unwrap = General.unwrap;
+    const sum = CSNumber.add;
     switch (el.kind) {
         case "P":
         case "L":
         case "Text":
             return unwrap(el.homog);
         case "C":
-            var mat = el.matrix.value;
+            const mat = el.matrix.value;
             return {
                 xx: unwrap(mat[0].value[0]),
                 yy: unwrap(mat[1].value[1]),
@@ -96,7 +96,7 @@ function savePos(el) {
 }
 
 function saveDockingInfo(dock) {
-    var res = {};
+    const res = {};
     res.offset = General.unwrap(dock.offset);
     if (dock.to) res.to = dock.to; // String
     if (dock.corner) res.corner = dock.corner; // String
@@ -104,9 +104,9 @@ function saveDockingInfo(dock) {
 }
 
 function saveGeoElement(el) {
-    var res = {};
+    const res = {};
 
-    var defel = {
+    const defel = {
         pinned: false,
         movable: true
     };
@@ -131,36 +131,34 @@ function saveGeoElement(el) {
     }
 
 
-    attributesToClone.forEach(function(key) {
+    attributesToClone.forEach(key => {
         if (!el.hasOwnProperty(key)) return;
-        var val = General.unwrap(el[key]);
-        var defval = General.unwrap(defel[key]);
+        const val = General.unwrap(el[key]);
+        const defval = General.unwrap(defel[key]);
         if (val !== null && val !== undefined && val !== defval && JSON.stringify(val) !== JSON.stringify(defval)) {
             res[key] = val;
         }
 
     });
     if (el.kind === "P" && (!el.movable || el.pinned) && res.color) {
-        var undim = CSNumber.real(1 / defaultAppearance.dimDependent);
+        const undim = CSNumber.real(1 / defaultAppearance.dimDependent);
         res.color = General.unwrap(List.scalmult(undim, el.color));
     }
-    var pos = savePos(el);
+    const pos = savePos(el);
     if (pos) res.pos = pos;
     if (el.dock) res.dock = saveDockingInfo(el.dock);
     return res;
 }
 
 function saveGeoState() {
-    var res = [];
-    csgeo.gslp.forEach(function(el) {
+    const res = [];
+    csgeo.gslp.forEach(el => {
         if (el.tmp) return;
         res.push(saveGeoElement(el));
     });
     return res;
 }
 
-globalInstance.saveState = function() {
-    return {
-        geometry: saveGeoState(),
-    };
-};
+globalInstance.saveState = () => ({
+    geometry: saveGeoState()
+});
