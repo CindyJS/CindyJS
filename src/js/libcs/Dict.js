@@ -9,23 +9,24 @@
  * To keep overhead low, avoid deeply nested data structures as keys.
  */
 
-const Dict = {};
+var Dict = {};
 
-Dict.key = x => {
+Dict.key = function(x) {
     if (x.ctype === "string")
-        return `s${x.value.length}:${x.value};`;
+        return "s" + x.value.length + ":" + x.value + ";";
     if (x.ctype === "number")
-        return `n${x.value.real},${x.value.imag};`;
+        return "n" + x.value.real + "," + x.value.imag + ";";
     if (x.ctype === "list")
-        return `l${x.value.length}:${x.value.map(Dict.key).join(",")};`;
+        return "l" + x.value.length + ":" +
+            x.value.map(Dict.key).join(",") + ";";
     if (x.ctype === "boolean")
-        return `b${x.value};`;
+        return "b" + x.value + ";";
     if (x.ctype === "dict") {
-        const keys = Object.keys(x.value).sort();
-        return `d${keys.length}:${keys.join(",")};`;
+        var keys = Object.keys(x.value).sort();
+        return "d" + keys.length + ":" + keys.join(",") + ";";
     }
     if (x.ctype !== "undefined")
-        csconsole.err(`Bad dictionary key: ${niceprint(x)}`);
+        csconsole.err("Bad dictionary key: " + niceprint(x));
     return "undef";
 };
 
@@ -36,36 +37,38 @@ Dict.key = x => {
 // is complete and other code gains access to the dictionary,
 // the dictionary is considered immutable.
 
-Dict.create = () => ({
-    ctype: "dict",
+Dict.create = function() {
+    return {
+        ctype: "dict",
+        value: {} // or Map or Object.create(null)?
+    };
+};
 
-    // or Map or Object.create(null)?
-    value: {}
-});
-
-Dict.clone = dict => {
-    const res = Dict.create();
-    for (const key in dict.value)
+Dict.clone = function(dict) {
+    var res = Dict.create();
+    for (var key in dict.value)
         if (dict.value.hasOwnProperty(key))
             res.value[key] = dict.value[key];
     return res;
 };
 
 // Modifying operation
-Dict.put = (dict, key, value) => {
+Dict.put = function(dict, key, value) {
     dict.value[Dict.key(key)] = {
-        key,
-        value
+        key: key,
+        value: value
     };
 };
 
-Dict.get = (dict, key, dflt) => {
-    const kv = dict.value[Dict.key(key)];
+Dict.get = function(dict, key, dflt) {
+    var kv = dict.value[Dict.key(key)];
     if (kv) return kv.value; // check kv.key?
     return dflt;
 };
 
-Dict.niceprint = dict => `{${Object.keys(dict.value).sort().map(key => {
-    const kv = dict.value[key];
-    return `${niceprint(kv.key)}:${niceprint(kv.value)}`;
-}).join(", ")}}`;
+Dict.niceprint = function(dict) {
+    return "{" + Object.keys(dict.value).sort().map(function(key) {
+        var kv = dict.value[key];
+        return niceprint(kv.key) + ":" + niceprint(kv.value);
+    }).join(", ") + "}";
+};

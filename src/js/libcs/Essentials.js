@@ -1,8 +1,8 @@
 /*jshint -W069 */
 
-const myfunctions = {};
+var myfunctions = {};
 
-const infixmap = {};
+var infixmap = {};
 infixmap[':'] = operator_not_implemented(':');
 // infixmap['.'] not needed thanks to definitionDot special handling
 infixmap['°'] = postfix_numb_degree;
@@ -49,10 +49,10 @@ infixmap[';'] = infix_semicolon;
 /*jshint +W069 */
 
 function operator_not_implemented(name) {
-    let first = true;
-    return (args, modifs) => {
+    var first = true;
+    return function(args, modifs) {
         if (first) {
-            console.error(`Operator ${name} is not supported yet.`);
+            console.error("Operator " + name + " is not supported yet.");
             first = false;
         }
         return nada;
@@ -83,15 +83,15 @@ function niceprint(a, modifs) {
         return a.value;
     }
     if (a.ctype === 'list') {
-        let erg = "[";
-        for (let i = 0; i < a.value.length; i++) {
+        var erg = "[";
+        for (var i = 0; i < a.value.length; i++) {
             erg = erg + niceprint(evaluate(a.value[i]));
             if (i !== a.value.length - 1) {
-                erg = `${erg}, `;
+                erg = erg + ', ';
             }
 
         }
-        return `${erg}]`;
+        return erg + "]";
     }
     if (a.ctype === 'JSON') {
         // try catch to avoid bad situations with cyclic dicts
@@ -112,14 +112,14 @@ function niceprint(a, modifs) {
         return 'INFIX';
     }
     if (a.ctype === 'modifier') {
-        return `${a.key}->${niceprint(a.value)}`;
+        return a.key + '->' + niceprint(a.value);
     }
     if (a.ctype === 'shape') {
         return a.type;
     }
 
     if (a.ctype === 'error') {
-        return `Error: ${a.message}`;
+        return "Error: " + a.message;
     }
     if (a.ctype === 'variable') {
         return niceprint(namespace.getvar(a.name));
@@ -145,13 +145,13 @@ niceprint.errorTypes = ['_?_', '_??_', '_???_', '___'];
 //Distinct form evaluator for code clearness :-)
 //*******************************************************
 function evalmyfunctions(name, args, modifs) {
-    const tt = myfunctions[name];
+    var tt = myfunctions[name];
     if (tt === undefined) {
         return nada;
     }
 
-    const set = [];
-    let i;
+    var set = [],
+        i;
 
     for (i = 0; i < tt.arglist.length; i++) {
         set[i] = evaluate(args[i]);
@@ -161,7 +161,7 @@ function evalmyfunctions(name, args, modifs) {
         namespace.setvar(tt.arglist[i].name, set[i]);
     }
     namespace.pushVstack("*");
-    const erg = evaluate(tt.body);
+    var erg = evaluate(tt.body);
     namespace.cleanVstack();
     for (i = 0; i < tt.arglist.length; i++) {
         namespace.removevar(tt.arglist[i].name);
@@ -173,31 +173,31 @@ function evalmyfunctions(name, args, modifs) {
 //*******************************************************
 //this function evaluates a concrete function
 //*******************************************************
-const evaluator = {};
-const eval_helper = {};
+var evaluator = {};
+var eval_helper = {};
 
-eval_helper.evaluate = (name, args, modifs) => {
+eval_helper.evaluate = function(name, args, modifs) {
     if (myfunctions.hasOwnProperty(name))
         return evalmyfunctions(name, args, modifs);
-    let f = evaluator[name];
+    var f = evaluator[name];
     if (f)
         return f(args, modifs);
     // This following is legacy code, and should be removed
     // once all functions are converted to their arity-aware form.
     // Unless we introduce something like variadic functions.
-    let n = name.lastIndexOf("$");
+    var n = name.lastIndexOf("$");
     if (n !== -1) {
         n = name.substr(0, n);
         f = evaluator[n];
         if (f)
             return f(args, modifs);
     }
-    csconsole.err(`Called undefined function ${n} (as ${name})`);
+    csconsole.err("Called undefined function " + n + " (as " + name + ")");
     return nada;
 };
 
 
-eval_helper.equals = (v0, v1) => { //Und nochmals un-OO
+eval_helper.equals = function(v0, v1) { //Und nochmals un-OO
     if (v0.ctype === 'number' && v1.ctype === 'number') {
         return {
             'ctype': 'boolean',
@@ -218,7 +218,7 @@ eval_helper.equals = (v0, v1) => { //Und nochmals un-OO
         };
     }
     if (v0.ctype === 'list' && v1.ctype === 'list') {
-        const erg = List.equals(v0, v1);
+        var erg = List.equals(v0, v1);
         return erg;
     }
     if (v0.ctype === 'geo' && v1.ctype === 'geo') {

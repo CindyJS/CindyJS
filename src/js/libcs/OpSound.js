@@ -1,7 +1,7 @@
-const OpSound = {
+var OpSound = {
     lines: {},
     audioCtx: null,
-    getAudioContext() {
+    getAudioContext: function() {
         if (this.audioCtx) return this.audioCtx;
         if (!window.AudioContext && !window.webkitAudioContext) {
             console.warn('Web Audio API not supported in this browser');
@@ -13,7 +13,7 @@ const OpSound = {
         return this.audioCtx;
     },
 
-    handleModif(modif, modifType, defaultValue) {
+    handleModif: function(modif, modifType, defaultValue) {
         if (modif !== undefined) {
             let erg = evaluate(modif);
             if (erg.ctype === modifType) {
@@ -35,7 +35,7 @@ const OpSound = {
         }
     },
 
-    handleLineModif(modif, defaultValue) {
+    handleLineModif: function(modif, defaultValue) {
         if (modif !== undefined) {
             let erg = evaluate(modif);
             return niceprint(erg);
@@ -43,7 +43,7 @@ const OpSound = {
         return defaultValue;
     },
 
-    getBufferNode(wave, duration) {
+    getBufferNode: function(wave, duration) {
         let audioCtx = this.getAudioContext();
         if (duration * audioCtx.sampleRate > wave.length) {
             let newwave = [];
@@ -61,7 +61,7 @@ const OpSound = {
         return bufferNode;
     },
 
-    createMonoOscillator(freq, phaseshift) {
+    createMonoOscillator: function(freq, phaseshift) {
         let oscNode = this.getAudioContext().createOscillator();
         if (phaseshift !== 0) {
             let real = new Float32Array(2);
@@ -81,7 +81,7 @@ const OpSound = {
         return oscNode;
     },
 
-    createWaveOscillator(freq, harmonics, phaseshiftarr) {
+    createWaveOscillator: function(freq, harmonics, phaseshiftarr) {
         let oscNode = this.getAudioContext().createOscillator();
         let real = new Float32Array(harmonics.length + 1);
         let imag = new Float32Array(harmonics.length + 1);
@@ -97,7 +97,7 @@ const OpSound = {
         return oscNode;
     },
 
-    cleanup() {
+    cleanup: function() {
         for (let id in this.lines) {
             if (this.lines[id].lineType === 'sin') {
                 if (this.lines[id].oscNodes.every(oscGainPair => !oscGainPair.oscNode.isplaying)) {
@@ -112,23 +112,23 @@ const OpSound = {
         }
     },
 
-    registerInput(audioNode) {
+    registerInput: function(audioNode) {
         if (!audioNode.cnt)
             audioNode.cnt = 1;
         else
             audioNode.cnt++;
     },
 
-    deregisterInput(audioNode) {
+    deregisterInput: function(audioNode) {
         if (audioNode.cnt)
             audioNode.cnt--;
     },
 
-    hasRegisteredInput(audioNode) {
+    hasRegisteredInput: function(audioNode) {
         return (audioNode.cnt && audioNode.cnt !== 0);
     },
 
-    playOscillator(oscNode, masterGain, gain, attack, duration, release) {
+    playOscillator: function(oscNode, masterGain, gain, attack, duration, release) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
@@ -159,12 +159,12 @@ const OpSound = {
         }
 
         return {
-            oscNode,
-            gainNode
+            oscNode: oscNode,
+            gainNode: gainNode
         };
     },
 
-    softStop(oscGainPair, release) {
+    softStop: function(oscGainPair, release) {
         let audioCtx = this.getAudioContext();
         oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
@@ -173,7 +173,7 @@ const OpSound = {
         this.triggerStop(oscGainPair.oscNode, release);
     },
 
-    extendDuration(oscGainPair, duration, release) {
+    extendDuration: function(oscGainPair, duration, release) {
         let audioCtx = this.getAudioContext();
         oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
@@ -183,14 +183,14 @@ const OpSound = {
         this.triggerStop(oscGainPair.oscNode, duration + release);
     },
 
-    triggerStop(oscNode, time) {
+    triggerStop: function(oscNode, time) {
         //this method overwrites also other triggered stops
         //According to https://webaudio.github.io/web-audio-api/#dom-audioscheduledsourcenode-stop this should also be done by oscNode.stop(audioCtx.currentTime + time)
         //However, in March 2019, Safari apperantly did not support this behaviour.
         if (oscNode.timeoutId) {
             clearTimeout(oscNode.timeoutId);
         }
-        oscNode.timeoutId = setTimeout(() => {
+        oscNode.timeoutId = setTimeout(function() {
             oscNode.stop(0);
         }, 1000 * time + 10);
     }
@@ -393,7 +393,7 @@ class OscillatorLine {
     }
 }
 
-evaluator.stopsound$0 = () => {
+evaluator.stopsound$0 = function() {
     if (OpSound.audioCtx) {
         for (let line in OpSound.lines) {
             OpSound.lines[line].stop();
@@ -404,7 +404,7 @@ evaluator.stopsound$0 = () => {
     }
 };
 
-evaluator.playsin$1 = (args, modifs) => {
+evaluator.playsin$1 = function(args, modifs) {
     let audioCtx = OpSound.getAudioContext();
 
 
@@ -438,7 +438,7 @@ evaluator.playsin$1 = (args, modifs) => {
 };
 
 
-evaluator.playsin$0 = (args, modifs) => {
+evaluator.playsin$0 = function(args, modifs) {
     let erg;
     if (modifs.line !== undefined) {
         let line = OpSound.handleLineModif(modifs.line, "0");
@@ -467,7 +467,7 @@ evaluator.playsin$0 = (args, modifs) => {
 };
 
 
-evaluator.playfunction$1 = (args, modifs) => {
+evaluator.playfunction$1 = function(args, modifs) {
     let audioCtx = OpSound.getAudioContext();
 
     function searchVar(tree) {
@@ -524,7 +524,7 @@ evaluator.playfunction$1 = (args, modifs) => {
                 lineType: 'function',
                 bufferNode: OpSound.getBufferNode(wave, duration),
                 masterGain: audioCtx.createGain(),
-                stop() {
+                stop: function() {
                     this.bufferNode.stop();
                 }
             };
@@ -552,7 +552,7 @@ evaluator.playfunction$1 = (args, modifs) => {
 };
 
 
-evaluator.playwave$1 = (args, modifs) => {
+evaluator.playwave$1 = function(args, modifs) {
     let audioCtx = OpSound.getAudioContext();
 
     let wave = evaluate(args[0]);
@@ -576,7 +576,7 @@ evaluator.playwave$1 = (args, modifs) => {
             lineType: 'wave',
             bufferNode: OpSound.getBufferNode(General.unwrap(wave), duration),
             masterGain: audioCtx.createGain(),
-            stop() {
+            stop: function() {
                 this.bufferNode.stop();
             }
         };

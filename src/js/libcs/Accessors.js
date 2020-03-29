@@ -2,7 +2,7 @@
 // and here are the accessors for properties and elements
 //*************************************************************
 
-const Accessor = {};
+var Accessor = {};
 
 Accessor.generalFields = { // fieldname translation
     color: "color",
@@ -22,7 +22,7 @@ Accessor.generalFields = { // fieldname translation
     labelled: "labeled",
 };
 
-Accessor.getGeoField = (geoname, field) => {
+Accessor.getGeoField = function(geoname, field) {
     if (typeof csgeo.csnames[geoname] !== 'undefined') {
         return Accessor.getField(csgeo.csnames[geoname], field);
     }
@@ -30,15 +30,15 @@ Accessor.getGeoField = (geoname, field) => {
 };
 
 
-Accessor.setGeoField = (geoname, field, value) => {
+Accessor.setGeoField = function(geoname, field, value) {
     if (typeof csgeo.csnames[geoname] !== 'undefined') {
         return Accessor.setField(csgeo.csnames[geoname], field, value);
     }
     return nada;
 };
 
-Accessor.getField = (geo, field) => {
-    let erg;
+Accessor.getField = function(geo, field) {
+    var erg;
     if (geo.kind === "P") {
         if (field === "xy") {
             erg = List.dehom(geo.homog);
@@ -81,17 +81,17 @@ Accessor.getField = (geo, field) => {
     }
     if (geo.kind === "C") {
         if (field === "radius") { //Assumes that we have a circle
-            const s = geo.matrix;
-            const ax = s.value[0].value[0];
-            const az = s.value[0].value[2];
-            const bz = s.value[1].value[2];
-            const cz = s.value[2].value[2];
+            var s = geo.matrix;
+            var ax = s.value[0].value[0];
+            var az = s.value[0].value[2];
+            var bz = s.value[1].value[2];
+            var cz = s.value[2].value[2];
 
 
-            const n = CSNumber.mult(ax, ax);
-            const aa = CSNumber.div(az, ax);
-            const bb = CSNumber.div(bz, ax);
-            const cc = CSNumber.div(cz, ax);
+            var n = CSNumber.mult(ax, ax);
+            var aa = CSNumber.div(az, ax);
+            var bb = CSNumber.div(bz, ax);
+            var cc = CSNumber.div(cz, ax);
             erg = CSNumber.sqrt(CSNumber.sub(CSNumber.add(CSNumber.mult(aa, aa),
                     CSNumber.mult(bb, bb)),
                 cc));
@@ -108,7 +108,7 @@ Accessor.getField = (geo, field) => {
         }
 
         if (field === "center") {
-            let cen = geoOps._helper.CenterOfConic(geo.matrix);
+            var cen = geoOps._helper.CenterOfConic(geo.matrix);
             cen = List.dehom(cen);
             return General.withUsage(cen, "Point");
         }
@@ -196,7 +196,7 @@ Accessor.getField = (geo, field) => {
         }
 
     }
-    const getter = geoOps[geo.type][`get_${field}`];
+    var getter = geoOps[geo.type]["get_" + field];
     if (typeof getter === "function") {
         return getter(geo);
     }
@@ -205,8 +205,8 @@ Accessor.getField = (geo, field) => {
 
 };
 
-Accessor.setField = (geo, field, value) => {
-    let dir;
+Accessor.setField = function(geo, field, value) {
+    var dir;
 
     if (field === "color" && List._helper.isNumberVecN(value, 3)) {
         geo.color = value;
@@ -331,7 +331,7 @@ Accessor.setField = (geo, field, value) => {
         if (value.ctype === "number" && CSNumber._helper.isAlmostReal(value)) geo.narrow = value.value.real;
     }
 
-    const setter = geoOps[geo.type][`set_${field}`];
+    var setter = geoOps[geo.type]["set_" + field];
     if (typeof setter === "function") {
         return setter(geo, value);
     }
@@ -339,8 +339,8 @@ Accessor.setField = (geo, field, value) => {
 
 };
 
-Accessor.getuserData = (obj, key) => {
-    let val;
+Accessor.getuserData = function(obj, key) {
+    var val;
     if (key.ctype === "string" && obj.userData && obj.userData[key.value]) val = obj.userData[key.value];
 
     if (val && val.ctype) {
@@ -352,7 +352,7 @@ Accessor.getuserData = (obj, key) => {
     }
 };
 
-Accessor.setuserData = (obj, key, value) => {
+Accessor.setuserData = function(obj, key, value) {
     if (!(key && key.ctype === "string" && obj && value)) {
         return;
     }
