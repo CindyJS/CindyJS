@@ -154,8 +154,8 @@ var csw;
 var csh;
 let csgeo;
 let images;
-const dropped = nada;
-const dropPoint = nada;
+let dropped = nada;
+let dropPoint = nada;
 
 function canvasWithContainingDiv(elt) {
     let div;
