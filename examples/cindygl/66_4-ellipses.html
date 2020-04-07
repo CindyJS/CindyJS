@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: 4-ellipse</h1>
+    
+               
+    <script id="csinit" type="text/x-cindyscript">
+
+      hsvToRGB(h, s, v) := (
+        regional(j, p, q, t, f);
+
+        h = (h-floor(h))*6;
+
+        j = floor(h);
+        f = h - j;
+
+        p = 1 - s;
+        q = 1 - s*f;
+        t = 1 - s*(1-f);
+
+        if(j == 0, [1, t, p],
+        if(j == 1, [q, 1, p],
+        if(j == 2, [p, 1, t],
+        if(j == 3, [p, q, 1],
+        if(j == 4, [t, p, 1],
+        if(j == 5, [1, p, q]))))))*v
+      );
+
+      u(x) := hsvToRGB(re(|x-A|+|x-B|+|x-C|+|x-D|), 1, 1);
+    </script>
+
+    <script id="csdraw" type="text/x-cindyscript">
+      colorplot(u(#));
+    </script>
+
+    <div id="CSCanvas"></div>
+
+    <script type="text/javascript">
+
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[7,8,1], color:[1,1,1]},
+                  {name:"B", kind:"P", type:"Free", pos:[1,6,1], color:[1,1,1]},
+                  {name:"C", kind:"P", type:"Free", pos:[3,5,1], color:[1,1,1]},
+                  {name:"D", kind:"P", type:"Free", pos:[2,2,1], color:[1,1,1]},
+                  ];
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [ 0,0,10,10 ] } ]
+                    }]
+                  });
+    </script>
+</body>
+</html>
