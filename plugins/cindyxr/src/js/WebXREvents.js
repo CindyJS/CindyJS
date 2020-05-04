@@ -100,6 +100,10 @@ function setupCindyScriptEventCallbacks() {
  * @param {XRInputSourcesChangeEvent} event The triggered event.
  */
 function onInputSourcesChange(event) {
+    let cindyScriptAddedInputSources = convertObjectToCindyDict(
+            xrFilterInputSourceArray(event.added, null), new Set([]), new Map());
+    let cindyScriptRemovedInputSources = convertObjectToCindyDict(
+            xrFilterInputSourceArray(event.removed, null), new Set([]), new Map());
     cindyXrInputSourcesChangeCallback();
 }
 
@@ -108,6 +112,8 @@ function onInputSourcesChange(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSelectStart(event) {
+    let cindyScriptInputSource = convertObjectToCindyDict(
+            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSelectStartCallback();
 }
 
@@ -117,6 +123,8 @@ function onSelectStart(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSelectEnd(event) {
+    let cindyScriptInputSource = convertObjectToCindyDict(
+            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSelectEndCallback();
 }
 
@@ -125,6 +133,8 @@ function onSelectEnd(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSelect(event) {
+    let cindyScriptInputSource = convertObjectToCindyDict(
+            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSelectCallback();
 }
 
@@ -134,6 +144,8 @@ function onSelect(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSqueezeStart(event) {
+    let cindyScriptInputSource = convertObjectToCindyDict(
+            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSqueezeStartCallback();
 }
 
@@ -143,6 +155,8 @@ function onSqueezeStart(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSqueezeEnd(event) {
+    let cindyScriptInputSource = convertObjectToCindyDict(
+            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSqueezeEndCallback();
 }
 
@@ -151,5 +165,7 @@ function onSqueezeEnd(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSqueeze(event) {
+    let cindyScriptInputSource = convertObjectToCindyDict(
+            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSqueezeCallback();
 }

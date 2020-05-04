@@ -36,37 +36,6 @@ let CindyXR = function(api) {
 	}
 
 
-	//////////////////////////////////////////////////////////////////////
-	// Helper functions
-
-	/**
-	 * Converts a flat row-major 4x4 matrix to a nested 4x4 matrix.
-	 * @param {number[16]} m A flat 4x4 matrix.
-	 * @return {number[4][4]} The nested 4x4 matrix.
-	 */
-	function flatMatrix4ToNestedMatrix4RowMajor(m) {
-		return [
-			[m[0], m[1], m[2], m[3]],
-			[m[4], m[5], m[6], m[7]],
-			[m[8], m[9], m[10], m[11]],
-			[m[12], m[13], m[14], m[15]]
-		];
-	}
-
-	/**
-	 * Converts a flat column-major 4x4 matrix to a nested 4x4 matrix.
-	 * @param {number[16]} m A flat 4x4 matrix.
-	 * @return {number[4][4]} The nested 4x4 matrix.
-	 */
-	function flatMatrix4ToNestedMatrix4ColumnMajor(m) {
-		return [
-			[m[0], m[4], m[8], m[12]],
-			[m[1], m[5], m[9], m[13]],
-			[m[2], m[6], m[10], m[14]],
-			[m[3], m[7], m[11], m[15]]
-		];
-	}
-
 
 	//////////////////////////////////////////////////////////////////////
 	// Plugin variables
@@ -298,59 +267,9 @@ let CindyXR = function(api) {
 	 * 	value: double
 	 * }
 	 */
-	let gCounter = 0;
 	defOp("getxrinputsources", 0, function(args, modifs) {
-		// Helper function for extracting transforms from XR spaces
-		let identityTransform = {
-			position: [0, 0, 0, 1],
-			orientation: [0, 0, 0, 1],
-			matrix: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
-		};
-		let extractTransform = function(xrSpace) {
-			if (xrSpace == null) {
-				return identityTransform;
-			}
-			let xrPose = xrLastFrame.getPose(xrSpace, xrGetReferenceSpace());
-			if (xrPose == null) {
-				return identityTransform;
-			}
-			let xrTransform = xrPose.transform;
-			let filteredTransform = {
-				position: [xrTransform.position.x, xrTransform.position.y, xrTransform.position.z, xrTransform.position.w],
-				orientation: [xrTransform.orientation.x, xrTransform.orientation.y, xrTransform.orientation.z, xrTransform.orientation.w],
-				matrix: flatMatrix4ToNestedMatrix4ColumnMajor(xrTransform.matrix)
-			};
-			return filteredTransform;
-		}
-
 		// Finally, extract all necessary information from the JavaScript objects.
-		let inputSources = xrGetInputSources();
-		let filteredInputSources = [];
-		for (let i = 0; i < inputSources.length; i++) {
-			let inputSource = inputSources[i];
-			let filteredInputSource = {
-				handedness: inputSource.handedness,
-				targetRayMode: inputSource.targetRayMode,
-				targetRaySpaceTransform: extractTransform(inputSource.targetRaySpace),
-				gripSpaceTransform: extractTransform(inputSource.gripSpace),
-				profiles: inputSource.profiles
-			};
-			if (typeof inputSource.gamepad !== "undefined" && inputSource.gamepad != null) {
-				let gamepad = inputSource.gamepad;
-				let filteredGamepad = {
-					id: gamepad.id,
-					index: gamepad.index,
-					connected: gamepad.connected,
-					mapping: gamepad.mapping,
-					axes: gamepad.axes,
-					buttons: gamepad.buttons
-				};
-				filteredInputSource.gamepad = filteredGamepad;
-			}
-			filteredInputSources.push(filteredInputSource);
-		}
-
-		return convertObjectToCindyDict(filteredInputSources, new Set([]), new Map());
+		return convertObjectToCindyDict(xrFilterInputSourceArray(xrGetInputSources()), new Set([]), new Map());
 	});
 }
 
