@@ -97,6 +97,11 @@ let xrInitialized = false;
  * @type {CindyJS.pluginApi}
  */
 let xrCindyApi = null;
+/**
+ * Whether Cindy3D or CindyGL is used together with CindyXR.
+ * @type {string}
+ */
+let xrCindyPluginMode = "";
 
 
 /**
@@ -280,9 +285,7 @@ function xrPreRender(gl, cindy3DCamera) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, xrGetFramebuffer());
     } else {
         // Use scaling.
-        if (viewIndex == 0) {
-            recreateRenderTargetHelpersIfNecessary(gl);
-        }
+        recreateRenderTargetHelpersIfNecessary(gl);
     }
 }
 
@@ -368,21 +371,24 @@ function xrPostRenderCindyGL() {
     }
 }
 
-
 /**
  * Initializes WebXR using a certain WebGL context.
  * NOTE: It is necessary that the WebGL context is initialized with the 'xrCompatible' flag.
  * This is handled automatically in Cindy3D and CindyGL if the CindyXR plug-in is loaded.
+ * @param {CindyJS.pluginApi} api The CindyJS plugin API object.
  * @param {WebGLRenderingContext} gl The WebGL rendering context.
  * @param {number} canvasWidth The width of the preview canvas in pixels.
  * @param {number} canvasHeight The height of the preview canvas in pixels.
  * @param {boolean} hideCanvas Whether to hide or show the main (non-WebGL) CindyJS canvas.
  */
-function initXR(gl, canvasWidth, canvasHeight, hideCanvas) {
+function initXR(api, gl, canvasWidth, canvasHeight, hideCanvas) {
+    xrCindyApi = api;
     xrgl = gl;
     xrCanvasWidth = canvasWidth;
     xrCanvasHeight = canvasHeight;
     xrHideCanvas = hideCanvas;
+    setupCindyScriptEventCallbacks();
+    renderFunction = cindyXrDrawCallback;
 
     xrButton = new XRDeviceButton({
         onRequestSession: onRequestSession,
@@ -448,12 +454,23 @@ function initGL() {
     onResize();*/
 }
 
+
 /**
  * This function is called when a VR/AR session is started.
  * @param {XRSession} session 
  */
 function onSessionStarted(session) {
     session.addEventListener('end', onSessionEnded);
+
+    // CindyXR event listeners. These events are passed to CindyXR.
+    session.addEventListener('inputsourceschange', onInputSourcesChange)
+    session.addEventListener('selectstart', onSelectStart);
+    session.addEventListener('selectend', onSelectEnd);
+    session.addEventListener('select', onSelect);
+    //session.addEventListener('squeezestart', onSqueezeStart);
+    //session.addEventListener('squeezeend', onSqueezeEnd);
+    //session.addEventListener('squeeze', onSqueeze);
+
     initGL();
     /*
      * Unfortunately, as of writing, framebufferScaleFactor is still not properly supported by
@@ -544,7 +561,13 @@ function onXRFrame(t, frame) {
 function drawXRFrame(frame, pose) {
     xrLastFrame = frame;
     xrLastViewerPose = pose;
+
+    //if (!isGLInitialized && xrCindyPluginMode == "Cindy3D") {
+    //}
     renderFunction();
+    if (xrCindyPluginMode == "CindyGL") {
+        xrPostRenderCindyGL();
+    }
 }
 
 /**

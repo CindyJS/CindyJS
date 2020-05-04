@@ -4,8 +4,6 @@
  */
 
 let CindyXR = function(api) {
-	xrCindyApi = api;
-	
 	//////////////////////////////////////////////////////////////////////
 	// API bindings
 	
@@ -73,8 +71,6 @@ let CindyXR = function(api) {
 	//////////////////////////////////////////////////////////////////////
 	// Plugin variables
 
-	// Whether Cindy3D or CindyGL is used together with CindyXR.
-	let cindyPluginMode = "";
 	// The instance name of the Cindy3D instance to use.
 	let instanceName = "Cindy3D";
 	let isGLInitialized = false;
@@ -104,7 +100,7 @@ let CindyXR = function(api) {
 	 * - Whether to hide or show the main (non-WebGL) CindyJS canvas (default: true).
 	 */
 	defOp("initxrcindy3d", 0, function(args, modifs) {
-		cindyPluginMode = "Cindy3D";
+		xrCindyPluginMode = "Cindy3D";
 		let canvasWidth = 800;
 		let canvasHeight = 600;
 		let hideCanvas = true;
@@ -125,7 +121,7 @@ let CindyXR = function(api) {
 		});
 
 		let gl = CindyJS._pluginRegistry.Cindy3D.instances[instanceName].gl;
-		initXR(gl, canvasWidth, canvasHeight, hideCanvas);
+		initXR(api, gl, canvasWidth, canvasHeight, hideCanvas);
 
 		api.evaluate({
 			ctype : "function",
@@ -157,7 +153,7 @@ let CindyXR = function(api) {
 	 * - Whether to hide or show the main (non-WebGL) CindyJS canvas (default: true).
 	 */
 	defOp("initxrcindygl", 0, function(args, modifs) {
-		cindyPluginMode = "CindyGL";
+		xrCindyPluginMode = "CindyGL";
 		let canvasWidth = 800;
 		let canvasHeight = 600;
 		let hideCanvas = true;
@@ -172,7 +168,7 @@ let CindyXR = function(api) {
 		// Call to CindyGL API to initialize WebGL if it is not yet loaded.
 		CindyJS._pluginRegistry.CindyGL.initGLIfRequired();
 		let gl = CindyJS._pluginRegistry.CindyGL.gl;
-		initXR(gl, canvasWidth, canvasHeight, hideCanvas);
+		initXR(api, gl, canvasWidth, canvasHeight, hideCanvas);
 		isGLInitialized = true;
 		return nada;
 	});
@@ -186,14 +182,7 @@ let CindyXR = function(api) {
 	 */
 	defOp("xr", 1, function(args, modifs) {
 		setRenderFunction(function() {
-			if (!isGLInitialized && cindyPluginMode == "Cindy3D") {
-			}
-
 			api.evaluate(args[0]);
-
-			if (cindyPluginMode == "CindyGL") {
-				xrPostRenderCindyGL();
-			}
 		});
 
 		return nada;

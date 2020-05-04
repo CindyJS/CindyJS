@@ -11,45 +11,43 @@
     use("Cindy3D");
     use("CindyXR");
     initxrcindy3d(referencemode->"local");
+</script>
 
-    xrrenderfunction() := (
-        begin3d();
+<script id="csxrdraw" type="text/x-cindyscript">
+    begin3d();
 
-        background3d([0,0,0]);
-        size3d(2.4);
-        n=300;
-        r1=1;
-        r2=.3;
-        k=5;
-        l=3;
+    background3d([0,0,0]);
+    size3d(2.4);
+    n=300;
+    r1=1;
+    r2=.3;
+    k=5;
+    l=3;
 
-        f(w) := (sin(l*w), cos(l*w), 0) * (r1 + r2*cos(k*w)) + (0, 1.5, r2*sin(k*w) - 1.5);
-        repeat(n,i,
-            w1=i/n*360°;
-            w2=(i+1)/n*360°;
-            color3d(hue(i/n));
-            draw3d(f(w1), f(w2));
-        );
-
-        xrinputsources = getxrinputsources();
-        repeat(length(xrinputsources), i,
-            inputsource = xrinputsources_i;
-            // We only want input sources regarding tracked controllers.
-            if (inputsource.targetRayMode == "tracked-pointer",
-                // Draw a ball at the position of the controller and color it depending on whether button 1 is pressed.
-                isbuttonpressed = inputsource.gamepad.buttons_1.pressed;
-                color = if(isbuttonpressed, hue(0.1), hue(0.5));
-                color3d(color);
-                draw3d(inputsource.gripSpaceTransform.position);
-            );
-        );
-
-        end3d();
+    f(w) := (sin(l*w), cos(l*w), 0) * (r1 + r2*cos(k*w)) + (0, 1.5, r2*sin(k*w) - 1.5);
+    repeat(n,i,
+        w1=i/n*360°;
+        w2=(i+1)/n*360°;
+        color3d(hue(i/n));
+        draw3d(f(w1), f(w2));
     );
-    xr(xrrenderfunction());
+
+    xrinputsources = getxrinputsources();
+    repeat(length(xrinputsources), i,
+        inputsource = xrinputsources_i;
+        // We only want input sources regarding tracked controllers.
+        if (inputsource.targetRayMode == "tracked-pointer",
+            // Draw a ball at the position of the controller and color it depending on whether button 1 is pressed.
+            isbuttonpressed = inputsource.gamepad.buttons_1.pressed;
+            color = if(isbuttonpressed, hue(0.1), hue(0.5));
+            color3d(color);
+            draw3d(inputsource.gripSpaceTransform.position);
+        );
+    );
+
+    end3d();
 </script>
-<script id="csdraw" type="text/x-cindyscript">
-</script>
+
 <script type="text/javascript">
     CindyJS({canvasname:"CSCanvas",scripts:"cs*"});
 </script>

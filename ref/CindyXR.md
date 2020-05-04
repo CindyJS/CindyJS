@@ -32,7 +32,7 @@ Initializes WebXR for use with Cindy3D.
 | `hidecanvas` | `‹boolean›` | Whether to hide or show the main (non-WebGL) CindyJS canvas (default: true, i.e., hide). |
 
 
-VR and AR devices might have a different screen refresh rate than the main monitor the rest of the browser is running on. Thus, we unfortunately can't use `'csdraw'` for rendering to the canvas, as it is internally tied to `window.requestAnimationFrame` in CindyJS. However, to get the right refresh rate for WebXR, `XRSession.requestAnimationFrame` needs to be used. Thus, the user needs to manually specify a CindyScript rendering callback function that is then called by `XRSession.requestAnimationFrame`.
+VR and AR devices might have a different screen refresh rate than the main monitor the rest of the browser is running on. Thus, we unfortunately can't use `'csdraw'` for rendering to the canvas, as it is internally tied to `window.requestAnimationFrame` in CindyJS. However, to get the right refresh rate for WebXR, `XRSession.requestAnimationFrame` needs to be used. Thus, the user needs to specify a CindyScript rendering callback function that is then called by `XRSession.requestAnimationFrame`. For this, either the command `xr` can be used to set a rendering callback or the user can instead use `'csxrdraw'`
 
 ```html
 <script id="csinit" type="text/x-cindyscript">
@@ -40,11 +40,11 @@ VR and AR devices might have a different screen refresh rate than the main monit
     use("CindyXR");
     initxrcindygl();
     // ...
-    xrrenderfunction() := (
-        // ...
-    );
-    xr(xrrenderfunction());
 </script>
+<script id="csxrdraw" type="text/x-cindyscript">
+    // Draw something with CindyGL or Cindy3D ...
+</script>
+
 ```
 For examples of different render function callbacks, please visit the directory `examples/cindyxr`.
 
@@ -81,42 +81,40 @@ If the user is unfamiliar with the terms view matrix and projection matrix, we r
     normalizedDirection(a, b) := (
         (a - b) / dist(a, b)
     );
-    
-    xrrenderfunction() := (
-        light = [cos(seconds())+2,2, sin(seconds())];
-        numViews = getxrnumviews();
-    
-        repeat(numViews, i,
-            viewIndex = i - 1;
-            viewportSize = getxrviewportsize(viewIndex);
-            aspectRatio = viewportSize.x/viewportSize.y;
-            
-            invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
-            invViewMatrix = inverse(getxrviewmatrix(viewIndex));
-            invViewProjMatrix = invViewMatrix * invProjectionMatrix;
-            
-            colorplotxr(viewIndex,
-                moving = true;
-                // Coordinates in NDC space
-                ndcPixelNearCoord = [#.x, #.y, -1, 1];
-                ndcPixelFarCoord = [#.x, #.y, 1, 1];
+</script>
+<script id="csxrdraw" type="text/x-cindyscript">
+    light = [cos(seconds())+2,2, sin(seconds())];
+    numViews = getxrnumviews();
+
+    repeat(numViews, i,
+        viewIndex = i - 1;
+        viewportSize = getxrviewportsize(viewIndex);
+        aspectRatio = viewportSize.x/viewportSize.y;
         
-                // Multiply with inverse view-projection matrix to get world space coordinates.
-                nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
-                farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
-                
-                // Dehomogenize the homogeneous coordinates.
-                nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
-                farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
-                
-                camPos = nearPointWorldDehom;
-                rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
-                
-                computeColor();
-            );
+        invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
+        invViewMatrix = inverse(getxrviewmatrix(viewIndex));
+        invViewProjMatrix = invViewMatrix * invProjectionMatrix;
+        
+        colorplotxr(viewIndex,
+            moving = true;
+            // Coordinates in NDC space
+            ndcPixelNearCoord = [#.x, #.y, -1, 1];
+            ndcPixelFarCoord = [#.x, #.y, 1, 1];
+    
+            // Multiply with inverse view-projection matrix to get world space coordinates.
+            nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
+            farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
+            
+            // Dehomogenize the homogeneous coordinates.
+            nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
+            farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
+            
+            camPos = nearPointWorldDehom;
+            rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
+            
+            computeColor();
         );
     );
-    xr(xrrenderfunction());
 </script>
 ```
 
