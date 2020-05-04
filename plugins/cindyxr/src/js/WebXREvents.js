@@ -39,35 +39,12 @@ function setupCindyScriptEventCallbacks() {
         "xrsqueezestart", "xrsqueezeend", "xrsqueeze"
     ];
 
-    let data = xrCindyApi.instance.config;
-
-    // Code adapted from src/js/Setup.js.
-    var scriptConf = data.scripts;
-    var scriptPat = null;
-    if (typeof scriptConf === "string" && scriptConf.search(/\*/))
-        scriptPat = scriptConf;
-    if (typeof scriptConf !== "object")
-        scriptConf = null;
-
     xrScripts.forEach(function(scriptName) {
-        let csCode = null;
-        if (scriptConf !== null && scriptConf[scriptName]) {
-            csCode = scriptConf[scriptName];
-        } else {
-            var scriptElementName = scriptName + "script";
-            if (data[scriptElementName]) {
-                csCode = document.getElementById(data[scriptElementName]);
-            } else if (scriptPat) {
-                csCode = document.getElementById(scriptPat.replace(/\*/, scriptName));
-            } else {
-                return;
-            }
-
-            if (!csCode) {
-                return;
-            }
-            csCode = csCode.text;
+        let csCode = document.getElementById(scriptName);
+        if (!csCode) {
+            return;
         }
+        csCode = csCode.text;
         csCode = xrCindyApi.instance.parse(csCode, false);
         if (csCode.ctype === "error") {
             console.error("Error compiling " + scriptName + " script: " + csCode.message);

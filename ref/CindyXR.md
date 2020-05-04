@@ -32,7 +32,7 @@ Initializes WebXR for use with Cindy3D.
 | `hidecanvas` | `‹boolean›` | Whether to hide or show the main (non-WebGL) CindyJS canvas (default: true, i.e., hide). |
 
 
-VR and AR devices might have a different screen refresh rate than the main monitor the rest of the browser is running on. Thus, we unfortunately can't use `'csdraw'` for rendering to the canvas, as it is internally tied to `window.requestAnimationFrame` in CindyJS. However, to get the right refresh rate for WebXR, `XRSession.requestAnimationFrame` needs to be used. Thus, the user needs to specify a CindyScript rendering callback function that is then called by `XRSession.requestAnimationFrame`. For this, either the command `xr` can be used to set a rendering callback or the user can instead use `'csxrdraw'`
+VR and AR devices might have a different screen refresh rate than the main monitor the rest of the browser is running on. Thus, we unfortunately can't use `'csdraw'` for rendering to the canvas, as it is internally tied to `window.requestAnimationFrame` in CindyJS. However, to get the right refresh rate for WebXR, `XRSession.requestAnimationFrame` needs to be used. Thus, the user needs to specify a CindyScript rendering callback function that is then called by `XRSession.requestAnimationFrame`. For this, either the command `xr` can be used to set a rendering callback or the user can instead use `'xrdraw'`
 
 ```html
 <script id="csinit" type="text/x-cindyscript">
@@ -41,7 +41,7 @@ VR and AR devices might have a different screen refresh rate than the main monit
     initxrcindygl();
     // ...
 </script>
-<script id="csxrdraw" type="text/x-cindyscript">
+<script id="xrdraw" type="text/x-cindyscript">
     // Draw something with CindyGL or Cindy3D ...
 </script>
 
@@ -82,7 +82,7 @@ If the user is unfamiliar with the terms view matrix and projection matrix, we r
         (a - b) / dist(a, b)
     );
 </script>
-<script id="csxrdraw" type="text/x-cindyscript">
+<script id="xrdraw" type="text/x-cindyscript">
     light = [cos(seconds())+2,2, sin(seconds())];
     numViews = getxrnumviews();
 
