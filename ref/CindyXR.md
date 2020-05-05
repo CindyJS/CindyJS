@@ -170,3 +170,35 @@ GamepadButton := {
 	value: double
 }
 ```
+
+#### Input Source Events
+
+CindyXR supports reporting three types of input source events.
+
+- An event called `'xrinputsourceschange'` is triggered when new input sources are added or removed. The list of new input sources is stored in the global variable `addedinputsources`, and the list of removed input sources is stored in the global variable `removedinputsources`.
+
+Furthermore, there are two different types of events for primary actions. A primary action is something like pressing the primary triggers of one of your input source controllers ('select') or squeezing your input source controller ('squeeze'). What button or sensor this is related to is dependent on the XR hardware. The input controller is stored in the global variable `inputsource`.
+
+- First of all, there are event listeners for `'xrselect*'` events. They are triggered when the primary action button of your XR input source controller is used. This is mainly useful for input sources with a `targetRayMode` of `"gaze"` or `"tracked-pointer"`. Using the `targetRaySpaceTransform`, this event could for example be used to let the user select objects using their gaze or a tracked pointer device. What physical button the primary action button is mapped to depends on the used XR hardware. There are three different `'xrselect*'` events: `'xrselectstart'`, `'xrselectend'` and `'xrselect'`. `'xrselectstart'` is called when the device-dependent select action is started. `'xrselectend'` is called when a input sources ends its primary select action or when an XRInputSource that has begun a primary select action is disconnected. `'xrselect'` is called when one of the input sources has fully completed a primary select action. What this means in particular is dependent on the input source (i.e., XR controller) used.
+
+- Secondly, there are events for the primary squeeze action. This action is triggered when the user squeezes one of the input source controllers. Similarly to the `'xrselect*'` action, there is `'xrsqueezestart'`, `'xrsqueezeend'` and `'xrsqueeze'`.
+
+Below is an example of how to add event listeners.
+
+```html
+<script id="xrsqueezestart" type="text/x-cindyscript">
+    print(inputsource);
+</script>
+```
+
+In the following table, a complete list of input source event types can be found.
+
+| Name  | Parameters | Use-Case                                                 |
+| ----- | ---------- | -------------------------------------------------------- |
+| `'xrinputsourceschange'` | `addedinputsources, removedinputsources` | Called when the list of active XR input sources has changed. |
+| `'xrselectstart'` | `inputsource` | Called when one of the input sources begins its primary select action. |
+| `'xrselectend'` | `inputsource` | Called when one of the input sources ends its primary select action or when an XRInputSource that has begun a primary select action is disconnected. |
+| `'xrselect'` | `inputsource` | Called when one of the input sources has fully completed a primary select action. |
+| `'xrsqueezestart'` | `inputsource` | Called when one of the input sources begins its primary squeeze action, indicating that the user has begun to grab, squeeze, or grip the controller. |
+| `'xrsqueezeend'` | `inputsource` | Called when one of the input sources ends its primary squeeze action or when an XRInputSource that has begun a primary squeeze action is disconnected. |
+| `'xrsqueeze'` | `inputsource` | Called when one of the input sources has fully completed a primary squeeze action. |
