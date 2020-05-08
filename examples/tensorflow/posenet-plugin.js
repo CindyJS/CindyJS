@@ -79,20 +79,20 @@ CindyJS.registerPlugin(1, "posenet", function(api) {
   var net = false;
   var processrunning = false;
   var tmpimg = new Image();
-  
+
   handleModif = function(modifs, name, defaultvalue) {
-    if(modifs[name]) {
+    if (modifs[name]) {
       let val = api.evaluate(modifs[name]);
-      if(val.ctype === 'number') {
+      if (val.ctype === 'number') {
         return val.value.real;
       }
-      if(val.ctype === 'boolean') {
+      if (val.ctype === 'boolean') {
         return val.value;
       }
     }
     return defaultvalue;
   };
-  
+
   function replaceNanByZero(o) {
     if (typeof o === "number") {
       return isNaN(o) ? 0 : o;
@@ -101,7 +101,7 @@ CindyJS.registerPlugin(1, "posenet", function(api) {
       return o.map(replaceNanByZero);
     return o;
   }
-  
+
 
   async function getpose(img, cdycallback, px2coord, modifs) {
     if (processrunning) return;
@@ -113,7 +113,17 @@ CindyJS.registerPlugin(1, "posenet", function(api) {
     let outputStride = handleModif(modifs, 'outputstride', 16);
 
     // load the posenet model
-    if (!net) net = await posenet.load(handleModif(modifs, 'multiplier', 0.75)); //mid-range/lower-end GPUS
+    if (!net) //net = await posenet.load(handleModif(modifs, 'multiplier', 0.75));
+      net = await posenet.load({
+        architecture: 'MobileNetV1',  //mid-range/lower-end GPUS
+        outputStride: 16,
+        multiplier: handleModif(modifs, 'multiplier', 0.75)
+      });
+      /*net = await posenet.load({ //slower but more accurate
+        architecture: 'ResNet50',
+        outputStride: 32,
+        quantBytes: 2
+      });*/
     const pose = await net.estimateSinglePose(img, imageScaleFactor, flipHorizontal, outputStride);
 
     //console.log(pose);
