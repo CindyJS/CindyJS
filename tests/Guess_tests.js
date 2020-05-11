@@ -187,4 +187,5 @@ describe("Operators: guess", function(){
     // no guess
     itCmd('guess(1/0)', '___');
     itCmd('guess(0/0)', '___');
+    itCmd('guess(i*pi)', '0 + i*3.1416'); //same as Cinderella
 });
