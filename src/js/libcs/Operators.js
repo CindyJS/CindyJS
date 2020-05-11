@@ -5107,7 +5107,7 @@ evaluator.guess$1 = function(args, modifs) {
         const inx2 = [x, a, c]; // check whether x is rational
         const res = PSLQ.doPSLQ(inx2, 15);
         if (!res || res[2] !== 0.0)
-            return nada;
+            return undefined;
         return [Math.round(res[0]), Math.round(res[1])];
     }
 
@@ -5123,7 +5123,7 @@ evaluator.guess$1 = function(args, modifs) {
             const cc = erg1[0] * erg2[1];
             return quadraticc(imag, aa, bb, cc);
         }
-        return General.string(x);
+        return niceprint(x);
     }
 
     function guess(x) {
