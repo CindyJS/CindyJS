@@ -188,4 +188,5 @@ describe("Operators: guess", function(){
     itCmd('guess(1/0)', '___');
     itCmd('guess(0/0)', '___');
     itCmd('guess(i*pi)', '0 + i*3.1416'); //same as Cinderella
+    itCmd('guess(1+i*sqrt(2))', '1+i*sqrt(2)'); //root of x^2-2*x+3
 });
