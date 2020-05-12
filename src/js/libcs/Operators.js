@@ -5227,3 +5227,256 @@ evaluator.removeelement$1 = function(args, modifs) {
     if (arg.ctype === "geo") removeElement(arg.value.name);
     else console.log("argument of removeelement is undefined or not of type <geo>");
 };
+
+
+evaluator.guess$1 = function(args, modifs) {
+    function pslq(x) {
+        const c = Math.PI * Math.E;
+        let a = 1;
+
+        const inx2 = [x, a, c]; // check whether x is rational
+        const res = PSLQ.doPSLQ(inx2, 15);
+        if (!res || res[2] !== 0.0)
+            return undefined;
+        return [Math.round(res[0]), Math.round(res[1])];
+    }
+
+    function guessComplex(x) {
+        let real = x.value.real;
+        let imag = x.value.imag;
+
+        let erg1 = pslq(real);
+        let erg2 = pslq(real * real + imag * imag);
+        if (erg1 && erg2) {
+            const aa = -erg1[0] * erg2[0];
+            const bb = -erg1[1] * erg2[0] * 2;
+            const cc = erg1[0] * erg2[1];
+            return quadraticc(imag, aa, bb, cc);
+        }
+        return niceprint(x);
+    }
+
+    function guess(x) {
+        if (CSNumber._helper.isAlmostZero(x))
+            return "0";
+        if (!CSNumber._helper.isAlmostReal(x))
+            return guessComplex(x);
+        const pi = Math.PI;
+        let inx = [pi,
+            x.value.real,
+            1.0
+        ];
+
+        // Run PSLQ
+        const res = PSLQ.doPSLQ(inx, 15);
+
+        let sreal = "" + x.value.real;
+        let srealquot = "";
+        let srealquad = "";
+
+        let error1 = 10000;
+        let error2 = 10000;
+        //System.err.println("TEST FRACTION");
+        let r1 = 100000;
+        if (res && (r1 = reasonable(res)) < 3000) {
+            srealquot = quotient(x.value.real, res[0], -res[1], res[2]);
+            error1 = error;
+        }
+
+
+        let inx2 = [x.value.real * x.value.real,
+            x.value.real,
+            1.0
+        ];
+        const res2 = PSLQ.doPSLQ(inx2, 15);
+        //      System.err.println("TEST QUADRATIC");
+        let r2 = 100000;
+        if (res2 && (r2 = 10 + reasonable(res2)) < 9000) {
+            srealquad = quadratic(x.value.real, res2[0], res2[1], res2[2]);
+            error2 = error;
+        }
+
+        if (r1 < r2 && error1 < 0.000000000001)
+            sreal = srealquot;
+        if (r2 < r1 && error2 < 0.000000000001)
+            sreal = srealquad;
+
+        return sreal;
+
+    }
+
+    function reasonable(res) {
+        let r = Math.abs(res[0]);
+        if (Math.abs(res[1]) > r) r = Math.abs(res[1]);
+        if (Math.abs(res[2]) > r) r = Math.abs(res[2]);
+        return r;
+    }
+
+    /**
+     * Find a fractional representation of the quotient of two numbers.
+     *
+     * @param a numerator
+     * @param b divisor
+     * @return a string that represents the quotient and is fully canceled.
+     *         The sign is included (+ or -)
+     */
+    function fraction(a, b) {
+        let str = "+";
+        if (a * b < 0) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            str = "-";
+        }
+        const r = gcd(a, b);
+        a /= r;
+        b /= r;
+        if (a < 0 && b < 0) {
+            a = -a;
+            b = -b;
+        }
+        if (b === 1)
+            str = str + a;
+        else
+            str = str + a + "/" + b;
+        return str;
+    }
+
+    /**
+     * @param a an integer
+     * @return a square divisor of a
+     */
+    function extractsquare(a) {
+        for (let n = 3000; n > 0; n--)
+            if (a % (n * n) === 0)
+                return n;
+        return 1;
+    }
+
+
+    /**
+     * @return a string representation of a complex number
+     * @todo why is "li" here?
+     */
+    function quadraticc(imag, a, b, c) {
+        let lin = fraction(-b, 2 * a);
+        let sqr = b * b - 4 * c * a;
+        const n = extractsquare(sqr);
+        sqr = sqr / (n * n);
+        let quadp;
+        if (n === 2 * a) {
+            quadp = "+i*sqrt(" + (-sqr) + ")";
+        } else if (n === -2 * a) {
+            quadp = "+i*sqrt(" + (-sqr) + ")";
+        } else {
+            quadp = "+i*" + fraction(n, 2 * a).substring(1) + "*sqrt(" + (-sqr) + ")";
+        }
+        let quadm = "-" + quadp.substring(1);
+        let qua = Math.abs((b * b - 4 * c * a) / (4 * a * a));
+        let erg1 = Math.sqrt(qua);
+        let erg2 = -Math.sqrt(qua);
+        if (lin === "+0" || lin === "-0")
+            lin = "";
+        //  System.err.println(x+" ~~ "+erg1+" ~~ "+erg2);
+        let erg;
+        if (Math.abs(imag - erg1) < Math.abs(imag - erg2)) {
+            erg = lin + quadp;
+        } else {
+            erg = lin + quadm;
+        }
+        if (erg.startsWith("+"))
+            erg = erg.substring(1);
+        return erg;
+    }
+
+
+    /**
+     * calculate the two solutions of aa*x^2+bb*x+cc = 0 and compare them with the parameter x
+     *
+     * @param x
+     * @param aa
+     * @param bb
+     * @param cc
+     * @return the solution as a printable string of the form a/b + sqrt(c/d)
+     */
+    function quadratic(x, aa, bb, cc) {
+        const a = Math.round(aa);
+        const b = Math.round(bb);
+        const c = Math.round(cc);
+        let lin = fraction(-b, 2 * a);
+        let sqr = b * b - 4 * c * a;
+        const n = extractsquare(sqr);
+        sqr = sqr / (n * n);
+
+        let quadp;
+        if (n === 2 * a) {
+            quadp = "+sqrt(" + sqr + ")";
+        } else if (n === -2 * a) {
+            quadp = "-sqrt(" + sqr + ")";
+        } else {
+            quadp = fraction(n, 2 * a) + "*sqrt(" + sqr + ")";
+        }
+        const li = -bb / (2 * aa);
+        const qua = Math.abs((bb * bb - 4 * cc * aa) / (4 * aa * aa));
+        quadp = "+" + quadp.substring(1);
+        const quadm = "-" + quadp.substring(1);
+        const erg1 = li + Math.sqrt(qua);
+        const erg2 = li - Math.sqrt(qua);
+        if (lin === "+0" || lin === "-0")
+            lin = "";
+        // System.err.println(x+" ~~ "+erg1+" ~~ "+erg2);
+        let erg;
+        if (Math.abs(x - erg1) < Math.abs(x - erg2)) {
+            error = Math.abs(x - erg1);
+            erg = lin + quadp;
+        } else {
+            error = Math.abs(x - erg2);
+            erg = lin + quadm;
+        }
+        if (erg.startsWith("+"))
+            erg = erg.substring(1);
+        return erg;
+    }
+
+    let error = 0.0;
+
+    function quotient(x, pi, xx, one) {
+        let a, b;
+        let spi = "";
+
+        if (pi !== 0) {
+            a = Math.round(pi);
+            b = Math.round(xx);
+            spi = fraction(a, b) + "*pi";
+        }
+
+        let spx = "";
+        if (one !== 0) {
+            a = Math.round(one);
+            b = Math.round(xx);
+            spx = fraction(a, b);
+        }
+
+        error = Math.abs(x - (one / xx + Math.PI * pi / xx));
+        let erg = spx + spi;
+        if (erg === "")
+            erg = "0";
+        else if (erg.startsWith("+"))
+            erg = erg.substring(1);
+        return erg;
+    }
+
+
+    let v1 = evaluateAndVal(args[0]);
+    if (v1.ctype === "number" && CSNumber._helper.isFinite(v1)) {
+        let sVal;
+        let s = guess(v1);
+        if (s === undefined)
+            sVal = ("no guess");
+        else
+            sVal = guess(v1);
+        return General.string(sVal);
+    }
+
+    return nada;
+
+};
