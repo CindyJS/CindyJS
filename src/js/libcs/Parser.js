@@ -688,6 +688,10 @@ Parser.prototype.postprocess = function(expr) {
             }
             if (expr.oper === ':') {
                 if (expr.jsonatom) {
+                    if (!(expr.args[1])) {
+                        throw ParseError(
+                            'JSON: Value undefined', expr.start, expr.text);
+                    }
                     expr.ctype = 'jsonatom';
                     expr.key = expr.args[0];
                     expr.value = expr.args[1];
@@ -695,7 +699,7 @@ Parser.prototype.postprocess = function(expr) {
                 } else {
                     if (!(expr.args[1])) {
                         throw ParseError(
-                            'UserData/JSON: Key or Value undefined', expr.start, expr.text);
+                            'UserData: Key undefined', expr.start, expr.text);
                     }
                     expr.ctype = 'userdata';
                     expr.obj = expr.args[0];
