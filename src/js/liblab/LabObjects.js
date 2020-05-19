@@ -759,6 +759,21 @@ labObjects.Spring = {
 };
 
 
+/*-------------------------RUBBER-----------------------*/
+// Shallow Copy
+// TODO: Use ES6 Object.assign later
+labObjects.Rubber = {};
+for (var key in labObjects.Spring) {
+    labObjects.Rubber[key] = labObjects.Spring[key];
+}
+// Alter reset function to ensure Rubber property
+labObjects.Rubber.reset = function(beh, elem) {
+    // Reset stype to rubber just to be sure
+    //0=HOOK, 1=RUBBER, 2=NEWTON, 3=ELECTRO
+    beh.stype = 1;
+    return labObjects.Spring.reset(beh, elem);
+};
+
 /*-------------------------Bouncer-----------------------*/
 labObjects.det = function(x1, y1, x2, y2, x3, y3) {
     return x2 * y3 - x3 * y2 + x3 * y1 - x1 * y3 + x1 * y2 - x2 * y1;
