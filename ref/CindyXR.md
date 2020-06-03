@@ -167,7 +167,7 @@ Gamepad := {
 GamepadButton := {
 	pressed: <boolean>,
 	touched: <boolean>,
-	value: double
+	value: <double>
 }
 ```
 
