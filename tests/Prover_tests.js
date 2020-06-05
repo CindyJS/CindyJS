@@ -243,3 +243,35 @@ describe("Prover: PointOn*", function() {
     itCmd("allelements(F)", "[a]");
     itCmd("allelements(c)", "[]");
 });
+
+describe("RemoveElement: Pappos", function() {
+
+    before(function() {
+        cdy = CindyJS({
+            isNode: true,
+            csconsole: null,
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, -2.050420168067227, -0.8403361344537815], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "B", type: "Free", pos: [0.2857142857142857, -4.0, 2.3809523809523814], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "C", type: "Free", pos: [0.25396825396825395, -4.0, -0.5291005291005291], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "D", type: "Free", pos: [4.0, 2.2010582010582014, 0.5291005291005291], color: [1.0, 0.0, 0.0], labeled: true},
+    {name: "a", type: "Join", color: [0.0, 0.0, 1.0], args: ["A", "B"], labeled: true},
+    {name: "b", type: "Join", color: [0.0, 0.0, 1.0], args: ["C", "D"], labeled: true},
+    {name: "E", type: "PointOnLine", pos: [-1.656041868455039, -4.0, -0.6388890413716075], color: [1.0, 0.0, 0.0], args: ["b"], labeled: true},
+    {name: "F", type: "PointOnLine", pos: [4.0, -0.801486761411016, -1.6314569839452548], color: [1.0, 0.0, 0.0], args: ["a"], labeled: true},
+    {name: "c", type: "Join", color: [0.0, 0.0, 1.0], args: ["A", "D"], labeled: true},
+    {name: "d", type: "Join", color: [0.0, 0.0, 1.0], args: ["A", "E"], labeled: true},
+    {name: "e", type: "Join", color: [0.0, 0.0, 1.0], args: ["F", "C"], labeled: true},
+    {name: "f", type: "Join", color: [0.0, 0.0, 1.0], args: ["B", "C"], labeled: true},
+    {name: "g", type: "Join", color: [0.0, 0.0, 1.0], args: ["D", "F"], labeled: true},
+    {name: "h", type: "Join", color: [0.0, 0.0, 1.0], args: ["E", "B"], labeled: true},
+    {name: "G", type: "Meet", color: [1.0, 0.0, 0.0], args: ["g", "h"], labeled: true},
+    {name: "H", type: "Meet", color: [1.0, 0.0, 0.0], args: ["d", "e"], labeled: true},
+    {name: "k", type: "Join", color: [0.0, 0.0, 1.0], args: ["H", "G"], labeled: true},
+    {name: "K", type: "Meet", color: [1.0, 0.0, 0.0], args: ["c", "f"], labeled: true}
+  ],
+        });
+    });
+    itCmd("removeelement(A); removeelement(C); allpoints()", "[B, D]");
+    itCmd("alllines()", "[]");
+});
