@@ -550,6 +550,14 @@ function onXRFrame(t, frame) {
     let pose = frame.getViewerPose(refSpace);
 
     session.requestAnimationFrame(onXRFrame);
+    xrLastFrame = frame;
+    xrLastViewerPose = pose;
+    for (let i = 0; i < activeSelectInputSources.length; i++) {
+        onSelectHold(activeSelectInputSources[i]);
+    }
+    for (let i = 0; i < activeSqueezeInputSources.length; i++) {
+        onSqueezeHold(activeSqueezeInputSources[i]);
+    }
     drawXRFrame(frame, pose);
 }
 
@@ -559,11 +567,6 @@ function onXRFrame(t, frame) {
  * @param {XRViewerPose} pose The viewer pose in the current frame.
  */
 function drawXRFrame(frame, pose) {
-    xrLastFrame = frame;
-    xrLastViewerPose = pose;
-
-    //if (!isGLInitialized && xrCindyPluginMode == "Cindy3D") {
-    //}
     renderFunction();
     if (xrCindyPluginMode == "CindyGL") {
         xrPostRenderCindyGL();
@@ -598,15 +601,6 @@ function flatMatrix4ToNestedMatrix4ColumnMajor(m) {
 		[m[2], m[6], m[10], m[14]],
 		[m[3], m[7], m[11], m[15]]
 	];
-}
-
-/**
- * Returns the currently available XR input sources.
- * @see https://www.w3.org/TR/webxr/#xrinputsource-interface
- * @return {XRInputSource[]} A list of available XR input sources.
- */
-function xrGetInputSources() {
-    return xrLastFrame.session.inputSources;
 }
 
 /**

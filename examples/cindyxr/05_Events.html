@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>WebGL testing</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+<script type="text/javascript" src="../../build/js/CindyXR.js"></script>
+
+<script id="csinit" type="text/x-cindyscript">
+    use("Cindy3D");
+    use("CindyXR");
+    initxrcindy3d(referencemode->"local");
+</script>
+
+<script id="xrdraw" type="text/x-cindyscript">
+    begin3d();
+
+    background3d([0,0,0]);
+    size3d(2.4);
+    n=300;
+    r1=1;
+    r2=.3;
+    k=5;
+    l=3;
+
+    f(w) := (sin(l*w), cos(l*w), 0) * (r1 + r2*cos(k*w)) + (0, 1.5, r2*sin(k*w) - 1.5);
+    repeat(n,i,
+        w1=i/n*360°;
+        w2=(i+1)/n*360°;
+        color3d(hue(i/n));
+        draw3d(f(w1), f(w2));
+    );
+
+    xrinputsources = getxrinputsources();
+    repeat(length(xrinputsources), i,
+        inputsource = xrinputsources_i;
+        // We only want input sources regarding tracked controllers.
+        if (inputsource.targetRayMode == "tracked-pointer",
+            // Draw a ball at the position of the controller and color it depending on whether button 1 is pressed.
+            isbuttonpressed = inputsource.gamepad.buttons_1.pressed;
+            color = if(isbuttonpressed, hue(0.1), hue(0.5));
+            color3d(color);
+            draw3d(inputsource.gripSpaceTransform.position);
+        );
+    );
+
+    end3d();
+</script>
+
+<script id="xrinputsourceschange" type="text/x-cindyscript">
+    print("xrinputsourceschange");
+</script>
+
+<script id="xrselectstart" type="text/x-cindyscript">
+    print("xrselectstart: " + inputsource.handedness);
+</script>
+<script id="xrselectend" type="text/x-cindyscript">
+    print("xrselectend: " + inputsource.handedness);
+</script>
+<script id="xrselect" type="text/x-cindyscript">
+    print("xrselect: " + inputsource.handedness);
+</script>
+<script id="xrselecthold" type="text/x-cindyscript">
+    print("xrselecthold: " + inputsource.handedness);
+</script>
+
+<script id="xrsqueezestart" type="text/x-cindyscript">
+    print("xrsqueezestart: " + inputsource.handedness);
+</script>
+<script id="xrsqueezeend" type="text/x-cindyscript">
+    print("xrsqueezeend: " + inputsource.handedness);
+</script>
+<script id="xrsqueeze" type="text/x-cindyscript">
+    print("xrsqueeze: " + inputsource.handedness);
+</script>
+<script id="xrsqueezehold" type="text/x-cindyscript">
+    print("xrsqueezehold: " + inputsource.handedness);
+</script>
+
+<script type="text/javascript">
+    CindyJS({canvasname:"CSCanvas",scripts:"cs*"});
+</script>
+</head>
+
+<body>
+    <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
+    <div id="CSCanvas" style="width:50px; height:50px; border:none"></div>
+</body>
+
+</html>

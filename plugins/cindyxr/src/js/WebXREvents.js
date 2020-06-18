@@ -25,9 +25,14 @@ let cindyXrInputSourcesChangeCallback = function(cindyScriptAddedInputSources, c
 let cindyXrSelectStartCallback = function(cindyScriptInputSource) {};
 let cindyXrSelectEndCallback = function(cindyScriptInputSource) {};
 let cindyXrSelectCallback = function(cindyScriptInputSource) {};
+let cindyXrSelectHoldCallback = function(cindyScriptInputSource) {};
 let cindyXrSqueezeStartCallback = function(cindyScriptInputSource) {};
 let cindyXrSqueezeEndCallback = function(cindyScriptInputSource) {};
 let cindyXrSqueezeCallback = function(cindyScriptInputSource) {};
+let cindyXrSqueezeHoldCallback = function(cindyScriptInputSource) {};
+
+let activeSelectInputSources = [];
+let activeSqueezeInputSources = [];
 
 /**
  * For setting global CindyJS variables.
@@ -35,7 +40,6 @@ let cindyXrSqueezeCallback = function(cindyScriptInputSource) {};
 let setCindyScriptVariable = function(name, value) {
     let csVariableSetterCompiled = xrCindyApi.instance.parse(name + " = 0", false);
     csVariableSetterCompiled.args[1] = value;
-    console.log(csVariableSetterCompiled);
     xrCindyApi.evaluate(csVariableSetterCompiled);
 }
 
@@ -45,8 +49,8 @@ let setCindyScriptVariable = function(name, value) {
 function setupCindyScriptEventCallbacks() {
     var xrScripts = [
         'xrdraw', 'xrinputsourceschange',
-        'xrselectstart', 'xrselectend', 'xrselect',
-        'xrsqueezestart', 'xrsqueezeend', 'xrsqueeze'
+        'xrselectstart', 'xrselectend', 'xrselect', 'xrselecthold',
+        'xrsqueezestart', 'xrsqueezeend', 'xrsqueeze', 'xrsqueezehold'
     ];
 
     xrScripts.forEach(function(scriptName) {
@@ -94,6 +98,12 @@ function setupCindyScriptEventCallbacks() {
             xrCindyApi.evaluate(xrCsCompiled['xrselect']);
         }
     }
+    if (xrCsCompiled['xrselecthold'] !== undefined) {
+        cindyXrSelectHoldCallback = function(cindyScriptInputSource) {
+            setCindyScriptVariable("inputsource", cindyScriptInputSource);
+            xrCindyApi.evaluate(xrCsCompiled['xrselecthold']);
+        }
+    }
     if (xrCsCompiled['xrsqueezestart'] !== undefined) {
         cindyXrSqueezeStartCallback = function(cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
@@ -112,7 +122,14 @@ function setupCindyScriptEventCallbacks() {
             xrCindyApi.evaluate(xrCsCompiled['xrsqueeze']);
         }
     }
+    if (xrCsCompiled['xrsqueezehold'] !== undefined) {
+        cindyXrSqueezeHoldCallback = function(cindyScriptInputSource) {
+            setCindyScriptVariable("inputsource", cindyScriptInputSource);
+            xrCindyApi.evaluate(xrCsCompiled['xrsqueezehold']);
+        }
+    }
 }
+
 
 /**
  * Called when the list of active XR input sources has changed.
@@ -131,6 +148,7 @@ function onInputSourcesChange(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSelectStart(event) {
+    activeSelectInputSources.push(event.inputSource);
     let cindyScriptInputSource = convertObjectToCindyDict(
             xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSelectStartCallback(cindyScriptInputSource);
@@ -142,6 +160,10 @@ function onSelectStart(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSelectEnd(event) {
+    let idx = activeSelectInputSources.indexOf(event.inputSource);
+    if (idx > -1) {
+        activeSelectInputSources.splice(idx, 1);
+    }
     let cindyScriptInputSource = convertObjectToCindyDict(
             xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSelectEndCallback(cindyScriptInputSource);
@@ -158,11 +180,23 @@ function onSelect(event) {
 }
 
 /**
+ * Called each frame as long as a select event is active (once for each event triggering input source).
+ * @param {XRInputSource} event The triggering input source.
+ */
+function onSelectHold(inputSource) {
+    let cindyScriptInputSource = convertObjectToCindyDict(
+            xrFilterInputSource(inputSource, xrLastFrame), new Set([]), new Map());
+    cindyXrSelectHoldCallback(cindyScriptInputSource);
+}
+
+
+/**
  * Called when one of the input sources begins its primary squeeze action,
  * indicating that the user has begun to grab, squeeze, or grip the controller.
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSqueezeStart(event) {
+    activeSqueezeInputSources.push(event.inputSource);
     let cindyScriptInputSource = convertObjectToCindyDict(
             xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSqueezeStartCallback(cindyScriptInputSource);
@@ -174,6 +208,10 @@ function onSqueezeStart(event) {
  * @param {XRInputSourceEvent} event The triggered event.
  */
 function onSqueezeEnd(event) {
+    let idx = activeSqueezeInputSources.indexOf(event.inputSource);
+    if (idx > -1) {
+        activeSqueezeInputSources.splice(idx, 1);
+    }
     let cindyScriptInputSource = convertObjectToCindyDict(
             xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSqueezeEndCallback(cindyScriptInputSource);
@@ -187,4 +225,14 @@ function onSqueeze(event) {
     let cindyScriptInputSource = convertObjectToCindyDict(
             xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
     cindyXrSqueezeCallback(cindyScriptInputSource);
+}
+
+/**
+ * Called each frame as long as a squeeze event is active (once for each event triggering input source).
+ * @param {XRInputSource} event The triggering input source.
+ */
+function onSqueezeHold(inputSource) {
+    let cindyScriptInputSource = convertObjectToCindyDict(
+            xrFilterInputSource(inputSource, xrLastFrame), new Set([]), new Map());
+    cindyXrSqueezeHoldCallback(cindyScriptInputSource);
 }
