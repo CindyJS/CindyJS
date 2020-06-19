@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <title>Cindy JS</title>
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <link rel="stylesheet" href="../../css/cindy.css">
+  </head>
+    
+	<body style="font-family:Arial;">
+    
+    <h1>CindyJS: ellipses</h1>
+
+    <script id="csdraw" type="text/x-cindyscript">
+      colorplot(hue(re(|x-A|+|x-B|)));
+    </script>
+
+    <div id="CSCanvas"></div>
+
+    <script type="text/javascript">
+
+        var gslp=[
+                  {name:"A", kind:"P", type:"Free", pos:[7,8,1], color: [1,1,1]},
+                  {name:"B", kind:"P", type:"Free", pos:[1,6,1], color: [1,1,1]},
+                  ];
+        cdy = CindyJS({canvasname:"CSCanvas",
+                    scripts: "cs*",
+                    geometry:gslp,
+                    animation: {autoplay: true},
+                    ports: [{
+                      id: "CSCanvas",
+                      width: 500,
+                      height: 500,
+                      transform: [ { visibleRect: [ 0,0,10,10 ] } ]
+                    }]
+                  });
+    </script>
+</body>
+</html>

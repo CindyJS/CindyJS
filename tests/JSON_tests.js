@@ -112,4 +112,16 @@ describe("JSON operations", function(){
     //deleting keys from a dictionary
     itCmd('json = {"a":1, "b": 2}; json.a = nada; keys(json)','[b]');
 
+
+    //expressions on the right hand side
+    itCmd('{"a":1+1}','{a:2}');
+
+    //user-data sanity check
+    itCmd('A:"a"=41; A:"a1"=100; A:"a"+1', '42');
+
+    //user-data together with JSON
+    itCmd('A:"x"=100; {"a":A:"x"*2,"b":3} ', '{a:200, b:3}');
+
+    //complicated nested JSON with user-data
+    itCmd('A:"x"=100; {"a":A:"x"*2,"b":{"c":1+3, "ef": [1,2,3, A:"x"], "ghi": "jkl"}} ', '{a:200, b:{c:4, ef:[1, 2, 3, 100], ghi:jkl}}');
 });

@@ -20,6 +20,7 @@ exports.libcs = [
     "src/js/libcs/Render2D.js",
     "src/js/libcs/RenderBackends.js",
     "src/js/libcs/Tools.js",
+    "src/js/libcs/PSLQ.js",
 ];
 
 exports.libgeo = [

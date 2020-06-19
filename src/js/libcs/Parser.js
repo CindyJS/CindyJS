@@ -453,6 +453,7 @@ function parseRec(tokens, closing) {
     // in the sequence can have equal precedence.
     var seq = [];
     var tok; // last token to be processed
+    var parsejsonatom = (closing === "}");
     parseLoop: while (true) {
         tok = tokens.next();
         switch (tok.toktype) {
@@ -474,6 +475,14 @@ function parseRec(tokens, closing) {
                     applyOperator(seq);
                 if (op.rassoc)
                     tok.precedence++;
+                if (parsejsonatom && op.sym === ":") {
+                    tok.jsonatom = true;
+                    tok.precedence = operators[','].precedence; //use different precedence for JSON
+                    parsejsonatom = false;
+                }
+                if (closing === "}" &&
+                    (op.sym === "," && seq.length > 0 && (!!seq[seq.length - 1].jsonatom)))
+                    parsejsonatom = true;
                 seq.push(tok);
                 break;
             case 'ID':
@@ -678,13 +687,25 @@ Parser.prototype.postprocess = function(expr) {
                 delete expr.args;
             }
             if (expr.oper === ':') {
-                if (!(expr.args[1])) {
-                    throw ParseError(
-                        'UserData/JSON: Key or Value undefined', expr.start, expr.text);
+                if (expr.jsonatom) {
+                    if (!(expr.args[1])) {
+                        throw ParseError(
+                            'JSON: Value undefined', expr.start, expr.text);
+                    }
+                    expr.ctype = 'jsonatom';
+                    expr.key = expr.args[0];
+                    expr.value = expr.args[1];
+                    delete expr.jsonatom;
+                } else {
+                    if (!(expr.args[1])) {
+                        throw ParseError(
+                            'UserData: Key undefined', expr.start, expr.text);
+                    }
+                    expr.ctype = 'userdata';
+                    expr.obj = expr.args[0];
+                    expr.key = expr.args[1];
                 }
-                expr.ctype = 'userdata';
-                expr.obj = expr.args[0];
-                expr.key = expr.args[1];
+
 
                 delete expr.args;
             }
@@ -754,6 +775,13 @@ Parser.prototype.postprocess = function(expr) {
             ctype: 'userdata',
             obj: expr.obj,
             key: expr.key,
+        };
+    }
+    if (expr.ctype === 'jsonatom') {
+        return {
+            ctype: 'jsonatom',
+            key: expr.key,
+            value: expr.value,
         };
     }
     throw Error("Unsupported AST node of type " + expr.ctype);
