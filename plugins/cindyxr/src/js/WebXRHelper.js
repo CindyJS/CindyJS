@@ -658,7 +658,7 @@ function xrGetInputSources() {
  * GamepadButton := {
  * 	pressed: <boolean>,
  * 	touched: <boolean>,
- * 	value: double
+ * 	value: <double>
  * }
  */
 function xrFilterInputSource(inputSource, xrFrame) {
