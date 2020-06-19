@@ -47,26 +47,7 @@ let setCindyScriptVariable = function(name, value) {
  * Sets all callbacks defined above.
  */
 function setupCindyScriptEventCallbacks() {
-    var xrScripts = [
-        'xrdraw', 'xrinputsourceschange',
-        'xrselectstart', 'xrselectend', 'xrselect', 'xrselecthold',
-        'xrsqueezestart', 'xrsqueezeend', 'xrsqueeze', 'xrsqueezehold'
-    ];
-
-    xrScripts.forEach(function(scriptName) {
-        let csCode = document.getElementById(scriptName);
-        if (!csCode) {
-            return;
-        }
-        csCode = csCode.text;
-        csCode = xrCindyApi.instance.parse(csCode, false);
-
-        if (csCode.ctype === 'error') {
-            console.error("Error compiling " + scriptName + " script: " + csCode.message);
-        } else {
-            xrCsCompiled[scriptName] = xrCindyApi.labelCode(csCode, scriptName);
-        }
-    });
+    xrCsCompiled = xrCindyApi.cscompiled;
 
     if (xrCsCompiled['xrdraw'] !== undefined) {
         cindyXrDrawCallback = function() {

@@ -314,7 +314,11 @@ function createCindyNow() {
         "mousedown", "mouseup", "mousedrag", "mousemove", "mouseclick",
         "multidown", "multiup", "multidrag",
         "init", "tick", "draw",
-        "simulationstep", "simulationstart", "simulationstop", "ondrop"
+        "simulationstep", "simulationstart", "simulationstop", "ondrop",
+        // CindyXR plugin
+        'xrdraw', 'xrinputsourceschange',
+        'xrselectstart', 'xrselectend', 'xrselect', 'xrselecthold',
+        'xrsqueezestart', 'xrsqueezeend', 'xrsqueeze', 'xrsqueezehold'
     ];
     var scriptconf = data.scripts;
     var scriptpat = null;
