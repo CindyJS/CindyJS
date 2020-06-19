@@ -21,7 +21,7 @@
     "iphone-inline-video": "2.0.2",
     "js-beautify": "1.6.8",
     "jshint": "^2.10.2",
-    "leapjs": "github:chrismile/leapjs",
+    "leapjs": "github:CindyJS/leapjs",
     "marked": ">=0.3.5 <=0.3.12",
     "mocha": "^5.2.0",
     "node-sass": "^4.12.0",
