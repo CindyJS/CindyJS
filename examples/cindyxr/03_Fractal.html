@@ -25,7 +25,7 @@
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 <script type="text/javascript" src="../../build/js/CindyXR.js"></script>
 
-<script id="csinit" type="text/x-cindyscript">
+<script id="init" type="text/x-cindyscript">
     /**
      * Widget created by Christian Kluge with CindyJS.
      * Ported to WebXR by Christoph Neuhauser.
@@ -251,7 +251,7 @@
     );
 </script>
 
-<script id="csxrdraw" type="text/x-cindyscript">
+<script id="xrdraw" type="text/x-cindyscript">
     rayDir=normalize([cos(lam)*cos(phi),sin(lam)*cos(phi),sin(phi)]);
     v=normalize(cross([0,0,-1],rayDir));
     w=normalize(cross(v,rayDir));
@@ -289,18 +289,18 @@
     );
 </script>
 
-<script id="csmousedown" type="text/x-cindyscript">
+<script id="mousedown" type="text/x-cindyscript">
     moving=true;
     rendered=false;
     lastmouse = mouse();
 </script>
 
-<script id="csmouseup" type="text/x-cindyscript">
+<script id="mouseup" type="text/x-cindyscript">
     moving=false;
     rendered=false;
 </script>
 
-<script id="csmousedrag" type="text/x-cindyscript">
+<script id="mousedrag" type="text/x-cindyscript">
     moving=true;
     rendered=false;
     d = mouse()-lastmouse;
@@ -309,7 +309,7 @@
     lastmouse = mouse();
 </script>
 
-<script id="cskeydown" type="text/x-cindyscript">
+<script id="keydown" type="text/x-cindyscript">
     moving=true;
     rendered=false;
     //37-40 are arrow keys
@@ -320,7 +320,7 @@
     if(keycode()==16, fastmove=!fastmove);
 </script>
 
-<script id="cskeyup" type="text/x-cindyscript">
+<script id="keyup" type="text/x-cindyscript">
     moving=false;
     rendered=false;
 </script>
@@ -328,7 +328,7 @@
 
 <script type="text/javascript">
     var cdy = CindyJS({
-        scripts: "cs*",
+        scripts: "*",
         angleUnit: "°",
         exclusive: "true",
         geometry: [

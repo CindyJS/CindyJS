@@ -18,7 +18,7 @@
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 <script type="text/javascript" src="../../build/js/CindyXR.js"></script>
 
-<script id="csinit" type="text/x-cindyscript">
+<script id="init" type="text/x-cindyscript">
     resetclock();
 
     initxrcindygl();
@@ -78,7 +78,7 @@
     );
 </script>
 
-<script id="csxrdraw" type="text/x-cindyscript">
+<script id="xrdraw" type="text/x-cindyscript">
     light = [cos(seconds())+2,2, sin(seconds())];
     numViews = getxrnumviews();
 
@@ -115,7 +115,7 @@
 
 <script type="text/javascript">
     var cdy = CindyJS({
-        scripts: "cs*",
+        scripts: "*",
         angleUnit: "°",
         exclusive: "true",
         geometry: [

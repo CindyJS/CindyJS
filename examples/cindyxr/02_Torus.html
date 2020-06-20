@@ -8,13 +8,13 @@
 <script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
 <script type="text/javascript" src="../../build/js/CindyXR.js"></script>
 
-<script id="csinit" type="text/x-cindyscript">
+<script id="init" type="text/x-cindyscript">
     use("Cindy3D");
     use("CindyXR");
     initxrcindy3d(referencemode->"local");
 </script>
 
-<script id="csxrdraw" type="text/x-cindyscript">
+<script id="xrdraw" type="text/x-cindyscript">
     begin3d();
 
     background3d([0,0,0]);
@@ -37,7 +37,7 @@
 </script>
 
 <script type="text/javascript">
-    CindyJS({canvasname:"CSCanvas",scripts:"cs*"});
+    CindyJS({canvasname:"CSCanvas",scripts:"*"});
 </script>
 </head>
 

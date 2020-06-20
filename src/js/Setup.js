@@ -322,7 +322,7 @@ function createCindyNow() {
     ];
     var scriptconf = data.scripts;
     var scriptpat = null;
-    if (typeof scriptconf === "string" && scriptconf.search(/\*/))
+    if (typeof scriptconf === "string" && scriptconf.search(/\*/) >= 0)
         scriptpat = scriptconf;
     if (typeof scriptconf !== "object")
         scriptconf = null;
