@@ -780,6 +780,7 @@ module.exports = function build(settings, task) {
         "webxr-button",
         "inline-viewer-helper",
         "WebXRHelper",
+        "WebXREvents",
         "WebXRScalingHelper"
     ];
 

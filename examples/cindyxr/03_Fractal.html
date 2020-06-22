@@ -25,7 +25,7 @@
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 <script type="text/javascript" src="../../build/js/CindyXR.js"></script>
 
-<script id="csinit" type="text/x-cindyscript">
+<script id="init" type="text/x-cindyscript">
     /**
      * Widget created by Christian Kluge with CindyJS.
      * Ported to WebXR by Christoph Neuhauser.
@@ -249,59 +249,58 @@
     normalizedDirection(a, b) := (
         (a - b) / dist(a, b)
     );
+</script>
 
+<script id="xrdraw" type="text/x-cindyscript">
+    rayDir=normalize([cos(lam)*cos(phi),sin(lam)*cos(phi),sin(phi)]);
+    v=normalize(cross([0,0,-1],rayDir));
+    w=normalize(cross(v,rayDir));
 
-    xrrenderfunction() := (
-        rayDir=normalize([cos(lam)*cos(phi),sin(lam)*cos(phi),sin(phi)]);
-        v=normalize(cross([0,0,-1],rayDir));
-        w=normalize(cross(v,rayDir));
+    numViews = getxrnumviews();
 
-        numViews = getxrnumviews();
+    repeat(numViews, i,
+        viewIndex = i - 1;
+        viewportSize = getxrviewportsize(viewIndex);
+        aspectRatio = viewportSize.x/viewportSize.y;
+
+        invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
+        invViewMatrix = inverse(getxrviewmatrix(viewIndex));
+        invViewProjMatrix = invViewMatrix * invProjectionMatrix;
+
+        colorplotxr(viewIndex,
+            moving = true;
+            // Coordinates in NDC space
+            ndcPixelNearCoord = [#.x, #.y, -1, 1];
+            ndcPixelFarCoord = [#.x, #.y, 1, 1];
     
-        repeat(numViews, i,
-            viewIndex = i - 1;
-            viewportSize = getxrviewportsize(viewIndex);
-            aspectRatio = viewportSize.x/viewportSize.y;
-    
-            invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
-            invViewMatrix = inverse(getxrviewmatrix(viewIndex));
-            invViewProjMatrix = invViewMatrix * invProjectionMatrix;
-    
-            colorplotxr(viewIndex,
-                moving = true;
-                // Coordinates in NDC space
-                ndcPixelNearCoord = [#.x, #.y, -1, 1];
-                ndcPixelFarCoord = [#.x, #.y, 1, 1];
-        
-                // Multiply with inverse view-projection matrix to get world space coordinates.
-                nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
-                farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
+            // Multiply with inverse view-projection matrix to get world space coordinates.
+            nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
+            farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
 
-                // Dehomogenize the homogeneous coordinates.
-                nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
-                farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
+            // Dehomogenize the homogeneous coordinates.
+            nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
+            farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
 
-                rayOrig = nearPointWorldDehom;
-                rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
+            rayOrig = nearPointWorldDehom;
+            rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
 
-                compositeRender();
-            );
+            compositeRender();
         );
     );
-    xr(xrrenderfunction());
 </script>
-<script id="csdraw" type="text/x-cindyscript">
-</script>
-<script id="csmousedown" type="text/x-cindyscript">
+
+<script id="mousedown" type="text/x-cindyscript">
     moving=true;
     rendered=false;
     lastmouse = mouse();
 </script>
-<script id="csmouseup" type="text/x-cindyscript">
+
+<script id="mouseup" type="text/x-cindyscript">
     moving=false;
     rendered=false;
 </script>
-<script id="csmousedrag" type="text/x-cindyscript">
+
+<script id="mousedrag" type="text/x-cindyscript">
     moving=true;
     rendered=false;
     d = mouse()-lastmouse;
@@ -309,7 +308,8 @@
     phi = phi+d.y;
     lastmouse = mouse();
 </script>
-<script id="cskeydown" type="text/x-cindyscript">
+
+<script id="keydown" type="text/x-cindyscript">
     moving=true;
     rendered=false;
     //37-40 are arrow keys
@@ -319,14 +319,16 @@
     if(keycode()==40, rayOrig=rayOrig-if(fastmove,.1,.5*sdf(rayOrig))*rayDir);
     if(keycode()==16, fastmove=!fastmove);
 </script>
-<script id="cskeyup" type="text/x-cindyscript">
+
+<script id="keyup" type="text/x-cindyscript">
     moving=false;
     rendered=false;
 </script>
 
+
 <script type="text/javascript">
     var cdy = CindyJS({
-        scripts: "cs*",
+        scripts: "*",
         angleUnit: "°",
         exclusive: "true",
         geometry: [

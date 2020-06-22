@@ -7,6 +7,7 @@
 <script type="text/javascript" src="../../build/js/Cindy.js"></script>
 <script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
 <script type="text/javascript" src="../../build/js/CindyXR.js"></script>
+
 <script id="init" type="text/x-cindyscript">
     use("Cindy3D");
     use("CindyXR");
@@ -46,6 +47,36 @@
     );
 
     end3d();
+</script>
+
+<script id="xrinputsourceschange" type="text/x-cindyscript">
+    print("xrinputsourceschange");
+</script>
+
+<script id="xrselectstart" type="text/x-cindyscript">
+    print("xrselectstart: " + inputsource.handedness);
+</script>
+<script id="xrselectend" type="text/x-cindyscript">
+    print("xrselectend: " + inputsource.handedness);
+</script>
+<script id="xrselect" type="text/x-cindyscript">
+    print("xrselect: " + inputsource.handedness);
+</script>
+<script id="xrselecthold" type="text/x-cindyscript">
+    print("xrselecthold: " + inputsource.handedness);
+</script>
+
+<script id="xrsqueezestart" type="text/x-cindyscript">
+    print("xrsqueezestart: " + inputsource.handedness);
+</script>
+<script id="xrsqueezeend" type="text/x-cindyscript">
+    print("xrsqueezeend: " + inputsource.handedness);
+</script>
+<script id="xrsqueeze" type="text/x-cindyscript">
+    print("xrsqueeze: " + inputsource.handedness);
+</script>
+<script id="xrsqueezehold" type="text/x-cindyscript">
+    print("xrsqueezehold: " + inputsource.handedness);
 </script>
 
 <script type="text/javascript">

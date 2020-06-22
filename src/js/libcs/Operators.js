@@ -4421,6 +4421,7 @@ evaluator.use$1 = function(args, modifs) {
                 "config": instanceInvocationArguments,
                 "nada": nada,
                 "evaluate": evaluate,
+                "cscompiled": cscompiled,
                 "extractPoint": eval_helper.extractPoint,
                 "evaluateAndVal": evaluateAndVal,
                 "defineFunction": defineFunction,

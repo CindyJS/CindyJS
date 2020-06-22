@@ -18,7 +18,7 @@
 <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 <script type="text/javascript" src="../../build/js/CindyXR.js"></script>
 
-<script id="csinit" type="text/x-cindyscript">
+<script id="init" type="text/x-cindyscript">
     resetclock();
 
     initxrcindygl();
@@ -76,50 +76,46 @@
     normalizedDirection(a, b) := (
         (a - b) / dist(a, b)
     );
+</script>
 
+<script id="xrdraw" type="text/x-cindyscript">
+    light = [cos(seconds())+2,2, sin(seconds())];
+    numViews = getxrnumviews();
 
-    xrrenderfunction() := (
-        light = [cos(seconds())+2,2, sin(seconds())];
-        numViews = getxrnumviews();
-    
-        repeat(numViews, i,
-            viewIndex = i - 1;
-            viewportSize = getxrviewportsize(viewIndex);
-            aspectRatio = viewportSize.x/viewportSize.y;
+    repeat(numViews, i,
+        viewIndex = i - 1;
+        viewportSize = getxrviewportsize(viewIndex);
+        aspectRatio = viewportSize.x/viewportSize.y;
 
-            invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
-            invViewMatrix = inverse(getxrviewmatrix(viewIndex));
-            invViewProjMatrix = invViewMatrix * invProjectionMatrix;
+        invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
+        invViewMatrix = inverse(getxrviewmatrix(viewIndex));
+        invViewProjMatrix = invViewMatrix * invProjectionMatrix;
 
-            colorplotxr(viewIndex,
-                moving = true;
-                // Coordinates in NDC space
-                ndcPixelNearCoord = [#.x, #.y, -1, 1];
-                ndcPixelFarCoord = [#.x, #.y, 1, 1];
-        
-                // Multiply with inverse view-projection matrix to get world space coordinates.
-                nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
-                farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
+        colorplotxr(viewIndex,
+            moving = true;
+            // Coordinates in NDC space
+            ndcPixelNearCoord = [#.x, #.y, -1, 1];
+            ndcPixelFarCoord = [#.x, #.y, 1, 1];
 
-                // Dehomogenize the homogeneous coordinates.
-                nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
-                farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
+            // Multiply with inverse view-projection matrix to get world space coordinates.
+            nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
+            farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
 
-                rayOrig = nearPointWorldDehom;
-                rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
+            // Dehomogenize the homogeneous coordinates.
+            nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
+            farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
 
-                computeColor();
-            );
+            rayOrig = nearPointWorldDehom;
+            rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
+
+            computeColor();
         );
     );
-    xr(xrrenderfunction());
-</script>
-<script id="csdraw" type="text/x-cindyscript">
 </script>
 
 <script type="text/javascript">
     var cdy = CindyJS({
-        scripts: "cs*",
+        scripts: "*",
         angleUnit: "°",
         exclusive: "true",
         geometry: [

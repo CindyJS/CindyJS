@@ -97,6 +97,11 @@ let xrInitialized = false;
  * @type {CindyJS.pluginApi}
  */
 let xrCindyApi = null;
+/**
+ * Whether Cindy3D or CindyGL is used together with CindyXR.
+ * @type {string}
+ */
+let xrCindyPluginMode = "";
 
 
 /**
@@ -280,9 +285,7 @@ function xrPreRender(gl, cindy3DCamera) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, xrGetFramebuffer());
     } else {
         // Use scaling.
-        if (viewIndex == 0) {
-            recreateRenderTargetHelpersIfNecessary(gl);
-        }
+        recreateRenderTargetHelpersIfNecessary(gl);
     }
 }
 
@@ -368,21 +371,24 @@ function xrPostRenderCindyGL() {
     }
 }
 
-
 /**
  * Initializes WebXR using a certain WebGL context.
  * NOTE: It is necessary that the WebGL context is initialized with the 'xrCompatible' flag.
  * This is handled automatically in Cindy3D and CindyGL if the CindyXR plug-in is loaded.
+ * @param {CindyJS.pluginApi} api The CindyJS plugin API object.
  * @param {WebGLRenderingContext} gl The WebGL rendering context.
  * @param {number} canvasWidth The width of the preview canvas in pixels.
  * @param {number} canvasHeight The height of the preview canvas in pixels.
  * @param {boolean} hideCanvas Whether to hide or show the main (non-WebGL) CindyJS canvas.
  */
-function initXR(gl, canvasWidth, canvasHeight, hideCanvas) {
+function initXR(api, gl, canvasWidth, canvasHeight, hideCanvas) {
+    xrCindyApi = api;
     xrgl = gl;
     xrCanvasWidth = canvasWidth;
     xrCanvasHeight = canvasHeight;
     xrHideCanvas = hideCanvas;
+    setupCindyScriptEventCallbacks();
+    renderFunction = cindyXrDrawCallback;
 
     xrButton = new XRDeviceButton({
         onRequestSession: onRequestSession,
@@ -448,12 +454,23 @@ function initGL() {
     onResize();*/
 }
 
+
 /**
  * This function is called when a VR/AR session is started.
  * @param {XRSession} session 
  */
 function onSessionStarted(session) {
     session.addEventListener('end', onSessionEnded);
+
+    // CindyXR event listeners. These events are passed to CindyXR.
+    session.addEventListener('inputsourceschange', onInputSourcesChange)
+    session.addEventListener('selectstart', onSelectStart);
+    session.addEventListener('selectend', onSelectEnd);
+    session.addEventListener('select', onSelect);
+    session.addEventListener('squeezestart', onSqueezeStart);
+    session.addEventListener('squeezeend', onSqueezeEnd);
+    session.addEventListener('squeeze', onSqueeze);
+
     initGL();
     /*
      * Unfortunately, as of writing, framebufferScaleFactor is still not properly supported by
@@ -533,6 +550,14 @@ function onXRFrame(t, frame) {
     let pose = frame.getViewerPose(refSpace);
 
     session.requestAnimationFrame(onXRFrame);
+    xrLastFrame = frame;
+    xrLastViewerPose = pose;
+    for (let i = 0; i < activeSelectInputSources.length; i++) {
+        onSelectHold(activeSelectInputSources[i]);
+    }
+    for (let i = 0; i < activeSqueezeInputSources.length; i++) {
+        onSqueezeHold(activeSqueezeInputSources[i]);
+    }
     drawXRFrame(frame, pose);
 }
 
@@ -542,9 +567,40 @@ function onXRFrame(t, frame) {
  * @param {XRViewerPose} pose The viewer pose in the current frame.
  */
 function drawXRFrame(frame, pose) {
-    xrLastFrame = frame;
-    xrLastViewerPose = pose;
     renderFunction();
+    if (xrCindyPluginMode == "CindyGL") {
+        xrPostRenderCindyGL();
+    }
+}
+
+
+
+/**
+ * Converts a flat row-major 4x4 matrix to a nested 4x4 matrix.
+ * @param {number[16]} m A flat 4x4 matrix.
+ * @return {number[4][4]} The nested 4x4 matrix.
+ */
+function flatMatrix4ToNestedMatrix4RowMajor(m) {
+	return [
+		[m[0], m[1], m[2], m[3]],
+		[m[4], m[5], m[6], m[7]],
+		[m[8], m[9], m[10], m[11]],
+		[m[12], m[13], m[14], m[15]]
+	];
+}
+
+/**
+ * Converts a flat column-major 4x4 matrix to a nested 4x4 matrix.
+ * @param {number[16]} m A flat 4x4 matrix.
+ * @return {number[4][4]} The nested 4x4 matrix.
+ */
+function flatMatrix4ToNestedMatrix4ColumnMajor(m) {
+	return [
+		[m[0], m[4], m[8], m[12]],
+		[m[1], m[5], m[9], m[13]],
+		[m[2], m[6], m[10], m[14]],
+		[m[3], m[7], m[11], m[15]]
+	];
 }
 
 /**
@@ -554,4 +610,119 @@ function drawXRFrame(frame, pose) {
  */
 function xrGetInputSources() {
     return xrLastFrame.session.inputSources;
+}
+
+/**
+ * Returns a filtered XRInputSource object for use as a CindyScript JSON dictionary.
+ * 
+ * // @see https://www.w3.org/TR/webxr/#xrinputsource-interface
+ * XRInputSource := {
+ * 	// Whether the input source is associated with a handedness
+ * 	handedness: ("none" | "left" | "right"),
+ * 	// For more details see: https://www.w3.org/TR/webxr/#xrinputsource-interface
+ * 	targetRayMode: ("gaze" | "tracked-pointer" | "screen"),
+ * 
+ * 	// For tracking the input source in space
+ * 	targetRaySpaceTransform: <XRRigidTransform>,
+ * 	gripSpaceTransform: <XRRigidTransform>,
+ * 
+ * 	// For getting gamepad button presses, ...	
+ * 	gamepad: ?<Gamepad>,
+ * 
+ * 	// Example for profile: ["valve-index", "htc-vive", "generic-trigger-squeeze-touchpad-thumbstick"]
+ * 	profiles: [
+ * 		// ... list of strings ...
+ * 	]
+ * }
+ * 
+ * XRRigidTransform := {
+ *	// The position in homogeneous coordinates
+ *  position: [ x, y, z, w ],
+ * 	// The orientation as a quaternion
+ * 	orientation: [ x, y, z, w ],
+ * 	// The total transform as a 4x4 matrix
+ * 	matrix: [[ a_11, ...], ...]
+ * }
+ * 
+ * // @see https://w3c.github.io/gamepad/#dom-gamepad
+ * Gamepad := {
+ * 	id: <string>,
+ * 	index: <number>,
+ * 	connected: <boolean>,
+ * 	mapping: ("" | "standard" | "xr-standard"),
+ * 	axes: list<number>,
+ * 	buttons: list<GamepadButton>
+ * }
+ * 
+ * // @see https://w3c.github.io/gamepad/#dom-gamepadbutton
+ * GamepadButton := {
+ * 	pressed: <boolean>,
+ * 	touched: <boolean>,
+ * 	value: <double>
+ * }
+ */
+function xrFilterInputSource(inputSource, xrFrame) {
+    if (xrFrame === undefined) {
+        xrFrame = xrLastFrame;
+    }
+
+	// Helper functions for extracting transforms from XR spaces.
+	let identityTransform = {
+		position: [0, 0, 0, 1],
+		orientation: [0, 0, 0, 1],
+		matrix: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+	};
+	let extractTransform = function(xrSpace) {
+		if (xrFrame === null || xrSpace === null) {
+			return identityTransform;
+		}
+		let xrPose = xrFrame.getPose(xrSpace, xrGetReferenceSpace());
+		if (xrPose === null) {
+			return identityTransform;
+		}
+		let xrTransform = xrPose.transform;
+		let filteredTransform = {
+			position: [xrTransform.position.x, xrTransform.position.y, xrTransform.position.z, xrTransform.position.w],
+			orientation: [xrTransform.orientation.x, xrTransform.orientation.y, xrTransform.orientation.z, xrTransform.orientation.w],
+			matrix: flatMatrix4ToNestedMatrix4ColumnMajor(xrTransform.matrix)
+		};
+		return filteredTransform;
+    }
+    
+    let filteredInputSource = {
+        handedness: inputSource.handedness,
+        targetRayMode: inputSource.targetRayMode,
+        targetRaySpaceTransform: extractTransform(inputSource.targetRaySpace),
+        gripSpaceTransform: extractTransform(inputSource.gripSpace),
+        profiles: inputSource.profiles
+    };
+    if (typeof inputSource.gamepad !== "undefined" && inputSource.gamepad != null) {
+        let gamepad = inputSource.gamepad;
+        let filteredGamepad = {
+            id: gamepad.id,
+            index: gamepad.index,
+            connected: gamepad.connected,
+            mapping: gamepad.mapping,
+            axes: gamepad.axes,
+            buttons: gamepad.buttons
+        };
+        filteredInputSource.gamepad = filteredGamepad;
+    }
+
+    return filteredInputSource;
+}
+
+/**
+ * Returns a list of filtered XRInputSource entries for use as a CindyScript JSON dictionary.
+ * @see xrFilterInputSource
+ */
+function xrFilterInputSourceArray(inputSources, xrFrame) {
+    let filteredInputSources = [];
+    for (let i = 0; i < inputSources.length; i++) {
+        let filteredInputSource = xrFilterInputSource(inputSources[i], xrFrame);
+        if (filteredInputSource !== null) {
+            filteredInputSources.push(filteredInputSource);
+        }
+    }
+    return filteredInputSources;
 }
