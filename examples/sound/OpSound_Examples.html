@@ -71,6 +71,22 @@ play12() := (
     );
 );
 
+play13() := (
+    playsin(330, amp->0.5, duration->2, line->18);
+);
+
+play14() := (
+    playsin(330, amp->0.5, duration->2, damp->4, line->18);
+);
+
+play15() := (
+    playsin(330, amp->0.5, duration->2, line->18, pan->-1);
+);
+
+play16() := (
+    playsin(330, amp->0.5, duration->2, damp->4, line->18, pan->-1);
+);
+
 playfunc1() := (
     playfunction(random(), amp->0.4, line->6);
 );
@@ -98,11 +114,11 @@ playwave2() := (
 <script id="csdraw" type="text/x-cindyscript">
 drawtext((-6,4.6),"playsin examples", bold->true, size->19);
 
-drawtext((-6,-3.2), "playfunction & playwave examples", bold->true, size->19);
+drawtext((-6,-4.2), "playfunction & playwave examples", bold->true, size->19);
 
-drawtext((-3, -5.8),"wave1 = apply(1..44100,sin(220*2*pi*#/44100));");
+drawtext((-3, -6.8),"wave1 = apply(1..44100,sin(220*2*pi*#/44100));");
 
-drawtext((1, -6.5),"wave2 = apply(1..200,sin(#*2*pi/200));");
+drawtext((1, -7.5),"wave2 = apply(1..200,sin(#*2*pi/200));");
 
 </script>
 <script type="text/javascript">
@@ -130,11 +146,15 @@ var cdy = CindyJS({
         {name: "Button10", type: "Button", pos: [-6,-1.6], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play10()", text: "playsin(..., phaseshift->0);"},
         {name: "Button11", type: "Button", pos: [-6,-2.3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play11()", text: "playsin(..., phaseshift->2*pi*random());"},
         {name: "Button12", type: "Button", pos: [-1.5,-2.3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play12()", text: "playsin(..., phaseshift->apply(1..10,l,2*pi*random()));"},
-        {name: "ButtonF1", type: "Button", pos: [-6,-3.7], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc1()", text: "playfunction(random(), amp->0.4, line->6);"},
-        {name: "ButtonF2", type: "Button", pos: [-6,-4.4], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc2()", text: "playfunction(sin(330*x*pi*2), amp->0.5, line->7);"},
-        {name: "ButtonF3", type: "Button", pos: [-6,-5.1], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc3()", text: "playfunction(sin(415.3*x*pi*2), amp->0.5, line->8, duration->1, stop->0.001); (duration > stop)"},
-        {name: "ButtonW1", type: "Button", pos: [-6,-5.8], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playwave1()", text: "playwave(wave1, line->9);"},
-        {name: "ButtonW2", type: "Button", pos: [-6,-6.5], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playwave2()", text: "playwave(wave2, line->10, duration->1); (duration > wave2.length)"},
+        {name: "Button13", type: "Button", pos: [-6,-3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play13()", text: "PanAndDamp Test"},
+        {name: "Button14", type: "Button", pos: [-3,-3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play14()", text: "only damp"},
+        {name: "Button15", type: "Button", pos: [-1,-3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play15()", text: "only pan"},
+        {name: "Button16", type: "Button", pos: [1,-3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play16()", text: "pan and damp"},
+        {name: "ButtonF1", type: "Button", pos: [-6,-4.7], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc1()", text: "playfunction(random(), amp->0.4, line->6);"},
+        {name: "ButtonF2", type: "Button", pos: [-6,-5.4], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc2()", text: "playfunction(sin(330*x*pi*2), amp->0.5, line->7);"},
+        {name: "ButtonF3", type: "Button", pos: [-6,-6.1], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc3()", text: "playfunction(sin(415.3*x*pi*2), amp->0.5, line->8, duration->1, stop->0.001); (duration > stop)"},
+        {name: "ButtonW1", type: "Button", pos: [-6,-6.8], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playwave1()", text: "playwave(wave1, line->9);"},
+        {name: "ButtonW2", type: "Button", pos: [-6,-7.5], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playwave2()", text: "playwave(wave2, line->10, duration->1); (duration > wave2.length)"},
         {name: "StopSound", type: "Button", pos: [2,4.5], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "stopsound()", text: "Stop Sound"},
     ],
     ports: [{
