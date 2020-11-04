@@ -5,7 +5,7 @@
  */
 function downloadTextFile(filename, fileContent) {
 	let blob = new Blob([fileContent], { type : "text/plain;charset=utf-8" });
-	downloadBlobAsFile(blob);
+	downloadBlobAsFile(filename, blob);
 }
 
 /**
