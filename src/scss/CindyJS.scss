@@ -141,6 +141,17 @@ $focused-shadow: 0px 0px 3px #06f;
 
 } // end button
 
+.CindyJS-text {
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+
+     border: none;
+
+     pointer-events: none;
+
+ } // end editabletext
+
 .CindyJS-editabletext {
 
     border: 1px solid #000;
