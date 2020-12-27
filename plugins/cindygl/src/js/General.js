@@ -2,6 +2,7 @@
  * General helping functions
  */
 
+
 /**
  * clones expression while ignoring  pointer-references to the same child
  */
@@ -23,27 +24,24 @@ function cloneExpression(obj) {
         copy = {};
         for (var attr in obj) {
             if (obj.hasOwnProperty(attr)) {
-                if (
-                    [
-                        "oper",
-                        "impl",
-                        "args",
-                        "ctype",
-                        "stack",
-                        "name",
+                if (['oper',
+                        'impl',
+                        'args',
+                        'ctype',
+                        'stack',
+                        'name',
                         //'modifs',
-                        "arglist",
-                        "value",
-                        "real",
-                        "imag",
-                        "key",
-                        "obj",
-                        "body",
-                    ].indexOf(attr) >= 0
-                )
+                        'arglist',
+                        'value',
+                        'real',
+                        'imag',
+                        'key',
+                        'obj',
+                        'body'
+                    ].indexOf(attr) >= 0)
                     copy[attr] = cloneExpression(obj[attr]);
                 //else console.log("Did not clone " + attr);
-                if (obj["modifs"]) copy["modifs"] = obj["modifs"]; //modifs cannot be handeled in recursion properly
+                if (obj['modifs']) copy['modifs'] = obj['modifs']; //modifs cannot be handeled in recursion properly
             }
         }
         return copy;
@@ -62,22 +60,21 @@ function expressionsAreEqual(a, b) {
         }
         return true;
     } else if (a instanceof Object && b instanceof Object) {
-        let l = [
-            "oper",
-            "impl",
-            "args",
-            "ctype",
-            "stack",
-            "name",
-            "modifs",
-            "arglist",
-            "value",
-            "real",
-            "imag",
-            "key",
-            "obj",
-            "body",
-        ];
+        let l = ['oper',
+            'impl',
+            'args',
+            'ctype',
+            'stack',
+            'name',
+            'modifs',
+            'arglist',
+            'value',
+            'real',
+            'imag',
+            'key',
+            'obj',
+            'body'
+        ]
         for (let i = 0; i < l.length; i++) {
             let attr = l[i];
             if (!expressionsAreEqual(a[attr], b[attr])) return false;
@@ -86,6 +83,7 @@ function expressionsAreEqual(a, b) {
     }
     return false;
 }
+
 
 /**
  * are two given signatures equal?
@@ -108,25 +106,26 @@ function signaturesAreEqual(a, b) {
     return true;
 }
 
+
 /**
  * converts opernames like re$1 to re
  */
 function getPlainName(oper) {
-    if (oper.indexOf("$") === -1) return oper;
-    else return oper.substr(0, oper.indexOf("$"));
+    if (oper.indexOf('$') === -1) return oper;
+    else return oper.substr(0, oper.indexOf('$'));
 }
+
 
 /**
  * guesses the general(non-constant) type of an concrete value
  */
 function guessTypeOfValue(tval) {
-    if (tval["ctype"] === "boolean") {
+    if (tval['ctype'] === 'boolean') {
         return type.bool;
-    } else if (tval["ctype"] === "number") {
-        let z = tval["value"];
-        if (Math.abs(z["imag"]) < 1e-5) {
-            //eps test. for some reasons sin(1) might have some imag part of order e-17
-            if ((z["real"] | 0) === z["real"]) {
+    } else if (tval['ctype'] === 'number') {
+        let z = tval['value'];
+        if (Math.abs(z['imag']) < 1e-5) { //eps test. for some reasons sin(1) might have some imag part of order e-17
+            if ((z['real'] | 0) === z['real']) {
                 return type.int;
             } else {
                 return type.float;
@@ -134,33 +133,35 @@ function guessTypeOfValue(tval) {
         } else {
             return type.complex;
         }
-    } else if (tval["ctype"] === "list") {
-        let l = tval["value"];
+    } else if (tval['ctype'] === 'list') {
+        let l = tval['value'];
         if (l.length === 3) {
-            if (tval["usage"] === "Point") return type.point;
-            else if (tval["usage"] === "Line") return type.line;
+            if (tval["usage"] === "Point")
+                return type.point;
+            else if (tval["usage"] === "Line")
+                return type.line
         }
         if (l.length > 0) {
             let ctype = guessTypeOfValue(l[0]);
             for (let i = 1; i < l.length; i++) {
                 ctype = lca(ctype, guessTypeOfValue(l[i]));
             }
-            if (ctype)
-                return {
-                    type: "list",
-                    length: l.length,
-                    parameters: ctype,
-                };
+            if (ctype) return {
+                type: 'list',
+                length: l.length,
+                parameters: ctype
+            };
         }
-    } else if (tval["ctype"] === "string" || tval["ctype"] === "image") {
+    } else if (tval['ctype'] === 'string' || tval['ctype'] === 'image') {
         return type.image;
-    } else if (tval["ctype"] === "geo" && tval["value"]["kind"] === "L") {
+    } else if (tval['ctype'] === 'geo' && tval['value']['kind'] === 'L') {
         return type.line;
     }
     console.error(`Cannot guess type of the following type:`);
     console.log(tval);
     return false;
 }
+
 
 var helpercnt = 0;
 
@@ -176,10 +177,13 @@ function enlargeCanvasIfRequired(sizeX, sizeY) {
     }
 }
 
-function realfromCindyScriptCommand(api, cscmd) {
-    if (!api.instance.parsecache) api.instance.parsecache = {};
 
-    if (!api.instance.parsecache[cscmd]) api.instance.parsecache[cscmd] = api.instance.parse(cscmd);
+function realfromCindyScriptCommand(api, cscmd) {
+    if (!api.instance.parsecache)
+        api.instance.parsecache = {};
+
+    if (!api.instance.parsecache[cscmd])
+        api.instance.parsecache[cscmd] = api.instance.parse(cscmd);
 
     let val = api.evaluate(api.instance.parsecache[cscmd]);
     if (val["ctype"] && val["ctype"] === "number") {
@@ -192,21 +196,21 @@ function realfromCindyScriptCommand(api, cscmd) {
 function computeLowerLeftCorner(api) {
     return {
         x: realfromCindyScriptCommand(api, "(screenbounds()_4).x"),
-        y: realfromCindyScriptCommand(api, "(screenbounds()_4).y"),
+        y: realfromCindyScriptCommand(api, "(screenbounds()_4).y")
     };
 }
 
 function computeLowerRightCorner(api) {
     return {
         x: realfromCindyScriptCommand(api, "(screenbounds()_3).x"),
-        y: realfromCindyScriptCommand(api, "(screenbounds()_3).y"),
+        y: realfromCindyScriptCommand(api, "(screenbounds()_3).y")
     };
 }
 
 function computeUpperLeftCorner(api) {
     return {
         x: realfromCindyScriptCommand(api, "(screenbounds()_1).x"),
-        y: realfromCindyScriptCommand(api, "(screenbounds()_1).y"),
+        y: realfromCindyScriptCommand(api, "(screenbounds()_1).y")
     };
 }
 
@@ -220,56 +224,47 @@ function toHalf(fval) {
     var sign = (fbits >> 16) & 0x8000; // sign only
     var val = (fbits & 0x7fffffff) + 0x1000; // rounded value
 
-    if (val >= 0x47800000) {
-        // might be or become NaN/Inf
+    if (val >= 0x47800000) { // might be or become NaN/Inf
         if ((fbits & 0x7fffffff) >= 0x47800000) {
             // is or must become NaN/Inf
-            if (val < 0x7f800000) {
-                // was value but too large
+            if (val < 0x7f800000) { // was value but too large
                 return sign | 0x7c00; // make it +/-Inf
             }
-            return (
-                sign |
-                0x7c00 | // remains +/-Inf or NaN
-                ((fbits & 0x007fffff) >> 13)
-            ); // keep NaN (and Inf) bits
+            return sign | 0x7c00 | // remains +/-Inf or NaN
+                (fbits & 0x007fffff) >> 13; // keep NaN (and Inf) bits
         }
         return sign | 0x7bff; // unrounded not quite Inf
     }
-    if (val >= 0x38800000) {
-        // remains normalized value
-        return sign | ((val - 0x38000000) >> 13); // exp - 127 + 15
+    if (val >= 0x38800000) { // remains normalized value
+        return sign | val - 0x38000000 >> 13; // exp - 127 + 15
     }
-    if (val < 0x33000000) {
-        // too small for subnormal
+    if (val < 0x33000000) { // too small for subnormal
         return sign; // becomes +/-0
     }
     val = (fbits & 0x7fffffff) >> 23; // tmp exp for subnormal calc
-    return (
-        sign |
-        ((((fbits & 0x7fffff) | 0x800000) + // add subnormal bit
-            (0x800000 >>> (val - 102))) >> // round depending on cut off
-            (126 - val))
-    ); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
-}
+    return sign | ((fbits & 0x7fffff | 0x800000) // add subnormal bit
+        +
+        (0x800000 >>> val - 102) // round depending on cut off
+        >>
+        126 - val); // div by 2^(1-(exp-127+15)) and >> 13 | exp=0
+};
 
 //from http://stackoverflow.com/questions/5678432/decompressing-half-precision-floats-in-javascript
 function decodeFloat16(binary) {
-    let exponent = (binary & 0x7c00) >> 10;
-    let fraction = binary & 0x03ff;
-    return (
-        (binary >> 15 ? -1 : 1) *
-        (exponent
-            ? exponent === 0x1f
-                ? fraction
-                    ? NaN
-                    : Infinity
-                : Math.pow(2, exponent - 15) * (1 + fraction / 0x400)
-            : 6.103515625e-5 * (fraction / 0x400))
+    let exponent = (binary & 0x7C00) >> 10;
+    let fraction = binary & 0x03FF;
+    return (binary >> 15 ? -1 : 1) * (
+        exponent ?
+        (
+            exponent === 0x1F ?
+            fraction ? NaN : Infinity :
+            Math.pow(2, exponent - 15) * (1 + fraction / 0x400)
+        ) :
+        6.103515625e-5 * (fraction / 0x400)
     );
-}
+};
 
-var toByte = (f) => f * 255;
+var toByte = f => f * 255
 
 /**
  * converts a float array to an array encoded in the internal type
@@ -277,15 +272,13 @@ var toByte = (f) => f * 255;
  */
 function createPixelArrayFromFloat(samples) {
     if (can_use_texture_float) return new Float32Array(samples);
-    if (can_use_texture_half_float) {
-        //return new Uint16Array(samples.map(toHalf)); <- does not work in recent safari
+    if (can_use_texture_half_float) { //return new Uint16Array(samples.map(toHalf)); <- does not work in recent safari
         let newsamples = new Uint16Array(samples.length);
         for (let i = 0; i < samples.length; i++) {
             newsamples[i] = toHalf(samples[i]);
         }
         return newsamples;
-    } else {
-        //return new Uint8Array(samples.map(toByte)); <- does not work in recent safari
+    } else { //return new Uint8Array(samples.map(toByte)); <- does not work in recent safari
         let newsamples = new Uint8Array(samples.length);
         for (let i = 0; i < samples.length; i++) {
             newsamples[i] = toByte(samples[i]);
@@ -299,20 +292,18 @@ function createPixelArrayFromFloat(samples) {
  * @param {Array<number>} samples
  */
 function createPixelArrayFromUint8(samples) {
-    if (can_use_texture_float) {
-        //return (new Float32Array(samples)).map(x => x / 255.); <- does not work in recent safari
+    if (can_use_texture_float) { //return (new Float32Array(samples)).map(x => x / 255.); <- does not work in recent safari
         let newsamples = new Float32Array(samples.length);
         for (let i = 0; i < samples.length; i++) {
-            newsamples[i] = samples[i] / 255;
+            newsamples[i] = samples[i] / 255.;
         }
         return newsamples;
     }
 
-    if (can_use_texture_half_float) {
-        //return new Uint16Array((new Float32Array(samples)).map(x => x / 255.)); <- does not work in recent safari
+    if (can_use_texture_half_float) { //return new Uint16Array((new Float32Array(samples)).map(x => x / 255.)); <- does not work in recent safari
         let newsamples = new Uint16Array(samples.length);
         for (let i = 0; i < samples.length; i++) {
-            newsamples[i] = toHalf(samples[i] / 255);
+            newsamples[i] = toHalf(samples[i] / 255.);
         }
         return newsamples;
     } else return new Uint8Array(samples);
@@ -327,9 +318,10 @@ function createPixelArray(size) {
     else return new Uint8Array(size);
 }
 
+
 function getPixelType() {
     if (can_use_texture_float) return gl.FLOAT;
-    if (can_use_texture_half_float) return halfFloat.HALF_FLOAT_OES;
+    if (can_use_texture_half_float) return halfFloat.HALF_FLOAT_OES
     else return gl.UNSIGNED_BYTE;
 }
 
@@ -347,4 +339,4 @@ function smallestPowerOfTwoGreaterOrEqual(a) {
     let ans = 1;
     while (ans < a) ans <<= 1;
     return ans;
-}
+};

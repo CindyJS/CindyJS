@@ -1,31 +1,33 @@
-var turnIntoCSList = function (l) {
-    return {
-        ctype: "list",
-        value: l,
-    };
+var turnIntoCSList = function(l) {
+  return {
+    'ctype': 'list',
+    'value': l
+  };
 };
 
-var realCSNumber = function (r) {
-    return {
-        ctype: "number",
-        value: {
-            real: r,
-            imag: 0,
-        },
-    };
+var realCSNumber = function(r) {
+  return {
+    "ctype": "number",
+    "value": {
+      'real': r,
+      'imag': 0
+    }
+  };
 };
+
+
 
 var t0, t1;
 
 function p(name) {
-    console.log(name, t1 - t0);
+    console.log(name, t1-t0);
 }
 
 /**
  * Creates a convex hull object.
  * If set of points is specialized initializes it to the convex hull.
  */
-var QuickHull3D = function (points) {
+var QuickHull3D = function(points) {
     this.pointBuffer = [];
 
     this.minVertices = [];
@@ -57,19 +59,19 @@ QuickHull3D.DOUBLE_PRECISION = 2.2204460492503131e-16;
 QuickHull3D.AUTOMATIC_TOLERANCE = -1;
 QuickHull3D.prototype.explicitTolerance = QuickHull3D.AUTOMATIC_TOLERANCE;
 
-QuickHull3D.prototype.getDistanceTolerance = function () {
+QuickHull3D.prototype.getDistanceTolerance = function() {
     return this.tolerance;
 };
 
-QuickHull3D.prototype.setExplicitDistanceTolerance = function (tolerance) {
+QuickHull3D.prototype.setExplicitDistanceTolerance = function(tolerance) {
     this.explicitTolerance = tolerance;
 };
 
-QuickHull3D.prototype.getExplicitDistanceTolerance = function () {
+QuickHull3D.prototype.getExplicitDistanceTolerance = function() {
     return this.explicitTolerance;
 };
 
-QuickHull3D.prototype._addPointToFace = function (vertex, face) {
+QuickHull3D.prototype._addPointToFace = function(vertex, face) {
     vertex.face = face;
 
     if (face.outside === null) {
@@ -81,7 +83,7 @@ QuickHull3D.prototype._addPointToFace = function (vertex, face) {
     face.outside = vertex;
 };
 
-QuickHull3D.prototype._removePointFromFace = function (vertex, face) {
+QuickHull3D.prototype._removePointFromFace = function(vertex, face) {
     if (vertex === face.outside) {
         if (vertex.next !== null && vertex.next.face === face) {
             face.outside = vertex.next;
@@ -93,7 +95,7 @@ QuickHull3D.prototype._removePointFromFace = function (vertex, face) {
     this._claimed.delete(vertex);
 };
 
-QuickHull3D.prototype._removeAllPointFromFace = function (face) {
+QuickHull3D.prototype._removeAllPointFromFace = function(face) {
     if (face.outside === null) {
         return null;
     }
@@ -113,20 +115,20 @@ QuickHull3D.prototype._removeAllPointFromFace = function (face) {
 /**
  * Constructs the convex hull of a set of points
  */
-QuickHull3D.prototype.build = function (points, numberOfPoints) {
+QuickHull3D.prototype.build = function(points, numberOfPoints) {
     // if first element is a number then it is array of coordinates, else - array of points
-    var numberOfGivenPoints = typeof points[0] === "number" ? points.length / 3 : points.length;
+    var numberOfGivenPoints = typeof points[0] === 'number' ? points.length / 3 : points.length;
 
     if (numberOfPoints === void 0) {
         numberOfPoints = numberOfGivenPoints;
     }
 
     if (numberOfPoints < 4) {
-        throw new Error("Less than 4 input points specified");
+        throw new Error('Less than 4 input points specified');
     }
 
     if (numberOfGivenPoints < numberOfPoints) {
-        throw new Error("Coordinate array too small for specified number of points");
+        throw new Error('Coordinate array too small for specified number of points');
     }
 
     this._initBuffers(numberOfPoints);
@@ -134,12 +136,12 @@ QuickHull3D.prototype.build = function (points, numberOfPoints) {
     this._buildHull();
 };
 
-QuickHull3D.prototype.triangulate = function () {
+QuickHull3D.prototype.triangulate = function() {
     var minArea = 1000 * this.charLength * this.constructor.DOUBLE_PRECISION;
 
     this.newFaces = [];
 
-    this.faces.forEach(function (face) {
+    this.faces.forEach(function(face) {
         if (face.mark === FO.VISIBLE) {
             FO.triangulate(face, this.newFaces, minArea);
         }
@@ -151,13 +153,13 @@ QuickHull3D.prototype.triangulate = function () {
 /**
  * @returns {CSList[]} array of points
  */
-QuickHull3D.prototype.getVertices = function () {
-    return this.vertexPointIndices.map(function (index) {
+QuickHull3D.prototype.getVertices = function() {
+    return this.vertexPointIndices.map(function(index) {
         var vertex = this.pointBuffer[index];
         return turnIntoCSList([
             realCSNumber(vertex.point.x),
             realCSNumber(vertex.point.y),
-            realCSNumber(vertex.point.z),
+            realCSNumber(vertex.point.z)
         ]);
     }, this);
 };
@@ -178,19 +180,20 @@ QuickHull3D.prototype.getVertices = function () {
  * @returns {CSList[]} array of lists giving the vertex
  * indices for each face.
  */
-QuickHull3D.prototype.getFaces = function (indexFlags) {
+QuickHull3D.prototype.getFaces = function(indexFlags) {
     if (indexFlags === void 0) {
         indexFlags = 0;
     }
 
-    var allFaces = this.faces.map(function (face) {
+    var allFaces = this.faces.map(function(face) {
         return this._getFaceIndices(face, indexFlags);
     }, this);
+
 
     return allFaces;
 };
 
-QuickHull3D.prototype._findHalfEdge = function (tail, head) {
+QuickHull3D.prototype._findHalfEdge = function(tail, head) {
     // brute force ... OK, since setHull is not used much
     var length = this.faces.length;
     var he;
@@ -205,7 +208,7 @@ QuickHull3D.prototype._findHalfEdge = function (tail, head) {
     return null;
 };
 
-QuickHull3D.prototype._setHull = function (coordinates, numberOfPoints, faceIndices, numberOfFaces) {
+QuickHull3D.prototype._setHull = function(coordinates, numberOfPoints, faceIndices, numberOfFaces) {
     this.initBuffers(numberOfPoints);
     this.setPoints(coordinates, numberOfPoints);
     this._computeMaxAndMin();
@@ -227,16 +230,16 @@ QuickHull3D.prototype._setHull = function (coordinates, numberOfPoints, faceIndi
     }
 };
 
-QuickHull3D.prototype._printPoints = function () {
-    this.pointBuffer.forEach(function (vertex) {
-        console.log(vertex.point.x + " " + vertex.point.y + " " + vertex.point.z);
+QuickHull3D.prototype._printPoints = function() {
+    this.pointBuffer.forEach(function(vertex) {
+        console.log(vertex.point.x + ' ' + vertex.point.y + ' ' + vertex.point.z);
     });
 };
 
 /**
  * Initialize
  */
-QuickHull3D.prototype._initBuffers = function (numberOfPoints) {
+QuickHull3D.prototype._initBuffers = function(numberOfPoints) {
     this.vertexPointIndices = [];
 
     for (var i = this.pointBuffer.length; i < numberOfPoints; i++) {
@@ -252,19 +255,22 @@ QuickHull3D.prototype._initBuffers = function (numberOfPoints) {
 /**
  * Sets passed points to this.pointBuffer
  */
-QuickHull3D.prototype._setPoints = function (points) {
-    if (typeof points[0] === "number") {
-        this.pointBuffer.forEach(function (vertex, i) {
-            vertex.point = new Vector(points[3 * i + 0], points[3 * i + 1], points[3 * i + 2]);
+QuickHull3D.prototype._setPoints = function(points) {
+    if (typeof points[0] === 'number') {
+        this.pointBuffer.forEach(function(vertex, i) {
+            vertex.point = new Vector(points[3 * i + 0],
+                points[3 * i + 1],
+                points[3 * i + 2]);
 
             vertex.index = i;
         });
     } else {
-        this.pointBuffer.forEach(function (vertex, i) {
+        this.pointBuffer.forEach(function(vertex, i) {
             vertex.point = points[i];
             vertex.index = i;
         });
     }
+
 };
 
 /**
@@ -272,7 +278,7 @@ QuickHull3D.prototype._setPoints = function (points) {
  * sets them to this.maxVertices and this.minVertices
  * @todo split to several functions
  */
-QuickHull3D.prototype._computeMaxAndMin = function () {
+QuickHull3D.prototype._computeMaxAndMin = function() {
     var max = VectorOperations.copy(this.pointBuffer[0].point),
         min = VectorOperations.copy(this.pointBuffer[0].point),
         amplitude;
@@ -281,7 +287,7 @@ QuickHull3D.prototype._computeMaxAndMin = function () {
         this.maxVertices[i] = this.minVertices[i] = this.pointBuffer[0];
     }
 
-    this.pointBuffer.forEach(function (vertex) {
+    this.pointBuffer.forEach(function(vertex) {
         var point = vertex.point,
             x = point.x,
             y = point.y,
@@ -315,9 +321,7 @@ QuickHull3D.prototype._computeMaxAndMin = function () {
     this.charLength = Math.max(max.x - min.x, max.y - min.y, max.z - min.z);
 
     if (this.explicitTolerance === this.constructor.AUTOMATIC_TOLERANCE) {
-        this.tolerance =
-            3 *
-            this.constructor.DOUBLE_PRECISION *
+        this.tolerance = 3 * this.constructor.DOUBLE_PRECISION *
             (Math.max(Math.abs(max.x), Math.abs(min.x)) +
                 Math.max(Math.abs(max.y), Math.abs(min.y)) +
                 Math.max(Math.abs(max.z), Math.abs(min.z)));
@@ -331,16 +335,15 @@ QuickHull3D.prototype._computeMaxAndMin = function () {
  * @todo split to several functions
  */
 
-QuickHull3D.MAP_XYZ = ["x", "y", "z"];
-QuickHull3D.prototype._createInitialSimplex = function () {
+QuickHull3D.MAP_XYZ = ['x', 'y', 'z'];
+QuickHull3D.prototype._createInitialSimplex = function() {
     var max = 0,
         imax = 0,
         vertices,
-        i,
-        difference;
+        i, difference;
     var map = this.constructor.MAP_XYZ;
 
-    this.constructor.MAP_XYZ.forEach(function (axis, i) {
+    this.constructor.MAP_XYZ.forEach(function(axis, i) {
         var difference = this.maxVertices[i].point[axis] - this.minVertices[i].point[axis];
 
         if (difference > max) {
@@ -350,7 +353,7 @@ QuickHull3D.prototype._createInitialSimplex = function () {
     }, this);
 
     if (max <= this.tolerance) {
-        throw new Error("Input points appear to be coincident");
+        throw new Error('Input points appear to be coincident');
     }
 
     // set first two vertices to be those with the greatest
@@ -367,7 +370,7 @@ QuickHull3D.prototype._createInitialSimplex = function () {
 
     var l = this.pointBuffer.length;
 
-    this.pointBuffer.forEach(function (vertex) {
+    this.pointBuffer.forEach(function(vertex) {
         if (vertex.index === vertices[0].index || vertex.index === vertices[1].index) {
             return;
         }
@@ -384,7 +387,7 @@ QuickHull3D.prototype._createInitialSimplex = function () {
     });
 
     if (Math.sqrt(maxSquared) <= 100 * this.tolerance) {
-        throw new Error("Input points appear to be colinear");
+        throw new Error('Input points appear to be colinear');
     }
 
     normal = VectorOperations.normalize(normal);
@@ -392,12 +395,10 @@ QuickHull3D.prototype._createInitialSimplex = function () {
     var maxDistance = 0,
         d0 = VectorOperations.scalproduct(vertices[2].point, normal);
 
-    this.pointBuffer.forEach(function (vertex) {
-        if (
-            vertex.index === vertices[0].index ||
+    this.pointBuffer.forEach(function(vertex) {
+        if (vertex.index === vertices[0].index ||
             vertex.index === vertices[1].index ||
-            vertex.index === vertices[2].index
-        ) {
+            vertex.index === vertices[2].index) {
             return;
         }
 
@@ -410,13 +411,13 @@ QuickHull3D.prototype._createInitialSimplex = function () {
     });
 
     if (maxDistance < 100 * this.tolerance) {
-        throw new Error("Input points appear to be coplanar");
+        throw new Error('Input points appear to be coplanar');
     }
 
     if (this.debug) {
-        console.log("Initial vertices");
-        vertices.forEach(function (vertex) {
-            console.log(vertex.index + " : ", vertex.point);
+        console.log('Initial vertices');
+        vertices.forEach(function(vertex) {
+            console.log(vertex.index + ' : ', vertex.point);
         });
     }
 
@@ -448,43 +449,43 @@ QuickHull3D.prototype._createInitialSimplex = function () {
 
     this.faces = tris;
 
-    this.pointBuffer.forEach(function (vertex) {
+    this.pointBuffer.forEach(function(vertex) {
         var maxDistance = this.tolerance,
             maxFace;
 
-        if (
-            vertex.index === vertices[0].index ||
+        if (vertex.index === vertices[0].index ||
             vertex.index === vertices[1].index ||
             vertex.index === vertices[2].index ||
-            vertex.index === vertices[3].index
-        ) {
+            vertex.index === vertices[3].index) {
             return;
         }
 
-        tris.forEach(function (tri) {
+        tris.forEach(function(tri) {
             var distance = FO.distanceToPlane(tri, vertex.point);
 
             if (distance > maxDistance) {
                 maxFace = tri;
                 maxDistance = distance;
             }
+
         });
 
         if (maxFace !== void 0) {
             this._addPointToFace(vertex, maxFace);
         }
     }, this);
+
 };
 
-QuickHull3D.prototype._getNumberOfVertices = function () {};
-QuickHull3D.prototype._getVertexPointIndices = function () {};
-QuickHull3D.prototype._getNumberOfFaces = function () {};
+QuickHull3D.prototype._getNumberOfVertices = function() {};
+QuickHull3D.prototype._getVertexPointIndices = function() {};
+QuickHull3D.prototype._getNumberOfFaces = function() {};
 
 /**
  * Returns the vertex points in this hull.
  * @return {CSList} list of vertex indices.
  */
-QuickHull3D.prototype._getFaceIndices = function (face, flags) {
+QuickHull3D.prototype._getFaceIndices = function(face, flags) {
     var clockwise = (flags & this.constructor.CLOCKWISE) === 0,
         indexedFromOne = true, //((flags & this.constructor.INDEXED_FROM_ONE) !== 0),
         pointRelative = (flags & this.constructor.POINT_RELATIVE) !== 0,
@@ -510,7 +511,7 @@ QuickHull3D.prototype._getFaceIndices = function (face, flags) {
     return turnIntoCSList(indices);
 };
 
-QuickHull3D.prototype._resolveUnclaimedPoints = function (newFaces) {
+QuickHull3D.prototype._resolveUnclaimedPoints = function(newFaces) {
     var maxDist, maxFace, newFace, i, vertex, nextVertex;
     var length = newFaces.length;
     var dist;
@@ -548,7 +549,7 @@ QuickHull3D.prototype._resolveUnclaimedPoints = function (newFaces) {
     }
 };
 
-QuickHull3D.prototype._removeAllPointsFromFace = function (face) {
+QuickHull3D.prototype._removeAllPointsFromFace = function(face) {
     if (face.outside === null) {
         return null;
     }
@@ -565,7 +566,7 @@ QuickHull3D.prototype._removeAllPointsFromFace = function (face) {
     return face.outside;
 };
 
-QuickHull3D.prototype._deleteFacePoints = function (face, absorbingFace) {
+QuickHull3D.prototype._deleteFacePoints = function(face, absorbingFace) {
     var faceVertex = this._removeAllPointsFromFace(face);
 
     if (faceVertex === null) {
@@ -590,11 +591,11 @@ QuickHull3D.prototype._deleteFacePoints = function (face, absorbingFace) {
     }
 };
 
-QuickHull3D.prototype._oppFaceDistance = function (halfEdge) {
+QuickHull3D.prototype._oppFaceDistance = function(halfEdge) {
     return FO.distanceToPlane(halfEdge.face, halfEdge.opposite.face.centroid);
 };
 
-QuickHull3D.prototype._doAdjacentMerge = function (face, mergeType) {
+QuickHull3D.prototype._doAdjacentMerge = function(face, mergeType) {
     var hedge = face.halfEdge0;
     var convex = true;
     var oppFace, merge;
@@ -605,10 +606,8 @@ QuickHull3D.prototype._doAdjacentMerge = function (face, mergeType) {
 
         if (mergeType === this.constructor.NONCONVEX) {
             // then merge faces if they are definitively non-convex
-            if (
-                this._oppFaceDistance(hedge) > -this.tolerance ||
-                this._oppFaceDistance(hedge.opposite) > -this.tolerance
-            ) {
+            if (this._oppFaceDistance(hedge) > -this.tolerance ||
+                this._oppFaceDistance(hedge.opposite) > -this.tolerance) {
                 merge = true;
             }
         } else {
@@ -633,7 +632,9 @@ QuickHull3D.prototype._doAdjacentMerge = function (face, mergeType) {
 
         if (merge) {
             if (this.debug) {
-                console.log("  merging " + FO.getVertexString(face) + "  and  " + FO.getVertexString(oppFace));
+                console.log(
+                    "  merging " + FO.getVertexString(face) + "  and  " +
+                        FO.getVertexString(oppFace));
             }
 
             var numd = FO.mergeAdjacentFace(face, hedge, this.discardedFaces);
@@ -659,12 +660,12 @@ QuickHull3D.prototype._doAdjacentMerge = function (face, mergeType) {
     return false;
 };
 
-QuickHull3D.prototype._calculateHorizon = function (eyePoint, edge0, face, horizon) {
+QuickHull3D.prototype._calculateHorizon = function(eyePoint, edge0, face, horizon) {
     this._deleteFacePoints(face, null);
     face.mark = FO.DELETED;
 
     if (this.debug) {
-        console.log("Visiting face " + FO.getVertexString(face));
+        console.log('Visiting face ' + FO.getVertexString(face));
     }
 
     var edge;
@@ -688,7 +689,7 @@ QuickHull3D.prototype._calculateHorizon = function (eyePoint, edge0, face, horiz
                 horizon.push(edge);
 
                 if (this.debug) {
-                    console.log("Adding horizon edge " + HEO.getVertexString(edge));
+                    console.log('Adding horizon edge ' + HEO.getVertexString(edge));
                 }
             }
         }
@@ -697,7 +698,7 @@ QuickHull3D.prototype._calculateHorizon = function (eyePoint, edge0, face, horiz
     } while (edge !== edge0);
 };
 
-QuickHull3D.prototype._addAdjoiningFace = function (eyeVertex, halfEdge) {
+QuickHull3D.prototype._addAdjoiningFace = function(eyeVertex, halfEdge) {
     var face = FO.createTriangle(eyeVertex, HEO.tail(halfEdge), halfEdge.head);
 
     this.faces.push(face);
@@ -706,13 +707,13 @@ QuickHull3D.prototype._addAdjoiningFace = function (eyeVertex, halfEdge) {
     return FO.getEdge(face, 0);
 };
 
-QuickHull3D.prototype._addNewFaces = function (newFaces, eyeVertex, horizon) {
+QuickHull3D.prototype._addNewFaces = function(newFaces, eyeVertex, horizon) {
     this.newFaces = [];
 
     var hedgeSidePrev = null;
     var hedgeSideBegin = null;
 
-    this.horizon.forEach(function (horizonHe) {
+    this.horizon.forEach(function(horizonHe) {
         var hedgeSide = this._addAdjoiningFace(eyeVertex, horizonHe);
 
         if (this.debug) {
@@ -732,7 +733,7 @@ QuickHull3D.prototype._addNewFaces = function (newFaces, eyeVertex, horizon) {
     HEO.setOpposite(hedgeSideBegin.next, hedgeSidePrev);
 };
 
-QuickHull3D.prototype._nextPointToAdd = function () {
+QuickHull3D.prototype._nextPointToAdd = function() {
     if (this._claimed.isEmpty()) {
         return null;
     }
@@ -754,19 +755,14 @@ QuickHull3D.prototype._nextPointToAdd = function () {
     return eyeVertex;
 };
 
-QuickHull3D.prototype._addPointToHull = function (eyeVertex) {
+QuickHull3D.prototype._addPointToHull = function(eyeVertex) {
     this.horizon = [];
     this._unclaimed.clear();
 
     if (this.debug) {
-        console.log(
-            "Adding point:",
-            eyeVertex.index,
-            "\n which is " +
-                FO.distanceToPlane(eyeVertex.face, eyeVertex.point) +
-                "above face " +
-                FO.getVertexString(eyeVertex.face)
-        );
+        console.log('Adding point:', eyeVertex.index, '\n which is ' +
+                    FO.distanceToPlane(eyeVertex.face, eyeVertex.point) +
+                    'above face ' + FO.getVertexString(eyeVertex.face));
     }
 
     this._removePointFromFace(eyeVertex, eyeVertex.face);
@@ -778,18 +774,18 @@ QuickHull3D.prototype._addPointToHull = function (eyeVertex) {
     // first merge pass ... merge faces which are non-convex
     // as determined by the larger face
 
-    this.newFaces.forEach(function (face) {
+    this.newFaces.forEach(function(face) {
         if (face.mark === FO.VISIBLE) {
-            while (this._doAdjacentMerge(face, this.constructor.NONCONVEX_WRT_LARGER_FACE)) {}
+            while (this._doAdjacentMerge(face, this.constructor.NONCONVEX_WRT_LARGER_FACE)) {};
         }
     }, this);
 
     // second merge pass ... merge faces which are non-convex
     // wrt either face
-    this.newFaces.forEach(function (face) {
+    this.newFaces.forEach(function(face) {
         if (face.mark === FO.NON_CONVEX) {
             face.mark = FO.VISIBLE;
-            while (this._doAdjacentMerge(face, this.constructor.NONCONVEX)) {}
+            while (this._doAdjacentMerge(face, this.constructor.NONCONVEX)) {};
         }
     }, this);
 
@@ -802,7 +798,7 @@ QuickHull3D.prototype._addPointToHull = function (eyeVertex) {
  * creates initial simplex;
  * adds points to hull.
  */
-QuickHull3D.prototype._buildHull = function () {
+QuickHull3D.prototype._buildHull = function() {
     var cnt = 0,
         eyeVertex;
 
@@ -814,18 +810,18 @@ QuickHull3D.prototype._buildHull = function () {
         cnt++;
 
         if (this.debug) {
-            console.log("Iteration " + cnt + " done");
+            console.log('Iteration ' + cnt + ' done');
         }
     }
 
     this._reindexFacesAndVertices();
 
     if (this.debug) {
-        console.log("Hull done");
+        console.log('Hull done');
     }
 };
 
-QuickHull3D.prototype._markFaceVertices = function (face, mark) {
+QuickHull3D.prototype._markFaceVertices = function(face, mark) {
     var halfEdge = face.halfEdge0;
 
     do {
@@ -834,8 +830,8 @@ QuickHull3D.prototype._markFaceVertices = function (face, mark) {
     } while (halfEdge !== face.halfEdge0);
 };
 
-QuickHull3D.prototype._reindexFacesAndVertices = function () {
-    this.pointBuffer.forEach(function (vertex) {
+QuickHull3D.prototype._reindexFacesAndVertices = function() {
+    this.pointBuffer.forEach(function(vertex) {
         vertex.index = -1;
     });
 
@@ -843,7 +839,7 @@ QuickHull3D.prototype._reindexFacesAndVertices = function () {
     var newFaces = [];
 
     // remove inactive faces and mark active vertices
-    this.faces.forEach(function (face) {
+    this.faces.forEach(function(face) {
         if (face.mark === FO.VISIBLE) {
             newFaces.push(face);
             this._markFaceVertices(face, 0);
@@ -856,7 +852,7 @@ QuickHull3D.prototype._reindexFacesAndVertices = function () {
     // reindex vertices
     this.numberOfVertices = 0;
 
-    this.pointBuffer.forEach(function (vertex, index) {
+    this.pointBuffer.forEach(function(vertex, index) {
         if (vertex.index === 0) {
             this.vertexPointIndices[this.numberOfVertices] = index;
             vertex.index = this.numberOfVertices++;
@@ -864,6 +860,6 @@ QuickHull3D.prototype._reindexFacesAndVertices = function () {
     }, this);
 };
 
-QuickHull3D.prototype._checkFaceConvexity = function (face, tolerance) {};
-QuickHull3D.prototype._checkFaces = function (tolerance) {};
-QuickHull3D.prototype._check = function (tolerance) {};
+QuickHull3D.prototype._checkFaceConvexity = function(face, tolerance) {};
+QuickHull3D.prototype._checkFaces = function(tolerance) {};
+QuickHull3D.prototype._check = function(tolerance) {};

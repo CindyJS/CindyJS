@@ -1,4 +1,5 @@
-let CindyGL = function (api) {
+let CindyGL = function(api) {
+
     //////////////////////////////////////////////////////////////////////
     // API bindings
     nada = api.nada;
@@ -11,8 +12,8 @@ let CindyGL = function (api) {
         let code = cb.generateColorPlotProgram(expr);
         console.log(code);
         return {
-            ctype: "string",
-            value: code,
+            ctype: 'string',
+            value: code
         };
         //console.log(myfunctions);
     });
@@ -23,6 +24,7 @@ let CindyGL = function (api) {
         console.log("Switching to 8-bit textures mode.");
         return api.nada;
     });
+
 
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
@@ -42,6 +44,7 @@ let CindyGL = function (api) {
             canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
 
+
     api.defineFunction("forcerecompile", 0, (args, modifs) => {
         requiredcompiletime++;
         return nada;
@@ -55,11 +58,11 @@ let CindyGL = function (api) {
 
         var prog = args[0];
 
-        let iw = api.instance["canvas"]["width"]; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-        let ih = api.instance["canvas"]["height"];
+        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
+        let ih = api.instance['canvas']['height'];
 
         compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
-        let csctx = api.instance["canvas"].getContext("2d");
+        let csctx = api.instance['canvas'].getContext('2d');
 
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -68,6 +71,7 @@ let CindyGL = function (api) {
 
         return nada;
     });
+
 
     /**
      * plots colorplot on main canvas in CindyJS coordinates in the rectangle bounded by two points (as in Cinderella: coloplot(<expr>, <vec>, <vec>))
@@ -81,19 +85,19 @@ let CindyGL = function (api) {
 
         var ll = {
             x: Math.min(a.x, b.x),
-            y: Math.min(a.y, b.y),
+            y: Math.min(a.y, b.y)
         }; //lower left pt
         var lr = {
             x: Math.max(a.x, b.x),
-            y: Math.min(a.y, b.y),
+            y: Math.min(a.y, b.y)
         }; //lower right pt
         var ul = {
             x: Math.min(a.x, b.x),
-            y: Math.max(a.y, b.y),
+            y: Math.max(a.y, b.y)
         }; //upper left pt
 
-        let iw = api.instance["canvas"]["width"]; //internal measures. (works also on HiDPI-Displays)
-        let ih = api.instance["canvas"]["height"];
+        let iw = api.instance['canvas']['width']; //internal measures. (works also on HiDPI-Displays)
+        let ih = api.instance['canvas']['height'];
 
         let cul = computeUpperLeftCorner(api);
         let clr = computeLowerRightCorner(api);
@@ -102,16 +106,16 @@ let CindyGL = function (api) {
         let fy = Math.abs((a.y - b.y) / (clr.y - cul.y)); //y-ratio of screen that is used
 
         compileAndRender(prog, ll, lr, iw * fx, ih * fy, null);
-        let csctx = api.instance["canvas"].getContext("2d");
+        let csctx = api.instance['canvas'].getContext('2d');
 
         let pt = {
             x: Math.min(a.x, b.x),
-            y: Math.max(a.y, b.y),
+            y: Math.max(a.y, b.y)
         };
         let m = api.getInitialMatrix();
 
-        var xx = (iw * (ul.x - cul.x)) / (clr.x - cul.x);
-        var yy = (ih * (ul.y - cul.y)) / (clr.y - cul.y);
+        var xx = iw * (ul.x - cul.x) / (clr.x - cul.x);
+        var yy = ih * (ul.y - cul.y) / (clr.y - cul.y);
 
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -131,10 +135,10 @@ let CindyGL = function (api) {
         var name = api.evaluateAndVal(args[2]);
         var prog = args[3];
 
-        if (!a.ok || !b.ok || name.ctype !== "string") {
+        if (!a.ok || !b.ok || name.ctype !== 'string') {
             return nada;
         }
-        let imageobject = api.getImage(name["value"], true);
+        let imageobject = api.getImage(name['value'], true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
@@ -155,21 +159,23 @@ let CindyGL = function (api) {
         var name = api.evaluateAndVal(args[0]);
         var prog = args[1];
 
-        if (name.ctype !== "string") {
+        if (name.ctype !== 'string') {
             return nada;
         }
 
-        let imageobject = api.getImage(name["value"], true);
+        let imageobject = api.getImage(name['value'], true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
         compileAndRender(prog, a, b, cw, ch, canvaswrapper);
 
+
         return nada;
     });
 
     api.defineFunction("setpixel", 4, (args, modifs) => {
+
         var name = coerce.toString(api.evaluateAndVal(args[0]));
         var x = coerce.toInt(api.evaluateAndVal(args[1]));
         var y = coerce.toInt(api.evaluateAndVal(args[2]));
@@ -185,6 +191,7 @@ let CindyGL = function (api) {
         }
         return nada;
     });
+
 
     // --- CindyXR support ---
 
@@ -207,7 +214,7 @@ let CindyGL = function (api) {
 
         return nada;
     });
-};
+}
 
 // Exports for CindyXR
 CindyGL.gl = null;

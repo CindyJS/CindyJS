@@ -1,11 +1,12 @@
 /* globals CindyJS */
-CindyJS.registerPlugin(1, "midi", function (api) {
+CindyJS.registerPlugin(1, "midi", function(api) {
     "use strict";
 
     var soundfont = CindyJS.getBaseDir() + "soundfonts/";
     //var soundfont = "http://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/";
     //var soundfont = "http://cindyjs.org/extras/midi-js-soundfonts/MusyngKite/";
-
+    
+    
     console.log(soundfont);
 
     var midijsStatus = -2; // wait for two scripts to load
@@ -36,7 +37,7 @@ CindyJS.registerPlugin(1, "midi", function (api) {
         INITIAL: 0,
         REQUESTED: 1,
         LOADING: 2,
-        LOADED: 3,
+        LOADED: 3
     };
 
     var currentChannel = 0;
@@ -56,10 +57,10 @@ CindyJS.registerPlugin(1, "midi", function (api) {
 
     // Placeholder object while we wait for MIDI.js library to load
     var MIDI = {
-        getInstrument: function (ch) {
+        getInstrument: function(ch) {
             return chan2inst[ch];
         },
-        setInstrument: function (ch, inst) {
+        setInstrument: function(ch, inst) {
             chan2inst[ch] = inst;
         },
     };
@@ -74,13 +75,13 @@ CindyJS.registerPlugin(1, "midi", function (api) {
         return deflt;
     }
 
-    api.defineFunction("loadinstruments", 1, function (args, modifs) {
+    api.defineFunction("loadinstruments", 1, function(args, modifs) {
         var allLoaded = true;
         var insts = api.evaluate(args[0]);
         if (insts.ctype !== "list")
             insts = {
                 ctype: "list",
-                value: [insts],
+                value: [insts]
             };
         for (var i = 0; i < insts.value.length; ++i) {
             var inst = insts.value[i];
@@ -102,7 +103,7 @@ CindyJS.registerPlugin(1, "midi", function (api) {
         };
     });
 
-    api.defineFunction("instrument", 1, function (args, modifs) {
+    api.defineFunction("instrument", 1, function(args, modifs) {
         var inst = api.evaluate(args[0]);
         var ch = Math.round(numModif(modifs.channel, currentChannel));
         if (inst.ctype === "number") {
@@ -111,7 +112,7 @@ CindyJS.registerPlugin(1, "midi", function (api) {
         return api.nada;
     });
 
-    api.defineFunction("playtone", 1, function (args, modifs) {
+    api.defineFunction("playtone", 1, function(args, modifs) {
         var note = api.evaluate(args[0]);
         if (note.ctype !== "number") return api.nada;
         note = Math.round(note.value.real);
@@ -121,19 +122,17 @@ CindyJS.registerPlugin(1, "midi", function (api) {
 
         var inst = MIDI.getInstrument(chan);
         var status = instrumentStatus[inst];
-        if (status === STATUS.LOADED) {
-            // can play
-            MIDI.noteOn(chan, note, vel, 0);
-            MIDI.noteOff(chan, note, 0.9);
-        } else if (!status) {
-            // must load
+        if (status === STATUS.LOADED) { // can play
+	    MIDI.noteOn(chan, note, vel, 0);
+	    MIDI.noteOff(chan, note , 0.9);
+        } else if (!status) { // must load
             instrumentStatus[inst] = STATUS.REQUESTED;
             triggerLoad();
         }
         return api.nada;
     });
 
-    api.defineFunction("playmelody", 1, function (args, modifs) {
+    api.defineFunction("playmelody", 1, function(args, modifs) {
         var list = api.evaluateAndVal(args[0]);
         if (list.ctype !== "list") {
             return api.nada;
@@ -162,7 +161,7 @@ CindyJS.registerPlugin(1, "midi", function (api) {
             bpm = numModif(modifs.speed, 0);
         }
         var timeUnit = 60 / bpm;
-        var timeOff = (10 * timeUnit) / RESOLUTION;
+        var timeOff = 10 * timeUnit / RESOLUTION;
         chan2inst[channel] = inst;
 
         for (var i = 0; i < list.value.length; ++i) {
@@ -190,21 +189,21 @@ CindyJS.registerPlugin(1, "midi", function (api) {
                                 adcapo = null;
                             }
                         } else if (str === "ppp") {
-                            vel = (0.2 * 127) | 0;
+                            vel = (0.2 * 127)|0;
                         } else if (str === "pp") {
-                            vel = (0.3 * 127) | 0;
+                            vel = (0.3 * 127)|0;
                         } else if (str === "p") {
-                            vel = (0.4 * 127) | 0;
+                            vel = (0.4 * 127)|0;
                         } else if (str === "mp") {
-                            vel = (0.5 * 127) | 0;
+                            vel = (0.5 * 127)|0;
                         } else if (str === "mf") {
-                            vel = (0.6 * 127) | 0;
+                            vel = (0.6 * 127)|0;
                         } else if (str === "f") {
-                            vel = (0.7 * 127) | 0;
+                            vel = (0.7 * 127)|0;
                         } else if (str === "ff") {
-                            vel = (0.85 * 127) | 0;
+                            vel = (0.85 * 127)|0;
                         } else if (str === "fff") {
-                            vel = (1.0 * 127) | 0;
+                            vel = (1.0 * 127)|0;
                         } else if (str === ">") {
                             accent = true;
                         }
@@ -216,8 +215,10 @@ CindyJS.registerPlugin(1, "midi", function (api) {
                         var cmd = keys.value;
                         var va = length.value.real;
                         if (cmd === "velocity" || cmd === "vel") {
-                            if (va > 1.0) vel = va | 0;
-                            else vel = (va * 127) | 0;
+                            if (va > 1.0)
+                                vel = va | 0;
+                            else
+                                vel = (va * 127) | 0;
                             if (vel < 0) vel = 0;
                             if (vel > 127) vel = 127;
                             continue;
@@ -289,7 +290,7 @@ CindyJS.registerPlugin(1, "midi", function (api) {
             } // item is a nested list
         } // for each list element
         if (melody.length !== 0) {
-            melody.sort(function (a, b) {
+            melody.sort(function(a, b) {
                 return a.time - b.time;
             });
             var allLoaded = true;
@@ -299,7 +300,8 @@ CindyJS.registerPlugin(1, "midi", function (api) {
                 var status = instrumentStatus[instruments[k]];
                 if (status !== STATUS.LOADED) {
                     allLoaded = false;
-                    if (!status) instrumentStatus[instruments[k]] = STATUS.REQUESTED;
+                    if (!status)
+                        instrumentStatus[instruments[k]] = STATUS.REQUESTED;
                 }
             }
             if (allLoaded) {
@@ -324,15 +326,17 @@ CindyJS.registerPlugin(1, "midi", function (api) {
             var ev = melody[i];
             if (ev.event === "note") {
                 //console.log(ev.note, "at", ev.time, "for", ev.duration);
-                MIDI.noteOn(ev.chan, ev.note, ev.vel, t0 + ev.time);
-                MIDI.noteOff(ev.chan, ev.note, t0 + ev.time + ev.duration);
+                MIDI.noteOn(
+                    ev.chan, ev.note, ev.vel, t0 + ev.time);
+                MIDI.noteOff(
+                    ev.chan, ev.note, t0 + ev.time + ev.duration);
             }
         }
     }
 
     var tonenames = {
-        p: -1,
-        P: -1,
+        "p": -1,
+        "P": -1,
         "C'": 36,
         "Cis'": 37,
         "Des'": 37,
@@ -350,40 +354,40 @@ CindyJS.registerPlugin(1, "midi", function (api) {
         "Ais'": 46,
         "B'": 46,
         "H'": 47,
-        C: 48,
-        Cis: 49,
-        Des: 49,
-        D: 50,
-        Dis: 51,
-        Es: 51,
-        E: 52,
-        F: 53,
-        Fis: 54,
-        Ges: 54,
-        G: 55,
-        Gis: 56,
-        As: 56,
-        A: 57,
-        Ais: 58,
-        B: 58,
-        H: 59,
-        c: 60,
-        cis: 61,
-        des: 61,
-        d: 62,
-        dis: 63,
-        es: 63,
-        e: 64,
-        f: 65,
-        fis: 66,
-        ges: 66,
-        g: 67,
-        gis: 68,
-        as: 68,
-        a: 69,
-        ais: 70,
-        b: 70,
-        h: 71,
+        "C": 48,
+        "Cis": 49,
+        "Des": 49,
+        "D": 50,
+        "Dis": 51,
+        "Es": 51,
+        "E": 52,
+        "F": 53,
+        "Fis": 54,
+        "Ges": 54,
+        "G": 55,
+        "Gis": 56,
+        "As": 56,
+        "A": 57,
+        "Ais": 58,
+        "B": 58,
+        "H": 59,
+        "c": 60,
+        "cis": 61,
+        "des": 61,
+        "d": 62,
+        "dis": 63,
+        "es": 63,
+        "e": 64,
+        "f": 65,
+        "fis": 66,
+        "ges": 66,
+        "g": 67,
+        "gis": 68,
+        "as": 68,
+        "a": 69,
+        "ais": 70,
+        "b": 70,
+        "h": 71,
         "c'": 72,
         "cis'": 73,
         "des'": 73,
@@ -422,15 +426,19 @@ CindyJS.registerPlugin(1, "midi", function (api) {
     };
 
     function getNote(arg) {
-        if (arg.ctype === "number") return arg.value.real | 0;
-        if (arg.ctype === "string" && tonenames.hasOwnProperty(arg.value)) return tonenames[arg.value];
+        if (arg.ctype === "number")
+            return arg.value.real | 0;
+        if (arg.ctype === "string" && tonenames.hasOwnProperty(arg.value))
+            return tonenames[arg.value];
         return null;
     }
 
     var loadTimeout = null;
 
     function triggerLoad() {
-        if (loadTimeout === null && (midijsStatus === STATUS.INITIAL || midijsStatus === STATUS.LOADED)) {
+        if (loadTimeout === null &&
+            (midijsStatus === STATUS.INITIAL ||
+             midijsStatus === STATUS.LOADED)) {
             loadTimeout = setTimeout(doLoad, 0);
         }
     }
@@ -456,35 +464,36 @@ CindyJS.registerPlugin(1, "midi", function (api) {
         }
         if (midijsStatus === STATUS.INITIAL) {
             midijsStatus = STATUS.LOADING;
-            window.MIDI.loadPlugin({
-                soundfontUrl: soundfont,
-                instruments: inst.slice(),
-                onsuccess: function () {
+	    window.MIDI.loadPlugin({
+	        soundfontUrl: soundfont,
+	        instruments: inst.slice(),
+	        onsuccess: function() {
                     MIDI = window.MIDI;
                     for (var ch = 0; ch < chan2inst.length; ++ch) {
                         MIDI.setInstrument(ch, chan2inst[ch]);
                     }
                     success();
                     console.log("MIDI ready");
-                },
-            });
+	        }
+	    });
         } else {
             midijsStatus = STATUS.LOADING;
             MIDI.loadResource({
                 instruments: inst.slice(),
-                onsuccess: success,
+                onsuccess: success
             });
         }
     }
 
-    api.defineFunction("midiposition", 0, function (args, modifs) {
+    api.defineFunction("midiposition", 0, function(args, modifs) {
         var timeUnit = 60 / bpm;
         return {
             ctype: "number",
             value: {
                 real: (MIDI.now() - melodyStartTime) / timeUnit,
-                imag: 0,
-            },
+                imag: 0
+            }
         };
     });
+
 });

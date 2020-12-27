@@ -1,11 +1,11 @@
-var FaceList = function () {};
+var FaceList = function() {};
 
-FaceList.prototype.clear = function () {
+FaceList.prototype.clear = function() {
     this._head = this._tail = null;
 };
 
-FaceList.prototype.add = function (vertex) {};
+FaceList.prototype.add = function(vertex) {};
 
-FaceList.prototype.first = function () {};
+FaceList.prototype.first = function() {};
 
-FaceList.prototype.isEmpty = function () {};
+FaceList.prototype.isEmpty = function() {};

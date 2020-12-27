@@ -13,21 +13,21 @@
  * @param {number} height The number of pixels in y direction used for the render target.
  */
 function XRHelperRenderTarget(gl, width, height, xrWidth, xrHeight) {
-    /// @type {number} The WebXR resolution width.
-    this.xrWidth = xrWidth;
-    /// @type {number} The WebXR resolution height.
-    this.xrHeight = xrHeight;
-    /// @type {number} The render target resolution width.
-    this.width = width;
-    /// @type {number} The render target resolution height.
-    this.height = height;
-    /// @type {WebGLTexture}
-    this.renderTexture = createRenderTexture(gl, width, height);
-    /// @type {WebGLRenderbuffer} The depth buffer.
-    this.depthRenderbuffer = createDepthRenderbuffer(gl, width, height);
-    /// @type {WebGLFramebuffer}
-    this.framebufferObject = createFramebufferObject(gl, this.renderTexture, this.depthRenderbuffer);
-}
+	/// @type {number} The WebXR resolution width.
+	this.xrWidth = xrWidth;
+	/// @type {number} The WebXR resolution height.
+	this.xrHeight = xrHeight;
+	/// @type {number} The render target resolution width.
+	this.width = width;
+	/// @type {number} The render target resolution height.
+	this.height = height;
+	/// @type {WebGLTexture}
+	this.renderTexture = createRenderTexture(gl, width, height);
+	/// @type {WebGLRenderbuffer} The depth buffer.
+	this.depthRenderbuffer = createDepthRenderbuffer(gl, width, height);
+	/// @type {WebGLFramebuffer}
+	this.framebufferObject = createFramebufferObject(gl, this.renderTexture, this.depthRenderbuffer);
+};
 
 /**
  * The global list of XRHelperRenderTarget objects.
@@ -59,6 +59,7 @@ var fullscreenBlitShader = null;
  */
 var fullscreenQuadVertexBuffer = null;
 
+
 /**
  * This function is called before rendering to any render targets. If the scaling factor, the viewport
  * size or the number of views has changed, this function recreates the render targets.
@@ -74,17 +75,14 @@ function recreateRenderTargetHelpersIfNecessary(gl) {
     let numViews = xrGetNumViews();
     let xrScalingFactor = xrGetScalingFactor();
 
-    // Number of views or scaling factor changed?
+	// Number of views or scaling factor changed?
     if (renderTargetHelpers.length == numViews && renderTargetHelpersCurrentScalingFactor == xrScalingFactor) {
-        // Resolution changed?
+		// Resolution changed?
         for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
             let viewportSize = xrGetViewportSize(viewIndex);
             let xrWidth = viewportSize[2];
             let xrHeight = viewportSize[3];
-            if (
-                xrWidth != renderTargetHelpers[viewIndex].xrWidth ||
-                xrHeight != renderTargetHelpers[viewIndex].xrHeight
-            ) {
+            if (xrWidth != renderTargetHelpers[viewIndex].xrWidth || xrHeight != renderTargetHelpers[viewIndex].xrHeight) {
                 hasResolutionChanged = true;
             }
         }
@@ -105,6 +103,7 @@ function recreateRenderTargetHelpersIfNecessary(gl) {
     }
 }
 
+
 /**
  * @param {WebGLRenderingContext} gl The WebGL rendering context.
  * @param {number} width The number of pixels in x direction used for the render target.
@@ -112,14 +111,14 @@ function recreateRenderTargetHelpersIfNecessary(gl) {
  * @return {WebGLTexture} The created render texture.
  */
 function createRenderTexture(gl, width, height) {
-    let renderTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, renderTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-    return renderTexture;
+	let renderTexture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, renderTexture);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+	return renderTexture;
 }
 
 /**
@@ -129,10 +128,10 @@ function createRenderTexture(gl, width, height) {
  * @return {WebGLRenderbuffer} The created depth render buffer.
  */
 function createDepthRenderbuffer(gl, width, height) {
-    let depthRenderbuffer = gl.createRenderbuffer();
-    gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
-    return depthRenderbuffer;
+	let depthRenderbuffer = gl.createRenderbuffer();
+	gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
+	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+	return depthRenderbuffer;
 }
 
 /**
@@ -142,29 +141,30 @@ function createDepthRenderbuffer(gl, width, height) {
  * @return {WebGLFramebuffer} The created framebuffer object.
  */
 function createFramebufferObject(gl, renderTexture, depthRenderbuffer) {
-    let framebufferObject = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferObject);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTexture, 0);
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderbuffer);
+	let framebufferObject = gl.createFramebuffer();
+	gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferObject);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, renderTexture, 0);
+	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderbuffer);
 
-    var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-    if (status != gl.FRAMEBUFFER_COMPLETE) {
-        if (status == gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
-            console.log("gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
-        } else if (status == gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
-            console.log("gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
-        } else if (status == gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS) {
-            console.log("gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
-        } else if (status == gl.FRAMEBUFFER_UNSUPPORTED) {
-            console.log("gl.FRAMEBUFFER_UNSUPPORTED");
-        } else {
-            console.log("Unknown framebuffer error.");
-        }
-    }
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    return framebufferObject;
+	var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+	if (status != gl.FRAMEBUFFER_COMPLETE) {
+		if (status == gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
+			console.log("gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+		} else if (status == gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
+			console.log("gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+		} else if (status == gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS) {
+			console.log("gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS");
+		} else if (status == gl.FRAMEBUFFER_UNSUPPORTED) {
+			console.log("gl.FRAMEBUFFER_UNSUPPORTED");
+		} else {
+			console.log("Unknown framebuffer error.");
+		}
+	}
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	return framebufferObject;
 }
+
 
 /**
  * Creates the shader program for blitting a texture in a fullscreen format.
@@ -173,21 +173,27 @@ function createFramebufferObject(gl, renderTexture, depthRenderbuffer) {
  */
 function createFullscreenBlitShader(gl) {
     let vertexShaderCode =
-        "attribute vec3 aPos;" +
-        "attribute vec2 aTexCoord;" +
-        "varying vec2 iUv;" +
+		"attribute vec3 aPos;" +
+		"attribute vec2 aTexCoord;" +
+		"varying vec2 iUv;" +
+
         "void main() {" +
-        "iUv = aTexCoord;" +
-        "gl_Position = vec4(aPos, 1.0);" +
-        "}";
-    let fragmentShaderCode =
-        "precision highp float;" +
-        "uniform sampler2D readTexture;" +
+            "iUv = aTexCoord;" +
+            "gl_Position = vec4(aPos, 1.0);" +
+		"}"
+	;
+
+	let fragmentShaderCode =
+		"precision highp float;" +
+		"uniform sampler2D readTexture;" +
         "varying vec2 iUv;" +
+
         "void main() {" +
-        "gl_FragColor = texture2D(readTexture, iUv);" +
-        "}";
-    fullscreenBlitShader = new ShaderProgram(gl, vertexShaderCode, fragmentShaderCode);
+            "gl_FragColor = texture2D(readTexture, iUv);" +
+        "}"
+    ;
+
+	fullscreenBlitShader = new ShaderProgram(gl, vertexShaderCode, fragmentShaderCode);
 }
 
 /**
@@ -215,11 +221,11 @@ function createFullscreenQuadRenderData(gl) {
  * @param {number} viewIndex The view index.
  */
 function bindHelperRenderTarget(gl, viewIndex) {
-    gl.bindFramebuffer(gl.FRAMEBUFFER, renderTargetHelpers[viewIndex].framebufferObject);
-    gl.viewport(0, 0, renderTargetHelpers[viewIndex].width, renderTargetHelpers[viewIndex].height);
-    gl.depthMask(true);
-    gl.clearColor(0, 0, 0, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, renderTargetHelpers[viewIndex].framebufferObject);
+	gl.viewport(0, 0, renderTargetHelpers[viewIndex].width, renderTargetHelpers[viewIndex].height);
+	gl.depthMask(true);
+	gl.clearColor(0, 0, 0, 1);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 }
 
 /**
@@ -227,27 +233,27 @@ function bindHelperRenderTarget(gl, viewIndex) {
  * @param {WebGLRenderingContext} gl The WebGL context.
  */
 function blitHelperFramebuffersFullscreen(gl) {
-    gl.bindFramebuffer(gl.FRAMEBUFFER, xrGetFramebuffer());
-    fullscreenBlitShader.use(gl);
-    gl.activeTexture(gl.TEXTURE0);
-    fullscreenBlitShader.uniform["readTexture"]([0]);
-
+	gl.bindFramebuffer(gl.FRAMEBUFFER, xrGetFramebuffer());
+	fullscreenBlitShader.use(gl);
+	gl.activeTexture(gl.TEXTURE0);
+	fullscreenBlitShader.uniform["readTexture"]([0]);
+	
     let texCoordOffsetFullscreenQuad = 4 * 4 * 3; // vertexPositions.byteLength
     var aPosLoc = gl.getAttribLocation(fullscreenBlitShader.handle, "aPos");
     gl.enableVertexAttribArray(aPosLoc);
     var aTexLoc = gl.getAttribLocation(fullscreenBlitShader.handle, "aTexCoord");
     gl.enableVertexAttribArray(aTexLoc);
-    gl.bindBuffer(gl.ARRAY_BUFFER, fullscreenQuadVertexBuffer);
+	gl.bindBuffer(gl.ARRAY_BUFFER, fullscreenQuadVertexBuffer);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffsetFullscreenQuad);
-
-    for (let viewIndex = 0; viewIndex < renderTargetHelpers.length; viewIndex++) {
+	gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffsetFullscreenQuad);
+	
+	for (let viewIndex = 0; viewIndex < renderTargetHelpers.length; viewIndex++) {
         let viewportSize = xrGetViewportSize(viewIndex);
         gl.viewport(viewportSize[0], viewportSize[1], viewportSize[2], viewportSize[3]);
-        gl.bindTexture(gl.TEXTURE_2D, renderTargetHelpers[viewIndex].renderTexture);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    }
+		gl.bindTexture(gl.TEXTURE_2D, renderTargetHelpers[viewIndex].renderTexture);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	}
 
-    gl.disableVertexAttribArray(aPosLoc);
-    gl.disableVertexAttribArray(aTexLoc);
+	gl.disableVertexAttribArray(aPosLoc);
+	gl.disableVertexAttribArray(aTexLoc);
 }

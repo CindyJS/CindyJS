@@ -5,4 +5,4 @@ ref/**/*
 download/**/*
 build/**/*
 
-*.frag
+plugins/**/*

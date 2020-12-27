@@ -1,4 +1,4 @@
-(function () {
+(function() {
     "use strict";
 
     var log = console.log.bind(console);
@@ -28,7 +28,8 @@
     }
 
     function someScriptLoaded() {
-        if (allScriptsLoaded()) triggerRepaints();
+        if (allScriptsLoaded())
+            triggerRepaints();
     }
 
     function allScriptsLoaded() {
@@ -39,21 +40,21 @@
 
     function loadFonts(fontsToLoad) {
         log("Loading ", fontsToLoad);
-        fontsToLoad.forEach(function (fvd) {
+        fontsToLoad.forEach(function(fvd) {
             fonts[fvd] = "loading";
         });
         WebFontLoader.load({
             custom: {
                 families: fontsToLoad,
                 testStrings: {
-                    KaTeX_Size1: "()[]",
-                    KaTeX_Size2: "()[]",
-                    KaTeX_Size3: "()[]",
-                    KaTeX_Size4: "()[]",
+                  "KaTeX_Size1": "()[]",
+                  "KaTeX_Size2": "()[]",
+                  "KaTeX_Size3": "()[]",
+                  "KaTeX_Size4": "()[]"
                 },
-                urls: [CindyJS.getBaseDir() + "katex/katex.min.css"],
+                urls: [CindyJS.getBaseDir() + "katex/katex.min.css"]
             },
-            fontactive: fontActive,
+            fontactive: fontActive
         });
     }
 
@@ -61,7 +62,8 @@
         var fvd = font + ":" + variant;
         log("Loaded " + fvd);
         fonts[fvd] = true; // done loading
-        if (repaintTimeout === null) repaintTimeout = setTimeout(triggerRepaints, 0);
+        if (repaintTimeout === null)
+            repaintTimeout = setTimeout(triggerRepaints, 0);
     }
 
     // Handle repainting
@@ -70,15 +72,14 @@
         repaintTimeout = null;
         var instances = waitingInstances;
         waitingInstances = [];
-        for (var i = 0; i < instances.length; ++i) instances[i].evokeCS(""); // trigger repaint
+        for (var i = 0; i < instances.length; ++i)
+            instances[i].evokeCS(""); // trigger repaint
     }
 
     function haveToWait(i) {
-        if (
-            !waitingInstances.some(function (j) {
-                return i === j;
-            })
-        ) {
+        if (!waitingInstances.some(function(j) {
+            return i === j;
+        })) {
             waitingInstances.push(i);
         }
     }
@@ -88,15 +89,17 @@
     CindyJS.registerPlugin(1, "katex", plugin);
 
     function plugin(api) {
-        var storage = { instance: api.instance, cache: {}, misses: 0 };
-        api.setTextRenderer(katexRenderer.bind(storage), katexHtml.bind(storage));
+        var storage = {instance: api.instance, cache: {}, misses:0};
+        api.setTextRenderer(
+            katexRenderer.bind(storage),
+            katexHtml.bind(storage));
     }
 
     // Text box, with same api as a prepared KaTeX box but using current font
 
     function textBox(ctx, text) {
         this.width = ctx.measureText(text).width;
-        this.renderAt = function (x, y) {
+        this.renderAt = function(x, y) {
             ctx.fillText(text, x, y);
         };
     }
@@ -149,7 +152,7 @@
 
     var firstMessage = true;
 
-    function katexRenderer(ctx, text, x, y, align, fontSize, lineHeight, angle = 0) {
+    function katexRenderer(ctx, text, x, y, align, fontSize, lineHeight, angle=0) {
         var key = fontSize + "," + lineHeight + ":" + text;
         var fontsMissing = false;
         var fontsToLoad = {};
@@ -159,7 +162,7 @@
         } else {
             var opts = {
                 fontSize: fontSize,
-                macros: macros,
+                macros: macros
             };
             parts = text.split("$");
             row = [];
@@ -176,8 +179,7 @@
             for (i = 0; i < n; ++i) {
                 var part = parts[i];
                 var box;
-                if ((i & 1) === 0) {
-                    // plain text not TeX
+                if ((i & 1) === 0) { // plain text not TeX
                     if (part.indexOf("\n") === -1) {
                         row.push(new textBox(ctx, part));
                     } else {
@@ -197,10 +199,11 @@
                             var fontState = fonts[font];
                             if (fontState !== true) {
                                 fontsMissing = true;
-                                if (fontState === undefined) fontsToLoad[font] = true;
+                                if (fontState === undefined)
+                                    fontsToLoad[font] = true;
                             }
                         }
-                    } catch (e) {
+                    } catch(e) {
                         console.error(e);
                         row.push(new textBox(ctx, "$" + parts[i] + "$"));
                     }
@@ -230,17 +233,18 @@
                 var pos = x;
                 row = rows[i];
                 n = row.length;
-                for (j = 0; j < n; ++j) total += row[j].width;
+                for (j = 0; j < n; ++j)
+                    total += row[j].width;
                 var pos = x - align * total;
                 for (j = 0; j < n; ++j) {
-                    if (angle) {
-                        ctx.save();
-                        ctx.translate(x, y);
-                        ctx.rotate(-angle);
-                        row[j].renderAt(-align * total, 0);
-                        ctx.restore();
+                    if(angle) {
+                      ctx.save();
+                      ctx.translate(x, y);
+                      ctx.rotate(-angle);
+                      row[j].renderAt(-align*total, 0);
+                      ctx.restore();
                     } else {
-                        row[j].renderAt(pos, y);
+                      row[j].renderAt(pos, y);
                     }
                     if (left > pos) left = pos;
                     if (top > y - row[j].height) top = y - row[j].height;
@@ -256,14 +260,14 @@
                 left: left,
                 right: right,
                 top: top,
-                bottom: bottom,
+                bottom: bottom
             };
         }
-    }
+    };
 
     function katexHtml(element, text) {
         var opts = {
-            macros: macros,
+            macros: macros
         };
         var parts = text.split("$");
         var n = parts.length;
@@ -275,7 +279,8 @@
             haveToWait(this.instance);
             return false;
         }
-        while (element.firstChild) element.removeChild(element.firstChild);
+        while (element.firstChild)
+            element.removeChild(element.firstChild);
         for (var i = 0; i < n; ++i) {
             var text = parts[i];
             if ((i & 1) === 0) {

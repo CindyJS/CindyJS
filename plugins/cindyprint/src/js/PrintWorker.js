@@ -17,22 +17,16 @@ onmessage = function (e) {
     self.useWebWorkers = true;
     let command = e.data.command;
 
-    if (command == "generateCsgMesh") {
+    if (command == 'generateCsgMesh') {
         postMessage(generateCsgMeshFrom(e.data.spheres, e.data.cylinders, e.data.triangles));
-    } else if (command == "generateIsoMeshFromScalarFunction") {
+    } else if (command == 'generateIsoMeshFromScalarFunction') {
         WORKER_generateIsoMeshFromScalarFunction(e.data);
-    } else if (command == "generateIsoMeshFromScalarFunction_PARALLEL") {
+    } else if (command == 'generateIsoMeshFromScalarFunction_PARALLEL') {
         generateIsoMeshFromScalarFunction_PARALLEL(e.data.workerID, e.data.gridCells, e.data.isoLevel);
-    } else if (command == "generateIsoMeshFromScalarFunctionSnapMC_PARALLEL") {
-        generateIsoMeshFromScalarFunctionSnapMC_PARALLEL(
-            e.data.workerID,
-            e.data.gridCells,
-            e.data.isoLevel,
-            e.data.snapGrid,
-            e.data.indices
-        );
+    } else if (command == 'generateIsoMeshFromScalarFunctionSnapMC_PARALLEL') {
+        generateIsoMeshFromScalarFunctionSnapMC_PARALLEL(e.data.workerID, e.data.gridCells, e.data.isoLevel, e.data.snapGrid, e.data.indices);
     }
-};
+}
 
 /**
  * Calls generateIsoMeshFromGrid from within the web worker.
@@ -40,30 +34,25 @@ onmessage = function (e) {
  */
 function WORKER_generateIsoMeshFromScalarFunction(data) {
     self.baseDir = data.baseDir;
-    generateIsoMeshFromGrid(
-        data.cartesianGrid.gridPoints,
-        data.cartesianGrid.gridValues,
-        data.cartesianGrid.gridNormals,
-        data.isoLevel,
-        (triangleVertexList, vertexNormalList) => {
+    generateIsoMeshFromGrid(data.cartesianGrid.gridPoints, data.cartesianGrid.gridValues,
+        data.cartesianGrid.gridNormals, data.isoLevel, (triangleVertexList, vertexNormalList) => {
             let triangleMesh = trianglePointsToIndexedMesh(triangleVertexList, vertexNormalList, 0.000001);
             if (printUiSettings.extrudeSurfaces) {
                 if (printUiSettings.smoothEdges) {
                     triangleMesh = createOpenSurfaceShellMeshWithNormalsAndRoundEdges(
-                        triangleMesh,
-                        printUiSettings.extrusionRadius
-                    );
+                        triangleMesh, printUiSettings.extrusionRadius);
                 } else {
-                    triangleMesh = createOpenSurfaceShellMeshWithNormals(triangleMesh, printUiSettings.extrusionRadius);
+                    triangleMesh = createOpenSurfaceShellMeshWithNormals(
+                        triangleMesh, printUiSettings.extrusionRadius);
                 }
             }
             postMessage(triangleMesh);
-        }
-    );
+        });
 }
 
+
 /**
- *
+ * 
  * @param {number} workerID The ID of the Marching Cubes worker. This is necessary for dispatching
  * new work to the web worker that is idle after returning the result of its current task.
  * @param {vec3[]} trianglePoints The triangle points the web worker has generated.
@@ -106,14 +95,7 @@ function generateIsoMeshFromScalarFunctionSnapMC_PARALLEL(workerID, gridCells, i
     let triangleVertexList = [];
     let vertexNormalList = [];
     for (let l = 0; l < gridCells.length; l++) {
-        let data = polygonizeGridCellSnapMC(
-            gridCells[l],
-            isoLevel,
-            snapGrid,
-            indices[l][0],
-            indices[l][1],
-            indices[l][2]
-        );
+        let data = polygonizeGridCellSnapMC(gridCells[l], isoLevel, snapGrid, indices[l][0], indices[l][1], indices[l][2]);
         let newTriangles = data.trianglePoints;
         triangleVertexList = triangleVertexList.concat(newTriangles);
         let newNormals = data.triangleNormals;

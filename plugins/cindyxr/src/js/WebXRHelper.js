@@ -1,14 +1,14 @@
 /**
  * CindyJS WebXR integration code:
- *
+ * 
  * Copyright 2019 Christoph Neuhauser
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,10 +36,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * The current WebXR frame.
- * @type {XRFrame}
- */
+ /**
+  * The current WebXR frame.
+  * @type {XRFrame}
+  */
 let xrLastFrame = null;
 /**
  * The viewer pose in the current frame.
@@ -103,14 +103,18 @@ let xrCindyApi = null;
  */
 let xrCindyPluginMode = "";
 
+
 /**
  * Necessary until more browsers natively support WebXR.
  */
 let xrPolyfill = null;
-if ("xr" in navigator === false) {
-    console.log("WebXR polyfill loaded.");
+if ('xr' in navigator === false) {
+    console.log("WebXR polyfill loaded.")
     xrPolyfill = new WebXRPolyfill(); // {allowCardboardOnDesktop: true}
 }
+
+
+
 
 /**
  * A temporary copy of the camera view matrix when the real matrix is modified for use with WebXR.
@@ -126,7 +130,7 @@ let xrScalingFactor = 1.0;
  * The standard value is 'local-floor'.
  * @type {string}
  */
-let xrReferenceMode = "local-floor";
+let xrReferenceMode = 'local-floor';
 /**
  * A temporary copy of the camera view matrix when the real matrix is modified for use with WebXR.
  * @type {number[][]}
@@ -189,7 +193,7 @@ function xrGetScalingFactor() {
  * @param {number} factor The new scaling factor.
  */
 function xrSetScalingFactor(factor) {
-    useRenderTargetHelpers = factor != 1.0;
+    useRenderTargetHelpers = (factor != 1.0);
     xrScalingFactor = factor;
 }
 
@@ -202,12 +206,13 @@ function xrSetReferenceMode(referenceMode) {
 }
 
 /**
- * @return {string} The WebXR reference space.
+ * @return {string} The WebXR reference space. 
  */
 function xrGetReferenceSpace() {
     let refSpace = xrLastFrame.session.isImmersive ? xrImmersiveRefSpace : inlineViewerHelper.referenceSpace;
     return refSpace;
 }
+
 
 /**
  * Transposes a flat 4x4 matrix.
@@ -215,8 +220,13 @@ function xrGetReferenceSpace() {
  * @return {Array.<number>} The transposed matrix.
  */
 function transpose4(m) {
-    return [m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]];
-}
+    return [
+        m[0], m[4], m[8], m[12],
+        m[1], m[5], m[9], m[13],
+        m[2], m[6], m[10], m[14],
+        m[3], m[7], m[11], m[15]
+    ];
+};
 
 /**
  * Converts a Float32Array to a number array.
@@ -229,7 +239,7 @@ function float32ArrayToArray(m) {
         newArray.push(m[i]);
     }
     return newArray;
-}
+};
 
 /**
  * The view matrix needs to be transposed, as WebGL/WebXR use a column-major format,
@@ -238,7 +248,7 @@ function float32ArrayToArray(m) {
  * projection matrix is stored in column-major order.
  * This design choice was also carried over to CindyXR, as this way, it is at least
  * consistent with how Cindy3D handles this.
- *
+ * 
  * @return {number[16]} The view matrix that should be used for a specific WebXR view.
  */
 function xrGetViewMatrix(viewIndex) {
@@ -254,7 +264,7 @@ function xrGetProjectionMatrix(viewIndex) {
 
 /**
  * Sets the render function callback. This is usually a wrapper around a CindyScript function.
- * @param {function} _renderFunction
+ * @param {function} _renderFunction 
  */
 function setRenderFunction(_renderFunction) {
     renderFunction = _renderFunction;
@@ -267,10 +277,10 @@ function setRenderFunction(_renderFunction) {
  */
 function xrPreRender(gl, cindy3DCamera) {
     // Save the old camera matrices.
-    viewMatrixTmp = cindy3DCamera.viewMatrix.slice();
-    projMatrixTmp = cindy3DCamera.projectionMatrix.slice();
+	viewMatrixTmp = cindy3DCamera.viewMatrix.slice();
+	projMatrixTmp = cindy3DCamera.projectionMatrix.slice();
     mvMatrixTmp = cindy3DCamera.mvMatrix.slice();
-
+    
     if (!useRenderTargetHelpers) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, xrGetFramebuffer());
     } else {
@@ -288,12 +298,12 @@ function xrPreRender(gl, cindy3DCamera) {
  */
 function xrPostRender(gl, cindy3DCamera, screenWidth, screenHeight) {
     cindy3DCamera.viewMatrix = viewMatrixTmp.slice();
-    cindy3DCamera.projectionMatrix = projMatrixTmp.slice();
+	cindy3DCamera.projectionMatrix = projMatrixTmp.slice();
     cindy3DCamera.mvMatrix = mvMatrixTmp.slice();
-
+    
     if (useRenderTargetHelpers) {
-        // Use scaling.
-        blitHelperFramebuffersFullscreen(gl, xrGetFramebuffer());
+         // Use scaling.
+         blitHelperFramebuffersFullscreen(gl, xrGetFramebuffer());
     }
 }
 
@@ -313,37 +323,21 @@ function xrUpdateCindy3DCamera(gl, viewIndex, cindy3DCamera) {
 
     let viewMatXR = transpose4(xrLastViewerPose.views[viewIndex].transform.inverse.matrix);
     cindy3DCamera.projectionMatrix = xrGetProjectionMatrix(viewIndex);
-    cindy3DCamera.viewMatrix = viewMatXR; /*mul4mm(viewMatXR, [
+    cindy3DCamera.viewMatrix = viewMatXR;/*mul4mm(viewMatXR, [
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, -cindy3DCamera.viewDist,
         0, 0, 0, 1
-    ])*/
+    ])*/;
     cindy3DCamera.modelMatrix = /*[
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, -cindy3DCamera.viewDist,
         0, 0, 0, 1
-    ];*/ [
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        0,
-        0,
-        0,
-        1,
-    ];
-    cindy3DCamera.mvMatrix = mul4mm(cindy3DCamera.viewMatrix, cindy3DCamera.modelMatrix);
+    ];*/[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
+	cindy3DCamera.mvMatrix = mul4mm(cindy3DCamera.viewMatrix, cindy3DCamera.modelMatrix);
 }
+
 
 /**
  * Analogously to xrUpdateCindy3DCamera, this function sets the rendering state for CindyGL
@@ -398,14 +392,14 @@ function initXR(api, gl, canvasWidth, canvasHeight, hideCanvas) {
 
     xrButton = new XRDeviceButton({
         onRequestSession: onRequestSession,
-        onEndSession: onEndSession,
+        onEndSession: onEndSession
     });
     document.body.appendChild(xrButton.domElement);
     if (navigator.xr) {
-        navigator.xr.isSessionSupported("immersive-vr").then((supported) => {
+        navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
             xrButton.enabled = supported;
         });
-        navigator.xr.requestSession("inline").then(onSessionStarted);
+        navigator.xr.requestSession('inline').then(onSessionStarted);
     }
 }
 
@@ -415,29 +409,27 @@ function initXR(api, gl, canvasWidth, canvasHeight, hideCanvas) {
 function onRequestSession() {
     let requiredFeatures = [];
     let optionalFeatures = [];
-    if (xrReferenceMode == "local-floor") {
-        requiredFeatures = ["local-floor"];
-        optionalFeatures = ["bounded-floor"];
-    } else if (xrReferenceMode == "bounded-floor") {
-        requiredFeatures = ["local-floor", "bounded-floor"];
-    } else if (xrReferenceMode == "unbounded") {
-        requiredFeatures = ["unbounded"];
+    if (xrReferenceMode == 'local-floor') {
+        requiredFeatures = ['local-floor'];
+        optionalFeatures = ['bounded-floor'];
+    } else if (xrReferenceMode == 'bounded-floor') {
+        requiredFeatures = ['local-floor', 'bounded-floor'];
+    } else if (xrReferenceMode == 'unbounded') {
+        requiredFeatures = ['unbounded'];
     }
 
-    navigator.xr
-        .requestSession("immersive-vr", {
-            requiredFeatures: requiredFeatures,
-            optionalFeatures: optionalFeatures,
-        })
-        .then((session) => {
-            xrButton.setSession(session);
-            session.isImmersive = true;
-            onSessionStarted(session);
-        });
+    navigator.xr.requestSession('immersive-vr', {
+        requiredFeatures: requiredFeatures,
+        optionalFeatures: optionalFeatures
+    }).then((session) => {
+        xrButton.setSession(session);
+        session.isImmersive = true;
+        onSessionStarted(session);
+    });
 }
 
 /**
- * This function initializes the WebGL context/its canvas for use with WebXR.
+ * This function initializes the WebGL context/its canvas for use with WebXR. 
  */
 function initGL() {
     if (!xrInitialized) {
@@ -448,10 +440,10 @@ function initGL() {
 
     xrgl.canvas.width = xrCanvasWidth;
     xrgl.canvas.height = xrCanvasHeight;
-    xrgl.canvas.style.display = "block";
+    xrgl.canvas.style.display = 'block';
     // Hide the main (non-WebGL) CindyJS canvas (default: true)?
     if (xrHideCanvas) {
-        xrCindyApi.instance.canvas.parentNode.style.display = "none";
+        xrCindyApi.instance.canvas.parentNode.style.display = 'none';
     }
 
     /*function onResize() {
@@ -462,21 +454,22 @@ function initGL() {
     onResize();*/
 }
 
+
 /**
  * This function is called when a VR/AR session is started.
- * @param {XRSession} session
+ * @param {XRSession} session 
  */
 function onSessionStarted(session) {
-    session.addEventListener("end", onSessionEnded);
+    session.addEventListener('end', onSessionEnded);
 
     // CindyXR event listeners. These events are passed to CindyXR.
-    session.addEventListener("inputsourceschange", onInputSourcesChange);
-    session.addEventListener("selectstart", onSelectStart);
-    session.addEventListener("selectend", onSelectEnd);
-    session.addEventListener("select", onSelect);
-    session.addEventListener("squeezestart", onSqueezeStart);
-    session.addEventListener("squeezeend", onSqueezeEnd);
-    session.addEventListener("squeeze", onSqueeze);
+    session.addEventListener('inputsourceschange', onInputSourcesChange)
+    session.addEventListener('selectstart', onSelectStart);
+    session.addEventListener('selectend', onSelectEnd);
+    session.addEventListener('select', onSelect);
+    session.addEventListener('squeezestart', onSqueezeStart);
+    session.addEventListener('squeezeend', onSqueezeEnd);
+    session.addEventListener('squeeze', onSqueeze);
 
     initGL();
     /*
@@ -485,9 +478,9 @@ function onSessionStarted(session) {
      */
     //let scaleFactor = XRWebGLLayer.getNativeFramebufferScaleFactor(session);
     //let scaleFactor = 0.5;
-    let glLayer = new XRWebGLLayer(session, xrgl /*, { framebufferScaleFactor: scaleFactor }*/);
+    let glLayer = new XRWebGLLayer(session, xrgl/*, { framebufferScaleFactor: scaleFactor }*/);
     session.updateRenderState({ baseLayer: glLayer });
-    let refSpaceType = session.isImmersive ? xrReferenceMode : "viewer";
+    let refSpaceType = session.isImmersive ? xrReferenceMode : 'viewer';
     session.requestReferenceSpace(refSpaceType).then((refSpace) => {
         if (session.isImmersive) {
             xrImmersiveRefSpace = refSpace;
@@ -508,7 +501,7 @@ function onSessionStarted(session) {
 
 /**
  * This functions ends the passed WebXR session.
- * @param {XRSession} session
+ * @param {XRSession} session 
  */
 function onEndSession(session) {
     session.end();
@@ -516,13 +509,14 @@ function onEndSession(session) {
 
 /**
  * This function is called when the VR/AR session was ended (usually by the user).
- * @param {XRSessionEvent} event
+ * @param {XRSessionEvent} event 
  */
 function onSessionEnded(event) {
     if (event.session.isImmersive) {
         xrButton.setSession(null);
     }
 }
+
 
 /**
  * Returns the outline of the VR/AR floor boundaries as a list of points.
@@ -539,6 +533,7 @@ function xrGetBoundsLine() {
     }
     return boundsLine;
 }
+
 
 /// For debug output (@see onXRFrame).
 //let lastTimestamp = 0;
@@ -578,18 +573,20 @@ function drawXRFrame(frame, pose) {
     }
 }
 
+
+
 /**
  * Converts a flat row-major 4x4 matrix to a nested 4x4 matrix.
  * @param {number[16]} m A flat 4x4 matrix.
  * @return {number[4][4]} The nested 4x4 matrix.
  */
 function flatMatrix4ToNestedMatrix4RowMajor(m) {
-    return [
-        [m[0], m[1], m[2], m[3]],
-        [m[4], m[5], m[6], m[7]],
-        [m[8], m[9], m[10], m[11]],
-        [m[12], m[13], m[14], m[15]],
-    ];
+	return [
+		[m[0], m[1], m[2], m[3]],
+		[m[4], m[5], m[6], m[7]],
+		[m[8], m[9], m[10], m[11]],
+		[m[12], m[13], m[14], m[15]]
+	];
 }
 
 /**
@@ -598,12 +595,12 @@ function flatMatrix4ToNestedMatrix4RowMajor(m) {
  * @return {number[4][4]} The nested 4x4 matrix.
  */
 function flatMatrix4ToNestedMatrix4ColumnMajor(m) {
-    return [
-        [m[0], m[4], m[8], m[12]],
-        [m[1], m[5], m[9], m[13]],
-        [m[2], m[6], m[10], m[14]],
-        [m[3], m[7], m[11], m[15]],
-    ];
+	return [
+		[m[0], m[4], m[8], m[12]],
+		[m[1], m[5], m[9], m[13]],
+		[m[2], m[6], m[10], m[14]],
+		[m[3], m[7], m[11], m[15]]
+	];
 }
 
 /**
@@ -617,27 +614,27 @@ function xrGetInputSources() {
 
 /**
  * Returns a filtered XRInputSource object for use as a CindyScript JSON dictionary.
- *
+ * 
  * // @see https://www.w3.org/TR/webxr/#xrinputsource-interface
  * XRInputSource := {
  * 	// Whether the input source is associated with a handedness
  * 	handedness: ("none" | "left" | "right"),
  * 	// For more details see: https://www.w3.org/TR/webxr/#xrinputsource-interface
  * 	targetRayMode: ("gaze" | "tracked-pointer" | "screen"),
- *
+ * 
  * 	// For tracking the input source in space
  * 	targetRaySpaceTransform: <XRRigidTransform>,
  * 	gripSpaceTransform: <XRRigidTransform>,
- *
- * 	// For getting gamepad button presses, ...
+ * 
+ * 	// For getting gamepad button presses, ...	
  * 	gamepad: ?<Gamepad>,
- *
+ * 
  * 	// Example for profile: ["valve-index", "htc-vive", "generic-trigger-squeeze-touchpad-thumbstick"]
  * 	profiles: [
  * 		// ... list of strings ...
  * 	]
  * }
- *
+ * 
  * XRRigidTransform := {
  *	// The position in homogeneous coordinates
  *  position: [ x, y, z, w ],
@@ -646,7 +643,7 @@ function xrGetInputSources() {
  * 	// The total transform as a 4x4 matrix
  * 	matrix: [[ a_11, ...], ...]
  * }
- *
+ * 
  * // @see https://w3c.github.io/gamepad/#dom-gamepad
  * Gamepad := {
  * 	id: <string>,
@@ -656,7 +653,7 @@ function xrGetInputSources() {
  * 	axes: list<number>,
  * 	buttons: list<GamepadButton>
  * }
- *
+ * 
  * // @see https://w3c.github.io/gamepad/#dom-gamepadbutton
  * GamepadButton := {
  * 	pressed: <boolean>,
@@ -669,45 +666,35 @@ function xrFilterInputSource(inputSource, xrFrame) {
         xrFrame = xrLastFrame;
     }
 
-    // Helper functions for extracting transforms from XR spaces.
-    let identityTransform = {
-        position: [0, 0, 0, 1],
-        orientation: [0, 0, 0, 1],
-        matrix: [
-            [1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1],
-        ],
-    };
-    let extractTransform = function (xrSpace) {
-        if (xrFrame === null || xrSpace === null) {
-            return identityTransform;
-        }
-        let xrPose = xrFrame.getPose(xrSpace, xrGetReferenceSpace());
-        if (xrPose === null) {
-            return identityTransform;
-        }
-        let xrTransform = xrPose.transform;
-        let filteredTransform = {
-            position: [xrTransform.position.x, xrTransform.position.y, xrTransform.position.z, xrTransform.position.w],
-            orientation: [
-                xrTransform.orientation.x,
-                xrTransform.orientation.y,
-                xrTransform.orientation.z,
-                xrTransform.orientation.w,
-            ],
-            matrix: flatMatrix4ToNestedMatrix4ColumnMajor(xrTransform.matrix),
-        };
-        return filteredTransform;
-    };
-
+	// Helper functions for extracting transforms from XR spaces.
+	let identityTransform = {
+		position: [0, 0, 0, 1],
+		orientation: [0, 0, 0, 1],
+		matrix: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+	};
+	let extractTransform = function(xrSpace) {
+		if (xrFrame === null || xrSpace === null) {
+			return identityTransform;
+		}
+		let xrPose = xrFrame.getPose(xrSpace, xrGetReferenceSpace());
+		if (xrPose === null) {
+			return identityTransform;
+		}
+		let xrTransform = xrPose.transform;
+		let filteredTransform = {
+			position: [xrTransform.position.x, xrTransform.position.y, xrTransform.position.z, xrTransform.position.w],
+			orientation: [xrTransform.orientation.x, xrTransform.orientation.y, xrTransform.orientation.z, xrTransform.orientation.w],
+			matrix: flatMatrix4ToNestedMatrix4ColumnMajor(xrTransform.matrix)
+		};
+		return filteredTransform;
+    }
+    
     let filteredInputSource = {
         handedness: inputSource.handedness,
         targetRayMode: inputSource.targetRayMode,
         targetRaySpaceTransform: extractTransform(inputSource.targetRaySpace),
         gripSpaceTransform: extractTransform(inputSource.gripSpace),
-        profiles: inputSource.profiles,
+        profiles: inputSource.profiles
     };
     if (typeof inputSource.gamepad !== "undefined" && inputSource.gamepad != null) {
         let gamepad = inputSource.gamepad;
@@ -717,7 +704,7 @@ function xrFilterInputSource(inputSource, xrFrame) {
             connected: gamepad.connected,
             mapping: gamepad.mapping,
             axes: gamepad.axes,
-            buttons: gamepad.buttons,
+            buttons: gamepad.buttons
         };
         filteredInputSource.gamepad = filteredGamepad;
     }

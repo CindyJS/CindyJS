@@ -5,7 +5,7 @@
  * @param {object} snapGrid The grid hllding the snapping informations
  * @param {number} i The first index ot the (in relation to the index) first vertex of the cube (z-direction)
  * @param {number} j The second index ot the (in relation to the index) first vertex of the cube (y-direction)
- * @param {number} k The third index ot the (in relation to the index) first vertex of the cube (x-direction)
+  * @param {number} k The third index ot the (in relation to the index) first vertex of the cube (x-direction)
  * @return {object} An object containing an array of triangle points and an array of vector normals.
  */
 function polygonizeGridCellSnapMC(gridCell, isoLevel, snapGrid, i, j, k) {
@@ -15,28 +15,30 @@ function polygonizeGridCellSnapMC(gridCell, isoLevel, snapGrid, i, j, k) {
         for (let j = 1; j < 8; j++) {
             if (gridCell.f[j] >= isoLevel) {
                 cubeIntersectsScalarfield = true;
-            }
+            };
         }
-    } else {
+    }
+    else {
         for (let j = 1; j < 8; j++) {
             if (gridCell.f[j] < isoLevel) {
                 cubeIntersectsScalarfield = true;
-            }
+            };
         }
     }
     if (!cubeIntersectsScalarfield) {
         return {
             trianglePoints: [],
-            triangleNormals: [],
+            triangleNormals: []
         };
     }
 
     //calculate the tableindex to find the right array in isoTable
-    let tableIndex = 0;
+    let tableIndex = 0
     for (let i = 0; i < 8; i++) {
         if (gridCell.f[i] > isoLevel) {
             tableIndex += positive[i];
-        } else if (gridCell.f[i] == isoLevel) {
+        }
+        else if (gridCell.f[i] == isoLevel) {
             tableIndex += equals[i];
         }
     }
@@ -49,12 +51,12 @@ function polygonizeGridCellSnapMC(gridCell, isoLevel, snapGrid, i, j, k) {
     for (let l = 0; l < isoTable[tableIndex].length; l++) {
         //if the isosurface vertex lies directly on a grid vertex, calculate the global indices of the current cube vertex
         if (isoTable[tableIndex][l] < 8) {
-            let i_curr = i;
-            let j_curr = j;
-            let k_curr = k;
+            let i_curr = i
+            let j_curr = j
+            let k_curr = k
             let j0 = isoTable[tableIndex][l];
             for (let d = 0; d < 3; d++) {
-                if (j0 % 2 == 1) {
+                if ((j0 % 2) == 1) {
                     switch (d) {
                         case 0:
                             k_curr++;
@@ -71,23 +73,12 @@ function polygonizeGridCellSnapMC(gridCell, isoLevel, snapGrid, i, j, k) {
             }
 
             //if the current vertex was snapped to
-            if (
-                snapGrid.snapBackTo != undefined &&
-                snapGrid.snapBackTo[i_curr] != undefined &&
-                snapGrid.snapBackTo[i_curr][j_curr] != undefined &&
-                snapGrid.snapBackTo[i_curr][j_curr][k_curr] != undefined
-            ) {
-                isoPoint = snapBack(
-                    gridCell.v[isoTable[tableIndex][l]],
-                    snapGrid.snapBackTo[i_curr][j_curr][k_curr],
-                    snapGrid.weights[i_curr][j_curr][k_curr]
-                );
+            if (snapGrid.snapBackTo != undefined && snapGrid.snapBackTo[i_curr] != undefined
+                && snapGrid.snapBackTo[i_curr][j_curr] != undefined && snapGrid.snapBackTo[i_curr][j_curr][k_curr] != undefined) {
+
+                isoPoint = snapBack(gridCell.v[isoTable[tableIndex][l]], snapGrid.snapBackTo[i_curr][j_curr][k_curr], snapGrid.weights[i_curr][j_curr][k_curr]);
                 trianglePoints.push(isoPoint);
-                normal = snapBackNormal(
-                    gridCell.n[isoTable[tableIndex][l]],
-                    snapGrid.snapBackToNormals[i_curr][j_curr][k_curr],
-                    snapGrid.weights[i_curr][j_curr][k_curr]
-                );
+                normal = snapBackNormal(gridCell.n[isoTable[tableIndex][l]], snapGrid.snapBackToNormals[i_curr][j_curr][k_curr], snapGrid.weights[i_curr][j_curr][k_curr])
                 triangleNormals.push(normal);
             }
             //if the current vertex has the value of the isoLevel without snapping
@@ -102,160 +93,64 @@ function polygonizeGridCellSnapMC(gridCell, isoLevel, snapGrid, i, j, k) {
         else {
             switch (isoTable[tableIndex][l]) {
                 case 8:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[0],
-                        gridCell.v[1],
-                        gridCell.f[0],
-                        gridCell.f[1]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[0], gridCell.v[1], gridCell.f[0], gridCell.f[1]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[0], gridCell.n[1], gridCell.f[0], gridCell.f[1])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[0], gridCell.n[1], gridCell.f[0], gridCell.f[1]));
                     break;
                 case 9:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[0],
-                        gridCell.v[2],
-                        gridCell.f[0],
-                        gridCell.f[2]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[0], gridCell.v[2], gridCell.f[0], gridCell.f[2]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[0], gridCell.n[2], gridCell.f[0], gridCell.f[2])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[0], gridCell.n[2], gridCell.f[0], gridCell.f[2]));
                     break;
                 case 10:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[1],
-                        gridCell.v[3],
-                        gridCell.f[1],
-                        gridCell.f[3]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[1], gridCell.v[3], gridCell.f[1], gridCell.f[3]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[1], gridCell.n[3], gridCell.f[1], gridCell.f[3])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[1], gridCell.n[3], gridCell.f[1], gridCell.f[3]));
                     break;
                 case 11:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[2],
-                        gridCell.v[3],
-                        gridCell.f[2],
-                        gridCell.f[3]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[2], gridCell.v[3], gridCell.f[2], gridCell.f[3]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[2], gridCell.n[3], gridCell.f[2], gridCell.f[3])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[2], gridCell.n[3], gridCell.f[2], gridCell.f[3]));
                     break;
                 case 12:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[0],
-                        gridCell.v[4],
-                        gridCell.f[0],
-                        gridCell.f[4]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[0], gridCell.v[4], gridCell.f[0], gridCell.f[4]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[0], gridCell.n[4], gridCell.f[0], gridCell.f[4])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[0], gridCell.n[4], gridCell.f[0], gridCell.f[4]));
                     break;
                 case 13:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[1],
-                        gridCell.v[5],
-                        gridCell.f[1],
-                        gridCell.f[5]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[1], gridCell.v[5], gridCell.f[1], gridCell.f[5]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[1], gridCell.n[5], gridCell.f[1], gridCell.f[5])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[1], gridCell.n[5], gridCell.f[1], gridCell.f[5]));
                     break;
                 case 14:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[2],
-                        gridCell.v[6],
-                        gridCell.f[2],
-                        gridCell.f[6]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[2], gridCell.v[6], gridCell.f[2], gridCell.f[6]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[2], gridCell.n[6], gridCell.f[2], gridCell.f[6])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[2], gridCell.n[6], gridCell.f[2], gridCell.f[6]));
                     break;
                 case 15:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[3],
-                        gridCell.v[7],
-                        gridCell.f[3],
-                        gridCell.f[7]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[3], gridCell.v[7], gridCell.f[3], gridCell.f[7]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[3], gridCell.n[7], gridCell.f[3], gridCell.f[7])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[3], gridCell.n[7], gridCell.f[3], gridCell.f[7]));
                     break;
                 case 16:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[4],
-                        gridCell.v[5],
-                        gridCell.f[4],
-                        gridCell.f[5]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[4], gridCell.v[5], gridCell.f[4], gridCell.f[5]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[4], gridCell.n[5], gridCell.f[4], gridCell.f[5])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[4], gridCell.n[5], gridCell.f[4], gridCell.f[5]));
                     break;
                 case 17:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[4],
-                        gridCell.v[6],
-                        gridCell.f[4],
-                        gridCell.f[6]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[4], gridCell.v[6], gridCell.f[4], gridCell.f[6]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[4], gridCell.n[6], gridCell.f[4], gridCell.f[6])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[4], gridCell.n[6], gridCell.f[4], gridCell.f[6]));
                     break;
                 case 18:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[5],
-                        gridCell.v[7],
-                        gridCell.f[5],
-                        gridCell.f[7]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[5], gridCell.v[7], gridCell.f[5], gridCell.f[7]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[5], gridCell.n[7], gridCell.f[5], gridCell.f[7])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[5], gridCell.n[7], gridCell.f[5], gridCell.f[7]));
                     break;
                 case 19:
-                    isoPoint = vertexInterpIsoSnapMC(
-                        isoLevel,
-                        gridCell.v[6],
-                        gridCell.v[7],
-                        gridCell.f[6],
-                        gridCell.f[7]
-                    );
+                    isoPoint = vertexInterpIsoSnapMC(isoLevel, gridCell.v[6], gridCell.v[7], gridCell.f[6], gridCell.f[7]);
                     trianglePoints.push(isoPoint);
-                    triangleNormals.push(
-                        normalInterpIsoSnapMC(isoLevel, gridCell.n[6], gridCell.n[7], gridCell.f[6], gridCell.f[7])
-                    );
+                    triangleNormals.push(normalInterpIsoSnapMC(isoLevel, gridCell.n[6], gridCell.n[7], gridCell.f[6], gridCell.f[7]));
                     break;
             }
         }
@@ -263,7 +158,7 @@ function polygonizeGridCellSnapMC(gridCell, isoLevel, snapGrid, i, j, k) {
 
     return {
         trianglePoints: trianglePoints,
-        triangleNormals: triangleNormals,
+        triangleNormals: triangleNormals
     };
 }
 
@@ -6924,5 +6819,5 @@ let isoTable = [
     [],
     [9, 12, 8],
     [],
-    [],
-];
+    []]
+

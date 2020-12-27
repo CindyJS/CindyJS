@@ -10,20 +10,18 @@ let float32ByteCount = 4;
  * @constructor
  */
 function PrimitiveRenderer(attributes, elements) {
-    let numAttributes = attributes.length,
-        numElements = elements.length;
-    let numVertices = Math.max.apply(null, elements) + 1,
-        tmp;
-    this.attributes = attributes;
-    this.numAttributes = numAttributes;
-    this.numVertices = numVertices;
-    this.elements = elements;
-    this.numElements = numElements;
-    this.itemLength = vec4Length * numVertices * numAttributes;
-    this.vertexByteCount = vec4Length * float32ByteCount * numAttributes;
-    this.itemAttribByteCount = tmp = numVertices * this.vertexByteCount;
-    this.itemTotalByteCount = tmp + numElements * this.indexByteCount;
-    this.maxCount = Math.floor((1 << 16) / tmp);
+  let numAttributes = attributes.length, numElements = elements.length;
+  let numVertices = Math.max.apply(null, elements) + 1, tmp;
+  this.attributes = attributes;
+  this.numAttributes = numAttributes;
+  this.numVertices = numVertices;
+  this.elements = elements;
+  this.numElements = numElements;
+  this.itemLength = vec4Length * numVertices * numAttributes;
+  this.vertexByteCount = vec4Length * float32ByteCount * numAttributes;
+  this.itemAttribByteCount = tmp = numVertices * this.vertexByteCount;
+  this.itemTotalByteCount = tmp + numElements * this.indexByteCount;
+  this.maxCount = Math.floor((1 << 16) / tmp);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -125,32 +123,28 @@ PrimitiveRenderer.prototype.fragmentShaderCode;
  * @param {number} mode
  * @param {Viewer} viewer
  */
-PrimitiveRenderer.prototype.init = function (mode, viewer) {
-    let c = this.initialCapacity,
-        d;
-    this.mode = mode;
-    this.count = 0;
-    this.opaque = true;
-    this.capacity = c;
-    this.data = new ArrayBuffer(c * this.itemTotalByteCount);
-    this.dataAttribs = new Float32Array(this.data, 0, c * this.itemLength);
-    d = new Uint16Array(this.data, c * this.itemAttribByteCount);
-    this.dataIndices = d;
-    let i,
-        j,
-        k = 0,
-        o,
-        e = this.elements;
-    for (i = 0; i < c; ++i) {
-        o = i * this.numVertices;
-        for (j = 0; j < e.length; ++j) d[k++] = e[j] + o;
-    }
-    this.bufferAttribs = viewer.gl.createBuffer();
-    this.bufferIndices = viewer.gl.createBuffer();
-    this.bufferCapacity = -1;
-    this.shaderProgram = null;
-    this.recompileShader(viewer);
-};
+PrimitiveRenderer.prototype.init = function(mode, viewer) {
+  let c = this.initialCapacity, d;
+  this.mode = mode;
+  this.count = 0;
+  this.opaque = true;
+  this.capacity = c;
+  this.data = new ArrayBuffer(c * this.itemTotalByteCount);
+  this.dataAttribs = new Float32Array(this.data, 0, c * this.itemLength);
+  d = new Uint16Array(this.data, c * this.itemAttribByteCount);
+  this.dataIndices = d;
+  let i, j, k = 0, o, e = this.elements;
+  for (i = 0; i < c; ++i) {
+    o = i * this.numVertices;
+    for (j = 0; j < e.length; ++j)
+      d[k++] = e[j] + o;
+  }
+  this.bufferAttribs = viewer.gl.createBuffer();
+  this.bufferIndices = viewer.gl.createBuffer();
+  this.bufferCapacity = -1;
+  this.shaderProgram = null;
+  this.recompileShader(viewer);
+}
 
 /**
  * Enum constant identifying the kind of primitives to draw
@@ -206,105 +200,105 @@ PrimitiveRenderer.prototype.attribLocations;
 /**
  * @param {Viewer} viewer
  */
-PrimitiveRenderer.prototype.recompileShader = function (viewer) {
-    let gl = viewer.gl;
-    if (this.shaderProgram !== null) this.shaderProgram.dispose(gl);
-    let vs = [
-        "precision highp float;",
-        "varying float vShininess;",
-        "varying float vSpecularReflectiveness;",
-        this.vertexShaderCode,
-    ].join("\n");
-    let fs = ["precision highp float;", viewer.lightingCode, this.fragmentShaderCode].join("\n");
-    if (this.useFragDepth && viewer.glExtFragDepth) fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
-    this.shaderProgram = new ShaderProgram(gl, vs, fs);
-    let sp = this.shaderProgram.handle;
-    this.attribLocations = this.attributes.map((a) => gl.getAttribLocation(sp, a));
-};
+PrimitiveRenderer.prototype.recompileShader = function(viewer) {
+  let gl = viewer.gl;
+  if (this.shaderProgram !== null)
+    this.shaderProgram.dispose(gl);
+  let vs = [
+    "precision highp float;",
+    "varying float vShininess;",
+    "varying float vSpecularReflectiveness;",
+    this.vertexShaderCode
+  ].join("\n");
+  let fs = [
+    "precision highp float;",
+    viewer.lightingCode,
+    this.fragmentShaderCode
+  ].join("\n");
+  if (this.useFragDepth && viewer.glExtFragDepth)
+    fs = "#extension GL_EXT_frag_depth : enable\n" + fs;
+  this.shaderProgram = new ShaderProgram(gl, vs, fs);
+  let sp = this.shaderProgram.handle;
+  this.attribLocations = this.attributes.map(a => gl.getAttribLocation(sp, a));
+}
 
 /**
  * @param {Array.<number>} attributes
  */
-PrimitiveRenderer.prototype.addPrimitive = function (attributes) {
-    if (attributes.length !== this.itemLength) throw new GlError("Wrong number of attributes given");
-    if (this.count == this.capacity) {
-        let c = this.capacity * 2,
-            nd,
-            nda,
-            ndi,
-            i,
-            j,
-            k,
-            o,
-            e = this.elements;
-        if (c > this.maxCount) {
-            if (this.capacity < this.maxCount) {
-                c = this.maxCount;
-            } else {
-                this.indexByteCount = 4;
-                this.itemTotalByteCount = this.itemAttribByteCount + this.numElements * this.indexByteCount;
-                this.maxCount = Math.floor(Math.pow(2, 32) / this.itemAttribByteCount);
-            }
-        }
-        nd = new ArrayBuffer(c * this.itemTotalByteCount);
-        nda = new Float32Array(nd, 0, c * this.itemLength);
-        if (this.indexByteCount === 2) ndi = new Uint16Array(nd, c * this.itemAttribByteCount);
-        else ndi = new Uint32Array(nd, c * this.itemAttribByteCount);
-        nda.set(this.dataAttribs);
-        ndi.set(this.dataIndices);
-        k = this.dataIndices.length;
-        for (i = this.capacity; i < c; ++i) {
-            o = i * this.numVertices;
-            for (j = 0; j < e.length; ++j) ndi[k++] = e[j] + o;
-        }
-        this.capacity = c;
-        this.data = nd;
-        this.dataAttribs = nda;
-        this.dataIndices = ndi;
+PrimitiveRenderer.prototype.addPrimitive = function(attributes) {
+  if (attributes.length !== this.itemLength)
+    throw new GlError("Wrong number of attributes given");
+  if (this.count == this.capacity) {
+    let c = this.capacity*2, nd, nda, ndi, i, j, k, o, e = this.elements;
+    if (c > this.maxCount) {
+      if (this.capacity < this.maxCount) {
+        c = this.maxCount;
+      } else {
+        this.indexByteCount = 4;
+        this.itemTotalByteCount = this.itemAttribByteCount +
+          this.numElements * this.indexByteCount;
+        this.maxCount = Math.floor(Math.pow(2, 32) / this.itemAttribByteCount);
+      }
     }
-    this.dataAttribs.set(attributes, this.count++ * this.itemLength);
+    nd = new ArrayBuffer(c * this.itemTotalByteCount);
+    nda = new Float32Array(nd, 0, c * this.itemLength);
+    if (this.indexByteCount === 2)
+      ndi = new Uint16Array(nd, c * this.itemAttribByteCount);
+    else
+      ndi = new Uint32Array(nd, c * this.itemAttribByteCount);
+    nda.set(this.dataAttribs);
+    ndi.set(this.dataIndices);
+    k = this.dataIndices.length;
+    for (i = this.capacity; i < c; ++i) {
+      o = i * this.numVertices;
+      for (j = 0; j < e.length; ++j)
+        ndi[k++] = e[j] + o;
+    }
+    this.capacity = c;
+    this.data = nd;
+    this.dataAttribs = nda;
+    this.dataIndices = ndi;
+  }
+  this.dataAttribs.set(attributes, (this.count++) * this.itemLength);
 };
 
-PrimitiveRenderer.prototype.renderPrimitives = function (gl, setUniforms) {
-    if (this.count === 0) return;
-    let shaderProgram = this.shaderProgram,
-        u = shaderProgram.uniform;
-    shaderProgram.use(gl);
-    setUniforms(u);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferAttribs);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufferIndices);
-    if (this.bufferCapacity !== this.capacity) {
-        gl.bufferData(gl.ARRAY_BUFFER, this.dataAttribs, gl.STATIC_DRAW);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.dataIndices, gl.STATIC_DRAW);
-        this.bufferCapacity = this.capacity;
-    } else {
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.data, 0, this.count * this.itemLength));
-    }
-    let i;
-    for (i = 0; i < this.numAttributes; ++i) {
-        let loc = this.attribLocations[i];
-        gl.enableVertexAttribArray(loc);
-        gl.vertexAttribPointer(
-            loc,
-            vec4Length,
-            gl.FLOAT,
-            /* normalized */ false,
-            this.vertexByteCount,
-            vec4Length * float32ByteCount * i
-        );
-    }
-    let type = gl.UNSIGNED_SHORT;
-    if (this.dataIndices instanceof Uint32Array) {
-        type = gl.UNSIGNED_INT;
-        gl.getExtension("OES_element_index_uint");
-    }
-    gl.drawElements(this.mode, this.numElements * this.count, type, 0);
-    for (i = 0; i < this.numAttributes; ++i) {
-        gl.disableVertexAttribArray(this.attribLocations[i]);
-    }
+PrimitiveRenderer.prototype.renderPrimitives = function(gl, setUniforms) {
+  if (this.count === 0)
+    return;
+  let shaderProgram = this.shaderProgram, u = shaderProgram.uniform;
+  shaderProgram.use(gl);
+  setUniforms(u);
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.bufferAttribs);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufferIndices);
+  if (this.bufferCapacity !== this.capacity) {
+    gl.bufferData(gl.ARRAY_BUFFER, this.dataAttribs, gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.dataIndices, gl.STATIC_DRAW);
+    this.bufferCapacity = this.capacity;
+  }
+  else {
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array
+                     (this.data, 0, this.count * this.itemLength));
+  }
+  let i;
+  for (i = 0; i < this.numAttributes; ++i) {
+    let loc = this.attribLocations[i];
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(
+      loc, vec4Length, gl.FLOAT, /* normalized */ false,
+      this.vertexByteCount, vec4Length*float32ByteCount*i);
+  }
+  let type = gl.UNSIGNED_SHORT;
+  if (this.dataIndices instanceof Uint32Array) {
+    type = gl.UNSIGNED_INT;
+    gl.getExtension("OES_element_index_uint");
+  }
+  gl.drawElements(this.mode, this.numElements * this.count, type, 0);
+  for (i = 0; i < this.numAttributes; ++i) {
+    gl.disableVertexAttribArray(this.attribLocations[i]);
+  }
 };
 
-PrimitiveRenderer.prototype.clear = function () {
-    this.count = 0;
-    this.opaque = true;
+PrimitiveRenderer.prototype.clear = function() {
+  this.count = 0;
+  this.opaque = true;
 };
