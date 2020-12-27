@@ -18,9 +18,11 @@
     "gl-matrix": "^2.8.1",
     "glob": "^7.0.3",
     "http-proxy": "^1.11.2",
+    "husky": "^4.3.6",
     "iphone-inline-video": "2.0.2",
     "jshint": "^2.10.2",
     "leapjs": "github:CindyJS/leapjs",
+    "lint-staged": "^10.5.3",
     "marked": ">=0.3.5 <=0.3.12",
     "mocha": "^5.2.0",
     "node-sass": "^4.12.0",
@@ -81,5 +83,13 @@
   "bugs": {
     "url": "https://github.com/CindyJS/CindyJS/issues"
   },
-  "homepage": "https://github.com/CindyJS/CindyJS#readme"
+  "homepage": "https://github.com/CindyJS/CindyJS#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write"
+  }
 }
