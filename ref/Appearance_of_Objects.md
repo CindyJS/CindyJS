@@ -1,4 +1,4 @@
-##  Appearance of Objects
+## Appearance of Objects
 
 The drawing engine of Cinderella stores a default appearance for each kind of element (point, line, text) that can be drawn.
 Whenever a drawing statement is invoked without any modifiers, the default appearance is used to render the object.
@@ -22,9 +22,9 @@ In addition to appearance information, information on the local coordinate syste
 **See also:**
 [Script Coordinate System](Script_Coordinate_System.md)
 
-------
+---
 
-------
+---
 
 ### Size
 
@@ -50,9 +50,9 @@ The following code produces the picture below:
 
 ![Image](img/SizesX.png)
 
-------
+---
 
-###  Colors
+### Colors
 
 Colors are represented by lists of three real numbers that represent the red/green/blue component of the color.
 Each number is assumed to lie between 0 and 1, where 0 means black and 1 means the full color value.
@@ -103,9 +103,9 @@ The following code produces the picture below:
 
 ![Image](img/ColorsX.png)
 
-------
+---
 
-###  Opacity
+### Opacity
 
 #### Set opacity: `alpha(‹number›)`
 
@@ -114,11 +114,11 @@ Opacity is encoded by a real value between `0` and `1`.
 Here `0` stands for completely transparent and `1` for completely opaque.
 Values that are outside this range are set to either `0` or to `1`.
 
-------
+---
 
-------
+---
 
-###  Color Functions
+### Color Functions
 
 To make calculations with colors slightly simpler, a few default functions are declared that return color values.
 
@@ -128,7 +128,7 @@ To make calculations with colors slightly simpler, a few default functions are d
 This operator creates an RGB vector whose green and blue values are set to `0`.
 The red value is set to `‹number›`.
 
-------
+---
 
 #### Green colors: `green(‹number›)`
 
@@ -136,7 +136,7 @@ The red value is set to `‹number›`.
 This operator creates an RGB vector whose red and blue values are set to `0`.
 The green value is set to `‹number›`.
 
-------
+---
 
 #### Blue colors: `blue(‹number›)`
 
@@ -144,14 +144,14 @@ The green value is set to `‹number›`.
 This operator creates an RGB vector whose red and green values are set to `0`.
 The blue value is set to `‹number›`.
 
-------
+---
 
 #### Gray colors: `gray(‹number›)`
 
 **Description:**
 This operator creates an RGB vector whose red, green, and blue values are all set to `‹number›`.
 
-------
+---
 
 #### Rainbow colors: `hue(‹number›)`
 

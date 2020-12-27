@@ -1,50 +1,46 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Tracing test 4</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
 
-<head>
-<title>Tracing test 4</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
+            B.xy = A.xy - (0, 5);
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/CindyJS documentation for details.
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                enableTraceLog: true,
+                tracingStateReport: "tracingStateReport",
+                grid: 1,
+                snap: true,
+                geometry: [
+                    { name: "A", type: "Free", pos: [0, 1] },
+                    { name: "B", type: "Free", pos: [1, -1], color: [0, 1, 1] },
+                    { name: "M", type: "Free", pos: [0, 0], visible: false },
+                    { name: "a", type: "Through", args: ["A"], dir: [1, 0, 0] },
+                    { name: "b", type: "Through", args: ["B"], dir: [1, 0, 0] },
+                    { name: "C0", type: "CircleMr", args: ["M"], radius: 2 },
+                    { name: "Cs", type: "IntersectLC", args: ["a", "C0"] },
+                    { name: "Ds", type: "IntersectLC", args: ["b", "C0"] },
+                    { name: "C", type: "SelectP", args: ["Cs"], index: 1, color: [0, 1, 0] },
+                    { name: "D", type: "SelectP", args: ["Ds"], index: 1, color: [0, 1, 0] },
+                ], // End of geometry array.
+            });
+        </script>
+    </head>
 
-B.xy = A.xy - (0, 5);
-
-</script>
-<script type="text/javascript">
-
-var cdy = CindyJS({ // See ref/CindyJS documentation for details.
-  canvasname: "CSCanvas",
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {},
-  enableTraceLog: true,
-  tracingStateReport: "tracingStateReport",
-  grid: 1,
-  snap: true,
-  geometry: [
-    {name:"A", type:"Free", pos:[0,1]},
-    {name:"B", type:"Free", pos:[1,-1], color:[0,1,1]},
-    {name:"M", type:"Free", pos:[0,0], visible:false},
-    {name:"a", type:"Through", args:["A"], dir:[1,0,0]},
-    {name:"b", type:"Through", args:["B"], dir:[1,0,0]},
-    {name:"C0", type:"CircleMr", args:["M"], radius: 2},
-    {name:"Cs", type:"IntersectLC", args:["a","C0"]},
-    {name:"Ds", type:"IntersectLC", args:["b","C0"]},
-    {name:"C", type:"SelectP", args:["Cs"], index:1, color:[0,1,0]},
-    {name:"D", type:"SelectP", args:["Ds"], index:1, color:[0,1,0]},
-  ] // End of geometry array.
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-  <p>
-    <button onclick="location.href=cdy.formatTraceLog(false)">View log</button>
-    <button onclick="location.href=cdy.formatTraceLog(true)">Save log</button>
-    <span id="tracingStateReport"></span>
-  </p>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+        <p>
+            <button onclick="location.href=cdy.formatTraceLog(false)">View log</button>
+            <button onclick="location.href=cdy.formatTraceLog(true)">Save log</button>
+            <span id="tracingStateReport"></span>
+        </p>
+    </body>
 </html>

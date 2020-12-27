@@ -16,57 +16,55 @@
  * @param {number} radius The radius of the surface shell.
  */
 function createOpenSurfaceShellMeshWithNormals(triangleMesh, radius) {
-	if (triangleMesh.normals.length == 0) {
-		triangleMesh.computeSmoothNormals();
-	}
-	
-	let newIndices = [];
-	let newVertices = [];
-	
-	// Create two copies of the indices and vertices
-	newIndices = triangleMesh.indices.concat(
-		triangleMesh.indices.map(i => i + triangleMesh.vertices.length)
-	);
-	newVertices = triangleMesh.vertices.concat(triangleMesh.vertices);
-	
-	// Invert the winding order of the second copy indices
-	for (let i = 0; i < triangleMesh.indices.length; i += 3) {
-		let tmp = newIndices[i];
-		newIndices[i] = newIndices[i+2];
-		newIndices[i+2] = tmp;
-	}
-	
-	// Push vertices in and out using the stored normal
-	for (let i = 0; i < triangleMesh.vertices.length; i++) {
-		let v = triangleMesh.vertices[i];
-		let n = triangleMesh.normals[i];
-		let positiveOffset = vec3mul(radius, n);
-		let negativeOffset = vec3mul(-radius, n);
-		newVertices[i] = vec3add(v, negativeOffset);
-		newVertices[i + triangleMesh.vertices.length] = vec3add(v, positiveOffset);
-	}
-	
-	// Create mesh graph with unordered indices in insertion order
-	let meshGraph = new MeshGraph(triangleMesh, false);
-	
-	// Extrude the border edges
-	for (let i = 0; i < meshGraph.edges.length; i++) {
-		// Edge lies on border of object
-		if (meshGraph.edges[i].meshEdgeCount == 1) {
-			let edge = meshGraph.edges[i].connectedNodes;
-			let i0 = edge[0];
-			let i1 = edge[1];
-			let j0 = i0 + triangleMesh.vertices.length;
-			let j1 = i1 + triangleMesh.vertices.length;
-			// Winding: CCW
-			newIndices = newIndices.concat([j1, j0, i0, i1, j1, i0]);
-		}
-	}
-	
-	let newTriangleMesh = new TriangleMesh();
-	newTriangleMesh.indices = newIndices;
-	newTriangleMesh.vertices = newVertices;
-	return newTriangleMesh;
+    if (triangleMesh.normals.length == 0) {
+        triangleMesh.computeSmoothNormals();
+    }
+
+    let newIndices = [];
+    let newVertices = [];
+
+    // Create two copies of the indices and vertices
+    newIndices = triangleMesh.indices.concat(triangleMesh.indices.map((i) => i + triangleMesh.vertices.length));
+    newVertices = triangleMesh.vertices.concat(triangleMesh.vertices);
+
+    // Invert the winding order of the second copy indices
+    for (let i = 0; i < triangleMesh.indices.length; i += 3) {
+        let tmp = newIndices[i];
+        newIndices[i] = newIndices[i + 2];
+        newIndices[i + 2] = tmp;
+    }
+
+    // Push vertices in and out using the stored normal
+    for (let i = 0; i < triangleMesh.vertices.length; i++) {
+        let v = triangleMesh.vertices[i];
+        let n = triangleMesh.normals[i];
+        let positiveOffset = vec3mul(radius, n);
+        let negativeOffset = vec3mul(-radius, n);
+        newVertices[i] = vec3add(v, negativeOffset);
+        newVertices[i + triangleMesh.vertices.length] = vec3add(v, positiveOffset);
+    }
+
+    // Create mesh graph with unordered indices in insertion order
+    let meshGraph = new MeshGraph(triangleMesh, false);
+
+    // Extrude the border edges
+    for (let i = 0; i < meshGraph.edges.length; i++) {
+        // Edge lies on border of object
+        if (meshGraph.edges[i].meshEdgeCount == 1) {
+            let edge = meshGraph.edges[i].connectedNodes;
+            let i0 = edge[0];
+            let i1 = edge[1];
+            let j0 = i0 + triangleMesh.vertices.length;
+            let j1 = i1 + triangleMesh.vertices.length;
+            // Winding: CCW
+            newIndices = newIndices.concat([j1, j0, i0, i1, j1, i0]);
+        }
+    }
+
+    let newTriangleMesh = new TriangleMesh();
+    newTriangleMesh.indices = newIndices;
+    newTriangleMesh.vertices = newVertices;
+    return newTriangleMesh;
 }
 
 /**
@@ -79,47 +77,52 @@ function createOpenSurfaceShellMeshWithNormals(triangleMesh, radius) {
  * @param {number} radius The radius of the surface shell.
  */
 function createOpenSurfaceShellMeshWithNormalsAndRoundEdges(triangleMesh, radius) {
-	if (triangleMesh.normals.length == 0) {
-		triangleMesh.computeSmoothNormals();
-	}
-	
-	let newIndices = [];
-	let newVertices = [];
-	
-	// Create two copies of the indices and vertices
-	newIndices = triangleMesh.indices.concat(
-		triangleMesh.indices.map(i => i + triangleMesh.vertices.length)
-	);
-	newVertices = triangleMesh.vertices.concat(triangleMesh.vertices);
-	
-	// Invert the winding order of the second copy indices
-	for (let i = 0; i < triangleMesh.indices.length; i += 3) {
-		let tmp = newIndices[i];
-		newIndices[i] = newIndices[i+2];
-		newIndices[i+2] = tmp;
-	}
-	
-	// Push vertices in and out using the stored normal
-	for (let i = 0; i < triangleMesh.vertices.length; i++) {
-		let v = triangleMesh.vertices[i];
-		let n = triangleMesh.normals[i];
-		let positiveOffset = vec3mul(radius, n);
-		let negativeOffset = vec3mul(-radius, n);
-		newVertices[i] = vec3add(v, negativeOffset);
-		newVertices[i + triangleMesh.vertices.length] = vec3add(v, positiveOffset);
-	}
-	
-	// Create the rounded edges (approximated by tubes using half-circles).
-	// TODO: Let the user specify the number of half-circle segments for rounded edges.
-	let numSegments = 8;
-    addTubesOnBorderEdges(triangleMesh, triangleMesh.vertices, triangleMesh.indices, newVertices, newIndices, numSegments, radius);
-	
-	let newTriangleMesh = new TriangleMesh();
-	newTriangleMesh.indices = newIndices;
-	newTriangleMesh.vertices = newVertices;
-	return newTriangleMesh;
-}
+    if (triangleMesh.normals.length == 0) {
+        triangleMesh.computeSmoothNormals();
+    }
 
+    let newIndices = [];
+    let newVertices = [];
+
+    // Create two copies of the indices and vertices
+    newIndices = triangleMesh.indices.concat(triangleMesh.indices.map((i) => i + triangleMesh.vertices.length));
+    newVertices = triangleMesh.vertices.concat(triangleMesh.vertices);
+
+    // Invert the winding order of the second copy indices
+    for (let i = 0; i < triangleMesh.indices.length; i += 3) {
+        let tmp = newIndices[i];
+        newIndices[i] = newIndices[i + 2];
+        newIndices[i + 2] = tmp;
+    }
+
+    // Push vertices in and out using the stored normal
+    for (let i = 0; i < triangleMesh.vertices.length; i++) {
+        let v = triangleMesh.vertices[i];
+        let n = triangleMesh.normals[i];
+        let positiveOffset = vec3mul(radius, n);
+        let negativeOffset = vec3mul(-radius, n);
+        newVertices[i] = vec3add(v, negativeOffset);
+        newVertices[i + triangleMesh.vertices.length] = vec3add(v, positiveOffset);
+    }
+
+    // Create the rounded edges (approximated by tubes using half-circles).
+    // TODO: Let the user specify the number of half-circle segments for rounded edges.
+    let numSegments = 8;
+    addTubesOnBorderEdges(
+        triangleMesh,
+        triangleMesh.vertices,
+        triangleMesh.indices,
+        newVertices,
+        newIndices,
+        numSegments,
+        radius
+    );
+
+    let newTriangleMesh = new TriangleMesh();
+    newTriangleMesh.indices = newIndices;
+    newTriangleMesh.vertices = newVertices;
+    return newTriangleMesh;
+}
 
 /**
  * Computes loops of mesh edges lying on the border of the mesh.
@@ -129,29 +132,31 @@ function createOpenSurfaceShellMeshWithNormalsAndRoundEdges(triangleMesh, radius
  * @return {number[][]} The border edge loops, i.e. an array of arrays of vertex indices lying on the mesh border.
  */
 function getBorderEdgeLoops(meshGraph) {
-	let visitedEdges = new Set();
-	let borderEdgeLoops = [];
+    let visitedEdges = new Set();
+    let borderEdgeLoops = [];
 
-	for (let i = 0; i < meshGraph.edges.length; i++) {
-		// Edge lies on border of object
-		if (meshGraph.edges[i].meshEdgeCount == 1 && !visitedEdges.has(meshGraph.edges[i])) {
-			visitedEdges.add(meshGraph.edges[i]);
-			let edge = meshGraph.edges[i].connectedNodes;
-			let i0 = edge[0];
-			let i1 = edge[1];
-			let startPoint = i0;
+    for (let i = 0; i < meshGraph.edges.length; i++) {
+        // Edge lies on border of object
+        if (meshGraph.edges[i].meshEdgeCount == 1 && !visitedEdges.has(meshGraph.edges[i])) {
+            visitedEdges.add(meshGraph.edges[i]);
+            let edge = meshGraph.edges[i].connectedNodes;
+            let i0 = edge[0];
+            let i1 = edge[1];
+            let startPoint = i0;
 
-			let borderEdgeLoop = [i0];
-			while (i1 != startPoint) {
-				let nextEdge = null;
-				for (let j = 0; j < meshGraph.edges.length; j++) {
-					if (meshGraph.edges[j].meshEdgeCount == 1
-							&& meshGraph.edges[j].connectedNodes.indexOf(i1) !== -1
-							&& !visitedEdges.has(meshGraph.edges[j])) {
-						nextEdge = meshGraph.edges[j];
-						break;
-					}
-				}
+            let borderEdgeLoop = [i0];
+            while (i1 != startPoint) {
+                let nextEdge = null;
+                for (let j = 0; j < meshGraph.edges.length; j++) {
+                    if (
+                        meshGraph.edges[j].meshEdgeCount == 1 &&
+                        meshGraph.edges[j].connectedNodes.indexOf(i1) !== -1 &&
+                        !visitedEdges.has(meshGraph.edges[j])
+                    ) {
+                        nextEdge = meshGraph.edges[j];
+                        break;
+                    }
+                }
                 visitedEdges.add(nextEdge);
                 if (nextEdge.connectedNodes[0] == i1) {
                     i0 = nextEdge.connectedNodes[0];
@@ -160,13 +165,13 @@ function getBorderEdgeLoops(meshGraph) {
                     i0 = nextEdge.connectedNodes[1];
                     i1 = nextEdge.connectedNodes[0];
                 }
-				borderEdgeLoop.push(i0);
-			}
-			borderEdgeLoops.push(borderEdgeLoop);
-		}
-	}
+                borderEdgeLoop.push(i0);
+            }
+            borderEdgeLoops.push(borderEdgeLoop);
+        }
+    }
 
-	return borderEdgeLoops;
+    return borderEdgeLoops;
 }
 
 /**
@@ -186,8 +191,8 @@ function initArcVertices(numSegments, radius, startAngle, arcAngle) {
     let theta = arcAngle / (numSegments - 1);
     let tangetialFactor = Math.tan(theta); // opposite / adjacent
     let radialFactor = Math.cos(theta); // adjacent / hypotenuse
-	let position = new vec3(radius * Math.cos(startAngle), radius * Math.sin(startAngle), 0);
-	halfCirclePointData = [];
+    let position = new vec3(radius * Math.cos(startAngle), radius * Math.sin(startAngle), 0);
+    halfCirclePointData = [];
 
     for (let i = 0; i < numSegments; i++) {
         halfCirclePointData.push(position);
@@ -210,18 +215,18 @@ function initArcVertices(numSegments, radius, startAngle, arcAngle) {
  * @param {vec3[]} The transformed circle arc points.
  */
 function getTransformedCircleVertices(center, normal, tangent) {
-	let binormal = vec3cross(normal, tangent);
-	let trafoedCirclePoints = [];
-	for (let i = 0; i < halfCirclePointData.length; i++) {
-		let pt = halfCirclePointData[i];
-		let trafoPt = new vec3(
-			pt.x * normal.x + pt.y * binormal.x + pt.z * tangent.x + center.x,
-			pt.x * normal.y + pt.y * binormal.y + pt.z * tangent.y + center.y,
-			pt.x * normal.z + pt.y * binormal.z + pt.z * tangent.z + center.z
-		);
-		trafoedCirclePoints.push(trafoPt);
-	}
-	return trafoedCirclePoints;
+    let binormal = vec3cross(normal, tangent);
+    let trafoedCirclePoints = [];
+    for (let i = 0; i < halfCirclePointData.length; i++) {
+        let pt = halfCirclePointData[i];
+        let trafoPt = new vec3(
+            pt.x * normal.x + pt.y * binormal.x + pt.z * tangent.x + center.x,
+            pt.x * normal.y + pt.y * binormal.y + pt.z * tangent.y + center.y,
+            pt.x * normal.z + pt.y * binormal.z + pt.z * tangent.z + center.z
+        );
+        trafoedCirclePoints.push(trafoPt);
+    }
+    return trafoedCirclePoints;
 }
 
 /**
@@ -236,84 +241,95 @@ function getTransformedCircleVertices(center, normal, tangent) {
  * @param {number} radius The radius of the tubes.
  */
 function addTubesOnBorderEdges(triangleMesh, vertices, indices, newVertices, newIndices, numSegments, radius) {
-	// Intialize arc data with half circles, as the tubes are inside the mesh on one side.
-	// Skip the first and last points, as these are already part of the mesh.
-	initArcVertices(numSegments-2, radius, -Math.PI/2.0+Math.PI/(numSegments-1), Math.PI - 2*Math.PI/(numSegments-1));
+    // Intialize arc data with half circles, as the tubes are inside the mesh on one side.
+    // Skip the first and last points, as these are already part of the mesh.
+    initArcVertices(
+        numSegments - 2,
+        radius,
+        -Math.PI / 2.0 + Math.PI / (numSegments - 1),
+        Math.PI - (2 * Math.PI) / (numSegments - 1)
+    );
 
     // Create mesh graph with unordered indices in insertion order
-	let meshGraph = new MeshGraph(triangleMesh, false);
+    let meshGraph = new MeshGraph(triangleMesh, false);
 
     let indexOffset = newVertices.length;
-	let borderEdgeLoops = getBorderEdgeLoops(meshGraph);
-	for (let i = 0; i < borderEdgeLoops.length; i++) {
-		for (let j = 0; j < borderEdgeLoops[i].length; j++) {
-			// Indices of the edge loop points.
-			let iLast = borderEdgeLoops[i][(j-1+borderEdgeLoops[i].length) % borderEdgeLoops[i].length];
-			let iCurrent = borderEdgeLoops[i][j];
-			let iNext = borderEdgeLoops[i][(j+1) % borderEdgeLoops[i].length];
+    let borderEdgeLoops = getBorderEdgeLoops(meshGraph);
+    for (let i = 0; i < borderEdgeLoops.length; i++) {
+        for (let j = 0; j < borderEdgeLoops[i].length; j++) {
+            // Indices of the edge loop points.
+            let iLast = borderEdgeLoops[i][(j - 1 + borderEdgeLoops[i].length) % borderEdgeLoops[i].length];
+            let iCurrent = borderEdgeLoops[i][j];
+            let iNext = borderEdgeLoops[i][(j + 1) % borderEdgeLoops[i].length];
 
-			// The edge loop points themselved.
-			let pLast = vertices[iLast];
-			let pCurrent = vertices[iCurrent];
-			let pNext = vertices[iNext];
+            // The edge loop points themselved.
+            let pLast = vertices[iLast];
+            let pCurrent = vertices[iCurrent];
+            let pNext = vertices[iNext];
 
-			// Compute the tangent direction, i.e. the direction of the tube/the direction of the line segment.
+            // Compute the tangent direction, i.e. the direction of the tube/the direction of the line segment.
             let tangent = vec3add(vec3sub(pCurrent, pLast), vec3sub(pNext, pCurrent));
-			let tangentLength = vec3length(tangent);
-			if (tangentLength < 0.0001) {
-				// In case the two vertices are almost identical, just skip this path line segment.
-				continue;
-			}
-			tangent = vec3mul(1/tangentLength, tangent);
+            let tangentLength = vec3length(tangent);
+            if (tangentLength < 0.0001) {
+                // In case the two vertices are almost identical, just skip this path line segment.
+                continue;
+            }
+            tangent = vec3mul(1 / tangentLength, tangent);
 
-			// Compute the normal of the current edge segment after extrusion.
-			let k0 = iLast;
-			let k1 = iCurrent;
-			let k2 = iNext;
-			let k3 = iLast + triangleMesh.vertices.length;
-			let k4 = iCurrent + triangleMesh.vertices.length;
-			let k5 = iNext + triangleMesh.vertices.length;
-			let normal0 = vec3cross(vec3sub(newVertices[k4], newVertices[k0]), vec3sub(newVertices[k4], newVertices[k1]));
-            let normal1 = vec3cross(vec3sub(newVertices[k5], newVertices[k1]), vec3sub(newVertices[k5], newVertices[k2]));
+            // Compute the normal of the current edge segment after extrusion.
+            let k0 = iLast;
+            let k1 = iCurrent;
+            let k2 = iNext;
+            let k3 = iLast + triangleMesh.vertices.length;
+            let k4 = iCurrent + triangleMesh.vertices.length;
+            let k5 = iNext + triangleMesh.vertices.length;
+            let normal0 = vec3cross(
+                vec3sub(newVertices[k4], newVertices[k0]),
+                vec3sub(newVertices[k4], newVertices[k1])
+            );
+            let normal1 = vec3cross(
+                vec3sub(newVertices[k5], newVertices[k1]),
+                vec3sub(newVertices[k5], newVertices[k2])
+            );
             let normal = vec3normalize(vec3add(normal0, normal1));
 
-			// Add the circle arc points to the vertex data
+            // Add the circle arc points to the vertex data
             let circleVertices = getTransformedCircleVertices(pCurrent, normal, tangent);
-			for (let k = 0; k < circleVertices.length; k++) {
+            for (let k = 0; k < circleVertices.length; k++) {
                 newVertices.push(circleVertices[k]);
             }
 
-			// Gather the indices of the circle points. This is necessary, as we skipped the first and last point of the
-			// arc when calling initArcVertices. Thus, we need to use different indices fot these points (i.e., k1,k4/k2,k5).
-			let indicesCircle0 = [];
-			let indicesCircle1 = [];
-			indicesCircle0.push(k1);
-			indicesCircle1.push(k2);
-			for (let k = 0; k < circleVertices.length; k++) {
-                indicesCircle0.push(indexOffset+k);
-                if (j < borderEdgeLoops[i].length-1) {
-                    indicesCircle1.push(indexOffset+circleVertices.length+k);
+            // Gather the indices of the circle points. This is necessary, as we skipped the first and last point of the
+            // arc when calling initArcVertices. Thus, we need to use different indices fot these points (i.e., k1,k4/k2,k5).
+            let indicesCircle0 = [];
+            let indicesCircle1 = [];
+            indicesCircle0.push(k1);
+            indicesCircle1.push(k2);
+            for (let k = 0; k < circleVertices.length; k++) {
+                indicesCircle0.push(indexOffset + k);
+                if (j < borderEdgeLoops[i].length - 1) {
+                    indicesCircle1.push(indexOffset + circleVertices.length + k);
                 } else {
-                    indicesCircle1.push(indexOffset-circleVertices.length*(borderEdgeLoops[i].length-1)+k);
+                    indicesCircle1.push(indexOffset - circleVertices.length * (borderEdgeLoops[i].length - 1) + k);
                 }
-			}
-			indicesCircle0.push(k4);
-			indicesCircle1.push(k5);
-			indexOffset += circleVertices.length;
+            }
+            indicesCircle0.push(k4);
+            indicesCircle1.push(k5);
+            indexOffset += circleVertices.length;
 
-			// Now add indices for creating triangles approximating the tube along the mesh edges.
-			for (let k = 0; k < indicesCircle0.length-1; k++) {
-				// Build two CCW triangles (one quad) for each side
-				// Triangle 1
-				newIndices.push(indicesCircle1[k+1]);
-				newIndices.push(indicesCircle0[k+1]);
-				newIndices.push(indicesCircle0[k]);
+            // Now add indices for creating triangles approximating the tube along the mesh edges.
+            for (let k = 0; k < indicesCircle0.length - 1; k++) {
+                // Build two CCW triangles (one quad) for each side
+                // Triangle 1
+                newIndices.push(indicesCircle1[k + 1]);
+                newIndices.push(indicesCircle0[k + 1]);
+                newIndices.push(indicesCircle0[k]);
 
-				// Triangle 2
-				newIndices.push(indicesCircle1[k]);
-				newIndices.push(indicesCircle1[k+1]);
-				newIndices.push(indicesCircle0[k]);
-			}
-		}
-	}
+                // Triangle 2
+                newIndices.push(indicesCircle1[k]);
+                newIndices.push(indicesCircle1[k + 1]);
+                newIndices.push(indicesCircle0[k]);
+            }
+        }
+    }
 }

@@ -1,48 +1,46 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>WebGL testing</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyPrint.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("Cindy3D");
+            use("Cindy3DPrint");
+            computeTubePoints(numTubePointsPrint) := (
+              apply(1..numTubePointsPrint, f((#-1)/numTubePointsPrint*360°))
+            );
+            addcindy3dprintuitubes("tube.stl", computeTubePoints, "n", "radius", true);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            begin3d();
+            background3d([0,0,0]);
+            n=300;
+            r1=1;
+            r2=.3;
+            radius=2.4;
+            k=5;
+            l=3;
+            f(w):=(sin(l*w),cos(l*w),0)*(r1+r2*cos(k*w))+(0,0,r2*sin(k*w));
+            repeat(n,i,
+             w1=i/n*360°;
+             w2=(i+1)/n*360°;
+             color3d(hue(i/n));
+             draw3d(f(w1),f(w2),size->radius);
+            );
+            end3d();
 
-<head>
-<title>WebGL testing</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
-<script type="text/javascript" src="../../build/js/CindyPrint.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-use("Cindy3D");
-use("Cindy3DPrint");
-computeTubePoints(numTubePointsPrint) := (
-  apply(1..numTubePointsPrint, f((#-1)/numTubePointsPrint*360°))
-);
-addcindy3dprintuitubes("tube.stl", computeTubePoints, "n", "radius", true);
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-begin3d();
-background3d([0,0,0]);
-n=300;
-r1=1;
-r2=.3;
-radius=2.4;
-k=5;
-l=3;
-f(w):=(sin(l*w),cos(l*w),0)*(r1+r2*cos(k*w))+(0,0,r2*sin(k*w));
-repeat(n,i,
- w1=i/n*360°;
- w2=(i+1)/n*360°;
- color3d(hue(i/n));
- draw3d(f(w1),f(w2),size->radius);
-);
-end3d();
+            drawprintpreview();
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({ canvasname: "CSCanvas", scripts: "cs*" });
+        </script>
+    </head>
 
-drawprintpreview();
-</script>
-<script type="text/javascript">
-var cdy = CindyJS({canvasname:"CSCanvas",scripts:"cs*"});
-</script>
-</head>
-
-<body>
-  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
-  <div id="CSCanvas" style="width:50px; height:50px; border:none"></div>
-</body>
-
+    <body>
+        <canvas id="Cindy3D" style="border: none" width="632" height="452"></canvas>
+        <div id="CSCanvas" style="width: 50px; height: 50px; border: none"></div>
+    </body>
 </html>

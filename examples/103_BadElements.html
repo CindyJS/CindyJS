@@ -1,35 +1,32 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/CindyJS documentation for details.
+                ports: [{ id: "CSCanvas" }],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                geometry: [
+                    { name: "A", type: "Free", pos: [0, 0] },
+                    { name: "X", type: "Foo", comment: "There is no such operation." },
+                    { name: "y", type: "Join", args: ["A", "X"] },
+                    { name: "Z", type: "PointOnLine", args: ["y"] },
+                    { name: "B", type: "Free", pos: [1, 0] },
+                ],
+            });
+        </script>
+    </head>
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript">
-
-var cdy = CindyJS({ // See ref/CindyJS documentation for details.
-  ports: [{id: "CSCanvas"}],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"A", type:"Free", pos:[0,0]},
-    {name:"X", type:"Foo", comment:"There is no such operation."},
-    {name:"y", type:"Join", args:["A","X"]},
-    {name:"Z", type:"PointOnLine", args:["y"]},
-    {name:"B", type:"Free", pos:[1,0]}
-  ]
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-  <p>You should see two free points. Unknown operations should be
-  automatically removed from the construction, and that fact should be
-  logged to the development console.</p>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+        <p>
+            You should see two free points. Unknown operations should be automatically removed from the construction,
+            and that fact should be logged to the development console.
+        </p>
+    </body>
 </html>

@@ -1,14 +1,14 @@
 /**
  * CindyJS WebXR integration code:
- * 
+ *
  * Copyright 2019 Christoph Neuhauser
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,16 +20,16 @@
  * All callbacks to CindyScript code for WebXR events.
  */
 var xrCsCompiled = {};
-let cindyXrDrawCallback = function() {};
-let cindyXrInputSourcesChangeCallback = function(cindyScriptAddedInputSources, cindyScriptRemovedInputSources) {};
-let cindyXrSelectStartCallback = function(cindyScriptInputSource) {};
-let cindyXrSelectEndCallback = function(cindyScriptInputSource) {};
-let cindyXrSelectCallback = function(cindyScriptInputSource) {};
-let cindyXrSelectHoldCallback = function(cindyScriptInputSource) {};
-let cindyXrSqueezeStartCallback = function(cindyScriptInputSource) {};
-let cindyXrSqueezeEndCallback = function(cindyScriptInputSource) {};
-let cindyXrSqueezeCallback = function(cindyScriptInputSource) {};
-let cindyXrSqueezeHoldCallback = function(cindyScriptInputSource) {};
+let cindyXrDrawCallback = function () {};
+let cindyXrInputSourcesChangeCallback = function (cindyScriptAddedInputSources, cindyScriptRemovedInputSources) {};
+let cindyXrSelectStartCallback = function (cindyScriptInputSource) {};
+let cindyXrSelectEndCallback = function (cindyScriptInputSource) {};
+let cindyXrSelectCallback = function (cindyScriptInputSource) {};
+let cindyXrSelectHoldCallback = function (cindyScriptInputSource) {};
+let cindyXrSqueezeStartCallback = function (cindyScriptInputSource) {};
+let cindyXrSqueezeEndCallback = function (cindyScriptInputSource) {};
+let cindyXrSqueezeCallback = function (cindyScriptInputSource) {};
+let cindyXrSqueezeHoldCallback = function (cindyScriptInputSource) {};
 
 let activeSelectInputSources = [];
 let activeSqueezeInputSources = [];
@@ -37,11 +37,11 @@ let activeSqueezeInputSources = [];
 /**
  * For setting global CindyJS variables.
  */
-let setCindyScriptVariable = function(name, value) {
+let setCindyScriptVariable = function (name, value) {
     let csVariableSetterCompiled = xrCindyApi.instance.parse(name + " = 0", false);
     csVariableSetterCompiled.args[1] = value;
     xrCindyApi.evaluate(csVariableSetterCompiled);
-}
+};
 
 /**
  * Sets all callbacks defined above.
@@ -49,68 +49,67 @@ let setCindyScriptVariable = function(name, value) {
 function setupCindyScriptEventCallbacks() {
     xrCsCompiled = xrCindyApi.cscompiled;
 
-    if (xrCsCompiled['xrdraw'] !== undefined) {
-        cindyXrDrawCallback = function() {
-            xrCindyApi.evaluate(xrCsCompiled['xrdraw']);
-        }
+    if (xrCsCompiled["xrdraw"] !== undefined) {
+        cindyXrDrawCallback = function () {
+            xrCindyApi.evaluate(xrCsCompiled["xrdraw"]);
+        };
     }
-    if (xrCsCompiled['xrinputsourceschange'] !== undefined) {
-        cindyXrInputSourcesChangeCallback = function(cindyScriptAddedInputSources, cindyScriptRemovedInputSources) {
+    if (xrCsCompiled["xrinputsourceschange"] !== undefined) {
+        cindyXrInputSourcesChangeCallback = function (cindyScriptAddedInputSources, cindyScriptRemovedInputSources) {
             setCindyScriptVariable("addedinputsources", cindyScriptAddedInputSources);
             setCindyScriptVariable("removedinputsources", cindyScriptRemovedInputSources);
-            xrCindyApi.evaluate(xrCsCompiled['xrinputsourceschange']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrinputsourceschange"]);
+        };
     }
-    if (xrCsCompiled['xrselectstart'] !== undefined) {
-        cindyXrSelectStartCallback = function(cindyScriptInputSource) {
+    if (xrCsCompiled["xrselectstart"] !== undefined) {
+        cindyXrSelectStartCallback = function (cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
-            xrCindyApi.evaluate(xrCsCompiled['xrselectstart']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrselectstart"]);
+        };
     }
-    if (xrCsCompiled['xrselectend'] !== undefined) {
-        cindyXrSelectEndCallback = function(cindyScriptInputSource) {
+    if (xrCsCompiled["xrselectend"] !== undefined) {
+        cindyXrSelectEndCallback = function (cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
-            xrCindyApi.evaluate(xrCsCompiled['xrselectend']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrselectend"]);
+        };
     }
-    if (xrCsCompiled['xrselect'] !== undefined) {
-        cindyXrSelectCallback = function(cindyScriptInputSource) {
+    if (xrCsCompiled["xrselect"] !== undefined) {
+        cindyXrSelectCallback = function (cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
-            xrCindyApi.evaluate(xrCsCompiled['xrselect']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrselect"]);
+        };
     }
-    if (xrCsCompiled['xrselecthold'] !== undefined) {
-        cindyXrSelectHoldCallback = function(cindyScriptInputSource) {
+    if (xrCsCompiled["xrselecthold"] !== undefined) {
+        cindyXrSelectHoldCallback = function (cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
-            xrCindyApi.evaluate(xrCsCompiled['xrselecthold']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrselecthold"]);
+        };
     }
-    if (xrCsCompiled['xrsqueezestart'] !== undefined) {
-        cindyXrSqueezeStartCallback = function(cindyScriptInputSource) {
+    if (xrCsCompiled["xrsqueezestart"] !== undefined) {
+        cindyXrSqueezeStartCallback = function (cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
-            xrCindyApi.evaluate(xrCsCompiled['xrsqueezestart']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrsqueezestart"]);
+        };
     }
-    if (xrCsCompiled['xrsqueezeend'] !== undefined) {
-        cindyXrSqueezeEndCallback = function(cindyScriptInputSource) {
+    if (xrCsCompiled["xrsqueezeend"] !== undefined) {
+        cindyXrSqueezeEndCallback = function (cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
-            xrCindyApi.evaluate(xrCsCompiled['xrsqueezeend']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrsqueezeend"]);
+        };
     }
-    if (xrCsCompiled['xrsqueeze'] !== undefined) {
-        cindyXrSqueezeCallback = function(cindyScriptInputSource) {
+    if (xrCsCompiled["xrsqueeze"] !== undefined) {
+        cindyXrSqueezeCallback = function (cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
-            xrCindyApi.evaluate(xrCsCompiled['xrsqueeze']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrsqueeze"]);
+        };
     }
-    if (xrCsCompiled['xrsqueezehold'] !== undefined) {
-        cindyXrSqueezeHoldCallback = function(cindyScriptInputSource) {
+    if (xrCsCompiled["xrsqueezehold"] !== undefined) {
+        cindyXrSqueezeHoldCallback = function (cindyScriptInputSource) {
             setCindyScriptVariable("inputsource", cindyScriptInputSource);
-            xrCindyApi.evaluate(xrCsCompiled['xrsqueezehold']);
-        }
+            xrCindyApi.evaluate(xrCsCompiled["xrsqueezehold"]);
+        };
     }
 }
-
 
 /**
  * Called when the list of active XR input sources has changed.
@@ -118,9 +117,15 @@ function setupCindyScriptEventCallbacks() {
  */
 function onInputSourcesChange(event) {
     let cindyScriptAddedInputSources = convertObjectToCindyDict(
-            xrFilterInputSourceArray(event.added, null), new Set([]), new Map());
+        xrFilterInputSourceArray(event.added, null),
+        new Set([]),
+        new Map()
+    );
     let cindyScriptRemovedInputSources = convertObjectToCindyDict(
-            xrFilterInputSourceArray(event.removed, null), new Set([]), new Map());
+        xrFilterInputSourceArray(event.removed, null),
+        new Set([]),
+        new Map()
+    );
     cindyXrInputSourcesChangeCallback(cindyScriptAddedInputSources, cindyScriptRemovedInputSources);
 }
 
@@ -131,7 +136,10 @@ function onInputSourcesChange(event) {
 function onSelectStart(event) {
     activeSelectInputSources.push(event.inputSource);
     let cindyScriptInputSource = convertObjectToCindyDict(
-            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
+        xrFilterInputSource(event.inputSource, event.frame),
+        new Set([]),
+        new Map()
+    );
     cindyXrSelectStartCallback(cindyScriptInputSource);
 }
 
@@ -146,7 +154,10 @@ function onSelectEnd(event) {
         activeSelectInputSources.splice(idx, 1);
     }
     let cindyScriptInputSource = convertObjectToCindyDict(
-            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
+        xrFilterInputSource(event.inputSource, event.frame),
+        new Set([]),
+        new Map()
+    );
     cindyXrSelectEndCallback(cindyScriptInputSource);
 }
 
@@ -156,7 +167,10 @@ function onSelectEnd(event) {
  */
 function onSelect(event) {
     let cindyScriptInputSource = convertObjectToCindyDict(
-            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
+        xrFilterInputSource(event.inputSource, event.frame),
+        new Set([]),
+        new Map()
+    );
     cindyXrSelectCallback(cindyScriptInputSource);
 }
 
@@ -166,10 +180,12 @@ function onSelect(event) {
  */
 function onSelectHold(inputSource) {
     let cindyScriptInputSource = convertObjectToCindyDict(
-            xrFilterInputSource(inputSource, xrLastFrame), new Set([]), new Map());
+        xrFilterInputSource(inputSource, xrLastFrame),
+        new Set([]),
+        new Map()
+    );
     cindyXrSelectHoldCallback(cindyScriptInputSource);
 }
-
 
 /**
  * Called when one of the input sources begins its primary squeeze action,
@@ -179,7 +195,10 @@ function onSelectHold(inputSource) {
 function onSqueezeStart(event) {
     activeSqueezeInputSources.push(event.inputSource);
     let cindyScriptInputSource = convertObjectToCindyDict(
-            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
+        xrFilterInputSource(event.inputSource, event.frame),
+        new Set([]),
+        new Map()
+    );
     cindyXrSqueezeStartCallback(cindyScriptInputSource);
 }
 
@@ -194,7 +213,10 @@ function onSqueezeEnd(event) {
         activeSqueezeInputSources.splice(idx, 1);
     }
     let cindyScriptInputSource = convertObjectToCindyDict(
-            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
+        xrFilterInputSource(event.inputSource, event.frame),
+        new Set([]),
+        new Map()
+    );
     cindyXrSqueezeEndCallback(cindyScriptInputSource);
 }
 
@@ -204,7 +226,10 @@ function onSqueezeEnd(event) {
  */
 function onSqueeze(event) {
     let cindyScriptInputSource = convertObjectToCindyDict(
-            xrFilterInputSource(event.inputSource, event.frame), new Set([]), new Map());
+        xrFilterInputSource(event.inputSource, event.frame),
+        new Set([]),
+        new Map()
+    );
     cindyXrSqueezeCallback(cindyScriptInputSource);
 }
 
@@ -214,6 +239,9 @@ function onSqueeze(event) {
  */
 function onSqueezeHold(inputSource) {
     let cindyScriptInputSource = convertObjectToCindyDict(
-            xrFilterInputSource(inputSource, xrLastFrame), new Set([]), new Map());
+        xrFilterInputSource(inputSource, xrLastFrame),
+        new Set([]),
+        new Map()
+    );
     cindyXrSqueezeHoldCallback(cindyScriptInputSource);
 }

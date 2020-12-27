@@ -1,2 +1,7 @@
 src/js/Head.js
 src/js/Tail.js
+
+download/**/*
+build/**/*
+
+*.frag

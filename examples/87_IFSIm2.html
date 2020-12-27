@@ -1,115 +1,123 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csmousedrag" type="text/x-cindyscript"></script>
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csmousedrag" type="text/x-cindyscript">
+        <script id="cskeydown" type="text/x-cindyscript">
+            canvas(pt1,pt2,"test1",
+            fillcircle((0,0),10,color->(0,0,0));
+            );
+            drawimage(pt1,pt2,"test1");
+        </script>
 
+        <script id="csdraw" type="text/x-cindyscript">
 
-</script>
+            if(Z.x<X.x,Z.xy=X.xy);
+            if(Z.x>Y.x,Z.xy=Y.xy);
 
-<script id="cskeydown" type="text/x-cindyscript">
-canvas(pt1,pt2,"test1",
-fillcircle((0,0),10,color->(0,0,0));
-);
-drawimage(pt1,pt2,"test1");
-
-
-
-</script>
-
-<script id="csdraw" type="text/x-cindyscript">
-
-if(Z.x<X.x,Z.xy=X.xy);
-if(Z.x>Y.x,Z.xy=Y.xy);
-
-linesize(2);
-draw(A,B);
-draw(A,C);
-draw(D,E);
+            linesize(2);
+            draw(A,B);
+            draw(A,C);
+            draw(D,E);
 
 
-f1=map(A,B,A,C);
-f2=map(A,B,D,E);
+            f1=map(A,B,A,C);
+            f2=map(A,B,D,E);
 
-pt1f1=f1*pt1.homog;
-pt2f1=f1*pt2.homog;
+            pt1f1=f1*pt1.homog;
+            pt2f1=f1*pt2.homog;
 
-pt1f2=f2*pt1.homog;
-pt2f2=f2*pt2.homog;
+            pt1f2=f2*pt1.homog;
+            pt2f2=f2*pt2.homog;
 
-bd=|X,Z|/|X,Y|;
+            bd=|X,Z|/|X,Y|;
 
-clearimage("test2");
+            clearimage("test2");
 
-canvas(pt1,pt2,"test2",
-//fillcircle((0,0),100,color->(1,1,1),alpha->1);
-  drawimage(pt1,pt2,"test1",alpha->bd);
-  drawimage(pt1f2,pt2f2,"test1",alpha->.8);
-  drawimage(pt1f1,pt2f1,"test1",alpha->.9);
-);
-clearimage("test1");
-canvas(pt1,pt2,"test1",
-  drawimage(pt1,pt2,"test2");
-);
+            canvas(pt1,pt2,"test2",
+            //fillcircle((0,0),100,color->(1,1,1),alpha->1);
+              drawimage(pt1,pt2,"test1",alpha->bd);
+              drawimage(pt1f2,pt2f2,"test1",alpha->.8);
+              drawimage(pt1f1,pt2f1,"test1",alpha->.9);
+            );
+            clearimage("test1");
+            canvas(pt1,pt2,"test1",
+              drawimage(pt1,pt2,"test2");
+            );
 
-drawimage(pt1,pt2,"test1");
+            drawimage(pt1,pt2,"test1");
+        </script>
 
+        <script id="csinit" type="text/x-cindyscript">
 
+            pt1=(-20,-20);
+            pt2=(20,-20);
+            playanimation();
+            initiss():=(
+              f1=map(A,B,A,C);
+              f2=map(A,B,D,E);
 
-</script>
+            );
+            createimage("test1",1500,1500);
+            createimage("test2",1500,1500);
+            canvas(pt1,pt2,"test1",
+            fillcircle((0,0),10,color->(0,0,.7));
+            );
 
-<script id="csinit" type="text/x-cindyscript">
+            initiss();
+        </script>
 
-pt1=(-20,-20);
-pt2=(20,-20);
-playanimation();
-initiss():=(
-  f1=map(A,B,A,C);
-  f2=map(A,B,D,E);
+        <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [-2, -2, 1], size: 3 },
+                { name: "B", kind: "P", type: "Free", pos: [4, 0, 1], size: 3 },
+                { name: "C", kind: "P", type: "Free", pos: [2.2, 1.5, 1], size: 3 },
+                { name: "D", kind: "P", type: "Free", pos: [4, 4, 1], size: 3 },
+                { name: "E", kind: "P", type: "Free", pos: [6, 4, 1], size: 3 },
+                {
+                    name: "X",
+                    kind: "P",
+                    type: "Free",
+                    pos: [-8, -9, 1],
+                    color: [1, 1, 1],
+                    visible: false,
+                    pinned: true,
+                },
+                {
+                    name: "Y",
+                    kind: "P",
+                    type: "Free",
+                    pos: [-4, -9, 1],
+                    color: [1, 1, 1],
+                    visible: false,
+                    pinned: true,
+                },
+                { name: "a", kind: "L", type: "Segment", args: ["X", "Y"], color: [0, 0, 0] },
+                {
+                    name: "Z",
+                    kind: "P",
+                    type: "PointOnLine",
+                    args: ["a"],
+                    pos: [-6.5, -9, 1],
+                    color: [1, 1, 1],
+                    size: 3,
+                },
+            ];
+            CindyJS({
+                canvasname: "cindy",
+                scripts: "cs*",
+                geometry: gslp,
+                grid: 1,
+                snap: true,
+                defaultAppearance: {},
+            });
+        </script>
+    </head>
 
-);
-createimage("test1",1500,1500);
-createimage("test2",1500,1500);
-canvas(pt1,pt2,"test1",
-fillcircle((0,0),10,color->(0,0,.7));
-);
-
-initiss();
-
-</script>
-
-<script type="text/javascript">
-
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[-2,-2,1],size:3},
-                      {name:"B", kind:"P", type:"Free", pos:[4,0,1],size:3},
-                      {name:"C", kind:"P", type:"Free", pos:[2.2,1.5,1],size:3},
-                      {name:"D", kind:"P", type:"Free", pos:[4,4,1],size:3},
-                      {name:"E", kind:"P", type:"Free", pos:[6,4,1],size:3},
-                      {name:"X", kind:"P", type:"Free", pos:[-8,-9,1],color:[1,1,1],visible:false,pinned:true},
-                      {name:"Y", kind:"P", type:"Free", pos:[-4,-9,1],color:[1,1,1],visible:false,pinned:true},
-                      {name:"a", kind:"L", type:"Segment", args:["X","Y"],color:[0,0,0]},
-                      {name:"Z", kind:"P", type:"PointOnLine", args:["a"],pos:[-6.5,-9,1],color:[1,1,1],size:3}
-
-                      ];
-CindyJS({
-  canvasname: "cindy",
-  scripts: "cs*",
-  geometry:gslp,
-  grid:1,
-  snap:true,
-  defaultAppearance: { },
-});
-
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="cindy" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="cindy" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>

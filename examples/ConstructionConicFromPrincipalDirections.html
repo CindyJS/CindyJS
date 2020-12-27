@@ -1,42 +1,69 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>ConstructionConicFromPrincipalDirections.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>ConstructionConicFromPrincipalDirections.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-    <script type="text/javascript">
-CindyJS({ 
-	scripts: "cs*", 
-	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
-	angleUnit: "°", 
-	geometry: [ 
-		{ name: "M", type: "Free", pos: [ 4.0, 4.0, 2.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
-		{ name: "P1", type: "Free", pos: [ 4.0, 0.8888888888888888, 0.4444444444444444 ], color: [ 0.0, 1.0, 1.0 ], labeled: true }, 
-		{ name: "P2", type: "Free", pos: [ 4.0, 2.6666666666666665, 0.6666666666666666 ], color: [ 1.0, 1.0, 0.0 ], labeled: true }, 
-		{ name: "C0", type: "ConicFromPrincipalDirections", color: [0.0, 0.0, 1.0], args: ["M", "P1", "P2"], printname: "$C_{0}$" }],
-	ports: [ 
-		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], background: "rgb(168,176,192)" } ], 
-	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 },
+                angleUnit: "°",
+                geometry: [
+                    { name: "M", type: "Free", pos: [4.0, 4.0, 2.0], color: [1.0, 0.0, 0.0], labeled: true },
+                    {
+                        name: "P1",
+                        type: "Free",
+                        pos: [4.0, 0.8888888888888888, 0.4444444444444444],
+                        color: [0.0, 1.0, 1.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "P2",
+                        type: "Free",
+                        pos: [4.0, 2.6666666666666665, 0.6666666666666666],
+                        color: [1.0, 1.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C0",
+                        type: "ConicFromPrincipalDirections",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["M", "P1", "P2"],
+                        printname: "$C_{0}$",
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 350,
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.14, -4.66] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1798, version: [2, 9, 1798] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

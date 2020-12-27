@@ -6,11 +6,11 @@ Typically, readers of the c-books can interact with the widgets; and moreover, t
 
 There are three major ways for widgets to interact with the c-book infrastructure and other widgets:
 
-*  getting and setting scores to and from the CBE,
+-   getting and setting scores to and from the CBE,
 
-*  using randomized values supplied by the CBE,
+-   using randomized values supplied by the CBE,
 
-*  communicating with other widgets, so-called cross-widget communication.
+-   communicating with other widgets, so-called cross-widget communication.
 
 Cinderella has been integrated into the c-book infrastructure, so that it is possible to use Cinderella files as c-book widgets.
 In addition, Cinderella now supports the ways of interaction mentioned above (but notice that cross-widget communication is currently still in development).
@@ -29,15 +29,15 @@ Moreover, you either have to check the “add check button” checkbox or not, d
 
 In order to produce your own widget which supports scores, you may use the following functions which are described in more detail below:
 
-*  setmaxscore(): set an internal version of the CBE maximum score; this can be used to test your widget when not yet included into the CBE.
+-   setmaxscore(): set an internal version of the CBE maximum score; this can be used to test your widget when not yet included into the CBE.
 
-*  getmaxscore(): get the maximum score given by the c-book-author from the CBE.
+-   getmaxscore(): get the maximum score given by the c-book-author from the CBE.
 
-*  setscore(): set the score to some non-negative value.
+-   setscore(): set the score to some non-negative value.
 
-*  getscore(): get the score back which was set earlier using setscore().
+-   getscore(): get the score back which was set earlier using setscore().
 
-*  check(): ask the DME to read the current score.
+-   check(): ask the DME to read the current score.
 
 #### Setting the current max score: `setmaxscore(‹newmaxscore›)`
 

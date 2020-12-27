@@ -1,43 +1,39 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Conic by 2 points and 3 line</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            CindyJS({
+                // See ref/CindyJS documentation for details.
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                grid: 1,
+                snap: true,
+                defaultAppearance: {},
+                geometry: [
+                    { name: "X", type: "Free", pos: [-6, -4] },
+                    { name: "Y", type: "Free", pos: [6, 0] },
+                    { name: "Z", type: "Free", pos: [3, 6] },
+                    { name: "A", type: "Free", pos: [1, 0] },
+                    { name: "B", type: "Free", pos: [3, 4] },
+                    { name: "g", type: "Join", args: ["X", "Y"] },
+                    { name: "h", type: "Join", args: ["X", "Z"] },
+                    { name: "l", type: "Join", args: ["Y", "Z"] },
+                    { name: "CoT", type: "ConicBy2p3l", args: ["A", "B", "g", "h", "l"] },
+                    { name: "Co1", type: "SelectConic", args: ["CoT"], index: 1, color: [1, 0, 0] },
+                    { name: "Co2", type: "SelectConic", args: ["CoT"], index: 2, color: [1, 0, 1] },
+                    { name: "Co3", type: "SelectConic", args: ["CoT"], index: 3, color: [0, 1, 1] },
+                    { name: "Co4", type: "SelectConic", args: ["CoT"], index: 4, color: [0, 1, 0] },
+                ], // End of geometry array.
+            });
 
-<head>
-<title>Conic by 2 points and 3 line</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript">
+            // Remove all comments after adjusting this template for your use case.
+        </script>
+    </head>
 
-CindyJS({ // See ref/CindyJS documentation for details.
-  canvasname: "CSCanvas",
-  scripts: "cs*",
-  grid:1,
-  snap:true,
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"X", type:"Free", pos:[-6,-4]},
-    {name:"Y", type:"Free", pos:[6,0]},
-    {name:"Z", type:"Free", pos:[3,6]},
-    {name:"A", type:"Free", pos:[1,0]},
-    {name:"B", type:"Free", pos:[3,4]},
-    {name:"g", type:"Join", args:["X", "Y"] },
-    {name:"h", type:"Join", args:["X", "Z"] },
-    {name:"l", type:"Join", args:["Y", "Z"] },
-    {name:"CoT", type:"ConicBy2p3l", args:["A","B","g","h","l"]},
-    {name:"Co1", type:"SelectConic", args:["CoT"], index:1, color:[1,0,0]},
-    {name:"Co2", type:"SelectConic", args:["CoT"], index:2, color:[1,0,1]},
-    {name:"Co3", type:"SelectConic", args:["CoT"], index:3, color:[0,1,1]},
-    {name:"Co4", type:"SelectConic", args:["CoT"], index:4, color:[0,1,0]},
-  ] // End of geometry array.
-});
-
-// Remove all comments after adjusting this template for your use case.
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>

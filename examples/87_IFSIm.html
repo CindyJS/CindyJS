@@ -1,143 +1,145 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csmousedrag" type="text/x-cindyscript">
+            if(mover()==A,initiss());
+            if(mover()==B,initiss());
+            if(mover()==C,initiss());
+            if(mover()==D,initiss());
+            if(mover()==E,initiss());
+            if(mover()==Z,initiss());
+        </script>
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csmousedrag" type="text/x-cindyscript">
-if(mover()==A,initiss());
-if(mover()==B,initiss());
-if(mover()==C,initiss());
-if(mover()==D,initiss());
-if(mover()==E,initiss());
-if(mover()==Z,initiss());
+        <script id="cskeydown" type="text/x-cindyscript">
+            canvas(pt1,pt2,"test1",
+            fillcircle((0,0),10,color->(0,0,0));
+            );
+            drawimage(pt1,pt2,"test1");
+        </script>
 
+        <script id="csdraw" type="text/x-cindyscript">
 
-</script>
+            if(Z.x<X.x,Z.xy=X.xy);
+            if(Z.x>Y.x,Z.xy=Y.xy);
 
-<script id="cskeydown" type="text/x-cindyscript">
-canvas(pt1,pt2,"test1",
-fillcircle((0,0),10,color->(0,0,0));
-);
-drawimage(pt1,pt2,"test1");
-
-
-
-</script>
-
-<script id="csdraw" type="text/x-cindyscript">
-
-if(Z.x<X.x,Z.xy=X.xy);
-if(Z.x>Y.x,Z.xy=Y.xy);
-
-linesize(2);
-draw(A,B);
-draw(A,C);
-draw(D,E);
+            linesize(2);
+            draw(A,B);
+            draw(A,C);
+            draw(D,E);
 
 
-f1=map(A,B,A,C);
-f2=map(A,B,D,E);
+            f1=map(A,B,A,C);
+            f2=map(A,B,D,E);
 
-pt1f1=f1*pt1.homog;
-pt2f1=f1*pt2.homog;
+            pt1f1=f1*pt1.homog;
+            pt2f1=f1*pt2.homog;
 
-pt1f2=f2*pt1.homog;
-pt2f2=f2*pt2.homog;
+            pt1f2=f2*pt1.homog;
+            pt2f2=f2*pt2.homog;
 
-bd=|X,Z|/|X,Y|;
-//Und jetzt auf den canvas
-p=(random()*10,random()*10,1);
-canvas(pt1,pt2,"test",
+            bd=|X,Z|/|X,Y|;
+            //Und jetzt auf den canvas
+            p=(random()*10,random()*10,1);
+            canvas(pt1,pt2,"test",
 
-  repeat(500,
-    r=random();
-    if(r<.7,
-       p=f1*p,
-       p=f2*p
-    );
-    if(#>100,
-     fillcircle(p,.01,color->(.77,0,0));
-    );
-  );
-);
-
-
-//drawimage(pt1,pt2,"test1");
-
-clearimage("test2");
-
-canvas(pt1,pt2,"test2",
-//fillcircle((0,0),100,color->(1,1,1),alpha->1);
-  drawimage(pt1,pt2,"test",alpha->bd);
-  drawimage(pt1,pt2,"test1",alpha->bd*.7);
-  drawimage(pt1f2,pt2f2,"test1",alpha->.9);
-  drawimage(pt1f1,pt2f1,"test1",alpha->.9);
-);
-clearimage("test1");
-canvas(pt1,pt2,"test1",
-  drawimage(pt1,pt2,"test2");
-);
-
-drawimage(pt1,pt2,"test1");
+              repeat(500,
+                r=random();
+                if(r<.7,
+                   p=f1*p,
+                   p=f2*p
+                );
+                if(#>100,
+                 fillcircle(p,.01,color->(.77,0,0));
+                );
+              );
+            );
 
 
-//drawimage(pt1,pt2,"test");
+            //drawimage(pt1,pt2,"test1");
+
+            clearimage("test2");
+
+            canvas(pt1,pt2,"test2",
+            //fillcircle((0,0),100,color->(1,1,1),alpha->1);
+              drawimage(pt1,pt2,"test",alpha->bd);
+              drawimage(pt1,pt2,"test1",alpha->bd*.7);
+              drawimage(pt1f2,pt2f2,"test1",alpha->.9);
+              drawimage(pt1f1,pt2f1,"test1",alpha->.9);
+            );
+            clearimage("test1");
+            canvas(pt1,pt2,"test1",
+              drawimage(pt1,pt2,"test2");
+            );
+
+            drawimage(pt1,pt2,"test1");
 
 
-</script>
+            //drawimage(pt1,pt2,"test");
+        </script>
 
-<script id="csinit" type="text/x-cindyscript">
+        <script id="csinit" type="text/x-cindyscript">
 
-pt1=(-20,-20);
-pt2=(20,-20);
+            pt1=(-20,-20);
+            pt2=(20,-20);
 
-initiss():=(
-  f1=map(A,B,A,C);
-  f2=map(A,B,D,E);
-  clearimage("test");
-  playanimation();
+            initiss():=(
+              f1=map(A,B,A,C);
+              f2=map(A,B,D,E);
+              clearimage("test");
+              playanimation();
 
-);
-createimage("test",1000,1000);
-createimage("test1",1000,1000);
-createimage("test2",1000,1000);
-canvas(pt1,pt2,"test1",
-fillcircle((0,0),10,color->(0,0,0));
-);
+            );
+            createimage("test",1000,1000);
+            createimage("test1",1000,1000);
+            createimage("test2",1000,1000);
+            canvas(pt1,pt2,"test1",
+            fillcircle((0,0),10,color->(0,0,0));
+            );
 
-initiss();
+            initiss();
+        </script>
 
-</script>
+        <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [-2, -2, 1], size: 3 },
+                { name: "B", kind: "P", type: "Free", pos: [4, 0, 1], size: 3 },
+                { name: "C", kind: "P", type: "Free", pos: [2.2, 1.5, 1], size: 3 },
+                { name: "D", kind: "P", type: "Free", pos: [4, 4, 1], size: 3 },
+                { name: "E", kind: "P", type: "Free", pos: [6, 4, 1], size: 3 },
+                {
+                    name: "X",
+                    kind: "P",
+                    type: "Free",
+                    pos: [-8, -9, 1],
+                    color: [1, 1, 1],
+                    visible: false,
+                    pinned: true,
+                },
+                {
+                    name: "Y",
+                    kind: "P",
+                    type: "Free",
+                    pos: [-4, -9, 1],
+                    color: [1, 1, 1],
+                    visible: false,
+                    pinned: true,
+                },
+                { name: "a", kind: "L", type: "Segment", args: ["X", "Y"], color: [0, 0, 0] },
+                { name: "Z", kind: "P", type: "PointOnLine", args: ["a"], pos: [-7, -9, 1], color: [1, 1, 1], size: 3 },
+            ];
+            CindyJS({
+                canvasname: "cindy",
+                scripts: "cs*",
+                geometry: gslp,
+                defaultAppearance: {},
+            });
+        </script>
+    </head>
 
-<script type="text/javascript">
-
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[-2,-2,1],size:3},
-                      {name:"B", kind:"P", type:"Free", pos:[4,0,1],size:3},
-                      {name:"C", kind:"P", type:"Free", pos:[2.2,1.5,1],size:3},
-                      {name:"D", kind:"P", type:"Free", pos:[4,4,1],size:3},
-                      {name:"E", kind:"P", type:"Free", pos:[6,4,1],size:3},
-                      {name:"X", kind:"P", type:"Free", pos:[-8,-9,1],color:[1,1,1],visible:false,pinned:true},
-                      {name:"Y", kind:"P", type:"Free", pos:[-4,-9,1],color:[1,1,1],visible:false,pinned:true},
-                      {name:"a", kind:"L", type:"Segment", args:["X","Y"],color:[0,0,0]},
-                      {name:"Z", kind:"P", type:"PointOnLine", args:["a"],pos:[-7,-9,1],color:[1,1,1],size:3}
-
-                      ];
-CindyJS({
-  canvasname: "cindy",
-  scripts: "cs*",
-  geometry:gslp,
-  defaultAppearance: { },
-});
-
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="cindy" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="cindy" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>

@@ -1,9 +1,9 @@
 /*jshint esversion: 6 */
 
 var Export = {
-  id: "export",
-  name: "Export",
-  html: `
+    id: "export",
+    name: "Export",
+    html: `
   <div id="export-window">
     <div id="export-window-header">Export widget</div>
     <div>
@@ -25,8 +25,8 @@ var Export = {
     </div>
   </div>
   `,
-  init: function() {
-    /*
+    init: function () {
+        /*
     //TODO: implement measureText for PDF and SVG first...
     
     document.getElementById('button-export-pdf').onclick = function() {
@@ -37,68 +37,73 @@ var Export = {
     };
     */
 
-    document.getElementById('button-export-html').onclick = function() {
-      Export.buildhtml();
-    };
+        document.getElementById("button-export-html").onclick = function () {
+            Export.buildhtml();
+        };
 
-    document.getElementById('button-export-url').onclick = function() {
-      Export.exporturl();
-    };
-  },
+        document.getElementById("button-export-url").onclick = function () {
+            Export.exporturl();
+        };
+    },
 
-  stringify: function(depth, obj) {
-    let str = "";
-    let spaces = "";
-    if (depth <= 1) {
-      spaces = "          ";
-      for (let i = 0; i < depth; i++)
-        spaces += "  ";
-    }
-    if (Array.isArray(obj)) {
-      str = "[" + (depth <= 1 ? "\n" : "");
-      str += Object.keys(obj).map(k => spaces + (depth <= 1 ? "  " : "") + this.stringify(depth + 1, obj[k])).join("," + (depth <= 1 ? "\n" : " "));
-      str += (depth <= 1 ? "\n" + spaces : "") + "]";
-    } else if (typeof(obj) === 'object') {
-      str = "{" + (depth <= 1 ? "\n" : "");
-      str += Object.keys(obj).map(k => spaces + (depth <= 1 ? "  " : "") + k + ": " + this.stringify(depth + 1, obj[k])).join("," + (depth <= 1 ? "\n" : " "));
-      str += (depth <= 1 ? "\n" + spaces : "") + "}";
-    } else {
-      str = JSON.stringify(obj);
-    }
-    return str;
-  },
+    stringify: function (depth, obj) {
+        let str = "";
+        let spaces = "";
+        if (depth <= 1) {
+            spaces = "          ";
+            for (let i = 0; i < depth; i++) spaces += "  ";
+        }
+        if (Array.isArray(obj)) {
+            str = "[" + (depth <= 1 ? "\n" : "");
+            str += Object.keys(obj)
+                .map((k) => spaces + (depth <= 1 ? "  " : "") + this.stringify(depth + 1, obj[k]))
+                .join("," + (depth <= 1 ? "\n" : " "));
+            str += (depth <= 1 ? "\n" + spaces : "") + "]";
+        } else if (typeof obj === "object") {
+            str = "{" + (depth <= 1 ? "\n" : "");
+            str += Object.keys(obj)
+                .map((k) => spaces + (depth <= 1 ? "  " : "") + k + ": " + this.stringify(depth + 1, obj[k]))
+                .join("," + (depth <= 1 ? "\n" : " "));
+            str += (depth <= 1 ? "\n" + spaces : "") + "}";
+        } else {
+            str = JSON.stringify(obj);
+        }
+        return str;
+    },
 
-  buildhtml: function() {
-    //document.getElementById('move').onclick();
-    //yield copy of configuration
-    var cconfiguration = JSON.parse(JSON.stringify(configuration));
+    buildhtml: function () {
+        //document.getElementById('move').onclick();
+        //yield copy of configuration
+        var cconfiguration = JSON.parse(JSON.stringify(configuration));
 
-    //yield gslp
-    cconfiguration.geometry = cdy.saveState().geometry;
+        //yield gslp
+        cconfiguration.geometry = cdy.saveState().geometry;
 
-    //remove uneeded plugins
-    let removeplugins = ["geometryeditor", "inspector", "dimensions", "visiblerect", "user"];
-    cconfiguration.use = configuration.use.filter(p => removeplugins.indexOf(p) == -1);
+        //remove uneeded plugins
+        let removeplugins = ["geometryeditor", "inspector", "dimensions", "visiblerect", "user"];
+        cconfiguration.use = configuration.use.filter((p) => removeplugins.indexOf(p) == -1);
 
-    //remove editor stuff
-    delete cconfiguration.oninit;
-    delete cconfiguration.fullscreenmode;
+        //remove editor stuff
+        delete cconfiguration.oninit;
+        delete cconfiguration.fullscreenmode;
 
-    cconfiguration.scripts = "cs*";
-    //yield scripts
+        cconfiguration.scripts = "cs*";
+        //yield scripts
 
-    var csscripts = '';
+        var csscripts = "";
 
-    for (var s in scripts)
-      if (scripts[s]) {
-        csscripts = csscripts + `
+        for (var s in scripts)
+            if (scripts[s]) {
+                csscripts =
+                    csscripts +
+                    `
       <script id="cs${s}" type="text/x-cindyscript">
       ${scripts[s]}
       </script>`;
-      }
+            }
 
-    //generate source
-    var source = `<!DOCTYPE html>
+        //generate source
+        var source = `<!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
@@ -109,19 +114,27 @@ var Export = {
                 margin: 0px;
                 padding: 0px;
             }
-            ${configuration.fullscreenmode ? `
+            ${
+                configuration.fullscreenmode
+                    ? `
             #CSCanvas {
                 width: 100vw; height: 100vh;
-            }` : ''}
+            }`
+                    : ""
+            }
         </style>
         <link rel="stylesheet" href="https://cindyjs.org/dist/latest/CindyJS.css">
         <script type="text/javascript" src="https://cindyjs.org/dist/latest/Cindy.js"></script>
-        ${(configuration.use.indexOf("CindyGL") !== -1) ? '<script type="text/javascript" src="https://cindyjs.org/dist/latest/CindyGL.js"></script>' : ''}
+        ${
+            configuration.use.indexOf("CindyGL") !== -1
+                ? '<script type="text/javascript" src="https://cindyjs.org/dist/latest/CindyGL.js"></script>'
+                : ""
+        }
         
         ${csscripts}
     
         <script type="text/javascript">
-          var cdy = CindyJS(${this.stringify(0,cconfiguration)});
+          var cdy = CindyJS(${this.stringify(0, cconfiguration)});
         </script>
     </head>
     <body>
@@ -130,30 +143,28 @@ var Export = {
     </html>
   `;
 
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(source));
-    element.setAttribute('download', "cindy.html");
+        var element = document.createElement("a");
+        element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(source));
+        element.setAttribute("download", "cindy.html");
 
-    element.style.display = 'none';
-    document.body.appendChild(element);
+        element.style.display = "none";
+        document.body.appendChild(element);
 
-    element.click();
+        element.click();
 
-    document.body.removeChild(element);
-  },
+        document.body.removeChild(element);
+    },
 
-  exporturl() {
-    let gslp = cdy.saveState().geometry;
+    exporturl() {
+        let gslp = cdy.saveState().geometry;
 
-    let csscripts = '';
+        let csscripts = "";
 
-    for (var s in scripts)
-      if (scripts[s]) {
-        csscripts = csscripts + `&${s}=${encodeURIComponent(scripts[s])}`;
-      }
+        for (var s in scripts)
+            if (scripts[s]) {
+                csscripts = csscripts + `&${s}=${encodeURIComponent(scripts[s])}`;
+            }
 
-    history.pushState(null, null, `?${csscripts}&gslp=${
-      encodeURIComponent(JSON.stringify(gslp))
-    }`);
-  }
+        history.pushState(null, null, `?${csscripts}&gslp=${encodeURIComponent(JSON.stringify(gslp))}`);
+    },
 };

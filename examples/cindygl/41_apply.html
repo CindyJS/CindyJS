@@ -1,44 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-		<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-		<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: apply within CindyGL</h1>
-    
-    
-    <script id="csdraw" type="text/x-cindyscript">
-    colorplot(
-			a = [#.x, #.y,1];
-			apply(a, k, .5*sin(k))
-		);
-    </script>
-               
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-    </script>
-    
-    <div  id="CSCanvas"></div>
-		
-    <script type="text/javascript">
-        CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry: [],
-                    animation: {autoplay: true},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 500,
-                      height: 500,
-                      transform: [ { visibleRect: [-10,-10, 10, 10] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: apply within CindyGL</h1>
+
+        <script id="csdraw" type="text/x-cindyscript">
+              colorplot(
+            	a = [#.x, #.y,1];
+            	apply(a, k, .5*sin(k))
+            );
+        </script>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+        </script>
+
+        <div id="CSCanvas"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: [],
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 500,
+                        height: 500,
+                        transform: [{ visibleRect: [-10, -10, 10, 10] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

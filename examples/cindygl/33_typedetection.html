@@ -1,34 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Type detection</h1>
-    
-    
-    <script id="csmove" type="text/x-cindyscript">
-      colorplot(abs(complex(A)-complex(#))-|A,B|);
-    </script>
-            
-    <div  id="CSCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
-    
-    <script type="text/javascript">
-      CindyJS({
-        ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
-        scripts: "cs*",
-        geometry: [
-          {name:"A", kind:"P", type:"Free", pos:[0,0]},
-          {name:"B", kind:"P", type:"Free", pos:[3,4]}
-        ],
-        use: ["CindyGL"]
-      });
-    </script>              
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: Type detection</h1>
+
+        <script id="csmove" type="text/x-cindyscript">
+            colorplot(abs(complex(A)-complex(#))-|A,B|);
+        </script>
+
+        <div id="CSCanvas" style="width: 600px; height: 600px; border: 2px solid #000000"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [-10, -10, 10, 10] }] }],
+                scripts: "cs*",
+                geometry: [
+                    { name: "A", kind: "P", type: "Free", pos: [0, 0] },
+                    { name: "B", kind: "P", type: "Free", pos: [3, 4] },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </body>
 </html>

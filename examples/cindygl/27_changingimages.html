@@ -1,61 +1,52 @@
-
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            createimage("canvas", 400, 300);
 
-<script id="csinit" type="text/x-cindyscript">
-createimage("canvas", 400, 300);
+            t0 = seconds();
+        </script>
 
-t0 = seconds();
-</script>
+        <script id="csmove" type="text/x-cindyscript">
+            clearimage("canvas");
+            canvas(A, B, "canvas",
+                draw(C, color->green(1), size->20);
+                draw(A, C);
+                draw(B, C);
+            );
+        </script>
 
-<script id="csmove" type="text/x-cindyscript">
-  clearimage("canvas");
-  canvas(A, B, "canvas",
-      draw(C, color->green(1), size->20);
-      draw(A, C);
-      draw(B, C);
-  );
-</script>
+        <script id="csdraw" type="text/x-cindyscript">
+            colorplot(
+              d = [sin(#.x),sin(#.y)]/2;
+              imagergba(A, B, if(mod(seconds(),2)<1,"image","canvas"), #+d)+[d.x*d.y,-d.x*d.y,0,.3]
+            );
+        </script>
 
-<script id="csdraw" type="text/x-cindyscript">
-  colorplot(
-    d = [sin(#.x),sin(#.y)]/2;
-    imagergba(A, B, if(mod(seconds(),2)<1,"image","canvas"), #+d)+[d.x*d.y,-d.x*d.y,0,.3]
-  );
-</script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [-10, -10, 10, 10] }] }],
+                scripts: "cs*",
+                language: "en",
+                animation: { autoplay: true },
+                images: { image: "image.png" },
+                defaultAppearance: {},
+                geometry: [
+                    { name: "A", type: "Free", pos: [-8, -7] },
+                    { name: "B", type: "Free", pos: [8, -4.2] },
+                    { name: "C", type: "Free", pos: [-1, 1] },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </head>
 
-
-
-<script type="text/javascript">
-
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
-  scripts: "cs*",
-  language: "en",
-  animation: {autoplay: true},
-  images: {image:"image.png"},
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"A", type:"Free", pos:[-8,-7]},
-    {name:"B", type:"Free", pos:[8,-4.2]},
-    {name:"C", type:"Free", pos:[-1, 1]},
-  ],
-  use: ["CindyGL"]
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>

@@ -1,52 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-  </head>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    </head>
 
-  <body>
-    <h1>CindyJS: A simple sunflower</h1>
-    <script id="sunflowerMove" type="text/x-cindyscript">
-      repeat(500,i,
-        w=i*pi/180*(137.508+B.x*0.5);
-        p=A+(cos(w),sin(w))*0.3*sqrt(i);
-        a=i;
-        draw(p,size->sqrt(i)*.4,color->hue(i/34));
-      );
-    </script>
-    <div  id="sunflowerCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+    <body>
+        <h1>CindyJS: A simple sunflower</h1>
+        <script id="sunflowerMove" type="text/x-cindyscript">
+            repeat(500,i,
+              w=i*pi/180*(137.508+B.x*0.5);
+              p=A+(cos(w),sin(w))*0.3*sqrt(i);
+              a=i;
+              draw(p,size->sqrt(i)*.4,color->hue(i/34));
+            );
+        </script>
+        <div id="sunflowerCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
-    <script type="text/javascript">
-      CindyJS({
-        canvasname:"sunflowerCanvas",
-        movescript:"sunflowerMove",
-        defaultAppearance:{pointColor:[1,.7,0]},
-        geometry:[
-          {name:"A", kind:"P", type:"Free", pos:[0,0,1]},
-          {name:"B", kind:"P", type:"Free", pos:[0,9,1]},
-        ]});
-    </script>
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "sunflowerCanvas",
+                movescript: "sunflowerMove",
+                defaultAppearance: { pointColor: [1, 0.7, 0] },
+                geometry: [
+                    { name: "A", kind: "P", type: "Free", pos: [0, 0, 1] },
+                    { name: "B", kind: "P", type: "Free", pos: [0, 9, 1] },
+                ],
+            });
+        </script>
 
-    <h1>CindyJS: Complex Spiral</h1>
+        <h1>CindyJS: Complex Spiral</h1>
 
-    <div id="spiral" style="width:600px; height:600px; border:2px solid #000000"></div>
+        <div id="spiral" style="width: 600px; height: 600px; border: 2px solid #000000"></div>
 
-    <script type="text/javascript">
-var gslp=[
-  {name:"A", kind:"P", type:"Free", pos:[7,1,1]},
-  {name:"C", kind:"P", type:"Free", pos:[0,9,1]},
-];
-var move="\
+        <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [7, 1, 1] },
+                { name: "C", kind: "P", type: "Free", pos: [0, 9, 1] },
+            ];
+            var move =
+                "\
 a=complex(A.xy)/5;\
 c=complex(C.xy)/10;\
 repeat(1000,draw(gauss(a)*5,size->abs(a)*10,\
                  color->(re(a)*2,im(a)*2,-re(a)),alpha->.7);\
              a=a*c;);\
 draw(A);draw(C);";
-CindyJS({canvasname:"spiral",scripts:{move:move},geometry:gslp});
-    </script>
-
-  </body>
+            CindyJS({ canvasname: "spiral", scripts: { move: move }, geometry: gslp });
+        </script>
+    </body>
 </html>

@@ -1,10 +1,10 @@
-#  Geometric Operators
+# Geometric Operators
 
 The geometric operators provide high-level access to several elementary geometric operations.
 They can be applied either directly to objects of the geometric construction or to vectors (lists of numbers) that represent the coordinates for the geometric objects.
 If the operator returns a geometric object, it can also be directly drawn with the draw operator.
 
-##  Lists and Coordinates
+## Lists and Coordinates
 
 Coordinates for lines are always homogeneous coordinates (i.e., list of three numbers that are the parameters `[a,b,c]` of the line with equation `a∗x+b∗y+c=0`).
 Coordinates of points can be either Euclidean (list of two numbers `[x,y]`) or homogeneous (list of three numbers `[x,y,z]` that represent the point `[x/z,y/z]`).
@@ -17,7 +17,7 @@ One can interrogate the operator `geotype(‹list›)` to obtain this informatio
 This operator will return either `"Point"`, `"Line"`, or `"None"`.
 If such a vector has an intrinsic geometric meaning, then the `draw` operator will automatically render it as such an object.
 
-##  Elementary geometric operators
+## Elementary geometric operators
 
 #### Intersection of two lines: `meet(‹line1›,‹line2›)`
 
@@ -25,7 +25,7 @@ If such a vector has an intrinsic geometric meaning, then the `draw` operator wi
 This operator calculates the intersection of two lines.
 It returns a point in homogeneous coordinates.
 
-------
+---
 
 #### Joining two points: `join(‹point1›,‹point2›)`
 
@@ -33,7 +33,7 @@ It returns a point in homogeneous coordinates.
 This operator calculates the line joining two points.
 The result is a line in homogeneous coordinates.
 
-------
+---
 
 #### Calculating a parallel: `parallel(‹point›,‹line›)`
 
@@ -46,7 +46,7 @@ This operator refers to Euclidean geometry.
 Hyperbolic and spherical computations are not supported.
 This operator can also be abbreviated by `para(…)`.
 
-------
+---
 
 #### Calculating an orthogonal line: `perpendicular(‹point›,‹line›)`
 
@@ -81,7 +81,7 @@ Observe that the operator generates an implicit typing of the return values, so 
 
 ![Resulting construction](img/MeetJoinX.png)
 
-------
+---
 
 #### Calculating an orthogonal vector: `perpendicular(‹list›)`
 
@@ -89,7 +89,7 @@ Observe that the operator generates an implicit typing of the return values, so 
 If the `perp` operator is invoked with one argument, it assumes that the input list consists of two numbers.
 Such a list `[a,b]` is converted by this operator to the list `[-b,a]`, which is the input vector rotated 90° about the origin.
 
-------
+---
 
 #### The area of a triangle: `area(‹point1›,‹point2›,‹point3›)`
 
@@ -98,11 +98,11 @@ This operator calculates the (oriented) area of the triangle formed by the three
 If the orientation of the points is counterclockwise, then the area is positive, while if it is clockwise, the area is negative.
 If the three points are collinear, then the area is zero.
 
-------
+---
 
-------
+---
 
-##  Useful Linear Algebra Operators
+## Useful Linear Algebra Operators
 
 The following operators from linear algebra are very useful in geometric contexts.
 They apply especially to numeric vectors of length 3.
@@ -114,7 +114,7 @@ For other useful operators in that context (such as `dist`, matrix operations, a
 This operator calculates the determinant of a 3 × 3 matrix formed by the three three-dimensional vectors `‹vec1›`, `‹vec2›`, `‹vec3›`.
 Unlike the general determinant method described in the section [Vectors and Matrices](Vectors_and_Matrices.md), this method is optimized for performance.
 
-------
+---
 
 #### The cross product of two points: `cross(‹vec1›,‹vec2›)`
 
@@ -129,11 +129,11 @@ The cross product is a three-dimensional vector that is orthogonal to the other 
     > [2, 5, 3] × [1, 8, 11]
     < [31, -19, 11]
 
-------
+---
 
-------
+---
 
-##  Conversion and Typing
+## Conversion and Typing
 
 #### The type of an object: `geotype(‹list›)`
 
@@ -150,7 +150,7 @@ The output of the `meet` operator is always a “Point”.
 The output of the operators `join`, `parallel`, and `perpendicular` is always a “Line”.
 Furthermore, the geometric meaning can be explicitly set using the operators `line` and `point`.
 
-------
+---
 
 #### Declaring points: `point(‹vec›)`
 
@@ -158,7 +158,7 @@ Furthermore, the geometric meaning can be explicitly set using the operators `li
 This operator explicitly sets the geometric type of a vector of three numbers to `"Point"`.
 If the argument is not a list of three numbers, the operator has no effect.
 
-------
+---
 
 #### Declaring lines: `line(‹vec›)`
 
@@ -166,7 +166,7 @@ If the argument is not a list of three numbers, the operator has no effect.
 This operator explicitly sets the geometric type of a vector of three numbers to `"Line"`.
 If the argument is not a list of three numbers, the operator has no effect.
 
-------
+---
 
 #### Points to complex numbers: `complex(‹point›)`
 
@@ -175,7 +175,7 @@ This operator takes a point and converts it into a complex number.
 Here the usual coordinate system of the Euclidean plane is identified with the Gaussian complex plane.
 The point `[x,b]` is converted to the complex number `a+i∗b`.
 
-------
+---
 
 #### Complex numbers to points: `gauss(‹number›)`
 
@@ -183,7 +183,7 @@ The point `[x,b]` is converted to the complex number `a+i∗b`.
 This operator is the opposite of the previous one.
 It converts a complex number `a+i∗b` to a list of two numbers `[a,b]`.
 
-------
+---
 
 #### Cross ratio of four points or lines: `crossratio(‹vec›,‹vec›,‹vec›,‹vec›)`
 
@@ -196,7 +196,7 @@ For collinear finite points these two results coincide.
     > crossratio([2,-2], [1,-1,1], [0,1], [0,0,1])
     < 0.8 + i*0.1
 
-------
+---
 
 #### Cross ratio of four numbers: `crossratio(‹numb›,‹numb›,‹numb›,‹numb›)`
 
@@ -207,9 +207,9 @@ An extremely useful geometric invariant.
     > crossratio(2-2*i, 1-i, i, 0)
     < 0.8 + i*0.1
 
-------
+---
 
-##  Geometric Transformations and Bases
+## Geometric Transformations and Bases
 
 One can deal with geometric transformations on an explicit algebraic level.
 Transformations are best represented by 3 × 3 matrices.
@@ -222,7 +222,7 @@ There are several operators for the calculation of these transformation matrices
 Returns a matrix that represents a reflection in the line `‹line›`.
 
 **Example:**
-The following code takes the line *a*, creates the reflecting transformation, and maps point *C* by multiplying its homogeneous coordinates by the matrix.
+The following code takes the line _a_, creates the reflecting transformation, and maps point _C_ by multiplying its homogeneous coordinates by the matrix.
 The result is the green point in the figure.
 
     - skip test: can't do drawing in the test suite.
@@ -231,39 +231,39 @@ The result is the green point in the figure.
 
 ![Drawn reflection](img/LineReflectX.png)
 
-------
+---
 
 #### Reflection in a point: `pointreflect(‹point›)`
 
 **Description:**
 Returns a matrix that represents a reflection in the point `‹point›`.
 
-------
+---
 
 #### Translation: `map(‹point1›,‹point2›)`
 
 **Description:**
 Returns a matrix that represents a translation that maps `‹point1›` to `‹point2›`.
 
-------
+---
 
 #### Similarity: `map(‹point1›,‹point3›,‹point2›,‹point4›)`
 
 **Description:**
 Returns a matrix that represents a similarity that maps `‹point1›` to `‹point2›` and `‹point3›` to `‹point4›`.
 
-------
+---
 
 #### Affine transformation: `map(‹point1›,‹point3›,‹point5›,‹point2›, ‹point4›,‹point6›)`
 
 **Description:**
 Returns a matrix that represents an affine transformation that maps `‹point1›` to `‹point2›`, `‹point3›` to `‹point4›`, and `‹point5›` to `‹point6›`.
 
-------
+---
 
 #### Projective transformation: `map(‹point1›,‹point3›,‹point5›,‹point7›, ‹point2›,‹point4›,‹point6›,‹point8›)`
 
 **Description:**
 Returns a matrix that represents a projective transformation that maps `‹point1›` to `‹point2›`, `‹point3›` to `‹point4›`, `‹point5›` to `‹point6›`, and `‹point7›` to `‹point8›`.
 
-------
+---

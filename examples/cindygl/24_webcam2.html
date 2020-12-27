@@ -1,40 +1,36 @@
-
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Webcam in Cindy JS</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            res = [round(C.x*1500/10), round(C.y*1500/10)];
+            colorplot([1,1,1]-imagergb(A, B, cameravideo(resolution->res), #));
 
-<head>
-<title>Webcam in Cindy JS</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
-res = [round(C.x*1500/10), round(C.y*1500/10)];
-colorplot([1,1,1]-imagergb(A, B, cameravideo(resolution->res), #));
+            drawtext(C, "given resolution: " + res + "
+            obtained resolution: " + imagesize(cameravideo(resolution->res)));
 
-drawtext(C, "given resolution: " + res + "
-obtained resolution: " + imagesize(cameravideo(resolution->res)));
+            //drawimage(A, B, cameravideo(resolution->res));
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [-0.1, 15.1, 20.1, -0.1] }] }],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                geometry: [
+                    { name: "A", type: "Free", pos: [0, 0] },
+                    { name: "B", type: "Free", pos: [20, 0] },
+                    { name: "C", type: "Free", pos: [10, 6], color: [0, 1, 0] },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </head>
 
-//drawimage(A, B, cameravideo(resolution->res));
-</script>
-<script type="text/javascript">
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform:[{visibleRect:[-0.1,15.1,20.1,-0.1]}]}],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"A", type:"Free", pos:[0,0]},
-    {name:"B", type:"Free", pos:[20,0]},
-    {name:"C", type:"Free", pos:[10,6], color:[0,1,0]}
-  ],
-  use: ["CindyGL"]
-});
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:804px; height:604px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 804px; height: 604px; border: 2px solid black"></div>
+    </body>
 </html>

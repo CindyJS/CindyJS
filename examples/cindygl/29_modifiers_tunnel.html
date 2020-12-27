@@ -1,97 +1,88 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            dropped = (;); // undefined
+            image = "image";
+            t0 = seconds();
+            mipmap = true;
+            interpolate = true;
+            repeat = true;
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            t = seconds()-t0+.001;
+            ratio = imagesize(image).y/imagesize(image).x;
+            colorplot(imagergb([0,0], [2*pi,0], image,
+              e = round(A.x)*ratio+i*round(A.y);
+              -t+e*log(complex(#)); //=log(complex(#^e)) (mod 2 pi i)
+            , repeat->repeat, mipmap->mipmap, interpolate->interpolate));
+            if (isundefined(dropped), drawtext((-18, 0), "Drag and drop an image into this area"));
+        </script>
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-  dropped = (;); // undefined
-  image = "image";
-  t0 = seconds();
-  mipmap = true;
-  interpolate = true;
-  repeat = true;
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-  t = seconds()-t0+.001;
-  ratio = imagesize(image).y/imagesize(image).x;
-  colorplot(imagergb([0,0], [2*pi,0], image,
-    e = round(A.x)*ratio+i*round(A.y);
-    -t+e*log(complex(#)); //=log(complex(#^e)) (mod 2 pi i)
-  , repeat->repeat, mipmap->mipmap, interpolate->interpolate));
-  if (isundefined(dropped), drawtext((-18, 0), "Drag and drop an image into this area"));
-</script>
+        <script id="csondrop" type="text/x-cindyscript">
+            dropped = dropped();
+            dump(dropped);
+            if (!isundefined(dropped_1_1),
+              image = dropped_1_1;
+              maxpixel = 2048*2048;
+              curpixel = imagesize(image).x*imagesize(image).y;
+              if(curpixel>maxpixel,
+                s = 0;
+                while(curpixel>maxpixel*(2^s), s=s+1);
+                createimage("smallimage", imagesize(image).x/(2^s), imagesize(image).y/(2^s));
+                canvas((0,0),(1,0), "smallimage", drawimage((0,0),(1,0), image));
+                image = "smallimage";
+              );
+            );
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [-20, -20, 20, 20] }] }],
+                scripts: "cs*",
+                language: "en",
+                animation: { autoplay: true },
+                images: { image: "tile.jpg" },
+                defaultAppearance: {},
+                geometry: [{ name: "A", type: "Free", pos: [10, 3] }],
+                use: ["CindyGL"],
+            });
 
-<script id="csondrop" type="text/x-cindyscript">
-  dropped = dropped();
-  dump(dropped);
-  if (!isundefined(dropped_1_1),
-    image = dropped_1_1;
-    maxpixel = 2048*2048;
-    curpixel = imagesize(image).x*imagesize(image).y;
-    if(curpixel>maxpixel,
-      s = 0;
-      while(curpixel>maxpixel*(2^s), s=s+1);
-      createimage("smallimage", imagesize(image).x/(2^s), imagesize(image).y/(2^s));
-      canvas((0,0),(1,0), "smallimage", drawimage((0,0),(1,0), image));
-      image = "smallimage";
-    );
-  );
-</script>
-<script type="text/javascript">
+            var check1 = function () {
+                if (document.getElementById("ch1").checked) {
+                    cdy.evokeCS("interpolate=true;");
+                } else {
+                    cdy.evokeCS("interpolate=false;");
+                }
+            };
 
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform: [{visibleRect: [-20, -20, 20, 20]}]}],
-  scripts: "cs*",
-  language: "en",
-  animation: {autoplay: true},
-  images: {image:"tile.jpg"},
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"A", type:"Free", pos:[10,3]},
-  ],
-  use: ["CindyGL"]
-});
+            var check2 = function () {
+                if (document.getElementById("ch2").checked) {
+                    cdy.evokeCS("mipmap=true;");
+                } else {
+                    cdy.evokeCS("mipmap=false;");
+                }
+            };
 
+            var check3 = function () {
+                if (document.getElementById("ch3").checked) {
+                    cdy.evokeCS("repeat=true;");
+                } else {
+                    cdy.evokeCS("repeat=false;");
+                }
+            };
+        </script>
+    </head>
 
-var check1=function(){
-  if(document.getElementById("ch1").checked){
-    cdy.evokeCS('interpolate=true;');
-  } else {
-    cdy.evokeCS('interpolate=false;');
-  }
-}
-
-var check2=function(){
-  if(document.getElementById("ch2").checked){
-    cdy.evokeCS('mipmap=true;');
-  } else {
-    cdy.evokeCS('mipmap=false;');
-  }
-}
-
-var check3=function(){
-  if(document.getElementById("ch3").checked){
-    cdy.evokeCS('repeat=true;');
-  } else {
-    cdy.evokeCS('repeat=false;');
-  }
-}
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:800px; height:800px; border:2px solid black"></div>
-  <p>
-    <input id="ch1" onclick="check1()" checked type="checkbox" >interpolate linear&nbsp;&nbsp;&nbsp;
-    <input id="ch2" onclick="check2()" checked type="checkbox" >mipmap &nbsp;&nbsp;&nbsp;
-    <input id="ch3" onclick="check3()" checked type="checkbox" >repeat
-  </p>
-</body>
-
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 800px; height: 800px; border: 2px solid black"></div>
+        <p>
+            <input id="ch1" onclick="check1()" checked type="checkbox" />interpolate linear&nbsp;&nbsp;&nbsp;
+            <input id="ch2" onclick="check2()" checked type="checkbox" />mipmap &nbsp;&nbsp;&nbsp;
+            <input id="ch3" onclick="check3()" checked type="checkbox" />repeat
+        </p>
+    </body>
 </html>

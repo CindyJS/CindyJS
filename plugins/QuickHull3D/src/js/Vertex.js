@@ -1,4 +1,4 @@
-var Vertex = function(x, y, z, index) {
+var Vertex = function (x, y, z, index) {
     if (arguments.length === 0) {
         this.point = turnIntoCSList([]);
     } else {

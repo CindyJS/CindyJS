@@ -34,35 +34,26 @@ exports.libgeo = [
     "src/js/libgeo/StateIO.js",
 ];
 
-exports.liblab = [
-    "src/js/liblab/LabBasics.js",
-    "src/js/liblab/LabObjects.js",
-];
+exports.liblab = ["src/js/liblab/LabBasics.js", "src/js/liblab/LabObjects.js"];
 
 exports.lib = [
     "node_modules/iphone-inline-video/dist/iphone-inline-video.min.js",
     "lib/clipper/clipper.js",
-    "node_modules/es6-shim/es6-shim.min.js"
+    "node_modules/es6-shim/es6-shim.min.js",
 ];
 
-exports.cssrc = [
-];
+exports.cssrc = [];
 
-exports.inclosure = [
-    "src/js/Setup.js",
-    "src/js/Events.js",
-    "build/js/Version.js",
-].concat(exports.libcs, exports.libgeo, exports.liblab);
+exports.inclosure = ["src/js/Setup.js", "src/js/Events.js", "build/js/Version.js"].concat(
+    exports.libcs,
+    exports.libgeo,
+    exports.liblab
+);
 
 exports.ours = ["src/js/Head.js"].concat(exports.inclosure, "src/js/Tail.js");
 
 exports.srcs = exports.lib.concat(exports.ours);
 
-exports.scss = [
-    "src/scss/CindyJS.scss",
-];
+exports.scss = ["src/scss/CindyJS.scss"];
 
-exports.ifs = [
-    "src/js/ifs/worker.js",
-    "src/js/ifs/ifs.asm.js",
-];
+exports.ifs = ["src/js/ifs/worker.js", "src/js/ifs/ifs.asm.js"];

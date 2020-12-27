@@ -1,145 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Generation of Limit Sets of Kleinian Groups Using a Feedback Loop Approach</h1>
-    
-    <p>
-    Press SPACE to reset everything. The red and the blue point determine the complex parameters ta, tb, which will be pluged into Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford, ‎Caroline Series, ‎David Wright.
-    </p>
-    <p>
-    The internal computations are done in an exp-log-conjugated world (conformal polar coordinates). Hence we have more details in the middle, less outside, and we can almost march to infinity.
-    </p>
-    
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-      
-      forall(["a", "b", "c", "A", "B", "C", "conjugatedoutput", "output"],
-        createimage(#, 1000, 1000);
-        colorplot(#, 0.1); //initialize with some fog
-      );
-      
-      createimage("0", 1, 1);
-      colorplot("0", 0); //black dummy picture
-    </script>
-    
-    <script id="csmove" type="text/x-cindyscript">
-      ta = .5*complex(TA)+1-i;
-      //ta = 1.64213876 +i*0.76658841;
-      tb = .5*complex(TB)+1-i;
-      
-      //Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford, ‎Caroline Series, ‎David Wright 
-      tab = ta*tb/2-i*sqrt(-((ta*tb/2)^2-ta^2-tb^2));
-      z0 = ((tab-2)*tb)/(tb*tab-2*ta+2*i*tab);
-      a = [
-        [ta/2,(ta*tab-2*tb+4*i)/((2*tab+4)*z0)],
-        [(ta*tab-2*tb-4*i)*z0/(2*tab-4),ta/2]
-      ];
-      b = [
-        [(tb-2*i)/2,tb/2],
-        [tb/2,(tb+2*i)/2]
-      ];
-    
-      
-      A = inverse(a);
-      B = inverse(b);
-      
-      c = a*b*A;
-      C = inverse(c);
-  </script>
-      
-  <script id="cskeydown" type="text/x-cindyscript">
-      print("pressed key" + keycode());
-      if(keycode()==32, 
-        forall(["a", "b", "c", "A", "B", "C"],
-          colorplot(#, 0.1); //initialize with some fog
-        );
-      );
- </script>
-    
-    <script id="csdraw" type="text/x-cindyscript">
-      T(a) := ( //maps [0,1] to [0, oo)
-        res = a/(1-a);
-        res*res);
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
-      Tinv(a) := ( //maps [0,oo) to [0, 1]
-        a = re(sqrt(a));
-        a/(1+a);
-      );
-      
-      forall([
-        ["a", a, ["a", "b", "B", "0", "0"]],  //i,e. image "a" is derivated by applying the inverse mobius transformation of a to the three images "a", "b", "B"
-        ["b", b, ["a", "b", "c", "A", "C"]],
-        ["c", c, ["a", "b", "c", "A", "B"]],
-        ["A", A, ["c", "A", "C", "0", "0"]],
-        ["B", B, ["a", "c", "A", "B", "C"]],
-        ["C", C, ["a", "b", "A", "B", "C"]]
-      ], trafo,
-       colorplot([-pi, -pi], [pi, -pi], trafo_1,
-          ze = exp(complex(#));
-          x = trafo_2*[ze, 1];
-          r0 = x_1/x_2; //moebius trafo_2 applied to complex(#)
-          origin = log(r0);
-          f = 1/re(x_2*conjugate(x_2))/abs(r0)*abs(ze); //derivation of the moebius transformation at complex(#)
-          Tinv(f*f*(
-              T(imagergb([-pi, -pi], [pi, -pi], trafo_3_1, origin).r)
-            + T(imagergb([-pi, -pi], [pi, -pi], trafo_3_2, origin).r)
-            + T(imagergb([-pi, -pi], [pi, -pi], trafo_3_3, origin).r)
-            + T(imagergb([-pi, -pi], [pi, -pi], trafo_3_4, origin).r)
-            + T(imagergb([-pi, -pi], [pi, -pi], trafo_3_5, origin).r)
-          )) + .0001
-        );
-      );
-      
-      
-      colorplot([-pi, -pi], [pi, -pi], "conjugatedoutput",
-        z = (complex(#));
-        s0 = imagergb([-pi, -pi], [pi, -pi], "a", z).r;
-        s1 = imagergb([-pi, -pi], [pi, -pi], "A", z).r;
-        s2 = imagergb([-pi, -pi], [pi, -pi], "b", z).r;
-        s3 = imagergb([-pi, -pi], [pi, -pi], "B", z).r;
-        s4 = imagergb([-pi, -pi], [pi, -pi], "c", z).r;
-        s5 = imagergb([-pi, -pi], [pi, -pi], "C", z).r;
-        sum = (s0+s1+s2+s3+s4+s5);
-        gray(sum)+
-        s0*hue(0/6)+s1*hue(1/6)+s2*hue(2/6)+s3*hue(3/6)+s4*hue(4/6)+s5*hue(5/6)
-      );
-      
-      colorplot([-2, -2],[2, -2], "output",
-        imagergb([-pi, -pi], [pi, -pi], "conjugatedoutput", log(complex(#)))
-      );
-      
-      drawimage([0,0],[4,0], "output");
-      drawimage([4,0],[8,0],"conjugatedoutput");
-      
-      drawtext(TA+(.01,.01), ta, color->[1,0.3,0.3]);
-      drawtext(TB+(.01,.01), tb, color->[0.3,0.3,1]);
-      draw((4,0), (4,4), color->(1,1,1));
-    </script>
+    <body style="font-family: Arial">
+        <h1>CindyJS: Generation of Limit Sets of Kleinian Groups Using a Feedback Loop Approach</h1>
 
-    <div  id="CSCanvas" style="position:relative; top:10px;"></div>
-    <script type="text/javascript">
-        
-        cdy = CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry: [{name:"TA", type:"Free", pos:[2 ,2],color:[1,.3,.3],pinned:false,size:6},
-                               {name:"TB", type:"Free", pos:[2 ,2],color:[.3,.3,1],pinned:false,size:6}],
-                    animation: {autoplay: true},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 1024,
-                      height: 512,
-                      transform: [ { visibleRect: [0, 0, 8, 4] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+        <p>
+            Press SPACE to reset everything. The red and the blue point determine the complex parameters ta, tb, which
+            will be pluged into Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford,
+            ‎Caroline Series, ‎David Wright.
+        </p>
+        <p>
+            The internal computations are done in an exp-log-conjugated world (conformal polar coordinates). Hence we
+            have more details in the middle, less outside, and we can almost march to infinity.
+        </p>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            forall(["a", "b", "c", "A", "B", "C", "conjugatedoutput", "output"],
+              createimage(#, 1000, 1000);
+              colorplot(#, 0.1); //initialize with some fog
+            );
+
+            createimage("0", 1, 1);
+            colorplot("0", 0); //black dummy picture
+        </script>
+
+        <script id="csmove" type="text/x-cindyscript">
+            ta = .5*complex(TA)+1-i;
+            //ta = 1.64213876 +i*0.76658841;
+            tb = .5*complex(TB)+1-i;
+
+            //Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford, ‎Caroline Series, ‎David Wright
+            tab = ta*tb/2-i*sqrt(-((ta*tb/2)^2-ta^2-tb^2));
+            z0 = ((tab-2)*tb)/(tb*tab-2*ta+2*i*tab);
+            a = [
+              [ta/2,(ta*tab-2*tb+4*i)/((2*tab+4)*z0)],
+              [(ta*tab-2*tb-4*i)*z0/(2*tab-4),ta/2]
+            ];
+            b = [
+              [(tb-2*i)/2,tb/2],
+              [tb/2,(tb+2*i)/2]
+            ];
+
+
+            A = inverse(a);
+            B = inverse(b);
+
+            c = a*b*A;
+            C = inverse(c);
+        </script>
+
+        <script id="cskeydown" type="text/x-cindyscript">
+            print("pressed key" + keycode());
+            if(keycode()==32,
+              forall(["a", "b", "c", "A", "B", "C"],
+                colorplot(#, 0.1); //initialize with some fog
+              );
+            );
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+            T(a) := ( //maps [0,1] to [0, oo)
+              res = a/(1-a);
+              res*res);
+
+            Tinv(a) := ( //maps [0,oo) to [0, 1]
+              a = re(sqrt(a));
+              a/(1+a);
+            );
+
+            forall([
+              ["a", a, ["a", "b", "B", "0", "0"]],  //i,e. image "a" is derivated by applying the inverse mobius transformation of a to the three images "a", "b", "B"
+              ["b", b, ["a", "b", "c", "A", "C"]],
+              ["c", c, ["a", "b", "c", "A", "B"]],
+              ["A", A, ["c", "A", "C", "0", "0"]],
+              ["B", B, ["a", "c", "A", "B", "C"]],
+              ["C", C, ["a", "b", "A", "B", "C"]]
+            ], trafo,
+             colorplot([-pi, -pi], [pi, -pi], trafo_1,
+                ze = exp(complex(#));
+                x = trafo_2*[ze, 1];
+                r0 = x_1/x_2; //moebius trafo_2 applied to complex(#)
+                origin = log(r0);
+                f = 1/re(x_2*conjugate(x_2))/abs(r0)*abs(ze); //derivation of the moebius transformation at complex(#)
+                Tinv(f*f*(
+                    T(imagergb([-pi, -pi], [pi, -pi], trafo_3_1, origin).r)
+                  + T(imagergb([-pi, -pi], [pi, -pi], trafo_3_2, origin).r)
+                  + T(imagergb([-pi, -pi], [pi, -pi], trafo_3_3, origin).r)
+                  + T(imagergb([-pi, -pi], [pi, -pi], trafo_3_4, origin).r)
+                  + T(imagergb([-pi, -pi], [pi, -pi], trafo_3_5, origin).r)
+                )) + .0001
+              );
+            );
+
+
+            colorplot([-pi, -pi], [pi, -pi], "conjugatedoutput",
+              z = (complex(#));
+              s0 = imagergb([-pi, -pi], [pi, -pi], "a", z).r;
+              s1 = imagergb([-pi, -pi], [pi, -pi], "A", z).r;
+              s2 = imagergb([-pi, -pi], [pi, -pi], "b", z).r;
+              s3 = imagergb([-pi, -pi], [pi, -pi], "B", z).r;
+              s4 = imagergb([-pi, -pi], [pi, -pi], "c", z).r;
+              s5 = imagergb([-pi, -pi], [pi, -pi], "C", z).r;
+              sum = (s0+s1+s2+s3+s4+s5);
+              gray(sum)+
+              s0*hue(0/6)+s1*hue(1/6)+s2*hue(2/6)+s3*hue(3/6)+s4*hue(4/6)+s5*hue(5/6)
+            );
+
+            colorplot([-2, -2],[2, -2], "output",
+              imagergb([-pi, -pi], [pi, -pi], "conjugatedoutput", log(complex(#)))
+            );
+
+            drawimage([0,0],[4,0], "output");
+            drawimage([4,0],[8,0],"conjugatedoutput");
+
+            drawtext(TA+(.01,.01), ta, color->[1,0.3,0.3]);
+            drawtext(TB+(.01,.01), tb, color->[0.3,0.3,1]);
+            draw((4,0), (4,4), color->(1,1,1));
+        </script>
+
+        <div id="CSCanvas" style="position: relative; top: 10px"></div>
+        <script type="text/javascript">
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: [
+                    { name: "TA", type: "Free", pos: [2, 2], color: [1, 0.3, 0.3], pinned: false, size: 6 },
+                    { name: "TB", type: "Free", pos: [2, 2], color: [0.3, 0.3, 1], pinned: false, size: 6 },
+                ],
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 1024,
+                        height: 512,
+                        transform: [{ visibleRect: [0, 0, 8, 4] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

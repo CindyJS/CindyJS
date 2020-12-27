@@ -1,139 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-            <link rel="stylesheet" href="../css/cindy.css">
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Iterated Mirrors</h1>
 
+        <script id="csmove" type="text/x-cindyscript">
 
-        <script id='csmove' type='text/x-cindyscript'>
+                        l1=join(O,P);
 
-            l1=join(O,P);
-
-            l2=join(O,Q);
-            h1=halfplane(join((0,0),(0,1)),(-1,1));
-            h2=halfplane(join((0,0),(0,1)),(+1,1));
-            n=-round(1/(arctan2(-P.y,P.x)/pi)/2);
-
-
-            a=complex(A);
-            b=complex(B);
-            c=a+(b-a)*i*2.5;
-            C=gauss(c);
+                        l2=join(O,Q);
+                        h1=halfplane(join((0,0),(0,1)),(-1,1));
+                        h2=halfplane(join((0,0),(0,1)),(+1,1));
+                        n=-round(1/(arctan2(-P.y,P.x)/pi)/2);
 
 
-
-            imagedata=(A.xy,B.xy,C);
-            clpdata=(O.xy,P.xy,Q.xy);
-
-            tr1=linereflect(l1);
-            tr2=linereflect(l1);
-            tr2=[[1,0,0],[0,-1,0],[0,0,1]]*tr1*[[1,0,0],[0,-1,0],[0,0,1]];
-
-   //         errc(tr1);
-//            errc(tr2);
-
-
-            seq1=apply(1..n,if(isodd(#),tr1,tr2));
-            seq2=apply(1..n,if(isodd(#),tr2,tr1));
-
-            clp=halfplane(l1,Q)~~halfplane(l2,P);
-
-            gsave();
-            clip(clp);
-
-            drawimage(A,B,C,"rost");
-            grestore();
-            prt(seq,h1,h2):=
-            apply(1..n,
-              tr=seq_#;
-              imagedata=apply(imagedata,(tr*(#++[1]))_[1,2]);
-
-              clpdata=re(apply(clpdata,(tr*(#++[1]))_[1,2]));
-              l1=join(clpdata_1,clpdata_2);
-              l2=join(clpdata_1,clpdata_3);
-              clp=halfplane(l1,clpdata_3)~~halfplane(l2,clpdata_2);
-                  if(#==n,clp=clp~~if(isodd(#),h1,h2));
-
-              gsave();
-              clip(clp);
-              drawimage(imagedata_1,imagedata_2,imagedata_3,"rost");
-                  draw(O,clpdata_2,color->(0,0,0));
-                  draw(O,clpdata_3,color->(0,0,0));
-              grestore();
-                  );
-
-            prt(seq1,h1,h2);
-
-            imagedata=(A.xy,B.xy,C);
-            clpdata=(O.xy,P.xy,Q.xy);
-            prt(seq2,h2,h1);
-            </script>
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+                        a=complex(A);
+                        b=complex(B);
+                        c=a+(b-a)*i*2.5;
+                        C=gauss(c);
 
 
 
+                        imagedata=(A.xy,B.xy,C);
+                        clpdata=(O.xy,P.xy,Q.xy);
+
+                        tr1=linereflect(l1);
+                        tr2=linereflect(l1);
+                        tr2=[[1,0,0],[0,-1,0],[0,0,1]]*tr1*[[1,0,0],[0,-1,0],[0,0,1]];
+
+               //         errc(tr1);
+            //            errc(tr2);
+
+
+                        seq1=apply(1..n,if(isodd(#),tr1,tr2));
+                        seq2=apply(1..n,if(isodd(#),tr2,tr1));
+
+                        clp=halfplane(l1,Q)~~halfplane(l2,P);
+
+                        gsave();
+                        clip(clp);
+
+                        drawimage(A,B,C,"rost");
+                        grestore();
+                        prt(seq,h1,h2):=
+                        apply(1..n,
+                          tr=seq_#;
+                          imagedata=apply(imagedata,(tr*(#++[1]))_[1,2]);
+
+                          clpdata=re(apply(clpdata,(tr*(#++[1]))_[1,2]));
+                          l1=join(clpdata_1,clpdata_2);
+                          l2=join(clpdata_1,clpdata_3);
+                          clp=halfplane(l1,clpdata_3)~~halfplane(l2,clpdata_2);
+                              if(#==n,clp=clp~~if(isodd(#),h1,h2));
+
+                          gsave();
+                          clip(clp);
+                          drawimage(imagedata_1,imagedata_2,imagedata_3,"rost");
+                              draw(O,clpdata_2,color->(0,0,0));
+                              draw(O,clpdata_3,color->(0,0,0));
+                          grestore();
+                              );
+
+                        prt(seq1,h1,h2);
+
+                        imagedata=(A.xy,B.xy,C);
+                        clpdata=(O.xy,P.xy,Q.xy);
+                        prt(seq2,h2,h1);
+        </script>
+
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [-1.5, -7, 1], size: 3, color: [1, 0.7, 0] },
+                { name: "B", kind: "P", type: "Free", pos: [1.5, -7, 1], size: 3, color: [1, 0.7, 0] },
+                { name: "C", kind: "P", type: "Free", pos: [0, -20, 1], size: 3, color: [1, 0.7, 0] },
 
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[-1.5,-7,1],size:3,color:[1,.7,0]},
-                      {name:"B", kind:"P", type:"Free", pos:[1.5,-7,1],size:3,color:[1,.7,0]},
-                      {name:"C", kind:"P", type:"Free", pos:[0,-20,1],size:3,color:[1,.7,0]},
+                { name: "O", kind: "P", type: "Free", pos: [0, 0, 1], size: 4, color: [0, 0, 0] },
 
-                      {name:"O", kind:"P", type:"Free", pos:[0,0,1],size:4,color:[0,0,0]},
+                { name: "P", kind: "P", type: "Free", pos: [-6, -6, 1], size: 4, color: [1, 1, 1] },
 
-                      {name:"P", kind:"P", type:"Free", pos:[-6,-6,1],size:4,color:[1,1,1]},
+                { name: "a", kind: "L", type: "Join", args: ["O", "C"], alpha: 0.0002 },
+                { name: "b", kind: "L", type: "Perp", args: ["a", "P"], alpha: 0.0002 },
 
-                      {name:"a", kind:"L", type:"Join", args:["O","C"],alpha:0.0002},
-                      {name:"b", kind:"L", type:"Perp", args:["a","P"],alpha:0.0002},
+                { name: "c", kind: "P", type: "CircleMP", args: ["O", "P"], alpha: 0.0002 },
+                { name: "d", kind: "P", type: "CircleMFixedr", args: ["O"], radius: 20 },
 
-                      {name:"c", kind:"P", type:"CircleMP", args:["O","P"],alpha:0.0002},
-                      {name:"d", kind:"P", type:"CircleMFixedr", args:["O"],radius:20},
+                { name: "T1", type: "IntersectLC", args: ["b", "c"] },
+                { name: "Q", type: "SelectP", args: ["T1"], index: 1, color: [1, 0, 0], size: 3, alpha: 0.0002 },
+                { name: "L1", kind: "L", type: "Join", args: ["O", "P"], alpha: 0.0002 },
+                { name: "L2", kind: "L", type: "Join", args: ["O", "Q"], alpha: 0.0002 },
 
-                      {name:"T1", type:"IntersectLC", args:["b","c"]},
-                      {name:"Q", type:"SelectP", args:["T1"],index:1,color:[1,0,0],size:3,alpha:0.0002},
-                      {name:"L1", kind:"L", type:"Join", args:["O","P"],alpha:0.0002},
-                      {name:"L2", kind:"L", type:"Join", args:["O","Q"],alpha:0.0002},
+                { name: "T2", type: "IntersectLC", args: ["L1", "d"] },
+                { name: "P1", type: "SelectP", args: ["T2"], index: 2, color: [1, 0, 0], size: 3 },
 
-                      {name:"T2", type:"IntersectLC", args:["L1","d"]},
-                      {name:"P1", type:"SelectP", args:["T2"],index:2,color:[1,0,0],size:3},
+                { name: "T3", type: "IntersectLC", args: ["L2", "d"] },
+                { name: "P2", type: "SelectP", args: ["T3"], index: 1, color: [1, 0, 0], size: 3 },
+            ];
 
-                      {name:"T3", type:"IntersectLC", args:["L2","d"]},
-                      {name:"P2", type:"SelectP", args:["T3"],index:1,color:[1,0,0],size:3},
-
-
-
-                      ];
-
-
-
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp,
-                        images:{rost:"rost.png",boe:"boe.png"}
-                        });
-
-
-
-
-
-            </script>
-
-
-
-
-
-
-	</body>
+            CindyJS({
+                canvasname: "CSCanvas",
+                movescript: "csmove",
+                geometry: gslp,
+                images: { rost: "rost.png", boe: "boe.png" },
+            });
+        </script>
+    </body>
 </html>

@@ -1,5 +1,4 @@
-CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
-
+CindyJS.registerPlugin(1, "ComplexCurves", function (api) {
     //////////////////////////////////////////////////////////////////////
     // API bindings
 
@@ -28,10 +27,8 @@ CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
         let key, handler;
         for (key in modifs) {
             handler = handlers[key];
-            if (handler)
-                handler(evaluate(modifs[key]));
-            else
-                console.log("Modifier " + key + " not supported");
+            if (handler) handler(evaluate(modifs[key]));
+            else console.log("Modifier " + key + " not supported");
         }
     }
 
@@ -50,53 +47,53 @@ CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
         let alpha = 1,
             bg = [0, 0, 0];
         handleModifs(modifs, {
-            "alpha": function(a) {
+            alpha: function (a) {
                 alpha = coerce.toInterval(0, 1, a, alpha);
             },
-            "autorotate": function(a) {
-                cc.setAutorotate( /** @type {boolean} */ (coerce.toBool(a, false)));
+            autorotate: function (a) {
+                cc.setAutorotate(/** @type {boolean} */ (coerce.toBool(a, false)));
             },
-            "background": function(a) {
+            background: function (a) {
                 bg = coerce.toColor(a, bg);
             },
-            "clip": function(a) {
-                cc.setClipping( /** @type {boolean} */ (coerce.toBool(a, false)));
+            clip: function (a) {
+                cc.setClipping(/** @type {boolean} */ (coerce.toBool(a, false)));
             },
-            "ortho": function(a) {
-                cc.setOrtho( /** @type {boolean} */ (coerce.toBool(a, false)));
+            ortho: function (a) {
+                cc.setOrtho(/** @type {boolean} */ (coerce.toBool(a, false)));
             },
-            "transparency": function(a) {
-                cc.setTransparency( /** @type {boolean} */ (coerce.toBool(a, false)));
+            transparency: function (a) {
+                cc.setTransparency(/** @type {boolean} */ (coerce.toBool(a, false)));
             },
-            "view": function(a) {
+            view: function (a) {
                 let view = coerce.toString(a);
                 switch (view) {
-                    case 'Back':
+                    case "Back":
                         cc.rotateBack();
                         break;
-                    case 'Bottom':
+                    case "Bottom":
                         cc.rotateBottom();
                         break;
-                    case 'Default':
+                    case "Default":
                         cc.rotateDefault();
                         break;
-                    case 'Front':
+                    case "Front":
                         cc.rotateFront();
                         break;
-                    case 'Left':
+                    case "Left":
                         cc.rotateLeft();
                         break;
-                    case 'Right':
+                    case "Right":
                         cc.rotateRight();
                         break;
-                    case 'Top':
+                    case "Top":
                         cc.rotateTop();
                         break;
                 }
             },
-            "zoom": function(a) {
+            zoom: function (a) {
                 cc.setZoom(coerce.toReal(a, 1));
-            }
+            },
         });
         cc.setBackground(bg[0], bg[1], bg[2], alpha);
         return nada;
@@ -104,7 +101,7 @@ CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
 
     defOp("ComplexCurves", 1, ComplexCurves$1);
 
-    defOp("ComplexCurves", 2, function(args, modifs) {
+    defOp("ComplexCurves", 2, function (args, modifs) {
         let canvasId =
             /** @type {string} */
             (coerce.toString(args[0], "CSCanvas"));
@@ -115,19 +112,15 @@ CindyJS.registerPlugin(1, "ComplexCurves", function(api) {
             /** @type {string} */
             (coerce.toString(args[1], "y^2-x"));
         let depth = 12;
-        if (modifs["depth"] !== undefined)
-            depth = coerce.toInt(evaluate(modifs["depth"]), 12);
+        if (modifs["depth"] !== undefined) depth = coerce.toInt(evaluate(modifs["depth"]), 12);
         delete modifs["depth"];
         if (instances[canvasId] && instances[canvasId].unregisterEventHandlers)
             instances[canvasId].unregisterEventHandlers();
         if (equationOrFile.substr(-4, 4) === ".bin") {
-            let cc =
-                ComplexCurves.fromFile(canvas, equationOrFile, "", undefined,
-                    undefined, undefined,
-                    function() {
-                        instances[canvasId] = cc;
-                        ComplexCurves$1([args[0]], modifs);
-                    });
+            let cc = ComplexCurves.fromFile(canvas, equationOrFile, "", undefined, undefined, undefined, function () {
+                instances[canvasId] = cc;
+                ComplexCurves$1([args[0]], modifs);
+            });
         } else {
             let cc = ComplexCurves.fromEquation(canvas, equationOrFile, depth);
             if (!!cc) {

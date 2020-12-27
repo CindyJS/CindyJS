@@ -1,32 +1,27 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            n = 5;
+            pts = apply(0..4, gauss(exp(i*2*pi*#/n)));
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            drawpoly(apply(pts, # + [-3, 0]), lineJoin -> "round", size->7);
+            drawpoly(pts, lineJoin -> "bevel", size->7);
+            drawpoly(apply(pts, # + [3, 0]), lineJoin -> "miter", size->7);
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", visibleRect: [-5, 5, 5, -5], width: 500, height: 500 }],
+                scripts: "cs*",
+            });
+        </script>
+    </head>
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-n = 5;
-pts = apply(0..4, gauss(exp(i*2*pi*#/n)));
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-drawpoly(apply(pts, # + [-3, 0]), lineJoin -> "round", size->7);
-drawpoly(pts, lineJoin -> "bevel", size->7);
-drawpoly(apply(pts, # + [3, 0]), lineJoin -> "miter", size->7);
-</script>
-<script type="text/javascript">
-
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", visibleRect: [-5, 5, 5, -5], width: 500, height: 500 }],
-  scripts: "cs*"
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>
-

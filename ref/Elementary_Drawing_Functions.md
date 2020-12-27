@@ -1,4 +1,4 @@
-##  Elementary Drawing Functions
+## Elementary Drawing Functions
 
 The operators described in this section are used to draw points, lines, and segments in a construction window.
 
@@ -12,10 +12,10 @@ For the first two we assume that `x`, `y`, and `z` are numbers.
 
 | Code            | Result                                                       |
 | --------------- | ------------------------------------------------------------ |
-| `draw([x,y])`   | Draws a point with *x*-coordinate `x` and *y*-coordinate `y` |
+| `draw([x,y])`   | Draws a point with _x_-coordinate `x` and _y_-coordinate `y` |
 | `draw([x,y,z])` | Draws a point with homogenous coordinates given by `[x,y,z]` |
 
-A word on homogeneous coordinates: If `[x,y,z]` are the homogeneous coordinates of a point, then the corresponding point that will be drawn has *xy*-coordinates `[x/z,y/z]`.
+A word on homogeneous coordinates: If `[x,y,z]` are the homogeneous coordinates of a point, then the corresponding point that will be drawn has _xy_-coordinates `[x/z,y/z]`.
 Points that have homogeneous coordinates with `z=0` correspond to “points at infinity”. You won't see them in a usual Cinderella Euclidean view.
 However, they will be drawn in spherical view (or when a local projective basis is set (see [Script Coordinate System](Script_Coordinate_System.md)).
 
@@ -108,7 +108,7 @@ The following piece of code illustrates the effect of the dashing modifiers.
 **See also:**
 [Script Coordinate System](Script_Coordinate_System.md) and [Geometric Operators](Geometric_Operators.md)
 
-------
+---
 
 #### Drawing segments: `draw(‹expr›,‹expr›)`
 
@@ -121,7 +121,7 @@ Thus `[draw([0,0],[1,1])]` draws a segment from `[0,0]` to `[1,1]`.
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 However, the modifiers that are specific for points have no effect.
 
-------
+---
 
 #### Drawing lists of objects: `drawall(‹list›)`
 
@@ -152,7 +152,7 @@ In the final two lines the `draw` operator is used to draw these lists of object
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
-------
+---
 
 #### Connect the dots: `connect(‹list›)`
 
@@ -162,7 +162,7 @@ This operator takes a list of points as input and connects them by line segments
 **Example:**
 The following code together with a collection of points of a construction produces the picture below.
 The first line assigns to the variable `pts` all points of a construction.
-The second line assigns to `sortpts` a list of these points that was sorted by the *x*-coordinate of the points.
+The second line assigns to `sortpts` a list of these points that was sorted by the _x_-coordinate of the points.
 Finally, the `connect` operator connects these points in the given sequential order.
 
     > pts=allpoints();
@@ -174,7 +174,7 @@ Finally, the `connect` operator connects these points in the given sequential or
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
-------
+---
 
 #### Draw a polygon: `drawpoly(‹list›)`
 
@@ -189,7 +189,7 @@ This operator can handle the following modifiers:
 | `color`  | `[‹real1›,‹real2›,‹real3›]` | sets the point color and the line color to an RGB value |
 | `alpha`  | `‹real›`                    | sets the opacity to the value `‹real›`                  |
 
-------
+---
 
 #### Fill a polygon: `fillpoly(‹list›)`
 
@@ -217,7 +217,7 @@ This operator can handle the following modifiers:
 | `color`  | `[‹real1›,‹real2›,‹real3›]` | sets the point color and the line color to an RGB value |
 | `alpha`  | `‹real›`                    | sets the opacity to the value `‹real›`                  |
 
-------
+---
 
 #### Drawing circles: `drawcircle(‹point›,‹radius›)`
 
@@ -228,7 +228,7 @@ The point may be given either in Euclidean or in homogeneous coordinates.
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
-------
+---
 
 #### Filling circles: `fillcircle(‹point›,‹radius›)`
 
@@ -255,7 +255,7 @@ The following piece of code shows a combined usage of the `drawcircle` and the `
 
 ![Image](img/FillCircleX.png)
 
-------
+---
 
 #### Drawing circular arc: `drawarc(‹point1›,‹point2›,‹point3›)`
 
@@ -267,7 +267,7 @@ The points may be given either in Euclidean or in homogeneous coordinates.
 **Modifiers:**
 This operator can handle the same modifiers as the `draw(‹expr›)` operator.
 
-------
+---
 
 #### Filling circular arcs: `fillarc(‹point1›,‹point2›,‹point3›)`
 
@@ -283,4 +283,4 @@ This operator can handle the following modifiers:
 | `color`  | `[‹real1›,‹real2›,‹real3›]` | sets the fill color to an RGB value    |
 | `alpha`  | `‹real›`                    | sets the opacity to the value `‹real›` |
 
-------
+---

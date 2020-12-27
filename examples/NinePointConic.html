@@ -1,89 +1,84 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Nine-point conic</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csmove" type="text/x-cindyscript">
 
-<head>
-<title>Nine-point conic</title>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="../build/js/CindyJS.css">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csmove" type="text/x-cindyscript">
+            linf = [0, 0, 1];
+            sym(m) := m + transpose(m);
+            degen2(g, h) := sym(transpose([g]) * [h]);
+            degen3(g, p, q) := degen2(g, cross(p, q));
+            degen4(p, q, r, s) := degen2(cross(p, q), cross(r, s));
 
-  linf = [0, 0, 1];
-  sym(m) := m + transpose(m);
-  degen2(g, h) := sym(transpose([g]) * [h]);
-  degen3(g, p, q) := degen2(g, cross(p, q));
-  degen4(p, q, r, s) := degen2(cross(p, q), cross(r, s));
+            a = A.homog;
+            b = B.homog;
+            c = C.homog;
+            d = D.homog;
 
-  a = A.homog;
-  b = B.homog;
-  c = C.homog;
-  d = D.homog;
+            Q.matrix =
+                det(b,c,d)*det(a,c,d)*degen3(linf, a, b)
+              + (linf*c)*degen4(a,b,2*det(b,c,d)*a + det(a,b,d)*c,d)
+              - det(a,b,d)*degen4((linf*b)*a + (linf*a)*b, c, c, d);
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 600,
+                        height: 450,
+                        transform: [{ visibleRect: [-9, 5, 8, -4] }],
+                    },
+                ],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {
+                    dimDependent: 1,
+                },
+                geometry: [
+                    { name: "A", type: "Free", pos: [-4, 0], color: [1, 0, 0], labeled: true },
+                    { name: "B", type: "Free", pos: [0, 0], color: [1, 0, 0], labeled: true },
+                    { name: "C", type: "Free", pos: [1, 3], color: [1, 0, 0], labeled: true },
+                    { name: "D", type: "Free", pos: [4, 1], color: [1, 0, 0], labeled: true },
+                    { name: "E", type: "Free", pos: [2, -1], color: [1, 0, 1], labeled: true },
+                    { name: "ab", type: "Join", color: [0, 0, 1], args: ["A", "B"] },
+                    { name: "ac", type: "Join", color: [0, 0, 1], args: ["A", "C"] },
+                    { name: "ad", type: "Join", color: [0, 0, 1], args: ["A", "D"] },
+                    { name: "bc", type: "Join", color: [0, 0, 1], args: ["B", "C"] },
+                    { name: "bd", type: "Join", color: [0, 0, 1], args: ["B", "D"] },
+                    { name: "cd", type: "Join", color: [0, 0, 1], args: ["C", "D"] },
+                    { name: "AB", type: "Mid", color: [0, 1, 1], args: ["A", "B"] },
+                    { name: "AC", type: "Mid", color: [0, 1, 1], args: ["A", "C"] },
+                    { name: "AD", type: "Mid", color: [0, 1, 1], args: ["A", "D"] },
+                    { name: "BC", type: "Mid", color: [0, 1, 1], args: ["B", "C"] },
+                    { name: "BD", type: "Mid", color: [0, 1, 1], args: ["B", "D"] },
+                    { name: "CD", type: "Mid", color: [0, 1, 1], args: ["C", "D"] },
+                    { name: "P1", type: "Meet", color: [1, 1, 0], args: ["ab", "cd"] },
+                    { name: "P2", type: "Meet", color: [1, 1, 0], args: ["ac", "bd"] },
+                    { name: "P3", type: "Meet", color: [1, 1, 0], args: ["ad", "bc"] },
+                    { name: "Q5", type: "ConicBy5", color: [1, 0, 1], args: ["A", "B", "C", "D", "E"] },
+                    { name: "P", type: "CenterOfConic", color: [0.7, 0.3, 0.7], args: ["Q5"] },
+                    { name: "Q", type: "FreeConic", color: [0, 0.7, 0], size: 2 },
+                ],
+            });
+        </script>
+    </head>
 
-  Q.matrix =
-      det(b,c,d)*det(a,c,d)*degen3(linf, a, b)
-    + (linf*c)*degen4(a,b,2*det(b,c,d)*a + det(a,b,d)*c,d)
-    - det(a,b,d)*degen4((linf*b)*a + (linf*a)*b, c, c, d);
-
-</script>
-<script type="text/javascript">
-
-var cdy = CindyJS({
-  ports: [{
-    id: "CSCanvas",
-    width: 600,
-    height: 450,
-    transform: [{visibleRect: [-9, 5, 8, -4]}]
-  }],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-    dimDependent: 1
-  },
-  geometry: [
-    {name: "A", type: "Free", pos: [-4,0], color: [1,0,0], labeled: true},
-    {name: "B", type: "Free", pos: [0,0], color: [1,0,0], labeled: true},
-    {name: "C", type: "Free", pos: [1,3], color: [1,0,0], labeled: true},
-    {name: "D", type: "Free", pos: [4,1], color: [1,0,0], labeled: true},
-    {name: "E", type: "Free", pos: [2,-1], color: [1,0,1], labeled: true},
-    {name: "ab", type: "Join", color: [0,0,1], args: ["A", "B"]},
-    {name: "ac", type: "Join", color: [0,0,1], args: ["A", "C"]},
-    {name: "ad", type: "Join", color: [0,0,1], args: ["A", "D"]},
-    {name: "bc", type: "Join", color: [0,0,1], args: ["B", "C"]},
-    {name: "bd", type: "Join", color: [0,0,1], args: ["B", "D"]},
-    {name: "cd", type: "Join", color: [0,0,1], args: ["C", "D"]},
-    {name: "AB", type: "Mid", color: [0,1,1], args: ["A", "B"]},
-    {name: "AC", type: "Mid", color: [0,1,1], args: ["A", "C"]},
-    {name: "AD", type: "Mid", color: [0,1,1], args: ["A", "D"]},
-    {name: "BC", type: "Mid", color: [0,1,1], args: ["B", "C"]},
-    {name: "BD", type: "Mid", color: [0,1,1], args: ["B", "D"]},
-    {name: "CD", type: "Mid", color: [0,1,1], args: ["C", "D"]},
-    {name: "P1", type: "Meet", color: [1,1,0], args: ["ab", "cd"]},
-    {name: "P2", type: "Meet", color: [1,1,0], args: ["ac", "bd"]},
-    {name: "P3", type: "Meet", color: [1,1,0], args: ["ad", "bc"]},
-    {name: "Q5", type: "ConicBy5", color: [1,0,1], args: ["A", "B", "C", "D", "E"]},
-    {name: "P", type: "CenterOfConic", color: [0.7,0.3,0.7], args: ["Q5"]},
-    {name: "Q", type: "FreeConic", color: [0,0.7,0], size: 2}
-  ]
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="border:2px solid black"></div>
-  <p>
-    This example demonstrates how a FreeConic can be used to describe
-    an arbitrary conic section by setting its matrix in some script.
-  </p>
-  <p>
-    The conic in question here is the nine point conic (green): for
-    four points <em>A</em> through <em>D</em> (red) it passes through
-    the pairwise midpoints (cyan) and also through the intersections
-    (yellow) of opposite lines (blue). Furthermore, it is the locus of
-    the center for any conic passing through these four (magenta).
-    See <a href="http://math.stackexchange.com/q/2008437/35416">this
-      Math Stack Exchange post</a> for details.
-  </p>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+        <p>
+            This example demonstrates how a FreeConic can be used to describe an arbitrary conic section by setting its
+            matrix in some script.
+        </p>
+        <p>
+            The conic in question here is the nine point conic (green): for four points <em>A</em> through
+            <em>D</em> (red) it passes through the pairwise midpoints (cyan) and also through the intersections (yellow)
+            of opposite lines (blue). Furthermore, it is the locus of the center for any conic passing through these
+            four (magenta). See
+            <a href="http://math.stackexchange.com/q/2008437/35416">this Math Stack Exchange post</a> for details.
+        </p>
+    </body>
 </html>

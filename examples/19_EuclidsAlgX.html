@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Euclids Algorithm</h1>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript">
             linecolor((0,0,0));
             sq(a,b):=(
                       n1=a-b;
@@ -130,32 +126,18 @@
 
 
             grestore();
-
         </script>
 
-
-        <div  id="CSCanvas" style="width:800px; height:500px; border:2px solid #000000"></div>
-
-
+        <div id="CSCanvas" style="width: 800px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [4, 8, 1], size: 4, color: [0, 0, 0] },
+                { name: "B", kind: "P", type: "Free", pos: [-10, 8, 1], size: 4, color: [0, 0, 0] },
+                { name: "C", kind: "P", type: "Free", pos: [4, -10, 1], size: 4, color: [0, 0, 0] },
+            ];
 
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[4,8,1],size:4,color:[0,0,0]},
-                      {name:"B", kind:"P", type:"Free", pos:[-10,8,1],size:4,color:[0,0,0]},
-                      {name:"C", kind:"P", type:"Free", pos:[4,-10,1],size:4,color:[0,0,0]}
-                      ];
-
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp});
-
-
-
-
-
-            </script>
-
-
-	</body>
+            CindyJS({ canvasname: "CSCanvas", movescript: "csmove", geometry: gslp });
+        </script>
+    </body>
 </html>

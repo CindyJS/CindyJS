@@ -1,11 +1,11 @@
-##  Advanced List Operations
+## Advanced List Operations
 
 There are several operators that take a list as argument and return another list derived from it.
 This section deals with such operators.
 These operators form very powerful tools for performing a high-level computation.
 For examples of how to use and apply these operators in a realistic context, we strongly recommend to read the example section for CindyScript.
 
-###  Pairs and Triples
+### Pairs and Triples
 
 #### Building pairs: `pairs(‹list›)`
 
@@ -17,7 +17,7 @@ This operator is particularly useful for creating all segments determined a set 
     > pairs([1, 2, 3, 4])
     < [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
 
-------
+---
 
 #### Creating a chain: `consecutive(‹list›)`
 
@@ -27,7 +27,7 @@ This operator produces a list that contains all pairs of elements of consecutive
     > consecutive([1, 2, 3, 4, 5])
     < [[1, 2], [2, 3], [3, 4], [4, 5]]
 
-------
+---
 
 #### Creating a cycle: `cycle(‹list›)`
 
@@ -38,7 +38,7 @@ Furthermore, the pair consisting of the last and the first elements is added.
     > cycle([1, 2, 3, 4, 5])
     < [[1, 2], [2, 3], [3, 4], [4, 5], [5, 1]]
 
-------
+---
 
 #### Building triples: `triples(‹list›)`
 
@@ -49,7 +49,7 @@ These are all the triples of elements of `‹list›`.
     > triples([1, 2, 3, 4])
     < [[1, 2, 3], [1, 2, 4], [1, 3, 4], [2, 3, 4]]
 
-------
+---
 
 #### Creating the direct product of two lists: `directproduct(‹list1›,‹list2›)`
 
@@ -60,9 +60,9 @@ The direct products consists of all pairs whose first element is taken from `‹
     > directproduct([1,2,3], ["A", "B"])
     < [[1, "A"], [1, "B"], [2, "A"], [2, "B"], [3, "A"], [3, "B"]]
 
-------
+---
 
-------
+---
 
 #### Flattening a nested list lists: `flatten(‹list›)`
 
@@ -99,9 +99,9 @@ then we get the following responses to various calls of flattening:
     > flatten(list, levels->"all")
     < [1, 2, 3, 4, 5, 6, 7, 8, 6]
 
-------
+---
 
-###  Order of Elements
+### Order of Elements
 
 The following operators change the order of the elements within a list.
 
@@ -113,7 +113,7 @@ This operator reverses the order of the elements in `‹list›`.
     > reverse([1, 2, 3, 4])
     < [4, 3, 2, 1]
 
-------
+---
 
 #### Sorting a list: `sort(‹list›)`
 
@@ -134,7 +134,7 @@ booleans &lt; numbers &lt; strings &lt; lists
     > sort(["one", "two", "three", "four", "five"])
     < ["five", "four", "one", "three", "two"]
 
-------
+---
 
 #### Sorting a list: `sort(‹list›, ‹expr›)`
 
@@ -147,7 +147,7 @@ All elements of the list are sorted with respect to the result of these evaluati
     > sort(["one", "two", "three", "four", "five"],length(#))
     < ["one", "two", "four", "five", "three"]
 
-------
+---
 
 #### Sorting a list: `sort(‹list›, ‹var›, ‹expr›)`
 
@@ -162,13 +162,13 @@ The variable is local to the expression.
     > v
     < 991
 
-------
+---
 
 #### Sets from lists: `set(‹list›)`
 
 **Description:**
 This operator sorts all elements of a list and removes occurrences of identical elements.
-Thus a unique representation of the list is computed if the list is considered as a *set* of objects.
+Thus a unique representation of the list is computed if the list is considered as a _set_ of objects.
 Together with the operators `concat`, `remove`, and `common`, this can be used as an implementation of set functionality.
 
     > set([3, 5, 2, 4, 3, 5, 7])
@@ -180,7 +180,7 @@ Together with the operators `concat`, `remove`, and `common`, this can be used a
 
 Note that set operations have linear time complexity.
 
-------
+---
 
 #### Combinations: `combinations(‹list›, ‹int›)`
 

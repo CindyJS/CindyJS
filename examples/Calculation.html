@@ -1,40 +1,66 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Calculations</title>
-    <link rel="stylesheet" href="../build/js/CindyJS.css">
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-    <script type="text/javascript">
-CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "A", type: "Free", pos: [-1.469387755102041, -4.0, -2.0408163265306123], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "Text0", type: "Calculation", pos: [0.0, -4.0, -0.6666666666666666], color: [0.0, 0.0, 0.0], text: "A.xy"},
-    {name: "Text1", type: "Equation", pos: [0.0, -4.0, -0.8], color: [0.0, 0.0, 0.0], text: "A.xy"},
-    {name: "Text2", type: "Evaluate", pos: [0.0, -4.0, -1.0], color: [0.0, 0.0, 0.0], text: "err(A.xy)"},
-    {name: "Text3", type: "Plot", pos: [0.0, -4.0, -1.3333333333333333], color: [0.0, 0.0, 0.0], text: "sin(x/A.x)*A.y"}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 680,
-    height: 322,
-    transform: [{visibleRect: [-9.06, 9.34, 18.14, -3.54]}],
-    background: "rgb(168,176,192)"
-  }],
-  cinderella: {build: 1873, version: [2, 9, 1873]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Calculations</title>
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [-1.469387755102041, -4.0, -2.0408163265306123],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "Text0",
+                        type: "Calculation",
+                        pos: [0.0, -4.0, -0.6666666666666666],
+                        color: [0.0, 0.0, 0.0],
+                        text: "A.xy",
+                    },
+                    { name: "Text1", type: "Equation", pos: [0.0, -4.0, -0.8], color: [0.0, 0.0, 0.0], text: "A.xy" },
+                    {
+                        name: "Text2",
+                        type: "Evaluate",
+                        pos: [0.0, -4.0, -1.0],
+                        color: [0.0, 0.0, 0.0],
+                        text: "err(A.xy)",
+                    },
+                    {
+                        name: "Text3",
+                        type: "Plot",
+                        pos: [0.0, -4.0, -1.3333333333333333],
+                        color: [0.0, 0.0, 0.0],
+                        text: "sin(x/A.x)*A.y",
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 322,
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.14, -3.54] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1873, version: [2, 9, 1873] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

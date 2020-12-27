@@ -1,4 +1,4 @@
-##  TeX Rendering
+## TeX Rendering
 
 Starting with version 2.4 of Cinderella the text rendering became significantly more powerful.
 It is now also possible to render formulas using a variant of the TeX typesetting language.
@@ -9,7 +9,7 @@ We also report on the major differences to standard TeX.
 
 TeX rendering can also be used in texts for element captions and in usual geometric text objects.
 
-###  Activating TeX Rendering
+### Activating TeX Rendering
 
 Within a usual string the TeX formula rendering can be activated by enclosing the formula by dollar signs: `$…here is the formula text…$`.
 The following statement produces a formula that already covers some interesting features of TeX rendering:
@@ -32,7 +32,7 @@ The TeX renderer tries to do its best even if uncommon font families are chosen 
 
 ![Image](img/TeX2X.png)
 
-###  Subscripts and Superscripts
+### Subscripts and Superscripts
 
 Perhaps the most simple and most common usage of TeX rendering is to equip labels with subscripts or superscripts.
 This can be done by the using the `_` and the `^` signs, respectively.
@@ -49,7 +49,7 @@ The following piece of code exemplifies various usages of sub- and superscripts.
 
 ![Image](img/TeX3X.png)
 
-###  Special Formula Elements
+### Special Formula Elements
 
 The TeX renderer is capable of rendering special formula signs like sums, square roots and integrals.
 The following sample gives an impression of how these objects can be rendered.
@@ -75,10 +75,10 @@ Here comes a complete list of them:
 
 The Cinderella TeX implementation allows for the use of four types of brackets in formulas:
 
-*  Round bracktes: `(…)`
-*  Square braclets: `[…]`
-*  Curly brackets: `\{…\}`
-*  Vertical lines: `|…|`
+-   Round bracktes: `(…)`
+-   Square braclets: `[…]`
+-   Curly brackets: `\{…\}`
+-   Vertical lines: `|…|`
 
 Since Curly brackets have a special semantic meaning in TeX formulas they have to be preceded by a backslash.
 In formulas it is often necessary to use brackets of different sizes.
@@ -111,9 +111,9 @@ Using the command `\left` and `\right` one can generate brackets that fit the si
 The `\left` and `\right` statements must be properly nested.
 If one wants to suppress an opening or closing brackets one can use `\left.` or `\right.` .
 
-###  Formulas with Special Layout
+### Formulas with Special Layout
 
-Some formulas like for instance *fractions* force a special layout that places the different parts of the formulas at special locations.
+Some formulas like for instance _fractions_ force a special layout that places the different parts of the formulas at special locations.
 Cinderella TeX Statements that support this kind of rendering are
 
 `\frac,\over,\choose,\binom`
@@ -127,23 +127,23 @@ Their usage is shown in the next example:
 
 ![Image](img/TeX8X.png)
 
-###  Whitespace
+### Whitespace
 
 Usual blanks and newlines are only used as syntactic separators in formulas and do not have any influence on the layout of the formula.
 To introduce whitespace the commands `\`, `\;`, `\quad`, `\qquad`, `\!` are used.
 They produce a whitespace measured in units of an “m” of the current font.
 
-*  `\qquad`: whitespace of 2.0 units
-*  `\quad`: whitespace of 1.0 unit
-*  `\;`: whitespace of 5/18 units
-*  `\,`: whitespace of 3/18 units
-*  `\!`: negative whitespace of -5/18 units
+-   `\qquad`: whitespace of 2.0 units
+-   `\quad`: whitespace of 1.0 unit
+-   `\;`: whitespace of 5/18 units
+-   `\,`: whitespace of 3/18 units
+-   `\!`: negative whitespace of -5/18 units
 
     > drawtext((0,0),size->16,"$A\!A A \,A\;A\quad A \qquad A$")
 
 ![Image](img/TeX9X.png)
 
-###  Over- and Underlining
+### Over- and Underlining
 
 Cinderella TeX supports several statements that allow to put decorations like arrows and lines on top of or below a formula.
 The supported commands are
@@ -162,7 +162,7 @@ Here are a few formulas that use these features:
 
 ![Image](img/TeX10X.png)
 
-###  Vectors and Matrices
+### Vectors and Matrices
 
 Matrices and Vectors are essential for mathematical formulas.
 They can also be rendered by Cinderella's TeX implementation.
@@ -172,9 +172,9 @@ Each row consists of the entries of the row separated by `&`.
 The second pair of curly brackets in the statement above contains formatting information for each column.
 Here
 
-* `r` means right align,
-* `l` means left align,
-* `c` means center align.
+-   `r` means right align,
+-   `l` means left align,
+-   `c` means center align.
 
 In the following example the `array` statement is combined with enclosing brakets to generate a matrix-like object.
 
@@ -222,7 +222,7 @@ The five types of admissible matrices are illustrated in the code below:
 
 ![Image](img/TeX14X.png)
 
-###  Color
+### Color
 
 Cinderellas TeX supports colored text via a special command `\color{…}`.
 The currently predefined colors are:
@@ -240,7 +240,7 @@ Using the color statement influences color of the subformula in which it it used
 
 ![Image](img/TeX15X.png)
 
-###  Plain Text
+### Plain Text
 
 Sometimes it may be useful to use a passage of normal text within a formula.
 This can be done by the `\mbox{…}` statement.
@@ -254,129 +254,129 @@ The following example illustrates its usage:
 
 ![Image](img/TeX16X.png)
 
-###  Special Characters
+### Special Characters
 
 In mathematical formulas one needs many special characters.
 The following list gives an overview of all characters that are associated to special TeX statements.
 
-####  Greek letters
+#### Greek letters
 
-|   |          |   |             |   |          |   |          |
-| - | -------- | - | ----------- | - | -------- | - | -------- |
-| α | \alpha   | β | \beta       | γ | \gamma   | δ | \delta   |
-| ∊ | \epsilon | ε | \varepsilon | ζ | \zeta    | η | \eta     |
-| θ | \theta   | ϑ | \vartheta   | ι | \iota    | κ | \kappa   |
-| λ | \lambda  | λ | \lamda      | μ | \mu      | μ | \my      |
-| ν | \nu      | ν | \ny         | ξ | \xi      | ο | \omicron |
-| π | \pi      | ϖ | \varpi      | ρ | \rho     | ϱ | \varrho  |
-| σ | \sigma   | ς | \varsigma   | τ | \tau     | υ | \upsilon |
-| υ | \ypsilon | φ | \phi        | χ | \chi     | ψ | \psi     |
-| ω | \omega   | Α | \Alpha      | Β | \Beta    | Γ | \Gamma   |
-| Δ | \Delta   | Ε | \Epsilon    | Ζ | \Zeta    | Η | \Eta     |
-| Θ | \Theta   | Ι | \Oota       | Κ | \Kappa   | Λ | \Lambda  |
-| Λ | \Lamda   | Μ | \Mu         | Μ | \My      | Ν | \Nu      |
-| Ν | \Ny      | Ξ | \Xi         | Ο | \Omicron | Π | \Pi      |
-| Ρ | \Rho     | Σ | \Sigma      | Τ | \Tau     | Υ | \Upsilon |
-| Υ | \Ypsilon | Φ | \Phi        | Χ | \Chi     | Ψ | \Psi     |
-| Ω | \Omega   |
+|     |          |     |             |     |          |     |          |
+| --- | -------- | --- | ----------- | --- | -------- | --- | -------- |
+| α   | \alpha   | β   | \beta       | γ   | \gamma   | δ   | \delta   |
+| ∊   | \epsilon | ε   | \varepsilon | ζ   | \zeta    | η   | \eta     |
+| θ   | \theta   | ϑ   | \vartheta   | ι   | \iota    | κ   | \kappa   |
+| λ   | \lambda  | λ   | \lamda      | μ   | \mu      | μ   | \my      |
+| ν   | \nu      | ν   | \ny         | ξ   | \xi      | ο   | \omicron |
+| π   | \pi      | ϖ   | \varpi      | ρ   | \rho     | ϱ   | \varrho  |
+| σ   | \sigma   | ς   | \varsigma   | τ   | \tau     | υ   | \upsilon |
+| υ   | \ypsilon | φ   | \phi        | χ   | \chi     | ψ   | \psi     |
+| ω   | \omega   | Α   | \Alpha      | Β   | \Beta    | Γ   | \Gamma   |
+| Δ   | \Delta   | Ε   | \Epsilon    | Ζ   | \Zeta    | Η   | \Eta     |
+| Θ   | \Theta   | Ι   | \Oota       | Κ   | \Kappa   | Λ   | \Lambda  |
+| Λ   | \Lamda   | Μ   | \Mu         | Μ   | \My      | Ν   | \Nu      |
+| Ν   | \Ny      | Ξ   | \Xi         | Ο   | \Omicron | Π   | \Pi      |
+| Ρ   | \Rho     | Σ   | \Sigma      | Τ   | \Tau     | Υ   | \Upsilon |
+| Υ   | \Ypsilon | Φ   | \Phi        | Χ   | \Chi     | Ψ   | \Psi     |
+| Ω   | \Omega   |
 
-####  Arrows
+#### Arrows
 
-|   |                     |   |                    |   |                      |   |                     |
-| - | ------------------- | - | ------------------ | - | -------------------- | - | ------------------- |
-| ← | \leftarrow          | → | \rightarrow        | → | \to                  | ↔ | \leftrightarrow     |
-| ⇐ | \Leftarrow          | ⇒ | \Rightarrow        | ⇔ | \Leftrightarrow      | ↦ | \mapsto             |
-| ↩ | \hookleftarrow      | ↼ | \leftharpoonup     | ↽ | \leftharpoondown     | ↪ | \hookrightarrow     |
-| ⇀ | \rightharpoonup     | ⇁ | \rightharpoondown  | ← | \longleftarrow       | → | \longrightarrow     |
-| ↔ | \longleftrightarrow | ⇐ | \Longleftarrow     | ⇒ | \Longrightarrow      | ⇔ | \Longleftrightarrow |
-| ⇖ | \longmapsto         | ↑ | \uparrow           | ↓ | \downarrow           | ↕ | \updownarrow        |
-| ⇑ | \Uparrow            | ⇓ | \Downarrow         | ⇕ | \Updownarrow         | ↗ | \nearrow            |
-| ↘ | \searrow            | ↙ | \swarrow           | ↖ | \nwarrow             | ↝ | \leadsto            |
-| ⇠ | \dashleftarrow      | ⇇ | \leftleftarrows    | ⇆ | \leftrightarrows     | ⇚ | \Lleftarrow         |
-| ↞ | \twoheadleftarrow   | ↢ | \leftarrowtail     | ⇋ | \leftrightharpoons   | ↰ | \Lsh                |
-| ↫ | \looparrowleft      | ↶ | \curvearrowleft    | ↺ | \circlearrowleft     | ⇢ | \dashrightarrow     |
-| ⇉ | \rightrightarrows   | ⇄ | \rightleftarrows   | ⇛ | \Rrightarrow         | ↠ | \twoheadrightarrow  |
-| ↣ | \rightarrowtail     | ⇌ | \rightleftharpoons | ↱ | \Rsh                 | ↬ | \looparrowright     |
-| ↷ | \curvearrowright    | ↻ | \circlearrowright  | ⊸ | \multimap            | ⇈ | \upuparrows         |
-| ⇊ | \downdownarrows     | ↿ | \upharpoonleft     | ↾ | \upharpoonright      | ⇃ | \downharpoonleft    |
-| ⇂ | \downharpoonright   | ⇝ | \rightsquigarrow   | ↭ | \leftrightsquigarrow | ← | \leftarrow          |
-| ↑ | \uparrow            | → | \rightarrow        | ↓ | \downarrow           | ↔ | \leftrightarrow     |
-| ↕ | \updownarrow        | ↖ | \nwarrow           | ↗ | \nearrow             | ↘ | \searrow            |
-| ↙ | \snarrow            | ⇐ | \Leftarrow         | ⇑ | \Uparrow             | ⇒ | \Rightarrow         |
-| ⇓ | \Downarrow          | ⇔ | \Leftrightarrow    | ⇕ | \Updownarrow         | ⇖ | \Nwarrow            |
-| ⇗ | \Nearrow            | ⇘ | \Searrow           | ⇙ | \Snarrow             |
+|     |                     |     |                    |     |                      |     |                     |
+| --- | ------------------- | --- | ------------------ | --- | -------------------- | --- | ------------------- |
+| ←   | \leftarrow          | →   | \rightarrow        | →   | \to                  | ↔   | \leftrightarrow     |
+| ⇐   | \Leftarrow          | ⇒   | \Rightarrow        | ⇔   | \Leftrightarrow      | ↦   | \mapsto             |
+| ↩   | \hookleftarrow      | ↼   | \leftharpoonup     | ↽   | \leftharpoondown     | ↪   | \hookrightarrow     |
+| ⇀   | \rightharpoonup     | ⇁   | \rightharpoondown  | ←   | \longleftarrow       | →   | \longrightarrow     |
+| ↔   | \longleftrightarrow | ⇐   | \Longleftarrow     | ⇒   | \Longrightarrow      | ⇔   | \Longleftrightarrow |
+| ⇖   | \longmapsto         | ↑   | \uparrow           | ↓   | \downarrow           | ↕   | \updownarrow        |
+| ⇑   | \Uparrow            | ⇓   | \Downarrow         | ⇕   | \Updownarrow         | ↗   | \nearrow            |
+| ↘   | \searrow            | ↙   | \swarrow           | ↖   | \nwarrow             | ↝   | \leadsto            |
+| ⇠   | \dashleftarrow      | ⇇   | \leftleftarrows    | ⇆   | \leftrightarrows     | ⇚   | \Lleftarrow         |
+| ↞   | \twoheadleftarrow   | ↢   | \leftarrowtail     | ⇋   | \leftrightharpoons   | ↰   | \Lsh                |
+| ↫   | \looparrowleft      | ↶   | \curvearrowleft    | ↺   | \circlearrowleft     | ⇢   | \dashrightarrow     |
+| ⇉   | \rightrightarrows   | ⇄   | \rightleftarrows   | ⇛   | \Rrightarrow         | ↠   | \twoheadrightarrow  |
+| ↣   | \rightarrowtail     | ⇌   | \rightleftharpoons | ↱   | \Rsh                 | ↬   | \looparrowright     |
+| ↷   | \curvearrowright    | ↻   | \circlearrowright  | ⊸   | \multimap            | ⇈   | \upuparrows         |
+| ⇊   | \downdownarrows     | ↿   | \upharpoonleft     | ↾   | \upharpoonright      | ⇃   | \downharpoonleft    |
+| ⇂   | \downharpoonright   | ⇝   | \rightsquigarrow   | ↭   | \leftrightsquigarrow | ←   | \leftarrow          |
+| ↑   | \uparrow            | →   | \rightarrow        | ↓   | \downarrow           | ↔   | \leftrightarrow     |
+| ↕   | \updownarrow        | ↖   | \nwarrow           | ↗   | \nearrow             | ↘   | \searrow            |
+| ↙   | \snarrow            | ⇐   | \Leftarrow         | ⇑   | \Uparrow             | ⇒   | \Rightarrow         |
+| ⇓   | \Downarrow          | ⇔   | \Leftrightarrow    | ⇕   | \Updownarrow         | ⇖   | \Nwarrow            |
+| ⇗   | \Nearrow            | ⇘   | \Searrow           | ⇙   | \Snarrow             |
 
-####  Math characters
+#### Math characters
 
-|   |                     |   |                |   |                   |   |                    |
-| - | ------------------- | - | -------------- | - | ----------------- | - | ------------------ |
-| ≤ | \leq                | ≪ | \ll            | ≺ | \prec             | ≼ | \preceq            |
-| ⊂ | \subset             | ⊆ | \subseteq      | ⊏ | \sqsubset         | ⊑ | \sqsubseteq        |
-| ∈ | \in                 | ⊢ | \vdash         | ∣ | \mid              | ⌣ | \smile             |
-| ≥ | \geq                | ≫ | \gg            | ≻ | \succ             | ≽ | \succeq            |
-| ⊃ | \supset             | ⊇ | \supseteq      | ⊐ | \sqsupset         | ⊒ | \sqsupseteq        |
-| ∋ | \ni                 | ⊣ | \dashv         | ∥ | \parallel         | ⌢ | \frown             |
-| ∉ | \notin              | ≡ | \equiv         | ≐ | \doteq            | ∼ | \sim               |
-| ≃ | \simeq              | ≈ | \approx        | ≅ | \cong             | ⋈ | \Join              |
-| ⋈ | \bowtie             | ∝ | \propto        | ⊨ | \models           | ⊥ | \perp              |
-| ≍ | \asymp              | ≠ | \neq           | ± | \pm               | × | \times             |
-| ∪ | \cup                | ⊔ | \sqcup         | ∨ | \vee              | ⊕ | \oplus             |
-| ⊙ | \odot               | ⊗ | \otimes        | △ | \bigtriangleup    | ⊲ | \lhd               |
-| ⊴ | \unlhd              | ∓ | \mp            | ÷ | \div              | ∖ | \setminus          |
-| ∩ | \cap                | ⊓ | \sqcap         | ∧ | \wedge            | ⊖ | \ominus            |
-| ⊘ | \oslash             | ○ | \bigcirc       | ▽ | \bigtriangledown  | ⊳ | \rhd               |
-| ⊵ | \unrhd              | ◁ | \triangleleft  | ▷ | \triangleright    | ⋆ | \star              |
-| ∗ | \ast                | ∘ | \circ          | ∙ | \bullet           | ⋄ | \diamond           |
-| ⊎ | \uplus              | † | \dagger        | ‡ | \ddagger          | ≀ | \wr                |
-| ∑ | \sum                | ∏ | \prod          | ∐ | \coprod           | ∨ | \int               |
-| ⋃ | \bigcup             | ⋂ | \bigcap        | ⊔ | \bigsqcup         | ∮ | \oint              |
-| ⋁ | \bigvee             | ⋀ | \bigwedge      | ⊕ | \bigoplus         | ⊗ | \bigotimes         |
-| ⊙ | \bigodot            | ⊎ | \biguplus      | … | \dots             | ⋯ | \cdots             |
-| ⋮ | \vdots              | ⋱ | \ddots         | ℏ | \hbar             | ℓ | \ell               |
-| ℜ | \Re                 | ℑ | \Im            | א | \aleph            | ℘ | \wp                |
-| ∀ | \forall             | ∃ | \exists        | ℧ | \mho              | ∂ | \partial           |
-| ′ | \prime              | ∅ | \emptyset      | ∞ | \infty            | ∇ | \nabla             |
-| △ | \triangle           | □ | \Box           | ◇ | \Diamond          | ⊥ | \bot               |
-| ⊤ | \top                | ∠ | \angle         | √ | \surd             | ♢ | \diamondsuit       |
-| ♡ | \heartsuit          | ♣ | \clubsuit      | ♠ | \spadesuit        | ¬ | \neg               |
-| ♭ | \flat               | ♮ | \natural       | ♯ | \sharp            | Ϝ | \digamma           |
-| ϰ | \varkappa           | ב | \beth          | ד | \daleth           | ג | \gimel             |
-| ⋖ | \lessdot            | ≤ | \leqslant      | ≦ | \leqq             | ⋘ | \lll               |
-| ≲ | \lesssim            | ≶ | \lessgtr       | ⋚ | \lesseqgtr        | ≼ | \preccurlyeq       |
-| ⋞ | \curlyeqprec        | ≾ | \precsim       | ⋐ | \Subset           | ⊏ | \sqsubset          |
-| ∴ | \therefore          | ⌣ | \smallsmile    | ⊲ | \vartriangleleft  | ⊴ | \trianglelefteq    |
-| ⋗ | \gtrdot             | ≧ | \geqq          | ⋙ | \ggg              | ≳ | \gtrsim            |
-| ≷ | \gtrless            | ⋛ | \gtreqless     | ≽ | \succcurlyeq      | ⋟ | \curlyeqsucc       |
-| ≿ | \succsim            | ⋑ | \Supset        | ⊐ | \sqsupset         | ∵ | \because           |
-| ∥ | \shortparallel      | ⌢ | \smallfrown    | ⊳ | \vartriangleright | ⊵ | \trianglerighteq   |
-| ≑ | \doteqdot           | ≓ | \risingdotseq  | ≒ | \fallingdotseq    | ≖ | \eqcirc            |
-| ≗ | \circeq             | ≜ | \triangleq     | ≏ | \bumpeq           | ≎ | \Bumpeq            |
-| ∼ | \thicksim           | ≈ | \thickapprox   | ≊ | \approxeq         | ∽ | \backsim           |
-| ⊨ | \vDash              | ⊩ | \Vdash         | ⊪ | \Vvdash           | ∍ | \backepsilon       |
-| ∝ | \varpropto          | ≬ | \between       | ⋔ | \pitchfork        | ◀ | \blacktriangleleft |
-| ▷ | \blacktriangleright | ∔ | \dotplus       | ⋉ | \ltimes           | ⋓ | \Cup               |
-| ⊻ | \veebar             | ⊞ | \boxplus       | ⊠ | \boxtimes         | ⋋ | \leftthreetimes    |
-| ⋎ | \curlyvee           | ⋅ | \centerdot     | ⋈ | \rtimes           | ⋒ | \Cap               |
-| ⊼ | \barwedge           | ⊟ | \boxminus      | ⊡ | \boxdot           | ⋌ | \rightthreetimes   |
-| ⋏ | \curlywedge         | ⊺ | \intercal      | ⋇ | \divideontimes    | ∖ | \smallsetminus     |
-| ⊝ | \circleddash        | ⊚ | \circledcirc   | ⊛ | \circledast       | ℏ | \hbar              |
-| ℏ | \hslash             | □ | \square        | ■ | \blacksquare      | Ⓢ | \circledS          |
-| △ | \vartriangle        | ▲ | \blacktriangle | ∁ | \complement       | ▽ | \triangledown      |
-| ▼ | \blacktriangledown  | ◊ | \lozenge       | ◆ | \blacklozenge     | ★ | \bigstar           |
-| ∠ | \angle              | ∡ | \measuredangle | ∢ | \sphericalangle   | ‵ | \backprime         |
-| ∄ | \nexists            | Ⅎ | \Finv          | ∅ | \varnothing       | ð | \eth               |
-| ℧ | \mho                | &#x7c; | \vert          | ‖ | \Vert             | ℂ | \C                 |
-| ℇ | \vareps             | ℍ | \H             | ℑ | \Im               | ℓ | \ell               |
-| ℕ | \N                  | ℙ | \P             | ℚ | \Q                | ℜ | \Re                |
-| ℝ | \R                  | ℤ | \Z             | ± | \pm               | ∓ | \mp                |
-| ★ | \star               | ∗ | \ast           | • | \bullet           | · | \centerdot         |
-| ℵ | \aleph              | ∈ | \in            | ∉ | \not\in           | ∋ | \ni                |
-| ∌ | \not\ni             | ∖ | \backslash     | ∖ | \setminus         | ∕ | \slash             |
-| ∀ | \forall             | ╳ | \times         | ∩ | \cap              | ∪ | \cup               |
-| ⋅ | \cdot               | ∞ | \infty         | ⇒ | \implies          | ⋮ | \vdots             |
-| ⋱ | \ddots              | ⋯ | \cdots         | … | \ldots            |
+|     |                     |        |                |     |                   |     |                    |
+| --- | ------------------- | ------ | -------------- | --- | ----------------- | --- | ------------------ |
+| ≤   | \leq                | ≪      | \ll            | ≺   | \prec             | ≼   | \preceq            |
+| ⊂   | \subset             | ⊆      | \subseteq      | ⊏   | \sqsubset         | ⊑   | \sqsubseteq        |
+| ∈   | \in                 | ⊢      | \vdash         | ∣   | \mid              | ⌣   | \smile             |
+| ≥   | \geq                | ≫      | \gg            | ≻   | \succ             | ≽   | \succeq            |
+| ⊃   | \supset             | ⊇      | \supseteq      | ⊐   | \sqsupset         | ⊒   | \sqsupseteq        |
+| ∋   | \ni                 | ⊣      | \dashv         | ∥   | \parallel         | ⌢   | \frown             |
+| ∉   | \notin              | ≡      | \equiv         | ≐   | \doteq            | ∼   | \sim               |
+| ≃   | \simeq              | ≈      | \approx        | ≅   | \cong             | ⋈   | \Join              |
+| ⋈   | \bowtie             | ∝      | \propto        | ⊨   | \models           | ⊥   | \perp              |
+| ≍   | \asymp              | ≠      | \neq           | ±   | \pm               | ×   | \times             |
+| ∪   | \cup                | ⊔      | \sqcup         | ∨   | \vee              | ⊕   | \oplus             |
+| ⊙   | \odot               | ⊗      | \otimes        | △   | \bigtriangleup    | ⊲   | \lhd               |
+| ⊴   | \unlhd              | ∓      | \mp            | ÷   | \div              | ∖   | \setminus          |
+| ∩   | \cap                | ⊓      | \sqcap         | ∧   | \wedge            | ⊖   | \ominus            |
+| ⊘   | \oslash             | ○      | \bigcirc       | ▽   | \bigtriangledown  | ⊳   | \rhd               |
+| ⊵   | \unrhd              | ◁      | \triangleleft  | ▷   | \triangleright    | ⋆   | \star              |
+| ∗   | \ast                | ∘      | \circ          | ∙   | \bullet           | ⋄   | \diamond           |
+| ⊎   | \uplus              | †      | \dagger        | ‡   | \ddagger          | ≀   | \wr                |
+| ∑   | \sum                | ∏      | \prod          | ∐   | \coprod           | ∨   | \int               |
+| ⋃   | \bigcup             | ⋂      | \bigcap        | ⊔   | \bigsqcup         | ∮   | \oint              |
+| ⋁   | \bigvee             | ⋀      | \bigwedge      | ⊕   | \bigoplus         | ⊗   | \bigotimes         |
+| ⊙   | \bigodot            | ⊎      | \biguplus      | …   | \dots             | ⋯   | \cdots             |
+| ⋮   | \vdots              | ⋱      | \ddots         | ℏ   | \hbar             | ℓ   | \ell               |
+| ℜ   | \Re                 | ℑ      | \Im            | א   | \aleph            | ℘   | \wp                |
+| ∀   | \forall             | ∃      | \exists        | ℧   | \mho              | ∂   | \partial           |
+| ′   | \prime              | ∅      | \emptyset      | ∞   | \infty            | ∇   | \nabla             |
+| △   | \triangle           | □      | \Box           | ◇   | \Diamond          | ⊥   | \bot               |
+| ⊤   | \top                | ∠      | \angle         | √   | \surd             | ♢   | \diamondsuit       |
+| ♡   | \heartsuit          | ♣      | \clubsuit      | ♠   | \spadesuit        | ¬   | \neg               |
+| ♭   | \flat               | ♮      | \natural       | ♯   | \sharp            | Ϝ   | \digamma           |
+| ϰ   | \varkappa           | ב      | \beth          | ד   | \daleth           | ג   | \gimel             |
+| ⋖   | \lessdot            | ≤      | \leqslant      | ≦   | \leqq             | ⋘   | \lll               |
+| ≲   | \lesssim            | ≶      | \lessgtr       | ⋚   | \lesseqgtr        | ≼   | \preccurlyeq       |
+| ⋞   | \curlyeqprec        | ≾      | \precsim       | ⋐   | \Subset           | ⊏   | \sqsubset          |
+| ∴   | \therefore          | ⌣      | \smallsmile    | ⊲   | \vartriangleleft  | ⊴   | \trianglelefteq    |
+| ⋗   | \gtrdot             | ≧      | \geqq          | ⋙   | \ggg              | ≳   | \gtrsim            |
+| ≷   | \gtrless            | ⋛      | \gtreqless     | ≽   | \succcurlyeq      | ⋟   | \curlyeqsucc       |
+| ≿   | \succsim            | ⋑      | \Supset        | ⊐   | \sqsupset         | ∵   | \because           |
+| ∥   | \shortparallel      | ⌢      | \smallfrown    | ⊳   | \vartriangleright | ⊵   | \trianglerighteq   |
+| ≑   | \doteqdot           | ≓      | \risingdotseq  | ≒   | \fallingdotseq    | ≖   | \eqcirc            |
+| ≗   | \circeq             | ≜      | \triangleq     | ≏   | \bumpeq           | ≎   | \Bumpeq            |
+| ∼   | \thicksim           | ≈      | \thickapprox   | ≊   | \approxeq         | ∽   | \backsim           |
+| ⊨   | \vDash              | ⊩      | \Vdash         | ⊪   | \Vvdash           | ∍   | \backepsilon       |
+| ∝   | \varpropto          | ≬      | \between       | ⋔   | \pitchfork        | ◀   | \blacktriangleleft |
+| ▷   | \blacktriangleright | ∔      | \dotplus       | ⋉   | \ltimes           | ⋓   | \Cup               |
+| ⊻   | \veebar             | ⊞      | \boxplus       | ⊠   | \boxtimes         | ⋋   | \leftthreetimes    |
+| ⋎   | \curlyvee           | ⋅      | \centerdot     | ⋈   | \rtimes           | ⋒   | \Cap               |
+| ⊼   | \barwedge           | ⊟      | \boxminus      | ⊡   | \boxdot           | ⋌   | \rightthreetimes   |
+| ⋏   | \curlywedge         | ⊺      | \intercal      | ⋇   | \divideontimes    | ∖   | \smallsetminus     |
+| ⊝   | \circleddash        | ⊚      | \circledcirc   | ⊛   | \circledast       | ℏ   | \hbar              |
+| ℏ   | \hslash             | □      | \square        | ■   | \blacksquare      | Ⓢ   | \circledS          |
+| △   | \vartriangle        | ▲      | \blacktriangle | ∁   | \complement       | ▽   | \triangledown      |
+| ▼   | \blacktriangledown  | ◊      | \lozenge       | ◆   | \blacklozenge     | ★   | \bigstar           |
+| ∠   | \angle              | ∡      | \measuredangle | ∢   | \sphericalangle   | ‵   | \backprime         |
+| ∄   | \nexists            | Ⅎ      | \Finv          | ∅   | \varnothing       | ð   | \eth               |
+| ℧   | \mho                | &#x7c; | \vert          | ‖   | \Vert             | ℂ   | \C                 |
+| ℇ   | \vareps             | ℍ      | \H             | ℑ   | \Im               | ℓ   | \ell               |
+| ℕ   | \N                  | ℙ      | \P             | ℚ   | \Q                | ℜ   | \Re                |
+| ℝ   | \R                  | ℤ      | \Z             | ±   | \pm               | ∓   | \mp                |
+| ★   | \star               | ∗      | \ast           | •   | \bullet           | ·   | \centerdot         |
+| ℵ   | \aleph              | ∈      | \in            | ∉   | \not\in           | ∋   | \ni                |
+| ∌   | \not\ni             | ∖      | \backslash     | ∖   | \setminus         | ∕   | \slash             |
+| ∀   | \forall             | ╳      | \times         | ∩   | \cap              | ∪   | \cup               |
+| ⋅   | \cdot               | ∞      | \infty         | ⇒   | \implies          | ⋮   | \vdots             |
+| ⋱   | \ddots              | ⋯      | \cdots         | …   | \ldots            |
 
-####  Unicode
+#### Unicode
 
 In the rare case that a certain character is not provided by the standard TeX commands there is also a way to include a unicode character in a TeX formula.
 This can be done by using one of the two TeX statements `\unicode{…}` or `\unicodex{…}`.

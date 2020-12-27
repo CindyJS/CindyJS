@@ -1,135 +1,118 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csmove" type="text/x-cindyscript">
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="../build/js/CindyJS.css">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csmove" type="text/x-cindyscript">
+            if(mover() == B,
+              if(B.y < -2, B.y = -2);
+            );
 
-if(mover() == B,
-  if(B.y < -2, B.y = -2);
-);
+            if(mover() == C,
+              if(C.y < -2, C.y = -3; err(Q3.x); continue from here(); C.y = -2);
+            );
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 400,
+                        height: 250,
+                        transform: [{ visibleRect: [-3, 4, 13, -6] }],
+                        axes: false,
+                        grid: 1.0,
+                        snap: true,
+                    },
+                ],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                },
+                geometry: [
+                    { name: "h", type: "HorizontalLine", pos: [0, 1, 0] },
 
-if(mover() == C,
-  if(C.y < -2, C.y = -3; err(Q3.x); continue from here(); C.y = -2);
-);
+                    { name: "P1", type: "PointOnLine", args: ["h"], pos: [0, 0], visible: false },
+                    { name: "v1", type: "Perp", args: ["h", "P1"], visible: false },
+                    { name: "A", type: "Free", pos: [0, -1], labeled: true },
+                    { name: "C1", type: "CircleByRadius", radius: 2.0, args: ["A"], pinned: true },
+                    { name: "Pts1", type: "IntersectionConicLine", args: ["C1", "h"] },
+                    { name: "Q1", type: "SelectP", pos: [2, 0], args: ["Pts1"] },
 
-</script>
-<script type="text/javascript">
+                    { name: "P2", type: "PointOnLine", args: ["h"], pos: [5, 0], visible: false },
+                    { name: "v2", type: "Perp", args: ["h", "P2"], visible: false },
+                    { name: "B", type: "PointOnLine", args: ["v2"], pos: [0, -1], labeled: true },
+                    { name: "C2", type: "CircleByRadius", radius: 2.0, args: ["B"], pinned: true },
+                    { name: "Pts2", type: "IntersectionConicLine", args: ["C2", "h"] },
+                    { name: "Q2", type: "SelectP", pos: [7, 0], args: ["Pts2"] },
 
-var cdy = CindyJS({
-  ports: [{
-    id: "CSCanvas",
-    width: 400,
-    height: 250,
-    transform: [{visibleRect: [-3, 4, 13, -6]}],
-    axes: false,
-    grid: 1.0,
-    snap: true
-  }],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-    dimDependent: 0.7,
-  },
-  geometry: [
-    {name: "h", type: "HorizontalLine", pos: [0,1,0]},
+                    { name: "P3", type: "PointOnLine", args: ["h"], pos: [10, 0], visible: false },
+                    { name: "v3", type: "Perp", args: ["h", "P3"], visible: false },
+                    { name: "C", type: "PointOnLine", args: ["v3"], pos: [0, -1], labeled: true },
+                    { name: "C3", type: "CircleByRadius", radius: 2.0, args: ["C"], pinned: true },
+                    { name: "Pts3", type: "IntersectionConicLine", args: ["C3", "h"] },
+                    { name: "Q3", type: "SelectP", pos: [12, 0], args: ["Pts3"] },
+                ],
+                tracingStateReport: "tracingStateReport",
+            });
+        </script>
+    </head>
 
-    {name: "P1", type: "PointOnLine", args: ["h"], pos: [0,0], visible: false},
-    {name: "v1", type: "Perp", args: ["h", "P1"], visible: false},
-    {name: "A", type: "Free", pos: [0,-1], labeled: true},
-    {name: "C1", type: "CircleByRadius", radius: 2.0, args: ["A"], pinned: true},
-    {name: "Pts1", type: "IntersectionConicLine", args: ["C1", "h"]},
-    {name: "Q1", type: "SelectP", pos: [2,0], args: ["Pts1"]},
-    
-    {name: "P2", type: "PointOnLine", args: ["h"], pos: [5,0], visible: false},
-    {name: "v2", type: "Perp", args: ["h", "P2"], visible: false},
-    {name: "B", type: "PointOnLine", args: ["v2"], pos: [0,-1], labeled: true},
-    {name: "C2", type: "CircleByRadius", radius: 2.0, args: ["B"], pinned: true},
-    {name: "Pts2", type: "IntersectionConicLine", args: ["C2", "h"]},
-    {name: "Q2", type: "SelectP", pos: [7,0], args: ["Pts2"]},
-
-    {name: "P3", type: "PointOnLine", args: ["h"], pos: [10,0], visible: false},
-    {name: "v3", type: "Perp", args: ["h", "P3"], visible: false},
-    {name: "C", type: "PointOnLine", args: ["v3"], pos: [0,-1], labeled: true},
-    {name: "C3", type: "CircleByRadius", radius: 2.0, args: ["C"], pinned: true},
-    {name: "Pts3", type: "IntersectionConicLine", args: ["C3", "h"]},
-    {name: "Q3", type: "SelectP", pos: [12,0], args: ["Pts3"]}
-  ],
-  tracingStateReport: "tracingStateReport"
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="border:2px solid black"></div>
-  <p>Tracing state: <span id="tracingStateReport"></span></p>
-  <p>
-    This demo relies on the fact that currently free points snap to
-    grid, but points on lines do not. This allows observing snapping
-    and non-snapping behavior in a single widget.
-  </p>
-  <p>Things to check:</p>
-  <ol>
-    <li>
-      <p>
-        Moving <em>A</em> down so that the circle no longer intersects
-        the line, and then back up so that it intersects the line
-        again, the point of intersection switches between left and
-        right half of the circle. This demonstrates the basic
-        operation of tracing.
-      </p>
-    </li>
-    <li>
-      <p>
-        Moving <em>A</em> to the tangential situation should snap to
-        that position thanks to the snap to grid feature. Releasing
-        the mouse there and then pressing it again to move the point
-        back should leave the point on the same half of the circle
-        where it was before, as tracing continues from a position
-        before the tangential one even if the mouse was released in
-        between.
-      </p>
-    </li>
-    <li>
-      <p>
-        Conversely, releasing <em>A</em> in the tangential situation
-        and then dragging the point further down before going up again
-        will cause the point to change sides. One may release the
-        point again in the singular situation while going back,
-        without affecting the outcome. Note that the mouse has to move
-        down far enough to actually move <em>A</em> away from the
-        snapped singular situation.
-      </p>
-    </li>
-    <li>
-      <p>
-        As <em>B</em> is restricted to a line, it currently does not
-        snap to the grid. Moving the point down to the singular
-        situation, the script will restrict its movement. As the mouse
-        movement and the script are taken together, the last
-        non-singular position has to be one where <em>B</em> is
-        located further up. Since tracing continues from that, it will
-        preserve the side of the point of intersection.
-      </p>
-    </li>
-    <li>
-      <p>
-        Moving <em>C</em> is similar to moving <em>B</em>. But instead
-        of just restricting the movement, the script for <em>C</em>
-        deliberately moves the point a good deal into the complex
-        situation, and explicitely requests that the next tracing
-        operation starts from that situation. As a consequence, moving
-        the point to the tangential situation and back up again should
-        cause the point of intersection to always switch sides.  The
-        complex situation used as a checkpoint will get printed to the
-        web console.
-      </p>
-    </li>
-  </ol>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+        <p>Tracing state: <span id="tracingStateReport"></span></p>
+        <p>
+            This demo relies on the fact that currently free points snap to grid, but points on lines do not. This
+            allows observing snapping and non-snapping behavior in a single widget.
+        </p>
+        <p>Things to check:</p>
+        <ol>
+            <li>
+                <p>
+                    Moving <em>A</em> down so that the circle no longer intersects the line, and then back up so that it
+                    intersects the line again, the point of intersection switches between left and right half of the
+                    circle. This demonstrates the basic operation of tracing.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Moving <em>A</em> to the tangential situation should snap to that position thanks to the snap to
+                    grid feature. Releasing the mouse there and then pressing it again to move the point back should
+                    leave the point on the same half of the circle where it was before, as tracing continues from a
+                    position before the tangential one even if the mouse was released in between.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Conversely, releasing <em>A</em> in the tangential situation and then dragging the point further
+                    down before going up again will cause the point to change sides. One may release the point again in
+                    the singular situation while going back, without affecting the outcome. Note that the mouse has to
+                    move down far enough to actually move <em>A</em> away from the snapped singular situation.
+                </p>
+            </li>
+            <li>
+                <p>
+                    As <em>B</em> is restricted to a line, it currently does not snap to the grid. Moving the point down
+                    to the singular situation, the script will restrict its movement. As the mouse movement and the
+                    script are taken together, the last non-singular position has to be one where <em>B</em> is located
+                    further up. Since tracing continues from that, it will preserve the side of the point of
+                    intersection.
+                </p>
+            </li>
+            <li>
+                <p>
+                    Moving <em>C</em> is similar to moving <em>B</em>. But instead of just restricting the movement, the
+                    script for <em>C</em>
+                    deliberately moves the point a good deal into the complex situation, and explicitely requests that
+                    the next tracing operation starts from that situation. As a consequence, moving the point to the
+                    tangential situation and back up again should cause the point of intersection to always switch
+                    sides. The complex situation used as a checkpoint will get printed to the web console.
+                </p>
+            </li>
+        </ol>
+    </body>
 </html>

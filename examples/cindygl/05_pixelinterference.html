@@ -1,50 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Moiré pattern</h1>
-    
-    
-    <script id="csmove" type="text/x-cindyscript">
-      t = seconds()-t0;
-      l = exp(4+im(complex(mouse())));
-      x = exp(re(complex(mouse())));
-      colorplot([-l,-l],[l,-l], "plot", .5+.5*sin((x*(#*#)))); 
-      drawimage([0,0], "plot");
-    </script>
-               
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-      t0 = seconds();
-      createimage("plot",500,500);
-    </script>
-    
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
-    <div  id="CSCanvas"></div>
-    
-    <script type="text/javascript">
-        
-        var gslp=[
-                  ];
-        CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:gslp,
-                    animation: {autoplay: true},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 500,
-                      height: 500,
-                      transform: [ { visibleRect: [-1,-1,1,1] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+    <body style="font-family: Arial">
+        <h1>CindyJS: Moiré pattern</h1>
+
+        <script id="csmove" type="text/x-cindyscript">
+            t = seconds()-t0;
+            l = exp(4+im(complex(mouse())));
+            x = exp(re(complex(mouse())));
+            colorplot([-l,-l],[l,-l], "plot", .5+.5*sin((x*(#*#))));
+            drawimage([0,0], "plot");
+        </script>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            t0 = seconds();
+            createimage("plot",500,500);
+        </script>
+
+        <div id="CSCanvas"></div>
+
+        <script type="text/javascript">
+            var gslp = [];
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: gslp,
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 500,
+                        height: 500,
+                        transform: [{ visibleRect: [-1, -1, 1, 1] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

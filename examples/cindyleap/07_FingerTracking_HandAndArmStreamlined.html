@@ -1,106 +1,104 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>WebGL testing</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyLeap.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("Cindy3D");
+            use("CindyLeap");
+            initleapmotion(translationfactor->2);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            begin3d();
+            background3d([0,0,0]);
+            hands = getleaphandsdata();
+            //leapdebugprinthands(); // Print raw data on console
 
-<head>
-<title>WebGL testing</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
-<script type="text/javascript" src="../../build/js/CindyLeap.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-    use("Cindy3D");
-    use("CindyLeap");
-    initleapmotion(translationfactor->2);
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-    begin3d();
-    background3d([0,0,0]);
-    hands = getleaphandsdata();
-    //leapdebugprinthands(); // Print raw data on console
+            /**
+             * Further reading material on the use of the hand tracking data:
+             * https://developer-archive.leapmotion.com/documentation/javascript/devguide/Leap_Overview.html
+             * https://developer-archive.leapmotion.com/documentation/v2/javascript/api/Leap.Finger.html
+             */
 
-    /**
-     * Further reading material on the use of the hand tracking data:
-     * https://developer-archive.leapmotion.com/documentation/javascript/devguide/Leap_Overview.html
-     * https://developer-archive.leapmotion.com/documentation/v2/javascript/api/Leap.Finger.html
-     */
+            // i is the index of the hand (used for coloring).
+            drawbone(prevJoint, nextJoint, i) := (
+                // Color each hand with a different color.
+                size3d(1.0);
+                color3d(hue((i-1)/length(hands)));
+                draw3d(prevJoint, nextJoint);
 
-    // i is the index of the hand (used for coloring).
-    drawbone(prevJoint, nextJoint, i) := (
-        // Color each hand with a different color.
-        size3d(1.0);
-        color3d(hue((i-1)/length(hands)));
-        draw3d(prevJoint, nextJoint);
+                // Draw joints with white spheres.
+                size3d(1.2);
+                color3d((1,1,1));
+                draw3d(prevJoint);
+                draw3d(nextJoint);
+            );
 
-        // Draw joints with white spheres.
-        size3d(1.2);
-        color3d((1,1,1));
-        draw3d(prevJoint);
-        draw3d(nextJoint);
-    );
+            repeat(length(hands), i,
+                // Draw individual finger bones.
+                hand = hands_i;
+                fingers = hand.fingers;
+                repeat(length(fingers), j,
+                    finger = fingers_j;
+                    bones = finger.bones;
+                    repeat(length(bones), k,
+                        bone = bones_k;
+                        if (bone.type != 0,
+                            prevJoint = leapnormalizeposition(bone.prevJoint);
+                            nextJoint = leapnormalizeposition(bone.nextJoint);
+                            drawbone(prevJoint, nextJoint, i);
+                        );
+                    );
+                );
 
-    repeat(length(hands), i,
-        // Draw individual finger bones.
-        hand = hands_i;
-        fingers = hand.fingers;
-        repeat(length(fingers), j,
-            finger = fingers_j;
-            bones = finger.bones;
-            repeat(length(bones), k,
-                bone = bones_k;
-                if (bone.type != 0,
-                    prevJoint = leapnormalizeposition(bone.prevJoint);
-                    nextJoint = leapnormalizeposition(bone.nextJoint);
+                // Draw the arm.
+                arm = hand.arm;
+                armHalfWidth = 0.3 * arm.width;
+                armBasis = arm.basis;
+                armRightVector = armBasis_1;
+                prevJoint = arm.prevJoint;
+                nextJoint = arm.nextJoint;
+                prevJointLeft = leapnormalizeposition(prevJoint - armHalfWidth * armRightVector);
+                prevJointRight = leapnormalizeposition(prevJoint + armHalfWidth * armRightVector);
+                nextJointLeft = leapnormalizeposition(nextJoint - armHalfWidth * armRightVector);
+                nextJointRight = leapnormalizeposition(nextJoint + armHalfWidth * armRightVector);
+
+                thumbCarpPosition = leapnormalizeposition(hand.thumb.carpPosition);
+                pinkyCarpPosition = leapnormalizeposition(hand.pinky.carpPosition);
+                drawbone(thumbCarpPosition, pinkyCarpPosition, i);
+                drawbone(prevJointLeft, prevJointRight, i);
+                drawbone(thumbCarpPosition, prevJointLeft, i);
+                drawbone(pinkyCarpPosition, prevJointRight, i);
+
+                // Draw main body of the hand.
+                numFingers = length(fingers);
+                repeat(length(fingers)-1, j,
+                    prevFinger = fingers_j;
+                    nextFinger = fingers_(j+1);
+                    bones = finger.bones;
+                    prevJoint = leapnormalizeposition(prevFinger.mcpPosition);
+                    nextJoint = leapnormalizeposition(nextFinger.mcpPosition);
                     drawbone(prevJoint, nextJoint, i);
                 );
+
+                lastFinger = fingers_(length(fingers));
+                prevJoint = leapnormalizeposition(lastFinger.mcpPosition);
+                nextJoint = leapnormalizeposition(lastFinger.carpPosition);
+                drawbone(prevJoint, nextJoint, i);
             );
-        );
 
-        // Draw the arm.
-        arm = hand.arm;
-        armHalfWidth = 0.3 * arm.width;
-        armBasis = arm.basis;
-        armRightVector = armBasis_1;
-        prevJoint = arm.prevJoint;
-        nextJoint = arm.nextJoint;
-        prevJointLeft = leapnormalizeposition(prevJoint - armHalfWidth * armRightVector);
-        prevJointRight = leapnormalizeposition(prevJoint + armHalfWidth * armRightVector);
-        nextJointLeft = leapnormalizeposition(nextJoint - armHalfWidth * armRightVector);
-        nextJointRight = leapnormalizeposition(nextJoint + armHalfWidth * armRightVector);
+            end3d()
+        </script>
+        <script type="text/javascript">
+            CindyJS({ canvasname: "CSCanvas", scripts: "cs*" });
+        </script>
+    </head>
 
-        thumbCarpPosition = leapnormalizeposition(hand.thumb.carpPosition);
-        pinkyCarpPosition = leapnormalizeposition(hand.pinky.carpPosition);
-        drawbone(thumbCarpPosition, pinkyCarpPosition, i);
-        drawbone(prevJointLeft, prevJointRight, i);
-        drawbone(thumbCarpPosition, prevJointLeft, i);
-        drawbone(pinkyCarpPosition, prevJointRight, i);
-
-        // Draw main body of the hand.
-        numFingers = length(fingers);
-        repeat(length(fingers)-1, j,
-            prevFinger = fingers_j;
-            nextFinger = fingers_(j+1);
-            bones = finger.bones;
-            prevJoint = leapnormalizeposition(prevFinger.mcpPosition);
-            nextJoint = leapnormalizeposition(nextFinger.mcpPosition);    
-            drawbone(prevJoint, nextJoint, i);
-        );
-
-        lastFinger = fingers_(length(fingers));
-        prevJoint = leapnormalizeposition(lastFinger.mcpPosition);
-        nextJoint = leapnormalizeposition(lastFinger.carpPosition);    
-        drawbone(prevJoint, nextJoint, i);
-    );
-
-    end3d()
-</script>
-<script type="text/javascript">
-    CindyJS({canvasname:"CSCanvas",scripts:"cs*"});
-</script>
-</head>
-
-<body>
-    <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
-    <div id="CSCanvas" style="width:50px; height:50px; border:none"></div>
-</body>
-
+    <body>
+        <canvas id="Cindy3D" style="border: none" width="632" height="452"></canvas>
+        <div id="CSCanvas" style="width: 50px; height: 50px; border: none"></div>
+    </body>
 </html>

@@ -1,33 +1,25 @@
 svg {
-    
     position: absolute;
     top: 100px;
     left: 60px;
     margin: 0;
     padding: 0;
-      
-    
 }
 
 canvas {
-    
     position: absolute;
     top: 100px;
     left: 60px;
     margin: 0;
     padding: 0;
-    border:2px solid #000000;
-    
+    border: 2px solid #000000;
 }
 
-
 div.overlay {
-    
     position: absolute;
     top: 100px;
     left: 60px;
     margin: 0;
     padding: 0;
-    border:2px solid #000000;
-    
+    border: 2px solid #000000;
 }

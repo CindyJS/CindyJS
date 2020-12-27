@@ -1,6 +1,6 @@
-##  Elementary List Operations
+## Elementary List Operations
 
-###  Creating and Accessing Lists
+### Creating and Accessing Lists
 
 #### Creating an integer sequence: `‹int1›..‹int2›`
 
@@ -15,7 +15,7 @@ If `‹int1›` is larger than `‹int2›`, then the empty list is returned.
     > 4..1
     < []
 
-------
+---
 
 #### The length of a list: `length(‹list›)`
 
@@ -43,7 +43,7 @@ Combining the `length` and the `repeat` operator allows one to list all elements
 One word of caution here: CindyScript is designed in such a way that it is seldom useful to traverse all the elements of a list using the `repeat` operator.
 There are more elegant ways.
 
-------
+---
 
 #### Testing for containment: `contains(‹list›,‹expr›)`
 
@@ -67,11 +67,11 @@ This operator returns either `true` or `false` depending on whether `‹list›`
     > 7 ∉ [1,3,4,5]
     < true
 
-------
+---
 
-------
+---
 
-###  List Manipulation
+### List Manipulation
 
 #### Concatenation of lists: `‹list1› ++ ‹list2›`, `‹list1› ∪ ‹list2›` or `concat(‹list1›,‹list2›)`
 
@@ -94,7 +94,7 @@ Strings and `___` auto-coerce to the empty list.
     > concat([1], (;))
     < [1]
 
-------
+---
 
 #### Removing elements from lists: `‹list1› -- ‹list2›`, `‹list1› ∖ ‹list2›` or `remove(‹list1›,‹list2›)`
 
@@ -107,7 +107,7 @@ Note that `∖` is not a plain backslash, but the Unicode symbol ‘set minus’
     > [1,3,4,5,1,5,6]--[1,3,7]
     < [4, 5, 5, 6]
 
-------
+---
 
 #### Intersection of lists: `‹list1› ~~ ‹list2›`, `‹list1› ∩ ‹list2›` or `common(‹list1›,‹list2›)`
 
@@ -120,7 +120,7 @@ In the returned list the elements are sorted and each element occurs at most onc
     > [1,3,4,5,1,5,6]~~[1,3,7]
     < [1, 3]
 
-------
+---
 
 #### Appending an element: `‹list› :> ‹expr›` or `append(‹list›,‹expr›)`
 
@@ -132,7 +132,7 @@ This operator returns a list that is created by appending `‹expr›` to the li
     > ["a", "b", "c"]:>"d"
     < ["a", "b", "c", "d"]
 
-------
+---
 
 #### Prepending an element: `‹expr› <: ‹list›` or `prepend(‹expr›,‹list›)`
 
@@ -144,9 +144,9 @@ This operator returns a list that is created by prepending `‹expr›` to the l
     > "d"<:["a", "b", "c"]
     < ["d", "a", "b", "c"]
 
-------
+---
 
-###  Traversing Lists
+### Traversing Lists
 
 #### The forall loop: `forall(‹list›,‹expr›)`
 
@@ -168,7 +168,7 @@ This code fragment produces the output
     * a
     * list
 
-------
+---
 
 #### The forall loop: `forall(‹list›,‹var›,‹expr›)`
 
@@ -184,7 +184,7 @@ The variable is local to the expression.
     > v
     < 994
 
-------
+---
 
 #### Applying an expression: `apply(‹list›,‹expr›)`
 
@@ -199,7 +199,7 @@ As usual, `#` is the run variable, which successively takes the value of each el
     > apply(1..5, [#,#^2])
     < [[1, 1], [2, 4], [3, 9], [4, 16], [5, 25]]
 
-------
+---
 
 #### Applying an expression: `apply(‹list›,‹var›,‹expr›)`
 
@@ -213,7 +213,7 @@ The variable is local to the expression.
     > v
     < 995
 
-------
+---
 
 #### Selecting elements of a list: `select(‹list›,‹boolexpr›)`
 
@@ -242,7 +242,7 @@ In this example, first a function `divisors(x)` is defined by selecting those nu
 Then a function `primes(n)` is defined that selects all numbers between `1` and `n` that have exactly two divisors.
 These numbers are the primes.
 
-------
+---
 
 #### Selecting elements of a list: `select(‹list›,‹var›,‹boolexpr›)`
 

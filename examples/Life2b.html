@@ -1,83 +1,83 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Game of Life</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            n=75;
 
-<head>
-<title>Game of Life</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-n=75;
+            // rotate matrix in all four possible directions
+            rotd(m) := m_n <: m_(1..(n-1));
+            rotu(m) := m_(2..n) :> m_1;
+            rotr(m) := apply(m, rotd(#));
+            rotl(m) := apply(m, rotu(#));
 
-// rotate matrix in all four possible directions
-rotd(m) := m_n <: m_(1..(n-1));
-rotu(m) := m_(2..n) :> m_1;
-rotr(m) := apply(m, rotd(#));
-rotl(m) := apply(m, rotu(#));
+            compneigh():=(
+              neighlr = rotl(m) + rotr(m);
+              neighlrm = neighlr + m;
+              neigh = rotu(neighlrm) + rotd(neighlrm) + neighlr;
+            );
 
-compneigh():=(
-  neighlr = rotl(m) + rotr(m);
-  neighlrm = neighlr + m;
-  neigh = rotu(neighlrm) + rotd(neighlrm) + neighlr;
-);
+            drawm():=(
+               repeat(n,i,
+                 repeat(n,j,
+                   fillpoly([(i,j),(i+1,j),(i+1,j+1),(i,j+1)],
+                            color->if(m_i_j==1,hue(neigh_i_j/8)*.6,[1,1,1]));
+                 )
+               )
+            );
 
-drawm():=(
-   repeat(n,i,
-     repeat(n,j,
-       fillpoly([(i,j),(i+1,j),(i+1,j+1),(i,j+1)],
-                color->if(m_i_j==1,hue(neigh_i_j/8)*.6,[1,1,1]));
-     )
-   )
-);
+            next():=(
+              m=apply(1..n,i,apply(1..n,j,
+                nei=neigh_i_j;
+                if(nei == 3 % nei == 3 - m_i_j, 1, 0)
+              ));
+              compneigh();
+            );
 
-next():=(
-  m=apply(1..n,i,apply(1..n,j,
-    nei=neigh_i_j;
-    if(nei == 3 % nei == 3 - m_i_j, 1, 0)
-  ));
-  compneigh();
-);
+            reset() := (
+              m=zeromatrix(n,n);
+              repeat(n,i,
+                repeat(n,j,
+                  m_i_j=round(random());
+                );
+              );
+              compneigh();
+            );
 
-reset() := (
-  m=zeromatrix(n,n);
-  repeat(n,i,
-    repeat(n,j,
-      m_i_j=round(random());
-    );
-  );
-  compneigh();
-);
+            reset();
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            drawm();
+        </script>
+        <script id="cstick" type="text/x-cindyscript">
+            next();
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/createCindy documentation for details.
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                transform: [{ scaleAndOrigin: [6, 123, -3] }],
+            });
 
-reset();
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-drawm();
-</script>
-<script id="cstick" type="text/x-cindyscript">
-next();
-</script>
-<script type="text/javascript">
+            // Remove all comments after adjusting this template for your use case.
+        </script>
+    </head>
 
-var cdy = CindyJS({ // See ref/createCindy documentation for details.
-  canvasname: "CSCanvas",
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: { },
-  transform: [{ scaleAndOrigin: [6, 123, -3] }]
-});
-
-// Remove all comments after adjusting this template for your use case.
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:705px; height:507px; border:2px solid black; background-color:rgb(168,176,192)"></div>
-  <p>
-    <button onclick="cdy.play()" type="button">Play</button>
-    <button onclick="cdy.stop()" type="button">Stop</button>
-    <button onclick="cdy.stop();cdy.evokeCS('reset()')" type="button">Reset</button>
-    <button onclick="cdy.evokeCS('next()')" type="button">Step</button>
-  </p>
-</body>
-
+    <body style="font-family: Arial">
+        <div
+            id="CSCanvas"
+            style="width: 705px; height: 507px; border: 2px solid black; background-color: rgb(168, 176, 192)"
+        ></div>
+        <p>
+            <button onclick="cdy.play()" type="button">Play</button>
+            <button onclick="cdy.stop()" type="button">Stop</button>
+            <button onclick="cdy.stop();cdy.evokeCS('reset()')" type="button">Reset</button>
+            <button onclick="cdy.evokeCS('next()')" type="button">Step</button>
+        </p>
+    </body>
 </html>

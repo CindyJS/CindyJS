@@ -1,5 +1,5 @@
-CindyJS.registerPlugin(1, "QuickHull3D", function(api) {
-    api.defineFunction("convexhull3d", 1, function(args) {
+CindyJS.registerPlugin(1, "QuickHull3D", function (api) {
+    api.defineFunction("convexhull3d", 1, function (args) {
         var pointsList = api.evaluateAndVal(args[0]);
         var length = pointsList.value.length;
         var points = [];
@@ -8,9 +8,7 @@ CindyJS.registerPlugin(1, "QuickHull3D", function(api) {
         for (var i = 0; i < length; i++) {
             coordinates = pointsList.value[i].value;
 
-            points.push(new Vector(coordinates[0].value.real,
-                                   coordinates[1].value.real,
-                                   coordinates[2].value.real));
+            points.push(new Vector(coordinates[0].value.real, coordinates[1].value.real, coordinates[2].value.real));
         }
 
         hull = new QuickHull3D();
@@ -18,17 +16,17 @@ CindyJS.registerPlugin(1, "QuickHull3D", function(api) {
 
         var vertices = {
             ctype: "list",
-            value: hull.getVertices()
+            value: hull.getVertices(),
         };
 
         var faces = {
             ctype: "list",
-            value: hull.getFaces()
+            value: hull.getFaces(),
         };
 
         return {
             ctype: "list",
-            value: [vertices, faces]
+            value: [vertices, faces],
         };
     });
 });

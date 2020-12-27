@@ -1,109 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Mandelbrot Fractal</h1>
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-      
-      f(z, c) := z*z+c;
-      
-      iter(z, c) := (
-        regional(z0, z1, l0, l1, alpha, dz, timetoescape);
-        
-        timetoescape = 0;
-        
-        z0 = z;
-        l0 = abs(z0);
-        
-        dz = 1;
-        repeat(43,
-          if(l0<=4,
-            z1 = f(z0, c);
-            l1 = abs(z1);
-            
-            timetoescape = timetoescape + if(l1 <= 4,
-              dz = 2 * dz * z0;
-              1,
-              
-              alpha = re(log(4/l0))/re(log(l1/l0)); //continious escape time
-              dz = 2 * dz * conjugate(z0-(1-alpha)*c);
-              alpha
-            ); 
-            
-            z0 = z1;
-            l0 = l1;
-            
-            dz = dz/abs(dz);
-          )
-        );
-        
-       
-        mv = complex(fj*mouse().homog)-z;
-        mv = mv/abs(mv);
-        light = re(dz/mv);
-        if(timetoescape >= 43,
-          hue(im(log(z0))/(2*pi))+gray(.1-.1*light),
-          gray(.7-.7*timetoescape/43-.3*light)
-        )
-      );
-      createimage("mandel", 1024, 1024);
-      createimage("julia",  1024, 1024);
-    </script>
-    <script id="csdraw" type="text/x-cindyscript">
-      fm = map(m0, m1, A, B);
-      fj = map(j0, j1, [-1.5,-1.5],[1.5,-1.5]);
-      
-      c =  complex(fm*C.homog);
-      z0 = complex(fj*Z0.homog);
-           
-      Z0.color = iter(z0, c);
-      C.color  = iter(z0, c);
-      
-      colorplot(A, B,                  "mandel", iter(z0, complex(#)));
-      colorplot([-1.5,-1.5],[1.5,-1.5],"julia",  iter(complex(#), c));
-      
-      drawimage(m0, m1, "mandel");
-      drawimage(j0, j1, "julia");
-    </script>
-    <div  id="CSCanvas"></div>
-    
-    <script type="text/javascript">
-        
-        var gslp=[
-                  {name:"A", kind:"P", type:"Free", pos:[-2,-1.5]},
-                  {name:"B", kind:"P", type:"Free", pos:[.8,-1.5]},
-                  
-                  {name: "m0", kind: "P", type:"Free", pos:[-2.5,-2.5], visible:false, pinned:true},
-                  {name: "m1", kind: "P", type:"Free", pos:[2.5,-2.5], visible:false, pinned:true},
-                  
-                  {name: "j0", kind: "P", type:"Free", pos:[2.5,-2.5], visible:false, pinned:true},
-                  {name: "j1", kind: "P", type:"Free", pos:[7.5,-2.5], visible:false, pinned:true},
-                    
-                    
-                  {name:"C", kind:"P", type:"Free", pos:[.75,1.5]},
-                  {name:"Z0", kind:"P", type:"Free", pos:[5., 0.01]}
-                  ];
-                  
-        CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:gslp,
-                    animation: {autoplay: true},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 1024,
-                      height: 512,
-                      transform: [ { visibleRect: [ -2.5, -2.5, 7.5, 2.5 ] } ]
-                    }]
-                    });
-    </script>              
-	</body>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: Mandelbrot Fractal</h1>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            f(z, c) := z*z+c;
+
+            iter(z, c) := (
+              regional(z0, z1, l0, l1, alpha, dz, timetoescape);
+
+              timetoescape = 0;
+
+              z0 = z;
+              l0 = abs(z0);
+
+              dz = 1;
+              repeat(43,
+                if(l0<=4,
+                  z1 = f(z0, c);
+                  l1 = abs(z1);
+
+                  timetoescape = timetoescape + if(l1 <= 4,
+                    dz = 2 * dz * z0;
+                    1,
+
+                    alpha = re(log(4/l0))/re(log(l1/l0)); //continious escape time
+                    dz = 2 * dz * conjugate(z0-(1-alpha)*c);
+                    alpha
+                  );
+
+                  z0 = z1;
+                  l0 = l1;
+
+                  dz = dz/abs(dz);
+                )
+              );
+
+
+              mv = complex(fj*mouse().homog)-z;
+              mv = mv/abs(mv);
+              light = re(dz/mv);
+              if(timetoescape >= 43,
+                hue(im(log(z0))/(2*pi))+gray(.1-.1*light),
+                gray(.7-.7*timetoescape/43-.3*light)
+              )
+            );
+            createimage("mandel", 1024, 1024);
+            createimage("julia",  1024, 1024);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            fm = map(m0, m1, A, B);
+            fj = map(j0, j1, [-1.5,-1.5],[1.5,-1.5]);
+
+            c =  complex(fm*C.homog);
+            z0 = complex(fj*Z0.homog);
+
+            Z0.color = iter(z0, c);
+            C.color  = iter(z0, c);
+
+            colorplot(A, B,                  "mandel", iter(z0, complex(#)));
+            colorplot([-1.5,-1.5],[1.5,-1.5],"julia",  iter(complex(#), c));
+
+            drawimage(m0, m1, "mandel");
+            drawimage(j0, j1, "julia");
+        </script>
+        <div id="CSCanvas"></div>
+
+        <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [-2, -1.5] },
+                { name: "B", kind: "P", type: "Free", pos: [0.8, -1.5] },
+
+                { name: "m0", kind: "P", type: "Free", pos: [-2.5, -2.5], visible: false, pinned: true },
+                { name: "m1", kind: "P", type: "Free", pos: [2.5, -2.5], visible: false, pinned: true },
+
+                { name: "j0", kind: "P", type: "Free", pos: [2.5, -2.5], visible: false, pinned: true },
+                { name: "j1", kind: "P", type: "Free", pos: [7.5, -2.5], visible: false, pinned: true },
+
+                { name: "C", kind: "P", type: "Free", pos: [0.75, 1.5] },
+                { name: "Z0", kind: "P", type: "Free", pos: [5, 0.01] },
+            ];
+
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: gslp,
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 1024,
+                        height: 512,
+                        transform: [{ visibleRect: [-2.5, -2.5, 7.5, 2.5] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

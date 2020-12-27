@@ -4,8 +4,8 @@
  * @arg fileContent {string} The content of the file (a string).
  */
 function downloadTextFile(filename, fileContent) {
-	let blob = new Blob([fileContent], { type : "text/plain;charset=utf-8" });
-	downloadBlobAsFile(blob);
+    let blob = new Blob([fileContent], { type: "text/plain;charset=utf-8" });
+    downloadBlobAsFile(blob);
 }
 
 /**
@@ -14,9 +14,9 @@ function downloadTextFile(filename, fileContent) {
  * @arg fileContent {Blob} The content of the file (a string).
  */
 function downloadBlobAsFile(filename, blob) {
-	var linkElement = document.createElement('a');
-	document.body.appendChild(linkElement);
-	linkElement.download = filename;
-	linkElement.href = URL.createObjectURL(blob);
-	linkElement.click();
+    var linkElement = document.createElement("a");
+    document.body.appendChild(linkElement);
+    linkElement.download = filename;
+    linkElement.href = URL.createObjectURL(blob);
+    linkElement.click();
 }

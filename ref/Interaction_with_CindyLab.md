@@ -1,4 +1,4 @@
-##  Interaction with CindyLab
+## Interaction with CindyLab
 
 #### The simulation environment: `simulation()`
 
@@ -17,7 +17,7 @@ The simulation environment offers several fields than can be used to access its 
 | `potential` | no        | real | total potential energy of the simulation |
 | `pe`        | no        | real | total potential energy of the simulation |
 
-------
+---
 
 #### Applying a force: `addforce(‹mass›,‹vec›)`
 
@@ -28,7 +28,7 @@ Applying a force `‹vec›` to an existing mass `‹mass›`.
 This operator is useful to implement user defined force fields.
 It should be called in the `Integration Tick` slot.
 
-------
+---
 
 #### Applying a force: `setforce(‹mass›,‹vec›)`
 
@@ -39,7 +39,7 @@ Setting the force `‹vec›` for an existing mass `‹mass›`.
 This operator is very useful to implement user defined force fields.
 It should be called in the `Integration Tick` slot.
 
-------
+---
 
 #### Probing particle forces: `force(‹vector›)`
 

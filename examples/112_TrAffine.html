@@ -1,67 +1,241 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>TrAffine.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>TrAffine.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
-draw(P1,P1i,arrow->true,color->(1,1,1));
-draw(P2,P2i,arrow->true,color->(1,1,1));
-draw(P3,P3i,arrow->true,color->(1,1,1));
-draw(O,X,arrow->true,color->(0,0,1));
-draw(Oi,Xi,arrow->true,color->(0,0,1));
-draw(O,Y,arrow->true,color->(1,0,0));
-draw(Oi,Yi,arrow->true,color->(1,0,0));
-draw(O,Z,arrow->true,color->(0,1,0));
-draw(Oi,Zi,arrow->true,color->(0,1,0));
-</script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            draw(P1,P1i,arrow->true,color->(1,1,1));
+            draw(P2,P2i,arrow->true,color->(1,1,1));
+            draw(P3,P3i,arrow->true,color->(1,1,1));
+            draw(O,X,arrow->true,color->(0,0,1));
+            draw(Oi,Xi,arrow->true,color->(0,0,1));
+            draw(O,Y,arrow->true,color->(1,0,0));
+            draw(Oi,Yi,arrow->true,color->(1,0,0));
+            draw(O,Z,arrow->true,color->(0,1,0));
+            draw(Oi,Zi,arrow->true,color->(0,1,0));
+        </script>
 
-    <script type="text/javascript">
-CindyJS({ 
-	scripts: "cs*", 
-	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
-	angleUnit: "°", 
-	geometry: [ 
-		{ name: "P1", type: "Free", pos: [ 2.6666666666666665, -4.0, -0.6666666666666666 ], color: [ 0.0, 0.0, 0.0 ], labeled: true, size: 3.0 }, 
-		{ name: "P1i", type: "Free", pos: [ 1.1428571428571428, -4.0, -0.5714285714285714 ], color: [ 0.5019608, 0.5019608, 0.5019608 ], labeled: true, size: 3.0, printname: "P1'" }, 
-		{ name: "P2", type: "Free", pos: [ 4.0, -4.0, -1.3333333333333333 ], color: [ 0.0, 0.0, 0.0 ], labeled: true, size: 3.0 }, 
-		{ name: "P2i", type: "Free", pos: [ 4.0, -3.9259259259259256, -1.8518518518518519 ], color: [ 0.5019608, 0.5019608, 0.5019608 ], labeled: true, size: 3.0, printname: "P2'" }, 
-		{ name: "P3", type: "Free", pos: [ 4.0, -0.0, -1.0 ], color: [ 0.0, 0.0, 0.0 ], labeled: true, size: 3.0 }, 
-		{ name: "P3i", type: "Free", pos: [ -2.0, -4.0, 2.0 ], color: [ 0.5019608, 0.5019608, 0.5019608 ], labeled: true, size: 3.0, printname: "P3'" }, 
-		{ name: "O", type: "Free", pos: [ 4.0, -1.7142857142857142, -0.5714285714285714 ], color: [ 1.0, 1.0, 1.0 ], labeled: true }, 
-		{ name: "C0", type: "CircleByRadius", color: [ 1.0, 1.0, 0.0 ], radius: 2.0, args: [ "O" ], printname: "$C_{0}$" }, 
-		{ name: "X", type: "PointOnCircle", pos: [ 4.0, { r: -2.4, i: 6.449488866799083E-16 }, { r: -0.8000000000000005, i: -1.79712374970661E-31 } ], color: [ 0.0, 0.0, 1.0 ], args: [ "C0" ], labeled: true, size: 3.0 }, 
-		{ name: "", type: "OtherPointOnCircle", pos: [ 4.0, { r: -1.333333333333333, i: -1.9501869715807923E-16 }, { r: -0.4444444444444442, i: 4.492809374266526E-31 } ], color: [ 1.0, 1.0, 1.0 ], args: [ "X" ], visible: false, pinned: true, size: 3.0 }, 
-		{ name: "Y", type: "PointOnCircle", pos: [ 4.0, { r: -2.8571428571428577, i: 7.822008722662917E-17 }, { r: -0.5714285714285715, i: 1.5644017445325842E-17 } ], color: [ 1.0, 0.0, 0.0 ], args: [ "C0" ], labeled: true, size: 3.0 }, 
-		{ name: "Z", type: "PointOnCircle", pos: [ 4.0, { r: -3.1610328190409316, i: -8.432598723717983E-19 }, { r: -0.7161032819040934, i: 7.197673232141904E-19 } ], color: [ 0.0, 1.0, 0.0 ], args: [ "C0" ], labeled: true, size: 3.0 }, 
-		{ name: "Tr0", type: "TrAffine", color: [ 0.0, 0.0, 1.0 ], args: [ "P1", "P1i", "P2", "P2i", "P3", "P3i" ] }, 
-		{ name: "Oi", type: "Transform", pos: [ -0.5274725274725197, -4.0, -1.0989010989011 ], color: [ 1.0, 1.0, 1.0 ], args: [ "Tr0", "O" ], labeled: true, printname: "O'" }, 
-		{ name: "Xi", type: "Transform", pos: [ { r: 1.1666666666666727, i: 3.0325287640476423E-16 }, -4.0, { r: -1.3888888888888913, i: -5.831786084706943E-16 } ], color: [ 0.0, 0.0, 1.0 ], args: [ "Tr0", "X" ], labeled: true, size: 3.0, printname: "X'" }, 
-		{ name: "Yi", type: "Transform", pos: [ { r: -0.08835341365461424, i: -7.522490546202963E-17 }, -4.0, { r: -0.6024096385542179, i: 6.606809878791476E-18 } ], color: [ 1.0, 0.0, 0.0 ], args: [ "Tr0", "Y" ], labeled: true, size: 3.0, printname: "Y'" }, 
-		{ name: "Zi", type: "Transform", pos: [ { r: 0.5276369610767364, i: -3.1869234535253807E-18 }, -4.0, { r: -0.7657086288329126, i: 1.5471261603978542E-18 } ], color: [ 0.0, 1.0, 0.0 ], args: [ "Tr0", "Z" ], labeled: true, size: 3.0, printname: "Z'" }, 
-		{ name: "C1", type: "Transform", color: [ 1.0, 1.0, 0.0 ], args: [ "Tr0", "C0" ], printname: "$C_{1}$" } ], 
-	ports: [ 
-		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.66 ] } ], background: "rgb(168,176,192)" } ], 
-	cinderella: { build: 1798, version: [ 2, 9, 1798 ] } });
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "P1",
+                        type: "Free",
+                        pos: [2.6666666666666665, -4.0, -0.6666666666666666],
+                        color: [0.0, 0.0, 0.0],
+                        labeled: true,
+                        size: 3.0,
+                    },
+                    {
+                        name: "P1i",
+                        type: "Free",
+                        pos: [1.1428571428571428, -4.0, -0.5714285714285714],
+                        color: [0.5019608, 0.5019608, 0.5019608],
+                        labeled: true,
+                        size: 3.0,
+                        printname: "P1'",
+                    },
+                    {
+                        name: "P2",
+                        type: "Free",
+                        pos: [4.0, -4.0, -1.3333333333333333],
+                        color: [0.0, 0.0, 0.0],
+                        labeled: true,
+                        size: 3.0,
+                    },
+                    {
+                        name: "P2i",
+                        type: "Free",
+                        pos: [4.0, -3.9259259259259256, -1.8518518518518519],
+                        color: [0.5019608, 0.5019608, 0.5019608],
+                        labeled: true,
+                        size: 3.0,
+                        printname: "P2'",
+                    },
+                    {
+                        name: "P3",
+                        type: "Free",
+                        pos: [4.0, -0.0, -1.0],
+                        color: [0.0, 0.0, 0.0],
+                        labeled: true,
+                        size: 3.0,
+                    },
+                    {
+                        name: "P3i",
+                        type: "Free",
+                        pos: [-2.0, -4.0, 2.0],
+                        color: [0.5019608, 0.5019608, 0.5019608],
+                        labeled: true,
+                        size: 3.0,
+                        printname: "P3'",
+                    },
+                    {
+                        name: "O",
+                        type: "Free",
+                        pos: [4.0, -1.7142857142857142, -0.5714285714285714],
+                        color: [1.0, 1.0, 1.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C0",
+                        type: "CircleByRadius",
+                        color: [1.0, 1.0, 0.0],
+                        radius: 2.0,
+                        args: ["O"],
+                        printname: "$C_{0}$",
+                    },
+                    {
+                        name: "X",
+                        type: "PointOnCircle",
+                        pos: [
+                            4.0,
+                            { r: -2.4, i: 6.449488866799083e-16 },
+                            { r: -0.8000000000000005, i: -1.79712374970661e-31 },
+                        ],
+                        color: [0.0, 0.0, 1.0],
+                        args: ["C0"],
+                        labeled: true,
+                        size: 3.0,
+                    },
+                    {
+                        name: "",
+                        type: "OtherPointOnCircle",
+                        pos: [
+                            4.0,
+                            { r: -1.333333333333333, i: -1.9501869715807923e-16 },
+                            { r: -0.4444444444444442, i: 4.492809374266526e-31 },
+                        ],
+                        color: [1.0, 1.0, 1.0],
+                        args: ["X"],
+                        visible: false,
+                        pinned: true,
+                        size: 3.0,
+                    },
+                    {
+                        name: "Y",
+                        type: "PointOnCircle",
+                        pos: [
+                            4.0,
+                            { r: -2.8571428571428577, i: 7.822008722662917e-17 },
+                            { r: -0.5714285714285715, i: 1.5644017445325842e-17 },
+                        ],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["C0"],
+                        labeled: true,
+                        size: 3.0,
+                    },
+                    {
+                        name: "Z",
+                        type: "PointOnCircle",
+                        pos: [
+                            4.0,
+                            { r: -3.1610328190409316, i: -8.432598723717983e-19 },
+                            { r: -0.7161032819040934, i: 7.197673232141904e-19 },
+                        ],
+                        color: [0.0, 1.0, 0.0],
+                        args: ["C0"],
+                        labeled: true,
+                        size: 3.0,
+                    },
+                    {
+                        name: "Tr0",
+                        type: "TrAffine",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["P1", "P1i", "P2", "P2i", "P3", "P3i"],
+                    },
+                    {
+                        name: "Oi",
+                        type: "Transform",
+                        pos: [-0.5274725274725197, -4.0, -1.0989010989011],
+                        color: [1.0, 1.0, 1.0],
+                        args: ["Tr0", "O"],
+                        labeled: true,
+                        printname: "O'",
+                    },
+                    {
+                        name: "Xi",
+                        type: "Transform",
+                        pos: [
+                            { r: 1.1666666666666727, i: 3.0325287640476423e-16 },
+                            -4.0,
+                            { r: -1.3888888888888913, i: -5.831786084706943e-16 },
+                        ],
+                        color: [0.0, 0.0, 1.0],
+                        args: ["Tr0", "X"],
+                        labeled: true,
+                        size: 3.0,
+                        printname: "X'",
+                    },
+                    {
+                        name: "Yi",
+                        type: "Transform",
+                        pos: [
+                            { r: -0.08835341365461424, i: -7.522490546202963e-17 },
+                            -4.0,
+                            { r: -0.6024096385542179, i: 6.606809878791476e-18 },
+                        ],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["Tr0", "Y"],
+                        labeled: true,
+                        size: 3.0,
+                        printname: "Y'",
+                    },
+                    {
+                        name: "Zi",
+                        type: "Transform",
+                        pos: [
+                            { r: 0.5276369610767364, i: -3.1869234535253807e-18 },
+                            -4.0,
+                            { r: -0.7657086288329126, i: 1.5471261603978542e-18 },
+                        ],
+                        color: [0.0, 1.0, 0.0],
+                        args: ["Tr0", "Z"],
+                        labeled: true,
+                        size: 3.0,
+                        printname: "Z'",
+                    },
+                    {
+                        name: "C1",
+                        type: "Transform",
+                        color: [1.0, 1.0, 0.0],
+                        args: ["Tr0", "C0"],
+                        printname: "$C_{1}$",
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 350,
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.14, -4.66] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1798, version: [2, 9, 1798] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

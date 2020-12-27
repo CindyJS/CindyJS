@@ -1,11 +1,11 @@
-##  Entering CindyScript Code
+## Entering CindyScript Code
 
-###  The CindyScript Editor
+### The CindyScript Editor
 
-To enter CindyScript one can use the editor that is available from the menu *Scripting/Edit Scripts*.
+To enter CindyScript one can use the editor that is available from the menu _Scripting/Edit Scripts_.
 Here we explain briefly how to use the editor.
 
-####  The Input Window
+#### The Input Window
 
 ![The Script Editor](img/ScriptEditor.png)
 
@@ -14,7 +14,7 @@ On the left you see a an overview over all occasions (see below) and the associa
 On the right you see, below a panel that features a start, stop and help button as well as a field to enter script names, a large text area which is used to edit (i.e.
 type) scripts, and a smaller text area that shows any output from the scripts.
 
-####  Occasions
+#### Occasions
 
 Cinderella is highly interactive, and that is the reason for many “occasions” that are suited for triggering the execution of CindyScript commands.
 On the left side of the script editor you see the available occasions.
@@ -36,7 +36,7 @@ In the view you will notice a diagonal of green points that were created by the 
 
 You find an overview over all occasions in [the introduction to CindyScript](CSFundamentals.md).
 
-###  The Shell
+### The Shell
 
 You can also enter CindyScript commands and have them executed immediately.
 Just choose the “Shell” item from the left panel, and type the commands into the text area on the right.
@@ -45,7 +45,7 @@ You can use shift-up and shift-down to scroll through a history of commands ente
 
 ![Image](img/ScriptEditor-shell.png)
 
-###  The Command Line
+### The Command Line
 
 Sometimes it is very convenient to manipulate constructions using CindyScript commands.
 You can either do this using the shell window as described above, or, for short commands, you can use the command line integrated into the construction view.
@@ -70,7 +70,7 @@ Checking the Script Editor reveals the automatically generated draw occasion scr
 
 ![The automatically generated command line script](img/CommandLineScript.png)
 
-###  CindyScript and the Inspector
+### CindyScript and the Inspector
 
 Many text input fields of the Inspector window accept CindyScript code as input.
 The script will only be evaluated once – if you want to make permanent changes you have to use either the command line or the draw occasion in the Script Editor.
@@ -78,15 +78,15 @@ After pressing enter, you can still see your CindyScript code, but if the input 
 
 ![Image](img/CindyScriptInspector.png)
 
-###  Clickable Buttons
+### Clickable Buttons
 
 Text objects can be transformed into a clickable button by checking the **Use as button** box in the inspector.
 You can attach CindyScript code to the button that will be executed every time the user clicks on it.
-As the field for script code is very small we recommend to just call functions defined in the *init* script of the construction.
+As the field for script code is very small we recommend to just call functions defined in the _init_ script of the construction.
 
 ![Image](img/Clickable-Button.png)
 
-###  Other Languages
+### Other Languages
 
 You can choose the programming language used to interpret a script using the choice box in the top panel.
 Available languages are CindyScript, Python, JRuby and CDY, the internal language that is used to store constructions.

@@ -1,72 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: HiDPI-Test</h1>
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-      
-      createimage("256", 256, 256);
-      createimage("128", 128, 128);
-      createimage("64", 64, 64);
-    </script>
-    <script id="csdraw" type="text/x-cindyscript">
-     L = [0, 0];
-     R = [128, 0];
-     
-     plot(p) := (
-      if(p.y>100, random(),
-      d = abs(p - (64, 64));
-      if(d<20, 1, 
-        if(d<30, 0,
-          floor(sin(.01*(p.x*p.x+p.y*p.y))+1)
-        )
-      )
-     ));
-     
-     colorplot(L, R, "256", plot(#));
-     colorplot(L, R, "128", plot(#));
-     colorplot(L, R, "64", plot(#));
-     
-     colorplot(plot(#)); //This is supposed to be printed in factual screen resolution
-     drawimage([128,0], [256, 0], "256");
-     drawimage([256,0], [384, 0], "128");
-     drawimage([384,0], [512, 0], "64");
-     
-     drawtext([0,100],"colorplot()", color->red(.9));
-     drawtext([128,100],"256x256", color->red(.9));
-     drawtext([256,100],"128x128", color->red(.9));
-     drawtext([386,100],"64x64", color->red(.9));
-    </script>
-    
-    The two leftimages should have a resolution higher than 128x128 on HiDPI-displays.
-    <div  id="CSCanvas" style="position:relative; top:0px;"></div>
-    
-    <script type="text/javascript">
-        var gslp=[];
-        cdy = CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    animation: {autoplay: true},
-                    geometry: gslp,
-                    images: {image: "image.png"},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 512,
-                      height: 128,
-                      transform: [ { visibleRect: [0, 0, 512, 128] } ]
-                    }]
-                    }
-        );
-    </script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
+    <body style="font-family: Arial">
+        <h1>CindyJS: HiDPI-Test</h1>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
 
-	</body>
+            createimage("256", 256, 256);
+            createimage("128", 128, 128);
+            createimage("64", 64, 64);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            L = [0, 0];
+            R = [128, 0];
+
+            plot(p) := (
+             if(p.y>100, random(),
+             d = abs(p - (64, 64));
+             if(d<20, 1,
+               if(d<30, 0,
+                 floor(sin(.01*(p.x*p.x+p.y*p.y))+1)
+               )
+             )
+            ));
+
+            colorplot(L, R, "256", plot(#));
+            colorplot(L, R, "128", plot(#));
+            colorplot(L, R, "64", plot(#));
+
+            colorplot(plot(#)); //This is supposed to be printed in factual screen resolution
+            drawimage([128,0], [256, 0], "256");
+            drawimage([256,0], [384, 0], "128");
+            drawimage([384,0], [512, 0], "64");
+
+            drawtext([0,100],"colorplot()", color->red(.9));
+            drawtext([128,100],"256x256", color->red(.9));
+            drawtext([256,100],"128x128", color->red(.9));
+            drawtext([386,100],"64x64", color->red(.9));
+        </script>
+
+        The two leftimages should have a resolution higher than 128x128 on HiDPI-displays.
+        <div id="CSCanvas" style="position: relative; top: 0px"></div>
+
+        <script type="text/javascript">
+            var gslp = [];
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                geometry: gslp,
+                images: { image: "image.png" },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 128,
+                        transform: [{ visibleRect: [0, 0, 512, 128] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

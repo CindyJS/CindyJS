@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
-makepluginfromcscode({
-    'init': `
+makepluginfromcscode(
+    {
+        init: `
     visiblerectactive = false;
     startvisiblerect() := (
       if(!visiblerectactive,
@@ -42,7 +43,7 @@ makepluginfromcscode({
       );
     );
     `,
-    'move': `
+        move: `
     if(visiblerectactive,
       if(mover()==TL,
         TR.y = TL.y;
@@ -70,7 +71,7 @@ makepluginfromcscode({
       
     );
   `,
-    'draw': `
+        draw: `
     if(visiblerectactive,
       draw(TL,BL,color->[1,1,1], size->3);
       draw(BL,BR,color->[1,1,1], size->3);
@@ -79,16 +80,16 @@ makepluginfromcscode({
       drawtext([min(BL.x,TR.x),min(BL.y,TR.y)], [min(BL.x,TR.x),min(BL.y,TR.y)], align->"right");
       drawtext([max(BL.x,TR.x),max(BL.y,TR.y)], [max(BL.x,TR.x),max(BL.y,TR.y)]);
     );
-  `
-  },
-  "visiblerect"
+  `,
+    },
+    "visiblerect"
 );
 
 var Configuration = {
-  visibleRect: null,
-  id: "configuration",
-  name: "General configuration",
-  html: `
+    visibleRect: null,
+    id: "configuration",
+    name: "General configuration",
+    html: `
   <div id="configuration-window">
     <div id="configuration-window-header">Configuration</div>
     <div>
@@ -112,78 +113,85 @@ var Configuration = {
     </div>
   </div>
   `,
-  init: function() {
-    var resolutionelement = document.getElementById('configuration-resolution');
-    document.getElementById('configuration-fullscreen').onchange = function() {
-      if (!this.checked) {
-        resolutionelement.style.display = "block";
-        //cdy.evokeCS(`startvisiblerect()`);
-      } else {
-        resolutionelement.style.display = "none";
-        //cdy.evokeCS(`stopvisiblerect()`);
-      }
-    };
+    init: function () {
+        var resolutionelement = document.getElementById("configuration-resolution");
+        document.getElementById("configuration-fullscreen").onchange = function () {
+            if (!this.checked) {
+                resolutionelement.style.display = "block";
+                //cdy.evokeCS(`startvisiblerect()`);
+            } else {
+                resolutionelement.style.display = "none";
+                //cdy.evokeCS(`stopvisiblerect()`);
+            }
+        };
 
-    document.getElementById('configuration-fullscreen').onchange();
+        document.getElementById("configuration-fullscreen").onchange();
 
-    document.getElementById('configuration-change-size-button').onclick = function() {
-      cdy.evokeCS(`stopvisiblerect()`);
-      configuration.geometry = cdy.saveState().geometry; //copy gslp
-      if (document.getElementById('configuration-fullscreen').checked) {
-        configuration.fullscreenmode = true;
-        if (configuration.ports && configuration.ports[0]) {
-          delete configuration.ports[0].width;
-          delete configuration.ports[0].height;
+        document.getElementById("configuration-change-size-button").onclick = function () {
+            cdy.evokeCS(`stopvisiblerect()`);
+            configuration.geometry = cdy.saveState().geometry; //copy gslp
+            if (document.getElementById("configuration-fullscreen").checked) {
+                configuration.fullscreenmode = true;
+                if (configuration.ports && configuration.ports[0]) {
+                    delete configuration.ports[0].width;
+                    delete configuration.ports[0].height;
+                }
+            } else {
+                configuration.fullscreenmode = false;
+                if (!(configuration.ports && configuration.ports[0])) {
+                    configuration.ports = [
+                        {
+                            id: "CSCanvas",
+                        },
+                    ];
+                }
+                configuration.ports[0].width = document.getElementById("configuration-width").value;
+                configuration.ports[0].height = document.getElementById("configuration-height").value;
+            }
+
+            configuration.ports[0].transform = [
+                {
+                    visibleRect: Configuration.visibleRect,
+                },
+            ];
+            configuration.oninit = function () {
+                UI.entermode("geometry");
+            };
+
+            makeCindyJS();
+        };
+    },
+
+    enter: function () {
+        document.getElementById("configuration-window").style.display = "block";
+        document.getElementById("configuration-fullscreen").checked = configuration.fullscreenmode;
+        document.getElementById("configuration-fullscreen").onchange();
+
+        try {
+            this.visibleRect = configuration.ports[0].transformconfiguration.ports[0].transform[0].visibleRect;
+            if (this.visibleRect) {
+                cdy.evokeCS(
+                    `startvisiblerect(${visibleRect[0]},${visibleRect[1]},${visibleRect[2]},${visibleRect[3]})`
+                );
+            }
+        } catch (error) {
+            cdy.evokeCS(`startvisiblerect()`);
         }
-      } else {
-        configuration.fullscreenmode = false;
-        if (!(configuration.ports && configuration.ports[0])) {
-          configuration.ports = [{
-            id: 'CSCanvas'
-          }];
-        }
-        configuration.ports[0].width = document.getElementById('configuration-width').value;
-        configuration.ports[0].height = document.getElementById('configuration-height').value;
-      }
+    },
 
-      configuration.ports[0].transform = [{
-        visibleRect: Configuration.visibleRect
-      }];
-      configuration.oninit = function() {
-        UI.entermode("geometry");
-      };
+    leave: function () {
+        document.getElementById("configuration-window").style.display = "none";
+        cdy.evokeCS(`stopvisiblerect()`);
+    },
 
-      makeCindyJS();
-    };
-  },
+    updaterect: function (str) {
+        this.visibleRect = JSON.parse(str);
 
-  enter: function() {
-    document.getElementById('configuration-window').style.display = "block";
-    document.getElementById('configuration-fullscreen').checked = configuration.fullscreenmode;
-    document.getElementById('configuration-fullscreen').onchange();
+        let ratio =
+            Math.abs(this.visibleRect[3] - this.visibleRect[1]) / Math.abs(this.visibleRect[2] - this.visibleRect[0]);
 
-    try {
-      this.visibleRect = configuration.ports[0].transformconfiguration.ports[0].transform[0].visibleRect;
-      if (this.visibleRect) {
-        cdy.evokeCS(`startvisiblerect(${visibleRect[0]},${visibleRect[1]},${visibleRect[2]},${visibleRect[3]})`);
-      }
-    } catch (error) {
-      cdy.evokeCS(`startvisiblerect()`);
-    }
-  },
-
-  leave: function() {
-    document.getElementById('configuration-window').style.display = "none";
-    cdy.evokeCS(`stopvisiblerect()`);
-  },
-
-  updaterect: function(str) {
-    this.visibleRect = JSON.parse(str);
-
-    let ratio = Math.abs(this.visibleRect[3] - this.visibleRect[1]) / Math.abs(this.visibleRect[2] - this.visibleRect[0]);
-
-    let width = document.getElementById('configuration-width').value;
-    height = Math.round(width * ratio);
-    document.getElementById('configuration-height').value = height;
-  }
+        let width = document.getElementById("configuration-width").value;
+        height = Math.round(width * ratio);
+        document.getElementById("configuration-height").value = height;
+    },
 };

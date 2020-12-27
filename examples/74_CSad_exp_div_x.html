@@ -1,61 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    </head>
 
-            </head>
+    <body style="font-family: Arial">
+        <h2>CindyJS automatic differentiation</h2>
+        <h3>0.1*|C|*(exp(lam*x)-1)/x</h3>
+        <h4>Order = 4</h4>
 
-	<body style="font-family:Arial;">
+        <script id="csmove" type="text/x-cindyscript">
+            lam = |C|*0.1;
+            f(x):=(exp(lam*x)-1)/x;
 
+            a = -100..250;
+            //a = 0..1;
+            a = a/10;
 
+            order = 4;
+            erg = autodiff(f(x), a, order);
 
-
-    <h2>CindyJS automatic differentiation</h2>
-    <h3>0.1*|C|*(exp(lam*x)-1)/x</h3>
-    <h4>Order = 4</h4>
-
-
-<script id='csmove' type='text/x-cindyscript'>
-lam = |C|*0.1;
-f(x):=(exp(lam*x)-1)/x;
-
-a = -100..250;
-//a = 0..1;
-a = a/10;
-
-order = 4;
-erg = autodiff(f(x), a, order);
-
-repeat(order+1,j,
-repeat(length(a),i,
-//draw([a_i,erg_i_j]);
-draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
-));
-
-
+            repeat(order+1,j,
+            repeat(length(a),i,
+            //draw([a_i,erg_i_j]);
+            draw([[a_i,erg_i_j],[a_(i+1), erg_(i+1)_j]]);
+            ));
         </script>
-        <div  id="CSCanvas" style="width:800px; height:500px; border:2px solid #000000;"></div>
+        <div id="CSCanvas" style="width: 800px; height: 500px; border: 2px solid #000000"></div>
         <script type="text/javascript">
+            var gslp = [{ name: "C", type: "Free", pos: [3, 0], color: [1, 1, 0], size: 5 }];
 
-            var gslp=[
-                      {name:"C", type:"Free", pos:[3,0],color:[1,1,0],size:5},
-                      ];
+            CindyJS({
+                canvasname: "CSCanvas",
+                movescript: "csmove",
+                grid: 1,
+                snap: true,
+                //transform:[{scale:1.},{translate:[0,0]}],
 
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        grid:1,
-                        snap:true,
-                        //transform:[{scale:1.},{translate:[0,0]}],
+                geometry: gslp,
+            });
 
-                        geometry:gslp});
-
-
-                document.onkeydown={}
-
-
-
-            </script>
-	</body>
+            document.onkeydown = {};
+        </script>
+    </body>
 </html>

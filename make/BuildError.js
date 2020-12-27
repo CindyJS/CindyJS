@@ -6,7 +6,7 @@ function BuildError(message) {
     this.message = message;
 }
 
-BuildError.prototype.toString = function() {
+BuildError.prototype.toString = function () {
     return chalk.bold.red(this.message);
 };
 

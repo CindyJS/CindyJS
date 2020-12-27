@@ -1,95 +1,196 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>AssocMult.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>AssocMult.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
-els=allelements()--[H,K,L,p];
-println([H,K,l,p]--[K,p]);
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            els=allelements()--[H,K,L,p];
+            println([H,K,l,p]--[K,p]);
 
-println(sort([p,K,L,H]));
+            println(sort([p,K,L,H]));
 
-n=length(els);
-i=round((n-4)*|H,L|/|H,K|)+5;
-repeat(n,j,
-  (els_j).visible=(j<i)
-);
+            n=length(els);
+            i=round((n-4)*|H,L|/|H,K|)+5;
+            repeat(n,j,
+              (els_j).visible=(j<i)
+            );
 
-;
-</script>
+            ;
+        </script>
 
-    <script type="text/javascript">
-CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "0", type: "Free", pos: [4.0, 0.3308270676691729, -0.7518796992481203], color: [1.0, 1.0, 1.0], labeled: true},
-    {name: "A", type: "Through", pos: [-0.010471204188481673, -4.0, -1.8157068062827226], color: [0.0, 0.0, 0.0], args: ["0"], labeled: true},
-    {name: "B", type: "Through", pos: [0.8256493702163563, -0.8919423853432169, 4.0], color: [0.0, 0.0, 0.0], args: ["0"]},
-    {name: "1", type: "PointOnLine", pos: [4.0, 0.4938883337103784, -1.1111034802616175], color: [1.0, 1.0, 1.0], args: ["A"], labeled: true},
-    {name: "F", type: "PointOnLine", pos: [4.0, -1.68863406420057, -1.202190444015073], color: [1.0, 0.0, 0.0], args: ["B"]},
-    {name: "C", type: "Join", color: [0.0, 0.0, 1.0], args: ["1", "F"], clip: "inci"},
-    {name: "a", type: "PointOnLine", pos: [4.0, 0.7336583041782608, -1.6393164486510705], color: [0.098, 0.62, 0.306], args: ["A"], labeled: true},
-    {name: "d", type: "Join", color: [0.0, 0.0, 1.0], args: ["F", "a"], clip: "inci"},
-    {name: "b", type: "PointOnLine", pos: [-3.0326101267738594, -1.8077680363173463, 4.0], color: [0.098, 0.62, 0.306], args: ["A"], labeled: true},
-    {name: "e", type: "Parallel", color: [0.757, 0.0, 0.0], args: ["C", "b"], size: 3, clip: "inci"},
-    {name: "D", type: "Meet", color: [1.0, 0.0, 0.0], args: ["B", "e"]},
-    {name: "f", type: "Parallel", color: [0.757, 0.0, 0.0], args: ["d", "D"], size: 3, clip: "inci"},
-    {name: "ab", type: "Meet", color: [1.0, 0.0, 0.0], args: ["A", "f"], labeled: true},
-    {name: "c", type: "PointOnLine", pos: [4.0, 1.070627519266673, -2.381659240829695], color: [0.098, 0.62, 0.306], args: ["A"], labeled: true},
-    {name: "h", type: "Join", color: [0.757, 0.0, 0.0], args: ["F", "ab"], size: 3, clip: "inci"},
-    {name: "g", type: "Parallel", color: [0.0, 0.0, 1.0], args: ["C", "c"], clip: "inci"},
-    {name: "E", type: "Meet", color: [1.0, 0.0, 0.0], args: ["B", "g"]},
-    {name: "k", type: "Parallel", color: [0.098, 0.62, 0.306], args: ["h", "E"], size: 3, clip: "inci"},
-    {name: "(ab)c", type: "Meet", color: [1.0, 0.0, 0.0], args: ["A", "k"], labeled: true},
-    {name: "l", type: "Join", color: [0.757, 0.0, 0.0], args: ["F", "b"], size: 3, clip: "inci"},
-    {name: "m", type: "Parallel", color: [0.098, 0.62, 0.306], args: ["l", "E"], size: 3, clip: "inci"},
-    {name: "bc", type: "Meet", color: [1.0, 0.0, 0.0], args: ["A", "m"], labeled: true},
-    {name: "n", type: "Parallel", color: [0.098, 0.62, 0.306], args: ["g", "bc"], size: 3, clip: "inci"},
-    {name: "G", type: "Meet", color: [1.0, 0.0, 0.0], args: ["B", "n"]},
-    {name: "o", type: "Parallel", color: [0.098, 0.62, 0.306], args: ["d", "G"], size: 3, clip: "inci"},
-    {name: "H", type: "Free", pos: [4.0, 3.735973597359736, 0.33003300330033003], color: [0.0, 0.0, 0.0], size: 2.0},
-    {name: "K", type: "Free", pos: [4.0, 2.4736842105263155, 0.2192982456140351], color: [0.0, 0.0, 0.0], size: 2.0},
-    {name: "p", type: "Segment", color: [0.0, 0.0, 0.0], args: ["H", "K"]},
-    {name: "L", type: "PointOnSegment", pos: [4.0, 2.473684210526315, 0.21929824561403508], color: [1.0, 1.0, 1.0], args: ["p"]}
-  ],
-  animation: {autoplay: true},
-  ports: [{
-    id: "CSCanvas",
-    width: 799,
-    height: 490,
-    transform: [{visibleRect: [-8.82, 14.22, 23.14, -5.38]}],
-    background: "rgb(168,176,192)"
-  }],
-  cinderella: {build: 1844, version: [2, 9, 1844]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "0",
+                        type: "Free",
+                        pos: [4.0, 0.3308270676691729, -0.7518796992481203],
+                        color: [1.0, 1.0, 1.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "A",
+                        type: "Through",
+                        pos: [-0.010471204188481673, -4.0, -1.8157068062827226],
+                        color: [0.0, 0.0, 0.0],
+                        args: ["0"],
+                        labeled: true,
+                    },
+                    {
+                        name: "B",
+                        type: "Through",
+                        pos: [0.8256493702163563, -0.8919423853432169, 4.0],
+                        color: [0.0, 0.0, 0.0],
+                        args: ["0"],
+                    },
+                    {
+                        name: "1",
+                        type: "PointOnLine",
+                        pos: [4.0, 0.4938883337103784, -1.1111034802616175],
+                        color: [1.0, 1.0, 1.0],
+                        args: ["A"],
+                        labeled: true,
+                    },
+                    {
+                        name: "F",
+                        type: "PointOnLine",
+                        pos: [4.0, -1.68863406420057, -1.202190444015073],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["B"],
+                    },
+                    { name: "C", type: "Join", color: [0.0, 0.0, 1.0], args: ["1", "F"], clip: "inci" },
+                    {
+                        name: "a",
+                        type: "PointOnLine",
+                        pos: [4.0, 0.7336583041782608, -1.6393164486510705],
+                        color: [0.098, 0.62, 0.306],
+                        args: ["A"],
+                        labeled: true,
+                    },
+                    { name: "d", type: "Join", color: [0.0, 0.0, 1.0], args: ["F", "a"], clip: "inci" },
+                    {
+                        name: "b",
+                        type: "PointOnLine",
+                        pos: [-3.0326101267738594, -1.8077680363173463, 4.0],
+                        color: [0.098, 0.62, 0.306],
+                        args: ["A"],
+                        labeled: true,
+                    },
+                    { name: "e", type: "Parallel", color: [0.757, 0.0, 0.0], args: ["C", "b"], size: 3, clip: "inci" },
+                    { name: "D", type: "Meet", color: [1.0, 0.0, 0.0], args: ["B", "e"] },
+                    { name: "f", type: "Parallel", color: [0.757, 0.0, 0.0], args: ["d", "D"], size: 3, clip: "inci" },
+                    { name: "ab", type: "Meet", color: [1.0, 0.0, 0.0], args: ["A", "f"], labeled: true },
+                    {
+                        name: "c",
+                        type: "PointOnLine",
+                        pos: [4.0, 1.070627519266673, -2.381659240829695],
+                        color: [0.098, 0.62, 0.306],
+                        args: ["A"],
+                        labeled: true,
+                    },
+                    { name: "h", type: "Join", color: [0.757, 0.0, 0.0], args: ["F", "ab"], size: 3, clip: "inci" },
+                    { name: "g", type: "Parallel", color: [0.0, 0.0, 1.0], args: ["C", "c"], clip: "inci" },
+                    { name: "E", type: "Meet", color: [1.0, 0.0, 0.0], args: ["B", "g"] },
+                    {
+                        name: "k",
+                        type: "Parallel",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["h", "E"],
+                        size: 3,
+                        clip: "inci",
+                    },
+                    { name: "(ab)c", type: "Meet", color: [1.0, 0.0, 0.0], args: ["A", "k"], labeled: true },
+                    { name: "l", type: "Join", color: [0.757, 0.0, 0.0], args: ["F", "b"], size: 3, clip: "inci" },
+                    {
+                        name: "m",
+                        type: "Parallel",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["l", "E"],
+                        size: 3,
+                        clip: "inci",
+                    },
+                    { name: "bc", type: "Meet", color: [1.0, 0.0, 0.0], args: ["A", "m"], labeled: true },
+                    {
+                        name: "n",
+                        type: "Parallel",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["g", "bc"],
+                        size: 3,
+                        clip: "inci",
+                    },
+                    { name: "G", type: "Meet", color: [1.0, 0.0, 0.0], args: ["B", "n"] },
+                    {
+                        name: "o",
+                        type: "Parallel",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["d", "G"],
+                        size: 3,
+                        clip: "inci",
+                    },
+                    {
+                        name: "H",
+                        type: "Free",
+                        pos: [4.0, 3.735973597359736, 0.33003300330033003],
+                        color: [0.0, 0.0, 0.0],
+                        size: 2.0,
+                    },
+                    {
+                        name: "K",
+                        type: "Free",
+                        pos: [4.0, 2.4736842105263155, 0.2192982456140351],
+                        color: [0.0, 0.0, 0.0],
+                        size: 2.0,
+                    },
+                    { name: "p", type: "Segment", color: [0.0, 0.0, 0.0], args: ["H", "K"] },
+                    {
+                        name: "L",
+                        type: "PointOnSegment",
+                        pos: [4.0, 2.473684210526315, 0.21929824561403508],
+                        color: [1.0, 1.0, 1.0],
+                        args: ["p"],
+                    },
+                ],
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 799,
+                        height: 490,
+                        transform: [{ visibleRect: [-8.82, 14.22, 23.14, -5.38] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1844, version: [2, 9, 1844] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

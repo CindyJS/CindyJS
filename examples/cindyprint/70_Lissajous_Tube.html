@@ -1,82 +1,76 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>WebGL testing</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyPrint.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("Cindy3D");
+            use("Cindy3DPrint");
+            computeTubePoints(numTubePointsPrint) := (
+              apply(1..numTubePointsPrint, f((#-1)/numTubePointsPrint*360°))
+            );
+            addcindy3dprintuitubes("tube.stl", computeTubePoints, "n", "radius", true);
 
-<head>
-<title>WebGL testing</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
-<script type="text/javascript" src="../../build/js/CindyPrint.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-use("Cindy3D");
-use("Cindy3DPrint");
-computeTubePoints(numTubePointsPrint) := (
-  apply(1..numTubePointsPrint, f((#-1)/numTubePointsPrint*360°))
-);
-addcindy3dprintuitubes("tube.stl", computeTubePoints, "n", "radius", true);
+            //	playanimation();
+            	s=0;
+            		Cam = [-5, 5, -20];
 
-//	playanimation();
-	s=0;
-		Cam = [-5, 5, -20];
-
-dur():=(f(w):=(sin(4*w),sin(5*w),sin(6*w)); );
-moll():=(f(w):=(sin(10*w),sin(12*w),sin(15*w)); );
-sept():=(f(w):=(sin(4*w),sin(5*w),cos(7*w)) );
-dur();
-
-</script>
-<script id="cstick" type="text/x-cindyscript">
-	println(s);
-	s=s+.01;
-
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-begin3d();
+            dur():=(f(w):=(sin(4*w),sin(5*w),sin(6*w)); );
+            moll():=(f(w):=(sin(10*w),sin(12*w),sin(15*w)); );
+            sept():=(f(w):=(sin(4*w),sin(5*w),cos(7*w)) );
+            dur();
+        </script>
+        <script id="cstick" type="text/x-cindyscript">
+            println(s);
+            s=s+.01;
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            begin3d();
 
 
-lookat3d(Cam, [0, 0, 0], [-1, 500, 0]);
-fieldofview3d(4°);
-background3d([0,0,0]);
-//n=600*20;
-n=4000;
-r1=1;
-r2=.3;
-k=5;
-l=3;
-//f(w):=(sin(4*w),sin(5*w),cos(7*w));
+            lookat3d(Cam, [0, 0, 0], [-1, 500, 0]);
+            fieldofview3d(4°);
+            background3d([0,0,0]);
+            //n=600*20;
+            n=4000;
+            r1=1;
+            r2=.3;
+            k=5;
+            l=3;
+            //f(w):=(sin(4*w),sin(5*w),cos(7*w));
 
-//f(w):=(sin(10*w),sin(12*w),sin(15*w));  C--Eb--G
-//f(w):=(sin(4*w),sin(5*w),sin(6*w));  C--E--G
-//f(w):=(sin(2*w),sin(3*w),0);
-//f(w):=(sin(2*w),sin(3*w),sin(4*w));
-//f(w):=(sin(16*w),sin(20*w),sin(25*w));
+            //f(w):=(sin(10*w),sin(12*w),sin(15*w));  C--Eb--G
+            //f(w):=(sin(4*w),sin(5*w),sin(6*w));  C--E--G
+            //f(w):=(sin(2*w),sin(3*w),0);
+            //f(w):=(sin(2*w),sin(3*w),sin(4*w));
+            //f(w):=(sin(16*w),sin(20*w),sin(25*w));
 
-radius=1;
-repeat(n,i,
-  w1=(i-1)/n*360°;
-  w2=i/n*360°;
-  draw3d(f(w1), f(w2), size->radius, color->hue(i/n)*.1+(1,1,1)*.9);
-);
-//draw3d((-1.5,0,0),(1.5,0,0),size->.2,color->(1,1,1)*.6);
-//draw3d((0,-1.5,0),(0,1.5,0),size->.2,color->(1,1,1)*.6);
-//draw3d((0,0,-1.5),(0,0,1.5),size->.2,color->(1,1,1)*.6);
-end3d();
+            radius=1;
+            repeat(n,i,
+              w1=(i-1)/n*360°;
+              w2=i/n*360°;
+              draw3d(f(w1), f(w2), size->radius, color->hue(i/n)*.1+(1,1,1)*.9);
+            );
+            //draw3d((-1.5,0,0),(1.5,0,0),size->.2,color->(1,1,1)*.6);
+            //draw3d((0,-1.5,0),(0,1.5,0),size->.2,color->(1,1,1)*.6);
+            //draw3d((0,0,-1.5),(0,0,1.5),size->.2,color->(1,1,1)*.6);
+            end3d();
 
-drawprintpreview();
-</script>
-<script type="text/javascript">
-cdy=CindyJS({canvasname:"CSCanvas",scripts:"cs*"
-}
-  );
-</script>
-</head>
+            drawprintpreview();
+        </script>
+        <script type="text/javascript">
+            cdy = CindyJS({ canvasname: "CSCanvas", scripts: "cs*" });
+        </script>
+    </head>
 
-<body style="margin:0">
-  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas><br>
-  <button onclick="cdy.evokeCS('dur()');">C--E--G</button>
-  <button onclick="cdy.evokeCS('moll()');">C--Eb--G</button>
-  <button onclick="cdy.evokeCS('sept()');">C--E--Bb</button><br>
-  <div id="CSCanvas" style="width:50px; height:50px; border:none"></div>
-</body>
-
+    <body style="margin: 0">
+        <canvas id="Cindy3D" style="border: none" width="632" height="452"></canvas><br />
+        <button onclick="cdy.evokeCS('dur()');">C--E--G</button>
+        <button onclick="cdy.evokeCS('moll()');">C--Eb--G</button>
+        <button onclick="cdy.evokeCS('sept()');">C--E--Bb</button><br />
+        <div id="CSCanvas" style="width: 50px; height: 50px; border: none"></div>
+    </body>
 </html>

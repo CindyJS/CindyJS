@@ -1,21 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Regression</h1>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript">
             pts=apply(allpoints(),#.xy);
 
             m=apply(pts,(1,#_1));
@@ -36,43 +31,34 @@
             forall(pts,sq(#_1,#_2,(f(#_1))));
 
             draw(join((1,f(1)),(2,f(2))));
+        </script>
 
-            </script>
-
-
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
-           	var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"B", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"C", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"D", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"E", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"F", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"G", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"H", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"I", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"J", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"K", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"L", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"M", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      {name:"N", kind:"P", type:"Free", pos:[Math.random()*12-6,Math.random()*12-6,1]},
-                      ];
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "B", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "C", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "D", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "E", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "F", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "G", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "H", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "I", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "J", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "K", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "L", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "M", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+                { name: "N", kind: "P", type: "Free", pos: [Math.random() * 12 - 6, Math.random() * 12 - 6, 1] },
+            ];
 
-            CindyJS({canvasname:"CSCanvas",
-                        defaultAppearance: {pointSize: 4, pointColor: [1,0.7,0]},
-                        movescript:"csmove",
-                        geometry:gslp});
-
-
-
-
-
-            </script>
-
-
-
-	</body>
+            CindyJS({
+                canvasname: "CSCanvas",
+                defaultAppearance: { pointSize: 4, pointColor: [1, 0.7, 0] },
+                movescript: "csmove",
+                geometry: gslp,
+            });
+        </script>
+    </body>
 </html>

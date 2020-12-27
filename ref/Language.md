@@ -38,10 +38,11 @@ Unclosed block comments are an error.
 ### Whitespace
 
 CindyScript considers the following characters to be whitespace:
-* U+0020 (space)
-* U+0009 (horizontal tab)
-* U+000A (line feed)
-* U+000D (carriage return)
+
+-   U+0020 (space)
+-   U+0009 (horizontal tab)
+-   U+000A (line feed)
+-   U+000D (carriage return)
 
 These characters may occur between lexical tokens
 without affecting the meaning of the code.
@@ -50,7 +51,7 @@ where such tokens are interpreted literally.
 Another exception are line [comments](#comments) (`// …`)
 where newline has the effect of terminating the comment.
 
-The space and horizontal tab characters may also occur *within*
+The space and horizontal tab characters may also occur _within_
 certain lexical tokens, namely within
 [numeric literals](#numeric-literals) and
 [identifiers](#identifier-names).
@@ -171,13 +172,14 @@ as well as for arguments to such functions and to name
 [modifiers](General_Concepts.md#modifiers).
 
 Identifiers may contain one or more of the following symbols:
-* ASCII letters `a`-`z` and `A`-`Z`
-* ASCII digits `0`-`9`, but not as the first character
-* The ASCII apostrophe U+0027 `'`
-* Codepoints from
-  [the Unicode 8.0.0 standard](http://www.unicode.org/Public/8.0.0/)
-  with [General category](http://www.unicode.org/reports/tr44/tr44-16.html#General_Category_Values)
-  `L` (i.e. Letters).
+
+-   ASCII letters `a`-`z` and `A`-`Z`
+-   ASCII digits `0`-`9`, but not as the first character
+-   The ASCII apostrophe U+0027 `'`
+-   Codepoints from
+    [the Unicode 8.0.0 standard](http://www.unicode.org/Public/8.0.0/)
+    with [General category](http://www.unicode.org/reports/tr44/tr44-16.html#General_Category_Values)
+    `L` (i.e. Letters).
 
 In addition to these, [`#`](General_Concepts.md#$23u)
 and `#1` through `#9` are also valid variable names.
@@ -336,7 +338,7 @@ CindyJS knows about the following operators, in order of precedence:
    [`~>=`](Boolean_Operators.md#$7eu$3eu$3du),
    `∈`,
    `∉`,
-   `=:=` *(not documented)*
+   `=:=` _(not documented)_
 1. [`&`](Boolean_Operators.md#$26u),
    [`%`](Boolean_Operators.md#$25u)
 1. [`<:`](Elementary_List_Operations.md#$3cu$3au)
@@ -396,26 +398,26 @@ it is not included in the above list.
 Several of these operators have alternate Unicode forms
 which often are more readable but harder to type.
 
-* `*` = U+2062 invisible times = `⋅` U+22C5 dot operator = `·` U+00B7 mittle dot
-* `/` = `÷` U+00F7 division sign = `∕` U+2215 division slash = `∶` U+2236 ratio
-* `-` = '−' U+2212 minus sign
-* `!` = `¬` U+C2AC not sign
-* `==` = `≟` U+225F questioned equal to
-* `!=` = `<>` = `≠` U+2260 not equal to
-* `<=` = `≤` U+2264 less-than or equal to = `≦` U+2266 less-than over equal to
-* `>=` = `≥` U+2265 greater-than or equal to = `≧` U+2267 greater-than over equal to
-* `~=` = `≈` U+2248 almost equal to
-* `~!=` = `≉` U+2249 not almost equal to
-* `~<` = `⪉` U+2A89 less-than and not approximate
-* `~>` = `⪊` U+2A8A greater-than and not approximate
-* `~<=` = `⪅` U+2A85 less-than or approximate
-* `~>=` = `⪆` U+2A86 greater-than or approximate
-* `&` = `∧` U+2227 logical and
-* `%` = `∨` U+2228 logical or
-* `++` = `∪` U+222A union
-* `--` = `∖` U+2216 set minux
-* `~~` = `∩` U+2229 intersection
-* `->` = `→` U+2192 rightwards arrow
+-   `*` = U+2062 invisible times = `⋅` U+22C5 dot operator = `·` U+00B7 mittle dot
+-   `/` = `÷` U+00F7 division sign = `∕` U+2215 division slash = `∶` U+2236 ratio
+-   `-` = '−' U+2212 minus sign
+-   `!` = `¬` U+C2AC not sign
+-   `==` = `≟` U+225F questioned equal to
+-   `!=` = `<>` = `≠` U+2260 not equal to
+-   `<=` = `≤` U+2264 less-than or equal to = `≦` U+2266 less-than over equal to
+-   `>=` = `≥` U+2265 greater-than or equal to = `≧` U+2267 greater-than over equal to
+-   `~=` = `≈` U+2248 almost equal to
+-   `~!=` = `≉` U+2249 not almost equal to
+-   `~<` = `⪉` U+2A89 less-than and not approximate
+-   `~>` = `⪊` U+2A8A greater-than and not approximate
+-   `~<=` = `⪅` U+2A85 less-than or approximate
+-   `~>=` = `⪆` U+2A86 greater-than or approximate
+-   `&` = `∧` U+2227 logical and
+-   `%` = `∨` U+2228 logical or
+-   `++` = `∪` U+222A union
+-   `--` = `∖` U+2216 set minux
+-   `~~` = `∩` U+2229 intersection
+-   `->` = `→` U+2192 rightwards arrow
 
 These alternatives are valid only in operator tokens.
 It is illegal to use the Unicode minus sign in the exponent of a numeric literal:
@@ -939,6 +941,6 @@ represents any codepoint which has general category `L`
 in the Unicode 8.0.0 standard.
 
 Within the `FLOAT` token, `(?![.])` is used to denote a negative
-look-ahead assertion: the next character at this point *must not* be a
-second dot.  If it is, the first dot and any whitespace preceding it
+look-ahead assertion: the next character at this point _must not_ be a
+second dot. If it is, the first dot and any whitespace preceding it
 is not part of the `FLOAT` token.

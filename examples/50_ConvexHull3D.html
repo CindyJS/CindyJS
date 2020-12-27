@@ -1,201 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
 
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-            <link rel="stylesheet" href="../css/cindy.css">
-            </head>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Convex Hull</h1>
 
+        <script id="mouseDrag" type="text/x-cindyscript">
+                    errc("Draw");
+                    xx=mouse().x;
+            yy=mouse().y;
+             wy=(startx-xx)*.3;
+             wx=-(starty-yy)*.3;
 
-        <script id='mouseDrag' type='text/x-cindyscript'>
-        errc("Draw");
-        xx=mouse().x;
-yy=mouse().y;
- wy=(startx-xx)*.3;
- wx=-(starty-yy)*.3;
-
-mmmx=[
-  [1,0,0],
-  [0,cos(wx),sin(wx)],
-  [0,-sin(wx),cos(wx)]
-];
-
-
-mmmy=[
-  [cos(wy),0,-sin(wy)],
-  [0,1,0],
-  [sin(wy),0,cos(wy)]
-];
+            mmmx=[
+              [1,0,0],
+              [0,cos(wx),sin(wx)],
+              [0,-sin(wx),cos(wx)]
+            ];
 
 
+            mmmy=[
+              [cos(wy),0,-sin(wy)],
+              [0,1,0],
+              [sin(wy),0,cos(wy)]
+            ];
 
-  mat=mmmx*mmmy*mat;
 
-          startx=mouse().x;
-starty=mouse().y;
+
+              mat=mmmx*mmmy*mat;
+
+                      startx=mouse().x;
+            starty=mouse().y;
         </script>
 
-        <script id='mouseUp' type='text/x-cindyscript'>
-                errc("Up");
+        <script id="mouseUp" type="text/x-cindyscript">
+                            errc("Up");
 
-        xx=mouse().x;
-yy=mouse().y;
- wy=(startx-xx)*.3;
- wx=-(starty-yy)*.3;
+                    xx=mouse().x;
+            yy=mouse().y;
+             wy=(startx-xx)*.3;
+             wx=-(starty-yy)*.3;
 
-mmmx=[
-  [1,0,0],
-  [0,cos(wx),sin(wx)],
-  [0,-sin(wx),cos(wx)]
-];
-
-
-mmmy=[
-  [cos(wy),0,-sin(wy)],
-  [0,1,0],
-  [sin(wy),0,cos(wy)]
-];
+            mmmx=[
+              [1,0,0],
+              [0,cos(wx),sin(wx)],
+              [0,-sin(wx),cos(wx)]
+            ];
 
 
+            mmmy=[
+              [cos(wy),0,-sin(wy)],
+              [0,1,0],
+              [sin(wy),0,cos(wy)]
+            ];
 
-  mat=mmmx*mmmy*mat;
+
+
+              mat=mmmx*mmmy*mat;
         </script>
 
-        <script id='mouseDown' type='text/x-cindyscript'>
-                errc("DOWN");
+        <script id="mouseDown" type="text/x-cindyscript">
+                            errc("DOWN");
 
-        startx=mouse().x;
-starty=mouse().y;
+                    startx=mouse().x;
+            starty=mouse().y;
         </script>
 
+        <script id="init" type="text/x-cindyscript">
+
+
+            mat=[
+              [1,0,0],
+              [0,1,0],
+              [0,0,1]
+            ];
+
+            mat0=[
+              [1,0,0],
+              [0,1,0],
+              [0,0,1]
+            ];
 
 
 
-<script id='init' type='text/x-cindyscript'>
-
-
-mat=[
-  [1,0,0],
-  [0,1,0],
-  [0,0,1]
-];
-
-mat0=[
-  [1,0,0],
-  [0,1,0],
-  [0,0,1]
-];
+            mmmx=mat0;
+            mmmy=mat0;
 
 
 
-mmmx=mat0;
-mmmy=mat0;
-
-
-
-        obj1=((-1,-1,-1),(-1,1,1),(1,-1,1),(1,1,-1));
- num=4;
+                    obj1=((-1,-1,-1),(-1,1,1),(1,-1,1),(1,1,-1));
+             num=4;
 
 
 
 
 
- obj2=((1,0,0),(-1,0,0),(0,-1,0),(0,1,0),(0,0,-1),(0,0,1))*1.6;
- num=8;
+             obj2=((1,0,0),(-1,0,0),(0,-1,0),(0,1,0),(0,0,-1),(0,0,1))*1.6;
+             num=8;
 
- gg=(1-sqrt(5))/2 ;
+             gg=(1-sqrt(5))/2 ;
 
- obj3=(
-   (1,gg,0),
-   (1,-gg,0),
-   (-1,gg,0),
-   (-1,-gg,0),
-   (0,1,gg),
-   (0,1,-gg),
-   (0,-1,gg),
-   (0,-1,-gg),
-   (gg,0,1),
-   (-gg,0,1),
-   (gg,0,-1),
-   (-gg,0,-1)
- );
+             obj3=(
+               (1,gg,0),
+               (1,-gg,0),
+               (-1,gg,0),
+               (-1,-gg,0),
+               (0,1,gg),
+               (0,1,-gg),
+               (0,-1,gg),
+               (0,-1,-gg),
+               (gg,0,1),
+               (-gg,0,1),
+               (gg,0,-1),
+               (-gg,0,-1)
+             );
 
- ma(p):=[p_1,p_2];
+             ma(p):=[p_1,p_2];
 
-pos1=(10,-10,-10);
-pos1=pos1/|pos1|;
-pos2=(-10,-10,-10);
-pos2=pos2/|pos2|;
- col1=(1,0,0);
- col2=(0,0,1);
+            pos1=(10,-10,-10);
+            pos1=pos1/|pos1|;
+            pos2=(-10,-10,-10);
+            pos2=pos2/|pos2|;
+             col1=(1,0,0);
+             col2=(0,0,1);
 
-drawface(f,nn):=(
-   if(area(f_1,f_2,f_3)>0,
-      col=pos1*nn*col1+pos2*nn*col2;
-      ff=f++[f_1];
-      apply(1..(length(ff)-1),
-                fillpoly(f,color->col);
+            drawface(f,nn):=(
+               if(area(f_1,f_2,f_3)>0,
+                  col=pos1*nn*col1+pos2*nn*col2;
+                  ff=f++[f_1];
+                  apply(1..(length(ff)-1),
+                            fillpoly(f,color->col);
 
-          draw(ff_#,ff_(#+1),size->1,color->(0,0,0))
-      )
+                      draw(ff_#,ff_(#+1),size->1,color->(0,0,0))
+                  )
 
-   )
-
-
-)
+               )
 
 
+            )
         </script>
 
-
-             <script id='tick' type='text/x-cindyscript'>
-             errc("HALLO");
-
+        <script id="tick" type="text/x-cindyscript">
+            errc("HALLO");
         </script>
 
+        <script id="csmove" type="text/x-cindyscript">
 
+                       a=convexhull3d(obj3*5);
+                       points=a_1*transpose(mat);
+                       faces=a_2;
 
-        <script id='csmove' type='text/x-cindyscript'>
-
-           a=convexhull3d(obj3*5);
-           points=a_1*transpose(mat);
-           faces=a_2;
-
-           apply(faces,f,
-               fa=points_f;
-                nn=cross( fa_2-fa_1,fa_2-fa_3);
-nn=nn/|nn|;
-               erg=apply(fa,p,ma(p));
-               drawface(erg,nn);
-           );
-
+                       apply(faces,f,
+                           fa=points_f;
+                            nn=cross( fa_2-fa_1,fa_2-fa_3);
+            nn=nn/|nn|;
+                           erg=apply(fa,p,ma(p));
+                           drawface(erg,nn);
+                       );
         </script>
 
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
+            var gslp = [{ name: "A", kind: "P", type: "Free", alpha: 0, pos: [-1000, -1000, 1] }];
 
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free",alpha:0, pos:[-1000,-1000,1]}                      ];
-
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        initscript:"init",
-                        mousedownscript:"mouseDown",
-                        mouseupscript:"mouseUp",
-                        mousedragscript:"mouseDrag",
-                        geometry:gslp});
-
-
-            </script>
-
-       	</body>
+            CindyJS({
+                canvasname: "CSCanvas",
+                movescript: "csmove",
+                initscript: "init",
+                mousedownscript: "mouseDown",
+                mouseupscript: "mouseUp",
+                mousedragscript: "mouseDrag",
+                geometry: gslp,
+            });
+        </script>
+    </body>
 </html>

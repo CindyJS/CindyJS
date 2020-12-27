@@ -1,16 +1,16 @@
 ## Sampled-Audio Functions
 
 The Sampled-Audio functions part of Syntherella provides a possibility to create specific wave forms that are played by the built-in speaker of a computer.
-By this it is possible to explore the interrelations of mathematics and the very fundamental structures of *sound*.
+By this it is possible to explore the interrelations of mathematics and the very fundamental structures of _sound_.
 
 Syntherella provides essentially three specialized functions that cover different scenarios.
 
-* **`playfunction(…)`** allows to form a sound wave by specifying its underlying function.
+-   **`playfunction(…)`** allows to form a sound wave by specifying its underlying function.
 
-* **`playlist(…)`** plays a sound specified by a list of samples that specify the wave.
+-   **`playlist(…)`** plays a sound specified by a list of samples that specify the wave.
 
-* **`playsin(…)`** plays a *sin(x)* wave with specified frequency.
-Harmonics can also be specified.
+-   **`playsin(…)`** plays a _sin(x)_ wave with specified frequency.
+    Harmonics can also be specified.
 
 Before we will describe these statements in detail we will give a brief explanation (in a nutshell) of these statements and the subtleties that are relevant for the generation of an audio signal.
 
@@ -60,9 +60,9 @@ The differences are shown in the images below.
 | -------------------------- | -------------------------- | -------------------------- |
 | Without phase correction   | Phase corrected            | Smooth transition          |
 
-------
+---
 
-------
+---
 
 #### Playing a periodic signal defined by overtones: `playsin(‹real›)`
 
@@ -73,22 +73,21 @@ The duration, amplitude and sound characteristics can be altered by suitable mod
 **Modifiers:**
 The command has several modifiers.
 
-| Modifier     | Parameter              | Effect                                  |
-| ------------ | ---------------------- | --------------------------------------- |
-| `amp`        | `0.0 … 1.0`            | global amplitude (volume) of the sample |
-| `damp`       | `‹real›`               | factor for exponential damping          |
-| `harmonics`  | `‹list›`               | spectrum of the tone                    |
-| `duration`   | `‹real›`               | duration for playing                    |
-| `stop`       | `‹real›`               | same as duration                        |
-| `line`       | `‹number› or ‹string›` | a sound-line associated to the tone     |
-| `partials`   | `‹list›`               | scale each harmonic by a factor         |
-| `attack`     | `‹number›`             | time in seconds for tone to fade in     |
-| `release`    | `‹number›`             | time in seconds for tone to fade out    |
-| `restart`    | `‹boolean›`            | set this to false to only adjust frequency and gain of playing tone |
-| `pan`        | `‹number›`             | panning between left (-1) or right (+1) |
-| `phaseshift` | `‹number› or ‹list›`   | shift phase of each harmonic wave by value in [0,2*pi] |
+| Modifier     | Parameter              | Effect                                                                                                                               |
+| ------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `amp`        | `0.0 … 1.0`            | global amplitude (volume) of the sample                                                                                              |
+| `damp`       | `‹real›`               | factor for exponential damping                                                                                                       |
+| `harmonics`  | `‹list›`               | spectrum of the tone                                                                                                                 |
+| `duration`   | `‹real›`               | duration for playing                                                                                                                 |
+| `stop`       | `‹real›`               | same as duration                                                                                                                     |
+| `line`       | `‹number› or ‹string›` | a sound-line associated to the tone                                                                                                  |
+| `partials`   | `‹list›`               | scale each harmonic by a factor                                                                                                      |
+| `attack`     | `‹number›`             | time in seconds for tone to fade in                                                                                                  |
+| `release`    | `‹number›`             | time in seconds for tone to fade out                                                                                                 |
+| `restart`    | `‹boolean›`            | set this to false to only adjust frequency and gain of playing tone                                                                  |
+| `pan`        | `‹number›`             | panning between left (-1) or right (+1)                                                                                              |
+| `phaseshift` | `‹number› or ‹list›`   | shift phase of each harmonic wave by value in [0,2*pi]                                                                               |
 | `precompute` | `‹boolean›`            | play all harmonics with one oscillator (with precomputed wave) to save resources, only works without partials and constant harmonics |
-
 
 **Examples:**
 The simplest usage of `playsin` is for instance given by
@@ -108,11 +107,11 @@ The code
     > playsin(440,damp->3,stop->5,harmonics->[0.5,0.3,0.2,0.1])
 
 produces a wave form of the type
-*0.5*sin(440*2*pi*x)+0.3*sin(2*440*2*pi*x)+0.2*sin(3*440*2*pi*x)+0.1*sin(4*440*2*pi*x).*
+*0.5*sin(440*2*pi*x)+0.3*sin(2*440*2*pi*x)+0.2*sin(3*440*2*pi*x)+0.1*sin(4*440*2*pi*x).\*
 
 Again this will be exponentially damped.
 
-------
+---
 
 #### Playing sample defined by a function: `playfunction(‹funct›)`
 
@@ -125,7 +124,7 @@ The command has several modifiers.
 
 | Modifier   | Parameter              | Effect                                  |
 | ---------- | ---------------------- | --------------------------------------- |
-| `amp`      | `0.0 … 1.0`          | global amplitude (volume) of the sample |
+| `amp`      | `0.0 … 1.0`            | global amplitude (volume) of the sample |
 | `damp`     | `‹real›`               | factor for exponential damping          |
 | `start`    | `‹real›`               | start position of sample                |
 | `stop`     | `‹real›`               | end position of sample                  |
@@ -163,13 +162,13 @@ This could be done for instance by
 
     > playwave(sample,duration->1)
 
-------
+---
 
 #### Playing sample defined by a list: `playwave(‹list›)`
 
 **Description:**
 This statement creates a sound that is driven by a list that contains sample data.
-The vales of the samples are assumed to lie in the range *-1.0…1.0*.
+The vales of the samples are assumed to lie in the range _-1.0…1.0_.
 The sample rate is 44100 samples per second.
 Usually the sample is played over and over for one second.
 The play time may be modified by the `duration` modifier.
@@ -179,7 +178,7 @@ The command has several modifiers.
 
 | Modifier   | Parameter              | Effect                                  |
 | ---------- | ---------------------- | --------------------------------------- |
-| `amp`      | `0.0 … 1.0`          | global amplitude (volume) of the sample |
+| `amp`      | `0.0 … 1.0`            | global amplitude (volume) of the sample |
 | `damp`     | `‹real›`               | factor for exponential damping          |
 | `duration` | `‹real›`               | duration for playing                    |
 | `line`     | `‹number› or ‹string›` | a sound-line associated to the tone     |
@@ -198,7 +197,7 @@ Before the `playwave` function proceeds to the next sample it is made sure that 
     > wait(400);
     > playwave(sample2,duration->1,line->1);
 
-------
+---
 
 #### Stopping sampled audio: `stopsound()`
 

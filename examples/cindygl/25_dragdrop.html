@@ -1,50 +1,43 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            dropped = (;); // undefined
+            image = "image";
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            colorplot(imagergb([0,0], [1,0], image, (complex(#)-complex(A))/(complex(B)-complex(A)), repeat->true, mipmap->true));
+            drawimage(A, B, image);
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-  dropped = (;); // undefined
-  image = "image";
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-  colorplot(imagergb([0,0], [1,0], image, (complex(#)-complex(A))/(complex(B)-complex(A)), repeat->true, mipmap->true));
-  drawimage(A, B, image);
-  
-  if (isundefined(dropped), drawtext((-9, 0), "Drag and drop an image into this area"));
-</script>
+            if (isundefined(dropped), drawtext((-9, 0), "Drag and drop an image into this area"));
+        </script>
 
-<script id="csondrop" type="text/x-cindyscript">
-  dropped = dropped();
-  dump(dropped);
-  if (!isundefined(dropped_1_1), image = dropped_1_1; dump(image););
-  
-</script>
-<script type="text/javascript">
+        <script id="csondrop" type="text/x-cindyscript">
+            dropped = dropped();
+            dump(dropped);
+            if (!isundefined(dropped_1_1), image = dropped_1_1; dump(image););
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [-10, -10, 10, 10] }] }],
+                scripts: "cs*",
+                language: "en",
+                images: { image: "image.png" },
+                defaultAppearance: {},
+                geometry: [
+                    { name: "A", type: "Free", pos: [-5, 1] },
+                    { name: "B", type: "Free", pos: [5, -1.2] },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </head>
 
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform: [{visibleRect: [-10, -10, 10, 10]}]}],
-  scripts: "cs*",
-  language: "en",
-  images: {image:"image.png"},
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"A", type:"Free", pos:[-5,1]},
-    {name:"B", type:"Free", pos:[5,-1.2]},
-  ],
-  use: ["CindyGL"]
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>

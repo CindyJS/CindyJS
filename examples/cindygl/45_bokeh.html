@@ -1,53 +1,47 @@
-
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Webcam in Cindy JS</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            video = camera video();
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            R = A.x*.1;
+            N = 100;
+            if (image ready(video),
+              colorplot(
+                acc = [0,0,0];
+                total = 0;
+                //idea from https://www.shadertoy.com/view/4d2Xzw and http://blog.marmakoide.org/?p=1
+                repeat(N, i,
+                  r = re(sqrt(i/N))*R;
+                  phi = i*137.508°;
+                  col = imagergb(video, #+r*(cos(phi),sin(phi)));
+                  v = (col*col)^5;
+                  acc = acc + col*v;
+                  total = total + v;
+                );
+                acc/total
+              );
+            );
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [0, 0, 1, 1] }] }],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                geometry: [{ name: "A", type: "Free", pos: [0.1, 0.1] }],
+                use: ["CindyGL"],
+            });
+        </script>
+        Better turn of the lights.
+    </head>
 
-<head>
-<title>Webcam in Cindy JS</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-video = camera video();
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-R = A.x*.1;
-N = 100;
-if (image ready(video),
-  colorplot(
-    acc = [0,0,0];
-    total = 0;
-    //idea from https://www.shadertoy.com/view/4d2Xzw and http://blog.marmakoide.org/?p=1
-    repeat(N, i,
-      r = re(sqrt(i/N))*R;
-      phi = i*137.508°;
-      col = imagergb(video, #+r*(cos(phi),sin(phi)));
-      v = (col*col)^5;
-      acc = acc + col*v;
-      total = total + v;
-    );
-    acc/total
-  );
-);
-</script>
-<script type="text/javascript">
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform:[{visibleRect:[0,0,1,1]}]}],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"A", type:"Free", pos:[.1,.1]}
-  ],
-  use: ["CindyGL"]
-});
-</script>
-Better turn of the lights.
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:1280px; height:720px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 1280px; height: 720px; border: 2px solid black"></div>
+    </body>
 </html>

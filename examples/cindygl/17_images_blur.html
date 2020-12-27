@@ -1,61 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: iterated box blur filter on loaded Image</h1>
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-    </script>
-    <script id="csdraw" type="text/x-cindyscript">
-    if(imageready("image"),
-       L = [0, 0];
-       R = [imagesize("image")_1, 0];
-       
-       read(p) := imagergb(L, R, "image", p, interpolate->false);
-       colorplot(L, R, "image",
-        .2*read(#) +
-        .1*read(# + (-1, 1)) +
-        .1*read(# + (0,  1)) +
-        .1*read(# + (1,  1)) +
-        .1*read(# + (-1, 0)) +
-        .1*read(# + (1,  0)) +
-        .1*read(# + (-1,-1)) +
-        .1*read(# + (0, -1)) +
-        .1*read(# + (1, -1))
-       );
-       
-       drawimage([-3, -3], [3, -3], "image");
-     );
-    </script>
-    
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
-    <div  id="CSCanvas" style="position:relative; top:0px;"></div>
-    
-    <script type="text/javascript">
-        var gslp=[];
-        cdy = CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    animation: {autoplay: true},
-                    geometry: gslp,
-                    images: {image: "image.png"},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 500,
-                      height: 500,
-                      transform: [ { visibleRect: [-3, -3, 3, 3] } ]
-                    }]
-                    }
-        );
-    </script>
+    <body style="font-family: Arial">
+        <h1>CindyJS: iterated box blur filter on loaded Image</h1>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if(imageready("image"),
+               L = [0, 0];
+               R = [imagesize("image")_1, 0];
 
+               read(p) := imagergb(L, R, "image", p, interpolate->false);
+               colorplot(L, R, "image",
+                .2*read(#) +
+                .1*read(# + (-1, 1)) +
+                .1*read(# + (0,  1)) +
+                .1*read(# + (1,  1)) +
+                .1*read(# + (-1, 0)) +
+                .1*read(# + (1,  0)) +
+                .1*read(# + (-1,-1)) +
+                .1*read(# + (0, -1)) +
+                .1*read(# + (1, -1))
+               );
 
-	</body>
+               drawimage([-3, -3], [3, -3], "image");
+             );
+        </script>
+
+        <div id="CSCanvas" style="position: relative; top: 0px"></div>
+
+        <script type="text/javascript">
+            var gslp = [];
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                geometry: gslp,
+                images: { image: "image.png" },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 500,
+                        height: 500,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

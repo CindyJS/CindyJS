@@ -1,156 +1,344 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>OpSound Examples</title>
+        <meta charset="UTF-8" />
 
-<head>
-<title>OpSound Examples</title>
-<meta charset="UTF-8">
+        <link rel="stylesheet" href="../../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
 
-<link rel="stylesheet" href="../../build/js/CindyJS.css">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
 
-<script id="csinit" type="text/x-cindyscript">
+            play1() := (
+                d1 = if(Button1.pressed,10,0);
+                playsin(220, amp->0.5, duration->d1);
+            );
 
-play1() := (
-    d1 = if(Button1.pressed,10,0);
-    playsin(220, amp->0.5, duration->d1);
-);
+            play2() := (
+                playsin(554.37, amp->0.5, duration->4, line->2, damp->4);
+            );
 
-play2() := (
-    playsin(554.37, amp->0.5, duration->4, line->2, damp->4);
-);
+            play3() := (
+                playsin(659.25, amp->0.5, duration->4, line->3, damp->4, harmonics->apply(1..6,0.1));
+            );
 
-play3() := (
-    playsin(659.25, amp->0.5, duration->4, line->3, damp->4, harmonics->apply(1..6,0.1));
-);
+            play4() := (
+                playsin(440, amp->0.5, duration->4, line->4, damp->4, harmonics->apply(1..6,0.1), partials->[1,1.01,1.02,1.03,1.04,1.05]);
+            );
 
-play4() := (
-    playsin(440, amp->0.5, duration->4, line->4, damp->4, harmonics->apply(1..6,0.1), partials->[1,1.01,1.02,1.03,1.04,1.05]);
-);
+            play5() := (
+                playsin(440, amp->0.5, duration->4, line->5, damp->4, restart->true);
+            );
 
-play5() := (
-    playsin(440, amp->0.5, duration->4, line->5, damp->4, restart->true);
-);
+            play5restart() := (
+                playsin(550, amp->0.5, duration->4, line->5, damp->4, restart->false);
+            );
 
-play5restart() := (
-    playsin(550, amp->0.5, duration->4, line->5, damp->4, restart->false);
-);
+            play6() := (
+                playsin(330, amp->0.7, duration->4, damp->4, line->15, phaseshift->0);
+            );
 
-play6() := (
-    playsin(330, amp->0.7, duration->4, damp->4, line->15, phaseshift->0);
-);
+            play7() := (
+                playsin(220, amp->0.5, duration->4, damp->4, line->16, pan->-1);
+            );
 
-play7() := (
-    playsin(220, amp->0.5, duration->4, damp->4, line->16, pan->-1);
-);
+            play8() := (
+                playsin(220, amp->0.5, duration->4, damp->4, line->16, pan->1);
+            );
 
-play8() := (
-    playsin(220, amp->0.5, duration->4, damp->4, line->16, pan->1);
-);
+            play9() := (
+                forall(1..10,k,
+                    playsin(440+k,line->k, phaseshift->2*pi*random(), duration->6, amp->0.3, damp->1);
+                );
+            );
 
-play9() := (
-    forall(1..10,k,
-        playsin(440+k,line->k, phaseshift->2*pi*random(), duration->6, amp->0.3, damp->1);
-    );
-);
+            play10() := (
+                forall(1..10,k,
+                    playsin(440+k,line->k, phaseshift->0, duration->6, amp->0.3, damp->1);
+                );
+            );
 
-play10() := (
-    forall(1..10,k,
-        playsin(440+k,line->k, phaseshift->0, duration->6, amp->0.3, damp->1);
-    );
-);
+            play11() := (
+                forall(1..10,k,
+                    playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->2*pi*random(), precompute->true);
+                );
+            );
 
-play11() := (
-    forall(1..10,k,
-        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->2*pi*random(), precompute->true);
-    );
-);
+            play12() := (
+                forall(1..10,k,
+                    playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->apply(1..10,l,2*pi*random()), precompute->true);
+                );
+            );
 
-play12() := (
-    forall(1..10,k,
-        playsin(440+k,harmonics->apply(1..10,l,1/l),line->k, duration->6, amp->0.2, damp->1, phaseshift->apply(1..10,l,2*pi*random()), precompute->true);
-    );
-);
+            playfunc1() := (
+                playfunction(random(), amp->0.4, line->6);
+            );
 
-playfunc1() := (
-    playfunction(random(), amp->0.4, line->6);
-);
+            playfunc2() := (
+                playfunction(sin(330*x*pi*2), amp->0.5, line->7);
+            );
 
-playfunc2() := (
-    playfunction(sin(330*x*pi*2), amp->0.5, line->7);
-);
+            playfunc3() := (
+                playfunction(sin(415.3*x*pi*2), amp->0.5, line->8, duration->1, stop->0.001);
+            );
 
-playfunc3() := (
-    playfunction(sin(415.3*x*pi*2), amp->0.5, line->8, duration->1, stop->0.001);
-);
+            playwave1() := (
+                wave1 = apply(1..44100,sin(440*2*pi*#/44100));
+                playwave(wave1, line->9);
+            );
 
-playwave1() := (
-    wave1 = apply(1..44100,sin(440*2*pi*#/44100));
-    playwave(wave1, line->9);
-);
+            playwave2() := (
+                wave2 = apply(1..200,sin(#*2*pi/200));
+                playwave(wave2, duration->1,line->10);
+            );
+        </script>
 
-playwave2() := (
-    wave2 = apply(1..200,sin(#*2*pi/200));
-    playwave(wave2, duration->1,line->10);
-);
+        <script id="csdraw" type="text/x-cindyscript">
+            drawtext((-6,4.6),"playsin examples", bold->true, size->19);
 
-</script>
+            drawtext((-6,-3.2), "playfunction & playwave examples", bold->true, size->19);
 
-<script id="csdraw" type="text/x-cindyscript">
-drawtext((-6,4.6),"playsin examples", bold->true, size->19);
+            drawtext((-3, -5.8),"wave1 = apply(1..44100,sin(220*2*pi*#/44100));");
 
-drawtext((-6,-3.2), "playfunction & playwave examples", bold->true, size->19);
+            drawtext((1, -6.5),"wave2 = apply(1..200,sin(#*2*pi/200));");
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 15.0,
+                },
+                geometry: [
+                    {
+                        name: "Button1",
+                        type: "ToggleButton",
+                        pos: [-6, 4],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play1()",
+                        text: "playsin(440, amp->0.5, duration->10); (ToggleButton)",
+                    },
+                    {
+                        name: "Button2",
+                        type: "Button",
+                        pos: [-6, 3.3],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play2()",
+                        text: "playsin(554.37, amp->0.5, duration->4, line->2, damp->4);",
+                    },
+                    {
+                        name: "Button3",
+                        type: "Button",
+                        pos: [-6, 2.6],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play3()",
+                        text: "playsin(659.25, amp->0.5, duration->4, line->3, damp->4, harmonics->apply(1..6,0.1));",
+                    },
+                    {
+                        name: "Button4",
+                        type: "Button",
+                        pos: [-6, 1.9],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play4()",
+                        text:
+                            "playsin(440, amp->0.5, duration->4, line->4, damp->4, harmonics->apply(1..6,0.1), partials->[1,1.01,1.02,1.03,1.04,1.05]);",
+                    },
+                    {
+                        name: "Button5",
+                        type: "Button",
+                        pos: [-6, 1.2],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play5()",
+                        text: "playsin(440, amp->0.5, duration->4, line->5, damp->4, restart->true);",
+                    },
+                    {
+                        name: "Button5restart",
+                        type: "Button",
+                        pos: [-6, 0.5],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play5restart()",
+                        text: "playsin(550, amp->0.5, duration->4, line->5, damp->4, restart->false);",
+                    },
+                    {
+                        name: "Button6",
+                        type: "Button",
+                        pos: [-6, -0.2],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play6()",
+                        text: "playsin(330, amp->0.7, duration->4, damp->4, line->15, phaseshift->0);",
+                    },
+                    {
+                        name: "Button7",
+                        type: "Button",
+                        pos: [-6, -0.9],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play7()",
+                        text: "playsin(220, amp->0.5, duration->4, damp->4, line->16, pan->-1);",
+                    },
+                    {
+                        name: "Button8",
+                        type: "Button",
+                        pos: [1, -0.9],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play8()",
+                        text: "playsin(220, amp->0.5, duration->4, damp->4, line->16, pan->1);",
+                    },
+                    {
+                        name: "Button9",
+                        type: "Button",
+                        pos: [-2.5, -1.6],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play9()",
+                        text: "playsin(..., phaseshift->2*pi*random());",
+                    },
+                    {
+                        name: "Button10",
+                        type: "Button",
+                        pos: [-6, -1.6],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play10()",
+                        text: "playsin(..., phaseshift->0);",
+                    },
+                    {
+                        name: "Button11",
+                        type: "Button",
+                        pos: [-6, -2.3],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play11()",
+                        text: "playsin(..., phaseshift->2*pi*random());",
+                    },
+                    {
+                        name: "Button12",
+                        type: "Button",
+                        pos: [-1.5, -2.3],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "play12()",
+                        text: "playsin(..., phaseshift->apply(1..10,l,2*pi*random()));",
+                    },
+                    {
+                        name: "ButtonF1",
+                        type: "Button",
+                        pos: [-6, -3.7],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "playfunc1()",
+                        text: "playfunction(random(), amp->0.4, line->6);",
+                    },
+                    {
+                        name: "ButtonF2",
+                        type: "Button",
+                        pos: [-6, -4.4],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "playfunc2()",
+                        text: "playfunction(sin(330*x*pi*2), amp->0.5, line->7);",
+                    },
+                    {
+                        name: "ButtonF3",
+                        type: "Button",
+                        pos: [-6, -5.1],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "playfunc3()",
+                        text:
+                            "playfunction(sin(415.3*x*pi*2), amp->0.5, line->8, duration->1, stop->0.001); (duration > stop)",
+                    },
+                    {
+                        name: "ButtonW1",
+                        type: "Button",
+                        pos: [-6, -5.8],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "playwave1()",
+                        text: "playwave(wave1, line->9);",
+                    },
+                    {
+                        name: "ButtonW2",
+                        type: "Button",
+                        pos: [-6, -6.5],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "playwave2()",
+                        text: "playwave(wave2, line->10, duration->1); (duration > wave2.length)",
+                    },
+                    {
+                        name: "StopSound",
+                        type: "Button",
+                        pos: [2, 4.5],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 1.0,
+                        alpha: 0.8999999761581421,
+                        script: "stopsound()",
+                        text: "Stop Sound",
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 1000,
+                        height: 800,
+                        transform: [{ visibleRect: [-5, 5, 5, -7] }],
+                    },
+                ],
+                autoplay: true,
+            });
+        </script>
+    </head>
 
-drawtext((-3, -5.8),"wave1 = apply(1..44100,sin(220*2*pi*#/44100));");
-
-drawtext((1, -6.5),"wave2 = apply(1..200,sin(#*2*pi/200));");
-
-</script>
-<script type="text/javascript">
-
-var cdy = CindyJS({
-    scripts: "cs*",
-    defaultAppearance: {
-        dimDependent: 0.7,
-        fontFamily: "sans-serif",
-        lineSize: 1,
-        pointSize: 5.0,
-        textsize: 15.0
-    },
-    geometry: [
-        {name: "Button1", type: "ToggleButton", pos: [-6,4], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play1()", text: "playsin(440, amp->0.5, duration->10); (ToggleButton)"},
-        {name: "Button2", type: "Button", pos: [-6,3.3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play2()", text: "playsin(554.37, amp->0.5, duration->4, line->2, damp->4);"},
-        {name: "Button3", type: "Button", pos: [-6,2.6], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play3()", text: "playsin(659.25, amp->0.5, duration->4, line->3, damp->4, harmonics->apply(1..6,0.1));"},
-        {name: "Button4", type: "Button", pos: [-6,1.9], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play4()", text: "playsin(440, amp->0.5, duration->4, line->4, damp->4, harmonics->apply(1..6,0.1), partials->[1,1.01,1.02,1.03,1.04,1.05]);"},
-        {name: "Button5", type: "Button", pos: [-6,1.2], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play5()", text: "playsin(440, amp->0.5, duration->4, line->5, damp->4, restart->true);"},
-        {name: "Button5restart", type: "Button", pos: [-6,0.5], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play5restart()", text: "playsin(550, amp->0.5, duration->4, line->5, damp->4, restart->false);"},
-        {name: "Button6", type: "Button", pos: [-6,-0.2], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play6()", text: "playsin(330, amp->0.7, duration->4, damp->4, line->15, phaseshift->0);"},
-        {name: "Button7", type: "Button", pos: [-6,-0.9], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play7()", text: "playsin(220, amp->0.5, duration->4, damp->4, line->16, pan->-1);"},
-        {name: "Button8", type: "Button", pos: [1,-0.9], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play8()", text: "playsin(220, amp->0.5, duration->4, damp->4, line->16, pan->1);"},
-        {name: "Button9", type: "Button", pos: [-2.5,-1.6], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play9()", text: "playsin(..., phaseshift->2*pi*random());"},
-        {name: "Button10", type: "Button", pos: [-6,-1.6], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play10()", text: "playsin(..., phaseshift->0);"},
-        {name: "Button11", type: "Button", pos: [-6,-2.3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play11()", text: "playsin(..., phaseshift->2*pi*random());"},
-        {name: "Button12", type: "Button", pos: [-1.5,-2.3], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "play12()", text: "playsin(..., phaseshift->apply(1..10,l,2*pi*random()));"},
-        {name: "ButtonF1", type: "Button", pos: [-6,-3.7], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc1()", text: "playfunction(random(), amp->0.4, line->6);"},
-        {name: "ButtonF2", type: "Button", pos: [-6,-4.4], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc2()", text: "playfunction(sin(330*x*pi*2), amp->0.5, line->7);"},
-        {name: "ButtonF3", type: "Button", pos: [-6,-5.1], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playfunc3()", text: "playfunction(sin(415.3*x*pi*2), amp->0.5, line->8, duration->1, stop->0.001); (duration > stop)"},
-        {name: "ButtonW1", type: "Button", pos: [-6,-5.8], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playwave1()", text: "playwave(wave1, line->9);"},
-        {name: "ButtonW2", type: "Button", pos: [-6,-6.5], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "playwave2()", text: "playwave(wave2, line->10, duration->1); (duration > wave2.length)"},
-        {name: "StopSound", type: "Button", pos: [2,4.5], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 1.0, alpha: 0.8999999761581421, script: "stopsound()", text: "Stop Sound"},
-    ],
-    ports: [{
-      id: "CSCanvas",
-      width: 1000,
-      height: 800,
-      transform: [{visibleRect: [-5,5,5,-7]}]
-    }],
-    autoplay: true,
-});
-
-</script>
-</head>
-
-<body>
-  <div id="CSCanvas"></div>
-</body>
-
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

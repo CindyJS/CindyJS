@@ -1,95 +1,95 @@
 {
-  "name": "cindyjs",
-  "version": "0.0.1",
-  "description": "A JavaScript framework for interactive (mathematical) content",
-  "directories": {
-    "example": "examples",
-    "test": "tests"
-  },
-  "devDependencies": {
-    "@jscad/csg": "^0.7.0",
-    "browser-sync": "^2.26.5",
-    "browserify": "^16.5.0",
-    "chai": "^3.5.0",
-    "chalk": "^1.1.1",
-    "chokidar": "^1.6.0",
-    "concat-with-sourcemaps": "^1.0.4",
-    "es6-shim": "^0.35.3",
-    "gl-matrix": "^2.8.1",
-    "glob": "^7.0.3",
-    "http-proxy": "^1.11.2",
-    "husky": "^4.3.6",
-    "iphone-inline-video": "2.0.2",
-    "jshint": "^2.10.2",
-    "leapjs": "github:CindyJS/leapjs",
-    "lint-staged": "^10.5.3",
-    "marked": ">=0.3.5 <=0.3.12",
-    "mocha": "^5.2.0",
-    "node-sass": "^4.12.0",
-    "pako": "^1.0.0",
-    "prettier": "2.2.1",
-    "q": "^1.4.1",
-    "q-io": "^1.13.1",
-    "request": "2.88.0",
-    "rewire": "^2.3.4",
-    "rimraf": "^2.4.4",
-    "source-map": "^0.5.1",
-    "source-map-dummy": "^1.0.0",
-    "st": "^1.2.0",
-    "touch": "^1.0.0",
-    "webxr-polyfill": "^2.0.1",
-    "whole-line-stream": "^0.1.0",
-    "yauzl": "^2.6.0"
-  },
-  "scripts": {
-    "prepublish": "node make/index.js call_npm=false parallel=true build=release all",
-    "test": "node make/index.js call_npm=false alltests"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CindyJS/CindyJS.git"
-  },
-  "keywords": [
-    "geometry",
-    "mathematics",
-    "web",
-    "content",
-    "education",
-    "science",
-    "visualization",
-    "cinderella"
-  ],
-  "author": "Jürgen Richter-Gebert <richter@ma.tum.de>",
-  "contributors": [
-    "Alexander Elkins",
-    "Martin von Gagern <gagern@ma.tum.de>",
-    "Ulrich Kortenkamp <kortenkamp@cinderella.de>",
-    "Stefan Kranich <stefan.kranich@ma.tum.de>",
-    "Aaron Montag <aaron.montag@tum.de>",
-    "Michael Strobel <strobel@ma.tum.de>",
-    "Patrick Wilson <patrick.wilson@tum.de>",
-    "Jens Wurster <jw@tophostingteam.de>",
-    "Christoph Neuhauser",
-    "Stefan Haas"
-  ],
-  "license": "Apache-2.0",
-  "main": "build/js/Cindy.js",
-  "files": [
-    "build/js",
-    "LICENSE",
-    "NOTICE",
-    "README.md"
-  ],
-  "bugs": {
-    "url": "https://github.com/CindyJS/CindyJS/issues"
-  },
-  "homepage": "https://github.com/CindyJS/CindyJS#readme",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
+    "name": "cindyjs",
+    "version": "0.0.1",
+    "description": "A JavaScript framework for interactive (mathematical) content",
+    "directories": {
+        "example": "examples",
+        "test": "tests"
+    },
+    "devDependencies": {
+        "@jscad/csg": "^0.7.0",
+        "browser-sync": "^2.26.5",
+        "browserify": "^16.5.0",
+        "chai": "^3.5.0",
+        "chalk": "^1.1.1",
+        "chokidar": "^1.6.0",
+        "concat-with-sourcemaps": "^1.0.4",
+        "es6-shim": "^0.35.3",
+        "gl-matrix": "^2.8.1",
+        "glob": "^7.0.3",
+        "http-proxy": "^1.11.2",
+        "husky": "^4.3.6",
+        "iphone-inline-video": "2.0.2",
+        "jshint": "^2.10.2",
+        "leapjs": "github:CindyJS/leapjs",
+        "lint-staged": "^10.5.3",
+        "marked": ">=0.3.5 <=0.3.12",
+        "mocha": "^5.2.0",
+        "node-sass": "^4.12.0",
+        "pako": "^1.0.0",
+        "prettier": "2.2.1",
+        "q": "^1.4.1",
+        "q-io": "^1.13.1",
+        "request": "2.88.0",
+        "rewire": "^2.3.4",
+        "rimraf": "^2.4.4",
+        "source-map": "^0.5.1",
+        "source-map-dummy": "^1.0.0",
+        "st": "^1.2.0",
+        "touch": "^1.0.0",
+        "webxr-polyfill": "^2.0.1",
+        "whole-line-stream": "^0.1.0",
+        "yauzl": "^2.6.0"
+    },
+    "scripts": {
+        "prepublish": "node make/index.js call_npm=false parallel=true build=release all",
+        "test": "node make/index.js call_npm=false alltests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/CindyJS/CindyJS.git"
+    },
+    "keywords": [
+        "geometry",
+        "mathematics",
+        "web",
+        "content",
+        "education",
+        "science",
+        "visualization",
+        "cinderella"
+    ],
+    "author": "Jürgen Richter-Gebert <richter@ma.tum.de>",
+    "contributors": [
+        "Alexander Elkins",
+        "Martin von Gagern <gagern@ma.tum.de>",
+        "Ulrich Kortenkamp <kortenkamp@cinderella.de>",
+        "Stefan Kranich <stefan.kranich@ma.tum.de>",
+        "Aaron Montag <aaron.montag@tum.de>",
+        "Michael Strobel <strobel@ma.tum.de>",
+        "Patrick Wilson <patrick.wilson@tum.de>",
+        "Jens Wurster <jw@tophostingteam.de>",
+        "Christoph Neuhauser",
+        "Stefan Haas"
+    ],
+    "license": "Apache-2.0",
+    "main": "build/js/Cindy.js",
+    "files": [
+        "build/js",
+        "LICENSE",
+        "NOTICE",
+        "README.md"
+    ],
+    "bugs": {
+        "url": "https://github.com/CindyJS/CindyJS/issues"
+    },
+    "homepage": "https://github.com/CindyJS/CindyJS#readme",
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "*.{js,css,md}": "prettier --write"
     }
-  },
-  "lint-staged": {
-    "*.{js,css,md}": "prettier --write"
-  }
 }

@@ -5,13 +5,13 @@ There are also many other mathematical operations, and these can be found in the
 
 ### Infix Operators
 
-The elementary mathematical operators **+**, **-**, *****, **/**, **^** are accessible in a straightforward manner.
+The elementary mathematical operators **+**, **-**, **\***, **/**, **^** are accessible in a straightforward manner.
 They can be applied to numbers and lists.
 Their particular meaning depends on the type of objects to which they are applied.
 For example, `5+7` evaluates to `12`, while `[2,3,4]+[3,-1,5]` evaluates to `[5,2,9]`.
 Usually all these operators apply to real numbers as well as to complex numbers.
 
-------
+---
 
 #### The addition operator: `‹expr›+‹expr›`
 
@@ -31,7 +31,7 @@ Lists having the same structure can also be added; then the addition is carried 
 **See also:**
 [String Operators](String_Operators.md)
 
-------
+---
 
 #### The subtraction operator: `‹expr›-‹expr›` or `‹expr›−‹expr›`
 
@@ -54,7 +54,7 @@ Furthermore, the `-` operator can be used as a unary minus.
 **See also:**
 [String Operators](String_Operators.md)
 
-------
+---
 
 #### The multiplication operator: `‹expr›*‹expr›`, `‹expr›⋅‹expr›`, `‹expr›·‹expr›` or `‹expr›⁢‹expr›`
 
@@ -90,8 +90,8 @@ One may also use the dot operator or middle dot symbol as multiplication signs.
     < [7, 10]
 
 Using the unicode symbol U+2062 ‘invisible times’ it is possible to write
-polynomials that *appear* as though the coefficients were directly
-preceding the variable.  Input can't simply be typed this way, though.
+polynomials that _appear_ as though the coefficients were directly
+preceding the variable. Input can't simply be typed this way, though.
 
     - CindyScript >=3.0
     > x = 5;
@@ -101,7 +101,7 @@ preceding the variable.  Input can't simply be typed this way, though.
 **See also:**
 [Vectors and Matrices](Vectors_and_Matrices.md)
 
-------
+---
 
 #### The division operator: `‹expr›/‹number›`, `‹expr›÷‹number›`, `‹expr›∕‹number›` or `‹expr›∶‹number›`
 
@@ -122,7 +122,7 @@ It is also possible to divide a vector or matrix by a number.
     < [[0 + i*1, 0 + i*2], [0 + i*2, 0 + i*4]]
     ~ \[\[-?0 \+ i\*1, -?0 \+ i\*2\], \[-?0 \+ i\*2, -?0 \+ i\*4\]\]
 
-------
+---
 
 #### The power operator: `‹expr›^‹expr›`
 
@@ -148,7 +148,7 @@ For noninteger values of `b` only one principal value of `a^b` will be returned.
     > i^(2^30)
     < 1
 
-------
+---
 
 #### The degree operator: `‹number›°`
 
@@ -169,7 +169,7 @@ Note that angles will be printed in degrees by default.
     > cos(180°)
     < -1
 
-------
+---
 
 #### The absolute value operator: `|‹number›|`
 
@@ -186,7 +186,7 @@ It is not allowed to use the `|…|` operator in a nested way, since such expres
     > |1+i|
     < 1.4142
 
-------
+---
 
 #### The distance operator: `|‹number›,‹number›|`
 
@@ -202,16 +202,16 @@ It is not allowed to use the `|…,…|` operator in a nested way, since such ex
     > |(1,1),(4,5)|
     < 5
 
-------
+---
 
-###  Functional Operators
+### Functional Operators
 
 The following operators can be applied to numbers (integer, real complex).
 Some of them can also be applied to vectors.
 
-------
+---
 
-###  Arithmetic Functions
+### Arithmetic Functions
 
 #### Addition: `add(‹expr1›,‹expr2›)`
 
@@ -239,16 +239,16 @@ These operators are binary functions equivalent to the operators like `+`, `-`, 
     > mult([4,5],[3,4])
     < 32
 
-------
+---
 
 #### Modulo: `mod(‹expr1›,‹expr2›)`
 
 **Description:**
 The `mod` function calculates the remainder of `‹expr1›` if divided by `‹expr2›`.
 
-------
+---
 
-###  Standard Functions
+### Standard Functions
 
 **Description:**
 These functions map numbers to numbers.
@@ -269,9 +269,9 @@ Complex numbers are fully supported.
 
 #### Natural logarithm: `log(‹expr›)`
 
-------
+---
 
-###  Trigonometric Functions
+### Trigonometric Functions
 
 The standard trigonometric functions are available through the following operators:
 
@@ -413,7 +413,7 @@ for which the real part is between −90° = −π/2 and +90° = +π/2.
 
 #### Angle of a vector: `arctan2(‹expr1›,‹expr2›)`
 
-The value of `arctan2(x,y)` is the angle the vector `[x,y]` makes with the *x* axis.
+The value of `arctan2(x,y)` is the angle the vector `[x,y]` makes with the _x_ axis.
 Its real part is between −180° = −π and +180° = +π.
 
 When adapting code written in other languages,
@@ -459,7 +459,7 @@ to different branch choices.
 #### Angle of a vector: `arctan2(‹vec›)`
 
 The value of `arctan2(v)` is the angle the two-dimensional vector `[x,y]`
-makes with the *x* axis.
+makes with the _x_ axis.
 Its real part is between −180° = −π and +180° = +π.
 `arctan2(x,y)` is equiavlent to `arctan2([x,y])`.
 
@@ -482,9 +482,9 @@ This avoids a call to the [`gauss`](Geometric_Operators.md#gauss$1) function.
     > arctan2(-1-i)
     < -135°
 
-------
+---
 
-###  Numeric Functions
+### Numeric Functions
 
 #### Absolute value: `abs(‹expr›)`
 
@@ -515,9 +515,9 @@ All other functions can also be applied to lists, in which case they are applied
     > floor(4.8)
     < 4
 
-------
+---
 
-###  Random Number Operators
+### Random Number Operators
 
 The following operators generate pseudo random numbers.
 

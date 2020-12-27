@@ -1,78 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<style type="text/css">
-    * {
-      border: 0;
-      margin: 0;
-      padding: 0;
-    }
-</style>
-  </head>
-    
-	<body>
-  
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-      
-      createimage("ifs", 1000, 1000);
-      colorplot("ifs", [1, 0, 0]);
-      an = true;
-      
-      d = re(2^(log(3)/log(2)));
-      drawstep() := (
-        w1=map(A, B, C, A, D, F);
-        w2=map(A, B, C, D, B, E);
-        w3=map(A, B, C, F, E, C);
-        colorplot("ifs",
-          d*imagergba("ifs", inverse(w1)*[#.x, #.y, 1]) +
-          d*imagergba("ifs", inverse(w2)*[#.x, #.y, 1]) +
-          d*imagergba("ifs", inverse(w3)*[#.x, #.y, 1])
-        );
-      );
-    </script>
-    <script id="cskeydown" type="text/x-cindyscript">
-      print("pressed key" + keycode());
-      if(keycode()==32, colorplot("ifs", [1,0,0,1])); //space -> red
-      if(keycode()==82, an = !an); //R -> start/stop animation
-      if(keycode()==83, drawstep()); //S -> step
-      if(keycode()==73, colorplot((-10,-10), (10,-10), "ifs", if(abs(#)<10, [0,0,1,1], [0,0,0,0]))); //I -> Image
-      
-      drawimage((-10,-10), (10,-10), "ifs");
-    </script>
-    <script id="csdraw" type="text/x-cindyscript">
-      if(an,
-        drawstep();
-      );
-      drawimage((-10,-10), (10,-10), "ifs");
-    </script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <style type="text/css">
+            * {
+                border: 0;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+    </head>
 
-    <div  id="CSCanvas" style="border:2px solid black"></div>
-    <script type="text/javascript">
-        
-        var gslp=[
-    { name: "A", type: "Free", pos: [ -9, -4.0], color: [ 1.0, 0.0, 0.0 ], labeled: true, textsize: 24.0 }, 
-		{ name: "B", type: "Free", pos: [ 9, -7 ], color: [ 1.0, 0.0, 0.0 ], labeled: true, textsize: 24.0 }, 
-		{ name: "C", type: "Free", pos: [ .2, 8 ], color: [ 1.0, 0.0, 0.0 ], labeled: true, textsize: 24.0 }, 
-		{ name: "D", type: "Mid", color: [ 1.0, 0.0, 0.0 ], args: [ "A", "B" ], labeled: true, textsize: 24.0 }, 
-		{ name: "E", type: "Mid", color: [ 1.0, 0.0, 0.0 ], args: [ "B", "C" ], labeled: true, textsize: 24.0 }, 
-		{ name: "F", type: "Mid", color: [ 1.0, 0.0, 0.0 ], args: [ "C", "A" ], labeled: true, textsize: 24.0 }
-        ];
-        cdy = CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:gslp,
-                    animation: {autoplay: true},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 500,
-                      height: 500,
-                      transform: [ { visibleRect: [-10, -10, 10, 10] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+    <body>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            createimage("ifs", 1000, 1000);
+            colorplot("ifs", [1, 0, 0]);
+            an = true;
+
+            d = re(2^(log(3)/log(2)));
+            drawstep() := (
+              w1=map(A, B, C, A, D, F);
+              w2=map(A, B, C, D, B, E);
+              w3=map(A, B, C, F, E, C);
+              colorplot("ifs",
+                d*imagergba("ifs", inverse(w1)*[#.x, #.y, 1]) +
+                d*imagergba("ifs", inverse(w2)*[#.x, #.y, 1]) +
+                d*imagergba("ifs", inverse(w3)*[#.x, #.y, 1])
+              );
+            );
+        </script>
+        <script id="cskeydown" type="text/x-cindyscript">
+            print("pressed key" + keycode());
+            if(keycode()==32, colorplot("ifs", [1,0,0,1])); //space -> red
+            if(keycode()==82, an = !an); //R -> start/stop animation
+            if(keycode()==83, drawstep()); //S -> step
+            if(keycode()==73, colorplot((-10,-10), (10,-10), "ifs", if(abs(#)<10, [0,0,1,1], [0,0,0,0]))); //I -> Image
+
+            drawimage((-10,-10), (10,-10), "ifs");
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if(an,
+              drawstep();
+            );
+            drawimage((-10,-10), (10,-10), "ifs");
+        </script>
+
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+        <script type="text/javascript">
+            var gslp = [
+                { name: "A", type: "Free", pos: [-9, -4.0], color: [1.0, 0.0, 0.0], labeled: true, textsize: 24.0 },
+                { name: "B", type: "Free", pos: [9, -7], color: [1.0, 0.0, 0.0], labeled: true, textsize: 24.0 },
+                { name: "C", type: "Free", pos: [0.2, 8], color: [1.0, 0.0, 0.0], labeled: true, textsize: 24.0 },
+                { name: "D", type: "Mid", color: [1.0, 0.0, 0.0], args: ["A", "B"], labeled: true, textsize: 24.0 },
+                { name: "E", type: "Mid", color: [1.0, 0.0, 0.0], args: ["B", "C"], labeled: true, textsize: 24.0 },
+                { name: "F", type: "Mid", color: [1.0, 0.0, 0.0], args: ["C", "A"], labeled: true, textsize: 24.0 },
+            ];
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: gslp,
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 500,
+                        height: 500,
+                        transform: [{ visibleRect: [-10, -10, 10, 10] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

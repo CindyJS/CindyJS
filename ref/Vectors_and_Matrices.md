@@ -1,4 +1,4 @@
-##  Vectors and Matrices
+## Vectors and Matrices
 
 Lists can serve as representation of vectors and matrices.
 In particular, lists that contain numerical values permit many different arithmetic operations.
@@ -7,22 +7,22 @@ For instance, if `A` is the label of a geometric point, then `A.xy` returns a li
 Similarly, `A.homog` returns a list of three numbers: the homogeneous coordinates of the point.
 Several arithmetic operations serve the particular purpose of calculating directly with these coordinate vectors.
 
-###  Definition of Vectors and Matrices
+### Definition of Vectors and Matrices
 
 Any list can be considered as a “vector of objects”.
 However, of particular interest are vectors of numbers.
 Such a vector will be called a “number vector”.
 Whether a certain list is a number vector can be tested with the operator `isnumbervector(‹expr›)`.
 
-If the elements of a list are again lists, and if all these lists have the same length, then such a list is called a *matrix*.
+If the elements of a list are again lists, and if all these lists have the same length, then such a list is called a _matrix_.
 Whether a list is a matrix can be tested with the operator `ismatrix(‹expr›)`.
 If furthermore all (second-level) elements in the matrix are numbers, this matrix is called a number matrix.
 Whether a list is a number matrix can be tested with the operator `isnumbermatrix(‹expr›)`.
 The entries of a matrix are vectors of the same length.
 These vectors are considered as the rows of the matrix.
-Thus, if a matrix contains *n* vectors of length *m*, then it is an *n* × *m* matrix.
+Thus, if a matrix contains _n_ vectors of length _m_, then it is an _n_ × _m_ matrix.
 
-###  Addition and Multiplication
+### Addition and Multiplication
 
 In the section [Arithmetic Operators](Arithmetic_Operators.md) we explain how the fundamental operations of addition, subtraction, multiplication, and division can be applied to lists of numbers.
 As a rule of thumb, one can say that on this level, everything that is mathematically reasonable can be performed in CindyScript.
@@ -37,12 +37,12 @@ The following table summarizes the different admissible uses of the multiplicati
 | factor 1             | factor 2             | result               | meaning                       |
 | -------------------- | -------------------- | -------------------- | ----------------------------- |
 | number               | number               | number               | usual multiplication          |
-| number               | vector of length *r* | vector of length *r* | scalar vector multiplication  |
-| vector of length *r* | number               | vector of length *r* | scalar vector multiplication  |
-| vector of length *r* | vector of length *r* | number               | scalar product of two vectors |
-| *n* × *r* matrix     | vector of length *r* | vector of length *n* | matrix × vector               |
-| vector of length *n* | *n* × *r* matrix     | vector of length *r* | vector × matrix               |
-| *n* × *r* matrix     | *r*× *m* matrix      | *n* × *m* matrix     | matrix multiplication         |
+| number               | vector of length _r_ | vector of length _r_ | scalar vector multiplication  |
+| vector of length _r_ | number               | vector of length _r_ | scalar vector multiplication  |
+| vector of length _r_ | vector of length _r_ | number               | scalar product of two vectors |
+| _n_ × _r_ matrix     | vector of length _r_ | vector of length _n_ | matrix × vector               |
+| vector of length _n_ | _n_ × _r_ matrix     | vector of length _r_ | vector × matrix               |
+| _n_ × _r_ matrix     | *r*× _m_ matrix      | _n_ × _m_ matrix     | matrix multiplication         |
 
 If some of the elements of a matrix are not numbers, the result will be `___`.
 
@@ -53,11 +53,11 @@ If some of the elements of a matrix are not numbers, the result will be `___`.
     > [[1,2],[3,4],[5,false]] * [[1,2,3,4],[5,6,7,8]]
     < ___
 
-------
+---
 
-------
+---
 
-###  Products, Sums, Max, and Min
+### Products, Sums, Max, and Min
 
 #### The summation operator: `sum(‹list›)`
 
@@ -90,7 +90,7 @@ The sum of an empty list is zero.
     > sum([])
     < 0
 
-------
+---
 
 #### The summation operator: `sum(‹list›,‹expr›)`
 
@@ -119,7 +119,7 @@ The sum of an empty list is zero.
     > sum([], 99)
     < 0
 
-------
+---
 
 #### The summation operator: `sum(‹list›,‹var›,‹expr›)`
 
@@ -134,7 +134,7 @@ The sum of an empty list is zero.
     > sum([], x, 99)
     < 0
 
-------
+---
 
 #### The product operator: `product(‹list›)`
 
@@ -154,7 +154,7 @@ The product over an empty list is one.
     > product([])
     < 1
 
-------
+---
 
 #### The product operator: `product(‹list›,‹expr›)`
 
@@ -167,7 +167,7 @@ The product over an empty list is one.
     > product([], 99)
     < 1
 
-------
+---
 
 #### The product operator: `product(‹list›,‹var›,‹expr›)`
 
@@ -179,7 +179,7 @@ The product over an empty list is one.
     > product([], x, 99)
     < 1
 
-------
+---
 
 #### The maximum operator: `max(‹list›)`
 
@@ -194,7 +194,7 @@ The maximum of an empty list is not defined.
     > max([])
     < ___
 
-------
+---
 
 #### The maximum operator: `max(‹list›,‹expr›)`
 
@@ -219,7 +219,7 @@ The maximum of an empty list is not defined.
     > max([], 99)
     < ___
 
-------
+---
 
 #### The maximum operator: `max(‹list›,‹var›,‹expr›)`
 
@@ -237,7 +237,7 @@ The maximum of an empty list is not defined.
     > max([], x, 99)
     < ___
 
-------
+---
 
 #### The minimum operator: `min(‹list›)`
 
@@ -252,7 +252,7 @@ The minimum of an empty list is not defined.
     > min([])
     < ___
 
-------
+---
 
 #### The minimum operator: `min(‹list›,‹expr›)`
 
@@ -276,7 +276,7 @@ The minimum of an empty list is not defined.
     > min([], 99)
     < ___
 
-------
+---
 
 #### The minimum operator: `min(‹list›,‹var›,‹expr›)`
 
@@ -294,11 +294,11 @@ The minimum of an empty list is not defined.
     > min([], x, 99)
     < ___
 
-------
+---
 
-------
+---
 
-###  Vector and Matrix Arithmetic
+### Vector and Matrix Arithmetic
 
 Besides addition and multiplication, as described earlier in this section, there are several operators responsible for vector and matrix administration.
 
@@ -312,7 +312,7 @@ If the argument is a matrix, this operator returns the number of rows and the nu
     > matrixrowcolumn([[1,2],[3,2],[1,3],[5,4]])
     < [4, 2]
 
-------
+---
 
 #### Transposing a matrix: `transpose(‹matrix›)`
 
@@ -327,7 +327,7 @@ In the transpose, the rows and columns are interchanged.
     > transpose([[1,3,1,5]])
     < [[1], [3], [1], [5]]
 
-------
+---
 
 #### Rows of a matrix: `row(‹matrix›,‹int›)`
 
@@ -337,7 +337,7 @@ If the first argument is a matrix, this operator returns the row with index `‹
     > row([[1,2],[3,2],[1,3], [5,4]],2)
     < [3, 2]
 
-------
+---
 
 #### Columns of a matrix: `column(‹matrix›,‹int›)`
 
@@ -347,7 +347,7 @@ If the first argument is a matrix, this operator returns the column with index `
     > column([[1,2],[3,2],[1,3], [5,4]],2)
     < [2, 2, 3, 4]
 
-------
+---
 
 #### Extracting a submatrix of a matrix: `submatrix(‹matrix›,‹int1›,‹int2›)`
 
@@ -360,7 +360,7 @@ If the first argument is a matrix, this operator returns the submatrix obtained 
 **Warning:**
 The order of indices, i.e. column first then row, is contrary to most conventions.
 
-------
+---
 
 #### Converting a vector to a row matrix: `rowmatrix(‹vector›)`
 
@@ -380,7 +380,7 @@ The resulting matrix is independent from the input vector.
     > m
     < [[1, 2, 3]]
 
-------
+---
 
 #### Converting a vector to a column matrix: `columnmatrix(‹vector›)`
 
@@ -390,25 +390,25 @@ If the first argument is a vector, this operator returns the matrix with a singl
     > columnmatrix([1,2,3,4])
     < [[1], [2], [3], [4]]
 
-------
+---
 
 #### Creating a zero vector: `zerovector(‹int›)`
 
 **Description:**
 Creates a zero vector of length `‹int›`.
 
-------
+---
 
 #### Creating a zero matrix: `zeromatrix(‹int1›,‹int2›)`
 
 **Description:**
 Creates a matrix with `‹int1›` rows and `‹int2›` columns that contains only zeros.
 
-------
+---
 
-------
+---
 
-###  Linear Algebra
+### Linear Algebra
 
 Since lists may be used as vectors or matrices there are also several arithmetic operations from linear algebra that are applicable to lists.
 
@@ -422,7 +422,7 @@ The sign of the determinant carries information on the relative orientation of t
 In the section [Geometric Operators](Geometric_Operators.md) you can find descriptions of the functions `area(‹vec1›,‹vec2›,‹vec3›)` and `det(‹vec1›,‹vec2›,‹vec3›)`.
 Both are variants of the determinant function that are particularly useful in geometric contexts and exhibit slightly better performance than the general determinant formula.
 
-------
+---
 
 #### Calculating the length of a vector: `|‹vec›|`
 
@@ -430,14 +430,14 @@ Both are variants of the determinant function that are particularly useful in ge
 Enclosing a vector between two vertical bars `|‹vec›|` can be used to calculate the length of a vector.
 This operator can also be applied to a real or complex number and returns its absolute value.
 
-------
+---
 
 #### Calculating the distance between two vectors: `|‹vec1›,‹vec2›|`
 
 **Description:**
 Enclosing two vectors of equal length within two vertical bars `|‹vec1›,‹vec2›|` can be used to calculate the distance between the vectors.
 
-------
+---
 
 #### Calculating distances: `dist(‹vec1›,‹vec2›)`
 
@@ -445,7 +445,7 @@ Enclosing two vectors of equal length within two vertical bars `|‹vec1›,‹v
 This operator calculates the distance between two vectors and returns it as a number.
 This operator is also very useful for geometric calculations.
 
-------
+---
 
 #### The Hermitian scalar product: `hermiteanproduct(‹vec1›,‹vec2›)`
 
@@ -472,17 +472,17 @@ produces the output:
     * 15
     * -5 + i*10
 
-------
+---
 
 #### Inverse of a square matrix: `inverse(‹matrix›)`
 
 **Description:**
 This operator calculates the inverse of a square matrix, that is, one with the same number of rows and columns.
 If the matrix is not square or not invertible the operator returns an undefined object.
-Inverses are sometimes very useful when the same type of linear equations *Ax=b* has to be solved for different right sides *b*.
-If the matrix *A* does change often it is more preferable to use the `linearsolve` operator.
+Inverses are sometimes very useful when the same type of linear equations _Ax=b_ has to be solved for different right sides _b_.
+If the matrix _A_ does change often it is more preferable to use the `linearsolve` operator.
 
-------
+---
 
 #### Adjunct of a square matrix: `adj(‹matrix›)`
 
@@ -493,7 +493,7 @@ This operator calculates the adjunct of a square matrix.
 For invertible matrices the adjunct is the inverse times the determinant.
 Unlike the inverse the adjunct of a matrix always exists.
 
-------
+---
 
 #### Eigenvalues of a square matrix: `eigenvalues(‹matrix›)`
 
@@ -501,7 +501,7 @@ Unlike the inverse the adjunct of a matrix always exists.
 This operator calculates the eigenvalues of a square matrix.
 The result is returned as a list of values.
 If an Eigenvalue occurres with algebraic multiplicity 'r' the operator lists this eigenvalue 'r' times.
-Thus the operator always returns *n* values for an *n* by *n* matrix.
+Thus the operator always returns _n_ values for an _n_ by _n_ matrix.
 In particular the operator assumes the matrix to be embedded over the complex numbers.
 So also complex eigenvalues are listed.
 
@@ -519,7 +519,7 @@ produces the output:
     * [1,1,0.5]
     * [1 + i*1,1 - i*1,0.5]
 
-------
+---
 
 #### Eigenvectors of a square matrix: `eigenvectors(‹matrix›)`
 
@@ -531,17 +531,17 @@ The order of this list corresponds to the order of the eigenvalues in the `eigen
 **Warning:**
 If the matrix is not diagonalizable the output of this function is meaningless.
 
-------
+---
 
 #### Solving a linear equation: `linearsolve(‹matrix›,‹vector›)`
 
 #### Solving a linear equation: `linearsolve(‹matrix›,‹matrix›)`
 
 **Description:**
-The operator `linearsolve(A,b)` calculates a solution *x* of the system of equations *Ax=b*.
-The matrix *A* must be square (*n* times *n*) and invertible.
-*b* can either be an *n* dimensional vector, it can be a matrix with *n* rows.
-If either *A* is not invertible or the dimension constraints are not met an undefined value is returned.
+The operator `linearsolve(A,b)` calculates a solution _x_ of the system of equations _Ax=b_.
+The matrix _A_ must be square (_n_ times _n_) and invertible.
+_b_ can either be an _n_ dimensional vector, it can be a matrix with _n_ rows.
+If either _A_ is not invertible or the dimension constraints are not met an undefined value is returned.
 
 **Example:**
 
@@ -555,7 +555,7 @@ produces the output:
     * [-1, 3, 1]
     * [2, 3, 4]
 
-------
+---
 
 #### Finding a minimal cost matching: `mincostmatching(‹matrix›)`
 
@@ -602,9 +602,9 @@ indicated by a zero in the matching.
     > sum(select(1..6, m_# > 0), a_(m_#)_#)
     < -5
 
-------
+---
 
-###  Advanced geometric operations
+### Advanced geometric operations
 
 #### Computing a convex hull in 3D: `convexhull3d(‹list of vectors›)`
 

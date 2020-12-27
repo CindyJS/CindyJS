@@ -1,60 +1,62 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    
-    <title>Mouse events</title>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-m = [(0,0), (0,0), (0,0)];
-ma = [0,0,0];
-mc = [(0,.9,.2), (0.2,0,1), (0.9,0,.2)];
-mn = ["mousedown", "mouseup", "mouseclick"];
-</script>
-<script id="csmouseclick" type="text/x-cindyscript">
-m_3 = mouse();
-ma_3 = 1;
-</script>
-<script id="csmouseup" type="text/x-cindyscript">
-m_2 = mouse();
-ma_2 = 1;
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-forall(1..3, i,
-	draw(m_i, color->mc_i, alpha->ma_i);
-	drawtext(m_i+(0,i/2-1), mn_i, alpha->ma_i);
-);
-ma = .97*ma;
-</script>
-<script id="csmousedown" type="text/x-cindyscript">
-m_1 = mouse();
-ma_1 = 1;
-</script>
-    <script type="text/javascript">
-var cdy = CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  ports: [{
-    id: "CSCanvas",
-    width: 680,
-    height: 350,
-    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.66]}],
-    background: "rgb(168,176,192)"
-  }],
-  csconsole: false,
-  autoplay: true,
-  cinderella: {build: 1901, version: [2, 9, 1901]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+
+        <title>Mouse events</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            m = [(0,0), (0,0), (0,0)];
+            ma = [0,0,0];
+            mc = [(0,.9,.2), (0.2,0,1), (0.9,0,.2)];
+            mn = ["mousedown", "mouseup", "mouseclick"];
+        </script>
+        <script id="csmouseclick" type="text/x-cindyscript">
+            m_3 = mouse();
+            ma_3 = 1;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            m_2 = mouse();
+            ma_2 = 1;
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            forall(1..3, i,
+            	draw(m_i, color->mc_i, alpha->ma_i);
+            	drawtext(m_i+(0,i/2-1), mn_i, alpha->ma_i);
+            );
+            ma = .97*ma;
+        </script>
+        <script id="csmousedown" type="text/x-cindyscript">
+            m_1 = mouse();
+            ma_1 = 1;
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 350,
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.14, -4.66] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                csconsole: false,
+                autoplay: true,
+                cinderella: { build: 1901, version: [2, 9, 1901] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

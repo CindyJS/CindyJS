@@ -5,7 +5,7 @@ Shapes are not directly visible, but may be used for filling, outline drawing or
 They can be combined using logical operations like union, intersection or set difference.
 We first list the elementary operators and then explain their usage in a more elaborate example.
 
-------
+---
 
 ### Shape primitives
 
@@ -14,14 +14,14 @@ We first list the elementary operators and then explain their usage in a more el
 **Description:**
 This operator creates a circular shape of a given `‹radius›` around a given `‹point›`.
 
-------
+---
 
 #### A polygonal shape: `polygon(‹list›)`
 
 **Description:**
 This operator creates a polygonal shape defined by a list of positions given in `‹list›`.
 
-------
+---
 
 #### A half-plane shape: `halfplane(‹line›,‹point›)`
 
@@ -30,14 +30,14 @@ This operator creates a half-plane shape.
 The half-plane is defined by its supporting line `‹line›` and a point `‹point›` contained in the half-plane, which determines on which side of the supporting line the half-plane lies.
 `‹line›` may either be a three-dimensional vector of homogeneous coordinates, or a reference to a line object.
 
-------
+---
 
 #### The shape of the screen: `screen()`
 
 **Description:**
 This operator creates a rectangular shape that is large enough to cover all active drawing surfaces.
 
-------
+---
 
 ### Combining shapes
 
@@ -58,13 +58,13 @@ Its interior is any point inside both ‹shape1› and ‹shape2›.
 Creates the (asymmetric) difference of two shapes.
 Its interior is any point inside ‹shape1› which is outside ‹shape2›.
 
-------
+---
 
 ### Using shapes
 
 Shapes can be used for filling, outline drawing and clipping.
 
-------
+---
 
 #### Fill a shape: `fill(‹shape›)`
 
@@ -79,7 +79,7 @@ This operator supports the following modifiers:
 | `color`  | `[‹real1›,‹real2›,‹real3›]` | sets the fill color to an RGB value     |
 | `alpha`  | `‹real›`                    | sets the opacity to the value `‹alpha›` |
 
-------
+---
 
 #### Draw a shape: `draw(‹shape›)`
 
@@ -89,7 +89,7 @@ This operator draws the outline of a shape.
 **Modifiers:**
 This operator is a further polymorphic extension to the usual draw operator and supports the same modifiers.
 
-------
+---
 
 #### Set clippath: `clip(‹shape›)`
 
@@ -98,7 +98,7 @@ This operator sets the clip path to the given shape.
 All subsequent drawing operations are clipped with respect to this clip path.
 The clip path is pushed on the appearance stack, thus it can be removed again by statements like `grestore()` or `greset()`.
 
-------
+---
 
 ### Examples
 
@@ -131,7 +131,7 @@ The other three images are created using other combinations of the shapes.
 
 The following code snippet demonstrates the usage of shapes as a clipping path.
 First of all, four circles and their union are defined as a shape.
-Then this shape is used as a clipping path for another drawing (concentric circles around point *E*).
+Then this shape is used as a clipping path for another drawing (concentric circles around point _E_).
 
     > r=3;
     > shape=circle(A,r)++circle(B,r)++circle(C,r)++circle(D,r);

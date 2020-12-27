@@ -1,105 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-		<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-		<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../build/js/CindyJS.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: The Riemann Zeta-function</h1>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../build/js/CindyJS.css" />
+    </head>
 
-		<script id="csmousedown" type="text/x-cindyscript">
-		dragging = true;
-		</script>
-		<script id="csmouseup" type="text/x-cindyscript">
-		dragging = false;
-		</script>
-		
-		
-		<script id="csinit" type="text/x-cindyscript">
-			color(z) := ( //what color should be given to a complex number z?
-			  regional(n, grey1, grey2);
-			  n = 24;
-			  z = log(z)/2/pi;
+    <body style="font-family: Arial">
+        <h1>CindyJS: The Riemann Zeta-function</h1>
 
-			  zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
+        <script id="csmousedown" type="text/x-cindyscript">
+            dragging = true;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
 
-			  grey1 = im(zfract);
-			  grey2 = re(zfract);
-				
-				hue(im(z))*(.6+.4*re(sqrt(grey1*grey2)));
-			);
+        <script id="csinit" type="text/x-cindyscript">
+            color(z) := ( //what color should be given to a complex number z?
+              regional(n, grey1, grey2);
+              n = 24;
+              z = log(z)/2/pi;
 
-			delta = 1+i*34;
-			dragging = false;
-    </script>
-		
-		<script id="csdraw" type="text/x-cindyscript">
-		if (dragging,
-				delta = delta - complex(mouse()-oldmouse);
-		);
-		oldmouse = mouse();
+              zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
 
-		normaldist(x, mu, sigma) := 1/(sigma*sqrt(2*pi))*exp	(-(x-mu)^2/(2*sigma^2));
-		
-		n = 40;
-		
-		e = apply(1..n, k, sum(apply(k..n,j,
-			if(n<30,
-			 combinations(n,j)/(2^n),
-			 normaldist(j,n/2,sqrt(n/4)) //approximation through Binomial distribution + central limit theorem
-		  ) 
-		)));
-		
-		//Gourdon, Xavier, and Pascal Sebah. "Numerical evaluation of the Riemann Zeta-function." Numbers, constants and computation (2003).
-		//alternating series method
-		zeta(s) := 1/(1-2^(1-s))*(
-			 sum(apply(1..n, k,     (-1)^(k-1)/(k^s)         ))
-			+sum(apply(n+1..2*n, k, (-1)^(k-1)*e_(k-n)/(k^s) ))
-		);
-		
-	  //only for re(s)>1:
-		//zeta(s) := sum(apply(1..n, k, 1/(k^s)));
-  
-		colorplot(
-			z = (complex(#)+delta);
-			val = zeta(z);
-			color(val)*if(re(z)>1 % re(z)<0,.8,1)
-		);
-		
-	//	draw((-5,0-im(delta)),(5,0-im(delta)),color->[0,0,0]);
-	//	draw((0-re(delta),-5),(0-re(delta),5),color->[0,0,0]);
-		draw((0.5-re(delta),-5),(0.5-re(delta),5),color->[1,1,1],alpha->.3);
-	//	draw((1-re(delta),-5),(1-re(delta),5),color->[0,0,0]);
+              grey1 = im(zfract);
+              grey2 = re(zfract);
 
-		if(dragging, drawtext(mouse(), 
-		 "$\zeta(" + format(delta+complex(mouse()),2) + ") \approx " + format(zeta(delta+complex(mouse())),2) + "$",
-		 color -> [1,1,1],
-		 align -> "mid"
-	 ));
-    </script>
-               
+            	hue(im(z))*(.6+.4*re(sqrt(grey1*grey2)));
+            );
 
-    <div>Drag to navigate</div>
-    <div  id="CSCanvas"></div>
-		
-    <script type="text/javascript">
-        CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry: [],
-                    animation: {autoplay: false},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 800,
-                      height: 800,
-	                      transform: [ { visibleRect: [-4,-4, 4, 4] } ]
-                    }],
-										use: ["CindyGL", "katex"]
-                  });
-    </script>              
-	</body>
+            delta = 1+i*34;
+            dragging = false;
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+            	if (dragging,
+            			delta = delta - complex(mouse()-oldmouse);
+            	);
+            	oldmouse = mouse();
+
+            	normaldist(x, mu, sigma) := 1/(sigma*sqrt(2*pi))*exp	(-(x-mu)^2/(2*sigma^2));
+
+            	n = 40;
+
+            	e = apply(1..n, k, sum(apply(k..n,j,
+            		if(n<30,
+            		 combinations(n,j)/(2^n),
+            		 normaldist(j,n/2,sqrt(n/4)) //approximation through Binomial distribution + central limit theorem
+            	  )
+            	)));
+
+            	//Gourdon, Xavier, and Pascal Sebah. "Numerical evaluation of the Riemann Zeta-function." Numbers, constants and computation (2003).
+            	//alternating series method
+            	zeta(s) := 1/(1-2^(1-s))*(
+            		 sum(apply(1..n, k,     (-1)^(k-1)/(k^s)         ))
+            		+sum(apply(n+1..2*n, k, (-1)^(k-1)*e_(k-n)/(k^s) ))
+            	);
+
+              //only for re(s)>1:
+            	//zeta(s) := sum(apply(1..n, k, 1/(k^s)));
+
+            	colorplot(
+            		z = (complex(#)+delta);
+            		val = zeta(z);
+            		color(val)*if(re(z)>1 % re(z)<0,.8,1)
+            	);
+
+            //	draw((-5,0-im(delta)),(5,0-im(delta)),color->[0,0,0]);
+            //	draw((0-re(delta),-5),(0-re(delta),5),color->[0,0,0]);
+            	draw((0.5-re(delta),-5),(0.5-re(delta),5),color->[1,1,1],alpha->.3);
+            //	draw((1-re(delta),-5),(1-re(delta),5),color->[0,0,0]);
+
+            	if(dragging, drawtext(mouse(),
+            	 "$\zeta(" + format(delta+complex(mouse()),2) + ") \approx " + format(zeta(delta+complex(mouse())),2) + "$",
+            	 color -> [1,1,1],
+            	 align -> "mid"
+             ));
+        </script>
+
+        <div>Drag to navigate</div>
+        <div id="CSCanvas"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: [],
+                animation: { autoplay: false },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 800,
+                        height: 800,
+                        transform: [{ visibleRect: [-4, -4, 4, 4] }],
+                    },
+                ],
+                use: ["CindyGL", "katex"],
+            });
+        </script>
+    </body>
 </html>

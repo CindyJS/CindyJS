@@ -1,7 +1,7 @@
 var FaceOperations = {};
 var FO = FaceOperations;
 
-var Face = function() {
+var Face = function () {
     this.mark = FO.VISIBLE;
     this.outside = null;
 };
@@ -10,7 +10,7 @@ FO.VISIBLE = 1;
 FO.NON_CONVEX = 2;
 FO.DELETED = 3;
 
-FO.computeCentroid = function(face) {
+FO.computeCentroid = function (face) {
     var halfEdge = face.halfEdge0;
     face.centroid = VectorOperations.zerovector();
 
@@ -22,10 +22,8 @@ FO.computeCentroid = function(face) {
     face.centroid = VectorOperations.scaldiv(face.numberOfVertices, face.centroid);
 };
 
-FO.computeNormal = function(face, minArea) {
-    var halfEdgeMax, lenSqrMax, lenMax,
-        halfEdge, lenSqr,
-        headPoint, tailPoint, u, dot;
+FO.computeNormal = function (face, minArea) {
+    var halfEdgeMax, lenSqrMax, lenMax, halfEdge, lenSqr, headPoint, tailPoint, u, dot;
 
     var halfEdge1 = face.halfEdge0.next;
     var halfEdge2 = halfEdge1.next;
@@ -87,7 +85,7 @@ FO.computeNormal = function(face, minArea) {
     }
 };
 
-FO.getEdge = function(face, index) {
+FO.getEdge = function (face, index) {
     var halfEdge = face.halfEdge0;
 
     while (index > 0) {
@@ -103,7 +101,7 @@ FO.getEdge = function(face, index) {
     return halfEdge;
 };
 
-FO.findEdge = function(face, tailVertex, headVertex) {
+FO.findEdge = function (face, tailVertex, headVertex) {
     var halfEdge = face.halfEdge0;
 
     do {
@@ -121,23 +119,23 @@ FO.findEdge = function(face, tailVertex, headVertex) {
     return null;
 };
 
-FO.distanceToPlane = function(face, point) {
+FO.distanceToPlane = function (face, point) {
     return VectorOperations.scalproduct(face.normal, point) - face.planeOffset;
 };
 
-FO.getVertexString = function(face) {
+FO.getVertexString = function (face) {
     var result = face.halfEdge0.head.index,
         halfEdge = face.halfEdge0.next;
 
     while (halfEdge !== face.halfEdge0) {
-        result += ' ' + halfEdge.head.index;
+        result += " " + halfEdge.head.index;
         halfEdge = halfEdge.next;
     }
 
     return result;
 };
 
-FO.getVertexIndices = function(face) {
+FO.getVertexIndices = function (face) {
     var result = [],
         halfEdge = face.halfEdge0;
 
@@ -149,39 +147,54 @@ FO.getVertexIndices = function(face) {
     return result;
 };
 
-FO._checkConsistency = function(face) {
+FO._checkConsistency = function (face) {
     // do a sanity check on the face
     var hedge = face.halfEdge0;
     var maxd = 0;
     var numv = 0;
 
     if (face.numberOfVertices < 3) {
-        throw new Error('degenerate face: ' + FO.getVertexString(face));
+        throw new Error("degenerate face: " + FO.getVertexString(face));
     }
 
     do {
         var hedgeOpp = hedge.opposite;
         if (hedgeOpp === null) {
-            throw new Error('face ' + FO.getVertexString(face) + ': ' +
-                'unreflected half edge ' + HEO.getVertexString(hedge));
+            throw new Error(
+                "face " + FO.getVertexString(face) + ": " + "unreflected half edge " + HEO.getVertexString(hedge)
+            );
         } else if (hedgeOpp.opposite !== hedge) {
-            throw new Error('face ' + FO.getVertexString(face) + ': ' +
-                'opposite half edge ' + HEO.getVertexString(hedgeOpp) +
-                ' has opposite ' + hedgeOpp.opposite.getVertexString());
+            throw new Error(
+                "face " +
+                    FO.getVertexString(face) +
+                    ": " +
+                    "opposite half edge " +
+                    HEO.getVertexString(hedgeOpp) +
+                    " has opposite " +
+                    hedgeOpp.opposite.getVertexString()
+            );
         }
         if (hedgeOpp.head !== HEO.tail(hedge) || hedge.head !== HEO.tail(hedgeOpp)) {
-            throw new Error('face ' + FO.getVertexString(face) + ': ' +
-                'half edge ' + HEO.getVertexString(hedge)) +
-                ' reflected by ' + HEO.getVertexString(hedgeOpp);
+            throw (
+                new Error("face " + FO.getVertexString(face) + ": " + "half edge " + HEO.getVertexString(hedge)) +
+                " reflected by " +
+                HEO.getVertexString(hedgeOpp)
+            );
         }
         var oppFace = hedgeOpp.face;
         if (oppFace === null) {
-            throw new Error('face ' + FO.getVertexString(face) + ': ' +
-                    'no face on half edge ' + HEO.getVertexString(hedgeOpp));
+            throw new Error(
+                "face " + FO.getVertexString(face) + ": " + "no face on half edge " + HEO.getVertexString(hedgeOpp)
+            );
         } else if (oppFace.mark === FO.DELETED) {
-            throw new Error('face ' + FO.getVertexString(face) + ': ' +
-                    'opposite face ' + FO.getVertexString(oppFace) +
-                    ' not on hull');
+            throw new Error(
+                "face " +
+                    FO.getVertexString(face) +
+                    ": " +
+                    "opposite face " +
+                    FO.getVertexString(oppFace) +
+                    " not on hull"
+            );
         }
 
         var d = Math.abs(FO.distanceToPlane(face, hedge.head.point));
@@ -195,11 +208,13 @@ FO._checkConsistency = function(face) {
     } while (hedge !== face.halfEdge0);
 
     if (numv !== face.numberOfVertices) {
-        throw new Error('face ' + FO.getVertexString(face) + ' numVerts=' + face.numberOfVertices + ' should be ' + numv);
+        throw new Error(
+            "face " + FO.getVertexString(face) + " numVerts=" + face.numberOfVertices + " should be " + numv
+        );
     }
 };
 
-FO.mergeAdjacentFace = function(face, hedgeAdj, discarded) {
+FO.mergeAdjacentFace = function (face, hedgeAdj, discarded) {
     var numDiscarded = 0,
         oppFace = HEO.oppositeFace(hedgeAdj);
 
@@ -256,7 +271,7 @@ FO.mergeAdjacentFace = function(face, hedgeAdj, discarded) {
     return numDiscarded;
 };
 
-FO.getSquaredArea = function(face, hedge0, hedge1) {
+FO.getSquaredArea = function (face, hedge0, hedge1) {
     // return the squared area of the triangle defined
     // by the half edge hedge0 and the point at the
     // head of hedge1.
@@ -280,7 +295,7 @@ FO.getSquaredArea = function(face, hedge0, hedge1) {
     return x * x + y * y + z * z;
 };
 
-FO.triangulate = function(face, newFaces, minArea) {
+FO.triangulate = function (face, newFaces, minArea) {
     if (face.numberOfVertices < 4) {
         return;
     }
@@ -320,7 +335,7 @@ FO.triangulate = function(face, newFaces, minArea) {
     }
 };
 
-FO._computeNormalAndCentroid = function(face, minArea) {
+FO._computeNormalAndCentroid = function (face, minArea) {
     var numberOfVertices, halfEdge;
 
     FO.computeNormal(face, minArea);
@@ -337,12 +352,12 @@ FO._computeNormalAndCentroid = function(face, minArea) {
         } while (halfEdge !== face.halfEdge0);
 
         if (numberOfVertices !== face.numberOfVertices) {
-            throw new Error('Face ' + FO.getVertexString(face) + ' should be ' + face.numberOfVertices);
+            throw new Error("Face " + FO.getVertexString(face) + " should be " + face.numberOfVertices);
         }
     }
 };
 
-FO._connectHalfEdges = function(face, hedgePrev, hedge) {
+FO._connectHalfEdges = function (face, hedgePrev, hedge) {
     var discardedFace = null,
         oppFace = HEO.oppositeFace(hedge),
         hedgeOpp;
@@ -382,11 +397,11 @@ FO._connectHalfEdges = function(face, hedgePrev, hedge) {
     return discardedFace;
 };
 
-FO.create = function(vertices, indices) {
+FO.create = function (vertices, indices) {
     var face = new Face(),
         hePrev = null;
 
-    indices.forEach(function(index) {
+    indices.forEach(function (index) {
         var he = new HalfEdge(vertices[index], face);
 
         if (hePrev !== null) {
@@ -407,7 +422,7 @@ FO.create = function(vertices, indices) {
     return face;
 };
 
-FO.createTriangle = function(vertex0, vertex1, vertex2, minArea) {
+FO.createTriangle = function (vertex0, vertex1, vertex2, minArea) {
     minArea = minArea || 0;
 
     var face = new Face(),

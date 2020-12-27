@@ -1,43 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Random Operator on GPU</h1>
-    
-               
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-    </script>
-    
-    <script id="csdraw" type="text/x-cindyscript">
-      colorplot(
-				i=random(256*256);[mod(i / 256, 256),mod(i,256),0]/256
-			);
-    </script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
-    <div  id="CSCanvas"></div>
-    <script type="text/javascript">
-        
-        var gslp=[];
-        cdy = CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:gslp,
-                    animation: {autoplay: false},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 512,
-                      height: 512,
-                      transform: [ { visibleRect: [-512, -512, 512, 512] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+    <body style="font-family: Arial">
+        <h1>CindyJS: Random Operator on GPU</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+               colorplot(
+            	i=random(256*256);[mod(i / 256, 256),mod(i,256),0]/256
+            );
+        </script>
+
+        <div id="CSCanvas"></div>
+        <script type="text/javascript">
+            var gslp = [];
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: gslp,
+                animation: { autoplay: false },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-512, -512, 512, 512] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

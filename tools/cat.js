@@ -8,87 +8,84 @@ var createDummySourceMap = require("source-map-dummy");
 var Concat = require("concat-with-sourcemaps");
 
 function relative(from, to) {
-  if (typeof from !== "string") return to;
-  return path.relative(path.dirname(from), to);
+    if (typeof from !== "string") return to;
+    return path.relative(path.dirname(from), to);
 }
 
-var inputs = [], nextInput = 0, concat = null, out = null, map = null;
+var inputs = [],
+    nextInput = 0,
+    concat = null,
+    out = null,
+    map = null;
 
 function processCommandLine() {
-  var args = process.argv, n = args.length, i, arg;
-  for (i = 2; i < n; ++i) {
-    arg = args[i];
-    if (arg === "-o" && i + 1 < n) {
-      out = args[i + 1];
-      ++i;
+    var args = process.argv,
+        n = args.length,
+        i,
+        arg;
+    for (i = 2; i < n; ++i) {
+        arg = args[i];
+        if (arg === "-o" && i + 1 < n) {
+            out = args[i + 1];
+            ++i;
+        } else if (arg.substr(0, 2) === "-o") {
+            out = arg.substr(2);
+        } else if (arg === "-m" && i + 1 < n) {
+            map = args[i + 1];
+            ++i;
+        } else if (arg.substr(0, 2) === "-m") {
+            map = arg.substr(2);
+        } else {
+            inputs.push(arg);
+        }
     }
-    else if (arg.substr(0, 2) === "-o") {
-      out = arg.substr(2);
-    }
-    else if (arg === "-m" && i + 1 < n) {
-      map = args[i + 1];
-      ++i;
-    }
-    else if (arg.substr(0, 2) === "-m") {
-      map = arg.substr(2);
-    }
-    else {
-      inputs.push(arg);
-    }
-  }
 
-  if (out !== null) {
-    if (map === null)
-      map = out + ".map";
-  }
-  concat = new Concat(true, relative(map, out) || "out.js", "");
-  for (var i = 0; i < inputs.length; ++i) {
-    fs.readFile(inputs[i], "utf8", inputRead.bind(null, i, inputs[i]));
-    inputs[i] = null;
-  }
+    if (out !== null) {
+        if (map === null) map = out + ".map";
+    }
+    concat = new Concat(true, relative(map, out) || "out.js", "");
+    for (var i = 0; i < inputs.length; ++i) {
+        fs.readFile(inputs[i], "utf8", inputRead.bind(null, i, inputs[i]));
+        inputs[i] = null;
+    }
 }
 
 process.nextTick(processCommandLine);
 
 function inputRead(i, name, err, data) {
-  if (err) throw err;
-  inputs[i] = {name: name, src: data};
-  while (nextInput < inputs.length) {
-    var input = inputs[nextInput];
-    if (input === null)
-      return; // abort loop, wait till that input becomes available
-    addInput(input.name, input.src);
-    ++nextInput;
-  }
-  // loop terminated because we successfully processed all inputs
-  writeOutput();
+    if (err) throw err;
+    inputs[i] = { name: name, src: data };
+    while (nextInput < inputs.length) {
+        var input = inputs[nextInput];
+        if (input === null) return; // abort loop, wait till that input becomes available
+        addInput(input.name, input.src);
+        ++nextInput;
+    }
+    // loop terminated because we successfully processed all inputs
+    writeOutput();
 }
 
 function addInput(name, src) {
-  name = relative(map, name);
-  if (!/\r?\n$/.test(src))
-    src += "\n";
-  var sm = createDummySourceMap(src, {
-    source: name,
-    type: "js"
-  });
-  concat.add(name, src, sm);
+    name = relative(map, name);
+    if (!/\r?\n$/.test(src)) src += "\n";
+    var sm = createDummySourceMap(src, {
+        source: name,
+        type: "js",
+    });
+    concat.add(name, src, sm);
 }
 
 function writeOutput() {
-  var content = concat.content;
-  if (!/\r?\n$/.test(content))
-    content += "\n";
-  if (map) {
-    content += "//# sourceMappingURL=" + relative(out, map) + "\n";
-    fs.writeFile(map, concat.sourceMap, reportError);
-  }
-  if (out)
-    fs.writeFile(out, content, reportError);
-  else
-    process.stdout.write(content);
+    var content = concat.content;
+    if (!/\r?\n$/.test(content)) content += "\n";
+    if (map) {
+        content += "//# sourceMappingURL=" + relative(out, map) + "\n";
+        fs.writeFile(map, concat.sourceMap, reportError);
+    }
+    if (out) fs.writeFile(out, content, reportError);
+    else process.stdout.write(content);
 }
 
 function reportError(err) {
-  if (err) throw err;
+    if (err) throw err;
 }

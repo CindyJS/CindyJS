@@ -1,39 +1,36 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Tracing test 2</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/CindyJS documentation for details.
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                enableTraceLog: true,
+                tracingStateReport: "tracingStateReport",
+                grid: 1,
+                geometry: [
+                    { name: "A", type: "Free", pos: [0, 0] },
+                    { name: "a", type: "Through", args: ["A"], dir: [1, 0, 0] },
+                    { name: "B", type: "PointOnLine", args: ["a"], pos: [3, 0] },
+                    { name: "C0", type: "CircleMP", args: ["A", "B"] },
+                    { name: "G", type: "PointOnCircle", args: ["C0"], pos: [4, 3], color: [1, 1, 0] },
+                ], // End of geometry array.
+            });
+        </script>
+    </head>
 
-<head>
-<title>Tracing test 2</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript">
-
-var cdy = CindyJS({ // See ref/CindyJS documentation for details.
-  canvasname: "CSCanvas",
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {},
-  enableTraceLog: true,
-  tracingStateReport: "tracingStateReport",
-  grid: 1,
-  geometry: [
-    {name:"A", type:"Free", pos:[0,0]},
-    {name:"a", type:"Through", args:["A"], dir:[1,0,0]},
-    {name:"B", type:"PointOnLine", args:["a"], pos:[3,0]},
-    {name:"C0", type:"CircleMP", args:["A", "B"]},
-    {name:"G", type:"PointOnCircle", args:["C0"], pos:[4,3], color:[1,1,0]},
-  ] // End of geometry array.
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-  <p>
-    <button onclick="location.href=cdy.formatTraceLog(false)">View log</button>
-    <button onclick="location.href=cdy.formatTraceLog(true)">Save log</button>
-    <span id="tracingStateReport"></span>
-  </p>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+        <p>
+            <button onclick="location.href=cdy.formatTraceLog(false)">View log</button>
+            <button onclick="location.href=cdy.formatTraceLog(true)">Save log</button>
+            <span id="tracingStateReport"></span>
+        </p>
+    </body>
 </html>

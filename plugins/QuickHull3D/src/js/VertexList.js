@@ -1,12 +1,12 @@
-var VertexList = function() {
+var VertexList = function () {
     this.head = this.tail = null;
 };
 
-VertexList.prototype.clear = function() {
+VertexList.prototype.clear = function () {
     this.head = this.tail = null;
 };
 
-VertexList.prototype.add = function(vertex) {
+VertexList.prototype.add = function (vertex) {
     if (this.head === null) {
         this.head = vertex;
     } else {
@@ -18,7 +18,7 @@ VertexList.prototype.add = function(vertex) {
     this.tail = vertex;
 };
 
-VertexList.prototype.addAll = function(vertex) {
+VertexList.prototype.addAll = function (vertex) {
     if (this.head === null) {
         this.head = vertex;
     } else {
@@ -34,7 +34,7 @@ VertexList.prototype.addAll = function(vertex) {
     this.tail = vertex;
 };
 
-VertexList.prototype.delete = function(vertex1, vertex2) {
+VertexList.prototype.delete = function (vertex1, vertex2) {
     if (vertex2 === void 0) {
         vertex2 = vertex1;
     }
@@ -52,7 +52,7 @@ VertexList.prototype.delete = function(vertex1, vertex2) {
     }
 };
 
-VertexList.prototype.insertBefore = function(vertex, target) {
+VertexList.prototype.insertBefore = function (vertex, target) {
     vertex.previous = target.previous;
 
     if (target.previous === null) {
@@ -65,11 +65,11 @@ VertexList.prototype.insertBefore = function(vertex, target) {
     target.previous = vertex;
 };
 
-VertexList.prototype.isEmpty = function() {
+VertexList.prototype.isEmpty = function () {
     return this.head === null;
 };
 
-VertexList.prototype.length = function() {
+VertexList.prototype.length = function () {
     var result = 0;
 
     for (var vertex = this.head; vertex !== null; vertex = vertex.next) {

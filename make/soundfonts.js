@@ -265,5 +265,5 @@ exports.files = [
     "MusyngKite/woodblock-ogg.js",
     "MusyngKite/xylophone-mp3.js",
     "MusyngKite/xylophone-ogg.js",
-    "LICENSE.txt"
-]
+    "LICENSE.txt",
+];

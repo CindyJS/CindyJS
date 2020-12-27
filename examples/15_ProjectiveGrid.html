@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Projective Grid</h1>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript">
             apply(-10..10,i,
                   apply(-10..10,j,draw((i,j),size->1);
                         )
@@ -30,37 +26,20 @@
                   p2=(i/n,1,1);
                   draw(m*p1,m*p2);
             );
-
-
-
         </script>
 
-
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [2, 3, 1], size: 4 },
+                { name: "B", kind: "P", type: "Free", pos: [4, 3, 1], size: 4 },
+                { name: "C", kind: "P", type: "Free", pos: [5, 7, 1], size: 4 },
+                { name: "D", kind: "P", type: "Free", pos: [2, 6, 1], size: 4 },
+                //  {name:"X", kind:"P", type:"Free", pos:[0,0,1]}
+            ];
 
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[2,3,1],size:4},
-                      {name:"B", kind:"P", type:"Free", pos:[4,3,1],size:4},
-                      {name:"C", kind:"P", type:"Free", pos:[5,7,1],size:4},
-                      {name:"D", kind:"P", type:"Free", pos:[2,6,1],size:4},
-                    //  {name:"X", kind:"P", type:"Free", pos:[0,0,1]}
-                      ];
-
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp});
-
-
-
-
-
-            </script>
-
-
-
-
-	</body>
+            CindyJS({ canvasname: "CSCanvas", movescript: "csmove", geometry: gslp });
+        </script>
+    </body>
 </html>

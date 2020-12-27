@@ -1,124 +1,100 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>TimosWinkel v2.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>TimosWinkel v2.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
-timosWinkel(B,A,C,r,col):=(
-  regional(w1,w2);
-  r=min(|B,A|/4,r);
-  r=min(|A,C|/4,r);
-  w1=arctan2(B-A);
-  w2=arctan2(C-A);
-  if(w1>w2,w1=w1-360°);
-  regional(l,n);
-  l=[A];
-  n=(w2-w1)*30;
-  repeat(n,start->w1,stop->w2,w,
-    l=l++[gauss(exp(i*w)*r*25/screenresolution())+A]
-  );
-  l=l++[A.xy];
-  fillpoly(l,color->col*.5+(1,1,1)*.5);
-  connect(l,size->1,border->false,color->col);
-  p=gauss(exp(i*(w1+w2)/2)*((r*25+20)/screenresolution()))+A;
-  drawtext(p,(w2-w1),align->"center",color->col*.5);
-);
-timosWinkel(C,B,A,1,(0,.5,.5));
-timosWinkel(B,A,C,1,(.5,0,.5));
-timosWinkel(A,C,B,1,(.5,.5,0));
-;
-</script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            timosWinkel(B,A,C,r,col):=(
+              regional(w1,w2);
+              r=min(|B,A|/4,r);
+              r=min(|A,C|/4,r);
+              w1=arctan2(B-A);
+              w2=arctan2(C-A);
+              if(w1>w2,w1=w1-360°);
+              regional(l,n);
+              l=[A];
+              n=(w2-w1)*30;
+              repeat(n,start->w1,stop->w2,w,
+                l=l++[gauss(exp(i*w)*r*25/screenresolution())+A]
+              );
+              l=l++[A.xy];
+              fillpoly(l,color->col*.5+(1,1,1)*.5);
+              connect(l,size->1,border->false,color->col);
+              p=gauss(exp(i*(w1+w2)/2)*((r*25+20)/screenresolution()))+A;
+              drawtext(p,(w2-w1),align->"center",color->col*.5);
+            );
+            timosWinkel(C,B,A,1,(0,.5,.5));
+            timosWinkel(B,A,C,1,(.5,0,.5));
+            timosWinkel(A,C,B,1,(.5,.5,0));
+            ;
+        </script>
 
-    <script type="text/javascript">
-CindyJS({
-  "scripts": "cs*",
-  "defaultAppearance": {},
-  "geometry": [
-    {
-      "name": "A",
-      "type": "Free",
-      "pos": [
-        4.0,
-        -4.0,
-        -1.6
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "B",
-      "type": "Free",
-      "pos": [
-        2.424082705494535,
-        -4.0,
-        -0.29661877458600855
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "C",
-      "type": "Free",
-      "pos": [
-        4.0,
-        -1.7142857142857142,
-        -0.22857142857142856
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    }
-  ],
-  "ports": [
-    {
-      "id": "CSCanvas",
-      "width": 680,
-      "height": 294,
-      "transform": [
-        {
-          "visibleRect": [
-            -27.850620017217267,
-            17.586087382005747,
-            20.959744961410934,
-            -3.5172174764011497
-          ]
-        }
-      ],
-      "background": "rgb(168,176,192)"
-    }
-  ]
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {},
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [4.0, -4.0, -1.6],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [2.424082705494535, -4.0, -0.29661877458600855],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C",
+                        type: "Free",
+                        pos: [4.0, -1.7142857142857142, -0.22857142857142856],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 294,
+                        transform: [
+                            {
+                                visibleRect: [
+                                    -27.850620017217267,
+                                    17.586087382005747,
+                                    20.959744961410934,
+                                    -3.5172174764011497,
+                                ],
+                            },
+                        ],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

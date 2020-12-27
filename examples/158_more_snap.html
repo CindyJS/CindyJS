@@ -1,68 +1,128 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    
-    <title>Konstruktion.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-    <script type="text/javascript">
-var cdy = CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "A", type: "Free", pos: [2.6666666666666665, -4.0, -0.6666666666666666], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "B", type: "Free", pos: [4.0, 4.0, 0.6666666666666666], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "a", type: "Join", color: [0.0, 0.0, 1.0], args: ["A", "B"], labeled: true},
-    {name: "C", type: "PointOnLine", pos: [-0.5469644328967437, -4.0, -0.6666666666666669], color: [0.0, 1.0, 0.0], args: ["a"], labeled: true},
-    {name: "D", type: "Free", pos: [4.0, -0.0, 0.3333333333333333], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "C0", type: "CircleByRadius", pos: {xx: 0.007142857142857143, yy: 0.007142857142857143, zz: 1.0, xy: 0.0, xz: -0.17142857142857143, yz: -0.0}, color: [0.0, 0.0, 1.0], radius: 2.0, args: ["D"], printname: "$C_{0}$"},
-    {name: "E", type: "PointOnCircle", pos: [4.0, {r: 0.37394952601778453, i: 2.8124219733987903E-15}, {r: 0.390464510919385, i: -1.5779428190003313E-16}], color: [0.0, 1.0, 0.0], args: ["C0"], labeled: true},
-    {name: "N", type: "Free", pos: [2.0, -4.0, -1.0], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "O", type: "Free", pos: [-3.0, -4.0, -1.0], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "b", type: "Segment", color: [0.0, 0.0, 1.0], args: ["N", "O"], labeled: true},
-    {name: "P", type: "PointOnSegment", pos: [-0.4, -4.0, -1.0], color: [0.0, 1.0, 0.0], args: ["b"], labeled: true}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 680,
-    height: 335,
-    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.06]}],
-    axes: true,
-    grid: 1.0,
-    snap: true,
-    snapdistance: 0.1,
-    background: "rgb(168,176,192)"
-  }],
-  csconsole: false,
-  use: ["katex"],
-  cinderella: {build: 1898, version: [2, 9, 1898]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <title>Konstruktion.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
+
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [2.6666666666666665, -4.0, -0.6666666666666666],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [4.0, 4.0, 0.6666666666666666],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "a", type: "Join", color: [0.0, 0.0, 1.0], args: ["A", "B"], labeled: true },
+                    {
+                        name: "C",
+                        type: "PointOnLine",
+                        pos: [-0.5469644328967437, -4.0, -0.6666666666666669],
+                        color: [0.0, 1.0, 0.0],
+                        args: ["a"],
+                        labeled: true,
+                    },
+                    {
+                        name: "D",
+                        type: "Free",
+                        pos: [4.0, -0.0, 0.3333333333333333],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C0",
+                        type: "CircleByRadius",
+                        pos: {
+                            xx: 0.007142857142857143,
+                            yy: 0.007142857142857143,
+                            zz: 1.0,
+                            xy: 0.0,
+                            xz: -0.17142857142857143,
+                            yz: -0.0,
+                        },
+                        color: [0.0, 0.0, 1.0],
+                        radius: 2.0,
+                        args: ["D"],
+                        printname: "$C_{0}$",
+                    },
+                    {
+                        name: "E",
+                        type: "PointOnCircle",
+                        pos: [
+                            4.0,
+                            { r: 0.37394952601778453, i: 2.8124219733987903e-15 },
+                            { r: 0.390464510919385, i: -1.5779428190003313e-16 },
+                        ],
+                        color: [0.0, 1.0, 0.0],
+                        args: ["C0"],
+                        labeled: true,
+                    },
+                    { name: "N", type: "Free", pos: [2.0, -4.0, -1.0], color: [1.0, 0.0, 0.0], labeled: true },
+                    { name: "O", type: "Free", pos: [-3.0, -4.0, -1.0], color: [1.0, 0.0, 0.0], labeled: true },
+                    { name: "b", type: "Segment", color: [0.0, 0.0, 1.0], args: ["N", "O"], labeled: true },
+                    {
+                        name: "P",
+                        type: "PointOnSegment",
+                        pos: [-0.4, -4.0, -1.0],
+                        color: [0.0, 1.0, 0.0],
+                        args: ["b"],
+                        labeled: true,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 335,
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.14, -4.06] }],
+                        axes: true,
+                        grid: 1.0,
+                        snap: true,
+                        snapdistance: 0.1,
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                csconsole: false,
+                use: ["katex"],
+                cinderella: { build: 1898, version: [2, 9, 1898] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

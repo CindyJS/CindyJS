@@ -1,53 +1,48 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            p(x):=[sin(2*pi*x),cos(2*pi*x)];
+            clock():=(
+              O=[0,0];
+              S=p(t_3/60)*4;
+              M=p(t_2/60)*5;
+              H=p((t_1*60+t_2)/(12*60))*3.5;
+              draw(O,S);
+              draw(O,M,size->2);
+              draw(O,H,size->3);
+              apply(1..12,draw(p(#/12)*5));
+              apply(1..60,draw(p(#/60)*5,size->1));
+            );
+            fmt(n,d):=(
+              s=("0000"+n);
+              l=length(s);
+              substring(s,(l-d),l)
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-p(x):=[sin(2*pi*x),cos(2*pi*x)];
-clock():=(
-  O=[0,0];
-  S=p(t_3/60)*4;
-  M=p(t_2/60)*5;
-  H=p((t_1*60+t_2)/(12*60))*3.5;
-  draw(O,S);
-  draw(O,M,size->2);
-  draw(O,H,size->3);
-  apply(1..12,draw(p(#/12)*5));
-  apply(1..60,draw(p(#/60)*5,size->1));
-);
-fmt(n,d):=(
-  s=("0000"+n);
-  l=length(s);
-  substring(s,(l-d),l)
-);
-</script>
-<script id="csdraw" type="text/x-cindyscript">
+            t=time();
+            d=date();
+            clock();
+            drawtext((3,5.5),fmt(t_1,2)+":"+fmt(t_2,2)+":"+fmt(t_3,2)+"."+fmt(t_4,3));
+            drawtext((3,-5.5),fmt(d_3,2)+"."+fmt(d_2,2)+"."+d_1);
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                language: "en",
+                animation: { autoplay: true },
+                defaultAppearance: {},
+            });
+        </script>
+    </head>
 
-t=time();
-d=date();
-clock();
-drawtext((3,5.5),fmt(t_1,2)+":"+fmt(t_2,2)+":"+fmt(t_3,2)+"."+fmt(t_4,3));
-drawtext((3,-5.5),fmt(d_3,2)+"."+fmt(d_2,2)+"."+d_1);
-
-</script>
-<script type="text/javascript">
-
-var cdy = CindyJS({
-  canvasname: "CSCanvas",
-  scripts: "cs*",
-  language: "en",
-  animation: {autoplay: true},
-  defaultAppearance: {}
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>

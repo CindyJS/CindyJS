@@ -1,85 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Euler-Line with Snap and Grid</h1>
 
+        <script id="csmove" type="text/x-cindyscript"></script>
 
-        <script id='csmove' type='text/x-cindyscript'>
-
-
-        </script>
-
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
+            var gslp = [
+                { name: "A", type: "Free", pos: [-3, 6], color: [1, 1, 1] },
+                { name: "B", type: "Free", pos: [6, 3], color: [1, 1, 1] },
+                { name: "C", type: "Free", pos: [-5, -5], color: [1, 1, 1] },
+                { name: "a", type: "Join", args: ["B", "C"], color: [0, 0, 0], size: 3 },
+                { name: "b", type: "Join", args: ["A", "C"], color: [0, 0, 0], size: 3 },
+                { name: "c", type: "Join", args: ["A", "B"], color: [0, 0, 0], size: 3 },
+                { name: "x", type: "Perp", args: ["a", "A"], color: [0.7, 0, 0] },
+                { name: "y", type: "Perp", args: ["b", "B"], color: [0.7, 0, 0] },
+                { name: "z", type: "Perp", args: ["c", "C"], color: [0.7, 0, 0] },
+                { name: "S", type: "Meet", args: ["x", "y"], color: [1, 0.7, 0.7] },
+                { name: "LA", type: "Meet", args: ["a", "x"], size: 4, color: [1, 0, 0] },
+                { name: "LB", type: "Meet", args: ["b", "y"], size: 4, color: [1, 0, 0] },
+                { name: "LC", type: "Meet", args: ["c", "z"], size: 4, color: [1, 0, 0] },
 
-            var gslp=[
+                { name: "AA", type: "Mid", args: ["B", "C"], size: 4, color: [0, 0.7, 0] },
+                { name: "BB", type: "Mid", args: ["A", "C"], size: 4, color: [0, 0.7, 0] },
+                { name: "CC", type: "Mid", args: ["B", "A"], size: 4, color: [0, 0.7, 0] },
 
-                      {name:"A", type:"Free", pos:[-3,6],color:[1,1,1]},
-                      {name:"B", type:"Free", pos:[6,3],color:[1,1,1]},
-                      {name:"C", type:"Free", pos:[-5,-5],color:[1,1,1]},
-                      {name:"a", type:"Join", args:["B","C"],color:[0,0,0],size:3},
-                      {name:"b", type:"Join", args:["A","C"],color:[0,0,0],size:3},
-                      {name:"c", type:"Join", args:["A","B"],color:[0,0,0],size:3},
-                      {name:"x", type:"Perp", args:["a","A"],color:[.7,0,0]},
-                      {name:"y", type:"Perp", args:["b","B"],color:[.7,0,0]},
-                      {name:"z", type:"Perp", args:["c","C"],color:[.7,0,0]},
-                      {name:"S", type:"Meet", args:["x","y"],color:[1,.7,.7]},
-                      {name:"LA", type:"Meet", args:["a","x"],size:4,color:[1,0,0]},
-                      {name:"LB", type:"Meet", args:["b","y"],size:4,color:[1,0,0]},
-                      {name:"LC", type:"Meet", args:["c","z"],size:4,color:[1,0,0]},
+                { name: "mx", type: "Perp", args: ["a", "AA"], color: [0, 0.7, 0] },
+                { name: "my", type: "Perp", args: ["b", "BB"], color: [0, 0.7, 0] },
+                { name: "mz", type: "Perp", args: ["c", "CC"], color: [0, 0.7, 0] },
+                { name: "M", type: "Meet", args: ["mx", "my"], color: [0.7, 1, 0.7] },
 
-                      {name:"AA", type:"Mid", args:["B","C"],size:4,color:[0,.7,0]},
-                      {name:"BB", type:"Mid", args:["A","C"],size:4,color:[0,.7,0]},
-                      {name:"CC", type:"Mid", args:["B","A"],size:4,color:[0,.7,0]},
+                { name: "ha", type: "Join", args: ["A", "AA"] },
+                { name: "hb", type: "Join", args: ["B", "BB"] },
+                { name: "hc", type: "Join", args: ["C", "CC"] },
+                { name: "H", type: "Meet", args: ["ha", "hb"], color: [0.7, 0.7, 1] },
 
-                      {name:"mx", type:"Perp", args:["a","AA"],color:[0,.7,0]},
-                      {name:"my", type:"Perp", args:["b","BB"],color:[0,.7,0]},
-                      {name:"mz", type:"Perp", args:["c","CC"],color:[0,.7,0]},
-                      {name:"M", type:"Meet", args:["mx","my"],color:[0.7,1,.7]},
+                { name: "E", type: "Join", args: ["M", "H"], color: [0, 0, 0], size: 5 },
 
-                      {name:"ha", type:"Join", args:["A","AA"]},
-                      {name:"hb", type:"Join", args:["B","BB"]},
-                      {name:"hc", type:"Join", args:["C","CC"]},
-                      {name:"H", type:"Meet", args:["ha","hb"],color:[0.7,0.7,1]},
-
-                      {name:"E", type:"Join", args:["M","H"],color:[0,0,0],size:5},
-
-
-
-
-                      /*,
+                /*,
                        {name:"D", kind:"P", type:"Free", pos:[-1,0,1]},
                        {name:"C", kind:"P", type:"Free", pos:[4,3,1]},
                        {name:"X", kind:"P", type:"Free", pos:[-8,8,1]},
                        {name:"Y", kind:"P", type:"Free", pos:[-8,.8,1]},
                        {name:"Z", kind:"P", type:"Free", pos:[-6,0,1]}*/
-                      ];
+            ];
             CindyJS({
-                defaultAppearance: {clip: "inci", overhangLine: 1.2},
-                movescript:"csmove",
-                geometry:gslp,
-                ports:[{
-                    id:"CSCanvas",
-                    transform:[{scale:1}],
-                    grid:2,
-                    snap:true,
-                    axes:true
-                }]
+                defaultAppearance: { clip: "inci", overhangLine: 1.2 },
+                movescript: "csmove",
+                geometry: gslp,
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        transform: [{ scale: 1 }],
+                        grid: 2,
+                        snap: true,
+                        axes: true,
+                    },
+                ],
             });
-
         </script>
-
-	</body>
+    </body>
 </html>

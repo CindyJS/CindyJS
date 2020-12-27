@@ -1,158 +1,97 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Konstruktion.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>Konstruktion.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-    <script type="text/javascript">
-CindyJS({
-  "scripts": "cs*",
-  "defaultAppearance": {},
-  "geometry": [
-    {
-      "name": "A",
-      "type": "Free",
-      "pos": [
-        0.22222222222222218,
-        -4.0,
-        -1.8518518518518519
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "C0",
-      "type": "CircleByRadius",
-      "color": [
-        0.0,
-        0.0,
-        1.0
-      ],
-      "radius": 3.9212242986087906,
-      "args": [
-        "A"
-      ],
-      "size": 1,
-      "printname": "$C_{0}$"
-    },
-    {
-      "name": "B",
-      "type": "PointOnCircle",
-      "pos": [
-        -2.0792123760793717,
-        -4.0,
-        -0.8015597433496239
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "args": [
-        "C0"
-      ],
-      "labeled": true
-    },
-    {
-      "name": "C",
-      "type": "Free",
-      "pos": [
-        4.0,
-        -3.420689655172414,
-        -0.689655172413793
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "a",
-      "type": "Join",
-      "pos": [
-        0.002896040363553815,
-        -0.8030651140910054,
-        4.0
-      ],
-      "color": [
-        0.0,
-        0.0,
-        1.0
-      ],
-      "args": [
-        "B",
-        "C"
-      ],
-      "labeled": true,
-      "size": 1
-    },
-    {
-      "name": "D",
-      "type": "OtherIntersectionCL",
-      "pos": [
-        2.2969358423596415,
-        -4.0,
-        -0.8047281188189973
-      ],
-      "color": [
-        1.0,
-        0.7843138,
-        0.0
-      ],
-      "args": [
-        "C0",
-        "a",
-        "B"
-      ],
-      "labeled": true
-    }
-  ],
-  "ports": [
-    {
-      "id": "CSCanvas",
-      "width": 680,
-      "height": 336,
-      "transform": [
-        {
-          "visibleRect": [
-            -9.04,
-            9.32,
-            18.16,
-            -4.12
-          ]
-        }
-      ],
-      "background": "rgb(168,176,192)"
-    }
-  ]
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {},
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [0.22222222222222218, -4.0, -1.8518518518518519],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C0",
+                        type: "CircleByRadius",
+                        color: [0.0, 0.0, 1.0],
+                        radius: 3.9212242986087906,
+                        args: ["A"],
+                        size: 1,
+                        printname: "$C_{0}$",
+                    },
+                    {
+                        name: "B",
+                        type: "PointOnCircle",
+                        pos: [-2.0792123760793717, -4.0, -0.8015597433496239],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["C0"],
+                        labeled: true,
+                    },
+                    {
+                        name: "C",
+                        type: "Free",
+                        pos: [4.0, -3.420689655172414, -0.689655172413793],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "a",
+                        type: "Join",
+                        pos: [0.002896040363553815, -0.8030651140910054, 4.0],
+                        color: [0.0, 0.0, 1.0],
+                        args: ["B", "C"],
+                        labeled: true,
+                        size: 1,
+                    },
+                    {
+                        name: "D",
+                        type: "OtherIntersectionCL",
+                        pos: [2.2969358423596415, -4.0, -0.8047281188189973],
+                        color: [1.0, 0.7843138, 0.0],
+                        args: ["C0", "a", "B"],
+                        labeled: true,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 336,
+                        transform: [
+                            {
+                                visibleRect: [-9.04, 9.32, 18.16, -4.12],
+                            },
+                        ],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>
-

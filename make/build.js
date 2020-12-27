@@ -29,21 +29,14 @@ module.exports = function build(settings, task) {
     var closure_zip = "compiler-" + settings.get("closure_version") + ".zip";
     var closure_url = settings.get("closure_urlbase") + "/" + closure_zip;
     var closure_archive = "download/arch/" + closure_zip;
-    var closure_jar =
-        "download/closure-compiler/closure-compiler-v" +
-        settings.get("closure_version") +
-        ".jar";
+    var closure_jar = "download/closure-compiler/closure-compiler-v" + settings.get("closure_version") + ".jar";
 
     task("closure-zip", [], function () {
         this.download(closure_url, closure_archive);
     });
 
     task("closure-jar", ["closure-zip"], function () {
-        this.unzip(
-            closure_archive,
-            closure_jar,
-            "closure-compiler-v" + settings.get("closure_version") + ".jar"
-        );
+        this.unzip(closure_archive, closure_jar, "closure-compiler-v" + settings.get("closure_version") + ".jar");
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -77,13 +70,7 @@ module.exports = function build(settings, task) {
     task("em.ifs", [], function () {
         var settings = {
             ONLY_MY_CODE: 1,
-            EXPORTED_FUNCTIONS: [
-                "_real",
-                "_init",
-                "_setIFS",
-                "_setProj",
-                "_setMoebius",
-            ],
+            EXPORTED_FUNCTIONS: ["_real", "_init", "_setIFS", "_setProj", "_setMoebius"],
         };
         var args = [
             "--std=c++11",
@@ -108,10 +95,7 @@ module.exports = function build(settings, task) {
 
     task("exposed", ["cs2js"], function () {
         version(this);
-        this.concat(
-            src.lib.concat("src/js/expose.js", src.inclosure),
-            "build/js/exposed.js"
-        );
+        this.concat(src.lib.concat("src/js/expose.js", src.inclosure), "build/js/exposed.js");
     });
 
     task("closure", ["plain", "closure-jar"], function () {
@@ -124,18 +108,12 @@ module.exports = function build(settings, task) {
             js: ["build/js/Cindy.plain.js"],
             create_source_map: "build/js/Cindy.closure.js.tmp.map",
             source_map_format: "V3",
-            source_map_location_mapping: [
-                "build/js/|",
-                "src/js/|../../src/js/",
-            ],
+            source_map_location_mapping: ["build/js/|", "src/js/|../../src/js/"],
             output_wrapper_file: "src/js/Cindy.js.wrapper",
             warning_level: "DEFAULT",
         });
         this.applySourceMap(
-            [
-                "build/js/Cindy.plain.js.map",
-                "build/js/Cindy.closure.js.tmp.map",
-            ],
+            ["build/js/Cindy.plain.js.map", "build/js/Cindy.closure.js.tmp.map"],
             "build/js/Cindy.closure.js"
         );
     });
@@ -180,21 +158,17 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     task("excomp", [], function () {
-        this.excomp(
-            "examples/**/*.html",
-            "src/js/libcs/Parser.js",
-            function (html, parser) {
-                var re = /<script[^>]*type *= *['"]text\/x-cindyscript['"][^>]*>([^]*?)<\/script>/g;
-                var match,
-                    count = 0;
-                while ((match = re.exec(html))) {
-                    ++count;
-                    var res = parser.parse(match[1]);
-                    if (res.ctype === "error") throw res;
-                }
-                return count;
+        this.excomp("examples/**/*.html", "src/js/libcs/Parser.js", function (html, parser) {
+            var re = /<script[^>]*type *= *['"]text\/x-cindyscript['"][^>]*>([^]*?)<\/script>/g;
+            var match,
+                count = 0;
+            while ((match = re.exec(html))) {
+                ++count;
+                var res = parser.parse(match[1]);
+                if (res.ctype === "error") throw res;
             }
-        );
+            return count;
+        });
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -241,41 +215,20 @@ module.exports = function build(settings, task) {
     // Check that the code has been beautified
     //////////////////////////////////////////////////////////////////////
 
-    task("alltests", [
-        "tests",
-        "jshint",
-        "beautified",
-        "deploy",
-        "textattr",
-        "forbidden",
-        "ref",
-    ]);
+    task("alltests", ["tests", "jshint", "beautified", "deploy", "textattr", "forbidden", "ref"]);
 
     task("beautified", [], function () {
-        this.cmd(
-            "git",
-            "diff",
-            "--exit-code",
-            "--name-only",
-            '":(excluded)*!package-lock.json"',
-            {
-                errorMessages: {
-                    1: "Please stage the files listed above (e.g. using “git add -u”)",
-                },
-            }
-        );
+        this.cmd("git", "diff", "--exit-code", "--name-only", '":(excluded)*!package-lock.json"', {
+            errorMessages: {
+                1: "Please stage the files listed above (e.g. using “git add -u”)",
+            },
+        });
         this.cmdscript("prettier", prettier_args);
-        this.cmd(
-            "git",
-            "diff",
-            "--exit-code",
-            '":(excluded)*!package-lock.json"',
-            {
-                errorMessages: {
-                    1: "Your code has been beautified. Please review these changes.",
-                },
-            }
-        );
+        this.cmd("git", "diff", "--exit-code", '":(excluded)*!package-lock.json"', {
+            errorMessages: {
+                1: "Your code has been beautified. Please review these changes.",
+            },
+        });
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -385,10 +338,7 @@ module.exports = function build(settings, task) {
             compilation_level: this.setting("c3d_closure_level"),
             warning_level: this.setting("c3d_closure_warnings"),
             source_map_format: "V3",
-            source_map_location_mapping: [
-                "build/js/|",
-                "plugins/|../../plugins/",
-            ],
+            source_map_location_mapping: ["build/js/|", "plugins/|../../plugins/"],
             output_wrapper_file: "plugins/cindy3d/src/js/Cindy3D.js.wrapper",
             js_output_file: "build/js/Cindy3D.js",
             externs: "plugins/cindyjs.externs",
@@ -460,16 +410,11 @@ module.exports = function build(settings, task) {
             compilation_level: this.setting("cgl_closure_level"),
             warning_level: this.setting("cgl_closure_warnings"),
             source_map_format: "V3",
-            source_map_location_mapping: [
-                "build/js/|",
-                "plugins/|../../plugins/",
-            ],
+            source_map_location_mapping: ["build/js/|", "plugins/|../../plugins/"],
             output_wrapper_file: "plugins/cindygl/src/js/CindyGL.js.wrapper",
             js_output_file: "build/js/CindyGL.js",
             externs: "plugins/cindyjs.externs",
-            js: ["build/js/cglres.js"]
-                .concat(cgl_mods_srcs)
-                .concat(cgl_mods_from_c3d_srcs),
+            js: ["build/js/cglres.js"].concat(cgl_mods_srcs).concat(cgl_mods_from_c3d_srcs),
         };
         if (this.setting("cindygl-dbg") !== undefined) {
             opts.compilation_level = "WHITESPACE_ONLY";
@@ -487,10 +432,7 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     var cc_get_commit = function () {
-        var commit = fs.readFileSync(
-            "plugins/ComplexCurves/lib/ComplexCurves.commit",
-            "utf8"
-        );
+        var commit = fs.readFileSync("plugins/ComplexCurves/lib/ComplexCurves.commit", "utf8");
         commit = commit.replace(/\s+/, "");
         cc_get_commit = function () {
             // cache result
@@ -503,9 +445,7 @@ module.exports = function build(settings, task) {
     task("ComplexCurves.get", [], function () {
         var id = cc_get_commit();
         this.download(
-            "https://github.com/ComplexCurves/ComplexCurves/archive/" +
-                id +
-                ".zip",
+            "https://github.com/ComplexCurves/ComplexCurves/archive/" + id + ".zip",
             "download/arch/ComplexCurves-" + id + ".zip"
         );
     });
@@ -534,34 +474,20 @@ module.exports = function build(settings, task) {
             compilation_level: this.setting("cc_closure_level"),
             rewrite_polyfills: false,
             warning_level: this.setting("cc_closure_warnings"),
-            output_wrapper_file:
-                "plugins/ComplexCurves/src/js/Plugin.js.wrapper",
+            output_wrapper_file: "plugins/ComplexCurves/src/js/Plugin.js.wrapper",
             js_output_file: "build/js/ComplexCurves.plugin.js",
-            externs: [
-                "plugins/cindyjs.externs",
-                "plugins/ComplexCurves/ComplexCurves.externs",
-            ],
-            js: [
-                "plugins/ComplexCurves/src/js/Plugin.js",
-                "plugins/cindy3d/src/js/Interface.js",
-            ],
+            externs: ["plugins/cindyjs.externs", "plugins/ComplexCurves/ComplexCurves.externs"],
+            js: ["plugins/ComplexCurves/src/js/Plugin.js", "plugins/cindy3d/src/js/Interface.js"],
         };
         this.closureCompiler(closure_jar, opts);
     });
 
-    task(
-        "ComplexCurves",
-        ["ComplexCurves.lib", "ComplexCurves.plugin"],
-        function () {
-            this.concat(
-                [
-                    cc_lib_dir + "build/ComplexCurves.js",
-                    "build/js/ComplexCurves.plugin.js",
-                ],
-                "build/js/ComplexCurves.js"
-            );
-        }
-    );
+    task("ComplexCurves", ["ComplexCurves.lib", "ComplexCurves.plugin"], function () {
+        this.concat(
+            [cc_lib_dir + "build/ComplexCurves.js", "build/js/ComplexCurves.plugin.js"],
+            "build/js/ComplexCurves.js"
+        );
+    });
 
     //////////////////////////////////////////////////////////////////////
     // Build symbolic-plugin
@@ -587,16 +513,7 @@ module.exports = function build(settings, task) {
     // Build JavaScript version of Quick Hull 3D
     //////////////////////////////////////////////////////////////////////
 
-    var fileNames = [
-        "QuickHull3D",
-        "Vector",
-        "HalfEdge",
-        "Vertex",
-        "VertexList",
-        "Face",
-        "FaceList",
-        "Plugin",
-    ];
+    var fileNames = ["QuickHull3D", "Vector", "HalfEdge", "Vertex", "VertexList", "Face", "FaceList", "Plugin"];
 
     var srcs = fileNames.map(function (fileName) {
         return "plugins/QuickHull3D/src/js/" + fileName + ".js";
@@ -612,12 +529,8 @@ module.exports = function build(settings, task) {
             compilation_level: this.setting("qh3d_closure_level"),
             warning_level: this.setting("qh3d_closure_warnings"),
             source_map_format: "V3",
-            source_map_location_mapping: [
-                "build/js/|",
-                "plugins/|../../plugins/",
-            ],
-            output_wrapper_file:
-                "plugins/QuickHull3D/src/js/QuickHull3D.js.wrapper",
+            source_map_location_mapping: ["build/js/|", "plugins/|../../plugins/"],
+            output_wrapper_file: "plugins/QuickHull3D/src/js/QuickHull3D.js.wrapper",
             js_output_file: "build/js/QuickHull3D.js",
             externs: "plugins/cindyjs.externs",
             js: srcs,
@@ -665,32 +578,15 @@ module.exports = function build(settings, task) {
         }
         if (browserifySrc) {
             if (standaloneName) {
-                o.node(
-                    "node_modules/browserify/bin/cmd.js",
-                    inFile,
-                    "--standalone",
-                    standaloneName,
-                    "-o",
-                    outFile
-                );
+                o.node("node_modules/browserify/bin/cmd.js", inFile, "--standalone", standaloneName, "-o", outFile);
             } else {
-                o.node(
-                    "node_modules/browserify/bin/cmd.js",
-                    inFile,
-                    "-o",
-                    outFile
-                );
+                o.node("node_modules/browserify/bin/cmd.js", inFile, "-o", outFile);
             }
         }
     }
 
     task("browserify-csg", [], function () {
-        browserify(
-            this,
-            "csg",
-            "node_modules/@jscad/csg/csg.js",
-            "build/js/csg.js"
-        );
+        browserify(this, "csg", "node_modules/@jscad/csg/csg.js", "build/js/csg.js");
     });
 
     task("cindyprint", ["closure-jar", "browserify-csg"], function () {
@@ -703,13 +599,9 @@ module.exports = function build(settings, task) {
             compilation_level: "SIMPLE",
             warning_level: "DEFAULT",
             source_map_format: "V3",
-            source_map_location_mapping: [
-                "build/js/|",
-                "plugins/|../../plugins/",
-            ],
+            source_map_location_mapping: ["build/js/|", "plugins/|../../plugins/"],
             source_map_input: "Cindy3D.js|Cindy3D.js.map",
-            output_wrapper_file:
-                "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
+            output_wrapper_file: "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
             js_output_file: "build/js/CindyPrint.js",
             externs: "plugins/cindyjs.externs",
             js: [
@@ -758,13 +650,9 @@ module.exports = function build(settings, task) {
             compilation_level: "SIMPLE",
             warning_level: "DEFAULT",
             source_map_format: "V3",
-            source_map_location_mapping: [
-                "build/js/|",
-                "plugins/|../../plugins/",
-            ],
+            source_map_location_mapping: ["build/js/|", "plugins/|../../plugins/"],
             source_map_input: "Cindy3D.js|Cindy3D.js.map",
-            output_wrapper_file:
-                "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
+            output_wrapper_file: "plugins/cindyprint/src/js/CindyPrint.js.wrapper",
             js_output_file: "build/js/CindyPrintWorker.js",
             externs: "plugins/cindyjs.externs",
             js: [
@@ -787,12 +675,7 @@ module.exports = function build(settings, task) {
     });
 
     task("browserify-leapjs", [], function () {
-        browserify(
-            this,
-            "Leap",
-            "node_modules/leapjs/lib/index.js",
-            "build/js/leap-0.6.4.js"
-        );
+        browserify(this, "Leap", "node_modules/leapjs/lib/index.js", "build/js/leap-0.6.4.js");
     });
 
     task("cindyleap", ["closure-jar", "browserify-leapjs"], function () {
@@ -806,12 +689,8 @@ module.exports = function build(settings, task) {
             // leap.js compilation throws lots of warnings not in our responsibility
             warning_level: "QUIET",
             source_map_format: "V3",
-            source_map_location_mapping: [
-                "build/js/|",
-                "plugins/|../../plugins/",
-            ],
-            output_wrapper_file:
-                "plugins/cindyleap/src/js/CindyLeap.js.wrapper",
+            source_map_location_mapping: ["build/js/|", "plugins/|../../plugins/"],
+            output_wrapper_file: "plugins/cindyleap/src/js/CindyLeap.js.wrapper",
             js_output_file: "build/js/CindyLeap.js",
             externs: "plugins/cindyjs.externs",
             js: [
@@ -852,10 +731,7 @@ module.exports = function build(settings, task) {
             compilation_level: "SIMPLE",
             warning_level: "DEFAULT",
             source_map_format: "V3",
-            source_map_location_mapping: [
-                "build/js/|",
-                "plugins/|../../plugins/",
-            ],
+            source_map_location_mapping: ["build/js/|", "plugins/|../../plugins/"],
             output_wrapper_file: "plugins/cindyxr/src/js/CindyXR.js.wrapper",
             js_output_file: "build/js/CindyXR.js",
             externs: "plugins/cindyjs.externs",
@@ -874,12 +750,7 @@ module.exports = function build(settings, task) {
     // Run js-beautify for consistent coding style
     //////////////////////////////////////////////////////////////////////
 
-    var prettier_args = [
-        "--write",
-        src.ours.concat(cgl_mods_srcs).filter(function (name) {
-            return !/^build\//.test(name);
-        }),
-    ];
+    var prettier_args = ["--write", "."];
 
     task("beautify", [], function () {
         this.cmdscript("prettier", prettier_args);
@@ -892,20 +763,13 @@ module.exports = function build(settings, task) {
     var gwt_zip = "gwt-" + settings.get("gwt_version") + ".zip";
     var gwt_url = settings.get("gwt_urlbase") + "/" + gwt_zip;
     var gwt_archive = "download/arch/" + gwt_zip;
-    var gwt_parts = [
-        "gwt-dev",
-        "gwt-user",
-        "validation-api-1.0.0.GA",
-        "validation-api-1.0.0.GA-sources",
-    ];
+    var gwt_parts = ["gwt-dev", "gwt-user", "validation-api-1.0.0.GA", "validation-api-1.0.0.GA-sources"];
     var gwt_jars = gwt_parts.map(function (name) {
         return "gwt-" + settings.get("gwt_version") + "/" + name + ".jar";
     });
-    var gwt_modules = glob
-        .sync("src/java/cindyjs/*.gwt.xml")
-        .map(function (name) {
-            return path.basename(name, ".gwt.xml");
-        });
+    var gwt_modules = glob.sync("src/java/cindyjs/*.gwt.xml").map(function (name) {
+        return path.basename(name, ".gwt.xml");
+    });
 
     task("gwt-zip", [], function () {
         this.download(gwt_url, gwt_archive);
@@ -923,8 +787,7 @@ module.exports = function build(settings, task) {
     gwt_modules.forEach(function (gwt_module) {
         task(gwt_module, ["gwt-jars"], function () {
             this.setting("gwt_version");
-            var mainFile =
-                "build/js/" + gwt_module + "/" + gwt_module + ".nocache.js";
+            var mainFile = "build/js/" + gwt_module + "/" + gwt_module + ".nocache.js";
             this.delete("build/js/" + gwt_module);
             this.output(mainFile);
             var cp = ["src/java/"]
@@ -953,9 +816,7 @@ module.exports = function build(settings, task) {
     // Copy KaTeX to build directory
     //////////////////////////////////////////////////////////////////////
 
-    var katex_src = glob
-        .sync("lib/katex/*.*")
-        .concat(glob.sync("lib/katex/fonts/*.*"), "lib/webfont.js");
+    var katex_src = glob.sync("lib/katex/*.*").concat(glob.sync("lib/katex/fonts/*.*"), "lib/webfont.js");
 
     task("katex_src", [], function () {
         this.parallel(function () {
@@ -966,10 +827,7 @@ module.exports = function build(settings, task) {
     });
 
     task("katex-plugin", [], function () {
-        this.copy(
-            "plugins/katex/src/js/katex-plugin.js",
-            "build/js/katex-plugin.js"
-        );
+        this.copy("plugins/katex/src/js/katex-plugin.js", "build/js/katex-plugin.js");
     });
 
     task("katex", ["katex_src", "katex-plugin"]);
@@ -989,10 +847,7 @@ module.exports = function build(settings, task) {
     });
 
     task("midi-plugin", [], function () {
-        this.copy(
-            "plugins/midi/src/js/midi-plugin.js",
-            "build/js/midi-plugin.js"
-        );
+        this.copy("plugins/midi/src/js/midi-plugin.js", "build/js/midi-plugin.js");
     });
 
     task("midi", ["midi_src", "midi-plugin"]);
@@ -1060,9 +915,7 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     var images = glob.sync("images/*.{png,jpg,svg}");
-    var imagesCindyPrint = glob.sync(
-        "plugins/cindyprint/images/*.{png,jpg,svg}"
-    );
+    var imagesCindyPrint = glob.sync("plugins/cindyprint/images/*.{png,jpg,svg}");
 
     task("images", [], function () {
         this.parallel(function () {
@@ -1070,16 +923,7 @@ module.exports = function build(settings, task) {
                 this.copy(input, path.join("build", "js", input));
             }, this);
             imagesCindyPrint.forEach(function (input) {
-                this.copy(
-                    input,
-                    path.join(
-                        "build",
-                        "js",
-                        "images",
-                        "cindyprint",
-                        path.basename(input)
-                    )
-                );
+                this.copy(input, path.join("build", "js", "images", "cindyprint", path.basename(input)));
             }, this);
         });
     });
@@ -1088,19 +932,15 @@ module.exports = function build(settings, task) {
     // Copy things which constitute a release
     //////////////////////////////////////////////////////////////////////
 
-    task(
-        "deploy",
-        ["all", "ComplexCurves", "soundfonts", "closure"],
-        function () {
-            this.delete("build/deploy");
-            this.mkdir("build/deploy");
-            this.node("tools/prepare-deploy.js", {
-                errorMessages: {
-                    2: "Unknown files; running “make clean” may help here",
-                },
-            });
-        }
-    );
+    task("deploy", ["all", "ComplexCurves", "soundfonts", "closure"], function () {
+        this.delete("build/deploy");
+        this.mkdir("build/deploy");
+        this.node("tools/prepare-deploy.js", {
+            errorMessages: {
+                2: "Unknown files; running “make clean” may help here",
+            },
+        });
+    });
 
     //////////////////////////////////////////////////////////////////////
     // Help debugging a remote site

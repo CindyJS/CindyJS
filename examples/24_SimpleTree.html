@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Simple Tree</h1>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript">
             t1=map(A,B,B,C);
             t2=map(A,B,B,D);
             col(x):=(0.6*x,(1-x)*.8,0);
@@ -30,27 +26,18 @@
             nn=12;
 
             tree(A.homog,B.homog,nn);
-
-
         </script>
 
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
-
-            var gslp=[
-
-                      {name:"A", type:"Free", pos:[0,-8],color:[1,1,1]},
-                      {name:"B", type:"Free", pos:[0,-1.5],color:[1,1,1]},
-                      {name:"C", type:"Free", pos:[2,2],color:[1,1,1]},
-                      {name:"D", type:"Free", pos:[-2,2.5],color:[1,1,1]},
-                                           ];
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp});
-
+            var gslp = [
+                { name: "A", type: "Free", pos: [0, -8], color: [1, 1, 1] },
+                { name: "B", type: "Free", pos: [0, -1.5], color: [1, 1, 1] },
+                { name: "C", type: "Free", pos: [2, 2], color: [1, 1, 1] },
+                { name: "D", type: "Free", pos: [-2, 2.5], color: [1, 1, 1] },
+            ];
+            CindyJS({ canvasname: "CSCanvas", movescript: "csmove", geometry: gslp });
         </script>
-
-	</body>
+    </body>
 </html>

@@ -1,41 +1,84 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>ConstructionLineByFixedAngle.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>ConstructionLineByFixedAngle.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-    <script type="text/javascript">
-CindyJS({ 
-	scripts: "cs*", 
-	defaultAppearance: {}, angle: 10 * Math.PI / 180,
-	geometry: [ 
-		{ name: "A", type: "Free", pos: [ -2.0, -4.0, 2.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
-		{ name: "a", type: "Through", pos: [ -2.4, 3.2, 4.0 ], color: [ 0.0, 0.0, 1.0 ], args: [ "A" ], labeled: true, size: 1 }, 
-		{ name: "B", type: "PointOnLine", pos: [ 4.0, 2.285714285714285, 0.5714285714285714 ], color: [ 1.0, 0.0, 0.0 ], args: [ "a" ], labeled: true }, 
-		{ name: "b", type: "LineByFixedAngle", pos: [ -1.2296635084326417, 1.1519111397571236, 4.0 ], angle: 10 * Math.PI / 180, color: [ 1.0, 1.0, 0.0 ], args: [ "a", "B" ], labeled: true, size: 1 }, 
-		{ name: "c", type: "LineByFixedAngle", pos: [ -0.7148945654344956, 2.3574472827172475, 4.0 ], angle: -20 * Math.PI / 180, color: [ 0.0, 1.0, 1.0 ], args: [ "a", "A" ], labeled: true, size: 1 } ], 
-	ports: [ 
-		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.68 ] } ], background: "rgb(168,176,192)" } ] });
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {},
+                angle: (10 * Math.PI) / 180,
+                geometry: [
+                    { name: "A", type: "Free", pos: [-2.0, -4.0, 2.0], color: [1.0, 0.0, 0.0], labeled: true },
+                    {
+                        name: "a",
+                        type: "Through",
+                        pos: [-2.4, 3.2, 4.0],
+                        color: [0.0, 0.0, 1.0],
+                        args: ["A"],
+                        labeled: true,
+                        size: 1,
+                    },
+                    {
+                        name: "B",
+                        type: "PointOnLine",
+                        pos: [4.0, 2.285714285714285, 0.5714285714285714],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["a"],
+                        labeled: true,
+                    },
+                    {
+                        name: "b",
+                        type: "LineByFixedAngle",
+                        pos: [-1.2296635084326417, 1.1519111397571236, 4.0],
+                        angle: (10 * Math.PI) / 180,
+                        color: [1.0, 1.0, 0.0],
+                        args: ["a", "B"],
+                        labeled: true,
+                        size: 1,
+                    },
+                    {
+                        name: "c",
+                        type: "LineByFixedAngle",
+                        pos: [-0.7148945654344956, 2.3574472827172475, 4.0],
+                        angle: (-20 * Math.PI) / 180,
+                        color: [0.0, 1.0, 1.0],
+                        args: ["a", "A"],
+                        labeled: true,
+                        size: 1,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 350,
+                        transform: [{ visibleRect: [-9.04, 9.32, 18.16, -4.68] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

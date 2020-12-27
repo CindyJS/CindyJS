@@ -1,52 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-		<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-		<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
 
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Accessing array indices within loop</h1>
-		
-		<script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-    </script>
-    
-    <script id="csdraw" type="text/x-cindyscript">
-		coeff = [2 , i, -3, 2];
-		
-		p(z) := (
-			sum = 0;
-			forall(0..3,
-				sum = sum + coeff_(#+1) * z^#
-			);
-			sum
-		);
-		
-		colorplot(
-    	hue(im(log(p(complex(#))))/2/pi);
-		);
-    </script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
+    <body style="font-family: Arial">
+        <h1>CindyJS: Accessing array indices within loop</h1>
 
-    <div  id="CSCanvas"></div>
-    
-    <script type="text/javascript">
-        CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:[],
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 500,
-                      height: 500,
-                      transform: [ { visibleRect: [-10,-10,10,10] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+            coeff = [2 , i, -3, 2];
+
+            p(z) := (
+            	sum = 0;
+            	forall(0..3,
+            		sum = sum + coeff_(#+1) * z^#
+            	);
+            	sum
+            );
+
+            colorplot(
+              	hue(im(log(p(complex(#))))/2/pi);
+            );
+        </script>
+
+        <div id="CSCanvas"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: [],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 500,
+                        height: 500,
+                        transform: [{ visibleRect: [-10, -10, 10, 10] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

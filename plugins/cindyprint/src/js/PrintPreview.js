@@ -1,4 +1,3 @@
-
 /**
  * This class provides helper functions for creating a Cindy3D instance that can be used for rendering a
  * preview of a triangle mesh that the user wants to download for printing.
@@ -35,12 +34,11 @@ let useWebWorkers = true;
 /** @type {Worker} */
 let meshCreationWorker = null;
 
-
 /**
  * Adds a canvas object to the HTML document used for rendering the print preview in an additional Cindy3D instance.
  */
 function initPrintPreviewCanvas() {
-    let cindyCanvas = document.getElementById('Cindy3D');
+    let cindyCanvas = document.getElementById("Cindy3D");
     let canvasWidth = 300;
     let canvasHeight = 200;
     if (cindyCanvas) {
@@ -48,15 +46,23 @@ function initPrintPreviewCanvas() {
         canvasWidth = cindyCanvas.width;
         canvasHeight = cindyCanvas.height;
 
-        cindyCanvas.insertAdjacentHTML('afterend', '<canvas id="' + printPreviewInstanceName
-            + '" style="border: none;" width="' + canvasWidth + '" height="' + canvasHeight + '"></canvas>');
+        cindyCanvas.insertAdjacentHTML(
+            "afterend",
+            '<canvas id="' +
+                printPreviewInstanceName +
+                '" style="border: none;" width="' +
+                canvasWidth +
+                '" height="' +
+                canvasHeight +
+                '"></canvas>'
+        );
     } else {
         // Case #2: CindyGL
-        cindyCanvas = document.getElementById('CSCanvas');
-        canvasWidth = self['cdy'].canvas.clientWidth;
-        canvasHeight = self['cdy'].canvas.clientHeight;
+        cindyCanvas = document.getElementById("CSCanvas");
+        canvasWidth = self["cdy"].canvas.clientWidth;
+        canvasHeight = self["cdy"].canvas.clientHeight;
 
-        let canvasWrapper = document.getElementById('CanvasWrapper');
+        let canvasWrapper = document.getElementById("CanvasWrapper");
         if (canvasWrapper) {
             /**
              * Case #2.1: The CindyGL canvas is wrapped by a <div> element (recommended!).
@@ -65,15 +71,39 @@ function initPrintPreviewCanvas() {
              */
             canvasWrapper.style["display"] = "flex";
             canvasWrapper.style["flex-wrap"] = "wrap";
-            canvasWrapper.insertAdjacentHTML('beforeend', '<div style="position: relative; width: ' + canvasWidth + 'px; height: ' + canvasHeight + 'px;"><canvas id="' + printPreviewInstanceName
-                + '" style="border: none;position: absolute; top: 0px; left: 0px;" width="' + canvasWidth + '" height="' + canvasHeight + '"></canvas></div>');
+            canvasWrapper.insertAdjacentHTML(
+                "beforeend",
+                '<div style="position: relative; width: ' +
+                    canvasWidth +
+                    "px; height: " +
+                    canvasHeight +
+                    'px;"><canvas id="' +
+                    printPreviewInstanceName +
+                    '" style="border: none;position: absolute; top: 0px; left: 0px;" width="' +
+                    canvasWidth +
+                    '" height="' +
+                    canvasHeight +
+                    '"></canvas></div>'
+            );
         } else {
             /**
              * Case #2.2: The CindyGL canvas is NOT wrapped by a <div> element.
              * Therefore, the two canvas objects are always positioned below each other and never next to each other.
              */
-            cindyCanvas.insertAdjacentHTML('afterend', '<div style="position: relative; width: ' + canvasWidth + 'px; height: ' + canvasHeight + 'px;"><canvas id="' + printPreviewInstanceName
-                + '" style="border: none;position: absolute; top: 0px; left: 0px;" width="' + canvasWidth + '" height="' + canvasHeight + '"></canvas></div>');
+            cindyCanvas.insertAdjacentHTML(
+                "afterend",
+                '<div style="position: relative; width: ' +
+                    canvasWidth +
+                    "px; height: " +
+                    canvasHeight +
+                    'px;"><canvas id="' +
+                    printPreviewInstanceName +
+                    '" style="border: none;position: absolute; top: 0px; left: 0px;" width="' +
+                    canvasWidth +
+                    '" height="' +
+                    canvasHeight +
+                    '"></canvas></div>'
+            );
         }
     }
 
@@ -95,14 +125,11 @@ function initPrintPreviewGL(gl) {
         "uniform mat4 uProjectionMatrix;" +
         "uniform mat4 uModelViewMatrix;" +
         "uniform mat4 uModelMatrix;" +
-
         "void main() {" +
         "fragmentPosition = (uModelMatrix * vec4(aPosition, 1.0)).xyz;" +
         "fragmentNormal = (uModelMatrix * vec4(aNormal, 1.0)).xyz;" +
         "gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);" +
-        "}"
-        ;
-
+        "}";
     let previewFragmentShaderString =
         "precision highp float;\n" +
         "uniform vec3 cameraPosition;\n" +
@@ -110,14 +137,12 @@ function initPrintPreviewGL(gl) {
         "uniform vec3 objectColor;\n" +
         "varying vec3 fragmentPosition;\n" +
         "varying vec3 fragmentNormal;\n" +
-
         "vec3 light(vec3 n, vec3 l, vec3 v, float spec, vec3 color) {\n" +
         "vec3 h = normalize(v + l);\n" +
         "float kd = clamp(dot(n,l), 0.0, 1.0) * 0.4;\n" +
         "float ks = pow(clamp(dot(n,h), 0.0, 1.0), 8.0)*spec;\n" +
         "return vec3(kd*color + vec3(ks));" +
         "}\n" +
-
         "void main()\n" +
         "{\n" +
         // Phong lighting
@@ -127,9 +152,7 @@ function initPrintPreviewGL(gl) {
         "vec3 lightColor1 = light(n, normalize(vec3(5.0, -3.0, 1.0)), v, 0.2, vec3(0.3, 0.3, 0.5));\n" +
         "vec3 lightColor2 = light(n, normalize(vec3(-1.2, 0.6, 1.0)), v, 0.3, vec3(0.6, 0.6, 0.6));\n" +
         "gl_FragColor = vec4(lightColor1 + lightColor2 + vec3(ka), 1.0);\n" +
-        "}\n"
-        ;
-
+        "}\n";
     previewShaderProgram = new ShaderProgram(gl, previewVertexShaderString, previewFragmentShaderString);
 
     isPrintPreviewGLInitialized = true;
@@ -164,7 +187,7 @@ function setPreviewMesh(newPreviewMesh) {
  * The creation of triangle meshes can be offloaded to web workers. This way, the UI is responsive even
  * when we have a heavy computing workload. However, if a new worker is started, the old one should be
  * terminated, as its result probably has become irrelevant to the user.
- * @param {Worker} worker 
+ * @param {Worker} worker
  */
 function setMeshCreationWorker(worker) {
     if (meshCreationWorker) {
@@ -173,7 +196,6 @@ function setMeshCreationWorker(worker) {
     }
     meshCreationWorker = worker;
 }
-
 
 /**
  * Creates the vertex and normal buffers used for rendering the print preview of @see previewMesh.
@@ -214,7 +236,6 @@ function createPrintPreviewRenderData(gl) {
     needsRecreatePreviewRenderData = false;
     console.log("Updated preview.");
 }
-
 
 /**
  * Renders the print preview using the WebGL context of the print preview canvas.
@@ -263,7 +284,6 @@ function renderPrintPreview(gl) {
     gl.disableVertexAttribArray(aNormalLoc);
 }
 
-
 /**
  * Renders a rotating circle in the middle of the window indicating waiting for a new mesh.
  * @param {WebGLRenderingContext} gl The WebGL rendering context of the print preview canvas.
@@ -275,13 +295,10 @@ function renderWaitSymbol(gl) {
             "attribute vec3 aPos;" +
             "attribute vec2 aTexCoord;" +
             "varying vec2 iUv;" +
-
             "void main() {" +
             "iUv = aTexCoord;" +
             "gl_Position = vec4(aPos, 1.0);" +
-            "}"
-            ;
-
+            "}";
         let fragmentShaderCode =
             "precision highp float;\n" +
             "varying vec2 iUv;\n" +
@@ -291,7 +308,6 @@ function renderWaitSymbol(gl) {
             "return smoothstep(minval-EPSILON, minval+EPSILON, x) - smoothstep(maxval-EPSILON, maxval+EPSILON, x);\n" +
             "}\n" +
             "#define PI 3.14159265358979323846\n" +
-
             "void main()\n" +
             "{\n" +
             "vec2 unitCirclePos = normalize(iUv*2.0 - vec2(1.0));\n" +
@@ -301,9 +317,7 @@ function renderWaitSymbol(gl) {
             "float angle = atan(unitCirclePos.y, unitCirclePos.x);\n" +
             "vec3 color = vec3(mod(angle+PI+time, 2.0*PI)/(2.0*PI)/2.0 + 0.3);\n" +
             "gl_FragColor = vec4(interpolationFactor*color, 1.0);\n" +
-            "}"
-            ;
-
+            "}";
         waitSymbolShaderProgram = new ShaderProgram(gl, vertexShaderCode, fragmentShaderCode);
 
         fullscreenQuadVertexBuffer = gl.createBuffer();
@@ -332,8 +346,6 @@ function renderWaitSymbol(gl) {
     gl.disableVertexAttribArray(aTexLoc);
 }
 
-
-
 /**
  * Draws the print preview using Cindy3D and WebGL.
  * @param {object} api The CindyScript API object.
@@ -341,7 +353,7 @@ function renderWaitSymbol(gl) {
 function drawPrintPreview(api) {
     let evokeCS = api.instance.evokeCS;
     evokeCS('begin3d(name->"' + printPreviewInstanceName + '");');
-    evokeCS('depthrange3d(0.2, 1000.0);');
+    evokeCS("depthrange3d(0.2, 1000.0);");
     CindyJS._pluginRegistry.Cindy3D.instances[printPreviewInstanceName].externalRenderHook = renderPrintPreview;
-    evokeCS('end3d();');
+    evokeCS("end3d();");
 }

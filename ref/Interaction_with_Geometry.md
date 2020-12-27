@@ -72,9 +72,9 @@ The following code lines summarize possible ways to move geometric elements (we 
     > C.matrix / C.matrix_1_1
     < [[1, 0, 0], [0, 1, 0], [0, 0, -4]]
 
-------
+---
 
-------
+---
 
 ### Handles to Objects
 
@@ -83,7 +83,7 @@ The following code lines summarize possible ways to move geometric elements (we 
 **Description:**
 This operator gives a handle to the element that is currently moved by the mouse.
 
-------
+---
 
 #### Elements close to the mouse: `elementsatmouse()`
 
@@ -100,14 +100,14 @@ They reappear if the mouse moves away again.
     > apply(elementsatmouse(),#.alpha=0);
     > repaint();
 
-------
+---
 
 #### Incidences of an object: `incidences(‹geo›)`
 
 **Description:**
 This operator returns a list all the elements that are generically incident to a geometric element `‹geo›`.
 
-------
+---
 
 #### Getting an element by name: `element(‹string›)`
 
@@ -135,7 +135,7 @@ Instead, you use:
     > element("i").color
     < [1, 0, 0]
 
-------
+---
 
 ### Creating and Removing Elements
 
@@ -147,7 +147,7 @@ The point will beset to position `‹pos›`.
 If an element with this name is already exists then no new element is created.
 However, if there already exists a free point with this name, then this point is moved to the specified position.
 
-------
+---
 
 #### Creating a geometric element: `create(‹list1›,‹string›,‹list2›)`
 
@@ -186,7 +186,7 @@ Internally there is yet another element (names `P__Q` as can be seen from the li
 
 You can find the valid parameters for elements by constructing them manually and using the [`algorithm`](#algorithm$1) and [`inputs`](#inputs$1) functions described below.
 
-------
+---
 
 #### Creating a geometric element with no given name: `create(‹string›,‹list2›)`
 
@@ -195,7 +195,7 @@ If an algorithm (such as `"IntersectionCircleCircle"`) gives multiple geometric 
 
 If too many arguments are given in `‹list2›`, then those arguments are ignored and the last given argument will be interpreted as a modifier `pos`, if `pos` has not been defined yet.
 
-------
+---
 
 #### Removing a geometric element: `removeelement(‹geo›)`
 
@@ -204,7 +204,7 @@ If too many arguments are given in `‹list2›`, then those arguments are ignor
 **Description:**
 Removes a geometric element together with all its dependent elements from a construction.
 
-------
+---
 
 #### Input elements of an element: `inputs(‹geo›)`
 
@@ -232,7 +232,7 @@ not as name strings.
     > isstring(inputs(a)_1)
     < false
 
-------
+---
 
 #### Algorithm of an element: `algorithm(‹geo›)`
 
@@ -285,7 +285,7 @@ As written above, Cinderella uses different names here:
     > apply(allelements(), algorithm(#, compatibility->"cinderella"))
     < ["FreePoint", "FreePoint", "Join", "Mid", "Orthogonal"]
 
-------
+---
 
 ### Accessing Element Properties
 
@@ -302,7 +302,7 @@ All of them can be generically accessed by the following operators.
 Returns a list of names of all private properties of a geometric element.
 
 **Example:**
-The operator `inspect(A)` applied to a the free point *A* returns the following list of property names.
+The operator `inspect(A)` applied to a the free point _A_ returns the following list of property names.
 
     - skip test: inspect not implemented yet
     > inspect(A)
@@ -312,7 +312,7 @@ The operator `inspect(A)` applied to a the free point *A* returns the following 
     < ptsize,pointborder,printname,point.image,
     < point.image.media,point.image.rotation,freept.pos]
 
-------
+---
 
 #### Accessing an inspectable property: `inspect(‹geo›,‹string›)`
 
@@ -322,9 +322,9 @@ The operator `inspect(A)` applied to a the free point *A* returns the following 
 Accesses an arbitrary inspectable property.
 
 **Example:**
-One can access the color of a point *A* by `inspect(A,"color")`
+One can access the color of a point _A_ by `inspect(A,"color")`
 
-------
+---
 
 #### Setting an inspectable property: `inspect(‹geo›,‹string›,‹data›)`
 
@@ -334,11 +334,11 @@ One can access the color of a point *A* by `inspect(A,"color")`
 Setting the value of inspectable property.
 
 **Example:**
-One can set the color of a point *A* to white by `inspect(A,"color",(1,1,1))`
+One can set the color of a point _A_ to white by `inspect(A,"color",(1,1,1))`
 
-------
+---
 
-------
+---
 
 #### Forcing a repaint operation: `repaint()`
 
@@ -349,25 +349,25 @@ This operator causes an immediate repaint of the drawing surface.
 This operator is meant to be used whenever a script has updated a construction and wants to display the changes.
 It is not allowd to use this operator in the `draw` or in the `move` slot.
 
-------
+---
 
 #### Forcing a delayed repaint operation: `repaint(‹real›)`
 
 **Description:**
 As `repaint` but with a time delay of as many milliseconds as given by he parameter
 
-------
+---
 
 #### Points on a locus: `locusdata(‹locus›)`
 
 **Not available in CindyJS yet!**
 
 **Description:**
-This operator returns a list of points in *xy*-coordinates that are all on a locus given by the name `‹locus›` of a geometric element.
+This operator returns a list of points in _xy_-coordinates that are all on a locus given by the name `‹locus›` of a geometric element.
 
-------
+---
 
-------
+---
 
 #### Creating a continuity checkpoint: `continuefromhere()`
 
@@ -375,7 +375,7 @@ This operator returns a list of points in *xy*-coordinates that are all on a loc
 
 Usually if a mouse moves a geometric element, and then a script moves
 the same element to another position (and does not move any other
-element), then both of these moves are combined.  If one of them
+element), then both of these moves are combined. If one of them
 encounters a singular situation, then the whole operation will be
 considered singular, and subsequent moves will continue from the last
 non-singular situation before that move.

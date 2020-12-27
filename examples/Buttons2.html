@@ -1,55 +1,143 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Buttons2</title>
-    <link rel="stylesheet" href="../build/js/CindyJS.css">
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-    <script id="csinit" type="text/x-cindyscript">
-      Text2.fillcolor = [0.75, 0.75, 1];
-      Text5.fillcolor = [1, 1, 0];
-    </script>
-    <script type="text/javascript">
-CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  use: ["katex"],
-  geometry: [
-    {name: "a", type: "VerticalLine", pos: [4.0, -0.0, 0.0], color: [0.0, 0.0, 1.0]},
-    {name: "b", type: "VerticalLine", pos: [-0.4, -0.0, 4.0], color: [0.0, 0.0, 1.0]},
-    {name: "Text0", type: "Button", pos: [0.0, -4.0, -1.0], color: [0.0, 0.0, 0.0], text: "Left push", align: "left"},
-    {name: "Text1", type: "Button", pos: [0.0, -4.0, -2.0], color: [0.0, 0.0, 0.0], text: "center | center", align: "mid", fillcolor: [0, 1, 0]},
-    {name: "Text2", type: "Button", pos: [0.0, -0.0, 4.0], color: [0.0, 0.0, 0.0], text: "Right push", align: "right"},
-    {name: "Text3", type: "ToggleButton", pos: [4.0, 1.6, 0.4], color: [0.0, 0.0, 0.0], text: "Left toggle", align: "left"},
-    {name: "Text4", type: "ToggleButton", pos: [4.0, 0.8, 0.4], color: [0.0, 0.0, 0.0], text: "mid | mid", align: "mid", fillcolor: [1, 0.75, 0], fillalpha: 0.27},
-    {name: "Text5", type: "ToggleButton", pos: [4.0, -0.0, 0.4], color: [0.0, 0.0, 0.0], text: "Right toggle", align: "right"},
-    {name: "c", type: "VerticalLine", pos: [-0.8, -0.0, 4.0], color: [0.0, 0.0, 1.0]},
-    {name: "Text6", type: "Text", pos: [4.0, -0.0, 0.8], color: [0.0, 0.0, 0.0], text: "Right text", align: "right"},
-    {name: "Text7", type: "Text", pos: [4.0, 1.6, 0.8], color: [0.0, 0.0, 0.0], text: "middle | middle", align: "mid"},
-    {name: "Text8", type: "Text", pos: [4.0, 3.2, 0.8], color: [0.0, 0.0, 0.0], text: "Left text", align: "left"},
-    {name: "Text9", type: "ToggleButton", pos: [0.0, -4.0, 2.0], color: [1.0, 1.0, 1.0], alpha: 0.8, text: "$B_1$", pressed: true},
-    {name: "Text10", type: "ToggleButton", pos: [4.0, -1.6, 0.8], color: [0.0, 0.0, 0.0], text: "$\\sum_{i=1}^n a_ix^i$"},
-    {name: "Text11", type: "ToggleButton", pos: [4.0, -0.8, 0.4], color: [0.0, 0.0, 0.0], text: "Button $B_2$ or $\\R^2$"}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 479,
-    height: 242,
-    transform: [{visibleRect: [-4.66, 5.26, 14.5, -4.42]}],
-    background: "rgb(168,176,192)"
-  }],
-  cinderella: {build: 1843, version: [2, 9, 1843]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Buttons2</title>
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            Text2.fillcolor = [0.75, 0.75, 1];
+            Text5.fillcolor = [1, 1, 0];
+        </script>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                use: ["katex"],
+                geometry: [
+                    { name: "a", type: "VerticalLine", pos: [4.0, -0.0, 0.0], color: [0.0, 0.0, 1.0] },
+                    { name: "b", type: "VerticalLine", pos: [-0.4, -0.0, 4.0], color: [0.0, 0.0, 1.0] },
+                    {
+                        name: "Text0",
+                        type: "Button",
+                        pos: [0.0, -4.0, -1.0],
+                        color: [0.0, 0.0, 0.0],
+                        text: "Left push",
+                        align: "left",
+                    },
+                    {
+                        name: "Text1",
+                        type: "Button",
+                        pos: [0.0, -4.0, -2.0],
+                        color: [0.0, 0.0, 0.0],
+                        text: "center | center",
+                        align: "mid",
+                        fillcolor: [0, 1, 0],
+                    },
+                    {
+                        name: "Text2",
+                        type: "Button",
+                        pos: [0.0, -0.0, 4.0],
+                        color: [0.0, 0.0, 0.0],
+                        text: "Right push",
+                        align: "right",
+                    },
+                    {
+                        name: "Text3",
+                        type: "ToggleButton",
+                        pos: [4.0, 1.6, 0.4],
+                        color: [0.0, 0.0, 0.0],
+                        text: "Left toggle",
+                        align: "left",
+                    },
+                    {
+                        name: "Text4",
+                        type: "ToggleButton",
+                        pos: [4.0, 0.8, 0.4],
+                        color: [0.0, 0.0, 0.0],
+                        text: "mid | mid",
+                        align: "mid",
+                        fillcolor: [1, 0.75, 0],
+                        fillalpha: 0.27,
+                    },
+                    {
+                        name: "Text5",
+                        type: "ToggleButton",
+                        pos: [4.0, -0.0, 0.4],
+                        color: [0.0, 0.0, 0.0],
+                        text: "Right toggle",
+                        align: "right",
+                    },
+                    { name: "c", type: "VerticalLine", pos: [-0.8, -0.0, 4.0], color: [0.0, 0.0, 1.0] },
+                    {
+                        name: "Text6",
+                        type: "Text",
+                        pos: [4.0, -0.0, 0.8],
+                        color: [0.0, 0.0, 0.0],
+                        text: "Right text",
+                        align: "right",
+                    },
+                    {
+                        name: "Text7",
+                        type: "Text",
+                        pos: [4.0, 1.6, 0.8],
+                        color: [0.0, 0.0, 0.0],
+                        text: "middle | middle",
+                        align: "mid",
+                    },
+                    {
+                        name: "Text8",
+                        type: "Text",
+                        pos: [4.0, 3.2, 0.8],
+                        color: [0.0, 0.0, 0.0],
+                        text: "Left text",
+                        align: "left",
+                    },
+                    {
+                        name: "Text9",
+                        type: "ToggleButton",
+                        pos: [0.0, -4.0, 2.0],
+                        color: [1.0, 1.0, 1.0],
+                        alpha: 0.8,
+                        text: "$B_1$",
+                        pressed: true,
+                    },
+                    {
+                        name: "Text10",
+                        type: "ToggleButton",
+                        pos: [4.0, -1.6, 0.8],
+                        color: [0.0, 0.0, 0.0],
+                        text: "$\\sum_{i=1}^n a_ix^i$",
+                    },
+                    {
+                        name: "Text11",
+                        type: "ToggleButton",
+                        pos: [4.0, -0.8, 0.4],
+                        color: [0.0, 0.0, 0.0],
+                        text: "Button $B_2$ or $\\R^2$",
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 479,
+                        height: 242,
+                        transform: [{ visibleRect: [-4.66, 5.26, 14.5, -4.42] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1843, version: [2, 9, 1843] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

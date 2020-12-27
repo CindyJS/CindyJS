@@ -1,4 +1,4 @@
-#  Programming
+# Programming
 
 ## Control Operators
 
@@ -33,7 +33,7 @@ Otherwise, `___` is returned.
     > x = -3; if(x<0, -1);
     < -1
 
-------
+---
 
 #### The conditional branch operator: `if(‹bool›,‹expr1›,‹expr2›)`
 
@@ -76,12 +76,12 @@ This code fragment defines the function `f(x)` to be the absolute value function
     < 7
 
 **Example:**
-This code fragment takes a geometric element *A* (most probably a point) and sets its color to red or blue depending on the value of its *x*-coordinate.
+This code fragment takes a geometric element _A_ (most probably a point) and sets its color to red or blue depending on the value of its _x_-coordinate.
 
     - skip test: we can't have geometric elements in tests yet.
     > A.color=if(A.x>0,(1,0,0),(0,0,1))
 
-------
+---
 
 #### The trigger operator: `trigger(‹bool›,‹expr›)`
 
@@ -96,13 +96,13 @@ The purpose of this operator is to trigger side effects whenever some event occu
 The following code fragment demonstrates this behavior.
 
 **Example:**
-This code fragment will print a message whenever point `A` crosses the *y*-axis.
+This code fragment will print a message whenever point `A` crosses the _y_-axis.
 
     - skip test: operator "trigger" not implemented yet.
     > trigger(A.x<0,println("A now entered the x-negative half-plane"))
     > trigger(A.x>0,println("A now entered the x-positive half-plane"))
 
-------
+---
 
 #### The while loop: `while(‹bool›,‹expr›)`
 
@@ -136,7 +136,7 @@ The result of the evaluation is
 After its evaluation, the value of variable `erg` is `10`.
 A word of caution: one should be aware of the fact that `while` operations may easily create infinite loops, if the conditional is never satisfied.
 
-------
+---
 
 #### The repeat loop: `repeat(‹number›,‹expr›)`
 
@@ -185,7 +185,7 @@ The table below demonstrates different uses of the modifiers.
     > a = []; repeat(6, start->3, stop->4, step->0.4,a = a ++ [#]); a
     < [3, 3.4, 3.8]
 
-------
+---
 
 #### The repeat loop: `repeat(‹number›,‹var›,‹expr›)`
 
@@ -285,7 +285,7 @@ The variable is restricted to the local scope:
     > v
     < 992
 
-------
+---
 
 #### The forall loop: `forall(‹list›,‹expr›)`
 
@@ -306,7 +306,7 @@ This code fragment produces the output
     * a
     * list
 
-------
+---
 
 #### The forall loop: `forall(‹list›,‹var›,‹expr›)`
 
@@ -321,7 +321,7 @@ Again the variable is local to the expression.
     > v
     < 993
 
-------
+---
 
 #### Forcing evaluation: `eval(‹expr›,‹modif1›,‹modif2›,…)`
 
@@ -340,9 +340,9 @@ This code fragment evaluates to `7`.
     > eval(x+y,x->2,y->5)
     < 7
 
-------
+---
 
-###  Variable Management
+### Variable Management
 
 The following descriptions explain how to intentionally create or destroy local variables.
 The user should be aware of the fact that for most purposes it is completely sufficient to create variables on the fly by simply assigning values to them.
@@ -379,7 +379,7 @@ This code fragment produces the output
     * x is now 5
     * x is now 10
 
-------
+---
 
 #### Creating many local variables for a function: `regional(‹name1›,‹name2›,…)`
 
@@ -390,7 +390,7 @@ However, unlike with the `local` statement, the variables are removed automatica
 Therefore, an explicit call of `release` is not necessary.
 Most often it is much more convenient to use `regional` than to use `local`.
 
-------
+---
 
 Variables have some kind of persistence within CindyScript.
 If the value of a variable is set in a statement, it remains set, until it is changed.
@@ -404,7 +404,7 @@ Often it is useful to put a `clear()` statement under the `init` event of the pr
 **Description:**
 This operator clears all variables.
 
-------
+---
 
 #### Clear a specific variable: `clear(‹var›)`
 
@@ -413,7 +413,7 @@ This operator clears all variables.
 **Description:**
 This operator clears variable `‹var›`.
 
-------
+---
 
 #### Handles to key variables of objects: `keys(‹var›)`
 

@@ -1,45 +1,90 @@
-
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    
-    <title>Circles Test.cdy</title>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-    <script type="text/javascript">
-var cdy = CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "A", type: "Free", pos: [4.0, -0.26373626373626374, 1.0989010989010988], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "C0", narrow: true, type: "CircleByRadius", pos: {xx: -0.050370728562217935, yy: -0.050370728562217935, zz: 1.0, xy: 0.0, xz: 0.3666989039329466, yz: 0.02417794970986461}, color: [0.0, 0.0, 1.0], radius: 5.758472019555187, args: ["A"], printname: "$C_{0}$"},
-    {name: "B", type: "PointOnCircle", pos: [4.0, {r: -0.051103549338784506, i: -6.332738291533889E-18}, {r: 0.4256576760067057, i: -1.4043210009419717E-20}], color: [1.0, 0.0, 0.0], args: ["C0"], labeled: true},
-    {name: "C1", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["B", "A"], printname: "$C_{1}$"},
-    {name: "Collection__1", type: "IntersectionCircleCircle", args: ["C0", "C1"]},
-    {name: "C", type: "SelectP", pos: [4.0, {r: -3.1202369646413635, i: -1.065553984783939E-17}, {r: 0.6040029401109756, i: 1.1612881778924511E-18}], color: [1.0, 0.0, 0.0], args: ["Collection__1"], labeled: true},
-    {name: "C2", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["C", "A"], printname: "$C_{2}$"}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 980,
-    height: 556,
-    transform: [{visibleRect: [-9.06, 9.34, 30.14, -12.9]}],
-    background: "rgb(168,176,192)"
-  }],
-  csconsole: false,
-  use: ["katex"],
-  cinderella: {build: 1898, version: [2, 9, 1898]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+
+        <title>Circles Test.cdy</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [4.0, -0.26373626373626374, 1.0989010989010988],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C0",
+                        narrow: true,
+                        type: "CircleByRadius",
+                        pos: {
+                            xx: -0.050370728562217935,
+                            yy: -0.050370728562217935,
+                            zz: 1.0,
+                            xy: 0.0,
+                            xz: 0.3666989039329466,
+                            yz: 0.02417794970986461,
+                        },
+                        color: [0.0, 0.0, 1.0],
+                        radius: 5.758472019555187,
+                        args: ["A"],
+                        printname: "$C_{0}$",
+                    },
+                    {
+                        name: "B",
+                        type: "PointOnCircle",
+                        pos: [
+                            4.0,
+                            { r: -0.051103549338784506, i: -6.332738291533889e-18 },
+                            { r: 0.4256576760067057, i: -1.4043210009419717e-20 },
+                        ],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["C0"],
+                        labeled: true,
+                    },
+                    { name: "C1", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["B", "A"], printname: "$C_{1}$" },
+                    { name: "Collection__1", type: "IntersectionCircleCircle", args: ["C0", "C1"] },
+                    {
+                        name: "C",
+                        type: "SelectP",
+                        pos: [
+                            4.0,
+                            { r: -3.1202369646413635, i: -1.065553984783939e-17 },
+                            { r: 0.6040029401109756, i: 1.1612881778924511e-18 },
+                        ],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["Collection__1"],
+                        labeled: true,
+                    },
+                    { name: "C2", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["C", "A"], printname: "$C_{2}$" },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 980,
+                        height: 556,
+                        transform: [{ visibleRect: [-9.06, 9.34, 30.14, -12.9] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                csconsole: false,
+                use: ["katex"],
+                cinderella: { build: 1898, version: [2, 9, 1898] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

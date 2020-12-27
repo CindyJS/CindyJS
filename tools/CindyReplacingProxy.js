@@ -16,15 +16,19 @@ var httpProxy = require("http-proxy");
 var port = +process.argv[2] || 8080;
 var proxy = httpProxy.createProxyServer({});
 var intercept = [
-    {pattern: /Cindy\.js$/, path: "build/js/Cindy.js"},
-    {pattern: /Cindy3D\.js$/, path: "build/js/Cindy3D.js"},
-    {pattern: /CindyGL\.js$/, path: "build/js/CindyGL.js"},
-    {pattern: /QuickHull3D\.js$/, path: "build/js/QuickHull3D.js"},
+    { pattern: /Cindy\.js$/, path: "build/js/Cindy.js" },
+    { pattern: /Cindy3D\.js$/, path: "build/js/Cindy3D.js" },
+    { pattern: /CindyGL\.js$/, path: "build/js/CindyGL.js" },
+    { pattern: /QuickHull3D\.js$/, path: "build/js/QuickHull3D.js" },
 ];
 
-http.createServer(function(req, res) {
-    var urlStr = req.url, url = urlParse(urlStr), i, ic, stream;
-    
+http.createServer(function (req, res) {
+    var urlStr = req.url,
+        url = urlParse(urlStr),
+        i,
+        ic,
+        stream;
+
     for (i = 0; i < intercept.length; ++i) {
         ic = intercept[i];
         if (ic.pattern.test(url.pathname)) {
@@ -32,7 +36,7 @@ http.createServer(function(req, res) {
                 console.log("# " + urlStr);
                 res.setHeader("Content-Type", ic.type || "text/javascript");
                 stream = fs.createReadStream(ic.path);
-                stream.on('open', queryLength);
+                stream.on("open", queryLength);
                 return;
             }
         }
@@ -43,12 +47,11 @@ http.createServer(function(req, res) {
     }
     function setLength(err, stats) {
         if (err) throw err;
-        res.setHeader("Content-Length", ""+stats.size);
+        res.setHeader("Content-Length", "" + stats.size);
         if (req.method === "HEAD") res.end();
         else stream.pipe(res);
     }
 
     console.log("  " + urlStr);
-    proxy.web(req, res, {target:req.url, prependPath:false});
-
+    proxy.web(req, res, { target: req.url, prependPath: false });
 }).listen(port, "127.0.0.1");

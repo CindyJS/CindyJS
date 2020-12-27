@@ -1,253 +1,172 @@
 <!DOCTYPE html>
-    <html>
+<html>
     <head>
-        <meta charset="UTF-8">
-        
+        <meta charset="UTF-8" />
+
         <title>Conchoid of Nicomedes</title>
         <script type="text/javascript" src="../../build/js/Cindy.js"></script>
         <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-        
-      <script id="csdraw" type="text/x-cindyscript">
-f(P) := (
-  l = join(C, P);
-  M = meet(l, a);
-  |P.xy-M.xy|-C0.radius
-);
 
-tinyhexagon = apply(1..6, gauss(exp(i*#/6*2*pi)))*.02;
+        <script id="csdraw" type="text/x-cindyscript">
+            f(P) := (
+              l = join(C, P);
+              M = meet(l, a);
+              |P.xy-M.xy|-C0.radius
+            );
 
-colorplot(
-	list = apply(tinyhexagon, delta, f(#+delta));
-  if(min(list)<0 & 0 < max(list),
-    [1,0,0,1],
-    [0,0,0,0]
-  )
-);
-      </script>
-    
+            tinyhexagon = apply(1..6, gauss(exp(i*#/6*2*pi)))*.02;
+
+            colorplot(
+            	list = apply(tinyhexagon, delta, f(#+delta));
+              if(min(list)<0 & 0 < max(list),
+                [1,0,0,1],
+                [0,0,0,0]
+              )
+            );
+        </script>
+
         <script type="text/javascript">
-          var cdy = CindyJS({
-  "scripts": "cs*",
-  "angleUnit": "°",
-  "exclusive": "true",
-  "geometry": [
-    {
-      "alpha": 1,
-      "color": [
-        1,
-        0,
-        0
-      ],
-      "labeled": true,
-      "name": "A",
-      "pinned": false,
-      "size": 5,
-      "type": "Free",
-      "pos": [
-        0.9999999999999999,
-        -0.140625,
-        -0.3571875
-      ]
-    },
-    {
-      "alpha": 1,
-      "color": [
-        1,
-        0,
-        0
-      ],
-      "labeled": true,
-      "name": "B",
-      "pinned": false,
-      "size": 5,
-      "type": "Free",
-      "pos": [
-        0.9999999999999999,
-        -0.2732558139534883,
-        -0.6645348837209302
-      ]
-    },
-    {
-      "alpha": 1,
-      "args": [
-        "A",
-        "B"
-      ],
-      "clip": "none",
-      "color": [
-        0,
-        0,
-        1
-      ],
-      "labeled": true,
-      "name": "a",
-      "overhang": 1,
-      "pinned": false,
-      "size": 1,
-      "type": "Join"
-    },
-    {
-      "alpha": 1,
-      "color": [
-        1,
-        0,
-        0
-      ],
-      "labeled": true,
-      "name": "C",
-      "pinned": false,
-      "size": 5,
-      "type": "Free",
-      "pos": [
-        -0.6218244043701462,
-        1,
-        0.9629064104251681
-      ]
-    },
-    {
-      "alpha": 1,
-      "args": [
-        "a"
-      ],
-      "color": [
-        1,
-        0.4875,
-        0.5172
-      ],
-      "labeled": true,
-      "name": "M",
-      "pinned": false,
-      "size": 5,
-      "type": "PointOnLine",
-      "pos": [
-        1,
-        0.3353566218878505,
-        0.7458118847265255
-      ]
-    },
-    {
-      "alpha": 1,
-      "args": [
-        "M"
-      ],
-      "clip": "none",
-      "color": [
-        0.3,
-        0.3,
-        0.3
-      ],
-      "labeled": true,
-      "name": "C0",
-      "overhang": 1,
-      "pinned": false,
-      "radius": 1.4492388066023998,
-      "size": 1,
-      "type": "CircleMr",
-      "pos": {
-        "xx": -0.7458118847265255,
-        "yy": -0.7458118847265255,
-        "zz": 0.07480874433402787,
-        "xy": 0,
-        "xz": 2.0000000000000004,
-        "yz": 0.670713243775701
-      }
-    },
-    {
-      "alpha": 1,
-      "args": [
-        "M",
-        "C"
-      ],
-      "clip": "none",
-      "color": [
-        0.3,
-        0.3,
-        0.3
-      ],
-      "labeled": true,
-      "name": "b",
-      "overhang": 1,
-      "pinned": false,
-      "size": 1,
-      "type": "Join"
-    },
-    {
-      "args": [
-        "b",
-        "C0"
-      ],
-      "labeled": true,
-      "name": "Ps0",
-      "pinned": false,
-      "type": "IntersectLC"
-    },
-    {
-      "alpha": 1,
-      "args": [
-        "Ps0"
-      ],
-      "color": [
-        1.4285714285714286,
-        0.6964285714285714,
-        0.7388571428571429
-      ],
-      "labeled": true,
-      "name": "P",
-      "pinned": false,
-      "size": 5,
-      "type": "SelectP",
-      "pos": [
-        -0.048659607041545413,
-        0.8615240022438281,
-        0.9999999999999999
-      ]
-    },
-    {
-      "alpha": 1,
-      "args": [
-        "P",
-        "M"
-      ],
-      "clip": "end",
-      "color": [
-        0,
-        0,
-        0.2024
-      ],
-      "alpha": .5,
-      "labeled": false,
-      "name": "s",
-      "overhang": 1,
-      "pinned": false,
-      "size": 4.89,
-      "type": "Segment"
-    },
-  ],
-  "ports": [
-    {
-      "id": "CSCanvas",
-      "transform": [
-        {
-          "visibleRect": [
-            -5,
-            -2.5,
-            5,
-            2.5
-          ]
-        }
-      ],
-      "background": "rgb(168,176,192)",
-      "width": "1000",
-      "height": "500"
-    }
-  ],
-  "csconsole": false,
-  "use": [
-    "CindyGL"
-  ],
-  "autoplay": true,
-  "behavior": []
-});
+            var cdy = CindyJS({
+                scripts: "cs*",
+                angleUnit: "°",
+                exclusive: "true",
+                geometry: [
+                    {
+                        alpha: 1,
+                        color: [1, 0, 0],
+                        labeled: true,
+                        name: "A",
+                        pinned: false,
+                        size: 5,
+                        type: "Free",
+                        pos: [0.9999999999999999, -0.140625, -0.3571875],
+                    },
+                    {
+                        alpha: 1,
+                        color: [1, 0, 0],
+                        labeled: true,
+                        name: "B",
+                        pinned: false,
+                        size: 5,
+                        type: "Free",
+                        pos: [0.9999999999999999, -0.2732558139534883, -0.6645348837209302],
+                    },
+                    {
+                        alpha: 1,
+                        args: ["A", "B"],
+                        clip: "none",
+                        color: [0, 0, 1],
+                        labeled: true,
+                        name: "a",
+                        overhang: 1,
+                        pinned: false,
+                        size: 1,
+                        type: "Join",
+                    },
+                    {
+                        alpha: 1,
+                        color: [1, 0, 0],
+                        labeled: true,
+                        name: "C",
+                        pinned: false,
+                        size: 5,
+                        type: "Free",
+                        pos: [-0.6218244043701462, 1, 0.9629064104251681],
+                    },
+                    {
+                        alpha: 1,
+                        args: ["a"],
+                        color: [1, 0.4875, 0.5172],
+                        labeled: true,
+                        name: "M",
+                        pinned: false,
+                        size: 5,
+                        type: "PointOnLine",
+                        pos: [1, 0.3353566218878505, 0.7458118847265255],
+                    },
+                    {
+                        alpha: 1,
+                        args: ["M"],
+                        clip: "none",
+                        color: [0.3, 0.3, 0.3],
+                        labeled: true,
+                        name: "C0",
+                        overhang: 1,
+                        pinned: false,
+                        radius: 1.4492388066023998,
+                        size: 1,
+                        type: "CircleMr",
+                        pos: {
+                            xx: -0.7458118847265255,
+                            yy: -0.7458118847265255,
+                            zz: 0.07480874433402787,
+                            xy: 0,
+                            xz: 2.0000000000000004,
+                            yz: 0.670713243775701,
+                        },
+                    },
+                    {
+                        alpha: 1,
+                        args: ["M", "C"],
+                        clip: "none",
+                        color: [0.3, 0.3, 0.3],
+                        labeled: true,
+                        name: "b",
+                        overhang: 1,
+                        pinned: false,
+                        size: 1,
+                        type: "Join",
+                    },
+                    {
+                        args: ["b", "C0"],
+                        labeled: true,
+                        name: "Ps0",
+                        pinned: false,
+                        type: "IntersectLC",
+                    },
+                    {
+                        alpha: 1,
+                        args: ["Ps0"],
+                        color: [1.4285714285714286, 0.6964285714285714, 0.7388571428571429],
+                        labeled: true,
+                        name: "P",
+                        pinned: false,
+                        size: 5,
+                        type: "SelectP",
+                        pos: [-0.048659607041545413, 0.8615240022438281, 0.9999999999999999],
+                    },
+                    {
+                        alpha: 1,
+                        args: ["P", "M"],
+                        clip: "end",
+                        color: [0, 0, 0.2024],
+                        alpha: 0.5,
+                        labeled: false,
+                        name: "s",
+                        overhang: 1,
+                        pinned: false,
+                        size: 4.89,
+                        type: "Segment",
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        transform: [
+                            {
+                                visibleRect: [-5, -2.5, 5, 2.5],
+                            },
+                        ],
+                        background: "rgb(168,176,192)",
+                        width: "1000",
+                        height: "500",
+                    },
+                ],
+                csconsole: false,
+                use: ["CindyGL"],
+                autoplay: true,
+                behavior: [],
+            });
         </script>
     </head>
     <body>
@@ -255,5 +174,4 @@ colorplot(
         <div id="CSCanvas"></div>
         <p>The displayed locus set is computed on the GPU</p>
     </body>
-    </html>
-  
+</html>

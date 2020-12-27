@@ -1,86 +1,37 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    
-    <title>StaudtAdd.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-<link rel="stylesheet" href="../build/js/CindyJS.css">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-eucledian():=(B.homog=[4,0,0];
-	     B1.homog=[0,4,0];
-	     Text1.pressed=false;
-	);
+        <title>StaudtAdd.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-projective():=(B.homog=[4,0,0.13];
-	      B1.homog=[0,-4,-0.18];
-	      Text0.pressed=false;
-	);
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            eucledian():=(B.homog=[4,0,0];
+            	     B1.homog=[0,4,0];
+            	     Text1.pressed=false;
+            	);
 
-
-
-
-
-
-
-
-
-
-;//set projective mode
-Text0.pressed=false;
-Text1.pressed=true;
-
-
-
-
-
-
-
-
-
-;//Überstand setzen
-o=.01;
-ll=-o;
-mm=1+o;
-
-//Erweiterung für draw-Befehl 
-drawext(li,co):=(
-	draw(ll*li_1+mm*li_2, ll*li_2+mm*li_1, size->8,color->co);
-);
-
-//highlighting Funktion
-highlight(el,col):=(
-  	co=if(col==1,(1,1,0.5),(1,1,0)*.8);
-	//für Geraden (Kleinbuchstaben)
-	if(isline(el),
-    		inc=incidences(el);
-    		forall(pairs(inc),li,drawext(li,co));
-  	);
-	//für Punkte (Großbuchstaben)
-	  if(ispoint(el),
-    		draw(el,size->10,color->co,border->false);
-  	);
-	//für Segmente der Form [A,B]
-	if(islist(el),
-    		drawext(el,co);
-  	)
-);
+            projective():=(B.homog=[4,0,0.13];
+            	      B1.homog=[0,-4,-0.18];
+            	      Text0.pressed=false;
+            	);
 
 
 
@@ -91,60 +42,45 @@ highlight(el,col):=(
 
 
 
-;
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-//Schieberegler
-slider=round(|A,D|);
+            ;//set projective mode
+            Text0.pressed=false;
+            Text1.pressed=true;
 
-//Sichtbarkeit der einzelnen Konstruktionsschritte steuern
-elements=[
-	(1,H1),
-	(2,h),
-	(3,h3),
-	(4,h4),
-	(5,h1),
-	(6,H2),
-	(7,h2),
-	(8,Z)
-];
-apply(elements, # ,(#_2).visible=(#_1<slider+1));
 
-//Texte die neben Schieberegler stehen sollen
-texts=[
-	"Seien 0, 1, a, b, inzident g",
-	"Wähle Hilfspunkt $H_{1}$ nicht inzident g oder $l_{\infty}$",
-	"Konstruiere Parallele h zu g durch $H_{1}$ ",
-	"Konstruiere Gerade (0 $\vee$ $H_{1}$)",
-	"Konstruiere Gerade (a $\vee$ $H_{1}$)",
-	"Konstruiere Parallele $h_{1}$ zu (0 $\vee$ $H_{1}$) durch b",
-	"Konstruiere Schnittpunkt $H_{2}$ von h und $h_{1}$",
-	"Konstruiere Parallele $h_{2}$ zu (a $\vee$ $H_{1}$) durch $H_{2}$",
-	"Schnittpunkt von g und $h_{2}$ ist a+b"
-];
 
-//Texte schreiben
-repeat(slider,drawtext(A+(1,1-#-0.2),texts_(#),size->14,alpha->0.5));
-drawtext(A+(1,-slider-0.2),texts_(slider+1),size->14,alpha->1.0);
 
-//Highlightliste [Beweisschritt, Aktivhighlighting, Passivhighlighting]
-highlightlist=[
-	(2, [h], [H1, B]   ),
-	(3, [h3], [H1, O]  ),
-	(4, [h4], [H1, X]  ),
-	(5, [h1], [Y, h3]  ),
-	(6, [H2], [h, h1]  ),
-	(7, [h2], [H2, h4] ),
-	(8, [Z],  [h2, g]  )
-];
 
-//Highlighting zeichnen
-apply(highlightlist,h,
-  if(h_1==slider,
-   forall(h_3,highlight(#,0));
-   forall(h_2,highlight(#,1));
-  );
-);
+
+
+
+
+            ;//Überstand setzen
+            o=.01;
+            ll=-o;
+            mm=1+o;
+
+            //Erweiterung für draw-Befehl
+            drawext(li,co):=(
+            	draw(ll*li_1+mm*li_2, ll*li_2+mm*li_1, size->8,color->co);
+            );
+
+            //highlighting Funktion
+            highlight(el,col):=(
+              	co=if(col==1,(1,1,0.5),(1,1,0)*.8);
+            	//für Geraden (Kleinbuchstaben)
+            	if(isline(el),
+                		inc=incidences(el);
+                		forall(pairs(inc),li,drawext(li,co));
+              	);
+            	//für Punkte (Großbuchstaben)
+            	  if(ispoint(el),
+                		draw(el,size->10,color->co,border->false);
+              	);
+            	//für Segmente der Form [A,B]
+            	if(islist(el),
+                		drawext(el,co);
+              	)
+            );
 
 
 
@@ -155,59 +91,304 @@ apply(highlightlist,h,
 
 
 
-;
-</script>
-    <script type="text/javascript">
-var cdy = CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "O", type: "Free", pos: [0.0, -0.0, 4.0], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "B", type: "Free", pos: [4.0, -0.0, 0.13], color: [0.467, 0.0, 0.718], labeled: true, printname: "$\\infty$"},
-    {name: "g", type: "Join", color: [0.0, 0.0, 1.0], args: ["O", "B"], labeled: true, overhang: 1.21},
-    {name: "B1", type: "Free", pos: [0.0, -4.0, -0.18], color: [0.467, 0.0, 0.718]},
-    {name: "b", type: "Join", color: [0.467, 0.0, 0.718], args: ["B", "B1"], labeled: true, overhang: 1.21, printname: "$l_{\\infty}$"},
-    {name: "E", type: "PointOnLine", pos: [4.0, -0.0, 0.8479621024329492], color: [1.0, 0.0, 0.0], args: ["g"], labeled: true, printname: "1"},
-    {name: "X", type: "PointOnLine", pos: [4.0, -0.0, 0.36363636363636365], color: [1.0, 0.0, 0.0], args: ["g"], labeled: true, printname: "a"},
-    {name: "Y", type: "PointOnLine", pos: [4.0, -0.0, 0.2500098739007826], color: [1.0, 0.0, 0.0], args: ["g"], labeled: true, printname: "b"},
-    {name: "H1", type: "Free", pos: [4.0, 2.5454545454545454, 0.36363636363636365], color: [0.098, 0.62, 0.306], visible: false, labeled: true, printname: "$H_{1}$"},
-    {name: "h", type: "Join", color: [0.098, 0.62, 0.306], args: ["B", "H1"], visible: false, labeled: true},
-    {name: "h3", type: "Join", color: [0.098, 0.62, 0.306], args: ["O", "H1"], visible: false, clip: "inci"},
-    {name: "h4", type: "Join", color: [0.098, 0.62, 0.306], args: ["X", "H1"], visible: false, clip: "inci"},
-    {name: "B3", type: "Meet", color: [0.467, 0.0, 0.718], args: ["b", "h3"], visible: false, labeled: true},
-    {name: "h1", type: "Join", color: [0.098, 0.62, 0.306], args: ["B3", "Y"], visible: false, labeled: true, clip: "inci", printname: "$h_{1}$"},
-    {name: "B2", type: "Meet", color: [0.467, 0.0, 0.718], args: ["b", "h4"], visible: false, labeled: true},
-    {name: "H2", type: "Meet", color: [0.098, 0.62, 0.306], args: ["h", "h1"], visible: false, labeled: true, printname: "$H_{2}$"},
-    {name: "h2", type: "Join", color: [0.098, 0.62, 0.306], args: ["B2", "H2"], visible: false, labeled: true, clip: "inci", printname: "$h_{2}$"},
-    {name: "Z", type: "Meet", color: [1.0, 0.0, 0.0], args: ["g", "h2"], visible: false, labeled: true, printname: "a+b"},
-    {name: "A", type: "Free", pos: [-3.3043478260869565, -4.0, -0.17391304347826086], color: [0.0, 0.0, 0.0], pinned: true, size: 0.0},
-    {name: "C", type: "Free", pos: [4.0, 3.1578947368421053, 0.21052631578947367], color: [0.0, 0.0, 0.0], pinned: true, size: 0.0},
-    {name: "a", type: "Segment", color: [0.0, 0.0, 0.0], args: ["A", "C"]},
-    {name: "D", type: "PointOnSegment", pos: [-3.304347826086957, -4.0, -0.17391304347826086], color: [1.0, 0.0, 0.0], args: ["a"]},
-    {name: "Text0", type: "ToggleButton", pos: [-2.153172866520788, -4.0, -0.18966605838036035], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, script: "eucledian()", text: "euklidisch"},
-    {name: "Text1", type: "ToggleButton", pos: [-2.9059080962800876, -4.0, -0.18966605838036035], color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, pressed: true, script: "projective()", text: "projektiv"},
-    {name: "Text2", type: "Text", pos: [-1.963488843813387, -4.0, -0.17581620421871128], color: [0.0, 0.0, 0.0], text: "Ansicht wählen:", textsize: 14.0, textbold: true}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 799,
-    height: 599,
-    transform: [{visibleRect: [-1.592110723475468, 25.173808685677326, 35.28025066947812, -2.4689253248097836]}],
-    background: "rgb(168,176,192)"
-  }],
-  csconsole: false,
-  cinderella: {build: 1901, version: [2, 9, 1901]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+            ;
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            //Schieberegler
+            slider=round(|A,D|);
+
+            //Sichtbarkeit der einzelnen Konstruktionsschritte steuern
+            elements=[
+            	(1,H1),
+            	(2,h),
+            	(3,h3),
+            	(4,h4),
+            	(5,h1),
+            	(6,H2),
+            	(7,h2),
+            	(8,Z)
+            ];
+            apply(elements, # ,(#_2).visible=(#_1<slider+1));
+
+            //Texte die neben Schieberegler stehen sollen
+            texts=[
+            	"Seien 0, 1, a, b, inzident g",
+            	"Wähle Hilfspunkt $H_{1}$ nicht inzident g oder $l_{\infty}$",
+            	"Konstruiere Parallele h zu g durch $H_{1}$ ",
+            	"Konstruiere Gerade (0 $\vee$ $H_{1}$)",
+            	"Konstruiere Gerade (a $\vee$ $H_{1}$)",
+            	"Konstruiere Parallele $h_{1}$ zu (0 $\vee$ $H_{1}$) durch b",
+            	"Konstruiere Schnittpunkt $H_{2}$ von h und $h_{1}$",
+            	"Konstruiere Parallele $h_{2}$ zu (a $\vee$ $H_{1}$) durch $H_{2}$",
+            	"Schnittpunkt von g und $h_{2}$ ist a+b"
+            ];
+
+            //Texte schreiben
+            repeat(slider,drawtext(A+(1,1-#-0.2),texts_(#),size->14,alpha->0.5));
+            drawtext(A+(1,-slider-0.2),texts_(slider+1),size->14,alpha->1.0);
+
+            //Highlightliste [Beweisschritt, Aktivhighlighting, Passivhighlighting]
+            highlightlist=[
+            	(2, [h], [H1, B]   ),
+            	(3, [h3], [H1, O]  ),
+            	(4, [h4], [H1, X]  ),
+            	(5, [h1], [Y, h3]  ),
+            	(6, [H2], [h, h1]  ),
+            	(7, [h2], [H2, h4] ),
+            	(8, [Z],  [h2, g]  )
+            ];
+
+            //Highlighting zeichnen
+            apply(highlightlist,h,
+              if(h_1==slider,
+               forall(h_3,highlight(#,0));
+               forall(h_2,highlight(#,1));
+              );
+            );
+
+
+
+
+
+
+
+
+
+
+            ;
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    { name: "O", type: "Free", pos: [0.0, -0.0, 4.0], color: [1.0, 0.0, 0.0], labeled: true },
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [4.0, -0.0, 0.13],
+                        color: [0.467, 0.0, 0.718],
+                        labeled: true,
+                        printname: "$\\infty$",
+                    },
+                    {
+                        name: "g",
+                        type: "Join",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["O", "B"],
+                        labeled: true,
+                        overhang: 1.21,
+                    },
+                    { name: "B1", type: "Free", pos: [0.0, -4.0, -0.18], color: [0.467, 0.0, 0.718] },
+                    {
+                        name: "b",
+                        type: "Join",
+                        color: [0.467, 0.0, 0.718],
+                        args: ["B", "B1"],
+                        labeled: true,
+                        overhang: 1.21,
+                        printname: "$l_{\\infty}$",
+                    },
+                    {
+                        name: "E",
+                        type: "PointOnLine",
+                        pos: [4.0, -0.0, 0.8479621024329492],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["g"],
+                        labeled: true,
+                        printname: "1",
+                    },
+                    {
+                        name: "X",
+                        type: "PointOnLine",
+                        pos: [4.0, -0.0, 0.36363636363636365],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["g"],
+                        labeled: true,
+                        printname: "a",
+                    },
+                    {
+                        name: "Y",
+                        type: "PointOnLine",
+                        pos: [4.0, -0.0, 0.2500098739007826],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["g"],
+                        labeled: true,
+                        printname: "b",
+                    },
+                    {
+                        name: "H1",
+                        type: "Free",
+                        pos: [4.0, 2.5454545454545454, 0.36363636363636365],
+                        color: [0.098, 0.62, 0.306],
+                        visible: false,
+                        labeled: true,
+                        printname: "$H_{1}$",
+                    },
+                    {
+                        name: "h",
+                        type: "Join",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["B", "H1"],
+                        visible: false,
+                        labeled: true,
+                    },
+                    {
+                        name: "h3",
+                        type: "Join",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["O", "H1"],
+                        visible: false,
+                        clip: "inci",
+                    },
+                    {
+                        name: "h4",
+                        type: "Join",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["X", "H1"],
+                        visible: false,
+                        clip: "inci",
+                    },
+                    {
+                        name: "B3",
+                        type: "Meet",
+                        color: [0.467, 0.0, 0.718],
+                        args: ["b", "h3"],
+                        visible: false,
+                        labeled: true,
+                    },
+                    {
+                        name: "h1",
+                        type: "Join",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["B3", "Y"],
+                        visible: false,
+                        labeled: true,
+                        clip: "inci",
+                        printname: "$h_{1}$",
+                    },
+                    {
+                        name: "B2",
+                        type: "Meet",
+                        color: [0.467, 0.0, 0.718],
+                        args: ["b", "h4"],
+                        visible: false,
+                        labeled: true,
+                    },
+                    {
+                        name: "H2",
+                        type: "Meet",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["h", "h1"],
+                        visible: false,
+                        labeled: true,
+                        printname: "$H_{2}$",
+                    },
+                    {
+                        name: "h2",
+                        type: "Join",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["B2", "H2"],
+                        visible: false,
+                        labeled: true,
+                        clip: "inci",
+                        printname: "$h_{2}$",
+                    },
+                    {
+                        name: "Z",
+                        type: "Meet",
+                        color: [1.0, 0.0, 0.0],
+                        args: ["g", "h2"],
+                        visible: false,
+                        labeled: true,
+                        printname: "a+b",
+                    },
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [-3.3043478260869565, -4.0, -0.17391304347826086],
+                        color: [0.0, 0.0, 0.0],
+                        pinned: true,
+                        size: 0.0,
+                    },
+                    {
+                        name: "C",
+                        type: "Free",
+                        pos: [4.0, 3.1578947368421053, 0.21052631578947367],
+                        color: [0.0, 0.0, 0.0],
+                        pinned: true,
+                        size: 0.0,
+                    },
+                    { name: "a", type: "Segment", color: [0.0, 0.0, 0.0], args: ["A", "C"] },
+                    {
+                        name: "D",
+                        type: "PointOnSegment",
+                        pos: [-3.304347826086957, -4.0, -0.17391304347826086],
+                        color: [1.0, 0.0, 0.0],
+                        args: ["a"],
+                    },
+                    {
+                        name: "Text0",
+                        type: "ToggleButton",
+                        pos: [-2.153172866520788, -4.0, -0.18966605838036035],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 0.27272728085517883,
+                        script: "eucledian()",
+                        text: "euklidisch",
+                    },
+                    {
+                        name: "Text1",
+                        type: "ToggleButton",
+                        pos: [-2.9059080962800876, -4.0, -0.18966605838036035],
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 0.27272728085517883,
+                        pressed: true,
+                        script: "projective()",
+                        text: "projektiv",
+                    },
+                    {
+                        name: "Text2",
+                        type: "Text",
+                        pos: [-1.963488843813387, -4.0, -0.17581620421871128],
+                        color: [0.0, 0.0, 0.0],
+                        text: "Ansicht wählen:",
+                        textsize: 14.0,
+                        textbold: true,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 799,
+                        height: 599,
+                        transform: [
+                            {
+                                visibleRect: [
+                                    -1.592110723475468,
+                                    25.173808685677326,
+                                    35.28025066947812,
+                                    -2.4689253248097836,
+                                ],
+                            },
+                        ],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                csconsole: false,
+                cinderella: { build: 1901, version: [2, 9, 1901] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

@@ -54,31 +54,31 @@ CindyJS 2.1.0
 
 Breaking changes:
 
-* Changed unit of time from microfortnights to centiseconds (#666)
-  (This section should only be needed for MAJOR version changes!)
+-   Changed unit of time from microfortnights to centiseconds (#666)
+    (This section should only be needed for MAJOR version changes!)
 
 Features:
 
-* Added some new feature (#123)
-* Implemented another required thing, consisting of several subcomponents
-  so that describing all of them requires more than one line (#345)
+-   Added some new feature (#123)
+-   Implemented another required thing, consisting of several subcomponents
+    so that describing all of them requires more than one line (#345)
 
 Cinderella compatibility:
 
-* Support foobars (#444)
-* Added function baz(‹list›) (#531)
+-   Support foobars (#444)
+-   Added function baz(‹list›) (#531)
 
 Improvements:
 
-* Increased frobenication performance (#432)
+-   Increased frobenication performance (#432)
 
 Bug fixes:
 
-* Avoided bit overflow in fubb (#111, #112)
+-   Avoided bit overflow in fubb (#111, #112)
 
 Other:
 
-* Revised some examples (#543)
+-   Revised some examples (#543)
 ```
 
 The first line should give the project name and version number,
@@ -216,7 +216,7 @@ replace the `--sign` (abbreviated `-s`) with `--annotate` (abbreviated `-a`).
 ## Pushing the tags
 
 After the release has been tagged, that tag needs to be pushed to GitHub.
-Assuming that `origin` is your name for the [`CindyJS/CindyJS`][CJS] repository,
+Assuming that `origin` is your name for the [`CindyJS/CindyJS`][cjs] repository,
 you push the tag for release v2.1.0 using
 
 ```sh
@@ -224,7 +224,7 @@ git push origin tag v2.1.0
 ```
 
 But if you backported some features and bug fixes, there might be a lot more
-to push.  You can name all the tags and branches to push individually,
+to push. You can name all the tags and branches to push individually,
 or just name the branches and include all annotated tags on these like this:
 
 ```sh
@@ -237,7 +237,7 @@ by building the files for deployment and pushing them to the cindyjs.org server.
 Look at [the Travis build status][travis-builds]
 to see this progressing (and to investigate any problems that might occur).
 
-[CJS]: https://github.com/CindyJS/CindyJS
+[cjs]: https://github.com/CindyJS/CindyJS
 [travis-builds]: https://travis-ci.org/CindyJS/CindyJS/builds
 
 ## Editing the release notes
@@ -281,16 +281,16 @@ than the corresponding plain text notation.
 
 Consider whether the website should be updated.
 
-* Has the documentation been modified?
-  You can check this using a command like `git diff --stat v2.0.0..v2.1.0 ref`
-  or – more verbosely – `git log v2.0.0..v2.1.0 ref`.
+-   Has the documentation been modified?
+    You can check this using a command like `git diff --stat v2.0.0..v2.1.0 ref`
+    or – more verbosely – `git log v2.0.0..v2.1.0 ref`.
 
-* Are there any new or improved examples?
-  Just substitute `examples` instead of `ref` in the above commands.
+-   Are there any new or improved examples?
+    Just substitute `examples` instead of `ref` in the above commands.
 
-* Do any of the existing examples benefit from some bug fix?
-  This requires a bit of knowledge about what examples we have,
-  and what functionality they use.
+-   Do any of the existing examples benefit from some bug fix?
+    This requires a bit of knowledge about what examples we have,
+    and what functionality they use.
 
 If the answer to any of these questions is “yes”,
 then the website should be updated.
