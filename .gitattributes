@@ -51,3 +51,5 @@ Makefile        text
 .idea/**        -text
 
 examples/162_sunflower_crlf.html  eol=crlf
+
+.prettierignore text
