@@ -14,39 +14,39 @@ var step = 0; // Current step
  * @returns {*}
  */
 function getElementAtMouse(mouse) {
-  var mov = null;
-  var adist = 1000000;
-  var diff;
+    var mov = null;
+    var adist = 1000000;
+    var diff;
 
-  console.log("getElementAtMouse");
+    console.log("getElementAtMouse");
 
-  for (var i = 0; i < csgeo.gslp.length; i++) {
-    var el = csgeo.gslp[i];
+    for (var i = 0; i < csgeo.gslp.length; i++) {
+        var el = csgeo.gslp[i];
 
-    if (el.pinned || el.visible === false || el.tmp === true) continue;
+        if (el.pinned || el.visible === false || el.tmp === true) continue;
 
-    var dx, dy, dist;
-    var sc = csport.drawingstate.matrix.sdet;
-    if (el.kind === "P") {
-      var p = List.normalizeZ(el.homog);
-      if (!List._helper.isAlmostReal(p)) continue;
-      dx = p.value[0].value.real - mouse.x;
-      dy = p.value[1].value.real - mouse.y;
-      dist = Math.sqrt(dx * dx + dy * dy);
-      if (el.narrow & (dist > 20 / sc)) dist = 10000;
-    } else if (el.kind === "C") {
-      //Must be CircleMr
-      var mid = csgeo.csnames[el.args[0]];
-      var rad = 0;
+        var dx, dy, dist;
+        var sc = csport.drawingstate.matrix.sdet;
+        if (el.kind === "P") {
+            var p = List.normalizeZ(el.homog);
+            if (!List._helper.isAlmostReal(p)) continue;
+            dx = p.value[0].value.real - mouse.x;
+            dy = p.value[1].value.real - mouse.y;
+            dist = Math.sqrt(dx * dx + dy * dy);
+            if (el.narrow & (dist > 20 / sc)) dist = 10000;
+        } else if (el.kind === "C") {
+            //Must be CircleMr
+            var mid = csgeo.csnames[el.args[0]];
+            var rad = 0;
 
-      //console.log(el.radius);
+            //console.log(el.radius);
 
-      if (typeof el.radius !== "undefined") {
-        rad = el.radius.value.real;
+            if (typeof el.radius !== "undefined") {
+                rad = el.radius.value.real;
 
-        // For CircleMP
-      } else if (el.args.length === 2) {
-        /*var p1 = csgeo.csnames[el.args[0]];
+                // For CircleMP
+            } else if (el.args.length === 2) {
+                /*var p1 = csgeo.csnames[el.args[0]];
                 var p2 = csgeo.csnames[el.args[1]];
 
                 var p1xx = CSNumber.div(p1.homog.value[0], p1.homog.value[2]).value.real;
@@ -59,64 +59,66 @@ function getElementAtMouse(mouse) {
 
                 console.log("radius");
                 console.log(rad);*/
-      }
+            }
 
-      var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
-      var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
-      dx = xx - mouse.x;
-      dy = yy - mouse.y;
-      var ref = Math.sqrt(dx * dx + dy * dy);
+            var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value
+                .real;
+            var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value
+                .real;
+            dx = xx - mouse.x;
+            dy = yy - mouse.y;
+            var ref = Math.sqrt(dx * dx + dy * dy);
 
-      dist = ref - rad;
-      dx = 0;
-      dy = 0;
-      if (dist < 0) {
-        dist = -dist;
-      }
+            dist = ref - rad;
+            dx = 0;
+            dy = 0;
+            if (dist < 0) {
+                dist = -dist;
+            }
 
-      dist = dist + 30 / sc;
-    } else if (el.kind === "L" || el.kind === "S") {
-      //Must be ThroughPoint(Horizontal/Vertical not treated yet)
-      var l = el.homog;
-      var N = CSNumber;
-      var nn = N.add(
-        N.mult(l.value[0], N.conjugate(l.value[0])),
-        N.mult(l.value[1], N.conjugate(l.value[1]))
-      );
-      var ln = List.scaldiv(N.sqrt(nn), l);
-      dist =
-        ln.value[0].value.real * mouse.x +
-        ln.value[1].value.real * mouse.y +
-        ln.value[2].value.real;
-      dx = ln.value[0].value.real * dist;
-      dy = ln.value[1].value.real * dist;
+            dist = dist + 30 / sc;
+        } else if (el.kind === "L" || el.kind === "S") {
+            //Must be ThroughPoint(Horizontal/Vertical not treated yet)
+            var l = el.homog;
+            var N = CSNumber;
+            var nn = N.add(
+                N.mult(l.value[0], N.conjugate(l.value[0])),
+                N.mult(l.value[1], N.conjugate(l.value[1]))
+            );
+            var ln = List.scaldiv(N.sqrt(nn), l);
+            dist =
+                ln.value[0].value.real * mouse.x +
+                ln.value[1].value.real * mouse.y +
+                ln.value[2].value.real;
+            dx = ln.value[0].value.real * dist;
+            dy = ln.value[1].value.real * dist;
 
-      if (dist < 0) {
-        dist = -dist;
-      }
-      dist = dist + 1;
+            if (dist < 0) {
+                dist = -dist;
+            }
+            dist = dist + 1;
+        }
+
+        if (dist < adist + 0.2 / sc) {
+            //A bit a dirty hack, prefers new points
+            adist = dist;
+            mov = el;
+            diff = {
+                x: dx,
+                y: dy,
+            };
+        }
     }
 
-    if (dist < adist + 0.2 / sc) {
-      //A bit a dirty hack, prefers new points
-      adist = dist;
-      mov = el;
-      diff = {
-        x: dx,
-        y: dy,
-      };
-    }
-  }
-
-  if (mov === null) return null;
-  return {
-    mover: mov,
-    offset: diff,
-    prev: {
-      x: mouse.x,
-      y: mouse.y,
-    },
-  };
+    if (mov === null) return null;
+    return {
+        mover: mov,
+        offset: diff,
+        prev: {
+            x: mouse.x,
+            y: mouse.y,
+        },
+    };
 }
 
 /**
@@ -125,17 +127,17 @@ function getElementAtMouse(mouse) {
  * @param tool
  */
 function setActiveTool(tool) {
-  activeTool = tool;
+    activeTool = tool;
 
-  var actions = tools[activeTool].actions;
+    var actions = tools[activeTool].actions;
 
-  if (statusbar) {
-    statusbar.textContent = actions[0].tooltip || "";
-  }
+    if (statusbar) {
+        statusbar.textContent = actions[0].tooltip || "";
+    }
 
-  elements = [];
-  idx = 0;
-  step = 0;
+    elements = [];
+    idx = 0;
+    step = 0;
 }
 
 /**
@@ -146,33 +148,33 @@ function setActiveTool(tool) {
  * @returns {string}
  */
 function getNextFreeName() {
-  return "P" + pIndex++;
+    return "P" + pIndex++;
 }
 
 /**
  * Removes all temporary created elements
  */
 function removeTmpElements() {
-  for (var i = 0; i < csgeo.gslp.length; i++) {
-    var el = csgeo.gslp[i];
+    for (var i = 0; i < csgeo.gslp.length; i++) {
+        var el = csgeo.gslp[i];
 
-    if (el.tmp === true) {
-      removeElement(el.name);
+        if (el.tmp === true) {
+            removeElement(el.name);
+        }
     }
-  }
 }
 
 /**
  * Makes tmp elements to regular elements
  */
 function adoptTmpElements() {
-  for (var i = 0; i < csgeo.gslp.length; i++) {
-    var el = csgeo.gslp[i];
+    for (var i = 0; i < csgeo.gslp.length; i++) {
+        var el = csgeo.gslp[i];
 
-    if (el.tmp === true) {
-      el.tmp = false;
+        if (el.tmp === true) {
+            el.tmp = false;
+        }
     }
-  }
 }
 
 /**
@@ -182,23 +184,23 @@ function adoptTmpElements() {
  * @param event
  */
 function manage(event) {
-  var actions = tools[activeTool].actions;
+    var actions = tools[activeTool].actions;
 
-  if (actions[step].event === event) {
-    var success = actions[step].do();
+    if (actions[step].event === event) {
+        var success = actions[step].do();
 
-    if (success) {
-      scheduleUpdate();
+        if (success) {
+            scheduleUpdate();
 
-      if (step === actions.length - 1) {
-        elements = [];
-        idx = 0;
-        step = 0;
-      } else {
-        step++;
-      }
+            if (step === actions.length - 1) {
+                elements = [];
+                idx = 0;
+                step = 0;
+            } else {
+                step++;
+            }
+        }
     }
-  }
 }
 
 /**
@@ -208,12 +210,12 @@ function manage(event) {
  * @returns {boolean}
  */
 function isElementAtMouse(element) {
-  return (
-    element &&
-    Math.abs(element.offset.x) < 0.5 &&
-    Math.abs(element.offset.y) < 0.5 &&
-    !element.mover.tmp
-  );
+    return (
+        element &&
+        Math.abs(element.offset.x) < 0.5 &&
+        Math.abs(element.offset.y) < 0.5 &&
+        !element.mover.tmp
+    );
 }
 
 /**
@@ -223,7 +225,7 @@ function isElementAtMouse(element) {
  * @returns {boolean}
  */
 function isPointAtMouse(element) {
-  return isElementAtMouse(element) && element.mover.kind === "P";
+    return isElementAtMouse(element) && element.mover.kind === "P";
 }
 
 /**
@@ -233,10 +235,10 @@ function isPointAtMouse(element) {
  * @returns {boolean}
  */
 function isLineAtMouse(element) {
-  return (
-    isElementAtMouse(element) &&
-    (element.mover.kind === "L" || element.mover.kind === "S")
-  );
+    return (
+        isElementAtMouse(element) &&
+        (element.mover.kind === "L" || element.mover.kind === "S")
+    );
 }
 
 /**
@@ -246,7 +248,7 @@ function isLineAtMouse(element) {
  * @returns {*|boolean}
  */
 function isConicAtMouse(element) {
-  return isElementAtMouse(element) && element.mover.kind === "C";
+    return isElementAtMouse(element) && element.mover.kind === "C";
 }
 
 /**
@@ -255,39 +257,39 @@ function isConicAtMouse(element) {
  * @param element
  */
 function setElementAtMouse(element) {
-  move = {
-    mover: element,
-    offset: {
-      x: 0,
-      y: 0,
-    },
-    prev: {
-      x: mouse.x,
-      y: mouse.y,
-    },
-  };
+    move = {
+        mover: element,
+        offset: {
+            x: 0,
+            y: 0,
+        },
+        prev: {
+            x: mouse.x,
+            y: mouse.y,
+        },
+    };
 }
 
 /**
  * Grabs a point if it is present at mouse or creates a temporary one
  */
 function grabPoint() {
-  var el = getElementAtMouse(mouse);
+    var el = getElementAtMouse(mouse);
 
-  if (isPointAtMouse(el)) {
-    elements[idx] = el.mover;
-  } else {
-    elements[idx] = {
-      type: "Free",
-      name: getNextFreeName(),
-      labeled: true,
-      pos: [csmouse[0], csmouse[1], 1],
-    };
+    if (isPointAtMouse(el)) {
+        elements[idx] = el.mover;
+    } else {
+        elements[idx] = {
+            type: "Free",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1],
+        };
 
-    addElement(elements[idx]);
-  }
+        addElement(elements[idx]);
+    }
 
-  idx++;
+    idx++;
 }
 
 /**
@@ -296,17 +298,17 @@ function grabPoint() {
  * @returns {boolean}
  */
 function grabLine() {
-  var el = getElementAtMouse(mouse);
+    var el = getElementAtMouse(mouse);
 
-  if (isLineAtMouse(el)) {
-    elements[idx] = el.mover;
+    if (isLineAtMouse(el)) {
+        elements[idx] = el.mover;
 
-    idx++;
+        idx++;
 
-    return true;
-  }
+        return true;
+    }
 
-  return false;
+    return false;
 }
 
 /**
@@ -315,31 +317,31 @@ function grabLine() {
  * @returns {boolean}
  */
 function grabLineOrConic() {
-  var el = getElementAtMouse(mouse);
+    var el = getElementAtMouse(mouse);
 
-  if (isLineAtMouse(el) || isConicAtMouse(el)) {
-    elements[idx] = el.mover;
+    if (isLineAtMouse(el) || isConicAtMouse(el)) {
+        elements[idx] = el.mover;
 
-    idx++;
+        idx++;
 
-    return true;
-  }
+        return true;
+    }
 
-  return false;
+    return false;
 }
 
 /**
  * Grabs the last point if it is present at mouse or uses the temporary created one
  */
 function grabLastPoint() {
-  var p2 = getElementAtMouse(mouse);
+    var p2 = getElementAtMouse(mouse);
 
-  if (isPointAtMouse(p2)) {
-    element.args[1] = p2.mover.name;
-    removeTmpElements();
-  } else {
-    adoptTmpElements();
-  }
+    if (isPointAtMouse(p2)) {
+        element.args[1] = p2.mover.name;
+        removeTmpElements();
+    } else {
+        adoptTmpElements();
+    }
 }
 
 /**
@@ -348,24 +350,24 @@ function grabLastPoint() {
  * @param type
  */
 function create(type) {
-  var tmpPoint = {
-    type: "Free",
-    name: getNextFreeName(),
-    labeled: true,
-    pos: [csmouse[0], csmouse[1], 1],
-    tmp: true,
-  };
+    var tmpPoint = {
+        type: "Free",
+        name: getNextFreeName(),
+        labeled: true,
+        pos: [csmouse[0], csmouse[1], 1],
+        tmp: true,
+    };
 
-  tmpPoint = addElement(tmpPoint);
+    tmpPoint = addElement(tmpPoint);
 
-  element = addElement({
-    type: type,
-    name: getNextFreeName(),
-    labeled: true,
-    args: [elements[0].name, tmpPoint.name],
-  });
+    element = addElement({
+        type: type,
+        name: getNextFreeName(),
+        labeled: true,
+        args: [elements[0].name, tmpPoint.name],
+    });
 
-  setElementAtMouse(tmpPoint);
+    setElementAtMouse(tmpPoint);
 }
 
 //
@@ -383,13 +385,13 @@ tools.Delete.actions[0] = {};
 tools.Delete.actions[0].event = "mousedown";
 tools.Delete.actions[0].tooltip = "...";
 tools.Delete.actions[0].do = function () {
-  move = getElementAtMouse(mouse);
+    move = getElementAtMouse(mouse);
 
-  if (move !== null) {
-    removeElement(move.mover.name);
-  }
+    if (move !== null) {
+        removeElement(move.mover.name);
+    }
 
-  return true;
+    return true;
 };
 
 // Move
@@ -399,9 +401,9 @@ tools.Move.actions[0] = {};
 tools.Move.actions[0].event = "mousedown";
 tools.Move.actions[0].tooltip = "Move free elements by dragging the mouse";
 tools.Move.actions[0].do = function () {
-  move = getmover(mouse);
+    move = getmover(mouse);
 
-  return true;
+    return true;
 };
 
 // Point
@@ -411,14 +413,14 @@ tools.Point.actions[0] = {};
 tools.Point.actions[0].event = "mousedown";
 tools.Point.actions[0].tooltip = "Add a single point with the mouse";
 tools.Point.actions[0].do = function () {
-  addElement({
-    type: "Free",
-    name: getNextFreeName(),
-    labeled: true,
-    pos: [csmouse[0], csmouse[1], 1],
-  });
+    addElement({
+        type: "Free",
+        name: getNextFreeName(),
+        labeled: true,
+        pos: [csmouse[0], csmouse[1], 1],
+    });
 
-  return true;
+    return true;
 };
 
 // Mid
@@ -427,27 +429,27 @@ tools.Mid.actions = [];
 tools.Mid.actions[0] = {};
 tools.Mid.actions[0].event = "mousedown";
 tools.Mid.actions[0].tooltip =
-  "Construct two points and their midpoint by dragging";
+    "Construct two points and their midpoint by dragging";
 tools.Mid.actions[0].do = function () {
-  grabPoint();
+    grabPoint();
 
-  return true;
+    return true;
 };
 
 tools.Mid.actions[1] = {};
 tools.Mid.actions[1].event = "mousemove";
 tools.Mid.actions[1].do = function () {
-  create("Mid");
+    create("Mid");
 
-  return true;
+    return true;
 };
 
 tools.Mid.actions[2] = {};
 tools.Mid.actions[2].event = "mouseup";
 tools.Mid.actions[2].do = function () {
-  grabLastPoint();
+    grabLastPoint();
 
-  return true;
+    return true;
 };
 
 // Circle
@@ -456,27 +458,27 @@ tools.Circle.actions = [];
 tools.Circle.actions[0] = {};
 tools.Circle.actions[0].event = "mousedown";
 tools.Circle.actions[0].tooltip =
-  "Construct two points and a circle by dragging the mouse";
+    "Construct two points and a circle by dragging the mouse";
 tools.Circle.actions[0].do = function () {
-  grabPoint();
+    grabPoint();
 
-  return true;
+    return true;
 };
 
 tools.Circle.actions[1] = {};
 tools.Circle.actions[1].event = "mousemove";
 tools.Circle.actions[1].do = function () {
-  create("CircleMP");
+    create("CircleMP");
 
-  return true;
+    return true;
 };
 
 tools.Circle.actions[2] = {};
 tools.Circle.actions[2].event = "mouseup";
 tools.Circle.actions[2].do = function () {
-  grabLastPoint();
+    grabLastPoint();
 
-  return true;
+    return true;
 };
 
 // Compass
@@ -486,34 +488,34 @@ tools.Compass.actions[0] = {};
 tools.Compass.actions[0].event = "mousedown";
 tools.Compass.actions[0].tooltip = "...";
 tools.Compass.actions[0].do = function () {
-  grabPoint();
+    grabPoint();
 
-  return true;
+    return true;
 };
 
 tools.Compass.actions[1] = {};
 tools.Compass.actions[1].event = "mousedown";
 tools.Compass.actions[1].tooltip = "...";
 tools.Compass.actions[1].do = function () {
-  grabPoint();
+    grabPoint();
 
-  return true;
+    return true;
 };
 
 tools.Compass.actions[2] = {};
 tools.Compass.actions[2].event = "mousedown";
 tools.Compass.actions[2].tooltip = "...";
 tools.Compass.actions[2].do = function () {
-  grabPoint();
+    grabPoint();
 
-  addElement({
-    type: "Compass",
-    name: getNextFreeName(),
-    labeled: true,
-    args: [elements[0].name, elements[1].name, elements[2].name],
-  });
+    addElement({
+        type: "Compass",
+        name: getNextFreeName(),
+        labeled: true,
+        args: [elements[0].name, elements[1].name, elements[2].name],
+    });
 
-  return true;
+    return true;
 };
 
 // Line
@@ -522,27 +524,27 @@ tools.Line.actions = [];
 tools.Line.actions[0] = {};
 tools.Line.actions[0].event = "mousedown";
 tools.Line.actions[0].tooltip =
-  "Construct two points and their connecting line by dragging the mouse";
+    "Construct two points and their connecting line by dragging the mouse";
 tools.Line.actions[0].do = function () {
-  grabPoint();
+    grabPoint();
 
-  return true;
+    return true;
 };
 
 tools.Line.actions[1] = {};
 tools.Line.actions[1].event = "mousemove";
 tools.Line.actions[1].do = function () {
-  create("Join");
+    create("Join");
 
-  return true;
+    return true;
 };
 
 tools.Line.actions[2] = {};
 tools.Line.actions[2].event = "mouseup";
 tools.Line.actions[2].do = function () {
-  grabLastPoint();
+    grabLastPoint();
 
-  return true;
+    return true;
 };
 
 // Segment
@@ -552,25 +554,25 @@ tools.Segment.actions[0] = {};
 tools.Segment.actions[0].event = "mousedown";
 tools.Segment.actions[0].tooltip = "Draw a segment by dragging the mouse";
 tools.Segment.actions[0].do = function () {
-  grabPoint();
+    grabPoint();
 
-  return true;
+    return true;
 };
 
 tools.Segment.actions[1] = {};
 tools.Segment.actions[1].event = "mousemove";
 tools.Segment.actions[1].do = function () {
-  create("Segment");
+    create("Segment");
 
-  return true;
+    return true;
 };
 
 tools.Segment.actions[2] = {};
 tools.Segment.actions[2].event = "mouseup";
 tools.Segment.actions[2].do = function () {
-  grabLastPoint();
+    grabLastPoint();
 
-  return true;
+    return true;
 };
 
 // Parallel
@@ -579,42 +581,42 @@ tools.Parallel.actions = [];
 tools.Parallel.actions[0] = {};
 tools.Parallel.actions[0].event = "mousedown";
 tools.Parallel.actions[0].tooltip =
-  "Construct a parallel line by dragging a line";
+    "Construct a parallel line by dragging a line";
 tools.Parallel.actions[0].do = function () {
-  return grabLine();
+    return grabLine();
 };
 
 tools.Parallel.actions[1] = {};
 tools.Parallel.actions[1].event = "mousemove";
 tools.Parallel.actions[1].do = function () {
-  var tmpPoint = {
-    type: "Free",
-    name: getNextFreeName(),
-    labeled: true,
-    pos: [csmouse[0], csmouse[1], 1],
-    tmp: true,
-  };
+    var tmpPoint = {
+        type: "Free",
+        name: getNextFreeName(),
+        labeled: true,
+        pos: [csmouse[0], csmouse[1], 1],
+        tmp: true,
+    };
 
-  tmpPoint = addElement(tmpPoint);
+    tmpPoint = addElement(tmpPoint);
 
-  element = addElement({
-    type: "Para",
-    name: getNextFreeName(),
-    labeled: true,
-    args: [elements[0].name, tmpPoint.name],
-  });
+    element = addElement({
+        type: "Para",
+        name: getNextFreeName(),
+        labeled: true,
+        args: [elements[0].name, tmpPoint.name],
+    });
 
-  setElementAtMouse(tmpPoint);
+    setElementAtMouse(tmpPoint);
 
-  return true;
+    return true;
 };
 
 tools.Parallel.actions[2] = {};
 tools.Parallel.actions[2].event = "mouseup";
 tools.Parallel.actions[2].do = function () {
-  grabLastPoint();
+    grabLastPoint();
 
-  return true;
+    return true;
 };
 
 // Orthogonal
@@ -623,40 +625,40 @@ tools.Orthogonal.actions = [];
 tools.Orthogonal.actions[0] = {};
 tools.Orthogonal.actions[0].event = "mousedown";
 tools.Orthogonal.actions[0].tooltip =
-  "Construct a orthogonal line by dragging a line";
+    "Construct a orthogonal line by dragging a line";
 tools.Orthogonal.actions[0].do = function () {
-  if (grabLine()) {
-    var tmpPoint = {
-      type: "Free",
-      name: getNextFreeName(),
-      labeled: true,
-      pos: [csmouse[0], csmouse[1], 1],
-      tmp: true,
-    };
+    if (grabLine()) {
+        var tmpPoint = {
+            type: "Free",
+            name: getNextFreeName(),
+            labeled: true,
+            pos: [csmouse[0], csmouse[1], 1],
+            tmp: true,
+        };
 
-    tmpPoint = addElement(tmpPoint);
+        tmpPoint = addElement(tmpPoint);
 
-    element = addElement({
-      type: "Perp",
-      name: getNextFreeName(),
-      labeled: true,
-      args: [elements[0].name, tmpPoint.name],
-    });
+        element = addElement({
+            type: "Perp",
+            name: getNextFreeName(),
+            labeled: true,
+            args: [elements[0].name, tmpPoint.name],
+        });
 
-    setElementAtMouse(tmpPoint);
+        setElementAtMouse(tmpPoint);
 
-    return true;
-  }
+        return true;
+    }
 
-  return false;
+    return false;
 };
 
 tools.Orthogonal.actions[1] = {};
 tools.Orthogonal.actions[1].event = "mouseup";
 tools.Orthogonal.actions[1].do = function () {
-  grabLastPoint();
+    grabLastPoint();
 
-  return true;
+    return true;
 };
 
 // Intersection
@@ -667,24 +669,24 @@ tools.Intersection.actions = [];
 tools.Intersection.actions[0] = {};
 tools.Intersection.actions[0].event = "mousedown";
 tools.Intersection.actions[0].tooltip =
-  "Select two elements to define their intersection";
+    "Select two elements to define their intersection";
 tools.Intersection.actions[0].do = function () {
-  return grabLineOrConic();
+    return grabLineOrConic();
 };
 
 tools.Intersection.actions[1] = {};
 tools.Intersection.actions[1].event = "mousedown";
 tools.Intersection.actions[1].do = function () {
-  if (grabLineOrConic()) {
-    element = addElement({
-      type: "Meet",
-      name: getNextFreeName(),
-      labeled: true,
-      args: [elements[0].name, elements[1].name],
-    });
+    if (grabLineOrConic()) {
+        element = addElement({
+            type: "Meet",
+            name: getNextFreeName(),
+            labeled: true,
+            args: [elements[0].name, elements[1].name],
+        });
 
-    return true;
-  }
+        return true;
+    }
 
-  return false;
+    return false;
 };
