@@ -1,4 +1,4 @@
-# Calculus
+#  Calculus
 
 CindyScript is a purely numerical language.
 No symbolic computations are performed.
@@ -6,7 +6,7 @@ Nonetheless, it is possible to do some operations that can usually be done only 
 For instance, one can numerically calculate the derivative of a function or construct a tangent to a given function.
 This section illustrates the use of these two functions.
 
-## Derivatives and Tangents
+##  Derivatives and Tangents
 
 #### Calculating a derivative: `d(‹function›,‹var›)`
 
@@ -53,7 +53,7 @@ By default, the constant `eps` in the above formula is set to 0.0001.
 This value forms a reasonable compromise between reliability in higher derivatives and precision.
 This value can be altered using the modifier `eps->‹number›`.
 
----
+------
 
 #### Tangent: `tangent(‹function›,‹var›)`
 
@@ -82,11 +82,11 @@ The picture below shows the resulting image created by the program.
 The result of the tangent function is a three-vector of homogeneous coordinates.
 In addition, the line attribute of this vector is set (see [Geometric Operators](Geometric_Operators.md)) so that the coordinates are automatically drawn as a line.
 
----
+------
 
----
+------
 
-## Advanced calculations
+##  Advanced calculations
 
 #### Guessing the value of a real number: `guess(‹number›)`
 
@@ -125,12 +125,12 @@ The second example shows a nice connection between two areas of squares in a sim
 ![Ratio of areas in nested squares](img/Guess3X.png)
 
 **Remark:**
-The workhorse behind the guessing operator is the so-called PSLQ algorithm, a truly ingenious algorithm that is able to discover (if real numbers _x_, _y_, and _z_ are given) integer dependencies _a_·_x_+_b_·_y_+_c_·_z_=0.
-If one wants to check whether the real number _x_ is the solution of a quadratic relation, one has to look for an integer relation of the form _a_+_b_·_x_+_c_·*x*²=0.
+The workhorse behind the guessing operator is the so-called PSLQ algorithm, a truly ingenious algorithm that is able to discover (if real numbers *x*, *y*, and *z* are given) integer dependencies *a*·*x*+*b*·*y*+*c*·*z*=0.
+If one wants to check whether the real number *x* is the solution of a quadratic relation, one has to look for an integer relation of the form *a*+*b*·*x*+*c*·*x*²=0.
 This is how the implementation of the guess operator works.
 The solution is then reconstructed from the calculated integral coefficients.
 
----
+------
 
 #### Roots of a polynomial: `roots(‹list›)`
 
@@ -140,8 +140,8 @@ As input it accepts the coefficients of the polynomial, ordered from lowest degr
 The results as well of the coefficients may be complex numbers.
 
 **Examples:**
-For instance if one wants to calculate the roots of the polynomial _1+x<sup>2</sup>=0_ one can simply call `roots([1,0,1])`.
-The resulting expression is `[-0-i*1,-0+i*1]`, since the polynomial has the two complex roots _+i_ and _-i_.
+For instance if one wants to calculate the roots of the polynomial *1+x<sup>2</sup>=0* one can simply call `roots([1,0,1])`.
+The resulting expression is `[-0-i*1,-0+i*1]`, since the polynomial has the two complex roots *+i* and *-i*.
 
 The code below calculates and draws the roots of a cubic polynomial given by its coefficients.
 

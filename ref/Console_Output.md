@@ -9,7 +9,7 @@ However, it is extremely useful for debugging.
 **Description:**
 This operator prints the result of evaluating `‹expr›` to the console.
 
----
+------
 
 #### Printing text: `err(‹expr›)`
 
@@ -18,14 +18,14 @@ Prints the result of evaluating `‹expr›` to the console.
 If `‹expr›` is a variable, the variable name is printed as well.
 Very useful for debugging.
 
----
+------
 
 #### Printing text: `println(‹expr›)`
 
 **Description:**
 This operator prints the result of evaluating `‹expr›` to the console and adds a newline character to the end of the text.
 
----
+------
 
 #### Printing a newline: `println()`
 
@@ -34,14 +34,14 @@ This operator prints the result of evaluating `‹expr›` to the console and ad
 **Description:**
 This operator prints a newline character to the console.
 
----
+------
 
 #### Clearing the console: `clearconsole()`
 
 **Description:**
 Removes all text from the console.
 
----
+------
 
 #### Conditional print: `assert(‹bool›,‹expr›)`
 
@@ -55,7 +55,7 @@ A typical usage of this operator is the following:
 
     > assert(isinteger(k),"k is not an integer");
 
----
+------
 
 #### Output a status message: `message(‹expr›)`
 

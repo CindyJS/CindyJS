@@ -56,7 +56,7 @@ Lists are compared element-wise:
     > [1, 2, [3, 4, "bar"]] == [1, 2, [3, 4, "foo"]]
     < false
 
----
+------
 
 #### Testing inequality: `‹expr1› != ‹expr2›`
 
@@ -98,7 +98,8 @@ The others are just the negation of the respecive `==` answer as well:
     > [1, 2, [3, 4, "bar"]] != [1, 2, [3, 4, "foo"]]
     < true
 
----
+
+------
 
 #### Greater than: `‹expr1› > ‹expr2›`
 
@@ -132,7 +133,7 @@ In all other cases (if the values are not comparable) the value `___` is returne
     > "2" > 1
     < ___
 
----
+------
 
 #### Less than: `‹expr1› < ‹expr2›`
 
@@ -158,7 +159,7 @@ This operator is similar to **&gt;** but tests for **less than**.
     > "2" < 1
     < ___
 
----
+------
 
 #### Greater than or equal: `‹expr1› >= ‹expr2›`
 
@@ -184,7 +185,7 @@ This operator is similar to **&gt;** but tests for **greater than or equal to**.
     > "2" >= 1
     < ___
 
----
+------
 
 #### Less than or equal: `‹expr1› <= ‹expr2›`
 
@@ -210,12 +211,12 @@ This operator is similar to **&gt;** but tests for **less than or equal to**.
     > "2" <= 1
     < ___
 
----
+------
 
-#### Fuzzy comparisons:
+####  Fuzzy comparisons:
 
 **Description:**
-CindyScript provides a _fuzzy_ variant for each comparison operator.
+CindyScript provides a *fuzzy* variant for each comparison operator.
 This version tests whether the condition is satisfied up to an epsilon bound.
 Thus the test `a~=0` tests whether is the variable `a` lies between `+epsilon` and `-epsilon`.
 The small value epsilon is set to `0.0000000001`.
@@ -251,7 +252,7 @@ Here for each operator the picture shows for which region of `b` (marked in red)
     > greaterThanEps ~= 0
     < false
 
-Lists are compared element-wise. The maximal error determines the result
+Lists are compared element-wise.  The maximal error determines the result
 of the comparison, so errors are not accumulated over the list.
 
     > a = [2, 8, 7, 3]
@@ -289,7 +290,7 @@ Lists of different lengths are always unequal.
     > greaterThanEps ~!= 0
     < true
 
-Lists are compared element-wise. The maximal error determines the result
+Lists are compared element-wise.  The maximal error determines the result
 of the comparison, so errors are not accumulated over the list.
 
     > a = [2, 8, 7, 3]
@@ -366,7 +367,7 @@ Lists of different lengths are always unequal.
     > greaterThanEps ~> 0
     < true
 
----
+------
 
 #### Logical and: `‹bool1› & ‹bool2›`
 
@@ -382,7 +383,7 @@ Logical **and** of two Boolean values defined by the following truth table:
 
 If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
----
+------
 
 #### Logical or: `‹bool1› % ‹bool2›`
 
@@ -398,7 +399,7 @@ Logical **or** of two Boolean values defined by the following truth table:
 
 If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
----
+------
 
 #### Logical not: `!‹bool›`
 
@@ -419,9 +420,9 @@ If the argument is not a Boolean expression, the operator returns `___`.
     > !1
     < ___
 
----
+------
 
----
+------
 
 ### Functional Operators
 
@@ -430,14 +431,14 @@ If the argument is not a Boolean expression, the operator returns `___`.
 **Description:**
 `and(x,y)` is equivalent to `x & y`.
 
----
+------
 
 #### Logical or: `or(‹bool1›,‹bool2›)`
 
 **Description:**
 `or(x,y)` is equivalent to `x % y`.
 
----
+------
 
 #### Logical not: `not(‹bool›)`
 
@@ -451,7 +452,7 @@ If the argument is not a Boolean expression, the operator returns `___`.
     > not(1)
     < ___
 
----
+------
 
 #### Logical exclusive or: `xor(‹bool1›,‹bool2›)`
 
@@ -467,9 +468,9 @@ Logical **exclusive or** of two Boolean values defined by the following truth ta
 
 If one of the two arguments is not a Boolean expression, the operator returns `___`.
 
----
+------
 
----
+------
 
 ### Type Predicates
 
@@ -477,14 +478,14 @@ The following predicates test whether the expression `‹expr›` belongs to a c
 The predicates are important in defining functions whose behavior depends on the type of input expressions.
 Furthermore, these arguments are very useful for debugging, since they can be used to test assertions on the typing of the values in a program.
 
----
+------
 
 #### Is an integer: `isinteger(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` is an integer.
 
----
+------
 
 #### Is a real number: `isreal(‹expr›)`
 
@@ -492,7 +493,7 @@ This operator tests whether the expression `‹expr›` is an integer.
 This operator tests whether the expression `‹expr›` is a real number.
 Note that integers are also real numbers.
 
----
+------
 
 #### Is a complex number: `iscomplex(‹expr›)`
 
@@ -500,65 +501,65 @@ Note that integers are also real numbers.
 This operator tests whether the expression `‹expr›` is a complex number.
 Note that real numbers are also complex numbers.
 
----
+------
 
 #### Is even: `iseven(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` is an even integer.
 
----
+------
 
 #### Is odd: `isodd(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` is an odd integer.
 
----
+------
 
 #### Is a list: `islist(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` is a list.
 
----
+------
 
 #### Is a matrix: `ismatrix(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` has the shape of a matrix.
 This means that the entries of the list are themselves lists, all of equal length.
-If there are _n_ entries each of length _m_ the expression represents an _n_ × _m_ matrix.
+If there are *n* entries each of length *m* the expression represents an *n* × *m* matrix.
 
----
+------
 
 #### Is a number vector: `isnumbervector(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` is a list all of whose entries are numbers (integer, real, or complex).
 
----
+------
 
 #### Is a number matrix: `isnumbermatrix(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` is a matrix all of whose entries are numbers (integer, real, or complex).
 
----
+------
 
 #### Is a string: `isstring(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` is a string.
 
----
+------
 
 #### Is a geometric element: `isgeometric(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a geometric element.
 
----
+------
 
 #### Is selected: `isselected(‹expr›)`
 
@@ -568,64 +569,63 @@ This operator tests whether the expression `‹expr›` represents a geometric e
 This operator tests whether the expression `‹expr›` represents a geometric element and is selected.
 For a geometric element you can also use the .selected property to check this.
 
----
+------
 
 #### Is a point: `ispoint(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a geometric point.
 
----
+------
 
 #### Is a line: `isline(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a geometric line.
 
----
+------
 
 #### Is a circle: `iscircle(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a geometric circle.
 
----
+------
 
 #### Is a conic: `isconic(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a geometric conic.
 
----
+------
 
 #### Is a mass: `ismass(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a CindyLab mass.
 
----
+------
 
 #### Is a sun: `issun(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a CindyLab sun.
 
----
+------
 
 #### Is a spring: `isspring(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a CindyLab spring.
 
----
+------
 
 #### Is a bouncer: `isbouncer(‹expr›)`
 
 **Description:**
 This operator tests whether the expression `‹expr›` represents a CindyLab bouncer.
 
----
-
+------
 #### Is undefined: `isundefined(‹expr›)`
 
 **Description:**

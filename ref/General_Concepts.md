@@ -15,7 +15,7 @@ Thus the code fragment
 calculates the sum of the first 10 integers.
 Here `..` is a function that takes two integer numbers, `a` and `b`, and generates as output the list of all integers from `a` to `b`.
 Thus `1..10` generates a list of 10 integers: `[1,2,3,4,5,6,7,8,9,10]`.
-The function sum(\_) is unary (that is, it takes a single argument).
+The function sum(_) is unary (that is, it takes a single argument).
 It takes as its argument a list of numbers as input and generates as output a number that corresponds to the sum of the list entries.
 Thus if we type `sum(1..10)` into the command shell, the system will respond with the result `55`.
 
@@ -44,18 +44,18 @@ If a function is evaluated in CindyScript, it may have “side effects”.
 Side effects are important for all kinds of interactions between a CindyScript program and a Cinderella construction.
 Typical side effects are:
 
--   **Drawing:**
-    A CindyScript statement may cause drawing operations in the construction views.
+*  **Drawing:**
+A CindyScript statement may cause drawing operations in the construction views.
 
--   **Assignments:**
-    A CindyScript operation may change the position, color, size, etc.
-    of geometric objects.
+*  **Assignments:**
+A CindyScript operation may change the position, color, size, etc.
+of geometric objects.
 
--   **Variable assignments:**
-    A CindyScript statement can create variables and assign values to them.
+*  **Variable assignments:**
+A CindyScript statement can create variables and assign values to them.
 
--   **Function creation:**
-    A CindyScript statement can create and define a function that can be used later.
+*  **Function creation:**
+A CindyScript statement can create and define a function that can be used later.
 
 For instance, the statement
 
@@ -67,9 +67,9 @@ The statement
     - skip test: no geometry available here
     > A.color=[1,1,1];
 
-sets the color of point _A_ to _white_.
+sets the color of point *A* to *white*.
 
-### Control Flow
+###  Control Flow
 
 Most users are probably accustomed to sequential programming languages like C, Java, Pascal, and Basic.
 In practice, writing sequential code in CindyScript is not so different from writing code in these languages.
@@ -89,6 +89,7 @@ The return value of the `;` operator is the result of the last non-empty stateme
     > 2;(;)
     < ___
 
+
 Writing a sequential program is relatively simple, and it looks similar to a program written in a sequential language.
 For instance, the program
 
@@ -102,7 +103,7 @@ The function `repeat(‹number›, ‹variable›, ‹program›)` creates a loo
 In each run the variable `‹variable›` is incremented (starting with `1`).
 The body of the loop is the two lines `j=i*i; draw([i,j]);`.
 
-### No Explicit Typing
+###  No Explicit Typing
 
 CindyScript is designed to provide a maximum of functionality with a minimum of syntactic overhead.
 Therefore, CindyScript does not have explicit typing of values.
@@ -152,16 +153,16 @@ Thus `select(1..30,i,isodd(i))` and `repeat(9,i,print(i))` are equivalent to the
 ### The Data Types of CindyScript
 
 As already mentioned, CindyScript does not have explicit typing.
-Nevertheless, any _value_ of a variable belongs to an explicit type.
+Nevertheless, any *value* of a variable belongs to an explicit type.
 The basic types of CindyScript are
 
--   ‹number›: Any numeric value.
-    Numbers can be integers, real numbers, or complex numbers.
--   ‹list›: A list of arbitrary objects.
-    Such a list may semantically also have the meaning of a vector or matrix.
--   ‹string›: A text expression.
--   ‹geo›: A geometric object that belongs to a construction.
--   ‹boolean›: A value `true` or `false`.
+*  ‹number›: Any numeric value.
+Numbers can be integers, real numbers, or complex numbers.
+*  ‹list›: A list of arbitrary objects.
+Such a list may semantically also have the meaning of a vector or matrix.
+*  ‹string›: A text expression.
+*  ‹geo›: A geometric object that belongs to a construction.
+*  ‹boolean›: A value `true` or `false`.
 
 The number type is particularly powerful, since it can contain integers, floating-point numbers, and complex numbers.
 
@@ -242,7 +243,7 @@ They may occur in any order and at any position of the function call.
 
 ### Lists/Vectors/Matrices
 
-CindyScript offers _lists_ as elementary data types.
+CindyScript offers *lists* as elementary data types.
 Lists are the fundamental paradigm that is used to define more complex data structures.
 In addition to the obvious application as enumeration objects, lists can also be used to represent vectors and matrices.
 A vector is a list of numbers.
@@ -251,7 +252,7 @@ CindyScript provides the usual operations for combining vectors, matrices, and n
 Depending on the content of `a` and `b`, the expression `a*b` may represent a usual multiplication of numbers, a matrix product, or a matrix/vector multiplication.
 
 In CindyScript there is no distinction between row vectors and column vectors on the level of vectors.
-However, by the use of suitable functions one can convert a vector of length `n` to an (_n_ × 1) matrix or to a (1 × _n_) matrix.
+However, by the use of suitable functions one can convert a vector of length `n` to an (*n* × 1) matrix or to a (1 × *n*) matrix.
 
 ### Drawing
 
@@ -269,18 +270,18 @@ All free elements can be moved by setting their position parameters.
 The [script window of Cinderella](The_CindyScript_Editor.md) in which one enters the CindyScript code contains several slots in which the text can be entered.
 The particular slots are called
 
--   Draw
--   Move
--   Initialization
--   Timer Tick
--   Simulation Start
--   Simulation Stop
--   …
+*  Draw
+*  Move
+*  Initialization
+*  Timer Tick
+*  Simulation Start
+*  Simulation Stop
+*  …
 
 Each of these entries corresponds to the occasion that triggers the execution of the script.
-For instance, scripts in the _Draw_ slot is executed directly before a screen refresh in the view.
-The _Initialization_ slot is executed directly after the CindyScript code is parsed.
-_Simulation Start_ is executed before starting an animation when the play button is pressed.
+For instance, scripts in the *Draw* slot is executed directly before a screen refresh in the view.
+The *Initialization* slot is executed directly after the CindyScript code is parsed.
+*Simulation Start* is executed before starting an animation when the play button is pressed.
 Using this mechanism it is possible to write programs that react nicely to user events.
 
 ### Runtime Error handling

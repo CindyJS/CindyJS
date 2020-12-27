@@ -18,25 +18,25 @@ A list of display ports associated with the newly created instance.
 At the moment, only the first element of this list is actually used.
 Each port description is a dictionary which may contain the following items:
 
--   `id` is the element `id` of the drawing canvas.
--   `element` is a DOM element for the drawing canvas.
--   `width` and `height` specify the desired dimensions for the canvas,
-    and override any `width` and `height` attributes that element might have.
--   `background` specifies the CSS background color to be used for the canvas.
-    If this is omitted, the canvas will be transparent.
--   `transform` specifies coordinate system transformations.
-    If this is omitted, the global set of transformations applies instead.
-    For details see the `transform` setting at the top level.
--   `fill: "window"` will adjust the size of the canvas so that it matches the
-    `innerWidth` and `innerHeight` of the window.
-    This overrides the `width` and `height` attributes of the canvas element.
-    At the moment this still doesn't accomodate dynamic changes to window size.
--   `grid` is a numeric value which specified the grid size in user units.
-    A missing or zero value indicates that no grid is to be drawn.
--   `snap` is a boolean value and indicates that points being moved
-    should snap to nearby grid points. Defaults to `false`.
--   `axes` is a boolean value which indicates
-    whether coordinate axes are to be drawn. Defaults to `false`.
+* `id` is the element `id` of the drawing canvas.
+* `element` is a DOM element for the drawing canvas.
+* `width` and `height` specify the desired dimensions for the canvas,
+  and override any `width` and `height` attributes that element might have.
+* `background` specifies the CSS background color to be used for the canvas.
+  If this is omitted, the canvas will be transparent.
+* `transform` specifies coordinate system transformations.
+  If this is omitted, the global set of transformations applies instead.
+  For details see the `transform` setting at the top level.
+* `fill: "window"` will adjust the size of the canvas so that it matches the
+  `innerWidth` and `innerHeight` of the window.
+  This overrides the `width` and `height` attributes of the canvas element.
+  At the moment this still doesn't accomodate dynamic changes to window size.
+* `grid` is a numeric value which specified the grid size in user units.
+  A missing or zero value indicates that no grid is to be drawn.
+* `snap` is a boolean value and indicates that points being moved
+  should snap to nearby grid points. Defaults to `false`.
+* `axes` is a boolean value which indicates
+  whether coordinate axes are to be drawn. Defaults to `false`.
 
 Either `id` or `element` must be given, with the latter taking precedence.
 The element identified in this way must be a `HTMLCanvasElement`.
@@ -68,19 +68,19 @@ For example `drawscript:"csdraw"` would load the same draw script in the example
 
 At the moment the following events are defined:
 
--   `init` is invoked immediately after startup
--   `move` when some element got moved
--   `draw` for drawing the scene
--   `mousedown` invoked after a mouse button (or a single finger) got pressed
--   `mousemove` invoked when the mouse (or a single finger) is moved
--   `mousedrag` invoked when the mouse (or a single finger) is moved and the mouse button is pressed
--   `mouseup` invoked if the mouse button is released
--   `mouseclick` invoked if the mouse button is clicked
--   `keydown` invoked when a key is pressed, see the `keylistener` parameter
--   `tick` to perform a timed animation
--   `multidown` invoked after a finger got down (or the mouse got pressed). More details are discussed in the reference on [multi-touch events](User_Input.html#single-and-multi-touch)
--   `multidrag` invoked when the mouse (with pressed button) or a finger on the screen moves
--   `multiup` invoked if the mouse button or a finger is released
+* `init` is invoked immediately after startup
+* `move` when some element got moved
+* `draw` for drawing the scene
+* `mousedown` invoked after a mouse button (or a single finger) got pressed
+* `mousemove` invoked when the mouse (or a single finger) is moved
+* `mousedrag` invoked when the mouse (or a single finger) is moved and the mouse button is pressed
+* `mouseup` invoked if the mouse button is released
+* `mouseclick` invoked if the mouse button is clicked
+* `keydown` invoked when a key is pressed, see the `keylistener` parameter
+* `tick` to perform a timed animation
+* `multidown` invoked after a finger got down (or the mouse got pressed). More details are discussed in the reference on [multi-touch events](User_Input.html#single-and-multi-touch)
+* `multidrag` invoked when the mouse (with pressed button) or a finger on the screen moves
+* `multiup` invoked if the mouse button or a finger is released
 
 ### keylistener
 
@@ -98,21 +98,21 @@ Each transformation is an object, containing a single property.
 The name of the property describes the kind of transformation,
 while the value will provide any required parameters.
 
--   `{scale:‹number›}`
-    scales by the given amount.
--   `{translate:[‹number›,‹number›]}`
-    moves by the given offsets in `x` and `y` direction.
--   `{scaleAndOrigin:[‹number›,‹number›,‹number›]}`
-    specifies the transformation without reference to prior state.
-    This operation makes any previous operations irrelevant.
-    The first number is the scaling factor, the other two are the position of the origin.
--   `{visibleRect:[‹number›,‹number›,‹number›,‹number›]}`
-    specifies the transformation without reference to prior state,
-    in a way that interacts nicely with changing the size of the widget.
-    The given coordinates are left, top, right and bottom coordinates of a
-    visible rectangle, specified in user coordinates.
-    The coordinate system is chosen in such a way that this rectangle will be
-    fully visible and centered within the widget.
+* `{scale:‹number›}`
+scales by the given amount.
+* `{translate:[‹number›,‹number›]}`
+moves by the given offsets in `x` and `y` direction.
+* `{scaleAndOrigin:[‹number›,‹number›,‹number›]}`
+specifies the transformation without reference to prior state.
+This operation makes any previous operations irrelevant.
+The first number is the scaling factor, the other two are the position of the origin.
+* `{visibleRect:[‹number›,‹number›,‹number›,‹number›]}`
+specifies the transformation without reference to prior state,
+in a way that interacts nicely with changing the size of the widget.
+The given coordinates are left, top, right and bottom coordinates of a
+visible rectangle, specified in user coordinates.
+The coordinate system is chosen in such a way that this rectangle will be
+fully visible and centered within the widget.
 
 ### defaultAppearance
 
@@ -179,14 +179,14 @@ Whenever an image is ready, it can be used in the application instance.
 
 An object containing the following properties:
 
--   `autoplay` is a boolean value which indicates whether the animation should start immediately after startup of the instance.
--   `controls` is a boolean value which controls whether animation control buttons (play, pause, stop) are to be displayed.
--   `speed` is the animation speed, as a double value which defaults to 1.
+* `autoplay` is a boolean value which indicates whether the animation should start immediately after startup of the instance.
+* `controls` is a boolean value which controls whether animation control buttons (play, pause, stop) are to be displayed.
+* `speed` is the animation speed, as a double value which defaults to 1.
 
 For the sake of backwards compatibility, `autoplay` may occur as
 a top level parameter instead of nested in the `animation` object.
 Likewise a top level `animcontrols` can be given instead of
-`animation.controls`. But these are deprecated, and only being used
+`animation.controls`.  But these are deprecated, and only being used
 if the `animation` object is not present at all.
 
 ### oninit
@@ -249,8 +249,8 @@ One such situation is when the canvas element is removed from the document.
 Another is the creation of a second instance using the `exclusive` parameter.
 But it never hurts to explicitely shut down an instance nown to be no longer in use.
 Repeated invocation of this method is without effect.
-For example, starting two instances for the _same_ canvas will cause both of them to remain active, which may cause problems.
-Removing some _parent_ of the canvas from the document will not cause an automatic shutdown on some older browsers (those not supporting [mutation observers](http://caniuse.com/#feat=mutationobserver)).
+For example, starting two instances for the *same* canvas will cause both of them to remain active, which may cause problems.
+Removing some *parent* of the canvas from the document will not cause an automatic shutdown on some older browsers (those not supporting [mutation observers](http://caniuse.com/#feat=mutationobserver)).
 
 ### evokeCS
 
@@ -329,9 +329,9 @@ save then reload cycle for each widget in the current document.
 
 ## Geometry
 
-_This section remains to be written.
-It should specify the structure of a geometric straight line program._
+*This section remains to be written.
+It should specify the structure of a geometric straight line program.*
 
 ## Lab
 
-_This section remains to be written._
+*This section remains to be written.*

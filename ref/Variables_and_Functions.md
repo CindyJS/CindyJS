@@ -155,7 +155,7 @@ The following program exemplifies the scope of variables:
 It produces the output
 
     * Hello World
-    * Hello Hello
+    * Hello Hello 
     * Hello User
 
 Local variables in a function may be defined explicitly using the `regional(…)` operator.
@@ -177,7 +177,7 @@ In the following code snippet, as a slight variation of the above program, `y` i
 The program produces the output
 
     * Hello World
-    * Hello Hello
+    * Hello Hello 
     * Hello World
 
 Run variables in loops are also treated as local variables.
@@ -301,10 +301,10 @@ Other predefined variables are `true` and `false` for the logical constants, as 
 
 There is another important type of predefined variable.
 Any geometric element in a construction may be referred to as a predefined variable of the corresponding name.
-Thus, for instance, a point _A_ can be accessed using variable `A`.
+Thus, for instance, a point *A* can be accessed using variable `A`.
 More detailed information on this topic may be found in the section on [Accessing Geometric Elements](Accessing_Geometric_Elements.md).
 
-### User Defined Data
+###  User Defined Data
 
 There is also a possibility to associate user defined data to geometric elements.
 This can be done by the `:` operator.
@@ -313,7 +313,7 @@ After the colon an arbitrary string value can be added as a key to access the da
 This key serves as a variable to which arbitrary values may be attached.
 
 The usage of this operator is best explained by a examples.
-Assume that _A_ ad _B_ are geometric objects.
+Assume that *A* ad *B* are geometric objects.
 The following code associates some data to them:
 
     - skip test: keys not implemented.

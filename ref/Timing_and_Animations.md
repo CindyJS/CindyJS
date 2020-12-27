@@ -1,6 +1,6 @@
 ## Timing and Animations
 
-### Time and Date
+###  Time and Date
 
 CindyScript has an internal clock that provides access to the current date and time.
 The clock can be also used to synchronize some automated animations.
@@ -20,7 +20,7 @@ An auxiliary function `p(w)` is defined that produces points on the unit circle.
 The code must be placed in the “Tick” section of CindyScript in order for it to run continuously.
 
     > t=time();
-    >
+    > 
     > p(x):=[sin(2*pi*x),cos(2*pi*x)];
     > O=[0,0];
     > S=p(t_3/60)*4;
@@ -31,12 +31,12 @@ The code must be placed in the “Tick” section of CindyScript in order for it
     > draw(O,H,size->3);
     > apply(1..12,draw(p(#/12)*5));
     > apply(1..60,draw(p(#/60)*5,size->1));
-    >
+    > 
     > drawtext((3,5),t);
 
 ![Image](img/ClockX.png)
 
----
+------
 
 #### Accessing date: `date()`
 
@@ -44,7 +44,7 @@ The code must be placed in the “Tick” section of CindyScript in order for it
 This operator returns a list `[y,m,d]` of three integers.
 The three values correspond to “year”, “month”, and “day” on the computer's calendar.
 
----
+------
 
 #### Timestamp: `seconds()`
 
@@ -53,14 +53,14 @@ Returns the time elapsed since the last evaluation of `resetclock()`.
 The time is scaled in a way such that one unit corresponds to one second.
 The time's resolution is on the millisecond scale.
 
----
+------
 
 #### Resetting the internal seconds: `resetclock()`
 
 **Description:**
 Resets the value of the `seconds()` operator.
 
----
+------
 
 #### Accessing the timestamp of a simulation: `simulationtime()`
 
@@ -70,7 +70,7 @@ This operator gives a handle to the running time clock synchronized with the pro
 **Caution:**
 This operator is still experimental.
 
----
+------
 
 #### Pause the script for a specified time: `wait(‹real›)`
 
@@ -87,11 +87,11 @@ The following code produces an acoustic jingle.
     >   wait(100);
     > )
 
----
+------
 
----
+------
 
-### Animation Control
+###  Animation Control
 
 #### Starting the animation: `playanimation()`
 
@@ -99,14 +99,14 @@ The following code produces an acoustic jingle.
 This statement starts the animation.
 Also physics simulation in CindyLab depend on running animations.
 
----
+------
 
 #### Pausing the animation: `pauseanimation()`
 
 **Description:**
 This statement pauses the animation.
 
----
+------
 
 #### Stopping the animation: `stopanimation()`
 
@@ -114,4 +114,4 @@ This statement pauses the animation.
 This statement stops the animation.
 Stopping an animation also causes the geometric elements to be restored to there original position.
 
----
+------

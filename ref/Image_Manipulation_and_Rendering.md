@@ -1,16 +1,16 @@
-## Image Manipulation and Rendering
+##  Image Manipulation and Rendering
 
 Cinderella.2 introduces various ways to deal with images in a geometric construction.
 On the one hand it is possible to load images in a media database and use them freely within CindyScript.
 Images can be arbitrarily moved, rotated, scaled, perspectively transformed, of even transformed by a function.
 On the other hand it is possible to use the drawing functions of CindyScript to create custom images which are in turn used as blueprint for other purposes.
 
-### The Media Browser
+###  The Media Browser
 
 Prior to all image rendering there is the need to load a specific image into a Cinderella construction.
 This is done via the Media Browser from which you can access all images you need for a construction.
-The Media Browser is opened by choosing the menu item _File/Media Browser_.
-You can load images by pressing the _+_ button and remove them again by pressing the _-_ button.
+The Media Browser is opened by choosing the menu item *File/Media Browser*.
+You can load images by pressing the *+* button and remove them again by pressing the *-* button.
 Once an image is loaded you see its internal name and a preview of the image.
 By default, the image name is the original file name, but you can change the internal name by double clicking and editing it.
 Under this name the image can be accessed from within CindyScript.
@@ -20,9 +20,9 @@ Under this name the image can be accessed from within CindyScript.
 The images in the media browser can also be used as images for points and lines as well as background of the view port.
 This functionality is available via the inspector.
 
----
+------
 
-### Drawing and Transforming Images
+###  Drawing and Transforming Images
 
 #### Drawing an image: `drawimage(‹pos›,‹imagename›)`
 
@@ -33,7 +33,7 @@ However, this can be altered by modifiers.
 Also the scaling and positioning of the image can be altered.
 
 **Examples:**
-The following code draws the image called `myimage` at the position given by the point _A_.
+The following code draws the image called `myimage` at the position given by the point *A*.
 
     > drawimage(A,"myimage"))
 
@@ -51,14 +51,14 @@ Reference points can be specified using the modifiers `ref`, `refx`, `refy`.
 While the `ref` modifier expects a two-dimensional information, the last two refer to the two coordinate directions separately.
 The reference information may be given in three different ways:
 
--   Absolute to the pixel coordinates of the original image: If the image for example was originally 400 by 800 pixels then the modifier `ref->[100,200]` will specify the position in the middle of the left lower quarter of the image.
+*  Absolute to the pixel coordinates of the original image: If the image for example was originally 400 by 800 pixels then the modifier `ref->[100,200]` will specify the position in the middle of the left lower quarter of the image.
 
--   As relative quotient with respect to the image's dimensions: In this case the position has to be specified by a percentage value (given as a string).
-    So for instance, `ref->["25%", "25%"]` would again place the reference point in the middle of the left lower quarter of the image - but now independent of the original image's dimensions.
+*  As relative quotient with respect to the image's dimensions: In this case the position has to be specified by a percentage value (given as a string).
+So for instance, `ref->["25%", "25%"]` would again place the reference point in the middle of the left lower quarter of the image - but now independent of the original image's dimensions.
 
--   Symbolically as a pair of letters: Here in the _x_-direction the letters `l`, `c`, `r` represent *left', *center* and *right*.
-    In the *y* direction the letters `b`, `c`, `t` represent *bottom', _center_ and _top_.
-    So the lower left corner may be specified either by `ref->"lb"` or by `ref->["l","b"]`.
+*  Symbolically as a pair of letters: Here in the *x*-direction the letters `l`, `c`, `r` represent *left', *center* and *right*.
+In the *y* direction the letters `b`, `c`, `t` represent *bottom', *center* and *top*.
+So the lower left corner may be specified either by `ref->"lb"` or by `ref->["l","b"]`.
 
 All the position information can be used separately for the horizontal and vertical direction, for example with `refx->"l"`, `refx->100` or `refx->"10%"`.
 The following picture exemplifies the positions of a few reference points.
@@ -75,16 +75,16 @@ The modifiers of this function are listed below.
 | `rotation`  | `real`             | same as `angle`                           |
 | `scale`     | `real`             | scaling                                   |
 | `scale`     | `vec`              | separate scaling in both directions       |
-| `scalex`    | `real`             | scaling in _x_-direction                  |
-| `scaley`    | `real`             | scaling in _y_-direction                  |
+| `scalex`    | `real`             | scaling in *x*-direction                  |
+| `scaley`    | `real`             | scaling in *y*-direction                  |
 | `flipx`     | `boolean`          | vertical reflection                       |
 | `flipy`     | `boolean`          | horicontal reflection                     |
-| `ref`       | `see above`        | _xy_-position of reference point          |
-| `refx`      | `see above`        | _x_-position of reference point           |
-| `refy`      | `see above`        | _y_-position of reference point           |
+| `ref`       | `see above`        | *xy*-position of reference point          |
+| `refx`      | `see above`        | *x*-position of reference point           |
+| `refy`      | `see above`        | *y*-position of reference point           |
 | `rendering` | `"fast" or "nice"` | specify the rendering quality             |
 
----
+------
 
 #### Drawing an image: `drawimage(‹pos›,‹pos›,‹imagename›)`
 
@@ -118,12 +118,12 @@ Observe how in the third row the two reference points are specified individually
 | `flipx`     | `boolean`          | vertical reflection                  |
 | `flipy`     | `boolean`          | horicontal reflection                |
 | `aspect`    | `real`             | specify the aspect ratio             |
-| `ref1`      | `see above`        | _xy_-position of reference point one |
-| `refx1`     | `see above`        | _x_-position of reference point one  |
-| `refy1`     | `see above`        | _y_-position of reference point one  |
-| `ref2`      | `see above`        | _xy_-position of reference point two |
-| `refx2`     | `see above`        | _x_-position of reference point two  |
-| `refy2`     | `see above`        | _y_-position of reference point two  |
+| `ref1`      | `see above`        | *xy*-position of reference point one |
+| `refx1`     | `see above`        | *x*-position of reference point one  |
+| `refy1`     | `see above`        | *y*-position of reference point one  |
+| `ref2`      | `see above`        | *xy*-position of reference point two |
+| `refx2`     | `see above`        | *x*-position of reference point two  |
+| `refy2`     | `see above`        | *y*-position of reference point two  |
 | `rendering` | `"fast" or "nice"` | specify the rendering quality        |
 
 **Example:**
@@ -132,16 +132,16 @@ It iteratively maps two points (stored the variables `a` and `b`) by a transform
 In each step a corresponding image is drawn.
 This code creates a logarithmic spiral of images.
 One important issue may arise if many images are drawn in a construction.
-One may have to select between _nice_ or _fast_ drawing of the images.
+One may have to select between *nice* or *fast* drawing of the images.
 For this there is a modifier `rendering` that may be set either to `"nice"` or to `fast`.
-By default it is set to prefer the _nice_ rendering.
+By default it is set to prefer the *nice* rendering.
 
     > a=(1,0);
     > b=(2,-1);
     > w=30°;
     > m=((cos(w),-sin(w)),
     >    (sin(w),cos(w)))*0.9;
-    >
+    > 
     > repeat(100,
     >  drawimage(a,b,"MyImage");
     >  a=m*a;
@@ -150,7 +150,7 @@ By default it is set to prefer the _nice_ rendering.
 
 ![Image](img/RostS3.png)
 
----
+------
 
 #### Drawing an image: `drawimage(‹pos›,‹pos›,‹pos›,‹imagename›)`
 
@@ -179,11 +179,11 @@ The command supports the same modifiers as the previous one and the following ad
 
 | Modifier | Parameter   | Effect                                 |
 | -------- | ----------- | -------------------------------------- |
-| `ref3`   | `see above` | _xy_-position of reference point three |
-| `refx3`  | `see above` | _x_-position of reference point three  |
-| `refy3`  | `see above` | _y_-position of reference point three  |
+| `ref3`   | `see above` | *xy*-position of reference point three |
+| `refx3`  | `see above` | *x*-position of reference point three  |
+| `refy3`  | `see above` | *y*-position of reference point three  |
 
----
+------
 
 #### Drawing an image: `drawimage(‹pos›,‹pos›,‹pos›,‹pos›,‹imagename›)`
 
@@ -192,7 +192,7 @@ The command supports the same modifiers as the previous one and the following ad
 **Description:**
 Again this command is more general than the previous one.
 This time the four corners (or more generally reference points) are used to specify a projective transformation of the image.
-By default the position of the reference points are the corners of the image taken in counterclockwise order starting at _left/bottom_.
+By default the position of the reference points are the corners of the image taken in counterclockwise order starting at *left/bottom*.
 
 **Example:**
 The simplest usage is given by the following piece of code.
@@ -209,11 +209,11 @@ The command supports the same modifiers as the previous one and the following ad
 
 | Modifier | Parameter   | Effect                                |
 | -------- | ----------- | ------------------------------------- |
-| `ref4`   | `see above` | _xy_-position of reference point four |
-| `refx4`  | `see above` | _x_-position of reference point four  |
-| `refy4`  | `see above` | _y_-position of reference point four  |
+| `ref4`   | `see above` | *xy*-position of reference point four |
+| `refx4`  | `see above` | *x*-position of reference point four  |
+| `refy4`  | `see above` | *y*-position of reference point four  |
 
----
+------
 
 #### Deforming an image: `mapimage(‹imagename›,‹function›)`
 
@@ -230,7 +230,7 @@ From there every image point is mapped to create the resulting image.
 The functionality is essentially similar to the `mapgrid` command.
 
 **Example:**
-Here the _x_-axis of the image is deformed using a function that modifies its width by adding a _sin_-function.
+Here the *x*-axis of the image is deformed using a function that modifies its width by adding a *sin*-function.
 In the code the function is specified first.
 Then it is used in the `mapimage` command.
 For better reference a grid has been added to drawing that illustrates the deformation.
@@ -257,7 +257,7 @@ specify the mapping.
     >   xrange->(0,1),
     >   yrange->(0,pi),resolution->30
     > );
-    >
+    > 
     > mapgrid(f(#),complex->true,
     > xrange->(0,1),yrange->(0,pi),color->(0,0,0),alpha->0.5
     > ,resolutiony->30,resolutionx->10,step->10,size->1);
@@ -267,15 +267,15 @@ specify the mapping.
 **Modifiers:**
 The function supports the following modifiers.
 
-| Modifier     | Parameter   | Effect                           |
-| ------------ | ----------- | -------------------------------- |
-| `alpha`      | `0.0 … 1.0` | opacity of the image             |
-| `xrange`     | `vec`       | start and end in _x_-direction   |
-| `yrange`     | `vec`       | start and end in _y_-direction   |
-| `complex`    | `boolean`   | use a complex function           |
-| `resolution` | `int`       | quality of the resulting picture |
+| Modifier     | Parameter     | Effect                           |
+| ------------ | ------------- | -------------------------------- |
+| `alpha`      | `0.0 … 1.0`   | opacity of the image             |
+| `xrange`     | `vec`         | start and end in *x*-direction   |
+| `yrange`     | `vec`         | start and end in *y*-direction   |
+| `complex`    | `boolean`     | use a complex function           |
+| `resolution` | `int`         | quality of the resulting picture |
 
----
+------
 
 #### Getting dimensions of an image: `imagesize(‹imagename›)`
 
@@ -283,15 +283,15 @@ The function supports the following modifiers.
 Returns the original size of an image.
 This is a pair of integer values that refers to the pixel width and height of the original image.
 
----
+------
 
 #### Getting pixel data: `imagergba(‹imagename›,‹int›,‹int›)`
 
 **Description:**
-The function `imagergba(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position _(x,y)_. The coordinate is given left to right and top to bottom. Non-integer values are rounded to closest integers.
+The function `imagergba(‹imagename›,x,y)` delivers the raw data of the color information of the pixel at original position *(x,y)*. The coordinate is given left to right and top to bottom. Non-integer values are rounded to closest integers. 
 
 The operator returns a four-dimensional vector with the raw data of the color.
-The first three entries represent the _rgb_-value with each entry ranging from 0 to 255.
+The first three entries represent the *rgb*-value with each entry ranging from 0 to 255.
 The last entry represents the alpha value.
 
 If the given coordinates are outside of the image, the vector `[0,0,0,0]` is returned.
@@ -313,42 +313,42 @@ It plots a point with the corresponding color and opacity and by this creates a 
 
 ![Image](img/RostS9.png)
 
----
+------
 
 #### Getting pixel data: `imagergb(‹imagename›,‹int›,‹int›)`
 
 **Description:**
 This function does the same as `imagergba(‹imagename›,‹int›,‹int›)`. In particular, it also delivers the alpha value in order to preserve backward compatibility.
 
----
+------
 
 #### Picking the color and alpha value of one point using two reference points: `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)`
 
 **Description:**
-The function `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` returns the color and the alpha value of the at the coordinate given as forth argument while assuming that the lower left and right corner coincide with the first two arguments respectively. The result is encoded as a 4-component vector with each entry ranging from 0 to 1, representing the _rgb_-value and alpha value.
+ The function `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` returns the color and the alpha value of the at the coordinate given as forth argument while assuming that the lower left and right corner coincide with the first two arguments respectively. The result is encoded as a 4-component vector with each entry ranging from 0 to 1, representing the *rgb*-value and alpha value.
+ 
+ The command returns an empty vector if the image is from a different origin.
 
-The command returns an empty vector if the image is from a different origin.
+ **Modifiers:**
+ The command supports two modifiers.
 
-**Modifiers:**
-The command supports two modifiers.
+ | Modifier        | Parameter | Effect                                                                      |
+ | --------------- | --------- | --------------------------------------------------------------------------- |
+ | `interpolation` | `boolean` | Use bilinear interpolation.                                                 |
+ | `repeat`        | `boolean` | Assume a repeating tiling when accessing coordinates outside the boundaries. If not set, `[0,0,0,0]` is returned if the specified coordinate is outside of the image. |
 
-| Modifier        | Parameter | Effect                                                                                                                                                                |
-| --------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `interpolation` | `boolean` | Use bilinear interpolation.                                                                                                                                           |
-| `repeat`        | `boolean` | Assume a repeating tiling when accessing coordinates outside the boundaries. If not set, `[0,0,0,0]` is returned if the specified coordinate is outside of the image. |
+------
 
----
+ #### Picking the color of one point using two reference points: `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)`
 
-#### Picking the color of one point using two reference points: `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)`
+ **Description:**
+ The function `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` behaves in the same way as `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` and supports the same modifiers, but `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` returns a 3-component vector representing the *rgb*-value.
 
-**Description:**
-The function `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` behaves in the same way as `imagergba(‹pos›,‹pos›,‹imagename›,‹pos›)` and supports the same modifiers, but `imagergb(‹pos›,‹pos›,‹imagename›,‹pos›)` returns a 3-component vector representing the _rgb_-value.
+------
 
----
+------
 
----
-
-### Creating Custom Images
+###  Creating Custom Images
 
 So far all image operation referred to images that were preloaded via the Media Browser.
 There is also the possibility to create images within Cinderella.
@@ -359,7 +359,7 @@ The `canvas` operations are built in analogy to the `drawimage` operations.
 You use them to place the canvas (the custom image) at an arbitrary place in the plane, even using transformations.
 This concept is extremely powerful and in the context of this manual we will only sketch its basic usage.
 
----
+------
 
 #### Creating a custom image: `createimage(‹imagename›,‹int›,‹int›)`
 
@@ -368,7 +368,7 @@ The operator `createimage(‹imagename›,width,height)` creates an image buffer
 Initially such an image is fully transparent and contains no drawings.
 The image buffer is accessible under the specified name in the Media Browser and can furtheron be used by `drawimage(…)` operations.
 
----
+------
 
 #### Erasing an image: `clearimage(‹imagename›)`
 
@@ -377,7 +377,7 @@ This operator removes all content from an image.
 After using this operator the image still exists, but it does no longer contain any drawings.
 It is completely transparent.
 
----
+------
 
 #### Removing an image: `removeimage(‹imagename›)`
 
@@ -387,7 +387,7 @@ It is completely transparent.
 This operator removes the image from the Media Browser.
 After this the image can no longer be accessed.
 
----
+------
 
 ### Painting on a canvas
 
@@ -411,7 +411,7 @@ For this we first must create such a bitmap.
 
 ![Image](img/Canvas1.png)
 
-We can do this by creating an image in the _initialization_ part of the script with the following code:
+We can do this by creating an image in the *initialization* part of the script with the following code:
 
     > createimage("image",400,400)
 
@@ -424,7 +424,7 @@ The code for drawing on the canvas is included as an argument to a `canvas` func
     >     //…here comes the drawing code…
     > )
 
-The position of the canvas is specified as a parallelogram generated by the corner points _F_, _G_ and _E_.
+The position of the canvas is specified as a parallelogram generated by the corner points *F*, *G* and *E*.
 The picture above on the right illustrates which part of the original drawing will be captured by the canvas.
 Actually, all the drawing operations that are inside the `canvas` will not have any directly visible effect, so the above picture on the right is just for illustration purposes.
 
@@ -463,7 +463,7 @@ This is illustrated by the following piece of code and the corresponding image.
 
 ![Image](img/Canvas4.png)
 
----
+------
 
 #### Painting on a canvas with one reference point: `canvas(‹pos›,‹imagename›,‹drawing code›)`
 
@@ -483,15 +483,15 @@ The command has several modifiers.
 | `rotation` | `real`      | same as `angle`                           |
 | `scale`    | `real`      | scaling                                   |
 | `scale`    | `vec`       | separate scaling in both directions       |
-| `scalex`   | `real`      | scaling in _x_-direction                  |
-| `scaley`   | `real`      | scaling in _y_-direction                  |
+| `scalex`   | `real`      | scaling in *x*-direction                  |
+| `scaley`   | `real`      | scaling in *y*-direction                  |
 | `flipx`    | `boolean`   | vertical reflection                       |
 | `flipy`    | `boolean`   | horicontal reflection                     |
-| `ref`      | `see above` | _xy_-position of reference point          |
-| `refx`     | `see above` | _x_-position of reference point           |
-| `refy`     | `see above` | _y_-position of reference point           |
+| `ref`      | `see above` | *xy*-position of reference point          |
+| `refx`     | `see above` | *x*-position of reference point           |
+| `refy`     | `see above` | *y*-position of reference point           |
 
----
+------
 
 #### Painting on a canvas with two reference points: `canvas(‹pos›,‹pos›,‹imagename›,‹drawing code›)`
 
@@ -508,14 +508,14 @@ The command has several modifiers.
 | `flipx`  | `boolean`   | vertical reflection                     |
 | `flipy`  | `boolean`   | horicontal reflection                   |
 | `aspect` | `real`      | specify the aspect ratio                |
-| `ref1`   | `see above` | _xy_-position of first reference point  |
-| `refx1`  | `see above` | _x_-position of first reference point   |
-| `refy1`  | `see above` | _y_-position of first reference point   |
-| `ref2`   | `see above` | _xy_-position of second reference point |
-| `refx2`  | `see above` | _x_-position of second reference point  |
-| `refy2`  | `see above` | _y_-position of second reference point  |
+| `ref1`   | `see above` | *xy*-position of first reference point  |
+| `refx1`  | `see above` | *x*-position of first reference point   |
+| `refy1`  | `see above` | *y*-position of first reference point   |
+| `ref2`   | `see above` | *xy*-position of second reference point |
+| `refx2`  | `see above` | *x*-position of second reference point  |
+| `refy2`  | `see above` | *y*-position of second reference point  |
 
----
+------
 
 #### Painting on a canvas with three reference points: `canvas(‹pos›,‹pos›,‹pos›,‹imagename›,‹drawing code›)`
 
@@ -529,6 +529,6 @@ The command supports the same modifiers as the previous command and in addition.
 
 | Modifier | Parameter   | Effect                                 |
 | -------- | ----------- | -------------------------------------- |
-| `ref3`   | `see above` | _xy_-position of reference point three |
-| `refx3`  | `see above` | _x_-position of reference point three  |
-| `refy3`  | `see above` | _y_-position of reference point three  |
+| `ref3`   | `see above` | *xy*-position of reference point three |
+| `refx3`  | `see above` | *x*-position of reference point three  |
+| `refy3`  | `see above` | *y*-position of reference point three  |

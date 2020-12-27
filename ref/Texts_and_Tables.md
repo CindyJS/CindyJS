@@ -1,4 +1,4 @@
-## Texts and Tables
+##  Texts and Tables
 
 With CindyScript you can produce controlled and styled text for a drawing.
 The essential functionality is covered by the `drawtext` operator.
@@ -10,7 +10,7 @@ This is a very important tool for providing explanatory texts and functional exe
 
 **Description:**
 The `drawtext(‹vec›,‹string›)` operator plots a text `‹string›` at a specified position that is given by the position vector `‹vec›`.
-This position vector can be given either in Euclidean _xy_-coordinates or in homogeneous coordinates.
+This position vector can be given either in Euclidean *xy*-coordinates or in homogeneous coordinates.
 
 **Example:**
 The line `drawtext((0,0),"Hello World")` prints the string “Hello World” with lower left corner at the position (0, 0).
@@ -23,9 +23,9 @@ The `drawtext` operator supports several operators for the modification of appea
 | `size`    | `‹real›`                 | sets the text size                                       |
 | `color`   | `[‹real›,‹real›,‹real›]` | sets the text color                                      |
 | `alpha`   | `‹real›`                 | sets the text opacity                                    |
-| `xoffset` | `‹real›`                 | set an _x_ offset in pixels between text and base point  |
-| `yoffset` | `‹real›`                 | set a _y_ offset in pixels between text and base point   |
-| `offset`  | `[‹real›,‹real›]`        | set an _xy_ offset in pixels between text and base point |
+| `xoffset` | `‹real›`                 | set an *x* offset in pixels between text and base point  |
+| `yoffset` | `‹real›`                 | set a *y* offset in pixels between text and base point   |
+| `offset`  | `[‹real›,‹real›]`        | set an *xy* offset in pixels between text and base point |
 | `align`   | `"left", "right", "mid"` | determines where the text alignment should be            |
 | `bold`    | `‹bool›`                 | flag for bold text                                       |
 | `italics` | `‹bool›`                 | flag for italics text                                    |
@@ -96,7 +96,7 @@ By this it is easy to produce multilined text, as the following piece of code sh
 
 ![Image](img/Newlines.png)
 
----
+------
 
 #### Available font families: `fontfamilies()`
 
@@ -116,7 +116,7 @@ The following piece of code displays the names of some of these font families in
 
 ![Image](img/Fonts.png)
 
----
+------
 
 #### Unicode Characters: `unicode(‹string›)`
 
@@ -139,7 +139,7 @@ The base of the unicode description can be changed with the `base` modifier.
     > unicode("1F603")
     < "😃"
 
----
+------
 
 #### Test whether a string can be displayed: `candisplay(‹string›)`
 
@@ -149,7 +149,7 @@ The base of the unicode description can be changed with the `base` modifier.
 This operator tests, whether a given string can be displayed in the currently chosen font.
 It returns a boolean value.
 
----
+------
 
 #### Drawing tables: `drawtable(‹vec›,‹list›)`
 
@@ -179,7 +179,7 @@ A summary of the modifiers is given in the following table:
 | `size`      | `‹real›`                 | sets the text size                                                   |
 | `color`     | `[‹real›,‹real›,‹real›]` | sets the text color                                                  |
 | `alpha`     | `‹real›`                 | sets the text opacity                                                |
-| `offset`    | `[‹real›,‹real›]`        | sets an _xy_ offset in pixels between text and base point            |
+| `offset`    | `[‹real›,‹real›]`        | sets an *xy* offset in pixels between text and base point            |
 | `align`     | `"left", "right", "mid"` | determines the horizontal text alignment within a cell               |
 | `back`      | `‹bool›`                 | turns on/off the drawing of a table background                       |
 | `back`      | `[‹real›,‹real›,‹real›]` | turns on the drawing of table background and sets it to an RGB color |

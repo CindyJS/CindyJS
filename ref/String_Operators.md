@@ -3,7 +3,7 @@
 This section lists operators that take strings as arguments.
 Moreover, operators that generate strings from other values are treated as well.
 
-### Elementary String Operations
+###  Elementary String Operations
 
 #### String concatenation: `‹string1› + ‹string2›`
 
@@ -23,7 +23,7 @@ If in an addition operation at least one of the arguments is a string, then the 
 The `+` operator is also used for the addition of usual numerical values.
 For this see [Arithmetic Operators](Arithmetic_Operators.md).
 
----
+------
 
 #### Conversion to string: `text(‹expr›)`
 
@@ -52,7 +52,7 @@ Geometric objects get auto-coerced to mathematical values
     > createpoint("A", [6, 4, 2]); text(A)
     < "[3, 2]"
 
----
+------
 
 #### Length of a string: `length(‹string›)`
 
@@ -65,7 +65,7 @@ This operator returns the number of characters in a string.
 **See Also:**
 [Lists and Linear Algebra](Lists_and_Linear_Algebra.md)
 
----
+------
 
 #### Extracting a substring: `substring(‹string›,‹int1›,‹int2›)`
 
@@ -75,7 +75,7 @@ This operator returns the substring of `‹string›` that begins after the char
 **Example:**
 `substring("abcdefg",3,6)` evaluates to the string `"def"`.
 
----
+------
 
 #### Searching for occurrence: `indexof(‹string1›,‹string2›)`
 
@@ -91,7 +91,7 @@ If `‹string2›` is not a substring of `‹string1›`, then the value `0` is 
     > indexof("CindyScript","z")
     < 0
 
----
+------
 
 #### Searching for occurrence: `indexof(‹string1›,‹string2›,‹int›)`
 
@@ -107,9 +107,9 @@ If `‹string2›` does not occur in `‹string1›` after index `i`., then the 
     > indexof("CindyScript","i",10)
     < 0
 
----
+------
 
-### Advanced String Operations
+###  Advanced String Operations
 
 #### Dissecting a string: `tokenize(‹string›,‹expr›)`
 
@@ -162,7 +162,7 @@ Number conversion without splitting can be achieved using an empty separator lis
     > tokenize("x1234", []) + 1
     < "x12341"
 
----
+------
 
 #### Replacing in strings: `replace(‹string1›,‹string2›,‹string3›)`
 
@@ -182,7 +182,7 @@ This operator is extremely useful for creating text replacement systems of the k
     > replace("1\2", "\", "$&")
     < "1$&2"
 
----
+------
 
 #### Replacing in strings: `replace(‹string›,‹list›)`
 
@@ -193,7 +193,7 @@ This operator is very similar to the previous one.
     > replace("XYX", [["X","one"], ["Y","two"]])
     < "onetwoone"
 
----
+------
 
 #### Parsing a string: `parse(‹string›)`
 
@@ -214,7 +214,7 @@ defines the function `f(x)` to be `sin(x)+cos(x)`.
     > f(90°)
     < 1
 
----
+------
 
 #### Parsing a CSV string: `parseCSV(‹string›)`
 
@@ -318,7 +318,8 @@ in the internal implementation, so these are checked here.
     > parseCSV("1,2$3", delimiter->"$")
     < [["1,2", 3]]
 
----
+------
+
 
 #### Guessing a good representation of a number: `guess(‹number›)`
 
@@ -338,7 +339,7 @@ This expression is then represented as a string.
 **See also:**
 [Calculus](Calculus.md)
 
----
+------
 
 #### Formating a number to a specified precision: `format(‹number›,‹int›)`
 
@@ -386,15 +387,15 @@ Requesting more than 20 digits will never have any effect.
 
 **Warning:**
 The format statement should only produced to create formatted output elements.
-The formatted values will always be _strings_ and hence usually not valid objects for arithmetic operations.
+The formatted values will always be *strings* and hence usually not valid objects for arithmetic operations.
 The following example illsustrates this:
 
     > format(sqrt(2),4)+ format(sqrt(2),4)
     < "1.41421.4142"
 
----
+------
 
----
+------
 
 ## String Comparison and Sorting
 
@@ -426,11 +427,11 @@ Alternatively, one can specify a user-defined sorting function such as the lengt
 [Lists and Linear Algebra](Lists_and_Linear_Algebra.md),
 [Advanced List Operations](Advanced_List_Operations.md)
 
----
+------
 
----
+------
 
-### Accessing and Replacing Characters
+###  Accessing and Replacing Characters
 
 #### Index operator: `‹string›_‹int›`
 

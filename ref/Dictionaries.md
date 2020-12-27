@@ -2,7 +2,7 @@
 
 Dictrionaries are maps from keys to values. We designed the syntax closely to JSON. **Note that entries are are given by reference** (like geometric objects).
 
-### Elementary Dictionary Operations
+###  Elementary Dictionary Operations
 
 **Description:**
 Without arguments, this creates an empty dictionary.
@@ -10,17 +10,17 @@ Without arguments, this creates an empty dictionary.
     > {}
     < {}
 
----
+------
 
 ### Creating a simple dictionary: `{"key" : val, ...}`
 
 **Description:**
-The expression `{"key1" : val, ...}` created a basic dictionary.
+The expression `{"key1" : val, ...}` created a basic dictionary. 
 
     > {"a" : 1, "b" : 2};
     < {a:1, b:2}
 
----
+------
 
 ### Printing a dictionary
 
@@ -37,7 +37,8 @@ Circular objects are allowed, but a printout will be shortened. The default recu
     * Warning: We visited a key-value pair very often or encountered a very deeply nested dictionary. Dictionary is probably cyclic. Output will be probably incomplete.
     * {a:1, b:{a:1, b:{a:1, b:{a:..., b:...}}}}
 
----
+
+------
 
 ### Accessing Elements of Lists: `‹dict›.name`
 
@@ -48,12 +49,12 @@ Basic (static) access is possible via the dot operator. The variable after the d
     > json.a
     < 1
 
----
-
+------
 ### Retrieving all keys and values of a dictionary: `keys(‹dict›)` and `values(‹dict›)`
 
 **Description:**
 To retrieve all keys or values of a dictionary as a list one can use `keys(‹dict›)` and `values(‹dict›)`
+
 
     > json = {"a" : 1, "b" : 2};
     > keys(json);
@@ -61,12 +62,13 @@ To retrieve all keys or values of a dictionary as a list one can use `keys(‹di
     > values(json);
     < [1, 2]
 
----
+------
 
 ### Dynamically accessing Elements of Lists: `‹dict›_‹var›` and `take(‹dict›,‹var›)`
 
 **Description:**
 One can dynamically access the individual elements of a dict either with the infix operator `‹list›_‹var›` or the functional operator `take(‹list›,‹var›)`. The keys (`var`) can be of any printable type.
+
 
     > json = {"a" : 1, "b" : 2};
     > json_"a"
@@ -74,7 +76,7 @@ One can dynamically access the individual elements of a dict either with the inf
     > take({"a" : 1, "b" : 2}, "b")
     < 2
 
----
+------
 
 ### Applying an expression: `apply(‹dict›,‹expr›)`
 
@@ -85,7 +87,7 @@ As usual, `#` is the run variable, which successively takes the value of each el
     > apply({"a" : 1, "b" : 2}, #^2);
     < {a:1, b:4}
 
----
+------
 
 ### Applying an expression: `apply(‹dict›,‹var›,‹expr›)`
 
@@ -99,7 +101,8 @@ The variable is local to the expression.
     > v
     < 123
 
----
+------
+
 
 ### Applying an expression: `apply(‹dict›,‹varVal›, ‹varKey›,‹expr›)`
 
@@ -110,7 +113,7 @@ The variables are local to the expression.
     > apply({"a" : 1, "b" : 2}, v, k, k+v);
     < {a:a1, b:b2}
 
----
+------
 
 ### Selecting elements of a list: `select(‹list›,‹boolexpr›)`
 
@@ -123,7 +126,7 @@ As usual, `#` is the run variable, which successively take the value of all elem
     > select({"a" : 5, "b" : 2}, isodd(#));
     < {a:5}
 
----
+------
 
 ### Selecting elements of a list: `select(‹list›,‹var›,‹boolexpr›)`
 
@@ -137,7 +140,7 @@ The variable is local to the expression.
     > v
     < 123
 
----
+------
 
 ### The forall loop: `forall(‹dict›,‹expr›)`
 
@@ -157,7 +160,7 @@ This code fragment produces the output
     * 5
     * 2
 
-**Modifiers**
+**Modifiers** 
 
 forall supports the modifier `iterator` that changes the behavior of the running variable: "value" iterates of the dictionary values (the default), "key" iterates over the dictionary keys and "pair" returns an elementary dictionary element that key and value can be accessed using the ".key" and ".value property".
 
@@ -171,6 +174,7 @@ This code fragment produces the output
     * a
     * b
 
+
 **Example iterator pair:**
 
     > a={"a" : 5, "b" : 2};
@@ -181,7 +185,7 @@ This code fragment produces the output
     * [a, 5]
     * [b, 2]
 
----
+------
 
 ### The forall loop: `forall(‹dict›,‹var›,‹expr›)`
 
@@ -199,7 +203,8 @@ The variable is local to the expression.
     > k
     < 123
 
----
+------
+
 
 ### Deleting keys from a dictionary:
 
@@ -213,7 +218,7 @@ A key-value pair can be deleted from a dictionary by setting its value to an und
     > keys(json)
     < ["b"]
 
----
+------
 
 # Deprecated `dict`
 
@@ -247,7 +252,7 @@ the key ‹expr1› is mapped to the value ‹expr2›.
     > d
     < {12:34}
 
-This does _not_ modify the dictionary passed in the first argument, so
+This does *not* modify the dictionary passed in the first argument, so
 you have to store the result back to permanently alter an existing dictionary.
 
     > put(d, 56, 78)
@@ -271,9 +276,9 @@ even if they have the same real part.
     < {32 - i*1:329, 32:320, 32 + i*1:321, "32":23}
 
 Note that the use of quotation marks here in this documentation
-is specific to the documentation. The usual stringification of values
+is specific to the documentation.  The usual stringification of values
 in Cinderella and CindyJS does not apply quotation marks, which may lead
-to confusing output. For example, the above dict may _appear_ to have
+to confusing output.  For example, the above dict may *appear* to have
 to identical keys `32`:
 
     > println(d)

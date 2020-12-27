@@ -1,4 +1,4 @@
-# Drawing
+#  Drawing
 
 In addition to its computing facilities, one of the most important features of CindyScript is its powerful possibilities for reading position data from a geometric construction and for direct output of graphics to a construction.
 This section is about the output part.
@@ -12,20 +12,20 @@ One can also use high-level graphics operations within CindyScript to create a p
 
 The following topics will be treated:
 
--   **[Appearance of Objects](Appearance_of_Objects.md):**
-    Since the appearance of the elements of a construction is fundamental for all such output operations, we treat the handling of color, size, and transparency first.
+*  **[Appearance of Objects](Appearance_of_Objects.md):**
+Since the appearance of the elements of a construction is fundamental for all such output operations, we treat the handling of color, size, and transparency first.
 
--   **[Elementary Drawing Functions](Elementary_Drawing_Functions.md)**: This section covers the fundamental drawing primitives for points and lines.
+*  **[Elementary Drawing Functions](Elementary_Drawing_Functions.md)**: This section covers the fundamental drawing primitives for points and lines.
 
--   **[Function Plotting](Function_Plotting.md):**
-    Plotting of functions can be very easily done with high-level graphics operations.
+*  **[Function Plotting](Function_Plotting.md):**
+Plotting of functions can be very easily done with high-level graphics operations.
 
--   **[Texts and Tables](Texts_and_Tables.md):**
-    Textual output allows for various ways of creating additional information in a geometric view.
+*  **[Texts and Tables](Texts_and_Tables.md):**
+Textual output allows for various ways of creating additional information in a geometric view.
 
--   **[TeX Rendering](TeX_Rendering.md):**
-    More details on formula generation inside CindyScript.
+*  **[TeX Rendering](TeX_Rendering.md):**
+More details on formula generation inside CindyScript.
 
--   **[Script Coordinate System](Script_Coordinate_System.md):**
-    Finally, it will be explained how the local coordinate system for drawing can be transformed.
-    In this way one can, for instance, create a perspective drawing of a scene.
+*  **[Script Coordinate System](Script_Coordinate_System.md):**
+Finally, it will be explained how the local coordinate system for drawing can be transformed.
+In this way one can, for instance, create a perspective drawing of a scene.

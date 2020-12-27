@@ -1,29 +1,29 @@
 # Lists and Linear Algebra
 
-## Using Lists in CindyScript
+##  Using Lists in CindyScript
 
 List are among the most fundamental and elementary concepts of CindyScript.
 In CindyScript lists serve several purposes.
 They serve as
 
--   enumerative arrays of objects
--   structured data arrangements
--   vectors
--   matrices
+*  enumerative arrays of objects
+*  structured data arrangements
+*  vectors
+*  matrices
 
 This section covers the very general aspects of creating lists and accessing their elements as well as all elementary aspects of array functionality.
 For information on all other aspects of lists, consult the sections
 
--   [Elementary List Operations](Elementary_List_Operations.md)
--   [Advanced List Operations](Advanced_List_Operations.md)
--   [Lists of Geometric Elements](Lists_of_Geometric_Elements.md)
--   [Vectors and Matrices](Vectors_and_Matrices.md)
+*  [Elementary List Operations](Elementary_List_Operations.md)
+*  [Advanced List Operations](Advanced_List_Operations.md)
+*  [Lists of Geometric Elements](Lists_of_Geometric_Elements.md)
+*  [Vectors and Matrices](Vectors_and_Matrices.md)
 
----
+------
 
----
+------
 
-## Creating Lists: `[…]`
+##  Creating Lists: `[…]`
 
 Lists can be created very easily by placing the elements in square brackets, separated by commas.
 For example,
@@ -74,7 +74,7 @@ at the end of a list, since that would imply an additional undefined element.
     > ([42,],)
     < [[42, ___], ___]
 
----
+------
 
 ## Accessing Elements of Lists: `‹list›_‹int›` and `take(‹list›,‹int›)`
 
@@ -171,8 +171,7 @@ Lists can be compared element-wise for equality or almost-equality:
 
 For details please refer to the [Boolean Operators](Boolean_Operators.md) in question.
 
-## Advanced indexing
-
+##  Advanced indexing
 ### Negative indices
 
 The list element accessor has some other powerful options.

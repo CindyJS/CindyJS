@@ -3,11 +3,11 @@
 There is a number of operations that allow for the interaction of CindyScript with files that are stored elsewhere on the computer.
 Please note that these commands will not work with applets in HTML pages.
 
----
+------
 
----
+------
 
-### Reading Files
+###  Reading Files
 
 #### Loading data: `load(‹string›)`
 
@@ -36,7 +36,7 @@ The resulting output is
     > [1,3,5.6,3.141]
     > [56,abc,xxx,yyy]
 
----
+------
 
 #### Loading data asynchroneously: `load(‹string›,‹var›,‹expr›)`
 
@@ -61,7 +61,7 @@ Note that the URL must be an absolute URL, at the time of this writing.
     >     err("Loading failed"),
     >     err("Successfully loaded " + result)));
 
----
+------
 
 #### Loading data asynchroneously: `load(‹string›,‹expr›)`
 
@@ -76,7 +76,7 @@ using `#` as the variable referencing the result inside `‹expr›`.
     >     err("Loading failed"),
     >     err("Successfully loaded " + #)));
 
----
+------
 
 #### Importing program code: `import(‹string›)`
 
@@ -88,7 +88,7 @@ If the file name is legitimate, then the whole content of the file is assumed to
 In this way, one can load libraries with predefined functionality.
 It is advisable to use the `import` operator only in the “Init” section of CindyScript, since otherwise, the file will be read for each move.
 
----
+------
 
 #### Setting the directory: `setdirectory(‹string›)`
 
@@ -97,9 +97,9 @@ It is advisable to use the `import` operator only in the “Init” section of C
 **Description:**
 This operator sets the directory for all subsequent file operations.
 
----
+------
 
----
+------
 
 ### Writing Files
 
@@ -107,7 +107,7 @@ It is also possible to write files by a sequence of Cindy script commands.
 The usual cycle for writing is: Open a file — write to it — close the file.
 This can be done using the following commands.
 
----
+------
 
 #### Opening a file: `openfile(‹string›)`
 
@@ -117,7 +117,7 @@ This can be done using the following commands.
 Opens a file with the specified name.
 The function returns a handle to the file that is needed for subsequent print operations.
 
----
+------
 
 #### Println to a file: `println(‹file›,‹string›)`
 
@@ -127,7 +127,7 @@ The function returns a handle to the file that is needed for subsequent print op
 Identical to the `println(…)` command.
 However this command prints to the file specified by `‹file›`.
 
----
+------
 
 #### Print to a file: `print(‹file›,‹string›)`
 
@@ -137,7 +137,7 @@ However this command prints to the file specified by `‹file›`.
 Identical to the `print(…)` command.
 However this command prints to the file specified by `‹file›`.
 
----
+------
 
 #### Print to a file: `closefile(‹file›)`
 
@@ -160,9 +160,9 @@ This code generates a file with the following content:
     > Here are some numbers
     > 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 
----
+------
 
----
+------
 
 ### Connection to HTML
 
@@ -173,7 +173,7 @@ This code generates a file with the following content:
 **Description:**
 Opens a browser with the webpage given in ‹string›.
 
----
+------
 
 #### Calling javascript: `javascript(‹string›)`
 
@@ -187,16 +187,16 @@ The following piece of script will cause a message window to pop up in the brows
 
     >   javascript("alert('Hi from Cinderella!!')");
 
----
+------
 
----
+------
 
-### Network Connections
+###  Network Connections
 
 The TCP commands of Cinderella are rudimentary at best, but they provide the basic functionality necessary for simple networking.
 You should be able to send and retrieve data over the internet.
 
----
+------
 
 #### Open a TCP port: `openconnection(‹string›,‹int›)`
 
@@ -215,7 +215,7 @@ In the following example we open a connection to a web server and read the HTML 
     > while(!isundefined(y),y=readln(x);println(y));
     > closeconnection(x);
 
----
+------
 
 #### Write to a TCP connection: `print(‹handle›,‹string›)`
 
@@ -228,7 +228,7 @@ In the following example we open a connection to a web server and read the HTML 
 **Description:**
 The `print` and `println` functions not only support writing to a file, but also to a network connection created by `openconnection`.
 
----
+------
 
 #### Flush output to a TCP port: `flush(‹handle›)`
 
@@ -237,7 +237,7 @@ The `print` and `println` functions not only support writing to a file, but also
 **Description:**
 Flushes the output buffer of the given connection.
 
----
+------
 
 #### Read from a TCP connection: `readln(‹handle›)`
 
@@ -247,7 +247,7 @@ Flushes the output buffer of the given connection.
 Reads a line from the given connection.
 If no data can be read, this command times out after 5 seconds.
 
----
+------
 
 #### Close a TCP connection: `closeconnection(‹handle›)`
 

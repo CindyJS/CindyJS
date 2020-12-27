@@ -12,16 +12,16 @@ A geometric element is an instance of a geometric operator.
 It binds the operator to a set of parameters and specific input elements.
 A geometric element `el` can contain several pieces of information:
 
--   A current position. This is often stored in `el.homog`.
-    Depending elements will use that as input.
--   An index `el.stateIdx` into the state arrays.
-    At the indicated position, the element can store information
-    about its continuous parameters as well as data used
-    to facilitate continuous tracing of discrete choices.
--   A parameter `el.parameter`: We'll have to see whether we still need this.
--   A list of arguments, which identify elements on which this one depends.
--   Some members describing the initial position of the element.
--   Various properties controlling appearance, which are of no relevance here.
+* A current position. This is often stored in `el.homog`.
+  Depending elements will use that as input.
+* An index `el.stateIdx` into the state arrays.
+  At the indicated position, the element can store information
+  about its continuous parameters as well as data used
+  to facilitate continuous tracing of discrete choices.
+* A parameter `el.parameter`: We'll have to see whether we still need this.
+* A list of arguments, which identify elements on which this one depends.
+* Some members describing the initial position of the element.
+* Various properties controlling appearance, which are of no relevance here.
 
 A geometric operator has functions which operate on these values.
 The following sections describe the functions and other properties
@@ -32,39 +32,39 @@ which have overlapping meaning in general,
 but which have very specific meaning in this context,
 so these terms need to be defined.
 
--   The _position_ of an element is the current position.
-    See the section on `kind` for where that position is stored
-    and the section on `updatePosition` for how it is computed.
-    The position is the output of an operation.
+* The *position* of an element is the current position.
+  See the section on `kind` for where that position is stored
+  and the section on `updatePosition` for how it is computed.
+  The position is the output of an operation.
 
--   The _state_ of an element is something which is used to provide continuity.
-    This is only relevant for either multi-valued operations
-    or free and semi-free elements.
-    The `el.stateIdx` is used as an index into the `stateIn` resp. `stateOut` arrays
-    to facilitate read-only access to the previous state
-    and write-only access to the newly updated state.
+* The *state* of an element is something which is used to provide continuity.
+  This is only relevant for either multi-valued operations
+  or free and semi-free elements.
+  The `el.stateIdx` is used as an index into the `stateIn` resp. `stateOut` arrays
+  to facilitate read-only access to the previous state
+  and write-only access to the newly updated state.
 
-    So the state is a subarray of floating-point numbers
-    which are considered as pairs forming complex numbers.
-    This interpretation is relevant since from time to time,
-    numbers which are almost real will be made exactly real.
+  So the state is a subarray of floating-point numbers
+  which are considered as pairs forming complex numbers.
+  This interpretation is relevant since from time to time,
+  numbers which are almost real will be made exactly real.
 
--   The _parameter_ is used to construct an interpolation path while tracing.
-    Usually this will be a vector or matrix
-    for which a linear interpolation (along a complex detour) can be performed.
-    The parameter can be reconstructed from the state.
+* The *parameter* is used to construct an interpolation path while tracing.
+  Usually this will be a vector or matrix
+  for which a linear interpolation (along a complex detour) can be performed.
+  The parameter can be reconstructed from the state.
 
 ## kind = ‹string›
 
 A short string describing the kind of object which is the result of this operation.
 Possible values include:
 
--   `P` – Point
--   `L` – Line
--   `S` – Segment
--   `C` – Conic (which includes circles)
--   `*s` – set of `*` (e.g. `Ps` for several points)
--   `Tr` – Transformation
+* `P` – Point
+* `L` – Line
+* `S` – Segment
+* `C` – Conic (which includes circles)
+* `*s` – set of `*` (e.g. `Ps` for several points)
+* `Tr` – Transformation
 
 The objects of kind point, line and segment store their result in `el.homog`.
 Segments also contain `el.startpos`, `el.endpos` and `el.farpoint`, but this may change.
@@ -126,7 +126,7 @@ The `type` field can be used to describe the kind of input we are dealing with.
 `type === "mouse"` represents user interaction, while `type === "homog"`
 describes scripted access to the `"homog"` field of the element.
 Other types can be introduced as needed, but efforts should be made to keep
-the number of distinct cases low. For example, there should be no `"xy"` type,
+the number of distinct cases low.  For example, there should be no `"xy"` type,
 since setting cartesian coordinates can be modeled by setting homogeneous ones.
 
 When the input is `"mouse"`, then the position represents
@@ -157,6 +157,7 @@ which performs a single semi-circular complex detour.
 Either `tr` or `tc` may be used to compute the alternate path.
 `src` and `dst` are the parameters at the endpoints of the path.
 The returned value should be a linear interpolation between these.
+
 
 ## updatePosition(el, isMover)
 
