@@ -153,9 +153,7 @@ evaluator.drawimage$2 = function (args, modifs) {
         var ixx1 = (pt.x + 1) * initm.a - pt.y * initm.b + initm.tx - ixx;
         var iyy1 = (pt.x + 1) * initm.c - pt.y * initm.d - initm.ty - iyy;
 
-        var sc =
-            Math.sqrt(xx1 * xx1 + yy1 * yy1) /
-            Math.sqrt(ixx1 * ixx1 + iyy1 * iyy1);
+        var sc = Math.sqrt(xx1 * xx1 + yy1 * yy1) / Math.sqrt(ixx1 * ixx1 + iyy1 * iyy1);
         var ang = -Math.atan2(xx1, yy1) + Math.atan2(ixx1, iyy1);
 
         var viewScale = csport.drawingstate.matrix.sdet / 72;
@@ -436,9 +434,7 @@ evaluator.cameravideo$0 = function (args, modifs) {
     var gum = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     if (gum) {
         openVideoStream = function (success, failure) {
-            navigator.mediaDevices
-                .getUserMedia(constraints)
-                .then(success, failure);
+            navigator.mediaDevices.getUserMedia(constraints).then(success, failure);
         };
     } else {
         gum =
@@ -501,9 +497,7 @@ var helpercanvas; //invisible helper canvas.
 function getHelperCanvas(width, height) {
     if (!helpercanvas) {
         //creating helpercanvas only once increases the running time
-        helpercanvas = /** @type {HTMLCanvasElement} */ (document.createElement(
-            "canvas"
-        ));
+        helpercanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
     }
     helpercanvas.width = width;
     helpercanvas.height = height;
@@ -530,17 +524,7 @@ function readPixelsIndirection(img, x, y, width, height) {
             try {
                 var helpercanvas = getHelperCanvas(width, height);
                 ctx = helpercanvas.getContext("2d");
-                ctx.drawImage(
-                    img.img,
-                    x,
-                    y,
-                    width,
-                    height,
-                    0,
-                    0,
-                    width,
-                    height
-                );
+                ctx.drawImage(img.img, x, y, width, height, 0, 0, width, height);
                 data = ctx.getImageData(0, 0, width, height).data;
             } catch (exception) {
                 console.log(exception);
@@ -560,20 +544,14 @@ evaluator.imagergba$3 = function (args, modifs) {
     var x = evaluateAndVal(args[1]);
     var y = evaluateAndVal(args[2]);
 
-    if (!img || x.ctype !== "number" || y.ctype !== "number" || !img.ready)
-        return nada;
+    if (!img || x.ctype !== "number" || y.ctype !== "number" || !img.ready) return nada;
 
     x = Math.round(x.value.real);
     y = Math.round(y.value.real);
     if (!isFiniteNumber(x) || !isFiniteNumber(y)) return nada;
 
     var rgba = readPixelsIndirection(img, x, y, 1, 1);
-    return List.realVector([
-        rgba[0] * 255,
-        rgba[1] * 255,
-        rgba[2] * 255,
-        rgba[3],
-    ]);
+    return List.realVector([rgba[0] * 255, rgba[1] * 255, rgba[2] * 255, rgba[3]]);
 };
 
 evaluator.imagergb$3 = evaluator.imagergba$3; //According to reference
@@ -634,13 +612,7 @@ function readimgatcoord(img, coord, modifs) {
             if (xi === w - 1 || yi === h - 1) {
                 var p10 = readPixelsIndirection(img, (xi + 1) % w, yi, 1, 1);
                 var p01 = readPixelsIndirection(img, xi, (yi + 1) % h, 1, 1);
-                var p11 = readPixelsIndirection(
-                    img,
-                    (xi + 1) % w,
-                    (yi + 1) % h,
-                    1,
-                    1
-                );
+                var p11 = readPixelsIndirection(img, (xi + 1) % w, (yi + 1) % h, 1, 1);
                 pixels = pixels.slice(0, 4).concat(p10, p01, p11);
             }
         } else {
@@ -685,9 +657,7 @@ evaluator.imagergba$4 = function (args, modifs) {
     var m1 = eval_helper.basismap(v0, v1, ii, jj); //interchange I and J,
     var m2 = eval_helper.basismap(w0, w1, jj, ii); //see Thm. 18.4 of Perspectives on Projective Geometry
     var p = evaluateAndHomog(args[3]);
-    var coord = eval_helper.extractPoint(
-        General.mult(m1, General.mult(List.adjoint3(m2), p))
-    );
+    var coord = eval_helper.extractPoint(General.mult(m1, General.mult(List.adjoint3(m2), p)));
     return readimgatcoord(img, coord, modifs);
 };
 

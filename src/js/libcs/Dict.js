@@ -13,19 +13,14 @@ var Dict = {};
 
 Dict.key = function (x) {
     if (x.ctype === "string") return "s" + x.value.length + ":" + x.value + ";";
-    if (x.ctype === "number")
-        return "n" + x.value.real + "," + x.value.imag + ";";
-    if (x.ctype === "list")
-        return (
-            "l" + x.value.length + ":" + x.value.map(Dict.key).join(",") + ";"
-        );
+    if (x.ctype === "number") return "n" + x.value.real + "," + x.value.imag + ";";
+    if (x.ctype === "list") return "l" + x.value.length + ":" + x.value.map(Dict.key).join(",") + ";";
     if (x.ctype === "boolean") return "b" + x.value + ";";
     if (x.ctype === "dict") {
         var keys = Object.keys(x.value).sort();
         return "d" + keys.length + ":" + keys.join(",") + ";";
     }
-    if (x.ctype !== "undefined")
-        csconsole.err("Bad dictionary key: " + niceprint(x));
+    if (x.ctype !== "undefined") csconsole.err("Bad dictionary key: " + niceprint(x));
     return "undef";
 };
 
@@ -45,8 +40,7 @@ Dict.create = function () {
 
 Dict.clone = function (dict) {
     var res = Dict.create();
-    for (var key in dict.value)
-        if (dict.value.hasOwnProperty(key)) res.value[key] = dict.value[key];
+    for (var key in dict.value) if (dict.value.hasOwnProperty(key)) res.value[key] = dict.value[key];
     return res;
 };
 

@@ -172,8 +172,7 @@ var evaluator = {};
 var eval_helper = {};
 
 eval_helper.evaluate = function (name, args, modifs) {
-    if (myfunctions.hasOwnProperty(name))
-        return evalmyfunctions(name, args, modifs);
+    if (myfunctions.hasOwnProperty(name)) return evalmyfunctions(name, args, modifs);
     var f = evaluator[name];
     if (f) return f(args, modifs);
     // This following is legacy code, and should be removed
@@ -194,9 +193,7 @@ eval_helper.equals = function (v0, v1) {
     if (v0.ctype === "number" && v1.ctype === "number") {
         return {
             ctype: "boolean",
-            value:
-                v0.value.real === v1.value.real &&
-                v0.value.imag === v1.value.imag,
+            value: v0.value.real === v1.value.real && v0.value.imag === v1.value.imag,
         };
     }
     if (v0.ctype === "string" && v1.ctype === "string") {

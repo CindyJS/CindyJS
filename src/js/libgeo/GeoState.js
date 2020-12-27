@@ -187,8 +187,7 @@ csport.grestore = function () {
 csport.greset = function () {
     csport.drawingstate = csport.clone(csgstorage.backup);
     csport.drawingstate.matrix.ty = csport.drawingstate.matrix.ty - csh;
-    csport.drawingstate.initialmatrix.ty =
-        csport.drawingstate.initialmatrix.ty - csh;
+    csport.drawingstate.initialmatrix.ty = csport.drawingstate.initialmatrix.ty - csh;
     csgstorage.stack = [];
 };
 
@@ -211,17 +210,7 @@ csport.makecolor = function (r, g, b) {
     if (csport.drawingstate.alpha === 1) {
         return "rgb(" + rv + "," + gv + "," + bv + ")";
     } else {
-        return (
-            "rgba(" +
-            rv +
-            "," +
-            gv +
-            "," +
-            bv +
-            "," +
-            csport.drawingstate.alpha +
-            ")"
-        );
+        return "rgba(" + rv + "," + gv + "," + bv + "," + csport.drawingstate.alpha + ")";
     }
 };
 
@@ -229,16 +218,8 @@ csport.setcolor = function (co) {
     var r = co.value[0].value.real;
     var g = co.value[1].value.real;
     var b = co.value[2].value.real;
-    csport.drawingstate.linecolor = csport.drawingstate.pointcolor = csport.makecolor(
-        r,
-        g,
-        b
-    );
-    csport.drawingstate.linecolorraw = csport.drawingstate.pointcolorraw = [
-        r,
-        g,
-        b,
-    ];
+    csport.drawingstate.linecolor = csport.drawingstate.pointcolor = csport.makecolor(r, g, b);
+    csport.drawingstate.linecolorraw = csport.drawingstate.pointcolorraw = [r, g, b];
 };
 
 csport.setlinecolor = function (co) {

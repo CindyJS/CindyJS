@@ -61,10 +61,8 @@ function getElementAtMouse(mouse) {
                 console.log(rad);*/
             }
 
-            var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value
-                .real;
-            var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value
-                .real;
+            var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
+            var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
             dx = xx - mouse.x;
             dy = yy - mouse.y;
             var ref = Math.sqrt(dx * dx + dy * dy);
@@ -81,15 +79,9 @@ function getElementAtMouse(mouse) {
             //Must be ThroughPoint(Horizontal/Vertical not treated yet)
             var l = el.homog;
             var N = CSNumber;
-            var nn = N.add(
-                N.mult(l.value[0], N.conjugate(l.value[0])),
-                N.mult(l.value[1], N.conjugate(l.value[1]))
-            );
+            var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])), N.mult(l.value[1], N.conjugate(l.value[1])));
             var ln = List.scaldiv(N.sqrt(nn), l);
-            dist =
-                ln.value[0].value.real * mouse.x +
-                ln.value[1].value.real * mouse.y +
-                ln.value[2].value.real;
+            dist = ln.value[0].value.real * mouse.x + ln.value[1].value.real * mouse.y + ln.value[2].value.real;
             dx = ln.value[0].value.real * dist;
             dy = ln.value[1].value.real * dist;
 
@@ -210,12 +202,7 @@ function manage(event) {
  * @returns {boolean}
  */
 function isElementAtMouse(element) {
-    return (
-        element &&
-        Math.abs(element.offset.x) < 0.5 &&
-        Math.abs(element.offset.y) < 0.5 &&
-        !element.mover.tmp
-    );
+    return element && Math.abs(element.offset.x) < 0.5 && Math.abs(element.offset.y) < 0.5 && !element.mover.tmp;
 }
 
 /**
@@ -235,10 +222,7 @@ function isPointAtMouse(element) {
  * @returns {boolean}
  */
 function isLineAtMouse(element) {
-    return (
-        isElementAtMouse(element) &&
-        (element.mover.kind === "L" || element.mover.kind === "S")
-    );
+    return isElementAtMouse(element) && (element.mover.kind === "L" || element.mover.kind === "S");
 }
 
 /**
@@ -428,8 +412,7 @@ tools.Mid = {};
 tools.Mid.actions = [];
 tools.Mid.actions[0] = {};
 tools.Mid.actions[0].event = "mousedown";
-tools.Mid.actions[0].tooltip =
-    "Construct two points and their midpoint by dragging";
+tools.Mid.actions[0].tooltip = "Construct two points and their midpoint by dragging";
 tools.Mid.actions[0].do = function () {
     grabPoint();
 
@@ -457,8 +440,7 @@ tools.Circle = {};
 tools.Circle.actions = [];
 tools.Circle.actions[0] = {};
 tools.Circle.actions[0].event = "mousedown";
-tools.Circle.actions[0].tooltip =
-    "Construct two points and a circle by dragging the mouse";
+tools.Circle.actions[0].tooltip = "Construct two points and a circle by dragging the mouse";
 tools.Circle.actions[0].do = function () {
     grabPoint();
 
@@ -523,8 +505,7 @@ tools.Line = {};
 tools.Line.actions = [];
 tools.Line.actions[0] = {};
 tools.Line.actions[0].event = "mousedown";
-tools.Line.actions[0].tooltip =
-    "Construct two points and their connecting line by dragging the mouse";
+tools.Line.actions[0].tooltip = "Construct two points and their connecting line by dragging the mouse";
 tools.Line.actions[0].do = function () {
     grabPoint();
 
@@ -580,8 +561,7 @@ tools.Parallel = {};
 tools.Parallel.actions = [];
 tools.Parallel.actions[0] = {};
 tools.Parallel.actions[0].event = "mousedown";
-tools.Parallel.actions[0].tooltip =
-    "Construct a parallel line by dragging a line";
+tools.Parallel.actions[0].tooltip = "Construct a parallel line by dragging a line";
 tools.Parallel.actions[0].do = function () {
     return grabLine();
 };
@@ -624,8 +604,7 @@ tools.Orthogonal = {};
 tools.Orthogonal.actions = [];
 tools.Orthogonal.actions[0] = {};
 tools.Orthogonal.actions[0].event = "mousedown";
-tools.Orthogonal.actions[0].tooltip =
-    "Construct a orthogonal line by dragging a line";
+tools.Orthogonal.actions[0].tooltip = "Construct a orthogonal line by dragging a line";
 tools.Orthogonal.actions[0].do = function () {
     if (grabLine()) {
         var tmpPoint = {
@@ -668,8 +647,7 @@ tools.Intersection = {};
 tools.Intersection.actions = [];
 tools.Intersection.actions[0] = {};
 tools.Intersection.actions[0].event = "mousedown";
-tools.Intersection.actions[0].tooltip =
-    "Select two elements to define their intersection";
+tools.Intersection.actions[0].tooltip = "Select two elements to define their intersection";
 tools.Intersection.actions[0].do = function () {
     return grabLineOrConic();
 };

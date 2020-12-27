@@ -39,10 +39,7 @@ let CindyGL = function (api) {
         }*/
         prog.renderer.render(a, b, width, height, canvaswrapper);
         if (canvaswrapper)
-            canvaswrapper.generation = Math.max(
-                canvaswrapper.generation,
-                canvaswrapper.canvas.generation + 1
-            );
+            canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
 
     api.defineFunction("forcerecompile", 0, (args, modifs) => {
@@ -61,14 +58,7 @@ let CindyGL = function (api) {
         let iw = api.instance["canvas"]["width"]; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ih = api.instance["canvas"]["height"];
 
-        compileAndRender(
-            prog,
-            computeLowerLeftCorner(api),
-            computeLowerRightCorner(api),
-            iw,
-            ih,
-            null
-        );
+        compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
         let csctx = api.instance["canvas"].getContext("2d");
 
         csctx.save();
@@ -125,17 +115,7 @@ let CindyGL = function (api) {
 
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
-        csctx.drawImage(
-            glcanvas,
-            0,
-            0,
-            iw * fx,
-            ih * fy,
-            xx,
-            yy,
-            iw * fx,
-            ih * fy
-        );
+        csctx.drawImage(glcanvas, 0, 0, iw * fx, ih * fy, xx, yy, iw * fx, ih * fy);
         csctx.restore();
         return nada;
     });
@@ -156,11 +136,7 @@ let CindyGL = function (api) {
         }
         let imageobject = api.getImage(name["value"], true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
-        let canvaswrapper = generateCanvasWrapperIfRequired(
-            imageobject,
-            api,
-            false
-        );
+        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
         compileAndRender(prog, a, b, cw, ch, canvaswrapper);
@@ -185,11 +161,7 @@ let CindyGL = function (api) {
 
         let imageobject = api.getImage(name["value"], true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
-        let canvaswrapper = generateCanvasWrapperIfRequired(
-            imageobject,
-            api,
-            false
-        );
+        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
         compileAndRender(prog, a, b, cw, ch, canvaswrapper);
@@ -206,11 +178,7 @@ let CindyGL = function (api) {
         if (!name) return nada;
         let imageobject = api.getImage(name, true);
         //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
-        let canvaswrapper = generateCanvasWrapperIfRequired(
-            imageobject,
-            api,
-            false
-        );
+        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
 
         if (isFinite(x) && isFinite(y) && name && canvaswrapper && color) {
             canvaswrapper.setPixel(x, y, color);

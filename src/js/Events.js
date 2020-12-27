@@ -24,23 +24,13 @@ function getmover(mouse) {
             dx = p.value[0].value.real - mouse.x;
             dy = p.value[1].value.real - mouse.y;
             dist = Math.sqrt(dx * dx + dy * dy);
-            if (
-                el.narrow &&
-                dist > (typeof el.narrow === "number" ? el.narrow : 20) / sc
-            )
-                continue;
+            if (el.narrow && dist > (typeof el.narrow === "number" ? el.narrow : 20) / sc) continue;
         } else if (el.kind === "C") {
             //Must be CircleMr
-            var normalizedmid = List.normalizeZ(
-                csgeo.csnames[el.args[0]].homog
-            );
+            var normalizedmid = List.normalizeZ(csgeo.csnames[el.args[0]].homog);
             var rad = el.radius;
 
-            if (
-                !List._helper.isAlmostReal(normalizedmid) ||
-                !CSNumber._helper.isAlmostReal(rad)
-            )
-                continue;
+            if (!List._helper.isAlmostReal(normalizedmid) || !CSNumber._helper.isAlmostReal(rad)) continue;
 
             var midx = normalizedmid.value[0].value.real; //center of circle
             var midy = normalizedmid.value[1].value.real;
@@ -61,25 +51,14 @@ function getmover(mouse) {
 
             dist = dist + 30 / sc;
 
-            if (
-                el.narrow &&
-                dist >
-                    ((typeof el.narrow === "number" ? el.narrow : 20) + 30) / sc
-            )
-                continue;
+            if (el.narrow && dist > ((typeof el.narrow === "number" ? el.narrow : 20) + 30) / sc) continue;
         } else if (el.kind === "L") {
             //Must be ThroughPoint(Horizontal/Vertical not treated yet)
             var l = el.homog;
             var N = CSNumber;
-            var nn = N.add(
-                N.mult(l.value[0], N.conjugate(l.value[0])),
-                N.mult(l.value[1], N.conjugate(l.value[1]))
-            );
+            var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])), N.mult(l.value[1], N.conjugate(l.value[1])));
             var ln = List.scaldiv(N.sqrt(nn), l);
-            dist =
-                ln.value[0].value.real * mouse.x +
-                ln.value[1].value.real * mouse.y +
-                ln.value[2].value.real;
+            dist = ln.value[0].value.real * mouse.x + ln.value[1].value.real * mouse.y + ln.value[2].value.real;
             dx = -ln.value[0].value.real * dist;
             dy = -ln.value[1].value.real * dist;
 
@@ -138,8 +117,7 @@ function setuplisteners(canvas, data) {
     var mousedownevent = null;
     var hasmoved = false;
     if (typeof MutationObserver !== "undefined") MO = MutationObserver;
-    if (!MO && typeof WebKitMutationObserver !== "undefined")
-        MO = WebKitMutationObserver; // jshint ignore: line
+    if (!MO && typeof WebKitMutationObserver !== "undefined") MO = WebKitMutationObserver; // jshint ignore: line
     if (MO) {
         MO = new MO(function (mutations) {
             // Browsers which support MutationObserver likely support contains
@@ -153,11 +131,7 @@ function setuplisteners(canvas, data) {
             MO.disconnect();
         });
     } else {
-        addAutoCleaningEventListener(
-            canvas,
-            "DOMNodeRemovedFromDocument",
-            shutdown
-        );
+        addAutoCleaningEventListener(canvas, "DOMNodeRemovedFromDocument", shutdown);
         addAutoCleaningEventListener(canvas, "DOMNodeRemoved", shutdown);
     }
 
@@ -255,8 +229,7 @@ function setuplisteners(canvas, data) {
             // this might be also a touchdown
             if (
                 mousedownevent &&
-                (Math.abs(mousedownevent.clientX - e.clientX) > 2 ||
-                    Math.abs(mousedownevent.clientY - e.clientY) > 2)
+                (Math.abs(mousedownevent.clientX - e.clientX) > 2 || Math.abs(mousedownevent.clientY - e.clientY) > 2)
             )
                 hasmoved = true;
             cs_mousedrag();
@@ -345,12 +318,7 @@ function setuplisteners(canvas, data) {
             function haveHead() {
                 if (req.readyState !== XMLHttpRequest.DONE) return;
                 if (req.status !== 200) {
-                    console.error(
-                        "HEAD request for " +
-                            uri +
-                            " failed: " +
-                            (req.responseText || "(no error message)")
-                    );
+                    console.error("HEAD request for " + uri + " failed: " + (req.responseText || "(no error message)"));
                     oneDone(i, nada);
                     return;
                 }
@@ -371,12 +339,7 @@ function setuplisteners(canvas, data) {
             function haveText() {
                 if (req.readyState !== XMLHttpRequest.DONE) return;
                 if (req.status !== 200) {
-                    console.error(
-                        "GET request for " +
-                            uri +
-                            " failed: " +
-                            (req.responseText || "(no error message)")
-                    );
+                    console.error("GET request for " + uri + " failed: " + (req.responseText || "(no error message)"));
                     oneDone(i, nada);
                     return;
                 }
@@ -448,8 +411,7 @@ function setuplisteners(canvas, data) {
     });
 
     function getmultiid(identifier) {
-        if (multiiddict.hasOwnProperty(identifier))
-            return multiiddict[identifier];
+        if (multiiddict.hasOwnProperty(identifier)) return multiiddict[identifier];
         let used = Object.values(multiiddict);
 
         //find the smallest integer >= 1 that is not already used in O(n log n)
@@ -488,11 +450,8 @@ function setuplisteners(canvas, data) {
         if (mouse.down) {
             if (
                 mousedownevent &&
-                (Math.abs(mousedownevent.clientX - e.targetTouches[0].clientX) >
-                    2 ||
-                    Math.abs(
-                        mousedownevent.clientY - e.targetTouches[0].clientY
-                    ) > 2)
+                (Math.abs(mousedownevent.clientX - e.targetTouches[0].clientX) > 2 ||
+                    Math.abs(mousedownevent.clientY - e.targetTouches[0].clientY) > 2)
             )
                 hasmoved = true;
             multiid = getmultiid(activeTouchID);
@@ -567,12 +526,7 @@ function setuplisteners(canvas, data) {
     addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
     addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
     if (typeof document !== "undefined" && document.body) {
-        addAutoCleaningEventListener(
-            document.body,
-            "touchcancel",
-            touchUp,
-            false
-        );
+        addAutoCleaningEventListener(document.body, "touchcancel", touchUp, false);
         // addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);
     }
 
@@ -607,15 +561,9 @@ function mkdiv(parent, style) {
 function resizeSensor(element) {
     if (typeof document === "undefined") return;
     var styleChild = "position: absolute; transition: 0s; left: 0; top: 0;";
-    var style =
-        styleChild +
-        " right: 0; bottom: 0; overflow: hidden;" +
-        " z-index: -1; visibility: hidden;";
+    var style = styleChild + " right: 0; bottom: 0; overflow: hidden;" + " z-index: -1; visibility: hidden;";
     var expand = mkdiv(element, style);
-    var expandChild = mkdiv(
-        expand,
-        styleChild + " width: 100000px; height: 100000px"
-    );
+    var expandChild = mkdiv(expand, styleChild + " width: 100000px; height: 100000px");
     var shrink = mkdiv(element, style);
     mkdiv(shrink, styleChild + " width: 200%; height: 200%");
 

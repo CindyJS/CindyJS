@@ -244,16 +244,12 @@ General.wrapJSON = function (data) {
             return General.bool(data);
         case "object":
             if (data === null) return nada;
-            if (Array.isArray(data))
-                return List.turnIntoCSList(data.map(General.wrapJSON));
+            if (Array.isArray(data)) return List.turnIntoCSList(data.map(General.wrapJSON));
             var d = Dict.create();
-            for (var k in data)
-                Dict.put(d, General.string(k), General.wrapJSON(data[k]));
+            for (var k in data) Dict.put(d, General.string(k), General.wrapJSON(data[k]));
             return d;
         default:
-            console.log(
-                "Failed to convert " + typeof data + " to CindyJS data type"
-            );
+            console.log("Failed to convert " + typeof data + " to CindyJS data type");
             return nada;
     }
 };
@@ -263,13 +259,7 @@ General.identity = function (x) {
 };
 
 General.deeplyEqual = function (a, b) {
-    if (
-        typeof a !== "object" ||
-        typeof b !== "object" ||
-        a === null ||
-        b === null
-    )
-        return a === b;
+    if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return a === b;
     var cnt = 0;
     var k;
     for (k in a) {

@@ -48,8 +48,7 @@ namespace.removevar = function (name) {
 
 namespace.setvar = function (name, val) {
     var stack = this.vars[name];
-    if (stack.length === 0)
-        console.error("Setting non-existing variable " + name);
+    if (stack.length === 0) console.error("Setting non-existing variable " + name);
     if (val === undefined) {
         console.error("Setting variable " + name + " to undefined value");
         val = nada;
@@ -67,8 +66,7 @@ namespace.undefinedWarning = {};
 
 namespace.getvar = function (name) {
     var stack = this.vars[name] || [];
-    if (stack.length === 0)
-        console.error("Getting non-existing variable " + name);
+    if (stack.length === 0) console.error("Getting non-existing variable " + name);
     var erg = stack[stack.length - 1];
     if (erg === null) {
         if (csgeo.csnames.hasOwnProperty(name)) {
@@ -77,11 +75,7 @@ namespace.getvar = function (name) {
                 value: csgeo.csnames[name],
             };
         } else {
-            if (
-                console &&
-                console.log &&
-                this.undefinedWarning[name] === undefined
-            ) {
+            if (console && console.log && this.undefinedWarning[name] === undefined) {
                 this.undefinedWarning[name] = true;
                 console.log("Warning: Accessing undefined variable: " + name);
             }

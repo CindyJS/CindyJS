@@ -75,16 +75,8 @@ function generatesort(t, modifs, codebuilder) {
             `${webgltype(t.parameters)} m;\n` +
             generatePairs(t.length)
                 .map(function (p) {
-                    let a = accesslist(t, p[0])(
-                        ["a", p[0]],
-                        modifs,
-                        codebuilder
-                    );
-                    let b = accesslist(t, p[1])(
-                        ["a", p[1]],
-                        modifs,
-                        codebuilder
-                    );
+                    let a = accesslist(t, p[0])(["a", p[0]], modifs, codebuilder);
+                    let b = accesslist(t, p[1])(["a", p[1]], modifs, codebuilder);
                     //swap a<->b if b>a
                     return `m = min(${a},${b}); ${b} = max(${a},${b}); ${a} = m;`;
                 })
@@ -96,6 +88,5 @@ function generatesort(t, modifs, codebuilder) {
 
 function usesort(t) {
     return (args, modifs, codebuilder) =>
-        generatesort(t, modifs, codebuilder) ||
-        `sort${webgltype(t)}(${args.join(",")})`;
+        generatesort(t, modifs, codebuilder) || `sort${webgltype(t)}(${args.join(",")})`;
 }

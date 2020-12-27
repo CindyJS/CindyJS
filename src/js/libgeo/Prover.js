@@ -16,9 +16,7 @@ guessDuplicate._helper.duplicatePPLL = function (p, q) {
                 P: "point",
                 L: "line",
             };
-            return (
-                nameMap[p.kind] + " " + p.name + " is duplicate of " + q.name
-            );
+            return nameMap[p.kind] + " " + p.name + " is duplicate of " + q.name;
         },
         apply: markAsDuplicate(p, q),
         holds: function () {
@@ -39,19 +37,13 @@ guessDuplicate._helper.duplicatePsLs = function (p, q) {
                 Ps: "point set",
                 Ls: "line set",
             };
-            return (
-                nameMap[p.kind] + " " + p.name + " is duplicate of " + q.name
-            );
+            return nameMap[p.kind] + " " + p.name + " is duplicate of " + q.name;
         },
         apply: markAsDuplicate(p, q),
         holds: function () {
             var pv = p.results.value;
             var qv = q.results.value;
-            var truth = guessDuplicate._helper.isSetEq(
-                pv,
-                qv,
-                List.projectiveDistMinScal
-            );
+            var truth = guessDuplicate._helper.isSetEq(pv, qv, List.projectiveDistMinScal);
             return truth;
         },
     };

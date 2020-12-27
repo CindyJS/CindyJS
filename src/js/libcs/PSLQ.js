@@ -274,11 +274,7 @@ class PSLQ {
             // Step One (nur 3x3)
             let tr = [H[0][0], H[1][1]];
             let r = 0;
-            if (
-                Math.pow(this.GAMMA, 2) * Math.abs(tr[1]) >
-                Math.pow(this.GAMMA, 1) * Math.abs(tr[0])
-            )
-                r = 1;
+            if (Math.pow(this.GAMMA, 2) * Math.abs(tr[1]) > Math.pow(this.GAMMA, 1) * Math.abs(tr[0])) r = 1;
 
             let alpha = 0,
                 beta = 0,
@@ -309,35 +305,19 @@ class PSLQ {
                 for (let i = 0; i < n - 1; ++i) {
                     for (let j = 0; j < n - 1; ++j) {
                         if (i === r && j === r) T[i][j] = beta / delta;
-                        else if (i === r && j === r + 1)
-                            T[i][j] = -lamda / delta;
-                        else if (i === r + 1 && j === r)
-                            T[i][j] = lamda / delta;
-                        else if (i === r + 1 && j === r + 1)
-                            T[i][j] = beta / delta;
-                        else if (
-                            (i === j && j !== r) ||
-                            (i === j && j !== r + 1)
-                        )
-                            T[i][j] = 1;
+                        else if (i === r && j === r + 1) T[i][j] = -lamda / delta;
+                        else if (i === r + 1 && j === r) T[i][j] = lamda / delta;
+                        else if (i === r + 1 && j === r + 1) T[i][j] = beta / delta;
+                        else if ((i === j && j !== r) || (i === j && j !== r + 1)) T[i][j] = 1;
                         else T[i][j] = 0;
                     }
                 }
 
                 // Result of matrix multiplication
                 H = [
-                    [
-                        H[0][0] * T[0][0] + H[0][1] * T[1][0],
-                        H[0][0] * T[0][1] + H[0][1] * T[1][1],
-                    ],
-                    [
-                        H[1][0] * T[0][0] + H[1][1] * T[1][0],
-                        H[1][0] * T[0][1] + H[1][1] * T[1][1],
-                    ],
-                    [
-                        H[2][0] * T[0][0] + H[2][1] * T[1][0],
-                        H[2][0] * T[0][1] + H[2][1] * T[1][1],
-                    ],
+                    [H[0][0] * T[0][0] + H[0][1] * T[1][0], H[0][0] * T[0][1] + H[0][1] * T[1][1]],
+                    [H[1][0] * T[0][0] + H[1][1] * T[1][0], H[1][0] * T[0][1] + H[1][1] * T[1][1]],
+                    [H[2][0] * T[0][0] + H[2][1] * T[1][0], H[2][0] * T[0][1] + H[2][1] * T[1][1]],
                 ];
             }
 

@@ -133,12 +133,7 @@ function saveGeoElement(el) {
         if (!el.hasOwnProperty(key)) return;
         var val = General.unwrap(el[key]);
         var defval = General.unwrap(defel[key]);
-        if (
-            val !== null &&
-            val !== undefined &&
-            val !== defval &&
-            JSON.stringify(val) !== JSON.stringify(defval)
-        ) {
+        if (val !== null && val !== undefined && val !== defval && JSON.stringify(val) !== JSON.stringify(defval)) {
             res[key] = val;
         }
     });

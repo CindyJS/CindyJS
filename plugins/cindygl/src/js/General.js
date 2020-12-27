@@ -179,8 +179,7 @@ function enlargeCanvasIfRequired(sizeX, sizeY) {
 function realfromCindyScriptCommand(api, cscmd) {
     if (!api.instance.parsecache) api.instance.parsecache = {};
 
-    if (!api.instance.parsecache[cscmd])
-        api.instance.parsecache[cscmd] = api.instance.parse(cscmd);
+    if (!api.instance.parsecache[cscmd]) api.instance.parsecache[cscmd] = api.instance.parse(cscmd);
 
     let val = api.evaluate(api.instance.parsecache[cscmd]);
     if (val["ctype"] && val["ctype"] === "number") {
@@ -338,8 +337,7 @@ function toFloat(samples) {
     let res = [];
     for (let i = 0; i < samples.length; i++) {
         if (can_use_texture_float) res.push(samples[i]);
-        else if (can_use_texture_half_float)
-            res.push(decodeFloat16(samples[i]));
+        else if (can_use_texture_half_float) res.push(decodeFloat16(samples[i]));
         else res.push(samples[i] / 255);
     }
     return res;

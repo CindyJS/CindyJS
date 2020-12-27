@@ -23,12 +23,7 @@ function drawlabel(el, lbl, pos, lpos, color) {
 }
 
 function drawgeopoint(el) {
-    if (
-        !el.isshowing ||
-        el.visible === false ||
-        !List._helper.isAlmostReal(el.homog)
-    )
-        return;
+    if (!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog)) return;
     var col = el.color;
     if (el.behavior) {
         col = el.color; //TODO Anpassen
@@ -48,8 +43,7 @@ function drawgeopoint(el) {
             y: 3,
         };
         var color = Render2D.makeColor(defaultAppearance.textColor);
-        if (el.noborder.value === true || el.border.value === false)
-            color = col;
+        if (el.noborder.value === true || el.border.value === false) color = col;
         drawlabel(el, lbl, el.homog, lpos, color);
     }
 }
@@ -81,12 +75,7 @@ function drawgeoconic(el) {
 
 function drawgeoline(el) {
     var pt1, pt2;
-    if (
-        !el.isshowing ||
-        el.visible === false ||
-        !List._helper.isAlmostReal(el.homog)
-    )
-        return;
+    if (!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog)) return;
 
     if (el.kind === "S") {
         var modifs = {
@@ -101,10 +90,7 @@ function drawgeoline(el) {
             arrowshape: el.arrowshape,
             arrowsides: el.arrowsides,
         };
-        var zz = CSNumber.mult(
-            el.startpos.value[2],
-            CSNumber.conjugate(el.endpos.value[2])
-        );
+        var zz = CSNumber.mult(el.startpos.value[2], CSNumber.conjugate(el.endpos.value[2]));
         if (zz.value.real >= 0) {
             // finite segment
             evaluator.draw$2([el.startpos, el.endpos], modifs);
@@ -112,8 +98,7 @@ function drawgeoline(el) {
                 var lbl = el.printname || el.name || "S";
                 var orientedline = List.scalmult(
                     CSNumber.real(
-                        Math.sign(el.startpos.value[2].value.real) *
-                            Math.sign(el.endpos.value[2].value.real)
+                        Math.sign(el.startpos.value[2].value.real) * Math.sign(el.endpos.value[2].value.real)
                     ),
                     List.cross(el.startpos, el.endpos)
                 );
@@ -135,10 +120,7 @@ function drawgeoline(el) {
                 var color = Render2D.makeColor(defaultAppearance.textColor);
 
                 // TODO: synchronize these constants with Cinderella
-                var pos = geoOps._helper.midpoint(
-                    geoOps._helper.midpoint(el.startpos, el.endpos),
-                    el.endpos
-                );
+                var pos = geoOps._helper.midpoint(geoOps._helper.midpoint(el.startpos, el.endpos), el.endpos);
                 drawlabel(el, lbl, pos, lpos, color);
             }
             return;
@@ -178,10 +160,7 @@ function drawgeoline(el) {
             if (!CSNumber._helper.isAlmostZero(z)) {
                 x = CSNumber.div(x, z);
                 y = CSNumber.div(y, z);
-                if (
-                    CSNumber._helper.isAlmostReal(x) &&
-                    CSNumber._helper.isAlmostReal(y)
-                ) {
+                if (CSNumber._helper.isAlmostReal(x) && CSNumber._helper.isAlmostReal(y)) {
                     if (x.value.real < xmin[0]) {
                         xmin = [x.value.real, pt];
                     }
@@ -280,31 +259,19 @@ function drawgeotext(el) {
             x /= vscale;
             y /= vscale;
             var font =
-                Render2D.bold +
-                Render2D.italics +
-                Math.round((size / vscale) * 10) / 10 +
-                "px " +
-                Render2D.family;
+                Render2D.bold + Render2D.italics + Math.round((size / vscale) * 10) / 10 + "px " + Render2D.family;
 
             if (cache.invisible) outer.style.removeProperty("display");
-            if (
-                text === cache.text &&
-                font === cache.font &&
-                x === cache.x &&
-                y === cache.y &&
-                align === cache.align
-            )
+            if (text === cache.text && font === cache.font && x === cache.x && y === cache.y && align === cache.align)
                 return;
             if (font !== cache.font) {
                 label.style.font = font;
                 label.style.lineHeight = defaultAppearance.lineHeight;
             }
-            if (text !== cache.text && text !== false)
-                if (textRendererHtml(label, text, font) === false) text = false; // Do not cache, must re-run
+            if (text !== cache.text && text !== false) if (textRendererHtml(label, text, font) === false) text = false; // Do not cache, must re-run
             outer.style.left = x + "px";
             outer.style.top = y + "px";
-            if (align || inlinebox.style.transform)
-                inlinebox.style.transform = "translateX(" + -100 * align + "%)";
+            if (align || inlinebox.style.transform) inlinebox.style.transform = "translateX(" + -100 * align + "%)";
             el._textCache = {
                 text: text,
                 font: font,
@@ -343,10 +310,7 @@ function drawgeopolygon(el) {
 }
 
 function drawgeoifs() {
-    if (
-        ifs.dirty ||
-        !General.deeplyEqual(ifs.mat, csport.drawingstate.matrix)
-    ) {
+    if (ifs.dirty || !General.deeplyEqual(ifs.mat, csport.drawingstate.matrix)) {
         geoOps.IFS.updateParameters();
         ifs.dirty = false;
     }

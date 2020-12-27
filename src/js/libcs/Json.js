@@ -121,8 +121,7 @@ Json.niceprint = function (el, modifs, options) {
         if (modifs) {
             if (modifs.maxDepth) {
                 let depth = evaluate(modifs.maxDepth);
-                if (depth.ctype === "number")
-                    options.visitedMap.maxLevel = depth.value.real;
+                if (depth.ctype === "number") options.visitedMap.maxLevel = depth.value.real;
             }
         }
     }
@@ -142,10 +141,7 @@ Json.niceprint = function (el, modifs, options) {
                 if (!visitedMap.tracker.has(elValKey)) {
                     visitedMap.tracker.set(elValKey, 1);
                 } else {
-                    if (
-                        visitedMap[elValKey] > visitedMap.maxElVisit ||
-                        visitedMap.level > visitedMap.maxLevel
-                    ) {
+                    if (visitedMap[elValKey] > visitedMap.maxElVisit || visitedMap.level > visitedMap.maxLevel) {
                         //console.log([visitedMap[elValKey], visitedMap.level]);
                         if (!options.printedWarning) {
                             console.log(
@@ -158,19 +154,12 @@ Json.niceprint = function (el, modifs, options) {
                     }
                     // update only once a recursive call
                     if (visitedMap.newLevel) {
-                        visitedMap.tracker.set(
-                            elValKey,
-                            visitedMap.tracker.get(elValKey) + 1
-                        );
+                        visitedMap.tracker.set(elValKey, visitedMap.tracker.get(elValKey) + 1);
                         // update only once each function call
                         visitedMap.newLevel = false;
                     }
                 }
-                return (
-                    key +
-                    ":" +
-                    Json._helper.niceprint(elValKey, modifs, options)
-                );
+                return key + ":" + Json._helper.niceprint(elValKey, modifs, options);
             })
             .join(", ") +
         "}";
@@ -180,9 +169,7 @@ Json.niceprint = function (el, modifs, options) {
 
 Json._helper.handlePrintException = function (e) {
     if (e instanceof RangeError) {
-        console.log(
-            "Warning: Dictionary string could not be generated! Probably large cyclic Dictionary!"
-        );
+        console.log("Warning: Dictionary string could not be generated! Probably large cyclic Dictionary!");
     } else if (e instanceof SyntaxError) {
         console.log("Warning: Dictionary string could not be parsed!");
     } else {

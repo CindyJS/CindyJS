@@ -40,11 +40,7 @@ eval_helper.extractPoint = function (v1) {
         n1 = pt1[0];
         n2 = pt1[1];
         n3 = pt1[2];
-        if (
-            n1.ctype === "number" &&
-            n2.ctype === "number" &&
-            n3.ctype === "number"
-        ) {
+        if (n1.ctype === "number" && n2.ctype === "number" && n3.ctype === "number") {
             n1 = CSNumber.div(n1, n3);
             n2 = CSNumber.div(n2, n3);
             erg.x = n1.value.real;
@@ -150,16 +146,8 @@ eval_helper.drawarc = function (args, modifs, df) {
 
         // move center of conic to origin
         var mat = List.turnIntoCSList([
-            List.turnIntoCSList([
-                cen.value[2],
-                zer,
-                CSNumber.neg(cen.value[0]),
-            ]),
-            List.turnIntoCSList([
-                zer,
-                cen.value[2],
-                CSNumber.neg(cen.value[1]),
-            ]),
+            List.turnIntoCSList([cen.value[2], zer, CSNumber.neg(cen.value[0])]),
+            List.turnIntoCSList([zer, cen.value[2], CSNumber.neg(cen.value[1])]),
             List.turnIntoCSList([zer, zer, cen.value[2]]),
         ]);
         var aa = List.normalizeZ(General.mult(mat, a));
@@ -167,14 +155,8 @@ eval_helper.drawarc = function (args, modifs, df) {
         var cc = List.normalizeZ(General.mult(mat, c));
 
         // get angles of A and C
-        var startAngle = -Math.atan2(
-            aa.value[1].value.real,
-            aa.value[0].value.real
-        );
-        var endAngle = -Math.atan2(
-            cc.value[1].value.real,
-            cc.value[0].value.real
-        );
+        var startAngle = -Math.atan2(aa.value[1].value.real, aa.value[0].value.real);
+        var endAngle = -Math.atan2(cc.value[1].value.real, cc.value[0].value.real);
 
         cen = List.normalizeZ(cen);
         a = List.normalizeZ(a);
@@ -206,14 +188,7 @@ eval_helper.drawarc = function (args, modifs, df) {
         var useArc = true;
 
         if (useArc) {
-            csctx.arc(
-                0,
-                0,
-                arcDist.value.real * m.sdet,
-                startAngle,
-                endAngle,
-                cclock
-            );
+            csctx.arc(0, 0, arcDist.value.real * m.sdet, startAngle, endAngle, cclock);
         } else {
             var num = 500; // Number of segments
 
@@ -221,15 +196,10 @@ eval_helper.drawarc = function (args, modifs, df) {
             if (startAngle > endAngle) endAngle = endAngle + Math.PI * 2;
 
             // divide segments --  rotate counterclockwise if necessary
-            var ntler = !cclock
-                ? (endAngle - startAngle) / num
-                : -(2 * Math.PI - endAngle + startAngle) / num;
+            var ntler = !cclock ? (endAngle - startAngle) / num : -(2 * Math.PI - endAngle + startAngle) / num;
 
             // drawing
-            csctx.moveTo(
-                rad * Math.cos(startAngle),
-                rad * Math.sin(startAngle)
-            );
+            csctx.moveTo(rad * Math.cos(startAngle), rad * Math.sin(startAngle));
             var angl;
             for (var ii = 0; ii <= num; ii++) {
                 angl = startAngle + ii * ntler;
@@ -256,27 +226,15 @@ eval_helper.drawarc = function (args, modifs, df) {
         if (!ptA.ok || !ptB.ok || !ptC.ok) return nada;
 
         // dists
-        var dAB =
-            (ptA.x - ptB.x) * (ptA.x - ptB.x) +
-            (ptA.y - ptB.y) * (ptA.y - ptB.y);
-        var dAC =
-            (ptA.x - ptC.x) * (ptA.x - ptC.x) +
-            (ptA.y - ptC.y) * (ptA.y - ptC.y);
-        var dBC =
-            (ptC.x - ptB.x) * (ptC.x - ptB.x) +
-            (ptC.y - ptB.y) * (ptC.y - ptB.y);
+        var dAB = (ptA.x - ptB.x) * (ptA.x - ptB.x) + (ptA.y - ptB.y) * (ptA.y - ptB.y);
+        var dAC = (ptA.x - ptC.x) * (ptA.x - ptC.x) + (ptA.y - ptC.y) * (ptA.y - ptC.y);
+        var dBC = (ptC.x - ptB.x) * (ptC.x - ptB.x) + (ptC.y - ptB.y) * (ptC.y - ptB.y);
 
         // if 2 points are the same return nada;
         if (dAB < 1e-12 || dAC < 1e-12 || dBC < 1e-12) return nada;
 
         // check by dets if B is in the middle
-        var crossr = List.crossratio3(
-            a,
-            c,
-            b,
-            List.cross(List.cross(a, b), List.linfty),
-            List.ii
-        );
+        var crossr = List.crossratio3(a, c, b, List.cross(List.cross(a, b), List.linfty), List.ii);
         var Bmiddle = crossr.value.real < 0;
 
         // if B is in the middle we are fine
@@ -348,10 +306,7 @@ eval_helper.drawcircle = function (args, modifs, df) {
 evaluator.drawconic$1 = function (args, modifs) {
     var arr = evaluateAndVal(args[0]);
 
-    if (
-        arr.ctype !== "list" ||
-        (arr.value.length !== 3 && arr.value.length !== 6)
-    ) {
+    if (arr.ctype !== "list" || (arr.value.length !== 3 && arr.value.length !== 6)) {
         console.error("could not parse conic");
         return nada;
     }
@@ -389,14 +344,7 @@ evaluator.drawconic$1 = function (args, modifs) {
     } else {
         // matrix case
 
-        if (
-            !(
-                List.isNumberMatrix(arr).value &&
-                arr.value.length === 3 &&
-                arr.value[0].value.length === 3
-            )
-        )
-            return nada;
+        if (!(List.isNumberMatrix(arr).value && arr.value.length === 3 && arr.value[0].value.length === 3)) return nada;
 
         var tarr = List.transpose(arr);
         if (!List.equals(arr, tarr).value) {
@@ -456,9 +404,7 @@ DbgCtx.prototype = {
         this.delegate.lineTo(x, y);
     },
     quadraticCurveTo: function (x1, y1, x, y) {
-        console.log(
-            "quadratocCurveTo(" + x1 + ", " + y1 + ", " + x + ", " + y + ")"
-        );
+        console.log("quadratocCurveTo(" + x1 + ", " + y1 + ", " + x + ", " + y + ")");
         this.ctls.push([x1, y1]);
         this.pts.push([x, y]);
         this.delegate.quadraticCurveTo(x1, y1, x, y);
@@ -594,11 +540,7 @@ eval_helper.drawconic = function (conicMatrix, modifs) {
             mkp: function (y) {
                 return mkp(x, y);
             },
-            sol: solveRealQuadratic(
-                c02,
-                c11 * x + c01,
-                (c20 * x + c10) * x + c00
-            ),
+            sol: solveRealQuadratic(c02, c11 * x + c01, (c20 * x + c10) * x + c00),
             discr: function () {
                 // Compute the roots of the y discriminant
                 // for points with vertical tangents
@@ -624,11 +566,7 @@ eval_helper.drawconic = function (conicMatrix, modifs) {
             mkp: function (x) {
                 return mkp(x, y);
             },
-            sol: solveRealQuadratic(
-                c20,
-                c11 * y + c10,
-                (c02 * y + c01) * y + c00
-            ),
+            sol: solveRealQuadratic(c20, c11 * y + c10, (c02 * y + c01) * y + c00),
             discr: function () {
                 // Compute the roots of the x discriminant
                 // for points with horizontal tangents
@@ -681,13 +619,7 @@ eval_helper.drawconic = function (conicMatrix, modifs) {
                 sol = bd.discr();
                 if (sol === null) return true; // an ellipse without tangent?
                 var pt = bd.tpt(sol[bd.index]);
-                if (
-                    pt.x >= minx &&
-                    pt.x <= maxx &&
-                    pt.y >= miny &&
-                    pt.y <= maxy
-                )
-                    link(pt); // link but don't add to boundary
+                if (pt.x >= minx && pt.x <= maxx && pt.y >= miny && pt.y <= maxy) link(pt); // link but don't add to boundary
                 return true;
             }
             // have two points of intersection with line
@@ -785,9 +717,7 @@ eval_helper.drawconic = function (conicMatrix, modifs) {
         if (!(isFinite(cx) && isFinite(cy)))
             // probably already linear
             return csctx.lineTo(x2, y2);
-        var area = Math.abs(
-            x1 * cy + cx * y2 + x2 * y1 - x2 * cy - cx * y1 - x1 * y2
-        );
+        var area = Math.abs(x1 * cy + cx * y2 + x2 * y1 - x2 * cy - cx * y1 - x1 * y2);
         if (area < maxError)
             // looks linear, too
             return csctx.lineTo(x2, y2);
@@ -802,14 +732,8 @@ eval_helper.drawconic = function (conicMatrix, modifs) {
             if (dx * dx + dy * dy < maxError) break;
             // using d=(dx,dy,0) and h=(hx,hy,1) compute bilinear forms
             var dMd = c20 * dx * dx + c11 * dx * dy + c02 * dy * dy;
-            var dMh =
-                2 * c20 * dx * hx +
-                c11 * (dx * hy + dy * hx) +
-                2 * c02 * dy * hy +
-                c10 * dx +
-                c01 * dy;
-            var hMh =
-                (c20 * hx + c11 * hy + c10) * hx + (c02 * hy + c01) * hy + c00;
+            var dMh = 2 * c20 * dx * hx + c11 * (dx * hy + dy * hx) + 2 * c02 * dy * hy + c10 * dx + c01 * dy;
+            var hMh = (c20 * hx + c11 * hy + c10) * hx + (c02 * hy + c01) * hy + c00;
             var sol = solveRealQuadratic(dMd, dMh, hMh);
             if (!sol) {
                 // discriminant is probably slightly negative due to error.
@@ -876,10 +800,7 @@ evaluator.fillpolygon$1 = function (args, modifs) {
 };
 
 eval_helper.drawpolygon = function (args, modifs, df, cycle) {
-    Render2D.handleModifs(
-        modifs,
-        cycle ? Render2D.conicModifs : Render2D.lineModifs
-    );
+    Render2D.handleModifs(modifs, cycle ? Render2D.conicModifs : Render2D.lineModifs);
     Render2D.preDrawCurve();
 
     var m = csport.drawingstate.matrix;
@@ -943,16 +864,7 @@ eval_helper.drawpolygon = function (args, modifs, df, cycle) {
     return nada;
 };
 
-function defaultTextRendererCanvas(
-    ctx,
-    text,
-    x,
-    y,
-    align,
-    size,
-    lineHeight,
-    angle = 0
-) {
+function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0) {
     if (text.indexOf("\n") !== -1) {
         var left = Infinity;
         var right = -Infinity;
@@ -1041,12 +953,7 @@ eval_helper.drawtext = function (args, modifs, callback) {
         }
     }
 
-    csctx.font =
-        Render2D.bold +
-        Render2D.italics +
-        Math.round(size * 10) / 10 +
-        "px " +
-        Render2D.family;
+    csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
     if (callback) {
         return callback(txt, xx, yy, Render2D.align, size);
     } else {
@@ -1078,9 +985,7 @@ evaluator.drawtable$2 = function (args, modifs) {
     var nr = data.length;
     var nc = -1;
     var r, c;
-    for (r = 0; r < nr; ++r)
-        if (data[r].ctype === "list" && data[r].value.length > nc)
-            nc = data[r].value.length;
+    for (r = 0; r < nr; ++r) if (data[r].ctype === "list" && data[r].value.length > nc) nc = data[r].value.length;
     if (nc === -1) {
         // depth 1, no nested lists
         data = data.map(function (row) {
@@ -1102,11 +1007,7 @@ evaluator.drawtable$2 = function (args, modifs) {
         size: true,
         color: function (v) {
             if (List._helper.isNumberVecN(v, 3))
-                color = Render2D.makeColor([
-                    v.value[0].value.real,
-                    v.value[1].value.real,
-                    v.value[2].value.real,
-                ]);
+                color = Render2D.makeColor([v.value[0].value.real, v.value[1].value.real, v.value[2].value.real]);
         },
         alpha: true,
         bold: true,
@@ -1131,12 +1032,7 @@ evaluator.drawtable$2 = function (args, modifs) {
     if (Render2D.size !== null) size = Render2D.size;
     if (sy === null) sy = 1.6 * size;
 
-    var font =
-        Render2D.bold +
-        Render2D.italics +
-        Math.round(size * 10) / 10 +
-        "px " +
-        Render2D.family;
+    var font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
     csctx.font = font;
     var m = csport.drawingstate.matrix;
     var ww = nc * sx;
@@ -1167,13 +1063,7 @@ evaluator.drawtable$2 = function (args, modifs) {
     for (r = 0; r < nr; ++r) {
         for (c = 0; c < nc; ++c) {
             var txt = niceprint(data[r][c]);
-            textRendererCanvas(
-                csctx,
-                txt,
-                xx + c * sx,
-                yy + r * sy,
-                Render2D.align
-            );
+            textRendererCanvas(csctx, txt, xx + c * sx, yy + r * sy, Render2D.align);
         }
     }
     return nada;
@@ -1184,11 +1074,7 @@ eval_helper.drawshape = function (shape, modifs) {
         return eval_helper.drawpolygon([shape], modifs, "D", 1);
     }
     if (shape.type === "circle") {
-        return eval_helper.drawcircle(
-            [shape.value.value[0], shape.value.value[1]],
-            modifs,
-            "D"
-        );
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "D");
     }
     return nada;
 };
@@ -1198,11 +1084,7 @@ eval_helper.fillshape = function (shape, modifs) {
         return eval_helper.drawpolygon([shape], modifs, "F", 1);
     }
     if (shape.type === "circle") {
-        return eval_helper.drawcircle(
-            [shape.value.value[0], shape.value.value[1]],
-            modifs,
-            "F"
-        );
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "F");
     }
     return nada;
 };
@@ -1212,11 +1094,7 @@ eval_helper.clipshape = function (shape, modifs) {
         return eval_helper.drawpolygon([shape], modifs, "C", 1);
     }
     if (shape.type === "circle") {
-        return eval_helper.drawcircle(
-            [shape.value.value[0], shape.value.value[1]],
-            modifs,
-            "C"
-        );
+        return eval_helper.drawcircle([shape.value.value[0], shape.value.value[1]], modifs, "C");
     }
     return nada;
 };
@@ -1436,10 +1314,7 @@ evaluator.plot$2 = function (args, modifs) {
                 for (x = start; x < stop; x = x + step) {
                     namespace.setvar(runv, CSNumber.real(x));
                     var erg = evaluate(v1);
-                    if (
-                        List.isNumberVector(erg).value &&
-                        erg.value.length === 2
-                    ) {
+                    if (List.isNumberVector(erg).value && erg.value.length === 2) {
                         var x1 = +erg.value[0].value.real;
                         var y = +erg.value[1].value.real;
                         xx = x1 * m.a - y * m.b + m.tx;
@@ -1625,18 +1500,9 @@ evaluator.repaint$0 = function (args, modifs) {
 
 evaluator.screenbounds$0 = function (args, modifs) {
     var pt1 = General.withUsage(List.realVector(csport.to(0, 0)), "Point");
-    var pt2 = General.withUsage(
-        List.realVector(csport.to(canvas.clientWidth, 0)),
-        "Point"
-    );
-    var pt3 = General.withUsage(
-        List.realVector(csport.to(canvas.clientWidth, canvas.clientHeight)),
-        "Point"
-    );
-    var pt4 = General.withUsage(
-        List.realVector(csport.to(0, canvas.clientHeight)),
-        "Point"
-    );
+    var pt2 = General.withUsage(List.realVector(csport.to(canvas.clientWidth, 0)), "Point");
+    var pt3 = General.withUsage(List.realVector(csport.to(canvas.clientWidth, canvas.clientHeight)), "Point");
+    var pt4 = General.withUsage(List.realVector(csport.to(0, canvas.clientHeight)), "Point");
     return List.turnIntoCSList([pt1, pt2, pt3, pt4]);
 };
 
@@ -1645,11 +1511,7 @@ evaluator.createimage$3 = function (args, modifs) {
     var v1 = evaluateAndVal(args[1]);
     var v2 = evaluateAndVal(args[2]);
 
-    if (
-        v1.ctype !== "number" ||
-        v2.ctype !== "number" ||
-        v0.ctype !== "string"
-    ) {
+    if (v1.ctype !== "number" || v2.ctype !== "number" || v0.ctype !== "string") {
         return nada;
     }
 
@@ -1698,11 +1560,7 @@ evaluator.canvas$4 = function (args, modifs) {
 
     var pta = eval_helper.extractPoint(a);
     var ptb = eval_helper.extractPoint(b);
-    if (
-        !pta.ok ||
-        !ptb.ok ||
-        !(name.ctype === "string" || name.ctype === "image")
-    ) {
+    if (!pta.ok || !ptb.ok || !(name.ctype === "string" || name.ctype === "image")) {
         return nada;
     }
 
@@ -1740,19 +1598,11 @@ evaluator.canvas$4 = function (args, modifs) {
     var y31 = cw;
     var y32 = 0;
 
-    var a1 =
-        (cw * (x12 - x22)) /
-        ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
-    var a2 =
-        (cw * (x11 - x21)) /
-        ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
+    var a1 = (cw * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
+    var a2 = (cw * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
     var a3 = -a1 * x11 - a2 * x12;
-    var a4 =
-        (ch * (x12 - x32) - ch * (x12 - x22)) /
-        ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
-    var a5 =
-        (ch * (x11 - x31) - ch * (x11 - x21)) /
-        ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
+    var a4 = (ch * (x12 - x32) - ch * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
+    var a5 = (ch * (x11 - x31) - ch * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
     var a6 = ch - a4 * x11 - a5 * x12;
 
     var localcontext = localcanvas.getContext("2d");
@@ -1780,12 +1630,7 @@ evaluator.canvas$5 = function (args, modifs) {
     var pta = eval_helper.extractPoint(a);
     var ptb = eval_helper.extractPoint(b);
     var ptc = eval_helper.extractPoint(c);
-    if (
-        !pta.ok ||
-        !ptb.ok ||
-        !ptc.ok ||
-        !(name.ctype === "string" || name.ctype === "image")
-    ) {
+    if (!pta.ok || !ptb.ok || !ptc.ok || !(name.ctype === "string" || name.ctype === "image")) {
         return nada;
     }
 

@@ -58,23 +58,15 @@ Render2D.handleModifs = function (modifs, handlers) {
         Render2D.dashing(Render2D.lsize);
     }
     if (Render2D.colorraw !== null) {
-        Render2D.pointColor = Render2D.lineColor = Render2D.textColor = Render2D.makeColor(
-            Render2D.colorraw
-        );
+        Render2D.pointColor = Render2D.lineColor = Render2D.textColor = Render2D.makeColor(Render2D.colorraw);
     } else if (Render2D.alpha === 1) {
         Render2D.pointColor = csport.drawingstate.pointcolor;
         Render2D.lineColor = csport.drawingstate.linecolor;
         Render2D.textColor = csport.drawingstate.textcolor;
     } else {
-        Render2D.pointColor = Render2D.makeColor(
-            csport.drawingstate.pointcolorraw
-        );
-        Render2D.lineColor = Render2D.makeColor(
-            csport.drawingstate.linecolorraw
-        );
-        Render2D.textColor = Render2D.makeColor(
-            csport.drawingstate.textcolorraw
-        );
+        Render2D.pointColor = Render2D.makeColor(csport.drawingstate.pointcolorraw);
+        Render2D.lineColor = Render2D.makeColor(csport.drawingstate.linecolorraw);
+        Render2D.textColor = Render2D.makeColor(csport.drawingstate.textcolorraw);
     }
     if (Render2D.alpha === 1) {
         Render2D.black = "rgb(0,0,0)";
@@ -82,10 +74,7 @@ Render2D.handleModifs = function (modifs, handlers) {
         Render2D.black = "rgba(0,0,0," + Render2D.alpha + ")";
     }
     if (Render2D.fillcolorraw && Render2D.fillalpha > 0) {
-        Render2D.fillColor = Render2D.makeColor(
-            Render2D.fillcolorraw,
-            Render2D.fillalpha
-        );
+        Render2D.fillColor = Render2D.makeColor(Render2D.fillcolorraw, Render2D.fillalpha);
     } else {
         Render2D.fillColor = null;
     }
@@ -102,21 +91,13 @@ Render2D.modifHandlers = {
 
     color: function (v) {
         if (List.isNumberVector(v).value && v.value.length === 3) {
-            Render2D.colorraw = [
-                v.value[0].value.real,
-                v.value[1].value.real,
-                v.value[2].value.real,
-            ];
+            Render2D.colorraw = [v.value[0].value.real, v.value[1].value.real, v.value[2].value.real];
         }
     },
 
     fillcolor: function (v) {
         if (List.isNumberVector(v).value && v.value.length === 3) {
-            Render2D.fillcolorraw = [
-                v.value[0].value.real,
-                v.value[1].value.real,
-                v.value[2].value.real,
-            ];
+            Render2D.fillcolorraw = [v.value[0].value.real, v.value[1].value.real, v.value[2].value.real];
         }
     },
 
@@ -136,8 +117,7 @@ Render2D.modifHandlers = {
         if (v.ctype === "list") {
             var pat = [];
             for (var i = 0, j = 0; i < v.value.length; i++) {
-                if (v.value[i].ctype === "number")
-                    pat[j++] = v.value[i].value.real;
+                if (v.value[i].ctype === "number") pat[j++] = v.value[i].value.real;
             }
             Render2D.dashing = Render2D.setDash.bind(null, pat);
         }
@@ -166,9 +146,7 @@ Render2D.modifHandlers = {
     overhang: function (v) {
         if (v.ctype === "number") {
             // Might combine with arrowposition, see there for details
-            Render2D.overhang =
-                Render2D.overhang * v.value.real +
-                (1 - Render2D.overhang) * (1 - v.value.real);
+            Render2D.overhang = Render2D.overhang * v.value.real + (1 - Render2D.overhang) * (1 - v.value.real);
         }
     },
 
@@ -193,11 +171,7 @@ Render2D.modifHandlers = {
             Render2D.isArrow = true;
             if (Render2D.arrowShape.deprecated) {
                 console.log(
-                    "arrowshape " +
-                        v.value +
-                        " is deprecated, use " +
-                        Render2D.arrowShape.deprecated +
-                        " instead."
+                    "arrowshape " + v.value + " is deprecated, use " + Render2D.arrowShape.deprecated + " instead."
                 );
                 Render2D.arrowShape.deprecated = null;
             }
@@ -207,9 +181,7 @@ Render2D.modifHandlers = {
     arrowsides: function (v) {
         if (v.ctype !== "string") {
             console.error("arrowsides is not of type string");
-        } else if (
-            !(v.value === "==>" || v.value === "<==>" || v.value === "<==")
-        ) {
+        } else if (!(v.value === "==>" || v.value === "<==>" || v.value === "<==")) {
             console.error("arrowsides is unknows");
         } else {
             Render2D.arrowSides = v.value;
@@ -226,9 +198,7 @@ Render2D.modifHandlers = {
             // Combine position into overhang to simplify things
             // Writing a for overhang and b for arrowposition, we have
             // q1 = b*(a*p1 + (1-a)*p2) + (1-b)*(a*p2 + (1-a)*p1)
-            Render2D.overhang =
-                Render2D.overhang * v.value.real +
-                (1 - Render2D.overhang) * (1 - v.value.real);
+            Render2D.overhang = Render2D.overhang * v.value.real + (1 - Render2D.overhang) * (1 - v.value.real);
         } else {
             Render2D.arrowposition = v.value.real;
             Render2D.isArrow = true;
@@ -296,26 +266,16 @@ Render2D.modifHandlers = {
     },
 
     lineCap: function (v) {
-        if (
-            v.ctype === "string" &&
-            (v.value === "round" || v.value === "square" || v.value === "butt")
-        )
+        if (v.ctype === "string" && (v.value === "round" || v.value === "square" || v.value === "butt"))
             Render2D.lineCap = v.value;
     },
 
     lineJoin: function (v) {
-        if (
-            v.ctype === "string" &&
-            (v.value === "round" || v.value === "bevel" || v.value === "miter")
-        )
+        if (v.ctype === "string" && (v.value === "round" || v.value === "bevel" || v.value === "miter"))
             Render2D.lineJoin = v.value;
     },
     fillrule: function (v) {
-        if (
-            v.ctype === "string" &&
-            (v.value === "nonzero" || v.value === "evenodd")
-        )
-            Render2D.fillrule = v.value;
+        if (v.ctype === "string" && (v.value === "nonzero" || v.value === "evenodd")) Render2D.fillrule = v.value;
     },
 
     miterLimit: function (v) {
@@ -458,11 +418,7 @@ Render2D.arrowShapes = {
 Render2D.clipSegment = function (pt1, pt2) {
     var dx = pt2.x - pt1.x;
     var dy = pt2.y - pt1.y;
-    var clipPoints = Render2D.clipLineCore(
-        -dy,
-        dx,
-        pt1.x * pt2.y - pt2.x * pt1.y
-    );
+    var clipPoints = Render2D.clipLineCore(-dy, dx, pt1.x * pt2.y - pt2.x * pt1.y);
     if (clipPoints.length !== 2) return [];
     var q1 = clipPoints[0];
     var q2 = clipPoints[1];
@@ -520,10 +476,7 @@ Render2D.drawsegcore = function (pt1, pt2) {
 
     Render2D.preDrawCurve();
 
-    if (
-        !Render2D.isArrow ||
-        (endpoint1x === endpoint1y && endpoint2x === endpoint2y)
-    ) {
+    if (!Render2D.isArrow || (endpoint1x === endpoint1y && endpoint2x === endpoint2y)) {
         // Fast path if we have no arrowheads
         if (Render2D.lsize < 0.01) return;
         csctx.beginPath();

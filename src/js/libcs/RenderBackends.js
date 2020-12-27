@@ -29,11 +29,7 @@ SvgWriterContext.prototype = {
     set fillStyle(style) {
         var self = this;
         parseColor(style, function (r, g, b, a) {
-            self._fill =
-                "#" +
-                padStr(r.toString(16), 2) +
-                padStr(g.toString(16), 2) +
-                padStr(b.toString(16), 2);
+            self._fill = "#" + padStr(r.toString(16), 2) + padStr(g.toString(16), 2) + padStr(b.toString(16), 2);
             self._fillOpacity = a === 255 ? null : a;
         });
     },
@@ -41,11 +37,7 @@ SvgWriterContext.prototype = {
     set strokeStyle(style) {
         var self = this;
         parseColor(style, function (r, g, b, a) {
-            self._stroke =
-                "#" +
-                padStr(r.toString(16), 2) +
-                padStr(g.toString(16), 2) +
-                padStr(b.toString(16), 2);
+            self._stroke = "#" + padStr(r.toString(16), 2) + padStr(g.toString(16), 2) + padStr(b.toString(16), 2);
             self._strokeOpacity = a === 255 ? null : a;
         });
     },
@@ -116,19 +108,7 @@ SvgWriterContext.prototype = {
             );
         } else {
             var largeArc = covered > Math.PI ? 1 : 0;
-            this._pathcmd(
-                this._path.length ? "L" : "M",
-                x1,
-                y1,
-                "A",
-                r,
-                r,
-                0,
-                largeArc,
-                dir ? 1 : 0,
-                x2,
-                y2
-            );
+            this._pathcmd(this._path.length ? "L" : "M", x1, y1, "A", r, r, 0, largeArc, dir ? 1 : 0, x2, y2);
         }
     },
 
@@ -148,8 +128,7 @@ SvgWriterContext.prototype = {
 
     _attrs: function (dict) {
         var res = "";
-        for (var key in dict)
-            if (dict[key] !== null) res += " " + key + '="' + dict[key] + '"';
+        for (var key in dict) if (dict[key] !== null) res += " " + key + '="' + dict[key] + '"';
         return res;
     },
 
@@ -175,8 +154,7 @@ SvgWriterContext.prototype = {
                     "stroke-width": this.lineWidth,
                     "stroke-linecap": this.lineCap,
                     "stroke-linejoin": this.lineJoin,
-                    "stroke-miterlimit":
-                        this.lineJoin === "miter" ? this.miterLimit : null,
+                    "stroke-miterlimit": this.lineJoin === "miter" ? this.miterLimit : null,
                 }) +
                 "/>"
         );
@@ -185,13 +163,7 @@ SvgWriterContext.prototype = {
     clip: function () {
         ++this._clipIndex;
         this._body.push(
-            '<clipPath id="clip' +
-                this._clipIndex +
-                '">' +
-                '<path d="' +
-                this._path.join(" ") +
-                '"/>' +
-                "</clipPath>",
+            '<clipPath id="clip' + this._clipIndex + '">' + '<path d="' + this._path.join(" ") + '"/>' + "</clipPath>",
             '<g clip-path="url(#clip' + this._clipIndex + ')">'
         );
         this._saveStack[this._saveStack.length - 1] += "</g>";
@@ -228,11 +200,7 @@ SvgWriterContext.prototype = {
     },
 
     drawImage: function (img, x, y) {
-        if (arguments.length !== 3)
-            throw Error(
-                "SvgWriterContext only supports " +
-                    "3-argument version of drawImage"
-            );
+        if (arguments.length !== 3) throw Error("SvgWriterContext only supports " + "3-argument version of drawImage");
         var idx = this._imgcache.indexOf(img);
         if (idx === -1) {
             idx = this._imgcache.length;
@@ -257,14 +225,11 @@ SvgWriterContext.prototype = {
             );
             this._imgcache.push(img);
         }
-        this._cmd(
-            '<use x="' + x + '" y="' + y + '" xlink:href="#img' + idx + '"/>'
-        );
+        this._cmd('<use x="' + x + '" y="' + y + '" xlink:href="#img' + idx + '"/>');
     },
 
     toBlob: function () {
-        while (this._saveStack.length > 1 || this._saveStack[0] !== "")
-            this.restore();
+        while (this._saveStack.length > 1 || this._saveStack[0] !== "") this.restore();
         var str =
             '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' +
             '<svg xmlns="http://www.w3.org/2000/svg" ' +
@@ -452,10 +417,7 @@ PdfWriterContext.prototype = {
                 "W S + f": "W B",
                 "W f + S": "W B",
             }[prev + " + " + cmd];
-            if (!combined)
-                throw Error(
-                    "Don't know how to combine '" + prev + "' and '" + cmd + "'"
-                );
+            if (!combined) throw Error("Don't know how to combine '" + prev + "' and '" + cmd + "'");
             this._body.splice(this._pathUsed, 1);
             cmd = combined;
         }
@@ -516,15 +478,10 @@ PdfWriterContext.prototype = {
         );
 
         // Read header
-        if (chunks[0].type !== "IHDR")
-            throw Error("Image does not start with an IHDR");
+        if (chunks[0].type !== "IHDR") throw Error("Image does not start with an IHDR");
         var ihdr = chunks[0].data;
-        var width =
-            ((ihdr[0] << 24) | (ihdr[1] << 16) | (ihdr[2] << 8) | ihdr[3]) >>>
-            0;
-        var height =
-            ((ihdr[4] << 24) | (ihdr[5] << 16) | (ihdr[6] << 8) | ihdr[7]) >>>
-            0;
+        var width = ((ihdr[0] << 24) | (ihdr[1] << 16) | (ihdr[2] << 8) | ihdr[3]) >>> 0;
+        var height = ((ihdr[4] << 24) | (ihdr[5] << 16) | (ihdr[6] << 8) | ihdr[7]) >>> 0;
         var bitDepth = ihdr[8];
         var colorType = ihdr[9];
         var palette = (colorType & 1) !== 0;
@@ -533,12 +490,8 @@ PdfWriterContext.prototype = {
         var compressionMethod = ihdr[10];
         var filterMethod = ihdr[11];
         var interlaceMethod = ihdr[12];
-        if (compressionMethod !== 0)
-            throw Error(
-                "Unsupported PNG compression method: " + compressionMethod
-            );
-        if (filterMethod !== 0)
-            throw Error("Unsupported PNG filter method: " + filterMethod);
+        if (compressionMethod !== 0) throw Error("Unsupported PNG compression method: " + compressionMethod);
+        if (filterMethod !== 0) throw Error("Unsupported PNG filter method: " + filterMethod);
         if (interlaceMethod !== 0)
             return {
                 error: "Interlaced image not supported",
@@ -561,15 +514,13 @@ PdfWriterContext.prototype = {
             var pako = window.pako;
             var inflate = new pako.Inflate();
             var i;
-            for (i = 0; i < idats.length; ++i)
-                inflate.push(idats[i], i + 1 === idats.length);
+            for (i = 0; i < idats.length; ++i) inflate.push(idats[i], i + 1 === idats.length);
             if (inflate.err) throw Error(inflate.err);
             var rgba = inflate.result;
             var bytesPerComponent = bitDepth >>> 3;
             var bytesPerPixel = (numColors + 1) * bytesPerComponent;
             var bytesPerLine = width * bytesPerPixel + 1;
-            if (rgba.length !== height * bytesPerLine)
-                throw Error("Data length mismatch");
+            if (rgba.length !== height * bytesPerLine) throw Error("Data length mismatch");
             var colorBytesPerPixel = numColors * bytesPerComponent;
             var rgb = new Uint8Array(height * (width * colorBytesPerPixel + 1));
             var mask = new Uint8Array(height * (width * bytesPerComponent + 1));
@@ -579,10 +530,8 @@ PdfWriterContext.prototype = {
             for (var y = 0; y < height; ++y) {
                 rgb[b++] = mask[c++] = rgba[a++];
                 for (var x = 0; x < width; ++x) {
-                    for (i = 0; i < colorBytesPerPixel; ++i)
-                        rgb[b++] = rgba[a++];
-                    for (i = 0; i < bytesPerComponent; ++i)
-                        mask[c++] = rgba[a++];
+                    for (i = 0; i < colorBytesPerPixel; ++i) rgb[b++] = rgba[a++];
+                    for (i = 0; i < bytesPerComponent; ++i) mask[c++] = rgba[a++];
                 }
             }
             if (a !== rgba.length || b !== rgb.length || c !== mask.length)
@@ -640,18 +589,13 @@ PdfWriterContext.prototype = {
     },
 
     drawImage: function (img, x, y) {
-        if (arguments.length !== 3)
-            throw Error(
-                "PdfWriterContext only supports " +
-                    "3-argument version of drawImage"
-            );
+        if (arguments.length !== 3) throw Error("PdfWriterContext only supports " + "3-argument version of drawImage");
         var idx = this._imgcache.indexOf(img);
         if (idx === -1) {
             idx = this._imgcache.length;
             this._imgcache.push(img);
             var xobj = this._png(img.cachedDataURL || "");
-            if (xobj.hasOwnProperty("error"))
-                xobj = this._png(imageToDataURL(img));
+            if (xobj.hasOwnProperty("error")) xobj = this._png(imageToDataURL(img));
             if (xobj.hasOwnProperty("error")) throw Error(xobj.error);
             this._xobjects["img" + idx] = xobj.ref;
         }
@@ -688,10 +632,7 @@ PdfWriterContext.prototype = {
 
     _strm: function (dict, data, idx) {
         dict.Length = data.length;
-        return this._obj(
-            [this._dict(dict), "\nstream\n", data, "\nendstream"],
-            idx
-        );
+        return this._obj([this._dict(dict), "\nstream\n", data, "\nendstream"], idx);
     },
 
     toBlob: function () {
@@ -740,8 +681,7 @@ PdfWriterContext.prototype = {
         );
         var objects = this._objects;
         var byIndex = [];
-        for (i = 1; i < objects.length; ++i)
-            byIndex[objects[i].index] = objects[i];
+        for (i = 1; i < objects.length; ++i) byIndex[objects[i].index] = objects[i];
         var xref = "xref\n0 " + byIndex.length + "\n";
         for (i = 0; i < byIndex.length; ++i) {
             if (!byIndex[i]) xref += "0000000000 65535 f \n";
@@ -785,8 +725,7 @@ function imageToDataURL(img, type) {
 }
 
 function base64Decode(str) {
-    var alphabet =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     str = str.replace(new RegExp("[^" + alphabet + "]+", "g"), "");
     var bytes = new Uint8Array((str.length * 3) >> 2);
     var i, j, a, b, c, d;
@@ -815,42 +754,27 @@ function base64Decode(str) {
             bytes[j++] = (b << 4) | (c >> 2);
             break;
         default:
-            throw Error(
-                "Malformed Base64 input: " +
-                    (str.length - i) +
-                    " chars left: " +
-                    str.substr(i)
-            );
+            throw Error("Malformed Base64 input: " + (str.length - i) + " chars left: " + str.substr(i));
     }
-    if (j !== bytes.length)
-        throw Error("Failed assertion: " + j + " should be " + bytes.length);
+    if (j !== bytes.length) throw Error("Failed assertion: " + j + " should be " + bytes.length);
     return bytes;
 }
 
 // See PNG specification at e.g. http://www.libpng.org/pub/png/
 function pngChunks(bytes) {
     function u32be(offset) {
-        return (
-            ((bytes[offset] << 24) |
-                (bytes[offset + 1] << 16) |
-                (bytes[offset + 2] << 8) |
-                bytes[offset + 3]) >>>
-            0
-        );
+        return ((bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3]) >>> 0;
     }
     if (bytes.length < 57) throw Error("Too short to be a PNG file");
-    if (u32be(0) !== 0x89504e47 || u32be(4) !== 0x0d0a1a0a)
-        throw Error("PNG signature missing");
+    if (u32be(0) !== 0x89504e47 || u32be(4) !== 0x0d0a1a0a) throw Error("PNG signature missing");
     var chunks = [];
     var pos = 8;
     while (pos < bytes.length) {
-        if (pos + 12 > bytes.length)
-            throw Error("Incomplete chunk at offset 0x" + pos.toString(16));
+        if (pos + 12 > bytes.length) throw Error("Incomplete chunk at offset 0x" + pos.toString(16));
         var len = u32be(pos);
         if (len >= 0x80000000) throw Error("Chunk too long");
         var end = pos + 12 + len;
-        if (end > bytes.length)
-            throw Error("Incomplete chunk at offset 0x" + pos.toString(16));
+        if (end > bytes.length) throw Error("Incomplete chunk at offset 0x" + pos.toString(16));
         var type = bytes.subarray(pos + 4, pos + 8);
         type = String.fromCharCode.apply(String, type);
         chunks.push({
@@ -866,15 +790,9 @@ function pngChunks(bytes) {
 
 function parseColor(spec, cb) {
     var match;
-    if (
-        (match = /^rgba\(([0-9.]+), *([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(
-            spec
-        ))
-    ) {
+    if ((match = /^rgba\(([0-9.]+), *([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))) {
         cb(+match[1], +match[2], +match[3], +match[4]);
-    } else if (
-        (match = /^rgb\(([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))
-    ) {
+    } else if ((match = /^rgb\(([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))) {
         cb(+match[1], +match[2], +match[3], 1);
     } else {
         throw Error("Can't handle color style " + spec);
@@ -906,9 +824,7 @@ function cacheImages(cb) {
                 };
                 reader.readAsDataURL(req.response);
             } else {
-                console.error(
-                    "Failed to load " + img.src + ": " + req.statusText
-                );
+                console.error("Failed to load " + img.src + ": " + req.statusText);
                 if (--toCache === 0) cb();
             }
         };

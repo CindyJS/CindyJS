@@ -69,9 +69,7 @@ Accessor.getField = function (geo, field) {
             return General.withUsage(erg, "Angle");
         }
         if (field === "slope") {
-            return CSNumber.neg(
-                CSNumber.div(geo.homog.value[0], geo.homog.value[1])
-            );
+            return CSNumber.neg(CSNumber.div(geo.homog.value[0], geo.homog.value[1]));
         }
     }
     if (geo.kind === "Tr") {
@@ -92,12 +90,7 @@ Accessor.getField = function (geo, field) {
             var aa = CSNumber.div(az, ax);
             var bb = CSNumber.div(bz, ax);
             var cc = CSNumber.div(cz, ax);
-            erg = CSNumber.sqrt(
-                CSNumber.sub(
-                    CSNumber.add(CSNumber.mult(aa, aa), CSNumber.mult(bb, bb)),
-                    cc
-                )
-            );
+            erg = CSNumber.sqrt(CSNumber.sub(CSNumber.add(CSNumber.mult(aa, aa), CSNumber.mult(bb, bb)), cc));
 
             return erg;
         }
@@ -255,15 +248,7 @@ Accessor.setField = function (geo, field, value) {
 
     if (geo.kind === "P" && geo.movable) {
         if (field === "xy" && List._helper.isNumberVecN(value, 2)) {
-            movepointscr(
-                geo,
-                List.turnIntoCSList([
-                    value.value[0],
-                    value.value[1],
-                    CSNumber.real(1),
-                ]),
-                "homog"
-            );
+            movepointscr(geo, List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]), "homog");
         }
 
         if (field === "xy" && List._helper.isNumberVecN(value, 3)) {
@@ -273,11 +258,7 @@ Accessor.setField = function (geo, field, value) {
         if (field === "x" && value.ctype === "number") {
             movepointscr(
                 geo,
-                List.turnIntoCSList([
-                    CSNumber.mult(value, geo.homog.value[2]),
-                    geo.homog.value[1],
-                    geo.homog.value[2],
-                ]),
+                List.turnIntoCSList([CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[1], geo.homog.value[2]]),
                 "homog"
             );
         }
@@ -285,11 +266,7 @@ Accessor.setField = function (geo, field, value) {
         if (field === "y" && value.ctype === "number") {
             movepointscr(
                 geo,
-                List.turnIntoCSList([
-                    geo.homog.value[0],
-                    CSNumber.mult(value, geo.homog.value[2]),
-                    geo.homog.value[2],
-                ]),
+                List.turnIntoCSList([geo.homog.value[0], CSNumber.mult(value, geo.homog.value[2]), geo.homog.value[2]]),
                 "homog"
             );
         }
@@ -299,12 +276,7 @@ Accessor.setField = function (geo, field, value) {
         }
     }
 
-    if (
-        field === "homog" &&
-        geo.kind === "L" &&
-        geo.movable &&
-        List._helper.isNumberVecN(value, 3)
-    ) {
+    if (field === "homog" && geo.kind === "L" && geo.movable && List._helper.isNumberVecN(value, 3)) {
         movepointscr(geo, value, "homog");
     }
 
@@ -316,18 +288,11 @@ Accessor.setField = function (geo, field, value) {
             // Texts may move without tracing
             if (field === "xy") {
                 if (List._helper.isNumberVecN(value, 2)) {
-                    geo.homog = List.turnIntoCSList([
-                        value.value[0],
-                        value.value[1],
-                        CSNumber.real(1),
-                    ]);
+                    geo.homog = List.turnIntoCSList([value.value[0], value.value[1], CSNumber.real(1)]);
                 } else if (List._helper.isNumberVecN(value, 3)) {
                     geo.homog = value;
                 }
-            } else if (
-                field === "homog" &&
-                List._helper.isNumberVecN(value, 3)
-            ) {
+            } else if (field === "homog" && List._helper.isNumberVecN(value, 3)) {
                 geo.homog = value;
             } else if (field === "x" && value.ctype === "number") {
                 geo.homog = List.turnIntoCSList([
@@ -345,60 +310,28 @@ Accessor.setField = function (geo, field, value) {
         }
     }
     if (geo.behavior) {
-        if (
-            field === "mass" &&
-            geo.behavior.type === "Mass" &&
-            value.ctype === "number"
-        ) {
+        if (field === "mass" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.mass = value.value.real;
         }
-        if (
-            field === "mass" &&
-            geo.behavior.type === "Sun" &&
-            value.ctype === "number"
-        ) {
+        if (field === "mass" && geo.behavior.type === "Sun" && value.ctype === "number") {
             geo.behavior.mass = value.value.real;
         }
-        if (
-            field === "friction" &&
-            geo.behavior.type === "Mass" &&
-            value.ctype === "number"
-        ) {
+        if (field === "friction" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.friction = value.value.real;
         }
-        if (
-            field === "charge" &&
-            geo.behavior.type === "Mass" &&
-            value.ctype === "number"
-        ) {
+        if (field === "charge" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.charge = value.value.real;
         }
-        if (
-            field === "radius" &&
-            geo.behavior.type === "Mass" &&
-            value.ctype === "number"
-        ) {
+        if (field === "radius" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.radius = value.value.real;
         }
-        if (
-            field === "vx" &&
-            geo.behavior.type === "Mass" &&
-            value.ctype === "number"
-        ) {
+        if (field === "vx" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.vx = value.value.real;
         }
-        if (
-            field === "vy" &&
-            geo.behavior.type === "Mass" &&
-            value.ctype === "number"
-        ) {
+        if (field === "vy" && geo.behavior.type === "Mass" && value.ctype === "number") {
             geo.behavior.vy = value.value.real;
         }
-        if (
-            field === "v" &&
-            geo.behavior.type === "Mass" &&
-            List._helper.isNumberVecN(value, 2)
-        ) {
+        if (field === "v" && geo.behavior.type === "Mass" && List._helper.isNumberVecN(value, 2)) {
             geo.behavior.vx = value.value[0].value.real;
             geo.behavior.vy = value.value[1].value.real;
         }
@@ -406,8 +339,7 @@ Accessor.setField = function (geo, field, value) {
 
     if (field === "narrow" && ["P", "C"].indexOf(geo.kind) !== -1) {
         if (value.ctype === "boolean") geo.narrow = value.value;
-        if (value.ctype === "number" && CSNumber._helper.isAlmostReal(value))
-            geo.narrow = value.value.real;
+        if (value.ctype === "number" && CSNumber._helper.isAlmostReal(value)) geo.narrow = value.value.real;
     }
 
     var setter = geoOps[geo.type]["set_" + field];
@@ -418,8 +350,7 @@ Accessor.setField = function (geo, field, value) {
 
 Accessor.getuserData = function (obj, key) {
     var val;
-    if (key.ctype === "string" && obj.userData && obj.userData[key.value])
-        val = obj.userData[key.value];
+    if (key.ctype === "string" && obj.userData && obj.userData[key.value]) val = obj.userData[key.value];
 
     if (val && val.ctype) {
         return val;

@@ -169,10 +169,7 @@ CSad.div = function (f, g) {
 
         ges = f.value[k];
         for (var i = 0; i < k; i++) {
-            sum = CSNumber.add(
-                sum,
-                CSNumber.mult(erg.value[i], g.value[k - i])
-            );
+            sum = CSNumber.add(sum, CSNumber.mult(erg.value[i], g.value[k - i]));
         } // end inner
 
         ges = CSNumber.sub(ges, sum);
@@ -306,10 +303,7 @@ CSad.diff = function (prog, varname, x0, grade) {
         erg = CSad.number(prog, grade);
     } else if (prog.ctype === "infix") {
         if (prog.oper === "*") {
-            return CSad.mult(
-                CSad.diff(prog.args[0], varname, x0, grade),
-                CSad.diff(prog.args[1], varname, x0, grade)
-            );
+            return CSad.mult(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
         if (prog.oper === "^") {
             return CSad.pow(
@@ -319,20 +313,11 @@ CSad.diff = function (prog, varname, x0, grade) {
         }
 
         if (prog.oper === "/") {
-            return CSad.div(
-                CSad.diff(prog.args[0], varname, x0, grade),
-                CSad.diff(prog.args[1], varname, x0, grade)
-            );
+            return CSad.div(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         } else if (prog.oper === "+") {
-            return CSad.add(
-                CSad.diff(prog.args[0], varname, x0, grade),
-                CSad.diff(prog.args[1], varname, x0, grade)
-            );
+            return CSad.add(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         } else if (prog.oper === "-") {
-            return CSad.sub(
-                CSad.diff(prog.args[0], varname, x0, grade),
-                CSad.diff(prog.args[1], varname, x0, grade)
-            );
+            return CSad.sub(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         } else {
             console.log("infix not found", prog.oper);
             return nada;

@@ -37,25 +37,19 @@ var next = []; //next[i][j]=k if i->k->...->j is shortest path of primitive subt
 
 function initGLIfRequired() {
     if (isinitialized) return;
-    glcanvas = /** @type {HTMLCanvasElement} */ (document.createElement(
-        "canvas"
-    ));
+    glcanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
     glcanvas.id = "glcanvas";
     glcanvas.style.display = "none";
     glcanvas.width = glcanvas.height = 0;
     document.body.appendChild(glcanvas);
 
-    tmpcanvas = /** @type {HTMLCanvasElement} */ (document.createElement(
-        "canvas"
-    ));
+    tmpcanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
     tmpcanvas.id = "tmpcanvas";
     tmpcanvas.style.display = "none";
     tmpcanvas.width = tmpcanvas.height = 0;
     document.body.appendChild(tmpcanvas);
 
-    dummycanvas = /** @type {HTMLCanvasElement} */ (document.createElement(
-        "canvas"
-    ));
+    dummycanvas = /** @type {HTMLCanvasElement} */ (document.createElement("canvas"));
     dummycanvas.id = "dummycanvas";
     dummycanvas.style.display = "none";
     dummycanvas.width = dummycanvas.height = 1;
@@ -78,58 +72,29 @@ function initGLIfRequired() {
     let errorInfo = "Unknown";
 
     function onContextCreationError(e) {
-        glcanvas.removeEventListener(
-            "webglcontextcreationerror",
-            onContextCreationError,
-            false
-        );
+        glcanvas.removeEventListener("webglcontextcreationerror", onContextCreationError, false);
         if (e.statusMessage) errorInfo = e.statusMessage;
     }
-    glcanvas.addEventListener(
-        "webglcontextcreationerror",
-        onContextCreationError,
-        false
-    );
+    glcanvas.addEventListener("webglcontextcreationerror", onContextCreationError, false);
 
     let contextAttributes = {};
     let useWebXR = typeof CindyJS._pluginRegistry.CindyXR !== "undefined";
     if (useWebXR) {
         contextAttributes["xrCompatible"] = true;
     }
-    gl = /** @type {WebGLRenderingContext} */ (glcanvas.getContext(
-        "webgl",
-        contextAttributes
-    ));
-    if (!gl)
-        gl = /** @type {WebGLRenderingContext} */ (glcanvas.getContext(
-            "experimental-webgl",
-            contextAttributes
-        ));
-    if (!gl)
-        throw new GlError(
-            `Could not obtain a WebGL context.\nReason: ${errorInfo}`
-        );
+    gl = /** @type {WebGLRenderingContext} */ (glcanvas.getContext("webgl", contextAttributes));
+    if (!gl) gl = /** @type {WebGLRenderingContext} */ (glcanvas.getContext("experimental-webgl", contextAttributes));
+    if (!gl) throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
     CindyGL.gl = gl;
-    glcanvas.removeEventListener(
-        "webglcontextcreationerror",
-        onContextCreationError,
-        false
-    );
+    glcanvas.removeEventListener("webglcontextcreationerror", onContextCreationError, false);
     if (!use8bittextures) {
-        can_use_texture_float =
-            gl.getExtension("OES_texture_float") &&
-            gl.getExtension("OES_texture_float_linear");
+        can_use_texture_float = gl.getExtension("OES_texture_float") && gl.getExtension("OES_texture_float_linear");
         if (!can_use_texture_float) {
-            console.error(
-                "Your browser does not suppert OES_texture_float, trying OES_texture_half_float..."
-            );
+            console.error("Your browser does not suppert OES_texture_float, trying OES_texture_half_float...");
             halfFloat = gl.getExtension("OES_texture_half_float");
-            can_use_texture_half_float =
-                halfFloat && gl.getExtension("OES_texture_half_float_linear");
+            can_use_texture_half_float = halfFloat && gl.getExtension("OES_texture_half_float_linear");
             if (!can_use_texture_half_float)
-                console.error(
-                    "Your browser does not suppert OES_texture_half_float, will use 8-bit textures."
-                );
+                console.error("Your browser does not suppert OES_texture_half_float, will use 8-bit textures.");
         }
 
         if (navigator.userAgent.match(/(iPad|iPhone)/i)) {

@@ -127,8 +127,7 @@ function updateCanvasDimensions() {
     csport.createnewbackup();
     csport.greset();
     var devicePixelRatio = 1;
-    if (typeof window !== "undefined" && window.devicePixelRatio)
-        devicePixelRatio = window.devicePixelRatio;
+    if (typeof window !== "undefined" && window.devicePixelRatio) devicePixelRatio = window.devicePixelRatio;
     var backingStoreRatio =
         csctx.webkitBackingStorePixelRatio ||
         csctx.mozBackingStorePixelRatio ||
@@ -262,13 +261,10 @@ function createCindyNow() {
 
             if (port.background) c.style.backgroundColor = port.background;
             if (port.transform !== undefined) trafos = port.transform;
-            if (isFiniteNumber(port.grid) && port.grid > 0)
-                csgridsize = port.grid;
-            if (isFiniteNumber(port.tgrid) && port.tgrid > 0)
-                cstgrid = port.tgrid;
+            if (isFiniteNumber(port.grid) && port.grid > 0) csgridsize = port.grid;
+            if (isFiniteNumber(port.tgrid) && port.tgrid > 0) cstgrid = port.tgrid;
             if (port.snap) cssnap = true;
-            if (Number.isFinite(port.snapdistance))
-                cssnapDistance = Math.max(port.snapdistance, 0);
+            if (Number.isFinite(port.snapdistance)) cssnapDistance = Math.max(port.snapdistance, 0);
             if (port.axes) csaxes = true;
         }
     }
@@ -284,18 +280,13 @@ function createCindyNow() {
         csctx = c.getContext("2d");
         updateCanvasDimensions();
         if (!csctx.setLineDash) csctx.setLineDash = function () {};
-        if (data.animation ? data.animation.controls : data.animcontrols)
-            setupAnimControls(data);
+        if (data.animation ? data.animation.controls : data.animcontrols) setupAnimControls(data);
         if (data.animation && isFiniteNumber(data.animation.speed)) {
-            if (
-                data.animation.accuracy === undefined &&
-                isCinderellaBeforeVersion(2, 9, 1875)
-            )
+            if (data.animation.accuracy === undefined && isCinderellaBeforeVersion(2, 9, 1875))
                 setSpeed(data.animation.speed * 0.5);
             else setSpeed(data.animation.speed);
         }
-        if (data.animation && isFiniteNumber(data.animation.accuracy))
-            simaccuracy = data.animation.accuracy;
+        if (data.animation && isFiniteNumber(data.animation.accuracy)) simaccuracy = data.animation.accuracy;
     }
     if (data.statusbar) {
         if (typeof data.statusbar === "string") {
@@ -341,8 +332,7 @@ function createCindyNow() {
     ];
     var scriptconf = data.scripts;
     var scriptpat = null;
-    if (typeof scriptconf === "string" && scriptconf.search(/\*/) >= 0)
-        scriptpat = scriptconf;
+    if (typeof scriptconf === "string" && scriptconf.search(/\*/) >= 0) scriptpat = scriptconf;
     if (typeof scriptconf !== "object") scriptconf = null;
 
     scripts.forEach(function (s) {
@@ -363,9 +353,7 @@ function createCindyNow() {
         }
         cscode = analyse(cscode, false);
         if (cscode.ctype === "error") {
-            console.error(
-                "Error compiling " + s + " script: " + cscode.message
-            );
+            console.error("Error compiling " + s + " script: " + cscode.message);
         } else {
             cscompiled[s] = labelCode(cscode, s);
         }
@@ -637,12 +625,7 @@ var loadSvgIcon = function (img, id) {
     function handleStateChange() {
         if (req.readyState !== XMLHttpRequest.DONE) return;
         if (req.status !== 200) {
-            console.error(
-                "Failed to load CindyJS Icons.svg from " +
-                    url +
-                    ": " +
-                    req.statusText
-            );
+            console.error("Failed to load CindyJS Icons.svg from " + url + ": " + req.statusText);
             return;
         }
         var svg = req.responseXML;
@@ -673,8 +656,7 @@ var loadSvgIcon = function (img, id) {
             } finally {
                 docElt.removeChild(layer);
             }
-            img.src =
-                "data:image/svg+xml;charset=utf-8," + encodeURIComponent(str);
+            img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(str);
         };
         iconsToLoad.forEach(function (icon) {
             loadSvgIcon(icon.img, icon.id);
@@ -708,8 +690,7 @@ var modulesToLoad = 1;
 
 function loadExtraPlugin(name, path, skipInit) {
     var cb = null;
-    if (instanceInvocationArguments.plugins)
-        cb = instanceInvocationArguments.plugins[name];
+    if (instanceInvocationArguments.plugins) cb = instanceInvocationArguments.plugins[name];
     if (!cb) cb = CindyJS._pluginRegistry[name];
     if (cb) {
         evaluator.use$1([General.wrap(name)], {});
@@ -725,9 +706,7 @@ function loadExtraPlugin(name, path, skipInit) {
 function loadExtraModule(name, path) {
     ++modulesToLoad;
     CindyJS.loadScript(name, path, doneLoadingModule, function () {
-        console.error(
-            "Failed to load " + path + ", can't start CindyJS instance"
-        );
+        console.error("Failed to load " + path + ", can't start CindyJS instance");
         shutdown();
     });
 }
@@ -739,16 +718,9 @@ function doneLoadingModule(skipInit) {
         //Evaluate Init script
         evaluate(cscompiled.init);
 
-        if (
-            (
-                instanceInvocationArguments.animation ||
-                instanceInvocationArguments
-            ).autoplay
-        )
-            csplay();
+        if ((instanceInvocationArguments.animation || instanceInvocationArguments).autoplay) csplay();
 
-        if (globalInstance.canvas)
-            setuplisteners(globalInstance.canvas, instanceInvocationArguments);
+        if (globalInstance.canvas) setuplisteners(globalInstance.canvas, instanceInvocationArguments);
     } else scheduleUpdate();
 }
 
@@ -891,8 +863,7 @@ var waitForPlugins = 0;
 if (instanceInvocationArguments.use) {
     instanceInvocationArguments.use.forEach(function (name) {
         var cb = null;
-        if (instanceInvocationArguments.plugins)
-            cb = instanceInvocationArguments.plugins[name];
+        if (instanceInvocationArguments.plugins) cb = instanceInvocationArguments.plugins[name];
         if (!cb) cb = CindyJS._pluginRegistry[name];
         if (!cb) {
             ++waitForPlugins;
@@ -902,13 +873,11 @@ if (instanceInvocationArguments.use) {
                 name + "-plugin.js",
                 function () {
                     console.log("Successfully loaded plugin " + name);
-                    if (--waitForPlugins === 0 && startupCalled)
-                        createCindyNow();
+                    if (--waitForPlugins === 0 && startupCalled) createCindyNow();
                 },
                 function () {
                     console.error("Failed to auto-load plugin " + name);
-                    if (--waitForPlugins === 0 && startupCalled)
-                        createCindyNow();
+                    if (--waitForPlugins === 0 && startupCalled) createCindyNow();
                 }
             );
         }
@@ -925,10 +894,7 @@ function setupConsole() {
         csconsole = new CindyConsoleHandler();
     } else if (typeof csconsole === "string") {
         csconsole = new ElementConsoleHandler(csconsole);
-    } else if (
-        typeof csconsole === "object" &&
-        typeof csconsole.appendChild === "function"
-    ) {
+    } else if (typeof csconsole === "object" && typeof csconsole.appendChild === "function") {
         csconsole = new ElementConsoleHandler(csconsole);
     } else {
         // Default

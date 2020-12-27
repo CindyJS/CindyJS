@@ -156,8 +156,7 @@ labObjects.Mass = {
         if (true) {
             beh.pos = [beh.x, beh.y, 1.0];
             beh.internalmove = true;
-            if (!move || !mouse.down || beh.el !== move.mover)
-                movepointscr(beh.el, List.realVector(beh.pos), "homog");
+            if (!move || !mouse.down || beh.el !== move.mover) movepointscr(beh.el, List.realVector(beh.pos), "homog");
             beh.el.sx = beh.x;
             beh.el.sy = beh.y;
 
@@ -406,11 +405,7 @@ labObjects.Sun = {
             var x2 = m.behavior.x;
             var y2 = m.behavior.y;
             var z2 = m.behavior.z;
-            var l = Math.sqrt(
-                (x1 - x2) * (x1 - x2) +
-                    (y1 - y2) * (y1 - y2) +
-                    (z1 - z2) * (z1 - z2)
-            );
+            var l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2));
             var fx = ((x1 - x2) * beh.mass * m.behavior.mass) / (l * l * l);
             var fy = ((y1 - y2) * beh.mass * m.behavior.mass) / (l * l * l);
             var fz = ((z1 - z2) * beh.mass * m.behavior.mass) / (l * l * l);
@@ -596,10 +591,7 @@ labObjects.Spring = {
         var pta = eval_helper.extractPoint(beh.ma.homog);
         var ptb = eval_helper.extractPoint(beh.mb.homog);
         if (true) {
-            beh.l0 = Math.sqrt(
-                (pta.x - ptb.x) * (pta.x - ptb.x) +
-                    (pta.y - ptb.y) * (pta.y - ptb.y)
-            );
+            beh.l0 = Math.sqrt((pta.x - ptb.x) * (pta.x - ptb.x) + (pta.y - ptb.y) * (pta.y - ptb.y));
         }
         beh.env = labObjects.env; //TODO Environment
         beh.ldiff = 0;
@@ -621,10 +613,7 @@ labObjects.Spring = {
 
     calculateForces: function (beh) {
         var xa, xb, ya, yb;
-        if (
-            beh.ma.behavior &&
-            (!move || !mouse.down || beh.ma !== move.mover)
-        ) {
+        if (beh.ma.behavior && (!move || !mouse.down || beh.ma !== move.mover)) {
             xa = beh.ma.behavior.x;
             ya = beh.ma.behavior.y;
         } else {
@@ -632,10 +621,7 @@ labObjects.Spring = {
             xa = pta.x;
             ya = pta.y;
         }
-        if (
-            beh.mb.behavior &&
-            (!move || !mouse.down || beh.mb !== move.mover)
-        ) {
+        if (beh.mb.behavior && (!move || !mouse.down || beh.mb !== move.mover)) {
             xb = beh.mb.behavior.x;
             yb = beh.mb.behavior.y;
         } else {
@@ -664,12 +650,8 @@ labObjects.Spring = {
 
         var fx, fy;
         if (l !== 0.0 && (mytype === 0 || mytype === 1)) {
-            fx =
-                ((-(xa - xb) * beh.strength * (l - lact)) / l) *
-                beh.env.springstrength;
-            fy =
-                ((-(ya - yb) * beh.strength * (l - lact)) / l) *
-                beh.env.springstrength;
+            fx = ((-(xa - xb) * beh.strength * (l - lact)) / l) * beh.env.springstrength;
+            fy = ((-(ya - yb) * beh.strength * (l - lact)) / l) * beh.env.springstrength;
         } else if (beh.ma.behavior && beh.mb.behavior && l !== 0.0) {
             var l3 = l * l * l;
             if (mytype === 2 || mytype === 3) {
@@ -816,52 +798,22 @@ labObjects.Bouncer = {
             var mx = mass.behavior.x;
             var my = mass.behavior.y;
 
-            var aa = CSNumber.mult(
-                CSNumber.complex(x1o, y1o),
-                CSNumber.complex(x2, y2)
-            );
-            var bb = CSNumber.mult(
-                CSNumber.complex(x2o, y2o),
-                CSNumber.complex(x1, y1)
-            );
+            var aa = CSNumber.mult(CSNumber.complex(x1o, y1o), CSNumber.complex(x2, y2));
+            var bb = CSNumber.mult(CSNumber.complex(x2o, y2o), CSNumber.complex(x1, y1));
 
             aa = CSNumber.sub(aa, bb);
-            bb = CSNumber.mult(
-                CSNumber.complex(mxo, myo),
-                CSNumber.complex(x1, y1)
-            );
+            bb = CSNumber.mult(CSNumber.complex(mxo, myo), CSNumber.complex(x1, y1));
             aa = CSNumber.add(aa, bb);
-            bb = CSNumber.mult(
-                CSNumber.complex(mxo, myo),
-                CSNumber.complex(x2, y2)
-            );
+            bb = CSNumber.mult(CSNumber.complex(mxo, myo), CSNumber.complex(x2, y2));
             aa = CSNumber.sub(aa, bb);
-            bb = CSNumber.sub(
-                CSNumber.complex(x1o, y1o),
-                CSNumber.complex(x2o, y2o)
-            );
+            bb = CSNumber.sub(CSNumber.complex(x1o, y1o), CSNumber.complex(x2o, y2o));
             aa = CSNumber.div(aa, bb);
 
             if (
-                labObjects.det(x1, y1, x2, y2, mx, my) *
-                    labObjects.det(
-                        x1,
-                        y1,
-                        x2,
-                        y2,
-                        aa.value.real,
-                        aa.value.imag
-                    ) <
+                labObjects.det(x1, y1, x2, y2, mx, my) * labObjects.det(x1, y1, x2, y2, aa.value.real, aa.value.imag) <
                     0 &&
                 labObjects.det(x1, y1, mx, my, aa.value.real, aa.value.imag) *
-                    labObjects.det(
-                        x2,
-                        y2,
-                        mx,
-                        my,
-                        aa.value.real,
-                        aa.value.imag
-                    ) <
+                    labObjects.det(x2, y2, mx, my, aa.value.real, aa.value.imag) <
                     0
             ) {
                 // doHitScript(mass);//TODO
@@ -869,12 +821,8 @@ labObjects.Bouncer = {
                 //TODO                if (motorChanger)
                 //                    kernel.simulation.motor.dir *= -1;
 
-                var vvx =
-                    mass.behavior.mvx +
-                    beh.deltat * (-aa.value.real + mass.behavior.xo);
-                var vvy =
-                    mass.behavior.mvy +
-                    beh.deltat * (-aa.value.imag + mass.behavior.yo);
+                var vvx = mass.behavior.mvx + beh.deltat * (-aa.value.real + mass.behavior.xo);
+                var vvy = mass.behavior.mvy + beh.deltat * (-aa.value.imag + mass.behavior.yo);
 
                 var ss1 = nx * vvx + ny * vvy;
                 var ss2 = ny * vvx - nx * vvy;
@@ -906,8 +854,7 @@ labObjects.Environment = {
         if (typeof beh.charges === "undefined") beh.charges = false;
         if (typeof beh.balls === "undefined") beh.balls = false;
         if (typeof beh.newton === "undefined") beh.newton = false;
-        if (typeof beh.ballInteractionBoosting === "undefined")
-            beh.ballInteractionBoosting = 1;
+        if (typeof beh.ballInteractionBoosting === "undefined") beh.ballInteractionBoosting = 1;
         labObjects.env = beh;
         beh.errorbound = 0.001;
         beh.lowestdeltat = 0.0000001;
@@ -941,15 +888,9 @@ labObjects.Environment = {
                     m2 = masses[j];
                     x2 = m2.behavior.x;
                     y2 = m2.behavior.y;
-                    l = Math.sqrt(
-                        (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
-                    );
-                    fx =
-                        ((x1 - x2) * m1.behavior.mass * m2.behavior.mass) /
-                        (l * l * l);
-                    fy =
-                        ((y1 - y2) * m1.behavior.mass * m2.behavior.mass) /
-                        (l * l * l);
+                    l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+                    fx = ((x1 - x2) * m1.behavior.mass * m2.behavior.mass) / (l * l * l);
+                    fy = ((y1 - y2) * m1.behavior.mass * m2.behavior.mass) / (l * l * l);
 
                     m1.behavior.fx -= fx;
                     m1.behavior.fy -= fy;
@@ -968,15 +909,9 @@ labObjects.Environment = {
                     m2 = masses[j];
                     x2 = m2.behavior.x;
                     y2 = m2.behavior.y;
-                    l = Math.sqrt(
-                        (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
-                    );
-                    fx =
-                        ((x1 - x2) * m1.behavior.charge * m2.behavior.charge) /
-                        (l * l * l);
-                    fy =
-                        ((y1 - y2) * m1.behavior.charge * m2.behavior.charge) /
-                        (l * l * l);
+                    l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+                    fx = ((x1 - x2) * m1.behavior.charge * m2.behavior.charge) / (l * l * l);
+                    fy = ((y1 - y2) * m1.behavior.charge * m2.behavior.charge) / (l * l * l);
 
                     m1.behavior.fx += fx;
                     m1.behavior.fy += fy;
@@ -999,34 +934,20 @@ labObjects.Environment = {
                             y2 = m2.behavior.y;
 
                             r = m1.behavior.radius + m2.behavior.radius;
-                            l = Math.sqrt(
-                                (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
-                            );
+                            l = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
                             fx = 0;
                             fy = 0;
 
                             if (beh.ballInteractionBoosting === 0) {
-                                fx =
-                                    ((x1 - x2) / (l * l * l)) *
-                                    (l > r ? 0 : (l - r) * (l - r));
-                                fy =
-                                    ((y1 - y2) / (l * l * l)) *
-                                    (l > r ? 0 : (l - r) * (l - r));
+                                fx = ((x1 - x2) / (l * l * l)) * (l > r ? 0 : (l - r) * (l - r));
+                                fy = ((y1 - y2) / (l * l * l)) * (l > r ? 0 : (l - r) * (l - r));
                             } else {
                                 if (beh.ballInteractionBoosting === 1) {
-                                    fx =
-                                        ((x1 - x2) / (l * l * l * l)) *
-                                        (l > r ? 0 : (l - r) * (l - r));
-                                    fy =
-                                        ((y1 - y2) / (l * l * l * l)) *
-                                        (l > r ? 0 : (l - r) * (l - r));
+                                    fx = ((x1 - x2) / (l * l * l * l)) * (l > r ? 0 : (l - r) * (l - r));
+                                    fy = ((y1 - y2) / (l * l * l * l)) * (l > r ? 0 : (l - r) * (l - r));
                                 } else {
-                                    fx =
-                                        ((x1 - x2) / (l * l * l * l * l)) *
-                                        (l > r ? 0 : (l - r) * (l - r));
-                                    fy =
-                                        ((y1 - y2) / (l * l * l * l * l)) *
-                                        (l > r ? 0 : (l - r) * (l - r));
+                                    fx = ((x1 - x2) / (l * l * l * l * l)) * (l > r ? 0 : (l - r) * (l - r));
+                                    fy = ((y1 - y2) / (l * l * l * l * l)) * (l > r ? 0 : (l - r) * (l - r));
                                 }
                             }
 

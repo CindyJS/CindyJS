@@ -371,10 +371,7 @@ CSNumber.arccos = function (a) {
     var t2 = CSNumber.mult(a, CSNumber.neg(a));
     var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
     var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
-    var erg = CSNumber.add(
-        CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)),
-        CSNumber.real(Math.PI * 0.5)
-    );
+    var erg = CSNumber.add(CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)), CSNumber.real(Math.PI * 0.5));
     return General.withUsage(erg, "Angle");
 };
 
@@ -389,34 +386,21 @@ CSNumber.arcsin = function (a) {
 
 CSNumber.arctan = function (a) {
     //OK hässlich aber tuts.
-    var t1 = CSNumber.log(
-        CSNumber.add(
-            CSNumber.mult(a, CSNumber.complex(0, -1)),
-            CSNumber.real(1)
-        )
-    );
-    var t2 = CSNumber.log(
-        CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1))
-    );
+    var t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
+    var t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
     var erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
     return General.withUsage(erg, "Angle");
 };
 
 CSNumber.arctan2 = function (a, b) {
     var erg;
-    if (b === undefined)
-        erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
+    if (b === undefined) erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
     else if (CSNumber._helper.isReal(a) && CSNumber._helper.isReal(b))
         erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
     else {
         var z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
-        var r = CSNumber.sqrt(
-            CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b))
-        );
-        erg = CSNumber.mult(
-            CSNumber.complex(0, -1),
-            CSNumber.log(CSNumber.div(z, r))
-        );
+        var r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
+        erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
     }
     return General.withUsage(erg, "Angle");
 };
@@ -483,8 +467,7 @@ CSNumber.log = function (a) {
 CSNumber.pow = function (a, b) {
     if (CSNumber._helper.isZero(b)) return CSNumber.one;
     if (CSNumber._helper.isZero(a)) return CSNumber.zero;
-    if (CSNumber._helper.isReal(b))
-        return CSNumber.powRealExponent(a, b.value.real);
+    if (CSNumber._helper.isReal(b)) return CSNumber.powRealExponent(a, b.value.real);
     return CSNumber.exp(CSNumber.mult(CSNumber.log(a), b));
 };
 
@@ -538,10 +521,7 @@ CSNumber._helper.isEqual = function (a, b) {
 };
 
 CSNumber._helper.isLessThan = function (a, b) {
-    return (
-        a.value.real < b.value.real ||
-        (a.value.real === b.value.real && a.value.imag < b.value.imag)
-    );
+    return a.value.real < b.value.real || (a.value.real === b.value.real && a.value.imag < b.value.imag);
 };
 
 CSNumber._helper.compare = function (a, b) {
@@ -571,12 +551,7 @@ CSNumber._helper.isZero = function (a) {
 CSNumber._helper.isAlmostZero = function (a) {
     var r = a.value.real;
     var i = a.value.imag;
-    return (
-        r < CSNumber.eps &&
-        r > -CSNumber.eps &&
-        i < CSNumber.eps &&
-        i > -CSNumber.eps
-    );
+    return r < CSNumber.eps && r > -CSNumber.eps && i < CSNumber.eps && i > -CSNumber.eps;
 };
 
 CSNumber._helper.isReal = function (a) {
@@ -766,11 +741,7 @@ CSNumber._helper.solveCubicHelper = function (a, b, c, d) {
     zr = t2r;
     zi = t2i;
 
-    return List.turnIntoCSList([
-        CSNumber.complex(xr, xi),
-        CSNumber.complex(yr, yi),
-        CSNumber.complex(zr, zi),
-    ]);
+    return List.turnIntoCSList([CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)]);
 };
 
 CSNumber._helper.getRangeRand = function (min, max) {

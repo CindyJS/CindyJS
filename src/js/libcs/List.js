@@ -58,8 +58,7 @@ List.idMatrix = function (n) {
 List._helper.flippedidMatrix = function (n) {
     var erg = List.zeromatrix(n, n);
     var one = CSNumber.real(1);
-    for (var i = 0; i < n.value.real; i++)
-        erg.value[i].value[n.value.real - i - 1] = one;
+    for (var i = 0; i < n.value.real; i++) erg.value[i].value[n.value.real - i - 1] = one;
 
     return erg;
 };
@@ -96,17 +95,9 @@ List.ez = List.realVector([0, 0, 1]);
 
 List.linfty = List.realVector([0, 0, 1]);
 
-List.ii = List.turnIntoCSList([
-    CSNumber.complex(1, 0),
-    CSNumber.complex(0, 1),
-    CSNumber.complex(0, 0),
-]);
+List.ii = List.turnIntoCSList([CSNumber.complex(1, 0), CSNumber.complex(0, 1), CSNumber.complex(0, 0)]);
 
-List.jj = List.turnIntoCSList([
-    CSNumber.complex(1, 0),
-    CSNumber.complex(0, -1),
-    CSNumber.complex(0, 0),
-]);
+List.jj = List.turnIntoCSList([CSNumber.complex(1, 0), CSNumber.complex(0, -1), CSNumber.complex(0, 0)]);
 
 List.fundDual = List.realMatrix([
     [1, 0, 0],
@@ -122,11 +113,7 @@ List.fund = List.realMatrix([
 List.sequence = function (a, b) {
     var erg = [];
     var ct = 0;
-    for (
-        var i = Math.round(a.value.real);
-        i < Math.round(b.value.real) + 1;
-        i++
-    ) {
+    for (var i = Math.round(a.value.real); i < Math.round(b.value.real) + 1; i++) {
         erg[ct] = {
             ctype: "number",
             value: {
@@ -847,11 +834,7 @@ List.isNumberMatrix = function (a) {
 };
 
 List._helper.isNumberMatrixMN = function (a, m, n) {
-    return (
-        List.isNumberMatrix(a).value &&
-        a.value.length === m &&
-        a.value[0].value.length === n
-    );
+    return List.isNumberMatrix(a).value && a.value.length === m && a.value[0].value.length === n;
 };
 
 List.scalproduct = function (a1, a2) {
@@ -973,35 +956,19 @@ List.productMM = function (a, b) {
 };
 
 List.mult = function (a, b) {
-    if (
-        a.value.length === b.value.length &&
-        List.isNumberVector(a).value &&
-        List.isNumberVector(b).value
-    ) {
+    if (a.value.length === b.value.length && List.isNumberVector(a).value && List.isNumberVector(b).value) {
         return List.scalproduct(a, b);
     }
 
-    if (
-        List.isNumberMatrix(a).value &&
-        b.value.length === a.value[0].value.length &&
-        List.isNumberVector(b).value
-    ) {
+    if (List.isNumberMatrix(a).value && b.value.length === a.value[0].value.length && List.isNumberVector(b).value) {
         return List.productMV(a, b);
     }
 
-    if (
-        List.isNumberMatrix(b).value &&
-        a.value.length === b.value.length &&
-        List.isNumberVector(a).value
-    ) {
+    if (List.isNumberMatrix(b).value && a.value.length === b.value.length && List.isNumberVector(a).value) {
         return List.productVM(a, b);
     }
 
-    if (
-        List.isNumberMatrix(a).value &&
-        List.isNumberMatrix(b).value &&
-        b.value.length === a.value[0].value.length
-    ) {
+    if (List.isNumberMatrix(a).value && List.isNumberMatrix(b).value && b.value.length === a.value[0].value.length) {
         return List.productMM(a, b);
     }
 
@@ -1017,9 +984,7 @@ List.projectiveDistMinScal = function (a, b) {
     var p = List.scalproduct(a, cb);
 
     // 1 here is derived from cinderella src -- Martin and i are not sure why this is 1 and not infinity
-    var np = CSNumber._helper.isAlmostZero(p)
-        ? CSNumber.real(1)
-        : CSNumber.div(p, CSNumber.abs(p));
+    var np = CSNumber._helper.isAlmostZero(p) ? CSNumber.real(1) : CSNumber.div(p, CSNumber.abs(p));
 
     var na = List.scaldiv(sa, a);
     var nb = List.scaldiv(sb, b);
@@ -1065,18 +1030,9 @@ List.crossOperator = function (a) {
 
 List.cross = function (a, b) {
     //Assumes that a is 3-Vector
-    var x = CSNumber.sub(
-        CSNumber.mult(a.value[1], b.value[2]),
-        CSNumber.mult(a.value[2], b.value[1])
-    );
-    var y = CSNumber.sub(
-        CSNumber.mult(a.value[2], b.value[0]),
-        CSNumber.mult(a.value[0], b.value[2])
-    );
-    var z = CSNumber.sub(
-        CSNumber.mult(a.value[0], b.value[1]),
-        CSNumber.mult(a.value[1], b.value[0])
-    );
+    var x = CSNumber.sub(CSNumber.mult(a.value[1], b.value[2]), CSNumber.mult(a.value[2], b.value[1]));
+    var y = CSNumber.sub(CSNumber.mult(a.value[2], b.value[0]), CSNumber.mult(a.value[0], b.value[2]));
+    var z = CSNumber.sub(CSNumber.mult(a.value[0], b.value[1]), CSNumber.mult(a.value[1], b.value[0]));
     return List.turnIntoCSList([x, y, z]);
 };
 
@@ -1329,11 +1285,7 @@ List.vandermonde = function (a) {
     var erg = List.zeromatrix(len, len);
 
     for (var i = 0; i < len; i++) {
-        for (var j = 0; j < len; j++)
-            erg.value[i].value[j] = CSNumber.pow(
-                a.value[i],
-                CSNumber.real(j - 1)
-            );
+        for (var j = 0; j < len; j++) erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
     }
     return erg;
 };
@@ -1388,26 +1340,7 @@ List.adjoint2 = function (AA) {
 };
 
 List.adjoint3 = function (a) {
-    var row,
-        elt,
-        r11,
-        i11,
-        r12,
-        i12,
-        r13,
-        i13,
-        r21,
-        i21,
-        r22,
-        i22,
-        r23,
-        i23,
-        r31,
-        i31,
-        r32,
-        i32,
-        r33,
-        i33;
+    var row, elt, r11, i11, r12, i12, r13, i13, r21, i21, r22, i22, r23, i23, r31, i31, r32, i32, r33, i33;
     row = a.value[0].value;
     elt = row[0].value;
     r11 = elt.real;
@@ -1454,10 +1387,8 @@ List.adjoint3 = function (a) {
                     {
                         ctype: "number",
                         value: {
-                            real:
-                                -r12 * r33 + r13 * r32 + i12 * i33 - i13 * i32,
-                            imag:
-                                -r12 * i33 + r13 * i32 + r32 * i13 - r33 * i12,
+                            real: -r12 * r33 + r13 * r32 + i12 * i33 - i13 * i32,
+                            imag: -r12 * i33 + r13 * i32 + r32 * i13 - r33 * i12,
                         },
                     },
                     {
@@ -1475,10 +1406,8 @@ List.adjoint3 = function (a) {
                     {
                         ctype: "number",
                         value: {
-                            real:
-                                -r21 * r33 + r23 * r31 + i21 * i33 - i23 * i31,
-                            imag:
-                                -r21 * i33 + r23 * i31 + r31 * i23 - r33 * i21,
+                            real: -r21 * r33 + r23 * r31 + i21 * i33 - i23 * i31,
+                            imag: -r21 * i33 + r23 * i31 + r31 * i23 - r33 * i21,
                         },
                     },
                     {
@@ -1491,10 +1420,8 @@ List.adjoint3 = function (a) {
                     {
                         ctype: "number",
                         value: {
-                            real:
-                                -r11 * r23 + r13 * r21 + i11 * i23 - i13 * i21,
-                            imag:
-                                -r11 * i23 + r13 * i21 + r21 * i13 - r23 * i11,
+                            real: -r11 * r23 + r13 * r21 + i11 * i23 - i13 * i21,
+                            imag: -r11 * i23 + r13 * i21 + r21 * i13 - r23 * i11,
                         },
                     },
                 ],
@@ -1512,10 +1439,8 @@ List.adjoint3 = function (a) {
                     {
                         ctype: "number",
                         value: {
-                            real:
-                                -r11 * r32 + r12 * r31 + i11 * i32 - i12 * i31,
-                            imag:
-                                -r11 * i32 + r12 * i31 + r31 * i12 - r32 * i11,
+                            real: -r11 * r32 + r12 * r31 + i11 * i32 - i12 * i31,
+                            imag: -r11 * i32 + r12 * i31 + r31 * i12 - r32 * i11,
                         },
                     },
                     {
@@ -1578,8 +1503,7 @@ List.getDiag = function (A) {
 List.getSubDiag = function (A) {
     if (A.value.length !== A.value[0].value.length) return nada;
     var erg = new Array(A.value.length - 1);
-    for (var i = 0; i < A.value.length - 1; i++)
-        erg[i] = A.value[i + 1].value[i];
+    for (var i = 0; i < A.value.length - 1; i++) erg[i] = A.value[i + 1].value[i];
 
     return List.turnIntoCSList(erg);
 };
@@ -1594,9 +1518,7 @@ List.eig2 = function (AA) {
     var L1 = CSNumber.mult(trace, CSNumber.real(0.5));
     var L2 = L1;
 
-    var mroot = CSNumber.sqrt(
-        CSNumber.sub(CSNumber.div(trace2, CSNumber.real(4)), bdet)
-    );
+    var mroot = CSNumber.sqrt(CSNumber.sub(CSNumber.div(trace2, CSNumber.real(4)), bdet));
 
     L1 = CSNumber.add(L1, mroot);
     L2 = CSNumber.sub(L2, mroot);
@@ -1675,18 +1597,10 @@ List.eig = function (A, getEigenvectors) {
                     // couldnt find a vector in nullspace -- should not happen
                     xx = List._helper.inverseIteration(A, eigvals.value[qq]);
                 }
-                eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx)
-                    ? xx
-                    : List.scaldiv(List.abs(xx), xx);
+                eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx) ? xx : List.scaldiv(List.abs(xx), xx);
 
                 if (qq < len - 1) {
-                    sameEigVal =
-                        CSNumber.abs(
-                            CSNumber.sub(
-                                eigvals.value[qq],
-                                eigvals.value[qq + 1]
-                            )
-                        ).value.real < 1e-6;
+                    sameEigVal = CSNumber.abs(CSNumber.sub(eigvals.value[qq], eigvals.value[qq + 1])).value.real < 1e-6;
                     if (sameEigVal) count++;
                     else count = 0;
                 }
@@ -1720,11 +1634,7 @@ List._helper.QRIteration = function (A, maxIter) {
     var numDeflations = 0;
     var eigvals = new Array(len);
     for (i = 0; i < mIter; i++) {
-        block = List._helper.getBlock(
-            AA,
-            [len - 2, len - 1],
-            [len - 2, len - 1]
-        );
+        block = List._helper.getBlock(AA, [len - 2, len - 1], [len - 2, len - 1]);
         blockeigs = List.eig2(block);
         L1 = blockeigs.value[0];
         L2 = blockeigs.value[1];
@@ -1747,22 +1657,14 @@ List._helper.QRIteration = function (A, maxIter) {
 
         QR.Q = List._helper.buildBlockMatrix(
             QR.Q,
-            List.idMatrix(
-                CSNumber.real(numDeflations),
-                CSNumber.real(numDeflations)
-            )
+            List.idMatrix(CSNumber.real(numDeflations), CSNumber.real(numDeflations))
         );
         QQ = General.mult(QQ, QR.Q);
         if (
-            CSNumber.abs2(
-                AA.value[AA.value.length - 1].value[
-                    AA.value[0].value.length - 2
-                ]
-            ).value.real < 1e-48 &&
+            CSNumber.abs2(AA.value[AA.value.length - 1].value[AA.value[0].value.length - 2]).value.real < 1e-48 &&
             len > 1
         ) {
-            eigvals[Alen - numDeflations - 1] =
-                AA.value[len - 1].value[len - 1]; // get Eigenvalue
+            eigvals[Alen - numDeflations - 1] = AA.value[len - 1].value[len - 1]; // get Eigenvalue
 
             // copy shortening to erg
             for (i = 0; i < len; i++) {
@@ -1801,8 +1703,7 @@ List.rank = function (A, preci) {
 
 List._helper.isAlmostZeroVec = function (A) {
     var len = A.value.length;
-    for (var i = 0; i < len; i++)
-        if (!CSNumber._helper.isAlmostZero(A.value[i])) return false;
+    for (var i = 0; i < len; i++) if (!CSNumber._helper.isAlmostZero(A.value[i])) return false;
 
     return true;
 };
@@ -1812,8 +1713,7 @@ List._helper.isLowerTriangular = function (A) {
     var lenj = A.value[0].value.length;
     for (var i = 0; i < leni; i++)
         for (var j = i + 1; j < lenj; j++) {
-            if (!CSNumber._helper.isAlmostZero(A.value[i].value[j]))
-                return false;
+            if (!CSNumber._helper.isAlmostZero(A.value[i].value[j])) return false;
         }
 
     return true;
@@ -1832,8 +1732,7 @@ List._helper.isAlmostId = function (AA) {
     var erg = List.sub(A, List.idMatrix(cslen), cslen);
     for (var i = 0; i < len; i++)
         for (var j = 0; j < len; j++) {
-            if (CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16)
-                return false;
+            if (CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16) return false;
         }
 
     return true;
@@ -1870,8 +1769,7 @@ List._helper.isAlmostDiagonal = function (AA) {
     for (var i = 0; i < len; i++)
         for (var j = 0; j < len; j++) {
             if (i === j) continue;
-            if (CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16)
-                return false;
+            if (CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16) return false;
         }
 
     return true;
@@ -1895,10 +1793,7 @@ List._helper.inverseIteration = function (A, shiftinit) {
     shift = CSNumber.add(shift, CSNumber.real(0.1 * Math.random() - 0.5)); // add rand to make get a full rank matrix
     for (var ii = 0; ii < 100; ii++) {
         qk = List.scaldiv(List.abs(xx), xx);
-        xx = List.LUsolve(
-            List.sub(A, List.scalmult(shift, ID)),
-            JSON.parse(JSON.stringify(qk))
-        ); // TODO Use triangular form
+        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), JSON.parse(JSON.stringify(qk))); // TODO Use triangular form
     }
 
     return List.scaldiv(List.abs(xx), xx);
@@ -1912,8 +1807,7 @@ List._helper.toHessenberg = function (A) {
     var cslen2 = CSNumber.real(len);
     var one = CSNumber.real(1);
 
-    if (List._helper.isUpperTriangular(AA))
-        return [List.idMatrix(cslen, cslen), A];
+    if (List._helper.isUpperTriangular(AA)) return [List.idMatrix(cslen, cslen), A];
 
     var xx, uu, vv, alpha, e1, Qk, ww, erg;
     var QQ = List.idMatrix(cslen2, cslen2);
@@ -2001,10 +1895,7 @@ List.RRQRdecomp = function (A, precision) {
         if (normxx > 1e-8) {
             Qk = List._helper.getHouseHolder(xx);
             // fix dimension
-            Qk = List._helper.buildBlockMatrix(
-                List.idMatrix(CSNumber.real(k), CSNumber.real(k)),
-                Qk
-            );
+            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
             QQ = General.mult(QQ, List.transjugate(Qk));
             AAA = General.mult(Qk, AAA);
         }
@@ -2013,10 +1904,7 @@ List.RRQRdecomp = function (A, precision) {
         for (i = k + 1; i < len; i++) {
             norms.value[i] = CSNumber.sub(
                 norms.value[i],
-                CSNumber.mult(
-                    AAA.value[k].value[i],
-                    CSNumber.conjugate(AAA.value[k].value[i])
-                )
+                CSNumber.mult(AAA.value[k].value[i], CSNumber.conjugate(AAA.value[k].value[i]))
             );
         }
 
@@ -2057,19 +1945,10 @@ List._helper.getHouseHolder = function (xx) {
 
     uu = List.sub(xx, List.scalmult(alpha, e1));
     vv = List.scaldiv(List.abs(uu), uu);
-    ww = CSNumber.div(
-        List.sesquilinearproduct(xx, vv),
-        List.sesquilinearproduct(vv, xx)
-    );
+    ww = CSNumber.div(List.sesquilinearproduct(xx, vv), List.sesquilinearproduct(vv, xx));
 
     Qk = List.idMatrix(cslen, cslen);
-    Qk = List.sub(
-        Qk,
-        List.scalmult(
-            CSNumber.add(one, ww),
-            List._helper.transposeMult(vv, List.conjugate(vv))
-        )
-    );
+    Qk = List.sub(Qk, List.scalmult(CSNumber.add(one, ww), List._helper.transposeMult(vv, List.conjugate(vv))));
 
     return Qk;
 };
@@ -2116,10 +1995,7 @@ List.QRdecomp = function (A) {
             Qk = List._helper.getHouseHolder(xx);
             // update QQ
             // fix dimension
-            Qk = List._helper.buildBlockMatrix(
-                List.idMatrix(CSNumber.real(k), CSNumber.real(k)),
-                Qk
-            );
+            Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
             QQ = General.mult(QQ, List.transjugate(Qk));
             AAA = General.mult(Qk, AAA);
         }
@@ -2168,12 +2044,10 @@ List._helper.buildBlockMatrix = function (A, B) {
     var erg = List.zeromatrix(CSNumber.real(m), CSNumber.real(n));
 
     for (var i = 0; i < A.value.length; i++)
-        for (var j = 0; j < A.value[0].value.length; j++)
-            erg.value[i].value[j] = A.value[i].value[j];
+        for (var j = 0; j < A.value[0].value.length; j++) erg.value[i].value[j] = A.value[i].value[j];
 
     for (var ii = 0; ii < B.value.length; ii++)
-        for (var jj = 0; jj < B.value[0].value.length; jj++)
-            erg.value[mA + ii].value[nA + jj] = B.value[ii].value[jj];
+        for (var jj = 0; jj < B.value[0].value.length; jj++) erg.value[mA + ii].value[nA + jj] = B.value[ii].value[jj];
 
     return erg;
 };
@@ -2196,8 +2070,7 @@ List._helper.getBlock = function (A, m, n) {
     n1++;
 
     AA.value = AA.value.slice(m0, m1);
-    for (var i = 0; i < AA.value.length; i++)
-        AA.value[i].value = AA.value[i].value.slice(n0, n1);
+    for (var i = 0; i < AA.value.length; i++) AA.value[i].value = AA.value[i].value.slice(n0, n1);
 
     return AA;
 };
@@ -2296,21 +2169,11 @@ List.LUdecomp = function (AA) {
         for (i = k + 1; i < n; ++i) {
             Ai = A.value[i];
             for (j = k + 1; j < n1; ++j) {
-                Ai.value[j] = CSNumber.sub(
-                    Ai.value[j],
-                    CSNumber.mult(Ai.value[k], Ak.value[j])
-                );
+                Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
                 ++j;
-                Ai.value[j] = CSNumber.sub(
-                    Ai.value[j],
-                    CSNumber.mult(Ai.value[k], Ak.value[j])
-                );
+                Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
             }
-            if (j === n1)
-                Ai.value[j] = CSNumber.sub(
-                    Ai.value[j],
-                    CSNumber.mult(Ai.value[k], Ak.value[j])
-                );
+            if (j === n1) Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
         }
     }
 
@@ -2347,20 +2210,14 @@ List._helper.LUsolve = function (LUP, bb) {
 
         LUi = LU.value[i];
         for (j = 0; j < i; ++j) {
-            x.value[i] = CSNumber.sub(
-                x.value[i],
-                CSNumber.mult(x.value[j], LUi.value[j])
-            );
+            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
         }
     }
 
     for (i = n - 1; i >= 0; --i) {
         LUi = LU.value[i];
         for (j = i + 1; j < n; ++j) {
-            x.value[i] = CSNumber.sub(
-                x.value[i],
-                CSNumber.mult(x.value[j], LUi.value[j])
-            );
+            x.value[i] = CSNumber.sub(x.value[i], CSNumber.mult(x.value[j], LUi.value[j]));
         }
 
         x.value[i] = CSNumber.div(x.value[i], LUi.value[i]);
@@ -2515,10 +2372,7 @@ List.det = function (a) {
     for (j = 0; j < n - 1; j++) {
         k = j;
         for (i = j + 1; i < n; i++) {
-            if (
-                CSNumber.abs(A.value[i].value[j]).value.real >
-                CSNumber.abs(A.value[k].value[j]).value.real
-            ) {
+            if (CSNumber.abs(A.value[i].value[j]).value.real > CSNumber.abs(A.value[k].value[j]).value.real) {
                 k = i;
             }
         }
@@ -2534,20 +2388,11 @@ List.det = function (a) {
             alpha = CSNumber.div(Ai.value[j], Aj.value[j]);
             for (k = j + 1; k < n - 1; k += 2) {
                 k1 = k + 1;
-                Ai.value[k] = CSNumber.sub(
-                    Ai.value[k],
-                    CSNumber.mult(Aj.value[k], alpha)
-                );
-                Ai.value[k1] = CSNumber.sub(
-                    Ai.value[k1],
-                    CSNumber.mult(Aj.value[k1], alpha)
-                );
+                Ai.value[k] = CSNumber.sub(Ai.value[k], CSNumber.mult(Aj.value[k], alpha));
+                Ai.value[k1] = CSNumber.sub(Ai.value[k1], CSNumber.mult(Aj.value[k1], alpha));
             }
             if (k !== n) {
-                Ai.value[k] = CSNumber.sub(
-                    Ai.value[k],
-                    CSNumber.mult(Aj.value[k], alpha)
-                );
+                Ai.value[k] = CSNumber.sub(Ai.value[k], CSNumber.mult(Aj.value[k], alpha));
             }
         }
         if (CSNumber._helper.isZero(Aj.value[j])) {
@@ -2566,8 +2411,7 @@ List.LUdet = function (a) {
     var len = LU.value.length;
 
     var det = LU.value[0].value[0];
-    for (var i = 1; i < len; i++)
-        det = CSNumber.mult(det, LU.value[i].value[i]);
+    for (var i = 1; i < len; i++) det = CSNumber.mult(det, LU.value[i].value[i]);
 
     // take care of sign
     if (LUP.TransPos % 2 === 1) det = CSNumber.neg(det);
@@ -2586,11 +2430,7 @@ List.getField = function (li, key) {
             return li;
         }
         if (List._helper.isNumberVecN(li, 2)) {
-            return List.turnIntoCSList([
-                li.value[0],
-                li.value[1],
-                CSNumber.real(1),
-            ]);
+            return List.turnIntoCSList([li.value[0], li.value[1], CSNumber.real(1)]);
         }
     }
 

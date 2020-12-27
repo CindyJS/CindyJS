@@ -259,9 +259,7 @@ evaluator.apply$4 = function (args, modifs) {
 
     namespace.removevar(valueVar);
 
-    return v1.ctype === "list"
-        ? List.turnIntoCSList(erg)
-        : Json.turnIntoCSJson(erg);
+    return v1.ctype === "list" ? List.turnIntoCSList(erg) : Json.turnIntoCSJson(erg);
 };
 
 evaluator.forall$2 = function (args, modifs) {
@@ -386,8 +384,7 @@ evaluator.flatten$1 = function (args, modifs) {
     } else {
         levels = evaluate(levels);
         if (levels.ctype === "number") levels = levels.value.real;
-        else if (levels.ctype === "string" && levels.value === "all")
-            levels = -2;
+        else if (levels.ctype === "string" && levels.value === "all") levels = -2;
         else levels = 1;
     }
     return {
@@ -523,10 +520,7 @@ eval_helper.assigntake = function (data, what) {
             } else {
                 // string
                 var str = where.value;
-                str =
-                    str.substring(0, ind1 - 1) +
-                    niceprint(evaluate(what)) +
-                    str.substring(ind1, str.length);
+                str = str.substring(0, ind1 - 1) + niceprint(evaluate(what)) + str.substring(ind1, str.length);
                 rhs = General.string(str);
             }
         }
@@ -582,10 +576,7 @@ eval_helper.assigncolon = function (data, what) {
         infix_assign([lhs, rhs]);
     } else {
         if (!(key && key.ctype === "string")) console.log("Key is undefined");
-        else
-            console.log(
-                "User data can only be assigned to geo objects and lists."
-            );
+        else console.log("User data can only be assigned to geo objects and lists.");
     }
 
     return nada;
@@ -680,9 +671,7 @@ function infix_assign(args, modifs) {
             printStackTrace("Expected list in rhs of assignment");
         }
     } else {
-        printStackTrace(
-            "Left hand side of assignment is not a recognized lvalue"
-        );
+        printStackTrace("Left hand side of assignment is not a recognized lvalue");
     }
     return v1;
 }
@@ -764,10 +753,7 @@ function comp_equals(args, modifs) {
 
     if (v0.ctype === v1.ctype) {
         if (v0.ctype === "number") {
-            return General.bool(
-                v0.value.real === v1.value.real &&
-                    v0.value.imag === v1.value.imag
-            );
+            return General.bool(v0.value.real === v1.value.real && v0.value.imag === v1.value.imag);
         }
         if (v0.ctype === "string") {
             return General.bool(v0.value === v1.value);
@@ -913,10 +899,7 @@ function comp_ugt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            CSNumber._helper.isAlmostReal(v1)
-        )
+        if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 ctype: "boolean",
                 value: v0.value.real - v1.value.real >= CSNumber.eps,
@@ -929,10 +912,7 @@ function comp_uge(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            CSNumber._helper.isAlmostReal(v1)
-        )
+        if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 ctype: "boolean",
                 value: v0.value.real - v1.value.real > -CSNumber.eps,
@@ -945,10 +925,7 @@ function comp_ult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            CSNumber._helper.isAlmostReal(v1)
-        )
+        if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 ctype: "boolean",
                 value: v0.value.real - v1.value.real <= -CSNumber.eps,
@@ -961,10 +938,7 @@ function comp_ule(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            CSNumber._helper.isAlmostReal(v1)
-        )
+        if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 ctype: "boolean",
                 value: v0.value.real - v1.value.real < CSNumber.eps,
@@ -977,10 +951,7 @@ function comp_gt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            CSNumber._helper.isAlmostReal(v1)
-        )
+        if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 ctype: "boolean",
                 value: v0.value.real > v1.value.real,
@@ -999,10 +970,7 @@ function comp_ge(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            CSNumber._helper.isAlmostReal(v1)
-        )
+        if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 ctype: "boolean",
                 value: v0.value.real >= v1.value.real,
@@ -1021,10 +989,7 @@ function comp_le(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            CSNumber._helper.isAlmostReal(v1)
-        )
+        if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 ctype: "boolean",
                 value: v0.value.real <= v1.value.real,
@@ -1043,10 +1008,7 @@ function comp_lt(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            CSNumber._helper.isAlmostReal(v1)
-        )
+        if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
                 ctype: "boolean",
                 value: v0.value.real < v1.value.real,
@@ -1148,8 +1110,7 @@ function infix_add(args, modifs) {
     if (v0.ctype !== "void") v0 = evaluateAndVal(v0);
     var v1 = evaluateAndVal(args[1]);
     var erg = General.add(v0, v1);
-    if (v0.usage === "Angle" && v1.usage === "Angle")
-        erg = General.withUsage(erg, "Angle");
+    if (v0.usage === "Angle" && v1.usage === "Angle") erg = General.withUsage(erg, "Angle");
     return erg;
 }
 
@@ -1160,8 +1121,7 @@ function infix_sub(args, modifs) {
     if (v0.ctype !== "void") v0 = evaluateAndVal(v0);
     var v1 = evaluateAndVal(args[1]);
     var erg = General.sub(v0, v1);
-    if (v0.usage === "Angle" && v1.usage === "Angle")
-        erg = General.withUsage(erg, "Angle");
+    if (v0.usage === "Angle" && v1.usage === "Angle") erg = General.withUsage(erg, "Angle");
     return erg;
 }
 
@@ -1171,10 +1131,8 @@ function infix_mult(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
     var erg = General.mult(v0, v1);
-    if (v0.usage === "Angle" && !v1.usage)
-        erg = General.withUsage(erg, "Angle");
-    else if (v1.usage === "Angle" && !v0.usage)
-        erg = General.withUsage(erg, "Angle");
+    if (v0.usage === "Angle" && !v1.usage) erg = General.withUsage(erg, "Angle");
+    else if (v1.usage === "Angle" && !v0.usage) erg = General.withUsage(erg, "Angle");
     return erg;
 }
 
@@ -1183,13 +1141,10 @@ evaluator.div$2 = infix_div;
 function infix_div(args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    if (v1.ctype === "number" && CSNumber._helper.isZero(v1))
-        printStackTrace("WARNING: Division by zero!");
+    if (v1.ctype === "number" && CSNumber._helper.isZero(v1)) printStackTrace("WARNING: Division by zero!");
     var erg = General.div(v0, v1);
-    if (v0.usage === "Angle" && !v1.usage)
-        erg = General.withUsage(erg, "Angle");
-    else if (v1.usage === "Angle" && !v0.usage)
-        erg = General.withUsage(erg, "Angle");
+    if (v0.usage === "Angle" && !v1.usage) erg = General.withUsage(erg, "Angle");
+    else if (v1.usage === "Angle" && !v0.usage) erg = General.withUsage(erg, "Angle");
     return erg;
 }
 
@@ -1252,18 +1207,7 @@ eval_helper.laguerre = function (cs, x, maxiter) {
         i;
     for (i = 0; i <= n; i++) if (cs.value[i].ctype !== "number") return nada;
     if (x.ctype !== "number") return nada;
-    var rand = [
-        1.0,
-        0.3141,
-        0.5926,
-        0.5358,
-        0.9793,
-        0.2385,
-        0.6264,
-        0.3383,
-        0.2795,
-        0.0288,
-    ];
+    var rand = [1.0, 0.3141, 0.5926, 0.5358, 0.9793, 0.2385, 0.6264, 0.3383, 0.2795, 0.0288];
     var a, p, q, s, g, g2, h, r, d1, d2;
     var tol = 1e-14;
     for (var iter = 1; iter <= maxiter; iter++) {
@@ -1277,36 +1221,23 @@ eval_helper.laguerre = function (cs, x, maxiter) {
             p = CSNumber.add(cs.value[i], CSNumber.mult(p, x));
         }
 
-        if (CSNumber._helper.isLessThan(CSNumber.abs(p), CSNumber.real(tol)))
-            return x;
+        if (CSNumber._helper.isLessThan(CSNumber.abs(p), CSNumber.real(tol))) return x;
 
         g = CSNumber.div(q, p);
         g2 = CSNumber.mult(g, g);
-        h = CSNumber.sub(
-            g2,
-            CSNumber.div(CSNumber.mult(CSNumber.real(2.0), s), p)
-        );
-        r = CSNumber.sqrt(
-            CSNumber.mult(
-                CSNumber.real(n - 1),
-                CSNumber.sub(CSNumber.mult(CSNumber.real(n), h), g2)
-            )
-        );
+        h = CSNumber.sub(g2, CSNumber.div(CSNumber.mult(CSNumber.real(2.0), s), p));
+        r = CSNumber.sqrt(CSNumber.mult(CSNumber.real(n - 1), CSNumber.sub(CSNumber.mult(CSNumber.real(n), h), g2)));
         d1 = CSNumber.add(g, r);
         d2 = CSNumber.sub(g, r);
-        if (CSNumber._helper.isLessThan(CSNumber.abs(d1), CSNumber.abs(d2)))
-            d1 = d2;
-        if (CSNumber._helper.isLessThan(CSNumber.real(tol), CSNumber.abs(d1)))
-            a = CSNumber.div(CSNumber.real(n), d1);
+        if (CSNumber._helper.isLessThan(CSNumber.abs(d1), CSNumber.abs(d2))) d1 = d2;
+        if (CSNumber._helper.isLessThan(CSNumber.real(tol), CSNumber.abs(d1))) a = CSNumber.div(CSNumber.real(n), d1);
         else
             a = CSNumber.mult(
                 CSNumber.add(CSNumber.abs(x), CSNumber.one),
                 CSNumber.complex(Math.cos(iter), Math.sin(iter))
             );
-        if (CSNumber._helper.isLessThan(CSNumber.abs(a), CSNumber.real(tol)))
-            return x;
-        if (iter % 20 === 0 && iter < maxiter - 19)
-            a = CSNumber.mult(a, CSNumber.real(rand[Math.floor(iter / 20)]));
+        if (CSNumber._helper.isLessThan(CSNumber.abs(a), CSNumber.real(tol))) return x;
+        if (iter % 20 === 0 && iter < maxiter - 19) a = CSNumber.mult(a, CSNumber.real(rand[Math.floor(iter / 20)]));
         x = CSNumber.sub(x, a);
     }
     return x;
@@ -1318,14 +1249,8 @@ eval_helper.quadratic_roots = function (cs) {
     var a = cs.value[2],
         b = cs.value[1],
         c = cs.value[0];
-    if (CSNumber._helper.isZero(c))
-        return [CSNumber.zero, CSNumber.neg(CSNumber.div(b, a))];
-    var r = CSNumber.sqrt(
-        CSNumber.sub(
-            CSNumber.mult(b, b),
-            CSNumber.mult(CSNumber.real(4.0), CSNumber.mult(a, c))
-        )
-    );
+    if (CSNumber._helper.isZero(c)) return [CSNumber.zero, CSNumber.neg(CSNumber.div(b, a))];
+    var r = CSNumber.sqrt(CSNumber.sub(CSNumber.mult(b, b), CSNumber.mult(CSNumber.real(4.0), CSNumber.mult(a, c))));
     if (CSNumber.re(b) >= 0.0) r = CSNumber.neg(r);
     return [
         CSNumber.div(CSNumber.sub(r, b), CSNumber.mult(CSNumber.real(2.0), a)),
@@ -1342,8 +1267,7 @@ eval_helper.roots = function (cs) {
         roots = eval_helper.roots(List.turnIntoCSList(cs.value.slice(0, n)));
         return List.append(roots, CSNumber.infinity);
     }
-    if (n === 1)
-        roots[0] = CSNumber.neg(CSNumber.div(cs.value[0], cs.value[1]));
+    if (n === 1) roots[0] = CSNumber.neg(CSNumber.div(cs.value[0], cs.value[1]));
     else if (n === 2) roots = eval_helper.quadratic_roots(cs);
     else {
         for (var i = 0; i < n - 2; i++) {
@@ -1351,11 +1275,7 @@ eval_helper.roots = function (cs) {
             roots[i] = eval_helper.laguerre(cs_orig, roots[i], 1);
             var fx = [];
             fx[n - i] = cs.value[n - i];
-            for (var j = n - i; j > 0; j--)
-                fx[j - 1] = CSNumber.add(
-                    cs.value[j - 1],
-                    CSNumber.mult(fx[j], roots[i])
-                );
+            for (var j = n - i; j > 0; j--) fx[j - 1] = CSNumber.add(cs.value[j - 1], CSNumber.mult(fx[j], roots[i]));
             fx.shift();
             cs = List.turnIntoCSList(fx);
         }
@@ -1369,8 +1289,7 @@ eval_helper.roots = function (cs) {
 evaluator.roots$1 = function (args, modifs) {
     var cs = evaluateAndVal(args[0]);
     if (cs.ctype === "list") {
-        for (var i = 0; i < cs.value.length; i++)
-            if (cs.value[i].ctype !== "number") return nada;
+        for (var i = 0; i < cs.value.length; i++) if (cs.value[i].ctype !== "number") return nada;
         var roots = eval_helper.roots(cs);
         return List.sort1(roots);
     }
@@ -1504,10 +1423,7 @@ evaluator.random$0 = function (args, modifs) {
 evaluator.random$1 = function (args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
-        return CSNumber.complex(
-            v0.value.real * CSNumber._helper.rand(),
-            v0.value.imag * CSNumber._helper.rand()
-        );
+        return CSNumber.complex(v0.value.real * CSNumber._helper.rand(), v0.value.imag * CSNumber._helper.rand());
     }
     return nada;
 };
@@ -1574,10 +1490,7 @@ evaluator.isreal$1 = function (args, modifs) {
 evaluator.isinteger$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            v0.value.real === Math.floor(v0.value.real)
-        ) {
+        if (CSNumber._helper.isAlmostReal(v0) && v0.value.real === Math.floor(v0.value.real)) {
             return {
                 ctype: "boolean",
                 value: true,
@@ -1593,10 +1506,7 @@ evaluator.isinteger$1 = function (args, modifs) {
 evaluator.iseven$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            v0.value.real / 2 === Math.floor(v0.value.real / 2)
-        ) {
+        if (CSNumber._helper.isAlmostReal(v0) && v0.value.real / 2 === Math.floor(v0.value.real / 2)) {
             return {
                 ctype: "boolean",
                 value: true,
@@ -1612,10 +1522,7 @@ evaluator.iseven$1 = function (args, modifs) {
 evaluator.isodd$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
-        if (
-            CSNumber._helper.isAlmostReal(v0) &&
-            (v0.value.real - 1) / 2 === Math.floor((v0.value.real - 1) / 2)
-        ) {
+        if (CSNumber._helper.isAlmostReal(v0) && (v0.value.real - 1) / 2 === Math.floor((v0.value.real - 1) / 2)) {
             return {
                 ctype: "boolean",
                 value: true,
@@ -1686,11 +1593,7 @@ evaluator.ismatrix$1 = function (args, modifs) {
 
 evaluator.iscircle$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
-    if (
-        v0.ctype === "geo" &&
-        v0.value.kind === "C" &&
-        v0.value.matrix.usage === "Circle"
-    ) {
+    if (v0.ctype === "geo" && v0.value.kind === "C" && v0.value.matrix.usage === "Circle") {
         return {
             ctype: "boolean",
             value: true,
@@ -1770,11 +1673,7 @@ evaluator.isnumbervector$1 = function (args, modifs) {
 
 evaluator.issun$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
-    if (
-        v0.ctype === "geo" &&
-        v0.value.behavior !== undefined &&
-        v0.value.behavior.type === "Sun"
-    ) {
+    if (v0.ctype === "geo" && v0.value.behavior !== undefined && v0.value.behavior.type === "Sun") {
         return {
             ctype: "boolean",
             value: true,
@@ -1788,11 +1687,7 @@ evaluator.issun$1 = function (args, modifs) {
 
 evaluator.ismass$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
-    if (
-        v0.ctype === "geo" &&
-        v0.value.behavior !== undefined &&
-        v0.value.behavior.type === "Mass"
-    ) {
+    if (v0.ctype === "geo" && v0.value.behavior !== undefined && v0.value.behavior.type === "Mass") {
         return {
             ctype: "boolean",
             value: true,
@@ -1806,11 +1701,7 @@ evaluator.ismass$1 = function (args, modifs) {
 
 evaluator.isspring$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
-    if (
-        v0.ctype === "geo" &&
-        v0.value.behavior !== undefined &&
-        v0.value.behavior.type === "Spring"
-    ) {
+    if (v0.ctype === "geo" && v0.value.behavior !== undefined && v0.value.behavior.type === "Spring") {
         return {
             ctype: "boolean",
             value: true,
@@ -1824,11 +1715,7 @@ evaluator.isspring$1 = function (args, modifs) {
 
 evaluator.isbouncer$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
-    if (
-        v0.ctype === "geo" &&
-        v0.value.behavior !== undefined &&
-        v0.value.behavior.type === "Bouncer"
-    ) {
+    if (v0.ctype === "geo" && v0.value.behavior !== undefined && v0.value.behavior.type === "Bouncer") {
         return {
             ctype: "boolean",
             value: true,
@@ -1912,10 +1799,8 @@ evaluator.algorithm$1 = function (args, modifs) {
                 el = csgeo.csnames[el.args[0]];
                 type = el.type;
             }
-            if (cinderellaAlgoNames.hasOwnProperty(type))
-                type = cinderellaAlgoNames[type];
-            else if (type === "CircleMr")
-                type = el.pinned ? "CircleByFixedRadius" : "CircleByRadius";
+            if (cinderellaAlgoNames.hasOwnProperty(type)) type = cinderellaAlgoNames[type];
+            else if (type === "CircleMr") type = el.pinned ? "CircleByFixedRadius" : "CircleByRadius";
         }
         return General.string(type);
     }
@@ -2037,10 +1922,7 @@ evaluator.complex$1 = function (args, modifs) {
             if (v0.value.length === 2) {
                 a = v0.value[0];
                 b = v0.value[1];
-                return CSNumber.complex(
-                    a.value.real - b.value.imag,
-                    b.value.real + a.value.imag
-                );
+                return CSNumber.complex(a.value.real - b.value.imag, b.value.real + a.value.imag);
             }
             if (v0.value.length === 3) {
                 a = v0.value[0];
@@ -2048,10 +1930,7 @@ evaluator.complex$1 = function (args, modifs) {
                 c = v0.value[2];
                 a = CSNumber.div(a, c);
                 b = CSNumber.div(b, c);
-                return CSNumber.complex(
-                    a.value.real - b.value.imag,
-                    b.value.real + a.value.imag
-                );
+                return CSNumber.complex(a.value.real - b.value.imag, b.value.real + a.value.imag);
             }
         }
     }
@@ -2099,12 +1978,7 @@ evaluator.crossratio$4 = function (args, modifs) {
         return List.crossratio3(v0, v1, v2, v3, List.ii);
     }
 
-    if (
-        a0.ctype === "number" &&
-        a1.ctype === "number" &&
-        a2.ctype === "number" &&
-        a3.ctype === "number"
-    ) {
+    if (a0.ctype === "number" && a1.ctype === "number" && a2.ctype === "number" && a3.ctype === "number") {
         return CSNumber.div(
             CSNumber.mult(CSNumber.sub(a0, a2), CSNumber.sub(a1, a3)),
             CSNumber.mult(CSNumber.sub(a0, a3), CSNumber.sub(a1, a2))
@@ -2335,11 +2209,7 @@ evaluator.linearsolve$2 = function (args, modifs) {
     var v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "list") {
         var n = List._helper.colNumb(v0);
-        if (
-            n !== -1 &&
-            n === v0.value.length &&
-            List._helper.isNumberVecN(v1, n)
-        ) {
+        if (n !== -1 && n === v0.value.length && List._helper.isNumberVecN(v1, n)) {
             return List.linearsolve(v0, v1);
         }
     }
@@ -2463,12 +2333,7 @@ function hungarianMethod(w) {
         for (i1 = 0; i1 < n; ++i1) {
             for (i2 = 0; i2 < n; ++i2) {
                 e[i1][i2] = w[i1][i2] - v1[i1].cost - v2[i2].cost;
-                if (
-                    e[i1][i2] <
-                    (abs(w[i1][i2]) + abs(v1[i1].cost) + abs(v2[i2].cost)) *
-                        1e-14
-                )
-                    e[i1][i2] = 0;
+                if (e[i1][i2] < (abs(w[i1][i2]) + abs(v1[i1].cost) + abs(v2[i2].cost)) * 1e-14) e[i1][i2] = 0;
             }
         }
 
@@ -2610,8 +2475,7 @@ evaluator.mincostmatching$1 = function (args, modifs) {
         for (i = 0; i < size; ++i) {
             w[i] = new Array(size);
             for (j = 0; j < size; ++j) {
-                if (i < nr && j < nc)
-                    w[i][j] = costMatrix.value[i].value[j].value.real;
+                if (i < nr && j < nc) w[i][j] = costMatrix.value[i].value[j].value.real;
                 else w[i][j] = 0;
             }
         }
@@ -2984,11 +2848,7 @@ evaluator.transpose$1 = function (args, modifs) {
 evaluator.row$2 = function (args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    if (
-        v1.ctype === "number" &&
-        v0.ctype === "list" &&
-        List._helper.colNumb(v0) !== -1
-    ) {
+    if (v1.ctype === "number" && v0.ctype === "list" && List._helper.colNumb(v0) !== -1) {
         return List.row(v0, v1);
     }
     return nada;
@@ -2997,11 +2857,7 @@ evaluator.row$2 = function (args, modifs) {
 evaluator.column$2 = function (args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     var v1 = evaluateAndVal(args[1]);
-    if (
-        v1.ctype === "number" &&
-        v0.ctype === "list" &&
-        List._helper.colNumb(v0) !== -1
-    ) {
+    if (v1.ctype === "number" && v0.ctype === "list" && List._helper.colNumb(v0) !== -1) {
         return List.column(v0, v1);
     }
     return nada;
@@ -3013,9 +2869,7 @@ evaluator.column$2 = function (args, modifs) {
 
 evaluator.dict$0 = function (args, modifs) {
     var d = Dict.create();
-    for (var key in modifs)
-        if (modifs.hasOwnProperty(key))
-            Dict.put(d, General.string(key), evaluate(modifs[key]));
+    for (var key in modifs) if (modifs.hasOwnProperty(key)) Dict.put(d, General.string(key), evaluate(modifs[key]));
     return d;
 };
 
@@ -3416,11 +3270,7 @@ evaluator.replace$3 = function (args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     var v2 = evaluate(args[2]);
-    if (
-        v0.ctype === "string" &&
-        v1.ctype === "string" &&
-        v2.ctype === "string"
-    ) {
+    if (v0.ctype === "string" && v1.ctype === "string" && v2.ctype === "string") {
         var str0 = v0.value;
         var str1 = v1.value.replace(/[^A-Za-z0-9]/g, "\\$&");
         var str2 = v2.value.replace(/\$/g, "$$$$");
@@ -3484,10 +3334,7 @@ evaluator.replace$2 = function (args, modifs) {
         from = 0;
         var srep = getReplStr(s, rules, from);
         while (ind !== -1) {
-            s =
-                s.substring(0, ind) +
-                rules[keyind][1] +
-                s.substring(ind + srep.length, s.length);
+            s = s.substring(0, ind) + rules[keyind][1] + s.substring(ind + srep.length, s.length);
             from = ind + rules[keyind][1].length;
             srep = getReplStr(s, rules, from);
         }
@@ -3505,18 +3352,11 @@ evaluator.substring$3 = function (args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluateAndVal(args[1]);
     var v2 = evaluateAndVal(args[2]);
-    if (
-        v0.ctype === "string" &&
-        v1.ctype === "number" &&
-        v2.ctype === "number"
-    ) {
+    if (v0.ctype === "string" && v1.ctype === "number" && v2.ctype === "number") {
         var s = v0.value;
         return {
             ctype: "string",
-            value: s.substring(
-                Math.floor(v1.value.real),
-                Math.floor(v2.value.real)
-            ),
+            value: s.substring(Math.floor(v1.value.real), Math.floor(v2.value.real)),
         };
     }
     return nada;
@@ -3555,10 +3395,7 @@ evaluator.tokenize$2 = function (args, modifs) {
         var tokens = str.split(head.value);
         return List.turnIntoCSList(
             tokens.map(function (token) {
-                return evaluator.tokenize$2(
-                    [General.string(token), tail],
-                    modifs
-                );
+                return evaluator.tokenize$2([General.string(token), tail], modifs);
             })
         );
     }
@@ -3581,11 +3418,7 @@ evaluator.indexof$3 = function (args, modifs) {
     var v0 = evaluate(args[0]);
     var v1 = evaluate(args[1]);
     var v2 = evaluate(args[2]);
-    if (
-        v0.ctype === "string" &&
-        v1.ctype === "string" &&
-        v2.ctype === "number"
-    ) {
+    if (v0.ctype === "string" && v1.ctype === "string" && v2.ctype === "number") {
         var str = v0.value;
         var code = v1.value;
         var start = Math.round(v2.value.real);
@@ -3854,11 +3687,7 @@ eval_helper.extractPointVec = function (v1) {
         n1 = pt1[0];
         n2 = pt1[1];
         n3 = pt1[2];
-        if (
-            n1.ctype === "number" &&
-            n2.ctype === "number" &&
-            n3.ctype === "number"
-        ) {
+        if (n1.ctype === "number" && n2.ctype === "number" && n3.ctype === "number") {
             erg.x = CSNumber.div(n1, n3);
             erg.y = CSNumber.div(n2, n3);
             erg.z = CSNumber.real(1);
@@ -4147,18 +3976,8 @@ evaluator.elementsatmouse$0 = function (args, modifs) {
         // fetch segment
         if (val && el.kind === "S") {
             var line = el.homog;
-            var tt = List.turnIntoCSList([
-                line.value[0],
-                line.value[1],
-                CSNumber.zero,
-            ]);
-            var cr = List.crossratio3(
-                el.farpoint,
-                el.startpos,
-                el.endpos,
-                mouse,
-                tt
-            ).value.real;
+            var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+            var cr = List.crossratio3(el.farpoint, el.startpos, el.endpos, mouse, tt).value.real;
             if (cr < 0 || cr > 1) val = false;
         }
 
@@ -4169,13 +3988,7 @@ evaluator.elementsatmouse$0 = function (args, modifs) {
         var val = inciPC(el);
         // fetch arc
         if (val && el.isArc) {
-            var cr = List.crossratio3harm(
-                el.startPoint,
-                el.endPoint,
-                el.viaPoint,
-                mouse,
-                List.ii
-            );
+            var cr = List.crossratio3harm(el.startPoint, el.endPoint, el.viaPoint, mouse, List.ii);
             var m = cr.value[0];
             var n = cr.value[1];
             if (!CSNumber._helper.isAlmostZero(m)) {
@@ -4262,9 +4075,7 @@ evaluator.create$3 = function (args, modifs) {
             defs = List.turnIntoCSList([General.string(el.value.name)]);
             for (i = 0; i < names.value.length; ++i) {
                 emodifs.index = CSNumber.real(i + 1);
-                ellist.push(
-                    evaluator.create$3([names.value[i], type, defs], emodifs)
-                );
+                ellist.push(evaluator.create$3([names.value[i], type, defs], emodifs));
             }
         }
         return List.turnIntoCSList(ellist);
@@ -4460,8 +4271,7 @@ evaluator.use$1 = function (args, modifs) {
     if (v0.ctype === "string") {
         var name = v0.value,
             cb;
-        if (instanceInvocationArguments.plugins)
-            cb = instanceInvocationArguments.plugins[name];
+        if (instanceInvocationArguments.plugins) cb = instanceInvocationArguments.plugins[name];
         if (!cb) cb = CindyJS._pluginRegistry[name];
         if (cb) {
             /* The following object constitutes API for third-party plugins.
@@ -4551,8 +4361,7 @@ evaluator.format$2 = function (args, modifs) {
             i = fmtNumber(v.value.imag, truncate);
             // check if we have imag part
             if (Math.abs(v.value.imag) < Math.pow(10, -dec)) erg = r;
-            else if (i.substring(0, 1) === "-")
-                erg = r + " - i*" + i.substring(1);
+            else if (i.substring(0, 1) === "-") erg = r + " - i*" + i.substring(1);
             else erg = r + " + i*" + i;
             return {
                 ctype: "string",
@@ -4570,10 +4379,7 @@ evaluator.format$2 = function (args, modifs) {
             value: niceprint(v).toString(),
         };
     }
-    if (
-        (v0.ctype === "number" || v0.ctype === "list") &&
-        v1.ctype === "number"
-    ) {
+    if ((v0.ctype === "number" || v0.ctype === "list") && v1.ctype === "number") {
         dec = Math.max(0, Math.min(20, Math.round(v1.value.real)));
         return fmt(v0, dec);
     }
@@ -4606,21 +4412,12 @@ evaluator.resetclock$0 = function (args, modifs) {
 
 evaluator.time$0 = function (args, modifs) {
     var now = new Date();
-    return List.realVector([
-        now.getHours(),
-        now.getMinutes(),
-        now.getSeconds(),
-        now.getMilliseconds(),
-    ]);
+    return List.realVector([now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()]);
 };
 
 evaluator.date$0 = function (args, modifs) {
     var now = new Date();
-    return List.realVector([
-        now.getFullYear(),
-        now.getMonth() + 1,
-        now.getDate(),
-    ]);
+    return List.realVector([now.getFullYear(), now.getMonth() + 1, now.getDate()]);
 };
 
 evaluator.simulationtime$0 = function (args, modifs) {
@@ -4686,8 +4483,7 @@ evaluator.generateWebGL$2 = function (args, modifs) {
     if (expr.ctype === "number") {
         return {
             ctype: "string",
-            value:
-                "vec2(" + f(expr.value.real) + "," + f(expr.value.imag) + ")",
+            value: "vec2(" + f(expr.value.real) + "," + f(expr.value.imag) + ")",
         };
     }
     if (expr.ctype === "variable") {
@@ -4834,8 +4630,7 @@ evaluator.compileToWebGL$1 = function (args, modifs) {
     if (expr.ctype === "number") {
         return {
             ctype: "string",
-            value:
-                "vec2(" + f(expr.value.real) + "," + f(expr.value.imag) + ")",
+            value: "vec2(" + f(expr.value.real) + "," + f(expr.value.imag) + ")",
         };
     }
     if (expr.ctype === "variable") {
@@ -4973,10 +4768,7 @@ evaluator.setsimulationspeed$1 = function (args, modifs) {
 evaluator.setsimulationaccuracy$1 = function (args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
-        if (
-            typeof labObjects !== "undefined" &&
-            typeof labObjects.env !== "undefined"
-        ) {
+        if (typeof labObjects !== "undefined" && typeof labObjects.env !== "undefined") {
             labObjects.env.accuracy = Math.max(1, v0.value.real | 0);
         }
     }
@@ -4986,10 +4778,7 @@ evaluator.setsimulationaccuracy$1 = function (args, modifs) {
 evaluator.setsimulationquality$1 = function (args, modifs) {
     var v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
-        if (
-            typeof labObjects !== "undefined" &&
-            typeof labObjects.env !== "undefined"
-        ) {
+        if (typeof labObjects !== "undefined" && typeof labObjects.env !== "undefined") {
             var qual = v0.value.real;
             if (qual === 0) {
                 labObjects.env.errorbound = 0.01;
@@ -5037,8 +4826,7 @@ evaluator.createtool$3 = function (args, modifs) {
         modif = evaluate(modifs.toolbar);
         if (modif.ctype === "string") {
             toolbar = document.getElementById(modif.value);
-            if (!toolbar)
-                console.warn("Element #" + modif.value + " not found");
+            if (!toolbar) console.warn("Element #" + modif.value + " not found");
         }
     }
     if (!toolbar) {
@@ -5134,8 +4922,7 @@ evaluator.createtool$3 = function (args, modifs) {
             button.appendChild(img);
 
             function click() {
-                if (activeButton)
-                    activeButton.classList.remove("CindyJS-active");
+                if (activeButton) activeButton.classList.remove("CindyJS-active");
                 activeButton = button;
                 button.classList.add("CindyJS-active");
                 setActiveTool(name);
@@ -5194,8 +4981,7 @@ evaluator.parsecsv$1 = function (args, modifs) {
         if (!autoconvert) itm = General.string(itm);
         else if (/^[Tt]rue$/.test(itm)) itm = General.bool(true);
         else if (/^[Ff]alse$/.test(itm)) itm = General.bool(false);
-        else if (/^[\-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+|Infinity)$/.test(itm))
-            itm = CSNumber.real(Number(itm));
+        else if (/^[\-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+|Infinity)$/.test(itm)) itm = CSNumber.real(Number(itm));
         else itm = General.string(itm);
         row.push(itm);
         if (match[4] && re.lastIndex === str.length) {
@@ -5208,9 +4994,7 @@ evaluator.parsecsv$1 = function (args, modifs) {
             if (ncols === null) ncols = row.length;
             if (ncols < row.length) {
                 ncols = row.length;
-                for (var i = 0; i < data.length; ++i)
-                    for (var j = data[i].length; j < ncols; ++j)
-                        data[i][j] = nada;
+                for (var i = 0; i < data.length; ++i) for (var j = data[i].length; j < ncols; ++j) data[i][j] = nada;
             } else if (ncols > row.length) {
                 for (var k = row.length; k < ncols; ++k) row[k] = nada;
             }
@@ -5267,10 +5051,7 @@ evaluator.load$3 = function (args, modifs) {
 evaluator.removeelement$1 = function (args, modifs) {
     var arg = evaluate(args[0]);
     if (arg.ctype === "geo") removeElement(arg.value.name);
-    else
-        console.log(
-            "argument of removeelement is undefined or not of type <geo>"
-        );
+    else console.log("argument of removeelement is undefined or not of type <geo>");
 };
 
 evaluator.guess$1 = function (args, modifs) {
@@ -5394,8 +5175,7 @@ evaluator.guess$1 = function (args, modifs) {
         } else if (n === -2 * a) {
             quadp = "+i*sqrt(" + -sqr + ")";
         } else {
-            quadp =
-                "+i*" + fraction(n, 2 * a).substring(1) + "*sqrt(" + -sqr + ")";
+            quadp = "+i*" + fraction(n, 2 * a).substring(1) + "*sqrt(" + -sqr + ")";
         }
         let quadm = "-" + quadp.substring(1);
         let qua = Math.abs((b * b - 4 * c * a) / (4 * a * a));

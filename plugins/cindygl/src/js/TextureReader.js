@@ -48,20 +48,13 @@ TextureReader.prototype.evaluateProperties = function () {
     let modifs = this.modifs;
     let api = this.api;
     let properties = {
-        interpolate: modifs.hasOwnProperty("interpolate")
-            ? api.evaluateAndVal(modifs["interpolate"])["value"]
-            : true,
-        mipmap: modifs.hasOwnProperty("mipmap")
-            ? api.evaluateAndVal(modifs["mipmap"])["value"]
-            : false,
-        repeat: modifs.hasOwnProperty("repeat")
-            ? api.evaluateAndVal(modifs["repeat"])["value"]
-            : false,
+        interpolate: modifs.hasOwnProperty("interpolate") ? api.evaluateAndVal(modifs["interpolate"])["value"] : true,
+        mipmap: modifs.hasOwnProperty("mipmap") ? api.evaluateAndVal(modifs["mipmap"])["value"] : false,
+        repeat: modifs.hasOwnProperty("repeat") ? api.evaluateAndVal(modifs["repeat"])["value"] : false,
     };
     if (
         this.properties &&
-        (this.properties.mipmap != properties.mipmap ||
-            this.properties.repeat != properties.repeat)
+        (this.properties.mipmap != properties.mipmap || this.properties.repeat != properties.repeat)
     ) {
         console.log("enfore recompilation because texture modifiers changed.");
         requiredcompiletime++;
@@ -93,9 +86,7 @@ TextureReader.prototype.api;
 TextureReader.prototype.returnCanvaswrapper = function () {
     let nameorimageobject = this.api.evaluateAndVal(this.expr)["value"];
     let imageobject =
-        typeof nameorimageobject === "string"
-            ? this.api.getImage(nameorimageobject, true)
-            : nameorimageobject;
+        typeof nameorimageobject === "string" ? this.api.getImage(nameorimageobject, true) : nameorimageobject;
 
     if (imageobject == null) {
         console.error(`Could not find image ${nameorimageobject}.`);
@@ -104,11 +95,7 @@ TextureReader.prototype.returnCanvaswrapper = function () {
     this.evaluateProperties();
 
     //return generateReadCanvasWrapperIfRequired(imageobject, this.api, properties);
-    return generateCanvasWrapperIfRequired(
-        imageobject,
-        this.api,
-        this.properties
-    );
+    return generateCanvasWrapperIfRequired(imageobject, this.api, this.properties);
 };
 
 /**
@@ -119,8 +106,7 @@ function getNameFromImage(image) {
     if (typeof image === "string") {
         return image;
     } else {
-        if (!image.hasOwnProperty("name"))
-            image["name"] = generateUniqueHelperString();
+        if (!image.hasOwnProperty("name")) image["name"] = generateUniqueHelperString();
         return image["name"];
     }
 }
@@ -166,11 +152,7 @@ function useimagergb4(args, modifs, codebuilder) {
 }
 
 function useimagergba2(args, modifs, codebuilder) {
-    codebuilder.add(
-        "uniforms",
-        "corners",
-        () => "uniform vec2 _lowerleft, _lowerright;"
-    );
+    codebuilder.add("uniforms", "corners", () => "uniform vec2 _lowerleft, _lowerright;");
     return [
         "_imagergba",
         generateTextureReaderIfRequired(args[0], modifs, codebuilder),
@@ -181,11 +163,7 @@ function useimagergba2(args, modifs, codebuilder) {
 }
 
 function useimagergb2(args, modifs, codebuilder) {
-    codebuilder.add(
-        "uniforms",
-        "corners",
-        () => "uniform vec2 _lowerleft, _lowerright;"
-    );
+    codebuilder.add("uniforms", "corners", () => "uniform vec2 _lowerleft, _lowerright;");
     return [
         "(_imagergba",
         generateTextureReaderIfRequired(args[0], modifs, codebuilder),
@@ -197,8 +175,7 @@ function useimagergb2(args, modifs, codebuilder) {
 
 function generateHeaderOfTextureReaders(codebuilder) {
     let ans = "";
-    for (let t in codebuilder.texturereaders)
-        ans += `${codebuilder.texturereaders[t].code}\n`;
+    for (let t in codebuilder.texturereaders) ans += `${codebuilder.texturereaders[t].code}\n`;
 
     return ans;
 }

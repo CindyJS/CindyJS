@@ -121,8 +121,7 @@ var functionCallPrecedence;
             };
             for (var i = 0; i < symbols.length; ++i) {
                 var symbol = symbols[i];
-                if (operators.hasOwnProperty(symbol))
-                    throw Error("Duplicate operator: " + symbol);
+                if (operators.hasOwnProperty(symbol)) throw Error("Duplicate operator: " + symbol);
                 operators[symbol] = descr;
                 operatorSymbols.push(symbol);
             }
@@ -366,13 +365,7 @@ var unicodeLetters = (function (dict, str, hiRanges) {
     "\ud80c\ud840-\ud868\ud86a-\ud86c\ud86f-\ud872"
 );
 
-var reIdentifier = expandSpaces(
-    "#(?: [1-9])?|(?:'|" +
-        unicodeLetters +
-        ")(?: (?:[0-9']|" +
-        unicodeLetters +
-        "))*"
-);
+var reIdentifier = expandSpaces("#(?: [1-9])?|(?:'|" + unicodeLetters + ")(?: (?:[0-9']|" + unicodeLetters + "))*");
 
 var reExponent = "(?: [Ee](?: [+-])?(?: [0-9])+)";
 
@@ -411,28 +404,13 @@ var reNextToken = [
 
 var reSpace = new RegExp(inTokenWhitespace.replace(/\*$/, "+"), "g");
 
-var tokenTypes = [
-    "ANY",
-    "WS",
-    "COMMENT",
-    "START_COMMENT",
-    "NUM",
-    "OP",
-    "BRA",
-    "SUB",
-    "SUP",
-    "ID",
-    "STR",
-    "EOF",
-];
+var tokenTypes = ["ANY", "WS", "COMMENT", "START_COMMENT", "NUM", "OP", "BRA", "SUB", "SUP", "ID", "STR", "EOF"];
 
 (function sanityCheck() {
     var re = new RegExp(reNextToken, "g");
     var match = re.exec("");
-    if (match.hasOwnProperty(tokenTypes.length))
-        throw Error("RE has more groups than expected");
-    if (!match.hasOwnProperty(tokenTypes.length - 1))
-        throw Error("RE has fewer groups than expected");
+    if (match.hasOwnProperty(tokenTypes.length)) throw Error("RE has more groups than expected");
+    if (!match.hasOwnProperty(tokenTypes.length - 1)) throw Error("RE has fewer groups than expected");
 })();
 
 function ParseError(message, location, text) {
@@ -486,11 +464,7 @@ Tokenizer.prototype.curPos = function () {
 Tokenizer.prototype.nextInternal = function () {
     var match = this.re.exec(this.input);
     if (match.index !== this.pos)
-        throw ParseError(
-            "Invalid token",
-            this.curPos(),
-            this.input.substring(this.pos, match.index)
-        );
+        throw ParseError("Invalid token", this.curPos(), this.input.substring(this.pos, match.index));
     var pos1 = this.curPos();
     this.advanceBy(match[0].length);
     var pos2 = this.curPos();
@@ -520,11 +494,7 @@ Tokenizer.prototype.next = function () {
             while (depth > 0) {
                 match = reComment.exec(this.input);
                 if (!match) {
-                    throw ParseError(
-                        "Unterminated comment",
-                        tok.start,
-                        tok.text
-                    );
+                    throw ParseError("Unterminated comment", tok.start, tok.text);
                 } else if (match[0] === "/*") {
                     ++depth;
                 } else {
@@ -550,44 +520,20 @@ function applyOperator(seq) {
     var rhs = seq[seq.length - 1];
     if (lhs) {
         if (lhs.isSuperscript && op.precedence <= lhs.precedence)
-            throw ParseError(
-                "Operator not allowed after superscript",
-                op.start,
-                op.text
-            );
+            throw ParseError("Operator not allowed after superscript", op.start, op.text);
         if (rhs) {
             // expr op expr
-            if (!op.op.infix)
-                throw ParseError(
-                    "Operator may not be used infix",
-                    op.start,
-                    op.text
-                );
+            if (!op.op.infix) throw ParseError("Operator may not be used infix", op.start, op.text);
         } else {
             // expr op null
-            if (!op.op.postfix)
-                throw ParseError(
-                    "Operator may not be used postfix",
-                    op.start,
-                    op.text
-                );
+            if (!op.op.postfix) throw ParseError("Operator may not be used postfix", op.start, op.text);
         }
     } else {
         if (rhs) {
             // null op expr
-            if (!op.op.prefix)
-                throw ParseError(
-                    "Operator may not be used prefix",
-                    op.start,
-                    op.text
-                );
+            if (!op.op.prefix) throw ParseError("Operator may not be used prefix", op.start, op.text);
         } else {
-            if (!op.op.bare)
-                throw ParseError(
-                    "Operator without operands",
-                    op.start,
-                    op.text
-                );
+            if (!op.op.bare) throw ParseError("Operator without operands", op.start, op.text);
         }
     }
     op.ctype = "infix";
@@ -599,8 +545,7 @@ function applyOperator(seq) {
 function subsup(seq, tok, op, dict) {
     if (!(seq.length & 1)) seq.push(null);
     op = operators[op];
-    while (seq.length >= 3 && seq[seq.length - 2].precedence <= op.precedence)
-        applyOperator(seq);
+    while (seq.length >= 3 && seq[seq.length - 2].precedence <= op.precedence) applyOperator(seq);
     seq.push({
         op: op,
         precedence: op.precedence + (op.rassoc ? 1 : 0),
@@ -611,8 +556,7 @@ function subsup(seq, tok, op, dict) {
     });
     var dstDigits = "";
     var srcDigits = tok.text;
-    for (var i = 0; i < srcDigits.length; ++i)
-        dstDigits += "0123456789+-".charAt(dict.indexOf(srcDigits.charAt(i)));
+    for (var i = 0; i < srcDigits.length; ++i) dstDigits += "0123456789+-".charAt(dict.indexOf(srcDigits.charAt(i)));
     tok.ctype = "number";
     tok.value = {
         real: +dstDigits,
@@ -654,31 +598,21 @@ function parseRec(tokens, closing) {
                 tok.op = op;
                 tok.precedence = op.precedence;
                 if (!(seq.length & 1)) seq.push(null);
-                while (
-                    seq.length >= 3 &&
-                    seq[seq.length - 2].precedence <= tok.precedence
-                )
-                    applyOperator(seq);
+                while (seq.length >= 3 && seq[seq.length - 2].precedence <= tok.precedence) applyOperator(seq);
                 if (op.rassoc) tok.precedence++;
                 if (parsejsonatom && op.sym === ":") {
                     tok.jsonatom = true;
                     tok.precedence = operators[","].precedence; //use different precedence for JSON
                     parsejsonatom = false;
                 }
-                if (
-                    closing === "}" &&
-                    op.sym === "," &&
-                    seq.length > 0 &&
-                    !!seq[seq.length - 1].jsonatom
-                )
+                if (closing === "}" && op.sym === "," && seq.length > 0 && !!seq[seq.length - 1].jsonatom)
                     parsejsonatom = true;
                 seq.push(tok);
                 break;
             case "ID":
                 tok.ctype = "variable";
                 tok.name = tok.text;
-                if (seq.length & 1)
-                    throw ParseError("Missing operator", tok.start, tok.text);
+                if (seq.length & 1) throw ParseError("Missing operator", tok.start, tok.text);
                 seq.push(tok);
                 break;
             case "NUM":
@@ -687,15 +621,13 @@ function parseRec(tokens, closing) {
                     real: +tok.text,
                     imag: 0,
                 };
-                if (seq.length & 1)
-                    throw ParseError("Missing operator", tok.start, tok.text);
+                if (seq.length & 1) throw ParseError("Missing operator", tok.start, tok.text);
                 seq.push(tok);
                 break;
             case "STR":
                 tok.ctype = "string";
                 tok.value = tok.raw.substring(1, tok.raw.length - 1);
-                if (seq.length & 1)
-                    throw ParseError("Missing operator", tok.start, tok.text);
+                if (seq.length & 1) throw ParseError("Missing operator", tok.start, tok.text);
                 seq.push(tok);
                 break;
             case "SUB":
@@ -730,11 +662,7 @@ function parseRec(tokens, closing) {
                 var lst = [];
                 var expr = sub.expr;
                 if (expr) {
-                    while (
-                        expr &&
-                        expr.ctype === "infix" &&
-                        expr.oper === ","
-                    ) {
+                    while (expr && expr.ctype === "infix" && expr.oper === ",") {
                         lst.push(expr.args[0]);
                         expr = expr.args[1];
                     }
@@ -758,12 +686,7 @@ function parseRec(tokens, closing) {
                                 modifs: {},
                             });
                         } else {
-                            throw ParseError(
-                                "Don't support |…| with " +
-                                    lst.length +
-                                    " arguments",
-                                tok.start
-                            );
+                            throw ParseError("Don't support |…| with " + lst.length + " arguments", tok.start);
                         }
                     } else if (pair === "{}") {
                         seq.push({
@@ -792,21 +715,11 @@ function parseRec(tokens, closing) {
                     }
                 } else {
                     // operator position, so it's a function call
-                    if (pair === "{}")
-                        throw ParseError(
-                            "{…} not yet defined for operators.",
-                            tok.start
-                        );
+                    if (pair === "{}") throw ParseError("{…} not yet defined for operators.", tok.start);
                     var fname = seq[seq.length - 1];
                     if (fname.ctype !== "variable")
-                        throw ParseError(
-                            "Function name must be an identifier",
-                            fname.start
-                        );
-                    if (
-                        seq.length > 2 &&
-                        seq[seq.length - 2].precedence < functionCallPrecedence
-                    )
+                        throw ParseError("Function name must be an identifier", fname.start);
+                    if (seq.length > 2 && seq[seq.length - 2].precedence < functionCallPrecedence)
                         throw ParseError(
                             "Function call in indexing construct must be enclosed in parentheses",
                             tok.start
@@ -819,17 +732,13 @@ function parseRec(tokens, closing) {
                         if (elt && elt.ctype === "infix" && elt.oper === "->") {
                             var id = elt.args[0];
                             if (id.ctype !== "variable")
-                                throw ParseError(
-                                    "Modifier name must be an identifier",
-                                    elt.start
-                                );
+                                throw ParseError("Modifier name must be an identifier", elt.start);
                             modifs[id.name] = elt.args[1];
                         } else {
                             args.push(elt);
                         }
                     }
-                    fname.oper =
-                        fname.name.toLowerCase() + "$" + fname.args.length;
+                    fname.oper = fname.name.toLowerCase() + "$" + fname.args.length;
                 }
                 break;
             case "EOF":
@@ -863,31 +772,18 @@ Parser.prototype.postprocess = function (expr) {
                 if (fun.ctype === "function") {
                     fun.args.forEach(function (arg) {
                         if (arg === null || arg.ctype !== "variable")
-                            throw ParseError(
-                                "Function argument must be an identifier",
-                                arg.start || expr.start
-                            );
+                            throw ParseError("Function argument must be an identifier", arg.start || expr.start);
                     });
                 } else if (fun.ctype !== "variable") {
-                    throw ParseError(
-                        expr.oper +
-                            " can only be used to define " +
-                            "functions or variables",
-                        expr.start
-                    );
+                    throw ParseError(expr.oper + " can only be used to define " + "functions or variables", expr.start);
                 }
             } else if (expr.oper === ",") {
-                throw ParseError(
-                    "comma may only be used to delimit list elements",
-                    expr.start
-                );
+                throw ParseError("comma may only be used to delimit list elements", expr.start);
             }
         }
 
         if (expr.args) expr.args = expr.args.map(this.postprocess, this);
-        if (expr.modifs)
-            for (var key in expr.modifs)
-                expr.modifs[key] = this.postprocess(expr.modifs[key]);
+        if (expr.modifs) for (var key in expr.modifs) expr.modifs[key] = this.postprocess(expr.modifs[key]);
 
         // parent-last postprocessing
         if (expr.ctype === "paren") {
@@ -895,11 +791,7 @@ Parser.prototype.postprocess = function (expr) {
         } else if (expr.ctype === "infix") {
             if (expr.oper === ".") {
                 if (!(expr.args[1] && expr.args[1].ctype === "variable"))
-                    throw ParseError(
-                        "Field name must be identifier",
-                        expr.start,
-                        expr.text
-                    );
+                    throw ParseError("Field name must be identifier", expr.start, expr.text);
                 expr.ctype = "field";
                 expr.obj = expr.args[0];
                 expr.key = expr.args[1].name;
@@ -908,11 +800,7 @@ Parser.prototype.postprocess = function (expr) {
             if (expr.oper === ":") {
                 if (expr.jsonatom) {
                     if (!expr.args[1]) {
-                        throw ParseError(
-                            "JSON: Value undefined",
-                            expr.start,
-                            expr.text
-                        );
+                        throw ParseError("JSON: Value undefined", expr.start, expr.text);
                     }
                     expr.ctype = "jsonatom";
                     expr.key = expr.args[0];
@@ -920,11 +808,7 @@ Parser.prototype.postprocess = function (expr) {
                     delete expr.jsonatom;
                 } else {
                     if (!expr.args[1]) {
-                        throw ParseError(
-                            "UserData: Key undefined",
-                            expr.start,
-                            expr.text
-                        );
+                        throw ParseError("UserData: Key undefined", expr.start, expr.text);
                     }
                     expr.ctype = "userdata";
                     expr.obj = expr.args[0];
@@ -1014,11 +898,7 @@ Parser.prototype.parse = function (code) {
     try {
         var res = parseRec(new Tokenizer(code));
         if (res.closedBy.toktype !== "EOF")
-            throw ParseError(
-                "Closing bracket never opened.",
-                res.closedBy.start,
-                res.closedBy.text
-            );
+            throw ParseError("Closing bracket never opened.", res.closedBy.start, res.closedBy.text);
         return this.postprocess(res.expr);
     } catch (err) {
         err.ctype = "error";

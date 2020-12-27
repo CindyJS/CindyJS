@@ -57,14 +57,9 @@ Renderer.prototype.rebuild = function () {
     this.texturereaders = cpg.texturereaders;
     this.generations = cpg.generations;
 
-    this.fragmentShaderCode =
-        cgl_resources["standardFragmentHeader"] + cpg.code;
+    this.fragmentShaderCode = cgl_resources["standardFragmentHeader"] + cpg.code;
     this.vertexShaderCode = cgl_resources["vshader"];
-    this.shaderProgram = new ShaderProgram(
-        gl,
-        this.vertexShaderCode,
-        this.fragmentShaderCode
-    );
+    this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
 
     /*
      *    gl.bindBuffer(gl.ARRAY_BUFFER, this.ssArrayBuffer);
@@ -94,11 +89,7 @@ Renderer.prototype.rebuild = function () {
 
     var texCoordOffset = vertices.byteLength;
 
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        texCoordOffset + texCoords.byteLength,
-        gl.STATIC_DRAW
-    );
+    gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
     gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
@@ -141,18 +132,9 @@ Renderer.prototype.setUniforms = function () {
                     break;
                 case type.point:
                 case type.line:
-                    if (val.ctype === "geo")
-                        setter(
-                            val["value"]["homog"]["value"].map(
-                                (x) => x["value"]["real"]
-                            )
-                        );
+                    if (val.ctype === "geo") setter(val["value"]["homog"]["value"].map((x) => x["value"]["real"]));
                     else if (val.ctype === "list" && val["value"].length === 2)
-                        setter(
-                            val["value"]
-                                .map((x) => x["value"]["real"])
-                                .concat([1])
-                        );
+                        setter(val["value"].map((x) => x["value"]["real"]).concat([1]));
                     else if (val.ctype === "list" && val["value"].length === 3)
                         setter(val["value"].map((x) => x["value"]["real"]));
                     break;
@@ -171,18 +153,12 @@ Renderer.prototype.setUniforms = function () {
                         let m = [];
                         for (let j = 0; j < t.length; j++)
                             for (let i = 0; i < t.parameters.length; i++)
-                                m.push(
-                                    val["value"][j]["value"][i]["value"]["real"]
-                                );
+                                m.push(val["value"][j]["value"][i]["value"]["real"]);
                         setter(m);
                         break;
                     }
 
-                    console.error(
-                        `Don't know how to set uniform of type ${typeToString(
-                            t
-                        )}, to ${val}`
-                    );
+                    console.error(`Don't know how to set uniform of type ${typeToString(t)}, to ${val}`);
                     break;
             }
         } else if (t.type === "list") {
@@ -210,9 +186,7 @@ Renderer.prototype.setUniforms = function () {
             }
             return;
         } else {
-            console.error(
-                `Don't know how to set uniform of type ${typeToString(t)}, to`
-            );
+            console.error(`Don't know how to set uniform of type ${typeToString(t)}, to`);
             console.log(val);
         }
     }
@@ -223,9 +197,9 @@ Renderer.prototype.setUniforms = function () {
 
         if (!issubtypeof(constant(val), t)) {
             console.log(
-                `Type of ${uname} changed (${typeToString(
-                    constant(val)
-                )} is no subtype of  ${typeToString(t)}); forcing rebuild.`
+                `Type of ${uname} changed (${typeToString(constant(val))} is no subtype of  ${typeToString(
+                    t
+                )}); forcing rebuild.`
             );
             this.rebuild();
             this.shaderProgram.use(gl);
@@ -255,11 +229,7 @@ Renderer.prototype.setUniforms = function () {
                 return [pt.x, pt.y];
             },
         ],
-    ].map(
-        (a) =>
-            this.shaderProgram.uniform[a[0]] &&
-            this.shaderProgram.uniform[a[0]](a[1]())
-    );
+    ].map((a) => this.shaderProgram.uniform[a[0]] && this.shaderProgram.uniform[a[0]](a[1]()));
 };
 
 /**
@@ -282,11 +252,7 @@ Renderer.prototype.loadTextures = function () {
             [`_sampler${tname}`, [cnt]],
             [`_ratio${tname}`, [cw.sizeX / cw.sizeY]],
             [`_cropfact${tname}`, [cw.sizeX / cw.sizeXP, cw.sizeY / cw.sizeYP]],
-        ].map(
-            (a) =>
-                this.shaderProgram.uniform[a[0]] &&
-                this.shaderProgram.uniform[a[0]](a[1])
-        );
+        ].map((a) => this.shaderProgram.uniform[a[0]] && this.shaderProgram.uniform[a[0]](a[1]));
         cnt++;
     }
 };
@@ -296,9 +262,7 @@ Renderer.prototype.loadTextures = function () {
  */
 Renderer.prototype.functionGenerationsOk = function () {
     for (let fname in this.generations) {
-        if (
-            this.api.getMyfunction(fname).generation > this.generations[fname]
-        ) {
+        if (this.api.getMyfunction(fname).generation > this.generations[fname]) {
             console.log(`${fname} is outdated; forcing rebuild.`);
             return false;
         }

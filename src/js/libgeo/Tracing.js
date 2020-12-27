@@ -33,10 +33,7 @@ function stateAlloc(newSize) {
         offset = (stateMasterArray.length / states) | 0;
     }
     for (i = 0; i < states; ++i) {
-        stateArrays[stateArrayNames[i]] = stateMasterArray.subarray(
-            i * offset,
-            i * offset + newSize
-        );
+        stateArrays[stateArrayNames[i]] = stateMasterArray.subarray(i * offset, i * offset + newSize);
     }
     // No array content is deliberately preserved by the above.
     // Now we do preserve the stateLastGood.
@@ -116,13 +113,8 @@ function traceMouseAndScripts() {
     }
     inMouseMove = false;
     if (traceLog) {
-        traceLog.fullLog.push(
-            List.turnIntoCSList([
-                List.turnIntoCSList(traceLog.currentMouseAndScripts),
-            ])
-        );
-        if (traceLog.length > traceLog.logLength)
-            traceLog.splice(0, traceLog.length - traceLog.logLength);
+        traceLog.fullLog.push(List.turnIntoCSList([List.turnIntoCSList(traceLog.currentMouseAndScripts)]));
+        if (traceLog.length > traceLog.logLength) traceLog.splice(0, traceLog.length - traceLog.logLength);
         traceLog.currentMouseAndScripts = null;
         traceLog.postMouseHooks.forEach(function (cb) {
             cb();
@@ -238,28 +230,16 @@ function traceMover(mover, pos, type) {
 
         if (traceLog) traceLog.currentElement = mover;
         opMover.updatePosition(mover, true);
-        assert(
-            stateInIdx === mover.stateIdx + opMover.stateSize,
-            "State fully consumed"
-        );
-        assert(
-            stateOutIdx === mover.stateIdx + opMover.stateSize,
-            "State fully updated"
-        );
+        assert(stateInIdx === mover.stateIdx + opMover.stateSize, "State fully consumed");
+        assert(stateOutIdx === mover.stateIdx + opMover.stateSize, "State fully updated");
         for (i = 0; i < deps.length; ++i) {
             el = deps[i];
             op = geoOps[el.type];
             stateInIdx = stateOutIdx = el.stateIdx;
             if (traceLog) traceLog.currentElement = el;
             op.updatePosition(el, false);
-            assert(
-                stateInIdx === el.stateIdx + op.stateSize,
-                "State fully consumed"
-            );
-            assert(
-                stateOutIdx === el.stateIdx + op.stateSize,
-                "State fully updated"
-            );
+            assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
+            assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
         }
         if (traceLog) traceLog.currentElement = null;
         last = t; // successfully traced up to t
@@ -318,9 +298,7 @@ if (instanceInvocationArguments.enableTraceLog) {
         traceLog.logLength = instanceInvocationArguments.enableTraceLog;
     globalInstance.getTraceLog = getTraceLog;
     globalInstance.formatTraceLog = formatTraceLog;
-    globalInstance.addTraceHook = traceLog.postMouseHooks.push.bind(
-        traceLog.postMouseHooks
-    );
+    globalInstance.addTraceHook = traceLog.postMouseHooks.push.bind(traceLog.postMouseHooks);
 }
 
 function getTraceLog() {
@@ -357,8 +335,7 @@ function putStateComplexNumber(c) {
 }
 
 function putStateComplexVector(v) {
-    for (var i = 0, n = v.value.length; i < n; ++i)
-        putStateComplexNumber(v.value[i]);
+    for (var i = 0, n = v.value.length; i < n; ++i) putStateComplexNumber(v.value[i]);
 }
 
 function tracing2(n1, n2) {
@@ -415,8 +392,7 @@ function tracing2core(n1, n2, o1, o2) {
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function (msg) {
-            if (!traceLog.hasOwnProperty(msg))
-                traceLog[msg] = General.wrap(msg);
+            if (!traceLog.hasOwnProperty(msg)) traceLog[msg] = General.wrap(msg);
             logRow[logRow.length - 1] = traceLog[msg];
             // Evil: modify can break copy on write! But it's safe here.
         };
@@ -572,8 +548,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function (msg) {
-            if (!traceLog.hasOwnProperty(msg))
-                traceLog[msg] = General.wrap(msg);
+            if (!traceLog.hasOwnProperty(msg)) traceLog[msg] = General.wrap(msg);
             logRow[logRow.length - 1] = traceLog[msg];
             // Evil: modify can break copy on write! But it's safe here.
         };
@@ -700,21 +675,15 @@ function tracingSesq(newVecs) {
     for (i = 0; i < n; ++i) {
         for (j = 0; j < n; ++j) {
             p = List.sesquilinearproduct(oldVecs[i], newVecs[j]).value;
-            w =
-                (p.real * p.real + p.imag * p.imag) /
-                (oldNorms[i] * newNorms[j]);
+            w = (p.real * p.real + p.imag * p.imag) / (oldNorms[i] * newNorms[j]);
             cost[i][j] = 1 - w;
         }
         for (j = i + 1; j < n; ++j) {
             p = List.sesquilinearproduct(oldVecs[i], oldVecs[j]).value;
-            w =
-                (p.real * p.real + p.imag * p.imag) /
-                (oldNorms[i] * oldNorms[j]);
+            w = (p.real * p.real + p.imag * p.imag) / (oldNorms[i] * oldNorms[j]);
             if (oldMinCost > 1 - w) oldMinCost = 1 - w;
             p = List.sesquilinearproduct(newVecs[i], newVecs[j]).value;
-            w =
-                (p.real * p.real + p.imag * p.imag) /
-                (newNorms[i] * newNorms[j]);
+            w = (p.real * p.real + p.imag * p.imag) / (newNorms[i] * newNorms[j]);
             if (newMinCost > 1 - w) newMinCost = 1 - w;
         }
     }
@@ -745,8 +714,7 @@ function tracingSesq(newVecs) {
         ];
         traceLog.currentStep.push(List.turnIntoCSList(logRow));
         debug = function (msg) {
-            if (!traceLog.hasOwnProperty(msg))
-                traceLog[msg] = General.wrap(msg);
+            if (!traceLog.hasOwnProperty(msg)) traceLog[msg] = General.wrap(msg);
             logRow[logRow.length - 1] = traceLog[msg];
             // Evil: modify can break copy on write! But it's safe here.
         };
