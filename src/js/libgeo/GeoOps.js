@@ -3016,7 +3016,10 @@ geoOps.Text.initialize = function (el) {
         else el.dock.offset = List.realVector([0, 0]);
     }
 };
-geoOps.Text.getParamForInput = function (el, pos, type) {
+geoOps.Text.set_text = function(el, value) {
+   el.text = niceprint(value);
+};
+geoOps.Text.getParamForInput = function(el, pos, type) {
     return geoOps.Free.getParamForInput(el, pos, type);
 };
 geoOps.Text.getParamFromState = function (el) {
