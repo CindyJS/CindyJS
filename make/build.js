@@ -245,7 +245,7 @@ module.exports = function build(settings, task) {
                 "1": "Please stage the files listed above (e.g. using “git add -u”)"
             }
         });
-        this.cmdscript("js-beautify", "--quiet", beautify_args);
+        this.cmdscript("prettier", "--silent", prettier_args);
         this.cmd("git", "diff", "--exit-code", "\":(excluded)*!package-lock.json\"", {
             errorMessages: {
                 "1": "Your code has been beautified. Please review these changes."
@@ -819,16 +819,15 @@ module.exports = function build(settings, task) {
     // Run js-beautify for consistent coding style
     //////////////////////////////////////////////////////////////////////
 
-    var beautify_args = [
-        "--replace",
-        "--config", "Administration/beautify.conf",
+    var prettier_args = [
+        "--write",
         (src.ours).concat(cgl_mods_srcs).filter(function(name) {
             return !/^build\//.test(name);
         }),
     ];
 
     task("beautify", [], function() {
-        this.cmdscript("js-beautify", beautify_args);
+        this.cmdscript("prettier", prettier_args);
     });
 
     
