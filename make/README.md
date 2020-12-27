@@ -44,7 +44,6 @@ The most important artifact-building tasks are:
 
 In addition to these, there are some tools to help development:
 
--   **beautify** reformats the code, replacing files in place
 -   **jshint** checks the code for possibly problematic patterns
 -   **tests** runs some unit tests
 -   **alltest** performs even more tests,

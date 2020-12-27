@@ -211,25 +211,7 @@ module.exports = function build(settings, task) {
         ]);
     });
 
-    //////////////////////////////////////////////////////////////////////
-    // Check that the code has been beautified
-    //////////////////////////////////////////////////////////////////////
-
-    task("alltests", ["tests", "jshint", "beautified", "deploy", "textattr", "forbidden", "ref"]);
-
-    task("beautified", [], function () {
-        this.cmd("git", "diff", "--exit-code", "--name-only", '":(excluded)*!package-lock.json"', {
-            errorMessages: {
-                1: "Please stage the files listed above (e.g. using “git add -u”)",
-            },
-        });
-        this.cmdscript("prettier", prettier_args);
-        this.cmd("git", "diff", "--exit-code", '":(excluded)*!package-lock.json"', {
-            errorMessages: {
-                1: "Your code has been beautified. Please review these changes.",
-            },
-        });
-    });
+    task("alltests", ["tests", "jshint", "deploy", "textattr", "forbidden", "ref"]);
 
     //////////////////////////////////////////////////////////////////////
     // Check that the text property is set for all files
@@ -744,16 +726,6 @@ module.exports = function build(settings, task) {
             ].concat(srcsXR),
         };
         this.closureCompiler(closure_jar, opts);
-    });
-
-    //////////////////////////////////////////////////////////////////////
-    // Run js-beautify for consistent coding style
-    //////////////////////////////////////////////////////////////////////
-
-    var prettier_args = ["--write", "."];
-
-    task("beautify", [], function () {
-        this.cmdscript("prettier", prettier_args);
     });
 
     //////////////////////////////////////////////////////////////////////
