@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-    - node
     - 8
 script: node make build=release alltests
 dist: trusty
