@@ -7,7 +7,11 @@
         "test": "tests"
     },
     "devDependencies": {
+        "@babel/core": "^7.12.10",
+        "@babel/preset-env": "^7.12.11",
         "@jscad/csg": "^0.7.0",
+        "babel-cli": "^6.26.0",
+        "babel-plugin-remove-import-export": "^1.1.1",
         "browser-sync": "^2.26.5",
         "browserify": "^16.5.0",
         "chai": "^3.5.0",

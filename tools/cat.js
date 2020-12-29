@@ -7,6 +7,8 @@ var path = require("path");
 var createDummySourceMap = require("source-map-dummy");
 var Concat = require("concat-with-sourcemaps");
 
+const babel = require("@babel/core");
+
 function relative(from, to) {
     if (typeof from !== "string") return to;
     return path.relative(path.dirname(from), to);
@@ -65,8 +67,18 @@ function inputRead(i, name, err, data) {
     writeOutput();
 }
 
-function addInput(name, src) {
+function addInput(name, inputSrc) {
+    const doNotTransformFiles = ["src/js/Head.js", "src/js/Tail.js"];
+
+    const skip = doNotTransformFiles.includes(name) || !name.includes("src/js");
+    let src = skip
+        ? inputSrc
+        : babel.transformSync(inputSrc, {
+              plugins: ["remove-import-export"],
+          }).code;
+
     name = relative(map, name);
+
     if (!/\r?\n$/.test(src)) src += "\n";
     var sm = createDummySourceMap(src, {
         source: name,
