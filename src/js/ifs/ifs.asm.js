@@ -1,4 +1,4 @@
-import { Module } from 'ifs/worker'
+import { Module } from "ifs/worker";
 
 Module["asm"] = function (global, env, buffer) {
     "use asm";

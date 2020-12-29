@@ -1,5 +1,5 @@
-import { vscale, csw, csh } from 'Setup'
-import { List } from 'libcs/List'
+import { vscale, csw, csh } from "Setup";
+import { List } from "libcs/List";
 
 var csgstorage = {};
 
@@ -280,5 +280,4 @@ csport.settextsize = function (si) {
     csport.drawingstate.textsize = si.value.real;
 };
 
-
-export { csport, csgstorage }
+export { csport, csgstorage };

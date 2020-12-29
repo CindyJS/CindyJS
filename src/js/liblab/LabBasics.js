@@ -1,6 +1,6 @@
-import { csgeo, simaccuracy, simtime } from 'Setup'
-import { cs_simulationstep } from 'Events'
-import { labObjects } from 'liblab/LabObjects'
+import { csgeo, simaccuracy, simtime } from "Setup";
+import { cs_simulationstep } from "Events";
+import { labObjects } from "liblab/LabObjects";
 
 var lab = {};
 
@@ -299,5 +299,4 @@ lab.oneRKStep = function (mydeltat) {
     return mydeltat;
 };
 
-
-export { csPhysicsInited, lab, csinitphys, csresetphys, masses, springs }
+export { csPhysicsInited, lab, csinitphys, csresetphys, masses, springs };

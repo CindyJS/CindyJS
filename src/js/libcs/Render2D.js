@@ -1,8 +1,8 @@
-import { csctx, csw, csh } from 'Setup'
-import { List } from 'libcs/List'
-import { eval_helper } from 'libcs/Essentials'
-import { evaluate } from 'libcs/Evaluator'
-import { csport } from 'libgeo/GeoState'
+import { csctx, csw, csh } from "Setup";
+import { List } from "libcs/List";
+import { eval_helper } from "libcs/Essentials";
+import { evaluate } from "libcs/Evaluator";
+import { csport } from "libgeo/GeoState";
 
 var Render2D = {};
 
@@ -713,5 +713,4 @@ Render2D.unSetDash = function () {
     csctx.mozDash = []; //FFX
 };
 
-
-export { Render2D }
+export { Render2D };

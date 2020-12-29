@@ -1,12 +1,12 @@
-import { csgeo } from 'Setup'
-import { nada } from 'expose'
-import { CSNumber } from 'libcs/CSNumber'
-import { List } from 'libcs/List'
-import { General } from 'libcs/General'
-import { niceprint } from 'libcs/Essentials'
-import { setupTraceDrawing } from 'libgeo/GeoBasics'
-import { movepointscr } from 'libgeo/Tracing'
-import { geoOps } from 'libgeo/GeoOps'
+import { csgeo } from "Setup";
+import { nada } from "expose";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { General } from "libcs/General";
+import { niceprint } from "libcs/Essentials";
+import { setupTraceDrawing } from "libgeo/GeoBasics";
+import { movepointscr } from "libgeo/Tracing";
+import { geoOps } from "libgeo/GeoOps";
 
 //*************************************************************
 // and here are the accessors for properties and elements
@@ -379,5 +379,4 @@ Accessor.setuserData = function (obj, key, value) {
     obj.userData[key.value] = value;
 };
 
-
-export { Accessor }
+export { Accessor };

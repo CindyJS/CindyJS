@@ -1,6 +1,6 @@
-import { instanceInvocationArguments, nada } from 'expose'
-import { List } from 'libcs/List'
-import { General } from 'libcs/General'
+import { instanceInvocationArguments, nada } from "expose";
+import { List } from "libcs/List";
+import { General } from "libcs/General";
 
 //==========================================
 //      Complex Numbers
@@ -763,5 +763,4 @@ CSNumber.getRandComplex = function (min, max) {
     return CSNumber.complex(real, imag);
 };
 
-
-export { CSNumber, TWOPI }
+export { CSNumber, TWOPI };

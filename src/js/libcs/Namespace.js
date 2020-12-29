@@ -1,9 +1,9 @@
-import { nada } from 'expose'
-import { csgeo } from 'Setup'
-import { CSNumber } from 'libcs/CSNumber'
-import { List } from 'libcs/List'
-import { General } from 'libcs/General'
-import { niceprint } from 'libcs/Essentials'
+import { nada } from "expose";
+import { csgeo } from "Setup";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { General } from "libcs/General";
+import { niceprint } from "libcs/Essentials";
 
 //==========================================
 //      Namespace and Vars
@@ -121,5 +121,4 @@ namespace.cleanVstack = function () {
     }
 };
 
-
-export { namespace }
+export { namespace };

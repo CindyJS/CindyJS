@@ -1,10 +1,10 @@
-import { move, mouse } from 'Events'
-import { csgeo, simaccuracy, setSpeed } from 'Setup'
-import { CSNumber } from 'libcs/CSNumber'
-import { List } from 'libcs/List'
-import { eval_helper } from 'libcs/Essentials'
-import { movepointscr } from 'libgeo/Tracing'
-import { masses } from 'liblab/LabBasics'
+import { move, mouse } from "Events";
+import { csgeo, simaccuracy, setSpeed } from "Setup";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { eval_helper } from "libcs/Essentials";
+import { movepointscr } from "libgeo/Tracing";
+import { masses } from "liblab/LabBasics";
 
 var labObjects = {};
 
@@ -997,5 +997,4 @@ labObjects.Environment = {
     doCollisions: function (beh) {},
 };
 
-
-export { labObjects }
+export { labObjects };

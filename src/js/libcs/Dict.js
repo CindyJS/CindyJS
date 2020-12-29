@@ -1,5 +1,5 @@
-import { csconsole } from 'Setup'
-import { niceprint } from 'libcs/Essentials'
+import { csconsole } from "Setup";
+import { niceprint } from "libcs/Essentials";
 
 /*
  * Dictionaries map CindyScript values to CindyScript values.
@@ -75,5 +75,4 @@ Dict.niceprint = function (dict) {
     );
 };
 
-
-export { Dict }
+export { Dict };

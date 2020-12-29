@@ -1,7 +1,7 @@
-import { nada } from 'expose'
-import { CSNumber } from 'libcs/CSNumber'
-import { List } from 'libcs/List'
-import { evaluate } from 'libcs/Evaluator'
+import { nada } from "expose";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { evaluate } from "libcs/Evaluator";
 
 var CSad = {};
 
@@ -375,5 +375,4 @@ CSad.autodiff = function (ffunc, varname, xarr, grade) {
     return erg;
 };
 
-
-export { CSad }
+export { CSad };

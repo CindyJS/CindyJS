@@ -1,15 +1,45 @@
-import { csgeo, cssnap, csgridsize, cssnapDistance, canvas, isFiniteNumber, cscompiled, CindyJS, isShutDown, shutdownHooks, csw, csh } from 'Setup'
-import { nada, document, instanceInvocationArguments } from 'expose'
-import { scheduleUpdate, cs_keydown, cs_keyup, cs_keytyped } from 'Events'
-import { CSNumber, TWOPI } from 'libcs/CSNumber'
-import { List } from 'libcs/List'
-import { General } from 'libcs/General'
-import { eval_helper, niceprint } from 'libcs/Essentials'
-import { analyse, evaluate } from 'libcs/Evaluator'
-import { Render2D } from 'libcs/Render2D'
-import { csport } from 'libgeo/GeoState'
-import { onSegment } from 'libgeo/GeoBasics'
-import { putStateComplexVector, getStateComplexVector, movepointscr, tracingInitial, stateInIdx, stateIn, stateLastGood, tracing2core, defaultParameterPath, tracing2, putStateComplexNumber, getStateComplexNumber, tracingSesq, tracing2Conics, tracing4, requestRefinement } from 'libgeo/Tracing'
+import {
+    csgeo,
+    cssnap,
+    csgridsize,
+    cssnapDistance,
+    canvas,
+    isFiniteNumber,
+    cscompiled,
+    CindyJS,
+    isShutDown,
+    shutdownHooks,
+    csw,
+    csh,
+} from "Setup";
+import { nada, document, instanceInvocationArguments } from "expose";
+import { scheduleUpdate, cs_keydown, cs_keyup, cs_keytyped } from "Events";
+import { CSNumber, TWOPI } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { General } from "libcs/General";
+import { eval_helper, niceprint } from "libcs/Essentials";
+import { analyse, evaluate } from "libcs/Evaluator";
+import { Render2D } from "libcs/Render2D";
+import { csport } from "libgeo/GeoState";
+import { onSegment } from "libgeo/GeoBasics";
+import {
+    putStateComplexVector,
+    getStateComplexVector,
+    movepointscr,
+    tracingInitial,
+    stateInIdx,
+    stateIn,
+    stateLastGood,
+    tracing2core,
+    defaultParameterPath,
+    tracing2,
+    putStateComplexNumber,
+    getStateComplexNumber,
+    tracingSesq,
+    tracing2Conics,
+    tracing4,
+    requestRefinement,
+} from "libgeo/Tracing";
 
 var geoOps = {};
 geoOps._helper = {};
@@ -3029,10 +3059,10 @@ geoOps.Text.initialize = function (el) {
         else el.dock.offset = List.realVector([0, 0]);
     }
 };
-geoOps.Text.set_text = function(el, value) {
-   el.text = niceprint(value);
+geoOps.Text.set_text = function (el, value) {
+    el.text = niceprint(value);
 };
-geoOps.Text.getParamForInput = function(el, pos, type) {
+geoOps.Text.getParamForInput = function (el, pos, type) {
     return geoOps.Free.getParamForInput(el, pos, type);
 };
 geoOps.Text.getParamFromState = function (el) {
@@ -3626,5 +3656,4 @@ geoMacros.TrCompose = function (el) {
     }
 };
 
-
-export { noop, geoOps, geoAliases, geoMacros, ifs }
+export { noop, geoOps, geoAliases, geoMacros, ifs };

@@ -1,6 +1,6 @@
-import { window, document } from 'expose'
-import { globalInstance, images, shutdownHooks, csctx, csw, csh, CindyJS } from 'Setup'
-import { updateCindy } from 'Events'
+import { window, document } from "expose";
+import { globalInstance, images, shutdownHooks, csctx, csw, csh, CindyJS } from "Setup";
+import { updateCindy } from "Events";
 
 // JSHint doesn't like setters without getters, but we use them anyway
 
@@ -792,8 +792,10 @@ function pngChunks(bytes) {
     return chunks;
 }
 
+/* eslint-disable no-cond-assign */
 function parseColor(spec, cb) {
     var match;
+    /* jshint ignore:start */
     if ((match = /^rgba\(([0-9.]+), *([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))) {
         cb(+match[1], +match[2], +match[3], +match[4]);
     } else if ((match = /^rgb\(([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))) {
@@ -801,7 +803,9 @@ function parseColor(spec, cb) {
     } else {
         throw Error("Can't handle color style " + spec);
     }
+    /* jshint ignore:end */
 }
+/* eslint-enable no-cond-assign */
 
 function cacheImages(cb) {
     var toCache = 1;

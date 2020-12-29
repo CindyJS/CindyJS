@@ -1,9 +1,9 @@
-import { csgeo } from 'Setup'
-import { CSNumber } from 'libcs/CSNumber'
-import { List } from 'libcs/List'
-import { General } from 'libcs/General'
-import { stateArrays, stateIn, movepointscr, recalcAll } from 'libgeo/Tracing'
-import { geoOps } from 'libgeo/GeoOps'
+import { csgeo } from "Setup";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { General } from "libcs/General";
+import { stateArrays, stateIn, movepointscr, recalcAll } from "libgeo/Tracing";
+import { geoOps } from "libgeo/GeoOps";
 
 var conjectures = [];
 
@@ -396,5 +396,4 @@ function checkConjectures() {
     }
 }
 
-
-export { checkConjectures, guessDuplicate, guessIncidences }
+export { checkConjectures, guessDuplicate, guessIncidences };
