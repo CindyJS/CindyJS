@@ -1,3 +1,6 @@
+import { vscale, csw, csh } from 'Setup'
+import { List } from 'libcs/List'
+
 var csgstorage = {};
 
 var csport = {};
@@ -276,3 +279,6 @@ csport.setlinesize = function (si) {
 csport.settextsize = function (si) {
     csport.drawingstate.textsize = si.value.real;
 };
+
+
+export { csport, csgstorage }

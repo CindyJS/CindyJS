@@ -1,3 +1,12 @@
+import { images, csctx, loadImage, csplay, isFiniteNumber } from 'Setup'
+import { nada, document } from 'expose'
+import { CSNumber } from 'libcs/CSNumber'
+import { List } from 'libcs/List'
+import { General } from 'libcs/General'
+import { evaluator, eval_helper } from 'libcs/Essentials'
+import { evaluateAndVal, evaluate, evaluateAndHomog } from 'libcs/Evaluator'
+import { csport } from 'libgeo/GeoState'
+
 //*******************************************************
 // and here are the definitions of the image operators
 //*******************************************************
@@ -683,3 +692,6 @@ evaluator.readpixels$1 = function (args, modifs) {
     }
     return List.turnIntoCSList(pixels);
 };
+
+
+export { imageFromValue }

@@ -1,3 +1,16 @@
+import { csgeo, cssnap, csgridsize, cssnapDistance, canvas, isFiniteNumber, cscompiled, CindyJS, isShutDown, shutdownHooks, csw, csh } from 'Setup'
+import { nada, document, instanceInvocationArguments } from 'expose'
+import { scheduleUpdate, cs_keydown, cs_keyup, cs_keytyped } from 'Events'
+import { CSNumber, TWOPI } from 'libcs/CSNumber'
+import { List } from 'libcs/List'
+import { General } from 'libcs/General'
+import { eval_helper, niceprint } from 'libcs/Essentials'
+import { analyse, evaluate } from 'libcs/Evaluator'
+import { Render2D } from 'libcs/Render2D'
+import { csport } from 'libgeo/GeoState'
+import { onSegment } from 'libgeo/GeoBasics'
+import { putStateComplexVector, getStateComplexVector, movepointscr, tracingInitial, stateInIdx, stateIn, stateLastGood, tracing2core, defaultParameterPath, tracing2, putStateComplexNumber, getStateComplexNumber, tracingSesq, tracing2Conics, tracing4, requestRefinement } from 'libgeo/Tracing'
+
 var geoOps = {};
 geoOps._helper = {};
 
@@ -3612,3 +3625,6 @@ geoMacros.TrCompose = function (el) {
         return [];
     }
 };
+
+
+export { noop, geoOps, geoAliases, geoMacros, ifs }

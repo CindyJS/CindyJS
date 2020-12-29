@@ -1,3 +1,15 @@
+import { csgeo, shutdownHooks, shutdown, csmouse, cscompiled, loadImage, updateCanvasDimensions, isShutDown, csanimating, csctx, csw, csh, csgridsize, csaxes, cstgrid, simcap, simtick, simspeed, simfactor, simtime, dropped, dropPoint } from 'Setup'
+import { document, nada, window, instanceInvocationArguments } from 'expose'
+import { CSNumber } from 'libcs/CSNumber'
+import { List } from 'libcs/List'
+import { General } from 'libcs/General'
+import { evaluate } from 'libcs/Evaluator'
+import { manage } from 'libcs/Tools'
+import { csport } from 'libgeo/GeoState'
+import { draw_traces, render } from 'libgeo/GeoRender'
+import { traceMouseAndScripts } from 'libgeo/Tracing'
+import { csPhysicsInited, lab } from 'liblab/LabBasics'
+
 var mouse = {};
 var move;
 
@@ -828,3 +840,6 @@ function cs_onDrop(lst, pos) {
 function cindy_cancelmove() {
     move = undefined;
 }
+
+
+export { scheduleUpdate, addAutoCleaningEventListener, setuplisteners, cs_simulationstart, cs_simulationstop, cskey, cskeycode, multipos, move, multiid, updateCindy, mouse, getmover, cs_keydown, cs_keyup, cs_keytyped, cs_simulationstep }

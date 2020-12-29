@@ -1,3 +1,11 @@
+import { csgeo, csmouse } from 'Setup'
+import { scheduleUpdate, move, mouse, getmover } from 'Events'
+import { CSNumber } from 'libcs/CSNumber'
+import { List } from 'libcs/List'
+import { statusbar } from 'libcs/Operators'
+import { csport } from 'libgeo/GeoState'
+import { removeElement, addElement } from 'libgeo/GeoBasics'
+
 var activeTool = "Move"; // Current selected tool
 var element; // The constructed element
 var elements = []; // Contains all grabbed or temporary created elements (except the constructed "element" above)
@@ -668,3 +676,6 @@ tools.Intersection.actions[1].do = function () {
 
     return false;
 };
+
+
+export { manage, tools, setActiveTool }

@@ -1,3 +1,9 @@
+import { nada } from 'expose'
+import { CSNumber } from 'libcs/CSNumber'
+import { List } from 'libcs/List'
+import { Dict } from 'libcs/Dict'
+import { niceprint } from 'libcs/Essentials'
+
 //==========================================
 //      Things that apply to several types
 //==========================================
@@ -269,3 +275,6 @@ General.deeplyEqual = function (a, b) {
     for (k in b) --cnt;
     return cnt === 0;
 };
+
+
+export { General }

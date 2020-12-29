@@ -919,3 +919,6 @@ if (
         return new Parser().parse(code);
     };
 }
+
+
+export { Parser }

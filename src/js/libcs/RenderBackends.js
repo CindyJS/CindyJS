@@ -1,3 +1,7 @@
+import { window, document } from 'expose'
+import { globalInstance, images, shutdownHooks, csctx, csw, csh, CindyJS } from 'Setup'
+import { updateCindy } from 'Events'
+
 // JSHint doesn't like setters without getters, but we use them anyway
 
 /*jshint -W078 */

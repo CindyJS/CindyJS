@@ -1,3 +1,12 @@
+import { instanceInvocationArguments, nada, window } from 'expose'
+import { csgeo } from 'Setup'
+import { CSNumber } from 'libcs/CSNumber'
+import { List } from 'libcs/List'
+import { General } from 'libcs/General'
+import { assert, movepointscr, stateLastGood, stateAlloc, stateIn, stateOut, tracingInitial, stateInIdx, stateOutIdx, stateArrays } from 'libgeo/Tracing'
+import { checkConjectures, guessDuplicate, guessIncidences } from 'libgeo/Prover'
+import { geoOps, geoAliases, geoMacros } from 'libgeo/GeoOps'
+
 var defaultAppearance = {};
 defaultAppearance.clip = "none";
 defaultAppearance.pointColor = [1, 0, 0];
@@ -534,3 +543,6 @@ function getGeoDependants(mover) {
     */
     return deps;
 }
+
+
+export { csinit, setupTraceDrawing, defaultAppearance, addElement, removeElement, onSegment, pointDefault, lineDefault, segmentDefault, textDefault, polygonDefault, getGeoDependants, isShowing }

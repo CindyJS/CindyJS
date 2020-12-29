@@ -1,3 +1,6 @@
+import { csconsole } from 'Setup'
+import { niceprint } from 'libcs/Essentials'
+
 /*
  * Dictionaries map CindyScript values to CindyScript values.
  * Since values are immutable and support equality testing,
@@ -71,3 +74,6 @@ Dict.niceprint = function (dict) {
         "}"
     );
 };
+
+
+export { Dict }

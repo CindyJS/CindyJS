@@ -1,3 +1,10 @@
+import { window, nada } from 'expose'
+import { CSNumber } from 'libcs/CSNumber'
+import { General } from 'libcs/General'
+import { niceprint, evaluator } from 'libcs/Essentials'
+import { namespace } from 'libcs/Namespace'
+import { evaluate } from 'libcs/Evaluator'
+
 var OpSound = {
     lines: {},
     audioCtx: null,

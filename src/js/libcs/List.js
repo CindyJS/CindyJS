@@ -1,3 +1,10 @@
+import { nada } from 'expose'
+import { CSNumber } from 'libcs/CSNumber'
+import { General } from 'libcs/General'
+import { eval_helper } from 'libcs/Essentials'
+import { comp_equals, comp_almostequals } from 'libcs/Operators'
+import { evaluateAndVal } from 'libcs/Evaluator'
+
 //==========================================
 //      Lists
 //==========================================
@@ -2517,3 +2524,6 @@ List.getRandComplexVec3 = function (min, max) {
     var RC = CSNumber.getRandComplex;
     return List.turnIntoCSList([RC(min, max), RC(min, max), RC(min, max)]);
 };
+
+
+export { List }
