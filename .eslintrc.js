@@ -19,10 +19,9 @@ module.exports = {
         sourceType: "module",
     },
     rules: {
-        // "no-undef": ["off"],
         "no-unused-vars": ["off"],
-        "no-prototype-builtins": ["off"],
-        "no-constant-condition": ["off"],
-        "no-useless-escape": ["off"],
+        "no-prototype-builtins": ["warn"],
+        "no-constant-condition": ["warn"],
+        "no-useless-escape": ["warn"],
     },
 };

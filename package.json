@@ -48,7 +48,8 @@
     "scripts": {
         "prepublish": "node make/index.js call_npm=false parallel=true build=release all",
         "test": "node make/index.js call_npm=false alltests",
-        "prettier": "npx prettier --write ."
+        "prettier": "prettier --write .",
+        "lint": "eslint 'src/js/**/*.js'"
     },
     "repository": {
         "type": "git",
