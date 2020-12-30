@@ -154,6 +154,14 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Run eslint to detect syntax problems
+    //////////////////////////////////////////////////////////////////////
+
+    task("eslint", ["ours"], function () {
+        this.cmdscript("eslint", "src/js/**/*.js");
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Make sure all examples compile
     //////////////////////////////////////////////////////////////////////
 
@@ -211,7 +219,7 @@ module.exports = function build(settings, task) {
         ]);
     });
 
-    task("alltests", ["tests", "jshint", "deploy", "textattr", "forbidden", "ref"]);
+    task("alltests", ["tests", "eslint", "jshint", "deploy", "textattr", "forbidden", "ref"]);
 
     //////////////////////////////////////////////////////////////////////
     // Check that the text property is set for all files
