@@ -96,6 +96,7 @@
         }
     },
     "lint-staged": {
-        "*.{js,css,html,json}": "prettier --write"
+        "*.{js,css,html,json}": "prettier --write",
+        "*.{js,ts}": "eslint"
     }
 }
